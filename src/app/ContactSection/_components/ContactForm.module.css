@@ -1,0 +1,129 @@
+/* Contact Form */
+.contactForm {
+  display: flex;
+  gap: var(--spacing-2xl);
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  flex-direction: column;
+  padding-top: 0;
+  width: 100%;
+}
+
+.content {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--width-sm);
+  padding: var(--spacing-2xl);
+  padding-top: 0;
+}
+
+.clear {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition:
+    transform 0.3s ease-out,
+    box-shadow 0.3s ease-out;
+  transform: scale(1) rotateX(0deg);
+  transform-style: preserve-3d;
+}
+
+.inputWrapper:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transition-duration: 0.2s;
+}
+
+.inputWrapper:focus-within {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: scale(1.01) rotateX(2deg);
+}
+
+.icon {
+  position: absolute;
+  left: var(--spacing-sm);
+  z-index: 1;
+  color: #9ca3af;
+  transition: color 0.2s ease;
+}
+
+.formInput,
+.formTextarea {
+  padding: var(--spacing-sm);
+  padding-left: calc(var(--spacing-sm) * 4);
+  border: 1px solid #d1d5db;
+  width: 100%;
+  background: rgba(250, 250, 250, 0.5);
+  font-size: inhirit;
+  color: #1f2937;
+  transition: all 0.3s ease;
+}
+
+.formTextarea {
+  min-height: 80px;
+  font-family: inherit;
+  line-height: var(--line-height-normal);
+  resize: vertical;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  border-color: #1a1a1a;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.05);
+  transform: translateY(-1px);
+}
+
+.formInput:focus + .icon,
+.formTextarea:focus + .icon {
+  color: #1a1a1a;
+}
+
+.formInput:disabled,
+.formTextarea:disabled {
+  background: #f9fafb;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Dark mode */
+[data-theme="dark"] .formInput,
+[data-theme="dark"] .formTextarea {
+  border-color: rgba(100, 100, 100, 0.2);
+  background: rgba(26, 26, 26, 0.5);
+  color: #f9fafb;
+}
+
+[data-theme="dark"] .formInput:focus,
+[data-theme="dark"] .formTextarea:focus {
+  border-color: #f9fafb;
+  box-shadow: 0 0 0 3px rgba(249, 250, 251, 0.05);
+}
+
+[data-theme="dark"] .formInput:disabled,
+[data-theme="dark"] .formTextarea:disabled {
+  background: #1f2937;
+}
+
+[data-theme="dark"] .icon {
+  color: #6b7280;
+}
+
+[data-theme="dark"] .formInput:focus + .icon,
+[data-theme="dark"] .formTextarea:focus + .icon {
+  color: #f9fafb;
+}

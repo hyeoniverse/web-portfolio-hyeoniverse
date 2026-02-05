@@ -1,0 +1,145 @@
+.indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: calc(var(--spacing-lg) * 0.6);
+  padding: calc(var(--scroll-indicator-width) / 2);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--scroll-indicator-width);
+  height: 100vh;
+
+  z-index: var(--z-overlay);
+  text-transform: uppercase;
+}
+
+.text {
+  background: none;
+  border: none;
+  padding: 0;
+
+  font-family: var(--font-serif);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-black);
+  letter-spacing: 0.1em;
+
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  height: 100px;
+
+  transform: translateX(2px);
+  cursor: pointer;
+}
+
+/* ---------------- underline ---------------- */
+
+.text u {
+  position: relative;
+  text-decoration: none;
+}
+
+.text u::after {
+  content: "";
+  position: absolute;
+  left: -15%;
+  transform: translateX(-50%) scaleY(0);
+
+  width: 2px;
+  height: 100%;
+
+  background-color: currentColor;
+  transition: transform 0.3s ease;
+}
+
+/* current */
+.current {
+  color: var(--text-primary);
+  text-align: end;
+}
+
+.current u::after {
+  bottom: 0;
+  transform: translateX(-50%) scaleY(1);
+  transform-origin: bottom;
+}
+
+.current.dimmed {
+  color: var(--text-tertiary);
+}
+
+.current.dimmed u::after {
+  transform: translateX(-50%) scaleY(0);
+}
+
+/* previous */
+.previous {
+  color: var(--text-tertiary);
+  transform: translateX(2px) scale(0.85);
+}
+
+.previous:hover {
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.previous u::after {
+  bottom: 0;
+  transform-origin: bottom;
+}
+
+/* next */
+.next {
+  color: var(--text-tertiary);
+  text-align: start;
+}
+
+.next:hover {
+  color: var(--text-primary);
+}
+
+.next u::after {
+  top: 0;
+  transform-origin: top;
+}
+
+.previous:hover u::after,
+.next:hover u::after {
+  transform: translateX(-50%) scaleY(1);
+}
+
+/* ---------------- scroll bar ---------------- */
+
+.scrollTrack {
+  position: relative;
+  width: 1px;
+  height: 40vh;
+  background: var(--bg-inverse);
+  cursor: pointer;
+}
+
+.scrollProgress {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  height: 0%;
+  background: var(--bg-inverse);
+  transform: translateX(-50%);
+  cursor: grab;
+  touch-action: none;
+}
+
+.scrollProgress:active {
+  cursor: grabbing;
+}
+
+/* hide on large screens */
+@media (min-width: 769px) {
+  .indicator {
+    display: none;
+  }
+}

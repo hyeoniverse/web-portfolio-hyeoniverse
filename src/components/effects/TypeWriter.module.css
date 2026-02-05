@@ -1,0 +1,52 @@
+.typewriter {
+  display: inline-block;
+  width: fit-content;
+  font-size: clamp(2.5rem, 7.5vw, 5rem);
+  font-weight: var(--font-weight-black);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-primary);
+  text-align: center;
+  letter-spacing: 3px;
+  white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
+  /* 텍스트 렌더링 최적화 */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.caption {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-tertiary);
+}
+
+.cursor {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding-bottom: 0.25rem;
+  width: 0; /* Adjust cursor width as needed */
+  vertical-align: middle;
+  background-color: currentColor; /* Use text color for cursor */
+  line-height: 1;
+  animation: blink-animation 0.8s infinite;
+  opacity: 1; /* Default visible */
+}
+
+.cursor.hidden {
+  opacity: 0;
+}
+
+@keyframes blink-animation {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+[data-theme="dark"] .typewriter {
+  color: #fafafa;
+}

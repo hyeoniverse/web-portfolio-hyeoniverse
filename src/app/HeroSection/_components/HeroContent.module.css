@@ -1,0 +1,198 @@
+/* ==========================================================================
+   HeroContent - Redis Agency Style
+   ========================================================================== */
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  perspective: 1000px;
+}
+
+/* Agency Name Label */
+.agencyName {
+  margin-bottom: var(--spacing-lg);
+}
+
+.label {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+/* Main Title */
+.mainTitle {
+  margin: 0 0 var(--spacing-2xl);
+  font-family: var(--font-mono);
+  font-size: clamp(4rem, 12vw, 12rem);
+  font-weight: var(--font-weight-bold);
+  line-height: 0.9;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.titleLine {
+  display: block;
+}
+
+.titleLine:last-child {
+  color: #D01046;
+}
+
+/* Tagline */
+.tagline {
+  margin: 0 0 var(--spacing-4xl);
+  max-width: 600px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-relaxed);
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.02em;
+}
+
+/* Services Section */
+.services {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.servicesLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.servicesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-xl);
+}
+
+/* Service Tag */
+.serviceTag {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+}
+
+.serviceTag::after {
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #D01046;
+  content: "";
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.serviceTag:hover {
+  color: #D01046;
+}
+
+.serviceTag:hover::after {
+  width: 100%;
+}
+
+/* Separator between services */
+.serviceTag:not(:last-child)::before {
+  position: absolute;
+  top: 50%;
+  right: calc(-1 * var(--spacing-xl) / 2 - 2px);
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  content: "";
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+/* ==========================================================================
+   Responsive - Tablet
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .mainTitle {
+    font-size: clamp(3rem, 10vw, 8rem);
+  }
+
+  .tagline {
+    font-size: var(--font-size-md);
+  }
+}
+
+/* ==========================================================================
+   Responsive - Mobile
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .content {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .mainTitle {
+    margin-bottom: var(--spacing-xl);
+    font-size: clamp(2.5rem, 15vw, 5rem);
+  }
+
+  .tagline {
+    margin-bottom: var(--spacing-2xl);
+    font-size: var(--font-size-sm);
+  }
+
+  .servicesList {
+    gap: var(--spacing-xs) var(--spacing-lg);
+  }
+
+  .serviceTag {
+    font-size: var(--font-size-xs);
+  }
+
+  .serviceTag:not(:last-child)::before {
+    right: calc(-1 * var(--spacing-lg) / 2 - 2px);
+  }
+}
+
+@media (max-width: 480px) {
+  .label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+  }
+
+  .mainTitle {
+    font-size: clamp(2rem, 18vw, 4rem);
+  }
+
+  .tagline {
+    font-size: var(--font-size-xs);
+  }
+
+  .servicesList {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .serviceTag:not(:last-child)::before {
+    display: none;
+  }
+}

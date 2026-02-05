@@ -1,0 +1,231 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Variants */
+.default {
+  gap: 0.25rem;
+  flex-direction: column;
+}
+
+.minimal {
+  flex-direction: row;
+}
+
+.icon {
+  flex-direction: row;
+}
+
+/* Sizes */
+.sm .letterText {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.sm .minimalText {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.sm .iconText {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sm .iconContainer {
+  width: 2rem;
+  height: 2rem;
+}
+
+.md .letterText {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.md .minimalText {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.md .iconText {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.md .iconContainer {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.lg .letterText {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.lg .minimalText {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.lg .iconText {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.lg .iconContainer {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Letter Container */
+.letterContainer {
+  display: flex;
+  gap: 0.125rem;
+  align-items: center;
+}
+
+.letter {
+  display: inline-block;
+  position: relative;
+}
+
+/* Monotone (Gray) by default, Accent only on interaction */
+.letterText {
+  font-family: "Playfair Display", serif;
+  color: var(--color-gray-900);
+  transition: color var(--transition-normal);
+}
+
+[data-theme="dark"] .letterText {
+  color: var(--color-gray-100);
+}
+
+.logo:hover .letterText {
+  animation: glitch 0.8s infinite alternate;
+}
+
+/* Underline uses a single accent color */
+.underline {
+  width: 100%;
+  height: 2px;
+  background: var(--color-accent);
+  transform-origin: left;
+  border-radius: 1px;
+}
+
+/* Minimal Variant */
+.minimalText {
+  font-family: "Playfair Display", serif;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+  transition: color var(--transition-normal);
+}
+
+.minimal:hover .minimalText {
+  animation: glitch 0.8s infinite alternate;
+}
+
+/* Icon Variant: Gray container, single accent on the letter */
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-accent);
+  overflow: hidden;
+  position: relative;
+}
+
+.iconText {
+  position: relative;
+  z-index: 2;
+  font-family: "Playfair Display", serif;
+  color: var(--color-accent);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sm .letterText {
+    font-size: 1rem;
+  }
+
+  .md .letterText {
+    font-size: 1.25rem;
+  }
+
+  .lg .letterText {
+    font-size: 1.5rem;
+  }
+
+  .letterContainer {
+    gap: 0.0625rem;
+  }
+}
+
+/* Accessibility */
+.logo:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Animation states */
+.logo[data-loading="true"] .letterText {
+  opacity: 0.5;
+}
+
+.logo[data-loading="true"] .underline {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow:
+      2px 0 var(--text-accent-primary),
+      -2px 0 var(--text-accent-secondary);
+    /* transform: translate(0, 0); */
+  }
+  20% {
+    text-shadow:
+      -2px 0 var(--text-accent-primary),
+      2px 0 var(--text-accent-secondary);
+    /* transform: translate(-1px, 1px); */
+  }
+  40% {
+    text-shadow:
+      2px 2px var(--text-accent-primary),
+      -2px -2px var(--text-accent-secondary);
+    /* transform: translate(1px, -1px); */
+  }
+  60% {
+    text-shadow:
+      -1px 1px var(--text-accent-primary),
+      1px -1px var(--text-accent-secondary);
+    /* transform: translate(-1px, 1px); */
+  }
+  80% {
+    text-shadow:
+      1px -1px var(--text-accent-primary),
+      -1px 1px var(--text-accent-secondary);
+    /* transform: translate(1px, -1px); */
+  }
+  100% {
+    text-shadow:
+      2px 0 var(--text-accent-primary),
+      -2px 0 var(--text-accent-secondary);
+    /* transform: translate(0, 0); */
+  }
+}

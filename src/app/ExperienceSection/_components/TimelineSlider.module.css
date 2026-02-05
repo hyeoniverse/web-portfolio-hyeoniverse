@@ -1,0 +1,140 @@
+/* TimelineSlider.module.css */
+
+/* Container 전체 */
+.container {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-default);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  height: 100vh;
+  background: var(--bg-surface);
+}
+
+/* 가로 스크롤 영역 */
+.pageContainer {
+  display: flex;
+  gap: var(--spacing-2xl);
+  flex-direction: row;
+  padding: var(--padding-2xl);
+  position: relative;
+  width: max-content;
+  scroll-snap-type: x mandatory;
+}
+
+/* 아이템 전체 래퍼 (연도 Divider + 카드) */
+.itemWrapper {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* 카드 래퍼 */
+.cardWrapper {
+  flex: 0 0 auto;
+  position: relative;
+  min-width: 300px;
+  scroll-snap-align: start;
+}
+
+/* 연도 Divider */
+.yearDivider {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  width: 100%;
+  min-height: var(--spacing-3xl);
+}
+
+.yearLabel {
+  padding: var(--padding-sm);
+  position: relative;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.yearLabel::before,
+.yearLabel::after {
+  position: absolute;
+  top: 50%;
+  width: 100%; /* 선 길이 */
+  height: 2px; /* 선 두께 */
+  background: var(--bg-gradient-diagonal-light-to-dark); /* 선 색상 */
+  content: "";
+}
+
+.yearLabel::after {
+  background: var(--bg-gradient-diagonal-dark-to-light); /* 선 색상 */
+}
+
+.yearLabel::before {
+  left: -100%; /* 간격 포함 위치 조정 */
+}
+
+.yearLabel::after {
+  right: -100%;
+}
+
+/* 헤더/푸터 텍스트 스타일 */
+.sectionLabel {
+  font-weight: var(--font-weight-normal);
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-inverse);
+  text-transform: uppercase;
+}
+
+.totalCount {
+  color: var(--text-muted);
+}
+
+.pageNumber {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.scrollHint {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-direction: row;
+  width: fit-content;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-light);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .pageContainer {
+    gap: 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cardWrapper {
+    min-width: 260px;
+  }
+
+  .yearLabel {
+    font-size: var(--font-size-xs);
+  }
+
+  .pageNumber {
+    font-size: var(--font-size-xs);
+  }
+
+  .scrollHint {
+    font-size: var(--font-size-xxs);
+  }
+}

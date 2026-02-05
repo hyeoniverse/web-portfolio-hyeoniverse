@@ -1,0 +1,663 @@
+/* ==========================================================================
+  LoadingScreen - Editorial Design (Redis Agency Style)
+  Bold Typography + Lines + Ellipses + High Contrast
+  ========================================================================== */
+
+.loadingScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: fixed;
+  z-index: var(--z-top);
+  background: var(--bg-primary);
+  inset: 0;
+}
+
+/* .loadingScreen::after {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-below);
+  width: 100%;
+  height: 100%;
+  background: url("/images/paper.png");
+  background-size: cover;
+  content: "";
+  pointer-events: none;
+  filter: opacity(0.3);
+  touch-action: none;
+  mix-blend-mode: multiply;
+} */
+
+/* ==========================================================================
+  Editorial Grid Frame - Lines
+  ========================================================================== */
+
+.gridFrame {
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+}
+
+.line {
+  position: absolute;
+  background: var(--bg-inverse);
+}
+
+/* Horizontal Lines */
+.lineTop {
+  top: 80px;
+  right: 60px;
+  left: 60px;
+  height: 2px;
+  transform-origin: left center;
+}
+
+.lineBottom {
+  right: 60px;
+  bottom: 80px;
+  left: 60px;
+  height: 2px;
+  transform-origin: right center;
+}
+
+/* Vertical Lines */
+.lineLeft {
+  top: 80px;
+  bottom: 80px;
+  left: 60px;
+  width: 2px;
+  transform-origin: top center;
+}
+
+.lineRight {
+  top: 80px;
+  right: 60px;
+  bottom: 80px;
+  width: 2px;
+  transform-origin: bottom center;
+}
+
+/* ==========================================================================
+   Decorative Ellipses
+   ========================================================================== */
+
+.ellipse {
+  border: var(--border-strong);
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.ellipseTopRight {
+  top: 100px;
+  right: 80px;
+  width: 220px;
+  height: 140px;
+  opacity: 0.15;
+}
+
+.ellipseBottomLeft {
+  bottom: 100px;
+  left: 80px;
+  width: 160px;
+  height: 100px;
+  opacity: 0.1;
+}
+
+.ellipseCenter {
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 300px;
+  transform: translate(-50%, -50%);
+  opacity: 0.05;
+}
+
+/* ==========================================================================
+   Ripple Effect - Expanding circles from center
+   ========================================================================== */
+
+.rippleContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 240px;
+  border: 2px solid var(--text-primary);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ==========================================================================
+   Main Content Layout
+   ========================================================================== */
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: 100px 80px;
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   Top Meta - Portfolio / Year
+   ========================================================================== */
+
+.topMeta {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+.metaLabel {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.metaDivider {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+.metaValue {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  letter-spacing: 0.1em;
+}
+
+/* ==========================================================================
+  Hero Section - Bold Typography
+  ========================================================================== */
+
+.heroSection {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-direction: column;
+}
+
+.nameContainer {
+  overflow: hidden;
+  perspective: 1000px;
+}
+
+.heroName {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0;
+  /* font-family controlled by FontMorphText */
+  font-size: clamp(4rem, 15vw, 12rem);
+  font-weight: var(--font-weight-regular);
+  line-height: 0.9;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+}
+
+.heroName > div {
+  /* FontMorphText container inherits font-size */
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+
+.nameChar {
+  display: inline-block;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+/* Role Tag */
+.roleContainer {
+  margin-top: 8px;
+}
+
+.roleTag {
+  display: inline-block;
+  padding: 8px 24px;
+  border: 2px solid var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+/* Decorative Line */
+.heroLine {
+  width: 120px;
+  height: 2px;
+  background: var(--text-primary);
+  transform-origin: center;
+}
+
+/* ==========================================================================
+  Bottom Section
+  ========================================================================== */
+
+.bottomSection {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  max-width: var(--width-6xl);
+}
+
+/* Progress Area */
+.progressArea {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-direction: column;
+  width: 20%;
+  min-width: var(--width-4xs);
+}
+
+.progressMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.progressLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-accent-secondary-alt);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.progressCounter {
+  display: flex;
+  align-items: baseline;
+  overflow: hidden;
+  position: relative;
+  min-height: var(--size-lg);
+}
+
+.progressNumber {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-fit);
+  color: var(--text-secondary);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.progressTrack {
+  overflow: visible;
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: var(--bg-surface);
+}
+
+.progressBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-accent-secondary-solid-light);
+  transform-origin: left center;
+}
+
+.progressGlow {
+  box-shadow:
+    0 0 10px var(--bg-accent-secondary-solid),
+    0 0 20px var(--bg-accent-secondary-solid-light);
+  position: absolute;
+  top: 50%;
+  width: var(--size-5xs);
+  height: var(--size-5xs);
+  background: var(--bg-accent-secondary-solid-light);
+  border-radius: var(--radius-circle);
+  transform: translate(-50%, -50%);
+}
+
+/* Copyright Area - Absolutely positioned at bottom center */
+.copyrightArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  position: absolute;
+  bottom: var(--spacing-5xl);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-secondary);
+}
+
+.copyrightText {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+/* Location Area */
+.locationArea {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: flex-end;
+  flex-direction: column;
+  width: 100%;
+}
+
+.locationLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.locationValue {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+  Exit Reveal - Syncs with HeroSection entrance
+  ========================================================================== */
+
+.exitReveal {
+  position: absolute;
+  z-index: var(--z-top);
+  background: var(--bg-primary);
+  pointer-events: none;
+  inset: 0;
+}
+
+.exitReveal::after {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-below);
+  width: 100%;
+  height: 100%;
+  background: url("/images/paper.png");
+  background-size: cover;
+  content: "";
+  pointer-events: none;
+  filter: opacity(0.3);
+  touch-action: none;
+  mix-blend-mode: multiply;
+}
+
+/* ==========================================================================
+  Responsive - Tablet
+  ========================================================================== */
+
+@media (max-width: 1024px) {
+  .content {
+    padding: 80px 50px;
+  }
+
+  .lineTop,
+  .lineBottom {
+    right: 40px;
+    left: 40px;
+  }
+
+  .lineTop {
+    top: 60px;
+  }
+
+  .lineBottom {
+    bottom: 60px;
+  }
+
+  .lineLeft,
+  .lineRight {
+    top: 60px;
+    bottom: 60px;
+  }
+
+  .lineLeft {
+    left: 40px;
+  }
+
+  .lineRight {
+    right: 40px;
+  }
+
+  .ellipseTopRight {
+    top: 80px;
+    right: 60px;
+    width: 180px;
+    height: 110px;
+  }
+
+  .ellipseBottomLeft {
+    bottom: 80px;
+    left: 60px;
+    width: 130px;
+    height: 80px;
+  }
+
+  .ellipseCenter {
+    width: 380px;
+    height: 220px;
+  }
+
+  .ripple {
+    width: 300px;
+    height: 180px;
+  }
+
+  .copyrightArea {
+    bottom: 80px;
+  }
+
+  .heroName {
+    font-size: clamp(3rem, 12vw, 8rem);
+  }
+}
+
+/* ==========================================================================
+  Responsive - Mobile
+  ========================================================================== */
+
+@media (max-width: 768px) {
+  .content {
+    padding: 60px 24px;
+  }
+
+  .lineTop,
+  .lineBottom {
+    right: 24px;
+    left: 24px;
+  }
+
+  .lineTop {
+    top: 40px;
+  }
+
+  .lineBottom {
+    bottom: 40px;
+  }
+
+  .lineLeft,
+  .lineRight {
+    display: none;
+  }
+
+  .ellipseTopRight,
+  .ellipseBottomLeft {
+    display: none;
+  }
+
+  .ellipseCenter {
+    width: 280px;
+    height: 160px;
+    opacity: 0.03;
+  }
+
+  .ripple {
+    width: 220px;
+    height: 130px;
+  }
+
+  .copyrightArea {
+    bottom: 60px;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .heroName {
+    font-size: var(--font-size-6xl);
+  }
+
+  .roleTag {
+    padding: 6px 16px;
+    font-size: 10px;
+  }
+
+  .heroLine {
+    width: 80px;
+  }
+
+  .bottomSection {
+    gap: 24px;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .progressArea {
+    align-items: center;
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .progressMeta {
+    width: 100%;
+  }
+
+  .progressTrack {
+    width: 100%;
+  }
+
+  .locationArea {
+    align-items: center;
+  }
+}
+
+/* ==========================================================================
+  Responsive - Small Mobile
+  ========================================================================== */
+
+@media (max-width: 480px) {
+  .content {
+    padding: 50px 20px;
+  }
+
+  .lineTop {
+    top: 30px;
+  }
+
+  .lineBottom {
+    bottom: 30px;
+  }
+
+  .heroName {
+    font-size: clamp(2rem, 16vw, 4rem);
+  }
+
+  .progressNumber {
+    font-size: 2rem;
+  }
+
+  .ellipseCenter {
+    display: none;
+  }
+
+  .rippleContainer {
+    display: none;
+  }
+
+  .copyrightArea {
+    bottom: 50px;
+  }
+
+  .copyrightText {
+    font-size: 10px;
+  }
+}
+
+/* ==========================================================================
+  Theme Variations
+  ========================================================================== */
+
+[data-theme="dark"] .line {
+  opacity: 0.3;
+}
+
+[data-theme="dark"] .ellipse {
+  opacity: 0.1;
+}
+
+[data-theme="light"] .line {
+  opacity: 0.15;
+}
+
+[data-theme="light"] .ellipse {
+  opacity: 0.08;
+}
+
+[data-theme="dark"] .ripple {
+  border-color: var(--text-primary);
+  opacity: 0.3;
+}
+
+[data-theme="light"] .ripple {
+  border-color: var(--text-primary);
+  opacity: 0.15;
+}

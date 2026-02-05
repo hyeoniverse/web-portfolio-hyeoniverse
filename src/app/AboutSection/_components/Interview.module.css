@@ -1,0 +1,357 @@
+/* ==========================================================================
+  Interview Component Styles
+  ========================================================================== */
+
+.interview {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--padding-x-xl);
+}
+
+/* ==========================================================================
+  Editorial Header
+  ========================================================================== */
+
+.editorialHeader {
+  margin-bottom: var(--spacing-6xl);
+  border-bottom: var(--border-strong);
+  padding-bottom: var(--spacing-3xl);
+}
+
+.headerLayout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-4xl);
+  align-items: end;
+}
+
+.titleSection {
+  position: relative;
+}
+
+.interviewTitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fluid-font-size-5xl);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-dense);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.titleAccent {
+  display: block;
+  margin-left: 0.5em;
+  position: relative;
+  font-weight: var(--font-weight-black);
+  color: var(--text-primary);
+}
+
+.metaSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  text-align: right;
+}
+
+.interviewSubtitle {
+  margin-bottom: var(--spacing-2xl);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-snug);
+  color: var(--text-secondary);
+}
+
+.publishInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  letter-spacing: 0.1em;
+}
+
+.publishDate {
+  font-weight: var(--font-weight-semibold);
+}
+
+.pageNumber {
+  font-weight: var(--font-weight-regular);
+}
+
+/* ==========================================================================
+  Editorial Grid Layout
+  ========================================================================== */
+
+.editorialGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: var(--spacing-4xl);
+  margin-bottom: var(--spacing-6xl);
+}
+
+.leftColumn,
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xl);
+}
+
+/* ==========================================================================
+  Interview Cards
+  ========================================================================== */
+
+.card {
+  position: relative;
+  background: var(--bg-glass);
+  border: var(--border-default);
+  backdrop-filter: var(--blur-lg);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cardLarge {
+  min-height: var(--width-xs);
+}
+
+.cardMedium {
+  min-height: var(--width-2xs);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--border-primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover::before {
+  transform: scaleY(1);
+  transform-origin: top;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  background: var(--bg-surface);
+}
+
+/* ==========================================================================
+  Card Header
+  ========================================================================== */
+
+.cardHeader {
+  padding: var(--padding-except-b-2xl);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--spacing-xl);
+}
+
+.questionMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-xl);
+}
+
+.questionNumber {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-black);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+}
+
+.questionInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-xs);
+}
+
+.cardCategory {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.cardDate {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
+}
+
+/* ==========================================================================
+  Card Content
+  ========================================================================== */
+
+.cardContent {
+  padding: var(--padding-except-t-2xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.cardTitle {
+  margin-bottom: var(--spacing-2xl);
+  font-family: var(--font-sans);
+  font-size: var(--fluid-font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-compact);
+  color: var(--text-primary);
+}
+
+.cardText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.cardText p {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
+}
+
+.leadParagraph {
+  font-size: var(--font-size-lg) !important;
+  font-weight: var(--font-weight-medium) !important;
+  line-height: var(--line-height-normal) !important;
+  color: var(--text-primary) !important;
+}
+
+.highlightParagraph {
+  position: relative;
+  margin: var(--spacing-md) calc(var(--spacing-md) * -1);
+  padding: var(--spacing-xl) var(--spacing-2xl);
+  border-left: var(--border-strong-4);
+  background: var(--bg-surface);
+  color: var(--text-secondary) !important;
+}
+
+/* ==========================================================================
+  Editorial Footer
+  ========================================================================== */
+
+.editorialFooter {
+  margin-top: var(--spacing-4xl);
+  padding-top: var(--spacing-2xl);
+}
+
+.footerLine {
+  width: 100%;
+  height: 2px;
+  margin-bottom: var(--spacing-lg);
+  background: var(--text-primary);
+}
+
+.footerText {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ==========================================================================
+  Responsive - Tablet
+  ========================================================================== */
+
+@media (max-width: 1024px) {
+  .editorialGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xl);
+  }
+
+  .headerLayout {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xl);
+  }
+
+  .metaSection {
+    text-align: left;
+  }
+}
+
+/* ==========================================================================
+  Responsive - Mobile
+  ========================================================================== */
+
+@media (max-width: 768px) {
+  .interview {
+    padding: var(--padding-x-md);
+  }
+
+  .editorialHeader {
+    margin-bottom: var(--spacing-3xl);
+    padding-bottom: var(--spacing-2xl);
+  }
+
+  .interviewTitle {
+    font-size: var(--fluid-font-size-3xl);
+  }
+
+  .leftColumn,
+  .rightColumn {
+    gap: var(--spacing-2xl);
+  }
+
+  .cardHeader {
+    padding: var(--padding-except-b-xl);
+  }
+
+  .cardContent {
+    padding: var(--padding-except-t-xl);
+  }
+
+  .questionNumber {
+    font-size: var(--font-size-3xl);
+  }
+
+  .cardTitle {
+    font-size: var(--font-size-xl);
+  }
+
+  .cardText p {
+    font-size: var(--font-size-sm);
+  }
+
+  .leadParagraph {
+    font-size: var(--font-size-md) !important;
+  }
+
+  .highlightParagraph {
+    margin: var(--spacing-md) calc(var(--spacing-sm) * -1);
+    padding: var(--spacing-md) var(--spacing-xl);
+  }
+
+  .footerText {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    text-align: center;
+  }
+}
+
+/* ==========================================================================
+  Accessibility - Reduced Motion
+  ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card::before {
+    transition: none;
+  }
+}

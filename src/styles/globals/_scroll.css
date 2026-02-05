@@ -1,0 +1,235 @@
+/* ============================================
+   Lenis Smooth Scroll Styles
+   ============================================ */
+
+/* Lenis base styles */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* ============================================
+   Horizontal Scroll Section
+   ============================================ */
+
+.horizontal-section {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.horizontal-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  width: fit-content;
+  will-change: transform;
+}
+
+.horizontal-item {
+  flex-shrink: 0;
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1000px;
+}
+
+/* Horizontal scroll progress indicator */
+.horizontal-progress {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 2px;
+  background: var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 1px;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.horizontal-progress.is-active {
+  opacity: 1;
+}
+
+.horizontal-progress-bar {
+  height: 100%;
+  background: var(--color-accent, #D01046);
+  border-radius: 1px;
+  transform-origin: left;
+  will-change: transform;
+}
+
+/* ============================================
+   Cinematic Section Transitions
+   ============================================ */
+
+.section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Parallax layers */
+.parallax-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.parallax-layer {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.parallax-layer--back {
+  z-index: 1;
+}
+
+.parallax-layer--mid {
+  z-index: 2;
+}
+
+.parallax-layer--front {
+  z-index: 3;
+}
+
+/* Reveal animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger children */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-stagger.is-visible > *:nth-child(1) { transition-delay: 0s; }
+.reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 0.1s; }
+.reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 0.2s; }
+.reveal-stagger.is-visible > *:nth-child(4) { transition-delay: 0.3s; }
+.reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 0.4s; }
+.reveal-stagger.is-visible > *:nth-child(6) { transition-delay: 0.5s; }
+
+.reveal-stagger.is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Cinematic clip reveal */
+.clip-reveal {
+  clip-path: inset(0 50% 0 50%);
+  opacity: 0;
+  transition: clip-path 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.6s ease;
+}
+
+.clip-reveal.is-visible {
+  clip-path: inset(0 0% 0 0%);
+  opacity: 1;
+}
+
+/* Scale reveal */
+.scale-reveal {
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.8s ease,
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scale-reveal.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ============================================
+   Pin Spacer Fixes
+   ============================================ */
+
+/* GSAP ScrollTrigger pin spacer */
+.pin-spacer {
+  pointer-events: none;
+}
+
+.pin-spacer > * {
+  pointer-events: auto;
+}
+
+/* ============================================
+   Smooth Scroll Anchors
+   ============================================ */
+
+[data-scroll-to] {
+  cursor: pointer;
+}
+
+/* ============================================
+   Mobile Optimizations
+   ============================================ */
+
+@media (max-width: 768px) {
+  .horizontal-item {
+    width: 85vw;
+    padding: 0 1rem;
+  }
+
+  .horizontal-progress {
+    bottom: 1rem;
+    width: 150px;
+  }
+
+  /* Reduce animation complexity on mobile */
+  .parallax-layer {
+    transform: none !important;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .lenis.lenis-smooth {
+    scroll-behavior: auto;
+  }
+
+  .reveal,
+  .reveal-stagger > *,
+  .clip-reveal,
+  .scale-reveal {
+    transition: none;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+
+  .parallax-layer {
+    transform: none !important;
+  }
+}
+

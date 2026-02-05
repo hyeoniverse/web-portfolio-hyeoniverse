@@ -1,0 +1,329 @@
+/* ==========================================================================
+   Hero Section - Redis Agency Style
+   Full-screen centered layout with large typography
+   ========================================================================== */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  padding: 2rem;
+  background: #000000;
+  overflow: hidden;
+}
+
+/* Background Layer for Parallax */
+.bgLayer {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(208, 16, 70, 0.08) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==========================================================================
+   Navigation
+   ========================================================================== */
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem 4rem;
+  z-index: 10;
+}
+
+.navLogo {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.navLinks {
+  display: flex;
+  gap: 3rem;
+}
+
+.navLink {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: none;
+  border: none;
+  cursor: none;
+  transition: color 0.3s ease;
+}
+
+.navLink:hover {
+  color: #D01046;
+}
+
+/* ==========================================================================
+   Main Content
+   ========================================================================== */
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 1400px;
+  perspective: 1000px;
+}
+
+/* Tagline */
+.tagline {
+  display: inline-block;
+  margin-bottom: 2rem;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+/* Title */
+.titleWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 3rem;
+  perspective: 1000px;
+}
+
+.titleLine {
+  overflow: hidden;
+  line-height: 1;
+}
+
+.titleLine span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(3rem, 10vw, 9rem);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.titleAccent {
+  color: #D01046 !important;
+}
+
+/* Description */
+.description {
+  margin-bottom: 3rem;
+  max-width: 600px;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ==========================================================================
+   Services
+   ========================================================================== */
+
+.services {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 0;
+}
+
+.serviceTag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.serviceDot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 1rem;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+}
+
+/* ==========================================================================
+   Scroll Indicator
+   ========================================================================== */
+
+.scrollIndicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: absolute;
+  bottom: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.scrollText {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.scrollLine {
+  width: 1px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.scrollDot {
+  width: 3px;
+  height: 12px;
+  background: #D01046;
+  border-radius: 2px;
+  position: absolute;
+  left: -1px;
+  top: 0;
+}
+
+/* ==========================================================================
+   Bottom Info
+   ========================================================================== */
+
+.bottomInfo {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 2rem;
+  left: 4rem;
+  right: 4rem;
+}
+
+.email,
+.location {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   Responsive - Tablet
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .nav {
+    padding: 1.5rem 2rem;
+  }
+
+  .navLinks {
+    gap: 2rem;
+  }
+
+  .titleLine span {
+    font-size: clamp(2.5rem, 8vw, 6rem);
+  }
+
+  .bottomInfo {
+    left: 2rem;
+    right: 2rem;
+  }
+}
+
+/* ==========================================================================
+   Responsive - Mobile
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 1rem;
+  }
+
+  .nav {
+    padding: 1rem 1.5rem;
+  }
+
+  .navLinks {
+    display: none;
+  }
+
+  .titleLine span {
+    font-size: clamp(2rem, 12vw, 4rem);
+  }
+
+  .description {
+    font-size: 0.875rem;
+    padding: 0 1rem;
+  }
+
+  .services {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .serviceDot {
+    display: none;
+  }
+
+  .scrollIndicator {
+    bottom: 6rem;
+  }
+
+  .bottomInfo {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tagline {
+    font-size: 0.6rem;
+    padding: 0.4rem 1rem;
+  }
+
+  .titleLine span {
+    font-size: clamp(1.75rem, 14vw, 3rem);
+  }
+
+  .description {
+    font-size: 0.8rem;
+  }
+
+  .serviceTag {
+    font-size: 0.65rem;
+  }
+}

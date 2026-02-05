@@ -1,0 +1,59 @@
+/* ==========================================================================
+   Footer - Minimal Style
+   ========================================================================== */
+
+.footer {
+  padding: 2rem 4rem;
+  border-top: 1px solid var(--theme-border);
+  background: transparent;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.copyright,
+.location {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--theme-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.links {
+  display: flex;
+  gap: 2rem;
+}
+
+.links a {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--theme-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color 0.3s ease;
+}
+
+.links a:hover {
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 1.5rem;
+  }
+
+  .content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .links {
+    gap: 1.5rem;
+  }
+}

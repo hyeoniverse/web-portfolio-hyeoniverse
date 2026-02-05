@@ -1,0 +1,110 @@
+/* ==========================================================================
+   Side Navigation - Redis Agency Style
+   ========================================================================== */
+
+.tocContent {
+  display: flex;
+  flex-direction: column;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Button Base
+   ========================================================================== */
+
+.tocButton {
+  border: none;
+  background: none;
+  padding: var(--padding-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  will-change: transform, opacity, color;
+  backface-visibility: hidden;
+}
+
+.tocButton.active {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.tocButton.active::before {
+  position: absolute;
+  left: -8px;
+  width: 3px;
+  height: 100%;
+  background: #D01046;
+  content: "";
+}
+
+.tocButton:hover:not(.active) {
+  color: #D01046;
+}
+
+/* ==========================================================================
+  Media Queries
+  ========================================================================== */
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .tocButton {
+    font-size: var(--font-size-xs);
+  }
+
+  .tocButton.active {
+    font-size: var(--font-size-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .tocContent {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-base);
+    padding: 0.3rem 0;
+    overflow-x: auto;
+    max-width: 100%;
+    scroll-behavior: smooth;
+    contain: layout style paint;
+    transform: none;
+    writing-mode: initial;
+    text-orientation: initial;
+  }
+
+  .tocContent::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tocButton {
+    flex-shrink: 0;
+    padding: var(--padding-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    height: auto;
+    line-height: normal;
+    transform: none;
+  }
+
+  .tocButton.active {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    transform: none;
+  }
+
+  .tocButton.active::before {
+    display: none;
+  }
+}

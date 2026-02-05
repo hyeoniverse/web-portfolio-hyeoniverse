@@ -1,0 +1,422 @@
+.issueNumber {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.category {
+  position: relative;
+}
+
+.category::before {
+  position: absolute;
+  top: 50%;
+  left: -0.75rem;
+  width: 3px;
+  height: 3px;
+  background: var(--bg-accent-secondary-solid);
+  content: "";
+  transform: translateY(-50%);
+  border-radius: 50%;
+}
+
+.title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-inverse);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.postCount {
+  color: var(--text-muted);
+}
+
+.contentContainer {
+  flex: 1;
+  padding: var(--padding-ve-4xl);
+  position: relative;
+}
+
+/* Added hero section styles */
+.heroSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-bottom: var(--spacing-4xl);
+  text-align: center;
+}
+
+.heroTitle {
+  margin-bottom: var(--spacing-base);
+  width: 100%;
+  font-size: var(--fluid-font-size-4xl);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-dense);
+  color: var(--text-primary);
+  text-align: center !important;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-light);
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+/* Redesigned grid layout inspired by magnetism.fr */
+.blogGrid {
+  display: grid;
+  gap: 2rem;
+  margin-bottom: 6rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Image-focused card design */
+.blogCard {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  background: var(--bg-secondary);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.blogCard.fullWidth {
+  grid-column: 1 / -1;
+  aspect-ratio: 21 / 9;
+}
+
+.blogCard:hover {
+  transform: scale(0.98);
+}
+
+.cardLink {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Image container with zoom effect */
+.imageContainer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.blogCard:hover .cardImage {
+  transform: scale(1.05);
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  transition: opacity 0.4s ease;
+}
+
+.blogCard:hover .imageOverlay {
+  opacity: 0.9;
+}
+
+/* Minimal text overlay at bottom */
+.cardContent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2.5rem;
+  z-index: 1;
+  color: white;
+}
+
+.cardMeta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 0.7rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.8;
+}
+
+.cardCategory {
+  color: white;
+}
+
+.cardDivider {
+  opacity: 0.5;
+}
+
+.cardDate {
+  color: white;
+}
+
+.cardTitle {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-weight: 300;
+  line-height: 1.3;
+  color: white;
+  letter-spacing: -0.01em;
+  transition: transform 0.4s ease;
+}
+
+.blogCard:hover .cardTitle {
+  transform: translateX(5px);
+}
+
+.cardExcerpt {
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s ease;
+}
+
+.blogCard:hover .cardExcerpt {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.readTime {
+  transition: color 0.3s ease;
+}
+
+.arrowIcon {
+  transition: transform 0.4s ease;
+}
+
+.blogCard:hover .arrowIcon {
+  transform: translateX(5px);
+}
+
+.customFooter {
+  grid-template-columns: 1fr 2fr 1fr;
+}
+
+.pageInfo {
+  font-size: 0.7rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.viewAllButton {
+  display: inline-flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.25rem 2.5rem;
+  border: 1px solid var(--border-primary);
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--text-primary);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  transition: all 0.4s ease;
+}
+
+.viewAllButton:hover {
+  border-color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+/* Added featured section styles */
+.featuredSection {
+  margin-bottom: 8rem;
+}
+
+.featuredHeader {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.starIcon {
+  color: var(--bg-accent-secondary-solid);
+}
+
+.featuredTitle {
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.featuredGrid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.featuredCard {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: var(--bg-secondary);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.featuredCard:hover {
+  transform: scale(0.98);
+}
+
+.featuredBadge {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  font-size: 0.7rem;
+  font-weight: 300;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 2rem;
+}
+
+.sectionDivider {
+  margin-bottom: 3rem;
+  padding-top: 4rem;
+  border-top: 1px solid var(--border-primary);
+}
+
+.sectionTitle {
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .heroTitle {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .blogGrid {
+    gap: 1.5rem;
+  }
+
+  .cardContent {
+    padding: 2rem;
+  }
+
+  .featuredGrid {
+    gap: 1.5rem;
+  }
+
+  .featuredCard {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    margin-bottom: 4rem;
+    padding: 4rem 0;
+  }
+
+  .heroTitle {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  .blogGrid {
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  .blogCard.fullWidth {
+    aspect-ratio: 4 / 5;
+  }
+
+  .cardContent {
+    padding: 1.5rem;
+  }
+
+  .cardTitle {
+    font-size: 1.25rem;
+  }
+
+  .cardExcerpt {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .customFooter {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .featuredSection {
+    margin-bottom: 4rem;
+  }
+
+  .featuredGrid {
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  .featuredCard {
+    aspect-ratio: 4 / 5;
+  }
+
+  .featuredBadge {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.65rem;
+  }
+
+  .sectionDivider {
+    margin-bottom: 2rem;
+    padding-top: 3rem;
+  }
+}

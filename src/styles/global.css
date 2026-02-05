@@ -1,0 +1,11 @@
+@import "sanitize.css";
+@import "tailwindcss/preflight";
+@tailwind utilities;
+
+@import "./globals/_animations.css";
+@import "./globals/_tokens.css";
+@import "./globals/_base.css";
+@import "./globals/_utilities.css";
+@import "./globals/_layout.css";
+@import "./globals/_scroll.css";
+@import "./globals/_overrides.css";

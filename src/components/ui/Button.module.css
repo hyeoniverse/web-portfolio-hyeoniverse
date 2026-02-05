@@ -1,0 +1,215 @@
+/* 기본 버튼 */
+.button {
+  display: inline-flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: center;
+  padding: var(--padding-md);
+  border: none;
+  position: relative;
+  background: transparent;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.button:disabled {
+  opacity: 0.5;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* =====================
+  Underline 변형
+   ===================== */
+.underline::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 2.55px;
+  background-color: var(--bg-inverse);
+  transition: height 0.3s ease;
+  content: "";
+}
+
+.underline:hover {
+  color: var(--text-inverse);
+  transform: translateY(-2.55px);
+}
+
+.underline:hover::after {
+  height: 100%;
+}
+
+.underline.active {
+  background: var(--bg-inverse);
+  color: var(--text-inverse) !important;
+}
+
+/* =====================
+  Primary 변형
+   ===================== */
+.primary {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  transition: all 0.3s ease;
+}
+
+.primary:disabled {
+  background: var(--bg-muted);
+}
+
+.primary:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(26, 26, 26, 0.2);
+  background: #000;
+  transform: translateY(-1px);
+}
+
+.primary:hover::after {
+  box-shadow: 3px 3px 0 rgba(80, 90, 110, 0.5);
+  position: absolute;
+  content: "";
+  inset: -1px;
+  opacity: 1;
+}
+
+/* =====================
+  Outline 변형
+   ===================== */
+.outline {
+  border: 1px solid #1a1a1a !important;
+  position: relative;
+  background: transparent !important;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.outline::after {
+  position: absolute;
+  transition: all 0.3s ease;
+  content: "";
+  pointer-events: none;
+  inset: -1px;
+  opacity: 0;
+}
+
+.outline:hover::after {
+  box-shadow: 3px 3px 0 rgba(80, 90, 110, 0.5);
+  opacity: 1;
+}
+
+.outline.active {
+  background: #1a1a1a !important;
+  color: #fafafa !important;
+}
+
+/* =====================
+  Size Variants
+   ===================== */
+.sm {
+  padding: var(--padding-sm);
+  font-size: var(--font-size-xs);
+}
+
+.md {
+  padding: var(--padding-md);
+  font-size: var(--font-size-sm);
+}
+
+.lg {
+  padding: var(--padding-lg);
+  font-size: var(--font-size-lg);
+}
+
+.xl {
+  padding: var(--padding-xl);
+  font-size: var(--font-size-xl);
+}
+
+.xl2 {
+  padding: var(--padding-2xl);
+  font-size: var(--font-size-2xl);
+}
+
+/* =====================
+  Weight Variants
+   ===================== */
+
+.light {
+  font-weight: var(--font-weight-light);
+}
+
+.normal {
+  font-weight: var(--font-weight-normal);
+}
+
+.bold {
+  font-weight: var(--font-weight-bold);
+}
+
+/* =====================
+  Dark Mode
+   ===================== */
+[data-theme="dark"] .button {
+  color: #fafafa;
+}
+
+[data-theme="dark"] .underline::after {
+  background: #fafafa;
+}
+
+[data-theme="dark"] .underline:hover {
+  color: #1a1a1a;
+}
+
+[data-theme="dark"] .underline.active {
+  background: #fafafa;
+  color: #1a1a1a !important;
+}
+
+[data-theme="dark"] .primary {
+  box-shadow: 0 4px 12px rgba(249, 250, 251, 0.15);
+  background: #f9fafb;
+  color: #1a1a1a;
+}
+
+[data-theme="dark"] .primary:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(249, 250, 251, 0.2);
+  background: #e5e7eb;
+}
+
+[data-theme="dark"] .primary:hover::after {
+  box-shadow: 3px 3px 0 #fafafa;
+}
+
+[data-theme="dark"] .primary:disabled {
+  background: #4b5563;
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .outline {
+  border-color: #fafafa !important;
+}
+
+[data-theme="dark"] .outline:hover::after {
+  box-shadow: 3px 3px 0 #fafafa;
+}
+
+[data-theme="dark"] .outline.active {
+  background: #fafafa !important;
+  color: #1a1a1a !important;
+}

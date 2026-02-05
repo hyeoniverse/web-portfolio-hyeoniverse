@@ -1,0 +1,432 @@
+/* ==========================================================================
+   WebFlow Section - Site Design & Logic
+   ========================================================================== */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  padding: 8rem 4rem;
+  min-height: 100vh;
+  background: #000000;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.header {
+  max-width: 800px;
+  margin-bottom: 4rem;
+}
+
+.label {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.title {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-display, var(--font-playfair));
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 400;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.titleAccent {
+  color: var(--color-accent, #D01046);
+}
+
+.subtitle {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.8;
+}
+
+/* ==========================================================================
+   Section Subtitles
+   ========================================================================== */
+
+.sectionSubtitle {
+  margin: 0 0 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+/* ==========================================================================
+   Feature Cards
+   ========================================================================== */
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 6rem;
+}
+
+.featureCard {
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.featureCard:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-5px);
+}
+
+.featureCardDark {
+  background: var(--color-accent, #D01046);
+  border-color: transparent;
+}
+
+.featureCardDark:hover {
+  background: #c0143e;
+}
+
+.featureIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.featureCardDark .featureIcon {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.featureTitle {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.featureDescription {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.7;
+}
+
+.featureCardDark .featureDescription {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.featureTech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.featureTechTag {
+  padding: 0.25rem 0.625rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.featureCardDark .featureTechTag {
+  background: rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Design Process
+   ========================================================================== */
+
+.processSection {
+  margin-bottom: 6rem;
+}
+
+.processContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-left: 3rem;
+}
+
+.processLine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--color-accent, #D01046) 0%,
+    rgba(208, 16, 70, 0.2) 100%
+  );
+  transform-origin: top;
+}
+
+.processStep {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.processNumber {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  border: 2px solid var(--color-accent, #D01046);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-accent, #D01046);
+  margin-left: -24px;
+}
+
+.processContent {
+  flex: 1;
+  padding-top: 0.5rem;
+}
+
+.processTitle {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.processDescription {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.7;
+  max-width: 500px;
+}
+
+/* ==========================================================================
+   Tech Stack
+   ========================================================================== */
+
+.stackSection {
+  margin-bottom: 4rem;
+}
+
+.stackGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.techItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  transition: all 0.3s ease;
+}
+
+.techItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-accent, #D01046);
+}
+
+.techName {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.techCategory {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ==========================================================================
+   Code Examples
+   ========================================================================== */
+
+.codeSection {
+  margin-bottom: 6rem;
+}
+
+.codeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.codeCard {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+}
+
+.codeTitle {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-accent, #D01046);
+}
+
+.codeDescription {
+  margin: 0 0 1rem;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.codeBlock {
+  margin: 0;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.codeBlock code {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: pre;
+}
+
+/* ==========================================================================
+   Credits
+   ========================================================================== */
+
+.credits {
+  margin-top: auto;
+  padding-top: 4rem;
+  text-align: center;
+}
+
+.creditsText {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.creditsHeart {
+  color: var(--color-accent, #D01046);
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* ==========================================================================
+   Responsive - Tablet
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .section {
+    padding: 6rem 2rem;
+  }
+
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .codeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Responsive - Mobile
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .section {
+    padding: 4rem 1.5rem;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .processContainer {
+    padding-left: 2rem;
+  }
+
+  .processNumber {
+    width: 40px;
+    height: 40px;
+    margin-left: -20px;
+  }
+
+  .stackGrid {
+    gap: 0.75rem;
+  }
+
+  .techItem {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 3rem 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+}

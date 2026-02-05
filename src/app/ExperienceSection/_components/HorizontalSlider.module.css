@@ -1,0 +1,135 @@
+/* Container 전체 */
+.container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100vh; /* 화면 전체 높이 */
+}
+
+/* 섹션 버튼 */
+.sectionIndicator {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: var(--padding-y-2xl);
+  position: relative;
+}
+
+/* 가로 스크롤 영역 */
+.pageContainer {
+  display: flex;
+  gap: var(--spacing-2xl);
+  flex-direction: row;
+  position: relative;
+  width: max-content;
+  scroll-snap-type: x mandatory; /* 스냅 스크롤 */
+}
+
+/* 각 섹션 래퍼 */
+.sectionWrapper {
+  flex: 0 0 auto; /* 가로로 늘어나도록 고정 */
+  position: relative;
+  min-width: max-content; /* 화면 너비 기준 */
+  scroll-snap-align: start; /* 스냅 시작 위치 */
+}
+
+/* HorizontalSection 내부 */
+.section {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  border: var(--border-default);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  min-height: 80vh;
+  background: var(--bg-surface);
+}
+
+/* 섹션 헤더 스타일 */
+.sectionLabel {
+  font-weight: var(--font-weight-normal);
+  color: var(--text-muted);
+}
+
+.separator {
+  margin: 0 0.5rem;
+  color: var(--bg-accent-secondary-solid);
+}
+
+.totalCount {
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-inverse);
+  text-transform: uppercase;
+}
+
+/* 날짜, 위치 */
+.date,
+.location {
+  margin-left: 0.5rem;
+  color: var(--text-muted);
+}
+
+/* 카드 컨테이너 */
+.cardsContainer {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  flex-direction: row;
+  padding: var(--padding-x-2xl);
+  margin-bottom: var(--spacing-2xl);
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+/* 카드 숨김 스크롤바 (웹킷) */
+.cardsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* 간단한 섹션 푸터 */
+.scrollHint {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-direction: row;
+  position: relative;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-light);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  width: fit-content;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .cardsContainer {
+    gap: 1rem;
+    -webkit-overflow-scrolling: touch; /* iOS 스와이프 지원 */
+  }
+
+  .simpleFooter {
+    gap: 0.5rem;
+    flex-direction: column;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .simpleFooter .pageNumber {
+    font-size: var(--font-size-lg);
+  }
+
+  .simpleFooter .scrollHint {
+    font-size: var(--font-size-xs);
+  }
+
+  .sectionIndicator {
+    gap: 0.5rem;
+    justify-content: center;
+  }
+}

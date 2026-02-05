@@ -1,0 +1,197 @@
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+
+/* Main
+   ========================================================================== */
+
+main {
+  position: relative;
+  box-sizing: border-box;
+}
+
+main > .content {
+  flex: 1;
+  overflow-x: hidden;
+}
+
+/* Side Navigation
+   ========================================================================== */
+
+nav#side-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-content-high);
+  height: 100vh;
+  contain: layout style paint;
+  will-change: width, opacity;
+  backface-visibility: hidden;
+}
+
+nav#side-navigation::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-surface);
+  content: "";
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  mask-image: linear-gradient(
+    to right,
+    var(--color-neutral-alpha-95) 0%,
+    var(--color-neutral-alpha-10) 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    var(--color-neutral-alpha-95) 0%,
+    var(--color-neutral-alpha-1) 100%
+  );
+}
+
+/* Sections
+   ========================================================================== */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+/* Sections with dynamic sidebar padding */
+.section#skills,
+.section#experience,
+.section#projects,
+.section#blog {
+  padding-left: var(--active-side-nav-width, 0px);
+  transition: padding-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.section#contact {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  min-height: unset;
+}
+
+@media (max-width: 768px) {
+  .section#skills,
+  .section#experience,
+  .section#projects,
+  .section#blog {
+    padding-left: 0;
+  }
+}
+
+/* Container
+   ========================================================================== */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  padding: var(--padding-x-xl);
+  padding-bottom: var(--spacing-6xl);
+  position: relative;
+  max-width: var(--width-6xl);
+  min-height: 100vh;
+  scroll-snap-type: y mandatory;
+}
+
+#blog .container {
+  justify-content: space-between;
+}
+
+#contact .container {
+  margin: unset;
+  padding: unset;
+  width: 100vw;
+  max-width: unset;
+  height: calc(100vh - var(--footer-height)) !important;
+  min-height: unset;
+}
+
+/* Panel
+   ========================================================================== */
+
+.panel .pin-inner {
+  position: sticky;
+  top: 0;
+}
+
+/* Modal
+   ========================================================================== */
+
+#modal-root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-modal-backdrop);
+  background: var(--color-gray-alpha-30);
+  backdrop-filter: var(--blur-md);
+}
+
+#modal {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-light);
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  z-index: var(--z-modal);
+  width: calc(
+    100vw - (var(--action-button-width) + var(--spacing-2xl) * 2) * 2
+  );
+  max-width: var(--width-6xl);
+  max-height: 90vh;
+  background: var(--bg-primary);
+  border-radius: 0;
+  transform: none !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+#modal[data-rounded="true"] {
+  border-radius: var(--radius-2xl);
+}
+
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  #modal {
+    width: calc(
+      100vw - (var(--action-button-width) + var(--spacing-base) * 2) * 2
+    );
+  }
+}
+
+@media (max-width: 768px) {
+  nav#side-navigation {
+    display: none;
+  }
+
+  #modal-root {
+    padding: 0;
+  }
+
+  #modal {
+    border: none;
+    width: 100vw;
+    min-height: 100vh;
+    border-radius: 0;
+  }
+}

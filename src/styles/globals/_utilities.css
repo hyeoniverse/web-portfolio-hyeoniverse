@@ -1,0 +1,192 @@
+.visible {
+  opacity: 1;
+}
+.hidden {
+  opacity: 0;
+}
+
+.hidden-n {
+  display: none !important;
+}
+
+.hidden-w {
+  width: 0;
+  height: 0;
+  transition:
+    width 0.3s ease-in-out,
+    height 0.3s ease-in-out;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+.line-break {
+  width: 1px;
+  height: 100%;
+}
+
+.line-break-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .line-break-mobile {
+    display: block;
+    width: 100%;
+    height: 1px;
+  }
+}
+
+.grid-background {
+  border-right: var(--border-light);
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-image:
+    linear-gradient(var(--color-neutral-alpha-5) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-neutral-alpha-5) 1px, transparent 1px);
+  background-repeat: repeat;
+  background-size: 30px 30px;
+  pointer-events: none;
+}
+
+.glass {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  position: relative;
+
+  /* 기본 유리 배경 */
+  background: rgba(255, 255, 255, 0.08);
+
+  /* 그라데이션 오버레이 (빛 반사 느낌) */
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    /* 좌상단 밝은 하이라이트 */ rgba(255, 255, 255, 0.05) 30%,
+    rgba(0, 0, 0, 0.1) 100% /* 우하단 약간 어두움 */
+  );
+  transition: all 0.3s ease;
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+}
+
+.glass:hover,
+.glass.active {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 12px rgba(255, 255, 255, 0.25);
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.08) 40%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.6),
+    0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.glass:hover svg,
+.glass.active svg {
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+}
+
+/* 다크 모드 */
+[data-theme="dark"] .glass {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.35);
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    /* 위쪽 하이라이트 */ rgba(255, 255, 255, 0.04) 30%,
+    rgba(0, 0, 0, 0.5) 100% /* 아래쪽 음영 */
+  );
+}
+
+[data-theme="dark"] .glass:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.75),
+    0 0 12px rgba(255, 255, 255, 0.2);
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 40%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+.text-color-primary {
+  color: var(--color-primary);
+}
+
+.text-color-accent-dark {
+  color: var(--color-accent-dark);
+}
+
+.text-color-secondary {
+  color: var(--color-neutral-400);
+}
+
+.highlighted-text {
+  padding: 0.2rem 0.4rem;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(26, 26, 26, 0.1) 50%,
+    transparent 100%
+  );
+  font-weight: var(--font-weight-medium);
+}
+
+[data-theme="dark"] .highlighted-text {
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+}
+
+.highlighted-text-light {
+  padding: 0.2rem 0.4rem;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(26, 26, 26, 0.1) 50%,
+    transparent 100%
+  );
+  font-weight: var(--font-weight-medium);
+}
+
+.highlighted-text-accent {
+  padding: 0.2rem 0.4rem;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 77, 166, 0.5) 50%,
+    transparent 100%
+  );
+  font-weight: var(--font-weight-medium);
+}
+
+[data-theme="dark"] .highlighted-text-accent {
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 128, 194, 0.5) 50%,
+    transparent 100%
+  );
+}
+
+.semibold-text {
+  font-weight: var(--font-weight-semibold);
+}
