@@ -142,6 +142,14 @@ export default function HomePage() {
     rect: DOMRect;
     image: string;
   } | null>(null);
+  const [pressingWork, setPressingWork] = useState<{
+    id: string;
+    scale: number;
+    element: HTMLElement | null;
+  } | null>(null);
+  const pressStartTimeRef = useRef<number>(0);
+  const pressAnimationRef = useRef<number>(0);
+  const hasNavigatedRef = useRef<boolean>(false);
   const [, setMousePos] = useState({ x: 0, y: 0 });
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -170,20 +178,54 @@ export default function HomePage() {
 
   const magnetic = useMagnetic(0.4);
 
-  // Handle work item click
-  const handleWorkClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>, work: (typeof worksData)[0]) => {
-      const target = e.currentTarget;
-      const rect = target.getBoundingClientRect();
-      setExpandingWork({ id: work.id, rect, image: work.main });
+  // Long press threshold (ms) - navigate after this duration
+  const LONG_PRESS_THRESHOLD = 800;
+  const MAX_SCALE = 1.5;
+  const MIN_SCALE = 1;
 
-      // Navigate after animation
-      setTimeout(() => {
-        router.push(`/works/${work.id}`);
-      }, 600);
+  // Handle press start
+  const handlePressStart = useCallback(
+    (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>, work: (typeof worksData)[0]) => {
+      const target = e.currentTarget;
+      pressStartTimeRef.current = Date.now();
+      hasNavigatedRef.current = false;
+
+      setPressingWork({ id: work.id, scale: MIN_SCALE, element: target });
+
+      const animate = () => {
+        if (hasNavigatedRef.current) return;
+
+        const elapsed = Date.now() - pressStartTimeRef.current;
+        const progress = Math.min(elapsed / LONG_PRESS_THRESHOLD, 1);
+        const newScale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * progress;
+
+        setPressingWork(prev => prev ? { ...prev, scale: newScale } : null);
+
+        // Navigate when threshold reached
+        if (elapsed >= LONG_PRESS_THRESHOLD && !hasNavigatedRef.current) {
+          hasNavigatedRef.current = true;
+          const rect = target.getBoundingClientRect();
+          setExpandingWork({ id: work.id, rect, image: work.main });
+
+          setTimeout(() => {
+            router.push(`/works/${work.id}`);
+          }, 600);
+          return;
+        }
+
+        pressAnimationRef.current = requestAnimationFrame(animate);
+      };
+
+      pressAnimationRef.current = requestAnimationFrame(animate);
     },
     [router],
   );
+
+  // Handle press end
+  const handlePressEnd = useCallback(() => {
+    cancelAnimationFrame(pressAnimationRef.current);
+    setPressingWork(null);
+  }, []);
 
   // Track mouse position
   useEffect(() => {
@@ -575,12 +617,22 @@ export default function HomePage() {
                       ? worksData[workIndex++]
                       : null;
 
+                  const isPressing = pressingWork?.id === work?.id;
+                  const pressScale = isPressing && pressingWork ? pressingWork.scale : 1;
+
                   items.push(
                     <div key={index} className={styles.worksGridItem}>
                       {work && (
-                        <div
+                        <motion.div
                           className={`${styles.workCircle} work-circle`}
-                          onClick={(e) => handleWorkClick(e, work)}
+                          onMouseDown={(e) => handlePressStart(e, work)}
+                          onMouseUp={handlePressEnd}
+                          onMouseLeave={handlePressEnd}
+                          onTouchStart={(e) => handlePressStart(e, work)}
+                          onTouchEnd={handlePressEnd}
+                          animate={{ scale: isPressing ? pressScale : 1 }}
+                          whileHover={{ scale: isPressing ? pressScale : 1.05 }}
+                          transition={{ duration: 0.1, ease: "easeOut" }}
                         >
                           <div className={styles.workImageWrapper}>
                             <img
@@ -594,7 +646,7 @@ export default function HomePage() {
                               className={styles.workImageHover}
                             />
                           </div>
-                        </div>
+                        </motion.div>
                       )}
                     </div>,
                   );
