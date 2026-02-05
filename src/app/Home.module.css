@@ -796,6 +796,12 @@
   border-radius: var(--drawer-card-radius);
 }
 
+.drawerFormCard > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .drawerTitle {
   margin-bottom: var(--drawer-inner-large-gap);
   font-family: inherit;
@@ -861,6 +867,8 @@
 }
 
 .drawerTextarea {
+  flex: 1;
+  min-height: 120px;
   padding: var(--drawer-textarea-padding);
   border: var(--drawer-input-border);
   outline: none;
