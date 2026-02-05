@@ -886,7 +886,7 @@ export default function HomePage() {
                 aria-label="Close"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, transition: { duration: 0.3, delay: 0.7 } }}
-                exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
               >
                 <svg width="18" height="2" viewBox="0 0 18 2" fill="none">
                   <path
@@ -908,7 +908,7 @@ export default function HomePage() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.55, ease: "easeOut" } }}
-                  exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                  exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
                 >
                   <h2 className={styles.drawerTitle}>Fill out the form</h2>
 
@@ -976,7 +976,7 @@ export default function HomePage() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.55, ease: "easeOut" } }}
-                    exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                    exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
                   >
                     <h3 className={styles.drawerEmailTitle}>Or email me</h3>
                     <button
@@ -1017,7 +1017,7 @@ export default function HomePage() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.55, ease: "easeOut" } }}
-                    exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                    exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
                   >
                     <div className={styles.drawerProfileImage}>
                       <span className={styles.drawerProfilePlaceholder}>
@@ -1051,7 +1051,7 @@ export default function HomePage() {
                     className={styles.drawerSocialIcons}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.55, ease: "easeOut" } }}
-                    exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                    exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
                   >
                     {siteConfig.social.github && (
                       <a
