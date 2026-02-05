@@ -476,9 +476,37 @@
 .buttonOval {
   width: var(--size-5xs);
   height: var(--size-5xs);
-  background: currentColor;
+  background: var(--bg-accent-secondary-solid-light);
   transition: transform 0.3s ease;
   border-radius: var(--radius-circle);
+  animation: pulse 2s infinite;
+}
+
+.buttonOval::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow:
+      0 0 8px rgba(255, 128, 194, 0.9),
+      0 0 12px rgba(255, 128, 194, 0.7);
+    opacity: 1;
+  }
+  50% {
+    box-shadow:
+      0 0 14px rgba(255, 128, 194, 0.6),
+      0 0 20px rgba(255, 128, 194, 0.4);
+    opacity: 1;
+  }
+  100% {
+    box-shadow:
+      0 0 8px rgba(255, 128, 194, 0.9),
+      0 0 12px rgba(255, 128, 194, 0.7);
+    opacity: 1;
+  }
 }
 
 .ctaFooter {
