@@ -1,45 +1,48 @@
 /* ==========================================================================
-   Footer - Minimal Style
-   ========================================================================== */
+  Footer - Minimal Style
+  ========================================================================== */
 
 .footer {
   padding: 2rem 4rem;
-  border-top: 1px solid var(--theme-border);
+  border-top: var(--border-default);
   background: transparent;
+  height: 200px;
 }
 
 .content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1400px;
+  max-width: var(--width-6xl);
   margin: 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
 }
 
 .copyright,
 .location {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--theme-text-muted);
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--text-secondary);
   letter-spacing: 0.05em;
 }
 
 .links {
   display: flex;
-  gap: 2rem;
+  gap: var(--spacing-2xl);
 }
 
 .links a {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--theme-text-muted);
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   transition: color 0.3s ease;
 }
 
 .links a:hover {
-  color: var(--color-primary);
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {

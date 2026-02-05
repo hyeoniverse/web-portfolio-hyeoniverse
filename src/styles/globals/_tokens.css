@@ -41,6 +41,7 @@
   --color-neutral-800: #343a40;
   --color-neutral-900: #212529;
   --color-neutral-950: #1a1a1a;
+  --color-neutral-999: #000000;
 
   /* Status Colors */
   --color-success: #16a34a;
@@ -158,7 +159,7 @@
 
   /* Background Colors */
   --bg-white: var(--color-white-alpha-100);
-  --bg-black: rgba(32, 33, 36, 0.95);
+  --bg-black: var(--color-gray-alpha-100);
   --bg-primary: var(--color-neutral-50);
   --bg-primary-alt: var(--color-neutral-alpha-95);
   --bg-secondary: var(--color-neutral-400);
@@ -262,15 +263,18 @@
   /* Border Shorthand */
   --border-strong: 1px solid var(--border-primary);
   --border-strong-125: 1.25px solid var(--border-primary);
+  --border-strong-15: 1.5px solid var(--border-primary);
   --border-strong-2: 2px solid var(--border-primary);
   --border-strong-3: 3px solid var(--border-primary);
   --border-strong-4: 4px solid var(--border-primary);
   --border-default: 1px solid var(--border-secondary);
   --border-default-125: 1.25px solid var(--border-secondary);
+  --border-default-15: 1.5px solid var(--border-secondary);
   --border-default-2: 2px solid var(--border-secondary);
   --border-default-3: 3px solid var(--border-secondary);
   --border-light: 1px solid var(--border-subtle);
   --border-light-125: 1.25px solid var(--border-subtle);
+  --border-light-15: 1.5px solid var(--border-subtle);
   --border-light-2: 2px solid var(--border-subtle);
   --border-light-3: 3px solid var(--border-subtle);
   --border-inverse: 1px solid var(--border-white);
@@ -309,21 +313,21 @@
   --font-size-6xl: 4rem;
 
   /* Font Sizes - Fluid */
-  --fluid-font-size-2xs: clamp(0.625rem, 0.6rem + 0.15vw, 0.75rem);
-  --fluid-font-size-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.9rem);
-  --fluid-font-size-sm: clamp(0.875rem, 0.83rem + 0.25vw, 1rem);
-  --fluid-font-size-md: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
-  --fluid-font-size-lg: clamp(1.125rem, 1.05rem + 0.35vw, 1.375rem);
-  --fluid-font-size-xl: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
-  --fluid-font-size-2xl: clamp(1.5rem, 1.4rem + 0.75vw, 2rem);
-  --fluid-font-size-3xl: clamp(2rem, 1.8rem + 1vw, 2.5rem);
-  --fluid-font-size-4xl: clamp(4rem, 3rem + 1.5vw, 5rem);
-  --fluid-font-size-5xl: clamp(6rem, 4.5rem + 2vw, 8rem);
-  --fluid-font-size-6xl: clamp(8rem, 6rem + 2.5vw, 10rem);
-  --fluid-font-size-7xl: clamp(10rem, 7.5rem + 3vw, 12rem);
-  --fluid-font-size-8xl: clamp(12rem, 9rem + 3.5vw, 14rem);
-  --fluid-font-size-9xl: clamp(14rem, 10.5rem + 4vw, 16rem);
-  --fluid-font-size-10xl: clamp(16rem, 12rem + 4.5vw, 18rem);
+  --fluid-font-size-2xs: clamp(0.5rem, 0.6rem + 0.15vw, 0.75rem);
+  --fluid-font-size-xs: clamp(0.5rem, 0.7rem + 0.2vw, 0.9rem);
+  --fluid-font-size-sm: clamp(0.5rem, 0.83rem + 0.25vw, 1rem);
+  --fluid-font-size-md: clamp(0.5rem, 0.95rem + 0.3vw, 1.125rem);
+  --fluid-font-size-lg: clamp(0.5rem, 1.05rem + 0.35vw, 1.375rem);
+  --fluid-font-size-xl: clamp(0.5rem, 1.15rem + 0.5vw, 1.5rem);
+  --fluid-font-size-2xl: clamp(0.5rem, 1.4rem + 0.75vw, 2rem);
+  --fluid-font-size-3xl: clamp(0.5rem, 1.8rem + 1vw, 2.5rem);
+  --fluid-font-size-4xl: clamp(0.5rem, 3rem + 1.5vw, 5rem);
+  --fluid-font-size-5xl: clamp(0.5rem, 4.5rem + 2vw, 8rem);
+  --fluid-font-size-6xl: clamp(0.5rem, 6rem + 2.5vw, 10rem);
+  --fluid-font-size-7xl: clamp(0.5rem, 7.5rem + 3vw, 12rem);
+  --fluid-font-size-8xl: clamp(0.5rem, 9rem + 3.5vw, 14rem);
+  --fluid-font-size-9xl: clamp(0.5rem, 10.5rem + 4vw, 16rem);
+  --fluid-font-size-10xl: clamp(0.5rem, 12rem + 4.5vw, 18rem);
 
   /* Line Heights */
   --line-height-dense: 0.9;
@@ -509,6 +513,10 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-2xl: 24px;
+  --radius-3xl: 28px;
+  --radius-4xl: 32px;
+  --radius-5xl: 36px;
+  --radius-6xl: 42px;
   --radius-circle: 50%;
   --radius-capsule: 9999px;
 }
@@ -561,10 +569,10 @@
   --z-content-high: 30;
 
   /* Overlay Level */
+  --z-nav: 35;
   --z-action-button: 40;
   --z-overlay: 40;
   --z-dropdown: 50;
-  --z-nav: 60;
 
   /* Modal Level */
   --z-modal-backdrop: 90;

@@ -26,7 +26,6 @@ import ScrollIndicator from "@/components/layout/ScrollIndicator";
 import Footer from "@/components/layout/Footer";
 import ScrollRestoration from "@/components/common/ScrollRestoration";
 import SectionTransition from "@/components/effects/SectionTransition";
-import FloatingCTA from "@/components/common/FloatingCTA";
 
 export const metadata: Metadata = {
   title: siteConfig.metadata.title,
@@ -114,19 +113,12 @@ export default function RootLayout({
 
       <body>
         <LenisProvider>
-          <main>
-            <SideNavigation />
-            <ScrollIndicator />
-            {children}
-          </main>
+          <main>{children}</main>
 
           <aside>
             <FaviconSwitcher />
             <ScrollRestoration />
             <LoadingScreen />
-            <SectionTransition />
-            <ActionButtons />
-            <FloatingCTA />
             <Modal />
             <CursorTrail />
           </aside>

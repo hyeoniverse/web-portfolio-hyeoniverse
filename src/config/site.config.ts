@@ -17,7 +17,7 @@ export const siteConfig = {
   personal: {
     name: "Kim JeongHyeon", // Your full name
     nickname: "HYEON", // Display name / nickname
-    role: "Creative Developer & Designer", // Your job title
+    role: "Frontend Focused Fullstack Developer", // Your job title
     location: "Seoul, KR", // Your location
     status: "Open to Opportunities", // Current status (e.g., "Available for hire", "Open to work")
   },

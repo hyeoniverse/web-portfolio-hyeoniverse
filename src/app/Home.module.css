@@ -151,24 +151,28 @@
   font-weight: inherit;
   line-height: var(--line-height-fit);
   color: var(--text-accent-secondary-alt);
+  transition:
+    color 0.3s ease,
+    -webkit-text-stroke 0.3s ease;
   cursor: default;
-  transition: color 0.3s ease, -webkit-text-stroke 0.3s ease;
 }
 
 .titleAccent:hover {
   color: transparent;
-  -webkit-text-stroke: 1.5px var(--text-primary);
+  -webkit-text-stroke: 1px var(--text-primary);
 }
 
 /* Individual character styling */
 .char {
   display: inline-block;
-  transition: color 0.3s ease, -webkit-text-stroke 0.3s ease;
+  transition:
+    color 0.3s ease,
+    -webkit-text-stroke 0.3s ease;
 }
 
 .titleText:hover .char {
   color: transparent;
-  -webkit-text-stroke: 1.5px var(--text-primary);
+  -webkit-text-stroke: 1px var(--text-primary);
 }
 
 .titleOval {
@@ -367,6 +371,15 @@
   font-weight: var(--font-weight-regular);
   color: var(--text-accent-secondary-alt);
   letter-spacing: -0.02em;
+}
+
+.marqueeWord {
+  cursor: default;
+}
+
+.marqueeWord:hover .char {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-accent-secondary-alt);
 }
 
 .marqueeOval {
@@ -671,6 +684,459 @@
   margin-top: 5vh;
   position: relative;
   z-index: var(--z-content);
+}
+
+/* ========== CONTACT DRAWER (Modal Style) ========== */
+/* All units based on vw for proportional scaling */
+:root {
+  --drawer-bg-color: #ffffff;
+  --drawer-bg-color-hover: #f5f5f0;
+  --drawer-primary-color: #000000;
+  --drawer-secondary-color: #333333;
+  --drawer-tertiary-color: #666666;
+  --drawer-placeholder-color: var(--color-neutral-500);
+  --drawer-accent-color: #ff80c2;
+
+  --drawer-adjust-border: 1px solid transparent;
+  --drawer-btn-border: 1px solid var(--drawer-primary-color);
+  --drawer-input-border-color: var(--drawer-primary-color);
+  --drawer-input-border: 1px solid var(--drawer-input-border-color);
+  --drawer-checkbox-size: 1vw;
+  --drawer-checkbox-radius: var(--radius-xs);
+
+  --drawer-outer-card-gap: 0.15vw;
+  --drawer-inner-small-gap: 0.5vw;
+  --drawer-inner-basic-gap: 0.8vw;
+  --drawer-inner-large-gap: 1.5vw;
+  --drawer-card-radius: 1.5vw;
+
+  --drawer-close-btn-size: 3vw;
+  --drawer-close-icon-size: 1.4vw;
+  --drawer-copy-icon-size: 1.2vw;
+
+  --drawer-small-btn-padding: 0.6vw 1.4vw;
+  --drawer-large-btn-padding: 0.9vw 1.4vw;
+  --drawer-input-padding: 0.8vw 1vw;
+  --drawer-textarea-padding: 1vw 1vw;
+  --drawer-card-padding: 2vw 1.8vw 1.6vw;
+
+  --drawer-font-family: var(--font-space-grotesk), sans-serif;
+  --drawer-title-font-size: 1.8vw;
+  --drawer-larger-font-size: 1.3vw;
+  --drawer-large-font-size: 1vw;
+  --drawer-basic-font-size: 0.85vw;
+  --drawer-small-font-size: 0.7vw;
+
+  --drawer-basic-line-height: 1.5;
+}
+
+.drawerBackdrop {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: fixed;
+  z-index: var(--z-overlay);
+  background: var(--bg-surface);
+  inset: 0;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  isolation: isolate;
+}
+
+.drawer {
+  display: grid;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: var(--drawer-outer-card-gap);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-modal);
+  width: 60vw;
+  height: 42vw;
+  font-family: var(--drawer-font-family);
+  font-size: var(--drawer-basic-font-size);
+  font-weight: var(--font-weight-regular);
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+}
+
+.drawerClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--drawer-outer-card-gap);
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: var(--drawer-close-btn-size);
+  height: var(--drawer-close-btn-size);
+  background: var(--drawer-bg-color);
+  color: var(--drawer-primary-color);
+  transition: all 0.3s ease;
+  border-radius: var(--radius-circle);
+}
+
+.drawerClose svg {
+  width: var(--drawer-close-icon-size);
+  height: var(--drawer-close-icon-size);
+}
+
+/* Form Card */
+.drawerFormCard {
+  display: flex;
+  flex-direction: column;
+  padding: var(--drawer-card-padding);
+  min-height: 0;
+  background: var(--drawer-bg-color);
+  border-radius: var(--drawer-card-radius);
+}
+
+.drawerTitle {
+  margin-bottom: var(--drawer-inner-large-gap);
+  font-family: inherit;
+  font-size: var(--drawer-title-font-size);
+  font-weight: var(--font-weight-medium);
+  color: var(--drawer-primary-color);
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+.drawerFormRow {
+  display: grid;
+  gap: calc(var(--drawer-inner-basic-gap) / 2);
+  margin-bottom: var(--drawer-inner-basic-gap);
+  grid-template-columns: 1fr 1fr;
+}
+
+.drawerInput {
+  padding: var(--drawer-input-padding);
+  border: var(--drawer-input-border);
+  outline: none;
+  width: 100%;
+  background: transparent;
+  font-family: var(--drawer-font-family);
+  font-size: var(--drawer-basic-font-size);
+  color: var(--drawer-primary-color);
+  transition: border-color 0.25s ease;
+  border-radius: var(--radius-capsule);
+}
+
+.drawerInput::placeholder {
+  color: var(--drawer-placeholder-color);
+}
+
+.drawerInput:focus {
+  border-color: var(--drawer-primary-color);
+}
+
+.drawerFileBtn {
+  margin-bottom: var(--drawer-inner-basic-gap);
+  padding: var(--drawer-input-padding);
+  border: var(--drawer-input-border);
+  width: 100%;
+  background: transparent;
+  font-family: var(--drawer-font-family);
+  font-size: var(--drawer-basic-font-size);
+  color: var(--drawer-primary-color);
+  text-align: center;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  border-radius: var(--radius-capsule);
+}
+
+.drawerFileBtn:hover {
+  background: var(--drawer-primary-color);
+  color: var(--drawer-bg-color);
+}
+
+.drawerFileBtnActive {
+  border-color: var(--drawer-primary-color);
+  background: var(--drawer-bg-color);
+  color: var(--drawer-primary-color);
+}
+
+.drawerTextarea {
+  flex: 1;
+  padding: var(--drawer-textarea-padding);
+  border: var(--drawer-input-border);
+  outline: none;
+  width: 100%;
+  background: transparent;
+  font-family: var(--drawer-font-family);
+  font-size: var(--drawer-basic-font-size);
+  line-height: var(--drawer-basic-line-height);
+  color: var(--drawer-primary-color);
+  transition: border-color 0.25s ease;
+  resize: none;
+  border-radius: var(--drawer-card-radius);
+}
+
+.drawerTextarea::placeholder {
+  color: var(--drawer-placeholder-color);
+}
+
+.drawerTextarea:focus {
+  border-color: var(--drawer-primary-color);
+}
+
+.drawerFormFooter {
+  margin-top: var(--drawer-inner-basic-gap);
+}
+
+.drawerPrivacy {
+  display: flex;
+  gap: var(--drawer-inner-small-gap);
+  align-items: center;
+  margin-bottom: var(--drawer-inner-large-gap);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--drawer-small-font-size);
+  color: var(--drawer-primary-color);
+}
+
+.drawerPrivacy input[type="checkbox"] {
+  flex-shrink: 0;
+  border: var(--drawer-input-border);
+  position: relative;
+  width: var(--drawer-checkbox-size);
+  height: var(--drawer-checkbox-size);
+  transition: all 0.2s ease;
+  border-radius: var(--drawer-checkbox-radius);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.drawerPrivacy input[type="checkbox"]:checked {
+  border-color: var(--drawer-primary-color);
+  background: var(--drawer-primary-color);
+}
+
+.drawerPrivacy input[type="checkbox"]:checked::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: var(--drawer-small-font-size);
+  color: var(--drawer-bg-color);
+  content: "✓";
+  transform: translate(-50%, -50%);
+}
+
+.drawerPrivacy a {
+  color: var(--drawer-accent-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.drawerSubmitBtn {
+  padding: var(--drawer-large-btn-padding);
+  border: var(--drawer-btn-border);
+  width: 100%;
+  background: var(--drawer-primary-color);
+  font-family: var(--drawer-font-family);
+  font-size: var(--drawer-basic-font-size);
+  font-weight: var(--font-weight-medium);
+  color: var(--drawer-bg-color);
+  letter-spacing: 0.01em;
+  transition: all 0.3s ease;
+  border-radius: var(--radius-capsule);
+}
+
+.drawerSubmitBtn:hover {
+  background: transparent;
+  color: var(--drawer-primary-color);
+}
+
+.drawerSubmitBtn:active {
+  transform: translateY(0);
+}
+
+/* Right Column */
+.drawerRightColumn {
+  display: flex;
+  gap: var(--drawer-outer-card-gap);
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Email Card */
+.drawerEmailCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--drawer-card-padding);
+  background: var(--drawer-bg-color);
+  text-align: center;
+  border-radius: var(--drawer-card-radius);
+}
+
+.drawerEmailTitle {
+  font-family: inherit;
+  font-size: var(--drawer-title-font-size);
+  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-medium);
+  color: var(--drawer-primary-color);
+  letter-spacing: -0.01em;
+}
+
+.drawerEmailAddress {
+  display: inline-flex;
+  gap: var(--drawer-inner-basic-gap);
+  align-items: center;
+  justify-content: center;
+  padding: var(--drawer-small-btn-padding);
+  border: var(--drawer-adjust-border);
+  position: relative;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--drawer-large-font-size);
+  font-weight: var(--font-weight-regular);
+  color: var(--drawer-primary-color);
+  letter-spacing: -0.075em;
+  transition: border 0.2s ease;
+  cursor: pointer;
+  border-radius: var(--radius-capsule);
+}
+
+.drawerEmailAddress:hover {
+  border: var(--drawer-btn-border);
+}
+
+.drawerEmailTextWrapper {
+  display: inline-flex;
+  gap: var(--drawer-inner-basic-gap);
+  align-items: center;
+  transition: opacity 0.2s ease;
+}
+
+.drawerCopyIcon {
+  flex-shrink: 0;
+  width: var(--drawer-copy-icon-size);
+  height: var(--drawer-copy-icon-size);
+  stroke: var(--drawer-primary-color);
+}
+
+.drawerCopiedText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--drawer-accent-color);
+  transition: opacity 0.2s ease;
+}
+
+.hidden {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.hiddenKeepSpace {
+  visibility: hidden;
+}
+
+/* Profile Card */
+.drawerProfileCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 4;
+  flex-direction: column;
+  padding: var(--drawer-card-padding);
+  background: var(--drawer-bg-color);
+  font-family: inherit;
+  font-weight: var(--font-weight-regular);
+  text-align: center;
+  border-radius: var(--drawer-card-radius);
+}
+
+.drawerProfileImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--drawer-inner-basic-gap);
+  overflow: hidden;
+  width: 50%;
+  background: var(--drawer-secondary-color);
+  aspect-ratio: 1/1;
+  border-radius: var(--radius-circle);
+}
+
+.drawerProfileName {
+  font-family: inherit;
+  font-size: var(--drawer-larger-font-size);
+  font-weight: inherit;
+  color: var(--drawer-primary-color);
+}
+
+.drawerProfileRole {
+  font-family: inherit;
+  font-size: var(--drawer-large-font-size);
+  color: var(--drawer-tertiary-color);
+}
+
+/* Social Card */
+.drawerSocialCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--drawer-card-padding);
+  background: var(--drawer-bg-color);
+  border-radius: var(--drawer-card-radius);
+}
+
+.drawerSocialIcons {
+  display: flex;
+  gap: 1vw;
+  justify-content: center;
+}
+
+.drawerSocialIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2vw;
+  height: 2.2vw;
+  background: var(--drawer-primary-color);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.drawerSocialIcon:hover {
+  background: #333;
+  transform: translateY(-0.1vw);
+}
+
+.drawerSocialIcon svg {
+  width: 1vw;
+  height: 1vw;
+  fill: #fff;
+}
+
+/* Drawer Responsive */
+@media (max-width: 900px) {
+  .drawerClose {
+    top: -4vw;
+    right: 0;
+  }
+
+  .drawer {
+    width: 90vw;
+    height: 63vw;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .drawer {
+    width: 95vw;
+    height: 66.5vw;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+
+  .drawerFormRow {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ========== RESPONSIVE ========== */
