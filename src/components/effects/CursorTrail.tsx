@@ -78,6 +78,7 @@ export default function CursorTrail() {
       const isClickable =
         !!target.closest("[data-clickable]") ||
         !!target.closest("a, button") ||
+        !!target.closest('input[type="checkbox"], input[type="radio"]') ||
         target.classList.contains("clickable") ||
         target.style.cursor === "pointer" ||
         target.getAttribute("role") === "button" ||

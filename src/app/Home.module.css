@@ -141,7 +141,6 @@
   line-height: var(--line-height-fit);
   color: var(--text-primary);
   letter-spacing: -0.03em;
-  cursor: default;
 }
 
 .titleAccent {
@@ -154,7 +153,6 @@
   transition:
     color 0.3s ease,
     -webkit-text-stroke 0.3s ease;
-  cursor: default;
 }
 
 .titleAccent:hover {
@@ -291,10 +289,6 @@
   flex-direction: column;
 }
 
-.serviceItem {
-  cursor: pointer;
-}
-
 .serviceLine {
   width: 100%;
   height: 1px;
@@ -371,10 +365,6 @@
   font-weight: var(--font-weight-regular);
   color: var(--text-accent-secondary-alt);
   letter-spacing: -0.02em;
-}
-
-.marqueeWord {
-  cursor: default;
 }
 
 .marqueeWord:hover .char {
@@ -851,7 +841,6 @@
   color: var(--drawer-primary-color);
   text-align: center;
   transition: all 0.25s ease;
-  cursor: pointer;
   border-radius: var(--radius-capsule);
 }
 
@@ -1006,12 +995,16 @@
   color: var(--drawer-primary-color);
   letter-spacing: -0.075em;
   transition: border 0.2s ease;
-  cursor: pointer;
   border-radius: var(--radius-capsule);
 }
 
 .drawerEmailAddress:hover {
   border: var(--drawer-btn-border);
+}
+
+.drawerEmailAddressCopied,
+.drawerEmailAddressCopied:hover {
+  border-color: var(--drawer-accent-color);
 }
 
 .drawerEmailTextWrapper {
@@ -1028,8 +1021,16 @@
   stroke: var(--drawer-primary-color);
 }
 
+.drawerCheckIcon {
+  flex-shrink: 0;
+  width: var(--drawer-copy-icon-size);
+  height: var(--drawer-copy-icon-size);
+  stroke: var(--drawer-accent-color);
+}
+
 .drawerCopiedText {
   display: flex;
+  gap: var(--drawer-inner-basic-gap);
   align-items: center;
   justify-content: center;
   position: absolute;
@@ -1109,21 +1110,26 @@
   justify-content: center;
   width: 2.2vw;
   height: 2.2vw;
+  border: 1px solid transparent;
   background: var(--drawer-primary-color);
-  transition: all 0.25s ease;
-  cursor: pointer;
+  transition: all 0.3s ease;
   border-radius: 50%;
 }
 
 .drawerSocialIcon:hover {
-  background: #333;
-  transform: translateY(-0.1vw);
+  border-color: var(--drawer-primary-color);
+  background: transparent;
 }
 
 .drawerSocialIcon svg {
   width: 1vw;
   height: 1vw;
-  fill: #fff;
+  fill: var(--drawer-bg-color);
+  transition: fill 0.3s ease;
+}
+
+.drawerSocialIcon:hover svg {
+  fill: var(--drawer-primary-color);
 }
 
 /* Drawer Responsive */

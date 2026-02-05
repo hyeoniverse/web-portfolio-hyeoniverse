@@ -1136,7 +1136,7 @@ export default function HomePage() {
                     <input
                       type="email"
                       className={styles.drawerInput}
-                      placeholder="Email"
+                      placeholder="Your Email"
                     />
                   </div>
 
@@ -1161,14 +1161,14 @@ export default function HomePage() {
                   {/* Textarea */}
                   <textarea
                     className={styles.drawerTextarea}
-                    placeholder="Share more about the project"
+                    placeholder="Something to say?"
                     rows={6}
                   />
 
                   {/* Footer */}
                   <div className={styles.drawerFormFooter}>
                     <label className={styles.drawerPrivacy}>
-                      <input type="checkbox" />
+                      <input type="checkbox" data-clickable="true" />
                       <span>
                         Accept the <a href="#">Privacy Policy</a>
                       </span>
@@ -1214,7 +1214,7 @@ export default function HomePage() {
                   >
                     <h3 className={styles.drawerEmailTitle}>Or email me</h3>
                     <button
-                      className={styles.drawerEmailAddress}
+                      className={`${styles.drawerEmailAddress} ${copied ? styles.drawerEmailAddressCopied : ""}`}
                       onClick={() => {
                         navigator.clipboard?.writeText(
                           siteConfig.contact.email,
@@ -1242,6 +1242,19 @@ export default function HomePage() {
                         className={`${styles.drawerCopiedText} ${copied ? "" : styles.hidden}`}
                       >
                         Copied!
+                        <svg
+                          className={styles.drawerCheckIcon}
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path
+                            d="M20 6L9 17l-5-5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </span>
                     </button>
                   </motion.div>
