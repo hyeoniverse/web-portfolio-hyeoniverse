@@ -17,10 +17,7 @@ const projects = [
     title: "Sakharov Space",
     category: "Branding / Web Design",
     year: "2024",
-    image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1200&h=800&fit=crop",
-    description: "Complete brand identity and website design for an innovative space technology company.",
-    tags: ["Branding", "Web", "3D"],
-    color: "#1a1a2e",
+    image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=800&fit=crop",
   },
   {
     id: "2",
@@ -28,251 +25,182 @@ const projects = [
     title: "Fitil App",
     category: "UX/UI / Mobile",
     year: "2023",
-    image: "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=1200&h=800&fit=crop",
-    description: "Mobile app design for a fitness tracking platform with gamification elements.",
-    tags: ["UX/UI", "Mobile", "App"],
-    color: "#16213e",
+    image: "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800&h=800&fit=crop",
   },
   {
     id: "3",
     number: "03",
     title: "Amway Digital",
-    category: "E-commerce / Development",
+    category: "E-commerce",
     year: "2023",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop",
-    description: "Digital transformation project for a global brand, including platform redesign.",
-    tags: ["E-commerce", "Development", "Strategy"],
-    color: "#0f3460",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=800&fit=crop",
   },
   {
     id: "4",
     number: "04",
     title: "Nova Finance",
-    category: "Dashboard / Development",
+    category: "Dashboard",
     year: "2024",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
-    description: "Fintech dashboard with real-time data visualization and intuitive user experience.",
-    tags: ["Dashboard", "Fintech", "Data Viz"],
-    color: "#1a1a2e",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=800&fit=crop",
+  },
+  {
+    id: "5",
+    number: "05",
+    title: "Luxe Brand",
+    category: "Branding",
+    year: "2024",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=800&fit=crop",
+  },
+  {
+    id: "6",
+    number: "06",
+    title: "TechStart",
+    category: "Web App",
+    year: "2023",
+    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=800&fit=crop",
+  },
+  {
+    id: "7",
+    number: "07",
+    title: "Artisan",
+    category: "E-commerce",
+    year: "2024",
+    image: "https://images.unsplash.com/photo-1493934558415-9d19f0b2b4d2?w=800&h=800&fit=crop",
   },
 ];
 
 export default function WorksSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
+  const thumbsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const blobsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
-    const wrapper = wrapperRef.current;
-    const progress = progressRef.current;
-    const header = headerRef.current;
-
-    if (!section || !wrapper) return;
+    if (!section) return;
 
     const ctx = gsap.context(() => {
-      // Calculate scroll distance
-      const getScrollDistance = () => wrapper.scrollWidth - window.innerWidth;
+      // Animate thumbnails on scroll
+      thumbsRef.current.forEach((thumb, index) => {
+        if (!thumb) return;
 
-      // Header animation on enter
-      if (header) {
         gsap.fromTo(
-          header,
-          { opacity: 0, y: 50 },
+          thumb,
+          {
+            opacity: 0,
+            scale: 0.6,
+            y: 80,
+          },
           {
             opacity: 1,
+            scale: 1,
             y: 0,
-            duration: 1,
+            duration: 0.8,
+            delay: index * 0.1,
             ease: "power3.out",
             scrollTrigger: {
               trigger: section,
-              start: "top 80%",
+              start: "top 70%",
               toggleActions: "play none none reverse",
             },
           }
         );
-      }
-
-      // Main horizontal scroll
-      const horizontalTween = gsap.to(wrapper, {
-        x: () => -getScrollDistance(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: () => `+=${getScrollDistance()}`,
-          pin: true,
-          scrub: 1,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            if (progress) {
-              gsap.set(progress, { scaleX: self.progress });
-            }
-          },
-        },
       });
 
-      // Animate project cards
-      const cards = wrapper.querySelectorAll(`.${styles.projectCard}`);
-      cards.forEach((card) => {
-        // Initial state
-        gsap.set(card, { opacity: 0.4, scale: 0.9 });
+      // Animate blobs
+      blobsRef.current.forEach((blob, index) => {
+        if (!blob) return;
 
-        // Animate in
-        gsap.to(card, {
-          opacity: 1,
-          scale: 1,
-          duration: 0.5,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: card,
-            containerAnimation: horizontalTween,
-            start: "left 85%",
-            end: "left 50%",
-            scrub: true,
+        gsap.fromTo(
+          blob,
+          {
+            opacity: 0,
+            scale: 0.5,
           },
-        });
-
-        // Parallax effect on image
-        const image = card.querySelector(`.${styles.projectImage}`);
-        if (image) {
-          gsap.to(image, {
-            xPercent: -20,
-            ease: "none",
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 1.2,
+            delay: 0.3 + index * 0.15,
+            ease: "power2.out",
             scrollTrigger: {
-              trigger: card,
-              containerAnimation: horizontalTween,
-              start: "left right",
-              end: "right left",
-              scrub: true,
+              trigger: section,
+              start: "top 70%",
+              toggleActions: "play none none reverse",
             },
-          });
-        }
+          }
+        );
       });
     }, section);
 
     return () => ctx.revert();
   }, []);
 
+  const setThumbRef = (index: number) => (el: HTMLDivElement | null) => {
+    thumbsRef.current[index] = el;
+  };
+
+  const setBlobRef = (index: number) => (el: HTMLDivElement | null) => {
+    blobsRef.current[index] = el;
+  };
+
   return (
     <section id="works" className={styles.section} ref={sectionRef}>
-      {/* Fixed Header */}
-      <div className={styles.header} ref={headerRef}>
+      {/* Header */}
+      <div className={styles.header}>
         <span className={styles.label}>Selected Works</span>
         <h2 className={styles.title}>Our Portfolio</h2>
       </div>
 
-      {/* Horizontal Scroll Container */}
-      <div className={styles.wrapper} ref={wrapperRef}>
-        {/* Intro Panel */}
-        <div className={styles.introPanel}>
-          <div className={styles.introContent}>
-            <span className={styles.introNumber}>02</span>
-            <h3 className={styles.introTitle}>Works</h3>
-            <p className={styles.introDescription}>
-              A selection of our latest projects showcasing our expertise in
-              branding, UX/UI design, and web development.
-            </p>
-            <div className={styles.scrollHint}>
-              <span>Scroll to explore</span>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12H19M19 12L12 5M19 12L12 19"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
+      {/* Center Background Title */}
+      <div className={styles.centerTitle}>
+        <h3 className={styles.centerTitleText}>Works</h3>
+      </div>
 
-        {/* Project Cards */}
-        {projects.map((project) => (
-          <article
+      {/* Blob Decorations */}
+      <div
+        ref={setBlobRef(0)}
+        className={`${styles.blob} ${styles.blobLeft}`}
+      />
+      <div
+        ref={setBlobRef(1)}
+        className={`${styles.blob} ${styles.blobRight}`}
+      />
+      <div
+        ref={setBlobRef(2)}
+        className={`${styles.blob} ${styles.blobBottom}`}
+      />
+
+      {/* Scattered Project Thumbnails */}
+      <div className={styles.projectsContainer}>
+        {projects.map((project, index) => (
+          <div
             key={project.id}
-            className={styles.projectCard}
-            style={{ "--card-color": project.color } as React.CSSProperties}
+            ref={setThumbRef(index)}
+            className={`${styles.projectThumb} ${styles[`project-${index + 1}`]}`}
           >
-            <div className={styles.projectImageContainer}>
-              <img
-                src={project.image}
-                alt={project.title}
-                className={styles.projectImage}
-              />
-              <div className={styles.projectImageOverlay} />
+            <img src={project.image} alt={project.title} />
+            <div className={styles.projectLabel}>
+              <span className={styles.projectNumber}>{project.number}</span>
+              <span className={styles.projectName}>{project.title}</span>
             </div>
-
-            <div className={styles.projectContent}>
-              <div className={styles.projectMeta}>
-                <span className={styles.projectNumber}>{project.number}</span>
-                <span className={styles.projectYear}>{project.year}</span>
-              </div>
-
-              <h3 className={styles.projectTitle}>{project.title}</h3>
-              <p className={styles.projectCategory}>{project.category}</p>
-              <p className={styles.projectDescription}>{project.description}</p>
-
-              <div className={styles.projectTags}>
-                {project.tags.map((tag) => (
-                  <span key={tag} className={styles.projectTag}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              <button className={styles.projectButton}>
-                <span>View Project</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M7 17L17 7M17 7H7M17 7V17"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-          </article>
-        ))}
-
-        {/* Outro Panel */}
-        <div className={styles.outroPanel}>
-          <div className={styles.outroContent}>
-            <span className={styles.outroLabel}>Want to see more?</span>
-            <h3 className={styles.outroTitle}>View All Projects</h3>
-            <button className={styles.outroButton}>
-              <span>Explore Portfolio</span>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M7 17L17 7M17 7H7M17 7V17"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className={styles.progress}>
-        <div ref={progressRef} className={styles.progressBar} />
-      </div>
-
-      {/* Navigation Dots */}
-      <div className={styles.dots}>
-        {projects.map((project, i) => (
-          <div key={project.id} className={styles.dot} data-index={i}>
-            <span className={styles.dotLabel}>{project.number}</span>
           </div>
         ))}
+      </div>
+
+      {/* View More Button */}
+      <div className={styles.viewMore}>
+        <button className={styles.viewMoreButton}>
+          <span>View All Projects</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M7 17L17 7M17 7H7M17 7V17"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
     </section>
   );

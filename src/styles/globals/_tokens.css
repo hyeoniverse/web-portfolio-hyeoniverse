@@ -29,7 +29,7 @@
   --color-accent-light: #ff4f9d;
 
   /* Neutral Scale (Light Theme: light to dark) */
-  /* --color-neutral-50: #f5f5f5; */
+  --color-neutral-0: #ffffff;
   --color-neutral-50: #f8f6f0;
   --color-neutral-100: #e9ecef;
   --color-neutral-200: #dee2e6;
@@ -688,6 +688,7 @@
   --color-accent-light: #ff80c2;
 
   /* Neutral Scale (Dark Theme: dark to light - inverted) */
+  --color-neutral-0: #000000;
   --color-neutral-50: #1a1a1a;
   --color-neutral-100: #212529;
   --color-neutral-200: #343a40;
@@ -699,6 +700,7 @@
   --color-neutral-800: #dee2e6;
   --color-neutral-900: #e9ecef;
   --color-neutral-950: #fafafa;
+  --color-neutral-999: #ffffff;
 
   /* Status */
   --color-success: #4ade80;
@@ -768,6 +770,7 @@
   --text-accent-primary-alt: var(--color-primary-dark);
   --text-accent-secondary-alt: var(--color-accent-dark);
 
+  --bg-primary: var(--color-neutral-0);
   --bg-surface: var(--color-white-alpha-5);
   --bg-tertiary: var(--color-inverse-alpha-5);
 

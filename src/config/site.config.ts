@@ -15,10 +15,10 @@ export const siteConfig = {
   // PERSONAL INFORMATION
   // ---------------------------------------------------------------------------
   personal: {
-    name: "Kim JeongHyeon",        // Your full name
-    nickname: "HYEON",             // Display name / nickname
-    role: "Creative Developer & Designer",  // Your job title
-    location: "Seoul, KR",         // Your location
+    name: "Kim JeongHyeon", // Your full name
+    nickname: "HYEON", // Display name / nickname
+    role: "Creative Developer & Designer", // Your job title
+    location: "Seoul, KR", // Your location
     status: "Open to Opportunities", // Current status (e.g., "Available for hire", "Open to work")
   },
 
@@ -26,7 +26,7 @@ export const siteConfig = {
   // BRAND / SITE IDENTITY
   // ---------------------------------------------------------------------------
   brand: {
-    name: "HYEONIVERSE",           // Full brand name (used in nav, experience section)
+    name: "HYEONIVERSE", // Full brand name (used in nav, experience section)
     splitName: ["HYEONI", "VERSE"], // Brand name split for hero display
     tagline: "Creative Digital Agency",
   },
@@ -35,7 +35,7 @@ export const siteConfig = {
   // CONTACT & SOCIAL LINKS
   // ---------------------------------------------------------------------------
   contact: {
-    email: "hyeoniverse.dev@gmail.com",  // Primary contact email
+    email: "hyeoniverse.dev@gmail.com", // Primary contact email
   },
 
   social: {
@@ -51,9 +51,11 @@ export const siteConfig = {
   // SEO & METADATA
   // ---------------------------------------------------------------------------
   metadata: {
-    title: "HYEON | Creative Developer & Designer",
-    description: "Frontend developer creating interactive web experiences with React, Next.js, and TypeScript.",
-    keywords: "frontend developer, portfolio, React, Next.js, TypeScript, web development, UI/UX",
+    title: "HYEON | Portfolio",
+    description:
+      "Frontend developer creating interactive web experiences with React, Next.js, and TypeScript.",
+    keywords:
+      "frontend developer, portfolio, React, Next.js, TypeScript, web development, UI/UX",
     author: "Kim JeongHyeon",
     locale: "ko_KR",
   },
@@ -62,7 +64,7 @@ export const siteConfig = {
   // SITE CONTENT
   // ---------------------------------------------------------------------------
   hero: {
-    headline: ["Creative", "Developer", "& Designer"],  // Main headline (each item = new line)
+    headline: ["Creative", "Developer", "& Designer"], // Main headline (each item = new line)
     subtext: ["Based in Seoul, KR", "Available for projects"],
   },
 
@@ -80,7 +82,7 @@ export const siteConfig = {
   // LOADING SCREEN
   // ---------------------------------------------------------------------------
   loading: {
-    displayName: "HYEON",  // Name shown on loading screen
+    displayName: "HYEON", // Name shown on loading screen
   },
 } as const;
 
