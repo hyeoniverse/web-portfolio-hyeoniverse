@@ -112,6 +112,18 @@ const worksData = [
     hover:
       "https://images.unsplash.com/photo-1633167606207-d840b5070fc2?w=400&h=400&fit=crop",
   },
+  {
+    id: "10",
+    main: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=400&fit=crop",
+    hover:
+      "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=400&h=400&fit=crop",
+  },
+  {
+    id: "11",
+    main: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&h=400&fit=crop",
+    hover:
+      "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&h=400&fit=crop",
+  },
 ];
 
 export default function HomePage() {
@@ -543,11 +555,11 @@ export default function HomePage() {
                 ◼텍스트◼ (row 4: col 0,4 + text in 1-3)
               */
               const imagePositions = [
-                [0, 4],           // row 0
-                [1, 3],           // row 1
-                [0, 2, 4],        // row 2
-                [1, 3],           // row 3
-                [0, 4],           // row 4
+                [0, 4], // row 0
+                [1, 3], // row 1
+                [0, 2, 4], // row 2
+                [1, 3], // row 3
+                [0, 4], // row 4
               ];
 
               for (let row = 0; row < 5; row++) {
@@ -558,9 +570,10 @@ export default function HomePage() {
                   if (row === 4 && col >= 1 && col <= 3) continue;
 
                   const hasImage = imagePositions[row].includes(col);
-                  const work = hasImage && workIndex < worksData.length
-                    ? worksData[workIndex++]
-                    : null;
+                  const work =
+                    hasImage && workIndex < worksData.length
+                      ? worksData[workIndex++]
+                      : null;
 
                   items.push(
                     <div key={index} className={styles.worksGridItem}>
@@ -570,12 +583,20 @@ export default function HomePage() {
                           onClick={(e) => handleWorkClick(e, work)}
                         >
                           <div className={styles.workImageWrapper}>
-                            <img src={work.main} alt="" className={styles.workImage} />
-                            <img src={work.hover} alt="" className={styles.workImageHover} />
+                            <img
+                              src={work.main}
+                              alt=""
+                              className={styles.workImage}
+                            />
+                            <img
+                              src={work.hover}
+                              alt=""
+                              className={styles.workImageHover}
+                            />
                           </div>
                         </div>
                       )}
-                    </div>
+                    </div>,
                   );
                 }
               }
@@ -588,7 +609,7 @@ export default function HomePage() {
                     <br />
                     Works
                   </h2>
-                </div>
+                </div>,
               );
 
               return items;

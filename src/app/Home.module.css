@@ -369,22 +369,21 @@
 
 /* ========== SELECTED WORKS SECTION ========== */
 .works {
-  /* padding: 15vh 8vw; */
+  padding: 20vh 2vw 0;
   position: relative;
-  overflow: hidden;
 }
 
 .worksContainer {
-  position: relative;
-  /* max-width: 1200px; */
   margin: 0 auto;
+  position: relative;
 }
 
-/* Grid with zigzag offset */
+/* Grid */
 .worksGrid {
   display: grid;
+  gap: var(--spacing-sm);
   grid-template-columns: repeat(5, 1fr);
-  gap: var(--spacing-xl);
+  grid-template-rows: repeat(5, 1fr);
 }
 
 .worksGridItem {
@@ -396,16 +395,16 @@
 
 /* Bottom center typography */
 .worksTitle {
-  display: flex;
   align-items: center;
   justify-content: center;
-  grid-column: 2 / 5;
   aspect-ratio: auto;
+  grid-row: 5 / 6;
+  grid-column: 2 / 5;
 }
 
 .worksTitleText {
   font-family: var(--font-instrument), serif;
-  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-size: var(--fluid-font-size-6xl);
   font-weight: var(--font-weight-regular);
   line-height: 0.95;
   color: var(--text-primary);
@@ -415,40 +414,39 @@
 }
 
 .workCircle {
+  padding: 1vw;
   overflow: hidden;
   position: relative;
   z-index: 2;
   width: 100%;
   height: 100%;
-  max-width: clamp(120px, 15vw, 210px);
-  max-height: clamp(120px, 15vw, 210px);
   cursor: pointer;
   border-radius: var(--radius-circle);
 }
 
 .workImageWrapper {
-  width: 100%;
-  height: 100%;
   overflow: hidden;
   position: relative;
+  width: 100%;
+  height: 100%;
   border-radius: var(--radius-circle);
 }
 
 .workImage {
   width: 100%;
   height: 100%;
-  object-fit: cover;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  object-fit: cover;
 }
 
 .workImageHover {
   position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
+  transition: clip-path 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  inset: 0;
   object-fit: cover;
   clip-path: circle(0% at 50% 50%);
-  transition: clip-path 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .workCircle:hover .workImage {
@@ -557,14 +555,14 @@
   width: var(--size-5xs);
   height: var(--size-5xs);
   background: var(--bg-accent-secondary-solid-light);
+  animation: pulse 2s infinite;
   transition: transform 0.3s ease;
   border-radius: var(--radius-circle);
-  animation: pulse 2s infinite;
 }
 
 .buttonOval::after {
-  content: "";
   position: absolute;
+  content: "";
   inset: 0;
 }
 
@@ -668,8 +666,8 @@
   }
 
   .worksGrid {
-    grid-template-columns: repeat(5, 1fr);
     gap: var(--spacing-md);
+    grid-template-columns: repeat(5, 1fr);
   }
 
   .worksTitle {
@@ -728,8 +726,8 @@
   }
 
   .worksGrid {
-    grid-template-columns: repeat(5, 1fr);
     gap: var(--spacing-sm);
+    grid-template-columns: repeat(5, 1fr);
   }
 
   .worksTitle {
