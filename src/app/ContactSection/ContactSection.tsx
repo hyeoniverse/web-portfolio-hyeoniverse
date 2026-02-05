@@ -60,17 +60,17 @@ export default function ContactSection() {
       >
         {/* Left Column - Contact Info */}
         <motion.div className={styles.infoColumn} variants={itemVariants}>
-          <span className={styles.label}>Get in Touch</span>
+          <span className={styles.label}>Open to Work</span>
           <h2 className={styles.title}>
-            Let&apos;s create
+            Looking for
             <br />
-            <span className={styles.titleAccent}>something great</span>
+            <span className={styles.titleAccent}>new opportunities</span>
             <br />
-            together
+            to grow
           </h2>
           <p className={styles.description}>
-            Have a project in mind? We&apos;d love to hear about it.
-            Send us a message and we&apos;ll get back to you as soon as possible.
+            I&apos;m actively seeking new challenges and growth opportunities.
+            Feel free to reach out for job inquiries or collaboration.
           </p>
 
           <div className={styles.contactInfo}>

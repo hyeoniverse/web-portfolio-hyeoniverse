@@ -311,7 +311,7 @@ export default function HomePage() {
             </span>
             <span className={`${styles.titleLine} hero-line`}>
               <span className={styles.titleAccent}>&</span>
-              <span className={styles.titleText}>Designer</span>
+              <span className={styles.titleText}>Problem Solver</span>
             </span>
           </h1>
 
@@ -437,13 +437,11 @@ export default function HomePage() {
 
         <div className={styles.ctaContent}>
           <p className={`${styles.ctaLabel} reveal-text`}>
-            Let's work together
+            Open to Opportunities
           </p>
           <h2 className={styles.ctaTitle}>
-            <span className={`${styles.ctaLine} reveal-text`}>
-              Have a project
-            </span>
-            <span className={`${styles.ctaLine} reveal-text`}>in mind?</span>
+            <span className={`${styles.ctaLine} reveal-text`}>Looking for</span>
+            <span className={`${styles.ctaLine} reveal-text`}>someone?</span>
           </h2>
 
           <motion.div
@@ -464,8 +462,10 @@ export default function HomePage() {
         </div>
 
         <div className={styles.ctaFooter}>
-          <span>hello@hyeoniverse.com</span>
-          <span>© 2024</span>
+          <a href="mailto:hello@example.com?subject=Hello!">
+            hyeoniverse.dev@gmail.com
+          </a>
+          <span>HYEON © 2026, All Rights Reserved</span>
         </div>
       </section>
 
@@ -509,7 +509,7 @@ export default function HomePage() {
             </span>
             <span className={styles.titleLine}>
               <span className={styles.titleAccent}>&</span>
-              <span className={styles.titleText}>Designer</span>
+              <span className={styles.titleText}>Problem Solver</span>
             </span>
           </h2>
 
