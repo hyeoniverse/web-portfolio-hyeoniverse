@@ -630,13 +630,46 @@ export default function HomePage() {
 
   const { lenis } = useLenis();
 
-  // Lenis infinite scroll handles the loop automatically
-  // We just need to ensure animations work correctly
+  // Scroll velocity for work image parallax effect
+  const workImageOffsetY = useMotionValue(0);
+  const smoothWorkImageY = useSpring(workImageOffsetY, {
+    stiffness: 100,
+    damping: 15,
+  });
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
   useEffect(() => {
     if (!hasMounted || !lenis) return;
 
-    // No additional handling needed - Lenis infinite is enabled in provider
-  }, [hasMounted, lenis]);
+    const maxOffset = 50;
+
+    // Lenis scroll event handler
+    const handleScroll = () => {
+      // Access velocity directly from the lenis instance (it's updated during scroll)
+      const lenisAny = lenis as unknown as { velocity: number; targetScroll: number; animatedScroll: number };
+      const velocity = lenisAny.velocity;
+
+      // Only respond to meaningful velocity (Lenis velocity is typically -2 to 2)
+      if (Math.abs(velocity) > 0.05) {
+        // Map velocity to offset - multiply by larger factor for more visible effect
+        const offset = Math.max(-maxOffset, Math.min(maxOffset, velocity * 30));
+        workImageOffsetY.set(offset);
+
+        // Reset to 0 after scrolling stops
+        clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = setTimeout(() => {
+          workImageOffsetY.set(0);
+        }, 150);
+      }
+    };
+
+    lenis.on("scroll", handleScroll);
+
+    return () => {
+      lenis.off("scroll", handleScroll);
+      clearTimeout(resetTimerRef.current);
+    };
+  }, [hasMounted, lenis, workImageOffsetY]);
 
   // GSAP Scroll Animations
   useEffect(() => {
@@ -1054,16 +1087,21 @@ export default function HomePage() {
                           }}
                         >
                           <div className={styles.workImageWrapper}>
-                            <img
-                              src={work.main}
-                              alt=""
-                              className={styles.workImage}
-                            />
-                            <img
-                              src={work.hover}
-                              alt=""
-                              className={styles.workImageHover}
-                            />
+                            <motion.div
+                              className={styles.workImageInner}
+                              style={{ y: smoothWorkImageY }}
+                            >
+                              <img
+                                src={work.main}
+                                alt=""
+                                className={styles.workImage}
+                              />
+                              <img
+                                src={work.hover}
+                                alt=""
+                                className={styles.workImageHover}
+                              />
+                            </motion.div>
                           </div>
                         </motion.div>
                       )}

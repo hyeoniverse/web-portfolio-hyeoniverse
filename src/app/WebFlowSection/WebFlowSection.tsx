@@ -95,13 +95,39 @@ const floatX = useTransform(smoothX, [0, window.innerWidth], [-30, 30]);`,
 });`,
   },
   {
-    title: "Mix-Blend Navigation",
-    description: "배경에 따라 반전되는 네비게이션",
-    code: `.nav {
-  position: fixed;
-  mix-blend-mode: difference;
-  color: #fff;
-}`,
+    title: "Scroll Velocity Parallax",
+    description: "Lenis velocity를 활용한 스크롤 속도 기반 이미지 패럴랙스",
+    code: `const workImageOffsetY = useMotionValue(0);
+const smoothY = useSpring(workImageOffsetY, { stiffness: 100, damping: 15 });
+
+lenis.on("scroll", () => {
+  const velocity = lenis.velocity;
+  if (Math.abs(velocity) > 0.05) {
+    const offset = Math.max(-50, Math.min(50, velocity * 30));
+    workImageOffsetY.set(offset);
+  }
+});`,
+  },
+];
+
+const troubleShootingItems = [
+  {
+    problem: "Lenis Scroll Velocity 효과 미작동",
+    cause: "RAF 폴링 방식으로 스크롤 위치를 직접 계산하면 velocity 값이 부정확하게 측정됨",
+    solution: "Lenis의 네이티브 on('scroll') 이벤트를 사용하여 인스턴스에서 직접 velocity 속성 접근",
+    keyInsight: "Lenis는 내부적으로 velocity를 계산하여 인스턴스 속성으로 제공. 직접 delta 계산보다 정확함",
+  },
+  {
+    problem: "Framer Motion transform과 CSS transform 충돌",
+    cause: "CSS에서 transform: translate(-50%, -50%)로 중앙 정렬 시 Framer Motion의 y 속성이 덮어씌워짐",
+    solution: "margin 기반 중앙 정렬로 변경 (margin-left: -65%, margin-top: -65%)",
+    keyInsight: "Framer Motion의 style 속성은 inline transform을 생성하므로 CSS transform과 분리 필요",
+  },
+  {
+    problem: "TypeScript useRef 타입 에러",
+    cause: "useRef<ReturnType<typeof setTimeout>>()에서 초기값 미제공으로 인한 타입 에러",
+    solution: "useRef<ReturnType<typeof setTimeout> | undefined>(undefined)로 명시적 초기화",
+    keyInsight: "clearTimeout은 undefined를 허용하지만 null은 허용하지 않음",
   },
 ];
 
@@ -302,6 +328,35 @@ export default function WebFlowSection() {
               <pre className={styles.codeBlock}>
                 <code>{example.code}</code>
               </pre>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Trouble Shooting */}
+      <div className={styles.troubleSection}>
+        <h3 className={styles.sectionSubtitle}>Trouble Shooting</h3>
+        <div className={styles.troubleGrid}>
+          {troubleShootingItems.map((item, index) => (
+            <div key={index} className={styles.troubleCard}>
+              <div className={styles.troubleHeader}>
+                <span className={styles.troubleIcon}>!</span>
+                <h4 className={styles.troubleTitle}>{item.problem}</h4>
+              </div>
+              <div className={styles.troubleBody}>
+                <div className={styles.troubleItem}>
+                  <span className={styles.troubleLabel}>원인</span>
+                  <p>{item.cause}</p>
+                </div>
+                <div className={styles.troubleItem}>
+                  <span className={styles.troubleLabel}>해결</span>
+                  <p>{item.solution}</p>
+                </div>
+                <div className={styles.troubleItem}>
+                  <span className={styles.troubleLabel}>핵심</span>
+                  <p className={styles.troubleInsight}>{item.keyInsight}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>

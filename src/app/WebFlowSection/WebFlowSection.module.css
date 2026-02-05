@@ -340,6 +340,104 @@
 }
 
 /* ==========================================================================
+   Trouble Shooting
+   ========================================================================== */
+
+.troubleSection {
+  margin-bottom: 6rem;
+}
+
+.troubleGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.troubleCard {
+  padding: 1.5rem 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--color-accent, #D01046);
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.troubleCard:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-left-width: 5px;
+}
+
+.troubleHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.troubleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: var(--color-accent, #D01046);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.troubleTitle {
+  margin: 0;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.troubleBody {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.troubleItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.troubleLabel {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  width: fit-content;
+}
+
+.troubleItem p {
+  margin: 0;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+}
+
+.troubleInsight {
+  color: var(--color-accent, #D01046) !important;
+  font-weight: 400 !important;
+}
+
+/* ==========================================================================
    Credits
    ========================================================================== */
 
@@ -386,6 +484,11 @@
 
   .codeGrid {
     grid-template-columns: 1fr;
+  }
+
+  .troubleBody {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
