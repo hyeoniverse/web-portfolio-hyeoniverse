@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { siteConfig } from "@/config/site.config";
 import styles from "./ExperienceSection.module.css";
 
 // Animation easing
@@ -84,7 +85,7 @@ export default function TeamSection() {
         <h2 className={styles.title}>
           Meet the people behind
           <br />
-          <span className={styles.titleAccent}>HYEONIVERSE</span>
+          <span className={styles.titleAccent}>{siteConfig.brand.name}</span>
         </h2>
         <p className={styles.description}>
           A diverse team of designers, developers, and strategists
@@ -156,7 +157,7 @@ export default function TeamSection() {
           <p className={styles.ctaDescription}>
             We&apos;re always looking for talented individuals to join our growing team.
           </p>
-          <a href="mailto:careers@hyeoniverse.com" className={styles.ctaButton}>
+          <a href={`mailto:${siteConfig.contact.email}`} className={styles.ctaButton}>
             <span>View Open Positions</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path

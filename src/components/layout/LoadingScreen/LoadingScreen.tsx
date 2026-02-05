@@ -4,6 +4,7 @@ import { useMemo, useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./LoadingScreen.module.css";
 import { config } from "@/config";
+import { siteConfig } from "@/config/site.config";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { thisYear } from "@/utils";
 import FontMorphText from "@/components/effects/FontMorphText";
@@ -227,7 +228,7 @@ export default function LoadingScreen() {
           animate={{ opacity: isTransitioning ? 0 : 0.6 }}
           transition={{ duration: 0.6, delay: 0.8 }}
         >
-          <span className={styles.copyrightText}>© {thisYear} HYEON</span>
+          <span className={styles.copyrightText}>© {thisYear} {siteConfig.personal.nickname}</span>
           <span className={styles.copyrightText}>All Rights Reserved</span>
         </motion.div>
 

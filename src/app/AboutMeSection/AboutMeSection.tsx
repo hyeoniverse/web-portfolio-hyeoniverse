@@ -3,6 +3,7 @@
 import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { siteConfig } from "@/config/site.config";
 import styles from "./AboutMeSection.module.css";
 
 // Register GSAP plugins
@@ -10,11 +11,11 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const experiences = [
+const getExperiences = () => [
   {
     period: "2020 - Present",
     role: "Senior Frontend Developer",
-    company: "HYEONIVERSE",
+    company: siteConfig.brand.name,
     description: "Leading frontend development and creating innovative digital experiences.",
   },
   {
@@ -259,7 +260,7 @@ export default function AboutMeSection() {
       <div className={styles.experienceSection} ref={experienceRef}>
         <h3 className={styles.sectionSubtitle}>Experience</h3>
         <div className={styles.experienceList}>
-          {experiences.map((exp, index) => (
+          {getExperiences().map((exp, index) => (
             <div key={index} className={styles.experienceCard}>
               <span className={styles.experiencePeriod}>{exp.period}</span>
               <h4 className={styles.experienceRole}>{exp.role}</h4>

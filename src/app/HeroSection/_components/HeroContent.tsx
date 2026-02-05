@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { siteConfig } from "@/config/site.config";
 import styles from "./HeroContent.module.css";
 import { useSoundManager } from "@/hooks/useSoundManager";
 
@@ -101,13 +102,14 @@ export function HeroContent() {
     >
       {/* Agency Name */}
       <motion.div className={styles.agencyName} variants={lineVariants}>
-        <span className={styles.label}>Creative Digital Agency</span>
+        <span className={styles.label}>{siteConfig.brand.tagline}</span>
       </motion.div>
 
       {/* Main Title */}
       <motion.h1 className={styles.mainTitle} variants={titleVariants}>
-        <span className={styles.titleLine}>HYEONI</span>
-        <span className={styles.titleLine}>VERSE</span>
+        {siteConfig.brand.splitName.map((part, index) => (
+          <span key={index} className={styles.titleLine}>{part}</span>
+        ))}
       </motion.h1>
 
       {/* Tagline */}

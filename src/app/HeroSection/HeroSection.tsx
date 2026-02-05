@@ -6,6 +6,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useHasMounted } from "@/hooks/useHasMounted";
+import { siteConfig } from "@/config/site.config";
 import styles from "./HeroSection.module.css";
 
 // Register GSAP plugins
@@ -152,7 +153,7 @@ export default function HeroSection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2, ease: EASE_OUT_EXPO }}
       >
-        <div className={styles.navLogo}>HYEONIVERSE</div>
+        <div className={styles.navLogo}>{siteConfig.brand.name}</div>
         <div className={styles.navLinks}>
           <Link href="/works" className={styles.navLink}>
             Works
@@ -176,7 +177,7 @@ export default function HeroSection() {
       >
         {/* Tagline */}
         <motion.span className={styles.tagline} variants={fadeUpVariants}>
-          Creative Digital Agency
+          {siteConfig.brand.tagline}
         </motion.span>
 
         {/* Main Title */}
@@ -249,8 +250,8 @@ export default function HeroSection() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.8 }}
       >
-        <span className={styles.email}>hello@hyeoniverse.com</span>
-        <span className={styles.location}>Seoul, KR</span>
+        <span className={styles.email}>{siteConfig.contact.email}</span>
+        <span className={styles.location}>{siteConfig.personal.location}</span>
       </motion.div>
     </div>
   );

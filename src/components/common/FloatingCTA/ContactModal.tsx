@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useModalStore } from "@/stores/modalStore";
 import { useLenis } from "@/providers/LenisProvider";
+import { siteConfig } from "@/config/site.config";
 import styles from "./ContactModal.module.css";
 
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -175,8 +176,8 @@ export default function ContactModal() {
       >
         <p className={styles.footerText}>
           Or reach out directly at{" "}
-          <a href="mailto:hello@hyeoniverse.com" className={styles.footerLink}>
-            hello@hyeoniverse.com
+          <a href={`mailto:${siteConfig.contact.email}`} className={styles.footerLink}>
+            {siteConfig.contact.email}
           </a>
         </p>
       </motion.div>

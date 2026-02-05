@@ -13,6 +13,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { useLenis } from "@/providers/LenisProvider";
+import { siteConfig } from "@/config/site.config";
 import styles from "./Home.module.css";
 
 // Register GSAP plugins
@@ -437,11 +438,14 @@ export default function HomePage() {
 
         <div className={styles.ctaContent}>
           <p className={`${styles.ctaLabel} reveal-text`}>
-            Open to Opportunities
+            {siteConfig.cta.label}
           </p>
           <h2 className={styles.ctaTitle}>
-            <span className={`${styles.ctaLine} reveal-text`}>Looking for</span>
-            <span className={`${styles.ctaLine} reveal-text`}>someone?</span>
+            {siteConfig.cta.title.map((line, i) => (
+              <span key={i} className={`${styles.ctaLine} reveal-text`}>
+                {line}
+              </span>
+            ))}
           </h2>
 
           <motion.div
@@ -452,7 +456,7 @@ export default function HomePage() {
             onMouseLeave={magnetic.handleMouseLeave}
           >
             <Link href="/contact" className={styles.ctaButton}>
-              <span>Get in touch</span>
+              <span>{siteConfig.cta.buttonText}</span>
               <motion.span
                 className={styles.buttonOval}
                 whileHover={{ scale: 1.5 }}
@@ -462,10 +466,10 @@ export default function HomePage() {
         </div>
 
         <div className={styles.ctaFooter}>
-          <a href="mailto:hello@example.com?subject=Hello!">
-            hyeoniverse.dev@gmail.com
+          <a href={`mailto:${siteConfig.contact.email}?subject=Hello!`}>
+            {siteConfig.contact.email}
           </a>
-          <span>HYEON © 2026, All Rights Reserved</span>
+          <span>{siteConfig.footer.copyright}</span>
         </div>
       </section>
 

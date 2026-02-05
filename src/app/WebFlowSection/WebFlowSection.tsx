@@ -3,6 +3,7 @@
 import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { siteConfig } from "@/config/site.config";
 import styles from "./WebFlowSection.module.css";
 
 // Register GSAP plugins
@@ -310,7 +311,7 @@ export default function WebFlowSection() {
       <div className={styles.credits}>
         <p className={styles.creditsText}>
           Designed & Developed with{" "}
-          <span className={styles.creditsHeart}>❤</span> by HYEONIVERSE
+          <span className={styles.creditsHeart}>❤</span> by {siteConfig.personal.nickname}
         </p>
       </div>
     </section>

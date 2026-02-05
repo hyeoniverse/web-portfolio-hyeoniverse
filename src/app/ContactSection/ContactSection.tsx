@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import { siteConfig } from "@/config/site.config";
 import styles from "./ContactSection.module.css";
 
 // Animation easing
@@ -76,35 +77,32 @@ export default function ContactSection() {
           <div className={styles.contactInfo}>
             <div className={styles.contactItem}>
               <span className={styles.contactLabel}>Email</span>
-              <a href="mailto:hello@hyeoniverse.com" className={styles.contactValue}>
-                hello@hyeoniverse.com
-              </a>
-            </div>
-            <div className={styles.contactItem}>
-              <span className={styles.contactLabel}>Careers</span>
-              <a href="mailto:careers@hyeoniverse.com" className={styles.contactValue}>
-                careers@hyeoniverse.com
+              <a href={`mailto:${siteConfig.contact.email}`} className={styles.contactValue}>
+                {siteConfig.contact.email}
               </a>
             </div>
             <div className={styles.contactItem}>
               <span className={styles.contactLabel}>Location</span>
-              <span className={styles.contactValue}>Seoul, South Korea</span>
+              <span className={styles.contactValue}>{siteConfig.personal.location}</span>
             </div>
           </div>
 
           <div className={styles.socialLinks}>
-            <a href="https://behance.net" target="_blank" rel="noopener noreferrer">
-              Behance
-            </a>
-            <a href="https://dribbble.com" target="_blank" rel="noopener noreferrer">
-              Dribbble
-            </a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-              LinkedIn
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              Instagram
-            </a>
+            {siteConfig.social.github && (
+              <a href={siteConfig.social.github} target="_blank" rel="noopener noreferrer">
+                GitHub
+              </a>
+            )}
+            {siteConfig.social.linkedin && (
+              <a href={siteConfig.social.linkedin} target="_blank" rel="noopener noreferrer">
+                LinkedIn
+              </a>
+            )}
+            {siteConfig.social.blog && (
+              <a href={siteConfig.social.blog} target="_blank" rel="noopener noreferrer">
+                Blog
+              </a>
+            )}
           </div>
         </motion.div>
 

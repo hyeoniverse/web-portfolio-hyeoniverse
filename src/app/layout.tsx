@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type React from "react";
 import "@/styles/global.css";
+import { siteConfig } from "@/config/site.config";
 import {
   IBM_Plex_Mono,
   Inter,
@@ -28,25 +29,21 @@ import SectionTransition from "@/components/effects/SectionTransition";
 import FloatingCTA from "@/components/common/FloatingCTA";
 
 export const metadata: Metadata = {
-  title: "HYEON | Creative Developer & Designer",
-  description:
-    "프론트엔드 개발자 HYEON의 포트폴리오입니다. React, Next.js, TypeScript를 활용한 인터랙티브 웹 경험을 만듭니다.",
-  keywords:
-    "frontend developer, 프론트엔드 개발자, portfolio, 포트폴리오, React, Next.js, TypeScript, web development, UI/UX, creative developer",
-  authors: [{ name: "HYEON" }],
-  creator: "HYEON",
+  title: siteConfig.metadata.title,
+  description: siteConfig.metadata.description,
+  keywords: siteConfig.metadata.keywords,
+  authors: [{ name: siteConfig.metadata.author }],
+  creator: siteConfig.metadata.author,
   openGraph: {
-    title: "HYEON | Creative Developer & Designer",
-    description:
-      "프론트엔드 개발자 HYEON의 포트폴리오. 인터랙티브 웹 경험을 만듭니다.",
+    title: siteConfig.metadata.title,
+    description: siteConfig.metadata.description,
     type: "website",
-    locale: "ko_KR",
+    locale: siteConfig.metadata.locale,
   },
   twitter: {
     card: "summary_large_image",
-    title: "HYEON | Creative Developer & Designer",
-    description:
-      "프론트엔드 개발자 HYEON의 포트폴리오. 인터랙티브 웹 경험을 만듭니다.",
+    title: siteConfig.metadata.title,
+    description: siteConfig.metadata.description,
   },
   robots: {
     index: true,
