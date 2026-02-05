@@ -19,6 +19,7 @@ import Nav from "@/components/layout/Nav";
 import Modal from "@/components/ui/Modal";
 import CursorTrail from "@/components/effects/CursorTrail";
 import { LenisProvider } from "@/providers/LenisProvider";
+import RecaptchaProvider from "@/providers/RecaptchaProvider";
 
 import FaviconSwitcher from "@/components/common/FaviconSwitcher";
 import ActionButtons from "@/components/common/ActionButtons/ActionButtons";
@@ -113,18 +114,20 @@ export default function RootLayout({
       </head>
 
       <body>
-        <LenisProvider>
-          <Nav />
-          <main>{children}</main>
+        <RecaptchaProvider>
+          <LenisProvider>
+            <Nav />
+            <main>{children}</main>
 
-          <aside>
-            <FaviconSwitcher />
-            <ScrollRestoration />
-            <LoadingScreen />
-            <Modal />
-            <CursorTrail />
-          </aside>
-        </LenisProvider>
+            <aside>
+              <FaviconSwitcher />
+              <ScrollRestoration />
+              <LoadingScreen />
+              <Modal />
+              <CursorTrail />
+            </aside>
+          </LenisProvider>
+        </RecaptchaProvider>
       </body>
     </html>
   );

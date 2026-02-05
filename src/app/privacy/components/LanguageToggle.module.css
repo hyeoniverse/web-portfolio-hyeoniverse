@@ -1,0 +1,57 @@
+/* Language Toggle Container */
+.toggle {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border: var(--border-strong);
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-capsule);
+}
+
+.inner {
+  display: flex;
+  position: relative;
+  z-index: 1;
+}
+
+/* Sliding Indicator */
+.indicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: var(--text-primary);
+  border-radius: var(--radius-capsule);
+  /* Framer Motion handles all positioning via style={{ x }} */
+}
+
+/* Button */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-capsule);
+  cursor: pointer;
+}
+
+/* Text Layers */
+.textPrimary {
+  color: var(--text-primary);
+}
+
+.textInverse {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-inverse);
+}

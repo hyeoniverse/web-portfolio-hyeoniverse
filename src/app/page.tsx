@@ -9,8 +9,12 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useForm } from "@formspree/react";
+import ReCAPTCHA from "react-google-recaptcha";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
@@ -169,9 +173,229 @@ export default function HomePage() {
   const hasNavigatedRef = useRef<boolean>(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "error" | "success";
+  } | null>(null);
+  const [formToast, setFormToast] = useState<{
+    message: string;
+    type: "error" | "success";
+  } | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [submittedData, setSubmittedData] = useState<{
+    name: string;
+    email: string;
+    title: string;
+    message: string;
+    fileName: string;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // reCAPTCHA config
+  const { enabled: recaptchaEnabled, version: recaptchaVersion } =
+    siteConfig.recaptcha;
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  // Formspree form hook
+  const [formState, handleFormspreeSubmit, resetFormspree] =
+    useForm("xlgwrpvq");
+
+  // Show toast notification (global)
+  const showToast = useCallback(
+    (message: string, type: "error" | "success") => {
+      setToast({ message, type });
+      setTimeout(() => setToast(null), 4000);
+    },
+    [],
+  );
+
+  // Show form toast (inside drawer, below textarea)
+  const showFormToast = useCallback(
+    (message: string, type: "error" | "success" = "error") => {
+      setFormToast({ message, type });
+      setTimeout(() => setFormToast(null), type === "success" ? 4000 : 3000);
+    },
+    [],
+  );
+
+  // Reset form to initial state
+  const resetForm = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.preventDefault();
+      e?.stopPropagation();
+      formRef.current?.reset();
+      resetFormspree();
+      setPrivacyAccepted(false);
+      setFileName("");
+      setRecaptchaToken(null);
+      setFormToast(null);
+      setSubmittedData(null);
+      recaptchaRef.current?.reset();
+      prevSucceededRef.current = false;
+    },
+    [resetFormspree],
+  );
+
+  // Custom submit handler with error catching
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.currentTarget);
+      const name = formData.get("name") as string;
+      const email = formData.get("email") as string;
+      const title = formData.get("title") as string;
+      const message = formData.get("message") as string;
+
+      // Required field validation
+      if (!name?.trim()) {
+        showFormToast("Please enter your name");
+        return;
+      }
+      if (!email?.trim()) {
+        showFormToast("Please enter your email");
+        return;
+      }
+      // Simple email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showFormToast("Please enter a valid email address");
+        return;
+      }
+      // Title validation (optional, but if provided must be 2-50 chars)
+      if (
+        title?.trim() &&
+        (title.trim().length < 2 || title.trim().length > 50)
+      ) {
+        showFormToast("Title must be 2-50 characters");
+        return;
+      }
+      if (!message?.trim()) {
+        showFormToast("Please enter your message");
+        return;
+      }
+
+      if (!privacyAccepted) {
+        showFormToast("Please accept the Privacy Policy");
+        return;
+      }
+
+      // reCAPTCHA validation
+      if (recaptchaEnabled) {
+        if (recaptchaVersion === "v2" && !recaptchaToken) {
+          showFormToast("Please complete the reCAPTCHA verification");
+          return;
+        }
+        if (recaptchaVersion === "v3" && !executeRecaptcha) {
+          showFormToast("reCAPTCHA not loaded. Please refresh the page.");
+          return;
+        }
+      }
+
+      try {
+        // Store submitted data for success view
+        setSubmittedData({
+          name: name.trim(),
+          email: email.trim(),
+          title: title?.trim() || "",
+          message: message.trim(),
+          fileName,
+        });
+
+        // Add reCAPTCHA token
+        if (recaptchaEnabled) {
+          if (recaptchaVersion === "v3" && executeRecaptcha) {
+            const token = await executeRecaptcha("contact_form");
+            formData.append("g-recaptcha-response", token);
+          } else if (recaptchaVersion === "v2" && recaptchaToken) {
+            formData.append("g-recaptcha-response", recaptchaToken);
+          }
+        }
+
+        await handleFormspreeSubmit(formData);
+      } catch (error) {
+        console.error("Form submission error:", error);
+        showToast("Network error. Please check your connection.", "error");
+      }
+    },
+    [
+      handleFormspreeSubmit,
+      privacyAccepted,
+      recaptchaToken,
+      recaptchaEnabled,
+      recaptchaVersion,
+      executeRecaptcha,
+      showToast,
+      showFormToast,
+    ],
+  );
+
+  // Track previous state to detect submission completion
+  const prevSubmittingRef = useRef(false);
+  const prevSucceededRef = useRef(false);
+
+  // Handle form success/error with toast
+  useEffect(() => {
+    // Detect when submission just completed (was submitting, now not)
+    const justFinishedSubmitting =
+      prevSubmittingRef.current && !formState.submitting;
+    // Detect when succeeded just changed to true
+    const justSucceeded = !prevSucceededRef.current && formState.succeeded;
+
+    prevSubmittingRef.current = formState.submitting;
+    prevSucceededRef.current = formState.succeeded;
+
+    if (justFinishedSubmitting) {
+      if (justSucceeded) {
+        // Just succeeded
+        showFormToast("Message sent successfully!", "success");
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
+      } else if (!formState.succeeded) {
+        // Submission finished but not succeeded = error
+        let errorMsg = "Failed to send message. Please try again.";
+
+        // Try to get specific error message from Formspree
+        if (formState.errors) {
+          const formErrors = formState.errors.getFormErrors?.() || [];
+          const fieldErrors = formState.errors.getAllFieldErrors?.() || [];
+
+          if (formErrors.length > 0) {
+            errorMsg = formErrors.map((err) => err.message).join(", ");
+          } else if (fieldErrors.length > 0) {
+            errorMsg = fieldErrors
+              .map(([, errors]) => errors.map((err) => err.message).join(", "))
+              .join(", ");
+          }
+        }
+
+        showFormToast(errorMsg);
+      }
+    }
+  }, [
+    formState.submitting,
+    formState.succeeded,
+    formState.errors,
+    showFormToast,
+  ]);
+
+  // Toggle reCAPTCHA badge visibility based on drawer state
+  useEffect(() => {
+    if (!recaptchaEnabled || recaptchaVersion !== "v3") return;
+
+    const badge = document.querySelector(".grecaptcha-badge") as HTMLElement;
+    if (badge) {
+      badge.style.visibility = isDrawerOpen ? "visible" : "hidden";
+      badge.style.opacity = isDrawerOpen ? "1" : "0";
+      badge.style.transition = "visibility 0.3s, opacity 0.3s";
+    }
+  }, [isDrawerOpen, recaptchaEnabled, recaptchaVersion]);
+
   const [, setMousePos] = useState({ x: 0, y: 0 });
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -1053,6 +1277,7 @@ export default function HomePage() {
                 !drawerRef.current.contains(e.target as Node)
               ) {
                 setIsDrawerOpen(false);
+                resetForm();
               }
             }}
           >
@@ -1076,7 +1301,10 @@ export default function HomePage() {
               {/* Close Button */}
               <motion.button
                 className={styles.drawerClose}
-                onClick={() => setIsDrawerOpen(false)}
+                onClick={() => {
+                  setIsDrawerOpen(false);
+                  resetForm();
+                }}
                 aria-label="Close"
                 initial={{ opacity: 0 }}
                 animate={{
@@ -1088,14 +1316,10 @@ export default function HomePage() {
                   transition: { duration: 0.15, delay: 0.4 },
                 }}
               >
-                <svg width="18" height="2" viewBox="0 0 18 2" fill="none">
-                  <path
-                    d="M1 1H17"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <span className={styles.closeIconWrapper}>
+                  <span className={styles.closeLine1} />
+                  <span className={styles.closeLine2} />
+                </span>
               </motion.button>
 
               {/* Left: Form Card */}
@@ -1125,57 +1349,391 @@ export default function HomePage() {
                     transition: { duration: 0.15, delay: 0.4 },
                   }}
                 >
-                  <h2 className={styles.drawerTitle}>Fill out the form</h2>
+                  <h2 className={styles.drawerTitle}>
+                    {formState.succeeded
+                      ? "Message Sent!"
+                      : "Fill out the form"}
+                  </h2>
 
-                  <div className={styles.drawerFormRow}>
-                    <input
-                      type="text"
-                      className={styles.drawerInput}
-                      placeholder="Name"
-                    />
-                    <input
-                      type="email"
-                      className={styles.drawerInput}
-                      placeholder="Your Email"
-                    />
-                  </div>
+                  {/* Success View - shows sent message content */}
+                  <AnimatePresence mode="wait">
+                    {formState.succeeded && submittedData ? (
+                      <motion.div
+                        key="success-view"
+                        className={styles.drawerSuccessView}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                      >
+                        {/* Label */}
+                        <motion.div
+                          className={styles.drawerSuccessLabel}
+                          variants={{
+                            hidden: { opacity: 0, y: 10 },
+                            visible: { opacity: 1, y: 0 },
+                            exit: { opacity: 0, y: -10 },
+                          }}
+                          transition={{
+                            duration: 0.4,
+                            delay: 0.1,
+                            ease: [0.65, 0, 0.35, 1],
+                          }}
+                        >
+                          Message you sent
+                        </motion.div>
 
-                  {/* File Upload */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    style={{ display: "none" }}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) setFileName(file.name);
-                    }}
-                  />
-                  <button
-                    className={`${styles.drawerFileBtn} ${fileName ? styles.drawerFileBtnActive : ""}`}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    {fileName || "Attach a pdf/doc file, max 10Mb"}
-                  </button>
+                        {/* Header - Name & Email */}
+                        <motion.div
+                          className={styles.drawerSuccessHeader}
+                          variants={{
+                            hidden: { clipPath: "inset(100% 0 0 0)", y: 30 },
+                            visible: { clipPath: "inset(0% 0 0 0)", y: 0 },
+                            exit: { clipPath: "inset(0 0 100% 0)", y: -20 },
+                          }}
+                          transition={{
+                            duration: 0.5,
+                            delay: 0.15,
+                            ease: [0.65, 0, 0.35, 1],
+                          }}
+                        >
+                          <span className={styles.drawerSuccessFrom}>
+                            {submittedData.name}
+                          </span>
+                          <span className={styles.drawerSuccessEmail}>
+                            {submittedData.email}
+                          </span>
+                        </motion.div>
 
-                  {/* Textarea */}
-                  <textarea
-                    className={styles.drawerTextarea}
-                    placeholder="Something to say?"
-                    rows={6}
-                  />
+                        {/* Title (if exists) */}
+                        {submittedData.title && (
+                          <motion.div
+                            className={styles.drawerSuccessTitle}
+                            variants={{
+                              hidden: { clipPath: "inset(100% 0 0 0)", y: 20 },
+                              visible: { clipPath: "inset(0% 0 0 0)", y: 0 },
+                              exit: { clipPath: "inset(0 0 100% 0)", y: -15 },
+                            }}
+                            transition={{
+                              duration: 0.5,
+                              delay: 0.2,
+                              ease: [0.65, 0, 0.35, 1],
+                            }}
+                          >
+                            {submittedData.title}
+                          </motion.div>
+                        )}
 
-                  {/* Footer */}
-                  <div className={styles.drawerFormFooter}>
-                    <label className={styles.drawerPrivacy}>
-                      <input type="checkbox" data-clickable="true" />
-                      <span>
-                        Accept the <a href="#">Privacy Policy</a>
-                      </span>
-                    </label>
+                        {/* Divider */}
+                        <motion.div
+                          className={styles.drawerSuccessDivider}
+                          variants={{
+                            hidden: { scaleX: 0, opacity: 0 },
+                            visible: { scaleX: 1, opacity: 1 },
+                            exit: { scaleX: 0, opacity: 0 },
+                          }}
+                          transition={{
+                            duration: 0.6,
+                            delay: 0.25,
+                            ease: [0.65, 0, 0.35, 1],
+                          }}
+                        />
 
-                    <button className={styles.drawerSubmitBtn}>Submit</button>
-                  </div>
+                        {/* Message Content */}
+                        <motion.div
+                          className={styles.drawerSuccessMessageWrapper}
+                          variants={{
+                            hidden: { clipPath: "inset(0 0 100% 0)", y: 40 },
+                            visible: { clipPath: "inset(0 0 0% 0)", y: 0 },
+                            exit: { clipPath: "inset(100% 0 0 0)", y: -30 },
+                          }}
+                          transition={{
+                            duration: 0.6,
+                            delay: 0.3,
+                            ease: [0.65, 0, 0.35, 1],
+                          }}
+                        >
+                          <span className={styles.drawerSuccessMessageLabel}>
+                            Message
+                          </span>
+                          <p className={styles.drawerSuccessMessage}>
+                            {submittedData.message}
+                          </p>
+                        </motion.div>
+
+                        {/* Attachment (if exists) */}
+                        {submittedData.fileName && (
+                          <motion.div
+                            className={styles.drawerSuccessAttachment}
+                            variants={{
+                              hidden: {
+                                scale: 0.8,
+                                opacity: 0,
+                                filter: "blur(10px)",
+                              },
+                              visible: {
+                                scale: 1,
+                                opacity: 1,
+                                filter: "blur(0px)",
+                              },
+                              exit: {
+                                scale: 0.8,
+                                opacity: 0,
+                                filter: "blur(10px)",
+                              },
+                            }}
+                            transition={{
+                              duration: 0.4,
+                              delay: 0.35,
+                              ease: [0.65, 0, 0.35, 1],
+                            }}
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                            >
+                              <path
+                                d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                            {submittedData.fileName}
+                          </motion.div>
+                        )}
+
+                        {/* New Message Button */}
+                        <motion.button
+                          type="button"
+                          className={styles.drawerSuccessBtn}
+                          onClick={resetForm}
+                          variants={{
+                            hidden: { y: 40, opacity: 0, scale: 0.9 },
+                            visible: { y: 0, opacity: 1, scale: 1 },
+                            exit: { y: 30, opacity: 0, scale: 0.95 },
+                          }}
+                          transition={{
+                            duration: 0.5,
+                            delay: 0.4,
+                            ease: [0.65, 0, 0.35, 1],
+                          }}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          Send Another Message
+                        </motion.button>
+                      </motion.div>
+                    ) : (
+                      <motion.form
+                        key="contact-form"
+                        ref={formRef}
+                        onSubmit={handleSubmit}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.4, ease: [0.65, 0, 0.35, 1] }}
+                      >
+                        <div className={styles.drawerFormRow}>
+                          <input
+                            id="name"
+                            type="text"
+                            name="name"
+                            className={styles.drawerInput}
+                            placeholder="Name"
+                            maxLength={100}
+                          />
+                          <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            className={styles.drawerInput}
+                            placeholder="Your Email"
+                            maxLength={254}
+                          />
+                        </div>
+
+                        <input
+                          id="title"
+                          type="text"
+                          name="title"
+                          className={styles.drawerInput}
+                          placeholder="Title (optional)"
+                          minLength={2}
+                          maxLength={50}
+                        />
+
+                        {/* File Upload */}
+                        {siteConfig.emailService.enableFileUpload && (
+                          <div
+                            className={
+                              fileName ? styles.drawerFileWrapper : undefined
+                            }
+                          >
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              name="attachment"
+                              accept=".pdf,.doc,.docx"
+                              style={{ display: "none" }}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                setFileName(file?.name || "");
+                              }}
+                            />
+                            <button
+                              type="button"
+                              className={`${styles.drawerFileBtn} ${fileName ? styles.drawerFileBtnActive : ""}`}
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              {fileName || "Attach a pdf/doc file, max 10MB"}
+                            </button>
+                            {fileName && (
+                              <button
+                                type="button"
+                                className={styles.drawerFileCancelBtn}
+                                onClick={() => {
+                                  setFileName("");
+                                  if (fileInputRef.current) {
+                                    fileInputRef.current.value = "";
+                                  }
+                                }}
+                                aria-label="Remove file"
+                              >
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path
+                                    d="M18 6L6 18M6 6l12 12"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        <div className={styles.drawerTextareaWrapper}>
+                          <textarea
+                            id="message"
+                            name="message"
+                            className={styles.drawerTextarea}
+                            placeholder="Something to say?"
+                            rows={6}
+                            maxLength={2000}
+                          />
+                          <div
+                            className={`${styles.drawerFormToast} ${formToast ? styles.drawerFormToastVisible : ""} ${formToast?.type === "success" ? styles.drawerFormToastSuccess : ""}`}
+                          >
+                            {formToast?.message}
+                          </div>
+                        </div>
+
+                        <div className={styles.drawerFormFooter}>
+                          <div
+                            className={styles.drawerPrivacy}
+                            onClick={() => setPrivacyAccepted(!privacyAccepted)}
+                            data-clickable="true"
+                          >
+                            <input
+                              type="checkbox"
+                              name="privacy"
+                              checked={privacyAccepted}
+                              onChange={(e) =>
+                                setPrivacyAccepted(e.target.checked)
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              data-clickable="true"
+                            />
+                            <span>
+                              Accept the{" "}
+                              <Link
+                                data-more="true"
+                                href="/privacy"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Privacy Policy
+                              </Link>
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* reCAPTCHA v2 (only shown when version is v2) */}
+                        {recaptchaEnabled && recaptchaVersion === "v2" && (
+                          <div className={styles.drawerRecaptcha}>
+                            <ReCAPTCHA
+                              ref={recaptchaRef}
+                              sitekey={
+                                process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""
+                              }
+                              onChange={(token) => setRecaptchaToken(token)}
+                              onExpired={() => setRecaptchaToken(null)}
+                              theme="dark"
+                            />
+                          </div>
+                        )}
+
+                        <button
+                          type={formState.succeeded ? "button" : "submit"}
+                          className={`${styles.drawerSubmitBtn} ${formState.succeeded ? styles.drawerSubmitBtnSuccess : ""}`}
+                          disabled={formState.submitting}
+                          onClick={formState.succeeded ? resetForm : undefined}
+                        >
+                          {formState.submitting ? (
+                            "Sending..."
+                          ) : formState.succeeded ? (
+                            <>
+                              <span className={styles.drawerSubmitTextDefault}>
+                                Sent
+                                <svg
+                                  className={styles.drawerSubmitIcon}
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                >
+                                  <path
+                                    d="M20 6L9 17l-5-5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              </span>
+                              <span className={styles.drawerSubmitTextHover}>
+                                Reset
+                                <svg
+                                  className={styles.drawerSubmitIcon}
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                >
+                                  <path
+                                    d="M1 4v6h6M23 20v-6h-6"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              </span>
+                            </>
+                          ) : (
+                            "Submit"
+                          )}
+                        </button>
+                      </motion.form>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               </motion.div>
 
@@ -1390,6 +1948,19 @@ export default function HomePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Toast Notification */}
+      <div
+        className={`${styles.toast} ${toast ? styles.toastVisible : ""} ${
+          toast?.type === "error"
+            ? styles.toastError
+            : toast?.type === "success"
+              ? styles.toastSuccess
+              : ""
+        }`}
+      >
+        {toast?.message}
+      </div>
     </div>
   );
 }

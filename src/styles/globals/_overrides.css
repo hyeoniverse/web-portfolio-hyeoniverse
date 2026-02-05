@@ -20,25 +20,6 @@ textarea::selection {
   color: var(--text-inverse);
 }
 
-[data-theme="dark"] input::selection,
-textarea::selection {
-  background: var(--bg-accent-secondary-solid-dark);
-}
-
-/* Focus styles */
-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid var(--color-neutral-500);
-  outline-offset: 2px;
-}
-
-[data-theme="dark"] button:focus-visible,
-[data-theme="dark"] input:focus-visible,
-[data-theme="dark"] textarea:focus-visible {
-  outline-color: var(--color-primary-light);
-}
-
 strong {
   background: linear-gradient(
     145deg,

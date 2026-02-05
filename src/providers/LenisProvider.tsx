@@ -24,6 +24,7 @@ interface LenisContextType {
   scrollTo: (target: string | number | HTMLElement, options?: ScrollToOptions) => void;
   stop: () => void;
   start: () => void;
+  setInfinite: (value: boolean) => void;
 }
 
 interface ScrollToOptions {
@@ -40,6 +41,7 @@ const LenisContext = createContext<LenisContextType>({
   scrollTo: () => {},
   stop: () => {},
   start: () => {},
+  setInfinite: () => {},
 });
 
 // Expo ease out function
@@ -157,8 +159,14 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     lenisRef.current?.start();
   }, []);
 
+  const setInfinite = useCallback((value: boolean) => {
+    if (lenisRef.current) {
+      lenisRef.current.options.infinite = value;
+    }
+  }, []);
+
   return (
-    <LenisContext.Provider value={{ lenis, scrollTo, stop, start }}>
+    <LenisContext.Provider value={{ lenis, scrollTo, stop, start, setInfinite }}>
       {children}
     </LenisContext.Provider>
   );

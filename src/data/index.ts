@@ -30,13 +30,13 @@ export const blogPostsData = config.blogPosts;
 // Filtered Experience Data
 // ============================================
 export const activityData = config.experiences.filter(
-  (exp) => exp.type === "activity"
+  (exp) => exp.type === "activity",
 );
 
 export const educationData = config.experiences.filter(
-  (exp) => exp.type === "education"
+  (exp) => exp.type === "education",
 );
 
 export const achievementsData = config.experiences.filter(
-  (exp) => exp.type === "achievement"
+  (exp) => exp.type === "achievement",
 );

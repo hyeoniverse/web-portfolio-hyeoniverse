@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./LoadingScreen.module.css";
 import { config } from "@/config";
@@ -10,16 +11,23 @@ import { thisYear } from "@/utils";
 import FontMorphText from "@/components/effects/FontMorphText";
 import { DEFAULT_FONTS } from "@/hooks/useFontMorph";
 
+// Pages that should skip the loading screen
+const SKIP_LOADING_PAGES = ["/privacy"];
+
 // Redis-style easing curves
 const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const EASE_IN_OUT_EXPO: [number, number, number, number] = [0.87, 0, 0.13, 1];
 
 export default function LoadingScreen() {
+  const pathname = usePathname();
   const { isLoading, isTransitioning, progress } = useLoadingScreen();
   const [displayedProgress, setDisplayedProgress] = useState(0);
   const [, setIsMounted] = useState(false);
   const animationRef = useRef<number | null>(null);
   const prevProgressRef = useRef(0);
+
+  // Skip loading screen for certain pages
+  const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -67,7 +75,7 @@ export default function LoadingScreen() {
     return displayedProgress.toString().padStart(3, "0");
   }, [displayedProgress]);
 
-  if (!isLoading) {
+  if (!isLoading || shouldSkipLoading) {
     return null;
   }
 

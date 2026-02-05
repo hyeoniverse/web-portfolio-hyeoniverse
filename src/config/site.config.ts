@@ -38,6 +38,44 @@ export const siteConfig = {
     email: "hyeoniverse.dev@gmail.com", // Primary contact email
   },
 
+  // ---------------------------------------------------------------------------
+  // EMAIL SERVICE CONFIGURATION
+  // ---------------------------------------------------------------------------
+  // Choose your email service provider: "web3forms" | "formspree" | "emailjs"
+  // Make sure to set the corresponding environment variables in .env.local
+  //
+  // For Web3Forms:
+  //   NEXT_PUBLIC_WEB3FORMS_KEY=your_access_key
+  //
+  // For Formspree:
+  //   NEXT_PUBLIC_FORMSPREE_ID=your_form_id
+  //
+  // For EmailJS:
+  //   NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
+  //   NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_template_id
+  //   NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
+  // ---------------------------------------------------------------------------
+  emailService: {
+    provider: "formspree" as "web3forms" | "formspree" | "emailjs",
+    // File attachment support:
+    // - Web3Forms: Paid plan only (up to 10MB)
+    // - Formspree: Free (up to 10MB)
+    // - EmailJS: Base64 encoded (up to 500KB)
+    enableFileUpload: false,
+  },
+
+  // ---------------------------------------------------------------------------
+  // RECAPTCHA CONFIGURATION
+  // ---------------------------------------------------------------------------
+  // version: "v3" (invisible, recommended) | "v2" (checkbox)
+  // Set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in .env.local
+  // Make sure to create the correct key type in Google reCAPTCHA console
+  // ---------------------------------------------------------------------------
+  recaptcha: {
+    enabled: true,
+    version: "v3" as "v2" | "v3",
+  },
+
   social: {
     github: "https://github.com",
     linkedin: "https://linkedin.com",
