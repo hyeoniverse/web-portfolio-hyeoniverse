@@ -141,6 +141,7 @@
   line-height: var(--line-height-fit);
   color: var(--text-primary);
   letter-spacing: -0.03em;
+  cursor: default;
 }
 
 .titleAccent {
@@ -150,6 +151,24 @@
   font-weight: inherit;
   line-height: var(--line-height-fit);
   color: var(--text-accent-secondary-alt);
+  cursor: default;
+  transition: color 0.3s ease, -webkit-text-stroke 0.3s ease;
+}
+
+.titleAccent:hover {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--text-primary);
+}
+
+/* Individual character styling */
+.char {
+  display: inline-block;
+  transition: color 0.3s ease, -webkit-text-stroke 0.3s ease;
+}
+
+.titleText:hover .char {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--text-primary);
 }
 
 .titleOval {

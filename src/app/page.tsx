@@ -28,6 +28,23 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// Split text into individual characters for hover effect
+function SplitText({ children, className }: { children: string; className?: string }) {
+  return (
+    <span className={className}>
+      {children.split("").map((char, i) => (
+        <span
+          key={i}
+          className={styles.char}
+          style={{ transitionDelay: `${i * 0.03}s` }}
+        >
+          {char === " " ? "\u00A0" : char}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 // Magnetic effect hook
 function useMagnetic(strength: number = 0.3) {
   const ref = useRef<HTMLDivElement>(null);
@@ -454,10 +471,10 @@ export default function HomePage() {
         <div className={`${styles.heroContent} hero-content`}>
           <h1 className={styles.heroTitle}>
             <span className={`${styles.titleLine} hero-line`}>
-              <span className={styles.titleText}>Creative</span>
+              <SplitText className={styles.titleText}>Creative</SplitText>
             </span>
             <span className={`${styles.titleLine} hero-line`}>
-              <span className={styles.titleText}>Developer</span>
+              <SplitText className={styles.titleText}>Developer</SplitText>
               <span className={styles.titleOval}>
                 <motion.span
                   className={styles.ovalInline}
@@ -472,7 +489,7 @@ export default function HomePage() {
             </span>
             <span className={`${styles.titleLine} hero-line`}>
               <span className={styles.titleAccent}>&</span>
-              <span className={styles.titleText}>Problem Solver</span>
+              <SplitText className={styles.titleText}>Problem Solver</SplitText>
             </span>
           </h1>
 
