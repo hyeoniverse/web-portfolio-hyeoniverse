@@ -223,6 +223,11 @@ export default function HomePage() {
   const hoverAnimationRef = useRef<number>(0);
   const hasHoverNavigatedRef = useRef<boolean>(false);
 
+  // Magnetic effect for work circles
+  const [magneticOffsets, setMagneticOffsets] = useState<{
+    [key: string]: { x: number; y: number; rotation: number };
+  }>({});
+
   // Handle press start
   const handlePressStart = useCallback(
     (
@@ -338,6 +343,34 @@ export default function HomePage() {
   const handleHoverEnd = useCallback(() => {
     cancelAnimationFrame(hoverAnimationRef.current);
     setHoveringWork(null);
+  }, []);
+
+  // Handle magnetic mouse move on work circle
+  const handleWorkMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>, workId: string) => {
+      const target = e.currentTarget;
+      const rect = target.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const deltaX = (e.clientX - centerX) * 0.25;
+      const deltaY = (e.clientY - centerY) * 0.25;
+      const rotation = deltaX * 0.08;
+
+      setMagneticOffsets((prev) => ({
+        ...prev,
+        [workId]: { x: deltaX, y: deltaY, rotation },
+      }));
+    },
+    []
+  );
+
+  // Reset magnetic offset when mouse leaves
+  const handleWorkMouseLeave = useCallback((workId: string) => {
+    setMagneticOffsets((prev) => ({
+      ...prev,
+      [workId]: { x: 0, y: 0, rotation: 0 },
+    }));
   }, []);
 
   // Track mouse position
@@ -721,6 +754,9 @@ export default function HomePage() {
                   // Determine the current scale (press takes priority over hover)
                   const currentScale = isPressing ? pressScale : (isHovering ? hoverScale : 1);
 
+                  // Magnetic offset
+                  const magnetic = work ? magneticOffsets[work.id] || { x: 0, y: 0, rotation: 0 } : { x: 0, y: 0, rotation: 0 };
+
                   items.push(
                     <div key={index} className={styles.worksGridItem}>
                       {work && (
@@ -730,26 +766,56 @@ export default function HomePage() {
                           onMouseDown={(e) => handlePressStart(e, work)}
                           onMouseUp={handlePressEnd}
                           onMouseEnter={(e) => handleHoverStart(e, work)}
+                          onMouseMove={(e) => handleWorkMouseMove(e, work.id)}
                           onMouseLeave={() => {
                             handlePressEnd();
                             handleHoverEnd();
+                            handleWorkMouseLeave(work.id);
                           }}
                           onTouchStart={(e) => handlePressStart(e, work)}
                           onTouchEnd={handlePressEnd}
-                          animate={{ scale: currentScale }}
+                          animate={{
+                            scale: currentScale,
+                            x: magnetic.x,
+                            y: magnetic.y,
+                            rotateZ: magnetic.rotation,
+                          }}
                           whileHover={{ scale: (isPressing || isHovering) ? currentScale : 1.05 }}
-                          transition={{ duration: 0.1, ease: "easeOut" }}
+                          transition={{
+                            scale: { duration: 0.1, ease: "easeOut" },
+                            x: { type: "spring", stiffness: 150, damping: 15 },
+                            y: { type: "spring", stiffness: 150, damping: 15 },
+                            rotateZ: { type: "spring", stiffness: 150, damping: 15 },
+                          }}
                         >
                           <div className={styles.workImageWrapper}>
-                            <img
+                            <motion.img
                               src={work.main}
                               alt=""
                               className={styles.workImage}
+                              animate={{
+                                x: -magnetic.x * 0.3,
+                                y: -magnetic.y * 0.3,
+                              }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 200,
+                                damping: 20,
+                              }}
                             />
-                            <img
+                            <motion.img
                               src={work.hover}
                               alt=""
                               className={styles.workImageHover}
+                              animate={{
+                                x: -magnetic.x * 0.5,
+                                y: -magnetic.y * 0.5,
+                              }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 200,
+                                damping: 20,
+                              }}
                             />
                           </div>
                         </motion.div>
