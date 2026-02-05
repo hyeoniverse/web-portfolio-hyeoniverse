@@ -27,20 +27,30 @@ import ScrollRestoration from "@/components/common/ScrollRestoration";
 import SectionTransition from "@/components/effects/SectionTransition";
 import FloatingCTA from "@/components/common/FloatingCTA";
 
-// Note: Metadata must be static, so we import config values directly
-// If you need dynamic metadata, use generateMetadata function instead
 export const metadata: Metadata = {
-  title: "HYEONIVERSE | Creative Digital Agency",
+  title: "HYEON | Creative Developer & Designer",
   description:
-    "We are a creative digital agency specializing in Branding, UX/UI, Webflow, Development, and Motion design.",
+    "프론트엔드 개발자 HYEON의 포트폴리오입니다. React, Next.js, TypeScript를 활용한 인터랙티브 웹 경험을 만듭니다.",
   keywords:
-    "creative agency, digital agency, branding, ux, ui, webflow, development, motion, design",
-  authors: [{ name: "HYEONIVERSE" }],
+    "frontend developer, 프론트엔드 개발자, portfolio, 포트폴리오, React, Next.js, TypeScript, web development, UI/UX, creative developer",
+  authors: [{ name: "HYEON" }],
+  creator: "HYEON",
   openGraph: {
-    title: "HYEONIVERSE | Creative Digital Agency",
+    title: "HYEON | Creative Developer & Designer",
     description:
-      "Creative digital agency specializing in branding, UX/UI, and web development",
+      "프론트엔드 개발자 HYEON의 포트폴리오. 인터랙티브 웹 경험을 만듭니다.",
     type: "website",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HYEON | Creative Developer & Designer",
+    description:
+      "프론트엔드 개발자 HYEON의 포트폴리오. 인터랙티브 웹 경험을 만듭니다.",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
