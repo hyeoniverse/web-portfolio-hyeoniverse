@@ -1,8 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web Portfolio - Oval
 
-## Getting Started
+개인 포트폴리오 웹사이트입니다. Next.js 15, React 19, TypeScript로 구축되었으며, GSAP, Framer Motion, Lenis를 활용한 인터랙티브 애니메이션이 특징입니다.
 
-First, run the development server:
+## 기술 스택
+
+- **Framework**: Next.js 15 (App Router)
+- **Library**: React 19
+- **Language**: TypeScript
+- **Animation**: GSAP + ScrollTrigger, Framer Motion
+- **Scroll**: Lenis Smooth Scroll
+- **Styling**: CSS Modules, CSS Variables
+- **Typography**: Instrument Serif, Space Grotesk
+
+## 주요 기능
+
+- **Infinite Scroll Loop**: Lenis smooth scroll과 Bridge Section을 결합한 무한 순환 스크롤
+- **Mouse Parallax**: Framer Motion useSpring/useTransform 기반 마우스 반응형 패럴랙스
+- **Scroll-Triggered Animations**: GSAP ScrollTrigger를 활용한 스크롤 기반 등장 애니메이션
+- **Scroll Velocity Parallax**: Lenis velocity를 활용한 스크롤 속도 기반 이미지 패럴랙스
+- **Mix-Blend Navigation**: mix-blend-mode: difference를 활용한 자동 반전 네비게이션
+
+## 시작하기
 
 ```bash
 npm run dev
@@ -10,27 +28,132 @@ npm run dev
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000)에서 결과를 확인할 수 있습니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Trouble Shooting
 
-## Learn More
+### 1. Lenis Scroll Velocity 효과 미작동
 
-To learn more about Next.js, take a look at the following resources:
+#### 문제
+Works 섹션의 이미지에 스크롤 속도 기반 패럴랙스 효과가 적용되지 않음
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### 시도한 방법들 (실패)
+1. **wheel 이벤트 직접 감지**: 불안정하고 Lenis와 충돌
+2. **RAF 폴링으로 scroll delta 계산**: 부정확한 velocity 측정
+3. **Lenis velocity 속성 직접 타입 단언**: 스크롤 이벤트 외부에서 접근 시 값이 갱신되지 않음
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+#### 원인
+- RAF 폴링 방식으로 스크롤 위치를 직접 계산하면 프레임 간 delta가 일정하지 않아 velocity 값이 부정확하게 측정됨
+- Lenis는 내부적으로 velocity를 계산하여 인스턴스 속성으로 제공하지만, 스크롤 이벤트 핸들러 내에서만 정확한 값에 접근 가능
 
-## Deploy on Vercel
+#### 해결
+Lenis의 네이티브 `on('scroll')` 이벤트를 사용하여 인스턴스에서 직접 velocity 속성 접근
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```tsx
+// ❌ 잘못된 방법 - RAF 폴링
+useEffect(() => {
+  const updateOffset = () => {
+    const currentScroll = lenis.scroll;
+    const delta = currentScroll - prevScrollRef.current;  // 부정확한 velocity
+    prevScrollRef.current = currentScroll;
+    rafIdRef.current = requestAnimationFrame(updateOffset);
+  };
+  rafIdRef.current = requestAnimationFrame(updateOffset);
+}, []);
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+// ✅ 올바른 방법 - Lenis scroll event
+useEffect(() => {
+  const handleScroll = () => {
+    const velocity = (lenis as any).velocity;  // 정확한 velocity
+    if (Math.abs(velocity) > 0.05) {
+      const offset = Math.max(-50, Math.min(50, velocity * 30));
+      workImageOffsetY.set(offset);
+    }
+  };
+  lenis.on("scroll", handleScroll);
+  return () => lenis.off("scroll", handleScroll);
+}, [lenis]);
+```
+
+#### 핵심 교훈
+Lenis는 내부적으로 velocity를 계산하여 인스턴스 속성으로 제공하므로, 직접 delta를 계산하는 것보다 정확함
+
+---
+
+### 2. Framer Motion transform과 CSS transform 충돌
+
+#### 문제
+이미지 중앙 정렬에 CSS `transform: translate(-50%, -50%)`를 사용하면 Framer Motion의 `y` 속성이 작동하지 않음
+
+#### 원인
+- Framer Motion의 `style={{ y }}` 속성은 inline `transform: translateY()`를 생성
+- CSS의 `transform` 속성이 이미 설정되어 있으면 Framer Motion의 transform이 덮어씌워지거나 충돌
+
+#### 해결
+margin 기반 중앙 정렬로 변경하여 CSS transform을 사용하지 않음
+
+```css
+/* ❌ 잘못된 방법 - CSS transform 사용 */
+.workImageInner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);  /* Framer Motion과 충돌 */
+}
+
+/* ✅ 올바른 방법 - margin 기반 정렬 */
+.workImageInner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130%;
+  height: 130%;
+  margin-left: -65%;  /* width의 절반 */
+  margin-top: -65%;   /* height의 절반 */
+}
+```
+
+#### 핵심 교훈
+Framer Motion의 style 속성은 inline transform을 생성하므로, CSS transform과 분리하여 사용해야 함
+
+---
+
+### 3. TypeScript useRef 타입 에러
+
+#### 문제
+`useRef<ReturnType<typeof setTimeout>>()`에서 "Expected 1 arguments, but got 0" 타입 에러 발생
+
+#### 원인
+- `useRef`는 초기값이 필수 파라미터
+- `ReturnType<typeof setTimeout>`은 `null`을 포함하지 않으며, `clearTimeout`은 `null`을 허용하지 않음
+
+#### 해결
+`undefined`를 초기값으로 명시적으로 제공하고 타입에 포함
+
+```tsx
+// ❌ 잘못된 방법
+const resetTimerRef = useRef<ReturnType<typeof setTimeout>>();  // 에러: 초기값 필요
+const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);  // clearTimeout 타입 에러
+
+// ✅ 올바른 방법
+const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+```
+
+#### 핵심 교훈
+`clearTimeout`은 `undefined`를 허용하지만 `null`은 허용하지 않음. Timer ref는 `undefined`로 초기화해야 함
+
+---
+
+## 배포
+
+[Vercel Platform](https://vercel.com)을 통해 쉽게 배포할 수 있습니다.
+
+자세한 내용은 [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)을 참고하세요.
+
+## 라이선스
+
+MIT License
