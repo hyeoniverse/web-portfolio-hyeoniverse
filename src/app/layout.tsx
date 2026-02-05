@@ -15,6 +15,7 @@ import {
 } from "next/font/google";
 
 import LoadingScreen from "@/components/layout/LoadingScreen";
+import Nav from "@/components/layout/Nav";
 import Modal from "@/components/ui/Modal";
 import CursorTrail from "@/components/effects/CursorTrail";
 import { LenisProvider } from "@/providers/LenisProvider";
@@ -113,6 +114,7 @@ export default function RootLayout({
 
       <body>
         <LenisProvider>
+          <Nav />
           <main>{children}</main>
 
           <aside>

@@ -502,6 +502,14 @@
   object-fit: cover;
 }
 
+/* Dynamic flash overlay */
+.workExpandFlash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+}
+
 /* ========== CTA SECTION ========== */
 .cta {
   display: flex;

@@ -2,7 +2,6 @@
 
 import {
   useRef,
-  useLayoutEffect,
   useEffect,
   useState,
   useCallback,
@@ -14,7 +13,6 @@ import {
   useTransform,
   AnimatePresence,
 } from "framer-motion";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -209,8 +207,21 @@ export default function HomePage() {
 
   // Long press threshold (ms) - navigate after this duration
   const LONG_PRESS_THRESHOLD = 800;
+  // Long hover threshold (ms) - slower than long press
+  const LONG_HOVER_THRESHOLD = 2000;
   const MAX_SCALE = 1.5;
   const MIN_SCALE = 1;
+
+  // Hover state (with scale like press)
+  const [hoveringWork, setHoveringWork] = useState<{
+    id: string;
+    progress: number;
+    scale: number;
+    element: HTMLElement | null;
+  } | null>(null);
+  const hoverStartTimeRef = useRef<number>(0);
+  const hoverAnimationRef = useRef<number>(0);
+  const hasHoverNavigatedRef = useRef<boolean>(false);
 
   // Handle press start
   const handlePressStart = useCallback(
@@ -257,6 +268,76 @@ export default function HomePage() {
   const handlePressEnd = useCallback(() => {
     cancelAnimationFrame(pressAnimationRef.current);
     setPressingWork(null);
+  }, []);
+
+  // Handle click navigation
+  const handleWorkClick = useCallback(
+    (work: (typeof worksData)[0], e: React.MouseEvent) => {
+      // Prevent navigation if already navigating via long press
+      if (hasNavigatedRef.current || hasHoverNavigatedRef.current) return;
+
+      const target = e.currentTarget as HTMLElement;
+      const rect = target.getBoundingClientRect();
+
+      hasNavigatedRef.current = true;
+      setExpandingWork({ id: work.id, rect, image: work.main });
+
+      setTimeout(() => {
+        router.push(`/works/${work.id}`);
+      }, 600);
+    },
+    [router]
+  );
+
+  // Handle hover start (for long hover navigation)
+  const handleHoverStart = useCallback(
+    (
+      e: React.MouseEvent<HTMLDivElement>,
+      work: (typeof worksData)[0]
+    ) => {
+      // Don't start hover timer if already pressing
+      if (pressingWork) return;
+
+      const target = e.currentTarget;
+      hoverStartTimeRef.current = Date.now();
+      hasHoverNavigatedRef.current = false;
+
+      setHoveringWork({ id: work.id, progress: 0, scale: MIN_SCALE, element: target });
+
+      const animate = () => {
+        if (hasHoverNavigatedRef.current || hasNavigatedRef.current) return;
+
+        const elapsed = Date.now() - hoverStartTimeRef.current;
+        const progress = Math.min(elapsed / LONG_HOVER_THRESHOLD, 1);
+        // Scale grows slower than press (from 1 to 1.5)
+        const newScale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * progress;
+
+        setHoveringWork((prev) => (prev ? { ...prev, progress, scale: newScale } : null));
+
+        // Navigate when threshold reached
+        if (elapsed >= LONG_HOVER_THRESHOLD && !hasHoverNavigatedRef.current) {
+          hasHoverNavigatedRef.current = true;
+          const rect = target.getBoundingClientRect();
+          setExpandingWork({ id: work.id, rect, image: work.main });
+
+          setTimeout(() => {
+            router.push(`/works/${work.id}`);
+          }, 600);
+          return;
+        }
+
+        hoverAnimationRef.current = requestAnimationFrame(animate);
+      };
+
+      hoverAnimationRef.current = requestAnimationFrame(animate);
+    },
+    [router, pressingWork]
+  );
+
+  // Handle hover end
+  const handleHoverEnd = useCallback(() => {
+    cancelAnimationFrame(hoverAnimationRef.current);
+    setHoveringWork(null);
   }, []);
 
   // Track mouse position
@@ -460,28 +541,6 @@ export default function HomePage() {
           className={`${styles.heroLine} ${styles.lineBottom} hero-line-decoration`}
         />
 
-        {/* Navigation */}
-        <nav className={styles.nav}>
-          <Link href="/" className={styles.logo}>
-            <span className="glith-on-hover">H</span>
-          </Link>
-          <div className={styles.navLinks}>
-            {[
-              { name: "Works", href: "/works" },
-              { name: "About", href: "/about" },
-              { name: "Web Flow", href: "/webflow" },
-            ].map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`${styles.navLink} glith-on-hover`}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
-        </nav>
-
         {/* Hero Content */}
         <div className={`${styles.heroContent} hero-content`}>
           <h1 className={styles.heroTitle}>
@@ -656,19 +715,29 @@ export default function HomePage() {
                   const isPressing = pressingWork?.id === work?.id;
                   const pressScale =
                     isPressing && pressingWork ? pressingWork.scale : 1;
+                  const isHovering = hoveringWork?.id === work?.id && !isPressing;
+                  const hoverScale = isHovering && hoveringWork ? hoveringWork.scale : 1;
+
+                  // Determine the current scale (press takes priority over hover)
+                  const currentScale = isPressing ? pressScale : (isHovering ? hoverScale : 1);
 
                   items.push(
                     <div key={index} className={styles.worksGridItem}>
                       {work && (
                         <motion.div
                           className={`${styles.workCircle} work-circle`}
+                          onClick={(e) => handleWorkClick(work, e)}
                           onMouseDown={(e) => handlePressStart(e, work)}
                           onMouseUp={handlePressEnd}
-                          onMouseLeave={handlePressEnd}
+                          onMouseEnter={(e) => handleHoverStart(e, work)}
+                          onMouseLeave={() => {
+                            handlePressEnd();
+                            handleHoverEnd();
+                          }}
                           onTouchStart={(e) => handlePressStart(e, work)}
                           onTouchEnd={handlePressEnd}
-                          animate={{ scale: isPressing ? pressScale : 1 }}
-                          whileHover={{ scale: isPressing ? pressScale : 1.05 }}
+                          animate={{ scale: currentScale }}
+                          whileHover={{ scale: (isPressing || isHovering) ? currentScale : 1.05 }}
                           transition={{ duration: 0.1, ease: "easeOut" }}
                         >
                           <div className={styles.workImageWrapper}>
@@ -720,6 +789,7 @@ export default function HomePage() {
               height: expandingWork.rect.height,
               borderRadius: "50%",
               zIndex: 9999,
+              rotate: 0,
             }}
             animate={{
               top: 0,
@@ -727,13 +797,32 @@ export default function HomePage() {
               width: "100vw",
               height: "100vh",
               borderRadius: "0%",
+              rotate: [0, -3, 2, 0],
             }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.8,
+              ease: [0.76, 0, 0.24, 1],
+              rotate: {
+                duration: 0.6,
+                times: [0, 0.3, 0.6, 1],
+                ease: "easeOut",
+              },
+            }}
           >
-            <img
+            <motion.img
               src={expandingWork.image}
               alt=""
               className={styles.workExpandImage}
+              initial={{ scale: 1.5, filter: "brightness(1.2)" }}
+              animate={{ scale: 1.1, filter: "brightness(1)" }}
+              transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+            />
+            {/* Dynamic overlay flash */}
+            <motion.div
+              className={styles.workExpandFlash}
+              initial={{ opacity: 0.8 }}
+              animate={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
             />
           </motion.div>
         )}

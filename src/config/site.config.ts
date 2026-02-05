@@ -51,7 +51,7 @@ export const siteConfig = {
   // SEO & METADATA
   // ---------------------------------------------------------------------------
   metadata: {
-    title: "HYEON | Portfolio",
+    title: "Hyeoniverse ✦ Portfolio",
     description:
       "Frontend developer creating interactive web experiences with React, Next.js, and TypeScript.",
     keywords:

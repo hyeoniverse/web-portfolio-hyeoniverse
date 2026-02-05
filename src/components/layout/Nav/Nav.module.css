@@ -1,0 +1,58 @@
+/* ==========================================================================
+  Navigation Component
+  ========================================================================== */
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-2xl) 8vw;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: var(--z-nav);
+  mix-blend-mode: difference;
+}
+
+.logo {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-white);
+  letter-spacing: -0.02em;
+}
+
+.navLinks {
+  display: flex;
+  gap: var(--spacing-4xl);
+}
+
+.navLink {
+  padding: var(--padding-y-md);
+  position: relative;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-white);
+  letter-spacing: 0.05em;
+  transition: opacity 0.3s ease;
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+/* ==========================================================================
+  Responsive
+  ========================================================================== */
+
+@media (max-width: 768px) {
+  .nav {
+    padding: var(--spacing-xl) 5vw;
+  }
+
+  .navLinks {
+    display: none;
+  }
+}
