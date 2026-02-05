@@ -311,10 +311,6 @@
   grid-template-columns: 80px 1fr 1fr 40px;
 }
 
-.serviceItem:hover .serviceContent {
-  opacity: 0.7;
-}
-
 .serviceNum {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
@@ -328,6 +324,10 @@
   font-weight: var(--font-weight-regular);
   color: var(--text-secondary);
   letter-spacing: -0.02em;
+}
+
+.serviceItem:hover .serviceTitle {
+  color: var(--text-accent-secondary-alt);
 }
 
 .serviceDesc {
@@ -439,10 +439,10 @@
   font-size: var(--fluid-font-size-6xl);
   font-weight: var(--font-weight-regular);
   line-height: 0.95;
-  color: var(--text-primary);
+  color: var(--text-accent-secondary-alt);
   text-align: center;
   letter-spacing: -0.04em;
-  opacity: 0.12;
+  opacity: 0.25;
 }
 
 .workCircle {
@@ -504,9 +504,9 @@
 /* Dynamic flash overlay */
 .workExpandFlash {
   position: absolute;
-  inset: 0;
-  background: #fff;
+  background: var(--bg-primary);
   pointer-events: none;
+  inset: 0;
 }
 
 /* ========== CTA SECTION ========== */
@@ -792,7 +792,6 @@
   display: flex;
   flex-direction: column;
   padding: var(--drawer-card-padding);
-  min-height: 0;
   background: var(--drawer-bg-color);
   border-radius: var(--drawer-card-radius);
 }
@@ -862,7 +861,6 @@
 }
 
 .drawerTextarea {
-  flex: 1;
   padding: var(--drawer-textarea-padding);
   border: var(--drawer-input-border);
   outline: none;
@@ -1023,13 +1021,13 @@
 }
 
 .drawerCopiedText {
-  position: absolute;
-  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
   color: var(--drawer-accent-color);
   transition: opacity 0.2s ease;
+  inset: 0;
 }
 
 .hidden {

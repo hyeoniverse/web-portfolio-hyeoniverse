@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useRef,
-  useEffect,
-  useState,
-  useCallback,
-} from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import {
   motion,
   useMotionValue,
@@ -228,6 +223,9 @@ export default function HomePage() {
     [key: string]: { x: number; y: number; rotation: number };
   }>({});
 
+  // Store work circle refs for repel effect
+  const workCircleRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
   // Handle press start
   const handlePressStart = useCallback(
     (
@@ -291,15 +289,12 @@ export default function HomePage() {
         router.push(`/works/${work.id}`);
       }, 600);
     },
-    [router]
+    [router],
   );
 
   // Handle hover start (for long hover navigation)
   const handleHoverStart = useCallback(
-    (
-      e: React.MouseEvent<HTMLDivElement>,
-      work: (typeof worksData)[0]
-    ) => {
+    (e: React.MouseEvent<HTMLDivElement>, work: (typeof worksData)[0]) => {
       // Don't start hover timer if already pressing
       if (pressingWork) return;
 
@@ -307,7 +302,12 @@ export default function HomePage() {
       hoverStartTimeRef.current = Date.now();
       hasHoverNavigatedRef.current = false;
 
-      setHoveringWork({ id: work.id, progress: 0, scale: MIN_SCALE, element: target });
+      setHoveringWork({
+        id: work.id,
+        progress: 0,
+        scale: MIN_SCALE,
+        element: target,
+      });
 
       const animate = () => {
         if (hasHoverNavigatedRef.current || hasNavigatedRef.current) return;
@@ -317,7 +317,9 @@ export default function HomePage() {
         // Scale grows slower than press (from 1 to 1.5)
         const newScale = MIN_SCALE + (MAX_SCALE - MIN_SCALE) * progress;
 
-        setHoveringWork((prev) => (prev ? { ...prev, progress, scale: newScale } : null));
+        setHoveringWork((prev) =>
+          prev ? { ...prev, progress, scale: newScale } : null,
+        );
 
         // Navigate when threshold reached
         if (elapsed >= LONG_HOVER_THRESHOLD && !hasHoverNavigatedRef.current) {
@@ -336,7 +338,7 @@ export default function HomePage() {
 
       hoverAnimationRef.current = requestAnimationFrame(animate);
     },
-    [router, pressingWork]
+    [router, pressingWork],
   );
 
   // Handle hover end
@@ -345,41 +347,59 @@ export default function HomePage() {
     setHoveringWork(null);
   }, []);
 
-  // Handle magnetic mouse move on work circle
-  const handleWorkMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>, workId: string) => {
-      const target = e.currentTarget;
-      const rect = target.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      const deltaX = (e.clientX - centerX) * 0.25;
-      const deltaY = (e.clientY - centerY) * 0.25;
-      const rotation = deltaX * 0.08;
-
-      setMagneticOffsets((prev) => ({
-        ...prev,
-        [workId]: { x: deltaX, y: deltaY, rotation },
-      }));
+  // Set work circle ref for repel effect
+  const setWorkCircleRef = useCallback(
+    (id: string, el: HTMLDivElement | null) => {
+      workCircleRefs.current[id] = el;
     },
-    []
+    [],
   );
 
-  // Reset magnetic offset when mouse leaves
-  const handleWorkMouseLeave = useCallback((workId: string) => {
-    setMagneticOffsets((prev) => ({
-      ...prev,
-      [workId]: { x: 0, y: 0, rotation: 0 },
-    }));
-  }, []);
-
-  // Track mouse position
+  // Track mouse position and apply repel effect to nearby circles
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
+
+      // Calculate repel effect for each work circle
+      const newOffsets: {
+        [key: string]: { x: number; y: number; rotation: number };
+      } = {};
+
+      Object.entries(workCircleRefs.current).forEach(([id, element]) => {
+        if (!element) return;
+
+        const rect = element.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const deltaX = e.clientX - centerX;
+        const deltaY = e.clientY - centerY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        // Repel radius - how close mouse needs to be to trigger effect
+        const repelRadius = rect.width * 1.5;
+        // Strength of repel effect
+        const repelStrength = 25;
+
+        if (distance < repelRadius && distance > 0) {
+          // Calculate repel force (stronger when closer)
+          const force = (1 - distance / repelRadius) * repelStrength;
+          // Normalize direction and apply force (push away from cursor)
+          const repelX = -(deltaX / distance) * force;
+          const repelY = -(deltaY / distance) * force;
+          const rotation = repelX * 0.15;
+
+          newOffsets[id] = { x: repelX, y: repelY, rotation };
+        } else {
+          newOffsets[id] = { x: 0, y: 0, rotation: 0 };
+        }
+      });
+
+      setMagneticOffsets(newOffsets);
     };
+
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY]);
@@ -748,17 +768,45 @@ export default function HomePage() {
                   const isPressing = pressingWork?.id === work?.id;
                   const pressScale =
                     isPressing && pressingWork ? pressingWork.scale : 1;
-                  const isHovering = hoveringWork?.id === work?.id && !isPressing;
-                  const hoverScale = isHovering && hoveringWork ? hoveringWork.scale : 1;
+                  const isHovering =
+                    hoveringWork?.id === work?.id && !isPressing;
+                  const hoverScale =
+                    isHovering && hoveringWork ? hoveringWork.scale : 1;
 
                   // Determine the current scale (press takes priority over hover)
-                  const currentScale = isPressing ? pressScale : (isHovering ? hoverScale : 1);
+                  const currentScale = isPressing
+                    ? pressScale
+                    : isHovering
+                      ? hoverScale
+                      : 1;
 
-                  // Magnetic offset
-                  const magnetic = work ? magneticOffsets[work.id] || { x: 0, y: 0, rotation: 0 } : { x: 0, y: 0, rotation: 0 };
+                  // Magnetic offset for the grid item (repel effect)
+                  const magnetic = work
+                    ? magneticOffsets[work.id] || { x: 0, y: 0, rotation: 0 }
+                    : { x: 0, y: 0, rotation: 0 };
 
                   items.push(
-                    <div key={index} className={styles.worksGridItem}>
+                    <motion.div
+                      key={index}
+                      ref={
+                        work ? (el) => setWorkCircleRef(work.id, el) : undefined
+                      }
+                      className={styles.worksGridItem}
+                      animate={{
+                        x: magnetic.x,
+                        y: magnetic.y,
+                        rotateZ: magnetic.rotation,
+                      }}
+                      transition={{
+                        x: { type: "spring", stiffness: 150, damping: 15 },
+                        y: { type: "spring", stiffness: 150, damping: 15 },
+                        rotateZ: {
+                          type: "spring",
+                          stiffness: 150,
+                          damping: 15,
+                        },
+                      }}
+                    >
                       {work && (
                         <motion.div
                           className={`${styles.workCircle} work-circle`}
@@ -766,61 +814,36 @@ export default function HomePage() {
                           onMouseDown={(e) => handlePressStart(e, work)}
                           onMouseUp={handlePressEnd}
                           onMouseEnter={(e) => handleHoverStart(e, work)}
-                          onMouseMove={(e) => handleWorkMouseMove(e, work.id)}
                           onMouseLeave={() => {
                             handlePressEnd();
                             handleHoverEnd();
-                            handleWorkMouseLeave(work.id);
                           }}
                           onTouchStart={(e) => handlePressStart(e, work)}
                           onTouchEnd={handlePressEnd}
-                          animate={{
-                            scale: currentScale,
-                            x: magnetic.x,
-                            y: magnetic.y,
-                            rotateZ: magnetic.rotation,
+                          animate={{ scale: currentScale }}
+                          whileHover={{
+                            scale:
+                              isPressing || isHovering ? currentScale : 1.05,
                           }}
-                          whileHover={{ scale: (isPressing || isHovering) ? currentScale : 1.05 }}
                           transition={{
                             scale: { duration: 0.1, ease: "easeOut" },
-                            x: { type: "spring", stiffness: 150, damping: 15 },
-                            y: { type: "spring", stiffness: 150, damping: 15 },
-                            rotateZ: { type: "spring", stiffness: 150, damping: 15 },
                           }}
                         >
                           <div className={styles.workImageWrapper}>
-                            <motion.img
+                            <img
                               src={work.main}
                               alt=""
                               className={styles.workImage}
-                              animate={{
-                                x: -magnetic.x * 0.3,
-                                y: -magnetic.y * 0.3,
-                              }}
-                              transition={{
-                                type: "spring",
-                                stiffness: 200,
-                                damping: 20,
-                              }}
                             />
-                            <motion.img
+                            <img
                               src={work.hover}
                               alt=""
                               className={styles.workImageHover}
-                              animate={{
-                                x: -magnetic.x * 0.5,
-                                y: -magnetic.y * 0.5,
-                              }}
-                              transition={{
-                                type: "spring",
-                                stiffness: 200,
-                                damping: 20,
-                              }}
                             />
                           </div>
                         </motion.div>
                       )}
-                    </div>,
+                    </motion.div>,
                   );
                 }
               }
@@ -1016,8 +1039,14 @@ export default function HomePage() {
           <motion.div
             className={styles.drawerBackdrop}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { duration: 0.5, ease: "easeOut" } }}
-            exit={{ opacity: 0, transition: { duration: 0.4, delay: 0.35, ease: "easeInOut" } }}
+            animate={{
+              opacity: 1,
+              transition: { duration: 0.5, ease: "easeOut" },
+            }}
+            exit={{
+              opacity: 0,
+              transition: { duration: 0.4, delay: 0.35, ease: "easeInOut" },
+            }}
             onClick={(e) => {
               if (
                 drawerRef.current &&
@@ -1031,8 +1060,18 @@ export default function HomePage() {
               ref={drawerRef}
               className={styles.drawer}
               initial={{ x: "-100%" }}
-              animate={{ x: 0, transition: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] } }}
-              exit={{ x: "-100%", transition: { duration: 0.6, delay: 0.15, ease: [0.4, 0, 0.6, 1] } }}
+              animate={{
+                x: 0,
+                transition: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] },
+              }}
+              exit={{
+                x: "-100%",
+                transition: {
+                  duration: 0.6,
+                  delay: 0.15,
+                  ease: [0.4, 0, 0.6, 1],
+                },
+              }}
             >
               {/* Close Button */}
               <motion.button
@@ -1040,8 +1079,14 @@ export default function HomePage() {
                 onClick={() => setIsDrawerOpen(false)}
                 aria-label="Close"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1, transition: { duration: 0.3, delay: 0.7 } }}
-                exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
+                animate={{
+                  opacity: 1,
+                  transition: { duration: 0.3, delay: 0.7 },
+                }}
+                exit={{
+                  opacity: 0,
+                  transition: { duration: 0.15, delay: 0.4 },
+                }}
               >
                 <svg width="18" height="2" viewBox="0 0 18 2" fill="none">
                   <path
@@ -1057,13 +1102,28 @@ export default function HomePage() {
               <motion.div
                 className={styles.drawerFormCard}
                 initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1, transition: { duration: 0.4, delay: 0.35, ease: "easeOut" } }}
-                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.25, delay: 0.1, ease: "easeIn" } }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  transition: { duration: 0.4, delay: 0.35, ease: "easeOut" },
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.95,
+                  transition: { duration: 0.25, delay: 0.1, ease: "easeIn" },
+                }}
               >
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.55, ease: "easeOut" } }}
-                  exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.4, delay: 0.55, ease: "easeOut" },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    transition: { duration: 0.15, delay: 0.4 },
+                  }}
                 >
                   <h2 className={styles.drawerTitle}>Fill out the form</h2>
 
@@ -1125,24 +1185,47 @@ export default function HomePage() {
                 <motion.div
                   className={styles.drawerEmailCard}
                   initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1, transition: { duration: 0.4, delay: 0.35, ease: "easeOut" } }}
-                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.25, delay: 0.05, ease: "easeIn" } }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    transition: { duration: 0.4, delay: 0.35, ease: "easeOut" },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.95,
+                    transition: { duration: 0.25, delay: 0.05, ease: "easeIn" },
+                  }}
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.55, ease: "easeOut" } }}
-                    exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.4,
+                        delay: 0.55,
+                        ease: "easeOut",
+                      },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      transition: { duration: 0.15, delay: 0.4 },
+                    }}
                   >
                     <h3 className={styles.drawerEmailTitle}>Or email me</h3>
                     <button
                       className={styles.drawerEmailAddress}
                       onClick={() => {
-                        navigator.clipboard?.writeText(siteConfig.contact.email);
+                        navigator.clipboard?.writeText(
+                          siteConfig.contact.email,
+                        );
                         setCopied(true);
                         setTimeout(() => setCopied(false), 2000);
                       }}
                     >
-                      <span className={`${styles.drawerEmailTextWrapper} ${copied ? styles.hiddenKeepSpace : ""}`}>
+                      <span
+                        className={`${styles.drawerEmailTextWrapper} ${copied ? styles.hiddenKeepSpace : ""}`}
+                      >
                         {siteConfig.contact.email}
                         <svg
                           className={styles.drawerCopyIcon}
@@ -1155,7 +1238,9 @@ export default function HomePage() {
                           <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                         </svg>
                       </span>
-                      <span className={`${styles.drawerCopiedText} ${copied ? "" : styles.hidden}`}>
+                      <span
+                        className={`${styles.drawerCopiedText} ${copied ? "" : styles.hidden}`}
+                      >
                         Copied!
                       </span>
                     </button>
@@ -1166,13 +1251,32 @@ export default function HomePage() {
                 <motion.div
                   className={styles.drawerProfileCard}
                   initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1, transition: { duration: 0.4, delay: 0.35, ease: "easeOut" } }}
-                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.25, ease: "easeIn" } }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    transition: { duration: 0.4, delay: 0.35, ease: "easeOut" },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.95,
+                    transition: { duration: 0.25, ease: "easeIn" },
+                  }}
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.55, ease: "easeOut" } }}
-                    exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.4,
+                        delay: 0.55,
+                        ease: "easeOut",
+                      },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      transition: { duration: 0.15, delay: 0.4 },
+                    }}
                   >
                     <div className={styles.drawerProfileImage}>
                       <span className={styles.drawerProfilePlaceholder}>
@@ -1199,14 +1303,33 @@ export default function HomePage() {
                 <motion.div
                   className={styles.drawerSocialCard}
                   initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1, transition: { duration: 0.4, delay: 0.35, ease: "easeOut" } }}
-                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.25, ease: "easeIn" } }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    transition: { duration: 0.4, delay: 0.35, ease: "easeOut" },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.95,
+                    transition: { duration: 0.25, ease: "easeIn" },
+                  }}
                 >
                   <motion.div
                     className={styles.drawerSocialIcons}
                     initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.55, ease: "easeOut" } }}
-                    exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.4 } }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.4,
+                        delay: 0.55,
+                        ease: "easeOut",
+                      },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      transition: { duration: 0.15, delay: 0.4 },
+                    }}
                   >
                     {siteConfig.social.github && (
                       <a
