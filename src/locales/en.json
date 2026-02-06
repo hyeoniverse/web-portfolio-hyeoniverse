@@ -8,13 +8,12 @@
   "hero": {
     "headline1": "Creative",
     "headline2": "Developer",
-    "headline3": "& Problem Solver",
-    "location": "Based in Seoul, KR",
+    "headline3": "Problem Solver",
+    "locationBefore": "Based in ",
+    "locationHighlight": "Seoul",
+    "locationAfter": ", KR",
     "availability": "Available for Opportunities",
-    "ctaLabel": "Available for Opportunities",
-    "ctaTitle1": "Looking for",
-    "ctaTitle2": "someone?",
-    "ctaButton": "Get in touch"
+    "scroll": "Scroll"
   },
   "about": {
     "title": "About Me",

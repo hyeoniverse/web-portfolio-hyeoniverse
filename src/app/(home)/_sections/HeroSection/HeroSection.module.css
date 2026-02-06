@@ -4,22 +4,22 @@
 
 .hero {
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  position: relative;
-  min-height: 100vh;
+  flex-direction: column;
   padding: 0 8vw;
   overflow: hidden;
+  position: relative;
+  min-height: 100vh;
 }
 
 /* ---------------------------------------------------------------------------
    Floating Ovals - Decorative background elements
    --------------------------------------------------------------------------- */
 .floatingOval {
-  position: absolute;
   border: var(--border-strong);
-  border-radius: var(--radius-circle);
+  position: absolute;
   pointer-events: none;
+  border-radius: var(--radius-circle);
 }
 
 .ovalPrimary {
@@ -31,11 +31,11 @@
 }
 
 .ovalSecondary {
+  border-color: var(--border-tertiary);
   bottom: 20%;
   left: -5%;
   width: 400px;
   height: 200px;
-  border-color: var(--border-tertiary);
   transform: rotate(25deg);
 }
 
@@ -65,15 +65,15 @@
    Hero Content
    --------------------------------------------------------------------------- */
 .content {
+  margin-top: 5vh;
   position: relative;
   z-index: var(--z-content);
-  margin-top: 5vh;
 }
 
 .title {
   display: flex;
-  flex-direction: column;
   gap: var(--spacing-xs);
+  flex-direction: column;
   font-family: var(--font-instrument), serif;
   font-size: var(--fluid-font-size-6xl);
   font-weight: var(--font-weight-regular);
@@ -81,8 +81,8 @@
 
 .titleRow {
   display: flex;
-  align-items: center;
   gap: var(--spacing-xl);
+  align-items: center;
   overflow: hidden;
 }
 
@@ -120,9 +120,9 @@
 }
 
 .titleOvalInline {
+  border: var(--border-default);
   position: absolute;
   inset: 0;
-  border: var(--border-default);
   border-radius: var(--radius-circle);
 }
 
@@ -131,8 +131,8 @@
    --------------------------------------------------------------------------- */
 .meta {
   display: flex;
-  align-items: center;
   gap: var(--spacing-2xl);
+  align-items: center;
   margin-top: var(--spacing-4xl);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
@@ -143,21 +143,70 @@
 .metaDivider {
   width: 60px;
   height: 1px;
-  background: var(--bg-accent-secondary);
+  background: var(--bg-accent-secondary-solid-light);
+}
+
+.metaHighlight {
+  color: var(--text-accent-secondary-alt);
+}
+
+.availabilityWrapper {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.pulseDot {
+  width: 8px;
+  height: 8px;
+  background: var(--text-accent-secondary-alt);
+  animation: pulse 2s infinite;
+  border-radius: var(--radius-circle);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px rgba(255, 128, 194, 0.9),
+      0 0 12px rgba(255, 128, 194, 0.7);
+    opacity: 1;
+  }
+  50% {
+    box-shadow:
+      0 0 14px rgba(255, 128, 194, 0.6),
+      0 0 20px rgba(255, 128, 194, 0.4);
+    opacity: 1;
+  }
 }
 
 /* ---------------------------------------------------------------------------
    Scroll Indicator
    --------------------------------------------------------------------------- */
 .scrollIndicator {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex-direction: column;
   position: absolute;
   bottom: var(--spacing-4xl);
   left: 50%;
-  width: 1px;
-  height: 60px;
-  background: var(--bg-secondary);
   transform: translateX(-50%);
+}
+
+.scrollText {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.scrollLineWrapper {
   overflow: hidden;
+  width: 1px;
+  height: 40px;
+  background: var(--bg-secondary);
 }
 
 .scrollLine {
@@ -203,8 +252,8 @@
   }
 
   .meta {
-    flex-direction: column;
     gap: var(--spacing-md);
+    flex-direction: column;
     margin-top: var(--spacing-3xl);
   }
 

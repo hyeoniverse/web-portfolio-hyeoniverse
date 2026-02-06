@@ -41,18 +41,12 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
         <div className={`${styles.content} hero-content`}>
           <h1 className={styles.title}>
             <span className={`${styles.titleRow} hero-line`}>
-              <StaggerText
-                className={styles.titleText}
-                strokeColor="var(--text-primary)"
-              >
+              <StaggerText className={styles.titleText}>
                 {t("hero.headline1")}
               </StaggerText>
             </span>
             <span className={`${styles.titleRow} hero-line`}>
-              <StaggerText
-                className={styles.titleText}
-                strokeColor="var(--text-primary)"
-              >
+              <StaggerText className={styles.titleText}>
                 {t("hero.headline2")}
               </StaggerText>
               <span className={styles.titleOvalWrapper}>
@@ -68,19 +62,27 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
               </span>
             </span>
             <span className={`${styles.titleRow} hero-line`}>
-              <StaggerText
-                className={styles.titleText}
-                strokeColor="var(--text-primary)"
-              >
+              <span className={styles.titleAccent}>&</span>
+              <StaggerText className={styles.titleText}>
                 {t("hero.headline3")}
               </StaggerText>
             </span>
           </h1>
 
           <div className={styles.meta}>
-            <span className="hero-line">{t("hero.location")}</span>
+            <span className="hero-line">
+              {t("hero.locationBefore")}
+              <span className={styles.metaHighlight}>
+                {t("hero.locationHighlight")}
+              </span>
+              {t("hero.locationAfter")}
+            </span>
             <span className={styles.metaDivider} />
-            <span className="hero-line">{t("hero.availability")}</span>
+            <span className={`${styles.availabilityWrapper} hero-line`}>
+              {t("hero.availability")}
+              <span className={styles.pulseDot} />
+              <div className="pulse" />
+            </span>
           </div>
         </div>
 
@@ -91,15 +93,22 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
         >
-          <motion.div
-            className={styles.scrollLine}
-            animate={{ scaleY: [0, 1, 0], y: [0, 0, 20] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          />
+          <div className={styles.scrollLineWrapper}>
+            <motion.div
+              className={styles.scrollLine}
+              animate={{ scaleY: [0, 1, 0], y: [0, 0, 20] }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </div>
+          <span className={styles.scrollText}>{t("hero.scroll")}</span>
         </motion.div>
       </section>
     );
-  }
+  },
 );
 
 HeroSection.displayName = "HeroSection";
