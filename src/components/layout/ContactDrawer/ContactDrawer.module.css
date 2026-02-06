@@ -1,11 +1,11 @@
 /* ==========================================================================
-   Contact Drawer - Modal Style Contact Form
-   All units based on vw for proportional scaling
-   ========================================================================== */
+  Contact Drawer - Modal Style Contact Form
+  All units based on vw for proportional scaling
+  ========================================================================== */
 
 /* ---------------------------------------------------------------------------
-   CSS Custom Properties - Scoped to drawer
-   --------------------------------------------------------------------------- */
+  CSS Custom Properties - Scoped to drawer
+  --------------------------------------------------------------------------- */
 .backdrop {
   /* Colors */
   --drawer-color-bg: #ffffff;
@@ -20,122 +20,106 @@
   --drawer-border-transparent: 1px solid transparent;
   --drawer-border-accent: 1px solid var(--drawer-color-accent);
   --drawer-border-primary: 1px solid var(--drawer-color-primary);
+  --drawer-border-primary-125: 1.25px solid var(--drawer-color-primary);
   --drawer-border-input: 1px solid var(--drawer-color-primary);
 
   /* Spacing */
   --drawer-gap-outer: 0.15vw;
-  --drawer-gap-sm: 0.5vw;
+  --drawer-gap-sm: 0.4vw;
   --drawer-gap-md: 0.8vw;
-  --drawer-gap-lg: 1.5vw;
+  --drawer-gap-lg: 1.6vw;
 
   /* Sizes */
-  --drawer-radius-card: 1.5vw;
+  --drawer-radius-card: var(--radius-4xl);
   --drawer-size-close-btn: 3vw;
-  --drawer-size-close-icon: 1.4vw;
-  --drawer-size-copy-icon: 1.2vw;
-  --drawer-size-checkbox: 1vw;
+  --drawer-size-close-icon: 1.5vw;
+  --drawer-size-copy-icon: 1.25vw;
+  --drawer-size-social-btn: 2.4vw;
+  --drawer-size-social-icon: 1.2vw;
+  --drawer-size-checkbox: 1.25vw;
+  --drawer-size-profile-image: 50%;
 
   /* Padding */
-  --drawer-padding-btn-sm: 0.6vw 1.4vw;
-  --drawer-padding-btn-lg: 0.9vw 1.4vw;
-  --drawer-padding-input: 0.8vw 1vw;
-  --drawer-padding-textarea: 1vw 1vw;
-  --drawer-padding-card: 2vw 1.8vw 1.6vw;
+  --drawer-padding: 0.5vw 1.5vw;
+  --drawer-padding-card: 2.5vw 2vw;
 
   /* Typography */
   --drawer-font: var(--font-space-grotesk), sans-serif;
   --drawer-font-size-title: 2.25vw;
-  --drawer-font-size-xl: 1.45vw;
-  --drawer-font-size-lg: 1.25vw;
-  --drawer-font-size-md: 1vw;
+  --drawer-font-size-xl: 1.85vw;
+  --drawer-font-size-lg: 1.125vw;
+  --drawer-font-size-md: 1.1vw;
   --drawer-font-size-sm: 0.85vw;
   --drawer-line-height: 1.5;
 
   /* Layout */
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);
   background: var(--bg-surface);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  isolation: isolate;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 /* ---------------------------------------------------------------------------
-   Drawer Container
-   --------------------------------------------------------------------------- */
+  Drawer Container
+  --------------------------------------------------------------------------- */
 .drawer {
   display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
   gap: var(--drawer-gap-outer);
   position: absolute;
-  bottom: 0;
   left: 0;
+  bottom: 0;
   z-index: var(--z-modal);
-  width: 60vw;
-  height: 42vw;
+  width: 50vw;
+  height: 40vw;
   font-family: var(--drawer-font);
   font-size: var(--drawer-font-size-md);
   font-weight: var(--font-weight-regular);
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  grid-auto-rows: minmax(0, 1fr);
 }
 
 /* ---------------------------------------------------------------------------
-   Close Button
-   --------------------------------------------------------------------------- */
+  Close Button
+  --------------------------------------------------------------------------- */
 .closeBtn {
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
   position: absolute;
   top: 0;
   left: 100%;
+  margin-left: var(--drawer-gap-outer);
   width: var(--drawer-size-close-btn);
   height: var(--drawer-size-close-btn);
-  margin-left: var(--drawer-gap-outer);
-  border: none;
-  border-radius: var(--radius-circle);
   background: var(--drawer-color-bg);
   color: var(--drawer-color-primary);
-  cursor: pointer;
   transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: var(--radius-circle);
 }
 
 .closeIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  width: 18px;
-  height: 18px;
+  width: 100%;
+  height: 100%;
 }
 
+/* Both lines overlap to form "-", Framer Motion handles rotation to "X" */
 .closeLine {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 16px;
+  width: var(--drawer-size-close-icon);
   height: 2px;
   background: var(--drawer-color-primary);
   border-radius: 2px;
-  transform: translate(-50%, -50%);
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.closeLineSecondary {
-  width: 0;
-  opacity: 0;
-}
-
-.closeBtn:hover .closeLine {
-  width: 18px;
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.closeBtn:hover .closeLineSecondary {
-  width: 18px;
-  opacity: 1;
-  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 /* ---------------------------------------------------------------------------
@@ -145,8 +129,8 @@
   display: flex;
   flex-direction: column;
   padding: var(--drawer-padding-card);
-  border-radius: var(--drawer-radius-card);
   background: var(--drawer-color-bg);
+  border-radius: 0 var(--drawer-radius-card) var(--drawer-radius-card) 0;
 }
 
 .formCard > div,
@@ -171,22 +155,22 @@
    --------------------------------------------------------------------------- */
 .formRow {
   display: grid;
-  gap: calc(var(--drawer-gap-md) / 2);
+  gap: var(--drawer-gap-md);
   grid-template-columns: 1fr 1fr;
 }
 
 .input {
-  width: 100%;
   margin-bottom: var(--drawer-gap-md);
-  padding: var(--drawer-padding-input);
+  padding: var(--drawer-padding);
   border: var(--drawer-border-input);
-  border-radius: var(--radius-capsule);
   outline: none;
+  width: 100%;
   background: transparent;
   font-family: var(--drawer-font);
   font-size: var(--drawer-font-size-md);
   color: var(--drawer-color-primary);
   transition: border-color 0.25s ease;
+  border-radius: var(--radius-capsule);
 }
 
 .input::placeholder {
@@ -199,53 +183,51 @@
 .input:-webkit-autofill:focus,
 .input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px var(--drawer-color-bg) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
   -webkit-text-fill-color: var(--drawer-color-primary) !important;
   caret-color: var(--drawer-color-primary);
-  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* ---------------------------------------------------------------------------
    File Upload
    --------------------------------------------------------------------------- */
 .fileBtn {
-  width: 100%;
   margin-bottom: var(--drawer-gap-md);
-  padding: var(--drawer-padding-input);
+  padding: var(--drawer-padding);
   border: var(--drawer-border-input);
-  border-radius: var(--radius-capsule);
+  width: 100%;
   background: transparent;
   font-family: var(--drawer-font);
   font-size: var(--drawer-font-size-md);
   color: var(--drawer-color-primary);
   text-align: center;
-  transform: scale(1);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-capsule);
+  transform: scale(1);
 }
 
 .fileBtn:hover {
   background: var(--drawer-color-primary);
   color: var(--drawer-color-bg);
-  transform: scale(1.02);
 }
 
 .fileBtnActive {
   border-color: var(--drawer-color-primary);
-  background: rgba(255, 255, 255, 0.05);
   color: var(--drawer-color-primary);
   transform: scale(0.98);
 }
 
 .fileBtnActive:hover {
-  background: var(--drawer-color-bg);
-  color: var(--drawer-color-primary);
+  background: var(--drawer-color-primary);
+  color: var(--drawer-color-bg);
 }
 
 .fileWrapper {
   display: flex;
+  gap: var(--drawer-gap-sm);
   align-items: center;
-  gap: 8px;
-  position: relative;
   margin-bottom: var(--drawer-gap-md);
+  position: relative;
 }
 
 .fileWrapper .fileBtn {
@@ -255,20 +237,19 @@
 
 .fileCancelBtn {
   display: flex;
-  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  flex-shrink: 0;
   border: var(--drawer-border-input);
-  border-radius: var(--radius-circle);
+  aspect-ratio: 1/1;
+  height: 100%;
   background: transparent;
   color: var(--drawer-color-primary);
-  cursor: pointer;
-  opacity: 0;
-  transform: scale(0.8) rotate(-90deg);
   animation: fileCancelAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-circle);
+  opacity: 0;
+  transform: scale(0.8) rotate(-90deg);
 }
 
 @keyframes fileCancelAppear {
@@ -300,19 +281,19 @@
 
 .textarea {
   flex: 1;
-  width: 100%;
-  margin-bottom: var(--drawer-gap-md);
-  padding: var(--drawer-padding-textarea);
+  margin-bottom: var(--drawer-gap-lg);
+  padding: var(--drawer-padding);
   border: var(--drawer-border-input);
-  border-radius: var(--drawer-radius-card);
   outline: none;
+  width: 100%;
   background: transparent;
   font-family: var(--drawer-font);
   font-size: var(--drawer-font-size-md);
   line-height: var(--drawer-line-height);
   color: var(--drawer-color-primary);
-  resize: none;
   transition: border-color 0.25s ease;
+  resize: none;
+  border-radius: var(--drawer-radius-card);
 }
 
 .textarea::placeholder {
@@ -323,21 +304,21 @@
    Form Toast
    --------------------------------------------------------------------------- */
 .formToast {
+  padding: var(--drawer-padding);
+  border: var(--drawer-border-accent);
   position: absolute;
   bottom: var(--drawer-gap-lg);
   left: 50%;
   z-index: var(--z-toast);
-  padding: var(--drawer-padding-btn-sm);
-  border: var(--drawer-border-accent);
-  border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
   font-size: var(--drawer-font-size-sm);
   color: var(--drawer-color-accent);
   white-space: nowrap;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
+  border-radius: var(--radius-capsule);
   opacity: 0;
   transform: translateX(-50%) translateY(10px);
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .formToastVisible {
@@ -352,18 +333,18 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Form Footer
-   --------------------------------------------------------------------------- */
+  Form Footer
+  --------------------------------------------------------------------------- */
 .formFooter {
   flex-shrink: 0;
 }
 
 .privacy {
   display: flex;
+  gap: var(--drawer-gap-sm);
   align-items: center;
   justify-content: center;
-  gap: var(--drawer-gap-sm);
-  margin-bottom: var(--drawer-gap-lg);
+  margin-bottom: var(--drawer-gap-md);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--drawer-font-size-sm);
   color: var(--drawer-color-primary);
@@ -372,14 +353,14 @@
 
 .privacy input[type="checkbox"] {
   flex-shrink: 0;
+  border: var(--drawer-border-input);
   position: relative;
   width: var(--drawer-size-checkbox);
   height: var(--drawer-size-checkbox);
-  border: var(--drawer-border-input);
+  transition: all 0.2s ease;
   border-radius: var(--radius-xs);
   appearance: none;
   -webkit-appearance: none;
-  transition: all 0.2s ease;
 }
 
 .privacy input[type="checkbox"]:checked {
@@ -388,20 +369,20 @@
 }
 
 .privacy input[type="checkbox"]:checked::after {
-  content: "✓";
   position: absolute;
   top: 50%;
   left: 50%;
   font-size: var(--drawer-font-size-sm);
   color: var(--drawer-color-bg);
+  content: "✓";
   transform: translate(-50%, -50%);
 }
 
 .privacy a {
   color: var(--drawer-color-accent);
   text-decoration: underline;
-  text-underline-offset: 2px;
   transition: opacity 0.2s ease;
+  text-underline-offset: 2px;
 }
 
 .privacy a:hover {
@@ -415,10 +396,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  padding: var(--drawer-padding-btn-lg);
+  padding: var(--drawer-padding);
   border: var(--drawer-border-primary);
-  border-radius: var(--radius-capsule);
+  width: 100%;
   background: var(--drawer-color-primary);
   font-family: var(--drawer-font);
   font-size: var(--drawer-font-size-lg);
@@ -426,6 +406,7 @@
   color: var(--drawer-color-bg);
   letter-spacing: 0.01em;
   transition: all 0.3s ease;
+  border-radius: var(--radius-capsule);
 }
 
 .submitBtn:hover {
@@ -443,15 +424,15 @@
 }
 
 .submitBtnSuccess {
-  position: relative;
   border-color: var(--drawer-color-primary);
+  position: relative;
   background: var(--drawer-color-primary);
 }
 
 .submitIcon {
+  margin-left: 6px;
   width: 18px;
   height: 18px;
-  margin-left: 6px;
   vertical-align: middle;
 }
 
@@ -493,19 +474,19 @@
    --------------------------------------------------------------------------- */
 .successView {
   display: flex;
+  justify-content: center;
   flex: 1;
   flex-direction: column;
-  justify-content: center;
 }
 
 .successIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 4vw;
-  height: 4vw;
   margin: 0 auto var(--drawer-gap-lg);
   border: 2px solid var(--drawer-color-primary);
+  width: 4vw;
+  height: 4vw;
   border-radius: var(--radius-circle);
 }
 
@@ -549,20 +530,20 @@
 
 .successTitle {
   margin-bottom: var(--drawer-gap-lg);
-  padding: var(--drawer-padding-input);
+  padding: var(--drawer-padding);
   border: var(--drawer-border-input);
-  border-radius: var(--radius-capsule);
   font-family: var(--drawer-font);
   font-size: var(--drawer-font-size-md);
   font-weight: var(--font-weight-medium);
   color: var(--drawer-color-secondary);
   text-align: center;
+  border-radius: var(--radius-capsule);
 }
 
 .successDivider {
+  margin: var(--drawer-gap-lg) auto;
   width: 100%;
   height: 1px;
-  margin: var(--drawer-gap-lg) auto;
   background: linear-gradient(
     90deg,
     transparent 0%,
@@ -578,10 +559,10 @@
   flex: 1;
   flex-direction: column;
   margin-bottom: var(--drawer-gap-lg);
-  padding: var(--drawer-padding-textarea);
+  padding: var(--drawer-padding);
   border: var(--drawer-border-input);
-  border-radius: var(--drawer-radius-card);
   overflow: hidden;
+  border-radius: var(--drawer-radius-card);
 }
 
 .successMessageLabel {
@@ -597,28 +578,28 @@
 .successMessage {
   flex: 1;
   margin: 0;
+  overflow-y: auto;
   font-family: var(--drawer-font);
   font-size: var(--drawer-font-size-md);
   line-height: 1.8;
   color: var(--drawer-color-primary);
   white-space: pre-wrap;
   word-break: break-word;
-  overflow-y: auto;
 }
 
 .successAttachment {
   display: flex;
-  flex-shrink: 0;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  flex-shrink: 0;
   margin-bottom: var(--drawer-gap-lg);
-  padding: var(--drawer-padding-btn-sm);
+  padding: var(--drawer-padding);
   border: 1px dashed var(--drawer-color-tertiary);
-  border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
   font-size: var(--drawer-font-size-sm);
   color: var(--drawer-color-tertiary);
+  border-radius: var(--radius-capsule);
 }
 
 .successAttachment svg {
@@ -629,22 +610,22 @@
 
 .successBtn {
   display: inline-flex;
-  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  flex-shrink: 0;
   margin-top: auto;
-  padding: var(--drawer-padding-btn-lg);
+  padding: var(--drawer-padding);
   border: var(--drawer-border-primary);
-  border-radius: var(--radius-capsule);
+  width: 100%;
   background: transparent;
   font-family: var(--drawer-font);
   font-size: var(--drawer-font-size-md);
   font-weight: var(--font-weight-medium);
   color: var(--drawer-color-primary);
   letter-spacing: 0.02em;
-  cursor: pointer;
   transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: var(--radius-capsule);
 }
 
 .successBtn:hover {
@@ -653,28 +634,28 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Right Column
-   --------------------------------------------------------------------------- */
+  Right Column
+  --------------------------------------------------------------------------- */
 .rightColumn {
   display: flex;
-  flex-direction: column;
   gap: var(--drawer-gap-outer);
+  flex-direction: column;
   overflow-y: auto;
 }
 
 /* ---------------------------------------------------------------------------
-   Email Card
-   --------------------------------------------------------------------------- */
+  Email Card
+  --------------------------------------------------------------------------- */
 .emailCard {
   display: flex;
-  flex: 1;
+  flex: 0;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: var(--drawer-padding-card);
-  border-radius: var(--drawer-radius-card);
   background: var(--drawer-color-bg);
   text-align: center;
+  border-radius: var(--drawer-radius-card);
 }
 
 .emailTitle {
@@ -683,17 +664,17 @@
   font-weight: var(--font-weight-medium);
   color: var(--drawer-color-primary);
   letter-spacing: -0.01em;
+  /* margin-bottom: var(--drawer-gap-sm); */
 }
 
 .emailAddress {
   display: inline-flex;
+  gap: var(--drawer-gap-md);
   align-items: center;
   justify-content: center;
-  gap: var(--drawer-gap-md);
+  padding: var(--drawer-padding);
+  outline: var(--drawer-border-transparent);
   position: relative;
-  padding: var(--drawer-padding-btn-sm);
-  border: var(--drawer-border-transparent);
-  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: inherit;
   font-size: var(--drawer-font-size-lg);
@@ -701,10 +682,11 @@
   color: var(--drawer-color-primary);
   letter-spacing: -0.075em;
   transition: border 0.2s ease;
+  border-radius: var(--radius-capsule);
 }
 
 .emailAddress:hover {
-  border: var(--drawer-border-primary);
+  outline: var(--drawer-border-primary);
 }
 
 .emailAddressCopied,
@@ -714,8 +696,8 @@
 
 .emailTextWrapper {
   display: inline-flex;
-  align-items: center;
   gap: var(--drawer-gap-md);
+  align-items: center;
   transition: opacity 0.2s ease;
 }
 
@@ -735,13 +717,13 @@
 
 .copiedText {
   display: flex;
+  gap: var(--drawer-gap-md);
   align-items: center;
   justify-content: center;
-  gap: var(--drawer-gap-md);
   position: absolute;
-  inset: 0;
   color: var(--drawer-color-accent);
   transition: opacity 0.2s ease;
+  inset: 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -749,28 +731,39 @@
    --------------------------------------------------------------------------- */
 .profileCard {
   display: flex;
-  flex: 4;
+  flex: 2;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   padding: var(--drawer-padding-card);
-  border-radius: var(--drawer-radius-card);
   background: var(--drawer-color-bg);
   font-family: inherit;
   font-weight: var(--font-weight-regular);
   text-align: center;
+  border-radius: var(--drawer-radius-card);
+  min-height: 0;
+}
+
+.profileContent {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .profileImage {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50%;
-  margin: 0 auto var(--drawer-gap-md);
-  border-radius: var(--radius-circle);
-  background: var(--drawer-color-secondary);
-  aspect-ratio: 1/1;
+  margin: 0 auto;
   overflow: hidden;
+  height: var(--drawer-size-profile-image);
+  background: var(--drawer-color-secondary);
+  border-radius: var(--radius-circle);
+  aspect-ratio: 1/1;
+}
+
+.profileInfo {
+  text-align: center;
 }
 
 .profileName {
@@ -782,38 +775,39 @@
 
 .profileRole {
   font-family: inherit;
-  font-size: var(--drawer-font-size-lg);
+  font-size: var(--drawer-font-size-md);
   color: var(--drawer-color-primary);
 }
 
 /* ---------------------------------------------------------------------------
-   Social Card
-   --------------------------------------------------------------------------- */
+  Social Card
+  --------------------------------------------------------------------------- */
 .socialCard {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   padding: var(--drawer-padding-card);
-  border-radius: var(--drawer-radius-card);
   background: var(--drawer-color-bg);
+  border-radius: var(--drawer-radius-card);
 }
 
 .socialIcons {
   display: flex;
+  gap: var(--drawer-gap-md);
   justify-content: center;
-  gap: 1vw;
 }
 
 .socialIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.2vw;
-  height: 2.2vw;
-  border: 1px solid transparent;
-  border-radius: 50%;
+  border: var(--drawer-border-primary-125);
+  width: var(--drawer-size-social-btn);
+  height: var(--drawer-size-social-btn);
   background: var(--drawer-color-primary);
   transition: all 0.3s ease;
+  border-radius: 50%;
 }
 
 .socialIcon:hover {
@@ -822,10 +816,10 @@
 }
 
 .socialIcon svg {
-  width: 1vw;
-  height: 1vw;
-  fill: var(--drawer-color-bg);
+  width: var(--drawer-size-social-icon);
+  height: var(--drawer-size-social-icon);
   transition: fill 0.3s ease;
+  fill: var(--drawer-color-bg);
 }
 
 .socialIcon:hover svg {
@@ -833,8 +827,8 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Utility Classes
-   --------------------------------------------------------------------------- */
+  Utility Classes
+  --------------------------------------------------------------------------- */
 .hidden {
   pointer-events: none;
   opacity: 0;
@@ -856,14 +850,9 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Responsive
-   --------------------------------------------------------------------------- */
+  Responsive
+  --------------------------------------------------------------------------- */
 @media (max-width: 900px) {
-  .closeBtn {
-    top: -4vw;
-    right: 0;
-  }
-
   .drawer {
     width: 90vw;
     height: 63vw;

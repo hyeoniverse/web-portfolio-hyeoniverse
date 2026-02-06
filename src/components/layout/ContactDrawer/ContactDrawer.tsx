@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -75,6 +76,12 @@ export default function ContactDrawer({
   setCopied,
 }: ContactDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Mount portal after hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Toggle reCAPTCHA badge visibility
   useEffect(() => {
@@ -103,7 +110,10 @@ export default function ContactDrawer({
     }
   };
 
-  return (
+  // Don't render on server or before hydration
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -125,12 +135,12 @@ export default function ContactDrawer({
             initial={{ x: "-100%" }}
             animate={{
               x: 0,
-              transition: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] },
+              transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] },
             }}
             exit={{
               x: "-100%",
               transition: {
-                duration: 0.6,
+                duration: 0.5,
                 delay: 0.15,
                 ease: [0.4, 0, 0.6, 1],
               },
@@ -153,10 +163,23 @@ export default function ContactDrawer({
                 opacity: 0,
                 transition: { duration: 0.15, delay: 0.4 },
               }}
+              whileHover="hover"
             >
               <span className={styles.closeIconWrapper}>
-                <span className={styles.closeLine} />
-                <span className={`${styles.closeLine} ${styles.closeLineSecondary}`} />
+                <motion.span
+                  className={styles.closeLine}
+                  variants={{
+                    hover: { rotate: 45 },
+                  }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                />
+                <motion.span
+                  className={styles.closeLine}
+                  variants={{
+                    hover: { rotate: -45 },
+                  }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                />
               </span>
             </motion.button>
 
@@ -659,6 +682,7 @@ export default function ContactDrawer({
                 }}
               >
                 <motion.div
+                  className={styles.profileContent}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{
                     opacity: 1,
@@ -686,12 +710,14 @@ export default function ContactDrawer({
                       />
                     </span>
                   </div>
-                  <h4 className={styles.profileName}>
-                    {siteConfig.personal.name}
-                  </h4>
-                  <p className={styles.profileRole}>
-                    {siteConfig.personal.role}
-                  </p>
+                  <div className={styles.profileInfo}>
+                    <h4 className={styles.profileName}>
+                      {siteConfig.personal.name}
+                    </h4>
+                    <p className={styles.profileRole}>
+                      {siteConfig.personal.role}
+                    </p>
+                  </div>
                 </motion.div>
               </motion.div>
 
@@ -772,6 +798,7 @@ export default function ContactDrawer({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
