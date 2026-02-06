@@ -4,22 +4,22 @@
 
 .container {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  justify-content: center;
   padding: var(--spacing-xl);
-  background: var(--bg-primary);
-  position: relative;
   overflow: hidden;
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-primary);
 }
 
 .content {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  max-width: 500px;
+  flex-direction: column;
   z-index: 1;
+  max-width: 500px;
+  text-align: center;
 }
 
 /* Icon */
@@ -29,11 +29,11 @@
 
 .icon {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  border: 2px solid var(--text-primary);
   width: 80px;
   height: 80px;
-  border: 2px solid var(--text-primary);
   border-radius: 50%;
 }
 
@@ -41,8 +41,8 @@
   font-family: var(--font-instrument), serif;
   font-size: 3rem;
   font-weight: 400;
-  color: var(--text-primary);
   line-height: 1;
+  color: var(--text-primary);
 }
 
 /* Typography */
@@ -59,19 +59,28 @@
   margin: 0 0 var(--spacing-xl);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-md);
-  color: var(--text-primary);
   line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.errorRef {
+  margin: 0 0 var(--spacing-xl);
+  font-family: var(--font-jetbrains), monospace;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  opacity: 0.7;
 }
 
 /* Error Details */
 .errorDetails {
-  width: 100%;
   margin-bottom: var(--spacing-xl);
   padding: var(--spacing-md);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-tertiary);
-  border-radius: var(--radius-md);
+  border: var(--border-strong-125);
   overflow-x: auto;
+  width: 100%;
+  background: var(--bg-white);
+  text-align: left;
+  border-radius: var(--radius-md);
 }
 
 .errorCode {
@@ -85,14 +94,13 @@
 .actions {
   display: flex;
   gap: var(--spacing-md);
-  flex-wrap: wrap;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .primaryButton {
   padding: var(--spacing-sm) var(--spacing-xl);
   border: none;
-  border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
@@ -101,17 +109,17 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   transition: all 0.3s ease;
+  border-radius: var(--radius-capsule);
 }
 
 .primaryButton:hover {
-  transform: scale(1.02);
   box-shadow: 0 4px 20px var(--shadow-color);
+  transform: scale(1.02);
 }
 
 .secondaryButton {
   padding: var(--spacing-sm) var(--spacing-xl);
   border: var(--border-strong);
-  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
@@ -121,31 +129,32 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   transition: all 0.3s ease;
+  border-radius: var(--radius-capsule);
 }
 
 /* Decorative Elements */
 .decorOval1 {
+  border: 1px solid var(--border-tertiary);
   position: absolute;
   top: 10%;
   right: -10%;
   width: 400px;
   height: 200px;
-  border: 1px solid var(--border-tertiary);
+  pointer-events: none;
   border-radius: 50%;
   transform: rotate(-15deg);
-  pointer-events: none;
 }
 
 .decorOval2 {
+  border: 1px solid var(--border-tertiary);
   position: absolute;
   bottom: 15%;
   left: -5%;
   width: 300px;
   height: 150px;
-  border: 1px solid var(--border-tertiary);
+  pointer-events: none;
   border-radius: 50%;
   transform: rotate(25deg);
-  pointer-events: none;
 }
 
 /* Responsive */
