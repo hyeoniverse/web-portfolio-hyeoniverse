@@ -11,12 +11,14 @@ import SuccessMessage from "./SuccessMessage";
 import { useContactStore } from "@/stores/contactStore";
 import { useSoundManager } from "@/hooks/useSoundManager";
 import { useModalStore } from "@/stores/modalStore";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function ContactForm() {
   const [state, handleSubmit] = useForm(
     process.env.NEXT_PUBLIC_FORMSPREE_ID as string,
   );
 
+  const { t } = useLanguage();
   const { playSound } = useSoundManager();
   const { isModalOpen } = useModalStore();
   const { formKey, formData, setFormData, resetForm, setSubmitSuccess } =
@@ -94,7 +96,7 @@ export default function ContactForm() {
                 <input
                   type="text"
                   name="name"
-                  placeholder="Your name"
+                  placeholder={t("contact.namePlaceholder")}
                   value={formData.name}
                   onChange={handleInputChange}
                   required
@@ -110,7 +112,7 @@ export default function ContactForm() {
                 <input
                   type="email"
                   name="email"
-                  placeholder="your@email.com"
+                  placeholder={t("contact.emailPlaceholder")}
                   value={formData.email}
                   onChange={handleInputChange}
                   required
@@ -125,7 +127,7 @@ export default function ContactForm() {
                 <MessageSquare className={styles.icon} size={16} />
                 <textarea
                   name="message"
-                  placeholder="Your message..."
+                  placeholder={t("contact.messagePlaceholder")}
                   rows={3}
                   value={formData.message}
                   onChange={handleInputChange}
@@ -142,7 +144,7 @@ export default function ContactForm() {
               style="primary"
               disabled={state.submitting}
             >
-              {state.submitting ? "발송 중..." : "이메일 전송하기"}
+              {state.submitting ? t("contact.sending") : t("contact.send")}
             </Button>
           </>
         )}

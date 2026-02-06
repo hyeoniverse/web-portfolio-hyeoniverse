@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import { siteConfig } from "@/config/site.config";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./CTASection.module.css";
 
 interface UseMagneticReturn {
@@ -24,6 +25,8 @@ interface CTASectionProps {
 
 const CTASection = forwardRef<HTMLElement, CTASectionProps>(
   ({ floatX, floatY, ctaOvalX, ctaOvalY, magnetic, onContactClick }, ref) => {
+    const { t } = useLanguage();
+
     return (
       <section className={styles.cta} ref={ref}>
         {/* Decorative Lines */}
@@ -41,15 +44,14 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
         />
 
         <div className={styles.content}>
-          <p className={`${styles.label} reveal-text`}>
-            {siteConfig.cta.label}
-          </p>
+          <p className={`${styles.label} reveal-text`}>{t("cta.title1")}</p>
           <h2 className={styles.title}>
-            {siteConfig.cta.title.map((line, i) => (
-              <span key={i} className={`${styles.titleLine} reveal-text`}>
-                {line}
-              </span>
-            ))}
+            <span className={`${styles.titleLine} reveal-text`}>
+              {t("cta.title1")}
+            </span>
+            <span className={`${styles.titleLine} reveal-text`}>
+              {t("cta.title2")}
+            </span>
           </h2>
 
           <motion.div
@@ -60,7 +62,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
             onMouseLeave={magnetic.handleMouseLeave}
           >
             <button className={styles.button} onClick={onContactClick}>
-              <span>{siteConfig.cta.buttonText}</span>
+              <span>{t("cta.button")}</span>
               <motion.span
                 className={styles.buttonIndicator}
                 whileHover={{ scale: 1.5 }}
@@ -73,7 +75,9 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
           <a href={`mailto:${siteConfig.contact.email}?subject=Hello!`}>
             {siteConfig.contact.email}
           </a>
-          <span>{siteConfig.footer.copyright}</span>
+          <span>
+            HYEON © {new Date().getFullYear()}, {t("footer.copyright")}
+          </span>
         </div>
       </section>
     );

@@ -1,0 +1,170 @@
+{
+  "nav": {
+    "home": "Home",
+    "works": "Works",
+    "about": "About",
+    "webflow": "Web Flow"
+  },
+  "hero": {
+    "headline1": "Creative",
+    "headline2": "Developer",
+    "headline3": "& Problem Solver",
+    "location": "Based in Seoul, KR",
+    "availability": "Available for Opportunities",
+    "ctaLabel": "Available for Opportunities",
+    "ctaTitle1": "Looking for",
+    "ctaTitle2": "someone?",
+    "ctaButton": "Get in touch"
+  },
+  "about": {
+    "title": "About Me",
+    "intro": {
+      "before": "I craft digital experiences where ",
+      "highlight1": "aesthetics",
+      "middle": " meet ",
+      "highlight2": "functionality",
+      "after": "."
+    },
+    "description": {
+      "before": "Focused on creating memorable interactions through thoughtful ",
+      "highlight1": "design",
+      "middle": " and clean ",
+      "highlight2": "code",
+      "after": "."
+    }
+  },
+  "services": {
+    "label": "What I Do",
+    "webDev": {
+      "title": "Web Development",
+      "desc": "React, Next.js, TypeScript"
+    },
+    "uiux": {
+      "title": "UI/UX Design",
+      "desc": "Figma, Prototyping, Systems"
+    },
+    "motion": {
+      "title": "Motion Design",
+      "desc": "GSAP, Framer Motion, CSS"
+    },
+    "brand": {
+      "title": "Brand Identity",
+      "desc": "Visual Language, Guidelines"
+    }
+  },
+  "marquee": {
+    "creative": "CREATIVE",
+    "frontend": "FRONTEND",
+    "developer": "DEVELOPER",
+    "innovator": "INNOVATOR"
+  },
+  "cta": {
+    "title1": "Looking for",
+    "title2": "someone?",
+    "button": "Get in touch"
+  },
+  "works": {
+    "label": "My Works",
+    "scroll": "Scroll",
+    "explore": "Explore",
+    "introTitle": "Portfolio 2024",
+    "introSubtitle": "Creative Works & Projects",
+    "introDesc": "A showcase of creative projects across various domains.",
+    "stats": {
+      "projects": "Projects",
+      "clients": "Clients",
+      "years": "Years"
+    },
+    "endTitle": "Get in Touch",
+    "endSubtitle": "Let's Create Something Amazing",
+    "endDesc": "Have a project in mind? Let's discuss how we can bring your vision to life.",
+    "endButton": "Start a Project"
+  },
+  "aboutPage": {
+    "title": "About Me",
+    "subtitle": "Crafting Digital Experiences",
+    "intro": "Hello! I'm a passionate developer and designer based in Seoul, Korea.",
+    "philosophy": {
+      "design": {
+        "title": "Design with Purpose",
+        "desc": "Every design decision should have a purpose that enhances user experience."
+      },
+      "code": {
+        "title": "Code with Care",
+        "desc": "Writing clean, maintainable, and efficient code."
+      },
+      "learn": {
+        "title": "Learn Continuously",
+        "desc": "Technology evolves rapidly, and so do I."
+      }
+    },
+    "stats": {
+      "years": "Years Experience",
+      "projects": "Projects Completed",
+      "clients": "Happy Clients"
+    }
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "your@email.com",
+    "messagePlaceholder": "Your message...",
+    "sending": "Sending...",
+    "send": "Send Email",
+    "successTitle": "Message Sent!",
+    "successMessage": "Thank you! Your message was sent successfully.",
+    "successSubMessage": "We will reply soon.",
+    "confirm": "OK"
+  },
+  "footer": {
+    "location": "Seoul, KR",
+    "copyright": "All Rights Reserved"
+  },
+  "webflow": {
+    "title": "Behind the Scenes",
+    "subtitle": "Web Flow & Implementation",
+    "description": "A story about the design philosophy, key feature implementations, and development process of this portfolio site.",
+    "features": {
+      "infiniteScroll": {
+        "title": "Infinite Scroll Loop",
+        "desc": "Infinite circular scroll combining Lenis smooth scroll and Bridge Section"
+      },
+      "mouseParallax": {
+        "title": "Mouse Parallax",
+        "desc": "Mouse-responsive parallax based on Framer Motion useSpring/useTransform"
+      },
+      "scrollAnimation": {
+        "title": "Scroll-Triggered Animations",
+        "desc": "Scroll-based reveal animations using GSAP ScrollTrigger"
+      },
+      "mixBlend": {
+        "title": "Mix-Blend Navigation",
+        "desc": "Auto-inverting navigation using mix-blend-mode: difference"
+      },
+      "staggerText": {
+        "title": "StaggerText Animation",
+        "desc": "Per-character sequential animation component on hover"
+      }
+    },
+    "process": {
+      "designSystem": "Design System Setup",
+      "component": "Component Design",
+      "animation": "Animation Layer",
+      "infiniteScroll": "Infinite Scroll Implementation"
+    },
+    "troubleshooting": {
+      "cause": "Cause",
+      "solution": "Solution",
+      "keyInsight": "Key Insight"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "prev": "Previous"
+  }
+}
