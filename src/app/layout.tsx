@@ -16,6 +16,7 @@ import {
 
 import LoadingScreen from "@/components/layout/LoadingScreen";
 import Navigation from "@/components/layout/Navigation";
+import PageTransitionOverlay from "@/components/layout/PageTransitionOverlay";
 import Modal from "@/components/ui/Modal";
 import CursorTrail from "@/components/effects/CursorTrail";
 import { LenisProvider } from "@/providers/LenisProvider";
@@ -122,6 +123,7 @@ export default function RootLayout({
                   <FaviconSwitcher />
                   <ScrollRestoration />
                   <LoadingScreen />
+                  <PageTransitionOverlay />
                   <Modal />
                   <CursorTrail />
                 </aside>
