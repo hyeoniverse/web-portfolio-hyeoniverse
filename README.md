@@ -202,6 +202,42 @@ const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefine
 
 자세한 내용은 [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)을 참고하세요.
 
+## 커밋 컨벤션
+
+이 프로젝트는 [Conventional Commits](https://www.conventionalcommits.org/ko/v1.0.0/) 규칙을 따릅니다.
+
+### 커밋 메시지 형식
+
+```
+<타입>(<범위>): <제목>
+```
+
+### 주요 타입
+
+| 타입 | 설명 |
+|------|------|
+| `feat` | 새로운 기능 추가 |
+| `fix` | 버그 수정 |
+| `docs` | 문서 수정 |
+| `style` | 코드 포맷팅 |
+| `refactor` | 리팩토링 |
+| `perf` | 성능 개선 |
+| `test` | 테스트 추가/수정 |
+| `chore` | 빌드, 설정 변경 |
+
+### 예시
+
+```bash
+feat: 무한 스크롤 기능 추가
+fix(animation): 스크롤 애니메이션 깜빡임 수정
+docs: README 설치 방법 추가
+refactor(hooks): 커스텀 훅 분리
+```
+
+자세한 내용은 [COMMIT_CONVENTION.md](./COMMIT_CONVENTION.md)를 참고하세요.
+
+---
+
 ## 라이선스
 
 MIT License
