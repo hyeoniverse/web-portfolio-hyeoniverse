@@ -20,33 +20,11 @@ import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
 import styles from "./Home.module.css";
 import OptimizedImage from "@/components/ui/OptimizedImage";
+import StaggerText from "@/components/effects/StaggerText";
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
-}
-
-// Split text into individual characters for hover effect
-function SplitText({
-  children,
-  className,
-}: {
-  children: string;
-  className?: string;
-}) {
-  return (
-    <span className={className}>
-      {children.split("").map((char, i) => (
-        <span
-          key={i}
-          className={styles.char}
-          style={{ transitionDelay: `${i * 0.03}s` }}
-        >
-          {char === " " ? "\u00A0" : char}
-        </span>
-      ))}
-    </span>
-  );
 }
 
 // Magnetic effect hook
@@ -869,10 +847,10 @@ export default function HomePage() {
         <div className={`${styles.heroContent} hero-content`}>
           <h1 className={styles.heroTitle}>
             <span className={`${styles.titleLine} hero-line`}>
-              <SplitText className={styles.titleText}>Creative</SplitText>
+              <StaggerText className={styles.titleText} strokeColor="var(--text-primary)">Creative</StaggerText>
             </span>
             <span className={`${styles.titleLine} hero-line`}>
-              <SplitText className={styles.titleText}>Developer</SplitText>
+              <StaggerText className={styles.titleText} strokeColor="var(--text-primary)">Developer</StaggerText>
               <span className={styles.titleOval}>
                 <motion.span
                   className={styles.ovalInline}
@@ -887,7 +865,7 @@ export default function HomePage() {
             </span>
             <span className={`${styles.titleLine} hero-line`}>
               <span className={styles.titleAccent}>&</span>
-              <SplitText className={styles.titleText}>Problem Solver</SplitText>
+              <StaggerText className={styles.titleText} strokeColor="var(--text-primary)">Problem Solver</StaggerText>
             </span>
           </h1>
 
@@ -987,13 +965,13 @@ export default function HomePage() {
         <div className={`${styles.marqueeTrack} marquee-track`}>
           {[...Array(4)].map((_, idx) => (
             <span key={idx} className={styles.marqueeText}>
-              <SplitText className={styles.marqueeWord}>CREATIVE</SplitText>{" "}
+              <StaggerText className={styles.marqueeWord} strokeColor="var(--text-accent-secondary-alt)">CREATIVE</StaggerText>{" "}
               <span className={styles.marqueeOval} />{" "}
-              <SplitText className={styles.marqueeWord}>FRONTEND</SplitText>{" "}
+              <StaggerText className={styles.marqueeWord} strokeColor="var(--text-accent-secondary-alt)">FRONTEND</StaggerText>{" "}
               <span className={styles.marqueeLine} />{" "}
-              <SplitText className={styles.marqueeWord}>DEVELOPER</SplitText>{" "}
+              <StaggerText className={styles.marqueeWord} strokeColor="var(--text-accent-secondary-alt)">DEVELOPER</StaggerText>{" "}
               <span className={styles.marqueeOval} />{" "}
-              <SplitText className={styles.marqueeWord}>INNOVATOR</SplitText>{" "}
+              <StaggerText className={styles.marqueeWord} strokeColor="var(--text-accent-secondary-alt)">INNOVATOR</StaggerText>{" "}
               <span className={styles.marqueeLine} />{" "}
             </span>
           ))}

@@ -160,19 +160,6 @@
   -webkit-text-stroke: 1px var(--text-primary);
 }
 
-/* Individual character styling */
-.char {
-  display: inline-block;
-  transition:
-    color 0.3s ease,
-    -webkit-text-stroke 0.3s ease;
-}
-
-.titleText:hover .char {
-  color: transparent;
-  -webkit-text-stroke: 1px var(--text-primary);
-}
-
 .titleOval {
   position: relative;
   width: clamp(60px, 8vw, 100px);
@@ -365,11 +352,6 @@
   font-weight: var(--font-weight-regular);
   color: var(--text-accent-secondary-alt);
   letter-spacing: -0.02em;
-}
-
-.marqueeWord:hover .char {
-  color: transparent;
-  -webkit-text-stroke: 1px var(--text-accent-secondary-alt);
 }
 
 .marqueeOval {
