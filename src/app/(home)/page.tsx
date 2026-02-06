@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -13,6 +13,7 @@ import { useMagneticRepel } from "@/hooks/useMagneticRepel";
 import { useScrollVelocity } from "@/hooks/useScrollVelocity";
 import { useContactForm } from "@/hooks/useContactForm";
 import { useToast } from "@/hooks/useToast";
+import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 
 // Sections
 import HeroSection from "./_sections/HeroSection";
@@ -35,6 +36,7 @@ if (typeof window !== "undefined") {
 
 export default function HomePage() {
   const hasMounted = useHasMounted();
+  const { isLoading } = useLoadingScreen();
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -267,92 +269,111 @@ export default function HomePage() {
   if (!hasMounted) return null;
 
   return (
-    <div className={styles.home} ref={containerRef}>
-      <HeroSection
-        ref={heroRef}
-        floatX={floatX}
-        floatY={floatY}
-        oval2X={oval2X}
-        oval2Y={oval2Y}
-      />
-
-      <AboutSection ref={aboutRef} />
-
-      <ServicesSection
-        ref={servicesRef}
-        serviceY0={serviceY0}
-        serviceY1={serviceY1}
-        serviceY2={serviceY2}
-      />
-
-      <MarqueeSection ref={marqueeRef} />
-
-      <WorksSection
-        ref={worksRef}
-        smoothWorkImageY={scrollVelocity.smoothWorkImageY}
-        magneticOffsets={magneticRepel.magneticOffsets}
-        setWorkCircleRef={magneticRepel.setWorkCircleRef}
-        expandingWork={workInteraction.expandingWork}
-        pressingWork={workInteraction.pressingWork}
-        hoveringWork={workInteraction.hoveringWork}
-        handlePressStart={workInteraction.handlePressStart}
-        handlePressEnd={workInteraction.handlePressEnd}
-        handleWorkClick={workInteraction.handleWorkClick}
-        handleHoverStart={workInteraction.handleHoverStart}
-        handleHoverEnd={workInteraction.handleHoverEnd}
-      />
-
-      <CTASection
-        ref={ctaRef}
-        floatX={floatX}
-        floatY={floatY}
-        ctaOvalX={ctaOvalX}
-        ctaOvalY={ctaOvalY}
-        magnetic={magnetic}
-        onContactClick={() => setIsDrawerOpen(true)}
-      />
-
-      <BridgeSection
-        floatX={floatX}
-        floatY={floatY}
-        oval2X={oval2X}
-        oval2Y={oval2Y}
-      />
-
-      <ContactDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        formState={contactForm.formState}
-        formRef={contactForm.formRef}
-        fileInputRef={contactForm.fileInputRef}
-        recaptchaRef={contactForm.recaptchaRef}
-        privacyAccepted={contactForm.privacyAccepted}
-        setPrivacyAccepted={contactForm.setPrivacyAccepted}
-        fileName={contactForm.fileName}
-        setFileName={contactForm.setFileName}
-        setRecaptchaToken={contactForm.setRecaptchaToken}
-        submittedData={contactForm.submittedData}
-        recaptchaEnabled={contactForm.recaptchaEnabled}
-        recaptchaVersion={contactForm.recaptchaVersion}
-        handleSubmit={contactForm.handleSubmit}
-        resetForm={contactForm.resetForm}
-        formToast={formToast}
-        copied={copied}
-        setCopied={setCopied}
-      />
-
-      {/* Toast Notification */}
-      <div
-        className={`${styles.toast} ${toast ? styles.toastVisible : ""} ${
-          toast?.type === "error"
-            ? styles.toastError
-            : toast?.type === "success"
-              ? styles.toastSuccess
-              : ""
-        }`}
+    <div className={styles.pageWrapper}>
+      <motion.div
+        className={styles.home}
+        ref={containerRef}
+        initial={{
+          y: "100vh",
+          width: "90vw",
+          borderRadius: "var(--radius-2xl)",
+        }}
+        animate={{
+          y: isLoading ? "100vh" : 0,
+          width: isLoading ? "90vw" : "100vw",
+          borderRadius: isLoading ? "var(--radius-2xl)" : "0px",
+        }}
+        transition={{
+          duration: 1.2,
+          ease: [0.25, 0.46, 0.45, 0.94],
+        }}
       >
-        {toast?.message}
-      </div>
+        <HeroSection
+          ref={heroRef}
+          floatX={floatX}
+          floatY={floatY}
+          oval2X={oval2X}
+          oval2Y={oval2Y}
+        />
+
+        <AboutSection ref={aboutRef} />
+
+        <ServicesSection
+          ref={servicesRef}
+          serviceY0={serviceY0}
+          serviceY1={serviceY1}
+          serviceY2={serviceY2}
+        />
+
+        <MarqueeSection ref={marqueeRef} />
+
+        <WorksSection
+          ref={worksRef}
+          smoothWorkImageY={scrollVelocity.smoothWorkImageY}
+          magneticOffsets={magneticRepel.magneticOffsets}
+          setWorkCircleRef={magneticRepel.setWorkCircleRef}
+          expandingWork={workInteraction.expandingWork}
+          pressingWork={workInteraction.pressingWork}
+          hoveringWork={workInteraction.hoveringWork}
+          handlePressStart={workInteraction.handlePressStart}
+          handlePressEnd={workInteraction.handlePressEnd}
+          handleWorkClick={workInteraction.handleWorkClick}
+          handleHoverStart={workInteraction.handleHoverStart}
+          handleHoverEnd={workInteraction.handleHoverEnd}
+        />
+
+        <CTASection
+          ref={ctaRef}
+          floatX={floatX}
+          floatY={floatY}
+          ctaOvalX={ctaOvalX}
+          ctaOvalY={ctaOvalY}
+          magnetic={magnetic}
+          onContactClick={() => setIsDrawerOpen(true)}
+        />
+
+        <BridgeSection
+          floatX={floatX}
+          floatY={floatY}
+          oval2X={oval2X}
+          oval2Y={oval2Y}
+        />
+
+        <ContactDrawer
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          formState={contactForm.formState}
+          formRef={contactForm.formRef}
+          fileInputRef={contactForm.fileInputRef}
+          recaptchaRef={contactForm.recaptchaRef}
+          privacyAccepted={contactForm.privacyAccepted}
+          setPrivacyAccepted={contactForm.setPrivacyAccepted}
+          fileName={contactForm.fileName}
+          setFileName={contactForm.setFileName}
+          setRecaptchaToken={contactForm.setRecaptchaToken}
+          submittedData={contactForm.submittedData}
+          recaptchaEnabled={contactForm.recaptchaEnabled}
+          recaptchaVersion={contactForm.recaptchaVersion}
+          handleSubmit={contactForm.handleSubmit}
+          resetForm={contactForm.resetForm}
+          formToast={formToast}
+          copied={copied}
+          setCopied={setCopied}
+        />
+
+        {/* Toast Notification */}
+        <div
+          className={`${styles.toast} ${toast ? styles.toastVisible : ""} ${
+            toast?.type === "error"
+              ? styles.toastError
+              : toast?.type === "success"
+                ? styles.toastSuccess
+                : ""
+          }`}
+        >
+          {toast?.message}
+        </div>
+      </motion.div>
     </div>
   );
 }

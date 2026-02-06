@@ -2,12 +2,24 @@
    Home Page - Main Container & Shared Styles
    ========================================================================== */
 
+.pageWrapper {
+  overflow: hidden;
+  min-height: 100vh;
+  background: #000;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
 .home {
-  width: 100%;
+  overflow-x: hidden;
+  width: 90vw;
   background: var(--bg-primary);
   color: var(--text-primary);
-  overflow-x: hidden;
-  will-change: opacity;
+  will-change: transform;
+  border-radius: var(--radius-2xl);
+  justify-content: center;
+  align-items: center;
 }
 
 /* ==========================================================================
@@ -15,23 +27,23 @@
    ========================================================================== */
 
 .toast {
+  padding: 16px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   position: fixed;
   bottom: 40px;
   left: 50%;
   z-index: 10000;
-  padding: 16px 28px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-capsule);
   background: rgba(30, 30, 30, 0.95);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   color: #fff;
-  backdrop-filter: blur(10px);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
+  border-radius: var(--radius-capsule);
+  backdrop-filter: blur(10px);
   opacity: 0;
   transform: translateX(-50%) translateY(100px);
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .toastVisible {
