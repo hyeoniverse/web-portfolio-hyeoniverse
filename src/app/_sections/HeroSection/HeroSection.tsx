@@ -1,0 +1,105 @@
+"use client";
+
+import { forwardRef } from "react";
+import { motion, MotionValue } from "framer-motion";
+import StaggerText from "@/components/effects/StaggerText";
+import styles from "./HeroSection.module.css";
+
+interface HeroSectionProps {
+  floatX: MotionValue<number>;
+  floatY: MotionValue<number>;
+  oval2X: MotionValue<number>;
+  oval2Y: MotionValue<number>;
+}
+
+const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
+  ({ floatX, floatY, oval2X, oval2Y }, ref) => {
+    return (
+      <section className={styles.hero} ref={ref}>
+        {/* Floating Ovals */}
+        <motion.div
+          className={`${styles.floatingOval} ${styles.ovalPrimary} parallax-oval-1`}
+          style={{ x: floatX, y: floatY }}
+        />
+        <motion.div
+          className={`${styles.floatingOval} ${styles.ovalSecondary} parallax-oval-2`}
+          style={{ x: oval2X, y: oval2Y }}
+        />
+
+        {/* Decorative Lines */}
+        <div
+          className={`${styles.decorLine} ${styles.decorLineTop} hero-line-decoration`}
+        />
+        <div
+          className={`${styles.decorLine} ${styles.decorLineBottom} hero-line-decoration`}
+        />
+
+        {/* Hero Content */}
+        <div className={`${styles.content} hero-content`}>
+          <h1 className={styles.title}>
+            <span className={`${styles.titleRow} hero-line`}>
+              <StaggerText
+                className={styles.titleText}
+                strokeColor="var(--text-primary)"
+              >
+                Creative
+              </StaggerText>
+            </span>
+            <span className={`${styles.titleRow} hero-line`}>
+              <StaggerText
+                className={styles.titleText}
+                strokeColor="var(--text-primary)"
+              >
+                Developer
+              </StaggerText>
+              <span className={styles.titleOvalWrapper}>
+                <motion.span
+                  className={styles.titleOvalInline}
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+              </span>
+            </span>
+            <span className={`${styles.titleRow} hero-line`}>
+              <span className={styles.titleAccent}>&</span>
+              <StaggerText
+                className={styles.titleText}
+                strokeColor="var(--text-primary)"
+              >
+                Problem Solver
+              </StaggerText>
+            </span>
+          </h1>
+
+          <div className={styles.meta}>
+            <span className="hero-line">Based in Seoul, KR</span>
+            <span className={styles.metaDivider} />
+            <span className="hero-line">Available for opportunities</span>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          className={styles.scrollIndicator}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+        >
+          <motion.div
+            className={styles.scrollLine}
+            animate={{ scaleY: [0, 1, 0], y: [0, 0, 20] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
+      </section>
+    );
+  }
+);
+
+HeroSection.displayName = "HeroSection";
+
+export default HeroSection;

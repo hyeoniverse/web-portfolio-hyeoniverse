@@ -1,0 +1,94 @@
+/* ==========================================================================
+   About Section
+   ========================================================================== */
+
+.about {
+  position: relative;
+  padding: 15vh 8vw;
+}
+
+/* ---------------------------------------------------------------------------
+   Decorative Line
+   --------------------------------------------------------------------------- */
+.decorLine {
+  width: 100%;
+  height: 1px;
+  background: var(--border-primary);
+  transform-origin: left center;
+}
+
+/* ---------------------------------------------------------------------------
+   Content
+   --------------------------------------------------------------------------- */
+.content {
+  max-width: var(--width-md);
+  margin: 0 auto;
+  padding: 10vh 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Text Block
+   --------------------------------------------------------------------------- */
+.textBlock {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.textBlock:last-child {
+  margin-bottom: 0;
+}
+
+.text {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--fluid-font-size-3xl);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.caption {
+  margin-top: var(--spacing-md);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--text-tertiary);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.highlight {
+  font-weight: var(--font-weight-regular);
+  color: var(--text-accent-secondary-alt);
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .about {
+    padding-right: 6vw;
+    padding-left: 6vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .about {
+    padding-right: 5vw;
+    padding-left: 5vw;
+  }
+
+  .content {
+    padding: 6vh 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .text {
+    font-size: var(--font-size-lg);
+  }
+
+  .caption {
+    font-size: var(--font-size-xs);
+  }
+}

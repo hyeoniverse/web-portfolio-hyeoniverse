@@ -1,0 +1,237 @@
+"use client";
+
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useForm } from "@formspree/react";
+import ReCAPTCHA from "react-google-recaptcha";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { siteConfig } from "@/config/site.config";
+
+interface SubmittedData {
+  name: string;
+  email: string;
+  title: string;
+  message: string;
+  fileName: string;
+}
+
+interface UseContactFormReturn {
+  // Form state
+  formState: ReturnType<typeof useForm>[0];
+  formRef: React.RefObject<HTMLFormElement | null>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  recaptchaRef: React.RefObject<ReCAPTCHA | null>;
+
+  // Field states
+  privacyAccepted: boolean;
+  setPrivacyAccepted: (value: boolean) => void;
+  fileName: string;
+  setFileName: (value: string) => void;
+  recaptchaToken: string | null;
+  setRecaptchaToken: (value: string | null) => void;
+  submittedData: SubmittedData | null;
+
+  // reCAPTCHA config
+  recaptchaEnabled: boolean;
+  recaptchaVersion: "v2" | "v3";
+
+  // Handlers
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  resetForm: (e?: React.MouseEvent) => void;
+
+  // Toast handlers (to be connected to useToast)
+  onShowFormToast: (callback: (message: string, type?: "error" | "success") => void) => void;
+  onShowToast: (callback: (message: string, type: "error" | "success") => void) => void;
+}
+
+export function useContactForm(): UseContactFormReturn {
+  const [formState, handleFormspreeSubmit, resetFormspree] = useForm("xlgwrpvq");
+
+  const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [fileName, setFileName] = useState("");
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [submittedData, setSubmittedData] = useState<SubmittedData | null>(null);
+
+  // Toast callback refs
+  const showFormToastRef = useRef<(message: string, type?: "error" | "success") => void>(() => {});
+  const showToastRef = useRef<(message: string, type: "error" | "success") => void>(() => {});
+
+  // reCAPTCHA config
+  const { enabled: recaptchaEnabled, version: recaptchaVersion } = siteConfig.recaptcha;
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  // Track previous state
+  const prevSubmittingRef = useRef(false);
+  const prevSucceededRef = useRef(false);
+
+  const onShowFormToast = useCallback(
+    (callback: (message: string, type?: "error" | "success") => void) => {
+      showFormToastRef.current = callback;
+    },
+    []
+  );
+
+  const onShowToast = useCallback(
+    (callback: (message: string, type: "error" | "success") => void) => {
+      showToastRef.current = callback;
+    },
+    []
+  );
+
+  const resetForm = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.preventDefault();
+      e?.stopPropagation();
+      formRef.current?.reset();
+      resetFormspree();
+      setPrivacyAccepted(false);
+      setFileName("");
+      setRecaptchaToken(null);
+      setSubmittedData(null);
+      recaptchaRef.current?.reset();
+      prevSucceededRef.current = false;
+    },
+    [resetFormspree]
+  );
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.currentTarget);
+      const name = formData.get("name") as string;
+      const email = formData.get("email") as string;
+      const title = formData.get("title") as string;
+      const message = formData.get("message") as string;
+
+      // Validation
+      if (!name?.trim()) {
+        showFormToastRef.current("Please enter your name");
+        return;
+      }
+      if (!email?.trim()) {
+        showFormToastRef.current("Please enter your email");
+        return;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showFormToastRef.current("Please enter a valid email address");
+        return;
+      }
+      if (title?.trim() && (title.trim().length < 2 || title.trim().length > 50)) {
+        showFormToastRef.current("Title must be 2-50 characters");
+        return;
+      }
+      if (!message?.trim()) {
+        showFormToastRef.current("Please enter your message");
+        return;
+      }
+      if (!privacyAccepted) {
+        showFormToastRef.current("Please accept the Privacy Policy");
+        return;
+      }
+
+      // reCAPTCHA validation
+      if (recaptchaEnabled) {
+        if (recaptchaVersion === "v2" && !recaptchaToken) {
+          showFormToastRef.current("Please complete the reCAPTCHA verification");
+          return;
+        }
+        if (recaptchaVersion === "v3" && !executeRecaptcha) {
+          showFormToastRef.current("reCAPTCHA not loaded. Please refresh the page.");
+          return;
+        }
+      }
+
+      try {
+        setSubmittedData({
+          name: name.trim(),
+          email: email.trim(),
+          title: title?.trim() || "",
+          message: message.trim(),
+          fileName,
+        });
+
+        if (recaptchaEnabled) {
+          if (recaptchaVersion === "v3" && executeRecaptcha) {
+            const token = await executeRecaptcha("contact_form");
+            formData.append("g-recaptcha-response", token);
+          } else if (recaptchaVersion === "v2" && recaptchaToken) {
+            formData.append("g-recaptcha-response", recaptchaToken);
+          }
+        }
+
+        await handleFormspreeSubmit(formData);
+      } catch (error) {
+        console.error("Form submission error:", error);
+        showToastRef.current("Network error. Please check your connection.", "error");
+      }
+    },
+    [
+      handleFormspreeSubmit,
+      privacyAccepted,
+      recaptchaToken,
+      recaptchaEnabled,
+      recaptchaVersion,
+      executeRecaptcha,
+      fileName,
+    ]
+  );
+
+  // Handle form success/error
+  useEffect(() => {
+    const justFinishedSubmitting = prevSubmittingRef.current && !formState.submitting;
+    const justSucceeded = !prevSucceededRef.current && formState.succeeded;
+
+    prevSubmittingRef.current = formState.submitting;
+    prevSucceededRef.current = formState.succeeded;
+
+    if (justFinishedSubmitting) {
+      if (justSucceeded) {
+        showFormToastRef.current("Message sent successfully!", "success");
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
+      } else if (!formState.succeeded) {
+        let errorMsg = "Failed to send message. Please try again.";
+
+        if (formState.errors) {
+          const formErrors = formState.errors.getFormErrors?.() || [];
+          const fieldErrors = formState.errors.getAllFieldErrors?.() || [];
+
+          if (formErrors.length > 0) {
+            errorMsg = formErrors.map((err) => err.message).join(", ");
+          } else if (fieldErrors.length > 0) {
+            errorMsg = fieldErrors
+              .map(([, errors]) => errors.map((err) => err.message).join(", "))
+              .join(", ");
+          }
+        }
+
+        showFormToastRef.current(errorMsg);
+      }
+    }
+  }, [formState.submitting, formState.succeeded, formState.errors]);
+
+  return {
+    formState,
+    formRef,
+    fileInputRef,
+    recaptchaRef,
+    privacyAccepted,
+    setPrivacyAccepted,
+    fileName,
+    setFileName,
+    recaptchaToken,
+    setRecaptchaToken,
+    submittedData,
+    recaptchaEnabled,
+    recaptchaVersion,
+    handleSubmit,
+    resetForm,
+    onShowFormToast,
+    onShowToast,
+  };
+}

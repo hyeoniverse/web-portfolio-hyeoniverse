@@ -24,12 +24,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 
 import FaviconSwitcher from "@/components/common/FaviconSwitcher";
-import ActionButtons from "@/components/common/ActionButtons/ActionButtons";
-import SideNavigation from "@/components/layout/SideNavigation";
-import ScrollIndicator from "@/components/layout/ScrollIndicator";
-import Footer from "@/components/layout/Footer";
 import ScrollRestoration from "@/components/common/ScrollRestoration";
-import SectionTransition from "@/components/effects/SectionTransition";
 
 export const metadata: Metadata = {
   title: siteConfig.metadata.title,

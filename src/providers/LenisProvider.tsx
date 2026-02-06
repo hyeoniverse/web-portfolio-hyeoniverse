@@ -161,7 +161,8 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
 
   const setInfinite = useCallback((value: boolean) => {
     if (lenisRef.current) {
-      lenisRef.current.options.infinite = value;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (lenisRef.current as any).options.infinite = value;
     }
   }, []);
 

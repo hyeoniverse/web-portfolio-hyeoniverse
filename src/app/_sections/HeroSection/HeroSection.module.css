@@ -1,0 +1,233 @@
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  min-height: 100vh;
+  padding: 0 8vw;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Floating Ovals - Decorative background elements
+   --------------------------------------------------------------------------- */
+.floatingOval {
+  position: absolute;
+  border: var(--border-strong);
+  border-radius: var(--radius-circle);
+  pointer-events: none;
+}
+
+.ovalPrimary {
+  top: 10%;
+  right: -10%;
+  width: 600px;
+  height: 300px;
+  transform: rotate(-15deg);
+}
+
+.ovalSecondary {
+  bottom: 20%;
+  left: -5%;
+  width: 400px;
+  height: 200px;
+  border-color: var(--border-tertiary);
+  transform: rotate(25deg);
+}
+
+/* ---------------------------------------------------------------------------
+   Decorative Lines
+   --------------------------------------------------------------------------- */
+.decorLine {
+  position: absolute;
+  height: 1px;
+  background: var(--border-tertiary);
+  transform-origin: left center;
+}
+
+.decorLineTop {
+  top: 20%;
+  left: 0;
+  width: 100%;
+}
+
+.decorLineBottom {
+  bottom: 25%;
+  left: 0;
+  width: 60%;
+}
+
+/* ---------------------------------------------------------------------------
+   Hero Content
+   --------------------------------------------------------------------------- */
+.content {
+  position: relative;
+  z-index: var(--z-content);
+  margin-top: 5vh;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  font-family: var(--font-instrument), serif;
+  font-size: var(--fluid-font-size-6xl);
+  font-weight: var(--font-weight-regular);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+  overflow: hidden;
+}
+
+.titleText {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: var(--line-height-fit);
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+.titleAccent {
+  font-family: inherit;
+  font-size: inherit;
+  font-style: italic;
+  font-weight: inherit;
+  line-height: var(--line-height-fit);
+  color: var(--text-accent-secondary-alt);
+  transition:
+    color 0.3s ease,
+    -webkit-text-stroke 0.3s ease;
+}
+
+.titleAccent:hover {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-primary);
+}
+
+/* Inline Oval in Title */
+.titleOvalWrapper {
+  position: relative;
+  width: clamp(60px, 8vw, 100px);
+  height: clamp(30px, 4vw, 50px);
+}
+
+.titleOvalInline {
+  position: absolute;
+  inset: 0;
+  border: var(--border-default);
+  border-radius: var(--radius-circle);
+}
+
+/* ---------------------------------------------------------------------------
+   Hero Meta Info
+   --------------------------------------------------------------------------- */
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xl);
+  margin-top: var(--spacing-4xl);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.metaDivider {
+  width: 60px;
+  height: 1px;
+  background: var(--bg-accent-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll Indicator
+   --------------------------------------------------------------------------- */
+.scrollIndicator {
+  position: absolute;
+  bottom: var(--spacing-4xl);
+  left: 50%;
+  width: 1px;
+  height: 60px;
+  background: var(--bg-secondary);
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+
+.scrollLine {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-gradient-accent-secondary-vertical);
+  transform-origin: top center;
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .hero {
+    padding-right: 6vw;
+    padding-left: 6vw;
+  }
+
+  .ovalPrimary {
+    width: 400px;
+    height: 200px;
+  }
+
+  .ovalSecondary {
+    width: 300px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding-right: 5vw;
+    padding-left: 5vw;
+  }
+
+  .titleRow {
+    gap: var(--spacing-sm);
+  }
+
+  .titleOvalWrapper {
+    width: 40px;
+    height: 20px;
+  }
+
+  .meta {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-3xl);
+  }
+
+  .metaDivider {
+    display: none;
+  }
+
+  .ovalPrimary,
+  .ovalSecondary {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .titleText,
+  .titleAccent {
+    font-size: var(--fluid-font-size-4xl);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .titleOvalInline,
+  .scrollLine {
+    animation: none;
+  }
+}

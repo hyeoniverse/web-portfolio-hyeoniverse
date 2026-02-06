@@ -188,7 +188,7 @@ export default function WorksSection() {
       }
 
       // Animate each card with stagger and parallax
-      cardsRef.current.forEach((card, index) => {
+      cardsRef.current.forEach((card) => {
         if (!card) return;
 
         const image = card.querySelector(`.${styles.cardImage}`);
@@ -441,12 +441,12 @@ export default function WorksSection() {
           <div className={styles.endContent}>
             <span className={styles.endLabel}>Get in Touch</span>
             <h2 className={styles.endTitle}>
-              <span>Let's Create</span>
+              <span>Let&apos;s Create</span>
               <span className={styles.endTitleAccent}>Something</span>
               <span>Amazing</span>
             </h2>
             <p className={styles.endText}>
-              Have a project in mind? Let's discuss how we can bring your vision to life.
+              Have a project in mind? Let&apos;s discuss how we can bring your vision to life.
             </p>
             <button className={styles.contactButton}>
               <span>Start a Project</span>

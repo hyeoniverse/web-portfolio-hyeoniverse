@@ -1,0 +1,71 @@
+/* ==========================================================================
+   Marquee Section
+   ========================================================================== */
+
+.marquee {
+  padding: var(--padding-y-6xl);
+  border-top: var(--border-default);
+  border-bottom: var(--border-default);
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Track - Scrolling container
+   --------------------------------------------------------------------------- */
+.track {
+  display: flex;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   Text Content
+   --------------------------------------------------------------------------- */
+.text {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xl);
+  padding-right: var(--spacing-3xl);
+  font-family: var(--font-instrument), serif;
+  font-size: var(--fluid-font-size-4xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-accent-secondary-alt);
+  letter-spacing: -0.02em;
+}
+
+/* ---------------------------------------------------------------------------
+   Decorative Elements
+   --------------------------------------------------------------------------- */
+.oval {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 80px;
+  height: 40px;
+  border: var(--border-default);
+  border-radius: var(--radius-circle);
+}
+
+.line {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 100px;
+  height: 1px;
+  background: var(--border-secondary);
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .text {
+    font-size: var(--font-size-4xl);
+  }
+
+  .oval {
+    width: 50px;
+    height: 25px;
+  }
+
+  .line {
+    width: 60px;
+  }
+}

@@ -1,0 +1,55 @@
+"use client";
+
+import { forwardRef } from "react";
+import { motion, MotionValue } from "framer-motion";
+import { services } from "@/data/services";
+import styles from "./ServicesSection.module.css";
+
+interface ServicesSectionProps {
+  serviceY0: MotionValue<number>;
+  serviceY1: MotionValue<number>;
+  serviceY2: MotionValue<number>;
+}
+
+const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
+  ({ serviceY0, serviceY1, serviceY2 }, ref) => {
+    const yTransforms = [serviceY0, serviceY1, serviceY2, undefined];
+
+    return (
+      <section className={styles.services} ref={ref}>
+        <div className={styles.header}>
+          <span className={styles.label}>What I Do</span>
+          <div className={`${styles.headerLine} horizontal-rule`} />
+        </div>
+
+        <div className={styles.list}>
+          {services.map((service, index) => (
+            <motion.div
+              key={service.num}
+              className={`${styles.item} service-item`}
+              style={yTransforms[index] ? { y: yTransforms[index] } : undefined}
+              whileHover={{ x: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className={`${styles.itemLine} horizontal-rule`} />
+              <div className={styles.itemContent}>
+                <span className={styles.itemNumber}>{service.num}</span>
+                <h3 className={styles.itemTitle}>{service.title}</h3>
+                <span className={styles.itemDescription}>{service.desc}</span>
+                <motion.div
+                  className={styles.itemOval}
+                  whileHover={{ scale: 1.2 }}
+                />
+              </div>
+            </motion.div>
+          ))}
+          <div className={`${styles.itemLine} horizontal-rule`} />
+        </div>
+      </section>
+    );
+  }
+);
+
+ServicesSection.displayName = "ServicesSection";
+
+export default ServicesSection;

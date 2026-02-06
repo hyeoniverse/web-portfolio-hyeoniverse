@@ -19,7 +19,7 @@ const THRESHOLD = 0.95;
 const animationConfig = {
   type: "tween" as const,
   duration: 0.5,
-  ease: [0.85, 0, 1, 1], // strong ease-in curve
+  ease: [0.85, 0, 1, 1] as [number, number, number, number], // strong ease-in curve
 };
 
 export default function LanguageToggle({
@@ -44,7 +44,10 @@ export default function LanguageToggle({
 
   // Animate to target position (starts slow, accelerates)
   useEffect(() => {
-    const controls = animate(indicatorX, targetPosition, animationConfig);
+    const controls = animate(indicatorX.get(), targetPosition, {
+      ...animationConfig,
+      onUpdate: (latest) => indicatorX.set(latest),
+    });
     return () => controls.stop();
   }, [targetPosition, indicatorX]);
 

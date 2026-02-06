@@ -1,0 +1,140 @@
+/* ==========================================================================
+   Services Section
+   ========================================================================== */
+
+.services {
+  padding: 10vh 8vw 15vh;
+}
+
+/* ---------------------------------------------------------------------------
+   Header
+   --------------------------------------------------------------------------- */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xl);
+  margin-bottom: var(--spacing-5xl);
+}
+
+.label {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+}
+
+.headerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--border-primary);
+  transform-origin: left center;
+}
+
+/* ---------------------------------------------------------------------------
+   Services List
+   --------------------------------------------------------------------------- */
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.itemLine {
+  width: 100%;
+  height: 1px;
+  background: var(--border-primary);
+  transform-origin: left center;
+}
+
+/* ---------------------------------------------------------------------------
+   Service Item
+   --------------------------------------------------------------------------- */
+.itemContent {
+  display: grid;
+  align-items: center;
+  gap: var(--spacing-2xl);
+  padding: var(--spacing-2xl) 0;
+  grid-template-columns: 80px 1fr 1fr 40px;
+  transition: opacity 0.3s ease;
+}
+
+.itemNumber {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-accent-secondary-alt);
+  letter-spacing: 0.1em;
+}
+
+.itemTitle {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--fluid-font-size-3xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-secondary);
+  letter-spacing: -0.02em;
+}
+
+.item:hover .itemTitle {
+  color: var(--text-accent-secondary-alt);
+}
+
+.itemDescription {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-accent-secondary-alt);
+}
+
+/* ---------------------------------------------------------------------------
+   Service Oval Icon
+   --------------------------------------------------------------------------- */
+.itemOval {
+  width: 40px;
+  height: 20px;
+  border: var(--border-default);
+  border-radius: var(--radius-circle);
+  transition: border-color 0.3s ease;
+}
+
+.item:hover .itemOval {
+  border-color: var(--border-strong);
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .services {
+    padding-right: 6vw;
+    padding-left: 6vw;
+  }
+
+  .itemContent {
+    grid-template-columns: 60px 1fr 30px;
+  }
+
+  .itemDescription {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .services {
+    padding-right: 5vw;
+    padding-left: 5vw;
+  }
+
+  .header {
+    margin-bottom: var(--spacing-3xl);
+  }
+
+  .itemContent {
+    gap: var(--spacing-md);
+    padding: var(--spacing-xl) 0;
+    grid-template-columns: 1fr 30px;
+  }
+
+  .itemNumber {
+    display: none;
+  }
+}

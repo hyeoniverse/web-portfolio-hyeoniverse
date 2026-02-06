@@ -1,0 +1,222 @@
+/* ==========================================================================
+   CTA Section - Call to Action
+   ========================================================================== */
+
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 100vh;
+  padding: var(--spacing-6xl) 8vw;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Decorative Lines
+   --------------------------------------------------------------------------- */
+.decorLine {
+  position: absolute;
+  height: 1px;
+  background: var(--border-tertiary);
+}
+
+.decorLineTop {
+  top: 15%;
+  right: 0;
+  width: 40%;
+}
+
+.decorLineBottom {
+  bottom: 20%;
+  left: 0;
+  width: 30%;
+}
+
+/* ---------------------------------------------------------------------------
+   Decorative Ovals
+   --------------------------------------------------------------------------- */
+.ovalPrimary {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 250px;
+  border: var(--border-strong);
+  border-radius: var(--radius-circle);
+  transform: translate(-50%, -50%) rotate(-10deg);
+  pointer-events: none;
+}
+
+.ovalSecondary {
+  position: absolute;
+  top: 20%;
+  right: -5%;
+  width: 300px;
+  height: 150px;
+  border: var(--border-default);
+  border-radius: var(--radius-circle);
+  transform: rotate(15deg);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Content
+   --------------------------------------------------------------------------- */
+.content {
+  position: relative;
+  z-index: var(--z-content);
+  text-align: center;
+}
+
+.label {
+  margin-bottom: var(--spacing-2xl);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-accent-secondary-alt);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* ---------------------------------------------------------------------------
+   Title
+   --------------------------------------------------------------------------- */
+.title {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-4xl);
+}
+
+.titleLine {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--fluid-font-size-5xl);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-compact);
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+/* ---------------------------------------------------------------------------
+   Button
+   --------------------------------------------------------------------------- */
+.buttonWrapper {
+  display: inline-block;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  position: relative;
+  padding: var(--padding-3xl);
+  border: var(--border-strong);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.button:hover {
+  color: var(--text-primary);
+  backdrop-filter: blur(2px);
+}
+
+/* Button Indicator Dot */
+.buttonIndicator {
+  width: var(--size-5xs);
+  height: var(--size-5xs);
+  background: var(--bg-accent-secondary-solid-light);
+  border-radius: var(--radius-circle);
+  animation: pulse 2s infinite;
+  transition: transform 0.3s ease;
+}
+
+.buttonIndicator::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px rgba(255, 128, 194, 0.9),
+      0 0 12px rgba(255, 128, 194, 0.7);
+    opacity: 1;
+  }
+  50% {
+    box-shadow:
+      0 0 14px rgba(255, 128, 194, 0.6),
+      0 0 20px rgba(255, 128, 194, 0.4);
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------------- */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  right: 8vw;
+  bottom: var(--spacing-4xl);
+  left: 8vw;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-accent-secondary-alt);
+  letter-spacing: 0.05em;
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .cta {
+    padding-right: 6vw;
+    padding-left: 6vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .cta {
+    padding-right: 5vw;
+    padding-left: 5vw;
+  }
+
+  .ovalPrimary {
+    width: 300px;
+    height: 150px;
+  }
+
+  .ovalSecondary,
+  .decorLineTop,
+  .decorLineBottom {
+    display: none;
+  }
+
+  .footer {
+    right: 5vw;
+    bottom: var(--spacing-2xl);
+    left: 5vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .titleLine {
+    font-size: clamp(2rem, 10vw, 3.5rem);
+  }
+
+  .button {
+    padding: var(--padding-2xl);
+    font-size: var(--font-size-sm);
+  }
+}
