@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Works Section - Cinematic Horizontal Scroll (Light/Dark Mode)
+   Works Section - Dynamic Content Layout
    ========================================================================== */
 
 .section {
@@ -11,123 +11,38 @@
 }
 
 /* ==========================================================================
-   Cinematic Main Title
+   Header
    ========================================================================== */
 
-.cinematicTitle {
+.header {
   position: fixed;
-  top: 50%;
-  left: 6vw;
-  transform: translateY(-50%);
-  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 6vw;
   pointer-events: none;
-  opacity: 0.15;
 }
 
-.titleLabel {
-  display: block;
-  margin-bottom: 16px;
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.headerLabel {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 10px;
   font-weight: 500;
   color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.3em;
-}
-
-.mainTitle {
-  margin: 0;
-  font-family: var(--font-instrument), serif;
-  font-size: clamp(60px, 10vw, 140px);
-  font-weight: 400;
-  line-height: 0.9;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--border-secondary);
-}
-
-.titleLine {
-  display: block;
-}
-
-.titleOutline {
-  font-style: italic;
-}
-
-.titleMeta {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 24px;
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-}
-
-.titleDivider {
-  width: 30px;
-  height: 1px;
-  background: var(--border-tertiary);
-}
-
-/* ==========================================================================
-   Current Project Info - Left Sidebar
-   ========================================================================== */
-
-.projectInfo {
-  position: fixed;
-  left: 6vw;
-  bottom: 15vh;
-  z-index: 120;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  pointer-events: none;
-}
-
-.projectNumber {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.numberLabel {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 9px;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
   letter-spacing: 0.2em;
 }
 
-.numberRow {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.numberValue {
-  font-family: var(--font-instrument), serif;
-  font-size: 48px;
-  font-weight: 400;
-  color: var(--text-primary);
-  line-height: 1;
-}
-
-.numberTotal {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-.projectDetails {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.projectTitle {
+.headerTitle {
   margin: 0;
   font-family: var(--font-instrument), serif;
   font-size: 24px;
@@ -136,232 +51,267 @@
   letter-spacing: -0.02em;
 }
 
-.projectCategory {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 11px;
-  font-weight: 500;
+.headerRight {
+  display: flex;
+  align-items: center;
+}
+
+.headerCount {
+  font-family: var(--font-instrument), serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.headerCountDivider {
+  margin: 0 4px;
   color: var(--text-tertiary);
+  font-size: 24px;
+}
+
+/* ==========================================================================
+   Current Project Display
+   ========================================================================== */
+
+.currentProject {
+  position: fixed;
+  bottom: 120px;
+  left: 6vw;
+  z-index: 150;
+  pointer-events: none;
+}
+
+.currentTitle {
+  margin: 0 0 12px;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.currentMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.currentCategory {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
-.projectYear {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.currentDot {
+  width: 4px;
+  height: 4px;
+  background: var(--text-tertiary);
+  border-radius: 50%;
 }
 
-.yearLabel {
+.currentYear {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 9px;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-}
-
-.yearValue {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 14px;
-  color: var(--text-secondary);
+  font-size: 12px;
+  color: var(--text-tertiary);
 }
 
 /* ==========================================================================
-   Horizontal Scroll Container
+   Scroll Container
    ========================================================================== */
+
+.scrollWrapper {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: visible;
+}
 
 .horizontalContainer {
   display: flex;
   align-items: center;
   height: 100vh;
-  padding: 0 25vw 0 25vw;
-  gap: 60px;
+  padding: 0 30vw;
+  gap: 40px;
+  will-change: transform;
 }
 
 /* ==========================================================================
-   Project Cards - Cinematic Style
+   Cards - Base Styles
    ========================================================================== */
 
 .card {
   position: relative;
   flex-shrink: 0;
-  width: 380px;
   cursor: pointer;
-  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow: hidden;
+  border-radius: 8px;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .card:hover {
-  transform: scale(1.02);
+  transform: translateY(-8px);
 }
 
-/* Card Frame */
-.cardFrame {
+/* Card Sizes */
+.cardLarge {
+  width: 420px;
+  height: 560px;
+  align-self: flex-start;
+  margin-top: 10vh;
+}
+
+.cardSmall {
+  width: 280px;
+  height: 380px;
+  align-self: flex-end;
+  margin-bottom: 12vh;
+}
+
+.cardMedium {
+  width: 340px;
+  height: 450px;
+  align-self: center;
+}
+
+.cardTall {
+  width: 300px;
+  height: 520px;
+  align-self: flex-start;
+  margin-top: 8vh;
+}
+
+.cardWide {
+  width: 480px;
+  height: 360px;
+  align-self: flex-end;
+  margin-bottom: 10vh;
+}
+
+/* Card Number - Large Typography */
+.cardNumber {
   position: absolute;
-  inset: -8px;
+  top: -20px;
+  right: -10px;
+  z-index: 5;
   pointer-events: none;
-  z-index: 10;
 }
 
-.frameCorner {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 1px solid var(--border-secondary);
+.cardNumber span {
+  font-family: var(--font-instrument), serif;
+  font-size: 120px;
+  font-weight: 400;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--border-secondary);
+  line-height: 1;
+  opacity: 0.5;
   transition: all 0.4s ease;
 }
 
-.frameCorner:nth-child(1) {
-  top: 0;
-  left: 0;
-  border-right: none;
-  border-bottom: none;
-}
-
-.frameCorner:nth-child(2) {
-  top: 0;
-  right: 0;
-  border-left: none;
-  border-bottom: none;
-}
-
-.frameCorner:nth-child(3) {
-  bottom: 0;
-  left: 0;
-  border-right: none;
-  border-top: none;
-}
-
-.frameCorner:nth-child(4) {
-  bottom: 0;
-  right: 0;
-  border-left: none;
-  border-top: none;
-}
-
-.card:hover .frameCorner {
-  border-color: var(--text-primary);
-}
-
-.card:hover .frameCorner:nth-child(1) {
-  transform: translate(-4px, -4px);
-}
-
-.card:hover .frameCorner:nth-child(2) {
-  transform: translate(4px, -4px);
-}
-
-.card:hover .frameCorner:nth-child(3) {
-  transform: translate(-4px, 4px);
-}
-
-.card:hover .frameCorner:nth-child(4) {
-  transform: translate(4px, 4px);
+.card:hover .cardNumber span {
+  opacity: 1;
+  -webkit-text-stroke-color: var(--text-primary);
+  transform: translate(-5px, 5px);
 }
 
 /* Card Image */
 .cardImageWrapper {
-  position: relative;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  aspect-ratio: 3 / 4;
-  border-radius: 4px;
-  background: var(--bg-tertiary);
+  will-change: transform;
 }
 
 .cardImage {
-  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  transform-origin: center center;
 }
 
-.card:hover .cardImage {
-  transform: scale(1.05);
-}
-
-.cardImageOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    var(--color-gray-alpha-10) 0%,
-    var(--color-gray-alpha-20) 40%,
-    var(--color-gray-alpha-70) 70%,
-    var(--color-gray-alpha-95) 100%
-  );
-  pointer-events: none;
-}
-
-/* Card Typography - Big Number */
-.cardTypo {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 5;
-}
-
-.cardNumber {
-  font-family: var(--font-instrument), serif;
-  font-size: 72px;
-  font-weight: 400;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--color-white-alpha-20);
-  line-height: 1;
-  transition: all 0.4s ease;
-}
-
-.card:hover .cardNumber {
-  -webkit-text-stroke-color: var(--color-white-alpha-40);
-}
-
-/* Card Content */
+/* Card Content Overlay */
 .cardContent {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 32px 24px;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.4) 40%,
+    transparent 100%
+  );
   z-index: 10;
 }
 
+.cardInfo {
+  margin-bottom: 16px;
+}
+
 .cardCategory {
-  display: block;
+  display: inline-block;
   margin-bottom: 8px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 500;
-  color: var(--color-white-alpha-70);
+  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
   letter-spacing: 0.15em;
+  backdrop-filter: blur(4px);
 }
 
 .cardTitle {
-  margin: 0 0 20px;
+  margin: 0;
   font-family: var(--font-instrument), serif;
   font-size: 28px;
   font-weight: 400;
-  color: var(--color-white-alpha-100);
+  color: #fff;
   letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.cardYear {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .cardAction {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
-  color: var(--color-white-alpha-80);
+  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.4s ease;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
 }
 
 .card:hover .cardAction {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(0);
 }
 
 .cardAction svg {
@@ -369,44 +319,34 @@
 }
 
 .card:hover .cardAction svg {
-  transform: translate(2px, -2px);
+  transform: translate(3px, -3px);
 }
 
-/* Card Year Badge */
-.cardYearBadge {
+/* Card Frame - Hover Effect */
+.cardFrame {
   position: absolute;
-  top: 20px;
-  left: 20px;
-  padding: 6px 12px;
-  border: 1px solid var(--color-white-alpha-30);
-  border-radius: 2px;
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 10px;
-  color: var(--color-white-alpha-80);
-  background: var(--color-gray-alpha-50);
-  backdrop-filter: blur(10px);
-  z-index: 5;
+  inset: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.card:hover .cardFrame {
+  border-color: var(--text-primary);
 }
 
 /* ==========================================================================
-   Bottom Progress Bar
+   Bottom Bar
    ========================================================================== */
 
 .bottomBar {
   position: fixed;
-  bottom: 40px;
+  bottom: 32px;
   left: 6vw;
   right: 6vw;
-  z-index: 120;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding-top: 16px;
-  border-top: var(--border-light);
-}
-
-.progressWrapper {
-  width: 100%;
+  z-index: 200;
 }
 
 .progressTrack {
@@ -415,6 +355,7 @@
   background: var(--border-tertiary);
   border-radius: 1px;
   overflow: hidden;
+  margin-bottom: 16px;
 }
 
 .progressBar {
@@ -425,30 +366,56 @@
   transition: width 0.1s linear;
 }
 
-.bottomMeta {
+.bottomContent {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.bottomLabel {
+.bottomHint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-}
-
-.bottomDivider {
-  color: var(--text-muted);
-}
-
-.bottomCount {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 12px;
   color: var(--text-tertiary);
+  text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+.bottomHint svg {
+  animation: slideRight 1.5s ease-in-out infinite;
+}
+
+@keyframes slideRight {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+.bottomDots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: var(--border-secondary);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.dotActive {
+  width: 20px;
+  background: var(--text-primary);
+  border-radius: 3px;
 }
 
 /* ==========================================================================
@@ -456,44 +423,69 @@
    ========================================================================== */
 
 @media (max-width: 1024px) {
-  .cinematicTitle {
-    display: none;
+  .header {
+    padding: 20px 4vw;
   }
 
-  .projectInfo {
-    left: 4vw;
-    bottom: 12vh;
-  }
-
-  .numberValue {
-    font-size: 36px;
-  }
-
-  .projectTitle {
+  .headerTitle {
     font-size: 20px;
   }
 
-  .horizontalContainer {
-    padding: 0 20vw 0 20vw;
-    gap: 40px;
-  }
-
-  .card {
-    width: 320px;
-  }
-
-  .cardTitle {
+  .headerCount {
     font-size: 24px;
   }
 
-  .cardNumber {
-    font-size: 56px;
+  .currentProject {
+    left: 4vw;
+    bottom: 100px;
+  }
+
+  .currentTitle {
+    font-size: clamp(28px, 5vw, 48px);
+  }
+
+  .horizontalContainer {
+    padding: 0 25vw;
+    gap: 30px;
+  }
+
+  .cardLarge {
+    width: 340px;
+    height: 450px;
+  }
+
+  .cardSmall {
+    width: 240px;
+    height: 320px;
+  }
+
+  .cardMedium {
+    width: 280px;
+    height: 380px;
+  }
+
+  .cardTall {
+    width: 260px;
+    height: 420px;
+  }
+
+  .cardWide {
+    width: 380px;
+    height: 300px;
+  }
+
+  .cardNumber span {
+    font-size: 80px;
+  }
+
+  .cardTitle {
+    font-size: 22px;
   }
 
   .bottomBar {
     left: 4vw;
     right: 4vw;
-    bottom: 30px;
+    bottom: 24px;
   }
 }
 
@@ -508,20 +500,48 @@
     overflow: visible;
   }
 
-  .cinematicTitle {
+  .header {
+    position: relative;
+    padding: 20px 5vw;
+    margin-bottom: 20px;
+  }
+
+  .headerTitle {
+    font-size: 18px;
+  }
+
+  .headerCount {
+    font-size: 20px;
+  }
+
+  .currentProject {
     display: none;
   }
 
-  .projectInfo {
-    display: none;
+  .scrollWrapper {
+    height: auto;
   }
 
   .horizontalContainer {
     flex-direction: column;
     align-items: stretch;
     height: auto;
-    padding: 80px 5vw 100px;
-    gap: 30px;
+    padding: 0 5vw 100px;
+    gap: 24px;
+  }
+
+  /* Reset card sizes for mobile */
+  .card,
+  .cardLarge,
+  .cardSmall,
+  .cardMedium,
+  .cardTall,
+  .cardWide {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    margin: 0;
+    align-self: stretch;
   }
 
   /* Only show first 6 cards on mobile */
@@ -529,30 +549,22 @@
     display: none;
   }
 
-  .card {
-    width: 100%;
-  }
-
-  .cardFrame {
-    display: none;
-  }
-
-  .cardImageWrapper {
-    aspect-ratio: 4 / 5;
-    border-radius: 8px;
-  }
-
   .cardNumber {
-    font-size: 48px;
+    top: -10px;
+    right: 0;
+  }
+
+  .cardNumber span {
+    font-size: 60px;
   }
 
   .cardTitle {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .cardAction {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 
   .bottomBar {
@@ -565,16 +577,24 @@
    ========================================================================== */
 
 @media (max-width: 480px) {
+  .header {
+    padding: 16px 4vw;
+  }
+
   .horizontalContainer {
-    padding: 60px 4vw 80px;
-    gap: 24px;
+    padding: 0 4vw 80px;
+    gap: 20px;
+  }
+
+  .cardNumber span {
+    font-size: 48px;
   }
 
   .cardTitle {
-    font-size: 20px;
+    font-size: 18px;
   }
 
-  .cardNumber {
-    font-size: 40px;
+  .cardContent {
+    padding: 20px;
   }
 }
