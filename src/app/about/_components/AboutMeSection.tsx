@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useLayoutEffect } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { siteConfig } from "@/config/site.config";
@@ -216,9 +217,11 @@ export default function AboutMeSection() {
       {/* Split Content - Image + Bio */}
       <div className={styles.splitContent}>
         <div className={styles.imageContainer} ref={imageRef}>
-          <img
+          <Image
             src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop"
             alt="Profile"
+            fill
+            sizes="(max-width: 768px) 100vw, 400px"
             className={styles.profileImage}
           />
           <div className={styles.imageDecor} />

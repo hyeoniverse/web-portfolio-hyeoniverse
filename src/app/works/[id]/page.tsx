@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import styles from "./WorkDetail.module.css";
@@ -41,7 +42,14 @@ export default function WorkDetailPage() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <img src={work.main} alt={work.title} />
+        <Image
+          src={work.main}
+          alt={work.title}
+          fill
+          sizes="100vw"
+          priority
+          className={styles.heroImageInner}
+        />
         <div className={styles.heroOverlay} />
       </motion.div>
 
