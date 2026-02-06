@@ -7,18 +7,11 @@
 /* Individual character styling */
 .char {
   display: inline-block;
-  transition: color 0.01s step-end;
 }
 
-/* Hovered state: outline only (transparent fill + stroke) */
-.charHovered {
+/* Active state: outline only (transparent fill + stroke) */
+.charActive {
   color: transparent;
-  -webkit-text-stroke: var(--stagger-text-stroke-width, 1px)
-    var(--stagger-text-stroke-color, currentColor);
-}
-
-/* Exiting state: stroke remains while fill color comes back */
-.charExiting {
   -webkit-text-stroke: var(--stagger-text-stroke-width, 1px)
     var(--stagger-text-stroke-color, currentColor);
 }
