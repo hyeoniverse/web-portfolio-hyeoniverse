@@ -3,6 +3,7 @@
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -23,6 +24,7 @@ const projects = [
     year: "2024",
     image:
       "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=1000&fit=crop",
+    size: "large",
   },
   {
     id: "2",
@@ -32,6 +34,7 @@ const projects = [
     year: "2023",
     image:
       "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800&h=1000&fit=crop",
+    size: "small",
   },
   {
     id: "3",
@@ -41,6 +44,7 @@ const projects = [
     year: "2023",
     image:
       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=1000&fit=crop",
+    size: "medium",
   },
   {
     id: "4",
@@ -50,6 +54,7 @@ const projects = [
     year: "2024",
     image:
       "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=1000&fit=crop",
+    size: "tall",
   },
   {
     id: "5",
@@ -59,6 +64,7 @@ const projects = [
     year: "2024",
     image:
       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop",
+    size: "wide",
   },
   {
     id: "6",
@@ -68,67 +74,12 @@ const projects = [
     year: "2023",
     image:
       "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=1000&fit=crop",
+    size: "small",
   },
 ];
 
 // Triple the projects for seamless infinite scroll
 const allProjects = [...projects, ...projects, ...projects];
-
-// Card component
-const ProjectCard = ({
-  project,
-  onClick,
-  exploreText,
-}: {
-  project: (typeof projects)[0];
-  onClick: () => void;
-  exploreText: string;
-}) => (
-  <div className={styles.card} onClick={onClick}>
-    <div className={styles.cardFrame}>
-      <span className={styles.frameCorner} />
-      <span className={styles.frameCorner} />
-      <span className={styles.frameCorner} />
-      <span className={styles.frameCorner} />
-    </div>
-
-    <div className={styles.cardImageWrapper}>
-      <Image
-        src={project.image}
-        alt={project.title}
-        fill
-        sizes="(max-width: 768px) 100vw, 380px"
-        className={styles.cardImage}
-      />
-      <div className={styles.cardImageOverlay} />
-    </div>
-
-    <div className={styles.cardTypo}>
-      <span className={styles.cardNumber}>{project.number}</span>
-    </div>
-
-    <div className={styles.cardContent}>
-      <span className={styles.cardCategory}>{project.category}</span>
-      <h3 className={styles.cardTitle}>{project.title}</h3>
-      <div className={styles.cardAction}>
-        <span>{exploreText}</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M7 17L17 7M17 7H7M17 7V17"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-    </div>
-
-    <div className={styles.cardYearBadge}>
-      <span>{project.year}</span>
-    </div>
-  </div>
-);
 
 export default function WorksSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -139,14 +90,11 @@ export default function WorksSection() {
   const { t } = useLanguage();
   const { setInfinite } = useLenis();
 
-  // Disable Lenis infinite scroll on this page for GSAP ScrollTrigger to work
   useEffect(() => {
     setInfinite(false);
-
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
     }, 100);
-
     return () => {
       clearTimeout(timer);
       setInfinite(true);
@@ -159,16 +107,49 @@ export default function WorksSection() {
     if (!section || !container) return;
 
     const ctx = gsap.context(() => {
-      const cards = container.querySelectorAll(`.${styles.card}`);
+      const cards = gsap.utils.toArray<HTMLElement>(`.${styles.card}`, container);
+      const cardImages = gsap.utils.toArray<HTMLElement>(`.${styles.cardImage}`, container);
       if (cards.length === 0) return;
 
-      const cardWidth = (cards[0] as HTMLElement).offsetWidth;
-      const gap = 60;
-      const oneSetWidth = (cardWidth + gap) * projects.length;
-      const scrollDistance = oneSetWidth * 8;
+      // Get computed gap
+      const computedStyle = window.getComputedStyle(container);
+      const gap = parseFloat(computedStyle.gap) || 40;
 
-      // Start from middle set for seamless loop
+      // Calculate exact width of one set
+      let oneSetWidth = 0;
+      for (let i = 0; i < projects.length; i++) {
+        oneSetWidth += cards[i].offsetWidth + gap;
+      }
+
+      const scrollDistance = oneSetWidth * 6;
+
+      // Velocity tracking
+      let lastProgress = 0;
+      let lastTime = performance.now();
+      let targetOffset = 0;
+      let currentOffset = 0;
+
+      // Start from middle set
       gsap.set(container, { x: -oneSetWidth });
+
+      // Smooth velocity animation loop
+      const smoothVelocity = () => {
+        // Lerp offset for smooth transition
+        currentOffset += (targetOffset - currentOffset) * 0.08;
+
+        // Apply horizontal offset to images based on velocity
+        // Scale 1.2 ensures no empty space when moving up to 25px
+        cardImages.forEach((img) => {
+          gsap.set(img, {
+            x: currentOffset,
+            scale: 1.2
+          });
+        });
+
+        requestAnimationFrame(smoothVelocity);
+      };
+
+      const rafId = requestAnimationFrame(smoothVelocity);
 
       gsap.to(container, {
         ease: "none",
@@ -177,33 +158,59 @@ export default function WorksSection() {
           start: "top top",
           end: () => `+=${scrollDistance}`,
           pin: true,
-          scrub: 0.3,
+          scrub: 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            const totalProgress = self.progress * scrollDistance;
-            // Start from oneSetWidth and loop within that range
-            const baseOffset = oneSetWidth;
-            const loopedX = baseOffset + (totalProgress % oneSetWidth);
+            const progress = self.progress;
+            const currentTime = performance.now();
+            const totalScrolled = progress * scrollDistance;
 
-            gsap.set(container, { x: -loopedX });
+            // Calculate velocity
+            const deltaProgress = progress - lastProgress;
+            const deltaTime = (currentTime - lastTime) / 1000; // seconds
 
+            let velocity = 0;
+            if (deltaTime > 0) {
+              velocity = deltaProgress / deltaTime;
+            }
+
+            lastProgress = progress;
+            lastTime = currentTime;
+
+            // Map velocity to horizontal offset (pixels)
+            // Positive velocity = scrolling right = image shifts left (negative offset)
+            const maxOffset = 25;
+            targetOffset = gsap.utils.clamp(-maxOffset, maxOffset, -velocity * 1200);
+
+            // Position within cycle
+            const posInCycle = totalScrolled % oneSetWidth;
+            const xPos = -(oneSetWidth + posInCycle);
+
+            gsap.set(container, { x: xPos });
+
+            // Progress bar
+            const progressInSet = posInCycle / oneSetWidth;
             if (progressBarRef.current) {
-              const progressInSet = (totalProgress % oneSetWidth) / oneSetWidth;
               progressBarRef.current.style.width = `${progressInSet * 100}%`;
             }
 
-            const progressInSet = (totalProgress % oneSetWidth) / oneSetWidth;
+            // Active card index
             const cardIndex = Math.floor(progressInSet * projects.length);
             setActiveIndex(cardIndex % projects.length);
           },
         },
       });
+
+      // Cleanup RAF on context revert
+      return () => {
+        cancelAnimationFrame(rafId);
+      };
     }, section);
 
     const refreshTimer = setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 100);
+    }, 150);
 
     return () => {
       clearTimeout(refreshTimer);
@@ -220,75 +227,153 @@ export default function WorksSection() {
 
   return (
     <section className={styles.section} ref={sectionRef}>
-      {/* Main Title - Cinematic Typography */}
-      <div className={styles.cinematicTitle}>
-        <span className={styles.titleLabel}>Featured Works</span>
-        <h1 className={styles.mainTitle}>
-          <span className={styles.titleLine}>Selected</span>
-          <span className={styles.titleLine}>
-            <span className={styles.titleOutline}>Projects</span>
-          </span>
-        </h1>
-        <div className={styles.titleMeta}>
-          <span>2023 — 2024</span>
-          <span className={styles.titleDivider} />
-          <span>Creative Portfolio</span>
+      {/* Header */}
+      <motion.header
+        className={styles.header}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className={styles.headerLeft}>
+          <span className={styles.headerLabel}>Portfolio</span>
+          <h1 className={styles.headerTitle}>Works</h1>
         </div>
-      </div>
-
-      {/* Current Project Info - Left Side */}
-      <div className={styles.projectInfo}>
-        <div className={styles.projectNumber}>
-          <span className={styles.numberLabel}>Project</span>
-          <div className={styles.numberRow}>
-            <span className={styles.numberValue}>{currentProject?.number}</span>
-            <span className={styles.numberTotal}>
-              /{String(projects.length).padStart(2, "0")}
-            </span>
-          </div>
-        </div>
-
-        <div className={styles.projectDetails}>
-          <h2 className={styles.projectTitle}>{currentProject?.title}</h2>
-          <span className={styles.projectCategory}>
-            {currentProject?.category}
-          </span>
-        </div>
-
-        <div className={styles.projectYear}>
-          <span className={styles.yearLabel}>Year</span>
-          <span className={styles.yearValue}>{currentProject?.year}</span>
-        </div>
-      </div>
-
-      {/* Horizontal Scroll Container */}
-      <div className={styles.horizontalContainer} ref={containerRef}>
-        {allProjects.map((project, index) => (
-          <ProjectCard
-            key={`${project.id}-${index}`}
-            project={project}
-            onClick={() => handleCardClick(project.id)}
-            exploreText={exploreText}
-          />
-        ))}
-      </div>
-
-      {/* Bottom Bar */}
-      <div className={styles.bottomBar}>
-        <div className={styles.progressWrapper}>
-          <div className={styles.progressTrack}>
-            <div className={styles.progressBar} ref={progressBarRef} />
-          </div>
-        </div>
-        <div className={styles.bottomMeta}>
-          <span className={styles.bottomLabel}>{t("works.scroll")}</span>
-          <span className={styles.bottomDivider}>—</span>
-          <span className={styles.bottomCount}>
-            {String(activeIndex + 1).padStart(2, "0")} /{" "}
+        <div className={styles.headerRight}>
+          <span className={styles.headerCount}>
+            {String(activeIndex + 1).padStart(2, "0")}
+            <span className={styles.headerCountDivider}>/</span>
             {String(projects.length).padStart(2, "0")}
           </span>
         </div>
+      </motion.header>
+
+      {/* Current Project Title - Large */}
+      <motion.div
+        className={styles.currentProject}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+      >
+        <motion.h2
+          key={currentProject?.title}
+          className={styles.currentTitle}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {currentProject?.title}
+        </motion.h2>
+        <div className={styles.currentMeta}>
+          <motion.span
+            key={currentProject?.category}
+            className={styles.currentCategory}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            {currentProject?.category}
+          </motion.span>
+          <span className={styles.currentDot} />
+          <motion.span
+            key={currentProject?.year}
+            className={styles.currentYear}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.15 }}
+          >
+            {currentProject?.year}
+          </motion.span>
+        </div>
+      </motion.div>
+
+      {/* Horizontal Scroll Container */}
+      <div className={styles.scrollWrapper}>
+        <div className={styles.horizontalContainer} ref={containerRef}>
+          {allProjects.map((project, index) => (
+            <article
+              key={`${project.id}-${index}`}
+              className={`${styles.card} ${styles[`card${project.size?.charAt(0).toUpperCase()}${project.size?.slice(1)}`]}`}
+              onClick={() => handleCardClick(project.id)}
+            >
+              {/* Large Number */}
+              <div className={styles.cardNumber}>
+                <span>{project.number}</span>
+              </div>
+
+              {/* Image */}
+              <div className={styles.cardImageWrapper}>
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 500px"
+                  className={styles.cardImage}
+                />
+              </div>
+
+              {/* Content Overlay */}
+              <div className={styles.cardContent}>
+                <div className={styles.cardInfo}>
+                  <span className={styles.cardCategory}>{project.category}</span>
+                  <h3 className={styles.cardTitle}>{project.title}</h3>
+                </div>
+                <div className={styles.cardFooter}>
+                  <span className={styles.cardYear}>{project.year}</span>
+                  <div className={styles.cardAction}>
+                    <span>{exploreText}</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M7 17L17 7M17 7H7M17 7V17"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hover Frame */}
+              <div className={styles.cardFrame} />
+            </article>
+          ))}
+        </div>
       </div>
+
+      {/* Bottom Bar */}
+      <motion.div
+        className={styles.bottomBar}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+      >
+        <div className={styles.progressTrack}>
+          <div className={styles.progressBar} ref={progressBarRef} />
+        </div>
+        <div className={styles.bottomContent}>
+          <span className={styles.bottomHint}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M5 12h14M12 5l7 7-7 7"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {t("works.scroll")}
+          </span>
+          <div className={styles.bottomDots}>
+            {projects.map((_, i) => (
+              <span
+                key={i}
+                className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ""}`}
+              />
+            ))}
+          </div>
+        </div>
+      </motion.div>
     </section>
   );
 }
