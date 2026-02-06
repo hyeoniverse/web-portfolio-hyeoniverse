@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 // ============================================
 // Types
@@ -34,9 +35,13 @@ interface LoadingScreenResult {
 // Constants
 // ============================================
 const LOADING_CONFIG = {
-  minLoadingTime: 1500, // Minimum time to show loading screen
+  minLoadingTime: 1500, // Minimum time to show loading screen (initial load)
+  navigationLoadingTime: 1000, // Minimum time for client navigation
   transitionDelay: 600, // Exit animation duration
 } as const;
+
+// Pages that should show loading screen on navigation
+const LOADING_ENABLED_PAGES = ["/"];
 
 // ============================================
 // useLoadingProgress - Real resource tracking
@@ -204,6 +209,7 @@ export function useLoadingProgress(): LoadingProgressResult {
 // useLoadingScreen - Simplified and reliable
 // ============================================
 export function useLoadingScreen(): LoadingScreenResult {
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -211,6 +217,28 @@ export function useLoadingScreen(): LoadingScreenResult {
   const startTimeRef = useRef<number>(Date.now());
   const hasCompletedRef = useRef(false);
   const fontsLoadedRef = useRef(false);
+  const isInitialLoadRef = useRef(true);
+  const previousPathnameRef = useRef<string | null>(null);
+
+  // Detect navigation to home and reset loading state
+  useEffect(() => {
+    const isNavigatingToLoadingPage =
+      previousPathnameRef.current !== null &&
+      previousPathnameRef.current !== pathname &&
+      LOADING_ENABLED_PAGES.includes(pathname);
+
+    if (isNavigatingToLoadingPage) {
+      // Reset loading state for client navigation to home
+      isInitialLoadRef.current = false;
+      hasCompletedRef.current = false;
+      startTimeRef.current = Date.now();
+      setIsLoading(true);
+      setIsTransitioning(false);
+      setProgress(0);
+    }
+
+    previousPathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     let mounted = true;
@@ -260,7 +288,10 @@ export function useLoadingScreen(): LoadingScreenResult {
 
       // Check if we should complete
       const elapsed = Date.now() - startTimeRef.current;
-      const minTimePassed = elapsed >= LOADING_CONFIG.minLoadingTime;
+      const minTime = isInitialLoadRef.current
+        ? LOADING_CONFIG.minLoadingTime
+        : LOADING_CONFIG.navigationLoadingTime;
+      const minTimePassed = elapsed >= minTime;
       const isReady = document.readyState === "complete" && fontsLoadedRef.current;
 
       if (minTimePassed && isReady && !hasCompletedRef.current) {
@@ -318,7 +349,7 @@ export function useLoadingScreen(): LoadingScreenResult {
       clearTimeout(maxTimeout);
       window.removeEventListener("load", handleLoad);
     };
-  }, []);
+  }, [pathname]);
 
   return { isLoading, isTransitioning, progress };
 }
