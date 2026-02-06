@@ -196,6 +196,49 @@ const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefine
 
 ---
 
+### 4. GSAP ScrollTrigger 수평 무한 스크롤 구현
+
+#### 문제
+Works 페이지의 수평 스크롤이 끝에 도달하면 역방향으로 스크롤되어 무한 스크롤처럼 보이지 않음
+
+#### 시도한 방법들 (실패)
+1. **스크롤 위치 텔레포트**: 끝에 도달 시 `window.scrollTo`로 처음으로 이동 → 점프가 눈에 보임
+2. **Bridge 섹션 분리**: 별도 섹션으로 Bridge 추가 → 수평에서 수직 스크롤로 전환되어 흐름 깨짐
+3. **Lenis infinite + 텔레포트**: Lenis와 ScrollTrigger 동시 제어 시 충돌 발생
+
+#### 원인
+- GSAP ScrollTrigger는 `end` 속성으로 정의된 유한한 스크롤 범위를 가짐
+- 스크롤 위치를 직접 변경하면 사용자에게 점프가 보임
+- 수평 스크롤은 수직 스크롤을 가로 이동으로 변환하는 방식이므로, 별도 섹션 추가 시 수직 스크롤 구간이 생김
+
+#### 해결
+스크롤 거리를 매우 길게 설정하고, modulo 연산으로 컨테이너 위치만 순환시킴
+
+```tsx
+// 콘텐츠를 3배로 복제
+const allProjects = [...projects, ...projects, ...projects];
+
+// 스크롤 거리를 10배로 설정 (사실상 무한)
+const scrollDistance = oneSetWidth * 10;
+
+gsap.to(container, {
+  scrollTrigger: {
+    end: () => `+=${scrollDistance}`,
+    onUpdate: (self) => {
+      // modulo로 위치 순환 - 스크롤은 계속 진행되지만 시각적으로 루프
+      const totalProgress = self.progress * scrollDistance;
+      const loopedX = totalProgress % oneSetWidth;
+      gsap.set(container, { x: -loopedX });
+    },
+  },
+});
+```
+
+#### 핵심 교훈
+스크롤 위치 텔레포트보다 긴 스크롤 범위 + 시각적 위치 루프 방식이 더 자연스러운 무한 스크롤 경험 제공
+
+---
+
 ## 배포
 
 [Vercel Platform](https://vercel.com)을 통해 쉽게 배포할 수 있습니다.

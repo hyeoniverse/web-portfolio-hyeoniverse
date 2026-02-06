@@ -63,22 +63,21 @@
     "button": "Get in touch"
   },
   "works": {
-    "label": "My Works",
-    "scroll": "Scroll",
+    "label": "작품 보기",
+    "scroll": "스크롤",
     "explore": "자세히 보기",
-    "explore": "Explore",
-    "introTitle": "Portfolio 2024",
+    "introTitle": "포트폴리오 2024",
     "introSubtitle": "Creative Works & Projects",
-    "introDesc": "A showcase of creative projects across various domains.",
+    "introDesc": "다양한 분야의 창의적인 프로젝트들을 소개합니다.",
     "stats": {
-      "projects": "Projects",
-      "clients": "Clients",
-      "years": "Years"
+      "projects": "프로젝트",
+      "clients": "클라이언트",
+      "years": "경력"
     },
-    "endTitle": "Get in Touch",
-    "endSubtitle": "Let's Create Something Amazing",
-    "endDesc": "Have a project in mind? Let's discuss how we can bring your vision to life.",
-    "endButton": "Start a Project"
+    "endTitle": "연락하기",
+    "endSubtitle": "함께 멋진 작품을 만들어요",
+    "endDesc": "프로젝트가 있으신가요? 당신의 비전을 실현할 방법을 함께 논의해봐요.",
+    "endButton": "프로젝트 시작하기"
   },
   "aboutPage": {
     "title": "About Me",

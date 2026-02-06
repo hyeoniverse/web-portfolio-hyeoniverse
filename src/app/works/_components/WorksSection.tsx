@@ -4,6 +4,7 @@ import { useRef, useLayoutEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./WorksSection.module.css";
 
 // Register GSAP plugins
@@ -80,14 +81,17 @@ const projects = [
   },
 ];
 
+// Triple the projects for seamless infinite scroll
+const allProjects = [...projects, ...projects, ...projects];
+
 export default function WorksSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const introTitleRef = useRef<HTMLHeadingElement>(null);
-  const [activeIndex, setActiveIndex] = useState(-1);
+  const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
+  const { t } = useLanguage();
 
   // Magnetic hover effect
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>, index: number) => {
@@ -123,7 +127,6 @@ export default function WorksSection() {
       duration: 0.5,
       ease: "elastic.out(1, 0.5)",
     });
-    setActiveIndex(-1);
   }, []);
 
   useLayoutEffect(() => {
@@ -132,153 +135,44 @@ export default function WorksSection() {
     if (!section || !container) return;
 
     const ctx = gsap.context(() => {
-      // Calculate total scroll width
-      const totalWidth = container.scrollWidth - window.innerWidth;
+      // Calculate dimensions
+      const totalWidth = container.scrollWidth;
+      const oneSetWidth = totalWidth / 3; // One third is one complete set
 
-      // Main horizontal scroll animation
-      const scrollTween = gsap.to(container, {
-        x: -totalWidth,
+      // Very long scroll distance for "infinite" feel (10x the content)
+      const scrollDistance = oneSetWidth * 10;
+
+      // Main horizontal scroll animation with modulo positioning
+      gsap.to(container, {
         ease: "none",
         scrollTrigger: {
           trigger: section,
           start: "top top",
-          end: () => `+=${totalWidth}`,
+          end: () => `+=${scrollDistance}`,
           pin: true,
-          scrub: 0.8,
+          scrub: 0.5,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            // Update progress bar
+            // Calculate the x position using modulo to loop
+            const totalProgress = self.progress * scrollDistance;
+            const loopedX = totalProgress % oneSetWidth;
+
+            // Apply the looped position
+            gsap.set(container, { x: -loopedX });
+
+            // Update progress bar (loops within one set)
             if (progressBarRef.current) {
-              progressBarRef.current.style.width = `${self.progress * 100}%`;
+              const progressInSet = (loopedX % oneSetWidth) / oneSetWidth;
+              progressBarRef.current.style.width = `${progressInSet * 100}%`;
             }
 
-            // Update active card based on progress
-            const cardIndex = Math.floor(self.progress * projects.length);
-            setActiveIndex(Math.min(cardIndex, projects.length - 1));
+            // Update active card index
+            const progressInSet = loopedX / oneSetWidth;
+            const cardIndex = Math.floor(progressInSet * projects.length);
+            setActiveIndex(cardIndex % projects.length);
           },
         },
-      });
-
-      // Intro title split animation
-      if (introTitleRef.current) {
-        const lines = introTitleRef.current.querySelectorAll(`.${styles.introLine}`);
-        gsap.fromTo(
-          lines,
-          {
-            y: 100,
-            opacity: 0,
-            rotateX: -45,
-          },
-          {
-            y: 0,
-            opacity: 1,
-            rotateX: 0,
-            duration: 1.2,
-            stagger: 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 80%",
-              end: "top 20%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      }
-
-      // Animate each card with stagger and parallax
-      cardsRef.current.forEach((card) => {
-        if (!card) return;
-
-        const image = card.querySelector(`.${styles.cardImage}`);
-        const content = card.querySelector(`.${styles.cardContent}`);
-        const number = card.querySelector(`.${styles.cardNumber}`);
-
-        // Card entrance animation
-        gsap.fromTo(
-          card,
-          {
-            opacity: 0,
-            scale: 0.8,
-            rotateY: -15,
-          },
-          {
-            opacity: 1,
-            scale: 1,
-            rotateY: 0,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: card,
-              containerAnimation: scrollTween,
-              start: "left 90%",
-              end: "left 60%",
-              scrub: true,
-            },
-          }
-        );
-
-        // Parallax effect on images (faster movement)
-        if (image) {
-          gsap.fromTo(
-            image,
-            { scale: 1.3, x: -50 },
-            {
-              scale: 1,
-              x: 50,
-              ease: "none",
-              scrollTrigger: {
-                trigger: card,
-                containerAnimation: scrollTween,
-                start: "left right",
-                end: "right left",
-                scrub: true,
-              },
-            }
-          );
-        }
-
-        // Content fade in
-        if (content) {
-          gsap.fromTo(
-            content,
-            { y: 30, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.8,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: card,
-                containerAnimation: scrollTween,
-                start: "left 70%",
-                end: "left 40%",
-                scrub: true,
-              },
-            }
-          );
-        }
-
-        // Number animation
-        if (number) {
-          gsap.fromTo(
-            number,
-            { scale: 0, rotate: -180 },
-            {
-              scale: 1,
-              rotate: 0,
-              duration: 0.6,
-              ease: "back.out(2)",
-              scrollTrigger: {
-                trigger: card,
-                containerAnimation: scrollTween,
-                start: "left 75%",
-                toggleActions: "play none none reverse",
-              },
-            }
-          );
-        }
       });
 
       // Floating decorative elements
@@ -298,7 +192,15 @@ export default function WorksSection() {
 
     }, section);
 
-    return () => ctx.revert();
+    // Refresh ScrollTrigger after a small delay
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
+    return () => {
+      clearTimeout(refreshTimer);
+      ctx.revert();
+    };
   }, []);
 
   const setCardRef = (index: number) => (el: HTMLDivElement | null) => {
@@ -321,10 +223,10 @@ export default function WorksSection() {
 
       {/* Fixed Header */}
       <div className={styles.fixedHeader}>
-        <span className={styles.label}>Selected Works</span>
+        <span className={styles.label}>{t("works.label")}</span>
         <div className={styles.scrollHint}>
           <div className={styles.scrollLine} />
-          <span>Scroll</span>
+          <span>{t("works.scroll")}</span>
         </div>
       </div>
 
@@ -338,51 +240,18 @@ export default function WorksSection() {
 
       {/* Horizontal Scroll Container */}
       <div className={styles.horizontalContainer} ref={containerRef}>
-        {/* Intro Panel */}
-        <div className={styles.introPanel}>
-          <div className={styles.introContent}>
-            <span className={styles.introLabel}>Portfolio 2024</span>
-            <h1 className={styles.introTitle} ref={introTitleRef}>
-              <span className={styles.introLine}>Creative</span>
-              <span className={styles.introLine}>Works &</span>
-              <span className={styles.introLine}>
-                <span className={styles.outlineText}>Projects</span>
-              </span>
-            </h1>
-            <p className={styles.introText}>
-              A curated selection of projects showcasing expertise in design,
-              development, and creative problem-solving.
-            </p>
-            <div className={styles.introStats}>
-              <div className={styles.statItem}>
-                <span className={styles.statNumber}>50+</span>
-                <span className={styles.statLabel}>Projects</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statNumber}>30+</span>
-                <span className={styles.statLabel}>Clients</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statNumber}>5+</span>
-                <span className={styles.statLabel}>Years</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Project Cards */}
-        {projects.map((project, index) => (
+        {allProjects.map((project, index) => (
           <div
-            key={project.id}
+            key={`${project.id}-${index}`}
             ref={setCardRef(index)}
-            className={`${styles.card} ${styles[project.size]}`}
+            className={`${styles.card} ${styles[project.size as keyof typeof styles]}`}
             style={{
               transform: `translateY(${project.offset}px)`,
               perspective: "1000px",
             }}
             onClick={() => handleCardClick(project.id)}
             onMouseMove={(e) => handleMouseMove(e, index)}
-            onMouseEnter={() => setActiveIndex(index)}
+            onMouseEnter={() => setActiveIndex(index % projects.length)}
             onMouseLeave={() => handleMouseLeave(index)}
           >
             <div className={styles.cardInner}>
@@ -413,7 +282,7 @@ export default function WorksSection() {
                   <p className={styles.cardDescription}>{project.description}</p>
 
                   <div className={styles.cardAction}>
-                    <span className={styles.actionText}>Explore</span>
+                    <span className={styles.actionText}>{t("works.explore")}</span>
                     <div className={styles.actionIcon}>
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path
@@ -435,35 +304,6 @@ export default function WorksSection() {
             </div>
           </div>
         ))}
-
-        {/* End Panel */}
-        <div className={styles.endPanel}>
-          <div className={styles.endContent}>
-            <span className={styles.endLabel}>Get in Touch</span>
-            <h2 className={styles.endTitle}>
-              <span>Let&apos;s Create</span>
-              <span className={styles.endTitleAccent}>Something</span>
-              <span>Amazing</span>
-            </h2>
-            <p className={styles.endText}>
-              Have a project in mind? Let&apos;s discuss how we can bring your vision to life.
-            </p>
-            <button className={styles.contactButton}>
-              <span>Start a Project</span>
-              <div className={styles.buttonIcon}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M5 12H19M19 12L12 5M19 12L12 19"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Progress Indicator */}
