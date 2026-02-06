@@ -439,10 +439,10 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 130%;
-  height: 130%;
-  margin-left: -65%;
-  margin-top: -65%;
+  width: 160%;
+  height: 160%;
+  margin-left: -80%;
+  margin-top: -80%;
 }
 
 .workImage {

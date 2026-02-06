@@ -621,6 +621,12 @@ export default function HomePage() {
     stiffness: 120,
     damping: 18,
   });
+  // Pre-compute transforms for each service item
+  // Top items move more, bottom items move less → creates compression effect
+  const serviceY0 = useTransform(smoothServicesGap, (v) => v * 3);
+  const serviceY1 = useTransform(smoothServicesGap, (v) => v * 2);
+  const serviceY2 = useTransform(smoothServicesGap, (v) => v * 1);
+  // serviceY3 = 0 (anchor, no movement)
 
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -641,10 +647,11 @@ export default function HomePage() {
         const offset = Math.max(-maxOffset, Math.min(maxOffset, velocity * 30));
         workImageOffsetY.set(offset);
 
-        // Services gap compression: reduce gap based on absolute velocity
-        // Gap goes from 0 (normal) to negative value (compressed)
-        const gapReduction = Math.min(Math.abs(velocity) * 40, 50);
-        servicesGapOffset.set(-gapReduction);
+        // Services gap movement: move items based on scroll direction
+        // Positive velocity (scroll down) → items move down
+        // Negative velocity (scroll up) → items move up
+        const gapOffset = Math.max(-25, Math.min(25, velocity * 15));
+        servicesGapOffset.set(gapOffset);
 
         // Reset to 0 after scrolling stops
         clearTimeout(resetTimerRef.current);
@@ -936,11 +943,14 @@ export default function HomePage() {
               title: "Brand Identity",
               desc: "Visual Language, Guidelines",
             },
-          ].map((service, index) => (
+          ].map((service, index) => {
+            // Top items move more, bottom item is anchor (no movement)
+            const yTransforms = [serviceY0, serviceY1, serviceY2, undefined];
+            return (
             <motion.div
               key={service.num}
               className={`${styles.serviceItem} service-item`}
-              style={index > 0 ? { marginTop: smoothServicesGap } : undefined}
+              style={yTransforms[index] ? { y: yTransforms[index] } : undefined}
               whileHover={{ x: 20 }}
               transition={{ duration: 0.3 }}
             >
@@ -955,7 +965,8 @@ export default function HomePage() {
                 />
               </div>
             </motion.div>
-          ))}
+          );
+          })}
           <div className={`${styles.serviceLine} horizontal-rule`} />
         </div>
       </section>
