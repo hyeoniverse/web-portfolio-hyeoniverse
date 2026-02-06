@@ -5,7 +5,7 @@
 .pageWrapper {
   overflow: hidden;
   min-height: 100vh;
-  background: #000;
+  background: var(--bg-black);
   justify-content: center;
   align-items: center;
   display: flex;
@@ -13,7 +13,6 @@
 
 .home {
   overflow-x: hidden;
-  width: 90vw;
   background: var(--bg-primary);
   color: var(--text-primary);
   will-change: transform;
