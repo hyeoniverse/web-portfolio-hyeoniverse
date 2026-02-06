@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -17,6 +17,13 @@ export default function Navigation() {
   const { language, toggleLanguage } = useLanguage();
   const [isAnimating, setIsAnimating] = useState(false);
   const [displayTheme, setDisplayTheme] = useState(theme);
+
+  // Sync displayTheme when theme changes (e.g., after hydration)
+  useEffect(() => {
+    if (!isAnimating) {
+      setDisplayTheme(theme);
+    }
+  }, [theme, isAnimating]);
 
   const handleThemeToggle = () => {
     if (isAnimating) return;
