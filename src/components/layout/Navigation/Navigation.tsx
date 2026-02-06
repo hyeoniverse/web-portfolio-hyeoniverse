@@ -15,18 +15,23 @@ const navItems = [
 export default function Navigation() {
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
-  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Theme state
+  const [isThemeAnimating, setIsThemeAnimating] = useState(false);
+  const [isThemeHovered, setIsThemeHovered] = useState(false);
   const [displayTheme, setDisplayTheme] = useState(theme);
+
+  // Language state
   const [isLangHovered, setIsLangHovered] = useState(false);
   const [isLangAnimating, setIsLangAnimating] = useState(false);
   const [displayLang, setDisplayLang] = useState(language);
 
   // Sync displayTheme when theme changes (e.g., after hydration)
   useEffect(() => {
-    if (!isAnimating) {
+    if (!isThemeHovered) {
       setDisplayTheme(theme);
     }
-  }, [theme, isAnimating]);
+  }, [theme, isThemeHovered]);
 
   // Sync displayLang when language changes
   useEffect(() => {
@@ -36,16 +41,28 @@ export default function Navigation() {
   }, [language, isLangHovered]);
 
   const handleThemeToggle = () => {
-    if (isAnimating) return;
-    setIsAnimating(true);
+    if (isThemeAnimating) return;
+    toggleTheme();
+  };
 
-    // Change icon at halfway point of rotation
+  const handleThemeMouseEnter = () => {
+    if (isThemeAnimating) return;
+    setIsThemeAnimating(true);
     setTimeout(() => {
       setDisplayTheme(theme === "dark" ? "light" : "dark");
-      toggleTheme();
     }, 150);
+    setTimeout(() => setIsThemeAnimating(false), 300);
+    setIsThemeHovered(true);
+  };
 
-    setTimeout(() => setIsAnimating(false), 300);
+  const handleThemeMouseLeave = () => {
+    if (isThemeAnimating) return;
+    setIsThemeAnimating(true);
+    setTimeout(() => {
+      setDisplayTheme(theme);
+    }, 150);
+    setTimeout(() => setIsThemeAnimating(false), 300);
+    setIsThemeHovered(false);
   };
 
   return (
@@ -100,10 +117,22 @@ export default function Navigation() {
         <button
           className={styles.actionBtn}
           onClick={handleThemeToggle}
+          onMouseEnter={handleThemeMouseEnter}
+          onMouseLeave={handleThemeMouseLeave}
           aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         >
-          <span className={`${styles.themeIconWrapper} ${isAnimating ? styles.animating : ""}`}>
+          <span className={`${styles.themeIconWrapper} ${isThemeAnimating ? styles.animating : ""}`}>
             {displayTheme === "dark" ? (
+              <svg
+                className={styles.themeIcon}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            ) : (
               <svg
                 className={styles.themeIcon}
                 viewBox="0 0 24 24"
@@ -120,16 +149,6 @@ export default function Navigation() {
                 <line x1="21" y1="12" x2="23" y2="12" />
                 <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-              </svg>
-            ) : (
-              <svg
-                className={styles.themeIcon}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
             )}
           </span>
