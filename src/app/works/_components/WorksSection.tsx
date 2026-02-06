@@ -1,13 +1,20 @@
 "use client";
 
-import { useRef, useLayoutEffect, useState, useEffect } from "react";
+import { useRef, useLayoutEffect, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
+import {
+  projects,
+  allProjects,
+  Project,
+  PROJECT_COUNT,
+  LONG_PRESS_DURATION,
+  INITIAL_MARGIN,
+} from "@/data/projects";
 import styles from "./WorksSection.module.css";
 
 // Register GSAP plugins
@@ -15,182 +22,79 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const projects = [
-  {
-    id: "1",
-    number: "01",
-    title: "Sakharov Space",
-    subtitle: "Beyond the Horizon",
-    category: "Branding / Web Design",
-    year: "2024",
-    description:
-      "우주 탐사 스타트업을 위한 브랜드 아이덴티티 및 웹 경험 디자인",
-    role: "Lead Designer",
-    tech: ["Figma", "Next.js", "Three.js"],
-    metrics: { views: "24K", duration: "3 months" },
-    image:
-      "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1200&h=700&fit=crop",
-    size: "large",
-  },
-  {
-    id: "2",
-    number: "02",
-    title: "Fitil App",
-    subtitle: "Move with Purpose",
-    category: "UX/UI / Mobile",
-    year: "2023",
-    description: "피트니스 트래킹과 소셜 기능을 결합한 모바일 앱 디자인",
-    role: "Product Designer",
-    tech: ["Figma", "Protopie", "React Native"],
-    metrics: { views: "18K", duration: "4 months" },
-    image:
-      "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=1200&h=700&fit=crop",
-    size: "small",
-  },
-  {
-    id: "3",
-    number: "03",
-    title: "Amway Digital",
-    subtitle: "Commerce Reimagined",
-    category: "E-commerce",
-    year: "2023",
-    description: "글로벌 이커머스 플랫폼의 사용자 경험 재설계",
-    role: "UX Designer",
-    tech: ["Sketch", "Zeplin", "Vue.js"],
-    metrics: { views: "42K", duration: "6 months" },
-    image:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=700&fit=crop",
-    size: "medium",
-  },
-  {
-    id: "4",
-    number: "04",
-    title: "Nova Finance",
-    subtitle: "Data at a Glance",
-    category: "Dashboard",
-    year: "2024",
-    description: "핀테크 스타트업을 위한 실시간 금융 대시보드 디자인",
-    role: "UI Designer",
-    tech: ["Figma", "D3.js", "React"],
-    metrics: { views: "15K", duration: "2 months" },
-    image:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=700&fit=crop",
-    size: "tall",
-  },
-  {
-    id: "5",
-    number: "05",
-    title: "Luxe Brand",
-    subtitle: "Timeless Elegance",
-    category: "Branding",
-    year: "2024",
-    description: "프리미엄 라이프스타일 브랜드의 비주얼 아이덴티티 구축",
-    role: "Brand Designer",
-    tech: ["Illustrator", "After Effects"],
-    metrics: { views: "31K", duration: "5 months" },
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=700&fit=crop",
-    size: "wide",
-  },
-  {
-    id: "6",
-    number: "06",
-    title: "TechStart",
-    subtitle: "Innovation Hub",
-    category: "Web App",
-    year: "2023",
-    description: "스타트업 인큐베이터를 위한 협업 플랫폼 설계",
-    role: "Product Designer",
-    tech: ["Figma", "TypeScript", "Node.js"],
-    metrics: { views: "12K", duration: "3 months" },
-    image:
-      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=700&fit=crop",
-    size: "small",
-  },
-];
-
-// 10 sets for smooth infinite scroll - no wrap needed for practical use
-const allProjects = Array(10).fill(projects).flat();
-
+// Types
 interface TransitionData {
   id: string;
   image: string;
   rect: DOMRect;
 }
 
-const LONG_HOVER_DURATION = 2500; // 2.5 seconds for long hover
+interface PressedCard {
+  index: number;
+  project: Project;
+}
+
+// Animation constants
+const SCROLL_LERP = 0.08;
+const VELOCITY_DECAY = 0.96;
+const MOUSE_EFFECT_RADIUS = 500;
+const MAX_CARD_OFFSET = 12;
+const MOUSE_SENSITIVITY = 0.012;
+const IMAGE_PARALLAX_MULTIPLIER = 1.3;
 
 export default function WorksSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-  const [_activeIndex, setActiveIndex] = useState(0);
-  const [transitionData, setTransitionData] = useState<TransitionData | null>(
-    null,
-  );
-  const [hoveredCard, setHoveredCard] = useState<{
-    index: number;
-    project: (typeof projects)[0];
-  } | null>(null);
-  const hoverStartRef = useRef<number | null>(null);
-  const hoverRafRef = useRef<number | null>(null);
+  // Refs
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Map<number, HTMLElement>>(new Map());
+  const pressStartRef = useRef<number | null>(null);
+  const pressRafRef = useRef<number | null>(null);
+
+  // State
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [transitionData, setTransitionData] = useState<TransitionData | null>(null);
+  const [pressedCard, setPressedCard] = useState<PressedCard | null>(null);
+
+  // Hooks
   const router = useRouter();
-  const { t: _t } = useLanguage();
   const { setInfinite } = useLenis();
 
+  // Disable Lenis infinite scroll on mount
   useEffect(() => {
     setInfinite(false);
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 100);
+    const timer = setTimeout(() => ScrollTrigger.refresh(), 100);
     return () => {
       clearTimeout(timer);
       setInfinite(true);
     };
   }, [setInfinite]);
 
+  // Horizontal scroll animation
   useLayoutEffect(() => {
-    const section = sectionRef.current;
-    const container = containerRef.current;
-    if (!section || !container) return;
+    const gallery = galleryRef.current;
+    const slider = sliderRef.current;
+    if (!gallery || !slider) return;
 
     const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>(
-        `.${styles.card}`,
-        container,
-      );
-      const cardImages = gsap.utils.toArray<HTMLElement>(
-        `.${styles.cardImage}`,
-        container,
-      );
+      const cards = gsap.utils.toArray<HTMLElement>(`.${styles.card}`, slider);
+      const cardImages = gsap.utils.toArray<HTMLElement>(`.${styles.cardImage}`, slider);
+      const projectItems = gsap.utils.toArray<HTMLElement>(`.${styles.project}`, slider);
+
       if (cards.length === 0) return;
 
-      // Get card wrappers for accurate position measurement
-      const cardWrappers = gsap.utils.toArray<HTMLElement>(
-        `.${styles.cardWrapper}`,
-        container,
-      );
-
-      // Calculate one set width using actual wrapper positions
-      // Distance from first card of set 0 to first card of set 1
-      const firstWrapperOfSet0 = cardWrappers[0];
-      const firstWrapperOfSet1 = cardWrappers[projects.length];
-      const oneSetWidth = firstWrapperOfSet1.offsetLeft - firstWrapperOfSet0.offsetLeft;
-
-      // Get the actual position of first card of middle set (set 5, index 4*6=24)
-      const middleSetIndex = projects.length * 4; // Start of set 5 (0-indexed: set 4)
-      const firstWrapperOfMiddleSet = cardWrappers[middleSetIndex];
-      const middleSetStart = firstWrapperOfMiddleSet.offsetLeft;
+      // Calculate set width from actual DOM positions
+      const oneSetWidth = projectItems[PROJECT_COUNT].offsetLeft - projectItems[0].offsetLeft;
+      const middleSetStart = projectItems[PROJECT_COUNT * 4].offsetLeft;
+      const initialX = -(middleSetStart - INITIAL_MARGIN);
 
       // Scroll state
       let scrollX = 0;
       let targetScrollX = 0;
       let velocity = 0;
+      let imageOffset = 0;
       let targetImageOffset = 0;
-      let currentImageOffset = 0;
 
-      // Mouse tracking
+      // Mouse state
       let mouseX = 0;
       let mouseY = 0;
       let lastMouseX = 0;
@@ -199,342 +103,270 @@ export default function WorksSection() {
       let mouseVelocityX = 0;
       let mouseVelocityY = 0;
 
-      // Per-card offset tracking
-      const cardOffsets = cards.map(() => ({
-        x: 0,
-        y: 0,
-        targetX: 0,
-        targetY: 0,
-      }));
-      const imageOffsets = cardImages.map(() => ({
-        x: 0,
-        y: 0,
-        targetX: 0,
-        targetY: 0,
-      }));
+      // Per-element offsets
+      const cardOffsets = cards.map(() => ({ x: 0, y: 0, targetX: 0, targetY: 0 }));
+      const imageOffsets = cardImages.map(() => ({ x: 0, y: 0, targetX: 0, targetY: 0 }));
 
-      // Mouse move handler
+      // Event handlers
       const handleMouseMove = (e: MouseEvent) => {
-        const currentTime = performance.now();
-        const deltaTime = (currentTime - lastMouseTime) / 1000;
+        const now = performance.now();
+        const dt = (now - lastMouseTime) / 1000;
 
         mouseX = e.clientX;
         mouseY = e.clientY;
 
-        if (deltaTime > 0) {
-          mouseVelocityX = (e.clientX - lastMouseX) / deltaTime;
-          mouseVelocityY = (e.clientY - lastMouseY) / deltaTime;
+        if (dt > 0) {
+          mouseVelocityX = (e.clientX - lastMouseX) / dt;
+          mouseVelocityY = (e.clientY - lastMouseY) / dt;
         }
 
         lastMouseX = e.clientX;
         lastMouseY = e.clientY;
-        lastMouseTime = currentTime;
+        lastMouseTime = now;
       };
 
-      section.addEventListener("mousemove", handleMouseMove);
-
-      // Wheel handler
       const handleWheel = (e: WheelEvent) => {
         e.preventDefault();
-        targetScrollX += e.deltaY * 1.0;
+        targetScrollX += e.deltaY;
       };
 
-      section.addEventListener("wheel", handleWheel, { passive: false });
+      gallery.addEventListener("mousemove", handleMouseMove);
+      gallery.addEventListener("wheel", handleWheel, { passive: false });
 
-      // Initial position: show first card of Set B at left edge with margin
-      const margin = 50;
-      const initialX = -(middleSetStart - margin);
-      gsap.set(container, { x: initialX });
+      // Set initial position
+      gsap.set(slider, { x: initialX });
 
       // Animation loop
-      const smoothAnimation = () => {
-        // Lerp scroll with easing
+      const animate = () => {
+        // Smooth scroll interpolation
         const prevScrollX = scrollX;
-        scrollX += (targetScrollX - scrollX) * 0.08;
+        scrollX += (targetScrollX - scrollX) * SCROLL_LERP;
         velocity = scrollX - prevScrollX;
 
-        // Image parallax based on velocity
+        // Image parallax
         targetImageOffset = gsap.utils.clamp(-25, 25, -velocity * 0.5);
-        currentImageOffset += (targetImageOffset - currentImageOffset) * 0.06;
+        imageOffset += (targetImageOffset - imageOffset) * 0.06;
 
-        // No wrap needed - 10 sets provide enough buffer for any practical scrolling
-        // Direct position calculation
-        const xPos = initialX - scrollX;
+        // Update slider position
+        gsap.set(slider, { x: initialX - scrollX });
 
-        gsap.set(container, { x: xPos });
-
-        // Progress bar (use modulo just for display)
+        // Update active index
         const scrollInSet = ((scrollX % oneSetWidth) + oneSetWidth) % oneSetWidth;
-        const progressInSet = scrollInSet / oneSetWidth;
-        if (progressBarRef.current) {
-          progressBarRef.current.style.width = `${progressInSet * 100}%`;
-        }
+        const progress = scrollInSet / oneSetWidth;
+        setActiveIndex(Math.abs(Math.floor(progress * PROJECT_COUNT)) % PROJECT_COUNT);
 
-        // Active card index
-        const cardIndex = Math.floor(progressInSet * projects.length);
-        setActiveIndex(Math.abs(cardIndex) % projects.length);
+        // Decay mouse velocity
+        mouseVelocityX *= VELOCITY_DECAY;
+        mouseVelocityY *= VELOCITY_DECAY;
 
-        // Decay mouse velocity (slower for smoother feel)
-        mouseVelocityX *= 0.96;
-        mouseVelocityY *= 0.96;
-
-        // Calculate per-card offsets based on distance to mouse
-        const effectRadius = 500;
-        const maxOffset = 12;
-        const sensitivity = 0.012;
-
+        // Update per-card effects
         cards.forEach((card, i) => {
           const rect = card.getBoundingClientRect();
-          const cardCenterX = rect.left + rect.width / 2;
-          const cardCenterY = rect.top + rect.height / 2;
-
-          const distX = mouseX - cardCenterX;
-          const distY = mouseY - cardCenterY;
-          const distance = Math.sqrt(distX * distX + distY * distY);
-
-          const normalizedDist = Math.min(1, distance / effectRadius);
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          const distance = Math.hypot(mouseX - centerX, mouseY - centerY);
+          const normalizedDist = Math.min(1, distance / MOUSE_EFFECT_RADIUS);
           const strength = Math.pow(1 - normalizedDist, 2);
 
-          cardOffsets[i].targetX = gsap.utils.clamp(
-            -maxOffset,
-            maxOffset,
-            mouseVelocityX * sensitivity * strength,
-          );
-          cardOffsets[i].targetY = gsap.utils.clamp(
-            -maxOffset,
-            maxOffset,
-            mouseVelocityY * sensitivity * strength,
-          );
-
+          // Card offset
+          cardOffsets[i].targetX = gsap.utils.clamp(-MAX_CARD_OFFSET, MAX_CARD_OFFSET, mouseVelocityX * MOUSE_SENSITIVITY * strength);
+          cardOffsets[i].targetY = gsap.utils.clamp(-MAX_CARD_OFFSET, MAX_CARD_OFFSET, mouseVelocityY * MOUSE_SENSITIVITY * strength);
           cardOffsets[i].x += (cardOffsets[i].targetX - cardOffsets[i].x) * 0.04;
           cardOffsets[i].y += (cardOffsets[i].targetY - cardOffsets[i].y) * 0.04;
 
-          const hoverScale = parseFloat(card.dataset.hoverScale || "1");
+          const scale = parseFloat(card.dataset.hoverScale || "1");
+          gsap.set(card, { x: cardOffsets[i].x, y: cardOffsets[i].y, scale });
 
-          gsap.set(card, {
-            x: cardOffsets[i].x,
-            y: cardOffsets[i].y,
-            scale: hoverScale,
-          });
-
+          // Image offset (parallax)
           if (cardImages[i]) {
-            imageOffsets[i].targetX = cardOffsets[i].targetX * 1.3;
-            imageOffsets[i].targetY = cardOffsets[i].targetY * 1.3;
-
+            imageOffsets[i].targetX = cardOffsets[i].targetX * IMAGE_PARALLAX_MULTIPLIER;
+            imageOffsets[i].targetY = cardOffsets[i].targetY * IMAGE_PARALLAX_MULTIPLIER;
             imageOffsets[i].x += (imageOffsets[i].targetX - imageOffsets[i].x) * 0.035;
             imageOffsets[i].y += (imageOffsets[i].targetY - imageOffsets[i].y) * 0.035;
 
             gsap.set(cardImages[i], {
-              x: currentImageOffset + imageOffsets[i].x,
+              x: imageOffset + imageOffsets[i].x,
               y: imageOffsets[i].y,
               scale: 1.2,
             });
           }
         });
 
-        requestAnimationFrame(smoothAnimation);
+        requestAnimationFrame(animate);
       };
 
-      const rafId = requestAnimationFrame(smoothAnimation);
+      const rafId = requestAnimationFrame(animate);
 
-
-      // Cleanup on context revert
       return () => {
         cancelAnimationFrame(rafId);
-        section.removeEventListener("mousemove", handleMouseMove);
-        section.removeEventListener("wheel", handleWheel);
+        gallery.removeEventListener("mousemove", handleMouseMove);
+        gallery.removeEventListener("wheel", handleWheel);
       };
-    }, section);
+    }, gallery);
 
-    return () => {
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
-  const handleCardClick = (
-    e: React.MouseEvent<HTMLElement>,
-    project: (typeof projects)[0],
-  ) => {
-    // Cancel any hover animation
-    if (hoverRafRef.current) {
-      cancelAnimationFrame(hoverRafRef.current);
-    }
+  // Navigation handlers
+  const triggerTransition = useCallback((index: number, project: Project) => {
+    const card = cardRefs.current.get(index);
+    if (!card) return;
 
-    // Clean up any existing hover state
-    if (hoveredCard) {
-      const prevCard = cardRefs.current.get(hoveredCard.index);
-      if (prevCard) {
-        delete prevCard.dataset.hoverScale;
-        prevCard.classList.remove(styles.cardHovering);
+    setTransitionData({
+      id: project.id,
+      image: project.image,
+      rect: card.getBoundingClientRect(),
+    });
+
+    setTimeout(() => router.push(`/works/${project.id}`), 800);
+  }, [router]);
+
+  const handleCardClick = useCallback((index: number, project: Project) => {
+    if (transitionData) return;
+
+    // Cancel ongoing press animation
+    if (pressRafRef.current) cancelAnimationFrame(pressRafRef.current);
+
+    // Clean up press state
+    if (pressedCard) {
+      const card = cardRefs.current.get(pressedCard.index);
+      if (card) {
+        delete card.dataset.hoverScale;
+        card.classList.remove(styles.cardActive);
       }
     }
-    setHoveredCard(null);
+    setPressedCard(null);
+    pressStartRef.current = null;
 
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
+    triggerTransition(index, project);
+  }, [transitionData, pressedCard, triggerTransition]);
 
-    setTransitionData({
-      id: project.id,
-      image: project.image,
-      rect,
-    });
-
-    // Navigate after animation
-    setTimeout(() => {
-      router.push(`/works/${project.id}`);
-    }, 800);
-  };
-
-  const triggerTransition = (index: number, project: (typeof projects)[0]) => {
-    const card = cardRefs.current.get(index);
-    if (!card) return;
-
-    const rect = card.getBoundingClientRect();
-    setTransitionData({
-      id: project.id,
-      image: project.image,
-      rect,
-    });
-
-    setTimeout(() => {
-      router.push(`/works/${project.id}`);
-    }, 800);
-  };
-
-  const handleCardHoverStart = (
-    index: number,
-    project: (typeof projects)[0],
-  ) => {
-    if (transitionData) return; // Already transitioning
+  const handlePressStart = useCallback((index: number, project: Project) => {
+    if (transitionData) return;
 
     const card = cardRefs.current.get(index);
     if (!card) return;
 
-    setHoveredCard({ index, project });
-    hoverStartRef.current = performance.now();
-    card.classList.add(styles.cardHovering);
-
-    // Set data attribute for GSAP to read
+    setPressedCard({ index, project });
+    pressStartRef.current = performance.now();
+    card.classList.add(styles.cardActive);
     card.dataset.hoverScale = "1";
 
-    const animateHover = () => {
-      if (!hoverStartRef.current) return;
+    const animatePress = () => {
+      if (!pressStartRef.current) return;
 
-      const elapsed = performance.now() - hoverStartRef.current;
-      const progress = Math.min(elapsed / LONG_HOVER_DURATION, 1);
+      const elapsed = performance.now() - pressStartRef.current;
+      const progress = Math.min(elapsed / LONG_PRESS_DURATION, 1);
 
-      // Update data attribute that GSAP will read
-      const hoverScale = 1 + progress * 0.5; // 1 to 1.5
-      card.dataset.hoverScale = String(hoverScale);
+      card.dataset.hoverScale = String(1 + progress * 0.5);
 
       if (progress >= 1) {
-        // Trigger page transition
         triggerTransition(index, project);
-        setHoveredCard(null);
-        hoverStartRef.current = null;
+        setPressedCard(null);
+        pressStartRef.current = null;
         delete card.dataset.hoverScale;
-        card.classList.remove(styles.cardHovering);
+        card.classList.remove(styles.cardActive);
         return;
       }
 
-      hoverRafRef.current = requestAnimationFrame(animateHover);
+      pressRafRef.current = requestAnimationFrame(animatePress);
     };
 
-    hoverRafRef.current = requestAnimationFrame(animateHover);
-  };
+    pressRafRef.current = requestAnimationFrame(animatePress);
+  }, [transitionData, triggerTransition]);
 
-  const handleCardHoverEnd = () => {
-    if (hoverRafRef.current) {
-      cancelAnimationFrame(hoverRafRef.current);
-    }
+  const handlePressEnd = useCallback(() => {
+    if (pressRafRef.current) cancelAnimationFrame(pressRafRef.current);
 
-    // Reset the hover scale data attribute
-    if (hoveredCard) {
-      const card = cardRefs.current.get(hoveredCard.index);
+    if (pressedCard) {
+      const card = cardRefs.current.get(pressedCard.index);
       if (card) {
         delete card.dataset.hoverScale;
-        card.classList.remove(styles.cardHovering);
+        card.classList.remove(styles.cardActive);
       }
     }
 
-    hoverStartRef.current = null;
-    setHoveredCard(null);
+    pressStartRef.current = null;
+    setPressedCard(null);
+  }, [pressedCard]);
+
+  // Helper to get project class names
+  const getProjectClassName = (project: Project, index: number) => {
+    const sizeClass = `size${project.size.charAt(0).toUpperCase()}${project.size.slice(1)}`;
+    const layoutClass = `layout${(index % 6) + 1}`;
+    return `${styles.project} ${styles[sizeClass]} ${styles[layoutClass]}`;
   };
 
-
   return (
-    <section className={styles.section} ref={sectionRef}>
+    <section className={styles.gallery} ref={galleryRef}>
+      {/* Gallery Track */}
+      <div className={styles.galleryTrack}>
+        <div className={styles.gallerySlider} ref={sliderRef}>
+          {allProjects.map((project, index) => (
+            <div key={`${project.id}-${index}`} className={getProjectClassName(project, index)}>
+              {/* Metadata */}
+              <span className={styles.metaNumber}>{project.number}</span>
+              <span className={styles.metaCategory}>{project.category}</span>
 
-      {/* Horizontal Scroll Container */}
-      <div className={styles.scrollWrapper}>
-        <div className={styles.horizontalContainer} ref={containerRef}>
-          {allProjects.map((project, index) => {
-            const layoutVariant = (index % 6) + 1;
-            return (
-              <div
-                key={`${project.id}-${index}`}
-                className={`${styles.cardWrapper} ${styles[`wrapper${project.size?.charAt(0).toUpperCase()}${project.size?.slice(1)}`]} ${styles[`layout${layoutVariant}`]}`}
+              {/* Card */}
+              <article
+                ref={(el) => { if (el) cardRefs.current.set(index, el); }}
+                className={styles.card}
+                onClick={() => handleCardClick(index, project)}
+                onMouseDown={() => handlePressStart(index, project)}
+                onMouseUp={handlePressEnd}
+                onMouseLeave={handlePressEnd}
+                onTouchStart={() => handlePressStart(index, project)}
+                onTouchEnd={handlePressEnd}
               >
-                {/* Floating Number */}
-                <span className={styles.floatNumber}>{project.number}</span>
-
-                {/* Floating Category */}
-                <span className={styles.floatCategory}>{project.category}</span>
-
-                {/* Card Image */}
-                <article
-                  ref={(el) => {
-                    if (el) cardRefs.current.set(index, el);
-                  }}
-                  className={styles.card}
-                  onClick={(e) => handleCardClick(e, project)}
-                  onMouseEnter={() => handleCardHoverStart(index, project)}
-                  onMouseLeave={handleCardHoverEnd}
-                >
-                  <div className={styles.cardImageWrapper}>
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 500px"
-                      className={styles.cardImage}
-                    />
-                  </div>
-                  <div className={styles.cardFrame} />
-                </article>
-
-                {/* Floating Title */}
-                <h3 className={styles.floatTitle}>{project.title}</h3>
-
-                {/* Floating Subtitle */}
-                <p className={styles.floatSubtitle}>{project.subtitle}</p>
-
-                {/* Floating Year */}
-                <span className={styles.floatYear}>{project.year}</span>
-
-                {/* Floating Tech */}
-                <div className={styles.floatTech}>
-                  {project.tech.slice(0, 2).map((t: string, i: number) => (
-                    <span key={i}>{t}</span>
-                  ))}
+                <div className={styles.cardImageWrap}>
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 500px"
+                    className={styles.cardImage}
+                  />
                 </div>
+                <div className={styles.cardBorder} />
+              </article>
 
-                {/* Floating Role */}
-                <span className={styles.floatRole}>{project.role}</span>
-
-                {/* Floating Description */}
-                <p className={styles.floatDescription}>{project.description}</p>
+              {/* More Metadata */}
+              <span className={styles.metaYear}>{project.year}</span>
+              <div className={styles.metaTech}>
+                {project.tech.slice(0, 2).map((tech: string, i: number) => (
+                  <span key={i}>{tech}</span>
+                ))}
               </div>
-            );
-          })}
+              <span className={styles.metaRole}>{project.role}</span>
+              <p className={styles.metaDesc}>{project.description}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Page Transition Overlay */}
+      {/* Active Project Info */}
+      <div className={styles.activeInfo}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeIndex}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className={styles.activeInfoInner}
+          >
+            <h2 className={styles.activeTitle}>{projects[activeIndex].title}</h2>
+            <p className={styles.activeSubtitle}>{projects[activeIndex].subtitle}</p>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Page Transition */}
       <AnimatePresence>
         {transitionData && (
           <motion.div
-            className={styles.transitionOverlay}
+            className={styles.transition}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
@@ -555,10 +387,7 @@ export default function WorksSection() {
                 height: "100vh",
                 borderRadius: 0,
               }}
-              transition={{
-                duration: 0.8,
-                ease: [0.4, 0, 0.2, 1],
-              }}
+              transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
             >
               <Image
                 src={transitionData.image}

@@ -1,299 +1,264 @@
 /* ==========================================================================
-   Works Section - Dynamic Content Layout
+   Works Gallery - Horizontal Scroll
    ========================================================================== */
 
-.section {
+.gallery {
+  overflow: hidden;
   position: relative;
   width: 100%;
   height: 100vh;
-  overflow: hidden;
   background: var(--bg-primary);
 }
 
 /* ==========================================================================
-   Current Project Display
+   Active Project Info (Bottom Left)
    ========================================================================== */
 
-.currentProject {
+.activeInfo {
   position: fixed;
-  bottom: 120px;
-  left: 6vw;
-  z-index: 150;
+  bottom: 80px;
+  left: 60px;
+  z-index: 100;
   pointer-events: none;
-  mix-blend-mode: difference;
 }
 
-.currentTitle {
-  margin: 0 0 12px;
-  font-family: var(--font-instrument), serif;
-  font-size: clamp(36px, 6vw, 72px);
-  font-weight: 400;
-  color: #fff;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.currentMeta {
+.activeInfoInner {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 24px;
 }
 
-.currentCategory {
+.activeTitle {
+  margin: 0;
+  font-family: var(--font-instrument), serif;
+  font-size: var(--fluid-font-size-5xl);
+  font-weight: 400;
+  line-height: 0.9;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+.activeSubtitle {
+  margin: 0;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.currentDot {
-  width: 4px;
-  height: 4px;
-  background: #fff;
-  border-radius: 50%;
-}
-
-.currentYear {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 12px;
-  color: #fff;
+  font-size: clamp(14px, 1.5vw, 20px);
+  font-weight: 400;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
 }
 
 /* ==========================================================================
-   Scroll Container
+   Gallery Track & Slider
    ========================================================================== */
 
-.scrollWrapper {
+.galleryTrack {
+  overflow: visible;
   position: relative;
   width: 100%;
   height: 100vh;
-  overflow: visible;
 }
 
-.horizontalContainer {
+.gallerySlider {
   display: flex;
-  align-items: center;
-  height: 100vh;
-  padding: 0 5vw;
   gap: 400px;
+  align-items: center;
+  padding: 0 5vw;
+  height: 100vh;
   will-change: transform;
 }
 
 /* ==========================================================================
-   Card Wrapper - Contains Card + External Info
+   Project Item
    ========================================================================== */
 
-.cardWrapper {
-  position: relative;
-  flex-shrink: 0;
+.project {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  flex-shrink: 0;
   gap: 24px;
+  align-items: flex-start;
+  position: relative;
   padding: 60px 80px 180px;
 }
 
-/* Wrapper Sizes & Positions */
-.wrapperLarge {
+/* Project Size Variants */
+.sizeLarge {
   align-self: flex-start;
   margin-top: 6vh;
 }
 
-.wrapperSmall {
+.sizeSmall {
   align-self: flex-end;
   margin-bottom: 6vh;
 }
 
-.wrapperMedium {
+.sizeMedium {
   align-self: center;
 }
 
-.wrapperTall {
+.sizeTall {
   align-self: flex-start;
   margin-top: 4vh;
 }
 
-.wrapperWide {
+.sizeWide {
   align-self: flex-end;
   margin-bottom: 4vh;
 }
 
 /* ==========================================================================
-  Cards - Base Styles
-  ========================================================================== */
+   Project Card (Image Container)
+   ========================================================================== */
 
 .card {
+  flex-shrink: 0;
+  overflow: hidden;
   position: relative;
+  z-index: 1;
   width: 520px;
   height: 340px;
-  flex-shrink: 0;
   cursor: pointer;
-  overflow: hidden;
   border-radius: var(--radius-4xl);
   transform-style: preserve-3d;
   will-change: transform;
-  z-index: 1;
 }
 
 .card:hover {
   z-index: 5;
 }
 
-.cardHovering {
+.cardActive {
   z-index: 10 !important;
+  cursor: grabbing;
 }
 
-.wrapperLarge .card {
-  width: 680px;
-  height: 420px;
+/* Card Size Variants */
+.sizeLarge .card {
+  width: 850px;
+  height: 530px;
 }
 
-.wrapperSmall .card {
-  width: 440px;
-  height: 280px;
-}
-
-.wrapperMedium .card {
-  width: 560px;
-  height: 360px;
-}
-
-.wrapperTall .card {
-  width: 500px;
+.sizeSmall .card {
+  width: 600px;
   height: 380px;
 }
 
-.wrapperWide .card {
+.sizeMedium .card {
   width: 720px;
-  height: 400px;
+  height: 460px;
+}
+
+.sizeTall .card {
+  width: 650px;
+  height: 500px;
+}
+
+.sizeWide .card {
+  width: 900px;
+  height: 500px;
 }
 
 /* Card Image */
-.cardImageWrapper {
+.cardImageWrap {
+  overflow: hidden;
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  will-change: transform;
   border-radius: var(--radius-4xl);
-  transform-origin: center center;
+  transform-origin: center;
+  will-change: transform;
 }
 
 .cardImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform-origin: center;
   will-change: transform;
-  transform-origin: center center;
+}
+
+.cardBorder {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  border-radius: var(--radius-4xl);
+  pointer-events: none;
+  transition: border-color 0.3s ease;
 }
 
 /* ==========================================================================
-   Floating Typography - Bold Layout
+   Project Metadata (Floating Text)
    ========================================================================== */
 
-/* Large Number - Massive, overlapping */
-.floatNumber {
+.metaNumber {
   position: relative;
   z-index: 50;
-  font-family: var(--font-instrument), serif;
-  font-size: 220px;
-  font-weight: 400;
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--text-tertiary);
-  line-height: 0.7;
-  letter-spacing: -0.06em;
   margin-bottom: -80px;
   margin-left: -30px;
-  transition: all 0.4s ease;
+  font-family: var(--font-instrument), serif;
+  font-size: var(--fluid-font-size-6xl);
+  font-weight: 400;
+  line-height: 0.7;
+  color: transparent;
+  letter-spacing: -0.06em;
   pointer-events: none;
+  transition: all 0.4s ease;
+  -webkit-text-stroke: 1px var(--border-black);
 }
 
-/* Category - Large, top right */
-.floatCategory {
+.metaCategory {
   position: absolute;
-  z-index: 50;
   top: 40px;
   right: -20px;
+  z-index: 50;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: var(--text-accent-secondary-alt);
   text-transform: uppercase;
   letter-spacing: 0.3em;
+  pointer-events: none;
   writing-mode: vertical-rl;
-  pointer-events: none;
 }
 
-/* Title - Extra large */
-.floatTitle {
-  position: relative;
-  z-index: 50;
-  margin: 0;
-  font-family: var(--font-instrument), serif;
-  font-size: clamp(48px, 6vw, 80px);
-  font-weight: 400;
-  color: var(--text-primary);
-  letter-spacing: -0.03em;
-  line-height: 1;
-  transition: color 0.3s ease;
-  pointer-events: none;
-}
-
-/* Subtitle - Larger italic */
-.floatSubtitle {
-  position: relative;
-  z-index: 50;
-  margin: 8px 0 0;
-  font-family: var(--font-instrument), serif;
-  font-size: clamp(20px, 2.5vw, 28px);
-  font-style: italic;
-  font-weight: 400;
-  color: var(--text-tertiary);
-  pointer-events: none;
-}
-
-/* Year - Huge, faded */
-.floatYear {
+.metaYear {
   position: absolute;
-  z-index: 50;
-  bottom: 100px;
   right: -30px;
+  bottom: 100px;
+  z-index: 50;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 100px;
+  font-size: var(--fluid-font-size-6xl);
   font-weight: 200;
-  color: var(--text-tertiary);
-  opacity: 0.3;
+  color: transparent;
   letter-spacing: -0.02em;
   pointer-events: none;
+  mix-blend-mode: difference;
+  -webkit-text-stroke: 1px var(--text-primary);
 }
 
-/* Tech Stack - Larger */
-.floatTech {
-  position: relative;
-  z-index: 50;
+.metaTech {
   display: flex;
   gap: 16px;
+  position: relative;
+  z-index: 50;
   margin-top: 24px;
   pointer-events: none;
 }
 
-.floatTech span {
+.metaTech span {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: var(--text-accent-secondary-alt);
   text-transform: uppercase;
   letter-spacing: 0.15em;
 }
 
-/* Role - Bold rotated text */
-.floatRole {
+.metaRole {
   position: absolute;
-  z-index: 50;
-  left: -10px;
   top: 50%;
-  transform: translateY(-50%) rotate(-90deg);
+  left: -10px;
+  z-index: 50;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 12px;
   font-weight: 600;
@@ -302,176 +267,116 @@
   letter-spacing: 0.25em;
   white-space: nowrap;
   pointer-events: none;
+  transform: translateY(-50%) rotate(-90deg);
 }
 
-/* Description - Larger */
-.floatDescription {
+.metaDesc {
   position: relative;
   z-index: 50;
+  max-width: 500px;
   margin: 20px 0 0;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 15px;
+  font-size: var(--font-size-xl);
   font-weight: 400;
-  color: var(--text-secondary);
   line-height: 1.8;
-  max-width: 500px;
+  color: var(--text-primary);
   pointer-events: none;
-}
-
-/* Card Frame - Hover Effect */
-.cardFrame {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-4xl);
-  transition: border-color 0.3s ease;
-  pointer-events: none;
-  z-index: 20;
-}
-
-/* Wrapper hover effects */
-.cardWrapper:hover .floatTitle {
-  color: var(--accent-primary);
-}
-
-.cardWrapper:hover .floatNumber {
-  -webkit-text-stroke-color: var(--accent-primary);
-  transform: translate(-10px, -10px);
-}
-
-.cardWrapper:hover .floatYear {
-  opacity: 1;
-  color: var(--accent-primary);
-}
-
-.cardWrapper:hover .floatCategory {
-  color: var(--accent-primary);
 }
 
 /* ==========================================================================
-   Layout Variants - Different text placements for each card
+   Layout Variants (Text Placement)
    ========================================================================== */
 
-/* Layout 1: Number top-left, Title bottom-left, Year top-right */
-.layout1 .floatNumber {
+/* Layout 1 */
+.layout1 .metaNumber {
   position: absolute;
   top: -60px;
   left: -40px;
 }
 
-.layout1 .floatYear {
+.layout1 .metaYear {
   top: 20px;
   right: -60px;
   bottom: auto;
 }
 
-.layout1 .floatCategory {
+.layout1 .metaCategory {
   top: auto;
-  bottom: 60px;
   right: -30px;
+  bottom: 60px;
 }
 
-.layout1 .floatDescription {
-  position: absolute;
-  bottom: -80px;
-  right: 0;
-  left: auto;
-  max-width: 350px;
-  text-align: right;
+.layout1 .metaDesc {
+  position: relative;
+  max-width: 450px;
+  margin-top: 16px;
+  text-align: left;
 }
 
-/* Layout 2: Number bottom-right, Title top-left, Year bottom-left */
-.layout2 .floatNumber {
+/* Layout 2 */
+.layout2 .metaNumber {
   position: absolute;
   top: auto;
+  right: -20px;
   bottom: -100px;
   left: auto;
-  right: -20px;
   margin: 0;
 }
 
-.layout2 .floatTitle {
-  position: absolute;
-  top: -80px;
-  left: 0;
-  margin: 0;
-}
-
-.layout2 .floatSubtitle {
-  position: absolute;
-  top: -40px;
-  left: 0;
-}
-
-.layout2 .floatYear {
+.layout2 .metaYear {
   top: auto;
+  right: auto;
   bottom: -60px;
   left: -40px;
-  right: auto;
 }
 
-.layout2 .floatCategory {
+.layout2 .metaCategory {
   top: 50%;
   right: -50px;
   transform: translateY(-50%);
 }
 
-.layout2 .floatRole {
+.layout2 .metaRole {
   display: none;
 }
 
-/* Layout 3: Centered number overlay, Title right side */
-.layout3 .floatNumber {
+/* Layout 3 */
+.layout3 .metaNumber {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 300px;
-  opacity: 0.08;
-  margin: 0;
+  top: -100px;
+  left: -60px;
   z-index: 1;
+  margin: 0;
+  font-size: 240px;
+  opacity: 0.15;
   pointer-events: none;
+  transform: none;
 }
 
-.layout3 .floatTitle {
-  position: absolute;
-  top: 40px;
-  right: -100px;
-  left: auto;
-  writing-mode: vertical-rl;
-  font-size: clamp(36px, 4vw, 56px);
-}
-
-.layout3 .floatSubtitle {
-  position: absolute;
-  top: 40px;
-  right: -160px;
-  writing-mode: vertical-rl;
-}
-
-.layout3 .floatYear {
+.layout3 .metaYear {
   top: auto;
+  right: auto;
   bottom: 40px;
   left: -80px;
-  right: auto;
   font-size: 140px;
 }
 
-.layout3 .floatCategory {
+.layout3 .metaCategory {
   top: auto;
-  bottom: 20px;
   right: -30px;
+  bottom: 20px;
   writing-mode: horizontal-tb;
 }
 
-.layout3 .floatDescription {
+.layout3 .metaDesc {
   position: absolute;
   top: -60px;
-  left: 0;
   bottom: auto;
+  left: 0;
 }
 
-/* Layout 4: Diagonal arrangement */
-.layout4 .floatNumber {
+/* Layout 4 */
+.layout4 .metaNumber {
   position: absolute;
   top: -80px;
   right: -60px;
@@ -480,104 +385,78 @@
   font-size: 180px;
 }
 
-.layout4 .floatTitle {
-  position: absolute;
-  bottom: -60px;
-  left: -20px;
-}
-
-.layout4 .floatSubtitle {
-  position: absolute;
-  bottom: -100px;
-  left: -20px;
-}
-
-.layout4 .floatYear {
+.layout4 .metaYear {
   top: 50%;
-  left: -100px;
   right: auto;
   bottom: auto;
+  left: -100px;
   transform: translateY(-50%) rotate(-90deg);
 }
 
-.layout4 .floatCategory {
+.layout4 .metaCategory {
   top: -30px;
-  left: 40px;
   right: auto;
+  left: 40px;
   writing-mode: horizontal-tb;
 }
 
-.layout4 .floatTech {
+.layout4 .metaTech {
+  flex-direction: column;
   position: absolute;
   right: -30px;
   bottom: 40px;
-  flex-direction: column;
 }
 
-.layout4 .floatDescription {
-  display: none;
+.layout4 .metaDesc {
+  position: relative;
+  max-width: 400px;
+  margin-top: 16px;
 }
 
-/* Layout 5: Asymmetric spread */
-.layout5 .floatNumber {
+/* Layout 5 */
+.layout5 .metaNumber {
   position: absolute;
-  bottom: -120px;
-  left: 50%;
   top: auto;
-  transform: translateX(-50%);
+  bottom: -60px;
+  left: 20%;
   margin: 0;
-  font-size: 160px;
+  font-size: 140px;
+  transform: none;
 }
 
-.layout5 .floatTitle {
-  position: absolute;
-  top: -70px;
-  right: -40px;
-  left: auto;
-  text-align: right;
-}
-
-.layout5 .floatSubtitle {
-  position: absolute;
-  top: -30px;
-  right: -40px;
-  text-align: right;
-}
-
-.layout5 .floatYear {
+.layout5 .metaYear {
   top: 30%;
-  left: -120px;
   right: auto;
   bottom: auto;
+  left: -120px;
   font-size: 80px;
 }
 
-.layout5 .floatCategory {
+.layout5 .metaCategory {
   top: auto;
+  right: auto;
   bottom: 30%;
   left: -60px;
-  right: auto;
   writing-mode: horizontal-tb;
   transform: rotate(-90deg);
 }
 
-.layout5 .floatRole {
-  left: auto;
+.layout5 .metaRole {
   right: -60px;
+  left: auto;
   transform: translateY(-50%) rotate(90deg);
 }
 
-.layout5 .floatDescription {
-  position: absolute;
-  bottom: 20px;
-  left: -180px;
-  max-width: 160px;
-  writing-mode: vertical-rl;
-  font-size: 11px;
+.layout5 .metaDesc {
+  position: relative;
+  max-width: 400px;
+  margin-top: 16px;
+  font-size: 13px;
+  writing-mode: horizontal-tb;
 }
 
-/* Layout 6: Compact corner clustering */
-.layout6 .floatNumber {
+/* Layout 6 */
+.layout6 .metaNumber {
   position: absolute;
   top: -40px;
   left: 60%;
@@ -586,139 +465,43 @@
   opacity: 0.15;
 }
 
-.layout6 .floatTitle {
-  position: absolute;
-  bottom: -50px;
-  right: -20px;
-  left: auto;
-}
-
-.layout6 .floatSubtitle {
-  position: absolute;
-  bottom: -90px;
-  right: -20px;
-  left: auto;
-}
-
-.layout6 .floatYear {
+.layout6 .metaYear {
   top: -40px;
-  left: -60px;
   right: auto;
   bottom: auto;
+  left: -60px;
   font-size: 120px;
 }
 
-.layout6 .floatCategory {
+.layout6 .metaCategory {
   top: 60%;
   right: -40px;
 }
 
-.layout6 .floatTech {
-  position: absolute;
-  left: -50px;
-  top: 50%;
-  transform: translateY(-50%);
+.layout6 .metaTech {
   flex-direction: column;
   gap: 8px;
+  position: absolute;
+  top: 50%;
+  left: -50px;
+  transform: translateY(-50%);
 }
 
-.layout6 .floatRole {
+.layout6 .metaRole {
   display: none;
 }
 
-.layout6 .floatDescription {
-  position: absolute;
-  top: 20px;
-  left: -200px;
-  max-width: 180px;
+.layout6 .metaDesc {
+  position: relative;
+  max-width: 400px;
+  margin-top: 16px;
 }
 
 /* ==========================================================================
-  Bottom Bar
-  ========================================================================== */
-
-.bottomBar {
-  position: fixed;
-  bottom: 32px;
-  left: 6vw;
-  right: 6vw;
-  z-index: 200;
-}
-
-.progressTrack {
-  width: 100%;
-  height: 2px;
-  background: var(--border-tertiary);
-  border-radius: 1px;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-
-.progressBar {
-  width: 0%;
-  height: 100%;
-  background: var(--text-primary);
-  border-radius: 1px;
-  transition: width 0.1s linear;
-}
-
-.bottomContent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.bottomHint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.bottomHint svg {
-  animation: slideRight 1.5s ease-in-out infinite;
-}
-
-@keyframes slideRight {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(4px);
-  }
-}
-
-.bottomDots {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  background: var(--border-secondary);
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.dotActive {
-  width: 20px;
-  background: var(--text-primary);
-  border-radius: 3px;
-}
-
-/* ==========================================================================
-   Page Transition Overlay
+   Page Transition
    ========================================================================== */
 
-.transitionOverlay {
+.transition {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -727,8 +510,8 @@
 }
 
 .transitionImage {
-  position: fixed;
   overflow: hidden;
+  position: fixed;
 }
 
 .transitionImage img {
@@ -742,33 +525,17 @@
    ========================================================================== */
 
 @media (max-width: 1024px) {
-  .header {
-    padding: 20px 4vw;
+  .activeInfo {
+    bottom: 60px;
+    left: 40px;
   }
 
-  .headerTitle {
-    font-size: 20px;
-  }
-
-  .headerCount {
-    font-size: 24px;
-  }
-
-  .currentProject {
-    left: 4vw;
-    bottom: 100px;
-  }
-
-  .currentTitle {
-    font-size: clamp(28px, 5vw, 48px);
-  }
-
-  .horizontalContainer {
-    padding: 0 4vw;
+  .gallerySlider {
     gap: 280px;
+    padding: 0 4vw;
   }
 
-  .cardWrapper {
+  .project {
     padding: 60px 50px;
   }
 
@@ -777,232 +544,167 @@
     height: 280px;
   }
 
-  .wrapperLarge .card {
+  .sizeLarge .card {
     width: 500px;
     height: 320px;
   }
 
-  .wrapperSmall .card {
+  .sizeSmall .card {
     width: 360px;
     height: 230px;
   }
 
-  .floatNumber {
-    font-size: 120px;
+  .metaNumber {
     top: -10px;
     left: -20px;
+    font-size: 120px;
   }
 
-  .floatTitle {
-    font-size: 36px;
-    left: -15px;
-  }
-
-  .floatSubtitle {
-    font-size: 16px;
-  }
-
-  .floatYear {
-    font-size: 48px;
+  .metaYear {
     right: -30px;
+    font-size: 48px;
   }
 
-  .floatCategory {
+  .metaCategory {
     right: -40px;
   }
 
-  .floatTech {
+  .metaTech {
     right: -50px;
   }
 
-  .floatRole {
+  .metaRole {
     left: -50px;
   }
 
-  .floatDescription {
-    font-size: 11px;
+  .metaDesc {
     bottom: -60px;
-  }
-
-  .bottomBar {
-    left: 4vw;
-    right: 4vw;
-    bottom: 24px;
+    font-size: 11px;
   }
 }
 
 /* ==========================================================================
-   Responsive - Mobile (Vertical Layout)
+   Responsive - Mobile
    ========================================================================== */
 
 @media (max-width: 768px) {
-  .section {
+  .gallery {
+    overflow: visible;
     height: auto;
     min-height: 100vh;
-    overflow: visible;
   }
 
-  .header {
-    position: relative;
-    padding: 20px 5vw;
-    margin-bottom: 20px;
-  }
-
-  .headerTitle {
-    font-size: 18px;
-  }
-
-  .headerCount {
-    font-size: 20px;
-  }
-
-  .currentProject {
+  .activeInfo {
     display: none;
   }
 
-  .scrollWrapper {
+  .galleryTrack {
     height: auto;
   }
 
-  .horizontalContainer {
+  .gallerySlider {
     flex-direction: column;
     align-items: stretch;
-    height: auto;
-    padding: 0 5vw 100px;
     gap: 32px;
+    padding: 0 5vw 100px;
+    height: auto;
   }
 
-  /* Reset wrapper sizes for mobile */
-  .cardWrapper,
-  .wrapperLarge,
-  .wrapperSmall,
-  .wrapperMedium,
-  .wrapperTall,
-  .wrapperWide {
+  .project,
+  .sizeLarge,
+  .sizeSmall,
+  .sizeMedium,
+  .sizeTall,
+  .sizeWide {
+    align-self: stretch;
     margin: 0;
     padding: 40px 0;
-    align-self: stretch;
   }
 
-  /* Reset card sizes for mobile */
   .card,
-  .wrapperLarge .card,
-  .wrapperSmall .card,
-  .wrapperMedium .card,
-  .wrapperTall .card,
-  .wrapperWide .card {
+  .sizeLarge .card,
+  .sizeSmall .card,
+  .sizeMedium .card,
+  .sizeTall .card,
+  .sizeWide .card {
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 10;
   }
 
-  /* Only show first 6 wrappers on mobile */
-  .cardWrapper:nth-child(n + 7) {
+  .project:nth-child(n + 7) {
     display: none;
   }
 
-  /* Mobile: Stack floating elements */
-  .floatNumber {
+  .metaNumber {
     position: relative;
     top: auto;
     left: auto;
-    font-size: 80px;
     margin-bottom: -30px;
+    font-size: 80px;
   }
 
-  .floatCategory {
+  .metaCategory {
     position: relative;
     top: auto;
     right: auto;
-    writing-mode: horizontal-tb;
     margin-bottom: 12px;
+    writing-mode: horizontal-tb;
   }
 
-  .floatTitle {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    font-size: 28px;
-    margin-top: 16px;
-  }
-
-  .floatSubtitle {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    font-size: 16px;
-    margin-top: 4px;
-  }
-
-  .floatYear {
+  .metaYear {
     display: none;
   }
 
-  .floatTech {
+  .metaTech {
+    flex-direction: row;
     position: relative;
     top: auto;
     right: auto;
-    transform: none;
-    flex-direction: row;
     margin-top: 12px;
+    transform: none;
   }
 
-  .floatRole {
+  .metaRole {
     display: none;
   }
 
-  .floatDescription {
+  .metaDesc {
     position: relative;
     bottom: auto;
-    font-size: 12px;
     margin-top: 12px;
-  }
-
-  .bottomBar {
-    display: none;
+    font-size: 12px;
   }
 }
 
 /* ==========================================================================
-   Mobile Small
+   Responsive - Mobile Small
    ========================================================================== */
 
 @media (max-width: 480px) {
-  .header {
-    padding: 16px 4vw;
-  }
-
-  .horizontalContainer {
-    padding: 0 4vw 80px;
+  .gallerySlider {
     gap: 24px;
+    padding: 0 4vw 80px;
   }
 
-  .cardWrapper {
+  .project {
     padding: 30px 0;
   }
 
-  .floatNumber {
-    font-size: 60px;
+  .metaNumber {
     margin-bottom: -20px;
+    font-size: 60px;
   }
 
-  .floatCategory {
+  .metaCategory {
     font-size: 9px;
   }
 
-  .floatTitle {
-    font-size: 24px;
-  }
-
-  .floatSubtitle {
-    font-size: 14px;
-  }
-
-  .floatDescription {
+  .metaDesc {
     font-size: 11px;
   }
 
-  .floatTech span {
+  .metaTech span {
     font-size: 9px;
   }
 }
