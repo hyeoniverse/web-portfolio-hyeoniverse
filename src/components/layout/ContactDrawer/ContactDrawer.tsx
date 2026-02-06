@@ -20,7 +20,10 @@ interface SubmittedData {
 interface FormState {
   errors: {
     getFormErrors?: () => readonly { message: string }[];
-    getAllFieldErrors?: () => readonly [string, readonly { message: string }[]][];
+    getAllFieldErrors?: () => readonly [
+      string,
+      readonly { message: string }[],
+    ][];
   } | null;
   result: unknown;
   submitting: boolean;
@@ -121,11 +124,11 @@ export default function ContactDrawer({
           initial={{ opacity: 0 }}
           animate={{
             opacity: 1,
-            transition: { duration: 0.5, ease: "easeOut" },
+            transition: { duration: 0.7, ease: "easeOut" },
           }}
           exit={{
             opacity: 0,
-            transition: { duration: 0.4, delay: 0.35, ease: "easeInOut" },
+            transition: { duration: 0.4, delay: 0.7, ease: "easeOut" },
           }}
           onClick={handleBackdropClick}
         >
@@ -135,13 +138,12 @@ export default function ContactDrawer({
             initial={{ x: "-100%" }}
             animate={{
               x: 0,
-              transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] },
+              transition: { duration: 0.9, ease: [0.25, 0.1, 0.25, 1] },
             }}
             exit={{
               x: "-100%",
               transition: {
-                duration: 0.5,
-                delay: 0.15,
+                duration: 0.8,
                 ease: [0.4, 0, 0.6, 1],
               },
             }}
@@ -417,9 +419,7 @@ export default function ContactDrawer({
 
                       {siteConfig.emailService.enableFileUpload && (
                         <div
-                          className={
-                            fileName ? styles.fileWrapper : undefined
-                          }
+                          className={fileName ? styles.fileWrapper : undefined}
                         >
                           <input
                             ref={fileInputRef}
@@ -799,6 +799,6 @@ export default function ContactDrawer({
         </motion.div>
       )}
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }
