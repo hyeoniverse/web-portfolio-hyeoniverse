@@ -36,6 +36,12 @@ const designFeatures = [
     description: "mix-blend-mode: difference를 활용해 배경에 따라 자동으로 반전되는 네비게이션을 구현했습니다.",
     tech: ["CSS Blend Mode", "Fixed Nav", "z-index"],
   },
+  {
+    icon: "05",
+    title: "StaggerText Animation",
+    description: "텍스트를 개별 문자로 분리하여 호버 시 순차적 외곽선 애니메이션을 구현했습니다. 호버 해제 시 역순으로 색상이 채워지며 stroke가 유지됩니다.",
+    tech: ["React State", "CSS text-stroke", "Stagger Delay"],
+  },
 ];
 
 const techStack = [
@@ -107,6 +113,20 @@ lenis.on("scroll", () => {
     workImageOffsetY.set(offset);
   }
 });`,
+  },
+  {
+    title: "StaggerText Component",
+    description: "호버 시 순차적 외곽선 애니메이션, 해제 시 역순 색상 복원",
+    code: `// 호버: 순방향 (첫 글자 → 마지막)
+// 해제: 역방향 (마지막 → 첫 글자), stroke 유지
+const forwardDelay = i * 0.04;
+const reverseDelay = (totalChars - 1 - i) * 0.04;
+const delay = isHovered ? forwardDelay : reverseDelay;
+
+// CSS: step-end로 즉시 전환
+.char { transition: color 0.01s step-end; }
+.charHovered { color: transparent; -webkit-text-stroke: 1px; }
+.charExiting { -webkit-text-stroke: 1px; } // stroke 유지`,
   },
 ];
 

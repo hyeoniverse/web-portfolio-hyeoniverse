@@ -19,6 +19,7 @@
 - **Scroll-Triggered Animations**: GSAP ScrollTrigger를 활용한 스크롤 기반 등장 애니메이션
 - **Scroll Velocity Parallax**: Lenis velocity를 활용한 스크롤 속도 기반 이미지 패럴랙스
 - **Mix-Blend Navigation**: mix-blend-mode: difference를 활용한 자동 반전 네비게이션
+- **StaggerText**: 호버 시 글자별 순차 애니메이션 효과 컴포넌트
 
 ## 시작하기
 
@@ -31,6 +32,53 @@ pnpm dev
 ```
 
 [http://localhost:3000](http://localhost:3000)에서 결과를 확인할 수 있습니다.
+
+---
+
+## Components
+
+### StaggerText
+
+텍스트를 개별 문자로 분리하여 호버 시 순차적으로 외곽선 애니메이션을 적용하는 컴포넌트입니다.
+
+**경로**: `src/components/effects/StaggerText`
+
+**기능**:
+- 호버 시 첫 글자부터 순차적으로 외곽선(stroke)으로 변경
+- 호버 해제 시 마지막 글자부터 역순으로 색상이 채워짐 (stroke 유지)
+- 커스텀 스트로크 색상 및 두께 지원
+- 글자당 딜레이 시간 조절 가능
+
+**사용법**:
+
+```tsx
+import StaggerText from "@/components/effects/StaggerText";
+
+// 기본 사용
+<StaggerText>Hello World</StaggerText>
+
+// 커스텀 옵션
+<StaggerText
+  className={styles.title}
+  strokeColor="var(--text-primary)"  // 스트로크 색상
+  strokeWidth={2}                     // 스트로크 두께 (기본: 1px)
+  delayPerChar={0.05}                 // 글자당 딜레이 (기본: 0.04초)
+  hoverEffect={false}                 // 호버 효과 비활성화
+>
+  Custom Text
+</StaggerText>
+```
+
+**Props**:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `string` | (필수) | 표시할 텍스트 |
+| `className` | `string` | - | 추가 CSS 클래스 |
+| `strokeColor` | `string` | `currentColor` | 스트로크 색상 (CSS 변수 또는 색상값) |
+| `strokeWidth` | `number` | `1` | 스트로크 두께 (px) |
+| `delayPerChar` | `number` | `0.04` | 글자당 딜레이 (초) |
+| `hoverEffect` | `boolean` | `true` | 호버 효과 활성화 여부 |
 
 ---
 
