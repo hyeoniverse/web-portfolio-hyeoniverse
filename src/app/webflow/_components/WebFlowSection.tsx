@@ -149,6 +149,12 @@ const troubleShootingItems = [
     solution: "useRef<ReturnType<typeof setTimeout> | undefined>(undefined)로 명시적 초기화",
     keyInsight: "clearTimeout은 undefined를 허용하지만 null은 허용하지 않음",
   },
+  {
+    problem: "GSAP ScrollTrigger 수평 무한 스크롤 구현",
+    cause: "ScrollTrigger는 유한한 스크롤 범위를 가지며, 끝에 도달 시 역방향 스크롤로 보이는 문제 발생",
+    solution: "스크롤 거리를 콘텐츠의 10배로 설정하고, modulo 연산으로 컨테이너 x 위치를 순환시켜 한 방향 무한 스크롤 구현",
+    keyInsight: "스크롤 위치 텔레포트 대신 긴 스크롤 범위 + 시각적 위치 루프 방식이 더 자연스러움",
+  },
 ];
 
 export default function WebFlowSection() {
