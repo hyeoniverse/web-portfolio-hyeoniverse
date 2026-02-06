@@ -42,6 +42,12 @@ const designFeatures = [
     description: "텍스트를 개별 문자로 분리하여 호버 시 순차적 외곽선 애니메이션을 구현했습니다. 호버 해제 시 역순으로 색상이 채워지며 stroke가 유지됩니다.",
     tech: ["React State", "CSS text-stroke", "Stagger Delay"],
   },
+  {
+    icon: "06",
+    title: "Lighthouse Performance Optimization",
+    description: "Lighthouse 분석 기반 성능 최적화. reCAPTCHA 지연 로딩으로 초기 ~784KB JS 제거, Preconnect 힌트로 400ms 단축, WCAG 색상 대비 및 접근성 수정을 적용했습니다.",
+    tech: ["Lazy Loading", "Preconnect", "WCAG", "Accessibility"],
+  },
 ];
 
 const techStack = [
@@ -77,6 +83,11 @@ const designProcess = [
     step: "04",
     title: "무한 스크롤 구현",
     description: "Lenis infinite scroll과 Bridge 섹션을 결합하여 자연스러운 순환 스크롤 경험을 완성했습니다.",
+  },
+  {
+    step: "05",
+    title: "Lighthouse 성능 최적화",
+    description: "Lighthouse Desktop/Mobile 보고서를 분석하여 reCAPTCHA 지연 로딩, Preconnect 힌트, WCAG 색상 대비 수정, 접근성(heading order, aria-label) 개선을 적용했습니다.",
   },
 ];
 
@@ -128,6 +139,25 @@ const delay = isHovered ? forwardDelay : reverseDelay;
 .charHovered { color: transparent; -webkit-text-stroke: 1px; }
 .charExiting { -webkit-text-stroke: 1px; } // stroke 유지`,
   },
+  {
+    title: "reCAPTCHA Lazy Loading",
+    description: "유저 인터랙션 기반 서드파티 스크립트 지연 로딩",
+    code: `const [shouldLoad, setShouldLoad] = useState(false);
+
+useEffect(() => {
+  const load = () => setShouldLoad(true);
+  const timer = setTimeout(load, 4000);
+  const events = ["scroll", "click", "touchstart", "keydown"];
+  events.forEach((e) =>
+    document.addEventListener(e, () => { load(); cleanup(); },
+      { once: true, passive: true })
+  );
+  return cleanup;
+}, []);
+
+if (!shouldLoad) return <>{children}</>;
+return <GoogleReCaptchaProvider ...>{children}</GoogleReCaptchaProvider>;`,
+  },
 ];
 
 const troubleShootingItems = [
@@ -154,6 +184,12 @@ const troubleShootingItems = [
     cause: "ScrollTrigger는 유한한 스크롤 범위를 가지며, 끝에 도달 시 역방향 스크롤로 보이는 문제 발생",
     solution: "스크롤 거리를 콘텐츠의 10배로 설정하고, modulo 연산으로 컨테이너 x 위치를 순환시켜 한 방향 무한 스크롤 구현",
     keyInsight: "스크롤 위치 텔레포트 대신 긴 스크롤 범위 + 시각적 위치 루프 방식이 더 자연스러움",
+  },
+  {
+    problem: "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)",
+    cause: "GoogleReCaptchaProvider가 앱 루트를 감싸며 초기 로드 시 ~784KB JS를 즉시 다운로드. 메인 스레드 280ms 차단, Google 도메인 Preconnect 부재로 400ms 추가 지연",
+    solution: "유저 인터랙션(scroll/click/touch/keydown) 또는 4초 타임아웃 후 reCAPTCHA 로드. Preconnect 힌트 추가. WCAG 색상 대비 및 heading order, aria-label 접근성 수정",
+    keyInsight: "서드파티 스크립트는 초기 로드에서 제외하고 유저 인터랙션 후 로드하면 LCP/TTI에 큰 영향. mix-blend-mode: difference는 Lighthouse가 blend 전 색상으로 대비를 측정하므로 오탐 가능",
   },
 ];
 

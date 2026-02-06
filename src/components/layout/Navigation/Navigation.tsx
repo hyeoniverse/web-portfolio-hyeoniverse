@@ -114,7 +114,7 @@ export default function Navigation() {
             setTimeout(() => setIsLangAnimating(false), 300);
             setIsLangHovered(false);
           }}
-          aria-label={`Switch to ${language === "ko" ? "English" : "Korean"}`}
+          aria-label={`${language === "ko" ? "KO" : "EN"} - Switch to ${language === "ko" ? "English" : "Korean"}`}
         >
           <span className={`${styles.langText} ${isLangAnimating && !isLangClicking ? styles.animating : ""} ${isLangClicking ? styles.clicking : ""}`}>
             {displayLang === "ko" ? "KO" : "EN"}

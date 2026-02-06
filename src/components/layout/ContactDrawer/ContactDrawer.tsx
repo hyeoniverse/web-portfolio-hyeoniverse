@@ -94,6 +94,7 @@ export default function ContactDrawer({
     if (badge) {
       badge.style.visibility = isOpen ? "visible" : "hidden";
       badge.style.opacity = isOpen ? "1" : "0";
+      badge.style.zIndex = isOpen ? "9999" : "";
       badge.style.transition = "visibility 0.3s, opacity 0.3s";
     }
 
@@ -102,6 +103,7 @@ export default function ContactDrawer({
       if (badge) {
         badge.style.visibility = "hidden";
         badge.style.opacity = "0";
+        badge.style.zIndex = "";
       }
     };
   }, [isOpen, recaptchaEnabled, recaptchaVersion]);

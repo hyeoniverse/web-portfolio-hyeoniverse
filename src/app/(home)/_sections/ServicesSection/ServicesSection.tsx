@@ -36,9 +36,9 @@ const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
               <div className={`${styles.itemLine} horizontal-rule`} />
               <div className={styles.itemContent}>
                 <span className={styles.itemNumber}>{service.num}</span>
-                <h3 className={styles.itemTitle}>
+                <h2 className={styles.itemTitle}>
                   {t(`services.${service.key}.title`)}
-                </h3>
+                </h2>
                 <span className={styles.itemDescription}>
                   {t(`services.${service.key}.desc`)}
                 </span>
