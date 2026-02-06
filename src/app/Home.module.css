@@ -228,6 +228,14 @@
   max-width: var(--width-md);
 }
 
+.aboutTextBlock {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.aboutTextBlock:last-child {
+  margin-bottom: 0;
+}
+
 .aboutText {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--fluid-font-size-3xl);
@@ -235,6 +243,17 @@
   line-height: var(--line-height-relaxed);
   color: var(--text-primary);
   text-align: center;
+}
+
+.aboutCaption {
+  margin-top: var(--spacing-md);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--text-tertiary);
+  text-align: center;
+  letter-spacing: 0.02em;
 }
 
 .textHighlight {
@@ -1689,6 +1708,10 @@
 
   .aboutText {
     font-size: var(--font-size-lg);
+  }
+
+  .aboutCaption {
+    font-size: var(--font-size-xs);
   }
 
   .marqueeText {

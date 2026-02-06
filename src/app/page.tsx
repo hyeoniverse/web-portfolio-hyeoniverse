@@ -932,14 +932,26 @@ export default function HomePage() {
       <section className={styles.about} ref={aboutRef}>
         <div className={`${styles.aboutLine} about-line`} />
         <div className={styles.aboutContent}>
-          <p className={`${styles.aboutText} about-text`}>
-            I craft digital experiences where
-            <span className="highlighted-text"> aesthetics </span>
-            meet
-            <span className="highlighted-text"> functionality</span>. Focused on
-            creating memorable interactions through thoughtful design and clean
-            code.
-          </p>
+          <div className={`${styles.aboutTextBlock} about-text`}>
+            <p className={styles.aboutText}>
+              I craft digital experiences where
+              <span className="highlighted-text"> aesthetics </span>
+              meet
+              <span className="highlighted-text"> functionality</span>.
+            </p>
+            <p className={styles.aboutCaption}>
+              미학과 기능이 만나는 디지털 경험을 만듭니다.
+            </p>
+          </div>
+          <div className={`${styles.aboutTextBlock} about-text`}>
+            <p className={styles.aboutText}>
+              Focused on creating memorable interactions through thoughtful
+              design and clean code.
+            </p>
+            <p className={styles.aboutCaption}>
+              세심한 디자인과 깔끔한 코드로 기억에 남는 인터랙션을 만드는 데 집중합니다.
+            </p>
+          </div>
         </div>
         <div className={`${styles.aboutLine} about-line`} />
       </section>
