@@ -324,7 +324,6 @@ export default function HomePage() {
           smoothWorkImageY={scrollVelocity.smoothWorkImageY}
           magneticOffsets={magneticRepel.magneticOffsets}
           setWorkCircleRef={magneticRepel.setWorkCircleRef}
-          expandingWork={workInteraction.expandingWork}
           pressingWork={workInteraction.pressingWork}
           hoveringWork={workInteraction.hoveringWork}
           handlePressStart={workInteraction.handlePressStart}

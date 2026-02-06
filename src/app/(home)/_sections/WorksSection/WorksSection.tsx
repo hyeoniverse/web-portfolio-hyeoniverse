@@ -2,11 +2,10 @@
 
 import { forwardRef, useCallback, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence, MotionValue } from "framer-motion";
+import { motion, MotionValue } from "framer-motion";
 import { worksData, WorkItem } from "@/data/works";
 import {
   MagneticOffset,
-  ExpandingWork,
   PressingWork,
   HoveringWork,
 } from "@/types";
@@ -23,7 +22,6 @@ interface WorksSectionProps {
   smoothWorkImageY: MotionValue<number>;
   magneticOffsets: { [key: string]: MagneticOffset };
   setWorkCircleRef: (id: string, el: HTMLDivElement | null) => void;
-  expandingWork: ExpandingWork | null;
   pressingWork: PressingWork | null;
   hoveringWork: HoveringWork | null;
   handlePressStart: (
@@ -42,7 +40,6 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
       smoothWorkImageY,
       magneticOffsets,
       setWorkCircleRef,
-      expandingWork,
       pressingWork,
       hoveringWork,
       handlePressStart,
@@ -283,56 +280,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
           </div>
         </section>
 
-        {/* Expanding Work Overlay */}
-        <AnimatePresence>
-          {expandingWork && (
-            <motion.div
-              className={styles.expandOverlay}
-              initial={{
-                position: "fixed",
-                top: expandingWork.rect.top,
-                left: expandingWork.rect.left,
-                width: expandingWork.rect.width,
-                height: expandingWork.rect.height,
-                borderRadius: "50%",
-                zIndex: 9999,
-                rotate: 0,
-              }}
-              animate={{
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                borderRadius: "0%",
-                rotate: [0, -3, 2, 0],
-              }}
-              transition={{
-                duration: 0.8,
-                ease: [0.76, 0, 0.24, 1],
-                rotate: {
-                  duration: 0.6,
-                  times: [0, 0.3, 0.6, 1],
-                  ease: "easeOut",
-                },
-              }}
-            >
-              <motion.img
-                src={expandingWork.image}
-                alt=""
-                className={styles.expandImage}
-                initial={{ scale: 1.5, filter: "brightness(1.2)" }}
-                animate={{ scale: 1.1, filter: "brightness(1)" }}
-                transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-              />
-              <motion.div
-                className={styles.expandFlash}
-                initial={{ opacity: 0.8 }}
-                animate={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Page transition is handled globally by PageTransitionOverlay */}
       </>
     );
   }
