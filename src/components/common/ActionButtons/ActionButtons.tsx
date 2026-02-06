@@ -22,7 +22,7 @@ import { useActionHandlers } from "@/components/common/ActionButtons/useActionHa
 import { expandedMenuVariants, themeToggleRotate } from "@/animations";
 
 import styles from "./ActionButtons.module.css";
-import ActionButton from "@/components/common/ActionButtons/ ActionButton";
+import ActionButton from "@/components/common/ActionButtons/ActionButton";
 
 export default function ActionButtons() {
   const [isExpanded, setIsExpanded] = useState(false);

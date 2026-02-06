@@ -76,10 +76,19 @@
   letter-spacing: 0.03em;
 }
 
+.langText:hover {
+  color: var(--text-accent-secondary-alt);
+}
+
 .themeIconWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
+  mix-blend-mode: exclusion;
+}
+
+.themeIconWrapper:hover {
+  color: var(--text-accent-secondary-alt);
 }
 
 .themeIconWrapper.animating {

@@ -3,32 +3,13 @@
 import { forwardRef, useCallback } from "react";
 import { motion, AnimatePresence, MotionValue } from "framer-motion";
 import { worksData, WorkItem } from "@/data/works";
+import {
+  MagneticOffset,
+  ExpandingWork,
+  PressingWork,
+  HoveringWork,
+} from "@/types";
 import styles from "./WorksSection.module.css";
-
-interface MagneticOffset {
-  x: number;
-  y: number;
-  rotation: number;
-}
-
-interface ExpandingWork {
-  id: string;
-  rect: DOMRect;
-  image: string;
-}
-
-interface PressingWork {
-  id: string;
-  scale: number;
-  element: HTMLElement | null;
-}
-
-interface HoveringWork {
-  id: string;
-  progress: number;
-  scale: number;
-  element: HTMLElement | null;
-}
 
 interface WorksSectionProps {
   smoothWorkImageY: MotionValue<number>;

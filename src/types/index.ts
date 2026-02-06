@@ -162,5 +162,36 @@ export interface ModalItem {
 // Common Types
 // ============================================
 export type SoundType = "click" | "hover" | "success" | "error" | "typing";
-export type Theme = "dark" | "light" | "system";
+export type Theme = "dark" | "light" | "system" | null;
 export type TransitionDirection = "down" | "up";
+
+// ============================================
+// Work Interaction Types
+// ============================================
+export interface ExpandingWork {
+  id: string;
+  rect: DOMRect;
+  image: string;
+}
+
+export interface PressingWork {
+  id: string;
+  scale: number;
+  element: HTMLElement | null;
+}
+
+export interface HoveringWork {
+  id: string;
+  progress: number;
+  scale: number;
+  element: HTMLElement | null;
+}
+
+// ============================================
+// Magnetic Effect Types
+// ============================================
+export interface MagneticOffset {
+  x: number;
+  y: number;
+  rotation: number;
+}

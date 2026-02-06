@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import WebFlowSection from "../WebFlowSection/WebFlowSection";
+import WebFlowSection from "./_components/WebFlowSection";
 
 export default function WebFlowPage() {
   return (

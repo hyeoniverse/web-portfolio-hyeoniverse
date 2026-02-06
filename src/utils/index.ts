@@ -21,11 +21,5 @@ export {
   scrollToSection,
   scrollToTop,
   scrollToBottom,
-  preventBodyScroll,
-  createHorizontalScroll,
   setLenisInstance,
-  getLenisInstance,
-  stopScroll,
-  startScroll,
-  refreshScrollTrigger,
 } from "./scroll";

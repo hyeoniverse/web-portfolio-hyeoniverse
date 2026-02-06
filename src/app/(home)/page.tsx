@@ -1,11 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import {
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+import { useMotionValue, useSpring, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -28,7 +24,7 @@ import CTASection from "./_sections/CTASection";
 import BridgeSection from "./_sections/BridgeSection";
 
 // Components
-import ContactDrawer from "@/components/home/ContactDrawer";
+import ContactDrawer from "@/components/layout/ContactDrawer";
 
 import styles from "./Home.module.css";
 
@@ -76,12 +72,12 @@ export default function HomePage() {
   const floatX = useTransform(
     smoothMouseX,
     [0, typeof window !== "undefined" ? window.innerWidth : 1920],
-    [-30, 30]
+    [-30, 30],
   );
   const floatY = useTransform(
     smoothMouseY,
     [0, typeof window !== "undefined" ? window.innerHeight : 1080],
-    [-30, 30]
+    [-30, 30],
   );
 
   // Pre-computed transforms for ovals
@@ -91,9 +87,18 @@ export default function HomePage() {
   const ctaOvalY = useTransform(floatY, (v) => v * 0.3);
 
   // Service Y transforms for scroll compression
-  const serviceY0 = useTransform(scrollVelocity.smoothServicesGap, (v) => v * 3);
-  const serviceY1 = useTransform(scrollVelocity.smoothServicesGap, (v) => v * 2);
-  const serviceY2 = useTransform(scrollVelocity.smoothServicesGap, (v) => v * 1);
+  const serviceY0 = useTransform(
+    scrollVelocity.smoothServicesGap,
+    (v) => v * 3,
+  );
+  const serviceY1 = useTransform(
+    scrollVelocity.smoothServicesGap,
+    (v) => v * 2,
+  );
+  const serviceY2 = useTransform(
+    scrollVelocity.smoothServicesGap,
+    (v) => v * 1,
+  );
 
   // Mouse position tracking
   useEffect(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import WorksSection from "../WorksSection/WorksSection";
+import WorksSection from "./_components/WorksSection";
 
 export default function WorksPage() {
   return (

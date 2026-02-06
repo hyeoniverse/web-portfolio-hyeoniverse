@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, ReactNode } from "react";
 import { Mail } from "lucide-react";
 
 import { SoundType } from "@/types";
-import ContactForm from "@/app/ContactSection/_components/ContactForm";
+import ContactForm from "@/components/common/ContactForm/ContactForm";
 import { useAppStore } from "@/stores/appStore";
 import { scrollToBottom, scrollToTop } from "@/utils/index";
 

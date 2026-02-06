@@ -3,31 +3,13 @@
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { WorkItem } from "@/data/works";
+import { ExpandingWork, PressingWork, HoveringWork } from "@/types";
 import {
   LONG_PRESS_THRESHOLD,
   LONG_HOVER_THRESHOLD,
   MAX_SCALE,
   MIN_SCALE,
 } from "@/constants/animation";
-
-interface ExpandingWork {
-  id: string;
-  rect: DOMRect;
-  image: string;
-}
-
-interface PressingWork {
-  id: string;
-  scale: number;
-  element: HTMLElement | null;
-}
-
-interface HoveringWork {
-  id: string;
-  progress: number;
-  scale: number;
-  element: HTMLElement | null;
-}
 
 interface UseWorkInteractionReturn {
   expandingWork: ExpandingWork | null;

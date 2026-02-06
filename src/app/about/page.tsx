@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import AboutMeSection from "../AboutMeSection/AboutMeSection";
+import AboutMeSection from "./_components/AboutMeSection";
 
 export default function AboutPage() {
   return (
