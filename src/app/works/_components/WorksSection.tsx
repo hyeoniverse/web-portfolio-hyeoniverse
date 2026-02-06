@@ -2,6 +2,7 @@
 
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -92,9 +93,11 @@ const ProjectCard = ({
     </div>
 
     <div className={styles.cardImageWrapper}>
-      <img
+      <Image
         src={project.image}
         alt={project.title}
+        fill
+        sizes="(max-width: 768px) 100vw, 380px"
         className={styles.cardImage}
       />
       <div className={styles.cardImageOverlay} />

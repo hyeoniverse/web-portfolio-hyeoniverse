@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, useCallback } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence, MotionValue } from "framer-motion";
 import { worksData, WorkItem } from "@/data/works";
 import {
@@ -126,14 +127,18 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
                       className={styles.imageInner}
                       style={{ y: smoothWorkImageY }}
                     >
-                      <img
+                      <Image
                         src={work.main}
-                        alt=""
+                        alt={work.title || ""}
+                        fill
+                        sizes="120px"
                         className={styles.image}
                       />
-                      <img
+                      <Image
                         src={work.hover}
-                        alt=""
+                        alt={work.title || ""}
+                        fill
+                        sizes="120px"
                         className={styles.imageHover}
                       />
                     </motion.div>

@@ -122,6 +122,9 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       (window as typeof window & { lenis?: Lenis }).lenis = lenisInstance;
     }
 
+    // Capture the current raf ID for cleanup
+    const currentRafId = rafRef.current;
+
     return () => {
       // Cleanup
       setLenisInstance(null);
@@ -129,8 +132,8 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       gsap.ticker.remove((time) => lenisInstance.raf(time * 1000));
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
 
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
+      if (currentRafId) {
+        cancelAnimationFrame(currentRafId);
       }
     };
   }, [options.duration, options.smoothWheel, options.wheelMultiplier, options.touchMultiplier, options.infinite]);
