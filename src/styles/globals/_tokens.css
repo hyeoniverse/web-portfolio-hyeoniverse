@@ -256,8 +256,8 @@
   --border-secondary: var(--color-neutral-alpha-30);
   --border-tertiary: var(--color-neutral-alpha-10);
   --border-subtle: var(--color-neutral-alpha-5);
-  --border-white: var(--color-white-alpha-30);
-  --border-black: var(--color-gray-alpha-30);
+  --border-white: var(--color-white-alpha-100);
+  --border-black: var(--color-gray-alpha-100);
   --border-accent-primary: var(--color-primary-alpha-50);
   --border-accent-secondary: var(--color-accent-light);
 
