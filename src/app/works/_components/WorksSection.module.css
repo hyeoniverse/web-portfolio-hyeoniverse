@@ -76,94 +76,98 @@
   display: flex;
   align-items: center;
   height: 100vh;
-  padding: 0 30vw;
-  gap: 40px;
+  padding: 0 5vw;
+  gap: 400px;
   will-change: transform;
 }
 
 /* ==========================================================================
-   Cards - Base Styles
+   Card Wrapper - Contains Card + External Info
    ========================================================================== */
 
-.card {
+.cardWrapper {
   position: relative;
   flex-shrink: 0;
-  cursor: pointer;
-  overflow: hidden;
-  border-radius: 8px;
-  transform-style: preserve-3d;
-  will-change: transform;
-  transition: overflow 0.1s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 60px 80px 180px;
 }
 
-.card:hover {
-  z-index: 10;
-}
-
-.cardHovering {
-  z-index: 100 !important;
-}
-
-/* Card Sizes - Landscape orientation */
-.cardLarge {
-  width: 560px;
-  height: 380px;
+/* Wrapper Sizes & Positions */
+.wrapperLarge {
   align-self: flex-start;
-  margin-top: 10vh;
+  margin-top: 6vh;
 }
 
-.cardSmall {
-  width: 420px;
-  height: 280px;
+.wrapperSmall {
   align-self: flex-end;
-  margin-bottom: 12vh;
+  margin-bottom: 6vh;
 }
 
-.cardMedium {
-  width: 500px;
-  height: 320px;
+.wrapperMedium {
   align-self: center;
 }
 
-.cardTall {
-  width: 480px;
-  height: 300px;
+.wrapperTall {
   align-self: flex-start;
-  margin-top: 8vh;
+  margin-top: 4vh;
 }
 
-.cardWide {
-  width: 620px;
-  height: 360px;
+.wrapperWide {
   align-self: flex-end;
-  margin-bottom: 10vh;
+  margin-bottom: 4vh;
 }
 
-/* Card Number - Large Typography */
-.cardNumber {
-  position: absolute;
-  top: -20px;
-  right: -10px;
-  z-index: 25;
-  pointer-events: none;
+/* ==========================================================================
+  Cards - Base Styles
+  ========================================================================== */
+
+.card {
+  position: relative;
+  width: 520px;
+  height: 340px;
+  flex-shrink: 0;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: var(--radius-4xl);
+  transform-style: preserve-3d;
+  will-change: transform;
+  z-index: 1;
 }
 
-.cardNumber span {
-  font-family: var(--font-instrument), serif;
-  font-size: 120px;
-  font-weight: 400;
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--border-tertiary);
-  line-height: 1;
-  opacity: 0.7;
-  transition: all 0.4s ease;
+.card:hover {
+  z-index: 5;
 }
 
-.card:hover .cardNumber span {
-  -webkit-text-stroke: 1.5px var(--border-white);
-  opacity: 1;
-  -webkit-text-stroke-width: 2px;
-  transform: translate(-5px, 5px);
+.cardHovering {
+  z-index: 10 !important;
+}
+
+.wrapperLarge .card {
+  width: 680px;
+  height: 420px;
+}
+
+.wrapperSmall .card {
+  width: 440px;
+  height: 280px;
+}
+
+.wrapperMedium .card {
+  width: 560px;
+  height: 360px;
+}
+
+.wrapperTall .card {
+  width: 500px;
+  height: 380px;
+}
+
+.wrapperWide .card {
+  width: 720px;
+  height: 400px;
 }
 
 /* Card Image */
@@ -172,7 +176,7 @@
   inset: 0;
   overflow: hidden;
   will-change: transform;
-  border-radius: 8px;
+  border-radius: var(--radius-4xl);
   transform-origin: center center;
 }
 
@@ -184,108 +188,454 @@
   transform-origin: center center;
 }
 
-/* Card Content Overlay */
-.cardContent {
+/* ==========================================================================
+   Floating Typography - Bold Layout
+   ========================================================================== */
+
+/* Large Number - Massive, overlapping */
+.floatNumber {
+  position: relative;
+  z-index: 50;
+  font-family: var(--font-instrument), serif;
+  font-size: 220px;
+  font-weight: 400;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--text-tertiary);
+  line-height: 0.7;
+  letter-spacing: -0.06em;
+  margin-bottom: -80px;
+  margin-left: -30px;
+  transition: all 0.4s ease;
+  pointer-events: none;
+}
+
+/* Category - Large, top right */
+.floatCategory {
   position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 24px;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.85) 0%,
-    rgba(0, 0, 0, 0.4) 40%,
-    transparent 100%
-  );
-  z-index: 10;
-}
-
-.cardInfo {
-  margin-bottom: 16px;
-}
-
-.cardCategory {
-  display: inline-block;
-  margin-bottom: 8px;
-  padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  z-index: 50;
+  top: 40px;
+  right: -20px;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 9px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  backdrop-filter: blur(4px);
+  letter-spacing: 0.3em;
+  writing-mode: vertical-rl;
+  pointer-events: none;
 }
 
-.cardTitle {
+/* Title - Extra large */
+.floatTitle {
+  position: relative;
+  z-index: 50;
   margin: 0;
   font-family: var(--font-instrument), serif;
-  font-size: 28px;
+  font-size: clamp(48px, 6vw, 80px);
   font-weight: 400;
-  color: #fff;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  transition: color 0.3s ease;
+  pointer-events: none;
+}
+
+/* Subtitle - Larger italic */
+.floatSubtitle {
+  position: relative;
+  z-index: 50;
+  margin: 8px 0 0;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+/* Year - Huge, faded */
+.floatYear {
+  position: absolute;
+  z-index: 50;
+  bottom: 100px;
+  right: -30px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 100px;
+  font-weight: 200;
+  color: var(--text-tertiary);
+  opacity: 0.3;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  pointer-events: none;
 }
 
-.cardFooter {
+/* Tech Stack - Larger */
+.floatTech {
+  position: relative;
+  z-index: 50;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  gap: 16px;
+  margin-top: 24px;
+  pointer-events: none;
 }
 
-.cardYear {
+.floatTech span {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.cardAction {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.3s ease;
+  letter-spacing: 0.15em;
 }
 
-.card:hover .cardAction {
-  opacity: 1;
-  transform: translateX(0);
+/* Role - Bold rotated text */
+.floatRole {
+  position: absolute;
+  z-index: 50;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
-.cardAction svg {
-  transition: transform 0.3s ease;
-}
-
-.card:hover .cardAction svg {
-  transform: translate(3px, -3px);
+/* Description - Larger */
+.floatDescription {
+  position: relative;
+  z-index: 50;
+  margin: 20px 0 0;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  max-width: 500px;
+  pointer-events: none;
 }
 
 /* Card Frame - Hover Effect */
 .cardFrame {
   position: absolute;
   inset: 0;
-  border: 2px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--radius-4xl);
   transition: border-color 0.3s ease;
   pointer-events: none;
   z-index: 20;
 }
 
+/* Wrapper hover effects */
+.cardWrapper:hover .floatTitle {
+  color: var(--accent-primary);
+}
+
+.cardWrapper:hover .floatNumber {
+  -webkit-text-stroke-color: var(--accent-primary);
+  transform: translate(-10px, -10px);
+}
+
+.cardWrapper:hover .floatYear {
+  opacity: 1;
+  color: var(--accent-primary);
+}
+
+.cardWrapper:hover .floatCategory {
+  color: var(--accent-primary);
+}
+
 /* ==========================================================================
-   Bottom Bar
+   Layout Variants - Different text placements for each card
    ========================================================================== */
+
+/* Layout 1: Number top-left, Title bottom-left, Year top-right */
+.layout1 .floatNumber {
+  position: absolute;
+  top: -60px;
+  left: -40px;
+}
+
+.layout1 .floatYear {
+  top: 20px;
+  right: -60px;
+  bottom: auto;
+}
+
+.layout1 .floatCategory {
+  top: auto;
+  bottom: 60px;
+  right: -30px;
+}
+
+.layout1 .floatDescription {
+  position: absolute;
+  bottom: -80px;
+  right: 0;
+  left: auto;
+  max-width: 350px;
+  text-align: right;
+}
+
+/* Layout 2: Number bottom-right, Title top-left, Year bottom-left */
+.layout2 .floatNumber {
+  position: absolute;
+  top: auto;
+  bottom: -100px;
+  left: auto;
+  right: -20px;
+  margin: 0;
+}
+
+.layout2 .floatTitle {
+  position: absolute;
+  top: -80px;
+  left: 0;
+  margin: 0;
+}
+
+.layout2 .floatSubtitle {
+  position: absolute;
+  top: -40px;
+  left: 0;
+}
+
+.layout2 .floatYear {
+  top: auto;
+  bottom: -60px;
+  left: -40px;
+  right: auto;
+}
+
+.layout2 .floatCategory {
+  top: 50%;
+  right: -50px;
+  transform: translateY(-50%);
+}
+
+.layout2 .floatRole {
+  display: none;
+}
+
+/* Layout 3: Centered number overlay, Title right side */
+.layout3 .floatNumber {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 300px;
+  opacity: 0.08;
+  margin: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.layout3 .floatTitle {
+  position: absolute;
+  top: 40px;
+  right: -100px;
+  left: auto;
+  writing-mode: vertical-rl;
+  font-size: clamp(36px, 4vw, 56px);
+}
+
+.layout3 .floatSubtitle {
+  position: absolute;
+  top: 40px;
+  right: -160px;
+  writing-mode: vertical-rl;
+}
+
+.layout3 .floatYear {
+  top: auto;
+  bottom: 40px;
+  left: -80px;
+  right: auto;
+  font-size: 140px;
+}
+
+.layout3 .floatCategory {
+  top: auto;
+  bottom: 20px;
+  right: -30px;
+  writing-mode: horizontal-tb;
+}
+
+.layout3 .floatDescription {
+  position: absolute;
+  top: -60px;
+  left: 0;
+  bottom: auto;
+}
+
+/* Layout 4: Diagonal arrangement */
+.layout4 .floatNumber {
+  position: absolute;
+  top: -80px;
+  right: -60px;
+  left: auto;
+  margin: 0;
+  font-size: 180px;
+}
+
+.layout4 .floatTitle {
+  position: absolute;
+  bottom: -60px;
+  left: -20px;
+}
+
+.layout4 .floatSubtitle {
+  position: absolute;
+  bottom: -100px;
+  left: -20px;
+}
+
+.layout4 .floatYear {
+  top: 50%;
+  left: -100px;
+  right: auto;
+  bottom: auto;
+  transform: translateY(-50%) rotate(-90deg);
+}
+
+.layout4 .floatCategory {
+  top: -30px;
+  left: 40px;
+  right: auto;
+  writing-mode: horizontal-tb;
+}
+
+.layout4 .floatTech {
+  position: absolute;
+  right: -30px;
+  bottom: 40px;
+  flex-direction: column;
+}
+
+.layout4 .floatDescription {
+  display: none;
+}
+
+/* Layout 5: Asymmetric spread */
+.layout5 .floatNumber {
+  position: absolute;
+  bottom: -120px;
+  left: 50%;
+  top: auto;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 160px;
+}
+
+.layout5 .floatTitle {
+  position: absolute;
+  top: -70px;
+  right: -40px;
+  left: auto;
+  text-align: right;
+}
+
+.layout5 .floatSubtitle {
+  position: absolute;
+  top: -30px;
+  right: -40px;
+  text-align: right;
+}
+
+.layout5 .floatYear {
+  top: 30%;
+  left: -120px;
+  right: auto;
+  bottom: auto;
+  font-size: 80px;
+}
+
+.layout5 .floatCategory {
+  top: auto;
+  bottom: 30%;
+  left: -60px;
+  right: auto;
+  writing-mode: horizontal-tb;
+  transform: rotate(-90deg);
+}
+
+.layout5 .floatRole {
+  left: auto;
+  right: -60px;
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.layout5 .floatDescription {
+  position: absolute;
+  bottom: 20px;
+  left: -180px;
+  max-width: 160px;
+  writing-mode: vertical-rl;
+  font-size: 11px;
+}
+
+/* Layout 6: Compact corner clustering */
+.layout6 .floatNumber {
+  position: absolute;
+  top: -40px;
+  left: 60%;
+  margin: 0;
+  font-size: 200px;
+  opacity: 0.15;
+}
+
+.layout6 .floatTitle {
+  position: absolute;
+  bottom: -50px;
+  right: -20px;
+  left: auto;
+}
+
+.layout6 .floatSubtitle {
+  position: absolute;
+  bottom: -90px;
+  right: -20px;
+  left: auto;
+}
+
+.layout6 .floatYear {
+  top: -40px;
+  left: -60px;
+  right: auto;
+  bottom: auto;
+  font-size: 120px;
+}
+
+.layout6 .floatCategory {
+  top: 60%;
+  right: -40px;
+}
+
+.layout6 .floatTech {
+  position: absolute;
+  left: -50px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+  gap: 8px;
+}
+
+.layout6 .floatRole {
+  display: none;
+}
+
+.layout6 .floatDescription {
+  position: absolute;
+  top: 20px;
+  left: -200px;
+  max-width: 180px;
+}
+
+/* ==========================================================================
+  Bottom Bar
+  ========================================================================== */
 
 .bottomBar {
   position: fixed;
@@ -387,7 +737,6 @@
   object-fit: cover;
 }
 
-
 /* ==========================================================================
    Responsive - Tablet
    ========================================================================== */
@@ -415,41 +764,64 @@
   }
 
   .horizontalContainer {
-    padding: 0 25vw;
-    gap: 30px;
+    padding: 0 4vw;
+    gap: 280px;
   }
 
-  .cardLarge {
-    width: 450px;
-    height: 300px;
+  .cardWrapper {
+    padding: 60px 50px;
   }
 
-  .cardSmall {
-    width: 360px;
-    height: 240px;
-  }
-
-  .cardMedium {
+  .card {
     width: 420px;
-    height: 270px;
+    height: 280px;
   }
 
-  .cardTall {
-    width: 400px;
-    height: 260px;
-  }
-
-  .cardWide {
+  .wrapperLarge .card {
     width: 500px;
-    height: 300px;
+    height: 320px;
   }
 
-  .cardNumber span {
-    font-size: 80px;
+  .wrapperSmall .card {
+    width: 360px;
+    height: 230px;
   }
 
-  .cardTitle {
-    font-size: 22px;
+  .floatNumber {
+    font-size: 120px;
+    top: -10px;
+    left: -20px;
+  }
+
+  .floatTitle {
+    font-size: 36px;
+    left: -15px;
+  }
+
+  .floatSubtitle {
+    font-size: 16px;
+  }
+
+  .floatYear {
+    font-size: 48px;
+    right: -30px;
+  }
+
+  .floatCategory {
+    right: -40px;
+  }
+
+  .floatTech {
+    right: -50px;
+  }
+
+  .floatRole {
+    left: -50px;
+  }
+
+  .floatDescription {
+    font-size: 11px;
+    bottom: -60px;
   }
 
   .bottomBar {
@@ -497,44 +869,93 @@
     align-items: stretch;
     height: auto;
     padding: 0 5vw 100px;
-    gap: 24px;
+    gap: 32px;
+  }
+
+  /* Reset wrapper sizes for mobile */
+  .cardWrapper,
+  .wrapperLarge,
+  .wrapperSmall,
+  .wrapperMedium,
+  .wrapperTall,
+  .wrapperWide {
+    margin: 0;
+    padding: 40px 0;
+    align-self: stretch;
   }
 
   /* Reset card sizes for mobile */
   .card,
-  .cardLarge,
-  .cardSmall,
-  .cardMedium,
-  .cardTall,
-  .cardWide {
+  .wrapperLarge .card,
+  .wrapperSmall .card,
+  .wrapperMedium .card,
+  .wrapperTall .card,
+  .wrapperWide .card {
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 10;
-    margin: 0;
-    align-self: stretch;
   }
 
-  /* Only show first 6 cards on mobile */
-  .card:nth-child(n + 7) {
+  /* Only show first 6 wrappers on mobile */
+  .cardWrapper:nth-child(n + 7) {
     display: none;
   }
 
-  .cardNumber {
-    top: -10px;
-    right: 0;
+  /* Mobile: Stack floating elements */
+  .floatNumber {
+    position: relative;
+    top: auto;
+    left: auto;
+    font-size: 80px;
+    margin-bottom: -30px;
   }
 
-  .cardNumber span {
-    font-size: 60px;
+  .floatCategory {
+    position: relative;
+    top: auto;
+    right: auto;
+    writing-mode: horizontal-tb;
+    margin-bottom: 12px;
   }
 
-  .cardTitle {
-    font-size: 20px;
+  .floatTitle {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    font-size: 28px;
+    margin-top: 16px;
   }
 
-  .cardAction {
-    opacity: 1;
-    transform: translateX(0);
+  .floatSubtitle {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    font-size: 16px;
+    margin-top: 4px;
+  }
+
+  .floatYear {
+    display: none;
+  }
+
+  .floatTech {
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: none;
+    flex-direction: row;
+    margin-top: 12px;
+  }
+
+  .floatRole {
+    display: none;
+  }
+
+  .floatDescription {
+    position: relative;
+    bottom: auto;
+    font-size: 12px;
+    margin-top: 12px;
   }
 
   .bottomBar {
@@ -553,18 +974,35 @@
 
   .horizontalContainer {
     padding: 0 4vw 80px;
-    gap: 20px;
+    gap: 24px;
   }
 
-  .cardNumber span {
-    font-size: 48px;
+  .cardWrapper {
+    padding: 30px 0;
   }
 
-  .cardTitle {
-    font-size: 18px;
+  .floatNumber {
+    font-size: 60px;
+    margin-bottom: -20px;
   }
 
-  .cardContent {
-    padding: 20px;
+  .floatCategory {
+    font-size: 9px;
+  }
+
+  .floatTitle {
+    font-size: 24px;
+  }
+
+  .floatSubtitle {
+    font-size: 14px;
+  }
+
+  .floatDescription {
+    font-size: 11px;
+  }
+
+  .floatTech span {
+    font-size: 9px;
   }
 }

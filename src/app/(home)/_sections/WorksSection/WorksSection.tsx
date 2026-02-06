@@ -183,7 +183,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
                       >
                         <Image
                           src={work.main}
-                          alt={work.title || ""}
+                          alt={`Work ${work.id}`}
                           fill
                           sizes="120px"
                           className={styles.image}
@@ -229,7 +229,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
                         >
                           <Image
                             src={work.hover}
-                            alt={work.title || ""}
+                            alt={`Work ${work.id}`}
                             fill
                             sizes="120px"
                             className={styles.image}
