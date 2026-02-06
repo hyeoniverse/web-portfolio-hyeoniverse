@@ -227,26 +227,6 @@ export default function WorksSection() {
 
   return (
     <section className={styles.section} ref={sectionRef}>
-      {/* Header */}
-      <motion.header
-        className={styles.header}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className={styles.headerLeft}>
-          <span className={styles.headerLabel}>Portfolio</span>
-          <h1 className={styles.headerTitle}>Works</h1>
-        </div>
-        <div className={styles.headerRight}>
-          <span className={styles.headerCount}>
-            {String(activeIndex + 1).padStart(2, "0")}
-            <span className={styles.headerCountDivider}>/</span>
-            {String(projects.length).padStart(2, "0")}
-          </span>
-        </div>
-      </motion.header>
-
       {/* Current Project Title - Large */}
       <motion.div
         className={styles.currentProject}

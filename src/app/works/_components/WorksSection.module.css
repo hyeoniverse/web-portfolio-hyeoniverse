@@ -11,66 +11,6 @@
 }
 
 /* ==========================================================================
-   Header
-   ========================================================================== */
-
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px 6vw;
-  pointer-events: none;
-}
-
-.headerLeft {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.headerLabel {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-}
-
-.headerTitle {
-  margin: 0;
-  font-family: var(--font-instrument), serif;
-  font-size: 24px;
-  font-weight: 400;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-}
-
-.headerRight {
-  display: flex;
-  align-items: center;
-}
-
-.headerCount {
-  font-family: var(--font-instrument), serif;
-  font-size: 32px;
-  font-weight: 400;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-}
-
-.headerCountDivider {
-  margin: 0 4px;
-  color: var(--text-tertiary);
-  font-size: 24px;
-}
-
-/* ==========================================================================
    Current Project Display
    ========================================================================== */
 
