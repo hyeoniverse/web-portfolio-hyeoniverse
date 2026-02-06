@@ -628,7 +628,9 @@ export default function HomePage() {
   const serviceY2 = useTransform(smoothServicesGap, (v) => v * 1);
   // serviceY3 = 0 (anchor, no movement)
 
-  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     if (!hasMounted || !lenis) return;
@@ -638,7 +640,11 @@ export default function HomePage() {
     // Lenis scroll event handler
     const handleScroll = () => {
       // Access velocity directly from the lenis instance (it's updated during scroll)
-      const lenisAny = lenis as unknown as { velocity: number; targetScroll: number; animatedScroll: number };
+      const lenisAny = lenis as unknown as {
+        velocity: number;
+        targetScroll: number;
+        animatedScroll: number;
+      };
       const velocity = lenisAny.velocity;
 
       // Only respond to meaningful velocity (Lenis velocity is typically -2 to 2)
@@ -854,10 +860,20 @@ export default function HomePage() {
         <div className={`${styles.heroContent} hero-content`}>
           <h1 className={styles.heroTitle}>
             <span className={`${styles.titleLine} hero-line`}>
-              <StaggerText className={styles.titleText} strokeColor="var(--text-primary)">Creative</StaggerText>
+              <StaggerText
+                className={styles.titleText}
+                strokeColor="var(--text-primary)"
+              >
+                Creative
+              </StaggerText>
             </span>
             <span className={`${styles.titleLine} hero-line`}>
-              <StaggerText className={styles.titleText} strokeColor="var(--text-primary)">Developer</StaggerText>
+              <StaggerText
+                className={styles.titleText}
+                strokeColor="var(--text-primary)"
+              >
+                Developer
+              </StaggerText>
               <span className={styles.titleOval}>
                 <motion.span
                   className={styles.ovalInline}
@@ -872,14 +888,19 @@ export default function HomePage() {
             </span>
             <span className={`${styles.titleLine} hero-line`}>
               <span className={styles.titleAccent}>&</span>
-              <StaggerText className={styles.titleText} strokeColor="var(--text-primary)">Problem Solver</StaggerText>
+              <StaggerText
+                className={styles.titleText}
+                strokeColor="var(--text-primary)"
+              >
+                Problem Solver
+              </StaggerText>
             </span>
           </h1>
 
           <div className={styles.heroMeta}>
             <span className="hero-line">Based in Seoul, KR</span>
             <span className={styles.metaDivider} />
-            <span className="hero-line">Available for projects</span>
+            <span className="hero-line">Available for opportunities</span>
           </div>
         </div>
 
@@ -947,25 +968,27 @@ export default function HomePage() {
             // Top items move more, bottom item is anchor (no movement)
             const yTransforms = [serviceY0, serviceY1, serviceY2, undefined];
             return (
-            <motion.div
-              key={service.num}
-              className={`${styles.serviceItem} service-item`}
-              style={yTransforms[index] ? { y: yTransforms[index] } : undefined}
-              whileHover={{ x: 20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className={`${styles.serviceLine} horizontal-rule`} />
-              <div className={styles.serviceContent}>
-                <span className={styles.serviceNum}>{service.num}</span>
-                <h3 className={styles.serviceTitle}>{service.title}</h3>
-                <span className={styles.serviceDesc}>{service.desc}</span>
-                <motion.div
-                  className={styles.serviceOval}
-                  whileHover={{ scale: 1.2 }}
-                />
-              </div>
-            </motion.div>
-          );
+              <motion.div
+                key={service.num}
+                className={`${styles.serviceItem} service-item`}
+                style={
+                  yTransforms[index] ? { y: yTransforms[index] } : undefined
+                }
+                whileHover={{ x: 20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className={`${styles.serviceLine} horizontal-rule`} />
+                <div className={styles.serviceContent}>
+                  <span className={styles.serviceNum}>{service.num}</span>
+                  <h3 className={styles.serviceTitle}>{service.title}</h3>
+                  <span className={styles.serviceDesc}>{service.desc}</span>
+                  <motion.div
+                    className={styles.serviceOval}
+                    whileHover={{ scale: 1.2 }}
+                  />
+                </div>
+              </motion.div>
+            );
           })}
           <div className={`${styles.serviceLine} horizontal-rule`} />
         </div>
@@ -976,13 +999,33 @@ export default function HomePage() {
         <div className={`${styles.marqueeTrack} marquee-track`}>
           {[...Array(4)].map((_, idx) => (
             <span key={idx} className={styles.marqueeText}>
-              <StaggerText className={styles.marqueeWord} strokeColor="var(--text-accent-secondary-alt)">CREATIVE</StaggerText>{" "}
+              <StaggerText
+                className={styles.marqueeWord}
+                strokeColor="var(--text-accent-secondary-alt)"
+              >
+                CREATIVE
+              </StaggerText>{" "}
               <span className={styles.marqueeOval} />{" "}
-              <StaggerText className={styles.marqueeWord} strokeColor="var(--text-accent-secondary-alt)">FRONTEND</StaggerText>{" "}
+              <StaggerText
+                className={styles.marqueeWord}
+                strokeColor="var(--text-accent-secondary-alt)"
+              >
+                FRONTEND
+              </StaggerText>{" "}
               <span className={styles.marqueeLine} />{" "}
-              <StaggerText className={styles.marqueeWord} strokeColor="var(--text-accent-secondary-alt)">DEVELOPER</StaggerText>{" "}
+              <StaggerText
+                className={styles.marqueeWord}
+                strokeColor="var(--text-accent-secondary-alt)"
+              >
+                DEVELOPER
+              </StaggerText>{" "}
               <span className={styles.marqueeOval} />{" "}
-              <StaggerText className={styles.marqueeWord} strokeColor="var(--text-accent-secondary-alt)">INNOVATOR</StaggerText>{" "}
+              <StaggerText
+                className={styles.marqueeWord}
+                strokeColor="var(--text-accent-secondary-alt)"
+              >
+                INNOVATOR
+              </StaggerText>{" "}
               <span className={styles.marqueeLine} />{" "}
             </span>
           ))}
@@ -1285,7 +1328,7 @@ export default function HomePage() {
           <div className={styles.heroMeta}>
             <span>Based in Seoul, KR</span>
             <span className={styles.metaDivider} />
-            <span>Available for projects</span>
+            <span>Available for opportunities</span>
           </div>
         </div>
 
