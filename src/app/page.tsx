@@ -636,6 +636,14 @@ export default function HomePage() {
     stiffness: 100,
     damping: 15,
   });
+
+  // Scroll velocity for services gap compression effect
+  const servicesGapOffset = useMotionValue(0);
+  const smoothServicesGap = useSpring(servicesGapOffset, {
+    stiffness: 120,
+    damping: 18,
+  });
+
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
@@ -655,10 +663,16 @@ export default function HomePage() {
         const offset = Math.max(-maxOffset, Math.min(maxOffset, velocity * 30));
         workImageOffsetY.set(offset);
 
+        // Services gap compression: reduce gap based on absolute velocity
+        // Gap goes from 0 (normal) to negative value (compressed)
+        const gapReduction = Math.min(Math.abs(velocity) * 40, 50);
+        servicesGapOffset.set(-gapReduction);
+
         // Reset to 0 after scrolling stops
         clearTimeout(resetTimerRef.current);
         resetTimerRef.current = setTimeout(() => {
           workImageOffsetY.set(0);
+          servicesGapOffset.set(0);
         }, 150);
       }
     };
@@ -669,7 +683,7 @@ export default function HomePage() {
       lenis.off("scroll", handleScroll);
       clearTimeout(resetTimerRef.current);
     };
-  }, [hasMounted, lenis, workImageOffsetY]);
+  }, [hasMounted, lenis, workImageOffsetY, servicesGapOffset]);
 
   // GSAP Scroll Animations
   useEffect(() => {
@@ -944,10 +958,11 @@ export default function HomePage() {
               title: "Brand Identity",
               desc: "Visual Language, Guidelines",
             },
-          ].map((service) => (
+          ].map((service, index) => (
             <motion.div
               key={service.num}
               className={`${styles.serviceItem} service-item`}
+              style={index > 0 ? { marginTop: smoothServicesGap } : undefined}
               whileHover={{ x: 20 }}
               transition={{ duration: 0.3 }}
             >
