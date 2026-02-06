@@ -17,6 +17,7 @@ export default function Navigation() {
   const { language, toggleLanguage, t } = useLanguage();
   const [isAnimating, setIsAnimating] = useState(false);
   const [displayTheme, setDisplayTheme] = useState(theme);
+  const [isLangHovered, setIsLangHovered] = useState(false);
 
   // Sync displayTheme when theme changes (e.g., after hydration)
   useEffect(() => {
@@ -61,10 +62,14 @@ export default function Navigation() {
         <button
           className={styles.actionBtn}
           onClick={toggleLanguage}
+          onMouseEnter={() => setIsLangHovered(true)}
+          onMouseLeave={() => setIsLangHovered(false)}
           aria-label={`Switch to ${language === "ko" ? "English" : "Korean"}`}
         >
           <span className={styles.langText}>
-            {language === "ko" ? "EN" : "KO"}
+            {isLangHovered
+              ? language === "ko" ? "EN" : "KO"
+              : language === "ko" ? "KO" : "EN"}
           </span>
         </button>
 
