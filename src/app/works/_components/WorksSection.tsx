@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useLayoutEffect, useState, useCallback } from "react";
+import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useLenis } from "@/providers/LenisProvider";
 import styles from "./WorksSection.module.css";
 
 // Register GSAP plugins
@@ -19,10 +20,8 @@ const projects = [
     title: "Sakharov Space",
     category: "Branding / Web Design",
     year: "2024",
-    image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=1000&fit=crop",
-    description: "A complete brand identity and web experience for a space exploration company.",
-    size: "large",
-    offset: 0,
+    image:
+      "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=1000&fit=crop",
   },
   {
     id: "2",
@@ -30,10 +29,8 @@ const projects = [
     title: "Fitil App",
     category: "UX/UI / Mobile",
     year: "2023",
-    image: "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800&h=1000&fit=crop",
-    description: "Mobile fitness application with personalized workout plans.",
-    size: "medium",
-    offset: 80,
+    image:
+      "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800&h=1000&fit=crop",
   },
   {
     id: "3",
@@ -41,10 +38,8 @@ const projects = [
     title: "Amway Digital",
     category: "E-commerce",
     year: "2023",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=1000&fit=crop",
-    description: "E-commerce platform redesign focusing on user experience.",
-    size: "small",
-    offset: -60,
+    image:
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=1000&fit=crop",
   },
   {
     id: "4",
@@ -52,10 +47,8 @@ const projects = [
     title: "Nova Finance",
     category: "Dashboard",
     year: "2024",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=1000&fit=crop",
-    description: "Financial dashboard with real-time data visualization.",
-    size: "large",
-    offset: 40,
+    image:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=1000&fit=crop",
   },
   {
     id: "5",
@@ -63,10 +56,8 @@ const projects = [
     title: "Luxe Brand",
     category: "Branding",
     year: "2024",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop",
-    description: "Luxury brand identity for a high-end fashion label.",
-    size: "medium",
-    offset: -40,
+    image:
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop",
   },
   {
     id: "6",
@@ -74,60 +65,90 @@ const projects = [
     title: "TechStart",
     category: "Web App",
     year: "2023",
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=1000&fit=crop",
-    description: "SaaS platform for startup management and analytics.",
-    size: "small",
-    offset: 60,
+    image:
+      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=1000&fit=crop",
   },
 ];
 
 // Triple the projects for seamless infinite scroll
 const allProjects = [...projects, ...projects, ...projects];
 
+// Card component
+const ProjectCard = ({
+  project,
+  onClick,
+  exploreText,
+}: {
+  project: (typeof projects)[0];
+  onClick: () => void;
+  exploreText: string;
+}) => (
+  <div className={styles.card} onClick={onClick}>
+    <div className={styles.cardFrame}>
+      <span className={styles.frameCorner} />
+      <span className={styles.frameCorner} />
+      <span className={styles.frameCorner} />
+      <span className={styles.frameCorner} />
+    </div>
+
+    <div className={styles.cardImageWrapper}>
+      <img
+        src={project.image}
+        alt={project.title}
+        className={styles.cardImage}
+      />
+      <div className={styles.cardImageOverlay} />
+    </div>
+
+    <div className={styles.cardTypo}>
+      <span className={styles.cardNumber}>{project.number}</span>
+    </div>
+
+    <div className={styles.cardContent}>
+      <span className={styles.cardCategory}>{project.category}</span>
+      <h3 className={styles.cardTitle}>{project.title}</h3>
+      <div className={styles.cardAction}>
+        <span>{exploreText}</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M7 17L17 7M17 7H7M17 7V17"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <div className={styles.cardYearBadge}>
+      <span>{project.year}</span>
+    </div>
+  </div>
+);
+
 export default function WorksSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
   const { t } = useLanguage();
+  const { setInfinite } = useLenis();
 
-  // Magnetic hover effect
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>, index: number) => {
-    const card = cardsRef.current[index];
-    if (!card) return;
+  // Disable Lenis infinite scroll on this page for GSAP ScrollTrigger to work
+  useEffect(() => {
+    setInfinite(false);
 
-    const rect = card.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
 
-    const deltaX = (e.clientX - centerX) / 15;
-    const deltaY = (e.clientY - centerY) / 15;
-
-    gsap.to(card, {
-      x: deltaX,
-      y: deltaY,
-      rotateY: deltaX / 2,
-      rotateX: -deltaY / 2,
-      duration: 0.3,
-      ease: "power2.out",
-    });
-  }, []);
-
-  const handleMouseLeave = useCallback((index: number) => {
-    const card = cardsRef.current[index];
-    if (!card) return;
-
-    gsap.to(card, {
-      x: 0,
-      y: 0,
-      rotateY: 0,
-      rotateX: 0,
-      duration: 0.5,
-      ease: "elastic.out(1, 0.5)",
-    });
-  }, []);
+    return () => {
+      clearTimeout(timer);
+      setInfinite(true);
+    };
+  }, [setInfinite]);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -135,14 +156,17 @@ export default function WorksSection() {
     if (!section || !container) return;
 
     const ctx = gsap.context(() => {
-      // Calculate dimensions
-      const totalWidth = container.scrollWidth;
-      const oneSetWidth = totalWidth / 3; // One third is one complete set
+      const cards = container.querySelectorAll(`.${styles.card}`);
+      if (cards.length === 0) return;
 
-      // Very long scroll distance for "infinite" feel (10x the content)
-      const scrollDistance = oneSetWidth * 10;
+      const cardWidth = (cards[0] as HTMLElement).offsetWidth;
+      const gap = 60;
+      const oneSetWidth = (cardWidth + gap) * projects.length;
+      const scrollDistance = oneSetWidth * 8;
 
-      // Main horizontal scroll animation with modulo positioning
+      // Start from middle set for seamless loop
+      gsap.set(container, { x: -oneSetWidth });
+
       gsap.to(container, {
         ease: "none",
         scrollTrigger: {
@@ -150,49 +174,30 @@ export default function WorksSection() {
           start: "top top",
           end: () => `+=${scrollDistance}`,
           pin: true,
-          scrub: 0.5,
+          scrub: 0.3,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            // Calculate the x position using modulo to loop
             const totalProgress = self.progress * scrollDistance;
-            const loopedX = totalProgress % oneSetWidth;
+            // Start from oneSetWidth and loop within that range
+            const baseOffset = oneSetWidth;
+            const loopedX = baseOffset + (totalProgress % oneSetWidth);
 
-            // Apply the looped position
             gsap.set(container, { x: -loopedX });
 
-            // Update progress bar (loops within one set)
             if (progressBarRef.current) {
-              const progressInSet = (loopedX % oneSetWidth) / oneSetWidth;
+              const progressInSet = (totalProgress % oneSetWidth) / oneSetWidth;
               progressBarRef.current.style.width = `${progressInSet * 100}%`;
             }
 
-            // Update active card index
-            const progressInSet = loopedX / oneSetWidth;
+            const progressInSet = (totalProgress % oneSetWidth) / oneSetWidth;
             const cardIndex = Math.floor(progressInSet * projects.length);
             setActiveIndex(cardIndex % projects.length);
           },
         },
       });
-
-      // Floating decorative elements
-      gsap.to(`.${styles.floatingCircle}`, {
-        y: "random(-30, 30)",
-        x: "random(-20, 20)",
-        rotation: "random(-15, 15)",
-        duration: "random(3, 5)",
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        stagger: {
-          each: 0.5,
-          from: "random",
-        },
-      });
-
     }, section);
 
-    // Refresh ScrollTrigger after a small delay
     const refreshTimer = setTimeout(() => {
       ScrollTrigger.refresh();
     }, 100);
@@ -203,121 +208,82 @@ export default function WorksSection() {
     };
   }, []);
 
-  const setCardRef = (index: number) => (el: HTMLDivElement | null) => {
-    cardsRef.current[index] = el;
-  };
-
   const handleCardClick = (id: string) => {
     router.push(`/works/${id}`);
   };
 
+  const currentProject = projects[activeIndex];
+  const exploreText = t("works.explore");
+
   return (
     <section className={styles.section} ref={sectionRef}>
-      {/* Floating Decorative Elements */}
-      <div className={styles.decorativeElements}>
-        <div className={`${styles.floatingCircle} ${styles.circle1}`} />
-        <div className={`${styles.floatingCircle} ${styles.circle2}`} />
-        <div className={`${styles.floatingCircle} ${styles.circle3}`} />
-        <div className={styles.gridPattern} />
-      </div>
-
-      {/* Fixed Header */}
-      <div className={styles.fixedHeader}>
-        <span className={styles.label}>{t("works.label")}</span>
-        <div className={styles.scrollHint}>
-          <div className={styles.scrollLine} />
-          <span>{t("works.scroll")}</span>
+      {/* Main Title - Cinematic Typography */}
+      <div className={styles.cinematicTitle}>
+        <span className={styles.titleLabel}>Featured Works</span>
+        <h1 className={styles.mainTitle}>
+          <span className={styles.titleLine}>Selected</span>
+          <span className={styles.titleLine}>
+            <span className={styles.titleOutline}>Projects</span>
+          </span>
+        </h1>
+        <div className={styles.titleMeta}>
+          <span>2023 — 2024</span>
+          <span className={styles.titleDivider} />
+          <span>Creative Portfolio</span>
         </div>
       </div>
 
-      {/* Current Project Indicator */}
-      <div className={styles.projectIndicator}>
-        <span className={styles.currentNumber}>
-          {String(activeIndex + 1).padStart(2, "0")}
-        </span>
-        <span className={styles.totalNumber}>/ {String(projects.length).padStart(2, "0")}</span>
+      {/* Current Project Info - Left Side */}
+      <div className={styles.projectInfo}>
+        <div className={styles.projectNumber}>
+          <span className={styles.numberLabel}>Project</span>
+          <div className={styles.numberRow}>
+            <span className={styles.numberValue}>{currentProject?.number}</span>
+            <span className={styles.numberTotal}>
+              /{String(projects.length).padStart(2, "0")}
+            </span>
+          </div>
+        </div>
+
+        <div className={styles.projectDetails}>
+          <h2 className={styles.projectTitle}>{currentProject?.title}</h2>
+          <span className={styles.projectCategory}>
+            {currentProject?.category}
+          </span>
+        </div>
+
+        <div className={styles.projectYear}>
+          <span className={styles.yearLabel}>Year</span>
+          <span className={styles.yearValue}>{currentProject?.year}</span>
+        </div>
       </div>
 
       {/* Horizontal Scroll Container */}
       <div className={styles.horizontalContainer} ref={containerRef}>
         {allProjects.map((project, index) => (
-          <div
+          <ProjectCard
             key={`${project.id}-${index}`}
-            ref={setCardRef(index)}
-            className={`${styles.card} ${styles[project.size as keyof typeof styles]}`}
-            style={{
-              transform: `translateY(${project.offset}px)`,
-              perspective: "1000px",
-            }}
+            project={project}
             onClick={() => handleCardClick(project.id)}
-            onMouseMove={(e) => handleMouseMove(e, index)}
-            onMouseEnter={() => setActiveIndex(index % projects.length)}
-            onMouseLeave={() => handleMouseLeave(index)}
-          >
-            <div className={styles.cardInner}>
-              {/* Glowing border effect */}
-              <div className={styles.cardGlow} />
-
-              <div className={styles.cardImageWrapper}>
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className={styles.cardImage}
-                />
-                <div className={styles.cardImageOverlay} />
-
-                {/* Scan line effect */}
-                <div className={styles.scanLine} />
-              </div>
-
-              <div className={styles.cardContent}>
-                <span className={styles.cardNumber}>{project.number}</span>
-
-                <div className={styles.cardInfo}>
-                  <div className={styles.cardMeta}>
-                    <span className={styles.cardCategory}>{project.category}</span>
-                    <span className={styles.cardYear}>{project.year}</span>
-                  </div>
-                  <h2 className={styles.cardTitle}>{project.title}</h2>
-                  <p className={styles.cardDescription}>{project.description}</p>
-
-                  <div className={styles.cardAction}>
-                    <span className={styles.actionText}>{t("works.explore")}</span>
-                    <div className={styles.actionIcon}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path
-                          d="M7 17L17 7M17 7H7M17 7V17"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Corner accents */}
-              <div className={`${styles.cornerAccent} ${styles.topLeft}`} />
-              <div className={`${styles.cornerAccent} ${styles.bottomRight}`} />
-            </div>
-          </div>
+            exploreText={exploreText}
+          />
         ))}
       </div>
 
-      {/* Progress Indicator */}
-      <div className={styles.progressWrapper}>
-        <div className={styles.progressDots}>
-          {projects.map((project, idx) => (
-            <div
-              key={project.id}
-              className={`${styles.progressDot} ${idx <= activeIndex ? styles.active : ""}`}
-            />
-          ))}
+      {/* Bottom Bar */}
+      <div className={styles.bottomBar}>
+        <div className={styles.progressWrapper}>
+          <div className={styles.progressTrack}>
+            <div className={styles.progressBar} ref={progressBarRef} />
+          </div>
         </div>
-        <div className={styles.progressTrack}>
-          <div className={styles.progressBar} ref={progressBarRef} />
+        <div className={styles.bottomMeta}>
+          <span className={styles.bottomLabel}>{t("works.scroll")}</span>
+          <span className={styles.bottomDivider}>—</span>
+          <span className={styles.bottomCount}>
+            {String(activeIndex + 1).padStart(2, "0")} /{" "}
+            {String(projects.length).padStart(2, "0")}
+          </span>
         </div>
       </div>
     </section>
