@@ -7,7 +7,7 @@
   flex-direction: column;
   padding: 8rem 4rem;
   min-height: 100vh;
-  background: #000000;
+  background: var(--bg-primary);
 }
 
 /* ==========================================================================
@@ -23,11 +23,11 @@
   display: inline-block;
   margin-bottom: 1.5rem;
   padding: 0.5rem 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-secondary);
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.2em;
 }
@@ -37,13 +37,13 @@
   font-family: var(--font-display, var(--font-playfair));
   font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 400;
-  color: #ffffff;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
 .titleAccent {
-  color: var(--color-accent, #D01046);
+  color: var(--text-accent-secondary-alt);
 }
 
 .subtitle {
@@ -51,7 +51,7 @@
   font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   line-height: 1.8;
 }
 
@@ -64,7 +64,7 @@
   font-family: var(--font-mono);
   font-size: 0.8rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.2em;
 }
@@ -82,24 +82,24 @@
 
 .featureCard {
   padding: 2rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-tertiary);
   border-radius: 1rem;
   transition: all 0.3s ease;
 }
 
 .featureCard:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-tertiary);
   transform: translateY(-5px);
 }
 
 .featureCardDark {
-  background: var(--color-accent, #D01046);
+  background: var(--text-accent-secondary-alt);
   border-color: transparent;
 }
 
 .featureCardDark:hover {
-  background: #c0143e;
+  background: var(--bg-accent-secondary-solid);
 }
 
 .featureIcon {
@@ -110,15 +110,15 @@
   height: 48px;
   margin-bottom: 1.5rem;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .featureCardDark .featureIcon {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
 }
 
 .featureTitle {
@@ -126,7 +126,7 @@
   font-family: var(--font-mono);
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .featureDescription {
@@ -134,12 +134,12 @@
   font-family: var(--font-mono);
   font-size: 0.85rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   line-height: 1.7;
 }
 
 .featureCardDark .featureDescription {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary);
 }
 
 .featureTech {
@@ -150,17 +150,17 @@
 
 .featureTechTag {
   padding: 0.25rem 0.625rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-tertiary);
   border-radius: 100px;
   font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 .featureCardDark .featureTechTag {
-  background: rgba(0, 0, 0, 0.2);
-  color: #ffffff;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 /* ==========================================================================
@@ -185,11 +185,7 @@
   top: 0;
   width: 2px;
   height: 100%;
-  background: linear-gradient(
-    180deg,
-    var(--color-accent, #D01046) 0%,
-    rgba(208, 16, 70, 0.2) 100%
-  );
+  background: var(--bg-gradient-accent-secondary-vertical);
   transform-origin: top;
 }
 
@@ -207,13 +203,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000000;
-  border: 2px solid var(--color-accent, #D01046);
+  background: var(--bg-primary);
+  border: 2px solid var(--text-accent-secondary-alt);
   border-radius: 50%;
   font-family: var(--font-mono);
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-accent, #D01046);
+  color: var(--text-accent-secondary-alt);
   margin-left: -24px;
 }
 
@@ -227,7 +223,7 @@
   font-family: var(--font-mono);
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .processDescription {
@@ -235,7 +231,7 @@
   font-family: var(--font-mono);
   font-size: 0.875rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   line-height: 1.7;
   max-width: 500px;
 }
@@ -259,29 +255,29 @@
   flex-direction: column;
   gap: 0.25rem;
   padding: 1rem 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-tertiary);
   border-radius: 100px;
   transition: all 0.3s ease;
 }
 
 .techItem:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--color-accent, #D01046);
+  background: var(--bg-tertiary);
+  border-color: var(--text-accent-secondary-alt);
 }
 
 .techName {
   font-family: var(--font-mono);
   font-size: 0.9rem;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .techCategory {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -302,8 +298,8 @@
 
 .codeCard {
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-tertiary);
   border-radius: 0.75rem;
 }
 
@@ -312,7 +308,7 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-accent, #D01046);
+  color: var(--text-accent-secondary-alt);
 }
 
 .codeDescription {
@@ -320,13 +316,13 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 0.8rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-tertiary);
 }
 
 .codeBlock {
   margin: 0;
   padding: 1rem;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--bg-secondary);
   border-radius: 0.5rem;
   overflow-x: auto;
 }
@@ -335,7 +331,7 @@
   font-family: var(--font-jetbrains), monospace;
   font-size: 0.75rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary);
   white-space: pre;
 }
 
@@ -355,15 +351,15 @@
 
 .troubleCard {
   padding: 1.5rem 2rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: 3px solid var(--color-accent, #D01046);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-tertiary);
+  border-left: 3px solid var(--text-accent-secondary-alt);
   border-radius: 0.75rem;
   transition: all 0.3s ease;
 }
 
 .troubleCard:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-tertiary);
   border-left-width: 5px;
 }
 
@@ -381,12 +377,12 @@
   flex-shrink: 0;
   width: 28px;
   height: 28px;
-  background: var(--color-accent, #D01046);
+  background: var(--text-accent-secondary-alt);
   border-radius: 50%;
   font-family: var(--font-mono);
   font-size: 0.875rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .troubleTitle {
@@ -394,7 +390,7 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .troubleBody {
@@ -412,12 +408,12 @@
 .troubleLabel {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-tertiary);
   border-radius: 100px;
   font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   width: fit-content;
@@ -428,12 +424,12 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 0.85rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .troubleInsight {
-  color: var(--color-accent, #D01046) !important;
+  color: var(--text-accent-secondary-alt) !important;
   font-weight: 400 !important;
 }
 
@@ -452,11 +448,11 @@
   font-family: var(--font-mono);
   font-size: 0.875rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-tertiary);
 }
 
 .creditsHeart {
-  color: var(--color-accent, #D01046);
+  color: var(--text-accent-secondary-alt);
   animation: heartbeat 1.5s ease-in-out infinite;
 }
 
