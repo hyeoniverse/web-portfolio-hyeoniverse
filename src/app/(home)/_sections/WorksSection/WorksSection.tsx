@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useCallback } from "react";
+import { forwardRef, useCallback, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, MotionValue } from "framer-motion";
 import { worksData, WorkItem } from "@/data/works";
@@ -11,6 +11,13 @@ import {
   HoveringWork,
 } from "@/types";
 import styles from "./WorksSection.module.css";
+
+// Track hover direction for each work item
+interface HoverDirection {
+  id: string;
+  x: number; // -1 (left), 0, 1 (right)
+  y: number; // -1 (top), 0, 1 (bottom)
+}
 
 interface WorksSectionProps {
   smoothWorkImageY: MotionValue<number>;
@@ -46,6 +53,39 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
     },
     ref
   ) => {
+    const [hoverDirections, setHoverDirections] = useState<{ [key: string]: HoverDirection }>({});
+
+    // Calculate entry direction based on mouse position relative to element center
+    const getHoverDirection = useCallback(
+      (e: React.MouseEvent<HTMLDivElement>, workId: string) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const deltaX = e.clientX - centerX;
+        const deltaY = e.clientY - centerY;
+
+        // Determine primary direction (horizontal or vertical)
+        const absX = Math.abs(deltaX);
+        const absY = Math.abs(deltaY);
+
+        let x = 0;
+        let y = 0;
+
+        if (absX > absY) {
+          x = deltaX > 0 ? 1 : -1;
+        } else {
+          y = deltaY > 0 ? 1 : -1;
+        }
+
+        setHoverDirections((prev) => ({
+          ...prev,
+          [workId]: { id: workId, x, y },
+        }));
+      },
+      []
+    );
+
     const renderWorkItems = useCallback(() => {
       const items = [];
       let workIndex = 0;
@@ -107,7 +147,10 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
                   onClick={(e) => handleWorkClick(work, e)}
                   onMouseDown={(e) => handlePressStart(e, work)}
                   onMouseUp={handlePressEnd}
-                  onMouseEnter={(e) => handleHoverStart(e, work)}
+                  onMouseEnter={(e) => {
+                    getHoverDirection(e, work.id);
+                    handleHoverStart(e, work);
+                  }}
                   onMouseLeave={() => {
                     handlePressEnd();
                     handleHoverEnd();
@@ -127,20 +170,75 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
                       className={styles.imageInner}
                       style={{ y: smoothWorkImageY }}
                     >
-                      <Image
-                        src={work.main}
-                        alt={work.title || ""}
-                        fill
-                        sizes="120px"
-                        className={styles.image}
-                      />
-                      <Image
-                        src={work.hover}
-                        alt={work.title || ""}
-                        fill
-                        sizes="120px"
-                        className={styles.imageHover}
-                      />
+                      {/* Main Image */}
+                      <motion.div
+                        className={styles.mainImageContainer}
+                        animate={{
+                          scale: isHovering ? 1.08 : 1,
+                          filter: isHovering
+                            ? "brightness(0.7) saturate(0.6)"
+                            : "brightness(1) saturate(1)",
+                        }}
+                        transition={{
+                          duration: 1.2,
+                          ease: [0.25, 0.1, 0.25, 1],
+                        }}
+                      >
+                        <Image
+                          src={work.main}
+                          alt={work.title || ""}
+                          fill
+                          sizes="120px"
+                          className={styles.image}
+                        />
+                      </motion.div>
+
+                      {/* Hover Image with direction-aware animation */}
+                      <motion.div
+                        className={styles.hoverImageContainer}
+                        initial={false}
+                        animate={{
+                          clipPath: isHovering
+                            ? "circle(80% at 50% 50%)"
+                            : `circle(0% at ${50 + (hoverDirections[work.id]?.x || 0) * 25}% ${50 + (hoverDirections[work.id]?.y || 0) * 25}%)`,
+                          scale: isHovering ? 1 : 0.9,
+                        }}
+                        transition={{
+                          clipPath: {
+                            duration: 1.4,
+                            ease: [0.25, 0.1, 0.25, 1],
+                          },
+                          scale: {
+                            duration: 1.2,
+                            ease: [0.25, 0.1, 0.25, 1],
+                          },
+                        }}
+                      >
+                        <motion.div
+                          animate={{
+                            scale: isHovering ? 1 : 1.1,
+                            x: isHovering
+                              ? 0
+                              : (hoverDirections[work.id]?.x || 0) * -15,
+                            y: isHovering
+                              ? 0
+                              : (hoverDirections[work.id]?.y || 0) * -15,
+                          }}
+                          transition={{
+                            duration: 1.4,
+                            ease: [0.25, 0.1, 0.25, 1],
+                          }}
+                          style={{ width: "100%", height: "100%" }}
+                        >
+                          <Image
+                            src={work.hover}
+                            alt={work.title || ""}
+                            fill
+                            sizes="120px"
+                            className={styles.image}
+                          />
+                        </motion.div>
+                      </motion.div>
                     </motion.div>
                   </div>
                 </motion.div>
@@ -173,6 +271,8 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
       handleWorkClick,
       handleHoverStart,
       handleHoverEnd,
+      getHoverDirection,
+      hoverDirections,
     ]);
 
     return (
