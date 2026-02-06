@@ -109,6 +109,8 @@ export default function RootLayout({
     >
       <head>
         <link rel="icon" href="/favicon-light.ico" />
+        <link rel="preconnect" href="https://www.google.com" />
+        <link rel="preconnect" href="https://www.gstatic.com" crossOrigin="anonymous" />
       </head>
 
       <body>

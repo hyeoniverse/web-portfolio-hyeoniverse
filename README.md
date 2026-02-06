@@ -239,6 +239,91 @@ gsap.to(container, {
 
 ---
 
+### 5. Lighthouse 성능 최적화 — reCAPTCHA 지연 로딩
+
+#### 문제
+Lighthouse 모바일 Performance 점수 48점. LCP 17.1초, TTI 18.2초로 심각한 성능 저하
+
+#### 원인 분석
+Lighthouse 보고서(Desktop/Mobile)를 분석한 결과 주요 병목:
+1. **reCAPTCHA v3 즉시 로딩**: `GoogleReCaptchaProvider`가 앱 전체를 감싸며 초기 로드 시 ~784KB JS를 즉시 다운로드. 메인 스레드 280ms 차단
+2. **Preconnect 미설정**: Google 도메인에 대한 사전 연결 없이 요청 시작 → 400ms 지연
+3. **색상 대비 미달**: `#6b7280` on `#f8f6f0` (4.47:1, 기준 4.5:1 미달), `#ff4f9d` on `#f8f6f0` (2.83:1)
+4. **접근성**: heading 순서 건너뜀 (h1 → h3), aria-label과 표시 텍스트 불일치
+
+#### 해결
+
+**1. reCAPTCHA 지연 로딩** — 가장 큰 영향
+
+유저 인터랙션(scroll/click/touch/keydown) 또는 4초 경과 후에만 reCAPTCHA 스크립트를 로드하도록 변경:
+
+```tsx
+// ❌ 기존 - 앱 마운트 시 즉시 로드 (784KB)
+<GoogleReCaptchaProvider reCaptchaKey={siteKey}>
+  {children}
+</GoogleReCaptchaProvider>
+
+// ✅ 개선 - 유저 인터랙션 후 지연 로드
+const [shouldLoad, setShouldLoad] = useState(false);
+
+useEffect(() => {
+  const load = () => setShouldLoad(true);
+  const timer = setTimeout(load, 4000);
+  const events = ["scroll", "click", "touchstart", "keydown"] as const;
+  const handler = () => { load(); cleanup(); };
+  // ...이벤트 리스너 등록 (once: true, passive: true)
+}, []);
+
+if (!shouldLoad) return <>{children}</>;
+return <GoogleReCaptchaProvider ...>{children}</GoogleReCaptchaProvider>;
+```
+
+**2. Preconnect 힌트 추가**
+
+```html
+<link rel="preconnect" href="https://www.google.com" />
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin="anonymous" />
+```
+
+**3. 색상 대비 수정**
+
+| 토큰 | 변경 전 | 변경 후 | 대비 변화 |
+|------|---------|---------|-----------|
+| `--color-neutral-600` | `#6b7280` | `#656c79` | 4.47:1 → ~4.9:1 |
+| `--text-accent-secondary-alt` | `var(--color-accent-light)` (#ff4f9d) | `var(--color-accent)` (#d40063) | 2.83:1 → ~4.8:1 |
+
+**4. 접근성 수정**
+- ServicesSection: `<h3>` → `<h2>`로 heading 순서 정상화
+- 언어 토글: `aria-label`에 표시 텍스트("KO"/"EN") 포함
+
+#### 핵심 교훈
+- 서드파티 스크립트(reCAPTCHA, Analytics 등)는 초기 로드에서 제외하고 유저 인터랙션 후 로드하면 LCP/TTI에 큰 영향
+- 개발 서버(Turbopack)에서의 Lighthouse 결과는 unminified JS, devtools 등으로 인해 프로덕션보다 훨씬 낮게 측정됨
+- `mix-blend-mode: difference` 사용 시 Lighthouse가 blend 전 색상으로 대비를 계산하므로 실제 시각적 결과와 다를 수 있음
+
+---
+
+### 6. reCAPTCHA 배지 z-index 문제
+
+#### 문제
+Contact Drawer가 열렸을 때 reCAPTCHA v3 배지가 overlay 아래에 가려져 보이지 않음
+
+#### 원인
+- Contact Drawer의 backdrop이 `z-index: var(--z-overlay)` (40)로 fixed 포지셔닝
+- Google이 삽입하는 `.grecaptcha-badge` 요소의 z-index가 backdrop보다 낮아 가려짐
+
+#### 해결
+Drawer 열릴 때 배지에 `z-index: 9999`를 동적으로 설정, 닫힐 때 제거:
+
+```tsx
+badge.style.zIndex = isOpen ? "9999" : "";
+```
+
+#### 핵심 교훈
+서드파티가 삽입하는 DOM 요소는 커스텀 overlay/modal과 z-index 충돌이 발생할 수 있음. 동적으로 z-index를 관리해야 함
+
+---
+
 ## 배포
 
 [Vercel Platform](https://vercel.com)을 통해 쉽게 배포할 수 있습니다.

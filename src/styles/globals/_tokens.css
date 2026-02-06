@@ -36,7 +36,7 @@
   --color-neutral-300: #ced4da;
   --color-neutral-400: #bcc1c7;
   --color-neutral-500: #adb5bd;
-  --color-neutral-600: #6b7280;
+  --color-neutral-600: #656c79;
   --color-neutral-700: #495057;
   --color-neutral-800: #343a40;
   --color-neutral-900: #212529;
@@ -155,7 +155,7 @@
   --text-accent-primary: var(--color-primary);
   --text-accent-primary-alt: var(--color-primary-light);
   --text-accent-secondary: var(--color-accent);
-  --text-accent-secondary-alt: var(--color-accent-light);
+  --text-accent-secondary-alt: var(--color-accent);
 
   /* Background Colors */
   --bg-white: var(--color-white-alpha-100);
