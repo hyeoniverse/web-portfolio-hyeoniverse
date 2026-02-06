@@ -15,7 +15,8 @@ export default function Error({ error, reset }: ErrorProps) {
   const { t } = useLanguage();
 
   useEffect(() => {
-    // Log the error to an error reporting service
+    // Log the error to an error reporting service (server-side only in production)
+    // In production, consider sending to a proper error tracking service like Sentry
     console.error("Application Error:", error);
   }, [error]);
 
@@ -39,14 +40,14 @@ export default function Error({ error, reset }: ErrorProps) {
           </div>
         </motion.div>
 
-        {/* Error Message */}
+        {/* Error Message - User-friendly, no technical details */}
         <motion.h1
           className={styles.title}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          Something went wrong
+          {t("errorPage.title")}
         </motion.h1>
 
         <motion.p
@@ -58,16 +59,16 @@ export default function Error({ error, reset }: ErrorProps) {
           {t("errorPage.description")}
         </motion.p>
 
-        {/* Error Details (Development only) */}
-        {process.env.NODE_ENV === "development" && (
-          <motion.div
-            className={styles.errorDetails}
+        {/* Error Reference ID for support (digest is safe to show) */}
+        {error.digest && (
+          <motion.p
+            className={styles.errorRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
+            transition={{ delay: 0.45, duration: 0.5 }}
           >
-            <code className={styles.errorCode}>{error.message}</code>
-          </motion.div>
+            {t("errorPage.reference")}: {error.digest}
+          </motion.p>
         )}
 
         {/* Actions */}
@@ -78,10 +79,10 @@ export default function Error({ error, reset }: ErrorProps) {
           transition={{ delay: 0.5, duration: 0.5 }}
         >
           <button onClick={reset} className={styles.primaryButton}>
-            Try Again
+            {t("errorPage.tryAgain")}
           </button>
           <Link href="/" className={styles.secondaryButton}>
-            Go Home
+            {t("errorPage.goHome")}
           </Link>
         </motion.div>
       </motion.div>
