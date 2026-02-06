@@ -28,6 +28,7 @@ module.exports = {
     'subject-empty': [2, 'never'],
     'subject-full-stop': [2, 'never', '.'],
     'subject-max-length': [2, 'always', 72],
+    'subject-case': [0], // 한글 및 고유명사 허용
 
     // 헤더 규칙
     'header-max-length': [2, 'always', 100],
