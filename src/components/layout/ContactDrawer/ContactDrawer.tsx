@@ -239,7 +239,7 @@ export default function ContactDrawer({
                           ease: [0.65, 0, 0.35, 1],
                         }}
                       >
-                        Message you sent
+                        [Preview] Message you sent
                       </motion.div>
 
                       <motion.div

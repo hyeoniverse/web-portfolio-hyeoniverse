@@ -100,7 +100,6 @@
   background: var(--drawer-color-bg);
   color: var(--drawer-color-primary);
   transition: all 0.3s ease;
-  cursor: pointer;
   border-radius: var(--radius-circle);
 }
 
@@ -123,8 +122,8 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Form Card
-   --------------------------------------------------------------------------- */
+  Form Card
+  --------------------------------------------------------------------------- */
 .formCard {
   display: flex;
   flex-direction: column;
@@ -151,8 +150,8 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Form Inputs
-   --------------------------------------------------------------------------- */
+  Form Inputs
+  --------------------------------------------------------------------------- */
 .formRow {
   display: grid;
   gap: var(--drawer-gap-md);
@@ -470,8 +469,8 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Success View
-   --------------------------------------------------------------------------- */
+  Success View
+  --------------------------------------------------------------------------- */
 .successView {
   display: flex;
   justify-content: center;
@@ -479,25 +478,8 @@
   flex-direction: column;
 }
 
-.successIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto var(--drawer-gap-lg);
-  border: 2px solid var(--drawer-color-primary);
-  width: 4vw;
-  height: 4vw;
-  border-radius: var(--radius-circle);
-}
-
-.successIcon svg {
-  width: 2vw;
-  height: 2vw;
-  stroke: var(--drawer-color-primary);
-}
-
 .successLabel {
-  margin-bottom: var(--drawer-gap-sm);
+  /* margin-bottom: var(--drawer-gap-lg); */
   font-family: var(--font-mono);
   font-size: var(--drawer-font-size-sm);
   color: var(--drawer-color-tertiary);
@@ -522,7 +504,6 @@
 
 .successEmail {
   display: block;
-  margin-top: 6px;
   font-family: var(--font-mono);
   font-size: var(--drawer-font-size-sm);
   color: var(--drawer-color-tertiary);
@@ -544,13 +525,7 @@
   margin: var(--drawer-gap-lg) auto;
   width: 100%;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--drawer-color-primary) 20%,
-    var(--drawer-color-primary) 80%,
-    transparent 100%
-  );
+  background: var(--drawer-color-primary);
   transform-origin: center;
 }
 
@@ -567,7 +542,7 @@
 
 .successMessageLabel {
   flex-shrink: 0;
-  margin-bottom: var(--drawer-gap-sm);
+  margin-top: var(--drawer-gap-md);
   font-family: var(--font-mono);
   font-size: calc(var(--drawer-font-size-sm) * 0.85);
   color: var(--drawer-color-tertiary);
@@ -624,7 +599,6 @@
   color: var(--drawer-color-primary);
   letter-spacing: 0.02em;
   transition: all 0.3s ease;
-  cursor: pointer;
   border-radius: var(--radius-capsule);
 }
 
@@ -691,7 +665,7 @@
 
 .emailAddressCopied,
 .emailAddressCopied:hover {
-  border-color: var(--drawer-color-accent);
+  outline: var(--drawer-border-accent);
 }
 
 .emailTextWrapper {
