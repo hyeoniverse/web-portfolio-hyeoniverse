@@ -98,36 +98,36 @@
   z-index: 10;
 }
 
-/* Card Sizes */
+/* Card Sizes - Landscape orientation */
 .cardLarge {
-  width: 420px;
-  height: 560px;
+  width: 560px;
+  height: 380px;
   align-self: flex-start;
   margin-top: 10vh;
 }
 
 .cardSmall {
-  width: 280px;
-  height: 380px;
+  width: 420px;
+  height: 280px;
   align-self: flex-end;
   margin-bottom: 12vh;
 }
 
 .cardMedium {
-  width: 340px;
-  height: 450px;
+  width: 500px;
+  height: 320px;
   align-self: center;
 }
 
 .cardTall {
-  width: 300px;
-  height: 520px;
+  width: 480px;
+  height: 300px;
   align-self: flex-start;
   margin-top: 8vh;
 }
 
 .cardWide {
-  width: 480px;
+  width: 620px;
   height: 360px;
   align-self: flex-end;
   margin-bottom: 10vh;
@@ -387,27 +387,27 @@
   }
 
   .cardLarge {
-    width: 340px;
-    height: 450px;
+    width: 450px;
+    height: 300px;
   }
 
   .cardSmall {
-    width: 240px;
-    height: 320px;
+    width: 360px;
+    height: 240px;
   }
 
   .cardMedium {
-    width: 280px;
-    height: 380px;
+    width: 420px;
+    height: 270px;
   }
 
   .cardTall {
-    width: 260px;
-    height: 420px;
+    width: 400px;
+    height: 260px;
   }
 
   .cardWide {
-    width: 380px;
+    width: 500px;
     height: 300px;
   }
 
@@ -476,7 +476,7 @@
   .cardWide {
     width: 100%;
     height: auto;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 16 / 10;
     margin: 0;
     align-self: stretch;
   }
