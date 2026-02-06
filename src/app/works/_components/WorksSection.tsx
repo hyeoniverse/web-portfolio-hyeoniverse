@@ -3,7 +3,7 @@
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -81,11 +81,24 @@ const projects = [
 // Quintuple the projects for seamless bidirectional infinite scroll
 const allProjects = [...projects, ...projects, ...projects, ...projects, ...projects];
 
+interface TransitionData {
+  id: string;
+  image: string;
+  rect: DOMRect;
+}
+
+const LONG_HOVER_DURATION = 2500; // 2.5 seconds for long hover
+
 export default function WorksSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [transitionData, setTransitionData] = useState<TransitionData | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<{ index: number; project: typeof projects[0] } | null>(null);
+  const hoverStartRef = useRef<number | null>(null);
+  const hoverRafRef = useRef<number | null>(null);
+  const cardRefs = useRef<Map<number, HTMLElement>>(new Map());
   const router = useRouter();
   const { t } = useLanguage();
   const { setInfinite } = useLenis();
@@ -203,10 +216,14 @@ export default function WorksSection() {
           cardOffsets[i].x += (cardOffsets[i].targetX - cardOffsets[i].x) * 0.04;
           cardOffsets[i].y += (cardOffsets[i].targetY - cardOffsets[i].y) * 0.04;
 
-          // Apply to card
+          // Check for hover scale from data attribute
+          const hoverScale = parseFloat(card.dataset.hoverScale || '1');
+
+          // Apply to card (including hover scale for entire card)
           gsap.set(card, {
             x: cardOffsets[i].x,
-            y: cardOffsets[i].y
+            y: cardOffsets[i].y,
+            scale: hoverScale
           });
 
           // Image moves slightly more + scroll velocity effect
@@ -217,6 +234,7 @@ export default function WorksSection() {
             imageOffsets[i].x += (imageOffsets[i].targetX - imageOffsets[i].x) * 0.035;
             imageOffsets[i].y += (imageOffsets[i].targetY - imageOffsets[i].y) * 0.035;
 
+            // Image has base scale of 1.2 for parallax effect
             gsap.set(cardImages[i], {
               x: currentImageOffset + imageOffsets[i].x,
               y: imageOffsets[i].y,
@@ -315,8 +333,111 @@ export default function WorksSection() {
     };
   }, []);
 
-  const handleCardClick = (id: string) => {
-    router.push(`/works/${id}`);
+  const handleCardClick = (
+    e: React.MouseEvent<HTMLElement>,
+    project: (typeof projects)[0]
+  ) => {
+    // Cancel any hover animation
+    if (hoverRafRef.current) {
+      cancelAnimationFrame(hoverRafRef.current);
+    }
+
+    // Clean up any existing hover state
+    if (hoveredCard) {
+      const prevCard = cardRefs.current.get(hoveredCard.index);
+      if (prevCard) {
+        delete prevCard.dataset.hoverScale;
+        prevCard.classList.remove(styles.cardHovering);
+      }
+    }
+    setHoveredCard(null);
+
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+
+    setTransitionData({
+      id: project.id,
+      image: project.image,
+      rect,
+    });
+
+    // Navigate after animation
+    setTimeout(() => {
+      router.push(`/works/${project.id}`);
+    }, 800);
+  };
+
+  const triggerTransition = (index: number, project: (typeof projects)[0]) => {
+    const card = cardRefs.current.get(index);
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    setTransitionData({
+      id: project.id,
+      image: project.image,
+      rect,
+    });
+
+    setTimeout(() => {
+      router.push(`/works/${project.id}`);
+    }, 800);
+  };
+
+  const handleCardHoverStart = (index: number, project: (typeof projects)[0]) => {
+    if (transitionData) return; // Already transitioning
+
+    const card = cardRefs.current.get(index);
+    if (!card) return;
+
+    setHoveredCard({ index, project });
+    hoverStartRef.current = performance.now();
+    card.classList.add(styles.cardHovering);
+
+    // Set data attribute for GSAP to read
+    card.dataset.hoverScale = '1';
+
+    const animateHover = () => {
+      if (!hoverStartRef.current) return;
+
+      const elapsed = performance.now() - hoverStartRef.current;
+      const progress = Math.min(elapsed / LONG_HOVER_DURATION, 1);
+
+      // Update data attribute that GSAP will read
+      const hoverScale = 1 + progress * 0.5; // 1 to 1.5
+      card.dataset.hoverScale = String(hoverScale);
+
+      if (progress >= 1) {
+        // Trigger page transition
+        triggerTransition(index, project);
+        setHoveredCard(null);
+        hoverStartRef.current = null;
+        delete card.dataset.hoverScale;
+        card.classList.remove(styles.cardHovering);
+        return;
+      }
+
+      hoverRafRef.current = requestAnimationFrame(animateHover);
+    };
+
+    hoverRafRef.current = requestAnimationFrame(animateHover);
+  };
+
+  const handleCardHoverEnd = () => {
+    if (hoverRafRef.current) {
+      cancelAnimationFrame(hoverRafRef.current);
+    }
+
+    // Reset the hover scale data attribute
+    if (hoveredCard) {
+      const card = cardRefs.current.get(hoveredCard.index);
+      if (card) {
+        delete card.dataset.hoverScale;
+        card.classList.remove(styles.cardHovering);
+      }
+    }
+
+    hoverStartRef.current = null;
+    setHoveredCard(null);
   };
 
   const currentProject = projects[activeIndex];
@@ -369,8 +490,13 @@ export default function WorksSection() {
           {allProjects.map((project, index) => (
             <article
               key={`${project.id}-${index}`}
+              ref={(el) => {
+                if (el) cardRefs.current.set(index, el);
+              }}
               className={`${styles.card} ${styles[`card${project.size?.charAt(0).toUpperCase()}${project.size?.slice(1)}`]}`}
-              onClick={() => handleCardClick(project.id)}
+              onClick={(e) => handleCardClick(e, project)}
+              onMouseEnter={() => handleCardHoverStart(index, project)}
+              onMouseLeave={handleCardHoverEnd}
             >
               {/* Large Number */}
               <div className={styles.cardNumber}>
@@ -451,6 +577,49 @@ export default function WorksSection() {
           </div>
         </div>
       </motion.div>
+
+      {/* Page Transition Overlay */}
+      <AnimatePresence>
+        {transitionData && (
+          <motion.div
+            className={styles.transitionOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className={styles.transitionImage}
+              initial={{
+                top: transitionData.rect.top,
+                left: transitionData.rect.left,
+                width: transitionData.rect.width,
+                height: transitionData.rect.height,
+                borderRadius: 8,
+              }}
+              animate={{
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                borderRadius: 0,
+              }}
+              transition={{
+                duration: 0.8,
+                ease: [0.4, 0, 0.2, 1],
+              }}
+            >
+              <Image
+                src={transitionData.image}
+                alt="Transition"
+                fill
+                sizes="100vw"
+                style={{ objectFit: "cover" }}
+                priority
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

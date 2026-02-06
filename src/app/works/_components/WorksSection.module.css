@@ -93,10 +93,15 @@
   border-radius: 8px;
   transform-style: preserve-3d;
   will-change: transform;
+  transition: overflow 0.1s;
 }
 
 .card:hover {
   z-index: 10;
+}
+
+.cardHovering {
+  z-index: 100 !important;
 }
 
 /* Card Sizes - Landscape orientation */
@@ -139,7 +144,7 @@
   position: absolute;
   top: -20px;
   right: -10px;
-  z-index: 5;
+  z-index: 25;
   pointer-events: none;
 }
 
@@ -148,15 +153,16 @@
   font-size: 120px;
   font-weight: 400;
   color: transparent;
-  -webkit-text-stroke: 1px var(--border-secondary);
+  -webkit-text-stroke: 1.5px var(--border-tertiary);
   line-height: 1;
-  opacity: 0.5;
+  opacity: 0.7;
   transition: all 0.4s ease;
 }
 
 .card:hover .cardNumber span {
+  -webkit-text-stroke: 1.5px var(--border-white);
   opacity: 1;
-  -webkit-text-stroke-color: var(--text-primary);
+  -webkit-text-stroke-width: 2px;
   transform: translate(-5px, 5px);
 }
 
@@ -166,6 +172,8 @@
   inset: 0;
   overflow: hidden;
   will-change: transform;
+  border-radius: 8px;
+  transform-origin: center center;
 }
 
 .cardImage {
@@ -355,6 +363,30 @@
   background: var(--text-primary);
   border-radius: 3px;
 }
+
+/* ==========================================================================
+   Page Transition Overlay
+   ========================================================================== */
+
+.transitionOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg-primary);
+  pointer-events: none;
+}
+
+.transitionImage {
+  position: fixed;
+  overflow: hidden;
+}
+
+.transitionImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 
 /* ==========================================================================
    Responsive - Tablet
