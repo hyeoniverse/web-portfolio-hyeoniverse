@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import { services } from "@/data/services";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./ServicesSection.module.css";
 
 interface ServicesSectionProps {
@@ -13,12 +14,13 @@ interface ServicesSectionProps {
 
 const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
   ({ serviceY0, serviceY1, serviceY2 }, ref) => {
+    const { t } = useLanguage();
     const yTransforms = [serviceY0, serviceY1, serviceY2, undefined];
 
     return (
       <section className={styles.services} ref={ref}>
         <div className={styles.header}>
-          <span className={styles.label}>What I Do</span>
+          <span className={styles.label}>{t("services.label")}</span>
           <div className={`${styles.headerLine} horizontal-rule`} />
         </div>
 
@@ -34,8 +36,12 @@ const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
               <div className={`${styles.itemLine} horizontal-rule`} />
               <div className={styles.itemContent}>
                 <span className={styles.itemNumber}>{service.num}</span>
-                <h3 className={styles.itemTitle}>{service.title}</h3>
-                <span className={styles.itemDescription}>{service.desc}</span>
+                <h3 className={styles.itemTitle}>
+                  {t(`services.${service.key}.title`)}
+                </h3>
+                <span className={styles.itemDescription}>
+                  {t(`services.${service.key}.desc`)}
+                </span>
                 <motion.div
                   className={styles.itemOval}
                   whileHover={{ scale: 1.2 }}

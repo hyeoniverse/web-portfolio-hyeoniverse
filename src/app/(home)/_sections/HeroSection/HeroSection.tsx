@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import StaggerText from "@/components/effects/StaggerText";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./HeroSection.module.css";
 
 interface HeroSectionProps {
@@ -14,6 +15,8 @@ interface HeroSectionProps {
 
 const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
   ({ floatX, floatY, oval2X, oval2Y }, ref) => {
+    const { t } = useLanguage();
+
     return (
       <section className={styles.hero} ref={ref}>
         {/* Floating Ovals */}
@@ -42,7 +45,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
                 className={styles.titleText}
                 strokeColor="var(--text-primary)"
               >
-                Creative
+                {t("hero.headline1")}
               </StaggerText>
             </span>
             <span className={`${styles.titleRow} hero-line`}>
@@ -50,7 +53,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
                 className={styles.titleText}
                 strokeColor="var(--text-primary)"
               >
-                Developer
+                {t("hero.headline2")}
               </StaggerText>
               <span className={styles.titleOvalWrapper}>
                 <motion.span
@@ -65,20 +68,19 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
               </span>
             </span>
             <span className={`${styles.titleRow} hero-line`}>
-              <span className={styles.titleAccent}>&</span>
               <StaggerText
                 className={styles.titleText}
                 strokeColor="var(--text-primary)"
               >
-                Problem Solver
+                {t("hero.headline3")}
               </StaggerText>
             </span>
           </h1>
 
           <div className={styles.meta}>
-            <span className="hero-line">Based in Seoul, KR</span>
+            <span className="hero-line">{t("hero.location")}</span>
             <span className={styles.metaDivider} />
-            <span className="hero-line">Available for opportunities</span>
+            <span className="hero-line">{t("hero.availability")}</span>
           </div>
         </div>
 

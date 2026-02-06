@@ -7,14 +7,14 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./Navigation.module.css";
 
 const navItems = [
-  { name: "Works", href: "/works" },
-  { name: "About", href: "/about" },
-  { name: "Web Flow", href: "/webflow" },
+  { key: "works", href: "/works" },
+  { key: "about", href: "/about" },
+  { key: "webflow", href: "/webflow" },
 ];
 
 export default function Navigation() {
   const { theme, toggleTheme } = useTheme();
-  const { language, toggleLanguage } = useLanguage();
+  const { language, toggleLanguage, t } = useLanguage();
   const [isAnimating, setIsAnimating] = useState(false);
   const [displayTheme, setDisplayTheme] = useState(theme);
 
@@ -47,11 +47,11 @@ export default function Navigation() {
       <div className={styles.navCenter}>
         {navItems.map((item) => (
           <Link
-            key={item.name}
+            key={item.key}
             href={item.href}
             className={`${styles.navLink} glith-on-hover`}
           >
-            {item.name}
+            {t(`nav.${item.key}`)}
           </Link>
         ))}
       </div>

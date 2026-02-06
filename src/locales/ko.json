@@ -1,0 +1,171 @@
+{
+  "nav": {
+    "home": "Home",
+    "works": "Works",
+    "about": "About",
+    "webflow": "Web Flow"
+  },
+  "hero": {
+    "headline1": "Creative",
+    "headline2": "Developer",
+    "headline3": "& Problem Solver",
+    "location": "Based in Seoul, KR",
+    "availability": "Available for Opportunities",
+    "ctaLabel": "Available for Opportunities",
+    "ctaTitle1": "Looking for",
+    "ctaTitle2": "someone?",
+    "ctaButton": "Get in touch"
+  },
+  "about": {
+    "title": "About Me",
+    "intro": {
+      "before": "",
+      "highlight1": "미학",
+      "middle": "과 ",
+      "highlight2": "기능",
+      "after": "이 만나는 디지털 경험을 만듭니다."
+    },
+    "description": {
+      "before": "세심한 ",
+      "highlight1": "디자인",
+      "middle": "과 깔끔한 ",
+      "highlight2": "코드",
+      "after": "로 기억에 남는 인터랙션을 만드는 데 집중합니다."
+    }
+  },
+  "services": {
+    "label": "What I Do",
+    "webDev": {
+      "title": "Web Development",
+      "desc": "React, Next.js, TypeScript"
+    },
+    "uiux": {
+      "title": "UI/UX Design",
+      "desc": "Figma, Prototyping, Systems"
+    },
+    "motion": {
+      "title": "Motion Design",
+      "desc": "GSAP, Framer Motion, CSS"
+    },
+    "brand": {
+      "title": "Brand Identity",
+      "desc": "Visual Language, Guidelines"
+    }
+  },
+  "marquee": {
+    "creative": "CREATIVE",
+    "frontend": "FRONTEND",
+    "developer": "DEVELOPER",
+    "innovator": "INNOVATOR"
+  },
+  "cta": {
+    "title1": "Looking for",
+    "title2": "someone?",
+    "button": "Get in touch"
+  },
+  "works": {
+    "label": "My Works",
+    "scroll": "Scroll",
+    "explore": "자세히 보기",
+    "explore": "Explore",
+    "introTitle": "Portfolio 2024",
+    "introSubtitle": "Creative Works & Projects",
+    "introDesc": "A showcase of creative projects across various domains.",
+    "stats": {
+      "projects": "Projects",
+      "clients": "Clients",
+      "years": "Years"
+    },
+    "endTitle": "Get in Touch",
+    "endSubtitle": "Let's Create Something Amazing",
+    "endDesc": "Have a project in mind? Let's discuss how we can bring your vision to life.",
+    "endButton": "Start a Project"
+  },
+  "aboutPage": {
+    "title": "About Me",
+    "subtitle": "Crafting Digital Experiences",
+    "intro": "Hello! I'm a passionate developer and designer based in Seoul, Korea.",
+    "philosophy": {
+      "design": {
+        "title": "목적을 담은 디자인",
+        "desc": "모든 디자인 결정에는 사용자 경험을 향상시키는 목적이 있어야 합니다."
+      },
+      "code": {
+        "title": "신중한 코딩",
+        "desc": "깔끔하고 유지보수 가능하며 효율적인 코드를 작성합니다."
+      },
+      "learn": {
+        "title": "지속적인 학습",
+        "desc": "기술은 빠르게 변화하며, 저도 함께 성장합니다."
+      }
+    },
+    "stats": {
+      "years": "경력",
+      "projects": "완료한 프로젝트",
+      "clients": "만족한 클라이언트"
+    }
+  },
+  "contact": {
+    "title": "연락하기",
+    "namePlaceholder": "이름",
+    "emailPlaceholder": "이메일 주소",
+    "messagePlaceholder": "메시지를 입력하세요...",
+    "sending": "전송 중...",
+    "send": "이메일 보내기",
+    "successTitle": "전송 완료!",
+    "successMessage": "감사합니다! 메시지를 성공적으로 전송했습니다.",
+    "successSubMessage": "빠른 시일 내에 답변드리겠습니다.",
+    "confirm": "확인"
+  },
+  "footer": {
+    "location": "서울, 대한민국",
+    "copyright": "All Rights Reserved"
+  },
+  "webflow": {
+    "title": "Behind the Scenes",
+    "subtitle": "Web Flow & Implementation",
+    "description": "이 포트폴리오 사이트의 디자인 철학, 주요 기능 구현 방법, 그리고 개발 과정에 대한 이야기입니다.",
+    "features": {
+      "infiniteScroll": {
+        "title": "무한 스크롤 루프",
+        "desc": "Lenis smooth scroll과 Bridge Section을 결합한 무한 순환 스크롤"
+      },
+      "mouseParallax": {
+        "title": "마우스 패럴랙스",
+        "desc": "Framer Motion useSpring/useTransform 기반 마우스 반응형 패럴랙스"
+      },
+      "scrollAnimation": {
+        "title": "스크롤 트리거 애니메이션",
+        "desc": "GSAP ScrollTrigger를 활용한 스크롤 기반 등장 애니메이션"
+      },
+      "mixBlend": {
+        "title": "Mix-Blend 네비게이션",
+        "desc": "mix-blend-mode: difference를 활용한 자동 반전 네비게이션"
+      },
+      "staggerText": {
+        "title": "StaggerText 애니메이션",
+        "desc": "호버 시 글자별 순차 애니메이션 효과 컴포넌트"
+      }
+    },
+    "process": {
+      "designSystem": "Design System 구축",
+      "component": "컴포넌트 설계",
+      "animation": "애니메이션 레이어",
+      "infiniteScroll": "무한 스크롤 구현"
+    },
+    "troubleshooting": {
+      "cause": "원인",
+      "solution": "해결",
+      "keyInsight": "핵심"
+    }
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "retry": "다시 시도",
+    "close": "닫기",
+    "back": "뒤로",
+    "next": "다음",
+    "prev": "이전"
+  }
+}

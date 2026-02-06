@@ -57,8 +57,15 @@
   letter-spacing: 0.02em;
 }
 
+.bold {
+  color: var(--text-accent-secondary-alt);
+  text-decoration: underline;
+  text-decoration-thickness: 2.5px;
+  text-underline-offset: 1px;
+  text-decoration-skip-ink: all;
+}
+
 .highlight {
-  font-weight: var(--font-weight-regular);
   color: var(--text-accent-secondary-alt);
 }
 
