@@ -24,6 +24,7 @@ export default function Navigation() {
   // Language state
   const [isLangHovered, setIsLangHovered] = useState(false);
   const [isLangAnimating, setIsLangAnimating] = useState(false);
+  const [isLangClicking, setIsLangClicking] = useState(false);
   const [displayLang, setDisplayLang] = useState(language);
 
   // Sync displayTheme when theme changes (e.g., after hydration)
@@ -87,9 +88,16 @@ export default function Navigation() {
         {/* Language Toggle */}
         <button
           className={styles.actionBtn}
-          onClick={toggleLanguage}
+          onClick={() => {
+            if (isLangClicking) return;
+            setIsLangClicking(true);
+            toggleLanguage();
+            setTimeout(() => {
+              setIsLangClicking(false);
+            }, 300);
+          }}
           onMouseEnter={() => {
-            if (isLangAnimating) return;
+            if (isLangAnimating || isLangClicking) return;
             setIsLangAnimating(true);
             setTimeout(() => {
               setDisplayLang(language === "ko" ? "en" : "ko");
@@ -98,7 +106,7 @@ export default function Navigation() {
             setIsLangHovered(true);
           }}
           onMouseLeave={() => {
-            if (isLangAnimating) return;
+            if (isLangAnimating || isLangClicking) return;
             setIsLangAnimating(true);
             setTimeout(() => {
               setDisplayLang(language);
@@ -108,7 +116,7 @@ export default function Navigation() {
           }}
           aria-label={`Switch to ${language === "ko" ? "English" : "Korean"}`}
         >
-          <span className={`${styles.langText} ${isLangAnimating ? styles.animating : ""}`}>
+          <span className={`${styles.langText} ${isLangAnimating && !isLangClicking ? styles.animating : ""} ${isLangClicking ? styles.clicking : ""}`}>
             {displayLang === "ko" ? "KO" : "EN"}
           </span>
         </button>
