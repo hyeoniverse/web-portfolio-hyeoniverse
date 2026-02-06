@@ -165,5 +165,9 @@
     "back": "Back",
     "next": "Next",
     "prev": "Previous"
+  },
+  "errorPage": {
+    "description": "An unexpected error occurred. Please try again.",
+    "notFoundDescription": "The page you are looking for does not exist or has been moved."
   }
 }
