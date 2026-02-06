@@ -779,7 +779,7 @@
   --text-accent-primary-alt: var(--color-primary-dark);
   --text-accent-secondary-alt: var(--color-accent-dark);
 
-  --bg-primary: var(--color-neutral-0);
+  --bg-primary: var(--color-neutral-50);
   --bg-surface: var(--color-white-alpha-5);
   --bg-tertiary: var(--color-inverse-alpha-5);
 

@@ -5,7 +5,7 @@ import WorksSection from "./_components/WorksSection";
 
 export default function WorksPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "var(--bg-primary, #f8f6f0)" }} />}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "var(--bg-primary)" }} />}>
       <WorksSection />
     </Suspense>
   );
