@@ -15,11 +15,13 @@ import {
 } from "next/font/google";
 
 import LoadingScreen from "@/components/layout/LoadingScreen";
-import Nav from "@/components/layout/Nav";
+import Navigation from "@/components/layout/Navigation";
 import Modal from "@/components/ui/Modal";
 import CursorTrail from "@/components/effects/CursorTrail";
 import { LenisProvider } from "@/providers/LenisProvider";
 import RecaptchaProvider from "@/providers/RecaptchaProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import { LanguageProvider } from "@/providers/LanguageProvider";
 
 import FaviconSwitcher from "@/components/common/FaviconSwitcher";
 import ActionButtons from "@/components/common/ActionButtons/ActionButtons";
@@ -114,20 +116,24 @@ export default function RootLayout({
       </head>
 
       <body>
-        <RecaptchaProvider>
-          <LenisProvider>
-            <Nav />
-            <main>{children}</main>
+        <ThemeProvider>
+          <LanguageProvider>
+            <RecaptchaProvider>
+              <LenisProvider>
+                <Navigation />
+                <main>{children}</main>
 
-            <aside>
-              <FaviconSwitcher />
-              <ScrollRestoration />
-              <LoadingScreen />
-              <Modal />
-              <CursorTrail />
-            </aside>
-          </LenisProvider>
-        </RecaptchaProvider>
+                <aside>
+                  <FaviconSwitcher />
+                  <ScrollRestoration />
+                  <LoadingScreen />
+                  <Modal />
+                  <CursorTrail />
+                </aside>
+              </LenisProvider>
+            </RecaptchaProvider>
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
