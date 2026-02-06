@@ -284,8 +284,20 @@ export default function HomePage() {
           borderRadius: isLoading ? "var(--radius-2xl)" : "0px",
         }}
         transition={{
-          duration: 1.2,
-          ease: [0.25, 0.46, 0.45, 0.94],
+          y: {
+            duration: 1.2,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          },
+          width: {
+            duration: 0.4,
+            delay: 0.9,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          },
+          borderRadius: {
+            duration: 0.4,
+            delay: 0.9,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          },
         }}
       >
         <HeroSection
