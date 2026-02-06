@@ -372,6 +372,15 @@ export default function HomePage() {
       badge.style.opacity = isDrawerOpen ? "1" : "0";
       badge.style.transition = "visibility 0.3s, opacity 0.3s";
     }
+
+    // Cleanup: hide badge when component unmounts (e.g., page navigation)
+    return () => {
+      const badge = document.querySelector(".grecaptcha-badge") as HTMLElement;
+      if (badge) {
+        badge.style.visibility = "hidden";
+        badge.style.opacity = "0";
+      }
+    };
   }, [isDrawerOpen, recaptchaEnabled, recaptchaVersion]);
 
   const [, setMousePos] = useState({ x: 0, y: 0 });
