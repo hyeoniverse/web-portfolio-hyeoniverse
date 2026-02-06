@@ -70,14 +70,32 @@
 }
 
 .langText {
+  display: inline-block;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0.03em;
+  transition: transform 0.3s ease;
 }
 
 .langText:hover {
   color: var(--text-accent-secondary-alt);
+}
+
+.langText.animating {
+  animation: flipLang 0.3s ease-in-out;
+}
+
+@keyframes flipLang {
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(90deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
 }
 
 .themeIconWrapper {
