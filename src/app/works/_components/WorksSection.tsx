@@ -123,33 +123,110 @@ export default function WorksSection() {
 
       const scrollDistance = oneSetWidth * 6;
 
-      // Velocity tracking
+      // Scroll velocity tracking
       let lastProgress = 0;
       let lastTime = performance.now();
-      let targetOffset = 0;
-      let currentOffset = 0;
+      let targetImageOffset = 0;
+      let currentImageOffset = 0;
+
+      // Mouse tracking
+      let mouseX = 0;
+      let mouseY = 0;
+      let lastMouseX = 0;
+      let lastMouseY = 0;
+      let lastMouseTime = performance.now();
+      let mouseVelocityX = 0;
+      let mouseVelocityY = 0;
+
+      // Per-card offset tracking
+      const cardOffsets = cards.map(() => ({ x: 0, y: 0, targetX: 0, targetY: 0 }));
+      const imageOffsets = cardImages.map(() => ({ x: 0, y: 0, targetX: 0, targetY: 0 }));
+
+      // Mouse move handler
+      const handleMouseMove = (e: MouseEvent) => {
+        const currentTime = performance.now();
+        const deltaTime = (currentTime - lastMouseTime) / 1000;
+
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        if (deltaTime > 0) {
+          mouseVelocityX = (e.clientX - lastMouseX) / deltaTime;
+          mouseVelocityY = (e.clientY - lastMouseY) / deltaTime;
+        }
+
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        lastMouseTime = currentTime;
+      };
+
+      // Add mouse listener to section
+      section.addEventListener("mousemove", handleMouseMove);
 
       // Start from middle set
       gsap.set(container, { x: -oneSetWidth });
 
-      // Smooth velocity animation loop
-      const smoothVelocity = () => {
-        // Lerp offset for smooth transition
-        currentOffset += (targetOffset - currentOffset) * 0.08;
+      // Smooth animation loop
+      const smoothAnimation = () => {
+        // Lerp scroll velocity offset
+        currentImageOffset += (targetImageOffset - currentImageOffset) * 0.06;
 
-        // Apply horizontal offset to images based on velocity
-        // Scale 1.2 ensures no empty space when moving up to 25px
-        cardImages.forEach((img) => {
-          gsap.set(img, {
-            x: currentOffset,
-            scale: 1.2
+        // Decay mouse velocity (slower for smoother feel)
+        mouseVelocityX *= 0.96;
+        mouseVelocityY *= 0.96;
+
+        // Calculate per-card offsets based on distance to mouse
+        const effectRadius = 500; // pixels
+        const maxOffset = 12;
+        const sensitivity = 0.012;
+
+        cards.forEach((card, i) => {
+          const rect = card.getBoundingClientRect();
+          const cardCenterX = rect.left + rect.width / 2;
+          const cardCenterY = rect.top + rect.height / 2;
+
+          const distX = mouseX - cardCenterX;
+          const distY = mouseY - cardCenterY;
+          const distance = Math.sqrt(distX * distX + distY * distY);
+
+          // Calculate effect strength based on distance with easing
+          const normalizedDist = Math.min(1, distance / effectRadius);
+          const strength = Math.pow(1 - normalizedDist, 2); // Ease out quad
+
+          // Apply velocity-based offset with distance falloff
+          cardOffsets[i].targetX = gsap.utils.clamp(-maxOffset, maxOffset, mouseVelocityX * sensitivity * strength);
+          cardOffsets[i].targetY = gsap.utils.clamp(-maxOffset, maxOffset, mouseVelocityY * sensitivity * strength);
+
+          // Slower lerp for smoother movement
+          cardOffsets[i].x += (cardOffsets[i].targetX - cardOffsets[i].x) * 0.04;
+          cardOffsets[i].y += (cardOffsets[i].targetY - cardOffsets[i].y) * 0.04;
+
+          // Apply to card
+          gsap.set(card, {
+            x: cardOffsets[i].x,
+            y: cardOffsets[i].y
           });
+
+          // Image moves slightly more + scroll velocity effect
+          if (cardImages[i]) {
+            imageOffsets[i].targetX = cardOffsets[i].targetX * 1.3;
+            imageOffsets[i].targetY = cardOffsets[i].targetY * 1.3;
+
+            imageOffsets[i].x += (imageOffsets[i].targetX - imageOffsets[i].x) * 0.035;
+            imageOffsets[i].y += (imageOffsets[i].targetY - imageOffsets[i].y) * 0.035;
+
+            gsap.set(cardImages[i], {
+              x: currentImageOffset + imageOffsets[i].x,
+              y: imageOffsets[i].y,
+              scale: 1.2
+            });
+          }
         });
 
-        requestAnimationFrame(smoothVelocity);
+        requestAnimationFrame(smoothAnimation);
       };
 
-      const rafId = requestAnimationFrame(smoothVelocity);
+      const rafId = requestAnimationFrame(smoothAnimation);
 
       gsap.to(container, {
         ease: "none",
@@ -178,10 +255,9 @@ export default function WorksSection() {
             lastProgress = progress;
             lastTime = currentTime;
 
-            // Map velocity to horizontal offset (pixels)
-            // Positive velocity = scrolling right = image shifts left (negative offset)
+            // Map scroll velocity to horizontal image offset
             const maxOffset = 25;
-            targetOffset = gsap.utils.clamp(-maxOffset, maxOffset, -velocity * 1200);
+            targetImageOffset = gsap.utils.clamp(-maxOffset, maxOffset, -velocity * 1200);
 
             // Position within cycle
             const posInCycle = totalScrolled % oneSetWidth;
@@ -202,9 +278,10 @@ export default function WorksSection() {
         },
       });
 
-      // Cleanup RAF on context revert
+      // Cleanup on context revert
       return () => {
         cancelAnimationFrame(rafId);
+        section.removeEventListener("mousemove", handleMouseMove);
       };
     }, section);
 

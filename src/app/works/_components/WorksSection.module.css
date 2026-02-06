@@ -90,11 +90,12 @@
   cursor: pointer;
   overflow: hidden;
   border-radius: 8px;
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .card:hover {
-  transform: translateY(-8px);
+  z-index: 10;
 }
 
 /* Card Sizes */
@@ -271,10 +272,6 @@
   transition: border-color 0.3s ease;
   pointer-events: none;
   z-index: 20;
-}
-
-.card:hover .cardFrame {
-  border-color: var(--text-primary);
 }
 
 /* ==========================================================================
