@@ -18,6 +18,8 @@ export default function Navigation() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [displayTheme, setDisplayTheme] = useState(theme);
   const [isLangHovered, setIsLangHovered] = useState(false);
+  const [isLangAnimating, setIsLangAnimating] = useState(false);
+  const [displayLang, setDisplayLang] = useState(language);
 
   // Sync displayTheme when theme changes (e.g., after hydration)
   useEffect(() => {
@@ -25,6 +27,13 @@ export default function Navigation() {
       setDisplayTheme(theme);
     }
   }, [theme, isAnimating]);
+
+  // Sync displayLang when language changes
+  useEffect(() => {
+    if (!isLangHovered) {
+      setDisplayLang(language);
+    }
+  }, [language, isLangHovered]);
 
   const handleThemeToggle = () => {
     if (isAnimating) return;
@@ -62,14 +71,28 @@ export default function Navigation() {
         <button
           className={styles.actionBtn}
           onClick={toggleLanguage}
-          onMouseEnter={() => setIsLangHovered(true)}
-          onMouseLeave={() => setIsLangHovered(false)}
+          onMouseEnter={() => {
+            if (isLangAnimating) return;
+            setIsLangAnimating(true);
+            setTimeout(() => {
+              setDisplayLang(language === "ko" ? "en" : "ko");
+            }, 150);
+            setTimeout(() => setIsLangAnimating(false), 300);
+            setIsLangHovered(true);
+          }}
+          onMouseLeave={() => {
+            if (isLangAnimating) return;
+            setIsLangAnimating(true);
+            setTimeout(() => {
+              setDisplayLang(language);
+            }, 150);
+            setTimeout(() => setIsLangAnimating(false), 300);
+            setIsLangHovered(false);
+          }}
           aria-label={`Switch to ${language === "ko" ? "English" : "Korean"}`}
         >
-          <span className={styles.langText}>
-            {isLangHovered
-              ? language === "ko" ? "EN" : "KO"
-              : language === "ko" ? "KO" : "EN"}
+          <span className={`${styles.langText} ${isLangAnimating ? styles.animating : ""}`}>
+            {displayLang === "ko" ? "KO" : "EN"}
           </span>
         </button>
 
