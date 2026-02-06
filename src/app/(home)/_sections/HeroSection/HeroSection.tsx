@@ -41,12 +41,18 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
         <div className={`${styles.content} hero-content`}>
           <h1 className={styles.title}>
             <span className={`${styles.titleRow} hero-line`}>
-              <StaggerText className={styles.titleText}>
+              <StaggerText
+                className={styles.titleText}
+                strokeColor="var(--text-primary)"
+              >
                 {t("hero.headline1")}
               </StaggerText>
             </span>
             <span className={`${styles.titleRow} hero-line`}>
-              <StaggerText className={styles.titleText}>
+              <StaggerText
+                className={styles.titleText}
+                strokeColor="var(--text-primary)"
+              >
                 {t("hero.headline2")}
               </StaggerText>
               <span className={styles.titleOvalWrapper}>
@@ -63,7 +69,10 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
             </span>
             <span className={`${styles.titleRow} hero-line`}>
               <span className={styles.titleAccent}>&</span>
-              <StaggerText className={styles.titleText}>
+              <StaggerText
+                className={styles.titleText}
+                strokeColor="var(--text-primary)"
+              >
                 {t("hero.headline3")}
               </StaggerText>
             </span>
