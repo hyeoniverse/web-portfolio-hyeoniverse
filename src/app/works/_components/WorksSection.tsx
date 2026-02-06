@@ -23,7 +23,7 @@ const projects = [
     category: "Branding / Web Design",
     year: "2024",
     image:
-      "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1200&h=700&fit=crop",
     size: "large",
   },
   {
@@ -33,7 +33,7 @@ const projects = [
     category: "UX/UI / Mobile",
     year: "2023",
     image:
-      "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=1200&h=700&fit=crop",
     size: "small",
   },
   {
@@ -43,7 +43,7 @@ const projects = [
     category: "E-commerce",
     year: "2023",
     image:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=700&fit=crop",
     size: "medium",
   },
   {
@@ -53,7 +53,7 @@ const projects = [
     category: "Dashboard",
     year: "2024",
     image:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=700&fit=crop",
     size: "tall",
   },
   {
@@ -63,7 +63,7 @@ const projects = [
     category: "Branding",
     year: "2024",
     image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=700&fit=crop",
     size: "wide",
   },
   {
@@ -73,13 +73,13 @@ const projects = [
     category: "Web App",
     year: "2023",
     image:
-      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=700&fit=crop",
     size: "small",
   },
 ];
 
-// Triple the projects for seamless infinite scroll
-const allProjects = [...projects, ...projects, ...projects];
+// Quintuple the projects for seamless bidirectional infinite scroll
+const allProjects = [...projects, ...projects, ...projects, ...projects, ...projects];
 
 export default function WorksSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -121,7 +121,9 @@ export default function WorksSection() {
         oneSetWidth += cards[i].offsetWidth + gap;
       }
 
-      const scrollDistance = oneSetWidth * 6;
+      // Longer scroll distance for bidirectional scrolling
+      const scrollDistance = oneSetWidth * 10;
+      const middleScrollPosition = scrollDistance / 2;
 
       // Scroll velocity tracking
       let lastProgress = 0;
@@ -163,8 +165,8 @@ export default function WorksSection() {
       // Add mouse listener to section
       section.addEventListener("mousemove", handleMouseMove);
 
-      // Start from middle set
-      gsap.set(container, { x: -oneSetWidth });
+      // Start from middle set (2nd set of 5)
+      gsap.set(container, { x: -oneSetWidth * 2 });
 
       // Smooth animation loop
       const smoothAnimation = () => {
@@ -259,9 +261,13 @@ export default function WorksSection() {
             const maxOffset = 25;
             targetImageOffset = gsap.utils.clamp(-maxOffset, maxOffset, -velocity * 1200);
 
-            // Position within cycle
-            const posInCycle = totalScrolled % oneSetWidth;
-            const xPos = -(oneSetWidth + posInCycle);
+            // Position within cycle (handles both directions)
+            // Offset by middle position to center the scroll range
+            const adjustedScroll = totalScrolled - middleScrollPosition;
+            let posInCycle = adjustedScroll % oneSetWidth;
+            if (posInCycle < 0) posInCycle += oneSetWidth;
+            // Keep within middle sets (2nd and 3rd of 5)
+            const xPos = -(oneSetWidth * 2 + posInCycle);
 
             gsap.set(container, { x: xPos });
 
@@ -273,10 +279,24 @@ export default function WorksSection() {
 
             // Active card index
             const cardIndex = Math.floor(progressInSet * projects.length);
-            setActiveIndex(cardIndex % projects.length);
+            setActiveIndex(Math.abs(cardIndex) % projects.length);
           },
         },
       });
+
+      // Scroll to middle position on load for bidirectional scrolling
+      const scrollToMiddle = () => {
+        const scrollTriggerInstance = ScrollTrigger.getAll().find(
+          (st) => st.trigger === section
+        );
+        if (scrollTriggerInstance) {
+          const targetScroll = scrollTriggerInstance.start + middleScrollPosition;
+          window.scrollTo(0, targetScroll);
+        }
+      };
+
+      // Execute after ScrollTrigger is fully ready
+      setTimeout(scrollToMiddle, 300);
 
       // Cleanup on context revert
       return () => {
