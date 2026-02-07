@@ -723,6 +723,10 @@
   .intro {
     --_intro-pad: 40px;
     --_intro-text-max: 280px;
+
+    align-self: flex-start;
+    width: max(100vh, 100vw);
+    height: 100vh;
   }
 
   .introTitle {
