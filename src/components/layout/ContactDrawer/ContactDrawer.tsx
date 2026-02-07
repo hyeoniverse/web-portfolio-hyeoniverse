@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { siteConfig } from "@/config/site.config";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import styles from "./ContactDrawer.module.css";
@@ -80,6 +81,7 @@ export default function ContactDrawer({
 }: ContactDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+  const { ready: recaptchaReady } = useRecaptcha();
 
   // Mount portal after hydration
   useEffect(() => {
@@ -106,7 +108,7 @@ export default function ContactDrawer({
         badge.style.zIndex = "";
       }
     };
-  }, [isOpen, recaptchaEnabled, recaptchaVersion]);
+  }, [isOpen, recaptchaEnabled, recaptchaVersion, recaptchaReady]);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) {
