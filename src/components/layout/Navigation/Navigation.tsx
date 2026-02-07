@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -18,28 +18,20 @@ export default function Navigation() {
 
   // Theme state
   const [isThemeAnimating, setIsThemeAnimating] = useState(false);
-  const [isThemeHovered, setIsThemeHovered] = useState(false);
   const [displayTheme, setDisplayTheme] = useState(theme);
+  const themeDisplayTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const themeAnimTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Language state
-  const [isLangHovered, setIsLangHovered] = useState(false);
   const [isLangAnimating, setIsLangAnimating] = useState(false);
   const [isLangClicking, setIsLangClicking] = useState(false);
   const [displayLang, setDisplayLang] = useState(language);
+  const langDisplayTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const langAnimTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  // Sync displayTheme when theme changes (e.g., after hydration)
-  useEffect(() => {
-    if (!isThemeHovered) {
-      setDisplayTheme(theme);
-    }
-  }, [theme, isThemeHovered]);
-
-  // Sync displayLang when language changes
-  useEffect(() => {
-    if (!isLangHovered) {
-      setDisplayLang(language);
-    }
-  }, [language, isLangHovered]);
+  // Sync display values when actual values change
+  useEffect(() => setDisplayTheme(theme), [theme]);
+  useEffect(() => setDisplayLang(language), [language]);
 
   const handleThemeToggle = () => {
     if (isThemeAnimating) return;
@@ -48,22 +40,23 @@ export default function Navigation() {
 
   const handleThemeMouseEnter = () => {
     if (isThemeAnimating) return;
+    clearTimeout(themeDisplayTimer.current);
+    clearTimeout(themeAnimTimer.current);
     setIsThemeAnimating(true);
-    setTimeout(() => {
+    themeDisplayTimer.current = setTimeout(() => {
       setDisplayTheme(theme === "dark" ? "light" : "dark");
     }, 150);
-    setTimeout(() => setIsThemeAnimating(false), 300);
-    setIsThemeHovered(true);
+    themeAnimTimer.current = setTimeout(() => setIsThemeAnimating(false), 300);
   };
 
   const handleThemeMouseLeave = () => {
-    if (isThemeAnimating) return;
+    clearTimeout(themeDisplayTimer.current);
+    clearTimeout(themeAnimTimer.current);
     setIsThemeAnimating(true);
-    setTimeout(() => {
+    themeDisplayTimer.current = setTimeout(() => {
       setDisplayTheme(theme);
     }, 150);
-    setTimeout(() => setIsThemeAnimating(false), 300);
-    setIsThemeHovered(false);
+    themeAnimTimer.current = setTimeout(() => setIsThemeAnimating(false), 300);
   };
 
   return (
@@ -98,21 +91,23 @@ export default function Navigation() {
           }}
           onMouseEnter={() => {
             if (isLangAnimating || isLangClicking) return;
+            clearTimeout(langDisplayTimer.current);
+            clearTimeout(langAnimTimer.current);
             setIsLangAnimating(true);
-            setTimeout(() => {
+            langDisplayTimer.current = setTimeout(() => {
               setDisplayLang(language === "ko" ? "en" : "ko");
             }, 150);
-            setTimeout(() => setIsLangAnimating(false), 300);
-            setIsLangHovered(true);
+            langAnimTimer.current = setTimeout(() => setIsLangAnimating(false), 300);
           }}
           onMouseLeave={() => {
-            if (isLangAnimating || isLangClicking) return;
+            if (isLangClicking) return;
+            clearTimeout(langDisplayTimer.current);
+            clearTimeout(langAnimTimer.current);
             setIsLangAnimating(true);
-            setTimeout(() => {
+            langDisplayTimer.current = setTimeout(() => {
               setDisplayLang(language);
             }, 150);
-            setTimeout(() => setIsLangAnimating(false), 300);
-            setIsLangHovered(false);
+            langAnimTimer.current = setTimeout(() => setIsLangAnimating(false), 300);
           }}
           aria-label={`${language === "ko" ? "KO" : "EN"} - Switch to ${language === "ko" ? "English" : "Korean"}`}
         >

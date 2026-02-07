@@ -170,6 +170,12 @@
     "next": "Next",
     "prev": "Previous"
   },
+  "workDetail": {
+    "back": "Back",
+    "viewAll": "View All Works",
+    "notFound": "Work not found",
+    "notFoundLink": "Go back home"
+  },
   "errorPage": {
     "title": "Something Went Wrong",
     "description": "An unexpected error occurred. Please try again.",

@@ -70,7 +70,7 @@ export default function WorksSection() {
 
   // Hooks
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { setInfinite } = useLenis();
   const { isMobile: isVerticalLayout } = useIsMobile();
 
@@ -486,7 +486,7 @@ export default function WorksSection() {
                 ))}
               </div>
               <span className={styles.metaRole}>{project.role}</span>
-              <p className={styles.metaDesc}>{project.description}</p>
+              <p className={styles.metaDesc}>{project.description[language]}</p>
             </div>
             </Fragment>
           ))}

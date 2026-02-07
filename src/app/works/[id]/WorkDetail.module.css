@@ -93,6 +93,23 @@
   color: var(--text-secondary);
 }
 
+.techStack {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-4xl);
+}
+
+.techTag {
+  padding: var(--spacing-xs) var(--spacing-lg);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
 .actions {
   display: flex;
   gap: var(--spacing-xl);
