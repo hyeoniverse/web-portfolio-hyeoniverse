@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, useLayoutEffect, useState, useEffect, useCallback } from "react";
+import {
+  useRef,
+  useLayoutEffect,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -52,7 +58,9 @@ export default function WorksSection() {
 
   // State
   const [activeIndex, setActiveIndex] = useState(0);
-  const [transitionData, setTransitionData] = useState<TransitionData | null>(null);
+  const [transitionData, setTransitionData] = useState<TransitionData | null>(
+    null,
+  );
   const [pressedCard, setPressedCard] = useState<PressedCard | null>(null);
 
   // Hooks
@@ -77,13 +85,20 @@ export default function WorksSection() {
 
     const ctx = gsap.context(() => {
       const cards = gsap.utils.toArray<HTMLElement>(`.${styles.card}`, slider);
-      const cardImages = gsap.utils.toArray<HTMLElement>(`.${styles.cardImage}`, slider);
-      const projectItems = gsap.utils.toArray<HTMLElement>(`.${styles.project}`, slider);
+      const cardImages = gsap.utils.toArray<HTMLElement>(
+        `.${styles.cardImage}`,
+        slider,
+      );
+      const projectItems = gsap.utils.toArray<HTMLElement>(
+        `.${styles.project}`,
+        slider,
+      );
 
       if (cards.length === 0) return;
 
       // Calculate set width from actual DOM positions
-      const oneSetWidth = projectItems[PROJECT_COUNT].offsetLeft - projectItems[0].offsetLeft;
+      const oneSetWidth =
+        projectItems[PROJECT_COUNT].offsetLeft - projectItems[0].offsetLeft;
       const middleSetStart = projectItems[PROJECT_COUNT * 4].offsetLeft;
       const initialX = -(middleSetStart - INITIAL_MARGIN);
 
@@ -104,8 +119,18 @@ export default function WorksSection() {
       let mouseVelocityY = 0;
 
       // Per-element offsets
-      const cardOffsets = cards.map(() => ({ x: 0, y: 0, targetX: 0, targetY: 0 }));
-      const imageOffsets = cardImages.map(() => ({ x: 0, y: 0, targetX: 0, targetY: 0 }));
+      const cardOffsets = cards.map(() => ({
+        x: 0,
+        y: 0,
+        targetX: 0,
+        targetY: 0,
+      }));
+      const imageOffsets = cardImages.map(() => ({
+        x: 0,
+        y: 0,
+        targetX: 0,
+        targetY: 0,
+      }));
 
       // Event handlers
       const handleMouseMove = (e: MouseEvent) => {
@@ -151,9 +176,12 @@ export default function WorksSection() {
         gsap.set(slider, { x: initialX - scrollX });
 
         // Update active index
-        const scrollInSet = ((scrollX % oneSetWidth) + oneSetWidth) % oneSetWidth;
+        const scrollInSet =
+          ((scrollX % oneSetWidth) + oneSetWidth) % oneSetWidth;
         const progress = scrollInSet / oneSetWidth;
-        setActiveIndex(Math.abs(Math.floor(progress * PROJECT_COUNT)) % PROJECT_COUNT);
+        setActiveIndex(
+          Math.abs(Math.floor(progress * PROJECT_COUNT)) % PROJECT_COUNT,
+        );
 
         // Decay mouse velocity
         mouseVelocityX *= VELOCITY_DECAY;
@@ -169,20 +197,34 @@ export default function WorksSection() {
           const strength = Math.pow(1 - normalizedDist, 2);
 
           // Card offset
-          cardOffsets[i].targetX = gsap.utils.clamp(-MAX_CARD_OFFSET, MAX_CARD_OFFSET, mouseVelocityX * MOUSE_SENSITIVITY * strength);
-          cardOffsets[i].targetY = gsap.utils.clamp(-MAX_CARD_OFFSET, MAX_CARD_OFFSET, mouseVelocityY * MOUSE_SENSITIVITY * strength);
-          cardOffsets[i].x += (cardOffsets[i].targetX - cardOffsets[i].x) * 0.04;
-          cardOffsets[i].y += (cardOffsets[i].targetY - cardOffsets[i].y) * 0.04;
+          cardOffsets[i].targetX = gsap.utils.clamp(
+            -MAX_CARD_OFFSET,
+            MAX_CARD_OFFSET,
+            mouseVelocityX * MOUSE_SENSITIVITY * strength,
+          );
+          cardOffsets[i].targetY = gsap.utils.clamp(
+            -MAX_CARD_OFFSET,
+            MAX_CARD_OFFSET,
+            mouseVelocityY * MOUSE_SENSITIVITY * strength,
+          );
+          cardOffsets[i].x +=
+            (cardOffsets[i].targetX - cardOffsets[i].x) * 0.04;
+          cardOffsets[i].y +=
+            (cardOffsets[i].targetY - cardOffsets[i].y) * 0.04;
 
           const scale = parseFloat(card.dataset.hoverScale || "1");
           gsap.set(card, { x: cardOffsets[i].x, y: cardOffsets[i].y, scale });
 
           // Image offset (parallax)
           if (cardImages[i]) {
-            imageOffsets[i].targetX = cardOffsets[i].targetX * IMAGE_PARALLAX_MULTIPLIER;
-            imageOffsets[i].targetY = cardOffsets[i].targetY * IMAGE_PARALLAX_MULTIPLIER;
-            imageOffsets[i].x += (imageOffsets[i].targetX - imageOffsets[i].x) * 0.035;
-            imageOffsets[i].y += (imageOffsets[i].targetY - imageOffsets[i].y) * 0.035;
+            imageOffsets[i].targetX =
+              cardOffsets[i].targetX * IMAGE_PARALLAX_MULTIPLIER;
+            imageOffsets[i].targetY =
+              cardOffsets[i].targetY * IMAGE_PARALLAX_MULTIPLIER;
+            imageOffsets[i].x +=
+              (imageOffsets[i].targetX - imageOffsets[i].x) * 0.035;
+            imageOffsets[i].y +=
+              (imageOffsets[i].targetY - imageOffsets[i].y) * 0.035;
 
             gsap.set(cardImages[i], {
               x: imageOffset + imageOffsets[i].x,
@@ -208,72 +250,81 @@ export default function WorksSection() {
   }, []);
 
   // Navigation handlers
-  const triggerTransition = useCallback((index: number, project: Project) => {
-    const card = cardRefs.current.get(index);
-    if (!card) return;
+  const triggerTransition = useCallback(
+    (index: number, project: Project) => {
+      const card = cardRefs.current.get(index);
+      if (!card) return;
 
-    setTransitionData({
-      id: project.id,
-      image: project.image,
-      rect: card.getBoundingClientRect(),
-    });
+      setTransitionData({
+        id: project.id,
+        image: project.image,
+        rect: card.getBoundingClientRect(),
+      });
 
-    setTimeout(() => router.push(`/works/${project.id}`), 800);
-  }, [router]);
+      setTimeout(() => router.push(`/works/${project.id}`), 800);
+    },
+    [router],
+  );
 
-  const handleCardClick = useCallback((index: number, project: Project) => {
-    if (transitionData) return;
+  const handleCardClick = useCallback(
+    (index: number, project: Project) => {
+      if (transitionData) return;
 
-    // Cancel ongoing press animation
-    if (pressRafRef.current) cancelAnimationFrame(pressRafRef.current);
+      // Cancel ongoing press animation
+      if (pressRafRef.current) cancelAnimationFrame(pressRafRef.current);
 
-    // Clean up press state
-    if (pressedCard) {
-      const card = cardRefs.current.get(pressedCard.index);
-      if (card) {
-        delete card.dataset.hoverScale;
-        card.classList.remove(styles.cardActive);
+      // Clean up press state
+      if (pressedCard) {
+        const card = cardRefs.current.get(pressedCard.index);
+        if (card) {
+          delete card.dataset.hoverScale;
+          card.classList.remove(styles.cardActive);
+        }
       }
-    }
-    setPressedCard(null);
-    pressStartRef.current = null;
+      setPressedCard(null);
+      pressStartRef.current = null;
 
-    triggerTransition(index, project);
-  }, [transitionData, pressedCard, triggerTransition]);
+      triggerTransition(index, project);
+    },
+    [transitionData, pressedCard, triggerTransition],
+  );
 
-  const handlePressStart = useCallback((index: number, project: Project) => {
-    if (transitionData) return;
+  const handlePressStart = useCallback(
+    (index: number, project: Project) => {
+      if (transitionData) return;
 
-    const card = cardRefs.current.get(index);
-    if (!card) return;
+      const card = cardRefs.current.get(index);
+      if (!card) return;
 
-    setPressedCard({ index, project });
-    pressStartRef.current = performance.now();
-    card.classList.add(styles.cardActive);
-    card.dataset.hoverScale = "1";
+      setPressedCard({ index, project });
+      pressStartRef.current = performance.now();
+      card.classList.add(styles.cardActive);
+      card.dataset.hoverScale = "1";
 
-    const animatePress = () => {
-      if (!pressStartRef.current) return;
+      const animatePress = () => {
+        if (!pressStartRef.current) return;
 
-      const elapsed = performance.now() - pressStartRef.current;
-      const progress = Math.min(elapsed / LONG_PRESS_DURATION, 1);
+        const elapsed = performance.now() - pressStartRef.current;
+        const progress = Math.min(elapsed / LONG_PRESS_DURATION, 1);
 
-      card.dataset.hoverScale = String(1 + progress * 0.5);
+        card.dataset.hoverScale = String(1 + progress * 0.5);
 
-      if (progress >= 1) {
-        triggerTransition(index, project);
-        setPressedCard(null);
-        pressStartRef.current = null;
-        delete card.dataset.hoverScale;
-        card.classList.remove(styles.cardActive);
-        return;
-      }
+        if (progress >= 1) {
+          triggerTransition(index, project);
+          setPressedCard(null);
+          pressStartRef.current = null;
+          delete card.dataset.hoverScale;
+          card.classList.remove(styles.cardActive);
+          return;
+        }
+
+        pressRafRef.current = requestAnimationFrame(animatePress);
+      };
 
       pressRafRef.current = requestAnimationFrame(animatePress);
-    };
-
-    pressRafRef.current = requestAnimationFrame(animatePress);
-  }, [transitionData, triggerTransition]);
+    },
+    [transitionData, triggerTransition],
+  );
 
   const handlePressEnd = useCallback(() => {
     if (pressRafRef.current) cancelAnimationFrame(pressRafRef.current);
@@ -303,15 +354,22 @@ export default function WorksSection() {
       <div className={styles.galleryTrack}>
         <div className={styles.gallerySlider} ref={sliderRef}>
           {allProjects.map((project, index) => (
-            <div key={`${project.id}-${index}`} className={getProjectClassName(project, index)}>
+            <div
+              key={`${project.id}-${index}`}
+              className={getProjectClassName(project, index)}
+            >
               {/* Metadata */}
               <span className={styles.metaNumber}>{project.number}</span>
               <span className={styles.metaCategory}>{project.category}</span>
 
               {/* Card */}
               <article
-                ref={(el) => { if (el) cardRefs.current.set(index, el); }}
+                ref={(el) => {
+                  if (el) cardRefs.current.set(index, el);
+                }}
                 className={styles.card}
+                data-more="true"
+                data-clickable="true"
                 onClick={() => handleCardClick(index, project)}
                 onMouseDown={() => handlePressStart(index, project)}
                 onMouseUp={handlePressEnd}
@@ -356,8 +414,12 @@ export default function WorksSection() {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className={styles.activeInfoInner}
           >
-            <h2 className={styles.activeTitle}>{projects[activeIndex].title}</h2>
-            <p className={styles.activeSubtitle}>{projects[activeIndex].subtitle}</p>
+            <h2 className={styles.activeTitle}>
+              {projects[activeIndex].title}
+            </h2>
+            <p className={styles.activeSubtitle}>
+              {projects[activeIndex].subtitle}
+            </p>
           </motion.div>
         </AnimatePresence>
       </div>
