@@ -3,14 +3,10 @@ import type React from "react";
 import "@/styles/global.css";
 import { siteConfig } from "@/config/site.config";
 import {
-  IBM_Plex_Mono,
   Inter,
   Playfair_Display,
   JetBrains_Mono,
-  Bebas_Neue,
   Space_Grotesk,
-  Cormorant_Garamond,
-  Abril_Fatface,
   Instrument_Serif,
 } from "next/font/google";
 
@@ -50,51 +46,35 @@ export const metadata: Metadata = {
   },
 };
 
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-ibm-plex",
-});
-
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-inter",
+  display: "swap",
 });
 const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-playfair",
+  display: "swap",
 });
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["300", "400", "500"],
   variable: "--font-jetbrains",
-});
-const bebas = Bebas_Neue({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-bebas",
+  display: "swap",
 });
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-space-grotesk",
-});
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-cormorant",
-});
-const abril = Abril_Fatface({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-abril",
+  display: "swap",
 });
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-instrument",
+  display: "swap",
 });
 
 export default function RootLayout({
@@ -105,12 +85,10 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${ibmPlexMono.variable} ${inter.variable} ${playfair.variable} ${jetbrains.variable} ${bebas.variable} ${spaceGrotesk.variable} ${cormorant.variable} ${abril.variable} ${instrumentSerif.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable}`}
     >
       <head>
         <link rel="icon" href="/favicon-light.ico" />
-        <link rel="preconnect" href="https://www.google.com" />
-        <link rel="preconnect" href="https://www.gstatic.com" crossOrigin="anonymous" />
       </head>
 
       <body>

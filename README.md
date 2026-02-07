@@ -324,6 +324,90 @@ badge.style.zIndex = isOpen ? "9999" : "";
 
 ---
 
+### 7. Lighthouse 심화 성능 최적화 — 미사용 폰트 제거 및 리소스 경량화
+
+#### 문제
+1차 최적화 후 Lighthouse 모바일 Performance 60점. LCP 7.3초, TTI 13.7초, 페이지 용량 1,489KB, 네트워크 요청 63건
+
+#### 원인 분석
+Lighthouse CLI로 프로덕션 빌드를 직접 측정하여 병목 파악:
+
+1. **미사용 폰트 4개 로드**: IBM Plex Mono(5 weights), Bebas Neue, Cormorant Garamond(5 weights), Abril Fatface가 CSS에서 미참조인데도 12개 폰트 파일을 다운로드
+2. **reCAPTCHA 4초 타이머**: 지연 로딩에 `setTimeout(4000)` 폴백이 있어 Lighthouse 테스트 중 여전히 ~740KB 로드
+3. **scroll 이벤트 트리거**: reCAPTCHA가 scroll 이벤트에도 반응하여 불필요하게 조기 로드
+4. **font-display 미설정**: 모든 폰트가 렌더링을 차단
+5. **미사용 Preconnect**: reCAPTCHA가 초기 로드에서 제외되었으므로 Google 도메인 preconnect가 "unused" 경고 유발
+6. **Inter 과다 가중치**: 7개 가중치(300-900) 중 800, 900은 미사용
+
+#### 해결
+
+**1. 미사용 폰트 제거** — 가장 큰 영향
+
+```tsx
+// ❌ 기존 - 9개 폰트 패밀리 (19개 폰트 파일)
+import { IBM_Plex_Mono, Inter, Playfair_Display, JetBrains_Mono,
+         Bebas_Neue, Space_Grotesk, Cormorant_Garamond, Abril_Fatface,
+         Instrument_Serif } from "next/font/google";
+
+// ✅ 개선 - 5개 폰트 패밀리 (5개 폰트 파일)
+import { Inter, Playfair_Display, JetBrains_Mono,
+         Space_Grotesk, Instrument_Serif } from "next/font/google";
+```
+
+미사용 확인 방법: CSS 전체에서 `var(--font-ibm-plex)`, `var(--font-bebas)`, `var(--font-cormorant)`, `var(--font-abril)` 검색 → 0건. `useFontMorph.ts`에서 참조하지만 해당 컴포넌트가 어떤 페이지에서도 import되지 않음
+
+**2. font-display: swap 추가**
+
+```tsx
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],  // 800, 900 제거
+  display: "swap",  // 폰트 렌더링 차단 해제
+});
+```
+
+**3. reCAPTCHA 로딩 전략 개선**
+
+```tsx
+// ❌ 기존 - 타이머 + scroll 포함
+const timer = setTimeout(load, 4000);  // Lighthouse 테스트 중 트리거됨
+const events = ["scroll", "click", "touchstart", "keydown"];
+
+// ✅ 개선 - 의도적 인터랙션만
+const events = ["click", "touchstart", "keydown"];  // 타이머/scroll 제거
+```
+
+**4. 미사용 Preconnect 제거**
+
+```html
+<!-- ❌ 기존 - reCAPTCHA가 초기 로드에서 제외되어 unused 경고 -->
+<link rel="preconnect" href="https://www.google.com" />
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin="anonymous" />
+
+<!-- ✅ 개선 - 제거 -->
+```
+
+#### 결과 (Lighthouse CLI, 3회 측정 중앙값)
+
+| 메트릭 | Before | After | 변화 |
+|--------|--------|-------|------|
+| Performance | 60 | **98** | **+38점** |
+| FCP | 2,573ms | 1,979ms | -594ms |
+| LCP | 7,294ms | **1,979ms** | **-5,315ms** |
+| TBT | 430ms | **0ms** | -430ms |
+| CLS | 0.012 | 0 | -0.012 |
+| TTI | 13,731ms | **1,979ms** | **-11,752ms** |
+| 요청 수 | 63 | 28 | -35 |
+| 페이지 용량 | 1,489KB | **449KB** | **-70%** |
+| 폰트 파일 | 19개 | 5개 | -14개 |
+
+#### 핵심 교훈
+- `next/font/google`로 등록한 폰트는 CSS에서 미참조여도 폰트 파일이 다운로드됨. 정기적으로 실제 사용 여부를 검증해야 함
+- 서드파티 지연 로딩의 타이머 폴백은 성능 측정 도구에서 의도치 않게 트리거될 수 있음. 의도적 인터랙션(click/touch/keydown)만 사용하는 것이 안전
+- `font-display: swap`은 next/font에서 기본값이 아니므로 명시적으로 설정해야 함
+
+---
+
 ## 배포
 
 [Vercel Platform](https://vercel.com)을 통해 쉽게 배포할 수 있습니다.

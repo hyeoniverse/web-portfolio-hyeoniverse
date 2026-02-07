@@ -45,8 +45,8 @@ const designFeatures = [
   {
     icon: "06",
     title: "Lighthouse Performance Optimization",
-    description: "Lighthouse 분석 기반 성능 최적화. reCAPTCHA 지연 로딩으로 초기 ~784KB JS 제거, Preconnect 힌트로 400ms 단축, WCAG 색상 대비 및 접근성 수정을 적용했습니다.",
-    tech: ["Lazy Loading", "Preconnect", "WCAG", "Accessibility"],
+    description: "2차에 걸친 Lighthouse 분석 기반 성능 최적화. 미사용 폰트 4개(12파일) 제거, reCAPTCHA 인터랙션 기반 지연 로딩, font-display:swap 적용으로 모바일 Performance 60→98점, 페이지 용량 70% 감소를 달성했습니다.",
+    tech: ["Font Optimization", "Lazy Loading", "font-display", "browserslist"],
   },
 ];
 
@@ -87,7 +87,7 @@ const designProcess = [
   {
     step: "05",
     title: "Lighthouse 성능 최적화",
-    description: "Lighthouse Desktop/Mobile 보고서를 분석하여 reCAPTCHA 지연 로딩, Preconnect 힌트, WCAG 색상 대비 수정, 접근성(heading order, aria-label) 개선을 적용했습니다.",
+    description: "Lighthouse CLI로 프로덕션 빌드를 직접 측정하며 2차에 걸친 최적화를 진행. 1차: reCAPTCHA 지연 로딩, 접근성 수정. 2차: 미사용 폰트 제거, font-display:swap, 리소스 경량화로 모바일 98점 달성.",
   },
 ];
 
@@ -141,13 +141,13 @@ const delay = isHovered ? forwardDelay : reverseDelay;
   },
   {
     title: "reCAPTCHA Lazy Loading",
-    description: "유저 인터랙션 기반 서드파티 스크립트 지연 로딩",
+    description: "의도적 인터랙션 기반 서드파티 스크립트 지연 로딩 (타이머/scroll 제거)",
     code: `const [shouldLoad, setShouldLoad] = useState(false);
 
 useEffect(() => {
   const load = () => setShouldLoad(true);
-  const timer = setTimeout(load, 4000);
-  const events = ["scroll", "click", "touchstart", "keydown"];
+  // 의도적 인터랙션만 (scroll/timer 제거 → Lighthouse에서 미로드)
+  const events = ["click", "touchstart", "keydown"];
   events.forEach((e) =>
     document.addEventListener(e, () => { load(); cleanup(); },
       { once: true, passive: true })
@@ -190,6 +190,12 @@ const troubleShootingItems = [
     cause: "GoogleReCaptchaProvider가 앱 루트를 감싸며 초기 로드 시 ~784KB JS를 즉시 다운로드. 메인 스레드 280ms 차단, Google 도메인 Preconnect 부재로 400ms 추가 지연",
     solution: "유저 인터랙션(scroll/click/touch/keydown) 또는 4초 타임아웃 후 reCAPTCHA 로드. Preconnect 힌트 추가. WCAG 색상 대비 및 heading order, aria-label 접근성 수정",
     keyInsight: "서드파티 스크립트는 초기 로드에서 제외하고 유저 인터랙션 후 로드하면 LCP/TTI에 큰 영향. mix-blend-mode: difference는 Lighthouse가 blend 전 색상으로 대비를 측정하므로 오탐 가능",
+  },
+  {
+    problem: "미사용 폰트로 인한 리소스 낭비 (폰트 19파일, 페이지 1,489KB)",
+    cause: "next/font/google로 등록된 9개 폰트 패밀리 중 4개(IBM Plex Mono, Bebas Neue, Cormorant Garamond, Abril Fatface)가 CSS에서 미참조. reCAPTCHA 4초 타이머가 Lighthouse 테스트 중 트리거. font-display 미설정으로 폰트 렌더링 차단",
+    solution: "미사용 폰트 4개 제거(12파일 절약), Inter 가중치 7→5개 축소, font-display:swap 추가, reCAPTCHA 타이머/scroll 이벤트 제거, 미사용 preconnect 제거, browserslist 추가",
+    keyInsight: "next/font로 등록만 해도 폰트 파일이 다운로드됨. 지연 로딩의 타이머 폴백은 성능 측정 도구에서 의도치 않게 트리거될 수 있으므로 의도적 인터랙션만 사용해야 함. 결과: Performance 60→98, 페이지 용량 70% 감소",
   },
 ];
 

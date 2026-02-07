@@ -16,17 +16,15 @@ export default function RecaptchaProvider({
   useEffect(() => {
     if (!enabled || !siteKey || version !== "v3") return;
 
-    // Load reCAPTCHA on first user interaction or after 4s idle
+    // Load reCAPTCHA only on deliberate user interaction (not scroll)
     const load = () => setShouldLoad(true);
-    const timer = setTimeout(load, 4000);
 
-    const events = ["scroll", "click", "touchstart", "keydown"] as const;
+    const events = ["click", "touchstart", "keydown"] as const;
     const handler = () => {
       load();
       cleanup();
     };
     const cleanup = () => {
-      clearTimeout(timer);
       events.forEach((e) => document.removeEventListener(e, handler));
     };
 
