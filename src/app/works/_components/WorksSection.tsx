@@ -419,10 +419,10 @@ export default function WorksSection() {
             className={styles.activeInfoInner}
           >
             <h2 className={styles.activeTitle}>
-              {projects[activeIndex].title}
+              {projects[activeIndex]?.title}
             </h2>
             <p className={styles.activeSubtitle}>
-              {projects[activeIndex].subtitle}
+              {projects[activeIndex]?.subtitle}
             </p>
           </motion.div>
         </AnimatePresence>

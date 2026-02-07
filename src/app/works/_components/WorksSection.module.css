@@ -656,9 +656,10 @@
 
 @media (max-width: 768px) {
   .gallery {
-    overflow: visible;
+    overflow: hidden;
     height: auto;
     min-height: 100vh;
+    width: 100%;
   }
 
   .activeInfo {
@@ -666,7 +667,10 @@
   }
 
   .galleryTrack {
+    padding: 0;
+    margin: 0;
     height: auto;
+    width: 100%;
   }
 
   .gallerySlider {
@@ -674,13 +678,18 @@
 
     align-items: stretch;
     flex-direction: column;
-    padding: 0 5vw 100px;
     height: auto;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    transform: none !important;
+    will-change: auto;
   }
 
   .project {
     --_card-w: 100%;
     --_card-h: auto;
+    --_card-radius: 0;
     --_number-size: var(--fluid-font-size-4xl);
     --_desc-max-width: none;
   }
@@ -775,7 +784,7 @@
   .gallerySlider {
     --_gallery-gap: var(--spacing-xl);
 
-    padding: 0 4vw 80px;
+    padding: 0 0 80px;
   }
 
   .project {
