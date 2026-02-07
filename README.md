@@ -482,6 +482,42 @@ Works 인트로 섹션에서 한국어↔영어 전환 시 텍스트 영역의 �
 
 ---
 
+### 10. 언어 전환 시 로딩 화면 재출현
+
+#### 문제
+페이지에서 처음으로 언어를 전환하면 로딩 화면이 다시 나타남. 두 번째 전환부터는 정상 동작
+
+#### 원인
+- `RecaptchaProvider`가 첫 번째 클릭 이벤트에서 `shouldLoad`를 `false` → `true`로 변경
+- 렌더 트리가 `<Fragment>{children}</Fragment>` → `<GoogleReCaptchaProvider>{children}</GoogleReCaptchaProvider>`로 변경됨
+- React는 같은 위치에서 컴포넌트 타입이 바뀌면 하위 트리 전체를 unmount → remount함
+- `useLoadingScreen()`의 `useState(true)` 초기값으로 인해 로딩 화면이 재출현
+
+#### 해결
+모듈 레벨 플래그로 초기 로딩 완료 여부를 추적하여 remount 시 로딩 화면을 건너뜀
+
+```tsx
+// 모듈 레벨: 컴포넌트 remount에도 유지됨
+let hasCompletedInitialLoad = false;
+
+export function useLoadingScreen() {
+  // remount 시 이미 로딩 완료된 세션이면 false로 시작
+  const [isLoading, setIsLoading] = useState(() => !hasCompletedInitialLoad);
+  const hasCompletedRef = useRef(hasCompletedInitialLoad);
+
+  const completeLoading = () => {
+    hasCompletedRef.current = true;
+    hasCompletedInitialLoad = true;  // 모듈 플래그 동기화
+    setIsLoading(false);
+  };
+}
+```
+
+#### 핵심 교훈
+서드파티 Provider를 조건부로 렌더링하면(`Fragment` ↔ `Provider`) React가 하위 트리를 remount함. `useState` 초기값에 의존하는 상태는 모듈 레벨 변수로 보완해야 remount에 안전함
+
+---
+
 ## 배포
 
 [Vercel Platform](https://vercel.com)을 통해 쉽게 배포할 수 있습니다.
