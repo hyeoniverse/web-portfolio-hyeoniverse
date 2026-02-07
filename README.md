@@ -20,6 +20,7 @@
 - **Scroll Velocity Parallax**: Lenis velocity를 활용한 스크롤 속도 기반 이미지 패럴랙스
 - **Mix-Blend Navigation**: mix-blend-mode: difference를 활용한 자동 반전 네비게이션
 - **StaggerText**: 호버 시 글자별 순차 애니메이션 효과 컴포넌트
+- **Works Horizontal Gallery**: GSAP 기반 가로 스크롤 갤러리, 양방향 무한 스크롤 래핑, 인트로 인플로우 배치, 언어 전환 레이아웃 안정화
 
 ## 시작하기
 
@@ -405,6 +406,79 @@ const events = ["click", "touchstart", "keydown"];  // 타이머/scroll 제거
 - `next/font/google`로 등록한 폰트는 CSS에서 미참조여도 폰트 파일이 다운로드됨. 정기적으로 실제 사용 여부를 검증해야 함
 - 서드파티 지연 로딩의 타이머 폴백은 성능 측정 도구에서 의도치 않게 트리거될 수 있음. 의도적 인터랙션(click/touch/keydown)만 사용하는 것이 안전
 - `font-display: swap`은 next/font에서 기본값이 아니므로 명시적으로 설정해야 함
+
+---
+
+### 8. Works 가로 갤러리 양방향 무한 스크롤 래핑
+
+#### 문제
+Works 페이지의 가로 스크롤 갤러리에서 프로젝트를 10세트 반복했지만, 끝까지 스크롤하면 흰 화면이 나타나 진정한 무한 스크롤이 아님
+
+#### 시도한 방법들 (실패)
+1. **세트 수 증가**: 반복 세트를 더 늘리면 DOM 노드가 과다해져 성능 저하
+2. **끝에서 처음으로 텔레포트**: 스크롤 위치 점프가 눈에 보임
+
+#### 원인
+- 유한한 반복 세트(10세트)로는 양쪽 방향 모두 끝이 존재
+- GSAP의 requestAnimationFrame 루프에서 scrollX가 계속 누적되어 콘텐츠 범위를 벗어남
+
+#### 해결
+인트로 요소들의 `offsetLeft` 차이로 한 세트 너비(`oneSetWidth`)를 계산하고, `while` 루프로 scrollX/targetScrollX를 래핑
+
+```tsx
+// 한 세트 너비 계산 (연속된 인트로 간 거리)
+const introEls = slider.querySelectorAll(`.${styles.intro}`);
+let oneSetWidth = 0;
+if (introEls.length >= 2) {
+  oneSetWidth = introEls[1].offsetLeft - introEls[0].offsetLeft;
+}
+
+// 애니메이션 루프에서 양방향 래핑
+if (oneSetWidth > 0) {
+  while (scrollX > oneSetWidth * 3) {
+    scrollX -= oneSetWidth;
+    targetScrollX -= oneSetWidth;
+  }
+  while (scrollX < -oneSetWidth * 3) {
+    scrollX += oneSetWidth;
+    targetScrollX += oneSetWidth;
+  }
+}
+```
+
+#### 핵심 교훈
+콘텐츠 복제 세트 수를 늘리는 것보다, 스크롤 위치 자체를 래핑하는 방식이 DOM 부담 없이 진정한 무한 스크롤을 구현할 수 있음
+
+---
+
+### 9. 언어 전환 시 레이아웃 시프트
+
+#### 문제
+Works 인트로 섹션에서 한국어↔영어 전환 시 텍스트 영역의 높이가 변하며 레이아웃이 살짝 움직임
+
+#### 원인
+- 한국어와 영어의 텍스트 길이 차이로 줄바꿈 위치가 달라짐
+- `justify-content: center`가 적용된 flex 컨테이너에서 자식 높이 변화 시 공간이 재분배됨
+
+#### 해결
+`min-height`를 `em` 단위(줄 수 × line-height)로 설정하여 양쪽 언어 모두에서 일관된 공간을 확보
+
+```css
+/* 최대 줄 수 기준으로 min-height 예약 */
+.introDesc { min-height: 4.95em; }    /* 3줄 × 1.65 line-height */
+.introDetail { min-height: 6.6em; }   /* 4줄 × 1.65 line-height */
+.introQuote { min-height: 3.3em; }    /* 2줄 × 1.65 line-height */
+
+/* 모바일에서는 세로 스크롤이므로 불필요 */
+@media (max-width: 768px) {
+  .introDesc, .introDetail, .introQuote {
+    min-height: auto;
+  }
+}
+```
+
+#### 핵심 교훈
+다국어 지원 시 텍스트 영역에 `min-height`로 최대 줄 수 기준의 공간을 예약하면 언어 전환 시 레이아웃 시프트를 방지할 수 있음. `em` 단위를 사용하면 font-size 변경에도 자동 대응됨
 
 ---
 

@@ -48,6 +48,12 @@ const designFeatures = [
     description: "2차에 걸친 Lighthouse 분석 기반 성능 최적화. 미사용 폰트 4개(12파일) 제거, reCAPTCHA 인터랙션 기반 지연 로딩, font-display:swap 적용으로 모바일 Performance 60→98점, 페이지 용량 70% 감소를 달성했습니다.",
     tech: ["Font Optimization", "Lazy Loading", "font-display", "browserslist"],
   },
+  {
+    icon: "07",
+    title: "Works Horizontal Gallery",
+    description: "GSAP requestAnimationFrame 기반 가로 스크롤 갤러리. 인트로 섹션을 인플로우 아이템으로 배치하고, oneSetWidth 래핑으로 양방향 무한 스크롤을 구현했습니다. 언어 전환 시 min-height로 레이아웃 시프트를 방지합니다.",
+    tech: ["GSAP", "Infinite Wrapping", "i18n Layout", "Responsive"],
+  },
 ];
 
 const techStack = [
@@ -88,6 +94,11 @@ const designProcess = [
     step: "05",
     title: "Lighthouse 성능 최적화",
     description: "Lighthouse CLI로 프로덕션 빌드를 직접 측정하며 2차에 걸친 최적화를 진행. 1차: reCAPTCHA 지연 로딩, 접근성 수정. 2차: 미사용 폰트 제거, font-display:swap, 리소스 경량화로 모바일 98점 달성.",
+  },
+  {
+    step: "06",
+    title: "Works 가로 갤러리 구현",
+    description: "GSAP rAF 기반 가로 스크롤 갤러리에 인트로 인플로우 배치, oneSetWidth 양방향 무한 래핑, 뷰포트 중심 기반 활성 카드 감지, 언어 전환 레이아웃 안정화를 구현.",
   },
 ];
 
@@ -158,6 +169,38 @@ useEffect(() => {
 if (!shouldLoad) return <>{children}</>;
 return <GoogleReCaptchaProvider ...>{children}</GoogleReCaptchaProvider>;`,
   },
+  {
+    title: "Infinite Scroll Wrapping",
+    description: "oneSetWidth 기반 양방향 무한 스크롤 래핑",
+    code: `// 연속된 인트로 간 거리로 한 세트 너비 계산
+const introEls = slider.querySelectorAll('.intro');
+const oneSetWidth = introEls[1].offsetLeft - introEls[0].offsetLeft;
+
+// rAF 루프에서 양방향 래핑
+while (scrollX > oneSetWidth * 3) {
+  scrollX -= oneSetWidth;
+  targetScrollX -= oneSetWidth;
+}
+while (scrollX < -oneSetWidth * 3) {
+  scrollX += oneSetWidth;
+  targetScrollX += oneSetWidth;
+}`,
+  },
+  {
+    title: "i18n Layout Shift Prevention",
+    description: "언어 전환 시 min-height로 레이아웃 시프트 방지",
+    code: `/* 최대 줄 수 × line-height로 공간 예약 */
+.introDesc { min-height: 4.95em; }   /* 3줄 × 1.65 */
+.introDetail { min-height: 6.6em; }  /* 4줄 × 1.65 */
+.introQuote { min-height: 3.3em; }   /* 2줄 × 1.65 */
+
+/* 모바일: 세로 스크롤이므로 불필요 */
+@media (max-width: 768px) {
+  .introDesc, .introDetail, .introQuote {
+    min-height: auto;
+  }
+}`,
+  },
 ];
 
 const troubleShootingItems = [
@@ -196,6 +239,18 @@ const troubleShootingItems = [
     cause: "next/font/google로 등록된 9개 폰트 패밀리 중 4개(IBM Plex Mono, Bebas Neue, Cormorant Garamond, Abril Fatface)가 CSS에서 미참조. reCAPTCHA 4초 타이머가 Lighthouse 테스트 중 트리거. font-display 미설정으로 폰트 렌더링 차단",
     solution: "미사용 폰트 4개 제거(12파일 절약), Inter 가중치 7→5개 축소, font-display:swap 추가, reCAPTCHA 타이머/scroll 이벤트 제거, 미사용 preconnect 제거, browserslist 추가",
     keyInsight: "next/font로 등록만 해도 폰트 파일이 다운로드됨. 지연 로딩의 타이머 폴백은 성능 측정 도구에서 의도치 않게 트리거될 수 있으므로 의도적 인터랙션만 사용해야 함. 결과: Performance 60→98, 페이지 용량 70% 감소",
+  },
+  {
+    problem: "Works 가로 갤러리 양방향 무한 스크롤",
+    cause: "프로젝트 10세트를 반복 배치했지만 유한한 세트로는 양쪽 방향 끝이 존재하여 흰 화면이 나타남",
+    solution: "연속된 인트로 요소의 offsetLeft 차이로 oneSetWidth를 계산하고, rAF 루프에서 while 문으로 scrollX/targetScrollX를 양방향 래핑",
+    keyInsight: "콘텐츠 복제 세트 수를 늘리는 것보다 스크롤 위치 자체를 래핑하는 방식이 DOM 부담 없이 진정한 무한 스크롤을 구현할 수 있음",
+  },
+  {
+    problem: "언어 전환 시 Works 인트로 레이아웃 시프트",
+    cause: "한국어/영어 텍스트 길이 차이로 줄바꿈이 달라지고, justify-content: center가 적용된 flex 컨테이너에서 자식 높이 변화 시 공간이 재분배됨",
+    solution: "min-height를 em 단위(줄 수 × line-height)로 설정하여 양쪽 언어 모두에서 일관된 공간 확보. 모바일에서는 세로 스크롤이므로 min-height: auto로 리셋",
+    keyInsight: "다국어 지원 시 텍스트 영역에 min-height로 최대 줄 수 기준 공간을 예약하면 레이아웃 시프트 방지. em 단위 사용으로 font-size 변경에도 자동 대응",
   },
 ];
 
