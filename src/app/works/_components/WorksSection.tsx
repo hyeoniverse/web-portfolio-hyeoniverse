@@ -393,7 +393,7 @@ export default function WorksSection() {
               <span className={styles.metaYear}>{project.year}</span>
               <div className={styles.metaTech}>
                 {project.tech.slice(0, 2).map((tech: string, i: number) => (
-                  <span key={i}>{tech}</span>
+                  <span key={i}>#{tech}</span>
                 ))}
               </div>
               <span className={styles.metaRole}>{project.role}</span>

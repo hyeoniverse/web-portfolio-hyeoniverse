@@ -155,7 +155,7 @@
   --text-accent-primary: var(--color-primary);
   --text-accent-primary-alt: var(--color-primary-light);
   --text-accent-secondary: var(--color-accent);
-  --text-accent-secondary-alt: var(--color-accent);
+  --text-accent-secondary-alt: var(--color-accent-light);
 
   /* Background Colors */
   --bg-white: var(--color-white-alpha-100);
@@ -774,10 +774,6 @@
   --color-inverse-alpha-90: rgba(26, 26, 26, 0.9);
   --color-inverse-alpha-95: rgba(26, 26, 26, 0.95);
   --color-inverse-alpha-100: rgba(26, 26, 26, 1);
-
-  /* Semantic Overrides */
-  --text-accent-primary-alt: var(--color-primary-dark);
-  --text-accent-secondary-alt: var(--color-accent-dark);
 
   --bg-primary: var(--color-neutral-50);
   --bg-surface: var(--color-white-alpha-5);
