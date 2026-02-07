@@ -208,14 +208,19 @@ export function useLoadingProgress(): LoadingProgressResult {
 // ============================================
 // useLoadingScreen - Simplified and reliable
 // ============================================
+
+// Module-level flag: survives component remounts caused by parent tree changes
+// (e.g., RecaptchaProvider switching from Fragment to GoogleReCaptchaProvider)
+let hasCompletedInitialLoad = false;
+
 export function useLoadingScreen(): LoadingScreenResult {
   const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !hasCompletedInitialLoad);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const startTimeRef = useRef<number>(Date.now());
-  const hasCompletedRef = useRef(false);
+  const hasCompletedRef = useRef(hasCompletedInitialLoad);
   const fontsLoadedRef = useRef(false);
   const isInitialLoadRef = useRef(true);
   const previousPathnameRef = useRef<string | null>(null);
@@ -303,6 +308,7 @@ export function useLoadingScreen(): LoadingScreenResult {
     const completeLoading = () => {
       if (!mounted || hasCompletedRef.current) return;
       hasCompletedRef.current = true;
+      hasCompletedInitialLoad = true;
 
       // Animate to 100%
       setProgress(100);
