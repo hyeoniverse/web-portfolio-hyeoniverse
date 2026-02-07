@@ -143,9 +143,9 @@ export default function WorksSection() {
         scrollX += (targetScrollX - scrollX) * SCROLL_LERP;
         velocity = scrollX - prevScrollX;
 
-        // Image parallax
-        targetImageOffset = gsap.utils.clamp(-25, 25, -velocity * 0.5);
-        imageOffset += (targetImageOffset - imageOffset) * 0.06;
+        // Image parallax + velocity skew
+        targetImageOffset = gsap.utils.clamp(-80, 80, -velocity * 2.5);
+        imageOffset += (targetImageOffset - imageOffset) * 0.08;
 
         // Update slider position
         gsap.set(slider, { x: initialX - scrollX });
