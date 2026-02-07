@@ -1,62 +1,135 @@
 /* ==========================================================================
-  Footer - Minimal Style
+  Footer - 4 Column Layout
   ========================================================================== */
 
 .footer {
-  padding: 2rem 4rem;
-  border-top: var(--border-default);
+  margin-top: var(--spacing-6xl);
+  padding: var(--spacing-6xl) 4rem var(--spacing-3xl);
+  border-top: var(--border-strong);
   background: transparent;
-  height: 200px;
 }
 
 .content {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: var(--width-6xl);
+  gap: var(--spacing-3xl);
+  flex-direction: column;
   margin: 0 auto;
+  max-width: var(--width-6xl);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
 }
 
-.copyright,
-.location {
-  font-family: inherit;
-  font-size: inherit;
-  color: var(--text-secondary);
-  letter-spacing: 0.05em;
-}
-
+/* Center: Links + Privacy */
 .links {
   display: flex;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-xl);
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
 }
 
 .links a {
-  font-family: inherit;
-  font-size: inherit;
-  color: var(--text-muted);
+  position: relative;
+  color: inherit;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  text-decoration: none;
   transition: color 0.3s ease;
 }
 
-.links a:hover {
-  color: var(--text-primary);
+.links a::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  /* !important: global theme transition (html[data-theme-ready] *::after) overrides transform */
+  transition: transform 0.3s ease !important;
 }
+
+.links a:hover::after {
+  transform: scaleX(1);
+}
+
+.divider {
+  font-size: inherit;
+  color: var(--text-accent-secondary-alt);
+}
+
+.bottom {
+  display: flex;
+  gap: var(--spacing-4xl);
+  justify-content: space-between;
+  flex-direction: row;
+  color: var(--text-accent-secondary-alt);
+}
+
+/* Left side: Email */
+.email {
+  display: inline-block;
+  position: relative;
+  color: inherit;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.email::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  /* !important: global theme transition (html[data-theme-ready] *::after) overrides transform */
+  transition: transform 0.3s ease !important;
+}
+
+.email:hover::after {
+  transform: scaleX(1);
+}
+
+/* Right side: Copyright */
+.copyright {
+  color: inherit;
+  text-align: right;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+  Responsive
+  ========================================================================== */
 
 @media (max-width: 768px) {
   .footer {
-    padding: 1.5rem;
+    padding: var(--spacing-4xl) var(--spacing-xl) var(--spacing-2xl);
   }
 
   .content {
+    gap: var(--spacing-xl);
+  }
+
+  .center {
+    gap: var(--spacing-lg);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .bottom {
+    gap: var(--spacing-2xs);
+    align-items: center;
     flex-direction: column;
-    gap: 1rem;
     text-align: center;
   }
 
-  .links {
-    gap: 1.5rem;
+  .copyright {
+    text-align: center;
   }
 }
