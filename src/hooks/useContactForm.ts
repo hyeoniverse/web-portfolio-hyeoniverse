@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useForm } from "@formspree/react";
 import ReCAPTCHA from "react-google-recaptcha";
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { siteConfig } from "@/config/site.config";
 
 interface SubmittedData {
@@ -61,7 +61,7 @@ export function useContactForm(): UseContactFormReturn {
 
   // reCAPTCHA config
   const { enabled: recaptchaEnabled, version: recaptchaVersion } = siteConfig.recaptcha;
-  const { executeRecaptcha } = useGoogleReCaptcha();
+  const { executeRecaptcha } = useRecaptcha();
 
   // Track previous state
   const prevSubmittingRef = useRef(false);
