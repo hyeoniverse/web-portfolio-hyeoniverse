@@ -66,6 +66,7 @@ export default function WorksSection() {
     null,
   );
   const [pressedCard, setPressedCard] = useState<PressedCard | null>(null);
+  const [introVisible, setIntroVisible] = useState(true);
 
   // Hooks
   const router = useRouter();
@@ -217,6 +218,18 @@ export default function WorksSection() {
           }
         }
         setActiveIndex(closestIndex % PROJECT_COUNT);
+
+        // Check if any intro is closer to center than the closest project
+        let introCloser = false;
+        for (let i = 0; i < introEls.length; i++) {
+          const rect = (introEls[i] as HTMLElement).getBoundingClientRect();
+          const dist = Math.abs(rect.left + rect.width / 2 - viewportCenter);
+          if (dist < closestDist) {
+            introCloser = true;
+            break;
+          }
+        }
+        setIntroVisible(introCloser);
 
         // Decay mouse velocity
         mouseVelocityX *= VELOCITY_DECAY;
@@ -402,9 +415,9 @@ export default function WorksSection() {
         </div>
         <div className={styles.introStatDivider} />
         <div className={styles.introStat}>
-          <span className={styles.introStatNumber}>24</span>
+          <span className={styles.introStatNumber}>05</span>
           <span className={styles.introStatLabel}>
-            {t("works.stats.years")}
+            {t("works.stats.clients")}
           </span>
         </div>
       </div>
@@ -481,7 +494,7 @@ export default function WorksSection() {
       </div>
 
       {/* Active Project Info */}
-      <div className={styles.activeInfo}>
+      <div className={styles.activeInfo} style={{ opacity: introVisible ? 0 : 1, transition: 'opacity 0.4s ease' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeIndex}
