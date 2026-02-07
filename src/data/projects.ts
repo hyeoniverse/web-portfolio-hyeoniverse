@@ -1,6 +1,10 @@
 // Works page project data
 
+import type { Language } from "@/providers/LanguageProvider";
+
 export type CardSize = "large" | "small" | "medium" | "tall" | "wide";
+
+export type LocalizedText = Record<Language, string>;
 
 export interface Project {
   id: string;
@@ -9,7 +13,7 @@ export interface Project {
   subtitle: string;
   category: string;
   year: string;
-  description: string;
+  description: LocalizedText;
   role: string;
   tech: string[];
   image: string;
@@ -24,7 +28,10 @@ export const projects: Project[] = [
     subtitle: "Beyond the Horizon",
     category: "Branding / Web Design",
     year: "2024",
-    description: "우주 탐사 스타트업을 위한 브랜드 아이덴티티 및 웹 경험 디자인",
+    description: {
+      ko: "우주 탐사 스타트업을 위한 브랜드 아이덴티티 및 웹 경험 디자인",
+      en: "Brand identity and web experience design for a space exploration startup",
+    },
     role: "Lead Designer",
     tech: ["Figma", "Next.js", "Three.js"],
     image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1200&h=700&fit=crop",
@@ -37,7 +44,10 @@ export const projects: Project[] = [
     subtitle: "Move with Purpose",
     category: "UX/UI / Mobile",
     year: "2023",
-    description: "피트니스 트래킹과 소셜 기능을 결합한 모바일 앱 디자인",
+    description: {
+      ko: "피트니스 트래킹과 소셜 기능을 결합한 모바일 앱 디자인",
+      en: "Mobile app design combining fitness tracking and social features",
+    },
     role: "Product Designer",
     tech: ["Figma", "Protopie", "React Native"],
     image: "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=1200&h=700&fit=crop",
@@ -50,7 +60,10 @@ export const projects: Project[] = [
     subtitle: "Commerce Reimagined",
     category: "E-commerce",
     year: "2023",
-    description: "글로벌 이커머스 플랫폼의 사용자 경험 재설계",
+    description: {
+      ko: "글로벌 이커머스 플랫폼의 사용자 경험 재설계",
+      en: "User experience redesign for a global e-commerce platform",
+    },
     role: "UX Designer",
     tech: ["Sketch", "Zeplin", "Vue.js"],
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=700&fit=crop",
@@ -63,7 +76,10 @@ export const projects: Project[] = [
     subtitle: "Data at a Glance",
     category: "Dashboard",
     year: "2024",
-    description: "핀테크 스타트업을 위한 실시간 금융 대시보드 디자인",
+    description: {
+      ko: "핀테크 스타트업을 위한 실시간 금융 대시보드 디자인",
+      en: "Real-time financial dashboard design for a fintech startup",
+    },
     role: "UI Designer",
     tech: ["Figma", "D3.js", "React"],
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=700&fit=crop",
@@ -76,7 +92,10 @@ export const projects: Project[] = [
     subtitle: "Timeless Elegance",
     category: "Branding",
     year: "2024",
-    description: "프리미엄 라이프스타일 브랜드의 비주얼 아이덴티티 구축",
+    description: {
+      ko: "프리미엄 라이프스타일 브랜드의 비주얼 아이덴티티 구축",
+      en: "Visual identity development for a premium lifestyle brand",
+    },
     role: "Brand Designer",
     tech: ["Illustrator", "After Effects"],
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=700&fit=crop",
@@ -89,7 +108,10 @@ export const projects: Project[] = [
     subtitle: "Innovation Hub",
     category: "Web App",
     year: "2023",
-    description: "스타트업 인큐베이터를 위한 협업 플랫폼 설계",
+    description: {
+      ko: "스타트업 인큐베이터를 위한 협업 플랫폼 설계",
+      en: "Collaboration platform design for a startup incubator",
+    },
     role: "Product Designer",
     tech: ["Figma", "TypeScript", "Node.js"],
     image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=700&fit=crop",
