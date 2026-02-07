@@ -6,6 +6,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  Fragment,
 } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -13,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "@/providers/LenisProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   projects,
@@ -22,6 +24,7 @@ import {
   LONG_PRESS_DURATION,
   INITIAL_MARGIN,
 } from "@/data/projects";
+import Footer from "@/components/layout/Footer";
 import styles from "./WorksSection.module.css";
 
 // Register GSAP plugins
@@ -66,6 +69,7 @@ export default function WorksSection() {
 
   // Hooks
   const router = useRouter();
+  const { t } = useLanguage();
   const { setInfinite } = useLenis();
   const { isMobile: isVerticalLayout } = useIsMobile();
 
@@ -100,11 +104,20 @@ export default function WorksSection() {
 
       if (cards.length === 0) return;
 
-      // Calculate set width from actual DOM positions
-      const oneSetWidth =
-        projectItems[PROJECT_COUNT].offsetLeft - projectItems[0].offsetLeft;
-      const middleSetStart = projectItems[PROJECT_COUNT * 4].offsetLeft;
-      const initialX = -(middleSetStart - INITIAL_MARGIN);
+      // Start at the middle intro (one intro per project set)
+      const introEls = slider.querySelectorAll(`.${styles.intro}`);
+      const middleIntro = introEls[Math.floor(introEls.length / 2)] as HTMLElement;
+      const initialX = middleIntro
+        ? -(middleIntro.offsetLeft - INITIAL_MARGIN)
+        : -(projectItems[PROJECT_COUNT * 5].offsetLeft - INITIAL_MARGIN);
+
+      // Calculate one set width for infinite wrapping
+      let oneSetWidth = 0;
+      if (introEls.length >= 2) {
+        oneSetWidth =
+          (introEls[1] as HTMLElement).offsetLeft -
+          (introEls[0] as HTMLElement).offsetLeft;
+      }
 
       // Scroll state
       let scrollX = 0;
@@ -176,16 +189,34 @@ export default function WorksSection() {
         targetImageOffset = gsap.utils.clamp(-80, 80, -velocity * 2.5);
         imageOffset += (targetImageOffset - imageOffset) * 0.08;
 
+        // Infinite scroll wrapping: when scrolled too far, jump back by one set
+        if (oneSetWidth > 0) {
+          while (scrollX > oneSetWidth * 3) {
+            scrollX -= oneSetWidth;
+            targetScrollX -= oneSetWidth;
+          }
+          while (scrollX < -oneSetWidth * 3) {
+            scrollX += oneSetWidth;
+            targetScrollX += oneSetWidth;
+          }
+        }
+
         // Update slider position
         gsap.set(slider, { x: initialX - scrollX });
 
-        // Update active index
-        const scrollInSet =
-          ((scrollX % oneSetWidth) + oneSetWidth) % oneSetWidth;
-        const progress = scrollInSet / oneSetWidth;
-        setActiveIndex(
-          Math.abs(Math.floor(progress * PROJECT_COUNT)) % PROJECT_COUNT,
-        );
+        // Update active index (find closest project to viewport center)
+        const viewportCenter = window.innerWidth / 2;
+        let closestIndex = 0;
+        let closestDist = Infinity;
+        for (let i = 0; i < projectItems.length; i++) {
+          const rect = projectItems[i].getBoundingClientRect();
+          const dist = Math.abs(rect.left + rect.width / 2 - viewportCenter);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestIndex = i;
+          }
+        }
+        setActiveIndex(closestIndex % PROJECT_COUNT);
 
         // Decay mouse velocity
         mouseVelocityX *= VELOCITY_DECAY;
@@ -352,16 +383,51 @@ export default function WorksSection() {
     return `${styles.project} ${styles[sizeClass]} ${styles[layoutClass]}`;
   };
 
+  const introBlock = (
+    <div className={styles.intro}>
+      <span className={styles.introLabel}>{t("works.introLabel")}</span>
+      <h1 className={styles.introTitle}>{t("works.introTitle")}</h1>
+      <span className={styles.introTagline}>{t("works.introTagline")}</span>
+      <div className={styles.introDivider} />
+      <p className={styles.introDesc}>{t("works.introDesc")}</p>
+      <p className={styles.introDetail}>{t("works.introDetail")}</p>
+      <div className={styles.introStats}>
+        <div className={styles.introStat}>
+          <span className={styles.introStatNumber}>
+            {String(PROJECT_COUNT).padStart(2, "0")}
+          </span>
+          <span className={styles.introStatLabel}>
+            {t("works.stats.projects")}
+          </span>
+        </div>
+        <div className={styles.introStatDivider} />
+        <div className={styles.introStat}>
+          <span className={styles.introStatNumber}>24</span>
+          <span className={styles.introStatLabel}>
+            {t("works.stats.years")}
+          </span>
+        </div>
+      </div>
+      <span className={styles.introScope}>{t("works.introScope")}</span>
+      <blockquote className={styles.introQuote}>
+        {t("works.introQuote")}
+      </blockquote>
+    </div>
+  );
+
   return (
+    <>
     <section className={styles.gallery} ref={galleryRef}>
       {/* Gallery Track */}
       <div className={styles.galleryTrack}>
         <div className={styles.gallerySlider} ref={sliderRef}>
           {(isVerticalLayout ? projects : allProjects).map((project, index) => (
-            <div
-              key={`${project.id}-${index}`}
-              className={getProjectClassName(project, index)}
-            >
+            <Fragment key={`${project.id}-${index}`}>
+              {/* Intro: appears at the start of each project set */}
+              {index % PROJECT_COUNT === 0 && introBlock}
+              <div
+                className={getProjectClassName(project, index)}
+              >
               {/* Metadata */}
               <span className={styles.metaNumber}>{project.number}</span>
               <span className={styles.metaCategory}>{project.category}</span>
@@ -391,10 +457,16 @@ export default function WorksSection() {
                   />
                 </div>
                 <div className={styles.cardBorder} />
+                <div className={styles.cardOverlay}>
+                  <h3 className={styles.metaTitle}>{project.title}</h3>
+                  <span className={styles.metaSubtitle}>
+                    {project.subtitle}
+                  </span>
+                  <span className={styles.metaYear}>{project.year}</span>
+                </div>
               </article>
 
               {/* More Metadata */}
-              <span className={styles.metaYear}>{project.year}</span>
               <div className={styles.metaTech}>
                 {project.tech.slice(0, 2).map((tech: string, i: number) => (
                   <span key={i}>#{tech}</span>
@@ -403,6 +475,7 @@ export default function WorksSection() {
               <span className={styles.metaRole}>{project.role}</span>
               <p className={styles.metaDesc}>{project.description}</p>
             </div>
+            </Fragment>
           ))}
         </div>
       </div>
@@ -468,5 +541,7 @@ export default function WorksSection() {
         )}
       </AnimatePresence>
     </section>
+    {isVerticalLayout && <Footer />}
+    </>
   );
 }

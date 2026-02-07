@@ -66,6 +66,8 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
+    const isMobile = window.innerWidth <= 768;
+
     // Initialize Lenis
     const lenisInstance = new Lenis({
       duration: options.duration ?? 1.2,
@@ -75,7 +77,7 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       smoothWheel: options.smoothWheel ?? true,
       wheelMultiplier: options.wheelMultiplier ?? 1,
       touchMultiplier: options.touchMultiplier ?? 2,
-      infinite: options.infinite ?? true,
+      infinite: isMobile ? false : (options.infinite ?? true),
     });
 
     lenisRef.current = lenisInstance;
@@ -122,11 +124,20 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       (window as typeof window & { lenis?: Lenis }).lenis = lenisInstance;
     }
 
+    // Toggle infinite on resize (mobile ↔ desktop)
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (lenisInstance as any).options.infinite = mobile ? false : (options.infinite ?? true);
+    };
+    window.addEventListener("resize", handleResize);
+
     // Capture the current raf ID for cleanup
     const currentRafId = rafRef.current;
 
     return () => {
       // Cleanup
+      window.removeEventListener("resize", handleResize);
       setLenisInstance(null);
       lenisInstance.destroy();
       gsap.ticker.remove((time) => lenisInstance.raf(time * 1000));
