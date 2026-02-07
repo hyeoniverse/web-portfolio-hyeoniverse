@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "@/providers/LenisProvider";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   projects,
   allProjects,
@@ -66,6 +67,7 @@ export default function WorksSection() {
   // Hooks
   const router = useRouter();
   const { setInfinite } = useLenis();
+  const { isMobile: isVerticalLayout } = useIsMobile();
 
   // Disable Lenis infinite scroll on mount
   useEffect(() => {
@@ -77,8 +79,10 @@ export default function WorksSection() {
     };
   }, [setInfinite]);
 
-  // Horizontal scroll animation
+  // Horizontal scroll animation (desktop only)
   useLayoutEffect(() => {
+    if (isVerticalLayout) return;
+
     const gallery = galleryRef.current;
     const slider = sliderRef.current;
     if (!gallery || !slider) return;
@@ -247,7 +251,7 @@ export default function WorksSection() {
     }, gallery);
 
     return () => ctx.revert();
-  }, []);
+  }, [isVerticalLayout]);
 
   // Navigation handlers
   const triggerTransition = useCallback(
@@ -353,7 +357,7 @@ export default function WorksSection() {
       {/* Gallery Track */}
       <div className={styles.galleryTrack}>
         <div className={styles.gallerySlider} ref={sliderRef}>
-          {allProjects.map((project, index) => (
+          {(isVerticalLayout ? projects : allProjects).map((project, index) => (
             <div
               key={`${project.id}-${index}`}
               className={getProjectClassName(project, index)}
