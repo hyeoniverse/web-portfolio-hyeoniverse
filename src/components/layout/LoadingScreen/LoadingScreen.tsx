@@ -4,7 +4,7 @@ import { useMemo, useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./LoadingScreen.module.css";
-import { config } from "@/config";
+import { siteConfig } from "@/config/site.config";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 
 // Pages that should skip the loading screen
@@ -83,7 +83,7 @@ export default function LoadingScreen() {
             }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
           >
-            {config.personal.eng.name}
+            {siteConfig.loading.displayName}
           </motion.h1>
 
           {/* Progress */}

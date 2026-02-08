@@ -16,7 +16,7 @@ export default function Footer() {
           <Link href="/about">{t("nav.about")}</Link>
           <Link href="/webflow">{t("nav.webflow")}</Link>
           <span className={styles.divider}>✧</span>
-          <Link href="/privacy">Privacy Policy</Link>
+          <Link href="/privacy">{t("footer.privacyPolicy")}</Link>
         </div>
 
         <div className={styles.bottom}>

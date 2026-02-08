@@ -443,7 +443,7 @@ export default function WorksSection() {
               >
               {/* Metadata */}
               <span className={styles.metaNumber}>{project.number}</span>
-              <span className={styles.metaCategory}>{project.category}</span>
+              <span className={styles.metaCategory}>{project.category[language]}</span>
 
               {/* Card */}
               <article
@@ -473,7 +473,7 @@ export default function WorksSection() {
                 <div className={styles.cardOverlay}>
                   <h3 className={styles.metaTitle}>{project.title}</h3>
                   <span className={styles.metaSubtitle}>
-                    {project.subtitle}
+                    {project.subtitle[language]}
                   </span>
                   <span className={styles.metaYear}>{project.year}</span>
                 </div>
@@ -485,7 +485,7 @@ export default function WorksSection() {
                   <span key={i}>#{tech}</span>
                 ))}
               </div>
-              <span className={styles.metaRole}>{project.role}</span>
+              <span className={styles.metaRole}>{project.role[language]}</span>
               <p className={styles.metaDesc}>{project.description[language]}</p>
             </div>
             </Fragment>
@@ -508,7 +508,7 @@ export default function WorksSection() {
               {projects[activeIndex]?.title}
             </h2>
             <p className={styles.activeSubtitle}>
-              {projects[activeIndex]?.subtitle}
+              {projects[activeIndex]?.subtitle[language]}
             </p>
           </motion.div>
         </AnimatePresence>

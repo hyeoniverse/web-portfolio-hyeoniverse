@@ -4,7 +4,8 @@ import { useRef, useLayoutEffect } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { siteConfig } from "@/config/site.config";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { experiences, skills, philosophy } from "@/data/about";
 import styles from "./AboutMeSection.module.css";
 
 // Register GSAP plugins
@@ -12,52 +13,9 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const getExperiences = () => [
-  {
-    period: "2020 - Present",
-    role: "Senior Frontend Developer",
-    company: siteConfig.brand.name,
-    description: "Leading frontend development and creating innovative digital experiences.",
-  },
-  {
-    period: "2018 - 2020",
-    role: "Full Stack Developer",
-    company: "Digital Agency XYZ",
-    description: "Built scalable web applications and e-commerce platforms.",
-  },
-  {
-    period: "2016 - 2018",
-    role: "Junior Developer",
-    company: "Startup Inc.",
-    description: "Started my journey in web development with React and Node.js.",
-  },
-];
-
-const skills = [
-  { name: "React / Next.js", level: 95 },
-  { name: "TypeScript", level: 90 },
-  { name: "GSAP / Animation", level: 85 },
-  { name: "Webflow", level: 80 },
-  { name: "Node.js", level: 75 },
-  { name: "UI/UX Design", level: 70 },
-];
-
-const philosophy = [
-  {
-    title: "Design with Purpose",
-    description: "Every pixel should serve a purpose. I believe in creating designs that are not just beautiful, but functional and meaningful.",
-  },
-  {
-    title: "Code with Care",
-    description: "Clean, maintainable code is the foundation of great products. I write code that future developers (including myself) will thank me for.",
-  },
-  {
-    title: "Learn Continuously",
-    description: "The tech industry never stops evolving. I embrace change and constantly seek new knowledge and skills to stay ahead.",
-  },
-];
 
 export default function AboutMeSection() {
+  const { t, language } = useLanguage();
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const bioRef = useRef<HTMLDivElement>(null);
@@ -206,7 +164,7 @@ export default function AboutMeSection() {
     <section id="about" className={styles.section} ref={sectionRef}>
       {/* Section Header */}
       <div className={styles.header} ref={headerRef}>
-        <span className={styles.label}>About Me</span>
+        <span className={styles.label}>{t("aboutPage.title")}</span>
         <h2 className={styles.title}>
           Crafting Digital
           <br />
@@ -229,31 +187,27 @@ export default function AboutMeSection() {
 
         <div className={styles.bioContainer} ref={bioRef}>
           <p className={styles.bioHighlight}>
-            Hello! I&apos;m a passionate developer and designer based in Seoul, Korea.
+            {t("aboutPage.bio.highlight")}
           </p>
           <p className={styles.bioText}>
-            With over 8 years of experience in web development, I specialize in creating
-            beautiful, functional, and user-centered digital experiences. I combine
-            technical expertise with creative vision to build products that make a difference.
+            {t("aboutPage.bio.text1")}
           </p>
           <p className={styles.bioText}>
-            When I&apos;m not coding, you can find me exploring new design trends,
-            contributing to open-source projects, or enjoying a good cup of coffee
-            while sketching ideas for the next project.
+            {t("aboutPage.bio.text2")}
           </p>
 
           <div className={styles.stats}>
             <div className={styles.stat}>
-              <span className={styles.statNumber}>8+</span>
-              <span className={styles.statLabel}>Years Experience</span>
+              <span className={styles.statNumber}>{t("aboutPage.stats.yearsValue")}</span>
+              <span className={styles.statLabel}>{t("aboutPage.stats.years")}</span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.statNumber}>50+</span>
-              <span className={styles.statLabel}>Projects Completed</span>
+              <span className={styles.statNumber}>{t("aboutPage.stats.projectsValue")}</span>
+              <span className={styles.statLabel}>{t("aboutPage.stats.projects")}</span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.statNumber}>30+</span>
-              <span className={styles.statLabel}>Happy Clients</span>
+              <span className={styles.statNumber}>{t("aboutPage.stats.clientsValue")}</span>
+              <span className={styles.statLabel}>{t("aboutPage.stats.clients")}</span>
             </div>
           </div>
         </div>
@@ -263,12 +217,12 @@ export default function AboutMeSection() {
       <div className={styles.experienceSection} ref={experienceRef}>
         <h3 className={styles.sectionSubtitle}>Experience</h3>
         <div className={styles.experienceList}>
-          {getExperiences().map((exp, index) => (
+          {experiences.map((exp, index) => (
             <div key={index} className={styles.experienceCard}>
-              <span className={styles.experiencePeriod}>{exp.period}</span>
-              <h4 className={styles.experienceRole}>{exp.role}</h4>
+              <span className={styles.experiencePeriod}>{exp.period[language]}</span>
+              <h4 className={styles.experienceRole}>{exp.role[language]}</h4>
               <span className={styles.experienceCompany}>{exp.company}</span>
-              <p className={styles.experienceDescription}>{exp.description}</p>
+              <p className={styles.experienceDescription}>{exp.description[language]}</p>
             </div>
           ))}
         </div>
@@ -300,7 +254,7 @@ export default function AboutMeSection() {
             <div key={index} className={styles.philosophyCard}>
               <span className={styles.philosophyNumber}>0{index + 1}</span>
               <h4 className={styles.philosophyTitle}>{item.title}</h4>
-              <p className={styles.philosophyDescription}>{item.description}</p>
+              <p className={styles.philosophyDescription}>{item.description[language]}</p>
             </div>
           ))}
         </div>
