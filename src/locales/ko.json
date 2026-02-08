@@ -13,7 +13,9 @@
     "locationHighlight": "Seoul",
     "locationAfter": ", KR",
     "availability": "Available for Opportunities",
-    "scroll": "Scroll down"
+    "scroll": "Scroll down",
+    "location": "Based in Seoul, KR",
+    "status": "Available for opportunities"
   },
   "about": {
     "title": "About Me",
@@ -86,7 +88,20 @@
   "aboutPage": {
     "title": "About Me",
     "subtitle": "Crafting Digital Experiences",
-    "intro": "Hello! I'm a passionate developer and designer based in Seoul, Korea.",
+    "intro": "안녕하세요! 서울에서 활동하는 열정적인 개발자이자 디자이너입니다.",
+    "bio": {
+      "highlight": "안녕하세요! 서울에서 활동하는 열정적인 개발자이자 디자이너입니다.",
+      "text1": "8년 이상의 웹 개발 경험을 바탕으로, 아름답고 기능적이며 사용자 중심의 디지털 경험을 만드는 것을 전문으로 합니다. 기술적 전문성과 창의적 비전을 결합하여 차이를 만드는 제품을 구축합니다.",
+      "text2": "코딩을 하지 않을 때는 새로운 디자인 트렌드를 탐구하거나, 오픈소스 프로젝트에 기여하거나, 다음 프로젝트 아이디어를 스케치하며 커피를 즐기고 있습니다."
+    },
+    "stats": {
+      "yearsValue": "8+",
+      "years": "경력",
+      "projectsValue": "50+",
+      "projects": "완료한 프로젝트",
+      "clientsValue": "30+",
+      "clients": "만족한 클라이언트"
+    },
     "philosophy": {
       "design": {
         "title": "목적을 담은 디자인",
@@ -100,11 +115,6 @@
         "title": "지속적인 학습",
         "desc": "기술은 빠르게 변화하며, 저도 함께 성장합니다."
       }
-    },
-    "stats": {
-      "years": "경력",
-      "projects": "완료한 프로젝트",
-      "clients": "만족한 클라이언트"
     }
   },
   "contact": {
@@ -117,11 +127,27 @@
     "successTitle": "전송 완료!",
     "successMessage": "감사합니다! 메시지를 성공적으로 전송했습니다.",
     "successSubMessage": "빠른 시일 내에 답변드리겠습니다.",
-    "confirm": "확인"
+    "confirm": "확인",
+    "drawer": {
+      "formTitle": "양식을 작성해주세요",
+      "successTitle": "메시지 전송 완료!",
+      "preview": "[미리보기] 보낸 메시지",
+      "messageLabel": "메시지",
+      "namePlaceholder": "이름",
+      "emailPlaceholder": "이메일 주소",
+      "titlePlaceholder": "제목 (선택)",
+      "messagePlaceholder": "하고 싶은 말이 있나요?",
+      "fileUpload": "pdf/doc 파일 첨부, 최대 10MB",
+      "acceptPrivacy": "에 동의합니다",
+      "privacyPolicy": "개인정보 처리방침",
+      "emailTitle": "이메일로 보내기",
+      "copied": "복사됨!"
+    }
   },
   "footer": {
     "location": "서울, 대한민국",
-    "copyright": "All Rights Reserved"
+    "copyright": "All Rights Reserved",
+    "privacyPolicy": "개인정보 처리방침"
   },
   "webflow": {
     "title": "Behind the Scenes",
@@ -147,19 +173,30 @@
       "staggerText": {
         "title": "StaggerText 애니메이션",
         "desc": "호버 시 글자별 순차 애니메이션 효과 컴포넌트"
+      },
+      "lighthouse": {
+        "title": "Lighthouse 성능 최적화",
+        "desc": "2차에 걸친 Lighthouse 분석 기반 성능 최적화. 미사용 폰트 4개(12파일) 제거, reCAPTCHA 인터랙션 기반 지연 로딩, font-display:swap 적용으로 모바일 Performance 60→98점, 페이지 용량 70% 감소를 달성했습니다."
+      },
+      "worksGallery": {
+        "title": "Works 가로 갤러리",
+        "desc": "GSAP requestAnimationFrame 기반 가로 스크롤 갤러리. 인트로 섹션을 인플로우 아이템으로 배치하고, oneSetWidth 래핑으로 양방향 무한 스크롤을 구현했습니다. 언어 전환 시 min-height로 레이아웃 시프트를 방지합니다."
       }
     },
     "process": {
       "designSystem": "Design System 구축",
       "component": "컴포넌트 설계",
       "animation": "애니메이션 레이어",
-      "infiniteScroll": "무한 스크롤 구현"
+      "infiniteScroll": "무한 스크롤 구현",
+      "lighthouse": "Lighthouse 성능 최적화",
+      "worksGallery": "Works 가로 갤러리 구현"
     },
     "troubleshooting": {
       "cause": "원인",
       "solution": "해결",
       "keyInsight": "핵심"
-    }
+    },
+    "credits": "Designed & Developed with ❤ by"
   },
   "common": {
     "loading": "로딩 중...",

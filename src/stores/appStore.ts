@@ -1,14 +1,10 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import type {
-  Skill,
-  Experience,
-  BlogPost,
   ContactForm,
   Theme,
   TransitionDirection,
 } from "@/types";
-import { portfolioData } from "@/data";
 
 interface AppState {
   currentSection: string;
@@ -18,9 +14,6 @@ interface AppState {
   transitionDirection: TransitionDirection;
   isSidebarVisible: boolean;
 
-  skills: Skill[];
-  experiences: Experience[];
-  blogPosts: BlogPost[];
   contactForm: ContactForm;
 
   setCurrentSection: (section: string) => void;
@@ -50,9 +43,6 @@ export const useAppStore = create<AppState>()(
       transitionDirection: "down",
       isSidebarVisible: false,
 
-      skills: portfolioData.skills,
-      experiences: portfolioData.experiences,
-      blogPosts: portfolioData.blogPosts,
       contactForm: { name: "", email: "", message: "" },
 
       setCurrentSection: (section) => set({ currentSection: section }),

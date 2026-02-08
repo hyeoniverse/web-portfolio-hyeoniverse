@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { siteConfig } from "@/config/site.config";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import styles from "./ContactDrawer.module.css";
@@ -79,6 +80,7 @@ export default function ContactDrawer({
   copied,
   setCopied,
 }: ContactDrawerProps) {
+  const { t } = useLanguage();
   const drawerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const { ready: recaptchaReady } = useRecaptcha();
@@ -217,7 +219,7 @@ export default function ContactDrawer({
                 }}
               >
                 <h2 className={styles.title}>
-                  {formState.succeeded ? "Message Sent!" : "Fill out the form"}
+                  {formState.succeeded ? t("contact.drawer.successTitle") : t("contact.drawer.formTitle")}
                 </h2>
 
                 {/* Success View / Form */}
@@ -243,7 +245,7 @@ export default function ContactDrawer({
                           ease: [0.65, 0, 0.35, 1],
                         }}
                       >
-                        [Preview] Message you sent
+                        {t("contact.drawer.preview")}
                       </motion.div>
 
                       <motion.div
@@ -313,7 +315,7 @@ export default function ContactDrawer({
                         }}
                       >
                         <span className={styles.successMessageLabel}>
-                          Message
+                          {t("contact.drawer.messageLabel")}
                         </span>
                         <p className={styles.successMessage}>
                           {submittedData.message}
@@ -379,7 +381,7 @@ export default function ContactDrawer({
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        Send Another Message
+                        {t("contact.send")}
                       </motion.button>
                     </motion.div>
                   ) : (
@@ -398,7 +400,7 @@ export default function ContactDrawer({
                           type="text"
                           name="name"
                           className={styles.input}
-                          placeholder="Name"
+                          placeholder={t("contact.drawer.namePlaceholder")}
                           maxLength={100}
                         />
                         <input
@@ -406,7 +408,7 @@ export default function ContactDrawer({
                           type="email"
                           name="email"
                           className={styles.input}
-                          placeholder="Your Email"
+                          placeholder={t("contact.drawer.emailPlaceholder")}
                           maxLength={254}
                         />
                       </div>
@@ -416,7 +418,7 @@ export default function ContactDrawer({
                         type="text"
                         name="title"
                         className={styles.input}
-                        placeholder="Title (optional)"
+                        placeholder={t("contact.drawer.titlePlaceholder")}
                         minLength={2}
                         maxLength={50}
                       />
@@ -441,7 +443,7 @@ export default function ContactDrawer({
                             className={`${styles.fileBtn} ${fileName ? styles.fileBtnActive : ""}`}
                             onClick={() => fileInputRef.current?.click()}
                           >
-                            {fileName || "Attach a pdf/doc file, max 10MB"}
+                            {fileName || t("contact.drawer.fileUpload")}
                           </button>
                           {fileName && (
                             <button
@@ -477,7 +479,7 @@ export default function ContactDrawer({
                           id="message"
                           name="message"
                           className={styles.textarea}
-                          placeholder="Something to say?"
+                          placeholder={t("contact.drawer.messagePlaceholder")}
                           rows={6}
                           maxLength={2000}
                         />
@@ -505,7 +507,7 @@ export default function ContactDrawer({
                             data-clickable="true"
                           />
                           <span>
-                            Accept the{" "}
+                            {t("contact.drawer.acceptPrivacy")}{" "}
                             <Link
                               data-more="true"
                               href="/privacy"
@@ -513,7 +515,7 @@ export default function ContactDrawer({
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              Privacy Policy
+                              {t("contact.drawer.privacyPolicy")}
                             </Link>
                           </span>
                         </div>
@@ -540,7 +542,7 @@ export default function ContactDrawer({
                         onClick={formState.succeeded ? resetForm : undefined}
                       >
                         {formState.submitting ? (
-                          "Sending..."
+                          t("contact.sending")
                         ) : formState.succeeded ? (
                           <>
                             <span className={styles.submitTextDefault}>
@@ -624,7 +626,7 @@ export default function ContactDrawer({
                     transition: { duration: 0.15, delay: 0.4 },
                   }}
                 >
-                  <h3 className={styles.emailTitle}>Or email me</h3>
+                  <h3 className={styles.emailTitle}>{t("contact.drawer.emailTitle")}</h3>
                   <button
                     className={`${styles.emailAddress} ${copied ? styles.emailAddressCopied : ""}`}
                     onClick={() => {
@@ -651,7 +653,7 @@ export default function ContactDrawer({
                     <span
                       className={`${styles.copiedText} ${copied ? "" : styles.hidden}`}
                     >
-                      Copied!
+                      {t("contact.drawer.copied")}
                       <svg
                         className={styles.checkIcon}
                         viewBox="0 0 24 24"

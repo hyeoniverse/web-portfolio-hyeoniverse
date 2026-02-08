@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, MotionValue } from "framer-motion";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./BridgeSection.module.css";
 import heroStyles from "../HeroSection/HeroSection.module.css";
 
@@ -17,6 +18,7 @@ export default function BridgeSection({
   oval2X,
   oval2Y,
 }: BridgeSectionProps) {
+  const { t } = useLanguage();
   return (
     <section className={styles.bridge}>
       {/* Floating Ovals - identical to Hero */}
@@ -60,9 +62,9 @@ export default function BridgeSection({
         </h2>
 
         <div className={heroStyles.meta}>
-          <span>Based in Seoul, KR</span>
+          <span>{t("hero.location")}</span>
           <span className={heroStyles.metaDivider} />
-          <span>Available for opportunities</span>
+          <span>{t("hero.status")}</span>
         </div>
       </div>
 

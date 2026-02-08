@@ -13,7 +13,9 @@
     "locationHighlight": "Seoul",
     "locationAfter": ", KR",
     "availability": "Available for Opportunities",
-    "scroll": "Scroll down"
+    "scroll": "Scroll down",
+    "location": "Based in Seoul, KR",
+    "status": "Available for opportunities"
   },
   "about": {
     "title": "About Me",
@@ -87,6 +89,19 @@
     "title": "About Me",
     "subtitle": "Crafting Digital Experiences",
     "intro": "Hello! I'm a passionate developer and designer based in Seoul, Korea.",
+    "bio": {
+      "highlight": "Hello! I'm a passionate developer and designer based in Seoul, Korea.",
+      "text1": "With over 8 years of experience in web development, I specialize in creating beautiful, functional, and user-centered digital experiences. I combine technical expertise with creative vision to build products that make a difference.",
+      "text2": "When I'm not coding, you can find me exploring new design trends, contributing to open-source projects, or enjoying a good cup of coffee while sketching ideas for the next project."
+    },
+    "stats": {
+      "yearsValue": "8+",
+      "years": "Years Experience",
+      "projectsValue": "50+",
+      "projects": "Projects Completed",
+      "clientsValue": "30+",
+      "clients": "Happy Clients"
+    },
     "philosophy": {
       "design": {
         "title": "Design with Purpose",
@@ -100,11 +115,6 @@
         "title": "Learn Continuously",
         "desc": "Technology evolves rapidly, and so do I."
       }
-    },
-    "stats": {
-      "years": "Years Experience",
-      "projects": "Projects Completed",
-      "clients": "Happy Clients"
     }
   },
   "contact": {
@@ -117,11 +127,27 @@
     "successTitle": "Message Sent!",
     "successMessage": "Thank you! Your message was sent successfully.",
     "successSubMessage": "We will reply soon.",
-    "confirm": "OK"
+    "confirm": "OK",
+    "drawer": {
+      "formTitle": "Fill out the form",
+      "successTitle": "Message Sent!",
+      "preview": "[Preview] Message you sent",
+      "messageLabel": "Message",
+      "namePlaceholder": "Name",
+      "emailPlaceholder": "Your Email",
+      "titlePlaceholder": "Title (optional)",
+      "messagePlaceholder": "Something to say?",
+      "fileUpload": "Attach a pdf/doc file, max 10MB",
+      "acceptPrivacy": "Accept the ",
+      "privacyPolicy": "Privacy Policy",
+      "emailTitle": "Or email me",
+      "copied": "Copied!"
+    }
   },
   "footer": {
     "location": "Seoul, KR",
-    "copyright": "All Rights Reserved"
+    "copyright": "All Rights Reserved",
+    "privacyPolicy": "Privacy Policy"
   },
   "webflow": {
     "title": "Behind the Scenes",
@@ -147,19 +173,30 @@
       "staggerText": {
         "title": "StaggerText Animation",
         "desc": "Per-character sequential animation component on hover"
+      },
+      "lighthouse": {
+        "title": "Lighthouse Performance Optimization",
+        "desc": "Performance optimization based on two rounds of Lighthouse analysis. Removed 4 unused fonts (12 files), implemented interaction-based lazy loading for reCAPTCHA, applied font-display:swap to achieve mobile Performance 60→98, and reduced page size by 70%."
+      },
+      "worksGallery": {
+        "title": "Works Horizontal Gallery",
+        "desc": "Horizontal scroll gallery based on GSAP requestAnimationFrame. Placed intro section as an in-flow item, implemented bidirectional infinite scroll with oneSetWidth wrapping. Prevents layout shift during language switching with min-height."
       }
     },
     "process": {
       "designSystem": "Design System Setup",
       "component": "Component Design",
       "animation": "Animation Layer",
-      "infiniteScroll": "Infinite Scroll Implementation"
+      "infiniteScroll": "Infinite Scroll Implementation",
+      "lighthouse": "Lighthouse Performance Optimization",
+      "worksGallery": "Works Horizontal Gallery Implementation"
     },
     "troubleshooting": {
       "cause": "Cause",
       "solution": "Solution",
       "keyInsight": "Key Insight"
-    }
+    },
+    "credits": "Designed & Developed with ❤ by"
   },
   "common": {
     "loading": "Loading...",
