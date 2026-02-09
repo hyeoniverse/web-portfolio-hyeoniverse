@@ -33,6 +33,12 @@ export interface DynamicFrameLayoutProps {
   }) => void;
   showTitle?: boolean;
   title?: string;
+  renderOverlay?: (frame: Frame, index: number) => React.ReactNode;
+  renderCell?: (params: {
+    frame: Frame;
+    index: number;
+    isHovered: boolean;
+  }) => React.ReactNode;
 }
 
 export const defaultFrames: Frame[] = [
@@ -144,6 +150,8 @@ export default function DynamicFrameLayout({
   initialGapSize = 4,
   initialShowFrames = false,
   initialAutoplayMode = "all",
+  renderOverlay,
+  renderCell,
 }: DynamicFrameLayoutProps = {}) {
   const [frames] = useState<Frame[]>(initialFrames);
   const [hovered, setHovered] = useState<{ row: number; col: number } | null>(
@@ -203,32 +211,58 @@ export default function DynamicFrameLayout({
             frame.defaultPos.y
           );
 
+          const frameIndex = frames.indexOf(frame);
+          const isHoveredCell =
+            hovered?.row === row && hovered?.col === col;
+
           return (
             <motion.div
               key={frame.id}
-              className="relative"
               style={{
+                position: "relative",
+                overflow: "hidden",
                 transformOrigin,
                 transition: "transform 0.4s ease",
               }}
               onMouseEnter={() => setHovered({ row, col })}
               onMouseLeave={() => setHovered(null)}
             >
-              <FrameComponent
-                video={frame.video}
-                width="100%"
-                height="100%"
-                className="absolute inset-0"
-                mediaSize={frame.mediaSize}
-                borderThickness={frame.borderThickness}
-                borderSize={frame.borderSize}
-                showFrame={showFrames}
-                autoplayMode={autoplayMode}
-                isHovered={
-                  hovered?.row === Math.floor(frame.defaultPos.y / 4) &&
-                  hovered?.col === Math.floor(frame.defaultPos.x / 4)
-                }
-              />
+              {renderCell ? (
+                renderCell({
+                  frame,
+                  index: frameIndex,
+                  isHovered: !!isHoveredCell,
+                })
+              ) : (
+                <>
+                  <FrameComponent
+                    video={frame.video}
+                    width="100%"
+                    height="100%"
+                    className="absolute inset-0"
+                    mediaSize={frame.mediaSize}
+                    borderThickness={frame.borderThickness}
+                    borderSize={frame.borderSize}
+                    showFrame={showFrames}
+                    autoplayMode={autoplayMode}
+                    isHovered={!!isHoveredCell}
+                  />
+                  {renderOverlay && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        zIndex: 2,
+                      }}
+                    >
+                      {renderOverlay(frame, frameIndex)}
+                    </div>
+                  )}
+                </>
+              )}
             </motion.div>
           );
         })}
