@@ -77,6 +77,7 @@ export function FrameComponent({
               loop
               muted
               playsInline
+              preload="none"
               autoPlay={
                 autoplayMode === "all" ||
                 (autoplayMode === "hover" && isHovered)
