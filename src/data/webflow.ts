@@ -493,145 +493,145 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     problem: {
       ko: "Lenis Scroll Velocity 효과 미작동",
-      en: "Lenis Scroll Velocity effect not working",
+      en: "Lenis Scroll Velocity Effect Not Working",
     },
     cause: {
-      ko: "RAF 폴링 방식으로 스크롤 위치를 직접 계산하면 velocity 값이 부정확하게 측정됨",
-      en: "Calculating scroll position directly with RAF polling results in inaccurate velocity measurements",
+      ko: "스크롤 속도에 따라 요소가 기울어지는 효과를 구현하려 했습니다. requestAnimationFrame으로 매 프레임마다 스크롤 위치를 읽고, 이전 프레임과의 차이(delta)로 velocity를 직접 계산했는데, 값이 들쑥날쑥하며 애니메이션이 떨리는 현상이 발생했습니다. Lenis가 내부적으로 스크롤을 보간(interpolation)하기 때문에, 외부에서 RAF로 읽은 위치값은 실제 스크롤 의도와 타이밍이 어긋나는 것이 원인이었습니다.",
+      en: "I wanted to create an effect where elements tilt based on scroll speed. I used requestAnimationFrame to read the scroll position every frame and manually calculated velocity from the delta between frames. The values were erratic and animations jittered. The root cause was that Lenis internally interpolates scroll, so positions read externally via RAF were out of sync with the actual scroll intent and timing.",
     },
     solution: {
-      ko: "Lenis의 네이티브 on('scroll') 이벤트를 사용하여 인스턴스에서 직접 velocity 속성 접근",
-      en: "Used Lenis native on('scroll') event to access velocity property directly from instance",
+      ko: "RAF 폴링을 제거하고, Lenis의 네이티브 on('scroll') 이벤트 콜백으로 전환했습니다. 콜백 인자에서 인스턴스의 velocity 속성을 직접 읽으면 Lenis의 보간 주기와 완벽하게 동기화된 값을 얻을 수 있어, 부드러운 tilt 애니메이션이 구현되었습니다.",
+      en: "Removed RAF polling and switched to Lenis's native on('scroll') event callback. Reading the velocity property directly from the instance in the callback gives values perfectly synchronized with Lenis's interpolation cycle, resulting in smooth tilt animations.",
     },
     keyInsight: {
-      ko: "Lenis는 내부적으로 velocity를 계산하여 인스턴스 속성으로 제공. 직접 delta 계산보다 정확함",
-      en: "Lenis internally calculates velocity and provides it as instance property. More accurate than manual delta calculation",
+      ko: "외부 라이브러리가 내부적으로 값을 계산하고 있다면, 같은 값을 직접 재계산하기보다 라이브러리가 제공하는 API를 통해 접근하는 것이 항상 더 정확합니다.",
+      en: "When a library internally computes a value, accessing it through the library's own API is always more accurate than recalculating the same value externally.",
     },
   },
   {
     problem: {
       ko: "Framer Motion transform과 CSS transform 충돌",
-      en: "Framer Motion transform conflicts with CSS transform",
+      en: "Framer Motion Transform Conflicts with CSS Transform",
     },
     cause: {
-      ko: "CSS에서 transform: translate(-50%, -50%)로 중앙 정렬 시 Framer Motion의 y 속성이 덮어씌워짐",
-      en: "Framer Motion's y property gets overwritten when centering with CSS transform: translate(-50%, -50%)",
+      ko: "요소를 뷰포트 중앙에 배치하기 위해 CSS로 position: absolute + transform: translate(-50%, -50%)를 적용한 상태에서, Framer Motion의 y 속성으로 스크롤 기반 패럴랙스를 추가했습니다. 그런데 Framer Motion이 style에 transform을 직접 설정하면서 CSS의 translate(-50%, -50%)가 완전히 덮어씌워져, 요소가 중앙에서 벗어나 엉뚱한 위치로 이동했습니다.",
+      en: "I positioned an element at the viewport center using CSS position: absolute + transform: translate(-50%, -50%), then added scroll-based parallax with Framer Motion's y property. However, Framer Motion sets transform directly on the style attribute, completely overwriting the CSS translate(-50%, -50%). The element jumped away from center to an unexpected position.",
     },
     solution: {
-      ko: "margin 기반 중앙 정렬로 변경 (margin-left: -65%, margin-top: -65%)",
-      en: "Changed to margin-based centering (margin-left: -65%, margin-top: -65%)",
+      ko: "CSS transform 대신 margin 기반 중앙 정렬(margin-left: -65%, margin-top: -65%)로 변경했습니다. transform 속성을 Framer Motion 전용으로 비워두면서도 시각적 중앙 배치를 유지할 수 있었습니다.",
+      en: "Replaced CSS transform centering with margin-based centering (margin-left: -65%, margin-top: -65%). This keeps the transform property free for Framer Motion while maintaining the visual center positioning.",
     },
     keyInsight: {
-      ko: "Framer Motion의 style 속성은 inline transform을 생성하므로 CSS transform과 분리 필요",
-      en: "Framer Motion's style prop creates inline transform, so it needs to be separated from CSS transform",
+      ko: "Framer Motion은 inline style로 transform을 제어합니다. CSS transform과 동일 속성을 공유하게 되면 충돌이 불가피하므로, 위치 잡기는 margin이나 inset 같은 별도 속성으로 분리해야 합니다.",
+      en: "Framer Motion controls transform via inline styles. Sharing the same property with CSS transform inevitably causes conflicts, so positioning should be handled with separate properties like margin or inset.",
     },
   },
   {
     problem: {
       ko: "TypeScript useRef 타입 에러",
-      en: "TypeScript useRef type error",
+      en: "TypeScript useRef Type Error",
     },
     cause: {
-      ko: "useRef<ReturnType<typeof setTimeout>>()에서 초기값 미제공으로 인한 타입 에러",
-      en: "Type error from not providing initial value in useRef<ReturnType<typeof setTimeout>>()",
+      ko: "setTimeout의 반환값을 저장하기 위해 useRef<ReturnType<typeof setTimeout>>()을 사용했는데, 초기값을 넘기지 않아 타입이 MutableRefObject가 아닌 RefObject로 추론되었습니다. 이후 ref.current에 새 타이머를 할당하려 하면 \"읽기 전용 속성입니다\"라는 타입 에러가 발생했습니다.",
+      en: "I used useRef<ReturnType<typeof setTimeout>>() to store setTimeout's return value but didn't pass an initial value. TypeScript inferred it as RefObject (read-only) instead of MutableRefObject. Attempting to assign a new timer to ref.current then threw a \"read-only property\" type error.",
     },
     solution: {
-      ko: "useRef<ReturnType<typeof setTimeout> | undefined>(undefined)로 명시적 초기화",
-      en: "Explicit initialization with useRef<ReturnType<typeof setTimeout> | undefined>(undefined)",
+      ko: "useRef<ReturnType<typeof setTimeout> | undefined>(undefined)로 명시적 초기값을 전달했습니다. 초기값을 넘기면 TypeScript가 MutableRefObject로 추론하여 current에 자유롭게 할당할 수 있습니다. cleanup 시 clearTimeout(ref.current)도 undefined를 정상적으로 받아들입니다.",
+      en: "Passed an explicit initial value: useRef<ReturnType<typeof setTimeout> | undefined>(undefined). Providing an initial value makes TypeScript infer MutableRefObject, allowing free assignment to current. clearTimeout(ref.current) also gracefully accepts undefined during cleanup.",
     },
     keyInsight: {
-      ko: "clearTimeout은 undefined를 허용하지만 null은 허용하지 않음",
-      en: "clearTimeout accepts undefined but not null",
+      ko: "React의 useRef는 초기값 유무에 따라 반환 타입이 달라집니다. DOM ref가 아닌 값 저장 용도라면 반드시 초기값을 넘겨 MutableRefObject를 얻어야 합니다.",
+      en: "React's useRef returns different types depending on whether an initial value is provided. For storing values (not DOM refs), always pass an initial value to get MutableRefObject.",
     },
   },
   {
     problem: {
       ko: "GSAP ScrollTrigger 수평 무한 스크롤 구현",
-      en: "Implementing GSAP ScrollTrigger horizontal infinite scroll",
+      en: "Implementing Horizontal Infinite Scroll with GSAP ScrollTrigger",
     },
     cause: {
-      ko: "ScrollTrigger는 유한한 스크롤 범위를 가지며, 끝에 도달 시 역방향 스크롤로 보이는 문제 발생",
-      en: "ScrollTrigger has a finite scroll range, causing reverse scroll appearance when reaching the end",
+      ko: "GSAP ScrollTrigger로 가로 스크롤을 구현했지만, 스크롤 가능한 범위가 유한하기 때문에 끝에 도달하면 더 이상 진행할 수 없었습니다. wrap() 유틸리티로 위치를 순환시키는 방법도 시도했지만, 스크롤 진행도(progress)가 1에 도달하면 역방향으로 돌아가는 듯한 시각적 끊김이 발생했습니다.",
+      en: "I implemented horizontal scroll with GSAP ScrollTrigger, but the scrollable range was finite—reaching the end meant no further progression. Trying to cycle positions with the wrap() utility caused visual snapping when scroll progress hit 1 and appeared to reverse direction.",
     },
     solution: {
-      ko: "스크롤 거리를 콘텐츠의 10배로 설정하고, modulo 연산으로 컨테이너 x 위치를 순환시켜 한 방향 무한 스크롤 구현",
-      en: "Set scroll distance to 10x content and cycled container x position with modulo operation for unidirectional infinite scroll",
+      ko: "스크롤 가능 거리를 실제 콘텐츠 폭의 10배로 크게 설정한 뒤, onUpdate 콜백에서 modulo 연산으로 컨테이너의 x 위치를 콘텐츠 폭 단위로 순환시켰습니다. 사용자는 끝에 도달할 일 없이 한 방향으로 계속 스크롤하며, 시각적으로는 콘텐츠가 무한히 반복됩니다.",
+      en: "Set the scrollable distance to 10x the actual content width, then in the onUpdate callback used modulo to cycle the container's x position in content-width increments. Users never reach the end and keep scrolling in one direction while content visually loops infinitely.",
     },
     keyInsight: {
-      ko: "스크롤 위치 텔레포트 대신 긴 스크롤 범위 + 시각적 위치 루프 방식이 더 자연스러움",
-      en: "Long scroll range + visual position loop approach is more natural than scroll position teleporting",
+      ko: "무한 스크롤의 핵심은 스크롤 위치를 텔레포트하는 것이 아니라, 충분히 긴 스크롤 범위 안에서 시각적 위치만 루프시키는 것입니다. 사용자의 물리적 스크롤 흐름을 끊지 않으면서 무한한 느낌을 줄 수 있습니다.",
+      en: "The key to infinite scroll isn't teleporting scroll position, but looping only the visual position within a sufficiently long scroll range. This gives an infinite feel without disrupting the user's physical scroll flow.",
     },
   },
   {
     problem: {
       ko: "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)",
-      en: "reCAPTCHA v3 initial load performance degradation (LCP 17.1s, TTI 18.2s)",
+      en: "reCAPTCHA v3 Initial Load Performance Degradation (LCP 17.1s, TTI 18.2s)",
     },
     cause: {
-      ko: "GoogleReCaptchaProvider가 앱 루트를 감싸며 초기 로드 시 ~784KB JS를 즉시 다운로드. 메인 스레드 280ms 차단, Google 도메인 Preconnect 부재로 400ms 추가 지연",
-      en: "GoogleReCaptchaProvider wrapping app root downloads ~784KB JS on initial load. 280ms main thread blocking, 400ms additional delay due to missing Google domain Preconnect",
+      ko: "GoogleReCaptchaProvider를 앱 루트에 감싸는 공식 권장 방식을 따랐더니, 페이지 로드 즉시 ~784KB의 reCAPTCHA JS가 다운로드되었습니다. 메인 스레드를 280ms 동안 차단하고, Google 도메인에 대한 Preconnect 힌트가 없어 DNS/TLS 핸드셰이크에만 400ms가 추가로 소요되면서 LCP가 17초까지 치솟았습니다.",
+      en: "Following the official recommendation of wrapping GoogleReCaptchaProvider at the app root caused ~784KB of reCAPTCHA JS to download immediately on page load. It blocked the main thread for 280ms, and without Preconnect hints for Google's domain, DNS/TLS handshake added another 400ms—pushing LCP to 17 seconds.",
     },
     solution: {
-      ko: "유저 인터랙션(scroll/click/touch/keydown) 또는 4초 타임아웃 후 reCAPTCHA 로드. Preconnect 힌트 추가. WCAG 색상 대비 및 heading order, aria-label 접근성 수정",
-      en: "Load reCAPTCHA after user interaction (scroll/click/touch/keydown) or 4s timeout. Added Preconnect hints. Fixed WCAG color contrast, heading order, and aria-label accessibility",
+      ko: "reCAPTCHA 로드를 사용자의 첫 인터랙션(click/touch/keydown) 시점으로 지연시켰습니다. 추가로 Google 도메인에 대한 Preconnect 힌트를 <head>에 삽입하고, WCAG 접근성 이슈(색상 대비, heading 순서, aria-label 누락)도 함께 수정했습니다.",
+      en: "Deferred reCAPTCHA loading to the user's first interaction (click/touch/keydown). Also added Preconnect hints for Google's domain in <head>, and fixed WCAG accessibility issues (color contrast, heading order, missing aria-labels).",
     },
     keyInsight: {
-      ko: "서드파티 스크립트는 초기 로드에서 제외하고 유저 인터랙션 후 로드하면 LCP/TTI에 큰 영향. mix-blend-mode: difference는 Lighthouse가 blend 전 색상으로 대비를 측정하므로 오탐 가능",
-      en: "Excluding third-party scripts from initial load and loading after user interaction significantly impacts LCP/TTI. mix-blend-mode: difference may cause false positives as Lighthouse measures contrast with pre-blend colors",
+      ko: "서드파티 스크립트는 \"언제 필요한가\"를 기준으로 로드 시점을 결정해야 합니다. Contact 폼의 reCAPTCHA처럼 초기 뷰에서 불필요한 스크립트를 즉시 로드하면, 정작 사용자가 보는 콘텐츠의 렌더링이 수 초씩 지연됩니다.",
+      en: "Third-party script loading should be timed based on \"when is it actually needed.\" Loading scripts like reCAPTCHA (only needed for the Contact form) immediately delays rendering of the content users actually see by several seconds.",
     },
   },
   {
     problem: {
       ko: "미사용 폰트로 인한 리소스 낭비 (폰트 19파일, 페이지 1,489KB)",
-      en: "Resource waste from unused fonts (19 font files, page 1,489KB)",
+      en: "Resource Waste from Unused Fonts (19 Files, 1,489KB Page Weight)",
     },
     cause: {
-      ko: "next/font/google로 등록된 9개 폰트 패밀리 중 4개(IBM Plex Mono, Bebas Neue, Cormorant Garamond, Abril Fatface)가 CSS에서 미참조. reCAPTCHA 4초 타이머가 Lighthouse 테스트 중 트리거. font-display 미설정으로 폰트 렌더링 차단",
-      en: "4 out of 9 font families registered with next/font/google (IBM Plex Mono, Bebas Neue, Cormorant Garamond, Abril Fatface) unreferenced in CSS. reCAPTCHA 4s timer triggered during Lighthouse test. Font rendering blocked due to missing font-display",
+      ko: "next/font/google로 9개 폰트 패밀리를 등록해두었는데, 실제 CSS에서 참조하는 것은 5개뿐이었습니다. 나머지 4개(IBM Plex Mono, Bebas Neue, Cormorant Garamond, Abril Fatface)는 디자인 실험 중 추가한 뒤 제거하지 않은 것이었습니다. next/font는 등록만으로도 폰트 파일을 빌드에 포함시키기 때문에, 실제로 사용하지 않는 12개의 폰트 파일이 그대로 다운로드되고 있었습니다.",
+      en: "I had registered 9 font families via next/font/google, but only 5 were actually referenced in CSS. The remaining 4 (IBM Plex Mono, Bebas Neue, Cormorant Garamond, Abril Fatface) were leftover from design experiments and never removed. Since next/font includes font files in the build just by registration, 12 unused font files were being downloaded.",
     },
     solution: {
-      ko: "미사용 폰트 4개 제거(12파일 절약), Inter 가중치 7→5개 축소, font-display:swap 추가, reCAPTCHA 타이머/scroll 이벤트 제거, 미사용 preconnect 제거, browserslist 추가",
-      en: "Removed 4 unused fonts (12 files saved), reduced Inter weights 7→5, added font-display:swap, removed reCAPTCHA timer/scroll events, removed unused preconnect, added browserslist",
+      ko: "미사용 폰트 4개를 제거하고(12파일 절약), Inter의 가중치를 7개에서 실제 사용하는 5개로 줄였습니다. 모든 폰트에 font-display: swap을 추가해 폰트 로딩 중에도 텍스트가 보이도록 하고, reCAPTCHA의 4초 타이머 폴백도 제거했습니다.",
+      en: "Removed 4 unused fonts (12 files saved), reduced Inter from 7 to 5 actually-used weights. Added font-display: swap to all fonts so text remains visible during loading, and removed reCAPTCHA's 4-second timer fallback.",
     },
     keyInsight: {
-      ko: "next/font로 등록만 해도 폰트 파일이 다운로드됨. 지연 로딩의 타이머 폴백은 성능 측정 도구에서 의도치 않게 트리거될 수 있으므로 의도적 인터랙션만 사용해야 함. 결과: Performance 60→98, 페이지 용량 70% 감소",
-      en: "Font files download just by registering with next/font. Timer fallbacks in lazy loading can unintentionally trigger in performance measurement tools, so only intentional interactions should be used. Result: Performance 60→98, 70% page size reduction",
+      ko: "next/font는 등록 = 다운로드입니다. 사용하지 않는 폰트도 빌드에 포함되므로, 정기적으로 등록된 폰트와 CSS 참조를 대조해야 합니다. 이 정리만으로 Performance 점수가 60에서 98로, 페이지 용량이 70% 감소했습니다.",
+      en: "With next/font, registration = download. Unused fonts are still included in the build, so registered fonts should be regularly cross-referenced with CSS usage. This cleanup alone improved the Performance score from 60 to 98 and reduced page weight by 70%.",
     },
   },
   {
     problem: {
       ko: "Works 가로 갤러리 양방향 무한 스크롤",
-      en: "Works horizontal gallery bidirectional infinite scroll",
+      en: "Bidirectional Infinite Scroll for Works Horizontal Gallery",
     },
     cause: {
-      ko: "프로젝트 10세트를 반복 배치했지만 유한한 세트로는 양쪽 방향 끝이 존재하여 흰 화면이 나타남",
-      en: "Repeated 10 sets of projects but finite sets still have ends in both directions, showing white screen",
+      ko: "프로젝트 카드를 10세트 복제하여 가로로 나열했지만, 복제된 세트에는 양쪽 끝이 존재합니다. 왼쪽이나 오른쪽 끝에 도달하면 콘텐츠가 없는 빈 화면이 노출되어, 진정한 무한 스크롤이 아닌 \"매우 긴 유한 스크롤\"에 불과했습니다.",
+      en: "I duplicated project cards into 10 sets laid out horizontally, but duplicated sets still have two ends. Reaching either end exposed empty white space, making it a \"very long finite scroll\" rather than true infinite scroll.",
     },
     solution: {
-      ko: "연속된 인트로 요소의 offsetLeft 차이로 oneSetWidth를 계산하고, rAF 루프에서 while 문으로 scrollX/targetScrollX를 양방향 래핑",
-      en: "Calculated oneSetWidth from offsetLeft difference of consecutive intro elements, wrapped scrollX/targetScrollX bidirectionally with while loop in rAF loop",
+      ko: "한 세트의 정확한 폭(oneSetWidth)을 연속된 인트로 요소의 offsetLeft 차이로 계산합니다. rAF 렌더 루프에서 현재 스크롤 위치가 세트 경계를 넘을 때마다 while문으로 양방향 래핑하여 scrollX와 targetScrollX를 순환시킵니다. 시각적으로는 끊김 없이 양방향 무한 스크롤이 됩니다.",
+      en: "Calculated the exact width of one set (oneSetWidth) from the offsetLeft difference of consecutive intro elements. In the rAF render loop, whenever the scroll position crosses a set boundary, a while loop wraps both scrollX and targetScrollX bidirectionally. Visually, this creates seamless infinite scroll in both directions.",
     },
     keyInsight: {
-      ko: "콘텐츠 복제 세트 수를 늘리는 것보다 스크롤 위치 자체를 래핑하는 방식이 DOM 부담 없이 진정한 무한 스크롤을 구현할 수 있음",
-      en: "Wrapping scroll position itself rather than increasing content duplication sets achieves true infinite scroll without DOM overhead",
+      ko: "무한 스크롤은 DOM을 무한히 복제하는 것이 아니라, 유한한 콘텐츠 위에서 스크롤 위치만 순환시키는 것입니다. 콘텐츠 3세트면 충분하고, 나머지는 수학적 래핑이 해결합니다.",
+      en: "Infinite scroll isn't about infinitely duplicating DOM—it's about cycling scroll position over finite content. Three content sets are enough; mathematical wrapping handles the rest.",
     },
   },
   {
     problem: {
       ko: "언어 전환 시 Works 인트로 레이아웃 시프트",
-      en: "Works intro layout shift on language switch",
+      en: "Layout Shift in Works Intro on Language Switch",
     },
     cause: {
-      ko: "한국어/영어 텍스트 길이 차이로 줄바꿈이 달라지고, justify-content: center가 적용된 flex 컨테이너에서 자식 높이 변화 시 공간이 재분배됨",
-      en: "Different line breaks due to Korean/English text length difference, space redistribution when child height changes in flex container with justify-content: center",
+      ko: "한국어와 영어는 같은 내용이라도 텍스트 길이가 크게 다릅니다. 언어를 전환하면 줄바꿈 위치가 바뀌면서 텍스트 블록의 높이가 변하고, justify-content: center가 적용된 flex 컨테이너가 남는 공간을 재분배하면서 인접 요소들이 갑자기 위아래로 밀려나는 시프트가 발생했습니다.",
+      en: "Korean and English text have significantly different lengths for the same content. Switching languages changes line break positions, altering text block height. The flex container with justify-content: center redistributed the remaining space, causing adjacent elements to suddenly shift up or down.",
     },
     solution: {
-      ko: "min-height를 em 단위(줄 수 × line-height)로 설정하여 양쪽 언어 모두에서 일관된 공간 확보. 모바일에서는 세로 스크롤이므로 min-height: auto로 리셋",
-      en: "Set min-height in em units (lines × line-height) for consistent space in both languages. Reset to min-height: auto on mobile since it uses vertical scroll",
+      ko: "텍스트 영역에 min-height를 em 단위(예상 최대 줄 수 × line-height)로 지정하여, 어떤 언어든 동일한 공간이 예약되도록 했습니다. 모바일에서는 세로 스크롤 레이아웃이므로 min-height: auto로 리셋하여 불필요한 여백을 방지했습니다.",
+      en: "Set min-height on text areas in em units (expected max lines × line-height) to reserve identical space regardless of language. On mobile, where the layout switches to vertical scroll, min-height resets to auto to prevent unnecessary whitespace.",
     },
     keyInsight: {
-      ko: "다국어 지원 시 텍스트 영역에 min-height로 최대 줄 수 기준 공간을 예약하면 레이아웃 시프트 방지. em 단위 사용으로 font-size 변경에도 자동 대응",
-      en: "Reserving space based on max line count with min-height in text areas prevents layout shift in multilingual support. Using em units auto-adjusts to font-size changes",
+      ko: "다국어 UI에서는 가장 긴 언어 기준으로 공간을 예약하는 것이 레이아웃 안정성의 핵심입니다. em 단위를 사용하면 font-size가 바뀌어도 비례하여 자동 조정됩니다.",
+      en: "In multilingual UIs, reserving space based on the longest language is key to layout stability. Using em units ensures proportional auto-adjustment even when font-size changes.",
     },
   },
 ];
