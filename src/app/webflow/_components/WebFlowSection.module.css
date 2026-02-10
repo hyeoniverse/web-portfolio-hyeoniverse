@@ -4,21 +4,21 @@
 
 .section {
   /* ── Layout ── */
-  --wf-panel-py: var(--spacing-4xl);
-  --wf-panel-px: var(--spacing-5xl);
+  --wf-panel-py: clamp(2.5rem, 4.5vh, 4.5rem);
+  --wf-panel-px: clamp(3rem, 4.5vw, 6.5rem);
 
   /* ── Font families ── */
   --wf-font-display: var(--font-display, var(--font-playfair));
   --wf-font-grotesk: var(--font-space-grotesk), sans-serif;
 
   /* ── Font sizes (complement global --font-size-*) ── */
-  --wf-fs-lead: 1.15rem;
-  --wf-fs-subhead: 1.1rem;
-  --wf-fs-body: 0.9rem;
-  --wf-fs-label: 0.85rem;
-  --wf-fs-small: 0.8rem;
-  --wf-fs-caption: 0.7rem;
-  --wf-fs-code: 0.78rem;
+  --wf-fs-lead: clamp(0.55rem, 1.1vw, 1.25rem);
+  --wf-fs-subhead: clamp(0.55rem, 1.05vw, 1.2rem);
+  --wf-fs-body: clamp(0.55rem, 0.85vw, 1rem);
+  --wf-fs-label: clamp(0.55rem, 0.8vw, 0.95rem);
+  --wf-fs-small: clamp(0.55rem, 0.75vw, 0.9rem);
+  --wf-fs-caption: clamp(0.55rem, 0.65vw, 0.8rem);
+  --wf-fs-code: clamp(0.55rem, 0.73vw, 0.88rem);
 
   /* ── Line heights (complement global --line-height-*) ── */
   --wf-lh-title: var(--line-height-dense);
@@ -28,8 +28,8 @@
   --wf-lh-code: var(--line-height-normal);
 
   /* ── Spacing (complement global --spacing-*) ── */
-  --wf-space-section: var(--spacing-3xl);
-  --wf-space-block: var(--spacing-2xl);
+  --wf-space-section: clamp(1.5rem, 3.5vh, 3.5rem);
+  --wf-space-block: clamp(1rem, 2.2vh, 2.5rem);
 
   /* ── Letter spacing ── */
   --wf-ls-title: -0.03em;
@@ -123,7 +123,7 @@
   justify-content: center;
   flex-direction: column;
   position: relative;
-  max-width: 1000px;
+  max-width: clamp(600px, 65vw, 1000px);
   height: 100%;
 }
 
@@ -154,7 +154,7 @@
 
 .heroSubtitle {
   margin: 0;
-  max-width: 640px;
+  max-width: clamp(400px, 42vw, 640px);
   font-size: var(--wf-fs-lead);
   line-height: var(--line-height-loose);
   color: var(--text-secondary);
@@ -180,7 +180,7 @@
 
 .overviewDesc {
   margin: 0 0 var(--wf-space-section);
-  max-width: 700px;
+  max-width: clamp(440px, 46vw, 700px);
   font-size: var(--wf-fs-lead);
   line-height: var(--wf-lh-prose);
   color: var(--text-secondary);
@@ -191,7 +191,7 @@
   gap: 0;
   border-top: var(--wf-line-secondary);
   border-bottom: var(--wf-line-secondary);
-  max-width: 900px;
+  max-width: clamp(560px, 60vw, 900px);
 }
 
 .overviewStat {
@@ -212,7 +212,7 @@
 
 .statValue {
   display: block;
-  margin-bottom: 0.6rem;
+  margin-bottom: clamp(0.4rem, 0.7vh, 0.7rem);
   font-family: var(--wf-font-display);
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-regular);
@@ -242,7 +242,7 @@
   grid-auto-flow: column;
   gap: 0 var(--spacing-4xl);
   border-top: var(--wf-line-secondary);
-  max-width: 900px;
+  max-width: clamp(560px, 60vw, 900px);
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(9, auto);
 }
@@ -252,7 +252,7 @@
   gap: var(--spacing-xl);
   align-items: baseline;
   justify-content: space-between;
-  padding: 0.7rem 0;
+  padding: clamp(0.5rem, 0.8vh, 0.8rem) 0;
   border-bottom: var(--wf-line-tertiary);
   transition: border-color 0.3s ease;
 }
@@ -292,8 +292,8 @@
 
 .archMap {
   flex: 1;
-  position: relative;
   overflow: visible;
+  position: relative;
   min-height: 0;
 }
 
@@ -308,17 +308,17 @@
 }
 
 .archMap .archModeBtn {
-  padding: 0.25rem 0.6rem;
+  padding: clamp(0.2rem, 0.3vh, 0.3rem) clamp(0.45rem, 0.55vw, 0.7rem);
   border: 1px solid var(--border-default);
   background: transparent;
   font-family: var(--font-mono);
   font-size: var(--wf-fs-caption);
   color: var(--text-tertiary);
-
-  border-radius: var(--radius-sm);
   transition:
     border-color 0.3s ease,
     color 0.3s ease;
+
+  border-radius: var(--radius-sm);
 }
 
 .archMap .archModeBtn:hover {
@@ -334,21 +334,21 @@
 /* ── Tree mode: SVG edges ── */
 .archMap .archSvg {
   position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
+  inset: 0;
 }
 
 .archSvg .archEdge {
-  fill: none;
-  stroke: var(--text-tertiary);
-  stroke-width: 0.8;
-  opacity: 0.2;
   transition:
     stroke 0.3s ease,
     opacity 0.3s ease,
     stroke-width 0.3s ease;
+  fill: none;
+  stroke: var(--text-tertiary);
+  stroke-width: 0.8;
+  opacity: 0.2;
 }
 
 .archSvg .archEdgeActive {
@@ -366,17 +366,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem 0.5rem;
+  padding: clamp(0.2rem, 0.3vh, 0.3rem) clamp(0.35rem, 0.45vw, 0.6rem);
   border: 1px solid var(--border-default);
   position: absolute;
   background: var(--bg-primary);
-  translate: -50% -50%;
-  border-radius: var(--radius-sm);
   transition:
     border-color 0.3s ease,
     box-shadow 0.3s ease,
     opacity 0.3s ease,
     transform 0.2s ease;
+  translate: -50% -50%;
+  border-radius: var(--radius-sm);
 }
 
 .archMap .archNodeBox:hover {
@@ -393,7 +393,7 @@
 }
 
 .archMap .archNodeRoot {
-  padding: 0.5rem 1.2rem;
+  padding: clamp(0.35rem, 0.6vh, 0.6rem) clamp(0.9rem, 1.1vw, 1.4rem);
   border-width: 1.5px;
 }
 
@@ -410,18 +410,18 @@
 
 /* ── Treemap mode ── */
 .archMap .archTmCell {
-  position: absolute;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-
-  overflow: hidden;
   display: flex;
   align-items: flex-start;
-  padding: 0.3rem 0.45rem;
+  padding: clamp(0.2rem, 0.35vh, 0.4rem) clamp(0.3rem, 0.4vw, 0.55rem);
+  border: 1px solid var(--border-default);
+
+  overflow: hidden;
+  position: absolute;
   transition:
     border-color 0.3s ease,
     box-shadow 0.3s ease,
     opacity 0.3s ease;
+  border-radius: var(--radius-sm);
 }
 
 .archMap .archTmCell:hover {
@@ -429,21 +429,21 @@
 }
 
 .archMap .archTmParent {
-  background: var(--color-accent-alpha-05, rgba(212, 0, 99, 0.04));
   border-color: var(--color-accent-alpha-15, rgba(212, 0, 99, 0.12));
   z-index: 0;
+  background: var(--color-accent-alpha-05, rgba(212, 0, 99, 0.04));
 }
 
 .archMap .archTmChild {
-  background: var(--color-accent-alpha-10, rgba(212, 0, 99, 0.08));
   border-color: var(--color-accent-alpha-20, rgba(212, 0, 99, 0.16));
   z-index: 1;
+  background: var(--color-accent-alpha-10, rgba(212, 0, 99, 0.08));
 }
 
 .archMap .archTmLeaf {
-  background: var(--bg-tertiary, var(--bg-secondary));
   border-color: var(--border-default);
   z-index: 0;
+  background: var(--bg-tertiary, var(--bg-secondary));
 }
 
 .archMap .archTmCellActive {
@@ -457,13 +457,13 @@
 }
 
 .archTmLabel {
-  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
-  font-size: 11px;
-  font-weight: var(--font-weight-medium);
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-size: clamp(9px, 0.7vw, 13px);
+  font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .archMap .archTmCellActive .archTmLabel {
@@ -473,19 +473,18 @@
 /* ── Sunburst mode ── */
 .archMap .archSunburst {
   position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
+  inset: 0;
 }
 
 .archSunburst .archSbArc {
-  fill: var(--bg-secondary);
-  stroke: var(--bg-primary);
-  stroke-width: 2;
-
   transition:
     fill 0.3s ease,
     opacity 0.3s ease;
+  fill: var(--bg-secondary);
+  stroke: var(--bg-primary);
+  stroke-width: 2;
 }
 
 .archSunburst .archSbArc:hover {
@@ -501,42 +500,41 @@
 }
 
 .archSunburst .archSbRoot {
-  fill: var(--bg-secondary);
-  stroke: var(--border-default);
-  stroke-width: 1.5;
-
   transition:
     fill 0.3s ease,
     opacity 0.3s ease;
+  fill: var(--bg-secondary);
+  stroke: var(--border-default);
+  stroke-width: 1.5;
 }
 
 .archSunburst .archSbLabel {
-  fill: var(--text-secondary);
   font-family: var(--font-jetbrains, var(--font-mono)), monospace;
-  font-size: 10px;
+  font-size: clamp(8px, 0.65vw, 12px);
   font-weight: var(--font-weight-medium);
   pointer-events: none;
+  fill: var(--text-secondary);
   text-anchor: middle;
   dominant-baseline: central;
 }
 
 .archSunburst .archSbLabelLg {
-  font-size: 12px;
+  font-size: clamp(10px, 0.8vw, 14px);
 }
 
 /* ── Shared tooltip ── */
 .archMap .archTooltip {
-  padding: 0.6rem 0.9rem;
+  padding: clamp(0.4rem, 0.7vh, 0.7rem) clamp(0.65rem, 0.85vw, 1.05rem);
   border: 1px solid var(--border-default);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   position: absolute;
   z-index: 10;
-  max-width: 280px;
+  max-width: clamp(200px, 18vw, 320px);
   background: var(--bg-primary);
   font-size: var(--wf-fs-small);
   line-height: var(--wf-lh-reading);
   color: var(--text-secondary);
   pointer-events: none;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   border-radius: var(--radius-md);
 }
 
@@ -547,17 +545,17 @@
 /* Desktop: DynamicFrameLayout wrapper */
 .featureDynamic {
   flex: 1;
-  min-height: 280px;
-  max-height: calc(100vh - 220px);
-  max-width: calc(100vw - var(--wf-panel-px) * 2);
   margin-bottom: var(--spacing-4xl);
+  max-width: calc(100vw - var(--wf-panel-px) * 2);
+  min-height: clamp(200px, 32vh, 320px);
+  max-height: calc(100vh - clamp(180px, 25vh, 260px));
 }
 
 /* Hover overlay on each grid cell */
 .featureDfOverlay {
   display: flex;
-  flex-direction: column;
   justify-content: flex-end;
+  flex-direction: column;
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -565,8 +563,8 @@
 
 .featureDfInfo {
   display: flex;
-  flex-direction: column;
   gap: var(--spacing-xs);
+  flex-direction: column;
   padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
   background: linear-gradient(
     to top,
@@ -574,8 +572,8 @@
     rgba(0, 0, 0, 0.55) 60%,
     transparent 100%
   );
-  opacity: 0;
   transition: opacity 0.3s ease;
+  opacity: 0;
 }
 
 /* The overlay's parent (DynamicFrame motion.div) triggers hover */
@@ -631,7 +629,7 @@
 .featureFolderTab {
   display: inline-block;
   margin-bottom: -1px;
-  padding: 0.55rem 1.2rem;
+  padding: clamp(0.4rem, 0.65vh, 0.65rem) clamp(0.9rem, 1.1vw, 1.4rem);
   border: var(--wf-line-secondary);
   border-bottom: none;
   position: relative;
@@ -657,7 +655,7 @@
   flex-direction: column;
   padding: var(--spacing-2xl);
   border: var(--wf-line-secondary);
-  min-height: 200px;
+  min-height: clamp(150px, 23vh, 240px);
   background: var(--bg-primary);
   transition:
     border-color 0.35s ease,
@@ -688,96 +686,157 @@
 }
 
 /* ==========================================================================
-   Design Concept Panel — 2×2 Card Grid + Interactive Demos
+   Design Concept Panel — Bento Grid + Full-Cover Image Overlay
    ========================================================================== */
 
 .dcGrid {
   display: grid;
-  gap: var(--spacing-xl);
+  gap: clamp(6px, 0.8vh, 16px);
   flex: 1;
-  min-height: 0;
-  margin-bottom: var(--spacing-xl);
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  margin-bottom: clamp(6px, 0.8vh, 16px);
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+}
+
+/* Bento placement (7-row grid)
+   ┌──────────────┬──────────────┐
+   │ Typography   │ Color        │  row 1-4 | row 1-4
+   │ (6col × 4row)│ (6col × 3row)│
+   │              ├──────┬───────┤  row 4
+   │              │ Grid │Layout │
+   ├───────┬──────┤(3×4) │(3×4) │  row 5
+   │Motion │Icons │      │      │
+   │(3×3)  │(3×3) │      │      │
+   └───────┴──────┴──────┴───────┘  row 8 */
+.dcCard:nth-child(1) {
+  grid-column: 1 / 7;
+  grid-row: 1 / 5;
+}
+.dcCard:nth-child(2) {
+  grid-column: 7 / 13;
+  grid-row: 1 / 4;
+}
+.dcCard:nth-child(3) {
+  grid-column: 7 / 10;
+  grid-row: 4 / 8;
+}
+.dcCard:nth-child(4) {
+  grid-column: 1 / 4;
+  grid-row: 5 / 8;
+}
+.dcCard:nth-child(5) {
+  grid-column: 4 / 7;
+  grid-row: 5 / 8;
+}
+.dcCard:nth-child(6) {
+  grid-column: 10 / 13;
+  grid-row: 4 / 8;
 }
 
 .dcCard {
+  display: flex;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   position: relative;
   border-radius: var(--radius-lg);
 }
 
+/* Compound selector (0,2,0) */
+.dcGrid .dcCard {
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.dcCard:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Full-cover background image */
 .dcCardBg {
   position: absolute;
   inset: 0;
+  z-index: 0;
+}
+
+.dcCardBg img {
   object-fit: cover;
-  width: 100%;
-  height: 100%;
-  filter: brightness(0.35) saturate(0.7);
+  filter: brightness(0.3) saturate(0.7);
 }
 
 /* Compound selector (0,2,0) */
-.dcCard .dcCardBg {
-  transition: filter 0.5s ease;
+.dcCard .dcCardBg img {
+  transition: filter 0.4s ease;
 }
 
-.dcCard:hover .dcCardBg {
-  filter: brightness(0.25) saturate(0.5);
+.dcCard:hover .dcCardBg img {
+  filter: brightness(0.4) saturate(0.85);
 }
 
-.dcCardContent {
+/* Overlay content on top of image */
+.dcCardOverlay {
   display: flex;
   flex-direction: column;
+  padding: clamp(8px, 1.2vh, 20px) clamp(10px, 1vw, 24px);
   position: relative;
   z-index: 1;
-  height: 100%;
-  padding: var(--spacing-xl);
+  flex: 1;
+  min-width: 0;
 }
 
 .dcCardTitle {
-  margin: 0 0 var(--spacing-2xs);
+  flex-shrink: 0;
+  margin: 0 0 clamp(2px, 0.3vh, 6px);
   font-family: var(--wf-font-grotesk);
-  font-size: var(--wf-fs-label);
+  font-size: clamp(0.6rem, 0.8vw, 0.9rem);
   font-weight: var(--font-weight-semibold);
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.65);
   text-transform: uppercase;
   letter-spacing: 0.2em;
 }
 
 .dcCardSubtitle {
-  margin: 0 0 var(--spacing-sm);
+  flex-shrink: 0;
+  margin: 0 0 clamp(2px, 0.4vh, 8px);
   font-family: var(--font-instrument);
-  font-size: var(--font-size-xl);
+  font-size: clamp(1rem, 1.6vw, 1.75rem);
   font-style: italic;
   color: #fff;
 }
 
 .dcCardDesc {
-  margin: 0 0 auto;
-  max-width: 360px;
-  font-size: var(--wf-fs-small);
+  flex-shrink: 0;
+  margin: 0;
+  max-width: 420px;
+  font-size: clamp(0.7rem, 0.75vw, 0.9rem);
   line-height: var(--wf-lh-reading);
   color: rgba(255, 255, 255, 0.7);
 }
 
 .dcDemo {
-  margin-top: var(--spacing-lg);
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-top: clamp(4px, 0.5vh, 12px);
+  min-height: 0;
 }
 
 /* ── Typography demo ── */
 .dcFontTabs {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: clamp(2px, 0.3vw, 6px);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: clamp(4px, 0.5vh, 10px);
 }
 
 .dcFontTab {
-  padding: 0.25rem 0.6rem;
+  padding: clamp(2px, 0.3vh, 6px) clamp(6px, 0.5vw, 12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--wf-fs-caption);
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
   color: rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-sm);
 }
@@ -791,31 +850,31 @@
 }
 
 .dcFontTabActive {
-  border-color: rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
 
 .dcSpecimen {
-  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-size: clamp(1.2rem, 2.5vw, 2.5rem);
   font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.3;
   color: #fff;
 }
 
 /* ── Color System demo ── */
 .dcThemeToggle {
   display: inline-flex;
-  gap: var(--spacing-2xs);
-  margin-bottom: var(--spacing-sm);
+  gap: clamp(2px, 0.3vw, 6px);
+  margin-bottom: clamp(4px, 0.5vh, 10px);
 }
 
 .dcThemeBtn {
-  padding: 0.2rem 0.5rem;
+  padding: clamp(2px, 0.3vh, 6px) clamp(6px, 0.5vw, 12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--wf-fs-caption);
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
   color: rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-sm);
 }
@@ -829,14 +888,14 @@
 }
 
 .dcThemeBtnActive {
-  border-color: rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
 
 .dcSwatchRow {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: clamp(4px, 0.4vw, 10px);
   flex-wrap: wrap;
 }
 
@@ -844,11 +903,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  font-size: 0.5rem;
-  color: rgba(255, 255, 255, 0.8);
+  width: clamp(24px, 3vh, 42px);
+  height: clamp(24px, 3vh, 42px);
+  font-size: clamp(0.4rem, 0.5vw, 0.6rem);
   border-radius: var(--radius-sm);
 }
 
@@ -862,8 +920,8 @@
   overflow: hidden;
   position: relative;
   width: 100%;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.05);
+  height: clamp(20px, 3vh, 36px);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 16px;
 }
 
@@ -871,12 +929,12 @@
   position: absolute;
   top: 50%;
   left: 0;
-  width: 24px;
-  height: 24px;
+  width: clamp(16px, 2vh, 28px);
+  height: clamp(16px, 2vh, 28px);
   background: var(--text-accent-secondary);
+  animation: dcSpringBounce 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
   border-radius: 50%;
   translate: 0 -50%;
-  animation: dcSpringBounce 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
 
 @keyframes dcSpringBounce {
@@ -893,37 +951,37 @@
 
 .dcMotionLabels {
   display: flex;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-xs);
-  font-size: var(--wf-fs-caption);
+  gap: clamp(4px, 0.5vw, 12px);
+  margin-top: clamp(4px, 0.4vh, 10px);
+  font-size: clamp(0.5rem, 0.6vw, 0.75rem);
   color: rgba(255, 255, 255, 0.5);
 }
 
 /* ── Layout & Spacing demo ── */
 .dcSpacingList {
   display: flex;
-  gap: var(--spacing-2xs);
+  gap: clamp(1px, 0.15vh, 3px);
   flex-direction: column;
 }
 
 .dcSpacingRow {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: clamp(4px, 0.4vw, 10px);
   align-items: center;
 }
 
 .dcSpacingLabel {
   flex-shrink: 0;
-  width: 32px;
+  width: clamp(24px, 2.5vw, 36px);
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: clamp(0.45rem, 0.5vw, 0.6rem);
   color: rgba(255, 255, 255, 0.5);
   text-align: right;
 }
 
 .dcSpacingBar {
-  height: 8px;
-  background: rgba(255, 255, 255, 0.15);
+  height: clamp(5px, 0.7vh, 10px);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 4px;
 }
 
@@ -933,14 +991,146 @@
 }
 
 .dcSpacingRow:hover .dcSpacingBar {
-  background: var(--color-accent-alpha-30);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .dcSpacingPx {
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: 0.55rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: clamp(0.45rem, 0.5vw, 0.6rem);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Grid System demo (breakpoint bar) ── */
+.dcBreakpoints {
+  display: flex;
+  gap: clamp(2px, 0.3vw, 6px);
+  align-items: flex-end;
+  height: clamp(30px, 5vh, 60px);
+}
+
+.dcBpBar {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+/* Compound selector (0,2,0) */
+.dcBreakpoints .dcBpBar {
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.dcBpBar:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scaleY(1.1);
+  transform-origin: bottom;
+}
+
+.dcBpLabel {
+  position: absolute;
+  bottom: clamp(-14px, -1.5vh, -20px);
+  left: 50%;
+  font-family: var(--font-mono);
+  font-size: clamp(0.4rem, 0.45vw, 0.55rem);
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+
+/* Compound selector (0,2,0) */
+.dcBreakpoints .dcBpLabel {
+  transition: opacity 0.2s ease;
+}
+
+.dcBpBar:hover .dcBpLabel {
+  opacity: 1;
+}
+
+.dcBpName {
+  position: absolute;
+  top: clamp(2px, 0.3vh, 6px);
+  left: 50%;
+  font-family: var(--font-mono);
+  font-size: clamp(0.45rem, 0.5vw, 0.6rem);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+/* ── Iconography demo (icon grid + toggle) ── */
+.dcIconToggle {
+  display: inline-flex;
+  gap: clamp(2px, 0.3vw, 6px);
+  margin-bottom: clamp(4px, 0.5vh, 10px);
+}
+
+.dcIconToggleBtn {
+  padding: clamp(2px, 0.3vh, 6px) clamp(6px, 0.5vw, 12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-sm);
+}
+
+/* Compound selector (0,2,0) */
+.dcDemo .dcIconToggleBtn {
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.dcIconToggleBtnActive {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.dcIconGrid {
+  display: flex;
+  gap: clamp(3px, 0.4vw, 8px);
+  flex-wrap: wrap;
+}
+
+.dcIconCell {
+  display: flex;
+  gap: clamp(2px, 0.3vw, 6px);
+  align-items: center;
+  padding: clamp(3px, 0.3vh, 8px) clamp(5px, 0.4vw, 10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+}
+
+/* Compound selector (0,2,0) */
+.dcIconGrid .dcIconCell {
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.dcIconCell:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dcIconCell svg {
+  width: clamp(12px, 1.2vw, 20px);
+  height: clamp(12px, 1.2vw, 20px);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dcIconCellLabel {
+  font-family: var(--font-mono);
+  font-size: clamp(0.4rem, 0.5vw, 0.6rem);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* ==========================================================================
@@ -954,7 +1144,7 @@
 }
 
 .processItem {
-  padding: 1.75rem 0;
+  padding: clamp(1.2rem, 2vh, 2rem) 0;
   border-top: var(--wf-line-secondary);
   transition: border-color 0.4s ease;
 }
@@ -1024,7 +1214,7 @@
   display: grid;
   gap: 0 var(--spacing-3xl);
   border-top: var(--wf-line-secondary);
-  max-width: 800px;
+  max-width: clamp(500px, 53vw, 800px);
   grid-template-columns: repeat(2, 1fr);
 }
 
@@ -1032,7 +1222,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.9rem 0;
+  padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--wf-line-tertiary);
   transition: border-color 0.3s ease;
 }
@@ -1271,8 +1461,8 @@
   flex-shrink: 0;
   margin-top: 0.15rem;
   border: var(--wf-line-secondary);
-  width: 28px;
-  height: 28px;
+  width: clamp(24px, 2vw, 32px);
+  height: clamp(24px, 2vw, 32px);
   font-size: var(--wf-fs-subhead);
   line-height: var(--line-height-fit);
   border-radius: var(--radius-circle);
@@ -1367,7 +1557,7 @@
 
 /* Generic demo button */
 .demoBtn {
-  padding: 0.4rem 1rem;
+  padding: clamp(0.3rem, 0.45vh, 0.5rem) clamp(0.7rem, 0.8vw, 1.1rem);
   border: var(--wf-line-secondary);
   background: transparent;
   font-family: var(--font-mono);
@@ -1403,7 +1593,7 @@
 .demoFontLabel {
   margin-top: 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
   color: var(--text-tertiary);
 }
 
@@ -1413,8 +1603,8 @@
   align-items: center;
   justify-content: center;
   border: 1px solid var(--color-accent-alpha-30);
-  width: 80px;
-  height: 80px;
+  width: clamp(60px, 5.5vw, 90px);
+  height: clamp(60px, 5.5vw, 90px);
   font-family: var(--font-mono);
   font-size: var(--wf-fs-small);
   color: var(--text-secondary);
@@ -1426,8 +1616,8 @@
 .demoClipBox {
   overflow: hidden;
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: clamp(90px, 8vw, 140px);
+  height: clamp(90px, 8vw, 140px);
   border-radius: 50%;
 }
 
@@ -1487,16 +1677,10 @@
   }
 }
 
-/* ── Demo 7: SVG Path Draw ── */
-.demoSvg {
-  max-width: 100%;
-  height: auto;
-}
-
 /* ── Demo 8: Loading Progress ── */
 .demoLoadingNumber {
   font-family: var(--font-display);
-  font-size: 3rem;
+  font-size: clamp(2rem, 2.5vw, 3.5rem);
   font-weight: 700;
   line-height: 1;
   color: var(--text-accent-secondary);
@@ -1506,7 +1690,7 @@
 .demoLoadingTrack {
   margin-top: var(--spacing-sm);
   overflow: hidden;
-  width: 120px;
+  width: clamp(90px, 8vw, 140px);
   height: 2px;
   background: var(--text-tertiary);
   opacity: 0.2;
@@ -1531,9 +1715,9 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: flex-start;
-  width: 100%;
-  max-width: 280px;
   overflow: visible;
+  width: 100%;
+  max-width: clamp(200px, 18vw, 320px);
 }
 
 @media (max-width: 1024px) {
@@ -1550,7 +1734,7 @@
 .demoI18nLabel {
   display: block;
   margin-bottom: 0.3rem;
-  font-size: 0.6rem;
+  font-size: clamp(0.5rem, 0.55vw, 0.7rem);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1572,7 +1756,7 @@
   margin-top: 0.4rem;
   border: 1px dashed var(--color-accent-alpha-30);
   height: 1.5rem;
-  font-size: 0.6rem;
+  font-size: clamp(0.5rem, 0.55vw, 0.7rem);
   color: var(--text-tertiary);
   border-radius: var(--radius-sm);
 }
@@ -1608,7 +1792,7 @@
   flex-shrink: 0;
   padding-right: var(--spacing-2xl);
   border-right: var(--wf-line-tertiary);
-  width: 360px;
+  width: clamp(260px, 24vw, 400px);
 }
 
 .troubleListItem {
@@ -1741,15 +1925,20 @@
 }
 
 .troubleLabel {
+  padding: var(--padding-sm);
+  border: var(--border-default);
+  width: fit-content;
   font-size: var(--wf-fs-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.15em;
+  border-radius: var(--radius-capsule);
 }
 
 .troubleLabelAccent {
   color: var(--text-accent-secondary);
+  border: var(--border-accent);
 }
 
 .troubleLabelInsight {
@@ -1830,12 +2019,12 @@
 }
 
 .navIndicator {
+  border: var(--border-white);
   position: absolute;
   top: 50%;
   left: 0;
   z-index: 0;
   height: calc(100% - var(--spacing-xs));
-  border: var(--border-white);
   background: transparent;
   pointer-events: none;
   border-radius: var(--radius-capsule);
@@ -1846,7 +2035,7 @@
   display: flex;
   gap: 0;
   align-items: center;
-  padding: 0.35rem 0.5rem;
+  padding: clamp(0.25rem, 0.4vh, 0.4rem) clamp(0.35rem, 0.45vw, 0.55rem);
   border: none;
   overflow: hidden;
   position: relative;
@@ -1887,7 +2076,7 @@
 }
 
 .navItemActive {
-  gap: 0.4rem;
+  gap: clamp(0.3rem, 0.35vw, 0.5rem);
 }
 
 .navItemActive .navDot {
@@ -1896,8 +2085,8 @@
 
 .navItemActive .navLabel {
   margin-left: 0;
-  max-width: 80px;
-  font-size: 0.65rem;
+  max-width: clamp(60px, 6vw, 90px);
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
   color: var(--text-white);
   opacity: 1;
 }
@@ -1910,6 +2099,24 @@
   .section {
     --wf-panel-py: var(--spacing-4xl);
     --wf-panel-px: var(--spacing-2xl);
+  }
+
+  /* ── Mobile InView animation (reverse on exit) ── */
+  .animate {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  /* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
+  .track .animate {
+    transition:
+      opacity 0.6s ease,
+      transform 0.6s ease;
+  }
+
+  .animateVisible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .sectionNav {
@@ -1967,8 +2174,11 @@
     grid-template-rows: auto;
   }
 
-  .dcCard {
-    min-height: 260px;
+  .dcCard,
+  .dcCard:nth-child(n) {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 280px;
   }
 
   .featureDynamic {

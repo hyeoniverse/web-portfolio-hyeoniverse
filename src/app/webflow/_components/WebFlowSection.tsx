@@ -13,6 +13,7 @@ import {
   projectStructure,
 } from "@/data/webflow";
 import { useHorizontalScroll } from "../_hooks/useHorizontalScroll";
+import { useInViewMobile } from "../_hooks/useInViewMobile";
 import { useNavIndicator } from "../_hooks/useNavIndicator";
 import {
   HeroPanel,
@@ -34,6 +35,7 @@ export default function WebFlowSection() {
   const { t, language } = useLanguage();
   const { sectionRef, trackRef, activeSection, goToSection } =
     useHorizontalScroll(styles);
+  useInViewMobile(trackRef, styles.animate, styles.animateVisible);
   const {
     navRef,
     navItemRefs,

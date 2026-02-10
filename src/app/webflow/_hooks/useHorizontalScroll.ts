@@ -136,13 +136,14 @@ export function useHorizontalScroll(
         gsap.from(items, {
           opacity: 0,
           y: 40,
-          stagger: 0.06,
+          stagger: 0.08,
+          duration: 0.7,
+          ease: "power2.out",
           scrollTrigger: {
             trigger: panel,
             containerAnimation: scrollTween,
-            start: "left 85%",
-            end: "left 55%",
-            scrub: 0.6,
+            start: "left 80%",
+            toggleActions: "play reverse play reverse",
           },
         });
       });
