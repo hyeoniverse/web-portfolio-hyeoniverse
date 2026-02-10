@@ -238,7 +238,7 @@
    ========================================================================== */
 
 .archGrid {
-  display: grid;
+  display: none;
   grid-auto-flow: column;
   gap: 0 var(--spacing-4xl);
   border-top: var(--wf-line-secondary);
@@ -286,6 +286,259 @@
   line-height: var(--wf-lh-reading);
   color: var(--text-tertiary);
   text-align: right;
+}
+
+/* ── Architecture Node Map (desktop only) ── */
+
+.archMap {
+  flex: 1;
+  position: relative;
+  overflow: visible;
+  min-height: 0;
+}
+
+/* Mode selector */
+.archModeBar {
+  display: flex;
+  gap: var(--spacing-xs);
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+}
+
+.archMap .archModeBtn {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--wf-fs-caption);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.archMap .archModeBtn:hover {
+  border-color: var(--color-accent-alpha-30);
+  color: var(--text-secondary);
+}
+
+.archMap .archModeBtnActive {
+  border-color: var(--text-accent-secondary);
+  color: var(--text-accent-secondary);
+}
+
+/* ── Tree mode: SVG edges ── */
+.archMap .archSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.archSvg .archEdge {
+  fill: none;
+  stroke: var(--text-tertiary);
+  stroke-width: 0.8;
+  opacity: 0.2;
+  transition:
+    stroke 0.3s ease,
+    opacity 0.3s ease,
+    stroke-width 0.3s ease;
+}
+
+.archSvg .archEdgeActive {
+  stroke: var(--text-accent-secondary);
+  stroke-width: 1.2;
+  opacity: 0.7;
+}
+
+.archSvg .archEdgeDimmed {
+  opacity: 0.06;
+}
+
+/* ── Tree mode: Node boxes ── */
+.archMap .archNodeBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border-default);
+  position: absolute;
+  background: var(--bg-primary);
+  cursor: pointer;
+  translate: -50% -50%;
+  border-radius: var(--radius-sm);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    opacity 0.3s ease,
+    transform 0.2s ease;
+}
+
+.archMap .archNodeBox:hover {
+  transform: scale(1.08);
+}
+
+.archMap .archNodeActive {
+  border-color: var(--text-accent-secondary);
+  box-shadow: 0 0 12px var(--color-accent-alpha-15, rgba(212, 0, 99, 0.12));
+}
+
+.archMap .archNodeDimmed {
+  opacity: 0.35;
+}
+
+.archMap .archNodeRoot {
+  padding: 0.5rem 1.2rem;
+  border-width: 1.5px;
+}
+
+.archNodePath {
+  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-size: var(--wf-fs-small);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.archMap .archNodeActive .archNodePath {
+  color: var(--text-accent-secondary);
+}
+
+/* ── Treemap mode ── */
+.archMap .archTmCell {
+  position: absolute;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  padding: 0.3rem 0.45rem;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.archMap .archTmCell:hover {
+  border-color: var(--color-accent-alpha-30);
+}
+
+.archMap .archTmParent {
+  background: var(--color-accent-alpha-05, rgba(212, 0, 99, 0.04));
+  border-color: var(--color-accent-alpha-15, rgba(212, 0, 99, 0.12));
+  z-index: 0;
+}
+
+.archMap .archTmChild {
+  background: var(--color-accent-alpha-10, rgba(212, 0, 99, 0.08));
+  border-color: var(--color-accent-alpha-20, rgba(212, 0, 99, 0.16));
+  z-index: 1;
+}
+
+.archMap .archTmLeaf {
+  background: var(--bg-tertiary, var(--bg-secondary));
+  border-color: var(--border-default);
+  z-index: 0;
+}
+
+.archMap .archTmCellActive {
+  border-color: var(--text-accent-secondary);
+  box-shadow: 0 0 12px var(--color-accent-alpha-15, rgba(212, 0, 99, 0.12));
+  z-index: 2;
+}
+
+.archMap .archTmCellDimmed {
+  opacity: 0.3;
+}
+
+.archTmLabel {
+  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+}
+
+.archMap .archTmCellActive .archTmLabel {
+  color: var(--text-accent-secondary);
+}
+
+/* ── Sunburst mode ── */
+.archMap .archSunburst {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.archSunburst .archSbArc {
+  fill: var(--bg-secondary);
+  stroke: var(--bg-primary);
+  stroke-width: 2;
+  cursor: pointer;
+  transition:
+    fill 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.archSunburst .archSbArc:hover {
+  fill: var(--color-accent-alpha-10, rgba(212, 0, 99, 0.08));
+}
+
+.archSunburst .archSbArcActive {
+  fill: var(--color-accent-alpha-20, rgba(212, 0, 99, 0.15));
+}
+
+.archSunburst .archSbArcDimmed {
+  opacity: 0.25;
+}
+
+.archSunburst .archSbRoot {
+  fill: var(--bg-secondary);
+  stroke: var(--border-default);
+  stroke-width: 1.5;
+  cursor: pointer;
+  transition:
+    fill 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.archSunburst .archSbLabel {
+  fill: var(--text-secondary);
+  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.archSunburst .archSbLabelLg {
+  font-size: 12px;
+}
+
+/* ── Shared tooltip ── */
+.archMap .archTooltip {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border-default);
+  position: absolute;
+  z-index: 10;
+  max-width: 280px;
+  background: var(--bg-primary);
+  font-size: var(--wf-fs-small);
+  line-height: var(--wf-lh-reading);
+  color: var(--text-secondary);
+  pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-md);
 }
 
 /* ==========================================================================
@@ -1386,7 +1639,12 @@
     font-size: clamp(2.5rem, 7vw, 3.5rem);
   }
 
+  .archMap {
+    display: none;
+  }
+
   .archGrid {
+    display: grid;
     grid-auto-flow: row;
     max-width: none;
     grid-template-columns: 1fr;
