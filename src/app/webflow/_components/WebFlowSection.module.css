@@ -314,7 +314,7 @@
   font-family: var(--font-mono);
   font-size: var(--wf-fs-caption);
   color: var(--text-tertiary);
-  cursor: pointer;
+
   border-radius: var(--radius-sm);
   transition:
     border-color 0.3s ease,
@@ -370,7 +370,6 @@
   border: 1px solid var(--border-default);
   position: absolute;
   background: var(--bg-primary);
-  cursor: pointer;
   translate: -50% -50%;
   border-radius: var(--radius-sm);
   transition:
@@ -414,7 +413,7 @@
   position: absolute;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-sm);
-  cursor: pointer;
+
   overflow: hidden;
   display: flex;
   align-items: flex-start;
@@ -483,7 +482,7 @@
   fill: var(--bg-secondary);
   stroke: var(--bg-primary);
   stroke-width: 2;
-  cursor: pointer;
+
   transition:
     fill 0.3s ease,
     opacity 0.3s ease;
@@ -505,7 +504,7 @@
   fill: var(--bg-secondary);
   stroke: var(--border-default);
   stroke-width: 1.5;
-  cursor: pointer;
+
   transition:
     fill 0.3s ease,
     opacity 0.3s ease;
@@ -855,11 +854,16 @@
 }
 
 /* Dot indicator for active pane */
+.codeTitleRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
 .codeDotNav {
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
-  margin-top: var(--spacing-lg);
 }
 
 .codeDot {
