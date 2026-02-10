@@ -51,7 +51,7 @@ export default function CodeHighlightsPanel({
       <div className={styles.codeGridWrap}>
         <DynamicFrameLayout
           initialFrames={codeFrames}
-          initialGapSize={4}
+          initialGapSize={0}
           initialHoverSize={9}
           renderCell={({ index, isHovered }) => {
             if (index >= codeExamples.length) return null;

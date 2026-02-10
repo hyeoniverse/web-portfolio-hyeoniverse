@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { TroubleShootingItem } from "@/data/webflow";
 import styles from "../WebFlowSection.module.css";
@@ -43,7 +43,7 @@ export default function TroubleshootingPanel({
           const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
           const newIndex = Math.min(
             items.length - 1,
-            Math.floor(progress * items.length)
+            Math.floor(progress * items.length),
           );
           if (newIndex !== prevIndex) {
             prevIndex = newIndex;
@@ -58,11 +58,26 @@ export default function TroubleshootingPanel({
     return () => cancelAnimationFrame(rafId);
   }, [items.length]);
 
+  // Click list item → scroll to matching position (GSAP scrub animates)
+  const handleItemClick = useCallback(
+    (index: number) => {
+      if (!panelRef.current || window.innerWidth <= 1024) return;
+
+      const rect = panelRef.current.getBoundingClientRect();
+      const extraWidth = rect.width - window.innerWidth;
+      if (extraWidth <= 0) return;
+
+      const targetProgress = (index + 0.5) / items.length;
+      const targetLeft = -(targetProgress * extraWidth);
+      const deltaScrollY = rect.left - targetLeft;
+
+      window.scrollTo({ top: window.scrollY + deltaScrollY });
+    },
+    [items.length],
+  );
+
   return (
-    <div
-      ref={panelRef}
-      className={`${styles.panel} ${styles.panelExtraWide}`}
-    >
+    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       {/* Inner wrapper: counter-translated to appear pinned */}
       <div ref={contentRef} className={styles.troubleFixed}>
         <span className={`${styles.panelNumber} ${styles.animate}`}>07</span>
@@ -78,10 +93,12 @@ export default function TroubleshootingPanel({
           <div className={styles.troubleList}>
             {items.map((item, index) => (
               <div
+                data-clickable="true"
                 key={index}
                 className={`${styles.troubleListItem} ${
                   index === activeIndex ? styles.troubleListItemActive : ""
                 }`}
+                onClick={() => handleItemClick(index)}
               >
                 <span className={styles.troubleNumber}>
                   {String(index + 1).padStart(2, "0")}

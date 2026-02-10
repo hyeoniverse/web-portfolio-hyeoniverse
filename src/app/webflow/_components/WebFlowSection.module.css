@@ -21,8 +21,6 @@
   --wf-fs-label: 0.85rem;
   --wf-fs-small: 0.8rem;
   --wf-fs-caption: 0.7rem;
-  --wf-fs-micro: 0.65rem;
-  --wf-fs-tiny: 0.55rem;
   --wf-fs-code: 0.78rem;
 
   /* ── Line heights (complement global --line-height-*) ── */
@@ -374,7 +372,7 @@
 
 .featureFolderTech {
   margin: 0;
-  font-size: var(--wf-fs-micro);
+  font-size: var(--wf-fs-label);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -511,26 +509,24 @@
 .codeGridWrap {
   flex: 1;
   min-height: 0;
+  border-top: var(--wf-line-tertiary);
+  border-left: var(--wf-line-tertiary);
 }
 
 .codeItem {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border: var(--wf-line-tertiary);
+  padding: var(--spacing-lg);
+  border-right: var(--wf-line-tertiary);
+  border-bottom: var(--wf-line-tertiary);
   overflow: hidden;
   width: 100%;
   height: 100%;
-  transition:
-    border-color 0.4s ease,
-    box-shadow 0.4s ease;
-  border-radius: var(--radius-sm);
+  transition: border-color 0.4s ease;
   box-sizing: border-box;
 }
 
 .codeItemActive {
-  border-color: var(--color-accent-alpha-30);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
 .codeItemHeader {
@@ -562,8 +558,8 @@
 
 .codeDesc {
   flex-shrink: 0;
-  margin: 0.3rem 0 0;
-  font-size: var(--wf-fs-label);
+  margin: 0.2rem 0 0;
+  font-size: var(--wf-fs-body);
   line-height: var(--wf-lh-reading);
   color: var(--text-tertiary);
 }
@@ -576,8 +572,6 @@
   overflow: hidden;
   position: relative;
   min-height: 0;
-  background: var(--color-neutral-alpha-5, rgba(0, 0, 0, 0.02));
-  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
 }
 
 .codeItemActive .codeBlock {
@@ -743,6 +737,18 @@
     padding-left 0.3s ease;
 }
 
+.troubleListItem:hover {
+  border-bottom-color: var(--color-accent-alpha-30);
+}
+
+.troubleListItem:hover .troubleNumber {
+  color: var(--text-accent-secondary);
+}
+
+.troubleListItem:hover .troubleListTitle {
+  color: var(--text-primary);
+}
+
 .troubleListItemActive {
   padding-left: var(--spacing-md);
   border-bottom-color: var(--color-accent-alpha-30);
@@ -751,7 +757,7 @@
 .troubleNumber {
   flex-shrink: 0;
   font-family: var(--wf-font-display);
-  font-size: var(--wf-fs-label);
+  font-size: var(--wf-fs-body);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
 }
@@ -766,7 +772,7 @@
 
 .troubleListTitle {
   font-family: var(--wf-font-grotesk);
-  font-size: var(--wf-fs-body);
+  font-size: var(--wf-fs-lead);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-snug);
   color: var(--text-secondary);
@@ -828,7 +834,7 @@
 .troubleTitle {
   margin: 0;
   font-family: var(--wf-font-grotesk);
-  font-size: var(--wf-fs-subhead);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-snug);
 }
@@ -846,7 +852,7 @@
 }
 
 .troubleLabel {
-  font-size: var(--wf-fs-tiny);
+  font-size: var(--wf-fs-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -864,7 +870,7 @@
 .troubleEntry p {
   margin: 0;
   font-family: var(--wf-font-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--wf-fs-body);
   line-height: var(--wf-lh-body);
   color: var(--text-secondary);
 }
