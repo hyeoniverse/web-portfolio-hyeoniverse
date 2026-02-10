@@ -108,6 +108,32 @@ export const designConcepts: DesignConceptItem[] = [
     },
     image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&q=80",
   },
+  {
+    id: "grid",
+    title: "GRID SYSTEM",
+    subtitle: {
+      ko: "7단계 반응형 브레이크포인트",
+      en: "7-Step Responsive Breakpoints",
+    },
+    description: {
+      ko: "XS(320px)부터 4K(1920px)까지 7단계 브레이크포인트로 모든 디바이스에서 최적화된 레이아웃을 제공합니다.",
+      en: "From XS (320px) to 4K (1920px), 7 breakpoints ensure optimized layouts across all devices.",
+    },
+    image: "https://images.unsplash.com/photo-1545235617-9465d2a55698?w=800&q=80",
+  },
+  {
+    id: "icons",
+    title: "ICONOGRAPHY",
+    subtitle: {
+      ko: "Lucide + 브랜드 아이콘",
+      en: "Lucide + Brand Icons",
+    },
+    description: {
+      ko: "Lucide React 아이콘과 커스텀 브랜드 SVG를 조합하여 일관된 아이콘 시스템을 구축했습니다.",
+      en: "Lucide React icons combined with custom brand SVGs form a consistent iconography system.",
+    },
+    image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&q=80",
+  },
 ];
 
 export const projectOverview = {
@@ -117,7 +143,6 @@ export const projectOverview = {
   },
   stats: [
     { value: "6 Days", label: { ko: "개발 기간 (2/5 – 2/10)", en: "Dev Period (2/5 – 2/10)" } },
-    { value: "93", label: { ko: "커밋", en: "Commits" } },
     { value: "40+", label: { ko: "컴포넌트", en: "Components" } },
     { value: "12+", label: { ko: "커스텀 훅", en: "Custom Hooks" } },
     { value: "98", label: { ko: "Lighthouse", en: "Lighthouse" } },
