@@ -1,21 +1,38 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+const MOBILE_WIDTH = 1024;
+const SHORT_HEIGHT = 700;
+
+function checkMobile() {
+  if (typeof window === "undefined") return false;
+  return window.innerWidth <= MOBILE_WIDTH || window.innerHeight <= SHORT_HEIGHT;
+}
 
 /**
  * Observes `.animate` elements inside the given container and toggles
  * a visibility class when they enter / leave the viewport.
- * Active only at ≤ 1024 px (mobile / tablet vertical scroll).
+ * Active only when in mobile/short-viewport layout (vertical scroll).
+ * Reactively enables/disables on resize.
  */
 export function useInViewMobile(
   containerRef: React.RefObject<HTMLElement | null>,
   animateClass: string,
   visibleClass: string,
 ) {
+  const [mobile, setMobile] = useState(checkMobile);
+
+  // Track viewport size changes
+  useEffect(() => {
+    const onResize = () => setMobile(checkMobile());
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
-    if (window.innerWidth > 1024 && window.innerHeight > 700) return;
+    if (!container || !mobile) return;
 
     const targets = container.querySelectorAll<HTMLElement>(`.${animateClass}`);
     if (targets.length === 0) return;
@@ -35,6 +52,10 @@ export function useInViewMobile(
 
     targets.forEach((el) => observer.observe(el));
 
-    return () => observer.disconnect();
-  }, [containerRef, animateClass, visibleClass]);
+    return () => {
+      observer.disconnect();
+      // Remove visible classes when switching to desktop mode
+      targets.forEach((el) => el.classList.remove(visibleClass));
+    };
+  }, [containerRef, animateClass, visibleClass, mobile]);
 }

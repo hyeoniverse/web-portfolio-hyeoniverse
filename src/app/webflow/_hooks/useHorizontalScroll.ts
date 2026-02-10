@@ -16,6 +16,14 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 }
 
+const MOBILE_WIDTH = 1024;
+const SHORT_HEIGHT = 700;
+
+function checkMobile() {
+  if (typeof window === "undefined") return false;
+  return window.innerWidth <= MOBILE_WIDTH || window.innerHeight <= SHORT_HEIGHT;
+}
+
 export function useHorizontalScroll(
   styles: Record<string, string>,
 ): {
@@ -28,46 +36,62 @@ export function useHorizontalScroll(
   const trackRef = useRef<HTMLDivElement>(null);
   const scrollTweenRef = useRef<gsap.core.Tween | null>(null);
   const [activeSection, setActiveSection] = useState(0);
+  const [mobile, setMobile] = useState(checkMobile);
   const { setInfinite } = useLenis();
 
-  // Navigate to section via ScrollTrigger
-  const goToSection = useCallback((navIndex: number) => {
-    const track = trackRef.current;
-    const tween = scrollTweenRef.current;
-    if (!track || !tween) return;
+  // Track viewport size changes
+  useEffect(() => {
+    const onResize = () => setMobile(checkMobile());
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
-    const panels = track.querySelectorAll(
-      `.${styles.panel}, .${styles.panelWide}, .${styles.breakPanel}`,
-    );
+  // Navigate to section — handles both desktop (GSAP) and mobile (scrollIntoView)
+  const goToSection = useCallback(
+    (navIndex: number) => {
+      const track = trackRef.current;
+      if (!track) return;
 
-    // Map nav index to DOM panel index (skip breakPanels)
-    let count = 0;
-    let target: HTMLElement | undefined;
-    for (let i = 0; i < panels.length; i++) {
-      if (panels[i].classList.contains(styles.breakPanel)) continue;
-      if (count === navIndex) {
-        target = panels[i] as HTMLElement;
-        break;
+      const panels = track.querySelectorAll(
+        `.${styles.panel}, .${styles.panelWide}, .${styles.breakPanel}`,
+      );
+
+      // Map nav index to DOM panel (skip breakPanels)
+      let count = 0;
+      let target: HTMLElement | undefined;
+      for (let i = 0; i < panels.length; i++) {
+        if (panels[i].classList.contains(styles.breakPanel)) continue;
+        if (count === navIndex) {
+          target = panels[i] as HTMLElement;
+          break;
+        }
+        count++;
       }
-      count++;
-    }
-    if (!target) return;
+      if (!target) return;
 
-    const st = tween.scrollTrigger;
-    if (!st) return;
+      if (mobile) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
 
-    // Calculate the scroll position for this panel
-    const trackWidth = track.scrollWidth - window.innerWidth;
-    const panelLeft = target.offsetLeft;
-    const ratio = Math.min(panelLeft / trackWidth, 1);
-    const scrollTo = st.start + (st.end - st.start) * ratio;
+      const tween = scrollTweenRef.current;
+      if (!tween) return;
+      const st = tween.scrollTrigger;
+      if (!st) return;
 
-    gsap.to(window, {
-      scrollTo: { y: scrollTo },
-      duration: 1,
-      ease: "power2.inOut",
-    });
-  }, [styles]);
+      const trackWidth = track.scrollWidth - window.innerWidth;
+      const panelLeft = target.offsetLeft;
+      const ratio = Math.min(panelLeft / trackWidth, 1);
+      const scrollTo = st.start + (st.end - st.start) * ratio;
+
+      gsap.to(window, {
+        scrollTo: { y: scrollTo },
+        duration: 1,
+        ease: "power2.inOut",
+      });
+    },
+    [styles, mobile],
+  );
 
   // Disable Lenis infinite scroll on this page
   useEffect(() => {
@@ -75,13 +99,17 @@ export function useHorizontalScroll(
     return () => setInfinite(true);
   }, [setInfinite]);
 
+  // GSAP horizontal scroll — reactive to mobile state
   useLayoutEffect(() => {
     const section = sectionRef.current;
     const track = trackRef.current;
     if (!section || !track) return;
 
-    // Skip horizontal scroll on mobile/tablet or short viewports
-    if (window.innerWidth <= 1024 || window.innerHeight <= 700) return;
+    // Mobile/short viewport: no horizontal scroll
+    if (mobile) {
+      scrollTweenRef.current = null;
+      return;
+    }
 
     const ctx = gsap.context(() => {
       // Main horizontal scroll tween
@@ -164,7 +192,41 @@ export function useHorizontalScroll(
     }, section);
 
     return () => ctx.revert();
-  }, [styles]);
+  }, [styles, mobile]);
+
+  // Mobile: track active section via IntersectionObserver
+  useEffect(() => {
+    if (!mobile) return;
+    const track = trackRef.current;
+    if (!track) return;
+
+    const allPanels = track.querySelectorAll<HTMLElement>(
+      `.${styles.panel}, .${styles.panelWide}`,
+    );
+
+    // Build nav-index mapping (skip breakPanels)
+    const mapped: { el: HTMLElement; navIdx: number }[] = [];
+    allPanels.forEach((panel) => {
+      if (!panel.classList.contains(styles.breakPanel)) {
+        mapped.push({ el: panel, navIdx: mapped.length });
+      }
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const match = mapped.find((m) => m.el === entry.target);
+            if (match) setActiveSection(match.navIdx);
+          }
+        });
+      },
+      { threshold: 0.3 },
+    );
+
+    mapped.forEach(({ el }) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [mobile, styles]);
 
   return { sectionRef, trackRef, activeSection, goToSection };
 }
