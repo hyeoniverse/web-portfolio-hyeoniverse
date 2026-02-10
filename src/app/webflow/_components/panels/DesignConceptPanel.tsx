@@ -2,6 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import {
+  Code,
+  Palette,
+  LayoutGrid,
+  Zap,
+  Globe,
+  Mail,
+} from "lucide-react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem } from "@/data/webflow";
 import styles from "../WebFlowSection.module.css";
@@ -161,12 +169,71 @@ function LayoutSpacingDemo() {
   );
 }
 
+/* ── Grid System Demo (Breakpoint bars) ── */
+const breakpoints = [
+  { name: "XS", px: 320 },
+  { name: "SM", px: 480 },
+  { name: "MD", px: 768 },
+  { name: "LG", px: 1024 },
+  { name: "XL", px: 1280 },
+  { name: "2XL", px: 1440 },
+  { name: "4K", px: 1920 },
+];
+
+function GridSystemDemo() {
+  const maxPx = breakpoints[breakpoints.length - 1].px;
+
+  return (
+    <div className={styles.dcDemo}>
+      <div className={styles.dcBreakpoints}>
+        {breakpoints.map((bp) => (
+          <div
+            key={bp.name}
+            className={styles.dcBpBar}
+            style={{ height: `${(bp.px / maxPx) * 100}%` }}
+          >
+            <span className={styles.dcBpName}>{bp.name}</span>
+            <span className={styles.dcBpLabel}>{bp.px}px</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Iconography Demo (icon grid + toggle) ── */
+const lucideIcons = [
+  { icon: Code, label: "Code" },
+  { icon: Palette, label: "Palette" },
+  { icon: LayoutGrid, label: "Layout" },
+  { icon: Zap, label: "Zap" },
+  { icon: Globe, label: "Globe" },
+  { icon: Mail, label: "Mail" },
+];
+
+function IconographyDemo() {
+  return (
+    <div className={styles.dcDemo}>
+      <div className={styles.dcIconGrid}>
+        {lucideIcons.map((item) => (
+          <div key={item.label} className={styles.dcIconCell}>
+            <item.icon size={20} />
+            <span className={styles.dcIconCellLabel}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Demo map ── */
 const demoMap: Record<string, React.FC> = {
   typography: TypographyDemo,
   color: ColorSystemDemo,
   motion: MotionScrollDemo,
   layout: LayoutSpacingDemo,
+  grid: GridSystemDemo,
+  icons: IconographyDemo,
 };
 
 export default function DesignConceptPanel({
@@ -185,14 +252,15 @@ export default function DesignConceptPanel({
           const Demo = demoMap[concept.id];
           return (
             <div key={concept.id} className={`${styles.dcCard} ${styles.animate}`}>
-              <Image
-                src={concept.image}
-                alt={concept.title}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className={styles.dcCardBg}
-              />
-              <div className={styles.dcCardContent}>
+              <div className={styles.dcCardBg}>
+                <Image
+                  src={concept.image}
+                  alt={concept.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              </div>
+              <div className={styles.dcCardOverlay}>
                 <span className={styles.dcCardTitle}>{concept.title}</span>
                 <h4 className={styles.dcCardSubtitle}>
                   {concept.subtitle[language]}
