@@ -16,9 +16,11 @@ export interface ProcessStep {
 }
 
 export interface CodeExample {
-  title: string; // Not translated (technical title)
+  title: string;
   description: LocalizedText;
-  code: string; // Not translated (code)
+  code: string;
+  language: string;
+  media?: string; // image or video URL (to be added)
 }
 
 export interface TroubleShootingItem {
@@ -355,9 +357,11 @@ export const codeExamples: CodeExample[] = [
   {
     title: "Mouse Parallax Effect",
     description: {
-      ko: "Framer Motion을 활용한 마우스 추적 패럴랙스",
-      en: "Mouse-tracking parallax using Framer Motion",
+      ko: "마우스를 움직이면 배경 요소가 따라 움직이는 패럴랙스 효과입니다. 마우스 X 좌표를 실시간 추적하되, useSpring으로 부드러운 지연(스프링 물리)을 적용합니다. 그 값을 화면 너비 기준 -30px~+30px 범위로 변환하여 요소의 위치에 반영합니다.",
+      en: "A parallax effect where background elements follow mouse movement. It tracks the mouse X coordinate in real-time, then applies smooth delay using useSpring (spring physics). The value is then mapped to a -30px to +30px range relative to screen width and applied to element positions.",
     },
+    // media: "/videos/mouse-parallax.mp4",
+    language: "javascript",
     code: `const mouseX = useMotionValue(0);
 const smoothX = useSpring(mouseX, { stiffness: 50, damping: 20 });
 const floatX = useTransform(smoothX, [0, window.innerWidth], [-30, 30]);`,
@@ -365,9 +369,11 @@ const floatX = useTransform(smoothX, [0, window.innerWidth], [-30, 30]);`,
   {
     title: "Scroll-Triggered Animation",
     description: {
-      ko: "GSAP ScrollTrigger를 활용한 등장 애니메이션",
-      en: "Reveal animation using GSAP ScrollTrigger",
+      ko: "스크롤을 내려 요소가 뷰포트에 진입하면 자동으로 등장 애니메이션이 재생됩니다. GSAP ScrollTrigger가 요소의 위치를 감지하여, 화면의 70% 지점에 도달하면 아래에서 위로 100px 이동하며 투명도 0에서 1로 페이드인됩니다. once: true로 최초 1회만 실행됩니다.",
+      en: "Elements automatically animate in when they enter the viewport during scrolling. GSAP ScrollTrigger detects element position — when it reaches 70% of the viewport, the element slides up 100px while fading in from transparent to visible. The once: true option ensures it only plays once.",
     },
+    // media: "/videos/scroll-triggered.mp4",
+    language: "javascript",
     code: `gsap.from(".element", {
   y: 100, opacity: 0,
   scrollTrigger: {
@@ -380,9 +386,11 @@ const floatX = useTransform(smoothX, [0, window.innerWidth], [-30, 30]);`,
   {
     title: "Scroll Velocity Parallax",
     description: {
-      ko: "Lenis velocity를 활용한 스크롤 속도 기반 이미지 패럴랙스",
-      en: "Scroll velocity-based image parallax using Lenis velocity",
+      ko: "스크롤 속도에 따라 이미지가 위아래로 밀리는 효과입니다. Lenis 스크롤 라이브러리의 velocity(속도) 값을 실시간으로 읽어, 빠르게 스크롤하면 이미지가 최대 ±50px까지 이동합니다. useSpring이 급격한 값 변화를 부드럽게 감쇠시켜 자연스러운 관성 느낌을 만듭니다.",
+      en: "Images shift up or down based on scroll speed. It reads the velocity value from the Lenis scroll library in real-time — fast scrolling pushes images up to ±50px. useSpring smoothly dampens sudden value changes, creating a natural inertia feel.",
     },
+    // media: "/videos/scroll-velocity.mp4",
+    language: "javascript",
     code: `const workImageOffsetY = useMotionValue(0);
 const smoothY = useSpring(workImageOffsetY, { stiffness: 100, damping: 15 });
 
@@ -397,9 +405,11 @@ lenis.on("scroll", () => {
   {
     title: "StaggerText Component",
     description: {
-      ko: "호버 시 순차적 외곽선 애니메이션, 해제 시 역순 색상 복원",
-      en: "Sequential outline animation on hover, reverse color restoration on release",
+      ko: "텍스트에 마우스를 올리면 글자가 왼쪽부터 순서대로 외곽선만 남으며 비워지고, 마우스를 떼면 오른쪽부터 역순으로 색이 다시 채워지는 애니메이션입니다. 각 글자에 인덱스 × 0.04초의 딜레이를 줘서 순차 효과를 만들고, CSS text-stroke로 외곽선 상태를 유지합니다.",
+      en: "When hovering over text, letters empty out to just outlines from left to right. On mouse leave, colors fill back in reverse order from right to left. Each character gets an index × 0.04s delay for the sequential effect, and CSS text-stroke maintains the outline state.",
     },
+    // media: "/videos/stagger-text.mp4",
+    language: "javascript",
     code: `// 호버: 순방향 (첫 글자 → 마지막)
 // 해제: 역방향 (마지막 → 첫 글자), stroke 유지
 const forwardDelay = i * 0.04;
@@ -414,9 +424,11 @@ const delay = isHovered ? forwardDelay : reverseDelay;
   {
     title: "reCAPTCHA Lazy Loading",
     description: {
-      ko: "의도적 인터랙션 기반 서드파티 스크립트 지연 로딩 (타이머/scroll 제거)",
-      en: "Third-party script lazy loading based on intentional interaction (timer/scroll removed)",
+      ko: "Google reCAPTCHA 스크립트(~784KB)를 처음부터 로드하면 페이지 성능이 크게 저하됩니다. 이를 해결하기 위해 사용자가 실제로 클릭·터치·키보드 입력을 할 때까지 로드를 지연시킵니다. 타이머나 스크롤 이벤트는 Lighthouse 측정 중 자동으로 트리거되므로 의도적으로 제거했습니다.",
+      en: "Loading the Google reCAPTCHA script (~784KB) upfront severely degrades page performance. To solve this, script loading is deferred until the user actually clicks, touches, or types. Timer and scroll events were intentionally removed since they auto-trigger during Lighthouse measurements.",
     },
+    // media: "/videos/recaptcha-lazy.mp4",
+    language: "javascript",
     code: `const [shouldLoad, setShouldLoad] = useState(false);
 
 useEffect(() => {
@@ -436,9 +448,11 @@ return <GoogleReCaptchaProvider ...>{children}</GoogleReCaptchaProvider>;`,
   {
     title: "Infinite Scroll Wrapping",
     description: {
-      ko: "oneSetWidth 기반 양방향 무한 스크롤 래핑",
-      en: "Bidirectional infinite scroll wrapping based on oneSetWidth",
+      ko: "프로젝트 카드가 좌우 양방향으로 끝없이 순환하는 가로 갤러리입니다. 콘텐츠를 여러 세트 복제하고, 연속된 인트로 요소 사이의 거리로 '한 세트 너비'를 계산합니다. rAF 루프에서 스크롤 위치가 ±3세트를 넘으면 한 세트만큼 순간이동(텔레포트)시켜, DOM 부담 없이 무한 스크롤을 구현합니다.",
+      en: "A horizontal gallery where project cards loop infinitely in both directions. Content is duplicated in sets, and 'one set width' is calculated from the distance between consecutive intro elements. In the rAF loop, when scroll position exceeds ±3 sets, it teleports by one set width — achieving infinite scroll without DOM overhead.",
     },
+    // media: "/videos/infinite-scroll.mp4",
+    language: "javascript",
     code: `// 연속된 인트로 간 거리로 한 세트 너비 계산
 const introEls = slider.querySelectorAll('.intro');
 const oneSetWidth = introEls[1].offsetLeft - introEls[0].offsetLeft;
@@ -456,9 +470,11 @@ while (scrollX < -oneSetWidth * 3) {
   {
     title: "i18n Layout Shift Prevention",
     description: {
-      ko: "언어 전환 시 min-height로 레이아웃 시프트 방지",
-      en: "Preventing layout shift during language switching with min-height",
+      ko: "한국어와 영어는 같은 내용이라도 글자 수와 줄바꿈이 달라 언어 전환 시 레이아웃이 흔들립니다. 이를 방지하기 위해 각 텍스트 영역에 '최대 줄 수 × line-height' 만큼의 min-height를 em 단위로 지정하여 양쪽 언어 모두 동일한 공간을 확보합니다. 모바일은 세로 스크롤이라 시프트가 눈에 띄지 않으므로 해제합니다.",
+      en: "Korean and English have different character counts and line breaks for the same content, causing layout shift on language switch. To prevent this, each text area gets a min-height in em units calculated as 'max lines × line-height', reserving consistent space for both languages. On mobile, vertical scrolling makes shift less noticeable, so it's disabled.",
     },
+    // media: "/videos/i18n-layout.mp4",
+    language: "css",
     code: `/* 최대 줄 수 × line-height로 공간 예약 */
 .introDesc { min-height: 4.95em; }   /* 3줄 × 1.65 */
 .introDetail { min-height: 6.6em; }  /* 4줄 × 1.65 */
