@@ -7,6 +7,7 @@ export interface DesignFeature {
   title: string; // Not translated (section title)
   description: LocalizedText;
   tech: string[];
+  image?: string;
 }
 
 export interface ProcessStep {
@@ -268,6 +269,24 @@ export const designFeatures: DesignFeature[] = [
       en: "Horizontal scroll gallery based on GSAP requestAnimationFrame. Placed intro section as an in-flow item, implemented bidirectional infinite scroll with oneSetWidth wrapping. Prevents layout shift during language switching with min-height.",
     },
     tech: ["GSAP", "Infinite Wrapping", "i18n Layout", "Responsive"],
+  },
+  {
+    icon: "08",
+    title: "Dark/Light Theme System",
+    description: {
+      ko: "CSS Variables 기반 다크/라이트 테마 시스템. data-theme 속성 전환과 전역 transition으로 모든 컴포넌트가 자연스럽게 테마에 반응합니다.",
+      en: "Dark/light theme system based on CSS Variables. All components respond naturally to theme changes via data-theme attribute switching and global transitions.",
+    },
+    tech: ["CSS Variables", "data-theme", "Context API", "localStorage"],
+  },
+  {
+    icon: "09",
+    title: "Bilingual i18n Support",
+    description: {
+      ko: "한국어/영어 이중 언어 지원. LanguageProvider를 통한 전역 언어 상태 관리와 각 컴포넌트의 LocalizedText 타입으로 타입 안전한 다국어 시스템을 구현했습니다.",
+      en: "Korean/English bilingual support. Implemented a type-safe multilingual system with global language state management via LanguageProvider and LocalizedText types across all components.",
+    },
+    tech: ["Context API", "TypeScript Generics", "LocalizedText", "SSR-safe"],
   },
 ];
 
