@@ -2124,8 +2124,17 @@
 
 @media (max-width: 1024px), (max-height: 700px) {
   .section {
-    --wf-panel-py: var(--spacing-4xl);
-    --wf-panel-px: var(--spacing-2xl);
+    --wf-panel-py: var(--spacing-5xl);
+    --wf-panel-px: var(--spacing-3xl);
+    --wf-space-section: clamp(1.5rem, 5vw, 3.5rem);
+    --wf-space-block: clamp(1rem, 3.5vw, 2.5rem);
+    --wf-fs-lead: clamp(1rem, 3.2vw, 1.6rem);
+    --wf-fs-subhead: clamp(1rem, 3vw, 1.5rem);
+    --wf-fs-body: clamp(0.9rem, 2.8vw, 1.3rem);
+    --wf-fs-label: clamp(0.85rem, 2.5vw, 1.15rem);
+    --wf-fs-small: clamp(0.8rem, 2.2vw, 1.05rem);
+    --wf-fs-caption: clamp(0.75rem, 2vw, 0.95rem);
+    --wf-fs-code: clamp(0.8rem, 2.2vw, 1.05rem);
   }
 
   /* ── Mobile InView animation (reverse on exit) ── */
@@ -2170,19 +2179,33 @@
     min-height: 200px;
   }
 
+  .panelNumber {
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--wf-fs-body);
+  }
+
   .heroTitle {
-    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-size: clamp(3rem, 10vw, 5rem);
   }
 
   .heroWatermark {
     right: -5%;
     bottom: -10%;
-    font-size: clamp(5rem, 14vw, 8rem);
+    font-size: clamp(6rem, 16vw, 10rem);
+  }
+
+  .heroSubtitle {
+    max-width: none;
   }
 
   .panelTitle {
+    margin-bottom: var(--wf-space-section);
+    font-size: clamp(2.5rem, 8vw, 4rem);
+  }
+
+  .panelTitleCompact {
     margin-bottom: var(--wf-space-block);
-    font-size: clamp(2rem, 6vw, 3rem);
+    font-size: clamp(2rem, 7vw, 3.5rem);
   }
 
   .archMap {
@@ -2292,6 +2315,51 @@
     height: clamp(8px, 2vw, 14px);
   }
 
+  .dcSpacingPx {
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+  }
+
+  .dcBreakpoints {
+    gap: clamp(4px, 1.5vw, 8px);
+    height: clamp(50px, 12vw, 80px);
+  }
+
+  .dcBpName {
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+  }
+
+  .dcBpLabel {
+    font-size: clamp(0.5rem, 1.5vw, 0.65rem);
+  }
+
+  .dcIconToggle {
+    gap: clamp(4px, 1.5vw, 8px);
+    margin-bottom: clamp(8px, 2.5vw, 14px);
+  }
+
+  .dcIconToggleBtn {
+    font-size: clamp(0.65rem, 2vw, 0.85rem);
+    padding: 5px 12px;
+  }
+
+  .dcIconGrid {
+    gap: clamp(6px, 2vw, 10px);
+  }
+
+  .dcIconCell {
+    gap: clamp(4px, 1.5vw, 8px);
+    padding: clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 14px);
+  }
+
+  .dcIconCell svg {
+    width: clamp(16px, 4vw, 24px);
+    height: clamp(16px, 4vw, 24px);
+  }
+
+  .dcIconCellLabel {
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+  }
+
   .featureDynamic {
     display: none;
   }
@@ -2354,6 +2422,24 @@
     flex-direction: column;
   }
 
+  .codeMobileHeader {
+    gap: var(--spacing-md);
+    padding: var(--spacing-xl) 0;
+  }
+
+  .codeMobileToggle {
+    width: clamp(30px, 6vw, 40px);
+    height: clamp(30px, 6vw, 40px);
+  }
+
+  .codeMobileBodyOpen {
+    padding-bottom: var(--spacing-xl);
+  }
+
+  .codeDemo {
+    height: 280px;
+  }
+
   .troubleSplit {
     display: none;
   }
@@ -2363,17 +2449,65 @@
     gap: 0;
     flex-direction: column;
   }
+
+  .troubleMobileItem {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .troubleMobileHeader {
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .troubleMobileHeader .troubleNumber {
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    color: var(--text-accent-secondary);
+  }
+
+  .troubleTitle {
+    font-size: clamp(1rem, 3.5vw, 1.4rem);
+  }
+
+  .troubleBody {
+    gap: var(--spacing-xl);
+  }
+
+  .troubleEntry {
+    gap: 0.4rem;
+  }
+
+  .troubleLabel {
+    font-size: clamp(0.7rem, 2.2vw, 0.9rem);
+    padding: 5px 12px;
+  }
+
+  .troubleEntry p {
+    font-size: clamp(0.85rem, 2.8vw, 1.1rem);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .highlightedText {
+    padding: 0.15rem 0.4rem;
+  }
 }
 
 @media (max-width: 768px) {
   .section {
-    --wf-panel-py: var(--spacing-3xl);
-    --wf-panel-px: var(--spacing-xl);
+    --wf-panel-py: var(--spacing-4xl);
+    --wf-panel-px: var(--spacing-2xl);
   }
 
   .panelTitle {
     margin-bottom: var(--spacing-2xl);
-    font-size: clamp(1.8rem, 5vw, 2.2rem);
+    font-size: clamp(2.2rem, 7vw, 3rem);
+  }
+
+  .panelTitleCompact {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+  }
+
+  .heroTitle {
+    font-size: clamp(2.8rem, 9vw, 4rem);
   }
 
   .featureGrid {
