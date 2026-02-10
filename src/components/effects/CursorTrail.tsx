@@ -64,16 +64,7 @@ export default function CursorTrail() {
 
     const speed = 0.5;
 
-    // Get cursor radius from actual element size
-    const getCursorRadius = () => {
-      const inner = el.querySelector(`.${styles.cursorInner}`) as HTMLElement;
-      if (inner) {
-        return inner.offsetWidth / 2;
-      }
-      return 10; // fallback
-    };
-
-    // Check element at a specific point
+    // Get the topmost element at a point, skipping the cursor overlay
     const checkElementAt = (x: number, y: number) => {
       const elements = document.elementsFromPoint(x, y);
       for (const el of elements) {
@@ -83,74 +74,39 @@ export default function CursorTrail() {
       return null;
     };
 
-    // Check if any point on circle edge hits a matching element
-    const findElementOnCircleEdge = (
-      cx: number,
-      cy: number,
-      radius: number,
-      selector: string | ((el: HTMLElement) => boolean)
-    ): HTMLElement | null => {
-      const points = 8; // Check 8 points around the circle
-      for (let i = 0; i < points; i++) {
-        const angle = (i / points) * Math.PI * 2;
-        const x = cx + Math.cos(angle) * radius;
-        const y = cy + Math.sin(angle) * radius;
-        const el = checkElementAt(x, y);
-        if (el) {
-          if (typeof selector === "function") {
-            if (selector(el)) return el;
-          } else {
-            if (el.closest(selector)) return el;
-          }
-        }
-      }
-      // Also check center
-      const centerEl = checkElementAt(cx, cy);
-      if (centerEl) {
-        if (typeof selector === "function") {
-          if (selector(centerEl)) return centerEl;
-        } else {
-          if (centerEl.closest(selector)) return centerEl;
-        }
-      }
-      return null;
-    };
-
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
 
-      const cx = circleRef.current.x || e.clientX;
-      const cy = circleRef.current.y || e.clientY;
-      const radius = getCursorRadius();
+      // Use actual mouse position — not the lagging circle position
+      const mx = e.clientX;
+      const my = e.clientY;
+
+      // Get the real element under the pointer (skip cursor overlay itself)
+      const target = checkElementAt(mx, my);
 
       /* ---------- more ---------- */
-      const moreEl = findElementOnCircleEdge(cx, cy, radius, "[data-more]");
-      setMore(!!moreEl);
+      setMore(!!target?.closest("[data-more]"));
 
       /* ---------- clickable ---------- */
-      const isClickable = !!findElementOnCircleEdge(cx, cy, radius, (el) => {
-        return (
-          !!el.closest("[data-clickable]") ||
-          !!el.closest("a, button") ||
-          !!el.closest('input[type="checkbox"], input[type="radio"]') ||
-          el.classList.contains("clickable") ||
-          el.style.cursor === "pointer" ||
-          el.getAttribute("role") === "button" ||
-          el.dataset.clickable === "true"
-        );
-      });
+      const isClickable = !!target && (
+        !!target.closest("[data-clickable]") ||
+        !!target.closest("a, button") ||
+        !!target.closest('input[type="checkbox"], input[type="radio"]') ||
+        target.classList.contains("clickable") ||
+        target.style.cursor === "pointer" ||
+        target.getAttribute("role") === "button" ||
+        target.dataset.clickable === "true"
+      );
 
       /* ---------- text ---------- */
-      const isText = !!findElementOnCircleEdge(cx, cy, radius, (el) => {
-        return (
-          isTextInput(el) ||
-          !!el.closest(
-            "p, h1, h2, h3, h4, h5, h6, span, strong, em, figcaption, label"
-          ) ||
-          el.classList.contains("text-interactive") ||
-          !!el.closest('[contenteditable="true"]')
-        );
-      });
+      const isText = !!target && (
+        isTextInput(target) ||
+        !!target.closest(
+          "p, h1, h2, h3, h4, h5, h6, span, strong, em, figcaption, label"
+        ) ||
+        target.classList.contains("text-interactive") ||
+        !!target.closest('[contenteditable="true"]')
+      );
 
       /* ---------- priority ---------- */
       if (isClickable) setCursorType("big");
