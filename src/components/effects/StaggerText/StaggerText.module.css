@@ -7,6 +7,10 @@
 /* Individual character styling */
 .char {
   display: inline-block;
+}
+
+/* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
+.container .char {
   transition: color 0.01s step-end;
 }
 

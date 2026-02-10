@@ -3,9 +3,6 @@
    ========================================================================== */
 
 .section {
-  overflow: hidden;
-  background: var(--bg-primary);
-
   /* ── Layout ── */
   --wf-panel-py: var(--spacing-4xl);
   --wf-panel-px: var(--spacing-5xl);
@@ -25,7 +22,7 @@
 
   /* ── Line heights (complement global --line-height-*) ── */
   --wf-lh-title: var(--line-height-dense);
-  --wf-lh-reading: var(--line-height-snug);
+  --wf-lh-reading: var(--line-height-relaxed);
   --wf-lh-body: var(--line-height-relaxed);
   --wf-lh-prose: var(--line-height-loose);
   --wf-lh-code: var(--line-height-normal);
@@ -44,6 +41,8 @@
   /* ── Easing ── */
   --wf-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --wf-ease-material: cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  background: var(--bg-primary);
 }
 
 .track {
@@ -60,17 +59,17 @@
    Override only when different. */
 .panel {
   display: flex;
-  justify-content: center;
+  justify-content: start;
   flex-shrink: 0;
   flex-direction: column;
   padding: var(--wf-panel-py) var(--wf-panel-px);
   position: relative;
   width: 100vw;
   height: 100vh;
-  box-sizing: border-box;
   font-family: var(--font-mono);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
+  box-sizing: border-box;
 }
 
 .panelWide {
@@ -93,6 +92,7 @@
 
 .panelNumber {
   display: block;
+  margin-top: var(--header-height);
   margin-bottom: var(--spacing-xl);
   font-size: var(--wf-fs-label);
   font-weight: var(--font-weight-medium);
@@ -119,8 +119,12 @@
    ========================================================================== */
 
 .heroContent {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
   position: relative;
   max-width: 1000px;
+  height: 100%;
 }
 
 .label {
@@ -128,6 +132,7 @@
   margin-bottom: var(--wf-space-block);
   padding: var(--spacing-xs) var(--spacing-xl);
   border: 1px solid var(--color-accent-alpha-30);
+  width: fit-content;
   font-size: var(--wf-fs-label);
   font-weight: var(--font-weight-regular);
   color: var(--text-accent-secondary);
@@ -476,19 +481,15 @@
 
 .techNameGroup {
   display: flex;
-  align-items: center;
   gap: var(--spacing-sm);
+  align-items: center;
 }
 
 .techIcon {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: var(--text-tertiary);
-}
-
-.techItem:hover .techIcon {
-  color: var(--text-accent-secondary);
+  color: var(--text-secondary);
 }
 
 .techItem:hover {
@@ -514,7 +515,7 @@
 }
 
 /* ==========================================================================
-   Code Highlights Panel — DynamicFrame-style Grid
+   Code Highlights Panel — Scroll-Pinned Single Pane
    ========================================================================== */
 
 .panelCode {
@@ -523,47 +524,120 @@
   padding-bottom: var(--spacing-3xl);
 }
 
-.codeGridWrap {
+/* Inner wrapper: counter-translated by JS to appear pinned */
+.codeFixed {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  max-width: calc(100vw - var(--wf-panel-px) * 2);
   min-height: 0;
-  border-top: var(--wf-line-tertiary);
-  border-left: var(--wf-line-tertiary);
+  will-change: transform;
 }
 
-.codeItem {
+/* Single-pane view: one item at a time, stacked with opacity */
+.codeSingleView {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.codeSinglePane {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-lg);
-  border-right: var(--wf-line-tertiary);
-  border-bottom: var(--wf-line-tertiary);
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  transition: border-color 0.4s ease;
-  box-sizing: border-box;
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+  opacity: 0;
 }
 
-.codeItemActive {
+/* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
+.codeSingleView .codeSinglePane {
+  transition: opacity 0.35s ease;
 }
 
-.codeItemHeader {
+.codeSinglePaneActive {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* Header: number + title + description */
+.codeSingleHeader {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: baseline;
+  margin-bottom: var(--spacing-xl);
+}
+
+.codeSingleNumber {
+  flex-shrink: 0;
+  font-family: var(--wf-font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-fit);
+  color: var(--text-accent-secondary);
+}
+
+.codeSingleMeta h4 {
+  margin: 0;
+  font-family: var(--wf-font-grotesk);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+}
+
+.codeSingleDesc {
+  margin: 0.3rem 0 0;
+  font-size: var(--wf-fs-body);
+  line-height: var(--wf-lh-reading);
+  color: var(--text-tertiary);
+}
+
+/* Body: demo + code side by side */
+.codeSingleBody {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex: 1;
+  min-height: 0;
+}
+
+/* Dot indicator for active pane */
+.codeDotNav {
   display: flex;
   gap: var(--spacing-sm);
-  align-items: baseline;
-  flex-shrink: 0;
+  align-items: center;
+  margin-top: var(--spacing-lg);
 }
 
+.codeDot {
+  width: 6px;
+  height: 6px;
+  background: var(--text-tertiary);
+  border-radius: 50%;
+  opacity: 0.4;
+}
+
+/* Compound selector (0,2,0) */
+.codeDotNav .codeDot {
+  transition:
+    opacity 0.3s ease,
+    background-color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.codeDotActive {
+  background: var(--text-accent-secondary);
+  opacity: 1;
+  transform: scale(1.4);
+}
+
+/* Shared classes used by both desktop IDE and mobile accordion */
 .codeNumber {
   flex-shrink: 0;
   font-family: var(--wf-font-display);
   font-size: var(--wf-fs-lead);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
-  transition: color 0.4s ease;
-}
-
-.codeItemActive .codeNumber {
-  color: var(--text-accent-secondary);
 }
 
 .codeTitle {
@@ -583,16 +657,12 @@
 
 .codeBlock {
   flex: 1;
-  margin: var(--spacing-xs) 0 0;
+  margin: 0;
   padding: var(--spacing-sm);
   border-left: 2px solid var(--color-accent-alpha-30);
-  overflow: hidden;
+  overflow: auto;
   position: relative;
   min-height: 0;
-}
-
-.codeItemActive .codeBlock {
-  overflow: auto;
 }
 
 .codeBlock code {
@@ -600,30 +670,6 @@
   font-size: var(--wf-fs-code);
   line-height: var(--wf-lh-code);
   white-space: pre;
-}
-
-/* Desktop: code reveal animation */
-.codeReveal {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(8px);
-}
-
-/* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
-.codeItem .codeReveal {
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease,
-    max-height 0.4s ease;
-}
-
-.codeRevealVisible {
-  flex: 1;
-  overflow: auto;
-  max-height: 500px;
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Mobile code list — hidden on desktop */
@@ -718,26 +764,26 @@
 
 /* Demo area (left side on desktop) */
 .codeDemo {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-right: var(--wf-line-tertiary);
+  flex: 1;
   padding-right: var(--spacing-lg);
+  border-right: var(--wf-line-tertiary);
   overflow: hidden;
+  min-width: 0;
+  min-height: 0;
 }
 
 /* Inner wrapper for all demos */
 .codeDemoInner {
-  width: 100%;
-  height: 100%;
-  position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: 100%;
   font-family: var(--font-mono);
   font-size: var(--wf-fs-small);
   color: var(--text-secondary);
@@ -748,12 +794,12 @@
   position: absolute;
   bottom: 4px;
   left: 50%;
-  transform: translateX(-50%);
   font-size: var(--wf-fs-caption);
   color: var(--text-tertiary);
-  opacity: 0.7;
-  pointer-events: none;
   white-space: nowrap;
+  pointer-events: none;
+  transform: translateX(-50%);
+  opacity: 0.7;
 }
 
 /* Generic demo button */
@@ -764,12 +810,14 @@
   font-family: var(--font-mono);
   font-size: var(--wf-fs-small);
   color: var(--text-secondary);
-  cursor: pointer;
+
   border-radius: var(--radius-sm);
 }
 
 .codeDemoInner .demoBtn {
-  transition: border-color 0.3s ease, color 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .demoBtn:hover {
@@ -777,95 +825,78 @@
   color: var(--text-accent-secondary);
 }
 
-/* ── Demo 2: Scroll-Triggered ── */
-.demoScrollBox {
-  width: 50px;
-  height: 50px;
-  margin-top: var(--spacing-md);
+/* ── Demo 3: FontMorph ── */
+.demoFontText {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Compound selector (0,2,0) to override global theme transition */
+.codeDemoInner .demoFontText {
+  transition: font-family 0.3s ease;
+}
+
+.demoFontLabel {
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Demo 4: Magnetic Hover ── */
+.demoMagneticBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--color-accent-alpha-30);
-  border-radius: var(--radius-sm);
-  opacity: 0;
-  transform: translateY(30px);
-}
-
-.codeDemoInner .demoScrollBox {
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.demoScrollBoxVisible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ── Demo 3: Scroll Velocity ── */
-.demoScrollArea {
-  width: 100%;
-  height: 80%;
-  overflow-y: auto;
-  border: var(--wf-line-tertiary);
-  border-radius: var(--radius-sm);
-}
-
-.demoScrollContent {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: var(--spacing-sm);
-  min-height: 300px;
-}
-
-.demoVelocityBar {
-  height: 12px;
-  border-radius: 2px;
-  width: 70%;
-}
-
-.codeDemoInner .demoVelocityBar {
-  transition: transform 0.15s ease-out;
-}
-
-/* ── Demo 5: Lazy Load ── */
-.demoSpinner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-xs);
-  color: var(--text-tertiary);
-}
-
-.demoSpinnerDot {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--text-tertiary);
-  border-top-color: var(--text-accent-secondary);
+  width: 80px;
+  height: 80px;
+  font-family: var(--font-mono);
+  font-size: var(--wf-fs-small);
+  color: var(--text-secondary);
+  pointer-events: none;
   border-radius: 50%;
-  animation: demoSpin 0.8s linear infinite;
 }
 
-@keyframes demoSpin {
-  to {
-    transform: rotate(360deg);
-  }
+/* ── Demo 5: ClipPath Direction Reveal ── */
+.demoClipBox {
+  overflow: hidden;
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
 }
 
-.demoLoaded {
+.demoClipBase {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
-}
-
-.demoLoadedCheck {
-  font-size: var(--font-size-lg);
-  color: var(--text-accent-secondary);
-}
-
-.demoLoadedSaved {
-  font-size: var(--wf-fs-caption);
+  justify-content: center;
+  border: 1px solid var(--text-tertiary);
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--wf-fs-small);
   color: var(--text-tertiary);
+  border-radius: 50%;
+}
+
+.demoClipOverlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  background: var(--color-accent-alpha-30);
+  font-family: var(--font-mono);
+  font-size: var(--wf-fs-small);
+  color: var(--text-primary);
+  inset: 0;
+  border-radius: 50%;
+  will-change: clip-path;
 }
 
 /* ── Demo 6: Infinite Scroll ── */
+/* 12 blocks per set × (40px + 6px gap) = 552px per set */
 .demoInfiniteTrack {
   display: flex;
   gap: 6px;
@@ -889,38 +920,98 @@
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(-552px);
   }
 }
 
-/* ── Demo 7: i18n Shift ── */
+/* ── Demo 7: SVG Path Draw ── */
+.demoSvg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Demo 8: Loading Progress ── */
+.demoLoadingNumber {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-accent-secondary);
+  letter-spacing: 0.05em;
+}
+
+.demoLoadingTrack {
+  margin-top: var(--spacing-sm);
+  overflow: hidden;
+  width: 120px;
+  height: 2px;
+  background: var(--text-tertiary);
+  opacity: 0.2;
+  border-radius: 1px;
+}
+
+.demoLoadingBar {
+  width: 100%;
+  height: 100%;
+  background: var(--text-accent-secondary);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+/* Compound selector (0,2,0) for transform transition */
+.codeDemoInner .demoLoadingBar {
+  transition: transform 0.3s ease-out;
+}
+
+/* ── Demo 9: i18n Shift ── */
 .demoI18nRow {
   display: flex;
   gap: var(--spacing-sm);
+  align-items: flex-start;
   width: 100%;
+  max-width: 280px;
+  overflow: visible;
 }
 
-.demoI18nBox {
+@media (max-width: 1024px) {
+  .demoI18nRow {
+    max-width: 100%;
+  }
+}
+
+.demoI18nCol {
   flex: 1;
   min-width: 0;
 }
 
 .demoI18nLabel {
   display: block;
-  margin-bottom: 0.2rem;
-  font-size: var(--wf-fs-caption);
+  margin-bottom: 0.3rem;
+  font-size: 0.6rem;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.demoI18nContent {
+.demoI18nTextBox {
   padding: var(--spacing-xs);
   border: var(--wf-line-tertiary);
-  border-radius: var(--radius-sm);
-  font-size: var(--wf-fs-small);
-  line-height: var(--wf-lh-reading);
+  font-size: var(--wf-fs-caption);
+  line-height: 1.5;
   word-break: break-word;
+  border-radius: var(--radius-sm);
+}
+
+.demoI18nBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.4rem;
+  border: 1px dashed var(--color-accent-alpha-30);
+  height: 1.5rem;
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  border-radius: var(--radius-sm);
 }
 
 /* ==========================================================================
@@ -934,10 +1025,10 @@
 /* Inner wrapper: counter-translated by JS to appear pinned */
 .troubleFixed {
   display: flex;
-  flex-direction: column;
   flex: 1;
-  min-height: 0;
+  flex-direction: column;
   max-width: calc(100vw - var(--wf-panel-px) * 2);
+  min-height: 0;
   will-change: transform;
 }
 
@@ -952,9 +1043,9 @@
 /* ── Left: navigation list ── */
 .troubleList {
   flex-shrink: 0;
-  width: 360px;
-  border-right: var(--wf-line-tertiary);
   padding-right: var(--spacing-2xl);
+  border-right: var(--wf-line-tertiary);
+  width: 360px;
 }
 
 .troubleListItem {
@@ -1031,11 +1122,11 @@
 }
 
 .troubleDetailItem {
-  position: absolute;
-  inset: 0;
   overflow-y: auto;
-  opacity: 0;
+  position: absolute;
   pointer-events: none;
+  inset: 0;
+  opacity: 0;
 }
 
 /* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
@@ -1046,8 +1137,8 @@
 }
 
 .troubleDetailItemActive {
-  opacity: 1;
   pointer-events: auto;
+  opacity: 1;
 }
 
 .troubleDetailHeader {
@@ -1062,8 +1153,8 @@
   font-family: var(--wf-font-display);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-regular);
-  color: var(--text-accent-secondary);
   line-height: var(--line-height-fit);
+  color: var(--text-accent-secondary);
 }
 
 .troubleTitle {
@@ -1152,6 +1243,10 @@
   color: var(--text-tertiary);
 }
 
+.creditsHeart {
+  color: var(--text-accent-secondary);
+}
+
 /* ==========================================================================
    Section Navigation (outside .panel — no inheritance)
    ========================================================================== */
@@ -1161,15 +1256,12 @@
   gap: var(--spacing-2xs);
   align-items: center;
   padding: var(--spacing-xs) var(--spacing-sm);
-  border: 1px solid var(--border-tertiary);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   position: fixed;
   bottom: var(--spacing-2xl);
   left: 50%;
   z-index: var(--z-modal);
-  background: var(--color-white-alpha-80);
+  background: transparent;
   transform: translateX(-50%);
-  backdrop-filter: blur(12px);
   border-radius: var(--radius-capsule);
 }
 
@@ -1179,7 +1271,8 @@
   left: 0;
   z-index: 0;
   height: calc(100% - var(--spacing-xs));
-  background: var(--bg-black);
+  border: var(--border-strong);
+  background: transparent;
   pointer-events: none;
   border-radius: var(--radius-capsule);
   translate: 0 -50%;
@@ -1207,7 +1300,7 @@
   flex-shrink: 0;
   width: 6px;
   height: 6px;
-  background: var(--text-tertiary);
+  background: var(--bg-inverse);
   transition:
     background 0.3s ease,
     width 0.3s ease;
@@ -1234,14 +1327,14 @@
 }
 
 .navItemActive .navDot {
-  background: var(--text-white);
+  background: var(--bg-inverse);
 }
 
 .navItemActive .navLabel {
   margin-left: 0;
   max-width: 80px;
   font-size: 0.65rem;
-  color: var(--text-white);
+  color: var(--text-primary);
   opacity: 1;
 }
 
@@ -1330,7 +1423,11 @@
     height: auto;
   }
 
-  .codeGridWrap {
+  .codeSingleView {
+    display: none;
+  }
+
+  .codeDotNav {
     display: none;
   }
 
@@ -1339,12 +1436,12 @@
   }
 
   .codeDemo {
-    border-right: none;
-    border-bottom: var(--wf-line-tertiary);
-    padding-right: 0;
-    padding-bottom: var(--spacing-sm);
-    height: 200px;
     flex: none;
+    padding-right: 0;
+    padding-bottom: var(--spacing-md);
+    border-bottom: var(--wf-line-tertiary);
+    border-right: none;
+    height: 240px;
   }
 
   .codeListMobile {

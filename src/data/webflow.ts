@@ -357,58 +357,20 @@ export const codeExamples: CodeExample[] = [
   {
     title: "Mouse Parallax Effect",
     description: {
-      ko: "마우스를 움직이면 배경 요소가 따라 움직이는 패럴랙스 효과입니다. 마우스 X 좌표를 실시간 추적하되, useSpring으로 부드러운 지연(스프링 물리)을 적용합니다. 그 값을 화면 너비 기준 -30px~+30px 범위로 변환하여 요소의 위치에 반영합니다.",
-      en: "A parallax effect where background elements follow mouse movement. It tracks the mouse X coordinate in real-time, then applies smooth delay using useSpring (spring physics). The value is then mapped to a -30px to +30px range relative to screen width and applied to element positions.",
+      ko: "마우스를 움직이면 배경 요소들이 **살짝 시차를 두고 따라오는** 효과입니다. 마우스 위치를 실시간으로 추적하되, 곧바로 따라가는 것이 아니라 **스프링(용수철)처럼 탄성 있게 지연**시켜 자연스러운 느낌을 줍니다. 각 레이어마다 이동 범위를 다르게 설정해 **깊이감**을 표현합니다.",
+      en: "Background elements **follow the mouse with a slight delay**, creating a sense of depth. Instead of snapping instantly, they move with a **spring-like elastic motion** for a natural feel. Each layer has a different movement range, making closer elements move more and farther elements less — just like **real parallax**.",
     },
-    // media: "/videos/mouse-parallax.mp4",
     language: "javascript",
     code: `const mouseX = useMotionValue(0);
 const smoothX = useSpring(mouseX, { stiffness: 50, damping: 20 });
 const floatX = useTransform(smoothX, [0, window.innerWidth], [-30, 30]);`,
   },
   {
-    title: "Scroll-Triggered Animation",
-    description: {
-      ko: "스크롤을 내려 요소가 뷰포트에 진입하면 자동으로 등장 애니메이션이 재생됩니다. GSAP ScrollTrigger가 요소의 위치를 감지하여, 화면의 70% 지점에 도달하면 아래에서 위로 100px 이동하며 투명도 0에서 1로 페이드인됩니다. once: true로 최초 1회만 실행됩니다.",
-      en: "Elements automatically animate in when they enter the viewport during scrolling. GSAP ScrollTrigger detects element position — when it reaches 70% of the viewport, the element slides up 100px while fading in from transparent to visible. The once: true option ensures it only plays once.",
-    },
-    // media: "/videos/scroll-triggered.mp4",
-    language: "javascript",
-    code: `gsap.from(".element", {
-  y: 100, opacity: 0,
-  scrollTrigger: {
-    trigger: ref.current,
-    start: "top 70%",
-    once: true
-  }
-});`,
-  },
-  {
-    title: "Scroll Velocity Parallax",
-    description: {
-      ko: "스크롤 속도에 따라 이미지가 위아래로 밀리는 효과입니다. Lenis 스크롤 라이브러리의 velocity(속도) 값을 실시간으로 읽어, 빠르게 스크롤하면 이미지가 최대 ±50px까지 이동합니다. useSpring이 급격한 값 변화를 부드럽게 감쇠시켜 자연스러운 관성 느낌을 만듭니다.",
-      en: "Images shift up or down based on scroll speed. It reads the velocity value from the Lenis scroll library in real-time — fast scrolling pushes images up to ±50px. useSpring smoothly dampens sudden value changes, creating a natural inertia feel.",
-    },
-    // media: "/videos/scroll-velocity.mp4",
-    language: "javascript",
-    code: `const workImageOffsetY = useMotionValue(0);
-const smoothY = useSpring(workImageOffsetY, { stiffness: 100, damping: 15 });
-
-lenis.on("scroll", () => {
-  const velocity = lenis.velocity;
-  if (Math.abs(velocity) > 0.05) {
-    const offset = Math.max(-50, Math.min(50, velocity * 30));
-    workImageOffsetY.set(offset);
-  }
-});`,
-  },
-  {
     title: "StaggerText Component",
     description: {
-      ko: "텍스트에 마우스를 올리면 글자가 왼쪽부터 순서대로 외곽선만 남으며 비워지고, 마우스를 떼면 오른쪽부터 역순으로 색이 다시 채워지는 애니메이션입니다. 각 글자에 인덱스 × 0.04초의 딜레이를 줘서 순차 효과를 만들고, CSS text-stroke로 외곽선 상태를 유지합니다.",
-      en: "When hovering over text, letters empty out to just outlines from left to right. On mouse leave, colors fill back in reverse order from right to left. Each character gets an index × 0.04s delay for the sequential effect, and CSS text-stroke maintains the outline state.",
+      ko: "텍스트에 마우스를 올리면 글자가 왼쪽부터 차례로 **외곽선만 남으며 비워지고**, 마우스를 떼면 **오른쪽부터 역순으로 색이 다시 채워집니다**. 한꺼번에 바뀌는 것이 아니라 글자마다 **0.04초씩 시간차**를 두어 도미노처럼 퍼지는 느낌을 줍니다.",
+      en: "When you hover over text, letters **empty out to just outlines** from left to right. When you move away, colors **fill back in reverse order**. Each letter changes with a **0.04-second delay** after the previous one, creating a **domino-like ripple effect**.",
     },
-    // media: "/videos/stagger-text.mp4",
     language: "javascript",
     code: `// 호버: 순방향 (첫 글자 → 마지막)
 // 해제: 역방향 (마지막 → 첫 글자), stroke 유지
@@ -422,36 +384,76 @@ const delay = isHovered ? forwardDelay : reverseDelay;
 .charExiting { -webkit-text-stroke: 1px; } // stroke 유지`,
   },
   {
-    title: "reCAPTCHA Lazy Loading",
+    title: "FontMorph Counting Animation",
     description: {
-      ko: "Google reCAPTCHA 스크립트(~784KB)를 처음부터 로드하면 페이지 성능이 크게 저하됩니다. 이를 해결하기 위해 사용자가 실제로 클릭·터치·키보드 입력을 할 때까지 로드를 지연시킵니다. 타이머나 스크롤 이벤트는 Lighthouse 측정 중 자동으로 트리거되므로 의도적으로 제거했습니다.",
-      en: "Loading the Google reCAPTCHA script (~784KB) upfront severely degrades page performance. To solve this, script loading is deferred until the user actually clicks, touches, or types. Timer and scroll events were intentionally removed since they auto-trigger during Lighthouse measurements.",
+      ko: "마우스를 올리면 글꼴이 **슬롯머신처럼 빠르게 돌아가다가** 목표 글꼴에 멈추는 애니메이션입니다. **0.05초 간격**으로 랜덤 글꼴을 번갈아 보여주다가, 일정 횟수가 지나면 **점점 느려지며 최종 글꼴에 안착**합니다.",
+      en: "On hover, fonts **spin like a slot machine**, rapidly cycling through random typefaces before landing on the target. Fonts change every **0.05 seconds**, then **gradually slow down** until settling on the final font.",
     },
-    // media: "/videos/recaptcha-lazy.mp4",
     language: "javascript",
-    code: `const [shouldLoad, setShouldLoad] = useState(false);
+    code: `const startCounting = (targetIdx) => {
+  setIsCounting(true);
+  let iterations = 0;
+  const total = Math.floor(countingDuration / countingSpeed);
 
-useEffect(() => {
-  const load = () => setShouldLoad(true);
-  // 의도적 인터랙션만 (scroll/timer 제거 → Lighthouse에서 미로드)
-  const events = ["click", "touchstart", "keydown"];
-  events.forEach((e) =>
-    document.addEventListener(e, () => { load(); cleanup(); },
-      { once: true, passive: true })
-  );
-  return cleanup;
-}, []);
+  countingRef.current = setInterval(() => {
+    iterations++;
+    // 카운팅 중: 랜덤 폰트 표시
+    setDisplayIndex(Math.floor(Math.random() * fonts.length));
 
-if (!shouldLoad) return <>{children}</>;
-return <GoogleReCaptchaProvider ...>{children}</GoogleReCaptchaProvider>;`,
+    if (iterations >= total) {
+      clearInterval(countingRef.current);
+      // 최종 목표 폰트로 안착
+      setDisplayIndex(targetIdx);
+      setIsCounting(false);
+    }
+  }, 50); // countingSpeed
+};`,
+  },
+  {
+    title: "Magnetic Hover Effect",
+    description: {
+      ko: "커서를 버튼 근처로 가져가면 버튼이 **자석에 끌리듯 커서 쪽으로 살짝 이동**합니다. 커서와 버튼 중심 사이의 거리에 비례하여 움직이며, 커서가 멀어지면 **탄성 있게 원래 자리로 되돌아갑니다**.",
+      en: "Move your cursor near the button and it **slides toward you like a magnet**. The closer the cursor gets, the more the button follows. When you move away, it **bounces back to its original position** with a spring-like motion.",
+    },
+    language: "javascript",
+    code: `const x = useMotionValue(0);
+const y = useMotionValue(0);
+const springX = useSpring(x, { stiffness: 150, damping: 15 });
+const springY = useSpring(y, { stiffness: 150, damping: 15 });
+
+const onMouseMove = (e) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  x.set((e.clientX - (rect.left + rect.width / 2)) * 0.35);
+  y.set((e.clientY - (rect.top + rect.height / 2)) * 0.35);
+};
+const onMouseLeave = () => { x.set(0); y.set(0); };`,
+  },
+  {
+    title: "Direction-Aware ClipPath Reveal",
+    description: {
+      ko: "마우스가 **어느 방향에서 들어왔는지 감지**하여, 그 방향에서부터 **원형으로 퍼지며 내용이 드러나는** 호버 효과입니다. 왼쪽에서 들어오면 왼쪽부터, 아래에서 들어오면 아래부터 펼쳐집니다. 마우스를 떼면 **같은 방향으로 다시 수축**합니다.",
+      en: "This effect **detects which direction your mouse enters from** and reveals content as a **circle expanding from that side**. Enter from the left — it spreads from the left. From below — it grows upward. On mouse leave, it **shrinks back the same way**.",
+    },
+    language: "javascript",
+    code: `// 진입 방향 감지
+const dx = e.clientX - (rect.left + rect.width / 2);
+const dy = e.clientY - (rect.top + rect.height / 2);
+const dirX = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : 0;
+const dirY = Math.abs(dy) >= Math.abs(dx) ? (dy > 0 ? 1 : -1) : 0;
+
+// clipPath: 진입 방향 → 전체 노출
+animate={{
+  clipPath: isHovering
+    ? "circle(80% at 50% 50%)"
+    : \`circle(0% at \${50 + dirX * 50}% \${50 + dirY * 50}%)\`
+}}`,
   },
   {
     title: "Infinite Scroll Wrapping",
     description: {
-      ko: "프로젝트 카드가 좌우 양방향으로 끝없이 순환하는 가로 갤러리입니다. 콘텐츠를 여러 세트 복제하고, 연속된 인트로 요소 사이의 거리로 '한 세트 너비'를 계산합니다. rAF 루프에서 스크롤 위치가 ±3세트를 넘으면 한 세트만큼 순간이동(텔레포트)시켜, DOM 부담 없이 무한 스크롤을 구현합니다.",
-      en: "A horizontal gallery where project cards loop infinitely in both directions. Content is duplicated in sets, and 'one set width' is calculated from the distance between consecutive intro elements. In the rAF loop, when scroll position exceeds ±3 sets, it teleports by one set width — achieving infinite scroll without DOM overhead.",
+      ko: "프로젝트 카드가 **좌우 어느 방향으로든 끝없이 순환**하는 가로 갤러리입니다. 같은 카드를 여러 세트 복제해 놓고, 스크롤이 끝에 가까워지면 **눈에 보이지 않게 위치를 되감아** 처음으로 돌려놓습니다. 사용자는 끊김 없이 계속 스크롤할 수 있습니다.",
+      en: "A horizontal gallery where project cards **loop endlessly in both directions**. The same cards are duplicated in sets, and when you scroll near the edge, the position is **silently reset** so you never reach the end. The result is a **seamless infinite scroll** experience.",
     },
-    // media: "/videos/infinite-scroll.mp4",
     language: "javascript",
     code: `// 연속된 인트로 간 거리로 한 세트 너비 계산
 const introEls = slider.querySelectorAll('.intro');
@@ -468,12 +470,57 @@ while (scrollX < -oneSetWidth * 3) {
 }`,
   },
   {
+    title: "SVG Path Draw Animation",
+    description: {
+      ko: "보이지 않는 선이 **펜으로 그리듯 처음부터 끝까지 천천히 나타나는** 애니메이션입니다. 선의 진행도를 **0%(안 보임)에서 100%(전체 표시)**로 전환하여 그리는 효과를 만듭니다. 배경 장식 라인에 사용되며, 다 그려진 후 **일정 시간 뒤 다시 반복**됩니다.",
+      en: "An invisible line **gradually appears as if being drawn by a pen** from start to end. The line's progress transitions from **0% (hidden) to 100% (fully visible)**, creating a drawing effect. Used for decorative background lines, the animation **repeats after a short pause**.",
+    },
+    language: "javascript",
+    code: `<motion.path
+  d="M10,20 Q30,15 50,30 T90,25"
+  stroke="rgba(102, 126, 234, 0.2)"
+  strokeWidth="0.5"
+  fill="none"
+  initial={{ pathLength: 0 }}
+  animate={{ pathLength: 1 }}
+  transition={{
+    duration: 2,
+    ease: "easeInOut",
+    repeat: Infinity,
+    repeatType: "loop",
+    repeatDelay: 1,
+  }}
+/>`,
+  },
+  {
+    title: "Loading Screen Progress",
+    description: {
+      ko: "페이지를 처음 열 때 보이는 로딩 화면입니다. 숫자가 **001에서 100까지 부드럽게 올라가며**, 처음엔 빠르다가 **끝에 가까울수록 천천히 감속**합니다. 항상 **세 자리 숫자**(001, 055, 100)로 표시되고, 아래 프로그레스 바도 숫자와 함께 채워집니다.",
+      en: "The loading screen shown when the page first opens. The counter **smoothly counts from 001 to 100**, starting fast and **gradually slowing down** near the end. It always shows **three digits** (001, 055, 100), and the progress bar below fills in sync with the number.",
+    },
+    language: "javascript",
+    code: `// 이전 값에서 새 값으로 ease-out 보간
+const animate = (currentTime) => {
+  const elapsed = currentTime - startTime;
+  const t = Math.min(elapsed / 300, 1);
+  const eased = 1 - Math.pow(1 - t, 3);
+  const value = Math.round(start + diff * eased);
+  setDisplayedProgress(value);
+  if (t < 1) requestAnimationFrame(animate);
+};
+
+// 표시: 001, 055, 100 형식
+displayedProgress.toString().padStart(3, "0")
+
+// 프로그레스 바 동기화
+<motion.div animate={{ scaleX: progress / 100 }} />`,
+  },
+  {
     title: "i18n Layout Shift Prevention",
     description: {
-      ko: "한국어와 영어는 같은 내용이라도 글자 수와 줄바꿈이 달라 언어 전환 시 레이아웃이 흔들립니다. 이를 방지하기 위해 각 텍스트 영역에 '최대 줄 수 × line-height' 만큼의 min-height를 em 단위로 지정하여 양쪽 언어 모두 동일한 공간을 확보합니다. 모바일은 세로 스크롤이라 시프트가 눈에 띄지 않으므로 해제합니다.",
-      en: "Korean and English have different character counts and line breaks for the same content, causing layout shift on language switch. To prevent this, each text area gets a min-height in em units calculated as 'max lines × line-height', reserving consistent space for both languages. On mobile, vertical scrolling makes shift less noticeable, so it's disabled.",
+      ko: "한국어와 영어는 같은 뜻이라도 **글자 수와 줄 수가 달라서**, 언어를 바꾸면 텍스트 높이가 변하며 **주변 요소들이 밀려나는 현상**이 생깁니다. 이를 막기 위해 텍스트 영역에 **미리 최소 높이를 확보**해 두어, 어떤 언어든 같은 공간을 차지하도록 합니다.",
+      en: "Korean and English have **different character counts and line breaks** for the same meaning, so switching languages changes text height and **pushes surrounding elements around**. To prevent this, each text area is given a **reserved minimum height** so both languages always occupy the same space.",
     },
-    // media: "/videos/i18n-layout.mp4",
     language: "css",
     code: `/* 최대 줄 수 × line-height로 공간 예약 */
 .introDesc { min-height: 4.95em; }   /* 3줄 × 1.65 */
@@ -496,16 +543,16 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Lenis Scroll Velocity Effect Not Working",
     },
     cause: {
-      ko: "스크롤 속도에 따라 요소가 기울어지는 효과를 구현하려 했습니다. requestAnimationFrame으로 매 프레임마다 스크롤 위치를 읽고, 이전 프레임과의 차이(delta)로 velocity를 직접 계산했는데, 값이 들쑥날쑥하며 애니메이션이 떨리는 현상이 발생했습니다. Lenis가 내부적으로 스크롤을 보간(interpolation)하기 때문에, 외부에서 RAF로 읽은 위치값은 실제 스크롤 의도와 타이밍이 어긋나는 것이 원인이었습니다.",
-      en: "I wanted to create an effect where elements tilt based on scroll speed. I used requestAnimationFrame to read the scroll position every frame and manually calculated velocity from the delta between frames. The values were erratic and animations jittered. The root cause was that Lenis internally interpolates scroll, so positions read externally via RAF were out of sync with the actual scroll intent and timing.",
+      ko: "스크롤 속도에 따라 요소가 기울어지는 효과를 만들려 했습니다. 매 화면 갱신마다 스크롤 위치를 직접 읽어 속도를 계산했는데, **값이 들쑥날쑥하며 애니메이션이 떨리는 현상**이 발생했습니다. 원인은 스크롤 라이브러리(Lenis)가 내부적으로 **움직임을 부드럽게 가공**하고 있어서, 외부에서 읽은 값과 **타이밍이 어긋났기 때문**이었습니다.",
+      en: "I wanted elements to tilt based on scroll speed. I manually read the scroll position every frame and calculated velocity myself, but the values were erratic and **animations jittered**. The cause: the scroll library (Lenis) internally **smooths out the movement**, so the values I read externally were **out of sync** with what Lenis was actually doing.",
     },
     solution: {
-      ko: "RAF 폴링을 제거하고, Lenis의 네이티브 on('scroll') 이벤트 콜백으로 전환했습니다. 콜백 인자에서 인스턴스의 velocity 속성을 직접 읽으면 Lenis의 보간 주기와 완벽하게 동기화된 값을 얻을 수 있어, 부드러운 tilt 애니메이션이 구현되었습니다.",
-      en: "Removed RAF polling and switched to Lenis's native on('scroll') event callback. Reading the velocity property directly from the instance in the callback gives values perfectly synchronized with Lenis's interpolation cycle, resulting in smooth tilt animations.",
+      ko: "직접 계산하는 방식을 버리고, **Lenis가 제공하는 스크롤 이벤트**에서 속도 값을 가져오도록 바꿨습니다. 라이브러리가 이미 정확하게 계산해 놓은 값을 그대로 사용하니 **떨림 없이 부드러운 애니메이션**이 구현되었습니다.",
+      en: "Instead of calculating velocity myself, I switched to using the **scroll event provided by Lenis** and read the speed value it already computed. Using the library's own accurate values resulted in **smooth, jitter-free animations**.",
     },
     keyInsight: {
-      ko: "외부 라이브러리가 내부적으로 값을 계산하고 있다면, 같은 값을 직접 재계산하기보다 라이브러리가 제공하는 API를 통해 접근하는 것이 항상 더 정확합니다.",
-      en: "When a library internally computes a value, accessing it through the library's own API is always more accurate than recalculating the same value externally.",
+      ko: "라이브러리가 이미 계산해 놓은 값이 있다면, 같은 걸 직접 다시 계산하기보다 **라이브러리가 제공하는 값을 그대로 쓰는 것**이 항상 더 정확합니다.",
+      en: "If a library already computes a value internally, **using the value it provides** is always more accurate than trying to recalculate the same thing yourself.",
     },
   },
   {
@@ -514,16 +561,16 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Framer Motion Transform Conflicts with CSS Transform",
     },
     cause: {
-      ko: "요소를 뷰포트 중앙에 배치하기 위해 CSS로 position: absolute + transform: translate(-50%, -50%)를 적용한 상태에서, Framer Motion의 y 속성으로 스크롤 기반 패럴랙스를 추가했습니다. 그런데 Framer Motion이 style에 transform을 직접 설정하면서 CSS의 translate(-50%, -50%)가 완전히 덮어씌워져, 요소가 중앙에서 벗어나 엉뚱한 위치로 이동했습니다.",
-      en: "I positioned an element at the viewport center using CSS position: absolute + transform: translate(-50%, -50%), then added scroll-based parallax with Framer Motion's y property. However, Framer Motion sets transform directly on the style attribute, completely overwriting the CSS translate(-50%, -50%). The element jumped away from center to an unexpected position.",
+      ko: "CSS의 transform 속성으로 요소를 화면 중앙에 배치한 상태에서, 애니메이션 라이브러리(Framer Motion)로 스크롤 효과를 추가했습니다. 그런데 라이브러리가 **같은 transform 속성을 덮어써버려서**, 중앙 배치 설정이 사라지고 **요소가 엉뚱한 위치로 튀어나갔습니다**.",
+      en: "I centered an element using CSS's transform property, then added a scroll animation with Framer Motion. But the library **overwrote the same transform property**, erasing the centering and causing the **element to jump to an unexpected position**.",
     },
     solution: {
-      ko: "CSS transform 대신 margin 기반 중앙 정렬(margin-left: -65%, margin-top: -65%)로 변경했습니다. transform 속성을 Framer Motion 전용으로 비워두면서도 시각적 중앙 배치를 유지할 수 있었습니다.",
-      en: "Replaced CSS transform centering with margin-based centering (margin-left: -65%, margin-top: -65%). This keeps the transform property free for Framer Motion while maintaining the visual center positioning.",
+      ko: "중앙 배치 방식을 transform 대신 **margin으로 변경**했습니다. transform 속성을 **애니메이션 전용으로 비워두면서도** 화면 중앙 배치를 유지할 수 있었습니다.",
+      en: "Changed the centering method from transform to **margin-based positioning**. This keeps transform **reserved exclusively for animations** while still centering the element visually.",
     },
     keyInsight: {
-      ko: "Framer Motion은 inline style로 transform을 제어합니다. CSS transform과 동일 속성을 공유하게 되면 충돌이 불가피하므로, 위치 잡기는 margin이나 inset 같은 별도 속성으로 분리해야 합니다.",
-      en: "Framer Motion controls transform via inline styles. Sharing the same property with CSS transform inevitably causes conflicts, so positioning should be handled with separate properties like margin or inset.",
+      ko: "CSS 속성과 애니메이션 라이브러리가 **같은 속성을 동시에 사용하면 충돌**합니다. 위치 잡기와 움직임 효과는 **서로 다른 속성으로 분리**해야 안전합니다.",
+      en: "When CSS and an animation library try to control **the same property, they conflict**. Positioning and motion effects should use **separate properties** to avoid interference.",
     },
   },
   {
@@ -532,16 +579,16 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "TypeScript useRef Type Error",
     },
     cause: {
-      ko: "setTimeout의 반환값을 저장하기 위해 useRef<ReturnType<typeof setTimeout>>()을 사용했는데, 초기값을 넘기지 않아 타입이 MutableRefObject가 아닌 RefObject로 추론되었습니다. 이후 ref.current에 새 타이머를 할당하려 하면 \"읽기 전용 속성입니다\"라는 타입 에러가 발생했습니다.",
-      en: "I used useRef<ReturnType<typeof setTimeout>>() to store setTimeout's return value but didn't pass an initial value. TypeScript inferred it as RefObject (read-only) instead of MutableRefObject. Attempting to assign a new timer to ref.current then threw a \"read-only property\" type error.",
+      ko: "타이머 ID를 저장하기 위해 React의 useRef를 사용했는데, **초기값을 넣지 않았더니** TypeScript가 이 변수를 **\"읽기 전용\"으로 인식**해버렸습니다. 이후 새 값을 넣으려 하면 **\"수정할 수 없는 속성입니다\"**라는 에러가 발생했습니다.",
+      en: "I used React's useRef to store a timer ID but **forgot to provide an initial value**. TypeScript then treated it as **read-only**, so when I tried to assign a new value, it threw a **\"cannot modify read-only property\"** error.",
     },
     solution: {
-      ko: "useRef<ReturnType<typeof setTimeout> | undefined>(undefined)로 명시적 초기값을 전달했습니다. 초기값을 넘기면 TypeScript가 MutableRefObject로 추론하여 current에 자유롭게 할당할 수 있습니다. cleanup 시 clearTimeout(ref.current)도 undefined를 정상적으로 받아들입니다.",
-      en: "Passed an explicit initial value: useRef<ReturnType<typeof setTimeout> | undefined>(undefined). Providing an initial value makes TypeScript infer MutableRefObject, allowing free assignment to current. clearTimeout(ref.current) also gracefully accepts undefined during cleanup.",
+      ko: "**초기값(undefined)을 명시적으로 전달**했습니다. 초기값이 있으면 TypeScript가 **\"수정 가능한 변수\"로 인식**하여, 이후 자유롭게 새 값을 넣을 수 있게 됩니다.",
+      en: "Added an **explicit initial value (undefined)**. With an initial value present, TypeScript recognizes it as a **\"mutable variable\"**, allowing new values to be freely assigned afterward.",
     },
     keyInsight: {
-      ko: "React의 useRef는 초기값 유무에 따라 반환 타입이 달라집니다. DOM ref가 아닌 값 저장 용도라면 반드시 초기값을 넘겨 MutableRefObject를 얻어야 합니다.",
-      en: "React's useRef returns different types depending on whether an initial value is provided. For storing values (not DOM refs), always pass an initial value to get MutableRefObject.",
+      ko: "React의 useRef는 **초기값을 넣었느냐 안 넣었느냐에 따라 동작이 달라집니다**. 값을 저장하는 용도로 쓸 때는 **반드시 초기값을 넘겨야** 나중에 수정할 수 있습니다.",
+      en: "React's useRef **behaves differently based on whether you provide an initial value**. When using it to store values, you **must provide an initial value** to be able to modify it later.",
     },
   },
   {
@@ -550,16 +597,16 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Implementing Horizontal Infinite Scroll with GSAP ScrollTrigger",
     },
     cause: {
-      ko: "GSAP ScrollTrigger로 가로 스크롤을 구현했지만, 스크롤 가능한 범위가 유한하기 때문에 끝에 도달하면 더 이상 진행할 수 없었습니다. wrap() 유틸리티로 위치를 순환시키는 방법도 시도했지만, 스크롤 진행도(progress)가 1에 도달하면 역방향으로 돌아가는 듯한 시각적 끊김이 발생했습니다.",
-      en: "I implemented horizontal scroll with GSAP ScrollTrigger, but the scrollable range was finite—reaching the end meant no further progression. Trying to cycle positions with the wrap() utility caused visual snapping when scroll progress hit 1 and appeared to reverse direction.",
+      ko: "GSAP으로 가로 스크롤을 만들었지만, **스크롤할 수 있는 범위에 끝이 있어서** 끝에 도달하면 더 진행할 수 없었습니다. 위치를 순환시키는 방법도 시도했지만, 끝에 닿는 순간 **갑자기 처음으로 되돌아가는 듯한 끊김**이 보였습니다.",
+      en: "I built horizontal scroll with GSAP, but the **scrollable range had a fixed end** — once you reached it, you couldn't go further. Trying to loop positions caused a **visible snap back to the start** when hitting the boundary.",
     },
     solution: {
-      ko: "스크롤 가능 거리를 실제 콘텐츠 폭의 10배로 크게 설정한 뒤, onUpdate 콜백에서 modulo 연산으로 컨테이너의 x 위치를 콘텐츠 폭 단위로 순환시켰습니다. 사용자는 끝에 도달할 일 없이 한 방향으로 계속 스크롤하며, 시각적으로는 콘텐츠가 무한히 반복됩니다.",
-      en: "Set the scrollable distance to 10x the actual content width, then in the onUpdate callback used modulo to cycle the container's x position in content-width increments. Users never reach the end and keep scrolling in one direction while content visually loops infinitely.",
+      ko: "스크롤 가능 거리를 실제 콘텐츠 폭의 **10배로 넉넉하게** 설정한 뒤, 화면에 보이는 위치만 **콘텐츠 폭 단위로 되감아** 순환시켰습니다. 사용자는 끝에 도달할 일 없이 계속 스크롤하며, 시각적으로는 **콘텐츠가 무한히 반복**됩니다.",
+      en: "Set the scrollable distance to **10 times the actual content width**, then silently **looped the visible position** within that range. Users never reach the end and keep scrolling while **content visually repeats infinitely**.",
     },
     keyInsight: {
-      ko: "무한 스크롤의 핵심은 스크롤 위치를 텔레포트하는 것이 아니라, 충분히 긴 스크롤 범위 안에서 시각적 위치만 루프시키는 것입니다. 사용자의 물리적 스크롤 흐름을 끊지 않으면서 무한한 느낌을 줄 수 있습니다.",
-      en: "The key to infinite scroll isn't teleporting scroll position, but looping only the visual position within a sufficiently long scroll range. This gives an infinite feel without disrupting the user's physical scroll flow.",
+      ko: "무한 스크롤의 핵심은 스크롤 자체를 되감는 것이 아니라, **보이는 화면만 순환**시키는 것입니다. 사용자의 스크롤 흐름을 끊지 않으면서 무한한 느낌을 줄 수 있습니다.",
+      en: "The key to infinite scroll isn't resetting the scroll itself, but **looping only what's visible**. This creates an infinite feel without disrupting the user's natural scroll flow.",
     },
   },
   {
@@ -568,16 +615,16 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "reCAPTCHA v3 Initial Load Performance Degradation (LCP 17.1s, TTI 18.2s)",
     },
     cause: {
-      ko: "GoogleReCaptchaProvider를 앱 루트에 감싸는 공식 권장 방식을 따랐더니, 페이지 로드 즉시 ~784KB의 reCAPTCHA JS가 다운로드되었습니다. 메인 스레드를 280ms 동안 차단하고, Google 도메인에 대한 Preconnect 힌트가 없어 DNS/TLS 핸드셰이크에만 400ms가 추가로 소요되면서 LCP가 17초까지 치솟았습니다.",
-      en: "Following the official recommendation of wrapping GoogleReCaptchaProvider at the app root caused ~784KB of reCAPTCHA JS to download immediately on page load. It blocked the main thread for 280ms, and without Preconnect hints for Google's domain, DNS/TLS handshake added another 400ms—pushing LCP to 17 seconds.",
+      ko: "공식 문서대로 보안 스크립트(reCAPTCHA)를 앱 시작 시 바로 불러왔더니, 페이지를 열자마자 **784KB짜리 파일이 다운로드**되었습니다. 이 파일이 다른 작업을 막으면서 **페이지가 화면에 표시되기까지 17초**나 걸리게 되었습니다.",
+      en: "Following official docs, I loaded the security script (reCAPTCHA) immediately on app start, which caused a **784KB file to download right away**. This blocked other work and pushed the **page display time to 17 seconds**.",
     },
     solution: {
-      ko: "reCAPTCHA 로드를 사용자의 첫 인터랙션(click/touch/keydown) 시점으로 지연시켰습니다. 추가로 Google 도메인에 대한 Preconnect 힌트를 <head>에 삽입하고, WCAG 접근성 이슈(색상 대비, heading 순서, aria-label 누락)도 함께 수정했습니다.",
-      en: "Deferred reCAPTCHA loading to the user's first interaction (click/touch/keydown). Also added Preconnect hints for Google's domain in <head>, and fixed WCAG accessibility issues (color contrast, heading order, missing aria-labels).",
+      ko: "보안 스크립트를 처음부터 불러오지 않고, **사용자가 처음 클릭하거나 터치하는 시점**에 불러오도록 변경했습니다. 또한 Google 서버와의 **연결을 미리 준비**해 두어 실제 로드 시 더 빨라지도록 했습니다.",
+      en: "Instead of loading the security script upfront, it now loads **when the user first clicks or touches the page**. I also **pre-established the connection** to Google's server so the actual load is faster when needed.",
     },
     keyInsight: {
-      ko: "서드파티 스크립트는 \"언제 필요한가\"를 기준으로 로드 시점을 결정해야 합니다. Contact 폼의 reCAPTCHA처럼 초기 뷰에서 불필요한 스크립트를 즉시 로드하면, 정작 사용자가 보는 콘텐츠의 렌더링이 수 초씩 지연됩니다.",
-      en: "Third-party script loading should be timed based on \"when is it actually needed.\" Loading scripts like reCAPTCHA (only needed for the Contact form) immediately delays rendering of the content users actually see by several seconds.",
+      ko: "외부 스크립트는 **\"지금 당장 필요한가?\"를 먼저 따져야** 합니다. 당장 안 쓰는 무거운 파일을 처음부터 불러오면, 정작 사용자가 보는 화면이 수 초씩 늦어집니다.",
+      en: "Always ask **\"is this needed right now?\"** before loading external scripts. Loading heavy files upfront that aren't immediately needed **delays what the user actually sees** by several seconds.",
     },
   },
   {
@@ -586,16 +633,16 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Resource Waste from Unused Fonts (19 Files, 1,489KB Page Weight)",
     },
     cause: {
-      ko: "next/font/google로 9개 폰트 패밀리를 등록해두었는데, 실제 CSS에서 참조하는 것은 5개뿐이었습니다. 나머지 4개(IBM Plex Mono, Bebas Neue, Cormorant Garamond, Abril Fatface)는 디자인 실험 중 추가한 뒤 제거하지 않은 것이었습니다. next/font는 등록만으로도 폰트 파일을 빌드에 포함시키기 때문에, 실제로 사용하지 않는 12개의 폰트 파일이 그대로 다운로드되고 있었습니다.",
-      en: "I had registered 9 font families via next/font/google, but only 5 were actually referenced in CSS. The remaining 4 (IBM Plex Mono, Bebas Neue, Cormorant Garamond, Abril Fatface) were leftover from design experiments and never removed. Since next/font includes font files in the build just by registration, 12 unused font files were being downloaded.",
+      ko: "글꼴을 **9종류 등록**해 두었는데, 실제로 사용하는 건 **5종류뿐**이었습니다. 나머지 4종류는 디자인 실험 때 추가한 뒤 지우지 않은 것이었습니다. Next.js는 **등록만 해도 파일을 포함**시키기 때문에, 쓰지도 않는 **12개의 글꼴 파일**이 매번 다운로드되고 있었습니다.",
+      en: "I had **9 font families** registered, but only **5 were actually in use**. The other 4 were leftover from design experiments. Since Next.js **includes font files just by registering them**, **12 unused font files** were being downloaded every time.",
     },
     solution: {
-      ko: "미사용 폰트 4개를 제거하고(12파일 절약), Inter의 가중치를 7개에서 실제 사용하는 5개로 줄였습니다. 모든 폰트에 font-display: swap을 추가해 폰트 로딩 중에도 텍스트가 보이도록 하고, reCAPTCHA의 4초 타이머 폴백도 제거했습니다.",
-      en: "Removed 4 unused fonts (12 files saved), reduced Inter from 7 to 5 actually-used weights. Added font-display: swap to all fonts so text remains visible during loading, and removed reCAPTCHA's 4-second timer fallback.",
+      ko: "사용하지 않는 글꼴 **4종류를 제거**(12파일 절약)하고, 한 글꼴의 굵기 옵션도 **7개에서 실제 쓰는 5개로** 줄였습니다. 또한 글꼴이 로딩되는 동안에도 **텍스트가 먼저 표시**되도록 설정했습니다.",
+      en: "Removed **4 unused font families** (12 files saved) and reduced weight variations from **7 to the 5 actually used**. Also ensured **text appears immediately** while fonts are still loading.",
     },
     keyInsight: {
-      ko: "next/font는 등록 = 다운로드입니다. 사용하지 않는 폰트도 빌드에 포함되므로, 정기적으로 등록된 폰트와 CSS 참조를 대조해야 합니다. 이 정리만으로 Performance 점수가 60에서 98로, 페이지 용량이 70% 감소했습니다.",
-      en: "With next/font, registration = download. Unused fonts are still included in the build, so registered fonts should be regularly cross-referenced with CSS usage. This cleanup alone improved the Performance score from 60 to 98 and reduced page weight by 70%.",
+      ko: "Next.js에서는 글꼴을 **등록하기만 해도 자동으로 다운로드**됩니다. 안 쓰는 글꼴이 쌓이지 않도록 주기적으로 정리해야 합니다. 이 정리만으로 **성능 점수가 60에서 98로**, 페이지 용량이 **70% 줄었습니다**.",
+      en: "In Next.js, **registering a font means it gets downloaded** automatically. Unused fonts should be cleaned up regularly. This cleanup alone improved the **performance score from 60 to 98** and reduced page weight by **70%**.",
     },
   },
   {
@@ -604,16 +651,16 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Bidirectional Infinite Scroll for Works Horizontal Gallery",
     },
     cause: {
-      ko: "프로젝트 카드를 10세트 복제하여 가로로 나열했지만, 복제된 세트에는 양쪽 끝이 존재합니다. 왼쪽이나 오른쪽 끝에 도달하면 콘텐츠가 없는 빈 화면이 노출되어, 진정한 무한 스크롤이 아닌 \"매우 긴 유한 스크롤\"에 불과했습니다.",
-      en: "I duplicated project cards into 10 sets laid out horizontally, but duplicated sets still have two ends. Reaching either end exposed empty white space, making it a \"very long finite scroll\" rather than true infinite scroll.",
+      ko: "프로젝트 카드를 10세트 복제하여 가로로 나열했지만, 아무리 많이 복제해도 **양쪽 끝은 존재**합니다. 끝에 도달하면 빈 화면이 보여서, 진정한 무한 스크롤이 아닌 **\"아주 긴 유한 스크롤\"**에 불과했습니다.",
+      en: "I duplicated project cards into 10 sets, but no matter how many copies, there are still **two ends**. Reaching either end showed empty space — it was just a **\"very long finite scroll\"**, not truly infinite.",
     },
     solution: {
-      ko: "한 세트의 정확한 폭(oneSetWidth)을 연속된 인트로 요소의 offsetLeft 차이로 계산합니다. rAF 렌더 루프에서 현재 스크롤 위치가 세트 경계를 넘을 때마다 while문으로 양방향 래핑하여 scrollX와 targetScrollX를 순환시킵니다. 시각적으로는 끊김 없이 양방향 무한 스크롤이 됩니다.",
-      en: "Calculated the exact width of one set (oneSetWidth) from the offsetLeft difference of consecutive intro elements. In the rAF render loop, whenever the scroll position crosses a set boundary, a while loop wraps both scrollX and targetScrollX bidirectionally. Visually, this creates seamless infinite scroll in both directions.",
+      ko: "카드 한 세트의 **정확한 폭을 계산**한 뒤, 스크롤 위치가 세트 경계를 넘을 때마다 **한 세트 폭만큼 되감아** 순환시킵니다. 사용자 눈에는 끊김 없이 **양방향으로 무한히 스크롤**되는 것처럼 보입니다.",
+      en: "After **calculating the exact width of one card set**, whenever the scroll crosses a set boundary, the position is **rewound by exactly one set width**. To the user, it looks like **seamless infinite scrolling** in both directions.",
     },
     keyInsight: {
-      ko: "무한 스크롤은 DOM을 무한히 복제하는 것이 아니라, 유한한 콘텐츠 위에서 스크롤 위치만 순환시키는 것입니다. 콘텐츠 3세트면 충분하고, 나머지는 수학적 래핑이 해결합니다.",
-      en: "Infinite scroll isn't about infinitely duplicating DOM—it's about cycling scroll position over finite content. Three content sets are enough; mathematical wrapping handles the rest.",
+      ko: "무한 스크롤은 콘텐츠를 끝없이 복제하는 것이 아니라, 한정된 콘텐츠 위에서 **보이는 위치만 되감는 것**입니다. **3세트면 충분**하고, 나머지는 계산이 해결합니다.",
+      en: "Infinite scroll doesn't mean duplicating content forever — it means **rewinding the visible position** over a finite set. **Three sets are enough**; math handles the rest.",
     },
   },
   {
@@ -622,16 +669,16 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Layout Shift in Works Intro on Language Switch",
     },
     cause: {
-      ko: "한국어와 영어는 같은 내용이라도 텍스트 길이가 크게 다릅니다. 언어를 전환하면 줄바꿈 위치가 바뀌면서 텍스트 블록의 높이가 변하고, justify-content: center가 적용된 flex 컨테이너가 남는 공간을 재분배하면서 인접 요소들이 갑자기 위아래로 밀려나는 시프트가 발생했습니다.",
-      en: "Korean and English text have significantly different lengths for the same content. Switching languages changes line break positions, altering text block height. The flex container with justify-content: center redistributed the remaining space, causing adjacent elements to suddenly shift up or down.",
+      ko: "한국어와 영어는 같은 뜻이라도 **글자 수가 크게 다릅니다**. 언어를 바꾸면 텍스트의 줄 수가 달라지면서 높이가 변하고, **주변 요소들이 갑자기 위아래로 밀려나는 현상**이 발생했습니다.",
+      en: "Korean and English have **very different character counts** for the same meaning. Switching languages changes the number of lines, altering height and causing **surrounding elements to suddenly jump up or down**.",
     },
     solution: {
-      ko: "텍스트 영역에 min-height를 em 단위(예상 최대 줄 수 × line-height)로 지정하여, 어떤 언어든 동일한 공간이 예약되도록 했습니다. 모바일에서는 세로 스크롤 레이아웃이므로 min-height: auto로 리셋하여 불필요한 여백을 방지했습니다.",
-      en: "Set min-height on text areas in em units (expected max lines × line-height) to reserve identical space regardless of language. On mobile, where the layout switches to vertical scroll, min-height resets to auto to prevent unnecessary whitespace.",
+      ko: "텍스트 영역에 **두 언어 중 더 긴 쪽에 맞춰 최소 높이를 고정**해 두어, 어떤 언어든 같은 공간을 차지하도록 했습니다. 모바일에서는 세로 스크롤이라 밀림이 눈에 띄지 않으므로 **높이 고정을 해제**했습니다.",
+      en: "Each text area was given a **fixed minimum height matching the taller language**, so both languages occupy the same space. On mobile, where vertical scrolling makes shifts less noticeable, the **height lock is removed**.",
     },
     keyInsight: {
-      ko: "다국어 UI에서는 가장 긴 언어 기준으로 공간을 예약하는 것이 레이아웃 안정성의 핵심입니다. em 단위를 사용하면 font-size가 바뀌어도 비례하여 자동 조정됩니다.",
-      en: "In multilingual UIs, reserving space based on the longest language is key to layout stability. Using em units ensures proportional auto-adjustment even when font-size changes.",
+      ko: "여러 언어를 지원하는 화면에서는 **가장 긴 언어에 맞춰 공간을 미리 확보**해 두는 것이 레이아웃 안정성의 핵심입니다.",
+      en: "In multilingual interfaces, the key to stable layouts is **reserving space based on whichever language takes up the most room**.",
     },
   },
 ];
