@@ -24,7 +24,6 @@ import {
   LONG_PRESS_DURATION,
   INITIAL_MARGIN,
 } from "@/data/projects";
-import Footer from "@/components/layout/Footer";
 import styles from "./WorksSection.module.css";
 
 // Register GSAP plugins
@@ -72,7 +71,7 @@ export default function WorksSection() {
   const router = useRouter();
   const { t, language } = useLanguage();
   const { setInfinite } = useLenis();
-  const { isMobile: isVerticalLayout } = useIsMobile();
+  const { isMobile: isVerticalLayout } = useIsMobile(768, 700);
 
   // Disable Lenis infinite scroll on mount
   useEffect(() => {
@@ -514,6 +513,15 @@ export default function WorksSection() {
         </AnimatePresence>
       </div>
 
+      {/* Credits */}
+      <div className={styles.credits}>
+        <p className={styles.creditsText}>
+          {t("webflow.credits").split("❤")[0]}
+          <span className={styles.creditsHeart}>❤</span>
+          {t("webflow.credits").split("❤")[1]} HYEON
+        </p>
+      </div>
+
       {/* Page Transition */}
       <AnimatePresence>
         {transitionData && (
@@ -554,7 +562,6 @@ export default function WorksSection() {
         )}
       </AnimatePresence>
     </section>
-    {isVerticalLayout && <Footer />}
     </>
   );
 }

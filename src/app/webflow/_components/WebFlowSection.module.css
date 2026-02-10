@@ -2326,3 +2326,62 @@
     padding-left: var(--spacing-xl);
   }
 }
+
+/* ==========================================================================
+   Wide screen + Short viewport — vertical layout but with larger fonts
+   ========================================================================== */
+
+@media (min-width: 1025px) and (max-height: 700px) {
+  .section {
+    --wf-panel-py: clamp(1.5rem, 3vh, 3rem);
+    --wf-panel-px: clamp(3rem, 4.5vw, 6.5rem);
+    --wf-fs-lead: clamp(0.85rem, 1.3vw, 1.5rem);
+    --wf-fs-subhead: clamp(0.85rem, 1.25vw, 1.45rem);
+    --wf-fs-body: clamp(0.78rem, 1vw, 1.2rem);
+    --wf-fs-label: clamp(0.78rem, 0.95vw, 1.15rem);
+    --wf-fs-small: clamp(0.72rem, 0.88vw, 1.05rem);
+    --wf-fs-caption: clamp(0.68rem, 0.8vw, 0.95rem);
+    --wf-fs-code: clamp(0.72rem, 0.88vw, 1.05rem);
+  }
+
+  .heroTitle {
+    font-size: clamp(4rem, 8vw, 7rem);
+  }
+
+  .heroWatermark {
+    font-size: clamp(6rem, 12vw, 10rem);
+  }
+
+  .panelTitle {
+    font-size: clamp(3rem, 5vw, 5.5rem);
+  }
+
+  .panelTitleCompact {
+    font-size: clamp(2.5rem, 4vw, 4.5rem);
+  }
+
+  .processGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .overviewStats {
+    flex-wrap: nowrap;
+    max-width: clamp(560px, 75vw, 1100px);
+  }
+
+  .overviewStat {
+    flex: 1;
+  }
+
+  .overviewStat:nth-child(3) {
+    border-right: var(--wf-line-tertiary);
+  }
+
+  .techGrid {
+    max-width: clamp(560px, 70vw, 1100px);
+  }
+
+  .featureGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
