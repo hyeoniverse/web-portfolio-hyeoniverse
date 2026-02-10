@@ -280,8 +280,8 @@ export const techStack: TechStackItem[] = [
   { name: "Framer Motion", category: "Interaction" },
   { name: "CSS Modules", category: "Styling" },
   { name: "CSS Variables", category: "Design Tokens" },
-  { name: "Instrument Serif", category: "Typography" },
-  { name: "Space Grotesk", category: "Typography" },
+  { name: "Zustand", category: "State Management" },
+  { name: "Formspree", category: "Form & Email" },
 ];
 
 export const designProcess: ProcessStep[] = [
