@@ -2206,7 +2206,90 @@
   .dcCard:nth-child(n) {
     grid-column: auto;
     grid-row: auto;
-    min-height: 280px;
+    min-height: 340px;
+  }
+
+  .dcCardOverlay {
+    padding: clamp(16px, 4vw, 28px) clamp(18px, 4vw, 28px);
+    gap: clamp(4px, 1.5vw, 10px);
+  }
+
+  .dcCardTitle {
+    font-size: clamp(0.7rem, 2.5vw, 1rem);
+    margin-bottom: clamp(4px, 1.5vw, 10px);
+    letter-spacing: 0.25em;
+  }
+
+  .dcCardSubtitle {
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    margin-bottom: clamp(6px, 2vw, 14px);
+  }
+
+  .dcCardDesc {
+    font-size: clamp(0.75rem, 2.5vw, 1rem);
+    margin-bottom: clamp(8px, 2.5vw, 16px);
+  }
+
+  .dcDemo {
+    margin-top: clamp(10px, 3vw, 20px);
+  }
+
+  .dcSpecimen {
+    font-size: clamp(1.6rem, 6vw, 2.8rem);
+  }
+
+  .dcFontTabs {
+    gap: clamp(4px, 1.5vw, 8px);
+    margin-bottom: clamp(8px, 2.5vw, 14px);
+  }
+
+  .dcFontTab,
+  .dcThemeBtn {
+    font-size: clamp(0.65rem, 2vw, 0.85rem);
+    padding: 5px 12px;
+  }
+
+  .dcThemeToggle {
+    gap: clamp(4px, 1.5vw, 8px);
+    margin-bottom: clamp(8px, 2.5vw, 14px);
+  }
+
+  .dcSwatchRow {
+    gap: clamp(6px, 2vw, 12px);
+  }
+
+  .dcSwatch {
+    width: clamp(36px, 10vw, 52px);
+    height: clamp(36px, 10vw, 52px);
+    font-size: clamp(0.5rem, 1.5vw, 0.7rem);
+  }
+
+  .dcSpringTrack {
+    height: clamp(28px, 6vw, 40px);
+  }
+
+  .dcSpringBall {
+    width: clamp(22px, 5vw, 32px);
+    height: clamp(22px, 5vw, 32px);
+  }
+
+  .dcMotionLabels {
+    gap: clamp(6px, 2vw, 12px);
+    margin-top: clamp(8px, 2.5vw, 14px);
+    font-size: clamp(0.6rem, 2vw, 0.8rem);
+  }
+
+  .dcSpacingList {
+    gap: clamp(3px, 1vw, 6px);
+  }
+
+  .dcSpacingLabel {
+    width: clamp(30px, 8vw, 44px);
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+  }
+
+  .dcSpacingBar {
+    height: clamp(8px, 2vw, 14px);
   }
 
   .featureDynamic {
