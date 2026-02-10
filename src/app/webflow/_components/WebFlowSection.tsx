@@ -4,6 +4,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { siteConfig } from "@/config/site.config";
 import {
   designFeatures,
+  designConcepts,
   techStack,
   designProcess,
   codeExamples,
@@ -18,6 +19,7 @@ import {
   OverviewPanel,
   ArchitecturePanel,
   FeaturesPanel,
+  DesignConceptPanel,
   ProcessPanel,
   VisualBreakPanel,
   TechStackPanel,
@@ -50,6 +52,7 @@ export default function WebFlowSection() {
           <OverviewPanel language={language} overview={projectOverview} />
           <ArchitecturePanel language={language} structure={projectStructure} />
           <FeaturesPanel language={language} features={designFeatures} />
+          <DesignConceptPanel language={language} concepts={designConcepts} />
           <ProcessPanel language={language} process={designProcess} />
           <VisualBreakPanel />
           <TechStackPanel techStack={techStack} />

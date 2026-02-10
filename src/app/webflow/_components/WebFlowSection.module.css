@@ -688,6 +688,262 @@
 }
 
 /* ==========================================================================
+   Design Concept Panel — 2×2 Card Grid + Interactive Demos
+   ========================================================================== */
+
+.dcGrid {
+  display: grid;
+  gap: var(--spacing-xl);
+  flex: 1;
+  min-height: 0;
+  margin-bottom: var(--spacing-xl);
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.dcCard {
+  overflow: hidden;
+  position: relative;
+  border-radius: var(--radius-lg);
+}
+
+.dcCardBg {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  filter: brightness(0.35) saturate(0.7);
+}
+
+/* Compound selector (0,2,0) */
+.dcCard .dcCardBg {
+  transition: filter 0.5s ease;
+}
+
+.dcCard:hover .dcCardBg {
+  filter: brightness(0.25) saturate(0.5);
+}
+
+.dcCardContent {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: var(--spacing-xl);
+}
+
+.dcCardTitle {
+  margin: 0 0 var(--spacing-2xs);
+  font-family: var(--wf-font-grotesk);
+  font-size: var(--wf-fs-label);
+  font-weight: var(--font-weight-semibold);
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.dcCardSubtitle {
+  margin: 0 0 var(--spacing-sm);
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-xl);
+  font-style: italic;
+  color: #fff;
+}
+
+.dcCardDesc {
+  margin: 0 0 auto;
+  max-width: 360px;
+  font-size: var(--wf-fs-small);
+  line-height: var(--wf-lh-reading);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dcDemo {
+  margin-top: var(--spacing-lg);
+}
+
+/* ── Typography demo ── */
+.dcFontTabs {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-sm);
+}
+
+.dcFontTab {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--wf-fs-caption);
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-sm);
+}
+
+/* Compound selector (0,2,0) */
+.dcDemo .dcFontTab {
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.dcFontTabActive {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.dcSpecimen {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1.4;
+  color: #fff;
+}
+
+/* ── Color System demo ── */
+.dcThemeToggle {
+  display: inline-flex;
+  gap: var(--spacing-2xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.dcThemeBtn {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--wf-fs-caption);
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-sm);
+}
+
+/* Compound selector (0,2,0) */
+.dcDemo .dcThemeBtn {
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.dcThemeBtnActive {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.dcSwatchRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.dcSwatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-sm);
+}
+
+/* Compound selector (0,2,0) */
+.dcDemo .dcSwatch {
+  transition: background-color 0.4s ease;
+}
+
+/* ── Motion & Scroll demo ── */
+.dcSpringTrack {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+}
+
+.dcSpringBall {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--text-accent-secondary);
+  border-radius: 50%;
+  translate: 0 -50%;
+  animation: dcSpringBounce 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+@keyframes dcSpringBounce {
+  0% {
+    left: 4px;
+  }
+  50% {
+    left: calc(100% - 28px);
+  }
+  100% {
+    left: 4px;
+  }
+}
+
+.dcMotionLabels {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+  font-size: var(--wf-fs-caption);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Layout & Spacing demo ── */
+.dcSpacingList {
+  display: flex;
+  gap: var(--spacing-2xs);
+  flex-direction: column;
+}
+
+.dcSpacingRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.dcSpacingLabel {
+  flex-shrink: 0;
+  width: 32px;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: right;
+}
+
+.dcSpacingBar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+/* Compound selector (0,2,0) */
+.dcDemo .dcSpacingBar {
+  transition: background-color 0.3s ease;
+}
+
+.dcSpacingRow:hover .dcSpacingBar {
+  background: var(--color-accent-alpha-30);
+}
+
+.dcSpacingPx {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ==========================================================================
    Process Panel
    ========================================================================== */
 
@@ -1568,6 +1824,7 @@
   left: 50%;
   z-index: var(--z-modal);
   background: transparent;
+  mix-blend-mode: difference;
   transform: translateX(-50%);
   border-radius: var(--radius-capsule);
 }
@@ -1578,7 +1835,7 @@
   left: 0;
   z-index: 0;
   height: calc(100% - var(--spacing-xs));
-  border: var(--border-strong);
+  border: var(--border-white);
   background: transparent;
   pointer-events: none;
   border-radius: var(--radius-capsule);
@@ -1607,7 +1864,7 @@
   flex-shrink: 0;
   width: 6px;
   height: 6px;
-  background: var(--bg-inverse);
+  background: var(--bg-white);
   transition:
     background 0.3s ease,
     width 0.3s ease;
@@ -1620,7 +1877,7 @@
   font-family: var(--font-mono);
   font-size: 0;
   font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
+  color: var(--text-white);
   transition:
     font-size 0.3s ease,
     opacity 0.3s ease,
@@ -1634,14 +1891,14 @@
 }
 
 .navItemActive .navDot {
-  background: var(--bg-inverse);
+  background: var(--bg-white);
 }
 
 .navItemActive .navLabel {
   margin-left: 0;
   max-width: 80px;
   font-size: 0.65rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   opacity: 1;
 }
 
@@ -1703,6 +1960,15 @@
     max-width: none;
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+  }
+
+  .dcGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .dcCard {
+    min-height: 260px;
   }
 
   .featureDynamic {

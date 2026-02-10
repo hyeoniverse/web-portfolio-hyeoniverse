@@ -31,7 +31,7 @@ interface TechStackPanelProps {
 export default function TechStackPanel({ techStack }: TechStackPanelProps) {
   return (
     <div className={styles.panel}>
-      <span className={`${styles.panelNumber} ${styles.animate}`}>05</span>
+      <span className={`${styles.panelNumber} ${styles.animate}`}>06</span>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>Tech Stack.</h3>
       <div className={styles.techGrid}>
         {techStack.map((tech, index) => (

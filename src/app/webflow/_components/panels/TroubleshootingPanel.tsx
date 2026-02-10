@@ -81,7 +81,7 @@ export default function TroubleshootingPanel({
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       {/* Inner wrapper: counter-translated to appear pinned */}
       <div ref={contentRef} className={styles.troubleFixed}>
-        <span className={`${styles.panelNumber} ${styles.animate}`}>07</span>
+        <span className={`${styles.panelNumber} ${styles.animate}`}>08</span>
         <h3
           className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
         >
