@@ -252,35 +252,35 @@
   );
 
   /* Border Colors */
-  --border-primary: var(--color-neutral-alpha-80);
-  --border-secondary: var(--color-neutral-alpha-30);
-  --border-tertiary: var(--color-neutral-alpha-10);
-  --border-subtle: var(--color-neutral-alpha-5);
-  --border-white: var(--color-white-alpha-100);
-  --border-black: var(--color-gray-alpha-100);
-  --border-accent-primary: var(--color-primary-alpha-50);
-  --border-accent-secondary: var(--color-accent-light);
+  --border-primary-color: var(--color-neutral-alpha-80);
+  --border-secondary-color: var(--color-neutral-alpha-30);
+  --border-tertiary-color: var(--color-neutral-alpha-10);
+  --border-white-color: var(--color-white-alpha-100);
+  --border-black-color: var(--color-gray-alpha-100);
+  --border-accent-primary-color: var(--color-primary-alpha-50);
+  --border-accent-secondary-color: var(--color-accent-light);
 
   /* Border Shorthand */
-  --border-strong: 1px solid var(--border-primary);
-  --border-strong-125: 1.25px solid var(--border-primary);
-  --border-strong-15: 1.5px solid var(--border-primary);
-  --border-strong-2: 2px solid var(--border-primary);
-  --border-strong-3: 3px solid var(--border-primary);
-  --border-strong-4: 4px solid var(--border-primary);
-  --border-default: 1px solid var(--border-secondary);
-  --border-default-125: 1.25px solid var(--border-secondary);
-  --border-default-15: 1.5px solid var(--border-secondary);
-  --border-default-2: 2px solid var(--border-secondary);
-  --border-default-3: 3px solid var(--border-secondary);
-  --border-light: 1px solid var(--border-subtle);
-  --border-light-125: 1.25px solid var(--border-subtle);
-  --border-light-15: 1.5px solid var(--border-subtle);
-  --border-light-2: 2px solid var(--border-subtle);
-  --border-light-3: 3px solid var(--border-subtle);
-  --border-inverse: 1px solid var(--border-white);
-  --border-focus: 1px solid var(--border-accent-primary);
-  --border-accent: 1px solid var(--border-accent-secondary);
+  --border-strong: 1px solid var(--border-primary-color);
+  --border-strong-125: 1.25px solid var(--border-primary-color);
+  --border-strong-15: 1.5px solid var(--border-primary-color);
+  --border-strong-2: 2px solid var(--border-primary-color);
+  --border-strong-3: 3px solid var(--border-primary-color);
+  --border-strong-4: 4px solid var(--border-primary-color);
+  --border-default: 1px solid var(--border-secondary-color);
+  --border-default-125: 1.25px solid var(--border-secondary-color);
+  --border-default-15: 1.5px solid var(--border-secondary-color);
+  --border-default-2: 2px solid var(--border-secondary-color);
+  --border-default-3: 3px solid var(--border-secondary-color);
+  --border-light: 1px solid var(--border-tertiary-color);
+  --border-light-125: 1.25px solid var(--border-tertiary-color);
+  --border-light-15: 1.5px solid var(--border-tertiary-color);
+  --border-light-2: 2px solid var(--border-tertiary-color);
+  --border-light-3: 3px solid var(--border-tertiary-color);
+  --border-white: 1px solid var(--border-white-color);
+  --border-inverse: 1px solid var(--border-white-color);
+  --border-focus: 1px solid var(--border-accent-primary-color);
+  --border-accent: 1px solid var(--border-accent-secondary-color);
 }
 
 /* ==========================================================================
@@ -779,7 +779,7 @@
   --bg-surface: var(--color-white-alpha-5);
   --bg-tertiary: var(--color-inverse-alpha-5);
 
-  --border-inverse: 1px solid var(--border-black);
+  --border-inverse: 1px solid var(--border-black-color);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 var(--color-gray-alpha-20);

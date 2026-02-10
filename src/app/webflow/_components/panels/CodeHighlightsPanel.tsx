@@ -88,7 +88,7 @@ export default function CodeHighlightsPanel({
     >
       {/* Inner wrapper: counter-translated to appear pinned */}
       <div ref={contentRef} className={styles.codeFixed}>
-        <span className={`${styles.panelNumber} ${styles.animate}`}>06</span>
+        <span className={`${styles.panelNumber} ${styles.animate}`}>07</span>
         <div className={styles.codeTitleRow}>
           <h3
             className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}

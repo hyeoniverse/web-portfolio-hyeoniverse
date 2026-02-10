@@ -47,18 +47,81 @@ export interface StructureItem {
   indent: number;
 }
 
+export interface DesignConceptItem {
+  id: string;
+  title: string;
+  subtitle: LocalizedText;
+  description: LocalizedText;
+  image: string;
+}
+
+export const designConcepts: DesignConceptItem[] = [
+  {
+    id: "typography",
+    title: "TYPOGRAPHY",
+    subtitle: {
+      ko: "4가지 서체 시스템",
+      en: "4-Font Type System",
+    },
+    description: {
+      ko: "Inter(UI), Instrument Serif(디스플레이), JetBrains Mono(코드), Space Grotesk(보조) — 각 역할에 맞는 서체를 선택해 가독성과 개성을 동시에 확보했습니다.",
+      en: "Inter (UI), Instrument Serif (display), JetBrains Mono (code), Space Grotesk (secondary) — each font chosen for its role, balancing readability with personality.",
+    },
+    image: "https://images.unsplash.com/photo-1618761714954-0b8cd0026356?w=800&q=80",
+  },
+  {
+    id: "color",
+    title: "COLOR SYSTEM",
+    subtitle: {
+      ko: "다크/라이트 듀얼 팔레트",
+      en: "Dark/Light Dual Palette",
+    },
+    description: {
+      ko: "CSS Variables 기반 디자인 토큰으로 다크/라이트 테마를 전환합니다. Accent, Neutral, Background 3계층 팔레트가 모든 컴포넌트에 일관되게 적용됩니다.",
+      en: "CSS Variables design tokens power dark/light theme switching. A 3-layer palette — Accent, Neutral, Background — is applied consistently across all components.",
+    },
+    image: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=800&q=80",
+  },
+  {
+    id: "motion",
+    title: "MOTION & SCROLL",
+    subtitle: {
+      ko: "물리 기반 인터랙션",
+      en: "Physics-Based Interactions",
+    },
+    description: {
+      ko: "Lenis smooth scroll, GSAP horizontal scroll, Framer Motion spring physics — 세 라이브러리를 조합하여 자연스러운 무게감의 인터랙션을 구현했습니다.",
+      en: "Lenis smooth scroll, GSAP horizontal scroll, Framer Motion spring physics — three libraries combined for interactions with natural weight and momentum.",
+    },
+    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80",
+  },
+  {
+    id: "layout",
+    title: "LAYOUT & SPACING",
+    subtitle: {
+      ko: "일관된 스페이싱 스케일",
+      en: "Consistent Spacing Scale",
+    },
+    description: {
+      ko: "2xs(4px)부터 4xl(64px)까지 7단계 스페이싱 토큰을 정의하여 모든 컴포넌트에 일관된 간격 시스템을 적용했습니다.",
+      en: "A 7-step spacing scale from 2xs (4px) to 4xl (64px) ensures consistent spacing across all components.",
+    },
+    image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&q=80",
+  },
+];
+
 export const projectOverview = {
   description: {
-    ko: "이 포트폴리오는 Next.js 15 App Router 기반으로 구축되었습니다. GSAP과 Framer Motion을 조합한 스크롤 애니메이션, Lenis를 활용한 무한 루프 스크롤, CSS Variables 기반 디자인 토큰 시스템, 그리고 한국어/영어 이중 언어 지원까지 — 프론트엔드 개발의 다양한 기술적 도전을 담고 있습니다.",
-    en: "This portfolio is built on Next.js 15 App Router. It encompasses various frontend engineering challenges — scroll animations combining GSAP and Framer Motion, infinite loop scrolling with Lenis, a CSS Variables-based design token system, and Korean/English bilingual support.",
+    ko: "이 포트폴리오는 Next.js 15 App Router 기반으로, 2025.02.05 ~ 02.10 총 6일 만에 완성되었습니다. AI 페어 프로그래밍(Vibe Coding)을 적극 활용하여 GSAP/Framer Motion 스크롤 애니메이션, Lenis 무한 루프 스크롤, CSS Variables 디자인 토큰, 한/영 이중 언어 지원 등 기술적 도전을 단기간에 구현할 수 있었습니다.",
+    en: "This portfolio was built on Next.js 15 App Router and completed in just 6 days (2025.02.05 – 02.10). By leveraging AI pair programming (Vibe Coding), complex frontend challenges — GSAP/Framer Motion scroll animations, Lenis infinite loop scroll, CSS Variables design tokens, and bilingual i18n — were implemented in a compressed timeline.",
   },
   stats: [
-    { value: "5", label: { ko: "페이지", en: "Pages" } },
+    { value: "6 Days", label: { ko: "개발 기간 (2/5 – 2/10)", en: "Dev Period (2/5 – 2/10)" } },
+    { value: "93", label: { ko: "커밋", en: "Commits" } },
     { value: "40+", label: { ko: "컴포넌트", en: "Components" } },
     { value: "12+", label: { ko: "커스텀 훅", en: "Custom Hooks" } },
     { value: "98", label: { ko: "Lighthouse", en: "Lighthouse" } },
     { value: "2", label: { ko: "언어 지원", en: "Languages" } },
-    { value: "5", label: { ko: "Zustand 스토어", en: "Zustand Stores" } },
   ] as OverviewStat[],
 };
 
@@ -307,67 +370,67 @@ export const designProcess: ProcessStep[] = [
   {
     step: "01",
     title: {
-      ko: "Design System 구축",
-      en: "Design System Setup",
+      ko: "시행착오로 시작한 레이아웃",
+      en: "Layout Through Trial & Error",
     },
     description: {
-      ko: "CSS Variables를 활용한 디자인 토큰 시스템 구축. 컬러, 타이포그래피, 스페이싱, 그림자 등 일관된 디자인 언어를 정의했습니다.",
-      en: "Built a design token system using CSS Variables. Defined consistent design language including colors, typography, spacing, and shadows.",
+      ko: "16번의 디자인 커밋이 말해주듯, 정해진 시안 없이 코드로 직접 디자인을 찾아갔습니다. Hero 섹션과 기본 구조를 잡으면서 CSS Variables 기반 디자인 토큰, 다크/라이트 테마 시스템, CSS Modules 캡슐화를 동시에 구축했습니다.",
+      en: "As 16 design commits show, there was no fixed mockup — the design was discovered directly through code. While shaping the Hero section and base structure, the CSS Variables design token system, dark/light theme, and CSS Modules encapsulation were built simultaneously.",
     },
   },
   {
     step: "02",
     title: {
-      ko: "컴포넌트 설계",
-      en: "Component Design",
+      ko: "인터랙션의 물리적 감각",
+      en: "Physics of Interaction",
     },
     description: {
-      ko: "재사용 가능한 UI 컴포넌트와 레이아웃 시스템 설계. CSS Modules로 스타일 캡슐화를 구현했습니다.",
-      en: "Designed reusable UI components and layout system. Implemented style encapsulation with CSS Modules.",
+      ko: "Image Velocity, StaggerText, Mouse Parallax — 단순 등장 애니메이션이 아니라 스크롤 속도와 마우스 움직임에 반응하는 물리 기반 효과를 GSAP과 Framer Motion으로 구현. 스프링 감쇠값을 수십 번 조절하며 '자연스러운 무게감'을 찾는 과정이었습니다.",
+      en: "Image Velocity, StaggerText, Mouse Parallax — not simple entrance animations but physics-based effects responding to scroll speed and mouse movement, built with GSAP and Framer Motion. It was a process of tweaking spring damping values dozens of times to find the right 'natural weight'.",
     },
   },
   {
     step: "03",
     title: {
-      ko: "애니메이션 레이어",
-      en: "Animation Layer",
+      ko: "구조 개편과 다국어 지원",
+      en: "Restructure & i18n",
     },
     description: {
-      ko: "GSAP과 Framer Motion을 조합하여 스크롤 기반 애니메이션과 인터랙션을 구현했습니다.",
-      en: "Implemented scroll-based animations and interactions by combining GSAP and Framer Motion.",
+      ko: "프로젝트가 커지며 전체 폴더 구조를 개편하고, 한/영 다국어(i18n) 시스템을 도입했습니다. 문제는 언어 전환 시 텍스트 길이 차이로 레이아웃이 깨지는 것 — 모든 컴포넌트에서 고정 높이 대신 컨텐츠 기반 유동 레이아웃으로 전환하며 해결했습니다.",
+      en: "As the project grew, the entire folder structure was reorganized and a Korean/English i18n system was introduced. The challenge was layout breaking due to text length differences on language switch — solved by converting all components from fixed heights to content-based fluid layouts.",
     },
   },
   {
     step: "04",
     title: {
-      ko: "무한 스크롤 구현",
-      en: "Infinite Scroll Implementation",
+      ko: "Works 가로 갤러리 삽질기",
+      en: "Works Gallery — The Hard Way",
     },
     description: {
-      ko: "Lenis infinite scroll과 Bridge 섹션을 결합하여 자연스러운 순환 스크롤 경험을 완성했습니다.",
-      en: "Completed natural circular scroll experience by combining Lenis infinite scroll with Bridge section.",
+      ko: "GSAP rAF 기반 가로 스크롤에 양방향 무한 래핑, 뷰포트 중심 활성 카드 감지, 스크롤 속도 기반 이미지 밀림 효과까지. 20개 이상의 커밋을 거치며 인트로 배치, 카드 전환 애니메이션, 태블릿/모바일 레이아웃을 하나씩 잡아갔습니다.",
+      en: "Horizontal scroll with GSAP rAF, bidirectional infinite wrapping, viewport-center active card detection, and scroll-velocity image shift. Over 20 commits were spent iterating on intro placement, card transition animations, and tablet/mobile layouts one by one.",
     },
   },
   {
     step: "05",
     title: {
-      ko: "Lighthouse 성능 최적화",
-      en: "Lighthouse Performance Optimization",
+      ko: "Lighthouse로 증명하기",
+      en: "Proving It with Lighthouse",
     },
     description: {
-      ko: "Lighthouse CLI로 프로덕션 빌드를 직접 측정하며 2차에 걸친 최적화를 진행. 1차: reCAPTCHA 지연 로딩, 접근성 수정. 2차: 미사용 폰트 제거, font-display:swap, 리소스 경량화로 모바일 98점 달성.",
-      en: "Measured production build directly with Lighthouse CLI through two rounds of optimization. 1st: reCAPTCHA lazy loading, accessibility fixes. 2nd: Removed unused fonts, font-display:swap, resource optimization achieving mobile score of 98.",
+      ko: "Lighthouse CLI로 프로덕션 빌드를 직접 측정하며 2차에 걸쳐 최적화. reCAPTCHA가 팝업을 뿌리며 렌더링을 막는 문제를 invisible 모드 + 지연 로딩으로 해결하고, 미사용 폰트 제거와 리소스 경량화로 모바일 98점을 달성했습니다.",
+      en: "Measured production builds directly with Lighthouse CLI through two rounds of optimization. Solved reCAPTCHA blocking render with invisible mode + lazy loading, removed unused fonts, and achieved mobile score of 98 through resource optimization.",
     },
   },
   {
     step: "06",
     title: {
-      ko: "Works 가로 갤러리 구현",
-      en: "Works Horizontal Gallery Implementation",
+      ko: "이 페이지를 만든 이유",
+      en: "Why This Page Exists",
     },
     description: {
-      ko: "GSAP rAF 기반 가로 스크롤 갤러리에 인트로 인플로우 배치, oneSetWidth 양방향 무한 래핑, 뷰포트 중심 기반 활성 카드 감지, 언어 전환 레이아웃 안정화를 구현.",
-      en: "Implemented in-flow intro placement in GSAP rAF-based horizontal scroll gallery, bidirectional infinite wrapping with oneSetWidth, viewport center-based active card detection, and language switch layout stabilization.",
+      ko: "포트폴리오의 결과물만 보여주는 건 아쉬웠습니다. 어떤 기술을 왜 선택했고, 어디서 막혔고, 어떻게 풀었는지를 기록하는 Webflow 페이지를 마지막에 추가했습니다. 코드 하이라이트, 트러블슈팅, 아키텍처 시각화까지 — 과정 자체가 포트폴리오입니다.",
+      en: "Showing only the final result felt incomplete. The Webflow page was added last to document which technologies were chosen and why, where things got stuck, and how they were solved. Code highlights, troubleshooting, architecture visualization — the process itself is the portfolio.",
     },
   },
 ];
