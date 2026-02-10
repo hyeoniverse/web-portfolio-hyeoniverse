@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { TroubleShootingItem } from "@/data/webflow";
+import { renderHighlight } from "../renderHighlight";
 import styles from "../WebFlowSection.module.css";
 
 interface TroubleshootingPanelProps {
@@ -132,7 +133,7 @@ export default function TroubleshootingPanel({
                     <span className={styles.troubleLabel}>
                       {t("webflow.troubleshooting.cause")}
                     </span>
-                    <p>{item.cause[language]}</p>
+                    <p>{renderHighlight(item.cause[language])}</p>
                   </div>
                   <div className={styles.troubleEntry}>
                     <span
@@ -140,7 +141,7 @@ export default function TroubleshootingPanel({
                     >
                       {t("webflow.troubleshooting.solution")}
                     </span>
-                    <p>{item.solution[language]}</p>
+                    <p>{renderHighlight(item.solution[language])}</p>
                   </div>
                   <div className={styles.troubleEntry}>
                     <span
@@ -149,7 +150,7 @@ export default function TroubleshootingPanel({
                       {t("webflow.troubleshooting.keyInsight")}
                     </span>
                     <p className={styles.troubleInsightText}>
-                      {item.keyInsight[language]}
+                      {renderHighlight(item.keyInsight[language])}
                     </p>
                   </div>
                 </div>

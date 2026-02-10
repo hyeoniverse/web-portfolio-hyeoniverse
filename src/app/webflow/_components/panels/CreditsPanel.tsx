@@ -11,7 +11,9 @@ export default function CreditsPanel({ t, nickname }: CreditsPanelProps) {
       className={`${styles.panel} ${styles.panelNarrow} ${styles.creditsPanel}`}
     >
       <p className={`${styles.creditsText} ${styles.animate}`}>
-        {t("webflow.credits")} {nickname}
+        {t("webflow.credits").split("❤")[0]}
+        <span className={styles.creditsHeart}>❤</span>
+        {t("webflow.credits").split("❤")[1]} {nickname}
       </p>
     </div>
   );
