@@ -89,11 +89,27 @@ export default function CodeHighlightsPanel({
       {/* Inner wrapper: counter-translated to appear pinned */}
       <div ref={contentRef} className={styles.codeFixed}>
         <span className={`${styles.panelNumber} ${styles.animate}`}>06</span>
-        <h3
-          className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
-        >
-          Code Highlights.
-        </h3>
+        <div className={styles.codeTitleRow}>
+          <h3
+            className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
+          >
+            Code Highlights.
+          </h3>
+
+          {/* Dot navigation */}
+          <div className={`${styles.codeDotNav} ${styles.animate}`}>
+            {codeExamples.map((_, index) => (
+              <div
+                data-clickable="true"
+                key={index}
+                className={`${styles.codeDot} ${
+                  index === activeIndex ? styles.codeDotActive : ""
+                }`}
+                onClick={() => handleDotClick(index)}
+              />
+            ))}
+          </div>
+        </div>
 
         {/* Desktop: single pane view — one item at a time */}
         <div className={`${styles.codeSingleView} ${styles.animate}`}>
@@ -125,20 +141,6 @@ export default function CodeHighlightsPanel({
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Dot navigation */}
-        <div className={`${styles.codeDotNav} ${styles.animate}`}>
-          {codeExamples.map((_, index) => (
-            <div
-              data-clickable="true"
-              key={index}
-              className={`${styles.codeDot} ${
-                index === activeIndex ? styles.codeDotActive : ""
-              }`}
-              onClick={() => handleDotClick(index)}
-            />
           ))}
         </div>
 
