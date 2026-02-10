@@ -467,11 +467,28 @@
 
 .techItem {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   padding: 0.9rem 0;
   border-bottom: var(--wf-line-tertiary);
   transition: border-color 0.3s ease;
+}
+
+.techNameGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.techIcon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--text-tertiary);
+}
+
+.techItem:hover .techIcon {
+  color: var(--text-accent-secondary);
 }
 
 .techItem:hover {
@@ -686,6 +703,224 @@
   margin-top: 0;
   overflow: auto;
   max-height: 300px;
+}
+
+/* ==========================================================================
+   Code Demos — Interactive Demo Widgets
+   ========================================================================== */
+
+/* Demo + Code horizontal layout wrapper */
+.codeRevealContent {
+  display: flex;
+  gap: var(--spacing-lg);
+  height: 100%;
+}
+
+/* Demo area (left side on desktop) */
+.codeDemo {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: var(--wf-line-tertiary);
+  padding-right: var(--spacing-lg);
+  overflow: hidden;
+}
+
+/* Inner wrapper for all demos */
+.codeDemoInner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: var(--wf-fs-small);
+  color: var(--text-secondary);
+}
+
+/* Hint text */
+.demoHint {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--wf-fs-caption);
+  color: var(--text-tertiary);
+  opacity: 0.7;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Generic demo button */
+.demoBtn {
+  padding: 0.4rem 1rem;
+  border: var(--wf-line-secondary);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--wf-fs-small);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.codeDemoInner .demoBtn {
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.demoBtn:hover {
+  border-color: var(--color-accent-alpha-30);
+  color: var(--text-accent-secondary);
+}
+
+/* ── Demo 2: Scroll-Triggered ── */
+.demoScrollBox {
+  width: 50px;
+  height: 50px;
+  margin-top: var(--spacing-md);
+  border: 1px solid var(--color-accent-alpha-30);
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.codeDemoInner .demoScrollBox {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.demoScrollBoxVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Demo 3: Scroll Velocity ── */
+.demoScrollArea {
+  width: 100%;
+  height: 80%;
+  overflow-y: auto;
+  border: var(--wf-line-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.demoScrollContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--spacing-sm);
+  min-height: 300px;
+}
+
+.demoVelocityBar {
+  height: 12px;
+  border-radius: 2px;
+  width: 70%;
+}
+
+.codeDemoInner .demoVelocityBar {
+  transition: transform 0.15s ease-out;
+}
+
+/* ── Demo 5: Lazy Load ── */
+.demoSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--text-tertiary);
+}
+
+.demoSpinnerDot {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--text-tertiary);
+  border-top-color: var(--text-accent-secondary);
+  border-radius: 50%;
+  animation: demoSpin 0.8s linear infinite;
+}
+
+@keyframes demoSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.demoLoaded {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.demoLoadedCheck {
+  font-size: var(--font-size-lg);
+  color: var(--text-accent-secondary);
+}
+
+.demoLoadedSaved {
+  font-size: var(--wf-fs-caption);
+  color: var(--text-tertiary);
+}
+
+/* ── Demo 6: Infinite Scroll ── */
+.demoInfiniteTrack {
+  display: flex;
+  gap: 6px;
+  width: max-content;
+  animation: demoMarquee 8s linear infinite;
+}
+
+.codeDemoInner:hover .demoInfiniteTrack {
+  animation-play-state: paused;
+}
+
+.demoInfiniteBlock {
+  flex-shrink: 0;
+  width: 40px;
+  height: 30px;
+  border-radius: 3px;
+}
+
+@keyframes demoMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Demo 7: i18n Shift ── */
+.demoI18nRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.demoI18nBox {
+  flex: 1;
+  min-width: 0;
+}
+
+.demoI18nLabel {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: var(--wf-fs-caption);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.demoI18nContent {
+  padding: var(--spacing-xs);
+  border: var(--wf-line-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: var(--wf-fs-small);
+  line-height: var(--wf-lh-reading);
+  word-break: break-word;
 }
 
 /* ==========================================================================
@@ -1097,6 +1332,19 @@
 
   .codeGridWrap {
     display: none;
+  }
+
+  .codeRevealContent {
+    flex-direction: column;
+  }
+
+  .codeDemo {
+    border-right: none;
+    border-bottom: var(--wf-line-tertiary);
+    padding-right: 0;
+    padding-bottom: var(--spacing-sm);
+    height: 200px;
+    flex: none;
   }
 
   .codeListMobile {
