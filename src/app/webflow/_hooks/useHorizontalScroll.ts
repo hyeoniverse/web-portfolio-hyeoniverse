@@ -59,7 +59,7 @@ export function useHorizontalScroll(
     // Calculate the scroll position for this panel
     const trackWidth = track.scrollWidth - window.innerWidth;
     const panelLeft = target.offsetLeft;
-    const ratio = panelLeft / trackWidth;
+    const ratio = Math.min(panelLeft / trackWidth, 1);
     const scrollTo = st.start + (st.end - st.start) * ratio;
 
     gsap.to(window, {
@@ -80,8 +80,8 @@ export function useHorizontalScroll(
     const track = trackRef.current;
     if (!section || !track) return;
 
-    // Skip horizontal scroll on mobile/tablet
-    if (window.innerWidth <= 1024) return;
+    // Skip horizontal scroll on mobile/tablet or short viewports
+    if (window.innerWidth <= 1024 || window.innerHeight <= 700) return;
 
     const ctx = gsap.context(() => {
       // Main horizontal scroll tween
