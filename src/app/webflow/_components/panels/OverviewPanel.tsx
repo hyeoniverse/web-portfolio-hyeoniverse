@@ -5,6 +5,7 @@ interface OverviewPanelProps {
   language: Language;
   overview: {
     description: Record<Language, string>;
+    highlights: string[];
     stats: { value: string; label: Record<Language, string> }[];
   };
 }
@@ -17,6 +18,11 @@ export default function OverviewPanel({ language, overview }: OverviewPanelProps
       <p className={`${styles.overviewDesc} ${styles.animate}`}>
         {overview.description[language]}
       </p>
+      <div className={`${styles.overviewHighlights} ${styles.animate}`}>
+        {overview.highlights.map((tag) => (
+          <span key={tag} className={styles.overviewTag}>{tag}</span>
+        ))}
+      </div>
       <div className={styles.overviewStats}>
         {overview.stats.map((stat, i) => (
           <div key={i} className={`${styles.overviewStat} ${styles.animate}`}>

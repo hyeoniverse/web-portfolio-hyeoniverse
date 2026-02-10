@@ -15,7 +15,7 @@ export function useInViewMobile(
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    if (window.innerWidth > 1024) return;
+    if (window.innerWidth > 1024 && window.innerHeight > 700) return;
 
     const targets = container.querySelectorAll<HTMLElement>(`.${animateClass}`);
     if (targets.length === 0) return;

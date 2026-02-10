@@ -141,12 +141,23 @@ export const projectOverview = {
     ko: "이 포트폴리오는 Next.js 15 App Router 기반으로, 2025.02.05 ~ 02.10 총 6일 만에 완성되었습니다. AI 페어 프로그래밍(Vibe Coding)을 적극 활용하여 GSAP/Framer Motion 스크롤 애니메이션, Lenis 무한 루프 스크롤, CSS Variables 디자인 토큰, 한/영 이중 언어 지원 등 기술적 도전을 단기간에 구현할 수 있었습니다.",
     en: "This portfolio was built on Next.js 15 App Router and completed in just 6 days (2025.02.05 – 02.10). By leveraging AI pair programming (Vibe Coding), complex frontend challenges — GSAP/Framer Motion scroll animations, Lenis infinite loop scroll, CSS Variables design tokens, and bilingual i18n — were implemented in a compressed timeline.",
   },
+  highlights: [
+    "Next.js 15",
+    "GSAP ScrollTrigger",
+    "Framer Motion",
+    "Lenis Smooth Scroll",
+    "CSS Variables",
+    "i18n (KO/EN)",
+    "AI Pair Programming",
+    "Dark/Light Theme",
+  ],
   stats: [
-    { value: "6 Days", label: { ko: "개발 기간 (2/5 – 2/10)", en: "Dev Period (2/5 – 2/10)" } },
+    { value: "6 Days", label: { ko: "개발 기간\n(2/5 – 2/10)", en: "Dev Period\n(2/5 – 2/10)" } },
     { value: "40+", label: { ko: "컴포넌트", en: "Components" } },
     { value: "12+", label: { ko: "커스텀 훅", en: "Custom Hooks" } },
     { value: "98", label: { ko: "Lighthouse", en: "Lighthouse" } },
     { value: "2", label: { ko: "언어 지원", en: "Languages" } },
+    { value: "10+", label: { ko: "라이브러리", en: "Libraries" } },
   ] as OverviewStat[],
 };
 

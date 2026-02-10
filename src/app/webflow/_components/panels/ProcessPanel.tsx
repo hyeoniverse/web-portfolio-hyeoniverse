@@ -9,7 +9,7 @@ interface ProcessPanelProps {
 
 export default function ProcessPanel({ language, process }: ProcessPanelProps) {
   return (
-    <div className={styles.panel}>
+    <div className={`${styles.panel} ${styles.panelCompact}`}>
       <span className={`${styles.panelNumber} ${styles.animate}`}>05</span>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>Design Process.</h3>
       <div className={styles.processGrid}>

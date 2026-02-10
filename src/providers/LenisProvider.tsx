@@ -77,7 +77,7 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       smoothWheel: options.smoothWheel ?? true,
       wheelMultiplier: options.wheelMultiplier ?? 1,
       touchMultiplier: options.touchMultiplier ?? 2,
-      infinite: isMobile ? false : (options.infinite ?? true),
+      infinite: isMobile ? false : (options.infinite ?? false),
     });
 
     lenisRef.current = lenisInstance;
@@ -128,7 +128,7 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     const handleResize = () => {
       const mobile = window.innerWidth <= 768;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (lenisInstance as any).options.infinite = mobile ? false : (options.infinite ?? true);
+      (lenisInstance as any).options.infinite = mobile ? false : (options.infinite ?? false);
     };
     window.addEventListener("resize", handleResize);
 
