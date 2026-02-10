@@ -5,7 +5,7 @@ interface MobileStatus {
   isMobile: boolean; // 화면 너비 기준 (예: 768px 이하)
 }
 
-export function useIsMobile(breakpoint = 768): MobileStatus {
+export function useIsMobile(breakpoint = 768, heightBreakpoint?: number): MobileStatus {
   const [status, setStatus] = useState<MobileStatus>({
     isTouch: false,
     isMobile: false,
@@ -16,7 +16,9 @@ export function useIsMobile(breakpoint = 768): MobileStatus {
 
     const checkMobile = () => {
       const isTouch = window.matchMedia("(pointer: coarse)").matches;
-      const isMobile = window.innerWidth <= breakpoint;
+      const isMobile =
+        window.innerWidth <= breakpoint ||
+        (heightBreakpoint != null && window.innerHeight <= heightBreakpoint);
       setStatus({ isTouch, isMobile });
     };
 
@@ -24,7 +26,7 @@ export function useIsMobile(breakpoint = 768): MobileStatus {
     window.addEventListener("resize", checkMobile);
 
     return () => window.removeEventListener("resize", checkMobile);
-  }, [breakpoint]);
+  }, [breakpoint, heightBreakpoint]);
 
   return status;
 }

@@ -825,10 +825,10 @@
 }
 
 /* ==========================================================================
-   Responsive - Mobile (Vertical Scroll)
+   Responsive - Mobile & Short viewport (Vertical Scroll)
    ========================================================================== */
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 700px) {
   .intro {
     --_intro-pad: 24px;
     --_intro-text-max: none;
@@ -1157,5 +1157,118 @@
 
   .project .metaRole {
     font-size: var(--font-size-xs);
+  }
+}
+
+/* ==========================================================================
+   Wide + Short Viewport — Side-by-side (Image | Description)
+   ========================================================================== */
+
+@media (min-width: 769px) and (max-height: 700px) {
+  .gallery {
+    padding-top: 80px;
+  }
+
+  .project {
+    --_card-w: 100%;
+    --_card-h: auto;
+    --_card-radius: var(--radius-xl);
+
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    grid-template-rows: auto auto auto auto 1fr;
+    column-gap: var(--spacing-2xl);
+    row-gap: var(--spacing-xs);
+    align-items: start;
+  }
+
+  .project,
+  .sizeLarge,
+  .sizeSmall,
+  .sizeMedium,
+  .sizeTall,
+  .sizeWide {
+    padding: 32px 40px;
+  }
+
+  .project .card {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .project .metaNumber {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    font-size: var(--font-size-4xl);
+    opacity: 0.4;
+  }
+
+  .project .metaCategory {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  .project .metaTech {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: var(--spacing-sm);
+  }
+
+  .project .metaRole {
+    grid-column: 2;
+    grid-row: 4;
+  }
+
+  .project .metaDesc {
+    grid-column: 2;
+    grid-row: 5;
+    margin: var(--spacing-sm) 0 0;
+    font-size: var(--font-size-lg);
+    text-align: left;
+  }
+
+  .project:nth-child(n + 7) {
+    display: grid;
+  }
+}
+
+/* ==========================================================================
+   Credits / Copyright
+   ========================================================================== */
+
+.credits {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  text-align: center;
+  pointer-events: none;
+}
+
+.creditsText {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  color: var(--text-tertiary);
+}
+
+.creditsHeart {
+  color: var(--text-accent-secondary);
+}
+
+@media (max-width: 768px), (max-height: 700px) {
+  .credits {
+    position: relative;
+    padding: var(--spacing-3xl) 24px var(--spacing-2xl);
+    border-top: 1px solid var(--border-primary);
+    pointer-events: auto;
   }
 }
