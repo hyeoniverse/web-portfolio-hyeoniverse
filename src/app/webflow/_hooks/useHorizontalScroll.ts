@@ -133,17 +133,31 @@ export function useHorizontalScroll(
         const items = panel.querySelectorAll(`.${styles.animate}`);
         if (items.length === 0) return;
 
+        // Entrance: fade in + slide up as panel enters from right
         gsap.from(items, {
           opacity: 0,
           y: 40,
-          stagger: 0.08,
-          duration: 0.7,
-          ease: "power2.out",
+          stagger: 0.06,
           scrollTrigger: {
             trigger: panel,
             containerAnimation: scrollTween,
             start: "left 80%",
-            toggleActions: "play reverse play reverse",
+            end: "left 50%",
+            scrub: 0.6,
+          },
+        });
+
+        // Exit: fade out + slide down when more than half is hidden
+        gsap.to(items, {
+          opacity: 0,
+          y: -30,
+          stagger: 0.04,
+          scrollTrigger: {
+            trigger: panel,
+            containerAnimation: scrollTween,
+            start: "right 50%",
+            end: "right 20%",
+            scrub: 0.6,
           },
         });
       });
