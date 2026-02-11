@@ -318,8 +318,7 @@ export default function DesignConceptPanel({
   useEffect(() => {
     if (
       typeof window === "undefined" ||
-      window.innerWidth <= 1024 ||
-      window.innerHeight <= 700
+      window.innerWidth <= 1024
     )
       return;
 
@@ -369,7 +368,7 @@ export default function DesignConceptPanel({
   /* ── 3) Mobile: GSAP pin + scrub crossfade ── */
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const isMobile = window.innerWidth <= 1024 || window.innerHeight <= 700;
+    const isMobile = window.innerWidth <= 1024;
     if (!isMobile) return;
 
     const content = contentRef.current;
@@ -409,8 +408,7 @@ export default function DesignConceptPanel({
     (index: number) => {
       if (
         !panelRef.current ||
-        window.innerWidth <= 1024 ||
-        window.innerHeight <= 700
+        window.innerWidth <= 1024
       )
         return;
 
