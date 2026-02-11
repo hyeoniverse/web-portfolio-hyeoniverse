@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useLayoutEffect, useEffect } from "react";
+import { useRef, useState, useCallback, useLayoutEffect, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -8,6 +8,7 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 import Image from "next/image";
+import { useLenis } from "@/providers/LenisProvider";
 import {
   Code,
   Palette,
@@ -127,10 +128,43 @@ function ColorSystemDemo() {
 
 /* ── Motion & Scroll Demo ── */
 function MotionScrollDemo() {
+  const { lenis } = useLenis();
+  const ballRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!lenis || !ballRef.current || !trackRef.current) return;
+
+    const MAX_VELOCITY = 8;
+    let rafId: number;
+
+    const update = () => {
+      const ball = ballRef.current;
+      const track = trackRef.current;
+      if (!ball || !track) return;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const velocity = (lenis as any).velocity as number;
+      // Map velocity [-MAX, +MAX] → position [4px, trackWidth - ballWidth - 4px]
+      const normalized = Math.max(-1, Math.min(1, velocity / MAX_VELOCITY));
+      const trackWidth = track.clientWidth;
+      const ballWidth = ball.clientWidth;
+      const maxLeft = trackWidth - ballWidth - 4;
+      const left = 4 + ((normalized + 1) / 2) * maxLeft;
+
+      ball.style.left = `${left}px`;
+
+      rafId = requestAnimationFrame(update);
+    };
+
+    rafId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(rafId);
+  }, [lenis]);
+
   return (
     <div className={styles.dcDemo}>
-      <div className={styles.dcSpringTrack}>
-        <div className={styles.dcSpringBall} />
+      <div ref={trackRef} className={styles.dcSpringTrack}>
+        <div ref={ballRef} className={styles.dcSpringBall} />
       </div>
       <div className={styles.dcMotionLabels}>
         <span>Lenis</span>
@@ -246,13 +280,14 @@ export default function DesignConceptPanel({
   language,
   concepts,
 }: DesignConceptPanelProps) {
-  const gridRef = useRef<HTMLDivElement>(null);
+  const stackRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   /* ── 1) useLayoutEffect: set initial visual state (prevents flash) ── */
   useLayoutEffect(() => {
-    const grid = gridRef.current;
+    const grid = stackRef.current;
     if (!grid) return;
 
     const cards = Array.from(
@@ -278,7 +313,7 @@ export default function DesignConceptPanel({
   useEffect(() => {
     if (typeof window === "undefined" || window.innerWidth <= 1024 || window.innerHeight <= 700) return;
 
-    const grid = gridRef.current;
+    const grid = stackRef.current;
     if (!grid) return;
 
     const overlays = Array.from(
@@ -307,6 +342,7 @@ export default function DesignConceptPanel({
           );
           if (newIndex !== prevIndex) {
             prevIndex = newIndex;
+            setActiveIndex(newIndex);
             overlays.forEach((overlay, i) => {
               overlay.style.opacity = i === newIndex ? "1" : "0";
             });
@@ -328,7 +364,7 @@ export default function DesignConceptPanel({
 
     const content = contentRef.current;
     const panel = panelRef.current;
-    const grid = gridRef.current;
+    const grid = stackRef.current;
     if (!content || !panel || !grid) return;
 
     const overlays = Array.from(
@@ -359,16 +395,47 @@ export default function DesignConceptPanel({
     return () => ctx.revert();
   }, []);
 
+  const handleDotClick = useCallback(
+    (index: number) => {
+      if (!panelRef.current || window.innerWidth <= 1024 || window.innerHeight <= 700) return;
+
+      const rect = panelRef.current.getBoundingClientRect();
+      const extraWidth = rect.width - window.innerWidth;
+      if (extraWidth <= 0) return;
+
+      const targetProgress = (index + 0.5) / concepts.length;
+      const targetLeft = -(targetProgress * extraWidth);
+      const deltaScrollY = rect.left - targetLeft;
+
+      window.scrollTo({ top: window.scrollY + deltaScrollY });
+    },
+    [concepts.length],
+  );
+
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       {/* Inner wrapper: counter-translated to appear pinned */}
       <div ref={contentRef} className={styles.dcFixed}>
-        <span className={styles.panelNumber}>04</span>
-        <h3 className={styles.panelTitle}>
-          Design Concept.
-        </h3>
+        <div className={styles.dcTitleRow}>
+          <div>
+            <span className={styles.panelNumber}>04</span>
+            <h3 className={styles.panelTitle}>
+              Design Concept.
+            </h3>
+          </div>
+          <div className={styles.dcDotNav}>
+            {concepts.map((_, i) => (
+              <div
+                data-clickable="true"
+                key={i}
+                className={`${styles.dcDot} ${i === activeIndex ? styles.dcDotActive : ""}`}
+                onClick={() => handleDotClick(i)}
+              />
+            ))}
+          </div>
+        </div>
 
-        <div ref={gridRef} className={styles.dcGrid}>
+        <div ref={stackRef} className={styles.dcCardStack}>
           {concepts.map((concept) => {
             const Demo = demoMap[concept.id];
             return (
