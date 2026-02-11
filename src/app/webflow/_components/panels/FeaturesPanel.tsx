@@ -69,7 +69,7 @@ export default function FeaturesPanel({
     const isTablet = window.innerWidth >= 768;
 
     const ctx = gsap.context(() => {
-      const scrollDist = count * (isTablet ? 1000 : 150);
+      const scrollDist = count * (isTablet ? 1000 : 500);
 
       ScrollTrigger.create({
         trigger: grid,
@@ -84,7 +84,7 @@ export default function FeaturesPanel({
 
           /* Tablet: show card bodies between cards.
              Mobile: tight stack, only tabs visible. */
-          const tabH = isTablet ? Math.round(cardH * 0.1) : 28;
+          const tabH = isTablet ? Math.round(cardH * 0.1) : 60;
 
           /* Anchor last card to viewport bottom, stack others above */
           const bottomGap = -(cardH * 0.7);
