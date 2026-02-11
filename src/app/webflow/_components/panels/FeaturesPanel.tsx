@@ -1,8 +1,14 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef, useEffect, useLayoutEffect, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignFeature } from "@/data/webflow";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 import DynamicFrameLayout, {
   type Frame,
   defaultFrames,
@@ -23,11 +29,84 @@ function buildFrames(count: number): Frame[] {
   }));
 }
 
+const MOBILE_WIDTH = 1024;
+
 export default function FeaturesPanel({
   language,
   features,
 }: FeaturesPanelProps) {
   const frames = buildFrames(features.length);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= MOBILE_WIDTH);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  /* Mobile: GSAP ScrollTrigger pins .featureGrid to viewport,
+     then animates cards based on scroll progress.
+     Card 0 (top, z-index 1) flies up first → card 8 (front, z-index 9) stays. */
+  useLayoutEffect(() => {
+    if (!isMobile || !gridRef.current) return;
+
+    const grid = gridRef.current;
+    const cards = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.featureFolderWrap}`),
+    );
+    const count = cards.length;
+    if (count === 0) return;
+
+    const lastIdx = count - 1;
+    const TAB_H = 36;
+
+    const ctx = gsap.context(() => {
+      /* Pin the entire .featureGrid for (count * 150)px of extra scroll */
+      const scrollDist = count * 150;
+
+      ScrollTrigger.create({
+        trigger: grid,
+        start: "top top",
+        end: `+=${scrollDist}`,
+        pin: true,
+        pinSpacing: true,
+        onUpdate: (self) => {
+          const progress = self.progress; // 0 → 1
+          const viewportH = window.innerHeight;
+          const cardH = cards[0].offsetHeight;
+
+          /* Stack position: center vertically */
+          const stackH = cardH + lastIdx * TAB_H;
+          const baseY = Math.max(16, (viewportH - stackH) / 2);
+
+          /* 90% = dismiss, 10% = dwell on last card */
+          const animFrac = Math.min(progress / 0.9, 1);
+          const perCard = lastIdx > 0 ? 1 / lastIdx : 1;
+
+          for (let i = 0; i < count; i++) {
+            const restY = baseY + i * TAB_H;
+
+            if (i < lastIdx) {
+              const cardStart = i * perCard;
+              const t = Math.max(
+                0,
+                Math.min(1, (animFrac - cardStart) / perCard),
+              );
+              const exitY = -cardH - 40;
+              const y = restY + (exitY - restY) * t;
+              cards[i].style.transform = `translateY(${y}px)`;
+            } else {
+              cards[i].style.transform = `translateY(${restY}px)`;
+            }
+          }
+        },
+      });
+    }, grid);
+
+    return () => ctx.revert();
+  }, [isMobile]);
 
   const renderOverlay = useCallback(
     (_frame: Frame, index: number) => {
@@ -68,24 +147,31 @@ export default function FeaturesPanel({
         />
       </div>
 
-      {/* Mobile: folder tab cards */}
-      <div className={styles.featureGrid}>
-        {features.map((feature, index) => (
-          <div
-            key={index}
-            className={`${styles.featureFolder} ${styles.animate}`}
-          >
-            <span className={styles.featureFolderTab}>{feature.title}</span>
-            <div className={styles.featureFolderCard}>
-              <p className={styles.featureFolderDesc}>
-                {feature.description[language]}
-              </p>
-              <p className={styles.featureFolderTech}>
-                {feature.tech.join(" · ")}
-              </p>
+      {/* Mobile: stacked folder cards (scroll animation) */}
+      <div
+        className={styles.featureGrid}
+        ref={gridRef}
+        style={{ '--feature-count': features.length } as React.CSSProperties}
+      >
+        <div className={styles.featureGridPinned}>
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className={styles.featureFolderWrap}
+              style={{ zIndex: index + 1 }}
+            >
+              <span className={styles.featureFolderTab}>{feature.title}</span>
+              <div className={styles.featureFolderCard}>
+                <p className={styles.featureFolderDesc}>
+                  {feature.description[language]}
+                </p>
+                <p className={styles.featureFolderTech}>
+                  {feature.tech.join(" · ")}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
