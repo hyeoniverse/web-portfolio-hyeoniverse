@@ -18,7 +18,7 @@
   --wf-fs-label: clamp(0.75rem, min(0.95vw, 1.7vh), 1.15rem);
   --wf-fs-small: clamp(0.55rem, min(0.88vw, 1.55vh), 1.05rem);
   --wf-fs-caption: clamp(0.55rem, min(0.8vw, 1.4vh), 0.95rem);
-  --wf-fs-code: clamp(0.75rem, min(0.88vw, 1.55vh), 1.05rem);
+  --wf-fs-body: clamp(0.75rem, min(0.88vw, 1.55vh), 1.05rem);
 
   /* ── Line heights (complement global --line-height-*) ── */
   --wf-lh-title: var(--line-height-dense);
@@ -793,7 +793,7 @@
 
 /* Compound selector (0,2,0) — smooth overlay crossfade */
 .dcCard .dcCardOverlay {
-  transition: opacity 0.35s ease;
+  transition: opacity 0.5s ease;
 }
 
 /* Full-cover background image */
@@ -964,7 +964,6 @@
 
 /* ── Motion & Scroll demo ── */
 .dcSpringTrack {
-  overflow: hidden;
   position: relative;
   width: 100%;
   height: clamp(42px, min(7vh, 3.8vw), 68px);
@@ -1333,11 +1332,11 @@
 .codeSinglePane {
   display: flex;
   flex-direction: column;
+  margin-bottom: var(--wf-space-divide);
   position: absolute;
   pointer-events: none;
   inset: 0;
   opacity: 0;
-  margin-bottom: var(--wf-space-divide);
 }
 
 /* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
@@ -1353,7 +1352,7 @@
 /* Header: number + title + description */
 .codeSingleHeader {
   display: flex;
-  gap: var(--wf-space-line);
+  gap: var(--wf-space-block);
   align-items: baseline;
   margin-bottom: var(--wf-space-divide);
   font-size: var(--wf-fs-subhead);
@@ -1369,7 +1368,7 @@
 }
 
 .codeSingleMeta h4 {
-  margin: 0;
+  margin-bottom: var(--wf-space-line);
   font-family: var(--wf-font-grotesk);
   font-size: inherit;
   font-weight: var(--font-weight-semibold);
@@ -1377,7 +1376,6 @@
 }
 
 .codeSingleDesc {
-  margin: 0.3rem 0 0;
   font-size: var(--wf-fs-body);
   line-height: var(--wf-lh-reading);
   color: var(--text-tertiary);
@@ -1453,7 +1451,7 @@
 .codeBlock {
   flex: 1;
   margin: 0;
-  padding: var(--spacing-sm);
+  padding: var(--wf-space-line);
   border-left: 2px solid var(--color-accent-alpha-30);
   overflow: auto;
   position: relative;
@@ -1462,7 +1460,7 @@
 
 .codeBlock code {
   font-family: var(--font-jetbrains), monospace;
-  font-size: var(--wf-fs-code);
+  font-size: var(--wf-fs-body);
   line-height: var(--wf-lh-code);
   white-space: pre;
 }
@@ -1808,7 +1806,7 @@
    ========================================================================== */
 
 .panelExtraWide {
-  width: 200vw;
+  width: 350vw;
 }
 
 /* Inner wrapper: counter-translated by JS to appear pinned */
@@ -2154,11 +2152,10 @@
     --wf-space-block: clamp(1rem, 3.5vw, 2.5rem);
     --wf-fs-lead: clamp(1rem, 3.2vw, 1.6rem);
     --wf-fs-subhead: clamp(1rem, 3vw, 1.5rem);
-    --wf-fs-body: clamp(0.9rem, 1.75vw, 1.3rem);
-    --wf-fs-label: clamp(0.85rem, 1.45vw, 1.15rem);
-    --wf-fs-small: clamp(0.8rem, 1.15vw, 1.05rem);
-    --wf-fs-caption: clamp(0.75rem, 1.25vw, 0.95rem);
-    --wf-fs-code: clamp(0.8rem, 1.85vw, 1.05rem);
+    --wf-fs-body: clamp(0.75rem, 2vw, 1.5rem);
+    --wf-fs-label: clamp(0.75rem, 1.45vw, 1.25rem);
+    --wf-fs-small: clamp(0.55rem, 1.25vw, 1rem);
+    --wf-fs-caption: clamp(0.55rem, 1vw, 1rem);
     overflow: clip;
   }
 
@@ -2684,7 +2681,7 @@
     --wf-fs-label: clamp(0.78rem, 0.95vw, 1.15rem);
     --wf-fs-small: clamp(0.72rem, 0.88vw, 1.05rem);
     --wf-fs-caption: clamp(0.68rem, 0.8vw, 0.95rem);
-    --wf-fs-code: clamp(0.72rem, 0.88vw, 1.05rem);
+    --wf-fs-body: clamp(0.72rem, 0.88vw, 1.05rem);
   }
 
   .heroTitle {
