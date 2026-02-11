@@ -1,6 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, useLayoutEffect, useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 import Image from "next/image";
 import {
   Code,
@@ -240,39 +246,155 @@ export default function DesignConceptPanel({
   language,
   concepts,
 }: DesignConceptPanelProps) {
-  return (
-    <div className={`${styles.panel} ${styles.panelWide}`}>
-      <span className={`${styles.panelNumber} ${styles.animate}`}>04</span>
-      <h3 className={`${styles.panelTitle} ${styles.animate}`}>
-        Design Concept.
-      </h3>
+  const gridRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-      <div className={styles.dcGrid}>
-        {concepts.map((concept) => {
-          const Demo = demoMap[concept.id];
-          return (
-            <div key={concept.id} className={`${styles.dcCard} ${styles.animate}`}>
-              <div className={styles.dcCardBg}>
-                <Image
-                  src={concept.image}
-                  alt={concept.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              </div>
-              <div className={styles.dcCardOverlay}>
-                <span className={styles.dcCardTitle}>{concept.title}</span>
-                <h4 className={styles.dcCardSubtitle}>
-                  {concept.subtitle[language]}
-                </h4>
-                <p className={styles.dcCardDesc}>
-                  {concept.description[language]}
-                </p>
-                {Demo && <Demo />}
-              </div>
-            </div>
+  /* ── 1) useLayoutEffect: set initial visual state (prevents flash) ── */
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const cards = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
+    );
+
+    /* Card 0 always visible (provides fixed background + frame).
+       Cards 1+ visible but bg hidden, overlay hidden — only overlays crossfade. */
+    cards.forEach((card, i) => {
+      if (i === 0) {
+        gsap.set(card, { opacity: 1 });
+      } else {
+        gsap.set(card, { opacity: 1, borderColor: "transparent" });
+        const bg = card.querySelector(`.${styles.dcCardBg}`);
+        if (bg) gsap.set(bg, { visibility: "hidden" });
+        const overlay = card.querySelector(`.${styles.dcCardOverlay}`);
+        if (overlay) gsap.set(overlay, { opacity: 0 });
+      }
+    });
+  }, []);
+
+  /* ── 2) Desktop: RAF counter-translation + overlay switching (same as CodeHighlights) ── */
+  useEffect(() => {
+    if (typeof window === "undefined" || window.innerWidth <= 1024 || window.innerHeight <= 700) return;
+
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const overlays = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
+    );
+
+    let rafId: number;
+    let prevIndex = 0;
+
+    const update = () => {
+      if (panelRef.current && contentRef.current) {
+        const rect = panelRef.current.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const extraWidth = rect.width - vw;
+
+        if (extraWidth > 0) {
+          /* Counter-translate so content appears pinned */
+          const offset = Math.max(0, Math.min(-rect.left, extraWidth));
+          contentRef.current.style.transform = `translateX(${offset}px)`;
+
+          /* Switch active overlay based on scroll progress */
+          const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
+          const newIndex = Math.min(
+            concepts.length - 1,
+            Math.floor(progress * concepts.length),
           );
-        })}
+          if (newIndex !== prevIndex) {
+            prevIndex = newIndex;
+            overlays.forEach((overlay, i) => {
+              overlay.style.opacity = i === newIndex ? "1" : "0";
+            });
+          }
+        }
+      }
+      rafId = requestAnimationFrame(update);
+    };
+
+    rafId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(rafId);
+  }, [concepts.length]);
+
+  /* ── 3) Mobile: GSAP pin + scrub crossfade ── */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const isMobile = window.innerWidth <= 1024 || window.innerHeight <= 700;
+    if (!isMobile) return;
+
+    const content = contentRef.current;
+    const panel = panelRef.current;
+    const grid = gridRef.current;
+    if (!content || !panel || !grid) return;
+
+    const overlays = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
+    );
+    if (overlays.length < 2) return;
+    const count = overlays.length;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: content,
+          start: "top top",
+          end: `+=${count * 500}`,
+          pin: true,
+          pinSpacing: true,
+          scrub: 0.5,
+        },
+      });
+      tl.to({}, { duration: 1.0 });
+      for (let i = 0; i < count - 1; i++) {
+        tl.to(overlays[i], { opacity: 0, duration: 0.5 });
+        tl.to(overlays[i + 1], { opacity: 1, duration: 0.5 }, "<");
+        tl.to({}, { duration: 1.0 });
+      }
+    }, panel);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
+      {/* Inner wrapper: counter-translated to appear pinned */}
+      <div ref={contentRef} className={styles.dcFixed}>
+        <span className={styles.panelNumber}>04</span>
+        <h3 className={styles.panelTitle}>
+          Design Concept.
+        </h3>
+
+        <div ref={gridRef} className={styles.dcGrid}>
+          {concepts.map((concept) => {
+            const Demo = demoMap[concept.id];
+            return (
+              <div key={concept.id} className={styles.dcCard}>
+                <div className={styles.dcCardBg}>
+                  <Image
+                    src={concept.image}
+                    alt={concept.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                </div>
+                <div className={styles.dcCardOverlay}>
+                  <span className={styles.dcCardTitle}>{concept.title}</span>
+                  <h4 className={styles.dcCardSubtitle}>
+                    {concept.subtitle[language]}
+                  </h4>
+                  <p className={styles.dcCardDesc}>
+                    {concept.description[language]}
+                  </p>
+                  {Demo && <Demo />}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

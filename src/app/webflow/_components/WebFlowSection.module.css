@@ -14,7 +14,7 @@
   /* ── Font sizes (complement global --font-size-*) ── */
   --wf-fs-lead: clamp(0.65rem, min(1.3vw, 2.3vh), 1.5rem);
   --wf-fs-subhead: clamp(0.65rem, min(1.25vw, 2.2vh), 1.45rem);
-  --wf-fs-body: clamp(0.6rem, min(1vw, 1.8vh), 1.2rem);
+  --wf-fs-body: clamp(0.6rem, min(1.5vw, 2vh), 1.2rem);
   --wf-fs-label: clamp(0.6rem, min(0.95vw, 1.7vh), 1.15rem);
   --wf-fs-small: clamp(0.55rem, min(0.88vw, 1.55vh), 1.05rem);
   --wf-fs-caption: clamp(0.5rem, min(0.8vw, 1.4vh), 0.95rem);
@@ -729,51 +729,27 @@
 }
 
 /* ==========================================================================
-   Design Concept Panel — Bento Grid + Full-Cover Image Overlay
+   Design Concept Panel — Stacked Crossfade (fixed frame, content swaps)
    ========================================================================== */
+
+/* Inner wrapper: counter-translated by JS to appear pinned */
+.dcFixed {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-width: calc(100vw - var(--wf-panel-px) * 2);
+  min-height: 0;
+  will-change: transform;
+}
 
 .dcGrid {
   display: grid;
-  gap: clamp(6px, min(0.8vh, 0.45vw), 16px);
   flex: 1;
   margin-bottom: clamp(6px, min(0.8vh, 0.45vw), 16px);
-  grid-template-columns: repeat(12, 1fr);
-  grid-template-rows: repeat(7, 1fr);
 }
 
-/* Bento placement (7-row grid)
-   ┌──────────────┬──────────────┐
-   │ Typography   │ Color        │  row 1-4 | row 1-4
-   │ (6col × 4row)│ (6col × 3row)│
-   │              ├──────┬───────┤  row 4
-   │              │ Grid │Layout │
-   ├───────┬──────┤(3×4) │(3×4) │  row 5
-   │Motion │Icons │      │      │
-   │(3×3)  │(3×3) │      │      │
-   └───────┴──────┴──────┴───────┘  row 8 */
-.dcCard:nth-child(1) {
-  grid-column: 1 / 7;
-  grid-row: 1 / 5;
-}
-.dcCard:nth-child(2) {
-  grid-column: 7 / 13;
-  grid-row: 1 / 4;
-}
-.dcCard:nth-child(3) {
-  grid-column: 7 / 10;
-  grid-row: 4 / 8;
-}
-.dcCard:nth-child(4) {
-  grid-column: 1 / 4;
-  grid-row: 5 / 8;
-}
-.dcCard:nth-child(5) {
-  grid-column: 4 / 7;
-  grid-row: 5 / 8;
-}
-.dcCard:nth-child(6) {
-  grid-column: 10 / 13;
-  grid-row: 4 / 8;
+.dcGrid .dcCard {
+  grid-area: 1 / 1;
 }
 
 .dcCard {
@@ -794,6 +770,11 @@
 .dcCard:hover {
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 0 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Compound selector (0,2,0) — smooth overlay crossfade */
+.dcCard .dcCardOverlay {
+  transition: opacity 0.35s ease;
 }
 
 /* Full-cover background image */
@@ -827,7 +808,8 @@
   z-index: 1;
   flex: 1;
   min-width: 0;
-  overflow: hidden;
+  min-height: 0;
+  overflow: visible;
 }
 
 .dcCardTitle {
@@ -860,12 +842,12 @@
 }
 
 .dcDemo {
-  flex: 1 1 0;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   margin-top: auto;
-  min-height: 0;
+  min-height: fit-content;
 }
 
 /* ── Typography demo ── */
@@ -904,6 +886,7 @@
   font-size: clamp(0.8rem, min(3.5vw, 6vh), 3.5rem);
   font-weight: 400;
   line-height: 1.3;
+  white-space: nowrap;
   color: #fff;
 }
 
@@ -2248,17 +2231,8 @@
     grid-template-rows: auto;
   }
 
-  .dcGrid {
-    grid-template-columns: 1fr;
-    grid-template-rows: none;
-    grid-auto-rows: 1fr;
-  }
-
-  .dcCard,
-  .dcCard:nth-child(n) {
-    grid-column: auto;
-    grid-row: auto;
-    min-height: auto;
+  .dcFixed {
+    min-height: 100vh;
   }
 
   .dcCardOverlay {
@@ -2268,7 +2242,6 @@
     padding: clamp(16px, 4vw, 28px) clamp(18px, 4vw, 28px);
     gap: clamp(6px, 1.5vw, 12px);
     overflow: visible;
-    flex: none;
   }
 
   .dcCardTitle,
