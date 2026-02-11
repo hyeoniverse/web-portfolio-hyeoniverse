@@ -24,7 +24,7 @@ export default function TroubleshootingPanel({
   // Desktop: track horizontal scroll progress via RAF
   // Counter-translate inner content so it appears pinned in the viewport
   useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth <= 1024 || window.innerHeight <= 700) return;
+    if (typeof window === "undefined" || window.innerWidth <= 1024) return;
 
     let rafId: number;
     let prevIndex = 0;
@@ -62,7 +62,7 @@ export default function TroubleshootingPanel({
   // Click list item → scroll to matching position (GSAP scrub animates)
   const handleItemClick = useCallback(
     (index: number) => {
-      if (!panelRef.current || window.innerWidth <= 1024 || window.innerHeight <= 700) return;
+      if (!panelRef.current || window.innerWidth <= 1024) return;
 
       const rect = panelRef.current.getBoundingClientRect();
       const extraWidth = rect.width - window.innerWidth;

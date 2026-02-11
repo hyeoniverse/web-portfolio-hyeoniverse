@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 
 const MOBILE_WIDTH = 1024;
-const SHORT_HEIGHT = 700;
 
 function checkMobile() {
   if (typeof window === "undefined") return false;
-  return window.innerWidth <= MOBILE_WIDTH || window.innerHeight <= SHORT_HEIGHT;
+  return window.innerWidth <= MOBILE_WIDTH;
 }
 
 /**
