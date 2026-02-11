@@ -631,6 +631,14 @@
   grid-template-columns: repeat(4, 1fr);
 }
 
+.featureGridPinned {
+  display: contents;
+}
+
+.featureFolderWrap {
+  display: contents;
+}
+
 .featureFolder {
   position: relative;
   z-index: 1;
@@ -2135,6 +2143,7 @@
     --wf-fs-small: clamp(0.8rem, 2.2vw, 1.05rem);
     --wf-fs-caption: clamp(0.75rem, 2vw, 0.95rem);
     --wf-fs-code: clamp(0.8rem, 2.2vw, 1.05rem);
+    overflow: clip;
   }
 
   /* ── Mobile InView animation (reverse on exit) ── */
@@ -2161,6 +2170,7 @@
 
   .track {
     flex-direction: column;
+    will-change: auto;
   }
 
   .panel,
@@ -2365,8 +2375,49 @@
   }
 
   .featureGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: block;
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .featureGridPinned {
+    position: relative;
+    height: 100%;
+  }
+
+  .featureFolderWrap {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: clamp(250px, calc(100vh - 280px), 550px);
+    transform: translateY(100vh);
+    will-change: transform;
+  }
+
+  .featureFolderWrap .featureFolderTab {
+    flex-shrink: 0;
+    align-self: flex-start;
+    padding: 0.55rem 1.2rem;
+    font-size: 0.85rem;
+    margin-bottom: -1px;
+    position: relative;
+    z-index: 1;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .featureFolderWrap .featureFolderCard {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--bg-primary);
+    border-radius: 0 12px 12px 12px;
+    box-shadow:
+      0 -2px 20px rgba(0, 0, 0, 0.08),
+      0 4px 24px rgba(0, 0, 0, 0.15);
   }
 
   .processGrid {
@@ -2510,11 +2561,6 @@
     font-size: clamp(2.8rem, 9vw, 4rem);
   }
 
-  .featureGrid {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
   .processGrid {
     grid-template-columns: 1fr;
   }
@@ -2599,6 +2645,30 @@
   }
 
   .featureGrid {
+    display: grid;
+    height: auto;
+    gap: var(--spacing-2xl) var(--spacing-xl);
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .featureGridPinned {
+    display: contents;
+  }
+
+  .featureFolderWrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    inset: auto;
+    will-change: auto;
+    transform: none;
+  }
+
+  .featureFolderWrap .featureFolderCard {
+    flex: initial;
+    min-height: clamp(150px, 23vh, 240px);
+    overflow: visible;
+    box-shadow: none;
   }
 }
