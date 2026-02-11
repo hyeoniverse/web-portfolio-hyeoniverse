@@ -734,42 +734,68 @@
 
 /* Inner wrapper: counter-translated by JS to appear pinned */
 .dcFixed {
+  position: relative;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  max-width: calc(100vw - var(--wf-panel-px) * 2);
+  width: calc(100vw - var(--wf-panel-px) * 2);
+  height: calc(100vh - var(--wf-panel-py) * 2);
   min-height: 0;
   will-change: transform;
 }
 
-.dcGrid {
-  display: grid;
-  flex: 1;
-  margin-bottom: clamp(6px, min(0.8vh, 0.45vw), 16px);
+.dcTitleRow {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
-.dcGrid .dcCard {
-  grid-area: 1 / 1;
+.dcDotNav {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.dcDot {
+  width: 6px;
+  height: 6px;
+  background: var(--text-tertiary);
+  border-radius: 50%;
+  opacity: 0.4;
+}
+
+/* Compound selector (0,2,0) */
+.dcDotNav .dcDot {
+  transition:
+    opacity 0.3s ease,
+    background-color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.dcDotActive {
+  background: var(--text-accent-secondary);
+  opacity: 1;
+  transform: scale(1.4);
+}
+
+.dcCardStack {
+  position: absolute;
+  top: calc(-1 * var(--wf-panel-py));
+  left: calc(-1 * var(--wf-panel-px));
+  width: 100vw;
+  height: 100vh;
+}
+
+.dcCardStack .dcCard {
+  position: absolute;
+  inset: 0;
 }
 
 .dcCard {
   display: flex;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   position: relative;
-  border-radius: var(--radius-lg);
-}
-
-/* Compound selector (0,2,0) */
-.dcGrid .dcCard {
-  transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.dcCard:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.3);
 }
 
 /* Compound selector (0,2,0) — smooth overlay crossfade */
@@ -798,12 +824,12 @@
   filter: brightness(0.4) saturate(0.85);
 }
 
-/* Overlay content on top of image */
+/* Overlay content on top of image — top clears nav+title, bottom clears bottom nav */
 .dcCardOverlay {
   display: flex;
   flex-direction: column;
-  padding: clamp(var(--spacing-md), min(2.5vh, 2vw), var(--spacing-2xl))
-    clamp(var(--spacing-md), min(2.2vh, 1.8vw), var(--spacing-xl));
+  padding: calc(var(--wf-panel-py) + var(--header-height) + 6rem) var(--wf-panel-px)
+    calc(var(--spacing-2xl) + 3rem);
   position: relative;
   z-index: 1;
   flex: 1;
@@ -814,9 +840,9 @@
 
 .dcCardTitle {
   flex-shrink: 0;
-  margin: 0 0 clamp(3px, min(0.4vh, 0.22vw), 8px);
+  margin: 0 0 clamp(6px, min(0.7vh, 0.4vw), 14px);
   font-family: var(--wf-font-grotesk);
-  font-size: clamp(0.5rem, min(1.1vw, 2vh), 1.2rem);
+  font-size: clamp(0.8rem, min(1.8vw, 3.2vh), 1.8rem);
   font-weight: var(--font-weight-semibold);
   color: rgba(255, 255, 255, 0.65);
   text-transform: uppercase;
@@ -825,9 +851,9 @@
 
 .dcCardSubtitle {
   flex-shrink: 0;
-  margin: 0 0 clamp(2px, min(0.6vh, 0.34vw), 12px);
+  margin: 0 0 clamp(6px, min(1vh, 0.55vw), 18px);
   font-family: var(--font-instrument);
-  font-size: clamp(0.7rem, min(2.5vw, 4.5vh), 2.8rem);
+  font-size: clamp(1.3rem, min(4.5vw, 8vh), 4.8rem);
   font-style: italic;
   color: #fff;
 }
@@ -835,8 +861,8 @@
 .dcCardDesc {
   flex-shrink: 0;
   margin: 0;
-  max-width: 520px;
-  font-size: clamp(0.5rem, min(1vw, 1.8vh), 1.2rem);
+  max-width: 640px;
+  font-size: clamp(0.8rem, min(1.8vw, 3.2vh), 1.8rem);
   line-height: var(--wf-lh-reading);
   color: rgba(255, 255, 255, 0.7);
 }
@@ -853,17 +879,17 @@
 /* ── Typography demo ── */
 .dcFontTabs {
   display: flex;
-  gap: clamp(2px, 0.3vw, 6px);
+  gap: clamp(8px, 0.8vw, 16px);
   flex-wrap: wrap;
-  margin-bottom: clamp(4px, min(0.5vh, 0.28vw), 10px);
+  margin-bottom: clamp(12px, min(1.5vh, 0.9vw), 24px);
 }
 
 .dcFontTab {
-  padding: clamp(2px, min(0.3vh, 0.17vw), 6px) clamp(6px, 0.5vw, 12px);
+  padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
+  font-size: clamp(0.9rem, 1.25vw, 1.5rem);
   color: rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-sm);
 }
@@ -883,7 +909,7 @@
 }
 
 .dcSpecimen {
-  font-size: clamp(0.8rem, min(3.5vw, 6vh), 3.5rem);
+  font-size: clamp(2.5rem, min(8vw, 13vh), 9rem);
   font-weight: 400;
   line-height: 1.3;
   white-space: nowrap;
@@ -893,16 +919,16 @@
 /* ── Color System demo ── */
 .dcThemeToggle {
   display: inline-flex;
-  gap: clamp(2px, 0.3vw, 6px);
-  margin-bottom: clamp(4px, min(0.5vh, 0.28vw), 10px);
+  gap: clamp(6px, 0.6vw, 12px);
+  margin-bottom: clamp(10px, min(1.2vh, 0.7vw), 20px);
 }
 
 .dcThemeBtn {
-  padding: clamp(2px, min(0.3vh, 0.17vw), 6px) clamp(6px, 0.5vw, 12px);
+  padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
+  font-size: clamp(0.9rem, 1.25vw, 1.5rem);
   color: rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-sm);
 }
@@ -923,7 +949,7 @@
 
 .dcSwatchRow {
   display: flex;
-  gap: clamp(4px, 0.4vw, 10px);
+  gap: clamp(6px, 0.6vw, 14px);
   flex-wrap: wrap;
 }
 
@@ -932,9 +958,9 @@
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  width: clamp(24px, min(3vh, 1.7vw), 42px);
-  height: clamp(24px, min(3vh, 1.7vw), 42px);
-  font-size: clamp(0.4rem, 0.5vw, 0.6rem);
+  width: clamp(48px, min(8vh, 4.2vw), 84px);
+  height: clamp(48px, min(8vh, 4.2vw), 84px);
+  font-size: clamp(0.8rem, 1.05vw, 1.3rem);
   border-radius: var(--radius-sm);
 }
 
@@ -948,69 +974,62 @@
   overflow: hidden;
   position: relative;
   width: 100%;
-  height: clamp(20px, min(3vh, 1.7vw), 36px);
+  height: clamp(42px, min(7vh, 3.8vw), 68px);
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border-radius: 24px;
 }
 
 .dcSpringBall {
   position: absolute;
   top: 50%;
-  left: 0;
-  width: clamp(16px, min(2vh, 1.1vw), 28px);
-  height: clamp(16px, min(2vh, 1.1vw), 28px);
+  left: 4px;
+  width: clamp(30px, min(4.8vh, 2.6vw), 52px);
+  height: clamp(30px, min(4.8vh, 2.6vw), 52px);
   background: var(--text-accent-secondary);
-  animation: dcSpringBounce 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
   border-radius: 50%;
   translate: 0 -50%;
+  will-change: left;
 }
 
-@keyframes dcSpringBounce {
-  0% {
-    left: 4px;
-  }
-  50% {
-    left: calc(100% - 28px);
-  }
-  100% {
-    left: 4px;
-  }
+/* Compound selector (0,2,0) */
+.dcDemo .dcSpringBall {
+  transition: left 0.15s ease-out;
 }
 
 .dcMotionLabels {
   display: flex;
-  gap: clamp(4px, 0.5vw, 12px);
-  margin-top: clamp(4px, min(0.4vh, 0.22vw), 10px);
-  font-size: clamp(0.5rem, 0.6vw, 0.75rem);
+  gap: clamp(12px, 1.2vw, 24px);
+  margin-top: clamp(12px, min(1.5vh, 0.8vw), 22px);
+  font-size: clamp(0.9rem, 1.15vw, 1.4rem);
   color: rgba(255, 255, 255, 0.5);
 }
 
 /* ── Layout & Spacing demo ── */
 .dcSpacingList {
   display: flex;
-  gap: clamp(1px, min(0.15vh, 0.08vw), 3px);
+  gap: clamp(6px, min(0.7vh, 0.4vw), 12px);
   flex-direction: column;
 }
 
 .dcSpacingRow {
   display: flex;
-  gap: clamp(4px, 0.4vw, 10px);
+  gap: clamp(12px, 1vw, 20px);
   align-items: center;
 }
 
 .dcSpacingLabel {
   flex-shrink: 0;
-  width: clamp(24px, 2.5vw, 36px);
+  width: clamp(44px, 4.5vw, 70px);
   font-family: var(--font-mono);
-  font-size: clamp(0.45rem, 0.5vw, 0.6rem);
+  font-size: clamp(0.85rem, 1.05vw, 1.25rem);
   color: rgba(255, 255, 255, 0.5);
   text-align: right;
 }
 
 .dcSpacingBar {
-  height: clamp(5px, min(0.7vh, 0.4vw), 10px);
+  height: clamp(12px, min(1.8vh, 1vw), 22px);
   background: rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
+  border-radius: 5px;
 }
 
 /* Compound selector (0,2,0) */
@@ -1025,16 +1044,16 @@
 .dcSpacingPx {
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: clamp(0.45rem, 0.5vw, 0.6rem);
+  font-size: clamp(0.85rem, 1.05vw, 1.25rem);
   color: rgba(255, 255, 255, 0.5);
 }
 
 /* ── Grid System demo (breakpoint bar) ── */
 .dcBreakpoints {
   display: flex;
-  gap: clamp(2px, 0.3vw, 6px);
+  gap: clamp(8px, 0.8vw, 16px);
   align-items: flex-end;
-  height: clamp(30px, min(5vh, 2.8vw), 60px);
+  height: clamp(60px, min(11vh, 6vw), 120px);
 }
 
 .dcBpBar {
@@ -1060,10 +1079,10 @@
 
 .dcBpLabel {
   position: absolute;
-  bottom: clamp(-14px, max(-1.5vh, -0.85vw), -20px);
+  bottom: clamp(-20px, max(-2.2vh, -1.2vw), -28px);
   left: 50%;
   font-family: var(--font-mono);
-  font-size: clamp(0.4rem, 0.45vw, 0.55rem);
+  font-size: clamp(0.75rem, 0.95vw, 1.1rem);
   color: rgba(255, 255, 255, 0.5);
   white-space: nowrap;
   transform: translateX(-50%);
@@ -1081,10 +1100,10 @@
 
 .dcBpName {
   position: absolute;
-  top: clamp(2px, min(0.3vh, 0.17vw), 6px);
+  top: clamp(4px, min(0.6vh, 0.35vw), 10px);
   left: 50%;
   font-family: var(--font-mono);
-  font-size: clamp(0.45rem, 0.5vw, 0.6rem);
+  font-size: clamp(0.85rem, 1.05vw, 1.25rem);
   font-weight: var(--font-weight-medium);
   color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
@@ -1094,16 +1113,16 @@
 /* ── Iconography demo (icon grid + toggle) ── */
 .dcIconToggle {
   display: inline-flex;
-  gap: clamp(2px, 0.3vw, 6px);
-  margin-bottom: clamp(4px, min(0.5vh, 0.28vw), 10px);
+  gap: clamp(4px, 0.5vw, 10px);
+  margin-bottom: clamp(8px, min(1vh, 0.55vw), 16px);
 }
 
 .dcIconToggleBtn {
-  padding: clamp(2px, min(0.3vh, 0.17vw), 6px) clamp(6px, 0.5vw, 12px);
+  padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
+  font-size: clamp(0.9rem, 1.25vw, 1.5rem);
   color: rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-sm);
 }
@@ -1124,15 +1143,15 @@
 
 .dcIconGrid {
   display: flex;
-  gap: clamp(3px, 0.4vw, 8px);
+  gap: clamp(10px, 0.9vw, 18px);
   flex-wrap: wrap;
 }
 
 .dcIconCell {
   display: flex;
-  gap: clamp(2px, 0.3vw, 6px);
+  gap: clamp(10px, 0.9vw, 18px);
   align-items: center;
-  padding: clamp(3px, min(0.3vh, 0.17vw), 8px) clamp(5px, 0.4vw, 10px);
+  padding: clamp(10px, min(1.1vh, 0.6vw), 18px) clamp(16px, 1.3vw, 26px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-sm);
 }
@@ -1150,14 +1169,14 @@
 }
 
 .dcIconCell svg {
-  width: clamp(12px, 1.2vw, 20px);
-  height: clamp(12px, 1.2vw, 20px);
+  width: clamp(28px, 2.6vw, 40px);
+  height: clamp(28px, 2.6vw, 40px);
   color: rgba(255, 255, 255, 0.8);
 }
 
 .dcIconCellLabel {
   font-family: var(--font-mono);
-  font-size: clamp(0.4rem, 0.5vw, 0.6rem);
+  font-size: clamp(0.85rem, 1.05vw, 1.25rem);
   color: rgba(255, 255, 255, 0.5);
 }
 
@@ -2233,6 +2252,10 @@
 
   .dcFixed {
     min-height: 100vh;
+  }
+
+  .dcDotNav {
+    display: none;
   }
 
   .dcCardOverlay {
