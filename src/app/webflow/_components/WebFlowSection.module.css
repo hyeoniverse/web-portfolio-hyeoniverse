@@ -821,7 +821,8 @@
 .dcCardOverlay {
   display: flex;
   flex-direction: column;
-  padding: clamp(8px, min(1.2vh, 0.7vw), 20px) clamp(10px, 1vw, 24px);
+  padding: clamp(var(--spacing-md), min(2.5vh, 2vw), var(--spacing-2xl))
+    clamp(var(--spacing-md), min(2.2vh, 1.8vw), var(--spacing-xl));
   position: relative;
   z-index: 1;
   flex: 1;
