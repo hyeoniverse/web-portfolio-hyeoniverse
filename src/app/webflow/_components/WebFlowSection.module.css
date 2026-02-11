@@ -680,6 +680,7 @@
   justify-content: space-between;
   flex-direction: column;
   padding: var(--spacing-2xl);
+  padding-top: var(--spacing-5xl);
   border: var(--wf-line-secondary);
   min-height: clamp(150px, 23vh, 240px);
   background: var(--bg-primary);
@@ -2138,11 +2139,11 @@
     --wf-space-block: clamp(1rem, 3.5vw, 2.5rem);
     --wf-fs-lead: clamp(1rem, 3.2vw, 1.6rem);
     --wf-fs-subhead: clamp(1rem, 3vw, 1.5rem);
-    --wf-fs-body: clamp(0.9rem, 2.8vw, 1.3rem);
-    --wf-fs-label: clamp(0.85rem, 2.5vw, 1.15rem);
-    --wf-fs-small: clamp(0.8rem, 2.2vw, 1.05rem);
-    --wf-fs-caption: clamp(0.75rem, 2vw, 0.95rem);
-    --wf-fs-code: clamp(0.8rem, 2.2vw, 1.05rem);
+    --wf-fs-body: clamp(0.9rem, 1.75vw, 1.3rem);
+    --wf-fs-label: clamp(0.85rem, 1.45vw, 1.15rem);
+    --wf-fs-small: clamp(0.8rem, 1.15vw, 1.05rem);
+    --wf-fs-caption: clamp(0.75rem, 1.25vw, 0.95rem);
+    --wf-fs-code: clamp(0.8rem, 1.85vw, 1.05rem);
     overflow: clip;
   }
 
@@ -2378,12 +2379,11 @@
     display: block;
     position: relative;
     height: 100vh;
-    overflow: hidden;
   }
 
   .featureGridPinned {
     position: relative;
-    height: 100%;
+    height: fit-content;
   }
 
   .featureFolderWrap {
@@ -2402,7 +2402,7 @@
     flex-shrink: 0;
     align-self: flex-start;
     padding: 0.55rem 1.2rem;
-    font-size: 0.85rem;
+    font-size: var(--wf-fs-label);
     margin-bottom: -1px;
     position: relative;
     z-index: 1;
@@ -2539,6 +2539,45 @@
 
   .highlightedText {
     padding: 0.15rem 0.4rem;
+  }
+}
+
+/* ── Tablet: smaller cards + irregular zigzag ── */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .featureFolderWrap {
+    width: 55%;
+    height: clamp(180px, calc(100vh - 350px), 350px);
+  }
+
+  /* 5-period cycle → irregular across 9 cards */
+  .featureFolderWrap:nth-child(5n + 1) {
+    left: 20%;
+    right: auto;
+  }
+
+  .featureFolderWrap:nth-child(6n + 2) {
+    left: auto;
+    right: 0%;
+  }
+
+  .featureFolderWrap:nth-child(6n + 3) {
+    left: 24%;
+    right: auto;
+  }
+
+  .featureFolderWrap:nth-child(6n + 4) {
+    left: 0;
+    right: auto%;
+  }
+
+  .featureFolderWrap:nth-child(6n + 5) {
+    left: auto;
+    right: 10%;
+  }
+
+  .featureFolderWrap:nth-child(6n + 6) {
+    left: 10%;
+    right: auto;
   }
 }
 
