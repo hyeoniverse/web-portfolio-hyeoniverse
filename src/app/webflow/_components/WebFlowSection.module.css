@@ -666,7 +666,23 @@
   transition:
     color 0.35s ease,
     border-color 0.35s ease;
-  border-radius: 10px 10px 0 0;
+  border-radius: 16px 16px 0 0;
+}
+
+.featureFolderTab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: -12px;
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(
+    circle at top right,
+    transparent 11px,
+    var(--border-primary-color) 11.5px,
+    var(--border-primary-color) 12px,
+    var(--bg-primary) 12.5px
+  );
 }
 
 .featureFolder:hover .featureFolderTab {
@@ -687,7 +703,7 @@
   transition:
     border-color 0.35s ease,
     box-shadow 0.35s ease;
-  border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
+  border-radius: 0 20px 20px 20px;
 }
 
 .featureFolder:hover .featureFolderCard {
@@ -2406,14 +2422,27 @@
     margin-bottom: -1px;
     position: relative;
     z-index: 1;
-    border-radius: 12px 12px 0 0;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .featureFolderWrap .featureFolderTab::after {
+    right: -14px;
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(
+      circle at top right,
+      transparent 13px,
+      var(--border-primary-color) 13.5px,
+      var(--border-primary-color) 14px,
+      var(--bg-primary) 14.5px
+    );
   }
 
   .featureFolderWrap .featureFolderCard {
     min-height: 0;
     overflow: hidden;
     background: var(--bg-primary);
-    border-radius: 0 12px 12px 12px;
+    border-radius: 0 22px 22px 22px;
     box-shadow:
       0 -2px 20px rgba(0, 0, 0, 0.08),
       0 4px 24px rgba(0, 0, 0, 0.15);

@@ -91,16 +91,19 @@ export default function FeaturesPanel({
           const lastCardY = viewportH - bottomGap - cardH;
 
           const animFrac = Math.min(progress / 0.95, 1);
-          const perCard = lastIdx > 0 ? 1 / lastIdx : 1;
+          const spacing = lastIdx > 0 ? 1 / lastIdx : 1;
+          /* Each card animates over 2× spacing → 50% overlap with next card.
+             Cards feel like they're being dragged up together. */
+          const duration = spacing * 4.5;
 
           for (let i = 0; i < count; i++) {
             const restY = lastCardY - (lastIdx - i) * tabH;
 
             if (i < lastIdx) {
-              const cardStart = i * perCard;
+              const cardStart = i * spacing;
               const t = Math.max(
                 0,
-                Math.min(1, (animFrac - cardStart) / perCard),
+                Math.min(1, (animFrac - cardStart) / duration),
               );
               const exitY = -cardH - 40;
               const y = restY + (exitY - restY) * t;
