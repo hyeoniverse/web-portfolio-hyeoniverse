@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, useState, useCallback, useLayoutEffect, useEffect } from "react";
+import {
+  useRef,
+  useState,
+  useCallback,
+  useLayoutEffect,
+  useEffect,
+} from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -9,14 +15,7 @@ if (typeof window !== "undefined") {
 }
 import Image from "next/image";
 import { useLenis } from "@/providers/LenisProvider";
-import {
-  Code,
-  Palette,
-  LayoutGrid,
-  Zap,
-  Globe,
-  Mail,
-} from "lucide-react";
+import { Code, Palette, LayoutGrid, Zap, Globe, Mail } from "lucide-react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem } from "@/data/webflow";
 import styles from "../WebFlowSection.module.css";
@@ -114,7 +113,8 @@ function ColorSystemDemo() {
             className={styles.dcSwatch}
             style={{
               backgroundColor: s.hex,
-              color: hexLuminance(s.hex) > 0.5 ? "#111" : "rgba(255,255,255,0.8)",
+              color:
+                hexLuminance(s.hex) > 0.5 ? "#111" : "rgba(255,255,255,0.8)",
             }}
             title={`${s.label}: ${s.hex}`}
           >
@@ -153,6 +153,11 @@ function MotionScrollDemo() {
       const left = 4 + ((normalized + 1) / 2) * maxLeft;
 
       ball.style.left = `${left}px`;
+      // Squash & stretch: flatten when moving fast
+      const abs = Math.abs(normalized);
+      const stretch = 1 + abs * 0.35;
+      const squash = 1 / stretch;
+      ball.style.transform = `scaleX(${stretch.toFixed(3)}) scaleY(${squash.toFixed(3)})`;
 
       rafId = requestAnimationFrame(update);
     };
@@ -311,7 +316,12 @@ export default function DesignConceptPanel({
 
   /* ── 2) Desktop: RAF counter-translation + overlay switching (same as CodeHighlights) ── */
   useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth <= 1024 || window.innerHeight <= 700) return;
+    if (
+      typeof window === "undefined" ||
+      window.innerWidth <= 1024 ||
+      window.innerHeight <= 700
+    )
+      return;
 
     const grid = stackRef.current;
     if (!grid) return;
@@ -378,17 +388,17 @@ export default function DesignConceptPanel({
         scrollTrigger: {
           trigger: content,
           start: "top top",
-          end: `+=${count * 500}`,
+          end: `+=${count * 800}`,
           pin: true,
           pinSpacing: true,
-          scrub: 0.5,
+          scrub: 0.8,
         },
       });
-      tl.to({}, { duration: 1.0 });
+      tl.to({}, { duration: 1.5 });
       for (let i = 0; i < count - 1; i++) {
-        tl.to(overlays[i], { opacity: 0, duration: 0.5 });
-        tl.to(overlays[i + 1], { opacity: 1, duration: 0.5 }, "<");
-        tl.to({}, { duration: 1.0 });
+        tl.to(overlays[i], { opacity: 0, duration: 0.7 });
+        tl.to(overlays[i + 1], { opacity: 1, duration: 0.7 }, "<");
+        tl.to({}, { duration: 1.5 });
       }
     }, panel);
 
@@ -397,7 +407,12 @@ export default function DesignConceptPanel({
 
   const handleDotClick = useCallback(
     (index: number) => {
-      if (!panelRef.current || window.innerWidth <= 1024 || window.innerHeight <= 700) return;
+      if (
+        !panelRef.current ||
+        window.innerWidth <= 1024 ||
+        window.innerHeight <= 700
+      )
+        return;
 
       const rect = panelRef.current.getBoundingClientRect();
       const extraWidth = rect.width - window.innerWidth;
@@ -419,9 +434,7 @@ export default function DesignConceptPanel({
         <div className={styles.dcTitleRow}>
           <div>
             <span className={styles.panelNumber}>04</span>
-            <h3 className={styles.panelTitle}>
-              Design Concept.
-            </h3>
+            <h3 className={styles.panelTitle}>Design Concept.</h3>
           </div>
           <div className={styles.dcDotNav}>
             {concepts.map((_, i) => (
