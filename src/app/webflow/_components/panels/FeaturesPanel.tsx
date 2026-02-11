@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useEffect, useLayoutEffect, useState } from "react";
+import {
+  useCallback,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
@@ -60,11 +66,10 @@ export default function FeaturesPanel({
     if (count === 0) return;
 
     const lastIdx = count - 1;
-    const TAB_H = 36;
+    const isTablet = window.innerWidth >= 768;
 
     const ctx = gsap.context(() => {
-      /* Pin the entire .featureGrid for (count * 150)px of extra scroll */
-      const scrollDist = count * 150;
+      const scrollDist = count * (isTablet ? 1000 : 150);
 
       ScrollTrigger.create({
         trigger: grid,
@@ -73,20 +78,23 @@ export default function FeaturesPanel({
         pin: true,
         pinSpacing: true,
         onUpdate: (self) => {
-          const progress = self.progress; // 0 → 1
+          const progress = self.progress;
           const viewportH = window.innerHeight;
           const cardH = cards[0].offsetHeight;
 
-          /* Stack position: center vertically */
-          const stackH = cardH + lastIdx * TAB_H;
-          const baseY = Math.max(16, (viewportH - stackH) / 2);
+          /* Tablet: show card bodies between cards.
+             Mobile: tight stack, only tabs visible. */
+          const tabH = isTablet ? Math.round(cardH * 0.1) : 28;
 
-          /* 90% = dismiss, 10% = dwell on last card */
-          const animFrac = Math.min(progress / 0.9, 1);
+          /* Anchor last card to viewport bottom, stack others above */
+          const bottomGap = -(cardH * 0.7);
+          const lastCardY = viewportH - bottomGap - cardH;
+
+          const animFrac = Math.min(progress / 0.95, 1);
           const perCard = lastIdx > 0 ? 1 / lastIdx : 1;
 
           for (let i = 0; i < count; i++) {
-            const restY = baseY + i * TAB_H;
+            const restY = lastCardY - (lastIdx - i) * tabH;
 
             if (i < lastIdx) {
               const cardStart = i * perCard;
@@ -119,9 +127,7 @@ export default function FeaturesPanel({
             <p className={styles.featureDfDesc}>
               {feature.description[language]}
             </p>
-            <p className={styles.featureDfTech}>
-              {feature.tech.join(" · ")}
-            </p>
+            <p className={styles.featureDfTech}>{feature.tech.join(" · ")}</p>
           </div>
         </div>
       );
@@ -151,7 +157,7 @@ export default function FeaturesPanel({
       <div
         className={styles.featureGrid}
         ref={gridRef}
-        style={{ '--feature-count': features.length } as React.CSSProperties}
+        style={{ "--feature-count": features.length } as React.CSSProperties}
       >
         <div className={styles.featureGridPinned}>
           {features.map((feature, index) => (
