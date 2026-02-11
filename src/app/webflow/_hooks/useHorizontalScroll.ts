@@ -29,6 +29,7 @@ export function useHorizontalScroll(
 ): {
   sectionRef: React.RefObject<HTMLDivElement | null>;
   trackRef: React.RefObject<HTMLDivElement | null>;
+  scrollTweenRef: React.RefObject<gsap.core.Tween | null>;
   activeSection: number;
   goToSection: (navIndex: number) => void;
 } {
@@ -228,5 +229,5 @@ export function useHorizontalScroll(
     return () => observer.disconnect();
   }, [mobile, styles]);
 
-  return { sectionRef, trackRef, activeSection, goToSection };
+  return { sectionRef, trackRef, scrollTweenRef, activeSection, goToSection };
 }
