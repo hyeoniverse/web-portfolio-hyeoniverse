@@ -28,7 +28,7 @@
   --wf-lh-code: var(--line-height-normal);
 
   /* ── Spacing (complement global --spacing-*) ── */
-  --wf-space-section: clamp(0.5rem, min(3.5vh, 2vw), 3.5rem);
+  --wf-space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
   --wf-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
   --wf-space-divide: calc(var(--wf-space-block) * 2);
   --wf-space-line: calc(var(--wf-space-block) / 2);
@@ -1449,11 +1449,12 @@
 /* ── Mobile: simple vertical list (hidden on desktop) ── */
 .processMobileList {
   display: none;
+  margin-bottom: var(--wf-space-section);
 }
 
 .processMobileItem {
-  padding: var(--wf-space-section) 0;
-  border-bottom: 1px solid var(--border-primary-color);
+  padding: var(--wf-space-block) 0;
+  border-bottom: var(--wf-line-primary);
 }
 
 .processMobileItem:last-child {
@@ -2691,13 +2692,13 @@
   }
 
   .processStepTitle {
-    margin-bottom: clamp(0.6rem, 2.5vw, 1.2rem);
-    font-size: clamp(1.2rem, 5vw, 2rem);
+    margin-bottom: var(--wf-space-line);
+    font-size: var(--wf-fs-subhead);
   }
 
   .processStepDesc {
     max-width: none;
-    font-size: clamp(0.85rem, 3vw, 1.1rem);
+    font-size: var(--wf-fs-body);
   }
 
   .overviewStats {

@@ -307,60 +307,72 @@ function DemoInfiniteScroll() {
 }
 
 /* =========================================================================
-   7. DemoSvgPath — SVG Path Draw Animation (ParallaxBackground)
+   7. DemoFrameGrid — Dynamic Frame Grid (DynamicFrameLayout)
    ========================================================================= */
-function DemoSvgPath() {
-  const [animKey, setAnimKey] = useState(0);
+function DemoFrameGrid() {
+  const GRID_SIZE = 12;
+  const HOVER_SIZE = 6;
+  const [hovered, setHovered] = useState<{
+    row: number;
+    col: number;
+  } | null>(null);
+
+  const colors = [
+    "var(--color-accent-alpha-30)",
+    "var(--text-tertiary)",
+    "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
+    "var(--text-tertiary)",
+    "var(--color-accent-alpha-30)",
+    "var(--text-tertiary)",
+    "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
+    "var(--text-tertiary)",
+    "var(--color-accent-alpha-30)",
+  ];
+
+  const getSizes = (axis: "row" | "col") => {
+    if (!hovered) return "4fr 4fr 4fr";
+    const idx = axis === "row" ? hovered.row : hovered.col;
+    const rest = (GRID_SIZE - HOVER_SIZE) / 2;
+    return [0, 1, 2]
+      .map((i) => (i === idx ? `${HOVER_SIZE}fr` : `${rest}fr`))
+      .join(" ");
+  };
 
   return (
-    <div className={styles.codeDemoInner}>
-      <svg
-        width="220"
-        height="80"
-        viewBox="0 0 220 80"
-        fill="none"
-        className={styles.demoSvg}
+    <div className={styles.codeDemoInner} style={{ padding: 8 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateRows: getSizes("row"),
+          gridTemplateColumns: getSizes("col"),
+          gap: 4,
+          width: "100%",
+          height: "100%",
+          transition:
+            "grid-template-rows 0.4s ease, grid-template-columns 0.4s ease",
+        }}
       >
-        <motion.path
-          key={`p-${animKey}`}
-          d="M10,40 C50,10 80,10 110,40 S170,70 210,40"
-          stroke="var(--text-accent-secondary)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          fill="none"
-          initial={{ pathLength: 0, opacity: 0.3 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-        />
-        <motion.circle
-          key={`c-${animKey}`}
-          cx="210"
-          cy="40"
-          r="4"
-          fill="var(--text-accent-secondary)"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 1.9, duration: 0.3 }}
-        />
-        <motion.path
-          key={`p2-${animKey}`}
-          d="M10,60 Q60,30 110,55 T210,50"
-          stroke="var(--text-tertiary)"
-          strokeWidth="1"
-          strokeLinecap="round"
-          fill="none"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 2.5, ease: "easeInOut", delay: 0.3 }}
-        />
-      </svg>
-      <button
-        className={styles.demoBtn}
-        onClick={() => setAnimKey((k) => k + 1)}
-        style={{ marginTop: "var(--spacing-sm)" }}
-      >
-        Replay
-      </button>
+        {colors.map((color, i) => {
+          const row = Math.floor(i / 3);
+          const col = i % 3;
+          const isActive =
+            hovered?.row === row && hovered?.col === col;
+          return (
+            <div
+              key={i}
+              onMouseEnter={() => setHovered({ row, col })}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                background: color,
+                borderRadius: 4,
+                opacity: isActive ? 1 : 0.6,
+                transition: "opacity 0.3s ease",
+              }}
+            />
+          );
+        })}
+      </div>
+      <span className={styles.demoHint}>Hover each cell</span>
     </div>
   );
 }
@@ -470,6 +482,143 @@ function DemoI18nShift() {
 }
 
 /* =========================================================================
+   10. DemoErrorBoundary — Error Boundary (error.tsx / global-error.tsx)
+   ========================================================================= */
+function DemoErrorBoundary() {
+  const [crashed, setCrashed] = useState(false);
+  const [key, setKey] = useState(0);
+
+  return (
+    <div className={styles.codeDemoInner}>
+      {!crashed ? (
+        <>
+          <motion.div
+            key={`ok-${key}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: "var(--spacing-md)",
+            }}
+          >
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: "rgb(34,197,94)",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "0.85rem",
+                color: "var(--text-secondary)",
+              }}
+            >
+              Running
+            </span>
+          </motion.div>
+          <button
+            className={styles.demoBtn}
+            onClick={() => setCrashed(true)}
+          >
+            Trigger Error
+          </button>
+        </>
+      ) : (
+        <>
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, ease: "backOut" }}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              border: "2px solid rgb(239,68,68)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "var(--spacing-sm)",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: 300,
+                color: "rgb(239,68,68)",
+                lineHeight: 1,
+              }}
+            >
+              !
+            </span>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            style={{
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              marginBottom: 4,
+            }}
+          >
+            Something went wrong
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            style={{
+              fontSize: "0.65rem",
+              color: "var(--text-tertiary)",
+              marginBottom: "var(--spacing-sm)",
+            }}
+          >
+            Ref: a3f8b2c
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            style={{ display: "flex", gap: 8 }}
+          >
+            <button
+              className={styles.demoBtn}
+              onClick={() => {
+                setCrashed(false);
+                setKey((k) => k + 1);
+              }}
+            >
+              Try Again
+            </button>
+            <button
+              className={styles.demoBtn}
+              onClick={() => {
+                setCrashed(false);
+                setKey((k) => k + 1);
+              }}
+              style={{ opacity: 0.6 }}
+            >
+              Go Home
+            </button>
+          </motion.div>
+        </>
+      )}
+      <span className={styles.demoHint}>
+        {crashed ? "Staggered error UI" : "Click to crash"}
+      </span>
+    </div>
+  );
+}
+
+/* =========================================================================
    Export: getCodeDemo(index)
    ========================================================================= */
 const demos = [
@@ -479,9 +628,10 @@ const demos = [
   DemoMagnetic,
   DemoClipPath,
   DemoInfiniteScroll,
-  DemoSvgPath,
+  DemoFrameGrid,
   DemoLoadingProgress,
   DemoI18nShift,
+  DemoErrorBoundary,
 ];
 
 export function getCodeDemo(index: number): React.ReactNode {
