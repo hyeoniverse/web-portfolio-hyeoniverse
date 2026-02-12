@@ -298,16 +298,14 @@ export default function DesignConceptPanel({
     const cards = Array.from(
       grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
     );
+    const total = cards.length;
 
-    /* Card 0 always visible (provides fixed background + frame).
-       Cards 1+ visible but bg hidden, overlay hidden — only overlays crossfade. */
+    /* Reverse z-index: card 0 on top → its bg slides out to reveal card 1 below.
+       All bgs visible; overlays hidden except card 0. */
     cards.forEach((card, i) => {
-      if (i === 0) {
-        gsap.set(card, { opacity: 1 });
-      } else {
-        gsap.set(card, { opacity: 1, borderColor: "transparent" });
-        const bg = card.querySelector(`.${styles.dcCardBg}`);
-        if (bg) gsap.set(bg, { visibility: "hidden" });
+      gsap.set(card, { zIndex: total - i, opacity: 1 });
+      if (i > 0) {
+        gsap.set(card, { borderColor: "transparent" });
         const overlay = card.querySelector(`.${styles.dcCardOverlay}`);
         if (overlay) gsap.set(overlay, { opacity: 0 });
       }
@@ -325,8 +323,14 @@ export default function DesignConceptPanel({
     const grid = stackRef.current;
     if (!grid) return;
 
+    const cards = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
+    );
     const overlays = Array.from(
       grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
+    );
+    const backgrounds = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`),
     );
 
     let rafId: number;
@@ -343,7 +347,7 @@ export default function DesignConceptPanel({
           const offset = Math.max(0, Math.min(-rect.left, extraWidth));
           contentRef.current.style.transform = `translateX(${offset}px)`;
 
-          /* Switch active overlay based on scroll progress */
+          /* Switch active overlay + slide-out background */
           const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
           const newIndex = Math.min(
             concepts.length - 1,
@@ -354,6 +358,13 @@ export default function DesignConceptPanel({
             setActiveIndex(newIndex);
             overlays.forEach((overlay, i) => {
               overlay.style.opacity = i === newIndex ? "1" : "0";
+            });
+            /* Slide out passed backgrounds; active card handles pointer-events */
+            backgrounds.forEach((bg, i) => {
+              bg.style.transform = i < newIndex ? "translateX(-100%)" : "";
+            });
+            cards.forEach((card, i) => {
+              card.style.pointerEvents = i === newIndex ? "auto" : "none";
             });
           }
         }
@@ -376,11 +387,22 @@ export default function DesignConceptPanel({
     const grid = stackRef.current;
     if (!content || !panel || !grid) return;
 
+    const cards = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
+    );
     const overlays = Array.from(
       grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
     );
+    const backgrounds = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`),
+    );
     if (overlays.length < 2) return;
     const count = overlays.length;
+
+    /* Reverse z-index for mobile too */
+    cards.forEach((card, i) => {
+      gsap.set(card, { zIndex: count - i });
+    });
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -397,6 +419,7 @@ export default function DesignConceptPanel({
       for (let i = 0; i < count - 1; i++) {
         tl.to(overlays[i], { opacity: 0, duration: 0.7 });
         tl.to(overlays[i + 1], { opacity: 1, duration: 0.7 }, "<");
+        tl.to(backgrounds[i], { xPercent: -100, duration: 0.7 }, "<");
         tl.to({}, { duration: 1.5 });
       }
     }, panel);
