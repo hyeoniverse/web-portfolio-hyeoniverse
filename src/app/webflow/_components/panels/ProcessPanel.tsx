@@ -81,6 +81,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
 
   // Mobile/Tablet: GSAP ScrollTrigger pin + accordion expand/collapse
   const stepListRef = useRef<HTMLDivElement>(null);
+  const mobileStRef = useRef<ScrollTrigger | null>(null);
 
   useLayoutEffect(() => {
     if (!isMobile) return;
@@ -122,7 +123,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
     applyLayout(0);
 
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({
+      const st = ScrollTrigger.create({
         trigger: viewport,
         start: "top top",
         end: `+=${scrollDist}`,
@@ -141,28 +142,41 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
           }
         },
       });
+      mobileStRef.current = st;
     }, viewport);
 
-    return () => ctx.revert();
+    return () => {
+      mobileStRef.current = null;
+      ctx.revert();
+    };
   }, [isMobile, process.length]);
 
-  // Click dot / node → scroll to matching position
-  const handleDotClick = useCallback(
+  // Click row → scroll to matching position (works on both desktop and mobile)
+  const handleRowClick = useCallback(
     (index: number) => {
-      if (!panelRef.current || window.innerWidth <= MOBILE_WIDTH) return;
-
-      const rect = panelRef.current.getBoundingClientRect();
-      const extraWidth = rect.width - window.innerWidth;
-      if (extraWidth <= 0) return;
-
-      const targetProgress = (index + 0.5) / process.length;
-      const targetLeft = -(targetProgress * extraWidth);
-      const deltaScrollY = rect.left - targetLeft;
-
-      window.scrollTo({ top: window.scrollY + deltaScrollY });
+      if (window.innerWidth <= MOBILE_WIDTH) {
+        // Mobile: scroll within the pinned ScrollTrigger range
+        const st = mobileStRef.current;
+        if (!st) return;
+        const targetProgress = (index + 0.5) / process.length;
+        const targetScroll = st.start + targetProgress * (st.end - st.start);
+        window.scrollTo({ top: targetScroll, behavior: "smooth" });
+      } else {
+        // Desktop: horizontal scroll
+        if (!panelRef.current) return;
+        const rect = panelRef.current.getBoundingClientRect();
+        const extraWidth = rect.width - window.innerWidth;
+        if (extraWidth <= 0) return;
+        const targetProgress = (index + 0.5) / process.length;
+        const targetLeft = -(targetProgress * extraWidth);
+        const deltaScrollY = rect.left - targetLeft;
+        window.scrollTo({ top: window.scrollY + deltaScrollY });
+      }
     },
     [process.length],
   );
+
+  // Click dot / node → scroll to matching position
 
   return (
     <div
@@ -170,23 +184,11 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
       className={`${styles.panel} ${styles.panelExtraWide}`}
     >
       <div ref={contentRef} className={`${styles.pinnedViewport} ${styles.processViewport}`}>
-        {/* Title row + dot navigation */}
+        {/* Title row */}
         <div className={styles.pinnedTitleRow}>
           <div>
             <span className={styles.panelNumber}>05</span>
             <h3 className={styles.panelTitle}>Design Process.</h3>
-          </div>
-          <div className={styles.dotNav}>
-            {process.map((_, i) => (
-              <div
-                data-clickable="true"
-                key={i}
-                className={`${styles.dot} ${
-                  i === activeIndex ? styles.dotActive : ""
-                }`}
-                onClick={() => handleDotClick(i)}
-              />
-            ))}
           </div>
         </div>
 
@@ -208,7 +210,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
                     className={`${styles.processTimelineNode} ${
                       isActive ? styles.processTimelineNodeActive : ""
                     }`}
-                    onClick={() => handleDotClick(i)}
+                    onClick={() => handleRowClick(i)}
                   >
                     <div className={styles.processNodeDotWrap}>
                       <div
@@ -271,10 +273,12 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
             const isActive = i === activeIndex;
             return (
               <div
+                data-clickable="true"
                 key={i}
                 className={`${styles.processStepRow} ${
                   isActive ? styles.processStepRowActive : ""
                 }`}
+                onClick={() => handleRowClick(i)}
               >
                 {/* Left: continuous connector line + dot */}
                 <div className={styles.processStepConnector}>
