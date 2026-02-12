@@ -12,13 +12,13 @@
   --wf-font-grotesk: var(--font-space-grotesk), sans-serif;
 
   /* ── Font sizes (complement global --font-size-*) ── */
-  --wf-fs-lead: clamp(2rem, min(9vw, 18vh), 10rem);
+  --wf-fs-hero: clamp(2rem, min(9vw, 18vh), 10rem);
+  --wf-fs-lead: clamp(2rem, min(4vw, 12vh), 6rem);
   --wf-fs-subhead: clamp(1rem, min(2vw, 3vh), 3.5rem);
-  --wf-fs-body: clamp(0.75rem, min(1.5vw, 2vh), 1.2rem);
-  --wf-fs-label: clamp(0.75rem, min(0.95vw, 1.7vh), 1.15rem);
-  --wf-fs-small: clamp(0.55rem, min(0.88vw, 1.55vh), 1.05rem);
-  --wf-fs-caption: clamp(0.55rem, min(0.8vw, 1.4vh), 0.95rem);
-  --wf-fs-body: clamp(0.75rem, min(0.88vw, 1.55vh), 1.05rem);
+  --wf-fs-body: clamp(0.75rem, min(1.5vw, 2.5vh), 1.5rem);
+  --wf-fs-label: clamp(0.75rem, min(1vw, 1.75vh), 1.25rem);
+  --wf-fs-small: clamp(0.65rem, min(0.85vw, 1.55vh), 1.15rem);
+  --wf-fs-caption: clamp(0.65rem, min(0.65vw, 1.45vh), 1rem);
 
   /* ── Line heights (complement global --line-height-*) ── */
   --wf-lh-title: var(--line-height-dense);
@@ -215,7 +215,7 @@
 .heroTitle {
   margin-bottom: var(--wf-space-divide);
   font-family: var(--wf-font-display);
-  font-size: var(--wf-fs-lead);
+  font-size: var(--wf-fs-hero);
   line-height: var(--wf-lh-title);
   letter-spacing: var(--wf-ls-title);
 }
@@ -266,7 +266,7 @@
 .overviewTag {
   padding: var(--padding-md);
   border: var(--border-default);
-  font-size: var(--wf-fs-small);
+  font-size: var(--wf-fs-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   letter-spacing: 0.05em;
@@ -295,18 +295,18 @@
 
 .statValue {
   display: block;
-  margin-bottom: clamp(0.4rem, 0.7vh, 0.7rem);
+  margin-bottom: var(--wf-space-block);
   font-family: var(--wf-font-display);
-  font-size: var(--font-size-4xl);
+  font-size: var(--wf-fs-lead);
   font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-fit);
+  line-height: var(--wf-lh-title);
   color: var(--text-accent-secondary);
 }
 
 .statLabel {
   display: block;
   margin-top: auto;
-  font-size: var(--wf-fs-caption);
+  font-size: var(--wf-fs-label);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -2753,10 +2753,12 @@
 
   .overviewStat {
     flex: 0 0 33.33%;
+    border-right: none;
   }
 
-  .overviewStat:nth-child(3) {
-    border-right: none;
+  /* Row divider: first row (items 1–3) gets bottom border */
+  .overviewStat:nth-child(-n + 3) {
+    border-bottom: var(--wf-line-secondary);
   }
 
   .techGrid {
@@ -2917,12 +2919,9 @@
     flex: 0 0 50%;
   }
 
-  .overviewStat:nth-child(3) {
-    border-right: var(--wf-line-secondary);
-  }
-
-  .overviewStat:nth-child(2n) {
-    border-right: none;
+  /* Row divider: first two rows (items 1–4) get bottom border */
+  .overviewStat:nth-child(-n + 4) {
+    border-bottom: var(--wf-line-secondary);
   }
 
   .archIndent1 .archPath {
