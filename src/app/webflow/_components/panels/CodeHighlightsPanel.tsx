@@ -88,13 +88,15 @@ export default function CodeHighlightsPanel({
     >
       {/* Inner wrapper: counter-translated to appear pinned */}
       <div ref={contentRef} className={styles.codeFixed}>
-        <span className={`${styles.panelNumber} ${styles.animate}`}>07</span>
         <div className={styles.codeTitleRow}>
-          <h3
-            className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
-          >
-            Code Highlights.
-          </h3>
+          <div>
+            <span className={`${styles.panelNumber} ${styles.animate}`}>07</span>
+            <h3
+              className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
+            >
+              Code Highlights.
+            </h3>
+          </div>
 
           {/* Dot navigation */}
           <div className={`${styles.codeDotNav} ${styles.animate}`}>
