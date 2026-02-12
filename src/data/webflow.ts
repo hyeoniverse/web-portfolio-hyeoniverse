@@ -588,27 +588,32 @@ while (scrollX < -oneSetWidth * 3) {
 }`,
   },
   {
-    title: "SVG Path Draw Animation",
+    title: "Dynamic Frame Grid",
     description: {
-      ko: "보이지 않는 선이 **펜으로 그리듯 처음부터 끝까지 천천히 나타나는** 애니메이션입니다. 선의 진행도를 **0%(안 보임)에서 100%(전체 표시)**로 전환하여 그리는 효과를 만듭니다. 배경 장식 라인에 사용되며, 다 그려진 후 **일정 시간 뒤 다시 반복**됩니다.",
-      en: "An invisible line **gradually appears as if being drawn by a pen** from start to end. The line's progress transitions from **0% (hidden) to 100% (fully visible)**, creating a drawing effect. Used for decorative background lines, the animation **repeats after a short pause**.",
+      ko: "3×3 CSS Grid에서 **호버한 셀이 커지고 나머지가 줄어드는** 반응형 레이아웃입니다. `grid-template-rows`와 `grid-template-columns`의 **fr 단위를 동적으로 변경**하여 호버된 행·열에 더 많은 공간을 할당합니다. CSS transition만으로 **부드러운 크기 재분배**가 이루어집니다.",
+      en: "A responsive layout where the **hovered cell expands while others shrink** in a 3×3 CSS Grid. By **dynamically changing fr units** of `grid-template-rows` and `grid-template-columns`, more space is allocated to the hovered row and column. Smooth **size redistribution** is achieved with CSS transitions alone.",
     },
     language: "javascript",
-    code: `<motion.path
-  d="M10,20 Q30,15 50,30 T90,25"
-  stroke="rgba(102, 126, 234, 0.2)"
-  strokeWidth="0.5"
-  fill="none"
-  initial={{ pathLength: 0 }}
-  animate={{ pathLength: 1 }}
-  transition={{
-    duration: 2,
-    ease: "easeInOut",
-    repeat: Infinity,
-    repeatType: "loop",
-    repeatDelay: 1,
-  }}
-/>`,
+    code: `const GRID_SIZE = 12;
+const HOVER_SIZE = 6;
+
+const getSizes = (axis) => {
+  if (!hovered) return "4fr 4fr 4fr";
+  const idx = axis === "row" ? hovered.row : hovered.col;
+  const rest = (GRID_SIZE - HOVER_SIZE) / 2;
+  return [0, 1, 2]
+    .map((i) => (i === idx
+      ? \`\${HOVER_SIZE}fr\` : \`\${rest}fr\`))
+    .join(" ");
+};
+
+// Grid에 적용
+style={{
+  gridTemplateRows: getSizes("row"),
+  gridTemplateColumns: getSizes("col"),
+  transition: "grid-template-rows 0.4s ease,
+               grid-template-columns 0.4s ease",
+}}`,
   },
   {
     title: "Loading Screen Progress",
@@ -651,6 +656,45 @@ displayedProgress.toString().padStart(3, "0")
     min-height: auto;
   }
 }`,
+  },
+  {
+    title: "Error Boundary",
+    description: {
+      ko: "Next.js의 **2단계 에러 바운더리**로 런타임 에러를 안전하게 처리합니다. `error.tsx`는 라우트 단위로 동작하며, Provider가 살아 있어 **i18n·테마·애니메이션**을 모두 사용할 수 있습니다. `global-error.tsx`는 루트 레이아웃 자체가 깨졌을 때 동작하므로 **인라인 스타일만** 사용하고, `<Link>` 대신 `<a>`를 씁니다. 두 페이지 모두 `error.digest`를 참조 ID로 표시하되 **기술 정보는 노출하지 않습니다**.",
+      en: "Next.js **two-layer error boundaries** safely handle runtime errors. `error.tsx` works at the route level where Providers survive, enabling **i18n, theming, and animations**. `global-error.tsx` fires when the root layout itself breaks, so it uses **inline styles only** and `<a>` instead of `<Link>`. Both pages display `error.digest` as a reference ID while **hiding technical details**.",
+    },
+    language: "javascript",
+    code: `// error.tsx — 라우트 레벨 (Provider 접근 가능)
+export default function Error({ error, reset }) {
+  useEffect(() => {
+    console.error("Application Error:", error);
+  }, [error]);
+
+  return (
+    // Staggered entrance animations
+    <motion.div initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ ease: "backOut" }}>
+      <span>!</span>
+    </motion.div>
+
+    // 안전한 참조 ID만 노출
+    {error.digest && <p>Ref: {error.digest}</p>}
+
+    // reset(): Next.js가 제공하는 재렌더링 함수
+    <button onClick={reset}>Try Again</button>
+    <Link href="/">Go Home</Link>
+  );
+}
+
+// global-error.tsx — 루트 레벨 (인라인 스타일만)
+// CSS Modules·Link·Provider 사용 불가
+<html><body>
+  <button onClick={reset} style={{...}}>
+    Try Again
+  </button>
+  <a href="/">Go Home</a>
+</body></html>`,
   },
 ];
 
