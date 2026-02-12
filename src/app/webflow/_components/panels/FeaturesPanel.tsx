@@ -69,7 +69,7 @@ export default function FeaturesPanel({
     const isTablet = window.innerWidth >= 768;
 
     const ctx = gsap.context(() => {
-      const scrollDist = count * (isTablet ? 1000 : 500);
+      const scrollDist = count * (isTablet ? 300 : 200);
 
       ScrollTrigger.create({
         trigger: grid,
@@ -90,6 +90,12 @@ export default function FeaturesPanel({
           const bottomGap = -(cardH * 0.7);
           const lastCardY = viewportH - bottomGap - cardH;
 
+          /* Stack top-down: if height is insufficient, keep one tabH
+             of top margin and collapse (excess+1) cards at bottom */
+          const idealTopY = lastCardY - lastIdx * tabH;
+          const hasOverflow = idealTopY < 0;
+          const topY = hasOverflow ? tabH * 3 : idealTopY;
+
           const animFrac = Math.min(progress / 0.95, 1);
           const spacing = lastIdx > 0 ? 1 / lastIdx : 1;
           /* Each card animates over 2× spacing → 50% overlap with next card.
@@ -97,7 +103,7 @@ export default function FeaturesPanel({
           const duration = spacing * 4.5;
 
           for (let i = 0; i < count; i++) {
-            const restY = lastCardY - (lastIdx - i) * tabH;
+            const restY = Math.min(topY + i * tabH, lastCardY);
 
             if (i < lastIdx) {
               const cardStart = i * spacing;

@@ -87,8 +87,8 @@ export default function CodeHighlightsPanel({
       className={`${styles.panel} ${styles.panelExtraWide} ${styles.panelCode}`}
     >
       {/* Inner wrapper: counter-translated to appear pinned */}
-      <div ref={contentRef} className={styles.codeFixed}>
-        <div className={styles.codeTitleRow}>
+      <div ref={contentRef} className={styles.pinnedFlex}>
+        <div className={styles.pinnedTitleRow}>
           <div>
             <span className={`${styles.panelNumber} ${styles.animate}`}>07</span>
             <h3
@@ -99,13 +99,13 @@ export default function CodeHighlightsPanel({
           </div>
 
           {/* Dot navigation */}
-          <div className={`${styles.codeDotNav} ${styles.animate}`}>
+          <div className={`${styles.dotNav} ${styles.animate}`}>
             {codeExamples.map((_, index) => (
               <div
                 data-clickable="true"
                 key={index}
-                className={`${styles.codeDot} ${
-                  index === activeIndex ? styles.codeDotActive : ""
+                className={`${styles.dot} ${
+                  index === activeIndex ? styles.dotActive : ""
                 }`}
                 onClick={() => handleDotClick(index)}
               />

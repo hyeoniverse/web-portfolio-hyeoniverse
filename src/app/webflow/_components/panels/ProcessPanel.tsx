@@ -1,15 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
 import type { ProcessStep } from "@/data/webflow";
 import styles from "../WebFlowSection.module.css";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 interface ProcessPanelProps {
   language: Language;
@@ -68,48 +62,6 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
     return () => cancelAnimationFrame(rafId);
   }, [process.length]);
 
-  // Mobile: GSAP pin + scrub crossfade
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.innerWidth > 1024) return;
-
-    const content = contentRef.current;
-    const panel = panelRef.current;
-    if (!content || !panel) return;
-
-    const panes = Array.from(
-      content.querySelectorAll<HTMLElement>(`.${styles.processMobilePane}`),
-    );
-    if (panes.length < 2) return;
-    const count = panes.length;
-
-    /* Set initial positions: first pane visible, rest off-screen right */
-    panes.forEach((pane, i) => {
-      gsap.set(pane, { xPercent: i === 0 ? 0 : 100 });
-    });
-
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: content,
-          start: "top top",
-          end: `+=${count * 800}`,
-          pin: true,
-          pinSpacing: true,
-          scrub: 0.8,
-        },
-      });
-      tl.to({}, { duration: 1.5 });
-      for (let i = 0; i < count - 1; i++) {
-        tl.to(panes[i], { xPercent: -100, duration: 0.7 });
-        tl.to(panes[i + 1], { xPercent: 0, duration: 0.7 }, "<");
-        tl.to({}, { duration: 1.5 });
-      }
-    }, panel);
-
-    return () => ctx.revert();
-  }, []);
-
   // Click dot / node → scroll to matching position
   const handleDotClick = useCallback(
     (index: number) => {
@@ -133,24 +85,20 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
       ref={panelRef}
       className={`${styles.panel} ${styles.panelExtraWide}`}
     >
-      <div ref={contentRef} className={styles.processFixed}>
+      <div ref={contentRef} className={styles.pinnedViewport}>
         {/* Title row + dot navigation */}
-        <div className={styles.processTitleRow}>
+        <div className={styles.pinnedTitleRow}>
           <div>
-            <span className={`${styles.panelNumber} ${styles.animate}`}>
-              05
-            </span>
-            <h3 className={`${styles.panelTitle} ${styles.animate}`}>
-              Design Process.
-            </h3>
+            <span className={styles.panelNumber}>05</span>
+            <h3 className={styles.panelTitle}>Design Process.</h3>
           </div>
-          <div className={`${styles.processDotNav} ${styles.animate}`}>
+          <div className={styles.dotNav}>
             {process.map((_, i) => (
               <div
                 data-clickable="true"
                 key={i}
-                className={`${styles.processDot} ${
-                  i === activeIndex ? styles.processDotActive : ""
+                className={`${styles.dot} ${
+                  i === activeIndex ? styles.dotActive : ""
                 }`}
                 onClick={() => handleDotClick(i)}
               />
@@ -159,7 +107,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
         </div>
 
         {/* Desktop: horizontal timeline */}
-        <div className={`${styles.processTimeline} ${styles.animate}`}>
+        <div className={styles.processTimeline}>
           <div className={styles.processTimelineTrack}>
             <div ref={progressRef} className={styles.processTimelineProgress} />
           </div>
@@ -204,7 +152,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
         </div>
 
         {/* Desktop: step content area — marquee slide */}
-        <div className={`${styles.processSingleView} ${styles.animate}`}>
+        <div className={styles.processSingleView}>
           {process.map((p, i) => (
             <div
               key={i}
@@ -229,23 +177,13 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
           ))}
         </div>
 
-        {/* Mobile: step counter */}
-        <div className={styles.processStepCounter}>
-          {String(activeIndex + 1).padStart(2, "0")}{" "}
-          <span className={styles.processStepCounterSlash}>/</span>{" "}
-          {String(process.length).padStart(2, "0")}
-        </div>
-
-        {/* Mobile: pinned crossfade list */}
+        {/* Mobile: simple vertical list (no animation) */}
         <div className={styles.processMobileList}>
           {process.map((p, i) => (
-            <div
-              key={i}
-              className={`${styles.processMobilePane} ${
-                i === 0 ? styles.processMobilePaneActive : ""
-              }`}
-            >
-              <span className={styles.processStepBigNum}>{p.step}</span>
+            <div key={i} className={styles.processMobileItem}>
+              <span className={styles.processMobileNum}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <h4 className={styles.processStepTitle}>
                 {p.title[language]}
               </h4>

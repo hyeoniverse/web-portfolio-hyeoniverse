@@ -8,11 +8,6 @@ import {
   useEffect,
 } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 import Image from "next/image";
 import { useLenis } from "@/providers/LenisProvider";
 import { Code, Palette, LayoutGrid, Zap, Globe, Mail } from "lucide-react";
@@ -384,86 +379,6 @@ export default function DesignConceptPanel({
     return () => cancelAnimationFrame(rafId);
   }, [concepts.length, isStrip]);
 
-  /* ═══ Mobile: GSAP pin + scrub ═══ */
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.innerWidth > 1024) return;
-
-    const content = contentRef.current;
-    const panel = panelRef.current;
-    if (!content || !panel) return;
-
-    const count = concepts.length;
-    if (count < 2) return;
-
-    if (isStrip) {
-      /* Strip mode: slide the strip */
-      const strip = stripRef.current;
-      if (!strip) return;
-
-      const ctx = gsap.context(() => {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: content,
-            start: "top top",
-            end: `+=${count * 800}`,
-            pin: true,
-            pinSpacing: true,
-            scrub: 0.8,
-          },
-        });
-        tl.to({}, { duration: 1.5 });
-        for (let i = 0; i < count - 1; i++) {
-          tl.to(strip, { xPercent: -(i + 1) * 100, duration: 0.7 });
-          tl.to({}, { duration: 1.5 });
-        }
-      }, panel);
-
-      return () => ctx.revert();
-    } else {
-      /* Stack mode: overlay crossfade + background slide-out */
-      const grid = stackRef.current;
-      if (!grid) return;
-
-      const cards = Array.from(
-        grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
-      );
-      const overlays = Array.from(
-        grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
-      );
-      const backgrounds = Array.from(
-        grid.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`),
-      );
-      if (overlays.length < 2) return;
-
-      cards.forEach((card, i) => {
-        gsap.set(card, { zIndex: count - i });
-      });
-
-      const ctx = gsap.context(() => {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: content,
-            start: "top top",
-            end: `+=${count * 800}`,
-            pin: true,
-            pinSpacing: true,
-            scrub: 0.8,
-          },
-        });
-        tl.to({}, { duration: 1.5 });
-        for (let i = 0; i < count - 1; i++) {
-          tl.to(overlays[i], { opacity: 0, duration: 0.7 });
-          tl.to(overlays[i + 1], { opacity: 1, duration: 0.7 }, "<");
-          tl.to(backgrounds[i], { xPercent: -100, duration: 0.7 }, "<");
-          tl.to({}, { duration: 1.5 });
-        }
-      }, panel);
-
-      return () => ctx.revert();
-    }
-  }, [concepts.length, isStrip]);
-
   const handleDotClick = useCallback(
     (index: number) => {
       if (!panelRef.current || window.innerWidth <= 1024) return;
@@ -510,18 +425,18 @@ export default function DesignConceptPanel({
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
-      <div ref={contentRef} className={styles.dcFixed}>
+      <div ref={contentRef} className={styles.pinnedViewport}>
         <div className={styles.dcTitleRow}>
           <div>
             <span className={styles.panelNumber}>04</span>
             <h3 className={styles.panelTitle}>Design Concept.</h3>
           </div>
-          <div className={styles.dcDotNav}>
+          <div className={styles.dotNav}>
             {concepts.map((_, i) => (
               <div
                 data-clickable="true"
                 key={i}
-                className={`${styles.dcDot} ${i === activeIndex ? styles.dcDotActive : ""}`}
+                className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ""}`}
                 onClick={() => handleDotClick(i)}
               />
             ))}
@@ -539,6 +454,35 @@ export default function DesignConceptPanel({
           ) : (
             cardElements
           )}
+        </div>
+
+        {/* Mobile: simple vertical card list (no animation) */}
+        <div className={styles.dcMobileList}>
+          {concepts.map((concept) => {
+            const Demo = demoMap[concept.id];
+            return (
+              <div key={concept.id} className={styles.dcMobileCard}>
+                <div className={styles.dcMobileCardBg}>
+                  <Image
+                    src={concept.image}
+                    alt={concept.title}
+                    fill
+                    sizes="100vw"
+                  />
+                </div>
+                <div className={styles.dcMobileCardContent}>
+                  <span className={styles.dcCardTitle}>{concept.title}</span>
+                  <h4 className={styles.dcCardSubtitle}>
+                    {concept.subtitle[language]}
+                  </h4>
+                  <p className={styles.dcCardDesc}>
+                    {concept.description[language]}
+                  </p>
+                  {Demo && <Demo />}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
