@@ -52,7 +52,7 @@ export default function FeaturesPanel({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  /* Mobile: GSAP ScrollTrigger pins .featureGrid to viewport,
+  /* Mobile/Tablet: GSAP ScrollTrigger pins .featureGrid to viewport,
      then animates cards based on scroll progress.
      Card 0 (top, z-index 1) flies up first → card 8 (front, z-index 9) stays. */
   useLayoutEffect(() => {
