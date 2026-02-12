@@ -83,6 +83,11 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
     if (panes.length < 2) return;
     const count = panes.length;
 
+    /* Set initial positions: first pane visible, rest off-screen right */
+    panes.forEach((pane, i) => {
+      gsap.set(pane, { xPercent: i === 0 ? 0 : 100 });
+    });
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -96,8 +101,8 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
       });
       tl.to({}, { duration: 1.5 });
       for (let i = 0; i < count - 1; i++) {
-        tl.to(panes[i], { opacity: 0, duration: 0.7 });
-        tl.to(panes[i + 1], { opacity: 1, duration: 0.7 }, "<");
+        tl.to(panes[i], { xPercent: -100, duration: 0.7 });
+        tl.to(panes[i + 1], { xPercent: 0, duration: 0.7 }, "<");
         tl.to({}, { duration: 1.5 });
       }
     }, panel);
@@ -192,26 +197,23 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
                   >
                     {p.step}
                   </span>
-                  <span
-                    className={`${styles.processNodeTitle} ${
-                      isActive ? styles.processNodeTitleActive : ""
-                    }`}
-                  >
-                    {p.title[language]}
-                  </span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Desktop: step content area — two-column: big number | title+desc */}
+        {/* Desktop: step content area — marquee slide */}
         <div className={`${styles.processSingleView} ${styles.animate}`}>
           {process.map((p, i) => (
             <div
               key={i}
               className={`${styles.processSinglePane} ${
-                i === activeIndex ? styles.processSinglePaneActive : ""
+                i === activeIndex
+                  ? styles.processSinglePaneActive
+                  : i < activeIndex
+                    ? styles.processSinglePanePast
+                    : ""
               }`}
             >
               <span className={styles.processStepBigNum}>{p.step}</span>

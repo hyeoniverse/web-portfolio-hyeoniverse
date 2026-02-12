@@ -1231,10 +1231,10 @@
 
 /* ── Timeline bar ── */
 .processTimeline {
-  position: relative;
   flex-shrink: 0;
   margin-bottom: clamp(3rem, min(6vh, 3.5vw), 5rem);
   padding: clamp(12px, min(1.8vh, 1vw), 24px) 0;
+  position: relative;
 }
 
 .processTimelineTrack {
@@ -1251,7 +1251,11 @@
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(90deg, var(--text-accent-secondary), var(--color-accent, #667eea));
+  background: linear-gradient(
+    90deg,
+    var(--text-accent-secondary),
+    var(--color-accent, #667eea)
+  );
   border-radius: 1px;
   will-change: width;
 }
@@ -1272,35 +1276,30 @@
 
 .processTimelineNode {
   display: flex;
+  gap: clamp(6px, min(0.8vh, 0.5vw), 12px);
   align-items: center;
   flex-direction: column;
-  gap: clamp(6px, min(0.8vh, 0.5vw), 12px);
   width: 0;
-}
-
-.processTimelineNodeActive .processNodeTitle {
-  color: var(--text-primary);
-  opacity: 1;
 }
 
 /* Dot wrapper — positions pulse ring behind the dot */
 .processNodeDotWrap {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   width: clamp(18px, min(2.2vh, 1.2vw), 28px);
   height: clamp(18px, min(2.2vh, 1.2vw), 28px);
 }
 
 .processNodeDot {
+  border: 2px solid var(--text-tertiary);
+  z-index: 1;
   width: clamp(10px, min(1.4vh, 0.8vw), 16px);
   height: clamp(10px, min(1.4vh, 0.8vw), 16px);
   background: var(--bg-primary);
-  border: 2px solid var(--text-tertiary);
   border-radius: 50%;
   opacity: 0.4;
-  z-index: 1;
 }
 
 /* Compound selector (0,2,0) */
@@ -1321,19 +1320,19 @@
 
 .processNodeDotActive {
   border-color: var(--text-accent-secondary);
+  box-shadow: 0 0 12px var(--color-accent-alpha-50, rgba(212, 0, 99, 0.5));
   background: var(--text-accent-secondary);
   opacity: 1;
   transform: scale(1.3);
-  box-shadow: 0 0 12px var(--color-accent-alpha-50, rgba(212, 0, 99, 0.5));
 }
 
 /* Pulse ring animation on active node */
 .processNodePulse {
-  position: absolute;
-  inset: 0;
   border: 2px solid var(--text-accent-secondary);
-  border-radius: 50%;
+  position: absolute;
   animation: processPulse 2s ease-out infinite;
+  inset: 0;
+  border-radius: 50%;
 }
 
 @keyframes processPulse {
@@ -1368,35 +1367,10 @@
 }
 
 /* Truncated step title under each node */
-.processNodeTitle {
-  max-width: clamp(60px, min(10vw, 16vh), 140px);
-  font-family: var(--wf-font-grotesk);
-  font-size: clamp(0.55rem, min(0.75vw, 1.3vh), 0.9rem);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-snug);
-  color: var(--text-tertiary);
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0.4;
-}
-
-/* Compound selector (0,2,0) */
-.processTimelineNode .processNodeTitle {
-  transition:
-    color 0.3s ease,
-    opacity 0.3s ease;
-}
-
-.processNodeTitleActive {
-  color: var(--text-primary);
-  opacity: 1;
-}
-
-/* ── Step content (single view) — fills remaining space ── */
+/* ── Step content (single view) — marquee slide ── */
 .processSingleView {
   flex: 1;
+  overflow: hidden;
   position: relative;
   min-width: 0;
   min-height: 0;
@@ -1404,22 +1378,27 @@
 
 .processSinglePane {
   display: flex;
-  gap: clamp(1.5rem, min(4vw, 6vh), 4rem);
-  align-items: flex-end;
+  gap: var(--wf-space-block);
+  align-items: flex-start;
   position: absolute;
   pointer-events: none;
   inset: 0;
-  opacity: 0;
+  transform: translateX(100%);
+  margin-top: var(--wf-space-divide);
 }
 
 /* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
 .processSingleView .processSinglePane {
-  transition: opacity 0.4s ease;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.processSinglePanePast {
+  transform: translateX(-100%);
 }
 
 .processSinglePaneActive {
   pointer-events: auto;
-  opacity: 1;
+  transform: translateX(0);
 }
 
 /* Giant step number — fills the left side vertically */
@@ -1436,11 +1415,11 @@
 /* Right column: title + description — aligned to bottom */
 .processStepRight {
   display: flex;
-  flex-direction: column;
   justify-content: flex-end;
+  flex-direction: column;
   padding-bottom: clamp(0.5rem, min(1.5vh, 0.8vw), 2rem);
-  border-left: 2px solid var(--color-accent-alpha-30, rgba(212, 0, 99, 0.3));
   padding-left: clamp(1rem, min(2.5vw, 4vh), 2.5rem);
+  border-left: 2px solid var(--color-accent-alpha-30, rgba(212, 0, 99, 0.3));
 }
 
 .processStepTitle {
@@ -1461,22 +1440,21 @@
   color: var(--text-secondary);
 }
 
-/* ── Mobile: pinned crossfade list ── */
+/* ── Mobile: pinned slide list ── */
 .processMobileList {
   display: none;
 }
 
 .processMobilePane {
   display: flex;
-  flex-direction: column;
   justify-content: center;
+  flex-direction: column;
   position: absolute;
   inset: 0;
-  opacity: 0;
 }
 
 .processMobilePaneActive {
-  opacity: 1;
+  /* first pane visible at xPercent: 0, rest set by GSAP */
 }
 
 .processStepCounter {
@@ -1484,14 +1462,14 @@
   margin-bottom: var(--wf-space-block);
   font-family: var(--font-mono);
   font-size: clamp(1rem, min(2vw, 3.5vh), 1.6rem);
-  color: var(--text-accent-secondary);
   font-weight: var(--font-weight-semibold);
+  color: var(--text-accent-secondary);
 }
 
 .processStepCounterSlash {
+  margin: 0 0.15em;
   color: var(--text-tertiary);
   opacity: 0.4;
-  margin: 0 0.15em;
 }
 
 /* ==========================================================================
@@ -1668,6 +1646,8 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  flex-shrink: 0;
+  margin-bottom: var(--wf-space-section);
 }
 
 .codeDotNav {
@@ -2765,8 +2745,8 @@
   }
 
   .processStepTitle {
-    font-size: clamp(1.2rem, 5vw, 2rem);
     margin-bottom: clamp(0.6rem, 2.5vw, 1.2rem);
+    font-size: clamp(1.2rem, 5vw, 2rem);
   }
 
   .processStepDesc {
@@ -2974,4 +2954,3 @@
     padding-left: var(--spacing-xl);
   }
 }
-
