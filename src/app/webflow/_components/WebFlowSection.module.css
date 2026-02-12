@@ -1487,20 +1487,6 @@
   display: none;
 }
 
-.processStepRow {}
-.processStepRowActive {}
-.processStepConnector {}
-.processConnectorDot {}
-.processConnectorDotDone {}
-.processConnectorDotActive {}
-.processConnectorLine {}
-.processConnectorLineDone {}
-.processStepLabel {}
-.processStepContent {}
-.processStepNum {}
-.processStepContentTitle {}
-.processStepContentDesc {}
-
 /* ==========================================================================
    Visual Break
    ========================================================================== */
@@ -2786,7 +2772,6 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    overflow: hidden;
     min-height: 0;
   }
 
@@ -2797,7 +2782,6 @@
     gap: clamp(10px, 2.5vw, 16px);
     align-items: stretch;
     position: relative;
-    overflow: hidden;
     flex-shrink: 0;
   }
 
@@ -2815,7 +2799,6 @@
     align-items: center;
     flex-shrink: 0;
     width: clamp(16px, 4vw, 24px);
-    padding-top: 10px;
   }
 
   .processConnectorDot {
