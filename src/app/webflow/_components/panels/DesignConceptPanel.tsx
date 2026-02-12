@@ -20,9 +20,12 @@ import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem } from "@/data/webflow";
 import styles from "../WebFlowSection.module.css";
 
+export type DcTransitionMode = "strip" | "stack";
+
 interface DesignConceptPanelProps {
   language: Language;
   concepts: DesignConceptItem[];
+  mode?: DcTransitionMode;
 }
 
 /* ── Typography Demo ── */
@@ -284,14 +287,19 @@ const demoMap: Record<string, React.FC> = {
 export default function DesignConceptPanel({
   language,
   concepts,
+  mode = "strip",
 }: DesignConceptPanelProps) {
+  const stripRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  /* ── 1) useLayoutEffect: set initial visual state (prevents flash) ── */
+  const isStrip = mode === "strip";
+
+  /* ═══ Stack mode: set initial visual state (prevents flash) ═══ */
   useLayoutEffect(() => {
+    if (isStrip) return;
     const grid = stackRef.current;
     if (!grid) return;
 
@@ -300,8 +308,7 @@ export default function DesignConceptPanel({
     );
     const total = cards.length;
 
-    /* Reverse z-index: card 0 on top → its bg slides out to reveal card 1 below.
-       All bgs visible; overlays hidden except card 0. */
+    /* Reverse z-index: card 0 on top → its bg slides out to reveal card 1 below. */
     cards.forEach((card, i) => {
       gsap.set(card, { zIndex: total - i, opacity: 1 });
       if (i > 0) {
@@ -310,31 +317,28 @@ export default function DesignConceptPanel({
         if (overlay) gsap.set(overlay, { opacity: 0 });
       }
     });
-  }, []);
+  }, [isStrip]);
 
-  /* ── 2) Desktop: RAF counter-translation + overlay switching (same as CodeHighlights) ── */
+  /* ═══ Desktop: RAF counter-translation + mode-specific switching ═══ */
   useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      window.innerWidth <= 1024
-    )
-      return;
-
-    const grid = stackRef.current;
-    if (!grid) return;
-
-    const cards = Array.from(
-      grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
-    );
-    const overlays = Array.from(
-      grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
-    );
-    const backgrounds = Array.from(
-      grid.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`),
-    );
+    if (typeof window === "undefined" || window.innerWidth <= 1024) return;
 
     let rafId: number;
     let prevIndex = 0;
+
+    /* Pre-collect DOM refs for stack mode */
+    const grid = stackRef.current;
+    const cards = grid
+      ? Array.from(grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`))
+      : [];
+    const overlays = grid
+      ? Array.from(grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`))
+      : [];
+    const backgrounds = grid
+      ? Array.from(grid.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`))
+      : [];
+
+    const strip = stripRef.current;
 
     const update = () => {
       if (panelRef.current && contentRef.current) {
@@ -343,11 +347,9 @@ export default function DesignConceptPanel({
         const extraWidth = rect.width - vw;
 
         if (extraWidth > 0) {
-          /* Counter-translate so content appears pinned */
           const offset = Math.max(0, Math.min(-rect.left, extraWidth));
           contentRef.current.style.transform = `translateX(${offset}px)`;
 
-          /* Switch active overlay + slide-out background */
           const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
           const newIndex = Math.min(
             concepts.length - 1,
@@ -356,16 +358,22 @@ export default function DesignConceptPanel({
           if (newIndex !== prevIndex) {
             prevIndex = newIndex;
             setActiveIndex(newIndex);
-            overlays.forEach((overlay, i) => {
-              overlay.style.opacity = i === newIndex ? "1" : "0";
-            });
-            /* Slide out passed backgrounds; active card handles pointer-events */
-            backgrounds.forEach((bg, i) => {
-              bg.style.transform = i < newIndex ? "translateX(-100%)" : "";
-            });
-            cards.forEach((card, i) => {
-              card.style.pointerEvents = i === newIndex ? "auto" : "none";
-            });
+
+            if (isStrip && strip) {
+              /* Strip mode: slide the whole strip */
+              strip.style.transform = `translateX(-${newIndex * 100}%)`;
+            } else {
+              /* Stack mode: overlay crossfade + background slide-out */
+              overlays.forEach((overlay, i) => {
+                overlay.style.opacity = i === newIndex ? "1" : "0";
+              });
+              backgrounds.forEach((bg, i) => {
+                bg.style.transform = i < newIndex ? "translateX(-100%)" : "";
+              });
+              cards.forEach((card, i) => {
+                card.style.pointerEvents = i === newIndex ? "auto" : "none";
+              });
+            }
           }
         }
       }
@@ -374,66 +382,91 @@ export default function DesignConceptPanel({
 
     rafId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(rafId);
-  }, [concepts.length]);
+  }, [concepts.length, isStrip]);
 
-  /* ── 3) Mobile: GSAP pin + scrub crossfade ── */
+  /* ═══ Mobile: GSAP pin + scrub ═══ */
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const isMobile = window.innerWidth <= 1024;
-    if (!isMobile) return;
+    if (window.innerWidth > 1024) return;
 
     const content = contentRef.current;
     const panel = panelRef.current;
-    const grid = stackRef.current;
-    if (!content || !panel || !grid) return;
+    if (!content || !panel) return;
 
-    const cards = Array.from(
-      grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
-    );
-    const overlays = Array.from(
-      grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
-    );
-    const backgrounds = Array.from(
-      grid.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`),
-    );
-    if (overlays.length < 2) return;
-    const count = overlays.length;
+    const count = concepts.length;
+    if (count < 2) return;
 
-    /* Reverse z-index for mobile too */
-    cards.forEach((card, i) => {
-      gsap.set(card, { zIndex: count - i });
-    });
+    if (isStrip) {
+      /* Strip mode: slide the strip */
+      const strip = stripRef.current;
+      if (!strip) return;
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: content,
-          start: "top top",
-          end: `+=${count * 800}`,
-          pin: true,
-          pinSpacing: true,
-          scrub: 0.8,
-        },
-      });
-      tl.to({}, { duration: 1.5 });
-      for (let i = 0; i < count - 1; i++) {
-        tl.to(overlays[i], { opacity: 0, duration: 0.7 });
-        tl.to(overlays[i + 1], { opacity: 1, duration: 0.7 }, "<");
-        tl.to(backgrounds[i], { xPercent: -100, duration: 0.7 }, "<");
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: content,
+            start: "top top",
+            end: `+=${count * 800}`,
+            pin: true,
+            pinSpacing: true,
+            scrub: 0.8,
+          },
+        });
         tl.to({}, { duration: 1.5 });
-      }
-    }, panel);
+        for (let i = 0; i < count - 1; i++) {
+          tl.to(strip, { xPercent: -(i + 1) * 100, duration: 0.7 });
+          tl.to({}, { duration: 1.5 });
+        }
+      }, panel);
 
-    return () => ctx.revert();
-  }, []);
+      return () => ctx.revert();
+    } else {
+      /* Stack mode: overlay crossfade + background slide-out */
+      const grid = stackRef.current;
+      if (!grid) return;
+
+      const cards = Array.from(
+        grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
+      );
+      const overlays = Array.from(
+        grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
+      );
+      const backgrounds = Array.from(
+        grid.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`),
+      );
+      if (overlays.length < 2) return;
+
+      cards.forEach((card, i) => {
+        gsap.set(card, { zIndex: count - i });
+      });
+
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: content,
+            start: "top top",
+            end: `+=${count * 800}`,
+            pin: true,
+            pinSpacing: true,
+            scrub: 0.8,
+          },
+        });
+        tl.to({}, { duration: 1.5 });
+        for (let i = 0; i < count - 1; i++) {
+          tl.to(overlays[i], { opacity: 0, duration: 0.7 });
+          tl.to(overlays[i + 1], { opacity: 1, duration: 0.7 }, "<");
+          tl.to(backgrounds[i], { xPercent: -100, duration: 0.7 }, "<");
+          tl.to({}, { duration: 1.5 });
+        }
+      }, panel);
+
+      return () => ctx.revert();
+    }
+  }, [concepts.length, isStrip]);
 
   const handleDotClick = useCallback(
     (index: number) => {
-      if (
-        !panelRef.current ||
-        window.innerWidth <= 1024
-      )
-        return;
+      if (!panelRef.current || window.innerWidth <= 1024) return;
 
       const rect = panelRef.current.getBoundingClientRect();
       const extraWidth = rect.width - window.innerWidth;
@@ -448,9 +481,35 @@ export default function DesignConceptPanel({
     [concepts.length],
   );
 
+  /* ═══ Card list (shared between both modes) ═══ */
+  const cardElements = concepts.map((concept) => {
+    const Demo = demoMap[concept.id];
+    return (
+      <div key={concept.id} className={styles.dcCard}>
+        <div className={styles.dcCardBg}>
+          <Image
+            src={concept.image}
+            alt={concept.title}
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
+        </div>
+        <div className={styles.dcCardOverlay}>
+          <span className={styles.dcCardTitle}>{concept.title}</span>
+          <h4 className={styles.dcCardSubtitle}>
+            {concept.subtitle[language]}
+          </h4>
+          <p className={styles.dcCardDesc}>
+            {concept.description[language]}
+          </p>
+          {Demo && <Demo />}
+        </div>
+      </div>
+    );
+  });
+
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
-      {/* Inner wrapper: counter-translated to appear pinned */}
       <div ref={contentRef} className={styles.dcFixed}>
         <div className={styles.dcTitleRow}>
           <div>
@@ -469,32 +528,17 @@ export default function DesignConceptPanel({
           </div>
         </div>
 
-        <div ref={stackRef} className={styles.dcCardStack}>
-          {concepts.map((concept) => {
-            const Demo = demoMap[concept.id];
-            return (
-              <div key={concept.id} className={styles.dcCard}>
-                <div className={styles.dcCardBg}>
-                  <Image
-                    src={concept.image}
-                    alt={concept.title}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
-                </div>
-                <div className={styles.dcCardOverlay}>
-                  <span className={styles.dcCardTitle}>{concept.title}</span>
-                  <h4 className={styles.dcCardSubtitle}>
-                    {concept.subtitle[language]}
-                  </h4>
-                  <p className={styles.dcCardDesc}>
-                    {concept.description[language]}
-                  </p>
-                  {Demo && <Demo />}
-                </div>
-              </div>
-            );
-          })}
+        <div
+          ref={isStrip ? undefined : stackRef}
+          className={`${styles.dcCardStack} ${isStrip ? styles.dcModeStrip : styles.dcModeStack}`}
+        >
+          {isStrip ? (
+            <div ref={stripRef} className={styles.dcCardStrip}>
+              {cardElements}
+            </div>
+          ) : (
+            cardElements
+          )}
         </div>
       </div>
     </div>

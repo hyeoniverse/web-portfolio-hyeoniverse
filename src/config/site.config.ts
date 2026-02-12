@@ -122,6 +122,14 @@ export const siteConfig = {
   loading: {
     displayName: "HYEON", // Name shown on loading screen
   },
+
+  // ---------------------------------------------------------------------------
+  // WEBFLOW PAGE
+  // ---------------------------------------------------------------------------
+  webflow: {
+    // Design Concept panel transition mode: "strip" (horizontal marquee) | "stack" (layered slide-out)
+    designConceptTransition: "strip" as "strip" | "stack",
+  },
 } as const;
 
 // Type export for use in components
