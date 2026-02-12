@@ -30,10 +30,10 @@ export function FrameComponent({
 
   useEffect(() => {
     if (autoplayMode === "all") {
-      videoRef.current?.play();
+      videoRef.current?.play().catch(() => {});
     } else if (autoplayMode === "hover") {
       if (isHovered) {
-        videoRef.current?.play();
+        videoRef.current?.play().catch(() => {});
       } else {
         videoRef.current?.pause();
       }
@@ -85,7 +85,7 @@ export function FrameComponent({
               ref={videoRef}
               onMouseEnter={(e) => {
                 if (autoplayMode === "hover") {
-                  e.currentTarget.play();
+                  e.currentTarget.play().catch(() => {});
                 }
               }}
               onMouseLeave={(e) => {

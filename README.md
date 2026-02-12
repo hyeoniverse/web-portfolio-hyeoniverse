@@ -21,6 +21,7 @@
 - **Mix-Blend Navigation**: mix-blend-mode: difference를 활용한 자동 반전 네비게이션
 - **StaggerText**: 호버 시 글자별 순차 애니메이션 효과 컴포넌트
 - **Works Horizontal Gallery**: GSAP 기반 가로 스크롤 갤러리, 양방향 무한 스크롤 래핑, 인트로 인플로우 배치, 언어 전환 레이아웃 안정화
+- **Breakpoint Guard**: 뷰포트가 breakpoint(768px, 1024px)를 넘을 때 페이지 콘텐츠를 자동 remount하여 GSAP/ScrollTrigger 등 레이아웃 의존 애니메이션을 재초기화
 
 ## 시작하기
 
@@ -80,6 +81,45 @@ import StaggerText from "@/components/effects/StaggerText";
 | `strokeWidth` | `number` | `1` | 스트로크 두께 (px) |
 | `delayPerChar` | `number` | `0.04` | 글자당 딜레이 (초) |
 | `hoverEffect` | `boolean` | `true` | 호버 효과 활성화 여부 |
+
+---
+
+### BreakpointGuard
+
+뷰포트가 breakpoint 경계(768px, 1024px)를 넘을 때 페이지 콘텐츠를 자동으로 unmount/remount하여 GSAP ScrollTrigger, RAF 기반 애니메이션 등을 재초기화하는 컴포넌트입니다.
+
+**경로**: `src/components/common/BreakpointGuard.tsx`
+
+**기능**:
+- 뷰포트 너비 변화를 감지하여 `desktop` (>1024px) / `tablet` (768-1024px) / `mobile` (<768px) 분류
+- breakpoint 변경 시 `key` prop을 통해 children을 remount
+- Provider(Theme, Language, Lenis)는 상위에 위치하여 상태 유지
+
+**적용 위치**: `src/app/layout.tsx`
+
+```tsx
+// root layout.tsx
+<ThemeProvider>
+  <LanguageProvider>
+    <LenisProvider>
+      <Navigation />          {/* 유지 */}
+      <main>
+        <BreakpointGuard>     {/* breakpoint 변경 시 remount */}
+          {children}
+        </BreakpointGuard>
+      </main>
+    </LenisProvider>
+  </LanguageProvider>
+</ThemeProvider>
+```
+
+**Breakpoints**:
+
+| Breakpoint | 범위 | 설명 |
+|------------|------|------|
+| `desktop` | > 1024px | 가로 스크롤 레이아웃 |
+| `tablet` | 768px - 1024px | 세로 스크롤, 태블릿 간격 |
+| `mobile` | < 768px | 세로 스크롤, 모바일 간격 |
 
 ---
 
@@ -515,6 +555,62 @@ export function useLoadingScreen() {
 
 #### 핵심 교훈
 서드파티 Provider를 조건부로 렌더링하면(`Fragment` ↔ `Provider`) React가 하위 트리를 remount함. `useState` 초기값에 의존하는 상태는 모듈 레벨 변수로 보완해야 remount에 안전함
+
+---
+
+### 11. GSAP ScrollTrigger가 breakpoint 변경 시 레이아웃 깨짐
+
+#### 문제
+데스크톱↔태블릿↔모바일 간 뷰포트 리사이즈 시 GSAP ScrollTrigger pin, RAF counter-translation 등의 애니메이션이 이전 뷰포트 기준으로 고정되어 레이아웃이 깨짐
+
+#### 원인
+- GSAP ScrollTrigger의 `start`, `end`, `pin` 설정이 생성 시점의 뷰포트 크기로 계산됨
+- RAF 기반 counter-translation도 초기 `extraWidth` 값을 기준으로 동작
+- 뷰포트 크기가 변해도 기존 인스턴스가 자동으로 갱신되지 않음
+
+#### 시도한 방법들
+1. **개별 컴포넌트에서 breakpoint 추적**: 각 패널에서 resize listener + effect 재실행 → 코드 중복, 일부 패널 누락
+2. **ScrollTrigger.refresh()**: 일부 케이스에서 작동하지만, 가로↔세로 레이아웃 전환처럼 근본적인 DOM 구조 변경은 처리 불가
+
+#### 해결
+root layout에 `BreakpointGuard` 컴포넌트를 추가하여 breakpoint 변경 시 페이지 콘텐츠 전체를 remount
+
+```tsx
+// src/components/common/BreakpointGuard.tsx
+function getBreakpoint(): "desktop" | "tablet" | "mobile" {
+  const w = window.innerWidth;
+  if (w > 1024) return "desktop";
+  if (w >= 768) return "tablet";
+  return "mobile";
+}
+
+export default function BreakpointGuard({ children }) {
+  const [bp, setBp] = useState("desktop");
+
+  useEffect(() => {
+    const check = () => setBp(getBreakpoint());
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  return <div key={bp}>{children}</div>;  // key 변경 → children remount
+}
+
+// src/app/layout.tsx
+<main>
+  <BreakpointGuard>{children}</BreakpointGuard>
+</main>
+```
+
+Provider(Theme, Language, Lenis) 위에 배치하면 상태가 초기화되므로, Provider 안쪽 `<main>` 내부에 배치하여 Provider 상태는 유지하면서 페이지 콘텐츠만 remount
+
+#### 부수 효과 및 해결
+- 비디오 요소가 DOM에서 제거되면서 `play()` Promise가 AbortError로 reject됨 → `.catch(() => {})` 추가
+- 모든 컴포넌트의 `useState` 초기값이 리셋됨 → 모듈 레벨 플래그(예: `hasCompletedInitialLoad`)로 보완
+
+#### 핵심 교훈
+GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이션은 `ScrollTrigger.refresh()`로 부분 갱신하기보다, React의 `key` prop을 활용한 완전 remount가 더 안정적. Provider를 remount 범위 밖에 배치하면 전역 상태 손실 없이 페이지 단위 재초기화가 가능
 
 ---
 
