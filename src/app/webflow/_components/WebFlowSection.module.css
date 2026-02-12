@@ -791,6 +791,10 @@
    Design Concept Panel — Stacked Crossfade (fixed frame, content swaps)
    ========================================================================== */
 
+.dcViewport {
+  /* placeholder — mobile override below */
+}
+
 .dcTitleRow {
   display: flex;
   align-items: baseline;
@@ -2438,15 +2442,56 @@
     display: none;
   }
 
-  /* Design Concept: hide animated stack, show simple mobile list */
+  /* Design Concept: pinned vertical crossfade on mobile — full bleed */
+  .dcViewport {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    margin: calc(-1 * var(--wf-panel-py)) calc(-1 * var(--wf-panel-px));
+  }
+
+  .dcViewport .dcTitleRow {
+    position: relative;
+    z-index: 2;
+    padding: var(--wf-panel-py) var(--wf-panel-px) 0;
+  }
+
   .dcCardStack {
-    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  /* Force strip mode to behave like stack on mobile */
+  .dcModeStrip .dcCardStrip {
+    display: block;
+    height: 100%;
+    transition: none;
+    transform: none !important;
+  }
+
+  .dcModeStrip .dcCard {
+    position: absolute;
+    inset: 0;
+    flex: none;
+  }
+
+  .dcModeStrip .dcCardOverlay {
+    transition: opacity 0.5s ease;
+  }
+
+  .dcModeStrip .dcCardBg {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  .dcTitleRow .dotNav {
+    display: flex;
   }
 
   .dcMobileList {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xl);
+    display: none;
   }
 
   .dcMobileCard {
