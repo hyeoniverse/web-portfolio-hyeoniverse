@@ -69,7 +69,15 @@ export default function FeaturesPanel({
     const isTablet = window.innerWidth >= 768;
 
     const ctx = gsap.context(() => {
-      const scrollDist = count * (isTablet ? 300 : 200);
+      /* Pre-compute overflow to adjust scroll distance */
+      const initCardH = cards[0].offsetHeight;
+      const initTabH = isTablet ? Math.round(initCardH * 0.1) : 60;
+      const initLastCardY =
+        window.innerHeight + initCardH * 0.7 - initCardH;
+      const initOverflow = initLastCardY - lastIdx * initTabH < 0;
+
+      const baseScroll = isTablet ? 300 : 200;
+      const scrollDist = count * baseScroll * (initOverflow ? 2 : 1);
 
       ScrollTrigger.create({
         trigger: grid,
@@ -98,9 +106,9 @@ export default function FeaturesPanel({
 
           const animFrac = Math.min(progress / 0.95, 1);
           const spacing = lastIdx > 0 ? 1 / lastIdx : 1;
-          /* Each card animates over 2× spacing → 50% overlap with next card.
-             Cards feel like they're being dragged up together. */
-          const duration = spacing * 4.5;
+          /* Overflow: less overlap so each card is visible before flying.
+             Normal: more overlap for a fluid drag feel. */
+          const duration = spacing * (hasOverflow ? 2 : 4.5);
 
           for (let i = 0; i < count; i++) {
             const restY = Math.min(topY + i * tabH, lastCardY);
