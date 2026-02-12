@@ -28,7 +28,7 @@
   --wf-lh-code: var(--line-height-normal);
 
   /* ── Spacing (complement global --spacing-*) ── */
-  --wf-space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
+  --wf-space-section: calc(var(--wf-space-block) * 2.5);
   --wf-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
   --wf-space-divide: calc(var(--wf-space-block) * 2);
   --wf-space-line: calc(var(--wf-space-block) / 2);
@@ -2041,7 +2041,7 @@
   align-items: baseline;
   justify-content: space-between;
   flex-shrink: 0;
-  margin-bottom: var(--wf-space-section);
+  margin: var(--wf-space-section) 0;
 }
 
 /* Two-column split: list (left) + detail (right) */
