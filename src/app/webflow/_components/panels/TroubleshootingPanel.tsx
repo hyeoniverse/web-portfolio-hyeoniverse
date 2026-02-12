@@ -1,10 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
 import type { TroubleShootingItem } from "@/data/webflow";
 import { renderHighlight } from "../renderHighlight";
 import styles from "../WebFlowSection.module.css";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface TroubleshootingPanelProps {
   language: Language;
@@ -12,19 +18,30 @@ interface TroubleshootingPanelProps {
   items: TroubleShootingItem[];
 }
 
+const MOBILE_WIDTH = 1024;
+
 export default function TroubleshootingPanel({
   language,
   t,
   items,
 }: TroubleshootingPanelProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Detect mobile/tablet
+  useLayoutEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= MOBILE_WIDTH);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Desktop: track horizontal scroll progress via RAF
   // Counter-translate inner content so it appears pinned in the viewport
   useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth <= 1024) return;
+    if (typeof window === "undefined" || window.innerWidth <= MOBILE_WIDTH) return;
 
     let rafId: number;
     let prevIndex = 0;
@@ -59,10 +76,74 @@ export default function TroubleshootingPanel({
     return () => cancelAnimationFrame(rafId);
   }, [items.length]);
 
+  // Mobile/Tablet: GSAP ScrollTrigger pin + JS-driven detail transforms
+  useLayoutEffect(() => {
+    if (!isMobile) return;
+    const viewport = contentRef.current;
+    if (!viewport) return;
+
+    const total = items.length;
+    const scrollDist = total * 500;
+    let prevIdx = 0;
+
+    // Query detail items for JS-driven animation
+    const detailItems = Array.from(
+      viewport.querySelectorAll<HTMLElement>(`.${styles.troubleDetailItem}`),
+    );
+
+    // Set initial positions: first item visible, rest below
+    detailItems.forEach((el, i) => {
+      if (i === 0) {
+        el.style.opacity = "1";
+        el.style.transform = "translateY(0)";
+      } else {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(60px)";
+      }
+    });
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: viewport,
+        start: "top top",
+        end: `+=${scrollDist}`,
+        pin: true,
+        pinSpacing: true,
+        onUpdate: (self) => {
+          const newIndex = Math.min(
+            total - 1,
+            Math.floor(self.progress * total),
+          );
+
+          if (newIndex !== prevIdx) {
+            prevIdx = newIndex;
+            setActiveIndex(newIndex);
+
+            // JS-driven directional slide
+            detailItems.forEach((el, i) => {
+              if (i < newIndex) {
+                el.style.opacity = "0";
+                el.style.transform = "translateY(-60px)";
+              } else if (i === newIndex) {
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+              } else {
+                el.style.opacity = "0";
+                el.style.transform = "translateY(60px)";
+              }
+            });
+          }
+        },
+      });
+    }, viewport);
+
+    return () => ctx.revert();
+  }, [isMobile, items.length]);
+
   // Click list item → scroll to matching position (GSAP scrub animates)
   const handleItemClick = useCallback(
     (index: number) => {
-      if (!panelRef.current || window.innerWidth <= 1024) return;
+      if (!panelRef.current || window.innerWidth <= MOBILE_WIDTH) return;
 
       const rect = panelRef.current.getBoundingClientRect();
       const extraWidth = rect.width - window.innerWidth;
@@ -80,13 +161,29 @@ export default function TroubleshootingPanel({
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       {/* Inner wrapper: counter-translated to appear pinned */}
-      <div ref={contentRef} className={styles.pinnedFlex}>
-        <span className={`${styles.panelNumber} ${styles.animate}`}>08</span>
-        <h3
-          className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
-        >
-          Trouble Shooting.
-        </h3>
+      <div ref={contentRef} className={`${styles.pinnedFlex} ${styles.tsViewport}`}>
+        <div className={styles.tsTitleRow}>
+          <div>
+            <span className={`${styles.panelNumber} ${styles.animate}`}>08</span>
+            <h3
+              className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
+            >
+              Trouble Shooting.
+            </h3>
+          </div>
+          <div className={styles.dotNav}>
+            {items.map((_, i) => (
+              <div
+                data-clickable="true"
+                key={i}
+                className={`${styles.dot} ${
+                  i === activeIndex ? styles.dotActive : ""
+                }`}
+                onClick={() => handleItemClick(i)}
+              />
+            ))}
+          </div>
+        </div>
 
         {/* Desktop: split layout — list + detail */}
         <div className={`${styles.troubleSplit} ${styles.animate}`}>
@@ -159,7 +256,7 @@ export default function TroubleshootingPanel({
           </div>
         </div>
 
-        {/* Mobile: all items displayed */}
+        {/* Mobile: all items displayed (fallback, hidden when pin active) */}
         <div className={styles.troubleMobileList}>
           {items.map((item, index) => (
             <div
