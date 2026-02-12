@@ -8,6 +8,11 @@ import {
   useEffect,
 } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 import Image from "next/image";
 import { useLenis } from "@/providers/LenisProvider";
 import { Code, Palette, LayoutGrid, Zap, Globe, Mail } from "lucide-react";
@@ -289,8 +294,16 @@ export default function DesignConceptPanel({
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const isStrip = mode === "strip";
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   /* ═══ Stack mode: set initial visual state (prevents flash) ═══ */
   useLayoutEffect(() => {
@@ -379,6 +392,69 @@ export default function DesignConceptPanel({
     return () => cancelAnimationFrame(rafId);
   }, [concepts.length, isStrip]);
 
+  /* ═══ Mobile/Tablet: GSAP ScrollTrigger pin + vertical crossfade ═══ */
+  useLayoutEffect(() => {
+    if (!isMobile) return;
+
+    const stack = stackRef.current;
+    const viewport = contentRef.current;
+    if (!stack || !viewport) return;
+
+    const cards = Array.from(
+      stack.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
+    );
+    const overlays = Array.from(
+      stack.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
+    );
+    const backgrounds = Array.from(
+      stack.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`),
+    );
+    const total = cards.length;
+    if (total === 0) return;
+
+    const scrollDist = total * 400;
+
+    const ctx = gsap.context(() => {
+      /* Initial state: card 0 visible, others hidden */
+      cards.forEach((card, i) => {
+        gsap.set(card, { zIndex: total - i, opacity: 1 });
+        if (i > 0) {
+          gsap.set(card, { borderColor: "transparent" });
+          if (overlays[i]) gsap.set(overlays[i], { opacity: 0 });
+        }
+      });
+
+      ScrollTrigger.create({
+        trigger: viewport,
+        start: "top top",
+        end: `+=${scrollDist}`,
+        pin: true,
+        pinSpacing: true,
+        onUpdate: (self) => {
+          const progress = self.progress;
+          const newIndex = Math.min(
+            total - 1,
+            Math.floor(progress * total),
+          );
+
+          setActiveIndex(newIndex);
+
+          overlays.forEach((overlay, i) => {
+            overlay.style.opacity = i === newIndex ? "1" : "0";
+          });
+          backgrounds.forEach((bg, i) => {
+            bg.style.transform = i < newIndex ? "translateY(-100%)" : "";
+          });
+          cards.forEach((card, i) => {
+            card.style.pointerEvents = i === newIndex ? "auto" : "none";
+          });
+        },
+      });
+    }, viewport);
+
+    return () => ctx.revert();
+  }, [isMobile]);
+
   const handleDotClick = useCallback(
     (index: number) => {
       if (!panelRef.current || window.innerWidth <= 1024) return;
@@ -425,7 +501,7 @@ export default function DesignConceptPanel({
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
-      <div ref={contentRef} className={styles.pinnedViewport}>
+      <div ref={contentRef} className={`${styles.pinnedViewport} ${styles.dcViewport}`}>
         <div className={styles.dcTitleRow}>
           <div>
             <span className={styles.panelNumber}>04</span>
@@ -444,7 +520,7 @@ export default function DesignConceptPanel({
         </div>
 
         <div
-          ref={isStrip ? undefined : stackRef}
+          ref={stackRef}
           className={`${styles.dcCardStack} ${isStrip ? styles.dcModeStrip : styles.dcModeStack}`}
         >
           {isStrip ? (
