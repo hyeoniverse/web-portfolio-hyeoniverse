@@ -136,6 +136,14 @@
   will-change: transform;
 }
 
+.processViewport {
+}
+
+/* Desktop: processBody is transparent wrapper (column: timeline above, content below) */
+.processBody {
+  display: contents;
+}
+
 /* Flex-fill variant (Code Highlights, Troubleshooting) */
 .pinnedFlex {
   display: flex;
@@ -1474,6 +1482,25 @@
   color: var(--text-accent-secondary);
 }
 
+/* ── Mobile: paired step rows (hidden on desktop) ── */
+.processStepList {
+  display: none;
+}
+
+.processStepRow {}
+.processStepRowActive {}
+.processStepConnector {}
+.processConnectorDot {}
+.processConnectorDotDone {}
+.processConnectorDotActive {}
+.processConnectorLine {}
+.processConnectorLineDone {}
+.processStepLabel {}
+.processStepContent {}
+.processStepNum {}
+.processStepContentTitle {}
+.processStepContentDesc {}
+
 /* ==========================================================================
    Visual Break
    ========================================================================== */
@@ -2016,6 +2043,18 @@
 
 .panelExtraWide {
   width: 350vw;
+}
+
+.tsViewport {
+}
+
+/* Title row for troubleshooting — dotNav visible on mobile */
+.tsTitleRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-shrink: 0;
+  margin-bottom: var(--wf-space-section);
 }
 
 /* Two-column split: list (left) + detail (right) */
@@ -2722,17 +2761,171 @@
     border-radius: 0 22px 22px 22px;
   }
 
-  .processTimeline {
-    display: none;
+  /* Process: pin animation on mobile — accordion layout */
+  .processViewport {
+    height: 100vh;
+    min-height: 100vh;
   }
 
-  .processSingleView {
+  /* Hide desktop-only structures */
+  .processBody {
     display: none;
   }
 
   .processMobileList {
+    display: none;
+  }
+
+  /* Show dot nav inside process panel on mobile */
+  .pinnedTitleRow .dotNav {
+    display: flex;
+  }
+
+  /* ── Accordion step list: all rows visible, active expanded ── */
+  .processStepList {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* Each row: connector + label (collapsed) or connector + content (expanded).
+     Height is JS-driven for smooth accordion. */
+  .processStepRow {
+    display: flex;
+    gap: clamp(10px, 2.5vw, 16px);
+    align-items: stretch;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* Compound selector (0,2,0) for transition */
+  .processStepList .processStepRow {
+    transition:
+      height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.35s ease;
+  }
+
+  /* ── Left: continuous connector line + dot ── */
+  .processStepConnector {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: clamp(16px, 4vw, 24px);
+    padding-top: 10px;
+  }
+
+  .processConnectorDot {
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--text-tertiary);
+    border-radius: 50%;
+    background: var(--bg-primary);
+    opacity: 0.35;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .processStepConnector .processConnectorDot {
+    transition:
+      border-color 0.4s ease,
+      background-color 0.4s ease,
+      opacity 0.4s ease,
+      transform 0.4s ease,
+      box-shadow 0.4s ease;
+  }
+
+  .processConnectorDotDone {
+    border-color: var(--text-accent-secondary);
+    background: var(--text-accent-secondary);
+    opacity: 1;
+  }
+
+  .processConnectorDotActive {
+    border-color: var(--text-accent-secondary);
+    background: var(--text-accent-secondary);
+    box-shadow: 0 0 8px var(--color-accent-alpha-50, rgba(212, 0, 99, 0.5));
+    opacity: 1;
+    transform: scale(1.4);
+  }
+
+  /* Line connects dots — no margin, seamless */
+  .processConnectorLine {
+    flex: 1;
+    width: 2px;
+    background: var(--text-tertiary);
+    opacity: 0.12;
+  }
+
+  .processConnectorLineDone {
+    background: var(--text-accent-secondary);
+    opacity: 0.5;
+  }
+
+  /* ── Right: collapsed label (visible when row is collapsed) ── */
+  .processStepLabel {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    font-family: var(--wf-font-grotesk);
+    font-size: clamp(0.75rem, 2.2vw, 0.9rem);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Right: expanded content (visible when row is active) ── */
+  .processStepContent {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: calc(clamp(16px, 4vw, 24px) + clamp(10px, 2.5vw, 16px));
+    padding-right: var(--spacing-md);
+    pointer-events: none;
+  }
+
+  /* Compound selector (0,2,0) for transition */
+  .processStepRow .processStepContent {
+    transition: opacity 0.35s ease;
+  }
+
+  .processStepNum {
+    font-family: var(--wf-font-display);
+    font-size: clamp(2.5rem, 10vw, 5rem);
+    font-weight: var(--font-weight-regular);
+    line-height: 0.85;
+    color: var(--text-accent-secondary);
+    opacity: 0.12;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .processStepContentTitle {
+    margin: 0 0 var(--spacing-sm);
+    font-family: var(--font-instrument);
+    font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+    font-style: italic;
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-snug);
+    letter-spacing: var(--wf-ls-title);
+  }
+
+  .processStepContentDesc {
+    margin: 0;
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
+    line-height: var(--wf-lh-reading);
+    color: var(--text-secondary);
+  }
+
+  /* When active: hide label, show content */
+  .processStepRowActive .processStepLabel {
+    opacity: 0;
   }
 
   .processStepTitle {
@@ -2810,35 +3003,85 @@
     height: 280px;
   }
 
+  /* Troubleshooting: pin animation — show detail with crossfade */
+  .tsViewport {
+    height: 100vh;
+    min-height: 100vh;
+  }
+
+  .tsTitleRow .dotNav {
+    display: flex;
+  }
+
+  /* Show split but hide left list — detail takes full width.
+     Force visible: .animate sets opacity:0 on mobile but InView
+     observer may not fire inside a GSAP-pinned element. */
   .troubleSplit {
+    display: flex;
+    gap: 0;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .troubleList {
     display: none;
   }
 
+  .troubleDetail {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .troubleDetailItem {
+    overflow-y: auto;
+    pointer-events: none;
+  }
+
+  .troubleDetailItemActive {
+    pointer-events: auto;
+  }
+
+  /* JS drives opacity + transform; CSS transitions for smooth animation */
+  .troubleDetail .troubleDetailItem {
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   .troubleMobileList {
-    display: flex;
-    gap: 0;
-    flex-direction: column;
+    display: none;
   }
 
-  .troubleMobileItem {
-    padding: var(--spacing-2xl) 0;
-  }
-
-  .troubleMobileHeader {
+  /* Background number — large watermark behind entire detail item */
+  .troubleDetailHeader {
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
   }
 
-  .troubleMobileHeader .troubleNumber {
-    font-size: clamp(1.2rem, 4vw, 1.8rem);
+  .troubleDetailNumber {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    font-size: clamp(10rem, 40vw, 20rem);
+    line-height: 1;
     color: var(--text-accent-secondary);
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 0;
+    white-space: nowrap;
   }
 
   .troubleTitle {
+    position: relative;
+    z-index: 1;
     font-size: clamp(1rem, 3.5vw, 1.4rem);
   }
 
   .troubleBody {
+    position: relative;
+    z-index: 1;
     gap: var(--spacing-xl);
   }
 
