@@ -774,6 +774,7 @@
 
 .dcCardStack {
   position: absolute;
+  z-index: 1;
   top: calc(-1 * var(--wf-panel-py) - 1px);
   left: calc(-1 * var(--wf-panel-px) - 1px);
   width: calc(100vw + 2px);
