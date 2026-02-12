@@ -3,7 +3,6 @@
 import {
   useCallback,
   useRef,
-  useEffect,
   useLayoutEffect,
   useState,
 } from "react";
@@ -45,7 +44,7 @@ export default function FeaturesPanel({
   const gridRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= MOBILE_WIDTH);
     check();
     window.addEventListener("resize", check);
@@ -68,17 +67,25 @@ export default function FeaturesPanel({
     const lastIdx = count - 1;
     const isTablet = window.innerWidth >= 768;
 
+    /* Set initial stacked positions immediately (before ScrollTrigger)
+       so cards are visible on first paint — no blank flash */
+    const initCardH = cards[0].offsetHeight;
+    const initTabH = isTablet ? Math.round(initCardH * 0.1) : 60;
+    const initViewportH = window.innerHeight;
+    const initBottomGap = -(initCardH * 0.7);
+    const initLastCardY = initViewportH - initBottomGap - initCardH;
+    const initIdealTopY = initLastCardY - lastIdx * initTabH;
+    const initOverflow = initIdealTopY < 0;
+    const initTopY = initOverflow ? initTabH * 3 : initIdealTopY;
+
+    for (let i = 0; i < count; i++) {
+      cards[i].style.transform = `translateY(${Math.min(initTopY + i * initTabH, initLastCardY)}px)`;
+    }
+
+    const baseScroll = isTablet ? 300 : 200;
+    const scrollDist = count * baseScroll * (initOverflow ? 2 : 1);
+
     const ctx = gsap.context(() => {
-      /* Pre-compute overflow to adjust scroll distance */
-      const initCardH = cards[0].offsetHeight;
-      const initTabH = isTablet ? Math.round(initCardH * 0.1) : 60;
-      const initLastCardY =
-        window.innerHeight + initCardH * 0.7 - initCardH;
-      const initOverflow = initLastCardY - lastIdx * initTabH < 0;
-
-      const baseScroll = isTablet ? 300 : 200;
-      const scrollDist = count * baseScroll * (initOverflow ? 2 : 1);
-
       ScrollTrigger.create({
         trigger: grid,
         start: "top top",

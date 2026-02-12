@@ -2685,7 +2685,6 @@
     right: 0;
     left: 0;
     height: clamp(250px, calc(100vh - 280px), 550px);
-    transform: translateY(100vh);
     will-change: transform;
   }
 
