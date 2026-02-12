@@ -54,7 +54,7 @@ export default function WebFlowSection() {
           <OverviewPanel language={language} overview={projectOverview} />
           <ArchitecturePanel language={language} structure={projectStructure} />
           <FeaturesPanel language={language} features={designFeatures} />
-          <DesignConceptPanel language={language} concepts={designConcepts} />
+          <DesignConceptPanel language={language} concepts={designConcepts} mode={siteConfig.webflow.designConceptTransition} />
           <ProcessPanel language={language} process={designProcess} />
           <VisualBreakPanel />
           <TechStackPanel techStack={techStack} />

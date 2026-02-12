@@ -779,22 +779,48 @@
   left: calc(-1 * var(--wf-panel-px) - 1px);
   width: calc(100vw + 2px);
   height: calc(100vh + 2px);
+  overflow: hidden;
 }
 
-.dcCardStack .dcCard {
+/* ── Strip mode: horizontal row, translateX to slide ── */
+.dcCardStrip {
+  display: flex;
+  height: 100%;
+}
+
+/* Compound selector (0,2,0) — smooth strip slide */
+.dcCardStack .dcCardStrip {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.dcModeStrip .dcCard {
+  flex: 0 0 100%;
+}
+
+/* ── Stack mode: cards stacked, overlay crossfade + bg slide-out ── */
+.dcModeStack .dcCard {
   position: absolute;
   inset: 0;
 }
 
+/* Compound selector (0,2,0) — smooth overlay crossfade */
+.dcModeStack .dcCardOverlay {
+  transition: opacity 0.5s ease;
+}
+
+/* Compound selector (0,2,0) — slide-out background transition */
+.dcModeStack .dcCardBg {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* ── Shared card base ── */
 .dcCard {
   display: flex;
   overflow: hidden;
   position: relative;
-}
-
-/* Compound selector (0,2,0) — smooth overlay crossfade */
-.dcCard .dcCardOverlay {
-  transition: opacity 0.5s ease;
+  height: 100%;
 }
 
 /* Full-cover background image */
@@ -802,12 +828,6 @@
   position: absolute;
   z-index: 0;
   inset: 0;
-}
-
-/* Compound selector (0,2,0) — slide-out background transition */
-.dcCard .dcCardBg {
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
 }
 
 .dcCardBg img {
