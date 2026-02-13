@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+} from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
@@ -49,10 +55,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
           const offset = Math.max(0, Math.min(-rect.left, extraWidth));
           contentRef.current.style.transform = `translateX(${offset}px)`;
 
-          const progress = Math.max(
-            0,
-            Math.min(1, -rect.left / extraWidth),
-          );
+          const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
           const newIndex = Math.min(
             process.length - 1,
             Math.floor(progress * process.length),
@@ -60,8 +63,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
 
           // Smooth progress bar
           if (progressRef.current) {
-            const progressPct =
-              ((newIndex + 0.5) / process.length) * 100;
+            const progressPct = ((newIndex + 0.5) / process.length) * 100;
             progressRef.current.style.width = `${progressPct}%`;
           }
 
@@ -178,11 +180,11 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
   // Click dot / node → scroll to matching position
 
   return (
-    <div
-      ref={panelRef}
-      className={`${styles.panel} ${styles.panelExtraWide}`}
-    >
-      <div ref={contentRef} className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}>
+    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
+      <div
+        ref={contentRef}
+        className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
+      >
         {/* Title row */}
         <div className={styles.pinnedTitleRow}>
           <div>
@@ -196,7 +198,10 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
           {/* Timeline: horizontal on desktop, vertical on mobile */}
           <div className={styles.processTimeline}>
             <div className={styles.processTimelineTrack}>
-              <div ref={progressRef} className={styles.processTimelineProgress} />
+              <div
+                ref={progressRef}
+                className={styles.processTimelineProgress}
+              />
             </div>
             <div className={styles.processTimelineNodes}>
               {process.map((p, i) => {
@@ -221,9 +226,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
                               : ""
                         }`}
                       />
-                      {isActive && (
-                        <div className={styles.processNodePulse} />
-                      )}
+                      {isActive && <div className={styles.processNodePulse} />}
                     </div>
                     <span
                       className={`${styles.processNodeLabel} ${
@@ -304,10 +307,12 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
                   {p.step}. {p.title[language]}
                 </span>
                 <div className={styles.processStepContent}>
-                  <span className={styles.processStepNum}>{p.step}</span>
-                  <h4 className={styles.processStepContentTitle}>
-                    {p.title[language]}
-                  </h4>
+                  <div className={styles.processStepHeader}>
+                    <span className={styles.processStepNum}>{p.step}</span>
+                    <h4 className={styles.processStepContentTitle}>
+                      {p.title[language]}
+                    </h4>
+                  </div>
                   <p className={styles.processStepContentDesc}>
                     {p.description[language]}
                   </p>
