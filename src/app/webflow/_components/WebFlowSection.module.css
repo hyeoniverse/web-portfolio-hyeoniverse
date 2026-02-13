@@ -148,9 +148,9 @@
   align-items: flex-start;
   justify-content: space-between;
   flex-shrink: 0;
+  margin-bottom: var(--wf-space-section);
   position: relative;
   z-index: 2;
-  margin-bottom: var(--wf-space-section);
 }
 
 /* ==========================================================================
@@ -1560,18 +1560,18 @@
   display: flex;
   gap: var(--spacing-lg);
   flex: 1;
-  min-height: 0;
   padding-bottom: var(--spacing-3xl);
+  min-height: 0;
 }
 
 /* Code scroll wrapper — constrains code height + hosts page nav */
 .codeScrollWrap {
   display: flex;
-  flex-direction: column;
   flex: 1;
+  flex-direction: column;
+  position: relative;
   min-width: 0;
   min-height: 0;
-  position: relative;
 }
 
 /* Hide native scrollbar inside code scroll wrapper */
@@ -1586,18 +1586,18 @@
 /* Code page navigation — minimal floating indicator */
 .codePageNav {
   display: flex;
-  align-items: center;
   gap: var(--wf-space-block);
+  align-items: center;
+  padding: var(--padding-md);
+  border: var(--wf-line-secondary);
   position: absolute;
   right: var(--wf-space-line);
   bottom: var(--wf-space-line);
-  padding: var(--padding-md);
+  z-index: 2;
   font-family: var(--font-mono);
   font-size: var(--wf-fs-label);
   color: var(--text-primary);
-  z-index: 2;
   border-radius: var(--radius-capsule);
-  border: var(--wf-line-secondary);
 }
 
 /* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
@@ -1616,9 +1616,9 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: inherit;
-  line-height: 1;
   font-size: inherit;
+  line-height: 1;
+  color: inherit;
 }
 
 .codePageBtn:hover {
@@ -1782,10 +1782,10 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  padding-bottom: 1.8rem;
   position: relative;
   width: 100%;
   height: 100%;
-  padding-bottom: 1.8rem;
   font-family: var(--font-mono);
   font-size: var(--wf-fs-small);
   color: var(--text-secondary);
@@ -2021,7 +2021,7 @@
 /* Two-column split: list (left) + detail (right) */
 .troubleSplit {
   display: flex;
-  gap: var(--spacing-4xl);
+  gap: var(--wf-space-block);
   flex: 1;
   min-height: 0;
 }
@@ -2821,9 +2821,9 @@
   /* ── Right: expanded content (visible when row is active) ── */
   .processStepContent {
     display: flex;
-    justify-content: center;
+    justify-content: start;
     flex-direction: column;
-    padding-right: var(--spacing-md);
+    padding-right: var(--wf-space-block);
     padding-left: calc(clamp(16px, 4vw, 24px) + clamp(10px, 2.5vw, 16px));
     position: absolute;
     pointer-events: none;
@@ -2835,20 +2835,27 @@
     transition: opacity 0.35s ease;
   }
 
+  .processStepHeader {
+    display: flex;
+    gap: var(--wf-space-block);
+    align-items: end;
+    justify-content: start;
+    flex-direction: row;
+    margin-bottom: var(--wf-space-block);
+  }
+
   .processStepNum {
-    margin-bottom: var(--spacing-xs);
     font-family: var(--wf-font-display);
-    font-size: clamp(2.5rem, 10vw, 5rem);
+    font-size: var(--wf-fs-hero);
     font-weight: var(--font-weight-regular);
-    line-height: 0.85;
+    line-height: var(--line-height-fit);
     color: var(--text-accent-secondary);
     opacity: 0.12;
   }
 
   .processStepContentTitle {
-    margin: 0 0 var(--spacing-sm);
     font-family: var(--font-instrument);
-    font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+    font-size: var(--wf-fs-head);
     font-style: italic;
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-snug);
@@ -2857,7 +2864,7 @@
 
   .processStepContentDesc {
     margin: 0;
-    font-size: clamp(0.8rem, 2.5vw, 1rem);
+    font-size: var(--wf-fs-body);
     line-height: var(--wf-lh-reading);
     color: var(--text-secondary);
   }
@@ -3002,7 +3009,7 @@
   }
 
   .troubleBody {
-    gap: var(--spacing-xl);
+    gap: var(--wf-space-block);
     position: relative;
     z-index: 1;
   }
@@ -3012,17 +3019,17 @@
   }
 
   .troubleLabel {
-    padding: 5px 12px;
-    font-size: clamp(0.7rem, 2.2vw, 0.9rem);
+    padding: var(--padding-sm);
+    font-size: var(--wf-fs-label);
   }
 
   .troubleEntry p {
-    font-size: clamp(0.85rem, 2.8vw, 1.1rem);
+    font-size: var(--wf-fs-body);
     line-height: var(--line-height-relaxed);
   }
 
   .highlightedText {
-    padding: 0.15rem 0.4rem;
+    padding: var(--padding-sm);
   }
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { flushSync } from "react-dom";
 import type { Language } from "@/providers/LanguageProvider";
 import type { CodeExample } from "@/data/webflow";
 import CodeHighlight from "../CodeHighlight";
@@ -29,6 +30,8 @@ export default function CodeHighlightsPanel({
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const codeWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const expandedRef = useRef(expandedMobileCode);
+  expandedRef.current = expandedMobileCode;
 
   // Desktop: track horizontal scroll progress via RAF
   // Counter-translate inner content so it appears pinned in the viewport
@@ -48,10 +51,7 @@ export default function CodeHighlightsPanel({
           const offset = Math.max(0, Math.min(-rect.left, extraWidth));
           contentRef.current.style.transform = `translateX(${offset}px)`;
 
-          const progress = Math.max(
-            0,
-            Math.min(1, -rect.left / extraWidth),
-          );
+          const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
           const newIndex = Math.min(
             codeExamples.length - 1,
             Math.floor(progress * codeExamples.length),
@@ -100,10 +100,7 @@ export default function CodeHighlightsPanel({
       const clientH = pre.clientHeight;
       if (clientH <= 0) return;
       const total = Math.max(1, Math.ceil(pre.scrollHeight / clientH));
-      const page = Math.min(
-        total,
-        Math.floor(pre.scrollTop / clientH) + 1,
-      );
+      const page = Math.min(total, Math.floor(pre.scrollTop / clientH) + 1);
       setCodePage({ page, total });
     };
 
@@ -115,6 +112,74 @@ export default function CodeHighlightsPanel({
       window.removeEventListener("resize", update);
     };
   }, [activeIndex]);
+
+  // Mobile: close expanded item when the panel's *collapsed* content exits
+  // the viewport. A RAF loop runs only while an accordion is open, estimating
+  // where the panel bottom would be without the expanded body. When the
+  // "collapsed bottom" passes above the viewport, close instantly and scroll
+  // up via Lenis so the extra distance is truly removed (not replaced by
+  // dead-space margin).
+  useEffect(() => {
+    if (expandedMobileCode === null) return;
+    const el = panelRef.current;
+    if (!el) return;
+
+    let rafId: number;
+
+    const check = () => {
+      const rect = el.getBoundingClientRect();
+      // Only act when panel scrolled above viewport (user scrolling down)
+      if (rect.top <= 0) {
+        const openBody = el.querySelector(
+          `.${styles.codeMobileBodyOpen}`,
+        ) as HTMLElement | null;
+        if (openBody) {
+          // Where would the panel bottom be if the accordion were collapsed?
+          const expandedHeight = openBody.offsetHeight;
+          const collapsedBottom = rect.bottom - expandedHeight;
+
+          if (collapsedBottom < 0) {
+            // 1) Measure panel height with accordion open
+            const heightBefore = el.offsetHeight;
+
+            // 2) Bypass CSS transition for instant close
+            openBody.style.transition = "none";
+
+            // 3) Synchronously close: React removes class immediately
+            flushSync(() => setExpandedMobileCode(null));
+
+            // 4) Measure height after close
+            const heightAfter = el.offsetHeight;
+            const delta = heightBefore - heightAfter;
+
+            // 5) Scroll up via Lenis to compensate — this truly removes the
+            //    extra distance instead of adding a dead-space margin.
+            if (delta > 0) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const l = (window as any).lenis;
+              if (l) {
+                l.scrollTo(l.scroll - delta, { immediate: true });
+              }
+              // Clear any stale margin from previous approach
+              el.style.marginBottom = "";
+            }
+
+            // 6) Restore CSS transition on next frame
+            requestAnimationFrame(() => {
+              openBody.style.transition = "";
+            });
+
+            // Stop loop; effect will re-run with null and bail out
+            return;
+          }
+        }
+      }
+      rafId = requestAnimationFrame(check);
+    };
+
+    rafId = requestAnimationFrame(check);
+    return () => cancelAnimationFrame(rafId);
+  }, [expandedMobileCode]);
 
   const scrollCodePage = useCallback(
     (direction: 1 | -1) => {
@@ -128,15 +193,14 @@ export default function CodeHighlightsPanel({
   );
 
   return (
-    <div
-      ref={panelRef}
-      className={`${styles.panel} ${styles.panelExtraWide}`}
-    >
+    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       {/* Inner wrapper: counter-translated to appear pinned */}
       <div ref={contentRef} className={styles.pinnedContent}>
         <div className={styles.pinnedTitleRow}>
           <div>
-            <span className={`${styles.panelNumber} ${styles.animate}`}>07</span>
+            <span className={`${styles.panelNumber} ${styles.animate}`}>
+              07
+            </span>
             <h3
               className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
             >
@@ -225,11 +289,9 @@ export default function CodeHighlightsPanel({
           {codeExamples.map((example, index) => {
             const isOpen = expandedMobileCode === index;
             return (
-              <div
-                key={index}
-                className={styles.codeItemMobile}
-              >
+              <div key={index} className={styles.codeItemMobile}>
                 <div
+                  data-clickable="true"
                   className={styles.codeMobileHeader}
                   onClick={() => setExpandedMobileCode(isOpen ? null : index)}
                 >
@@ -252,9 +314,7 @@ export default function CodeHighlightsPanel({
                   className={`${styles.codeMobileBody} ${isOpen ? styles.codeMobileBodyOpen : ""}`}
                 >
                   <div className={styles.codeRevealContent}>
-                    <div className={styles.codeDemo}>
-                      {getCodeDemo(index)}
-                    </div>
+                    <div className={styles.codeDemo}>{getCodeDemo(index)}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <CodeHighlight
                         code={example.code}

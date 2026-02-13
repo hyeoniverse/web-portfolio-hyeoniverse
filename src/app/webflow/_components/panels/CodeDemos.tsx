@@ -8,15 +8,31 @@ import {
   motion,
 } from "framer-motion";
 import StaggerText from "@/components/effects/StaggerText/StaggerText";
+import { checkMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
+
+/* ── Shared mobile detection hook ── */
+function useDemoMobile(): boolean {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setMobile(checkMobileLayout());
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  return mobile;
+}
 
 /* =========================================================================
    1. DemoParallax — Mouse Parallax Effect (HeroSection)
+   Desktop: mouse tracking → spring parallax layers
+   Mobile: auto-animate with sine wave loop
    ========================================================================= */
 function DemoParallax() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
+  const isMobile = useDemoMobile();
 
   const springX = useSpring(mouseX, { stiffness: 60, damping: 20 });
   const springY = useSpring(mouseY, { stiffness: 60, damping: 20 });
@@ -30,19 +46,34 @@ function DemoParallax() {
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isMobile) return;
       const rect = e.currentTarget.getBoundingClientRect();
       mouseX.set((e.clientX - rect.left) / rect.width);
       mouseY.set((e.clientY - rect.top) / rect.height);
     },
-    [mouseX, mouseY],
+    [mouseX, mouseY, isMobile],
   );
+
+  // Mobile: auto-animate layers with sine wave
+  useEffect(() => {
+    if (!isMobile) return;
+    let rafId: number;
+    const loop = (time: number) => {
+      const t = time / 1000;
+      mouseX.set(0.5 + 0.4 * Math.sin(t * 0.7));
+      mouseY.set(0.5 + 0.4 * Math.cos(t * 0.5));
+      rafId = requestAnimationFrame(loop);
+    };
+    rafId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafId);
+  }, [isMobile, mouseX, mouseY]);
 
   return (
     <div
       ref={containerRef}
       className={styles.codeDemoInner}
-      onMouseMove={handleMouseMove}
-      style={{ cursor: "crosshair" }}
+      onMouseMove={isMobile ? undefined : handleMouseMove}
+      style={{ cursor: isMobile ? "default" : "crosshair" }}
     >
       <motion.div
         style={{
@@ -82,15 +113,55 @@ function DemoParallax() {
           left: "45%",
         }}
       />
-      <span className={styles.demoHint}>Move your mouse</span>
+      <span className={styles.demoHint}>
+        {isMobile ? "Auto-playing" : "Move your mouse"}
+      </span>
     </div>
   );
 }
 
 /* =========================================================================
    2. DemoStaggerText — StaggerText Component
+   Desktop: hover triggers stroke stagger
+   Mobile: auto-cycles the same outline→fill-back effect
    ========================================================================= */
 function DemoStaggerText() {
+  const isMobile = useDemoMobile();
+  const text = "Hover Me";
+  const chars = text.split("");
+  const totalChars = chars.length;
+  const delayPerChar = 0.04;
+  const strokeColor = "var(--text-accent-secondary)";
+
+  const [isOutlining, setIsOutlining] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+
+  // Mobile: auto-cycle outline → fill-back → idle
+  useEffect(() => {
+    if (!isMobile) return;
+    let timeout: ReturnType<typeof setTimeout>;
+    const animDuration = totalChars * delayPerChar * 1000 + 100;
+
+    const cycle = () => {
+      // Phase 1: outline each char (forward)
+      setIsExiting(false);
+      setIsOutlining(true);
+      timeout = setTimeout(() => {
+        // Phase 2: fill back each char (reverse)
+        setIsOutlining(false);
+        setIsExiting(true);
+        timeout = setTimeout(() => {
+          // Phase 3: idle
+          setIsExiting(false);
+          timeout = setTimeout(cycle, 2000);
+        }, animDuration);
+      }, animDuration + 800);
+    };
+
+    timeout = setTimeout(cycle, 1000);
+    return () => clearTimeout(timeout);
+  }, [isMobile, totalChars, delayPerChar]);
+
   return (
     <div
       className={styles.codeDemoInner}
@@ -103,21 +174,56 @@ function DemoStaggerText() {
         color: "var(--text-accent-secondary)",
       }}
     >
-      <StaggerText
-        strokeColor="var(--text-accent-secondary)"
-        strokeWidth={1}
-        delayPerChar={0.04}
-      >
-        Hover Me
-      </StaggerText>
+      {isMobile ? (
+        <span style={{ display: "inline" }}>
+          {chars.map((char, i) => {
+            const fwd = i * delayPerChar;
+            const rev = (totalChars - 1 - i) * delayPerChar;
+            const delay = isOutlining ? fwd : rev;
+
+            const charStyle: React.CSSProperties = {
+              display: "inline-block",
+              transition: "color 0.01s step-end",
+              transitionDelay: `${delay}s`,
+            };
+
+            if (isOutlining) {
+              charStyle.color = "transparent";
+              charStyle.WebkitTextStroke = `1px ${strokeColor}`;
+            } else if (isExiting) {
+              charStyle.WebkitTextStroke = `1px ${strokeColor}`;
+            }
+
+            return (
+              <span key={i} style={charStyle}>
+                {char === " " ? "\u00A0" : char}
+              </span>
+            );
+          })}
+        </span>
+      ) : (
+        <StaggerText
+          strokeColor={strokeColor}
+          strokeWidth={1}
+          delayPerChar={delayPerChar}
+        >
+          Hover Me
+        </StaggerText>
+      )}
+      {isMobile && (
+        <span className={styles.demoHint}>Auto-playing</span>
+      )}
     </div>
   );
 }
 
 /* =========================================================================
    3. DemoFontMorph — FontMorphText (font counting animation)
+   Desktop: onMouseEnter triggers font shuffle
+   Mobile: auto-cycles every 3s
    ========================================================================= */
 function DemoFontMorph() {
+  const isMobile = useDemoMobile();
   const fonts = [
     { name: "Space Grotesk", family: "var(--font-space-grotesk), sans-serif" },
     { name: "Playfair", family: "var(--font-playfair), Georgia, serif" },
@@ -155,6 +261,16 @@ function DemoFontMorph() {
     countRef.current = setTimeout(tick, 60);
   }, [isCounting, fonts.length]);
 
+  // Mobile: auto-cycle fonts via stable ref
+  const startCountingRef = useRef(startCounting);
+  startCountingRef.current = startCounting;
+
+  useEffect(() => {
+    if (!isMobile) return;
+    const id = setInterval(() => startCountingRef.current(), 3000);
+    return () => clearInterval(id);
+  }, [isMobile]);
+
   useEffect(() => {
     return () => {
       if (countRef.current) clearTimeout(countRef.current);
@@ -164,7 +280,8 @@ function DemoFontMorph() {
   return (
     <div
       className={styles.codeDemoInner}
-      onMouseEnter={startCounting}
+      onMouseEnter={isMobile ? undefined : startCounting}
+      onClick={isMobile ? startCounting : undefined}
     >
       <div
         className={styles.demoFontText}
@@ -173,15 +290,20 @@ function DemoFontMorph() {
         Design
       </div>
       <div className={styles.demoFontLabel}>{fonts[displayIdx].name}</div>
-      <span className={styles.demoHint}>Hover to morph font</span>
+      <span className={styles.demoHint}>
+        {isMobile ? "Auto-cycling" : "Hover to morph font"}
+      </span>
     </div>
   );
 }
 
 /* =========================================================================
    4. DemoMagnetic — Magnetic Hover Effect (useMagnetic hook)
+   Desktop: continuous mouse tracking with spring physics
+   Mobile: auto-oscillate in a circle
    ========================================================================= */
 function DemoMagnetic() {
+  const isMobile = useDemoMobile();
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const springX = useSpring(x, { stiffness: 150, damping: 15 });
@@ -189,13 +311,14 @@ function DemoMagnetic() {
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isMobile) return;
       const rect = e.currentTarget.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       x.set((e.clientX - centerX) * 0.35);
       y.set((e.clientY - centerY) * 0.35);
     },
-    [x, y],
+    [x, y, isMobile],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -203,28 +326,47 @@ function DemoMagnetic() {
     y.set(0);
   }, [x, y]);
 
+  // Mobile: auto-oscillate in a circle
+  useEffect(() => {
+    if (!isMobile) return;
+    let rafId: number;
+    const loop = (time: number) => {
+      const t = time / 1000;
+      x.set(Math.sin(t * 1.2) * 18);
+      y.set(Math.cos(t * 0.9) * 14);
+      rafId = requestAnimationFrame(loop);
+    };
+    rafId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafId);
+  }, [isMobile, x, y]);
+
   return (
     <div
       className={styles.codeDemoInner}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ cursor: "none" }}
+      onMouseMove={isMobile ? undefined : handleMouseMove}
+      onMouseLeave={isMobile ? undefined : handleMouseLeave}
+      style={{ cursor: isMobile ? "default" : "none" }}
     >
       <motion.div
         className={styles.demoMagneticBtn}
         style={{ x: springX, y: springY }}
       >
-        Hover
+        {isMobile ? "Magnetic" : "Hover"}
       </motion.div>
-      <span className={styles.demoHint}>Move cursor near the button</span>
+      <span className={styles.demoHint}>
+        {isMobile ? "Auto-playing" : "Move cursor near the button"}
+      </span>
     </div>
   );
 }
 
 /* =========================================================================
    5. DemoClipPath — Direction-Aware ClipPath Reveal (WorksSection)
+   Desktop: onMouseEnter with direction detection / onMouseLeave
+   Mobile: auto-toggle reveal from different directions
    ========================================================================= */
 function DemoClipPath() {
+  const isMobile = useDemoMobile();
   const [isHovered, setIsHovered] = useState(false);
   const [origin, setOrigin] = useState({ x: 50, y: 50 });
 
@@ -245,12 +387,34 @@ function DemoClipPath() {
     setIsHovered(false);
   }, []);
 
+  // Mobile: auto-toggle with cycling directions
+  useEffect(() => {
+    if (!isMobile) return;
+    const dirs = [
+      { x: 100, y: 50 },
+      { x: 0, y: 50 },
+      { x: 50, y: 0 },
+      { x: 50, y: 100 },
+    ];
+    let dirIdx = 0;
+    let show = false;
+    const id = setInterval(() => {
+      show = !show;
+      if (show) {
+        setOrigin(dirs[dirIdx]);
+        dirIdx = (dirIdx + 1) % dirs.length;
+      }
+      setIsHovered(show);
+    }, 2000);
+    return () => clearInterval(id);
+  }, [isMobile]);
+
   return (
     <div className={styles.codeDemoInner}>
       <div
         className={styles.demoClipBox}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={isMobile ? undefined : handleMouseEnter}
+        onMouseLeave={isMobile ? undefined : handleMouseLeave}
       >
         <div className={styles.demoClipBase}>Works</div>
         <motion.div
@@ -266,15 +430,22 @@ function DemoClipPath() {
           Works
         </motion.div>
       </div>
-      <span className={styles.demoHint}>Hover from different sides</span>
+      <span className={styles.demoHint}>
+        {isMobile ? "Auto-playing" : "Hover from different sides"}
+      </span>
     </div>
   );
 }
 
 /* =========================================================================
    6. DemoInfiniteScroll — Infinite Scroll Wrapping (Works Gallery)
+   Desktop: CSS hover pauses marquee
+   Mobile: tap to toggle pause
    ========================================================================= */
 function DemoInfiniteScroll() {
+  const isMobile = useDemoMobile();
+  const [paused, setPaused] = useState(false);
+
   const colors = [
     "var(--color-accent-alpha-30)",
     "var(--text-tertiary)",
@@ -291,8 +462,17 @@ function DemoInfiniteScroll() {
   ];
 
   return (
-    <div className={styles.codeDemoInner} style={{ overflow: "hidden" }}>
-      <div className={styles.demoInfiniteTrack}>
+    <div
+      className={styles.codeDemoInner}
+      style={{ overflow: "hidden" }}
+      onClick={isMobile ? () => setPaused((p) => !p) : undefined}
+    >
+      <div
+        className={styles.demoInfiniteTrack}
+        style={
+          isMobile && paused ? { animationPlayState: "paused" } : undefined
+        }
+      >
         {[...colors, ...colors, ...colors].map((color, i) => (
           <div
             key={i}
@@ -301,15 +481,24 @@ function DemoInfiniteScroll() {
           />
         ))}
       </div>
-      <span className={styles.demoHint}>Hover to pause</span>
+      <span className={styles.demoHint}>
+        {isMobile
+          ? paused
+            ? "Tap to resume"
+            : "Tap to pause"
+          : "Hover to pause"}
+      </span>
     </div>
   );
 }
 
 /* =========================================================================
    7. DemoFrameGrid — Dynamic Frame Grid (DynamicFrameLayout)
+   Desktop: onMouseEnter/Leave per cell
+   Mobile: auto-cycle through cells
    ========================================================================= */
 function DemoFrameGrid() {
+  const isMobile = useDemoMobile();
   const GRID_SIZE = 12;
   const HOVER_SIZE = 6;
   const [hovered, setHovered] = useState<{
@@ -329,6 +518,19 @@ function DemoFrameGrid() {
     "var(--color-accent-alpha-30)",
   ];
 
+  // Mobile: auto-cycle through cells
+  useEffect(() => {
+    if (!isMobile) return;
+    let idx = 0;
+    const id = setInterval(() => {
+      const row = Math.floor(idx / 3);
+      const col = idx % 3;
+      setHovered({ row, col });
+      idx = (idx + 1) % 9;
+    }, 1200);
+    return () => clearInterval(id);
+  }, [isMobile]);
+
   const getSizes = (axis: "row" | "col") => {
     if (!hovered) return "4fr 4fr 4fr";
     const idx = axis === "row" ? hovered.row : hovered.col;
@@ -339,7 +541,10 @@ function DemoFrameGrid() {
   };
 
   return (
-    <div className={styles.codeDemoInner} style={{ paddingTop: 8, paddingLeft: 8, paddingRight: 8 }}>
+    <div
+      className={styles.codeDemoInner}
+      style={{ paddingTop: 8, paddingLeft: 8, paddingRight: 8 }}
+    >
       <div
         style={{
           display: "grid",
@@ -355,13 +560,14 @@ function DemoFrameGrid() {
         {colors.map((color, i) => {
           const row = Math.floor(i / 3);
           const col = i % 3;
-          const isActive =
-            hovered?.row === row && hovered?.col === col;
+          const isActive = hovered?.row === row && hovered?.col === col;
           return (
             <div
               key={i}
-              onMouseEnter={() => setHovered({ row, col })}
-              onMouseLeave={() => setHovered(null)}
+              onMouseEnter={
+                isMobile ? undefined : () => setHovered({ row, col })
+              }
+              onMouseLeave={isMobile ? undefined : () => setHovered(null)}
               style={{
                 background: color,
                 borderRadius: 4,
@@ -372,7 +578,9 @@ function DemoFrameGrid() {
           );
         })}
       </div>
-      <span className={styles.demoHint}>Hover each cell</span>
+      <span className={styles.demoHint}>
+        {isMobile ? "Auto-cycling" : "Hover each cell"}
+      </span>
     </div>
   );
 }
