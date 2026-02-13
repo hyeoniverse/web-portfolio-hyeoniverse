@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
 import type { TroubleShootingItem } from "@/data/webflow";
 import { renderHighlight } from "../renderHighlight";
+import { checkMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
 
 if (typeof window !== "undefined") {
@@ -18,8 +19,6 @@ interface TroubleshootingPanelProps {
   items: TroubleShootingItem[];
 }
 
-const MOBILE_WIDTH = 1024;
-
 export default function TroubleshootingPanel({
   language,
   t,
@@ -30,9 +29,9 @@ export default function TroubleshootingPanel({
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Detect mobile/tablet
+  // Detect mobile/tablet (width ≤ 1024 or height < 750)
   useLayoutEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= MOBILE_WIDTH);
+    const check = () => setIsMobile(checkMobileLayout());
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -41,7 +40,7 @@ export default function TroubleshootingPanel({
   // Desktop: track horizontal scroll progress via RAF
   // Counter-translate inner content so it appears pinned in the viewport
   useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth <= MOBILE_WIDTH) return;
+    if (typeof window === "undefined" || checkMobileLayout()) return;
 
     let rafId: number;
     let prevIndex = 0;
@@ -143,7 +142,7 @@ export default function TroubleshootingPanel({
   // Click list item → scroll to matching position (GSAP scrub animates)
   const handleItemClick = useCallback(
     (index: number) => {
-      if (!panelRef.current || window.innerWidth <= MOBILE_WIDTH) return;
+      if (!panelRef.current || checkMobileLayout()) return;
 
       const rect = panelRef.current.getBoundingClientRect();
       const extraWidth = rect.width - window.innerWidth;
@@ -161,8 +160,8 @@ export default function TroubleshootingPanel({
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       {/* Inner wrapper: counter-translated to appear pinned */}
-      <div ref={contentRef} className={`${styles.pinnedFlex} ${styles.tsViewport}`}>
-        <div className={styles.tsTitleRow}>
+      <div ref={contentRef} className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}>
+        <div className={styles.pinnedTitleRow}>
           <div>
             <span className={`${styles.panelNumber} ${styles.animate}`}>08</span>
             <h3
@@ -171,7 +170,7 @@ export default function TroubleshootingPanel({
               Trouble Shooting.
             </h3>
           </div>
-          <div className={styles.dotNav}>
+          <div className={`${styles.dotNav} ${styles.dotNavMobileOnly}`}>
             {items.map((_, i) => (
               <div
                 data-clickable="true"

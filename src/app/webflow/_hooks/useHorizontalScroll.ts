@@ -11,16 +11,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useLenis } from "@/providers/LenisProvider";
+import { checkMobileLayout } from "./mobileCheck";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
-}
-
-const MOBILE_WIDTH = 1024;
-
-function checkMobile() {
-  if (typeof window === "undefined") return false;
-  return window.innerWidth <= MOBILE_WIDTH;
 }
 
 export function useHorizontalScroll(
@@ -36,12 +30,12 @@ export function useHorizontalScroll(
   const trackRef = useRef<HTMLDivElement>(null);
   const scrollTweenRef = useRef<gsap.core.Tween | null>(null);
   const [activeSection, setActiveSection] = useState(0);
-  const [mobile, setMobile] = useState(checkMobile);
+  const [mobile, setMobile] = useState(checkMobileLayout);
   const { setInfinite } = useLenis();
 
   // Track viewport size changes
   useEffect(() => {
-    const onResize = () => setMobile(checkMobile());
+    const onResize = () => setMobile(checkMobileLayout());
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);

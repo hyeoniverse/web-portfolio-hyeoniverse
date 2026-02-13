@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { MOBILE_WIDTH, MIN_DESKTOP_HEIGHT } from "./mobileCheck";
 
 export type Breakpoint = "desktop" | "tablet" | "mobile";
 
 function getBreakpoint(): Breakpoint {
   if (typeof window === "undefined") return "desktop";
   const w = window.innerWidth;
-  if (w > 1024) return "desktop";
+  const h = window.innerHeight;
+  // Short viewport → treat as tablet even if wide
+  if (w > MOBILE_WIDTH && h < MIN_DESKTOP_HEIGHT) return "tablet";
+  if (w > MOBILE_WIDTH) return "desktop";
   if (w >= 768) return "tablet";
   return "mobile";
 }

@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
 import type { ProcessStep } from "@/data/webflow";
+import { checkMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
 
 if (typeof window !== "undefined") {
@@ -16,8 +17,6 @@ interface ProcessPanelProps {
   process: ProcessStep[];
 }
 
-const MOBILE_WIDTH = 1024;
-
 export default function ProcessPanel({ language, process }: ProcessPanelProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -25,9 +24,9 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
-  // Detect mobile/tablet
+  // Detect mobile/tablet (width ≤ 1024 or height < 750)
   useLayoutEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= MOBILE_WIDTH);
+    const check = () => setIsMobile(checkMobileLayout());
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -35,7 +34,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
 
   // Desktop: track horizontal scroll progress via RAF
   useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth <= MOBILE_WIDTH) return;
+    if (typeof window === "undefined" || checkMobileLayout()) return;
 
     let rafId: number;
     let prevIndex = 0;
@@ -154,7 +153,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
   // Click row → scroll to matching position (works on both desktop and mobile)
   const handleRowClick = useCallback(
     (index: number) => {
-      if (window.innerWidth <= MOBILE_WIDTH) {
+      if (checkMobileLayout()) {
         // Mobile: scroll within the pinned ScrollTrigger range
         const st = mobileStRef.current;
         if (!st) return;
@@ -183,7 +182,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
       ref={panelRef}
       className={`${styles.panel} ${styles.panelExtraWide}`}
     >
-      <div ref={contentRef} className={`${styles.pinnedViewport} ${styles.processViewport}`}>
+      <div ref={contentRef} className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}>
         {/* Title row */}
         <div className={styles.pinnedTitleRow}>
           <div>

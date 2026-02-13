@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const MOBILE_WIDTH = 1024;
-
-function checkMobile() {
-  if (typeof window === "undefined") return false;
-  return window.innerWidth <= MOBILE_WIDTH;
-}
+import { checkMobileLayout } from "./mobileCheck";
 
 /**
  * Observes `.animate` elements inside the given container and toggles
@@ -20,11 +14,11 @@ export function useInViewMobile(
   animateClass: string,
   visibleClass: string,
 ) {
-  const [mobile, setMobile] = useState(checkMobile);
+  const [mobile, setMobile] = useState(checkMobileLayout);
 
   // Track viewport size changes
   useEffect(() => {
-    const onResize = () => setMobile(checkMobile());
+    const onResize = () => setMobile(checkMobileLayout());
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
