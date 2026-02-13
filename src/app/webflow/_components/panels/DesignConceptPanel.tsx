@@ -18,6 +18,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import { Code, Palette, LayoutGrid, Zap, Globe, Mail } from "lucide-react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem } from "@/data/webflow";
+import { checkMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
 
 export type DcTransitionMode = "strip" | "stack";
@@ -45,7 +46,7 @@ function TypographyDemo() {
         {fonts.map((f, i) => (
           <button
             key={f.label}
-            className={`${styles.dcFontTab} ${i === activeFont ? styles.dcFontTabActive : ""}`}
+            className={`${styles.dcToggleBtn} ${i === activeFont ? styles.dcToggleBtnActive : ""}`}
             onClick={() => setActiveFont(i)}
           >
             {f.label}
@@ -97,13 +98,13 @@ function ColorSystemDemo() {
     <div className={styles.dcDemo}>
       <div className={styles.dcThemeToggle}>
         <button
-          className={`${styles.dcThemeBtn} ${demoTheme === "light" ? styles.dcThemeBtnActive : ""}`}
+          className={`${styles.dcToggleBtn} ${demoTheme === "light" ? styles.dcToggleBtnActive : ""}`}
           onClick={() => setDemoTheme("light")}
         >
           Light
         </button>
         <button
-          className={`${styles.dcThemeBtn} ${demoTheme === "dark" ? styles.dcThemeBtnActive : ""}`}
+          className={`${styles.dcToggleBtn} ${demoTheme === "dark" ? styles.dcToggleBtnActive : ""}`}
           onClick={() => setDemoTheme("dark")}
         >
           Dark
@@ -299,7 +300,7 @@ export default function DesignConceptPanel({
   const isStrip = mode === "strip";
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 1024);
+    const check = () => setIsMobile(checkMobileLayout());
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -329,7 +330,7 @@ export default function DesignConceptPanel({
 
   /* ═══ Desktop: RAF counter-translation + mode-specific switching ═══ */
   useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth <= 1024) return;
+    if (typeof window === "undefined" || checkMobileLayout()) return;
 
     let rafId: number;
     let prevIndex = 0;
@@ -457,7 +458,7 @@ export default function DesignConceptPanel({
 
   const handleDotClick = useCallback(
     (index: number) => {
-      if (!panelRef.current || window.innerWidth <= 1024) return;
+      if (!panelRef.current || checkMobileLayout()) return;
 
       const rect = panelRef.current.getBoundingClientRect();
       const extraWidth = rect.width - window.innerWidth;
@@ -501,13 +502,13 @@ export default function DesignConceptPanel({
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
-      <div ref={contentRef} className={`${styles.pinnedViewport} ${styles.dcViewport}`}>
-        <div className={styles.dcTitleRow}>
+      <div ref={contentRef} className={`${styles.pinnedContent} ${styles.dcViewport}`}>
+        <div className={styles.pinnedTitleRow}>
           <div>
             <span className={styles.panelNumber}>04</span>
             <h3 className={styles.panelTitle}>Design Concept.</h3>
           </div>
-          <div className={styles.dotNav}>
+          <div className={`${styles.dotNav} ${styles.dotNavMobile}`}>
             {concepts.map((_, i) => (
               <div
                 data-clickable="true"

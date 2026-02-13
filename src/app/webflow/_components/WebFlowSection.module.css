@@ -28,7 +28,7 @@
   --wf-lh-code: var(--line-height-normal);
 
   /* ── Spacing (complement global --spacing-*) ── */
-  --wf-space-section: calc(var(--wf-space-block) * 2.5);
+  --wf-space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
   --wf-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
   --wf-space-divide: calc(var(--wf-space-block) * 2);
   --wf-space-line: calc(var(--wf-space-block) / 2);
@@ -61,7 +61,7 @@
    Override only when different. */
 .panel {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   flex-shrink: 0;
   flex-direction: column;
   padding: var(--wf-panel-py) var(--wf-panel-px);
@@ -125,18 +125,16 @@
    Shared — Pinned inner wrappers (counter-translated by JS)
    ========================================================================== */
 
-/* Viewport-sized variant (Design Concept, Process) */
-.pinnedViewport {
+/* Shared pinned inner wrapper — counter-translated by JS on desktop,
+   flex-fills the panel vertically. Used by all "wide" panels. */
+.pinnedContent {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   position: relative;
-  width: calc(100vw - var(--wf-panel-px) * 2);
-  height: calc(100vh - var(--wf-panel-py) * 2);
+  max-width: calc(100vw - var(--wf-panel-px) * 2);
   min-height: 0;
   will-change: transform;
-}
-
-.processViewport {
 }
 
 /* Desktop: processBody is transparent wrapper (column: timeline above, content below) */
@@ -144,23 +142,15 @@
   display: contents;
 }
 
-/* Flex-fill variant (Code Highlights, Troubleshooting) */
-.pinnedFlex {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  max-width: calc(100vw - var(--wf-panel-px) * 2);
-  min-height: 0;
-  will-change: transform;
-}
-
 /* Shared title row: number + title (left) + dot nav (right) */
 .pinnedTitleRow {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
   flex-shrink: 0;
-  margin: var(--wf-space-section) 0;
+  position: relative;
+  z-index: 2;
+  margin-bottom: var(--wf-space-section);
 }
 
 /* ==========================================================================
@@ -171,6 +161,15 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
+}
+
+/* Modifier: keep dotNav visible on mobile (DC) */
+.dotNavMobile {
+}
+
+/* Modifier: dotNav visible on mobile only, hidden on desktop (Troubleshooting) */
+.dotNavMobileOnly {
+  display: none;
 }
 
 .dot {
@@ -803,23 +802,26 @@
   /* placeholder — mobile override below */
 }
 
-.dcTitleRow {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  position: relative;
-  z-index: 2;
+/* Inside title rows, panelTitle margin is handled by the row itself */
+.pinnedTitleRow .panelTitle,
+.pinnedTitleRow .panelTitleCompact {
+  margin-bottom: 0;
+}
+
+/* Align dotNav with title in flex-start title rows */
+.pinnedTitleRow .dotNav {
+  margin-top: var(--header-height);
 }
 
 .dcCardStack {
+  outline: none;
+  overflow: hidden;
   position: absolute;
-  z-index: 1;
   top: calc(-1 * var(--wf-panel-py) - 1px);
   left: calc(-1 * var(--wf-panel-px) - 1px);
+  z-index: 1;
   width: calc(100vw + 2px);
   height: calc(100vh + 2px);
-  overflow: hidden;
-  outline: none;
 }
 
 /* ── Strip mode: horizontal row, translateX to slide ── */
@@ -944,7 +946,7 @@
   margin-bottom: clamp(12px, min(1.5vh, 0.9vw), 24px);
 }
 
-.dcFontTab {
+.dcToggleBtn {
   padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: transparent;
@@ -955,14 +957,14 @@
 }
 
 /* Compound selector (0,2,0) */
-.dcDemo .dcFontTab {
+.dcDemo .dcToggleBtn {
   transition:
     border-color 0.3s ease,
     color 0.3s ease,
     background-color 0.3s ease;
 }
 
-.dcFontTabActive {
+.dcToggleBtnActive {
   border-color: rgba(255, 255, 255, 0.6);
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
@@ -981,30 +983,6 @@
   display: inline-flex;
   gap: clamp(6px, 0.6vw, 12px);
   margin-bottom: clamp(10px, min(1.2vh, 0.7vw), 20px);
-}
-
-.dcThemeBtn {
-  padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: clamp(0.9rem, 1.25vw, 1.5rem);
-  color: rgba(255, 255, 255, 0.6);
-  border-radius: var(--radius-sm);
-}
-
-/* Compound selector (0,2,0) */
-.dcDemo .dcThemeBtn {
-  transition:
-    border-color 0.3s ease,
-    color 0.3s ease,
-    background-color 0.3s ease;
-}
-
-.dcThemeBtnActive {
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
 }
 
 .dcSwatchRow {
@@ -1167,37 +1145,6 @@
   color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   transform: translateX(-50%);
-}
-
-/* ── Iconography demo (icon grid + toggle) ── */
-.dcIconToggle {
-  display: inline-flex;
-  gap: clamp(4px, 0.5vw, 10px);
-  margin-bottom: clamp(8px, min(1vh, 0.55vw), 16px);
-}
-
-.dcIconToggleBtn {
-  padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: clamp(0.9rem, 1.25vw, 1.5rem);
-  color: rgba(255, 255, 255, 0.6);
-  border-radius: var(--radius-sm);
-}
-
-/* Compound selector (0,2,0) */
-.dcDemo .dcIconToggleBtn {
-  transition:
-    border-color 0.3s ease,
-    color 0.3s ease,
-    background-color 0.3s ease;
-}
-
-.dcIconToggleBtnActive {
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
 }
 
 .dcIconGrid {
@@ -1399,11 +1346,11 @@
   display: flex;
   gap: var(--wf-space-block);
   align-items: flex-start;
+  margin-top: var(--wf-space-divide);
   position: absolute;
   pointer-events: none;
   inset: 0;
   transform: translateX(100%);
-  margin-top: var(--wf-space-divide);
 }
 
 /* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
@@ -1457,30 +1404,6 @@
   font-size: clamp(0.85rem, min(1.3vw, 2.2vh), 1.4rem);
   line-height: var(--wf-lh-reading);
   color: var(--text-secondary);
-}
-
-/* ── Mobile: simple vertical list (hidden on desktop) ── */
-.processMobileList {
-  display: none;
-  margin-bottom: var(--wf-space-section);
-}
-
-.processMobileItem {
-  padding: var(--wf-space-block) 0;
-  border-bottom: var(--wf-line-primary);
-}
-
-.processMobileItem:last-child {
-  border-bottom: none;
-}
-
-.processMobileNum {
-  display: block;
-  margin-bottom: var(--spacing-sm);
-  font-family: var(--font-mono);
-  font-size: var(--wf-fs-caption);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-accent-secondary);
 }
 
 /* ── Mobile: paired step rows (hidden on desktop) ── */
@@ -1573,12 +1496,6 @@
    Code Highlights Panel — Scroll-Pinned Single Pane
    ========================================================================== */
 
-.panelCode {
-  justify-content: flex-start;
-  padding-top: var(--spacing-4xl);
-  padding-bottom: var(--spacing-3xl);
-}
-
 /* Single-pane view: one item at a time, stacked with opacity */
 .codeSingleView {
   flex: 1;
@@ -1590,7 +1507,6 @@
 .codeSinglePane {
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--wf-space-divide);
   position: absolute;
   pointer-events: none;
   inset: 0;
@@ -1683,7 +1599,7 @@
 
 .codeBlock code {
   font-family: var(--font-jetbrains), monospace;
-  font-size: var(--wf-fs-body);
+  font-size: var(--wf-fs-small);
   line-height: var(--wf-lh-code);
   white-space: pre;
 }
@@ -1983,7 +1899,7 @@
   max-width: clamp(200px, 18vw, 320px);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px), (max-height: 640px) {
   .demoI18nRow {
     max-width: 100%;
   }
@@ -2032,18 +1948,6 @@
   width: 350vw;
 }
 
-.tsViewport {
-}
-
-/* Title row for troubleshooting — dotNav visible on mobile */
-.tsTitleRow {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-shrink: 0;
-  margin: var(--wf-space-section) 0;
-}
-
 /* Two-column split: list (left) + detail (right) */
 .troubleSplit {
   display: flex;
@@ -2055,17 +1959,16 @@
 /* ── Left: navigation list ── */
 .troubleList {
   flex-shrink: 0;
-  padding-right: var(--spacing-2xl);
   border-right: var(--wf-line-secondary);
-  overflow-y: auto;
-  width: clamp(260px, 24vw, 400px);
+  width: clamp(260px, 25vw, 400px);
 }
 
 .troubleListItem {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--wf-space-line);
   align-items: baseline;
-  padding: var(--spacing-sm) 0;
+  padding: var(--wf-space-line) 0;
+  padding-right: var(--wf-space-line);
   border-bottom: var(--wf-line-secondary);
 }
 
@@ -2089,7 +1992,7 @@
 }
 
 .troubleListItemActive {
-  padding-left: var(--spacing-md);
+  padding-left: var(--wf-space-block);
   border-bottom-color: var(--color-accent-alpha-30);
 }
 
@@ -2110,11 +2013,15 @@
 }
 
 .troubleListTitle {
+  overflow: hidden;
+  min-width: 0;
   font-family: var(--wf-font-grotesk);
-  font-size: var(--wf-fs-body);
+  font-size: var(--wf-fs-label);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-snug);
   color: var(--text-secondary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .troubleList .troubleListTitle {
@@ -2135,7 +2042,6 @@
 }
 
 .troubleDetailItem {
-  overflow-y: auto;
   position: absolute;
   pointer-events: none;
   inset: 0;
@@ -2365,7 +2271,7 @@
   opacity: 1;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px), (max-height: 640px) {
   .section {
     overflow: clip;
   }
@@ -2459,38 +2365,36 @@
     grid-template-rows: auto;
   }
 
-  .pinnedViewport {
-    min-height: auto;
-    height: auto;
-  }
-
   .dotNav {
     display: none;
   }
 
+  .dotNavMobile,
+  .dotNavMobileOnly {
+    display: flex;
+  }
+
   /* Design Concept: pinned vertical crossfade on mobile — full bleed */
   .dcViewport {
+    margin: calc(-1 * var(--wf-panel-py)) calc(-1 * var(--wf-panel-px));
     position: relative;
     width: 100vw;
     height: 100vh;
-    margin: calc(-1 * var(--wf-panel-py)) calc(-1 * var(--wf-panel-px));
   }
 
-  .dcViewport .dcTitleRow {
-    position: relative;
-    z-index: 2;
+  .dcViewport .pinnedTitleRow {
     padding: var(--wf-panel-py) var(--wf-panel-px) 0;
   }
 
   .dcCardStack {
+    outline: none;
+    overflow: hidden;
     position: absolute;
     top: -1px;
-    left: 0;
     right: 0;
     bottom: 0;
+    left: 0;
     z-index: 1;
-    overflow: hidden;
-    outline: none;
   }
 
   /* Force strip mode to behave like stack on mobile */
@@ -2502,9 +2406,9 @@
   }
 
   .dcModeStrip .dcCard {
+    flex: none;
     position: absolute;
     inset: 0;
-    flex: none;
   }
 
   .dcModeStrip .dcCardOverlay {
@@ -2516,10 +2420,6 @@
     will-change: transform;
   }
 
-  .dcTitleRow .dotNav {
-    display: flex;
-  }
-
   .dcMobileList {
     display: none;
   }
@@ -2527,9 +2427,9 @@
   .dcMobileCard {
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--border-primary-color);
     overflow: hidden;
     position: relative;
-    border: 1px solid var(--border-primary-color);
     min-height: 65vh;
     border-radius: var(--radius-lg);
   }
@@ -2598,8 +2498,7 @@
     margin-bottom: clamp(8px, 2.5vw, 14px);
   }
 
-  .dcFontTab,
-  .dcThemeBtn {
+  .dcToggleBtn {
     padding: 5px 12px;
     font-size: clamp(0.65rem, 2vw, 0.85rem);
   }
@@ -2662,16 +2561,6 @@
 
   .dcBpLabel {
     font-size: clamp(0.5rem, 1.5vw, 0.65rem);
-  }
-
-  .dcIconToggle {
-    gap: clamp(4px, 1.5vw, 8px);
-    margin-bottom: clamp(8px, 2.5vw, 14px);
-  }
-
-  .dcIconToggleBtn {
-    padding: 5px 12px;
-    font-size: clamp(0.65rem, 2vw, 0.85rem);
   }
 
   .dcIconGrid {
@@ -2750,18 +2639,14 @@
     border-radius: 0 22px 22px 22px;
   }
 
-  /* Process: pin animation on mobile — accordion layout */
-  .processViewport {
+  /* Pin animation on mobile — shared by Process & Troubleshooting */
+  .mobilePinViewport {
     height: 100vh;
     min-height: 100vh;
   }
 
   /* Hide desktop-only structures */
   .processBody {
-    display: none;
-  }
-
-  .processMobileList {
     display: none;
   }
 
@@ -2772,8 +2657,8 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    min-height: 0;
     margin-bottom: var(--wf-space-section);
+    min-height: 0;
   }
 
   /* Each row: connector + label (collapsed) or connector + content (expanded).
@@ -2782,8 +2667,8 @@
     display: flex;
     gap: clamp(10px, 2.5vw, 16px);
     align-items: stretch;
-    position: relative;
     flex-shrink: 0;
+    position: relative;
   }
 
   /* Compound selector (0,2,0) for transition */
@@ -2796,21 +2681,21 @@
   /* ── Left: continuous connector line + dot ── */
   .processStepConnector {
     display: flex;
-    flex-direction: column;
     align-items: center;
     flex-shrink: 0;
+    flex-direction: column;
     width: clamp(16px, 4vw, 24px);
   }
 
   .processConnectorDot {
+    flex-shrink: 0;
+    border: 2px solid var(--text-tertiary);
+    z-index: 1;
     width: 10px;
     height: 10px;
-    border: 2px solid var(--text-tertiary);
-    border-radius: 50%;
     background: var(--bg-primary);
+    border-radius: 50%;
     opacity: 0.35;
-    flex-shrink: 0;
-    z-index: 1;
   }
 
   .processStepConnector .processConnectorDot {
@@ -2830,8 +2715,8 @@
 
   .processConnectorDotActive {
     border-color: var(--text-accent-secondary);
-    background: var(--text-accent-secondary);
     box-shadow: 0 0 8px var(--color-accent-alpha-50, rgba(212, 0, 99, 0.5));
+    background: var(--text-accent-secondary);
     opacity: 1;
     transform: scale(1.4);
   }
@@ -2854,25 +2739,25 @@
     display: flex;
     align-items: center;
     flex: 1;
+    overflow: hidden;
     min-width: 0;
     font-family: var(--wf-font-grotesk);
     font-size: clamp(0.75rem, 2.2vw, 0.9rem);
     color: var(--text-tertiary);
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
   }
 
   /* ── Right: expanded content (visible when row is active) ── */
   .processStepContent {
     display: flex;
-    position: absolute;
-    inset: 0;
-    flex-direction: column;
     justify-content: center;
-    padding-left: calc(clamp(16px, 4vw, 24px) + clamp(10px, 2.5vw, 16px));
+    flex-direction: column;
     padding-right: var(--spacing-md);
+    padding-left: calc(clamp(16px, 4vw, 24px) + clamp(10px, 2.5vw, 16px));
+    position: absolute;
     pointer-events: none;
+    inset: 0;
   }
 
   /* Compound selector (0,2,0) for transition */
@@ -2881,13 +2766,13 @@
   }
 
   .processStepNum {
+    margin-bottom: var(--spacing-xs);
     font-family: var(--wf-font-display);
     font-size: clamp(2.5rem, 10vw, 5rem);
     font-weight: var(--font-weight-regular);
     line-height: 0.85;
     color: var(--text-accent-secondary);
     opacity: 0.12;
-    margin-bottom: var(--spacing-xs);
   }
 
   .processStepContentTitle {
@@ -2941,11 +2826,6 @@
     max-width: none;
   }
 
-  .panelCode {
-    width: 100%;
-    height: auto;
-  }
-
   .codeSingleView {
     display: none;
   }
@@ -2987,21 +2867,10 @@
     height: 280px;
   }
 
-  /* Troubleshooting: pin animation — show detail with crossfade */
-  .tsViewport {
-    height: 100vh;
-    min-height: 100vh;
-  }
-
-  .tsTitleRow .dotNav {
-    display: flex;
-  }
-
   /* Show split but hide left list — detail takes full width.
      Force visible: .animate sets opacity:0 on mobile but InView
      observer may not fire inside a GSAP-pinned element. */
   .troubleSplit {
-    display: flex;
     gap: 0;
     opacity: 1 !important;
     transform: none !important;
@@ -3018,7 +2887,6 @@
   }
 
   .troubleDetailItem {
-    overflow-y: auto;
     pointer-events: none;
   }
 
@@ -3047,14 +2915,14 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    translate: -50% -50%;
+    z-index: 0;
     font-size: clamp(10rem, 40vw, 20rem);
     line-height: 1;
     color: var(--text-accent-secondary);
-    opacity: 0.06;
-    pointer-events: none;
-    z-index: 0;
     white-space: nowrap;
+    pointer-events: none;
+    translate: -50% -50%;
+    opacity: 0.06;
   }
 
   .troubleTitle {
@@ -3064,9 +2932,9 @@
   }
 
   .troubleBody {
+    gap: var(--spacing-xl);
     position: relative;
     z-index: 1;
-    gap: var(--spacing-xl);
   }
 
   .troubleEntry {
@@ -3089,7 +2957,7 @@
 }
 
 /* ── Tablet: smaller cards + irregular zigzag ── */
-@media (min-width: 768px) and (max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1024px), (min-width: 769px) and (max-height: 640px) {
   .featureFolderWrap {
     width: 55%;
     height: clamp(180px, calc(100vh - 350px), 350px);

@@ -18,6 +18,7 @@ import DynamicFrameLayout, {
   type Frame,
   defaultFrames,
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
+import { checkMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
 
 interface FeaturesPanelProps {
@@ -34,8 +35,6 @@ function buildFrames(count: number): Frame[] {
   }));
 }
 
-const MOBILE_WIDTH = 1024;
-
 export default function FeaturesPanel({
   language,
   features,
@@ -45,7 +44,7 @@ export default function FeaturesPanel({
   const [isMobile, setIsMobile] = useState(false);
 
   useLayoutEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= MOBILE_WIDTH);
+    const check = () => setIsMobile(checkMobileLayout());
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);

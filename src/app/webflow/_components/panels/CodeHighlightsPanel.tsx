@@ -6,6 +6,7 @@ import type { CodeExample } from "@/data/webflow";
 import CodeHighlight from "../CodeHighlight";
 import { renderHighlight } from "../renderHighlight";
 import { getCodeDemo } from "./CodeDemos";
+import { checkMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
 
 interface CodeHighlightsPanelProps {
@@ -27,7 +28,7 @@ export default function CodeHighlightsPanel({
   // Desktop: track horizontal scroll progress via RAF
   // Counter-translate inner content so it appears pinned in the viewport
   useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth <= 1024) return;
+    if (typeof window === "undefined" || checkMobileLayout()) return;
 
     let rafId: number;
     let prevIndex = 0;
@@ -66,7 +67,7 @@ export default function CodeHighlightsPanel({
   // Click dot → scroll to matching position
   const handleDotClick = useCallback(
     (index: number) => {
-      if (!panelRef.current || window.innerWidth <= 1024) return;
+      if (!panelRef.current || checkMobileLayout()) return;
 
       const rect = panelRef.current.getBoundingClientRect();
       const extraWidth = rect.width - window.innerWidth;
@@ -84,10 +85,10 @@ export default function CodeHighlightsPanel({
   return (
     <div
       ref={panelRef}
-      className={`${styles.panel} ${styles.panelExtraWide} ${styles.panelCode}`}
+      className={`${styles.panel} ${styles.panelExtraWide}`}
     >
       {/* Inner wrapper: counter-translated to appear pinned */}
-      <div ref={contentRef} className={styles.pinnedFlex}>
+      <div ref={contentRef} className={styles.pinnedContent}>
         <div className={styles.pinnedTitleRow}>
           <div>
             <span className={`${styles.panelNumber} ${styles.animate}`}>07</span>
