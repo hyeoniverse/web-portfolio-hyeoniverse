@@ -138,7 +138,10 @@ export default function CodeHighlightsPanel({
           const expandedHeight = openBody.offsetHeight;
           const collapsedBottom = rect.bottom - expandedHeight;
 
-          if (collapsedBottom < 0) {
+          if (
+            collapsedBottom < 0 &&
+            rect.bottom < window.innerHeight * 0.5
+          ) {
             // 1) Measure panel height with accordion open
             const heightBefore = el.offsetHeight;
 

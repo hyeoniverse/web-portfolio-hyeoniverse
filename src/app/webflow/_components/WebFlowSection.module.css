@@ -1743,14 +1743,13 @@
 
 .codeMobileBodyOpen {
   padding: 0 0 var(--spacing-lg);
-  max-height: 600px;
+  max-height: 2000px;
   opacity: 1;
 }
 
 .codeItemMobile .codeBlock {
   margin-top: 0;
-  overflow: auto;
-  max-height: 300px;
+  overflow-x: auto;
 }
 
 /* ==========================================================================
