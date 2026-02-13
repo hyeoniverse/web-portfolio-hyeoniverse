@@ -22,8 +22,13 @@ export default function CodeHighlightsPanel({
   const [expandedMobileCode, setExpandedMobileCode] = useState<number | null>(
     null,
   );
+  const [codePage, setCodePage] = useState<{ page: number; total: number }>({
+    page: 1,
+    total: 1,
+  });
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const codeWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Desktop: track horizontal scroll progress via RAF
   // Counter-translate inner content so it appears pinned in the viewport
@@ -82,6 +87,46 @@ export default function CodeHighlightsPanel({
     [codeExamples.length],
   );
 
+  // Detect code overflow and track page position
+  useEffect(() => {
+    const wrap = codeWrapRefs.current[activeIndex];
+    if (!wrap) return;
+    const pre = wrap.querySelector("pre");
+    if (!pre) return;
+
+    pre.scrollTop = 0;
+
+    const update = () => {
+      const clientH = pre.clientHeight;
+      if (clientH <= 0) return;
+      const total = Math.max(1, Math.ceil(pre.scrollHeight / clientH));
+      const page = Math.min(
+        total,
+        Math.floor(pre.scrollTop / clientH) + 1,
+      );
+      setCodePage({ page, total });
+    };
+
+    requestAnimationFrame(update);
+    pre.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    return () => {
+      pre.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [activeIndex]);
+
+  const scrollCodePage = useCallback(
+    (direction: 1 | -1) => {
+      const wrap = codeWrapRefs.current[activeIndex];
+      if (!wrap) return;
+      const pre = wrap.querySelector("pre");
+      if (!pre) return;
+      pre.scrollBy({ top: direction * pre.clientHeight, behavior: "smooth" });
+    },
+    [activeIndex],
+  );
+
   return (
     <div
       ref={panelRef}
@@ -136,11 +181,39 @@ export default function CodeHighlightsPanel({
               </div>
               <div className={styles.codeSingleBody}>
                 <div className={styles.codeDemo}>{getCodeDemo(index)}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  ref={(el) => {
+                    codeWrapRefs.current[index] = el;
+                  }}
+                  className={styles.codeScrollWrap}
+                >
                   <CodeHighlight
                     code={example.code}
                     language={example.language}
                   />
+                  {codePage.total > 1 && index === activeIndex && (
+                    <div className={styles.codePageNav}>
+                      <button
+                        data-clickable="true"
+                        className={styles.codePageBtn}
+                        disabled={codePage.page <= 1}
+                        onClick={() => scrollCodePage(-1)}
+                      >
+                        ↑
+                      </button>
+                      <span>
+                        {codePage.page}/{codePage.total}
+                      </span>
+                      <button
+                        data-clickable="true"
+                        className={styles.codePageBtn}
+                        disabled={codePage.page >= codePage.total}
+                        onClick={() => scrollCodePage(1)}
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

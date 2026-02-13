@@ -339,7 +339,7 @@ function DemoFrameGrid() {
   };
 
   return (
-    <div className={styles.codeDemoInner} style={{ padding: 8 }}>
+    <div className={styles.codeDemoInner} style={{ paddingTop: 8, paddingLeft: 8, paddingRight: 8 }}>
       <div
         style={{
           display: "grid",
