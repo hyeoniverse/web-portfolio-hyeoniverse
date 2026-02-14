@@ -50,9 +50,75 @@ export default function FeaturesPanel({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  /* Mobile/Tablet: GSAP ScrollTrigger pins .featureGrid to viewport,
-     then animates cards based on scroll progress.
-     Card 0 (top, z-index 1) flies up first → card 8 (front, z-index 9) stays. */
+  /* Mobile/Tablet: equalise folder sizes, tab widths, and set negative
+     margins so cards overlap uniformly.  CSS flex-column handles the
+     positioning — the browser guarantees equal spacing. */
+  useLayoutEffect(() => {
+    if (!isMobile || !gridRef.current) return;
+
+    const grid = gridRef.current;
+    const wraps = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.featureFolderWrap}`),
+    );
+    const tabs = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.featureFolderTab}`),
+    );
+
+    const pinnedEl = grid.querySelector(
+      `.${styles.featureGridPinned}`,
+    ) as HTMLElement | null;
+
+    const measure = () => {
+      // Reset to natural sizes for measurement
+      wraps.forEach((w) => {
+        w.style.height = "auto";
+        w.style.marginTop = "";
+      });
+      tabs.forEach((t) => { t.style.minWidth = ""; });
+      if (pinnedEl) pinnedEl.style.paddingTop = "";
+
+      // Find tallest card, widest tab, and tab element height
+      let maxH = 0;
+      let maxTabW = 0;
+      wraps.forEach((w) => { maxH = Math.max(maxH, w.offsetHeight); });
+      tabs.forEach((t) => { maxTabW = Math.max(maxTabW, t.offsetWidth); });
+      const tabElH = tabs[0] ? tabs[0].offsetHeight : 40;
+
+      // Apply uniform sizes
+      wraps.forEach((w) => { w.style.height = `${maxH}px`; });
+      tabs.forEach((t) => { t.style.minWidth = `${maxTabW}px`; });
+
+      // Negative margin = -(cardHeight - spacing).
+      // spacing = tab height + gap → each card's tab is fully visible.
+      const gap = 8;
+      const spacing = tabElH + gap;
+      const overlapMargin = -(maxH - spacing);
+      wraps.forEach((w, i) => {
+        if (i > 0) w.style.marginTop = `${overlapMargin}px`;
+      });
+
+      // Push the stack toward the bottom with some breathing room below
+      if (pinnedEl) {
+        const vh = window.innerHeight;
+        const totalVisible = wraps.length * spacing;
+        const bottomPadding = spacing * 2;
+        pinnedEl.style.paddingTop = `${Math.max(0, vh - totalVisible - bottomPadding)}px`;
+      }
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      wraps.forEach((w) => { w.style.height = ""; w.style.marginTop = ""; });
+      tabs.forEach((t) => { t.style.minWidth = ""; });
+      if (pinnedEl) pinnedEl.style.paddingTop = "";
+    };
+  }, [isMobile, language]);
+
+  /* Mobile/Tablet: GSAP ScrollTrigger pins .featureGrid to viewport.
+     Cards are already positioned by CSS (flex column + negative margins).
+     This effect only handles the fly-away animation on scroll. */
   useLayoutEffect(() => {
     if (!isMobile || !gridRef.current) return;
 
@@ -66,23 +132,8 @@ export default function FeaturesPanel({
     const lastIdx = count - 1;
     const isTablet = window.innerWidth >= 768;
 
-    /* Set initial stacked positions immediately (before ScrollTrigger)
-       so cards are visible on first paint — no blank flash */
-    const initCardH = cards[0].offsetHeight;
-    const initTabH = isTablet ? Math.round(initCardH * 0.1) : 60;
-    const initViewportH = window.innerHeight;
-    const initBottomGap = -(initCardH * 0.7);
-    const initLastCardY = initViewportH - initBottomGap - initCardH;
-    const initIdealTopY = initLastCardY - lastIdx * initTabH;
-    const initOverflow = initIdealTopY < 0;
-    const initTopY = initOverflow ? initTabH * 3 : initIdealTopY;
-
-    for (let i = 0; i < count; i++) {
-      cards[i].style.transform = `translateY(${Math.min(initTopY + i * initTabH, initLastCardY)}px)`;
-    }
-
     const baseScroll = isTablet ? 300 : 200;
-    const scrollDist = count * baseScroll * (initOverflow ? 2 : 1);
+    const scrollDist = count * baseScroll;
 
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
@@ -92,51 +143,37 @@ export default function FeaturesPanel({
         pin: true,
         pinSpacing: true,
         onUpdate: (self) => {
-          const progress = self.progress;
-          const viewportH = window.innerHeight;
           const cardH = cards[0].offsetHeight;
-
-          /* Tablet: show card bodies between cards.
-             Mobile: tight stack, only tabs visible. */
-          const tabH = isTablet ? Math.round(cardH * 0.1) : 60;
-
-          /* Anchor last card to viewport bottom, stack others above */
-          const bottomGap = -(cardH * 0.7);
-          const lastCardY = viewportH - bottomGap - cardH;
-
-          /* Stack top-down: if height is insufficient, keep one tabH
-             of top margin and collapse (excess+1) cards at bottom */
-          const idealTopY = lastCardY - lastIdx * tabH;
-          const hasOverflow = idealTopY < 0;
-          const topY = hasOverflow ? tabH * 3 : idealTopY;
+          const progress = self.progress;
 
           const animFrac = Math.min(progress / 0.95, 1);
-          const spacing = lastIdx > 0 ? 1 / lastIdx : 1;
-          /* Overflow: less overlap so each card is visible before flying.
-             Normal: more overlap for a fluid drag feel. */
-          const duration = spacing * (hasOverflow ? 2 : 4.5);
+          const step = lastIdx > 0 ? 1 / lastIdx : 1;
+          const duration = step * 4;
 
           for (let i = 0; i < count; i++) {
-            const restY = Math.min(topY + i * tabH, lastCardY);
-
             if (i < lastIdx) {
-              const cardStart = i * spacing;
+              const cardStart = i * step;
               const t = Math.max(
                 0,
                 Math.min(1, (animFrac - cardStart) / duration),
               );
-              const exitY = -cardH - 40;
-              const y = restY + (exitY - restY) * t;
-              cards[i].style.transform = `translateY(${y}px)`;
-            } else {
-              cards[i].style.transform = `translateY(${restY}px)`;
+              if (t > 0) {
+                const exitY = -(cardH + window.innerHeight);
+                cards[i].style.transform = `translateY(${exitY * t}px)`;
+              } else {
+                cards[i].style.transform = "";
+              }
             }
+            // Last card stays in place — no transform needed
           }
         },
       });
     }, grid);
 
-    return () => ctx.revert();
+    return () => {
+      cards.forEach((c) => { c.style.transform = ""; });
+      ctx.revert();
+    };
   }, [isMobile]);
 
   const renderOverlay = useCallback(

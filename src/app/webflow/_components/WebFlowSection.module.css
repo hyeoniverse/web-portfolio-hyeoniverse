@@ -2661,17 +2661,18 @@
   }
 
   .featureGridPinned {
-    position: relative;
-    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    /* padding-top is set dynamically by JS so the last card's
+       tab aligns with the viewport bottom */
   }
 
   .featureFolderWrap {
     display: flex;
     flex-direction: column;
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
+    position: relative;
+    flex-shrink: 0;
     height: clamp(250px, calc(100vh - 280px), 550px);
     will-change: transform;
   }
@@ -2679,7 +2680,7 @@
   .featureFolderWrap .featureFolderTab {
     flex-shrink: 0;
     align-self: flex-start;
-    margin-bottom: -1px;
+    margin-bottom: -2px;
     padding: 0.55rem 1.2rem;
     position: relative;
     z-index: 1;
@@ -2701,6 +2702,7 @@
   }
 
   .featureFolderWrap .featureFolderCard {
+    flex: 1;
     box-shadow: none;
     overflow: hidden;
     min-height: 0;
@@ -3032,43 +3034,11 @@
   }
 }
 
-/* ── Tablet: smaller cards + irregular zigzag ── */
+/* ── Tablet: smaller cards ── */
 @media (min-width: 768px) and (max-width: 1024px),
   (min-width: 769px) and (max-height: 640px) {
   .featureFolderWrap {
-    width: 55%;
     height: clamp(180px, calc(100vh - 350px), 350px);
-  }
-
-  /* 5-period cycle → irregular across 9 cards */
-  .featureFolderWrap:nth-child(5n + 1) {
-    right: auto;
-    left: 20%;
-  }
-
-  .featureFolderWrap:nth-child(6n + 2) {
-    right: 0%;
-    left: auto;
-  }
-
-  .featureFolderWrap:nth-child(6n + 3) {
-    right: auto;
-    left: 24%;
-  }
-
-  .featureFolderWrap:nth-child(6n + 4) {
-    right: auto%;
-    left: 0;
-  }
-
-  .featureFolderWrap:nth-child(6n + 5) {
-    right: 10%;
-    left: auto;
-  }
-
-  .featureFolderWrap:nth-child(6n + 6) {
-    right: auto;
-    left: 10%;
   }
 }
 
