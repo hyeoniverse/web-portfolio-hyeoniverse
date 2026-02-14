@@ -720,7 +720,7 @@
 
 .featureFolderTab {
   display: inline-block;
-  margin-bottom: -1px;
+  margin-bottom: -2px;
   padding: clamp(0.4rem, 0.65vh, 0.65rem) clamp(0.9rem, 1.1vw, 1.4rem);
   border: var(--wf-line-primary);
   border-bottom: none;
@@ -737,16 +737,16 @@
 
 .featureFolderTab::after {
   position: absolute;
-  right: -12px;
+  right: -14px;
   bottom: 0;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   background: radial-gradient(
     circle at top right,
-    transparent 11px,
-    var(--border-primary-color) 11.5px,
-    var(--border-primary-color) 12px,
-    var(--bg-primary) 12.5px
+    transparent 13px,
+    var(--border-primary-color) 13.5px,
+    var(--border-primary-color) 14px,
+    var(--bg-primary) 14.5px
   );
   content: "";
 }
@@ -758,7 +758,7 @@
 
 .featureFolderCard {
   display: flex;
-  gap: var(--wf-fs-small);
+  gap: var(--wf-fs-block);
   justify-content: space-between;
   flex-direction: column;
   padding: var(--spacing-2xl);
@@ -770,6 +770,7 @@
     border-color 0.35s ease,
     box-shadow 0.35s ease;
   border-radius: 0 20px 20px 20px;
+  transform: translateY(1px);
 }
 
 .featureFolder:hover .featureFolderCard {
@@ -778,7 +779,7 @@
 
 .featureFolderDesc {
   margin: 0;
-  font-size: var(--wf-fs-body);
+  font-size: var(--wf-fs-subhead);
   line-height: var(--wf-lh-body);
   color: var(--text-secondary);
   transition: color 0.35s ease;
@@ -2394,7 +2395,7 @@
   }
 
   .panelNumber {
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--wf-space-block);
     font-size: var(--wf-fs-body);
   }
 
@@ -2670,9 +2671,9 @@
 
   .featureFolderWrap {
     display: flex;
+    flex-shrink: 0;
     flex-direction: column;
     position: relative;
-    flex-shrink: 0;
     height: clamp(250px, calc(100vh - 280px), 550px);
     will-change: transform;
   }
@@ -2684,7 +2685,7 @@
     padding: 0.55rem 1.2rem;
     position: relative;
     z-index: 1;
-    font-size: var(--wf-fs-label);
+    font-size: var(--wf-fs-subhead);
     border-radius: 18px 18px 0 0;
   }
 
