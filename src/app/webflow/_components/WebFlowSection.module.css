@@ -2717,6 +2717,10 @@
     min-height: 100vh;
   }
 
+  .mobilePinViewport .pinnedTitleRow {
+    padding-top: var(--wf-panel-py);
+  }
+
   /* Hide desktop-only structures */
   .processBody {
     display: none;
