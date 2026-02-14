@@ -90,7 +90,7 @@ export default function FeaturesPanel({
 
       // Negative margin = -(cardHeight - spacing).
       // spacing = tab height + gap → each card's tab is fully visible.
-      const gap = 8;
+      const gap = 16;
       const spacing = tabElH + gap;
       const overlapMargin = -(maxH - spacing);
       wraps.forEach((w, i) => {
