@@ -2,26 +2,33 @@
 
 import { useEffect, useState } from "react";
 
-type Breakpoint = "desktop" | "tablet" | "mobile";
-
-function getBreakpoint(): Breakpoint {
-  if (typeof window === "undefined") return "desktop";
+/**
+ * Computes a composite breakpoint key from width (1024/768)
+ * and height (640) thresholds. Any boundary crossing triggers remount.
+ */
+function getBreakpoint(): string {
+  if (typeof window === "undefined") return "desktop-tall";
   const w = window.innerWidth;
-  if (w > 1024) return "desktop";
-  if (w >= 768) return "tablet";
-  return "mobile";
+  const h = window.innerHeight;
+
+  const widthBp = w > 1024 ? "desktop" : w >= 768 ? "tablet" : "mobile";
+  const heightBp = h < 640 ? "short" : "tall";
+
+  return `${widthBp}-${heightBp}`;
 }
 
 /**
- * Remounts all children when the viewport crosses a breakpoint boundary
- * (1024px or 768px). Providers above this component stay stable.
+ * Remounts all children when the viewport crosses a breakpoint boundary.
+ * Width: 1024px (desktop/tablet), 768px (tablet/mobile)
+ * Height: 640px (tall/short — matches webflow panel min-height)
+ * Providers above this component stay stable.
  */
 export default function BreakpointGuard({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [bp, setBp] = useState<Breakpoint>("desktop");
+  const [bp, setBp] = useState(getBreakpoint);
 
   useEffect(() => {
     const check = () => setBp(getBreakpoint());
