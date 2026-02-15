@@ -35,6 +35,30 @@ pnpm dev
 
 [http://localhost:3000](http://localhost:3000)에서 결과를 확인할 수 있습니다.
 
+## 테스트
+
+**스택**: Vitest + React Testing Library + jsdom
+
+```bash
+# 전체 테스트 실행
+npm test
+
+# 워치 모드 (파일 변경 시 자동 재실행)
+npm run test:watch
+```
+
+**테스트 대상**:
+
+| 파일 | 테스트 수 | 설명 |
+|------|-----------|------|
+| `cn.test.ts` | 6 | 클래스명 조합 유틸 (`cn`) |
+| `date.test.ts` | 6 | 날짜 포맷 유틸 (`formatDate`, `getYear`) |
+| `random.test.ts` | 8 | 랜덤 요소 생성 (`generateRandomElements`, `generateRandomDroplets`) |
+| `mobileCheck.test.ts` | 6 | 모바일 레이아웃 판별 (`checkMobileLayout`) |
+| `renderHighlight.test.tsx` | 4 | 하이라이트 마크업 변환 (`renderHighlight`) |
+
+설정 파일: `vitest.config.ts`, 테스트 위치: `src/__tests__/`
+
 ---
 
 ## Components
