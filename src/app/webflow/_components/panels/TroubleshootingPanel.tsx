@@ -85,20 +85,33 @@ export default function TroubleshootingPanel({
     const scrollDist = total * 500;
     let prevIdx = 0;
 
-    // Query detail items for JS-driven animation
+    // Query detail items + their stagger children for JS-driven animation
     const detailItems = Array.from(
       viewport.querySelectorAll<HTMLElement>(`.${styles.troubleDetailItem}`),
     );
 
-    // Set initial positions: first item visible, rest below
+    // Stagger children: header + entries within each detail item
+    const getStaggerChildren = (el: HTMLElement) =>
+      Array.from(
+        el.querySelectorAll<HTMLElement>(
+          `.${styles.troubleDetailHeader}, .${styles.troubleEntry}`,
+        ),
+      );
+
+    // Set initial state: first item cascade-visible, rest hidden
     detailItems.forEach((el, i) => {
-      if (i === 0) {
-        el.style.opacity = "1";
-        el.style.transform = "translateY(0)";
-      } else {
-        el.style.opacity = "0";
-        el.style.transform = "translateY(60px)";
-      }
+      el.style.opacity = i === 0 ? "1" : "0";
+      const children = getStaggerChildren(el);
+      children.forEach((child, ci) => {
+        if (i === 0) {
+          child.style.opacity = "1";
+          child.style.transform = "translateY(0)";
+        } else {
+          child.style.opacity = "0";
+          child.style.transform = "translateY(16px)";
+        }
+        child.style.transition = `opacity 0.4s ease ${ci * 0.1}s, transform 0.4s cubic-bezier(0.4,0,0.2,1) ${ci * 0.1}s`;
+      });
     });
 
     const ctx = gsap.context(() => {
@@ -118,18 +131,21 @@ export default function TroubleshootingPanel({
             prevIdx = newIndex;
             setActiveIndex(newIndex);
 
-            // JS-driven directional slide
+            // JS-driven stagger cascade
             detailItems.forEach((el, i) => {
-              if (i < newIndex) {
-                el.style.opacity = "0";
-                el.style.transform = "translateY(-60px)";
-              } else if (i === newIndex) {
-                el.style.opacity = "1";
-                el.style.transform = "translateY(0)";
-              } else {
-                el.style.opacity = "0";
-                el.style.transform = "translateY(60px)";
-              }
+              el.style.opacity = i === newIndex ? "1" : "0";
+              const children = getStaggerChildren(el);
+              children.forEach((child, ci) => {
+                if (i === newIndex) {
+                  child.style.opacity = "1";
+                  child.style.transform = "translateY(0)";
+                  child.style.transitionDelay = `${ci * 0.1}s`;
+                } else {
+                  child.style.opacity = "0";
+                  child.style.transform = "translateY(16px)";
+                  child.style.transitionDelay = "0s";
+                }
+              });
             });
           }
         },
