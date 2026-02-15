@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -14,6 +14,20 @@ export default function ScrollTorus() {
   const { theme } = useTheme();
   const { getCumulative } = useScrollProgress();
   const { isMobile, isTouch } = useIsMobile();
+
+  // R3F Canvas의 pointer-events를 차단하므로 window에서 직접 마우스 추적
+  const mouseNDC = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (isMobile) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      // clientX/Y → NDC (-1 ~ 1)
+      mouseNDC.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseNDC.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [isMobile]);
 
   const cameraConfig = useMemo(
     () => ({
@@ -47,6 +61,7 @@ export default function ScrollTorus() {
             getCumulative={getCumulative}
             theme={theme}
             isMobile={isMobile}
+            mouseNDC={mouseNDC}
           />
         </Suspense>
       </Canvas>

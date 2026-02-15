@@ -18,20 +18,23 @@ interface TorusSceneProps {
   getCumulative: () => number;
   theme: "dark" | "light";
   isMobile: boolean;
+  /** 마우스 NDC 좌표 (-1~1) — Canvas pointer-events 차단으로 수동 추적 */
+  mouseNDC: React.RefObject<{ x: number; y: number }>;
 }
 
 export default function TorusScene({
   getCumulative,
   theme,
   isMobile,
+  mouseNDC,
 }: TorusSceneProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const { camera, pointer } = useThree();
+  const { camera } = useThree();
 
   // 반발 오프셋 (매 프레임 lerp로 부드럽게 보간)
   const repulsionRef = useRef(new THREE.Vector2(0, 0));
   // 재활용 벡터 (GC 방지)
-  const _mouseNDC = useMemo(() => new THREE.Vector3(), []);
+  const _mouseVec = useMemo(() => new THREE.Vector3(), []);
   const _camPos = useMemo(() => new THREE.Vector3(), []);
 
   const geometry = useMemo(() => {
@@ -74,11 +77,11 @@ export default function TorusScene({
       2;
 
     // 커서 반발 효과 (데스크탑만)
-    if (!isMobile) {
-      // 마우스 NDC를 토러스 Z 깊이의 월드 좌표로 변환
-      _mouseNDC.set(pointer.x, pointer.y, 0.5).unproject(camera);
+    if (!isMobile && mouseNDC.current) {
+      // 수동 추적된 마우스 NDC를 토러스 Z 깊이의 월드 좌표로 변환
+      _mouseVec.set(mouseNDC.current.x, mouseNDC.current.y, 0.5).unproject(camera);
       _camPos.copy(camera.position);
-      const dir = _mouseNDC.sub(_camPos).normalize();
+      const dir = _mouseVec.sub(_camPos).normalize();
       const distToPlane = (z - camera.position.z) / dir.z;
       const mouseWorldX = camera.position.x + dir.x * distToPlane;
       const mouseWorldY = camera.position.y + dir.y * distToPlane;

@@ -6,3 +6,10 @@
   z-index: var(--z-content-low);
   pointer-events: none;
 }
+
+/* R3F Canvas가 내부 컨테이너에 pointer-events: auto를 인라인으로 설정하여
+   페이지 전체의 클릭/호버 이벤트를 차단하는 문제 방지 */
+.torusOverlay :global(div),
+.torusOverlay :global(canvas) {
+  pointer-events: none !important;
+}
