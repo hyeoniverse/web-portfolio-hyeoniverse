@@ -13,9 +13,10 @@ import styles from "../WebFlowSection.module.css";
 interface ProcessPanelProps {
   language: Language;
   process: ProcessStep[];
+  scrollBy?: (deltaX: number) => void;
 }
 
-export default function ProcessPanel({ language, process }: ProcessPanelProps) {
+export default function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
   const isMobile = checkMobileLayout();
   const progressRef = useRef<HTMLDivElement>(null);
 
@@ -33,6 +34,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
   const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
     process.length,
     onIndexChange,
+    scrollBy,
   );
 
   // 모바일/태블릿: 아코디언 레이아웃

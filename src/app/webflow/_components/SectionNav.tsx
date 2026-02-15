@@ -40,6 +40,7 @@ export default function SectionNav({
           ref={(el) => {
             navItemRefs.current[i] = el;
           }}
+          data-clickable="true"
           className={`${styles.navItem} ${highlightedSection === sec.id ? styles.navItemActive : ""}`}
           onClick={() => onNavigate(sec.id)}
           onMouseEnter={() => onHover(sec.id)}

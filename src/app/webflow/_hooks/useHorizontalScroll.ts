@@ -1,179 +1,258 @@
 "use client";
 
-import { useRef, useLayoutEffect, useEffect, useState, useCallback } from "react";
+import {
+  useRef,
+  useLayoutEffect,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useLenis } from "@/providers/LenisProvider";
 import { checkMobileLayout } from "./mobileCheck";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
-}
+// 패널 상수
+const PANEL_COUNT = 11; // 한 세트의 패널 수
+const NAV_SECTION_COUNT = 10; // breakPanel 제외한 네비게이션 섹션 수
+
+// 애니메이션 상수
+const SCROLL_LERP = 0.08;
 
 export function useHorizontalScroll(
   styles: Record<string, string>,
+  infinite: boolean = true,
 ): {
   sectionRef: React.RefObject<HTMLDivElement | null>;
   trackRef: React.RefObject<HTMLDivElement | null>;
-  scrollTweenRef: React.RefObject<gsap.core.Tween | null>;
   activeSection: number;
   goToSection: (navIndex: number) => void;
+  scrollBy: (deltaX: number) => void;
 } {
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const scrollTweenRef = useRef<gsap.core.Tween | null>(null);
+  const scrollStateRef = useRef({ scrollX: 0, targetScrollX: 0 });
   const [activeSection, setActiveSection] = useState(0);
   const mobile = checkMobileLayout();
   const { setInfinite } = useLenis();
 
-  // 섹션 이동 — 데스크톱(GSAP)과 모바일(scrollIntoView) 모두 처리
+  // 외부에서 스크롤 제어 (usePinnedScroll 연동용)
+  const scrollBy = useCallback((deltaX: number) => {
+    scrollStateRef.current.targetScrollX += deltaX;
+  }, []);
+
+  // 섹션 이동
   const goToSection = useCallback(
     (navIndex: number) => {
       const track = trackRef.current;
       if (!track) return;
 
-      const panels = track.querySelectorAll(
-        `.${styles.panel}, .${styles.panelWide}, .${styles.breakPanel}`,
-      );
-
-      // 네비게이션 인덱스를 DOM 패널에 매핑 (breakPanel 제외)
-      let count = 0;
-      let target: HTMLElement | undefined;
-      for (let i = 0; i < panels.length; i++) {
-        if (panels[i].classList.contains(styles.breakPanel)) continue;
-        if (count === navIndex) {
-          target = panels[i] as HTMLElement;
-          break;
-        }
-        count++;
-      }
-      if (!target) return;
-
       if (checkMobileLayout()) {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        // 모바일: 기존 scrollIntoView 방식
+        const panels = track.querySelectorAll(
+          `.${styles.panel}, .${styles.panelWide}, .${styles.breakPanel}`,
+        );
+        let count = 0;
+        for (let i = 0; i < panels.length; i++) {
+          if (panels[i].classList.contains(styles.breakPanel)) continue;
+          if (count === navIndex) {
+            (panels[i] as HTMLElement).scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+            return;
+          }
+          count++;
+        }
         return;
       }
 
-      const tween = scrollTweenRef.current;
-      if (!tween) return;
-      const scrollTriggerInstance = tween.scrollTrigger;
-      if (!scrollTriggerInstance) return;
+      // 데스크탑: 가장 가까운 해당 패널을 찾아서 targetScrollX 조정
+      const panels = track.querySelectorAll<HTMLElement>(
+        `.${styles.panel}, .${styles.panelWide}, .${styles.breakPanel}`,
+      );
 
-      const trackWidth = track.scrollWidth - window.innerWidth;
-      const panelLeft = target.offsetLeft;
-      const ratio = Math.min(panelLeft / trackWidth, 1);
-      const scrollTo = scrollTriggerInstance.start + (scrollTriggerInstance.end - scrollTriggerInstance.start) * ratio;
+      let bestTarget: HTMLElement | undefined;
+      let bestDist = Infinity;
+      let navCount = 0;
 
-      gsap.to(window, {
-        scrollTo: { y: scrollTo },
-        duration: 1,
-        ease: "power2.inOut",
-      });
+      for (let i = 0; i < panels.length; i++) {
+        if (panels[i].classList.contains(styles.breakPanel)) continue;
+        if ((infinite ? navCount % NAV_SECTION_COUNT : navCount) === navIndex) {
+          const rect = panels[i].getBoundingClientRect();
+          const dist = Math.abs(rect.left);
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestTarget = panels[i];
+          }
+        }
+        navCount++;
+      }
+
+      if (bestTarget) {
+        const rect = bestTarget.getBoundingClientRect();
+        scrollStateRef.current.targetScrollX += rect.left;
+      }
     },
-    [styles],
+    [styles, infinite],
   );
 
-  // 이 페이지에서 Lenis 무한 스크롤 비활성화
+  // Lenis 무한 스크롤 비활성화
   useEffect(() => {
     setInfinite(false);
     return () => setInfinite(true);
   }, [setInfinite]);
 
-  // GSAP 수평 스크롤 — 모바일 상태에 반응
+  // 데스크탑: wheel + RAF + lerp + 무한 래핑
   useLayoutEffect(() => {
     const section = sectionRef.current;
     const track = trackRef.current;
-    if (!section || !track) return;
+    if (!section || !track || mobile) return;
 
-    // 모바일/낮은 뷰포트: 수평 스크롤 없음
-    if (mobile) {
-      scrollTweenRef.current = null;
-      return;
+    const state = scrollStateRef.current;
+
+    // DOM 측정
+    const allPanels = gsap.utils.toArray<HTMLElement>(
+      `.${styles.panel}, .${styles.panelWide}, .${styles.breakPanel}`,
+      track,
+    );
+
+    if (allPanels.length < PANEL_COUNT) return;
+
+    // 한 세트 너비 계산
+    let oneSetWidth = 0;
+    for (let i = 0; i < PANEL_COUNT && i < allPanels.length; i++) {
+      oneSetWidth += allPanels[i].offsetWidth;
     }
 
-    const ctx = gsap.context(() => {
-      // 메인 수평 스크롤 트윈
-      const scrollTween = gsap.to(track, {
-        x: () => -(track.scrollWidth - window.innerWidth),
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: () => `+=${track.scrollWidth - window.innerWidth}`,
-          pin: true,
-          scrub: 1,
-          invalidateOnRefresh: true,
-          anticipatePin: 1,
-        },
-      });
+    // 전체 트랙 너비 계산
+    let totalWidth = 0;
+    for (let i = 0; i < allPanels.length; i++) {
+      totalWidth += allPanels[i].offsetWidth;
+    }
 
-      scrollTweenRef.current = scrollTween;
+    // 초기 위치: 무한이면 중간 세트, 아니면 처음
+    const middleSetFirst = infinite ? allPanels[PANEL_COUNT] : null;
+    const initialX = middleSetFirst ? -middleSetFirst.offsetLeft : 0;
 
-      // 패널별 콘텐츠 등장 + 활성 섹션 추적
-      const panels = gsap.utils.toArray<HTMLElement>(
-        `.${styles.panel}, .${styles.panelWide}, .${styles.breakPanel}`,
-        track,
-      );
+    // 스크롤 상태 초기화
+    state.scrollX = 0;
+    state.targetScrollX = 0;
 
-      let navIndex = 0;
-      panels.forEach((panel, index) => {
-        const isBreak = panel.classList.contains(styles.breakPanel);
-        const currentNavIndex = navIndex;
+    // 초기 위치 설정
+    gsap.set(track, { x: initialX });
 
-        // 활성 섹션 추적 (breakPanel 제외)
-        ScrollTrigger.create({
-          trigger: panel,
-          containerAnimation: scrollTween,
-          start: "left 60%",
-          end: "right 40%",
-          onEnter: () => {
-            if (!isBreak) setActiveSection(currentNavIndex);
-          },
-          onEnterBack: () => {
-            if (!isBreak) setActiveSection(currentNavIndex);
-          },
-        });
+    // Hero 패널(각 세트의 첫 패널)을 제외한 .animate 요소 초기 숨김
+    allPanels.forEach((panel, i) => {
+      if (i % PANEL_COUNT === 0) return; // Hero는 보임
+      const items = panel.querySelectorAll(`.${styles.animate}`);
+      if (items.length > 0) gsap.set(items, { opacity: 0, y: 40 });
+    });
 
-        if (!isBreak) navIndex++;
+    // 이벤트 핸들러
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      state.targetScrollX += e.deltaY;
+    };
 
-        if (index === 0) return; // Hero 패널은 이미 보임
+    section.addEventListener("wheel", handleWheel, { passive: false });
+
+    // RAF 애니메이션 루프
+    const animate = () => {
+      // 부드러운 스크롤 보간
+      state.scrollX +=
+        (state.targetScrollX - state.scrollX) * SCROLL_LERP;
+
+      // 무한 래핑 또는 클램프
+      if (infinite && oneSetWidth > 0) {
+        while (state.scrollX > oneSetWidth * 1.5) {
+          state.scrollX -= oneSetWidth;
+          state.targetScrollX -= oneSetWidth;
+        }
+        while (state.scrollX < -oneSetWidth * 0.5) {
+          state.scrollX += oneSetWidth;
+          state.targetScrollX += oneSetWidth;
+        }
+      } else if (!infinite) {
+        const maxScroll = totalWidth - window.innerWidth;
+        state.targetScrollX = gsap.utils.clamp(0, maxScroll, state.targetScrollX);
+        state.scrollX = gsap.utils.clamp(0, maxScroll, state.scrollX);
+      }
+
+      // 트랙 위치 업데이트
+      gsap.set(track, { x: initialX - state.scrollX });
+
+      // 패널 애니메이션 (뷰포트 기반)
+      const vw = window.innerWidth;
+      allPanels.forEach((panel, i) => {
+        if (i % PANEL_COUNT === 0) return; // Hero 스킵
 
         const items = panel.querySelectorAll(`.${styles.animate}`);
         if (items.length === 0) return;
 
-        // 입장: 패널이 오른쪽에서 들어올 때 페이드 인 + 슬라이드 업
-        gsap.from(items, {
-          opacity: 0,
-          y: 40,
-          stagger: 0.06,
-          scrollTrigger: {
-            trigger: panel,
-            containerAnimation: scrollTween,
-            start: "left 80%",
-            end: "left 50%",
-            scrub: 0.6,
-          },
-        });
+        const rect = panel.getBoundingClientRect();
 
-        // 퇴장: 절반 이상 숨겨지면 페이드 아웃 + 슬라이드 다운
-        gsap.to(items, {
-          opacity: 0,
-          y: -30,
-          stagger: 0.04,
-          scrollTrigger: {
-            trigger: panel,
-            containerAnimation: scrollTween,
-            start: "right 50%",
-            end: "right 20%",
-            scrub: 0.6,
-          },
-        });
+        // 입장 진행도: 패널 왼쪽 가장자리가 뷰포트 80% → 50%
+        const entryProgress = gsap.utils.clamp(
+          0,
+          1,
+          (0.8 - rect.left / vw) / 0.3,
+        );
+        // 퇴장 진행도: 패널 오른쪽 가장자리가 뷰포트 50% → 20%
+        const exitProgress = gsap.utils.clamp(
+          0,
+          1,
+          (0.5 - rect.right / vw) / 0.3,
+        );
+
+        const opacity = Math.min(entryProgress, 1 - exitProgress);
+        const y = exitProgress > 0 ? -30 * exitProgress : 40 * (1 - entryProgress);
+
+        gsap.set(items, { opacity: Math.max(0, opacity), y });
       });
-    }, section);
 
-    return () => ctx.revert();
-  }, [styles, mobile]);
+      // 활성 섹션 탐지 (뷰포트 중앙에 가장 가까운 패널)
+      const viewportCenter = vw / 2;
+      let closestNavIdx = 0;
+      let closestDist = Infinity;
+      let navIdx = 0;
+
+      for (let i = 0; i < allPanels.length; i++) {
+        const isBreak = allPanels[i].classList.contains(styles.breakPanel);
+        if (isBreak) continue;
+
+        const rect = allPanels[i].getBoundingClientRect();
+        const dist = Math.abs(rect.left + rect.width / 2 - viewportCenter);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestNavIdx = infinite ? navIdx % NAV_SECTION_COUNT : navIdx;
+        }
+        navIdx++;
+      }
+
+      setActiveSection(closestNavIdx);
+
+      requestAnimationFrame(animate);
+    };
+
+    const rafId = requestAnimationFrame(animate);
+
+    // 리사이즈 핸들러
+    const handleResize = () => {
+      let sw = 0;
+      for (let i = 0; i < PANEL_COUNT && i < allPanels.length; i++) {
+        sw += allPanels[i].offsetWidth;
+      }
+      oneSetWidth = sw;
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      section.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [styles, mobile, infinite]);
 
   // 모바일: IntersectionObserver로 활성 섹션 추적
   useEffect(() => {
@@ -185,7 +264,6 @@ export function useHorizontalScroll(
       `.${styles.panel}, .${styles.panelWide}`,
     );
 
-    // 네비게이션 인덱스 매핑 생성 (breakPanel 제외)
     const mapped: { el: HTMLElement; navIdx: number }[] = [];
     allPanels.forEach((panel) => {
       if (!panel.classList.contains(styles.breakPanel)) {
@@ -209,5 +287,5 @@ export function useHorizontalScroll(
     return () => observer.disconnect();
   }, [mobile, styles]);
 
-  return { sectionRef, trackRef, scrollTweenRef, activeSection, goToSection };
+  return { sectionRef, trackRef, activeSection, goToSection, scrollBy };
 }

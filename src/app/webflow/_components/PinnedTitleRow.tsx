@@ -4,6 +4,8 @@ interface DotNavConfig {
   count: number;
   activeIndex: number;
   onDotClick: (index: number) => void;
+  /** 각 dot에 표시할 힌트 라벨 */
+  labels?: string[];
   /** 추가 CSS 클래스 (dotNavMobile, dotNavMobileOnly 등) */
   className?: string;
 }
@@ -39,12 +41,17 @@ export default function PinnedTitleRow({
       {dotNav && (
         <div className={`${styles.dotNav}${dotNav.className ? ` ${dotNav.className}` : ""}${animateClass}`}>
           {Array.from({ length: dotNav.count }, (_, i) => (
-            <div
+            <button
               data-clickable="true"
               key={i}
-              className={`${styles.dot} ${i === dotNav.activeIndex ? styles.dotActive : ""}`}
+              className={`${styles.dotItem} ${i === dotNav.activeIndex ? styles.dotItemActive : ""}`}
               onClick={() => dotNav.onDotClick(i)}
-            />
+            >
+              <span className={styles.dotCircle} />
+              {dotNav.labels?.[i] && (
+                <span className={styles.dotText}>{dotNav.labels[i]}</span>
+              )}
+            </button>
           ))}
         </div>
       )}

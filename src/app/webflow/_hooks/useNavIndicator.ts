@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { useSpring, useMotionValue, type MotionValue } from "framer-motion";
 
-export function useNavIndicator(activeSection: number): {
+export function useNavIndicator(activeSection: number, navMounted = false): {
   navRef: React.RefObject<HTMLElement | null>;
   navItemRefs: React.MutableRefObject<(HTMLButtonElement | null)[]>;
   hoveredSection: number | null;
@@ -46,7 +46,7 @@ export function useNavIndicator(activeSection: number): {
     // 라벨 트랜지션 완료 후 재측정 (300ms는 CSS와 일치)
     const timer = setTimeout(() => updateIndicator(el), 320);
     return () => clearTimeout(timer);
-  }, [highlightedSection, updateIndicator]);
+  }, [highlightedSection, updateIndicator, navMounted]);
 
   const navSections = useMemo(
     () => [

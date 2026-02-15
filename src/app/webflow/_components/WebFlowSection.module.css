@@ -160,7 +160,7 @@
 
 .dotNav {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 0;
   align-items: center;
 }
 
@@ -173,7 +173,29 @@
   display: none;
 }
 
-.dot {
+/* Each dot-nav item: button with dot + collapsible label */
+.dotItem {
+  display: flex;
+  gap: 0;
+  align-items: center;
+  padding: clamp(0.25rem, 0.4vh, 0.4rem) clamp(0.35rem, 0.45vw, 0.55rem);
+  border: 1px solid transparent;
+  overflow: hidden;
+  position: relative;
+  background: transparent;
+  white-space: nowrap;
+  border-radius: var(--radius-capsule);
+}
+
+/* Compound selector (0,2,0) to beat global theme transition */
+.dotNav .dotItem {
+  transition:
+    gap 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.dotItem .dotCircle {
+  flex-shrink: 0;
   width: 6px;
   height: 6px;
   background: var(--text-tertiary);
@@ -181,18 +203,60 @@
   opacity: 0.4;
 }
 
-/* Compound selector (0,2,0) */
-.dotNav .dot {
+.dotNav .dotCircle {
   transition:
     opacity 0.3s ease,
-    background-color 0.3s ease,
-    transform 0.3s ease;
+    background-color 0.3s ease;
 }
 
-.dotActive {
+.dotItem .dotText {
+  max-width: 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  opacity: 0;
+}
+
+.dotNav .dotText {
+  transition:
+    font-size 0.3s ease,
+    opacity 0.3s ease,
+    max-width 0.3s ease,
+    margin-left 0.3s ease;
+}
+
+.dotItemActive {
+  gap: clamp(0.3rem, 0.35vw, 0.5rem);
+  border-color: var(--text-accent-secondary);
+}
+
+.dotItemActive .dotCircle {
   background: var(--text-accent-secondary);
   opacity: 1;
-  transform: scale(1.4);
+}
+
+.dotItemActive .dotText {
+  max-width: clamp(60px, 8vw, 120px);
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+/* Hover: move capsule outline only (no label resize → no jitter) */
+.dotNav:hover .dotItemActive:not(:hover) {
+  border-color: transparent;
+}
+
+.dotItem:hover {
+  border-color: var(--text-accent-secondary);
+}
+
+.dotItem:hover .dotCircle {
+  background: var(--text-accent-secondary);
+  opacity: 1;
 }
 
 /* ==========================================================================
@@ -802,6 +866,27 @@
 
 .dcViewport {
   /* placeholder — mobile override below */
+}
+
+/* DC panel: mix-blend-mode so dots are visible over background images */
+.dcViewport .dotNav {
+  mix-blend-mode: difference;
+}
+
+.dcViewport .dotItem .dotCircle {
+  background: white;
+}
+
+.dcViewport .dotItemActive {
+  border-color: white;
+}
+
+.dcViewport .dotItemActive .dotText {
+  color: white;
+}
+
+.dcViewport .dotItem:hover {
+  border-color: white;
 }
 
 /* Inside title rows, panelTitle margin is handled by the row itself */
@@ -2430,7 +2515,7 @@
   transition: gap 0.3s ease;
 }
 
-.navDot {
+.navItem .navDot {
   flex-shrink: 0;
   width: 6px;
   height: 6px;
@@ -2441,7 +2526,7 @@
   border-radius: var(--radius-circle);
 }
 
-.navLabel {
+.navItem .navLabel {
   margin-left: 0;
   max-width: 0;
   font-family: var(--font-mono);
