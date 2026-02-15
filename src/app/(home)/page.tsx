@@ -313,6 +313,9 @@ export default function HomePage() {
           floatY={floatY}
           oval2X={oval2X}
           oval2Y={oval2Y}
+          onScrollDown={() => {
+            aboutRef.current?.scrollIntoView({ behavior: "smooth" });
+          }}
         />
 
         <AboutSection ref={aboutRef} />
