@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   useCallback,
 } from "react";
@@ -21,6 +22,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
+  const isFirstThemeRef = useRef(true);
 
   // localStorage 또는 시스템 설정에서 테마 초기화
   useEffect(() => {
@@ -40,13 +42,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // 문서에 테마 적용
   useEffect(() => {
     if (!mounted) return;
-    document.documentElement.setAttribute("data-theme", theme);
+
+    const root = document.documentElement;
+
+    if (isFirstThemeRef.current) {
+      // 초기 로드: transition 없이 즉시 적용
+      isFirstThemeRef.current = false;
+      root.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      return;
+    }
+
+    // 테마 전환: transition을 일시적으로 활성화 (350ms)
+    root.setAttribute("data-theme-transitioning", "");
+    void root.offsetHeight; // reflow 강제 → transition 등록 보장
+    root.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
 
-    // 초기 테마 설정 후 전환 효과 활성화
-    requestAnimationFrame(() => {
-      document.documentElement.setAttribute("data-theme-ready", "");
-    });
+    const timer = setTimeout(() => {
+      root.removeAttribute("data-theme-transitioning");
+    }, 350);
+
+    return () => clearTimeout(timer);
   }, [theme, mounted]);
 
   const toggleTheme = useCallback(() => {

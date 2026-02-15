@@ -80,6 +80,7 @@ export default function Navigation() {
 
   // 테마 상태
   const [isThemeAnimating, setIsThemeAnimating] = useState(false);
+  const [isThemeClicking, setIsThemeClicking] = useState(false);
   const [displayTheme, setDisplayTheme] = useState(theme);
   const themeDisplayTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const themeAnimTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -96,12 +97,14 @@ export default function Navigation() {
   useEffect(() => setDisplayLang(language), [language]);
 
   const handleThemeToggle = () => {
-    if (isThemeAnimating) return;
+    if (isThemeClicking) return;
+    setIsThemeClicking(true);
     toggleTheme();
+    setTimeout(() => setIsThemeClicking(false), 300);
   };
 
   const handleThemeMouseEnter = () => {
-    if (isThemeAnimating) return;
+    if (isThemeAnimating || isThemeClicking) return;
     clearTimeout(themeDisplayTimer.current);
     clearTimeout(themeAnimTimer.current);
     setIsThemeAnimating(true);
@@ -112,6 +115,7 @@ export default function Navigation() {
   };
 
   const handleThemeMouseLeave = () => {
+    if (isThemeClicking) return;
     clearTimeout(themeDisplayTimer.current);
     clearTimeout(themeAnimTimer.current);
     setIsThemeAnimating(true);
@@ -238,7 +242,7 @@ export default function Navigation() {
           onMouseLeave={handleThemeMouseLeave}
           aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         >
-          <span className={`${styles.themeIconWrapper} ${isThemeAnimating ? styles.animating : ""}`}>
+          <span className={`${styles.themeIconWrapper} ${isThemeAnimating && !isThemeClicking ? styles.animating : ""} ${isThemeClicking ? styles.clicking : ""}`}>
             {displayTheme === "dark" ? (
               <svg
                 className={styles.themeIcon}
