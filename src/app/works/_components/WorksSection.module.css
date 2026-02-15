@@ -16,8 +16,8 @@
 
 /* Container: in-flow item inside gallerySlider */
 .intro {
-  --_intro-pad: 60px;
-  --_intro-text-max: 340px;
+  --_intro-pad: 30px;
+  --_intro-text-max: 240px;
 
   display: flex;
   gap: var(--spacing-md);
@@ -26,6 +26,7 @@
   justify-content: center;
   flex-shrink: 0;
   width: auto;
+  max-width: 320px;
   height: 100%;
   padding: 0 var(--_intro-pad);
   font-family: var(--font-space-grotesk), sans-serif;
@@ -134,8 +135,10 @@
 }
 
 .introStatDivider {
+  align-self: stretch;
+  margin-top: calc(-1 * var(--spacing-md));
+  margin-bottom: calc(-1 * var(--spacing-md));
   width: 1px;
-  height: 100px;
   background: var(--border-primary-color);
 }
 
@@ -721,11 +724,12 @@
 
 @media (max-width: 1024px) {
   .intro {
-    --_intro-pad: 40px;
-    --_intro-text-max: 280px;
+    --_intro-pad: 28px;
+    --_intro-text-max: 220px;
 
     align-self: flex-start;
-    width: max(100vh, 100vw);
+    max-width: 280px;
+    width: auto;
     height: 100vh;
   }
 
@@ -1254,6 +1258,11 @@
   text-align: center;
 }
 
+/* creditsPanel 다음에 오는 intro 사이 갭 제거 */
+.creditsPanel + .intro {
+  margin-left: calc(-1 * var(--_gallery-gap));
+}
+
 .creditsPanel::after {
   position: absolute;
   top: 50%;
@@ -1263,6 +1272,11 @@
   background: var(--border-primary-color);
   content: "";
   transform: translateY(-50%);
+}
+
+/* intro가 바로 뒤에 올 때 갭이 없으므로 세로선을 오른쪽 끝으로 이동 */
+.creditsPanel:has(+ .intro)::after {
+  right: 0;
 }
 
 @media (max-width: 768px), (max-height: 700px) {
