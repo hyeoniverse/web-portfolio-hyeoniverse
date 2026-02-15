@@ -43,19 +43,22 @@ export default function PinnedTitleRow({
 
   const springConfig = { stiffness: 170, damping: 22, mass: 1 };
   const indicatorX = useMotionValue(0);
-  const indicatorW = useMotionValue(0);
   const springX = useSpring(indicatorX, springConfig);
-  const springW = useSpring(indicatorW, springConfig);
 
   const updateIndicator = useCallback(
     (el: HTMLElement | null) => {
       if (!el || !dotNavRef.current) return;
       const navRect = dotNavRef.current.getBoundingClientRect();
-      const elRect = el.getBoundingClientRect();
-      indicatorX.set(elRect.left - navRect.left);
-      indicatorW.set(elRect.width);
+      const circle = el.querySelector(
+        `.${styles.dotCircle}`,
+      ) as HTMLElement | null;
+      if (!circle) return;
+      const circleRect = circle.getBoundingClientRect();
+      const centerX =
+        circleRect.left + circleRect.width / 2 - navRect.left;
+      indicatorX.set(centerX);
     },
-    [indicatorX, indicatorW],
+    [indicatorX],
   );
 
   const targetDot = hoveredDot ?? (dotNav?.activeIndex ?? 0);
@@ -78,32 +81,72 @@ export default function PinnedTitleRow({
         <h3 className={titleClasses}>{title}</h3>
       </div>
       {dotNav && (
-        <div
-          ref={dotNavRef}
-          className={`${styles.dotNav}${dotNav.className ? ` ${dotNav.className}` : ""}${animateClass}`}
-          onMouseLeave={() => setHoveredDot(null)}
-        >
-          <motion.span
-            className={styles.dotIndicator}
-            style={{ x: springX, width: springW }}
-          />
-          {Array.from({ length: dotNav.count }, (_, i) => (
-            <button
-              data-clickable="true"
-              key={i}
-              ref={(el) => {
-                dotItemRefs.current[i] = el;
-              }}
-              className={`${styles.dotItem} ${i === dotNav.activeIndex ? styles.dotItemActive : ""}`}
-              onClick={() => dotNav.onDotClick(i)}
-              onMouseEnter={() => setHoveredDot(i)}
-            >
-              <span className={styles.dotCircle} />
-              {dotNav.labels?.[i] && (
-                <span className={styles.dotText}>{dotNav.labels[i]}</span>
-              )}
-            </button>
-          ))}
+        <div className={`${styles.dotNavWrap}${dotNav.className ? ` ${dotNav.className}` : ""}${animateClass}`}>
+          <button
+            data-clickable="true"
+            className={styles.dotArrow}
+            onClick={() => dotNav.onDotClick(0)}
+            disabled={dotNav.activeIndex === 0}
+            aria-label="First"
+          >
+            «
+          </button>
+          <button
+            data-clickable="true"
+            className={styles.dotArrow}
+            onClick={() => dotNav.onDotClick(Math.max(0, dotNav.activeIndex - 1))}
+            disabled={dotNav.activeIndex === 0}
+            aria-label="Previous"
+          >
+            ‹
+          </button>
+
+          <div
+            ref={dotNavRef}
+            className={styles.dotNav}
+            onMouseLeave={() => setHoveredDot(null)}
+          >
+            <motion.span
+              className={styles.dotIndicator}
+              style={{ x: springX }}
+            />
+            {Array.from({ length: dotNav.count }, (_, i) => (
+              <button
+                data-clickable="true"
+                key={i}
+                ref={(el) => {
+                  dotItemRefs.current[i] = el;
+                }}
+                className={`${styles.dotItem} ${i === dotNav.activeIndex ? styles.dotItemActive : ""}`}
+                onClick={() => dotNav.onDotClick(i)}
+                onMouseEnter={() => setHoveredDot(i)}
+              >
+                <span className={styles.dotCircle} />
+                {dotNav.labels?.[i] && (
+                  <span className={styles.dotText}>{dotNav.labels[i]}</span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <button
+            data-clickable="true"
+            className={styles.dotArrow}
+            onClick={() => dotNav.onDotClick(Math.min(dotNav.count - 1, dotNav.activeIndex + 1))}
+            disabled={dotNav.activeIndex === dotNav.count - 1}
+            aria-label="Next"
+          >
+            ›
+          </button>
+          <button
+            data-clickable="true"
+            className={styles.dotArrow}
+            onClick={() => dotNav.onDotClick(dotNav.count - 1)}
+            disabled={dotNav.activeIndex === dotNav.count - 1}
+            aria-label="Last"
+          >
+            »
+          </button>
         </div>
       )}
     </div>

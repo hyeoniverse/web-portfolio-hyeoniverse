@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { Suspense, useState, useRef, useCallback, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Environment } from "@react-three/drei";
+import * as THREE from "three";
+import { useMotionValue, useSpring, motion } from "framer-motion";
+import { useTheme } from "@/providers/ThemeProvider";
 import {
-  useMotionValue,
-  useSpring,
-  useTransform,
-  motion,
-} from "framer-motion";
+  TORUS_GEOMETRY,
+  TORUS_MATERIAL,
+  TORUS_SCALE,
+} from "@/constants/torus";
 import StaggerText from "@/components/effects/StaggerText/StaggerText";
 import { checkMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
@@ -14,103 +18,6 @@ import styles from "../WebFlowSection.module.css";
 /* ── 공유 모바일 감지 (BreakpointGuard가 리마운트 처리) ── */
 function useDemoMobile(): boolean {
   return checkMobileLayout();
-}
-
-/* =========================================================================
-   1. DemoParallax — 마우스 패럴랙스 효과 (HeroSection)
-   데스크탑: 마우스 추적 → 스프링 패럴랙스 레이어
-   모바일: 사인파 루프로 자동 애니메이션
-   ========================================================================= */
-function DemoParallax() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0.5);
-  const mouseY = useMotionValue(0.5);
-  const isMobile = useDemoMobile();
-
-  const springX = useSpring(mouseX, { stiffness: 60, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 60, damping: 20 });
-
-  const layer1X = useTransform(springX, [0, 1], [-20, 20]);
-  const layer1Y = useTransform(springY, [0, 1], [-15, 15]);
-  const layer2X = useTransform(springX, [0, 1], [-12, 12]);
-  const layer2Y = useTransform(springY, [0, 1], [-8, 8]);
-  const layer3X = useTransform(springX, [0, 1], [-6, 6]);
-  const layer3Y = useTransform(springY, [0, 1], [-4, 4]);
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (isMobile) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      mouseX.set((e.clientX - rect.left) / rect.width);
-      mouseY.set((e.clientY - rect.top) / rect.height);
-    },
-    [mouseX, mouseY, isMobile],
-  );
-
-  // 모바일: 사인파로 레이어 자동 애니메이션
-  useEffect(() => {
-    if (!isMobile) return;
-    let rafId: number;
-    const loop = (time: number) => {
-      const t = time / 1000;
-      mouseX.set(0.5 + 0.4 * Math.sin(t * 0.7));
-      mouseY.set(0.5 + 0.4 * Math.cos(t * 0.5));
-      rafId = requestAnimationFrame(loop);
-    };
-    rafId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafId);
-  }, [isMobile, mouseX, mouseY]);
-
-  return (
-    <div
-      ref={containerRef}
-      className={styles.codeDemoInner}
-      onMouseMove={isMobile ? undefined : handleMouseMove}
-      style={{ cursor: isMobile ? "default" : "crosshair" }}
-    >
-      <motion.div
-        style={{
-          x: layer1X,
-          y: layer1Y,
-          width: 60,
-          height: 60,
-          borderRadius: "50%",
-          border: "1px solid var(--color-accent-alpha-30)",
-          position: "absolute",
-          top: "20%",
-          left: "25%",
-        }}
-      />
-      <motion.div
-        style={{
-          x: layer2X,
-          y: layer2Y,
-          width: 40,
-          height: 40,
-          border: "1px solid var(--text-tertiary)",
-          position: "absolute",
-          top: "50%",
-          right: "25%",
-        }}
-      />
-      <motion.div
-        style={{
-          x: layer3X,
-          y: layer3Y,
-          width: 24,
-          height: 24,
-          borderRadius: "50%",
-          background: "var(--color-accent-alpha-30)",
-          position: "absolute",
-          bottom: "25%",
-          left: "45%",
-        }}
-      />
-      <span className={styles.demoHint}>
-        {isMobile ? "Auto-playing" : "Move your mouse"}
-      </span>
-    </div>
-  );
 }
 
 /* =========================================================================
@@ -211,97 +118,17 @@ function DemoStaggerText() {
 }
 
 /* =========================================================================
-   3. DemoFontMorph — FontMorphText (폰트 카운팅 애니메이션)
-   데스크탑: onMouseEnter로 폰트 셔플 트리거
-   모바일: 3초마다 자동 순환
-   ========================================================================= */
-const MORPH_FONTS = [
-  { name: "Space Grotesk", family: "var(--font-space-grotesk), sans-serif" },
-  { name: "Playfair", family: "var(--font-playfair), Georgia, serif" },
-  { name: "JetBrains", family: "var(--font-jetbrains), monospace" },
-  { name: "Inter", family: "var(--font-inter), sans-serif" },
-];
-
-function DemoFontMorph() {
-  const isMobile = useDemoMobile();
-  const [displayIdx, setDisplayIdx] = useState(0);
-  const [isCounting, setIsCounting] = useState(false);
-  const countRef = useRef<ReturnType<typeof setInterval> | undefined>(
-    undefined,
-  );
-  const currentIdx = useRef(0);
-
-  const startCounting = useCallback(() => {
-    if (isCounting) return;
-    const target = (currentIdx.current + 1) % MORPH_FONTS.length;
-    setIsCounting(true);
-    let iterations = 0;
-    const total = 10;
-
-    const tick = () => {
-      iterations++;
-      setDisplayIdx(Math.floor(Math.random() * MORPH_FONTS.length));
-      if (iterations >= total) {
-        setDisplayIdx(target);
-        currentIdx.current = target;
-        setIsCounting(false);
-        return;
-      }
-      // 이즈아웃: 간격이 점점 길어짐 (60ms → ~200ms)
-      const t = iterations / total;
-      const delay = 60 + 160 * t * t;
-      countRef.current = setTimeout(tick, delay);
-    };
-    countRef.current = setTimeout(tick, 60);
-  }, [isCounting]);
-
-  // 모바일: 안정적인 ref를 통해 폰트 자동 순환
-  const startCountingRef = useRef(startCounting);
-  startCountingRef.current = startCounting;
-
-  useEffect(() => {
-    if (!isMobile) return;
-    const id = setInterval(() => startCountingRef.current(), 3000);
-    return () => clearInterval(id);
-  }, [isMobile]);
-
-  useEffect(() => {
-    return () => {
-      if (countRef.current) clearTimeout(countRef.current);
-    };
-  }, []);
-
-  return (
-    <div
-      className={styles.codeDemoInner}
-      onMouseEnter={isMobile ? undefined : startCounting}
-      onClick={isMobile ? startCounting : undefined}
-    >
-      <div
-        className={styles.demoFontText}
-        style={{ fontFamily: MORPH_FONTS[displayIdx].family }}
-      >
-        Design
-      </div>
-      <div className={styles.demoFontLabel}>{MORPH_FONTS[displayIdx].name}</div>
-      <span className={styles.demoHint}>
-        {isMobile ? "Auto-cycling" : "Hover to morph font"}
-      </span>
-    </div>
-  );
-}
-
-/* =========================================================================
    4. DemoMagnetic — 자기 호버 효과 (useMagnetic 훅)
    데스크탑: 스프링 물리를 사용한 연속 마우스 추적
    모바일: 원형 자동 진동
    ========================================================================= */
 function DemoMagnetic() {
   const isMobile = useDemoMobile();
+  const [isHovering, setIsHovering] = useState(false);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 150, damping: 15 });
-  const springY = useSpring(y, { stiffness: 150, damping: 15 });
+  const springX = useSpring(x, { stiffness: 120, damping: 12 });
+  const springY = useSpring(y, { stiffness: 120, damping: 12 });
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -309,15 +136,17 @@ function DemoMagnetic() {
       const rect = e.currentTarget.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      x.set((e.clientX - centerX) * 0.35);
-      y.set((e.clientY - centerY) * 0.35);
+      x.set((e.clientX - centerX) * 0.4);
+      y.set((e.clientY - centerY) * 0.4);
+      if (!isHovering) setIsHovering(true);
     },
-    [x, y, isMobile],
+    [x, y, isMobile, isHovering],
   );
 
   const handleMouseLeave = useCallback(() => {
     x.set(0);
     y.set(0);
+    setIsHovering(false);
   }, [x, y]);
 
   // 모바일: 원형 자동 진동
@@ -339,94 +168,22 @@ function DemoMagnetic() {
       className={styles.codeDemoInner}
       onMouseMove={isMobile ? undefined : handleMouseMove}
       onMouseLeave={isMobile ? undefined : handleMouseLeave}
-      style={{ cursor: isMobile ? "default" : "none" }}
     >
       <motion.div
         className={styles.demoMagneticBtn}
         style={{ x: springX, y: springY }}
+        animate={{
+          scale: isHovering ? 1.15 : 1,
+          borderColor: isHovering
+            ? "var(--text-accent-secondary)"
+            : "var(--color-accent-alpha-30)",
+        }}
+        transition={{ duration: 0.25 }}
       >
         {isMobile ? "Magnetic" : "Hover"}
       </motion.div>
       <span className={styles.demoHint}>
         {isMobile ? "Auto-playing" : "Move cursor near the button"}
-      </span>
-    </div>
-  );
-}
-
-const CLIP_DIRECTIONS = [
-  { x: 100, y: 50 },
-  { x: 0, y: 50 },
-  { x: 50, y: 0 },
-  { x: 50, y: 100 },
-];
-
-/* =========================================================================
-   5. DemoClipPath — 방향 인식 ClipPath 등장 (WorksSection)
-   데스크탑: 방향 감지를 사용한 onMouseEnter / onMouseLeave
-   모바일: 다양한 방향에서 자동 토글 등장
-   ========================================================================= */
-function DemoClipPath() {
-  const isMobile = useDemoMobile();
-  const [isHovered, setIsHovered] = useState(false);
-  const [origin, setOrigin] = useState({ x: 50, y: 50 });
-
-  const handleMouseEnter = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const dx = e.clientX - (rect.left + rect.width / 2);
-      const dy = e.clientY - (rect.top + rect.height / 2);
-      const dirX = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : 0;
-      const dirY = Math.abs(dy) >= Math.abs(dx) ? (dy > 0 ? 1 : -1) : 0;
-      setOrigin({ x: 50 + dirX * 50, y: 50 + dirY * 50 });
-      setIsHovered(true);
-    },
-    [],
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
-  }, []);
-
-  // 모바일: 순환 방향으로 자동 토글
-  useEffect(() => {
-    if (!isMobile) return;
-    let dirIdx = 0;
-    let show = false;
-    const id = setInterval(() => {
-      show = !show;
-      if (show) {
-        setOrigin(CLIP_DIRECTIONS[dirIdx]);
-        dirIdx = (dirIdx + 1) % CLIP_DIRECTIONS.length;
-      }
-      setIsHovered(show);
-    }, 2000);
-    return () => clearInterval(id);
-  }, [isMobile]);
-
-  return (
-    <div className={styles.codeDemoInner}>
-      <div
-        className={styles.demoClipBox}
-        onMouseEnter={isMobile ? undefined : handleMouseEnter}
-        onMouseLeave={isMobile ? undefined : handleMouseLeave}
-      >
-        <div className={styles.demoClipBase}>Works</div>
-        <motion.div
-          className={styles.demoClipOverlay}
-          initial={false}
-          animate={{
-            clipPath: isHovered
-              ? "circle(100% at 50% 50%)"
-              : `circle(0% at ${origin.x}% ${origin.y}%)`,
-          }}
-          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          Works
-        </motion.div>
-      </div>
-      <span className={styles.demoHint}>
-        {isMobile ? "Auto-playing" : "Hover from different sides"}
       </span>
     </div>
   );
@@ -582,349 +339,70 @@ function DemoFrameGrid() {
 }
 
 /* =========================================================================
-   8. DemoLoadingProgress — 로딩 화면 (LoadingScreen)
+   8. DemoScrollTorus — 실제 3D 메탈릭 토러스 (ScrollTorus)
+   리사주 곡선 경로를 따라 자동 회전하는 3D 토러스
    ========================================================================= */
-function DemoLoadingProgress() {
-  const [count, setCount] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
-  const rafRef = useRef<number | undefined>(undefined);
-  const startRef = useRef<number>(0);
+function MiniTorusScene() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const { theme } = useTheme();
+  const mat = TORUS_MATERIAL[theme];
 
-  const start = useCallback(() => {
-    if (isRunning || count > 0) {
-      setCount(0);
-      setProgress(0);
-      setIsRunning(false);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      return;
-    }
-    setIsRunning(true);
-    startRef.current = performance.now();
+  useFrame(({ clock }) => {
+    if (!meshRef.current) return;
+    const t = clock.getElapsedTime() * 0.6;
 
-    const step = (now: number) => {
-      const elapsed = now - startRef.current;
-      const t = Math.min(elapsed / 1800, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      const val = Math.round(eased * 100);
-      setCount(val);
-      setProgress(eased);
-      if (t < 1) {
-        rafRef.current = requestAnimationFrame(step);
-      } else {
-        setIsRunning(false);
-      }
-    };
-    rafRef.current = requestAnimationFrame(step);
-  }, [isRunning, count]);
+    meshRef.current.position.x = Math.sin(t * 0.7) * 0.6;
+    meshRef.current.position.y = Math.cos(t * 1.1) * 0.4;
+    meshRef.current.position.z = Math.sin(t * 0.4) * 0.2;
 
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
+    meshRef.current.rotation.x = t * 2.5;
+    meshRef.current.rotation.y = t * 4.0;
+    meshRef.current.rotation.z = t * 1.2;
+  });
+
+  const s = 0.7;
 
   return (
-    <div className={styles.codeDemoInner}>
-      <div className={styles.demoLoadingNumber}>
-        {String(count).padStart(3, "0")}
-      </div>
-      <div className={styles.demoLoadingTrack}>
-        <div
-          className={styles.demoLoadingBar}
-          style={{ transform: `scaleX(${progress})` }}
+    <>
+      <Environment preset="city" />
+      <ambientLight intensity={0.3} />
+      <directionalLight position={[5, 5, 5]} intensity={1.0} />
+      <directionalLight position={[-3, -2, 4]} intensity={0.5} />
+      <mesh
+        ref={meshRef}
+        scale={[TORUS_SCALE.x * s, TORUS_SCALE.y * s, TORUS_SCALE.z * s]}
+      >
+        <torusGeometry
+          args={[TORUS_GEOMETRY.radius, TORUS_GEOMETRY.tube, 24, 48]}
         />
-      </div>
-      <button
-        className={styles.demoBtn}
-        onClick={start}
-        style={{ marginTop: "var(--spacing-md)" }}
+        <meshStandardMaterial
+          color={mat.color}
+          emissive={mat.emissive}
+          emissiveIntensity={mat.emissiveIntensity}
+          metalness={mat.metalness}
+          roughness={mat.roughness}
+          envMapIntensity={mat.envMapIntensity}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </>
+  );
+}
+
+function DemoScrollTorus() {
+  return (
+    <div className={styles.codeDemoInner} style={{ padding: 0 }}>
+      <Canvas
+        camera={{ position: [0, 0, 5], fov: 45 }}
+        dpr={[1, 1.5]}
+        gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+        style={{ width: "100%", height: "100%", background: "transparent" }}
       >
-        {count > 0 ? "Reset" : "Start"}
-      </button>
-    </div>
-  );
-}
-
-/* =========================================================================
-   9. DemoI18nShift — i18n 레이아웃 시프트 방지 (Works 인트로)
-   ========================================================================= */
-function DemoI18nShift() {
-  const [isKo, setIsKo] = useState(false);
-  const en = "OK";
-  const ko =
-    "양식을 제출하기 전에 모든 필수 항목을 빠짐없이 작성해 주시기 바랍니다.";
-
-  return (
-    <div
-      className={styles.codeDemoInner}
-      style={{ justifyContent: "flex-start", paddingTop: "var(--spacing-md)" }}
-    >
-      <button
-        className={styles.demoBtn}
-        onClick={() => setIsKo((prev) => !prev)}
-        style={{ marginBottom: "var(--spacing-md)" }}
-      >
-        {isKo ? "EN" : "KO"}
-      </button>
-      <div className={styles.demoI18nRow}>
-        <div className={styles.demoI18nCol}>
-          <span className={styles.demoI18nLabel}>no fix</span>
-          <div className={styles.demoI18nTextBox}>{isKo ? ko : en}</div>
-          <div className={styles.demoI18nBar}>Next →</div>
-        </div>
-        <div className={styles.demoI18nCol}>
-          <span className={styles.demoI18nLabel}>min-height</span>
-          <div className={styles.demoI18nTextBox} style={{ minHeight: 80 }}>
-            {isKo ? ko : en}
-          </div>
-          <div className={styles.demoI18nBar}>Next →</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================================
-   10. DemoErrorBoundary — 에러 바운더리 (error.tsx / global-error.tsx)
-   ========================================================================= */
-function DemoErrorBoundary() {
-  const [crashed, setCrashed] = useState(false);
-  const [key, setKey] = useState(0);
-
-  return (
-    <div className={styles.codeDemoInner}>
-      {!crashed ? (
-        <>
-          <motion.div
-            key={`ok-${key}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: "var(--spacing-md)",
-            }}
-          >
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: "rgb(34,197,94)",
-              }}
-            />
-            <span
-              style={{
-                fontSize: "0.85rem",
-                color: "var(--text-secondary)",
-              }}
-            >
-              Running
-            </span>
-          </motion.div>
-          <button
-            className={styles.demoBtn}
-            onClick={() => setCrashed(true)}
-          >
-            Trigger Error
-          </button>
-        </>
-      ) : (
-        <>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, ease: "backOut" }}
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: "50%",
-              border: "2px solid rgb(239,68,68)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: "var(--spacing-sm)",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: 300,
-                color: "rgb(239,68,68)",
-                lineHeight: 1,
-              }}
-            >
-              !
-            </span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            style={{
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              color: "var(--text-primary)",
-              marginBottom: 4,
-            }}
-          >
-            Something went wrong
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.35 }}
-            style={{
-              fontSize: "0.65rem",
-              color: "var(--text-tertiary)",
-              marginBottom: "var(--spacing-sm)",
-            }}
-          >
-            Ref: a3f8b2c
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            style={{ display: "flex", gap: 8 }}
-          >
-            <button
-              className={styles.demoBtn}
-              onClick={() => {
-                setCrashed(false);
-                setKey((k) => k + 1);
-              }}
-            >
-              Try Again
-            </button>
-            <button
-              className={styles.demoBtn}
-              onClick={() => {
-                setCrashed(false);
-                setKey((k) => k + 1);
-              }}
-              style={{ opacity: 0.6 }}
-            >
-              Go Home
-            </button>
-          </motion.div>
-        </>
-      )}
-      <span className={styles.demoHint}>
-        {crashed ? "Staggered error UI" : "Click to crash"}
-      </span>
-    </div>
-  );
-}
-
-/* =========================================================================
-   11. DemoUnitTest — 단위 테스트 실행 시뮬레이션
-   데스크톱: 클릭으로 테스트 실행
-   모바일: 자동 재생
-   ========================================================================= */
-const TEST_CASES = [
-  { name: "cn()", suite: "cn.test.ts", count: 6 },
-  { name: "formatDate()", suite: "date.test.ts", count: 6 },
-  { name: "random()", suite: "random.test.ts", count: 8 },
-  { name: "mobileCheck()", suite: "mobileCheck.test.ts", count: 6 },
-  { name: "highlight()", suite: "renderHighlight.test.tsx", count: 4 },
-];
-
-function DemoUnitTest() {
-  const isMobile = useDemoMobile();
-  const [results, setResults] = useState<("pending" | "pass")[]>(
-    TEST_CASES.map(() => "pending"),
-  );
-  const [running, setRunning] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const mobileRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  const runTests = useCallback(() => {
-    setResults(TEST_CASES.map(() => "pending"));
-    setRunning(true);
-    TEST_CASES.forEach((_, i) => {
-      timerRef.current = setTimeout(() => {
-        setResults((prev) => {
-          const next = [...prev];
-          next[i] = "pass";
-          return next;
-        });
-        if (i === TEST_CASES.length - 1) setRunning(false);
-      }, (i + 1) * 350);
-    });
-  }, []);
-
-  /* 모바일 자동 재생 */
-  useEffect(() => {
-    if (!isMobile) return;
-    const loop = () => {
-      runTests();
-      mobileRef.current = setTimeout(loop, TEST_CASES.length * 350 + 2000);
-    };
-    mobileRef.current = setTimeout(loop, 800);
-    return () => {
-      if (mobileRef.current) clearTimeout(mobileRef.current);
-    };
-  }, [isMobile, runTests]);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  const passCount = results.filter((r) => r === "pass").length;
-  const total = TEST_CASES.reduce((sum, t) => sum + t.count, 0);
-
-  return (
-    <div className={styles.codeDemoInner}>
-      <div className={styles.demoTestRunner}>
-        <div className={styles.demoTestHeader}>
-          <span className={styles.demoTestTitle}>VITEST</span>
-          <span className={styles.demoTestCount}>
-            {passCount === TEST_CASES.length
-              ? `${total} passed`
-              : `${passCount}/${TEST_CASES.length}`}
-          </span>
-        </div>
-        <div className={styles.demoTestList}>
-          {TEST_CASES.map((tc, i) => (
-            <div key={tc.name} className={styles.demoTestRow}>
-              <span
-                className={`${styles.demoTestIcon} ${
-                  results[i] === "pass" ? styles.demoTestPass : ""
-                }`}
-              >
-                {results[i] === "pass" ? "✓" : "○"}
-              </span>
-              <span className={styles.demoTestName}>{tc.name}</span>
-              <span className={styles.demoTestSuite}>{tc.count}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      {!isMobile && (
-        <button
-          className={styles.demoBtn}
-          onClick={runTests}
-          disabled={running}
-          style={{ marginTop: "var(--spacing-sm)" }}
-        >
-          {running ? "Running…" : passCount > 0 ? "Re-run" : "Run Tests"}
-        </button>
-      )}
-      <span className={styles.demoHint}>
-        {running
-          ? "Running tests…"
-          : passCount === TEST_CASES.length
-            ? `All ${total} tests passed`
-            : isMobile ? "Auto-running" : "Click to run"}
-      </span>
+        <Suspense fallback={null}>
+          <MiniTorusScene />
+        </Suspense>
+      </Canvas>
+      <span className={styles.demoHint}>3D Metallic Torus</span>
     </div>
   );
 }
@@ -933,17 +411,11 @@ function DemoUnitTest() {
    내보내기: getCodeDemo(index)
    ========================================================================= */
 const demos = [
-  DemoParallax,
   DemoStaggerText,
-  DemoFontMorph,
   DemoMagnetic,
-  DemoClipPath,
   DemoInfiniteScroll,
   DemoFrameGrid,
-  DemoLoadingProgress,
-  DemoI18nShift,
-  DemoErrorBoundary,
-  DemoUnitTest,
+  DemoScrollTorus,
 ];
 
 export function getCodeDemo(index: number): React.ReactNode {

@@ -6,7 +6,8 @@ import { FrameComponent } from "./FrameComponent";
 
 export interface Frame {
   id: number;
-  video: string;
+  video?: string;
+  image?: string;
   defaultPos: { x: number; y: number; w: number; h: number };
   mediaSize: number;
   borderThickness: number;
@@ -237,6 +238,7 @@ export default function DynamicFrameLayout({
                 <>
                   <FrameComponent
                     video={frame.video}
+                    image={frame.image}
                     width="100%"
                     height="100%"
                     className="absolute inset-0"

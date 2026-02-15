@@ -6,6 +6,8 @@ import {
   SiFramer,
   SiCssmodules,
   SiCss3,
+  SiThreedotjs,
+  SiVitest,
 } from "react-icons/si";
 import { ScrollText, Database, Mail } from "lucide-react";
 import type { TechStackItem } from "@/data/webflow";
@@ -20,8 +22,10 @@ const techIcons: Record<string, React.ReactNode> = {
   "Framer Motion": <SiFramer />,
   "CSS Modules": <SiCssmodules />,
   "CSS Variables": <SiCss3 />,
+  "Three.js / R3F": <SiThreedotjs />,
   Zustand: <Database size={16} />,
   Formspree: <Mail size={16} />,
+  Vitest: <SiVitest />,
 };
 
 interface TechStackPanelProps {

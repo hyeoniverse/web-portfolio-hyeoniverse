@@ -84,7 +84,7 @@
 }
 
 .panelCompact {
-  width: 75vw;
+  width: 85vw;
 }
 
 .panelTitleCompact {
@@ -158,6 +158,40 @@
    Shared — Dot Navigation
    ========================================================================== */
 
+.dotNavWrap {
+  display: flex;
+  gap: clamp(0.15rem, 0.3vw, 0.35rem);
+  align-items: center;
+}
+
+.dotArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.2rem, 0.3vh, 0.35rem) clamp(0.3rem, 0.4vw, 0.5rem);
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: clamp(0.7rem, 0.8vw, 1rem);
+  color: var(--text-tertiary);
+  border-radius: var(--radius-capsule);
+}
+
+.dotNavWrap .dotArrow {
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.dotArrow:not(:disabled):hover {
+  color: var(--text-accent-secondary);
+  border-color: var(--color-accent-alpha-30);
+}
+
+.dotArrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .dotNav {
   display: flex;
   gap: 0;
@@ -165,18 +199,19 @@
   position: relative;
 }
 
-/* Spring-animated capsule indicator (framer-motion) */
+/* Spring-animated circle indicator (framer-motion) — fixed size, centered on dot */
 .dotIndicator {
   border: 1px solid var(--text-accent-secondary);
   position: absolute;
   top: 50%;
   left: 0;
   z-index: 0;
-  height: 100%;
+  width: 22px;
+  height: 22px;
   background: transparent;
   pointer-events: none;
-  border-radius: var(--radius-capsule);
-  translate: 0 -50%;
+  border-radius: 50%;
+  translate: -50% -50%;
 }
 
 /* Modifier: keep dotNav visible on mobile (DC) */
@@ -214,7 +249,7 @@
   height: 6px;
   background: var(--text-tertiary);
   border-radius: 50%;
-  opacity: 0.4;
+  opacity: 0.65;
 }
 
 .dotNav .dotCircle {
@@ -897,7 +932,7 @@
 }
 
 /* Align dotNav with title in flex-start title rows */
-.pinnedTitleRow .dotNav {
+.pinnedTitleRow .dotNavWrap {
   margin-top: var(--header-height);
 }
 
@@ -1535,7 +1570,7 @@
   display: grid;
   gap: 0 var(--spacing-3xl);
   border-top: var(--wf-line-primary);
-  max-width: clamp(500px, 70vw, 1000px);
+  max-width: clamp(500px, 80vw, 1200px);
   grid-template-columns: repeat(2, 1fr);
 }
 

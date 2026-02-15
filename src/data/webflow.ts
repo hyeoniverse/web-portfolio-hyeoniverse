@@ -315,6 +315,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Implemented seamless circular scroll experience by combining Lenis smooth scroll with infinite loop.",
     },
     tech: ["Lenis", "Infinite Scroll", "Bridge Section"],
+    image: "https://images.unsplash.com/photo-1739981824648-12121c92d702?w=800&q=80",
   },
   {
     icon: "02",
@@ -324,6 +325,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Applied mouse-responsive parallax effects using Framer Motion's useSpring and useTransform.",
     },
     tech: ["Framer Motion", "useMotionValue", "Parallax"],
+    image: "https://images.unsplash.com/photo-1521729839347-131a32f9abcb?w=800&q=80",
   },
   {
     icon: "03",
@@ -333,6 +335,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Implemented naturally appearing elements based on scroll position using GSAP ScrollTrigger.",
     },
     tech: ["GSAP", "ScrollTrigger", "once: true"],
+    image: "https://images.unsplash.com/photo-1741099660208-21b2bdaee8d2?w=800&q=80",
   },
   {
     icon: "04",
@@ -342,6 +345,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Implemented auto-inverting navigation based on background using mix-blend-mode: difference.",
     },
     tech: ["CSS Blend Mode", "Fixed Nav", "z-index"],
+    image: "https://images.unsplash.com/photo-1756259291906-873f00c0866d?w=800&q=80",
   },
   {
     icon: "05",
@@ -351,6 +355,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Split text into individual characters for sequential outline animation on hover. On hover release, colors fill in reverse order while stroke is maintained.",
     },
     tech: ["React State", "CSS text-stroke", "Stagger Delay"],
+    image: "https://images.unsplash.com/photo-1446688568582-55ddb4b37cad?w=800&q=80",
   },
   {
     icon: "06",
@@ -360,6 +365,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Performance optimization based on two rounds of Lighthouse analysis. Removed 4 unused fonts (12 files), implemented interaction-based lazy loading for reCAPTCHA, applied font-display:swap to achieve mobile Performance 60→98, and reduced page size by 70%.",
     },
     tech: ["Font Optimization", "Lazy Loading", "font-display", "browserslist"],
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
   },
   {
     icon: "07",
@@ -369,6 +375,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Horizontal scroll gallery based on GSAP requestAnimationFrame. Placed intro section as an in-flow item, implemented bidirectional infinite scroll with oneSetWidth wrapping. Prevents layout shift during language switching with min-height.",
     },
     tech: ["GSAP", "Infinite Wrapping", "i18n Layout", "Responsive"],
+    image: "https://images.unsplash.com/photo-1758380742154-44738eb92832?w=800&q=80",
   },
   {
     icon: "08",
@@ -378,6 +385,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Dark/light theme system based on CSS Variables. All components respond naturally to theme changes via data-theme attribute switching and global transitions.",
     },
     tech: ["CSS Variables", "data-theme", "Context API", "localStorage"],
+    image: "https://images.unsplash.com/photo-1750996017360-48d87c71a41c?w=800&q=80",
   },
   {
     icon: "09",
@@ -387,6 +395,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Korean/English bilingual support. Implemented a type-safe multilingual system with global language state management via LanguageProvider and LocalizedText types across all components.",
     },
     tech: ["Context API", "TypeScript Generics", "LocalizedText", "SSR-safe"],
+    image: "https://images.unsplash.com/photo-1706403615881-d83dc2067c5d?w=800&q=80",
   },
   {
     icon: "10",
@@ -396,6 +405,7 @@ export const designFeatures: DesignFeature[] = [
       en: "A metallic 3D torus built with Three.js (React Three Fiber) floats across the screen, driven by scroll. It tracks cumulative Lenis scroll to follow a Lissajous curve path with continuous rotation, featuring theme-adaptive materials and optimized mobile geometry.",
     },
     tech: ["Three.js", "React Three Fiber", "Lissajous Curve", "Environment Map"],
+    image: "https://images.unsplash.com/photo-1684569547117-e2d19fc6d796?w=800&q=80",
   },
 ];
 
@@ -411,6 +421,7 @@ export const techStack: TechStackItem[] = [
   { name: "Three.js / R3F", category: "3D Graphics" },
   { name: "Zustand", category: "State Management" },
   { name: "Formspree", category: "Form & Email" },
+  { name: "Vitest", category: "Testing" },
 ];
 
 export const designProcess: ProcessStep[] = [
@@ -484,17 +495,6 @@ export const designProcess: ProcessStep[] = [
 
 export const codeExamples: CodeExample[] = [
   {
-    title: "Mouse Parallax Effect",
-    description: {
-      ko: "마우스를 움직이면 배경 요소들이 **살짝 시차를 두고 따라오는** 효과입니다. 마우스 위치를 실시간으로 추적하되, 곧바로 따라가는 것이 아니라 **스프링(용수철)처럼 탄성 있게 지연**시켜 자연스러운 느낌을 줍니다. 각 레이어마다 이동 범위를 다르게 설정해 **깊이감**을 표현합니다.",
-      en: "Background elements **follow the mouse with a slight delay**, creating a sense of depth. Instead of snapping instantly, they move with a **spring-like elastic motion** for a natural feel. Each layer has a different movement range, making closer elements move more and farther elements less — just like **real parallax**.",
-    },
-    language: "javascript",
-    code: `const mouseX = useMotionValue(0);
-const smoothX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-const floatX = useTransform(smoothX, [0, window.innerWidth], [-30, 30]);`,
-  },
-  {
     title: "StaggerText Component",
     description: {
       ko: "텍스트에 마우스를 올리면 글자가 왼쪽부터 차례로 **외곽선만 남으며 비워지고**, 마우스를 떼면 **오른쪽부터 역순으로 색이 다시 채워집니다**. 한꺼번에 바뀌는 것이 아니라 글자마다 **0.04초씩 시간차**를 두어 도미노처럼 퍼지는 느낌을 줍니다.",
@@ -511,32 +511,6 @@ const delay = isHovered ? forwardDelay : reverseDelay;
 .char { transition: color 0.01s step-end; }
 .charHovered { color: transparent; -webkit-text-stroke: 1px; }
 .charExiting { -webkit-text-stroke: 1px; } // stroke 유지`,
-  },
-  {
-    title: "FontMorph Counting Animation",
-    description: {
-      ko: "마우스를 올리면 글꼴이 **슬롯머신처럼 빠르게 돌아가다가** 목표 글꼴에 멈추는 애니메이션입니다. **0.05초 간격**으로 랜덤 글꼴을 번갈아 보여주다가, 일정 횟수가 지나면 **점점 느려지며 최종 글꼴에 안착**합니다.",
-      en: "On hover, fonts **spin like a slot machine**, rapidly cycling through random typefaces before landing on the target. Fonts change every **0.05 seconds**, then **gradually slow down** until settling on the final font.",
-    },
-    language: "javascript",
-    code: `const startCounting = (targetIdx) => {
-  setIsCounting(true);
-  let iterations = 0;
-  const total = Math.floor(countingDuration / countingSpeed);
-
-  countingRef.current = setInterval(() => {
-    iterations++;
-    // 카운팅 중: 랜덤 폰트 표시
-    setDisplayIndex(Math.floor(Math.random() * fonts.length));
-
-    if (iterations >= total) {
-      clearInterval(countingRef.current);
-      // 최종 목표 폰트로 안착
-      setDisplayIndex(targetIdx);
-      setIsCounting(false);
-    }
-  }, 50); // countingSpeed
-};`,
   },
   {
     title: "Magnetic Hover Effect",
@@ -556,26 +530,6 @@ const onMouseMove = (e) => {
   y.set((e.clientY - (rect.top + rect.height / 2)) * 0.35);
 };
 const onMouseLeave = () => { x.set(0); y.set(0); };`,
-  },
-  {
-    title: "Direction-Aware ClipPath Reveal",
-    description: {
-      ko: "마우스가 **어느 방향에서 들어왔는지 감지**하여, 그 방향에서부터 **원형으로 퍼지며 내용이 드러나는** 호버 효과입니다. 왼쪽에서 들어오면 왼쪽부터, 아래에서 들어오면 아래부터 펼쳐집니다. 마우스를 떼면 **같은 방향으로 다시 수축**합니다.",
-      en: "This effect **detects which direction your mouse enters from** and reveals content as a **circle expanding from that side**. Enter from the left — it spreads from the left. From below — it grows upward. On mouse leave, it **shrinks back the same way**.",
-    },
-    language: "javascript",
-    code: `// 진입 방향 감지
-const dx = e.clientX - (rect.left + rect.width / 2);
-const dy = e.clientY - (rect.top + rect.height / 2);
-const dirX = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : 0;
-const dirY = Math.abs(dy) >= Math.abs(dx) ? (dy > 0 ? 1 : -1) : 0;
-
-// clipPath: 진입 방향 → 전체 노출
-animate={{
-  clipPath: isHovering
-    ? "circle(80% at 50% 50%)"
-    : \`circle(0% at \${50 + dirX * 50}% \${50 + dirY * 50}%)\`
-}}`,
   },
   {
     title: "Infinite Scroll Wrapping",

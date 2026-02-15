@@ -2,7 +2,8 @@
 import { useEffect, useRef } from "react";
 
 export interface FrameComponentProps {
-  video: string;
+  video?: string;
+  image?: string;
   width: number | string;
   height: number | string;
   className?: string;
@@ -16,6 +17,7 @@ export interface FrameComponentProps {
 
 export function FrameComponent({
   video,
+  image,
   width,
   height,
   className = "",
@@ -29,6 +31,7 @@ export function FrameComponent({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    if (!video) return;
     if (autoplayMode === "all") {
       videoRef.current?.play().catch(() => {});
     } else if (autoplayMode === "hover") {
@@ -38,7 +41,7 @@ export function FrameComponent({
         videoRef.current?.pause();
       }
     }
-  }, [isHovered, autoplayMode]);
+  }, [isHovered, autoplayMode, video]);
 
   return (
     <div
@@ -50,7 +53,7 @@ export function FrameComponent({
       }}
     >
       <div className="relative w-full h-full overflow-hidden">
-        {/* Video with Border */}
+        {/* Media with Border */}
         <div
           className="absolute inset-0 flex items-center justify-center"
           style={{
@@ -71,29 +74,38 @@ export function FrameComponent({
               transition: "transform 0.3s ease-in-out",
             }}
           >
-            <video
-              className="w-full h-full object-cover"
-              src={video}
-              loop
-              muted
-              playsInline
-              preload="none"
-              autoPlay={
-                autoplayMode === "all" ||
-                (autoplayMode === "hover" && isHovered)
-              }
-              ref={videoRef}
-              onMouseEnter={(e) => {
-                if (autoplayMode === "hover") {
-                  e.currentTarget.play().catch(() => {});
+            {image ? (
+              <img
+                className="w-full h-full object-cover"
+                src={image}
+                alt=""
+                loading="lazy"
+              />
+            ) : video ? (
+              <video
+                className="w-full h-full object-cover"
+                src={video}
+                loop
+                muted
+                playsInline
+                preload="none"
+                autoPlay={
+                  autoplayMode === "all" ||
+                  (autoplayMode === "hover" && isHovered)
                 }
-              }}
-              onMouseLeave={(e) => {
-                if (autoplayMode === "hover") {
-                  e.currentTarget.pause();
-                }
-              }}
-            />
+                ref={videoRef}
+                onMouseEnter={(e) => {
+                  if (autoplayMode === "hover") {
+                    e.currentTarget.play().catch(() => {});
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (autoplayMode === "hover") {
+                    e.currentTarget.pause();
+                  }
+                }}
+              />
+            ) : null}
           </div>
         </div>
       </div>
