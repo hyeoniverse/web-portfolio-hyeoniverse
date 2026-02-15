@@ -148,11 +148,12 @@ export default function Navigation() {
         <Link href="/" className={styles.logo}>
           <motion.span
             className="glith-on-hover"
-            initial={showLoadingLogo ? { opacity: 0, y: 20 } : false}
-            animate={{ opacity: 1, y: 0 }}
+            initial={showLoadingLogo ? { opacity: 0, y: 20, filter: "blur(12px)" } : false}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{
-              opacity: { duration: 0.5, delay: 0.1, ease: "easeOut" },
-              y: { duration: 0.5, delay: 0.1, ease: "easeOut" },
+              opacity: { duration: 0.6, delay: 0.1, ease: "easeOut" },
+              y: { duration: 0.7, delay: 0.1, ease: "easeOut" },
+              filter: { duration: 1.0, delay: 0.1, ease: "easeOut" },
             }}
           >
             H
@@ -161,20 +162,32 @@ export default function Navigation() {
             EXTRA_LETTERS.map((char, i) => (
               <motion.span
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
                 animate={{
                   opacity: isTransitioning ? 0 : 1,
                   y: 0,
+                  filter: isTransitioning ? "blur(6px)" : "blur(0px)",
                 }}
                 transition={{
                   opacity: {
-                    duration: isTransitioning ? 0.2 : 0.5,
+                    duration: isTransitioning ? 0.2 : 0.6,
                     delay: isTransitioning
                       ? (EXTRA_LETTERS.length - 1 - i) * 0.04
-                      : 0.1,
+                      : 0.15 + i * 0.04,
                     ease: "easeOut",
                   },
-                  y: { duration: 0.5, delay: 0.1, ease: "easeOut" },
+                  y: {
+                    duration: 0.7,
+                    delay: 0.15 + i * 0.04,
+                    ease: "easeOut",
+                  },
+                  filter: {
+                    duration: isTransitioning ? 0.3 : 1.0,
+                    delay: isTransitioning
+                      ? (EXTRA_LETTERS.length - 1 - i) * 0.04
+                      : 0.2 + i * 0.05,
+                    ease: "easeOut",
+                  },
                 }}
               >
                 {char}
