@@ -1,27 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { checkMobileLayout } from "./mobileCheck";
 
 /**
- * Observes `.animate` elements inside the given container and toggles
- * a visibility class when they enter / leave the viewport.
- * Active only when in mobile/short-viewport layout (vertical scroll).
- * Reactively enables/disables on resize.
+ * 컨테이너 내부의 `.animate` 요소를 관찰하고
+ * 뷰포트 진입/이탈 시 가시성 클래스를 토글.
+ * 모바일/낮은 뷰포트 레이아웃(세로 스크롤)에서만 활성화.
+ * 브레이크포인트 변경 시 리마운트는 BreakpointGuard가 처리.
  */
 export function useInViewMobile(
   containerRef: React.RefObject<HTMLElement | null>,
   animateClass: string,
   visibleClass: string,
 ) {
-  const [mobile, setMobile] = useState(checkMobileLayout);
-
-  // Track viewport size changes
-  useEffect(() => {
-    const onResize = () => setMobile(checkMobileLayout());
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+  const mobile = checkMobileLayout();
 
   useEffect(() => {
     const container = containerRef.current;
@@ -47,7 +40,6 @@ export function useInViewMobile(
 
     return () => {
       observer.disconnect();
-      // Remove visible classes when switching to desktop mode
       targets.forEach((el) => el.classList.remove(visibleClass));
     };
   }, [containerRef, animateClass, visibleClass, mobile]);

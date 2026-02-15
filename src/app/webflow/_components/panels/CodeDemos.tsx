@@ -11,22 +11,15 @@ import StaggerText from "@/components/effects/StaggerText/StaggerText";
 import { checkMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
 
-/* ── Shared mobile detection hook ── */
+/* ── 공유 모바일 감지 (BreakpointGuard가 리마운트 처리) ── */
 function useDemoMobile(): boolean {
-  const [mobile, setMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setMobile(checkMobileLayout());
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-  return mobile;
+  return checkMobileLayout();
 }
 
 /* =========================================================================
-   1. DemoParallax — Mouse Parallax Effect (HeroSection)
-   Desktop: mouse tracking → spring parallax layers
-   Mobile: auto-animate with sine wave loop
+   1. DemoParallax — 마우스 패럴랙스 효과 (HeroSection)
+   데스크탑: 마우스 추적 → 스프링 패럴랙스 레이어
+   모바일: 사인파 루프로 자동 애니메이션
    ========================================================================= */
 function DemoParallax() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,7 +47,7 @@ function DemoParallax() {
     [mouseX, mouseY, isMobile],
   );
 
-  // Mobile: auto-animate layers with sine wave
+  // 모바일: 사인파로 레이어 자동 애니메이션
   useEffect(() => {
     if (!isMobile) return;
     let rafId: number;
@@ -121,9 +114,9 @@ function DemoParallax() {
 }
 
 /* =========================================================================
-   2. DemoStaggerText — StaggerText Component
-   Desktop: hover triggers stroke stagger
-   Mobile: auto-cycles the same outline→fill-back effect
+   2. DemoStaggerText — StaggerText 컴포넌트
+   데스크탑: 호버 시 스트로크 시차 트리거
+   모바일: 동일한 아웃라인→채우기 효과 자동 순환
    ========================================================================= */
 function DemoStaggerText() {
   const isMobile = useDemoMobile();
@@ -136,22 +129,22 @@ function DemoStaggerText() {
   const [isOutlining, setIsOutlining] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
-  // Mobile: auto-cycle outline → fill-back → idle
+  // 모바일: 아웃라인 → 채우기 → 대기 자동 순환
   useEffect(() => {
     if (!isMobile) return;
     let timeout: ReturnType<typeof setTimeout>;
     const animDuration = totalChars * delayPerChar * 1000 + 100;
 
     const cycle = () => {
-      // Phase 1: outline each char (forward)
+      // 1단계: 각 글자 아웃라인 (순방향)
       setIsExiting(false);
       setIsOutlining(true);
       timeout = setTimeout(() => {
-        // Phase 2: fill back each char (reverse)
+        // 2단계: 각 글자 채우기 (역방향)
         setIsOutlining(false);
         setIsExiting(true);
         timeout = setTimeout(() => {
-          // Phase 3: idle
+          // 3단계: 대기
           setIsExiting(false);
           timeout = setTimeout(cycle, 2000);
         }, animDuration);
@@ -218,18 +211,19 @@ function DemoStaggerText() {
 }
 
 /* =========================================================================
-   3. DemoFontMorph — FontMorphText (font counting animation)
-   Desktop: onMouseEnter triggers font shuffle
-   Mobile: auto-cycles every 3s
+   3. DemoFontMorph — FontMorphText (폰트 카운팅 애니메이션)
+   데스크탑: onMouseEnter로 폰트 셔플 트리거
+   모바일: 3초마다 자동 순환
    ========================================================================= */
+const MORPH_FONTS = [
+  { name: "Space Grotesk", family: "var(--font-space-grotesk), sans-serif" },
+  { name: "Playfair", family: "var(--font-playfair), Georgia, serif" },
+  { name: "JetBrains", family: "var(--font-jetbrains), monospace" },
+  { name: "Inter", family: "var(--font-inter), sans-serif" },
+];
+
 function DemoFontMorph() {
   const isMobile = useDemoMobile();
-  const fonts = [
-    { name: "Space Grotesk", family: "var(--font-space-grotesk), sans-serif" },
-    { name: "Playfair", family: "var(--font-playfair), Georgia, serif" },
-    { name: "JetBrains", family: "var(--font-jetbrains), monospace" },
-    { name: "Inter", family: "var(--font-inter), sans-serif" },
-  ];
   const [displayIdx, setDisplayIdx] = useState(0);
   const [isCounting, setIsCounting] = useState(false);
   const countRef = useRef<ReturnType<typeof setInterval> | undefined>(
@@ -239,29 +233,29 @@ function DemoFontMorph() {
 
   const startCounting = useCallback(() => {
     if (isCounting) return;
-    const target = (currentIdx.current + 1) % fonts.length;
+    const target = (currentIdx.current + 1) % MORPH_FONTS.length;
     setIsCounting(true);
     let iterations = 0;
     const total = 10;
 
     const tick = () => {
       iterations++;
-      setDisplayIdx(Math.floor(Math.random() * fonts.length));
+      setDisplayIdx(Math.floor(Math.random() * MORPH_FONTS.length));
       if (iterations >= total) {
         setDisplayIdx(target);
         currentIdx.current = target;
         setIsCounting(false);
         return;
       }
-      // ease-out: intervals get progressively longer (60ms → ~200ms)
+      // 이즈아웃: 간격이 점점 길어짐 (60ms → ~200ms)
       const t = iterations / total;
       const delay = 60 + 160 * t * t;
       countRef.current = setTimeout(tick, delay);
     };
     countRef.current = setTimeout(tick, 60);
-  }, [isCounting, fonts.length]);
+  }, [isCounting]);
 
-  // Mobile: auto-cycle fonts via stable ref
+  // 모바일: 안정적인 ref를 통해 폰트 자동 순환
   const startCountingRef = useRef(startCounting);
   startCountingRef.current = startCounting;
 
@@ -285,11 +279,11 @@ function DemoFontMorph() {
     >
       <div
         className={styles.demoFontText}
-        style={{ fontFamily: fonts[displayIdx].family }}
+        style={{ fontFamily: MORPH_FONTS[displayIdx].family }}
       >
         Design
       </div>
-      <div className={styles.demoFontLabel}>{fonts[displayIdx].name}</div>
+      <div className={styles.demoFontLabel}>{MORPH_FONTS[displayIdx].name}</div>
       <span className={styles.demoHint}>
         {isMobile ? "Auto-cycling" : "Hover to morph font"}
       </span>
@@ -298,9 +292,9 @@ function DemoFontMorph() {
 }
 
 /* =========================================================================
-   4. DemoMagnetic — Magnetic Hover Effect (useMagnetic hook)
-   Desktop: continuous mouse tracking with spring physics
-   Mobile: auto-oscillate in a circle
+   4. DemoMagnetic — 자기 호버 효과 (useMagnetic 훅)
+   데스크탑: 스프링 물리를 사용한 연속 마우스 추적
+   모바일: 원형 자동 진동
    ========================================================================= */
 function DemoMagnetic() {
   const isMobile = useDemoMobile();
@@ -326,7 +320,7 @@ function DemoMagnetic() {
     y.set(0);
   }, [x, y]);
 
-  // Mobile: auto-oscillate in a circle
+  // 모바일: 원형 자동 진동
   useEffect(() => {
     if (!isMobile) return;
     let rafId: number;
@@ -360,10 +354,17 @@ function DemoMagnetic() {
   );
 }
 
+const CLIP_DIRECTIONS = [
+  { x: 100, y: 50 },
+  { x: 0, y: 50 },
+  { x: 50, y: 0 },
+  { x: 50, y: 100 },
+];
+
 /* =========================================================================
-   5. DemoClipPath — Direction-Aware ClipPath Reveal (WorksSection)
-   Desktop: onMouseEnter with direction detection / onMouseLeave
-   Mobile: auto-toggle reveal from different directions
+   5. DemoClipPath — 방향 인식 ClipPath 등장 (WorksSection)
+   데스크탑: 방향 감지를 사용한 onMouseEnter / onMouseLeave
+   모바일: 다양한 방향에서 자동 토글 등장
    ========================================================================= */
 function DemoClipPath() {
   const isMobile = useDemoMobile();
@@ -387,22 +388,16 @@ function DemoClipPath() {
     setIsHovered(false);
   }, []);
 
-  // Mobile: auto-toggle with cycling directions
+  // 모바일: 순환 방향으로 자동 토글
   useEffect(() => {
     if (!isMobile) return;
-    const dirs = [
-      { x: 100, y: 50 },
-      { x: 0, y: 50 },
-      { x: 50, y: 0 },
-      { x: 50, y: 100 },
-    ];
     let dirIdx = 0;
     let show = false;
     const id = setInterval(() => {
       show = !show;
       if (show) {
-        setOrigin(dirs[dirIdx]);
-        dirIdx = (dirIdx + 1) % dirs.length;
+        setOrigin(CLIP_DIRECTIONS[dirIdx]);
+        dirIdx = (dirIdx + 1) % CLIP_DIRECTIONS.length;
       }
       setIsHovered(show);
     }, 2000);
@@ -438,28 +433,28 @@ function DemoClipPath() {
 }
 
 /* =========================================================================
-   6. DemoInfiniteScroll — Infinite Scroll Wrapping (Works Gallery)
-   Desktop: CSS hover pauses marquee
-   Mobile: tap to toggle pause
+   6. DemoInfiniteScroll — 무한 스크롤 래핑 (Works 갤러리)
+   데스크탑: CSS 호버로 마퀴 일시정지
+   모바일: 탭으로 일시정지 토글
    ========================================================================= */
+const MARQUEE_COLORS = [
+  "var(--color-accent-alpha-30)",
+  "var(--text-tertiary)",
+  "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
+  "var(--text-tertiary)",
+  "var(--color-accent-alpha-30)",
+  "var(--text-tertiary)",
+  "var(--color-accent-alpha-30)",
+  "var(--text-tertiary)",
+  "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
+  "var(--text-tertiary)",
+  "var(--color-accent-alpha-30)",
+  "var(--text-tertiary)",
+];
+
 function DemoInfiniteScroll() {
   const isMobile = useDemoMobile();
   const [paused, setPaused] = useState(false);
-
-  const colors = [
-    "var(--color-accent-alpha-30)",
-    "var(--text-tertiary)",
-    "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
-    "var(--text-tertiary)",
-    "var(--color-accent-alpha-30)",
-    "var(--text-tertiary)",
-    "var(--color-accent-alpha-30)",
-    "var(--text-tertiary)",
-    "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
-    "var(--text-tertiary)",
-    "var(--color-accent-alpha-30)",
-    "var(--text-tertiary)",
-  ];
 
   return (
     <div
@@ -473,7 +468,7 @@ function DemoInfiniteScroll() {
           isMobile && paused ? { animationPlayState: "paused" } : undefined
         }
       >
-        {[...colors, ...colors, ...colors].map((color, i) => (
+        {[...MARQUEE_COLORS, ...MARQUEE_COLORS, ...MARQUEE_COLORS].map((color, i) => (
           <div
             key={i}
             className={styles.demoInfiniteBlock}
@@ -493,32 +488,33 @@ function DemoInfiniteScroll() {
 }
 
 /* =========================================================================
-   7. DemoFrameGrid — Dynamic Frame Grid (DynamicFrameLayout)
-   Desktop: onMouseEnter/Leave per cell
-   Mobile: auto-cycle through cells
+   7. DemoFrameGrid — 동적 프레임 그리드 (DynamicFrameLayout)
+   데스크탑: 셀별 onMouseEnter/Leave
+   모바일: 셀 자동 순환
    ========================================================================= */
+const GRID_COLORS = [
+  "var(--color-accent-alpha-30)",
+  "var(--text-tertiary)",
+  "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
+  "var(--text-tertiary)",
+  "var(--color-accent-alpha-30)",
+  "var(--text-tertiary)",
+  "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
+  "var(--text-tertiary)",
+  "var(--color-accent-alpha-30)",
+];
+
+const GRID_SIZE = 12;
+const HOVER_SIZE = 6;
+
 function DemoFrameGrid() {
   const isMobile = useDemoMobile();
-  const GRID_SIZE = 12;
-  const HOVER_SIZE = 6;
   const [hovered, setHovered] = useState<{
     row: number;
     col: number;
   } | null>(null);
 
-  const colors = [
-    "var(--color-accent-alpha-30)",
-    "var(--text-tertiary)",
-    "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
-    "var(--text-tertiary)",
-    "var(--color-accent-alpha-30)",
-    "var(--text-tertiary)",
-    "var(--color-accent-alpha-50, var(--color-accent-alpha-30))",
-    "var(--text-tertiary)",
-    "var(--color-accent-alpha-30)",
-  ];
-
-  // Mobile: auto-cycle through cells
+  // 모바일: 셀 자동 순환
   useEffect(() => {
     if (!isMobile) return;
     let idx = 0;
@@ -557,7 +553,7 @@ function DemoFrameGrid() {
             "grid-template-rows 0.4s ease, grid-template-columns 0.4s ease",
         }}
       >
-        {colors.map((color, i) => {
+        {GRID_COLORS.map((color, i) => {
           const row = Math.floor(i / 3);
           const col = i % 3;
           const isActive = hovered?.row === row && hovered?.col === col;
@@ -586,7 +582,7 @@ function DemoFrameGrid() {
 }
 
 /* =========================================================================
-   8. DemoLoadingProgress — Loading Screen (LoadingScreen)
+   8. DemoLoadingProgress — 로딩 화면 (LoadingScreen)
    ========================================================================= */
 function DemoLoadingProgress() {
   const [count, setCount] = useState(0);
@@ -651,7 +647,7 @@ function DemoLoadingProgress() {
 }
 
 /* =========================================================================
-   9. DemoI18nShift — i18n Layout Shift Prevention (Works Intro)
+   9. DemoI18nShift — i18n 레이아웃 시프트 방지 (Works 인트로)
    ========================================================================= */
 function DemoI18nShift() {
   const [isKo, setIsKo] = useState(false);
@@ -690,7 +686,7 @@ function DemoI18nShift() {
 }
 
 /* =========================================================================
-   10. DemoErrorBoundary — Error Boundary (error.tsx / global-error.tsx)
+   10. DemoErrorBoundary — 에러 바운더리 (error.tsx / global-error.tsx)
    ========================================================================= */
 function DemoErrorBoundary() {
   const [crashed, setCrashed] = useState(false);
@@ -827,7 +823,114 @@ function DemoErrorBoundary() {
 }
 
 /* =========================================================================
-   Export: getCodeDemo(index)
+   11. DemoUnitTest — 단위 테스트 실행 시뮬레이션
+   데스크톱: 클릭으로 테스트 실행
+   모바일: 자동 재생
+   ========================================================================= */
+const TEST_CASES = [
+  { name: "cn()", suite: "cn.test.ts", count: 6 },
+  { name: "formatDate()", suite: "date.test.ts", count: 6 },
+  { name: "random()", suite: "random.test.ts", count: 8 },
+  { name: "mobileCheck()", suite: "mobileCheck.test.ts", count: 6 },
+  { name: "highlight()", suite: "renderHighlight.test.tsx", count: 4 },
+];
+
+function DemoUnitTest() {
+  const isMobile = useDemoMobile();
+  const [results, setResults] = useState<("pending" | "pass")[]>(
+    TEST_CASES.map(() => "pending"),
+  );
+  const [running, setRunning] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const mobileRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const runTests = useCallback(() => {
+    setResults(TEST_CASES.map(() => "pending"));
+    setRunning(true);
+    TEST_CASES.forEach((_, i) => {
+      timerRef.current = setTimeout(() => {
+        setResults((prev) => {
+          const next = [...prev];
+          next[i] = "pass";
+          return next;
+        });
+        if (i === TEST_CASES.length - 1) setRunning(false);
+      }, (i + 1) * 350);
+    });
+  }, []);
+
+  /* 모바일 자동 재생 */
+  useEffect(() => {
+    if (!isMobile) return;
+    const loop = () => {
+      runTests();
+      mobileRef.current = setTimeout(loop, TEST_CASES.length * 350 + 2000);
+    };
+    mobileRef.current = setTimeout(loop, 800);
+    return () => {
+      if (mobileRef.current) clearTimeout(mobileRef.current);
+    };
+  }, [isMobile, runTests]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const passCount = results.filter((r) => r === "pass").length;
+  const total = TEST_CASES.reduce((sum, t) => sum + t.count, 0);
+
+  return (
+    <div className={styles.codeDemoInner}>
+      <div className={styles.demoTestRunner}>
+        <div className={styles.demoTestHeader}>
+          <span className={styles.demoTestTitle}>VITEST</span>
+          <span className={styles.demoTestCount}>
+            {passCount === TEST_CASES.length
+              ? `${total} passed`
+              : `${passCount}/${TEST_CASES.length}`}
+          </span>
+        </div>
+        <div className={styles.demoTestList}>
+          {TEST_CASES.map((tc, i) => (
+            <div key={tc.name} className={styles.demoTestRow}>
+              <span
+                className={`${styles.demoTestIcon} ${
+                  results[i] === "pass" ? styles.demoTestPass : ""
+                }`}
+              >
+                {results[i] === "pass" ? "✓" : "○"}
+              </span>
+              <span className={styles.demoTestName}>{tc.name}</span>
+              <span className={styles.demoTestSuite}>{tc.count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {!isMobile && (
+        <button
+          className={styles.demoBtn}
+          onClick={runTests}
+          disabled={running}
+          style={{ marginTop: "var(--spacing-sm)" }}
+        >
+          {running ? "Running…" : passCount > 0 ? "Re-run" : "Run Tests"}
+        </button>
+      )}
+      <span className={styles.demoHint}>
+        {running
+          ? "Running tests…"
+          : passCount === TEST_CASES.length
+            ? `All ${total} tests passed`
+            : isMobile ? "Auto-running" : "Click to run"}
+      </span>
+    </div>
+  );
+}
+
+/* =========================================================================
+   내보내기: getCodeDemo(index)
    ========================================================================= */
 const demos = [
   DemoParallax,
@@ -840,6 +943,7 @@ const demos = [
   DemoLoadingProgress,
   DemoI18nShift,
   DemoErrorBoundary,
+  DemoUnitTest,
 ];
 
 export function getCodeDemo(index: number): React.ReactNode {

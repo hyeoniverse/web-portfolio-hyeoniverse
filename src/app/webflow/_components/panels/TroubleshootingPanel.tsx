@@ -1,16 +1,22 @@
 "use client";
 
-import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLayoutEffect, useCallback } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { TroubleShootingItem } from "@/data/webflow";
 import { renderHighlight } from "../renderHighlight";
 import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
+import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
+import PinnedTitleRow from "../PinnedTitleRow";
 import styles from "../WebFlowSection.module.css";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
+/** 디테일 항목 내의 스태거 자식 요소 조회 (헤더 + 엔트리) */
+function getStaggerChildren(_viewport: HTMLElement, el: HTMLElement): HTMLElement[] {
+  return Array.from(
+    el.querySelectorAll<HTMLElement>(
+      `.${styles.troubleDetailHeader}, .${styles.troubleEntry}`,
+    ),
+  );
 }
 
 interface TroubleshootingPanelProps {
@@ -24,84 +30,24 @@ export default function TroubleshootingPanel({
   t,
   items,
 }: TroubleshootingPanelProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const isMobile = checkMobileLayout();
+  const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
+    items.length,
+  );
 
-  // Detect mobile/tablet (width ≤ 1024 or height < 750)
-  useLayoutEffect(() => {
-    const check = () => setIsMobile(checkMobileLayout());
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  // Desktop: track horizontal scroll progress via RAF
-  // Counter-translate inner content so it appears pinned in the viewport
-  useEffect(() => {
-    if (typeof window === "undefined" || checkMobileLayout()) return;
-
-    let rafId: number;
-    let prevIndex = 0;
-
-    const update = () => {
-      if (panelRef.current && contentRef.current) {
-        const rect = panelRef.current.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const extraWidth = rect.width - vw;
-
-        if (extraWidth > 0) {
-          // Counter-translate: pin content while panel scrolls
-          const offset = Math.max(0, Math.min(-rect.left, extraWidth));
-          contentRef.current.style.transform = `translateX(${offset}px)`;
-
-          // Map scroll progress → active item index
-          const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
-          const newIndex = Math.min(
-            items.length - 1,
-            Math.floor(progress * items.length),
-          );
-          if (newIndex !== prevIndex) {
-            prevIndex = newIndex;
-            setActiveIndex(newIndex);
-          }
-        }
-      }
-      rafId = requestAnimationFrame(update);
-    };
-
-    rafId = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(rafId);
-  }, [items.length]);
-
-  // Mobile/Tablet: GSAP ScrollTrigger pin + JS-driven detail transforms
+  // 모바일: 초기 상태 설정 (첫 번째 항목 표시, 나머지 숨김)
   useLayoutEffect(() => {
     if (!isMobile) return;
     const viewport = contentRef.current;
     if (!viewport) return;
 
-    const total = items.length;
-    const scrollDist = total * 500;
-    let prevIdx = 0;
-
-    // Query detail items + their stagger children for JS-driven animation
     const detailItems = Array.from(
       viewport.querySelectorAll<HTMLElement>(`.${styles.troubleDetailItem}`),
     );
 
-    // Stagger children: header + entries within each detail item
-    const getStaggerChildren = (el: HTMLElement) =>
-      Array.from(
-        el.querySelectorAll<HTMLElement>(
-          `.${styles.troubleDetailHeader}, .${styles.troubleEntry}`,
-        ),
-      );
-
-    // Set initial state: first item cascade-visible, rest hidden
     detailItems.forEach((el, i) => {
       el.style.opacity = i === 0 ? "1" : "0";
-      const children = getStaggerChildren(el);
+      const children = getStaggerChildren(viewport, el);
       children.forEach((child, ci) => {
         if (i === 0) {
           child.style.opacity = "1";
@@ -113,96 +59,56 @@ export default function TroubleshootingPanel({
         child.style.transition = `opacity 0.4s ease ${ci * 0.1}s, transform 0.4s cubic-bezier(0.4,0,0.2,1) ${ci * 0.1}s`;
       });
     });
+  }, [isMobile, contentRef]);
 
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: viewport,
-        start: "top top",
-        end: `+=${scrollDist}`,
-        pin: true,
-        pinSpacing: true,
-        onUpdate: (self) => {
-          const newIndex = Math.min(
-            total - 1,
-            Math.floor(self.progress * total),
-          );
+  // 모바일: ScrollTrigger 고정 + 스태거 캐스케이드 애니메이션
+  const handleMobileIndexChange = useCallback((newIndex: number) => {
+    const viewport = contentRef.current;
+    if (!viewport) return;
 
-          if (newIndex !== prevIdx) {
-            prevIdx = newIndex;
-            setActiveIndex(newIndex);
+    const detailItems = Array.from(
+      viewport.querySelectorAll<HTMLElement>(`.${styles.troubleDetailItem}`),
+    );
 
-            // JS-driven stagger cascade
-            detailItems.forEach((el, i) => {
-              el.style.opacity = i === newIndex ? "1" : "0";
-              const children = getStaggerChildren(el);
-              children.forEach((child, ci) => {
-                if (i === newIndex) {
-                  child.style.opacity = "1";
-                  child.style.transform = "translateY(0)";
-                  child.style.transitionDelay = `${ci * 0.1}s`;
-                } else {
-                  child.style.opacity = "0";
-                  child.style.transform = "translateY(16px)";
-                  child.style.transitionDelay = "0s";
-                }
-              });
-            });
-          }
-        },
+    detailItems.forEach((el, i) => {
+      el.style.opacity = i === newIndex ? "1" : "0";
+      const children = getStaggerChildren(viewport, el);
+      children.forEach((child, ci) => {
+        if (i === newIndex) {
+          child.style.opacity = "1";
+          child.style.transform = "translateY(0)";
+          child.style.transitionDelay = `${ci * 0.1}s`;
+        } else {
+          child.style.opacity = "0";
+          child.style.transform = "translateY(16px)";
+          child.style.transitionDelay = "0s";
+        }
       });
-    }, viewport);
+    });
+  }, [contentRef]);
 
-    return () => ctx.revert();
-  }, [isMobile, items.length]);
-
-  // Click list item → scroll to matching position (GSAP scrub animates)
-  const handleItemClick = useCallback(
-    (index: number) => {
-      if (!panelRef.current || checkMobileLayout()) return;
-
-      const rect = panelRef.current.getBoundingClientRect();
-      const extraWidth = rect.width - window.innerWidth;
-      if (extraWidth <= 0) return;
-
-      const targetProgress = (index + 0.5) / items.length;
-      const targetLeft = -(targetProgress * extraWidth);
-      const deltaScrollY = rect.left - targetLeft;
-
-      window.scrollTo({ top: window.scrollY + deltaScrollY });
-    },
-    [items.length],
-  );
+  useMobilePinScroll(contentRef, items.length, 500, handleMobileIndexChange);
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
-      {/* Inner wrapper: counter-translated to appear pinned */}
+      {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
       <div ref={contentRef} className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}>
-        <div className={styles.pinnedTitleRow}>
-          <div>
-            <span className={`${styles.panelNumber} ${styles.animate}`}>08</span>
-            <h3
-              className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
-            >
-              Trouble Shooting.
-            </h3>
-          </div>
-          <div className={`${styles.dotNav} ${styles.dotNavMobileOnly}`}>
-            {items.map((_, i) => (
-              <div
-                data-clickable="true"
-                key={i}
-                className={`${styles.dot} ${
-                  i === activeIndex ? styles.dotActive : ""
-                }`}
-                onClick={() => handleItemClick(i)}
-              />
-            ))}
-          </div>
-        </div>
+        <PinnedTitleRow
+          number="08"
+          title="Trouble Shooting."
+          compact
+          animate
+          dotNav={{
+            count: items.length,
+            activeIndex,
+            onDotClick: scrollToItem,
+            className: styles.dotNavMobileOnly,
+          }}
+        />
 
-        {/* Desktop: split layout — list + detail */}
+        {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
         <div className={`${styles.troubleSplit} ${styles.animate}`}>
-          {/* Left: item list */}
+          {/* 왼쪽: 항목 목록 */}
           <div className={styles.troubleList}>
             {items.map((item, index) => (
               <div
@@ -211,7 +117,7 @@ export default function TroubleshootingPanel({
                 className={`${styles.troubleListItem} ${
                   index === activeIndex ? styles.troubleListItemActive : ""
                 }`}
-                onClick={() => handleItemClick(index)}
+                onClick={() => scrollToItem(index)}
               >
                 <span className={styles.troubleNumber}>
                   {String(index + 1).padStart(2, "0")}
@@ -223,7 +129,7 @@ export default function TroubleshootingPanel({
             ))}
           </div>
 
-          {/* Right: detail content (stacked, CSS opacity transition) */}
+          {/* 오른쪽: 상세 콘텐츠 (스택, CSS opacity 트랜지션) */}
           <div className={styles.troubleDetail}>
             {items.map((item, index) => (
               <div
@@ -271,7 +177,7 @@ export default function TroubleshootingPanel({
           </div>
         </div>
 
-        {/* Mobile: all items displayed (fallback, hidden when pin active) */}
+        {/* 모바일: 모든 항목 표시 (폴백, pin 활성 시 숨김) */}
         <div className={styles.troubleMobileList}>
           {items.map((item, index) => (
             <div

@@ -1,24 +1,16 @@
 "use client";
 
-import {
-  useRef,
-  useState,
-  useCallback,
-  useLayoutEffect,
-  useEffect,
-} from "react";
+import { useRef, useState, useCallback, useLayoutEffect, useEffect } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 import Image from "next/image";
 import { useLenis } from "@/providers/LenisProvider";
 import { Code, Palette, LayoutGrid, Zap, Globe, Mail } from "lucide-react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem } from "@/data/webflow";
 import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
+import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
+import PinnedTitleRow from "../PinnedTitleRow";
 import styles from "../WebFlowSection.module.css";
 
 export type DcTransitionMode = "strip" | "stack";
@@ -29,7 +21,7 @@ interface DesignConceptPanelProps {
   mode?: DcTransitionMode;
 }
 
-/* ── Typography Demo ── */
+/* ── 타이포그래피 데모 ── */
 const fonts = [
   { label: "Inter", family: "var(--font-inter)" },
   { label: "Instrument", family: "var(--font-instrument)" },
@@ -63,7 +55,7 @@ function TypographyDemo() {
   );
 }
 
-/* ── Color System Demo ── */
+/* ── 컬러 시스템 데모 ── */
 const palettes = {
   dark: [
     { label: "primary", hex: "#D40063" },
@@ -130,7 +122,7 @@ function ColorSystemDemo() {
   );
 }
 
-/* ── Motion & Scroll Demo ── */
+/* ── 모션 & 스크롤 데모 ── */
 function MotionScrollDemo() {
   const { lenis } = useLenis();
   const ballRef = useRef<HTMLDivElement>(null);
@@ -149,7 +141,6 @@ function MotionScrollDemo() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const velocity = (lenis as any).velocity as number;
-      // Map velocity [-MAX, +MAX] → position [4px, trackWidth - ballWidth - 4px]
       const normalized = Math.max(-1, Math.min(1, velocity / MAX_VELOCITY));
       const trackWidth = track.clientWidth;
       const ballWidth = ball.clientWidth;
@@ -157,7 +148,6 @@ function MotionScrollDemo() {
       const left = 4 + ((normalized + 1) / 2) * maxLeft;
 
       ball.style.left = `${left}px`;
-      // Squash & stretch: flatten when moving fast
       const abs = Math.abs(normalized);
       const stretch = 1 + abs * 0.35;
       const squash = 1 / stretch;
@@ -186,7 +176,7 @@ function MotionScrollDemo() {
   );
 }
 
-/* ── Layout & Spacing Demo ── */
+/* ── 레이아웃 & 간격 데모 ── */
 const spacingTokens = [
   { token: "2xs", px: 4 },
   { token: "xs", px: 8 },
@@ -218,7 +208,7 @@ function LayoutSpacingDemo() {
   );
 }
 
-/* ── Grid System Demo (Breakpoint bars) ── */
+/* ── 그리드 시스템 데모 (브레이크포인트 바) ── */
 const breakpoints = [
   { name: "XS", px: 320 },
   { name: "SM", px: 480 },
@@ -250,7 +240,7 @@ function GridSystemDemo() {
   );
 }
 
-/* ── Iconography Demo (icon grid + toggle) ── */
+/* ── 아이콘 데모 (아이콘 그리드 + 토글) ── */
 const lucideIcons = [
   { icon: Code, label: "Code" },
   { icon: Palette, label: "Palette" },
@@ -275,7 +265,7 @@ function IconographyDemo() {
   );
 }
 
-/* ── Demo map ── */
+/* ── 데모 맵 ── */
 const demoMap: Record<string, React.FC> = {
   typography: TypographyDemo,
   color: ColorSystemDemo,
@@ -292,21 +282,40 @@ export default function DesignConceptPanel({
 }: DesignConceptPanelProps) {
   const stripRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
+  const isMobile = checkMobileLayout();
   const isStrip = mode === "strip";
 
-  useEffect(() => {
-    const check = () => setIsMobile(checkMobileLayout());
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
+  // 데스크톱: 인덱스 변경 시 모드별 전환
+  const onIndexChange = useCallback(
+    (index: number) => {
+      if (isStrip && stripRef.current) {
+        stripRef.current.style.transform = `translateX(-${index * 100}%)`;
+      } else if (stackRef.current) {
+        const grid = stackRef.current;
+        const overlays = grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`);
+        const backgrounds = grid.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`);
+        const cards = grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`);
 
-  /* ═══ Stack mode: set initial visual state (prevents flash) ═══ */
+        overlays.forEach((overlay, i) => {
+          (overlay as HTMLElement).style.opacity = i === index ? "1" : "0";
+        });
+        backgrounds.forEach((bg, i) => {
+          (bg as HTMLElement).style.transform = i < index ? "translateX(-100%)" : "";
+        });
+        cards.forEach((card, i) => {
+          (card as HTMLElement).style.pointerEvents = i === index ? "auto" : "none";
+        });
+      }
+    },
+    [isStrip],
+  );
+
+  const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
+    concepts.length,
+    onIndexChange,
+  );
+
+  /* ═══ 스택 모드: 초기 시각 상태 설정 (깜박임 방지) ═══ */
   useLayoutEffect(() => {
     if (isStrip) return;
     const grid = stackRef.current;
@@ -317,7 +326,6 @@ export default function DesignConceptPanel({
     );
     const total = cards.length;
 
-    /* Reverse z-index: card 0 on top → its bg slides out to reveal card 1 below. */
     cards.forEach((card, i) => {
       gsap.set(card, { zIndex: total - i, opacity: 1 });
       if (i > 0) {
@@ -328,78 +336,11 @@ export default function DesignConceptPanel({
     });
   }, [isStrip]);
 
-  /* ═══ Desktop: RAF counter-translation + mode-specific switching ═══ */
-  useEffect(() => {
-    if (typeof window === "undefined" || checkMobileLayout()) return;
-
-    let rafId: number;
-    let prevIndex = 0;
-
-    /* Pre-collect DOM refs for stack mode */
-    const grid = stackRef.current;
-    const cards = grid
-      ? Array.from(grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`))
-      : [];
-    const overlays = grid
-      ? Array.from(grid.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`))
-      : [];
-    const backgrounds = grid
-      ? Array.from(grid.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`))
-      : [];
-
-    const strip = stripRef.current;
-
-    const update = () => {
-      if (panelRef.current && contentRef.current) {
-        const rect = panelRef.current.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const extraWidth = rect.width - vw;
-
-        if (extraWidth > 0) {
-          const offset = Math.max(0, Math.min(-rect.left, extraWidth));
-          contentRef.current.style.transform = `translateX(${offset}px)`;
-
-          const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
-          const newIndex = Math.min(
-            concepts.length - 1,
-            Math.floor(progress * concepts.length),
-          );
-          if (newIndex !== prevIndex) {
-            prevIndex = newIndex;
-            setActiveIndex(newIndex);
-
-            if (isStrip && strip) {
-              /* Strip mode: slide the whole strip */
-              strip.style.transform = `translateX(-${newIndex * 100}%)`;
-            } else {
-              /* Stack mode: overlay crossfade + background slide-out */
-              overlays.forEach((overlay, i) => {
-                overlay.style.opacity = i === newIndex ? "1" : "0";
-              });
-              backgrounds.forEach((bg, i) => {
-                bg.style.transform = i < newIndex ? "translateX(-100%)" : "";
-              });
-              cards.forEach((card, i) => {
-                card.style.pointerEvents = i === newIndex ? "auto" : "none";
-              });
-            }
-          }
-        }
-      }
-      rafId = requestAnimationFrame(update);
-    };
-
-    rafId = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(rafId);
-  }, [concepts.length, isStrip]);
-
-  /* ═══ Mobile/Tablet: GSAP ScrollTrigger pin + vertical crossfade ═══ */
+  /* ═══ 모바일: 초기 카드 상태 설정 ═══ */
   useLayoutEffect(() => {
     if (!isMobile) return;
-
     const stack = stackRef.current;
-    const viewport = contentRef.current;
-    if (!stack || !viewport) return;
+    if (!stack) return;
 
     const cards = Array.from(
       stack.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
@@ -407,73 +348,41 @@ export default function DesignConceptPanel({
     const overlays = Array.from(
       stack.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`),
     );
-    const backgrounds = Array.from(
-      stack.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`),
-    );
     const total = cards.length;
-    if (total === 0) return;
 
-    const scrollDist = total * 400;
-
-    const ctx = gsap.context(() => {
-      /* Initial state: card 0 visible, others hidden */
-      cards.forEach((card, i) => {
-        gsap.set(card, { zIndex: total - i, opacity: 1 });
-        if (i > 0) {
-          gsap.set(card, { borderColor: "transparent" });
-          if (overlays[i]) gsap.set(overlays[i], { opacity: 0 });
-        }
-      });
-
-      ScrollTrigger.create({
-        trigger: viewport,
-        start: "top top",
-        end: `+=${scrollDist}`,
-        pin: true,
-        pinSpacing: true,
-        onUpdate: (self) => {
-          const progress = self.progress;
-          const newIndex = Math.min(
-            total - 1,
-            Math.floor(progress * total),
-          );
-
-          setActiveIndex(newIndex);
-
-          overlays.forEach((overlay, i) => {
-            overlay.style.opacity = i === newIndex ? "1" : "0";
-          });
-          backgrounds.forEach((bg, i) => {
-            bg.style.transform = i < newIndex ? "translateY(-100%)" : "";
-          });
-          cards.forEach((card, i) => {
-            card.style.pointerEvents = i === newIndex ? "auto" : "none";
-          });
-        },
-      });
-    }, viewport);
-
-    return () => ctx.revert();
+    cards.forEach((card, i) => {
+      gsap.set(card, { zIndex: total - i, opacity: 1 });
+      if (i > 0) {
+        gsap.set(card, { borderColor: "transparent" });
+        if (overlays[i]) gsap.set(overlays[i], { opacity: 0 });
+      }
+    });
   }, [isMobile]);
 
-  const handleDotClick = useCallback(
-    (index: number) => {
-      if (!panelRef.current || checkMobileLayout()) return;
+  /* ═══ 모바일: 인덱스 변경 시 카드 크로스페이드 ═══ */
+  const handleMobileIndexChange = useCallback((newIndex: number) => {
+    const stack = stackRef.current;
+    if (!stack) return;
 
-      const rect = panelRef.current.getBoundingClientRect();
-      const extraWidth = rect.width - window.innerWidth;
-      if (extraWidth <= 0) return;
+    const overlays = stack.querySelectorAll<HTMLElement>(`.${styles.dcCardOverlay}`);
+    const backgrounds = stack.querySelectorAll<HTMLElement>(`.${styles.dcCardBg}`);
+    const cards = stack.querySelectorAll<HTMLElement>(`.${styles.dcCard}`);
 
-      const targetProgress = (index + 0.5) / concepts.length;
-      const targetLeft = -(targetProgress * extraWidth);
-      const deltaScrollY = rect.left - targetLeft;
+    overlays.forEach((overlay, i) => {
+      overlay.style.opacity = i === newIndex ? "1" : "0";
+    });
+    backgrounds.forEach((bg, i) => {
+      bg.style.transform = i < newIndex ? "translateY(-100%)" : "";
+    });
+    cards.forEach((card, i) => {
+      card.style.pointerEvents = i === newIndex ? "auto" : "none";
+    });
+  }, []);
 
-      window.scrollTo({ top: window.scrollY + deltaScrollY });
-    },
-    [concepts.length],
-  );
+  /* ═══ 모바일: GSAP ScrollTrigger 고정 스크롤 ═══ */
+  useMobilePinScroll(contentRef, concepts.length, 400, handleMobileIndexChange);
 
-  /* ═══ Card list (shared between both modes) ═══ */
+  /* ═══ 카드 목록 (두 모드 공유) ═══ */
   const cardElements = concepts.map((concept) => {
     const Demo = demoMap[concept.id];
     return (
@@ -503,22 +412,16 @@ export default function DesignConceptPanel({
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       <div ref={contentRef} className={`${styles.pinnedContent} ${styles.dcViewport}`}>
-        <div className={styles.pinnedTitleRow}>
-          <div>
-            <span className={styles.panelNumber}>04</span>
-            <h3 className={styles.panelTitle}>Design Concept.</h3>
-          </div>
-          <div className={`${styles.dotNav} ${styles.dotNavMobile}`}>
-            {concepts.map((_, i) => (
-              <div
-                data-clickable="true"
-                key={i}
-                className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ""}`}
-                onClick={() => handleDotClick(i)}
-              />
-            ))}
-          </div>
-        </div>
+        <PinnedTitleRow
+          number="04"
+          title="Design Concept."
+          dotNav={{
+            count: concepts.length,
+            activeIndex,
+            onDotClick: scrollToItem,
+            className: styles.dotNavMobile,
+          }}
+        />
 
         <div
           ref={stackRef}
@@ -533,7 +436,7 @@ export default function DesignConceptPanel({
           )}
         </div>
 
-        {/* Mobile: simple vertical card list (no animation) */}
+        {/* 모바일: 단순 세로 카드 목록 (애니메이션 없음) */}
         <div className={styles.dcMobileList}>
           {concepts.map((concept) => {
             const Demo = demoMap[concept.id];

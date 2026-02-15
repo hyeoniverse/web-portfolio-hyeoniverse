@@ -1,23 +1,14 @@
 "use client";
 
-import {
-  useState,
-  useRef,
-  useEffect,
-  useLayoutEffect,
-  useCallback,
-} from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef, useLayoutEffect, useCallback } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { ProcessStep } from "@/data/webflow";
 import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
+import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { renderHighlight } from "../renderHighlight";
+import PinnedTitleRow from "../PinnedTitleRow";
 import styles from "../WebFlowSection.module.css";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 interface ProcessPanelProps {
   language: Language;
@@ -25,75 +16,32 @@ interface ProcessPanelProps {
 }
 
 export default function ProcessPanel({ language, process }: ProcessPanelProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const isMobile = checkMobileLayout();
   const progressRef = useRef<HTMLDivElement>(null);
 
-  // Detect mobile/tablet (width ≤ 1024 or height < 750)
-  useLayoutEffect(() => {
-    const check = () => setIsMobile(checkMobileLayout());
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  // Desktop: track horizontal scroll progress via RAF
-  useEffect(() => {
-    if (typeof window === "undefined" || checkMobileLayout()) return;
-
-    let rafId: number;
-    let prevIndex = 0;
-
-    const update = () => {
-      if (panelRef.current && contentRef.current) {
-        const rect = panelRef.current.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const extraWidth = rect.width - vw;
-
-        if (extraWidth > 0) {
-          const offset = Math.max(0, Math.min(-rect.left, extraWidth));
-          contentRef.current.style.transform = `translateX(${offset}px)`;
-
-          const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
-          const newIndex = Math.min(
-            process.length - 1,
-            Math.floor(progress * process.length),
-          );
-
-          // Smooth progress bar
-          if (progressRef.current) {
-            const progressPct = ((newIndex + 0.5) / process.length) * 100;
-            progressRef.current.style.width = `${progressPct}%`;
-          }
-
-          if (newIndex !== prevIndex) {
-            prevIndex = newIndex;
-            setActiveIndex(newIndex);
-          }
-        }
+  // 데스크톱: 인덱스 변경 시 프로그레스 바 업데이트
+  const onIndexChange = useCallback(
+    (index: number) => {
+      if (progressRef.current) {
+        const progressPct = ((index + 0.5) / process.length) * 100;
+        progressRef.current.style.width = `${progressPct}%`;
       }
-      rafId = requestAnimationFrame(update);
-    };
+    },
+    [process.length],
+  );
 
-    rafId = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(rafId);
-  }, [process.length]);
+  const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
+    process.length,
+    onIndexChange,
+  );
 
-  // Mobile/Tablet: GSAP ScrollTrigger pin + accordion expand/collapse
+  // 모바일/태블릿: 아코디언 레이아웃
   const stepListRef = useRef<HTMLDivElement>(null);
-  const mobileStRef = useRef<ScrollTrigger | null>(null);
+  const COLLAPSED_HEIGHT = 36;
 
-  useLayoutEffect(() => {
-    if (!isMobile) return;
-    const viewport = contentRef.current;
+  const handleMobileIndexChange = useCallback((activeIdx: number) => {
     const stepList = stepListRef.current;
-    if (!viewport || !stepList) return;
-
-    const total = process.length;
-    const scrollDist = total * 500;
-    let prevIdx = 0;
+    if (!stepList) return;
 
     const rows = Array.from(
       stepList.querySelectorAll<HTMLElement>(`.${styles.processStepRow}`),
@@ -101,84 +49,50 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
     const contents = Array.from(
       stepList.querySelectorAll<HTMLElement>(`.${styles.processStepContent}`),
     );
+    const total = rows.length;
+    const listHeight = stepList.offsetHeight;
+    const activeHeight = listHeight - COLLAPSED_HEIGHT * (total - 1);
 
-    // Calculate heights: collapsed rows show only dot+label
-    const COLLAPSED_H = 36;
-    const applyLayout = (activeIdx: number) => {
-      const listH = stepList.offsetHeight;
-      const activeH = listH - COLLAPSED_H * (total - 1);
+    rows.forEach((row, i) => {
+      if (i === activeIdx) {
+        row.style.height = `${activeHeight}px`;
+        row.style.opacity = "1";
+      } else {
+        row.style.height = `${COLLAPSED_HEIGHT}px`;
+        row.style.opacity = "0.5";
+      }
+    });
+    contents.forEach((el, i) => {
+      el.style.opacity = i === activeIdx ? "1" : "0";
+    });
+  }, []);
 
-      rows.forEach((row, i) => {
-        if (i === activeIdx) {
-          row.style.height = `${activeH}px`;
-          row.style.opacity = "1";
-        } else {
-          row.style.height = `${COLLAPSED_H}px`;
-          row.style.opacity = "0.5";
-        }
-      });
-      contents.forEach((el, i) => {
-        el.style.opacity = i === activeIdx ? "1" : "0";
-      });
-    };
+  // 모바일: 초기 레이아웃 설정
+  useLayoutEffect(() => {
+    if (!isMobile) return;
+    handleMobileIndexChange(0);
+  }, [isMobile, handleMobileIndexChange]);
 
-    applyLayout(0);
+  // 모바일: GSAP ScrollTrigger 고정 스크롤
+  const mobileStRef = useMobilePinScroll(
+    contentRef, process.length, 500, handleMobileIndexChange,
+  );
 
-    const ctx = gsap.context(() => {
-      const st = ScrollTrigger.create({
-        trigger: viewport,
-        start: "top top",
-        end: `+=${scrollDist}`,
-        pin: true,
-        pinSpacing: true,
-        onUpdate: (self) => {
-          const newIndex = Math.min(
-            total - 1,
-            Math.floor(self.progress * total),
-          );
-
-          if (newIndex !== prevIdx) {
-            prevIdx = newIndex;
-            setActiveIndex(newIndex);
-            applyLayout(newIndex);
-          }
-        },
-      });
-      mobileStRef.current = st;
-    }, viewport);
-
-    return () => {
-      mobileStRef.current = null;
-      ctx.revert();
-    };
-  }, [isMobile, process.length]);
-
-  // Click row → scroll to matching position (works on both desktop and mobile)
+  // 행 클릭 → 해당 위치로 스크롤 (데스크톱은 훅, 모바일은 ScrollTrigger)
   const handleRowClick = useCallback(
     (index: number) => {
       if (checkMobileLayout()) {
-        // Mobile: scroll within the pinned ScrollTrigger range
         const st = mobileStRef.current;
         if (!st) return;
         const targetProgress = (index + 0.5) / process.length;
         const targetScroll = st.start + targetProgress * (st.end - st.start);
         window.scrollTo({ top: targetScroll, behavior: "smooth" });
       } else {
-        // Desktop: horizontal scroll
-        if (!panelRef.current) return;
-        const rect = panelRef.current.getBoundingClientRect();
-        const extraWidth = rect.width - window.innerWidth;
-        if (extraWidth <= 0) return;
-        const targetProgress = (index + 0.5) / process.length;
-        const targetLeft = -(targetProgress * extraWidth);
-        const deltaScrollY = rect.left - targetLeft;
-        window.scrollTo({ top: window.scrollY + deltaScrollY });
+        scrollToItem(index);
       }
     },
-    [process.length],
+    [process.length, scrollToItem, mobileStRef],
   );
-
-  // Click dot / node → scroll to matching position
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
@@ -186,17 +100,12 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
         ref={contentRef}
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
-        {/* Title row */}
-        <div className={styles.pinnedTitleRow}>
-          <div>
-            <span className={styles.panelNumber}>05</span>
-            <h3 className={styles.panelTitle}>Design Process.</h3>
-          </div>
-        </div>
+        {/* 타이틀 행 */}
+        <PinnedTitleRow number="05" title="Design Process." />
 
-        {/* Timeline + content body (row on mobile, column on desktop) */}
+        {/* 타임라인 + 콘텐츠 본문 (모바일은 행, 데스크톱은 열) */}
         <div className={styles.processBody}>
-          {/* Timeline: horizontal on desktop, vertical on mobile */}
+          {/* 타임라인: 데스크톱은 수평, 모바일은 수직 */}
           <div className={styles.processTimeline}>
             <div className={styles.processTimelineTrack}>
               <div
@@ -242,7 +151,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
             </div>
           </div>
 
-          {/* Step content area — slide on desktop, opacity crossfade on mobile */}
+          {/* 스텝 콘텐츠 영역 — 데스크톱은 슬라이드, 모바일은 크로스페이드 */}
           <div className={styles.processSingleView}>
             {process.map((p, i) => (
               <div
@@ -269,7 +178,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
           </div>
         </div>
 
-        {/* Mobile: accordion step rows — active expanded, others collapsed */}
+        {/* 모바일: 아코디언 스텝 행 — 활성은 확장, 나머지는 축소 */}
         <div ref={stepListRef} className={styles.processStepList}>
           {process.map((p, i) => {
             const isDone = i < activeIndex;
@@ -283,7 +192,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
                 }`}
                 onClick={() => handleRowClick(i)}
               >
-                {/* Left: continuous connector line + dot */}
+                {/* 왼쪽: 연속 연결선 + 점 */}
                 <div className={styles.processStepConnector}>
                   <div
                     className={`${styles.processConnectorDot} ${
@@ -303,7 +212,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
                   )}
                 </div>
 
-                {/* Right: collapsed = step label only, expanded = full content */}
+                {/* 오른쪽: 축소 = 스텝 라벨만, 확장 = 전체 콘텐츠 */}
                 <span className={styles.processStepLabel}>
                   {p.step}. {p.title[language]}
                 </span>

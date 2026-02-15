@@ -37,13 +37,13 @@ export function useNavIndicator(activeSection: number): {
 
   const highlightedSection = hoveredSection ?? activeSection;
 
-  // Sync indicator after render — wait a frame so CSS transitions start
+  // 렌더 후 인디케이터 동기화 — CSS 트랜지션 시작을 위해 한 프레임 대기
   useEffect(() => {
     const el = navItemRefs.current[highlightedSection];
     if (!el) return;
-    // Immediate update for position
+    // 위치 즉시 업데이트
     updateIndicator(el);
-    // Re-measure after label transition finishes (300ms matches CSS)
+    // 라벨 트랜지션 완료 후 재측정 (300ms는 CSS와 일치)
     const timer = setTimeout(() => updateIndicator(el), 320);
     return () => clearTimeout(timer);
   }, [highlightedSection, updateIndicator]);

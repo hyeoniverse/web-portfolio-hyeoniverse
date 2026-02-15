@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useRef,
-  useLayoutEffect,
-  useState,
-} from "react";
+import { useCallback, useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
@@ -26,7 +21,7 @@ interface FeaturesPanelProps {
   features: DesignFeature[];
 }
 
-/* 9 features → 3×3 grid, reuse default video URLs */
+/* 9개 기능 → 3×3 그리드, 기본 비디오 URL 재사용 */
 function buildFrames(count: number): Frame[] {
   return Array.from({ length: count }, (_, i) => ({
     ...defaultFrames[i % defaultFrames.length],
@@ -41,18 +36,11 @@ export default function FeaturesPanel({
 }: FeaturesPanelProps) {
   const frames = buildFrames(features.length);
   const gridRef = useRef<HTMLDivElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = checkMobileLayout();
 
-  useLayoutEffect(() => {
-    const check = () => setIsMobile(checkMobileLayout());
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  /* Mobile/Tablet: equalise folder sizes, tab widths, and set negative
-     margins so cards overlap uniformly.  CSS flex-column handles the
-     positioning — the browser guarantees equal spacing. */
+  /* 모바일/태블릿: 폴더 크기, 탭 너비를 균일하게 맞추고 음수 마진으로
+     카드가 균일하게 겹치게 함. CSS flex-column이 배치를 처리 —
+     브라우저가 균등 간격을 보장. */
   useLayoutEffect(() => {
     if (!isMobile || !gridRef.current) return;
 
@@ -69,40 +57,40 @@ export default function FeaturesPanel({
     ) as HTMLElement | null;
 
     const measure = () => {
-      // Reset to natural sizes for measurement
-      wraps.forEach((w) => {
-        w.style.height = "auto";
-        w.style.marginTop = "";
+      // 측정을 위해 자연 크기로 초기화
+      wraps.forEach((wrap) => {
+        wrap.style.height = "auto";
+        wrap.style.marginTop = "";
       });
-      tabs.forEach((t) => { t.style.minWidth = ""; });
+      tabs.forEach((tab) => { tab.style.minWidth = ""; });
       if (pinnedEl) pinnedEl.style.paddingTop = "";
 
-      // Find tallest card, widest tab, and tab element height
-      let maxH = 0;
-      let maxTabW = 0;
-      wraps.forEach((w) => { maxH = Math.max(maxH, w.offsetHeight); });
-      tabs.forEach((t) => { maxTabW = Math.max(maxTabW, t.offsetWidth); });
-      const tabElH = tabs[0] ? tabs[0].offsetHeight : 40;
+      // 가장 높은 카드, 가장 넓은 탭, 탭 요소 높이 계산
+      let maxCardHeight = 0;
+      let maxTabWidth = 0;
+      wraps.forEach((wrap) => { maxCardHeight = Math.max(maxCardHeight, wrap.offsetHeight); });
+      tabs.forEach((tab) => { maxTabWidth = Math.max(maxTabWidth, tab.offsetWidth); });
+      const tabElementHeight = tabs[0] ? tabs[0].offsetHeight : 40;
 
-      // Apply uniform sizes
-      wraps.forEach((w) => { w.style.height = `${maxH}px`; });
-      tabs.forEach((t) => { t.style.minWidth = `${maxTabW}px`; });
+      // 균일한 크기 적용
+      wraps.forEach((wrap) => { wrap.style.height = `${maxCardHeight}px`; });
+      tabs.forEach((tab) => { tab.style.minWidth = `${maxTabWidth}px`; });
 
-      // Negative margin = -(cardHeight - spacing).
-      // spacing = tab height + gap → each card's tab is fully visible.
+      // 음수 마진 = -(카드 높이 - 간격)
+      // 간격 = 탭 높이 + gap → 각 카드의 탭이 완전히 보임
       const gap = 16;
-      const spacing = tabElH + gap;
-      const overlapMargin = -(maxH - spacing);
-      wraps.forEach((w, i) => {
-        if (i > 0) w.style.marginTop = `${overlapMargin}px`;
+      const spacing = tabElementHeight + gap;
+      const overlapMargin = -(maxCardHeight - spacing);
+      wraps.forEach((wrap, i) => {
+        if (i > 0) wrap.style.marginTop = `${overlapMargin}px`;
       });
 
-      // Push the stack toward the bottom with some breathing room below
+      // 스택을 하단으로 밀어서 아래 여백 확보
       if (pinnedEl) {
-        const vh = window.innerHeight;
+        const viewportHeight = window.innerHeight;
         const totalVisible = wraps.length * spacing;
         const bottomPadding = spacing * 2;
-        pinnedEl.style.paddingTop = `${Math.max(0, vh - totalVisible - bottomPadding)}px`;
+        pinnedEl.style.paddingTop = `${Math.max(0, viewportHeight - totalVisible - bottomPadding)}px`;
       }
     };
 
@@ -110,15 +98,15 @@ export default function FeaturesPanel({
     window.addEventListener("resize", measure);
     return () => {
       window.removeEventListener("resize", measure);
-      wraps.forEach((w) => { w.style.height = ""; w.style.marginTop = ""; });
-      tabs.forEach((t) => { t.style.minWidth = ""; });
+      wraps.forEach((wrap) => { wrap.style.height = ""; wrap.style.marginTop = ""; });
+      tabs.forEach((tab) => { tab.style.minWidth = ""; });
       if (pinnedEl) pinnedEl.style.paddingTop = "";
     };
   }, [isMobile, language]);
 
-  /* Mobile/Tablet: GSAP ScrollTrigger pins .featureGrid to viewport.
-     Cards are already positioned by CSS (flex column + negative margins).
-     This effect only handles the fly-away animation on scroll. */
+  /* 모바일/태블릿: GSAP ScrollTrigger로 .featureGrid를 뷰포트에 고정.
+     카드는 이미 CSS로 배치됨 (flex column + 음수 마진).
+     이 이펙트는 스크롤 시 날아가는 애니메이션만 처리. */
   useLayoutEffect(() => {
     if (!isMobile || !gridRef.current) return;
 
@@ -143,35 +131,35 @@ export default function FeaturesPanel({
         pin: true,
         pinSpacing: true,
         onUpdate: (self) => {
-          const cardH = cards[0].offsetHeight;
+          const cardHeight = cards[0].offsetHeight;
           const progress = self.progress;
 
-          const animFrac = Math.min(progress / 0.95, 1);
+          const animFraction = Math.min(progress / 0.95, 1);
           const step = lastIdx > 0 ? 1 / lastIdx : 1;
           const duration = step * 4;
 
           for (let i = 0; i < count; i++) {
             if (i < lastIdx) {
               const cardStart = i * step;
-              const t = Math.max(
+              const animProgress = Math.max(
                 0,
-                Math.min(1, (animFrac - cardStart) / duration),
+                Math.min(1, (animFraction - cardStart) / duration),
               );
-              if (t > 0) {
-                const exitY = -(cardH + window.innerHeight);
-                cards[i].style.transform = `translateY(${exitY * t}px)`;
+              if (animProgress > 0) {
+                const exitY = -(cardHeight + window.innerHeight);
+                cards[i].style.transform = `translateY(${exitY * animProgress}px)`;
               } else {
                 cards[i].style.transform = "";
               }
             }
-            // Last card stays in place — no transform needed
+            // 마지막 카드는 제자리 유지 — transform 불필요
           }
         },
       });
     }, grid);
 
     return () => {
-      cards.forEach((c) => { c.style.transform = ""; });
+      cards.forEach((card) => { card.style.transform = ""; });
       ctx.revert();
     };
   }, [isMobile]);
@@ -202,7 +190,7 @@ export default function FeaturesPanel({
         Key Features.
       </h3>
 
-      {/* Desktop: DynamicFrameLayout */}
+      {/* 데스크톱: DynamicFrameLayout */}
       <div className={styles.featureDynamic}>
         <DynamicFrameLayout
           initialFrames={frames}
@@ -213,7 +201,7 @@ export default function FeaturesPanel({
         />
       </div>
 
-      {/* Mobile: stacked folder cards (scroll animation) */}
+      {/* 모바일: 겹쳐진 폴더 카드 (스크롤 애니메이션) */}
       <div
         className={styles.featureGrid}
         ref={gridRef}

@@ -7,7 +7,8 @@ import type { CodeExample } from "@/data/webflow";
 import CodeHighlight from "../CodeHighlight";
 import { renderHighlight } from "../renderHighlight";
 import { getCodeDemo } from "./CodeDemos";
-import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
+import PinnedTitleRow from "../PinnedTitleRow";
 import styles from "../WebFlowSection.module.css";
 
 interface CodeHighlightsPanelProps {
@@ -19,7 +20,9 @@ export default function CodeHighlightsPanel({
   language,
   codeExamples,
 }: CodeHighlightsPanelProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
+    codeExamples.length,
+  );
   const [expandedMobileCode, setExpandedMobileCode] = useState<number | null>(
     null,
   );
@@ -27,67 +30,9 @@ export default function CodeHighlightsPanel({
     page: 1,
     total: 1,
   });
-  const panelRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const codeWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const expandedRef = useRef(expandedMobileCode);
-  expandedRef.current = expandedMobileCode;
 
-  // Desktop: track horizontal scroll progress via RAF
-  // Counter-translate inner content so it appears pinned in the viewport
-  useEffect(() => {
-    if (typeof window === "undefined" || checkMobileLayout()) return;
-
-    let rafId: number;
-    let prevIndex = 0;
-
-    const update = () => {
-      if (panelRef.current && contentRef.current) {
-        const rect = panelRef.current.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const extraWidth = rect.width - vw;
-
-        if (extraWidth > 0) {
-          const offset = Math.max(0, Math.min(-rect.left, extraWidth));
-          contentRef.current.style.transform = `translateX(${offset}px)`;
-
-          const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
-          const newIndex = Math.min(
-            codeExamples.length - 1,
-            Math.floor(progress * codeExamples.length),
-          );
-          if (newIndex !== prevIndex) {
-            prevIndex = newIndex;
-            setActiveIndex(newIndex);
-          }
-        }
-      }
-      rafId = requestAnimationFrame(update);
-    };
-
-    rafId = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(rafId);
-  }, [codeExamples.length]);
-
-  // Click dot → scroll to matching position
-  const handleDotClick = useCallback(
-    (index: number) => {
-      if (!panelRef.current || checkMobileLayout()) return;
-
-      const rect = panelRef.current.getBoundingClientRect();
-      const extraWidth = rect.width - window.innerWidth;
-      if (extraWidth <= 0) return;
-
-      const targetProgress = (index + 0.5) / codeExamples.length;
-      const targetLeft = -(targetProgress * extraWidth);
-      const deltaScrollY = rect.left - targetLeft;
-
-      window.scrollTo({ top: window.scrollY + deltaScrollY });
-    },
-    [codeExamples.length],
-  );
-
-  // Detect code overflow and track page position
+  // 코드 오버플로우 감지 및 페이지 위치 추적
   useEffect(() => {
     const wrap = codeWrapRefs.current[activeIndex];
     if (!wrap) return;
@@ -113,12 +58,8 @@ export default function CodeHighlightsPanel({
     };
   }, [activeIndex]);
 
-  // Mobile: close expanded item when the panel's *collapsed* content exits
-  // the viewport. A RAF loop runs only while an accordion is open, estimating
-  // where the panel bottom would be without the expanded body. When the
-  // "collapsed bottom" passes above the viewport, close instantly and scroll
-  // up via Lenis so the extra distance is truly removed (not replaced by
-  // dead-space margin).
+  // 모바일: 패널의 *축소된* 콘텐츠가 뷰포트를 벗어나면
+  // 펼쳐진 항목 닫기
   useEffect(() => {
     if (expandedMobileCode === null) return;
     const el = panelRef.current;
@@ -128,13 +69,11 @@ export default function CodeHighlightsPanel({
 
     const check = () => {
       const rect = el.getBoundingClientRect();
-      // Only act when panel scrolled above viewport (user scrolling down)
       if (rect.top <= 0) {
         const openBody = el.querySelector(
           `.${styles.codeMobileBodyOpen}`,
         ) as HTMLElement | null;
         if (openBody) {
-          // Where would the panel bottom be if the accordion were collapsed?
           const expandedHeight = openBody.offsetHeight;
           const collapsedBottom = rect.bottom - expandedHeight;
 
@@ -142,37 +81,24 @@ export default function CodeHighlightsPanel({
             collapsedBottom < 0 &&
             rect.bottom < window.innerHeight * 0.5
           ) {
-            // 1) Measure panel height with accordion open
             const heightBefore = el.offsetHeight;
-
-            // 2) Bypass CSS transition for instant close
             openBody.style.transition = "none";
-
-            // 3) Synchronously close: React removes class immediately
             flushSync(() => setExpandedMobileCode(null));
-
-            // 4) Measure height after close
             const heightAfter = el.offsetHeight;
             const delta = heightBefore - heightAfter;
 
-            // 5) Scroll up via Lenis to compensate — this truly removes the
-            //    extra distance instead of adding a dead-space margin.
             if (delta > 0) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const l = (window as any).lenis;
               if (l) {
                 l.scrollTo(l.scroll - delta, { immediate: true });
               }
-              // Clear any stale margin from previous approach
               el.style.marginBottom = "";
             }
 
-            // 6) Restore CSS transition on next frame
             requestAnimationFrame(() => {
               openBody.style.transition = "";
             });
-
-            // Stop loop; effect will re-run with null and bail out
             return;
           }
         }
@@ -182,7 +108,7 @@ export default function CodeHighlightsPanel({
 
     rafId = requestAnimationFrame(check);
     return () => cancelAnimationFrame(rafId);
-  }, [expandedMobileCode]);
+  }, [expandedMobileCode, panelRef]);
 
   const scrollCodePage = useCallback(
     (direction: 1 | -1) => {
@@ -197,36 +123,21 @@ export default function CodeHighlightsPanel({
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
-      {/* Inner wrapper: counter-translated to appear pinned */}
+      {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
       <div ref={contentRef} className={styles.pinnedContent}>
-        <div className={styles.pinnedTitleRow}>
-          <div>
-            <span className={`${styles.panelNumber} ${styles.animate}`}>
-              07
-            </span>
-            <h3
-              className={`${styles.panelTitle} ${styles.panelTitleCompact} ${styles.animate}`}
-            >
-              Code Highlights.
-            </h3>
-          </div>
+        <PinnedTitleRow
+          number="07"
+          title="Code Highlights."
+          compact
+          animate
+          dotNav={{
+            count: codeExamples.length,
+            activeIndex,
+            onDotClick: scrollToItem,
+          }}
+        />
 
-          {/* Dot navigation */}
-          <div className={`${styles.dotNav} ${styles.animate}`}>
-            {codeExamples.map((_, index) => (
-              <div
-                data-clickable="true"
-                key={index}
-                className={`${styles.dot} ${
-                  index === activeIndex ? styles.dotActive : ""
-                }`}
-                onClick={() => handleDotClick(index)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Desktop: single pane view — one item at a time */}
+        {/* 데스크톱: 단일 패인 뷰 — 한 번에 하나씩 */}
         <div className={`${styles.codeSingleView} ${styles.animate}`}>
           {codeExamples.map((example, index) => (
             <div
@@ -287,7 +198,7 @@ export default function CodeHighlightsPanel({
           ))}
         </div>
 
-        {/* Mobile: list with border-bottom dividers */}
+        {/* 모바일: 하단 구분선이 있는 목록 */}
         <div className={styles.codeListMobile}>
           {codeExamples.map((example, index) => {
             const isOpen = expandedMobileCode === index;
