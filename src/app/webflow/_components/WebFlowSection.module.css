@@ -162,6 +162,21 @@
   display: flex;
   gap: 0;
   align-items: center;
+  position: relative;
+}
+
+/* Spring-animated capsule indicator (framer-motion) */
+.dotIndicator {
+  border: 1px solid var(--text-accent-secondary);
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 0;
+  height: 100%;
+  background: transparent;
+  pointer-events: none;
+  border-radius: var(--radius-capsule);
+  translate: 0 -50%;
 }
 
 /* Modifier: keep dotNav visible on mobile (DC) */
@@ -179,9 +194,10 @@
   gap: 0;
   align-items: center;
   padding: clamp(0.25rem, 0.4vh, 0.4rem) clamp(0.35rem, 0.45vw, 0.55rem);
-  border: 1px solid transparent;
+  border: none;
   overflow: hidden;
   position: relative;
+  z-index: 1;
   background: transparent;
   white-space: nowrap;
   border-radius: var(--radius-capsule);
@@ -189,9 +205,7 @@
 
 /* Compound selector (0,2,0) to beat global theme transition */
 .dotNav .dotItem {
-  transition:
-    gap 0.3s ease,
-    border-color 0.3s ease;
+  transition: gap 0.3s ease;
 }
 
 .dotItem .dotCircle {
@@ -230,7 +244,6 @@
 
 .dotItemActive {
   gap: clamp(0.3rem, 0.35vw, 0.5rem);
-  border-color: var(--text-accent-secondary);
 }
 
 .dotItemActive .dotCircle {
@@ -245,15 +258,7 @@
   opacity: 1;
 }
 
-/* Hover: move capsule outline only (no label resize → no jitter) */
-.dotNav:hover .dotItemActive:not(:hover) {
-  border-color: transparent;
-}
-
-.dotItem:hover {
-  border-color: var(--text-accent-secondary);
-}
-
+/* Hover: highlight dot circle */
 .dotItem:hover .dotCircle {
   background: var(--text-accent-secondary);
   opacity: 1;
@@ -873,20 +878,16 @@
   mix-blend-mode: difference;
 }
 
+.dcViewport .dotIndicator {
+  border-color: white;
+}
+
 .dcViewport .dotItem .dotCircle {
   background: white;
 }
 
-.dcViewport .dotItemActive {
-  border-color: white;
-}
-
 .dcViewport .dotItemActive .dotText {
   color: white;
-}
-
-.dcViewport .dotItem:hover {
-  border-color: white;
 }
 
 /* Inside title rows, panelTitle margin is handled by the row itself */
@@ -1440,7 +1441,7 @@
   transform: translateX(100%);
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .processSingleView .processSinglePane {
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -1603,7 +1604,7 @@
   opacity: 0;
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .codeSingleView .codeSinglePane {
   transition: opacity 0.35s ease;
 }
@@ -1807,7 +1808,7 @@
   border-radius: var(--radius-circle);
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .codeItemMobile .codeMobileToggle {
   transition: transform 0.5s var(--wf-ease-bounce);
 }
@@ -1823,7 +1824,7 @@
   opacity: 0;
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .codeItemMobile .codeMobileBody {
   transition:
     max-height 0.5s var(--wf-ease-material),
@@ -2205,7 +2206,7 @@
   border-bottom: var(--wf-line-secondary);
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .troubleList .troubleListItem {
   transition:
     border-color 0.3s ease,
@@ -2281,7 +2282,7 @@
   opacity: 0;
 }
 
-/* Compound selector (0,2,0) to beat global html[data-theme-ready] * (0,1,1) */
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .troubleDetail .troubleDetailItem {
   transition: opacity 0.3s ease;
 }

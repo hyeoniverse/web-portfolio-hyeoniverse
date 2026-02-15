@@ -1,3 +1,7 @@
+"use client";
+
+import { useRef, useState, useCallback, useEffect } from "react";
+import { motion, useSpring, useMotionValue } from "framer-motion";
 import styles from "./WebFlowSection.module.css";
 
 interface DotNavConfig {
@@ -32,6 +36,41 @@ export default function PinnedTitleRow({
   const animateClass = animate ? ` ${styles.animate}` : "";
   const titleClasses = `${styles.panelTitle}${compact ? ` ${styles.panelTitleCompact}` : ""}${animateClass}`;
 
+  // Dot nav indicator springs
+  const dotNavRef = useRef<HTMLDivElement>(null);
+  const dotItemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [hoveredDot, setHoveredDot] = useState<number | null>(null);
+
+  const springConfig = { stiffness: 170, damping: 22, mass: 1 };
+  const indicatorX = useMotionValue(0);
+  const indicatorW = useMotionValue(0);
+  const springX = useSpring(indicatorX, springConfig);
+  const springW = useSpring(indicatorW, springConfig);
+
+  const updateIndicator = useCallback(
+    (el: HTMLElement | null) => {
+      if (!el || !dotNavRef.current) return;
+      const navRect = dotNavRef.current.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      indicatorX.set(elRect.left - navRect.left);
+      indicatorW.set(elRect.width);
+    },
+    [indicatorX, indicatorW],
+  );
+
+  const targetDot = hoveredDot ?? (dotNav?.activeIndex ?? 0);
+
+  useEffect(() => {
+    if (!dotNav) return;
+    const el = dotItemRefs.current[targetDot];
+    if (el) {
+      updateIndicator(el);
+      // 라벨 확장 후 재측정 (active item label transition 완료 시)
+      const timer = setTimeout(() => updateIndicator(el), 320);
+      return () => clearTimeout(timer);
+    }
+  }, [targetDot, updateIndicator, dotNav, dotNav?.activeIndex]);
+
   return (
     <div className={styles.pinnedTitleRow}>
       <div>
@@ -39,13 +78,25 @@ export default function PinnedTitleRow({
         <h3 className={titleClasses}>{title}</h3>
       </div>
       {dotNav && (
-        <div className={`${styles.dotNav}${dotNav.className ? ` ${dotNav.className}` : ""}${animateClass}`}>
+        <div
+          ref={dotNavRef}
+          className={`${styles.dotNav}${dotNav.className ? ` ${dotNav.className}` : ""}${animateClass}`}
+          onMouseLeave={() => setHoveredDot(null)}
+        >
+          <motion.span
+            className={styles.dotIndicator}
+            style={{ x: springX, width: springW }}
+          />
           {Array.from({ length: dotNav.count }, (_, i) => (
             <button
               data-clickable="true"
               key={i}
+              ref={(el) => {
+                dotItemRefs.current[i] = el;
+              }}
               className={`${styles.dotItem} ${i === dotNav.activeIndex ? styles.dotItemActive : ""}`}
               onClick={() => dotNav.onDotClick(i)}
+              onMouseEnter={() => setHoveredDot(i)}
             >
               <span className={styles.dotCircle} />
               {dotNav.labels?.[i] && (

@@ -47,7 +47,7 @@
   background: currentColor;
   transform: scaleX(0);
   transform-origin: left;
-  /* !important: global theme transition (html[data-theme-ready] *::after) overrides transform */
+  /* !important: global theme transition (html[data-theme-transitioning] *::after) overrides transform */
   transition: transform 0.3s ease !important;
 }
 
@@ -88,7 +88,7 @@
   background: currentColor;
   transform: scaleX(0);
   transform-origin: left;
-  /* !important: global theme transition (html[data-theme-ready] *::after) overrides transform */
+  /* !important: global theme transition (html[data-theme-transitioning] *::after) overrides transform */
   transition: transform 0.3s ease !important;
 }
 
