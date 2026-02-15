@@ -11,10 +11,11 @@ interface HeroSectionProps {
   floatY: MotionValue<number>;
   oval2X: MotionValue<number>;
   oval2Y: MotionValue<number>;
+  onScrollDown?: () => void;
 }
 
 const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
-  ({ floatX, floatY, oval2X, oval2Y }, ref) => {
+  ({ floatX, floatY, oval2X, oval2Y, onScrollDown }, ref) => {
     const { t } = useLanguage();
 
     return (
@@ -96,11 +97,13 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
         </div>
 
         {/* Scroll Indicator */}
-        <motion.div
+        <motion.button
           className={styles.scrollIndicator}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
+          onClick={onScrollDown}
+          aria-label="Scroll down"
         >
           <div className={styles.scrollLineWrapper}>
             <motion.div
@@ -114,7 +117,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
             />
           </div>
           <span className={styles.scrollText}>{t("hero.scroll")}</span>
-        </motion.div>
+        </motion.button>
       </section>
     );
   },

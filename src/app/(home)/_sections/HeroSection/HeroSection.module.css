@@ -192,6 +192,10 @@
   bottom: var(--spacing-4xl);
   left: 50%;
   transform: translateX(-50%);
+
+  background: none;
+  border: none;
+  padding: var(--spacing-sm);
 }
 
 .scrollText {
