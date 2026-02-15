@@ -16,6 +16,7 @@ import { checkMobileLayout } from "./mobileCheck";
 export function usePinnedScroll(
   itemCount: number,
   onIndexChange?: (index: number) => void,
+  scrollBy?: (deltaX: number) => void,
 ): {
   panelRef: React.RefObject<HTMLDivElement | null>;
   contentRef: React.RefObject<HTMLDivElement | null>;
@@ -73,11 +74,15 @@ export function usePinnedScroll(
 
       const targetProgress = (index + 0.5) / itemCount;
       const targetLeft = -(targetProgress * extraWidth);
-      const deltaScrollY = rect.left - targetLeft;
+      const delta = rect.left - targetLeft;
 
-      window.scrollTo({ top: window.scrollY + deltaScrollY });
+      if (scrollBy) {
+        scrollBy(delta);
+      } else {
+        window.scrollTo({ top: window.scrollY + delta });
+      }
     },
-    [itemCount],
+    [itemCount, scrollBy],
   );
 
   return { panelRef, contentRef, activeIndex, scrollToItem };

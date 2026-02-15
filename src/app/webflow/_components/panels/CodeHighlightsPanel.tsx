@@ -14,14 +14,18 @@ import styles from "../WebFlowSection.module.css";
 interface CodeHighlightsPanelProps {
   language: Language;
   codeExamples: CodeExample[];
+  scrollBy?: (deltaX: number) => void;
 }
 
 export default function CodeHighlightsPanel({
   language,
   codeExamples,
+  scrollBy,
 }: CodeHighlightsPanelProps) {
   const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
     codeExamples.length,
+    undefined,
+    scrollBy,
   );
   const [expandedMobileCode, setExpandedMobileCode] = useState<number | null>(
     null,
@@ -43,9 +47,16 @@ export default function CodeHighlightsPanel({
 
     const update = () => {
       const clientH = pre.clientHeight;
-      if (clientH <= 0) return;
-      const total = Math.max(1, Math.ceil(pre.scrollHeight / clientH));
-      const page = Math.min(total, Math.floor(pre.scrollTop / clientH) + 1);
+      const scrollH = pre.scrollHeight;
+      if (clientH <= 0 || scrollH <= clientH) {
+        setCodePage({ page: 1, total: 1 });
+        return;
+      }
+      const maxScroll = scrollH - clientH;
+      const steps = Math.max(1, Math.round(maxScroll / clientH));
+      const total = steps + 1;
+      const progress = pre.scrollTop / maxScroll;
+      const page = Math.min(total, Math.round(progress * steps) + 1);
       setCodePage({ page, total });
     };
 
@@ -116,7 +127,10 @@ export default function CodeHighlightsPanel({
       if (!wrap) return;
       const pre = wrap.querySelector("pre");
       if (!pre) return;
-      pre.scrollBy({ top: direction * pre.clientHeight, behavior: "smooth" });
+      const maxScroll = pre.scrollHeight - pre.clientHeight;
+      const steps = Math.max(1, Math.round(maxScroll / pre.clientHeight));
+      const stepSize = maxScroll / steps;
+      pre.scrollBy({ top: direction * stepSize, behavior: "smooth" });
     },
     [activeIndex],
   );
@@ -134,6 +148,7 @@ export default function CodeHighlightsPanel({
             count: codeExamples.length,
             activeIndex,
             onDotClick: scrollToItem,
+            labels: codeExamples.map((e) => e.title),
           }}
         />
 

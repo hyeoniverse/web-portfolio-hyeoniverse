@@ -15,6 +15,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "@/providers/LenisProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { siteConfig } from "@/config/site.config";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   projects,
@@ -48,6 +49,7 @@ interface PressedCard {
 const SCROLL_LERP = 0.08;
 const VELOCITY_DECAY = 0.96;
 const MOUSE_EFFECT_RADIUS = 500;
+const infiniteScroll = siteConfig.works.infiniteScroll;
 const MAX_CARD_OFFSET = 12;
 const MOUSE_SENSITIVITY = 0.012;
 const IMAGE_PARALLAX_MULTIPLIER = 1.3;
@@ -105,12 +107,14 @@ export default function WorksSection() {
 
       if (cards.length === 0) return;
 
-      // 중간 인트로에서 시작 (프로젝트 세트당 하나의 인트로)
+      // 시작 위치: 무한이면 중간 인트로, 아니면 첫 인트로
       const introEls = slider.querySelectorAll(`.${styles.intro}`);
-      const middleIntro = introEls[Math.floor(introEls.length / 2)] as HTMLElement;
-      const initialX = middleIntro
-        ? -(middleIntro.offsetLeft - INITIAL_MARGIN)
-        : -(projectItems[PROJECT_COUNT * 5].offsetLeft - INITIAL_MARGIN);
+      const startIntro = infiniteScroll
+        ? (introEls[Math.floor(introEls.length / 2)] as HTMLElement)
+        : (introEls[0] as HTMLElement);
+      const initialX = startIntro
+        ? -(startIntro.offsetLeft - INITIAL_MARGIN)
+        : -(projectItems[0].offsetLeft - INITIAL_MARGIN);
 
       // 무한 래핑을 위한 한 세트 너비 계산
       let oneSetWidth = 0;
@@ -119,6 +123,9 @@ export default function WorksSection() {
           (introEls[1] as HTMLElement).offsetLeft -
           (introEls[0] as HTMLElement).offsetLeft;
       }
+
+      // 전체 트랙 너비 (클램프용)
+      const totalWidth = slider.scrollWidth;
 
       // 스크롤 상태
       let scrollX = 0;
@@ -190,8 +197,8 @@ export default function WorksSection() {
         targetImageOffset = gsap.utils.clamp(-80, 80, -velocity * 2.5);
         imageOffset += (targetImageOffset - imageOffset) * 0.08;
 
-        // 무한 스크롤 래핑: 너무 멀리 스크롤하면 한 세트만큼 되돌아감
-        if (oneSetWidth > 0) {
+        // 무한 스크롤 래핑 또는 클램프
+        if (infiniteScroll && oneSetWidth > 0) {
           while (scrollX > oneSetWidth * 3) {
             scrollX -= oneSetWidth;
             targetScrollX -= oneSetWidth;
@@ -200,6 +207,10 @@ export default function WorksSection() {
             scrollX += oneSetWidth;
             targetScrollX += oneSetWidth;
           }
+        } else if (!infiniteScroll) {
+          const maxScroll = totalWidth - window.innerWidth + initialX;
+          targetScrollX = gsap.utils.clamp(0, maxScroll, targetScrollX);
+          scrollX = gsap.utils.clamp(0, maxScroll, scrollX);
         }
 
         // 슬라이더 위치 업데이트
@@ -434,7 +445,7 @@ export default function WorksSection() {
       {/* 갤러리 트랙 */}
       <div className={styles.galleryTrack}>
         <div className={styles.gallerySlider} ref={sliderRef}>
-          {(isVerticalLayout ? projects : allProjects).map((project, index) => (
+          {(isVerticalLayout ? projects : infiniteScroll ? allProjects : projects).map((project, index) => (
             <Fragment key={`${project.id}-${index}`}>
               {/* 인트로: 각 프로젝트 세트 시작 부분에 표시 */}
               {index % PROJECT_COUNT === 0 && introBlock}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Fragment } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { siteConfig } from "@/config/site.config";
 import {
   designFeatures,
@@ -17,6 +17,7 @@ import {
 import { useHorizontalScroll } from "../_hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
 import { useNavIndicator } from "../_hooks/useNavIndicator";
+import { checkMobileLayout } from "../_hooks/mobileCheck";
 import {
   HeroPanel,
   OverviewPanel,
@@ -33,11 +34,15 @@ import {
 import SectionNav from "./SectionNav";
 import styles from "./WebFlowSection.module.css";
 
+const REPETITIONS = 3;
+const infiniteScroll = siteConfig.webflow.infiniteScroll;
+
 export default function WebFlowSection() {
   const { t, language } = useLanguage();
-  const { sectionRef, trackRef, activeSection, goToSection } =
-    useHorizontalScroll(styles);
+  const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
+    useHorizontalScroll(styles, infiniteScroll);
   useInViewMobile(trackRef, styles.animate, styles.animateVisible);
+  const { isLoading } = useLoadingScreen();
   const {
     navRef,
     navItemRefs,
@@ -46,45 +51,65 @@ export default function WebFlowSection() {
     springX,
     springWidth,
     navSections,
-  } = useNavIndicator(activeSection);
+  } = useNavIndicator(activeSection, !isLoading);
 
-  // 언어 전환 시 모든 ScrollTrigger pin 위치 재계산
-  useEffect(() => {
-    const id = requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => cancelAnimationFrame(id);
-  }, [language]);
+  const isMobile = checkMobileLayout();
+
+  const panelSet = (key: number) => (
+    <Fragment key={key}>
+      <HeroPanel t={t} />
+      <OverviewPanel language={language} overview={projectOverview} />
+      <ArchitecturePanel language={language} structure={projectStructure} />
+      <FeaturesPanel language={language} features={designFeatures} />
+      <DesignConceptPanel
+        language={language}
+        concepts={designConcepts}
+        mode={siteConfig.webflow.designConceptTransition}
+        scrollBy={scrollBy}
+      />
+      <ProcessPanel
+        language={language}
+        process={designProcess}
+        scrollBy={scrollBy}
+      />
+      <VisualBreakPanel />
+      <TechStackPanel techStack={techStack} />
+      <CodeHighlightsPanel
+        language={language}
+        codeExamples={codeExamples}
+        scrollBy={scrollBy}
+      />
+      <TroubleshootingPanel
+        language={language}
+        t={t}
+        items={troubleShootingItems}
+        scrollBy={scrollBy}
+      />
+      <CreditsPanel />
+    </Fragment>
+  );
 
   return (
     <>
       <section className={styles.section} ref={sectionRef}>
         <div className={styles.track} ref={trackRef}>
-          <HeroPanel t={t} />
-          <OverviewPanel language={language} overview={projectOverview} />
-          <ArchitecturePanel language={language} structure={projectStructure} />
-          <FeaturesPanel language={language} features={designFeatures} />
-          <DesignConceptPanel language={language} concepts={designConcepts} mode={siteConfig.webflow.designConceptTransition} />
-          <ProcessPanel language={language} process={designProcess} />
-          <VisualBreakPanel />
-          <TechStackPanel techStack={techStack} />
-          <CodeHighlightsPanel language={language} codeExamples={codeExamples} />
-          <TroubleshootingPanel
-            language={language}
-            t={t}
-            items={troubleShootingItems}
-          />
-          <CreditsPanel />
+          {isMobile || !infiniteScroll
+            ? panelSet(0)
+            : Array.from({ length: REPETITIONS }, (_, i) => panelSet(i))}
         </div>
       </section>
-      <SectionNav
-        navRef={navRef}
-        navItemRefs={navItemRefs}
-        navSections={navSections}
-        highlightedSection={highlightedSection}
-        springX={springX}
-        springWidth={springWidth}
-        onHover={setHoveredSection}
-        onNavigate={goToSection}
-      />
+      {!isLoading && (
+        <SectionNav
+          navRef={navRef}
+          navItemRefs={navItemRefs}
+          navSections={navSections}
+          highlightedSection={highlightedSection}
+          springX={springX}
+          springWidth={springWidth}
+          onHover={setHoveredSection}
+          onNavigate={goToSection}
+        />
+      )}
     </>
   );
 }

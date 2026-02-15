@@ -19,6 +19,7 @@ interface DesignConceptPanelProps {
   language: Language;
   concepts: DesignConceptItem[];
   mode?: DcTransitionMode;
+  scrollBy?: (deltaX: number) => void;
 }
 
 /* ── 타이포그래피 데모 ── */
@@ -279,6 +280,7 @@ export default function DesignConceptPanel({
   language,
   concepts,
   mode = "strip",
+  scrollBy,
 }: DesignConceptPanelProps) {
   const stripRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
@@ -313,6 +315,7 @@ export default function DesignConceptPanel({
   const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
     concepts.length,
     onIndexChange,
+    scrollBy,
   );
 
   /* ═══ 스택 모드: 초기 시각 상태 설정 (깜박임 방지) ═══ */
@@ -419,6 +422,7 @@ export default function DesignConceptPanel({
             count: concepts.length,
             activeIndex,
             onDotClick: scrollToItem,
+            labels: concepts.map((c) => c.title),
             className: styles.dotNavMobile,
           }}
         />

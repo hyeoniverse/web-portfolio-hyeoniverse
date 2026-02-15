@@ -23,16 +23,20 @@ interface TroubleshootingPanelProps {
   language: Language;
   t: (key: string) => string;
   items: TroubleShootingItem[];
+  scrollBy?: (deltaX: number) => void;
 }
 
 export default function TroubleshootingPanel({
   language,
   t,
   items,
+  scrollBy,
 }: TroubleshootingPanelProps) {
   const isMobile = checkMobileLayout();
   const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
     items.length,
+    undefined,
+    scrollBy,
   );
 
   // 모바일: 초기 상태 설정 (첫 번째 항목 표시, 나머지 숨김)

@@ -36,6 +36,8 @@ export default function Navigation() {
   const [scaleFactor, setScaleFactor] = useState(1);
   const hasMeasured = useRef(false);
 
+  const [logoMeasured, setLogoMeasured] = useState(false);
+
   const measureLogo = useCallback(() => {
     const el = logoRef.current;
     if (!el) return;
@@ -59,6 +61,7 @@ export default function Navigation() {
       x: window.innerWidth / 2 - rect.left - (rect.width * scale) / 2,
       y: window.innerHeight / 2 - (rect.top + rect.height / 2),
     });
+    setLogoMeasured(true);
   }, []);
 
   useEffect(() => {
@@ -71,6 +74,7 @@ export default function Navigation() {
   useEffect(() => {
     if (!isLoading) {
       hasMeasured.current = false;
+      setLogoMeasured(false);
     }
   }, [isLoading]);
 
@@ -132,7 +136,10 @@ export default function Navigation() {
           ease: [0.76, 0, 0.24, 1],
           delay: isTransitioning ? 0.25 : 0,
         }}
-        style={{ transformOrigin: "left center" }}
+        style={{
+          transformOrigin: "left center",
+          visibility: showLoadingLogo && !logoMeasured ? "hidden" : "visible",
+        }}
       >
         <Link href="/" className={styles.logo}>
           <motion.span
