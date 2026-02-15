@@ -12,7 +12,7 @@ const TorusScene = dynamic(() => import("./TorusScene"), { ssr: false });
 
 export default function ScrollTorus() {
   const { theme } = useTheme();
-  const { getProgress } = useScrollProgress();
+  const { getCumulative } = useScrollProgress();
   const { isMobile, isTouch } = useIsMobile();
 
   const cameraConfig = useMemo(
@@ -44,7 +44,7 @@ export default function ScrollTorus() {
       >
         <Suspense fallback={null}>
           <TorusScene
-            getProgress={getProgress}
+            getCumulative={getCumulative}
             theme={theme}
             isMobile={isMobile}
           />

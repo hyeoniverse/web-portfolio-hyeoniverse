@@ -2,6 +2,7 @@
 
 import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Environment } from "@react-three/drei";
 import * as THREE from "three";
 import {
   TORUS_GEOMETRY,
@@ -13,18 +14,17 @@ import {
 } from "@/constants/torus";
 
 interface TorusSceneProps {
-  getProgress: () => number;
+  getCumulative: () => number;
   theme: "dark" | "light";
   isMobile: boolean;
 }
 
 export default function TorusScene({
-  getProgress,
+  getCumulative,
   theme,
   isMobile,
 }: TorusSceneProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const wireframeRef = useRef<THREE.Mesh>(null);
 
   const geometry = useMemo(() => {
     const radial = isMobile
@@ -47,56 +47,49 @@ export default function TorusScene({
   useFrame(() => {
     if (!meshRef.current) return;
 
-    const progress = getProgress();
+    const t = getCumulative();
 
-    // Position
+    // X: 좌우 진동 (연속)
     const xAmp = isMobile
       ? TORUS_PATH.xAmplitude * TORUS_MOBILE.xAmplitudeMultiplier
       : TORUS_PATH.xAmplitude;
+    const x = Math.sin(t * TORUS_PATH.xFrequency * Math.PI * 2) * xAmp;
 
-    const x =
-      Math.sin(progress * TORUS_PATH.xFrequency * Math.PI * 2 + TORUS_PATH.xPhase) *
-      xAmp;
+    // Y: 상하 진동 (X와 다른 주파수 → 리사주 곡선)
+    const y =
+      Math.cos(t * TORUS_PATH.yFrequency * Math.PI * 2) * TORUS_PATH.yAmplitude;
 
-    const yLinear =
-      TORUS_PATH.yStart + (TORUS_PATH.yEnd - TORUS_PATH.yStart) * progress;
-    const yWave =
-      Math.sin(progress * TORUS_PATH.yWaveFrequency * Math.PI * 2) *
-      TORUS_PATH.yWaveAmplitude;
-
+    // Z: 깊이 진동 (연속)
     const z =
-      Math.sin(progress * TORUS_PATH.zFrequency * Math.PI * 2) *
+      Math.sin(t * TORUS_PATH.zFrequency * Math.PI * 2) *
         TORUS_PATH.zAmplitude -
       2;
 
-    // Rotation
-    const rx = progress * TORUS_ROTATION.xSpeed;
-    const ry = progress * TORUS_ROTATION.ySpeed;
-    const rz = progress * TORUS_ROTATION.zSpeed;
+    // Rotation: 연속 회전
+    const rx = t * TORUS_ROTATION.xSpeed;
+    const ry = t * TORUS_ROTATION.ySpeed;
+    const rz = t * TORUS_ROTATION.zSpeed;
 
     // Scale
     const s = isMobile ? TORUS_MOBILE.scaleFactor : 1;
 
-    meshRef.current.position.set(x, yLinear + yWave, z);
+    meshRef.current.position.set(x, y, z);
     meshRef.current.rotation.set(rx, ry, rz);
     meshRef.current.scale.set(
       TORUS_SCALE.x * s,
       TORUS_SCALE.y * s,
       TORUS_SCALE.z * s
     );
-
-    if (wireframeRef.current) {
-      wireframeRef.current.position.copy(meshRef.current.position);
-      wireframeRef.current.rotation.copy(meshRef.current.rotation);
-      wireframeRef.current.scale.copy(meshRef.current.scale);
-    }
   });
 
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 5, 5]} intensity={0.6} />
-      <directionalLight position={[-3, -2, 4]} intensity={0.3} />
+      {/* 환경 반사맵 (메탈릭 반사용) */}
+      <Environment preset="city" />
+
+      <ambientLight intensity={0.3} />
+      <directionalLight position={[5, 5, 5]} intensity={1.0} />
+      <directionalLight position={[-3, -2, 4]} intensity={0.5} />
 
       <mesh ref={meshRef} geometry={geometry}>
         <meshStandardMaterial
@@ -105,20 +98,8 @@ export default function TorusScene({
           emissiveIntensity={matConfig.emissiveIntensity}
           metalness={matConfig.metalness}
           roughness={matConfig.roughness}
-          transparent
-          opacity={matConfig.opacity}
-          depthWrite={false}
+          envMapIntensity={matConfig.envMapIntensity}
           side={THREE.DoubleSide}
-        />
-      </mesh>
-
-      <mesh ref={wireframeRef} geometry={geometry}>
-        <meshBasicMaterial
-          color={matConfig.color}
-          wireframe
-          transparent
-          opacity={matConfig.wireframeOpacity}
-          depthWrite={false}
         />
       </mesh>
     </>
