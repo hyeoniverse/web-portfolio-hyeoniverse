@@ -216,19 +216,15 @@ export default function WorksSection() {
         // 슬라이더 위치 업데이트
         gsap.set(slider, { x: initialX - scrollX });
 
-        // 활성 인덱스 업데이트 (뷰포트 중앙에 가장 가까운 프로젝트 찾기)
-        const viewportCenter = window.innerWidth / 2;
-        let closestIndex = 0;
-        let closestDist = Infinity;
-        for (let i = 0; i < projectItems.length; i++) {
-          const rect = projectItems[i].getBoundingClientRect();
-          const dist = Math.abs(rect.left + rect.width / 2 - viewportCenter);
-          if (dist < closestDist) {
-            closestDist = dist;
-            closestIndex = i;
+        // 활성 인덱스 업데이트 (카드 왼쪽이 뷰포트에 진입하면 전환)
+        let latestIndex = 0;
+        for (let i = 0; i < cards.length; i++) {
+          const rect = cards[i].getBoundingClientRect();
+          if (rect.left < window.innerWidth) {
+            latestIndex = i;
           }
         }
-        setActiveIndex(closestIndex % PROJECT_COUNT);
+        setActiveIndex(latestIndex % PROJECT_COUNT);
 
         // intro가 화면에 보이면 고정 타이틀 숨김
         let introOnScreen = false;
