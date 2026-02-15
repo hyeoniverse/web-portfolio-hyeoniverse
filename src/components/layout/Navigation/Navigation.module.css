@@ -147,6 +147,32 @@
   Responsive
   ========================================================================== */
 
+/* ==========================================================================
+  Loading State — logo centered on screen, nav items hidden
+  ========================================================================== */
+
+.navLoading {
+  pointer-events: none;
+}
+
+.navLoading .navCenter,
+.navLoading .navActions {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Logo wrapper: transform 기반 중앙→nav 이동 애니메이션 */
+.logoWrapper {
+  display: inline-flex;
+  will-change: transform;
+  font-size: var(--font-size-3xl);
+  line-height: 1;
+}
+
+/* ==========================================================================
+  Responsive
+  ========================================================================== */
+
 @media (max-width: 768px) {
   .nav {
     padding: var(--spacing-xl) 5vw;
