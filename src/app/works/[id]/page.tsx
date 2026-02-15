@@ -65,7 +65,7 @@ export default function WorkDetailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          <span className={styles.category}>{project.category[language]}</span>
+          <span className={styles.category}>{project.category.en}</span>
           <span className={styles.year}>{project.year}</span>
         </motion.div>
 
