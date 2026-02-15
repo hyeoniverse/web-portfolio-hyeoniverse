@@ -72,7 +72,7 @@ export default function WebFlowSection() {
             t={t}
             items={troubleShootingItems}
           />
-          <CreditsPanel t={t} nickname={siteConfig.personal.nickname} />
+          <CreditsPanel />
         </div>
       </section>
       <SectionNav

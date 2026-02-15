@@ -696,6 +696,29 @@ export default function Error({ error, reset }) {
   <a href="/">Go Home</a>
 </body></html>`,
   },
+  {
+    title: "Unit Testing with Vitest",
+    description: {
+      ko: "**Vitest + React Testing Library**로 핵심 유틸과 컴포넌트를 테스트합니다. 클래스명 조합(`cn`), 날짜 포맷, 랜덤 생성, 모바일 판별, 하이라이트 마크업 변환 등 **순수 함수와 렌더링 결과**를 검증하며, jsdom 환경에서 **브라우저 API를 모킹**하여 실행합니다.",
+      en: "Core utilities and components are tested with **Vitest + React Testing Library**. Tests cover class name merging (`cn`), date formatting, random generation, mobile detection, and highlight markup — verifying **pure functions and render output** in a jsdom environment with **mocked browser APIs**.",
+    },
+    language: "javascript",
+    code: `// cn.test.ts — 클래스명 조합 유틸
+expect(cn("px-2", "px-4")).toBe("px-4");
+expect(cn("foo", false, "bar")).toBe("foo bar");
+
+// mobileCheck.test.ts — 브라우저 API 모킹
+Object.defineProperty(window, "innerWidth", { value: 800 });
+Object.defineProperty(window, "innerHeight", { value: 600 });
+expect(checkMobileLayout()).toBe(true);
+
+// renderHighlight.test.tsx — React 렌더링 테스트
+const { container } = render(
+  <>{renderHighlight("**강조** 텍스트")}</>
+);
+expect(container.querySelector(".highlighted-text"))
+  .toBeTruthy();`,
+  },
 ];
 
 export const troubleShootingItems: TroubleShootingItem[] = [

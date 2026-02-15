@@ -2013,6 +2013,80 @@
   border-radius: var(--radius-sm);
 }
 
+/* ── Demo 11: Unit Test Runner ── */
+.demoTestRunner {
+  display: flex;
+  gap: 0.35rem;
+  flex-direction: column;
+  width: 100%;
+  max-width: clamp(200px, 18vw, 320px);
+  padding: var(--spacing-xs);
+  border: var(--wf-line-secondary);
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
+  border-radius: var(--radius-sm);
+}
+
+.demoTestHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.3rem;
+  border-bottom: var(--wf-line-secondary);
+}
+
+.demoTestTitle {
+  font-weight: 600;
+  color: rgb(34, 197, 94);
+  letter-spacing: 0.05em;
+}
+
+.demoTestCount {
+  color: var(--text-tertiary);
+}
+
+.demoTestList {
+  display: flex;
+  gap: 0.2rem;
+  flex-direction: column;
+}
+
+.demoTestRow {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.demoTestIcon {
+  width: 1.2em;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.demoTestPass {
+  color: rgb(34, 197, 94);
+}
+
+/* Compound selector (0,2,0) to override global theme transition */
+.codeDemoInner .demoTestPass {
+  transition: color 0.15s ease;
+}
+
+.demoTestName {
+  flex: 1;
+  min-width: 0;
+}
+
+.demoTestSuite {
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 1024px), (max-height: 640px) {
+  .demoTestRunner {
+    max-width: 100%;
+  }
+}
+
 /* ==========================================================================
    Troubleshooting Panel — Scroll-Driven List + Detail
    ========================================================================== */
