@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useLayoutEffect, useCallback } from "react";
+import { useRef, useState, useLayoutEffect, useCallback } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { ProcessStep } from "@/data/webflow";
 import { checkMobileLayout } from "../../_hooks/mobileCheck";
@@ -37,9 +37,11 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
 
   // 모바일/태블릿: 아코디언 레이아웃
   const stepListRef = useRef<HTMLDivElement>(null);
+  const [mobileActiveIdx, setMobileActiveIdx] = useState(0);
   const COLLAPSED_HEIGHT = 36;
 
   const handleMobileIndexChange = useCallback((activeIdx: number) => {
+    setMobileActiveIdx(activeIdx);
     const stepList = stepListRef.current;
     if (!stepList) return;
 
@@ -181,8 +183,8 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
         {/* 모바일: 아코디언 스텝 행 — 활성은 확장, 나머지는 축소 */}
         <div ref={stepListRef} className={styles.processStepList}>
           {process.map((p, i) => {
-            const isDone = i < activeIndex;
-            const isActive = i === activeIndex;
+            const isDone = i < mobileActiveIdx;
+            const isActive = i === mobileActiveIdx;
             return (
               <div
                 data-clickable="true"
