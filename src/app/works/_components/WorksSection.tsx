@@ -86,6 +86,20 @@ export default function WorksSection() {
     };
   }, [setInfinite]);
 
+  // 브라우저 리사이즈 시 페이지 리로드 (수평 스크롤 레이아웃 재계산)
+  useEffect(() => {
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => window.location.reload(), 200);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   // 수평 스크롤 애니메이션 (데스크탑 전용)
   useLayoutEffect(() => {
     if (isVerticalLayout) return;
