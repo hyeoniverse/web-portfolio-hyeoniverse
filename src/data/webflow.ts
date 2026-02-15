@@ -146,6 +146,7 @@ export const projectOverview = {
     "GSAP ScrollTrigger",
     "Framer Motion",
     "Lenis Smooth Scroll",
+    "Three.js (R3F)",
     "CSS Variables",
     "i18n (KO/EN)",
     "AI Pair Programming",
@@ -234,8 +235,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "effects/",
     description: {
-      ko: "StaggerText, Parallax, CursorTrail, FontMorph",
-      en: "StaggerText, Parallax, CursorTrail, FontMorph",
+      ko: "StaggerText, Parallax, CursorTrail, FontMorph, ScrollTorus",
+      en: "StaggerText, Parallax, CursorTrail, FontMorph, ScrollTorus",
     },
     indent: 2,
   },
@@ -387,6 +388,15 @@ export const designFeatures: DesignFeature[] = [
     },
     tech: ["Context API", "TypeScript Generics", "LocalizedText", "SSR-safe"],
   },
+  {
+    icon: "10",
+    title: "3D Scroll Torus",
+    description: {
+      ko: "Three.js(React Three Fiber) 기반 3D 메탈릭 토러스가 스크롤에 연동되어 화면 위를 떠다닙니다. Lenis 누적 스크롤을 추적하여 리사주 곡선 경로를 따라 회전·이동하며, 다크/라이트 테마별 머티리얼과 모바일 geometry 간소화를 적용했습니다.",
+      en: "A metallic 3D torus built with Three.js (React Three Fiber) floats across the screen, driven by scroll. It tracks cumulative Lenis scroll to follow a Lissajous curve path with continuous rotation, featuring theme-adaptive materials and optimized mobile geometry.",
+    },
+    tech: ["Three.js", "React Three Fiber", "Lissajous Curve", "Environment Map"],
+  },
 ];
 
 export const techStack: TechStackItem[] = [
@@ -398,6 +408,7 @@ export const techStack: TechStackItem[] = [
   { name: "Framer Motion", category: "Interaction" },
   { name: "CSS Modules", category: "Styling" },
   { name: "CSS Variables", category: "Design Tokens" },
+  { name: "Three.js / R3F", category: "3D Graphics" },
   { name: "Zustand", category: "State Management" },
   { name: "Formspree", category: "Form & Email" },
 ];
@@ -695,6 +706,32 @@ export default function Error({ error, reset }) {
   </button>
   <a href="/">Go Home</a>
 </body></html>`,
+  },
+  {
+    title: "3D Scroll Torus (Lissajous Curve)",
+    description: {
+      ko: "스크롤할 때마다 3D 토러스가 **화면 안에서 끝없이 떠다니는** 효과입니다. X와 Y 축에 **서로 다른 주파수의 사인파**를 적용하여 리사주 곡선을 그리며, 화면 밖으로 나가지 않으면서도 **반복되지 않는 유기적인 궤적**을 만듭니다. Lenis 무한 스크롤의 **누적 거리를 추적**하여 스크롤 방향에 관계없이 연속적으로 움직입니다.",
+      en: "A 3D torus that **floats endlessly within the viewport** as you scroll. By applying **sine waves with different frequencies** to the X and Y axes, it traces a Lissajous curve — staying on-screen while creating an **organic, non-repeating trajectory**. It tracks **cumulative Lenis scroll distance** so the torus moves continuously regardless of scroll direction.",
+    },
+    language: "javascript",
+    code: `// Lenis 누적 스크롤 추적 (무한 스크롤 래핑 감지)
+const currentNorm = scroll / limit;
+let delta = currentNorm - lastNorm;
+if (delta > 0.5) delta -= 1;      // 뒤로 래핑
+else if (delta < -0.5) delta += 1; // 앞으로 래핑
+cumulativeRef.current += delta;
+
+// 리사주 곡선: X·Y 주파수가 다르면 무한 궤도
+const t = getCumulative();
+const x = Math.sin(t * 0.7 * Math.PI * 2) * 3.5;
+const y = Math.cos(t * 1.1 * Math.PI * 2) * 3.0;
+const z = Math.sin(t * 0.4 * Math.PI * 2) * 1.5 - 2;
+
+// 메탈릭 머티리얼 + 환경 반사
+<Environment preset="city" />
+<meshStandardMaterial
+  metalness={1.0} roughness={0.08}
+  envMapIntensity={1.5} />`,
   },
   {
     title: "Unit Testing with Vitest",

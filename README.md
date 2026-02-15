@@ -8,6 +8,7 @@
 - **Library**: React 19
 - **Language**: TypeScript
 - **Animation**: GSAP + ScrollTrigger, Framer Motion
+- **3D**: Three.js, React Three Fiber, Drei
 - **Scroll**: Lenis Smooth Scroll
 - **Styling**: CSS Modules, CSS Variables
 - **Typography**: Instrument Serif, Space Grotesk
@@ -21,6 +22,7 @@
 - **Mix-Blend Navigation**: mix-blend-mode: difference를 활용한 자동 반전 네비게이션
 - **StaggerText**: 호버 시 글자별 순차 애니메이션 효과 컴포넌트
 - **Works Horizontal Gallery**: GSAP 기반 가로 스크롤 갤러리, 양방향 무한 스크롤 래핑, 인트로 인플로우 배치, 언어 전환 레이아웃 안정화
+- **3D Scroll Torus**: Three.js(React Three Fiber) 기반 3D 메탈릭 토러스가 스크롤에 연동되어 리사주 곡선 경로를 따라 회전·이동. Lenis 누적 스크롤 추적, 테마별 머티리얼, 모바일 최적화(geometry 간소화, 스케일 축소)
 - **Breakpoint Guard**: 뷰포트가 breakpoint(768px, 1024px)를 넘을 때 페이지 콘텐츠를 자동 remount하여 GSAP/ScrollTrigger 등 레이아웃 의존 애니메이션을 재초기화
 
 ## 시작하기
