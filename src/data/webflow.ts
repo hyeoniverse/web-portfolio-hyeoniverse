@@ -406,67 +406,67 @@ export const designProcess: ProcessStep[] = [
   {
     step: "01",
     title: {
-      ko: "시행착오로 시작한 레이아웃",
-      en: "Layout Through Trial & Error",
+      ko: "설계 및 디자인 시스템 구축",
+      en: "Design System & Foundation",
     },
     description: {
-      ko: "16번의 디자인 커밋이 말해주듯, 정해진 시안 없이 코드로 직접 디자인을 찾아갔습니다. Hero 섹션과 기본 구조를 잡으면서 CSS Variables 기반 디자인 토큰, 다크/라이트 테마 시스템, CSS Modules 캡슐화를 동시에 구축했습니다.",
-      en: "As 16 design commits show, there was no fixed mockup — the design was discovered directly through code. While shaping the Hero section and base structure, the CSS Variables design token system, dark/light theme, and CSS Modules encapsulation were built simultaneously.",
+      ko: "**CSS Variables** 기반 디자인 토큰을 정의하고, **다크/라이트 테마** 전환 시스템과 **CSS Modules** 캡슐화 구조를 설계했습니다. **16회 이상의 디자인 반복**을 거쳐 타이포그래피, 색상, 간격 체계를 확립하고 전체 레이아웃의 기반을 잡았습니다.",
+      en: "Defined design tokens based on **CSS Variables**, and established a **dark/light theme** switching system with **CSS Modules** encapsulation. Through **16+ design iterations**, established typography, color, and spacing systems that form the foundation of the entire layout.",
     },
   },
   {
     step: "02",
     title: {
-      ko: "인터랙션의 물리적 감각",
-      en: "Physics of Interaction",
+      ko: "핵심 UI 컴포넌트 개발",
+      en: "Core UI Component Development",
     },
     description: {
-      ko: "Image Velocity, StaggerText, Mouse Parallax — 단순 등장 애니메이션이 아니라 스크롤 속도와 마우스 움직임에 반응하는 물리 기반 효과를 GSAP과 Framer Motion으로 구현. 스프링 감쇠값을 수십 번 조절하며 '자연스러운 무게감'을 찾는 과정이었습니다.",
-      en: "Image Velocity, StaggerText, Mouse Parallax — not simple entrance animations but physics-based effects responding to scroll speed and mouse movement, built with GSAP and Framer Motion. It was a process of tweaking spring damping values dozens of times to find the right 'natural weight'.",
+      ko: "**Hero** 섹션, **Navigation**, **Contact Drawer**, **Loading Screen** 등 주요 UI 컴포넌트를 구현했습니다. 네비게이션의 언어·테마 버튼에 **flip/pop 애니메이션**을 적용하고, 로딩 화면에 **001→100 카운팅 애니메이션**을 추가하는 등 각 컴포넌트의 인터랙션을 설계했습니다.",
+      en: "Built core UI components including **Hero** section, **Navigation**, **Contact Drawer**, and **Loading Screen**. Applied **flip/pop animations** to the navigation's language and theme buttons, added a **001→100 counting animation** to the loading screen, and designed interactions for each component.",
     },
   },
   {
     step: "03",
     title: {
-      ko: "구조 개편과 다국어 지원",
-      en: "Restructure & i18n",
+      ko: "인터랙션 및 모션 디자인",
+      en: "Interaction & Motion Design",
     },
     description: {
-      ko: "프로젝트가 커지며 전체 폴더 구조를 개편하고, 한/영 다국어(i18n) 시스템을 도입했습니다. 문제는 언어 전환 시 텍스트 길이 차이로 레이아웃이 깨지는 것 — 모든 컴포넌트에서 고정 높이 대신 컨텐츠 기반 유동 레이아웃으로 전환하며 해결했습니다.",
-      en: "As the project grew, the entire folder structure was reorganized and a Korean/English i18n system was introduced. The challenge was layout breaking due to text length differences on language switch — solved by converting all components from fixed heights to content-based fluid layouts.",
+      ko: "**GSAP**과 **Framer Motion**을 활용해 Image Velocity, StaggerText, Mouse Parallax, Magnetic Hover, Direction-Aware ClipPath 등 **물리 기반 인터랙션**을 구현했습니다. 스크롤 속도와 마우스 움직임에 반응하는 **스프링 감쇠 기반 애니메이션**으로 자연스러운 모션을 구현했습니다.",
+      en: "Implemented **physics-based interactions** using **GSAP** and **Framer Motion** — Image Velocity, StaggerText, Mouse Parallax, Magnetic Hover, and Direction-Aware ClipPath. Built natural motion through **spring-damped animations** that respond to scroll speed and mouse movement.",
     },
   },
   {
     step: "04",
     title: {
-      ko: "Works 가로 갤러리 삽질기",
-      en: "Works Gallery — The Hard Way",
+      ko: "다국어 지원 및 반응형 최적화",
+      en: "Internationalization & Responsive Design",
     },
     description: {
-      ko: "GSAP rAF 기반 가로 스크롤에 양방향 무한 래핑, 뷰포트 중심 활성 카드 감지, 스크롤 속도 기반 이미지 밀림 효과까지. 20개 이상의 커밋을 거치며 인트로 배치, 카드 전환 애니메이션, 태블릿/모바일 레이아웃을 하나씩 잡아갔습니다.",
-      en: "Horizontal scroll with GSAP rAF, bidirectional infinite wrapping, viewport-center active card detection, and scroll-velocity image shift. Over 20 commits were spent iterating on intro placement, card transition animations, and tablet/mobile layouts one by one.",
+      ko: "한/영 **다국어(i18n)** 시스템을 도입하고, 언어별 텍스트 길이 차이로 발생하는 **레이아웃 시프트**를 min-height 예약 방식으로 해결했습니다. 데스크톱·태블릿·모바일 각 환경에 맞는 **반응형 레이아웃**을 구현하고, **clamp() 기반 유동 사이징**을 적용했습니다.",
+      en: "Introduced a Korean/English **i18n system** and resolved **layout shifts** from text length differences using reserved min-height. Implemented **responsive layouts** tailored to desktop, tablet, and mobile environments with **clamp()-based fluid sizing**.",
     },
   },
   {
     step: "05",
     title: {
-      ko: "Lighthouse로 증명하기",
-      en: "Proving It with Lighthouse",
+      ko: "성능 최적화",
+      en: "Performance Optimization",
     },
     description: {
-      ko: "Lighthouse CLI로 프로덕션 빌드를 직접 측정하며 2차에 걸쳐 최적화. reCAPTCHA가 팝업을 뿌리며 렌더링을 막는 문제를 invisible 모드 + 지연 로딩으로 해결하고, 미사용 폰트 제거와 리소스 경량화로 모바일 98점을 달성했습니다.",
-      en: "Measured production builds directly with Lighthouse CLI through two rounds of optimization. Solved reCAPTCHA blocking render with invisible mode + lazy loading, removed unused fonts, and achieved mobile score of 98 through resource optimization.",
+      ko: "**Lighthouse CLI**로 프로덕션 빌드를 측정하며 2차에 걸쳐 최적화를 진행했습니다. reCAPTCHA를 **invisible 모드 + 지연 로딩**으로 전환하고, 미사용 폰트 4종(12파일)을 제거하여 페이지 용량을 **70% 절감**, 모바일 **Performance 98점**을 달성했습니다.",
+      en: "Measured production builds with **Lighthouse CLI** through two rounds of optimization. Switched reCAPTCHA to **invisible mode with lazy loading**, removed 4 unused font families (12 files), reduced page weight by **70%**, and achieved a mobile **Performance score of 98**.",
     },
   },
   {
     step: "06",
     title: {
-      ko: "이 페이지를 만든 이유",
-      en: "Why This Page Exists",
+      ko: "문서화 및 프로젝트 회고",
+      en: "Documentation & Project Retrospective",
     },
     description: {
-      ko: "포트폴리오의 결과물만 보여주는 건 아쉬웠습니다. 어떤 기술을 왜 선택했고, 어디서 막혔고, 어떻게 풀었는지를 기록하는 Webflow 페이지를 마지막에 추가했습니다. 코드 하이라이트, 트러블슈팅, 아키텍처 시각화까지 — 과정 자체가 포트폴리오입니다.",
-      en: "Showing only the final result felt incomplete. The Webflow page was added last to document which technologies were chosen and why, where things got stuck, and how they were solved. Code highlights, troubleshooting, architecture visualization — the process itself is the portfolio.",
+      ko: "기술 선택의 이유, 문제 해결 과정, 아키텍처 구조를 기록하는 **Webflow 페이지**를 구현했습니다. Code Highlights, Troubleshooting, Architecture 시각화 등 **6개 패널**을 **50회 이상의 커밋**을 거쳐 데스크톱 가로 스크롤과 모바일 세로 레이아웃으로 완성했습니다.",
+      en: "Built the **Webflow page** documenting technology choices, problem-solving processes, and architecture structure. Completed **6 panels** — Code Highlights, Troubleshooting, Architecture visualization, and more — through **50+ commits** with desktop horizontal scroll and mobile vertical layout.",
     },
   },
 ];
