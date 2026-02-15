@@ -627,87 +627,6 @@ style={{
 }}`,
   },
   {
-    title: "Loading Screen Progress",
-    description: {
-      ko: "페이지를 처음 열 때 보이는 로딩 화면입니다. 숫자가 **001에서 100까지 부드럽게 올라가며**, 처음엔 빠르다가 **끝에 가까울수록 천천히 감속**합니다. 항상 **세 자리 숫자**(001, 055, 100)로 표시되고, 아래 프로그레스 바도 숫자와 함께 채워집니다.",
-      en: "The loading screen shown when the page first opens. The counter **smoothly counts from 001 to 100**, starting fast and **gradually slowing down** near the end. It always shows **three digits** (001, 055, 100), and the progress bar below fills in sync with the number.",
-    },
-    language: "javascript",
-    code: `// 이전 값에서 새 값으로 ease-out 보간
-const animate = (currentTime) => {
-  const elapsed = currentTime - startTime;
-  const t = Math.min(elapsed / 300, 1);
-  const eased = 1 - Math.pow(1 - t, 3);
-  const value = Math.round(start + diff * eased);
-  setDisplayedProgress(value);
-  if (t < 1) requestAnimationFrame(animate);
-};
-
-// 표시: 001, 055, 100 형식
-displayedProgress.toString().padStart(3, "0")
-
-// 프로그레스 바 동기화
-<motion.div animate={{ scaleX: progress / 100 }} />`,
-  },
-  {
-    title: "i18n Layout Shift Prevention",
-    description: {
-      ko: "한국어와 영어는 같은 뜻이라도 **글자 수와 줄 수가 달라서**, 언어를 바꾸면 텍스트 높이가 변하며 **주변 요소들이 밀려나는 현상**이 생깁니다. 이를 막기 위해 텍스트 영역에 **미리 최소 높이를 확보**해 두어, 어떤 언어든 같은 공간을 차지하도록 합니다.",
-      en: "Korean and English have **different character counts and line breaks** for the same meaning, so switching languages changes text height and **pushes surrounding elements around**. To prevent this, each text area is given a **reserved minimum height** so both languages always occupy the same space.",
-    },
-    language: "css",
-    code: `/* 최대 줄 수 × line-height로 공간 예약 */
-.introDesc { min-height: 4.95em; }   /* 3줄 × 1.65 */
-.introDetail { min-height: 6.6em; }  /* 4줄 × 1.65 */
-.introQuote { min-height: 3.3em; }   /* 2줄 × 1.65 */
-
-/* 모바일: 세로 스크롤이므로 불필요 */
-@media (max-width: 768px) {
-  .introDesc, .introDetail, .introQuote {
-    min-height: auto;
-  }
-}`,
-  },
-  {
-    title: "Error Boundary",
-    description: {
-      ko: "Next.js의 **2단계 에러 바운더리**로 런타임 에러를 안전하게 처리합니다. `error.tsx`는 라우트 단위로 동작하며, Provider가 살아 있어 **i18n·테마·애니메이션**을 모두 사용할 수 있습니다. `global-error.tsx`는 루트 레이아웃 자체가 깨졌을 때 동작하므로 **인라인 스타일만** 사용하고, `<Link>` 대신 `<a>`를 씁니다. 두 페이지 모두 `error.digest`를 참조 ID로 표시하되 **기술 정보는 노출하지 않습니다**.",
-      en: "Next.js **two-layer error boundaries** safely handle runtime errors. `error.tsx` works at the route level where Providers survive, enabling **i18n, theming, and animations**. `global-error.tsx` fires when the root layout itself breaks, so it uses **inline styles only** and `<a>` instead of `<Link>`. Both pages display `error.digest` as a reference ID while **hiding technical details**.",
-    },
-    language: "javascript",
-    code: `// error.tsx — 라우트 레벨 (Provider 접근 가능)
-export default function Error({ error, reset }) {
-  useEffect(() => {
-    console.error("Application Error:", error);
-  }, [error]);
-
-  return (
-    // Staggered entrance animations
-    <motion.div initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ ease: "backOut" }}>
-      <span>!</span>
-    </motion.div>
-
-    // 안전한 참조 ID만 노출
-    {error.digest && <p>Ref: {error.digest}</p>}
-
-    // reset(): Next.js가 제공하는 재렌더링 함수
-    <button onClick={reset}>Try Again</button>
-    <Link href="/">Go Home</Link>
-  );
-}
-
-// global-error.tsx — 루트 레벨 (인라인 스타일만)
-// CSS Modules·Link·Provider 사용 불가
-<html><body>
-  <button onClick={reset} style={{...}}>
-    Try Again
-  </button>
-  <a href="/">Go Home</a>
-</body></html>`,
-  },
-  {
     title: "3D Scroll Torus (Lissajous Curve)",
     description: {
       ko: "스크롤할 때마다 3D 토러스가 **화면 안에서 끝없이 떠다니는** 효과입니다. X와 Y 축에 **서로 다른 주파수의 사인파**를 적용하여 리사주 곡선을 그리며, 화면 밖으로 나가지 않으면서도 **반복되지 않는 유기적인 궤적**을 만듭니다. Lenis 무한 스크롤의 **누적 거리를 추적**하여 스크롤 방향에 관계없이 연속적으로 움직입니다.",
@@ -732,29 +651,6 @@ const z = Math.sin(t * 0.4 * Math.PI * 2) * 1.5 - 2;
 <meshStandardMaterial
   metalness={1.0} roughness={0.08}
   envMapIntensity={1.5} />`,
-  },
-  {
-    title: "Unit Testing with Vitest",
-    description: {
-      ko: "**Vitest + React Testing Library**로 핵심 유틸과 컴포넌트를 테스트합니다. 클래스명 조합(`cn`), 날짜 포맷, 랜덤 생성, 모바일 판별, 하이라이트 마크업 변환 등 **순수 함수와 렌더링 결과**를 검증하며, jsdom 환경에서 **브라우저 API를 모킹**하여 실행합니다.",
-      en: "Core utilities and components are tested with **Vitest + React Testing Library**. Tests cover class name merging (`cn`), date formatting, random generation, mobile detection, and highlight markup — verifying **pure functions and render output** in a jsdom environment with **mocked browser APIs**.",
-    },
-    language: "javascript",
-    code: `// cn.test.ts — 클래스명 조합 유틸
-expect(cn("px-2", "px-4")).toBe("px-4");
-expect(cn("foo", false, "bar")).toBe("foo bar");
-
-// mobileCheck.test.ts — 브라우저 API 모킹
-Object.defineProperty(window, "innerWidth", { value: 800 });
-Object.defineProperty(window, "innerHeight", { value: 600 });
-expect(checkMobileLayout()).toBe(true);
-
-// renderHighlight.test.tsx — React 렌더링 테스트
-const { container } = render(
-  <>{renderHighlight("**강조** 텍스트")}</>
-);
-expect(container.querySelector(".highlighted-text"))
-  .toBeTruthy();`,
   },
 ];
 

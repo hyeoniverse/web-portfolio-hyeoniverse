@@ -60,6 +60,13 @@ export const TORUS_MATERIAL = {
   },
 } as const;
 
+// 커서 반발 효과
+export const TORUS_REPULSION = {
+  radius: 3.0, // 반발 활성 반경 (world units)
+  strength: 1.8, // 최대 밀림 거리
+  smoothing: 0.07, // lerp 보간 계수 (낮을수록 부드러움)
+} as const;
+
 // 모바일 설정
 export const TORUS_MOBILE = {
   breakpoint: 768,

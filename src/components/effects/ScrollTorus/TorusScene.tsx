@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
 import * as THREE from "three";
 import {
@@ -11,6 +11,7 @@ import {
   TORUS_ROTATION,
   TORUS_MATERIAL,
   TORUS_MOBILE,
+  TORUS_REPULSION,
 } from "@/constants/torus";
 
 interface TorusSceneProps {
@@ -25,6 +26,13 @@ export default function TorusScene({
   isMobile,
 }: TorusSceneProps) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const { camera, pointer } = useThree();
+
+  // 반발 오프셋 (매 프레임 lerp로 부드럽게 보간)
+  const repulsionRef = useRef(new THREE.Vector2(0, 0));
+  // 재활용 벡터 (GC 방지)
+  const _mouseNDC = useMemo(() => new THREE.Vector3(), []);
+  const _camPos = useMemo(() => new THREE.Vector3(), []);
 
   const geometry = useMemo(() => {
     const radial = isMobile
@@ -53,10 +61,10 @@ export default function TorusScene({
     const xAmp = isMobile
       ? TORUS_PATH.xAmplitude * TORUS_MOBILE.xAmplitudeMultiplier
       : TORUS_PATH.xAmplitude;
-    const x = Math.sin(t * TORUS_PATH.xFrequency * Math.PI * 2) * xAmp;
+    let x = Math.sin(t * TORUS_PATH.xFrequency * Math.PI * 2) * xAmp;
 
     // Y: 상하 진동 (X와 다른 주파수 → 리사주 곡선)
-    const y =
+    let y =
       Math.cos(t * TORUS_PATH.yFrequency * Math.PI * 2) * TORUS_PATH.yAmplitude;
 
     // Z: 깊이 진동 (연속)
@@ -64,6 +72,40 @@ export default function TorusScene({
       Math.sin(t * TORUS_PATH.zFrequency * Math.PI * 2) *
         TORUS_PATH.zAmplitude -
       2;
+
+    // 커서 반발 효과 (데스크탑만)
+    if (!isMobile) {
+      // 마우스 NDC를 토러스 Z 깊이의 월드 좌표로 변환
+      _mouseNDC.set(pointer.x, pointer.y, 0.5).unproject(camera);
+      _camPos.copy(camera.position);
+      const dir = _mouseNDC.sub(_camPos).normalize();
+      const distToPlane = (z - camera.position.z) / dir.z;
+      const mouseWorldX = camera.position.x + dir.x * distToPlane;
+      const mouseWorldY = camera.position.y + dir.y * distToPlane;
+
+      // 토러스와 마우스 간 거리
+      const dx = x - mouseWorldX;
+      const dy = y - mouseWorldY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      let targetRepX = 0;
+      let targetRepY = 0;
+      if (dist < TORUS_REPULSION.radius && dist > 0.01) {
+        // 거리에 반비례하는 반발력 (제곱으로 가까울수록 강하게)
+        const force =
+          ((1 - dist / TORUS_REPULSION.radius) ** 2) * TORUS_REPULSION.strength;
+        targetRepX = (dx / dist) * force;
+        targetRepY = (dy / dist) * force;
+      }
+
+      // lerp 보간으로 부드러운 복귀
+      const rep = repulsionRef.current;
+      rep.x += (targetRepX - rep.x) * TORUS_REPULSION.smoothing;
+      rep.y += (targetRepY - rep.y) * TORUS_REPULSION.smoothing;
+
+      x += rep.x;
+      y += rep.y;
+    }
 
     // Rotation: 연속 회전
     const rx = t * TORUS_ROTATION.xSpeed;
