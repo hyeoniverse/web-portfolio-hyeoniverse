@@ -230,17 +230,16 @@ export default function WorksSection() {
         }
         setActiveIndex(closestIndex % PROJECT_COUNT);
 
-        // 가장 가까운 프로젝트보다 인트로가 중앙에 더 가까운지 확인
-        let introCloser = false;
+        // intro가 화면에 보이면 고정 타이틀 숨김
+        let introOnScreen = false;
         for (let i = 0; i < introEls.length; i++) {
           const rect = (introEls[i] as HTMLElement).getBoundingClientRect();
-          const dist = Math.abs(rect.left + rect.width / 2 - viewportCenter);
-          if (dist < closestDist) {
-            introCloser = true;
+          if (rect.right > 0 && rect.left < window.innerWidth) {
+            introOnScreen = true;
             break;
           }
         }
-        setIntroVisible(introCloser);
+        setIntroVisible(introOnScreen);
 
         // 마우스 속도 감쇄
         mouseVelocityX *= VELOCITY_DECAY;

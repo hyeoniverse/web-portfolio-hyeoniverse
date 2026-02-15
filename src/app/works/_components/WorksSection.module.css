@@ -16,8 +16,8 @@
 
 /* Container: in-flow item inside gallerySlider */
 .intro {
-  --_intro-pad: 30px;
-  --_intro-text-max: 240px;
+  --_intro-pad: 50px;
+  --_intro-text-max: 340px;
 
   display: flex;
   gap: var(--spacing-md);
@@ -26,13 +26,18 @@
   justify-content: center;
   flex-shrink: 0;
   width: auto;
-  max-width: 320px;
+  max-width: 480px;
   height: 100%;
-  padding: 0 var(--_intro-pad);
+  padding: calc(var(--header-height) + 24px) var(--_intro-pad) 40px;
   font-family: var(--font-space-grotesk), sans-serif;
   color: var(--text-primary);
   text-align: right;
   border-right: var(--border-strong);
+}
+
+/* intro 다음 첫 프로젝트 사이 갭 축소 */
+.intro + .project {
+  margin-left: calc(-0.5 * var(--_gallery-gap));
 }
 
 /* Text elements: constrained width */
@@ -724,11 +729,11 @@
 
 @media (max-width: 1024px) {
   .intro {
-    --_intro-pad: 28px;
-    --_intro-text-max: 220px;
+    --_intro-pad: 40px;
+    --_intro-text-max: 300px;
 
     align-self: flex-start;
-    max-width: 280px;
+    max-width: 420px;
     width: auto;
     height: 100vh;
   }
@@ -1274,7 +1279,11 @@
   transform: translateY(-50%);
 }
 
-/* intro가 바로 뒤에 올 때 갭이 없으므로 세로선을 오른쪽 끝으로 이동 */
+/* intro가 바로 뒤에 올 때: 세로선 위치 보정 + 콘텐츠 중앙 정렬 */
+.creditsPanel:has(+ .intro) {
+  padding-right: calc(var(--_gallery-gap) / 2);
+}
+
 .creditsPanel:has(+ .intro)::after {
   right: 0;
 }
