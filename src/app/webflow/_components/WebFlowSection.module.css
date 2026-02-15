@@ -1382,6 +1382,7 @@
 /* Right column: title + description — aligned to bottom */
 .processStepRight {
   display: flex;
+  align-self: stretch; /* 부모 pane 높이에 맞춰 stretch → flex-end 실제 작동 */
   justify-content: flex-end;
   flex-direction: column;
   padding-bottom: clamp(0.5rem, min(1.5vh, 0.8vw), 2rem);
@@ -1397,6 +1398,7 @@
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-snug);
   letter-spacing: var(--wf-ls-title);
+  min-height: 2.7em; /* 2줄 × 1.35 — ko/en 폰트 차이로 인한 줄 수 변동 방지 */
 }
 
 .processStepDesc {
@@ -1405,6 +1407,7 @@
   font-size: clamp(0.85rem, min(1.3vw, 2.2vh), 1.4rem);
   line-height: var(--wf-lh-reading);
   color: var(--text-secondary);
+  min-height: 8.25em; /* 5줄 × 1.65 — ko/en 텍스트 길이 차이 레이아웃 시프트 방지 */
 }
 
 /* ── Mobile: paired step rows (hidden on desktop) ── */
@@ -2861,11 +2864,12 @@
 
   .processStepContentTitle {
     font-family: var(--font-instrument);
-    font-size: var(--wf-fs-head);
+    font-size: var(--wf-fs-subhead);
     font-style: italic;
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-snug);
     letter-spacing: var(--wf-ls-title);
+    min-height: 2.7em;
   }
 
   .processStepContentDesc {
@@ -2873,6 +2877,7 @@
     font-size: var(--wf-fs-body);
     line-height: var(--wf-lh-reading);
     color: var(--text-secondary);
+    min-height: 8.25em;
   }
 
   /* When active: hide label, show content */

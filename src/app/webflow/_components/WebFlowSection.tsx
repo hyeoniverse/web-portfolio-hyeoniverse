@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { siteConfig } from "@/config/site.config";
 import {
@@ -45,6 +47,12 @@ export default function WebFlowSection() {
     springWidth,
     navSections,
   } = useNavIndicator(activeSection);
+
+  // 언어 전환 시 모든 ScrollTrigger pin 위치 재계산
+  useEffect(() => {
+    const id = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(id);
+  }, [language]);
 
   return (
     <>
