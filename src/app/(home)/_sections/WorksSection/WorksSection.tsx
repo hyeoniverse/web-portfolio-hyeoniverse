@@ -11,7 +11,16 @@ import {
 } from "@/types";
 import styles from "./WorksSection.module.css";
 
-// Track hover direction for each work item
+/** 그리드 내 이미지가 배치될 열 인덱스 (행별) */
+const IMAGE_POSITIONS = [
+  [0, 4],       // row 0
+  [1, 3],       // row 1
+  [0, 2, 4],    // row 2
+  [1, 3],       // row 3
+  [0, 4],       // row 4
+];
+
+// 각 작업 항목의 호버 방향 추적
 interface HoverDirection {
   id: string;
   x: number; // -1 (left), 0, 1 (right)
@@ -52,7 +61,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
   ) => {
     const [hoverDirections, setHoverDirections] = useState<{ [key: string]: HoverDirection }>({});
 
-    // Calculate entry direction based on mouse position relative to element center
+    // 요소 중심 기준 마우스 위치에 따른 진입 방향 계산
     const getHoverDirection = useCallback(
       (e: React.MouseEvent<HTMLDivElement>, workId: string) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -62,7 +71,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
         const deltaX = e.clientX - centerX;
         const deltaY = e.clientY - centerY;
 
-        // Determine primary direction (horizontal or vertical)
+        // 주요 방향 결정 (수평 또는 수직)
         const absX = Math.abs(deltaX);
         const absY = Math.abs(deltaY);
 
@@ -87,22 +96,14 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
       const items = [];
       let workIndex = 0;
 
-      const imagePositions = [
-        [0, 4], // row 0
-        [1, 3], // row 1
-        [0, 2, 4], // row 2
-        [1, 3], // row 3
-        [0, 4], // row 4
-      ];
-
       for (let row = 0; row < 5; row++) {
         for (let col = 0; col < 5; col++) {
           const index = row * 5 + col;
 
-          // Skip text area (row 4, cols 1-3)
+          // 텍스트 영역 건너뛰기 (4행, 1-3열)
           if (row === 4 && col >= 1 && col <= 3) continue;
 
-          const hasImage = imagePositions[row].includes(col);
+          const hasImage = IMAGE_POSITIONS[row].includes(col);
           const work =
             hasImage && workIndex < worksData.length
               ? worksData[workIndex++]
@@ -167,7 +168,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
                       className={styles.imageInner}
                       style={{ y: smoothWorkImageY }}
                     >
-                      {/* Main Image */}
+                      {/* 메인 이미지 */}
                       <motion.div
                         className={styles.mainImageContainer}
                         animate={{
@@ -190,7 +191,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
                         />
                       </motion.div>
 
-                      {/* Hover Image with direction-aware animation */}
+                      {/* 방향 인식 애니메이션이 적용된 호버 이미지 */}
                       <motion.div
                         className={styles.hoverImageContainer}
                         initial={false}
@@ -245,7 +246,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
         }
       }
 
-      // Add title at bottom center (row 4, cols 1-3)
+      // 하단 중앙에 타이틀 추가 (4행, 1-3열)
       items.push(
         <div key="title" className={styles.titleCell}>
           <h2 className={styles.titleText}>
@@ -280,7 +281,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
           </div>
         </section>
 
-        {/* Page transition is handled globally by PageTransitionOverlay */}
+        {/* 페이지 전환은 PageTransitionOverlay에서 전역으로 처리 */}
       </>
     );
   }

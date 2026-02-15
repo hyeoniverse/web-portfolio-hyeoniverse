@@ -4,26 +4,26 @@ import { useState, useCallback } from "react";
 import styles from "./StaggerText.module.css";
 
 export interface StaggerTextProps {
-  /** Text content to split into characters */
+  /** 글자 단위로 분리할 텍스트 내용 */
   children: string;
-  /** Additional CSS class for the container */
+  /** 컨테이너에 추가할 CSS 클래스 */
   className?: string;
-  /** Delay between each character animation in seconds */
+  /** 각 글자 애니메이션 간의 지연 시간 (초) */
   delayPerChar?: number;
-  /** Custom stroke color (CSS variable or color value) */
+  /** 커스텀 스트로크 색상 (CSS 변수 또는 색상 값) */
   strokeColor?: string;
-  /** Stroke width in pixels */
+  /** 스트로크 너비 (픽셀) */
   strokeWidth?: number;
-  /** Whether to enable hover effect */
+  /** 호버 효과 활성화 여부 */
   hoverEffect?: boolean;
 }
 
 /**
- * StaggerText Component
+ * StaggerText 컴포넌트
  *
- * Splits text into individual characters with staggered hover animation.
- * - On hover: characters become outlined one by one (forward order)
- * - On hover off: characters fill back with color (reverse order) while stroke remains
+ * 텍스트를 개별 글자로 분리하여 시차 호버 애니메이션을 적용합니다.
+ * - 호버 시: 글자가 순방향으로 하나씩 아웃라인으로 변경
+ * - 호버 해제 시: 역방향으로 글자가 색상으로 채워지면서 스트로크 유지
  *
  * @example
  * ```tsx
@@ -54,14 +54,14 @@ export default function StaggerText({
     if (!hoverEffect) return;
     setIsHovered(false);
     setIsExiting(true);
-    // Remove stroke after all characters have filled back
+    // 모든 글자가 다시 채워진 후 스트로크 제거
     const totalDuration = totalChars * delayPerChar * 1000 + 50;
     setTimeout(() => {
       setIsExiting(false);
     }, totalDuration);
   }, [hoverEffect, totalChars, delayPerChar]);
 
-  // Custom style for stroke color and width
+  // 스트로크 색상 및 너비 커스텀 스타일
   const customStrokeStyle = strokeColor
     ? ({
         "--stagger-text-stroke-color": strokeColor,
@@ -77,13 +77,13 @@ export default function StaggerText({
       style={customStrokeStyle}
     >
       {chars.map((char, i) => {
-        // Forward: first char starts first (0, 1, 2, ...)
-        // Reverse: last char starts first (n-1, n-2, ..., 0)
+        // 순방향: 첫 번째 글자부터 시작 (0, 1, 2, ...)
+        // 역방향: 마지막 글자부터 시작 (n-1, n-2, ..., 0)
         const forwardDelay = i * delayPerChar;
         const reverseDelay = (totalChars - 1 - i) * delayPerChar;
         const delay = isHovered ? forwardDelay : reverseDelay;
 
-        // Determine class based on state
+        // 상태에 따라 클래스 결정
         let charClass = styles.char;
         if (isHovered) {
           charClass += ` ${styles.charHovered}`;

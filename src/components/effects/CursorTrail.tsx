@@ -7,7 +7,7 @@ import styles from "./CursorTrail.module.css";
 
 type CursorType = "big" | "text" | "";
 
-/* ---------------- helpers ---------------- */
+/* ---------------- 헬퍼 함수 ---------------- */
 
 /**
  * textarea / text 계열 input만 텍스트로 인식
@@ -64,7 +64,7 @@ export default function CursorTrail() {
 
     const speed = 0.5;
 
-    // Get the topmost element at a point, skipping the cursor overlay
+    // 커서 오버레이를 건너뛰고 해당 지점의 최상위 요소 가져오기
     const checkElementAt = (x: number, y: number) => {
       const elements = document.elementsFromPoint(x, y);
       for (const el of elements) {
@@ -77,17 +77,17 @@ export default function CursorTrail() {
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
 
-      // Use actual mouse position — not the lagging circle position
+      // 지연된 원 위치가 아닌 실제 마우스 위치 사용
       const mx = e.clientX;
       const my = e.clientY;
 
-      // Get the real element under the pointer (skip cursor overlay itself)
+      // 포인터 아래의 실제 요소 가져오기 (커서 오버레이 자체는 건너뛰기)
       const target = checkElementAt(mx, my);
 
       /* ---------- more ---------- */
       setMore(!!target?.closest("[data-more]"));
 
-      /* ---------- clickable ---------- */
+      /* ---------- 클릭 가능 ---------- */
       const isClickable = !!target && (
         !!target.closest("[data-clickable]") ||
         !!target.closest("a, button") ||
@@ -98,7 +98,7 @@ export default function CursorTrail() {
         target.dataset.clickable === "true"
       );
 
-      /* ---------- text ---------- */
+      /* ---------- 텍스트 ---------- */
       const isText = !!target && (
         isTextInput(target) ||
         !!target.closest(
@@ -108,7 +108,7 @@ export default function CursorTrail() {
         !!target.closest('[contenteditable="true"]')
       );
 
-      /* ---------- priority ---------- */
+      /* ---------- 우선순위 ---------- */
       if (isClickable) setCursorType("big");
       else if (isText) setCursorType("text");
       else setCursorType("");
@@ -123,25 +123,25 @@ export default function CursorTrail() {
     const animate = () => {
       if (!el) return;
 
-      /* follow */
+      /* 따라가기 */
       circleRef.current.x += (mouseRef.current.x - circleRef.current.x) * speed;
       circleRef.current.y += (mouseRef.current.y - circleRef.current.y) * speed;
 
       const translate = `translate(${circleRef.current.x}px, ${circleRef.current.y}px)`;
 
-      /* velocity */
+      /* 속도 */
       const dx = mouseRef.current.x - prevMouseRef.current.x;
       const dy = mouseRef.current.y - prevMouseRef.current.y;
       prevMouseRef.current = { ...mouseRef.current };
 
       const velocity = Math.min(Math.sqrt(dx * dx + dy * dy) * 4, 150);
 
-      /* scale */
+      /* 스케일 */
       const targetScale = (velocity / 150) * 0.5;
       scaleRef.current += (targetScale - scaleRef.current) * speed;
       const scale = `scale(${1 + scaleRef.current}, ${1 - scaleRef.current})`;
 
-      /* rotate */
+      /* 회전 */
       if (velocity > 20) {
         angleRef.current = (Math.atan2(dy, dx) * 180) / Math.PI;
       }

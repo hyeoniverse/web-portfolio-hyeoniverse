@@ -1,7 +1,7 @@
 import type Lenis from "@studio-freight/lenis";
 
 // ============================================
-// Lenis Instance Management
+// Lenis 인스턴스 관리
 // ============================================
 let lenisInstance: Lenis | null = null;
 
@@ -9,13 +9,13 @@ export const setLenisInstance = (lenis: Lenis | null) => {
   lenisInstance = lenis;
 };
 
-// Expo ease out function for Lenis
+// Lenis용 Expo ease out 함수
 const expoEaseOut = (t: number): number => {
   return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
 };
 
 // ============================================
-// Section Scroll (Lenis-aware)
+// 섹션 스크롤 (Lenis 연동)
 // ============================================
 export const scrollToSection = (
   id: string,
@@ -51,7 +51,7 @@ export const scrollToSection = (
 };
 
 // ============================================
-// Top/Bottom Scroll (Lenis-aware)
+// 상단/하단 스크롤 (Lenis 연동)
 // ============================================
 export const scrollToTop = (opts: { duration?: number } = {}) => {
   const { duration = 1.5 } = opts;

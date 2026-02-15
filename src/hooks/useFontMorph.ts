@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 // ============================================
-// Types
+// 타입
 // ============================================
 export interface FontConfig {
   name: string;
@@ -32,7 +32,7 @@ export interface UseFontMorphResult {
 }
 
 // ============================================
-// Default Fonts
+// 기본 폰트
 // ============================================
 export const DEFAULT_FONTS: FontConfig[] = [
   { name: "Playfair", family: "var(--font-playfair)", weight: 400 },
@@ -46,7 +46,7 @@ export const DEFAULT_FONTS: FontConfig[] = [
 ];
 
 // ============================================
-// Hook
+// 훅
 // ============================================
 export function useFontMorph(options: UseFontMorphOptions): UseFontMorphResult {
   const {
@@ -91,7 +91,7 @@ export function useFontMorph(options: UseFontMorphOptions): UseFontMorphResult {
     setIsPlaying((prev) => !prev);
   }, []);
 
-  // Auto-play effect
+  // 자동 재생 효과
   useEffect(() => {
     if (isPlaying) {
       intervalRef.current = setInterval(() => {

@@ -6,7 +6,7 @@ import { DEFAULT_FONTS, type FontConfig } from "@/hooks/useFontMorph";
 import styles from "./FontMorphText.module.css";
 
 // ============================================
-// Types
+// 타입
 // ============================================
 export interface FontMorphTextProps {
   text: string; // 표시할 텍스트
@@ -24,11 +24,11 @@ export interface FontMorphTextProps {
   onFontChange?: (font: FontConfig, index: number) => void;
 }
 
-// Animation easing
+// 애니메이션 이징
 const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 // ============================================
-// Component
+// 컴포넌트
 // ============================================
 export default function FontMorphText({
   text,
@@ -56,17 +56,17 @@ export default function FontMorphText({
 
   const currentFont = fonts[displayIndex] || fonts[0];
 
-  // Split text into characters
+  // 텍스트를 글자 단위로 분리
   const characters = useMemo(() => {
     return text.split("");
   }, [text]);
 
-  // Counting animation - rapidly cycle through fonts then settle
+  // 카운팅 애니메이션 - 폰트를 빠르게 순환한 후 정착
   const startCounting = useCallback(
     (targetIdx?: number) => {
       if (isCounting) return;
 
-      // Calculate target index
+      // 목표 인덱스 계산
       const nextTarget =
         targetIdx !== undefined ? targetIdx : (currentIndex + 1) % fonts.length;
       targetIndexRef.current = nextTarget;
@@ -76,22 +76,22 @@ export default function FontMorphText({
       let iterations = 0;
       const totalIterations = Math.floor(countingDuration / countingSpeed);
 
-      // Rapid cycling phase
+      // 빠른 순환 단계
       countingRef.current = setInterval(() => {
         iterations++;
 
-        // Random font during counting
+        // 카운팅 중 랜덤 폰트
         const randomIdx = Math.floor(Math.random() * fonts.length);
         setDisplayIndex(randomIdx);
 
-        // Slow down near the end and settle on target
+        // 끝부분에서 속도를 줄이고 목표에 정착
         if (iterations >= totalIterations) {
           if (countingRef.current) {
             clearInterval(countingRef.current);
             countingRef.current = null;
           }
 
-          // Final settle animation
+          // 최종 정착 애니메이션
           setDisplayIndex(targetIndexRef.current);
           setCurrentIndex(targetIndexRef.current);
           setIsCounting(false);
@@ -101,7 +101,7 @@ export default function FontMorphText({
     [isCounting, currentIndex, fonts.length, countingDuration, countingSpeed],
   );
 
-  // Handle hover - trigger counting animation
+  // 호버 처리 - 카운팅 애니메이션 트리거
   const handleMouseEnter = useCallback(() => {
     if (!hoverTrigger) return;
     isHoveringRef.current = true;
@@ -112,7 +112,7 @@ export default function FontMorphText({
     isHoveringRef.current = false;
   }, []);
 
-  // Auto-play effect
+  // 자동 재생 효과
   useEffect(() => {
     if (autoPlay && !isCounting) {
       autoPlayRef.current = setInterval(() => {
@@ -130,7 +130,7 @@ export default function FontMorphText({
     };
   }, [autoPlay, interval, isCounting, startCounting]);
 
-  // Cleanup on unmount
+  // 언마운트 시 정리
   useEffect(() => {
     return () => {
       if (countingRef.current) clearInterval(countingRef.current);
@@ -138,7 +138,7 @@ export default function FontMorphText({
     };
   }, []);
 
-  // Notify parent of font change
+  // 부모 컴포넌트에 폰트 변경 알림
   useEffect(() => {
     onFontChange?.(currentFont, displayIndex);
   }, [currentFont, displayIndex, onFontChange]);

@@ -10,7 +10,7 @@ import type { TocLabel } from "@/types";
 import { fadeInUp, staggerContainer, sideNavVariants } from "@/animations";
 import styles from "./SideNavigation.module.css";
 
-// Animation duration in seconds
+// 애니메이션 지속 시간 (초)
 const ANIMATION_DURATION = 0.35;
 
 export default function SideNavigation() {
@@ -20,10 +20,10 @@ export default function SideNavigation() {
   const sideNavWidthRef = useRef<number>(210);
   const animationRef = useRef<number | null>(null);
 
-  // Get TOC labels for current route
+  // 현재 경로에 해당하는 TOC 라벨 가져오기
   const currentTocLabels: TocLabel[] | null = TOC_LABELS[pathname] || null;
 
-  // Determine visibility based on route
+  // 경로에 따라 표시 여부 결정
   useEffect(() => {
     const shouldShow = ROUTES_WITH_NAV.includes(pathname);
     setIsSidebarVisible(shouldShow);
@@ -31,7 +31,7 @@ export default function SideNavigation() {
 
   const isVisible = isSidebarVisible && currentTocLabels !== null;
 
-  // Get actual side-nav-width from CSS
+  // CSS에서 실제 side-nav-width 값 가져오기
   useEffect(() => {
     const value = getComputedStyle(document.documentElement)
       .getPropertyValue("--side-nav-width")
@@ -39,9 +39,9 @@ export default function SideNavigation() {
     sideNavWidthRef.current = parseInt(value) || 210;
   }, []);
 
-  // Animate width and sync CSS variable
+  // 너비 애니메이션 및 CSS 변수 동기화
   useEffect(() => {
-    // Cancel any ongoing animation
+    // 진행 중인 애니메이션 취소
     if (animationRef.current !== null) {
       cancelAnimationFrame(animationRef.current);
     }
@@ -49,13 +49,13 @@ export default function SideNavigation() {
     const root = document.documentElement;
     const targetWidth = isVisible ? sideNavWidthRef.current : 0;
 
-    // Get current width
+    // 현재 너비 가져오기
     let startWidth = parseInt(
       root.style.getPropertyValue("--active-side-nav-width") || "0"
     );
     if (isNaN(startWidth)) startWidth = isVisible ? 0 : sideNavWidthRef.current;
 
-    // Skip animation if already at target
+    // 이미 목표 값에 도달한 경우 애니메이션 건너뛰기
     if (Math.abs(startWidth - targetWidth) < 1) {
       root.style.setProperty("--active-side-nav-width", `${targetWidth}px`);
       return;
@@ -68,7 +68,7 @@ export default function SideNavigation() {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Cubic bezier approximation for [0.4, 0, 0.2, 1]
+      // [0.4, 0, 0.2, 1] 큐빅 베지어 근사
       const eased = 1 - Math.pow(1 - progress, 3);
 
       const currentWidth = startWidth + (targetWidth - startWidth) * eased;

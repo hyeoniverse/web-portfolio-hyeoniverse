@@ -1,4 +1,4 @@
-// Works page project data
+// 작품 페이지 프로젝트 데이터
 
 import type { Language } from "@/providers/LanguageProvider";
 
@@ -119,11 +119,11 @@ export const projects: Project[] = [
   },
 ];
 
-// Constants
+// 상수
 export const PROJECT_COUNT = projects.length;
 export const INFINITE_SCROLL_SETS = 10;
 export const LONG_PRESS_DURATION = 800;
 export const INITIAL_MARGIN = 50;
 
-// Generate infinite scroll array
+// 무한 스크롤 배열 생성
 export const allProjects = Array(INFINITE_SCROLL_SETS).fill(projects).flat();

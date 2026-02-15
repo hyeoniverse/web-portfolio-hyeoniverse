@@ -15,13 +15,13 @@ interface SubmittedData {
 }
 
 interface UseContactFormReturn {
-  // Form state
+  // 폼 상태
   formState: ReturnType<typeof useForm>[0];
   formRef: React.RefObject<HTMLFormElement | null>;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   recaptchaRef: React.RefObject<ReCAPTCHA | null>;
 
-  // Field states
+  // 필드 상태
   privacyAccepted: boolean;
   setPrivacyAccepted: (value: boolean) => void;
   fileName: string;
@@ -30,15 +30,15 @@ interface UseContactFormReturn {
   setRecaptchaToken: (value: string | null) => void;
   submittedData: SubmittedData | null;
 
-  // reCAPTCHA config
+  // reCAPTCHA 설정
   recaptchaEnabled: boolean;
   recaptchaVersion: "v2" | "v3";
 
-  // Handlers
+  // 핸들러
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
   resetForm: (e?: React.MouseEvent) => void;
 
-  // Toast handlers (to be connected to useToast)
+  // Toast 핸들러 (useToast에 연결될 예정)
   onShowFormToast: (callback: (message: string, type?: "error" | "success") => void) => void;
   onShowToast: (callback: (message: string, type: "error" | "success") => void) => void;
 }
@@ -55,15 +55,15 @@ export function useContactForm(): UseContactFormReturn {
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [submittedData, setSubmittedData] = useState<SubmittedData | null>(null);
 
-  // Toast callback refs
+  // Toast 콜백 ref
   const showFormToastRef = useRef<(message: string, type?: "error" | "success") => void>(() => {});
   const showToastRef = useRef<(message: string, type: "error" | "success") => void>(() => {});
 
-  // reCAPTCHA config
+  // reCAPTCHA 설정
   const { enabled: recaptchaEnabled, version: recaptchaVersion } = siteConfig.recaptcha;
   const { executeRecaptcha } = useRecaptcha();
 
-  // Track previous state
+  // 이전 상태 추적
   const prevSubmittingRef = useRef(false);
   const prevSucceededRef = useRef(false);
 
@@ -107,7 +107,7 @@ export function useContactForm(): UseContactFormReturn {
       const title = formData.get("title") as string;
       const message = formData.get("message") as string;
 
-      // Validation
+      // 유효성 검사
       if (!name?.trim()) {
         showFormToastRef.current("Please enter your name");
         return;
@@ -134,7 +134,7 @@ export function useContactForm(): UseContactFormReturn {
         return;
       }
 
-      // reCAPTCHA validation
+      // reCAPTCHA 유효성 검사
       if (recaptchaEnabled) {
         if (recaptchaVersion === "v2" && !recaptchaToken) {
           showFormToastRef.current("Please complete the reCAPTCHA verification");
@@ -181,7 +181,7 @@ export function useContactForm(): UseContactFormReturn {
     ]
   );
 
-  // Handle form success/error
+  // 폼 성공/에러 처리
   useEffect(() => {
     const justFinishedSubmitting = prevSubmittingRef.current && !formState.submitting;
     const justSucceeded = !prevSucceededRef.current && formState.succeeded;

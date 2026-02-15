@@ -24,7 +24,7 @@ export const sendEmail = async (data: EmailData): Promise<EmailResult> => {
   formData.append("message", data.message);
   formData.append("subject", `Portfolio Contact from ${data.name}`);
 
-  // Add file based on provider's field name
+  // 제공자의 필드명에 따라 파일 추가
   if (data.file && siteConfig.emailService.enableFileUpload) {
     if (provider === "formspree") {
       formData.append("upload", data.file);
@@ -59,7 +59,7 @@ export const isFileUploadEnabled = (): boolean => {
   return siteConfig.emailService.enableFileUpload;
 };
 
-// Get max file size based on provider
+// 제공자에 따른 최대 파일 크기 반환
 export const getMaxFileSize = (): number => {
   const provider = siteConfig.emailService.provider as EmailProvider;
 

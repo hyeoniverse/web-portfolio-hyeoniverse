@@ -2,7 +2,7 @@ import { Variants } from "framer-motion";
 import { DURATION, EASING, STAGGER } from "./constants";
 
 /**
- * Float Animations
+ * 플로트 애니메이션
  */
 
 export const floatIn: Variants = {

@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import styles from "./HorizontalScrollSection.module.css";
 
-// Register GSAP plugins
+// GSAP 플러그인 등록
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
@@ -37,11 +37,11 @@ export default function HorizontalScrollSection({
 
     if (!container || !wrapper) return;
 
-    // Wait for content to be fully rendered
+    // 콘텐츠가 완전히 렌더링될 때까지 대기
     const items = Array.from(wrapper.children) as HTMLElement[];
     if (!items.length) return;
 
-    // Calculate dimensions
+    // 치수 계산
     const getScrollDistance = () => {
       const totalWidth = wrapper.scrollWidth;
       const viewportWidth = window.innerWidth;
@@ -49,7 +49,7 @@ export default function HorizontalScrollSection({
     };
 
     const ctx = gsap.context(() => {
-      // Create main horizontal scroll animation
+      // 메인 수평 스크롤 애니메이션 생성
       const horizontalTween = gsap.to(wrapper, {
         x: () => -getScrollDistance(),
         ease: "none",
@@ -67,7 +67,7 @@ export default function HorizontalScrollSection({
           onEnterBack: () => setIsActive(true),
           onLeaveBack: () => setIsActive(false),
           onUpdate: (self) => {
-            // Update progress bar
+            // 진행률 바 업데이트
             if (progress) {
               gsap.set(progress, { scaleX: self.progress });
             }
@@ -75,7 +75,7 @@ export default function HorizontalScrollSection({
         },
       });
 
-      // Animate individual items as they come into view
+      // 개별 아이템이 뷰에 들어올 때 애니메이션 적용
       items.forEach((item) => {
         gsap.fromTo(
           item,
@@ -99,7 +99,7 @@ export default function HorizontalScrollSection({
       });
     }, container);
 
-    // Handle resize
+    // 리사이즈 처리
     const handleResize = () => {
       ScrollTrigger.refresh();
     };
@@ -126,7 +126,7 @@ export default function HorizontalScrollSection({
         {children}
       </div>
 
-      {/* Progress indicator */}
+      {/* 진행률 표시기 */}
       {showProgress && (
         <div className={`${styles.progress} ${isActive ? styles.progressActive : ""}`}>
           <div ref={progressRef} className={styles.progressBar} />
@@ -136,7 +136,7 @@ export default function HorizontalScrollSection({
   );
 }
 
-// Export a child item component for consistent styling
+// 일관된 스타일링을 위한 자식 아이템 컴포넌트 내보내기
 interface HorizontalItemProps {
   children: ReactNode;
   className?: string;

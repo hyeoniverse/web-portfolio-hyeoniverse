@@ -7,10 +7,10 @@ export const NAVIGATION_ITEMS: NavItem[] = [
   { id: "webflow", label: "WebFlow", number: "04", path: "/webflow" },
 ];
 
-// Routes that should show navigation (not home page)
+// 네비게이션을 표시할 라우트 (홈 페이지 제외)
 export const ROUTES_WITH_NAV = ["/works", "/about", "/webflow"];
 
-// TOC Labels for each route
+// 각 라우트의 목차 라벨
 export const TOC_LABELS: Record<string, TocLabel[]> = {
   "/": [
     { label: "Home", section: "hero", path: "/" },

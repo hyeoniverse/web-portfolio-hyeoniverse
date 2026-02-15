@@ -6,9 +6,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { experiences, skills, philosophy } from "@/data/about";
+import CreditsFooter from "@/components/layout/CreditsFooter/CreditsFooter";
 import styles from "./AboutMeSection.module.css";
 
-// Register GSAP plugins
+// GSAP 플러그인 등록
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
@@ -29,7 +30,7 @@ export default function AboutMeSection() {
     if (!section) return;
 
     const ctx = gsap.context(() => {
-      // Header animation
+      // 헤더 애니메이션
       if (headerRef.current) {
         gsap.fromTo(
           headerRef.current,
@@ -48,7 +49,7 @@ export default function AboutMeSection() {
         );
       }
 
-      // Split screen animation - Bio text
+      // 분할 화면 애니메이션 - 바이오 텍스트
       if (bioRef.current) {
         const bioElements = bioRef.current.querySelectorAll("p");
         gsap.fromTo(
@@ -69,7 +70,7 @@ export default function AboutMeSection() {
         );
       }
 
-      // Image reveal animation
+      // 이미지 등장 애니메이션
       if (imageRef.current) {
         gsap.fromTo(
           imageRef.current,
@@ -91,7 +92,7 @@ export default function AboutMeSection() {
         );
       }
 
-      // Experience cards stagger
+      // 경력 카드 시차 등장
       if (experienceRef.current) {
         const cards = experienceRef.current.querySelectorAll(`.${styles.experienceCard}`);
         gsap.fromTo(
@@ -112,7 +113,7 @@ export default function AboutMeSection() {
         );
       }
 
-      // Skills bar animation
+      // 스킬 바 애니메이션
       if (skillsRef.current) {
         const bars = skillsRef.current.querySelectorAll(`.${styles.skillProgress}`);
         bars.forEach((bar, i) => {
@@ -135,7 +136,7 @@ export default function AboutMeSection() {
         });
       }
 
-      // Philosophy cards
+      // 철학 카드
       if (philosophyRef.current) {
         const cards = philosophyRef.current.querySelectorAll(`.${styles.philosophyCard}`);
         gsap.fromTo(
@@ -162,7 +163,7 @@ export default function AboutMeSection() {
 
   return (
     <section id="about" className={styles.section} ref={sectionRef}>
-      {/* Section Header */}
+      {/* 섹션 헤더 */}
       <div className={styles.header} ref={headerRef}>
         <span className={styles.label}>{t("aboutPage.title")}</span>
         <h2 className={styles.title}>
@@ -172,7 +173,7 @@ export default function AboutMeSection() {
         </h2>
       </div>
 
-      {/* Split Content - Image + Bio */}
+      {/* 분할 콘텐츠 - 이미지 + 바이오 */}
       <div className={styles.splitContent}>
         <div className={styles.imageContainer} ref={imageRef}>
           <Image
@@ -213,7 +214,7 @@ export default function AboutMeSection() {
         </div>
       </div>
 
-      {/* Experience Timeline */}
+      {/* 경력 타임라인 */}
       <div className={styles.experienceSection} ref={experienceRef}>
         <h3 className={styles.sectionSubtitle}>Experience</h3>
         <div className={styles.experienceList}>
@@ -228,7 +229,7 @@ export default function AboutMeSection() {
         </div>
       </div>
 
-      {/* Skills */}
+      {/* 스킬 */}
       <div className={styles.skillsSection} ref={skillsRef}>
         <h3 className={styles.sectionSubtitle}>Skills</h3>
         <div className={styles.skillsList}>
@@ -246,7 +247,7 @@ export default function AboutMeSection() {
         </div>
       </div>
 
-      {/* Philosophy */}
+      {/* 철학 */}
       <div className={styles.philosophySection} ref={philosophyRef}>
         <h3 className={styles.sectionSubtitle}>My Philosophy</h3>
         <div className={styles.philosophyGrid}>
@@ -259,6 +260,9 @@ export default function AboutMeSection() {
           ))}
         </div>
       </div>
+
+      {/* 크레딧 */}
+      <CreditsFooter variant="section" />
     </section>
   );
 }

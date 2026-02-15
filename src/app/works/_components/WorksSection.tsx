@@ -24,14 +24,15 @@ import {
   LONG_PRESS_DURATION,
   INITIAL_MARGIN,
 } from "@/data/projects";
+import CreditsFooter from "@/components/layout/CreditsFooter/CreditsFooter";
 import styles from "./WorksSection.module.css";
 
-// Register GSAP plugins
+// GSAP 플러그인 등록
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Types
+// 타입
 interface TransitionData {
   id: string;
   image: string;
@@ -43,7 +44,7 @@ interface PressedCard {
   project: Project;
 }
 
-// Animation constants
+// 애니메이션 상수
 const SCROLL_LERP = 0.08;
 const VELOCITY_DECAY = 0.96;
 const MOUSE_EFFECT_RADIUS = 500;
@@ -52,14 +53,14 @@ const MOUSE_SENSITIVITY = 0.012;
 const IMAGE_PARALLAX_MULTIPLIER = 1.3;
 
 export default function WorksSection() {
-  // Refs
+  // 레퍼런스
   const galleryRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Map<number, HTMLElement>>(new Map());
   const pressStartRef = useRef<number | null>(null);
   const pressRafRef = useRef<number | null>(null);
 
-  // State
+  // 상태
   const [activeIndex, setActiveIndex] = useState(0);
   const [transitionData, setTransitionData] = useState<TransitionData | null>(
     null,
@@ -67,13 +68,13 @@ export default function WorksSection() {
   const [pressedCard, setPressedCard] = useState<PressedCard | null>(null);
   const [introVisible, setIntroVisible] = useState(true);
 
-  // Hooks
+  // 훅
   const router = useRouter();
   const { t, language } = useLanguage();
   const { setInfinite } = useLenis();
   const { isMobile: isVerticalLayout } = useIsMobile(768, 700);
 
-  // Disable Lenis infinite scroll on mount
+  // 마운트 시 Lenis 무한 스크롤 비활성화
   useEffect(() => {
     setInfinite(false);
     const timer = setTimeout(() => ScrollTrigger.refresh(), 100);
@@ -83,7 +84,7 @@ export default function WorksSection() {
     };
   }, [setInfinite]);
 
-  // Horizontal scroll animation (desktop only)
+  // 수평 스크롤 애니메이션 (데스크탑 전용)
   useLayoutEffect(() => {
     if (isVerticalLayout) return;
 
@@ -104,14 +105,14 @@ export default function WorksSection() {
 
       if (cards.length === 0) return;
 
-      // Start at the middle intro (one intro per project set)
+      // 중간 인트로에서 시작 (프로젝트 세트당 하나의 인트로)
       const introEls = slider.querySelectorAll(`.${styles.intro}`);
       const middleIntro = introEls[Math.floor(introEls.length / 2)] as HTMLElement;
       const initialX = middleIntro
         ? -(middleIntro.offsetLeft - INITIAL_MARGIN)
         : -(projectItems[PROJECT_COUNT * 5].offsetLeft - INITIAL_MARGIN);
 
-      // Calculate one set width for infinite wrapping
+      // 무한 래핑을 위한 한 세트 너비 계산
       let oneSetWidth = 0;
       if (introEls.length >= 2) {
         oneSetWidth =
@@ -119,14 +120,14 @@ export default function WorksSection() {
           (introEls[0] as HTMLElement).offsetLeft;
       }
 
-      // Scroll state
+      // 스크롤 상태
       let scrollX = 0;
       let targetScrollX = 0;
       let velocity = 0;
       let imageOffset = 0;
       let targetImageOffset = 0;
 
-      // Mouse state
+      // 마우스 상태
       let mouseX = 0;
       let mouseY = 0;
       let lastMouseX = 0;
@@ -135,7 +136,7 @@ export default function WorksSection() {
       let mouseVelocityX = 0;
       let mouseVelocityY = 0;
 
-      // Per-element offsets
+      // 요소별 오프셋
       const cardOffsets = cards.map(() => ({
         x: 0,
         y: 0,
@@ -149,7 +150,7 @@ export default function WorksSection() {
         targetY: 0,
       }));
 
-      // Event handlers
+      // 이벤트 핸들러
       const handleMouseMove = (e: MouseEvent) => {
         const now = performance.now();
         const dt = (now - lastMouseTime) / 1000;
@@ -175,21 +176,21 @@ export default function WorksSection() {
       gallery.addEventListener("mousemove", handleMouseMove);
       gallery.addEventListener("wheel", handleWheel, { passive: false });
 
-      // Set initial position
+      // 초기 위치 설정
       gsap.set(slider, { x: initialX });
 
-      // Animation loop
+      // 애니메이션 루프
       const animate = () => {
-        // Smooth scroll interpolation
+        // 부드러운 스크롤 보간
         const prevScrollX = scrollX;
         scrollX += (targetScrollX - scrollX) * SCROLL_LERP;
         velocity = scrollX - prevScrollX;
 
-        // Image parallax + velocity skew
+        // 이미지 패럴랙스 + 속도 기울기
         targetImageOffset = gsap.utils.clamp(-80, 80, -velocity * 2.5);
         imageOffset += (targetImageOffset - imageOffset) * 0.08;
 
-        // Infinite scroll wrapping: when scrolled too far, jump back by one set
+        // 무한 스크롤 래핑: 너무 멀리 스크롤하면 한 세트만큼 되돌아감
         if (oneSetWidth > 0) {
           while (scrollX > oneSetWidth * 3) {
             scrollX -= oneSetWidth;
@@ -201,10 +202,10 @@ export default function WorksSection() {
           }
         }
 
-        // Update slider position
+        // 슬라이더 위치 업데이트
         gsap.set(slider, { x: initialX - scrollX });
 
-        // Update active index (find closest project to viewport center)
+        // 활성 인덱스 업데이트 (뷰포트 중앙에 가장 가까운 프로젝트 찾기)
         const viewportCenter = window.innerWidth / 2;
         let closestIndex = 0;
         let closestDist = Infinity;
@@ -218,7 +219,7 @@ export default function WorksSection() {
         }
         setActiveIndex(closestIndex % PROJECT_COUNT);
 
-        // Check if any intro is closer to center than the closest project
+        // 가장 가까운 프로젝트보다 인트로가 중앙에 더 가까운지 확인
         let introCloser = false;
         for (let i = 0; i < introEls.length; i++) {
           const rect = (introEls[i] as HTMLElement).getBoundingClientRect();
@@ -230,11 +231,11 @@ export default function WorksSection() {
         }
         setIntroVisible(introCloser);
 
-        // Decay mouse velocity
+        // 마우스 속도 감쇄
         mouseVelocityX *= VELOCITY_DECAY;
         mouseVelocityY *= VELOCITY_DECAY;
 
-        // Update per-card effects
+        // 카드별 효과 업데이트
         cards.forEach((card, i) => {
           const rect = card.getBoundingClientRect();
           const centerX = rect.left + rect.width / 2;
@@ -243,7 +244,7 @@ export default function WorksSection() {
           const normalizedDist = Math.min(1, distance / MOUSE_EFFECT_RADIUS);
           const strength = Math.pow(1 - normalizedDist, 2);
 
-          // Card offset
+          // 카드 오프셋
           cardOffsets[i].targetX = gsap.utils.clamp(
             -MAX_CARD_OFFSET,
             MAX_CARD_OFFSET,
@@ -262,7 +263,7 @@ export default function WorksSection() {
           const scale = parseFloat(card.dataset.hoverScale || "1");
           gsap.set(card, { x: cardOffsets[i].x, y: cardOffsets[i].y, scale });
 
-          // Image offset (parallax)
+          // 이미지 오프셋 (패럴랙스)
           if (cardImages[i]) {
             imageOffsets[i].targetX =
               cardOffsets[i].targetX * IMAGE_PARALLAX_MULTIPLIER;
@@ -296,7 +297,7 @@ export default function WorksSection() {
     return () => ctx.revert();
   }, [isVerticalLayout]);
 
-  // Navigation handlers
+  // 네비게이션 핸들러
   const triggerTransition = useCallback(
     (index: number, project: Project) => {
       const card = cardRefs.current.get(index);
@@ -317,10 +318,10 @@ export default function WorksSection() {
     (index: number, project: Project) => {
       if (transitionData) return;
 
-      // Cancel ongoing press animation
+      // 진행 중인 프레스 애니메이션 취소
       if (pressRafRef.current) cancelAnimationFrame(pressRafRef.current);
 
-      // Clean up press state
+      // 프레스 상태 정리
       if (pressedCard) {
         const card = cardRefs.current.get(pressedCard.index);
         if (card) {
@@ -388,7 +389,7 @@ export default function WorksSection() {
     setPressedCard(null);
   }, [pressedCard]);
 
-  // Helper to get project class names
+  // 프로젝트 클래스명 가져오기 헬퍼
   const getProjectClassName = (project: Project, index: number) => {
     const sizeClass = `size${project.size.charAt(0).toUpperCase()}${project.size.slice(1)}`;
     const layoutClass = `layout${(index % 6) + 1}`;
@@ -430,21 +431,21 @@ export default function WorksSection() {
   return (
     <>
     <section className={styles.gallery} ref={galleryRef}>
-      {/* Gallery Track */}
+      {/* 갤러리 트랙 */}
       <div className={styles.galleryTrack}>
         <div className={styles.gallerySlider} ref={sliderRef}>
           {(isVerticalLayout ? projects : allProjects).map((project, index) => (
             <Fragment key={`${project.id}-${index}`}>
-              {/* Intro: appears at the start of each project set */}
+              {/* 인트로: 각 프로젝트 세트 시작 부분에 표시 */}
               {index % PROJECT_COUNT === 0 && introBlock}
               <div
                 className={getProjectClassName(project, index)}
               >
-              {/* Metadata */}
+              {/* 메타데이터 */}
               <span className={styles.metaNumber}>{project.number}</span>
               <span className={styles.metaCategory}>{project.category[language]}</span>
 
-              {/* Card */}
+              {/* 카드 */}
               <article
                 ref={(el) => {
                   if (el) cardRefs.current.set(index, el);
@@ -478,7 +479,7 @@ export default function WorksSection() {
                 </div>
               </article>
 
-              {/* More Metadata */}
+              {/* 추가 메타데이터 */}
               <div className={styles.metaTech}>
                 {project.tech.slice(0, 2).map((tech: string, i: number) => (
                   <span key={i}>#{tech}</span>
@@ -492,7 +493,7 @@ export default function WorksSection() {
         </div>
       </div>
 
-      {/* Active Project Info */}
+      {/* 활성 프로젝트 정보 */}
       <div className={styles.activeInfo} style={{ opacity: introVisible ? 0 : 1, transition: 'opacity 0.4s ease' }}>
         <AnimatePresence mode="wait">
           <motion.div
@@ -513,16 +514,10 @@ export default function WorksSection() {
         </AnimatePresence>
       </div>
 
-      {/* Credits */}
-      <div className={styles.credits}>
-        <p className={styles.creditsText}>
-          {t("webflow.credits").split("❤")[0]}
-          <span className={styles.creditsHeart}>❤</span>
-          {t("webflow.credits").split("❤")[1]} HYEON
-        </p>
-      </div>
+      {/* 크레딧 */}
+      <CreditsFooter variant="section" />
 
-      {/* Page Transition */}
+      {/* 페이지 전환 */}
       <AnimatePresence>
         {transitionData && (
           <motion.div

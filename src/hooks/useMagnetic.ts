@@ -3,7 +3,7 @@
 import { useRef, useCallback } from "react";
 import { useMotionValue, useSpring, MotionValue } from "framer-motion";
 
-interface UseMagneticReturn {
+export interface UseMagneticReturn {
   ref: React.RefObject<HTMLDivElement | null>;
   x: MotionValue<number>;
   y: MotionValue<number>;

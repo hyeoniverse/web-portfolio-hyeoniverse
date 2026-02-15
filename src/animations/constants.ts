@@ -1,5 +1,5 @@
 /**
- * Animation Constants
+ * 애니메이션 상수
  * 재사용 가능한 easing 함수와 transition 값들
  */
 
@@ -8,7 +8,7 @@ export const EASING = {
   easeIn: "easeIn",
   easeInOut: "easeInOut",
   linear: "linear",
-  // Custom cubic-bezier easings
+  // 커스텀 cubic-bezier easing 함수
   smooth: [0.25, 0.46, 0.45, 0.94] as const,
   smoothReverse: [0.55, 0.06, 0.68, 0.19] as const,
   expo: [0.76, 0, 0.24, 1] as const,

@@ -85,12 +85,12 @@ export default function ContactDrawer({
   const [mounted, setMounted] = useState(false);
   const { ready: recaptchaReady } = useRecaptcha();
 
-  // Mount portal after hydration
+  // 하이드레이션 후 포탈 마운트
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Toggle reCAPTCHA badge visibility
+  // reCAPTCHA 배지 표시 토글
   useEffect(() => {
     if (!recaptchaEnabled || recaptchaVersion !== "v3") return;
 
@@ -119,7 +119,7 @@ export default function ContactDrawer({
     }
   };
 
-  // Don't render on server or before hydration
+  // 서버 또는 하이드레이션 전에는 렌더링하지 않음
   if (!mounted) return null;
 
   return createPortal(
@@ -154,7 +154,7 @@ export default function ContactDrawer({
               },
             }}
           >
-            {/* Close Button */}
+            {/* 닫기 버튼 */}
             <motion.button
               className={styles.closeBtn}
               onClick={() => {
@@ -191,7 +191,7 @@ export default function ContactDrawer({
               </span>
             </motion.button>
 
-            {/* Left: Form Card */}
+            {/* 왼쪽: 폼 카드 */}
             <motion.div
               className={styles.formCard}
               initial={{ opacity: 0, scale: 0.95 }}
@@ -222,7 +222,7 @@ export default function ContactDrawer({
                   {formState.succeeded ? t("contact.drawer.successTitle") : t("contact.drawer.formTitle")}
                 </h2>
 
-                {/* Success View / Form */}
+                {/* 성공 화면 / 폼 */}
                 <AnimatePresence mode="wait">
                   {formState.succeeded && submittedData ? (
                     <motion.div
@@ -593,9 +593,9 @@ export default function ContactDrawer({
               </motion.div>
             </motion.div>
 
-            {/* Right: Info Cards */}
+            {/* 오른쪽: 정보 카드 */}
             <div className={styles.rightColumn}>
-              {/* Email Card */}
+              {/* 이메일 카드 */}
               <motion.div
                 className={styles.emailCard}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -672,7 +672,7 @@ export default function ContactDrawer({
                 </motion.div>
               </motion.div>
 
-              {/* Profile Card */}
+              {/* 프로필 카드 */}
               <motion.div
                 className={styles.profileCard}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -727,7 +727,7 @@ export default function ContactDrawer({
                 </motion.div>
               </motion.div>
 
-              {/* Social Card */}
+              {/* 소셜 카드 */}
               <motion.div
                 className={styles.socialCard}
                 initial={{ opacity: 0, scale: 0.95 }}

@@ -10,12 +10,12 @@ interface LanguageToggleProps {
   onLangChange: (lang: Language) => void;
 }
 
-// Position constants (in pixels)
+// 위치 상수 (픽셀)
 const KO_POSITION = 0;
 const EN_POSITION = 48;
 const THRESHOLD = 0.95;
 
-// Animation config - starts very slow, then accelerates dramatically
+// 애니메이션 설정 - 매우 느리게 시작한 후 급격하게 가속
 const animationConfig = {
   type: "tween" as const,
   duration: 0.5,
@@ -29,20 +29,20 @@ export default function LanguageToggle({
   const [hoveredBtn, setHoveredBtn] = useState<Language | null>(null);
   const [indicatorAt, setIndicatorAt] = useState<Language>(lang);
 
-  // Motion value for indicator position
+  // 인디케이터 위치용 모션 값
   const indicatorX = useMotionValue(lang === "ko" ? KO_POSITION : EN_POSITION);
 
-  // Calculate target position based on hover and current lang
+  // 호버 및 현재 언어에 따른 목표 위치 계산
   const targetPosition = useMemo(() => {
     if (hoveredBtn && hoveredBtn !== lang) {
-      // Magnetic effect: move toward hovered button
+      // 자기 효과: 호버된 버튼 쪽으로 이동
       return hoveredBtn === "en" ? EN_POSITION : KO_POSITION;
     }
-    // Default: stay at current lang position
+    // 기본: 현재 언어 위치에 유지
     return lang === "ko" ? KO_POSITION : EN_POSITION;
   }, [hoveredBtn, lang]);
 
-  // Animate to target position (starts slow, accelerates)
+  // 목표 위치로 애니메이션 (느리게 시작, 가속)
   useEffect(() => {
     const controls = animate(indicatorX.get(), targetPosition, {
       ...animationConfig,
@@ -51,7 +51,7 @@ export default function LanguageToggle({
     return () => controls.stop();
   }, [targetPosition, indicatorX]);
 
-  // Subscribe to motion value and update indicatorAt when threshold is crossed
+  // 모션 값 구독 및 임계값 초과 시 indicatorAt 업데이트
   useMotionValueEvent(indicatorX, "change", (x) => {
     const progress = x / EN_POSITION;
     if (progress >= THRESHOLD) {
@@ -61,7 +61,7 @@ export default function LanguageToggle({
     }
   });
 
-  // Sync indicatorAt with lang on lang change
+  // 언어 변경 시 indicatorAt을 lang과 동기화
   useEffect(() => {
     setIndicatorAt(lang);
   }, [lang]);

@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     const body = await request.formData();
     const provider = body.get("_provider") as string;
 
-    // Remove internal fields
+    // 내부 필드 제거
     body.delete("_provider");
 
     switch (provider) {
@@ -38,20 +38,20 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Create fresh FormData for Formspree with proper field names
+        // Formspree용으로 올바른 필드명을 가진 새 FormData 생성
         const formspreeData = new FormData();
         formspreeData.append("name", body.get("name") as string);
         formspreeData.append("email", body.get("email") as string);
-        formspreeData.append("_replyto", body.get("email") as string); // For reply functionality
+        formspreeData.append("_replyto", body.get("email") as string); // 답장 기능용
         formspreeData.append("message", body.get("message") as string);
 
-        // Subject field
+        // 제목 필드
         const subject = body.get("subject") as string;
         if (subject) {
           formspreeData.append("_subject", subject);
         }
 
-        // Handle file upload
+        // 파일 업로드 처리
         const uploadFile = body.get("upload") as File | null;
         if (uploadFile && uploadFile.size > 0) {
           formspreeData.append("attachment", uploadFile);
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Convert FormData to template params
+        // FormData를 템플릿 파라미터로 변환
         const templateParams: Record<string, string> = {
           from_name: body.get("name") as string,
           from_email: body.get("email") as string,
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
           to_email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
         };
 
-        // Handle file attachment for EmailJS (base64)
+        // EmailJS용 파일 첨부 처리 (base64)
         const file = body.get("file") as File | null;
         if (file && file.size > 0) {
           const buffer = await file.arrayBuffer();

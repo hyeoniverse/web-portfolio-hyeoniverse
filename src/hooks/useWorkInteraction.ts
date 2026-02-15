@@ -69,7 +69,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           const rect = target.getBoundingClientRect();
           setExpandingWork({ id: work.id, rect, image: work.main });
 
-          // Start global page transition
+          // 전역 페이지 전환 시작
           startTransition({
             centerX: rect.left + rect.width / 2,
             centerY: rect.top + rect.height / 2,
@@ -106,7 +106,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
       hasNavigatedRef.current = true;
       setExpandingWork({ id: work.id, rect, image: work.main });
 
-      // Start global page transition
+      // 전역 페이지 전환 시작
       startTransition({
         centerX: rect.left + rect.width / 2,
         centerY: rect.top + rect.height / 2,
@@ -152,7 +152,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           const rect = target.getBoundingClientRect();
           setExpandingWork({ id: work.id, rect, image: work.main });
 
-          // Start global page transition
+          // 전역 페이지 전환 시작
           startTransition({
             centerX: rect.left + rect.width / 2,
             centerY: rect.top + rect.height / 2,

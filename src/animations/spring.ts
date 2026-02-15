@@ -2,7 +2,7 @@ import { Variants } from "framer-motion";
 import { SPRING } from "./constants";
 
 /**
- * Spring-based Animations
+ * 스프링 기반 애니메이션
  */
 
 export const bounceIn: Variants = {

@@ -2,7 +2,7 @@ import { Variants } from "framer-motion";
 import { DURATION, EASING } from "./constants";
 
 /**
- * Scale Animations
+ * 스케일 애니메이션
  */
 
 export const scaleIn: Variants = {

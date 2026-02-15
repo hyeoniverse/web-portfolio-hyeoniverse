@@ -1,4 +1,4 @@
-// modalStore.ts
+// 모달 스토어
 import { create } from "zustand";
 import { ModalItem, ModalOptions } from "@/types";
 import { ReactNode } from "react";

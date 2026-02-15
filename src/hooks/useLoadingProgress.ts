@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 // ============================================
-// Types
+// 타입
 // ============================================
 interface LoadingItem {
   id: string;
@@ -32,19 +32,19 @@ interface LoadingScreenResult {
 }
 
 // ============================================
-// Constants
+// 상수
 // ============================================
 const LOADING_CONFIG = {
-  minLoadingTime: 1500, // Minimum time to show loading screen (initial load)
-  navigationLoadingTime: 1000, // Minimum time for client navigation
-  transitionDelay: 600, // Exit animation duration
+  minLoadingTime: 1500, // 로딩 화면을 표시할 최소 시간 (초기 로드)
+  navigationLoadingTime: 1000, // 클라이언트 내비게이션 최소 시간
+  transitionDelay: 1200, // 퇴장 애니메이션 지속 시간 (로고 모프 + 와이프)
 } as const;
 
-// Pages that should show loading screen on navigation
+// 내비게이션 시 로딩 화면을 표시할 페이지
 const LOADING_ENABLED_PAGES = ["/"];
 
 // ============================================
-// useLoadingProgress - Real resource tracking
+// useLoadingProgress - 실제 리소스 추적
 // ============================================
 export function useLoadingProgress(): LoadingProgressResult {
   const [loadingItems, setLoadingItems] = useState<LoadingItem[]>([]);
@@ -96,18 +96,18 @@ export function useLoadingProgress(): LoadingProgressResult {
     if (initialized.current) return;
     initialized.current = true;
 
-    // Register core items
+    // 핵심 항목 등록
     registerLoadingItem("dom-ready", "component", 2);
     registerLoadingItem("fonts", "font", 3);
 
-    // Track fonts
+    // 폰트 추적
     if (document.fonts) {
       document.fonts.ready.then(() => markAsLoaded("fonts"));
     } else {
       markAsLoaded("fonts");
     }
 
-    // Track existing resources
+    // 기존 리소스 추적
     const trackResources = () => {
       const resources = performance.getEntriesByType(
         "resource"
@@ -149,7 +149,7 @@ export function useLoadingProgress(): LoadingProgressResult {
       });
     }
 
-    // Observe new resources
+    // 새 리소스 관찰
     let observer: PerformanceObserver | null = null;
 
     if (typeof PerformanceObserver !== "undefined") {
@@ -187,7 +187,7 @@ export function useLoadingProgress(): LoadingProgressResult {
       try {
         observer.observe({ entryTypes: ["resource"] });
       } catch {
-        // PerformanceObserver not supported
+        // PerformanceObserver 미지원
       }
     }
 
@@ -206,11 +206,11 @@ export function useLoadingProgress(): LoadingProgressResult {
 }
 
 // ============================================
-// useLoadingScreen - Simplified and reliable
+// useLoadingScreen - 간소화 및 안정적 구현
 // ============================================
 
-// Module-level flag: survives component remounts caused by parent tree changes
-// (e.g., RecaptchaProvider switching from Fragment to GoogleReCaptchaProvider)
+// 모듈 레벨 플래그: 부모 트리 변경으로 인한 컴포넌트 리마운트에도 유지됨
+// (예: RecaptchaProvider가 Fragment에서 GoogleReCaptchaProvider로 전환될 때)
 let hasCompletedInitialLoad = false;
 
 export function useLoadingScreen(): LoadingScreenResult {
@@ -225,7 +225,7 @@ export function useLoadingScreen(): LoadingScreenResult {
   const isInitialLoadRef = useRef(true);
   const previousPathnameRef = useRef<string | null>(null);
 
-  // Detect navigation to home and reset loading state
+  // 홈으로의 내비게이션 감지 및 로딩 상태 초기화
   useEffect(() => {
     const isNavigatingToLoadingPage =
       previousPathnameRef.current !== null &&
@@ -233,7 +233,7 @@ export function useLoadingScreen(): LoadingScreenResult {
       LOADING_ENABLED_PAGES.includes(pathname);
 
     if (isNavigatingToLoadingPage) {
-      // Reset loading state for client navigation to home
+      // 홈으로의 클라이언트 내비게이션 시 로딩 상태 초기화
       isInitialLoadRef.current = false;
       hasCompletedRef.current = false;
       startTimeRef.current = Date.now();
@@ -248,7 +248,7 @@ export function useLoadingScreen(): LoadingScreenResult {
   useEffect(() => {
     let mounted = true;
 
-    // Track fonts loaded state
+    // 폰트 로드 상태 추적
     if (document.fonts) {
       document.fonts.ready.then(() => {
         fontsLoadedRef.current = true;
@@ -257,7 +257,7 @@ export function useLoadingScreen(): LoadingScreenResult {
       fontsLoadedRef.current = true;
     }
 
-    // Update progress based on real resources
+    // 실제 리소스 기반 진행률 업데이트
     const updateProgress = () => {
       if (!mounted || hasCompletedRef.current) return;
 
@@ -268,30 +268,30 @@ export function useLoadingScreen(): LoadingScreenResult {
       const loaded = resources.filter((r) => r.responseEnd > 0).length;
       const total = Math.max(resources.length, 1);
 
-      // Calculate real progress
+      // 실제 진행률 계산
       let realProgress = 0;
 
-      // Fonts (20% weight)
+      // 폰트 (20% 가중치)
       if (fontsLoadedRef.current) {
         realProgress += 20;
       }
 
-      // Resources (70% weight)
+      // 리소스 (70% 가중치)
       realProgress += (loaded / total) * 70;
 
-      // DOM ready (10% weight)
+      // DOM 준비 (10% 가중치)
       if (document.readyState === "complete") {
         realProgress += 10;
       }
 
-      // Smoothly animate to target
+      // 목표값으로 부드럽게 애니메이션
       setProgress((prev) => {
         const target = Math.min(realProgress, 99);
         const diff = target - prev;
         return prev + diff * 0.15;
       });
 
-      // Check if we should complete
+      // 완료 여부 확인
       const elapsed = Date.now() - startTimeRef.current;
       const minTime = isInitialLoadRef.current
         ? LOADING_CONFIG.minLoadingTime
@@ -304,21 +304,21 @@ export function useLoadingScreen(): LoadingScreenResult {
       }
     };
 
-    // Complete loading sequence
+    // 로딩 완료 시퀀스
     const completeLoading = () => {
       if (!mounted || hasCompletedRef.current) return;
       hasCompletedRef.current = true;
       hasCompletedInitialLoad = true;
 
-      // Animate to 100%
+      // 100%로 애니메이션
       setProgress(100);
 
-      // Start exit transition after brief pause
+      // 짧은 일시 정지 후 퇴장 전환 시작
       setTimeout(() => {
         if (!mounted) return;
         setIsTransitioning(true);
 
-        // Hide loading screen after transition animation
+        // 전환 애니메이션 후 로딩 화면 숨김
         setTimeout(() => {
           if (!mounted) return;
           setIsLoading(false);
@@ -326,20 +326,20 @@ export function useLoadingScreen(): LoadingScreenResult {
       }, 400);
     };
 
-    // Start polling
+    // 폴링 시작
     const progressInterval = setInterval(updateProgress, 60);
     updateProgress();
 
-    // Fallback: Force complete after max time
+    // 폴백: 최대 시간 후 강제 완료
     const maxTimeout = setTimeout(() => {
       if (!hasCompletedRef.current) {
         completeLoading();
       }
     }, 5000);
 
-    // Listen for load event
+    // load 이벤트 리스닝
     const handleLoad = () => {
-      // Give a bit more time for fonts
+      // 폰트를 위해 약간의 추가 시간 부여
       setTimeout(updateProgress, 100);
     };
 

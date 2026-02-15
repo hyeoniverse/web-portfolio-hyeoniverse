@@ -78,13 +78,13 @@ export default function ParallaxBackground() {
     offset: ["start start", "end start"],
   });
 
-  // Different parallax speeds for different layers
+  // 레이어별 다른 패럴랙스 속도
   const layer1Y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   // const layer2Y = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
   const layer3Y = useTransform(scrollYProgress, [0, 1], ["0%", "60%"]);
   // const layer4Y = useTransform(scrollYProgress, [0, 1], ["0%", "80%"]);
 
-  // Rotation and scale transforms
+  // 회전 및 스케일 변환
   // const rotate1 = useTransform(scrollYProgress, [0, 1], [0, 360]);
   // const rotate2 = useTransform(scrollYProgress, [0, 1], [0, -180]);
   // const scale1 = useTransform(scrollYProgress, [0, 1], [1, 1.5]);
@@ -117,10 +117,10 @@ export default function ParallaxBackground() {
 
   return (
     <div ref={containerRef} className={styles.parallaxContainer}>
-      {/* Background Gradient */}
+      {/* 배경 그라데이션 */}
       <div className={styles.backgroundGradient} />
 
-      {/* Floating Story Elements */}
+      {/* 떠다니는 스토리 요소 */}
       <motion.div
         className={styles.storyLayer}
         style={{ y: layer1Y }}
@@ -148,7 +148,7 @@ export default function ParallaxBackground() {
         ))}
       </motion.div>
 
-      {/* Code Snippets Layer 
+      {/* 코드 스니펫 레이어
       <motion.div className={styles.codeLayer} style={{ y: layer2Y }}>
         <div className={styles.codeSnippet} style={{ top: "15%", left: "5%" }}>
           const developer = {"{"}
@@ -175,7 +175,7 @@ export default function ParallaxBackground() {
       </motion.div>
         */}
 
-      {/* Animated Typography Layer */}
+      {/* 애니메이션 타이포그래피 레이어 */}
       <motion.div className={styles.typographyLayer} style={{ y: layer1Y }}>
         <motion.div
           className={styles.mainTitle}
@@ -221,7 +221,7 @@ export default function ParallaxBackground() {
         </motion.div>
       </motion.div>
 
-      {/* Connection Lines Layer */}
+      {/* 연결선 레이어 */}
       <motion.div className={styles.connectionsLayer} style={{ y: layer3Y }}>
         <svg
           className={styles.connectionsSvg}

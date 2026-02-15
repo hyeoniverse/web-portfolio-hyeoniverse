@@ -2,11 +2,11 @@ import { Variants, TargetAndTransition } from "framer-motion";
 import { DURATION, EASING, SPRING, STAGGER } from "./constants";
 
 /**
- * UI Component Animations
+ * UI 컴포넌트 애니메이션
  * Modal, Form, Tooltip, Button 등 UI 컴포넌트 전용 애니메이션
  */
 
-// ===== Modal Animations =====
+// ===== 모달 애니메이션 =====
 export const modalVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -63,7 +63,7 @@ export const itemVariants: Variants = {
   },
 };
 
-// ===== Image Viewer =====
+// ===== 이미지 뷰어 =====
 export const imageViewerVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -84,7 +84,7 @@ export const imageViewerVariants: Variants = {
   },
 };
 
-// ===== Tooltip =====
+// ===== 툴팁 =====
 export const tooltipVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -118,7 +118,7 @@ export const tooltipVariants: Variants = {
   },
 };
 
-// ===== Form Animations =====
+// ===== 폼 애니메이션 =====
 export const formVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -152,7 +152,7 @@ export const formVariants: Variants = {
   },
 };
 
-// ===== Button Animations =====
+// ===== 버튼 애니메이션 =====
 export const hoverButton: TargetAndTransition = {
   scale: 1.05,
   y: -2,
@@ -185,7 +185,7 @@ export const submitButtonVariants = {
   },
 };
 
-// ===== Social Links =====
+// ===== 소셜 링크 =====
 export const socialLinksVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
@@ -214,7 +214,7 @@ export const socialItemVariants: Variants = {
   },
 };
 
-// ===== Image Viewer Animations =====
+// ===== 이미지 뷰어 애니메이션 =====
 export const imageViewerBackdrop: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: DURATION.fast } },
@@ -253,14 +253,14 @@ export const imageViewerCounter: Variants = {
   },
 };
 
-// ===== Back Button Animation =====
+// ===== 뒤로가기 버튼 애니메이션 =====
 export const backButtonVariants: Variants = {
   hidden: { opacity: 0, x: -20 },
   visible: { opacity: 1, x: 0, transition: { duration: DURATION.fast } },
   exit: { opacity: 0, x: -20, transition: { duration: DURATION.fast } },
 };
 
-// ===== Accent CTA Animation =====
+// ===== 액센트 CTA 애니메이션 =====
 export const accentCtaVariants: Variants = {
   hidden: { opacity: 0, scale: 0, rotateZ: -45 },
   visible: {
@@ -271,7 +271,7 @@ export const accentCtaVariants: Variants = {
   },
 };
 
-// ===== Side Navigation Animation =====
+// ===== 사이드 내비게이션 애니메이션 =====
 export const sideNavVariants: Variants = {
   hidden: { width: 0, opacity: 0 },
   visible: (width: number) => ({
@@ -282,7 +282,7 @@ export const sideNavVariants: Variants = {
   exit: { width: 0, opacity: 0, transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] } },
 };
 
-// ===== Action Buttons Expanded Menu =====
+// ===== 액션 버튼 확장 메뉴 =====
 export const expandedMenuVariants: Variants = {
   hidden: { opacity: 0, scale: 0.8, y: 10 },
   visible: {
@@ -294,7 +294,7 @@ export const expandedMenuVariants: Variants = {
   exit: { opacity: 0, scale: 0.8, y: 10, transition: { duration: 0.2 } },
 };
 
-// ===== Editorial Header/Footer =====
+// ===== 에디토리얼 헤더/푸터 =====
 export const editorialHeaderVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
   visible: {
@@ -313,7 +313,7 @@ export const editorialFooterVariants: Variants = {
   },
 };
 
-// ===== Theme Toggle Icon =====
+// ===== 테마 토글 아이콘 =====
 export const themeToggleRotate = {
   animate: (isDark: boolean) => ({
     rotate: isDark ? 0 : 180,
@@ -321,9 +321,9 @@ export const themeToggleRotate = {
   }),
 };
 
-// ===== Interactive Hover Effects =====
+// ===== 인터랙티브 호버 효과 =====
 /**
- * Playful rotation on hover - good for badges, labels, small accents
+ * 호버 시 장난스러운 회전 - 배지, 라벨, 작은 액센트에 적합
  */
 export const playfulRotateHover: TargetAndTransition = {
   scale: 1.2,
@@ -336,7 +336,7 @@ export const playfulRotateHoverReverse: TargetAndTransition = {
 };
 
 /**
- * 3D lift with text shadow - good for prominent text/titles
+ * 텍스트 그림자를 동반한 3D 리프트 - 강조 텍스트/타이틀에 적합
  */
 export const textLiftHover: TargetAndTransition = {
   scale: 1.05,
@@ -345,7 +345,7 @@ export const textLiftHover: TargetAndTransition = {
 };
 
 /**
- * 3D perspective tilt - good for cards, panels
+ * 3D 원근 틸트 - 카드, 패널에 적합
  */
 export const perspectiveTiltHover: TargetAndTransition = {
   scale: 1.1,

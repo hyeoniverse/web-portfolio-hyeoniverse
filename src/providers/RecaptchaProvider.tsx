@@ -48,7 +48,7 @@ export default function RecaptchaProvider({
     if (!enabled || !siteKey || version !== "v3") return;
 
     const loadScript = () => {
-      // Already loaded
+      // 이미 로드됨
       if (document.querySelector('script[src*="recaptcha/api.js"]')) {
         if (window.grecaptcha) {
           window.grecaptcha.ready(() => setReady(true));
@@ -65,7 +65,7 @@ export default function RecaptchaProvider({
       document.head.appendChild(script);
     };
 
-    // Load on first deliberate user interaction
+    // 첫 번째 의도적인 사용자 상호작용 시 로드
     const handler = () => {
       loadScript();
       cleanup();
@@ -92,7 +92,7 @@ export default function RecaptchaProvider({
     [siteKey]
   );
 
-  // Always render children in the same tree structure — no conditional wrapping
+  // 항상 동일한 트리 구조로 children을 렌더링 — 조건부 래핑 없음
   return (
     <RecaptchaContext.Provider
       value={{ executeRecaptcha: ready ? executeRecaptcha : undefined, ready }}
