@@ -1237,38 +1237,43 @@
 }
 
 /* ==========================================================================
-   Credits / Copyright
+   Credits Panel (inline in horizontal scroll track)
    ========================================================================== */
 
-.credits {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: var(--z-modal);
+.creditsPanel {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  flex-shrink: 0;
+  position: relative;
+  width: 60vw;
+  height: 100%;
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-light);
+  color: var(--text-primary);
   text-align: center;
-  pointer-events: none;
 }
 
-.creditsText {
-  margin: 0;
-  font-size: var(--font-size-xl);
-  color: var(--text-tertiary);
-}
-
-.creditsHeart {
-  color: var(--text-accent-secondary);
+.creditsPanel::before {
+  position: absolute;
+  top: 50%;
+  left: calc(-1 * var(--_gallery-gap) / 2);
+  width: 1px;
+  height: 300vh;
+  background: var(--border-primary);
+  content: "";
+  transform: translateY(-50%);
 }
 
 @media (max-width: 768px), (max-height: 700px) {
-  .credits {
-    position: relative;
+  .creditsPanel {
+    width: 100%;
+    height: auto;
     padding: var(--spacing-3xl) 24px var(--spacing-2xl);
     border-top: 1px solid var(--border-primary);
-    pointer-events: auto;
+  }
+
+  .creditsPanel::before {
+    display: none;
   }
 }

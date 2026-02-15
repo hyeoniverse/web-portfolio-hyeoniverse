@@ -488,6 +488,12 @@ export default function WorksSection() {
               <span className={styles.metaRole}>{project.role[language]}</span>
               <p className={styles.metaDesc}>{project.description[language]}</p>
             </div>
+            {/* 크레딧 패널: 각 세트의 마지막 프로젝트 뒤에 배치 */}
+            {(index + 1) % PROJECT_COUNT === 0 && (
+              <div className={styles.creditsPanel}>
+                <CreditsFooter variant="panel" />
+              </div>
+            )}
             </Fragment>
           ))}
         </div>
@@ -513,9 +519,6 @@ export default function WorksSection() {
           </motion.div>
         </AnimatePresence>
       </div>
-
-      {/* 크레딧 */}
-      <CreditsFooter variant="section" />
 
       {/* 페이지 전환 */}
       <AnimatePresence>
