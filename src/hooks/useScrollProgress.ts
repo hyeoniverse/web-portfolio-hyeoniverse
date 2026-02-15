@@ -4,12 +4,14 @@ import { useEffect, useRef, useCallback } from "react";
 import { useLenis } from "@/providers/LenisProvider";
 
 interface ScrollProgressReturn {
-  getProgress: () => number;
+  /** 누적 스크롤 거리 (페이지 1회 = 1.0, 무한 스크롤 시 계속 증가) */
+  getCumulative: () => number;
 }
 
 export function useScrollProgress(): ScrollProgressReturn {
   const { lenis } = useLenis();
-  const progressRef = useRef(0);
+  const cumulativeRef = useRef(0);
+  const lastScrollRef = useRef(0);
 
   useEffect(() => {
     if (!lenis) return;
@@ -19,10 +21,24 @@ export function useScrollProgress(): ScrollProgressReturn {
         scroll: number;
         limit: number;
       };
-      const limit = lenisAny.limit;
-      if (limit > 0) {
-        progressRef.current = Math.min(1, Math.max(0, lenisAny.scroll / limit));
+      const { scroll, limit } = lenisAny;
+      if (limit <= 0) return;
+
+      const currentNorm = scroll / limit;
+      const lastNorm = lastScrollRef.current;
+      let delta = currentNorm - lastNorm;
+
+      // 무한 스크롤 래핑 감지: progress가 갑자기 큰 폭으로 뛰면 래핑
+      if (delta > 0.5) {
+        // 뒤로 래핑 (1→0 점프)
+        delta -= 1;
+      } else if (delta < -0.5) {
+        // 앞으로 래핑 (0→1 점프)
+        delta += 1;
       }
+
+      cumulativeRef.current += delta;
+      lastScrollRef.current = currentNorm;
     };
 
     lenis.on("scroll", handleScroll);
@@ -33,7 +49,7 @@ export function useScrollProgress(): ScrollProgressReturn {
     };
   }, [lenis]);
 
-  const getProgress = useCallback(() => progressRef.current, []);
+  const getCumulative = useCallback(() => cumulativeRef.current, []);
 
-  return { getProgress };
+  return { getCumulative };
 }

@@ -1,9 +1,9 @@
 // 3D Torus 스크롤 경로 및 시각 설정
 
-// Geometry
+// Geometry (축소)
 export const TORUS_GEOMETRY = {
-  radius: 1.2,
-  tube: 0.45,
+  radius: 0.6,
+  tube: 0.25,
   radialSegments: 48,
   tubularSegments: 96,
 } as const;
@@ -15,47 +15,48 @@ export const TORUS_SCALE = {
   z: 1.0,
 } as const;
 
-// 스크롤 진행도(0~1) → 뷰포트 내 위치 매핑
+// 누적 스크롤 기반 연속 경로 (리사주 곡선)
+// X·Y 주파수가 다르면 화면 안에서 끝없이 이어지는 궤도를 그림
 export const TORUS_PATH = {
-  xAmplitude: 4.5,
-  xFrequency: 2.5,
-  xPhase: 0,
+  // X: 좌우 진동
+  xAmplitude: 3.5,
+  xFrequency: 0.7, // 페이지 1회 스크롤당 주기 수
 
-  yStart: 3.5,
-  yEnd: -3.5,
-  yWaveAmplitude: 1.0,
-  yWaveFrequency: 3,
+  // Y: 상하 진동 (X와 다른 주파수 → 리사주 곡선)
+  yAmplitude: 3.0,
+  yFrequency: 1.1,
 
+  // Z: 깊이 진동
   zAmplitude: 1.5,
-  zFrequency: 1.5,
+  zFrequency: 0.4,
 } as const;
 
-// 회전 속도 (전체 스크롤 대비 라디안)
+// 회전 속도 (페이지 1회 스크롤당 라디안)
 export const TORUS_ROTATION = {
-  xSpeed: Math.PI * 4,
-  ySpeed: Math.PI * 6,
-  zSpeed: Math.PI * 2,
+  xSpeed: Math.PI * 3,
+  ySpeed: Math.PI * 5,
+  zSpeed: Math.PI * 1.5,
 } as const;
 
-// 테마별 머티리얼
+// 테마별 머티리얼 (불투명 메탈릭)
 export const TORUS_MATERIAL = {
   dark: {
-    color: "#4d8dff",
-    emissive: "#1a3a7a",
-    emissiveIntensity: 0.3,
-    metalness: 0.7,
-    roughness: 0.2,
-    opacity: 0.15,
-    wireframeOpacity: 0.25,
+    color: "#c0c8d8",
+    emissive: "#2a4a8a",
+    emissiveIntensity: 0.4,
+    metalness: 1.0,
+    roughness: 0.08,
+    opacity: 1.0,
+    envMapIntensity: 1.5,
   },
   light: {
-    color: "#3b82f6",
-    emissive: "#1e40af",
-    emissiveIntensity: 0.15,
-    metalness: 0.5,
-    roughness: 0.3,
-    opacity: 0.1,
-    wireframeOpacity: 0.18,
+    color: "#e8ecf2",
+    emissive: "#3b6fc0",
+    emissiveIntensity: 0.2,
+    metalness: 1.0,
+    roughness: 0.12,
+    opacity: 1.0,
+    envMapIntensity: 1.2,
   },
 } as const;
 
