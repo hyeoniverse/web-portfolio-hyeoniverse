@@ -1,6 +1,6 @@
 export interface ServiceItem {
   num: string;
-  key: string; // Translation key
+  key: string; // 번역 키
 }
 
 export const services: ServiceItem[] = [

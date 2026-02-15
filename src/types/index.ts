@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
 // ============================================
-// Project Types
+// 프로젝트 타입
 // ============================================
 export interface Project {
   id: string;
@@ -21,7 +21,7 @@ export interface Project {
 export type ProjectCategories = "all" | "team" | "single";
 
 // ============================================
-// Skills Types
+// 스킬 타입
 // ============================================
 export interface Skills {
   domain: Domain;
@@ -45,7 +45,7 @@ export interface Skill {
 }
 
 // ============================================
-// Experience Types
+// 경력 타입
 // ============================================
 export interface Experience {
   id: string;
@@ -59,7 +59,7 @@ export interface Experience {
 }
 
 // ============================================
-// Blog Types
+// 블로그 타입
 // ============================================
 export interface BlogPost {
   id: string;
@@ -74,7 +74,7 @@ export interface BlogPost {
 }
 
 // ============================================
-// Contact Types
+// 연락처 타입
 // ============================================
 export interface ContactForm {
   name: string;
@@ -83,7 +83,7 @@ export interface ContactForm {
 }
 
 // ============================================
-// UI Element Types
+// UI 요소 타입
 // ============================================
 export interface MousePosition {
   x: number;
@@ -115,7 +115,7 @@ export interface ClickEffect {
 }
 
 // ============================================
-// Navigation Types
+// 네비게이션 타입
 // ============================================
 export interface NavItem {
   id: string;
@@ -131,7 +131,7 @@ export interface TocLabel {
 }
 
 // ============================================
-// Modal Types
+// 모달 타입
 // ============================================
 export interface ModalOptions {
   id?: string;
@@ -159,14 +159,14 @@ export interface ModalItem {
 }
 
 // ============================================
-// Common Types
+// 공통 타입
 // ============================================
 export type SoundType = "click" | "hover" | "success" | "error" | "typing";
 export type Theme = "dark" | "light" | "system" | null;
 export type TransitionDirection = "down" | "up";
 
 // ============================================
-// Work Interaction Types
+// 작품 인터랙션 타입
 // ============================================
 export interface ExpandingWork {
   id: string;
@@ -188,7 +188,7 @@ export interface HoveringWork {
 }
 
 // ============================================
-// Magnetic Effect Types
+// 자기장 효과 타입
 // ============================================
 export interface MagneticOffset {
   x: number;

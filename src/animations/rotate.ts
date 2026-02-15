@@ -2,7 +2,7 @@ import { Variants } from "framer-motion";
 import { EASING } from "./constants";
 
 /**
- * Rotate Animations
+ * 회전 애니메이션
  */
 
 export const rotateIn: Variants = {
@@ -29,7 +29,7 @@ export const rotateOut: Variants = {
 };
 
 /**
- * Flip Animations
+ * 플립 애니메이션
  */
 export const flipInX: Variants = {
   hidden: { opacity: 0, rotateX: -90 },
@@ -69,7 +69,7 @@ export const flipInY: Variants = {
 };
 
 /**
- * Tilt Animations
+ * 틸트 애니메이션
  */
 export const tiltInLeft: Variants = {
   hidden: {

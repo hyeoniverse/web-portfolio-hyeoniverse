@@ -3,39 +3,39 @@
 import { useEffect, useState } from "react";
 
 /**
- * Computes a composite breakpoint key from width (1024/768)
- * and height (640) thresholds. Any boundary crossing triggers remount.
+ * 너비(1024/768)와 높이(640) 임계값으로
+ * 복합 브레이크포인트 키를 계산. 경계 변경 시 리마운트 트리거.
  */
 function getBreakpoint(): string {
   if (typeof window === "undefined") return "desktop-tall";
-  const w = window.innerWidth;
-  const h = window.innerHeight;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
-  const widthBp = w > 1024 ? "desktop" : w >= 768 ? "tablet" : "mobile";
-  const heightBp = h < 640 ? "short" : "tall";
+  const widthBp = width > 1024 ? "desktop" : width >= 768 ? "tablet" : "mobile";
+  const heightBp = height < 640 ? "short" : "tall";
 
   return `${widthBp}-${heightBp}`;
 }
 
 /**
- * Remounts all children when the viewport crosses a breakpoint boundary.
- * Width: 1024px (desktop/tablet), 768px (tablet/mobile)
- * Height: 640px (tall/short — matches webflow panel min-height)
- * Providers above this component stay stable.
+ * 뷰포트가 브레이크포인트 경계를 넘을 때 모든 자식을 리마운트.
+ * 너비: 1024px (데스크톱/태블릿), 768px (태블릿/모바일)
+ * 높이: 640px (높음/낮음 — webflow 패널 최소 높이와 일치)
+ * 이 컴포넌트 위의 Provider는 안정적으로 유지.
  */
 export default function BreakpointGuard({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [bp, setBp] = useState(getBreakpoint);
+  const [breakpoint, setBreakpoint] = useState("desktop-tall"); // SSR 안전 기본값
 
   useEffect(() => {
-    const check = () => setBp(getBreakpoint());
+    const check = () => setBreakpoint(getBreakpoint());
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  return <div key={bp}>{children}</div>;
+  return <div key={breakpoint}>{children}</div>;
 }

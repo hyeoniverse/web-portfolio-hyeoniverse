@@ -2,10 +2,10 @@ import { Variants } from "framer-motion";
 import { DURATION, EASING, STAGGER } from "./constants";
 
 /**
- * Special Effects and Complex Animations
+ * 특수 효과 및 복합 애니메이션
  */
 
-// ===== Container Animations =====
+// ===== 컨테이너 애니메이션 =====
 export const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
@@ -34,7 +34,7 @@ export const containerVariants: Variants = {
   },
 };
 
-// ===== Loading & Skeleton Animations =====
+// ===== 로딩 및 스켈레톤 애니메이션 =====
 export const shimmer: Variants = {
   animate: {
     backgroundPosition: ["-200% 0", "200% 0"],
@@ -75,7 +75,7 @@ export const sparkle: Variants = {
   },
 };
 
-// ===== Backdrop Effects =====
+// ===== 배경 효과 =====
 export const backdropBlurFadeIn: Variants = {
   hidden: {
     opacity: 0,
@@ -116,7 +116,7 @@ export const backdropVariants: Variants = {
   },
 };
 
-// ===== 3D Effects =====
+// ===== 3D 효과 =====
 export const elementRotateScaleIn: Variants = {
   hidden: { opacity: 0, scale: 0, rotate: -180 },
   visible: {
@@ -173,7 +173,7 @@ export const openYFromTop: Variants = {
   },
 };
 
-// ===== Transition Effects =====
+// ===== 전환 효과 =====
 export const liquidWaveAnimation: Variants = {
   hidden: (direction: "up" | "down") => ({
     y: direction === "down" ? "-100%" : "100%",
@@ -215,7 +215,7 @@ export const mistEffectAnimation: Variants = {
   },
 };
 
-// ===== Wipe Animations =====
+// ===== 와이프 애니메이션 =====
 export const wipeInFromBottom: Variants = {
   hidden: {
     clipPath: "inset(100% 0 0 0)",
@@ -270,7 +270,7 @@ export const wipeInFromTop: Variants = {
   },
 };
 
-// ===== Custom Background Animations =====
+// ===== 커스텀 배경 애니메이션 =====
 export const floatingElementAnimation: Variants = {
   hidden: ({ x, y }: { x: number; y: number }) => ({
     opacity: 0,
@@ -313,7 +313,7 @@ export const backgroundTitleVariants: Variants = {
   },
 };
 
-// ===== Section Transition Animations =====
+// ===== 섹션 전환 애니메이션 =====
 export const sectionTransitionWrapper: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.2 } },
@@ -348,7 +348,7 @@ export const sectionTransitionCorner: Variants = {
   exit: { opacity: 0, scale: 0 },
 };
 
-// ===== Floating/Infinite Animations =====
+// ===== 플로팅/무한 애니메이션 =====
 export const floatingShape: Variants = {
   animate: {
     y: [-10, 10, -10],
@@ -400,10 +400,10 @@ export const scaleXGrow: Variants = {
   visible: { scaleX: 1, transition: { duration: 0.8, ease: EASING.easeInOut } },
 };
 
-// ===== Editorial/Magazine Style Animations =====
+// ===== 에디토리얼/매거진 스타일 애니메이션 =====
 /**
- * Perspective depth animation - items appear from deep perspective
- * Good for: Section headers, editorial titles, magazine-style layouts
+ * 원근 깊이 애니메이션 - 깊은 원근에서 요소가 나타남
+ * 적합 대상: 섹션 헤더, 에디토리얼 타이틀, 매거진 스타일 레이아웃
  */
 export const perspectiveDepth: Variants = {
   hidden: {
@@ -432,8 +432,8 @@ export const perspectiveDepth: Variants = {
 };
 
 /**
- * 3D flip from side - Y-axis rotation entrance
- * Good for: Cards, panels, secondary titles
+ * 측면에서의 3D 플립 - Y축 회전 진입
+ * 적합 대상: 카드, 패널, 보조 타이틀
  */
 export const flipFromSide: Variants = {
   hidden: {
@@ -462,8 +462,8 @@ export const flipFromSide: Variants = {
 };
 
 /**
- * Vertical decorative line growth
- * Good for: Dividers, separators, editorial accents
+ * 세로 장식 라인 성장
+ * 적합 대상: 구분선, 분리선, 에디토리얼 액센트
  */
 export const lineGrowth: Variants = {
   hidden: {

@@ -2,7 +2,7 @@ import { Variants } from "framer-motion";
 import { DURATION, EASING } from "./constants";
 
 /**
- * Slide Animations
+ * 슬라이드 애니메이션
  */
 
 export const slideInBottom: Variants = {

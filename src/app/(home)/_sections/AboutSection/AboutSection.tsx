@@ -29,7 +29,7 @@ function HighlightedText({
 const AboutSection = forwardRef<HTMLElement>((_, ref) => {
   const { tLang } = useLanguage();
 
-  // Always English for main text, Korean for caption
+  // 본문은 항상 영어, 캡션은 한국어
   const tEn = (key: string) => tLang(key, "en");
   const tKo = (key: string) => tLang(key, "ko");
 

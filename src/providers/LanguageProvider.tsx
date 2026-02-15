@@ -23,8 +23,8 @@ interface LanguageContextType {
   toggleLanguage: () => void;
   setLanguage: (language: Language) => void;
   t: (key: string) => string;
-  tAlt: (key: string) => string; // Translation in alternate language
-  tLang: (key: string, lang: Language) => string; // Translation in specific language
+  tAlt: (key: string) => string; // 대체 언어로 번역
+  tLang: (key: string, lang: Language) => string; // 특정 언어로 번역
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
@@ -32,8 +32,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 );
 
 /**
- * Get nested value from object using dot notation
- * e.g., "hero.headline1" -> translations.hero.headline1
+ * 점 표기법으로 객체에서 중첩된 값을 가져옴
+ * 예: "hero.headline1" -> translations.hero.headline1
  */
 function getNestedValue(obj: Translations, path: string): string {
   const keys = path.split(".");
@@ -43,7 +43,7 @@ function getNestedValue(obj: Translations, path: string): string {
     if (value && typeof value === "object" && key in value) {
       value = value[key];
     } else {
-      return path; // Return key if not found
+      return path; // 찾지 못하면 키를 반환
     }
   }
 
@@ -54,23 +54,23 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>("ko");
   const [mounted, setMounted] = useState(false);
 
-  // Initialize language from localStorage or browser preference
+  // localStorage 또는 브라우저 설정에서 언어 초기화
   useEffect(() => {
     setMounted(true);
     const stored = localStorage.getItem("language") as Language | null;
     if (stored && (stored === "ko" || stored === "en")) {
       setLanguageState(stored);
     } else {
-      // Check browser language preference
+      // 브라우저 언어 설정 확인
       const browserLang = navigator.language || navigator.languages?.[0];
       if (browserLang?.startsWith("en")) {
         setLanguageState("en");
       }
-      // Default remains "ko" for Korean or unknown languages
+      // 한국어 또는 알 수 없는 언어의 경우 기본값 "ko" 유지
     }
   }, []);
 
-  // Apply language to document
+  // 문서에 언어 적용
   useEffect(() => {
     if (!mounted) return;
     document.documentElement.setAttribute("lang", language);
@@ -85,7 +85,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLanguageState(newLanguage);
   }, []);
 
-  // Translation function
+  // 번역 함수
   const t = useCallback(
     (key: string): string => {
       return getNestedValue(translations[language], key);
@@ -93,7 +93,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [language]
   );
 
-  // Translation in alternate language
+  // 대체 언어로 번역
   const tAlt = useCallback(
     (key: string): string => {
       const altLanguage = language === "ko" ? "en" : "ko";
@@ -102,7 +102,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [language]
   );
 
-  // Translation in specific language
+  // 특정 언어로 번역
   const tLang = useCallback((key: string, lang: Language): string => {
     return getNestedValue(translations[lang], key);
   }, []);

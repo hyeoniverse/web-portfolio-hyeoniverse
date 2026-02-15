@@ -1,22 +1,22 @@
-// Class utilities
+// 클래스 유틸리티
 export { cn } from "./cn";
 
-// Date utilities
+// 날짜 유틸리티
 export { formatDate, getYear, thisYear, lastUpdated } from "./date";
 
-// DOM utilities
+// DOM 유틸리티
 export { getCurrentSection } from "./dom";
 
-// Random generators
+// 랜덤 생성기
 export { generateRandomElements, generateRandomDroplets } from "./random";
 
-// Sound utilities
+// 사운드 유틸리티
 export { createSoundTone } from "./sound";
 
-// Function utilities
+// 함수 유틸리티
 export { debounce, throttle, clamp, lerp } from "./function";
 
-// Scroll utilities
+// 스크롤 유틸리티
 export {
   scrollToSection,
   scrollToTop,

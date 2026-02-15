@@ -1,8 +1,8 @@
 import { Variants } from "framer-motion";
-import { DURATION, EASING, STAGGER, EASING as E } from "./constants";
+import { DURATION, EASING, STAGGER } from "./constants";
 
 /**
- * Fade Animations
+ * 페이드 애니메이션
  */
 
 export const fadeIn: Variants = {
@@ -26,7 +26,7 @@ export const fadeIn: Variants = {
 };
 
 /**
- * Fade with directional movement
+ * 방향 이동을 동반한 페이드
  */
 export const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -85,7 +85,7 @@ export const fadeInRight: Variants = {
 };
 
 /**
- * Fade with scale
+ * 스케일을 동반한 페이드
  */
 export const fadeInUpScale: Variants = {
   hidden: {
@@ -114,7 +114,7 @@ export const fadeInUpScale: Variants = {
 };
 
 /**
- * Accordion-style fade with rotation
+ * 회전을 동반한 아코디언 스타일 페이드
  */
 export const accordionFade: Variants = {
   hidden: {
@@ -132,7 +132,7 @@ export const accordionFade: Variants = {
     rotateX: 0,
     transition: {
       duration: DURATION.medium,
-      ease: E.smooth,
+      ease: EASING.smooth,
       ...STAGGER.medium,
     },
   },
@@ -144,13 +144,13 @@ export const accordionFade: Variants = {
     rotateX: 15,
     transition: {
       duration: 0.6,
-      ease: E.smoothReverse,
+      ease: EASING.smoothReverse,
     },
   },
 };
 
 /**
- * Fade in with delay - for footer content
+ * 지연 페이드인 - 푸터 콘텐츠용
  */
 export const fadeInUpDelayed: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -162,7 +162,7 @@ export const fadeInUpDelayed: Variants = {
 };
 
 /**
- * Fade in from left with delay - for scroll indicators
+ * 왼쪽에서 지연 페이드인 - 스크롤 인디케이터용
  */
 export const fadeInLeftDelayed: Variants = {
   hidden: { opacity: 0, x: -20 },
@@ -174,7 +174,7 @@ export const fadeInLeftDelayed: Variants = {
 };
 
 /**
- * Fade with vertical slide - for text transitions
+ * 수직 슬라이드를 동반한 페이드 - 텍스트 전환용
  */
 export const fadeSlideY: Variants = {
   hidden: { opacity: 0, y: -10 },
@@ -183,7 +183,7 @@ export const fadeSlideY: Variants = {
 };
 
 /**
- * Fade in from right with delay - for hero actions
+ * 오른쪽에서 지연 페이드인 - 히어로 액션용
  */
 export const fadeInRightDelayed: Variants = {
   hidden: { opacity: 0, x: 30 },
@@ -195,7 +195,7 @@ export const fadeInRightDelayed: Variants = {
 };
 
 /**
- * Hero section item with custom delay
+ * 커스텀 딜레이를 가진 히어로 섹션 아이템
  */
 export const heroSectionItem: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -207,7 +207,7 @@ export const heroSectionItem: Variants = {
 };
 
 /**
- * Hero title fade
+ * 히어로 타이틀 페이드
  */
 export const heroTitleFade: Variants = {
   hidden: { opacity: 0 },
@@ -218,7 +218,7 @@ export const heroTitleFade: Variants = {
 };
 
 /**
- * Lazy section reveal animation
+ * 지연 섹션 노출 애니메이션
  */
 export const lazySectionReveal: Variants = {
   hidden: { opacity: 0, y: 50 },
@@ -230,7 +230,7 @@ export const lazySectionReveal: Variants = {
 };
 
 /**
- * Image fade animation (for optimized image loading)
+ * 이미지 페이드 애니메이션 (최적화된 이미지 로딩용)
  */
 export const imageFade: Variants = {
   hidden: { opacity: 0 },

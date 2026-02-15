@@ -4,15 +4,8 @@ import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import { siteConfig } from "@/config/site.config";
 import { useLanguage } from "@/providers/LanguageProvider";
+import type { UseMagneticReturn } from "@/hooks/useMagnetic";
 import styles from "./CTASection.module.css";
-
-interface UseMagneticReturn {
-  ref: React.RefObject<HTMLDivElement | null>;
-  x: MotionValue<number>;
-  y: MotionValue<number>;
-  handleMouseMove: (e: React.MouseEvent) => void;
-  handleMouseLeave: () => void;
-}
 
 interface CTASectionProps {
   floatX: MotionValue<number>;
@@ -29,11 +22,11 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
 
     return (
       <section className={styles.cta} ref={ref}>
-        {/* Decorative Lines */}
+        {/* 장식 라인 */}
         <div className={`${styles.decorLine} ${styles.decorLineTop}`} />
         <div className={`${styles.decorLine} ${styles.decorLineBottom}`} />
 
-        {/* Floating Ovals */}
+        {/* 떠다니는 오벌 */}
         <motion.div
           className={`${styles.ovalPrimary} cta-oval`}
           style={{ x: ctaOvalX, y: ctaOvalY }}

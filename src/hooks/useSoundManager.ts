@@ -26,8 +26,8 @@ export function useSoundManager(): SoundManager {
   }, []);
 
   const typingBufferRef = useRef<AudioBuffer | null>(null);
-  const lastTypingPlayTimeRef = useRef(0); // 마지막 재생 시간 기록
-  const TYPING_MIN_INTERVAL = 50; // 최소 재생 간격 (ms)
+  const lastTypingPlayTimeRef = useRef(0); // 마지막 재생 시각 기록
+  const TYPING_MIN_INTERVAL = 50; // 최소 재생 간격(ms)
 
   useEffect(() => {
     audioContextRef.current = new (window.AudioContext ||

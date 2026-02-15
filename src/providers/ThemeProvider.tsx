@@ -22,14 +22,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
-  // Initialize theme from localStorage or system preference
+  // localStorage 또는 시스템 설정에서 테마 초기화
   useEffect(() => {
     setMounted(true);
     const stored = localStorage.getItem("theme") as Theme | null;
     if (stored) {
       setThemeState(stored);
     } else {
-      // Check system preference
+      // 시스템 설정 확인
       const prefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)"
       ).matches;
@@ -37,13 +37,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Apply theme to document
+  // 문서에 테마 적용
   useEffect(() => {
     if (!mounted) return;
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
 
-    // Enable transitions after initial theme is set
+    // 초기 테마 설정 후 전환 효과 활성화
     requestAnimationFrame(() => {
       document.documentElement.setAttribute("data-theme-ready", "");
     });

@@ -177,7 +177,7 @@ export default function ActionButtons() {
         </AnimatePresence>
       </div>
 
-      {/* Scroll To Bottom */}
+      {/* 하단으로 스크롤 */}
       <ActionButton title="Scroll to Bottom" onClick={scrollToBottom}>
         <ChevronDown size={20} />
       </ActionButton>

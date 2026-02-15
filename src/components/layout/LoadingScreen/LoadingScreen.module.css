@@ -1,68 +1,25 @@
 /* ==========================================================================
-  LoadingScreen - Minimal Design
+  LoadingScreen — Backdrop with Swipe Wipe
+  z-index below nav so the nav's "H" logo is visible above the backdrop
   ========================================================================== */
 
 .loadingScreen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: fixed;
   inset: 0;
-  z-index: var(--z-top);
-  background: var(--bg-black);
+  z-index: calc(var(--z-nav) - 1);
+  pointer-events: auto;
 }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-2xl);
-}
-
-/* Name */
-.name {
-  margin: 0;
-  font-family: var(--font-instrument), serif;
-  font-size: var(--fluid-font-size-6xl);
-  font-weight: var(--font-weight-regular);
-  line-height: 1;
-  color: var(--text-white);
-  letter-spacing: -0.02em;
-}
-
-/* Progress */
-.progressWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-sm);
-  width: 10vw;
-  min-width: var(--size-6xl);
-}
-
-.progressNumber {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-white);
-  letter-spacing: 0.1em;
-  font-variant-numeric: tabular-nums;
-}
-
-.progressTrack {
-  position: relative;
-  width: 100%;
-  height: 1px;
-  background: var(--bg-white);
-  overflow: hidden;
-}
-
-.progressBar {
+/* Black backdrop — clip-path transition for swipe wipe */
+.backdrop {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-accent-secondary-solid-light);
-  transform-origin: left center;
+  inset: 0;
+  background: var(--bg-black);
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.backdropWipe {
+  clip-path: inset(0 0 0 100%);
+  transition-delay: 0.4s;
 }

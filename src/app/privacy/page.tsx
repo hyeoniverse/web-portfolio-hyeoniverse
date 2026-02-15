@@ -9,7 +9,7 @@ import { content, type Language, type Section } from "@/data/privacyContent";
 import { LanguageToggle, AnimatedSection } from "./components";
 import styles from "./Privacy.module.css";
 
-// Animation variants
+// 애니메이션 배리언트
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -32,7 +32,7 @@ const itemVariants = {
   },
 };
 
-// Section content renderer
+// 섹션 콘텐츠 렌더러
 function SectionContent({ section }: { section: Section }) {
   return (
     <>
@@ -89,9 +89,9 @@ export default function PrivacyPage() {
   const router = useRouter();
   const { setInfinite, lenis, stop, start } = useLenis();
 
-  // Navigate back or to home
+  // 뒤로 가기 또는 홈으로 이동
   const handleBack = useCallback(() => {
-    // Check if there's a previous page in history (more than the current page)
+    // 히스토리에 이전 페이지가 있는지 확인 (현재 페이지 이상인 경우)
     if (window.history.length > 1 && document.referrer) {
       router.back();
     } else {
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
     }
   }, [router]);
 
-  // Disable infinite scroll on this page
+  // 이 페이지에서 무한 스크롤 비활성화
   useEffect(() => {
     stop();
     setInfinite(false);
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
         initial="hidden"
         animate="visible"
       >
-        {/* Header */}
+        {/* 헤더 */}
         <motion.div className={styles.header} variants={itemVariants}>
           <button onClick={handleBack} className={styles.backLink}>
             <svg
@@ -155,7 +155,7 @@ export default function PrivacyPage() {
           <LanguageToggle lang={lang} onLangChange={setLang} />
         </motion.div>
 
-        {/* Title */}
+        {/* 타이틀 */}
         <motion.h1 className={styles.title} variants={itemVariants}>
           {t.title}
         </motion.h1>
@@ -163,14 +163,14 @@ export default function PrivacyPage() {
           {t.lastUpdated}: {formatDate(lang)}
         </motion.p>
 
-        {/* Sections */}
+        {/* 섹션 */}
         {t.sections.map((section, index) => (
           <AnimatedSection key={index} delay={index * 0.05}>
             <SectionContent section={section} />
           </AnimatedSection>
         ))}
 
-        {/* Footer */}
+        {/* 푸터 */}
         <motion.div
           className={styles.footer}
           initial={{ opacity: 0 }}

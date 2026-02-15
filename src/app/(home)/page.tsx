@@ -5,7 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// Hooks
+// 훅
 import { useHasMounted } from "@/hooks/useHasMounted";
 import { useMagnetic } from "@/hooks/useMagnetic";
 import { useWorkInteraction } from "@/hooks/useWorkInteraction";
@@ -15,7 +15,7 @@ import { useContactForm } from "@/hooks/useContactForm";
 import { useToast } from "@/hooks/useToast";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 
-// Sections
+// 섹션
 import HeroSection from "./_sections/HeroSection";
 import AboutSection from "./_sections/AboutSection";
 import ServicesSection from "./_sections/ServicesSection";
@@ -24,12 +24,18 @@ import WorksSection from "./_sections/WorksSection";
 import CTASection from "./_sections/CTASection";
 import BridgeSection from "./_sections/BridgeSection";
 
-// Components
+// 컴포넌트
 import ContactDrawer from "@/components/layout/ContactDrawer";
+import dynamic from "next/dynamic";
+
+const ScrollTorus = dynamic(
+  () => import("@/components/effects/ScrollTorus"),
+  { ssr: false }
+);
 
 import styles from "./Home.module.css";
 
-// Register GSAP plugins
+// GSAP 플러그인 등록
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
@@ -38,7 +44,7 @@ export default function HomePage() {
   const hasMounted = useHasMounted();
   const { isLoading } = useLoadingScreen();
 
-  // Refs
+  // 레퍼런스
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
@@ -47,11 +53,11 @@ export default function HomePage() {
   const worksRef = useRef<HTMLElement>(null);
   const ctaRef = useRef<HTMLElement>(null);
 
-  // Drawer state
+  // 드로어 상태
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Custom hooks
+  // 커스텀 훅
   const { toast, formToast, showFormToast } = useToast();
   const workInteraction = useWorkInteraction();
   const magneticRepel = useMagneticRepel();
@@ -59,12 +65,12 @@ export default function HomePage() {
   const contactForm = useContactForm();
   const magnetic = useMagnetic(0.4);
 
-  // Connect toast handlers
+  // 토스트 핸들러 연결
   useEffect(() => {
     contactForm.onShowFormToast(showFormToast);
   }, [contactForm, showFormToast]);
 
-  // Mouse tracking for parallax
+  // 패럴랙스용 마우스 추적
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -82,13 +88,13 @@ export default function HomePage() {
     [-30, 30],
   );
 
-  // Pre-computed transforms for ovals
+  // 오벌 요소의 사전 계산된 변환
   const oval2X = useTransform(floatX, (v) => -v * 0.5);
   const oval2Y = useTransform(floatY, (v) => -v * 0.5);
   const ctaOvalX = useTransform(floatX, (v) => v * 0.3);
   const ctaOvalY = useTransform(floatY, (v) => v * 0.3);
 
-  // Service Y transforms for scroll compression
+  // 스크롤 압축을 위한 서비스 Y 변환
   const serviceY0 = useTransform(
     scrollVelocity.smoothServicesGap,
     (v) => v * 3,
@@ -102,7 +108,7 @@ export default function HomePage() {
     (v) => v * 1,
   );
 
-  // Mouse position tracking
+  // 마우스 위치 추적
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);
@@ -113,18 +119,18 @@ export default function HomePage() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY]);
 
-  // GSAP Scroll Animations
+  // GSAP 스크롤 애니메이션
   useEffect(() => {
     if (!hasMounted) return;
 
     let ctx: gsap.Context;
 
     const initTimeout = requestAnimationFrame(() => {
-      // Force layout recalculation
+      // 레이아웃 재계산 강제 실행
       void document.body.offsetHeight;
 
       ctx = gsap.context(() => {
-        // Hero section animations
+        // 히어로 섹션 애니메이션
         gsap.from(".hero-line", {
           y: 120,
           opacity: 0,
@@ -149,7 +155,7 @@ export default function HomePage() {
           delay: 1,
         });
 
-        // About section reveal
+        // About 섹션 등장
         gsap.from(".about-text", {
           y: 100,
           opacity: 0,
@@ -175,7 +181,7 @@ export default function HomePage() {
           },
         });
 
-        // Services section stagger reveal
+        // 서비스 섹션 시차 등장
         gsap.from(".service-item", {
           y: 80,
           opacity: 0,
@@ -190,7 +196,7 @@ export default function HomePage() {
           },
         });
 
-        // Horizontal lines animation
+        // 수평선 애니메이션
         gsap.from(".horizontal-rule", {
           scaleX: 0,
           duration: 1,
@@ -204,7 +210,7 @@ export default function HomePage() {
           },
         });
 
-        // Marquee continuous scroll
+        // 마퀴 연속 스크롤
         gsap.to(".marquee-track", {
           xPercent: -50,
           duration: 25,
@@ -212,7 +218,7 @@ export default function HomePage() {
           repeat: -1,
         });
 
-        // Works section circles reveal
+        // Works 섹션 원형 요소 등장
         gsap.from(".work-circle", {
           scale: 0,
           opacity: 0,
@@ -227,7 +233,7 @@ export default function HomePage() {
           },
         });
 
-        // CTA oval scale on scroll
+        // CTA 오벌 스크롤 시 스케일
         gsap.from(".cta-oval", {
           scale: 0.8,
           opacity: 0,
@@ -241,7 +247,7 @@ export default function HomePage() {
           },
         });
 
-        // Text reveal animation
+        // 텍스트 등장 애니메이션
         gsap.from(".reveal-text", {
           clipPath: "inset(100% 0 0 0)",
           y: 50,
@@ -270,6 +276,7 @@ export default function HomePage() {
 
   return (
     <div className={styles.pageWrapper}>
+      {!isLoading && <ScrollTorus />}
       <motion.div
         className={styles.home}
         ref={containerRef}
@@ -372,7 +379,7 @@ export default function HomePage() {
           setCopied={setCopied}
         />
 
-        {/* Toast Notification */}
+        {/* 토스트 알림 */}
         <div
           className={`${styles.toast} ${toast ? styles.toastVisible : ""} ${
             toast?.type === "error"

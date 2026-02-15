@@ -1,6 +1,6 @@
 import { siteConfig } from "@/config/site.config";
 
-// Types
+// 타입
 export interface ContentPart {
   highlight?: string;
 }
@@ -32,7 +32,7 @@ export interface PrivacyContent {
 
 export type Language = "en" | "ko";
 
-// Content translations
+// 콘텐츠 번역
 export const content: Record<Language, PrivacyContent> = {
   en: {
     backLink: "Go back",
