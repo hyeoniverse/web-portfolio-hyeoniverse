@@ -5,6 +5,7 @@
 .works {
   position: relative;
   padding: 20vh 2vw 0;
+  overflow: hidden;
 }
 
 .container {
@@ -42,7 +43,7 @@
 
 .titleText {
   font-family: var(--font-instrument), serif;
-  font-size: var(--fluid-font-size-6xl);
+  font-size: clamp(2rem, 7vw, var(--fluid-font-size-6xl));
   font-weight: var(--font-weight-regular);
   line-height: 0.95;
   color: var(--text-accent-secondary-alt);
