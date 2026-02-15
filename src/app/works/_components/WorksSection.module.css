@@ -842,11 +842,14 @@
     --_intro-pad: 24px;
     --_intro-text-max: none;
 
+    max-width: none;
     width: 100%;
     height: auto;
     align-items: flex-start;
-    padding-bottom: var(--spacing-3xl);
+    padding-top: 0;
+    padding-bottom: 0;
     text-align: left;
+    border-right: none;
   }
 
   .introTitle {
