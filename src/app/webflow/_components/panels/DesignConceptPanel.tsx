@@ -3,7 +3,6 @@
 import { useRef, useState, useCallback, useLayoutEffect, useEffect } from "react";
 import gsap from "gsap";
 import Image from "next/image";
-import { useLenis } from "@/providers/LenisProvider";
 import { Code, Palette, LayoutGrid, Zap, Globe, Mail } from "lucide-react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem } from "@/data/webflow";
@@ -125,23 +124,39 @@ function ColorSystemDemo() {
 
 /* ── 모션 & 스크롤 데모 ── */
 function MotionScrollDemo() {
-  const { lenis } = useLenis();
   const ballRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!lenis || !ballRef.current || !trackRef.current) return;
+    const ball = ballRef.current;
+    const track = trackRef.current;
+    if (!ball || !track) return;
 
-    const MAX_VELOCITY = 8;
+    const MAX_VELOCITY = 10;
+    const DECAY = 0.9;
+    let velocity = 0;
+    let lastTouchY = 0;
     let rafId: number;
 
-    const update = () => {
-      const ball = ballRef.current;
-      const track = trackRef.current;
-      if (!ball || !track) return;
+    // wheel 이벤트 → 데스크탑 (가로 스크롤에서도 deltaY 사용 가능)
+    const onWheel = (e: WheelEvent) => {
+      velocity += e.deltaY * 0.12;
+    };
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const velocity = (lenis as any).velocity as number;
+    // touch 이벤트 → 태블릿/모바일
+    const onTouchStart = (e: TouchEvent) => {
+      lastTouchY = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0].clientY;
+      velocity += (lastTouchY - y) * 0.5;
+      lastTouchY = y;
+    };
+
+    const update = () => {
+      velocity *= DECAY;
+
       const normalized = Math.max(-1, Math.min(1, velocity / MAX_VELOCITY));
       const trackWidth = track.clientWidth;
       const ballWidth = ball.clientWidth;
@@ -157,9 +172,18 @@ function MotionScrollDemo() {
       rafId = requestAnimationFrame(update);
     };
 
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
     rafId = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(rafId);
-  }, [lenis]);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+    };
+  }, []);
 
   return (
     <div className={styles.dcDemo}>

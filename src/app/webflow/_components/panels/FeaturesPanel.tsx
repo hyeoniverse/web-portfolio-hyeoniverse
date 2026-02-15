@@ -21,12 +21,14 @@ interface FeaturesPanelProps {
   features: DesignFeature[];
 }
 
-/* 9개 기능 → 3×3 그리드, 기본 비디오 URL 재사용 */
-function buildFrames(count: number): Frame[] {
-  return Array.from({ length: count }, (_, i) => ({
+/* 기능 → 3×3 그리드, 기능별 이미지 사용 */
+function buildFrames(features: DesignFeature[]): Frame[] {
+  return features.map((feature, i) => ({
     ...defaultFrames[i % defaultFrames.length],
     id: i + 1,
     defaultPos: { x: (i % 3) * 4, y: Math.floor(i / 3) * 4, w: 4, h: 4 },
+    image: feature.image,
+    video: feature.image ? undefined : defaultFrames[i % defaultFrames.length].video,
   }));
 }
 
@@ -34,7 +36,7 @@ export default function FeaturesPanel({
   language,
   features,
 }: FeaturesPanelProps) {
-  const frames = buildFrames(features.length);
+  const frames = buildFrames(features);
   const gridRef = useRef<HTMLDivElement>(null);
   const isMobile = checkMobileLayout();
 
