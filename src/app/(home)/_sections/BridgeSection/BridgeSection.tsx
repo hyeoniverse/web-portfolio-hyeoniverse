@@ -33,7 +33,9 @@ export default function BridgeSection({
 
       {/* Decorative Lines - identical to Hero */}
       <div className={`${heroStyles.decorLine} ${heroStyles.decorLineTop}`} />
-      <div className={`${heroStyles.decorLine} ${heroStyles.decorLineBottom}`} />
+      <div
+        className={`${heroStyles.decorLine} ${heroStyles.decorLineBottom}`}
+      />
 
       {/* Content - identical to Hero */}
       <div className={styles.content}>
@@ -64,7 +66,7 @@ export default function BridgeSection({
         <div className={heroStyles.meta}>
           <span>{t("hero.location")}</span>
           <span className={heroStyles.metaDivider} />
-          <span>{t("hero.status")}</span>
+          <span>{t("hero.availability")}</span>
         </div>
       </div>
 
