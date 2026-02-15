@@ -12,10 +12,10 @@
     "locationBefore": "Based in ",
     "locationHighlight": "Seoul",
     "locationAfter": ", KR",
-    "availability": "Available for Opportunities",
+    "availability": "Open to Opportunities",
     "scroll": "Scroll down",
     "location": "Based in Seoul, KR",
-    "status": "Available for opportunities"
+    "status": "Looking for a job"
   },
   "about": {
     "title": "About Me",
@@ -60,8 +60,9 @@
     "innovator": "INNOVATOR"
   },
   "cta": {
-    "title1": "Looking for",
-    "title2": "someone?",
+    "label": "Reach out anytime!",
+    "title1": "Up for a",
+    "title2": "coffee chat?",
     "button": "Get in touch"
   },
   "works": {

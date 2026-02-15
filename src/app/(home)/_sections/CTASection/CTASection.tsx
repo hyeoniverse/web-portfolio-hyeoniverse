@@ -37,7 +37,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
         />
 
         <div className={styles.content}>
-          <p className={`${styles.label} reveal-text`}>{t("cta.title1")}</p>
+          <p className={`${styles.label} reveal-text`}>{t("cta.label")}</p>
           <h2 className={styles.title}>
             <span className={`${styles.titleLine} reveal-text`}>
               {t("cta.title1")}
@@ -74,7 +74,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
         </div>
       </section>
     );
-  }
+  },
 );
 
 CTASection.displayName = "CTASection";

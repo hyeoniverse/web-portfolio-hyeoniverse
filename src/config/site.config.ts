@@ -103,7 +103,7 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   hero: {
     headline: ["Creative", "Developer", "& Designer"], // 메인 헤드라인 (각 항목 = 새 줄)
-    subtext: ["Based in Seoul, KR", "Available for projects"],
+    subtext: ["Based in Seoul, KR", "Open to opportunities"],
   },
 
   cta: {
