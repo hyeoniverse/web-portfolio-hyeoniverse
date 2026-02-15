@@ -12,6 +12,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
 import type { ProcessStep } from "@/data/webflow";
 import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { renderHighlight } from "../renderHighlight";
 import styles from "../WebFlowSection.module.css";
 
 if (typeof window !== "undefined") {
@@ -260,7 +261,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
                     {p.title[language]}
                   </h4>
                   <p className={styles.processStepDesc}>
-                    {p.description[language]}
+                    {renderHighlight(p.description[language])}
                   </p>
                 </div>
               </div>
@@ -314,7 +315,7 @@ export default function ProcessPanel({ language, process }: ProcessPanelProps) {
                     </h4>
                   </div>
                   <p className={styles.processStepContentDesc}>
-                    {p.description[language]}
+                    {renderHighlight(p.description[language])}
                   </p>
                 </div>
               </div>
