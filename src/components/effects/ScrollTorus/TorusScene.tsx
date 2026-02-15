@@ -18,8 +18,10 @@ interface TorusSceneProps {
   getCumulative: () => number;
   theme: "dark" | "light";
   isMobile: boolean;
-  /** 마우스 NDC 좌표 (-1~1) — Canvas pointer-events 차단으로 수동 추적 */
+  /** 마우스/터치 NDC 좌표 (-1~1) — Canvas pointer-events 차단으로 수동 추적 */
   mouseNDC: React.RefObject<{ x: number; y: number }>;
+  /** 터치 활성 상태 (터치 종료 시 false → 반발력 해제) */
+  pointerActive: React.RefObject<boolean>;
 }
 
 export default function TorusScene({
@@ -27,6 +29,7 @@ export default function TorusScene({
   theme,
   isMobile,
   mouseNDC,
+  pointerActive,
 }: TorusSceneProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const { camera } = useThree();
@@ -76,9 +79,11 @@ export default function TorusScene({
         TORUS_PATH.zAmplitude -
       2;
 
-    // 커서 반발 효과 (데스크탑만)
-    if (!isMobile && mouseNDC.current) {
-      // 수동 추적된 마우스 NDC를 토러스 Z 깊이의 월드 좌표로 변환
+    // 커서/터치 반발 효과
+    {
+      const isActive = isMobile ? pointerActive.current : true;
+
+      // 수동 추적된 NDC를 토러스 Z 깊이의 월드 좌표로 변환
       _mouseVec.set(mouseNDC.current.x, mouseNDC.current.y, 0.5).unproject(camera);
       _camPos.copy(camera.position);
       const dir = _mouseVec.sub(_camPos).normalize();
@@ -86,14 +91,14 @@ export default function TorusScene({
       const mouseWorldX = camera.position.x + dir.x * distToPlane;
       const mouseWorldY = camera.position.y + dir.y * distToPlane;
 
-      // 토러스와 마우스 간 거리
+      // 토러스와 포인터 간 거리
       const dx = x - mouseWorldX;
       const dy = y - mouseWorldY;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       let targetRepX = 0;
       let targetRepY = 0;
-      if (dist < TORUS_REPULSION.radius && dist > 0.01) {
+      if (isActive && dist < TORUS_REPULSION.radius && dist > 0.01) {
         // 거리에 반비례하는 반발력 (제곱으로 가까울수록 강하게)
         const force =
           ((1 - dist / TORUS_REPULSION.radius) ** 2) * TORUS_REPULSION.strength;
