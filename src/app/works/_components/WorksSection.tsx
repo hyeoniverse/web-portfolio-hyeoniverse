@@ -463,7 +463,7 @@ export default function WorksSection() {
               >
               {/* 메타데이터 */}
               <span className={styles.metaNumber}>{project.number}</span>
-              <span className={styles.metaCategory}>{project.category[language]}</span>
+              <span className={styles.metaCategory}>{project.category.en}</span>
 
               {/* 카드 */}
               <article
@@ -493,7 +493,7 @@ export default function WorksSection() {
                 <div className={styles.cardOverlay}>
                   <h3 className={styles.metaTitle}>{project.title}</h3>
                   <span className={styles.metaSubtitle}>
-                    {project.subtitle[language]}
+                    {project.subtitle.en}
                   </span>
                   <span className={styles.metaYear}>{project.year}</span>
                 </div>
@@ -505,7 +505,7 @@ export default function WorksSection() {
                   <span key={i}>#{tech}</span>
                 ))}
               </div>
-              <span className={styles.metaRole}>{project.role[language]}</span>
+              <span className={styles.metaRole}>{project.role.en}</span>
               <p className={styles.metaDesc}>{project.description[language]}</p>
             </div>
             {/* 크레딧 패널: 각 세트의 마지막 프로젝트 뒤에 배치 */}
@@ -534,7 +534,7 @@ export default function WorksSection() {
               {projects[activeIndex]?.title}
             </h2>
             <p className={styles.activeSubtitle}>
-              {projects[activeIndex]?.subtitle[language]}
+              {projects[activeIndex]?.subtitle.en}
             </p>
           </motion.div>
         </AnimatePresence>
