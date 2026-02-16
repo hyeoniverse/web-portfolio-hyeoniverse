@@ -475,7 +475,7 @@ export default function DesignConceptPanel({
                     src={concept.image}
                     alt={concept.title}
                     fill
-                    sizes="100vw"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
                 <div className={styles.dcMobileCardContent}>
