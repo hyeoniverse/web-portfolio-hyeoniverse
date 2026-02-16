@@ -65,10 +65,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        console.log("Formspree response status:", response.status);
-
         const responseText = await response.text();
-        console.log("Formspree response body:", responseText);
 
         let result;
         try {

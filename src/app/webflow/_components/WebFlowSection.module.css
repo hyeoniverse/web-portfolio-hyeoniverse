@@ -2595,7 +2595,11 @@
 
 @media (max-width: 1024px), (max-height: 640px) {
   .section {
-    overflow: clip;
+    overflow: visible;
+  }
+
+  .pinnedContent {
+    will-change: auto;
   }
 
   /* ── Mobile InView animation (reverse on exit) ── */
@@ -2696,16 +2700,16 @@
     display: flex;
   }
 
-  /* Design Concept: pinned vertical crossfade on mobile — full bleed */
+  /* Design Concept: pinned vertical crossfade on mobile
+     Same pattern as mobilePinViewport — no negative margins (breaks ScrollTrigger pin).
+     dcCardStack handles full-bleed via negative positioning instead. */
   .dcViewport {
-    margin: calc(-1 * var(--wf-panel-py)) calc(-1 * var(--wf-panel-px));
-    position: relative;
-    width: 100vw;
     height: 100vh;
+    min-height: 100vh;
   }
 
   .dcViewport .pinnedTitleRow {
-    padding: var(--wf-panel-py) var(--wf-panel-px) 0;
+    padding-top: var(--wf-panel-py);
   }
 
   .dcCardStack {
@@ -2713,9 +2717,9 @@
     overflow: hidden;
     position: absolute;
     top: -1px;
-    right: 0;
+    right: calc(-1 * var(--wf-panel-px));
     bottom: 0;
-    left: 0;
+    left: calc(-1 * var(--wf-panel-px));
     z-index: 1;
   }
 

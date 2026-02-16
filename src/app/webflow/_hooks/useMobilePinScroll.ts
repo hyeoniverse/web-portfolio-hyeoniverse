@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { checkMobileLayout } from "./mobileCheck";
@@ -16,6 +16,10 @@ if (typeof window !== "undefined") {
  * - 모바일 레이아웃 체크, gsap.context 생성/정리
  * - ScrollTrigger.create (pin + pinSpacing)
  * - progress → index 매핑 (변경 시에만 콜백 호출)
+ * - 리사이즈 시 ScrollTrigger 재생성 (위치 재계산)
+ *
+ * useEffect를 사용하여 LenisProvider의 scrollerProxy 설정 이후에
+ * ScrollTrigger를 생성합니다 (pinType: "transform"이 올바르게 적용됨).
  *
  * @param triggerRef - 고정할 요소의 ref
  * @param itemCount - 전체 항목 수
@@ -33,7 +37,7 @@ export function useMobilePinScroll(
 ): React.RefObject<ScrollTrigger | null> {
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const isMobile = checkMobileLayout();
     if (!isMobile) return;
 
@@ -42,32 +46,46 @@ export function useMobilePinScroll(
 
     const total = itemCount;
     const scrollDist = total * scrollPerItem;
-    let prevIndex = 0;
+    let ctx: gsap.Context | null = null;
 
-    const ctx = gsap.context(() => {
-      const instance = ScrollTrigger.create({
-        trigger,
-        start: "top top",
-        end: `+=${scrollDist}`,
-        pin: true,
-        pinSpacing: true,
-        onUpdate: (self) => {
-          const newIndex = Math.min(
-            total - 1,
-            Math.floor(self.progress * total),
-          );
-          if (newIndex !== prevIndex) {
-            prevIndex = newIndex;
-            onIndexChange(newIndex);
-          }
-        },
-      });
-      scrollTriggerRef.current = instance;
-    }, trigger);
+    const setup = () => {
+      // 이전 인스턴스 정리
+      if (ctx) ctx.revert();
+
+      let prevIndex = 0;
+
+      ctx = gsap.context(() => {
+        const instance = ScrollTrigger.create({
+          trigger,
+          start: "top top",
+          end: `+=${scrollDist}`,
+          pin: true,
+          pinSpacing: true,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const newIndex = Math.min(
+              total - 1,
+              Math.floor(self.progress * total),
+            );
+            if (newIndex !== prevIndex) {
+              prevIndex = newIndex;
+              onIndexChange(newIndex);
+            }
+          },
+        });
+        scrollTriggerRef.current = instance;
+      }, trigger);
+
+      ScrollTrigger.refresh();
+    };
+
+    setup();
+    window.addEventListener("resize", setup);
 
     return () => {
+      window.removeEventListener("resize", setup);
       scrollTriggerRef.current = null;
-      ctx.revert();
+      if (ctx) ctx.revert();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [triggerRef, itemCount, scrollPerItem, onIndexChange, ...deps]);

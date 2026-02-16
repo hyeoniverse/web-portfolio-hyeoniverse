@@ -21,44 +21,6 @@ export interface Project {
 export type ProjectCategories = "all" | "team" | "single";
 
 // ============================================
-// 스킬 타입
-// ============================================
-export interface Skills {
-  domain: Domain;
-  skills: Skill[];
-}
-
-export interface Domain {
-  id: string;
-  title: string;
-  subTitle?: string;
-  description: string;
-}
-
-export interface Skill {
-  title: string;
-  icon?: string;
-  level?: string;
-  numericLevel: number;
-  description?: string;
-  keywords?: string[];
-}
-
-// ============================================
-// 경력 타입
-// ============================================
-export interface Experience {
-  id: string;
-  title: string;
-  organization?: string;
-  startDate: string;
-  endDate: string | null;
-  description: string[];
-  technologies?: string[];
-  type: "activity" | "education" | "achievement";
-}
-
-// ============================================
 // 블로그 타입
 // ============================================
 export interface BlogPost {

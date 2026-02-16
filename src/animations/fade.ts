@@ -2,9 +2,26 @@ import { Variants } from "framer-motion";
 import { DURATION, EASING, STAGGER } from "./constants";
 
 /**
+ * 방향별 페이드 팩토리
+ */
+function createDirectionalFade(
+  axis: "x" | "y",
+  distance: number,
+  { duration = 0.4, delay, hasExit = true }: { duration?: number; delay?: number; hasExit?: boolean } = {},
+): Variants {
+  const transition = { duration, ease: EASING.easeOut, ...(delay != null && { delay }) };
+  return {
+    hidden: { opacity: 0, [axis]: distance },
+    visible: { opacity: 1, [axis]: 0, transition },
+    ...(hasExit && {
+      exit: { opacity: 0, [axis]: distance, transition: { duration, ease: EASING.easeOut } },
+    }),
+  } as Variants;
+}
+
+/**
  * 페이드 애니메이션
  */
-
 export const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: {
@@ -28,61 +45,17 @@ export const fadeIn: Variants = {
 /**
  * 방향 이동을 동반한 페이드
  */
-export const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: EASING.easeOut },
-  },
-  exit: {
-    opacity: 0,
-    y: 20,
-    transition: { duration: 0.4, ease: EASING.easeOut },
-  },
-};
+export const fadeInUp = createDirectionalFade("y", 20);
+export const fadeInDown = createDirectionalFade("y", -20);
+export const fadeInLeft = createDirectionalFade("x", -20);
+export const fadeInRight = createDirectionalFade("x", 20);
 
-export const fadeInDown: Variants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: EASING.easeOut },
-  },
-  exit: {
-    opacity: 0,
-    y: -20,
-    transition: { duration: 0.4, ease: EASING.easeOut },
-  },
-};
-
-export const fadeInLeft: Variants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.4, ease: EASING.easeOut },
-  },
-  exit: {
-    opacity: 0,
-    x: -20,
-    transition: { duration: 0.4, ease: EASING.easeOut },
-  },
-};
-
-export const fadeInRight: Variants = {
-  hidden: { opacity: 0, x: 20 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.4, ease: EASING.easeOut },
-  },
-  exit: {
-    opacity: 0,
-    x: 20,
-    transition: { duration: 0.4, ease: EASING.easeOut },
-  },
-};
+/**
+ * 지연 페이드인
+ */
+export const fadeInUpDelayed = createDirectionalFade("y", 20, { delay: 0.8, duration: 0.6, hasExit: false });
+export const fadeInLeftDelayed = createDirectionalFade("x", -20, { delay: 0.6, duration: 0.5, hasExit: false });
+export const fadeInRightDelayed = createDirectionalFade("x", 30, { duration: 0.8, delay: 2.5, hasExit: false });
 
 /**
  * 스케일을 동반한 페이드
@@ -150,48 +123,12 @@ export const accordionFade: Variants = {
 };
 
 /**
- * 지연 페이드인 - 푸터 콘텐츠용
- */
-export const fadeInUpDelayed: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.8, duration: 0.6, ease: EASING.easeOut },
-  },
-};
-
-/**
- * 왼쪽에서 지연 페이드인 - 스크롤 인디케이터용
- */
-export const fadeInLeftDelayed: Variants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { delay: 0.6, duration: 0.5, ease: EASING.easeOut },
-  },
-};
-
-/**
  * 수직 슬라이드를 동반한 페이드 - 텍스트 전환용
  */
 export const fadeSlideY: Variants = {
   hidden: { opacity: 0, y: -10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   exit: { opacity: 0, y: 10, transition: { duration: 0.3 } },
-};
-
-/**
- * 오른쪽에서 지연 페이드인 - 히어로 액션용
- */
-export const fadeInRightDelayed: Variants = {
-  hidden: { opacity: 0, x: 30 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.8, delay: 2.5, ease: EASING.easeOut },
-  },
 };
 
 /**

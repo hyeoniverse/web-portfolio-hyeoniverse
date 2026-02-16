@@ -93,29 +93,6 @@ export const backdropBlurFadeIn: Variants = {
   },
 };
 
-export const backdropVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    backdropFilter: "blur(0px)",
-  },
-  visible: {
-    opacity: 1,
-    backdropFilter: "blur(12px)",
-    transition: {
-      duration: 0.4,
-      ease: EASING.smooth,
-    },
-  },
-  exit: {
-    opacity: 0,
-    backdropFilter: "blur(0px)",
-    transition: {
-      duration: DURATION.fast,
-      ease: EASING.smooth,
-    },
-  },
-};
-
 // ===== 3D 효과 =====
 export const elementRotateScaleIn: Variants = {
   hidden: { opacity: 0, scale: 0, rotate: -180 },
