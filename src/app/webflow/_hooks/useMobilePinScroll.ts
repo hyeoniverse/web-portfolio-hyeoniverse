@@ -79,10 +79,13 @@ export function useMobilePinScroll(
       ScrollTrigger.refresh();
     };
 
-    setup();
+    // 초기 설정: 1프레임 대기 후 실행 — BreakpointGuard 리마운트 후
+    // Lenis 스크롤 위치 동기화 및 DOM 안정화 보장
+    const rafId = requestAnimationFrame(setup);
     window.addEventListener("resize", setup);
 
     return () => {
+      cancelAnimationFrame(rafId);
       window.removeEventListener("resize", setup);
       scrollTriggerRef.current = null;
       if (ctx) ctx.revert();

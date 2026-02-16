@@ -33,7 +33,7 @@ export function useHorizontalScroll(
   const scrollStateRef = useRef({ scrollX: 0, targetScrollX: 0 });
   const [activeSection, setActiveSection] = useState(0);
   const mobile = useMobileLayout();
-  const { setInfinite } = useLenis();
+  const { setInfinite, scrollTo: lenisScrollTo } = useLenis();
 
   // 외부에서 스크롤 제어 (usePinnedScroll 연동용)
   const scrollBy = useCallback((deltaX: number) => {
@@ -96,17 +96,36 @@ export function useHorizontalScroll(
     [styles, infinite],
   );
 
-  // Lenis 무한 스크롤 비활성화
-  useEffect(() => {
+  // Lenis 무한 스크롤 비활성화 — useLayoutEffect 사용:
+  // BreakpointGuard 리마운트 시 old cleanup(setInfinite(true)) 이후
+  // paint 전에 즉시 infinite=false 복원 → Lenis가 infinite=true 상태로
+  // 프레임을 처리하는 시간 창 제거
+  useLayoutEffect(() => {
     setInfinite(false);
     return () => setInfinite(true);
+  }, [setInfinite]);
+
+  // 리사이즈 시 infinite=false 재적용 — LenisProvider의 resize 핸들러가
+  // width > 768에서 infinite=true로 덮어쓰는 것을 방지
+  // (webflow 페이지에서는 항상 infinite=false 필요)
+  useEffect(() => {
+    const handleResize = () => setInfinite(false);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [setInfinite]);
 
   // 데스크탑: wheel + RAF + lerp + 무한 래핑
   useLayoutEffect(() => {
     const section = sectionRef.current;
     const track = trackRef.current;
-    if (!section || !track || mobile) return;
+    if (!section || !track || mobile) {
+      if (mobile) {
+        // 모바일 전환: 스크롤 위치 리셋
+        lenisScrollTo(0, { immediate: true });
+        window.scrollTo(0, 0);
+      }
+      return;
+    }
 
     const state = scrollStateRef.current;
 
@@ -258,7 +277,7 @@ export function useHorizontalScroll(
         if (items.length > 0) gsap.set(items, { clearProps: "opacity,y" });
       });
     };
-  }, [styles, mobile, infinite]);
+  }, [styles, mobile, infinite, lenisScrollTo]);
 
   // 모바일: IntersectionObserver로 활성 섹션 추적
   useEffect(() => {
