@@ -17,7 +17,7 @@ import {
 import { useHorizontalScroll } from "../_hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
 import { useNavIndicator } from "../_hooks/useNavIndicator";
-import { checkMobileLayout } from "../_hooks/mobileCheck";
+import { useMobileLayout } from "../_hooks/mobileCheck";
 import {
   HeroPanel,
   OverviewPanel,
@@ -53,7 +53,7 @@ export default function WebFlowSection() {
     navSections,
   } = useNavIndicator(activeSection, !isLoading);
 
-  const isMobile = checkMobileLayout();
+  const isMobile = useMobileLayout();
 
   const panelSet = (key: number) => (
     <Fragment key={key}>

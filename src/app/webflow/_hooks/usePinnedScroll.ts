@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import type { ScrollTrigger } from "gsap/ScrollTrigger";
-import { checkMobileLayout } from "./mobileCheck";
+import { checkMobileLayout, useMobileLayout } from "./mobileCheck";
 
 /**
  * 데스크톱 수평 스크롤 고정이 필요한 "초광폭" 패널용 공유 훅.
@@ -30,10 +30,11 @@ export function usePinnedScroll(
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const isMobile = useMobileLayout();
 
   // 데스크톱: RAF 루프 — 콘텐츠 카운터 트랜슬레이션 + 활성 인덱스 추적
   useEffect(() => {
-    if (checkMobileLayout()) return;
+    if (isMobile) return;
 
     let rafId: number;
     let prevIndex = 0;
@@ -65,7 +66,7 @@ export function usePinnedScroll(
 
     rafId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(rafId);
-  }, [itemCount, onIndexChange]);
+  }, [itemCount, onIndexChange, isMobile]);
 
   // 점/항목 클릭 → 해당 위치로 스크롤
   const scrollToItem = useCallback(

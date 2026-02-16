@@ -9,7 +9,7 @@ import {
 } from "react";
 import gsap from "gsap";
 import { useLenis } from "@/providers/LenisProvider";
-import { checkMobileLayout } from "./mobileCheck";
+import { checkMobileLayout, useMobileLayout } from "./mobileCheck";
 
 // 패널 상수
 const PANEL_COUNT = 11; // 한 세트의 패널 수
@@ -32,7 +32,7 @@ export function useHorizontalScroll(
   const trackRef = useRef<HTMLDivElement>(null);
   const scrollStateRef = useRef({ scrollX: 0, targetScrollX: 0 });
   const [activeSection, setActiveSection] = useState(0);
-  const mobile = checkMobileLayout();
+  const mobile = useMobileLayout();
   const { setInfinite } = useLenis();
 
   // 외부에서 스크롤 제어 (usePinnedScroll 연동용)
@@ -231,10 +231,10 @@ export function useHorizontalScroll(
 
       setActiveSection(closestNavIdx);
 
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
     };
 
-    const rafId = requestAnimationFrame(animate);
+    let rafId = requestAnimationFrame(animate);
 
     // 리사이즈 핸들러
     const handleResize = () => {
@@ -251,6 +251,12 @@ export function useHorizontalScroll(
       cancelAnimationFrame(rafId);
       section.removeEventListener("wheel", handleWheel);
       window.removeEventListener("resize", handleResize);
+      // GSAP 인라인 transform 정리 (모바일 전환 시 column 레이아웃 방해 방지)
+      gsap.set(track, { clearProps: "transform" });
+      allPanels.forEach((panel) => {
+        const items = panel.querySelectorAll(`.${styles.animate}`);
+        if (items.length > 0) gsap.set(items, { clearProps: "opacity,y" });
+      });
     };
   }, [styles, mobile, infinite]);
 

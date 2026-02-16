@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { checkMobileLayout } from "./mobileCheck";
+import { useMobileLayout } from "./mobileCheck";
 
 /**
  * 컨테이너 내부의 `.animate` 요소를 관찰하고
@@ -14,7 +14,7 @@ export function useInViewMobile(
   animateClass: string,
   visibleClass: string,
 ) {
-  const mobile = checkMobileLayout();
+  const mobile = useMobileLayout();
 
   useEffect(() => {
     const container = containerRef.current;

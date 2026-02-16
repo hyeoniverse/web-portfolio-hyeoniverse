@@ -3,7 +3,7 @@
 import { useRef, useState, useLayoutEffect, useCallback } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { ProcessStep } from "@/data/webflow";
-import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { renderHighlight } from "../renderHighlight";
@@ -17,7 +17,7 @@ interface ProcessPanelProps {
 }
 
 export default function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
-  const isMobile = checkMobileLayout();
+  const isMobile = useMobileLayout();
   const progressRef = useRef<HTMLDivElement>(null);
 
   // 데스크톱: 인덱스 변경 시 프로그레스 바 업데이트
@@ -85,7 +85,7 @@ export default function ProcessPanel({ language, process, scrollBy }: ProcessPan
   // 행 클릭 → 해당 위치로 스크롤 (데스크톱은 훅, 모바일은 ScrollTrigger)
   const handleRowClick = useCallback(
     (index: number) => {
-      if (checkMobileLayout()) {
+      if (isMobile) {
         const st = mobileStRef.current;
         if (!st) return;
         const targetProgress = (index + 0.5) / process.length;
@@ -95,7 +95,7 @@ export default function ProcessPanel({ language, process, scrollBy }: ProcessPan
         scrollToItem(index);
       }
     },
-    [process.length, scrollToItem, mobileStRef],
+    [process.length, scrollToItem, mobileStRef, isMobile],
   );
 
   return (

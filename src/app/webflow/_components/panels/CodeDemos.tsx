@@ -13,13 +13,8 @@ import {
   TORUS_SCALE,
 } from "@/constants/torus";
 import StaggerText from "@/components/effects/StaggerText/StaggerText";
-import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
-
-/* ── 공유 모바일 감지 (BreakpointGuard가 리마운트 처리) ── */
-function useDemoMobile(): boolean {
-  return checkMobileLayout();
-}
 
 /* =========================================================================
    2. DemoStaggerText — StaggerText 컴포넌트
@@ -27,7 +22,7 @@ function useDemoMobile(): boolean {
    모바일: 동일한 아웃라인→채우기 효과 자동 순환
    ========================================================================= */
 function DemoStaggerText() {
-  const isMobile = useDemoMobile();
+  const isMobile = useMobileLayout();
   const text = "Hover Me";
   const chars = text.split("");
   const totalChars = chars.length;
@@ -124,7 +119,7 @@ function DemoStaggerText() {
    모바일: 원형 자동 진동
    ========================================================================= */
 function DemoMagnetic() {
-  const isMobile = useDemoMobile();
+  const isMobile = useMobileLayout();
   const [isHovering, setIsHovering] = useState(false);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -211,7 +206,7 @@ const MARQUEE_COLORS = [
 ];
 
 function DemoInfiniteScroll() {
-  const isMobile = useDemoMobile();
+  const isMobile = useMobileLayout();
   const [paused, setPaused] = useState(false);
 
   return (
@@ -266,7 +261,7 @@ const GRID_SIZE = 12;
 const HOVER_SIZE = 6;
 
 function DemoFrameGrid() {
-  const isMobile = useDemoMobile();
+  const isMobile = useMobileLayout();
   const [hovered, setHovered] = useState<{
     row: number;
     col: number;
