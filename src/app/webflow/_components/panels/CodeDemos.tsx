@@ -6,6 +6,7 @@ import { Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { useMotionValue, useSpring, motion } from "framer-motion";
 import { useTheme } from "@/providers/ThemeProvider";
+import { createSafeRenderer } from "@/utils/three";
 import {
   TORUS_GEOMETRY,
   TORUS_MATERIAL,
@@ -395,7 +396,7 @@ function DemoScrollTorus() {
       <Canvas
         camera={{ position: [0, 0, 5], fov: 45 }}
         dpr={[1, 1.5]}
-        gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+        gl={(d) => createSafeRenderer(d, { alpha: true, antialias: true, powerPreference: "high-performance" })}
         style={{ width: "100%", height: "100%", background: "transparent" }}
       >
         <Suspense fallback={null}>

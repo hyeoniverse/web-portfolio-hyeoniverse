@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useScrollProgress } from "@/hooks/useScrollProgress";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { createSafeRenderer } from "@/utils/three";
 import styles from "./ScrollTorus.module.css";
 
 const TorusScene = dynamic(() => import("./TorusScene"), { ssr: false });
@@ -76,16 +77,9 @@ export default function ScrollTorus() {
       <Canvas
         camera={cameraConfig}
         dpr={dpr}
-        gl={{
-          alpha: true,
-          antialias: !isTouch,
-          powerPreference: "high-performance",
-        }}
+        gl={(d) => createSafeRenderer(d, { alpha: true, antialias: !isTouch, powerPreference: "high-performance" })}
         style={{ background: "transparent" }}
         frameloop="always"
-        onCreated={({ gl }) => {
-          gl.domElement.addEventListener("webglcontextlost", (e) => e.preventDefault());
-        }}
       >
         <Suspense fallback={null}>
           <TorusScene
