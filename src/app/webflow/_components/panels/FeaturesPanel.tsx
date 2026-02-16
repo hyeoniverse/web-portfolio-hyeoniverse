@@ -38,6 +38,7 @@ export default function FeaturesPanel({
 }: FeaturesPanelProps) {
   const frames = buildFrames(features);
   const gridRef = useRef<HTMLDivElement>(null);
+  const collapseRef = useRef({ firstCollapsedIdx: 0, collapseCount: 0, spacing: 0 });
   const isMobile = checkMobileLayout();
 
   /* 모바일/태블릿: 폴더 크기·탭 너비 균일화, 음수 마진으로 겹침 배치.
@@ -86,41 +87,43 @@ export default function FeaturesPanel({
       wraps.forEach((wrap) => { wrap.style.height = `${maxCardHeight}px`; });
       tabs.forEach((tab) => { tab.style.minWidth = `${maxTabWidth}px`; });
 
-      const gap = 48;
-      const idealSpacing = tabH + gap;
       const count = wraps.length;
-      const slots = count - 1; // 첫 카드 제외 간격 슬롯 수
-
+      const slots = count - 1;
+      const spacing = tabH + 8; // 탭 + 약간의 여백
       const vh = window.innerHeight;
-      const desiredTopPadding = idealSpacing * 2; // 넉넉한 상단 여백
+      const desiredTopPadding = (tabH + 48) * 2; // 넉넉한 상단 여백
 
-      // 전체 카드가 idealSpacing으로 펼쳐질 때 필요한 높이
-      const idealTotal = slots * idealSpacing + tabH + bodyPeek;
+      // 스택 전체 높이: (카드 수-1) × 탭 간격 + 마지막 카드 탭 + bodyPeek
+      const stackTotal = slots * spacing + tabH + bodyPeek;
 
       let topPadding: number;
       let collapseCount = 0;
 
-      if (vh >= idealTotal + desiredTopPadding) {
+      if (vh >= stackTotal + desiredTopPadding) {
         // 모든 카드가 여유롭게 들어감
-        topPadding = vh - idealTotal;
+        topPadding = vh - stackTotal;
       } else {
         // 공간 부족 → 하단 카드들을 완전히 겹쳐서 공간 확보
         const available = vh - desiredTopPadding - tabH - bodyPeek;
-        const maxSlots = Math.max(0, Math.floor(available / idealSpacing));
+        const maxSlots = Math.max(0, Math.floor(available / spacing));
         collapseCount = Math.max(0, slots - maxSlots);
         collapseCount = Math.min(collapseCount, count - 2);
 
         const collapsedTotal =
-          (slots - collapseCount) * idealSpacing + tabH + bodyPeek;
+          (slots - collapseCount) * spacing + tabH + bodyPeek;
         topPadding = Math.max(0, vh - collapsedTotal);
       }
 
-      // 가시 카드: idealSpacing 간격 (겹침 없음, 균일 간격)
-      // 겹침 카드: 완전 겹침 → 마지막 카드(최상위 z-index) 뒤에 숨김
-      const uniformMargin = -(maxCardHeight - idealSpacing);
+      // 가시 카드: 탭만 보이는 간격 (본체는 다음 카드에 가려짐)
+      // 겹침 카드: 완전 겹침 → 마지막 카드 바로 위에 숨김
+      // 마지막 카드: uniformMargin으로 항상 spacing 간격 유지
+      const uniformMargin = -(maxCardHeight - spacing);
       const fullyOverlappedMargin = -maxCardHeight;
 
-      const firstCollapsedIdx = count - 1 - collapseCount;
+      const lastIdx = count - 1;
+      const firstCollapsedIdx = collapseCount > 0
+        ? count - 1 - collapseCount
+        : lastIdx;
 
       wraps.forEach((wrap, i) => {
         if (i === 0) return;
@@ -131,9 +134,30 @@ export default function FeaturesPanel({
         }
       });
 
+      collapseRef.current = { firstCollapsedIdx, collapseCount, spacing };
+
+      // TODO: 디버그용 — 원인 파악 후 제거
+      console.log('[FeaturesPanel measure]', {
+        vh,
+        maxCardHeight,
+        tabH,
+        spacing,
+        bodyPeek,
+        stackTotal,
+        desiredTopPadding,
+        collapseCount,
+        firstCollapsedIdx,
+        topPadding,
+        uniformMargin,
+        fullyOverlappedMargin,
+      });
+
       if (pinnedEl) {
         pinnedEl.style.paddingTop = `${topPadding}px`;
       }
+
+      // 레이아웃 변경 후 ScrollTrigger 재계산 (리사이즈·HMR 대응)
+      ScrollTrigger.refresh();
     };
 
     measure();
@@ -165,6 +189,10 @@ export default function FeaturesPanel({
     const baseScroll = isTablet ? 300 : 200;
     const scrollDist = count * baseScroll;
 
+    const pinnedEl = grid.querySelector(
+      `.${styles.featureGridPinned}`,
+    ) as HTMLElement | null;
+
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: grid,
@@ -175,24 +203,58 @@ export default function FeaturesPanel({
         onUpdate: (self) => {
           const cardHeight = cards[0].offsetHeight;
           const progress = self.progress;
+          const { firstCollapsedIdx: fci, collapseCount: cc, spacing: sp } =
+            collapseRef.current;
 
           const animFraction = Math.min(progress / 0.95, 1);
           const step = lastIdx > 0 ? 1 / lastIdx : 1;
           const duration = step * 4;
 
+          // 겹쳐진 카드가 날아가기 전, 아래로 펼쳐서 자연 간격 생성
+          let globalSpread = 0;
+          if (cc > 0) {
+            const spreadStart = Math.max(0, (fci - 1) * step);
+            const spreadEnd = fci * step;
+            globalSpread =
+              spreadEnd > spreadStart
+                ? Math.max(0, Math.min(1, (animFraction - spreadStart) / (spreadEnd - spreadStart)))
+                : animFraction >= spreadStart ? 1 : 0;
+          }
+
+          // 컨테이너 보상: 마지막 카드가 고정되어 보이도록 전체를 위로 이동
+          const totalSpread = cc > 0 ? cc * sp * globalSpread : 0;
+          if (pinnedEl) {
+            pinnedEl.style.transform = totalSpread > 0
+              ? `translateY(${-totalSpread}px)`
+              : "";
+          }
+
           for (let i = 0; i < count; i++) {
+            // 겹쳐진 카드(i > fci): 아래로 이동하여 균일 간격 확보
+            const spreadY = (cc > 0 && i > fci)
+              ? (i - fci) * sp * globalSpread
+              : 0;
+
             if (i < lastIdx) {
               const cardStart = i * step;
               const animProgress = Math.max(
                 0,
                 Math.min(1, (animFraction - cardStart) / duration),
               );
+
               if (animProgress > 0) {
                 const exitY = -(cardHeight + window.innerHeight);
-                cards[i].style.transform = `translateY(${exitY * animProgress}px)`;
+                cards[i].style.transform = `translateY(${spreadY + exitY * animProgress}px)`;
+              } else if (spreadY !== 0) {
+                cards[i].style.transform = `translateY(${spreadY}px)`;
               } else {
                 cards[i].style.transform = "";
               }
+            } else {
+              // 마지막 카드: 개별 spread + 컨테이너 보상 = 시각적으로 고정
+              cards[i].style.transform = spreadY !== 0
+                ? `translateY(${spreadY}px)`
+                : "";
             }
           }
         },
@@ -201,9 +263,10 @@ export default function FeaturesPanel({
 
     return () => {
       cards.forEach((card) => { card.style.transform = ""; });
+      if (pinnedEl) pinnedEl.style.transform = "";
       ctx.revert();
     };
-  }, [isMobile]);
+  }, [isMobile, language]);
 
   const renderOverlay = useCallback(
     (_frame: Frame, index: number) => {
