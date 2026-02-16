@@ -12,7 +12,7 @@ function getBreakpoint(): string {
   const height = window.innerHeight;
 
   const widthBp = width > 1024 ? "desktop" : width >= 768 ? "tablet" : "mobile";
-  const heightBp = height < 640 ? "short" : "tall";
+  const heightBp = height <= 640 ? "short" : "tall";
 
   return `${widthBp}-${heightBp}`;
 }

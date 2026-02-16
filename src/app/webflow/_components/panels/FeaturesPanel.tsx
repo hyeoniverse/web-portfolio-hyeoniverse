@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useLayoutEffect } from "react";
+import { useCallback, useRef, useLayoutEffect, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
@@ -150,8 +150,9 @@ export default function FeaturesPanel({
 
   /* 모바일/태블릿: GSAP ScrollTrigger로 .featureGrid를 뷰포트에 고정.
      카드가 순서대로 위로 날아감 — 마지막 카드는 고정 유지.
-     겹침 카드도 스크롤 시 날아가며 자연스럽게 드러남. */
-  useLayoutEffect(() => {
+     겹침 카드도 스크롤 시 날아가며 자연스럽게 드러남.
+     useEffect + rAF: Lenis 동기화 및 DOM 안정화 후 ScrollTrigger 생성. */
+  useEffect(() => {
     if (!isMobile || !gridRef.current) return;
 
     const grid = gridRef.current;
@@ -217,9 +218,11 @@ export default function FeaturesPanel({
       }, grid);
     };
 
-    setup();
+    // 초기 설정: 1프레임 대기 — BreakpointGuard 리마운트 후 DOM 안정화 보장
+    const rafId = requestAnimationFrame(setup);
     window.addEventListener("resize", setup);
     return () => {
+      cancelAnimationFrame(rafId);
       window.removeEventListener("resize", setup);
       cards.forEach((card) => { card.style.transform = ""; });
       if (pinnedEl) pinnedEl.style.transform = "";
