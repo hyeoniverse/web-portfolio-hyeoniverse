@@ -136,22 +136,6 @@ export default function FeaturesPanel({
 
       collapseRef.current = { firstCollapsedIdx, collapseCount, spacing };
 
-      // TODO: 디버그용 — 원인 파악 후 제거
-      console.log('[FeaturesPanel measure]', {
-        vh,
-        maxCardHeight,
-        tabH,
-        spacing,
-        bodyPeek,
-        stackTotal,
-        desiredTopPadding,
-        collapseCount,
-        firstCollapsedIdx,
-        topPadding,
-        uniformMargin,
-        fullyOverlappedMargin,
-      });
-
       if (pinnedEl) {
         pinnedEl.style.paddingTop = `${topPadding}px`;
       }
