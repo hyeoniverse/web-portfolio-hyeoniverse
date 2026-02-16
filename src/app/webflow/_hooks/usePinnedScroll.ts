@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
+import type { ScrollTrigger } from "gsap/ScrollTrigger";
 import { checkMobileLayout } from "./mobileCheck";
 
 /**
@@ -12,6 +13,8 @@ import { checkMobileLayout } from "./mobileCheck";
  * 3. 클릭 → 스크롤 위치 네비게이션 (scrollToItem)
  *
  * 데스크톱에서만 활성화 (checkMobileLayout()이 true이면 건너뜀).
+ * 모바일에서는 setActiveIndex로 외부에서 활성 인덱스를 업데이트하고,
+ * scrollToItem에 mobileStRef를 전달하면 모바일에서도 점 클릭 네비게이션 동작.
  */
 export function usePinnedScroll(
   itemCount: number,
@@ -21,7 +24,8 @@ export function usePinnedScroll(
   panelRef: React.RefObject<HTMLDivElement | null>;
   contentRef: React.RefObject<HTMLDivElement | null>;
   activeIndex: number;
-  scrollToItem: (index: number) => void;
+  setActiveIndex: (index: number) => void;
+  scrollToItem: (index: number, mobileStRef?: React.RefObject<ScrollTrigger | null>) => void;
 } {
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -63,11 +67,21 @@ export function usePinnedScroll(
     return () => cancelAnimationFrame(rafId);
   }, [itemCount, onIndexChange]);
 
-  // 점/항목 클릭 → 해당 수평 위치로 스크롤
+  // 점/항목 클릭 → 해당 위치로 스크롤
   const scrollToItem = useCallback(
-    (index: number) => {
-      if (!panelRef.current || checkMobileLayout()) return;
+    (index: number, mobileStRef?: React.RefObject<ScrollTrigger | null>) => {
+      if (checkMobileLayout()) {
+        // 모바일: ScrollTrigger 기반 스크롤
+        const st = mobileStRef?.current;
+        if (!st) return;
+        const targetProgress = (index + 0.5) / itemCount;
+        const targetScroll = st.start + targetProgress * (st.end - st.start);
+        window.scrollTo({ top: targetScroll, behavior: "smooth" });
+        return;
+      }
 
+      // 데스크톱: 수평 스크롤
+      if (!panelRef.current) return;
       const rect = panelRef.current.getBoundingClientRect();
       const extraWidth = rect.width - window.innerWidth;
       if (extraWidth <= 0) return;
@@ -85,5 +99,5 @@ export function usePinnedScroll(
     [itemCount, scrollBy],
   );
 
-  return { panelRef, contentRef, activeIndex, scrollToItem };
+  return { panelRef, contentRef, activeIndex, setActiveIndex, scrollToItem };
 }
