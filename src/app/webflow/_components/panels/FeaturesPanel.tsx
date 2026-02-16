@@ -89,7 +89,7 @@ export default function FeaturesPanel({
 
       const count = wraps.length;
       const slots = count - 1;
-      const spacing = tabH + 8; // 탭 + 약간의 여백
+      const spacing = tabH + 32; // 탭 + 여백
       const vh = window.innerHeight;
       const desiredTopPadding = (tabH + 48) * 2; // 넉넉한 상단 여백
 
@@ -184,87 +184,99 @@ export default function FeaturesPanel({
     if (count === 0) return;
 
     const lastIdx = count - 1;
-    const isTablet = window.innerWidth >= 768;
-
-    const baseScroll = isTablet ? 300 : 200;
-    const scrollDist = count * baseScroll;
 
     const pinnedEl = grid.querySelector(
       `.${styles.featureGridPinned}`,
     ) as HTMLElement | null;
 
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: grid,
-        start: "top top",
-        end: `+=${scrollDist}`,
-        pin: true,
-        pinSpacing: true,
-        onUpdate: (self) => {
-          const cardHeight = cards[0].offsetHeight;
-          const progress = self.progress;
-          const { firstCollapsedIdx: fci, collapseCount: cc, spacing: sp } =
-            collapseRef.current;
+    let ctx: gsap.Context | null = null;
 
-          const animFraction = Math.min(progress / 0.95, 1);
-          const step = lastIdx > 0 ? 1 / lastIdx : 1;
-          const duration = step * 4;
-
-          // 겹쳐진 카드가 날아가기 전, 아래로 펼쳐서 자연 간격 생성
-          let globalSpread = 0;
-          if (cc > 0) {
-            const spreadStart = Math.max(0, (fci - 1) * step);
-            const spreadEnd = fci * step;
-            globalSpread =
-              spreadEnd > spreadStart
-                ? Math.max(0, Math.min(1, (animFraction - spreadStart) / (spreadEnd - spreadStart)))
-                : animFraction >= spreadStart ? 1 : 0;
-          }
-
-          // 컨테이너 보상: 마지막 카드가 고정되어 보이도록 전체를 위로 이동
-          const totalSpread = cc > 0 ? cc * sp * globalSpread : 0;
-          if (pinnedEl) {
-            pinnedEl.style.transform = totalSpread > 0
-              ? `translateY(${-totalSpread}px)`
-              : "";
-          }
-
-          for (let i = 0; i < count; i++) {
-            // 겹쳐진 카드(i > fci): 아래로 이동하여 균일 간격 확보
-            const spreadY = (cc > 0 && i > fci)
-              ? (i - fci) * sp * globalSpread
-              : 0;
-
-            if (i < lastIdx) {
-              const cardStart = i * step;
-              const animProgress = Math.max(
-                0,
-                Math.min(1, (animFraction - cardStart) / duration),
-              );
-
-              if (animProgress > 0) {
-                const exitY = -(cardHeight + window.innerHeight);
-                cards[i].style.transform = `translateY(${spreadY + exitY * animProgress}px)`;
-              } else if (spreadY !== 0) {
-                cards[i].style.transform = `translateY(${spreadY}px)`;
-              } else {
-                cards[i].style.transform = "";
-              }
-            } else {
-              // 마지막 카드: 개별 spread + 컨테이너 보상 = 시각적으로 고정
-              cards[i].style.transform = spreadY !== 0
-                ? `translateY(${spreadY}px)`
-                : "";
-            }
-          }
-        },
-      });
-    }, grid);
-
-    return () => {
+    const setup = () => {
+      // 이전 인스턴스 정리
       cards.forEach((card) => { card.style.transform = ""; });
       if (pinnedEl) pinnedEl.style.transform = "";
-      ctx.revert();
+      if (ctx) ctx.revert();
+
+      const isTablet = window.innerWidth >= 768;
+      const baseScroll = isTablet ? 300 : 200;
+      const scrollDist = count * baseScroll;
+
+      ctx = gsap.context(() => {
+        ScrollTrigger.create({
+          trigger: grid,
+          start: "top top",
+          end: `+=${scrollDist}`,
+          pin: true,
+          pinSpacing: true,
+          onUpdate: (self) => {
+            const cardHeight = cards[0].offsetHeight;
+            const progress = self.progress;
+            const { firstCollapsedIdx: fci, collapseCount: cc, spacing: sp } =
+              collapseRef.current;
+
+            const animFraction = Math.min(progress / 0.95, 1);
+            const step = lastIdx > 0 ? 1 / lastIdx : 1;
+            const duration = step * 4;
+
+            // 겹쳐진 카드가 날아가기 전, 아래로 펼쳐서 자연 간격 생성
+            let globalSpread = 0;
+            if (cc > 0) {
+              const spreadStart = Math.max(0, (fci - 1) * step);
+              const spreadEnd = fci * step;
+              globalSpread =
+                spreadEnd > spreadStart
+                  ? Math.max(0, Math.min(1, (animFraction - spreadStart) / (spreadEnd - spreadStart)))
+                  : animFraction >= spreadStart ? 1 : 0;
+            }
+
+            // 컨테이너 보상: 마지막 카드가 고정되어 보이도록 전체를 위로 이동
+            const totalSpread = cc > 0 ? cc * sp * globalSpread : 0;
+            if (pinnedEl) {
+              pinnedEl.style.transform = totalSpread > 0
+                ? `translateY(${-totalSpread}px)`
+                : "";
+            }
+
+            for (let i = 0; i < count; i++) {
+              // 겹쳐진 카드(i > fci): 아래로 이동하여 균일 간격 확보
+              const spreadY = (cc > 0 && i > fci)
+                ? (i - fci) * sp * globalSpread
+                : 0;
+
+              if (i < lastIdx) {
+                const cardStart = i * step;
+                const animProgress = Math.max(
+                  0,
+                  Math.min(1, (animFraction - cardStart) / duration),
+                );
+
+                if (animProgress > 0) {
+                  const exitY = -(cardHeight + window.innerHeight);
+                  cards[i].style.transform = `translateY(${spreadY + exitY * animProgress}px)`;
+                } else if (spreadY !== 0) {
+                  cards[i].style.transform = `translateY(${spreadY}px)`;
+                } else {
+                  cards[i].style.transform = "";
+                }
+              } else {
+                // 마지막 카드: 개별 spread + 컨테이너 보상 = 시각적으로 고정
+                cards[i].style.transform = spreadY !== 0
+                  ? `translateY(${spreadY}px)`
+                  : "";
+              }
+            }
+          },
+        });
+      }, grid);
+    };
+
+    setup();
+    window.addEventListener("resize", setup);
+    return () => {
+      window.removeEventListener("resize", setup);
+      cards.forEach((card) => { card.style.transform = ""; });
+      if (pinnedEl) pinnedEl.style.transform = "";
+      if (ctx) ctx.revert();
     };
   }, [isMobile, language]);
 
