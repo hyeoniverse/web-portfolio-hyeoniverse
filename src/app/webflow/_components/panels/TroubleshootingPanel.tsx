@@ -33,7 +33,7 @@ export default function TroubleshootingPanel({
   scrollBy,
 }: TroubleshootingPanelProps) {
   const isMobile = checkMobileLayout();
-  const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
+  const { panelRef, contentRef, activeIndex, setActiveIndex, scrollToItem } = usePinnedScroll(
     items.length,
     undefined,
     scrollBy,
@@ -67,6 +67,8 @@ export default function TroubleshootingPanel({
 
   // 모바일: ScrollTrigger 고정 + 스태거 캐스케이드 애니메이션
   const handleMobileIndexChange = useCallback((newIndex: number) => {
+    setActiveIndex(newIndex);
+
     const viewport = contentRef.current;
     if (!viewport) return;
 
@@ -89,9 +91,17 @@ export default function TroubleshootingPanel({
         }
       });
     });
-  }, [contentRef]);
+  }, [contentRef, setActiveIndex]);
 
-  useMobilePinScroll(contentRef, items.length, 500, handleMobileIndexChange);
+  const mobileStRef = useMobilePinScroll(contentRef, items.length, 500, handleMobileIndexChange);
+
+  // dotNav + 리스트 항목 클릭 핸들러 — 데스크톱/모바일 모두 지원
+  const handleItemClick = useCallback(
+    (index: number) => {
+      scrollToItem(index, mobileStRef);
+    },
+    [scrollToItem, mobileStRef],
+  );
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
@@ -105,7 +115,7 @@ export default function TroubleshootingPanel({
           dotNav={{
             count: items.length,
             activeIndex,
-            onDotClick: scrollToItem,
+            onDotClick: handleItemClick,
             className: styles.dotNavMobileOnly,
           }}
         />
@@ -121,7 +131,7 @@ export default function TroubleshootingPanel({
                 className={`${styles.troubleListItem} ${
                   index === activeIndex ? styles.troubleListItemActive : ""
                 }`}
-                onClick={() => scrollToItem(index)}
+                onClick={() => handleItemClick(index)}
               >
                 <span className={styles.troubleNumber}>
                   {String(index + 1).padStart(2, "0")}

@@ -70,33 +70,17 @@ export default function DesignConceptPanel({
     [isStrip],
   );
 
-  const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
+  // 1. usePinnedScroll — contentRef 제공 (데스크톱 RAF + scrollToItem)
+  const { panelRef, contentRef, activeIndex, setActiveIndex, scrollToItem } = usePinnedScroll(
     concepts.length,
     onIndexChange,
     scrollBy,
   );
 
-  useLayoutEffect(() => {
-    if (isStrip) return;
-    const grid = stackRef.current;
-    if (!grid) return;
-
-    const cards = Array.from(
-      grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
-    );
-    const total = cards.length;
-
-    cards.forEach((card, i) => {
-      gsap.set(card, { zIndex: total - i, opacity: 1 });
-      if (i > 0) {
-        gsap.set(card, { borderColor: "transparent" });
-        const overlay = card.querySelector(`.${styles.dcCardOverlay}`);
-        if (overlay) gsap.set(overlay, { opacity: 0 });
-      }
-    });
-  }, [isStrip]);
-
+  // 2. 모바일 인덱스 변경 핸들러 — setActiveIndex로 dotNav 동기화
   const handleMobileIndexChange = useCallback((newIndex: number) => {
+    setActiveIndex(newIndex);
+
     const stack = stackRef.current;
     if (!stack) return;
 
@@ -117,15 +101,45 @@ export default function DesignConceptPanel({
     cards.forEach((card, i) => {
       card.style.pointerEvents = i === newIndex ? "auto" : "none";
     });
-  }, []);
+  }, [setActiveIndex]);
 
-  // 모바일: 초기 레이아웃 설정 (ProcessPanel 패턴과 동일)
+  // 3. useMobilePinScroll — contentRef 사용 (모바일 pin + 스크롤)
+  const mobileStRef = useMobilePinScroll(contentRef, concepts.length, 400, handleMobileIndexChange);
+
+  // 데스크톱: 스택 모드 초기화
+  useLayoutEffect(() => {
+    if (isStrip) return;
+    const grid = stackRef.current;
+    if (!grid) return;
+
+    const cards = Array.from(
+      grid.querySelectorAll<HTMLElement>(`.${styles.dcCard}`),
+    );
+    const total = cards.length;
+
+    cards.forEach((card, i) => {
+      gsap.set(card, { zIndex: total - i, opacity: 1 });
+      if (i > 0) {
+        gsap.set(card, { borderColor: "transparent" });
+        const overlay = card.querySelector(`.${styles.dcCardOverlay}`);
+        if (overlay) gsap.set(overlay, { opacity: 0 });
+      }
+    });
+  }, [isStrip]);
+
+  // 모바일: 초기 레이아웃 설정
   useLayoutEffect(() => {
     if (!isMobile) return;
     handleMobileIndexChange(0);
   }, [isMobile, handleMobileIndexChange]);
 
-  useMobilePinScroll(contentRef, concepts.length, 400, handleMobileIndexChange);
+  // dotNav 클릭 핸들러 — 데스크톱/모바일 모두 지원
+  const handleDotClick = useCallback(
+    (index: number) => {
+      scrollToItem(index, mobileStRef);
+    },
+    [scrollToItem, mobileStRef],
+  );
 
   const cardElements = concepts.map((concept) => {
     const Demo = demoMap[concept.id];
@@ -162,7 +176,7 @@ export default function DesignConceptPanel({
           dotNav={{
             count: concepts.length,
             activeIndex,
-            onDotClick: scrollToItem,
+            onDotClick: handleDotClick,
             labels: concepts.map((c) => c.title),
             className: styles.dotNavMobile,
           }}
