@@ -662,6 +662,7 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
 |------|------|
 | `feat` | 새로운 기능 추가 |
 | `fix` | 버그 수정 |
+| `design` | 레이아웃·스타일 조정 (기능 변경 없음) |
 | `docs` | 문서 수정 |
 | `style` | 코드 포맷팅 |
 | `refactor` | 리팩토링 |
@@ -674,6 +675,7 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
 ```bash
 feat: 무한 스크롤 기능 추가
 fix(animation): 스크롤 애니메이션 깜빡임 수정
+design(webflow): dotNav 간격 조정 + indicator 높이 통일
 docs: README 설치 방법 추가
 refactor(hooks): 커스텀 훅 분리
 ```
