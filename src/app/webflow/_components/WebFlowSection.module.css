@@ -3291,11 +3291,17 @@
   }
 }
 
-/* ── Tablet: smaller cards ── */
+/* ── Tablet: smaller cards + zigzag ── */
 @media (min-width: 768px) and (max-width: 1024px),
   (min-width: 769px) and (max-height: 640px) {
   .featureFolderWrap {
-    height: clamp(180px, calc(100vh - 350px), 350px);
+    height: clamp(220px, calc(100vh - 300px), 400px);
+    width: 75%;
+    align-self: flex-start;
+  }
+
+  .featureFolderWrap:nth-child(even) {
+    align-self: flex-end;
   }
 }
 
