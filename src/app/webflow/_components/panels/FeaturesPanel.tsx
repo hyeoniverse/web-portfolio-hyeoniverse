@@ -196,10 +196,9 @@ export default function FeaturesPanel({
       const getLogicalIdx = (i: number) => Math.min(i, firstCollapsedIdx);
       const getExitY = (i: number) => padTop + getLogicalIdx(i) * spacing + cardHeight;
 
-      // 전체 스크롤: 마지막 슬롯의 시작 + 마지막 슬롯의 이탈 스크롤
-      const lastStart = (slots - 1) * scrollPerCard;
-      const lastExitScroll = getExitY(count - 1) / speed;
-      const scrollDist = lastStart + lastExitScroll;
+      // 전체 스크롤: 마지막 카드가 올라가기 시작하는 시점에 pin 해제
+      // → 마지막 카드는 자연 스크롤로 화면 밖으로 나감
+      const scrollDist = (slots - 1) * scrollPerCard;
 
       ctx = gsap.context(() => {
         ScrollTrigger.create({
