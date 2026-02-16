@@ -162,7 +162,11 @@
   display: flex;
   gap: clamp(0.15rem, 0.3vw, 0.35rem);
   align-items: center;
-  mix-blend-mode: difference;
+  background: color-mix(in srgb, var(--bg-primary) 55%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-capsule);
+  padding: 2px;
 }
 
 .dotArrow {

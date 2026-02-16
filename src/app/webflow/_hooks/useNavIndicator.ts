@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
 import { useSpring, useMotionValue, type MotionValue } from "framer-motion";
 
 export function useNavIndicator(activeSection: number, navMounted = false): {
@@ -37,11 +37,26 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
 
   const highlightedSection = hoveredSection ?? activeSection;
 
-  // 렌더 후 인디케이터 동기화 — CSS 트랜지션 시작을 위해 한 프레임 대기
+  // Mount/remount: 인디케이터 위치 즉시 설정 (spring 애니메이션 없이).
+  // BreakpointGuard 리마운트 시 spring이 0에서 시작하여
+  // 타이틀을 감싸지 못하는 문제 방지.
+  useLayoutEffect(() => {
+    if (!navMounted) return;
+    const el = navItemRefs.current[highlightedSection];
+    if (!el || !navRef.current) return;
+    const pad = 6;
+    const navRect = navRef.current.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    springX.jump(elRect.left - navRect.left - pad);
+    springWidth.jump(elRect.width + pad * 2);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navMounted]);
+
+  // 렌더 후 인디케이터 동기화 — 활성 섹션 변경 시 spring 애니메이션
   useEffect(() => {
     const el = navItemRefs.current[highlightedSection];
     if (!el) return;
-    // 위치 즉시 업데이트
+    // 위치 업데이트 (spring 애니메이션)
     updateIndicator(el);
     // 라벨 트랜지션 완료 후 재측정 (300ms는 CSS와 일치)
     const timer = setTimeout(() => updateIndicator(el), 320);
