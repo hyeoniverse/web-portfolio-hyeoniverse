@@ -8,6 +8,7 @@ module.exports = {
       [
         'feat',     // 새로운 기능
         'fix',      // 버그 수정
+        'design',   // 레이아웃·스타일 조정 (기능 변경 없음)
         'docs',     // 문서 수정
         'style',    // 코드 포맷팅
         'refactor', // 리팩토링
