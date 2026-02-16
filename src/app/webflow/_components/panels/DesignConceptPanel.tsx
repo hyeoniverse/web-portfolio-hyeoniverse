@@ -5,7 +5,7 @@ import gsap from "gsap";
 import Image from "next/image";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem } from "@/data/webflow";
-import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
@@ -43,7 +43,7 @@ export default function DesignConceptPanel({
 }: DesignConceptPanelProps) {
   const stripRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
-  const isMobile = checkMobileLayout();
+  const isMobile = useMobileLayout();
   const isStrip = mode === "strip";
 
   const onIndexChange = useCallback(
@@ -196,7 +196,7 @@ export default function DesignConceptPanel({
         </div>
 
         <div className={styles.dcMobileList}>
-          {concepts.map((concept) => {
+          {concepts.map((concept, idx) => {
             const Demo = demoMap[concept.id];
             return (
               <div key={concept.id} className={styles.dcMobileCard}>
@@ -206,6 +206,7 @@ export default function DesignConceptPanel({
                     alt={concept.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={idx === 0}
                   />
                 </div>
                 <div className={styles.dcMobileCardContent}>

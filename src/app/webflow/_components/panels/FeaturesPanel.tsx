@@ -13,7 +13,7 @@ import DynamicFrameLayout, {
   type Frame,
   defaultFrames,
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
-import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "../../_hooks/mobileCheck";
 import styles from "../WebFlowSection.module.css";
 
 interface FeaturesPanelProps {
@@ -39,7 +39,7 @@ export default function FeaturesPanel({
   const frames = buildFrames(features);
   const gridRef = useRef<HTMLDivElement>(null);
   const collapseRef = useRef({ firstCollapsedIdx: 0, collapseCount: 0, spacing: 0 });
-  const isMobile = checkMobileLayout();
+  const isMobile = useMobileLayout();
 
   /* 모바일/태블릿: 폴더 크기·탭 너비 균일화, 음수 마진으로 겹침 배치.
      뷰포트에 안 들어가는 하단 카드만 추가로 겹침. */
@@ -188,57 +188,30 @@ export default function FeaturesPanel({
           pinSpacing: true,
           onUpdate: (self) => {
             const cardHeight = cards[0].offsetHeight;
-            const progress = self.progress;
-            const { firstCollapsedIdx: fci, collapseCount: cc, spacing: sp } =
-              collapseRef.current;
-
-            const animFraction = Math.min(progress / 0.95, 1);
+            const animFraction = Math.min(self.progress / 0.95, 1);
             const step = lastIdx > 0 ? 1 / lastIdx : 1;
-            const duration = step * 4;
 
-            // 겹쳐진 카드가 날아가기 전, 아래로 펼쳐서 자연 간격 생성
-            let globalSpread = 0;
-            if (cc > 0) {
-              const spreadStart = Math.max(0, (fci - 1) * step);
-              globalSpread = Math.max(0, Math.min(1, (animFraction - spreadStart) / step));
-            }
-
-            // 컨테이너 보상: 마지막 카드가 고정되어 보이도록 전체를 위로 이동
-            const totalSpread = cc > 0 ? cc * sp * globalSpread : 0;
-            if (pinnedEl) {
-              pinnedEl.style.transform = totalSpread > 0
-                ? `translateY(${-totalSpread}px)`
-                : "";
-            }
-
+            // 순차 애니메이션: 카드 n이 완전히 사라진 후 카드 n+1이 올라감
             for (let i = 0; i < count; i++) {
-              // 겹쳐진 카드(i > fci): 아래로 이동하여 균일 간격 확보
-              const spreadY = (cc > 0 && i > fci)
-                ? (i - fci) * sp * globalSpread
-                : 0;
-
               if (i < lastIdx) {
                 const cardStart = i * step;
                 const animProgress = Math.max(
                   0,
-                  Math.min(1, (animFraction - cardStart) / duration),
+                  Math.min(1, (animFraction - cardStart) / step),
                 );
 
                 if (animProgress > 0) {
                   const exitY = -(cardHeight + window.innerHeight);
-                  cards[i].style.transform = `translateY(${spreadY + exitY * animProgress}px)`;
-                } else if (spreadY !== 0) {
-                  cards[i].style.transform = `translateY(${spreadY}px)`;
+                  cards[i].style.transform = `translateY(${exitY * animProgress}px)`;
                 } else {
                   cards[i].style.transform = "";
                 }
               } else {
-                // 마지막 카드: 개별 spread + 컨테이너 보상 = 시각적으로 고정
-                cards[i].style.transform = spreadY !== 0
-                  ? `translateY(${spreadY}px)`
-                  : "";
+                cards[i].style.transform = "";
               }
             }
+
+            if (pinnedEl) pinnedEl.style.transform = "";
           },
         });
       }, grid);

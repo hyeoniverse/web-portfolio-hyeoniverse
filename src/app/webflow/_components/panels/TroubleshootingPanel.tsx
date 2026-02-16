@@ -4,7 +4,7 @@ import { useLayoutEffect, useCallback } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { TroubleShootingItem } from "@/data/webflow";
 import { renderHighlight } from "../renderHighlight";
-import { checkMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
@@ -32,7 +32,7 @@ export default function TroubleshootingPanel({
   items,
   scrollBy,
 }: TroubleshootingPanelProps) {
-  const isMobile = checkMobileLayout();
+  const isMobile = useMobileLayout();
   const { panelRef, contentRef, activeIndex, setActiveIndex, scrollToItem } = usePinnedScroll(
     items.length,
     undefined,

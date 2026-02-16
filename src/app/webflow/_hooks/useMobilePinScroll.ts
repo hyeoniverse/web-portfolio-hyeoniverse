@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { checkMobileLayout } from "./mobileCheck";
+import { useMobileLayout } from "./mobileCheck";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -36,9 +36,9 @@ export function useMobilePinScroll(
   deps: React.DependencyList = [],
 ): React.RefObject<ScrollTrigger | null> {
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+  const isMobile = useMobileLayout();
 
   useEffect(() => {
-    const isMobile = checkMobileLayout();
     if (!isMobile) return;
 
     const trigger = triggerRef.current;
@@ -88,7 +88,7 @@ export function useMobilePinScroll(
       if (ctx) ctx.revert();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [triggerRef, itemCount, scrollPerItem, onIndexChange, ...deps]);
+  }, [triggerRef, itemCount, scrollPerItem, onIndexChange, isMobile, ...deps]);
 
   return scrollTriggerRef;
 }
