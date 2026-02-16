@@ -43,22 +43,22 @@ export default function PinnedTitleRow({
 
   const springConfig = { stiffness: 170, damping: 22, mass: 1 };
   const indicatorX = useMotionValue(0);
+  const indicatorW = useMotionValue(0);
+  const indicatorH = useMotionValue(0);
   const springX = useSpring(indicatorX, springConfig);
+  const springW = useSpring(indicatorW, springConfig);
+  const springH = useSpring(indicatorH, springConfig);
 
   const updateIndicator = useCallback(
     (el: HTMLElement | null) => {
       if (!el || !dotNavRef.current) return;
       const navRect = dotNavRef.current.getBoundingClientRect();
-      const circle = el.querySelector(
-        `.${styles.dotCircle}`,
-      ) as HTMLElement | null;
-      if (!circle) return;
-      const circleRect = circle.getBoundingClientRect();
-      const centerX =
-        circleRect.left + circleRect.width / 2 - navRect.left;
-      indicatorX.set(centerX);
+      const elRect = el.getBoundingClientRect();
+      indicatorX.set(elRect.left - navRect.left);
+      indicatorW.set(elRect.width);
+      indicatorH.set(elRect.height);
     },
-    [indicatorX],
+    [indicatorX, indicatorW, indicatorH],
   );
 
   const targetDot = hoveredDot ?? (dotNav?.activeIndex ?? 0);
@@ -108,7 +108,7 @@ export default function PinnedTitleRow({
           >
             <motion.span
               className={styles.dotIndicator}
-              style={{ x: springX }}
+              style={{ x: springX, y: "-50%", width: springW, height: springH }}
             />
             {Array.from({ length: dotNav.count }, (_, i) => (
               <button
