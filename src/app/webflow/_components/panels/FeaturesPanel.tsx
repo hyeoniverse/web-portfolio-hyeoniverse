@@ -148,37 +148,58 @@ export default function FeaturesPanel({
     };
   }, [isMobile, language]);
 
-  /* 모바일/태블릿: GSAP ScrollTrigger로 .featureGrid를 뷰포트에 고정.
-     카드가 순서대로 위로 날아감 — 마지막 카드는 고정 유지.
-     겹침 카드도 스크롤 시 날아가며 자연스럽게 드러남.
-     useEffect + rAF: Lenis 동기화 및 DOM 안정화 후 ScrollTrigger 생성. */
+  /* 모바일/태블릿: 순차 카드 스크롤 애니메이션.
+     카드 n만 translateY로 위로 올라감 → body가 다음 카드 위로 드러남.
+     n의 description이 다 보이면(= body가 n+1 위로 완전히 분리) n+1이 올라가기 시작.
+     n+1, n+2, ... 카드는 자기 차례 전까지 완전 고정.
+     컨테이너(pinnedEl)는 이동하지 않음 — 개별 카드 transform만 사용. */
   useEffect(() => {
     if (!isMobile || !gridRef.current) return;
 
     const grid = gridRef.current;
+
     const cards = Array.from(
       grid.querySelectorAll<HTMLElement>(`.${styles.featureFolderWrap}`),
     );
-    const count = cards.length;
-    if (count === 0) return;
-
-    const lastIdx = count - 1;
-
-    const pinnedEl = grid.querySelector(
-      `.${styles.featureGridPinned}`,
-    ) as HTMLElement | null;
 
     let ctx: gsap.Context | null = null;
 
     const setup = () => {
-      // 이전 인스턴스 정리
-      cards.forEach((card) => { card.style.transform = ""; });
-      if (pinnedEl) pinnedEl.style.transform = "";
+      cards.forEach((c) => { c.style.transform = ""; });
       if (ctx) ctx.revert();
 
+      const { spacing, firstCollapsedIdx } = collapseRef.current;
       const isTablet = window.innerWidth >= 768;
-      const baseScroll = isTablet ? 300 : 200;
-      const scrollDist = count * baseScroll;
+      const scrollPerCard = isTablet ? 450 : 350;
+
+      const count = cards.length;
+      // 스크롤 슬롯 수: 마지막 가시 카드까지 (collapsed 카드는 같은 슬롯 공유)
+      const slots = Math.max(1, firstCollapsedIdx + 1);
+
+      const pinnedEl = grid.querySelector(
+        `.${styles.featureGridPinned}`,
+      ) as HTMLElement | null;
+      const padTop = pinnedEl
+        ? parseFloat(window.getComputedStyle(pinnedEl).paddingTop)
+        : 0;
+      const cardHeight = cards[0] ? cards[0].offsetHeight : 0;
+
+      // description 완전 노출 거리 + 카드 간 여백
+      const revealGap = isTablet ? 32 : 24;
+      const revealDist = cardHeight - spacing + revealGap;
+
+      // 핵심: 모든 카드가 동일한 속도(px/scroll-px)로 이동.
+      // → 인접 카드 간 gap이 항상 일정(revealGap)하게 유지됨.
+      const speed = revealDist / scrollPerCard; // px per scroll-px
+
+      // collapsed 카드는 firstCollapsedIdx와 같은 위치 → 같은 슬롯·exitY 사용
+      const getLogicalIdx = (i: number) => Math.min(i, firstCollapsedIdx);
+      const getExitY = (i: number) => padTop + getLogicalIdx(i) * spacing + cardHeight;
+
+      // 전체 스크롤: 마지막 슬롯의 시작 + 마지막 슬롯의 이탈 스크롤
+      const lastStart = (slots - 1) * scrollPerCard;
+      const lastExitScroll = getExitY(count - 1) / speed;
+      const scrollDist = lastStart + lastExitScroll;
 
       ctx = gsap.context(() => {
         ScrollTrigger.create({
@@ -187,32 +208,24 @@ export default function FeaturesPanel({
           end: `+=${scrollDist}`,
           pin: true,
           pinSpacing: true,
+          invalidateOnRefresh: true,
           onUpdate: (self) => {
-            const cardHeight = cards[0].offsetHeight;
-            const animFraction = Math.min(self.progress / 0.95, 1);
-            const step = lastIdx > 0 ? 1 / lastIdx : 1;
+            const scrollPx = self.progress * scrollDist;
 
-            // 순차 애니메이션: 카드 n이 완전히 사라진 후 카드 n+1이 올라감
             for (let i = 0; i < count; i++) {
-              if (i < lastIdx) {
-                const cardStart = i * step;
-                const animProgress = Math.max(
-                  0,
-                  Math.min(1, (animFraction - cardStart) / step),
-                );
+              // collapsed 카드 → 마지막 가시 카드와 동일 타이밍·거리
+              const logical = getLogicalIdx(i);
+              const cardStart = logical * scrollPerCard;
+              const exitY = getExitY(i);
+              const elapsed = scrollPx - cardStart;
 
-                if (animProgress > 0) {
-                  const exitY = -(cardHeight + window.innerHeight);
-                  cards[i].style.transform = `translateY(${exitY * animProgress}px)`;
-                } else {
-                  cards[i].style.transform = "";
-                }
-              } else {
+              if (elapsed <= 0) {
                 cards[i].style.transform = "";
+              } else {
+                const travel = Math.min(exitY, speed * elapsed);
+                cards[i].style.transform = `translateY(${-travel}px)`;
               }
             }
-
-            if (pinnedEl) pinnedEl.style.transform = "";
           },
         });
       }, grid);
@@ -224,8 +237,7 @@ export default function FeaturesPanel({
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", setup);
-      cards.forEach((card) => { card.style.transform = ""; });
-      if (pinnedEl) pinnedEl.style.transform = "";
+      cards.forEach((c) => { c.style.transform = ""; });
       if (ctx) ctx.revert();
     };
   }, [isMobile, language]);
