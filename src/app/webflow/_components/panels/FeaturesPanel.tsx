@@ -40,9 +40,8 @@ export default function FeaturesPanel({
   const gridRef = useRef<HTMLDivElement>(null);
   const isMobile = checkMobileLayout();
 
-  /* 모바일/태블릿: 폴더 크기, 탭 너비를 균일하게 맞추고 음수 마진으로
-     카드가 균일하게 겹치게 함. CSS flex-column이 배치를 처리 —
-     브라우저가 균등 간격을 보장. */
+  /* 모바일/태블릿: 폴더 크기·탭 너비 균일화, 음수 마진으로 겹침 배치.
+     뷰포트에 안 들어가는 하단 카드만 추가로 겹침. */
   useLayoutEffect(() => {
     if (!isMobile || !gridRef.current) return;
 
@@ -72,27 +71,68 @@ export default function FeaturesPanel({
       let maxTabWidth = 0;
       wraps.forEach((wrap) => { maxCardHeight = Math.max(maxCardHeight, wrap.offsetHeight); });
       tabs.forEach((tab) => { maxTabWidth = Math.max(maxTabWidth, tab.offsetWidth); });
-      const tabElementHeight = tabs[0] ? tabs[0].offsetHeight : 40;
+      const tabH = tabs[0] ? tabs[0].offsetHeight : 40;
+
+      // 마지막 카드: description 영역만 가려지도록 bodyPeek 계산
+      // card의 paddingTop 영역까지만 보이고 desc 텍스트는 뷰포트 아래
+      const lastCardEl = wraps[wraps.length - 1]?.querySelector(
+        `.${styles.featureFolderCard}`,
+      ) as HTMLElement | null;
+      const bodyPeek = lastCardEl
+        ? parseFloat(window.getComputedStyle(lastCardEl).paddingTop)
+        : (maxCardHeight - tabH) * 0.3;
 
       // 균일한 크기 적용
       wraps.forEach((wrap) => { wrap.style.height = `${maxCardHeight}px`; });
       tabs.forEach((tab) => { tab.style.minWidth = `${maxTabWidth}px`; });
 
-      // 음수 마진 = -(카드 높이 - 간격)
-      // 간격 = 탭 높이 + gap → 각 카드의 탭이 완전히 보임
-      const gap = 16;
-      const spacing = tabElementHeight + gap;
-      const overlapMargin = -(maxCardHeight - spacing);
+      const gap = 48;
+      const idealSpacing = tabH + gap;
+      const count = wraps.length;
+      const slots = count - 1; // 첫 카드 제외 간격 슬롯 수
+
+      const vh = window.innerHeight;
+      const desiredTopPadding = idealSpacing * 2; // 넉넉한 상단 여백
+
+      // 전체 카드가 idealSpacing으로 펼쳐질 때 필요한 높이
+      const idealTotal = slots * idealSpacing + tabH + bodyPeek;
+
+      let topPadding: number;
+      let collapseCount = 0;
+
+      if (vh >= idealTotal + desiredTopPadding) {
+        // 모든 카드가 여유롭게 들어감
+        topPadding = vh - idealTotal;
+      } else {
+        // 공간 부족 → 하단 카드들을 완전히 겹쳐서 공간 확보
+        const available = vh - desiredTopPadding - tabH - bodyPeek;
+        const maxSlots = Math.max(0, Math.floor(available / idealSpacing));
+        collapseCount = Math.max(0, slots - maxSlots);
+        collapseCount = Math.min(collapseCount, count - 2);
+
+        const collapsedTotal =
+          (slots - collapseCount) * idealSpacing + tabH + bodyPeek;
+        topPadding = Math.max(0, vh - collapsedTotal);
+      }
+
+      // 가시 카드: idealSpacing 간격 (겹침 없음, 균일 간격)
+      // 겹침 카드: 완전 겹침 → 마지막 카드(최상위 z-index) 뒤에 숨김
+      const uniformMargin = -(maxCardHeight - idealSpacing);
+      const fullyOverlappedMargin = -maxCardHeight;
+
+      const firstCollapsedIdx = count - 1 - collapseCount;
+
       wraps.forEach((wrap, i) => {
-        if (i > 0) wrap.style.marginTop = `${overlapMargin}px`;
+        if (i === 0) return;
+        if (collapseCount > 0 && i > firstCollapsedIdx) {
+          wrap.style.marginTop = `${fullyOverlappedMargin}px`;
+        } else {
+          wrap.style.marginTop = `${uniformMargin}px`;
+        }
       });
 
-      // 스택을 하단으로 밀어서 아래 여백 확보
       if (pinnedEl) {
-        const viewportHeight = window.innerHeight;
-        const totalVisible = wraps.length * spacing;
-        const bottomPadding = spacing * 2;
-        pinnedEl.style.paddingTop = `${Math.max(0, viewportHeight - totalVisible - bottomPadding)}px`;
+        pinnedEl.style.paddingTop = `${topPadding}px`;
       }
     };
 
@@ -107,8 +147,8 @@ export default function FeaturesPanel({
   }, [isMobile, language]);
 
   /* 모바일/태블릿: GSAP ScrollTrigger로 .featureGrid를 뷰포트에 고정.
-     카드는 이미 CSS로 배치됨 (flex column + 음수 마진).
-     이 이펙트는 스크롤 시 날아가는 애니메이션만 처리. */
+     카드가 순서대로 위로 날아감 — 마지막 카드는 고정 유지.
+     겹침 카드도 스크롤 시 날아가며 자연스럽게 드러남. */
   useLayoutEffect(() => {
     if (!isMobile || !gridRef.current) return;
 
@@ -154,7 +194,6 @@ export default function FeaturesPanel({
                 cards[i].style.transform = "";
               }
             }
-            // 마지막 카드는 제자리 유지 — transform 불필요
           }
         },
       });
