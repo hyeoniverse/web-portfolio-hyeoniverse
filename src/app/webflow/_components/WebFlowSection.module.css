@@ -162,6 +162,7 @@
   display: flex;
   gap: clamp(0.15rem, 0.3vw, 0.35rem);
   align-items: center;
+  mix-blend-mode: difference;
 }
 
 .dotArrow {
@@ -172,24 +173,22 @@
   border: 1px solid transparent;
   background: transparent;
   font-size: clamp(0.7rem, 0.8vw, 1rem);
-  color: var(--text-tertiary);
+  color: white;
   border-radius: var(--radius-capsule);
 }
 
 .dotNavWrap .dotArrow {
   transition:
-    color 0.2s ease,
+    opacity 0.2s ease,
     border-color 0.2s ease;
 }
 
 .dotArrow:not(:disabled):hover {
-  color: var(--text-accent-secondary);
-  border-color: var(--color-accent-alpha-30);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .dotArrow:disabled {
-  opacity: 0.35;
-  cursor: default;
+  opacity: 0.45;
 }
 
 .dotNav {
@@ -199,19 +198,16 @@
   position: relative;
 }
 
-/* Spring-animated circle indicator (framer-motion) — fixed size, centered on dot */
+/* Spring-animated capsule indicator (framer-motion) — wraps active dotItem */
 .dotIndicator {
-  border: 1px solid var(--text-accent-secondary);
+  border: 1px solid white;
   position: absolute;
   top: 50%;
   left: 0;
   z-index: 0;
-  width: 22px;
-  height: 22px;
   background: transparent;
   pointer-events: none;
-  border-radius: 50%;
-  translate: -50% -50%;
+  border-radius: var(--radius-capsule);
 }
 
 /* Modifier: keep dotNav visible on mobile (DC) */
@@ -223,10 +219,10 @@
   display: none;
 }
 
-/* Each dot-nav item: button with dot + collapsible label */
+/* Each dot-nav item: button with dot + fixed-width label (opacity toggle only) */
 .dotItem {
   display: flex;
-  gap: 0;
+  gap: clamp(0.3rem, 0.35vw, 0.5rem);
   align-items: center;
   padding: clamp(0.25rem, 0.4vh, 0.4rem) clamp(0.35rem, 0.45vw, 0.55rem);
   border: none;
@@ -238,64 +234,44 @@
   border-radius: var(--radius-capsule);
 }
 
-/* Compound selector (0,2,0) to beat global theme transition */
-.dotNav .dotItem {
-  transition: gap 0.3s ease;
-}
-
 .dotItem .dotCircle {
   flex-shrink: 0;
   width: 6px;
   height: 6px;
-  background: var(--text-tertiary);
+  background: white;
   border-radius: 50%;
-  opacity: 0.65;
+  opacity: 0.5;
 }
 
 .dotNav .dotCircle {
-  transition:
-    opacity 0.3s ease,
-    background-color 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .dotItem .dotText {
-  max-width: 0;
+  max-width: clamp(60px, 8vw, 120px);
   overflow: hidden;
   font-family: var(--font-mono);
-  font-size: 0;
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
   font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
+  color: white;
   text-overflow: ellipsis;
   opacity: 0;
 }
 
 .dotNav .dotText {
-  transition:
-    font-size 0.3s ease,
-    opacity 0.3s ease,
-    max-width 0.3s ease,
-    margin-left 0.3s ease;
-}
-
-.dotItemActive {
-  gap: clamp(0.3rem, 0.35vw, 0.5rem);
+  transition: opacity 0.3s ease;
 }
 
 .dotItemActive .dotCircle {
-  background: var(--text-accent-secondary);
   opacity: 1;
 }
 
 .dotItemActive .dotText {
-  max-width: clamp(60px, 8vw, 120px);
-  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
-  color: var(--text-primary);
   opacity: 1;
 }
 
 /* Hover: highlight dot circle */
 .dotItem:hover .dotCircle {
-  background: var(--text-accent-secondary);
   opacity: 1;
 }
 
@@ -906,23 +882,6 @@
 
 .dcViewport {
   /* placeholder — mobile override below */
-}
-
-/* DC panel: mix-blend-mode so dots are visible over background images */
-.dcViewport .dotNav {
-  mix-blend-mode: difference;
-}
-
-.dcViewport .dotIndicator {
-  border-color: white;
-}
-
-.dcViewport .dotItem .dotCircle {
-  background: white;
-}
-
-.dcViewport .dotItemActive .dotText {
-  color: white;
 }
 
 /* Inside title rows, panelTitle margin is handled by the row itself */
