@@ -107,8 +107,7 @@ export default function FeaturesPanel({
         // 공간 부족 → 하단 카드들을 완전히 겹쳐서 공간 확보
         const available = vh - desiredTopPadding - tabH - bodyPeek;
         const maxSlots = Math.max(0, Math.floor(available / spacing));
-        collapseCount = Math.max(0, slots - maxSlots);
-        collapseCount = Math.min(collapseCount, count - 2);
+        collapseCount = Math.max(0, Math.min(slots - maxSlots, count - 2));
 
         const collapsedTotal =
           (slots - collapseCount) * spacing + tabH + bodyPeek;
@@ -122,17 +121,11 @@ export default function FeaturesPanel({
       const fullyOverlappedMargin = -maxCardHeight;
 
       const lastIdx = count - 1;
-      const firstCollapsedIdx = collapseCount > 0
-        ? count - 1 - collapseCount
-        : lastIdx;
+      const firstCollapsedIdx = lastIdx - collapseCount;
 
       wraps.forEach((wrap, i) => {
         if (i === 0) return;
-        if (collapseCount > 0 && i > firstCollapsedIdx) {
-          wrap.style.marginTop = `${fullyOverlappedMargin}px`;
-        } else {
-          wrap.style.marginTop = `${uniformMargin}px`;
-        }
+        wrap.style.marginTop = `${i > firstCollapsedIdx ? fullyOverlappedMargin : uniformMargin}px`;
       });
 
       collapseRef.current = { firstCollapsedIdx, collapseCount, spacing };
@@ -207,11 +200,7 @@ export default function FeaturesPanel({
             let globalSpread = 0;
             if (cc > 0) {
               const spreadStart = Math.max(0, (fci - 1) * step);
-              const spreadEnd = fci * step;
-              globalSpread =
-                spreadEnd > spreadStart
-                  ? Math.max(0, Math.min(1, (animFraction - spreadStart) / (spreadEnd - spreadStart)))
-                  : animFraction >= spreadStart ? 1 : 0;
+              globalSpread = Math.max(0, Math.min(1, (animFraction - spreadStart) / step));
             }
 
             // 컨테이너 보상: 마지막 카드가 고정되어 보이도록 전체를 위로 이동
