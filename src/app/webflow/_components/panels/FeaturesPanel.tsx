@@ -89,7 +89,8 @@ export default function FeaturesPanel({
 
       const count = wraps.length;
       const slots = count - 1;
-      const spacing = tabH + 32; // 탭 + 여백
+      const isTabletLayout = window.innerWidth >= 768;
+      const spacing = tabH + (isTabletLayout ? 48 : 32); // 탭 + 여백 (태블릿은 더 넓게)
       const vh = window.innerHeight;
       const desiredTopPadding = (tabH + 48) * 2; // 넉넉한 상단 여백
 
