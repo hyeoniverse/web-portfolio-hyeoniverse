@@ -22,6 +22,7 @@ import {
   allProjects,
   Project,
   PROJECT_COUNT,
+  INFINITE_SCROLL_SETS,
   LONG_PRESS_DURATION,
   INITIAL_MARGIN,
 } from "@/data/projects";
@@ -487,6 +488,7 @@ export default function WorksSection() {
                     fill
                     sizes="(max-width: 768px) 100vw, 500px"
                     className={styles.cardImage}
+                    priority={index === (infiniteScroll ? PROJECT_COUNT * Math.floor(INFINITE_SCROLL_SETS / 2) : 0)}
                   />
                 </div>
                 <div className={styles.cardBorder} />

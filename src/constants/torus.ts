@@ -60,11 +60,18 @@ export const TORUS_MATERIAL = {
   },
 } as const;
 
-// 커서 반발 효과
+// 커서 인터랙션: 가까우면 자석(따라가기), 멀면 반발(밀어내기)
+export const TORUS_ATTRACTION = {
+  radius: 2.5, // 자석 반경 — 이 안에 들어오면 커서를 따라감
+  strength: 1.2, // 최대 끌림 거리
+  smoothing: 0.06, // lerp 보간 계수
+} as const;
+
 export const TORUS_REPULSION = {
-  radius: 3.0, // 반발 활성 반경 (world units)
-  strength: 1.8, // 최대 밀림 거리
-  smoothing: 0.07, // lerp 보간 계수 (낮을수록 부드러움)
+  radius: 5.0, // 반발 외곽 반경 — 자석 반경 밖 ~ 이 안이면 밀어냄
+  strength: 1.5, // 반발 강도
+  maxDisplacement: 0.8, // 최대 밀림 거리 제한 (world units)
+  smoothing: 0.07, // lerp 보간 계수
 } as const;
 
 // 모바일 설정

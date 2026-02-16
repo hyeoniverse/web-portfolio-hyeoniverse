@@ -12,6 +12,7 @@ import {
   TORUS_MATERIAL,
   TORUS_MOBILE,
   TORUS_REPULSION,
+  TORUS_ATTRACTION,
 } from "@/constants/torus";
 
 interface TorusSceneProps {
@@ -79,7 +80,7 @@ export default function TorusScene({
         TORUS_PATH.zAmplitude -
       2;
 
-    // 커서/터치 반발 효과
+    // 커서/터치 자석 + 반발 효과
     {
       const isActive = isMobile ? pointerActive.current : true;
 
@@ -98,18 +99,35 @@ export default function TorusScene({
 
       let targetRepX = 0;
       let targetRepY = 0;
-      if (isActive && dist < TORUS_REPULSION.radius && dist > 0.01) {
-        // 거리에 반비례하는 반발력 (제곱으로 가까울수록 강하게)
-        const force =
-          ((1 - dist / TORUS_REPULSION.radius) ** 2) * TORUS_REPULSION.strength;
-        targetRepX = (dx / dist) * force;
-        targetRepY = (dy / dist) * force;
+      let smoothing: number = TORUS_ATTRACTION.smoothing;
+
+      if (isActive && dist > 0.01) {
+        if (dist < TORUS_ATTRACTION.radius) {
+          // 자석 존 (가까움): 커서를 따라감 — 가까울수록 강하게
+          const force =
+            ((1 - dist / TORUS_ATTRACTION.radius) ** 2) * TORUS_ATTRACTION.strength;
+          // dx는 토러스→커서 반대 방향이므로 부호 반전하여 끌어당김
+          targetRepX = -(dx / dist) * force;
+          targetRepY = -(dy / dist) * force;
+          smoothing = TORUS_ATTRACTION.smoothing;
+        } else if (dist < TORUS_REPULSION.radius) {
+          // 반발 존 (멈): 자석 반경 밖 ~ 반발 반경 안 → 밀어냄
+          const range = TORUS_REPULSION.radius - TORUS_ATTRACTION.radius;
+          const normalized = (dist - TORUS_ATTRACTION.radius) / range;
+          const force = Math.min(
+            (normalized ** 1.5) * TORUS_REPULSION.strength,
+            TORUS_REPULSION.maxDisplacement,
+          );
+          targetRepX = (dx / dist) * force;
+          targetRepY = (dy / dist) * force;
+          smoothing = TORUS_REPULSION.smoothing;
+        }
       }
 
-      // lerp 보간으로 부드러운 복귀
+      // lerp 보간으로 부드러운 전환
       const rep = repulsionRef.current;
-      rep.x += (targetRepX - rep.x) * TORUS_REPULSION.smoothing;
-      rep.y += (targetRepY - rep.y) * TORUS_REPULSION.smoothing;
+      rep.x += (targetRepX - rep.x) * smoothing;
+      rep.y += (targetRepY - rep.y) * smoothing;
 
       x += rep.x;
       y += rep.y;

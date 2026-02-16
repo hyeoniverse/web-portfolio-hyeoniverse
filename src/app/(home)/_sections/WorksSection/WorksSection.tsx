@@ -226,7 +226,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
                             duration: 1.4,
                             ease: [0.25, 0.1, 0.25, 1],
                           }}
-                          style={{ width: "100%", height: "100%" }}
+                          style={{ width: "100%", height: "100%", position: "relative" }}
                         >
                           <Image
                             src={work.hover}
