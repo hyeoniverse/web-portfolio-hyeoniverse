@@ -13,7 +13,7 @@ export const worksData: WorkItem[] = [
   },
   {
     id: "2",
-    main: "https://images.unsplash.com/photo-1634017839464-5c339bbe3c35?w=400&h=400&fit=crop",
+    main: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400&h=400&fit=crop",
     hover:
       "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=400&h=400&fit=crop",
   },
@@ -39,7 +39,7 @@ export const worksData: WorkItem[] = [
     id: "6",
     main: "https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?w=400&h=400&fit=crop",
     hover:
-      "https://images.unsplash.com/photo-1634017839464-5c339bbe3c35?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400&h=400&fit=crop",
   },
   {
     id: "7",

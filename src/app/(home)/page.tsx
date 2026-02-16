@@ -140,14 +140,6 @@ export default function HomePage() {
           delay: 0.3,
         });
 
-        gsap.from(".hero-oval", {
-          scale: 0,
-          opacity: 0,
-          duration: 1.5,
-          ease: "elastic.out(1, 0.5)",
-          delay: 0.8,
-        });
-
         gsap.from(".hero-line-decoration", {
           scaleX: 0,
           duration: 1,

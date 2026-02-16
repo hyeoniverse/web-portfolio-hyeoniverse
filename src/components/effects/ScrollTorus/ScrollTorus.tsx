@@ -83,6 +83,9 @@ export default function ScrollTorus() {
         }}
         style={{ background: "transparent" }}
         frameloop="always"
+        onCreated={({ gl }) => {
+          gl.domElement.addEventListener("webglcontextlost", (e) => e.preventDefault());
+        }}
       >
         <Suspense fallback={null}>
           <TorusScene
