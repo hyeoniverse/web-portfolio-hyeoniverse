@@ -92,16 +92,15 @@ export default function FeaturesPanel({
       const isTabletLayout = window.innerWidth >= 768;
       const spacing = tabH + (isTabletLayout ? 48 : 32); // 탭 + 여백 (태블릿은 더 넓게)
       const vh = window.innerHeight;
-      const desiredTopPadding = (tabH + 48) * 2; // 넉넉한 상단 여백
 
       // 스택 전체 높이: (카드 수-1) × 탭 간격 + 마지막 카드 탭 + bodyPeek
       const stackTotal = slots * spacing + tabH + bodyPeek;
+      const desiredTopPadding = (tabH + 48) * 2;
 
       let topPadding: number;
       let collapseCount = 0;
 
       if (vh >= stackTotal + desiredTopPadding) {
-        // 모든 카드가 여유롭게 들어감
         topPadding = vh - stackTotal;
       } else {
         // 공간 부족 → 하단 카드들을 완전히 겹쳐서 공간 확보
@@ -114,12 +113,8 @@ export default function FeaturesPanel({
         topPadding = Math.max(0, vh - collapsedTotal);
       }
 
-      // 가시 카드: 탭만 보이는 간격 (본체는 다음 카드에 가려짐)
-      // 겹침 카드: 완전 겹침 → 마지막 카드 바로 위에 숨김
-      // 마지막 카드: uniformMargin으로 항상 spacing 간격 유지
       const uniformMargin = -(maxCardHeight - spacing);
       const fullyOverlappedMargin = -maxCardHeight;
-
       const lastIdx = count - 1;
       const firstCollapsedIdx = lastIdx - collapseCount;
 
@@ -173,8 +168,6 @@ export default function FeaturesPanel({
       const scrollPerCard = isTablet ? 450 : 350;
 
       const count = cards.length;
-      // 스크롤 슬롯 수: 마지막 가시 카드까지 (collapsed 카드는 같은 슬롯 공유)
-      const slots = Math.max(1, firstCollapsedIdx + 1);
 
       const pinnedEl = grid.querySelector(
         `.${styles.featureGridPinned}`,
@@ -184,21 +177,46 @@ export default function FeaturesPanel({
         : 0;
       const cardHeight = cards[0] ? cards[0].offsetHeight : 0;
 
-      // description 완전 노출 거리 + 카드 간 여백
+      // 카드 간 여백
       const revealGap = isTablet ? 32 : 24;
-      const revealDist = cardHeight - spacing + revealGap;
 
-      // 핵심: 모든 카드가 동일한 속도(px/scroll-px)로 이동.
-      // → 인접 카드 간 gap이 항상 일정(revealGap)하게 유지됨.
-      const speed = revealDist / scrollPerCard; // px per scroll-px
+      // 카드별 reveal 거리: 다음 카드와의 겹침량 + 여백
+      // - 일반 카드: cardHeight - spacing (다음 카드가 spacing 아래)
+      // - collapsed 카드: cardHeight (다음 카드가 같은 위치)
+      const getRevealDist = (i: number) => {
+        if (i >= count - 1) return cardHeight + revealGap; // 마지막 카드
+        const isNextCollapsed = i >= firstCollapsedIdx;
+        return (isNextCollapsed ? cardHeight : cardHeight - spacing) + revealGap;
+      };
 
-      // collapsed 카드는 firstCollapsedIdx와 같은 위치 → 같은 슬롯·exitY 사용
-      const getLogicalIdx = (i: number) => Math.min(i, firstCollapsedIdx);
-      const getExitY = (i: number) => padTop + getLogicalIdx(i) * spacing + cardHeight;
+      // 카드별 누적 스크롤 시작 지점 — reveal 거리에 비례하는 스크롤 배분
+      // (일반 카드는 scrollPerCard, collapsed 카드는 더 긴 스크롤)
+      const baseReveal = cardHeight - spacing + revealGap; // 일반 카드 기준
+      const getScrollForCard = (i: number) => {
+        const rd = getRevealDist(i);
+        return scrollPerCard * (rd / baseReveal);
+      };
 
-      // 전체 스크롤: 마지막 카드가 올라가기 시작하는 시점에 pin 해제
-      // → 마지막 카드는 자연 스크롤로 화면 밖으로 나감
-      const scrollDist = (slots - 1) * scrollPerCard;
+      const cardStarts: number[] = [];
+      let cumScroll = 0;
+      for (let i = 0; i < count; i++) {
+        cardStarts.push(cumScroll);
+        if (i < count - 1) cumScroll += getScrollForCard(i);
+      }
+
+      // 카드별 속도: reveal 거리 / 해당 스크롤 구간 = 일정 (baseReveal / scrollPerCard)
+      const speed = baseReveal / scrollPerCard;
+
+      // 카드 i의 뷰포트 위치 (collapsed면 firstCollapsedIdx 위치 사용)
+      const getExitY = (i: number) => {
+        const pos = i <= firstCollapsedIdx
+          ? padTop + i * spacing
+          : padTop + firstCollapsedIdx * spacing;
+        return pos + cardHeight;
+      };
+
+      // 마지막 카드 시작 시 pin 해제 → 자연 스크롤로 전환
+      const scrollDist = cardStarts[count - 1];
 
       ctx = gsap.context(() => {
         ScrollTrigger.create({
@@ -212,11 +230,8 @@ export default function FeaturesPanel({
             const scrollPx = self.progress * scrollDist;
 
             for (let i = 0; i < count; i++) {
-              // collapsed 카드 → 마지막 가시 카드와 동일 타이밍·거리
-              const logical = getLogicalIdx(i);
-              const cardStart = logical * scrollPerCard;
               const exitY = getExitY(i);
-              const elapsed = scrollPx - cardStart;
+              const elapsed = scrollPx - cardStarts[i];
 
               if (elapsed <= 0) {
                 cards[i].style.transform = "";
