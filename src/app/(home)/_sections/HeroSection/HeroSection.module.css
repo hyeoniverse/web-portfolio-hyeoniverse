@@ -124,6 +124,13 @@
   position: absolute;
   inset: 0;
   border-radius: var(--radius-circle);
+  animation: spin 20s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---------------------------------------------------------------------------

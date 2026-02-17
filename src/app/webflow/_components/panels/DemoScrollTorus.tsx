@@ -53,7 +53,7 @@ function MiniTorusScene() {
           metalness={mat.metalness}
           roughness={mat.roughness}
           envMapIntensity={mat.envMapIntensity}
-          side={THREE.DoubleSide}
+          side={THREE.FrontSide}
         />
       </mesh>
     </>

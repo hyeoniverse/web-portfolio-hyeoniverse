@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -56,6 +56,10 @@ export default function TorusScene({
       tubular
     );
   }, [isMobile]);
+
+  useEffect(() => {
+    return () => { geometry.dispose(); };
+  }, [geometry]);
 
   const matConfig = TORUS_MATERIAL[theme];
 
@@ -167,7 +171,7 @@ export default function TorusScene({
           metalness={matConfig.metalness}
           roughness={matConfig.roughness}
           envMapIntensity={matConfig.envMapIntensity}
-          side={THREE.DoubleSide}
+          side={THREE.FrontSide}
         />
       </mesh>
     </>

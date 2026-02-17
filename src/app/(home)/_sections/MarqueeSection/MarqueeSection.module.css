@@ -15,6 +15,13 @@
 .track {
   display: flex;
   white-space: nowrap;
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 /* ---------------------------------------------------------------------------

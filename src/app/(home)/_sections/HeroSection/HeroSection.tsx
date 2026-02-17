@@ -57,15 +57,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
                 {t("hero.headline2")}
               </StaggerText>
               <span className={styles.titleOvalWrapper}>
-                <motion.span
-                  className={styles.titleOvalInline}
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                />
+                <span className={styles.titleOvalInline} />
               </span>
             </span>
             <span className={`${styles.titleRow} hero-line`}>

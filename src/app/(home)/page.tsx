@@ -202,14 +202,6 @@ export default function HomePage() {
           },
         });
 
-        // 마퀴 연속 스크롤
-        gsap.to(".marquee-track", {
-          xPercent: -50,
-          duration: 25,
-          ease: "none",
-          repeat: -1,
-        });
-
         // Works 섹션 원형 요소 등장
         gsap.from(".work-circle", {
           scale: 0,
@@ -324,7 +316,6 @@ export default function HomePage() {
         <WorksSection
           ref={worksRef}
           smoothWorkImageY={scrollVelocity.smoothWorkImageY}
-          magneticOffsets={magneticRepel.magneticOffsets}
           setWorkCircleRef={magneticRepel.setWorkCircleRef}
           pressingWork={workInteraction.pressingWork}
           hoveringWork={workInteraction.hoveringWork}
