@@ -101,4 +101,24 @@ export const designFeatures: DesignFeature[] = [
     tech: ["Three.js", "React Three Fiber", "Lissajous Curve", "Environment Map"],
     image: "https://images.unsplash.com/photo-1684569547117-e2d19fc6d796?w=800&q=80",
   },
+  {
+    icon: "11",
+    title: "Mobile Torus Touch Repulsion",
+    description: {
+      ko: "모바일에서 3D 토러스에 터치/클릭 반발 인터랙션을 구현했습니다. R3F Canvas가 pointer-events를 차단하므로 window 이벤트를 수동 추적하여 NDC 좌표로 변환, 자석 존과 반발 존의 이중 물리 시스템을 적용했습니다.",
+      en: "Implemented touch/click repulsion interaction for the 3D torus on mobile. Since R3F Canvas blocks pointer-events, manually tracked window events and converted to NDC coordinates, applying a dual physics system of attraction and repulsion zones.",
+    },
+    tech: ["Touch Events", "NDC Coordinates", "Dual-Zone Physics", "R3F Canvas"],
+    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80",
+  },
+  {
+    icon: "12",
+    title: "Runtime Performance Optimization",
+    description: {
+      ko: "프로젝트 전체 런타임 성능 최적화. Hero/마퀴 애니메이션을 CSS animation으로 전환(컴포지터 스레드), useMagneticRepel의 60fps React 리렌더를 ref 기반 직접 DOM 조작으로 제거, Three.js FrontSide 렌더링과 geometry dispose로 GPU 최적화를 달성했습니다.",
+      en: "Comprehensive runtime performance optimization. Moved Hero/marquee animations to CSS animation (compositor thread), eliminated 60fps React re-renders in useMagneticRepel with ref-based direct DOM manipulation, and optimized GPU usage with Three.js FrontSide rendering and geometry disposal.",
+    },
+    tech: ["CSS Animation", "requestAnimationFrame", "GPU Optimization", "Direct DOM"],
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+  },
 ];

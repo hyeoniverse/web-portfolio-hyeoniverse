@@ -22,8 +22,11 @@
 - **Mix-Blend Navigation**: mix-blend-mode: difference를 활용한 자동 반전 네비게이션
 - **StaggerText**: 호버 시 글자별 순차 애니메이션 효과 컴포넌트
 - **Works Horizontal Gallery**: GSAP 기반 가로 스크롤 갤러리, 양방향 무한 스크롤 래핑, 인트로 인플로우 배치, 언어 전환 레이아웃 안정화
-- **3D Scroll Torus**: Three.js(React Three Fiber) 기반 3D 메탈릭 토러스가 스크롤에 연동되어 리사주 곡선 경로를 따라 회전·이동. Lenis 누적 스크롤 추적, 테마별 머티리얼, 모바일 최적화(geometry 간소화, 스케일 축소)
-- **Breakpoint Guard**: 뷰포트가 breakpoint(768px, 1024px)를 넘을 때 페이지 콘텐츠를 자동 remount하여 GSAP/ScrollTrigger 등 레이아웃 의존 애니메이션을 재초기화
+- **3D Scroll Torus**: Three.js(React Three Fiber) 기반 3D 메탈릭 토러스가 스크롤에 연동되어 리사주 곡선 경로를 따라 회전·이동. Lenis 누적 스크롤 추적, 테마별 머티리얼, 모바일 최적화(geometry 간소화, 스케일 축소). 모바일에서는 터치/클릭 반발 인터랙션 지원 (Canvas pointer-events 차단으로 window 이벤트 수동 추적)
+- **Breakpoint Guard**: 뷰포트가 breakpoint(768px, 1024px)를 넘을 때 페이지 콘텐츠를 자동 remount하여 GSAP/ScrollTrigger 등 레이아웃 의존 애니메이션을 재초기화. R3F 호환 전환 오버레이로 깜빡임 없는 리사이즈 전환
+- **About 가로 스크롤**: Webflow 페이지와 통합된 `useHorizontalScroll` 훅으로 About 페이지에서도 GSAP 기반 가로 스크롤 적용 (데스크톱), 모바일에서는 자동 세로 스택
+- **번들 최적화**: react-icons를 inline SVG로 교체, Three.js 데모를 dynamic import로 분리하여 webflow 페이지 First Load JS 326kB→272kB 절감. 미사용 npm 패키지 정리, 미사용 대용량 이미지(22MB) 삭제
+- **성능 최적화**: Hero/마퀴 애니메이션을 Framer Motion/GSAP에서 CSS animation으로 전환(컴포지터 스레드), useMagneticRepel을 ref 기반 직접 DOM 조작으로 변경(60fps 리렌더 제거), Three.js FrontSide 렌더링 + geometry dispose, AudioContext 지연 초기화
 
 ## 시작하기
 
@@ -637,6 +640,39 @@ Provider(Theme, Language, Lenis) 위에 배치하면 상태가 초기화되므�
 
 #### 핵심 교훈
 GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이션은 `ScrollTrigger.refresh()`로 부분 갱신하기보다, React의 `key` prop을 활용한 완전 remount가 더 안정적. Provider를 remount 범위 밖에 배치하면 전역 상태 손실 없이 페이지 단위 재초기화가 가능
+
+---
+
+### 12. 프로젝트 전체 성능 최적화
+
+#### 문제
+프로젝트 성능 감사 결과, 다수의 최적화 포인트 발견: 메인 스레드 애니메이션, 60fps React 리렌더, GPU 메모리 누수, 미사용 리소스, CSS 충돌
+
+#### 원인 분석
+1. **Hero 타원·마퀴**: Framer Motion/GSAP의 무한 반복 애니메이션이 메인 스레드 RAF로 실행
+2. **useMagneticRepel**: `mousemove`마다 `setMagneticOffsets()` → 60fps React state 업데이트 → WorksSection 전체 리렌더
+3. **Three.js**: `DoubleSide`로 양면 렌더링, `isMobile` 변경 시 geometry 미해제(GPU 메모리 누수)
+4. **미사용 리소스**: paper.png(17MB), grain.png(5.2MB) 미참조, npm 패키지 2개 미사용
+5. **CSS 충돌**: `scroll-behavior: smooth`가 Lenis와 이중 스무딩, `cursor: none`이 터치 디바이스에도 적용
+6. **useSoundManager**: mount 시 AudioContext 생성 + typing.mp3 즉시 fetch
+
+#### 해결
+
+```
+1. Hero 타원/마퀴: CSS animation으로 전환 → 컴포지터 스레드에서 실행
+2. useMagneticRepel: useState → useRef + RAF 루프 + el.style.transform 직접 적용
+3. Three.js: DoubleSide → FrontSide, useEffect cleanup에서 geometry.dispose()
+4. 미사용 이미지 삭제(-22.2MB), npm uninstall react-scroll-parallax react-google-recaptcha-v3
+5. scroll-behavior 제거, cursor:none을 @media (pointer: fine)로 제한
+6. AudioContext/typing.mp3를 첫 인터랙션 시점으로 지연
+7. next.config: poweredByHeader: false, image formats: AVIF+WebP
+8. will-change: transform 영구 제거 (GPU 레이어 해제)
+```
+
+#### 핵심 교훈
+- 단순 무한 반복 애니메이션(rotate, translateX)은 CSS animation이 JS 기반보다 항상 더 효율적 — 컴포지터 스레드에서 메인 스레드 차단 없이 실행됨
+- 고빈도 이벤트(mousemove)에서 React state를 업데이트하면 프레임당 전체 컴포넌트 트리가 재조정됨. ref + 직접 DOM 조작이 적절한 패턴
+- Three.js의 `useMemo`로 생성한 geometry/material은 React의 GC 대상이지만 GPU 버퍼는 자동 해제되지 않음. 명시적 `dispose()` 필수
 
 ---
 

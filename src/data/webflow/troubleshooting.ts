@@ -121,4 +121,34 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "In multilingual interfaces, the key to stable layouts is **reserving space based on whichever language takes up the most room**.",
     },
   },
+  {
+    problem: { ko: "mousemove마다 React 리렌더 (60fps 성능 저하)", en: "React Re-render on Every mousemove (60fps Performance Degradation)" },
+    cause: {
+      ko: "Works 섹션의 마우스 반발 효과가 **mousemove마다 React state를 업데이트**하고 있었습니다. 마우스를 움직일 때마다 **초당 60번의 setState 호출**이 발생하고, 매번 WorksSection 전체(25개 이상의 그리드 아이템)가 **다시 그려졌습니다**. 이로 인해 마우스를 움직이는 동안 메인 스레드가 계속 바빴습니다.",
+      en: "The mouse repulsion effect in the Works section was **updating React state on every mousemove**. This caused **~60 setState calls per second**, each triggering a full re-render of WorksSection with 25+ grid items. The main thread stayed busy the entire time the mouse was moving.",
+    },
+    solution: {
+      ko: "React state 대신 **useRef로 오프셋 값을 저장**하고, 별도의 **requestAnimationFrame 루프에서 lerp 보간 후 DOM의 style.transform을 직접 수정**하는 방식으로 변경했습니다. React는 이 변화를 전혀 인지하지 못하므로 **리렌더가 발생하지 않습니다**.",
+      en: "Replaced React state with **useRef for offset storage** and a separate **requestAnimationFrame loop that applies lerp-smoothed values directly via style.transform**. React is completely unaware of these changes, so **zero re-renders occur**.",
+    },
+    keyInsight: {
+      ko: "초당 수십 번 변하는 값(마우스 위치, 스크롤 오프셋 등)은 **React state로 관리하면 안 됩니다**. 화면에 반영만 하면 되는 값은 **ref + 직접 DOM 조작**이 훨씬 효율적입니다.",
+      en: "Values that change dozens of times per second (mouse position, scroll offsets) **should never be React state**. When you only need visual output, **ref + direct DOM manipulation** is far more efficient.",
+    },
+  },
+  {
+    problem: { ko: "Framer Motion/GSAP 무한 반복 애니메이션의 메인 스레드 점유", en: "Framer Motion/GSAP Infinite Animations Occupying the Main Thread" },
+    cause: {
+      ko: "Hero 섹션의 타원 회전(Framer Motion `animate={{ rotate: 360 }}`)과 마퀴 스크롤(GSAP `repeat: -1`)이 **JavaScript의 requestAnimationFrame으로 실행**되고 있었습니다. 단순한 회전이나 이동임에도 **매 프레임마다 JS 코드가 실행**되어, 다른 인터랙션이 있을 때 **프레임 드롭**이 발생할 수 있었습니다.",
+      en: "The Hero oval rotation (Framer Motion `animate={{ rotate: 360 }}`) and marquee scroll (GSAP `repeat: -1`) were running via **JavaScript's requestAnimationFrame**. Despite being simple rotation/translation, they required **JS execution every frame**, potentially causing **frame drops** during other interactions.",
+    },
+    solution: {
+      ko: "두 애니메이션 모두 **CSS `animation` 속성으로 전환**했습니다. `@keyframes spin { to { transform: rotate(360deg) } }`와 `@keyframes marquee { to { transform: translateX(-50%) } }`로 구현하면, 브라우저의 **컴포지터 스레드에서 실행**되어 메인 스레드를 전혀 차단하지 않습니다.",
+      en: "Converted both animations to **CSS `animation` property**. Using `@keyframes spin` and `@keyframes marquee`, the browser runs these on the **compositor thread**, completely freeing the main thread.",
+    },
+    keyInsight: {
+      ko: "transform과 opacity만 사용하는 단순 반복 애니메이션은 **항상 CSS animation이 더 효율적**입니다. JS 애니메이션 라이브러리는 **물리 시뮬레이션이나 조건부 로직이 필요한 경우에만** 사용하는 것이 좋습니다.",
+      en: "For simple repeating animations using only transform and opacity, **CSS animation is always more efficient**. JS animation libraries should only be used when **physics simulation or conditional logic is needed**.",
+    },
+  },
 ];
