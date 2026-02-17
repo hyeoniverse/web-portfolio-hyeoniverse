@@ -5,6 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useLenis } from "@/providers/LenisProvider";
 import { experiences, skills, philosophy } from "@/data/about";
 import CreditsFooter from "@/components/layout/CreditsFooter/CreditsFooter";
 import styles from "./AboutMeSection.module.css";
@@ -17,6 +18,7 @@ if (typeof window !== "undefined") {
 
 export default function AboutMeSection() {
   const { t, language } = useLanguage();
+  const { setInfinite } = useLenis();
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const bioRef = useRef<HTMLDivElement>(null);
@@ -25,9 +27,19 @@ export default function AboutMeSection() {
   const skillsRef = useRef<HTMLDivElement>(null);
   const philosophyRef = useRef<HTMLDivElement>(null);
 
+  // Lenis infinite 모드 비활성화 — 이전 페이지(works 등)의 limit=0 상태에서
+  // infinite=true면 lenis.scroll이 NaN이 되어 ScrollTrigger가 작동하지 않음
+  useLayoutEffect(() => {
+    setInfinite(false);
+    return () => setInfinite(true);
+  }, [setInfinite]);
+
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
+
+    // 이전 페이지의 잔여 ScrollTrigger 정리
+    ScrollTrigger.getAll().forEach((t) => t.kill());
 
     const ctx = gsap.context(() => {
       // 헤더 애니메이션
@@ -158,6 +170,9 @@ export default function AboutMeSection() {
       }
     }, section);
 
+    // 트리거 생성 후 강제 재평가 — 이전 페이지 cleanup 이후 상태 반영
+    ScrollTrigger.refresh();
+
     return () => ctx.revert();
   }, []);
 
@@ -177,7 +192,7 @@ export default function AboutMeSection() {
       <div className={styles.splitContent}>
         <div className={styles.imageContainer} ref={imageRef}>
           <Image
-            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop"
+            src="/images/profile_pic.webp"
             alt="Profile"
             fill
             sizes="(max-width: 768px) 100vw, 400px"
