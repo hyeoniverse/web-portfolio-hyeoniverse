@@ -1,7 +1,7 @@
 export { useHasMounted } from "./useHasMounted";
 export { useIsMobile } from "./useIsMobile";
 export { useSoundManager } from "./useSoundManager";
-export { useLoadingProgress, useLoadingScreen } from "./useLoadingProgress";
+export { useLoadingScreen } from "./useLoadingProgress";
 export { useToast } from "./useToast";
 export { useMagnetic } from "./useMagnetic";
 export type { UseMagneticReturn } from "./useMagnetic";

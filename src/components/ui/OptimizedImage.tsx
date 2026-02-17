@@ -1,9 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { useLoadingProgress } from "@/hooks/useLoadingProgress";
 import { imageFade } from "@/animations";
 import styles from "./OptimizedImage.module.css";
 
@@ -34,25 +33,14 @@ export default function OptimizedImage({
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [imageId] = useState(
-    () => `image-${Math.random().toString(36).substr(2, 9)}`
-  );
-  const { registerLoadingItem, markAsLoaded } = useLoadingProgress();
-
-  useEffect(() => {
-    // 이미지 로딩 아이템 등록
-    registerLoadingItem(imageId, "image", priority ? 2 : 1);
-  }, [imageId, priority, registerLoadingItem]);
 
   const handleLoad = () => {
     setIsLoaded(true);
-    markAsLoaded(imageId);
     onLoad?.();
   };
 
   const handleError = () => {
     setHasError(true);
-    markAsLoaded(imageId); // 에러도 로딩 완료로 처리
     onError?.();
   };
 
