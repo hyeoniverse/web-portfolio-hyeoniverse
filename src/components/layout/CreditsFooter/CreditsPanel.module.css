@@ -1,0 +1,27 @@
+/* ── Credits Panel — 가로 스크롤 트랙 내 공용 패널 ── */
+/* .wrapper.wrapper (0,2,0) → 페이지별 .panel (0,1,0) 보다 높은 specificity */
+
+.wrapper.wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 60vw;
+  height: 100vh;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-light);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+@media (max-width: 1024px), (max-height: 640px) {
+  .wrapper.wrapper {
+    width: 100%;
+    height: auto;
+    padding: var(--spacing-3xl) 24px var(--spacing-2xl);
+    border-top: 1px solid var(--border-primary);
+  }
+}

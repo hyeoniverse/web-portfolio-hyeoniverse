@@ -26,7 +26,7 @@ import {
   LONG_PRESS_DURATION,
   INITIAL_MARGIN,
 } from "@/data/projects";
-import CreditsFooter from "@/components/layout/CreditsFooter/CreditsFooter";
+import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
 import styles from "./WorksSection.module.css";
 
 // GSAP 플러그인 등록
@@ -517,9 +517,7 @@ export default function WorksSection() {
             </div>
             {/* 크레딧 패널: 각 세트의 마지막 프로젝트 뒤에 배치 */}
             {(index + 1) % PROJECT_COUNT === 0 && (
-              <div className={styles.creditsPanel}>
-                <CreditsFooter variant="panel" />
-              </div>
+              <CreditsPanel className={styles.creditsPanel} />
             )}
             </Fragment>
           ))}
