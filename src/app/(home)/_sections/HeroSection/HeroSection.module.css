@@ -285,6 +285,29 @@
   }
 }
 
+/* Short viewport: horizontal scroll indicator at bottom-right to avoid title overlap */
+@media (max-height: 700px) {
+  .scrollIndicator {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-md);
+    bottom: var(--spacing-xl);
+    left: auto;
+    right: 8vw;
+    transform: none;
+  }
+
+  .scrollText {
+    order: -1;
+  }
+
+  .scrollLineWrapper {
+    flex-shrink: 0;
+    transform: rotate(90deg);
+    margin-left: 20px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .titleOvalInline,
   .scrollLine {
