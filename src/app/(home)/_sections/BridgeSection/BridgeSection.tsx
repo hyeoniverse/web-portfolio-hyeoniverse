@@ -64,19 +64,31 @@ export default function BridgeSection({
         </h2>
 
         <div className={heroStyles.meta}>
-          <span>{t("hero.location")}</span>
+          <span>
+            {t("hero.locationBefore")}
+            <span className={heroStyles.metaHighlight}>
+              {t("hero.locationHighlight")}
+            </span>
+            {t("hero.locationAfter")}
+          </span>
           <span className={heroStyles.metaDivider} />
-          <span>{t("hero.availability")}</span>
+          <span className={heroStyles.availabilityWrapper}>
+            {t("hero.availability")}
+            <span className={heroStyles.pulseDot} />
+          </span>
         </div>
       </div>
 
       {/* Scroll Indicator - identical to Hero */}
       <div className={heroStyles.scrollIndicator}>
-        <motion.div
-          className={heroStyles.scrollLine}
-          animate={{ scaleY: [0, 1, 0], y: [0, 0, 20] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        />
+        <div className={heroStyles.scrollLineWrapper}>
+          <motion.div
+            className={heroStyles.scrollLine}
+            animate={{ scaleY: [0, 1, 0], y: [0, 0, 20] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+        <span className={heroStyles.scrollText}>{t("hero.scroll")}</span>
       </div>
     </section>
   );
