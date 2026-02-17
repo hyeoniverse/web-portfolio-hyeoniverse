@@ -4,8 +4,15 @@
 *::after {
   margin: 0;
   padding: 0;
-  cursor: none;
   box-sizing: border-box;
+}
+
+@media (pointer: fine) {
+  *,
+  *::before,
+  *::after {
+    cursor: none;
+  }
 }
 
 html,
@@ -79,7 +86,6 @@ body {
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
-  scroll-behavior: smooth;
 }
 
 [data-theme="dark"] body::after {

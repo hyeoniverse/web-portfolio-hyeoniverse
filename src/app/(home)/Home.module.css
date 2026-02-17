@@ -15,7 +15,6 @@
   overflow-x: hidden;
   background: var(--bg-primary);
   color: var(--text-primary);
-  will-change: transform;
   border-radius: var(--radius-2xl);
   justify-content: center;
   align-items: center;
