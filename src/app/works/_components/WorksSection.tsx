@@ -78,7 +78,9 @@ export default function WorksSection() {
   const { isMobile: isVerticalLayout } = useIsMobile(768, 700);
 
   // 마운트 시 Lenis 무한 스크롤 비활성화
-  useEffect(() => {
+  // useLayoutEffect 사용: cleanup이 다음 페이지의 useLayoutEffect 전에 실행되어
+  // ScrollTrigger가 올바른 Lenis 상태에서 생성되도록 보장
+  useLayoutEffect(() => {
     setInfinite(false);
     const timer = setTimeout(() => ScrollTrigger.refresh(), 100);
     return () => {
@@ -303,10 +305,10 @@ export default function WorksSection() {
           }
         });
 
-        requestAnimationFrame(animate);
+        rafId = requestAnimationFrame(animate);
       };
 
-      const rafId = requestAnimationFrame(animate);
+      let rafId = requestAnimationFrame(animate);
 
       return () => {
         cancelAnimationFrame(rafId);
@@ -315,7 +317,10 @@ export default function WorksSection() {
       };
     }, gallery);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      ScrollTrigger.refresh();
+    };
   }, [isVerticalLayout]);
 
   // 네비게이션 핸들러
