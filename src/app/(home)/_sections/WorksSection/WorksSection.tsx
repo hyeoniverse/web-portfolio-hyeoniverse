@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion, MotionValue } from "framer-motion";
 import { worksData, WorkItem } from "@/data/works";
 import {
-  MagneticOffset,
   PressingWork,
   HoveringWork,
 } from "@/types";
@@ -29,7 +28,6 @@ interface HoverDirection {
 
 interface WorksSectionProps {
   smoothWorkImageY: MotionValue<number>;
-  magneticOffsets: { [key: string]: MagneticOffset };
   setWorkCircleRef: (id: string, el: HTMLDivElement | null) => void;
   pressingWork: PressingWork | null;
   hoveringWork: HoveringWork | null;
@@ -47,7 +45,6 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
   (
     {
       smoothWorkImageY,
-      magneticOffsets,
       setWorkCircleRef,
       pressingWork,
       hoveringWork,
@@ -119,25 +116,11 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
               ? hoverScale
               : 1;
 
-          const magnetic = work
-            ? magneticOffsets[work.id] || { x: 0, y: 0, rotation: 0 }
-            : { x: 0, y: 0, rotation: 0 };
-
           items.push(
-            <motion.div
+            <div
               key={index}
-              ref={work ? (el) => setWorkCircleRef(work.id, el) : undefined}
+              ref={work ? (el) => setWorkCircleRef(work.id, el as HTMLDivElement) : undefined}
               className={styles.gridItem}
-              animate={{
-                x: magnetic.x,
-                y: magnetic.y,
-                rotateZ: magnetic.rotation,
-              }}
-              transition={{
-                x: { type: "spring", stiffness: 150, damping: 15 },
-                y: { type: "spring", stiffness: 150, damping: 15 },
-                rotateZ: { type: "spring", stiffness: 150, damping: 15 },
-              }}
             >
               {work && (
                 <motion.div
@@ -241,7 +224,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
                   </div>
                 </motion.div>
               )}
-            </motion.div>
+            </div>
           );
         }
       }
@@ -261,7 +244,6 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
     }, [
       pressingWork,
       hoveringWork,
-      magneticOffsets,
       setWorkCircleRef,
       smoothWorkImageY,
       handlePressStart,

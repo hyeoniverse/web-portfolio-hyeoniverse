@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { createSoundTone } from "@/utils";
 import { SOUND_FREQUENCIES } from "@/constants";
 import type { SoundType } from "@/types";
@@ -16,32 +16,26 @@ export function useSoundManager(): SoundManager {
   const volumeRef = useRef(0.3);
   const isMutedRef = useRef(false);
 
+  const typingBufferRef = useRef<AudioBuffer | null>(null);
+  const lastTypingPlayTimeRef = useRef(0);
+  const TYPING_MIN_INTERVAL = 50;
+
   const initAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext })
           .webkitAudioContext)();
+
+      // Typing mp3 로드 (첫 인터랙션 시점)
+      fetch("/sounds/typing.mp3")
+        .then((res) => res.arrayBuffer())
+        .then((data) =>
+          audioContextRef.current!.decodeAudioData(data, (buffer) => {
+            typingBufferRef.current = buffer;
+          })
+        );
     }
     return audioContextRef.current;
-  }, []);
-
-  const typingBufferRef = useRef<AudioBuffer | null>(null);
-  const lastTypingPlayTimeRef = useRef(0); // 마지막 재생 시각 기록
-  const TYPING_MIN_INTERVAL = 50; // 최소 재생 간격(ms)
-
-  useEffect(() => {
-    audioContextRef.current = new (window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext)();
-
-    // Typing mp3 로드
-    fetch("/sounds/typing.mp3")
-      .then((res) => res.arrayBuffer())
-      .then((data) =>
-        audioContextRef.current!.decodeAudioData(data, (buffer) => {
-          typingBufferRef.current = buffer;
-        })
-      );
   }, []);
 
   const playSound = useCallback(
