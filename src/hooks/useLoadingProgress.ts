@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { usePathname } from "next/navigation";
 
 // ============================================
 // 타입
@@ -35,13 +34,10 @@ interface LoadingScreenResult {
 // 상수
 // ============================================
 const LOADING_CONFIG = {
-  minLoadingTime: 1500, // 로딩 화면을 표시할 최소 시간 (초기 로드)
-  navigationLoadingTime: 1000, // 클라이언트 내비게이션 최소 시간
+  minLoadingTime: 1500, // 로딩 화면을 표시할 최소 시간 (초기/내비게이션 동일)
   transitionDelay: 1200, // 퇴장 애니메이션 지속 시간 (로고 모프 + 와이프)
 } as const;
 
-// 내비게이션 시 로딩 화면을 표시할 페이지
-const LOADING_ENABLED_PAGES = ["/"];
 
 // ============================================
 // useLoadingProgress - 실제 리소스 추적
@@ -214,7 +210,6 @@ export function useLoadingProgress(): LoadingProgressResult {
 let hasCompletedInitialLoad = false;
 
 export function useLoadingScreen(): LoadingScreenResult {
-  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(() => !hasCompletedInitialLoad);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -222,28 +217,6 @@ export function useLoadingScreen(): LoadingScreenResult {
   const startTimeRef = useRef<number>(Date.now());
   const hasCompletedRef = useRef(hasCompletedInitialLoad);
   const fontsLoadedRef = useRef(false);
-  const isInitialLoadRef = useRef(true);
-  const previousPathnameRef = useRef<string | null>(null);
-
-  // 홈으로의 내비게이션 감지 및 로딩 상태 초기화
-  useEffect(() => {
-    const isNavigatingToLoadingPage =
-      previousPathnameRef.current !== null &&
-      previousPathnameRef.current !== pathname &&
-      LOADING_ENABLED_PAGES.includes(pathname);
-
-    if (isNavigatingToLoadingPage) {
-      // 홈으로의 클라이언트 내비게이션 시 로딩 상태 초기화
-      isInitialLoadRef.current = false;
-      hasCompletedRef.current = false;
-      startTimeRef.current = Date.now();
-      setIsLoading(true);
-      setIsTransitioning(false);
-      setProgress(0);
-    }
-
-    previousPathnameRef.current = pathname;
-  }, [pathname]);
 
   useEffect(() => {
     let mounted = true;
@@ -293,10 +266,7 @@ export function useLoadingScreen(): LoadingScreenResult {
 
       // 완료 여부 확인
       const elapsed = Date.now() - startTimeRef.current;
-      const minTime = isInitialLoadRef.current
-        ? LOADING_CONFIG.minLoadingTime
-        : LOADING_CONFIG.navigationLoadingTime;
-      const minTimePassed = elapsed >= minTime;
+      const minTimePassed = elapsed >= LOADING_CONFIG.minLoadingTime;
       const isReady = document.readyState === "complete" && fontsLoadedRef.current;
 
       if (minTimePassed && isReady && !hasCompletedRef.current) {
@@ -355,7 +325,7 @@ export function useLoadingScreen(): LoadingScreenResult {
       clearTimeout(maxTimeout);
       window.removeEventListener("load", handleLoad);
     };
-  }, [pathname]);
+  }, []);
 
   return { isLoading, isTransitioning, progress };
 }
