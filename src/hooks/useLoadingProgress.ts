@@ -1,208 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // ============================================
 // 타입
 // ============================================
-interface LoadingItem {
-  id: string;
-  type: "component" | "image" | "font" | "script" | "stylesheet" | "resource";
-  loaded: boolean;
-  weight: number;
-}
-
-interface LoadingProgressResult {
-  progress: number;
-  isComplete: boolean;
-  registerLoadingItem: (
-    id: string,
-    type: LoadingItem["type"],
-    weight?: number
-  ) => void;
-  markAsLoaded: (id: string) => void;
-  loadingItems: LoadingItem[];
-}
-
 interface LoadingScreenResult {
   isLoading: boolean;
   isTransitioning: boolean;
-  progress: number;
 }
 
 // ============================================
 // 상수
 // ============================================
 const LOADING_CONFIG = {
-  minLoadingTime: 1500, // 로딩 화면을 표시할 최소 시간 (초기/내비게이션 동일)
+  minLoadingTime: 1500, // 로딩 화면을 표시할 최소 시간
   transitionDelay: 1200, // 퇴장 애니메이션 지속 시간 (로고 모프 + 와이프)
 } as const;
 
-
 // ============================================
-// useLoadingProgress - 실제 리소스 추적
-// ============================================
-export function useLoadingProgress(): LoadingProgressResult {
-  const [loadingItems, setLoadingItems] = useState<LoadingItem[]>([]);
-  const [progress, setProgress] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
-  const initialized = useRef(false);
-
-  const registerLoadingItem = useCallback(
-    (id: string, type: LoadingItem["type"], weight = 1) => {
-      setLoadingItems((prev) => {
-        if (prev.some((item) => item.id === id)) return prev;
-        return [...prev, { id, type, loaded: false, weight }];
-      });
-    },
-    []
-  );
-
-  const markAsLoaded = useCallback((id: string) => {
-    setLoadingItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, loaded: true } : item))
-    );
-  }, []);
-
-  useEffect(() => {
-    if (loadingItems.length === 0) {
-      setProgress(0);
-      return;
-    }
-
-    const totalWeight = loadingItems.reduce(
-      (sum, item) => sum + item.weight,
-      0
-    );
-    const loadedWeight = loadingItems
-      .filter((item) => item.loaded)
-      .reduce((sum, item) => sum + item.weight, 0);
-
-    const newProgress =
-      totalWeight > 0 ? (loadedWeight / totalWeight) * 100 : 0;
-
-    setProgress(newProgress);
-
-    if (loadingItems.every((item) => item.loaded) && loadingItems.length > 0) {
-      setIsComplete(true);
-    }
-  }, [loadingItems]);
-
-  useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-
-    // 핵심 항목 등록
-    registerLoadingItem("dom-ready", "component", 2);
-    registerLoadingItem("fonts", "font", 3);
-
-    // 폰트 추적
-    if (document.fonts) {
-      document.fonts.ready.then(() => markAsLoaded("fonts"));
-    } else {
-      markAsLoaded("fonts");
-    }
-
-    // 기존 리소스 추적
-    const trackResources = () => {
-      const resources = performance.getEntriesByType(
-        "resource"
-      ) as PerformanceResourceTiming[];
-
-      resources.forEach((res) => {
-        const id = `resource-${res.name}`;
-        let type: LoadingItem["type"] = "resource";
-        let weight = 1;
-
-        switch (res.initiatorType) {
-          case "img":
-            type = "image";
-            weight = 2;
-            break;
-          case "script":
-            type = "script";
-            weight = 2;
-            break;
-          case "link":
-          case "css":
-            type = "stylesheet";
-            weight = 2;
-            break;
-        }
-
-        registerLoadingItem(id, type, weight);
-        if (res.responseEnd > 0) markAsLoaded(id);
-      });
-    };
-
-    if (document.readyState === "complete") {
-      trackResources();
-      markAsLoaded("dom-ready");
-    } else {
-      window.addEventListener("load", () => {
-        trackResources();
-        markAsLoaded("dom-ready");
-      });
-    }
-
-    // 새 리소스 관찰
-    let observer: PerformanceObserver | null = null;
-
-    if (typeof PerformanceObserver !== "undefined") {
-      observer = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if (entry.entryType === "resource") {
-            const res = entry as PerformanceResourceTiming;
-            const id = `resource-${res.name}`;
-
-            let type: LoadingItem["type"] = "resource";
-            let weight = 1;
-
-            switch (res.initiatorType) {
-              case "img":
-                type = "image";
-                weight = 2;
-                break;
-              case "script":
-                type = "script";
-                weight = 2;
-                break;
-              case "link":
-              case "css":
-                type = "stylesheet";
-                weight = 2;
-                break;
-            }
-
-            registerLoadingItem(id, type, weight);
-            if (res.responseEnd > 0) markAsLoaded(id);
-          }
-        }
-      });
-
-      try {
-        observer.observe({ entryTypes: ["resource"] });
-      } catch {
-        // PerformanceObserver 미지원
-      }
-    }
-
-    return () => {
-      observer?.disconnect();
-    };
-  }, [registerLoadingItem, markAsLoaded]);
-
-  return {
-    progress: Math.min(progress, 100),
-    isComplete,
-    registerLoadingItem,
-    markAsLoaded,
-    loadingItems,
-  };
-}
-
-// ============================================
-// useLoadingScreen - 간소화 및 안정적 구현
+// useLoadingScreen - 초기 로드 전용
 // ============================================
 
 // 모듈 레벨 플래그: 부모 트리 변경으로 인한 컴포넌트 리마운트에도 유지됨
@@ -212,7 +29,6 @@ let hasCompletedInitialLoad = false;
 export function useLoadingScreen(): LoadingScreenResult {
   const [isLoading, setIsLoading] = useState(() => !hasCompletedInitialLoad);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [progress, setProgress] = useState(0);
 
   const startTimeRef = useRef<number>(Date.now());
   const hasCompletedRef = useRef(hasCompletedInitialLoad);
@@ -230,46 +46,16 @@ export function useLoadingScreen(): LoadingScreenResult {
       fontsLoadedRef.current = true;
     }
 
-    // 실제 리소스 기반 진행률 업데이트
-    const updateProgress = () => {
+    // 완료 조건 체크
+    const checkReady = () => {
       if (!mounted || hasCompletedRef.current) return;
 
-      const resources = performance.getEntriesByType(
-        "resource"
-      ) as PerformanceResourceTiming[];
-
-      const loaded = resources.filter((r) => r.responseEnd > 0).length;
-      const total = Math.max(resources.length, 1);
-
-      // 실제 진행률 계산
-      let realProgress = 0;
-
-      // 폰트 (20% 가중치)
-      if (fontsLoadedRef.current) {
-        realProgress += 20;
-      }
-
-      // 리소스 (70% 가중치)
-      realProgress += (loaded / total) * 70;
-
-      // DOM 준비 (10% 가중치)
-      if (document.readyState === "complete") {
-        realProgress += 10;
-      }
-
-      // 목표값으로 부드럽게 애니메이션
-      setProgress((prev) => {
-        const target = Math.min(realProgress, 99);
-        const diff = target - prev;
-        return prev + diff * 0.15;
-      });
-
-      // 완료 여부 확인
       const elapsed = Date.now() - startTimeRef.current;
       const minTimePassed = elapsed >= LOADING_CONFIG.minLoadingTime;
-      const isReady = document.readyState === "complete" && fontsLoadedRef.current;
+      const isReady =
+        document.readyState === "complete" && fontsLoadedRef.current;
 
-      if (minTimePassed && isReady && !hasCompletedRef.current) {
+      if (minTimePassed && isReady) {
         completeLoading();
       }
     };
@@ -279,9 +65,6 @@ export function useLoadingScreen(): LoadingScreenResult {
       if (!mounted || hasCompletedRef.current) return;
       hasCompletedRef.current = true;
       hasCompletedInitialLoad = true;
-
-      // 100%로 애니메이션
-      setProgress(100);
 
       // 짧은 일시 정지 후 퇴장 전환 시작
       setTimeout(() => {
@@ -297,8 +80,8 @@ export function useLoadingScreen(): LoadingScreenResult {
     };
 
     // 폴링 시작
-    const progressInterval = setInterval(updateProgress, 60);
-    updateProgress();
+    const checkInterval = setInterval(checkReady, 60);
+    checkReady();
 
     // 폴백: 최대 시간 후 강제 완료
     const maxTimeout = setTimeout(() => {
@@ -309,8 +92,7 @@ export function useLoadingScreen(): LoadingScreenResult {
 
     // load 이벤트 리스닝
     const handleLoad = () => {
-      // 폰트를 위해 약간의 추가 시간 부여
-      setTimeout(updateProgress, 100);
+      setTimeout(checkReady, 100);
     };
 
     if (document.readyState === "complete") {
@@ -321,11 +103,11 @@ export function useLoadingScreen(): LoadingScreenResult {
 
     return () => {
       mounted = false;
-      clearInterval(progressInterval);
+      clearInterval(checkInterval);
       clearTimeout(maxTimeout);
       window.removeEventListener("load", handleLoad);
     };
   }, []);
 
-  return { isLoading, isTransitioning, progress };
+  return { isLoading, isTransitioning };
 }
