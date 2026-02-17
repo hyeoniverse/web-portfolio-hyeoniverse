@@ -59,6 +59,71 @@ export const skills: Skill[] = [
   { name: "UI/UX Design", level: 70 },
 ];
 
+export interface ToolCategory {
+  category: string; // Not translated — display name
+  tools: string[];
+}
+
+export const toolCategories: ToolCategory[] = [
+  {
+    category: "Frontend",
+    tools: ["React", "Next.js", "TypeScript", "HTML/CSS", "Tailwind CSS"],
+  },
+  {
+    category: "Animation",
+    tools: ["GSAP", "Framer Motion", "CSS Animations", "Lottie"],
+  },
+  {
+    category: "Backend",
+    tools: ["Node.js", "Express", "PostgreSQL", "REST API"],
+  },
+  {
+    category: "Tools & Platform",
+    tools: ["Git", "Figma", "VS Code", "Vercel", "Docker"],
+  },
+];
+
+export interface ApproachStep {
+  number: string;
+  title: string;
+  description: LocalizedText;
+}
+
+export const approachSteps: ApproachStep[] = [
+  {
+    number: "01",
+    title: "Discovery",
+    description: {
+      en: "Understanding the problem, user needs, and project goals through research and collaboration.",
+      ko: "리서치와 협업을 통해 문제, 사용자 요구, 프로젝트 목표를 파악합니다.",
+    },
+  },
+  {
+    number: "02",
+    title: "Design",
+    description: {
+      en: "Creating wireframes, prototypes, and visual designs that align with the user experience.",
+      ko: "사용자 경험에 맞는 와이어프레임, 프로토타입, 비주얼 디자인을 제작합니다.",
+    },
+  },
+  {
+    number: "03",
+    title: "Develop",
+    description: {
+      en: "Building with clean, performant code using modern technologies and best practices.",
+      ko: "최신 기술과 모범 사례를 활용해 깔끔하고 성능 좋은 코드로 구현합니다.",
+    },
+  },
+  {
+    number: "04",
+    title: "Deliver",
+    description: {
+      en: "Testing, optimizing, and deploying with continuous iteration based on feedback.",
+      ko: "테스트, 최적화, 배포 후 피드백을 바탕으로 지속적으로 개선합니다.",
+    },
+  },
+];
+
 export const philosophy: Philosophy[] = [
   {
     title: "Design with Purpose",

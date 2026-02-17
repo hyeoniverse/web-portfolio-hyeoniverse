@@ -16,10 +16,10 @@ import {
   projectOverview,
   projectStructure,
 } from "@/data/webflow";
-import { useHorizontalScroll } from "../_hooks/useHorizontalScroll";
+import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
 import { useNavIndicator } from "../_hooks/useNavIndicator";
-import { useMobileLayout } from "../_hooks/mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import {
   HeroPanel,
   OverviewPanel,
@@ -42,7 +42,11 @@ const infiniteScroll = siteConfig.webflow.infiniteScroll;
 export default function WebFlowSection() {
   const { t, language } = useLanguage();
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
-    useHorizontalScroll(styles, infiniteScroll);
+    useHorizontalScroll(styles, {
+      infinite: infiniteScroll,
+      panelSetSize: 11,
+      navSectionCount: 10,
+    });
   useInViewMobile(trackRef, styles.animate, styles.animateVisible);
   const { isLoading } = useLoadingScreen();
   const {

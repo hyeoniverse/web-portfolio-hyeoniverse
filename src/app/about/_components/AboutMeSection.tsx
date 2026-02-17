@@ -1,283 +1,248 @@
 "use client";
 
-import { useRef, useLayoutEffect } from "react";
+import { Fragment } from "react";
 import Image from "next/image";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useLenis } from "@/providers/LenisProvider";
-import { experiences, skills, philosophy } from "@/data/about";
-import CreditsFooter from "@/components/layout/CreditsFooter/CreditsFooter";
+import {
+  experiences,
+  skills,
+  toolCategories,
+  approachSteps,
+  philosophy,
+} from "@/data/about";
+import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
+import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import styles from "./AboutMeSection.module.css";
 
-// GSAP 플러그인 등록
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
+const PANEL_COUNT = 8;
+const REPETITIONS = 3;
 
 export default function AboutMeSection() {
   const { t, language } = useLanguage();
-  const { setInfinite } = useLenis();
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const bioRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
-  const experienceRef = useRef<HTMLDivElement>(null);
-  const skillsRef = useRef<HTMLDivElement>(null);
-  const philosophyRef = useRef<HTMLDivElement>(null);
+  const isMobile = useMobileLayout();
+  const { sectionRef, trackRef } = useHorizontalScroll(styles, {
+    infinite: !isMobile,
+    panelSetSize: PANEL_COUNT,
+    navSectionCount: PANEL_COUNT,
+    mobileAnimateVisible: true,
+  });
 
-  // Lenis infinite 모드 비활성화 — 이전 페이지(works 등)의 limit=0 상태에서
-  // infinite=true면 lenis.scroll이 NaN이 되어 ScrollTrigger가 작동하지 않음
-  useLayoutEffect(() => {
-    setInfinite(false);
-    return () => setInfinite(true);
-  }, [setInfinite]);
-
-  useLayoutEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    // 이전 페이지의 잔여 ScrollTrigger 정리
-    ScrollTrigger.getAll().forEach((t) => t.kill());
-
-    const ctx = gsap.context(() => {
-      // 헤더 애니메이션
-      if (headerRef.current) {
-        gsap.fromTo(
-          headerRef.current,
-          { opacity: 0, y: 60 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: headerRef.current,
-              start: "top 85%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      }
-
-      // 분할 화면 애니메이션 - 바이오 텍스트
-      if (bioRef.current) {
-        const bioElements = bioRef.current.querySelectorAll("p");
-        gsap.fromTo(
-          bioElements,
-          { opacity: 0, x: 60 },
-          {
-            opacity: 1,
-            x: 0,
-            duration: 0.8,
-            stagger: 0.2,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: bioRef.current,
-              start: "top 80%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      }
-
-      // 이미지 등장 애니메이션
-      if (imageRef.current) {
-        gsap.fromTo(
-          imageRef.current,
-          {
-            clipPath: "inset(0 100% 0 0)",
-            opacity: 0,
-          },
-          {
-            clipPath: "inset(0 0% 0 0)",
-            opacity: 1,
-            duration: 1.2,
-            ease: "power4.out",
-            scrollTrigger: {
-              trigger: imageRef.current,
-              start: "top 80%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      }
-
-      // 경력 카드 시차 등장
-      if (experienceRef.current) {
-        const cards = experienceRef.current.querySelectorAll(`.${styles.experienceCard}`);
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            stagger: 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: experienceRef.current,
-              start: "top 80%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      }
-
-      // 스킬 바 애니메이션
-      if (skillsRef.current) {
-        const bars = skillsRef.current.querySelectorAll(`.${styles.skillProgress}`);
-        bars.forEach((bar, i) => {
-          const level = skills[i]?.level || 0;
-          gsap.fromTo(
-            bar,
-            { scaleX: 0 },
-            {
-              scaleX: level / 100,
-              duration: 1,
-              delay: i * 0.1,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: bar,
-                start: "top 90%",
-                toggleActions: "play none none reverse",
-              },
-            }
-          );
-        });
-      }
-
-      // 철학 카드
-      if (philosophyRef.current) {
-        const cards = philosophyRef.current.querySelectorAll(`.${styles.philosophyCard}`);
-        gsap.fromTo(
-          cards,
-          { opacity: 0, scale: 0.9 },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.8,
-            stagger: 0.2,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: philosophyRef.current,
-              start: "top 80%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      }
-    }, section);
-
-    // 트리거 생성 후 강제 재평가 — 이전 페이지 cleanup 이후 상태 반영
-    ScrollTrigger.refresh();
-
-    return () => ctx.revert();
-  }, []);
-
-  return (
-    <section id="about" className={styles.section} ref={sectionRef}>
-      {/* 섹션 헤더 */}
-      <div className={styles.header} ref={headerRef}>
-        <span className={styles.label}>{t("aboutPage.title")}</span>
-        <h2 className={styles.title}>
-          Crafting Digital
-          <br />
-          <span className={styles.titleAccent}>Experiences</span>
-        </h2>
+  const panelSet = (key: number) => (
+    <Fragment key={key}>
+      {/* Panel 1: Hero */}
+      <div className={styles.panel}>
+        <div className={`${styles.heroContent} ${styles.animate}`}>
+          <span className={styles.label}>{t("aboutPage.title")}</span>
+          <h2 className={styles.title}>
+            Crafting Digital
+            <br />
+            <span className={styles.titleAccent}>Experiences</span>
+          </h2>
+        </div>
       </div>
 
-      {/* 분할 콘텐츠 - 이미지 + 바이오 */}
-      <div className={styles.splitContent}>
-        <div className={styles.imageContainer} ref={imageRef}>
-          <Image
-            src="/images/profile_pic.webp"
-            alt="Profile"
-            fill
-            sizes="(max-width: 768px) 100vw, 400px"
-            className={styles.profileImage}
-          />
-          <div className={styles.imageDecor} />
-        </div>
+      {/* Panel 2: Profile */}
+      <div className={styles.panel}>
+        <div className={`${styles.splitContent} ${styles.animate}`}>
+          <div className={styles.imageContainer}>
+            <Image
+              src="/images/profile_pic.webp"
+              alt="Profile"
+              fill
+              sizes="(max-width: 768px) 100vw, 400px"
+              className={styles.profileImage}
+            />
+            <div className={styles.imageDecor} />
+          </div>
 
-        <div className={styles.bioContainer} ref={bioRef}>
-          <p className={styles.bioHighlight}>
-            {t("aboutPage.bio.highlight")}
-          </p>
-          <p className={styles.bioText}>
-            {t("aboutPage.bio.text1")}
-          </p>
-          <p className={styles.bioText}>
-            {t("aboutPage.bio.text2")}
-          </p>
+          <div className={styles.bioContainer}>
+            <p className={styles.bioHighlight}>
+              {t("aboutPage.bio.highlight")}
+            </p>
+            <p className={styles.bioText}>{t("aboutPage.bio.text1")}</p>
+            <p className={styles.bioText}>{t("aboutPage.bio.text2")}</p>
 
-          <div className={styles.stats}>
-            <div className={styles.stat}>
-              <span className={styles.statNumber}>{t("aboutPage.stats.yearsValue")}</span>
-              <span className={styles.statLabel}>{t("aboutPage.stats.years")}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statNumber}>{t("aboutPage.stats.projectsValue")}</span>
-              <span className={styles.statLabel}>{t("aboutPage.stats.projects")}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statNumber}>{t("aboutPage.stats.clientsValue")}</span>
-              <span className={styles.statLabel}>{t("aboutPage.stats.clients")}</span>
+            <div className={styles.stats}>
+              <div className={styles.stat}>
+                <span className={styles.statNumber}>
+                  {t("aboutPage.stats.yearsValue")}
+                </span>
+                <span className={styles.statLabel}>
+                  {t("aboutPage.stats.years")}
+                </span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statNumber}>
+                  {t("aboutPage.stats.projectsValue")}
+                </span>
+                <span className={styles.statLabel}>
+                  {t("aboutPage.stats.projects")}
+                </span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statNumber}>
+                  {t("aboutPage.stats.clientsValue")}
+                </span>
+                <span className={styles.statLabel}>
+                  {t("aboutPage.stats.clients")}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 경력 타임라인 */}
-      <div className={styles.experienceSection} ref={experienceRef}>
-        <h3 className={styles.sectionSubtitle}>Experience</h3>
-        <div className={styles.experienceList}>
-          {experiences.map((exp, index) => (
-            <div key={index} className={styles.experienceCard}>
-              <span className={styles.experiencePeriod}>{exp.period[language]}</span>
-              <h4 className={styles.experienceRole}>{exp.role[language]}</h4>
-              <span className={styles.experienceCompany}>{exp.company}</span>
-              <p className={styles.experienceDescription}>{exp.description[language]}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 스킬 */}
-      <div className={styles.skillsSection} ref={skillsRef}>
-        <h3 className={styles.sectionSubtitle}>Skills</h3>
-        <div className={styles.skillsList}>
-          {skills.map((skill, index) => (
-            <div key={index} className={styles.skillItem}>
-              <div className={styles.skillHeader}>
-                <span className={styles.skillName}>{skill.name}</span>
-                <span className={styles.skillLevel}>{skill.level}%</span>
+      {/* Panel 3: Experience */}
+      <div className={styles.panel}>
+        <div className={styles.panelInner}>
+          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+            Experience
+          </h3>
+          <div className={styles.experienceList}>
+            {experiences.map((exp, index) => (
+              <div
+                key={index}
+                className={`${styles.experienceCard} ${styles.animate}`}
+              >
+                <span className={styles.experiencePeriod}>
+                  {exp.period[language]}
+                </span>
+                <h4 className={styles.experienceRole}>
+                  {exp.role[language]}
+                </h4>
+                <span className={styles.experienceCompany}>
+                  {exp.company}
+                </span>
+                <p className={styles.experienceDescription}>
+                  {exp.description[language]}
+                </p>
               </div>
-              <div className={styles.skillBar}>
-                <div className={styles.skillProgress} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Panel 4: Skills */}
+      <div className={styles.panel}>
+        <div className={styles.panelInner}>
+          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+            Skills
+          </h3>
+          <div className={styles.skillsList}>
+            {skills.map((skill, index) => (
+              <div
+                key={index}
+                className={`${styles.skillItem} ${styles.animate}`}
+              >
+                <div className={styles.skillHeader}>
+                  <span className={styles.skillName}>{skill.name}</span>
+                  <span className={styles.skillLevel}>{skill.level}%</span>
+                </div>
+                <div className={styles.skillBar}>
+                  <div
+                    className={styles.skillProgress}
+                    style={{ transform: `scaleX(${skill.level / 100})` }}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* 철학 */}
-      <div className={styles.philosophySection} ref={philosophyRef}>
-        <h3 className={styles.sectionSubtitle}>My Philosophy</h3>
-        <div className={styles.philosophyGrid}>
-          {philosophy.map((item, index) => (
-            <div key={index} className={styles.philosophyCard}>
-              <span className={styles.philosophyNumber}>0{index + 1}</span>
-              <h4 className={styles.philosophyTitle}>{item.title}</h4>
-              <p className={styles.philosophyDescription}>{item.description[language]}</p>
-            </div>
-          ))}
+      {/* Panel 5: Tools & Technologies */}
+      <div className={styles.panel}>
+        <div className={styles.panelInner}>
+          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+            {t("aboutPage.tools.subtitle")}
+          </h3>
+          <p className={`${styles.toolsDescription} ${styles.animate}`}>
+            {t("aboutPage.tools.description")}
+          </p>
+          <div className={styles.toolsGrid}>
+            {toolCategories.map((cat, index) => (
+              <div
+                key={index}
+                className={`${styles.toolCategory} ${styles.animate}`}
+              >
+                <h4 className={styles.toolCategoryTitle}>{cat.category}</h4>
+                <div className={styles.toolTags}>
+                  {cat.tools.map((tool) => (
+                    <span key={tool} className={styles.toolTag}>
+                      {tool}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* 크레딧 */}
-      <CreditsFooter variant="section" />
+      {/* Panel 6: Philosophy */}
+      <div className={styles.panel}>
+        <div className={styles.panelInner}>
+          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+            My Philosophy
+          </h3>
+          <div className={styles.philosophyGrid}>
+            {philosophy.map((item, index) => (
+              <div
+                key={index}
+                className={`${styles.philosophyCard} ${styles.animate}`}
+              >
+                <span className={styles.philosophyNumber}>
+                  0{index + 1}
+                </span>
+                <h4 className={styles.philosophyTitle}>{item.title}</h4>
+                <p className={styles.philosophyDescription}>
+                  {item.description[language]}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Panel 7: My Approach */}
+      <div className={styles.panel}>
+        <div className={styles.panelInner}>
+          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+            {t("aboutPage.approach.subtitle")}
+          </h3>
+          <p className={`${styles.toolsDescription} ${styles.animate}`}>
+            {t("aboutPage.approach.description")}
+          </p>
+          <div className={styles.approachGrid}>
+            {approachSteps.map((step, index) => (
+              <div
+                key={index}
+                className={`${styles.approachCard} ${styles.animate}`}
+              >
+                <span className={styles.approachNumber}>{step.number}</span>
+                <h4 className={styles.approachTitle}>{step.title}</h4>
+                <p className={styles.approachDescription}>
+                  {step.description[language]}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Panel 8: Credits */}
+      <CreditsPanel className={`${styles.panel} ${styles.animate}`} />
+    </Fragment>
+  );
+
+  return (
+    <section ref={sectionRef} className={styles.section}>
+      <div ref={trackRef} className={styles.track}>
+        {isMobile
+          ? panelSet(0)
+          : Array.from({ length: REPETITIONS }, (_, i) => panelSet(i))}
+      </div>
     </section>
   );
 }

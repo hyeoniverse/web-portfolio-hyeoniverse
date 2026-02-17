@@ -116,6 +116,14 @@
         "title": "Learn Continuously",
         "desc": "Technology evolves rapidly, and so do I."
       }
+    },
+    "tools": {
+      "subtitle": "Tools & Technologies",
+      "description": "The technologies and tools I work with daily to build modern web experiences."
+    },
+    "approach": {
+      "subtitle": "My Approach",
+      "description": "A systematic process that turns ideas into polished digital products."
     }
   },
   "contact": {

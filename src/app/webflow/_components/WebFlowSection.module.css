@@ -2471,26 +2471,6 @@
 }
 
 /* ==========================================================================
-   Credits Panel
-   ========================================================================== */
-
-.creditsPanel {
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.creditsText {
-  margin: 0;
-  font-size: var(--font-size-xl);
-  color: var(--text-tertiary);
-}
-
-.creditsHeart {
-  color: var(--text-accent-secondary);
-}
-
-/* ==========================================================================
    Section Navigation (outside .panel — no inheritance)
    ========================================================================== */
 
