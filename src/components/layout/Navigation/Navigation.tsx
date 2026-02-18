@@ -13,7 +13,7 @@ import styles from "./Navigation.module.css";
 const navItems = [
   { key: "works", href: "/works" },
   { key: "about", href: "/about" },
-  { key: "webflow", href: "/webflow" },
+  { key: "behind", href: "/behind" },
 ];
 
 // Loading logo: full display name with per-letter animation

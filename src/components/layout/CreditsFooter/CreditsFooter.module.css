@@ -16,7 +16,7 @@
   color: var(--text-accent-secondary);
 }
 
-/* ── Variant: panel (webflow 전체화면 패널) ── */
+/* ── Variant: panel (behind 전체화면 패널) ── */
 .panel {
   width: 100%;
   height: 100%;

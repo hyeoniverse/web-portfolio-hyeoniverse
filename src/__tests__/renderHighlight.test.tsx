@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
-import { renderHighlight } from "@/app/webflow/_components/renderHighlight";
+import { renderHighlight } from "@/app/behind/_components/renderHighlight";
 
 describe("renderHighlight", () => {
   it("마크업이 없는 텍스트를 그대로 반환한다", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { checkMobileLayout, MOBILE_WIDTH, MIN_DESKTOP_HEIGHT } from "@/app/webflow/_hooks/mobileCheck";
+import { checkMobileLayout, MOBILE_WIDTH, MIN_DESKTOP_HEIGHT } from "@/app/behind/_hooks/mobileCheck";
 
 describe("checkMobileLayout", () => {
   beforeEach(() => {
