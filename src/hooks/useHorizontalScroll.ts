@@ -249,22 +249,34 @@ export function useHorizontalScroll(
         gsap.set(items, { opacity: Math.max(0, opacity), y });
       });
 
-      // 활성 섹션 탐지 (뷰포트 중앙에 가장 가까운 패널)
+      // 활성 섹션 탐지 — 뷰포트 중앙을 포함하는 패널 우선,
+      // 없으면 중앙에 가장 가까운 패널 (extraWide 패널 조기 전환 방지)
       const viewportCenter = vw / 2;
       let closestNavIdx = 0;
       let closestDist = Infinity;
       let navIdx = 0;
+      let found = false;
 
       for (let i = 0; i < allPanels.length; i++) {
         if (breakClass && allPanels[i].classList.contains(breakClass)) continue;
         const rect = allPanels[i].getBoundingClientRect();
-        const dist = Math.abs(rect.left + rect.width / 2 - viewportCenter);
-        if (dist < closestDist) {
-          closestDist = dist;
-          closestNavIdx =
-            infinite && navSectionCount
-              ? navIdx % navSectionCount
-              : navIdx;
+        const idx = infinite && navSectionCount
+          ? navIdx % navSectionCount
+          : navIdx;
+
+        // 뷰포트 중앙이 패널 범위 안에 있으면 확정
+        if (rect.left <= viewportCenter && rect.right >= viewportCenter) {
+          closestNavIdx = idx;
+          found = true;
+        }
+
+        // 폴백: 중앙에 가장 가까운 패널
+        if (!found) {
+          const dist = Math.abs(rect.left + rect.width / 2 - viewportCenter);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestNavIdx = idx;
+          }
         }
         navIdx++;
       }

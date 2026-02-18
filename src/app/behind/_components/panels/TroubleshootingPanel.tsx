@@ -4,7 +4,7 @@ import { useLayoutEffect, useCallback, useRef, useState, useEffect } from "react
 import type { Language } from "@/providers/LanguageProvider";
 import type { TroubleShootingItem } from "@/data/behind";
 import { renderHighlight } from "../renderHighlight";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import { checkMobileLayout, useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
@@ -34,12 +34,17 @@ export default function TroubleshootingPanel({
 }: TroubleshootingPanelProps) {
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
   const [listPage, setListPage] = useState({ page: 1, total: 1 });
+  const [detailIndex, setDetailIndex] = useState(0);
   const { panelRef, contentRef, activeIndex, setActiveIndex, scrollToItem } = usePinnedScroll(
     items.length,
     undefined,
     scrollBy,
   );
+
+  // 데스크톱/모바일 통합 인덱스
+  const displayIndex = isMobile ? activeIndex : detailIndex;
 
   // 모바일: 초기 상태 설정 (첫 번째 항목 표시, 나머지 숨김)
   useLayoutEffect(() => {
@@ -97,10 +102,21 @@ export default function TroubleshootingPanel({
 
   const mobileStRef = useMobilePinScroll(contentRef, items.length, 500, handleMobileIndexChange);
 
-  // dotNav + 리스트 항목 클릭 핸들러 — 데스크톱/모바일 모두 지원
+  // 클릭 핸들러 — 데스크톱: 디테일 컨테이너 스크롤 / 모바일: ScrollTrigger
   const handleItemClick = useCallback(
     (index: number) => {
-      scrollToItem(index, mobileStRef);
+      if (checkMobileLayout()) {
+        scrollToItem(index, mobileStRef);
+        return;
+      }
+      // 데스크톱: 디테일 영역 내 해당 항목으로 스크롤
+      const detail = detailRef.current;
+      if (!detail) return;
+      const itemEls = detail.querySelectorAll(`.${styles.troubleDetailItem}`);
+      const target = itemEls[index] as HTMLElement | undefined;
+      if (target) {
+        detail.scrollTo({ top: target.offsetTop, behavior: "smooth" });
+      }
     },
     [scrollToItem, mobileStRef],
   );
@@ -109,9 +125,8 @@ export default function TroubleshootingPanel({
   useEffect(() => {
     const list = listRef.current;
     if (!list || isMobile) return;
-    const item = list.children[activeIndex] as HTMLElement | undefined;
+    const item = list.children[displayIndex] as HTMLElement | undefined;
     if (!item) return;
-    // sticky 페이지 네비 높이만큼 여유 확보
     const lastChild = list.lastElementChild as HTMLElement | null;
     const navH = lastChild?.classList.contains(styles.troublePageNav)
       ? lastChild.offsetHeight
@@ -125,7 +140,7 @@ export default function TroubleshootingPanel({
     } else if (itemBottom > visibleBottom) {
       list.scrollTo({ top: itemBottom - list.clientHeight + navH, behavior: "smooth" });
     }
-  }, [activeIndex, isMobile]);
+  }, [displayIndex, isMobile]);
 
   // 리스트 오버플로 감지 → 페이지 네비게이션 표시
   useEffect(() => {
@@ -152,6 +167,88 @@ export default function TroubleshootingPanel({
     el.scrollBy({ top: dir * el.clientHeight, behavior: "smooth" });
   }, []);
 
+  // 데스크톱: 디테일 컨테이너 스크롤 위치 → detailIndex 추적
+  useEffect(() => {
+    const detail = detailRef.current;
+    if (!detail || isMobile) return;
+
+    const onScroll = () => {
+      const itemEls = detail.querySelectorAll(`.${styles.troubleDetailItem}`);
+      const mid = detail.scrollTop + detail.clientHeight / 2;
+      let idx = 0;
+      for (let i = 0; i < itemEls.length; i++) {
+        const el = itemEls[i] as HTMLElement;
+        if (el.offsetTop <= mid) idx = i;
+      }
+      setDetailIndex(idx);
+    };
+
+    detail.addEventListener("scroll", onScroll, { passive: true });
+    return () => detail.removeEventListener("scroll", onScroll);
+  }, [isMobile]);
+
+  // 데스크톱: 패널 포커스 시 wheel → 디테일 컨테이너 스크롤, 경계 도달 시 가로 스크롤
+  useEffect(() => {
+    if (isMobile) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const panel = panelRef.current;
+      const detail = detailRef.current;
+      if (!panel || !detail) return;
+
+      const panelRect = panel.getBoundingClientRect();
+      const extraWidth = panelRect.width - window.innerWidth;
+      if (extraWidth <= 0) return;
+      const progress = -panelRect.left / extraWidth;
+      if (progress < 0.02 || progress > 0.98) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = detail;
+      if (scrollHeight <= clientHeight) return;
+
+      const atTop = scrollTop <= 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+
+      if ((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) {
+        e.stopPropagation();
+        e.preventDefault();
+        detail.scrollBy({ top: e.deltaY });
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { capture: true, passive: false });
+    return () => window.removeEventListener("wheel", handleWheel, { capture: true });
+  }, [isMobile, panelRef]);
+
+  // 데스크톱: 패널 진입 방향에 따라 디테일 스크롤 초기 위치 설정
+  useEffect(() => {
+    if (isMobile) return;
+    const panel = panelRef.current;
+    const detail = detailRef.current;
+    if (!panel || !detail) return;
+
+    let prevInView = false;
+
+    const check = () => {
+      const rect = panel.getBoundingClientRect();
+      const extra = rect.width - window.innerWidth;
+      if (extra <= 0) return;
+      const progress = -rect.left / extra;
+      const inView = progress > 0.01 && progress < 0.99;
+
+      if (inView && !prevInView) {
+        // 패널 진입 — 역방향이면 하단에서 시작
+        const enterFromRight = progress > 0.5;
+        detail.scrollTop = enterFromRight
+          ? detail.scrollHeight - detail.clientHeight
+          : 0;
+      }
+      prevInView = inView;
+    };
+
+    const raf = { id: requestAnimationFrame(function loop() { check(); raf.id = requestAnimationFrame(loop); }) };
+    return () => cancelAnimationFrame(raf.id);
+  }, [isMobile, panelRef]);
+
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
@@ -163,7 +260,7 @@ export default function TroubleshootingPanel({
           animate
           dotNav={{
             count: items.length,
-            activeIndex,
+            activeIndex: displayIndex,
             onDotClick: handleItemClick,
             className: styles.dotNavMobileOnly,
           }}
@@ -172,13 +269,13 @@ export default function TroubleshootingPanel({
         {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
         <div className={`${styles.troubleSplit} ${styles.animate}`}>
           {/* 왼쪽: 항목 목록 */}
-          <div ref={listRef} className={styles.troubleList}>
+          <div ref={listRef} className={styles.troubleList} style={{ '--items-count': items.length + 1 } as React.CSSProperties}>
             {items.map((item, index) => (
               <div
                 data-clickable="true"
                 key={index}
                 className={`${styles.troubleListItem} ${
-                  index === activeIndex ? styles.troubleListItemActive : ""
+                  index === displayIndex ? styles.troubleListItemActive : ""
                 }`}
                 onClick={() => handleItemClick(index)}
               >
@@ -199,13 +296,13 @@ export default function TroubleshootingPanel({
             )}
           </div>
 
-          {/* 오른쪽: 상세 콘텐츠 (스택, CSS opacity 트랜지션) */}
-          <div className={styles.troubleDetail}>
+          {/* 오른쪽: 상세 콘텐츠 (세로 연속 스크롤) */}
+          <div ref={detailRef} className={styles.troubleDetail}>
             {items.map((item, index) => (
               <div
                 key={index}
                 className={`${styles.troubleDetailItem} ${
-                  index === activeIndex ? styles.troubleDetailItemActive : ""
+                  index === displayIndex ? styles.troubleDetailItemActive : ""
                 }`}
               >
                 <div className={styles.troubleDetailHeader}>
