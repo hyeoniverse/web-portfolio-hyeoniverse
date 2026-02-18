@@ -179,7 +179,7 @@ export default function ProfileWindows({ className, isMobile }: Props) {
                       top: `${win.y}%`,
                       width: `${win.w}%`,
                       aspectRatio: win.aspect,
-                      zIndex: zi * 2 - 1,
+                      zIndex: zi * 2,
                     }
               }
               onMouseDown={() => bringToFront(win.id)}
@@ -211,7 +211,7 @@ export default function ProfileWindows({ className, isMobile }: Props) {
                   peekRefs.current[win.id] = el;
                 }}
                 className={styles.windowPeek}
-                style={{ zIndex: zi * 2 }}
+                style={{ zIndex: zi * 2 - 1 }}
               />
             )}
           </Fragment>

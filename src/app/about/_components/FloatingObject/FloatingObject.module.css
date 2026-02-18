@@ -7,8 +7,9 @@
   pointer-events: none;
 }
 
-/* R3F Canvas pointer-events 차단 */
+/* R3F Canvas pointer-events 차단 + 커서 숨김 */
 .overlay :global(div),
 .overlay :global(canvas) {
   pointer-events: none !important;
+  cursor: none !important;
 }
