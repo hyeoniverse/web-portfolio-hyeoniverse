@@ -2226,6 +2226,7 @@
   border-right: var(--bh-line-secondary);
   width: clamp(260px, 25vw, 400px);
   scrollbar-width: none;
+  container-type: size;
 }
 
 .troubleList::-webkit-scrollbar {
@@ -2235,14 +2236,16 @@
 /* Page navigation — sticky footer inside scrollable list */
 .troublePageNav {
   display: flex;
+  flex: none;
+  height: calc(100cqh / var(--items-count, 11));
   gap: var(--bh-space-block);
   align-items: center;
   justify-content: center;
   position: sticky;
   bottom: 0;
   z-index: 2;
-  margin-top: var(--spacing-2xl);
   padding: var(--padding-md);
+  border-top: var(--bh-line-secondary);
   background: var(--bg-primary);
   font-family: var(--font-mono);
   font-size: var(--bh-fs-label);
@@ -2282,7 +2285,8 @@
 
 .troubleListItem {
   display: flex;
-  flex: 1;
+  flex: none;
+  height: calc(100cqh / var(--items-count, 10));
   gap: var(--bh-space-line);
   align-items: baseline;
   padding: var(--bh-space-line) 0;
@@ -2313,6 +2317,11 @@
 .troubleListItemActive {
   padding-left: var(--bh-space-block);
   border-bottom-color: var(--color-accent-alpha-30);
+}
+
+.troubleListItem:last-child,
+.troubleListItem:has(+ .troublePageNav) {
+  border-bottom: none;
 }
 
 .troubleNumber {
@@ -2352,84 +2361,28 @@
   color: var(--text-primary);
 }
 
-/* ── Right: detail content ── */
+/* ── Right: detail content (세로 연속 스크롤) ── */
 .troubleDetail {
   flex: 1;
   position: relative;
   min-width: 0;
   min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.troubleDetail::-webkit-scrollbar {
+  display: none;
 }
 
 .troubleDetailItem {
-  position: absolute;
-  pointer-events: none;
-  inset: 0;
-  opacity: 0;
-}
-
-/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
-.troubleDetail .troubleDetailItem {
-  transition: opacity 0.3s ease;
+  min-height: 100%;
+  box-sizing: border-box;
+  padding-bottom: var(--bh-space-section);
 }
 
 .troubleDetailItemActive {
-  pointer-events: auto;
-  opacity: 1;
-}
-
-/* Stagger cascade: header → cause → solution → insight 순차 등장 */
-.troubleDetailItem .troubleDetailHeader,
-.troubleDetailItem .troubleEntry {
-  opacity: 0;
-  transform: translateY(16px);
-}
-
-.troubleDetailItem .troubleDetailHeader {
-  transition-delay: 0s;
-}
-
-.troubleDetailItem .troubleEntry:nth-child(1) {
-  transition-delay: 0s;
-}
-
-.troubleDetailItem .troubleEntry:nth-child(2) {
-  transition-delay: 0s;
-}
-
-.troubleDetailItem .troubleEntry:nth-child(3) {
-  transition-delay: 0s;
-}
-
-/* Compound selector (0,3,0) for transition properties */
-.troubleDetail .troubleDetailItem .troubleDetailHeader,
-.troubleDetail .troubleDetailItem .troubleEntry {
-  transition:
-    opacity 0.4s ease,
-    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.troubleDetailItemActive .troubleDetailHeader {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: 0.05s;
-}
-
-.troubleDetailItemActive .troubleEntry:nth-child(1) {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: 0.15s;
-}
-
-.troubleDetailItemActive .troubleEntry:nth-child(2) {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: 0.25s;
-}
-
-.troubleDetailItemActive .troubleEntry:nth-child(3) {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: 0.35s;
+  /* 좌측 리스트 연동용 — 시각 변경 없음 */
 }
 
 .troubleDetailHeader {
@@ -3250,14 +3203,21 @@
     flex: 1;
     min-width: 0;
     min-height: 0;
+    overflow: visible;
   }
 
+  /* 모바일: 절대 위치 + opacity 스택 복원 (JS 스태거 사용) */
   .troubleDetailItem {
+    position: absolute;
+    inset: 0;
+    min-height: auto;
     pointer-events: none;
+    opacity: 0;
   }
 
   .troubleDetailItemActive {
     pointer-events: auto;
+    opacity: 1;
   }
 
   /* JS drives stagger cascade; container fade only */
