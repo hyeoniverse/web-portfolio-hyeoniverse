@@ -1,21 +1,22 @@
 "use client";
 
 import { Fragment } from "react";
-import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import {
   experiences,
-  skills,
-  toolCategories,
+  skillGroups,
   approachSteps,
   philosophy,
+  certifications,
+  awards,
 } from "@/data/about";
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
+import ProfileWindows from "./ProfileWindows";
 import styles from "./AboutMeSection.module.css";
 
-const PANEL_COUNT = 8;
+const PANEL_COUNT = 11;
 const REPETITIONS = 3;
 
 export default function AboutMeSection() {
@@ -34,60 +35,50 @@ export default function AboutMeSection() {
       <div className={styles.panel}>
         <div className={`${styles.heroContent} ${styles.animate}`}>
           <span className={styles.label}>{t("aboutPage.title")}</span>
-          <h2 className={styles.title}>
+          <h2 className={styles.heroTitle}>
             Crafting Digital
             <br />
-            <span className={styles.titleAccent}>Experiences</span>
+            <span className={styles.heroTitleAccent}>Experiences</span>
           </h2>
+          <p className={styles.heroSubtitle}>{t("aboutPage.intro")}</p>
+          <span className={styles.heroWatermark}>about me</span>
         </div>
       </div>
 
       {/* Panel 2: Profile */}
-      <div className={styles.panel}>
-        <div className={`${styles.splitContent} ${styles.animate}`}>
-          <div className={styles.imageContainer}>
-            <Image
-              src="/images/profile_pic.webp"
-              alt="Profile"
-              fill
-              sizes="(max-width: 768px) 100vw, 400px"
-              className={styles.profileImage}
-            />
-            <div className={styles.imageDecor} />
-          </div>
+      <div className={`${styles.panel} ${styles.profilePanel}`}>
+        <ProfileWindows className={styles.animate} isMobile={isMobile} />
+        <div className={`${styles.profileContent} ${styles.animate}`}>
+          <p className={styles.bioHighlight}>
+            {t("aboutPage.bio.highlight")}
+          </p>
+          <p className={styles.bioText}>{t("aboutPage.bio.text1")}</p>
+          <p className={styles.bioText}>{t("aboutPage.bio.text2")}</p>
 
-          <div className={styles.bioContainer}>
-            <p className={styles.bioHighlight}>
-              {t("aboutPage.bio.highlight")}
-            </p>
-            <p className={styles.bioText}>{t("aboutPage.bio.text1")}</p>
-            <p className={styles.bioText}>{t("aboutPage.bio.text2")}</p>
-
-            <div className={styles.stats}>
-              <div className={styles.stat}>
-                <span className={styles.statNumber}>
-                  {t("aboutPage.stats.yearsValue")}
-                </span>
-                <span className={styles.statLabel}>
-                  {t("aboutPage.stats.years")}
-                </span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statNumber}>
-                  {t("aboutPage.stats.projectsValue")}
-                </span>
-                <span className={styles.statLabel}>
-                  {t("aboutPage.stats.projects")}
-                </span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statNumber}>
-                  {t("aboutPage.stats.clientsValue")}
-                </span>
-                <span className={styles.statLabel}>
-                  {t("aboutPage.stats.clients")}
-                </span>
-              </div>
+          <div className={styles.stats}>
+            <div className={styles.stat}>
+              <span className={styles.statNumber}>
+                {t("aboutPage.stats.yearsValue")}
+              </span>
+              <span className={styles.statLabel}>
+                {t("aboutPage.stats.years")}
+              </span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statNumber}>
+                {t("aboutPage.stats.projectsValue")}
+              </span>
+              <span className={styles.statLabel}>
+                {t("aboutPage.stats.projects")}
+              </span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statNumber}>
+                {t("aboutPage.stats.clientsValue")}
+              </span>
+              <span className={styles.statLabel}>
+                {t("aboutPage.stats.clients")}
+              </span>
             </div>
           </div>
         </div>
@@ -95,108 +86,99 @@ export default function AboutMeSection() {
 
       {/* Panel 3: Experience */}
       <div className={styles.panel}>
+        <span className={styles.panelWatermark}>experience</span>
+        <span className={styles.decorBlob} />
         <div className={styles.panelInner}>
-          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            Experience
-          </h3>
-          <div className={styles.experienceList}>
+          <div className={styles.expTimeline}>
             {experiences.map((exp, index) => (
               <div
                 key={index}
-                className={`${styles.experienceCard} ${styles.animate}`}
+                className={`${styles.expRow} ${styles.animate}`}
               >
-                <span className={styles.experiencePeriod}>
+                <span className={styles.expPeriod}>
                   {exp.period[language]}
                 </span>
-                <h4 className={styles.experienceRole}>
-                  {exp.role[language]}
-                </h4>
-                <span className={styles.experienceCompany}>
-                  {exp.company}
+
+                <div className={styles.expMarker}>
+                  <span className={styles.expDot} />
+                  {index < experiences.length - 1 && (
+                    <span className={styles.expLine} />
+                  )}
+                </div>
+
+                <div className={styles.expContent}>
+                  <h4 className={styles.expRole}>{exp.role[language]}</h4>
+                  <span className={styles.expCompany}>{exp.company}</span>
+                  <p className={styles.expDesc}>
+                    {exp.description[language]}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Panel 4–7: Skills (one panel per category) */}
+      {skillGroups.map((group, gi) => (
+        <div key={`skill-${gi}`} className={styles.panel}>
+          <span className={styles.panelWatermark}>
+            {group.category.split(" ")[0].toLowerCase()}
+          </span>
+          <div className={styles.panelInner}>
+            <div className={styles.skillPanelLayout}>
+              <div className={`${styles.skillPanelHeader} ${styles.animate}`}>
+                <span className={styles.skillPanelNumber}>
+                  0{gi + 1}
                 </span>
-                <p className={styles.experienceDescription}>
-                  {exp.description[language]}
+                <h3 className={styles.skillPanelCategory}>
+                  {group.category}
+                </h3>
+                <span className={styles.skillPanelAccent} />
+                <p className={styles.skillPanelDesc}>
+                  {group.description[language]}
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Panel 4: Skills */}
-      <div className={styles.panel}>
-        <div className={styles.panelInner}>
-          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            Skills
-          </h3>
-          <div className={styles.skillsList}>
-            {skills.map((skill, index) => (
-              <div
-                key={index}
-                className={`${styles.skillItem} ${styles.animate}`}
-              >
-                <div className={styles.skillHeader}>
-                  <span className={styles.skillName}>{skill.name}</span>
-                  <span className={styles.skillLevel}>{skill.level}%</span>
-                </div>
-                <div className={styles.skillBar}>
+              <div className={styles.skillPanelList}>
+                {group.skills.map((skill, si) => (
                   <div
-                    className={styles.skillProgress}
-                    style={{ transform: `scaleX(${skill.level / 100})` }}
-                  />
-                </div>
+                    key={si}
+                    className={`${styles.skillPanelItem} ${styles.animate}`}
+                  >
+                    <h4 className={styles.skillPanelItemName}>
+                      {skill.name}
+                    </h4>
+                    <p className={styles.skillPanelItemDesc}>
+                      {skill.description[language]}
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
-      </div>
+      ))}
 
-      {/* Panel 5: Tools & Technologies */}
+      {/* Panel 8: Philosophy */}
       <div className={styles.panel}>
+        <span className={styles.panelWatermark}>mindset</span>
+        <span className={`${styles.decorBlob} ${styles.decorBlobAlt}`} />
         <div className={styles.panelInner}>
-          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            {t("aboutPage.tools.subtitle")}
-          </h3>
-          <p className={`${styles.toolsDescription} ${styles.animate}`}>
-            {t("aboutPage.tools.description")}
-          </p>
-          <div className={styles.toolsGrid}>
-            {toolCategories.map((cat, index) => (
-              <div
-                key={index}
-                className={`${styles.toolCategory} ${styles.animate}`}
-              >
-                <h4 className={styles.toolCategoryTitle}>{cat.category}</h4>
-                <div className={styles.toolTags}>
-                  {cat.tools.map((tool) => (
-                    <span key={tool} className={styles.toolTag}>
-                      {tool}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Panel 6: Philosophy */}
-      <div className={styles.panel}>
-        <div className={styles.panelInner}>
-          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            My Philosophy
-          </h3>
-          <div className={styles.philosophyGrid}>
+          <div className={styles.philosophyStack}>
             {philosophy.map((item, index) => (
               <div
                 key={index}
-                className={`${styles.philosophyCard} ${styles.animate}`}
+                className={`${styles.philosophyRow} ${styles.animate}`}
               >
-                <span className={styles.philosophyNumber}>
+                <span className={styles.philosophyIndex}>
                   0{index + 1}
                 </span>
-                <h4 className={styles.philosophyTitle}>{item.title}</h4>
-                <p className={styles.philosophyDescription}>
+                <h3 className={styles.philosophyHeadline}>
+                  {item.title}
+                  <span className={styles.philosophyDot} />
+                </h3>
+                <p className={styles.philosophyBody}>
                   {item.description[language]}
                 </p>
               </div>
@@ -205,24 +187,21 @@ export default function AboutMeSection() {
         </div>
       </div>
 
-      {/* Panel 7: My Approach */}
+      {/* Panel 9: My Approach */}
       <div className={styles.panel}>
+        <span className={styles.panelWatermark}>process</span>
         <div className={styles.panelInner}>
-          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            {t("aboutPage.approach.subtitle")}
-          </h3>
-          <p className={`${styles.toolsDescription} ${styles.animate}`}>
-            {t("aboutPage.approach.description")}
-          </p>
-          <div className={styles.approachGrid}>
+          <div className={styles.approachStack}>
             {approachSteps.map((step, index) => (
               <div
                 key={index}
-                className={`${styles.approachCard} ${styles.animate}`}
+                className={`${styles.approachRow} ${styles.animate}`}
               >
-                <span className={styles.approachNumber}>{step.number}</span>
-                <h4 className={styles.approachTitle}>{step.title}</h4>
-                <p className={styles.approachDescription}>
+                <div className={styles.approachLeft}>
+                  <span className={styles.approachNum}>{step.number}</span>
+                  <h3 className={styles.approachName}>{step.title}</h3>
+                </div>
+                <p className={styles.approachBody}>
                   {step.description[language]}
                 </p>
               </div>
@@ -231,7 +210,65 @@ export default function AboutMeSection() {
         </div>
       </div>
 
-      {/* Panel 8: Credits */}
+      {/* Panel 10: Certifications & Awards */}
+      <div className={styles.panel}>
+        <span className={styles.panelWatermark}>credentials</span>
+        <div className={styles.panelInner}>
+          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+            Certifications & Awards
+          </h3>
+          <div className={styles.credentialColumns}>
+            <div className={styles.credentialColumn}>
+              <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
+                {language === "ko" ? "자격증" : "Certifications"}
+              </h4>
+              <div className={styles.credentialList}>
+                {certifications.map((cert, index) => (
+                  <div
+                    key={index}
+                    className={`${styles.credentialItem} ${styles.animate}`}
+                  >
+                    <span className={styles.credentialYear}>{cert.year}</span>
+                    <div className={styles.credentialInfo}>
+                      <h5 className={styles.credentialName}>
+                        {cert.name[language]}
+                      </h5>
+                      <span className={styles.credentialOrg}>
+                        {cert.issuer[language]}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className={styles.credentialColumn}>
+              <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
+                {language === "ko" ? "수상내역" : "Awards"}
+              </h4>
+              <div className={styles.credentialList}>
+                {awards.map((award, index) => (
+                  <div
+                    key={index}
+                    className={`${styles.credentialItem} ${styles.animate}`}
+                  >
+                    <span className={styles.credentialYear}>{award.year}</span>
+                    <div className={styles.credentialInfo}>
+                      <h5 className={styles.credentialName}>
+                        {award.name[language]}
+                      </h5>
+                      <span className={styles.credentialOrg}>
+                        {award.organization[language]}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Panel 9: Credits */}
       <CreditsPanel className={`${styles.panel} ${styles.animate}`} />
     </Fragment>
   );

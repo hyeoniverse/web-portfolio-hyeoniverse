@@ -4,11 +4,33 @@
 
 /* ── Layout: Section + Track ── */
 .section {
+  /* ── Layout ── */
+  --bh-panel-py: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
+  --bh-panel-px: clamp(1.5rem, min(4.5vw, 8vh), 6.5rem);
+
+  /* ── Font families ── */
+  --bh-font-display: var(--font-display, var(--font-playfair));
+
+  /* ── Font sizes ── */
+  --bh-fs-hero: clamp(2rem, min(9vw, 18vh), 10rem);
+  --bh-fs-subhead: clamp(1rem, min(2vw, 3vh), 3.5rem);
+  --bh-fs-label: clamp(0.75rem, min(1vw, 1.75vh), 1.25rem);
+
+  /* ── Line heights ── */
+  --bh-lh-title: var(--line-height-dense);
+
+  /* ── Spacing ── */
+  --bh-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
+  --bh-space-divide: calc(var(--bh-space-block) * 2);
+
+  /* ── Letter spacing ── */
+  --bh-ls-title: -0.03em;
+
   overflow: hidden;
   position: relative;
   width: 100%;
   height: 100vh;
-  background: var(--color-cream, #F5F5F0);
+  background: var(--bg-primary);
 }
 
 .track {
@@ -19,12 +41,16 @@
 
 .panel {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   flex-shrink: 0;
+  flex-direction: column;
+  padding: var(--bh-panel-py) var(--bh-panel-px);
+  position: relative;
   width: 100vw;
   height: 100vh;
-  padding: 6rem 5vw;
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-light);
+  color: var(--text-primary);
   box-sizing: border-box;
 }
 
@@ -32,82 +58,214 @@
   will-change: transform, opacity;
 }
 
+/* ── Shared Decorations ── */
+.panelWatermark {
+  position: absolute;
+  right: var(--bh-panel-px);
+  bottom: 8%;
+  font-family: var(--font-instrument);
+  font-size: clamp(5rem, min(14vw, 20vh), 12rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 0.85;
+  color: var(--text-primary);
+  text-transform: lowercase;
+  pointer-events: none;
+  opacity: 0.03;
+  user-select: none;
+}
+
+.decorBlob {
+  position: absolute;
+  top: 10%;
+  right: 8%;
+  width: clamp(200px, 30vw, 450px);
+  height: clamp(200px, 30vw, 450px);
+  background: radial-gradient(
+    circle,
+    var(--color-accent-alpha-10, rgba(208, 16, 70, 0.06)) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(40px);
+}
+
+.decorBlobAlt {
+  top: auto;
+  right: auto;
+  bottom: 10%;
+  left: 5%;
+}
+
 /* ── Panel: Hero ── */
 .heroContent {
   display: flex;
-  flex-direction: column;
   justify-content: center;
+  flex-direction: column;
+  position: relative;
   height: 100%;
 }
 
 .label {
   display: inline-block;
-  margin-bottom: 1.5rem;
-  padding: 0.5rem 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  margin-bottom: var(--bh-space-block);
+  padding: var(--spacing-xs) var(--spacing-xl);
+  border: 1px solid var(--color-accent-alpha-30);
+  width: fit-content;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.5);
+  font-size: var(--bh-fs-label);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  width: fit-content;
 }
 
-.title {
+.heroTitle {
+  margin-bottom: var(--bh-space-divide);
+  font-family: var(--bh-font-display);
+  font-size: var(--bh-fs-hero);
+  line-height: var(--bh-lh-title);
+  letter-spacing: var(--bh-ls-title);
+}
+
+.heroTitleAccent {
+  color: var(--text-accent-secondary);
+}
+
+.heroSubtitle {
   margin: 0;
-  font-family: var(--font-instrument), serif;
-  font-size: clamp(3rem, 7vw, 5.5rem);
-  font-weight: 400;
-  color: #1a1a1a;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-size: var(--bh-fs-subhead);
+  line-height: var(--line-height-loose);
+  color: var(--text-secondary);
 }
 
-.titleAccent {
-  color: var(--color-accent, #D01046);
-}
-
-/* ── Panel: Profile ── */
-.splitContent {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.imageContainer {
-  position: relative;
-  height: clamp(350px, 50vh, 500px);
-  overflow: hidden;
-  border-radius: 1rem;
-}
-
-.profileImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.imageDecor {
+.heroWatermark {
   position: absolute;
-  top: -20px;
-  right: -20px;
-  width: 200px;
-  height: 200px;
-  border: 2px solid var(--color-accent, #D01046);
-  border-radius: 50%;
-  opacity: 0.3;
+  right: -4%;
+  bottom: 5%;
+  font-family: var(--font-instrument);
+  font-size: clamp(6rem, min(18vw, 24vh), 16rem);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  line-height: 0.85;
+  text-transform: lowercase;
+  pointer-events: none;
+  opacity: 0.04;
+  user-select: none;
+}
+
+/* ── Panel: Profile (OS windows) ── */
+.profilePanel {
+  margin: calc(var(--header-height, 64px) + 1.5rem) 1.5rem 0.75rem;
+  padding: 0;
+  border: var(--border-strong);
+  overflow: hidden;
+  position: relative;
+  width: calc(100vw - 3rem);
+  height: calc(100vh - var(--header-height, 64px) - 1.5rem - 0.75rem);
+  border-radius: 8px;
+}
+
+.windowsContainer {
+  overflow: hidden;
+  position: absolute;
+  z-index: calc(var(--z-nav) + 1);
+  inset: 0;
+}
+
+.baseImageWrap {
+  position: absolute;
+  top: 50%;
+  left: 40%;
+  width: 30%;
+  height: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.baseImage {
+  object-fit: contain;
+}
+
+.baseImageGhost {
+  transform: translate(calc(-50% + 12px), calc(-50% + 10px));
+  opacity: 0.15;
+  filter: grayscale(100%);
+}
+
+.windowPeek {
+  position: absolute;
+  inset: 0;
+  background: url("/images/profile_pic.webp") no-repeat center / cover;
   pointer-events: none;
 }
 
-.bioContainer {
+.osWindow {
   display: flex;
   flex-direction: column;
+  border: var(--border-strong);
+  overflow: hidden;
+  position: absolute;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: var(--radius-xs);
+}
+
+.osWindowBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  padding: var(--padding-md);
+  border-bottom: var(--border-strong);
+  background: var(--bg-primary);
+  user-select: none;
+  touch-action: none;
+}
+
+.osWindowTitle {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: var(--text-primary);
+  color: inherit;
+  letter-spacing: 0.02em;
+}
+
+.osWindowClose {
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  color: inherit;
+}
+
+.osWindowBody {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.profileImage {
+  object-fit: cover;
+}
+
+.profileContent {
+  display: flex;
   justify-content: center;
+  flex-direction: column;
+  margin-left: auto;
+  padding: 2rem;
+  position: relative;
+  z-index: calc(var(--z-nav) + 2);
+  max-width: 420px;
+  pointer-events: none;
+}
+
+.profileContent .bioHighlight,
+.profileContent .bioText,
+.profileContent .statNumber,
+.profileContent .statLabel {
+  mix-blend-mode: difference;
 }
 
 .bioHighlight {
@@ -115,8 +273,8 @@
   font-family: var(--font-instrument), serif;
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 400;
-  color: #1a1a1a;
   line-height: 1.4;
+  color: var(--text-primary);
 }
 
 .bioText {
@@ -124,8 +282,8 @@
   font-family: var(--font-mono);
   font-size: 0.95rem;
   font-weight: 300;
-  color: rgba(0, 0, 0, 0.7);
   line-height: 1.8;
+  color: var(--text-secondary);
 }
 
 .stats {
@@ -133,27 +291,27 @@
   gap: 3rem;
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
 }
 
 .stat {
   display: flex;
-  flex-direction: column;
   gap: 0.25rem;
+  flex-direction: column;
 }
 
 .statNumber {
   font-family: var(--font-instrument), serif;
   font-size: 2.5rem;
   font-weight: 400;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 .statLabel {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 400;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -164,251 +322,362 @@
   font-family: var(--font-mono);
   font-size: 0.8rem;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.4);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.2em;
 }
 
-/* ── Panel: Experience ── */
+/* ── Panel: Experience (timeline) ── */
 .panelInner {
-  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  max-width: 1200px;
 }
 
-.experienceList {
+.expTimeline {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+}
+
+.expRow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
+  align-items: start;
+  grid-template-columns: minmax(120px, 1fr) auto 2fr;
 }
 
-.experienceCard {
-  padding: 2rem;
-  background: transparent;
-  border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
+.expPeriod {
+  padding-top: 0.15em;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(1rem, min(2vw, 2.5vh), 1.5rem);
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--text-primary);
+  text-align: right;
 }
 
-.experienceCard:hover {
-  transform: translateY(-5px);
-  border-color: var(--color-accent, #D01046);
+.expMarker {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 0.35em;
 }
 
-.experiencePeriod {
+.expDot {
+  flex-shrink: 0;
+  border: 2px solid var(--color-accent, #d01046);
+  width: 10px;
+  height: 10px;
+  background: var(--bg-primary);
+  border-radius: 50%;
+}
+
+.expLine {
+  flex-grow: 1;
+  width: 1px;
+  min-height: 3rem;
+  background: linear-gradient(
+    180deg,
+    var(--color-accent, #d01046) 0%,
+    var(--border-default, rgba(0, 0, 0, 0.1)) 100%
+  );
+  opacity: 0.4;
+}
+
+.expContent {
+  padding-bottom: clamp(2rem, 4vh, 3.5rem);
+}
+
+.expRole {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.expCompany {
   display: block;
   margin-bottom: 0.75rem;
   font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--color-accent, #d01046);
+  letter-spacing: 0.05em;
+}
+
+.expDesc {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+/* ── Panel: Skills (split layout — header left, list right) ── */
+.skillPanelLayout {
+  display: grid;
+  gap: 4rem;
+  align-items: start;
+  grid-template-columns: 1fr 1.6fr;
+}
+
+.skillPanelHeader {
+  position: sticky;
+  top: 0;
+}
+
+.skillPanelNumber {
+  display: block;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 400;
-  color: var(--color-accent, #D01046);
-  text-transform: uppercase;
+  color: var(--color-accent, #d01046);
   letter-spacing: 0.1em;
 }
 
-.experienceRole {
-  margin: 0 0 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.experienceCompany {
-  display: block;
-  margin-bottom: 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
+.skillPanelCategory {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 400;
-  color: rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
+  color: var(--text-primary);
 }
 
-.experienceDescription {
+.skillPanelAccent {
+  display: block;
+  margin-bottom: 1.25rem;
+  width: 2.5rem;
+  height: 2px;
+  background: var(--color-accent, #d01046);
+  opacity: 0.5;
+}
+
+.skillPanelDesc {
   margin: 0;
   font-family: var(--font-mono);
   font-size: 0.85rem;
   font-weight: 300;
-  color: rgba(0, 0, 0, 0.6);
-  line-height: 1.7;
+  line-height: 1.8;
+  color: var(--text-tertiary);
 }
 
-/* ── Panel: Skills ── */
-.skillsList {
+.skillPanelList {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+}
+
+.skillPanelItem {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+}
+
+.skillPanelItem:first-child {
+  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+}
+
+.skillPanelItemName {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.skillPanelItemDesc {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+/* ── Panel: Philosophy (bold typographic) ── */
+.philosophyStack {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+}
+
+.philosophyRow {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem 4rem;
+  gap: 2rem;
+  align-items: baseline;
+  padding: clamp(1.5rem, 3vh, 2.5rem) 0;
+  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  grid-template-columns: auto 1fr 1.2fr;
 }
 
-.skillItem {
+.philosophyRow:first-child {
+  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+}
+
+.philosophyIndex {
+  padding-top: 0.35em;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--color-accent, #d01046);
+  letter-spacing: 0.1em;
+}
+
+.philosophyHeadline {
+  margin: 0;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(1.75rem, min(4vw, 5vh), 3rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.philosophyDot {
+  display: inline-block;
+  margin-left: 0.15em;
+  width: 0.3em;
+  height: 0.3em;
+  vertical-align: 0.25em;
+  background: var(--color-accent, #d01046);
+  border-radius: 50%;
+}
+
+.philosophyBody {
+  margin: 0;
+  padding-top: 0.25em;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+/* ── Panel: My Approach (bold typographic) ── */
+.approachStack {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+}
+
+.approachRow {
+  display: grid;
+  gap: 3rem;
+  align-items: baseline;
+  padding: clamp(1.5rem, 3vh, 2.5rem) 0;
+  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  grid-template-columns: 1fr 1.4fr;
+}
+
+.approachRow:first-child {
+  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+}
+
+.approachLeft {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.approachNum {
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(2rem, min(5vw, 6vh), 3.5rem);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-accent, #d01046);
+  letter-spacing: -0.02em;
+}
+
+.approachName {
+  margin: 0;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(1.5rem, min(3.5vw, 4.5vh), 2.5rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.approachBody {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+/* ── Panel: Certifications & Awards ── */
+.credentialColumns {
+  display: grid;
+  gap: 4rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.credentialColumn {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
 }
 
-.skillHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.skillName {
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #1a1a1a;
-}
-
-.skillLevel {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.4);
-}
-
-.skillBar {
-  width: 100%;
-  height: 4px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.skillProgress {
-  height: 100%;
-  background: var(--color-accent, #D01046);
-  border-radius: 2px;
-  transform-origin: left;
-}
-
-/* ── Panel: Philosophy ── */
-.philosophyGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-}
-
-.philosophyCard {
-  padding: 2.5rem;
-  background: transparent;
-  border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.philosophyNumber {
-  display: block;
-  margin-bottom: 1.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: var(--color-accent, #D01046);
-}
-
-.philosophyTitle {
-  margin: 0 0 1rem;
-  font-family: var(--font-instrument), serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: #1a1a1a;
-}
-
-.philosophyDescription {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  font-weight: 300;
-  color: rgba(0, 0, 0, 0.6);
-  line-height: 1.7;
-}
-
-/* ── Panel: Tools & Technologies ── */
-.toolsDescription {
-  margin: 0 0 2.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 300;
-  color: rgba(0, 0, 0, 0.6);
-  line-height: 1.7;
-}
-
-.toolsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-}
-
-.toolCategory {
-  padding: 2rem;
-  background: transparent;
-  border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.toolCategoryTitle {
-  margin: 0 0 1.25rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-accent, #D01046);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.toolTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.toolTag {
-  display: inline-block;
-  padding: 0.375rem 0.875rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 400;
-  color: #1a1a1a;
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 2rem;
-  white-space: nowrap;
-}
-
-/* ── Panel: My Approach ── */
-.approachGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-}
-
-.approachCard {
-  padding: 2rem;
-  background: transparent;
-  border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.approachNumber {
-  display: block;
-  margin-bottom: 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: var(--color-accent, #D01046);
-}
-
-.approachTitle {
-  margin: 0 0 0.75rem;
+.credentialHeading {
+  margin: 0 0 1.5rem;
   font-family: var(--font-instrument), serif;
   font-size: 1.25rem;
   font-weight: 400;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
-.approachDescription {
+.credentialList {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+}
+
+.credentialItem {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+}
+
+.credentialItem:first-child {
+  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+}
+
+.credentialYear {
+  flex-shrink: 0;
+  padding-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-accent, #d01046);
+  letter-spacing: 0.05em;
+}
+
+.credentialInfo {
+  display: flex;
+  gap: 0.25rem;
+  flex-direction: column;
+}
+
+.credentialName {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.credentialOrg {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
   font-weight: 300;
-  color: rgba(0, 0, 0, 0.6);
-  line-height: 1.7;
+  color: var(--text-tertiary);
 }
 
 /* ==========================================================================
@@ -417,10 +686,10 @@
 
 @media (max-width: 1024px), (max-height: 640px) {
   .section {
+    padding-top: 80px;
     overflow: visible;
     height: auto;
     min-height: 100vh;
-    padding-top: 80px;
   }
 
   .track {
@@ -429,14 +698,35 @@
   }
 
   .panel {
+    padding: 3rem 2rem;
     width: 100%;
     height: auto;
     min-height: auto;
-    padding: 3rem 2rem;
   }
 
   .panel:first-child {
     min-height: 60vh;
+  }
+
+  .heroContent {
+    padding-top: calc(var(--header-height) + var(--bh-space-divide));
+  }
+
+  .heroWatermark,
+  .panelWatermark {
+    right: -3%;
+    bottom: 8%;
+    font-size: clamp(3rem, 12vw, 6rem);
+  }
+
+  .decorBlob {
+    width: 200px;
+    height: 200px;
+    filter: blur(30px);
+  }
+
+  .heroSubtitle {
+    max-width: none;
   }
 
   /* 모바일 애니메이션 */
@@ -448,7 +738,9 @@
 
   /* compound selector (0,2,0) → global theme transition (0,1,1) 보다 높은 specificity */
   .track .animate {
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition:
+      opacity 0.6s ease,
+      transform 0.6s ease;
   }
 
   .animateVisible {
@@ -457,26 +749,65 @@
   }
 
   /* Layout adjustments */
-  .splitContent {
-    gap: 2rem;
+  .windowsContainer {
+    display: flex;
+    gap: 0.75rem;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+    position: static;
   }
 
-  .experienceList {
-    grid-template-columns: repeat(2, 1fr);
+  .baseImageWrap {
+    display: none;
   }
 
-  .philosophyGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .osWindow {
+    position: static;
+    width: 100%;
+    height: 220px;
   }
 
-  .toolsGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .osWindowBar {
+    touch-action: auto;
   }
 
-  .approachGrid {
-    grid-template-columns: repeat(2, 1fr);
+  /* 모바일: 두 번째/세 번째 창 숨김 — 하나만 표시 */
+  .osWindow:nth-child(n + 4) {
+    display: none;
   }
 
+  .profileContent {
+    margin-left: 0;
+    padding: 0;
+    position: static;
+    max-width: none;
+    background: none;
+    backdrop-filter: none;
+  }
+
+  .expPeriod {
+    text-align: left;
+  }
+
+  .philosophyRow {
+    gap: 1.25rem;
+    grid-template-columns: auto 1fr;
+  }
+
+  .philosophyBody {
+    padding-top: 0;
+    grid-column: 1 / -1;
+  }
+
+  .approachRow {
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+  }
+
+  .credentialColumns {
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -484,24 +815,26 @@
     padding: 2.5rem 1.5rem;
   }
 
-  .splitContent {
-    grid-template-columns: 1fr;
-  }
-
-  .imageContainer {
-    height: 350px;
+  .osWindow {
+    height: 200px;
   }
 
   .stats {
-    flex-wrap: wrap;
     gap: 2rem;
+    flex-wrap: wrap;
   }
 
-  .experienceList,
-  .skillsList,
-  .philosophyGrid,
-  .toolsGrid,
-  .approachGrid {
+  .expRow {
+    gap: 1rem;
+    grid-template-columns: auto auto 1fr;
+  }
+
+  .expPeriod {
+    font-size: 0.85rem;
+  }
+
+  .skillPanelLayout {
+    gap: 2rem;
     grid-template-columns: 1fr;
   }
 }
@@ -509,10 +842,6 @@
 @media (max-width: 480px) {
   .panel {
     padding: 2rem 1rem;
-  }
-
-  .title {
-    font-size: 2.5rem;
   }
 
   .bioHighlight {
