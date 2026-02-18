@@ -20,7 +20,6 @@ import RecaptchaProvider from "@/providers/RecaptchaProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 
-import BreakpointGuard from "@/components/common/BreakpointGuard";
 import FaviconSwitcher from "@/components/common/FaviconSwitcher";
 import ScrollRestoration from "@/components/common/ScrollRestoration";
 
@@ -98,9 +97,7 @@ export default function RootLayout({
             <RecaptchaProvider>
               <LenisProvider>
                 <Navigation />
-                <main>
-                  <BreakpointGuard>{children}</BreakpointGuard>
-                </main>
+                <main>{children}</main>
 
                 <aside>
                   <FaviconSwitcher />

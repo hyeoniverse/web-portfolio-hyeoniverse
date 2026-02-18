@@ -54,29 +54,34 @@ export function useMobilePinScroll(
 
       let prevIndex = 0;
 
-      ctx = gsap.context(() => {
-        const instance = ScrollTrigger.create({
-          trigger,
-          start: "top top",
-          end: `+=${scrollDist}`,
-          pin: true,
-          pinSpacing: true,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const newIndex = Math.min(
-              total - 1,
-              Math.floor(self.progress * total),
-            );
-            if (newIndex !== prevIndex) {
-              prevIndex = newIndex;
-              onIndexChange(newIndex);
-            }
-          },
-        });
-        scrollTriggerRef.current = instance;
-      }, trigger);
+      try {
+        ctx = gsap.context(() => {
+          const instance = ScrollTrigger.create({
+            trigger,
+            start: "top top",
+            end: `+=${scrollDist}`,
+            pin: true,
+            pinSpacing: true,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              const newIndex = Math.min(
+                total - 1,
+                Math.floor(self.progress * total),
+              );
+              if (newIndex !== prevIndex) {
+                prevIndex = newIndex;
+                onIndexChange(newIndex);
+              }
+            },
+          });
+          scrollTriggerRef.current = instance;
+        }, trigger);
 
-      ScrollTrigger.refresh();
+        ScrollTrigger.refresh();
+      } catch (e) {
+        // cross-origin iframe 접근 시 SecurityError 무시 (FeaturesPanel과 동일 패턴)
+        if (!(e instanceof DOMException && e.name === "SecurityError")) throw e;
+      }
     };
 
     // 초기 설정: 1프레임 대기 후 실행 — BreakpointGuard 리마운트 후
