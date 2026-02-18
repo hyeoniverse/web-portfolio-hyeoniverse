@@ -219,30 +219,27 @@ export default function TroubleshootingPanel({
     return () => window.removeEventListener("wheel", handleWheel, { capture: true });
   }, [isMobile, panelRef]);
 
-  // 데스크톱: 패널 진입 방향에 따라 디테일 스크롤 초기 위치 설정
+  // 데스크톱: 패널이 뷰포트 밖일 때 진입 방향에 맞춰 스크롤 위치 사전 설정
+  // → 진입 시 이미 올바른 위치에 있으므로 플래시 없음
   useEffect(() => {
     if (isMobile) return;
     const panel = panelRef.current;
     const detail = detailRef.current;
     if (!panel || !detail) return;
 
-    let prevInView = false;
-
     const check = () => {
       const rect = panel.getBoundingClientRect();
       const extra = rect.width - window.innerWidth;
       if (extra <= 0) return;
       const progress = -rect.left / extra;
-      const inView = progress > 0.01 && progress < 0.99;
 
-      if (inView && !prevInView) {
-        // 패널 진입 — 역방향이면 하단에서 시작
-        const enterFromRight = progress > 0.5;
-        detail.scrollTop = enterFromRight
-          ? detail.scrollHeight - detail.clientHeight
-          : 0;
+      if (progress >= 0.98) {
+        // 오른쪽 밖 → 역스크롤 시 하단부터 시작하도록 사전 설정
+        detail.scrollTop = detail.scrollHeight - detail.clientHeight;
+      } else if (progress <= 0.02) {
+        // 왼쪽 밖 → 정방향 진입 시 상단부터
+        detail.scrollTop = 0;
       }
-      prevInView = inView;
     };
 
     const raf = { id: requestAnimationFrame(function loop() { check(); raf.id = requestAnimationFrame(loop); }) };
