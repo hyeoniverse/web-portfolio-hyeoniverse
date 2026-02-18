@@ -10,10 +10,12 @@ const BUNNY = {
   speed: 0.15,
   z: -2,
   hitRadius: 0.7,
-  impulse: 4.5,
-  wallRestitution: 0.9,
+  impulse: 3.0,
+  wallRestitution: 0.6,
+  friction: 0.992,
   margin: 1.0,
-  baseRotation: { x: 0.02, y: 0.06, z: 0.01 },
+  baseRotation: { x: 0.015, y: 0.04, z: 0.008 },
+  bob: { amp: 0.06, freq: 0.4 },
 } as const;
 
 /* Egg-shaped body profile (wider at bottom, rounded poles) */
@@ -161,6 +163,10 @@ export default function FloatingScene({
     const halfW = halfH * cam.aspect;
     const m = BUNNY.margin;
 
+    // Friction — gradually slow down in zero-gravity
+    v.x *= BUNNY.friction;
+    v.y *= BUNNY.friction;
+
     p.x += v.x * dt;
     p.y += v.y * dt;
 
@@ -221,7 +227,11 @@ export default function FloatingScene({
     const ry = t * BUNNY.baseRotation.y + so.y;
     const rz = t * BUNNY.baseRotation.z + so.z;
 
-    groupRef.current.position.set(p.x, p.y, z);
+    // Zero-gravity bobbing
+    const bobY = Math.sin(t * BUNNY.bob.freq * Math.PI * 2) * BUNNY.bob.amp;
+    const bobX = Math.cos(t * BUNNY.bob.freq * 0.7 * Math.PI * 2) * BUNNY.bob.amp * 0.5;
+
+    groupRef.current.position.set(p.x + bobX, p.y + bobY, z);
     groupRef.current.rotation.set(rx, ry, rz);
     groupRef.current.scale.setScalar(scale);
   });
@@ -247,7 +257,7 @@ export default function FloatingScene({
         </mesh>
 
         {/* ── Head ── */}
-        <mesh position={[0, 0.42, 0.06]} scale={[1.3, 1, 0.8]}>
+        <mesh position={[0, 0.42, 0.06]} scale={[1.15, 1, 0.95]}>
           <sphereGeometry args={[0.48, 24, 18]} />
           <meshStandardMaterial
             color={BODY_COLOR}
@@ -292,8 +302,8 @@ export default function FloatingScene({
 
         {/* ── Left Eye ── */}
         <mesh
-          position={[-0.2, 0.46, 0.42]}
-          rotation={[-0.07, -0.21, 0]}
+          position={[-0.2, 0.46, 0.48]}
+          rotation={[-0.08, -0.31, 0]}
           scale={[1, 1.3, 0.15]}
         >
           <sphereGeometry args={[0.12, 16, 12]} />
@@ -302,8 +312,8 @@ export default function FloatingScene({
 
         {/* ── Right Eye ── */}
         <mesh
-          position={[0.2, 0.46, 0.42]}
-          rotation={[-0.07, 0.21, 0]}
+          position={[0.2, 0.46, 0.48]}
+          rotation={[-0.08, 0.31, 0]}
           scale={[1, 1.3, 0.15]}
         >
           <sphereGeometry args={[0.12, 16, 12]} />
