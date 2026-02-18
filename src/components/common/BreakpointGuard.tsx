@@ -11,7 +11,7 @@ function getBreakpoint(): string {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
-  const widthBp = width > 1024 ? "desktop" : width >= 768 ? "tablet" : "mobile";
+  const widthBp = width > 1024 ? "desktop" : "mobile";
   const heightBp = height <= 640 ? "short" : "tall";
 
   return `${widthBp}-${heightBp}`;
@@ -26,7 +26,7 @@ type OverlayPhase = "hidden" | "solid" | "fading";
 
 /**
  * 뷰포트가 브레이크포인트 경계를 넘을 때 모든 자식을 리마운트.
- * 너비: 1024px (데스크톱/태블릿), 768px (태블릿/모바일)
+ * 너비: 1024px (데스크톱/모바일)
  * 높이: 640px (높음/낮음 — behind 패널 최소 높이와 일치)
  * 이 컴포넌트 위의 Provider는 안정적으로 유지.
  *

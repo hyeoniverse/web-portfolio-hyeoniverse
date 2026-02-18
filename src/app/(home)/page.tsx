@@ -14,6 +14,7 @@ import { useScrollVelocity } from "@/hooks/useScrollVelocity";
 import { useContactForm } from "@/hooks/useContactForm";
 import { useToast } from "@/hooks/useToast";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
+import { useRecaptcha } from "@/providers/RecaptchaProvider";
 
 // 섹션
 import HeroSection from "./_sections/HeroSection";
@@ -43,6 +44,7 @@ if (typeof window !== "undefined") {
 export default function HomePage() {
   const hasMounted = useHasMounted();
   const { isLoading } = useLoadingScreen();
+  const { load: loadRecaptcha } = useRecaptcha();
 
   // 레퍼런스
   const containerRef = useRef<HTMLDivElement>(null);
@@ -245,7 +247,7 @@ export default function HomePage() {
             once: true,
           },
         });
-      });
+      }, containerRef.current!);
 
       ScrollTrigger.refresh(true);
     });
@@ -333,7 +335,7 @@ export default function HomePage() {
           ctaOvalX={ctaOvalX}
           ctaOvalY={ctaOvalY}
           magnetic={magnetic}
-          onContactClick={() => setIsDrawerOpen(true)}
+          onContactClick={() => { loadRecaptcha(); setIsDrawerOpen(true); }}
         />
 
         <BridgeSection

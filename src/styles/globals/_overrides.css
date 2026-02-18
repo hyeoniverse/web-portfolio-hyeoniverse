@@ -14,6 +14,10 @@
   color: var(--text-accent-secondary-alt);
 }
 
+[data-theme="dark"] ::selection {
+  color: var(--text-accent-secondary);
+}
+
 input::selection,
 textarea::selection {
   background: var(--bg-accent-secondary-solid-light);
@@ -36,5 +40,7 @@ strong {
 .grecaptcha-badge {
   visibility: hidden;
   opacity: 0;
-  transition: visibility 0.3s, opacity 0.3s;
+  transition:
+    visibility 0.3s,
+    opacity 0.3s;
 }
