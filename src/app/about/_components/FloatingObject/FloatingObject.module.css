@@ -1,0 +1,14 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: var(--z-content-low);
+  pointer-events: none;
+}
+
+/* R3F Canvas pointer-events 차단 */
+.overlay :global(div),
+.overlay :global(canvas) {
+  pointer-events: none !important;
+}

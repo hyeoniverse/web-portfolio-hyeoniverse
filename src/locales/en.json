@@ -89,41 +89,41 @@
   "aboutPage": {
     "title": "About Me",
     "subtitle": "Crafting Digital Experiences",
-    "intro": "Hello! I'm a passionate developer and designer based in Seoul, Korea.",
+    "intro": "Frontend-focused fullstack developer. I like learning by building things myself.",
     "bio": {
-      "highlight": "Hello! I'm a passionate developer and designer based in Seoul, Korea.",
-      "text1": "With over 8 years of experience in web development, I specialize in creating beautiful, functional, and user-centered digital experiences. I combine technical expertise with creative vision to build products that make a difference.",
-      "text2": "When I'm not coding, you can find me exploring new design trends, contributing to open-source projects, or enjoying a good cup of coffee while sketching ideas for the next project."
+      "highlight": "I started coding because I liked making things.",
+      "text1": "Studied CS in college and got into web dev along the way. Worked on both frontend and backend, but frontend clicked the most — seeing results on screen right away just fits me.",
+      "text2": "Built this portfolio from scratch, picking up GSAP and Framer Motion in the process. I learn best by jumping in and figuring things out as I go."
     },
     "stats": {
-      "yearsValue": "8+",
-      "years": "Years Experience",
-      "projectsValue": "50+",
-      "projects": "Projects Completed",
-      "clientsValue": "30+",
-      "clients": "Happy Clients"
+      "yearsValue": "4+",
+      "years": "Projects",
+      "projectsValue": "6+",
+      "projects": "Tech Stack",
+      "clientsValue": "1",
+      "clients": "Portfolio"
     },
     "philosophy": {
       "design": {
-        "title": "Design with Purpose",
-        "desc": "Every design decision should have a purpose that enhances user experience."
+        "title": "Just Build It",
+        "desc": "Building something beats reading docs all day."
       },
       "code": {
-        "title": "Code with Care",
-        "desc": "Writing clean, maintainable, and efficient code."
+        "title": "Readable Code",
+        "desc": "I try to write code that makes sense when I revisit it later."
       },
       "learn": {
-        "title": "Learn Continuously",
-        "desc": "Technology evolves rapidly, and so do I."
+        "title": "Keep Learning",
+        "desc": "Not knowing is normal. The process of figuring it out is what builds skill."
       }
     },
     "tools": {
       "subtitle": "Tools & Technologies",
-      "description": "The technologies and tools I work with daily to build modern web experiences."
+      "description": "My go-to tech stack."
     },
     "approach": {
       "subtitle": "My Approach",
-      "description": "A systematic process that turns ideas into polished digital products."
+      "description": "How I work through a project."
     }
   },
   "contact": {
