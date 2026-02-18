@@ -10,11 +10,11 @@ const BUNNY = {
   speed: 0.15,
   z: -2,
   hitRadius: 0.7,
-  impulse: 3.0,
-  wallRestitution: 0.6,
-  friction: 0.992,
+  impulse: 4.0,
+  wallRestitution: 0.8,
+  friction: 0.996,
   margin: 1.0,
-  baseRotation: { x: 0.015, y: 0.04, z: 0.008 },
+  baseRotation: { x: 0.06, y: 0.12, z: 0.03 },
   bob: { amp: 0.06, freq: 0.4 },
 } as const;
 
@@ -218,7 +218,7 @@ export default function FloatingScene({
     wasInside.current = inside;
 
     const so = spinOffset.current;
-    sv.multiplyScalar(0.985);
+    sv.multiplyScalar(0.993);
     so.x += sv.x * dt;
     so.y += sv.y * dt;
     so.z += sv.z * dt;
