@@ -3,7 +3,7 @@
     "home": "Home",
     "works": "Works",
     "about": "About",
-    "webflow": "Web Flow"
+    "behind": "Behind"
   },
   "hero": {
     "headline1": "Creative",
@@ -158,9 +158,9 @@
     "copyright": "All Rights Reserved",
     "privacyPolicy": "Privacy Policy"
   },
-  "webflow": {
-    "title": "Behind the Scenes",
-    "subtitle": "Web Flow & Implementation",
+  "behind": {
+    "title": "The Making Of",
+    "subtitle": "Behind the Scenes",
     "description": "A story about the design philosophy, key feature implementations, and development process of this portfolio site.",
     "features": {
       "infiniteScroll": {
