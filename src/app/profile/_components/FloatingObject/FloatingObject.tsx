@@ -78,7 +78,6 @@ export default function FloatingObject() {
 
   // Bubble text fade transition on section change
   useEffect(() => {
-    if (isMobile) return;
     const text = t(`profilePage.bubble.${activeSection}`);
     setShowBubble(false);
     const tid = window.setTimeout(() => {
@@ -93,7 +92,7 @@ export default function FloatingObject() {
       window.clearTimeout(tid);
       window.clearTimeout(smileTid);
     };
-  }, [activeSection, t, isMobile]);
+  }, [activeSection, t]);
 
   // rAF loop: sync bubble DOM position to bunny screen coords
   const syncBubble = useCallback(() => {
@@ -107,10 +106,9 @@ export default function FloatingObject() {
   }, []);
 
   useEffect(() => {
-    if (isMobile) return;
     rafId.current = requestAnimationFrame(syncBubble);
     return () => cancelAnimationFrame(rafId.current);
-  }, [syncBubble, isMobile]);
+  }, [syncBubble]);
 
   const dpr = isTouch
     ? Math.min(
@@ -149,14 +147,12 @@ export default function FloatingObject() {
         </Suspense>
       </Canvas>
 
-      {!isMobile && (
-        <div
-          ref={bubbleRef}
-          className={`${styles.speechBubble} ${showBubble ? styles.speechBubbleVisible : ""}`}
-        >
-          {bubbleText}
-        </div>
-      )}
+      <div
+        ref={bubbleRef}
+        className={`${styles.speechBubble} ${showBubble ? styles.speechBubbleVisible : ""}`}
+      >
+        {bubbleText}
+      </div>
     </div>
   );
 }
