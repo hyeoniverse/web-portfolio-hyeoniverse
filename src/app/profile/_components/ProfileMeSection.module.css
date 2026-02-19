@@ -220,6 +220,16 @@
   border-radius: var(--radius-xs);
 }
 
+/* compound selector → beats global theme transition (0,1,1) */
+.windowsContainer .osWindowExpanded {
+  transition: left 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  border-width: 0;
+  border-radius: 0;
+}
+
 .osWindowBar {
   display: flex;
   align-items: center;
@@ -251,6 +261,54 @@
   flex: 1;
   overflow: hidden;
   position: relative;
+}
+
+
+
+.textPeek {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ── Background info text (visible through window peek) ── */
+.bgInfo {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75em;
+  padding: 0 8%;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.bgInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8))
+    drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
+}
+
+.bgInfoLabel {
+  display: inline-block;
+  padding: 0.2em 0.7em;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  width: fit-content;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 999px;
+}
+
+.bgInfoValue {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: #fff;
+  white-space: nowrap;
 }
 
 .profileImage {
