@@ -102,6 +102,7 @@ export default function Navigation() {
   const [displayTheme, setDisplayTheme] = useState(theme);
   const themeDisplayTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const themeAnimTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isThemeLocked = useRef(false);
 
   // 언어 상태
   const [isLangAnimating, setIsLangAnimating] = useState(false);
@@ -109,6 +110,7 @@ export default function Navigation() {
   const [displayLang, setDisplayLang] = useState(language);
   const langDisplayTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const langAnimTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isLangLocked = useRef(false);
 
   // 실제 값이 변경되면 표시 값 동기화
   useEffect(() => setDisplayTheme(theme), [theme]);
@@ -117,6 +119,7 @@ export default function Navigation() {
   const handleThemeToggle = () => {
     if (isThemeClicking) return;
     setIsThemeClicking(true);
+    isThemeLocked.current = true;
     toggleTheme();
     setTimeout(() => setIsThemeClicking(false), 300);
   };
@@ -134,6 +137,10 @@ export default function Navigation() {
 
   const handleThemeMouseLeave = () => {
     if (isThemeClicking) return;
+    if (isThemeLocked.current) {
+      isThemeLocked.current = false;
+      return;
+    }
     clearTimeout(themeDisplayTimer.current);
     clearTimeout(themeAnimTimer.current);
     setIsThemeAnimating(true);
@@ -267,6 +274,7 @@ export default function Navigation() {
           onClick={() => {
             if (isLangClicking) return;
             setIsLangClicking(true);
+            isLangLocked.current = true;
             toggleLanguage();
             setTimeout(() => {
               setIsLangClicking(false);
@@ -284,6 +292,10 @@ export default function Navigation() {
           }}
           onMouseLeave={() => {
             if (isLangClicking) return;
+            if (isLangLocked.current) {
+              isLangLocked.current = false;
+              return;
+            }
             clearTimeout(langDisplayTimer.current);
             clearTimeout(langAnimTimer.current);
             setIsLangAnimating(true);
