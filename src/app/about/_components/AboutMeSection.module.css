@@ -172,6 +172,11 @@
   position: absolute;
   z-index: calc(var(--z-nav) + 2);
   inset: 0;
+  pointer-events: none;
+}
+
+.osWindow {
+  pointer-events: auto;
 }
 
 .baseImageWrap {
@@ -258,6 +263,12 @@
   z-index: calc(var(--z-nav) + 1);
   max-width: 420px;
   pointer-events: none;
+}
+
+.profileContent .bioHighlight,
+.profileContent .bioText,
+.profileContent .stats {
+  pointer-events: auto;
 }
 
 .profileContent .bioHighlight,
