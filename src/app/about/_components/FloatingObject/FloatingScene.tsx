@@ -3,6 +3,7 @@
 import { useRef, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { siteConfig } from "@/config/site.config";
 
 /* ── Constants ── */
 
@@ -139,6 +140,33 @@ export default function FloatingScene({
   const _mouseVec = useMemo(() => new THREE.Vector3(), []);
   const _camPos = useMemo(() => new THREE.Vector3(), []);
 
+  // ── 충돌 사운드 (Web Audio) ──
+  const audioCtx = useRef<AudioContext | null>(null);
+  const playBoing = () => {
+    if (!siteConfig.about.bunnyCollisionSound) return;
+    if (!audioCtx.current) audioCtx.current = new AudioContext();
+    const ctx = audioCtx.current;
+    if (ctx.state === "suspended") ctx.resume();
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    // 랜덤 피치 변동으로 자연스러운 느낌
+    const base = 500 + Math.random() * 200;
+    osc.frequency.setValueAtTime(base, now);
+    osc.frequency.exponentialRampToValueAtTime(base * 0.35, now + 0.15);
+
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  };
+
   const scale = isMobile ? 0.8 : 1.2;
 
   useFrame(({ clock }, delta) => {
@@ -214,6 +242,7 @@ export default function FloatingScene({
       v.x = nx * BUNNY.impulse;
       v.y = ny * BUNNY.impulse;
       sv.set(-ny * 6, nx * 6, (nx - ny) * 3);
+      playBoing();
     }
     wasInside.current = inside;
 
