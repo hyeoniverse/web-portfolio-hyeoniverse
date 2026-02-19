@@ -221,11 +221,10 @@ export function useHorizontalScroll(
 
       // 패널 애니메이션 (뷰포트 기반)
       const vw = window.innerWidth;
-      allPanels.forEach((panel, i) => {
-        const isHero = infinite ? i % panelSetSize === 0 : i === 0;
-        if (isHero) return;
-
-        const items = panel.querySelectorAll(`.${styles.animate}`);
+      allPanels.forEach((panel) => {
+        const items = panel.querySelectorAll<HTMLElement>(
+          `.${styles.animate}`,
+        );
         if (items.length === 0) return;
 
         const rect = panel.getBoundingClientRect();
@@ -240,13 +239,46 @@ export function useHorizontalScroll(
           (0.5 - rect.right / vw) / 0.3,
         );
 
-        const opacity = Math.min(entryProgress, 1 - exitProgress);
-        const y =
-          exitProgress > 0
-            ? -30 * exitProgress
-            : 40 * (1 - entryProgress);
+        const count = items.length;
+        const maxStagger = Math.min(0.15, 0.8 / Math.max(count, 1));
 
-        gsap.set(items, { opacity: Math.max(0, opacity), y });
+        items.forEach((item, idx) => {
+          // 진입: 첫 번째 아이템부터 순차 등장
+          const eS =
+            count > 1 ? (idx / (count - 1)) * maxStagger : 0;
+          const itemEntry = gsap.utils.clamp(
+            0,
+            1,
+            (entryProgress - eS) / (1 - maxStagger),
+          );
+          // 퇴장: 마지막 아이템부터 순차 퇴장
+          const xS =
+            count > 1
+              ? ((count - 1 - idx) / (count - 1)) * maxStagger
+              : 0;
+          const itemExit = gsap.utils.clamp(
+            0,
+            1,
+            (exitProgress - xS) / (1 - maxStagger),
+          );
+
+          const opacity = Math.min(itemEntry, 1 - itemExit);
+          const y =
+            itemExit > 0
+              ? -30 * itemExit
+              : 40 * (1 - itemEntry);
+          const rotateX =
+            itemExit > 0
+              ? 8 * itemExit
+              : -8 * (1 - itemEntry);
+
+          gsap.set(item, {
+            opacity: Math.max(0, opacity),
+            y,
+            rotateX,
+            transformPerspective: 800,
+          });
+        });
       });
 
       // 활성 섹션 탐지 — 뷰포트 중앙을 포함하는 패널 우선,
@@ -311,7 +343,8 @@ export function useHorizontalScroll(
       gsap.set(track, { clearProps: "transform" });
       allPanels.forEach((panel) => {
         const items = panel.querySelectorAll(`.${styles.animate}`);
-        if (items.length > 0) gsap.set(items, { clearProps: "opacity,y" });
+        if (items.length > 0)
+          gsap.set(items, { clearProps: "opacity,y,rotateX" });
       });
     };
   }, [

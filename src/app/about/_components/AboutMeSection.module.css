@@ -54,6 +54,11 @@
   box-sizing: border-box;
 }
 
+.breakPanel {
+  flex-shrink: 0;
+  height: 100vh;
+}
+
 .animate {
   will-change: transform, opacity;
 }
@@ -711,6 +716,10 @@
     width: 100%;
     height: auto;
     min-height: auto;
+  }
+
+  .breakPanel {
+    display: none;
   }
 
   .panel:first-child {

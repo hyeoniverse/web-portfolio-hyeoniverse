@@ -26,6 +26,11 @@ const LOADING_CONFIG = {
 // (예: RecaptchaProvider가 Fragment에서 GoogleReCaptchaProvider로 전환될 때)
 let hasCompletedInitialLoad = false;
 
+/** 초기 로딩이 완료됐는지 여부 (모듈 레벨 플래그 조회) */
+export function isInitialLoadComplete(): boolean {
+  return hasCompletedInitialLoad;
+}
+
 export function useLoadingScreen(): LoadingScreenResult {
   const [isLoading, setIsLoading] = useState(() => !hasCompletedInitialLoad);
   const [isTransitioning, setIsTransitioning] = useState(false);
