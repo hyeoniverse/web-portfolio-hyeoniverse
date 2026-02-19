@@ -131,6 +131,10 @@ export default function FloatingScene({
   pointerActive,
 }: FloatingSceneProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const leftEyeRef = useRef<THREE.Mesh>(null);
+  const rightEyeRef = useRef<THREE.Mesh>(null);
+  const nextBlink = useRef(2 + Math.random() * 3);
+  const blinkPhase = useRef(-1); // -1 = idle, 0~1 = blinking
   const { camera } = useThree();
 
   const vel = useRef<THREE.Vector2 | null>(null);
@@ -265,6 +269,30 @@ export default function FloatingScene({
     groupRef.current.position.set(p.x + bobX, p.y + bobY, z);
     groupRef.current.rotation.set(rx, ry, rz);
     groupRef.current.scale.setScalar(scale);
+
+    // ── Eye blink ──
+    const BLINK_DUR = 0.15; // 깜빡임 한 사이클 (초)
+    if (blinkPhase.current < 0) {
+      if (t > nextBlink.current) {
+        blinkPhase.current = 0;
+      }
+    }
+    let eyeScaleY = 1.3; // 기본 Y 스케일
+    if (blinkPhase.current >= 0) {
+      blinkPhase.current += dt / BLINK_DUR;
+      if (blinkPhase.current >= 1) {
+        blinkPhase.current = -1;
+        nextBlink.current = t + 2 + Math.random() * 4;
+      } else {
+        // 0→0.5: 닫힘, 0.5→1: 열림
+        const p2 = blinkPhase.current < 0.5
+          ? blinkPhase.current / 0.5
+          : 1 - (blinkPhase.current - 0.5) / 0.5;
+        eyeScaleY = 1.3 * (1 - p2 * 0.92); // 최소 8%까지 납작
+      }
+    }
+    if (leftEyeRef.current) leftEyeRef.current.scale.y = eyeScaleY;
+    if (rightEyeRef.current) rightEyeRef.current.scale.y = eyeScaleY;
   });
 
   return (
@@ -333,6 +361,7 @@ export default function FloatingScene({
 
         {/* ── Left Eye ── */}
         <mesh
+          ref={leftEyeRef}
           position={[-0.2, 0.46, 0.48]}
           rotation={[-0.08, -0.31, 0]}
           scale={[1, 1.3, 0.15]}
@@ -343,6 +372,7 @@ export default function FloatingScene({
 
         {/* ── Right Eye ── */}
         <mesh
+          ref={rightEyeRef}
           position={[0.2, 0.46, 0.48]}
           rotation={[-0.08, 0.31, 0]}
           scale={[1, 1.3, 0.15]}
