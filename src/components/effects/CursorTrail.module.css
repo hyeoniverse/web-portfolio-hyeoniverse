@@ -5,10 +5,19 @@
   z-index: var(--z-top);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
+  opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
   will-change: transform;
   mix-blend-mode: difference;
+}
+
+.visible {
+  opacity: 1;
+}
+
+.hidden {
+  opacity: 0;
 }
 
 .cursorInner {
@@ -79,6 +88,40 @@
   filter: none;
 }
 
+/* 드래그 가능한 요소 */
+.grab .cursorInner {
+  width: var(--cursor-big-width);
+  height: var(--cursor-big-width);
+  backdrop-filter: var(--blur-sm);
+}
+.grab .cursorText {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  opacity: 1;
+}
+.grab .cursorInner::before {
+  inset: 0px;
+  opacity: 0;
+  filter: none;
+}
+
+/* 드래그 중 */
+.dragging .cursorInner {
+  width: calc(var(--cursor-big-width) * 0.85);
+  height: calc(var(--cursor-big-width) * 0.85);
+  backdrop-filter: var(--blur-sm);
+}
+.dragging .cursorText {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  opacity: 1;
+}
+.dragging .cursorInner::before {
+  inset: 0px;
+  opacity: 0;
+  filter: none;
+}
+
 /* 텍스트 요소 */
 .text .cursorInner {
   width: var(--cursor-text-width);
@@ -97,7 +140,8 @@
 }
 
 /* 애니메이션 효과 */
-.big:not(.clicking) .cursorInner {
+.big:not(.clicking) .cursorInner,
+.grab:not(.dragging) .cursorInner {
   animation: pulse 2s ease-in-out infinite;
 }
 .clicking .cursorInner {

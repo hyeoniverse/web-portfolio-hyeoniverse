@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./CursorTrail.module.css";
 
-type CursorType = "big" | "text" | "";
+type CursorType = "big" | "text" | "grab" | "";
 
 /* ---------------- 헬퍼 함수 ---------------- */
 
@@ -44,8 +44,9 @@ export default function CursorTrail() {
 
   const cursorRef = useRef<HTMLDivElement>(null);
 
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [cursorType, setCursorType] = useState<CursorType>("");
   const [isMore, setMore] = useState(false);
 
@@ -74,7 +75,14 @@ export default function CursorTrail() {
       return null;
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    let hasMoved = false;
+
+    const handleMouseMove = (e: PointerEvent) => {
+      if (!hasMoved) {
+        hasMoved = true;
+        circleRef.current = { x: e.clientX, y: e.clientY };
+        setIsVisible(true);
+      }
       mouseRef.current = { x: e.clientX, y: e.clientY };
 
       // 지연된 원 위치가 아닌 실제 마우스 위치 사용
@@ -87,8 +95,11 @@ export default function CursorTrail() {
       /* ---------- more ---------- */
       setMore(!!target?.closest("[data-more]"));
 
+      /* ---------- 드래그 가능 ---------- */
+      const isDraggable = !!target?.closest("[data-draggable]");
+
       /* ---------- 클릭 가능 ---------- */
-      const isClickable = !!target && (
+      const isClickable = !isDraggable && !!target && (
         !!target.closest("[data-clickable]") ||
         !!target.closest("a, button") ||
         !!target.closest('input[type="checkbox"], input[type="radio"]') ||
@@ -99,7 +110,7 @@ export default function CursorTrail() {
       );
 
       /* ---------- 텍스트 ---------- */
-      const isText = !!target && (
+      const isText = !isDraggable && !!target && (
         isTextInput(target) ||
         !!target.closest(
           "p, h1, h2, h3, h4, h5, h6, span, strong, em, figcaption, label"
@@ -109,15 +120,26 @@ export default function CursorTrail() {
       );
 
       /* ---------- 우선순위 ---------- */
-      if (isClickable) setCursorType("big");
+      if (isDraggable) setCursorType("grab");
+      else if (isClickable) setCursorType("big");
       else if (isText) setCursorType("text");
       else setCursorType("");
     };
 
-    const handleMouseDown = () => setIsClicking(true);
-    const handleMouseUp = () => setIsClicking(false);
+    const handleMouseDown = (e: PointerEvent) => {
+      const target = checkElementAt(e.clientX, e.clientY);
+      if (target?.closest("[data-draggable]")) {
+        setIsDragging(true);
+      } else {
+        setIsClicking(true);
+      }
+    };
+    const handleMouseUp = () => {
+      setIsClicking(false);
+      setIsDragging(false);
+    };
 
-    const handleEnter = () => setIsVisible(true);
+    const handleEnter = () => { if (hasMoved) setIsVisible(true); };
     const handleLeave = () => setIsVisible(false);
 
     const animate = () => {
@@ -152,20 +174,20 @@ export default function CursorTrail() {
       rafRef.current = requestAnimationFrame(animate);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-    document.addEventListener("mouseenter", handleEnter);
-    document.addEventListener("mouseleave", handleLeave);
+    window.addEventListener("pointermove", handleMouseMove);
+    window.addEventListener("pointerdown", handleMouseDown);
+    window.addEventListener("pointerup", handleMouseUp);
+    document.addEventListener("pointerenter", handleEnter);
+    document.addEventListener("pointerleave", handleLeave);
 
     animate();
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("mouseenter", handleEnter);
-      document.removeEventListener("mouseleave", handleLeave);
+      window.removeEventListener("pointermove", handleMouseMove);
+      window.removeEventListener("pointerdown", handleMouseDown);
+      window.removeEventListener("pointerup", handleMouseUp);
+      document.removeEventListener("pointerenter", handleEnter);
+      document.removeEventListener("pointerleave", handleLeave);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [isTouch]);
@@ -180,10 +202,13 @@ export default function CursorTrail() {
         isVisible ? styles.visible : styles.hidden,
         cursorType && styles[cursorType],
         isClicking && styles.clicking,
+        isDragging && styles.dragging,
       )}
     >
       <div className={styles.cursorInner}>
-        <span className={styles.cursorText}>{isMore ? "More" : "Click"}</span>
+        <span className={styles.cursorText}>
+          {cursorType === "grab" ? "Drag" : isMore ? "More" : "Click"}
+        </span>
       </div>
     </div>
   );
