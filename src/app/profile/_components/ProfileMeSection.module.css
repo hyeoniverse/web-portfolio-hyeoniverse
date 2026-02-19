@@ -5,26 +5,26 @@
 /* ── Layout: Section + Track ── */
 .section {
   /* ── Layout ── */
-  --ab-panel-py: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
-  --ab-panel-px: clamp(1.5rem, min(4.5vw, 8vh), 6.5rem);
+  --profile-panel-py: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
+  --profile-panel-px: clamp(1.5rem, min(4.5vw, 8vh), 6.5rem);
 
   /* ── Font families ── */
-  --ab-font-display: var(--font-display, var(--font-playfair));
+  --profile-font-display: var(--font-display, var(--font-playfair));
 
   /* ── Font sizes ── */
-  --ab-fs-hero: clamp(2rem, min(9vw, 18vh), 10rem);
-  --ab-fs-subhead: clamp(1rem, min(2vw, 3vh), 3.5rem);
-  --ab-fs-label: clamp(0.75rem, min(1vw, 1.75vh), 1.25rem);
+  --profile-fs-hero: clamp(2rem, min(9vw, 18vh), 10rem);
+  --profile-fs-subhead: clamp(1rem, min(2vw, 3vh), 3.5rem);
+  --profile-fs-label: clamp(0.75rem, min(1vw, 1.75vh), 1.25rem);
 
   /* ── Line heights ── */
-  --ab-lh-title: var(--line-height-dense);
+  --profile-lh-title: var(--line-height-dense);
 
   /* ── Spacing ── */
-  --ab-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
-  --ab-space-divide: calc(var(--ab-space-block) * 2);
+  --profile-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
+  --profile-space-divide: calc(var(--profile-space-block) * 2);
 
   /* ── Letter spacing ── */
-  --ab-ls-title: -0.03em;
+  --profile-ls-title: -0.03em;
 
   overflow: hidden;
   position: relative;
@@ -44,7 +44,7 @@
   justify-content: center;
   flex-shrink: 0;
   flex-direction: column;
-  padding: var(--ab-panel-py) var(--ab-panel-px);
+  padding: var(--profile-panel-py) var(--profile-panel-px);
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -66,7 +66,7 @@
 /* ── Shared Decorations ── */
 .panelWatermark {
   position: absolute;
-  right: var(--ab-panel-px);
+  right: var(--profile-panel-px);
   bottom: 8%;
   font-family: var(--font-instrument);
   font-size: clamp(5rem, min(14vw, 20vh), 12rem);
@@ -114,11 +114,11 @@
 
 .label {
   display: inline-block;
-  margin-bottom: var(--ab-space-block);
+  margin-bottom: var(--profile-space-block);
   padding: var(--spacing-xs) var(--spacing-xl);
   border: 1px solid var(--color-accent-alpha-30);
   width: fit-content;
-  font-size: var(--ab-fs-label);
+  font-size: var(--profile-fs-label);
   font-weight: var(--font-weight-regular);
   color: var(--text-accent-secondary);
   text-transform: uppercase;
@@ -126,11 +126,11 @@
 }
 
 .heroTitle {
-  margin-bottom: var(--ab-space-divide);
-  font-family: var(--ab-font-display);
-  font-size: var(--ab-fs-hero);
-  line-height: var(--ab-lh-title);
-  letter-spacing: var(--ab-ls-title);
+  margin-bottom: var(--profile-space-divide);
+  font-family: var(--profile-font-display);
+  font-size: var(--profile-fs-hero);
+  line-height: var(--profile-lh-title);
+  letter-spacing: var(--profile-ls-title);
 }
 
 .heroTitleAccent {
@@ -139,7 +139,7 @@
 
 .heroSubtitle {
   margin: 0;
-  font-size: var(--ab-fs-subhead);
+  font-size: var(--profile-fs-subhead);
   line-height: var(--line-height-loose);
   color: var(--text-secondary);
 }
@@ -727,7 +727,7 @@
   }
 
   .heroContent {
-    padding-top: calc(var(--header-height) + var(--ab-space-divide));
+    padding-top: calc(var(--header-height) + var(--profile-space-divide));
   }
 
   .heroWatermark,
