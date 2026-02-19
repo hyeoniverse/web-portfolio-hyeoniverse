@@ -61,7 +61,7 @@
 }
 
 /* Mobile: hide */
-@media (max-width: 1024px), (max-height: 640px) {
+@media (max-width: 1024px), (max-height: 700px) {
   .divider {
     display: none;
   }

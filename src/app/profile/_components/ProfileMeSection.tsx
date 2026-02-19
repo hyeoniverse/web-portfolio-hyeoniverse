@@ -16,7 +16,7 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import ProfileWindows from "./ProfileWindows";
 import MarqueeDivider from "./MarqueeDivider";
-import KineticHeroTitle from "./KineticHeroTitle";
+import KineticHeroTitle from "@/components/common/KineticHeroTitle";
 import styles from "./ProfileMeSection.module.css";
 
 // 11 panels + 3 break dividers = 14 elements per set

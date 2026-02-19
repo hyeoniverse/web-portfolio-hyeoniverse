@@ -40,18 +40,28 @@
 }
 
 .navLink {
-  padding: var(--padding-y-md);
   position: relative;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   letter-spacing: 0.05em;
-  transition: opacity 0.3s ease;
 }
 
-.navLink:hover::after {
-  width: 100%;
+/* Sliding indicator — positioned inside .navCenter */
+.navIndicator {
+  position: absolute;
+  bottom: -4px;
+  height: 1px;
+  background: var(--text-white);
+  pointer-events: none;
+  transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s ease;
+}
+
+.navIndicatorHidden {
+  opacity: 0;
 }
 
 /* Right side actions */

@@ -258,6 +258,98 @@ export default function ProfileWindows({ className, isMobile }: Props) {
     return () => el.removeEventListener("transitionend", onEnd);
   }, [expandedId, syncPeek, isMobile]);
 
+  /* ── Mobile: magazine-style layout ── */
+  if (isMobile) {
+    const personalInfo = TEXT_POSITIONS.find((tp) => tp.key === "a");
+    const aboutInfo = TEXT_POSITIONS.find((tp) => tp.key === "c");
+    const heroLines = personalInfo?.lines.slice(0, 2) ?? [];
+    const detailLines = personalInfo?.lines.slice(2) ?? [];
+    const aboutLines = aboutInfo?.lines ?? [];
+    const easterEggLines = TEXT_POSITIONS.filter((tp) =>
+      tp.key.startsWith("e"),
+    ).flatMap((tp) => tp.lines);
+    const pullQuote =
+      TEXT_POSITIONS.find((tp) => tp.key === "e4")?.lines.find(
+        (l) => l.label === "Motto",
+      )?.value ?? "";
+
+    return (
+      <div className={`${styles.mobileProfile} ${className ?? ""}`}>
+        {/* Feature: portrait image + name & basic info */}
+        <div className={styles.magFeature}>
+          <div className={styles.magFeatureImage}>
+            <Image
+              src="/images/profile_pic.webp"
+              alt=""
+              fill
+              sizes="50vw"
+              priority
+              className={styles.profileImage}
+            />
+          </div>
+          <div className={styles.magFeatureInfo}>
+            <h3 className={styles.magName}>{heroLines[0]?.value}</h3>
+            {detailLines.map((row) => (
+              <div key={row.label} className={styles.magInfoRow}>
+                <span className={styles.magInfoLabel}>{row.label}</span>
+                <span className={styles.magInfoValue}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Full-width spread image */}
+        <div className={styles.magSpread}>
+          <Image
+            src="/images/profile_pic.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            className={styles.magSpreadImage}
+          />
+        </div>
+
+        {/* Pull quote */}
+        <blockquote className={styles.magQuote}>
+          &ldquo;{pullQuote}&rdquo;
+        </blockquote>
+
+        {/* About: info + square B&W image */}
+        <div className={styles.magAbout}>
+          <div className={styles.magAboutInfo}>
+            {aboutLines.map((row) => (
+              <div key={row.label} className={styles.magInfoRow}>
+                <span className={styles.magInfoLabel}>{row.label}</span>
+                <span className={styles.magInfoValue}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+          <div className={styles.magAboutImage}>
+            <Image
+              src="/images/profile_pic.webp"
+              alt=""
+              fill
+              sizes="40vw"
+              className={styles.profileImage}
+            />
+          </div>
+        </div>
+
+        {/* Dev Notes */}
+        <div className={styles.magNotes}>
+          <span className={styles.magNotesTag}>Dev Notes</span>
+          {easterEggLines.map((row) => (
+            <div key={row.label} className={styles.magInfoRow}>
+              <span className={styles.magInfoLabel}>{row.label}</span>
+              <span className={styles.magInfoValue}>{row.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Desktop: OS windows + peek layers ── */
   return (
     <div
       ref={containerRef}
@@ -285,7 +377,6 @@ export default function ProfileWindows({ className, isMobile }: Props) {
         />
       </div>
 
-
       {/* OS windows + peek layers */}
       {WINS.map((win) => {
         const zi = stack.indexOf(win.id) + 1;
@@ -297,23 +388,21 @@ export default function ProfileWindows({ className, isMobile }: Props) {
               }}
               className={`${styles.osWindow} ${expandedId === win.id ? styles.osWindowExpanded : ""}`}
               style={
-                isMobile
-                  ? undefined
-                  : expandedId === win.id
-                    ? {
-                        left: 0,
-                        top: 0,
-                        width: "100%",
-                        height: "100%",
-                        zIndex: 100,
-                      }
-                    : {
-                        left: `${win.x}%`,
-                        top: `${win.y}%`,
-                        width: `${win.w}%`,
-                        aspectRatio: win.aspect,
-                        zIndex: zi * 2,
-                      }
+                expandedId === win.id
+                  ? {
+                      left: 0,
+                      top: 0,
+                      width: "100%",
+                      height: "100%",
+                      zIndex: 100,
+                    }
+                  : {
+                      left: `${win.x}%`,
+                      top: `${win.y}%`,
+                      width: `${win.w}%`,
+                      aspectRatio: win.aspect,
+                      zIndex: zi * 2,
+                    }
               }
               onMouseDown={() => bringToFront(win.id)}
               onDoubleClick={() => onDoubleClick(win.id)}
@@ -328,66 +417,48 @@ export default function ProfileWindows({ className, isMobile }: Props) {
                 <span className={styles.osWindowTitle}>{win.title}</span>
                 <span className={styles.osWindowClose}>&#xd7;</span>
               </div>
-              <div className={styles.osWindowBody}>
-                {isMobile && (
-                  <Image
-                    src="/images/profile_pic.webp"
-                    alt=""
-                    fill
-                    sizes="90vw"
-                    className={styles.profileImage}
-                  />
-                )}
-              </div>
+              <div className={styles.osWindowBody} />
             </div>
-            {!isMobile && (
-              <>
+            <div
+              ref={(el) => {
+                peekRefs.current[win.id] = el;
+              }}
+              className={styles.windowPeek}
+              style={{ zIndex: expandedId === win.id ? 99 : zi * 2 - 1 }}
+            />
+            <div
+              ref={(el) => {
+                textPeekRefs.current[win.id] = el;
+              }}
+              className={styles.textPeek}
+              style={{ zIndex: expandedId === win.id ? 99 : zi * 2 - 1 }}
+              aria-hidden
+            >
+              {TEXT_POSITIONS.map((tp) => (
                 <div
-                  ref={(el) => {
-                    peekRefs.current[win.id] = el;
+                  key={tp.key}
+                  className={styles.bgInfo}
+                  style={{
+                    left: `${tp.x}%`,
+                    top: `${tp.y}%`,
+                    width: `${tp.w}%`,
+                    ...(tp.aspect
+                      ? {
+                          aspectRatio: tp.aspect,
+                          paddingTop: TITLE_BAR_HEIGHT,
+                        }
+                      : {}),
                   }}
-                  className={styles.windowPeek}
-                  style={{ zIndex: expandedId === win.id ? 99 : zi * 2 - 1 }}
-                />
-                <div
-                  ref={(el) => {
-                    textPeekRefs.current[win.id] = el;
-                  }}
-                  className={styles.textPeek}
-                  style={{ zIndex: expandedId === win.id ? 99 : zi * 2 - 1 }}
-                  aria-hidden
                 >
-                  {TEXT_POSITIONS.map((tp) => (
-                    <div
-                      key={tp.key}
-                      className={styles.bgInfo}
-                      style={{
-                        left: `${tp.x}%`,
-                        top: `${tp.y}%`,
-                        width: `${tp.w}%`,
-                        ...(tp.aspect
-                          ? {
-                              aspectRatio: tp.aspect,
-                              paddingTop: TITLE_BAR_HEIGHT,
-                            }
-                          : {}),
-                      }}
-                    >
-                      {tp.lines.map((row) => (
-                        <div key={row.label} className={styles.bgInfoRow}>
-                          <span className={styles.bgInfoLabel}>
-                            {row.label}
-                          </span>
-                          <span className={styles.bgInfoValue}>
-                            {row.value}
-                          </span>
-                        </div>
-                      ))}
+                  {tp.lines.map((row) => (
+                    <div key={row.label} className={styles.bgInfoRow}>
+                      <span className={styles.bgInfoLabel}>{row.label}</span>
+                      <span className={styles.bgInfoValue}>{row.value}</span>
                     </div>
                   ))}
                 </div>
-              </>
-            )}
+              ))}
+            </div>
           </Fragment>
         );
       })}
