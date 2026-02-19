@@ -186,6 +186,7 @@ export default function ProfileWindows({ className, isMobile }: Props) {
             >
               <div
                 className={styles.osWindowBar}
+                data-draggable
                 onPointerDown={(e) => onPointerDown(e, win.id)}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
