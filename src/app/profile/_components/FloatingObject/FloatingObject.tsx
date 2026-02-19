@@ -1,21 +1,34 @@
 "use client";
 
-import { Suspense, useMemo, useEffect, useRef } from "react";
+import { Suspense, useMemo, useEffect, useRef, useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { createSafeRenderer } from "@/utils/three";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import styles from "./FloatingObject.module.css";
 
 const FloatingScene = dynamic(() => import("./FloatingScene"), { ssr: false });
 
+const BUBBLE_OFFSET_Y = -110;
+
 export default function FloatingObject() {
   const { theme } = useTheme();
   const { isMobile, isTouch } = useIsMobile();
+  const { t } = useLanguage();
+  const activeSection = useProfileSectionStore((s) => s.activeSection);
 
   const mouseNDC = useRef({ x: 0, y: 0 });
   const pointerActive = useRef(false);
+  const screenPosRef = useRef({ x: 0, y: 0 });
+  const smileRef = useRef(false);
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const rafId = useRef(0);
+
+  const [bubbleText, setBubbleText] = useState("");
+  const [showBubble, setShowBubble] = useState(false);
 
   useEffect(() => {
     const updateNDC = (clientX: number, clientY: number) => {
@@ -63,6 +76,42 @@ export default function FloatingObject() {
     []
   );
 
+  // Bubble text fade transition on section change
+  useEffect(() => {
+    if (isMobile) return;
+    const text = t(`profilePage.bubble.${activeSection}`);
+    setShowBubble(false);
+    const tid = window.setTimeout(() => {
+      setBubbleText(text);
+      setShowBubble(true);
+      smileRef.current = true;
+    }, 300);
+    const smileTid = window.setTimeout(() => {
+      smileRef.current = false;
+    }, 1800);
+    return () => {
+      window.clearTimeout(tid);
+      window.clearTimeout(smileTid);
+    };
+  }, [activeSection, t, isMobile]);
+
+  // rAF loop: sync bubble DOM position to bunny screen coords
+  const syncBubble = useCallback(() => {
+    const el = bubbleRef.current;
+    if (el) {
+      const x = screenPosRef.current.x;
+      const y = screenPosRef.current.y + BUBBLE_OFFSET_Y;
+      el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
+    }
+    rafId.current = requestAnimationFrame(syncBubble);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+    rafId.current = requestAnimationFrame(syncBubble);
+    return () => cancelAnimationFrame(rafId.current);
+  }, [syncBubble, isMobile]);
+
   const dpr = isTouch
     ? Math.min(
         typeof window !== "undefined" ? window.devicePixelRatio : 1,
@@ -94,9 +143,20 @@ export default function FloatingObject() {
             isMobile={isMobile}
             mouseNDC={mouseNDC}
             pointerActive={pointerActive}
+            screenPosRef={screenPosRef}
+            smileRef={smileRef}
           />
         </Suspense>
       </Canvas>
+
+      {!isMobile && (
+        <div
+          ref={bubbleRef}
+          className={`${styles.speechBubble} ${showBubble ? styles.speechBubbleVisible : ""}`}
+        >
+          {bubbleText}
+        </div>
+      )}
     </div>
   );
 }

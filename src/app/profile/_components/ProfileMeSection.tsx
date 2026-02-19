@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import {
   experiences,
@@ -13,6 +13,7 @@ import {
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
+import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import ProfileWindows from "./ProfileWindows";
 import MarqueeDivider from "./MarqueeDivider";
 import KineticHeroTitle from "./KineticHeroTitle";
@@ -26,12 +27,16 @@ const REPETITIONS = 3;
 export default function ProfileMeSection() {
   const { t, language } = useLanguage();
   const isMobile = useMobileLayout();
-  const { sectionRef, trackRef } = useHorizontalScroll(styles, {
+  const { sectionRef, trackRef, activeSection } = useHorizontalScroll(styles, {
     infinite: !isMobile,
     panelSetSize: PANEL_COUNT,
     navSectionCount: NAV_SECTION_COUNT,
     mobileAnimateVisible: true,
   });
+
+  useEffect(() => {
+    useProfileSectionStore.getState().setActiveSection(activeSection);
+  }, [activeSection]);
 
   const panelSet = (key: number) => (
     <Fragment key={key}>

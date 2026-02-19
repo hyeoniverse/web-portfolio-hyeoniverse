@@ -7,6 +7,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  startTransition,
 } from "react";
 import ko from "@/locales/ko.json";
 import en from "@/locales/en.json";
@@ -23,18 +24,14 @@ interface LanguageContextType {
   toggleLanguage: () => void;
   setLanguage: (language: Language) => void;
   t: (key: string) => string;
-  tAlt: (key: string) => string; // 대체 언어로 번역
-  tLang: (key: string, lang: Language) => string; // 특정 언어로 번역
+  tAlt: (key: string) => string;
+  tLang: (key: string, lang: Language) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
 );
 
-/**
- * 점 표기법으로 객체에서 중첩된 값을 가져옴
- * 예: "hero.headline1" -> translations.hero.headline1
- */
 function getNestedValue(obj: Translations, path: string): string {
   const keys = path.split(".");
   let value: TranslationValue = obj;
@@ -43,49 +40,59 @@ function getNestedValue(obj: Translations, path: string): string {
     if (value && typeof value === "object" && key in value) {
       value = value[key];
     } else {
-      return path; // 찾지 못하면 키를 반환
+      return path;
     }
   }
 
   return typeof value === "string" ? value : path;
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("ko");
-  const [mounted, setMounted] = useState(false);
+function applyLangToDom(lang: Language) {
+  localStorage.setItem("language", lang);
+  document.documentElement.setAttribute("lang", lang);
+}
 
-  // localStorage 또는 브라우저 설정에서 언어 초기화
+/* ── Provider ── */
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  // useState("ko"): 첫 렌더(hydration)에서 항상 "ko" → 서버 HTML과 일치 보장
+  // HMR 시에는 state가 보존되지만, HMR은 hydration이 아니므로 문제없음
+  const [language, setLanguageState] = useState<Language>("ko");
+
+  // 마운트 시 localStorage/브라우저 언어 감지
+  // startTransition: Next.js App Router가 페이지 컨텐츠를 내부 Suspense로 감싸므로,
+  // layout effect가 페이지 hydration보다 먼저 실행될 수 있음.
+  // startTransition으로 감싸면 React가 hydration 완료 후에 언어 전환을 적용.
   useEffect(() => {
-    setMounted(true);
     const stored = localStorage.getItem("language") as Language | null;
-    if (stored && (stored === "ko" || stored === "en")) {
-      setLanguageState(stored);
-    } else {
-      // 브라우저 언어 설정 확인
-      const browserLang = navigator.language || navigator.languages?.[0];
-      if (browserLang?.startsWith("en")) {
-        setLanguageState("en");
-      }
-      // 한국어 또는 알 수 없는 언어의 경우 기본값 "ko" 유지
+    const target: Language =
+      stored === "ko" || stored === "en"
+        ? stored
+        : navigator.language?.startsWith("en")
+          ? "en"
+          : "ko";
+
+    if (target !== "ko") {
+      startTransition(() => {
+        setLanguageState(target);
+      });
     }
+    applyLangToDom(target);
   }, []);
 
-  // 문서에 언어 적용
-  useEffect(() => {
-    if (!mounted) return;
-    document.documentElement.setAttribute("lang", language);
-    localStorage.setItem("language", language);
-  }, [language, mounted]);
-
   const toggleLanguage = useCallback(() => {
-    setLanguageState((prev) => (prev === "ko" ? "en" : "ko"));
+    setLanguageState((prev) => {
+      const next = prev === "ko" ? "en" : "ko";
+      applyLangToDom(next);
+      return next;
+    });
   }, []);
 
   const setLanguage = useCallback((newLanguage: Language) => {
     setLanguageState(newLanguage);
+    applyLangToDom(newLanguage);
   }, []);
 
-  // 번역 함수
   const t = useCallback(
     (key: string): string => {
       return getNestedValue(translations[language], key);
@@ -93,7 +100,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [language]
   );
 
-  // 대체 언어로 번역
   const tAlt = useCallback(
     (key: string): string => {
       const altLanguage = language === "ko" ? "en" : "ko";
@@ -102,7 +108,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [language]
   );
 
-  // 특정 언어로 번역
   const tLang = useCallback((key: string, lang: Language): string => {
     return getNestedValue(translations[lang], key);
   }, []);
