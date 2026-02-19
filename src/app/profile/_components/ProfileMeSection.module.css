@@ -222,7 +222,8 @@
 
 /* compound selector → beats global theme transition (0,1,1) */
 .windowsContainer .osWindowExpanded {
-  transition: left 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+  transition:
+    left 0.4s cubic-bezier(0.22, 1, 0.36, 1),
     top 0.4s cubic-bezier(0.22, 1, 0.36, 1),
     width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
     height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
@@ -262,8 +263,6 @@
   overflow: hidden;
   position: relative;
 }
-
-
 
 .textPeek {
   position: absolute;
@@ -313,6 +312,154 @@
 
 .profileImage {
   object-fit: cover;
+}
+
+/* ── Mobile Magazine Profile Layout ── */
+.mobileProfile {
+  display: flex;
+  flex-direction: column;
+}
+
+.magHeadline {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(3rem, 13vw, 5.5rem);
+  font-weight: 400;
+  line-height: 0.9;
+  color: var(--text-primary);
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.magAccent {
+  display: block;
+  margin-bottom: 2.5rem;
+  width: 3rem;
+  height: 2px;
+  background: var(--color-accent, #d01046);
+}
+
+.magFeature {
+  display: grid;
+  grid-template-columns: 5fr 6fr;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.magFeatureImage {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.magFeatureInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.magName {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.magInfoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem 0;
+}
+
+.magInfoLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.magInfoValue {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.magSpread {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+  border-radius: 4px;
+}
+
+.magSpreadImage {
+  object-fit: cover;
+  filter: grayscale(100%);
+  opacity: 0.7;
+}
+
+.magQuote {
+  margin: 0 0 2.5rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(1.25rem, 4.5vw, 1.75rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.magAbout {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.magAboutInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.magAboutImage {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 4px;
+  filter: grayscale(100%);
+  align-self: start;
+}
+
+.magNotes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+}
+
+.magNotesTag {
+  margin-bottom: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--color-accent, #d01046);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .profileContent {
@@ -756,7 +903,7 @@
    Mobile / Tablet: Vertical Scroll
    ========================================================================== */
 
-@media (max-width: 1024px), (max-height: 640px) {
+@media (max-width: 1024px), (max-height: 700px) {
   .section {
     padding-top: 80px;
     overflow: visible;
@@ -770,7 +917,8 @@
   }
 
   .panel {
-    padding: 3rem 2rem;
+    padding: 4rem 2rem;
+    border-bottom: 1px solid var(--text-primary);
     width: 100%;
     height: auto;
     min-height: auto;
@@ -778,6 +926,24 @@
 
   .breakPanel {
     display: none;
+  }
+
+  .profilePanel {
+    margin: 0;
+    padding: 3rem 2.5rem;
+    border: none;
+    border-bottom: 1px solid var(--text-primary);
+    overflow: visible;
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    gap: var(--profile-space-divide);
+  }
+
+  .panel:first-child,
+  .panel:last-child,
+  .panel:nth-last-child(2) {
+    border-bottom: none;
   }
 
   .panel:first-child {
@@ -824,31 +990,7 @@
     transform: translateY(0);
   }
 
-  /* Layout adjustments */
-  .windowsContainer {
-    display: flex;
-    gap: 0.75rem;
-    flex-direction: column;
-    margin-bottom: 1.5rem;
-    position: static;
-  }
-
   .baseImageWrap {
-    display: none;
-  }
-
-  .osWindow {
-    position: static;
-    width: 100%;
-    height: 220px;
-  }
-
-  .osWindowBar {
-    touch-action: auto;
-  }
-
-  /* 모바일: 두 번째/세 번째 창 숨김 — 하나만 표시 */
-  .osWindow:nth-child(n + 4) {
     display: none;
   }
 
@@ -859,6 +1001,13 @@
     max-width: none;
     background: none;
     backdrop-filter: none;
+  }
+
+  .profileContent .bioHighlight,
+  .profileContent .bioText,
+  .profileContent .statNumber,
+  .profileContent .statLabel {
+    mix-blend-mode: normal;
   }
 
   .expPeriod {
@@ -886,13 +1035,40 @@
   }
 }
 
+/* ── Tablet: Magazine layout adjustments ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .magFeature {
+    gap: 2rem;
+  }
+
+  .magAbout {
+    gap: 2rem;
+  }
+}
+
 @media (max-width: 768px) {
   .panel {
-    padding: 2.5rem 1.5rem;
+    padding: 3rem 1.5rem;
+  }
+
+  .profilePanel {
+    padding: 0 0 3rem;
+  }
+
+  /* Content gets side padding; magSpread stays full-bleed */
+  .magHeadline,
+  .magAccent,
+  .magFeature,
+  .magQuote,
+  .magAbout,
+  .magNotes,
+  .profileContent {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
   .osWindow {
-    height: 200px;
+    height: 220px;
   }
 
   .stats {
@@ -917,7 +1093,26 @@
 
 @media (max-width: 480px) {
   .panel {
-    padding: 2rem 1rem;
+    padding: 2.5rem 1rem;
+  }
+
+  .profilePanel {
+    padding: 0 0 2.5rem;
+  }
+
+  .magHeadline,
+  .magAccent,
+  .magFeature,
+  .magQuote,
+  .magAbout,
+  .magNotes,
+  .profileContent {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .magFeature {
+    gap: 1rem;
   }
 
   .bioHighlight {

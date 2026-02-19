@@ -34,6 +34,33 @@ export default function Navigation() {
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname);
   const showLoadingLogo = isLoading && !shouldSkipLoading;
 
+  // ── Nav sliding indicator ──
+  const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+
+  // active key from pathname
+  const activeNavKey = navItems.find((item) => pathname === item.href)?.key ?? null;
+  const targetKey = hoveredNav ?? activeNavKey;
+
+  useEffect(() => {
+    if (!targetKey) {
+      setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }));
+      return;
+    }
+    const el = navLinkRefs.current[targetKey];
+    if (!el) return;
+    const parent = el.parentElement;
+    if (!parent) return;
+    const parentRect = parent.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    setIndicatorStyle({
+      left: elRect.left - parentRect.left,
+      width: elRect.width,
+      opacity: 1,
+    });
+  }, [targetKey, language]);
+
   // --- 로고 중앙→nav 이동 애니메이션 ---
   const logoRef = useRef<HTMLDivElement>(null);
   const [centerOffset, setCenterOffset] = useState({ x: 0, y: 0 });
@@ -221,16 +248,25 @@ export default function Navigation() {
         </Link>
       </motion.div>
 
-      <div className={styles.navCenter}>
+      <div
+        className={styles.navCenter}
+        onMouseLeave={() => setHoveredNav(null)}
+      >
         {navItems.map((item) => (
           <Link
             key={item.key}
             href={item.href}
+            ref={(el) => { navLinkRefs.current[item.key] = el; }}
             className={`${styles.navLink} glith-on-hover`}
+            onMouseEnter={() => setHoveredNav(item.key)}
           >
             {t(`nav.${item.key}`)}
           </Link>
         ))}
+        <span
+          className={`${styles.navIndicator} ${indicatorStyle.opacity === 0 ? styles.navIndicatorHidden : ""}`}
+          style={indicatorStyle}
+        />
       </div>
 
       <div className={styles.navActions}>

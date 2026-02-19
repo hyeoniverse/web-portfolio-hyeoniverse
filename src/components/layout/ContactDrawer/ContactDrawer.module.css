@@ -826,7 +826,7 @@
 /* ---------------------------------------------------------------------------
   Responsive
   --------------------------------------------------------------------------- */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .drawer {
     width: 90vw;
     height: 63vw;
@@ -834,7 +834,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .drawer {
     width: 95vw;
     height: 66.5vw;

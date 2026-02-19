@@ -838,7 +838,7 @@
 
 @media (max-width: 768px), (max-height: 700px) {
   .intro {
-    --_intro-pad: 24px;
+    --_intro-pad: 1.5rem;
     --_intro-text-max: none;
 
     max-width: none;
@@ -892,7 +892,7 @@
   }
 
   .gallery {
-    padding-top: 120px;
+    padding-top: 80px;
     overflow: hidden;
     width: 100%;
     height: auto;
@@ -924,7 +924,7 @@
   }
 
   .project {
-    --_card-w: calc(100% + 48px);
+    --_card-w: calc(100% + 3rem);
     --_card-h: auto;
     --_card-radius: 0;
     --_number-size: var(--fluid-font-size-5xl);
@@ -940,11 +940,11 @@
     gap: var(--spacing-md);
     align-self: stretch;
     margin: 0;
-    padding: 40px 24px 48px;
+    padding: 3rem 1.5rem;
   }
 
   .card {
-    margin-left: -24px;
+    margin-left: -1.5rem;
     aspect-ratio: 16 / 10;
   }
 
@@ -999,8 +999,8 @@
     gap: var(--spacing-2xs);
     position: absolute;
     top: 20px;
-    left: 24px;
-    right: 24px;
+    left: 1.5rem;
+    right: 1.5rem;
     z-index: 2;
     color: var(--text-white);
     mix-blend-mode: difference;
@@ -1086,7 +1086,7 @@
 
 @media (max-width: 480px) {
   .intro {
-    --_intro-pad: 20px;
+    --_intro-pad: 1rem;
   }
 
   .introTitle {
@@ -1114,7 +1114,7 @@
   }
 
   .project {
-    --_card-w: calc(100% + 40px);
+    --_card-w: calc(100% + 2rem);
     --_number-size: var(--font-size-5xl);
   }
 
@@ -1124,17 +1124,17 @@
   .sizeMedium,
   .sizeTall,
   .sizeWide {
-    padding: 32px 20px 40px;
+    padding: 2.5rem 1rem;
   }
 
   .card {
-    margin-left: -20px;
+    margin-left: -1rem;
   }
 
   .cardOverlay {
     top: 16px;
-    left: 20px;
-    right: 20px;
+    left: 1rem;
+    right: 1rem;
   }
 
   .project .metaTitle {
