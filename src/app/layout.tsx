@@ -15,6 +15,7 @@ import Navigation from "@/components/layout/Navigation";
 import PageTransitionOverlay from "@/components/layout/PageTransitionOverlay";
 import Modal from "@/components/ui/Modal";
 import CursorTrail from "@/components/effects/CursorTrail";
+
 import { LenisProvider } from "@/providers/LenisProvider";
 import RecaptchaProvider from "@/providers/RecaptchaProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";

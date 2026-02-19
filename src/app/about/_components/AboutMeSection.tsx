@@ -14,9 +14,13 @@ import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import ProfileWindows from "./ProfileWindows";
+import MarqueeDivider from "./MarqueeDivider";
+import KineticHeroTitle from "./KineticHeroTitle";
 import styles from "./AboutMeSection.module.css";
 
-const PANEL_COUNT = 11;
+// 11 panels + 3 break dividers = 14 elements per set
+const PANEL_COUNT = 14;
+const NAV_SECTION_COUNT = 11;
 const REPETITIONS = 3;
 
 export default function AboutMeSection() {
@@ -25,7 +29,7 @@ export default function AboutMeSection() {
   const { sectionRef, trackRef } = useHorizontalScroll(styles, {
     infinite: !isMobile,
     panelSetSize: PANEL_COUNT,
-    navSectionCount: PANEL_COUNT,
+    navSectionCount: NAV_SECTION_COUNT,
     mobileAnimateVisible: true,
   });
 
@@ -33,17 +37,25 @@ export default function AboutMeSection() {
     <Fragment key={key}>
       {/* Panel 1: Hero */}
       <div className={styles.panel}>
-        <div className={`${styles.heroContent} ${styles.animate}`}>
-          <span className={styles.label}>{t("aboutPage.title")}</span>
-          <h2 className={styles.heroTitle}>
-            Crafting Digital
-            <br />
-            <span className={styles.heroTitleAccent}>Experiences</span>
-          </h2>
-          <p className={styles.heroSubtitle}>{t("aboutPage.intro")}</p>
+        <div className={styles.heroContent}>
+          <span className={`${styles.label} ${styles.animate}`}>
+            {t("aboutPage.title")}
+          </span>
+          <KineticHeroTitle
+            lines={[
+              { text: "Crafting Digital" },
+              { text: "Experiences", accent: true },
+            ]}
+          />
+          <p className={`${styles.heroSubtitle} ${styles.animate}`}>
+            {t("aboutPage.intro")}
+          </p>
           <span className={styles.heroWatermark}>about me</span>
         </div>
       </div>
+
+      {/* Break: Marquee 1 */}
+      <MarqueeDivider className={styles.breakPanel} />
 
       {/* Panel 2: Profile */}
       <div className={`${styles.panel} ${styles.profilePanel}`}>
@@ -119,6 +131,9 @@ export default function AboutMeSection() {
         </div>
       </div>
 
+      {/* Break: Marquee 2 */}
+      <MarqueeDivider className={styles.breakPanel} />
+
       {/* Panel 4–7: Skills (one panel per category) */}
       {skillGroups.map((group, gi) => (
         <div key={`skill-${gi}`} className={styles.panel}>
@@ -159,6 +174,9 @@ export default function AboutMeSection() {
           </div>
         </div>
       ))}
+
+      {/* Break: Marquee 3 */}
+      <MarqueeDivider className={styles.breakPanel} />
 
       {/* Panel 8: Philosophy */}
       <div className={styles.panel}>
@@ -268,7 +286,7 @@ export default function AboutMeSection() {
         </div>
       </div>
 
-      {/* Panel 9: Credits */}
+      {/* Panel 11: Credits */}
       <CreditsPanel className={`${styles.panel} ${styles.animate}`} />
     </Fragment>
   );

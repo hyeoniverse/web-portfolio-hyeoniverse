@@ -1,0 +1,21 @@
+.title {
+  margin-bottom: var(--ab-space-divide, 2rem);
+  font-family: var(--ab-font-display, var(--font-playfair));
+  font-size: var(--ab-fs-hero, clamp(2rem, min(9vw, 18vh), 10rem));
+  line-height: var(--ab-lh-title, 1.1);
+  letter-spacing: var(--ab-ls-title, -0.03em);
+  perspective: 600px;
+}
+
+.line {
+  display: block;
+}
+
+.char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.accent {
+  color: var(--text-accent-secondary);
+}
