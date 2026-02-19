@@ -3,18 +3,17 @@
 import { useCallback, useRef } from "react";
 import { createSoundTone } from "@/utils";
 import { SOUND_FREQUENCIES } from "@/constants";
+import { useSoundStore } from "@/stores/soundStore";
 import type { SoundType } from "@/types";
 
 interface SoundManager {
   playSound: (soundType: SoundType) => void;
   setVolume: (volume: number) => void;
-  toggleMute: () => void;
 }
 
 export function useSoundManager(): SoundManager {
   const audioContextRef = useRef<AudioContext | null>(null);
   const volumeRef = useRef(0.3);
-  const isMutedRef = useRef(false);
 
   const typingBufferRef = useRef<AudioBuffer | null>(null);
   const lastTypingPlayTimeRef = useRef(0);
@@ -40,7 +39,7 @@ export function useSoundManager(): SoundManager {
 
   const playSound = useCallback(
     (soundType: SoundType) => {
-      if (isMutedRef.current) return;
+      if (useSoundStore.getState().isMuted) return;
 
       try {
         const audioContext = initAudioContext();
@@ -146,13 +145,8 @@ export function useSoundManager(): SoundManager {
     volumeRef.current = Math.max(0, Math.min(1, volume));
   }, []);
 
-  const toggleMute = useCallback(() => {
-    isMutedRef.current = !isMutedRef.current;
-  }, []);
-
   return {
     playSound,
     setVolume,
-    toggleMute,
   };
 }

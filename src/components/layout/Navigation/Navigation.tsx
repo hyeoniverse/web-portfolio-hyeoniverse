@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
+import { useSoundStore } from "@/stores/soundStore";
+import { useContactStore } from "@/stores/contactStore";
 import { siteConfig } from "@/config/site.config";
 import styles from "./Navigation.module.css";
 
@@ -26,6 +28,8 @@ export default function Navigation() {
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
   const { isLoading, isTransitioning } = useLoadingScreen();
+  const { isMuted, toggleMute } = useSoundStore();
+  const { openForm } = useContactStore();
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname);
   const showLoadingLogo = isLoading && !shouldSkipLoading;
@@ -77,6 +81,16 @@ export default function Navigation() {
       setLogoMeasured(false);
     }
   }, [isLoading]);
+
+  // 사운드 상태
+  const [isSoundClicking, setIsSoundClicking] = useState(false);
+
+  const handleSoundToggle = () => {
+    if (isSoundClicking) return;
+    setIsSoundClicking(true);
+    toggleMute();
+    setTimeout(() => setIsSoundClicking(false), 300);
+  };
 
   // 테마 상태
   const [isThemeAnimating, setIsThemeAnimating] = useState(false);
@@ -209,6 +223,50 @@ export default function Navigation() {
       </div>
 
       <div className={styles.navActions}>
+        {/* Get in Touch */}
+        <button
+          className={`${styles.actionBtn} ${styles.contactBtn}`}
+          onClick={openForm}
+          aria-label="Get in Touch"
+        >
+          <span className={styles.contactText}>Get in Touch</span>
+        </button>
+
+        {/* 사운드 토글 */}
+        <button
+          className={styles.actionBtn}
+          onClick={handleSoundToggle}
+          aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
+        >
+          <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
+            {isMuted ? (
+              <svg
+                className={styles.soundIcon}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                <line x1="23" y1="9" x2="17" y2="15" />
+                <line x1="17" y1="9" x2="23" y2="15" />
+              </svg>
+            ) : (
+              <svg
+                className={styles.soundIcon}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </svg>
+            )}
+          </span>
+        </button>
+
         {/* 언어 토글 */}
         <button
           className={styles.actionBtn}

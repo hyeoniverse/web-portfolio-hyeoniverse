@@ -4,6 +4,7 @@ import { useRef, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { siteConfig } from "@/config/site.config";
+import { useSoundStore } from "@/stores/soundStore";
 
 /* ── Constants ── */
 
@@ -140,31 +141,32 @@ export default function FloatingScene({
   const _mouseVec = useMemo(() => new THREE.Vector3(), []);
   const _camPos = useMemo(() => new THREE.Vector3(), []);
 
-  // ── 충돌 사운드 (Web Audio) ──
+  // ── 충돌 사운드 (yo.mp3) ──
   const audioCtx = useRef<AudioContext | null>(null);
+  const audioBuffer = useRef<AudioBuffer | null>(null);
+
   const playBoing = () => {
     if (!siteConfig.about.bunnyCollisionSound) return;
-    if (!audioCtx.current) audioCtx.current = new AudioContext();
+    if (useSoundStore.getState().isMuted) return;
+
+    if (!audioCtx.current) {
+      audioCtx.current = new AudioContext();
+      fetch("/sounds/yo.mp3")
+        .then((res) => res.arrayBuffer())
+        .then((data) => audioCtx.current!.decodeAudioData(data))
+        .then((buf) => { audioBuffer.current = buf; });
+    }
     const ctx = audioCtx.current;
     if (ctx.state === "suspended") ctx.resume();
+    if (!audioBuffer.current) return;
 
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
+    const source = ctx.createBufferSource();
     const gain = ctx.createGain();
-
-    osc.type = "sine";
-    // 랜덤 피치 변동으로 자연스러운 느낌
-    const base = 500 + Math.random() * 200;
-    osc.frequency.setValueAtTime(base, now);
-    osc.frequency.exponentialRampToValueAtTime(base * 0.35, now + 0.15);
-
-    gain.gain.setValueAtTime(0.12, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-
-    osc.connect(gain);
+    source.buffer = audioBuffer.current;
+    gain.gain.value = 0.5;
+    source.connect(gain);
     gain.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.2);
+    source.start(0);
   };
 
   const scale = isMobile ? 0.8 : 1.2;
