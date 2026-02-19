@@ -122,6 +122,8 @@ interface FloatingSceneProps {
   isMobile: boolean;
   mouseNDC: React.RefObject<{ x: number; y: number }>;
   pointerActive: React.RefObject<boolean>;
+  screenPosRef?: React.RefObject<{ x: number; y: number }>;
+  smileRef?: React.RefObject<boolean>;
 }
 
 export default function FloatingScene({
@@ -129,16 +131,20 @@ export default function FloatingScene({
   isMobile,
   mouseNDC,
   pointerActive,
+  screenPosRef,
+  smileRef,
 }: FloatingSceneProps) {
   const groupRef = useRef<THREE.Group>(null);
   const leftEyeRef = useRef<THREE.Mesh>(null);
   const rightEyeRef = useRef<THREE.Mesh>(null);
   const leftSquintRef = useRef<THREE.Group>(null);
   const rightSquintRef = useRef<THREE.Group>(null);
+  const leftSmileRef = useRef<THREE.Mesh>(null);
+  const rightSmileRef = useRef<THREE.Mesh>(null);
   const nextBlink = useRef(2 + Math.random() * 3);
   const blinkPhase = useRef(-1); // -1 = idle, 0~1 = blinking
   const hitTime = useRef(-1); // 충돌 시점 (초)
-  const { camera } = useThree();
+  const { camera, size } = useThree();
 
   const vel = useRef<THREE.Vector2 | null>(null);
   const pos = useRef(new THREE.Vector2(0, 0));
@@ -177,12 +183,32 @@ export default function FloatingScene({
   };
 
   const scale = isMobile ? 0.8 : 1.2;
+  const introProgress = useRef(0);
+  const INTRO_DUR = 0.8;
 
   useFrame(({ clock }, delta) => {
     if (!groupRef.current) return;
     const dt = Math.min(delta, 0.05);
     const t = clock.getElapsedTime();
     const z = BUNNY.z;
+
+    /* ── Intro pop animation (center → elastic pop) ── */
+    if (introProgress.current < 1) {
+      introProgress.current = Math.min(1, introProgress.current + dt / INTRO_DUR);
+      const ip = introProgress.current;
+      // Elastic ease-out (0 → overshoot → 1)
+      const c4 = (2 * Math.PI) / 3;
+      const elastic =
+        ip === 0
+          ? 0
+          : ip >= 1
+            ? 1
+            : Math.pow(2, -10 * ip) * Math.sin((ip * 10 - 0.75) * c4) + 1;
+      groupRef.current.position.set(0, 0, z);
+      groupRef.current.scale.setScalar(scale * elastic);
+      groupRef.current.rotation.set(0, elastic * Math.PI * 2, 0);
+      return;
+    }
 
     if (!vel.current) {
       const angle = Math.random() * Math.PI * 2;
@@ -274,17 +300,23 @@ export default function FloatingScene({
     groupRef.current.rotation.set(rx, ry, rz);
     groupRef.current.scale.setScalar(scale);
 
-    // ── Hit expression >< ──
+    // ── Expressions ──
     const HIT_EXPR_DUR = 0.8;
     const isHitExpr = hitTime.current > 0 && (t - hitTime.current) < HIT_EXPR_DUR;
+    const isSmile = !isHitExpr && !!smileRef?.current;
 
-    if (leftEyeRef.current) leftEyeRef.current.visible = !isHitExpr;
-    if (rightEyeRef.current) rightEyeRef.current.visible = !isHitExpr;
+    // normal eyes: visible only when no special expression
+    if (leftEyeRef.current) leftEyeRef.current.visible = !isHitExpr && !isSmile;
+    if (rightEyeRef.current) rightEyeRef.current.visible = !isHitExpr && !isSmile;
+    // hit >< eyes
     if (leftSquintRef.current) leftSquintRef.current.visible = isHitExpr;
     if (rightSquintRef.current) rightSquintRef.current.visible = isHitExpr;
+    // smile ^^ eyes
+    if (leftSmileRef.current) leftSmileRef.current.visible = isSmile;
+    if (rightSmileRef.current) rightSmileRef.current.visible = isSmile;
 
-    // ── Eye blink (충돌 표정 중에는 스킵) ──
-    if (!isHitExpr) {
+    // ── Eye blink (특수 표정 중에는 스킵) ──
+    if (!isHitExpr && !isSmile) {
       const BLINK_DUR = 0.15;
       if (blinkPhase.current < 0) {
         if (t > nextBlink.current) {
@@ -306,6 +338,13 @@ export default function FloatingScene({
       }
       if (leftEyeRef.current) leftEyeRef.current.scale.y = eyeScaleY;
       if (rightEyeRef.current) rightEyeRef.current.scale.y = eyeScaleY;
+    }
+
+    // 3D → screen projection for speech bubble
+    if (screenPosRef?.current) {
+      const projected = groupRef.current.position.clone().project(camera);
+      screenPosRef.current.x = ((projected.x + 1) / 2) * size.width;
+      screenPosRef.current.y = (-(projected.y - 1) / 2) * size.height;
     }
   });
 
@@ -429,6 +468,27 @@ export default function FloatingScene({
           </mesh>
         </group>
 
+        {/* ── Left Smile Eye ^ (말풍선 전환 시) ── */}
+        <mesh
+          ref={leftSmileRef}
+          position={[-0.2, 0.46, 0.49]}
+          rotation={[-0.08, -0.31, 0]}
+          visible={false}
+        >
+          <torusGeometry args={[0.08, 0.02, 8, 16, Math.PI]} />
+          <meshBasicMaterial color={EYE_COLOR} />
+        </mesh>
+
+        {/* ── Right Smile Eye ^ (말풍선 전환 시) ── */}
+        <mesh
+          ref={rightSmileRef}
+          position={[0.2, 0.46, 0.49]}
+          rotation={[-0.08, 0.31, 0]}
+          visible={false}
+        >
+          <torusGeometry args={[0.08, 0.02, 8, 16, Math.PI]} />
+          <meshBasicMaterial color={EYE_COLOR} />
+        </mesh>
 
         {/* ── Tail ── */}
         <mesh position={[0, -0.25, -0.38]}>

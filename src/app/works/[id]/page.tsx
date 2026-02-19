@@ -88,24 +88,108 @@ export default function WorkDetailPage() {
         </motion.p>
 
         <motion.div
-          className={styles.techStack}
+          className={styles.infoRow}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.6 }}
         >
-          {project.tech.map((tech) => (
-            <span key={tech} className={styles.techTag}>
-              {tech}
-            </span>
-          ))}
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>{t("workDetail.role")}</span>
+            <span className={styles.infoValue}>{project.role[language]}</span>
+          </div>
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>{t("workDetail.tech")}</span>
+            <div className={styles.techStack}>
+              {project.tech.map((tech) => (
+                <span key={tech} className={styles.techTag}>
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
         </motion.div>
+
+        {/* Overview */}
+        <motion.div
+          className={styles.section}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        >
+          <h2 className={styles.sectionTitle}>{t("workDetail.overview")}</h2>
+          <p className={styles.sectionText}>{project.overview[language]}</p>
+        </motion.div>
+
+        {/* Challenge */}
+        <motion.div
+          className={styles.section}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55, duration: 0.6 }}
+        >
+          <h2 className={styles.sectionTitle}>{t("workDetail.challenge")}</h2>
+          <p className={styles.sectionText}>{project.challenge[language]}</p>
+        </motion.div>
+
+        {/* Solution */}
+        <motion.div
+          className={styles.section}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+        >
+          <h2 className={styles.sectionTitle}>{t("workDetail.solution")}</h2>
+          <p className={styles.sectionText}>{project.solution[language]}</p>
+        </motion.div>
+
+        {/* Gallery */}
+        {project.gallery.length > 0 && (
+          <motion.div
+            className={styles.gallery}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65, duration: 0.6 }}
+          >
+            {project.gallery.map((src, i) => (
+              <div key={i} className={styles.galleryItem}>
+                <Image
+                  src={src}
+                  alt={`${project.title} ${i + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  className={styles.galleryImage}
+                />
+              </div>
+            ))}
+          </motion.div>
+        )}
 
         <motion.div
           className={styles.actions}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
+          transition={{ delay: 0.7, duration: 0.6 }}
         >
+          {project.liveUrl && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.viewAllButton}
+            >
+              {t("workDetail.visitSite")}
+            </a>
+          )}
+          {project.githubUrl && (
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.viewAllButton}
+            >
+              GitHub
+            </a>
+          )}
           <Link href="/works" className={styles.viewAllButton}>
             {t("workDetail.viewAll")}
           </Link>

@@ -124,6 +124,19 @@
     "approach": {
       "subtitle": "My Approach",
       "description": "How I work through a project."
+    },
+    "bubble": {
+      "0": "Nice to meet you! Scroll around and explore~",
+      "1": "Curious about me? Try dragging the windows, easter eggs are hidden~",
+      "2": "Here are my experiences!",
+      "3": "I mainly work on frontend! These are my key skills",
+      "4": "Lately I'm really into animation and interaction",
+      "5": "I can handle simple backend work too~",
+      "6": "From planning to design! Diverse experience :)",
+      "7": "Here's what I think about when I work",
+      "8": "This is how I work! Just Do It!",
+      "9": "Certs and awards! Worked pretty hard right?",
+      "10": "Thanks for reading to the end~ Feel free to reach out!"
     }
   },
   "contact": {
@@ -220,7 +233,13 @@
     "back": "Back",
     "viewAll": "View All Works",
     "notFound": "Work not found",
-    "notFoundLink": "Go back home"
+    "notFoundLink": "Go back home",
+    "role": "Role",
+    "tech": "Tech Stack",
+    "overview": "Overview",
+    "challenge": "Challenge",
+    "solution": "Solution",
+    "visitSite": "Visit Site"
   },
   "errorPage": {
     "title": "Something Went Wrong",
