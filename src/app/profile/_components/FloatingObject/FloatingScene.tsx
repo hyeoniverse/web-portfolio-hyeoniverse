@@ -133,8 +133,11 @@ export default function FloatingScene({
   const groupRef = useRef<THREE.Group>(null);
   const leftEyeRef = useRef<THREE.Mesh>(null);
   const rightEyeRef = useRef<THREE.Mesh>(null);
+  const leftSquintRef = useRef<THREE.Group>(null);
+  const rightSquintRef = useRef<THREE.Group>(null);
   const nextBlink = useRef(2 + Math.random() * 3);
   const blinkPhase = useRef(-1); // -1 = idle, 0~1 = blinking
+  const hitTime = useRef(-1); // 충돌 시점 (초)
   const { camera } = useThree();
 
   const vel = useRef<THREE.Vector2 | null>(null);
@@ -248,6 +251,7 @@ export default function FloatingScene({
       v.x = nx * BUNNY.impulse;
       v.y = ny * BUNNY.impulse;
       sv.set(-ny * 6, nx * 6, (nx - ny) * 3);
+      hitTime.current = t;
       playBoing();
     }
     wasInside.current = inside;
@@ -270,29 +274,39 @@ export default function FloatingScene({
     groupRef.current.rotation.set(rx, ry, rz);
     groupRef.current.scale.setScalar(scale);
 
-    // ── Eye blink ──
-    const BLINK_DUR = 0.15; // 깜빡임 한 사이클 (초)
-    if (blinkPhase.current < 0) {
-      if (t > nextBlink.current) {
-        blinkPhase.current = 0;
+    // ── Hit expression >< ──
+    const HIT_EXPR_DUR = 0.8;
+    const isHitExpr = hitTime.current > 0 && (t - hitTime.current) < HIT_EXPR_DUR;
+
+    if (leftEyeRef.current) leftEyeRef.current.visible = !isHitExpr;
+    if (rightEyeRef.current) rightEyeRef.current.visible = !isHitExpr;
+    if (leftSquintRef.current) leftSquintRef.current.visible = isHitExpr;
+    if (rightSquintRef.current) rightSquintRef.current.visible = isHitExpr;
+
+    // ── Eye blink (충돌 표정 중에는 스킵) ──
+    if (!isHitExpr) {
+      const BLINK_DUR = 0.15;
+      if (blinkPhase.current < 0) {
+        if (t > nextBlink.current) {
+          blinkPhase.current = 0;
+        }
       }
-    }
-    let eyeScaleY = 1.3; // 기본 Y 스케일
-    if (blinkPhase.current >= 0) {
-      blinkPhase.current += dt / BLINK_DUR;
-      if (blinkPhase.current >= 1) {
-        blinkPhase.current = -1;
-        nextBlink.current = t + 2 + Math.random() * 4;
-      } else {
-        // 0→0.5: 닫힘, 0.5→1: 열림
-        const p2 = blinkPhase.current < 0.5
-          ? blinkPhase.current / 0.5
-          : 1 - (blinkPhase.current - 0.5) / 0.5;
-        eyeScaleY = 1.3 * (1 - p2 * 0.92); // 최소 8%까지 납작
+      let eyeScaleY = 1.3;
+      if (blinkPhase.current >= 0) {
+        blinkPhase.current += dt / BLINK_DUR;
+        if (blinkPhase.current >= 1) {
+          blinkPhase.current = -1;
+          nextBlink.current = t + 2 + Math.random() * 4;
+        } else {
+          const p2 = blinkPhase.current < 0.5
+            ? blinkPhase.current / 0.5
+            : 1 - (blinkPhase.current - 0.5) / 0.5;
+          eyeScaleY = 1.3 * (1 - p2 * 0.92);
+        }
       }
+      if (leftEyeRef.current) leftEyeRef.current.scale.y = eyeScaleY;
+      if (rightEyeRef.current) rightEyeRef.current.scale.y = eyeScaleY;
     }
-    if (leftEyeRef.current) leftEyeRef.current.scale.y = eyeScaleY;
-    if (rightEyeRef.current) rightEyeRef.current.scale.y = eyeScaleY;
   });
 
   return (
@@ -359,7 +373,7 @@ export default function FloatingScene({
           />
         </mesh>
 
-        {/* ── Left Eye ── */}
+        {/* ── Left Eye (normal) ── */}
         <mesh
           ref={leftEyeRef}
           position={[-0.2, 0.46, 0.48]}
@@ -370,7 +384,7 @@ export default function FloatingScene({
           <meshBasicMaterial color={EYE_COLOR} />
         </mesh>
 
-        {/* ── Right Eye ── */}
+        {/* ── Right Eye (normal) ── */}
         <mesh
           ref={rightEyeRef}
           position={[0.2, 0.46, 0.48]}
@@ -380,6 +394,40 @@ export default function FloatingScene({
           <sphereGeometry args={[0.12, 16, 12]} />
           <meshBasicMaterial color={EYE_COLOR} />
         </mesh>
+
+        {/* ── Left Squint Eye > (충돌 시) ── */}
+        <group
+          ref={leftSquintRef}
+          position={[-0.2, 0.46, 0.49]}
+          rotation={[-0.08, -0.31, 0]}
+          visible={false}
+        >
+          <mesh position={[-0.015, 0.04, 0]} rotation={[0, 0, -0.5]}>
+            <boxGeometry args={[0.16, 0.025, 0.025]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+          <mesh position={[-0.015, -0.04, 0]} rotation={[0, 0, 0.5]}>
+            <boxGeometry args={[0.16, 0.025, 0.025]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+        </group>
+
+        {/* ── Right Squint Eye < (충돌 시) ── */}
+        <group
+          ref={rightSquintRef}
+          position={[0.2, 0.46, 0.49]}
+          rotation={[-0.08, 0.31, 0]}
+          visible={false}
+        >
+          <mesh position={[0.015, 0.04, 0]} rotation={[0, 0, 0.5]}>
+            <boxGeometry args={[0.16, 0.025, 0.025]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+          <mesh position={[0.015, -0.04, 0]} rotation={[0, 0, -0.5]}>
+            <boxGeometry args={[0.16, 0.025, 0.025]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+        </group>
 
 
         {/* ── Tail ── */}
