@@ -13,6 +13,13 @@
   left: 0;
   z-index: var(--z-nav);
   mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.logo,
+.navCenter,
+.navActions {
+  pointer-events: auto;
 }
 
 .logo {
