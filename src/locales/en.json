@@ -2,8 +2,8 @@
   "nav": {
     "home": "Home",
     "works": "Works",
-    "about": "About",
-    "behind": "Behind"
+    "profile": "Profile",
+    "about": "About"
   },
   "hero": {
     "headline1": "Creative",
@@ -86,7 +86,7 @@
     "endDesc": "Have a project in mind? Let's discuss how we can bring your vision to life.",
     "endButton": "Start a Project"
   },
-  "aboutPage": {
+  "profilePage": {
     "title": "About Me",
     "subtitle": "Crafting Digital Experiences",
     "intro": "Frontend-focused fullstack developer. I like learning by building things myself.",
@@ -158,7 +158,7 @@
     "copyright": "All Rights Reserved",
     "privacyPolicy": "Privacy Policy"
   },
-  "behind": {
+  "aboutPage": {
     "title": "The Making Of",
     "subtitle": "Behind the Scenes",
     "description": "A story about the design philosophy, key feature implementations, and development process of this portfolio site.",
