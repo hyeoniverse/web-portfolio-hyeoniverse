@@ -18,7 +18,7 @@ import { useContactStore } from "@/stores/contactStore";
 
 // 섹션
 import HeroSection from "./_sections/HeroSection";
-import AboutSection from "./_sections/AboutSection";
+import ProfileSection from "./_sections/ProfileSection";
 import ServicesSection from "./_sections/ServicesSection";
 import MarqueeSection from "./_sections/MarqueeSection";
 import WorksSection from "./_sections/WorksSection";
@@ -47,7 +47,7 @@ export default function HomePage() {
   // 레퍼런스
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const aboutRef = useRef<HTMLElement>(null);
+  const profileRef = useRef<HTMLElement>(null);
   const servicesRef = useRef<HTMLElement>(null);
   const marqueeRef = useRef<HTMLElement>(null);
   const worksRef = useRef<HTMLElement>(null);
@@ -138,27 +138,27 @@ export default function HomePage() {
           delay: 1,
         });
 
-        // About 섹션 등장
-        gsap.from(".about-text", {
+        // Profile 섹션 등장
+        gsap.from(".profile-text", {
           y: 100,
           opacity: 0,
           duration: 1,
           ease: "power3.out",
           immediateRender: false,
           scrollTrigger: {
-            trigger: aboutRef.current,
+            trigger: profileRef.current,
             start: "top 70%",
             once: true,
           },
         });
 
-        gsap.from(".about-line", {
+        gsap.from(".profile-line", {
           scaleX: 0,
           duration: 1.2,
           ease: "power3.inOut",
           immediateRender: false,
           scrollTrigger: {
-            trigger: aboutRef.current,
+            trigger: profileRef.current,
             start: "top 60%",
             once: true,
           },
@@ -289,11 +289,11 @@ export default function HomePage() {
           oval2X={oval2X}
           oval2Y={oval2Y}
           onScrollDown={() => {
-            aboutRef.current?.scrollIntoView({ behavior: "smooth" });
+            profileRef.current?.scrollIntoView({ behavior: "smooth" });
           }}
         />
 
-        <AboutSection ref={aboutRef} />
+        <ProfileSection ref={profileRef} />
 
         <ServicesSection
           ref={servicesRef}

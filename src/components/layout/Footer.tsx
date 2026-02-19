@@ -13,8 +13,8 @@ export default function Footer() {
       <div className={styles.content}>
         <div className={styles.links}>
           <Link href="/works">{t("nav.works")}</Link>
+          <Link href="/profile">{t("nav.profile")}</Link>
           <Link href="/about">{t("nav.about")}</Link>
-          <Link href="/behind">{t("nav.behind")}</Link>
           <span className={styles.divider}>✧</span>
           <Link href="/privacy">{t("footer.privacyPolicy")}</Link>
         </div>

@@ -14,8 +14,8 @@ import styles from "./Navigation.module.css";
 
 const navItems = [
   { key: "works", href: "/works" },
+  { key: "profile", href: "/profile" },
   { key: "about", href: "/about" },
-  { key: "behind", href: "/behind" },
 ];
 
 // Loading logo: full display name with per-letter animation
