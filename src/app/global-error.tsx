@@ -99,7 +99,6 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                   color: "#fff",
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
-                  cursor: "pointer",
                 }}
               >
                 Try Again

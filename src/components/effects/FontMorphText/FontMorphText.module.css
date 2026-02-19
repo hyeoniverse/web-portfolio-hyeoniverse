@@ -8,7 +8,6 @@
   align-items: center;
   gap: var(--spacing-sm);
   position: relative;
-  cursor: pointer;
 }
 
 .textWrapper {

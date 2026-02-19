@@ -318,7 +318,6 @@
   width: var(--_card-w);
   height: var(--_card-h);
   pointer-events: auto;
-  cursor: pointer;
   border-radius: var(--_card-radius);
   transform-style: preserve-3d;
   will-change: transform;

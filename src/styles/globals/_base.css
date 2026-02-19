@@ -1,18 +1,13 @@
 /* Global Base / Modern reset */
+html,
+body,
 *,
 *::before,
 *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-@media (pointer: fine) {
-  *,
-  *::before,
-  *::after {
-    cursor: none;
-  }
+  cursor: none;
 }
 
 html,

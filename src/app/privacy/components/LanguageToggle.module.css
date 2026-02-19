@@ -39,7 +39,6 @@
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.05em;
   border-radius: var(--radius-capsule);
-  cursor: pointer;
 }
 
 /* Text Layers */
