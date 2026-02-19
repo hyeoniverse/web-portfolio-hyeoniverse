@@ -183,6 +183,7 @@ export default function FloatingScene({
   };
 
   const scale = isMobile ? 0.8 : 1.2;
+  const mobileYBias = isMobile ? 1.8 : 0;
   const introProgress = useRef(0);
   const INTRO_DUR = 0.8;
 
@@ -204,7 +205,7 @@ export default function FloatingScene({
           : ip >= 1
             ? 1
             : Math.pow(2, -10 * ip) * Math.sin((ip * 10 - 0.75) * c4) + 1;
-      groupRef.current.position.set(0, 0, z);
+      groupRef.current.position.set(0, mobileYBias, z);
       groupRef.current.scale.setScalar(scale * elastic);
       groupRef.current.rotation.set(0, elastic * Math.PI * 2, 0);
       return;
@@ -216,6 +217,7 @@ export default function FloatingScene({
         Math.cos(angle) * BUNNY.speed,
         Math.sin(angle) * BUNNY.speed,
       );
+      pos.current.y = mobileYBias;
     }
     const v = vel.current;
     const p = pos.current;
@@ -245,8 +247,9 @@ export default function FloatingScene({
       sv.set(sv.x, sv.y + v.x * 3, sv.z - v.y * 2);
     }
 
-    if (p.y < -halfH + m) {
-      p.y = -halfH + m;
+    const bottomWall = isMobile ? -halfH * 0.2 + m : -halfH + m;
+    if (p.y < bottomWall) {
+      p.y = bottomWall;
       v.y = Math.abs(v.y) * BUNNY.wallRestitution;
       sv.set(sv.x - v.y * 3, sv.y, sv.z + v.x * 2);
     } else if (p.y > halfH - m) {

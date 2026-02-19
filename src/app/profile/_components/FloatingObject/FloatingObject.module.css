@@ -3,7 +3,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
-  z-index: var(--z-content-low);
+  z-index: calc(var(--z-nav) + 3);
   pointer-events: none;
 }
 

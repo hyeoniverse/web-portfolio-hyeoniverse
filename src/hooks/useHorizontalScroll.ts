@@ -372,6 +372,8 @@ export function useHorizontalScroll(
       mapped.push({ el: panel, navIdx: mapped.length });
     });
 
+    // rootMargin "-45% 0px -45% 0px" → 뷰포트 중앙 10% 영역만 감지
+    // 패널이 화면 중앙에 왔을 때 섹션 전환
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -381,7 +383,7 @@ export function useHorizontalScroll(
           }
         });
       },
-      { threshold: 0.3 },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
     );
 
     mapped.forEach(({ el }) => observer.observe(el));
