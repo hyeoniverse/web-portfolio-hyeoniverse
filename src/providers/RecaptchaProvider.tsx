@@ -26,12 +26,15 @@ interface RecaptchaContextValue {
   ready: boolean;
   /** reCAPTCHA 스크립트 로드 요청 — 실제로 필요한 시점에 호출 */
   load: () => void;
+  /** reCAPTCHA 스크립트/iframe 완전 제거 — cross-origin iframe 충돌 방지 */
+  unload: () => void;
 }
 
 const RecaptchaContext = createContext<RecaptchaContextValue>({
   executeRecaptcha: undefined,
   ready: false,
   load: () => {},
+  unload: () => {},
 });
 
 export function useRecaptcha() {
@@ -69,6 +72,19 @@ export default function RecaptchaProvider({
     document.head.appendChild(script);
   }, [enabled, siteKey, version]);
 
+  const unload = useCallback(() => {
+    // 스크립트 제거
+    document.querySelectorAll('script[src*="recaptcha/api.js"]').forEach((el) => el.remove());
+    // cross-origin iframe 제거
+    document.querySelectorAll('iframe[src*="recaptcha"]').forEach((el) => el.remove());
+    // 뱃지 제거
+    document.querySelectorAll(".grecaptcha-badge").forEach((el) => el.remove());
+    // 글로벌 객체 정리
+    delete (window as unknown as Record<string, unknown>).grecaptcha;
+    loadedRef.current = false;
+    setReady(false);
+  }, []);
+
   const executeRecaptcha = useCallback(
     async (action: string): Promise<string> => {
       if (!window.grecaptcha) {
@@ -82,7 +98,7 @@ export default function RecaptchaProvider({
   // 항상 동일한 트리 구조로 children을 렌더링 — 조건부 래핑 없음
   return (
     <RecaptchaContext.Provider
-      value={{ executeRecaptcha: ready ? executeRecaptcha : undefined, ready, load }}
+      value={{ executeRecaptcha: ready ? executeRecaptcha : undefined, ready, load, unload }}
     >
       {children}
     </RecaptchaContext.Provider>

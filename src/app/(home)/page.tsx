@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -11,10 +11,10 @@ import { useMagnetic } from "@/hooks/useMagnetic";
 import { useWorkInteraction } from "@/hooks/useWorkInteraction";
 import { useMagneticRepel } from "@/hooks/useMagneticRepel";
 import { useScrollVelocity } from "@/hooks/useScrollVelocity";
-import { useContactForm } from "@/hooks/useContactForm";
 import { useToast } from "@/hooks/useToast";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
-import { useRecaptcha } from "@/providers/RecaptchaProvider";
+import { useContactStore } from "@/stores/contactStore";
+
 
 // 섹션
 import HeroSection from "./_sections/HeroSection";
@@ -26,7 +26,6 @@ import CTASection from "./_sections/CTASection";
 import BridgeSection from "./_sections/BridgeSection";
 
 // 컴포넌트
-import ContactDrawer from "@/components/layout/ContactDrawer";
 import dynamic from "next/dynamic";
 
 const ScrollTorus = dynamic(
@@ -44,7 +43,6 @@ if (typeof window !== "undefined") {
 export default function HomePage() {
   const hasMounted = useHasMounted();
   const { isLoading } = useLoadingScreen();
-  const { load: loadRecaptcha } = useRecaptcha();
 
   // 레퍼런스
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,22 +53,13 @@ export default function HomePage() {
   const worksRef = useRef<HTMLElement>(null);
   const ctaRef = useRef<HTMLElement>(null);
 
-  // 드로어 상태
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-
   // 커스텀 훅
-  const { toast, formToast, showFormToast } = useToast();
+  const { toast } = useToast();
   const workInteraction = useWorkInteraction();
   const magneticRepel = useMagneticRepel();
   const scrollVelocity = useScrollVelocity(hasMounted);
-  const contactForm = useContactForm();
+  const { openForm } = useContactStore();
   const magnetic = useMagnetic(0.4);
-
-  // 토스트 핸들러 연결
-  useEffect(() => {
-    contactForm.onShowFormToast(showFormToast);
-  }, [contactForm, showFormToast]);
 
   // 패럴랙스용 마우스 추적
   const mouseX = useMotionValue(0);
@@ -335,7 +324,7 @@ export default function HomePage() {
           ctaOvalX={ctaOvalX}
           ctaOvalY={ctaOvalY}
           magnetic={magnetic}
-          onContactClick={() => { loadRecaptcha(); setIsDrawerOpen(true); }}
+          onContactClick={openForm}
         />
 
         <BridgeSection
@@ -343,28 +332,6 @@ export default function HomePage() {
           floatY={floatY}
           oval2X={oval2X}
           oval2Y={oval2Y}
-        />
-
-        <ContactDrawer
-          isOpen={isDrawerOpen}
-          onClose={() => setIsDrawerOpen(false)}
-          formState={contactForm.formState}
-          formRef={contactForm.formRef}
-          fileInputRef={contactForm.fileInputRef}
-          recaptchaRef={contactForm.recaptchaRef}
-          privacyAccepted={contactForm.privacyAccepted}
-          setPrivacyAccepted={contactForm.setPrivacyAccepted}
-          fileName={contactForm.fileName}
-          setFileName={contactForm.setFileName}
-          setRecaptchaToken={contactForm.setRecaptchaToken}
-          submittedData={contactForm.submittedData}
-          recaptchaEnabled={contactForm.recaptchaEnabled}
-          recaptchaVersion={contactForm.recaptchaVersion}
-          handleSubmit={contactForm.handleSubmit}
-          resetForm={contactForm.resetForm}
-          formToast={formToast}
-          copied={copied}
-          setCopied={setCopied}
         />
 
         {/* 토스트 알림 */}
