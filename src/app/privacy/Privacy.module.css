@@ -29,7 +29,6 @@
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   transition: color 0.3s ease;
-  cursor: pointer;
   border-radius: var(--radius-capsule);
 }
 

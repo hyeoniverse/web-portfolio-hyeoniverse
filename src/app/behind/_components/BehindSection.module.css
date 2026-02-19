@@ -2267,7 +2267,6 @@
   font-size: inherit;
   line-height: 1;
   color: inherit;
-  cursor: pointer;
 }
 
 .troublePageBtn:hover {
@@ -2276,7 +2275,6 @@
 
 .troublePageBtn:disabled {
   opacity: 0.3;
-  cursor: default;
 }
 
 .troublePageBtn:disabled:hover {
@@ -2293,7 +2291,6 @@
   padding-right: var(--bh-space-line);
   border-bottom: var(--bh-line-secondary);
 }
-
 
 /* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .troubleList .troubleListItem {
@@ -3278,7 +3275,6 @@
   .highlightedText {
     padding: var(--padding-sm);
   }
-
 }
 
 /* ── Tablet: smaller cards + zigzag ── */
