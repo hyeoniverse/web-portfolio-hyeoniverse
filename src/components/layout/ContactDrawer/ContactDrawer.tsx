@@ -8,6 +8,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { siteConfig } from "@/config/site.config";
 import ContactSuccessView from "./ContactSuccessView";
 import ContactInfoCards from "./ContactInfoCards";
@@ -84,6 +85,7 @@ export default function ContactDrawer({
 }: ContactDrawerProps) {
   const { t, language } = useLanguage();
   const { stop: lenisStop, start: lenisStart } = useLenis();
+  const isMobile = useMobileLayout();
   const drawerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isMobileDrawer, setIsMobileDrawer] = useState(false);
@@ -271,7 +273,7 @@ export default function ContactDrawer({
             <div className={styles.formCard}>
               <div>
                 <h2 className={styles.title}>
-                  {formState.succeeded ? t("contact.drawer.successTitle") : t("contact.drawer.formTitle")}
+                  {formState.succeeded ? t("contact.drawer.successTitle") : t(isMobile ? "contact.drawer.formTitleMobile" : "contact.drawer.formTitle")}
                 </h2>
 
                 <AnimatePresence mode="wait">

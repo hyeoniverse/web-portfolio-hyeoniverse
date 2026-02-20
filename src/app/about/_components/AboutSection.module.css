@@ -3200,24 +3200,19 @@
   }
 
   .troubleDetail {
-    flex: 1;
     min-width: 0;
-    min-height: 0;
     overflow: visible;
   }
 
-  /* 모바일: 절대 위치 + opacity 스택 복원 (JS 스태거 사용) */
+  /* 모바일: relative + display 토글 (내용 기반 높이) */
   .troubleDetailItem {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    display: none;
     min-height: auto;
-    pointer-events: none;
-    opacity: 0;
   }
 
   .troubleDetailItemActive {
-    pointer-events: auto;
-    opacity: 1;
+    display: block;
   }
 
   /* JS drives stagger cascade; container fade only */
