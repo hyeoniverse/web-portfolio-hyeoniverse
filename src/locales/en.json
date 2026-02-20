@@ -165,6 +165,8 @@
       "acceptPrivacy": "Accept the ",
       "privacyPolicy": "Privacy Policy",
       "emailTitle": "Or email me",
+      "emailTitleMobile": "Send me an email",
+      "formTitleMobile": "Or fill out the form",
       "copied": "Copied!"
     }
   },

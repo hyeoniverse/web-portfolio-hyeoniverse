@@ -164,6 +164,8 @@
       "acceptPrivacy": "에 동의합니다",
       "privacyPolicy": "개인정보 처리방침",
       "emailTitle": "Or email me",
+      "emailTitleMobile": "Send me an email",
+      "formTitleMobile": "Or fill out the form",
       "copied": "복사됨!"
     }
   },

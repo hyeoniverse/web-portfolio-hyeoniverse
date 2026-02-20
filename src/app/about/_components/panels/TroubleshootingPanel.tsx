@@ -249,7 +249,7 @@ export default function TroubleshootingPanel({
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
-      <div ref={contentRef} className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}>
+      <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
           number="08"
           title="Trouble Shooting."

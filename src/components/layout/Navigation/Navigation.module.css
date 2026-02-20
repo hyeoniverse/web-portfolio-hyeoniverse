@@ -696,17 +696,17 @@
     padding: var(--spacing-md) 4vw;
   }
 
+  .actionBtn {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+  }
+
   .contactBtn {
     width: auto;
     height: auto;
     padding: 4px var(--spacing-xs);
     font-size: 10px;
-  }
-
-  .actionBtn {
-    width: 28px;
-    height: 28px;
-    padding: 4px;
   }
 
   .themeIcon {

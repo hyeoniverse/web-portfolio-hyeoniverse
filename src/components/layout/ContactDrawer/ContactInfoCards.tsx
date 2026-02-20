@@ -1,6 +1,7 @@
 "use client";
 
 import { siteConfig } from "@/config/site.config";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import Logo from "@/components/common/Logo";
 import styles from "./ContactDrawer.module.css";
@@ -18,6 +19,7 @@ export default function ContactInfoCards({
   setCopied,
   onClose,
 }: ContactInfoCardsProps) {
+  const isMobile = useMobileLayout();
   return (
     <div className={styles.rightColumn}>
       {/* 이메일 카드 */}
@@ -39,7 +41,7 @@ export default function ContactInfoCards({
         </div>
 
         <div>
-          <h3 className={styles.emailTitle}>{t("contact.drawer.emailTitle")}</h3>
+          <h3 className={styles.emailTitle}>{t(isMobile ? "contact.drawer.emailTitleMobile" : "contact.drawer.emailTitle")}</h3>
           <button
             className={`${styles.emailAddress} ${copied ? styles.emailAddressCopied : ""}`}
             onClick={() => {

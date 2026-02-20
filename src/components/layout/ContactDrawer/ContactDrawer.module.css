@@ -877,7 +877,7 @@
     --drawer-size-checkbox: 22px;
     --drawer-padding: 18px 24px;
     --drawer-padding-card: 44px 36px;
-    --drawer-font-size-title: 64px;
+    --drawer-font-size-title: 8vw;
     --drawer-font-size-xl: 40px;
     --drawer-font-size-lg: 26px;
     --drawer-font-size-md: 22px;
@@ -969,6 +969,14 @@
     height: 100px;
   }
 
+  .title {
+    font-weight: var(--font-weight-regular);
+  }
+
+  .emailTitle {
+    font-weight: var(--font-weight-regular);
+  }
+
   .formCard {
     min-height: 0;
     border-radius: var(--drawer-radius-card);
@@ -998,7 +1006,6 @@
     --drawer-gap-lg: 20px;
     --drawer-padding: 16px 20px;
     --drawer-padding-card: 36px 28px;
-    --drawer-font-size-title: 56px;
     --drawer-font-size-xl: 36px;
     --drawer-font-size-lg: 24px;
     --drawer-font-size-md: 20px;
