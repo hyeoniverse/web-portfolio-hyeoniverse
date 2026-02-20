@@ -359,10 +359,11 @@
 
 .menuFooterEmail {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-3xl);
+  font-size: clamp(14px, 6vw, var(--font-size-3xl));
   color: #ffffff;
   text-decoration: underline;
   text-underline-offset: 6px;
+  white-space: nowrap;
 }
 
 .menuNav {

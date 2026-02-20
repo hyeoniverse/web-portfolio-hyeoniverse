@@ -864,24 +864,24 @@
 
 @media (max-width: 768px) {
   .backdrop {
-    --drawer-gap-outer: 10px;
-    --drawer-gap-sm: 8px;
-    --drawer-gap-md: 14px;
-    --drawer-gap-lg: 24px;
+    --drawer-gap-outer: clamp(6px, 1.3vw, 10px);
+    --drawer-gap-sm: clamp(5px, 1vw, 8px);
+    --drawer-gap-md: clamp(10px, 1.8vw, 14px);
+    --drawer-gap-lg: clamp(16px, 3.1vw, 24px);
     --drawer-radius-card: var(--radius-3xl);
-    --drawer-size-close-btn: 48px;
-    --drawer-size-close-icon: 22px;
-    --drawer-size-copy-icon: 20px;
-    --drawer-size-social-btn: 48px;
-    --drawer-size-social-icon: 22px;
-    --drawer-size-checkbox: 22px;
-    --drawer-padding: 18px 24px;
-    --drawer-padding-card: 44px 36px;
+    --drawer-size-close-btn: clamp(36px, 6.25vw, 48px);
+    --drawer-size-close-icon: clamp(16px, 2.9vw, 22px);
+    --drawer-size-copy-icon: clamp(14px, 2.6vw, 20px);
+    --drawer-size-social-btn: clamp(36px, 6.25vw, 48px);
+    --drawer-size-social-icon: clamp(16px, 2.9vw, 22px);
+    --drawer-size-checkbox: clamp(16px, 2.9vw, 22px);
+    --drawer-padding: clamp(14px, 2.3vw, 18px) clamp(16px, 3.1vw, 24px);
+    --drawer-padding-card: clamp(28px, 5.7vw, 44px) clamp(20px, 4.7vw, 36px);
     --drawer-font-size-title: 8vw;
-    --drawer-font-size-xl: 40px;
-    --drawer-font-size-lg: 26px;
-    --drawer-font-size-md: 22px;
-    --drawer-font-size-sm: 17px;
+    --drawer-font-size-xl: clamp(28px, 5.2vw, 40px);
+    --drawer-font-size-lg: clamp(18px, 3.4vw, 26px);
+    --drawer-font-size-md: clamp(16px, 2.9vw, 22px);
+    --drawer-font-size-sm: clamp(13px, 2.2vw, 17px);
   }
 
   .clipWrapper {
@@ -1002,20 +1002,27 @@
 
 @media (max-width: 480px) {
   .backdrop {
-    --drawer-gap-md: 12px;
-    --drawer-gap-lg: 20px;
-    --drawer-padding: 16px 20px;
-    --drawer-padding-card: 36px 28px;
-    --drawer-font-size-xl: 36px;
-    --drawer-font-size-lg: 24px;
-    --drawer-font-size-md: 20px;
-    --drawer-font-size-sm: 16px;
+    --drawer-gap-outer: 1.3vw;
+    --drawer-gap-sm: 1vw;
+    --drawer-gap-md: 2.5vw;
+    --drawer-gap-lg: 4.2vw;
+    --drawer-size-close-btn: 8vw;
+    --drawer-size-close-icon: 4vw;
+    --drawer-size-copy-icon: 3.5vw;
+    --drawer-size-social-btn: 8vw;
+    --drawer-size-social-icon: 4vw;
+    --drawer-size-checkbox: 4vw;
+    --drawer-padding: 3vw 4.2vw;
+    --drawer-padding-card: 6vw 5vw;
+    --drawer-font-size-title: 8vw;
+    --drawer-font-size-xl: 7.5vw;
+    --drawer-font-size-lg: 5vw;
+    --drawer-font-size-md: 4.2vw;
+    --drawer-font-size-sm: 3.3vw;
   }
 
   .closeBtn {
-    top: 12px;
-    right: 12px;
-    width: 36px;
-    height: 36px;
+    top: 2.5vw;
+    right: 2.5vw;
   }
 }
