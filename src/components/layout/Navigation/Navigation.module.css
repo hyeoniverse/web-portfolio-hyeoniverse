@@ -309,6 +309,8 @@
   }
 
   .contactBtn {
+    width: auto;
+    height: auto;
     padding: var(--spacing-xs) var(--spacing-sm);
   }
 
@@ -329,6 +331,8 @@
   }
 
   .contactBtn {
+    width: auto;
+    height: auto;
     padding: 4px var(--spacing-xs);
     font-size: 10px;
   }
