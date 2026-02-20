@@ -81,9 +81,11 @@
 
 .titleRow {
   display: flex;
-  gap: var(--spacing-xl);
+  flex-wrap: wrap;
+  gap: 0 var(--spacing-xl);
   align-items: center;
   overflow: hidden;
+  word-break: keep-all;
 }
 
 .titleText {

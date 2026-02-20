@@ -12,6 +12,7 @@ import { useSoundStore } from "@/stores/soundStore";
 import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
+import Logo from "@/components/common/Logo";
 import styles from "./Navigation.module.css";
 
 const navItems = [
@@ -487,7 +488,7 @@ export default function Navigation() {
             <div className={styles.menuDrawer}>
               {/* Header: logo center */}
               <div className={styles.menuHeader}>
-                <span className={styles.menuLogo}>{siteConfig.brand.name}</span>
+                <Logo variant="full" as="span" className={styles.menuLogo} />
               </div>
 
               {/* Close button — nav 햄버거와 동일한 우상단 위치 */}
@@ -515,7 +516,7 @@ export default function Navigation() {
                     return (
                       <button
                         key={item.key}
-                        className={styles.menuLink}
+                        className={`${styles.menuLink} glith-on-hover`}
                         onClick={() => {
                           setIsMenuOpen(false);
                           openForm();
@@ -529,7 +530,7 @@ export default function Navigation() {
                     <Link
                       key={item.key}
                       href={item.href}
-                      className={`${styles.menuLink} ${pathname === item.href ? styles.menuLinkActive : ""}`}
+                      className={`${styles.menuLink} glith-on-hover ${pathname === item.href ? styles.menuLinkActive : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {t(`nav.${item.key}`)}
