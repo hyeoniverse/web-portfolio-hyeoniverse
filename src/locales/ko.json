@@ -127,6 +127,7 @@
     "bubble": {
       "0": "반가워! 스크롤해서 구경해봐~",
       "1": "내가 누군지 궁금하지? 창을 드래그해봐, 이스터에그가 숨어있어~",
+      "1_mobile": "내가 누군지 궁금하지?",
       "2": "나는 이런 경험들을 해봤어!",
       "3": "프론트엔드 위주로 작업해봤어! 내 주력 스킬들이야",
       "4": "요즘에는 애니메이션과 인터랙션에 관심이 많아",
@@ -150,8 +151,8 @@
     "successSubMessage": "빠른 시일 내에 답변드리겠습니다.",
     "confirm": "확인",
     "drawer": {
-      "formTitle": "양식을 작성해주세요",
-      "successTitle": "메시지 전송 완료!",
+      "formTitle": "Fill out the form",
+      "successTitle": "Message Sent!",
       "preview": "[미리보기] 보낸 메시지",
       "messageLabel": "메시지",
       "namePlaceholder": "이름",
@@ -161,7 +162,7 @@
       "fileUpload": "pdf/doc 파일 첨부, 최대 10MB",
       "acceptPrivacy": "에 동의합니다",
       "privacyPolicy": "개인정보 처리방침",
-      "emailTitle": "이메일로 보내기",
+      "emailTitle": "Or email me",
       "copied": "복사됨!"
     }
   },

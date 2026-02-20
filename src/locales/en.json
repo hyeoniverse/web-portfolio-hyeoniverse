@@ -128,6 +128,7 @@
     "bubble": {
       "0": "Nice to meet you! Scroll around and explore~",
       "1": "Curious about me? Try dragging the windows, easter eggs are hidden~",
+      "1_mobile": "Curious about me?",
       "2": "Here are my experiences!",
       "3": "I mainly work on frontend! These are my key skills",
       "4": "Lately I'm really into animation and interaction",
