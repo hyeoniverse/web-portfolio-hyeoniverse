@@ -279,31 +279,6 @@ export default function Navigation() {
           <span className={styles.contactText}>Get in Touch</span>
         </button>
 
-        {/* 사운드 토글 */}
-        <button
-          className={styles.actionBtn}
-          onClick={handleSoundToggle}
-          onMouseEnter={() => setIsSoundHovered(true)}
-          onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
-          aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
-        >
-          <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
-            <svg
-              className={`${styles.soundIcon} ${showMutedIcon ? styles.soundIconMuted : ""}`}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              <path d="M11 5L6 9H2v6h4l5 4V5z" />
-              <path className={styles.waveOuter} d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-              <path className={styles.waveInner} d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-              <line className={styles.xLine} x1="23" y1="9" x2="17" y2="15" />
-              <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          </span>
-        </button>
-
         {/* 언어 토글 */}
         <button
           className={styles.actionBtn}
@@ -344,6 +319,31 @@ export default function Navigation() {
         >
           <span className={`${styles.langText} ${isLangAnimating && !isLangClicking ? styles.animating : ""} ${isLangClicking ? styles.clicking : ""}`}>
             {displayLang === "ko" ? "KO" : "EN"}
+          </span>
+        </button>
+
+        {/* 사운드 토글 */}
+        <button
+          className={styles.actionBtn}
+          onClick={handleSoundToggle}
+          onMouseEnter={() => setIsSoundHovered(true)}
+          onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
+          aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
+        >
+          <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
+            <svg
+              className={`${styles.soundIcon} ${showMutedIcon ? styles.soundIconMuted : ""}`}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path d="M11 5L6 9H2v6h4l5 4V5z" />
+              <path className={styles.waveOuter} d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+              <path className={styles.waveInner} d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              <line className={styles.xLine} x1="23" y1="9" x2="17" y2="15" />
+              <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
+            </svg>
           </span>
         </button>
 
