@@ -931,7 +931,7 @@
     font-family: var(--font-instrument), serif;
     font-size: 28px;
     font-weight: var(--font-weight-regular);
-    color: var(--drawer-color-primary);
+    color: #000000;
     letter-spacing: -0.02em;
   }
 

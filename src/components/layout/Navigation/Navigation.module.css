@@ -55,7 +55,8 @@
   height: 1px;
   background: var(--text-white);
   pointer-events: none;
-  transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     opacity 0.25s ease;
 }
@@ -101,7 +102,9 @@
 }
 
 .navActions .contactBtn {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .contactBtn:hover {
@@ -125,9 +128,15 @@
 }
 
 @keyframes popSound {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .soundIcon {
@@ -277,6 +286,81 @@
   background: var(--text-white);
 }
 
+/* Hover ripple — expand outward from center, then return */
+.menuBtn:hover .menuDot:nth-child(1) {
+  animation: dotExpTL 0.5s ease-in-out;
+}
+.menuBtn:hover .menuDot:nth-child(2) {
+  animation: dotExpT 0.5s ease-in-out;
+}
+.menuBtn:hover .menuDot:nth-child(3) {
+  animation: dotExpTR 0.5s ease-in-out;
+}
+.menuBtn:hover .menuDot:nth-child(4) {
+  animation: dotExpL 0.5s ease-in-out;
+}
+.menuBtn:hover .menuDot:nth-child(5) {
+  animation: dotExpC 0.5s ease-in-out;
+}
+.menuBtn:hover .menuDot:nth-child(6) {
+  animation: dotExpR 0.5s ease-in-out;
+}
+.menuBtn:hover .menuDot:nth-child(7) {
+  animation: dotExpBL 0.5s ease-in-out;
+}
+.menuBtn:hover .menuDot:nth-child(8) {
+  animation: dotExpB 0.5s ease-in-out;
+}
+.menuBtn:hover .menuDot:nth-child(9) {
+  animation: dotExpBR 0.5s ease-in-out;
+}
+
+@keyframes dotExpTL {
+  50% {
+    transform: translate(-2px, -2px);
+  }
+}
+@keyframes dotExpT {
+  50% {
+    transform: translate(0, -2px);
+  }
+}
+@keyframes dotExpTR {
+  50% {
+    transform: translate(2px, -2px);
+  }
+}
+@keyframes dotExpL {
+  50% {
+    transform: translate(-2px, 0);
+  }
+}
+@keyframes dotExpC {
+  50% {
+    transform: scale(1.5);
+  }
+}
+@keyframes dotExpR {
+  50% {
+    transform: translate(2px, 0);
+  }
+}
+@keyframes dotExpBL {
+  50% {
+    transform: translate(-2px, 2px);
+  }
+}
+@keyframes dotExpB {
+  50% {
+    transform: translate(0, 2px);
+  }
+}
+@keyframes dotExpBR {
+  50% {
+    transform: translate(2px, 2px);
+  }
+}
+
 /* ==========================================================================
   Menu Drawer (full-screen dark overlay)
   ========================================================================== */
@@ -311,8 +395,8 @@
   right: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-xl) 5vw;
+  justify-content: center;
+  padding: 44px 36px;
 }
 
 .menuHeaderDots {
@@ -322,9 +406,6 @@
 }
 
 .menuLogo {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   font-family: var(--font-instrument), serif;
   font-size: 28px;
   font-weight: var(--font-weight-regular);
@@ -346,17 +427,17 @@
 
 .menuFooterLabel {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   font-style: italic;
   color: rgba(255, 255, 255, 0.5);
 }
 
 .menuFooterEmail {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-3xl);
   color: #ffffff;
   text-decoration: underline;
-  text-underline-offset: 4px;
+  text-underline-offset: 6px;
 }
 
 .menuNav {
@@ -393,7 +474,6 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  cursor: pointer;
   z-index: 1;
 }
 
@@ -414,56 +494,132 @@
                 60–100% spread into X */
 
 /* Corners: collapse → return to grid position */
-.menuCloseDot:nth-child(1) { animation: dotTL 1.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.menuCloseDot:nth-child(3) { animation: dotTR 1.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.menuCloseDot:nth-child(7) { animation: dotBL 1.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.menuCloseDot:nth-child(9) { animation: dotBR 1.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.menuCloseDot:nth-child(1) {
+  animation: dotTL 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.menuCloseDot:nth-child(3) {
+  animation: dotTR 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.menuCloseDot:nth-child(7) {
+  animation: dotBL 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.menuCloseDot:nth-child(9) {
+  animation: dotBR 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
 
 /* Edges: collapse → stay at center & fade out */
-.menuCloseDot:nth-child(2) { animation: dotT 1.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.menuCloseDot:nth-child(4) { animation: dotL 1.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.menuCloseDot:nth-child(6) { animation: dotR 1.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.menuCloseDot:nth-child(8) { animation: dotB 1.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.menuCloseDot:nth-child(2) {
+  animation: dotT 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.menuCloseDot:nth-child(4) {
+  animation: dotL 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.menuCloseDot:nth-child(6) {
+  animation: dotR 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.menuCloseDot:nth-child(8) {
+  animation: dotB 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
 
 @keyframes dotTL {
-  0% { transform: translate(0, 0); }
-  60% { transform: translate(4px, 4px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  60% {
+    transform: translate(4px, 4px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 @keyframes dotTR {
-  0% { transform: translate(0, 0); }
-  60% { transform: translate(-4px, 4px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  60% {
+    transform: translate(-4px, 4px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 @keyframes dotBL {
-  0% { transform: translate(0, 0); }
-  60% { transform: translate(4px, -4px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  60% {
+    transform: translate(4px, -4px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 @keyframes dotBR {
-  0% { transform: translate(0, 0); }
-  60% { transform: translate(-4px, -4px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  60% {
+    transform: translate(-4px, -4px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 @keyframes dotT {
-  0% { transform: translate(0, 0); opacity: 1; }
-  60% { transform: translate(0, 4px); opacity: 1; }
-  100% { transform: translate(0, 4px); opacity: 0; }
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(0, 4px);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 4px);
+    opacity: 0;
+  }
 }
 @keyframes dotL {
-  0% { transform: translate(0, 0); opacity: 1; }
-  60% { transform: translate(4px, 0); opacity: 1; }
-  100% { transform: translate(4px, 0); opacity: 0; }
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(4px, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(4px, 0);
+    opacity: 0;
+  }
 }
 @keyframes dotR {
-  0% { transform: translate(0, 0); opacity: 1; }
-  60% { transform: translate(-4px, 0); opacity: 1; }
-  100% { transform: translate(-4px, 0); opacity: 0; }
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(-4px, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-4px, 0);
+    opacity: 0;
+  }
 }
 @keyframes dotB {
-  0% { transform: translate(0, 0); opacity: 1; }
-  60% { transform: translate(0, -4px); opacity: 1; }
-  100% { transform: translate(0, -4px); opacity: 0; }
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(0, -4px);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, -4px);
+    opacity: 0;
+  }
 }
 
 /* ==========================================================================
@@ -576,5 +732,4 @@
     width: 1.5px;
     height: 1.5px;
   }
-
 }
