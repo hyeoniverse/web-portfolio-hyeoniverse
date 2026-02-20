@@ -66,8 +66,6 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const isMobile = window.innerWidth <= 768;
-
     // Lenis 초기화
     const lenisInstance = new Lenis({
       duration: options.duration ?? 1.2,
@@ -77,7 +75,7 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       smoothWheel: options.smoothWheel ?? true,
       wheelMultiplier: options.wheelMultiplier ?? 1,
       touchMultiplier: options.touchMultiplier ?? 2,
-      infinite: isMobile ? false : (options.infinite ?? true),
+      infinite: options.infinite ?? true,
     });
 
     lenisRef.current = lenisInstance;
@@ -126,9 +124,8 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
 
     // 리사이즈 시 infinite 토글 (모바일 ↔ 데스크톱)
     const handleResize = () => {
-      const mobile = window.innerWidth <= 768;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (lenisInstance as any).options.infinite = mobile ? false : (options.infinite ?? true);
+      (lenisInstance as any).options.infinite = options.infinite ?? true;
     };
     window.addEventListener("resize", handleResize);
 
