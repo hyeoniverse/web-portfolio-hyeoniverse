@@ -51,17 +51,26 @@
   --drawer-font-size-md: 1.1vw;
   --drawer-font-size-sm: 0.85vw;
   --drawer-line-height: 1.5;
+}
 
-  /* Layout */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ---------------------------------------------------------------------------
+  Clip Wrapper - clip-path animation only
+  --------------------------------------------------------------------------- */
+.clipWrapper {
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);
-  background: var(--bg-surface);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+}
+
+/* ---------------------------------------------------------------------------
+  Backdrop - scrollable container
+  --------------------------------------------------------------------------- */
+.backdrop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 /* ---------------------------------------------------------------------------
@@ -112,13 +121,26 @@
   height: 100%;
 }
 
-/* Both lines overlap to form "-", Framer Motion handles rotation to "X" */
+/* Both lines overlap to form "-", CSS hover rotates to "X" */
 .closeLine {
   position: absolute;
   width: var(--drawer-size-close-icon);
   height: 2px;
   background: var(--drawer-color-primary);
   border-radius: 2px;
+}
+
+/* compound selector (0,2,0) to beat global theme transition (0,1,1) */
+.closeBtn .closeLine {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.closeBtn:hover .closeLine:first-child {
+  transform: rotate(45deg);
+}
+
+.closeBtn:hover .closeLine:last-child {
+  transform: rotate(-45deg);
 }
 
 /* ---------------------------------------------------------------------------
@@ -632,6 +654,11 @@
   border-radius: var(--drawer-radius-card);
 }
 
+/* Email Header - mobile only */
+.emailHeader {
+  display: none;
+}
+
 .emailTitle {
   font-family: inherit;
   font-size: var(--drawer-font-size-title);
@@ -705,7 +732,7 @@
    --------------------------------------------------------------------------- */
 .profileCard {
   display: flex;
-  flex: 2;
+  flex: 0 1 auto;
   flex-direction: column;
   padding: var(--drawer-padding-card);
   background: var(--drawer-color-bg);
@@ -720,7 +747,8 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  justify-content: space-between;
+  gap: var(--drawer-gap-sm);
+  justify-content: center;
   height: 100%;
 }
 
@@ -835,13 +863,152 @@
 }
 
 @media (max-width: 768px) {
+  .backdrop {
+    --drawer-gap-outer: 10px;
+    --drawer-gap-sm: 8px;
+    --drawer-gap-md: 14px;
+    --drawer-gap-lg: 24px;
+    --drawer-radius-card: var(--radius-3xl);
+    --drawer-size-close-btn: 48px;
+    --drawer-size-close-icon: 22px;
+    --drawer-size-copy-icon: 20px;
+    --drawer-size-social-btn: 48px;
+    --drawer-size-social-icon: 22px;
+    --drawer-size-checkbox: 22px;
+    --drawer-padding: 18px 24px;
+    --drawer-padding-card: 44px 36px;
+    --drawer-font-size-title: 64px;
+    --drawer-font-size-xl: 40px;
+    --drawer-font-size-lg: 26px;
+    --drawer-font-size-md: 22px;
+    --drawer-font-size-sm: 17px;
+  }
+
+  .clipWrapper {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
   .drawer {
-    width: 95vw;
-    height: 66.5vw;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: var(--drawer-gap-outer);
+    position: static;
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .backdrop {
+    display: block;
+    height: auto;
+    min-height: 100%;
+    background: #000000;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .closeBtn {
+    display: none;
+  }
+
+  .emailHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: var(--drawer-gap-lg);
+  }
+
+  .emailHeaderSpacer {
+    width: 48px;
+  }
+
+  .emailHeaderLogo {
+    font-family: var(--font-instrument), serif;
+    font-size: 28px;
+    font-weight: var(--font-weight-regular);
+    color: var(--drawer-color-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .emailHeaderClose {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: none;
+    background: var(--drawer-color-primary);
+    color: var(--drawer-color-bg);
+    border-radius: var(--radius-circle);
+  }
+
+  .emailHeaderClose .closeLine {
+    background: var(--drawer-color-bg);
+    width: 22px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .emailHeaderClose:hover .closeLine:first-child {
+    transform: rotate(45deg);
+  }
+
+  .emailHeaderClose:hover .closeLine:last-child {
+    transform: rotate(-45deg);
+  }
+
+  .profileCard {
+    padding: 28px 36px;
+  }
+
+  .profileImage {
+    height: 100px;
+  }
+
+  .formCard {
+    min-height: 0;
+    border-radius: var(--drawer-radius-card);
+  }
+
+  .rightColumn {
+    display: contents;
+  }
+
+  .emailCard {
+    order: -1;
+    border-radius: 0 0 var(--drawer-radius-card) var(--drawer-radius-card);
   }
 
   .formRow {
     grid-template-columns: 1fr;
+  }
+
+  .recaptcha {
+    transform: scale(0.85);
+  }
+}
+
+@media (max-width: 480px) {
+  .backdrop {
+    --drawer-gap-md: 12px;
+    --drawer-gap-lg: 20px;
+    --drawer-padding: 16px 20px;
+    --drawer-padding-card: 36px 28px;
+    --drawer-font-size-title: 56px;
+    --drawer-font-size-xl: 36px;
+    --drawer-font-size-lg: 24px;
+    --drawer-font-size-md: 20px;
+    --drawer-font-size-sm: 16px;
+  }
+
+  .closeBtn {
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
   }
 }

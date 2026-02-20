@@ -7,6 +7,7 @@ import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
 import ContactSuccessView from "./ContactSuccessView";
 import ContactInfoCards from "./ContactInfoCards";
@@ -81,14 +82,122 @@ export default function ContactDrawer({
   copied,
   setCopied,
 }: ContactDrawerProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { stop: lenisStop, start: lenisStart } = useLenis();
   const drawerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+  const [isMobileDrawer, setIsMobileDrawer] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [clipOpen, setClipOpen] = useState(false);
   const { ready: recaptchaReady } = useRecaptcha();
 
   useEffect(() => {
     setMounted(true);
+    const mql = window.matchMedia("(max-width: 768px)");
+    setIsMobileDrawer(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobileDrawer(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
   }, []);
+
+  // isOpen → true: 마운트 후 다음 프레임에서 clip 열기
+  // isOpen → false: clip 닫기(0.8s) → blur fade(0.5s) → 언마운트
+  useEffect(() => {
+    let rafId: number;
+    let unmountTimer: ReturnType<typeof setTimeout>;
+
+    if (isOpen) {
+      setShowDrawer(true);
+      rafId = requestAnimationFrame(() => {
+        rafId = requestAnimationFrame(() => {
+          setClipOpen(true);
+        });
+      });
+    } else {
+      setClipOpen(false);
+      // clip(0.8s) + blur fade(0.5s) 후 언마운트
+      unmountTimer = setTimeout(() => {
+        setShowDrawer(false);
+      }, 1300);
+    }
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      clearTimeout(unmountTimer);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    const blurTargets = () =>
+      document.querySelectorAll<HTMLElement>("body > nav, body > main");
+
+    const applyBlur = () => {
+      if (!isMobileDrawer) {
+        blurTargets().forEach((el) => {
+          el.style.filter = "blur(12px)";
+          el.style.transition = "filter 0.5s ease";
+        });
+      }
+    };
+
+    let fadeTimer: ReturnType<typeof setTimeout> | undefined;
+    let cleanTimer: ReturnType<typeof setTimeout> | undefined;
+
+    if (isOpen) {
+      lenisStop();
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      requestAnimationFrame(() => {
+        document.documentElement.style.overflow = "visible";
+      });
+      applyBlur();
+    } else {
+      // clip 닫힌 후(0.8s) blur fade 시작 (transition 유지 → 자연 fade)
+      fadeTimer = setTimeout(() => {
+        blurTargets().forEach((el) => {
+          el.style.filter = "";
+        });
+      }, 800);
+      // blur fade 끝난 후(0.8s + 0.5s) transition cleanup
+      cleanTimer = setTimeout(() => {
+        blurTargets().forEach((el) => {
+          el.style.transition = "";
+        });
+      }, 1300);
+      // 스크롤 복원
+      document.documentElement.style.overflow = "";
+      const top = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      if (top) window.scrollTo(0, parseInt(top, 10) * -1);
+      lenisStart();
+    }
+    // cleanup: 타이머만 정리 (blur는 else 브랜치에서 처리)
+    return () => {
+      if (fadeTimer) clearTimeout(fadeTimer);
+      if (cleanTimer) clearTimeout(cleanTimer);
+    };
+  }, [isOpen, lenisStop, lenisStart]);
+
+  // 컴포넌트 언마운트 시 blur + 스크롤 완전 정리
+  useEffect(() => {
+    return () => {
+      document.querySelectorAll<HTMLElement>("body > nav, body > main").forEach((el) => {
+        el.style.filter = "";
+        el.style.transition = "";
+      });
+      document.documentElement.style.overflow = "";
+      const top = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      if (top) window.scrollTo(0, parseInt(top, 10) * -1);
+      lenisStart();
+    };
+  }, [lenisStart]);
 
   useEffect(() => {
     if (!recaptchaEnabled || recaptchaVersion !== "v3") return;
@@ -118,100 +227,49 @@ export default function ContactDrawer({
     }
   };
 
-  if (!mounted) return null;
+  if (!mounted || !showDrawer) return null;
+
+  const closedClip = isMobileDrawer
+    ? "inset(0 0 100% 0)"
+    : "inset(0 100% 0 0)";
 
   return createPortal(
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
+    <div
+      className={styles.clipWrapper}
+        data-lenis-prevent
+        style={{
+          clipPath: clipOpen ? "inset(0 0 0 0)" : closedClip,
+          transition: clipOpen
+            ? "clip-path 0.9s cubic-bezier(0.25, 0.1, 0.25, 1)"
+            : "clip-path 0.8s cubic-bezier(0.4, 0, 0.6, 1)",
+        }}
+      >
+        <div
           className={styles.backdrop}
-          initial={{ opacity: 0 }}
-          animate={{
-            opacity: 1,
-            transition: { duration: 0.7, ease: "easeOut" },
-          }}
-          exit={{
-            opacity: 0,
-            transition: { duration: 0.4, delay: 0.7, ease: "easeOut" },
-          }}
           onClick={handleBackdropClick}
         >
-          <motion.div
+          <div
             ref={drawerRef}
             className={styles.drawer}
-            initial={{ x: "-100%" }}
-            animate={{
-              x: 0,
-              transition: { duration: 0.9, ease: [0.25, 0.1, 0.25, 1] },
-            }}
-            exit={{
-              x: "-100%",
-              transition: {
-                duration: 0.8,
-                ease: [0.4, 0, 0.6, 1],
-              },
-            }}
           >
             {/* 닫기 버튼 */}
-            <motion.button
+            <button
               className={styles.closeBtn}
               onClick={() => {
                 onClose();
                 resetForm();
               }}
               aria-label="Close"
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity: 1,
-                transition: { duration: 0.3, delay: 0.7 },
-              }}
-              exit={{
-                opacity: 0,
-                transition: { duration: 0.15, delay: 0.4 },
-              }}
-              whileHover="hover"
             >
               <span className={styles.closeIconWrapper}>
-                <motion.span
-                  className={styles.closeLine}
-                  variants={{ hover: { rotate: 45 } }}
-                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                />
-                <motion.span
-                  className={styles.closeLine}
-                  variants={{ hover: { rotate: -45 } }}
-                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                />
+                <span className={styles.closeLine} />
+                <span className={styles.closeLine} />
               </span>
-            </motion.button>
+            </button>
 
             {/* 왼쪽: 폼 카드 */}
-            <motion.div
-              className={styles.formCard}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                transition: { duration: 0.4, delay: 0.35, ease: "easeOut" },
-              }}
-              exit={{
-                opacity: 0,
-                scale: 0.95,
-                transition: { duration: 0.25, delay: 0.1, ease: "easeIn" },
-              }}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.4, delay: 0.55, ease: "easeOut" },
-                }}
-                exit={{
-                  opacity: 0,
-                  transition: { duration: 0.15, delay: 0.4 },
-                }}
-              >
+            <div className={styles.formCard}>
+              <div>
                 <h2 className={styles.title}>
                   {formState.succeeded ? t("contact.drawer.successTitle") : t("contact.drawer.formTitle")}
                 </h2>
@@ -346,16 +404,33 @@ export default function ContactDrawer({
                             data-clickable="true"
                           />
                           <span>
-                            {t("contact.drawer.acceptPrivacy")}{" "}
-                            <Link
-                              data-more="true"
-                              href="/privacy"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {t("contact.drawer.privacyPolicy")}
-                            </Link>
+                            {language === "ko" ? (
+                              <>
+                                <Link
+                                  data-more="true"
+                                  href="/privacy"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {t("contact.drawer.privacyPolicy")}
+                                </Link>
+                                {t("contact.drawer.acceptPrivacy")}
+                              </>
+                            ) : (
+                              <>
+                                {t("contact.drawer.acceptPrivacy")}
+                                <Link
+                                  data-more="true"
+                                  href="/privacy"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {t("contact.drawer.privacyPolicy")}
+                                </Link>
+                              </>
+                            )}
                           </span>
                         </div>
                       </div>
@@ -429,19 +504,19 @@ export default function ContactDrawer({
                     </motion.form>
                   )}
                 </AnimatePresence>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
 
             {/* 오른쪽: 정보 카드 */}
             <ContactInfoCards
               t={t}
               copied={copied}
               setCopied={setCopied}
+              onClose={() => { onClose(); resetForm(); }}
             />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>,
+          </div>
+        </div>
+      </div>,
     document.body,
   );
 }

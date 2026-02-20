@@ -1,58 +1,44 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { siteConfig } from "@/config/site.config";
 import OptimizedImage from "@/components/ui/OptimizedImage";
+import Logo from "@/components/common/Logo";
 import styles from "./ContactDrawer.module.css";
 
 interface ContactInfoCardsProps {
   t: (key: string) => string;
   copied: boolean;
   setCopied: (value: boolean) => void;
+  onClose: () => void;
 }
-
-const cardInitial = { opacity: 0, scale: 0.95 };
-const cardAnimate = {
-  opacity: 1,
-  scale: 1,
-  transition: { duration: 0.4, delay: 0.35, ease: "easeOut" as const },
-};
-const cardExit = {
-  opacity: 0,
-  scale: 0.95,
-  transition: { duration: 0.25, ease: "easeIn" as const },
-};
-
-const contentInitial = { opacity: 0, y: 10 };
-const contentAnimate = {
-  opacity: 1,
-  y: 0,
-  transition: { duration: 0.4, delay: 0.55, ease: "easeOut" as const },
-};
-const contentExit = {
-  opacity: 0,
-  transition: { duration: 0.15, delay: 0.4 },
-};
 
 export default function ContactInfoCards({
   t,
   copied,
   setCopied,
+  onClose,
 }: ContactInfoCardsProps) {
   return (
     <div className={styles.rightColumn}>
       {/* 이메일 카드 */}
-      <motion.div
-        className={styles.emailCard}
-        initial={cardInitial}
-        animate={cardAnimate}
-        exit={{ ...cardExit, transition: { duration: 0.25, delay: 0.05, ease: "easeIn" as const } }}
-      >
-        <motion.div
-          initial={contentInitial}
-          animate={contentAnimate}
-          exit={contentExit}
-        >
+      <div className={styles.emailCard}>
+        {/* 모바일 header: 로고 + 닫기 버튼 */}
+        <div className={styles.emailHeader}>
+          <div className={styles.emailHeaderSpacer} />
+          <Logo variant="full" as="span" className={styles.emailHeaderLogo} />
+          <button
+            className={styles.emailHeaderClose}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <span className={styles.closeIconWrapper}>
+              <span className={styles.closeLine} />
+              <span className={styles.closeLine} />
+            </span>
+          </button>
+        </div>
+
+        <div>
           <h3 className={styles.emailTitle}>{t("contact.drawer.emailTitle")}</h3>
           <button
             className={`${styles.emailAddress} ${copied ? styles.emailAddressCopied : ""}`}
@@ -96,22 +82,12 @@ export default function ContactInfoCards({
               </svg>
             </span>
           </button>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* 프로필 카드 */}
-      <motion.div
-        className={styles.profileCard}
-        initial={cardInitial}
-        animate={cardAnimate}
-        exit={cardExit}
-      >
-        <motion.div
-          className={styles.profileContent}
-          initial={contentInitial}
-          animate={contentAnimate}
-          exit={contentExit}
-        >
+      <div className={styles.profileCard}>
+        <div className={styles.profileContent}>
           <div className={styles.profileImage}>
             <span className={styles.profilePlaceholder}>
               <OptimizedImage
@@ -128,22 +104,12 @@ export default function ContactInfoCards({
             <h4 className={styles.profileName}>{siteConfig.personal.name}</h4>
             <p className={styles.profileRole}>{siteConfig.personal.role}</p>
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* 소셜 카드 */}
-      <motion.div
-        className={styles.socialCard}
-        initial={cardInitial}
-        animate={cardAnimate}
-        exit={cardExit}
-      >
-        <motion.div
-          className={styles.socialIcons}
-          initial={contentInitial}
-          animate={contentAnimate}
-          exit={contentExit}
-        >
+      <div className={styles.socialCard}>
+        <div className={styles.socialIcons}>
           {siteConfig.social.github && (
             <a
               className={styles.socialIcon}
@@ -183,8 +149,8 @@ export default function ContactInfoCards({
               </svg>
             </a>
           )}
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }
