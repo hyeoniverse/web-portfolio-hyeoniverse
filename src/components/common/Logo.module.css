@@ -1,0 +1,8 @@
+.logo {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-regular);
+  color: inherit;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}

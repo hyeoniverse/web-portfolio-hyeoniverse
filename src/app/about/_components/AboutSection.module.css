@@ -2493,7 +2493,7 @@
   position: fixed;
   bottom: var(--spacing-2xl);
   left: 50%;
-  z-index: var(--z-modal);
+  z-index: var(--z-float);
   background: transparent;
   mix-blend-mode: difference;
   transform: translateX(-50%);

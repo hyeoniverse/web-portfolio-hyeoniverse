@@ -61,7 +61,7 @@ html.lenis body {
   height: 2px;
   background: var(--color-border, rgba(255, 255, 255, 0.1));
   border-radius: 1px;
-  z-index: 100;
+  z-index: var(--z-nav);
   opacity: 0;
   transition: opacity 0.3s ease;
 }

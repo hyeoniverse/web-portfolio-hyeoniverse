@@ -91,13 +91,18 @@ export default function StaggerText({
           charClass += ` ${styles.charExiting}`;
         }
 
+        // 공백은 inline span으로 렌더 → 단어 단위 줄바꿈 허용
+        if (char === " ") {
+          return <span key={i}> </span>;
+        }
+
         return (
           <span
             key={i}
             className={charClass}
             style={{ transitionDelay: `${delay}s` }}
           >
-            {char === " " ? "\u00A0" : char}
+            {char}
           </span>
         );
       })}

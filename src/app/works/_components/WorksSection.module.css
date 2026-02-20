@@ -179,7 +179,7 @@
   position: fixed;
   bottom: 80px;
   left: 60px;
-  z-index: var(--z-modal);
+  z-index: var(--z-float);
   font-family: var(--font-space-grotesk), sans-serif;
   color: var(--text-primary);
   pointer-events: none;

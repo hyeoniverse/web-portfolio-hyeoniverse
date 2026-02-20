@@ -35,7 +35,7 @@
   position: fixed;
   top: var(--spacing-3xl);
   left: var(--spacing-3xl);
-  z-index: 100;
+  z-index: var(--z-nav);
   padding: var(--spacing-md) var(--spacing-xl);
   border: var(--border-default);
   background: var(--bg-primary);

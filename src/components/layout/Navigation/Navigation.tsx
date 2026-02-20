@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -9,6 +10,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useSoundStore } from "@/stores/soundStore";
 import { useContactStore } from "@/stores/contactStore";
+import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
 import styles from "./Navigation.module.css";
 
@@ -16,6 +18,12 @@ const navItems = [
   { key: "works", href: "/works" },
   { key: "profile", href: "/profile" },
   { key: "about", href: "/about" },
+];
+
+const menuItems = [
+  { key: "home", href: "/" },
+  ...navItems,
+  { key: "contacts", href: null },
 ];
 
 // Loading logo: full display name with per-letter animation
@@ -30,9 +38,61 @@ export default function Navigation() {
   const { isLoading, isTransitioning } = useLoadingScreen();
   const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
+  const { stop: lenisStop, start: lenisStart } = useLenis();
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname);
   const showLoadingLogo = isLoading && !shouldSkipLoading;
+
+  // ── Mobile menu drawer (clip-path, ContactDrawer pattern) ──
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuClipOpen, setMenuClipOpen] = useState(false);
+  const [menuMounted, setMenuMounted] = useState(false);
+
+  useEffect(() => setMenuMounted(true), []);
+  useEffect(() => setIsMenuOpen(false), [pathname]);
+
+  useEffect(() => {
+    let rafId: number;
+    let unmountTimer: ReturnType<typeof setTimeout>;
+
+    if (isMenuOpen) {
+      setShowMenu(true);
+      rafId = requestAnimationFrame(() => {
+        rafId = requestAnimationFrame(() => {
+          setMenuClipOpen(true);
+        });
+      });
+    } else {
+      setMenuClipOpen(false);
+      unmountTimer = setTimeout(() => {
+        setShowMenu(false);
+      }, 800);
+    }
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      clearTimeout(unmountTimer);
+    };
+  }, [isMenuOpen]);
+
+  // ── Menu scroll lock ──
+  useEffect(() => {
+    if (isMenuOpen) {
+      lenisStop();
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+    } else {
+      const top = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      if (top) window.scrollTo(0, parseInt(top, 10) * -1);
+      lenisStart();
+    }
+  }, [isMenuOpen, lenisStop, lenisStart]);
 
   // ── Nav sliding indicator ──
   const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
@@ -388,7 +448,110 @@ export default function Navigation() {
           </span>
         </button>
 
+        {/* 메뉴 버튼 (≤1024px) — 2×2 dot grid */}
+        <button
+          className={`${styles.actionBtn} ${styles.menuBtn}`}
+          onClick={() => setIsMenuOpen((v) => !v)}
+          aria-label="Menu"
+        >
+          <span className={styles.menuDots}>
+            <span className={styles.menuDot} />
+            <span className={styles.menuDot} />
+            <span className={styles.menuDot} />
+            <span className={styles.menuDot} />
+            <span className={styles.menuDot} />
+            <span className={styles.menuDot} />
+            <span className={styles.menuDot} />
+            <span className={styles.menuDot} />
+            <span className={styles.menuDot} />
+          </span>
+        </button>
       </div>
+
+      {/* 메뉴 서랍 (clip-path, ContactDrawer pattern) */}
+      {menuMounted && showMenu &&
+        createPortal(
+          <div
+            className={styles.menuClipWrapper}
+            style={{
+              clipPath: menuClipOpen ? "inset(0 0 0 0)" : "inset(0 0 100% 0)",
+              transition: menuClipOpen
+                ? "clip-path 0.9s cubic-bezier(0.25, 0.1, 0.25, 1)"
+                : "clip-path 0.8s cubic-bezier(0.4, 0, 0.6, 1)",
+            }}
+          >
+            <div
+              className={styles.menuBackdrop}
+              onClick={() => setIsMenuOpen(false)}
+            />
+            <div className={styles.menuDrawer}>
+              {/* Header: logo center */}
+              <div className={styles.menuHeader}>
+                <span className={styles.menuLogo}>{siteConfig.brand.name}</span>
+              </div>
+
+              {/* Close button — nav 햄버거와 동일한 우상단 위치 */}
+              <button
+                className={styles.menuCloseBtn}
+                onClick={() => setIsMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <span className={styles.menuCloseDots}>
+                  <span className={styles.menuCloseDot} />
+                  <span className={styles.menuCloseDot} />
+                  <span className={styles.menuCloseDot} />
+                  <span className={styles.menuCloseDot} />
+                  <span className={styles.menuCloseDot} />
+                  <span className={styles.menuCloseDot} />
+                  <span className={styles.menuCloseDot} />
+                  <span className={styles.menuCloseDot} />
+                  <span className={styles.menuCloseDot} />
+                </span>
+              </button>
+
+              <nav className={styles.menuNav}>
+                {menuItems.map((item) => {
+                  if (!item.href) {
+                    return (
+                      <button
+                        key={item.key}
+                        className={styles.menuLink}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          openForm();
+                        }}
+                      >
+                        {t(`nav.${item.key}`)}
+                      </button>
+                    );
+                  }
+                  return (
+                    <Link
+                      key={item.key}
+                      href={item.href}
+                      className={`${styles.menuLink} ${pathname === item.href ? styles.menuLinkActive : ""}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {t(`nav.${item.key}`)}
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* Footer: email */}
+              <div className={styles.menuFooter}>
+                <span className={styles.menuFooterLabel}>Say Hi!</span>
+                <a
+                  href={`mailto:${siteConfig.contact.email}`}
+                  className={styles.menuFooterEmail}
+                >
+                  {siteConfig.contact.email}
+                </a>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </nav>
   );
 }
