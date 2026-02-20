@@ -25,7 +25,7 @@ nav#side-navigation {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-content-high);
+  z-index: 30;
   height: 100vh;
   contain: layout style paint;
   will-change: width, opacity;
@@ -140,7 +140,7 @@ nav#side-navigation::after {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: var(--z-modal-backdrop);
+  z-index: var(--z-overlay);
   background: var(--color-gray-alpha-30);
   backdrop-filter: var(--blur-md);
 }
@@ -151,7 +151,7 @@ nav#side-navigation::after {
   border: var(--border-light);
   box-shadow: var(--shadow-xl);
   position: relative;
-  z-index: var(--z-modal);
+  z-index: 2;
   width: calc(
     100vw - (var(--action-button-width) + var(--spacing-2xl) * 2) * 2
   );

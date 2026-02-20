@@ -1,6 +1,6 @@
 .overlay {
   position: fixed;
-  z-index: 99999;
+  z-index: calc(var(--z-top) + 1);
   overflow: hidden;
   will-change: top, left, width, height, border-radius;
 }

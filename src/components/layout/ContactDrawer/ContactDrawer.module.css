@@ -84,7 +84,7 @@
   position: absolute;
   left: 0;
   bottom: 0;
-  z-index: var(--z-modal);
+  z-index: 2;
   width: 50vw;
   height: 40vw;
   font-family: var(--drawer-font);
@@ -330,7 +330,7 @@
   position: absolute;
   bottom: var(--drawer-gap-lg);
   left: 50%;
-  z-index: var(--z-toast);
+  z-index: 3;
   font-family: var(--font-mono);
   font-size: var(--drawer-font-size-sm);
   color: var(--drawer-color-accent);
