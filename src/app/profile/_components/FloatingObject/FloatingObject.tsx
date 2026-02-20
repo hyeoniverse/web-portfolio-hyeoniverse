@@ -7,6 +7,7 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { createSafeRenderer } from "@/utils/three";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import styles from "./FloatingObject.module.css";
 
@@ -18,6 +19,7 @@ export default function FloatingObject() {
   const { theme } = useTheme();
   const { isMobile, isTouch } = useIsMobile();
   const { t } = useLanguage();
+  const mobileLayout = useMobileLayout();
   const activeSection = useProfileSectionStore((s) => s.activeSection);
 
   const mouseNDC = useRef({ x: 0, y: 0 });
@@ -78,7 +80,12 @@ export default function FloatingObject() {
 
   // Bubble text fade transition on section change
   useEffect(() => {
-    const text = t(`profilePage.bubble.${activeSection}`);
+    const mobileKey = `profilePage.bubble.${activeSection}_mobile`;
+    const mobileText = mobileLayout ? t(mobileKey) : "";
+    const text =
+      mobileLayout && mobileText !== mobileKey
+        ? mobileText
+        : t(`profilePage.bubble.${activeSection}`);
     setShowBubble(false);
     const tid = window.setTimeout(() => {
       setBubbleText(text);

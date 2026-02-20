@@ -161,6 +161,8 @@ export default function FloatingScene({
   const playBoing = () => {
     if (!siteConfig.profile.bunnyCollisionSound) return;
     if (useSoundStore.getState().isMuted) return;
+    // AudioContext는 사용자 제스처(클릭/터치) 이후에만 생성 가능
+    if (!navigator.userActivation?.hasBeenActive) return;
 
     if (!audioCtx.current) {
       audioCtx.current = new AudioContext();
