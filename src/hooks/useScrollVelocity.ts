@@ -28,12 +28,8 @@ export function useScrollVelocity(hasMounted: boolean): UseScrollVelocityReturn 
   useEffect(() => {
     if (!hasMounted || !lenis) return;
 
-    const width = window.innerWidth;
-    const scale = width <= 768 ? 0.3 : width <= 1024 ? 0.6 : 1;
     const { maxOffset, workMultiplier, serviceMultiplier, resetDelay } =
       SCROLL_VELOCITY;
-    const scaledMaxOffset = maxOffset * scale;
-    const scaledWorkMultiplier = workMultiplier * scale;
 
     const handleScroll = () => {
       const lenisAny = lenis as unknown as {
@@ -44,6 +40,11 @@ export function useScrollVelocity(hasMounted: boolean): UseScrollVelocityReturn 
       const velocity = lenisAny.velocity;
 
       if (Math.abs(velocity) > 0.05) {
+        const width = window.innerWidth;
+        const scale = width <= 768 ? 0.3 : width <= 1024 ? 0.6 : 1;
+        const scaledMaxOffset = maxOffset * scale;
+        const scaledWorkMultiplier = workMultiplier * scale;
+
         const offset = Math.max(
           -scaledMaxOffset,
           Math.min(scaledMaxOffset, velocity * scaledWorkMultiplier)
