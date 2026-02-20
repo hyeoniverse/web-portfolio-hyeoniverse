@@ -22,12 +22,13 @@ export function useMagnetic(strength: number = 0.3): UseMagneticReturn {
     (e: React.MouseEvent) => {
       if (!ref.current) return;
       const rect = ref.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      x.set((e.clientX - centerX) * strength);
-      y.set((e.clientY - centerY) * strength);
+      // rest position = visual position minus current spring offset
+      const restCenterX = rect.left - springX.get() + rect.width / 2;
+      const restCenterY = rect.top - springY.get() + rect.height / 2;
+      x.set((e.clientX - restCenterX) * strength);
+      y.set((e.clientY - restCenterY) * strength);
     },
-    [strength, x, y]
+    [strength, x, y, springX, springY]
   );
 
   const handleMouseLeave = useCallback(() => {
