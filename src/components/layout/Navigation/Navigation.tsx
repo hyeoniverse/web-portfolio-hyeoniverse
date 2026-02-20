@@ -12,8 +12,58 @@ import { useSoundStore } from "@/stores/soundStore";
 import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
+import { useMotionValue, useSpring } from "framer-motion";
 import Logo from "@/components/common/Logo";
 import styles from "./Navigation.module.css";
+
+function MagneticWrapper({
+  children,
+  strength = 0.4,
+  radius = 80,
+  className,
+}: {
+  children: React.ReactNode;
+  strength?: number;
+  radius?: number;
+  className?: string;
+}) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 150, damping: 15 });
+  const springY = useSpring(y, { stiffness: 150, damping: 15 });
+
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const restCenterX = rect.left - springX.get() + rect.width / 2;
+      const restCenterY = rect.top - springY.get() + rect.height / 2;
+      const deltaX = e.clientX - restCenterX;
+      const deltaY = e.clientY - restCenterY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      if (distance < radius) {
+        x.set(deltaX * strength);
+        y.set(deltaY * strength);
+      } else {
+        x.set(0);
+        y.set(0);
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [x, y, springX, springY, strength, radius]);
+
+  return (
+    <motion.div ref={wrapperRef} style={{ x: springX, y: springY }} className={className}>
+      {children}
+    </motion.div>
+  );
+}
 
 const navItems = [
   { key: "works", href: "/works" },
@@ -449,24 +499,26 @@ export default function Navigation() {
           </span>
         </button>
 
-        {/* 메뉴 버튼 (≤1024px) — 2×2 dot grid */}
-        <button
-          className={`${styles.actionBtn} ${styles.menuBtn}`}
-          onClick={() => setIsMenuOpen((v) => !v)}
-          aria-label="Menu"
-        >
-          <span className={styles.menuDots}>
-            <span className={styles.menuDot} />
-            <span className={styles.menuDot} />
-            <span className={styles.menuDot} />
-            <span className={styles.menuDot} />
-            <span className={styles.menuDot} />
-            <span className={styles.menuDot} />
-            <span className={styles.menuDot} />
-            <span className={styles.menuDot} />
-            <span className={styles.menuDot} />
-          </span>
-        </button>
+        {/* 메뉴 버튼 (≤1024px) — 2×2 dot grid + magnetic */}
+        <MagneticWrapper strength={0.5} radius={50}>
+          <button
+            className={`${styles.actionBtn} ${styles.menuBtn}`}
+            onClick={() => setIsMenuOpen((v) => !v)}
+            aria-label="Menu"
+          >
+            <span className={styles.menuDots}>
+              <span className={styles.menuDot} />
+              <span className={styles.menuDot} />
+              <span className={styles.menuDot} />
+              <span className={styles.menuDot} />
+              <span className={styles.menuDot} />
+              <span className={styles.menuDot} />
+              <span className={styles.menuDot} />
+              <span className={styles.menuDot} />
+              <span className={styles.menuDot} />
+            </span>
+          </button>
+        </MagneticWrapper>
       </div>
 
       {/* 메뉴 서랍 (clip-path, ContactDrawer pattern) */}
@@ -491,24 +543,26 @@ export default function Navigation() {
                 <Logo variant="full" as="span" className={styles.menuLogo} />
               </div>
 
-              {/* Close button — nav 햄버거와 동일한 우상단 위치 */}
-              <button
-                className={styles.menuCloseBtn}
-                onClick={() => setIsMenuOpen(false)}
-                aria-label="Close menu"
-              >
-                <span className={styles.menuCloseDots}>
-                  <span className={styles.menuCloseDot} />
-                  <span className={styles.menuCloseDot} />
-                  <span className={styles.menuCloseDot} />
-                  <span className={styles.menuCloseDot} />
-                  <span className={styles.menuCloseDot} />
-                  <span className={styles.menuCloseDot} />
-                  <span className={styles.menuCloseDot} />
-                  <span className={styles.menuCloseDot} />
-                  <span className={styles.menuCloseDot} />
-                </span>
-              </button>
+              {/* Close button — nav 햄버거와 동일한 우상단 위치 + magnetic */}
+              <MagneticWrapper strength={0.5} radius={50} className={styles.menuCloseBtn}>
+                <button
+                  className={styles.menuCloseBtnInner}
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <span className={styles.menuCloseDots}>
+                    <span className={styles.menuCloseDot} />
+                    <span className={styles.menuCloseDot} />
+                    <span className={styles.menuCloseDot} />
+                    <span className={styles.menuCloseDot} />
+                    <span className={styles.menuCloseDot} />
+                    <span className={styles.menuCloseDot} />
+                    <span className={styles.menuCloseDot} />
+                    <span className={styles.menuCloseDot} />
+                    <span className={styles.menuCloseDot} />
+                  </span>
+                </button>
+              </MagneticWrapper>
 
               <nav className={styles.menuNav}>
                 {menuItems.map((item) => {
