@@ -1,0 +1,44 @@
+/* ==========================================================================
+  Shadow & Effects Tokens
+  ========================================================================== */
+
+:root {
+  /* Elevation Shadows */
+  --shadow-xs: 0 1px 2px 0 var(--color-gray-alpha-30);
+  --shadow-sm:
+    0 1px 3px 0 var(--color-gray-alpha-30),
+    0 1px 2px -1px var(--color-gray-alpha-30);
+  --shadow-md:
+    0 4px 6px -1px var(--color-gray-alpha-30),
+    0 2px 4px -2px var(--color-gray-alpha-30);
+  --shadow-lg:
+    0 10px 15px -3px var(--color-gray-alpha-30),
+    0 4px 6px -4px var(--color-gray-alpha-30);
+  --shadow-xl:
+    0 20px 25px -5px var(--color-gray-alpha-30),
+    0 8px 10px -6px var(--color-gray-alpha-30);
+  --shadow-2xl: 0 25px 50px -12px var(--color-gray-alpha-50);
+
+  /* Special Shadows */
+  --shadow-inner: inset 0 2px 4px 0 var(--color-gray-alpha-30);
+  --shadow-glow: 0 0 20px var(--color-white-alpha-30);
+
+  /* Blur Effects */
+  --blur-sm: blur(4px);
+  --blur-md: blur(8px);
+  --blur-lg: blur(10px);
+  --blur-xl: blur(40px);
+}
+
+/* ==========================================================================
+  Dark Theme Shadow Overrides
+  ========================================================================== */
+
+[data-theme="dark"] {
+  --shadow-sm: 0 1px 2px 0 var(--color-gray-alpha-20);
+  --shadow-md: 0 2px 4px 0 var(--color-gray-alpha-30);
+  --shadow-lg: 0 6px 12px -1px var(--color-gray-alpha-40);
+  --shadow-xl: 0 12px 24px -2px var(--color-gray-alpha-50);
+  --shadow-glow: 0 0 30px var(--color-white-alpha-40);
+  --shadow-inner: inset 0 2px 6px 0 var(--color-gray-alpha-25);
+}

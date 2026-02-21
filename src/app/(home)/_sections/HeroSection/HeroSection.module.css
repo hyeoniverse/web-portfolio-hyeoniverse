@@ -105,8 +105,8 @@
   line-height: var(--line-height-fit);
   color: var(--text-accent-alt);
   transition:
-    color 0.3s ease,
-    -webkit-text-stroke 0.3s ease;
+    color var(--duration-base) ease,
+    -webkit-text-stroke var(--duration-base) ease;
 }
 
 .titleAccent:hover {

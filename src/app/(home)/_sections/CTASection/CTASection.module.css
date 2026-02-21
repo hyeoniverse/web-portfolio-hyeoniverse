@@ -119,7 +119,7 @@
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   letter-spacing: 0.05em;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s var(--ease-out-expo);
   overflow: hidden;
 }
 
@@ -135,7 +135,7 @@
   background: var(--bg-accent-solid-light);
   border-radius: var(--radius-circle);
   animation: pulse 2s infinite;
-  transition: transform 0.3s ease;
+  transition: transform var(--duration-base) ease;
 }
 
 .buttonIndicator::after {

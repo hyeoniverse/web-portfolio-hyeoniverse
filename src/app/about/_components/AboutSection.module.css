@@ -186,12 +186,12 @@
 
 .dotNavWrap .dotArrow {
   transition:
-    opacity 0.2s ease,
-    border-color 0.2s ease;
+    opacity var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
 }
 
 .dotArrow:not(:disabled):hover {
-  border: 1px solid #fff;
+  border: 1px solid var(--border-white-color);
 }
 
 .dotArrow:disabled {
@@ -209,7 +209,7 @@
 
 /* Spring-animated capsule indicator (framer-motion) — wraps active dotItem */
 .dotIndicator {
-  border: 1px solid #fff;
+  border: 1px solid var(--border-white-color);
   position: absolute;
   top: 50%;
   left: 0;
@@ -242,21 +242,21 @@
 /* Compound selector (0,2,0) to beat global theme transition */
 .dotNav .dotItem {
   transition:
-    width 0.3s ease,
-    gap 0.3s ease;
+    width var(--duration-base) ease,
+    gap var(--duration-base) ease;
 }
 
 .dotItem .dotCircle {
   flex-shrink: 0;
   width: 6px;
   height: 6px;
-  background: #fff;
+  background: var(--bg-white);
   border-radius: var(--radius-capsule);
   opacity: 0.5;
 }
 
 .dotNav .dotCircle {
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-base) ease;
 }
 
 .dotItem .dotText {
@@ -273,8 +273,8 @@
 
 .dotNav .dotText {
   transition:
-    font-size 0.3s ease,
-    opacity 0.3s ease;
+    font-size var(--duration-base) ease,
+    opacity var(--duration-base) ease;
 }
 
 .dotItemActive {
@@ -448,7 +448,7 @@
   justify-content: space-between;
   padding: clamp(0.5rem, 0.8vh, 0.8rem) 0;
   border-bottom: var(--_line-secondary);
-  transition: border-color 0.3s ease;
+  transition: border-color var(--duration-base) ease;
 }
 
 .archItem:hover {
@@ -460,7 +460,7 @@
   font-family: var(--font-jetbrains, var(--font-mono)), monospace;
   font-size: var(--_fs-body);
   font-weight: var(--font-weight-medium);
-  transition: color 0.3s ease;
+  transition: color var(--duration-base) ease;
 }
 
 .archItem:hover .archPath {
@@ -508,8 +508,8 @@
   font-size: var(--_fs-label);
   color: var(--text-tertiary);
   transition:
-    border-color 0.3s ease,
-    color 0.3s ease;
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 .archMap .archModeBtn:hover {
@@ -532,9 +532,9 @@
 
 .archSvg .archEdge {
   transition:
-    stroke 0.3s ease,
-    opacity 0.3s ease,
-    stroke-width 0.3s ease;
+    stroke var(--duration-base) ease,
+    opacity var(--duration-base) ease,
+    stroke-width var(--duration-base) ease;
   fill: none;
   stroke: var(--text-tertiary);
   stroke-width: 0.8;
@@ -561,10 +561,10 @@
   position: absolute;
   background: var(--bg-primary);
   transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    opacity 0.3s ease,
-    transform 0.2s ease;
+    border-color var(--duration-base) ease,
+    box-shadow var(--duration-base) ease,
+    opacity var(--duration-base) ease,
+    transform var(--duration-fast) ease;
   translate: -50% -50%;
   border-radius: var(--radius-sm);
 }
@@ -608,9 +608,9 @@
   overflow: hidden;
   position: absolute;
   transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    opacity 0.3s ease;
+    border-color var(--duration-base) ease,
+    box-shadow var(--duration-base) ease,
+    opacity var(--duration-base) ease;
   border-radius: var(--radius-sm);
 }
 
@@ -670,8 +670,8 @@
 
 .archSunburst .archSbArc {
   transition:
-    fill 0.3s ease,
-    opacity 0.3s ease;
+    fill var(--duration-base) ease,
+    opacity var(--duration-base) ease;
   fill: var(--bg-secondary);
   stroke: var(--bg-primary);
   stroke-width: 2;
@@ -691,8 +691,8 @@
 
 .archSunburst .archSbRoot {
   transition:
-    fill 0.3s ease,
-    opacity 0.3s ease;
+    fill var(--duration-base) ease,
+    opacity var(--duration-base) ease;
   fill: var(--bg-secondary);
   stroke: var(--border-default);
   stroke-width: 1.5;
@@ -762,7 +762,7 @@
     var(--color-gray-alpha-50) 60%,
     transparent 100%
   );
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-base) ease;
   opacity: 0;
 }
 
@@ -836,8 +836,8 @@
   font-size: var(--_fs-small);
   font-weight: var(--font-weight-semibold);
   transition:
-    color 0.35s ease,
-    border-color 0.35s ease;
+    color var(--duration-moderate) ease,
+    border-color var(--duration-moderate) ease;
   border-radius: 16px 16px 0 0;
 }
 
@@ -873,8 +873,8 @@
   min-height: clamp(150px, 23vh, 240px);
   background: var(--bg-primary);
   transition:
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
+    border-color var(--duration-moderate) ease,
+    box-shadow var(--duration-moderate) ease;
   border-radius: 0 20px 20px 20px;
   transform: translateY(1px);
 }
@@ -888,7 +888,7 @@
   font-size: var(--_fs-subhead);
   line-height: var(--_lh-body);
   color: var(--text-secondary);
-  transition: color 0.35s ease;
+  transition: color var(--duration-moderate) ease;
 }
 
 .featureFolderTech {
@@ -898,7 +898,7 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: color 0.35s ease;
+  transition: color var(--duration-moderate) ease;
 }
 
 /* ==========================================================================
@@ -947,7 +947,7 @@
 
 /* Compound selector (0,2,0) — smooth strip slide */
 .dcCardStack .dcCardStrip {
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--duration-slower) var(--ease-material);
   will-change: transform;
 }
 
@@ -963,12 +963,12 @@
 
 /* Compound selector (0,2,0) — smooth overlay crossfade */
 .dcModeStack .dcCardOverlay {
-  transition: opacity 0.5s ease;
+  transition: opacity var(--duration-slow) ease;
 }
 
 /* Compound selector (0,2,0) — slide-out background transition */
 .dcModeStack .dcCardBg {
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--duration-slower) var(--ease-material);
   will-change: transform;
 }
 
@@ -1075,9 +1075,9 @@
 /* Compound selector (0,2,0) */
 .dcDemo .dcToggleBtn {
   transition:
-    border-color 0.3s ease,
-    color 0.3s ease,
-    background-color 0.3s ease;
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease,
+    background-color var(--duration-base) ease;
 }
 
 .dcToggleBtnActive {
@@ -1146,7 +1146,7 @@
 
 /* Compound selector (0,2,0) */
 .dcDemo .dcSpringBall {
-  transition: left 0.15s ease-out;
+  transition: left var(--duration-fast) ease-out;
 }
 
 .dcMotionLabels {
@@ -1187,7 +1187,7 @@
 
 /* Compound selector (0,2,0) */
 .dcDemo .dcSpacingBar {
-  transition: background-color 0.3s ease;
+  transition: background-color var(--duration-base) ease;
 }
 
 .dcSpacingRow:hover .dcSpacingBar {
@@ -1220,8 +1220,8 @@
 /* Compound selector (0,2,0) */
 .dcBreakpoints .dcBpBar {
   transition:
-    background-color 0.3s ease,
-    transform 0.2s ease;
+    background-color var(--duration-base) ease,
+    transform var(--duration-fast) ease;
 }
 
 .dcBpBar:hover {
@@ -1244,7 +1244,7 @@
 
 /* Compound selector (0,2,0) */
 .dcBreakpoints .dcBpLabel {
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) ease;
 }
 
 .dcBpBar:hover .dcBpLabel {
@@ -1281,8 +1281,8 @@
 /* Compound selector (0,2,0) */
 .dcIconGrid .dcIconCell {
   transition:
-    border-color 0.3s ease,
-    background-color 0.3s ease;
+    border-color var(--duration-base) ease,
+    background-color var(--duration-base) ease;
 }
 
 .dcIconCell:hover {
@@ -1336,7 +1336,7 @@
   background: linear-gradient(
     90deg,
     var(--text-accent),
-    var(--color-accent, #667eea)
+    var(--color-accent)
   );
   border-radius: 1px;
   will-change: width;
@@ -1344,7 +1344,7 @@
 
 /* Compound selector (0,2,0) */
 .processTimeline .processTimelineProgress {
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width var(--duration-slow) var(--ease-material);
 }
 
 .processTimelineNodes {
@@ -1439,8 +1439,8 @@
 /* Compound selector (0,2,0) */
 .processTimelineNode .processNodeLabel {
   transition:
-    color 0.3s ease,
-    opacity 0.3s ease;
+    color var(--duration-base) ease,
+    opacity var(--duration-base) ease;
 }
 
 .processNodeLabelActive {
@@ -1471,7 +1471,7 @@
 
 /* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .processSingleView .processSinglePane {
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--duration-slow) var(--ease-material);
 }
 
 .processSinglePanePast {
@@ -1573,7 +1573,7 @@
   justify-content: space-between;
   padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-secondary);
-  transition: border-color 0.3s ease;
+  transition: border-color var(--duration-base) ease;
 }
 
 .techNameGroup {
@@ -1596,7 +1596,7 @@
 .techName {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
-  transition: color 0.3s ease;
+  transition: color var(--duration-base) ease;
 }
 
 .techItem:hover .techName {
@@ -1634,7 +1634,7 @@
 
 /* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .codeSingleView .codeSinglePane {
-  transition: opacity 0.35s ease;
+  transition: opacity var(--duration-moderate) ease;
 }
 
 .codeSinglePaneActive {
@@ -1722,7 +1722,7 @@
 
 /* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
 .codeScrollWrap .codePageNav {
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-base) ease;
 }
 
 .codePageNav:hover {
@@ -1839,7 +1839,7 @@
 
 /* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .codeItemMobile .codeMobileToggle {
-  transition: transform 0.5s var(--_ease-bounce);
+  transition: transform var(--duration-slow) var(--_ease-bounce);
 }
 
 .codeMobileToggleOpen {
@@ -1856,9 +1856,9 @@
 /* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .codeItemMobile .codeMobileBody {
   transition:
-    max-height 0.5s var(--_ease-material),
+    max-height var(--duration-slow) var(--_ease-material),
     opacity 0.4s var(--_ease-material),
-    padding 0.5s var(--_ease-material);
+    padding var(--duration-slow) var(--_ease-material);
 }
 
 .codeMobileBodyOpen {
@@ -1937,8 +1937,8 @@
 
 .codeDemoInner .demoBtn {
   transition:
-    border-color 0.3s ease,
-    color 0.3s ease;
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 .demoBtn:hover {
@@ -1955,7 +1955,7 @@
 
 /* Compound selector (0,2,0) to override global theme transition */
 .codeDemoInner .demoFontText {
-  transition: font-family 0.3s ease;
+  transition: font-family var(--duration-base) ease;
 }
 
 .demoFontLabel {
@@ -2075,7 +2075,7 @@
 
 /* Compound selector (0,2,0) for transform transition */
 .codeDemoInner .demoLoadingBar {
-  transition: transform 0.3s ease-out;
+  transition: transform var(--duration-base) ease-out;
 }
 
 /* ── Demo 9: i18n Shift ── */
@@ -2185,7 +2185,7 @@
 
 /* Compound selector (0,2,0) to override global theme transition */
 .codeDemoInner .demoTestPass {
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) ease;
 }
 
 .demoTestName {
@@ -2254,7 +2254,7 @@
 
 /* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
 .troubleList .troublePageNav {
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-base) ease;
 }
 
 .troublePageBtn {
@@ -2295,8 +2295,8 @@
 /* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
 .troubleList .troubleListItem {
   transition:
-    border-color 0.3s ease,
-    padding-left 0.3s ease;
+    border-color var(--duration-base) ease,
+    padding-left var(--duration-base) ease;
 }
 
 .troubleListItem:hover {
@@ -2330,7 +2330,7 @@
 }
 
 .troubleList .troubleNumber {
-  transition: color 0.3s ease;
+  transition: color var(--duration-base) ease;
 }
 
 .troubleListItemActive .troubleNumber {
@@ -2350,7 +2350,7 @@
 }
 
 .troubleList .troubleListTitle {
-  transition: color 0.3s ease;
+  transition: color var(--duration-base) ease;
 }
 
 .troubleListItemActive .troubleListTitle {
@@ -2528,7 +2528,7 @@
 }
 
 .sectionNav .navItem {
-  transition: gap 0.3s ease;
+  transition: gap var(--duration-base) ease;
 }
 
 .navItem .navDot {
@@ -2537,8 +2537,8 @@
   height: 6px;
   background: var(--bg-white);
   transition:
-    background 0.3s ease,
-    width 0.3s ease;
+    background var(--duration-base) ease,
+    width var(--duration-base) ease;
   border-radius: var(--radius-circle);
 }
 
@@ -2550,10 +2550,10 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   transition:
-    font-size 0.3s ease,
-    opacity 0.3s ease,
-    max-width 0.3s ease,
-    margin-left 0.3s ease;
+    font-size var(--duration-base) ease,
+    opacity var(--duration-base) ease,
+    max-width var(--duration-base) ease,
+    margin-left var(--duration-base) ease;
   opacity: 0;
 }
 
@@ -2595,8 +2595,8 @@
   /* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
   .track .animate {
     transition:
-      opacity 0.6s ease,
-      transform 0.6s ease;
+      opacity var(--duration-slower) ease,
+      transform var(--duration-slower) ease;
   }
 
   .animateVisible {
@@ -2716,11 +2716,11 @@
   }
 
   .dcModeStrip .dcCardOverlay {
-    transition: opacity 0.5s ease;
+    transition: opacity var(--duration-slow) ease;
   }
 
   .dcModeStrip .dcCardBg {
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--duration-slower) var(--ease-material);
     will-change: transform;
   }
 
@@ -2984,8 +2984,8 @@
   /* Compound selector (0,2,0) for transition */
   .processStepList .processStepRow {
     transition:
-      height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 0.35s ease;
+      height 0.45s var(--ease-material),
+      opacity var(--duration-moderate) ease;
   }
 
   /* ── Left: continuous connector line + dot ── */
@@ -3072,7 +3072,7 @@
 
   /* Compound selector (0,2,0) for transition */
   .processStepRow .processStepContent {
-    transition: opacity 0.35s ease;
+    transition: opacity var(--duration-moderate) ease;
   }
 
   .processStepHeader {
@@ -3217,7 +3217,7 @@
 
   /* JS drives stagger cascade; container fade only */
   .troubleDetail .troubleDetailItem {
-    transition: opacity 0.3s ease;
+    transition: opacity var(--duration-base) ease;
   }
 
   .troubleMobileList {

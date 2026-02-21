@@ -72,7 +72,7 @@ nav#side-navigation::after {
 .section#projects,
 .section#blog {
   padding-left: var(--active-side-nav-width, 0px);
-  transition: padding-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: padding-left var(--duration-moderate) var(--ease-material);
 }
 
 .section#contact {

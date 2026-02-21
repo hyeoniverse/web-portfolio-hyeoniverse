@@ -62,6 +62,7 @@ interface LenisProviderProps {
 
 export function LenisProvider({ children, options = {} }: LenisProviderProps) {
   const lenisRef = useRef<Lenis | null>(null);
+  const infiniteOverrideRef = useRef<boolean | null>(null);
   const [lenis, setLenis] = useState<Lenis | null>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -122,10 +123,12 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       (window as typeof window & { lenis?: Lenis }).lenis = lenisInstance;
     }
 
-    // 리사이즈 시 infinite 토글 (모바일 ↔ 데스크톱)
+    // 리사이즈 시 infinite 토글 (페이지 오버라이드가 없을 때만)
     const handleResize = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (lenisInstance as any).options.infinite = options.infinite ?? true;
+      if (infiniteOverrideRef.current === null) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (lenisInstance as any).options.infinite = options.infinite ?? true;
+      }
     };
     window.addEventListener("resize", handleResize);
 
@@ -170,12 +173,13 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     lenisRef.current?.start();
   }, []);
 
-  const setInfinite = useCallback((value: boolean) => {
+  const setInfinite = useCallback((value: boolean | null) => {
+    infiniteOverrideRef.current = value === true ? null : value;
     if (lenisRef.current) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (lenisRef.current as any).options.infinite = value;
+      (lenisRef.current as any).options.infinite = value ?? (options.infinite ?? true);
     }
-  }, []);
+  }, [options.infinite]);
 
   return (
     <LenisContext.Provider value={{ lenis, scrollTo, stop, start, setInfinite }}>

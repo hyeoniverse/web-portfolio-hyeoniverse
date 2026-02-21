@@ -94,29 +94,29 @@
 @keyframes pulse {
   0% {
     box-shadow:
-      0 0 8px rgba(34, 197, 94, 0.6),
-      0 0 12px rgba(34, 197, 94, 0.4);
+      0 0 8px var(--color-success-alpha-60),
+      0 0 12px var(--color-success-alpha-40);
     opacity: 1;
   }
   50% {
     box-shadow:
-      0 0 14px rgba(34, 197, 94, 0.4),
+      0 0 14px var(--color-success-alpha-40),
       0 0 20px rgba(34, 197, 94, 0.2);
     opacity: 0.5;
   }
   100% {
     box-shadow:
-      0 0 8px rgba(34, 197, 94, 0.6),
-      0 0 12px rgba(34, 197, 94, 0.4);
+      0 0 8px var(--color-success-alpha-60),
+      0 0 12px var(--color-success-alpha-40);
     opacity: 1;
   }
 }
 
 .glitch {
-  animation: glitch 0.8s infinite alternate;
+  animation: glitch var(--duration-slower) infinite alternate;
 }
 .glith-on-hover:hover {
-  animation: glitch 0.8s infinite alternate;
+  animation: glitch var(--duration-slower) infinite alternate;
   z-index: 30;
 }
 

@@ -11,7 +11,7 @@
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all var(--duration-base) ease;
 }
 
 .button:disabled {
@@ -42,7 +42,7 @@
   width: 100%;
   height: 2.55px;
   background-color: var(--bg-inverse);
-  transition: height 0.3s ease;
+  transition: height var(--duration-base) ease;
   content: "";
 }
 
@@ -66,7 +66,7 @@
 .primary {
   background: var(--bg-inverse);
   color: var(--text-inverse);
-  transition: all 0.3s ease;
+  transition: all var(--duration-base) ease;
 }
 
 .primary:disabled {
@@ -94,13 +94,13 @@
   border: 1px solid var(--border-primary-color) !important;
   position: relative;
   background: transparent !important;
-  transition: all 0.3s ease;
+  transition: all var(--duration-base) ease;
   box-sizing: border-box;
 }
 
 .outline::after {
   position: absolute;
-  transition: all 0.3s ease;
+  transition: all var(--duration-base) ease;
   content: "";
   pointer-events: none;
   inset: -1px;

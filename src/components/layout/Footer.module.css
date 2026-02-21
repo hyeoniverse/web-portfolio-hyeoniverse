@@ -34,7 +34,7 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color var(--duration-base) ease;
 }
 
 .links a::after {
@@ -48,7 +48,7 @@
   transform: scaleX(0);
   transform-origin: left;
   /* !important: global theme transition (html[data-theme-transitioning] *::after) overrides transform */
-  transition: transform 0.3s ease !important;
+  transition: transform var(--duration-base) ease !important;
 }
 
 .links a:hover::after {
@@ -75,7 +75,7 @@
   color: inherit;
   letter-spacing: 0.03em;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color var(--duration-base) ease;
 }
 
 .email::after {
@@ -89,7 +89,7 @@
   transform: scaleX(0);
   transform-origin: left;
   /* !important: global theme transition (html[data-theme-transitioning] *::after) overrides transform */
-  transition: transform 0.3s ease !important;
+  transition: transform var(--duration-base) ease !important;
 }
 
 .email:hover::after {

@@ -35,7 +35,7 @@
   z-index: var(--z-nav);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-base) ease;
 }
 
 .progressActive {
@@ -45,7 +45,7 @@
 .progressBar {
   height: 100%;
   width: 100%;
-  background: var(--color-accent, #D01046);
+  background: var(--color-accent);
   border-radius: 1px;
   transform-origin: left;
   transform: scaleX(0);

@@ -9,7 +9,7 @@
   right: 0.5rem;
   background: none;
   color: var(--text-tertiary);
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) ease;
   border-radius: 50%;
 }
 

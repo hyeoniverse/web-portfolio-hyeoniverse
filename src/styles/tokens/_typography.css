@@ -1,0 +1,75 @@
+/* ==========================================================================
+  Typography Tokens
+
+  Font families, sizes, weights, line-heights, letter-spacing
+  ========================================================================== */
+
+:root {
+  /* Font Families */
+  --font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif:
+    "Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono:
+    "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  /* Font Aliases (layout.tsx CSS variables) */
+  --font-display: var(--font-playfair);
+  --font-grotesk: var(--font-space-grotesk), sans-serif;
+
+  /* Font Sizes - Fixed */
+  --font-size-3xs: 0.5rem;
+  --font-size-2xs: 0.625rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 4rem;
+
+  /* Font Sizes - Fluid */
+  --fluid-font-size-2xs: clamp(0.5rem, 0.6rem + 0.15vw, 0.75rem);
+  --fluid-font-size-xs: clamp(0.5rem, 0.7rem + 0.2vw, 0.9rem);
+  --fluid-font-size-sm: clamp(0.5rem, 0.83rem + 0.25vw, 1rem);
+  --fluid-font-size-md: clamp(0.5rem, 0.95rem + 0.3vw, 1.125rem);
+  --fluid-font-size-lg: clamp(0.5rem, 1.05rem + 0.35vw, 1.375rem);
+  --fluid-font-size-xl: clamp(0.5rem, 1.15rem + 0.5vw, 1.5rem);
+  --fluid-font-size-2xl: clamp(0.5rem, 1.4rem + 0.75vw, 2rem);
+  --fluid-font-size-3xl: clamp(0.5rem, 1.8rem + 1vw, 2.5rem);
+  --fluid-font-size-4xl: clamp(0.5rem, 3rem + 1.5vw, 5rem);
+  --fluid-font-size-5xl: clamp(0.5rem, 4.5rem + 2vw, 8rem);
+  --fluid-font-size-6xl: clamp(0.5rem, 6rem + 2.5vw, 10rem);
+  --fluid-font-size-7xl: clamp(0.5rem, 7.5rem + 3vw, 12rem);
+  --fluid-font-size-8xl: clamp(0.5rem, 9rem + 3.5vw, 14rem);
+  --fluid-font-size-9xl: clamp(0.5rem, 10.5rem + 4vw, 16rem);
+  --fluid-font-size-10xl: clamp(0.5rem, 12rem + 4.5vw, 18rem);
+
+  /* Line Heights */
+  --line-height-dense: 0.9;
+  --line-height-fit: 1;
+  --line-height-compact: 1.125;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.35;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.65;
+  --line-height-loose: 1.8;
+
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.03em;
+}
