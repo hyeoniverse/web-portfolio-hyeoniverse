@@ -56,9 +56,9 @@
   background: var(--text-white);
   pointer-events: none;
   transition:
-    left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.25s ease;
+    left var(--duration-moderate) var(--ease-material),
+    width var(--duration-moderate) var(--ease-material),
+    opacity var(--duration-base) ease;
 }
 
 .navIndicatorHidden {
@@ -80,7 +80,7 @@
   width: var(--size-md);
   height: var(--size-md);
   color: var(--text-white);
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-base) ease;
 }
 
 .actionBtn:hover .langText,
@@ -103,8 +103,8 @@
 
 .navActions .contactBtn {
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+    background-color var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 .contactBtn:hover {
@@ -124,7 +124,7 @@
 }
 
 .soundIconWrapper.clicking {
-  animation: popSound 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: popSound var(--duration-base) var(--ease-bounce);
 }
 
 @keyframes popSound {
@@ -147,33 +147,33 @@
 /* Unmuted (default): waves visible, X hidden */
 .soundIcon .waveOuter {
   opacity: 1;
-  transition: opacity 0.25s ease 0.35s;
+  transition: opacity var(--duration-base) ease var(--duration-moderate);
 }
 
 .soundIcon .waveInner {
   opacity: 1;
-  transition: opacity 0.25s ease 0.2s;
+  transition: opacity var(--duration-base) ease var(--duration-fast);
 }
 
 .soundIcon .xLine {
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) ease;
 }
 
 /* Muted: waves hidden → X visible (staggered) */
 .soundIconMuted .waveOuter {
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) ease;
 }
 
 .soundIconMuted .waveInner {
   opacity: 0;
-  transition: opacity 0.2s ease 0.15s;
+  transition: opacity var(--duration-fast) ease var(--duration-fast);
 }
 
 .soundIconMuted .xLine {
   opacity: 1;
-  transition: opacity 0.25s ease 0.35s;
+  transition: opacity var(--duration-base) ease var(--duration-moderate);
 }
 
 .langText {
@@ -182,15 +182,15 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0.03em;
-  transition: transform 0.3s ease;
+  transition: transform var(--duration-base) ease;
 }
 
 .langText.animating {
-  animation: flipLang 0.3s ease-in-out;
+  animation: flipLang var(--duration-base) ease-in-out;
 }
 
 .langText.clicking {
-  animation: popLang 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: popLang var(--duration-base) var(--ease-bounce);
 }
 
 @keyframes flipLang {
@@ -229,11 +229,11 @@
 }
 
 .themeIconWrapper.animating {
-  animation: rotateIcon 0.3s ease-in-out;
+  animation: rotateIcon var(--duration-base) ease-in-out;
 }
 
 .themeIconWrapper.clicking {
-  animation: popTheme 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: popTheme var(--duration-base) var(--ease-bounce);
 }
 
 @keyframes popTheme {
@@ -299,7 +299,7 @@
 .menuBackdrop {
   position: absolute;
   inset: 0;
-  background: #1a1a1a;
+  background: var(--color-neutral-950);
 }
 
 .menuDrawer {
@@ -386,7 +386,7 @@
   font-family: var(--font-instrument), serif;
   font-style: italic;
   font-weight: var(--font-weight-regular);
-  -webkit-text-stroke: 1px #ffffff;
+  -webkit-text-stroke: 1px var(--color-neutral-0);
   color: transparent;
 }
 
@@ -419,7 +419,7 @@
   width: 2px;
   height: 2px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--color-neutral-0);
 }
 
 /* 1.5s total: 0–60% collapse to center (≈0.9s, matches drawer clip-path)
@@ -427,30 +427,30 @@
 
 /* Corners: collapse → return to grid position */
 .menuCloseDot:nth-child(1) {
-  animation: dotTL 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: dotTL var(--duration-slowest) var(--ease-material) both;
 }
 .menuCloseDot:nth-child(3) {
-  animation: dotTR 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: dotTR var(--duration-slowest) var(--ease-material) both;
 }
 .menuCloseDot:nth-child(7) {
-  animation: dotBL 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: dotBL var(--duration-slowest) var(--ease-material) both;
 }
 .menuCloseDot:nth-child(9) {
-  animation: dotBR 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: dotBR var(--duration-slowest) var(--ease-material) both;
 }
 
 /* Edges: collapse → stay at center & fade out */
 .menuCloseDot:nth-child(2) {
-  animation: dotT 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: dotT var(--duration-slowest) var(--ease-material) both;
 }
 .menuCloseDot:nth-child(4) {
-  animation: dotL 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: dotL var(--duration-slowest) var(--ease-material) both;
 }
 .menuCloseDot:nth-child(6) {
-  animation: dotR 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: dotR var(--duration-slowest) var(--ease-material) both;
 }
 .menuCloseDot:nth-child(8) {
-  animation: dotB 1.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: dotB var(--duration-slowest) var(--ease-material) both;
 }
 
 @keyframes dotTL {
@@ -582,10 +582,6 @@
   ========================================================================== */
 
 @media (max-width: 1024px) {
-  .nav {
-    padding: var(--spacing-xl) 5vw;
-  }
-
   .navCenter {
     display: none;
   }

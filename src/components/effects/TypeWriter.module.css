@@ -29,7 +29,7 @@
   vertical-align: middle;
   background-color: currentColor; /* Use text color for cursor */
   line-height: 1;
-  animation: blink-animation 0.8s infinite;
+  animation: blink-animation var(--duration-slower) infinite;
   opacity: 1; /* Default visible */
 }
 

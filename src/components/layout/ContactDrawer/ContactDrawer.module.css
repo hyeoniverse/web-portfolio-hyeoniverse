@@ -9,10 +9,10 @@
 .backdrop {
   /* Colors */
   --_color-bg: var(--bg-white);
-  --_color-bg-hover: #f5f5f0;
+  --_color-bg-hover: var(--color-neutral-50);
   --_color-primary: var(--text-black);
-  --_color-secondary: #333333;
-  --_color-tertiary: #666666;
+  --_color-secondary: var(--text-secondary);
+  --_color-tertiary: var(--text-tertiary);
   --_color-placeholder: var(--text-muted);
   --_color-accent: var(--color-accent-light);
 
@@ -108,7 +108,7 @@
   height: var(--_size-close-btn);
   background: var(--_color-bg);
   color: var(--_color-primary);
-  transition: all 0.3s ease;
+  transition: all var(--duration-base) ease;
   border-radius: var(--radius-circle);
 }
 
@@ -132,7 +132,7 @@
 
 /* compound selector (0,2,0) to beat global theme transition (0,1,1) */
 .closeBtn .closeLine {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--duration-base) var(--ease-material);
 }
 
 .closeBtn:hover .closeLine:first-child {
@@ -190,7 +190,7 @@
   font-family: inherit;
   font-size: var(--_font-size-md);
   color: var(--_color-primary);
-  transition: border-color 0.25s ease;
+  transition: border-color var(--duration-base) ease;
   border-radius: var(--radius-capsule);
 }
 
@@ -222,7 +222,7 @@
   font-size: var(--_font-size-md);
   color: var(--_color-primary);
   text-align: center;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--duration-slow) var(--ease-material);
   border-radius: var(--radius-capsule);
   transform: scale(1);
 }
@@ -266,8 +266,8 @@
   height: 100%;
   background: transparent;
   color: var(--_color-primary);
-  animation: fileCancelAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fileCancelAppear var(--duration-slow) var(--ease-bounce) forwards;
+  transition: all 0.4s var(--ease-material);
   border-radius: var(--radius-circle);
   opacity: 0;
   transform: scale(0.8) rotate(-90deg);
@@ -312,7 +312,7 @@
   font-size: var(--_font-size-md);
   line-height: var(--_line-height);
   color: var(--_color-primary);
-  transition: border-color 0.25s ease;
+  transition: border-color var(--duration-base) ease;
   resize: none;
   border-radius: var(--_radius-card);
 }
@@ -335,7 +335,7 @@
   font-size: var(--_font-size-sm);
   color: var(--_color-accent);
   white-space: nowrap;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.4s var(--ease-bounce);
   pointer-events: none;
   border-radius: var(--radius-capsule);
   opacity: 0;
@@ -378,7 +378,7 @@
   position: relative;
   width: var(--_size-checkbox);
   height: var(--_size-checkbox);
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) ease;
   border-radius: var(--radius-xs);
   appearance: none;
   -webkit-appearance: none;
@@ -402,7 +402,7 @@
 .privacy a {
   color: var(--_color-accent);
   text-decoration: underline;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) ease;
   text-underline-offset: 2px;
 }
 
@@ -426,7 +426,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--_color-bg);
   letter-spacing: 0.01em;
-  transition: all 0.3s ease;
+  transition: all var(--duration-base) ease;
   border-radius: var(--radius-capsule);
 }
 
@@ -462,7 +462,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.25s ease;
+  transition: opacity var(--duration-base) ease;
 }
 
 .submitTextDefault {
@@ -617,7 +617,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--_color-primary);
   letter-spacing: 0.02em;
-  transition: all 0.3s ease;
+  transition: all var(--duration-base) ease;
   border-radius: var(--radius-capsule);
 }
 
@@ -679,7 +679,7 @@
   font-weight: var(--font-weight-regular);
   color: var(--_color-primary);
   letter-spacing: -0.075em;
-  transition: border 0.2s ease;
+  transition: border var(--duration-fast) ease;
   border-radius: var(--radius-capsule);
 }
 
@@ -696,7 +696,7 @@
   display: inline-flex;
   gap: var(--_gap-md);
   align-items: center;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) ease;
 }
 
 .copyIcon {
@@ -720,7 +720,7 @@
   justify-content: center;
   position: absolute;
   color: var(--_color-accent);
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) ease;
   inset: 0;
 }
 
@@ -805,7 +805,7 @@
   width: var(--_size-social-btn);
   height: var(--_size-social-btn);
   background: var(--_color-primary);
-  transition: all 0.3s ease;
+  transition: all var(--duration-base) ease;
   border-radius: 50%;
 }
 
@@ -817,7 +817,7 @@
 .socialIcon svg {
   width: var(--_size-social-icon);
   height: var(--_size-social-icon);
-  transition: fill 0.3s ease;
+  transition: fill var(--duration-base) ease;
   fill: var(--_color-bg);
 }
 
@@ -903,7 +903,7 @@
     display: block;
     height: auto;
     min-height: 100%;
-    background: #000000;
+    background: var(--bg-black);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
@@ -947,7 +947,7 @@
   .emailHeaderClose .closeLine {
     background: var(--_color-bg);
     width: 22px;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--duration-base) var(--ease-material);
   }
 
   .emailHeaderClose:hover .closeLine:first-child {

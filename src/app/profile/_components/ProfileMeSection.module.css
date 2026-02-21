@@ -336,7 +336,7 @@
   margin-bottom: 2.5rem;
   width: 3rem;
   height: 2px;
-  background: var(--color-accent, #d01046);
+  background: var(--color-accent);
 }
 
 .magFeature {
@@ -457,7 +457,7 @@
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 500;
-  color: var(--color-accent, #d01046);
+  color: var(--color-accent);
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
@@ -585,7 +585,7 @@
 
 .expDot {
   flex-shrink: 0;
-  border: 2px solid var(--color-accent, #d01046);
+  border: 2px solid var(--color-accent);
   width: 10px;
   height: 10px;
   background: var(--bg-primary);
@@ -598,7 +598,7 @@
   min-height: 3rem;
   background: linear-gradient(
     180deg,
-    var(--color-accent, #d01046) 0%,
+    var(--color-accent) 0%,
     var(--border-default) 100%
   );
   opacity: 0.4;
@@ -622,7 +622,7 @@
   font-family: var(--font-mono);
   font-size: 0.8rem;
   font-weight: 400;
-  color: var(--color-accent, #d01046);
+  color: var(--color-accent);
   letter-spacing: 0.05em;
 }
 
@@ -654,7 +654,7 @@
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 400;
-  color: var(--color-accent, #d01046);
+  color: var(--color-accent);
   letter-spacing: 0.1em;
 }
 
@@ -672,7 +672,7 @@
   margin-bottom: 1.25rem;
   width: 2.5rem;
   height: 2px;
-  background: var(--color-accent, #d01046);
+  background: var(--color-accent);
   opacity: 0.5;
 }
 
@@ -742,7 +742,7 @@
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 400;
-  color: var(--color-accent, #d01046);
+  color: var(--color-accent);
   letter-spacing: 0.1em;
 }
 
@@ -762,7 +762,7 @@
   width: 0.3em;
   height: 0.3em;
   vertical-align: 0.25em;
-  background: var(--color-accent, #d01046);
+  background: var(--color-accent);
   border-radius: 50%;
 }
 
@@ -807,7 +807,7 @@
   font-size: clamp(2rem, min(5vw, 6vh), 3.5rem);
   font-weight: 400;
   line-height: 1;
-  color: var(--color-accent, #d01046);
+  color: var(--color-accent);
   letter-spacing: -0.02em;
 }
 
@@ -874,7 +874,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 400;
-  color: var(--color-accent, #d01046);
+  color: var(--color-accent);
   letter-spacing: 0.05em;
 }
 
@@ -981,8 +981,8 @@
   /* compound selector (0,2,0) → global theme transition (0,1,1) 보다 높은 specificity */
   .track .animate {
     transition:
-      opacity 0.6s ease,
-      transform 0.6s ease;
+      opacity var(--duration-slower) ease,
+      transform var(--duration-slower) ease;
   }
 
   .animateVisible {

@@ -25,12 +25,12 @@ html[data-theme-transitioning] *,
 html[data-theme-transitioning] *::before,
 html[data-theme-transitioning] *::after {
   transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease,
-    color 0.3s ease,
-    fill 0.3s ease,
-    stroke 0.3s ease,
-    box-shadow 0.3s ease;
+    background-color var(--duration-base) ease,
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease,
+    fill var(--duration-base) ease,
+    stroke var(--duration-base) ease,
+    box-shadow var(--duration-base) ease;
 }
 
 html {
@@ -79,8 +79,8 @@ body {
     sans-serif;
   color: var(--text-primary);
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+    background-color var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 [data-theme="dark"] body::after {

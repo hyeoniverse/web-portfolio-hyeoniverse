@@ -26,7 +26,7 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-white-alpha-30);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--duration-base) var(--ease-material);
   user-select: none;
   will-change: transform, opacity, color;
   backface-visibility: hidden;
@@ -44,12 +44,12 @@
   left: -8px;
   width: 3px;
   height: 100%;
-  background: #D01046;
+  background: var(--color-accent);
   content: "";
 }
 
 .tocButton:hover:not(.active) {
-  color: #D01046;
+  color: var(--color-accent);
 }
 
 /* ==========================================================================

@@ -8,7 +8,7 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-base) ease;
   pointer-events: none;
   will-change: transform;
   mix-blend-mode: difference;
@@ -30,7 +30,7 @@
   width: var(--cursor-width);
   height: var(--cursor-width);
   background: var(--_color);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--duration-base) var(--ease-material);
   border-radius: var(--radius-circle);
   filter: hue-rotate(-90deg);
 }
@@ -45,9 +45,9 @@
   filter: blur(40px);
   opacity: 0.5;
   transition:
-    inset 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 0.6s ease,
-    opacity 0.6s ease;
+    inset var(--duration-slower) var(--ease-material),
+    filter var(--duration-slower) ease,
+    opacity var(--duration-slower) ease;
   transform: translateZ(0);
   will-change: transform, opacity, filter;
 }
@@ -58,7 +58,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-base) ease;
   pointer-events: none;
   opacity: 0;
   user-select: none;
@@ -147,7 +147,7 @@
   animation: pulse 2s ease-in-out infinite;
 }
 .clicking .cursorInner {
-  animation: clickPulse 0.2s ease-out;
+  animation: clickPulse var(--duration-fast) ease-out;
 }
 
 @keyframes pulse {

@@ -1,0 +1,207 @@
+/* ==========================================================================
+  Color Tokens
+
+  Brand, Neutral Scale, Status, Alpha variants
+  ========================================================================== */
+
+/* ==========================================================================
+  Base Color Palette
+  ========================================================================== */
+
+:root {
+  /* Brand Colors */
+  --color-accent: #d40063;
+  --color-accent-dark: #a3004e;
+  --color-accent-light: #ff4f9d;
+
+  /* Neutral Scale (Light Theme: light to dark) */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f8f6f0;
+  --color-neutral-100: #e9ecef;
+  --color-neutral-200: #dee2e6;
+  --color-neutral-300: #ced4da;
+  --color-neutral-400: #bcc1c7;
+  --color-neutral-500: #adb5bd;
+  --color-neutral-600: #656c79;
+  --color-neutral-700: #495057;
+  --color-neutral-800: #343a40;
+  --color-neutral-900: #212529;
+  --color-neutral-950: #1a1a1a;
+  --color-neutral-999: #000000;
+
+  /* Status Colors */
+  --color-success: #16a34a;
+  --color-success-alpha: rgba(34, 197, 94, 0.6);
+  --color-success-alpha-40: rgba(22, 163, 74, 0.4);
+  --color-success-alpha-60: rgba(22, 163, 74, 0.6);
+}
+
+/* ==========================================================================
+  Alpha Colors (Transparency)
+  ========================================================================== */
+
+:root {
+  /* Accent Alpha */
+  --color-accent-alpha-1: rgba(212, 0, 99, 0.015);
+  --color-accent-alpha-5: rgba(212, 0, 99, 0.05);
+  --color-accent-alpha-10: rgba(212, 0, 99, 0.1);
+  --color-accent-alpha-15: rgba(212, 0, 99, 0.15);
+  --color-accent-alpha-20: rgba(212, 0, 99, 0.2);
+  --color-accent-alpha-30: rgba(212, 0, 99, 0.3);
+  --color-accent-alpha-50: rgba(212, 0, 99, 0.5);
+  --color-accent-alpha-70: rgba(212, 0, 99, 0.7);
+  --color-accent-alpha-80: rgba(212, 0, 99, 0.8);
+  --color-accent-alpha-90: rgba(212, 0, 99, 0.9);
+  --color-accent-alpha-95: rgba(212, 0, 99, 0.95);
+  --color-accent-alpha-100: rgba(212, 0, 99, 1);
+
+  /* Accent Light Alpha */
+  --color-accent-light-alpha-40: rgba(255, 79, 157, 0.4);
+  --color-accent-light-alpha-60: rgba(255, 79, 157, 0.6);
+  --color-accent-light-alpha-70: rgba(255, 79, 157, 0.7);
+  --color-accent-light-alpha-90: rgba(255, 79, 157, 0.9);
+
+  /* Neutral Alpha (Dark on Light) */
+  --color-neutral-alpha-1: rgba(26, 26, 26, 0.015);
+  --color-neutral-alpha-5: rgba(26, 26, 26, 0.05);
+  --color-neutral-alpha-10: rgba(26, 26, 26, 0.1);
+  --color-neutral-alpha-20: rgba(26, 26, 26, 0.2);
+  --color-neutral-alpha-30: rgba(26, 26, 26, 0.3);
+  --color-neutral-alpha-40: rgba(26, 26, 26, 0.4);
+  --color-neutral-alpha-50: rgba(26, 26, 26, 0.5);
+  --color-neutral-alpha-60: rgba(26, 26, 26, 0.6);
+  --color-neutral-alpha-70: rgba(26, 26, 26, 0.7);
+  --color-neutral-alpha-80: rgba(26, 26, 26, 0.8);
+  --color-neutral-alpha-90: rgba(26, 26, 26, 0.9);
+  --color-neutral-alpha-95: rgba(26, 26, 26, 0.95);
+  --color-neutral-alpha-100: rgba(26, 26, 26, 1);
+
+  /* Inverse Alpha (Light on Dark) */
+  --color-inverse-alpha-1: rgba(250, 250, 250, 0.015);
+  --color-inverse-alpha-5: rgba(250, 250, 250, 0.05);
+  --color-inverse-alpha-10: rgba(250, 250, 250, 0.1);
+  --color-inverse-alpha-20: rgba(250, 250, 250, 0.2);
+  --color-inverse-alpha-30: rgba(250, 250, 250, 0.3);
+  --color-inverse-alpha-40: rgba(250, 250, 250, 0.4);
+  --color-inverse-alpha-50: rgba(250, 250, 250, 0.5);
+  --color-inverse-alpha-60: rgba(250, 250, 250, 0.6);
+  --color-inverse-alpha-70: rgba(250, 250, 250, 0.7);
+  --color-inverse-alpha-80: rgba(250, 250, 250, 0.8);
+  --color-inverse-alpha-90: rgba(250, 250, 250, 0.9);
+  --color-inverse-alpha-95: rgba(250, 250, 250, 0.95);
+  --color-inverse-alpha-100: rgba(250, 250, 250, 1);
+
+  /* Gray Alpha (Pure Black) */
+  --color-gray-alpha-1: rgba(0, 0, 0, 0.015);
+  --color-gray-alpha-5: rgba(0, 0, 0, 0.05);
+  --color-gray-alpha-10: rgba(0, 0, 0, 0.1);
+  --color-gray-alpha-20: rgba(0, 0, 0, 0.2);
+  --color-gray-alpha-25: rgba(0, 0, 0, 0.25);
+  --color-gray-alpha-30: rgba(0, 0, 0, 0.3);
+  --color-gray-alpha-40: rgba(0, 0, 0, 0.4);
+  --color-gray-alpha-50: rgba(0, 0, 0, 0.5);
+  --color-gray-alpha-60: rgba(0, 0, 0, 0.6);
+  --color-gray-alpha-70: rgba(0, 0, 0, 0.7);
+  --color-gray-alpha-80: rgba(0, 0, 0, 0.8);
+  --color-gray-alpha-90: rgba(0, 0, 0, 0.9);
+  --color-gray-alpha-95: rgba(0, 0, 0, 0.95);
+  --color-gray-alpha-100: rgba(0, 0, 0, 1);
+
+  /* White Alpha (Pure White) */
+  --color-white-alpha-1: rgba(255, 255, 255, 0.015);
+  --color-white-alpha-5: rgba(255, 255, 255, 0.05);
+  --color-white-alpha-10: rgba(255, 255, 255, 0.1);
+  --color-white-alpha-20: rgba(255, 255, 255, 0.2);
+  --color-white-alpha-30: rgba(255, 255, 255, 0.3);
+  --color-white-alpha-40: rgba(255, 255, 255, 0.4);
+  --color-white-alpha-50: rgba(255, 255, 255, 0.5);
+  --color-white-alpha-60: rgba(255, 255, 255, 0.6);
+  --color-white-alpha-70: rgba(255, 255, 255, 0.7);
+  --color-white-alpha-80: rgba(255, 255, 255, 0.8);
+  --color-white-alpha-90: rgba(255, 255, 255, 0.9);
+  --color-white-alpha-95: rgba(255, 255, 255, 0.95);
+  --color-white-alpha-100: rgba(255, 255, 255, 1);
+}
+
+/* ==========================================================================
+  Dark Theme Color Overrides
+  ========================================================================== */
+
+[data-theme="dark"] {
+  --color-accent: #ff4da6;
+  --color-accent-dark: #e6398c;
+  --color-accent-light: #ff80c2;
+
+  /* Neutral Scale (Dark Theme: dark to light - inverted) */
+  --color-neutral-0: #000000;
+  --color-neutral-50: #1d1d1f;
+  --color-neutral-100: #212529;
+  --color-neutral-200: #343a40;
+  --color-neutral-300: #495057;
+  --color-neutral-400: #6b7280;
+  --color-neutral-500: #adb5bd;
+  --color-neutral-600: #bcc1c7;
+  --color-neutral-700: #ced4da;
+  --color-neutral-800: #dee2e6;
+  --color-neutral-900: #e9ecef;
+  --color-neutral-950: #fafafa;
+  --color-neutral-999: #ffffff;
+
+  /* Status */
+  --color-success: #4ade80;
+  --color-success-alpha: rgba(34, 197, 94, 0.3);
+  --color-success-alpha-40: rgba(74, 222, 128, 0.4);
+  --color-success-alpha-60: rgba(74, 222, 128, 0.6);
+
+  /* Accent Alpha */
+  --color-accent-alpha-1: rgba(255, 77, 166, 0.015);
+  --color-accent-alpha-5: rgba(255, 77, 166, 0.05);
+  --color-accent-alpha-10: rgba(255, 77, 166, 0.1);
+  --color-accent-alpha-15: rgba(255, 77, 166, 0.15);
+  --color-accent-alpha-20: rgba(255, 77, 166, 0.2);
+  --color-accent-alpha-30: rgba(255, 77, 166, 0.3);
+  --color-accent-alpha-40: rgba(255, 77, 166, 0.4);
+  --color-accent-alpha-50: rgba(255, 77, 166, 0.5);
+  --color-accent-alpha-60: rgba(255, 77, 166, 0.6);
+  --color-accent-alpha-70: rgba(255, 77, 166, 0.7);
+  --color-accent-alpha-80: rgba(255, 77, 166, 0.8);
+  --color-accent-alpha-90: rgba(255, 77, 166, 0.9);
+  --color-accent-alpha-95: rgba(255, 77, 166, 0.95);
+  --color-accent-alpha-100: rgba(255, 77, 166, 1);
+
+  /* Accent Light Alpha */
+  --color-accent-light-alpha-40: rgba(255, 128, 194, 0.4);
+  --color-accent-light-alpha-60: rgba(255, 128, 194, 0.6);
+  --color-accent-light-alpha-70: rgba(255, 128, 194, 0.7);
+  --color-accent-light-alpha-90: rgba(255, 128, 194, 0.9);
+
+  /* Neutral Alpha (Light on Dark - inverted) */
+  --color-neutral-alpha-1: rgba(250, 250, 250, 0.015);
+  --color-neutral-alpha-5: rgba(250, 250, 250, 0.05);
+  --color-neutral-alpha-10: rgba(250, 250, 250, 0.1);
+  --color-neutral-alpha-20: rgba(250, 250, 250, 0.2);
+  --color-neutral-alpha-30: rgba(250, 250, 250, 0.3);
+  --color-neutral-alpha-40: rgba(250, 250, 250, 0.4);
+  --color-neutral-alpha-50: rgba(250, 250, 250, 0.5);
+  --color-neutral-alpha-60: rgba(250, 250, 250, 0.6);
+  --color-neutral-alpha-70: rgba(250, 250, 250, 0.7);
+  --color-neutral-alpha-80: rgba(250, 250, 250, 0.8);
+  --color-neutral-alpha-90: rgba(250, 250, 250, 0.9);
+  --color-neutral-alpha-95: rgba(250, 250, 250, 0.95);
+  --color-neutral-alpha-100: rgba(250, 250, 250, 1);
+
+  /* Inverse Alpha (Dark on Light - inverted) */
+  --color-inverse-alpha-1: rgba(26, 26, 26, 0.015);
+  --color-inverse-alpha-5: rgba(26, 26, 26, 0.05);
+  --color-inverse-alpha-10: rgba(26, 26, 26, 0.1);
+  --color-inverse-alpha-20: rgba(26, 26, 26, 0.2);
+  --color-inverse-alpha-30: rgba(26, 26, 26, 0.3);
+  --color-inverse-alpha-40: rgba(26, 26, 26, 0.4);
+  --color-inverse-alpha-50: rgba(26, 26, 26, 0.5);
+  --color-inverse-alpha-60: rgba(26, 26, 26, 0.6);
+  --color-inverse-alpha-70: rgba(26, 26, 26, 0.7);
+  --color-inverse-alpha-80: rgba(26, 26, 26, 0.8);
+  --color-inverse-alpha-90: rgba(26, 26, 26, 0.9);
+  --color-inverse-alpha-95: rgba(26, 26, 26, 0.95);
+  --color-inverse-alpha-100: rgba(26, 26, 26, 1);
+}

@@ -37,15 +37,15 @@
   box-shadow: 0 4px 12px var(--color-gray-alpha-10);
   position: relative;
   transition:
-    transform 0.3s ease-out,
-    box-shadow 0.3s ease-out;
+    transform var(--duration-base) ease-out,
+    box-shadow var(--duration-base) ease-out;
   transform: scale(1) rotateX(0deg);
   transform-style: preserve-3d;
 }
 
 .inputWrapper:hover {
   box-shadow: 0 6px 20px var(--color-gray-alpha-10);
-  transition-duration: 0.2s;
+  transition-duration: var(--duration-fast);
 }
 
 .inputWrapper:focus-within {
@@ -58,7 +58,7 @@
   left: var(--spacing-sm);
   z-index: 1;
   color: var(--text-muted);
-  transition: color 0.2s ease;
+  transition: color var(--duration-fast) ease;
 }
 
 .formInput,
@@ -70,7 +70,7 @@
   background: var(--color-inverse-alpha-50);
   font-size: inhirit;
   color: var(--text-primary);
-  transition: all 0.3s ease;
+  transition: all var(--duration-base) ease;
 }
 
 .formTextarea {

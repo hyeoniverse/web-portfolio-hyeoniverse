@@ -1,0 +1,153 @@
+/* ==========================================================================
+  Spacing & Padding Tokens
+
+  Scale, fluid, directional padding variants
+  ========================================================================== */
+
+:root {
+  /* Spacing Scale */
+  --spacing-zero: 0;
+  --spacing-2xs: 0.25rem;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.25rem;
+  --spacing-xl: 1.5rem;
+  --spacing-2xl: 2rem;
+  --spacing-3xl: 3rem;
+  --spacing-4xl: 4rem;
+  --spacing-5xl: 6rem;
+  --spacing-6xl: 8rem;
+
+  /* Fluid Spacing */
+  --fluid-spacing-2xs: clamp(0.25rem, 0.2rem + 0.15vw, 0.35rem);
+  --fluid-spacing-xs: clamp(0.35rem, 0.2rem + 0.25vw, 0.5rem);
+  --fluid-spacing-sm: clamp(0.5rem, 0.4rem + 0.4vw, 0.75rem);
+  --fluid-spacing-md: clamp(0.75rem, 0.6rem + 0.5vw, 1rem);
+  --fluid-spacing-lg: clamp(1rem, 0.8rem + 0.75vw, 1.25rem);
+  --fluid-spacing-xl: clamp(1.25rem, 1rem + 0.85vw, 1.5rem);
+  --fluid-spacing-2xl: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  --fluid-spacing-3xl: clamp(2rem, 1.6rem + 1.25vw, 3rem);
+  --fluid-spacing-4xl: clamp(2.5rem, 2rem + 1.5vw, 4rem);
+  --fluid-spacing-5xl: clamp(4rem, 3rem + 1.6vw, 6rem);
+  --fluid-spacing-6xl: clamp(6rem, 4rem + 1.8vw, 8rem);
+
+  /* Padding - Base (all sides) */
+  --padding-xs: 0.15rem 0.5rem;
+  --padding-sm: 0.25rem 0.75rem;
+  --padding-md: 0.5rem 1rem;
+  --padding-lg: 0.75rem 1.25rem;
+  --padding-xl: 1rem 2rem;
+  --padding-2xl: 1.25rem 2.5rem;
+  --padding-3xl: 1.5rem 3rem;
+  --padding-4xl: 2rem 4rem;
+
+  /* Padding - Vertical Emphasis (Y > X) */
+  --padding-ve-sm: 0.75rem 0.25rem;
+  --padding-ve-md: 1rem 0.5rem;
+  --padding-ve-lg: 1.5rem 0.75rem;
+  --padding-ve-xl: 1.85rem 1rem;
+  --padding-ve-2xl: 2rem 1.5rem;
+  --padding-ve-3xl: 3rem 2rem;
+  --padding-ve-4xl: 4rem 3rem;
+  --padding-ve-5xl: 5rem 4rem;
+  --padding-ve-6xl: 6rem 5rem;
+
+  /* Padding - Y-axis only */
+  --padding-y-sm: 0.25rem 0;
+  --padding-y-md: 0.5rem 0;
+  --padding-y-lg: 0.75rem 0;
+  --padding-y-xl: 1rem 0;
+  --padding-y-2xl: 1.5rem 0;
+  --padding-y-3xl: 2rem 0;
+  --padding-y-4xl: 2.5rem 0;
+  --padding-y-5xl: 3rem 0;
+  --padding-y-6xl: 4rem 0;
+
+  /* Padding - X-axis only */
+  --padding-x-sm: 0 0.75rem;
+  --padding-x-md: 0 1rem;
+  --padding-x-lg: 0 1.25rem;
+  --padding-x-xl: 0 2rem;
+  --padding-x-2xl: 0 2.5rem;
+  --padding-x-3xl: 0 3rem;
+  --padding-x-4xl: 0 4rem;
+  --padding-x-5xl: 0 5rem;
+  --padding-x-6xl: 0 6rem;
+
+  /* Padding - Top only */
+  --padding-t-sm: 0.25rem 0 0 0;
+  --padding-t-md: 0.5rem 0 0 0;
+  --padding-t-lg: 0.75rem 0 0 0;
+  --padding-t-xl: 1rem 0 0 0;
+  --padding-t-2xl: 1.25rem 0 0 0;
+
+  /* Padding - Right only */
+  --padding-r-sm: 0 0.75rem 0 0;
+  --padding-r-md: 0 1rem 0 0;
+  --padding-r-lg: 0 1.25rem 0 0;
+  --padding-r-xl: 0 2rem 0 0;
+  --padding-r-2xl: 0 2.5rem 0 0;
+
+  /* Padding - Bottom only */
+  --padding-b-sm: 0 0 0.25rem 0;
+  --padding-b-md: 0 0 0.5rem 0;
+  --padding-b-lg: 0 0 0.75rem 0;
+  --padding-b-xl: 0 0 1rem 0;
+  --padding-b-2xl: 0 0 1.25rem 0;
+  --padding-b-3xl: 0 0 1.5rem 0;
+  --padding-b-4xl: 0 0 2rem 0;
+  --padding-b-5xl: 0 0 2.5rem 0;
+  --padding-b-6xl: 0 0 3rem 0;
+
+  /* Padding - Left only */
+  --padding-l-sm: 0 0 0 0.75rem;
+  --padding-l-md: 0 0 0 1rem;
+  --padding-l-lg: 0 0 0 1.25rem;
+  --padding-l-xl: 0 0 0 2rem;
+  --padding-l-2xl: 0 0 0 2.5rem;
+
+  /* Padding - Except Top */
+  --padding-except-t-sm: 0 0.75rem 0.25rem 0.75rem;
+  --padding-except-t-md: 0 1rem 0.5rem 1rem;
+  --padding-except-t-lg: 0 1.25rem 0.75rem 1.25rem;
+  --padding-except-t-xl: 0 2rem 1rem 2rem;
+  --padding-except-t-2xl: 0 2.5rem 1.25rem 2.5rem;
+  --padding-except-t-3xl: 0 3rem 1.5rem 3rem;
+  --padding-except-t-4xl: 0 4rem 2rem 4rem;
+  --padding-except-t-5xl: 0 5rem 2.5rem 5rem;
+  --padding-except-t-6xl: 0 6rem 3rem 6rem;
+
+  /* Padding - Except Bottom */
+  --padding-except-b-sm: 0.25rem 0.75rem 0 0.75rem;
+  --padding-except-b-md: 0.5rem 1rem 0 1rem;
+  --padding-except-b-lg: 0.75rem 1.25rem 0 1.25rem;
+  --padding-except-b-xl: 1rem 2rem 0 2rem;
+  --padding-except-b-2xl: 1.25rem 2.5rem 0 2.5rem;
+  --padding-except-b-3xl: 1.5rem 3rem 0 3rem;
+  --padding-except-b-4xl: 2rem 4rem 0 4rem;
+  --padding-except-b-5xl: 2.5rem 5rem 0 5rem;
+  --padding-except-b-6xl: 3rem 6rem 0 6rem;
+
+  /* Padding - Except Left */
+  --padding-except-l-sm: 0.25rem 0.75rem 0.25rem 0;
+  --padding-except-l-md: 0.5rem 1rem 0.5rem 0;
+  --padding-except-l-lg: 0.75rem 1.25rem 0.75rem 0;
+  --padding-except-l-xl: 1rem 2rem 1rem 0;
+  --padding-except-l-2xl: 1.25rem 2.5rem 1.25rem 0;
+  --padding-except-l-3xl: 1.5rem 3rem 1.5rem 0;
+  --padding-except-l-4xl: 2rem 4rem 2rem 0;
+  --padding-except-l-5xl: 2.5rem 5rem 2.5rem 0;
+  --padding-except-l-6xl: 3rem 6rem 3rem 0;
+
+  /* Padding - Except Right */
+  --padding-except-r-sm: 0.25rem 0 0.25rem 0.75rem;
+  --padding-except-r-md: 0.5rem 0 0.5rem 1rem;
+  --padding-except-r-lg: 0.75rem 0 0.75rem 1.25rem;
+  --padding-except-r-xl: 1rem 0 1rem 2rem;
+  --padding-except-r-2xl: 1.25rem 0 1.25rem 2.5rem;
+  --padding-except-r-3xl: 1.5rem 0 1.5rem 3rem;
+  --padding-except-r-4xl: 2rem 0 2rem 4rem;
+  --padding-except-r-5xl: 2.5rem 0 2.5rem 5rem;
+  --padding-except-r-6xl: 3rem 0 3rem 6rem;
+}

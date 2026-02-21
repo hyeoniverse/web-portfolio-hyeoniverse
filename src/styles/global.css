@@ -2,8 +2,8 @@
 @import "tailwindcss/preflight";
 @tailwind utilities;
 
+@import "./tokens/_index.css";
 @import "./globals/_animations.css";
-@import "./globals/_tokens.css";
 @import "./globals/_semantic.css";
 @import "./globals/_base.css";
 @import "./globals/_utilities.css";
