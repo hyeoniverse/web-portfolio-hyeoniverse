@@ -48,17 +48,38 @@
   letter-spacing: 0.05em;
 }
 
-/* Sliding indicator — positioned inside .navCenter */
+/* Sliding indicator — ►◀︎ markers positioned inside .navCenter */
 .navIndicator {
   position: absolute;
-  bottom: -4px;
-  height: 1px;
-  background: var(--text-white);
+  top: 50%;
+  transform: translateY(-50%);
+  height: 0;
+  background: none;
   pointer-events: none;
   transition:
     left var(--duration-moderate) var(--ease-material),
     width var(--duration-moderate) var(--ease-material),
     opacity var(--duration-base) ease;
+}
+
+.navIndicator::before {
+  content: "►";
+  position: absolute;
+  right: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 5px;
+  color: var(--text-white);
+}
+
+.navIndicator::after {
+  content: "◀︎";
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 5px;
+  color: var(--text-white);
 }
 
 .navIndicatorHidden {
