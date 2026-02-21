@@ -63,7 +63,7 @@
 .itemNumber {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
   letter-spacing: 0.1em;
 }
 
@@ -76,13 +76,13 @@
 }
 
 .item:hover .itemTitle {
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
 }
 
 .itemDescription {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
 }
 
 /* ---------------------------------------------------------------------------

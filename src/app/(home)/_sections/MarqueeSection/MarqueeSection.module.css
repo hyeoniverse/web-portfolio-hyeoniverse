@@ -35,7 +35,7 @@
   font-family: var(--font-instrument), serif;
   font-size: var(--fluid-font-size-4xl);
   font-weight: var(--font-weight-regular);
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
   letter-spacing: -0.02em;
 }
 
@@ -68,11 +68,11 @@
   }
 
   .oval {
-    width: 50px;
-    height: 25px;
+    width: 10vw;
+    height: var(--m-lg);
   }
 
   .line {
-    width: 60px;
+    width: 12.5vw;
   }
 }

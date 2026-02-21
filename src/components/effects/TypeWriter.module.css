@@ -48,5 +48,5 @@
 }
 
 [data-theme="dark"] .typewriter {
-  color: #fafafa;
+  color: var(--text-inverse);
 }

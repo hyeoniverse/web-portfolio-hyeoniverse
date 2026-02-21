@@ -25,7 +25,7 @@
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--color-white-alpha-30);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   will-change: transform, opacity, color;
@@ -35,7 +35,7 @@
 .tocButton.active {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-  color: #ffffff;
+  color: var(--text-white);
   transform: scale(1.1);
 }
 

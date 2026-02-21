@@ -123,38 +123,38 @@
 @keyframes glitch {
   0% {
     text-shadow:
-      2px 0 var(--text-accent-primary),
-      -2px 0 var(--text-accent-secondary);
+      2px 0 var(--text-accent),
+      -2px 0 var(--text-accent-alt);
     /* transform: translate(0, 0); */
   }
   20% {
     text-shadow:
-      -2px 0 var(--text-accent-primary),
-      2px 0 var(--text-accent-secondary);
+      -2px 0 var(--text-accent),
+      2px 0 var(--text-accent-alt);
     /* transform: translate(-1px, 1px); */
   }
   40% {
     text-shadow:
-      2px 2px var(--text-accent-primary),
-      -2px -2px var(--text-accent-secondary);
+      2px 2px var(--text-accent),
+      -2px -2px var(--text-accent-alt);
     /* transform: translate(1px, -1px); */
   }
   60% {
     text-shadow:
-      -1px 1px var(--text-accent-primary),
-      1px -1px var(--text-accent-secondary);
+      -1px 1px var(--text-accent),
+      1px -1px var(--text-accent-alt);
     /* transform: translate(-1px, 1px); */
   }
   80% {
     text-shadow:
-      1px -1px var(--text-accent-primary),
-      -1px 1px var(--text-accent-secondary);
+      1px -1px var(--text-accent),
+      -1px 1px var(--text-accent-alt);
     /* transform: translate(1px, -1px); */
   }
   100% {
     text-shadow:
-      2px 0 var(--text-accent-primary),
-      -2px 0 var(--text-accent-secondary);
+      2px 0 var(--text-accent),
+      -2px 0 var(--text-accent-alt);
     /* transform: translate(0, 0); */
   }
 }

@@ -8,14 +8,14 @@
   top: 0.5rem;
   right: 0.5rem;
   background: none;
-  color: #666;
+  color: var(--text-tertiary);
   transition: all 0.2s ease;
   border-radius: 50%;
 }
 
 .closeButton:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #1a1a1a;
+  background: var(--color-gray-alpha-5);
+  color: var(--text-primary);
 }
 
 .modalHeader {
@@ -33,14 +33,14 @@
 }
 
 .headerIcon {
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 .modalTitle {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 /* Dark mode */
@@ -49,20 +49,20 @@
 }
 
 [data-theme="dark"] .modalTitle {
-  color: #f9fafb;
+  color: var(--text-inverse);
 }
 
 [data-theme="dark"] .headerIcon {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 [data-theme="dark"] .closeButton {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 [data-theme="dark"] .closeButton:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #f9fafb;
+  background: var(--color-white-alpha-5);
+  color: var(--text-inverse);
 }
 
 /* Mobile responsive */

@@ -11,16 +11,16 @@
 
 ::selection {
   background: transparent;
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
 }
 
 [data-theme="dark"] ::selection {
-  color: var(--text-accent-secondary);
+  color: var(--text-accent);
 }
 
 input::selection,
 textarea::selection {
-  background: var(--bg-accent-secondary-solid-light);
+  background: var(--bg-accent-solid-light);
   color: var(--text-inverse);
 }
 

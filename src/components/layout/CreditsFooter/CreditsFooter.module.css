@@ -13,7 +13,7 @@
 }
 
 .heart {
-  color: var(--text-accent-secondary);
+  color: var(--text-accent);
 }
 
 /* ── Variant: panel (전체화면 패널) ── */
@@ -39,5 +39,11 @@
     padding: var(--spacing-3xl) 24px var(--spacing-2xl);
     border-top: 1px solid var(--border-primary);
     pointer-events: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: var(--spacing-3xl) var(--m-lg) var(--spacing-2xl);
   }
 }

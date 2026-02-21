@@ -26,16 +26,16 @@
 
 .toast {
   padding: 16px 28px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-white-alpha-10);
+  box-shadow: 0 10px 40px var(--color-gray-alpha-30);
   position: fixed;
   bottom: 40px;
   left: 50%;
   z-index: var(--z-top);
-  background: rgba(30, 30, 30, 0.95);
+  background: var(--color-neutral-alpha-95);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
-  color: #fff;
+  color: var(--text-white);
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
   border-radius: var(--radius-capsule);
@@ -51,11 +51,11 @@
 }
 
 .toastError {
-  border-color: var(--border-accent-secondary);
-  background: var(--bg-accent-secondary);
+  border-color: var(--border-accent);
+  background: var(--bg-accent);
 }
 
 .toastSuccess {
-  border-color: var(--border-accent-primary);
-  background: var(--bg-accent-primary);
+  border-color: var(--border-accent);
+  background: var(--bg-accent);
 }

@@ -1,9 +1,9 @@
 .title {
-  margin-bottom: var(--ab-space-divide, 2rem);
-  font-family: var(--ab-font-display, var(--font-playfair));
-  font-size: var(--ab-fs-hero, clamp(2rem, min(9vw, 18vh), 10rem));
-  line-height: var(--ab-lh-title, 1.1);
-  letter-spacing: var(--ab-ls-title, -0.03em);
+  margin-bottom: var(--editorial-space-divide);
+  font-family: var(--font-display);
+  font-size: var(--editorial-fs-hero);
+  line-height: var(--editorial-lh-title);
+  letter-spacing: var(--editorial-ls-title);
   perspective: 600px;
 }
 
@@ -17,5 +17,5 @@
 }
 
 .accent {
-  color: var(--text-accent-secondary);
+  color: var(--text-accent);
 }
