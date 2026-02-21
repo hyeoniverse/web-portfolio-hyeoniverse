@@ -5,7 +5,7 @@
   padding: 4px;
   border: var(--border-strong);
   position: relative;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-white-alpha-1);
   border-radius: var(--radius-capsule);
 }
 

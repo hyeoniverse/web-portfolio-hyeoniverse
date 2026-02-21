@@ -23,7 +23,7 @@ function DemoStaggerText() {
   const chars = text.split("");
   const totalChars = chars.length;
   const delayPerChar = 0.04;
-  const strokeColor = "var(--text-accent-secondary)";
+  const strokeColor = "var(--text-accent)";
 
   const [isOutlining, setIsOutlining] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -63,7 +63,7 @@ function DemoStaggerText() {
         justifyContent: "center",
         fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
         fontWeight: 600,
-        color: "var(--text-accent-secondary)",
+        color: "var(--text-accent)",
       }}
     >
       {isMobile ? (
@@ -167,7 +167,7 @@ function DemoMagnetic() {
         animate={{
           scale: isHovering ? 1.15 : 1,
           borderColor: isHovering
-            ? "var(--text-accent-secondary)"
+            ? "var(--text-accent)"
             : "var(--color-accent-alpha-30)",
         }}
         transition={{ duration: 0.25 }}

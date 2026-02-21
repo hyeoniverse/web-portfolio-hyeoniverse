@@ -124,18 +124,6 @@
   );
 }
 
-.text-color-primary {
-  color: var(--color-primary);
-}
-
-.text-color-accent-dark {
-  color: var(--color-accent-dark);
-}
-
-.text-color-secondary {
-  color: var(--color-neutral-400);
-}
-
 .highlighted-text {
   padding: 0.2rem 0.4rem;
   background: linear-gradient(

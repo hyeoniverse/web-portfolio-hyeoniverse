@@ -12,19 +12,19 @@ const MarqueeSection = forwardRef<HTMLElement>((_, ref) => {
       <div className={`${styles.track} marquee-track`}>
         {[...Array(4)].map((_, idx) => (
           <span key={idx} className={styles.text}>
-            <StaggerText strokeColor="var(--text-accent-secondary-alt)">
+            <StaggerText strokeColor="var(--text-accent-alt)">
               {t("marquee.creative")}
             </StaggerText>{" "}
             <span className={styles.oval} />{" "}
-            <StaggerText strokeColor="var(--text-accent-secondary-alt)">
+            <StaggerText strokeColor="var(--text-accent-alt)">
               {t("marquee.frontend")}
             </StaggerText>{" "}
             <span className={styles.line} />{" "}
-            <StaggerText strokeColor="var(--text-accent-secondary-alt)">
+            <StaggerText strokeColor="var(--text-accent-alt)">
               {t("marquee.developer")}
             </StaggerText>{" "}
             <span className={styles.oval} />{" "}
-            <StaggerText strokeColor="var(--text-accent-secondary-alt)">
+            <StaggerText strokeColor="var(--text-accent-alt)">
               {t("marquee.innovator")}
             </StaggerText>{" "}
             <span className={styles.line} />{" "}

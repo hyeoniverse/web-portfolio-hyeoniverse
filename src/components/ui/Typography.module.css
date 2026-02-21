@@ -82,7 +82,7 @@
 }
 
 .color-accent {
-  color: var(--text-accent-primary);
+  color: var(--text-accent);
 }
 
 .color-inverse {

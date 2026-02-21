@@ -103,7 +103,7 @@
   font-style: italic;
   font-weight: inherit;
   line-height: var(--line-height-fit);
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
   transition:
     color 0.3s ease,
     -webkit-text-stroke 0.3s ease;
@@ -152,11 +152,11 @@
 .metaDivider {
   width: 60px;
   height: 1px;
-  background: var(--bg-accent-secondary-solid-light);
+  background: var(--bg-accent-solid-light);
 }
 
 .metaHighlight {
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
 }
 
 .availabilityWrapper {
@@ -168,7 +168,7 @@
 .pulseDot {
   width: 8px;
   height: 8px;
-  background: var(--text-accent-secondary-alt);
+  background: var(--text-accent-alt);
   animation: pulse 2s infinite;
   border-radius: var(--radius-circle);
 }
@@ -177,14 +177,14 @@
   0%,
   100% {
     box-shadow:
-      0 0 8px rgba(255, 128, 194, 0.9),
-      0 0 12px rgba(255, 128, 194, 0.7);
+      0 0 8px var(--color-accent-light-alpha-90),
+      0 0 12px var(--color-accent-light-alpha-70);
     opacity: 1;
   }
   50% {
     box-shadow:
-      0 0 14px rgba(255, 128, 194, 0.6),
-      0 0 20px rgba(255, 128, 194, 0.4);
+      0 0 14px var(--color-accent-light-alpha-60),
+      0 0 20px var(--color-accent-light-alpha-40);
     opacity: 1;
   }
 }
@@ -225,7 +225,7 @@
 .scrollLine {
   width: 100%;
   height: 100%;
-  background: var(--bg-gradient-accent-secondary-vertical);
+  background: var(--bg-gradient-accent-vertical);
   transform-origin: top center;
 }
 

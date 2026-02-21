@@ -74,8 +74,8 @@
 }
 
 .primary:hover:not(:disabled) {
-  box-shadow: 0 6px 16px rgba(26, 26, 26, 0.2);
-  background: #000;
+  box-shadow: 0 6px 16px var(--color-neutral-alpha-20);
+  background: var(--bg-black);
   transform: translateY(-1px);
 }
 
@@ -91,7 +91,7 @@
   Outline 변형
    ===================== */
 .outline {
-  border: 1px solid #1a1a1a !important;
+  border: 1px solid var(--border-primary-color) !important;
   position: relative;
   background: transparent !important;
   transition: all 0.3s ease;
@@ -113,8 +113,8 @@
 }
 
 .outline.active {
-  background: #1a1a1a !important;
-  color: #fafafa !important;
+  background: var(--bg-inverse) !important;
+  color: var(--text-inverse) !important;
 }
 
 /* =====================
@@ -165,51 +165,51 @@
   Dark Mode
    ===================== */
 [data-theme="dark"] .button {
-  color: #fafafa;
+  color: var(--text-inverse);
 }
 
 [data-theme="dark"] .underline::after {
-  background: #fafafa;
+  background: var(--color-neutral-950);
 }
 
 [data-theme="dark"] .underline:hover {
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 [data-theme="dark"] .underline.active {
-  background: #fafafa;
-  color: #1a1a1a !important;
+  background: var(--color-neutral-950);
+  color: var(--text-primary) !important;
 }
 
 [data-theme="dark"] .primary {
-  box-shadow: 0 4px 12px rgba(249, 250, 251, 0.15);
-  background: #f9fafb;
-  color: #1a1a1a;
+  box-shadow: 0 4px 12px var(--color-inverse-alpha-20);
+  background: var(--color-neutral-950);
+  color: var(--text-primary);
 }
 
 [data-theme="dark"] .primary:hover:not(:disabled) {
-  box-shadow: 0 6px 16px rgba(249, 250, 251, 0.2);
-  background: #e5e7eb;
+  box-shadow: 0 6px 16px var(--color-inverse-alpha-20);
+  background: var(--color-neutral-100);
 }
 
 [data-theme="dark"] .primary:hover::after {
-  box-shadow: 3px 3px 0 #fafafa;
+  box-shadow: 3px 3px 0 var(--color-neutral-950);
 }
 
 [data-theme="dark"] .primary:disabled {
-  background: #4b5563;
-  color: #9ca3af;
+  background: var(--color-neutral-300);
+  color: var(--text-muted);
 }
 
 [data-theme="dark"] .outline {
-  border-color: #fafafa !important;
+  border-color: var(--color-neutral-950) !important;
 }
 
 [data-theme="dark"] .outline:hover::after {
-  box-shadow: 3px 3px 0 #fafafa;
+  box-shadow: 3px 3px 0 var(--color-neutral-950);
 }
 
 [data-theme="dark"] .outline.active {
-  background: #fafafa !important;
-  color: #1a1a1a !important;
+  background: var(--color-neutral-950) !important;
+  color: var(--color-neutral-50) !important;
 }

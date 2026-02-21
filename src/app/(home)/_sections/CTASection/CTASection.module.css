@@ -75,7 +75,7 @@
   margin-bottom: var(--spacing-2xl);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
   text-transform: uppercase;
   letter-spacing: 0.15em;
 }
@@ -132,7 +132,7 @@
 .buttonIndicator {
   width: var(--size-5xs);
   height: var(--size-5xs);
-  background: var(--bg-accent-secondary-solid-light);
+  background: var(--bg-accent-solid-light);
   border-radius: var(--radius-circle);
   animation: pulse 2s infinite;
   transition: transform 0.3s ease;
@@ -148,14 +148,14 @@
   0%,
   100% {
     box-shadow:
-      0 0 8px rgba(255, 128, 194, 0.9),
-      0 0 12px rgba(255, 128, 194, 0.7);
+      0 0 8px var(--color-accent-light-alpha-90),
+      0 0 12px var(--color-accent-light-alpha-70);
     opacity: 1;
   }
   50% {
     box-shadow:
-      0 0 14px rgba(255, 128, 194, 0.6),
-      0 0 20px rgba(255, 128, 194, 0.4);
+      0 0 14px var(--color-accent-light-alpha-60),
+      0 0 20px var(--color-accent-light-alpha-40);
     opacity: 1;
   }
 }
@@ -172,7 +172,7 @@
   left: 8vw;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
   letter-spacing: 0.05em;
 }
 

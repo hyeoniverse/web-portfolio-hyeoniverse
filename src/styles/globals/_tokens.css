@@ -20,10 +20,6 @@
 
 :root {
   /* Brand Colors */
-  --color-primary: #3b82f6;
-  --color-primary-dark: #2563eb;
-  --color-primary-light: #93c5fd;
-
   --color-accent: #d40063;
   --color-accent-dark: #a3004e;
   --color-accent-light: #ff4f9d;
@@ -53,20 +49,11 @@
   ========================================================================== */
 
 :root {
-  /* Primary Alpha */
-  --color-primary-alpha-1: rgba(59, 131, 246, 0.015);
-  --color-primary-alpha-5: rgba(59, 131, 246, 0.05);
-  --color-primary-alpha-10: rgba(59, 131, 246, 0.1);
-  --color-primary-alpha-20: rgba(59, 131, 246, 0.2);
-  --color-primary-alpha-30: rgba(59, 131, 246, 0.3);
-  --color-primary-alpha-50: rgba(59, 131, 246, 0.5);
-  --color-primary-alpha-70: rgba(59, 131, 246, 0.7);
-  --color-primary-alpha-80: rgba(59, 131, 246, 0.8);
-
   /* Accent Alpha */
   --color-accent-alpha-1: rgba(212, 0, 99, 0.015);
   --color-accent-alpha-5: rgba(212, 0, 99, 0.05);
   --color-accent-alpha-10: rgba(212, 0, 99, 0.1);
+  --color-accent-alpha-15: rgba(212, 0, 99, 0.15);
   --color-accent-alpha-20: rgba(212, 0, 99, 0.2);
   --color-accent-alpha-30: rgba(212, 0, 99, 0.3);
   --color-accent-alpha-50: rgba(212, 0, 99, 0.5);
@@ -75,6 +62,12 @@
   --color-accent-alpha-90: rgba(212, 0, 99, 0.9);
   --color-accent-alpha-95: rgba(212, 0, 99, 0.95);
   --color-accent-alpha-100: rgba(212, 0, 99, 1);
+
+  /* Accent Light Alpha */
+  --color-accent-light-alpha-40: rgba(255, 79, 157, 0.4);
+  --color-accent-light-alpha-60: rgba(255, 79, 157, 0.6);
+  --color-accent-light-alpha-70: rgba(255, 79, 157, 0.7);
+  --color-accent-light-alpha-90: rgba(255, 79, 157, 0.9);
 
   /* Neutral Alpha (Dark on Light) */
   --color-neutral-alpha-1: rgba(26, 26, 26, 0.015);
@@ -139,149 +132,8 @@
 }
 
 /* ==========================================================================
-  3. Semantic Colors (Text, Background, Border)
+  3. Semantic Colors → moved to _semantic.css
   ========================================================================== */
-
-:root {
-  /* Text Colors */
-  --text-white: var(--color-white-alpha-100);
-  --text-black: var(--color-gray-alpha-100);
-  --text-primary: var(--color-neutral-900);
-  --text-secondary: var(--color-neutral-800);
-  --text-tertiary: var(--color-neutral-600);
-  --text-muted: var(--color-neutral-400);
-  --text-inverse: var(--color-neutral-50);
-  --text-success: var(--color-success);
-  --text-accent-primary: var(--color-primary);
-  --text-accent-primary-alt: var(--color-primary-light);
-  --text-accent-secondary: var(--color-accent);
-  --text-accent-secondary-alt: var(--color-accent-light);
-
-  /* Background Colors */
-  --bg-white: var(--color-white-alpha-100);
-  --bg-black: var(--color-gray-alpha-100);
-  --bg-primary: var(--color-neutral-50);
-  --bg-primary-alt: var(--color-neutral-alpha-95);
-  --bg-secondary: var(--color-neutral-400);
-  --bg-secondary-alt: var(--color-neutral-alpha-50);
-  --bg-tertiary: var(--color-neutral-alpha-5);
-  --bg-tertiary-alt: var(--color-neutral-alpha-10);
-  --bg-inverse: var(--color-neutral-950);
-  --bg-inverse-light: var(--color-neutral-700);
-  --bg-inverse-alt: var(--color-inverse-alpha-30);
-
-  /* Accent Backgrounds */
-  --bg-accent-primary: var(--color-primary-alpha-20);
-  --bg-accent-primary-solid: var(--color-primary);
-  --bg-accent-primary-solid-light: var(--color-primary-light);
-  --bg-accent-secondary: var(--color-accent-alpha-20);
-  --bg-accent-secondary-solid: var(--color-accent);
-  --bg-accent-secondary-solid-light: var(--color-accent-light);
-  --bg-accent-secondary-solid-dark: var(--color-accent-dark);
-  --bg-success: var(--color-success-alpha);
-
-  /* Surface & Glass */
-  --bg-surface: var(--color-gray-alpha-5);
-  --bg-glass: var(--color-white-alpha-10);
-  --bg-overlay: var(--color-gray-alpha-50);
-
-  /* Gradients - Neutral */
-  --bg-gradient-horizontal-light-to-dark: linear-gradient(
-    90deg,
-    var(--color-neutral-400) 0%,
-    var(--color-neutral-700) 100%
-  );
-  --bg-gradient-horizontal-dark-to-light: linear-gradient(
-    90deg,
-    var(--color-neutral-700) 0%,
-    var(--color-neutral-400) 100%
-  );
-  --bg-gradient-vertical-light-to-dark: linear-gradient(
-    180deg,
-    var(--color-neutral-400) 0%,
-    var(--color-neutral-700) 100%
-  );
-  --bg-gradient-vertical-dark-to-light: linear-gradient(
-    180deg,
-    var(--color-neutral-700) 0%,
-    var(--color-neutral-400) 100%
-  );
-  --bg-gradient-diagonal-light-to-dark: linear-gradient(
-    135deg,
-    var(--color-neutral-300) 0%,
-    var(--color-neutral-800) 100%
-  );
-  --bg-gradient-diagonal-dark-to-light: linear-gradient(
-    135deg,
-    var(--color-neutral-800) 0%,
-    var(--color-neutral-300) 100%
-  );
-
-  /* Gradients - Accent Primary */
-  --bg-gradient-accent-primary-horizontal: linear-gradient(
-    90deg,
-    var(--color-primary-alpha-20) 0%,
-    var(--color-primary-alpha-80) 100%
-  );
-  --bg-gradient-accent-primary-vertical: linear-gradient(
-    180deg,
-    var(--color-primary-alpha-20) 0%,
-    var(--color-primary-alpha-80) 100%
-  );
-  --bg-gradient-accent-primary-diagonal: linear-gradient(
-    135deg,
-    var(--color-primary-alpha-20) 0%,
-    var(--color-primary-alpha-80) 100%
-  );
-
-  /* Gradients - Accent Secondary */
-  --bg-gradient-accent-secondary-horizontal: linear-gradient(
-    90deg,
-    var(--color-accent-alpha-20) 0%,
-    var(--color-accent-alpha-80) 100%
-  );
-  --bg-gradient-accent-secondary-vertical: linear-gradient(
-    180deg,
-    var(--color-accent-alpha-20) 0%,
-    var(--color-accent-alpha-80) 100%
-  );
-  --bg-gradient-accent-secondary-diagonal: linear-gradient(
-    135deg,
-    var(--color-accent-alpha-20) 0%,
-    var(--color-accent-alpha-80) 100%
-  );
-
-  /* Border Colors */
-  --border-primary-color: var(--color-neutral-alpha-80);
-  --border-secondary-color: var(--color-neutral-alpha-30);
-  --border-tertiary-color: var(--color-neutral-alpha-10);
-  --border-white-color: var(--color-white-alpha-100);
-  --border-black-color: var(--color-gray-alpha-100);
-  --border-accent-primary-color: var(--color-primary-alpha-50);
-  --border-accent-secondary-color: var(--color-accent-light);
-
-  /* Border Shorthand */
-  --border-strong: 1px solid var(--border-primary-color);
-  --border-strong-125: 1.25px solid var(--border-primary-color);
-  --border-strong-15: 1.5px solid var(--border-primary-color);
-  --border-strong-2: 2px solid var(--border-primary-color);
-  --border-strong-3: 3px solid var(--border-primary-color);
-  --border-strong-4: 4px solid var(--border-primary-color);
-  --border-default: 1px solid var(--border-secondary-color);
-  --border-default-125: 1.25px solid var(--border-secondary-color);
-  --border-default-15: 1.5px solid var(--border-secondary-color);
-  --border-default-2: 2px solid var(--border-secondary-color);
-  --border-default-3: 3px solid var(--border-secondary-color);
-  --border-light: 1px solid var(--border-tertiary-color);
-  --border-light-125: 1.25px solid var(--border-tertiary-color);
-  --border-light-15: 1.5px solid var(--border-tertiary-color);
-  --border-light-2: 2px solid var(--border-tertiary-color);
-  --border-light-3: 3px solid var(--border-tertiary-color);
-  --border-white: 1px solid var(--border-white-color);
-  --border-inverse: 1px solid var(--border-white-color);
-  --border-focus: 1px solid var(--border-accent-primary-color);
-  --border-accent: 1px solid var(--border-accent-secondary-color);
-}
 
 /* ==========================================================================
   4. Typography
@@ -298,6 +150,10 @@
   --font-mono:
     "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
+
+  /* Font Aliases (layout.tsx CSS variables) */
+  --font-display: var(--font-playfair);
+  --font-grotesk: var(--font-space-grotesk), sans-serif;
 
   /* Font Sizes - Fixed */
   --font-size-3xs: 0.5rem;
@@ -348,6 +204,13 @@
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
   --font-weight-black: 900;
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.03em;
+
+  /* Easing Curves */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-material: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ==========================================================================
@@ -559,12 +422,12 @@
   ========================================================================== */
 
 :root {
-  --z-below: -1;       /* 배경 레이어 (video bg 등) */
-  --z-content: 10;     /* 페이지 콘텐츠 */
-  --z-nav: 100;        /* 고정 네비게이션 */
-  --z-float: 200;      /* nav 위 고정 UI (dot nav, credits footer) */
-  --z-overlay: 9000;   /* 전체화면 오버레이 (drawer, loading) */
-  --z-top: 10000;      /* 커서, 페이지 전환 */
+  --z-below: -1; /* 배경 레이어 (video bg 등) */
+  --z-content: 10; /* 페이지 콘텐츠 */
+  --z-nav: 100; /* 고정 네비게이션 */
+  --z-float: 200; /* nav 위 고정 UI (dot nav, credits footer) */
+  --z-overlay: 9000; /* 전체화면 오버레이 (drawer, loading) */
+  --z-top: 10000; /* 커서, 페이지 전환 */
 }
 
 /* ==========================================================================
@@ -644,36 +507,11 @@
   --size-6xl: 112px;
 }
 
-/* Responsive Layout Adjustments */
-@media (max-width: 1280px) and (min-width: 1025px) {
-  :root {
-    --side-nav-width: 200px;
-  }
-}
-
-@media (max-width: 1024px) and (min-width: 769px) {
-  :root {
-    --side-nav-width: 180px;
-  }
-}
-
-@media (max-width: 768px) {
-  :root {
-    --side-nav-width: 0;
-    --action-button-width: 44px;
-  }
-}
-
 /* ==========================================================================
   10. Dark Theme Overrides
   ========================================================================== */
 
 [data-theme="dark"] {
-  /* Brand Colors */
-  --color-primary: #4d8dff;
-  --color-primary-dark: #1e5ce6;
-  --color-primary-light: #80afff;
-
   --color-accent: #ff4da6;
   --color-accent-dark: #e6398c;
   --color-accent-light: #ff80c2;
@@ -697,25 +535,11 @@
   --color-success: #4ade80;
   --color-success-alpha: rgba(34, 197, 94, 0.3);
 
-  /* Primary Alpha */
-  --color-primary-alpha-1: rgba(77, 141, 255, 0.015);
-  --color-primary-alpha-5: rgba(77, 141, 255, 0.05);
-  --color-primary-alpha-10: rgba(77, 141, 255, 0.1);
-  --color-primary-alpha-20: rgba(77, 141, 255, 0.2);
-  --color-primary-alpha-30: rgba(77, 141, 255, 0.3);
-  --color-primary-alpha-40: rgba(77, 141, 255, 0.4);
-  --color-primary-alpha-50: rgba(77, 141, 255, 0.5);
-  --color-primary-alpha-60: rgba(77, 141, 255, 0.6);
-  --color-primary-alpha-70: rgba(77, 141, 255, 0.7);
-  --color-primary-alpha-80: rgba(77, 141, 255, 0.8);
-  --color-primary-alpha-90: rgba(77, 141, 255, 0.9);
-  --color-primary-alpha-95: rgba(77, 141, 255, 0.95);
-  --color-primary-alpha-100: rgba(77, 141, 255, 1);
-
   /* Accent Alpha */
   --color-accent-alpha-1: rgba(255, 77, 166, 0.015);
   --color-accent-alpha-5: rgba(255, 77, 166, 0.05);
   --color-accent-alpha-10: rgba(255, 77, 166, 0.1);
+  --color-accent-alpha-15: rgba(255, 77, 166, 0.15);
   --color-accent-alpha-20: rgba(255, 77, 166, 0.2);
   --color-accent-alpha-30: rgba(255, 77, 166, 0.3);
   --color-accent-alpha-40: rgba(255, 77, 166, 0.4);
@@ -726,6 +550,12 @@
   --color-accent-alpha-90: rgba(255, 77, 166, 0.9);
   --color-accent-alpha-95: rgba(255, 77, 166, 0.95);
   --color-accent-alpha-100: rgba(255, 77, 166, 1);
+
+  /* Accent Light Alpha */
+  --color-accent-light-alpha-40: rgba(255, 128, 194, 0.4);
+  --color-accent-light-alpha-60: rgba(255, 128, 194, 0.6);
+  --color-accent-light-alpha-70: rgba(255, 128, 194, 0.7);
+  --color-accent-light-alpha-90: rgba(255, 128, 194, 0.9);
 
   /* Neutral Alpha (Light on Dark - inverted) */
   --color-neutral-alpha-1: rgba(250, 250, 250, 0.015);
@@ -757,11 +587,7 @@
   --color-inverse-alpha-95: rgba(26, 26, 26, 0.95);
   --color-inverse-alpha-100: rgba(26, 26, 26, 1);
 
-  --bg-primary: var(--color-neutral-50);
-  --bg-surface: var(--color-white-alpha-5);
-  --bg-tertiary: var(--color-inverse-alpha-5);
-
-  --border-inverse: 1px solid var(--border-black-color);
+  /* Semantic dark overrides → _semantic.css */
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 var(--color-gray-alpha-20);
@@ -770,4 +596,15 @@
   --shadow-xl: 0 12px 24px -2px var(--color-gray-alpha-50);
   --shadow-glow: 0 0 30px var(--color-white-alpha-40);
   --shadow-inner: inset 0 2px 6px 0 var(--color-gray-alpha-25);
+}
+
+/* ---------------------------------------------------------------------------
+   Mobile vw tokens (≤480px)
+   --------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  :root {
+    --m-sm: 2.1vw;
+    --m-md: 4.2vw;
+    --m-lg: 5vw;
+  }
 }

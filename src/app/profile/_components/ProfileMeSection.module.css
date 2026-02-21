@@ -5,26 +5,26 @@
 /* ── Layout: Section + Track ── */
 .section {
   /* ── Layout ── */
-  --profile-panel-py: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
-  --profile-panel-px: clamp(1.5rem, min(4.5vw, 8vh), 6.5rem);
+  --_panel-py: var(--editorial-panel-py);
+  --_panel-px: var(--editorial-panel-px);
 
   /* ── Font families ── */
-  --profile-font-display: var(--font-display, var(--font-playfair));
+  --_font-display: var(--font-display);
 
   /* ── Font sizes ── */
-  --profile-fs-hero: clamp(2rem, min(9vw, 18vh), 10rem);
-  --profile-fs-subhead: clamp(1rem, min(2vw, 3vh), 3.5rem);
-  --profile-fs-label: clamp(0.75rem, min(1vw, 1.75vh), 1.25rem);
+  --_fs-hero: var(--editorial-fs-hero);
+  --_fs-subhead: var(--editorial-fs-subhead);
+  --_fs-label: var(--editorial-fs-label);
 
   /* ── Line heights ── */
-  --profile-lh-title: var(--line-height-dense);
+  --_lh-title: var(--editorial-lh-title);
 
   /* ── Spacing ── */
-  --profile-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
-  --profile-space-divide: calc(var(--profile-space-block) * 2);
+  --_space-block: var(--editorial-space-block);
+  --_space-divide: var(--editorial-space-divide);
 
   /* ── Letter spacing ── */
-  --profile-ls-title: -0.03em;
+  --_ls-title: var(--editorial-ls-title);
 
   overflow: hidden;
   position: relative;
@@ -44,7 +44,7 @@
   justify-content: center;
   flex-shrink: 0;
   flex-direction: column;
-  padding: var(--profile-panel-py) var(--profile-panel-px);
+  padding: var(--_panel-py) var(--_panel-px);
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -66,7 +66,7 @@
 /* ── Shared Decorations ── */
 .panelWatermark {
   position: absolute;
-  right: var(--profile-panel-px);
+  right: var(--_panel-px);
   bottom: 8%;
   font-family: var(--font-instrument);
   font-size: clamp(5rem, min(14vw, 20vh), 12rem);
@@ -88,7 +88,7 @@
   height: clamp(200px, 30vw, 450px);
   background: radial-gradient(
     circle,
-    var(--color-accent-alpha-10, rgba(208, 16, 70, 0.06)) 0%,
+    var(--color-accent-alpha-10) 0%,
     transparent 70%
   );
   pointer-events: none;
@@ -114,32 +114,32 @@
 
 .label {
   display: inline-block;
-  margin-bottom: var(--profile-space-block);
+  margin-bottom: var(--_space-block);
   padding: var(--spacing-xs) var(--spacing-xl);
   border: 1px solid var(--color-accent-alpha-30);
   width: fit-content;
-  font-size: var(--profile-fs-label);
+  font-size: var(--_fs-label);
   font-weight: var(--font-weight-regular);
-  color: var(--text-accent-secondary);
+  color: var(--text-accent);
   text-transform: uppercase;
   letter-spacing: 0.2em;
 }
 
 .heroTitle {
-  margin-bottom: var(--profile-space-divide);
-  font-family: var(--profile-font-display);
-  font-size: var(--profile-fs-hero);
-  line-height: var(--profile-lh-title);
-  letter-spacing: var(--profile-ls-title);
+  margin-bottom: var(--_space-divide);
+  font-family: var(--_font-display);
+  font-size: var(--_fs-hero);
+  line-height: var(--_lh-title);
+  letter-spacing: var(--_ls-title);
 }
 
 .heroTitleAccent {
-  color: var(--text-accent-secondary);
+  color: var(--text-accent);
 }
 
 .heroSubtitle {
   margin: 0;
-  font-size: var(--profile-fs-subhead);
+  font-size: var(--_fs-subhead);
   line-height: var(--line-height-loose);
   color: var(--text-secondary);
 }
@@ -286,18 +286,18 @@
   display: flex;
   align-items: center;
   gap: 0.5em;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8))
-    drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 1px 3px var(--color-gray-alpha-80))
+    drop-shadow(0 0 6px var(--color-gray-alpha-50));
 }
 
 .bgInfoLabel {
   display: inline-block;
   padding: 0.2em 0.7em;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--color-white-alpha-50);
   width: fit-content;
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
-  color: #fff;
+  color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-radius: 999px;
@@ -306,7 +306,7 @@
 .bgInfoValue {
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
-  color: #fff;
+  color: var(--text-white);
   white-space: nowrap;
 }
 
@@ -411,8 +411,8 @@
 .magQuote {
   margin: 0 0 2.5rem;
   padding: 1.5rem 0;
-  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
-  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-top: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
   font-family: var(--font-instrument), serif;
   font-size: clamp(1.25rem, 4.5vw, 1.75rem);
   font-style: italic;
@@ -449,7 +449,7 @@
   flex-direction: column;
   gap: 0.25rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-top: 1px solid var(--border-default);
 }
 
 .magNotesTag {
@@ -510,7 +510,7 @@
   gap: 3rem;
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-top: 1px solid var(--border-default);
 }
 
 .stat {
@@ -599,7 +599,7 @@
   background: linear-gradient(
     180deg,
     var(--color-accent, #d01046) 0%,
-    var(--border-default, rgba(0, 0, 0, 0.1)) 100%
+    var(--border-default) 100%
   );
   opacity: 0.4;
 }
@@ -693,11 +693,11 @@
 
 .skillPanelItem {
   padding: 1.5rem 0;
-  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-bottom: 1px solid var(--border-default);
 }
 
 .skillPanelItem:first-child {
-  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-top: 1px solid var(--border-default);
 }
 
 .skillPanelItemName {
@@ -729,12 +729,12 @@
   gap: 2rem;
   align-items: baseline;
   padding: clamp(1.5rem, 3vh, 2.5rem) 0;
-  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-bottom: 1px solid var(--border-default);
   grid-template-columns: auto 1fr 1.2fr;
 }
 
 .philosophyRow:first-child {
-  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-top: 1px solid var(--border-default);
 }
 
 .philosophyIndex {
@@ -788,12 +788,12 @@
   gap: 3rem;
   align-items: baseline;
   padding: clamp(1.5rem, 3vh, 2.5rem) 0;
-  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-bottom: 1px solid var(--border-default);
   grid-template-columns: 1fr 1.4fr;
 }
 
 .approachRow:first-child {
-  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-top: 1px solid var(--border-default);
 }
 
 .approachLeft {
@@ -861,11 +861,11 @@
   gap: 1.5rem;
   align-items: flex-start;
   padding: 1.25rem 0;
-  border-bottom: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-bottom: 1px solid var(--border-default);
 }
 
 .credentialItem:first-child {
-  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border-top: 1px solid var(--border-default);
 }
 
 .credentialYear {
@@ -937,7 +937,7 @@
     width: 100%;
     height: auto;
     border-radius: 0;
-    gap: var(--profile-space-divide);
+    gap: var(--_space-divide);
   }
 
   .panel:first-child,
@@ -951,7 +951,7 @@
   }
 
   .heroContent {
-    padding-top: calc(var(--header-height) + var(--profile-space-divide));
+    padding-top: calc(var(--header-height) + var(--_space-divide));
   }
 
   .heroWatermark,
@@ -962,9 +962,9 @@
   }
 
   .decorBlob {
-    width: 200px;
-    height: 200px;
-    filter: blur(30px);
+    width: 42vw;
+    height: 42vw;
+    filter: blur(6.3vw);
   }
 
   .heroSubtitle {
@@ -1093,11 +1093,11 @@
 
 @media (max-width: 480px) {
   .panel {
-    padding: 2.5rem 1rem;
+    padding: var(--m-lg) var(--m-sm);
   }
 
   .profilePanel {
-    padding: 0 0 2.5rem;
+    padding: 0 0 var(--m-lg);
   }
 
   .magHeadline,
@@ -1107,19 +1107,39 @@
   .magAbout,
   .magNotes,
   .profileContent {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: var(--m-sm);
+    padding-right: var(--m-sm);
   }
 
   .magFeature {
-    gap: 1rem;
+    gap: var(--m-sm);
   }
 
   .bioHighlight {
-    font-size: 1.25rem;
+    font-size: var(--m-sm);
   }
 
   .statNumber {
-    font-size: 2rem;
+    font-size: var(--m-md);
+  }
+
+  .osWindow {
+    height: 46vw;
+  }
+
+  .stats {
+    gap: var(--m-md);
+  }
+
+  .expRow {
+    gap: var(--m-sm);
+  }
+
+  .expPeriod {
+    font-size: 1.8vw;
+  }
+
+  .skillPanelLayout {
+    gap: var(--m-md);
   }
 }

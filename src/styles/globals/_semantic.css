@@ -1,0 +1,190 @@
+/* ==========================================================================
+   Layer 2: Semantic Design Tokens
+   References Layer 1 raw tokens from _tokens.css
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Text Colors
+   -------------------------------------------------------------------------- */
+:root {
+  --text-white: var(--color-white-alpha-100);
+  --text-black: var(--color-gray-alpha-100);
+  --text-primary: var(--color-neutral-900);
+  --text-secondary: var(--color-neutral-800);
+  --text-tertiary: var(--color-neutral-600);
+  --text-muted: var(--color-neutral-400);
+  --text-inverse: var(--color-neutral-50);
+  --text-success: var(--color-success);
+  --text-accent: var(--color-accent);
+  --text-accent-alt: var(--color-accent-light);
+}
+
+/* --------------------------------------------------------------------------
+   Background Colors
+   -------------------------------------------------------------------------- */
+:root {
+  --bg-white: var(--color-white-alpha-100);
+  --bg-black: var(--color-gray-alpha-100);
+  --bg-primary: var(--color-neutral-50);
+  --bg-primary-alt: var(--color-neutral-alpha-95);
+  --bg-secondary: var(--color-neutral-400);
+  --bg-secondary-alt: var(--color-neutral-alpha-50);
+  --bg-tertiary: var(--color-neutral-alpha-5);
+  --bg-tertiary-alt: var(--color-neutral-alpha-10);
+  --bg-inverse: var(--color-neutral-950);
+  --bg-inverse-light: var(--color-neutral-700);
+  --bg-inverse-alt: var(--color-inverse-alpha-30);
+
+  /* Accent */
+  --bg-accent: var(--color-accent-alpha-20);
+  --bg-accent-solid: var(--color-accent);
+  --bg-accent-solid-light: var(--color-accent-light);
+  --bg-accent-solid-dark: var(--color-accent-dark);
+  --bg-success: var(--color-success-alpha);
+
+  /* Surface & Glass */
+  --bg-surface: var(--color-gray-alpha-5);
+  --bg-glass: var(--color-white-alpha-10);
+  --bg-overlay: var(--color-gray-alpha-50);
+
+  /* Gradients - Neutral */
+  --bg-gradient-horizontal-light-to-dark: linear-gradient(
+    90deg,
+    var(--color-neutral-400) 0%,
+    var(--color-neutral-700) 100%
+  );
+  --bg-gradient-horizontal-dark-to-light: linear-gradient(
+    90deg,
+    var(--color-neutral-700) 0%,
+    var(--color-neutral-400) 100%
+  );
+  --bg-gradient-vertical-light-to-dark: linear-gradient(
+    180deg,
+    var(--color-neutral-400) 0%,
+    var(--color-neutral-700) 100%
+  );
+  --bg-gradient-vertical-dark-to-light: linear-gradient(
+    180deg,
+    var(--color-neutral-700) 0%,
+    var(--color-neutral-400) 100%
+  );
+  --bg-gradient-diagonal-light-to-dark: linear-gradient(
+    135deg,
+    var(--color-neutral-300) 0%,
+    var(--color-neutral-800) 100%
+  );
+  --bg-gradient-diagonal-dark-to-light: linear-gradient(
+    135deg,
+    var(--color-neutral-800) 0%,
+    var(--color-neutral-300) 100%
+  );
+
+  /* Gradients - Accent Secondary */
+  --bg-gradient-accent-horizontal: linear-gradient(
+    90deg,
+    var(--color-accent-alpha-20) 0%,
+    var(--color-accent-alpha-80) 100%
+  );
+  --bg-gradient-accent-vertical: linear-gradient(
+    180deg,
+    var(--color-accent-alpha-20) 0%,
+    var(--color-accent-alpha-80) 100%
+  );
+  --bg-gradient-accent-diagonal: linear-gradient(
+    135deg,
+    var(--color-accent-alpha-20) 0%,
+    var(--color-accent-alpha-80) 100%
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Border Colors & Shorthands
+   -------------------------------------------------------------------------- */
+:root {
+  /* Color primitives */
+  --border-primary-color: var(--color-neutral-alpha-80);
+  --border-secondary-color: var(--color-neutral-alpha-30);
+  --border-tertiary-color: var(--color-neutral-alpha-10);
+  --border-white-color: var(--color-white-alpha-100);
+  --border-black-color: var(--color-gray-alpha-100);
+  --border-accent-color: var(--color-accent-light);
+
+  /* Shorthands */
+  --border-strong: 1px solid var(--border-primary-color);
+  --border-strong-125: 1.25px solid var(--border-primary-color);
+  --border-strong-15: 1.5px solid var(--border-primary-color);
+  --border-strong-2: 2px solid var(--border-primary-color);
+  --border-strong-3: 3px solid var(--border-primary-color);
+  --border-strong-4: 4px solid var(--border-primary-color);
+  --border-default: 1px solid var(--border-secondary-color);
+  --border-default-125: 1.25px solid var(--border-secondary-color);
+  --border-default-15: 1.5px solid var(--border-secondary-color);
+  --border-default-2: 2px solid var(--border-secondary-color);
+  --border-default-3: 3px solid var(--border-secondary-color);
+  --border-light: 1px solid var(--border-tertiary-color);
+  --border-light-125: 1.25px solid var(--border-tertiary-color);
+  --border-light-15: 1.5px solid var(--border-tertiary-color);
+  --border-light-2: 2px solid var(--border-tertiary-color);
+  --border-light-3: 3px solid var(--border-tertiary-color);
+  --border-white: 1px solid var(--border-white-color);
+  --border-inverse: 1px solid var(--border-white-color);
+  --border-focus: 1px solid var(--border-accent-color);
+  --border-accent: 1px solid var(--border-accent-color);
+}
+
+/* --------------------------------------------------------------------------
+   Editorial Tokens (unified from --about-* / --profile-*)
+   Used by: AboutSection, ProfileMeSection, KineticHeroTitle
+   -------------------------------------------------------------------------- */
+:root {
+  /* Panel Padding */
+  --editorial-panel-py: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
+  --editorial-panel-px: clamp(1.5rem, min(4.5vw, 8vh), 6.5rem);
+
+  /* Typography Scale */
+  --editorial-fs-hero: clamp(2rem, min(9vw, 18vh), 10rem);
+  --editorial-fs-lead: clamp(2rem, min(4vw, 12vh), 6rem);
+  --editorial-fs-subhead: clamp(1rem, min(2vw, 3vh), 3.5rem);
+  --editorial-fs-body: clamp(0.75rem, min(1.5vw, 2.5vh), 1.5rem);
+  --editorial-fs-label: clamp(0.75rem, min(1vw, 1.75vh), 1.25rem);
+  --editorial-fs-small: clamp(0.65rem, min(0.85vw, 1.55vh), 1.15rem);
+  --editorial-fs-caption: clamp(0.65rem, min(0.65vw, 1.45vh), 1rem);
+
+  /* Line Heights */
+  --editorial-lh-title: var(--line-height-dense);
+  --editorial-lh-reading: var(--line-height-relaxed);
+  --editorial-lh-body: var(--line-height-relaxed);
+  --editorial-lh-prose: var(--line-height-loose);
+  --editorial-lh-code: var(--line-height-normal);
+
+  /* Spacing */
+  --editorial-space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
+  --editorial-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
+  --editorial-space-divide: calc(var(--editorial-space-block) * 2);
+  --editorial-space-line: calc(var(--editorial-space-block) / 2);
+
+  /* Details */
+  --editorial-ls-title: var(--letter-spacing-tight);
+  --editorial-line-primary: var(--border-strong);
+  --editorial-line-secondary: var(--border-default);
+}
+
+/* --------------------------------------------------------------------------
+   Dark Theme — Semantic Overrides
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] {
+  --bg-primary: var(--color-neutral-50);
+  --bg-surface: var(--color-white-alpha-5);
+  --bg-tertiary: var(--color-inverse-alpha-5);
+  --border-inverse: 1px solid var(--border-black-color);
+}
+
+/* --------------------------------------------------------------------------
+   Mobile — Editorial Overrides
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  :root {
+    --editorial-panel-px: var(--m-sm);
+    --editorial-panel-py: var(--m-lg);
+  }
+}

@@ -46,7 +46,7 @@
   font-size: clamp(2rem, 7vw, var(--fluid-font-size-6xl));
   font-weight: var(--font-weight-regular);
   line-height: 0.95;
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
   text-align: center;
   letter-spacing: -0.04em;
   opacity: 0.25;

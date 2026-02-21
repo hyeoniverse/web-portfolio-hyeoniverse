@@ -1,4 +1,6 @@
 .cursor {
+  --_color: #3b82f6;
+
   position: fixed;
   top: 0;
   left: 0;
@@ -27,7 +29,7 @@
   position: relative;
   width: var(--cursor-width);
   height: var(--cursor-width);
-  background: var(--color-primary);
+  background: var(--_color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: var(--radius-circle);
   filter: hue-rotate(-90deg);
@@ -39,7 +41,7 @@
   content: "";
   inset: -30px;
   border-radius: var(--radius-circle);
-  background: var(--color-primary);
+  background: var(--_color);
   filter: blur(40px);
   opacity: 0.5;
   transition:

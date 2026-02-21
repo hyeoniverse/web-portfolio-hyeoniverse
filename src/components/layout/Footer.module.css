@@ -57,7 +57,7 @@
 
 .divider {
   font-size: inherit;
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
 }
 
 .bottom {
@@ -65,7 +65,7 @@
   gap: var(--spacing-4xl);
   justify-content: space-between;
   flex-direction: row;
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
 }
 
 /* Left side: Email */

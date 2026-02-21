@@ -220,7 +220,7 @@
 }
 
 .notFound a {
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
   text-decoration: underline;
 }
 

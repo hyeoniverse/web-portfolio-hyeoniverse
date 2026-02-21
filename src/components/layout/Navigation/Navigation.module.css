@@ -86,7 +86,7 @@
 .actionBtn:hover .langText,
 .actionBtn:hover .themeIconWrapper,
 .actionBtn:hover .soundIconWrapper {
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
 }
 
 /* Get in Touch pill button */
@@ -109,7 +109,7 @@
 
 .contactBtn:hover {
   background-color: var(--text-white);
-  color: #000;
+  color: var(--text-black);
 }
 
 .contactText {
@@ -225,7 +225,7 @@
 }
 
 .themeIconWrapper:hover {
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
 }
 
 .themeIconWrapper.animating {
@@ -334,7 +334,7 @@
   font-family: var(--font-instrument), serif;
   font-size: 28px;
   font-weight: var(--font-weight-regular);
-  color: #ffffff;
+  color: var(--text-white);
   letter-spacing: -0.02em;
 }
 
@@ -354,13 +354,13 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-md);
   font-style: italic;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-white-alpha-50);
 }
 
 .menuFooterEmail {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: clamp(14px, 6vw, var(--font-size-3xl));
-  color: #ffffff;
+  color: var(--text-white);
   text-decoration: underline;
   text-underline-offset: 6px;
   white-space: nowrap;
@@ -376,7 +376,7 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: clamp(36px, 8vw, 72px);
   font-weight: var(--font-weight-bold);
-  color: #ffffff;
+  color: var(--text-white);
   letter-spacing: -0.02em;
   text-transform: uppercase;
   line-height: 1.2;
@@ -628,40 +628,44 @@
     padding: var(--spacing-md) 4vw;
   }
 
+  .navActions {
+    gap: 0.4vw;
+  }
+
   .actionBtn {
-    width: 28px;
-    height: 28px;
-    padding: 4px;
+    width: 5.8vw;
+    height: 5.8vw;
+    padding: 0.8vw;
   }
 
   .contactBtn {
     width: auto;
     height: auto;
-    padding: 4px var(--spacing-xs);
-    font-size: 10px;
+    padding: 0.8vw 2vw;
+    font-size: var(--m-sm);
   }
 
   .themeIcon {
-    width: 11px;
-    height: 11px;
+    width: var(--m-sm);
+    height: var(--m-sm);
   }
 
   .soundIcon {
-    width: 11px;
-    height: 11px;
+    width: var(--m-sm);
+    height: var(--m-sm);
   }
 
   .langText {
-    font-size: 10px;
+    font-size: var(--m-sm);
   }
 
   .menuDots {
-    grid-template-columns: repeat(3, 1.5px);
-    gap: 1.5px;
+    grid-template-columns: repeat(3, 0.3vw);
+    gap: 0.3vw;
   }
 
   .menuDot {
-    width: 1.5px;
-    height: 1.5px;
+    width: 0.3vw;
+    height: 0.3vw;
   }
 }

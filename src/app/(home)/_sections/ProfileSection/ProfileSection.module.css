@@ -58,7 +58,7 @@
 }
 
 .bold {
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
   text-decoration: underline;
   text-decoration-thickness: 2.5px;
   text-underline-offset: 1px;
@@ -66,7 +66,7 @@
 }
 
 .highlight {
-  color: var(--text-accent-secondary-alt);
+  color: var(--text-accent-alt);
 }
 
 /* ---------------------------------------------------------------------------
