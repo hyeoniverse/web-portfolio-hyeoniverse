@@ -184,7 +184,11 @@ export default function FloatingScene({
     source.start(0);
   };
 
-  const scale = isMobile ? 0.8 : 1.2;
+  const scale = isMobile
+    ? size.width <= 480
+      ? (size.width / 480) * 0.8
+      : 0.8
+    : 1.2;
   const mobileYBias = isMobile ? 1.8 : 0;
   const introProgress = useRef(0);
   const INTRO_DUR = 0.8;
