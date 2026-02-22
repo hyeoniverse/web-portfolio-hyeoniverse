@@ -74,7 +74,8 @@
   padding: var(--spacing-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-md);
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);

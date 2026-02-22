@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import MarkdownRenderer from "./MarkdownRenderer";
 import styles from "./MarkdownEditor.module.css";
 
@@ -15,6 +15,24 @@ export default function MarkdownEditor({
   onChange,
   onImageUpload,
 }: MarkdownEditorProps) {
+  const previewRef = useRef<HTMLDivElement>(null);
+
+  const handleEditorScroll = useCallback(
+    (e: React.UIEvent<HTMLTextAreaElement>) => {
+      const el = e.currentTarget;
+      const preview = previewRef.current;
+      if (!preview) return;
+
+      const maxScroll = el.scrollHeight - el.clientHeight;
+      if (maxScroll <= 0) return;
+
+      const ratio = el.scrollTop / maxScroll;
+      preview.scrollTop =
+        ratio * (preview.scrollHeight - preview.clientHeight);
+    },
+    []
+  );
+
   const handlePaste = useCallback(
     async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
       if (!onImageUpload) return;
@@ -48,6 +66,7 @@ export default function MarkdownEditor({
           data-lenis-prevent
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onScroll={handleEditorScroll}
           onPaste={handlePaste}
           placeholder="Write your content in Markdown..."
           spellCheck={false}
@@ -55,7 +74,7 @@ export default function MarkdownEditor({
       </div>
       <div className={styles.previewPane}>
         <span className={styles.label}>Preview</span>
-        <div className={styles.preview} data-lenis-prevent>
+        <div ref={previewRef} className={styles.preview} data-lenis-prevent>
           {value ? (
             <MarkdownRenderer content={value} />
           ) : (
