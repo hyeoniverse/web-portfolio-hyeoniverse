@@ -24,6 +24,8 @@ hljs.registerLanguage("py", python);
 hljs.registerLanguage("sql", sql);
 hljs.registerLanguage("markdown", markdown);
 hljs.registerLanguage("md", markdown);
+hljs.registerLanguage("tsx", typescript);
+hljs.registerLanguage("jsx", javascript);
 
 export function highlightCodeBlocks(container: HTMLElement) {
   container.querySelectorAll("pre code").forEach((el) => {

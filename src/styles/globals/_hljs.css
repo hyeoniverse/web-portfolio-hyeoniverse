@@ -24,7 +24,7 @@
 }
 
 [data-theme="dark"] pre code .hljs-title,
-[data-theme="dark"] pre code .hljs-title\.function_ {
+[data-theme="dark"] pre code .hljs-title.function_ {
   color: #82aaff;
 }
 
@@ -104,7 +104,7 @@
 }
 
 [data-theme="light"] pre code .hljs-title,
-[data-theme="light"] pre code .hljs-title\.function_ {
+[data-theme="light"] pre code .hljs-title.function_ {
   color: #4876d6;
 }
 
