@@ -1,0 +1,161 @@
+/* ── Highlight.js syntax theme (dark / light) ── */
+
+/* Dark mode — Night Owl inspired */
+[data-theme="dark"] pre code .hljs-keyword,
+[data-theme="dark"] pre code .hljs-selector-tag,
+[data-theme="dark"] pre code .hljs-built_in {
+  color: #c792ea;
+}
+
+[data-theme="dark"] pre code .hljs-string,
+[data-theme="dark"] pre code .hljs-attr {
+  color: #ecc48d;
+}
+
+[data-theme="dark"] pre code .hljs-number,
+[data-theme="dark"] pre code .hljs-literal {
+  color: #f78c6c;
+}
+
+[data-theme="dark"] pre code .hljs-comment,
+[data-theme="dark"] pre code .hljs-quote {
+  color: #637777;
+  font-style: italic;
+}
+
+[data-theme="dark"] pre code .hljs-title,
+[data-theme="dark"] pre code .hljs-title\.function_ {
+  color: #82aaff;
+}
+
+[data-theme="dark"] pre code .hljs-variable,
+[data-theme="dark"] pre code .hljs-template-variable {
+  color: #addb67;
+}
+
+[data-theme="dark"] pre code .hljs-type,
+[data-theme="dark"] pre code .hljs-tag {
+  color: #f07178;
+}
+
+[data-theme="dark"] pre code .hljs-name {
+  color: #f07178;
+}
+
+[data-theme="dark"] pre code .hljs-attribute {
+  color: #c792ea;
+}
+
+[data-theme="dark"] pre code .hljs-symbol,
+[data-theme="dark"] pre code .hljs-bullet {
+  color: #addb67;
+}
+
+[data-theme="dark"] pre code .hljs-params {
+  color: #d6deeb;
+}
+
+[data-theme="dark"] pre code .hljs-meta {
+  color: #82aaff;
+}
+
+[data-theme="dark"] pre code .hljs-operator,
+[data-theme="dark"] pre code .hljs-punctuation {
+  color: #89ddff;
+}
+
+[data-theme="dark"] pre code .hljs-property {
+  color: #7fdbca;
+}
+
+[data-theme="dark"] pre code .hljs-regexp {
+  color: #5ca7e4;
+}
+
+[data-theme="dark"] pre code .hljs-deletion {
+  color: #ef5350;
+}
+
+[data-theme="dark"] pre code .hljs-addition {
+  color: #addb67;
+}
+
+/* Light mode — Day Owl inspired */
+[data-theme="light"] pre code .hljs-keyword,
+[data-theme="light"] pre code .hljs-selector-tag,
+[data-theme="light"] pre code .hljs-built_in {
+  color: #994cc3;
+}
+
+[data-theme="light"] pre code .hljs-string,
+[data-theme="light"] pre code .hljs-attr {
+  color: #c96765;
+}
+
+[data-theme="light"] pre code .hljs-number,
+[data-theme="light"] pre code .hljs-literal {
+  color: #aa0982;
+}
+
+[data-theme="light"] pre code .hljs-comment,
+[data-theme="light"] pre code .hljs-quote {
+  color: #93a1a1;
+  font-style: italic;
+}
+
+[data-theme="light"] pre code .hljs-title,
+[data-theme="light"] pre code .hljs-title\.function_ {
+  color: #4876d6;
+}
+
+[data-theme="light"] pre code .hljs-variable,
+[data-theme="light"] pre code .hljs-template-variable {
+  color: #0c969b;
+}
+
+[data-theme="light"] pre code .hljs-type,
+[data-theme="light"] pre code .hljs-tag {
+  color: #994cc3;
+}
+
+[data-theme="light"] pre code .hljs-name {
+  color: #994cc3;
+}
+
+[data-theme="light"] pre code .hljs-attribute {
+  color: #0c969b;
+}
+
+[data-theme="light"] pre code .hljs-symbol,
+[data-theme="light"] pre code .hljs-bullet {
+  color: #0c969b;
+}
+
+[data-theme="light"] pre code .hljs-params {
+  color: #403f53;
+}
+
+[data-theme="light"] pre code .hljs-meta {
+  color: #4876d6;
+}
+
+[data-theme="light"] pre code .hljs-operator,
+[data-theme="light"] pre code .hljs-punctuation {
+  color: #0431fa;
+}
+
+[data-theme="light"] pre code .hljs-property {
+  color: #0c969b;
+}
+
+[data-theme="light"] pre code .hljs-regexp {
+  color: #4876d6;
+}
+
+[data-theme="light"] pre code .hljs-deletion {
+  color: #de3d3b;
+}
+
+[data-theme="light"] pre code .hljs-addition {
+  color: #0c969b;
+}
