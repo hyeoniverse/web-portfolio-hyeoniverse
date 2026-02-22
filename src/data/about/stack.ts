@@ -13,6 +13,7 @@ export const techStack: TechStackItem[] = [
   { name: "Zustand", category: "State Management" },
   { name: "Supabase", category: "Backend (DB/Auth/Storage)" },
   { name: "Tiptap", category: "Rich Text Editor" },
+  { name: "NanoBanana / Hugging Face", category: "AI Image Generation" },
   { name: "Formspree", category: "Form & Email" },
   { name: "Vitest", category: "Testing" },
 ];

@@ -44,9 +44,11 @@
   letter-spacing: 0.02em;
   color: var(--text-muted);
   text-align: left;
-  cursor: pointer;
+
   white-space: nowrap;
-  transition: color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+  transition:
+    color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
 }
 
 .tocItem:hover {
@@ -528,5 +530,4 @@
   .main {
     padding: 21vw var(--m-lg) 12.5vw;
   }
-
 }

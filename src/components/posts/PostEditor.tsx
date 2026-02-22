@@ -10,6 +10,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import type { Post, PostFormData } from "@/types/post";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
+import CoverImagePicker from "./CoverImagePicker";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import styles from "./PostEditor.module.css";
 
@@ -69,6 +70,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [slugManual, setSlugManual] = useState(isEdit);
+  const [showCoverPicker, setShowCoverPicker] = useState(false);
 
   // Auto-generate slug from KO title
   useEffect(() => {
@@ -198,8 +200,15 @@ export default function PostEditor({ post }: PostEditorProps) {
 
         setStatus(publish ? "Published!" : "Saved as draft");
 
+        const savedSlug = data.slug || form.slug;
+
         if (!isEdit) {
           router.push(`/admin/posts/${data.id}/edit`);
+        }
+
+        // 발행 시 해당 포스트 detail 페이지를 새 창으로 열기
+        if (publish && savedSlug) {
+          window.open(`/posts/${savedSlug}`, "_blank");
         }
       } catch {
         setError("Network error");
@@ -364,19 +373,45 @@ export default function PostEditor({ post }: PostEditorProps) {
                 <button
                   type="button"
                   className={styles.coverRemove}
-                  onClick={() => updateField("cover_image", "")}
+                  onClick={() => {
+                    updateField("cover_image", "");
+                    setShowCoverPicker(false);
+                  }}
                 >
                   Remove
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
-                className={styles.uploadBtn}
-                onClick={handleCoverUpload}
-              >
-                Upload cover image
-              </button>
+              <div className={styles.coverActions}>
+                <button
+                  type="button"
+                  className={styles.uploadBtn}
+                  onClick={handleCoverUpload}
+                >
+                  Upload
+                </button>
+                <button
+                  type="button"
+                  className={styles.uploadBtn}
+                  onClick={() => setShowCoverPicker((v) => !v)}
+                >
+                  {showCoverPicker ? "Close picker" : "Choose cover"}
+                </button>
+              </div>
+            )}
+            {showCoverPicker && !form.cover_image && (
+              <CoverImagePicker
+                onSelect={(url) => {
+                  updateField("cover_image", url);
+                  setShowCoverPicker(false);
+                }}
+                onClose={() => setShowCoverPicker(false)}
+                postContext={{
+                  title: form.title,
+                  tags: form.tags,
+                  excerpt: form.excerpt,
+                }}
+              />
             )}
           </div>
         </div>

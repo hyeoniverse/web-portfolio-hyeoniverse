@@ -145,6 +145,21 @@ export const siteConfig = {
   },
 
   // ---------------------------------------------------------------------------
+  // AI 커버 이미지 생성
+  // ---------------------------------------------------------------------------
+  // provider: "nanobanana" | "huggingface"
+  //
+  // NanoBanana (Gemini 2.5 Flash):
+  //   NANOBANANA_API_KEY=your_api_key  (https://nanobananaapi.ai/api-key)
+  //
+  // Hugging Face (FLUX.1-schnell 등):
+  //   HUGGINGFACE_API_KEY=your_token  (https://huggingface.co/settings/tokens)
+  // ---------------------------------------------------------------------------
+  aiCover: {
+    provider: "nanobanana" as "nanobanana" | "huggingface",
+  },
+
+  // ---------------------------------------------------------------------------
   // Profile 페이지
   // ---------------------------------------------------------------------------
   profile: {

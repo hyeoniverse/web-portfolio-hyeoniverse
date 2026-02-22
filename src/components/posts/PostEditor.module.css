@@ -253,6 +253,11 @@
   color: var(--text-primary);
 }
 
+.coverActions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
 /* Editor area */
 .editorSection {
   display: flex;
