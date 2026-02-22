@@ -105,15 +105,28 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
     }
   }, [prompt, style]);
 
+  const handleClear = useCallback(() => {
+    setPrompt("");
+    setPreviewUrl(null);
+    setPermanentUrl(null);
+    setError("");
+  }, []);
+
   return (
     <div className={styles.aiForm}>
-      <textarea
-        className={styles.promptInput}
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Describe the cover image you want..."
-        rows={3}
-      />
+      <div className={styles.inputWrapper}>
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Describe the cover image you want..."
+        />
+        {prompt && (
+          <button type="button" className={styles.clearBtn} onClick={handleClear}>
+            &times;
+          </button>
+        )}
+      </div>
 
       {!prompt && !previewUrl && (
         <div className={styles.suggestions}>
