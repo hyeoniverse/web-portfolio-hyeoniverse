@@ -6,12 +6,17 @@
   gap: var(--spacing-md);
 }
 
-.cover {
+.coverWrap {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
-  object-fit: cover;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-tertiary-color);
+  overflow: hidden;
+}
+
+.coverImg {
+  object-fit: cover;
 }
 
 .coverPlaceholder {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Post } from "@/types/post";
 import styles from "./PostCard.module.css";
 
@@ -18,11 +19,15 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <Link href={`/posts/${post.slug}`} className={styles.card}>
       {post.cover_image ? (
-        <img
-          src={post.cover_image}
-          alt={post.title}
-          className={styles.cover}
-        />
+        <div className={styles.coverWrap}>
+          <Image
+            src={post.cover_image}
+            alt={post.title}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className={styles.coverImg}
+          />
+        </div>
       ) : (
         <div className={styles.coverPlaceholder}>No cover</div>
       )}

@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { useLenis } from "@/providers/LenisProvider";
@@ -327,9 +328,11 @@ export default function PostEditor({ post }: PostEditorProps) {
             <label className={styles.fieldLabel}>Cover Image</label>
             {form.cover_image ? (
               <div className={styles.coverPreview}>
-                <img
+                <Image
                   src={form.cover_image}
                   alt="Cover"
+                  width={80}
+                  height={50}
                   className={styles.coverThumb}
                 />
                 <button

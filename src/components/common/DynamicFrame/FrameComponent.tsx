@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 
 export interface FrameComponentProps {
   video?: string;
@@ -75,11 +76,13 @@ export function FrameComponent({
             }}
           >
             {image ? (
-              <img
+              <Image
                 className="w-full h-full object-cover"
                 src={image}
                 alt=""
-                loading="lazy"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                unoptimized
               />
             ) : video ? (
               <video

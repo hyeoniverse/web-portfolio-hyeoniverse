@@ -220,7 +220,7 @@ export default function RichTextEditor({
 
   const focused = hasInteracted || editor.isFocused;
   const isBlockActive = (name: string, attrs?: Record<string, unknown>) =>
-    focused && isBlockActive(name, attrs);
+    focused && editor.isActive(name, attrs);
 
   const currentFontSize =
     (editor.getAttributes("textStyle").fontSize as string) ?? "";
