@@ -63,8 +63,27 @@
   color: var(--text-primary);
 }
 
+.deleteBtn {
+  padding: var(--spacing-xs) var(--spacing-xl);
+  border: 1px solid var(--color-accent-alpha-20);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-accent);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.actions .deleteBtn:hover {
+  background: var(--color-accent-alpha-10);
+}
+
 .saveBtn:disabled,
-.publishBtn:disabled {
+.publishBtn:disabled,
+.deleteBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
