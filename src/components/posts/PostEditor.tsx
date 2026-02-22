@@ -361,58 +361,58 @@ export default function PostEditor({ post }: PostEditorProps) {
 
           <div className={styles.field}>
             <label className={styles.fieldLabel}>Cover Image</label>
-            {form.cover_image ? (
-              <div className={styles.coverPreview}>
-                <Image
-                  src={form.cover_image}
-                  alt="Cover"
-                  width={80}
-                  height={50}
-                  className={styles.coverThumb}
-                />
-                <button
-                  type="button"
-                  className={styles.coverRemove}
-                  onClick={() => {
-                    updateField("cover_image", "");
-                    setShowCoverPicker(false);
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-            ) : (
-              <div className={styles.coverActions}>
-                <button
-                  type="button"
-                  className={styles.uploadBtn}
-                  onClick={handleCoverUpload}
-                >
-                  Upload
-                </button>
-                <button
-                  type="button"
-                  className={styles.uploadBtn}
-                  onClick={() => setShowCoverPicker((v) => !v)}
-                >
-                  {showCoverPicker ? "Close picker" : "Choose cover"}
-                </button>
-              </div>
-            )}
-            {showCoverPicker && !form.cover_image && (
-              <CoverImagePicker
-                onSelect={(url) => {
-                  updateField("cover_image", url);
+          {form.cover_image ? (
+            <div className={styles.coverPreview}>
+              <Image
+                src={form.cover_image}
+                alt="Cover"
+                width={80}
+                height={50}
+                className={styles.coverThumb}
+              />
+              <button
+                type="button"
+                className={styles.coverRemove}
+                onClick={() => {
+                  updateField("cover_image", "");
                   setShowCoverPicker(false);
                 }}
-                onClose={() => setShowCoverPicker(false)}
-                postContext={{
-                  title: form.title,
-                  tags: form.tags,
-                  excerpt: form.excerpt,
-                }}
-              />
-            )}
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className={styles.coverActions}>
+              <button
+                type="button"
+                className={styles.uploadBtn}
+                onClick={handleCoverUpload}
+              >
+                Upload
+              </button>
+              <button
+                type="button"
+                className={styles.uploadBtn}
+                onClick={() => setShowCoverPicker((v) => !v)}
+              >
+                {showCoverPicker ? "Close picker" : "Choose cover"}
+              </button>
+            </div>
+          )}
+          {showCoverPicker && !form.cover_image && (
+            <CoverImagePicker
+              onSelect={(url) => {
+                updateField("cover_image", url);
+                setShowCoverPicker(false);
+              }}
+              onClose={() => setShowCoverPicker(false)}
+              postContext={{
+                title: form.title,
+                tags: form.tags,
+                excerpt: form.excerpt,
+              }}
+            />
+          )}
           </div>
         </div>
       </div>
