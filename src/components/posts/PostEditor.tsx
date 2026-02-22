@@ -242,13 +242,13 @@ export default function PostEditor({ post }: PostEditorProps) {
   return (
     <div className={styles.container}>
       <div className={styles.topBar}>
-        <Link href="/admin/posts" className={styles.backLink}>
-          &larr; Back to Posts
-        </Link>
-        <div className={styles.actions}>
+        <div className={styles.topLeft}>
+          <Link href="/admin/posts" className={styles.backLink}>
+            &larr; Back to Posts
+          </Link>
           <LanguageToggle lang={editorLang} onLangChange={setEditorLang} />
-          {status && <span className={styles.status}>{status}</span>}
-          {error && <span className={styles.error}>{error}</span>}
+        </div>
+        <div className={styles.actions}>
           {isEdit && (
             <button
               type="button"
@@ -259,6 +259,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               {deleting ? "Deleting..." : "Delete"}
             </button>
           )}
+          <div className={styles.actionsDivider} />
           <button
             type="button"
             className={styles.saveBtn}
@@ -287,6 +288,12 @@ export default function PostEditor({ post }: PostEditorProps) {
           </button>
         </div>
       </div>
+      {(status || error) && (
+        <div className={styles.statusBar}>
+          {status && <span className={styles.status}>{status}</span>}
+          {error && <span className={styles.error}>{error}</span>}
+        </div>
+      )}
 
       <div className={styles.meta}>
         <input

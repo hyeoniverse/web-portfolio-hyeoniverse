@@ -7,5 +7,6 @@ export { default as ProcessPanel } from "./ProcessPanel";
 export { default as VisualBreakPanel } from "./VisualBreakPanel";
 export { default as TechStackPanel } from "./TechStackPanel";
 export { default as CodeHighlightsPanel } from "./CodeHighlightsPanel";
+export { default as BackendPanel } from "./BackendPanel";
 export { default as TroubleshootingPanel } from "./TroubleshootingPanel";
 export { default as CreditsPanel } from "./CreditsPanel";

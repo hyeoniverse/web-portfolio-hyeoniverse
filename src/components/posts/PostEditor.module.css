@@ -8,8 +8,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-lg);
   flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.topLeft {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-md);
 }
 
@@ -28,6 +34,22 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
+}
+
+.actionsDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-tertiary-color);
+}
+
+.statusBar {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
 }
 
 .saveBtn,
@@ -304,5 +326,13 @@
   .topBar {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .actionsDivider {
+    display: none;
   }
 }

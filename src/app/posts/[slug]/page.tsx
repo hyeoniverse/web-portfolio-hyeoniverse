@@ -1,24 +1,19 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { useLenis } from "@/providers/LenisProvider";
+import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Post } from "@/types/post";
+import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import { highlightCodeBlocks } from "@/components/posts/highlightCodeBlocks";
+import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import CommentSection from "./_components/CommentSection";
+import layoutStyles from "@/components/layout/DetailLayout/DetailLayout.module.css";
 import styles from "./PostDetail.module.css";
-
-interface TocHeading {
-  id: string;
-  text: string;
-  level: number;
-}
 
 function extractHeadings(content: string, isMarkdown: boolean): TocHeading[] {
   if (isMarkdown) {
@@ -45,7 +40,6 @@ function extractHeadings(content: string, isMarkdown: boolean): TocHeading[] {
     return headings;
   }
 
-  // richtext: parse headings from HTML
   const headings: TocHeading[] = [];
   const regex = /<h([1-3])[^>]*>(.*?)<\/h\1>/gi;
   let m;
@@ -71,31 +65,15 @@ function addIdsToHtml(html: string): string {
 export default function PostDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const { setInfinite, lenis, stop, start } = useLenis();
   const { language } = useLanguage();
 
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [heroImgError, setHeroImgError] = useState(false);
-  const [activeHeadingId, setActiveHeadingId] = useState("");
   const [viewLang, setViewLang] = useState<"ko" | "en">(language === "en" ? "en" : "ko");
+  const [likeCount, setLikeCount] = useState(0);
+  const [liked, setLiked] = useState(false);
   const richtextRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    stop();
-    setInfinite(false);
-    window.scrollTo(0, 0);
-
-    const timer = setTimeout(() => {
-      if (lenis) lenis.scrollTo(0, { immediate: true });
-      start();
-    }, 50);
-
-    return () => {
-      clearTimeout(timer);
-      setInfinite(true);
-    };
-  }, [setInfinite, lenis, stop, start]);
 
   useEffect(() => {
     fetch(`/api/posts?slug=${encodeURIComponent(slug)}`)
@@ -107,14 +85,31 @@ export default function PostDetailPage() {
 
         if (found) {
           fetch(`/api/posts/${found.id}/view`, { method: "POST" });
+
+          fetch(`/api/posts/${found.id}/like`)
+            .then((r) => r.json())
+            .then((d) => {
+              setLikeCount(d.count ?? 0);
+              setLiked(d.liked ?? false);
+            });
         }
       });
   }, [slug]);
 
-  // Check if EN content exists
-  const hasEnContent = !!(post?.title_en || post?.content_en);
+  const handleLikeToggle = useCallback(async () => {
+    if (!post) return;
 
-  // Resolve displayed content based on viewLang
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikeCount((c) => wasLiked ? Math.max(0, c - 1) : c + 1);
+
+    const res = await fetch(`/api/posts/${post.id}/like`, { method: "POST" });
+    const data = await res.json();
+    setLikeCount(data.count);
+    setLiked(data.liked);
+  }, [post, liked]);
+
+  const hasEnContent = !!(post?.title_en || post?.content_en);
   const displayTitle = viewLang === "en" && post?.title_en ? post.title_en : post?.title ?? "";
   const displayContent = viewLang === "en" && post?.content_en ? post.content_en : post?.content ?? "";
   const displayExcerpt = viewLang === "en" && post?.excerpt_en ? post.excerpt_en : post?.excerpt ?? "";
@@ -133,42 +128,7 @@ export default function PostDetailPage() {
     if (richtextRef.current) highlightCodeBlocks(richtextRef.current);
   }, [processedRichtextHtml]);
 
-  // Scroll spy for TOC — scroll position based
-  useEffect(() => {
-    if (headings.length === 0) return;
-
-    let rafId: number;
-    const OFFSET = 120;
-
-    const handleScroll = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        let current = "";
-        for (const { id } of headings) {
-          const el = document.getElementById(id);
-          if (el && el.getBoundingClientRect().top <= OFFSET) {
-            current = id;
-          }
-        }
-        if (current) setActiveHeadingId(current);
-      });
-    };
-
-    const timer = setTimeout(() => {
-      handleScroll();
-      window.addEventListener("scroll", handleScroll, { passive: true });
-    }, 500);
-
-    return () => {
-      clearTimeout(timer);
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [headings]);
-
-  if (loading) {
-    return <div className={styles.loadingState}>Loading...</div>;
-  }
+  if (loading) return <PostDetailSkeleton />;
 
   if (!post) {
     return (
@@ -188,148 +148,151 @@ export default function PostDetailPage() {
   });
   const readTime = Math.max(1, Math.ceil(displayContent.length / 1000));
 
+  const showHero = post.cover_image && !heroImgError;
+  const heroErrorFallback = post.cover_image && heroImgError ? (
+    <div className={styles.heroPlaceholder}>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <polyline points="21 15 16 10 5 21" />
+      </svg>
+    </div>
+  ) : undefined;
+
   return (
-    <div className={styles.page}>
-      <Link href="/posts" className={styles.backBtn}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        <span>Posts</span>
-      </Link>
+    <DetailLayout
+      backHref="/posts"
+      backLabel="Posts"
+      heroImage={showHero ? post.cover_image : undefined}
+      heroAlt={displayTitle}
+      onHeroError={() => setHeroImgError(true)}
+      heroFallback={heroErrorFallback}
+      headings={headings}
+      likeConfig={{ count: likeCount, liked, onToggle: handleLikeToggle }}
+      afterContent={
+        <>
+          <motion.div
+            className={styles.commentSection}
+            id="comments"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <CommentSection postId={post.id} />
+          </motion.div>
 
-      {/* ── Hero ── */}
-      {post.cover_image && !heroImgError ? (
-        <motion.div
-          className={styles.hero}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          <Image
-            src={post.cover_image}
-            alt={displayTitle}
-            fill
-            sizes="100vw"
-            className={styles.heroCover}
-            onError={() => setHeroImgError(true)}
-          />
-          <div className={styles.heroOverlay} />
-        </motion.div>
-      ) : post.cover_image && heroImgError ? (
-        <div className={styles.heroPlaceholder}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <circle cx="8.5" cy="8.5" r="1.5" />
-            <polyline points="21 15 16 10 5 21" />
-          </svg>
-        </div>
-      ) : (
-        <div className={styles.heroSpacer} />
-      )}
-
-      {/* ── TOC ── */}
-      {headings.length > 0 && (
-        <nav className={styles.toc}>
-          <p className={styles.tocTitle}>Contents</p>
-          <ul className={styles.tocList}>
-            {headings.map(({ id, text, level }) => (
-              <li key={id}>
-                <a
-                  href={`#${id}`}
-                  className={`${styles.tocLink} ${styles[`tocLevel${level}`] ?? ""} ${activeHeadingId === id ? styles.tocActive : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const el = document.getElementById(id);
-                    if (el) {
-                      if (lenis) {
-                        lenis.scrollTo(el, { offset: -100 });
-                      } else {
-                        el.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }
-                  }}
-                >
-                  {text}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
-
-      {/* ── Article ── */}
-      <div className={styles.article}>
-        <motion.div
-          className={styles.articleHeader}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          <div className={styles.metaRow}>
-            <div className={styles.meta}>
-              <span>{date}</span>
-              <span className={styles.dot}>&middot;</span>
-              <span>{readTime} min read</span>
-              <span className={styles.dot}>&middot;</span>
-              <span>{post.view_count} views</span>
-            </div>
-
-            {/* Language toggle */}
-            {hasEnContent && (
-              <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
-            )}
+          <div className={styles.footerNav}>
+            <Link href="/posts" className={styles.footerLink}>
+              &larr; Back to all posts
+            </Link>
+          </div>
+        </>
+      }
+    >
+      <motion.div
+        className={styles.articleHeader}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
+      >
+        <div className={styles.metaRow}>
+          <div className={styles.meta}>
+            <span>{date}</span>
+            <span className={styles.dot}>&middot;</span>
+            <span>{readTime} min read</span>
+            <span className={styles.dot}>&middot;</span>
+            <span>{post.view_count} views</span>
           </div>
 
-          <h1 className={styles.articleTitle}>{displayTitle}</h1>
-
-          {displayExcerpt && <p className={styles.excerpt}>{displayExcerpt}</p>}
-
-          {post.tags.length > 0 && (
-            <div className={styles.tags}>
-              {post.tags.map((tag) => (
-                <span key={tag} className={styles.tag}>
-                  {tag}
-                </span>
-              ))}
-            </div>
+          {hasEnContent && (
+            <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
           )}
+        </div>
 
-          <div className={styles.headerDivider} />
-        </motion.div>
+        <h1 className={styles.articleTitle}>{displayTitle}</h1>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          {post.content_type === "markdown" ? (
-            <MarkdownRenderer content={displayContent} className={styles.prose} />
-          ) : (
-            <div
-              ref={richtextRef}
-              className={styles.prose}
-              dangerouslySetInnerHTML={{ __html: processedRichtextHtml }}
-            />
-          )}
-        </motion.div>
-      </div>
+        {displayExcerpt && <p className={styles.excerpt}>{displayExcerpt}</p>}
 
-      {/* ── Comments ── */}
-      <motion.div
-        className={styles.commentSection}
-        id="comments"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-      >
-        <CommentSection postId={post.id} />
+        {post.tags.length > 0 && (
+          <div className={styles.tags}>
+            {post.tags.map((tag) => (
+              <span key={tag} className={styles.tag}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className={styles.headerDivider} />
       </motion.div>
 
-      {/* ── Footer nav ── */}
-      <div className={styles.footerNav}>
-        <Link href="/posts" className={styles.footerLink}>
-          &larr; Back to all posts
-        </Link>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+      >
+        {post.content_type === "markdown" ? (
+          <MarkdownRenderer content={displayContent} className={styles.prose} />
+        ) : (
+          <div
+            ref={richtextRef}
+            className={styles.prose}
+            dangerouslySetInnerHTML={{ __html: processedRichtextHtml }}
+          />
+        )}
+      </motion.div>
+    </DetailLayout>
+  );
+}
+
+/* ── Skeleton ── */
+function PostDetailSkeleton() {
+  return (
+    <div className={layoutStyles.page}>
+      <div className={layoutStyles.heroSpacer} />
+      <div className={layoutStyles.content}>
+        {/* Meta row */}
+        <div className={styles.articleHeader}>
+          <div className={styles.metaRow}>
+            <div className={styles.meta}>
+              <SkeletonLine width={80} height={12} />
+              <SkeletonLine width={60} height={12} />
+              <SkeletonLine width={50} height={12} />
+            </div>
+          </div>
+          {/* Title */}
+          <SkeletonLine width="80%" height={40} />
+          <div style={{ height: "var(--spacing-md)" }} />
+          {/* Excerpt */}
+          <SkeletonLine width="100%" height={18} />
+          <div style={{ height: "var(--spacing-xs)" }} />
+          <SkeletonLine width="60%" height={18} />
+          <div style={{ height: "var(--spacing-md)" }} />
+          {/* Tags */}
+          <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
+            <Skeleton width={60} height={24} borderRadius="var(--radius-capsule)" />
+            <Skeleton width={80} height={24} borderRadius="var(--radius-capsule)" />
+            <Skeleton width={50} height={24} borderRadius="var(--radius-capsule)" />
+          </div>
+          <div style={{ height: "var(--spacing-lg)" }} />
+          <Skeleton height={1} />
+        </div>
+
+        {/* Body */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+          <SkeletonLine width="100%" height={14} />
+          <SkeletonLine width="95%" height={14} />
+          <SkeletonLine width="88%" height={14} />
+          <SkeletonLine width="100%" height={14} />
+          <SkeletonLine width="70%" height={14} />
+          <div style={{ height: "var(--spacing-lg)" }} />
+          <SkeletonLine width="40%" height={24} />
+          <SkeletonLine width="100%" height={14} />
+          <SkeletonLine width="92%" height={14} />
+          <SkeletonLine width="85%" height={14} />
+          <SkeletonLine width="100%" height={14} />
+          <SkeletonLine width="60%" height={14} />
+        </div>
       </div>
     </div>
   );

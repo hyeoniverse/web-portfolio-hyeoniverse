@@ -54,3 +54,52 @@ export interface DesignConceptItem {
   description: LocalizedText;
   image: string;
 }
+
+export interface DbColumn {
+  name: string;
+  type: string;
+  constraint?: string;
+  description: LocalizedText;
+}
+
+export interface DbTable {
+  name: string;
+  description: LocalizedText;
+  designNote: LocalizedText;
+  columns: DbColumn[];
+  exampleQuery?: {
+    title: string;
+    code: string;
+    language: string;
+  };
+}
+
+export interface UserFlowStep {
+  label: LocalizedText;
+}
+
+export interface UserFlow {
+  title: string;
+  description: LocalizedText;
+  steps: UserFlowStep[];
+}
+
+export interface ApiEndpoint {
+  method: string;
+  path: string;
+  description: LocalizedText;
+}
+
+export interface BackendItem {
+  name: string;
+  kind: "api" | "table";
+  description: LocalizedText;
+  designNote?: LocalizedText;
+  endpoints?: ApiEndpoint[];
+  columns?: DbColumn[];
+  exampleQuery?: {
+    title: string;
+    code: string;
+    language: string;
+  };
+}

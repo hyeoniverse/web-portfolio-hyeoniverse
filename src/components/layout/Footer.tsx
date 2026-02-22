@@ -7,8 +7,8 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { cn } from "@/utils/cn";
 import styles from "./Footer.module.css";
 
-/** Footer 숨김 경로 (prefix 매칭) — 가로 스크롤 페이지 */
-const HIDDEN_PREFIXES = ["/works", "/profile", "/about"];
+/** Footer 숨김 경로 (exact match) — 가로 스크롤·특수 레이아웃 페이지 */
+const HIDDEN_ROUTES = ["/works", "/profile", "/about"];
 
 interface FooterProps {
   className?: string;
@@ -19,9 +19,7 @@ export default function Footer({ className }: FooterProps) {
   const { t } = useLanguage();
   const siteConfig = useSiteConfig();
 
-  const isHidden = HIDDEN_PREFIXES.some(
-    (r) => pathname === r || pathname.startsWith(r + "/")
-  );
+  const isHidden = HIDDEN_ROUTES.includes(pathname);
 
   if (isHidden) return null;
 

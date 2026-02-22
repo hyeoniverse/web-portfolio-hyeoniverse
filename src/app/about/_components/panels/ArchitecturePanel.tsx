@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Language } from "@/providers/LanguageProvider";
 import type { StructureItem } from "@/data/about";
@@ -8,15 +8,14 @@ import {
   buildGraph,
   computeTree,
   computeTreemap,
-  computeSunburst,
   VIEWBOX_WIDTH,
   VIEWBOX_HEIGHT,
-  CENTER_X,
   CENTER_Y,
 } from "./_utils/architectureLayout";
+import { useForceGraph } from "./_utils/useForceGraph";
 import styles from "../AboutSection.module.css";
 
-type ViewMode = "tree" | "treemap" | "sunburst";
+type ViewMode = "tree" | "treemap" | "force";
 
 interface ArchitecturePanelProps {
   language: Language;
@@ -26,17 +25,26 @@ interface ArchitecturePanelProps {
 const VIEW_MODES: { key: ViewMode; label: string }[] = [
   { key: "tree", label: "Tree" },
   { key: "treemap", label: "Treemap" },
-  { key: "sunburst", label: "Sunburst" },
+  { key: "force", label: "Force" },
 ];
 
 export default function ArchitecturePanel({ language, structure }: ArchitecturePanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
 
   const { nodes, edges } = useMemo(() => buildGraph(structure), [structure]);
   const treePos = useMemo(() => computeTree(nodes), [nodes]);
   const tmRects = useMemo(() => computeTreemap(nodes), [nodes]);
-  const sbArcs = useMemo(() => computeSunburst(nodes), [nodes]);
+
+  const {
+    positions: forcePos,
+    onDragStart,
+    onDrag,
+    onDragEnd,
+  } = useForceGraph(nodes, edges, viewMode === "force");
 
   const activeEdges = useMemo(() => {
     if (selectedIndex === null) return new Set<number>();
@@ -69,20 +77,101 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
     return set;
   }, [selectedIndex, nodes]);
 
+  /* ── Force 전용: 호버/선택 시 전체 경로 하이라이팅 ── */
+  const forceHighlightIndex = viewMode === "force" ? (hoveredIndex ?? selectedIndex) : null;
+
+  const forcePath = useMemo(() => {
+    if (forceHighlightIndex === null) return new Set<number>();
+    const set = new Set<number>();
+    // 조상 경로 (root까지)
+    let idx: number | null = forceHighlightIndex;
+    while (idx !== null) {
+      set.add(idx);
+      idx = nodes[idx].parentIndex;
+    }
+    // 하위 트리
+    const addDesc = (i: number) => {
+      set.add(i);
+      for (const ci of nodes[i].childIndices) addDesc(ci);
+    };
+    addDesc(forceHighlightIndex);
+    return set;
+  }, [forceHighlightIndex, nodes]);
+
+  const forcePathEdges = useMemo(() => {
+    if (forceHighlightIndex === null) return new Set<number>();
+    const set = new Set<number>();
+    edges.forEach((e, i) => {
+      if (forcePath.has(e.from) && forcePath.has(e.to)) set.add(i);
+    });
+    return set;
+  }, [forceHighlightIndex, edges, forcePath]);
+
   const handleClick = useCallback((index: number) => {
     setSelectedIndex((prev) => (prev === index ? null : index));
   }, []);
 
   const handleModeChange = useCallback((mode: ViewMode) => {
     setSelectedIndex(null);
+    setHoveredIndex(null);
     setViewMode(mode);
   }, []);
 
+  /* ── Force 드래그 ── */
+  const toViewbox = useCallback((clientX: number, clientY: number) => {
+    const el = mapRef.current;
+    if (!el) return { vx: 0, vy: 0 };
+    const rect = el.getBoundingClientRect();
+    return {
+      vx: ((clientX - rect.left) / rect.width) * VIEWBOX_WIDTH,
+      vy: ((clientY - rect.top) / rect.height) * VIEWBOX_HEIGHT,
+    };
+  }, []);
+
+  const handleForcePointerDown = useCallback(
+    (e: React.PointerEvent, index: number) => {
+      e.preventDefault();
+      isDraggingRef.current = false;
+
+      const { vx, vy } = toViewbox(e.clientX, e.clientY);
+      onDragStart(index, vx, vy);
+
+      const onMove = (pe: PointerEvent) => {
+        isDraggingRef.current = true;
+        const pos = toViewbox(pe.clientX, pe.clientY);
+        onDrag(pos.vx, pos.vy);
+      };
+
+      const onUp = () => {
+        onDragEnd();
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        // 드래그 없이 클릭만 → 선택 토글
+        if (!isDraggingRef.current) {
+          handleClick(index);
+        }
+      };
+
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+    },
+    [toViewbox, onDragStart, onDrag, onDragEnd, handleClick],
+  );
+
+  const handleMouseEnter = useCallback((index: number) => {
+    if (isDraggingRef.current) return;
+    setHoveredIndex(index);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setHoveredIndex(null);
+  }, []);
+
   const tooltipInfo = useMemo(() => {
-    if (selectedIndex === null) return null;
+    if (hoveredIndex === null) return null;
     switch (viewMode) {
       case "tree": {
-        const position = treePos[selectedIndex];
+        const position = treePos[hoveredIndex];
         return {
           left: `${(position.x / VIEWBOX_WIDTH) * 100}%`,
           top: position.y < CENTER_Y
@@ -92,7 +181,7 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
         };
       }
       case "treemap": {
-        const r = tmRects[selectedIndex];
+        const r = tmRects[hoveredIndex];
         const cx = r.x + r.w / 2;
         const cy = r.y + r.h / 2;
         return {
@@ -103,23 +192,21 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
           translate: cy < CENTER_Y ? "-50% 0" : "-50% -100%",
         };
       }
-      case "sunburst": {
-        const arc = sbArcs[selectedIndex];
-        const r = arc.labelR || 60;
-        const px = CENTER_X + Math.cos(arc.midAngle) * r;
-        const py = CENTER_Y + Math.sin(arc.midAngle) * r;
+      case "force": {
+        const pos = forcePos[hoveredIndex];
+        if (!pos) return null;
         return {
-          left: `${(px / VIEWBOX_WIDTH) * 100}%`,
-          top: py < CENTER_Y
-            ? `calc(${(py / VIEWBOX_HEIGHT) * 100}% + 20px)`
-            : `calc(${(py / VIEWBOX_HEIGHT) * 100}% - 20px)`,
-          translate: py < CENTER_Y ? "-50% 0" : "-50% -100%",
+          left: `${(pos.x / VIEWBOX_WIDTH) * 100}%`,
+          top: pos.y < CENTER_Y
+            ? `calc(${(pos.y / VIEWBOX_HEIGHT) * 100}% + 28px)`
+            : `calc(${(pos.y / VIEWBOX_HEIGHT) * 100}% - 28px)`,
+          translate: pos.y < CENTER_Y ? "-50% 0" : "-50% -100%",
         };
       }
     }
-  }, [viewMode, selectedIndex, treePos, tmRects, sbArcs]);
+  }, [viewMode, hoveredIndex, treePos, tmRects, forcePos]);
 
-  const selectedNode = selectedIndex !== null ? nodes[selectedIndex] : null;
+  const hoveredNode = hoveredIndex !== null ? nodes[hoveredIndex] : null;
 
   return (
     <div className={styles.panel}>
@@ -127,7 +214,7 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>Architecture.</h3>
 
       {/* ── 데스크톱: 인터랙티브 맵 ── */}
-      <div className={styles.archMap}>
+      <div ref={mapRef} className={styles.archMap}>
         <div className={styles.archModeBar}>
           {VIEW_MODES.map((m) => (
             <button
@@ -176,6 +263,8 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
                     top: `${(pos.y / VIEWBOX_HEIGHT) * 100}%`,
                   }}
                   onClick={() => handleClick(node.index)}
+                  onMouseEnter={() => handleMouseEnter(node.index)}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <span className={styles.archNodePath}>{node.item.path}</span>
                 </div>
@@ -205,6 +294,8 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
                     height: `${(r.h / VIEWBOX_HEIGHT) * 100}%`,
                   }}
                   onClick={() => handleClick(node.index)}
+                  onMouseEnter={() => handleMouseEnter(node.index)}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <span className={styles.archTmLabel}>{node.item.path}</span>
                 </div>
@@ -213,59 +304,61 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
           </>
         )}
 
-        {viewMode === "sunburst" && (
-          <svg
-            className={styles.archSunburst}
-            viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
-            preserveAspectRatio="xMidYMid meet"
-          >
-            <path
-              className={`${styles.archSbRoot} ${selectedIndex === 0 ? styles.archSbArcActive : ""}`}
-              d={sbArcs[0].path}
-              onClick={() => handleClick(0)}
-            />
-            <text className={`${styles.archSbLabel} ${styles.archSbLabelLg}`} x={CENTER_X} y={CENTER_Y}>
-              {nodes[0].item.path}
-            </text>
-
-            {nodes.map((node) => {
-              if (node.row === 0) return null;
-              const arc = sbArcs[node.index];
-              if (!arc.path) return null;
-              const isActive = selectedIndex === node.index;
-              const isDimmed = selectedIndex !== null && !relatedNodes.has(node.index);
-
-              const lx = CENTER_X + Math.cos(arc.midAngle) * arc.labelR;
-              const ly = CENTER_Y + Math.sin(arc.midAngle) * arc.labelR;
-              const sweepDeg = ((arc.endAngle - arc.startAngle) * 180) / Math.PI;
-
-              return (
-                <g key={node.index}>
-                  <path
-                    className={`${styles.archSbArc} ${isActive ? styles.archSbArcActive : ""} ${isDimmed ? styles.archSbArcDimmed : ""}`}
-                    d={arc.path}
-                    onClick={() => handleClick(node.index)}
+        {viewMode === "force" && (
+          <>
+            <svg
+              className={styles.archSvg}
+              viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
+              preserveAspectRatio="none"
+            >
+              {edges.map((edge, i) => {
+                const from = forcePos[edge.from];
+                const to = forcePos[edge.to];
+                if (!from || !to) return null;
+                const isOnPath = forcePathEdges.has(i);
+                const isDimmed = forceHighlightIndex !== null && !isOnPath;
+                return (
+                  <line
+                    key={i}
+                    className={`${styles.archEdge} ${styles.archEdgeForce} ${isOnPath ? styles.archEdgePathActive : ""} ${isDimmed ? styles.archEdgeDimmed : ""}`}
+                    x1={from.x}
+                    y1={from.y}
+                    x2={to.x}
+                    y2={to.y}
                   />
-                  {sweepDeg > 12 && (
-                    <text
-                      className={`${styles.archSbLabel} ${node.row === 1 ? styles.archSbLabelLg : ""}`}
-                      x={lx}
-                      y={ly}
-                      transform={`rotate(${(arc.midAngle * 180) / Math.PI + (Math.abs(arc.midAngle) > Math.PI / 2 ? 180 : 0)}, ${lx}, ${ly})`}
-                    >
-                      {node.item.path}
-                    </text>
-                  )}
-                </g>
+                );
+              })}
+            </svg>
+            {nodes.map((node) => {
+              const pos = forcePos[node.index];
+              if (!pos) return null;
+              const isRoot = node.row === 0;
+              const isActive = selectedIndex === node.index;
+              const isOnPath = forcePath.has(node.index);
+              const isDimmed = forceHighlightIndex !== null && !isOnPath;
+              return (
+                <div
+                  key={node.index}
+                  className={`${styles.archNodeBox} ${styles.archNodeDraggable} ${isRoot ? styles.archNodeRoot : ""} ${isActive ? styles.archNodeActive : ""} ${isOnPath && !isActive ? styles.archNodeOnPath : ""} ${isDimmed ? styles.archNodeDimmed : ""}`}
+                  style={{
+                    left: `${(pos.x / VIEWBOX_WIDTH) * 100}%`,
+                    top: `${(pos.y / VIEWBOX_HEIGHT) * 100}%`,
+                  }}
+                  onPointerDown={(e) => handleForcePointerDown(e, node.index)}
+                  onMouseEnter={() => handleMouseEnter(node.index)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <span className={styles.archNodePath}>{node.item.path}</span>
+                </div>
               );
             })}
-          </svg>
+          </>
         )}
 
         <AnimatePresence>
-          {selectedNode && tooltipInfo && (
+          {hoveredNode && tooltipInfo && (
             <motion.div
-              key={`tooltip-${selectedIndex}`}
+              key={`tooltip-${hoveredIndex}`}
               className={styles.archTooltip}
               style={{
                 left: tooltipInfo.left,
@@ -277,7 +370,7 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
             >
-              {selectedNode.item.description[language]}
+              {hoveredNode.item.description[language]}
             </motion.div>
           )}
         </AnimatePresence>
