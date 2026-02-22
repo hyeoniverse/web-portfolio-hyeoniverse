@@ -138,13 +138,15 @@ export default function AdminPostsPage() {
                 style={{ cursor: post.published ? "pointer" : undefined }}
               >
                 <span className={styles.colTitle}>
-                  <Link
-                    href={`/admin/posts/${post.id}/edit`}
+                  <a
+                    href={post.slug ? `/posts/${post.slug}` : undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={styles.postLink}
                     onClick={(e) => e.stopPropagation()}
                   >
                     {post.title || "Untitled"}
-                  </Link>
+                  </a>
                 </span>
                 <span className={styles.colStatus}>
                   <button
@@ -276,7 +278,7 @@ function AdminPostsSkeleton() {
       {Array.from({ length: SKELETON_ROWS }, (_, i) => (
         <div key={i} className={styles.row} style={{ pointerEvents: "none" }}>
           <span className={styles.colTitle}>
-            <SkeletonLine width={`${60 + Math.random() * 30}%`} />
+            <SkeletonLine width={`${65 + (i % 3) * 10}%`} />
           </span>
           <span className={styles.colStatus}>
             <SkeletonLine width="60px" />

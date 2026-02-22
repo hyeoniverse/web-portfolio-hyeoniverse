@@ -5,9 +5,17 @@ import styles from "./PostCard.module.css";
 
 interface PostCardProps {
   post: Post;
+  variant?: "featured" | "standard";
+  onImgError?: (id: string) => void;
+  imgError?: boolean;
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({
+  post,
+  variant = "standard",
+  onImgError,
+  imgError,
+}: PostCardProps) {
   const date = new Date(post.created_at).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
@@ -15,43 +23,66 @@ export default function PostCard({ post }: PostCardProps) {
   });
 
   const readTime = Math.max(1, Math.ceil(post.content.length / 1000));
+  const isFeatured = variant === "featured";
+  const showImage = post.cover_image && !imgError;
+  const category = post.category || null;
 
   return (
-    <Link href={`/posts/${post.slug}`} className={styles.card}>
-      {post.cover_image ? (
-        <div className={styles.coverWrap}>
+    <Link
+      href={`/posts/${post.slug}`}
+      className={`${styles.card} ${isFeatured ? styles.featured : ""}`}
+    >
+      <div className={styles.imageWrap}>
+        {showImage ? (
           <Image
             src={post.cover_image}
             alt={post.title}
             fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className={styles.coverImg}
+            sizes={isFeatured ? "(max-width: 768px) 100vw, 55vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
+            className={styles.image}
+            onError={() => onImgError?.(post.id)}
           />
-        </div>
-      ) : (
-        <div className={styles.coverPlaceholder}>No cover</div>
-      )}
+        ) : (
+          <div className={styles.placeholder}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          </div>
+        )}
+      </div>
 
       <div className={styles.body}>
-        <div className={styles.meta}>
-          <span>{date}</span>
-          <span>&middot;</span>
-          <span>{readTime} min read</span>
+        <div className={styles.badgeRow}>
+          {post.is_pinned && (
+            <span className={styles.pinnedBadge}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d="M16 2l-4 4-6-2-2 10 6-2 2 10 4-4 6 2 2-10-6 2-2-10z" />
+              </svg>
+              Pinned
+            </span>
+          )}
+          {category && (
+            <span className={styles.categoryBadge}>{category}</span>
+          )}
         </div>
 
-        <h2 className={styles.cardTitle}>{post.title}</h2>
+        <h2 className={styles.title}>{post.title}</h2>
 
         {post.excerpt && <p className={styles.excerpt}>{post.excerpt}</p>}
 
-        {post.tags.length > 0 && (
-          <div className={styles.tags}>
-            {post.tags.map((tag) => (
-              <span key={tag} className={styles.tag}>
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+        <div className={styles.meta}>
+          <span>{date}</span>
+          <span className={styles.dot}>&middot;</span>
+          <span>{readTime} min read</span>
+          {post.view_count > 0 && (
+            <>
+              <span className={styles.dot}>&middot;</span>
+              <span>{post.view_count} views</span>
+            </>
+          )}
+        </div>
       </div>
     </Link>
   );

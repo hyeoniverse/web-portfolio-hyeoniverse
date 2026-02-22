@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Post } from "@/types/post";
+import PostCard from "./_components/PostCard";
+import CategoryNav from "./_components/CategoryNav";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./Posts.module.css";
 
@@ -15,14 +15,18 @@ const POSTS_PER_PAGE = 12;
 export default function PostsPage() {
   const { setInfinite, lenis, stop, start } = useLenis();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [pinnedPosts, setPinnedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [allTags, setAllTags] = useState<string[]>([]);
+  const [extraCategories, setExtraCategories] = useState<string[]>([]);
   const [sort, setSort] = useState<"newest" | "oldest" | "popular">("newest");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
+  const [showTags, setShowTags] = useState(false);
 
   useEffect(() => {
     stop();
@@ -44,7 +48,9 @@ export default function PostsPage() {
     setLoading(true);
     const params = new URLSearchParams();
     if (search) params.set("search", search);
+    if (activeCategory) params.set("category", activeCategory);
     if (activeTag) params.set("tag", activeTag);
+    params.set("pinned", "false");
     params.set("sort", sort);
     params.set("page", String(page));
     params.set("limit", String(POSTS_PER_PAGE));
@@ -54,18 +60,30 @@ export default function PostsPage() {
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [search, activeTag, sort, page]);
+  }, [search, activeCategory, activeTag, sort, page]);
 
+  // Fetch all tags + extra categories + pinned posts
   useEffect(() => {
     fetch("/api/posts?limit=100")
       .then((res) => res.json())
       .then((data) => {
-        const tags = new Set<string>();
-        (data.posts ?? []).forEach((p: Post) =>
-          p.tags.forEach((t) => tags.add(t))
+        const tagCounts = new Map<string, number>();
+        const categorySet = new Set<string>();
+        (data.posts ?? []).forEach((p: Post) => {
+          p.tags.forEach((t) => tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1));
+          if (p.category) categorySet.add(p.category);
+        });
+        setAllTags(
+          Array.from(tagCounts.keys()).sort(
+            (a, b) => (tagCounts.get(b) ?? 0) - (tagCounts.get(a) ?? 0)
+          )
         );
-        setAllTags(Array.from(tags).sort());
+        setExtraCategories(Array.from(categorySet));
       });
+
+    fetch("/api/posts?pinned=true&limit=10")
+      .then((res) => res.json())
+      .then((data) => setPinnedPosts(data.posts ?? []));
   }, []);
 
   useEffect(() => {
@@ -73,23 +91,13 @@ export default function PostsPage() {
     return () => clearTimeout(debounce);
   }, [fetchPosts]);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, activeTag, sort]);
+  }, [search, activeCategory, activeTag, sort]);
 
-  const featured = page === 1 ? posts[0] : null;
-  const rest = page === 1 ? posts.slice(1) : posts;
-
-  const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-
-  const readTime = (content: string) =>
-    Math.max(1, Math.ceil(content.length / 1000));
+  const handleImgError = useCallback((id: string) => {
+    setImgErrors((prev) => new Set(prev).add(id));
+  }, []);
 
   const pageNumbers = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -108,254 +116,204 @@ export default function PostsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       >
-        <h1 className={styles.title}>Posts</h1>
+        <h1 className={styles.title}>Blog.</h1>
         <p className={styles.subtitle}>
           Thoughts, tutorials, and behind-the-scenes notes
         </p>
       </motion.div>
 
-      {/* ── Search + Filters ── */}
+      {/* ── Category Nav ── */}
       <motion.div
-        className={styles.filters}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+      >
+        <CategoryNav
+          extraCategories={extraCategories}
+          activeCategory={activeCategory}
+          onCategoryChange={setActiveCategory}
+        />
+      </motion.div>
+
+      {/* ── Toolbar: Search + Tags + Sort ── */}
+      <motion.div
+        className={styles.toolbar}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
       >
-        <div className={styles.searchWrap}>
-          <svg
-            className={styles.searchIcon}
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <input
-            className={styles.searchInput}
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search posts..."
-          />
-        </div>
+        <div className={styles.toolbarTop}>
+          <div className={styles.searchWrap}>
+            <svg
+              className={styles.searchIcon}
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              className={styles.searchInput}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search posts..."
+            />
+          </div>
 
-        <div className={styles.filterBar}>
-          {allTags.length > 0 && (
-            <div className={styles.tagList}>
+          <div className={styles.toolbarRight}>
+            {allTags.length > 0 && (
               <button
-                className={`${styles.tagBtn} ${!activeTag ? styles.tagBtnActive : ""}`}
-                onClick={() => setActiveTag(null)}
+                className={`${styles.tagToggleBtn} ${showTags ? styles.tagToggleBtnOpen : ""}`}
+                onClick={() => setShowTags((v) => !v)}
+                data-clickable="true"
               >
-                All
-              </button>
-              {allTags.map((tag) => (
-                <button
-                  key={tag}
-                  className={`${styles.tagBtn} ${activeTag === tag ? styles.tagBtnActive : ""}`}
-                  onClick={() => setActiveTag(tag === activeTag ? null : tag)}
+                Tags
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  {tag}
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+            )}
+
+            <div className={styles.sortWrap}>
+              {([
+                { value: "newest" as const, label: "Latest" },
+                { value: "oldest" as const, label: "Oldest" },
+                { value: "popular" as const, label: "Popular" },
+              ]).map(({ value, label }) => (
+                <button
+                  key={value}
+                  className={`${styles.sortBtn} ${sort === value ? styles.sortBtnActive : ""}`}
+                  onClick={() => setSort(value)}
+                  data-clickable="true"
+                >
+                  {label}
                 </button>
               ))}
             </div>
-          )}
+          </div>
+        </div>
 
-          <div className={styles.sortWrap}>
-            {([
-              { value: "newest" as const, label: "Latest" },
-              { value: "oldest" as const, label: "Oldest" },
-              { value: "popular" as const, label: "Popular" },
-            ]).map(({ value, label }) => (
+        {/* Tag filter row */}
+        {showTags && allTags.length > 0 && (
+          <div className={styles.tagRow}>
+            <button
+              className={`${styles.tagBtn} ${!activeTag ? styles.tagBtnActive : ""}`}
+              onClick={() => setActiveTag(null)}
+              data-clickable="true"
+            >
+              All
+            </button>
+            {allTags.map((tag) => (
               <button
-                key={value}
-                className={`${styles.sortBtn} ${sort === value ? styles.sortBtnActive : ""}`}
-                onClick={() => setSort(value)}
+                key={tag}
+                className={`${styles.tagBtn} ${activeTag === tag ? styles.tagBtnActive : ""}`}
+                onClick={() => setActiveTag(tag === activeTag ? null : tag)}
+                data-clickable="true"
               >
-                {label}
+                {tag}
               </button>
             ))}
           </div>
-        </div>
+        )}
       </motion.div>
 
       {/* ── Content ── */}
+      {/* Pinned section — 항상 표시, 리스트와 별개 */}
+      {pinnedPosts.length > 0 && page === 1 && !loading && (
+        <motion.div
+          className={styles.pinnedSection}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          <div className={styles.pinnedLabel}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M16 2l-4 4-6-2-2 10 6-2 2 10 4-4 6 2 2-10-6 2-2-10z" />
+            </svg>
+            Pinned
+          </div>
+          <div className={`${styles.pinnedGrid} ${pinnedPosts.length === 1 ? styles.pinnedSingle : ""}`}>
+            {pinnedPosts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                variant={pinnedPosts.length === 1 ? "featured" : "standard"}
+                onImgError={handleImgError}
+                imgError={imgErrors.has(post.id)}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {loading ? (
         <PostsSkeleton />
       ) : posts.length === 0 ? (
         <p className={styles.statusText}>No posts found</p>
       ) : (
         <>
-          <div className={styles.content}>
-            {/* Featured post */}
-            {featured && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              >
-                <Link href={`/posts/${featured.slug}`} className={styles.featured}>
-                  {featured.cover_image && !imgErrors.has(featured.id) ? (
-                    <div className={styles.featuredImageWrap}>
-                      <Image
-                        src={featured.cover_image}
-                        alt={featured.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 60vw"
-                        className={styles.featuredImage}
-                        onError={() => setImgErrors(prev => new Set(prev).add(featured.id))}
-                      />
-                      <div className={styles.featuredOverlay} />
-                    </div>
-                  ) : (
-                    <div className={styles.featuredPlaceholder}>
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <polyline points="21 15 16 10 5 21" />
-                      </svg>
-                    </div>
-                  )}
-
-                  <div className={styles.featuredBody}>
-                    <div className={styles.featuredMeta}>
-                      <span>{formatDate(featured.created_at)}</span>
-                      <span className={styles.dot}>&middot;</span>
-                      <span>{readTime(featured.content)} min read</span>
-                      {featured.view_count > 0 && (
-                        <>
-                          <span className={styles.dot}>&middot;</span>
-                          <span>{featured.view_count} views</span>
-                        </>
-                      )}
-                    </div>
-                    <h2 className={styles.featuredTitle}>{featured.title}</h2>
-                    {featured.excerpt && (
-                      <p className={styles.featuredExcerpt}>{featured.excerpt}</p>
-                    )}
-                    {featured.tags.length > 0 && (
-                      <div className={styles.featuredTags}>
-                        {featured.tags.map((tag) => (
-                          <span key={tag} className={styles.tag}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              </motion.div>
-            )}
-
-            {/* Divider */}
-            {rest.length > 0 && featured && <div className={styles.divider} />}
-
-            {/* Post list */}
-            {rest.length > 0 && (
-              <div className={styles.list}>
-                {rest.map((post, i) => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.5,
-                      delay: 0.3 + i * STAGGER_DELAY,
-                      ease: [0.25, 0.1, 0.25, 1],
-                    }}
-                  >
-                    <Link
-                      href={`/posts/${post.slug}`}
-                      className={styles.listItem}
-                    >
-                      <div className={styles.listLeft}>
-                        <div className={styles.listMeta}>
-                          <span>{formatDate(post.created_at)}</span>
-                          <span className={styles.dot}>&middot;</span>
-                          <span>{readTime(post.content)} min</span>
-                        </div>
-                        <h3 className={styles.listTitle}>{post.title}</h3>
-                        {post.excerpt && (
-                          <p className={styles.listExcerpt}>{post.excerpt}</p>
-                        )}
-                        {post.tags.length > 0 && (
-                          <div className={styles.listTags}>
-                            {post.tags.map((tag) => (
-                              <span key={tag} className={styles.tag}>
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {post.cover_image && (
-                        <div className={styles.listThumb}>
-                          {!imgErrors.has(post.id) ? (
-                            <Image
-                              src={post.cover_image}
-                              alt={post.title}
-                              fill
-                              sizes="140px"
-                              className={styles.listThumbImg}
-                              onError={() => setImgErrors(prev => new Set(prev).add(post.id))}
-                            />
-                          ) : (
-                            <div className={styles.imgPlaceholder}>
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="3" y="3" width="18" height="18" rx="2" />
-                                <circle cx="8.5" cy="8.5" r="1.5" />
-                                <polyline points="21 15 16 10 5 21" />
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <svg
-                        className={styles.listArrow}
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Regular grid */}
+          {posts.length > 0 && (
+            <div className={styles.grid}>
+              {posts.map((post, i) => (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: 0.25 + i * STAGGER_DELAY,
+                    ease: [0.25, 0.1, 0.25, 1],
+                  }}
+                >
+                  <PostCard
+                    post={post}
+                    onImgError={handleImgError}
+                    imgError={imgErrors.has(post.id)}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (
             <div className={styles.pagination}>
               <button
                 disabled={page <= 1}
-                onClick={() => setPage(p => p - 1)}
+                onClick={() => setPage((p) => p - 1)}
                 className={styles.pageBtn}
+                data-clickable="true"
               >
                 &larr;
               </button>
               {pageNumbers.map((p, i) =>
                 p === -1 ? (
-                  <span key={`ellipsis-${i}`} className={styles.ellipsis}>&hellip;</span>
+                  <span key={`ellipsis-${i}`} className={styles.ellipsis}>
+                    &hellip;
+                  </span>
                 ) : (
                   <button
                     key={p}
                     onClick={() => setPage(p)}
                     className={`${styles.pageBtn} ${page === p ? styles.pageBtnActive : ""}`}
+                    data-clickable="true"
                   >
                     {p}
                   </button>
@@ -363,8 +321,9 @@ export default function PostsPage() {
               )}
               <button
                 disabled={page >= totalPages}
-                onClick={() => setPage(p => p + 1)}
+                onClick={() => setPage((p) => p + 1)}
                 className={styles.pageBtn}
+                data-clickable="true"
               >
                 &rarr;
               </button>
@@ -377,37 +336,20 @@ export default function PostsPage() {
 }
 
 /* ── Skeleton ── */
-const SKELETON_COUNT = 4;
-
 function PostsSkeleton() {
   return (
-    <div className={styles.content}>
-      {/* Featured skeleton */}
-      <div className={styles.featured} style={{ pointerEvents: "none" }}>
-        <Skeleton className={styles.featuredPlaceholder} />
-        <div className={styles.featuredBody}>
-          <SkeletonLine width="30%" />
-          <SkeletonLine width="80%" height={22} />
-          <SkeletonLine />
-          <SkeletonLine width="60%" />
-        </div>
-      </div>
-
-      <div className={styles.divider} />
-
-      {/* List skeletons */}
-      <div className={styles.list}>
-        {Array.from({ length: SKELETON_COUNT }, (_, i) => (
-          <div key={i} className={styles.listItem} style={{ pointerEvents: "none" }}>
-            <div className={styles.listLeft}>
-              <SkeletonLine width="30%" />
-              <SkeletonLine width="80%" height={22} />
-              <SkeletonLine width="60%" />
-            </div>
-            <Skeleton className={styles.listThumb} />
+    <div className={styles.grid}>
+      {Array.from({ length: 9 }, (_, i) => (
+        <div key={i} className={styles.skeletonCard}>
+          <Skeleton height={0} borderRadius="0" />
+          <div className={styles.skeletonCardBody}>
+            <SkeletonLine width={60} height={14} />
+            <SkeletonLine width="90%" height={20} />
+            <SkeletonLine width="100%" />
+            <SkeletonLine width="40%" height={12} />
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }

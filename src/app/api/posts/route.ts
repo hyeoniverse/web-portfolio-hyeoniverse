@@ -9,6 +9,7 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") ?? "1");
   const limit = parseInt(searchParams.get("limit") ?? "12");
   const tag = searchParams.get("tag");
+  const category = searchParams.get("category");
   const search = searchParams.get("search");
   const slug = searchParams.get("slug");
   const showAll = searchParams.get("all") === "true"; // admin용
@@ -29,8 +30,20 @@ export async function GET(request: Request) {
     query = query.contains("tags", [tag]);
   }
 
+  if (category) {
+    query = query.eq("category", category);
+  }
+
   if (slug) {
     query = query.eq("slug", slug);
+  }
+
+  // pinned 필터: "true" → pinned만, "false" → pinned 제외, 미지정 → 전체
+  const pinned = searchParams.get("pinned");
+  if (pinned === "true") {
+    query = query.eq("is_pinned", true);
+  } else if (pinned === "false") {
+    query = query.eq("is_pinned", false);
   }
 
   if (search) {
