@@ -7,6 +7,7 @@
   position: relative;
   background: var(--color-white-alpha-1);
   border-radius: var(--radius-capsule);
+  user-select: none;
 }
 
 .inner {
@@ -24,16 +25,13 @@
   height: calc(100% - 8px);
   background: var(--text-primary);
   border-radius: var(--radius-capsule);
-  /* Framer Motion handles all positioning via style={{ x }} */
 }
 
-/* Button */
+/* Button-like spans */
 .btn {
   padding: 8px 16px;
-  border: none;
   position: relative;
   z-index: 2;
-  background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);

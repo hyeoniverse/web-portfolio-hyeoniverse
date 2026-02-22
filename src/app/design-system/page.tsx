@@ -241,12 +241,19 @@ export default function DesignSystemPage() {
         <motion.div className={styles.container} variants={containerVariants} initial="hidden" animate="visible">
           {/* Header */}
           <motion.div className={styles.header} variants={itemVariants}>
-            <button onClick={handleBack} className={styles.backLink}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+            <Button
+              variant="outline"
+              size="sm"
+              className={styles.backLink}
+              onClick={handleBack}
+              icon={
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+                  <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              }
+            >
               Back
-            </button>
+            </Button>
           </motion.div>
           <motion.div variants={itemVariants}>
             <h1 className={styles.title}>Design System</h1>
@@ -453,14 +460,13 @@ export default function DesignSystemPage() {
               </div>
             </div>
 
-            {/* Button — Styles */}
+            {/* Button — Variants */}
             <div className={styles.componentGroup}>
-              <div className={styles.componentGroupTitle}>Button — Styles</div>
+              <div className={styles.componentGroupTitle}>Button — Variants</div>
               <div className={styles.componentRow}>
-                <Button style="primary">Primary</Button>
-                <Button style="secondary">Secondary</Button>
-                <Button style="outline">Outline</Button>
-                <Button style="underline">Underline</Button>
+                <Button variant="primary">Primary</Button>
+                <Button variant="outline">Outline</Button>
+                <Button variant="ghost">Ghost</Button>
                 <Button disabled>Disabled</Button>
               </div>
             </div>
@@ -469,33 +475,32 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Button — Sizes</div>
               <div className={styles.componentRow}>
-                <Button size="sm">Small</Button>
-                <Button size="md">Medium</Button>
-                <Button size="lg">Large</Button>
-                <Button size="xl">XL</Button>
-                <Button size="xl2">XL2</Button>
+                <Button variant="outline" size="xs">XS</Button>
+                <Button variant="outline" size="sm">Small</Button>
+                <Button variant="outline" size="md">Medium</Button>
+                <Button variant="outline" size="lg">Large</Button>
+                <Button variant="outline" size="xl">XL</Button>
               </div>
             </div>
 
-            {/* Button — Icons */}
+            {/* Button — Shapes */}
             <div className={styles.componentGroup}>
-              <div className={styles.componentGroupTitle}>Button — Icons</div>
+              <div className={styles.componentGroupTitle}>Button — Shapes</div>
               <div className={styles.componentRow}>
-                <Button icon={<Send size={16} />}>Send</Button>
-                <Button icon={<Mail size={16} />} iconPosition="left">Contact</Button>
-                <Button style="outline" icon={<ArrowRight size={16} />} iconPosition="right">Next</Button>
-                <Button style="secondary" icon={<Star size={16} />} iconPosition="both">Starred</Button>
+                <Button variant="primary" shape="circle" icon={<Star size={16} />} />
+                <Button variant="outline" shape="circle" icon={<Mail size={16} />} />
+                <Button variant="ghost" shape="square" icon={<Zap size={16} />} />
               </div>
             </div>
 
-            {/* Button — Weights & Active */}
+            {/* Button — Icons & States */}
             <div className={styles.componentGroup}>
-              <div className={styles.componentGroupTitle}>Button — Weights & Active</div>
+              <div className={styles.componentGroupTitle}>Button — Icons & States</div>
               <div className={styles.componentRow}>
-                <Button weight="light" style="outline">Light</Button>
-                <Button weight="normal" style="outline">Normal</Button>
-                <Button weight="bold" style="outline">Bold</Button>
-                <Button style="outline" active>Active</Button>
+                <Button variant="primary" icon={<Send size={16} />}>Send</Button>
+                <Button variant="outline" icon={<ArrowRight size={16} />} iconPosition="right">Next</Button>
+                <Button variant="outline" active>Active</Button>
+                <Button variant="outline" fullWidth>Full Width</Button>
               </div>
             </div>
 
@@ -536,13 +541,13 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Modal</div>
               <div className={styles.modalDemo}>
-                <Button style="outline" onClick={() => handleOpenModal("Basic Modal", <div style={{ padding: "1.5rem" }}><Typography variant="body1">This is a basic modal with header and close button.</Typography></div>)}>
+                <Button variant="outline" onClick={() => handleOpenModal("Basic Modal", <div style={{ padding: "1.5rem" }}><Typography variant="body1">This is a basic modal with header and close button.</Typography></div>)}>
                   Basic Modal
                 </Button>
-                <Button style="outline" icon={<Heart size={16} />} onClick={() => handleOpenModal("Rich Content", <div style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}><Zap size={48} color="var(--color-accent)" /><Typography variant="h4">Rich Content</Typography><Typography variant="body2" color="secondary">Modals support any React content.</Typography></div>)}>
+                <Button variant="outline" icon={<Heart size={16} />} onClick={() => handleOpenModal("Rich Content", <div style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}><Zap size={48} color="var(--color-accent)" /><Typography variant="h4">Rich Content</Typography><Typography variant="body2" color="secondary">Modals support any React content.</Typography></div>)}>
                   Rich Content
                 </Button>
-                <Button style="outline" onClick={() => openModal(<div style={{ padding: "1.5rem" }}><Typography variant="body1">No header, just content.</Typography></div>, { closeButton: true })}>
+                <Button variant="outline" onClick={() => openModal(<div style={{ padding: "1.5rem" }}><Typography variant="body1">No header, just content.</Typography></div>, { closeButton: true })}>
                   No Header
                 </Button>
               </div>

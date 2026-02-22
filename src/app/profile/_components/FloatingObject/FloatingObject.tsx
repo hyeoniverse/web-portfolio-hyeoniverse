@@ -7,6 +7,7 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { createSafeRenderer } from "@/utils/three";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useLenis } from "@/providers/LenisProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import styles from "./FloatingObject.module.css";
@@ -22,10 +23,13 @@ export default function FloatingObject() {
   const mobileLayout = useMobileLayout();
   const activeSection = useProfileSectionStore((s) => s.activeSection);
 
+  const { lenis } = useLenis();
+
   const mouseNDC = useRef({ x: 0, y: 0 });
   const pointerActive = useRef(false);
   const screenPosRef = useRef({ x: 0, y: 0 });
   const smileRef = useRef(false);
+  const scrollVelRef = useRef(0);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const rafId = useRef(0);
 
@@ -67,6 +71,18 @@ export default function FloatingObject() {
       window.removeEventListener("touchend", onTouchEnd);
     };
   }, []);
+
+  // Lenis scroll velocity → bunny에 전달
+  useEffect(() => {
+    if (!lenis) return;
+    const onScroll = () => {
+      scrollVelRef.current = (lenis as unknown as { velocity: number }).velocity;
+    };
+    lenis.on("scroll", onScroll);
+    return () => {
+      lenis.off("scroll", onScroll);
+    };
+  }, [lenis]);
 
   const cameraConfig = useMemo(
     () => ({
@@ -150,6 +166,7 @@ export default function FloatingObject() {
             pointerActive={pointerActive}
             screenPosRef={screenPosRef}
             smileRef={smileRef}
+            scrollVelRef={scrollVelRef}
           />
         </Suspense>
       </Canvas>

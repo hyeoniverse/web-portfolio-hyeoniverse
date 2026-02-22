@@ -3,13 +3,7 @@
    ========================================================================== */
 
 .hero {
-  display: flex;
   justify-content: center;
-  flex-direction: column;
-  padding: 0 8vw;
-  overflow: hidden;
-  position: relative;
-  min-height: 100vh;
 }
 
 /* ---------------------------------------------------------------------------
@@ -233,11 +227,6 @@
    Responsive
    --------------------------------------------------------------------------- */
 @media (max-width: 1024px) {
-  .hero {
-    padding-right: 6vw;
-    padding-left: 6vw;
-  }
-
   .ovalPrimary {
     width: 400px;
     height: 200px;
@@ -250,11 +239,6 @@
 }
 
 @media (max-width: 768px) {
-  .hero {
-    padding-right: 5vw;
-    padding-left: 5vw;
-  }
-
   .titleRow {
     gap: var(--spacing-sm);
   }
@@ -295,7 +279,7 @@
     gap: var(--spacing-md);
     bottom: var(--spacing-xl);
     left: auto;
-    right: 8vw;
+    right: var(--page-px);
     transform: none;
   }
 

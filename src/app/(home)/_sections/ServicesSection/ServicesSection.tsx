@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import { services } from "@/data/services";
+import Section from "@/components/ui/Section";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./ServicesSection.module.css";
 
@@ -18,7 +19,7 @@ const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
     const yTransforms = [serviceY0, serviceY1, serviceY2, undefined];
 
     return (
-      <section className={styles.services} ref={ref}>
+      <Section className={styles.services} ref={ref}>
         <div className={styles.header}>
           <span className={styles.label}>{t("services.label")}</span>
           <div className={`${styles.headerLine} horizontal-rule`} />
@@ -51,7 +52,7 @@ const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
           ))}
           <div className={`${styles.itemLine} horizontal-rule`} />
         </div>
-      </section>
+      </Section>
     );
   }
 );

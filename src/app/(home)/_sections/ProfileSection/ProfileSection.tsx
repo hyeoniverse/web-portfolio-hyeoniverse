@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
+import Section from "@/components/ui/Section";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./ProfileSection.module.css";
 
@@ -34,7 +35,7 @@ const ProfileSection = forwardRef<HTMLElement>((_, ref) => {
   const tKo = (key: string) => tLang(key, "ko");
 
   return (
-    <section className={styles.about} ref={ref}>
+    <Section className={styles.about} ref={ref}>
       <div className={`${styles.decorLine} profile-line`} />
       <div className={styles.content}>
         <div className={`${styles.textBlock} profile-text`}>
@@ -63,7 +64,7 @@ const ProfileSection = forwardRef<HTMLElement>((_, ref) => {
         </div>
       </div>
       <div className={`${styles.decorLine} profile-line`} />
-    </section>
+    </Section>
   );
 });
 

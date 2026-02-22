@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, MotionValue } from "framer-motion";
+import Section from "@/components/ui/Section";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./BridgeSection.module.css";
 import heroStyles from "../HeroSection/HeroSection.module.css";
@@ -20,7 +21,7 @@ export default function BridgeSection({
 }: BridgeSectionProps) {
   const { t } = useLanguage();
   return (
-    <section className={styles.bridge}>
+    <Section fullHeight clipOverflow className={styles.bridge}>
       {/* Floating Ovals - identical to Hero */}
       <motion.div
         className={`${heroStyles.floatingOval} ${heroStyles.ovalPrimary}`}
@@ -90,6 +91,6 @@ export default function BridgeSection({
         </div>
         <span className={heroStyles.scrollText}>{t("hero.scroll")}</span>
       </div>
-    </section>
+    </Section>
   );
 }

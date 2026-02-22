@@ -7,7 +7,6 @@
 
 .container {
   margin: 0 auto;
-  max-width: 800px;
 }
 
 /* Header */
@@ -18,27 +17,16 @@
   margin-bottom: 40px;
 }
 
-.backLink {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  padding: var(--padding-md);
-  border: var(--border-strong);
-  background: transparent;
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+.backLink.backLink {
   color: var(--text-secondary);
-  transition: color 0.3s ease;
-  border-radius: var(--radius-capsule);
 }
 
-.backLink svg {
-  width: 20px;
-  height: 20px;
-  transition: transform 0.3s ease;
+/* (0,2,1) — 글로벌 theme transition (0,1,1) 이상 필요 */
+.backLink.backLink svg {
+  transition: transform var(--duration-base) ease;
 }
 
-.backLink:hover svg {
+.header .backLink:hover svg {
   transform: translateX(-4px);
 }
 
@@ -103,20 +91,6 @@
 
 .section a:hover {
   opacity: 0.8;
-}
-
-/* Footer */
-.footer {
-  margin-top: 60px;
-  padding-top: 40px;
-  border-top: 1px solid var(--border-primary);
-}
-
-.footer p {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  text-align: center;
 }
 
 /* Responsive */

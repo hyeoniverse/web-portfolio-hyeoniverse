@@ -3,7 +3,8 @@
    ========================================================================== */
 
 .services {
-  padding: 10vh 8vw 15vh;
+  padding-top: 10vh;
+  padding-bottom: 15vh;
 }
 
 /* ---------------------------------------------------------------------------
@@ -104,11 +105,6 @@
    Responsive
    --------------------------------------------------------------------------- */
 @media (max-width: 1024px) {
-  .services {
-    padding-right: 6vw;
-    padding-left: 6vw;
-  }
-
   .itemContent {
     grid-template-columns: 60px 1fr 30px;
   }
@@ -119,11 +115,6 @@
 }
 
 @media (max-width: 768px) {
-  .services {
-    padding-right: 5vw;
-    padding-left: 5vw;
-  }
-
   .header {
     margin-bottom: var(--spacing-3xl);
   }

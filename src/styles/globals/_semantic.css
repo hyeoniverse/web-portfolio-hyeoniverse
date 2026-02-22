@@ -133,13 +133,26 @@
 }
 
 /* --------------------------------------------------------------------------
+   Page Layout — shared horizontal padding
+   -------------------------------------------------------------------------- */
+:root {
+  --page-px: 8vw;
+}
+@media (max-width: 768px) {
+  :root { --page-px: 5vw; }
+}
+@media (max-width: 480px) {
+  :root { --page-px: 4vw; }
+}
+
+/* --------------------------------------------------------------------------
    Editorial Tokens (unified from --about-* / --profile-*)
    Used by: AboutSection, ProfileMeSection, KineticHeroTitle
    -------------------------------------------------------------------------- */
 :root {
   /* Panel Padding */
   --editorial-panel-py: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
-  --editorial-panel-px: clamp(1.5rem, min(4.5vw, 8vh), 6.5rem);
+  --editorial-panel-px: var(--page-px);
 
   /* Typography Scale */
   --editorial-fs-hero: clamp(2rem, min(9vw, 18vh), 10rem);
@@ -184,7 +197,6 @@
    -------------------------------------------------------------------------- */
 @media (max-width: 480px) {
   :root {
-    --editorial-panel-px: var(--m-sm);
     --editorial-panel-py: var(--m-lg);
   }
 }

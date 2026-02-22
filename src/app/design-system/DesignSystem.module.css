@@ -66,27 +66,15 @@
   margin-bottom: 40px;
 }
 
-.backLink {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  padding: var(--padding-md);
-  border: var(--border-strong);
-  background: transparent;
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+.backLink.backLink {
   color: var(--text-secondary);
-  border-radius: var(--radius-capsule);
-  transition: color var(--duration-base) ease;
 }
 
-.backLink svg {
-  width: 20px;
-  height: 20px;
+.backLink.backLink svg {
   transition: transform var(--duration-base) ease;
 }
 
-.backLink:hover svg {
+.header .backLink:hover svg {
   transform: translateX(-4px);
 }
 

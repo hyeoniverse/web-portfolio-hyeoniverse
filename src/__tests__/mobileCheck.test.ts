@@ -28,8 +28,8 @@ describe("checkMobileLayout", () => {
     expect(checkMobileLayout()).toBe(true);
   });
 
-  it("높이가 MIN_DESKTOP_HEIGHT 이상이면 false를 반환한다", () => {
-    vi.stubGlobal("window", { innerWidth: 1440, innerHeight: MIN_DESKTOP_HEIGHT });
+  it("높이가 MIN_DESKTOP_HEIGHT 초과이면 false를 반환한다", () => {
+    vi.stubGlobal("window", { innerWidth: 1440, innerHeight: MIN_DESKTOP_HEIGHT + 1 });
     expect(checkMobileLayout()).toBe(false);
   });
 

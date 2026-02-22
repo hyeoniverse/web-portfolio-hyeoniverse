@@ -3,10 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 import { siteConfig } from "@/config/site.config";
 import { useLenis } from "@/providers/LenisProvider";
 import { content, type Language, type Section } from "@/data/privacyContent";
-import { LanguageToggle, AnimatedSection } from "./components";
+import LanguageToggle from "@/components/ui/LanguageToggle";
+import { AnimatedSection } from "./components";
 import styles from "./Privacy.module.css";
 
 // 애니메이션 배리언트
@@ -136,21 +138,30 @@ export default function PrivacyPage() {
       >
         {/* 헤더 */}
         <motion.div className={styles.header} variants={itemVariants}>
-          <button onClick={handleBack} className={styles.backLink}>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                d="M19 12H5M12 19l-7-7 7-7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          <Button
+            variant="outline"
+            size="sm"
+            className={styles.backLink}
+            onClick={handleBack}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                width="20"
+                height="20"
+              >
+                <path
+                  d="M19 12H5M12 19l-7-7 7-7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            }
+          >
             {t.backLink}
-          </button>
+          </Button>
 
           <LanguageToggle lang={lang} onLangChange={setLang} />
         </motion.div>
@@ -170,18 +181,6 @@ export default function PrivacyPage() {
           </AnimatedSection>
         ))}
 
-        {/* 푸터 */}
-        <motion.div
-          className={styles.footer}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          <p>
-            &copy; {new Date().getFullYear()} {siteConfig.personal.nickname}.{" "}
-            {t.footer}
-          </p>
-        </motion.div>
       </motion.div>
     </div>
   );

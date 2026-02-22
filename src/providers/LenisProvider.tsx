@@ -176,8 +176,12 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
   const setInfinite = useCallback((value: boolean | null) => {
     infiniteOverrideRef.current = value === true ? null : value;
     if (lenisRef.current) {
+      const newVal = value ?? (options.infinite ?? true);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (lenisRef.current as any).options.infinite = value ?? (options.infinite ?? true);
+      (lenisRef.current as any).options.infinite = newVal;
+      // Lenis는 옵션 변경 후 stop→start 해야 즉시 반영
+      lenisRef.current.stop();
+      lenisRef.current.start();
     }
   }, [options.infinite]);
 

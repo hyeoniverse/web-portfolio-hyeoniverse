@@ -16,6 +16,7 @@ import PageTransitionOverlay from "@/components/layout/PageTransitionOverlay";
 import Modal from "@/components/ui/Modal";
 import ContactDrawerWrapper from "@/components/layout/ContactDrawer/ContactDrawerWrapper";
 import CursorTrail from "@/components/effects/CursorTrail";
+import Footer from "@/components/layout/Footer";
 
 import { LenisProvider } from "@/providers/LenisProvider";
 import RecaptchaProvider from "@/providers/RecaptchaProvider";
@@ -101,6 +102,7 @@ export default function RootLayout({
               <LenisProvider>
                 <Navigation />
                 <main>{children}</main>
+                <Footer />
 
                 <aside>
                   <FaviconSwitcher />
