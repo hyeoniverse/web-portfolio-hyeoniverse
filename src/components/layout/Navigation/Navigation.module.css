@@ -572,6 +572,26 @@
 }
 
 /* ==========================================================================
+  Admin Mode — mix-blend-mode 해제, 일반 색상 사용
+  ========================================================================== */
+
+.navAdmin {
+  /* mix-blend-mode: difference 유지 */
+}
+
+/* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경 */
+.logoutBtn.logoutBtn {
+  border-color: var(--text-white);
+  color: var(--text-white);
+}
+
+.navActions .logoutBtn.logoutBtn:hover {
+  background-color: var(--text-white);
+  border-color: var(--text-white);
+  color: var(--text-black);
+}
+
+/* ==========================================================================
   Loading State — logo centered on screen, nav items hidden
   ========================================================================== */
 

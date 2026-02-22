@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -11,7 +11,7 @@ import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useSoundStore } from "@/stores/soundStore";
 import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMotionValue, useSpring } from "framer-motion";
 import Logo from "@/components/common/Logo";
 import Button from "@/components/ui/Button";
@@ -79,12 +79,26 @@ const menuItems = [
   { key: "contacts", href: null },
 ];
 
-// Loading logo: full display name with per-letter animation
-const DISPLAY_NAME = siteConfig.loading.displayName;
-const EXTRA_LETTERS = DISPLAY_NAME.slice(1).split("");
+const adminNavItems = [
+  { key: "admin-posts", href: "/admin/posts", label: "Posts" },
+  { key: "admin-settings", href: "/admin/settings", label: "Settings" },
+];
+
+const adminMenuItems = [
+  ...adminNavItems,
+  { key: "logout", href: null as string | null, label: "Logout" },
+];
+
 const SKIP_LOADING_PAGES = ["/privacy"];
 
 export default function Navigation() {
+  const siteConfig = useSiteConfig();
+  const router = useRouter();
+
+  // Loading logo: full display name with per-letter animation
+  const DISPLAY_NAME = siteConfig.loading.displayName;
+  const EXTRA_LETTERS = DISPLAY_NAME.slice(1).split("");
+
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
@@ -93,9 +107,9 @@ export default function Navigation() {
   const { openForm } = useContactStore();
   const { stop: lenisStop, start: lenisStart } = useLenis();
 
-  const isAdminPage = pathname.startsWith("/admin");
+  const isAdminPage = pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
 
-  const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname);
+  const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
   const showLoadingLogo = isLoading && !shouldSkipLoading;
 
   // ── Mobile menu drawer (clip-path, ContactDrawer pattern) ──
@@ -155,8 +169,9 @@ export default function Navigation() {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
   // active key from pathname (detail 페이지도 부모 경로로 매칭)
+  const currentNavItems = isAdminPage ? adminNavItems : navItems;
   const activeNavKey =
-    navItems.find(
+    currentNavItems.find(
       (item) => pathname === item.href || pathname.startsWith(item.href + "/")
     )?.key ?? null;
   const targetKey = hoveredNav ?? activeNavKey;
@@ -295,11 +310,14 @@ export default function Navigation() {
     themeAnimTimer.current = setTimeout(() => setIsThemeAnimating(false), 300);
   };
 
-  // Admin 페이지에서는 전용 AdminHeader 사용
-  if (isAdminPage) return null;
+  const handleLogout = useCallback(async () => {
+    await fetch("/api/admin/auth", { method: "DELETE" });
+    router.push("/admin/login");
+    router.refresh();
+  }, [router]);
 
   return (
-    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""}`}>
+    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${isAdminPage ? styles.navAdmin : ""}`}>
       <motion.div
         ref={logoRef}
         className={styles.logoWrapper}
@@ -373,17 +391,29 @@ export default function Navigation() {
         className={styles.navCenter}
         onMouseLeave={() => setHoveredNav(null)}
       >
-        {navItems.map((item) => (
-          <Link
-            key={item.key}
-            href={item.href}
-            ref={(el) => { navLinkRefs.current[item.key] = el; }}
-            className={`${styles.navLink} glith-on-hover`}
-            onMouseEnter={() => setHoveredNav(item.key)}
-          >
-            {t(`nav.${item.key}`)}
-          </Link>
-        ))}
+        {isAdminPage
+          ? adminNavItems.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                ref={(el) => { navLinkRefs.current[item.key] = el; }}
+                className={`${styles.navLink} glith-on-hover`}
+                onMouseEnter={() => setHoveredNav(item.key)}
+              >
+                {item.label}
+              </Link>
+            ))
+          : navItems.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                ref={(el) => { navLinkRefs.current[item.key] = el; }}
+                className={`${styles.navLink} glith-on-hover`}
+                onMouseEnter={() => setHoveredNav(item.key)}
+              >
+                {t(`nav.${item.key}`)}
+              </Link>
+            ))}
         <span
           className={`${styles.navIndicator} ${indicatorStyle.opacity === 0 ? styles.navIndicatorHidden : ""}`}
           style={indicatorStyle}
@@ -391,18 +421,31 @@ export default function Navigation() {
       </div>
 
       <div className={styles.navActions}>
-        {/* Get in Touch */}
-        <Button
-          variant="outline"
-          size="xs"
-          className={styles.contactBtn}
-          onClick={openForm}
-          soundDisabled
-        >
-          Get in Touch
-        </Button>
+        {isAdminPage ? (
+          /* Admin: Logout 버튼 */
+          <Button
+            variant="outline"
+            size="xs"
+            className={styles.logoutBtn}
+            onClick={handleLogout}
+            soundDisabled
+          >
+            Logout
+          </Button>
+        ) : (
+          /* Get in Touch */
+          <Button
+            variant="outline"
+            size="xs"
+            className={styles.contactBtn}
+            onClick={openForm}
+            soundDisabled
+          >
+            Get in Touch
+          </Button>
+        )}
 
-        {/* 언어 토글 */}
+        {/* 언어 토글 — admin에서도 표시 */}
         <button
           className={styles.actionBtn}
           onClick={() => {
@@ -445,30 +488,32 @@ export default function Navigation() {
           </span>
         </button>
 
-        {/* 사운드 토글 */}
-        <button
-          className={styles.actionBtn}
-          onClick={handleSoundToggle}
-          onMouseEnter={() => setIsSoundHovered(true)}
-          onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
-          aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
-        >
-          <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
-            <svg
-              className={`${styles.soundIcon} ${showMutedIcon ? styles.soundIconMuted : ""}`}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              <path d="M11 5L6 9H2v6h4l5 4V5z" />
-              <path className={styles.waveOuter} d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-              <path className={styles.waveInner} d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-              <line className={styles.xLine} x1="23" y1="9" x2="17" y2="15" />
-              <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          </span>
-        </button>
+        {/* 사운드 토글 — admin에서 숨김 */}
+        {!isAdminPage && (
+          <button
+            className={styles.actionBtn}
+            onClick={handleSoundToggle}
+            onMouseEnter={() => setIsSoundHovered(true)}
+            onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
+            aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
+          >
+            <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
+              <svg
+                className={`${styles.soundIcon} ${showMutedIcon ? styles.soundIconMuted : ""}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                <path className={styles.waveOuter} d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                <path className={styles.waveInner} d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                <line className={styles.xLine} x1="23" y1="9" x2="17" y2="15" />
+                <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
+              </svg>
+            </span>
+          </button>
+        )}
 
         {/* 테마 토글 */}
         <button
@@ -577,7 +622,7 @@ export default function Navigation() {
               </MagneticWrapper>
 
               <nav className={styles.menuNav}>
-                {menuItems.map((item) => {
+                {(isAdminPage ? adminMenuItems : menuItems).map((item) => {
                   if (!item.href) {
                     return (
                       <button
@@ -585,10 +630,14 @@ export default function Navigation() {
                         className={`${styles.menuLink} glith-on-hover`}
                         onClick={() => {
                           setIsMenuOpen(false);
-                          openForm();
+                          if (isAdminPage) {
+                            handleLogout();
+                          } else {
+                            openForm();
+                          }
                         }}
                       >
-                        {t(`nav.${item.key}`)}
+                        {isAdminPage ? (item as typeof adminMenuItems[number]).label : t(`nav.${item.key}`)}
                       </button>
                     );
                   }
@@ -599,7 +648,7 @@ export default function Navigation() {
                       className={`${styles.menuLink} glith-on-hover ${pathname === item.href || pathname.startsWith(item.href + "/") ? styles.menuLinkActive : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      {t(`nav.${item.key}`)}
+                      {isAdminPage ? (item as typeof adminMenuItems[number]).label : t(`nav.${item.key}`)}
                     </Link>
                   );
                 })}
