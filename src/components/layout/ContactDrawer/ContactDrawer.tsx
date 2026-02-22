@@ -182,7 +182,7 @@ export default function ContactDrawer({
       if (fadeTimer) clearTimeout(fadeTimer);
       if (cleanTimer) clearTimeout(cleanTimer);
     };
-  }, [isOpen, lenisStop, lenisStart]);
+  }, [isOpen, lenisStop, lenisStart, isMobileDrawer]);
 
   // 컴포넌트 언마운트 시 blur + 스크롤 완전 정리
   useEffect(() => {

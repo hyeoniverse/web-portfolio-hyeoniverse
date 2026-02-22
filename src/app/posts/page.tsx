@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLenis } from "@/providers/LenisProvider";
@@ -200,9 +201,11 @@ export default function PostsPage() {
                 <Link href={`/posts/${featured.slug}`} className={styles.featured}>
                   {featured.cover_image && !imgErrors.has(featured.id) ? (
                     <div className={styles.featuredImageWrap}>
-                      <img
+                      <Image
                         src={featured.cover_image}
                         alt={featured.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 60vw"
                         className={styles.featuredImage}
                         onError={() => setImgErrors(prev => new Set(prev).add(featured.id))}
                       />
@@ -293,9 +296,11 @@ export default function PostsPage() {
                       {post.cover_image && (
                         <div className={styles.listThumb}>
                           {!imgErrors.has(post.id) ? (
-                            <img
+                            <Image
                               src={post.cover_image}
                               alt={post.title}
+                              fill
+                              sizes="140px"
                               className={styles.listThumbImg}
                               onError={() => setImgErrors(prev => new Set(prev).add(post.id))}
                             />

@@ -115,7 +115,7 @@ export default function FloatingObject() {
       window.clearTimeout(tid);
       window.clearTimeout(smileTid);
     };
-  }, [activeSection, t]);
+  }, [activeSection, t, mobileLayout]);
 
   // rAF loop: sync bubble DOM position to bunny screen coords
   const syncBubble = useCallback(() => {

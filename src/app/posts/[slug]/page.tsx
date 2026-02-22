@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLenis } from "@/providers/LenisProvider";
@@ -204,9 +205,11 @@ export default function PostDetailPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
         >
-          <img
+          <Image
             src={post.cover_image}
             alt={displayTitle}
+            fill
+            sizes="100vw"
             className={styles.heroCover}
             onError={() => setHeroImgError(true)}
           />

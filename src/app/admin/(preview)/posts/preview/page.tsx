@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import Image from "next/image";
 import { useLenis } from "@/providers/LenisProvider";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { slugify } from "@/components/posts/MarkdownRenderer";
@@ -127,9 +128,11 @@ export default function PostPreviewPage() {
       {/* ── Hero ── */}
       {form.cover_image ? (
         <div className={styles.hero}>
-          <img
+          <Image
             src={form.cover_image}
             alt={form.title}
+            fill
+            sizes="100vw"
             className={styles.heroCover}
           />
           <div className={styles.heroOverlay} />
