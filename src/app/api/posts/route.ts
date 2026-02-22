@@ -1,0 +1,94 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import type { PostFormData } from "@/types/post";
+
+// GET /api/posts — 목록 조회
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get("page") ?? "1");
+  const limit = parseInt(searchParams.get("limit") ?? "12");
+  const tag = searchParams.get("tag");
+  const search = searchParams.get("search");
+  const slug = searchParams.get("slug");
+  const showAll = searchParams.get("all") === "true"; // admin용
+
+  const supabase = showAll ? createAdminClient() : await createClient();
+
+  const sort = searchParams.get("sort") ?? "newest";
+
+  let query = supabase
+    .from("posts")
+    .select("*", { count: "exact" });
+
+  if (!showAll) {
+    query = query.eq("published", true);
+  }
+
+  if (tag) {
+    query = query.contains("tags", [tag]);
+  }
+
+  if (slug) {
+    query = query.eq("slug", slug);
+  }
+
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
+  }
+
+  if (sort === "oldest") {
+    query = query.order("created_at", { ascending: true });
+  } else if (sort === "popular") {
+    query = query.order("view_count", { ascending: false });
+  } else {
+    query = query.order("created_at", { ascending: false });
+  }
+
+  const from = (page - 1) * limit;
+  query = query.range(from, from + limit - 1);
+
+  const { data, count, error } = await query;
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    posts: data,
+    total: count ?? 0,
+    page,
+    totalPages: Math.ceil((count ?? 0) / limit),
+  });
+}
+
+// POST /api/posts — 새 포스트 생성 (admin only)
+export async function POST(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body: PostFormData = await request.json();
+
+  // slug 자동 생성
+  if (!body.slug) {
+    body.slug = body.title
+      .toLowerCase()
+      .replace(/[^a-z0-9가-힣]+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.from("posts").insert(body).select().single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data, { status: 201 });
+}

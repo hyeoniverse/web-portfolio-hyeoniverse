@@ -1,0 +1,129 @@
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.nickname {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.adminBadge {
+  padding: 1px var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent-alpha-20);
+  font-family: var(--font-space-grotesk);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
+.date {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.content {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  white-space: pre-wrap;
+}
+
+.commentActions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.actionBtn {
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+
+  padding: 0;
+}
+
+.comment .actionBtn:hover {
+  color: var(--text-primary);
+}
+
+.deleteBtn {
+  composes: actionBtn;
+}
+
+.comment .deleteBtn:hover {
+  color: var(--color-accent);
+}
+
+/* Nested replies */
+.replies {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-left: var(--spacing-xl);
+  padding-left: var(--spacing-md);
+  border-left: 1px solid var(--border-tertiary-color);
+  margin-top: var(--spacing-sm);
+}
+
+.replyForm {
+  margin-top: var(--spacing-sm);
+}
+
+/* Delete modal */
+.deleteModal {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.deleteInput {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  width: 140px;
+}
+
+.deleteConfirm {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid var(--color-accent-alpha-20);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+}
+
+.deleteCancel {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.deleteError {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+}

@@ -1,0 +1,31 @@
+.toggle {
+  display: flex;
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.option {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toggle .option:hover {
+  color: var(--text-primary);
+}
+
+.active {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.toggle .active:hover {
+  color: var(--bg-primary);
+}
