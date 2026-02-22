@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo } from "react";
 import { marked } from "marked";
-import { highlightCodeBlocks } from "./highlightCodeBlocks";
+import { hljs } from "./highlightCodeBlocks";
 
 export function slugify(text: string): string {
   return text
@@ -20,6 +20,13 @@ marked.use({
       const id = slugify(text);
       return `<h${depth} id="${id}">${text}</h${depth}>\n`;
     },
+    code({ text, lang }: { text: string; lang?: string }): string {
+      const language = lang && hljs.getLanguage(lang) ? lang : null;
+      const highlighted = language
+        ? hljs.highlight(text, { language }).value
+        : hljs.highlightAuto(text).value;
+      return `<pre><code class="hljs${language ? ` language-${language}` : ""}">${highlighted}</code></pre>\n`;
+    },
   },
 });
 
@@ -32,19 +39,12 @@ export default function MarkdownRenderer({
   content,
   className,
 }: MarkdownRendererProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
   const html = useMemo(() => {
     return marked.parse(content, { async: false }) as string;
   }, [content]);
 
-  useEffect(() => {
-    if (ref.current) highlightCodeBlocks(ref.current);
-  }, [html]);
-
   return (
     <div
-      ref={ref}
       className={className}
       dangerouslySetInnerHTML={{ __html: html }}
     />
