@@ -46,6 +46,12 @@ export async function GET(request: Request) {
     query = query.eq("is_pinned", false);
   }
 
+  // series 필터
+  const seriesId = searchParams.get("series_id");
+  if (seriesId) {
+    query = query.eq("series_id", seriesId);
+  }
+
   if (search) {
     query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
   }

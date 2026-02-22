@@ -89,6 +89,25 @@
   color: var(--text-muted);
 }
 
+/* Series filter */
+.seriesSelect {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.toolbar .seriesSelect:focus {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
 /* Tag toggle button */
 .tagToggleBtn {
   display: flex;

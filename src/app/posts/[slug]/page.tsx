@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
-import type { Post } from "@/types/post";
+import type { Post, Series } from "@/types/post";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import { highlightCodeBlocks } from "@/components/posts/highlightCodeBlocks";
@@ -73,6 +73,8 @@ export default function PostDetailPage() {
   const [viewLang, setViewLang] = useState<"ko" | "en">(language === "en" ? "en" : "ko");
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
+  const [seriesData, setSeriesData] = useState<(Series & { posts: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en">[] }) | null>(null);
+  const [seriesOpen, setSeriesOpen] = useState(false);
   const richtextRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -92,6 +94,12 @@ export default function PostDetailPage() {
               setLikeCount(d.count ?? 0);
               setLiked(d.liked ?? false);
             });
+
+          if (found.series_id) {
+            fetch(`/api/series/${found.series_id}`)
+              .then((r) => r.json())
+              .then((d) => setSeriesData(d));
+          }
         }
       });
   }, [slug]);
@@ -147,6 +155,12 @@ export default function PostDetailPage() {
     day: "numeric",
   });
   const readTime = Math.max(1, Math.ceil(displayContent.length / 1000));
+
+  // 시리즈 이전/다음 포스트
+  const seriesPosts = seriesData?.posts ?? [];
+  const currentSeriesIdx = seriesPosts.findIndex((p) => p.id === post.id);
+  const prevSeriesPost = currentSeriesIdx > 0 ? seriesPosts[currentSeriesIdx - 1] : null;
+  const nextSeriesPost = currentSeriesIdx < seriesPosts.length - 1 ? seriesPosts[currentSeriesIdx + 1] : null;
 
   const showHero = post.cover_image && !heroImgError;
   const heroErrorFallback = post.cover_image && heroImgError ? (
@@ -225,6 +239,71 @@ export default function PostDetailPage() {
 
         <div className={styles.headerDivider} />
       </motion.div>
+
+      {seriesData && seriesPosts.length > 0 && (
+        <motion.div
+          className={styles.seriesBox}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.25 }}
+        >
+          <button
+            type="button"
+            className={styles.seriesHeader}
+            onClick={() => setSeriesOpen((v) => !v)}
+          >
+            <span className={styles.seriesLabel}>Series</span>
+            <span className={styles.seriesTitle}>
+              {viewLang === "en" && seriesData.title_en
+                ? seriesData.title_en
+                : seriesData.title}
+            </span>
+            <span className={styles.seriesCount}>
+              {currentSeriesIdx + 1} / {seriesPosts.length}
+            </span>
+            <span className={`${styles.seriesChevron} ${seriesOpen ? styles.seriesChevronOpen : ""}`}>
+              &#9662;
+            </span>
+          </button>
+
+          {seriesOpen && (
+            <ol className={styles.seriesList}>
+              {seriesPosts.map((sp, idx) => (
+                <li
+                  key={sp.id}
+                  className={`${styles.seriesItem} ${sp.id === post.id ? styles.seriesItemCurrent : ""}`}
+                >
+                  {sp.id === post.id ? (
+                    <span>{viewLang === "en" && sp.title_en ? sp.title_en : sp.title}</span>
+                  ) : (
+                    <Link href={`/posts/${sp.slug}`}>
+                      {viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
+                    </Link>
+                  )}
+                  <span className={styles.seriesNum}>{idx + 1}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+
+          <div className={styles.seriesNav}>
+            {prevSeriesPost ? (
+              <Link href={`/posts/${prevSeriesPost.slug}`} className={styles.seriesNavLink}>
+                &larr; {viewLang === "en" && prevSeriesPost.title_en ? prevSeriesPost.title_en : prevSeriesPost.title}
+              </Link>
+            ) : (
+              <span />
+            )}
+            {nextSeriesPost ? (
+              <Link href={`/posts/${nextSeriesPost.slug}`} className={`${styles.seriesNavLink} ${styles.seriesNavRight}`}>
+                {viewLang === "en" && nextSeriesPost.title_en ? nextSeriesPost.title_en : nextSeriesPost.title} &rarr;
+              </Link>
+            ) : (
+              <span />
+            )}
+          </div>
+        </motion.div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

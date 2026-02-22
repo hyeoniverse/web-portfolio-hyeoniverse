@@ -7,7 +7,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { useLenis } from "@/providers/LenisProvider";
-import type { Post, PostFormData } from "@/types/post";
+import type { Post, PostFormData, Series } from "@/types/post";
 import { CATEGORIES } from "@/constants/categories";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
@@ -65,6 +65,8 @@ export default function PostEditor({ post }: PostEditorProps) {
     title_en: post?.title_en ?? "",
     content_en: post?.content_en ?? "",
     excerpt_en: post?.excerpt_en ?? "",
+    series_id: post?.series_id ?? null,
+    series_order: post?.series_order ?? 0,
   });
 
   const [tagInput, setTagInput] = useState("");
@@ -74,6 +76,15 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [error, setError] = useState("");
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
+  const [seriesList, setSeriesList] = useState<Series[]>([]);
+  const [newSeriesTitle, setNewSeriesTitle] = useState("");
+
+  // 시리즈 목록 불러오기
+  useEffect(() => {
+    fetch("/api/series?all=true")
+      .then((res) => res.json())
+      .then((data) => setSeriesList(Array.isArray(data) ? data : []));
+  }, []);
 
   // Auto-generate slug from KO title
   useEffect(() => {
@@ -90,6 +101,21 @@ export default function PostEditor({ post }: PostEditorProps) {
     },
     []
   );
+
+  const handleCreateSeries = useCallback(async () => {
+    if (!newSeriesTitle.trim()) return;
+    const res = await fetch("/api/series", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: newSeriesTitle.trim(), published: true }),
+    });
+    if (res.ok) {
+      const created = await res.json();
+      setSeriesList((prev) => [created, ...prev]);
+      updateField("series_id", created.id);
+      setNewSeriesTitle("");
+    }
+  }, [newSeriesTitle, updateField]);
 
   // Content type change with auto-conversion
   const handleContentTypeChange = useCallback(
@@ -376,6 +402,62 @@ export default function PostEditor({ post }: PostEditorProps) {
               <span>Pin this post to top</span>
             </label>
           </div>
+        </div>
+
+        <div className={styles.row}>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>Series</label>
+            <select
+              className={styles.fieldInput}
+              value={form.series_id ?? ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                updateField("series_id", val || null);
+              }}
+            >
+              <option value="">None</option>
+              {seriesList.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.title} ({s.post_count ?? 0})
+                </option>
+              ))}
+            </select>
+            <div className={styles.newSeriesRow}>
+              <input
+                className={styles.fieldInput}
+                type="text"
+                value={newSeriesTitle}
+                onChange={(e) => setNewSeriesTitle(e.target.value)}
+                placeholder="New series name"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCreateSeries();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className={styles.uploadBtn}
+                onClick={handleCreateSeries}
+                disabled={!newSeriesTitle.trim()}
+              >
+                Create
+              </button>
+            </div>
+          </div>
+          {form.series_id && (
+            <div className={styles.field}>
+              <label className={styles.fieldLabel}>Order in Series</label>
+              <input
+                className={styles.fieldInput}
+                type="number"
+                min={0}
+                value={form.series_order}
+                onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
+              />
+            </div>
+          )}
         </div>
 
         <div className={styles.row}>

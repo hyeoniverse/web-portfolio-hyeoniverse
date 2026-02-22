@@ -129,6 +129,22 @@
   max-width: 100%;
   border-radius: var(--radius-lg);
   margin: var(--spacing-xl) 0;
+  display: block;
+}
+
+.prose img[data-align="left"] {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.prose img[data-align="center"] {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.prose img[data-align="right"] {
+  margin-left: auto;
+  margin-right: 0;
 }
 
 .prose blockquote {
@@ -205,6 +221,133 @@
   font-size: var(--font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+/* ── Series navigation ── */
+.seriesBox {
+  margin-bottom: var(--spacing-2xl);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.seriesHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.seriesBox .seriesHeader:hover {
+  background: var(--color-neutral-alpha-10);
+}
+
+.seriesLabel {
+  padding: 2px var(--spacing-xs);
+  background: var(--color-accent);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-white);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.seriesTitle {
+  flex: 1;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seriesCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.seriesChevron {
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.seriesChevronOpen {
+  transform: rotate(180deg);
+}
+
+.seriesList {
+  list-style: none;
+  padding: var(--spacing-xs) var(--spacing-md);
+  margin: 0;
+  border-top: 1px solid var(--border-tertiary-color);
+}
+
+.seriesItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-xs) 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+}
+
+.seriesItem a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.seriesItem a:hover {
+  color: var(--color-accent);
+}
+
+.seriesItemCurrent {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.seriesNum {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.seriesNav {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: 1px solid var(--border-tertiary-color);
+}
+
+.seriesNavLink {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seriesNav .seriesNavLink:hover {
+  color: var(--color-accent);
+}
+
+.seriesNavRight {
+  text-align: right;
 }
 
 /* ── Loading / Not found ── */

@@ -57,8 +57,9 @@ export default function PostCard({
         <div className={styles.badgeRow}>
           {post.is_pinned && (
             <span className={styles.pinnedBadge}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                <path d="M16 2l-4 4-6-2-2 10 6-2 2 10 4-4 6 2 2-10-6 2-2-10z" />
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 17v5" />
+                <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16h14v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1h.5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5H8a1 1 0 0 1 1 1z" />
               </svg>
               Pinned
             </span>

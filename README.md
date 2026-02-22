@@ -30,7 +30,8 @@
 - **About 가로 스크롤**: Webflow 페이지와 통합된 `useHorizontalScroll` 훅으로 About 페이지에서도 GSAP 기반 가로 스크롤 적용 (데스크톱), 모바일에서는 자동 세로 스택
 - **번들 최적화**: react-icons를 inline SVG로 교체, Three.js 데모를 dynamic import로 분리하여 about 페이지 First Load JS 326kB→272kB 절감. 미사용 npm 패키지 정리, 미사용 대용량 이미지(22MB) 삭제
 - **성능 최적화**: Hero/마퀴 애니메이션을 Framer Motion/GSAP에서 CSS animation으로 전환(컴포지터 스레드), useMagneticRepel을 ref 기반 직접 DOM 조작으로 변경(60fps 리렌더 제거), Three.js FrontSide 렌더링 + geometry dispose, AudioContext 지연 초기화
-- **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 게스트 대댓글(threaded) 지원, 닉네임+비밀번호 방식으로 댓글 작성/삭제. 검색, 태그 필터, 커버 이미지, 조회수 추적
+- **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 이미지 삽입 후 정렬(좌/중앙/우) 및 크기(25%/50%/75%/100%) 조절 가능. 게스트 대댓글(threaded) 지원, 닉네임+비밀번호 방식으로 댓글 작성/삭제. 검색, 태그 필터, 커버 이미지, 조회수 추적
+- **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행하는 기능. 포스트 상세 페이지에서 시리즈 네비게이션(이전/다음 글 + 전체 목록 접기/펼치기) 표시. 포스트 목록에서 시리즈별 필터링 지원. Admin에서 시리즈 CRUD 관리
 - **IP 기반 좋아요**: Posts와 Works 상세 페이지에서 좋아요 기능 지원. `likes` 테이블에서 IP 주소 기반으로 중복 방지 및 토글 처리. Posts는 `posts.like_count` 컬럼에 동기화하여 목록 조회 시 추가 쿼리 없이 카운트 표시
 - **Cover Image Picker**: 포스트 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
 - **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Next.js Middleware로 `/admin` 경로 보호
@@ -46,14 +47,15 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 ```
 
 - **Works**: 가로 스크롤 갤러리에서 프로젝트를 탐색하고, 상세 페이지에서 IP 기반 좋아요를 남길 수 있습니다
-- **Posts**: 태그/검색으로 블로그 글을 필터링하고, 상세 페이지에서 좋아요와 게스트 댓글(닉네임+비밀번호)을 남길 수 있습니다
+- **Posts**: 태그/검색/시리즈로 블로그 글을 필터링하고, 상세 페이지에서 좋아요와 게스트 댓글(닉네임+비밀번호)을 남길 수 있습니다. 시리즈 소속 글에서는 이전/다음 글 네비게이션이 표시됩니다
 - **About**: 가로 스크롤로 12개 패널(프로젝트 개요, 아키텍처, 기능, 디자인 컨셉, 개발 프로세스, 기술 스택, 코드 하이라이트, DB 설계, 트러블슈팅)을 순회합니다
 
 ### 관리자 플로우
 
 ```
 /admin 직접 접속 → Supabase Auth 로그인 → 대시보드
-→ 포스트 작성(Markdown/Rich Text 전환) → 커버 이미지 선택(프리셋/Unsplash/AI) → 발행
+→ 포스트 작성(Markdown/Rich Text 전환) → 커버 이미지 선택(프리셋/Unsplash/AI) → 시리즈 선택(선택사항) → 발행
+→ 시리즈 관리(/admin/series) — 생성, 수정, 삭제, 발행/비공개 전환
 ```
 
 - 로그인 버튼 없이 URL 직접 접속 방식
@@ -136,6 +138,24 @@ ALTER TABLE posts ADD COLUMN is_pinned BOOLEAN DEFAULT false;
 -- 좋아요 토글 시 API가 likes 테이블 변경 후 이 컬럼을 동기화합니다.
 ALTER TABLE posts ADD COLUMN like_count INTEGER DEFAULT 0;
 
+-- Posts에 시리즈 연결 컬럼 추가
+ALTER TABLE posts ADD COLUMN series_id UUID REFERENCES series(id) ON DELETE SET NULL;
+ALTER TABLE posts ADD COLUMN series_order INTEGER DEFAULT 0;
+
+-- Series 테이블 (포스트를 묶어 순서대로 발행)
+CREATE TABLE series (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
+  description TEXT DEFAULT '',
+  cover_image TEXT DEFAULT '',
+  published BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  title_en TEXT DEFAULT '',
+  description_en TEXT DEFAULT ''
+);
+
 -- Comments 테이블 (threaded)
 CREATE TABLE comments (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -182,6 +202,9 @@ CREATE INDEX idx_posts_tags ON posts USING GIN(tags);
 CREATE INDEX idx_comments_post_id ON comments(post_id);
 CREATE INDEX idx_comments_parent_id ON comments(parent_id);
 CREATE INDEX idx_likes_target ON likes(target_type, target_id);
+CREATE INDEX idx_posts_series_id ON posts(series_id);
+CREATE INDEX idx_series_slug ON series(slug);
+CREATE INDEX idx_series_published ON series(published);
 ```
 
 ### 3. RLS (Row Level Security) 정책 설정
@@ -217,6 +240,20 @@ CREATE POLICY "Anyone can create comments"
 -- 댓글 삭제는 API에서 비밀번호 검증 또는 admin 세션으로 처리
 -- (service_role 키를 사용하는 API route에서 처리하므로 RLS에서는 별도 정책 불필요)
 
+-- Series RLS 활성화
+ALTER TABLE series ENABLE ROW LEVEL SECURITY;
+
+-- 공개된 시리즈는 누구나 읽기 가능
+CREATE POLICY "Published series are viewable by everyone"
+  ON series FOR SELECT
+  USING (published = true);
+
+-- 인증된 사용자는 모든 시리즈 접근 가능
+CREATE POLICY "Authenticated users have full access to series"
+  ON series FOR ALL
+  USING (auth.role() = 'authenticated')
+  WITH CHECK (auth.role() = 'authenticated');
+
 -- Likes RLS 활성화
 ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
 
@@ -243,6 +280,13 @@ CREATE POLICY "Anyone can unlike"
 > - `GET /api/posts/[id]/like` · `GET /api/works/[id]/like` — 좋아요 수 + 현재 IP의 좋아요 여부 반환
 > - `POST /api/posts/[id]/like` · `POST /api/works/[id]/like` — 토글 (좋아요 ↔ 취소). IP가 이미 좋아요를 눌렀으면 삭제, 아니면 추가
 > - Posts의 경우 토글 후 `posts.like_count` 컬럼도 동기화하여 포스트 목록에서 별도 JOIN 없이 바로 조회 가능
+>
+> **Series API 동작 방식**:
+> - `GET /api/series` — 시리즈 목록 (포스트 수 포함). `?all=true` 시 비공개 시리즈 포함 (admin용)
+> - `POST /api/series` — 시리즈 생성 (admin, 자동 slug 생성)
+> - `GET /api/series/[id]` — 단일 시리즈 + 소속 포스트 목록 (series_order 순)
+> - `PATCH /api/series/[id]` — 시리즈 수정 (admin)
+> - `DELETE /api/series/[id]` — 시리즈 삭제. 소속 포스트의 series_id를 NULL로 설정 후 삭제 (admin)
 
 ### 4. Storage 버킷 생성
 
@@ -290,6 +334,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기)
 - `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환 가능)
 - `/admin/posts/[id]/edit` — 기존 포스트 수정
+- `/admin/series` — 시리즈 관리 (CRUD, 발행/비공개 전환, 소속 포스트 수 표시)
 - `/admin/settings` — 사이트 설정
 
 ### 7. Cover Image Picker 사용법

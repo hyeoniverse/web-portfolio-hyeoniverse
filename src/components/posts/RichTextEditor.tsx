@@ -40,6 +40,30 @@ const FontSize = Extension.create({
   },
 });
 
+// ── Custom image extension with width & alignment ──
+const CustomImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        parseHTML: (el) => el.getAttribute("data-width") || null,
+        renderHTML: (attrs) => {
+          if (!attrs.width) return {};
+          return { "data-width": attrs.width, style: `width: ${attrs.width}` };
+        },
+      },
+      dataAlign: {
+        default: "center",
+        parseHTML: (el) => el.getAttribute("data-align") || "center",
+        renderHTML: (attrs) => {
+          return { "data-align": attrs.dataAlign || "center" };
+        },
+      },
+    };
+  },
+});
+
 const FONT_FAMILIES = [
   { label: "Default", value: "" },
   { label: "Sans (Inter)", value: "Inter, sans-serif" },
@@ -147,7 +171,7 @@ export default function RichTextEditor({
       StarterKit.configure({
         codeBlock: false,
       }),
-      Image,
+      CustomImage,
       Link.configure({
         openOnClick: false,
       }),
@@ -172,6 +196,9 @@ export default function RichTextEditor({
     content: value,
     onUpdate: ({ editor: e }) => {
       onChange(e.getHTML());
+    },
+    onSelectionUpdate: () => {
+      setTick((t) => t + 1);
     },
   });
 
@@ -215,6 +242,7 @@ export default function RichTextEditor({
   }, [editor]);
 
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [, setTick] = useState(0);
 
   if (!editor) return null;
 
@@ -477,12 +505,60 @@ export default function RichTextEditor({
         </button>
         <button
           type="button"
-          className={`${styles.toolbarBtn} ${styles.embedBtn}`}
+          className={styles.toolbarBtn}
           onClick={() => insertEmbed(editor)}
           title="YouTube, Twitter, Instagram, Spotify..."
         >
           Embed
         </button>
+
+        {/* ── Image controls (visible when image selected) ── */}
+        {isBlockActive("image") && (
+          <>
+            <div className={styles.divider} />
+            {(["left", "center", "right"] as const).map((align) => (
+              <button
+                key={align}
+                type="button"
+                className={`${styles.imageBubbleBtn} ${
+                  editor.getAttributes("image").dataAlign === align
+                    ? styles.imageBubbleBtnActive
+                    : ""
+                }`}
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .updateAttributes("image", { dataAlign: align })
+                    .run()
+                }
+              >
+                {align === "left" ? "◧" : align === "center" ? "◻" : "◨"}
+              </button>
+            ))}
+            <div className={styles.divider} />
+            {["25%", "50%", "75%", "100%"].map((w) => (
+              <button
+                key={w}
+                type="button"
+                className={`${styles.imageBubbleBtn} ${
+                  editor.getAttributes("image").width === w
+                    ? styles.imageBubbleBtnActive
+                    : ""
+                }`}
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .updateAttributes("image", { width: w })
+                    .run()
+                }
+              >
+                {w}
+              </button>
+            ))}
+          </>
+        )}
       </div>
 
       <div className={styles.editor} data-lenis-prevent>

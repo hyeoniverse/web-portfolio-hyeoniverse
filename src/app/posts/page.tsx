@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
-import type { Post } from "@/types/post";
+import type { Post, Series } from "@/types/post";
 import PostCard from "./_components/PostCard";
 import CategoryNav from "./_components/CategoryNav";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
@@ -23,6 +23,8 @@ export default function PostsPage() {
   const [allTags, setAllTags] = useState<string[]>([]);
   const [extraCategories, setExtraCategories] = useState<string[]>([]);
   const [sort, setSort] = useState<"newest" | "oldest" | "popular">("newest");
+  const [activeSeries, setActiveSeries] = useState<string | null>(null);
+  const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
@@ -50,6 +52,7 @@ export default function PostsPage() {
     if (search) params.set("search", search);
     if (activeCategory) params.set("category", activeCategory);
     if (activeTag) params.set("tag", activeTag);
+    if (activeSeries) params.set("series_id", activeSeries);
     params.set("pinned", "false");
     params.set("sort", sort);
     params.set("page", String(page));
@@ -60,7 +63,7 @@ export default function PostsPage() {
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [search, activeCategory, activeTag, sort, page]);
+  }, [search, activeCategory, activeTag, activeSeries, sort, page]);
 
   // Fetch all tags + extra categories + pinned posts
   useEffect(() => {
@@ -84,6 +87,10 @@ export default function PostsPage() {
     fetch("/api/posts?pinned=true&limit=10")
       .then((res) => res.json())
       .then((data) => setPinnedPosts(data.posts ?? []));
+
+    fetch("/api/series")
+      .then((res) => res.json())
+      .then((data) => setSeriesList(Array.isArray(data) ? data : []));
   }, []);
 
   useEffect(() => {
@@ -93,7 +100,7 @@ export default function PostsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, activeCategory, activeTag, sort]);
+  }, [search, activeCategory, activeTag, activeSeries, sort]);
 
   const handleImgError = useCallback((id: string) => {
     setImgErrors((prev) => new Set(prev).add(id));
@@ -168,6 +175,21 @@ export default function PostsPage() {
           </div>
 
           <div className={styles.toolbarRight}>
+            {seriesList.length > 0 && (
+              <select
+                className={styles.seriesSelect}
+                value={activeSeries ?? ""}
+                onChange={(e) => setActiveSeries(e.target.value || null)}
+              >
+                <option value="">All Series</option>
+                {seriesList.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.title} ({s.post_count ?? 0})
+                  </option>
+                ))}
+              </select>
+            )}
+
             {allTags.length > 0 && (
               <button
                 className={`${styles.tagToggleBtn} ${showTags ? styles.tagToggleBtnOpen : ""}`}
@@ -243,8 +265,9 @@ export default function PostsPage() {
           transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <div className={styles.pinnedLabel}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-              <path d="M16 2l-4 4-6-2-2 10 6-2 2 10 4-4 6 2 2-10-6 2-2-10z" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 17v5" />
+              <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16h14v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1h.5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5H8a1 1 0 0 1 1 1z" />
             </svg>
             Pinned
           </div>
