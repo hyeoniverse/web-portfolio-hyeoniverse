@@ -37,6 +37,10 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  clip-path: inset(0 0 0 0);
+  transition:
+    clip-path var(--duration-moderate) var(--ease-material),
+    visibility var(--duration-moderate);
 }
 
 .navLink {
@@ -98,6 +102,7 @@
 
 /* Right side actions */
 .navActions {
+  position: relative;
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
@@ -287,7 +292,15 @@
   ========================================================================== */
 
 .menuBtnWrapper {
-  display: none;
+  display: flex;
+  transform: scale(0);
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  transition:
+    transform var(--duration-moderate) var(--ease-material),
+    visibility var(--duration-moderate);
 }
 
 .menuDots {
@@ -618,13 +631,25 @@
   Responsive
   ========================================================================== */
 
+/* 좁은 데스크탑: navCenter gap 축소 → 겹침 방지 */
+@media (max-width: 1200px) {
+  .navCenter {
+    gap: var(--spacing-2xl);
+  }
+}
+
 @media (max-width: 1024px) {
   .navCenter {
-    display: none;
+    clip-path: inset(0 50% 0 50%);
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .menuBtnWrapper {
-    display: flex;
+    transform: scale(1);
+    visibility: visible;
+    pointer-events: auto;
+    position: static;
   }
 }
 
