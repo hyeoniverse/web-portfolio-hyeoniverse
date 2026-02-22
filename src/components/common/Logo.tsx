@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { siteConfig } from "@/config/site.config";
+import Image from "next/image";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./Logo.module.css";
 
 interface LogoProps {
@@ -11,19 +12,38 @@ interface LogoProps {
 }
 
 const SHORT = "H";
-const FULL = siteConfig.loading.displayName;
 
 export default function Logo({ variant = "short", as = "link", className }: LogoProps) {
-  const text = variant === "full" ? FULL : SHORT;
+  const siteConfig = useSiteConfig();
+  const FULL = siteConfig.loading.displayName;
+
+  const logoUrl =
+    variant === "short"
+      ? siteConfig.brand.logoShortUrl
+      : siteConfig.brand.logoFullUrl;
+
   const combined = className ? `${styles.logo} ${className}` : styles.logo;
 
+  const content = logoUrl ? (
+    <Image
+      src={logoUrl}
+      alt={variant === "short" ? SHORT : FULL}
+      width={variant === "short" ? 32 : 120}
+      height={32}
+      className={styles.logoImage}
+      unoptimized
+    />
+  ) : (
+    variant === "full" ? FULL : SHORT
+  );
+
   if (as === "span") {
-    return <span className={combined}>{text}</span>;
+    return <span className={combined}>{content}</span>;
   }
 
   return (
     <Link href="/" className={combined}>
-      {text}
+      {content}
     </Link>
   );
 }

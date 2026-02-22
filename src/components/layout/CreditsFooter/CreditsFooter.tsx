@@ -1,7 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/providers/LanguageProvider";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./CreditsFooter.module.css";
 
 interface CreditsFooterProps {
@@ -14,6 +14,7 @@ export default function CreditsFooter({
   variant = "section",
   className,
 }: CreditsFooterProps) {
+  const siteConfig = useSiteConfig();
   const { t } = useLanguage();
   const parts = t("aboutPage.credits").split("❤");
 

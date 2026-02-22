@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { cn } from "@/utils/cn";
 import styles from "./Footer.module.css";
 
@@ -17,6 +17,7 @@ interface FooterProps {
 export default function Footer({ className }: FooterProps) {
   const pathname = usePathname();
   const { t } = useLanguage();
+  const siteConfig = useSiteConfig();
 
   const isHidden = HIDDEN_PREFIXES.some(
     (r) => pathname === r || pathname.startsWith(r + "/")

@@ -29,6 +29,8 @@ export const siteConfig = {
     name: "HYEONIVERSE", // 전체 브랜드명 (네비게이션, 경력 섹션에서 사용)
     splitName: ["HYEONI", "VERSE"], // 히어로 화면 표시용 분리된 브랜드명
     tagline: "Creative Digital Agency",
+    logoShortUrl: "", // 빈 문자열 = 텍스트 로고("H") 사용
+    logoFullUrl: "", // 빈 문자열 = 텍스트 로고(displayName) 사용
   },
 
   // ---------------------------------------------------------------------------
@@ -124,11 +126,22 @@ export const siteConfig = {
   },
 
   // ---------------------------------------------------------------------------
+  // 테마 색상 커스터마이징
+  // ---------------------------------------------------------------------------
+  theme: {
+    accentColor: "#d40063", // 브랜드 액센트 색상
+    lightBg: "#f5f5f0", // 라이트 모드 배경
+    lightText: "#1a1a1a", // 라이트 모드 텍스트
+    darkBg: "#0a0a0a", // 다크 모드 배경
+    darkText: "#f5f5f0", // 다크 모드 텍스트
+  },
+
+  // ---------------------------------------------------------------------------
   // Works 페이지
   // ---------------------------------------------------------------------------
   works: {
     // 무한 스크롤 활성화 여부 (false: 끝에서 멈춤)
-    infiniteScroll: true,
+    infiniteScroll: false,
   },
 
   // ---------------------------------------------------------------------------
@@ -146,9 +159,26 @@ export const siteConfig = {
     // 디자인 컨셉 패널 전환 모드: "strip" (수평 마키) | "stack" (레이어 슬라이드 아웃)
     designConceptTransition: "strip" as "strip" | "stack",
     // 무한 스크롤 활성화 여부 (false: 끝에서 멈춤)
-    infiniteScroll: true,
+    infiniteScroll: false,
   },
 } as const;
 
 // 컴포넌트에서 사용하기 위한 타입 내보내기
 export type SiteConfig = typeof siteConfig;
+
+// Mutable version for runtime (DB overrides) — widens literal types
+type Widen<T> = T extends string
+  ? string
+  : T extends number
+    ? number
+    : T extends boolean
+      ? boolean
+      : T;
+type DeepWritable<T> = {
+  -readonly [K in keyof T]: T[K] extends readonly (infer U)[]
+    ? Widen<U>[]
+    : T[K] extends object
+      ? DeepWritable<T[K]>
+      : Widen<T[K]>;
+};
+export type SiteConfigData = DeepWritable<SiteConfig>;

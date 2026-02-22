@@ -15,7 +15,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "@/providers/LenisProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   projects,
@@ -50,12 +50,14 @@ interface PressedCard {
 const SCROLL_LERP = 0.08;
 const VELOCITY_DECAY = 0.96;
 const MOUSE_EFFECT_RADIUS = 500;
-const infiniteScroll = siteConfig.works.infiniteScroll;
 const MAX_CARD_OFFSET = 12;
 const MOUSE_SENSITIVITY = 0.012;
 const IMAGE_PARALLAX_MULTIPLIER = 1.3;
 
 export default function WorksSection() {
+  const siteConfig = useSiteConfig();
+  const infiniteScroll = siteConfig.works.infiniteScroll;
+
   // 레퍼런스
   const galleryRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -321,7 +323,7 @@ export default function WorksSection() {
       ctx.revert();
       ScrollTrigger.refresh();
     };
-  }, [isVerticalLayout]);
+  }, [isVerticalLayout, infiniteScroll]);
 
   // 네비게이션 핸들러
   const triggerTransition = useCallback(
