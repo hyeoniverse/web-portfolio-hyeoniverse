@@ -14,6 +14,7 @@
 - **Typography**: Instrument Serif, Space Grotesk
 - **Backend**: Supabase (PostgreSQL, Auth, Storage)
 - **Editor**: Tiptap (WYSIWYG), Marked (Markdown)
+- **AI Image**: NanoBanana / Hugging Face (설정으로 선택)
 
 ## 주요 기능
 
@@ -30,6 +31,7 @@
 - **번들 최적화**: react-icons를 inline SVG로 교체, Three.js 데모를 dynamic import로 분리하여 about 페이지 First Load JS 326kB→272kB 절감. 미사용 npm 패키지 정리, 미사용 대용량 이미지(22MB) 삭제
 - **성능 최적화**: Hero/마퀴 애니메이션을 Framer Motion/GSAP에서 CSS animation으로 전환(컴포지터 스레드), useMagneticRepel을 ref 기반 직접 DOM 조작으로 변경(60fps 리렌더 제거), Three.js FrontSide 렌더링 + geometry dispose, AudioContext 지연 초기화
 - **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 게스트 대댓글(threaded) 지원, 닉네임+비밀번호 방식으로 댓글 작성/삭제. 검색, 태그 필터, 커버 이미지, 조회수 추적
+- **Cover Image Picker**: 포스트 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
 - **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Next.js Middleware로 `/admin` 경로 보호
 
 ## 시작하기
@@ -58,6 +60,14 @@ Posts 기능을 사용하려면 Supabase 프로젝트 세팅이 필요합니다.
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
+
+# Cover Image Picker — Unsplash (선택사항)
+UNSPLASH_ACCESS_KEY=your_unsplash_access_key
+
+# Cover Image Picker — AI Generate (provider에 맞는 키 하나만 설정)
+# site.config.ts의 aiCover.provider 값에 따라 해당 키 사용
+HUGGINGFACE_API_KEY=hf_...          # provider: "huggingface"
+NANOBANANA_API_KEY=your_key         # provider: "nanobanana"
 ```
 
 **값 확인 방법:**
@@ -192,9 +202,92 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 **로그인 후 사용 가능한 기능:**
 
-- `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인)
+- `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기)
 - `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환 가능)
 - `/admin/posts/[id]/edit` — 기존 포스트 수정
+- `/admin/settings` — 사이트 설정
+
+### 7. Cover Image Picker 사용법
+
+포스트 작성/수정 화면의 Cover Image 영역에서 **Upload**(직접 업로드)과 **Choose cover**(피커) 중 선택할 수 있습니다.
+
+**Choose cover** 클릭 시 3개 탭이 표시됩니다:
+
+| 탭 | 설명 | 필요한 환경변수 |
+|----|------|----------------|
+| **Presets** | 16종 그라데이션/패턴 중 클릭하면 Canvas API로 1200×630 이미지를 생성하여 Supabase에 업로드 | 없음 |
+| **Unsplash** | 키워드로 Unsplash 사진 검색 → 클릭 시 다운로드 트래킹 + Supabase 업로드 | `UNSPLASH_ACCESS_KEY` |
+| **AI Generate** | 프롬프트 + 스타일 선택 → AI로 이미지 생성 → Supabase 업로드 | provider별 API key (아래 참고) |
+
+> **참고**: Unsplash와 AI Generate 탭은 각각 API key가 필요합니다. Presets 탭은 환경변수 없이 사용 가능합니다.
+
+---
+
+#### AI Generate — Provider 설정
+
+`src/config/site.config.ts`의 `aiCover.provider`에서 사용할 서비스를 선택합니다:
+
+```ts
+aiCover: {
+  provider: "huggingface",  // "nanobanana" | "huggingface"
+},
+```
+
+| Provider | 모델 | 환경변수 | 가격 | 발급 방법 |
+|----------|------|----------|------|-----------|
+| **huggingface** | FLUX.1-schnell | `HUGGINGFACE_API_KEY` | 무료 (rate limit 있음) | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) → New token → `Inference Providers` 권한 체크 |
+| **nanobanana** | Gemini 2.5 Flash | `NANOBANANA_API_KEY` | ~$0.02/장 (가입 시 무료 크레딧) | [nanobananaapi.ai/api-key](https://nanobananaapi.ai/api-key) → 회원가입 → API Key 복사 |
+
+**설정 예시 (.env.local):**
+
+```env
+# Hugging Face 사용 시 (권장 — 무료)
+HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# 또는 NanoBanana 사용 시
+# NANOBANANA_API_KEY=nb_xxxxxxxxxxxxxxxx
+
+```
+
+> provider를 변경한 후 `.env.local`에 해당 키만 설정하면 됩니다. 사용하지 않는 provider의 키는 비워두어도 무방합니다.
+
+---
+
+#### Hugging Face API Key 발급 (권장)
+
+1. [huggingface.co](https://huggingface.co/join) 회원가입
+2. [Settings → Access Tokens](https://huggingface.co/settings/tokens) 이동
+3. **Create new token** 클릭
+4. Token type: **Fine-grained** 선택
+5. Token name: 아무 이름 (예: `portfolio-cover`)
+6. Permissions 설정:
+   - **Inference Providers** → **Make calls to Inference Providers** 체크 (필수)
+   - 나머지 권한은 모두 체크 해제해도 됨
+7. **Create token** → `hf_...` 형식의 토큰 복사
+8. `.env.local`에 `HUGGINGFACE_API_KEY=hf_...` 입력
+
+> 무료 계정 기준 시간당 수백 건 호출 가능. 커버 이미지 생성 용도로는 충분합니다.
+
+#### NanoBanana API Key 발급
+
+1. [nanobananaapi.ai](https://nanobananaapi.ai) 회원가입
+2. [API Key 관리 페이지](https://nanobananaapi.ai/api-key) 이동
+3. API Key 복사 (별도 권한 설정 없음 — 키 하나로 전체 API 접근)
+4. `.env.local`에 `NANOBANANA_API_KEY=...` 입력
+
+> 가입 시 무료 크레딧 제공. 이후 ~$0.02/장. 비동기 방식(생성 요청 → 폴링)이라 응답까지 수~십 초 걸릴 수 있습니다.
+
+---
+
+#### Unsplash API Key 발급
+
+1. [Unsplash Developers](https://unsplash.com/developers) 가입
+2. **Your apps** → **New Application** 클릭
+3. 가이드라인 동의 체크 후 앱 이름/설명 입력 → **Create application**
+4. 생성된 앱 페이지에서 **Access Key** 복사 (Secret Key 아님)
+5. `.env.local`에 `UNSPLASH_ACCESS_KEY=...` 입력
+
+> Demo 앱 기준 시간당 50건 제한. Production 승인 시 5,000건/시간.
 
 **인증 플로우:**
 

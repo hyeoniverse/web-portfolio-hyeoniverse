@@ -130,16 +130,26 @@ export default function AdminPostsPage() {
                 className={styles.row}
                 onMouseEnter={(e) => handleRowHover(post, e)}
                 onMouseLeave={() => setHoveredPost(null)}
+                onClick={() => {
+                  if (post.published && post.slug) {
+                    window.open(`/posts/${post.slug}`, "_blank");
+                  }
+                }}
+                style={{ cursor: post.published ? "pointer" : undefined }}
               >
                 <span className={styles.colTitle}>
-                  <Link href={`/admin/posts/${post.id}/edit`} className={styles.postLink}>
+                  <Link
+                    href={`/admin/posts/${post.id}/edit`}
+                    className={styles.postLink}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {post.title || "Untitled"}
                   </Link>
                 </span>
                 <span className={styles.colStatus}>
                   <button
                     className={`${styles.statusBadge} ${post.published ? styles.published : styles.draft}`}
-                    onClick={() => handleTogglePublish(post)}
+                    onClick={(e) => { e.stopPropagation(); handleTogglePublish(post); }}
                   >
                     {post.published ? "Published" : "Draft"}
                   </button>
@@ -148,7 +158,7 @@ export default function AdminPostsPage() {
                   {new Date(post.created_at).toLocaleDateString()}
                 </span>
                 <span className={styles.colViews}>{post.view_count}</span>
-                <span className={styles.colActions}>
+                <span className={styles.colActions} onClick={(e) => e.stopPropagation()}>
                   <Link
                     href={`/admin/posts/${post.id}/edit`}
                     className={styles.actionBtn}
