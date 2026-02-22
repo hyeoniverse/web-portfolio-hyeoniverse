@@ -201,6 +201,37 @@
   color: var(--text-muted);
 }
 
+/* Category */
+.categoryWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.categoryWrap select {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Pin toggle */
+.pinToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--spacing-xs) 0;
+}
+
+.pinToggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
 /* Tags */
 .tags {
   display: flex;

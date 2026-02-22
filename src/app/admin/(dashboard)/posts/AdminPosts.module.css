@@ -94,8 +94,8 @@
   text-decoration: none;
 }
 
-.table .postLink:hover {
-  color: var(--text-accent);
+.row:hover .postLink {
+  color: var(--color-accent);
 }
 
 .colStatus {

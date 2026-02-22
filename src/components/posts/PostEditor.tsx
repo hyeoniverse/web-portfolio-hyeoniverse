@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Post, PostFormData } from "@/types/post";
+import { CATEGORIES } from "@/constants/categories";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
@@ -57,6 +58,8 @@ export default function PostEditor({ post }: PostEditorProps) {
     excerpt: post?.excerpt ?? "",
     cover_image: post?.cover_image ?? "",
     tags: post?.tags ?? [],
+    category: post?.category ?? "General",
+    is_pinned: post?.is_pinned ?? false,
     published: post?.published ?? false,
     language: post?.language ?? "ko",
     title_en: post?.title_en ?? "",
@@ -198,18 +201,15 @@ export default function PostEditor({ post }: PostEditorProps) {
           return;
         }
 
-        setStatus(publish ? "Published!" : "Saved as draft");
-
         const savedSlug = data.slug || form.slug;
 
-        if (!isEdit) {
-          router.push(`/admin/posts/${data.id}/edit`);
-        }
-
-        // 발행 시 해당 포스트 detail 페이지를 새 창으로 열기
-        if (publish && savedSlug) {
+        // 발행(새 포스트) → 새 창으로 포스트 열기 + 목록 이동
+        if (!isEdit && publish && savedSlug) {
           window.open(`/posts/${savedSlug}`, "_blank");
         }
+
+        // 저장/발행 후 항상 목록으로 이동
+        router.push("/admin/posts");
       } catch {
         setError("Network error");
       } finally {
@@ -335,6 +335,47 @@ export default function PostEditor({ post }: PostEditorProps) {
             }
             rows={2}
           />
+        </div>
+
+        <div className={styles.row}>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>Category</label>
+            <div className={styles.categoryWrap}>
+              <select
+                className={styles.fieldInput}
+                value={CATEGORIES.includes(form.category as never) ? form.category : "__custom__"}
+                onChange={(e) => {
+                  if (e.target.value === "__custom__") return;
+                  updateField("category", e.target.value);
+                }}
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+                <option value="__custom__">Custom...</option>
+              </select>
+              {!CATEGORIES.includes(form.category as never) && (
+                <input
+                  className={styles.fieldInput}
+                  type="text"
+                  value={form.category}
+                  onChange={(e) => updateField("category", e.target.value)}
+                  placeholder="Custom category"
+                />
+              )}
+            </div>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>Pin</label>
+            <label className={styles.pinToggle}>
+              <input
+                type="checkbox"
+                checked={form.is_pinned}
+                onChange={(e) => updateField("is_pinned", e.target.checked)}
+              />
+              <span>Pin this post to top</span>
+            </label>
+          </div>
         </div>
 
         <div className={styles.row}>

@@ -7,6 +7,8 @@ export interface Post {
   excerpt: string;
   cover_image: string;
   tags: string[];
+  category: string;
+  is_pinned: boolean;
   published: boolean;
   language: "ko" | "en";
   view_count: number;
@@ -26,6 +28,8 @@ export interface PostFormData {
   excerpt: string;
   cover_image: string;
   tags: string[];
+  category: string;
+  is_pinned: boolean;
   published: boolean;
   language: "ko" | "en";
   title_en: string;

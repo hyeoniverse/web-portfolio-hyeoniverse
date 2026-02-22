@@ -113,6 +113,8 @@ const { data } = await admin.from("comments")
       { name: "content_type", type: "TEXT", constraint: "CHECK", description: { ko: "'markdown' | 'richtext'", en: "'markdown' | 'richtext'" } },
       { name: "cover_image", type: "TEXT", description: { ko: "커버 이미지 URL", en: "Cover image URL" } },
       { name: "tags", type: "TEXT[]", description: { ko: "태그 배열", en: "Tag array" } },
+      { name: "category", type: "TEXT", description: { ko: "카테고리 (프리셋 + 커스텀)", en: "Category (preset + custom)" } },
+      { name: "is_pinned", type: "BOOLEAN", description: { ko: "상단 고정 여부", en: "Pinned to top flag" } },
       { name: "published", type: "BOOLEAN", description: { ko: "공개 여부", en: "Published flag" } },
       { name: "view_count", type: "INTEGER", description: { ko: "조회수", en: "View count" } },
       { name: "like_count", type: "INTEGER", description: { ko: "좋아요 수 (likes 동기화)", en: "Like count (synced)" } },

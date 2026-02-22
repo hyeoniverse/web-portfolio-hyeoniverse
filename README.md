@@ -127,6 +127,10 @@ CREATE TABLE posts (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Posts에 카테고리 + 상단 고정 컬럼 추가
+ALTER TABLE posts ADD COLUMN category TEXT DEFAULT 'General';
+ALTER TABLE posts ADD COLUMN is_pinned BOOLEAN DEFAULT false;
+
 -- Posts에 좋아요 수 캐시 컬럼 추가
 -- likes 테이블의 COUNT(*)를 매번 조회하지 않고, 포스트 목록에서 바로 like_count를 읽을 수 있게 합니다.
 -- 좋아요 토글 시 API가 likes 테이블 변경 후 이 컬럼을 동기화합니다.
