@@ -76,7 +76,7 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       smoothWheel: options.smoothWheel ?? true,
       wheelMultiplier: options.wheelMultiplier ?? 1,
       touchMultiplier: options.touchMultiplier ?? 2,
-      infinite: options.infinite ?? true,
+      infinite: infiniteOverrideRef.current ?? (options.infinite ?? false),
     });
 
     lenisRef.current = lenisInstance;
@@ -123,12 +123,10 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       (window as typeof window & { lenis?: Lenis }).lenis = lenisInstance;
     }
 
-    // 리사이즈 시 infinite 토글 (페이지 오버라이드가 없을 때만)
+    // 리사이즈 시 infinite 토글
     const handleResize = () => {
-      if (infiniteOverrideRef.current === null) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (lenisInstance as any).options.infinite = options.infinite ?? true;
-      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (lenisInstance as any).options.infinite = infiniteOverrideRef.current ?? (options.infinite ?? false);
     };
     window.addEventListener("resize", handleResize);
 
@@ -173,17 +171,16 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     lenisRef.current?.start();
   }, []);
 
-  const setInfinite = useCallback((value: boolean | null) => {
-    infiniteOverrideRef.current = value === true ? null : value;
+  const setInfinite = useCallback((value: boolean) => {
+    infiniteOverrideRef.current = value;
     if (lenisRef.current) {
-      const newVal = value ?? (options.infinite ?? true);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (lenisRef.current as any).options.infinite = newVal;
+      (lenisRef.current as any).options.infinite = value;
       // Lenis는 옵션 변경 후 stop→start 해야 즉시 반영
       lenisRef.current.stop();
       lenisRef.current.start();
     }
-  }, [options.infinite]);
+  }, []);
 
   return (
     <LenisContext.Provider value={{ lenis, scrollTo, stop, start, setInfinite }}>

@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // 훅
 import { useHasMounted } from "@/hooks/useHasMounted";
+import { useLenis } from "@/providers/LenisProvider";
 import { useMagnetic } from "@/hooks/useMagnetic";
 import { useWorkInteraction } from "@/hooks/useWorkInteraction";
 import { useMagneticRepel } from "@/hooks/useMagneticRepel";
@@ -43,6 +44,13 @@ if (typeof window !== "undefined") {
 export default function HomePage() {
   const hasMounted = useHasMounted();
   const { isLoading } = useLoadingScreen();
+  const { setInfinite } = useLenis();
+
+  // 홈은 항상 무한 스크롤 활성화
+  useEffect(() => {
+    setInfinite(true);
+    return () => setInfinite(false);
+  }, [setInfinite]);
 
   // 레퍼런스
   const containerRef = useRef<HTMLDivElement>(null);
