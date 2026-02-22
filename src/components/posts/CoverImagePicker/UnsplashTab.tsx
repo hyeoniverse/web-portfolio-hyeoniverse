@@ -151,16 +151,27 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
     [onSelect]
   );
 
+  const handleClear = useCallback(() => {
+    setQuery("");
+    setPhotos([]);
+    setTotalPages(0);
+    setError("");
+  }, []);
+
   return (
     <div>
-      <div className={styles.searchRow}>
+      <div className={styles.inputWrapper}>
         <input
-          className={styles.searchInput}
           type="text"
           value={query}
           onChange={(e) => handleInputChange(e.target.value)}
           placeholder="Search photos..."
         />
+        {query && (
+          <button type="button" className={styles.clearBtn} onClick={handleClear}>
+            &times;
+          </button>
+        )}
       </div>
 
       {photos.length === 0 && !loading && (
