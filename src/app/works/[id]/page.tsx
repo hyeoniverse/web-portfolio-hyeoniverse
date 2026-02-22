@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { projects } from "@/data/projects";
+import Button from "@/components/ui/Button";
 import styles from "./WorkDetail.module.css";
 
 export default function WorkDetailPage() {
@@ -171,29 +172,20 @@ export default function WorkDetailPage() {
           transition={{ delay: 0.7, duration: 0.6 }}
         >
           {project.liveUrl && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.viewAllButton}
-            >
+            <Button variant="outline" size="lg" href={project.liveUrl} external>
               {t("workDetail.visitSite")}
-            </a>
+            </Button>
           )}
           {project.githubUrl && (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.viewAllButton}
-            >
+            <Button variant="outline" size="lg" href={project.githubUrl} external>
               GitHub
-            </a>
+            </Button>
           )}
-          <Link href="/works" className={styles.viewAllButton}>
+          <Button variant="outline" size="lg" href="/works">
             {t("workDetail.viewAll")}
-          </Link>
+          </Button>
         </motion.div>
+
       </div>
     </div>
   );

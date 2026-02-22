@@ -3,6 +3,8 @@
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import { siteConfig } from "@/config/site.config";
+import Button from "@/components/ui/Button";
+import Section from "@/components/ui/Section";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { UseMagneticReturn } from "@/hooks/useMagnetic";
 import styles from "./CTASection.module.css";
@@ -21,7 +23,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
     const { t } = useLanguage();
 
     return (
-      <section className={styles.cta} ref={ref}>
+      <Section fullHeight center clipOverflow className={styles.cta} ref={ref}>
         {/* 장식 라인 */}
         <div className={`${styles.decorLine} ${styles.decorLineTop}`} />
         <div className={`${styles.decorLine} ${styles.decorLineBottom}`} />
@@ -54,13 +56,22 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
             onMouseMove={magnetic.handleMouseMove}
             onMouseLeave={magnetic.handleMouseLeave}
           >
-            <button className={styles.button} onClick={onContactClick}>
-              <span>{t("cta.button")}</span>
-              <motion.span
-                className={styles.buttonIndicator}
-                whileHover={{ scale: 1.5 }}
-              />
-            </button>
+            <Button
+              variant="outline"
+              size="xl"
+              className={styles.ctaBtn}
+              onClick={onContactClick}
+              soundDisabled
+              icon={
+                <motion.span
+                  className={styles.buttonIndicator}
+                  whileHover={{ scale: 1.5 }}
+                />
+              }
+              iconPosition="right"
+            >
+              {t("cta.button")}
+            </Button>
           </motion.div>
         </div>
 
@@ -72,7 +83,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
             HYEON © {new Date().getFullYear()}, {t("footer.copyright")}
           </span>
         </div>
-      </section>
+      </Section>
     );
   },
 );

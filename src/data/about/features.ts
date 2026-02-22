@@ -91,4 +91,24 @@ export const designFeatures: DesignFeature[] = [
     tech: ["Three.js", "React Three Fiber", "Lissajous Curve", "Environment Map"],
     image: "https://images.unsplash.com/photo-1639542270103-0e94fc28be38?w=800&q=80",
   },
+  {
+    icon: "10",
+    title: "Posts & Comments",
+    description: {
+      ko: "Supabase 기반 블로그 시스템. Markdown과 Rich Text(Tiptap) 전환 가능한 에디터, 게스트 대댓글, 검색·태그 필터를 지원합니다.",
+      en: "A full blog system powered by Supabase. Switchable Markdown/Rich Text editor, threaded guest comments, search & tag filtering.",
+    },
+    tech: ["Supabase", "Tiptap", "Markdown", "bcrypt", "Threaded Comments"],
+    image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
+  },
+  {
+    icon: "11",
+    title: "Hidden Admin System",
+    description: {
+      ko: "로그인 버튼 없이 URL 직접 접속 방식의 어드민 시스템. Supabase Auth + Next.js Middleware로 세션 기반 인증, /admin 경로 보호를 구현했습니다.",
+      en: "A hidden admin system with no visible login button — access via direct URL. Session-based auth with Supabase Auth + Next.js Middleware protecting /admin routes.",
+    },
+    tech: ["Supabase Auth", "Next.js Middleware", "Session Cookie", "Route Protection"],
+    image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80",
+  },
 ];

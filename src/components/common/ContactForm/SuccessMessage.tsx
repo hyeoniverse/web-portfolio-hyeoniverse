@@ -46,7 +46,7 @@ export default function SuccessMessage() {
           <br />
           {t("contact.successSubMessage")}
         </motion.p>
-        <Button style="primary" onClick={handleClose}>
+        <Button variant="primary" onClick={handleClose}>
           {t("contact.confirm")}
         </Button>
       </div>

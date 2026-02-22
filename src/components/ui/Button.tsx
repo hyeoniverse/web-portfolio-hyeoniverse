@@ -1,81 +1,167 @@
 "use client";
 
+import { forwardRef, type ReactNode, type MouseEvent } from "react";
 import { motion } from "framer-motion";
-import clsx from "clsx";
+import Link from "next/link";
+import { cn } from "@/utils";
 import { useSoundManager } from "@/hooks/useSoundManager";
-import { fadeInUpScale } from "@/animations";
 import styles from "./Button.module.css";
 
-interface ButtonProps {
-  style?: "primary" | "secondary" | "teritary" | "outline" | "underline";
-  size?: "sm" | "md" | "lg" | "xl" | "xl2";
-  weight?: "light" | "normal" | "bold";
-  type?: "button" | "submit" | "reset";
+/* --------------------------------------------------------------------------
+   Types
+   -------------------------------------------------------------------------- */
+
+type ButtonVariant = "primary" | "outline" | "ghost";
+type ButtonShape = "capsule" | "circle" | "square";
+type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
+
+interface ButtonBaseProps {
+  variant?: ButtonVariant;
+  shape?: ButtonShape;
+  size?: ButtonSize;
+  fullWidth?: boolean;
   disabled?: boolean;
-  className?: string;
-  onClick?: () => void;
-  href?: string;
   active?: boolean;
-  children: React.ReactNode;
-  icon?: React.ReactNode;
-  iconPosition?: "left" | "right" | "both";
+  icon?: ReactNode;
+  iconPosition?: "left" | "right";
+  className?: string;
+  children?: ReactNode;
+  soundDisabled?: boolean;
 }
 
-export default function Button({
-  type = "button",
-  size = "md",
-  weight = "normal",
-  style = "primary",
-  href,
-  onClick,
-  disabled,
-  className,
-  active,
-  children,
-  icon,
-  iconPosition = "left",
-}: ButtonProps) {
-  const { playSound } = useSoundManager();
-
-  const buttonClasses = clsx(
-    styles.button,
-    styles[style],
-    styles[size],
-    styles[weight],
-    active && styles.active,
-    className
-  );
-
-  const handleClick = () => {
-    playSound("click");
-    if (href) {
-      window.open(href, "_blank", "noopener,noreferrer");
-    }
-    onClick?.();
+type ButtonAsButton = ButtonBaseProps &
+  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof ButtonBaseProps> & {
+    href?: undefined;
+    external?: never;
   };
 
-  return (
-    <motion.button
-      type={type}
-      className={buttonClasses}
-      disabled={disabled}
-      onMouseEnter={() => playSound("hover")}
-      onClick={handleClick}
-      variants={fadeInUpScale}
-      whileHover={
-        !disabled
-          ? { scale: 1.01, y: -2, transition: { duration: 0.2 } }
-          : undefined
+type ButtonAsLink = ButtonBaseProps &
+  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, keyof ButtonBaseProps> & {
+    href: string;
+    external?: boolean;
+  };
+
+export type ButtonProps = ButtonAsButton | ButtonAsLink;
+
+/* --------------------------------------------------------------------------
+   Component
+   -------------------------------------------------------------------------- */
+
+const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
+  (
+    {
+      variant = "primary",
+      shape = "capsule",
+      size = "md",
+      fullWidth,
+      disabled,
+      active,
+      icon,
+      iconPosition = "left",
+      className,
+      children,
+      soundDisabled,
+      ...rest
+    },
+    ref,
+  ) => {
+    const { playSound } = useSoundManager();
+
+    const classes = cn(
+      styles.btn,
+      styles[`variant-${variant}`],
+      styles[`shape-${shape}`],
+      styles[`size-${size}`],
+      fullWidth && styles.fullWidth,
+      active && styles.active,
+      disabled && styles.disabled,
+      className,
+    );
+
+    const handleMouseEnter = () => {
+      if (!soundDisabled && !disabled) playSound("hover");
+    };
+
+    const content = (
+      <>
+        {icon && iconPosition === "left" && (
+          <span className={styles.icon}>{icon}</span>
+        )}
+        {children && <span className={styles.label}>{children}</span>}
+        {icon && iconPosition === "right" && (
+          <span className={styles.icon}>{icon}</span>
+        )}
+      </>
+    );
+
+    /* ---- Link (href 제공) ---- */
+    if ("href" in rest && rest.href) {
+      const { href, external, onClick, ...anchorRest } = rest as ButtonAsLink;
+
+      const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>) => {
+        if (!soundDisabled && !disabled) playSound("click");
+        onClick?.(e);
+      };
+
+      if (external) {
+        return (
+          <a
+            ref={ref as React.Ref<HTMLAnchorElement>}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={classes}
+            aria-disabled={disabled || undefined}
+            onMouseEnter={handleMouseEnter}
+            onClick={handleLinkClick}
+            {...anchorRest}
+          >
+            {content}
+          </a>
+        );
       }
-      whileTap={!disabled ? { scale: 0.95 } : undefined}
-    >
-      {icon && (iconPosition === "left" || iconPosition === "both") && (
-        <span className={styles.icon}>{icon}</span>
-      )}
-      <span className={styles.label}>{children}</span>
-      {icon && (iconPosition === "right" || iconPosition === "both") && (
-        <span className={styles.icon}>{icon}</span>
-      )}
-    </motion.button>
-  );
-}
+
+      return (
+        <Link
+          ref={ref as React.Ref<HTMLAnchorElement>}
+          href={href}
+          className={classes}
+          aria-disabled={disabled || undefined}
+          onMouseEnter={handleMouseEnter}
+          onClick={handleLinkClick}
+          {...(anchorRest as Omit<typeof anchorRest, "href">)}
+        >
+          {content}
+        </Link>
+      );
+    }
+
+    /* ---- Button (기본) ---- */
+    const { onClick, type } = rest as ButtonAsButton;
+
+    const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
+      if (!soundDisabled && !disabled) playSound("click");
+      onClick?.(e);
+    };
+
+    return (
+      <motion.button
+        ref={ref as React.Ref<HTMLButtonElement>}
+        type={type ?? "button"}
+        className={classes}
+        disabled={disabled}
+        onMouseEnter={handleMouseEnter}
+        onClick={handleClick}
+        whileHover={
+          !disabled ? { y: -1, transition: { duration: 0.2 } } : undefined
+        }
+        whileTap={!disabled ? { scale: 0.97 } : undefined}
+      >
+        {content}
+      </motion.button>
+    );
+  },
+);
+
+Button.displayName = "Button";
+export default Button;

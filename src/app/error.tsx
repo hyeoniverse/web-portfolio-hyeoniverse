@@ -90,6 +90,7 @@ export default function Error({ error, reset }: ErrorProps) {
       {/* Decorative Elements */}
       <div className={styles.decorOval1} />
       <div className={styles.decorOval2} />
+
     </div>
   );
 }

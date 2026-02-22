@@ -14,6 +14,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
 import { useMotionValue, useSpring } from "framer-motion";
 import Logo from "@/components/common/Logo";
+import Button from "@/components/ui/Button";
 import styles from "./Navigation.module.css";
 
 function MagneticWrapper({
@@ -67,6 +68,7 @@ function MagneticWrapper({
 
 const navItems = [
   { key: "works", href: "/works" },
+  { key: "posts", href: "/posts" },
   { key: "profile", href: "/profile" },
   { key: "about", href: "/about" },
 ];
@@ -90,6 +92,8 @@ export default function Navigation() {
   const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
   const { stop: lenisStop, start: lenisStart } = useLenis();
+
+  const isAdminPage = pathname.startsWith("/admin");
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname);
   const showLoadingLogo = isLoading && !shouldSkipLoading;
@@ -150,8 +154,11 @@ export default function Navigation() {
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
-  // active key from pathname
-  const activeNavKey = navItems.find((item) => pathname === item.href)?.key ?? null;
+  // active key from pathname (detail 페이지도 부모 경로로 매칭)
+  const activeNavKey =
+    navItems.find(
+      (item) => pathname === item.href || pathname.startsWith(item.href + "/")
+    )?.key ?? null;
   const targetKey = hoveredNav ?? activeNavKey;
 
   useEffect(() => {
@@ -288,6 +295,9 @@ export default function Navigation() {
     themeAnimTimer.current = setTimeout(() => setIsThemeAnimating(false), 300);
   };
 
+  // Admin 페이지에서는 전용 AdminHeader 사용
+  if (isAdminPage) return null;
+
   return (
     <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""}`}>
       <motion.div
@@ -382,13 +392,15 @@ export default function Navigation() {
 
       <div className={styles.navActions}>
         {/* Get in Touch */}
-        <button
-          className={`${styles.actionBtn} ${styles.contactBtn}`}
+        <Button
+          variant="outline"
+          size="xs"
+          className={styles.contactBtn}
           onClick={openForm}
-          aria-label="Get in Touch"
+          soundDisabled
         >
-          <span className={styles.contactText}>Get in Touch</span>
-        </button>
+          Get in Touch
+        </Button>
 
         {/* 언어 토글 */}
         <button
@@ -500,7 +512,7 @@ export default function Navigation() {
         </button>
 
         {/* 메뉴 버튼 (≤1024px) — 2×2 dot grid + magnetic */}
-        <MagneticWrapper strength={0.5} radius={50}>
+        <MagneticWrapper strength={0.5} radius={50} className={styles.menuBtnWrapper}>
           <button
             className={`${styles.actionBtn} ${styles.menuBtn}`}
             onClick={() => setIsMenuOpen((v) => !v)}
@@ -584,7 +596,7 @@ export default function Navigation() {
                     <Link
                       key={item.key}
                       href={item.href}
-                      className={`${styles.menuLink} glith-on-hover ${pathname === item.href ? styles.menuLinkActive : ""}`}
+                      className={`${styles.menuLink} glith-on-hover ${pathname === item.href || pathname.startsWith(item.href + "/") ? styles.menuLinkActive : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {t(`nav.${item.key}`)}

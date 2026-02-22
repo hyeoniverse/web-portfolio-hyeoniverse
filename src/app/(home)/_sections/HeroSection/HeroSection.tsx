@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import StaggerText from "@/components/effects/StaggerText";
+import Section from "@/components/ui/Section";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./HeroSection.module.css";
 
@@ -19,7 +20,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
     const { t } = useLanguage();
 
     return (
-      <section className={styles.hero} ref={ref}>
+      <Section fullHeight clipOverflow className={styles.hero} ref={ref}>
         {/* Floating Ovals */}
         <motion.div
           className={`${styles.floatingOval} ${styles.ovalPrimary} parallax-oval-1`}
@@ -110,7 +111,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
           </div>
           <span className={styles.scrollText}>{t("hero.scroll")}</span>
         </motion.button>
-      </section>
+      </Section>
     );
   },
 );

@@ -11,6 +11,8 @@ export const techStack: TechStackItem[] = [
   { name: "CSS Variables", category: "Design Tokens" },
   { name: "Three.js / R3F", category: "3D Graphics" },
   { name: "Zustand", category: "State Management" },
+  { name: "Supabase", category: "Backend (DB/Auth/Storage)" },
+  { name: "Tiptap", category: "Rich Text Editor" },
   { name: "Formspree", category: "Form & Email" },
   { name: "Vitest", category: "Testing" },
 ];

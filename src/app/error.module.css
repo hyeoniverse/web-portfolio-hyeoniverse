@@ -4,8 +4,7 @@
 
 .container {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   padding: var(--spacing-xl);
   overflow: hidden;
   position: relative;
@@ -16,10 +15,18 @@
 .content {
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
+  flex: 1;
   z-index: 1;
   max-width: 500px;
+  margin: 0 auto;
   text-align: center;
+}
+
+.errorFooter {
+  z-index: 1;
+  margin-top: auto;
 }
 
 /* Icon */
@@ -31,7 +38,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--text-primary);
+  border: 2px solid #000000;
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -42,7 +49,7 @@
   font-size: 3rem;
   font-weight: 400;
   line-height: 1;
-  color: var(--text-primary);
+  color: #000000;
 }
 
 /* Typography */
@@ -100,7 +107,7 @@
 
 .primaryButton {
   padding: var(--spacing-sm) var(--spacing-xl);
-  border: none;
+  border: 1px solid var(--text-primary);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
@@ -108,18 +115,23 @@
   color: var(--bg-primary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  transition: all 0.3s ease;
   border-radius: var(--radius-capsule);
+  cursor: none;
+}
+
+/* (0,2,0) — 전역 theme transition (0,1,1) 오버라이드 */
+.actions .primaryButton {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .primaryButton:hover {
-  box-shadow: 0 4px 20px var(--shadow-color);
-  transform: scale(1.02);
+  background: transparent;
+  color: var(--text-primary);
 }
 
 .secondaryButton {
   padding: var(--spacing-sm) var(--spacing-xl);
-  border: var(--border-strong);
+  border: 1px solid var(--text-primary);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
@@ -128,8 +140,17 @@
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  transition: all 0.3s ease;
   border-radius: var(--radius-capsule);
+}
+
+/* (0,2,0) — 전역 theme transition (0,1,1) 오버라이드 */
+.actions .secondaryButton {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.secondaryButton:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 /* Decorative Elements */

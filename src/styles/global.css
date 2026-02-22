@@ -9,4 +9,5 @@
 @import "./globals/_utilities.css";
 @import "./globals/_layout.css";
 @import "./globals/_scroll.css";
+@import "./globals/_hljs.css";
 @import "./globals/_overrides.css";

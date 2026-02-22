@@ -124,6 +124,7 @@ interface FloatingSceneProps {
   pointerActive: React.RefObject<boolean>;
   screenPosRef?: React.RefObject<{ x: number; y: number }>;
   smileRef?: React.RefObject<boolean>;
+  scrollVelRef?: React.RefObject<number>;
 }
 
 export default function FloatingScene({
@@ -133,6 +134,7 @@ export default function FloatingScene({
   pointerActive,
   screenPosRef,
   smileRef,
+  scrollVelRef,
 }: FloatingSceneProps) {
   const groupRef = useRef<THREE.Group>(null);
   const leftEyeRef = useRef<THREE.Mesh>(null);
@@ -233,6 +235,12 @@ export default function FloatingScene({
     const halfH = Math.tan((cam.fov * Math.PI) / 360) * distFromCam;
     const halfW = halfH * cam.aspect;
     const m = BUNNY.margin;
+
+    // Scroll velocity → bunny에 힘 적용 (스크롤 방향 반대로 밀림)
+    if (scrollVelRef?.current) {
+      const scrollForce = scrollVelRef.current * 0.008;
+      v.y -= scrollForce * dt;
+    }
 
     // Friction — gradually slow down in zero-gravity
     v.x *= BUNNY.friction;

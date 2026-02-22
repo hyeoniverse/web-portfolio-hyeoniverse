@@ -3,14 +3,8 @@
    ========================================================================== */
 
 .cta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  min-height: 100vh;
-  padding: var(--spacing-6xl) 8vw;
-  overflow: hidden;
+  padding-top: var(--spacing-6xl);
+  padding-bottom: var(--spacing-6xl);
 }
 
 /* ---------------------------------------------------------------------------
@@ -105,26 +99,17 @@
   display: inline-block;
 }
 
-.button {
-  display: inline-flex;
-  align-items: center;
+/* outline hover 대신 backdrop-filter blur만 사용 */
+.ctaBtn.ctaBtn {
   gap: var(--spacing-md);
-  position: relative;
-  padding: var(--padding-3xl);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-primary);
-  letter-spacing: 0.05em;
-  transition: all 0.4s var(--ease-out-expo);
   overflow: hidden;
 }
 
-.button:hover {
+/* (0,5,0) — outline hover (0,4,0) 이상 필요 */
+.cta .ctaBtn.ctaBtn:hover {
+  background: transparent;
   color: var(--text-primary);
+  border-color: var(--border-primary-color);
   backdrop-filter: blur(2px);
 }
 
@@ -167,9 +152,9 @@
   display: flex;
   justify-content: space-between;
   position: absolute;
-  right: 8vw;
+  right: var(--page-px);
   bottom: var(--spacing-4xl);
-  left: 8vw;
+  left: var(--page-px);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
   color: var(--text-accent-alt);
@@ -179,18 +164,7 @@
 /* ---------------------------------------------------------------------------
    Responsive
    --------------------------------------------------------------------------- */
-@media (max-width: 1024px) {
-  .cta {
-    padding-right: 6vw;
-    padding-left: 6vw;
-  }
-}
-
 @media (max-width: 768px) {
-  .cta {
-    padding-right: 5vw;
-    padding-left: 5vw;
-  }
 
   .ovalPrimary {
     width: 300px;
@@ -204,9 +178,7 @@
   }
 
   .footer {
-    right: 5vw;
     bottom: var(--spacing-2xl);
-    left: 5vw;
   }
 }
 
@@ -215,8 +187,7 @@
     font-size: clamp(2rem, 10vw, 3.5rem);
   }
 
-  .button {
+  .ctaBtn.ctaBtn {
     padding: var(--padding-2xl);
-    font-size: var(--font-size-sm);
   }
 }

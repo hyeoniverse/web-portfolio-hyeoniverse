@@ -141,7 +141,7 @@ export default function ContactForm() {
             <Button
               type="submit"
               icon={<Send size={16} />}
-              style="primary"
+              variant="primary"
               disabled={state.submitting}
             >
               {state.submitting ? t("contact.sending") : t("contact.send")}

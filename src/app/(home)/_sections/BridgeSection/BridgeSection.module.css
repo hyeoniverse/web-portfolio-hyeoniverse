@@ -4,14 +4,8 @@
    ========================================================================== */
 
 .bridge {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
-  position: relative;
-  min-height: 100vh;
-  padding: 0 8vw;
   background: var(--bg-primary);
-  overflow: hidden;
 }
 
 .content {
@@ -23,16 +17,3 @@
 /* ---------------------------------------------------------------------------
    Responsive - Must match Hero section
    --------------------------------------------------------------------------- */
-@media (max-width: 1024px) {
-  .bridge {
-    padding-right: 6vw;
-    padding-left: 6vw;
-  }
-}
-
-@media (max-width: 768px) {
-  .bridge {
-    padding-right: 5vw;
-    padding-left: 5vw;
-  }
-}
