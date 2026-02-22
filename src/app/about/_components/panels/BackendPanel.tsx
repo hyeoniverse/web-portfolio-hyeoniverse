@@ -2,26 +2,25 @@
 
 import { useCallback, useRef, useState, useEffect } from "react";
 import type { Language } from "@/providers/LanguageProvider";
-import type { TroubleShootingItem } from "@/data/about";
+import type { BackendItem } from "@/data/about";
 import { renderHighlight } from "../renderHighlight";
+import CodeHighlight from "../CodeHighlight";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import styles from "../AboutSection.module.css";
 
-interface TroubleshootingPanelProps {
+interface BackendPanelProps {
   language: Language;
-  t: (key: string) => string;
-  items: TroubleShootingItem[];
+  items: BackendItem[];
   scrollBy?: (deltaX: number) => void;
 }
 
-export default function TroubleshootingPanel({
+export default function BackendPanel({
   language,
-  t,
   items,
   scrollBy,
-}: TroubleshootingPanelProps) {
+}: BackendPanelProps) {
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
@@ -40,7 +39,7 @@ export default function TroubleshootingPanel({
     (index: number) => {
       const detail = detailRef.current;
       if (!detail) return;
-      const itemEls = detail.querySelectorAll(`.${styles.troubleDetailItem}`);
+      const itemEls = detail.querySelectorAll(`.${styles.dbDetailItem}`);
       const target = itemEls[index] as HTMLElement | undefined;
       if (target) {
         detail.scrollTo({ top: target.offsetTop, behavior: "smooth" });
@@ -49,14 +48,14 @@ export default function TroubleshootingPanel({
     [],
   );
 
-  // 활성 항목 변경 시 해당 항목으로 리스트 자동 스크롤
+  // 활성 항목 변경 시 리스트 자동 스크롤
   useEffect(() => {
     const list = listRef.current;
     if (!list || isMobile) return;
     const item = list.children[displayIndex] as HTMLElement | undefined;
     if (!item) return;
     const lastChild = list.lastElementChild as HTMLElement | null;
-    const navH = lastChild?.classList.contains(styles.troublePageNav)
+    const navH = lastChild?.classList.contains(styles.dbPageNav)
       ? lastChild.offsetHeight
       : 0;
     const itemTop = item.offsetTop;
@@ -70,7 +69,7 @@ export default function TroubleshootingPanel({
     }
   }, [displayIndex, isMobile]);
 
-  // 리스트 오버플로 감지 → 페이지 네비게이션 표시
+  // 리스트 오버플로 감지
   useEffect(() => {
     const el = listRef.current;
     if (!el || isMobile) return;
@@ -95,13 +94,13 @@ export default function TroubleshootingPanel({
     el.scrollBy({ top: dir * el.clientHeight, behavior: "smooth" });
   }, []);
 
-  // 데스크톱: 디테일 컨테이너 스크롤 위치 → detailIndex 추적
+  // 데스크톱: 디테일 스크롤 → detailIndex 추적
   useEffect(() => {
     const detail = detailRef.current;
     if (!detail || isMobile) return;
 
     const onScroll = () => {
-      const itemEls = detail.querySelectorAll(`.${styles.troubleDetailItem}`);
+      const itemEls = detail.querySelectorAll(`.${styles.dbDetailItem}`);
       const mid = detail.scrollTop + detail.clientHeight / 2;
       let idx = 0;
       for (let i = 0; i < itemEls.length; i++) {
@@ -115,7 +114,7 @@ export default function TroubleshootingPanel({
     return () => detail.removeEventListener("scroll", onScroll);
   }, [isMobile]);
 
-  // 데스크톱: 패널 포커스 시 wheel → 디테일 컨테이너 스크롤, 경계 도달 시 가로 스크롤
+  // 데스크톱: wheel → 디테일 스크롤, 경계 시 가로 스크롤
   useEffect(() => {
     if (isMobile) return;
 
@@ -147,8 +146,7 @@ export default function TroubleshootingPanel({
     return () => window.removeEventListener("wheel", handleWheel, { capture: true });
   }, [isMobile, panelRef]);
 
-  // 데스크톱: 패널이 뷰포트 밖일 때 진입 방향에 맞춰 스크롤 위치 사전 설정
-  // → 진입 시 이미 올바른 위치에 있으므로 플래시 없음
+  // 데스크톱: 뷰포트 밖일 때 스크롤 위치 사전 설정
   useEffect(() => {
     if (isMobile) return;
     const panel = panelRef.current;
@@ -162,10 +160,8 @@ export default function TroubleshootingPanel({
       const progress = -rect.left / extra;
 
       if (progress >= 0.98) {
-        // 오른쪽 밖 → 역스크롤 시 하단부터 시작하도록 사전 설정
         detail.scrollTop = detail.scrollHeight - detail.clientHeight;
       } else if (progress <= 0.02) {
-        // 왼쪽 밖 → 정방향 진입 시 상단부터
         detail.scrollTop = 0;
       }
     };
@@ -174,142 +170,181 @@ export default function TroubleshootingPanel({
     return () => cancelAnimationFrame(raf.id);
   }, [isMobile, panelRef]);
 
+  /** 공통: 항목 상세 렌더링 */
+  const renderDetail = (item: BackendItem, index: number) => (
+    <>
+      <div className={styles.dbDetailHeader}>
+        <span className={styles.dbDetailNumber}>
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <h4 className={styles.dbTitle}>{item.name}</h4>
+        <span className={`${styles.dbKindBadge} ${item.kind === "api" ? styles.dbKindApi : styles.dbKindTable}`}>
+          {item.kind === "api" ? "API" : "TABLE"}
+        </span>
+      </div>
+
+      {/* 설명 */}
+      <div className={styles.dbEntry}>
+        <p>{item.description[language]}</p>
+      </div>
+
+      {/* API: 엔드포인트 목록 */}
+      {item.kind === "api" && item.endpoints && (
+        <div className={styles.dbEntry}>
+          <span className={`${styles.dbLabel} ${styles.dbLabelAccent}`}>
+            Endpoints
+          </span>
+          <div className={styles.dbEndpointList}>
+            {item.endpoints.map((ep, ei) => (
+              <div key={ei} className={styles.dbEndpoint}>
+                <span className={`${styles.dbMethodBadge} ${styles[`dbMethod${ep.method}` as keyof typeof styles] || ""}`}>
+                  {ep.method}
+                </span>
+                <span className={styles.dbEndpointPath}>{ep.path}</span>
+                <span className={styles.dbEndpointDesc}>{ep.description[language]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Table: 설계 노트 */}
+      {item.kind === "table" && item.designNote && (
+        <div className={styles.dbEntry}>
+          <span className={`${styles.dbLabel} ${styles.dbLabelAccent}`}>
+            {language === "ko" ? "설계 결정" : "Design Decision"}
+          </span>
+          <p>{renderHighlight(item.designNote[language])}</p>
+        </div>
+      )}
+
+      {/* Table: 스키마 */}
+      {item.kind === "table" && item.columns && (
+        <div className={styles.dbEntry}>
+          <span className={styles.dbLabel}>
+            {language === "ko" ? "스키마" : "Schema"}
+          </span>
+          <div className={styles.dbSchema}>
+            <div className={styles.dbSchemaHeader}>
+              <span>Column</span>
+              <span>Type</span>
+              <span>{language === "ko" ? "설명" : "Description"}</span>
+            </div>
+            {item.columns.map((col, ci) => (
+              <div key={ci} className={styles.dbSchemaRow}>
+                <span className={styles.dbColName}>
+                  {col.name}
+                  {col.constraint && (
+                    <span className={styles.dbColConstraint}>
+                      {col.constraint}
+                    </span>
+                  )}
+                </span>
+                <span className={styles.dbColType}>{col.type}</span>
+                <span className={styles.dbColDesc}>
+                  {col.description[language]}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 예시 쿼리/코드 */}
+      {item.exampleQuery && (
+        <div className={styles.dbEntry}>
+          <span className={`${styles.dbLabel} ${styles.dbLabelInsight}`}>
+            {item.exampleQuery.title}
+          </span>
+          <div className={styles.dbQuery}>
+            <CodeHighlight
+              code={item.exampleQuery.code}
+              language={item.exampleQuery.language}
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
+
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
-      {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
-          number="09"
-          title="Trouble Shooting."
+          number="07"
+          title="Backend."
           compact
           animate
           dotNav={{
             count: items.length,
             activeIndex: displayIndex,
             onDotClick: handleItemClick,
+            labels: items.map((t) => t.name),
             className: styles.dotNavMobileOnly,
           }}
         />
 
         {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
-        <div className={`${styles.troubleSplit} ${styles.animate}`}>
+        <div className={`${styles.dbSplit} ${styles.animate}`}>
           {/* 왼쪽: 항목 목록 */}
-          <div ref={listRef} className={styles.troubleList} style={{ '--items-count': items.length + 1 } as React.CSSProperties}>
+          <div ref={listRef} className={styles.dbList} style={{ "--items-count": items.length } as React.CSSProperties}>
             {items.map((item, index) => (
               <div
                 data-clickable="true"
                 key={index}
-                className={`${styles.troubleListItem} ${
-                  index === displayIndex ? styles.troubleListItemActive : ""
+                className={`${styles.dbListItem} ${
+                  index === displayIndex ? styles.dbListItemActive : ""
                 }`}
                 onClick={() => handleItemClick(index)}
               >
-                <span className={styles.troubleNumber}>
+                <span className={styles.dbNumber}>
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <span className={styles.troubleListTitle}>
-                  {item.problem[language]}
-                </span>
+                <div className={styles.dbListMeta}>
+                  <span className={styles.dbListTitle}>
+                    {item.name}
+                    <span className={`${styles.dbKindBadge} ${styles.dbKindBadgeSm} ${item.kind === "api" ? styles.dbKindApi : styles.dbKindTable}`}>
+                      {item.kind === "api" ? "API" : "TABLE"}
+                    </span>
+                  </span>
+                  <span className={styles.dbListDesc}>
+                    {item.description[language]}
+                  </span>
+                </div>
               </div>
             ))}
             {listPage.total > 1 && (
-              <div className={styles.troublePageNav}>
-                <button className={styles.troublePageBtn} disabled={listPage.page <= 1} onClick={() => scrollListPage(-1)}>↑</button>
+              <div className={styles.dbPageNav}>
+                <button className={styles.dbPageBtn} disabled={listPage.page <= 1} onClick={() => scrollListPage(-1)}>↑</button>
                 <span>{listPage.page}/{listPage.total}</span>
-                <button className={styles.troublePageBtn} disabled={listPage.page >= listPage.total} onClick={() => scrollListPage(1)}>↓</button>
+                <button className={styles.dbPageBtn} disabled={listPage.page >= listPage.total} onClick={() => scrollListPage(1)}>↓</button>
               </div>
             )}
           </div>
 
-          {/* 오른쪽: 상세 콘텐츠 (세로 연속 스크롤) */}
-          <div ref={detailRef} className={styles.troubleDetail}>
+          {/* 오른쪽: 상세 콘텐츠 */}
+          <div ref={detailRef} className={styles.dbDetail}>
             {items.map((item, index) => (
               <div
                 key={index}
-                className={`${styles.troubleDetailItem} ${
-                  index === displayIndex ? styles.troubleDetailItemActive : ""
+                className={`${styles.dbDetailItem} ${
+                  index === displayIndex ? styles.dbDetailItemActive : ""
                 }`}
               >
-                <div className={styles.troubleDetailHeader}>
-                  <span className={styles.troubleDetailNumber}>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <h4 className={styles.troubleTitle}>
-                    {item.problem[language]}
-                  </h4>
-                </div>
-                <div className={styles.troubleBody}>
-                  <div className={styles.troubleEntry}>
-                    <span className={styles.troubleLabel}>
-                      {t("aboutPage.troubleshooting.cause")}
-                    </span>
-                    <p>{renderHighlight(item.cause[language])}</p>
-                  </div>
-                  <div className={styles.troubleEntry}>
-                    <span
-                      className={`${styles.troubleLabel} ${styles.troubleLabelAccent}`}
-                    >
-                      {t("aboutPage.troubleshooting.solution")}
-                    </span>
-                    <p>{renderHighlight(item.solution[language])}</p>
-                  </div>
-                  <div className={styles.troubleEntry}>
-                    <span
-                      className={`${styles.troubleLabel} ${styles.troubleLabelInsight}`}
-                    >
-                      {t("aboutPage.troubleshooting.keyInsight")}
-                    </span>
-                    <p className={styles.troubleInsightText}>
-                      {renderHighlight(item.keyInsight[language])}
-                    </p>
-                  </div>
-                </div>
+                {renderDetail(item, index)}
               </div>
             ))}
           </div>
         </div>
 
-        {/* 모바일: 모든 항목 표시 (폴백, pin 활성 시 숨김) */}
-        <div className={styles.troubleMobileList}>
+        {/* 모바일: 모든 항목 표시 */}
+        <div className={styles.dbMobileList}>
           {items.map((item, index) => (
             <div
               key={index}
-              className={`${styles.troubleMobileItem} ${styles.animate}`}
+              className={`${styles.dbMobileItem} ${styles.animate}`}
             >
-              <div className={styles.troubleMobileHeader}>
-                <span className={styles.troubleNumber}>
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <h4 className={styles.troubleTitle}>
-                  {item.problem[language]}
-                </h4>
-              </div>
-              <div className={styles.troubleBody}>
-                <div className={styles.troubleEntry}>
-                  <span className={styles.troubleLabel}>
-                    {t("aboutPage.troubleshooting.cause")}
-                  </span>
-                  <p>{renderHighlight(item.cause[language])}</p>
-                </div>
-                <div className={styles.troubleEntry}>
-                  <span
-                    className={`${styles.troubleLabel} ${styles.troubleLabelAccent}`}
-                  >
-                    {t("aboutPage.troubleshooting.solution")}
-                  </span>
-                  <p>{renderHighlight(item.solution[language])}</p>
-                </div>
-                <div className={styles.troubleEntry}>
-                  <span
-                    className={`${styles.troubleLabel} ${styles.troubleLabelInsight}`}
-                  >
-                    {t("aboutPage.troubleshooting.keyInsight")}
-                  </span>
-                  <p className={styles.troubleInsightText}>
-                    {renderHighlight(item.keyInsight[language])}
-                  </p>
-                </div>
-              </div>
+              {renderDetail(item, index)}
             </div>
           ))}
         </div>

@@ -15,6 +15,8 @@ import {
   troubleShootingItems,
   projectOverview,
   projectStructure,
+  userFlows,
+  backendItems,
 } from "@/data/about";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
@@ -30,6 +32,7 @@ import {
   VisualBreakPanel,
   TechStackPanel,
   CodeHighlightsPanel,
+  BackendPanel,
   TroubleshootingPanel,
   CreditsPanel,
 } from "./panels";
@@ -46,8 +49,8 @@ export default function AboutSection() {
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
     useHorizontalScroll(styles, {
       infinite: infiniteScroll,
-      panelSetSize: 11,
-      navSectionCount: 10,
+      panelSetSize: 12,
+      navSectionCount: 11,
     });
   useInViewMobile(trackRef, styles.animate, styles.animateVisible);
   const { isLoading } = useLoadingScreen();
@@ -93,7 +96,7 @@ export default function AboutSection() {
   const panelSet = (key: number) => (
     <Fragment key={key}>
       <HeroPanel t={t} />
-      <OverviewPanel language={language} overview={projectOverview} />
+      <OverviewPanel language={language} overview={projectOverview} userFlows={userFlows} />
       <ArchitecturePanel language={language} structure={projectStructure} />
       <FeaturesPanel language={language} features={designFeatures} />
       <DesignConceptPanel
@@ -109,6 +112,11 @@ export default function AboutSection() {
       />
       <VisualBreakPanel />
       <TechStackPanel techStack={techStack} />
+      <BackendPanel
+        language={language}
+        items={backendItems}
+        scrollBy={scrollBy}
+      />
       <CodeHighlightsPanel
         language={language}
         codeExamples={codeExamples}

@@ -95,10 +95,10 @@ export const designFeatures: DesignFeature[] = [
     icon: "10",
     title: "Posts & Comments",
     description: {
-      ko: "Supabase 기반 블로그 시스템. Markdown과 Rich Text(Tiptap) 전환 가능한 에디터, 게스트 대댓글, 검색·태그 필터를 지원합니다. 커버 이미지는 직접 업로드 외에 프리셋 그라데이션, Unsplash 검색, AI 생성(NanoBanana / Hugging Face 중 선택) 중 고를 수 있습니다.",
-      en: "A full blog system powered by Supabase. Switchable Markdown/Rich Text editor, threaded guest comments, search & tag filtering. Cover images can be set via direct upload, preset gradients, Unsplash search, or AI generation (NanoBanana / Hugging Face — configurable).",
+      ko: "Supabase 기반 블로그 시스템. Markdown과 Rich Text(Tiptap) 전환 가능한 에디터, 게스트 대댓글, 검색·태그 필터를 지원합니다. 커버 이미지는 직접 업로드 외에 프리셋 그라데이션, Unsplash 검색, AI 생성(NanoBanana / Hugging Face 중 선택) 중 고를 수 있습니다. IP 기반 좋아요 시스템으로 로그인 없이도 중복 없는 좋아요 토글이 가능합니다.",
+      en: "A full blog system powered by Supabase. Switchable Markdown/Rich Text editor, threaded guest comments, search & tag filtering. Cover images can be set via direct upload, preset gradients, Unsplash search, or AI generation (NanoBanana / Hugging Face — configurable). IP-based likes allow duplicate-free toggling without login.",
     },
-    tech: ["Supabase", "Tiptap", "Markdown", "Canvas API", "Unsplash API", "NanoBanana", "Hugging Face"],
+    tech: ["Supabase", "Tiptap", "Markdown", "Canvas API", "Unsplash API", "IP Likes"],
     image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
   },
   {

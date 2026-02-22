@@ -39,8 +39,8 @@ export interface SbArc {
 
 /* ── 상수 ── */
 
-export const VIEWBOX_WIDTH = 900;
-export const VIEWBOX_HEIGHT = 480;
+export const VIEWBOX_WIDTH = 1100;
+export const VIEWBOX_HEIGHT = 500;
 export const CENTER_X = VIEWBOX_WIDTH / 2;
 export const CENTER_Y = VIEWBOX_HEIGHT / 2;
 
@@ -77,27 +77,27 @@ export function buildGraph(items: StructureItem[]): { nodes: TreeNode[]; edges: 
 
 export function computeTree(nodes: TreeNode[]): Pos[] {
   const pos: Pos[] = nodes.map(() => ({ x: 0, y: 0 }));
-  const MARGIN = 100;
+  const MARGIN = 55;
   const usable = VIEWBOX_WIDTH - MARGIN * 2;
 
-  pos[0] = { x: CENTER_X, y: 45 };
+  pos[0] = { x: CENTER_X, y: 40 };
 
   const row1 = nodes.filter((n) => n.row === 1);
   const parents = row1.filter((n) => n.childIndices.length > 0);
   const leaves = row1.filter((n) => n.childIndices.length === 0);
 
-  const childSpread = 65;
+  const childSpread = 52;
   const zones = parents.map((p) => childSpread * Math.max(p.childIndices.length - 1, 0));
   const totalZoneW = zones.reduce((a, b) => a + b, 0);
   const zoneGap = parents.length > 0 ? (usable - totalZoneW) / (parents.length + 1) : 0;
 
   let zoneX = MARGIN + zoneGap;
   for (let i = 0; i < parents.length; i++) {
-    pos[parents[i].index] = { x: zoneX + zones[i] / 2, y: 185 };
+    pos[parents[i].index] = { x: zoneX + zones[i] / 2, y: 175 };
     for (let j = 0; j < parents[i].childIndices.length; j++) {
       pos[parents[i].childIndices[j]] = {
         x: zoneX + j * childSpread,
-        y: j % 2 === 0 ? 380 : 420,
+        y: j % 2 === 0 ? 385 : 430,
       };
     }
     zoneX += zones[i] + zoneGap;
@@ -105,7 +105,7 @@ export function computeTree(nodes: TreeNode[]): Pos[] {
 
   for (let i = 0; i < leaves.length; i++) {
     const x = leaves.length === 1 ? CENTER_X : MARGIN + (i / (leaves.length - 1)) * usable;
-    pos[leaves[i].index] = { x, y: 265 };
+    pos[leaves[i].index] = { x, y: i % 2 === 0 ? 270 : 300 };
   }
 
   return pos;

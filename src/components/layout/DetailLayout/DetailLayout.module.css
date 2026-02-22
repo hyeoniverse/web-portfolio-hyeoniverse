@@ -1,0 +1,187 @@
+/* ── Page wrapper ── */
+.page {
+  min-height: 100vh;
+}
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  min-height: 300px;
+  overflow: hidden;
+}
+
+.heroCover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 30%,
+    var(--bg-primary) 100%
+  );
+}
+
+.heroSpacer {
+  height: calc(var(--spacing-6xl) + 40px);
+}
+
+.heroPlaceholder {
+  width: 100%;
+  height: 30vh;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+/* ── Back button ── */
+.backBtn {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  position: fixed;
+  top: var(--spacing-5xl);
+  left: var(--spacing-3xl);
+  z-index: var(--z-nav);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+}
+
+.page .backBtn:hover {
+  background: var(--bg-surface);
+}
+
+/* ── Content wrapper ── */
+.content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl) var(--page-px) var(--spacing-3xl);
+}
+
+/* ── Table of Contents ── */
+.toc {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  left: calc(50% + 520px);
+  width: 180px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.tocTitle {
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--spacing-md);
+}
+
+.tocList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 1px solid var(--border-tertiary-color);
+}
+
+.tocLink {
+  display: block;
+  padding: var(--spacing-2xs) var(--spacing-md);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-decoration: none;
+  line-height: var(--line-height-normal);
+  border-left: 2px solid transparent;
+  margin-left: -1px;
+}
+
+.toc .tocLink:hover {
+  color: var(--text-primary);
+}
+
+.tocLink.tocActive {
+  color: var(--text-primary);
+  border-left-color: var(--color-accent);
+}
+
+.tocLevel2 {
+  padding-left: var(--spacing-xl);
+}
+
+.tocLevel3 {
+  padding-left: var(--spacing-2xl);
+  font-size: 11px;
+}
+
+/* ── Like button ── */
+.likeWrapper {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--spacing-3xl);
+  border-top: 1px solid var(--border-tertiary-color);
+  margin-top: var(--spacing-3xl);
+}
+
+.likeBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-xl);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+.likeWrapper .likeBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.likeBtnActive {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+@media (max-width: 1200px) {
+  .toc {
+    display: none;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero {
+    height: 35vh;
+    min-height: 200px;
+  }
+
+  .heroSpacer {
+    height: var(--spacing-3xl);
+  }
+
+  .backBtn {
+    top: var(--spacing-3xl);
+    left: var(--spacing-xl);
+  }
+}

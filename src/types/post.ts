@@ -10,6 +10,7 @@ export interface Post {
   published: boolean;
   language: "ko" | "en";
   view_count: number;
+  like_count: number;
   created_at: string;
   updated_at: string;
   title_en: string;

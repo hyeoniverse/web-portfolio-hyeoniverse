@@ -31,8 +31,33 @@
 - **번들 최적화**: react-icons를 inline SVG로 교체, Three.js 데모를 dynamic import로 분리하여 about 페이지 First Load JS 326kB→272kB 절감. 미사용 npm 패키지 정리, 미사용 대용량 이미지(22MB) 삭제
 - **성능 최적화**: Hero/마퀴 애니메이션을 Framer Motion/GSAP에서 CSS animation으로 전환(컴포지터 스레드), useMagneticRepel을 ref 기반 직접 DOM 조작으로 변경(60fps 리렌더 제거), Three.js FrontSide 렌더링 + geometry dispose, AudioContext 지연 초기화
 - **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 게스트 대댓글(threaded) 지원, 닉네임+비밀번호 방식으로 댓글 작성/삭제. 검색, 태그 필터, 커버 이미지, 조회수 추적
+- **IP 기반 좋아요**: Posts와 Works 상세 페이지에서 좋아요 기능 지원. `likes` 테이블에서 IP 주소 기반으로 중복 방지 및 토글 처리. Posts는 `posts.like_count` 컬럼에 동기화하여 목록 조회 시 추가 쿼리 없이 카운트 표시
 - **Cover Image Picker**: 포스트 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
 - **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Next.js Middleware로 `/admin` 경로 보호
+
+## User Flow
+
+### 방문자 플로우
+
+```
+Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
+     → Posts 목록(검색/태그 필터) → Post 상세(좋아요/댓글)
+     → Profile → About(기술 문서)
+```
+
+- **Works**: 가로 스크롤 갤러리에서 프로젝트를 탐색하고, 상세 페이지에서 IP 기반 좋아요를 남길 수 있습니다
+- **Posts**: 태그/검색으로 블로그 글을 필터링하고, 상세 페이지에서 좋아요와 게스트 댓글(닉네임+비밀번호)을 남길 수 있습니다
+- **About**: 가로 스크롤로 12개 패널(프로젝트 개요, 아키텍처, 기능, 디자인 컨셉, 개발 프로세스, 기술 스택, 코드 하이라이트, DB 설계, 트러블슈팅)을 순회합니다
+
+### 관리자 플로우
+
+```
+/admin 직접 접속 → Supabase Auth 로그인 → 대시보드
+→ 포스트 작성(Markdown/Rich Text 전환) → 커버 이미지 선택(프리셋/Unsplash/AI) → 발행
+```
+
+- 로그인 버튼 없이 URL 직접 접속 방식
+- Next.js Middleware로 `/admin` 경로 보호, Supabase Auth 세션 기반 인증
 
 ## 시작하기
 
@@ -102,6 +127,11 @@ CREATE TABLE posts (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Posts에 좋아요 수 캐시 컬럼 추가
+-- likes 테이블의 COUNT(*)를 매번 조회하지 않고, 포스트 목록에서 바로 like_count를 읽을 수 있게 합니다.
+-- 좋아요 토글 시 API가 likes 테이블 변경 후 이 컬럼을 동기화합니다.
+ALTER TABLE posts ADD COLUMN like_count INTEGER DEFAULT 0;
+
 -- Comments 테이블 (threaded)
 CREATE TABLE comments (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -114,6 +144,32 @@ CREATE TABLE comments (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Likes 테이블 (IP 기반 중복 방지)
+--
+-- 설계 이유:
+-- 1. posts와 works의 좋아요를 하나의 테이블로 관리합니다.
+--    posts는 Supabase DB에, works는 정적 데이터(src/data/projects.ts)에 있어
+--    각각 별도 테이블을 만드는 대신 target_type으로 구분합니다.
+-- 2. IP 주소로 중복 좋아요를 방지합니다.
+--    로그인 없는 포트폴리오 사이트이므로, 같은 IP에서는
+--    같은 대상에 한 번만 좋아요를 누를 수 있습니다.
+-- 3. 카운트 컬럼 대신 row 기반으로 설계했습니다.
+--    좋아요 수 = COUNT(*), 좋아요 여부 = IP로 row 존재 확인.
+--    이 방식이 토글(좋아요/취소) 구현이 간단하고 데이터 정합성이 높습니다.
+--
+-- target_type: 'post' | 'work'
+-- target_id: posts.id (UUID 문자열) 또는 projects의 id (문자열)
+-- ip: x-forwarded-for 헤더에서 추출한 클라이언트 IP
+-- unique 제약: 같은 IP가 같은 대상에 중복 좋아요 불가
+CREATE TABLE likes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  target_type TEXT NOT NULL,
+  target_id TEXT NOT NULL,
+  ip TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (target_type, target_id, ip)
+);
+
 -- 인덱스
 CREATE INDEX idx_posts_slug ON posts(slug);
 CREATE INDEX idx_posts_published ON posts(published);
@@ -121,6 +177,7 @@ CREATE INDEX idx_posts_created_at ON posts(created_at DESC);
 CREATE INDEX idx_posts_tags ON posts USING GIN(tags);
 CREATE INDEX idx_comments_post_id ON comments(post_id);
 CREATE INDEX idx_comments_parent_id ON comments(parent_id);
+CREATE INDEX idx_likes_target ON likes(target_type, target_id);
 ```
 
 ### 3. RLS (Row Level Security) 정책 설정
@@ -155,9 +212,33 @@ CREATE POLICY "Anyone can create comments"
 
 -- 댓글 삭제는 API에서 비밀번호 검증 또는 admin 세션으로 처리
 -- (service_role 키를 사용하는 API route에서 처리하므로 RLS에서는 별도 정책 불필요)
+
+-- Likes RLS 활성화
+ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
+
+-- 좋아요 수/여부는 누구나 조회 가능
+CREATE POLICY "Likes are viewable by everyone"
+  ON likes FOR SELECT
+  USING (true);
+
+-- 좋아요 추가는 누구나 가능 (IP 기반 중복은 unique 제약으로 방지)
+CREATE POLICY "Anyone can like"
+  ON likes FOR INSERT
+  WITH CHECK (true);
+
+-- 좋아요 취소(토글)는 API에서 처리
+-- service_role 클라이언트가 IP 일치 확인 후 삭제하므로 RLS에서는 허용
+CREATE POLICY "Anyone can unlike"
+  ON likes FOR DELETE
+  USING (true);
 ```
 
 > **참고**: 댓글 삭제는 RLS가 아닌 API route(`/api/comments/[id]`)에서 비밀번호 검증 또는 admin 세션 확인 후 `service_role` 클라이언트로 처리합니다.
+
+> **Likes API 동작 방식**:
+> - `GET /api/posts/[id]/like` · `GET /api/works/[id]/like` — 좋아요 수 + 현재 IP의 좋아요 여부 반환
+> - `POST /api/posts/[id]/like` · `POST /api/works/[id]/like` — 토글 (좋아요 ↔ 취소). IP가 이미 좋아요를 눌렀으면 삭제, 아니면 추가
+> - Posts의 경우 토글 후 `posts.like_count` 컬럼도 동기화하여 포스트 목록에서 별도 JOIN 없이 바로 조회 가능
 
 ### 4. Storage 버킷 생성
 

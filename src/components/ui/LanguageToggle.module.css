@@ -2,7 +2,7 @@
 .toggle {
   display: flex;
   align-items: center;
-  padding: 4px;
+  padding: 2px;
   border: var(--border-strong);
   position: relative;
   background: var(--color-white-alpha-1);
@@ -19,17 +19,17 @@
 /* Sliding Indicator */
 .indicator {
   position: absolute;
-  top: 4px;
-  left: 4px;
-  width: calc(50% - 4px);
-  height: calc(100% - 8px);
+  top: 2px;
+  left: 2px;
+  width: calc(50% - 2px);
+  height: calc(100% - 4px);
   background: var(--text-primary);
   border-radius: var(--radius-capsule);
 }
 
 /* Button-like spans */
 .btn {
-  padding: 8px 16px;
+  padding: 6px 14px;
   position: relative;
   z-index: 2;
   font-family: var(--font-space-grotesk), sans-serif;

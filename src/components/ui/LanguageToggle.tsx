@@ -12,7 +12,7 @@ interface LanguageToggleProps {
 }
 
 const KO_POSITION = 0;
-const EN_POSITION = 48;
+const EN_POSITION = 44;
 const THRESHOLD = 0.95;
 
 const animationConfig = {
