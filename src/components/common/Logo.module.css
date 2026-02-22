@@ -5,3 +5,10 @@
   letter-spacing: -0.02em;
   line-height: 1;
 }
+
+.logoImage {
+  height: 1em;
+  width: auto;
+  object-fit: contain;
+  vertical-align: baseline;
+}

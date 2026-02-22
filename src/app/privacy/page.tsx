@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { content, type Language, type Section } from "@/data/privacyContent";
 import LanguageToggle from "@/components/ui/LanguageToggle";
@@ -36,6 +36,7 @@ const itemVariants = {
 
 // 섹션 콘텐츠 렌더러
 function SectionContent({ section }: { section: Section }) {
+  const siteConfig = useSiteConfig();
   return (
     <>
       <h2>{section.title}</h2>

@@ -1,6 +1,6 @@
 "use client";
 
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import Logo from "@/components/common/Logo";
@@ -19,6 +19,7 @@ export default function ContactInfoCards({
   setCopied,
   onClose,
 }: ContactInfoCardsProps) {
+  const siteConfig = useSiteConfig();
   const isMobile = useMobileLayout();
   return (
     <div className={styles.rightColumn}>

@@ -3,7 +3,7 @@
 import { Fragment, useRef, useCallback, useState, useEffect } from "react";
 
 import Image from "next/image";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 import styles from "./ProfileMeSection.module.css";
 
@@ -32,7 +32,7 @@ interface TextBlock {
   lines: { label: string; value: string }[];
 }
 
-const TEXT_POSITIONS: TextBlock[] = [
+const getTextPositions = (siteConfig: ReturnType<typeof useSiteConfig>): TextBlock[] => [
   /* ── Window-aligned blocks ── */
   {
     key: "a",
@@ -119,6 +119,9 @@ interface Props {
 }
 
 export default function ProfileWindows({ className, isMobile }: Props) {
+  const siteConfig = useSiteConfig();
+  const TEXT_POSITIONS = getTextPositions(siteConfig);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const winRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const peekRefs = useRef<Record<string, HTMLDivElement | null>>({});

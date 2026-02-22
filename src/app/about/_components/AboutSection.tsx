@@ -5,7 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import {
   designFeatures,
   designConcepts,
@@ -37,9 +37,11 @@ import SectionNav from "./SectionNav";
 import styles from "./AboutSection.module.css";
 
 const REPETITIONS = 3;
-const infiniteScroll = siteConfig.about.infiniteScroll;
 
 export default function AboutSection() {
+  const siteConfig = useSiteConfig();
+  const infiniteScroll = siteConfig.about.infiniteScroll;
+
   const { t, language } = useLanguage();
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
     useHorizontalScroll(styles, {
@@ -97,7 +99,7 @@ export default function AboutSection() {
       <DesignConceptPanel
         language={language}
         concepts={designConcepts}
-        mode={siteConfig.about.designConceptTransition}
+        mode={siteConfig.about.designConceptTransition as "strip" | "stack"}
         scrollBy={scrollBy}
       />
       <ProcessPanel

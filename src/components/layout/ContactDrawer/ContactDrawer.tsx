@@ -9,7 +9,7 @@ import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import ContactSuccessView from "./ContactSuccessView";
 import ContactInfoCards from "./ContactInfoCards";
 import styles from "./ContactDrawer.module.css";
@@ -83,6 +83,7 @@ export default function ContactDrawer({
   copied,
   setCopied,
 }: ContactDrawerProps) {
+  const siteConfig = useSiteConfig();
   const { t, language } = useLanguage();
   const { stop: lenisStop, start: lenisStart } = useLenis();
   const isMobile = useMobileLayout();

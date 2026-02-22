@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Post } from "@/types/post";
+import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./Posts.module.css";
 
 const STAGGER_DELAY = 0.06;
@@ -185,7 +186,7 @@ export default function PostsPage() {
 
       {/* ── Content ── */}
       {loading ? (
-        <p className={styles.statusText}>Loading...</p>
+        <PostsSkeleton />
       ) : posts.length === 0 ? (
         <p className={styles.statusText}>No posts found</p>
       ) : (
@@ -371,6 +372,42 @@ export default function PostsPage() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+/* ── Skeleton ── */
+const SKELETON_COUNT = 4;
+
+function PostsSkeleton() {
+  return (
+    <div className={styles.content}>
+      {/* Featured skeleton */}
+      <div className={styles.featured} style={{ pointerEvents: "none" }}>
+        <Skeleton className={styles.featuredPlaceholder} />
+        <div className={styles.featuredBody}>
+          <SkeletonLine width="30%" />
+          <SkeletonLine width="80%" height={22} />
+          <SkeletonLine />
+          <SkeletonLine width="60%" />
+        </div>
+      </div>
+
+      <div className={styles.divider} />
+
+      {/* List skeletons */}
+      <div className={styles.list}>
+        {Array.from({ length: SKELETON_COUNT }, (_, i) => (
+          <div key={i} className={styles.listItem} style={{ pointerEvents: "none" }}>
+            <div className={styles.listLeft}>
+              <SkeletonLine width="30%" />
+              <SkeletonLine width="80%" height={22} />
+              <SkeletonLine width="60%" />
+            </div>
+            <Skeleton className={styles.listThumb} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

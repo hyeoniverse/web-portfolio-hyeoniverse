@@ -22,6 +22,8 @@ import { LenisProvider } from "@/providers/LenisProvider";
 import RecaptchaProvider from "@/providers/RecaptchaProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
+import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 
 import FaviconSwitcher from "@/components/common/FaviconSwitcher";
 import ScrollRestoration from "@/components/common/ScrollRestoration";
@@ -80,11 +82,13 @@ const instrumentSerif = Instrument_Serif({
   display: "swap",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const config = await getSiteConfig();
+
   return (
     <html
       lang="ko"
@@ -96,10 +100,11 @@ export default function RootLayout({
       </head>
 
       <body>
-        <ThemeProvider>
-          <LanguageProvider>
-            <RecaptchaProvider>
-              <LenisProvider>
+        <SiteConfigProvider initialConfig={config}>
+          <ThemeProvider>
+            <LanguageProvider>
+              <RecaptchaProvider>
+                <LenisProvider>
                 <Navigation />
                 <main>{children}</main>
                 <Footer />
@@ -113,10 +118,11 @@ export default function RootLayout({
                   <ContactDrawerWrapper />
                   <CursorTrail />
                 </aside>
-              </LenisProvider>
-            </RecaptchaProvider>
-          </LanguageProvider>
-        </ThemeProvider>
+                </LenisProvider>
+              </RecaptchaProvider>
+            </LanguageProvider>
+          </ThemeProvider>
+        </SiteConfigProvider>
       </body>
     </html>
   );

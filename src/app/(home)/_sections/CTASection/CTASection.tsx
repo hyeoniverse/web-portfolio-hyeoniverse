@@ -2,7 +2,7 @@
 
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import Button from "@/components/ui/Button";
 import Section from "@/components/ui/Section";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -20,6 +20,7 @@ interface CTASectionProps {
 
 const CTASection = forwardRef<HTMLElement, CTASectionProps>(
   ({ floatX, floatY, ctaOvalX, ctaOvalY, magnetic, onContactClick }, ref) => {
+    const siteConfig = useSiteConfig();
     const { t } = useLanguage();
 
     return (

@@ -1,1 +1,1 @@
-export { siteConfig, type SiteConfig } from "./site.config";
+export { siteConfig, type SiteConfig, type SiteConfigData } from "./site.config";
