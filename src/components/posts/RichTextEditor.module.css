@@ -209,6 +209,28 @@
 .editor :global(.tiptap) img {
   max-width: 100%;
   border-radius: var(--radius-md);
+  display: block;
+  cursor: pointer;
+}
+
+.editor :global(.tiptap) img[data-align="left"] {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.editor :global(.tiptap) img[data-align="center"] {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.editor :global(.tiptap) img[data-align="right"] {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.editor :global(.tiptap) img.ProseMirror-selectednode {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .editor :global(.tiptap) a {
@@ -267,10 +289,6 @@
   border: none;
 }
 
-/* Embed button highlight */
-.embedBtn {
-  color: var(--color-accent) !important;
-}
 
 .editor :global(.tiptap) p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
@@ -278,6 +296,46 @@
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+/* Image bubble menu */
+.imageBubble {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--spacing-2xs);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.imageBubbleBtn {
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: none;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.imageBubble .imageBubbleBtn:hover {
+  background: var(--color-neutral-alpha-10);
+  color: var(--text-primary);
+}
+
+.imageBubbleBtnActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.imageBubble .imageBubbleBtnActive:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 @media (max-width: 768px) {

@@ -81,6 +81,7 @@ const menuItems = [
 
 const adminNavItems = [
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },
+  { key: "admin-series", href: "/admin/series", label: "Series" },
   { key: "admin-settings", href: "/admin/settings", label: "Settings" },
 ];
 

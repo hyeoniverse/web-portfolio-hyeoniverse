@@ -6,8 +6,8 @@ export const backendItems: BackendItem[] = [
     name: "Posts API",
     kind: "api",
     description: {
-      ko: "블로그 포스트 CRUD + 좋아요/조회수 API. 목록 조회 시 태그·검색·정렬 필터를 지원하며, 좋아요는 IP 기반 토글 방식입니다.",
-      en: "Blog post CRUD + like/view APIs. List queries support tag, search, and sort filters. Likes use IP-based toggling.",
+      ko: "블로그 포스트 CRUD + 좋아요/조회수 API. 목록 조회 시 태그·검색·정렬·시리즈 필터를 지원하며, 좋아요는 IP 기반 토글 방식입니다.",
+      en: "Blog post CRUD + like/view APIs. List queries support tag, search, sort, and series filters. Likes use IP-based toggling.",
     },
     endpoints: [
       { method: "GET", path: "/api/posts", description: { ko: "포스트 목록 (페이지네이션, 태그/검색/정렬 필터)", en: "List posts (pagination, tag/search/sort filters)" } },
@@ -93,6 +93,22 @@ const { data } = await admin.from("comments")
     ],
   },
 
+  {
+    name: "Series API",
+    kind: "api",
+    description: {
+      ko: "시리즈 CRUD API. 포스트를 시리즈로 묶어 순서대로 발행할 수 있으며, 시리즈별 포스트 목록 조회를 지원합니다.",
+      en: "Series CRUD API. Group posts into series for sequential publishing, with series-filtered post listing support.",
+    },
+    endpoints: [
+      { method: "GET", path: "/api/series", description: { ko: "시리즈 목록 (포스트 수 포함)", en: "List series (with post counts)" } },
+      { method: "POST", path: "/api/series", description: { ko: "시리즈 생성 (admin, 자동 slug)", en: "Create series (admin, auto slug)" } },
+      { method: "GET", path: "/api/series/[id]", description: { ko: "단일 시리즈 + 소속 포스트", en: "Single series + posts" } },
+      { method: "PATCH", path: "/api/series/[id]", description: { ko: "시리즈 수정 (admin)", en: "Update series (admin)" } },
+      { method: "DELETE", path: "/api/series/[id]", description: { ko: "시리즈 삭제 (admin)", en: "Delete series (admin)" } },
+    ],
+  },
+
   /* ── Database Tables ── */
   {
     name: "posts",
@@ -118,6 +134,8 @@ const { data } = await admin.from("comments")
       { name: "published", type: "BOOLEAN", description: { ko: "공개 여부", en: "Published flag" } },
       { name: "view_count", type: "INTEGER", description: { ko: "조회수", en: "View count" } },
       { name: "like_count", type: "INTEGER", description: { ko: "좋아요 수 (likes 동기화)", en: "Like count (synced)" } },
+      { name: "series_id", type: "UUID", constraint: "FK → series", description: { ko: "소속 시리즈 (NULL = 미소속)", en: "Parent series (NULL = none)" } },
+      { name: "series_order", type: "INTEGER", description: { ko: "시리즈 내 순서", en: "Order within series" } },
     ],
   },
   {
@@ -157,6 +175,25 @@ const { data } = await admin.from("comments")
       { name: "target_type", type: "TEXT", description: { ko: "'post' | 'work'", en: "'post' | 'work'" } },
       { name: "target_id", type: "TEXT", description: { ko: "대상 ID", en: "Target ID" } },
       { name: "ip", type: "TEXT", description: { ko: "IP 주소", en: "IP address" } },
+    ],
+  },
+  {
+    name: "series",
+    kind: "table",
+    description: {
+      ko: "시리즈 테이블. 포스트를 묶어 순서대로 발행하기 위한 그룹 단위입니다. 한/영 이중 언어 제목·설명을 지원합니다.",
+      en: "Series table. Groups posts for sequential publishing. Supports bilingual (KO/EN) titles and descriptions.",
+    },
+    designNote: {
+      ko: "**카테고리와 별개**: 카테고리는 단일 분류(General, Tech 등)이고, 시리즈는 포스트를 **순서대로 묶는 컬렉션**입니다. 하나의 포스트는 하나의 카테고리와 하나의 시리즈에 동시 소속 가능합니다.",
+      en: "**Separate from categories**: Categories are single classifications (General, Tech, etc.), while series are **ordered collections**. A post can belong to one category and one series simultaneously.",
+    },
+    columns: [
+      { name: "id", type: "UUID", constraint: "PK", description: { ko: "고유 식별자", en: "Primary key" } },
+      { name: "title / title_en", type: "TEXT", description: { ko: "시리즈 제목 (한국어/영어)", en: "Series title (KO/EN)" } },
+      { name: "slug", type: "TEXT", constraint: "UNIQUE", description: { ko: "URL 슬러그", en: "URL slug" } },
+      { name: "description / description_en", type: "TEXT", description: { ko: "시리즈 설명 (한국어/영어)", en: "Series description (KO/EN)" } },
+      { name: "published", type: "BOOLEAN", description: { ko: "공개 여부", en: "Published flag" } },
     ],
   },
 ];

@@ -213,6 +213,17 @@
   cursor: pointer;
 }
 
+/* New series inline create */
+.newSeriesRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-2xs);
+}
+
+.newSeriesRow .fieldInput {
+  flex: 1;
+}
+
 /* Pin toggle */
 .pinToggle {
   display: flex;

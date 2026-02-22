@@ -93,12 +93,12 @@ export const designFeatures: DesignFeature[] = [
   },
   {
     icon: "10",
-    title: "Posts & Comments",
+    title: "Posts & Series",
     description: {
-      ko: "Supabase 기반 블로그 시스템. Markdown과 Rich Text(Tiptap) 전환 가능한 에디터, 게스트 대댓글, 검색·태그 필터를 지원합니다. 커버 이미지는 직접 업로드 외에 프리셋 그라데이션, Unsplash 검색, AI 생성(NanoBanana / Hugging Face 중 선택) 중 고를 수 있습니다. IP 기반 좋아요 시스템으로 로그인 없이도 중복 없는 좋아요 토글이 가능합니다.",
-      en: "A full blog system powered by Supabase. Switchable Markdown/Rich Text editor, threaded guest comments, search & tag filtering. Cover images can be set via direct upload, preset gradients, Unsplash search, or AI generation (NanoBanana / Hugging Face — configurable). IP-based likes allow duplicate-free toggling without login.",
+      ko: "Supabase 기반 블로그 시스템. Markdown과 Rich Text(Tiptap) 전환 가능한 에디터에서 이미지 정렬·크기 조절까지 지원합니다. 포스트를 시리즈로 묶어 순서대로 발행할 수 있으며, 상세 페이지에서 이전/다음 글 네비게이션이 표시됩니다. 게스트 대댓글, 검색·태그·시리즈 필터, 커버 이미지(프리셋/Unsplash/AI), IP 기반 좋아요를 지원합니다.",
+      en: "A full blog system powered by Supabase. The switchable Markdown/Rich Text editor supports image alignment and resizing. Posts can be grouped into series for sequential publishing, with prev/next navigation on detail pages. Threaded guest comments, search/tag/series filtering, cover images (presets/Unsplash/AI), and IP-based likes.",
     },
-    tech: ["Supabase", "Tiptap", "Markdown", "Canvas API", "Unsplash API", "IP Likes"],
+    tech: ["Supabase", "Tiptap", "Series", "Image Editing", "Canvas API", "IP Likes"],
     image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
   },
   {

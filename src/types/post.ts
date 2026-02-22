@@ -18,6 +18,8 @@ export interface Post {
   title_en: string;
   content_en: string;
   excerpt_en: string;
+  series_id: string | null;
+  series_order: number;
 }
 
 export interface PostFormData {
@@ -35,6 +37,22 @@ export interface PostFormData {
   title_en: string;
   content_en: string;
   excerpt_en: string;
+  series_id: string | null;
+  series_order: number;
+}
+
+export interface Series {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  cover_image: string;
+  published: boolean;
+  created_at: string;
+  updated_at: string;
+  title_en: string;
+  description_en: string;
+  post_count?: number;
 }
 
 export interface Comment {
