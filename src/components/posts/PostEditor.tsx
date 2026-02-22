@@ -65,6 +65,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [slugManual, setSlugManual] = useState(isEdit);
@@ -209,6 +210,21 @@ export default function PostEditor({ post }: PostEditorProps) {
     [form, isEdit, post, router]
   );
 
+  const handleDelete = useCallback(async () => {
+    if (!post) return;
+    if (!confirm(`"${post.title}" 을(를) 삭제하시겠습니까?`)) return;
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/posts/${post.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      router.push("/admin/posts");
+    } catch {
+      setError("삭제 실패");
+      setDeleting(false);
+    }
+  }, [post, router]);
+
   // Language-aware field keys
   const titleKey = editorLang === "ko" ? "title" : "title_en";
   const contentKey = editorLang === "ko" ? "content" : "content_en";
@@ -224,6 +240,16 @@ export default function PostEditor({ post }: PostEditorProps) {
           <LanguageToggle lang={editorLang} onLangChange={setEditorLang} />
           {status && <span className={styles.status}>{status}</span>}
           {error && <span className={styles.error}>{error}</span>}
+          {isEdit && (
+            <button
+              type="button"
+              className={styles.deleteBtn}
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </button>
+          )}
           <button
             type="button"
             className={styles.saveBtn}
