@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-3xl);
 }
 
 .title {
@@ -46,38 +46,40 @@
   padding: var(--spacing-3xl) 0;
 }
 
-/* Table */
+/* ── Table — open, line-based ── */
 .table {
-  border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  /* no border, no box */
 }
 
 .tableHeader {
   display: grid;
   grid-template-columns: 1fr 100px 120px 80px 140px;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-tertiary);
+  gap: var(--spacing-md);
+  padding: 0 0 var(--spacing-sm);
+  border-bottom: 1px solid var(--border-tertiary-color);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-tertiary);
+  font-weight: 500;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .row {
   display: grid;
   grid-template-columns: 1fr 100px 120px 80px 140px;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) 0;
   align-items: center;
-  border-top: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-tertiary-color);
 }
 
 .table .row:hover {
-  background: var(--bg-tertiary);
+  background: transparent;
+}
+
+.table .row:hover .postLink {
+  color: var(--color-accent);
 }
 
 .colTitle {
@@ -92,10 +94,6 @@
 .postLink {
   color: inherit;
   text-decoration: none;
-}
-
-.row:hover .postLink {
-  color: var(--color-accent);
 }
 
 .colStatus {
@@ -140,12 +138,12 @@
 
 .actionBtn {
   padding: var(--spacing-2xs) var(--spacing-md);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   text-decoration: none;
 }
 
@@ -174,7 +172,7 @@
   justify-content: center;
   align-items: center;
   gap: var(--spacing-xs);
-  margin-top: var(--spacing-2xl);
+  margin-top: var(--spacing-3xl);
 }
 
 .pageBtn {
@@ -312,7 +310,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg) 0;
   }
 
   .colTitle {
