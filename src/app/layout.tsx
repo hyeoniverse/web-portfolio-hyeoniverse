@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type React from "react";
 import "@/styles/global.css";
-import { siteConfig } from "@/config/site.config";
 import {
   Inter,
   Playfair_Display,
@@ -27,29 +26,38 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
 
 import FaviconSwitcher from "@/components/common/FaviconSwitcher";
 import ScrollRestoration from "@/components/common/ScrollRestoration";
+import BGMController from "@/components/common/BGMController";
 
-export const metadata: Metadata = {
-  title: siteConfig.metadata.title,
-  description: siteConfig.metadata.description,
-  keywords: siteConfig.metadata.keywords,
-  authors: [{ name: siteConfig.metadata.author }],
-  creator: siteConfig.metadata.author,
-  openGraph: {
-    title: siteConfig.metadata.title,
-    description: siteConfig.metadata.description,
-    type: "website",
-    locale: siteConfig.metadata.locale,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: siteConfig.metadata.title,
-    description: siteConfig.metadata.description,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cfg = await getSiteConfig();
+  const siteName = cfg.metadata.title;
+  return {
+    title: {
+      default: siteName,
+      template: `${siteName} | %s`,
+    },
+    description: cfg.metadata.description,
+    keywords: cfg.metadata.keywords,
+    authors: [{ name: cfg.metadata.author }],
+    creator: cfg.metadata.author,
+    openGraph: {
+      title: siteName,
+      description: cfg.metadata.description,
+      type: "website",
+      locale: cfg.metadata.locale,
+      siteName,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteName,
+      description: cfg.metadata.description,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 const inter = Inter({
   subsets: ["latin"],
@@ -112,6 +120,7 @@ export default async function RootLayout({
                 <aside>
                   <FaviconSwitcher />
                   <ScrollRestoration />
+                  <BGMController />
                   <LoadingScreen />
                   <PageTransitionOverlay />
                   <Modal />
