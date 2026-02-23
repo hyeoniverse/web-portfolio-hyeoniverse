@@ -108,8 +108,8 @@
 
 .navItem {
   padding: var(--spacing-xs) var(--spacing-md);
-  border: none;
-  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -118,16 +118,53 @@
   text-align: left;
   cursor: pointer;
   letter-spacing: 0.02em;
+  width: 100%;
 }
 
 .sideNav .navItem:hover {
   color: var(--text-primary);
-  background: var(--bg-tertiary);
+  border-color: var(--border-tertiary-color);
 }
 
 .navItemActive {
   color: var(--text-primary);
   background: var(--bg-tertiary);
+  border-color: var(--border-tertiary-color);
+}
+
+/* ── Nav Sub-items (Content → Home / Profile / About) ── */
+.navSub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding-left: var(--spacing-md);
+  margin-top: var(--spacing-2xs);
+}
+
+.navSubItem {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid transparent;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  text-align: left;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  width: 100%;
+}
+
+.navSub .navSubItem:hover {
+  color: var(--text-primary);
+  border-color: var(--border-tertiary-color);
+}
+
+.navSubItemActive {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border-color: var(--border-tertiary-color);
 }
 
 .panel {
@@ -513,6 +550,179 @@
   cursor: not-allowed;
 }
 
+/* ── Profile Sections (embedded in Content tab) ── */
+.profileDivider {
+  padding: var(--spacing-xl) 0;
+  margin-bottom: var(--spacing-xl);
+  border-top: 2px solid var(--border-tertiary-color);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.profileDivider span {
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.profileDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-tertiary-color);
+}
+
+.profileSubTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--spacing-md);
+}
+
+.profileCard {
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.profileCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profileCardTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.profileRemoveBtn {
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.profileCard .profileRemoveBtn:hover {
+  text-decoration: underline;
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.profileFieldLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.profileFieldInput {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.profileFieldInput:focus {
+  border-color: var(--text-primary);
+}
+
+.profileFieldTextarea {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.profileFieldTextarea:focus {
+  border-color: var(--text-primary);
+}
+
+.profileAddBtn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px dashed var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  width: 100%;
+}
+
+.section .profileAddBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.profileNested {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.profileNestedTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ── Account ── */
+.fieldValue {
+  flex: 1;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.accountActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-lg);
+}
+
 /* ── Skeleton (tab layout) ── */
 .skeletonNav {
   display: flex;
@@ -557,6 +767,17 @@
     flex-shrink: 0;
   }
 
+  .navSub {
+    flex-direction: row;
+    padding-left: 0;
+    margin-top: 0;
+  }
+
+  .navSubItem {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
   .fieldRow {
     flex-direction: column;
     align-items: stretch;
@@ -577,6 +798,10 @@
 
   .serviceItemFields .fieldLabel {
     width: auto;
+  }
+
+  .profileGrid {
+    grid-template-columns: 1fr;
   }
 
   .skeletonNav {

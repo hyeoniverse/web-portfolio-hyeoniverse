@@ -16,10 +16,30 @@
   pointer-events: none;
 }
 
+.logoGroup,
 .logo,
 .navCenter,
 .navActions {
   pointer-events: auto;
+}
+
+.logoGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.adminBadge {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-white);
+  border: 1px solid var(--text-white);
+  border-radius: var(--radius-capsule);
+  padding: 2px 8px;
+  opacity: 0.6;
 }
 
 .logo {
@@ -592,6 +612,15 @@
   /* mix-blend-mode: difference 유지 */
 }
 
+/* Admin email */
+.adminEmail {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-white);
+  opacity: 0.5;
+  letter-spacing: 0.02em;
+}
+
 /* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경 */
 .logoutBtn.logoutBtn {
   border-color: var(--text-white);
@@ -654,6 +683,10 @@
 }
 
 @media (max-width: 768px) {
+  .adminEmail {
+    display: none;
+  }
+
   .navActions {
     gap: 2px;
   }

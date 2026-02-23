@@ -13,6 +13,7 @@ import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMotionValue, useSpring } from "framer-motion";
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import Logo from "@/components/common/Logo";
 import Button from "@/components/ui/Button";
 import styles from "./Navigation.module.css";
@@ -82,7 +83,6 @@ const menuItems = [
 const adminNavItems = [
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },
   { key: "admin-works", href: "/admin/works", label: "Works" },
-  { key: "admin-profile", href: "/admin/profile", label: "Profile" },
   { key: "admin-settings", href: "/admin/settings", label: "Settings" },
 ];
 
@@ -114,6 +114,15 @@ export default function Navigation() {
   const { stop: lenisStop, start: lenisStart } = useLenis();
 
   const isAdminPage = pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
+
+  const [adminEmail, setAdminEmail] = useState("");
+  useEffect(() => {
+    if (!isAdminPage) return;
+    const supabase = createSupabaseClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setAdminEmail(data.user?.email ?? "");
+    });
+  }, [isAdminPage]);
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
   const showLoadingLogo = isLoading && !shouldSkipLoading;
@@ -324,25 +333,26 @@ export default function Navigation() {
 
   return (
     <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${isAdminPage ? styles.navAdmin : ""}`}>
-      <motion.div
-        ref={logoRef}
-        className={styles.logoWrapper}
-        animate={
-          showLoadingLogo && !isTransitioning
-            ? { x: centerOffset.x, y: centerOffset.y, scale: scaleFactor }
-            : { x: 0, y: 0, scale: 1 }
-        }
-        transition={{
-          duration: isTransitioning ? 0.7 : 0,
-          ease: [0.76, 0, 0.24, 1],
-          delay: isTransitioning ? 0.25 : 0,
-        }}
-        style={{
-          transformOrigin: "left center",
-          visibility: showLoadingLogo && !logoMeasured ? "hidden" : "visible",
-        }}
-      >
-        <Link href="/" className={styles.logo}>
+      <div className={styles.logoGroup}>
+        <motion.div
+          ref={logoRef}
+          className={styles.logoWrapper}
+          animate={
+            showLoadingLogo && !isTransitioning
+              ? { x: centerOffset.x, y: centerOffset.y, scale: scaleFactor }
+              : { x: 0, y: 0, scale: 1 }
+          }
+          transition={{
+            duration: isTransitioning ? 0.7 : 0,
+            ease: [0.76, 0, 0.24, 1],
+            delay: isTransitioning ? 0.25 : 0,
+          }}
+          style={{
+            transformOrigin: "left center",
+            visibility: showLoadingLogo && !logoMeasured ? "hidden" : "visible",
+          }}
+        >
+          <Link href={isAdminPage ? "/admin/posts" : "/"} className={styles.logo}>
           <motion.span
             className="glith-on-hover"
             initial={showLoadingLogo ? { opacity: 0, y: 20, filter: "blur(12px)" } : false}
@@ -391,7 +401,9 @@ export default function Navigation() {
               </motion.span>
             ))}
         </Link>
-      </motion.div>
+        </motion.div>
+        {isAdminPage && <span className={styles.adminBadge}>Admin</span>}
+      </div>
 
       <div
         className={styles.navCenter}
@@ -428,16 +440,18 @@ export default function Navigation() {
 
       <div className={styles.navActions}>
         {isAdminPage ? (
-          /* Admin: Logout 버튼 */
-          <Button
-            variant="outline"
-            size="xs"
-            className={styles.logoutBtn}
-            onClick={handleLogout}
-            soundDisabled
-          >
-            Logout
-          </Button>
+          <>
+            {adminEmail && <span className={styles.adminEmail}>{adminEmail}</span>}
+            <Button
+              variant="outline"
+              size="xs"
+              className={styles.logoutBtn}
+              onClick={handleLogout}
+              soundDisabled
+            >
+              Logout
+            </Button>
+          </>
         ) : (
           /* Get in Touch */
           <Button
