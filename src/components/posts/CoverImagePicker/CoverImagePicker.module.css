@@ -66,10 +66,11 @@
 /* ── Body ── */
 .body {
   padding: var(--spacing-sm);
-  max-height: 360px;
-  overflow-y: auto;
+  height: 360px;
+  overflow-y: scroll;
   scrollbar-width: thin;
   scrollbar-color: var(--border-primary-color) transparent;
+  scrollbar-gutter: stable;
 }
 
 .body::-webkit-scrollbar {
@@ -319,7 +320,6 @@
 
 .aiPreview img {
   width: 100%;
-  max-width: 400px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-tertiary-color);
 }
