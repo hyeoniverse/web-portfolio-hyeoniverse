@@ -111,4 +111,14 @@ export const designFeatures: DesignFeature[] = [
     tech: ["Supabase Auth", "Next.js Middleware", "Session Cookie", "Route Protection"],
     image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80",
   },
+  {
+    icon: "12",
+    title: "Works & Profile CRUD",
+    description: {
+      ko: "포트폴리오 작업물과 프로필을 Admin에서 직접 편집할 수 있습니다. 한/영 이중 언어, 기술 스택, 갤러리 이미지를 지원하며, DB 미연결 시 정적 데이터로 자동 fallback됩니다.",
+      en: "Edit portfolio works and profile directly from Admin. Supports bilingual fields, tech stack, and gallery images. Auto-falls back to static data when DB is unavailable.",
+    },
+    tech: ["Supabase", "JSONB", "Static Fallback", "Server Components"],
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
+  },
 ];

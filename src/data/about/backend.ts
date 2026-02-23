@@ -108,6 +108,55 @@ const { data } = await admin.from("comments")
       { method: "DELETE", path: "/api/series/[id]", description: { ko: "시리즈 삭제 (admin)", en: "Delete series (admin)" } },
     ],
   },
+  {
+    name: "Works API",
+    kind: "api",
+    description: {
+      ko: "포트폴리오 작업물 CRUD API. 한/영 이중 언어 필드, 기술 스택, 갤러리 이미지를 지원합니다. DB 미연결 시 정적 데이터로 자동 fallback.",
+      en: "Portfolio works CRUD API. Supports bilingual fields, tech stack, and gallery images. Auto-falls back to static data when DB is unavailable.",
+    },
+    endpoints: [
+      { method: "GET", path: "/api/works", description: { ko: "작업물 목록 (?all=true: 비공개 포함)", en: "List works (?all=true: include unpublished)" } },
+      { method: "POST", path: "/api/works", description: { ko: "작업물 생성 (admin)", en: "Create work (admin)" } },
+      { method: "GET", path: "/api/works/[id]", description: { ko: "작업물 단건 조회", en: "Get single work" } },
+      { method: "PATCH", path: "/api/works/[id]", description: { ko: "작업물 수정 (admin)", en: "Update work (admin)" } },
+      { method: "DELETE", path: "/api/works/[id]", description: { ko: "작업물 삭제 (admin)", en: "Delete work (admin)" } },
+      { method: "GET", path: "/api/works/[id]/like", description: { ko: "좋아요 수 + IP liked 여부", en: "Like count + IP liked status" } },
+      { method: "POST", path: "/api/works/[id]/like", description: { ko: "좋아요 토글 (IP 기반)", en: "Toggle like (IP-based)" } },
+    ],
+    exampleQuery: {
+      title: "Static Fallback Pattern",
+      code: `// getWorks.ts — DB 미연결 시 정적 데이터 fallback
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!url || !key) {
+  // 환경변수 없으면 정적 데이터 반환
+  return projects; // from @/data/projects
+}
+
+const { data } = await admin.from("works")
+  .select("*")
+  .eq("published", true)
+  .order("sort_order");
+
+// DB 비어있으면 정적 데이터 fallback
+return data?.length ? data.map(workToProject) : projects;`,
+      language: "javascript",
+    },
+  },
+  {
+    name: "Profile API",
+    kind: "api",
+    description: {
+      ko: "프로필 데이터 조회/수정 API. site_settings 테이블에 JSONB로 저장하며, 경력/스킬/철학/접근법/자격증/수상 섹션을 관리합니다.",
+      en: "Profile data read/update API. Stored as JSONB in site_settings table, managing experiences/skills/philosophy/approach/certifications/awards.",
+    },
+    endpoints: [
+      { method: "GET", path: "/api/admin/profile", description: { ko: "프로필 데이터 조회", en: "Get profile data" } },
+      { method: "PATCH", path: "/api/admin/profile", description: { ko: "프로필 데이터 수정 (admin, upsert)", en: "Update profile data (admin, upsert)" } },
+    ],
+  },
 
   /* ── Database Tables ── */
   {
@@ -195,6 +244,47 @@ const { data } = await admin.from("comments")
       { name: "description / description_en", type: "TEXT", description: { ko: "시리즈 설명 (한국어/영어)", en: "Series description (KO/EN)" } },
       { name: "category", type: "TEXT", constraint: "NOT NULL", description: { ko: "소속 카테고리", en: "Parent category" } },
       { name: "published", type: "BOOLEAN", description: { ko: "공개 여부", en: "Published flag" } },
+    ],
+  },
+  {
+    name: "works",
+    kind: "table",
+    description: {
+      ko: "포트폴리오 작업물 테이블. 한/영 이중 언어 필드를 flat column으로 저장하며, 앱에서 LocalizedText 객체로 변환합니다.",
+      en: "Portfolio works table. Bilingual fields stored as flat columns, converted to LocalizedText objects in the app.",
+    },
+    designNote: {
+      ko: "**정적 fallback 패턴**: DB 미연결(환경변수 미설정) 시 `data/projects.ts`의 정적 데이터를 반환합니다. `workToProject()` 함수가 flat DB 컬럼을 `{ ko, en }` 형태의 프론트엔드 타입으로 변환합니다.",
+      en: "**Static fallback pattern**: Returns static data from `data/projects.ts` when DB is unavailable. `workToProject()` converts flat DB columns to `{ ko, en }` frontend types.",
+    },
+    columns: [
+      { name: "id", type: "UUID", constraint: "PK", description: { ko: "고유 식별자", en: "Primary key" } },
+      { name: "title", type: "TEXT", description: { ko: "작업물 제목", en: "Work title" } },
+      { name: "subtitle_ko / _en", type: "TEXT", description: { ko: "부제목 (한국어/영어)", en: "Subtitle (KO/EN)" } },
+      { name: "category_ko / _en", type: "TEXT", description: { ko: "카테고리 (한국어/영어)", en: "Category (KO/EN)" } },
+      { name: "tech", type: "TEXT[]", description: { ko: "기술 스택 배열", en: "Tech stack array" } },
+      { name: "image", type: "TEXT", description: { ko: "메인 이미지 URL", en: "Main image URL" } },
+      { name: "size", type: "TEXT", constraint: "CHECK", description: { ko: "'large' | 'small' | 'medium' | 'tall' | 'wide'", en: "'large' | 'small' | 'medium' | 'tall' | 'wide'" } },
+      { name: "gallery", type: "TEXT[]", description: { ko: "갤러리 이미지 URL 배열", en: "Gallery image URL array" } },
+      { name: "published", type: "BOOLEAN", description: { ko: "공개 여부", en: "Published flag" } },
+      { name: "sort_order", type: "INTEGER", description: { ko: "정렬 순서", en: "Sort order" } },
+    ],
+  },
+  {
+    name: "site_settings",
+    kind: "table",
+    description: {
+      ko: "사이트 설정 + 프로필 데이터 테이블. id 컬럼으로 용도 구분: 'default'(사이트 설정), 'profile'(프로필 데이터). JSONB로 유연한 스키마.",
+      en: "Site settings + profile data table. Purpose distinguished by id column: 'default' (site settings), 'profile' (profile data). Flexible schema via JSONB.",
+    },
+    designNote: {
+      ko: "**JSONB 블롭 저장**: 프로필 데이터(경력, 스킬 등)는 깊이 중첩된 이중 언어 구조여서 개별 컬럼보다 **JSONB로 통째로 저장**하는 것이 유연합니다. site_settings 테이블을 재활용하여 `id='profile'` 행에 저장합니다.",
+      en: "**JSONB blob storage**: Profile data (experiences, skills, etc.) has deeply nested bilingual structures, making **JSONB storage** more flexible than individual columns. Reuses site_settings table with `id='profile'` row.",
+    },
+    columns: [
+      { name: "id", type: "TEXT", constraint: "PK", description: { ko: "'default' | 'profile'", en: "'default' | 'profile'" } },
+      { name: "config", type: "JSONB", description: { ko: "설정/데이터 JSON", en: "Settings/data JSON" } },
+      { name: "updated_at", type: "TIMESTAMPTZ", description: { ko: "마지막 수정 시각", en: "Last modified timestamp" } },
     ],
   },
 ];

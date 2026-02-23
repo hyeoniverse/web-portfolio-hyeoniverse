@@ -34,7 +34,9 @@
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행하는 기능. 시리즈는 카테고리의 하위 요소로, 각 시리즈는 하나의 카테고리에 소속됩니다. 포스트 목록에서 "Posts" / "Series" 뷰 토글로 시리즈 카드 그리드를 별도로 탐색할 수 있으며, 카테고리 선택 시 해당 카테고리의 시리즈만 표시됩니다. 시리즈 카드 클릭 시 해당 시리즈의 포스트만 필터링하여 표시. 포스트 상세 페이지에서 시리즈 네비게이션(이전/다음 글 + 전체 목록 접기/펼치기) 표시. Admin에서 시리즈 CRUD + 카테고리 관리
 - **IP 기반 좋아요**: Posts와 Works 상세 페이지에서 좋아요 기능 지원. `likes` 테이블에서 IP 주소 기반으로 중복 방지 및 토글 처리. Posts는 `posts.like_count` 컬럼에 동기화하여 목록 조회 시 추가 쿼리 없이 카운트 표시
 - **Cover Image Picker**: 포스트 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
-- **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Next.js Middleware로 `/admin` 경로 보호
+- **Works Admin CRUD**: Supabase DB 기반 포트폴리오 작업물 관리. Admin에서 작업물 생성/수정/삭제, 발행 토글, 정렬 순서 변경 가능. 한/영 이중 언어 필드, 기술 스택, 갤러리 이미지 지원. DB 미연결 시 정적 데이터(`data/projects.ts`)로 자동 fallback
+- **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. `site_settings` 테이블에 JSONB로 저장하며 6개 탭으로 구분. DB 미연결 시 정적 데이터 fallback
+- **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물/프로필/시리즈 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Next.js Middleware로 `/admin` 경로 보호
 
 ## User Flow
 
@@ -56,6 +58,9 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 /admin 직접 접속 → Supabase Auth 로그인 → 대시보드
 → 포스트 작성(Markdown/Rich Text 전환) → 커버 이미지 선택(프리셋/Unsplash/AI) → 시리즈 선택(선택사항) → 발행
 → 시리즈 관리(/admin/series) — 생성(카테고리 지정), 수정, 삭제, 발행/비공개 전환
+→ 작업물 관리(/admin/works) — 생성, 수정, 삭제, 발행/비공개 전환, 정렬 순서 변경
+→ 프로필 편집(/admin/profile) — 경력/스킬/철학/접근법/자격증/수상 6개 탭
+→ 사이트 설정(/admin/settings) — 테마, 메타 정보 등
 ```
 
 - 로그인 버튼 없이 URL 직접 접속 방식
@@ -109,188 +114,39 @@ NANOBANANA_API_KEY=your_key         # provider: "nanobanana"
 
 ### 2. 데이터베이스 테이블 생성
 
-Supabase Dashboard → **SQL Editor**에서 아래 쿼리를 실행:
+[`supabase/setup.sql`](supabase/setup.sql) 파일에 전체 테이블 생성 + RLS 정책이 포함되어 있습니다.
 
-```sql
--- Posts 테이블
-CREATE TABLE posts (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  slug TEXT NOT NULL UNIQUE,
-  content TEXT NOT NULL DEFAULT '',
-  content_type TEXT NOT NULL DEFAULT 'markdown' CHECK (content_type IN ('markdown', 'richtext')),
-  excerpt TEXT DEFAULT '',
-  cover_image TEXT DEFAULT '',
-  tags TEXT[] DEFAULT '{}',
-  published BOOLEAN DEFAULT false,
-  language TEXT DEFAULT 'ko' CHECK (language IN ('ko', 'en')),
-  view_count INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
+Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
--- Posts에 카테고리 + 상단 고정 컬럼 추가
-ALTER TABLE posts ADD COLUMN category TEXT DEFAULT 'General';
-ALTER TABLE posts ADD COLUMN is_pinned BOOLEAN DEFAULT false;
+**생성되는 테이블 (7개):**
 
--- Posts에 좋아요 수 캐시 컬럼 추가
--- likes 테이블의 COUNT(*)를 매번 조회하지 않고, 포스트 목록에서 바로 like_count를 읽을 수 있게 합니다.
--- 좋아요 토글 시 API가 likes 테이블 변경 후 이 컬럼을 동기화합니다.
-ALTER TABLE posts ADD COLUMN like_count INTEGER DEFAULT 0;
+| 테이블 | 용도 |
+|--------|------|
+| `site_settings` | 사이트 설정 + 프로필 데이터 (JSONB) |
+| `series` | 블로그 시리즈 |
+| `posts` | 블로그 포스트 |
+| `comments` | 댓글 (대댓글, 비회원 비밀번호) |
+| `likes` | 좋아요 (포스트/작업물 공용, IP 중복 방지) |
+| `works` | 포트폴리오 작업물 |
+| `site_visits` | 방문자 통계 (IP+날짜 1회) |
 
--- Posts에 시리즈 연결 컬럼 추가
-ALTER TABLE posts ADD COLUMN series_id UUID REFERENCES series(id) ON DELETE SET NULL;
-ALTER TABLE posts ADD COLUMN series_order INTEGER DEFAULT 0;
+> `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다.
 
--- Series 테이블 (포스트를 묶어 순서대로 발행, 카테고리 하위 요소)
-CREATE TABLE series (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  slug TEXT NOT NULL UNIQUE,
-  description TEXT DEFAULT '',
-  cover_image TEXT DEFAULT '',
-  category TEXT NOT NULL DEFAULT 'General',
-  published BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now(),
-  title_en TEXT DEFAULT '',
-  description_en TEXT DEFAULT ''
-);
+> **Supabase 없이도 동작**: 환경변수가 설정되지 않으면 Works(`data/projects.ts`), Profile(`data/profile.ts`), Settings(`config/site.config.ts`)의 정적 데이터로 자동 fallback됩니다.
 
--- Comments 테이블 (threaded)
-CREATE TABLE comments (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  parent_id UUID REFERENCES comments(id) ON DELETE CASCADE,
-  nickname TEXT NOT NULL,
-  password_hash TEXT NOT NULL,
-  content TEXT NOT NULL,
-  is_admin BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+**주요 API 엔드포인트:**
 
--- Likes 테이블 (IP 기반 중복 방지)
---
--- 설계 이유:
--- 1. posts와 works의 좋아요를 하나의 테이블로 관리합니다.
---    posts는 Supabase DB에, works는 정적 데이터(src/data/projects.ts)에 있어
---    각각 별도 테이블을 만드는 대신 target_type으로 구분합니다.
--- 2. IP 주소로 중복 좋아요를 방지합니다.
---    로그인 없는 포트폴리오 사이트이므로, 같은 IP에서는
---    같은 대상에 한 번만 좋아요를 누를 수 있습니다.
--- 3. 카운트 컬럼 대신 row 기반으로 설계했습니다.
---    좋아요 수 = COUNT(*), 좋아요 여부 = IP로 row 존재 확인.
---    이 방식이 토글(좋아요/취소) 구현이 간단하고 데이터 정합성이 높습니다.
---
--- target_type: 'post' | 'work'
--- target_id: posts.id (UUID 문자열) 또는 projects의 id (문자열)
--- ip: x-forwarded-for 헤더에서 추출한 클라이언트 IP
--- unique 제약: 같은 IP가 같은 대상에 중복 좋아요 불가
-CREATE TABLE likes (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  target_type TEXT NOT NULL,
-  target_id TEXT NOT NULL,
-  ip TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE (target_type, target_id, ip)
-);
-
--- 인덱스
-CREATE INDEX idx_posts_slug ON posts(slug);
-CREATE INDEX idx_posts_published ON posts(published);
-CREATE INDEX idx_posts_created_at ON posts(created_at DESC);
-CREATE INDEX idx_posts_tags ON posts USING GIN(tags);
-CREATE INDEX idx_comments_post_id ON comments(post_id);
-CREATE INDEX idx_comments_parent_id ON comments(parent_id);
-CREATE INDEX idx_likes_target ON likes(target_type, target_id);
-CREATE INDEX idx_posts_series_id ON posts(series_id);
-CREATE INDEX idx_series_slug ON series(slug);
-CREATE INDEX idx_series_published ON series(published);
-CREATE INDEX idx_series_category ON series(category);
-```
-
-### 3. RLS (Row Level Security) 정책 설정
-
-```sql
--- Posts RLS 활성화
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-
--- 공개된 포스트는 누구나 읽기 가능
-CREATE POLICY "Published posts are viewable by everyone"
-  ON posts FOR SELECT
-  USING (published = true);
-
--- 인증된 사용자는 모든 포스트 접근 가능
-CREATE POLICY "Authenticated users have full access"
-  ON posts FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
-
--- Comments RLS 활성화
-ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
-
--- 댓글은 누구나 읽기 가능
-CREATE POLICY "Comments are viewable by everyone"
-  ON comments FOR SELECT
-  USING (true);
-
--- 댓글은 누구나 작성 가능
-CREATE POLICY "Anyone can create comments"
-  ON comments FOR INSERT
-  WITH CHECK (true);
-
--- 댓글 삭제는 API에서 비밀번호 검증 또는 admin 세션으로 처리
--- (service_role 키를 사용하는 API route에서 처리하므로 RLS에서는 별도 정책 불필요)
-
--- Series RLS 활성화
-ALTER TABLE series ENABLE ROW LEVEL SECURITY;
-
--- 공개된 시리즈는 누구나 읽기 가능
-CREATE POLICY "Published series are viewable by everyone"
-  ON series FOR SELECT
-  USING (published = true);
-
--- 인증된 사용자는 모든 시리즈 접근 가능
-CREATE POLICY "Authenticated users have full access to series"
-  ON series FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
-
--- Likes RLS 활성화
-ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
-
--- 좋아요 수/여부는 누구나 조회 가능
-CREATE POLICY "Likes are viewable by everyone"
-  ON likes FOR SELECT
-  USING (true);
-
--- 좋아요 추가는 누구나 가능 (IP 기반 중복은 unique 제약으로 방지)
-CREATE POLICY "Anyone can like"
-  ON likes FOR INSERT
-  WITH CHECK (true);
-
--- 좋아요 취소(토글)는 API에서 처리
--- service_role 클라이언트가 IP 일치 확인 후 삭제하므로 RLS에서는 허용
-CREATE POLICY "Anyone can unlike"
-  ON likes FOR DELETE
-  USING (true);
-```
-
-> **참고**: 댓글 삭제는 RLS가 아닌 API route(`/api/comments/[id]`)에서 비밀번호 검증 또는 admin 세션 확인 후 `service_role` 클라이언트로 처리합니다.
-
-> **Likes API 동작 방식**:
-> - `GET /api/posts/[id]/like` · `GET /api/works/[id]/like` — 좋아요 수 + 현재 IP의 좋아요 여부 반환
-> - `POST /api/posts/[id]/like` · `POST /api/works/[id]/like` — 토글 (좋아요 ↔ 취소). IP가 이미 좋아요를 눌렀으면 삭제, 아니면 추가
-> - Posts의 경우 토글 후 `posts.like_count` 컬럼도 동기화하여 포스트 목록에서 별도 JOIN 없이 바로 조회 가능
+> **Posts API**: `GET/POST /api/posts`, `GET/PATCH/DELETE /api/posts/[id]`, `POST /api/posts/[id]/view`, `GET/POST /api/posts/[id]/like`
 >
-> **Series API 동작 방식**:
-> - `GET /api/series` — 시리즈 목록 (포스트 수 포함). `?category=Development` 시 해당 카테고리 시리즈만 반환. `?all=true` 시 비공개 시리즈 포함 (admin용)
-> - `POST /api/series` — 시리즈 생성 (admin, 자동 slug 생성)
-> - `GET /api/series/[id]` — 단일 시리즈 + 소속 포스트 목록 (series_order 순)
-> - `PATCH /api/series/[id]` — 시리즈 수정 (admin)
-> - `DELETE /api/series/[id]` — 시리즈 삭제. 소속 포스트의 series_id를 NULL로 설정 후 삭제 (admin)
+> **Series API**: `GET/POST /api/series`, `GET/PATCH/DELETE /api/series/[id]`
+>
+> **Works API**: `GET/POST /api/works`, `GET/PATCH/DELETE /api/works/[id]`, `GET/POST /api/works/[id]/like`
+>
+> **Comments API**: `GET /api/comments?post_id=`, `POST /api/comments`, `DELETE /api/comments/[id]`
+>
+> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `POST /api/admin/upload`
 
-### 4. Storage 버킷 생성
+### 3. Storage 버킷 생성
 
 포스트 커버 이미지 및 본문 이미지 업로드용:
 
@@ -314,14 +170,14 @@ CREATE POLICY "Anyone can view uploads"
   USING (bucket_id = 'posts');
 ```
 
-### 5. Admin 계정 생성
+### 4. Admin 계정 생성
 
 Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 - Email과 Password 입력
 - **Auto Confirm User** 체크 (이메일 인증 건너뛰기)
 
-### 6. Admin 로그인 방법
+### 5. Admin 로그인 방법
 
 사이트에 별도 로그인 버튼은 없습니다. 관리자만 URL을 직접 입력하여 접속합니다.
 
@@ -337,9 +193,13 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환 가능)
 - `/admin/posts/[id]/edit` — 기존 포스트 수정
 - `/admin/series` — 시리즈 관리 (CRUD, 발행/비공개 전환, 소속 포스트 수 표시)
+- `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서)
+- `/admin/works/new` — 새 작업물 생성 (한/영 이중 언어, 기술 스택, 갤러리)
+- `/admin/works/[id]/edit` — 기존 작업물 수정
+- `/admin/profile` — 프로필 편집 (경력/스킬/철학/접근법/자격증/수상 6개 탭)
 - `/admin/settings` — 사이트 설정
 
-### 7. Cover Image Picker 사용법
+### 6. Cover Image Picker 사용법
 
 포스트 작성/수정 화면의 Cover Image 영역에서 **Upload**(직접 업로드)과 **Choose cover**(피커) 중 선택할 수 있습니다.
 
