@@ -63,12 +63,44 @@
   opacity: 0.5;
 }
 
-.loading {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-tertiary);
-  text-align: center;
-  padding: var(--spacing-3xl) 0;
+/* ── Skeleton ── */
+.skeletonNav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.skeletonSection {
+  padding-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  border-bottom: 1px solid var(--border-tertiary-color);
+}
+
+.skeletonSection:last-child {
+  border-bottom: none;
+}
+
+.skeletonCard {
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.skeletonFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+.skeletonRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
 }
 
 /* ── Layout ── */
@@ -200,7 +232,7 @@
   width: 100%;
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -216,14 +248,16 @@
   width: 100%;
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
   resize: vertical;
-  min-height: 50px;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .fieldTextarea:focus {
@@ -233,7 +267,7 @@
 .addBtn {
   padding: var(--spacing-xs) var(--spacing-md);
   border: 1px dashed var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -251,7 +285,7 @@
 .nestedSkill {
   padding: var(--spacing-sm);
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   margin-bottom: var(--spacing-xs);
   background: var(--bg-tertiary);
 }
@@ -271,6 +305,14 @@
 }
 
 @media (max-width: 768px) {
+  .skeletonNav {
+    flex-direction: row;
+  }
+
+  .skeletonRow {
+    grid-template-columns: 1fr;
+  }
+
   .header {
     flex-direction: column;
     align-items: flex-start;

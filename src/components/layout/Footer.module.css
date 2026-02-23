@@ -137,12 +137,39 @@
   transform: translateY(-50%) translateX(0);
 }
 
-/* Center: Visitor counter */
+/* Visitor counter — independent row */
 .visits {
-  color: var(--text-muted);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.visitItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+}
+
+.visitLabel {
   font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.visitCount {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.visitDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-muted);
 }
 
 /* Right side: Copyright */

@@ -333,6 +333,47 @@
   color: var(--text-primary);
 }
 
+/* ── Editor header ── */
+.editorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--border-tertiary-color);
+  gap: var(--spacing-md);
+}
+
+.editorHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.templateBtn {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px dashed var(--border-secondary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.editorHeaderLeft .templateBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+/* ── Editor block (Detail Content sections) ── */
+.editorBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xl);
+}
+
 /* ── Gallery ── */
 .galleryGrid {
   display: grid;

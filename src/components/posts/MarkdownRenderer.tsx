@@ -20,6 +20,14 @@ marked.use({
       const id = slugify(text);
       return `<h${depth} id="${id}">${text}</h${depth}>\n`;
     },
+    image({ href, title, text }: { href: string; title?: string | null; text: string }): string {
+      const alt = text || "";
+      const caption = title || (alt && alt !== "image" ? alt : "");
+      if (caption) {
+        return `<figure><img src="${href}" alt="${alt}" /><figcaption>${caption}</figcaption></figure>\n`;
+      }
+      return `<img src="${href}" alt="${alt}" />\n`;
+    },
     code({ text, lang }: { text: string; lang?: string }): string {
       const language = lang && hljs.getLanguage(lang) ? lang : null;
       const highlighted = language

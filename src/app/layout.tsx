@@ -27,6 +27,7 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
 import FaviconSwitcher from "@/components/common/FaviconSwitcher";
 import ScrollRestoration from "@/components/common/ScrollRestoration";
 import BGMController from "@/components/common/BGMController";
+import VisitTracker from "@/components/common/VisitTracker";
 
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig();
@@ -126,6 +127,7 @@ export default async function RootLayout({
                   <Modal />
                   <ContactDrawerWrapper />
                   <CursorTrail />
+                  <VisitTracker />
                 </aside>
                 </LenisProvider>
               </RecaptchaProvider>

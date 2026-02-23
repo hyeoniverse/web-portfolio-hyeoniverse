@@ -8,12 +8,14 @@ interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
   onImageUpload?: (file: File) => Promise<string>;
+  compact?: boolean;
 }
 
 export default function MarkdownEditor({
   value,
   onChange,
   onImageUpload,
+  compact,
 }: MarkdownEditorProps) {
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -58,7 +60,7 @@ export default function MarkdownEditor({
   );
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${compact ? styles.compact : ""}`}>
       <div className={styles.editorPane}>
         <span className={styles.label}>Editor</span>
         <textarea

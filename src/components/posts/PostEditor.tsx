@@ -467,6 +467,66 @@ export default function PostEditor({ post }: PostEditorProps) {
                 value={form.series_order}
                 onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
               />
+              <label className={styles.fieldLabel} style={{ marginTop: "var(--spacing-sm)" }}>
+                Series Cover
+              </label>
+              {(() => {
+                const sel = seriesList.find((s) => s.id === form.series_id);
+                if (!sel) return null;
+                return sel.cover_image ? (
+                  <div className={styles.coverPreview}>
+                    <Image
+                      src={sel.cover_image}
+                      alt="Series cover"
+                      width={80}
+                      height={50}
+                      className={styles.coverThumb}
+                    />
+                    <button
+                      type="button"
+                      className={styles.coverRemove}
+                      onClick={async () => {
+                        await fetch(`/api/series/${sel.id}`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ cover_image: "" }),
+                        });
+                        setSeriesList((prev) =>
+                          prev.map((s) => s.id === sel.id ? { ...s, cover_image: "" } : s)
+                        );
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.uploadBtn}
+                    onClick={async () => {
+                      const input = document.createElement("input");
+                      input.type = "file";
+                      input.accept = "image/*";
+                      input.onchange = async () => {
+                        const file = input.files?.[0];
+                        if (!file) return;
+                        const url = await handleImageUpload(file);
+                        await fetch(`/api/series/${sel.id}`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ cover_image: url }),
+                        });
+                        setSeriesList((prev) =>
+                          prev.map((s) => s.id === sel.id ? { ...s, cover_image: url } : s)
+                        );
+                      };
+                      input.click();
+                    }}
+                  >
+                    Upload Cover
+                  </button>
+                );
+              })()}
             </div>
           )}
         </div>

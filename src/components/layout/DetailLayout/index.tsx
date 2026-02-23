@@ -214,8 +214,10 @@ export default function DetailLayout({
         )}
       </div>
 
-      {/* After content (comments, footer nav, etc.) */}
-      {afterContent}
+      {/* After content (gallery, adjacent nav, comments, etc.) */}
+      {afterContent && (
+        <div className={styles.afterContent}>{afterContent}</div>
+      )}
     </div>
   );
 }
