@@ -216,15 +216,32 @@
   cursor: pointer;
 }
 
-/* New series inline create */
-.newSeriesRow {
+/* Series row: dropdown + edit + new */
+.seriesRow {
   display: flex;
   gap: var(--spacing-xs);
-  margin-top: var(--spacing-2xs);
+  align-items: center;
 }
 
-.newSeriesRow .fieldInput {
+.seriesRow .fieldInput {
   flex: 1;
+}
+
+.seriesEditBtn {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.seriesEditBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 /* Pin toggle */

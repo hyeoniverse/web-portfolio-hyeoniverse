@@ -70,12 +70,14 @@ const { data } = await admin.from("comments")
     name: "Admin API",
     kind: "api",
     description: {
-      ko: "어드민 인증 및 관리 API. Supabase Auth 기반 로그인, 파일 업로드(Storage), 사이트 설정 관리를 처리합니다.",
-      en: "Admin auth and management APIs. Handles Supabase Auth login, file upload (Storage), and site settings management.",
+      ko: "어드민 인증 및 관리 API. Supabase Auth 기반 로그인, 계정 관리(이메일/비밀번호 변경), 파일 업로드(Storage), 사이트 설정 관리를 처리합니다.",
+      en: "Admin auth and management APIs. Handles Supabase Auth login, account management (email/password change), file upload (Storage), and site settings management.",
     },
     endpoints: [
       { method: "POST", path: "/api/admin/auth", description: { ko: "어드민 로그인 (Supabase Auth)", en: "Admin login (Supabase Auth)" } },
       { method: "GET", path: "/api/admin/settings", description: { ko: "사이트 설정 조회 (public)", en: "Get site settings (public)" } },
+      { method: "GET", path: "/api/admin/account", description: { ko: "관리자 계정 정보 조회", en: "Get admin account info" } },
+      { method: "PATCH", path: "/api/admin/account", description: { ko: "관리자 이메일/비밀번호 변경", en: "Update admin email/password" } },
       { method: "POST", path: "/api/admin/upload", description: { ko: "파일 업로드 (인증 필요)", en: "File upload (auth required)" } },
     ],
   },

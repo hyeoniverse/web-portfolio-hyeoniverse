@@ -8,6 +8,8 @@ import type { SiteConfigData } from "@/config/site.config";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import Toggle from "@/components/ui/Toggle";
+import ProfileSections, { profileDefaults } from "@/components/admin/ProfileSections";
+import type { ProfileData } from "@/types/profile";
 import styles from "./Settings.module.css";
 
 type DeepPartial<T> = {
@@ -19,6 +21,7 @@ const TABS = [
   { id: "content", label: "Content" },
   { id: "appearance", label: "Appearance" },
   { id: "services", label: "Services" },
+  { id: "account", label: "Account" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -64,10 +67,20 @@ export default function SettingsPage() {
   const [config, setConfig] = useState<SiteConfigData>(
     structuredClone(siteConfig) as unknown as SiteConfigData
   );
+  const [profileData, setProfileData] = useState<ProfileData>(
+    structuredClone(profileDefaults)
+  );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState<TabId>("general");
+  const [contentSubTab, setContentSubTab] = useState<"home" | "profile" | "about">("home");
+  const [accountEmail, setAccountEmail] = useState("");
+  const [accountNewEmail, setAccountNewEmail] = useState("");
+  const [accountPassword, setAccountPassword] = useState("");
+  const [accountConfirm, setAccountConfirm] = useState("");
+  const [accountMessage, setAccountMessage] = useState("");
+  const [accountSaving, setAccountSaving] = useState(false);
 
   useEffect(() => {
     stop();
@@ -81,31 +94,55 @@ export default function SettingsPage() {
   }, [setInfinite, lenis, stop, start]);
 
   useEffect(() => {
-    fetch("/api/admin/settings")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.config && Object.keys(data.config).length > 0) {
-          setConfig((prev) => deepMerge(prev, data.config));
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetch("/api/admin/settings").then((r) => r.json()).catch(() => null),
+      fetch("/api/admin/profile").then((r) => r.json()).catch(() => null),
+      fetch("/api/admin/account").then((r) => r.json()).catch(() => null),
+    ]).then(([settingsRes, profileRes, accountRes]) => {
+      if (settingsRes?.config && Object.keys(settingsRes.config).length > 0) {
+        setConfig((prev) => deepMerge(prev, settingsRes.config));
+      }
+      if (profileRes?.config) {
+        const c = profileRes.config as Partial<ProfileData>;
+        setProfileData({
+          experiences: c.experiences ?? profileDefaults.experiences,
+          skillGroups: c.skillGroups ?? profileDefaults.skillGroups,
+          philosophy: c.philosophy ?? profileDefaults.philosophy,
+          approachSteps: c.approachSteps ?? profileDefaults.approachSteps,
+          certifications: c.certifications ?? profileDefaults.certifications,
+          awards: c.awards ?? profileDefaults.awards,
+        });
+      }
+      if (accountRes?.email) {
+        setAccountEmail(accountRes.email);
+        setAccountNewEmail(accountRes.email);
+      }
+    }).finally(() => setLoading(false));
   }, []);
 
   const handleSave = useCallback(async () => {
     setSaving(true);
     setMessage("");
     try {
-      const res = await fetch("/api/admin/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ config }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        const detail = body?.error ?? `HTTP ${res.status}`;
-        console.error("[Settings] Save failed:", detail);
-        throw new Error(detail);
+      const [settingsRes, profileRes] = await Promise.all([
+        fetch("/api/admin/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ config }),
+        }),
+        fetch("/api/admin/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(profileData),
+        }),
+      ]);
+      if (!settingsRes.ok) {
+        const body = await settingsRes.json().catch(() => null);
+        throw new Error(body?.error ?? `HTTP ${settingsRes.status}`);
+      }
+      if (!profileRes.ok) {
+        const body = await profileRes.json().catch(() => null);
+        throw new Error(body?.error ?? `Profile save: HTTP ${profileRes.status}`);
       }
       setMessage(t("admin.settings.saveSuccess"));
       setTimeout(() => setMessage(""), 3000);
@@ -115,7 +152,7 @@ export default function SettingsPage() {
     } finally {
       setSaving(false);
     }
-  }, [config, t]);
+  }, [config, profileData, t]);
 
   const update = <S extends keyof SiteConfigData>(
     section: S,
@@ -199,14 +236,36 @@ export default function SettingsPage() {
         {/* ── Side Nav ── */}
         <nav className={styles.sideNav}>
           {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              className={`${styles.navItem} ${activeTab === tab.id ? styles.navItemActive : ""}`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {tab.label}
-            </button>
+            <div key={tab.id}>
+              <button
+                type="button"
+                className={`${styles.navItem} ${activeTab === tab.id ? styles.navItemActive : ""}`}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  if (tab.id === "content") setContentSubTab("home");
+                }}
+              >
+                {tab.label}
+              </button>
+              {tab.id === "content" && activeTab === "content" && (
+                <div className={styles.navSub}>
+                  {([
+                    { id: "home", label: "Home" },
+                    { id: "profile", label: "Profile" },
+                    { id: "about", label: "About" },
+                  ] as const).map((sub) => (
+                    <button
+                      key={sub.id}
+                      type="button"
+                      className={`${styles.navSubItem} ${contentSubTab === sub.id ? styles.navSubItemActive : ""}`}
+                      onClick={() => setContentSubTab(sub.id)}
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </nav>
 
@@ -295,179 +354,190 @@ export default function SettingsPage() {
 
           {activeTab === "content" && (
             <>
-              {/* Hero */}
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Hero</h2>
-                <div className={styles.fields}>
-                  <div className={styles.fieldPair}>
-                    <Field
-                      label={`${t("admin.settings.heroHeadline")} (EN)`}
-                      value={config.hero.headline.join("\n")}
-                      onChange={(v) => update("hero", "headline", v.split("\n") as string[] & SiteConfigData["hero"]["headline"])}
-                      multiline
-                    />
-                    <Field
-                      label={`${t("admin.settings.heroHeadline")} (KO)`}
-                      value={config.hero.headline_ko.join("\n")}
-                      onChange={(v) => update("hero", "headline_ko", v.split("\n") as string[] & SiteConfigData["hero"]["headline_ko"])}
-                      multiline
-                    />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field
-                      label={`${t("admin.settings.heroSubtext")} (EN)`}
-                      value={config.hero.subtext.join("\n")}
-                      onChange={(v) => update("hero", "subtext", v.split("\n") as string[] & SiteConfigData["hero"]["subtext"])}
-                      multiline
-                    />
-                    <Field
-                      label={`${t("admin.settings.heroSubtext")} (KO)`}
-                      value={config.hero.subtext_ko.join("\n")}
-                      onChange={(v) => update("hero", "subtext_ko", v.split("\n") as string[] & SiteConfigData["hero"]["subtext_ko"])}
-                      multiline
-                    />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label="Scroll Label (EN)" value={config.hero.scrollLabel} onChange={(v) => update("hero", "scrollLabel", v)} />
-                    <Field label="Scroll Label (KO)" value={config.hero.scrollLabel_ko} onChange={(v) => update("hero", "scrollLabel_ko", v)} />
-                  </div>
-                </div>
-              </section>
+              {contentSubTab === "home" && (
+                <>
+                  {/* Hero */}
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>Hero</h2>
+                    <div className={styles.fields}>
+                      <div className={styles.fieldPair}>
+                        <Field
+                          label={`${t("admin.settings.heroHeadline")} (EN)`}
+                          value={config.hero.headline.join("\n")}
+                          onChange={(v) => update("hero", "headline", v.split("\n") as string[] & SiteConfigData["hero"]["headline"])}
+                          multiline
+                        />
+                        <Field
+                          label={`${t("admin.settings.heroHeadline")} (KO)`}
+                          value={config.hero.headline_ko.join("\n")}
+                          onChange={(v) => update("hero", "headline_ko", v.split("\n") as string[] & SiteConfigData["hero"]["headline_ko"])}
+                          multiline
+                        />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field
+                          label={`${t("admin.settings.heroSubtext")} (EN)`}
+                          value={config.hero.subtext.join("\n")}
+                          onChange={(v) => update("hero", "subtext", v.split("\n") as string[] & SiteConfigData["hero"]["subtext"])}
+                          multiline
+                        />
+                        <Field
+                          label={`${t("admin.settings.heroSubtext")} (KO)`}
+                          value={config.hero.subtext_ko.join("\n")}
+                          onChange={(v) => update("hero", "subtext_ko", v.split("\n") as string[] & SiteConfigData["hero"]["subtext_ko"])}
+                          multiline
+                        />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label="Scroll Label (EN)" value={config.hero.scrollLabel} onChange={(v) => update("hero", "scrollLabel", v)} />
+                        <Field label="Scroll Label (KO)" value={config.hero.scrollLabel_ko} onChange={(v) => update("hero", "scrollLabel_ko", v)} />
+                      </div>
+                    </div>
+                  </section>
 
-              {/* Home About */}
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("admin.settings.homeAboutIntro")}</h2>
-                <p className={styles.sectionHint}>{"{중괄호}"} 안의 텍스트가 하이라이트 처리됩니다</p>
-                <div className={styles.fields}>
-                  <div className={styles.fieldPair}>
-                    <Field label="Intro (EN)" value={config.homeAbout.intro} onChange={(v) => update("homeAbout", "intro", v)} multiline />
-                    <Field label="Intro (KO)" value={config.homeAbout.intro_ko} onChange={(v) => update("homeAbout", "intro_ko", v)} multiline />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label="Description (EN)" value={config.homeAbout.description} onChange={(v) => update("homeAbout", "description", v)} multiline />
-                    <Field label="Description (KO)" value={config.homeAbout.description_ko} onChange={(v) => update("homeAbout", "description_ko", v)} multiline />
-                  </div>
-                </div>
-              </section>
+                  {/* Home About */}
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>{t("admin.settings.homeAboutIntro")}</h2>
+                    <p className={styles.sectionHint}>{"{중괄호}"} 안의 텍스트가 하이라이트 처리됩니다</p>
+                    <div className={styles.fields}>
+                      <div className={styles.fieldPair}>
+                        <Field label="Intro (EN)" value={config.homeAbout.intro} onChange={(v) => update("homeAbout", "intro", v)} multiline />
+                        <Field label="Intro (KO)" value={config.homeAbout.intro_ko} onChange={(v) => update("homeAbout", "intro_ko", v)} multiline />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label="Description (EN)" value={config.homeAbout.description} onChange={(v) => update("homeAbout", "description", v)} multiline />
+                        <Field label="Description (KO)" value={config.homeAbout.description_ko} onChange={(v) => update("homeAbout", "description_ko", v)} multiline />
+                      </div>
+                    </div>
+                  </section>
 
-              {/* Services */}
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("admin.settings.servicesLabel")}</h2>
-                <div className={styles.fields}>
-                  <div className={styles.fieldPair}>
-                    <Field label="Label (EN)" value={config.services.label} onChange={(v) => update("services", "label", v)} />
-                    <Field label="Label (KO)" value={config.services.label_ko} onChange={(v) => update("services", "label_ko", v)} />
-                  </div>
-                </div>
-                <ServiceItemsEditor
-                  items={config.services.items}
-                  onChange={(items) => update("services", "items", items as SiteConfigData["services"]["items"])}
-                />
-              </section>
-
-              {/* Marquee */}
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("admin.settings.marqueeWords")}</h2>
-                <div className={styles.fields}>
-                  <div className={styles.fieldPair}>
-                    <Field
-                      label="Words (EN)"
-                      value={config.marquee.words.join(", ")}
-                      onChange={(v) => update("marquee", "words", v.split(",").map((s) => s.trim()) as string[] & SiteConfigData["marquee"]["words"])}
+                  {/* Services */}
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>{t("admin.settings.servicesLabel")}</h2>
+                    <div className={styles.fields}>
+                      <div className={styles.fieldPair}>
+                        <Field label="Label (EN)" value={config.services.label} onChange={(v) => update("services", "label", v)} />
+                        <Field label="Label (KO)" value={config.services.label_ko} onChange={(v) => update("services", "label_ko", v)} />
+                      </div>
+                    </div>
+                    <ServiceItemsEditor
+                      items={config.services.items}
+                      onChange={(items) => update("services", "items", items as SiteConfigData["services"]["items"])}
                     />
-                    <Field
-                      label="Words (KO)"
-                      value={config.marquee.words_ko.join(", ")}
-                      onChange={(v) => update("marquee", "words_ko", v.split(",").map((s) => s.trim()) as string[] & SiteConfigData["marquee"]["words_ko"])}
-                    />
-                  </div>
-                </div>
-              </section>
+                  </section>
 
-              {/* CTA & Footer */}
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>CTA &amp; Footer</h2>
-                <div className={styles.fields}>
-                  <div className={styles.fieldPair}>
-                    <Field label={`${t("admin.settings.ctaLabel")} (EN)`} value={config.cta.label} onChange={(v) => update("cta", "label", v)} />
-                    <Field label={`${t("admin.settings.ctaLabel")} (KO)`} value={config.cta.label_ko} onChange={(v) => update("cta", "label_ko", v)} />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field
-                      label={`${t("admin.settings.ctaTitle")} (EN)`}
-                      value={config.cta.title.join("\n")}
-                      onChange={(v) => update("cta", "title", v.split("\n") as string[] & SiteConfigData["cta"]["title"])}
-                      multiline
-                    />
-                    <Field
-                      label={`${t("admin.settings.ctaTitle")} (KO)`}
-                      value={config.cta.title_ko.join("\n")}
-                      onChange={(v) => update("cta", "title_ko", v.split("\n") as string[] & SiteConfigData["cta"]["title_ko"])}
-                      multiline
-                    />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label={`${t("admin.settings.ctaButtonText")} (EN)`} value={config.cta.buttonText} onChange={(v) => update("cta", "buttonText", v)} />
-                    <Field label={`${t("admin.settings.ctaButtonText")} (KO)`} value={config.cta.buttonText_ko} onChange={(v) => update("cta", "buttonText_ko", v)} />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label={`${t("admin.settings.footerCopyright")} (EN)`} value={config.footer.copyright} onChange={(v) => update("footer", "copyright", v)} />
-                    <Field label={`${t("admin.settings.footerCopyright")} (KO)`} value={config.footer.copyright_ko} onChange={(v) => update("footer", "copyright_ko", v)} />
-                  </div>
-                  <Field label={t("admin.settings.loadingDisplayName")} value={config.loading.displayName} onChange={(v) => update("loading", "displayName", v)} />
-                </div>
-              </section>
+                  {/* Marquee */}
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>{t("admin.settings.marqueeWords")}</h2>
+                    <div className={styles.fields}>
+                      <div className={styles.fieldPair}>
+                        <Field
+                          label="Words (EN)"
+                          value={config.marquee.words.join(", ")}
+                          onChange={(v) => update("marquee", "words", v.split(",").map((s) => s.trim()) as string[] & SiteConfigData["marquee"]["words"])}
+                        />
+                        <Field
+                          label="Words (KO)"
+                          value={config.marquee.words_ko.join(", ")}
+                          onChange={(v) => update("marquee", "words_ko", v.split(",").map((s) => s.trim()) as string[] & SiteConfigData["marquee"]["words_ko"])}
+                        />
+                      </div>
+                    </div>
+                  </section>
 
-              {/* Works Intro */}
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("admin.settings.worksIntro")}</h2>
-                <div className={styles.fields}>
-                  <div className={styles.fieldPair}>
-                    <Field label="Label (EN)" value={config.works.introLabel} onChange={(v) => update("works", "introLabel", v)} />
-                    <Field label="Label (KO)" value={config.works.introLabel_ko} onChange={(v) => update("works", "introLabel_ko", v)} />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label="Title (EN)" value={config.works.introTitle} onChange={(v) => update("works", "introTitle", v)} />
-                    <Field label="Title (KO)" value={config.works.introTitle_ko} onChange={(v) => update("works", "introTitle_ko", v)} />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label="Tagline (EN)" value={config.works.introTagline} onChange={(v) => update("works", "introTagline", v)} />
-                    <Field label="Tagline (KO)" value={config.works.introTagline_ko} onChange={(v) => update("works", "introTagline_ko", v)} />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label="Description (EN)" value={config.works.introDesc} onChange={(v) => update("works", "introDesc", v)} multiline />
-                    <Field label="Description (KO)" value={config.works.introDesc_ko} onChange={(v) => update("works", "introDesc_ko", v)} multiline />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label="Detail (EN)" value={config.works.introDetail} onChange={(v) => update("works", "introDetail", v)} multiline />
-                    <Field label="Detail (KO)" value={config.works.introDetail_ko} onChange={(v) => update("works", "introDetail_ko", v)} multiline />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label="Quote (EN)" value={config.works.introQuote} onChange={(v) => update("works", "introQuote", v)} />
-                    <Field label="Quote (KO)" value={config.works.introQuote_ko} onChange={(v) => update("works", "introQuote_ko", v)} />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label="Scope (EN)" value={config.works.introScope} onChange={(v) => update("works", "introScope", v)} />
-                    <Field label="Scope (KO)" value={config.works.introScope_ko} onChange={(v) => update("works", "introScope_ko", v)} />
-                  </div>
-                </div>
-              </section>
+                  {/* CTA & Footer */}
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>CTA &amp; Footer</h2>
+                    <div className={styles.fields}>
+                      <div className={styles.fieldPair}>
+                        <Field label={`${t("admin.settings.ctaLabel")} (EN)`} value={config.cta.label} onChange={(v) => update("cta", "label", v)} />
+                        <Field label={`${t("admin.settings.ctaLabel")} (KO)`} value={config.cta.label_ko} onChange={(v) => update("cta", "label_ko", v)} />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field
+                          label={`${t("admin.settings.ctaTitle")} (EN)`}
+                          value={config.cta.title.join("\n")}
+                          onChange={(v) => update("cta", "title", v.split("\n") as string[] & SiteConfigData["cta"]["title"])}
+                          multiline
+                        />
+                        <Field
+                          label={`${t("admin.settings.ctaTitle")} (KO)`}
+                          value={config.cta.title_ko.join("\n")}
+                          onChange={(v) => update("cta", "title_ko", v.split("\n") as string[] & SiteConfigData["cta"]["title_ko"])}
+                          multiline
+                        />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label={`${t("admin.settings.ctaButtonText")} (EN)`} value={config.cta.buttonText} onChange={(v) => update("cta", "buttonText", v)} />
+                        <Field label={`${t("admin.settings.ctaButtonText")} (KO)`} value={config.cta.buttonText_ko} onChange={(v) => update("cta", "buttonText_ko", v)} />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label={`${t("admin.settings.footerCopyright")} (EN)`} value={config.footer.copyright} onChange={(v) => update("footer", "copyright", v)} />
+                        <Field label={`${t("admin.settings.footerCopyright")} (KO)`} value={config.footer.copyright_ko} onChange={(v) => update("footer", "copyright_ko", v)} />
+                      </div>
+                      <Field label={t("admin.settings.loadingDisplayName")} value={config.loading.displayName} onChange={(v) => update("loading", "displayName", v)} />
+                    </div>
+                  </section>
+                </>
+              )}
 
-              {/* Works Stats */}
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("admin.settings.worksStats")}</h2>
-                <div className={styles.fields}>
-                  <div className={styles.fieldPair}>
-                    <Field label="Projects Label (EN)" value={config.works.statsProjects} onChange={(v) => update("works", "statsProjects", v)} />
-                    <Field label="Projects Label (KO)" value={config.works.statsProjects_ko} onChange={(v) => update("works", "statsProjects_ko", v)} />
-                  </div>
-                  <div className={styles.fieldPair}>
-                    <Field label="Clients Label (EN)" value={config.works.statsClients} onChange={(v) => update("works", "statsClients", v)} />
-                    <Field label="Clients Label (KO)" value={config.works.statsClients_ko} onChange={(v) => update("works", "statsClients_ko", v)} />
-                  </div>
-                </div>
-              </section>
+              {contentSubTab === "profile" && (
+                <ProfileSections data={profileData} setData={setProfileData} styles={styles} />
+              )}
 
+              {contentSubTab === "about" && (
+                <>
+                  {/* Works Intro */}
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>{t("admin.settings.worksIntro")}</h2>
+                    <div className={styles.fields}>
+                      <div className={styles.fieldPair}>
+                        <Field label="Label (EN)" value={config.works.introLabel} onChange={(v) => update("works", "introLabel", v)} />
+                        <Field label="Label (KO)" value={config.works.introLabel_ko} onChange={(v) => update("works", "introLabel_ko", v)} />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label="Title (EN)" value={config.works.introTitle} onChange={(v) => update("works", "introTitle", v)} />
+                        <Field label="Title (KO)" value={config.works.introTitle_ko} onChange={(v) => update("works", "introTitle_ko", v)} />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label="Tagline (EN)" value={config.works.introTagline} onChange={(v) => update("works", "introTagline", v)} />
+                        <Field label="Tagline (KO)" value={config.works.introTagline_ko} onChange={(v) => update("works", "introTagline_ko", v)} />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label="Description (EN)" value={config.works.introDesc} onChange={(v) => update("works", "introDesc", v)} multiline />
+                        <Field label="Description (KO)" value={config.works.introDesc_ko} onChange={(v) => update("works", "introDesc_ko", v)} multiline />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label="Detail (EN)" value={config.works.introDetail} onChange={(v) => update("works", "introDetail", v)} multiline />
+                        <Field label="Detail (KO)" value={config.works.introDetail_ko} onChange={(v) => update("works", "introDetail_ko", v)} multiline />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label="Quote (EN)" value={config.works.introQuote} onChange={(v) => update("works", "introQuote", v)} />
+                        <Field label="Quote (KO)" value={config.works.introQuote_ko} onChange={(v) => update("works", "introQuote_ko", v)} />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label="Scope (EN)" value={config.works.introScope} onChange={(v) => update("works", "introScope", v)} />
+                        <Field label="Scope (KO)" value={config.works.introScope_ko} onChange={(v) => update("works", "introScope_ko", v)} />
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Works Stats */}
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>{t("admin.settings.worksStats")}</h2>
+                    <div className={styles.fields}>
+                      <div className={styles.fieldPair}>
+                        <Field label="Projects Label (EN)" value={config.works.statsProjects} onChange={(v) => update("works", "statsProjects", v)} />
+                        <Field label="Projects Label (KO)" value={config.works.statsProjects_ko} onChange={(v) => update("works", "statsProjects_ko", v)} />
+                      </div>
+                      <div className={styles.fieldPair}>
+                        <Field label="Clients Label (EN)" value={config.works.statsClients} onChange={(v) => update("works", "statsClients", v)} />
+                        <Field label="Clients Label (KO)" value={config.works.statsClients_ko} onChange={(v) => update("works", "statsClients_ko", v)} />
+                      </div>
+                    </div>
+                  </section>
+                </>
+              )}
             </>
           )}
 
@@ -581,6 +651,98 @@ export default function SettingsPage() {
                 </div>
               </div>
             </section>
+          )}
+
+          {activeTab === "account" && (
+            <>
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Email</h2>
+                <div className={styles.fields}>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>Current Email</label>
+                    <span className={styles.fieldValue}>{accountEmail}</span>
+                  </div>
+                  <Field
+                    label="New Email"
+                    value={accountNewEmail}
+                    onChange={setAccountNewEmail}
+                  />
+                </div>
+              </section>
+
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Password</h2>
+                <div className={styles.fields}>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>New Password</label>
+                    <input
+                      className={styles.fieldInput}
+                      type="password"
+                      value={accountPassword}
+                      onChange={(e) => setAccountPassword(e.target.value)}
+                      placeholder="Leave blank to keep current"
+                    />
+                  </div>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>Confirm Password</label>
+                    <input
+                      className={styles.fieldInput}
+                      type="password"
+                      value={accountConfirm}
+                      onChange={(e) => setAccountConfirm(e.target.value)}
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <div className={styles.accountActions}>
+                {accountMessage && (
+                  <span className={`${styles.message} ${accountMessage.includes("Error") || accountMessage.includes("match") ? styles.messageError : styles.messageSuccess}`}>
+                    {accountMessage}
+                  </span>
+                )}
+                <button
+                  className={styles.saveBtn}
+                  disabled={accountSaving}
+                  onClick={async () => {
+                    if (accountPassword && accountPassword !== accountConfirm) {
+                      setAccountMessage("Passwords don't match");
+                      return;
+                    }
+                    setAccountSaving(true);
+                    setAccountMessage("");
+                    try {
+                      const body: { email?: string; password?: string } = {};
+                      if (accountNewEmail !== accountEmail) body.email = accountNewEmail;
+                      if (accountPassword) body.password = accountPassword;
+                      if (Object.keys(body).length === 0) {
+                        setAccountMessage("No changes");
+                        return;
+                      }
+                      const res = await fetch("/api/admin/account", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(body),
+                      });
+                      const data = await res.json();
+                      if (!res.ok) throw new Error(data.error);
+                      setAccountMessage("Updated successfully");
+                      if (body.email) setAccountEmail(body.email);
+                      setAccountPassword("");
+                      setAccountConfirm("");
+                      setTimeout(() => setAccountMessage(""), 3000);
+                    } catch (err) {
+                      setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
+                    } finally {
+                      setAccountSaving(false);
+                    }
+                  }}
+                >
+                  {accountSaving ? "Saving..." : "Update Account"}
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>

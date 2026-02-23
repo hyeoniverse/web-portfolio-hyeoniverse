@@ -35,10 +35,11 @@
 - **IP 기반 좋아요**: Posts와 Works 상세 페이지에서 좋아요 기능 지원. `likes` 테이블에서 IP 주소 기반으로 중복 방지 및 토글 처리. Posts는 `posts.like_count` 컬럼에 동기화하여 목록 조회 시 추가 쿼리 없이 카운트 표시
 - **Cover Image Picker**: 포스트 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
 - **Works Admin CRUD**: Supabase DB 기반 포트폴리오 작업물 관리. Admin에서 작업물 생성/수정/삭제, 발행 토글, 정렬 순서 변경 가능. 단일 콘텐츠 에디터(Markdown/Rich Text 전환) + 템플릿 삽입 방식으로 프로젝트 기술서 작성. 템플릿 8개 섹션: Overview, Background, Key Features, Architecture, Challenges, Solutions, Results, Lessons Learned. 한/영 이중 언어, 기술 스택, 갤러리 이미지 지원. 상세 페이지에서 콘텐츠 내 `##` 헤딩을 자동 파싱하여 TOC 생성. DB 미연결 시 정적 데이터(`data/projects.ts`)로 자동 fallback
-- **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. `site_settings` 테이블에 JSONB로 저장하며 6개 탭으로 구분. DB 미연결 시 정적 데이터 fallback
+- **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. Settings > Content > Profile 서브탭에서 관리. `site_settings` 테이블에 JSONB로 저장. DB 미연결 시 정적 데이터 fallback
 - **방문자 통계**: IP+날짜 기반 일간·누적 방문자 카운터. Footer에 실시간 표시
-- **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물/프로필 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Next.js Middleware로 `/admin` 경로 보호
-- **사이트 콘텐츠 관리**: Admin Settings에서 Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
+- **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Next.js Middleware로 `/admin` 경로 보호. 네비게이션에 Admin 배지 + 관리자 이메일 표시
+- **사이트 콘텐츠 관리**: Admin Settings에서 5개 탭(General, Content, Appearance, Services, Account)으로 관리. Content 탭은 사이드 네비게이션으로 Home/Profile/About 서브탭 분리. Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. Account 탭에서 관리자 이메일/비밀번호 변경 지원. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
+- **시리즈 편집 모달**: Post 에디터에서 시리즈 선택 후 Edit 버튼으로 제목/설명/커버 이미지/카테고리/발행 상태를 인라인 모달에서 편집 가능. 신규 시리즈 생성도 모달로 처리
 
 ## User Flow
 
@@ -60,8 +61,7 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 /admin 직접 접속 → Supabase Auth 로그인 → 대시보드
 → 포스트 작성(Markdown/Rich Text 전환) → 커버 이미지 선택(프리셋/Unsplash/AI) → 시리즈 선택(선택사항) → 발행
 → 작업물 관리(/admin/works) — 생성, 수정, 삭제, 발행/비공개 전환, 정렬 순서 변경
-→ 프로필 편집(/admin/profile) — 경력/스킬/철학/접근법/자격증/수상 6개 탭
-→ 사이트 설정(/admin/settings) — 브랜드, SEO, 테마 색상, 사이트 콘텐츠(Hero/About/Services/Marquee/Works/Profile) EN/KO 편집
+→ 사이트 설정(/admin/settings) — General(브랜드, SEO), Content(Home/Profile/About 서브탭), Appearance(테마), Services, Account(이메일/비밀번호 변경)
 ```
 
 - 로그인 버튼 없이 URL 직접 접속 방식
@@ -145,7 +145,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 >
 > **Comments API**: `GET /api/comments?post_id=`, `POST /api/comments`, `DELETE /api/comments/[id]`
 >
-> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `POST /api/admin/upload`
+> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `POST /api/admin/upload`
 
 ### 3. Storage 버킷 생성
 
@@ -196,8 +196,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
 - `/admin/works/[id]/edit` — 기존 작업물 수정
-- `/admin/profile` — 프로필 편집 (경력/스킬/철학/접근법/자격증/수상 6개 탭)
-- `/admin/settings` — 사이트 설정 (브랜드, SEO, 테마 색상, 사이트 콘텐츠 EN/KO 편집)
+- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). Content 탭은 Home/Profile/About 서브 네비게이션으로 분리. Account 탭에서 관리자 이메일/비밀번호 변경
 
 ### 6. Cover Image Picker 사용법
 

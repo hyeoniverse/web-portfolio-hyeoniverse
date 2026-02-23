@@ -12,6 +12,7 @@ import { useCategories } from "@/hooks/useCategories";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
+import SeriesEditorModal from "./SeriesEditorModal";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import styles from "./PostEditor.module.css";
 
@@ -78,7 +79,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
-  const [newSeriesTitle, setNewSeriesTitle] = useState("");
+  const [showSeriesModal, setShowSeriesModal] = useState(false);
+  const [editingSeries, setEditingSeries] = useState<Series | null>(null);
 
   // 시리즈 목록 불러오기
   useEffect(() => {
@@ -103,24 +105,20 @@ export default function PostEditor({ post }: PostEditorProps) {
     []
   );
 
-  const handleCreateSeries = useCallback(async () => {
-    if (!newSeriesTitle.trim()) return;
-    const res = await fetch("/api/series", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: newSeriesTitle.trim(),
-        published: true,
-        category: form.category,
-      }),
+  const handleSeriesModalSave = useCallback((saved: Series) => {
+    setSeriesList((prev) => {
+      const exists = prev.find((s) => s.id === saved.id);
+      if (exists) return prev.map((s) => (s.id === saved.id ? saved : s));
+      return [saved, ...prev];
     });
-    if (res.ok) {
-      const created = await res.json();
-      setSeriesList((prev) => [created, ...prev]);
-      updateField("series_id", created.id);
-      setNewSeriesTitle("");
+    if (!editingSeries) {
+      // new series — auto-select it
+      updateField("series_id", saved.id);
+      if (saved.category) updateField("category", saved.category);
     }
-  }, [newSeriesTitle, updateField, form.category]);
+    setShowSeriesModal(false);
+    setEditingSeries(null);
+  }, [editingSeries, updateField]);
 
   // Content type change with auto-conversion
   const handleContentTypeChange = useCallback(
@@ -412,48 +410,52 @@ export default function PostEditor({ post }: PostEditorProps) {
         <div className={styles.row}>
           <div className={styles.field}>
             <label className={styles.fieldLabel}>Series</label>
-            <select
-              className={styles.fieldInput}
-              value={form.series_id ?? ""}
-              onChange={(e) => {
-                const val = e.target.value;
-                updateField("series_id", val || null);
-                if (val) {
-                  const selected = seriesList.find((s) => s.id === val);
-                  if (selected?.category) {
-                    updateField("category", selected.category);
-                  }
-                }
-              }}
-            >
-              <option value="">None</option>
-              {seriesList.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.title} ({s.post_count ?? 0}){s.category ? ` — ${s.category}` : ""}
-                </option>
-              ))}
-            </select>
-            <div className={styles.newSeriesRow}>
-              <input
+            <div className={styles.seriesRow}>
+              <select
                 className={styles.fieldInput}
-                type="text"
-                value={newSeriesTitle}
-                onChange={(e) => setNewSeriesTitle(e.target.value)}
-                placeholder="New series name"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleCreateSeries();
+                value={form.series_id ?? ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  updateField("series_id", val || null);
+                  if (val) {
+                    const selected = seriesList.find((s) => s.id === val);
+                    if (selected?.category) {
+                      updateField("category", selected.category);
+                    }
                   }
                 }}
-              />
+              >
+                <option value="">None</option>
+                {seriesList.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.title} ({s.post_count ?? 0}){s.category ? ` — ${s.category}` : ""}
+                  </option>
+                ))}
+              </select>
+              {form.series_id && (
+                <button
+                  type="button"
+                  className={styles.seriesEditBtn}
+                  onClick={() => {
+                    const sel = seriesList.find((s) => s.id === form.series_id);
+                    if (sel) {
+                      setEditingSeries(sel);
+                      setShowSeriesModal(true);
+                    }
+                  }}
+                >
+                  Edit
+                </button>
+              )}
               <button
                 type="button"
                 className={styles.uploadBtn}
-                onClick={handleCreateSeries}
-                disabled={!newSeriesTitle.trim()}
+                onClick={() => {
+                  setEditingSeries(null);
+                  setShowSeriesModal(true);
+                }}
               >
-                Create
+                + New
               </button>
             </div>
           </div>
@@ -467,66 +469,6 @@ export default function PostEditor({ post }: PostEditorProps) {
                 value={form.series_order}
                 onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
               />
-              <label className={styles.fieldLabel} style={{ marginTop: "var(--spacing-sm)" }}>
-                Series Cover
-              </label>
-              {(() => {
-                const sel = seriesList.find((s) => s.id === form.series_id);
-                if (!sel) return null;
-                return sel.cover_image ? (
-                  <div className={styles.coverPreview}>
-                    <Image
-                      src={sel.cover_image}
-                      alt="Series cover"
-                      width={80}
-                      height={50}
-                      className={styles.coverThumb}
-                    />
-                    <button
-                      type="button"
-                      className={styles.coverRemove}
-                      onClick={async () => {
-                        await fetch(`/api/series/${sel.id}`, {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ cover_image: "" }),
-                        });
-                        setSeriesList((prev) =>
-                          prev.map((s) => s.id === sel.id ? { ...s, cover_image: "" } : s)
-                        );
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className={styles.uploadBtn}
-                    onClick={async () => {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      input.accept = "image/*";
-                      input.onchange = async () => {
-                        const file = input.files?.[0];
-                        if (!file) return;
-                        const url = await handleImageUpload(file);
-                        await fetch(`/api/series/${sel.id}`, {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ cover_image: url }),
-                        });
-                        setSeriesList((prev) =>
-                          prev.map((s) => s.id === sel.id ? { ...s, cover_image: url } : s)
-                        );
-                      };
-                      input.click();
-                    }}
-                  >
-                    Upload Cover
-                  </button>
-                );
-              })()}
             </div>
           )}
         </div>
@@ -645,6 +587,18 @@ export default function PostEditor({ post }: PostEditorProps) {
           />
         )}
       </div>
+
+      {showSeriesModal && (
+        <SeriesEditorModal
+          series={editingSeries}
+          categories={categories}
+          onSave={handleSeriesModalSave}
+          onClose={() => {
+            setShowSeriesModal(false);
+            setEditingSeries(null);
+          }}
+        />
+      )}
     </div>
   );
 }
