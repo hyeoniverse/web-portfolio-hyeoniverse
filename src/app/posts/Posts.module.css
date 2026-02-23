@@ -154,6 +154,24 @@
   display: none;
 }
 
+.seriesCategoryTag {
+  padding: 1px var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-size: var(--font-size-3xs);
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.seriesEmpty {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  padding: var(--spacing-lg) 0;
+  font-style: italic;
+}
+
 /* Tag toggle button */
 .tagToggleBtn {
   display: flex;
@@ -271,6 +289,38 @@
   padding: var(--spacing-3xl) 0;
 }
 
+.emptyState {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-6xl) 0;
+  color: var(--text-muted);
+}
+
+.emptyTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+}
+
+.emptyResetBtn {
+  padding: var(--spacing-xs) var(--spacing-lg);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+.emptyState .emptyResetBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
 /* ── Pinned Section ── */
 .pinnedSection {
   max-width: 1100px;
@@ -351,6 +401,23 @@
   padding: 0 var(--spacing-2xs);
 }
 
+/* ── Skeleton: Banner ── */
+.skeletonBanner {
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface);
+  min-height: 320px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.skeletonBannerBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-2xl);
+  width: 50%;
+}
+
 /* ── Skeleton: Card ── */
 .skeletonCard {
   border-radius: var(--radius-xl);
@@ -407,6 +474,15 @@
 
   .seriesRow {
     gap: var(--spacing-sm);
+  }
+
+  .skeletonBanner {
+    min-height: 240px;
+  }
+
+  .skeletonBannerBody {
+    width: 80%;
+    padding: var(--spacing-lg);
   }
 }
 

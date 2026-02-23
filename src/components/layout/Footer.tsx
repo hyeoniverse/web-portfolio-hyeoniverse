@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -16,10 +17,20 @@ interface FooterProps {
 
 export default function Footer({ className }: FooterProps) {
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const siteConfig = useSiteConfig();
+  const [visits, setVisits] = useState<{ today: number; total: number } | null>(null);
 
   const isHidden = HIDDEN_ROUTES.includes(pathname);
+
+  useEffect(() => {
+    // 방문 기록 + 통계 조회
+    fetch("/api/visits", { method: "POST" }).catch(() => {});
+    fetch("/api/visits")
+      .then((res) => res.json())
+      .then((data) => setVisits(data))
+      .catch(() => {});
+  }, []);
 
   if (isHidden) return null;
 
@@ -42,8 +53,13 @@ export default function Footer({ className }: FooterProps) {
           >
             {siteConfig.contact.email}
           </a>
+          {visits && (
+            <span className={styles.visits}>
+              today {visits.today} · total {visits.total}
+            </span>
+          )}
           <span className={styles.copyright}>
-            HYEON © {new Date().getFullYear()}, {t("footer.copyright")}
+            {language === "ko" ? siteConfig.footer.copyright_ko : siteConfig.footer.copyright}
           </span>
         </div>
       </div>

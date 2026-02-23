@@ -137,6 +137,14 @@
   transform: translateY(-50%) translateX(0);
 }
 
+/* Center: Visitor counter */
+.visits {
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: var(--font-size-3xs);
+}
+
 /* Right side: Copyright */
 .copyright {
   color: inherit;

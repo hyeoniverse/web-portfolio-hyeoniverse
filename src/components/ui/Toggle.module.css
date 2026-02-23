@@ -1,0 +1,53 @@
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.label {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.track .thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  transition: transform var(--duration-base) var(--ease-material),
+              background-color var(--duration-base) var(--ease-material);
+  will-change: transform;
+}
+
+.on {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.on .thumb {
+  transform: translateX(20px);
+  background: var(--bg-primary);
+}
+
+.track:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
