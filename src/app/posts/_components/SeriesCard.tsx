@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Series } from "@/types/post";
 import styles from "./SeriesCard.module.css";
 
@@ -31,6 +32,18 @@ export default function SeriesCard({ series, onClick, active }: SeriesCardProps)
     >
       {/* Spine */}
       <div className={styles.spine} />
+
+      {/* Cover Image */}
+      {series.cover_image && (
+        <Image
+          src={series.cover_image}
+          alt=""
+          fill
+          sizes="120px"
+          className={styles.coverImage}
+          unoptimized
+        />
+      )}
 
       {/* Cover */}
       <div className={styles.cover}>
