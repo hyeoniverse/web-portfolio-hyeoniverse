@@ -3,11 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Series } from "@/types/post";
-import { CATEGORIES } from "@/constants/categories";
+import { useCategories } from "@/hooks/useCategories";
 import styles from "./AdminSeries.module.css";
 
 export default function AdminSeriesPage() {
   const { setInfinite, lenis, stop, start } = useLenis();
+  const categories = useCategories();
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -119,7 +120,7 @@ export default function AdminSeriesPage() {
           value={newForm.category}
           onChange={(e) => setNewForm((f) => ({ ...f, category: e.target.value }))}
         >
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
@@ -172,7 +173,7 @@ export default function AdminSeriesPage() {
                     value={form.category}
                     onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
                   >
-                    {CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
                   </select>

@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Post, PostFormData, Series } from "@/types/post";
-import { CATEGORIES } from "@/constants/categories";
+import { useCategories } from "@/hooks/useCategories";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
@@ -36,6 +36,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
   const { setInfinite, lenis } = useLenis();
   const isEdit = !!post;
+  const categories = useCategories();
 
   // Disable infinite scroll on editor pages
   useEffect(() => {
@@ -373,18 +374,18 @@ export default function PostEditor({ post }: PostEditorProps) {
             <div className={styles.categoryWrap}>
               <select
                 className={styles.fieldInput}
-                value={CATEGORIES.includes(form.category as never) ? form.category : "__custom__"}
+                value={categories.includes(form.category) ? form.category : "__custom__"}
                 onChange={(e) => {
                   if (e.target.value === "__custom__") return;
                   updateField("category", e.target.value);
                 }}
               >
-                {CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
                 <option value="__custom__">Custom...</option>
               </select>
-              {!CATEGORIES.includes(form.category as never) && (
+              {!categories.includes(form.category) && (
                 <input
                   className={styles.fieldInput}
                   type="text"

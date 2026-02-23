@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORIES } from "@/constants/categories";
+import { useCategories } from "@/hooks/useCategories";
 import styles from "./CategoryNav.module.css";
 
 interface CategoryNavProps {
@@ -14,10 +14,11 @@ export default function CategoryNav({
   activeCategory,
   onCategoryChange,
 }: CategoryNavProps) {
+  const categories = useCategories();
   // Merge preset + custom categories (from DB), deduplicated
   const allCategories = [
-    ...CATEGORIES,
-    ...extraCategories.filter((c) => !CATEGORIES.includes(c as never)),
+    ...categories,
+    ...extraCategories.filter((c) => !categories.includes(c)),
   ];
 
   return (

@@ -229,6 +229,17 @@ export default function SettingsPage() {
             </div>
           </div>
         </section>
+
+        {/* ── Post Categories ── */}
+        <section className={styles.card}>
+          <h2 className={styles.cardTitle}>Post Categories</h2>
+          <div className={styles.fields}>
+            <CategoriesEditor
+              categories={config.posts?.categories ?? []}
+              onChange={(cats) => update("posts", "categories", cats as SiteConfigData["posts"]["categories"])}
+            />
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -396,6 +407,70 @@ function LogoUpload({
             e.target.value = "";
           }}
         />
+      </div>
+    </div>
+  );
+}
+
+function CategoriesEditor({
+  categories,
+  onChange,
+}: {
+  categories: string[];
+  onChange: (cats: string[]) => void;
+}) {
+  const [newCat, setNewCat] = useState("");
+
+  const addCategory = () => {
+    const cat = newCat.trim();
+    if (cat && !categories.includes(cat)) {
+      onChange([...categories, cat]);
+    }
+    setNewCat("");
+  };
+
+  const removeCategory = (cat: string) => {
+    onChange(categories.filter((c) => c !== cat));
+  };
+
+  return (
+    <div>
+      <div className={styles.catList}>
+        {categories.map((cat) => (
+          <span key={cat} className={styles.catTag}>
+            {cat}
+            <button
+              type="button"
+              className={styles.catRemove}
+              onClick={() => removeCategory(cat)}
+            >
+              &times;
+            </button>
+          </span>
+        ))}
+      </div>
+      <div className={styles.catInput}>
+        <input
+          className={styles.fieldInput}
+          type="text"
+          value={newCat}
+          onChange={(e) => setNewCat(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addCategory();
+            }
+          }}
+          placeholder="New category name"
+        />
+        <button
+          type="button"
+          className={styles.catAddBtn}
+          onClick={addCategory}
+          disabled={!newCat.trim()}
+        >
+          Add
+        </button>
       </div>
     </div>
   );
