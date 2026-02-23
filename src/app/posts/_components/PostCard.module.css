@@ -221,12 +221,12 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-capsule);
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
