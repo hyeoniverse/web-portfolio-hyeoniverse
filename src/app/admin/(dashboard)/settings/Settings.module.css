@@ -107,9 +107,10 @@
 }
 
 .navItem {
-  padding: var(--spacing-xs) var(--spacing-md);
-  border: 1px solid transparent;
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -123,28 +124,27 @@
 
 .sideNav .navItem:hover {
   color: var(--text-primary);
-  border-color: var(--border-tertiary-color);
 }
 
 .navItemActive {
   color: var(--text-primary);
-  background: var(--bg-tertiary);
-  border-color: var(--border-tertiary-color);
+  border-left-color: var(--text-primary);
 }
 
 /* ── Nav Sub-items (Content → Home / Profile / About) ── */
 .navSub {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
   padding-left: var(--spacing-md);
   margin-top: var(--spacing-2xs);
+  margin-bottom: var(--spacing-2xs);
 }
 
 .navSubItem {
   padding: var(--spacing-2xs) var(--spacing-sm);
-  border: 1px solid transparent;
-  border-radius: var(--radius-capsule);
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -158,13 +158,11 @@
 
 .navSub .navSubItem:hover {
   color: var(--text-primary);
-  border-color: var(--border-tertiary-color);
 }
 
 .navSubItemActive {
   color: var(--text-primary);
-  background: var(--bg-tertiary);
-  border-color: var(--border-tertiary-color);
+  border-left-color: var(--text-primary);
 }
 
 .panel {
@@ -765,17 +763,33 @@
   .navItem {
     white-space: nowrap;
     flex-shrink: 0;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .navItemActive {
+    border-left-color: transparent;
+    border-bottom-color: var(--text-primary);
   }
 
   .navSub {
     flex-direction: row;
     padding-left: 0;
     margin-top: 0;
+    margin-bottom: 0;
   }
 
   .navSubItem {
     white-space: nowrap;
     flex-shrink: 0;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+
+  .navSubItemActive {
+    border-left-color: transparent;
+    border-bottom-color: var(--text-primary);
   }
 
   .fieldRow {
