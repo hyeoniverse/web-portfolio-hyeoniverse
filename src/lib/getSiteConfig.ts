@@ -26,14 +26,10 @@ function deepMerge<T extends Record<string, any>>(
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-// Simple in-memory cache (per serverless instance)
-let cached: SiteConfigData | null = null;
-let cacheTime = 0;
-const CACHE_TTL = 60_000; // 1 min
-
 export async function getSiteConfig(): Promise<SiteConfigData> {
-  const now = Date.now();
-  if (cached && now - cacheTime < CACHE_TTL) return cached;
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return structuredClone(siteConfig) as unknown as SiteConfigData;
+  }
 
   try {
     const admin = createAdminClient();
@@ -44,22 +40,14 @@ export async function getSiteConfig(): Promise<SiteConfigData> {
       .single();
 
     if (data?.config && Object.keys(data.config).length > 0) {
-      cached = deepMerge(
+      return deepMerge(
         structuredClone(siteConfig) as unknown as SiteConfigData,
         data.config
       );
-    } else {
-      cached = structuredClone(siteConfig) as unknown as SiteConfigData;
     }
   } catch {
-    cached = structuredClone(siteConfig) as unknown as SiteConfigData;
+    // DB 연결 실패 시 기본값 사용
   }
 
-  cacheTime = now;
-  return cached!;
-}
-
-export function invalidateConfigCache() {
-  cached = null;
-  cacheTime = 0;
+  return structuredClone(siteConfig) as unknown as SiteConfigData;
 }
