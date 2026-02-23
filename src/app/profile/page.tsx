@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getProfileData } from "@/lib/getProfileData";
 import BreakpointGuard from "@/components/common/BreakpointGuard";
+
+export const metadata: Metadata = { title: "Profile" };
 import ProfileMeSection from "./_components/ProfileMeSection";
 import FloatingObject from "./_components/FloatingObject/FloatingObject";
 

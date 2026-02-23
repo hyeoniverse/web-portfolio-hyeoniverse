@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getWorks } from "@/lib/getWorks";
 import WorkDetailClient from "./WorkDetailClient";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const projects = await getWorks();
+  const project = projects.find((p) => p.id === id);
+  return { title: project?.title ?? "Work" };
 }
 
 export default async function WorkDetailPage({ params }: PageProps) {
