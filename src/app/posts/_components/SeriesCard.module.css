@@ -17,14 +17,6 @@
   color: inherit;
 }
 
-.book .cover {
-  transition: transform var(--duration-normal) var(--ease-material);
-}
-
-.book:hover .cover {
-  transform: translateY(-2px);
-}
-
 .book.active {
   box-shadow: 0 0 0 2px var(--_spine-color), 2px 4px 16px var(--shadow-color);
 }
@@ -41,14 +33,47 @@
   z-index: 1;
 }
 
+/* ── Cover Image ── */
+.coverImage {
+  object-fit: cover;
+  z-index: 0;
+}
+
+.book .coverImage {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.book:hover .coverImage {
+  transform: scale(1.05);
+}
+
 /* ── Cover ── */
 .cover {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
   height: 100%;
   padding: var(--spacing-md) var(--spacing-sm) var(--spacing-sm) calc(6px + var(--spacing-sm));
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+.book .cover {
+  transition: background-color var(--duration-base) var(--ease-material);
+}
+
+.book:hover .cover {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.book:not(:has(.coverImage)) .cover {
+  background-color: transparent;
+}
+
+.book:not(:has(.coverImage)):hover .cover {
+  background-color: transparent;
 }
 
 /* ── Title ── */
@@ -72,12 +97,27 @@
   color: var(--_spine-color);
 }
 
+/* 커버 이미지 있을 때 텍스트 흰색 */
+.book:has(.coverImage) .title {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.book:has(.coverImage):hover .title,
+.book:has(.coverImage).active .title {
+  color: #fff;
+}
+
 /* ── Count ── */
 .count {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-3xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-muted);
+}
+
+.book:has(.coverImage) .count {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .countLabel {
