@@ -99,78 +99,91 @@ export default function Carousel({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className={styles.viewport}>
-        {/* Active slide container — overflow clips enter/exit */}
-        <div className={`${styles.active} ${styles.edgeLeft}`}>
-          <AnimatePresence initial={false}>
-            <motion.div
-              key={current}
-              className={styles.activeSlide}
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "tween", duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
-            >
-              <div className={styles.slideInner}>{slides[current]}</div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+      <div className={styles.viewportWrap}>
+        <div className={styles.viewport}>
+          {/* Active slide container — overflow clips enter/exit */}
+          <div className={`${styles.active} ${styles.edgeLeft}`}>
+            <AnimatePresence initial={false}>
+              <motion.div
+                key={current}
+                className={styles.activeSlide}
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "tween", duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
+              >
+                <div className={styles.slideInner}>{slides[current]}</div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-        {/* Upcoming slivers */}
-        <div
-          className={styles.sliver}
-          onClick={() => goTo(next1)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              goTo(next1);
-            }
-          }}
-          data-clickable="true"
-        >
-          <div className={styles.slideInner}>{slides[next1]}</div>
-        </div>
-
-        <div
-          className={`${styles.sliver} ${styles.edgeRight}`}
-          onClick={() => goTo(next2)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              goTo(next2);
-            }
-          }}
-          data-clickable="true"
-        >
-          <div className={styles.slideInner}>{slides[next2]}</div>
-        </div>
-      </div>
-
-      {/* Bottom bar */}
-      <div className={styles.bottomBar}>
-        {showArrows && (
-          <button
-            className={styles.arrow}
-            onClick={goPrev}
-            aria-label="Previous slide"
+          {/* Upcoming slivers */}
+          <div
+            className={styles.sliver}
+            onClick={() => goTo(next1)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                goTo(next1);
+              }
+            }}
             data-clickable="true"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
+            <div className={styles.slideInner}>{slides[next1]}</div>
+          </div>
+
+          <div
+            className={`${styles.sliver} ${styles.edgeRight}`}
+            onClick={() => goTo(next2)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                goTo(next2);
+              }
+            }}
+            data-clickable="true"
+          >
+            <div className={styles.slideInner}>{slides[next2]}</div>
+          </div>
+        </div>
+
+        {/* Arrows — overlaid on viewport edges */}
+        {showArrows && (
+          <>
+            <button
+              className={`${styles.arrow} ${styles.arrowPrev}`}
+              onClick={goPrev}
+              aria-label="Previous slide"
+              data-clickable="true"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <button
+              className={`${styles.arrow} ${styles.arrowNext}`}
+              onClick={goNext}
+              aria-label="Next slide"
+              data-clickable="true"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </>
         )}
 
+        {/* Indicator — glass pill overlay */}
         {showDots && (
-          <div className={styles.dots}>
+          <div className={styles.indicator}>
             {slides.map((_, i) => (
               <button
                 key={i}
-                className={`${styles.dot} ${i === current ? styles.dotActive : ""}`}
+                className={`${styles.pip} ${i === current ? styles.pipActive : ""}`}
                 onClick={() => goTo(i)}
                 aria-label={`Go to slide ${i + 1}`}
                 data-clickable="true"
@@ -178,7 +191,7 @@ export default function Carousel({
                 {i === current && autoPlay && !paused && (
                   <motion.span
                     key={progressKey}
-                    className={styles.dotProgress}
+                    className={styles.pipProgress}
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
                     transition={{ duration: interval / 1000, ease: "linear" }}
@@ -187,19 +200,6 @@ export default function Carousel({
               </button>
             ))}
           </div>
-        )}
-
-        {showArrows && (
-          <button
-            className={styles.arrow}
-            onClick={goNext}
-            aria-label="Next slide"
-            data-clickable="true"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
         )}
       </div>
     </div>
