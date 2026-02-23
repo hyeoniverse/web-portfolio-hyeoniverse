@@ -247,7 +247,7 @@ export default function SettingsPage() {
               >
                 {tab.label}
               </button>
-              {tab.id === "content" && activeTab === "content" && (
+              {tab.id === "content" && (
                 <div className={styles.navSub}>
                   {([
                     { id: "home", label: "Home" },
@@ -257,8 +257,8 @@ export default function SettingsPage() {
                     <button
                       key={sub.id}
                       type="button"
-                      className={`${styles.navSubItem} ${contentSubTab === sub.id ? styles.navSubItemActive : ""}`}
-                      onClick={() => setContentSubTab(sub.id)}
+                      className={`${styles.navSubItem} ${activeTab === "content" && contentSubTab === sub.id ? styles.navSubItemActive : ""}`}
+                      onClick={() => { setActiveTab("content"); setContentSubTab(sub.id); }}
                     >
                       {sub.label}
                     </button>

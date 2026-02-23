@@ -88,8 +88,6 @@ CREATE TABLE IF NOT EXISTS posts (
   category     text NOT NULL DEFAULT '',
   is_pinned    boolean NOT NULL DEFAULT false,
   published    boolean NOT NULL DEFAULT false,
-  language     text NOT NULL DEFAULT 'ko'
-    CHECK (language IN ('ko', 'en')),
   view_count   int NOT NULL DEFAULT 0,
   like_count   int NOT NULL DEFAULT 0,
   created_at   timestamptz DEFAULT now(),
@@ -264,6 +262,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_site_visits_ip_date
   ON site_visits (ip, date);
 
 ALTER TABLE site_visits ENABLE ROW LEVEL SECURITY;
+
+-- 누구나 방문자 수 조회 가능
+CREATE POLICY "site_visits_public_read"
+  ON site_visits FOR SELECT
+  USING (true);
 
 -- service_role 전체 접근
 CREATE POLICY "site_visits_service_all"
