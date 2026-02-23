@@ -94,17 +94,75 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** hex → [r, g, b] */
+function hexToRgb(hex: string): [number, number, number] | null {
+  const m = hex.match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+  if (!m) return null;
+  return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
+}
+
+/** accent 관련 CSS 변수를 모두 세팅 (alpha, dark, light 포함) */
+const ACCENT_ALPHAS = [1, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
+const ACCENT_LIGHT_ALPHAS = [40, 60, 70, 90];
+
+function applyAccentAll(root: HTMLElement, hex: string) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return;
+  const [r, g, b] = rgb;
+
+  root.style.setProperty("--color-accent", hex);
+
+  // alpha variants
+  for (const a of ACCENT_ALPHAS) {
+    root.style.setProperty(
+      `--color-accent-alpha-${a}`,
+      `rgba(${r}, ${g}, ${b}, ${a / 100})`,
+    );
+  }
+
+  // darker variant (~20% darker)
+  root.style.setProperty(
+    "--color-accent-dark",
+    `rgb(${Math.round(r * 0.78)}, ${Math.round(g * 0.78)}, ${Math.round(b * 0.78)})`,
+  );
+
+  // lighter variant (~40% toward white)
+  const lr = Math.min(255, Math.round(r + (255 - r) * 0.4));
+  const lg = Math.min(255, Math.round(g + (255 - g) * 0.4));
+  const lb = Math.min(255, Math.round(b + (255 - b) * 0.4));
+  root.style.setProperty("--color-accent-light", `rgb(${lr}, ${lg}, ${lb})`);
+
+  for (const a of ACCENT_LIGHT_ALPHAS) {
+    root.style.setProperty(
+      `--color-accent-light-alpha-${a}`,
+      `rgba(${lr}, ${lg}, ${lb}, ${a / 100})`,
+    );
+  }
+}
+
+function removeAccentAll(root: HTMLElement) {
+  root.style.removeProperty("--color-accent");
+  root.style.removeProperty("--color-accent-dark");
+  root.style.removeProperty("--color-accent-light");
+  for (const a of ACCENT_ALPHAS) {
+    root.style.removeProperty(`--color-accent-alpha-${a}`);
+  }
+  for (const a of ACCENT_LIGHT_ALPHAS) {
+    root.style.removeProperty(`--color-accent-light-alpha-${a}`);
+  }
+}
+
 /** 사이트 설정에서 지정한 테마 색상을 CSS 변수로 주입 */
 function applyThemeColors(
   root: HTMLElement,
   theme: Theme,
   colors: typeof DEFAULTS,
 ) {
-  // accent — 기본값과 다를 때만 오버라이드
+  // accent — 기본값과 다를 때만 오버라이드 (alpha, dark, light 전부)
   if (colors.accentColor && colors.accentColor !== DEFAULTS.accentColor) {
-    root.style.setProperty("--color-accent", colors.accentColor);
+    applyAccentAll(root, colors.accentColor);
   } else {
-    root.style.removeProperty("--color-accent");
+    removeAccentAll(root);
   }
 
   // 배경/텍스트 — 테마별 분기
