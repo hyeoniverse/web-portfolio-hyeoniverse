@@ -135,8 +135,6 @@
 .likeWrapper {
   display: flex;
   justify-content: center;
-  padding-top: var(--spacing-3xl);
-  border-top: 1px solid var(--border-tertiary-color);
   margin-top: var(--spacing-3xl);
 }
 
@@ -161,6 +159,12 @@
 .likeBtnActive {
   border-color: var(--color-accent);
   color: var(--color-accent);
+}
+
+/* ── After-content wrapper (adjacent nav, comments, etc.) ── */
+.afterContent {
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 @media (max-width: 1200px) {

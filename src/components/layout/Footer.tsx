@@ -24,8 +24,6 @@ export default function Footer({ className }: FooterProps) {
   const isHidden = HIDDEN_ROUTES.includes(pathname);
 
   useEffect(() => {
-    // 방문 기록 + 통계 조회
-    fetch("/api/visits", { method: "POST" }).catch(() => {});
     fetch("/api/visits")
       .then((res) => res.json())
       .then((data) => setVisits(data))
@@ -46,6 +44,20 @@ export default function Footer({ className }: FooterProps) {
           <Link href="/privacy" className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
         </div>
 
+        {visits && (
+          <div className={styles.visits}>
+            <span className={styles.visitItem}>
+              <span className={styles.visitLabel}>Today</span>
+              <span className={styles.visitCount}>{visits.today.toLocaleString()}</span>
+            </span>
+            <span className={styles.visitDot} />
+            <span className={styles.visitItem}>
+              <span className={styles.visitLabel}>Total</span>
+              <span className={styles.visitCount}>{visits.total.toLocaleString()}</span>
+            </span>
+          </div>
+        )}
+
         <div className={styles.bottom}>
           <a
             href={`mailto:${siteConfig.contact.email}`}
@@ -53,11 +65,6 @@ export default function Footer({ className }: FooterProps) {
           >
             {siteConfig.contact.email}
           </a>
-          {visits && (
-            <span className={styles.visits}>
-              today {visits.today} · total {visits.total}
-            </span>
-          )}
           <span className={styles.copyright}>
             {language === "ko" ? siteConfig.footer.copyright_ko : siteConfig.footer.copyright}
           </span>

@@ -6,6 +6,11 @@
   min-height: 400px;
 }
 
+.compact {
+  height: 320px;
+  min-height: 200px;
+}
+
 .editorPane {
   display: flex;
   flex-direction: column;
@@ -148,6 +153,21 @@
   border-radius: var(--radius-md);
 }
 
+.preview figure {
+  margin: var(--spacing-md) 0;
+}
+
+.preview figure img {
+  display: block;
+}
+
+.preview figcaption {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-top: var(--spacing-xs);
+}
+
 .preview a {
   color: var(--text-accent);
 }
@@ -171,11 +191,23 @@
     min-height: 0;
   }
 
+  .compact {
+    height: auto;
+  }
+
   .textarea {
     min-height: 300px;
   }
 
+  .compact .textarea {
+    min-height: 200px;
+  }
+
   .previewPane {
     max-height: 300px;
+  }
+
+  .compact .previewPane {
+    max-height: 200px;
   }
 }

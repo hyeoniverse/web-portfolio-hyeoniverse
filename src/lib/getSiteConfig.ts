@@ -11,6 +11,8 @@ function deepMerge<T extends Record<string, any>>(
   for (const key of Object.keys(source)) {
     const val = source[key];
     if (val === undefined || val === null) continue;
+    // 빈 문자열이 기본값을 덮어쓰지 않도록 방지
+    if (typeof val === "string" && val === "" && typeof result[key] === "string" && result[key] !== "") continue;
     if (
       typeof val === "object" &&
       !Array.isArray(val) &&

@@ -20,6 +20,7 @@ import type {
   Award,
 } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
+import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./AdminProfile.module.css";
 
 type Tab = "experiences" | "skills" | "philosophy" | "approach" | "certifications" | "awards";
@@ -339,9 +340,42 @@ export default function AdminProfilePage() {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Profile</h1>
+          <SkeletonLine width={120} height={32} />
+          <SkeletonLine width={80} height={36} />
         </div>
-        <div className={styles.loading}>Loading...</div>
+        <div className={styles.layout}>
+          <div className={`${styles.sideNav} ${styles.skeletonNav}`}>
+            {Array.from({ length: 6 }, (_, i) => (
+              <SkeletonLine key={i} width={120} height={36} />
+            ))}
+          </div>
+          <div className={styles.panel}>
+            <div className={styles.skeletonSection}>
+              <SkeletonLine width={140} height={16} />
+              {Array.from({ length: 2 }, (_, i) => (
+                <div key={i} className={styles.skeletonCard}>
+                  <div className={styles.skeletonRow}>
+                    <SkeletonLine width="100%" height={32} />
+                    <SkeletonLine width="100%" height={32} />
+                  </div>
+                  <div className={styles.skeletonRow}>
+                    <SkeletonLine width="100%" height={32} />
+                    <SkeletonLine width="100%" height={32} />
+                  </div>
+                  <SkeletonLine width="100%" height={48} />
+                </div>
+              ))}
+            </div>
+            <div className={styles.skeletonSection}>
+              <SkeletonLine width={100} height={16} />
+              <div className={styles.skeletonFields}>
+                <SkeletonLine width="100%" height={32} />
+                <SkeletonLine width="100%" height={48} />
+                <SkeletonLine width="60%" height={32} />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

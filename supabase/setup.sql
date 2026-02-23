@@ -212,12 +212,20 @@ CREATE TABLE IF NOT EXISTS works (
   image          text NOT NULL DEFAULT '',
   size           text NOT NULL DEFAULT 'medium'
     CHECK (size IN ('large', 'small', 'medium', 'tall', 'wide')),
+  content_ko     text NOT NULL DEFAULT '',
+  content_en     text NOT NULL DEFAULT '',
+  content_type   text NOT NULL DEFAULT 'markdown'
+    CHECK (content_type IN ('markdown', 'richtext')),
+  -- legacy separate sections (backward compat)
   overview_ko    text NOT NULL DEFAULT '',
   overview_en    text NOT NULL DEFAULT '',
+  overview_image text NOT NULL DEFAULT '',
   challenge_ko   text NOT NULL DEFAULT '',
   challenge_en   text NOT NULL DEFAULT '',
+  challenge_image text NOT NULL DEFAULT '',
   solution_ko    text NOT NULL DEFAULT '',
   solution_en    text NOT NULL DEFAULT '',
+  solution_image text NOT NULL DEFAULT '',
   gallery        text[] NOT NULL DEFAULT '{}',
   live_url       text DEFAULT '',
   github_url     text DEFAULT '',

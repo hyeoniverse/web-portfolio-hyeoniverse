@@ -158,27 +158,46 @@
   letter-spacing: 0.04em;
 }
 
+/* ── Fields List ── */
 .fields {
   display: flex;
   flex-direction: column;
+}
+
+.fields > * {
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-tertiary-color);
+}
+
+.fields > *:last-child {
+  border-bottom: none;
+}
+
+/* ── Field Pair (EN/KO group) ── */
+.fieldPair {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* ── Field Row (label | input) ── */
+.fieldRow {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-md);
 }
 
-.skeletonFields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
+.fieldRow:has(.fieldTextarea) {
+  align-items: flex-start;
 }
 
-/* ── Field ── */
-.fieldRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+.fieldRow:has(.fieldTextarea) .fieldLabel {
+  padding-top: var(--spacing-xs);
 }
 
 .fieldLabel {
+  width: 180px;
+  flex-shrink: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 500;
@@ -187,11 +206,12 @@
 }
 
 .fieldInput,
-.fieldTextarea,
 .fieldSelect {
+  flex: 1;
+  min-width: 0;
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -199,15 +219,27 @@
   outline: none;
 }
 
+.fieldTextarea {
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
 .fieldInput:focus,
 .fieldTextarea:focus,
 .fieldSelect:focus {
   border-color: var(--text-primary);
-}
-
-.fieldTextarea {
-  resize: vertical;
-  min-height: 60px;
 }
 
 .fieldSelect {
@@ -218,19 +250,28 @@
   padding-right: var(--spacing-xl);
 }
 
+.skeletonFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
 /* ── Color Field ── */
 .colorField {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 0;
 }
 
 .colorPicker {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   background: transparent;
   cursor: pointer;
   flex-shrink: 0;
@@ -242,19 +283,20 @@
 
 .colorPicker::-webkit-color-swatch {
   border: none;
-  border-radius: 2px;
+  border-radius: 50%;
 }
 
 .colorText {
+  flex: 1;
+  min-width: 0;
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
-  width: 100%;
 }
 
 .colorText:focus {
@@ -275,7 +317,7 @@
   gap: var(--spacing-2xs);
   padding: var(--spacing-sm);
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: transparent;
   cursor: pointer;
 }
@@ -308,6 +350,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0;
 }
 
 .logoPreview {
@@ -337,7 +381,7 @@
 .logoBtnRemove {
   padding: var(--spacing-2xs) var(--spacing-sm);
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -372,7 +416,7 @@
 .serviceItems {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
   margin-top: var(--spacing-md);
 }
 
@@ -382,7 +426,7 @@
   align-items: flex-start;
   padding: var(--spacing-md);
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
 }
 
 .serviceItemNum {
@@ -397,7 +441,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
+}
+
+/* service item 내부 필드는 라벨 폭 축소 */
+.serviceItemFields .fieldLabel {
+  width: 100px;
 }
 
 /* ── Categories Editor ── */
@@ -446,7 +495,7 @@
 .catAddBtn {
   padding: var(--spacing-2xs) var(--spacing-md);
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -506,6 +555,28 @@
   .navItem {
     white-space: nowrap;
     flex-shrink: 0;
+  }
+
+  .fieldRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-2xs);
+  }
+
+  .fieldRow:has(.fieldTextarea) {
+    align-items: stretch;
+  }
+
+  .fieldRow:has(.fieldTextarea) .fieldLabel {
+    padding-top: 0;
+  }
+
+  .fieldLabel {
+    width: auto;
+  }
+
+  .serviceItemFields .fieldLabel {
+    width: auto;
   }
 
   .skeletonNav {

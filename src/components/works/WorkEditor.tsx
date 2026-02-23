@@ -4,16 +4,153 @@ import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+import { marked } from "marked";
 import { useLenis } from "@/providers/LenisProvider";
 import LanguageToggle from "@/components/ui/LanguageToggle";
+import EditorToggle from "@/components/posts/EditorToggle";
+import MarkdownEditor from "@/components/posts/MarkdownEditor";
 import type { Work, WorkFormData } from "@/types/work";
 import styles from "./WorkEditor.module.css";
+
+const RichTextEditor = dynamic(() => import("@/components/posts/RichTextEditor"), {
+  ssr: false,
+});
 
 interface WorkEditorProps {
   work?: Work;
 }
 
 const SIZES = ["large", "small", "medium", "tall", "wide"] as const;
+
+const TEMPLATE_KO = `## Overview
+
+프로젝트 개요를 작성하세요.
+
+## Background
+
+프로젝트를 시작하게 된 배경과 동기를 설명하세요.
+
+## Key Features
+
+주요 기능을 나열하세요.
+
+## Architecture
+
+기술 아키텍처를 설명하세요.
+
+## Challenges
+
+기술적 도전과 문제를 설명하세요.
+
+## Solutions
+
+문제를 어떻게 해결했는지 설명하세요.
+
+## Results
+
+프로젝트의 결과와 성과를 설명하세요.
+
+## Lessons Learned
+
+프로젝트를 통해 배운 점을 정리하세요.`;
+
+const TEMPLATE_EN = `## Overview
+
+Describe what this project is about.
+
+## Background
+
+Explain the motivation behind this project.
+
+## Key Features
+
+List the main features.
+
+## Architecture
+
+Explain the technical architecture.
+
+## Challenges
+
+Describe technical challenges faced.
+
+## Solutions
+
+How you solved the challenges.
+
+## Results
+
+Project outcomes and impact.
+
+## Lessons Learned
+
+Key takeaways from this project.`;
+
+function workToFormData(work: Work): WorkFormData {
+  // 기존 데이터가 legacy 구조(overview/challenge/solution 분리)인 경우 content로 합침
+  let contentKo = work.content_ko || "";
+  let contentEn = work.content_en || "";
+
+  if (!contentKo && (work.overview_ko || work.challenge_ko || work.solution_ko)) {
+    const parts: string[] = [];
+    if (work.overview_ko) {
+      parts.push(`## Overview\n\n${work.overview_ko}`);
+      if (work.overview_image) parts.push(`\n\n![Overview](${work.overview_image})`);
+    }
+    if (work.challenge_ko) {
+      parts.push(`## Challenges\n\n${work.challenge_ko}`);
+      if (work.challenge_image) parts.push(`\n\n![Challenges](${work.challenge_image})`);
+    }
+    if (work.solution_ko) {
+      parts.push(`## Solutions\n\n${work.solution_ko}`);
+      if (work.solution_image) parts.push(`\n\n![Solutions](${work.solution_image})`);
+    }
+    contentKo = parts.join("\n\n");
+  }
+
+  if (!contentEn && (work.overview_en || work.challenge_en || work.solution_en)) {
+    const parts: string[] = [];
+    if (work.overview_en) {
+      parts.push(`## Overview\n\n${work.overview_en}`);
+      if (work.overview_image) parts.push(`\n\n![Overview](${work.overview_image})`);
+    }
+    if (work.challenge_en) {
+      parts.push(`## Challenges\n\n${work.challenge_en}`);
+      if (work.challenge_image) parts.push(`\n\n![Challenges](${work.challenge_image})`);
+    }
+    if (work.solution_en) {
+      parts.push(`## Solutions\n\n${work.solution_en}`);
+      if (work.solution_image) parts.push(`\n\n![Solutions](${work.solution_image})`);
+    }
+    contentEn = parts.join("\n\n");
+  }
+
+  return {
+    number: work.number,
+    title: work.title,
+    subtitle_ko: work.subtitle_ko,
+    subtitle_en: work.subtitle_en,
+    category_ko: work.category_ko,
+    category_en: work.category_en,
+    year: work.year,
+    description_ko: work.description_ko,
+    description_en: work.description_en,
+    role_ko: work.role_ko,
+    role_en: work.role_en,
+    tech: work.tech,
+    image: work.image,
+    size: work.size,
+    content_ko: contentKo,
+    content_en: contentEn,
+    content_type: work.content_type || "markdown",
+    gallery: work.gallery,
+    live_url: work.live_url,
+    github_url: work.github_url,
+    published: work.published,
+    sort_order: work.sort_order,
+  };
+}
 
 const defaultForm: WorkFormData = {
   number: "",
@@ -30,12 +167,9 @@ const defaultForm: WorkFormData = {
   tech: [],
   image: "",
   size: "medium",
-  overview_ko: "",
-  overview_en: "",
-  challenge_ko: "",
-  challenge_en: "",
-  solution_ko: "",
-  solution_en: "",
+  content_ko: "",
+  content_en: "",
+  content_type: "markdown",
   gallery: [],
   live_url: "",
   github_url: "",
@@ -59,8 +193,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   const [form, setForm] = useState<WorkFormData>(() => {
     if (!work) return defaultForm;
-    const { id: _id, created_at: _ca, updated_at: _ua, ...rest } = work;
-    return rest;
+    return workToFormData(work);
   });
 
   const [techInput, setTechInput] = useState("");
@@ -99,6 +232,60 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     },
     [form.tech, updateField],
   );
+
+  const handleContentTypeChange = useCallback(
+    async (newType: "markdown" | "richtext") => {
+      if (newType === form.content_type) return;
+
+      const convert = async (content: string): Promise<string> => {
+        if (!content) return content;
+        if (form.content_type === "markdown" && newType === "richtext") {
+          return marked.parse(content, { async: false }) as string;
+        } else {
+          const TurndownService = (await import("turndown")).default;
+          const td = new TurndownService({ headingStyle: "atx" });
+          return td.turndown(content);
+        }
+      };
+
+      const [newKo, newEn] = await Promise.all([
+        convert(form.content_ko),
+        convert(form.content_en),
+      ]);
+
+      setForm((prev) => ({
+        ...prev,
+        content_ko: newKo,
+        content_en: newEn,
+        content_type: newType,
+      }));
+      setStatus("");
+      setError("");
+    },
+    [form.content_type, form.content_ko, form.content_en],
+  );
+
+  const handleInsertTemplate = useCallback(() => {
+    const contentKey = editorLang === "ko" ? "content_ko" : "content_en";
+    const template = editorLang === "ko" ? TEMPLATE_KO : TEMPLATE_EN;
+    const current = form[contentKey];
+
+    if (current.trim()) {
+      if (!confirm("현재 내용이 있습니다. 템플릿을 삽입하면 기존 내용 뒤에 추가됩니다. 계속하시겠습니까?")) return;
+      updateField(contentKey, current + "\n\n" + template);
+    } else {
+      updateField(contentKey, template);
+    }
+  }, [editorLang, form, updateField]);
+
+  const handleContentImageUpload = useCallback(async (file: File): Promise<string> => {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    return data.url;
+  }, []);
 
   const handleImageUpload = useCallback(async (field: "image" | "gallery") => {
     const input = document.createElement("input");
@@ -191,6 +378,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   // Language-aware field suffix
   const suf = editorLang === "ko" ? "_ko" : "_en";
+  const contentKey = editorLang === "ko" ? "content_ko" : "content_en";
 
   return (
     <div className={styles.container}>
@@ -356,38 +544,42 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* Detail Content */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>
-          Detail Content {editorLang === "en" && "(EN)"}
-        </h2>
-        <div className={styles.field} style={{ marginBottom: "var(--spacing-lg)" }}>
-          <label className={styles.fieldLabel}>Overview</label>
-          <textarea
-            className={styles.fieldTextarea}
-            value={form[`overview${suf}`]}
-            onChange={(e) => updateField(`overview${suf}`, e.target.value)}
-            placeholder={editorLang === "ko" ? "프로젝트 개요..." : "Overview (EN)..."}
-            rows={4}
+        <div className={styles.editorHeader}>
+          <div className={styles.editorHeaderLeft}>
+            <h2 className={styles.sectionTitle} style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
+              Content {editorLang === "en" && "(EN)"}
+            </h2>
+            <button
+              type="button"
+              className={styles.templateBtn}
+              onClick={handleInsertTemplate}
+            >
+              Insert Template
+            </button>
+          </div>
+          <EditorToggle
+            value={form.content_type}
+            onChange={handleContentTypeChange}
           />
         </div>
-        <div className={styles.field} style={{ marginBottom: "var(--spacing-lg)" }}>
-          <label className={styles.fieldLabel}>Challenge</label>
-          <textarea
-            className={styles.fieldTextarea}
-            value={form[`challenge${suf}`]}
-            onChange={(e) => updateField(`challenge${suf}`, e.target.value)}
-            placeholder={editorLang === "ko" ? "도전 과제..." : "Challenge (EN)..."}
-            rows={4}
-          />
-        </div>
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>Solution</label>
-          <textarea
-            className={styles.fieldTextarea}
-            value={form[`solution${suf}`]}
-            onChange={(e) => updateField(`solution${suf}`, e.target.value)}
-            placeholder={editorLang === "ko" ? "해결 방법..." : "Solution (EN)..."}
-            rows={4}
-          />
+
+        <div className={styles.editorBlock}>
+          {form.content_type === "markdown" ? (
+            <MarkdownEditor
+              key={editorLang}
+              value={form[contentKey]}
+              onChange={(v) => updateField(contentKey, v)}
+              onImageUpload={handleContentImageUpload}
+              compact
+            />
+          ) : (
+            <RichTextEditor
+              key={editorLang}
+              value={form[contentKey]}
+              onChange={(v) => updateField(contentKey, v)}
+              onImageUpload={handleContentImageUpload}
+            />
+          )}
         </div>
       </div>
 
