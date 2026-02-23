@@ -271,11 +271,10 @@
   padding: var(--spacing-3xl) 0;
 }
 
-/* ── Pinned Section (full-width for peek carousel) ── */
+/* ── Pinned Section ── */
 .pinnedSection {
-  width: 100%;
+  max-width: 1100px;
   margin: 0 auto var(--spacing-2xl);
-  overflow: hidden;
 }
 
 .pinnedLabel {
