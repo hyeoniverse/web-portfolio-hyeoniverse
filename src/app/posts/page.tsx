@@ -6,6 +6,8 @@ import { useLenis } from "@/providers/LenisProvider";
 import type { Post, Series } from "@/types/post";
 import PostCard from "./_components/PostCard";
 import CategoryNav from "./_components/CategoryNav";
+import SeriesCard from "./_components/SeriesCard";
+import { Carousel } from "@/components/ui/Carousel";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./Posts.module.css";
 
@@ -20,7 +22,7 @@ export default function PostsPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
-  const [allTags, setAllTags] = useState<string[]>([]);
+  const [allTags, setAllTags] = useState<{ tag: string; count: number }[]>([]);
   const [extraCategories, setExtraCategories] = useState<string[]>([]);
   const [sort, setSort] = useState<"newest" | "oldest" | "popular">("newest");
   const [activeSeries, setActiveSeries] = useState<string | null>(null);
@@ -53,7 +55,6 @@ export default function PostsPage() {
     if (activeCategory) params.set("category", activeCategory);
     if (activeTag) params.set("tag", activeTag);
     if (activeSeries) params.set("series_id", activeSeries);
-    params.set("pinned", "false");
     params.set("sort", sort);
     params.set("page", String(page));
     params.set("limit", String(POSTS_PER_PAGE));
@@ -77,9 +78,9 @@ export default function PostsPage() {
           if (p.category) categorySet.add(p.category);
         });
         setAllTags(
-          Array.from(tagCounts.keys()).sort(
-            (a, b) => (tagCounts.get(b) ?? 0) - (tagCounts.get(a) ?? 0)
-          )
+          Array.from(tagCounts.entries())
+            .sort((a, b) => b[1] - a[1])
+            .map(([tag, count]) => ({ tag, count }))
         );
         setExtraCategories(Array.from(categorySet));
       });
@@ -87,11 +88,16 @@ export default function PostsPage() {
     fetch("/api/posts?pinned=true&limit=10")
       .then((res) => res.json())
       .then((data) => setPinnedPosts(data.posts ?? []));
+  }, []);
 
-    fetch("/api/series")
+  // Fetch series — 카테고리 연동
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (activeCategory) params.set("category", activeCategory);
+    fetch(`/api/series?${params}`)
       .then((res) => res.json())
       .then((data) => setSeriesList(Array.isArray(data) ? data : []));
-  }, []);
+  }, [activeCategory]);
 
   useEffect(() => {
     const debounce = setTimeout(fetchPosts, 300);
@@ -105,6 +111,23 @@ export default function PostsPage() {
   const handleImgError = useCallback((id: string) => {
     setImgErrors((prev) => new Set(prev).add(id));
   }, []);
+
+  const handleSeriesClick = useCallback((seriesId: string) => {
+    setActiveSeries((prev) => (prev === seriesId ? null : seriesId));
+  }, []);
+
+  const clearSeriesFilter = useCallback(() => {
+    setActiveSeries(null);
+  }, []);
+
+  const activeSeriesTitle = useMemo(() => {
+    if (!activeSeries) return null;
+    return seriesList.find((s) => s.id === activeSeries)?.title ?? null;
+  }, [activeSeries, seriesList]);
+
+  /* 필터가 하나도 없을 때만 pinned 섹션 별도 표시 (그리드와 완전 독립) */
+  const hasFilter = !!search || !!activeTag || !!activeSeries;
+  const showPinned = pinnedPosts.length > 0 && page === 1 && !loading && !hasFilter;
 
   const pageNumbers = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -128,6 +151,28 @@ export default function PostsPage() {
           Thoughts, tutorials, and behind-the-scenes notes
         </p>
       </motion.div>
+
+      {/* ── Pinned Banner — 가장 상단, 필터 위 ── */}
+      {showPinned && (
+        <motion.div
+          className={styles.pinnedSection}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          <Carousel autoPlay interval={6000} pauseOnHover>
+            {pinnedPosts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                variant="banner"
+                onImgError={handleImgError}
+                imgError={imgErrors.has(post.id)}
+              />
+            ))}
+          </Carousel>
+        </motion.div>
+      )}
 
       {/* ── Category Nav ── */}
       <motion.div
@@ -175,21 +220,6 @@ export default function PostsPage() {
           </div>
 
           <div className={styles.toolbarRight}>
-            {seriesList.length > 0 && (
-              <select
-                className={styles.seriesSelect}
-                value={activeSeries ?? ""}
-                onChange={(e) => setActiveSeries(e.target.value || null)}
-              >
-                <option value="">All Series</option>
-                {seriesList.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title} ({s.post_count ?? 0})
-                  </option>
-                ))}
-              </select>
-            )}
-
             {allTags.length > 0 && (
               <button
                 className={`${styles.tagToggleBtn} ${showTags ? styles.tagToggleBtnOpen : ""}`}
@@ -231,7 +261,6 @@ export default function PostsPage() {
           </div>
         </div>
 
-        {/* Tag filter row */}
         {showTags && allTags.length > 0 && (
           <div className={styles.tagRow}>
             <button
@@ -241,7 +270,7 @@ export default function PostsPage() {
             >
               All
             </button>
-            {allTags.map((tag) => (
+            {allTags.map(({ tag, count }) => (
               <button
                 key={tag}
                 className={`${styles.tagBtn} ${activeTag === tag ? styles.tagBtnActive : ""}`}
@@ -249,71 +278,82 @@ export default function PostsPage() {
                 data-clickable="true"
               >
                 {tag}
+                <span className={styles.tagCount}>{count}</span>
               </button>
             ))}
           </div>
         )}
       </motion.div>
 
-      {/* ── Content ── */}
-      {/* Pinned section — 항상 표시, 리스트와 별개 */}
-      {pinnedPosts.length > 0 && page === 1 && !loading && (
+      {/* ── Series Row (카테고리 내부 그룹) ── */}
+      {seriesList.length > 0 && !loading && (
         <motion.div
-          className={styles.pinnedSection}
-          initial={{ opacity: 0, y: 30 }}
+          className={styles.seriesSection}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.5, delay: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <div className={styles.pinnedLabel}>
+          <div className={styles.seriesLabel}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 17v5" />
-              <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16h14v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1h.5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5H8a1 1 0 0 1 1 1z" />
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
             </svg>
-            Pinned
+            Series
           </div>
-          <div className={`${styles.pinnedGrid} ${pinnedPosts.length === 1 ? styles.pinnedSingle : ""}`}>
-            {pinnedPosts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                variant={pinnedPosts.length === 1 ? "featured" : "standard"}
-                onImgError={handleImgError}
-                imgError={imgErrors.has(post.id)}
+          <div className={styles.seriesRow}>
+            {seriesList.map((series) => (
+              <SeriesCard
+                key={series.id}
+                series={series}
+                onClick={handleSeriesClick}
+                active={activeSeries === series.id}
               />
             ))}
           </div>
         </motion.div>
       )}
 
+      {/* ── Content ── */}
+      {/* Series filter chip */}
+      {activeSeries && activeSeriesTitle && (
+        <div className={styles.seriesChip}>
+          <span>Series: {activeSeriesTitle}</span>
+          <button
+            className={styles.seriesChipClose}
+            onClick={clearSeriesFilter}
+            data-clickable="true"
+          >
+            &times;
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <PostsSkeleton />
-      ) : posts.length === 0 ? (
+      ) : posts.length === 0 && !showPinned ? (
         <p className={styles.statusText}>No posts found</p>
-      ) : (
+      ) : posts.length > 0 ? (
         <>
           {/* Regular grid */}
-          {posts.length > 0 && (
-            <div className={styles.grid}>
-              {posts.map((post, i) => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: 0.25 + i * STAGGER_DELAY,
-                    ease: [0.25, 0.1, 0.25, 1],
-                  }}
-                >
-                  <PostCard
-                    post={post}
-                    onImgError={handleImgError}
-                    imgError={imgErrors.has(post.id)}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          )}
+          <div className={styles.grid}>
+            {posts.map((post, i) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.25 + i * STAGGER_DELAY,
+                  ease: [0.25, 0.1, 0.25, 1],
+                }}
+              >
+                <PostCard
+                  post={post}
+                  onImgError={handleImgError}
+                  imgError={imgErrors.has(post.id)}
+                />
+              </motion.div>
+            ))}
+          </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -353,7 +393,7 @@ export default function PostsPage() {
             </div>
           )}
         </>
-      )}
+      ) : null}
     </div>
   );
 }

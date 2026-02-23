@@ -5,7 +5,7 @@ import styles from "./PostCard.module.css";
 
 interface PostCardProps {
   post: Post;
-  variant?: "featured" | "standard";
+  variant?: "featured" | "standard" | "banner";
   onImgError?: (id: string) => void;
   imgError?: boolean;
 }
@@ -24,13 +24,62 @@ export default function PostCard({
 
   const readTime = Math.max(1, Math.ceil(post.content.length / 1000));
   const isFeatured = variant === "featured";
+  const isBanner = variant === "banner";
   const showImage = post.cover_image && !imgError;
   const category = post.category || null;
 
+  const cardClass = `${styles.card} ${isFeatured ? styles.featured : ""} ${isBanner ? styles.banner : ""}`;
+
+  /* ── Banner variant: 이미지 배경 + 오버레이 텍스트 ── */
+  if (isBanner) {
+    return (
+      <Link href={`/posts/${post.slug}`} className={cardClass}>
+        <div className={styles.bannerBg}>
+          {showImage ? (
+            <Image
+              src={post.cover_image}
+              alt={post.title}
+              fill
+              sizes="100vw"
+              className={styles.image}
+              priority
+              onError={() => onImgError?.(post.id)}
+            />
+          ) : (
+            <div className={styles.placeholder} />
+          )}
+          <div className={styles.bannerOverlay} />
+        </div>
+
+        <div className={styles.bannerContent}>
+          <div className={styles.badgeRow}>
+            {category && (
+              <span className={styles.bannerBadge}>{category}</span>
+            )}
+          </div>
+          <h2 className={styles.bannerTitle}>{post.title}</h2>
+          {post.excerpt && <p className={styles.bannerExcerpt}>{post.excerpt}</p>}
+          <div className={styles.bannerMeta}>
+            <span>{date}</span>
+            <span className={styles.dot}>&middot;</span>
+            <span>{readTime} min read</span>
+            {post.view_count > 0 && (
+              <>
+                <span className={styles.dot}>&middot;</span>
+                <span>{post.view_count} views</span>
+              </>
+            )}
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  /* ── Standard / Featured ── */
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className={`${styles.card} ${isFeatured ? styles.featured : ""}`}
+      className={cardClass}
     >
       <div className={styles.imageWrap}>
         {showImage ? (

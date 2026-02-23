@@ -1,0 +1,85 @@
+/* ── Book Card ── */
+.book {
+  --_spine-color: var(--text-muted);
+
+  position: relative;
+  display: flex;
+  width: 120px;
+  height: 160px;
+  border: none;
+  border-radius: var(--radius-sm) var(--radius-md) var(--radius-md) var(--radius-sm);
+  background: var(--bg-surface);
+  box-shadow: 2px 4px 12px var(--shadow-color);
+  cursor: pointer;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-align: left;
+  color: inherit;
+}
+
+.book .cover {
+  transition: transform var(--duration-normal) var(--ease-material);
+}
+
+.book:hover .cover {
+  transform: translateY(-2px);
+}
+
+.book.active {
+  box-shadow: 0 0 0 2px var(--_spine-color), 2px 4px 16px var(--shadow-color);
+}
+
+/* ── Spine ── */
+.spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--_spine-color);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  z-index: 1;
+}
+
+/* ── Cover ── */
+.cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: var(--spacing-md) var(--spacing-sm) var(--spacing-sm) calc(6px + var(--spacing-sm));
+}
+
+/* ── Title ── */
+.title {
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book:hover .title {
+  color: var(--_spine-color);
+}
+
+.book.active .title {
+  color: var(--_spine-color);
+}
+
+/* ── Count ── */
+.count {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+}
+
+.countLabel {
+  font-weight: var(--font-weight-regular);
+}

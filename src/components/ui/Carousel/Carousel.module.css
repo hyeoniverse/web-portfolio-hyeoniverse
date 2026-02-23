@@ -1,0 +1,153 @@
+/* ── Carousel Container ── */
+.carousel {
+  position: relative;
+  width: 100%;
+}
+
+/* ── Track: holds 3 slides ── */
+.track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: visible;
+  padding: var(--spacing-md) 0;
+  min-height: 320px;
+}
+
+/* ── Slides ── */
+.slide {
+  position: absolute;
+  width: 85%;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.slideCenter {
+  position: relative;
+  width: 85%;
+  z-index: 2;
+  cursor: grab;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.slideCenter:active {
+  cursor: grabbing;
+}
+
+.slidePrev,
+.slideNext {
+  z-index: 1;
+  pointer-events: auto;
+  cursor: pointer;
+  filter: brightness(0.65);
+}
+
+.carousel .slidePrev:hover,
+.carousel .slideNext:hover {
+  filter: brightness(0.8);
+  transition: filter var(--duration-normal) var(--ease-material);
+}
+
+/* ── Bottom bar: arrows + dots ── */
+.bottomBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-lg);
+}
+
+/* ── Arrows (inline, not overlaid) ── */
+.carousel .arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition:
+    background-color var(--duration-fast) var(--ease-material),
+    color var(--duration-fast) var(--ease-material),
+    border-color var(--duration-fast) var(--ease-material);
+}
+
+.carousel .arrow:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+/* ── Dots with progress ── */
+.dots {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.carousel .dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-tertiary);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    background-color var(--duration-fast) var(--ease-material),
+    width var(--duration-fast) var(--ease-material);
+}
+
+.carousel .dot:hover {
+  background: var(--text-muted);
+}
+
+.carousel .dotActive {
+  width: 32px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+}
+
+.carousel .dotActive:hover {
+  background: var(--bg-tertiary);
+}
+
+/* Progress fill inside active dot */
+.dotProgress {
+  position: absolute;
+  inset: 0;
+  background: var(--text-primary);
+  border-radius: inherit;
+  transform-origin: left center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .track {
+    min-height: 240px;
+  }
+
+  .slide,
+  .slideCenter {
+    width: 92%;
+  }
+
+  .slidePrev,
+  .slideNext {
+    display: none;
+  }
+
+  .carousel .arrow {
+    width: 32px;
+    height: 32px;
+  }
+}
