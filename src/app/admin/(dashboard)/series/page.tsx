@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Series } from "@/types/post";
+import { CATEGORIES } from "@/constants/categories";
 import styles from "./AdminSeries.module.css";
 
 export default function AdminSeriesPage() {
@@ -10,8 +11,8 @@ export default function AdminSeriesPage() {
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", title_en: "", description_en: "" });
-  const [newForm, setNewForm] = useState({ title: "", description: "" });
+  const [form, setForm] = useState({ title: "", description: "", title_en: "", description_en: "", category: "General" });
+  const [newForm, setNewForm] = useState({ title: "", description: "", category: "General" });
 
   useEffect(() => {
     stop();
@@ -48,7 +49,7 @@ export default function AdminSeriesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...newForm, published: true }),
     });
-    setNewForm({ title: "", description: "" });
+    setNewForm({ title: "", description: "", category: "General" });
     fetchSeries();
   };
 
@@ -84,6 +85,7 @@ export default function AdminSeriesPage() {
       description: series.description,
       title_en: series.title_en,
       description_en: series.description_en,
+      category: series.category || "General",
     });
   };
 
@@ -112,6 +114,15 @@ export default function AdminSeriesPage() {
           onChange={(e) => setNewForm((f) => ({ ...f, description: e.target.value }))}
           placeholder="Description (optional)"
         />
+        <select
+          className={styles.input}
+          value={newForm.category}
+          onChange={(e) => setNewForm((f) => ({ ...f, category: e.target.value }))}
+        >
+          {CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
         <button
           className={styles.createBtn}
           onClick={handleCreate}
@@ -156,6 +167,15 @@ export default function AdminSeriesPage() {
                     onChange={(e) => setForm((f) => ({ ...f, description_en: e.target.value }))}
                     placeholder="Description (EN)"
                   />
+                  <select
+                    className={styles.input}
+                    value={form.category}
+                    onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                  >
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
                   <div className={styles.editActions}>
                     <button className={styles.saveBtn} onClick={() => handleUpdate(series.id)}>
                       Save
@@ -173,7 +193,7 @@ export default function AdminSeriesPage() {
                       <span className={styles.itemDesc}>{series.description}</span>
                     )}
                     <span className={styles.itemMeta}>
-                      {series.post_count ?? 0} posts
+                      {series.category} &middot; {series.post_count ?? 0} posts
                     </span>
                   </div>
                   <div className={styles.itemActions}>

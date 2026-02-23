@@ -97,11 +97,11 @@ const { data } = await admin.from("comments")
     name: "Series API",
     kind: "api",
     description: {
-      ko: "시리즈 CRUD API. 포스트를 시리즈로 묶어 순서대로 발행할 수 있으며, 시리즈별 포스트 목록 조회를 지원합니다.",
-      en: "Series CRUD API. Group posts into series for sequential publishing, with series-filtered post listing support.",
+      ko: "시리즈 CRUD API. 시리즈는 카테고리의 하위 요소로, 카테고리별 필터링을 지원합니다. 포스트를 시리즈로 묶어 순서대로 발행할 수 있습니다.",
+      en: "Series CRUD API. Series are sub-elements of categories, with category-based filtering. Group posts into series for sequential publishing.",
     },
     endpoints: [
-      { method: "GET", path: "/api/series", description: { ko: "시리즈 목록 (포스트 수 포함)", en: "List series (with post counts)" } },
+      { method: "GET", path: "/api/series", description: { ko: "시리즈 목록 (포스트 수 포함, ?category= 필터)", en: "List series (with post counts, ?category= filter)" } },
       { method: "POST", path: "/api/series", description: { ko: "시리즈 생성 (admin, 자동 slug)", en: "Create series (admin, auto slug)" } },
       { method: "GET", path: "/api/series/[id]", description: { ko: "단일 시리즈 + 소속 포스트", en: "Single series + posts" } },
       { method: "PATCH", path: "/api/series/[id]", description: { ko: "시리즈 수정 (admin)", en: "Update series (admin)" } },
@@ -181,18 +181,19 @@ const { data } = await admin.from("comments")
     name: "series",
     kind: "table",
     description: {
-      ko: "시리즈 테이블. 포스트를 묶어 순서대로 발행하기 위한 그룹 단위입니다. 한/영 이중 언어 제목·설명을 지원합니다.",
-      en: "Series table. Groups posts for sequential publishing. Supports bilingual (KO/EN) titles and descriptions.",
+      ko: "시리즈 테이블. 카테고리의 하위 요소로, 포스트를 순서대로 묶어 발행하기 위한 그룹 단위입니다. 한/영 이중 언어 제목·설명을 지원합니다.",
+      en: "Series table. A sub-element of categories, grouping posts for sequential publishing. Supports bilingual (KO/EN) titles and descriptions.",
     },
     designNote: {
-      ko: "**카테고리와 별개**: 카테고리는 단일 분류(General, Tech 등)이고, 시리즈는 포스트를 **순서대로 묶는 컬렉션**입니다. 하나의 포스트는 하나의 카테고리와 하나의 시리즈에 동시 소속 가능합니다.",
-      en: "**Separate from categories**: Categories are single classifications (General, Tech, etc.), while series are **ordered collections**. A post can belong to one category and one series simultaneously.",
+      ko: "**카테고리 하위 요소**: 각 시리즈는 하나의 카테고리에 소속됩니다. 포스트 목록에서 카테고리를 선택하면 해당 카테고리의 시리즈만 표시되며, 시리즈 생성 시 카테고리가 자동으로 지정됩니다. 에디터에서 시리즈를 선택하면 포스트의 카테고리가 자동 동기화됩니다.",
+      en: "**Category sub-element**: Each series belongs to one category. Selecting a category on the posts page shows only its series. Category is auto-assigned on series creation, and selecting a series in the editor auto-syncs the post's category.",
     },
     columns: [
       { name: "id", type: "UUID", constraint: "PK", description: { ko: "고유 식별자", en: "Primary key" } },
       { name: "title / title_en", type: "TEXT", description: { ko: "시리즈 제목 (한국어/영어)", en: "Series title (KO/EN)" } },
       { name: "slug", type: "TEXT", constraint: "UNIQUE", description: { ko: "URL 슬러그", en: "URL slug" } },
       { name: "description / description_en", type: "TEXT", description: { ko: "시리즈 설명 (한국어/영어)", en: "Series description (KO/EN)" } },
+      { name: "category", type: "TEXT", constraint: "NOT NULL", description: { ko: "소속 카테고리", en: "Parent category" } },
       { name: "published", type: "BOOLEAN", description: { ko: "공개 여부", en: "Published flag" } },
     ],
   },
