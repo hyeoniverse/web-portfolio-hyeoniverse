@@ -14,7 +14,10 @@ import styles from "./WorkDetail.module.css";
 export default function WorkDetailPage() {
   const params = useParams();
   const { t, language } = useLanguage();
-  const project = projects.find((p) => p.id === params.id);
+  const projectIndex = projects.findIndex((p) => p.id === params.id);
+  const project = projectIndex >= 0 ? projects[projectIndex] : undefined;
+  const prevProject = projectIndex > 0 ? projects[projectIndex - 1] : null;
+  const nextProject = projectIndex < projects.length - 1 ? projects[projectIndex + 1] : null;
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
 
@@ -198,6 +201,50 @@ export default function WorkDetailPage() {
           {t("workDetail.viewAll")}
         </Button>
       </motion.div>
+
+      {/* ── 이전/다음 프로젝트 ── */}
+      {(prevProject || nextProject) && (
+        <nav className={styles.adjacentNav}>
+          {prevProject ? (
+            <Link href={`/works/${prevProject.id}`} className={styles.adjacentCard}>
+              <div className={styles.adjacentThumb}>
+                <Image
+                  src={prevProject.image}
+                  alt={prevProject.title}
+                  fill
+                  sizes="64px"
+                  className={styles.adjacentThumbImg}
+                />
+              </div>
+              <div className={styles.adjacentBody}>
+                <span className={styles.adjacentLabel}>&larr; Previous</span>
+                <span className={styles.adjacentWorkTitle}>{prevProject.title}</span>
+              </div>
+            </Link>
+          ) : (
+            <span />
+          )}
+          {nextProject ? (
+            <Link href={`/works/${nextProject.id}`} className={`${styles.adjacentCard} ${styles.adjacentCardNext}`}>
+              <div className={styles.adjacentThumb}>
+                <Image
+                  src={nextProject.image}
+                  alt={nextProject.title}
+                  fill
+                  sizes="64px"
+                  className={styles.adjacentThumbImg}
+                />
+              </div>
+              <div className={styles.adjacentBody}>
+                <span className={styles.adjacentLabel}>Next &rarr;</span>
+                <span className={styles.adjacentWorkTitle}>{nextProject.title}</span>
+              </div>
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )}
     </DetailLayout>
   );
 }

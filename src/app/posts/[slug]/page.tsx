@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Post, Series } from "@/types/post";
@@ -14,6 +15,14 @@ import LanguageToggle from "@/components/ui/LanguageToggle";
 import CommentSection from "./_components/CommentSection";
 import layoutStyles from "@/components/layout/DetailLayout/DetailLayout.module.css";
 import styles from "./PostDetail.module.css";
+
+interface AdjacentPost {
+  id: string;
+  title: string;
+  slug: string;
+  cover_image: string;
+  title_en: string;
+}
 
 function extractHeadings(content: string, isMarkdown: boolean): TocHeading[] {
   if (isMarkdown) {
@@ -73,8 +82,9 @@ export default function PostDetailPage() {
   const [viewLang, setViewLang] = useState<"ko" | "en">(language === "en" ? "en" : "ko");
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
-  const [seriesData, setSeriesData] = useState<(Series & { posts: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en">[] }) | null>(null);
+  const [seriesData, setSeriesData] = useState<(Series & { posts: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at">[] }) | null>(null);
   const [seriesOpen, setSeriesOpen] = useState(false);
+  const [adjacentPosts, setAdjacentPosts] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
   const richtextRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -94,6 +104,10 @@ export default function PostDetailPage() {
               setLikeCount(d.count ?? 0);
               setLiked(d.liked ?? false);
             });
+
+          fetch(`/api/posts/${found.id}/adjacent`)
+            .then((r) => r.json())
+            .then((d) => setAdjacentPosts(d));
 
           if (found.series_id) {
             fetch(`/api/series/${found.series_id}`)
@@ -162,6 +176,9 @@ export default function PostDetailPage() {
   const prevSeriesPost = currentSeriesIdx > 0 ? seriesPosts[currentSeriesIdx - 1] : null;
   const nextSeriesPost = currentSeriesIdx < seriesPosts.length - 1 ? seriesPosts[currentSeriesIdx + 1] : null;
 
+  // 시리즈 관련 게시물 (현재 포스트 제외)
+  const relatedSeriesPosts = seriesPosts.filter((p) => p.id !== post.id);
+
   const showHero = post.cover_image && !heroImgError;
   const heroErrorFallback = post.cover_image && heroImgError ? (
     <div className={styles.heroPlaceholder}>
@@ -185,6 +202,96 @@ export default function PostDetailPage() {
       likeConfig={{ count: likeCount, liked, onToggle: handleLikeToggle }}
       afterContent={
         <>
+          {/* ── 이전/다음 게시물 ── */}
+          {(adjacentPosts.prev || adjacentPosts.next) && (
+            <nav className={styles.adjacentNav}>
+              {adjacentPosts.prev ? (
+                <Link href={`/posts/${adjacentPosts.prev.slug}`} className={styles.adjacentCard}>
+                  {adjacentPosts.prev.cover_image && (
+                    <div className={styles.adjacentThumb}>
+                      <Image
+                        src={adjacentPosts.prev.cover_image}
+                        alt={viewLang === "en" && adjacentPosts.prev.title_en ? adjacentPosts.prev.title_en : adjacentPosts.prev.title}
+                        fill
+                        sizes="64px"
+                        className={styles.adjacentThumbImg}
+                      />
+                    </div>
+                  )}
+                  <div className={styles.adjacentBody}>
+                    <span className={styles.adjacentLabel}>&larr; Previous</span>
+                    <span className={styles.adjacentTitle}>
+                      {viewLang === "en" && adjacentPosts.prev.title_en ? adjacentPosts.prev.title_en : adjacentPosts.prev.title}
+                    </span>
+                  </div>
+                </Link>
+              ) : (
+                <span />
+              )}
+              {adjacentPosts.next ? (
+                <Link href={`/posts/${adjacentPosts.next.slug}`} className={`${styles.adjacentCard} ${styles.adjacentCardNext}`}>
+                  {adjacentPosts.next.cover_image && (
+                    <div className={styles.adjacentThumb}>
+                      <Image
+                        src={adjacentPosts.next.cover_image}
+                        alt={viewLang === "en" && adjacentPosts.next.title_en ? adjacentPosts.next.title_en : adjacentPosts.next.title}
+                        fill
+                        sizes="64px"
+                        className={styles.adjacentThumbImg}
+                      />
+                    </div>
+                  )}
+                  <div className={styles.adjacentBody}>
+                    <span className={styles.adjacentLabel}>Next &rarr;</span>
+                    <span className={styles.adjacentTitle}>
+                      {viewLang === "en" && adjacentPosts.next.title_en ? adjacentPosts.next.title_en : adjacentPosts.next.title}
+                    </span>
+                  </div>
+                </Link>
+              ) : (
+                <span />
+              )}
+            </nav>
+          )}
+
+          {/* ── 시리즈 관련 게시물 ── */}
+          {relatedSeriesPosts.length > 0 && seriesData && (
+            <section className={styles.relatedSection}>
+              <div className={styles.relatedHeader}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+                </svg>
+                <span className={styles.relatedLabel}>Series</span>
+                <span className={styles.relatedSeriesName}>
+                  &mdash; {viewLang === "en" && seriesData.title_en ? seriesData.title_en : seriesData.title}
+                </span>
+              </div>
+              <div className={styles.relatedGrid}>
+                {relatedSeriesPosts.map((sp, idx) => (
+                  <Link key={sp.id} href={`/posts/${sp.slug}`} className={styles.relatedCard}>
+                    <div className={styles.relatedCardImage}>
+                      {sp.cover_image && (
+                        <Image
+                          src={sp.cover_image}
+                          alt={viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
+                          fill
+                          sizes="(max-width: 768px) 50vw, 220px"
+                          className={styles.relatedCardImg}
+                        />
+                      )}
+                    </div>
+                    <div className={styles.relatedCardBody}>
+                      <span className={styles.relatedCardOrder}>#{sp.series_order ?? idx + 1}</span>
+                      <span className={styles.relatedCardTitle}>
+                        {viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
           <motion.div
             className={styles.commentSection}
             id="comments"

@@ -23,7 +23,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
   const { data: posts } = await admin
     .from("posts")
-    .select("id, title, slug, excerpt, published, series_order, created_at, title_en")
+    .select("id, title, slug, excerpt, published, series_order, created_at, title_en, cover_image")
     .eq("series_id", id)
     .order("series_order", { ascending: true });
 
