@@ -7,140 +7,6 @@
     "about": "About",
     "contacts": "Contacts"
   },
-  "hero": {
-    "headline1": "Creative",
-    "headline2": "Developer",
-    "headline3": "Problem Solver",
-    "locationBefore": "Based in ",
-    "locationHighlight": "Seoul",
-    "locationAfter": ", KR",
-    "availability": "Open to Opportunities",
-    "scroll": "Scroll down",
-    "location": "Based in Seoul, KR"
-  },
-  "about": {
-    "title": "About Me",
-    "intro": {
-      "before": "",
-      "highlight1": "미학",
-      "middle": "과 ",
-      "highlight2": "기능",
-      "after": "이 만나는 디지털 경험을 만듭니다."
-    },
-    "description": {
-      "before": "세심한 ",
-      "highlight1": "디자인",
-      "middle": "과 깔끔한 ",
-      "highlight2": "코드",
-      "after": "로 기억에 남는 인터랙션을 만드는 데 집중합니다."
-    }
-  },
-  "services": {
-    "label": "What I Do",
-    "webDev": {
-      "title": "Web Development",
-      "desc": "React, Next.js, TypeScript"
-    },
-    "uiux": {
-      "title": "UI/UX Design",
-      "desc": "Figma, Prototyping, Systems"
-    },
-    "motion": {
-      "title": "Motion Design",
-      "desc": "GSAP, Framer Motion, CSS"
-    },
-    "brand": {
-      "title": "Brand Identity",
-      "desc": "Visual Language, Guidelines"
-    }
-  },
-  "marquee": {
-    "creative": "CREATIVE",
-    "frontend": "FRONTEND",
-    "developer": "DEVELOPER",
-    "innovator": "INNOVATOR"
-  },
-  "cta": {
-    "label": "Reach out anytime!",
-    "title1": "Up for a",
-    "title2": "coffee chat?",
-    "button": "Get in touch"
-  },
-  "works": {
-    "label": "작품 보기",
-    "scroll": "스크롤",
-    "explore": "자세히 보기",
-    "introLabel": "Junior Frontend Developer",
-    "introTitle": "My Projects",
-    "introTagline": "성장하는 개발자의 기록",
-    "introDesc": "사용자 중심의 인터랙티브한 웹 경험을 만드는 것에 열정을 가진 신입 프론트엔드 개발자입니다.",
-    "introDetail": "개인 프로젝트와 학습 과정에서 쌓아온 작업물들을 소개합니다. 각 프로젝트에 담긴 문제 해결 과정과 기술적 성장을 확인해 주세요.",
-    "introQuote": "매일 한 줄의 코드가 내일의 나를 만든다",
-    "introScope": "React · Next.js · TypeScript · GSAP · Framer Motion",
-    "stats": {
-      "projects": "프로젝트",
-      "clients": "기술 스택",
-      "years": "경력"
-    },
-    "endTitle": "연락하기",
-    "endSubtitle": "함께 멋진 작품을 만들어요",
-    "endDesc": "프로젝트가 있으신가요? 당신의 비전을 실현할 방법을 함께 논의해봐요.",
-    "endButton": "프로젝트 시작하기"
-  },
-  "profilePage": {
-    "title": "About Me",
-    "subtitle": "Crafting Digital Experiences",
-    "intro": "프론트엔드 중심 풀스택 개발자. 직접 만들어보면서 배우는 걸 좋아합니다.",
-    "bio": {
-      "highlight": "만드는 게 좋아서 개발을 시작했습니다.",
-      "text1": "대학에서 컴퓨터공학을 전공하면서 웹 개발에 관심을 갖게 됐고, 프론트엔드부터 백엔드까지 직접 만져보면서 공부했습니다. 특히 화면에 바로 결과가 보이는 프론트엔드 쪽이 잘 맞았습니다.",
-      "text2": "이 포트폴리오도 직접 기획부터 개발까지 했고, 그 과정에서 GSAP, Framer Motion 같은 애니메이션 라이브러리도 익혔습니다. 모르는 건 부딪혀보면서 배우는 편입니다."
-    },
-    "stats": {
-      "yearsValue": "4+",
-      "years": "프로젝트",
-      "projectsValue": "6+",
-      "projects": "기술 스택",
-      "clientsValue": "100%",
-      "clients": "열정"
-    },
-    "philosophy": {
-      "design": {
-        "title": "직접 해보기",
-        "desc": "문서만 읽는 것보다 일단 만들어보는 게 빠릅니다."
-      },
-      "code": {
-        "title": "읽기 좋은 코드",
-        "desc": "나중에 다시 봤을 때 바로 이해되는 코드를 쓰려고 합니다."
-      },
-      "learn": {
-        "title": "꾸준히 배우기",
-        "desc": "모르는 건 당연한 거고, 찾아서 해결하는 과정이 실력이 된다고 생각합니다."
-      }
-    },
-    "tools": {
-      "subtitle": "Tools & Technologies",
-      "description": "주로 쓰는 기술 스택입니다."
-    },
-    "approach": {
-      "subtitle": "My Approach",
-      "description": "프로젝트 진행 방식입니다."
-    },
-    "bubble": {
-      "0": "반가워! 스크롤해서 구경해봐~",
-      "1": "내가 누군지 궁금하지? 창을 드래그해봐, 이스터에그가 숨어있어~",
-      "1_mobile": "내가 누군지 궁금하지?",
-      "2": "나는 이런 경험들을 해봤어!",
-      "3": "프론트엔드 위주로 작업해봤어! 내 주력 스킬들이야",
-      "4": "요즘에는 애니메이션과 인터랙션에 관심이 많아",
-      "5": "간단한 백엔드 작업도 할 수 있어~",
-      "6": "기획부터 디자인까지! 다양한 경험을 해봤어 :)",
-      "7": "내가 어떤 생각으로 일하는지 적어봤어",
-      "8": "나는 이렇게 작업해! Just Do It!",
-      "9": "자격증과 수상 내역이야! 나름 열심히 했지?",
-      "10": "끝까지 봐줘서 고마워~ 언제든지 연락해!"
-    }
-  },
   "contact": {
     "title": "연락하기",
     "namePlaceholder": "이름",
@@ -169,11 +35,6 @@
       "formTitleMobile": "Or fill out the form",
       "copied": "복사됨!"
     }
-  },
-  "footer": {
-    "location": "서울, 대한민국",
-    "copyright": "All Rights Reserved",
-    "privacyPolicy": "개인정보 처리방침"
   },
   "aboutPage": {
     "title": "The Making Of",
@@ -267,14 +128,21 @@
       "footerCopyright": "푸터 저작권",
       "loadingDisplayName": "로딩 표시 이름",
       "worksInfiniteScroll": "Works — 무한 스크롤",
+      "profileInfiniteScroll": "Profile — 무한 스크롤",
       "aboutInfiniteScroll": "About — 무한 스크롤",
-      "bunnyCollisionSound": "Profile — 토끼 충돌 사운드",
-      "designConceptTransition": "About — 디자인 컨셉 전환",
       "accentColor": "액센트 색상",
       "lightBg": "라이트 모드 배경",
       "lightText": "라이트 모드 텍스트",
       "darkBg": "다크 모드 배경",
-      "darkText": "다크 모드 텍스트"
+      "darkText": "다크 모드 텍스트",
+      "homeAboutIntro": "홈 About — 인트로",
+      "homeAboutDescription": "홈 About — 설명",
+      "servicesLabel": "서비스 — 라벨",
+      "servicesItems": "서비스 — 항목",
+      "marqueeWords": "마키 — 텍스트",
+      "worksIntro": "Works — 인트로 콘텐츠",
+      "worksStats": "Works — 통계 라벨",
+      "profileContent": "Profile — 콘텐츠"
     }
   },
   "common": {

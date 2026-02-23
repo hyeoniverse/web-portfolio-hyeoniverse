@@ -91,7 +91,7 @@ export const siteConfig = {
   // SEO 및 메타데이터
   // ---------------------------------------------------------------------------
   metadata: {
-    title: "Hyeoniverse ✦ Portfolio",
+    title: "Hyeoniverse",
     description:
       "Frontend developer creating interactive web experiences with React, Next.js, and TypeScript.",
     keywords:
@@ -104,18 +104,78 @@ export const siteConfig = {
   // 사이트 콘텐츠
   // ---------------------------------------------------------------------------
   hero: {
-    headline: ["Creative", "Developer", "& Designer"], // 메인 헤드라인 (각 항목 = 새 줄)
-    subtext: ["Based in Seoul, KR", "Open to opportunities"],
+    headline: ["Creative", "Developer", "Problem Solver"], // 메인 헤드라인 (각 항목 = 새 줄, 3번째 앞에 & 자동 추가)
+    headline_ko: ["Creative", "Developer", "Problem Solver"],
+    subtext: ["Based in Seoul, KR", "Open to Opportunities"],
+    subtext_ko: ["Based in Seoul, KR", "Open to Opportunities"],
+    scrollLabel: "Scroll down",
+    scrollLabel_ko: "Scroll down",
+  },
+
+  // 홈 About 섹션 — {중괄호} 안의 텍스트가 하이라이트 처리됨
+  homeAbout: {
+    intro: "I craft digital experiences where {aesthetics} meet {functionality}.",
+    intro_ko: "{미학}과 {기능}이 만나는 디지털 경험을 만듭니다.",
+    description:
+      "Focused on creating memorable interactions through thoughtful {design} and clean {code}.",
+    description_ko:
+      "세심한 {디자인}과 깔끔한 {코드}로 기억에 남는 인터랙션을 만드는 데 집중합니다.",
+  },
+
+  // 홈 Services 섹션
+  services: {
+    label: "What I Do",
+    label_ko: "What I Do",
+    items: [
+      {
+        num: "01",
+        title: "Web Development",
+        title_ko: "Web Development",
+        desc: "React, Next.js, TypeScript",
+        desc_ko: "React, Next.js, TypeScript",
+      },
+      {
+        num: "02",
+        title: "UI/UX Design",
+        title_ko: "UI/UX Design",
+        desc: "Figma, Prototyping, Systems",
+        desc_ko: "Figma, Prototyping, Systems",
+      },
+      {
+        num: "03",
+        title: "Motion Design",
+        title_ko: "Motion Design",
+        desc: "GSAP, Framer Motion, CSS",
+        desc_ko: "GSAP, Framer Motion, CSS",
+      },
+      {
+        num: "04",
+        title: "Brand Identity",
+        title_ko: "Brand Identity",
+        desc: "Visual Language, Guidelines",
+        desc_ko: "Visual Language, Guidelines",
+      },
+    ],
+  },
+
+  // 홈 Marquee 섹션
+  marquee: {
+    words: ["CREATIVE", "FRONTEND", "DEVELOPER", "INNOVATOR"],
+    words_ko: ["CREATIVE", "FRONTEND", "DEVELOPER", "INNOVATOR"],
   },
 
   cta: {
-    label: "Open to Opportunities",
-    title: ["Looking for", "someone?"],
+    label: "Reach out anytime!",
+    label_ko: "Reach out anytime!",
+    title: ["Up for a", "coffee chat?"],
+    title_ko: ["Up for a", "coffee chat?"],
     buttonText: "Get in touch",
+    buttonText_ko: "Get in touch",
   },
 
   footer: {
     copyright: `HYEON © ${new Date().getFullYear()}, All Rights Reserved`,
+    copyright_ko: `HYEON © ${new Date().getFullYear()}, All Rights Reserved`,
   },
 
   // ---------------------------------------------------------------------------
@@ -154,8 +214,29 @@ export const siteConfig = {
   // Works 페이지
   // ---------------------------------------------------------------------------
   works: {
-    // 무한 스크롤 활성화 여부 (false: 끝에서 멈춤)
     infiniteScroll: true,
+    introLabel: "Junior Frontend Developer",
+    introLabel_ko: "Junior Frontend Developer",
+    introTitle: "My Projects",
+    introTitle_ko: "My Projects",
+    introTagline: "A Growing Developer's Journey",
+    introTagline_ko: "성장하는 개발자의 기록",
+    introDesc:
+      "A passionate junior frontend developer dedicated to creating user-centered, interactive web experiences.",
+    introDesc_ko:
+      "사용자 중심의 인터랙티브한 웹 경험을 만드는 것에 열정을 가진 신입 프론트엔드 개발자입니다.",
+    introDetail:
+      "Showcasing projects built through self-driven learning and hands-on practice. Explore the problem-solving process and technical growth behind each one.",
+    introDetail_ko:
+      "개인 프로젝트와 학습 과정에서 쌓아온 작업물들을 소개합니다. 각 프로젝트에 담긴 문제 해결 과정과 기술적 성장을 확인해 주세요.",
+    introQuote: "Every line of code today shapes who I become tomorrow",
+    introQuote_ko: "매일 한 줄의 코드가 내일의 나를 만든다",
+    introScope: "React · Next.js · TypeScript · GSAP · Framer Motion",
+    introScope_ko: "React · Next.js · TypeScript · GSAP · Framer Motion",
+    statsProjects: "Projects",
+    statsProjects_ko: "프로젝트",
+    statsClients: "Tech Stack",
+    statsClients_ko: "기술 스택",
   },
 
   // ---------------------------------------------------------------------------
@@ -177,8 +258,33 @@ export const siteConfig = {
   // Profile 페이지
   // ---------------------------------------------------------------------------
   profile: {
-    // 플러시 토끼 충돌 사운드 활성화 여부
     bunnyCollisionSound: true,
+    infiniteScroll: true,
+    title: "About Me",
+    title_ko: "About Me",
+    intro:
+      "Frontend-focused fullstack developer. I like learning by building things myself.",
+    intro_ko:
+      "프론트엔드 중심 풀스택 개발자. 직접 만들어보면서 배우는 걸 좋아합니다.",
+    bioHighlight: "I started coding because I liked making things.",
+    bioHighlight_ko: "만드는 게 좋아서 개발을 시작했습니다.",
+    bioText1:
+      "Studied CS in college and got into web dev along the way. Worked on both frontend and backend, but frontend clicked the most — seeing results on screen right away just fits me.",
+    bioText1_ko:
+      "대학에서 컴퓨터공학을 전공하면서 웹 개발에 관심을 갖게 됐고, 프론트엔드부터 백엔드까지 직접 만져보면서 공부했습니다. 특히 화면에 바로 결과가 보이는 프론트엔드 쪽이 잘 맞았습니다.",
+    bioText2:
+      "Built this portfolio from scratch, picking up GSAP and Framer Motion in the process. I learn best by jumping in and figuring things out as I go.",
+    bioText2_ko:
+      "이 포트폴리오도 직접 기획부터 개발까지 했고, 그 과정에서 GSAP, Framer Motion 같은 애니메이션 라이브러리도 익혔습니다. 모르는 건 부딪혀보면서 배우는 편입니다.",
+    statsYearsValue: "4+",
+    statsYears: "Projects",
+    statsYears_ko: "프로젝트",
+    statsProjectsValue: "6+",
+    statsProjects: "Tech Stack",
+    statsProjects_ko: "기술 스택",
+    statsClientsValue: "100%",
+    statsClients: "Passion",
+    statsClients_ko: "열정",
   },
 
   // ---------------------------------------------------------------------------
@@ -188,7 +294,7 @@ export const siteConfig = {
     // 디자인 컨셉 패널 전환 모드: "strip" (수평 마키) | "stack" (레이어 슬라이드 아웃)
     designConceptTransition: "strip" as "strip" | "stack",
     // 무한 스크롤 활성화 여부 (false: 끝에서 멈춤)
-    infiniteScroll: false,
+    infiniteScroll: true,
   },
 } as const;
 

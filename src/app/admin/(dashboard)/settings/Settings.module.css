@@ -41,6 +41,24 @@
   color: var(--color-accent);
 }
 
+.resetBtn {
+  padding: var(--spacing-xs) var(--spacing-xl);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.header .resetBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 .saveBtn {
   padding: var(--spacing-xs) var(--spacing-xl);
   border: 1px solid var(--text-primary);
@@ -71,23 +89,68 @@
   padding: var(--spacing-3xl) 0;
 }
 
-/* ── Grid ── */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-xl);
+/* ── Layout: Side Nav + Panel ── */
+.layout {
+  display: flex;
+  gap: var(--spacing-2xl);
 }
 
-/* ── Card ── */
-.card {
-  border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
+.sideNav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: var(--spacing-2xl);
+  align-self: flex-start;
 }
 
-.cardTitle {
+.navItem {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-align: left;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+
+.sideNav .navItem:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.navItemActive {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.panel {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Section ── */
+.section {
+  padding-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  border-bottom: 1px solid var(--border-tertiary-color);
+}
+
+.section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sectionTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: var(--spacing-lg);
@@ -99,6 +162,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+}
+
+.skeletonFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
 }
 
 /* ── Field ── */
@@ -148,38 +218,6 @@
   padding-right: var(--spacing-xl);
 }
 
-/* ── Toggle ── */
-.toggle {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  border: 1px solid var(--border-tertiary-color);
-  border-radius: 12px;
-  background: var(--bg-tertiary);
-  padding: 0;
-}
-
-.toggleOn {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-}
-
-.toggleThumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--text-tertiary);
-}
-
-.toggleOn .toggleThumb {
-  left: auto;
-  right: 2px;
-  background: var(--bg-primary);
-}
-
 /* ── Color Field ── */
 .colorField {
   display: flex;
@@ -221,6 +259,48 @@
 
 .colorText:focus {
   border-color: var(--text-primary);
+}
+
+/* ── Theme Presets ── */
+.presetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.presetCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
+.section .presetCard:hover {
+  border-color: var(--text-primary);
+}
+
+.presetSwatches {
+  display: flex;
+  width: 100%;
+  height: 28px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+
+.presetSwatch {
+  flex: 1;
+}
+
+.presetName {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
 }
 
 /* ── Logo Upload ── */
@@ -277,6 +357,47 @@
 
 .logoBtnRemove:hover {
   background: var(--color-accent-alpha-10);
+}
+
+/* ── Section hint ── */
+.sectionHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+  margin-top: calc(-1 * var(--spacing-sm));
+}
+
+/* ── Service Items Editor ── */
+.serviceItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+.serviceItem {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-sm);
+}
+
+.serviceItemNum {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  min-width: 24px;
+  padding-top: var(--spacing-xs);
+}
+
+.serviceItemFields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 /* ── Categories Editor ── */
@@ -343,14 +464,51 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
+/* ── Skeleton (tab layout) ── */
+.skeletonNav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
 
+.skeletonSection {
+  padding-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  border-bottom: 1px solid var(--border-tertiary-color);
+}
+
+.skeletonSection:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-md);
+  }
+
+  .layout {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .sideNav {
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    position: static;
+    gap: var(--spacing-2xs);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--border-tertiary-color);
+  }
+
+  .navItem {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .skeletonNav {
+    flex-direction: row;
   }
 }

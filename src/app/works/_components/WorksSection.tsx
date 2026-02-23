@@ -81,7 +81,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
 
   // 훅
   const router = useRouter();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { setInfinite } = useLenis();
   const { isMobile: isVerticalLayout } = useIsMobile(768, 700);
 
@@ -430,34 +430,37 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
     return `${styles.project} ${styles[sizeClass]} ${styles[layoutClass]}`;
   };
 
+  const ko = language === "ko";
+  const w = siteConfig.works;
+
   const introBlock = (
     <div className={styles.intro}>
-      <span className={styles.introLabel}>{t("works.introLabel")}</span>
-      <h1 className={styles.introTitle}>{t("works.introTitle")}</h1>
-      <span className={styles.introTagline}>{t("works.introTagline")}</span>
+      <span className={styles.introLabel}>{ko ? w.introLabel_ko : w.introLabel}</span>
+      <h1 className={styles.introTitle}>{ko ? w.introTitle_ko : w.introTitle}</h1>
+      <span className={styles.introTagline}>{ko ? w.introTagline_ko : w.introTagline}</span>
       <div className={styles.introDivider} />
-      <p className={styles.introDesc}>{t("works.introDesc")}</p>
-      <p className={styles.introDetail}>{t("works.introDetail")}</p>
+      <p className={styles.introDesc}>{ko ? w.introDesc_ko : w.introDesc}</p>
+      <p className={styles.introDetail}>{ko ? w.introDetail_ko : w.introDetail}</p>
       <div className={styles.introStats}>
         <div className={styles.introStat}>
           <span className={styles.introStatNumber}>
             {String(PROJECT_COUNT).padStart(2, "0")}
           </span>
           <span className={styles.introStatLabel}>
-            {t("works.stats.projects")}
+            {ko ? w.statsProjects_ko : w.statsProjects}
           </span>
         </div>
         <div className={styles.introStatDivider} />
         <div className={styles.introStat}>
           <span className={styles.introStatNumber}>05</span>
           <span className={styles.introStatLabel}>
-            {t("works.stats.clients")}
+            {ko ? w.statsClients_ko : w.statsClients}
           </span>
         </div>
       </div>
-      <span className={styles.introScope}>{t("works.introScope")}</span>
+      <span className={styles.introScope}>{ko ? w.introScope_ko : w.introScope}</span>
       <blockquote className={styles.introQuote}>
-        {t("works.introQuote")}
+        {ko ? w.introQuote_ko : w.introQuote}
       </blockquote>
     </div>
   );

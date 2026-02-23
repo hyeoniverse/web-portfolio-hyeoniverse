@@ -3,6 +3,7 @@
 import { motion, MotionValue } from "framer-motion";
 import Section from "@/components/ui/Section";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./BridgeSection.module.css";
 import heroStyles from "../HeroSection/HeroSection.module.css";
 
@@ -19,7 +20,13 @@ export default function BridgeSection({
   oval2X,
   oval2Y,
 }: BridgeSectionProps) {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const cfg = useSiteConfig();
+  const ko = language === "ko";
+  const headline = ko ? cfg.hero.headline_ko : cfg.hero.headline;
+  const subtext = ko ? cfg.hero.subtext_ko : cfg.hero.subtext;
+  const scrollLabel = ko ? cfg.hero.scrollLabel_ko : cfg.hero.scrollLabel;
+
   return (
     <Section fullHeight clipOverflow className={styles.bridge}>
       {/* Floating Ovals - identical to Hero */}
@@ -42,10 +49,10 @@ export default function BridgeSection({
       <div className={styles.content}>
         <h2 className={heroStyles.title}>
           <span className={heroStyles.titleRow}>
-            <span className={heroStyles.titleText}>Creative</span>
+            <span className={heroStyles.titleText}>{headline[0]}</span>
           </span>
           <span className={heroStyles.titleRow}>
-            <span className={heroStyles.titleText}>Developer</span>
+            <span className={heroStyles.titleText}>{headline[1]}</span>
             <span className={heroStyles.titleOvalWrapper}>
               <motion.span
                 className={heroStyles.titleOvalInline}
@@ -60,21 +67,15 @@ export default function BridgeSection({
           </span>
           <span className={heroStyles.titleRow}>
             <span className={heroStyles.titleAccent}>&</span>
-            <span className={heroStyles.titleText}>Problem Solver</span>
+            <span className={heroStyles.titleText}>{headline[2]}</span>
           </span>
         </h2>
 
         <div className={heroStyles.meta}>
-          <span>
-            {t("hero.locationBefore")}
-            <span className={heroStyles.metaHighlight}>
-              {t("hero.locationHighlight")}
-            </span>
-            {t("hero.locationAfter")}
-          </span>
+          <span>{subtext[0]}</span>
           <span className={heroStyles.metaDivider} />
           <span className={heroStyles.availabilityWrapper}>
-            {t("hero.availability")}
+            {subtext[1]}
             <span className={heroStyles.pulseDot} />
           </span>
         </div>
@@ -89,7 +90,7 @@ export default function BridgeSection({
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           />
         </div>
-        <span className={heroStyles.scrollText}>{t("hero.scroll")}</span>
+        <span className={heroStyles.scrollText}>{scrollLabel}</span>
       </div>
     </Section>
   );

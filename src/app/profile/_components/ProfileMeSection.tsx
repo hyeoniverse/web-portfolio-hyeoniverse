@@ -38,8 +38,10 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
   const certifications = profileData?.certifications ?? staticCertifications;
   const awards = profileData?.awards ?? staticAwards;
 
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const siteConfig = useSiteConfig();
+  const ko = language === "ko";
+  const p = siteConfig.profile;
   const infiniteScroll = siteConfig.profile.infiniteScroll;
   const isMobile = useMobileLayout();
   const { sectionRef, trackRef, activeSection } = useHorizontalScroll(styles, {
@@ -59,7 +61,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
       <div className={styles.panel}>
         <div className={styles.heroContent}>
           <span className={`${styles.label} ${styles.animate}`}>
-            {t("profilePage.title")}
+            {ko ? p.title_ko : p.title}
           </span>
           <KineticHeroTitle
             lines={[
@@ -68,7 +70,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
             ]}
           />
           <p className={`${styles.heroSubtitle} ${styles.animate}`}>
-            {t("profilePage.intro")}
+            {ko ? p.intro_ko : p.intro}
           </p>
           <span className={styles.heroWatermark}>about me</span>
         </div>
@@ -82,34 +84,28 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <ProfileWindows className={styles.animate} isMobile={isMobile} />
         <div className={`${styles.profileContent} ${styles.animate}`}>
           <p className={styles.bioHighlight}>
-            {t("profilePage.bio.highlight")}
+            {ko ? p.bioHighlight_ko : p.bioHighlight}
           </p>
-          <p className={styles.bioText}>{t("profilePage.bio.text1")}</p>
-          <p className={styles.bioText}>{t("profilePage.bio.text2")}</p>
+          <p className={styles.bioText}>{ko ? p.bioText1_ko : p.bioText1}</p>
+          <p className={styles.bioText}>{ko ? p.bioText2_ko : p.bioText2}</p>
 
           <div className={styles.stats}>
             <div className={styles.stat}>
-              <span className={styles.statNumber}>
-                {t("profilePage.stats.yearsValue")}
-              </span>
+              <span className={styles.statNumber}>{p.statsYearsValue}</span>
               <span className={styles.statLabel}>
-                {t("profilePage.stats.years")}
+                {ko ? p.statsYears_ko : p.statsYears}
               </span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.statNumber}>
-                {t("profilePage.stats.projectsValue")}
-              </span>
+              <span className={styles.statNumber}>{p.statsProjectsValue}</span>
               <span className={styles.statLabel}>
-                {t("profilePage.stats.projects")}
+                {ko ? p.statsProjects_ko : p.statsProjects}
               </span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.statNumber}>
-                {t("profilePage.stats.clientsValue")}
-              </span>
+              <span className={styles.statNumber}>{p.statsClientsValue}</span>
               <span className={styles.statLabel}>
-                {t("profilePage.stats.clients")}
+                {ko ? p.statsClients_ko : p.statsClients}
               </span>
             </div>
           </div>

@@ -2,37 +2,35 @@
 
 import { forwardRef } from "react";
 import Section from "@/components/ui/Section";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./ProfileSection.module.css";
 
-interface HighlightedTextProps {
-  textKey: string;
-  t: (key: string) => string;
-  highlightClass?: string;
-}
-
+/** {중괄호} 안의 텍스트를 하이라이트 span으로 변환 */
 function HighlightedText({
-  textKey,
-  t,
+  text,
   highlightClass = styles.highlight,
-}: HighlightedTextProps) {
+}: {
+  text: string;
+  highlightClass?: string;
+}) {
+  const parts = text.split(/(\{[^}]+\})/);
   return (
     <>
-      {t(`${textKey}.before`)}
-      <span className={highlightClass}>{t(`${textKey}.highlight1`)}</span>
-      {t(`${textKey}.middle`)}
-      <span className={highlightClass}>{t(`${textKey}.highlight2`)}</span>
-      {t(`${textKey}.after`)}
+      {parts.map((part, i) =>
+        part.startsWith("{") && part.endsWith("}") ? (
+          <span key={i} className={highlightClass}>
+            {part.slice(1, -1)}
+          </span>
+        ) : (
+          part
+        ),
+      )}
     </>
   );
 }
 
 const ProfileSection = forwardRef<HTMLElement>((_, ref) => {
-  const { tLang } = useLanguage();
-
-  // 본문은 항상 영어, 캡션은 한국어
-  const tEn = (key: string) => tLang(key, "en");
-  const tKo = (key: string) => tLang(key, "ko");
+  const cfg = useSiteConfig();
 
   return (
     <Section className={styles.about} ref={ref}>
@@ -41,25 +39,23 @@ const ProfileSection = forwardRef<HTMLElement>((_, ref) => {
         <div className={`${styles.textBlock} profile-text`}>
           <p className={styles.text}>
             <HighlightedText
-              textKey="about.intro"
-              t={tEn}
+              text={cfg.homeAbout.intro}
               highlightClass={styles.bold}
             />
           </p>
           <p className={styles.caption}>
-            <HighlightedText textKey="about.intro" t={tKo} />
+            <HighlightedText text={cfg.homeAbout.intro_ko} />
           </p>
         </div>
         <div className={`${styles.textBlock} profile-text`}>
           <p className={styles.text}>
             <HighlightedText
-              textKey="about.description"
-              t={tEn}
+              text={cfg.homeAbout.description}
               highlightClass={styles.bold}
             />
           </p>
           <p className={styles.caption}>
-            <HighlightedText textKey="about.description" t={tKo} />
+            <HighlightedText text={cfg.homeAbout.description_ko} />
           </p>
         </div>
       </div>

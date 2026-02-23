@@ -20,8 +20,13 @@ interface CTASectionProps {
 
 const CTASection = forwardRef<HTMLElement, CTASectionProps>(
   ({ floatX, floatY, ctaOvalX, ctaOvalY, magnetic, onContactClick }, ref) => {
-    const siteConfig = useSiteConfig();
-    const { t } = useLanguage();
+    const cfg = useSiteConfig();
+    const { language } = useLanguage();
+    const ko = language === "ko";
+    const ctaLabel = ko ? cfg.cta.label_ko : cfg.cta.label;
+    const ctaTitle = ko ? cfg.cta.title_ko : cfg.cta.title;
+    const ctaButton = ko ? cfg.cta.buttonText_ko : cfg.cta.buttonText;
+    const copyright = ko ? cfg.footer.copyright_ko : cfg.footer.copyright;
 
     return (
       <Section fullHeight center clipOverflow className={styles.cta} ref={ref}>
@@ -40,13 +45,13 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
         />
 
         <div className={styles.content}>
-          <p className={`${styles.label} reveal-text`}>{t("cta.label")}</p>
+          <p className={`${styles.label} reveal-text`}>{ctaLabel}</p>
           <h2 className={styles.title}>
             <span className={`${styles.titleLine} reveal-text`}>
-              {t("cta.title1")}
+              {ctaTitle[0]}
             </span>
             <span className={`${styles.titleLine} reveal-text`}>
-              {t("cta.title2")}
+              {ctaTitle[1]}
             </span>
           </h2>
 
@@ -71,18 +76,16 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
               }
               iconPosition="right"
             >
-              {t("cta.button")}
+              {ctaButton}
             </Button>
           </motion.div>
         </div>
 
         <div className={styles.footer}>
-          <a href={`mailto:${siteConfig.contact.email}?subject=Hello!`}>
-            {siteConfig.contact.email}
+          <a href={`mailto:${cfg.contact.email}?subject=Hello!`}>
+            {cfg.contact.email}
           </a>
-          <span>
-            HYEON © {new Date().getFullYear()}, {t("footer.copyright")}
-          </span>
+          <span>{copyright}</span>
         </div>
       </Section>
     );
