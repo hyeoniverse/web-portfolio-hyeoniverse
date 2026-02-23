@@ -7,6 +7,8 @@ import type { Post, Series } from "@/types/post";
 import PostCard from "./_components/PostCard";
 import CategoryNav from "./_components/CategoryNav";
 import SeriesCard from "./_components/SeriesCard";
+import PopularPosts from "./_components/PopularPosts";
+import RecentComments from "./_components/RecentComments";
 import { Carousel } from "@/components/ui/Carousel";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./Posts.module.css";
@@ -153,6 +155,11 @@ export default function PostsPage() {
       </motion.div>
 
       {/* ── Pinned Banner — 가장 상단, 필터 위 ── */}
+      {loading && page === 1 && !hasFilter && (
+        <div className={styles.pinnedSection}>
+          <BannerSkeleton />
+        </div>
+      )}
       {showPinned && (
         <motion.div
           className={styles.pinnedSection}
@@ -171,6 +178,18 @@ export default function PostsPage() {
               />
             ))}
           </Carousel>
+        </motion.div>
+      )}
+
+      {/* ── Popular + Recent Comments — 필터 없을 때만 ── */}
+      {!hasFilter && page === 1 && !loading && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          <PopularPosts />
+          <RecentComments />
         </motion.div>
       )}
 
@@ -286,7 +305,7 @@ export default function PostsPage() {
       </motion.div>
 
       {/* ── Series Row (카테고리 내부 그룹) ── */}
-      {seriesList.length > 0 && !loading && (
+      {!loading && (
         <motion.div
           className={styles.seriesSection}
           initial={{ opacity: 0, y: 20 }}
@@ -298,17 +317,28 @@ export default function PostsPage() {
               <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
             </svg>
             Series
+            {activeCategory && (
+              <span className={styles.seriesCategoryTag}>{activeCategory}</span>
+            )}
           </div>
-          <div className={styles.seriesRow}>
-            {seriesList.map((series) => (
-              <SeriesCard
-                key={series.id}
-                series={series}
-                onClick={handleSeriesClick}
-                active={activeSeries === series.id}
-              />
-            ))}
-          </div>
+          {seriesList.length > 0 ? (
+            <div className={styles.seriesRow}>
+              {seriesList.map((series) => (
+                <SeriesCard
+                  key={series.id}
+                  series={series}
+                  onClick={handleSeriesClick}
+                  active={activeSeries === series.id}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className={styles.seriesEmpty}>
+              {activeCategory
+                ? `No series in ${activeCategory}`
+                : "No series yet"}
+            </p>
+          )}
         </motion.div>
       )}
 
@@ -330,7 +360,33 @@ export default function PostsPage() {
       {loading ? (
         <PostsSkeleton />
       ) : posts.length === 0 && !showPinned ? (
-        <p className={styles.statusText}>No posts found</p>
+        <div className={styles.emptyState}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            <line x1="8" y1="11" x2="14" y2="11" />
+          </svg>
+          <p className={styles.emptyTitle}>
+            {search
+              ? `No results for "${search}"`
+              : activeTag
+                ? `No posts tagged "${activeTag}"`
+                : activeSeries && activeSeriesTitle
+                  ? `No posts in "${activeSeriesTitle}"`
+                  : activeCategory
+                    ? `No posts in ${activeCategory}`
+                    : "No posts yet"}
+          </p>
+          {(search || activeTag || activeSeries || activeCategory) && (
+            <button
+              className={styles.emptyResetBtn}
+              onClick={() => { setSearch(""); setActiveTag(null); setActiveSeries(null); setActiveCategory(null); }}
+              data-clickable="true"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
       ) : posts.length > 0 ? (
         <>
           {/* Regular grid */}
@@ -399,6 +455,19 @@ export default function PostsPage() {
 }
 
 /* ── Skeleton ── */
+function BannerSkeleton() {
+  return (
+    <div className={styles.skeletonBanner}>
+      <div className={styles.skeletonBannerBody}>
+        <SkeletonLine width={80} height={14} />
+        <SkeletonLine width="60%" height={28} />
+        <SkeletonLine width="80%" height={16} />
+        <SkeletonLine width="30%" height={12} />
+      </div>
+    </div>
+  );
+}
+
 function PostsSkeleton() {
   return (
     <div className={styles.grid}>
