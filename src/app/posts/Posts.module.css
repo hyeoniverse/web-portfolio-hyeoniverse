@@ -89,23 +89,69 @@
   color: var(--text-muted);
 }
 
-/* Series filter */
-.seriesSelect {
-  padding: var(--spacing-2xs) var(--spacing-md);
-  border: 1px solid var(--border-tertiary-color);
+/* ── Series filter chip ── */
+.seriesChip {
+  max-width: 1100px;
+  margin: 0 auto var(--spacing-lg);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--color-accent-alpha-20);
   border-radius: var(--radius-capsule);
-  background: transparent;
+  background: var(--color-accent-alpha-10);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  outline: none;
-  appearance: none;
-  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
 }
 
-.toolbar .seriesSelect:focus {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
+.seriesChipClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: var(--font-size-md);
+  color: var(--color-accent);
+  line-height: 1;
+}
+
+.seriesChip .seriesChipClose:hover {
+  background: var(--color-accent-alpha-20);
+}
+
+/* ── Series Section ── */
+.seriesSection {
+  max-width: 1100px;
+  margin: 0 auto var(--spacing-2xl);
+}
+
+.seriesLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--spacing-md);
+}
+
+.seriesRow {
+  display: flex;
+  gap: var(--spacing-md);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-xs);
+  scrollbar-width: none;
+}
+
+.seriesRow::-webkit-scrollbar {
+  display: none;
 }
 
 /* Tag toggle button */
@@ -144,6 +190,9 @@
 }
 
 .tagBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
   padding: var(--spacing-2xs) var(--spacing-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
@@ -151,6 +200,17 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
+}
+
+.tagCount {
+  font-size: var(--font-size-3xs);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.tagBtnActive .tagCount {
+  color: var(--bg-primary);
+  opacity: 0.7;
 }
 
 .tagRow .tagBtn:hover {
@@ -211,10 +271,11 @@
   padding: var(--spacing-3xl) 0;
 }
 
-/* ── Pinned Section ── */
+/* ── Pinned Section (full-width for peek carousel) ── */
 .pinnedSection {
-  max-width: 1100px;
+  width: 100%;
   margin: 0 auto var(--spacing-2xl);
+  overflow: hidden;
 }
 
 .pinnedLabel {
@@ -228,16 +289,6 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: var(--spacing-lg);
-}
-
-.pinnedGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-xl);
-}
-
-.pinnedSingle {
-  grid-template-columns: 1fr;
 }
 
 /* ── Grid ── */
@@ -327,9 +378,6 @@
     gap: var(--spacing-lg);
   }
 
-  .pinnedGrid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 768px) {
@@ -356,6 +404,10 @@
 
   .sortWrap {
     justify-content: flex-start;
+  }
+
+  .seriesRow {
+    gap: var(--spacing-sm);
   }
 }
 

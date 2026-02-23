@@ -95,8 +95,8 @@ export const designFeatures: DesignFeature[] = [
     icon: "10",
     title: "Posts & Series",
     description: {
-      ko: "Supabase 기반 블로그 시스템. Markdown과 Rich Text(Tiptap) 전환 가능한 에디터에서 이미지 정렬·크기 조절까지 지원합니다. 포스트를 시리즈로 묶어 순서대로 발행할 수 있으며, 상세 페이지에서 이전/다음 글 네비게이션이 표시됩니다. 게스트 대댓글, 검색·태그·시리즈 필터, 커버 이미지(프리셋/Unsplash/AI), IP 기반 좋아요를 지원합니다.",
-      en: "A full blog system powered by Supabase. The switchable Markdown/Rich Text editor supports image alignment and resizing. Posts can be grouped into series for sequential publishing, with prev/next navigation on detail pages. Threaded guest comments, search/tag/series filtering, cover images (presets/Unsplash/AI), and IP-based likes.",
+      ko: "Supabase 기반 블로그 시스템. Markdown과 Rich Text(Tiptap) 전환 가능한 에디터에서 이미지 정렬·크기 조절까지 지원합니다. 포스트를 시리즈로 묶어 순서대로 발행할 수 있으며, 시리즈는 카테고리의 하위 요소로 연동됩니다. 카테고리를 선택하면 해당 시리즈가 책 모양 카드로 가로 행에 표시되어 직관적으로 탐색할 수 있습니다. 게스트 대댓글, 검색·태그 필터, 커버 이미지(프리셋/Unsplash/AI), IP 기반 좋아요를 지원합니다.",
+      en: "A full blog system powered by Supabase. The switchable Markdown/Rich Text editor supports image alignment and resizing. Posts can be grouped into series for sequential publishing, with series linked to categories. Selecting a category reveals its series as book-shaped cards in a horizontal row for intuitive browsing. Threaded guest comments, search/tag filtering, cover images (presets/Unsplash/AI), and IP-based likes.",
     },
     tech: ["Supabase", "Tiptap", "Series", "Image Editing", "Canvas API", "IP Likes"],
     image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
