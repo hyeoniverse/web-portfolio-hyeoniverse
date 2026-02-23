@@ -107,7 +107,11 @@ export default function PostEditor({ post }: PostEditorProps) {
     const res = await fetch("/api/series", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: newSeriesTitle.trim(), published: true }),
+      body: JSON.stringify({
+        title: newSeriesTitle.trim(),
+        published: true,
+        category: form.category,
+      }),
     });
     if (res.ok) {
       const created = await res.json();
@@ -115,7 +119,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       updateField("series_id", created.id);
       setNewSeriesTitle("");
     }
-  }, [newSeriesTitle, updateField]);
+  }, [newSeriesTitle, updateField, form.category]);
 
   // Content type change with auto-conversion
   const handleContentTypeChange = useCallback(
@@ -413,12 +417,18 @@ export default function PostEditor({ post }: PostEditorProps) {
               onChange={(e) => {
                 const val = e.target.value;
                 updateField("series_id", val || null);
+                if (val) {
+                  const selected = seriesList.find((s) => s.id === val);
+                  if (selected?.category) {
+                    updateField("category", selected.category);
+                  }
+                }
               }}
             >
               <option value="">None</option>
               {seriesList.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.title} ({s.post_count ?? 0})
+                  {s.title} ({s.post_count ?? 0}){s.category ? ` — ${s.category}` : ""}
                 </option>
               ))}
             </select>

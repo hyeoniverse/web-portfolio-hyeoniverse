@@ -9,10 +9,16 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
 
+  const category = searchParams.get("category");
+
   let query = admin.from("series").select("*").order("created_at", { ascending: false });
 
   if (!showAll) {
     query = query.eq("published", true);
+  }
+
+  if (category) {
+    query = query.eq("category", category);
   }
 
   const { data: seriesList, error } = await query;

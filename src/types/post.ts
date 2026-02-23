@@ -47,6 +47,7 @@ export interface Series {
   slug: string;
   description: string;
   cover_image: string;
+  category: string;
   published: boolean;
   created_at: string;
   updated_at: string;
