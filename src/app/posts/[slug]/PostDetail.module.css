@@ -226,9 +226,8 @@
 /* ── Series navigation ── */
 .seriesBox {
   margin-bottom: var(--spacing-2xl);
-  border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  border-left: 3px solid var(--color-accent);
+  padding-left: var(--spacing-lg);
 }
 
 .seriesHeader {
@@ -236,35 +235,33 @@
   align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0;
   border: none;
-  background: var(--bg-tertiary);
+  background: transparent;
   cursor: pointer;
   text-align: left;
+  margin-bottom: var(--spacing-sm);
 }
 
-.seriesBox .seriesHeader:hover {
-  background: var(--color-neutral-alpha-10);
+.seriesBox .seriesHeader:hover .seriesTitle {
+  color: var(--color-accent);
 }
 
 .seriesLabel {
-  padding: 2px var(--spacing-xs);
-  background: var(--color-accent);
-  border-radius: var(--radius-xs);
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--color-white);
+  color: var(--color-accent);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   flex-shrink: 0;
 }
 
 .seriesTitle {
   flex: 1;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -272,15 +269,15 @@
 }
 
 .seriesCount {
-  font-family: var(--font-mono);
+  font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 
 .seriesChevron {
   font-size: 10px;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 
@@ -290,7 +287,7 @@
 
 .seriesList {
   list-style: none;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-sm) 0;
   margin: 0;
   border-top: 1px solid var(--border-tertiary-color);
 }
@@ -305,7 +302,7 @@
 }
 
 .seriesItem a {
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   text-decoration: none;
 }
 
@@ -327,7 +324,8 @@
 .seriesNav {
   display: flex;
   justify-content: space-between;
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-sm);
   border-top: 1px solid var(--border-tertiary-color);
 }
 
@@ -348,6 +346,7 @@
 
 .seriesNavRight {
   text-align: right;
+  margin-left: auto;
 }
 
 /* ── Adjacent post navigation ── */

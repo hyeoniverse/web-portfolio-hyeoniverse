@@ -8,7 +8,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-tertiary-color);
   flex-wrap: wrap;
   gap: var(--spacing-md);
 }
@@ -22,7 +24,7 @@
 .backLink {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   text-decoration: none;
 }
 
@@ -46,7 +48,7 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-md);
   background: var(--bg-tertiary);
@@ -59,7 +61,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 500;
-
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
@@ -94,7 +95,6 @@
   font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--color-accent);
-
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
@@ -110,19 +110,19 @@
   cursor: not-allowed;
 }
 
-/* Meta fields */
+/* ── Meta fields — open, breathing ── */
 .meta {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-3xl);
 }
 
 .titleInput {
   width: 100%;
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-md) 0;
   border: none;
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-secondary-color);
   background: transparent;
   font-family: var(--font-instrument);
   font-size: var(--font-size-3xl);
@@ -142,29 +142,30 @@
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-md);
+  gap: var(--spacing-xl);
   align-items: start;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-xs);
+  min-width: 0;
 }
 
 .fieldLabel {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .fieldInput {
   padding: var(--spacing-xs) var(--spacing-sm);
-  border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -182,7 +183,7 @@
 
 .excerptInput {
   padding: var(--spacing-xs) var(--spacing-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-md);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -267,7 +268,6 @@
   border: none;
   background: transparent;
   color: var(--text-muted);
-
   font-size: var(--font-size-xs);
   padding: 0;
   line-height: 1;
@@ -304,11 +304,11 @@
 .uploadBtn {
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px dashed var(--border-secondary-color);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
 .field .uploadBtn:hover {
@@ -321,11 +321,13 @@
   gap: var(--spacing-xs);
 }
 
-/* Editor area */
+/* ── Editor area ── */
 .editorSection {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--border-tertiary-color);
 }
 
 .editorHeader {
@@ -338,7 +340,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
