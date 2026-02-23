@@ -2,9 +2,9 @@
 
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
-import { services } from "@/data/services";
 import Section from "@/components/ui/Section";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./ServicesSection.module.css";
 
 interface ServicesSectionProps {
@@ -15,18 +15,22 @@ interface ServicesSectionProps {
 
 const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
   ({ serviceY0, serviceY1, serviceY2 }, ref) => {
-    const { t } = useLanguage();
+    const { language } = useLanguage();
+    const cfg = useSiteConfig();
+    const ko = language === "ko";
     const yTransforms = [serviceY0, serviceY1, serviceY2, undefined];
 
     return (
       <Section className={styles.services} ref={ref}>
         <div className={styles.header}>
-          <span className={styles.label}>{t("services.label")}</span>
+          <span className={styles.label}>
+            {ko ? cfg.services.label_ko : cfg.services.label}
+          </span>
           <div className={`${styles.headerLine} horizontal-rule`} />
         </div>
 
         <div className={styles.list}>
-          {services.map((service, index) => (
+          {cfg.services.items.map((service, index) => (
             <motion.div
               key={service.num}
               className={`${styles.item} service-item`}
@@ -38,10 +42,10 @@ const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
               <div className={styles.itemContent}>
                 <span className={styles.itemNumber}>{service.num}</span>
                 <h2 className={styles.itemTitle}>
-                  {t(`services.${service.key}.title`)}
+                  {ko ? service.title_ko : service.title}
                 </h2>
                 <span className={styles.itemDescription}>
-                  {t(`services.${service.key}.desc`)}
+                  {ko ? service.desc_ko : service.desc}
                 </span>
                 <motion.div
                   className={styles.itemOval}

@@ -5,6 +5,7 @@ import { motion, MotionValue } from "framer-motion";
 import StaggerText from "@/components/effects/StaggerText";
 import Section from "@/components/ui/Section";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./HeroSection.module.css";
 
 interface HeroSectionProps {
@@ -17,7 +18,12 @@ interface HeroSectionProps {
 
 const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
   ({ floatX, floatY, oval2X, oval2Y, onScrollDown }, ref) => {
-    const { t } = useLanguage();
+    const { language } = useLanguage();
+    const cfg = useSiteConfig();
+    const ko = language === "ko";
+    const headline = ko ? cfg.hero.headline_ko : cfg.hero.headline;
+    const subtext = ko ? cfg.hero.subtext_ko : cfg.hero.subtext;
+    const scrollLabel = ko ? cfg.hero.scrollLabel_ko : cfg.hero.scrollLabel;
 
     return (
       <Section fullHeight clipOverflow className={styles.hero} ref={ref}>
@@ -47,7 +53,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
                 className={styles.titleText}
                 strokeColor="var(--text-primary)"
               >
-                {t("hero.headline1")}
+                {headline[0]}
               </StaggerText>
             </span>
             <span className={`${styles.titleRow} hero-line`}>
@@ -55,7 +61,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
                 className={styles.titleText}
                 strokeColor="var(--text-primary)"
               >
-                {t("hero.headline2")}
+                {headline[1]}
               </StaggerText>
               <span className={styles.titleOvalWrapper}>
                 <span className={styles.titleOvalInline} />
@@ -67,22 +73,16 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
                 className={styles.titleText}
                 strokeColor="var(--text-primary)"
               >
-                {t("hero.headline3")}
+                {headline[2]}
               </StaggerText>
             </span>
           </h1>
 
           <div className={styles.meta}>
-            <span className="hero-line">
-              {t("hero.locationBefore")}
-              <span className={styles.metaHighlight}>
-                {t("hero.locationHighlight")}
-              </span>
-              {t("hero.locationAfter")}
-            </span>
+            <span className="hero-line">{subtext[0]}</span>
             <span className={styles.metaDivider} />
             <span className={`${styles.availabilityWrapper} hero-line`}>
-              {t("hero.availability")}
+              {subtext[1]}
               <span className={styles.pulseDot} />
               <div className="pulse" />
             </span>
@@ -109,7 +109,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
               }}
             />
           </div>
-          <span className={styles.scrollText}>{t("hero.scroll")}</span>
+          <span className={styles.scrollText}>{scrollLabel}</span>
         </motion.button>
       </Section>
     );
