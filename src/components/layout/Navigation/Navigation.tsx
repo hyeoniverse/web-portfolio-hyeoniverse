@@ -81,7 +81,8 @@ const menuItems = [
 
 const adminNavItems = [
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },
-  { key: "admin-series", href: "/admin/series", label: "Series" },
+  { key: "admin-works", href: "/admin/works", label: "Works" },
+  { key: "admin-profile", href: "/admin/profile", label: "Profile" },
   { key: "admin-settings", href: "/admin/settings", label: "Settings" },
 ];
 
@@ -104,7 +105,11 @@ export default function Navigation() {
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
   const { isLoading, isTransitioning } = useLoadingScreen();
-  const { isMuted, toggleMute } = useSoundStore();
+  const { isMuted, toggleMute, hydrate: hydrateSound } = useSoundStore();
+
+  useEffect(() => {
+    hydrateSound();
+  }, [hydrateSound]);
   const { openForm } = useContactStore();
   const { stop: lenisStop, start: lenisStart } = useLenis();
 

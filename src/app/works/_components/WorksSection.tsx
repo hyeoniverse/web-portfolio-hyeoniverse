@@ -18,10 +18,8 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
-  projects,
-  allProjects,
+  projects as staticProjects,
   Project,
-  PROJECT_COUNT,
   INFINITE_SCROLL_SETS,
   LONG_PRESS_DURATION,
   INITIAL_MARGIN,
@@ -54,7 +52,15 @@ const MAX_CARD_OFFSET = 12;
 const MOUSE_SENSITIVITY = 0.012;
 const IMAGE_PARALLAX_MULTIPLIER = 1.3;
 
-export default function WorksSection() {
+interface WorksSectionProps {
+  projects?: Project[];
+}
+
+export default function WorksSection({ projects: projectsProp }: WorksSectionProps) {
+  const projects = projectsProp ?? staticProjects;
+  const PROJECT_COUNT = projects.length;
+  const allProjects = Array(INFINITE_SCROLL_SETS).fill(projects).flat();
+
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.works.infiniteScroll;
 
@@ -323,7 +329,7 @@ export default function WorksSection() {
       ctx.revert();
       ScrollTrigger.refresh();
     };
-  }, [isVerticalLayout, infiniteScroll]);
+  }, [isVerticalLayout, infiniteScroll, PROJECT_COUNT]);
 
   // 네비게이션 핸들러
   const triggerTransition = useCallback(

@@ -37,7 +37,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  clip-path: inset(0 0 0 0);
+  clip-path: inset(0 -20px 0 -20px);
   transition:
     clip-path var(--duration-moderate) var(--ease-material),
     visibility var(--duration-moderate);

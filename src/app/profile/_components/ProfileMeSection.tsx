@@ -2,14 +2,16 @@
 
 import { Fragment, useEffect } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import {
-  experiences,
-  skillGroups,
-  approachSteps,
-  philosophy,
-  certifications,
-  awards,
+  experiences as staticExperiences,
+  skillGroups as staticSkillGroups,
+  approachSteps as staticApproachSteps,
+  philosophy as staticPhilosophy,
+  certifications as staticCertifications,
+  awards as staticAwards,
 } from "@/data/profile";
+import type { ProfileData } from "@/types/profile";
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
@@ -24,11 +26,24 @@ const PANEL_COUNT = 14;
 const NAV_SECTION_COUNT = 11;
 const REPETITIONS = 3;
 
-export default function ProfileMeSection() {
+interface ProfileMeSectionProps {
+  profileData?: ProfileData;
+}
+
+export default function ProfileMeSection({ profileData }: ProfileMeSectionProps) {
+  const experiences = profileData?.experiences ?? staticExperiences;
+  const skillGroups = profileData?.skillGroups ?? staticSkillGroups;
+  const approachSteps = profileData?.approachSteps ?? staticApproachSteps;
+  const philosophy = profileData?.philosophy ?? staticPhilosophy;
+  const certifications = profileData?.certifications ?? staticCertifications;
+  const awards = profileData?.awards ?? staticAwards;
+
   const { t, language } = useLanguage();
+  const siteConfig = useSiteConfig();
+  const infiniteScroll = siteConfig.profile.infiniteScroll;
   const isMobile = useMobileLayout();
   const { sectionRef, trackRef, activeSection } = useHorizontalScroll(styles, {
-    infinite: !isMobile,
+    infinite: infiniteScroll,
     panelSetSize: PANEL_COUNT,
     navSectionCount: NAV_SECTION_COUNT,
     mobileAnimateVisible: true,
@@ -299,7 +314,7 @@ export default function ProfileMeSection() {
   return (
     <section ref={sectionRef} className={styles.section}>
       <div ref={trackRef} className={styles.track}>
-        {isMobile
+        {isMobile || !infiniteScroll
           ? panelSet(0)
           : Array.from({ length: REPETITIONS }, (_, i) => panelSet(i))}
       </div>
