@@ -254,7 +254,6 @@
   padding: 0;
   border: none;
   background: transparent;
-  cursor: pointer;
   text-align: left;
   margin-bottom: var(--spacing-sm);
 }

@@ -39,7 +39,6 @@
   flex: 0 0 80px;
   overflow: hidden;
   border-radius: var(--radius-xl);
-  cursor: pointer;
 }
 
 .carousel .sliver::after {
@@ -86,7 +85,7 @@
   border-radius: 0 !important;
 }
 
-/* ── Arrows — overlaid on viewport edges ── */
+/* ── Arrows ── */
 .carousel .arrow {
   position: absolute;
   top: 50%;
@@ -95,19 +94,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: none;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-circle);
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(8px);
   color: rgba(255, 255, 255, 0.85);
-  transition: background-color var(--duration-fast) var(--ease-material);
+  transition:
+    background-color var(--duration-fast) var(--ease-material),
+    border-color var(--duration-fast) var(--ease-material);
 }
 
 .carousel .arrow:hover {
   background: rgba(0, 0, 0, 0.55);
-  color: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
 }
 
 .arrowPrev {
@@ -118,7 +120,7 @@
   right: var(--spacing-md);
 }
 
-/* ── Indicator — glass pill with pips ── */
+/* ── Indicator — progress dots ── */
 .indicator {
   position: absolute;
   bottom: var(--spacing-lg);
@@ -127,47 +129,38 @@
   z-index: 4;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: var(--radius-capsule);
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(12px);
+  gap: var(--spacing-xs);
 }
 
-.carousel .pip {
+/* Individual dot */
+.carousel .dot {
   position: relative;
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-circle);
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
   background: rgba(255, 255, 255, 0.35);
   border: none;
   padding: 0;
-  cursor: pointer;
   overflow: hidden;
   transition:
-    width var(--duration-normal) var(--ease-material),
-    border-radius var(--duration-normal) var(--ease-material),
-    background-color var(--duration-fast) var(--ease-material);
+    width var(--duration-base) var(--ease-material),
+    background-color var(--duration-base) var(--ease-material);
 }
 
-.carousel .pip:hover {
-  background: rgba(255, 255, 255, 0.55);
+.carousel .dot:hover {
+  background: rgba(255, 255, 255, 0.6);
 }
 
-.carousel .pipActive {
-  width: 24px;
-  border-radius: var(--radius-capsule);
-  background: rgba(255, 255, 255, 0.25);
+.dotActive {
+  width: 48px !important;
+  background: rgba(255, 255, 255, 0.5) !important;
 }
 
-.carousel .pipActive:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.pipProgress {
+/* Progress fill inside active dot */
+.dotFill {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: #fff;
   border-radius: inherit;
   transform-origin: left center;
 }
@@ -183,8 +176,8 @@
   }
 
   .carousel .arrow {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
   }
 
   .arrowPrev {
@@ -193,5 +186,9 @@
 
   .arrowNext {
     right: var(--spacing-sm);
+  }
+
+  .indicator {
+    bottom: var(--spacing-md);
   }
 }

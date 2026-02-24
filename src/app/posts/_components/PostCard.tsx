@@ -1,11 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Post } from "@/types/post";
+import { formatPostTitle } from "@/utils/post";
 import styles from "./PostCard.module.css";
 
 interface PostCardProps {
   post: Post;
-  variant?: "featured" | "standard" | "banner";
+  variant?: "featured" | "standard" | "hero";
   onImgError?: (id: string) => void;
   imgError?: boolean;
 }
@@ -24,17 +25,19 @@ export default function PostCard({
 
   const readTime = Math.max(1, Math.ceil(post.content.length / 1000));
   const isFeatured = variant === "featured";
-  const isBanner = variant === "banner";
+  const isHero = variant === "hero";
   const showImage = post.cover_image && !imgError;
   const category = post.category || null;
+  const displayTitle = formatPostTitle(post);
 
-  const cardClass = `${styles.card} ${isFeatured ? styles.featured : ""} ${isBanner ? styles.banner : ""}`;
+  const cardClass = `${styles.card} ${isFeatured ? styles.featured : ""} ${isHero ? styles.hero : ""}`;
 
-  /* ── Banner variant: 이미지 배경 + 오버레이 텍스트 ── */
-  if (isBanner) {
+  /* ── Hero variant: 풀스크린 배경 이미지 배너 ── */
+  if (isHero) {
     return (
       <Link href={`/posts/${post.slug}`} className={cardClass}>
-        <div className={styles.bannerBg}>
+        {/* 배경 이미지 */}
+        <div className={styles.heroBg}>
           {showImage ? (
             <Image
               src={post.cover_image}
@@ -48,24 +51,23 @@ export default function PostCard({
           ) : (
             <div className={styles.placeholder} />
           )}
-          <div className={styles.bannerOverlay} />
+          <div className={styles.heroOverlay} />
         </div>
 
-        <div className={styles.bannerContent}>
-          <div className={styles.badgeRow}>
-            {category && (
-              <span className={styles.bannerBadge}>{category}</span>
-            )}
-          </div>
-          <h2 className={styles.bannerTitle}>{post.title}</h2>
-          {post.excerpt && <p className={styles.bannerExcerpt}>{post.excerpt}</p>}
-          <div className={styles.bannerMeta}>
+        {/* 콘텐츠 */}
+        <div className={styles.heroContent}>
+          {category && (
+            <span className={styles.heroBadge}>{category}</span>
+          )}
+          <h2 className={styles.heroTitle}>{displayTitle}</h2>
+          {post.excerpt && <p className={styles.heroExcerpt}>{post.excerpt}</p>}
+          <div className={styles.heroMeta}>
             <span>{date}</span>
-            <span className={styles.dot}>&middot;</span>
+            <span className={styles.heroDot}>&middot;</span>
             <span>{readTime} min read</span>
             {post.view_count > 0 && (
               <>
-                <span className={styles.dot}>&middot;</span>
+                <span className={styles.heroDot}>&middot;</span>
                 <span>{post.view_count} views</span>
               </>
             )}
@@ -118,7 +120,7 @@ export default function PostCard({
           )}
         </div>
 
-        <h2 className={styles.title}>{post.title}</h2>
+        <h2 className={styles.title}>{displayTitle}</h2>
 
         {post.excerpt && <p className={styles.excerpt}>{post.excerpt}</p>}
 

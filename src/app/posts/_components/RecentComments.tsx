@@ -38,8 +38,6 @@ export default function RecentComments() {
       .catch(() => {});
   }, []);
 
-  if (comments.length === 0) return null;
-
   return (
     <section className={styles.section}>
       <div className={styles.label}>
@@ -48,21 +46,25 @@ export default function RecentComments() {
         </svg>
         Recent Comments
       </div>
-      <div className={styles.list}>
-        {comments.map((c) => (
-          <Link key={c.id} href={`/posts/${c.post_slug}`} className={styles.item}>
-            <div className={styles.itemTop}>
-              <span className={styles.nickname}>
-                {c.nickname}
-                {c.is_admin && <span className={styles.adminBadge}>Admin</span>}
-              </span>
-              <span className={styles.time}>{timeAgo(c.created_at)}</span>
-            </div>
-            <p className={styles.content}>{c.content}</p>
-            <span className={styles.postTitle}>{c.post_title}</span>
-          </Link>
-        ))}
-      </div>
+      {comments.length === 0 ? (
+        <p className={styles.empty}>No comments yet</p>
+      ) : (
+        <div className={styles.list}>
+          {comments.map((c) => (
+            <Link key={c.id} href={`/posts/${c.post_slug}`} className={styles.item}>
+              <div className={styles.itemTop}>
+                <span className={styles.nickname}>
+                  {c.nickname}
+                  {c.is_admin && <span className={styles.adminBadge}>Admin</span>}
+                </span>
+                <span className={styles.time}>{timeAgo(c.created_at)}</span>
+              </div>
+              <p className={styles.content}>{c.content}</p>
+              <span className={styles.postTitle}>{c.post_title}</span>
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
