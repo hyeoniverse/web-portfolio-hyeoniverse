@@ -9,11 +9,10 @@ import CategoryNav from "./_components/CategoryNav";
 import SeriesCard from "./_components/SeriesCard";
 import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
-import { Carousel } from "@/components/ui/Carousel";
+import Carousel from "@/components/ui/Carousel/Carousel";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./Posts.module.css";
 
-const STAGGER_DELAY = 0.06;
 const POSTS_PER_PAGE = 12;
 
 export default function PostsPage() {
@@ -33,6 +32,7 @@ export default function PostsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [showTags, setShowTags] = useState(false);
+  const [showAllSeries, setShowAllSeries] = useState(false);
 
   useEffect(() => {
     stop();
@@ -127,7 +127,10 @@ export default function PostsPage() {
     return seriesList.find((s) => s.id === activeSeries)?.title ?? null;
   }, [activeSeries, seriesList]);
 
-  /* 필터가 하나도 없을 때만 pinned 섹션 별도 표시 (그리드와 완전 독립) */
+  const SERIES_LIMIT = 4;
+  const visibleSeries = showAllSeries ? seriesList : seriesList.slice(0, SERIES_LIMIT);
+  const hasMoreSeries = seriesList.length > SERIES_LIMIT;
+
   const hasFilter = !!search || !!activeTag || !!activeSeries;
   const showPinned = pinnedPosts.length > 0 && page === 1 && !loading && !hasFilter;
 
@@ -154,25 +157,32 @@ export default function PostsPage() {
         </p>
       </motion.div>
 
-      {/* ── Pinned Banner — 가장 상단, 필터 위 ── */}
+      {/* ── Featured Carousel (pinned posts) ── */}
       {loading && page === 1 && !hasFilter && (
         <div className={styles.pinnedSection}>
-          <BannerSkeleton />
+          <HeroSkeleton />
         </div>
       )}
-      {showPinned && (
+      {showPinned && pinnedPosts.length > 0 && (
         <motion.div
           className={styles.pinnedSection}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <Carousel autoPlay interval={6000} pauseOnHover>
+          <Carousel
+            autoPlay
+            interval={6000}
+            pauseOnHover
+            showArrows={pinnedPosts.length > 1}
+            showDots={pinnedPosts.length > 1}
+            height={480}
+          >
             {pinnedPosts.map((post) => (
               <PostCard
                 key={post.id}
                 post={post}
-                variant="banner"
+                variant="hero"
                 onImgError={handleImgError}
                 imgError={imgErrors.has(post.id)}
               />
@@ -181,64 +191,45 @@ export default function PostsPage() {
         </motion.div>
       )}
 
-      {/* ── Popular + Recent Comments — 필터 없을 때만 ── */}
-      {!hasFilter && page === 1 && !loading && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          <PopularPosts />
-          <RecentComments />
-        </motion.div>
-      )}
-
-      {/* ── Category Nav ── */}
+      {/* ── Filter Bar (Category tabs + Search + Sort) ── */}
       <motion.div
+        className={styles.filterBar}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
       >
-        <CategoryNav
-          extraCategories={extraCategories}
-          activeCategory={activeCategory}
-          onCategoryChange={setActiveCategory}
-        />
-      </motion.div>
+        <div className={styles.filterBarTop}>
+          <CategoryNav
+            extraCategories={extraCategories}
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+          />
 
-      {/* ── Toolbar: Search + Tags + Sort ── */}
-      <motion.div
-        className={styles.toolbar}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
-      >
-        <div className={styles.toolbarTop}>
-          <div className={styles.searchWrap}>
-            <svg
-              className={styles.searchIcon}
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              className={styles.searchInput}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search posts..."
-            />
-          </div>
+          <div className={styles.filterBarRight}>
+            <div className={styles.searchWrap}>
+              <svg
+                className={styles.searchIcon}
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                className={styles.searchInput}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search..."
+              />
+            </div>
 
-          <div className={styles.toolbarRight}>
             {allTags.length > 0 && (
               <button
                 className={`${styles.tagToggleBtn} ${showTags ? styles.tagToggleBtnOpen : ""}`}
@@ -247,8 +238,8 @@ export default function PostsPage() {
               >
                 Tags
                 <svg
-                  width="12"
-                  height="12"
+                  width="10"
+                  height="10"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -261,22 +252,15 @@ export default function PostsPage() {
               </button>
             )}
 
-            <div className={styles.sortWrap}>
-              {([
-                { value: "newest" as const, label: "Latest" },
-                { value: "oldest" as const, label: "Oldest" },
-                { value: "popular" as const, label: "Popular" },
-              ]).map(({ value, label }) => (
-                <button
-                  key={value}
-                  className={`${styles.sortBtn} ${sort === value ? styles.sortBtnActive : ""}`}
-                  onClick={() => setSort(value)}
-                  data-clickable="true"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <select
+              className={styles.sortSelect}
+              value={sort}
+              onChange={(e) => setSort(e.target.value as typeof sort)}
+            >
+              <option value="newest">Latest</option>
+              <option value="oldest">Oldest</option>
+              <option value="popular">Popular</option>
+            </select>
           </div>
         </div>
 
@@ -304,176 +288,195 @@ export default function PostsPage() {
         )}
       </motion.div>
 
-      {/* ── Series Row (카테고리 내부 그룹) ── */}
-      {!loading && (
-        <motion.div
-          className={styles.seriesSection}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          <div className={styles.seriesLabel}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
-            </svg>
-            Series
-            {activeCategory && (
-              <span className={styles.seriesCategoryTag}>{activeCategory}</span>
-            )}
-          </div>
-          {seriesList.length > 0 ? (
-            <div className={styles.seriesRow}>
-              {seriesList.map((series) => (
-                <SeriesCard
-                  key={series.id}
-                  series={series}
-                  onClick={handleSeriesClick}
-                  active={activeSeries === series.id}
-                />
-              ))}
+      {/* ── Content Area (2-column) ── */}
+      <div className={styles.contentArea}>
+        <div className={styles.mainColumn}>
+          {/* Series Row */}
+          {!loading && (
+            <div className={styles.seriesSection}>
+              <div className={styles.seriesLabel}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+                </svg>
+                Series
+                {activeCategory && (
+                  <span className={styles.seriesCategoryTag}>{activeCategory}</span>
+                )}
+              </div>
+              {seriesList.length > 0 ? (
+                <div className={styles.seriesRow}>
+                  {visibleSeries.map((series) => (
+                    <SeriesCard
+                      key={series.id}
+                      series={series}
+                      onClick={handleSeriesClick}
+                      active={activeSeries === series.id}
+                    />
+                  ))}
+                  {hasMoreSeries && (
+                    <button
+                      className={styles.seriesMoreBtn}
+                      onClick={() => setShowAllSeries((v) => !v)}
+                      data-clickable="true"
+                    >
+                      {showAllSeries ? "Close" : `+${seriesList.length - SERIES_LIMIT}`}
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <p className={styles.seriesEmpty}>
+                  {activeCategory
+                    ? `No series in ${activeCategory}`
+                    : "No series yet"}
+                </p>
+              )}
             </div>
-          ) : (
-            <p className={styles.seriesEmpty}>
-              {activeCategory
-                ? `No series in ${activeCategory}`
-                : "No series yet"}
-            </p>
           )}
-        </motion.div>
-      )}
 
-      {/* ── Content ── */}
-      {/* Series filter chip */}
-      {activeSeries && activeSeriesTitle && (
-        <div className={styles.seriesChip}>
-          <span>Series: {activeSeriesTitle}</span>
-          <button
-            className={styles.seriesChipClose}
-            onClick={clearSeriesFilter}
-            data-clickable="true"
-          >
-            &times;
-          </button>
-        </div>
-      )}
-
-      {loading ? (
-        <PostsSkeleton />
-      ) : posts.length === 0 && !showPinned ? (
-        <div className={styles.emptyState}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            <line x1="8" y1="11" x2="14" y2="11" />
-          </svg>
-          <p className={styles.emptyTitle}>
-            {search
-              ? `No results for "${search}"`
-              : activeTag
-                ? `No posts tagged "${activeTag}"`
-                : activeSeries && activeSeriesTitle
-                  ? `No posts in "${activeSeriesTitle}"`
-                  : activeCategory
-                    ? `No posts in ${activeCategory}`
-                    : "No posts yet"}
-          </p>
-          {(search || activeTag || activeSeries || activeCategory) && (
-            <button
-              className={styles.emptyResetBtn}
-              onClick={() => { setSearch(""); setActiveTag(null); setActiveSeries(null); setActiveCategory(null); }}
-              data-clickable="true"
-            >
-              Clear filters
-            </button>
-          )}
-        </div>
-      ) : posts.length > 0 ? (
-        <>
-          {/* Posts label */}
-          <div className={styles.postsLabel}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="7" height="7" />
-              <rect x="14" y="3" width="7" height="7" />
-              <rect x="3" y="14" width="7" height="7" />
-              <rect x="14" y="14" width="7" height="7" />
-            </svg>
-            Posts
-            <span className={styles.postsCount}>{posts.length}</span>
-          </div>
-          {/* Regular grid */}
-          <div className={styles.grid}>
-            {posts.map((post, i) => (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.25 + i * STAGGER_DELAY,
-                  ease: [0.25, 0.1, 0.25, 1],
-                }}
-              >
-                <PostCard
-                  post={post}
-                  onImgError={handleImgError}
-                  imgError={imgErrors.has(post.id)}
-                />
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className={styles.pagination}>
+          {/* Series filter chip */}
+          {activeSeries && activeSeriesTitle && (
+            <div className={styles.seriesChip}>
+              <span>Series: {activeSeriesTitle}</span>
               <button
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-                className={styles.pageBtn}
+                className={styles.seriesChipClose}
+                onClick={clearSeriesFilter}
                 data-clickable="true"
               >
-                &larr;
+                &times;
               </button>
-              {pageNumbers.map((p, i) =>
-                p === -1 ? (
-                  <span key={`ellipsis-${i}`} className={styles.ellipsis}>
-                    &hellip;
-                  </span>
-                ) : (
+            </div>
+          )}
+
+          {/* Posts */}
+          {loading ? (
+            <PostsSkeleton />
+          ) : posts.length === 0 && !showPinned ? (
+            <div className={styles.emptyState}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <line x1="8" y1="11" x2="14" y2="11" />
+              </svg>
+              <p className={styles.emptyTitle}>
+                {search
+                  ? `No results for "${search}"`
+                  : activeTag
+                    ? `No posts tagged "${activeTag}"`
+                    : activeSeries && activeSeriesTitle
+                      ? `No posts in "${activeSeriesTitle}"`
+                      : activeCategory
+                        ? `No posts in ${activeCategory}`
+                        : "No posts yet"}
+              </p>
+              {(search || activeTag || activeSeries || activeCategory) && (
+                <button
+                  className={styles.emptyResetBtn}
+                  onClick={() => { setSearch(""); setActiveTag(null); setActiveSeries(null); setActiveCategory(null); }}
+                  data-clickable="true"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+          ) : posts.length > 0 ? (
+            <>
+              <div className={styles.postsLabel}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" />
+                </svg>
+                Posts
+                <span className={styles.postsCount}>{posts.length}</span>
+              </div>
+              <div className={styles.grid}>
+                {posts.map((post, i) => (
+                  <motion.div
+                    key={post.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{
+                      duration: 0.5,
+                      ease: [0.25, 0.1, 0.25, 1],
+                    }}
+                    style={
+                      i === 0 || (i === posts.length - 1 && (posts.length - 1) % 2 === 1)
+                        ? { gridColumn: "1 / -1" }
+                        : undefined
+                    }
+                  >
+                    <PostCard
+                      post={post}
+                      variant={i === 0 ? "featured" : "standard"}
+                      onImgError={handleImgError}
+                      imgError={imgErrors.has(post.id)}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
                   <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`${styles.pageBtn} ${page === p ? styles.pageBtnActive : ""}`}
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => p - 1)}
+                    className={styles.pageBtn}
                     data-clickable="true"
                   >
-                    {p}
+                    &larr;
                   </button>
-                )
+                  {pageNumbers.map((p, i) =>
+                    p === -1 ? (
+                      <span key={`ellipsis-${i}`} className={styles.ellipsis}>
+                        &hellip;
+                      </span>
+                    ) : (
+                      <button
+                        key={p}
+                        onClick={() => setPage(p)}
+                        className={`${styles.pageBtn} ${page === p ? styles.pageBtnActive : ""}`}
+                        data-clickable="true"
+                      >
+                        {p}
+                      </button>
+                    )
+                  )}
+                  <button
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => p + 1)}
+                    className={styles.pageBtn}
+                    data-clickable="true"
+                  >
+                    &rarr;
+                  </button>
+                </div>
               )}
-              <button
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
-                className={styles.pageBtn}
-                data-clickable="true"
-              >
-                &rarr;
-              </button>
-            </div>
-          )}
-        </>
-      ) : null}
+            </>
+          ) : null}
+        </div>
+
+        {/* ── Sidebar ── */}
+        <aside className={styles.sidebar}>
+          <PopularPosts />
+          <RecentComments />
+        </aside>
+      </div>
     </div>
   );
 }
 
 /* ── Skeleton ── */
-function BannerSkeleton() {
+function HeroSkeleton() {
   return (
-    <div className={styles.skeletonBanner}>
-      <div className={styles.skeletonBannerBody}>
+    <div className={styles.skeletonHero}>
+      <div className={styles.skeletonHeroBody}>
         <SkeletonLine width={80} height={14} />
-        <SkeletonLine width="60%" height={28} />
-        <SkeletonLine width="80%" height={16} />
-        <SkeletonLine width="30%" height={12} />
+        <SkeletonLine width="80%" height={32} />
+        <SkeletonLine width="100%" height={16} />
+        <SkeletonLine width="40%" height={12} />
       </div>
     </div>
   );
@@ -482,8 +485,8 @@ function BannerSkeleton() {
 function PostsSkeleton() {
   return (
     <div className={styles.grid}>
-      {Array.from({ length: 9 }, (_, i) => (
-        <div key={i} className={styles.skeletonCard}>
+      {Array.from({ length: 6 }, (_, i) => (
+        <div key={i} className={styles.skeletonCard} style={i === 0 ? { gridColumn: "1 / -1" } : undefined}>
           <Skeleton height={0} borderRadius="0" />
           <div className={styles.skeletonCardBody}>
             <SkeletonLine width={60} height={14} />

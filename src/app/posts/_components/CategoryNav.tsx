@@ -23,25 +23,23 @@ export default function CategoryNav({
 
   return (
     <div className={styles.nav}>
-      <div className={styles.primaryRow}>
+      <button
+        className={`${styles.btn} ${!activeCategory ? styles.btnActive : ""}`}
+        onClick={() => onCategoryChange(null)}
+        data-clickable="true"
+      >
+        All
+      </button>
+      {allCategories.map((cat) => (
         <button
-          className={`${styles.btn} ${!activeCategory ? styles.btnActive : ""}`}
-          onClick={() => onCategoryChange(null)}
+          key={cat}
+          className={`${styles.btn} ${activeCategory === cat ? styles.btnActive : ""}`}
+          onClick={() => onCategoryChange(cat === activeCategory ? null : cat)}
           data-clickable="true"
         >
-          All
+          {cat}
         </button>
-        {allCategories.map((cat) => (
-          <button
-            key={cat}
-            className={`${styles.btn} ${activeCategory === cat ? styles.btnActive : ""}`}
-            onClick={() => onCategoryChange(cat === activeCategory ? null : cat)}
-            data-clickable="true"
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
+      ))}
     </div>
   );
 }

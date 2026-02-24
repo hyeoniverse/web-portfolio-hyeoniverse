@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import type { Post } from "@/types/post";
 import styles from "./PopularPosts.module.css";
 
@@ -26,33 +25,15 @@ export default function PopularPosts() {
         </svg>
         Popular
       </div>
-      <div className={styles.row}>
-        {posts.map((post) => (
-          <Link key={post.id} href={`/posts/${post.slug}`} className={styles.card}>
-            <div className={styles.thumb}>
-              {post.cover_image ? (
-                <Image
-                  src={post.cover_image}
-                  alt={post.title}
-                  fill
-                  sizes="200px"
-                  className={styles.thumbImg}
-                />
-              ) : (
-                <div className={styles.thumbPlaceholder}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                </div>
-              )}
-            </div>
+      <div className={styles.list}>
+        {posts.map((post, idx) => (
+          <Link key={post.id} href={`/posts/${post.slug}`} className={styles.item}>
+            <span className={styles.rank}>{String(idx + 1).padStart(2, "0")}</span>
             <div className={styles.info}>
-              <span className={styles.cardTitle}>{post.title}</span>
-              <span className={styles.cardMeta}>
+              <span className={styles.itemTitle}>{post.title}</span>
+              <span className={styles.itemMeta}>
                 {post.view_count} views
-                {post.like_count > 0 && <> · {post.like_count} likes</>}
+                {post.like_count > 0 && <> &middot; {post.like_count} likes</>}
               </span>
             </div>
           </Link>
