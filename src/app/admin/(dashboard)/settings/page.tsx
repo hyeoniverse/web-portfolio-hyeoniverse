@@ -8,6 +8,7 @@ import type { SiteConfigData } from "@/config/site.config";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import Toggle from "@/components/ui/Toggle";
+import type { Series } from "@/types/post";
 import ProfileSections, { profileDefaults } from "@/components/admin/ProfileSections";
 import type { ProfileData } from "@/types/profile";
 import styles from "./Settings.module.css";
@@ -16,15 +17,9 @@ type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
 };
 
-const TABS = [
-  { id: "general", label: "General" },
-  { id: "content", label: "Content" },
-  { id: "appearance", label: "Appearance" },
-  { id: "services", label: "Services" },
-  { id: "account", label: "Account" },
-] as const;
+const TAB_IDS = ["general", "content", "appearance", "services", "account"] as const;
 
-type TabId = (typeof TABS)[number]["id"];
+type TabId = (typeof TAB_IDS)[number];
 
 const THEME_PRESETS: { name: string; theme: SiteConfigData["theme"] }[] = [
   {
@@ -73,12 +68,25 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const [activeTab, setActiveTab] = useState<TabId>("general");
-  const [contentSubTab, setContentSubTab] = useState<"home" | "profile" | "about">("home");
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
+    if (typeof window === "undefined") return "general";
+    const p = new URLSearchParams(window.location.search);
+    const tab = p.get("tab");
+    return tab && TAB_IDS.includes(tab as TabId) ? (tab as TabId) : "general";
+  });
+  const [contentSubTab, setContentSubTab] = useState<"home" | "profile" | "about" | "posts">(() => {
+    if (typeof window === "undefined") return "home";
+    const p = new URLSearchParams(window.location.search);
+    const sub = p.get("sub");
+    return sub && ["home", "profile", "about", "posts"].includes(sub)
+      ? (sub as "home" | "profile" | "about" | "posts")
+      : "home";
+  });
   const [accountEmail, setAccountEmail] = useState("");
   const [accountNewEmail, setAccountNewEmail] = useState("");
   const [accountPassword, setAccountPassword] = useState("");
   const [accountConfirm, setAccountConfirm] = useState("");
+  const [accountCurrentPassword, setAccountCurrentPassword] = useState("");
   const [accountMessage, setAccountMessage] = useState("");
   const [accountSaving, setAccountSaving] = useState(false);
 
@@ -145,6 +153,12 @@ export default function SettingsPage() {
         throw new Error(body?.error ?? `Profile save: HTTP ${profileRes.status}`);
       }
       setMessage(t("admin.settings.saveSuccess"));
+      // 다른 탭/페이지에 설정 변경 알림
+      try {
+        const bc = new BroadcastChannel("settings-updated");
+        bc.postMessage({ type: "settings-updated", timestamp: Date.now() });
+        bc.close();
+      } catch {}
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
@@ -220,7 +234,7 @@ export default function SettingsPage() {
             className={styles.resetBtn}
             onClick={() => setConfig(structuredClone(siteConfig) as unknown as SiteConfigData)}
           >
-            Reset
+            {t("admin.settings.reset")}
           </button>
           <button
             className={styles.saveBtn}
@@ -235,32 +249,28 @@ export default function SettingsPage() {
       <div className={styles.layout}>
         {/* ── Side Nav ── */}
         <nav className={styles.sideNav}>
-          {TABS.map((tab) => (
-            <div key={tab.id}>
+          {TAB_IDS.map((id) => (
+            <div key={id}>
               <button
                 type="button"
-                className={`${styles.navItem} ${activeTab === tab.id ? styles.navItemActive : ""}`}
+                className={`${styles.navItem} ${activeTab === id ? styles.navItemActive : ""}`}
                 onClick={() => {
-                  setActiveTab(tab.id);
-                  if (tab.id === "content") setContentSubTab("home");
+                  setActiveTab(id);
+                  if (id === "content") setContentSubTab("home");
                 }}
               >
-                {tab.label}
+                {t(`admin.settings.tabs.${id}`)}
               </button>
-              {tab.id === "content" && (
+              {id === "content" && (
                 <div className={styles.navSub}>
-                  {([
-                    { id: "home", label: "Home" },
-                    { id: "profile", label: "Profile" },
-                    { id: "about", label: "About" },
-                  ] as const).map((sub) => (
+                  {(["home", "profile", "about", "posts"] as const).map((sub) => (
                     <button
-                      key={sub.id}
+                      key={sub}
                       type="button"
-                      className={`${styles.navSubItem} ${activeTab === "content" && contentSubTab === sub.id ? styles.navSubItemActive : ""}`}
-                      onClick={() => { setActiveTab("content"); setContentSubTab(sub.id); }}
+                      className={`${styles.navSubItem} ${activeTab === "content" && contentSubTab === sub ? styles.navSubItemActive : ""}`}
+                      onClick={() => { setActiveTab("content"); setContentSubTab(sub); }}
                     >
-                      {sub.label}
+                      {t(`admin.settings.contentSub.${sub}`)}
                     </button>
                   ))}
                 </div>
@@ -339,16 +349,6 @@ export default function SettingsPage() {
                 </div>
               </section>
 
-              {/* Post Categories */}
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Post Categories</h2>
-                <div className={styles.fields}>
-                  <CategoriesEditor
-                    categories={config.posts?.categories ?? []}
-                    onChange={(cats) => update("posts", "categories", cats as SiteConfigData["posts"]["categories"])}
-                  />
-                </div>
-              </section>
             </>
           )}
 
@@ -358,7 +358,7 @@ export default function SettingsPage() {
                 <>
                   {/* Hero */}
                   <section className={styles.section}>
-                    <h2 className={styles.sectionTitle}>Hero</h2>
+                    <h2 className={styles.sectionTitle}>{t("admin.settings.hero")}</h2>
                     <div className={styles.fields}>
                       <div className={styles.fieldPair}>
                         <Field
@@ -389,8 +389,8 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className={styles.fieldPair}>
-                        <Field label="Scroll Label (EN)" value={config.hero.scrollLabel} onChange={(v) => update("hero", "scrollLabel", v)} />
-                        <Field label="Scroll Label (KO)" value={config.hero.scrollLabel_ko} onChange={(v) => update("hero", "scrollLabel_ko", v)} />
+                        <Field label={`${t("admin.settings.scrollLabel")} (EN)`} value={config.hero.scrollLabel} onChange={(v) => update("hero", "scrollLabel", v)} />
+                        <Field label={`${t("admin.settings.scrollLabel")} (KO)`} value={config.hero.scrollLabel_ko} onChange={(v) => update("hero", "scrollLabel_ko", v)} />
                       </div>
                     </div>
                   </section>
@@ -398,7 +398,7 @@ export default function SettingsPage() {
                   {/* Home About */}
                   <section className={styles.section}>
                     <h2 className={styles.sectionTitle}>{t("admin.settings.homeAboutIntro")}</h2>
-                    <p className={styles.sectionHint}>{"{중괄호}"} 안의 텍스트가 하이라이트 처리됩니다</p>
+                    <p className={styles.sectionHint}>{t("admin.settings.highlightHint")}</p>
                     <div className={styles.fields}>
                       <div className={styles.fieldPair}>
                         <Field label="Intro (EN)" value={config.homeAbout.intro} onChange={(v) => update("homeAbout", "intro", v)} multiline />
@@ -447,7 +447,7 @@ export default function SettingsPage() {
 
                   {/* CTA & Footer */}
                   <section className={styles.section}>
-                    <h2 className={styles.sectionTitle}>CTA &amp; Footer</h2>
+                    <h2 className={styles.sectionTitle}>{t("admin.settings.ctaFooter")}</h2>
                     <div className={styles.fields}>
                       <div className={styles.fieldPair}>
                         <Field label={`${t("admin.settings.ctaLabel")} (EN)`} value={config.cta.label} onChange={(v) => update("cta", "label", v)} />
@@ -483,6 +483,27 @@ export default function SettingsPage() {
 
               {contentSubTab === "profile" && (
                 <ProfileSections data={profileData} setData={setProfileData} styles={styles} />
+              )}
+
+              {contentSubTab === "posts" && (
+                <>
+                  {/* Post Categories */}
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>{t("admin.settings.postCategories")}</h2>
+                    <div className={styles.fields}>
+                      <CategoriesEditor
+                        categories={config.posts?.categories ?? []}
+                        onChange={(cats) => update("posts", "categories", cats as SiteConfigData["posts"]["categories"])}
+                      />
+                    </div>
+                  </section>
+
+                  {/* Series */}
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>{t("admin.posts.series")}</h2>
+                    <SeriesManager categories={config.posts?.categories ?? []} />
+                  </section>
+                </>
               )}
 
               {contentSubTab === "about" && (
@@ -545,13 +566,19 @@ export default function SettingsPage() {
             <>
               {/* Theme Presets */}
               <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Presets</h2>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.presets")}</h2>
                 <div className={styles.presetGrid}>
                   {THEME_PRESETS.map((preset) => (
                     <button
                       key={preset.name}
                       type="button"
-                      className={styles.presetCard}
+                      className={`${styles.presetCard} ${
+                        config.theme.accentColor === preset.theme.accentColor &&
+                        config.theme.lightBg === preset.theme.lightBg &&
+                        config.theme.darkBg === preset.theme.darkBg
+                          ? styles.presetCardActive
+                          : ""
+                      }`}
                       onClick={() =>
                         setConfig((prev) => ({
                           ...prev,
@@ -591,79 +618,142 @@ export default function SettingsPage() {
                 </div>
               </section>
 
+              {/* Typography */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.typography")}</h2>
+                <div className={styles.fields}>
+                  <FontSelect
+                    label={t("admin.settings.headingFont")}
+                    value={config.typography?.headingFont ?? "Instrument Serif"}
+                    options={["Instrument Serif", "Playfair Display", "Cormorant Garamond"]}
+                    onChange={(v) => update("typography", "headingFont", v)}
+                  />
+                  <FontSelect
+                    label={t("admin.settings.bodyFont")}
+                    value={config.typography?.bodyFont ?? "Space Grotesk"}
+                    options={["Space Grotesk", "Inter", "DM Sans"]}
+                    onChange={(v) => update("typography", "bodyFont", v)}
+                  />
+                  <FontSelect
+                    label={t("admin.settings.monoFont")}
+                    value={config.typography?.monoFont ?? "JetBrains Mono"}
+                    options={["JetBrains Mono", "Fira Code"]}
+                    onChange={(v) => update("typography", "monoFont", v)}
+                  />
+                </div>
+              </section>
 
             </>
           )}
 
           {activeTab === "services" && (
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Services &amp; Integrations</h2>
-              <div className={styles.fields}>
-                <div className={styles.fieldRow}>
-                  <label className={styles.fieldLabel}>Email Service Provider</label>
-                  <select
-                    className={styles.fieldSelect}
-                    value={config.emailService.provider}
-                    onChange={(e) =>
-                      update("emailService", "provider", e.target.value as SiteConfigData["emailService"]["provider"])
-                    }
-                  >
-                    <option value="formspree">Formspree</option>
-                    <option value="web3forms">Web3Forms</option>
-                    <option value="emailjs">EmailJS</option>
-                  </select>
+            <>
+              {/* Email Service */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.emailSettings")}</h2>
+                <div className={styles.fields}>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>{t("admin.settings.emailServiceProvider")}</label>
+                    <select
+                      className={styles.fieldSelect}
+                      value={config.emailService.provider}
+                      onChange={(e) =>
+                        update("emailService", "provider", e.target.value as SiteConfigData["emailService"]["provider"])
+                      }
+                    >
+                      <option value="formspree">Formspree</option>
+                      <option value="web3forms">Web3Forms</option>
+                      <option value="emailjs">EmailJS</option>
+                    </select>
+                  </div>
+                  <Toggle
+                    label={t("admin.settings.emailFileUpload")}
+                    checked={config.emailService.enableFileUpload}
+                    onChange={(v) => update("emailService", "enableFileUpload", v)}
+                  />
                 </div>
-                <Toggle
-                  label="Email File Upload"
-                  checked={config.emailService.enableFileUpload}
-                  onChange={(v) => update("emailService", "enableFileUpload", v)}
-                />
-                <div className={styles.fieldRow}>
-                  <label className={styles.fieldLabel}>AI Cover Provider</label>
-                  <select
-                    className={styles.fieldSelect}
-                    value={config.aiCover.provider}
-                    onChange={(e) =>
-                      update("aiCover", "provider", e.target.value as SiteConfigData["aiCover"]["provider"])
-                    }
-                  >
-                    <option value="nanobanana">NanoBanana (Gemini)</option>
-                    <option value="huggingface">Hugging Face (FLUX)</option>
-                  </select>
+              </section>
+
+              {/* AI Cover */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.aiSettings")}</h2>
+                <div className={styles.fields}>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>{t("admin.settings.aiCoverProvider")}</label>
+                    <select
+                      className={styles.fieldSelect}
+                      value={config.aiCover.provider}
+                      onChange={(e) =>
+                        update("aiCover", "provider", e.target.value as SiteConfigData["aiCover"]["provider"])
+                      }
+                    >
+                      <option value="nanobanana">NanoBanana (Gemini)</option>
+                      <option value="huggingface">Hugging Face (FLUX)</option>
+                    </select>
+                  </div>
                 </div>
-                <Toggle
-                  label="reCAPTCHA Enabled"
-                  checked={config.recaptcha.enabled}
-                  onChange={(v) => update("recaptcha", "enabled", v)}
-                />
-                <div className={styles.fieldRow}>
-                  <label className={styles.fieldLabel}>reCAPTCHA Version</label>
-                  <select
-                    className={styles.fieldSelect}
-                    value={config.recaptcha.version}
-                    onChange={(e) =>
-                      update("recaptcha", "version", e.target.value as SiteConfigData["recaptcha"]["version"])
-                    }
-                  >
-                    <option value="v2">v2 (Checkbox)</option>
-                    <option value="v3">v3 (Invisible)</option>
-                  </select>
+              </section>
+
+              {/* Security */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.securitySettings")}</h2>
+                <div className={styles.fields}>
+                  <Toggle
+                    label={t("admin.settings.recaptchaEnabled")}
+                    checked={config.recaptcha.enabled}
+                    onChange={(v) => update("recaptcha", "enabled", v)}
+                  />
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>{t("admin.settings.recaptchaVersion")}</label>
+                    <select
+                      className={styles.fieldSelect}
+                      value={config.recaptcha.version}
+                      onChange={(e) =>
+                        update("recaptcha", "version", e.target.value as SiteConfigData["recaptcha"]["version"])
+                      }
+                    >
+                      <option value="v2">v2 (Checkbox)</option>
+                      <option value="v3">v3 (Invisible)</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+
+              {/* Environment Variables */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.envVars")}</h2>
+                <EnvVarFields provider={config.emailService.provider} aiProvider={config.aiCover.provider} recaptchaEnabled={config.recaptcha.enabled} />
+              </section>
+            </>
           )}
 
           {activeTab === "account" && (
             <>
               <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Email</h2>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.currentPassword")}</h2>
                 <div className={styles.fields}>
                   <div className={styles.fieldRow}>
-                    <label className={styles.fieldLabel}>Current Email</label>
+                    <label className={styles.fieldLabel}>{t("admin.settings.currentPassword")}</label>
+                    <input
+                      className={styles.fieldInput}
+                      type="password"
+                      value={accountCurrentPassword}
+                      onChange={(e) => setAccountCurrentPassword(e.target.value)}
+                      placeholder={t("admin.settings.currentPasswordPlaceholder")}
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.email")}</h2>
+                <div className={styles.fields}>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>{t("admin.settings.currentEmail")}</label>
                     <span className={styles.fieldValue}>{accountEmail}</span>
                   </div>
                   <Field
-                    label="New Email"
+                    label={t("admin.settings.newEmail")}
                     value={accountNewEmail}
                     onChange={setAccountNewEmail}
                   />
@@ -671,26 +761,26 @@ export default function SettingsPage() {
               </section>
 
               <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Password</h2>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.password")}</h2>
                 <div className={styles.fields}>
                   <div className={styles.fieldRow}>
-                    <label className={styles.fieldLabel}>New Password</label>
+                    <label className={styles.fieldLabel}>{t("admin.settings.newPassword")}</label>
                     <input
                       className={styles.fieldInput}
                       type="password"
                       value={accountPassword}
                       onChange={(e) => setAccountPassword(e.target.value)}
-                      placeholder="Leave blank to keep current"
+                      placeholder={t("admin.settings.leaveBlank")}
                     />
                   </div>
                   <div className={styles.fieldRow}>
-                    <label className={styles.fieldLabel}>Confirm Password</label>
+                    <label className={styles.fieldLabel}>{t("admin.settings.confirmPassword")}</label>
                     <input
                       className={styles.fieldInput}
                       type="password"
                       value={accountConfirm}
                       onChange={(e) => setAccountConfirm(e.target.value)}
-                      placeholder="Confirm new password"
+                      placeholder={t("admin.settings.confirmPlaceholder")}
                     />
                   </div>
                 </div>
@@ -698,7 +788,7 @@ export default function SettingsPage() {
 
               <div className={styles.accountActions}>
                 {accountMessage && (
-                  <span className={`${styles.message} ${accountMessage.includes("Error") || accountMessage.includes("match") ? styles.messageError : styles.messageSuccess}`}>
+                  <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
                     {accountMessage}
                   </span>
                 )}
@@ -706,18 +796,24 @@ export default function SettingsPage() {
                   className={styles.saveBtn}
                   disabled={accountSaving}
                   onClick={async () => {
+                    if (!accountCurrentPassword) {
+                      setAccountMessage(t("admin.settings.currentPasswordRequired"));
+                      return;
+                    }
                     if (accountPassword && accountPassword !== accountConfirm) {
-                      setAccountMessage("Passwords don't match");
+                      setAccountMessage(t("admin.settings.passwordMismatch"));
                       return;
                     }
                     setAccountSaving(true);
                     setAccountMessage("");
                     try {
-                      const body: { email?: string; password?: string } = {};
+                      const body: { currentPassword: string; email?: string; password?: string } = {
+                        currentPassword: accountCurrentPassword,
+                      };
                       if (accountNewEmail !== accountEmail) body.email = accountNewEmail;
                       if (accountPassword) body.password = accountPassword;
-                      if (Object.keys(body).length === 0) {
-                        setAccountMessage("No changes");
+                      if (!body.email && !body.password) {
+                        setAccountMessage(t("admin.settings.noChanges"));
                         return;
                       }
                       const res = await fetch("/api/admin/account", {
@@ -727,8 +823,9 @@ export default function SettingsPage() {
                       });
                       const data = await res.json();
                       if (!res.ok) throw new Error(data.error);
-                      setAccountMessage("Updated successfully");
+                      setAccountMessage(t("admin.settings.updateSuccess"));
                       if (body.email) setAccountEmail(body.email);
+                      setAccountCurrentPassword("");
                       setAccountPassword("");
                       setAccountConfirm("");
                       setTimeout(() => setAccountMessage(""), 3000);
@@ -739,7 +836,7 @@ export default function SettingsPage() {
                     }
                   }}
                 >
-                  {accountSaving ? "Saving..." : "Update Account"}
+                  {accountSaving ? t("admin.settings.saving") : t("admin.settings.updateAccount")}
                 </button>
               </div>
             </>
@@ -929,6 +1026,35 @@ function ServiceItemsEditor({
   );
 }
 
+function FontSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className={styles.fieldRow}>
+      <label className={styles.fieldLabel}>{label}</label>
+      <select
+        className={styles.fieldSelect}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {options.map((font) => (
+          <option key={font} value={font}>
+            {font}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 function CategoriesEditor({
   categories,
   onChange,
@@ -989,6 +1115,475 @@ function CategoriesEditor({
           Add
         </button>
       </div>
+    </div>
+  );
+}
+
+function SeriesManager({ categories }: { categories: string[] }) {
+  const { t } = useLanguage();
+  const [seriesList, setSeriesList] = useState<Series[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [creatingNew, setCreatingNew] = useState(false);
+
+  const fetchSeries = useCallback(async () => {
+    try {
+      const res = await fetch("/api/series?all=true");
+      const data = await res.json();
+      setSeriesList(Array.isArray(data) ? data : []);
+    } catch { /* ignore */ }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchSeries(); }, [fetchSeries]);
+
+  if (loading) return <p className={styles.fieldValue}>{t("common.loading")}</p>;
+
+  return (
+    <div className={styles.seriesList}>
+      {creatingNew && (
+        <SeriesInlineEditor
+          series={null}
+          categories={categories}
+          onSave={() => { setCreatingNew(false); fetchSeries(); }}
+          onCancel={() => setCreatingNew(false)}
+        />
+      )}
+      {seriesList.map((s) => {
+        const expanded = expandedId === s.id;
+        return (
+          <div key={s.id}>
+            <button
+              type="button"
+              className={`${styles.seriesCardHead} ${expanded ? styles.seriesCardHeadExpanded : ""}`}
+              onClick={() => setExpandedId(expanded ? null : s.id)}
+            >
+              <div className={styles.seriesCardInfo}>
+                <p className={styles.seriesCardName}>{s.title || t("admin.posts.untitled")}</p>
+                <div className={styles.seriesCardMeta}>
+                  {s.category && <span>{s.category}</span>}
+                  <span>{s.post_count ?? 0} {t("admin.posts.postsCount")}</span>
+                  <span className={`${styles.seriesBadge} ${s.published ? styles.seriesBadgePublished : styles.seriesBadgeDraft}`}>
+                    {s.published ? t("admin.posts.published") : t("admin.posts.draft")}
+                  </span>
+                </div>
+              </div>
+              <svg className={`${styles.seriesChevron} ${expanded ? styles.seriesChevronOpen : ""}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            {expanded && (
+              <SeriesInlineEditor
+                series={s}
+                categories={categories}
+                onSave={() => { setExpandedId(null); fetchSeries(); }}
+                onCancel={() => setExpandedId(null)}
+                onDelete={async () => {
+                  if (!confirm(`"${s.title}" — ${t("admin.posts.seriesDeleteConfirm")}`)) return;
+                  await fetch(`/api/series/${s.id}`, { method: "DELETE" });
+                  setExpandedId(null);
+                  fetchSeries();
+                }}
+              />
+            )}
+          </div>
+        );
+      })}
+      {!creatingNew && (
+        <button
+          type="button"
+          className={styles.profileAddBtn}
+          onClick={() => { setCreatingNew(true); setExpandedId(null); }}
+        >
+          {t("admin.posts.newSeries")}
+        </button>
+      )}
+    </div>
+  );
+}
+
+interface SeriesPostItem {
+  id: string;
+  title: string;
+  slug: string;
+  published: boolean;
+  series_order: number;
+}
+
+function SeriesInlineEditor({
+  series,
+  categories,
+  onSave,
+  onCancel,
+  onDelete,
+}: {
+  series: Series | null;
+  categories: string[];
+  onSave: () => void;
+  onCancel: () => void;
+  onDelete?: () => void;
+}) {
+  const { t } = useLanguage();
+  const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
+  const isEdit = !!series;
+
+  const [form, setForm] = useState({
+    title: series?.title ?? "",
+    title_en: series?.title_en ?? "",
+    description: series?.description ?? "",
+    description_en: series?.description_en ?? "",
+    category: series?.category ?? "",
+    cover_image: series?.cover_image ?? "",
+    published: series?.published ?? true,
+  });
+
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+  const [posts, setPosts] = useState<SeriesPostItem[]>([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!series?.id) return;
+    setPostsLoading(true);
+    fetch(`/api/series/${series.id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setPosts(
+          (data.posts ?? []).sort(
+            (a: SeriesPostItem, b: SeriesPostItem) => a.series_order - b.series_order
+          )
+        );
+      })
+      .finally(() => setPostsLoading(false));
+  }, [series?.id]);
+
+  const updateField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setError("");
+  };
+
+  const handleImageUpload = async () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      setUploading(true);
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        updateField("cover_image", data.url);
+      } catch {
+        setError(ts("uploadFailed"));
+      } finally {
+        setUploading(false);
+      }
+    };
+    input.click();
+  };
+
+  const handleRemovePost = async (postId: string) => {
+    await fetch(`/api/posts/${postId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ series_id: null, series_order: 0 }),
+    });
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
+  };
+
+  const handleReorder = async (index: number, direction: -1 | 1) => {
+    const swapIndex = index + direction;
+    if (swapIndex < 0 || swapIndex >= posts.length) return;
+    const updated = [...posts];
+    [updated[index], updated[swapIndex]] = [updated[swapIndex], updated[index]];
+    updated.forEach((p, i) => (p.series_order = i));
+    setPosts(updated);
+    await Promise.all([
+      fetch(`/api/posts/${updated[index].id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ series_order: updated[index].series_order }),
+      }),
+      fetch(`/api/posts/${updated[swapIndex].id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ series_order: updated[swapIndex].series_order }),
+      }),
+    ]);
+  };
+
+  const handleSave = async () => {
+    if (!form.title.trim()) {
+      setError(ts("titleRequired"));
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const url = isEdit && series ? `/api/series/${series.id}` : "/api/series";
+      const method = isEdit ? "PATCH" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error(ts("saveFailed"));
+      onSave();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : ts("saveFailed"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={styles.seriesCardBody}>
+      <div className={styles.fieldPair}>
+        <Field label={ts("titleKO")} value={form.title} onChange={(v) => updateField("title", v)} />
+        <Field label={ts("titleEN")} value={form.title_en} onChange={(v) => updateField("title_en", v)} />
+      </div>
+      <div className={styles.fieldPair}>
+        <Field label={ts("descriptionKO")} value={form.description} onChange={(v) => updateField("description", v)} multiline />
+        <Field label={ts("descriptionEN")} value={form.description_en} onChange={(v) => updateField("description_en", v)} multiline />
+      </div>
+      <div className={styles.fieldRow}>
+        <label className={styles.fieldLabel}>{ts("category")}</label>
+        <select
+          className={styles.fieldSelect}
+          value={form.category}
+          onChange={(e) => updateField("category", e.target.value)}
+        >
+          <option value="">{ts("categoryNone")}</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+      <div className={styles.fieldRow}>
+        <label className={styles.fieldLabel}>{ts("published")}</label>
+        <Toggle
+          label={form.published ? ts("publishedLabel") : ts("draftLabel")}
+          checked={form.published}
+          onChange={(v) => updateField("published", v)}
+        />
+      </div>
+      <div className={styles.fieldRow}>
+        <label className={styles.fieldLabel}>{ts("coverImage")}</label>
+        {form.cover_image ? (
+          <div className={styles.logoUpload}>
+            <div className={styles.logoPreview}>
+              <Image src={form.cover_image} alt="" width={120} height={75} className={styles.logoPreviewImage} unoptimized />
+            </div>
+            <button type="button" className={styles.logoBtnRemove} onClick={() => updateField("cover_image", "")}>
+              {ts("remove")}
+            </button>
+          </div>
+        ) : (
+          <button type="button" className={styles.logoBtn} onClick={handleImageUpload} disabled={uploading}>
+            {uploading ? ts("uploading") : ts("uploadCover")}
+          </button>
+        )}
+      </div>
+
+      {isEdit && (
+        <div className={styles.seriesPostsSection}>
+          <label className={styles.fieldLabel}>{ts("posts")} ({posts.length})</label>
+          {postsLoading ? (
+            <p className={styles.seriesPostsEmpty}>{ts("postsLoading")}</p>
+          ) : posts.length === 0 ? (
+            <p className={styles.seriesPostsEmpty}>{ts("postsEmpty")}</p>
+          ) : (
+            <div className={styles.seriesPostsList}>
+              {posts.map((post, idx) => (
+                <div key={post.id} className={styles.seriesPostItem}>
+                  <div className={styles.seriesPostOrder}>
+                    <button
+                      type="button"
+                      className={styles.seriesPostOrderBtn}
+                      disabled={idx === 0}
+                      onClick={() => handleReorder(idx, -1)}
+                    >
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M2 6.5 L5 3.5 L8 6.5" />
+                      </svg>
+                    </button>
+                    <span className={styles.seriesPostOrderNum}>{idx + 1}</span>
+                    <button
+                      type="button"
+                      className={styles.seriesPostOrderBtn}
+                      disabled={idx === posts.length - 1}
+                      onClick={() => handleReorder(idx, 1)}
+                    >
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M2 3.5 L5 6.5 L8 3.5" />
+                      </svg>
+                    </button>
+                  </div>
+                  <span className={styles.seriesPostTitle}>{post.title || ts("untitled")}</span>
+                  <span className={`${styles.seriesPostStatus} ${post.published ? styles.seriesPostPublished : styles.seriesPostDraft}`}>
+                    {post.published ? "P" : "D"}
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.seriesPostRemove}
+                    onClick={() => handleRemovePost(post.id)}
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {error && <p className={styles.sectionHint} style={{ color: "var(--color-accent)" }}>{error}</p>}
+
+      <div className={styles.seriesCardActions}>
+        {onDelete && (
+          <button type="button" className={styles.logoBtnRemove} onClick={onDelete}>
+            {t("admin.posts.delete")}
+          </button>
+        )}
+        <div style={{ flex: 1 }} />
+        <button type="button" className={styles.resetBtn} onClick={onCancel}>
+          {ts("cancel")}
+        </button>
+        <button type="button" className={styles.saveBtn} onClick={handleSave} disabled={saving}>
+          {saving ? "..." : isEdit ? ts("save") : ts("create")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function EnvVarFields({
+  provider,
+  aiProvider,
+  recaptchaEnabled,
+}: {
+  provider: string;
+  aiProvider: string;
+  recaptchaEnabled: boolean;
+}) {
+  const { t } = useLanguage();
+  const [secrets, setSecrets] = useState<Record<string, { value: string; source: "db" | "env" | "none" }>>({});
+  const [edits, setEdits] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    fetch("/api/admin/secrets")
+      .then((r) => r.json())
+      .then((d) => setSecrets(d.secrets ?? {}))
+      .catch(() => {});
+  }, []);
+
+  const rows: { key: string; label: string; show: boolean }[] = [
+    { key: "NEXT_PUBLIC_WEB3FORMS_KEY", label: "Web3Forms Key", show: provider === "web3forms" },
+    { key: "NEXT_PUBLIC_FORMSPREE_ID", label: "Formspree ID", show: provider === "formspree" },
+    { key: "NEXT_PUBLIC_EMAILJS_SERVICE_ID", label: "EmailJS Service ID", show: provider === "emailjs" },
+    { key: "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID", label: "EmailJS Template ID", show: provider === "emailjs" },
+    { key: "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY", label: "EmailJS Public Key", show: provider === "emailjs" },
+    { key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key", show: recaptchaEnabled },
+    { key: "NANOBANANA_API_KEY", label: "NanoBanana API Key", show: aiProvider === "nanobanana" },
+    { key: "HUGGINGFACE_API_KEY", label: "Hugging Face Token", show: aiProvider === "huggingface" },
+  ];
+
+  const visible = rows.filter((r) => r.show);
+  if (visible.length === 0) return null;
+
+  const hasEdits = Object.keys(edits).length > 0;
+
+  const handleSaveSecrets = async () => {
+    if (!hasEdits) return;
+    setSaving(true);
+    setMsg("");
+    try {
+      const res = await fetch("/api/admin/secrets", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secrets: edits }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setEdits({});
+      setMsg(t("admin.settings.envVarSaved"));
+      // 다시 로드
+      const fresh = await fetch("/api/admin/secrets").then((r) => r.json());
+      setSecrets(fresh.secrets ?? {});
+      setTimeout(() => setMsg(""), 3000);
+    } catch {
+      setMsg(t("admin.settings.saveError"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={styles.fields}>
+      {visible.map(({ key, label }) => {
+        const info = secrets[key];
+        const isEditing = key in edits;
+        const source = info?.source ?? "none";
+        const displayValue = isEditing ? edits[key] : (source === "db" ? info.value : "");
+        const placeholder = source === "env" ? info.value : t("admin.settings.envVarPlaceholder");
+
+        return (
+          <div key={key} className={styles.fieldRow}>
+            <label className={styles.fieldLabel}>
+              {label}
+              {source === "env" && !isEditing && (
+                <span className={styles.envSourceBadge}>.env</span>
+              )}
+              {source === "db" && !isEditing && (
+                <span className={styles.envSourceBadge}>DB</span>
+              )}
+            </label>
+            <div className={styles.envInputRow}>
+              <input
+                className={styles.fieldInput}
+                type="text"
+                value={displayValue}
+                placeholder={placeholder}
+                onChange={(e) => setEdits((prev) => ({ ...prev, [key]: e.target.value }))}
+              />
+              {isEditing && (
+                <button
+                  type="button"
+                  className={styles.envCancelBtn}
+                  onClick={() => setEdits((prev) => {
+                    const next = { ...prev };
+                    delete next[key];
+                    return next;
+                  })}
+                >
+                  &times;
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {(hasEdits || msg) && (
+        <div className={styles.envActions}>
+          {msg && <span className={styles.envMsg}>{msg}</span>}
+          {hasEdits && (
+            <button
+              type="button"
+              className={styles.envSaveBtn}
+              onClick={handleSaveSecrets}
+              disabled={saving}
+            >
+              {saving ? t("admin.settings.saving") : t("admin.settings.envVarSave")}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

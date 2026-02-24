@@ -15,7 +15,7 @@ export async function GET() {
   return NextResponse.json({ email: user.email });
 }
 
-// PATCH /api/admin/account — 이메일/비밀번호 변경
+// PATCH /api/admin/account — 이메일/비밀번호 변경 (현재 비밀번호 확인 필수)
 export async function PATCH(request: Request) {
   const supabase = await createClient();
   const {
@@ -27,6 +27,28 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json();
+
+  // 현재 비밀번호 확인 필수
+  if (!body.currentPassword) {
+    return NextResponse.json(
+      { error: "Current password is required" },
+      { status: 400 },
+    );
+  }
+
+  // 현재 비밀번호로 재인증
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email!,
+    password: body.currentPassword,
+  });
+
+  if (signInError) {
+    return NextResponse.json(
+      { error: "Current password is incorrect" },
+      { status: 400 },
+    );
+  }
+
   const updates: { email?: string; password?: string } = {};
 
   if (body.email && body.email !== user.email) {

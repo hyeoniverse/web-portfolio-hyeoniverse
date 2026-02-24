@@ -197,16 +197,25 @@ export const siteConfig = {
   },
 
   // ---------------------------------------------------------------------------
+  // 타이포그래피
+  // ---------------------------------------------------------------------------
+  typography: {
+    headingFont: "Instrument Serif", // Display/Heading 폰트
+    bodyFont: "Space Grotesk", // Body/UI 폰트
+    monoFont: "JetBrains Mono", // Monospace 폰트
+  },
+
+  // ---------------------------------------------------------------------------
   // Posts 페이지
   // ---------------------------------------------------------------------------
   posts: {
     categories: [
-      "General",
-      "Development",
-      "Design",
-      "Tutorial",
-      "Thoughts",
-      "Project",
+      "Frontend",
+      "Backend",
+      "DevOps",
+      "CS",
+      "Review",
+      "Career",
     ],
   },
 

@@ -29,6 +29,30 @@ const DEFAULTS = {
   darkText: "#f5f5f0",
 };
 
+interface TypographyConfig {
+  headingFont: string;
+  bodyFont: string;
+  monoFont: string;
+}
+
+/** font display name → CSS font-family string */
+const HEADING_FONTS: Record<string, string> = {
+  "Instrument Serif": "",
+  "Playfair Display": '"Playfair Display", serif',
+  "Cormorant Garamond": '"Cormorant Garamond", serif',
+};
+
+const BODY_FONTS: Record<string, string> = {
+  "Space Grotesk": "",
+  "Inter": '"Inter", sans-serif',
+  "DM Sans": '"DM Sans", sans-serif',
+};
+
+const MONO_FONTS: Record<string, string> = {
+  "JetBrains Mono": "",
+  "Fira Code": '"Fira Code", monospace',
+};
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const siteConfig = useSiteConfig();
   const [theme, setThemeState] = useState<Theme>("dark");
@@ -62,6 +86,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.setAttribute("data-theme", theme);
       localStorage.setItem("theme", theme);
       applyThemeColors(root, theme, siteConfig.theme);
+      applyFontOverrides(root, siteConfig.typography);
       return;
     }
 
@@ -71,13 +96,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
     applyThemeColors(root, theme, siteConfig.theme);
+    applyFontOverrides(root, siteConfig.typography);
 
     const timer = setTimeout(() => {
       root.removeAttribute("data-theme-transitioning");
     }, 350);
 
     return () => clearTimeout(timer);
-  }, [theme, mounted, siteConfig.theme]);
+  }, [theme, mounted, siteConfig.theme, siteConfig.typography]);
 
   const toggleTheme = useCallback(() => {
     setThemeState((prev) => (prev === "dark" ? "light" : "dark"));
@@ -172,6 +198,35 @@ function applyThemeColors(
   } else {
     setOrRemove(root, "--bg-primary", colors.darkBg, DEFAULTS.darkBg);
     setOrRemove(root, "--text-primary", colors.darkText, DEFAULTS.darkText);
+  }
+}
+
+/** 사이트 설정에서 지정한 폰트를 CSS 변수로 주입 */
+function applyFontOverrides(
+  root: HTMLElement,
+  typography: TypographyConfig | undefined,
+) {
+  if (!typography) return;
+
+  const heading = HEADING_FONTS[typography.headingFont];
+  if (heading) {
+    root.style.setProperty("--font-instrument", heading);
+  } else {
+    root.style.removeProperty("--font-instrument");
+  }
+
+  const body = BODY_FONTS[typography.bodyFont];
+  if (body) {
+    root.style.setProperty("--font-space-grotesk", body);
+  } else {
+    root.style.removeProperty("--font-space-grotesk");
+  }
+
+  const mono = MONO_FONTS[typography.monoFont];
+  if (mono) {
+    root.style.setProperty("--font-mono", mono);
+  } else {
+    root.style.removeProperty("--font-mono");
   }
 }
 
