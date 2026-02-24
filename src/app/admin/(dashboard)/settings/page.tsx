@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
@@ -58,6 +59,7 @@ const THEME_PRESETS: { name: string; theme: SiteConfigData["theme"] }[] = [
 
 export default function SettingsPage() {
   const { t } = useLanguage();
+  const router = useRouter();
   const { setInfinite, lenis, stop, start } = useLenis();
   const [config, setConfig] = useState<SiteConfigData>(
     structuredClone(siteConfig) as unknown as SiteConfigData
@@ -153,6 +155,8 @@ export default function SettingsPage() {
         throw new Error(body?.error ?? `Profile save: HTTP ${profileRes.status}`);
       }
       setMessage(t("admin.settings.saveSuccess"));
+      // 서버 컴포넌트 재실행 → siteConfig 갱신 → ThemeProvider 반영
+      router.refresh();
       // 다른 탭/페이지에 설정 변경 알림
       try {
         const bc = new BroadcastChannel("settings-updated");
@@ -166,7 +170,7 @@ export default function SettingsPage() {
     } finally {
       setSaving(false);
     }
-  }, [config, profileData, t]);
+  }, [config, profileData, t, router]);
 
   const update = <S extends keyof SiteConfigData>(
     section: S,

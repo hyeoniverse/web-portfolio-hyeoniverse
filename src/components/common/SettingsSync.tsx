@@ -13,8 +13,6 @@ export default function SettingsSync() {
       bc = new BroadcastChannel("settings-updated");
       bc.onmessage = (event) => {
         if (event.data?.type === "settings-updated") {
-          // Settings 페이지 자체는 이미 최신 상태이므로 제외
-          if (window.location.pathname.startsWith("/admin/settings")) return;
           window.location.reload();
         }
       };
