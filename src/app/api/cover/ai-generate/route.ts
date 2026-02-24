@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { siteConfig } from "@/config/site.config";
+import { getSecret } from "@/lib/getSecret";
 
 const stylePrompts: Record<string, string> = {
   abstract: "abstract art style, flowing shapes and colors",
@@ -19,7 +20,7 @@ const stylePrompts: Record<string, string> = {
 // ── Provider: NanoBanana ──
 
 async function generateWithNanoBanana(fullPrompt: string): Promise<ArrayBuffer> {
-  const apiKey = process.env.NANOBANANA_API_KEY;
+  const apiKey = await getSecret("NANOBANANA_API_KEY");
   if (!apiKey) throw new Error("NANOBANANA_API_KEY not configured");
 
   // 1. 생성 요청
@@ -87,7 +88,7 @@ async function generateWithNanoBanana(fullPrompt: string): Promise<ArrayBuffer> 
 // ── Provider: Hugging Face ──
 
 async function generateWithHuggingFace(fullPrompt: string): Promise<ArrayBuffer> {
-  const apiKey = process.env.HUGGINGFACE_API_KEY;
+  const apiKey = await getSecret("HUGGINGFACE_API_KEY");
   if (!apiKey) throw new Error("HUGGINGFACE_API_KEY not configured");
 
   const model = "black-forest-labs/FLUX.1-schnell";

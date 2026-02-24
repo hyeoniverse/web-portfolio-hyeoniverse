@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSecret } from "@/lib/getSecret";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
 
     switch (provider) {
       case "web3forms": {
-        const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
+        const accessKey = await getSecret("NEXT_PUBLIC_WEB3FORMS_KEY");
         if (!accessKey) {
           return NextResponse.json(
             { success: false, message: "Web3Forms not configured" },
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       }
 
       case "formspree": {
-        const formId = process.env.NEXT_PUBLIC_FORMSPREE_ID;
+        const formId = await getSecret("NEXT_PUBLIC_FORMSPREE_ID");
         if (!formId) {
           return NextResponse.json(
             { success: false, message: "Formspree not configured" },
@@ -85,9 +86,9 @@ export async function POST(request: NextRequest) {
       }
 
       case "emailjs": {
-        const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-        const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-        const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+        const serviceId = await getSecret("NEXT_PUBLIC_EMAILJS_SERVICE_ID");
+        const templateId = await getSecret("NEXT_PUBLIC_EMAILJS_TEMPLATE_ID");
+        const publicKey = await getSecret("NEXT_PUBLIC_EMAILJS_PUBLIC_KEY");
 
         if (!serviceId || !templateId || !publicKey) {
           return NextResponse.json(
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
           from_name: body.get("name") as string,
           from_email: body.get("email") as string,
           message: body.get("message") as string,
-          to_email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
+          to_email: await getSecret("NEXT_PUBLIC_CONTACT_EMAIL") || "",
         };
 
         // EmailJS용 파일 첨부 처리 (base64)

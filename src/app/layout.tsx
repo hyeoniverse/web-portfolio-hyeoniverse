@@ -7,6 +7,9 @@ import {
   JetBrains_Mono,
   Space_Grotesk,
   Instrument_Serif,
+  Cormorant_Garamond,
+  DM_Sans,
+  Fira_Code,
 } from "next/font/google";
 
 import LoadingScreen from "@/components/layout/LoadingScreen";
@@ -23,11 +26,13 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { getPublicKeys } from "@/lib/getSecret";
 
 import FaviconSwitcher from "@/components/common/FaviconSwitcher";
 import ScrollRestoration from "@/components/common/ScrollRestoration";
 import BGMController from "@/components/common/BGMController";
 import VisitTracker from "@/components/common/VisitTracker";
+import SettingsSync from "@/components/common/SettingsSync";
 
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig();
@@ -90,26 +95,44 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument",
   display: "swap",
 });
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400", "600"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+const firaCode = Fira_Code({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-fira-code",
+  display: "swap",
+});
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const config = await getSiteConfig();
+  const [config, publicKeys] = await Promise.all([getSiteConfig(), getPublicKeys()]);
 
   return (
     <html
       lang="ko"
       suppressHydrationWarning
-      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${cormorant.variable} ${dmSans.variable} ${firaCode.variable}`}
     >
       <head>
         <link rel="icon" href="/favicon-light.ico" />
       </head>
 
       <body>
-        <SiteConfigProvider initialConfig={config}>
+        <SiteConfigProvider initialConfig={config} publicKeys={publicKeys}>
           <ThemeProvider>
             <LanguageProvider>
               <RecaptchaProvider>
@@ -128,6 +151,7 @@ export default async function RootLayout({
                   <ContactDrawerWrapper />
                   <CursorTrail />
                   <VisitTracker />
+                  <SettingsSync />
                 </aside>
                 </LenisProvider>
               </RecaptchaProvider>
