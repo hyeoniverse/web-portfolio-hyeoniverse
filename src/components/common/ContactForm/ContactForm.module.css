@@ -96,7 +96,6 @@
 .formInput:disabled,
 .formTextarea:disabled {
   background: var(--bg-primary);
-  cursor: not-allowed;
   opacity: 0.5;
 }
 

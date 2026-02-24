@@ -44,20 +44,6 @@ export default function Footer({ className }: FooterProps) {
           <Link href="/privacy" className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
         </div>
 
-        {visits && (
-          <div className={styles.visits}>
-            <span className={styles.visitItem}>
-              <span className={styles.visitLabel}>Today</span>
-              <span className={styles.visitCount}>{visits.today.toLocaleString()}</span>
-            </span>
-            <span className={styles.visitDot} />
-            <span className={styles.visitItem}>
-              <span className={styles.visitLabel}>Total</span>
-              <span className={styles.visitCount}>{visits.total.toLocaleString()}</span>
-            </span>
-          </div>
-        )}
-
         <div className={styles.bottom}>
           <a
             href={`mailto:${siteConfig.contact.email}`}
@@ -65,9 +51,24 @@ export default function Footer({ className }: FooterProps) {
           >
             {siteConfig.contact.email}
           </a>
-          <span className={styles.copyright}>
-            {language === "ko" ? siteConfig.footer.copyright_ko : siteConfig.footer.copyright}
-          </span>
+          <div className={styles.bottomRight}>
+            {visits && (
+              <div className={styles.visits}>
+                <span className={styles.visitItem}>
+                  <span className={styles.visitLabel}>Today</span>
+                  <span className={styles.visitCount}>{visits.today.toLocaleString()}</span>
+                </span>
+                <span className={styles.visitDot} />
+                <span className={styles.visitItem}>
+                  <span className={styles.visitLabel}>Total</span>
+                  <span className={styles.visitCount}>{visits.total.toLocaleString()}</span>
+                </span>
+              </div>
+            )}
+            <span className={styles.copyright}>
+              {language === "ko" ? siteConfig.footer.copyright_ko : siteConfig.footer.copyright}
+            </span>
+          </div>
         </div>
       </div>
     </footer>

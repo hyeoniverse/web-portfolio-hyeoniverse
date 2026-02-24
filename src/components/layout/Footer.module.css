@@ -137,11 +137,18 @@
   transform: translateY(-50%) translateX(0);
 }
 
-/* Visitor counter — independent row */
+/* ── Bottom Right: visits + copyright ── */
+.bottomRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-xs);
+}
+
+/* Visitor counter */
 .visits {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: var(--spacing-sm);
 }
 
@@ -199,10 +206,14 @@
   }
 
   .bottom {
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-lg);
     align-items: center;
     flex-direction: column;
     text-align: center;
+  }
+
+  .bottomRight {
+    align-items: center;
   }
 
   .copyright {

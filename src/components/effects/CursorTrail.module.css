@@ -124,6 +124,21 @@
   filter: none;
 }
 
+/* disabled 요소 */
+.disabled .cursorInner {
+  width: var(--cursor-width);
+  height: var(--cursor-width);
+  opacity: 0.3;
+}
+.disabled .cursorText {
+  display: none;
+}
+.disabled .cursorInner::before {
+  inset: 0px;
+  opacity: 0;
+  filter: none;
+}
+
 /* 텍스트 요소 */
 .text .cursorInner {
   width: var(--cursor-text-width);

@@ -329,7 +329,6 @@
 
 .cardActive {
   z-index: 10 !important;
-  cursor: grabbing;
 }
 
 /* Card Inner Elements */
