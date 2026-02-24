@@ -1,5 +1,12 @@
 import type { Project, CardSize, LocalizedText } from "@/data/projects";
 
+export interface TeamMember {
+  name: string;
+  role_ko: string;
+  role_en: string;
+  url?: string;
+}
+
 /** DB row shape — flat columns for ko/en */
 export interface Work {
   id: string;
@@ -31,6 +38,7 @@ export interface Work {
   solution_ko: string;
   solution_en: string;
   solution_image: string;
+  team_members: TeamMember[];
   gallery: string[];
   live_url: string;
   github_url: string;
@@ -59,6 +67,7 @@ export interface WorkFormData {
   content_ko: string;
   content_en: string;
   content_type: "markdown" | "richtext";
+  team_members: TeamMember[];
   gallery: string[];
   live_url: string;
   github_url: string;
@@ -106,6 +115,12 @@ export function workToProject(w: Work): Project {
   const contentEn = w.content_en ||
     buildLegacyContent(w.overview_en, w.challenge_en, w.solution_en, w.overview_image, w.challenge_image, w.solution_image);
 
+  const teamMembers = (w.team_members ?? []).map((m) => ({
+    name: m.name,
+    role: loc(m.role_ko, m.role_en),
+    url: m.url || undefined,
+  }));
+
   return {
     id: w.id,
     number: w.number,
@@ -120,6 +135,7 @@ export function workToProject(w: Work): Project {
     size: w.size,
     content: loc(contentKo, contentEn),
     contentType: w.content_type || "markdown",
+    teamMembers: teamMembers.length > 0 ? teamMembers : undefined,
     gallery: w.gallery,
     liveUrl: w.live_url || undefined,
     githubUrl: w.github_url || undefined,

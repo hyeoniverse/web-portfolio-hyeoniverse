@@ -245,6 +245,36 @@ export default function WorkDetailClient({
         </div>
       </motion.div>
 
+      {/* Team Members */}
+      {project.teamMembers && project.teamMembers.length > 0 && (
+        <motion.div
+          className={styles.infoRow}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.48, duration: 0.6 }}
+        >
+          <div className={styles.infoBlock}>
+            <span className={styles.infoLabel}>{t("workDetail.team")}</span>
+            <div className={styles.teamList}>
+              {project.teamMembers.map((member, i) => (
+                <div key={i} className={styles.teamMember}>
+                  <span className={styles.teamName}>
+                    {member.url ? (
+                      <a href={member.url} target="_blank" rel="noopener noreferrer">
+                        {member.name}
+                      </a>
+                    ) : (
+                      member.name
+                    )}
+                  </span>
+                  <span className={styles.teamRole}>{member.role[language]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Content */}
       {content && (
         <motion.div

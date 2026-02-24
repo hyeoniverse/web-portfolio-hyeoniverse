@@ -83,6 +83,39 @@
   letter-spacing: 0.05em;
 }
 
+/* ── Team Members ── */
+.teamList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.teamMember {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+}
+
+.teamName {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.teamName a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--text-tertiary);
+}
+
+.teamRole {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
 /* Sections (Overview, Challenge, Solution) */
 .section {
   margin-bottom: var(--spacing-4xl);
