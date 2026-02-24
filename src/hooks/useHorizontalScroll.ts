@@ -12,6 +12,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import { checkMobileLayout, useMobileLayout } from "@/hooks/useMobileLayout";
 
 const SCROLL_LERP = 0.08;
+const MAX_WHEEL_DELTA = 150;
 
 export interface HorizontalScrollOptions {
   /** Infinite wrapping (default: false) */
@@ -188,7 +189,8 @@ export function useHorizontalScroll(
     // wheel 이벤트 핸들러
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      state.targetScrollX += e.deltaY;
+      const clamped = Math.max(-MAX_WHEEL_DELTA, Math.min(MAX_WHEEL_DELTA, e.deltaY));
+      state.targetScrollX += clamped;
     };
     section.addEventListener("wheel", handleWheel, { passive: false });
 
