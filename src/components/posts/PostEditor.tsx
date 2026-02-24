@@ -1,19 +1,20 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
-import { useLenis } from "@/providers/LenisProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import type { Post, PostFormData, Series } from "@/types/post";
 import { useCategories } from "@/hooks/useCategories";
+import Checkbox from "@/components/ui/Checkbox";
+import AdminEditorShell, {
+  adminEditorStyles as es,
+} from "@/components/admin/AdminEditorShell";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
-import SeriesEditorModal from "./SeriesEditorModal";
-import LanguageToggle from "@/components/ui/LanguageToggle";
 import styles from "./PostEditor.module.css";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
@@ -35,20 +36,11 @@ function generateSlug(title: string): string {
 
 export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
-  const { setInfinite, lenis } = useLenis();
+  const { t } = useLanguage();
   const isEdit = !!post;
   const categories = useCategories();
 
-  // Disable infinite scroll on editor pages
-  useEffect(() => {
-    setInfinite(false);
-    window.scrollTo(0, 0);
-    if (lenis) lenis.scrollTo(0, { immediate: true });
-
-    return () => {
-      setInfinite(true);
-    };
-  }, [setInfinite, lenis]);
+  const te = (key: string) => t(`admin.posts.editor.${key}`);
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
 
@@ -79,17 +71,13 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
-  const [showSeriesModal, setShowSeriesModal] = useState(false);
-  const [editingSeries, setEditingSeries] = useState<Series | null>(null);
 
-  // 시리즈 목록 불러오기
   useEffect(() => {
     fetch("/api/series?all=true")
       .then((res) => res.json())
       .then((data) => setSeriesList(Array.isArray(data) ? data : []));
   }, []);
 
-  // Auto-generate slug from KO title
   useEffect(() => {
     if (!slugManual && form.title) {
       setForm((prev) => ({ ...prev, slug: generateSlug(prev.title) }));
@@ -105,22 +93,6 @@ export default function PostEditor({ post }: PostEditorProps) {
     []
   );
 
-  const handleSeriesModalSave = useCallback((saved: Series) => {
-    setSeriesList((prev) => {
-      const exists = prev.find((s) => s.id === saved.id);
-      if (exists) return prev.map((s) => (s.id === saved.id ? saved : s));
-      return [saved, ...prev];
-    });
-    if (!editingSeries) {
-      // new series — auto-select it
-      updateField("series_id", saved.id);
-      if (saved.category) updateField("category", saved.category);
-    }
-    setShowSeriesModal(false);
-    setEditingSeries(null);
-  }, [editingSeries, updateField]);
-
-  // Content type change with auto-conversion
   const handleContentTypeChange = useCallback(
     async (newType: "markdown" | "richtext") => {
       if (newType === form.content_type) return;
@@ -177,19 +149,23 @@ export default function PostEditor({ post }: PostEditorProps) {
     input.click();
   }, [handleImageUpload, updateField]);
 
+  const addTag = useCallback(() => {
+    const tag = tagInput.trim().replace(/,/g, "");
+    if (tag && !form.tags.includes(tag)) {
+      updateField("tags", [...form.tags, tag]);
+    }
+    setTagInput("");
+  }, [tagInput, form.tags, updateField]);
+
   const handleTagKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.nativeEvent.isComposing) return; // 한글 IME 조합 중 무시
+      if (e.nativeEvent.isComposing) return;
       if (e.key === "Enter" || e.key === ",") {
         e.preventDefault();
-        const tag = tagInput.trim().replace(/,/g, "");
-        if (tag && !form.tags.includes(tag)) {
-          updateField("tags", [...form.tags, tag]);
-        }
-        setTagInput("");
+        addTag();
       }
     },
-    [tagInput, form.tags, updateField]
+    [addTag]
   );
 
   const removeTag = useCallback(
@@ -232,25 +208,23 @@ export default function PostEditor({ post }: PostEditorProps) {
 
         const savedSlug = data.slug || form.slug;
 
-        // 발행(새 포스트) → 새 창으로 포스트 열기 + 목록 이동
         if (!isEdit && publish && savedSlug) {
           window.open(`/posts/${savedSlug}`, "_blank");
         }
 
-        // 저장/발행 후 항상 목록으로 이동
         router.push("/admin/posts");
       } catch {
-        setError("Network error");
+        setError(te("networkError"));
       } finally {
         setSaving(false);
       }
     },
-    [form, isEdit, post, router]
+    [form, isEdit, post, router, te]
   );
 
   const handleDelete = useCallback(async () => {
     if (!post) return;
-    if (!confirm(`"${post.title}" 을(를) 삭제하시겠습니까?`)) return;
+    if (!confirm(`"${post.title}"${te("deleteConfirm")}`)) return;
 
     setDeleting(true);
     try {
@@ -258,86 +232,70 @@ export default function PostEditor({ post }: PostEditorProps) {
       if (!res.ok) throw new Error("Failed to delete");
       router.push("/admin/posts");
     } catch {
-      setError("삭제 실패");
+      setError(te("deleteFailed"));
       setDeleting(false);
     }
-  }, [post, router]);
+  }, [post, router, te]);
 
-  // Language-aware field keys
+  const handlePreview = useCallback(() => {
+    sessionStorage.setItem("post-preview", JSON.stringify(form));
+    window.open("/admin/posts/preview", "_blank");
+  }, [form]);
+
+  const shellLabels = useMemo(
+    () => ({
+      delete: te("delete"),
+      deleting: te("deleting"),
+      preview: te("preview"),
+      saving: te("saving"),
+      saveDraft: te("saveDraft"),
+      update: te("update"),
+      publish: te("publish"),
+    }),
+    [te]
+  );
+
   const titleKey = editorLang === "ko" ? "title" : "title_en";
   const contentKey = editorLang === "ko" ? "content" : "content_en";
   const excerptKey = editorLang === "ko" ? "excerpt" : "excerpt_en";
 
   return (
-    <div className={styles.container}>
-      <div className={styles.topBar}>
-        <div className={styles.topLeft}>
-          <Link href="/admin/posts" className={styles.backLink}>
-            &larr; Back to Posts
-          </Link>
-          <LanguageToggle lang={editorLang} onLangChange={setEditorLang} />
-        </div>
-        <div className={styles.actions}>
-          {isEdit && (
-            <button
-              type="button"
-              className={styles.deleteBtn}
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? "Deleting..." : "Delete"}
-            </button>
-          )}
-          <div className={styles.actionsDivider} />
-          <button
-            type="button"
-            className={styles.saveBtn}
-            onClick={() => {
-              sessionStorage.setItem("post-preview", JSON.stringify(form));
-              window.open("/admin/posts/preview", "_blank");
-            }}
-          >
-            Preview
-          </button>
-          <button
-            type="button"
-            className={styles.saveBtn}
-            onClick={() => handleSave(false)}
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save Draft"}
-          </button>
-          <button
-            type="button"
-            className={styles.publishBtn}
-            onClick={() => handleSave(true)}
-            disabled={saving}
-          >
-            {form.published ? "Update" : "Publish"}
-          </button>
-        </div>
-      </div>
-      {(status || error) && (
-        <div className={styles.statusBar}>
-          {status && <span className={styles.status}>{status}</span>}
-          {error && <span className={styles.error}>{error}</span>}
-        </div>
-      )}
-
+    <AdminEditorShell
+      backHref="/admin/posts"
+      backLabel={te("backToPosts")}
+      editorLang={editorLang}
+      onEditorLangChange={setEditorLang}
+      isEdit={isEdit}
+      saving={saving}
+      deleting={deleting}
+      published={form.published}
+      onDelete={handleDelete}
+      onSaveDraft={() => handleSave(false)}
+      onPublish={() => handleSave(true)}
+      onPreview={handlePreview}
+      status={status}
+      error={error}
+      labels={shellLabels}
+    >
       <div className={styles.meta}>
-        <input
-          className={styles.titleInput}
-          type="text"
-          value={form[titleKey]}
-          onChange={(e) => updateField(titleKey, e.target.value)}
-          placeholder={editorLang === "ko" ? "포스트 제목" : "Post title (EN)"}
-        />
+        <div className={es.field}>
+          <label className={es.fieldLabel}>
+            {editorLang === "ko" ? te("title") : te("titleEN")}
+          </label>
+          <input
+            className={es.titleInput}
+            type="text"
+            value={form[titleKey]}
+            onChange={(e) => updateField(titleKey, e.target.value)}
+            placeholder={editorLang === "ko" ? te("titlePlaceholder") : te("titlePlaceholderEN")}
+          />
+        </div>
 
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Slug</label>
+        <div className={es.row}>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{te("slug")}</label>
             <input
-              className={styles.fieldInput}
+              className={es.fieldInput}
               type="text"
               value={form.slug}
               onChange={(e) => {
@@ -349,9 +307,9 @@ export default function PostEditor({ post }: PostEditorProps) {
           </div>
         </div>
 
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>
-            Excerpt {editorLang === "en" && "(EN)"}
+        <div className={es.field}>
+          <label className={es.fieldLabel}>
+            {editorLang === "ko" ? te("excerpt") : te("excerptEN")}
           </label>
           <textarea
             className={styles.excerptInput}
@@ -359,19 +317,19 @@ export default function PostEditor({ post }: PostEditorProps) {
             onChange={(e) => updateField(excerptKey, e.target.value)}
             placeholder={
               editorLang === "ko"
-                ? "포스트 요약..."
-                : "Brief description (EN)..."
+                ? te("excerptPlaceholder")
+                : te("excerptPlaceholderEN")
             }
             rows={2}
           />
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Category</label>
+        <div className={es.row}>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{te("category")}</label>
             <div className={styles.categoryWrap}>
               <select
-                className={styles.fieldInput}
+                className={es.fieldInput}
                 value={categories.includes(form.category) ? form.category : "__custom__"}
                 onChange={(e) => {
                   if (e.target.value === "__custom__") return;
@@ -381,38 +339,37 @@ export default function PostEditor({ post }: PostEditorProps) {
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
-                <option value="__custom__">Custom...</option>
+                <option value="__custom__">{te("customCategory")}</option>
               </select>
               {!categories.includes(form.category) && (
                 <input
-                  className={styles.fieldInput}
+                  className={es.fieldInput}
                   type="text"
                   value={form.category}
                   onChange={(e) => updateField("category", e.target.value)}
-                  placeholder="Custom category"
+                  placeholder={te("customCategory")}
                 />
               )}
             </div>
           </div>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Pin</label>
-            <label className={styles.pinToggle}>
-              <input
-                type="checkbox"
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{te("pin")}</label>
+            <div className={styles.pinToggle}>
+              <Checkbox
                 checked={form.is_pinned}
-                onChange={(e) => updateField("is_pinned", e.target.checked)}
+                onChange={(v) => updateField("is_pinned", v)}
+                label={te("pinLabel")}
               />
-              <span>Pin this post to top</span>
-            </label>
+            </div>
           </div>
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Series</label>
+        <div className={es.row}>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{te("series")}</label>
             <div className={styles.seriesRow}>
               <select
-                className={styles.fieldInput}
+                className={es.fieldInput}
                 value={form.series_id ?? ""}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -425,45 +382,28 @@ export default function PostEditor({ post }: PostEditorProps) {
                   }
                 }}
               >
-                <option value="">None</option>
+                <option value="">{te("seriesNone")}</option>
                 {seriesList.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.title} ({s.post_count ?? 0}){s.category ? ` — ${s.category}` : ""}
                   </option>
                 ))}
               </select>
-              {form.series_id && (
-                <button
-                  type="button"
-                  className={styles.seriesEditBtn}
-                  onClick={() => {
-                    const sel = seriesList.find((s) => s.id === form.series_id);
-                    if (sel) {
-                      setEditingSeries(sel);
-                      setShowSeriesModal(true);
-                    }
-                  }}
-                >
-                  Edit
-                </button>
-              )}
-              <button
-                type="button"
-                className={styles.uploadBtn}
-                onClick={() => {
-                  setEditingSeries(null);
-                  setShowSeriesModal(true);
-                }}
+              <a
+                href="/admin/settings?tab=content&sub=posts"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.seriesEditBtn}
               >
-                + New
-              </button>
+                {te("seriesManage")}
+              </a>
             </div>
           </div>
           {form.series_id && (
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>Order in Series</label>
+            <div className={es.field}>
+              <label className={es.fieldLabel}>{te("seriesOrder")}</label>
               <input
-                className={styles.fieldInput}
+                className={es.fieldInput}
                 type="number"
                 min={0}
                 value={form.series_order}
@@ -473,25 +413,35 @@ export default function PostEditor({ post }: PostEditorProps) {
           )}
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Tags</label>
-            <input
-              className={styles.fieldInput}
-              type="text"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={handleTagKeyDown}
-              placeholder="Type a tag and press Enter"
-            />
+        <div className={es.row}>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{te("tags")}</label>
+            <div className={styles.tagInputRow}>
+              <input
+                className={es.fieldInput}
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleTagKeyDown}
+                placeholder={te("tagsPlaceholder")}
+              />
+              <button
+                type="button"
+                className={styles.tagAddBtn}
+                onClick={addTag}
+                disabled={!tagInput.trim()}
+              >
+                +
+              </button>
+            </div>
             {form.tags.length > 0 && (
-              <div className={styles.tags}>
+              <div className={es.tags}>
                 {form.tags.map((tag) => (
-                  <span key={tag} className={styles.tag}>
+                  <span key={tag} className={es.tag}>
                     {tag}
                     <button
                       type="button"
-                      className={styles.tagRemove}
+                      className={es.tagRemove}
                       onClick={() => removeTag(tag)}
                     >
                       &times;
@@ -502,8 +452,8 @@ export default function PostEditor({ post }: PostEditorProps) {
             )}
           </div>
 
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Cover Image</label>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{te("coverImage")}</label>
           {form.cover_image ? (
             <div className={styles.coverPreview}>
               <Image
@@ -521,24 +471,24 @@ export default function PostEditor({ post }: PostEditorProps) {
                   setShowCoverPicker(false);
                 }}
               >
-                Remove
+                {te("remove")}
               </button>
             </div>
           ) : (
             <div className={styles.coverActions}>
               <button
                 type="button"
-                className={styles.uploadBtn}
+                className={es.uploadBtn}
                 onClick={handleCoverUpload}
               >
-                Upload
+                {te("upload")}
               </button>
               <button
                 type="button"
-                className={styles.uploadBtn}
+                className={es.uploadBtn}
                 onClick={() => setShowCoverPicker((v) => !v)}
               >
-                {showCoverPicker ? "Close picker" : "Choose cover"}
+                {showCoverPicker ? te("closePicker") : te("chooseCover")}
               </button>
             </div>
           )}
@@ -561,9 +511,9 @@ export default function PostEditor({ post }: PostEditorProps) {
       </div>
 
       <div className={styles.editorSection}>
-        <div className={styles.editorHeader}>
+        <div className={es.editorHeader}>
           <span className={styles.editorLabel}>
-            Content {editorLang === "en" && "(EN)"}
+            {editorLang === "ko" ? te("content") : te("contentEN")}
           </span>
           <EditorToggle
             value={form.content_type}
@@ -588,17 +538,6 @@ export default function PostEditor({ post }: PostEditorProps) {
         )}
       </div>
 
-      {showSeriesModal && (
-        <SeriesEditorModal
-          series={editingSeries}
-          categories={categories}
-          onSave={handleSeriesModalSave}
-          onClose={() => {
-            setShowSeriesModal(false);
-            setEditingSeries(null);
-          }}
-        />
-      )}
-    </div>
+    </AdminEditorShell>
   );
 }

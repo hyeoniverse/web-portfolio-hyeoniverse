@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
-import { useLenis } from "@/providers/LenisProvider";
-import LanguageToggle from "@/components/ui/LanguageToggle";
+import { useLanguage } from "@/providers/LanguageProvider";
+import AdminEditorShell, {
+  adminEditorStyles as es,
+} from "@/components/admin/AdminEditorShell";
 import EditorToggle from "@/components/posts/EditorToggle";
 import MarkdownEditor from "@/components/posts/MarkdownEditor";
-import type { Work, WorkFormData } from "@/types/work";
+import type { Work, WorkFormData, TeamMember } from "@/types/work";
 import styles from "./WorkEditor.module.css";
 
 const RichTextEditor = dynamic(() => import("@/components/posts/RichTextEditor"), {
@@ -88,7 +89,6 @@ Project outcomes and impact.
 Key takeaways from this project.`;
 
 function workToFormData(work: Work): WorkFormData {
-  // 기존 데이터가 legacy 구조(overview/challenge/solution 분리)인 경우 content로 합침
   let contentKo = work.content_ko || "";
   let contentEn = work.content_en || "";
 
@@ -144,6 +144,7 @@ function workToFormData(work: Work): WorkFormData {
     content_ko: contentKo,
     content_en: contentEn,
     content_type: work.content_type || "markdown",
+    team_members: work.team_members ?? [],
     gallery: work.gallery,
     live_url: work.live_url,
     github_url: work.github_url,
@@ -170,6 +171,7 @@ const defaultForm: WorkFormData = {
   content_ko: "",
   content_en: "",
   content_type: "markdown",
+  team_members: [],
   gallery: [],
   live_url: "",
   github_url: "",
@@ -179,15 +181,10 @@ const defaultForm: WorkFormData = {
 
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
-  const { setInfinite, lenis } = useLenis();
+  const { t } = useLanguage();
   const isEdit = !!work;
 
-  useEffect(() => {
-    setInfinite(false);
-    window.scrollTo(0, 0);
-    if (lenis) lenis.scrollTo(0, { immediate: true });
-    return () => { setInfinite(true); };
-  }, [setInfinite, lenis]);
+  const tw = (key: string) => t(`admin.works.editor.${key}`);
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
 
@@ -197,6 +194,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   });
 
   const [techInput, setTechInput] = useState("");
+  const [memberName, setMemberName] = useState("");
+  const [memberRoleKo, setMemberRoleKo] = useState("");
+  const [memberRoleEn, setMemberRoleEn] = useState("");
+  const [memberUrl, setMemberUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [status, setStatus] = useState("");
@@ -211,19 +212,23 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [],
   );
 
+  const addTech = useCallback(() => {
+    const tag = techInput.trim().replace(/,/g, "");
+    if (tag && !form.tech.includes(tag)) {
+      updateField("tech", [...form.tech, tag]);
+    }
+    setTechInput("");
+  }, [techInput, form.tech, updateField]);
+
   const handleTechKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.nativeEvent.isComposing) return;
       if (e.key === "Enter" || e.key === ",") {
         e.preventDefault();
-        const tag = techInput.trim().replace(/,/g, "");
-        if (tag && !form.tech.includes(tag)) {
-          updateField("tech", [...form.tech, tag]);
-        }
-        setTechInput("");
+        addTech();
       }
     },
-    [techInput, form.tech, updateField],
+    [addTech],
   );
 
   const removeTech = useCallback(
@@ -231,6 +236,28 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       updateField("tech", form.tech.filter((t) => t !== tag));
     },
     [form.tech, updateField],
+  );
+
+  const addMember = useCallback(() => {
+    if (!memberName.trim()) return;
+    const member: TeamMember = {
+      name: memberName.trim(),
+      role_ko: memberRoleKo.trim(),
+      role_en: memberRoleEn.trim(),
+      url: memberUrl.trim() || undefined,
+    };
+    updateField("team_members", [...form.team_members, member]);
+    setMemberName("");
+    setMemberRoleKo("");
+    setMemberRoleEn("");
+    setMemberUrl("");
+  }, [memberName, memberRoleKo, memberRoleEn, memberUrl, form.team_members, updateField]);
+
+  const removeMember = useCallback(
+    (index: number) => {
+      updateField("team_members", form.team_members.filter((_, i) => i !== index));
+    },
+    [form.team_members, updateField],
   );
 
   const handleContentTypeChange = useCallback(
@@ -271,12 +298,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     const current = form[contentKey];
 
     if (current.trim()) {
-      if (!confirm("현재 내용이 있습니다. 템플릿을 삽입하면 기존 내용 뒤에 추가됩니다. 계속하시겠습니까?")) return;
+      if (!confirm(tw("templateConfirm"))) return;
       updateField(contentKey, current + "\n\n" + template);
     } else {
       updateField(contentKey, template);
     }
-  }, [editorLang, form, updateField]);
+  }, [editorLang, form, updateField, tw]);
 
   const handleContentImageUpload = useCallback(async (file: File): Promise<string> => {
     const fd = new FormData();
@@ -347,123 +374,113 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         const data = await res.json();
 
         if (!res.ok) {
-          setError(data.error ?? "Failed to save");
+          setError(data.error ?? tw("saveFailed"));
           return;
         }
 
         router.push("/admin/works");
       } catch {
-        setError("Network error");
+        setError(tw("networkError"));
       } finally {
         setSaving(false);
       }
     },
-    [form, isEdit, work, router],
+    [form, isEdit, work, router, tw],
   );
 
   const handleDelete = useCallback(async () => {
     if (!work) return;
-    if (!confirm(`"${work.title}" 을(를) 삭제하시겠습니까?`)) return;
+    if (!confirm(`"${work.title}"${tw("deleteConfirm")}`)) return;
 
     setDeleting(true);
     try {
       const res = await fetch(`/api/works/${work.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
+      if (!res.ok) throw new Error();
       router.push("/admin/works");
     } catch {
-      setError("삭제 실패");
+      setError(tw("deleteFailed"));
       setDeleting(false);
     }
-  }, [work, router]);
+  }, [work, router, tw]);
 
-  // Language-aware field suffix
+  const handlePreview = useCallback(() => {
+    sessionStorage.setItem("work-preview", JSON.stringify(form));
+    window.open("/admin/works/preview", "_blank");
+  }, [form]);
+
+  const shellLabels = useMemo(
+    () => ({
+      delete: tw("delete"),
+      deleting: tw("deleting"),
+      preview: tw("preview"),
+      saving: tw("saving"),
+      saveDraft: tw("saveDraft"),
+      update: tw("update"),
+      publish: tw("publish"),
+    }),
+    [tw],
+  );
+
   const suf = editorLang === "ko" ? "_ko" : "_en";
   const contentKey = editorLang === "ko" ? "content_ko" : "content_en";
 
   return (
-    <div className={styles.container}>
-      {/* Top bar */}
-      <div className={styles.topBar}>
-        <div className={styles.topLeft}>
-          <Link href="/admin/works" className={styles.backLink}>
-            &larr; Back to Works
-          </Link>
-          <LanguageToggle lang={editorLang} onLangChange={setEditorLang} />
-        </div>
-        <div className={styles.actions}>
-          {isEdit && (
-            <button
-              type="button"
-              className={styles.deleteBtn}
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? "Deleting..." : "Delete"}
-            </button>
-          )}
-          <div className={styles.actionsDivider} />
-          <button
-            type="button"
-            className={styles.saveBtn}
-            onClick={() => handleSave(false)}
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save Draft"}
-          </button>
-          <button
-            type="button"
-            className={styles.publishBtn}
-            onClick={() => handleSave(true)}
-            disabled={saving}
-          >
-            {form.published ? "Update" : "Publish"}
-          </button>
-        </div>
-      </div>
-
-      {(status || error) && (
-        <div className={styles.statusBar}>
-          {status && <span className={styles.status}>{status}</span>}
-          {error && <span className={styles.error}>{error}</span>}
-        </div>
-      )}
-
+    <AdminEditorShell
+      backHref="/admin/works"
+      backLabel={tw("backToWorks")}
+      editorLang={editorLang}
+      onEditorLangChange={setEditorLang}
+      isEdit={isEdit}
+      saving={saving}
+      deleting={deleting}
+      published={form.published}
+      onDelete={handleDelete}
+      onSaveDraft={() => handleSave(false)}
+      onPublish={() => handleSave(true)}
+      onPreview={handlePreview}
+      status={status}
+      error={error}
+      labels={shellLabels}
+    >
       {/* Basic Info */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Basic Info</h2>
-        <input
-          className={styles.titleInput}
-          type="text"
-          value={form.title}
-          onChange={(e) => updateField("title", e.target.value)}
-          placeholder="Work Title"
-        />
+        <h2 className={styles.sectionTitle}>{tw("basicInfo")}</h2>
+        <div className={es.field}>
+          <label className={es.fieldLabel}>{tw("title")}</label>
+          <input
+            className={es.titleInput}
+            type="text"
+            value={form.title}
+            onChange={(e) => updateField("title", e.target.value)}
+            placeholder={tw("titlePlaceholder")}
+          />
+        </div>
 
         <div className={styles.row3}>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Number</label>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{tw("number")}</label>
             <input
-              className={styles.fieldInput}
+              className={es.fieldInput}
               type="text"
               value={form.number}
               onChange={(e) => updateField("number", e.target.value)}
-              placeholder="01"
+              placeholder={tw("numberPlaceholder")}
             />
           </div>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Year</label>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{tw("year")}</label>
             <input
-              className={styles.fieldInput}
+              className={es.fieldInput}
               type="text"
               value={form.year}
               onChange={(e) => updateField("year", e.target.value)}
-              placeholder="2024"
+              placeholder={tw("yearPlaceholder")}
             />
           </div>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Sort Order</label>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{tw("sortOrder")}</label>
             <input
-              className={styles.fieldInput}
+              className={es.fieldInput}
               type="number"
               value={form.sort_order}
               onChange={(e) => updateField("sort_order", parseInt(e.target.value) || 0)}
@@ -471,48 +488,48 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           </div>
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>
-              Subtitle {editorLang === "en" && "(EN)"}
+        <div className={es.row}>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>
+              {editorLang === "en" ? tw("subtitleEN") : tw("subtitle")}
             </label>
             <input
-              className={styles.fieldInput}
+              className={es.fieldInput}
               type="text"
               value={form[`subtitle${suf}`]}
               onChange={(e) => updateField(`subtitle${suf}`, e.target.value)}
-              placeholder={editorLang === "ko" ? "부제목" : "Subtitle (EN)"}
+              placeholder={editorLang === "ko" ? tw("subtitlePlaceholder") : tw("subtitlePlaceholderEN")}
             />
           </div>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>
-              Category {editorLang === "en" && "(EN)"}
+          <div className={es.field}>
+            <label className={es.fieldLabel}>
+              {editorLang === "en" ? tw("categoryEN") : tw("category")}
             </label>
             <input
-              className={styles.fieldInput}
+              className={es.fieldInput}
               type="text"
               value={form[`category${suf}`]}
               onChange={(e) => updateField(`category${suf}`, e.target.value)}
-              placeholder={editorLang === "ko" ? "카테고리" : "Category (EN)"}
+              placeholder={editorLang === "ko" ? tw("categoryPlaceholder") : tw("categoryPlaceholderEN")}
             />
           </div>
         </div>
 
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>
-              Role {editorLang === "en" && "(EN)"}
+        <div className={es.row}>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>
+              {editorLang === "en" ? tw("roleEN") : tw("role")}
             </label>
             <input
-              className={styles.fieldInput}
+              className={es.fieldInput}
               type="text"
               value={form[`role${suf}`]}
               onChange={(e) => updateField(`role${suf}`, e.target.value)}
-              placeholder={editorLang === "ko" ? "역할" : "Role (EN)"}
+              placeholder={editorLang === "ko" ? tw("rolePlaceholder") : tw("rolePlaceholderEN")}
             />
           </div>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Card Size</label>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{tw("cardSize")}</label>
             <select
               className={styles.fieldSelect}
               value={form.size}
@@ -529,14 +546,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       {/* Description */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>
-          Description {editorLang === "en" && "(EN)"}
+          {editorLang === "en" ? tw("descriptionEN") : tw("description")}
         </h2>
-        <div className={styles.field}>
+        <div className={es.field}>
           <textarea
             className={styles.fieldTextarea}
             value={form[`description${suf}`]}
             onChange={(e) => updateField(`description${suf}`, e.target.value)}
-            placeholder={editorLang === "ko" ? "프로젝트 설명..." : "Description (EN)..."}
+            placeholder={editorLang === "ko" ? tw("descPlaceholder") : tw("descPlaceholderEN")}
             rows={3}
           />
         </div>
@@ -547,14 +564,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <div className={styles.editorHeader}>
           <div className={styles.editorHeaderLeft}>
             <h2 className={styles.sectionTitle} style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
-              Content {editorLang === "en" && "(EN)"}
+              {editorLang === "en" ? tw("contentEN") : tw("content")}
             </h2>
             <button
               type="button"
               className={styles.templateBtn}
               onClick={handleInsertTemplate}
             >
-              Insert Template
+              {tw("insertTemplate")}
             </button>
           </div>
           <EditorToggle
@@ -585,22 +602,32 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* Tech Stack */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Tech Stack</h2>
-        <div className={styles.field}>
-          <input
-            className={styles.fieldInput}
-            type="text"
-            value={techInput}
-            onChange={(e) => setTechInput(e.target.value)}
-            onKeyDown={handleTechKeyDown}
-            placeholder="Type a tech and press Enter"
-          />
+        <h2 className={styles.sectionTitle}>{tw("techStack")}</h2>
+        <div className={es.field}>
+          <div className={styles.techInputRow}>
+            <input
+              className={es.fieldInput}
+              type="text"
+              value={techInput}
+              onChange={(e) => setTechInput(e.target.value)}
+              onKeyDown={handleTechKeyDown}
+              placeholder={tw("techPlaceholder")}
+            />
+            <button
+              type="button"
+              className={styles.techAddBtn}
+              onClick={addTech}
+              disabled={!techInput.trim()}
+            >
+              +
+            </button>
+          </div>
           {form.tech.length > 0 && (
-            <div className={styles.tags}>
+            <div className={es.tags}>
               {form.tech.map((t) => (
-                <span key={t} className={styles.tag}>
+                <span key={t} className={es.tag}>
                   {t}
-                  <button type="button" className={styles.tagRemove} onClick={() => removeTech(t)}>
+                  <button type="button" className={es.tagRemove} onClick={() => removeTech(t)}>
                     &times;
                   </button>
                 </span>
@@ -610,12 +637,85 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         </div>
       </div>
 
+      {/* Team Members */}
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>{tw("teamMembers")}</h2>
+        <div className={styles.memberForm}>
+          <div className={styles.memberFormRow}>
+            <input
+              className={es.fieldInput}
+              type="text"
+              value={memberName}
+              onChange={(e) => setMemberName(e.target.value)}
+              placeholder={tw("memberName")}
+            />
+            <input
+              className={es.fieldInput}
+              type="text"
+              value={memberRoleKo}
+              onChange={(e) => setMemberRoleKo(e.target.value)}
+              placeholder={tw("memberRole")}
+            />
+            <input
+              className={es.fieldInput}
+              type="text"
+              value={memberRoleEn}
+              onChange={(e) => setMemberRoleEn(e.target.value)}
+              placeholder={tw("memberRoleEN")}
+            />
+          </div>
+          <div className={styles.memberFormRow}>
+            <input
+              className={es.fieldInput}
+              type="url"
+              value={memberUrl}
+              onChange={(e) => setMemberUrl(e.target.value)}
+              placeholder={tw("memberUrl")}
+            />
+            <button
+              type="button"
+              className={styles.techAddBtn}
+              onClick={addMember}
+              disabled={!memberName.trim()}
+            >
+              +
+            </button>
+          </div>
+        </div>
+        {form.team_members.length > 0 && (
+          <div className={styles.memberList}>
+            {form.team_members.map((m, i) => (
+              <div key={i} className={styles.memberItem}>
+                <div className={styles.memberInfo}>
+                  <span className={styles.memberItemName}>{m.name}</span>
+                  <span className={styles.memberItemRole}>
+                    {m.role_ko}{m.role_en ? ` / ${m.role_en}` : ""}
+                  </span>
+                  {m.url && (
+                    <a href={m.url} target="_blank" rel="noopener noreferrer" className={styles.memberItemUrl}>
+                      {m.url}
+                    </a>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className={es.tagRemove}
+                  onClick={() => removeMember(i)}
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Images */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Images</h2>
+        <h2 className={styles.sectionTitle}>{tw("images")}</h2>
 
-        <div className={styles.field} style={{ marginBottom: "var(--spacing-lg)" }}>
-          <label className={styles.fieldLabel}>Main Image</label>
+        <div className={es.field} style={{ marginBottom: "var(--spacing-lg)" }}>
+          <label className={es.fieldLabel}>{tw("mainImage")}</label>
           {form.image ? (
             <div className={styles.imagePreview}>
               <Image
@@ -631,38 +731,38 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 className={styles.imageRemove}
                 onClick={() => updateField("image", "")}
               >
-                Remove
+                {tw("remove")}
               </button>
             </div>
           ) : (
             <div>
               <button
                 type="button"
-                className={styles.uploadBtn}
+                className={es.uploadBtn}
                 onClick={() => handleImageUpload("image")}
               >
-                Upload Image
+                {tw("uploadImage")}
               </button>
               <input
-                className={styles.fieldInput}
+                className={es.fieldInput}
                 type="text"
                 value={form.image}
                 onChange={(e) => updateField("image", e.target.value)}
-                placeholder="Or paste image URL"
+                placeholder={tw("pasteUrl")}
                 style={{ marginTop: "var(--spacing-xs)", width: "100%" }}
               />
             </div>
           )}
         </div>
 
-        <div className={styles.field}>
-          <label className={styles.fieldLabel}>Gallery</label>
+        <div className={es.field}>
+          <label className={es.fieldLabel}>{tw("gallery")}</label>
           <button
             type="button"
-            className={styles.uploadBtn}
+            className={es.uploadBtn}
             onClick={() => handleImageUpload("gallery")}
           >
-            Add Gallery Images
+            {tw("addGallery")}
           </button>
           {form.gallery.length > 0 && (
             <div className={styles.galleryGrid}>
@@ -692,22 +792,22 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* Links */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Links</h2>
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Live URL</label>
+        <h2 className={styles.sectionTitle}>{tw("links")}</h2>
+        <div className={es.row}>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{tw("liveUrl")}</label>
             <input
-              className={styles.fieldInput}
+              className={es.fieldInput}
               type="url"
               value={form.live_url}
               onChange={(e) => updateField("live_url", e.target.value)}
               placeholder="https://..."
             />
           </div>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>GitHub URL</label>
+          <div className={es.field}>
+            <label className={es.fieldLabel}>{tw("githubUrl")}</label>
             <input
-              className={styles.fieldInput}
+              className={es.fieldInput}
               type="url"
               value={form.github_url}
               onChange={(e) => updateField("github_url", e.target.value)}
@@ -716,6 +816,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           </div>
         </div>
       </div>
-    </div>
+    </AdminEditorShell>
   );
 }

@@ -16,6 +16,9 @@ export { createSoundTone } from "./sound";
 // 함수 유틸리티
 export { debounce, throttle, clamp, lerp } from "./function";
 
+// 포스트 유틸리티
+export { formatPostTitle } from "./post";
+
 // 스크롤 유틸리티
 export {
   scrollToSection,

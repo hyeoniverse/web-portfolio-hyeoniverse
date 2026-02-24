@@ -20,6 +20,7 @@ export interface Post {
   excerpt_en: string;
   series_id: string | null;
   series_order: number;
+  series?: { title: string; title_en: string } | null;
 }
 
 export interface PostFormData {

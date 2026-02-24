@@ -1,19 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import Image from "next/image";
-import { useLenis } from "@/providers/LenisProvider";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { slugify } from "@/components/posts/MarkdownRenderer";
 import { highlightCodeBlocks } from "@/components/posts/highlightCodeBlocks";
+import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import type { PostFormData } from "@/types/post";
 import styles from "@/app/posts/[slug]/PostDetail.module.css";
-
-interface TocHeading {
-  id: string;
-  text: string;
-  level: number;
-}
 
 function extractHeadings(content: string, isMarkdown: boolean): TocHeading[] {
   if (isMarkdown) {
@@ -63,19 +56,8 @@ function addIdsToHtml(html: string): string {
 }
 
 export default function PostPreviewPage() {
-  const { setInfinite, lenis } = useLenis();
   const [form, setForm] = useState<PostFormData | null>(null);
   const richtextRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setInfinite(false);
-    window.scrollTo(0, 0);
-    if (lenis) lenis.scrollTo(0, { immediate: true });
-
-    return () => {
-      setInfinite(true);
-    };
-  }, [setInfinite, lenis]);
 
   useEffect(() => {
     try {
@@ -114,97 +96,44 @@ export default function PostPreviewPage() {
   const readTime = Math.max(1, Math.ceil(content.length / 1000));
 
   return (
-    <div className={styles.page}>
-      <button
-        className={styles.backBtn}
-        onClick={() => window.close()}
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        <span>Close Preview</span>
-      </button>
-
-      {/* ── Hero ── */}
-      {form.cover_image ? (
-        <div className={styles.hero}>
-          <Image
-            src={form.cover_image}
-            alt={form.title}
-            fill
-            sizes="100vw"
-            className={styles.heroCover}
-          />
-          <div className={styles.heroOverlay} />
+    <DetailLayout
+      backHref="/admin/posts"
+      backLabel="Close Preview"
+      heroImage={form.cover_image || undefined}
+      heroAlt={form.title}
+      headings={headings}
+    >
+      <div className={styles.articleHeader}>
+        <div className={styles.meta}>
+          <span>{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+          <span className={styles.dot}>&middot;</span>
+          <span>{readTime} min read</span>
         </div>
-      ) : (
-        <div className={styles.heroSpacer} />
-      )}
 
-      {/* ── TOC ── */}
-      {headings.length > 0 && (
-        <nav className={styles.toc}>
-          <p className={styles.tocTitle}>Contents</p>
-          <ul className={styles.tocList}>
-            {headings.map(({ id, text, level }) => (
-              <li key={id}>
-                <a
-                  href={`#${id}`}
-                  className={`${styles.tocLink} ${styles[`tocLevel${level}`] ?? ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const el = document.getElementById(id);
-                    if (el) {
-                      if (lenis) {
-                        lenis.scrollTo(el, { offset: -100 });
-                      } else {
-                        el.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }
-                  }}
-                >
-                  {text}
-                </a>
-              </li>
+        <h1 className={styles.articleTitle}>{form.title}</h1>
+
+        {form.excerpt && <p className={styles.excerpt}>{form.excerpt}</p>}
+
+        {form.tags.length > 0 && (
+          <div className={styles.tags}>
+            {form.tags.map((tag) => (
+              <span key={tag} className={styles.tag}>{tag}</span>
             ))}
-          </ul>
-        </nav>
-      )}
-
-      {/* ── Article ── */}
-      <div className={styles.article}>
-        <div className={styles.articleHeader}>
-          <div className={styles.meta}>
-            <span>{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
-            <span className={styles.dot}>&middot;</span>
-            <span>{readTime} min read</span>
           </div>
-
-          <h1 className={styles.articleTitle}>{form.title}</h1>
-
-          {form.excerpt && <p className={styles.excerpt}>{form.excerpt}</p>}
-
-          {form.tags.length > 0 && (
-            <div className={styles.tags}>
-              {form.tags.map((tag) => (
-                <span key={tag} className={styles.tag}>{tag}</span>
-              ))}
-            </div>
-          )}
-
-          <div className={styles.headerDivider} />
-        </div>
-
-        {isMarkdown ? (
-          <MarkdownRenderer content={content} className={styles.prose} />
-        ) : (
-          <div
-            ref={richtextRef}
-            className={styles.prose}
-            dangerouslySetInnerHTML={{ __html: processedHtml }}
-          />
         )}
+
+        <div className={styles.headerDivider} />
       </div>
-    </div>
+
+      {isMarkdown ? (
+        <MarkdownRenderer content={content} className={styles.prose} />
+      ) : (
+        <div
+          ref={richtextRef}
+          className={styles.prose}
+          dangerouslySetInnerHTML={{ __html: processedHtml }}
+        />
+      )}
+    </DetailLayout>
   );
 }
