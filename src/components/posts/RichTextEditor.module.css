@@ -210,7 +210,6 @@
   max-width: 100%;
   border-radius: var(--radius-md);
   display: block;
-  cursor: pointer;
 }
 
 .editor :global(.tiptap) img[data-align="left"] {
@@ -320,7 +319,6 @@
   font-weight: 500;
   color: var(--text-tertiary);
   line-height: 1;
-  cursor: pointer;
 }
 
 .imageBubble .imageBubbleBtn:hover {

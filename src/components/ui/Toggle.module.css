@@ -21,7 +21,6 @@
   border-radius: 12px;
   background: var(--bg-tertiary);
   padding: 0;
-  cursor: pointer;
   flex-shrink: 0;
 }
 
@@ -50,5 +49,4 @@
 
 .track:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
 }

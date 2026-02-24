@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./CursorTrail.module.css";
 
-type CursorType = "big" | "text" | "grab" | "";
+type CursorType = "big" | "text" | "grab" | "disabled" | "";
 
 /* ---------------- 헬퍼 함수 ---------------- */
 
@@ -98,8 +98,15 @@ export default function CursorTrail() {
       /* ---------- 드래그 가능 ---------- */
       const isDraggable = !!target?.closest("[data-draggable]");
 
+      /* ---------- disabled ---------- */
+      const isDisabled = !!target && (
+        (target as HTMLButtonElement).disabled === true ||
+        !!target.closest("[disabled]") ||
+        !!target.closest("[aria-disabled='true']")
+      );
+
       /* ---------- 클릭 가능 ---------- */
-      const isClickable = !isDraggable && !!target && (
+      const isClickable = !isDraggable && !isDisabled && !!target && (
         !!target.closest("[data-clickable]") ||
         !!target.closest("a, button") ||
         !!target.closest('input[type="checkbox"], input[type="radio"]') ||
@@ -121,6 +128,7 @@ export default function CursorTrail() {
 
       /* ---------- 우선순위 ---------- */
       if (isDraggable) setCursorType("grab");
+      else if (isDisabled) setCursorType("disabled");
       else if (isClickable) setCursorType("big");
       else if (isText) setCursorType("text");
       else setCursorType("");

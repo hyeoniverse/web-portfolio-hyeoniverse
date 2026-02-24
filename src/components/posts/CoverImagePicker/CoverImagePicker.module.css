@@ -308,7 +308,6 @@
 
 .generateBtn:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .aiPreview {
@@ -360,18 +359,15 @@
 
 .suggestionChip {
   padding: var(--spacing-2xs) var(--spacing-sm);
-  border: 1px dashed var(--border-secondary-color);
+  border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
-  color: var(--text-muted);
-
-  white-space: nowrap;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
 }
 
 .body .suggestionChip:hover {
-  border-style: solid;
   border-color: var(--text-primary);
   color: var(--text-primary);
 }
