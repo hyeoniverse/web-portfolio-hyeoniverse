@@ -25,6 +25,7 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import {
   HeroPanel,
   OverviewPanel,
+  UserFlowPanel,
   ArchitecturePanel,
   FeaturesPanel,
   DesignConceptPanel,
@@ -49,8 +50,8 @@ export default function AboutSection() {
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
     useHorizontalScroll(styles, {
       infinite: infiniteScroll,
-      panelSetSize: 12,
-      navSectionCount: 11,
+      panelSetSize: 13,
+      navSectionCount: 12,
     });
   useInViewMobile(trackRef, styles.animate, styles.animateVisible);
   const { isLoading } = useLoadingScreen();
@@ -96,7 +97,8 @@ export default function AboutSection() {
   const panelSet = (key: number) => (
     <Fragment key={key}>
       <HeroPanel t={t} />
-      <OverviewPanel language={language} overview={projectOverview} userFlows={userFlows} />
+      <OverviewPanel language={language} overview={projectOverview} />
+      <UserFlowPanel language={language} userFlows={userFlows} />
       <ArchitecturePanel language={language} structure={projectStructure} />
       <FeaturesPanel language={language} features={designFeatures} />
       <DesignConceptPanel

@@ -398,5 +398,20 @@
     "tryAgain": "Try Again",
     "goHome": "Go Home",
     "notFoundDescription": "The page you are looking for does not exist or has been moved."
+  },
+  "profilePage": {
+    "bubble": {
+      "0": "Hello! Nice to meet you :)",
+      "1": "Let me introduce myself!",
+      "2": "Here's my journey so far",
+      "3": "Frontend is my strength!",
+      "4": "I do backend too",
+      "5": "Got an eye for design",
+      "6": "Tools I work with",
+      "7": "Values that guide my work",
+      "8": "This is how I work",
+      "9": "Certifications & awards",
+      "10": "Thanks for reading!"
+    }
   }
 }

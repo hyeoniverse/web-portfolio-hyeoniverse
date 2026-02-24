@@ -634,13 +634,11 @@
 }
 
 .archMap .archNodeDraggable {
-  cursor: grab;
   touch-action: none;
   user-select: none;
 }
 
 .archMap .archNodeDraggable:active {
-  cursor: grabbing;
 }
 
 /* ── Treemap mode ── */
@@ -2915,104 +2913,119 @@
 }
 
 /* ==========================================================================
-   Overview — User Flow
+   Overview — simplified (user flow moved to own panel)
    ========================================================================== */
 
-.overviewSplitLayout {
+.overviewLayout {
   display: flex;
-  gap: var(--_space-section);
+  flex-direction: column;
   flex: 1;
   min-height: 0;
 }
 
-.overviewLeft {
-  display: flex;
-  flex: 1.2;
-  flex-direction: column;
-  min-width: 0;
-}
+/* ==========================================================================
+   User Flow Panel
+   ========================================================================== */
 
-.overviewRight {
-  flex: 0.8;
-  min-width: 0;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-
-.overviewRight::-webkit-scrollbar {
-  display: none;
-}
-
-.overviewFlowTitle {
-  margin: 0 0 var(--_space-block);
-  font-family: var(--_font-grotesk);
-  font-size: var(--_fs-subhead);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-}
-
-.overviewFlowList {
+.ufContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--_space-block);
+  gap: var(--_space-section);
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
 }
 
-.overviewFlowItem {
-  padding: var(--spacing-lg);
+.ufLane {
+  padding: var(--spacing-xl) var(--spacing-2xl);
   border: var(--_line-secondary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
 }
 
-.overviewFlowHeader {
+.ufLaneHeader {
   display: flex;
+  align-items: center;
   gap: var(--spacing-md);
-  align-items: baseline;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
 }
 
-.overviewFlowIcon {
+.ufLaneIcon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--_uf-color);
   flex-shrink: 0;
+}
+
+.ufLaneInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.ufLaneTitle {
   font-family: var(--font-mono);
   font-size: var(--_fs-label);
   font-weight: var(--font-weight-semibold);
-  color: var(--text-accent);
+  color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
-.overviewFlowDesc {
+.ufLaneDesc {
   font-family: var(--_font-grotesk);
   font-size: var(--_fs-small);
   color: var(--text-tertiary);
+  line-height: 1.4;
 }
 
-.overviewFlowSteps {
+.ufPipeline {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  align-items: center;
 }
 
-.overviewFlowStep {
+.ufStepGroup {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
 }
 
-.overviewFlowArrow {
-  color: var(--text-tertiary);
-  font-size: var(--_fs-small);
+.ufConnector {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-.overviewFlowStepLabel {
-  padding: var(--padding-sm) var(--padding-md);
-  border: var(--border-default);
+.ufConnector svg {
+  display: block;
+}
+
+.ufNode {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: 1px solid color-mix(in srgb, var(--_uf-color) 30%, transparent);
   border-radius: var(--radius-capsule);
+  background: color-mix(in srgb, var(--_uf-color) 6%, transparent);
+  white-space: nowrap;
+}
+
+.ufNodeIndex {
   font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--_uf-color);
+  opacity: 0.6;
+}
+
+.ufNodeLabel {
+  font-family: var(--_font-grotesk);
   font-size: var(--_fs-small);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
-  white-space: nowrap;
 }
 
 /* ── Highlighted text (inline accent) ── */
@@ -3816,20 +3829,19 @@
     grid-column: 1 / -1;
   }
 
-  /* ── Overview — User Flow mobile ── */
-  .overviewSplitLayout {
-    display: flex;
-    flex-direction: column;
+  /* ── User Flow Panel — mobile ── */
+  .ufLane {
+    padding: var(--spacing-lg);
   }
 
-  .overviewLeft {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .overviewFlowSteps {
+  .ufPipeline {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .ufConnector {
+    transform: rotate(90deg);
+    margin: var(--spacing-2xs) var(--spacing-xl);
   }
 
   /* ── Troubleshooting Panel — mobile ── */
