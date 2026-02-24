@@ -6,6 +6,12 @@ export type CardSize = "large" | "small" | "medium" | "tall" | "wide";
 
 export type LocalizedText = Record<Language, string>;
 
+export interface ProjectTeamMember {
+  name: string;
+  role: LocalizedText;
+  url?: string;
+}
+
 export interface Project {
   id: string;
   number: string;
@@ -21,6 +27,7 @@ export interface Project {
   /* ── Detail page content (single field with sections as headings) ── */
   content: LocalizedText;
   contentType?: "markdown" | "richtext";
+  teamMembers?: ProjectTeamMember[];
   gallery: string[];
   liveUrl?: string;
   githubUrl?: string;

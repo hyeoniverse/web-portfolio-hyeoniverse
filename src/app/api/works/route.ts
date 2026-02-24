@@ -7,6 +7,8 @@ import type { WorkFormData } from "@/types/work";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const showAll = searchParams.get("all") === "true"; // admin용
+  const page = parseInt(searchParams.get("page") ?? "0");
+  const limit = parseInt(searchParams.get("limit") ?? "0");
 
   const supabase = createAdminClient();
 
@@ -18,13 +20,25 @@ export async function GET(request: Request) {
 
   query = query.order("sort_order", { ascending: true });
 
+  // 페이지네이션 (page/limit 둘 다 있을 때만 적용)
+  if (page > 0 && limit > 0) {
+    const from = (page - 1) * limit;
+    query = query.range(from, from + limit - 1);
+  }
+
   const { data, count, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ works: data, total: count ?? 0 });
+  const total = count ?? 0;
+  return NextResponse.json({
+    works: data,
+    total,
+    page: page || 1,
+    totalPages: limit > 0 ? Math.ceil(total / limit) : 1,
+  });
 }
 
 // POST /api/works — 새 work 생성 (admin only)

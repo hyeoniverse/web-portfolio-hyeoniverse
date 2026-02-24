@@ -388,7 +388,8 @@
     "overview": "Overview",
     "challenge": "Challenge",
     "solution": "Solution",
-    "visitSite": "Visit Site"
+    "visitSite": "Visit Site",
+    "team": "Team"
   },
   "errorPage": {
     "title": "Something Went Wrong",

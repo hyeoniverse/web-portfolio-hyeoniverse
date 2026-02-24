@@ -228,6 +228,7 @@ CREATE TABLE IF NOT EXISTS works (
   solution_ko    text NOT NULL DEFAULT '',
   solution_en    text NOT NULL DEFAULT '',
   solution_image text NOT NULL DEFAULT '',
+  team_members   jsonb NOT NULL DEFAULT '[]',
   gallery        text[] NOT NULL DEFAULT '{}',
   live_url       text DEFAULT '',
   github_url     text DEFAULT '',
