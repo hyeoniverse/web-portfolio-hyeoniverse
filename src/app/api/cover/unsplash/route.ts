@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getSecret } from "@/lib/getSecret";
 
 const UNSPLASH_API = "https://api.unsplash.com";
 
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+  const accessKey = await getSecret("UNSPLASH_ACCESS_KEY");
   if (!accessKey) {
     return NextResponse.json(
       { error: "Unsplash API key not configured" },

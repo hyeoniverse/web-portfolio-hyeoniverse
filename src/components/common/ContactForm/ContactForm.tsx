@@ -12,11 +12,12 @@ import { useContactStore } from "@/stores/contactStore";
 import { useSoundManager } from "@/hooks/useSoundManager";
 import { useModalStore } from "@/stores/modalStore";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 export default function ContactForm() {
-  const [state, handleSubmit] = useForm(
-    process.env.NEXT_PUBLIC_FORMSPREE_ID as string,
-  );
+  const { publicKeys } = useSiteConfig();
+  const formspreeId = publicKeys.NEXT_PUBLIC_FORMSPREE_ID || process.env.NEXT_PUBLIC_FORMSPREE_ID || "";
+  const [state, handleSubmit] = useForm(formspreeId);
 
   const { t } = useLanguage();
   const { playSound } = useSoundManager();

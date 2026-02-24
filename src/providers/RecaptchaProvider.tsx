@@ -8,6 +8,7 @@ import {
   useContext,
 } from "react";
 import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 declare global {
   interface Window {
@@ -46,7 +47,8 @@ export default function RecaptchaProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
+  const { publicKeys } = useSiteConfig();
+  const siteKey = publicKeys.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
   const { enabled, version } = siteConfig.recaptcha;
   const [ready, setReady] = useState(false);
   const loadedRef = useRef(false);

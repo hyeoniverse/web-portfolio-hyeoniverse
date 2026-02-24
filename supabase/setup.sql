@@ -26,6 +26,10 @@ INSERT INTO site_settings (id, config)
 VALUES ('profile', '{}')
 ON CONFLICT (id) DO NOTHING;
 
+INSERT INTO site_settings (id, config)
+VALUES ('secrets', '{}')
+ON CONFLICT (id) DO NOTHING;
+
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 설정 읽기 가능
