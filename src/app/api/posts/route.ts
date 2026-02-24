@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from("posts")
-    .select("*", { count: "exact" });
+    .select("*, series:series_id(title, title_en)", { count: "exact" });
 
   if (!showAll) {
     query = query.eq("published", true);

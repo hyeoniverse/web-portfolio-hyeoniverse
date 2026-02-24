@@ -1,0 +1,243 @@
+/* ── Shared Admin Table ── */
+.empty {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: var(--spacing-3xl) 0;
+}
+
+/* ── Table ── */
+.tableHeader {
+  display: grid;
+  grid-template-columns: var(--_grid);
+  gap: var(--spacing-md);
+  padding: 0 0 var(--spacing-sm);
+  border-bottom: 1px solid var(--border-tertiary-color);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  align-items: center;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: var(--_grid);
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) 0;
+  align-items: center;
+  border-bottom: 1px solid var(--border-tertiary-color);
+  min-width: 0;
+}
+
+.table .row:hover {
+  background: transparent;
+}
+
+/* Title column — accent on row hover */
+.colTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.table .row:hover .colTitle {
+  color: var(--color-accent);
+}
+
+/* ── Checkbox column ── */
+.colCheck {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Changed row indicator */
+.rowChanged {
+  background: var(--color-accent-alpha-5, rgba(208, 16, 70, 0.03));
+}
+
+/* ── Meta columns ── */
+.colMeta {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.colMono {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* ── Thumbnail ── */
+.colThumb {
+  width: 48px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  border: 1px solid var(--border-tertiary-color);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+/* ── Status badge (read-only label) ── */
+.statusBadge {
+  display: inline-block;
+  padding: 2px var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+.published {
+  background: var(--color-success-alpha);
+  color: var(--color-success);
+}
+
+.draft {
+  background: var(--color-neutral-alpha-10);
+  color: var(--text-tertiary);
+}
+
+/* ── Actions column ── */
+.colActions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.actionBtn {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.colActions .actionBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.deleteBtn {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+}
+
+.colActions .deleteBtn:hover {
+  background: var(--color-accent-alpha-10);
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-3xl);
+}
+
+.pageBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: 50%;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.pagination .pageBtn:hover:not(:disabled) {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.pageBtnActive {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.pagination .pageBtnActive:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.pageBtn:disabled {
+  opacity: 0.75;
+}
+
+.ellipsis {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  padding: 0 var(--spacing-2xs);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .tableHeader {
+    display: none;
+  }
+
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-lg) 0;
+    position: relative;
+    padding-right: var(--spacing-2xl);
+  }
+
+  .colTitle {
+    font-size: var(--font-size-md);
+    white-space: normal;
+  }
+
+  .colActions {
+    margin-top: var(--spacing-xs);
+  }
+
+  .colCheck {
+    position: absolute;
+    top: var(--spacing-lg);
+    right: 0;
+  }
+}

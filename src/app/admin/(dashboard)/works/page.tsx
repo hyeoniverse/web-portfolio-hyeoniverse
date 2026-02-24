@@ -1,177 +1,256 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
-import { useLenis } from "@/providers/LenisProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import type { Work } from "@/types/work";
-import { SkeletonLine } from "@/components/ui/Skeleton";
-import styles from "./AdminWorks.module.css";
+import AdminListShell, {
+  adminShellStyles as shell,
+} from "@/components/admin/AdminListShell";
+import AdminTable, {
+  usePublishChanges,
+  adminTableStyles as ts,
+  type AdminTableColumn,
+} from "@/components/admin/AdminTable/AdminTable";
+
+const WORKS_PER_PAGE = 20;
 
 export default function AdminWorksPage() {
-  const { setInfinite, lenis, stop, start } = useLenis();
+  const { t } = useLanguage();
   const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    stop();
-    setInfinite(false);
-    window.scrollTo(0, 0);
+  const { publishOverrides, toggle, setAll, reset, toChanges, hasChanges } =
+    usePublishChanges<Work>();
 
-    const timer = setTimeout(() => {
-      if (lenis) lenis.scrollTo(0, { immediate: true });
-      start();
-    }, 50);
-
-    return () => {
-      clearTimeout(timer);
-      setInfinite(true);
-    };
-  }, [setInfinite, lenis, stop, start]);
+  /* Preview tooltip */
+  const [hoveredWork, setHoveredWork] = useState<Work | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
+  const [imgError, setImgError] = useState(false);
 
   const fetchWorks = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/works?all=true");
+    const params = new URLSearchParams({
+      all: "true",
+      page: String(page),
+      limit: String(WORKS_PER_PAGE),
+    });
+    const res = await fetch(`/api/works?${params}`);
     const data = await res.json();
     setWorks(data.works ?? []);
+    setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     fetchWorks();
   }, [fetchWorks]);
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`"${title}" 삭제하시겠습니까?`)) return;
+  const handleDelete = async (id: string) => {
     await fetch(`/api/works/${id}`, { method: "DELETE" });
     fetchWorks();
   };
 
-  const handleTogglePublish = async (work: Work) => {
-    await fetch(`/api/works/${work.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ published: !work.published }),
-    });
+  const handleSave = async () => {
+    if (!hasChanges) return;
+    setSaving(true);
+    await Promise.all(
+      toChanges().map((c) =>
+        fetch(`/api/works/${c.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ published: c.published }),
+        }),
+      ),
+    );
+    reset();
+    setSaving(false);
     fetchWorks();
   };
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Works</h1>
-        <Link href="/admin/works/new" className={styles.newBtn}>
-          New Work
-        </Link>
-      </div>
+  const handleRowHover = (work: Work, e: React.MouseEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const tooltipWidth = 280;
+    const hasImage = !!work.image;
+    const tooltipHeight = hasImage ? 260 : 120;
+    const gap = 8;
+    const rawLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
+    const left = Math.max(
+      8,
+      Math.min(rawLeft, window.innerWidth - tooltipWidth - 8),
+    );
+    const spaceAbove = rect.top;
+    const top =
+      spaceAbove > tooltipHeight + gap
+        ? rect.top - tooltipHeight - gap
+        : rect.bottom + gap;
+    setTooltipPos({ top, left });
+    setImgError(false);
+    setHoveredWork(work);
+  };
 
-      {loading ? (
-        <AdminWorksSkeleton />
-      ) : works.length === 0 ? (
-        <p className={styles.empty}>No works yet</p>
-      ) : (
-        <div className={styles.table}>
-          <div className={styles.tableHeader}>
-            <span />
-            <span>Title</span>
-            <span>Status</span>
-            <span>Year</span>
-            <span>Order</span>
-            <span>Actions</span>
+  const columns: AdminTableColumn<Work>[] = useMemo(
+    () => [
+      {
+        key: "thumb",
+        label: "",
+        render: (work) => (
+          <div className={ts.colThumb}>
+            {work.image ? (
+              <Image
+                src={work.image}
+                alt=""
+                fill
+                sizes="48px"
+                className={ts.thumbImg}
+                unoptimized
+              />
+            ) : (
+              <div className={ts.thumbPlaceholder}>—</div>
+            )}
           </div>
+        ),
+        skeletonWidth: "48px",
+      },
+      {
+        key: "title",
+        label: t("admin.works.tableTitle"),
+        className: ts.colTitle,
+        render: (work) => work.title || t("admin.works.untitled"),
+        skeletonWidth: "65%",
+      },
+      {
+        key: "status",
+        label: t("admin.works.tableStatus"),
+        render: (_work, published) => (
+          <span
+            className={`${ts.statusBadge} ${published ? ts.published : ts.draft}`}
+          >
+            {published
+              ? t("admin.works.published")
+              : t("admin.works.draft")}
+          </span>
+        ),
+        skeletonWidth: "60px",
+      },
+      {
+        key: "year",
+        label: t("admin.works.tableYear"),
+        className: ts.colMono,
+        render: (work) => work.year,
+        skeletonWidth: "40px",
+      },
+      {
+        key: "order",
+        label: t("admin.works.tableOrder"),
+        className: ts.colMono,
+        render: (work) => String(work.sort_order),
+        skeletonWidth: "24px",
+      },
+    ],
+    [t],
+  );
 
-          {works.map((work) => (
-            <div key={work.id} className={styles.row}>
-              <div className={styles.colThumb}>
-                {work.image ? (
-                  <Image
-                    src={work.image}
-                    alt=""
-                    fill
-                    sizes="48px"
-                    className={styles.thumbImg}
-                    unoptimized
-                  />
+  const labels = useMemo(
+    () => ({
+      edit: t("admin.works.edit"),
+      delete: t("admin.works.delete"),
+      deleteConfirm: t("admin.works.deleteConfirm"),
+      actions: t("admin.works.tableActions"),
+    }),
+    [t],
+  );
+
+  return (
+    <AdminListShell
+      title={t("admin.works.title")}
+      newHref="/admin/works/new"
+      newLabel={t("admin.works.newWork")}
+      saving={saving}
+      hasChanges={hasChanges}
+      onSave={handleSave}
+      saveCount={publishOverrides.size}
+      saveLabel={t("admin.works.save")}
+    >
+      <AdminTable<Work>
+        items={works}
+        columns={columns}
+        editBasePath="/admin/works"
+        getTitle={(w) => w.title || t("admin.works.untitled")}
+        publishOverrides={publishOverrides}
+        onPublishToggle={toggle}
+        onPublishAll={setAll}
+        onDelete={handleDelete}
+        gridTemplate="40px 60px 1fr 100px 80px 80px 140px"
+        loading={loading}
+        emptyMessage={t("admin.works.noWorksYet")}
+        skeletonRows={4}
+        labels={labels}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        onRowHover={handleRowHover}
+        onRowLeave={() => setHoveredWork(null)}
+      >
+        {/* Hover preview tooltip */}
+        {hoveredWork && (
+          <div
+            className={shell.previewTooltip}
+            style={{ top: tooltipPos.top, left: tooltipPos.left }}
+          >
+            {hoveredWork.image && (
+              <div className={shell.previewImage}>
+                {imgError ? (
+                  <div className={shell.previewPlaceholder}>
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  </div>
                 ) : (
-                  <div className={styles.thumbPlaceholder}>—</div>
+                  <Image
+                    src={hoveredWork.image}
+                    alt=""
+                    width={280}
+                    height={140}
+                    className={shell.previewImg}
+                    unoptimized
+                    onError={() => setImgError(true)}
+                  />
                 )}
               </div>
-              <span className={styles.colTitle}>
-                <Link
-                  href={`/admin/works/${work.id}/edit`}
-                  className={styles.workLink}
-                >
-                  {work.title || "Untitled"}
-                </Link>
-              </span>
-              <span className={styles.colStatus}>
-                <button
-                  className={`${styles.statusBadge} ${work.published ? styles.published : styles.draft}`}
-                  onClick={() => handleTogglePublish(work)}
-                >
-                  {work.published ? "Published" : "Draft"}
-                </button>
-              </span>
-              <span className={styles.colYear}>{work.year}</span>
-              <span className={styles.colOrder}>{work.sort_order}</span>
-              <span className={styles.colActions}>
-                <Link
-                  href={`/admin/works/${work.id}/edit`}
-                  className={styles.actionBtn}
-                >
-                  Edit
-                </Link>
-                <button
-                  className={styles.deleteBtn}
-                  onClick={() => handleDelete(work.id, work.title)}
-                >
-                  Delete
-                </button>
-              </span>
+            )}
+            <div className={shell.previewBody}>
+              <p className={shell.previewTitle}>{hoveredWork.title}</p>
+              {hoveredWork.subtitle_ko && (
+                <p className={shell.previewExcerpt}>
+                  {hoveredWork.subtitle_ko}
+                </p>
+              )}
+              {hoveredWork.tech.length > 0 && (
+                <div className={shell.previewTags}>
+                  {hoveredWork.tech.map((t) => (
+                    <span key={t} className={shell.previewTag}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── Skeleton ── */
-const SKELETON_ROWS = 4;
-
-function AdminWorksSkeleton() {
-  return (
-    <div className={styles.table}>
-      <div className={styles.tableHeader}>
-        <span />
-        <span>Title</span>
-        <span>Status</span>
-        <span>Year</span>
-        <span>Order</span>
-        <span>Actions</span>
-      </div>
-      {Array.from({ length: SKELETON_ROWS }, (_, i) => (
-        <div key={i} className={styles.row} style={{ pointerEvents: "none" }}>
-          <div className={styles.colThumb}>
-            <div className={styles.thumbPlaceholder} />
           </div>
-          <span className={styles.colTitle}>
-            <SkeletonLine width={`${55 + (i % 3) * 15}%`} />
-          </span>
-          <span className={styles.colStatus}>
-            <SkeletonLine width="60px" />
-          </span>
-          <span className={styles.colYear}>
-            <SkeletonLine width="40px" />
-          </span>
-          <span className={styles.colOrder}>
-            <SkeletonLine width="24px" />
-          </span>
-          <span className={styles.colActions}>
-            <SkeletonLine width="90px" />
-          </span>
-        </div>
-      ))}
-    </div>
+        )}
+      </AdminTable>
+    </AdminListShell>
   );
 }
