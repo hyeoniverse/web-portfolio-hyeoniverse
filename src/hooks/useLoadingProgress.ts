@@ -80,6 +80,7 @@ export function useLoadingScreen(): LoadingScreenResult {
         setTimeout(() => {
           if (!mounted) return;
           setIsLoading(false);
+          setIsTransitioning(false);
         }, LOADING_CONFIG.transitionDelay);
       }, 400);
     };
