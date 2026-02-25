@@ -14,7 +14,7 @@ import type { Series } from "@/types/post";
 import ProfileSections, { profileDefaults } from "@/components/admin/ProfileSections";
 import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
 import type { ProfileData } from "@/types/profile";
-import { loadGoogleFont } from "@/lib/loadGoogleFont";
+import { loadGoogleFont, validateGoogleFont } from "@/lib/loadGoogleFont";
 import styles from "./Settings.module.css";
 
 type DeepPartial<T> = {
@@ -671,7 +671,20 @@ export default function SettingsPage() {
 
               {/* Typography */}
               <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("admin.settings.typography")}</h2>
+                <div className={styles.sectionTitleRow}>
+                  <h2 className={styles.sectionTitle}>{t("admin.settings.typography")}</h2>
+                  <a
+                    href="https://fonts.google.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.hintLink}
+                  >
+                    Google Fonts ↗
+                  </a>
+                </div>
+                <p className={styles.sectionHint}>
+                  프리셋에서 선택하거나, 직접 입력란에 Google Fonts 이름을 입력하세요. (예: Roboto, Nanum Gothic)
+                </p>
                 <div className={styles.fields}>
                   <FontSelect
                     label={t("admin.settings.headingFont")}
@@ -1154,82 +1167,147 @@ function FontSelect({
 }) {
   const isCustom = !!value && !options.includes(value);
   const [customInput, setCustomInput] = useState(isCustom ? value : "");
+  const [validating, setValidating] = useState(false);
+  const [validationError, setValidationError] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // 커스텀 폰트가 선택된 상태에서 프리셋 목록에 임시 항목 추가 (드롭다운 깨짐 방지)
   const effectiveOptions = isCustom
     ? [{ value, label: value }, ...options.map((f) => ({ value: f, label: f }))]
     : options.map((f) => ({ value: f, label: f }));
 
-  // 커스텀 폰트 프리뷰를 위해 동적 로드
+  // Debounced font search
   useEffect(() => {
-    if (customInput && !FONT_CSS_VARS[customInput]) {
-      loadGoogleFont(customInput);
-    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const q = customInput.trim();
+    if (q.length < 2) { setSuggestions([]); return; }
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/fonts/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        setSuggestions(data.fonts ?? []);
+        setShowSuggestions(true);
+      } catch { setSuggestions([]); }
+    }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [customInput]);
 
   const handlePresetChange = (v: string) => {
     setCustomInput("");
+    setValidationError("");
+    setSuggestions([]);
+    setShowSuggestions(false);
     onChange(v);
   };
 
-  const handleCustomBlur = () => {
-    const trimmed = customInput.trim();
-    if (trimmed) {
-      onChange(trimmed);
-    } else if (!options.includes(value)) {
-      onChange(options[0]);
-    }
+  const handleSuggestionClick = (fontName: string) => {
+    setCustomInput(fontName);
+    setValidationError("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+    loadGoogleFont(fontName);
+    onChange(fontName);
   };
 
-  const handleCustomKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      (e.target as HTMLInputElement).blur();
+  const handleCustomApply = async () => {
+    setShowSuggestions(false);
+    const trimmed = customInput.trim();
+    if (!trimmed) {
+      if (!options.includes(value)) onChange(options[0]);
+      setValidationError("");
+      return;
+    }
+    if (trimmed === value) return;
+
+    // Case-insensitive preset match
+    const presetMatch = options.find((o) => o.toLowerCase() === trimmed.toLowerCase());
+    if (presetMatch) {
+      setCustomInput(presetMatch);
+      onChange(presetMatch);
+      setValidationError("");
+      return;
+    }
+
+    // Normalize: title case each word
+    const normalized = trimmed.replace(/\b\w/g, (c) => c.toUpperCase());
+
+    setValidating(true);
+    setValidationError("");
+    const valid = await validateGoogleFont(normalized);
+    setValidating(false);
+
+    if (valid) {
+      setCustomInput(normalized);
+      loadGoogleFont(normalized);
+      onChange(normalized);
+    } else {
+      setValidationError("Google Fonts에 없는 폰트입니다");
     }
   };
 
   return (
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>{label}</label>
-      <Select
-        value={value}
-        options={effectiveOptions}
-        onChange={handlePresetChange}
-        renderValue={(opt) => (
-          <span style={{ fontFamily: getFontFamily(opt?.value ?? "") }}>
-            {opt?.label ?? ""}
-          </span>
-        )}
-        renderOption={(opt) => (
-          <div className={styles.fontOption}>
-            <span
-              className={styles.fontSample}
-              style={{ fontFamily: getFontFamily(opt.value) }}
-            >
-              가나다 Abc
+      <div className={styles.fontSelectGroup}>
+        <Select
+          value={value}
+          options={effectiveOptions}
+          onChange={handlePresetChange}
+          renderValue={(opt) => (
+            <span style={{ fontFamily: getFontFamily(opt?.value ?? "") }}>
+              {opt?.label ?? ""}
             </span>
-            <span className={styles.fontName}>{opt.label}</span>
-          </div>
-        )}
-      />
-      <div className={styles.fontCustomWrap}>
-        <input
-          type="text"
-          className={styles.fontCustomInput}
-          placeholder="Google Fonts 폰트 이름 입력 (예: Noto Sans KR)"
-          value={customInput}
-          onChange={(e) => setCustomInput(e.target.value)}
-          onBlur={handleCustomBlur}
-          onKeyDown={handleCustomKeyDown}
-          style={customInput ? { fontFamily: getFontFamily(customInput) } : undefined}
+          )}
+          renderOption={(opt) => (
+            <div className={styles.fontOption}>
+              <span
+                className={styles.fontSample}
+                style={{ fontFamily: getFontFamily(opt.value) }}
+              >
+                가나다 Abc
+              </span>
+              <span className={styles.fontName}>{opt.label}</span>
+            </div>
+          )}
         />
-        <a
-          href="https://fonts.google.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.fontCustomLink}
-        >
-          Google Fonts에서 찾기 ↗
-        </a>
+        <div className={styles.fontCustomWrap}>
+          <input
+            type="text"
+            className={`${styles.fontCustomInput} ${validationError ? styles.fontCustomInputError : ""}`}
+            placeholder="직접 입력"
+            value={customInput}
+            onChange={(e) => { setCustomInput(e.target.value); setValidationError(""); }}
+            onBlur={handleCustomApply}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                if (suggestions.length > 0) {
+                  handleSuggestionClick(suggestions[0]);
+                } else {
+                  (e.target as HTMLInputElement).blur();
+                }
+              }
+            }}
+            style={customInput && !validationError ? { fontFamily: getFontFamily(customInput) } : undefined}
+            disabled={validating}
+          />
+          {validating && <span className={styles.fontValidating}>확인 중…</span>}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className={styles.fontSuggestions} data-lenis-prevent>
+              {suggestions.map((font) => (
+                <button
+                  key={font}
+                  type="button"
+                  className={styles.fontSuggestionItem}
+                  onMouseDown={(e) => { e.preventDefault(); handleSuggestionClick(font); }}
+                >
+                  {font}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {validationError && <p className={styles.fontValidationMsg}>{validationError}</p>}
       </div>
     </div>
   );

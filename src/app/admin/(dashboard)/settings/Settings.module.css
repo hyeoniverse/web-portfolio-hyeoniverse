@@ -188,6 +188,17 @@
   letter-spacing: 0.04em;
 }
 
+.sectionTitleRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.sectionTitleRow .sectionTitle {
+  margin-bottom: 0;
+}
+
 /* ── Fields List ── */
 .fields {
   display: flex;
@@ -446,6 +457,18 @@
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-md);
   margin-top: calc(-1 * var(--spacing-sm));
+}
+
+.hintLink {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.section .hintLink:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ── Service Items Editor ── */
@@ -1141,8 +1164,17 @@
   letter-spacing: 0.02em;
 }
 
-/* ── Custom Font Input ── */
+/* ── Font Select Group ── */
+.fontSelectGroup {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
 .fontCustomWrap {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -1150,18 +1182,18 @@
 
 .fontCustomInput {
   flex: 1;
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  border: 1px dashed var(--border-secondary-color);
+  min-width: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
 }
 
-.fieldRow .fontCustomInput:focus {
-  border-style: solid;
+.fontSelectGroup .fontCustomInput:focus {
   border-color: var(--text-primary);
 }
 
@@ -1169,18 +1201,60 @@
   color: var(--text-tertiary);
 }
 
-.fontCustomLink {
+.fontCustomInputError {
+  border-color: var(--color-accent);
+}
+
+.fontValidating {
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  text-decoration: none;
   white-space: nowrap;
 }
 
-.fieldRow .fontCustomLink:hover {
-  color: var(--text-primary);
+.fontValidationMsg {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+  margin: 0;
 }
+
+/* ── Font Suggestions Dropdown ── */
+.fontSuggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-2xs);
+}
+
+.fontSuggestionItem {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  text-align: left;
+  width: 100%;
+}
+
+.fontSuggestions .fontSuggestionItem:hover {
+  background: var(--bg-tertiary);
+}
+
 
 /* ── Env Var Editor ── */
 .envInputRow {
