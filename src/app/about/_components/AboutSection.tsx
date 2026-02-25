@@ -101,7 +101,7 @@ export default function AboutSection() {
     <Fragment key={key}>
       <HeroPanel t={t} />
       <OverviewPanel language={language} overview={projectOverview} />
-      <UserFlowPanel language={language} userFlows={userFlows} />
+      <UserFlowPanel language={language} userFlows={userFlows} scrollBy={scrollBy} />
       <ArchitecturePanel language={language} structure={projectStructure} />
       <FeaturesPanel language={language} features={designFeatures} />
       <DesignConceptPanel
