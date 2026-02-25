@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useLanguage } from "@/providers/LanguageProvider";
 import PresetTab from "./PresetTab";
 import UnsplashTab from "./UnsplashTab";
 import AIGenerateTab from "./AIGenerateTab";
@@ -20,31 +21,36 @@ interface CoverImagePickerProps {
   postContext?: PostContext;
 }
 
-const tabs: { key: Tab; label: string }[] = [
-  { key: "presets", label: "Presets" },
-  { key: "unsplash", label: "Unsplash" },
-  { key: "ai", label: "AI Generate" },
-];
-
 export default function CoverImagePicker({
   onSelect,
   onClose,
   postContext,
 }: CoverImagePickerProps) {
+  const { t } = useLanguage();
+  const tc = (key: string) => t(`admin.posts.coverPicker.${key}`);
   const [activeTab, setActiveTab] = useState<Tab>("presets");
+
+  const tabs = useMemo(
+    () => [
+      { key: "presets" as Tab, label: tc("presets") },
+      { key: "unsplash" as Tab, label: tc("unsplash") },
+      { key: "ai" as Tab, label: tc("aiGenerate") },
+    ],
+    [tc],
+  );
 
   return (
     <div className={styles.picker}>
       <div className={styles.header}>
         <div className={styles.tabs}>
-          {tabs.map((t) => (
+          {tabs.map((tab) => (
             <button
-              key={t.key}
+              key={tab.key}
               type="button"
-              className={`${styles.tab} ${activeTab === t.key ? styles.tabActive : ""}`}
-              onClick={() => setActiveTab(t.key)}
+              className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab(tab.key)}
             >
-              {t.label}
+              {tab.label}
             </button>
           ))}
         </div>

@@ -54,6 +54,35 @@ export default function AdminWorksPage() {
     fetchWorks();
   };
 
+  const handleDragReorder = async (fromIdx: number, toIdx: number) => {
+    if (fromIdx === toIdx) return;
+
+    const next = [...works];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    setWorks(next);
+
+    // Redistribute sort_order values in the affected range
+    const lo = Math.min(fromIdx, toIdx);
+    const hi = Math.max(fromIdx, toIdx);
+    const sortOrders = works
+      .slice(lo, hi + 1)
+      .map((w) => w.sort_order)
+      .sort((a, b) => a - b);
+
+    await Promise.all(
+      next.slice(lo, hi + 1).map((w, i) =>
+        fetch(`/api/works/${w.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sort_order: sortOrders[i] }),
+        }),
+      ),
+    );
+
+    fetchWorks();
+  };
+
   const handleSave = async () => {
     if (!hasChanges) return;
     setSaving(true);
@@ -143,13 +172,6 @@ export default function AdminWorksPage() {
         render: (work) => work.year,
         skeletonWidth: "40px",
       },
-      {
-        key: "order",
-        label: t("admin.works.tableOrder"),
-        className: ts.colMono,
-        render: (work) => String(work.sort_order),
-        skeletonWidth: "24px",
-      },
     ],
     [t],
   );
@@ -184,7 +206,8 @@ export default function AdminWorksPage() {
         onPublishToggle={toggle}
         onPublishAll={setAll}
         onDelete={handleDelete}
-        gridTemplate="40px 60px 1fr 100px 80px 80px 140px"
+        onReorder={handleDragReorder}
+        gridTemplate="40px 60px 1fr 100px 80px 140px"
         loading={loading}
         emptyMessage={t("admin.works.noWorksYet")}
         skeletonRows={4}

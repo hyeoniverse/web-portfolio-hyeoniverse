@@ -13,6 +13,8 @@ import AdminTable, {
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
+import SeriesEditorModal from "@/components/posts/SeriesEditorModal";
+import { useCategories } from "@/hooks/useCategories";
 import styles from "./AdminPosts.module.css";
 
 const POSTS_PER_PAGE = 20;
@@ -35,8 +37,10 @@ export default function AdminPostsPage() {
   const [imgError, setImgError] = useState(false);
 
   /* Series */
+  const categories = useCategories();
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [seriesOpen, setSeriesOpen] = useState(false);
+  const [editingSeries, setEditingSeries] = useState<Series | null | undefined>(undefined);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -227,7 +231,7 @@ export default function AdminPostsPage() {
                 key={s.id}
                 className={styles.seriesCard}
                 data-clickable="true"
-                onClick={() => { window.location.href = "/admin/settings?tab=content&sub=posts"; }}
+                onClick={() => setEditingSeries(s)}
               >
                 {s.cover_image && (
                   <div className={styles.seriesCardThumb}>
@@ -281,7 +285,7 @@ export default function AdminPostsPage() {
           <button
             type="button"
             className={styles.seriesNewBtn}
-            onClick={() => { window.location.href = "/admin/settings?tab=content&sub=posts"; }}
+            onClick={() => setEditingSeries(null)}
           >
             {t("admin.posts.newSeries")}
           </button>
@@ -378,6 +382,18 @@ export default function AdminPostsPage() {
           </div>
         )}
       </AdminTable>
+
+      {editingSeries !== undefined && (
+        <SeriesEditorModal
+          series={editingSeries}
+          categories={categories}
+          onSave={() => {
+            setEditingSeries(undefined);
+            fetchSeries();
+          }}
+          onClose={() => setEditingSeries(undefined)}
+        />
+      )}
     </AdminListShell>
   );
 }

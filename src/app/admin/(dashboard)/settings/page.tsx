@@ -9,8 +9,10 @@ import type { SiteConfigData } from "@/config/site.config";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import Toggle from "@/components/ui/Toggle";
+import Select from "@/components/ui/Select";
 import type { Series } from "@/types/post";
 import ProfileSections, { profileDefaults } from "@/components/admin/ProfileSections";
+import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
 import type { ProfileData } from "@/types/profile";
 import styles from "./Settings.module.css";
 
@@ -28,32 +30,32 @@ const THEME_PRESETS: { name: string; theme: SiteConfigData["theme"] }[] = [
     theme: { accentColor: "#d40063", lightBg: "#f5f5f0", lightText: "#1a1a1a", darkBg: "#0a0a0a", darkText: "#f5f5f0" },
   },
   {
-    name: "Ocean",
-    theme: { accentColor: "#0077b6", lightBg: "#f0f5f8", lightText: "#1a1a2e", darkBg: "#0b1622", darkText: "#e8f0f8" },
+    name: "Coral",
+    theme: { accentColor: "#FF6B6B", lightBg: "#fafafa", lightText: "#1a1a1a", darkBg: "#141414", darkText: "#ececec" },
   },
   {
-    name: "Forest",
-    theme: { accentColor: "#2d8a4e", lightBg: "#f2f5f0", lightText: "#1a2418", darkBg: "#0c1a0e", darkText: "#e6f0e8" },
+    name: "Indigo",
+    theme: { accentColor: "#6C63FF", lightBg: "#f5f5f5", lightText: "#1c1c1c", darkBg: "#121212", darkText: "#e8e8e8" },
   },
   {
-    name: "Sunset",
-    theme: { accentColor: "#e05a2b", lightBg: "#faf5f0", lightText: "#2a1a10", darkBg: "#1a0e08", darkText: "#f5ebe0" },
-  },
-  {
-    name: "Violet",
-    theme: { accentColor: "#7c3aed", lightBg: "#f5f2fa", lightText: "#1a1528", darkBg: "#0e0a1a", darkText: "#ede8f5" },
-  },
-  {
-    name: "Mono",
-    theme: { accentColor: "#555555", lightBg: "#f5f5f5", lightText: "#1a1a1a", darkBg: "#0a0a0a", darkText: "#e5e5e5" },
-  },
-  {
-    name: "Rose",
-    theme: { accentColor: "#e11d48", lightBg: "#fdf2f4", lightText: "#1c1017", darkBg: "#120a0c", darkText: "#f5e6ea" },
+    name: "Emerald",
+    theme: { accentColor: "#10B981", lightBg: "#fafaf9", lightText: "#1b1b18", darkBg: "#161616", darkText: "#e5e5e5" },
   },
   {
     name: "Amber",
-    theme: { accentColor: "#d97706", lightBg: "#faf6ee", lightText: "#221a0a", darkBg: "#141008", darkText: "#f5eede" },
+    theme: { accentColor: "#F59E0B", lightBg: "#fafafa", lightText: "#171717", darkBg: "#141414", darkText: "#eaeaea" },
+  },
+  {
+    name: "Rose",
+    theme: { accentColor: "#F43F5E", lightBg: "#f8f8f8", lightText: "#1a1a1a", darkBg: "#131313", darkText: "#ededed" },
+  },
+  {
+    name: "Cyan",
+    theme: { accentColor: "#06B6D4", lightBg: "#f5f5f5", lightText: "#1c1c1c", darkBg: "#111111", darkText: "#e6e6e6" },
+  },
+  {
+    name: "Lime",
+    theme: { accentColor: "#84CC16", lightBg: "#fafaf9", lightText: "#1a1a1a", darkBg: "#151515", darkText: "#e8e8e8" },
   },
 ];
 
@@ -76,12 +78,12 @@ export default function SettingsPage() {
     const tab = p.get("tab");
     return tab && TAB_IDS.includes(tab as TabId) ? (tab as TabId) : "general";
   });
-  const [contentSubTab, setContentSubTab] = useState<"home" | "profile" | "about" | "posts">(() => {
+  const [contentSubTab, setContentSubTab] = useState<"home" | "profile" | "works" | "posts">(() => {
     if (typeof window === "undefined") return "home";
     const p = new URLSearchParams(window.location.search);
     const sub = p.get("sub");
-    return sub && ["home", "profile", "about", "posts"].includes(sub)
-      ? (sub as "home" | "profile" | "about" | "posts")
+    return sub && ["home", "profile", "works", "posts"].includes(sub)
+      ? (sub as "home" | "profile" | "works" | "posts")
       : "home";
   });
   const [accountEmail, setAccountEmail] = useState("");
@@ -91,6 +93,42 @@ export default function SettingsPage() {
   const [accountCurrentPassword, setAccountCurrentPassword] = useState("");
   const [accountMessage, setAccountMessage] = useState("");
   const [accountSaving, setAccountSaving] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+
+  const handleAccountUpdate = useCallback(async () => {
+    if (!accountCurrentPassword) return;
+    setAccountSaving(true);
+    setAccountMessage("");
+    try {
+      const body: { currentPassword: string; email?: string; password?: string } = {
+        currentPassword: accountCurrentPassword,
+      };
+      if (accountNewEmail !== accountEmail && accountNewEmail.trim() !== "") body.email = accountNewEmail;
+      if (accountPassword) body.password = accountPassword;
+      if (!body.email && !body.password) {
+        setAccountMessage(t("admin.settings.noChanges"));
+        return;
+      }
+      const res = await fetch("/api/admin/account", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setAccountMessage(t("admin.settings.updateSuccess"));
+      if (body.email) setAccountEmail(body.email);
+      setAccountCurrentPassword("");
+      setAccountPassword("");
+      setAccountConfirm("");
+      setShowPasswordConfirm(false);
+      setTimeout(() => setAccountMessage(""), 3000);
+    } catch (err) {
+      setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
+    } finally {
+      setAccountSaving(false);
+    }
+  }, [accountCurrentPassword, accountNewEmail, accountEmail, accountPassword, t]);
 
   useEffect(() => {
     stop();
@@ -267,7 +305,7 @@ export default function SettingsPage() {
               </button>
               {id === "content" && (
                 <div className={styles.navSub}>
-                  {(["home", "profile", "about", "posts"] as const).map((sub) => (
+                  {(["home", "profile", "works", "posts"] as const).map((sub) => (
                     <button
                       key={sub}
                       type="button"
@@ -510,7 +548,7 @@ export default function SettingsPage() {
                 </>
               )}
 
-              {contentSubTab === "about" && (
+              {contentSubTab === "works" && (
                 <>
                   {/* Works Intro */}
                   <section className={styles.section}>
@@ -629,19 +667,19 @@ export default function SettingsPage() {
                   <FontSelect
                     label={t("admin.settings.headingFont")}
                     value={config.typography?.headingFont ?? "Instrument Serif"}
-                    options={["Instrument Serif", "Playfair Display", "Cormorant Garamond"]}
+                    options={["Instrument Serif", "Noto Serif KR", "Nanum Myeongjo", "Gowun Batang", "Hahmlet", "Song Myung", "Diphylleia", "Grandiflora One"]}
                     onChange={(v) => update("typography", "headingFont", v)}
                   />
                   <FontSelect
                     label={t("admin.settings.bodyFont")}
                     value={config.typography?.bodyFont ?? "Space Grotesk"}
-                    options={["Space Grotesk", "Inter", "DM Sans"]}
+                    options={["Space Grotesk", "Noto Sans KR", "Gothic A1", "IBM Plex Sans KR", "Sunflower", "Gowun Dodum", "Nanum Gothic", "Do Hyeon", "Jua", "Dongle", "Orbit"]}
                     onChange={(v) => update("typography", "bodyFont", v)}
                   />
                   <FontSelect
                     label={t("admin.settings.monoFont")}
                     value={config.typography?.monoFont ?? "JetBrains Mono"}
-                    options={["JetBrains Mono", "Fira Code"]}
+                    options={["JetBrains Mono", "Fira Code", "Nanum Gothic Coding"]}
                     onChange={(v) => update("typography", "monoFont", v)}
                   />
                 </div>
@@ -658,17 +696,15 @@ export default function SettingsPage() {
                 <div className={styles.fields}>
                   <div className={styles.fieldRow}>
                     <label className={styles.fieldLabel}>{t("admin.settings.emailServiceProvider")}</label>
-                    <select
-                      className={styles.fieldSelect}
+                    <Select
                       value={config.emailService.provider}
-                      onChange={(e) =>
-                        update("emailService", "provider", e.target.value as SiteConfigData["emailService"]["provider"])
-                      }
-                    >
-                      <option value="formspree">Formspree</option>
-                      <option value="web3forms">Web3Forms</option>
-                      <option value="emailjs">EmailJS</option>
-                    </select>
+                      options={[
+                        { value: "formspree", label: "Formspree" },
+                        { value: "web3forms", label: "Web3Forms" },
+                        { value: "emailjs", label: "EmailJS" },
+                      ]}
+                      onChange={(v) => update("emailService", "provider", v as SiteConfigData["emailService"]["provider"])}
+                    />
                   </div>
                   <Toggle
                     label={t("admin.settings.emailFileUpload")}
@@ -684,16 +720,33 @@ export default function SettingsPage() {
                 <div className={styles.fields}>
                   <div className={styles.fieldRow}>
                     <label className={styles.fieldLabel}>{t("admin.settings.aiCoverProvider")}</label>
-                    <select
-                      className={styles.fieldSelect}
+                    <Select
                       value={config.aiCover.provider}
-                      onChange={(e) =>
-                        update("aiCover", "provider", e.target.value as SiteConfigData["aiCover"]["provider"])
-                      }
-                    >
-                      <option value="nanobanana">NanoBanana (Gemini)</option>
-                      <option value="huggingface">Hugging Face (FLUX)</option>
-                    </select>
+                      options={[
+                        { value: "nanobanana", label: "NanoBanana (Gemini)" },
+                        { value: "huggingface", label: "Hugging Face (FLUX)" },
+                      ]}
+                      onChange={(v) => update("aiCover", "provider", v as SiteConfigData["aiCover"]["provider"])}
+                    />
+                  </div>
+                </div>
+              </section>
+
+              {/* Translation */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Translation</h2>
+                <div className={styles.fields}>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>Provider</label>
+                    <Select
+                      value={config.translation?.provider ?? "deepl"}
+                      options={[
+                        { value: "gemini", label: "Gemini 2.0 Flash" },
+                        { value: "google", label: "Google Cloud Translation" },
+                        { value: "deepl", label: "DeepL API Free" },
+                      ]}
+                      onChange={(v) => update("translation", "provider", v as SiteConfigData["translation"]["provider"])}
+                    />
                   </div>
                 </div>
               </section>
@@ -709,16 +762,14 @@ export default function SettingsPage() {
                   />
                   <div className={styles.fieldRow}>
                     <label className={styles.fieldLabel}>{t("admin.settings.recaptchaVersion")}</label>
-                    <select
-                      className={styles.fieldSelect}
+                    <Select
                       value={config.recaptcha.version}
-                      onChange={(e) =>
-                        update("recaptcha", "version", e.target.value as SiteConfigData["recaptcha"]["version"])
-                      }
-                    >
-                      <option value="v2">v2 (Checkbox)</option>
-                      <option value="v3">v3 (Invisible)</option>
-                    </select>
+                      options={[
+                        { value: "v2", label: "v2 (Checkbox)" },
+                        { value: "v3", label: "v3 (Invisible)" },
+                      ]}
+                      onChange={(v) => update("recaptcha", "version", v as SiteConfigData["recaptcha"]["version"])}
+                    />
                   </div>
                 </div>
               </section>
@@ -726,29 +777,13 @@ export default function SettingsPage() {
               {/* Environment Variables */}
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("admin.settings.envVars")}</h2>
-                <EnvVarFields provider={config.emailService.provider} aiProvider={config.aiCover.provider} recaptchaEnabled={config.recaptcha.enabled} />
+                <EnvVarFields provider={config.emailService.provider} aiProvider={config.aiCover.provider} recaptchaEnabled={config.recaptcha.enabled} translateProvider={config.translation?.provider ?? "deepl"} />
               </section>
             </>
           )}
 
           {activeTab === "account" && (
             <>
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t("admin.settings.currentPassword")}</h2>
-                <div className={styles.fields}>
-                  <div className={styles.fieldRow}>
-                    <label className={styles.fieldLabel}>{t("admin.settings.currentPassword")}</label>
-                    <input
-                      className={styles.fieldInput}
-                      type="password"
-                      value={accountCurrentPassword}
-                      onChange={(e) => setAccountCurrentPassword(e.target.value)}
-                      placeholder={t("admin.settings.currentPasswordPlaceholder")}
-                    />
-                  </div>
-                </div>
-              </section>
-
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("admin.settings.email")}</h2>
                 <div className={styles.fields}>
@@ -799,50 +834,78 @@ export default function SettingsPage() {
                 <button
                   className={styles.saveBtn}
                   disabled={accountSaving}
-                  onClick={async () => {
-                    if (!accountCurrentPassword) {
-                      setAccountMessage(t("admin.settings.currentPasswordRequired"));
-                      return;
-                    }
+                  onClick={() => {
                     if (accountPassword && accountPassword !== accountConfirm) {
                       setAccountMessage(t("admin.settings.passwordMismatch"));
                       return;
                     }
-                    setAccountSaving(true);
-                    setAccountMessage("");
-                    try {
-                      const body: { currentPassword: string; email?: string; password?: string } = {
-                        currentPassword: accountCurrentPassword,
-                      };
-                      if (accountNewEmail !== accountEmail) body.email = accountNewEmail;
-                      if (accountPassword) body.password = accountPassword;
-                      if (!body.email && !body.password) {
-                        setAccountMessage(t("admin.settings.noChanges"));
-                        return;
-                      }
-                      const res = await fetch("/api/admin/account", {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(body),
-                      });
-                      const data = await res.json();
-                      if (!res.ok) throw new Error(data.error);
-                      setAccountMessage(t("admin.settings.updateSuccess"));
-                      if (body.email) setAccountEmail(body.email);
-                      setAccountCurrentPassword("");
-                      setAccountPassword("");
-                      setAccountConfirm("");
-                      setTimeout(() => setAccountMessage(""), 3000);
-                    } catch (err) {
-                      setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
-                    } finally {
-                      setAccountSaving(false);
+                    const hasEmailChange = accountNewEmail !== accountEmail && accountNewEmail.trim() !== "";
+                    const hasPasswordChange = !!accountPassword;
+                    if (!hasEmailChange && !hasPasswordChange) {
+                      setAccountMessage(t("admin.settings.noChanges"));
+                      return;
                     }
+                    setAccountMessage("");
+                    setShowPasswordConfirm(true);
                   }}
                 >
                   {accountSaving ? t("admin.settings.saving") : t("admin.settings.updateAccount")}
                 </button>
               </div>
+
+              {/* Password Confirm Dialog */}
+              {showPasswordConfirm && (
+                <div className={styles.confirmOverlay} onClick={() => setShowPasswordConfirm(false)}>
+                  <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
+                    <h3 className={styles.confirmTitle}>{t("admin.settings.currentPassword")}</h3>
+                    <p className={styles.confirmDesc}>
+                      {t("admin.settings.confirmPasswordDesc")}
+                    </p>
+                    <input
+                      className={styles.fieldInput}
+                      type="password"
+                      value={accountCurrentPassword}
+                      onChange={(e) => setAccountCurrentPassword(e.target.value)}
+                      placeholder={t("admin.settings.currentPasswordPlaceholder")}
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && accountCurrentPassword) {
+                          handleAccountUpdate();
+                        }
+                        if (e.key === "Escape") {
+                          setShowPasswordConfirm(false);
+                        }
+                      }}
+                    />
+                    {accountMessage && (
+                      <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
+                        {accountMessage}
+                      </span>
+                    )}
+                    <div className={styles.confirmActions}>
+                      <button
+                        type="button"
+                        className={styles.confirmCancelBtn}
+                        onClick={() => {
+                          setShowPasswordConfirm(false);
+                          setAccountCurrentPassword("");
+                          setAccountMessage("");
+                        }}
+                      >
+                        {t("admin.settings.cancel")}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.saveBtn}
+                        disabled={accountSaving || !accountCurrentPassword}
+                        onClick={handleAccountUpdate}
+                      >
+                        {accountSaving ? t("admin.settings.saving") : t("admin.settings.confirm")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -1030,6 +1093,32 @@ function ServiceItemsEditor({
   );
 }
 
+/** font display name → CSS variable for preview rendering */
+const FONT_CSS_VARS: Record<string, string> = {
+  "Instrument Serif": "var(--font-instrument)",
+  "Noto Serif KR": "var(--font-noto-serif-kr)",
+  "Nanum Myeongjo": "var(--font-nanum-myeongjo)",
+  "Gowun Batang": "var(--font-gowun-batang)",
+  "Hahmlet": "var(--font-hahmlet)",
+  "Song Myung": "var(--font-song-myung)",
+  "Diphylleia": "var(--font-diphylleia)",
+  "Grandiflora One": "var(--font-grandiflora-one)",
+  "Space Grotesk": "var(--font-space-grotesk)",
+  "Noto Sans KR": "var(--font-noto-sans-kr)",
+  "Gothic A1": "var(--font-gothic-a1)",
+  "IBM Plex Sans KR": "var(--font-ibm-plex-sans-kr)",
+  "Sunflower": "var(--font-sunflower)",
+  "Gowun Dodum": "var(--font-gowun-dodum)",
+  "Nanum Gothic": "var(--font-nanum-gothic)",
+  "Do Hyeon": "var(--font-do-hyeon)",
+  "Jua": "var(--font-jua)",
+  "Dongle": "var(--font-dongle)",
+  "Orbit": "var(--font-orbit)",
+  "JetBrains Mono": "var(--font-jetbrains)",
+  "Fira Code": "var(--font-fira-code)",
+  "Nanum Gothic Coding": "var(--font-nanum-gothic-coding)",
+};
+
 function FontSelect({
   label,
   value,
@@ -1041,20 +1130,31 @@ function FontSelect({
   options: string[];
   onChange: (v: string) => void;
 }) {
+  const selectOptions = options.map((f) => ({ value: f, label: f }));
   return (
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>{label}</label>
-      <select
-        className={styles.fieldSelect}
+      <Select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {options.map((font) => (
-          <option key={font} value={font}>
-            {font}
-          </option>
-        ))}
-      </select>
+        options={selectOptions}
+        onChange={onChange}
+        renderValue={(opt) => (
+          <span style={{ fontFamily: FONT_CSS_VARS[opt?.value ?? ""] }}>
+            {opt?.label ?? ""}
+          </span>
+        )}
+        renderOption={(opt) => (
+          <div className={styles.fontOption}>
+            <span
+              className={styles.fontSample}
+              style={{ fontFamily: FONT_CSS_VARS[opt.value] }}
+            >
+              가나다 Abc
+            </span>
+            <span className={styles.fontName}>{opt.label}</span>
+          </div>
+        )}
+      />
     </div>
   );
 }
@@ -1066,7 +1166,11 @@ function CategoriesEditor({
   categories: string[];
   onChange: (cats: string[]) => void;
 }) {
+  const { t } = useLanguage();
   const [newCat, setNewCat] = useState("");
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
+  const [reassignTarget, setReassignTarget] = useState<string | null>(null);
 
   const addCategory = () => {
     const cat = newCat.trim();
@@ -1077,14 +1181,59 @@ function CategoriesEditor({
   };
 
   const removeCategory = (cat: string) => {
-    onChange(categories.filter((c) => c !== cat));
+    const remaining = categories.filter((c) => c !== cat);
+    if (remaining.length === 0) {
+      alert(t("admin.settings.categoryLastWarning"));
+      return;
+    }
+    setReassignTarget(cat);
+  };
+
+  const handleReassignConfirm = async (
+    assignments: { id: string; category: string }[],
+    newCategories: string[],
+  ) => {
+    if (assignments.length > 0) {
+      await fetch("/api/posts/reassign-category", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignments }),
+      });
+    }
+    const remaining = categories.filter((c) => c !== reassignTarget);
+    const merged = [...remaining, ...newCategories.filter((c) => !remaining.includes(c))];
+    onChange(merged);
+    setReassignTarget(null);
+  };
+
+  const handleDrop = (targetIdx: number) => {
+    if (dragIdx === null || dragIdx === targetIdx) return;
+    const next = [...categories];
+    const [moved] = next.splice(dragIdx, 1);
+    next.splice(targetIdx, 0, moved);
+    onChange(next);
+    setDragIdx(null);
+    setOverIdx(null);
   };
 
   return (
     <div>
       <div className={styles.catList}>
-        {categories.map((cat) => (
-          <span key={cat} className={styles.catTag}>
+        {categories.map((cat, i) => (
+          <span
+            key={cat}
+            className={`${styles.catTag} ${dragIdx === i ? styles.catTagDragging : ""} ${overIdx === i && dragIdx !== i ? styles.catTagOver : ""}`}
+            draggable
+            onDragStart={() => setDragIdx(i)}
+            onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }}
+            onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
+            onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+          >
+            <svg className={styles.catGrip} width="6" height="10" viewBox="0 0 6 10" fill="currentColor">
+              <circle cx="1.5" cy="1.5" r="1" /><circle cx="4.5" cy="1.5" r="1" />
+              <circle cx="1.5" cy="5" r="1" /><circle cx="4.5" cy="5" r="1" />
+              <circle cx="1.5" cy="8.5" r="1" /><circle cx="4.5" cy="8.5" r="1" />
+            </svg>
             {cat}
             <button
               type="button"
@@ -1108,7 +1257,7 @@ function CategoriesEditor({
               addCategory();
             }
           }}
-          placeholder="New category name"
+          placeholder={t("admin.settings.newCategoryPlaceholder")}
         />
         <button
           type="button"
@@ -1116,9 +1265,17 @@ function CategoriesEditor({
           onClick={addCategory}
           disabled={!newCat.trim()}
         >
-          Add
+          {t("admin.settings.addCategory")}
         </button>
       </div>
+      {reassignTarget && (
+        <CategoryReassignModal
+          category={reassignTarget}
+          availableCategories={categories.filter((c) => c !== reassignTarget)}
+          onConfirm={handleReassignConfirm}
+          onCancel={() => setReassignTarget(null)}
+        />
+      )}
     </div>
   );
 }
@@ -1129,6 +1286,7 @@ function SeriesManager({ categories }: { categories: string[] }) {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [creatingNew, setCreatingNew] = useState(false);
+  const newFormRef = useRef<HTMLDivElement>(null);
 
   const fetchSeries = useCallback(async () => {
     try {
@@ -1145,14 +1303,6 @@ function SeriesManager({ categories }: { categories: string[] }) {
 
   return (
     <div className={styles.seriesList}>
-      {creatingNew && (
-        <SeriesInlineEditor
-          series={null}
-          categories={categories}
-          onSave={() => { setCreatingNew(false); fetchSeries(); }}
-          onCancel={() => setCreatingNew(false)}
-        />
-      )}
       {seriesList.map((s) => {
         const expanded = expandedId === s.id;
         return (
@@ -1193,11 +1343,27 @@ function SeriesManager({ categories }: { categories: string[] }) {
           </div>
         );
       })}
+      {creatingNew && (
+        <div ref={newFormRef}>
+          <SeriesInlineEditor
+            series={null}
+            categories={categories}
+            onSave={() => { setCreatingNew(false); fetchSeries(); }}
+            onCancel={() => setCreatingNew(false)}
+          />
+        </div>
+      )}
       {!creatingNew && (
         <button
           type="button"
           className={styles.profileAddBtn}
-          onClick={() => { setCreatingNew(true); setExpandedId(null); }}
+          onClick={() => {
+            setCreatingNew(true);
+            setExpandedId(null);
+            requestAnimationFrame(() => {
+              newFormRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+            });
+          }}
         >
           {t("admin.posts.newSeries")}
         </button>
@@ -1357,16 +1523,14 @@ function SeriesInlineEditor({
       </div>
       <div className={styles.fieldRow}>
         <label className={styles.fieldLabel}>{ts("category")}</label>
-        <select
-          className={styles.fieldSelect}
+        <Select
           value={form.category}
-          onChange={(e) => updateField("category", e.target.value)}
-        >
-          <option value="">{ts("categoryNone")}</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+          options={[
+            { value: "", label: ts("categoryNone") },
+            ...categories.map((cat) => ({ value: cat, label: cat })),
+          ]}
+          onChange={(v) => updateField("category", v)}
+        />
       </div>
       <div className={styles.fieldRow}>
         <label className={styles.fieldLabel}>{ts("published")}</label>
@@ -1470,10 +1634,12 @@ function EnvVarFields({
   provider,
   aiProvider,
   recaptchaEnabled,
+  translateProvider,
 }: {
   provider: string;
   aiProvider: string;
   recaptchaEnabled: boolean;
+  translateProvider: string;
 }) {
   const { t } = useLanguage();
   const [secrets, setSecrets] = useState<Record<string, { value: string; source: "db" | "env" | "none" }>>({});
@@ -1497,6 +1663,9 @@ function EnvVarFields({
     { key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key", show: recaptchaEnabled },
     { key: "NANOBANANA_API_KEY", label: "NanoBanana API Key", show: aiProvider === "nanobanana" },
     { key: "HUGGINGFACE_API_KEY", label: "Hugging Face Token", show: aiProvider === "huggingface" },
+    { key: "GEMINI_API_KEY", label: "Gemini API Key", show: translateProvider === "gemini" },
+    { key: "GOOGLE_TRANSLATE_API_KEY", label: "Google Translate API Key", show: translateProvider === "google" },
+    { key: "DEEPL_API_KEY", label: "DeepL API Key", show: translateProvider === "deepl" },
   ];
 
   const visible = rows.filter((r) => r.show);

@@ -365,6 +365,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
+  text-align: left;
 }
 
 .body .suggestionChip:hover {

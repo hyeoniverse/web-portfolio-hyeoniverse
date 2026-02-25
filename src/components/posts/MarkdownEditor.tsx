@@ -9,6 +9,8 @@ interface MarkdownEditorProps {
   onChange: (value: string) => void;
   onImageUpload?: (file: File) => Promise<string>;
   compact?: boolean;
+  editLabel?: string;
+  previewLabel?: string;
 }
 
 export default function MarkdownEditor({
@@ -16,6 +18,8 @@ export default function MarkdownEditor({
   onChange,
   onImageUpload,
   compact,
+  editLabel,
+  previewLabel,
 }: MarkdownEditorProps) {
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -62,7 +66,7 @@ export default function MarkdownEditor({
   return (
     <div className={`${styles.wrapper} ${compact ? styles.compact : ""}`}>
       <div className={styles.editorPane}>
-        <span className={styles.label}>Editor</span>
+        <span className={styles.label}>{editLabel ?? "Editor"}</span>
         <textarea
           className={styles.textarea}
           data-lenis-prevent
@@ -75,7 +79,7 @@ export default function MarkdownEditor({
         />
       </div>
       <div className={styles.previewPane}>
-        <span className={styles.label}>Preview</span>
+        <span className={styles.label}>{previewLabel ?? "Preview"}</span>
         <div ref={previewRef} className={styles.preview} data-lenis-prevent>
           {value ? (
             <MarkdownRenderer content={value} />

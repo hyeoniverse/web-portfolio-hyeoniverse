@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { useLanguage } from "@/providers/LanguageProvider";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
 
@@ -68,6 +69,8 @@ function buildPromptSuggestions(ctx: PostContext): string[] {
 }
 
 export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabProps) {
+  const { t } = useLanguage();
+  const tc = (key: string) => t(`admin.posts.coverPicker.${key}`);
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState<StyleKey>("abstract");
   const [generating, setGenerating] = useState(false);
@@ -99,7 +102,7 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
       setPreviewUrl(data.url);
       setPermanentUrl(data.url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Generation failed");
+      setError(err instanceof Error ? err.message : tc("generationFailed"));
     } finally {
       setGenerating(false);
     }
@@ -119,7 +122,7 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
           type="text"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Describe the cover image you want..."
+          placeholder={tc("aiPlaceholder")}
         />
         {prompt && (
           <button type="button" className={styles.clearBtn} onClick={handleClear}>
@@ -162,7 +165,7 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
         onClick={handleGenerate}
         disabled={generating || !prompt.trim()}
       >
-        {generating ? "Generating..." : "Generate"}
+        {generating ? tc("generating") : tc("generate")}
       </button>
 
       {error && <p className={styles.errorMsg}>{error}</p>}
@@ -177,7 +180,7 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
               className={styles.useBtn}
               onClick={() => permanentUrl && onSelect(permanentUrl)}
             >
-              Use this
+              {tc("useThis")}
             </button>
             <button
               type="button"
@@ -185,7 +188,7 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
               onClick={handleGenerate}
               disabled={generating}
             >
-              Regenerate
+              {tc("regenerate")}
             </button>
           </div>
         </div>

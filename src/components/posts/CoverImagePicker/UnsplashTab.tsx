@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useLanguage } from "@/providers/LanguageProvider";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
 
@@ -63,6 +64,8 @@ function extractKeywords(ctx: PostContext): string[] {
 }
 
 export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps) {
+  const { t } = useLanguage();
+  const tc = (key: string) => t(`admin.posts.coverPicker.${key}`);
   const [query, setQuery] = useState("");
   const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
   const [page, setPage] = useState(1);
@@ -93,7 +96,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
         setTotalPages(data.total_pages);
         setPage(p);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Search failed");
+        setError(err instanceof Error ? err.message : tc("searchFailed"));
       } finally {
         setLoading(false);
       }
@@ -143,7 +146,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
         if (!res.ok) throw new Error(data.error);
         onSelect(data.url);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Download failed");
+        setError(err instanceof Error ? err.message : tc("downloadFailed"));
       } finally {
         setDownloading(null);
       }
@@ -165,7 +168,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
           type="text"
           value={query}
           onChange={(e) => handleInputChange(e.target.value)}
-          placeholder="Search photos..."
+          placeholder={tc("searchPlaceholder")}
         />
         {query && (
           <button type="button" className={styles.clearBtn} onClick={handleClear}>
@@ -210,10 +213,10 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
       )}
 
       {!loading && photos.length === 0 && query.trim() && (
-        <p className={styles.emptyMsg}>No photos found</p>
+        <p className={styles.emptyMsg}>{tc("noPhotos")}</p>
       )}
 
-      {loading && <p className={styles.spinner}>Searching...</p>}
+      {loading && <p className={styles.spinner}>{tc("searching")}</p>}
 
       {photos.length > 0 && page < totalPages && !loading && (
         <button
@@ -221,7 +224,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
           className={styles.loadMore}
           onClick={() => search(query, page + 1, true)}
         >
-          Load more
+          {tc("loadMore")}
         </button>
       )}
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -12,11 +12,34 @@ import AdminEditorShell, {
 import EditorToggle from "@/components/posts/EditorToggle";
 import MarkdownEditor from "@/components/posts/MarkdownEditor";
 import type { Work, WorkFormData, TeamMember } from "@/types/work";
+import Select from "@/components/ui/Select";
 import styles from "./WorkEditor.module.css";
 
 const RichTextEditor = dynamic(() => import("@/components/posts/RichTextEditor"), {
   ssr: false,
 });
+
+type TranslateResult = { translations: string[] } | { error: string };
+
+async function autoTranslate(
+  texts: string[],
+  sourceLang: "ko" | "en",
+  targetLang: "ko" | "en",
+): Promise<TranslateResult> {
+  try {
+    const res = await fetch("/api/admin/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texts, sourceLang, targetLang }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { error: data.error ?? `HTTP ${res.status}` };
+    if (!data.translations) return { error: "Empty response" };
+    return { translations: data.translations };
+  } catch {
+    return { error: "Network error" };
+  }
+}
 
 interface WorkEditorProps {
   work?: Work;
@@ -176,22 +199,39 @@ const defaultForm: WorkFormData = {
   live_url: "",
   github_url: "",
   published: false,
-  sort_order: 0,
+  sort_order: 1,
 };
 
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { tLang } = useLanguage();
   const isEdit = !!work;
 
-  const tw = (key: string) => t(`admin.works.editor.${key}`);
-
   const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
+
+  const tw = useCallback(
+    (key: string) => tLang(`admin.works.editor.${key}`, editorLang),
+    [tLang, editorLang],
+  );
+  const [translating, setTranslating] = useState(false);
 
   const [form, setForm] = useState<WorkFormData>(() => {
     if (!work) return defaultForm;
     return workToFormData(work);
   });
+
+  const [revisions, setRevisions] = useState<{ timestamp: number; form: WorkFormData }[]>([]);
+  const [totalWorks, setTotalWorks] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/works?all=true")
+      .then((r) => r.json())
+      .then((d) => {
+        const count = d.total ?? (d.works?.length ?? 0);
+        setTotalWorks(isEdit ? count : count + 1);
+      })
+      .catch(() => {});
+  }, [isEdit]);
 
   const [techInput, setTechInput] = useState("");
   const [memberName, setMemberName] = useState("");
@@ -201,7 +241,57 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [status, setStatus] = useState("");
+  const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [error, setError] = useState("");
+
+  /* ── Auto-save (5s debounce, new + edit) ── */
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const autoSaveSkip = useRef(true);
+  const autoSaveBusy = useRef(false);
+  const savedId = useRef<string | undefined>(work?.id);
+  autoSaveBusy.current = saving || translating;
+
+  useEffect(() => {
+    if (autoSaveSkip.current) {
+      autoSaveSkip.current = false;
+      return;
+    }
+
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(async () => {
+      if (autoSaveBusy.current) return;
+      // 새 글은 제목이 있어야 자동 저장
+      if (!savedId.current && !form.title.trim()) return;
+
+      try {
+        const url = savedId.current
+          ? `/api/works/${savedId.current}`
+          : "/api/works";
+        const method = savedId.current ? "PATCH" : "POST";
+        const res = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        if (res.ok) {
+          if (!savedId.current) {
+            const data = await res.json();
+            savedId.current = data.id;
+          }
+          setRevisions((prev) =>
+            [{ timestamp: Date.now(), form: { ...form } }, ...prev].slice(0, 50),
+          );
+          setStatus(tw("autoSaved"));
+          setStatusType("success");
+        }
+      } catch {
+        // silent fail
+      }
+    }, 5000);
+
+    return () => clearTimeout(autoSaveTimer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
 
   const updateField = useCallback(
     <K extends keyof WorkFormData>(key: K, value: WorkFormData[K]) => {
@@ -236,6 +326,76 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       updateField("tech", form.tech.filter((t) => t !== tag));
     },
     [form.tech, updateField],
+  );
+
+  const TRANSLATABLE_FIELDS = ["subtitle", "category", "description", "role", "content"] as const;
+
+  const translateFields = useCallback(
+    async (fieldKeys: string[], lang: "ko" | "en") => {
+      const isToEn = lang === "en";
+      const srcSuf = isToEn ? "_ko" : "_en";
+      const dstSuf = isToEn ? "_en" : "_ko";
+      const sourceLang: "ko" | "en" = isToEn ? "ko" : "en";
+      const targetLang: "ko" | "en" = isToEn ? "en" : "ko";
+      const want = new Set(fieldKeys);
+
+      const activeFields = TRANSLATABLE_FIELDS.filter(
+        (f) => want.has(f) && form[`${f}${srcSuf}`]?.trim(),
+      );
+      const texts = activeFields.map((f) => form[`${f}${srcSuf}`]) as string[];
+
+      if (texts.length === 0) return;
+
+      setTranslating(true);
+      setStatus(tLang("admin.works.editor.translating", lang));
+      setStatusType("info");
+
+      const result = await autoTranslate(texts, sourceLang, targetLang);
+      setTranslating(false);
+
+      if ("translations" in result) {
+        const patch: Partial<WorkFormData> = {};
+        activeFields.forEach((f, i) => {
+          patch[`${f}${dstSuf}` as keyof WorkFormData] = result.translations[i] as never;
+        });
+        setForm((prev) => ({ ...prev, ...patch }));
+        setStatus(tLang("admin.works.editor.autoTranslated", lang));
+        setStatusType("success");
+      } else {
+        setError(result.error);
+      }
+    },
+    [form, tLang],
+  );
+
+  const handleEditorLangChange = useCallback(
+    async (newLang: "ko" | "en") => {
+      if (translating) return;
+      setEditorLang(newLang);
+
+      const isToEn = newLang === "en";
+      const srcSuf = isToEn ? "_ko" : "_en";
+      const dstSuf = isToEn ? "_en" : "_ko";
+
+      const hasSrc = TRANSLATABLE_FIELDS.some((f) => form[`${f}${srcSuf}`]?.trim());
+      const hasDst = TRANSLATABLE_FIELDS.some((f) => form[`${f}${dstSuf}`]?.trim());
+
+      if (hasSrc && !hasDst) {
+        await translateFields(
+          TRANSLATABLE_FIELDS.slice(),
+          newLang,
+        );
+      }
+    },
+    [form, translating, translateFields],
+  );
+
+  const handleRetranslate = useCallback(
+    async (fieldKeys?: string[]) => {
+      if (translating) return;
+      await translateFields(fieldKeys ?? TRANSLATABLE_FIELDS.slice(), editorLang);
+    },
+    [translating, editorLang, translateFields],
   );
 
   const addMember = useCallback(() => {
@@ -352,18 +512,34 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   const handleSave = useCallback(
     async (publish?: boolean) => {
+      const willPublish = publish !== undefined ? publish : form.published;
+
+      if (willPublish) {
+        const missing: string[] = [];
+        if (!form.title.trim()) missing.push(tw("title"));
+        if (!form.category_ko.trim()) missing.push(tw("category"));
+        if (!form.year.trim()) missing.push(tw("year"));
+        if (!form.image.trim()) missing.push(tw("mainImage"));
+        if (missing.length > 0) {
+          setError(`${tw("requiredFields")}: ${missing.join(", ")}`);
+          return;
+        }
+      }
+
       setSaving(true);
       setError("");
       setStatus("");
 
       const body = {
         ...form,
-        published: publish !== undefined ? publish : form.published,
+        published: willPublish,
       };
 
       try {
-        const url = isEdit ? `/api/works/${work!.id}` : "/api/works";
-        const method = isEdit ? "PATCH" : "POST";
+        const url = savedId.current
+          ? `/api/works/${savedId.current}`
+          : "/api/works";
+        const method = savedId.current ? "PATCH" : "POST";
 
         const res = await fetch(url, {
           method,
@@ -377,6 +553,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           setError(data.error ?? tw("saveFailed"));
           return;
         }
+
+        if (!savedId.current) savedId.current = data.id;
 
         router.push("/admin/works");
       } catch {
@@ -408,6 +586,18 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     window.open("/admin/works/preview", "_blank");
   }, [form]);
 
+  const handleRestoreRevision = useCallback(
+    (index: number) => {
+      const rev = revisions[index];
+      if (rev) {
+        setForm(rev.form);
+        setStatus(tw("restored"));
+        setStatusType("success");
+      }
+    },
+    [revisions, tw],
+  );
+
   const shellLabels = useMemo(
     () => ({
       delete: tw("delete"),
@@ -417,7 +607,22 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       saveDraft: tw("saveDraft"),
       update: tw("update"),
       publish: tw("publish"),
+      revisionHistory: tw("revisionHistory"),
+      restore: tw("restore"),
+      retranslate: tw("retranslate"),
+      retranslateAll: tw("retranslateAll"),
     }),
+    [tw],
+  );
+
+  const retranslateOptions = useMemo(
+    () => [
+      { key: "subtitle", label: tw("subtitle") },
+      { key: "category", label: tw("category") },
+      { key: "description", label: tw("description") },
+      { key: "role", label: tw("role") },
+      { key: "content", label: tw("content") },
+    ],
     [tw],
   );
 
@@ -429,9 +634,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       backHref="/admin/works"
       backLabel={tw("backToWorks")}
       editorLang={editorLang}
-      onEditorLangChange={setEditorLang}
+      onEditorLangChange={handleEditorLangChange}
       isEdit={isEdit}
-      saving={saving}
+      saving={saving || translating}
       deleting={deleting}
       published={form.published}
       onDelete={handleDelete}
@@ -439,8 +644,18 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       onPublish={() => handleSave(true)}
       onPreview={handlePreview}
       status={status}
+      statusType={statusType}
       error={error}
       labels={shellLabels}
+      revisions={revisions.map((r) => ({
+        timestamp: r.timestamp,
+        title: r.form.title,
+        excerpt: r.form.description_ko || r.form.description_en || "",
+        content: r.form.content_ko || r.form.content_en || "",
+      }))}
+      onRestoreRevision={handleRestoreRevision}
+      onRetranslate={handleRetranslate}
+      retranslateOptions={retranslateOptions}
     >
       {/* Basic Info */}
       <div className={styles.section}>
@@ -479,81 +694,75 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           </div>
           <div className={es.field}>
             <label className={es.fieldLabel}>{tw("sortOrder")}</label>
-            <input
-              className={es.fieldInput}
-              type="number"
-              value={form.sort_order}
-              onChange={(e) => updateField("sort_order", parseInt(e.target.value) || 0)}
+            <Select
+              value={String(form.sort_order)}
+              options={
+                totalWorks > 0
+                  ? Array.from({ length: totalWorks }, (_, i) => ({
+                      value: String(i + 1),
+                      label: String(i + 1),
+                    }))
+                  : [{ value: String(form.sort_order), label: String(form.sort_order) }]
+              }
+              onChange={(v) => updateField("sort_order", parseInt(v) || 1)}
             />
           </div>
         </div>
 
         <div className={es.row}>
           <div className={es.field}>
-            <label className={es.fieldLabel}>
-              {editorLang === "en" ? tw("subtitleEN") : tw("subtitle")}
-            </label>
+            <label className={es.fieldLabel}>{tw("subtitle")}</label>
             <input
               className={es.fieldInput}
               type="text"
               value={form[`subtitle${suf}`]}
               onChange={(e) => updateField(`subtitle${suf}`, e.target.value)}
-              placeholder={editorLang === "ko" ? tw("subtitlePlaceholder") : tw("subtitlePlaceholderEN")}
+              placeholder={tw("subtitlePlaceholder")}
             />
           </div>
           <div className={es.field}>
-            <label className={es.fieldLabel}>
-              {editorLang === "en" ? tw("categoryEN") : tw("category")}
-            </label>
+            <label className={es.fieldLabel}>{tw("category")}</label>
             <input
               className={es.fieldInput}
               type="text"
               value={form[`category${suf}`]}
               onChange={(e) => updateField(`category${suf}`, e.target.value)}
-              placeholder={editorLang === "ko" ? tw("categoryPlaceholder") : tw("categoryPlaceholderEN")}
+              placeholder={tw("categoryPlaceholder")}
             />
           </div>
         </div>
 
         <div className={es.row}>
           <div className={es.field}>
-            <label className={es.fieldLabel}>
-              {editorLang === "en" ? tw("roleEN") : tw("role")}
-            </label>
+            <label className={es.fieldLabel}>{tw("role")}</label>
             <input
               className={es.fieldInput}
               type="text"
               value={form[`role${suf}`]}
               onChange={(e) => updateField(`role${suf}`, e.target.value)}
-              placeholder={editorLang === "ko" ? tw("rolePlaceholder") : tw("rolePlaceholderEN")}
+              placeholder={tw("rolePlaceholder")}
             />
           </div>
           <div className={es.field}>
             <label className={es.fieldLabel}>{tw("cardSize")}</label>
-            <select
-              className={styles.fieldSelect}
+            <Select
               value={form.size}
-              onChange={(e) => updateField("size", e.target.value as WorkFormData["size"])}
-            >
-              {SIZES.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
+              options={SIZES.map((s) => ({ value: s, label: s }))}
+              onChange={(v) => updateField("size", v as WorkFormData["size"])}
+            />
           </div>
         </div>
       </div>
 
       {/* Description */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>
-          {editorLang === "en" ? tw("descriptionEN") : tw("description")}
-        </h2>
+        <h2 className={styles.sectionTitle}>{tw("description")}</h2>
         <div className={es.field}>
           <textarea
             className={styles.fieldTextarea}
             value={form[`description${suf}`]}
             onChange={(e) => updateField(`description${suf}`, e.target.value)}
-            placeholder={editorLang === "ko" ? tw("descPlaceholder") : tw("descPlaceholderEN")}
+            placeholder={tw("descPlaceholder")}
             rows={3}
           />
         </div>
@@ -564,7 +773,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <div className={styles.editorHeader}>
           <div className={styles.editorHeaderLeft}>
             <h2 className={styles.sectionTitle} style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
-              {editorLang === "en" ? tw("contentEN") : tw("content")}
+              {tw("content")}
             </h2>
             <button
               type="button"
@@ -588,6 +797,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               onChange={(v) => updateField(contentKey, v)}
               onImageUpload={handleContentImageUpload}
               compact
+              editLabel={tw("editorLabel")}
+              previewLabel={tw("previewLabel")}
             />
           ) : (
             <RichTextEditor
