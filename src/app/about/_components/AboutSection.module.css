@@ -2924,10 +2924,10 @@
 }
 
 /* ==========================================================================
-   User Flow Panel — SVG Diagram
+   User Flow Panel — Pinned Scroll + 2-column layout
    ========================================================================== */
 
-/* ── Tabs ── */
+/* ── Tabs (accent 단색) ── */
 
 .ufTabs {
   display: flex;
@@ -2935,6 +2935,7 @@
   overflow-x: auto;
   scrollbar-width: none;
   flex-shrink: 0;
+  margin-bottom: var(--spacing-xs);
 }
 
 .ufTabs::-webkit-scrollbar {
@@ -2947,12 +2948,12 @@
   gap: var(--spacing-xs);
   padding: var(--spacing-2xs) var(--spacing-md);
   border-radius: var(--radius-capsule);
-  border: 1px solid color-mix(in srgb, var(--_tab-color) 25%, transparent);
+  border: 1px solid color-mix(in srgb, var(--_uf-color) 25%, transparent);
   background: transparent;
   font-family: var(--font-mono);
   font-size: var(--_fs-label);
   font-weight: var(--font-weight-semibold);
-  color: var(--_tab-color);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   cursor: pointer;
@@ -2965,19 +2966,20 @@
 }
 
 .ufTab:hover {
-  background: color-mix(in srgb, var(--_tab-color) 8%, transparent);
+  background: color-mix(in srgb, var(--_uf-color) 8%, transparent);
 }
 
 .ufTabActive {
-  background: color-mix(in srgb, var(--_tab-color) 12%, transparent);
-  border-color: var(--_tab-color);
+  background: color-mix(in srgb, var(--_uf-color) 12%, transparent);
+  border-color: var(--_uf-color);
+  color: var(--_uf-color);
 }
 
 .ufTabDot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--_tab-color);
+  background: currentColor;
   flex-shrink: 0;
 }
 
@@ -2993,7 +2995,7 @@
 /* ── Flow Description ── */
 
 .ufFlowDesc {
-  margin: var(--spacing-sm) 0 0;
+  margin: 0 0 var(--spacing-md);
   font-family: var(--_font-grotesk);
   font-size: var(--_fs-small);
   color: var(--text-tertiary);
@@ -3001,10 +3003,19 @@
   flex-shrink: 0;
 }
 
-/* ── Diagram Wrapper ── */
+/* ── Body: 2-column (chart left, detail right) ── */
 
-.ufDiagramWrap {
+.ufBody {
+  display: flex;
+  gap: clamp(2rem, 4vw, 5rem);
   flex: 1;
+  min-height: 0;
+  align-items: center;
+}
+
+/* Left column: SVG chart */
+.ufChartCol {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3013,8 +3024,9 @@
 }
 
 .ufSvg {
-  width: 100%;
-  max-height: 100%;
+  width: auto;
+  height: 100%;
+  max-height: calc(100vh - 280px);
 }
 
 /* ── SVG: dot grid ── */
@@ -3028,48 +3040,56 @@
 
 .ufEdge {
   fill: none;
-  stroke: color-mix(in srgb, var(--_uf-color) 20%, transparent);
+  stroke: color-mix(in srgb, var(--_uf-color) 15%, transparent);
   stroke-width: 1.5;
   stroke-dasharray: 6 4;
-  animation: ufDash 1s linear infinite;
 }
 
-.ufEdgeLit {
+.ufEdgeReached {
   stroke: color-mix(in srgb, var(--_uf-color) 60%, transparent);
   stroke-width: 2;
+  stroke-dasharray: none;
+  animation: ufDash 1s linear infinite;
 }
 
 @keyframes ufDash {
   to { stroke-dashoffset: -20; }
 }
 
-/* ── SVG: node group ── */
+/* ── SVG: node group — state-based (done / active / future) ── */
 
-.ufGNode {
+.ufNode {
   cursor: pointer;
 }
 
 .ufNRect {
   fill: var(--bg-primary);
-  stroke: color-mix(in srgb, var(--_uf-color) 20%, transparent);
+  stroke: color-mix(in srgb, var(--_uf-color) 15%, transparent);
   stroke-width: 1;
 }
 
-.ufGNode .ufNRect {
-  transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.15s ease;
+.ufNode .ufNRect {
+  transition: fill 0.35s ease, stroke 0.35s ease, stroke-width 0.2s ease, filter 0.35s ease;
 }
 
-.ufGNodeHov .ufNRect {
+/* Done state: filled accent */
+.ufNodeDone .ufNRect {
+  fill: color-mix(in srgb, var(--_uf-color) 10%, transparent);
   stroke: color-mix(in srgb, var(--_uf-color) 50%, transparent);
   stroke-width: 1.5;
-  filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--_uf-color) 15%, transparent));
 }
 
-.ufGNodeSel .ufNRect {
+/* Active state: highlighted glow */
+.ufNodeActive .ufNRect {
   stroke: var(--_uf-color);
   stroke-width: 2;
-  fill: color-mix(in srgb, var(--_uf-color) 6%, transparent);
-  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--_uf-color) 20%, transparent));
+  fill: color-mix(in srgb, var(--_uf-color) 8%, transparent);
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--_uf-color) 25%, transparent));
+}
+
+/* Future state: faded */
+.ufNodeFuture .ufNRect {
+  opacity: 0.5;
 }
 
 .ufNNum {
@@ -3077,10 +3097,15 @@
   font-size: 10px;
   font-weight: var(--font-weight-semibold);
   fill: var(--_uf-color);
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
-.ufGNodeSel .ufNNum {
+.ufNode .ufNNum {
+  transition: opacity 0.35s ease;
+}
+
+.ufNodeDone .ufNNum,
+.ufNodeActive .ufNNum {
   opacity: 1;
 }
 
@@ -3088,31 +3113,46 @@
   font-family: var(--_font-grotesk);
   font-size: 13px;
   font-weight: var(--font-weight-semibold);
+  fill: var(--text-tertiary);
+}
+
+.ufNode .ufNLabel {
+  transition: fill 0.35s ease;
+}
+
+.ufNodeDone .ufNLabel {
   fill: var(--text-secondary);
 }
 
-.ufGNodeSel .ufNLabel {
+.ufNodeActive .ufNLabel {
   fill: var(--text-primary);
 }
 
 /* ── Terminal nodes (START / END) ── */
 
 .ufNRectTerminal {
-  fill: var(--_uf-color);
   stroke: var(--_uf-color);
   stroke-width: 1;
 }
 
-.ufGNode .ufNRectTerminal {
-  transition: fill 0.2s ease, stroke 0.2s ease, filter 0.2s ease;
+.ufNode .ufNRectTerminal {
+  transition: fill 0.35s ease, filter 0.35s ease;
 }
 
-.ufGNodeHov .ufNRectTerminal {
-  filter: drop-shadow(0 4px 12px color-mix(in srgb, var(--_uf-color) 30%, transparent));
+/* Terminal default: outlined only */
+.ufNodeFuture .ufNRectTerminal {
+  fill: var(--bg-primary);
+  opacity: 0.5;
 }
 
-.ufGNodeSel .ufNRectTerminal {
-  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--_uf-color) 40%, transparent));
+/* Terminal done/active: solid fill */
+.ufNodeDone .ufNRectTerminal,
+.ufNodeActive .ufNRectTerminal {
+  fill: var(--_uf-color);
+}
+
+.ufNodeActive .ufNRectTerminal {
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--_uf-color) 35%, transparent));
 }
 
 .ufNNumTerminal {
@@ -3125,6 +3165,10 @@
   letter-spacing: 0.15em;
 }
 
+.ufNodeFuture .ufNNumTerminal {
+  fill: var(--_uf-color);
+}
+
 .ufNLabelTerminal {
   font-family: var(--_font-grotesk);
   font-size: 13px;
@@ -3132,17 +3176,44 @@
   fill: var(--bg-primary);
 }
 
-/* ── Detail Panel ── */
+.ufNodeFuture .ufNLabelTerminal {
+  fill: var(--_uf-color);
+}
 
-.ufDetail {
-  flex-shrink: 0;
+/* ── Right column: Detail pane (slide stack) ── */
+
+.ufDetailCol {
+  flex: 1;
+  position: relative;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.ufDetailPane {
+  position: absolute;
+  inset: 0;
   display: flex;
-  align-items: baseline;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--_uf-color) 20%, transparent);
-  background: color-mix(in srgb, var(--_uf-color) 4%, transparent);
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  pointer-events: none;
+  transform: translateY(60px);
+  opacity: 0;
+}
+
+.ufDetailCol .ufDetailPane {
+  transition: transform 0.5s var(--ease-material), opacity 0.4s ease;
+}
+
+.ufDetailPanePast {
+  transform: translateY(-60px);
+  opacity: 0;
+}
+
+.ufDetailPaneActive {
+  pointer-events: auto;
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .ufDetailNum {
@@ -3150,25 +3221,26 @@
   font-size: var(--_fs-label);
   font-weight: var(--font-weight-semibold);
   color: var(--_uf-color);
-  flex-shrink: 0;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .ufDetailTitle {
+  margin: 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-body);
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
-  flex-shrink: 0;
+  line-height: 1.3;
 }
 
 .ufDetailDesc {
-  margin: 0;
+  margin: var(--spacing-xs) 0 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-small);
+  font-size: var(--_fs-body);
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.6;
+  max-width: 480px;
 }
 
 /* ── Mobile List (hidden on desktop) ── */
@@ -3179,38 +3251,91 @@
 
 .ufMobileStep {
   display: flex;
-  gap: var(--spacing-md);
-  align-items: flex-start;
-  padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--_uf-color) 15%, transparent);
-}
-
-.ufMobileStep:last-child {
-  border-bottom: none;
-}
-
-.ufMobileNum {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: var(--font-weight-semibold);
-  color: var(--_uf-color);
+  gap: var(--spacing-sm);
+  align-items: stretch;
   flex-shrink: 0;
-  padding-top: 2px;
+}
+
+/* Connector (vertical line + dot) */
+.ufMobileConnector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.ufMobileDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--_uf-color) 30%, transparent);
+  background: var(--bg-primary);
+  flex-shrink: 0;
+}
+
+.ufMobileStep .ufMobileDot {
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.ufMobileDotFilled {
+  background: var(--_uf-color);
+  border-color: var(--_uf-color);
+}
+
+.ufMobileLine {
+  flex: 1;
+  width: 2px;
+  background: color-mix(in srgb, var(--_uf-color) 15%, transparent);
+  margin: 4px 0;
+}
+
+.ufMobileStep .ufMobileLine {
+  transition: background 0.3s ease;
+}
+
+.ufMobileLineFilled {
+  background: color-mix(in srgb, var(--_uf-color) 50%, transparent);
+}
+
+/* Content */
+.ufMobileContent {
+  flex: 1;
+  padding: 2px 0 var(--spacing-md);
 }
 
 .ufMobileLabel {
   font-family: var(--_font-grotesk);
   font-size: var(--_fs-small);
   font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+}
+
+.ufMobileStep .ufMobileLabel {
+  transition: color 0.3s ease;
+}
+
+.ufMobileStepDone .ufMobileLabel {
+  color: var(--text-secondary);
+}
+
+.ufMobileStepActive .ufMobileLabel {
   color: var(--text-primary);
 }
 
 .ufMobileDesc {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   font-family: var(--_font-grotesk);
   font-size: var(--_fs-caption);
-  color: var(--text-tertiary);
-  line-height: 1.4;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  animation: ufFadeIn 0.4s ease;
+}
+
+@keyframes ufFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ==========================================================================
@@ -4256,11 +4381,7 @@
     flex-wrap: wrap;
   }
 
-  .ufDiagramWrap {
-    display: none;
-  }
-
-  .ufDetail {
+  .ufBody {
     display: none;
   }
 
