@@ -105,11 +105,7 @@ export default function Navigation() {
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
   const { isLoading, isTransitioning } = useLoadingScreen();
-  const { isMuted, toggleMute, hydrate: hydrateSound } = useSoundStore();
-
-  useEffect(() => {
-    hydrateSound();
-  }, [hydrateSound]);
+  const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
   const { stop: lenisStop, start: lenisStart } = useLenis();
 
@@ -263,10 +259,24 @@ export default function Navigation() {
   const isSoundLocked = useRef(false);
   const showMutedIcon = isSoundLocked.current ? isMuted : isMuted !== isSoundHovered;
 
+  // 사운드 툴팁 (로딩 완료 후 매번 표시)
+  const [showSoundTip, setShowSoundTip] = useState(false);
+  const soundTipTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    if (isAdminPage || isLoading || isTransitioning) return;
+    soundTipTimer.current = setTimeout(() => {
+      setShowSoundTip(true);
+      soundTipTimer.current = setTimeout(() => setShowSoundTip(false), 5000);
+    }, 2000);
+    return () => { if (soundTipTimer.current) clearTimeout(soundTipTimer.current); };
+  }, [isAdminPage, isLoading, isTransitioning]);
+
   const handleSoundToggle = () => {
     if (isSoundClicking) return;
     setIsSoundClicking(true);
     isSoundLocked.current = true;
+    setShowSoundTip(false);
     toggleMute();
     setTimeout(() => setIsSoundClicking(false), 300);
   };
@@ -510,29 +520,36 @@ export default function Navigation() {
 
         {/* 사운드 토글 — admin에서 숨김 */}
         {!isAdminPage && (
-          <button
-            className={styles.actionBtn}
-            onClick={handleSoundToggle}
-            onMouseEnter={() => setIsSoundHovered(true)}
-            onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
-            aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
-          >
-            <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
-              <svg
-                className={`${styles.soundIcon} ${showMutedIcon ? styles.soundIconMuted : ""}`}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <path d="M11 5L6 9H2v6h4l5 4V5z" />
-                <path className={styles.waveOuter} d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-                <path className={styles.waveInner} d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                <line className={styles.xLine} x1="23" y1="9" x2="17" y2="15" />
-                <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
-              </svg>
-            </span>
-          </button>
+          <div className={styles.soundBtnWrap}>
+            <button
+              className={styles.actionBtn}
+              onClick={handleSoundToggle}
+              onMouseEnter={() => { setIsSoundHovered(true); setShowSoundTip(false); }}
+              onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
+              aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
+            >
+              <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
+                <svg
+                  className={`${styles.soundIcon} ${showMutedIcon ? styles.soundIconMuted : ""}`}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                  <path className={styles.waveOuter} d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                  <path className={styles.waveInner} d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <line className={styles.xLine} x1="23" y1="9" x2="17" y2="15" />
+                  <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
+                </svg>
+              </span>
+            </button>
+            {showSoundTip && (
+              <span className={styles.soundTip} onClick={() => setShowSoundTip(false)}>
+                {language === "ko" ? "BGM을 켤 수 있어요" : "Enable BGM"}
+              </span>
+            )}
+          </div>
         )}
 
         {/* 테마 토글 */}

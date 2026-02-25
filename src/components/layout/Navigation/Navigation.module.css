@@ -158,6 +158,45 @@
   color: var(--text-black);
 }
 
+.soundBtnWrap {
+  position: relative;
+}
+
+.soundTip {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm, 6px);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: soundTipIn 0.4s var(--ease-material) both;
+  z-index: 100;
+}
+
+.soundTip::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  background: var(--text-primary);
+  transform: rotate(45deg);
+}
+
+@keyframes soundTipIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .soundIconWrapper {
   display: flex;
   align-items: center;
