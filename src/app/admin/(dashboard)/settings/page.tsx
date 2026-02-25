@@ -32,31 +32,39 @@ const THEME_PRESETS: { name: string; theme: SiteConfigData["theme"] }[] = [
   },
   {
     name: "Petal",
-    theme: { accentColor: "#fb6f92", lightBg: "#ffe5ec", lightText: "#ff8fab", darkBg: "#ffb3c6", darkText: "#ffc2d1" },
+    theme: { accentColor: "#fb6f92", lightBg: "#ffe5ec", lightText: "#5c1a30", darkBg: "#1a0810", darkText: "#ffc2d1" },
   },
   {
     name: "Honey",
-    theme: { accentColor: "#f6bd60", lightBg: "#f7ede2", lightText: "#84a59d", darkBg: "#f28482", darkText: "#f5cac3" },
+    theme: { accentColor: "#f6bd60", lightBg: "#f7ede2", lightText: "#3d2e1e", darkBg: "#1c130e", darkText: "#f5cac3" },
   },
   {
     name: "Blush",
-    theme: { accentColor: "#f4acb7", lightBg: "#ffe5d9", lightText: "#9d8189", darkBg: "#ffcad4", darkText: "#d8e2dc" },
+    theme: { accentColor: "#f4acb7", lightBg: "#ffe5d9", lightText: "#5a3340", darkBg: "#1a0e14", darkText: "#d8e2dc" },
   },
   {
     name: "Sand",
-    theme: { accentColor: "#d8a48f", lightBg: "#efebce", lightText: "#a3a380", darkBg: "#bb8588", darkText: "#d6ce93" },
+    theme: { accentColor: "#d8a48f", lightBg: "#efebce", lightText: "#3e3c28", darkBg: "#18170e", darkText: "#d6ce93" },
   },
   {
     name: "Dusk",
-    theme: { accentColor: "#68a691", lightBg: "#ffe5d4", lightText: "#694f5d", darkBg: "#bfd3c1", darkText: "#efc7c2" },
+    theme: { accentColor: "#68a691", lightBg: "#ffe5d4", lightText: "#3d2b33", darkBg: "#101c16", darkText: "#efc7c2" },
   },
   {
     name: "Forest",
-    theme: { accentColor: "#588157", lightBg: "#dad7cd", lightText: "#344e41", darkBg: "#3a5a40", darkText: "#a3b18a" },
+    theme: { accentColor: "#588157", lightBg: "#dad7cd", lightText: "#344e41", darkBg: "#1a2e1f", darkText: "#a3b18a" },
   },
   {
     name: "Harvest",
-    theme: { accentColor: "#dda15e", lightBg: "#fefae0", lightText: "#283618", darkBg: "#606c38", darkText: "#bc6c25" },
+    theme: { accentColor: "#dda15e", lightBg: "#fefae0", lightText: "#283618", darkBg: "#1a1e0e", darkText: "#fefae0" },
+  },
+  {
+    name: "Meadow",
+    theme: { accentColor: "#bc4749", lightBg: "#f2e8cf", lightText: "#386641", darkBg: "#141f12", darkText: "#a7c957" },
+  },
+  {
+    name: "Arctic",
+    theme: { accentColor: "#5fa8d3", lightBg: "#cae9ff", lightText: "#1b4965", darkBg: "#0c1e2e", darkText: "#bee9e8" },
   },
 ];
 
