@@ -23,6 +23,13 @@ type DeepPartial<T> = {
 
 const TAB_IDS = ["general", "content", "appearance", "services", "account"] as const;
 
+const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
+  general: ["site", "seo", "social"],
+  content: ["home", "works", "posts", "about"],
+  appearance: ["theme", "typography"],
+  services: ["emailService", "aiCover", "recaptcha", "translation"],
+};
+
 type TabId = (typeof TAB_IDS)[number];
 
 const THEME_PRESETS: { name: string; theme: SiteConfigData["theme"] }[] = [
@@ -81,6 +88,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const savedConfigRef = useRef<SiteConfigData>(structuredClone(siteConfig) as unknown as SiteConfigData);
+  const savedProfileRef = useRef<ProfileData>(structuredClone(profileDefaults));
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     if (typeof window === "undefined") return "general";
     const p = new URLSearchParams(window.location.search);
@@ -157,18 +166,24 @@ export default function SettingsPage() {
       fetch("/api/admin/account").then((r) => r.json()).catch(() => null),
     ]).then(([settingsRes, profileRes, accountRes]) => {
       if (settingsRes?.config && Object.keys(settingsRes.config).length > 0) {
-        setConfig((prev) => deepMerge(prev, settingsRes.config));
+        setConfig((prev) => {
+          const merged = deepMerge(prev, settingsRes.config);
+          savedConfigRef.current = structuredClone(merged) as SiteConfigData;
+          return merged;
+        });
       }
       if (profileRes?.config) {
         const c = profileRes.config as Partial<ProfileData>;
-        setProfileData({
+        const loaded: ProfileData = {
           experiences: c.experiences ?? profileDefaults.experiences,
           skillGroups: c.skillGroups ?? profileDefaults.skillGroups,
           philosophy: c.philosophy ?? profileDefaults.philosophy,
           approachSteps: c.approachSteps ?? profileDefaults.approachSteps,
           certifications: c.certifications ?? profileDefaults.certifications,
           awards: c.awards ?? profileDefaults.awards,
-        });
+        };
+        setProfileData(loaded);
+        savedProfileRef.current = structuredClone(loaded);
       }
       if (accountRes?.email) {
         setAccountEmail(accountRes.email);
@@ -181,30 +196,48 @@ export default function SettingsPage() {
     setSaving(true);
     setMessage("");
     try {
-      const [settingsRes, profileRes] = await Promise.all([
+      // 현재 탭의 config 키만 saved 위에 덮어씀
+      const keys = TAB_CONFIG_KEYS[activeTab] ?? [];
+      const merged = { ...savedConfigRef.current } as Record<string, unknown>;
+      for (const key of keys) {
+        merged[key] = config[key];
+      }
+      const mergedConfig = merged as unknown as SiteConfigData;
+
+      const promises: Promise<Response>[] = [
         fetch("/api/admin/settings", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ config }),
+          body: JSON.stringify({ config: mergedConfig }),
         }),
-        fetch("/api/admin/profile", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(profileData),
-        }),
-      ]);
-      if (!settingsRes.ok) {
-        const body = await settingsRes.json().catch(() => null);
-        throw new Error(body?.error ?? `HTTP ${settingsRes.status}`);
+      ];
+      // profile은 content 탭에서만 저장
+      if (activeTab === "content") {
+        promises.push(
+          fetch("/api/admin/profile", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(profileData),
+          }),
+        );
       }
-      if (!profileRes.ok) {
-        const body = await profileRes.json().catch(() => null);
-        throw new Error(body?.error ?? `Profile save: HTTP ${profileRes.status}`);
+
+      const results = await Promise.all(promises);
+      for (const res of results) {
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          throw new Error(body?.error ?? `HTTP ${res.status}`);
+        }
       }
+
+      // 저장 성공 → saved ref 갱신
+      savedConfigRef.current = structuredClone(mergedConfig);
+      if (activeTab === "content") {
+        savedProfileRef.current = structuredClone(profileData);
+      }
+
       setMessage(t("admin.settings.saveSuccess"));
-      // 서버 컴포넌트 재실행 → siteConfig 갱신 → ThemeProvider 반영
       router.refresh();
-      // 다른 탭/페이지에 설정 변경 알림
       try {
         const bc = new BroadcastChannel("settings-updated");
         bc.postMessage({ type: "settings-updated", timestamp: Date.now() });
@@ -217,7 +250,7 @@ export default function SettingsPage() {
     } finally {
       setSaving(false);
     }
-  }, [config, profileData, t, router]);
+  }, [activeTab, config, profileData, t, router]);
 
   const update = <S extends keyof SiteConfigData>(
     section: S,
@@ -280,20 +313,24 @@ export default function SettingsPage() {
               {message}
             </span>
           )}
-          <button
-            type="button"
-            className={styles.resetBtn}
-            onClick={() => setConfig(structuredClone(siteConfig) as unknown as SiteConfigData)}
-          >
-            {t("admin.settings.reset")}
-          </button>
-          <button
-            className={styles.saveBtn}
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? t("admin.settings.saving") : t("admin.settings.save")}
-          </button>
+          {activeTab !== "account" && (
+            <>
+              <button
+                type="button"
+                className={styles.resetBtn}
+                onClick={() => setConfig(structuredClone(siteConfig) as unknown as SiteConfigData)}
+              >
+                {t("admin.settings.reset")}
+              </button>
+              <button
+                className={styles.saveBtn}
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? t("admin.settings.saving") : t("admin.settings.save")}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -308,6 +345,8 @@ export default function SettingsPage() {
                 onClick={() => {
                   setActiveTab(id);
                   if (id === "content") setContentSubTab("home");
+                  setConfig(structuredClone(savedConfigRef.current));
+                  setProfileData(structuredClone(savedProfileRef.current));
                 }}
               >
                 {t(`admin.settings.tabs.${id}`)}
@@ -319,7 +358,12 @@ export default function SettingsPage() {
                       key={sub}
                       type="button"
                       className={`${styles.navSubItem} ${activeTab === "content" && contentSubTab === sub ? styles.navSubItemActive : ""}`}
-                      onClick={() => { setActiveTab("content"); setContentSubTab(sub); }}
+                      onClick={() => {
+                        setActiveTab("content");
+                        setContentSubTab(sub);
+                        setConfig(structuredClone(savedConfigRef.current));
+                        setProfileData(structuredClone(savedProfileRef.current));
+                      }}
                     >
                       {t(`admin.settings.contentSub.${sub}`)}
                     </button>
@@ -806,6 +850,34 @@ export default function SettingsPage() {
 
           {activeTab === "account" && (
             <>
+              <div className={styles.accountActions}>
+                {accountMessage && (
+                  <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
+                    {accountMessage}
+                  </span>
+                )}
+                <button
+                  className={styles.saveBtn}
+                  disabled={accountSaving}
+                  onClick={() => {
+                    if (accountPassword && accountPassword !== accountConfirm) {
+                      setAccountMessage(t("admin.settings.passwordMismatch"));
+                      return;
+                    }
+                    const hasEmailChange = accountNewEmail !== accountEmail && accountNewEmail.trim() !== "";
+                    const hasPasswordChange = !!accountPassword;
+                    if (!hasEmailChange && !hasPasswordChange) {
+                      setAccountMessage(t("admin.settings.noChanges"));
+                      return;
+                    }
+                    setAccountMessage("");
+                    setShowPasswordConfirm(true);
+                  }}
+                >
+                  {accountSaving ? t("admin.settings.saving") : t("admin.settings.updateAccount")}
+                </button>
+              </div>
+
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("admin.settings.email")}</h2>
                 <div className={styles.fields}>
@@ -846,34 +918,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </section>
-
-              <div className={styles.accountActions}>
-                {accountMessage && (
-                  <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
-                    {accountMessage}
-                  </span>
-                )}
-                <button
-                  className={styles.saveBtn}
-                  disabled={accountSaving}
-                  onClick={() => {
-                    if (accountPassword && accountPassword !== accountConfirm) {
-                      setAccountMessage(t("admin.settings.passwordMismatch"));
-                      return;
-                    }
-                    const hasEmailChange = accountNewEmail !== accountEmail && accountNewEmail.trim() !== "";
-                    const hasPasswordChange = !!accountPassword;
-                    if (!hasEmailChange && !hasPasswordChange) {
-                      setAccountMessage(t("admin.settings.noChanges"));
-                      return;
-                    }
-                    setAccountMessage("");
-                    setShowPasswordConfirm(true);
-                  }}
-                >
-                  {accountSaving ? t("admin.settings.saving") : t("admin.settings.updateAccount")}
-                </button>
-              </div>
 
               {/* Password Confirm Dialog */}
               {showPasswordConfirm && (
