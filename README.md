@@ -11,7 +11,7 @@
 - **3D**: Three.js, React Three Fiber, Drei
 - **Scroll**: Lenis Smooth Scroll
 - **Styling**: CSS Modules, CSS Variables
-- **Typography**: Instrument Serif, Space Grotesk (관리자 설정에서 Cormorant Garamond / DM Sans / Fira Code 등으로 변경 가능)
+- **Typography**: Instrument Serif, Space Grotesk, JetBrains Mono (관리자 설정에서 카테고리별 30+ 프리셋 + Google Fonts 직접 입력 지원)
 - **Backend**: Supabase (PostgreSQL, Auth, Storage)
 - **Editor**: Tiptap (WYSIWYG), Marked (Markdown)
 - **AI Image**: NanoBanana / Hugging Face (설정으로 선택)

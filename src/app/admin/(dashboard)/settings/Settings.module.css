@@ -1141,6 +1141,28 @@
   letter-spacing: 0.02em;
 }
 
+/* ── Custom Font Input ── */
+.fontCustomInput {
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px dashed var(--border-secondary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.fieldRow .fontCustomInput:focus {
+  border-style: solid;
+  border-color: var(--text-primary);
+}
+
+.fontCustomInput::placeholder {
+  color: var(--text-tertiary);
+}
+
 /* ── Env Var Editor ── */
 .envInputRow {
   flex: 1;
