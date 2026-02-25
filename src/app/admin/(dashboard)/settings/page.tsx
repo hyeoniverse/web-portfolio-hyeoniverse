@@ -31,32 +31,32 @@ const THEME_PRESETS: { name: string; theme: SiteConfigData["theme"] }[] = [
     theme: { accentColor: "#d40063", lightBg: "#f5f5f0", lightText: "#1a1a1a", darkBg: "#0a0a0a", darkText: "#f5f5f0" },
   },
   {
-    name: "Coral",
-    theme: { accentColor: "#FF6B6B", lightBg: "#fafafa", lightText: "#1a1a1a", darkBg: "#141414", darkText: "#ececec" },
+    name: "Petal",
+    theme: { accentColor: "#fb6f92", lightBg: "#ffe5ec", lightText: "#ff8fab", darkBg: "#ffb3c6", darkText: "#ffc2d1" },
   },
   {
-    name: "Indigo",
-    theme: { accentColor: "#6C63FF", lightBg: "#f5f5f5", lightText: "#1c1c1c", darkBg: "#121212", darkText: "#e8e8e8" },
+    name: "Honey",
+    theme: { accentColor: "#f6bd60", lightBg: "#f7ede2", lightText: "#84a59d", darkBg: "#f28482", darkText: "#f5cac3" },
   },
   {
-    name: "Emerald",
-    theme: { accentColor: "#10B981", lightBg: "#fafaf9", lightText: "#1b1b18", darkBg: "#161616", darkText: "#e5e5e5" },
+    name: "Blush",
+    theme: { accentColor: "#f4acb7", lightBg: "#ffe5d9", lightText: "#9d8189", darkBg: "#ffcad4", darkText: "#d8e2dc" },
   },
   {
-    name: "Amber",
-    theme: { accentColor: "#F59E0B", lightBg: "#fafafa", lightText: "#171717", darkBg: "#141414", darkText: "#eaeaea" },
+    name: "Sand",
+    theme: { accentColor: "#d8a48f", lightBg: "#efebce", lightText: "#a3a380", darkBg: "#bb8588", darkText: "#d6ce93" },
   },
   {
-    name: "Rose",
-    theme: { accentColor: "#F43F5E", lightBg: "#f8f8f8", lightText: "#1a1a1a", darkBg: "#131313", darkText: "#ededed" },
+    name: "Dusk",
+    theme: { accentColor: "#68a691", lightBg: "#ffe5d4", lightText: "#694f5d", darkBg: "#bfd3c1", darkText: "#efc7c2" },
   },
   {
-    name: "Cyan",
-    theme: { accentColor: "#06B6D4", lightBg: "#f5f5f5", lightText: "#1c1c1c", darkBg: "#111111", darkText: "#e6e6e6" },
+    name: "Forest",
+    theme: { accentColor: "#588157", lightBg: "#dad7cd", lightText: "#344e41", darkBg: "#3a5a40", darkText: "#a3b18a" },
   },
   {
-    name: "Lime",
-    theme: { accentColor: "#84CC16", lightBg: "#fafaf9", lightText: "#1a1a1a", darkBg: "#151515", darkText: "#e8e8e8" },
+    name: "Harvest",
+    theme: { accentColor: "#dda15e", lightBg: "#fefae0", lightText: "#283618", darkBg: "#606c38", darkText: "#bc6c25" },
   },
 ];
 
@@ -1147,7 +1147,10 @@ function FontSelect({
   const isCustom = !!value && !options.includes(value);
   const [customInput, setCustomInput] = useState(isCustom ? value : "");
 
-  const selectOptions = options.map((f) => ({ value: f, label: f }));
+  // 커스텀 폰트가 선택된 상태에서 프리셋 목록에 임시 항목 추가 (드롭다운 깨짐 방지)
+  const effectiveOptions = isCustom
+    ? [{ value, label: value }, ...options.map((f) => ({ value: f, label: f }))]
+    : options.map((f) => ({ value: f, label: f }));
 
   // 커스텀 폰트 프리뷰를 위해 동적 로드
   useEffect(() => {
@@ -1165,11 +1168,8 @@ function FontSelect({
     const trimmed = customInput.trim();
     if (trimmed) {
       onChange(trimmed);
-    } else {
-      // 인풋 비우면 프리셋 값 복원 (현재 value가 프리셋이면 유지, 아니면 첫 번째 프리셋)
-      if (!options.includes(value)) {
-        onChange(options[0]);
-      }
+    } else if (!options.includes(value)) {
+      onChange(options[0]);
     }
   };
 
@@ -1183,12 +1183,12 @@ function FontSelect({
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>{label}</label>
       <Select
-        value={isCustom ? "" : value}
-        options={selectOptions}
+        value={value}
+        options={effectiveOptions}
         onChange={handlePresetChange}
         renderValue={(opt) => (
-          <span style={{ fontFamily: getFontFamily(isCustom ? value : (opt?.value ?? "")) }}>
-            {isCustom ? value : (opt?.label ?? "")}
+          <span style={{ fontFamily: getFontFamily(opt?.value ?? "") }}>
+            {opt?.label ?? ""}
           </span>
         )}
         renderOption={(opt) => (
@@ -1203,16 +1203,26 @@ function FontSelect({
           </div>
         )}
       />
-      <input
-        type="text"
-        className={styles.fontCustomInput}
-        placeholder="Google Fonts 이름 직접 입력"
-        value={customInput}
-        onChange={(e) => setCustomInput(e.target.value)}
-        onBlur={handleCustomBlur}
-        onKeyDown={handleCustomKeyDown}
-        style={customInput ? { fontFamily: getFontFamily(customInput) } : undefined}
-      />
+      <div className={styles.fontCustomWrap}>
+        <input
+          type="text"
+          className={styles.fontCustomInput}
+          placeholder="Google Fonts 폰트 이름 입력 (예: Noto Sans KR)"
+          value={customInput}
+          onChange={(e) => setCustomInput(e.target.value)}
+          onBlur={handleCustomBlur}
+          onKeyDown={handleCustomKeyDown}
+          style={customInput ? { fontFamily: getFontFamily(customInput) } : undefined}
+        />
+        <a
+          href="https://fonts.google.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.fontCustomLink}
+        >
+          Google Fonts에서 찾기 ↗
+        </a>
+      </div>
     </div>
   );
 }
