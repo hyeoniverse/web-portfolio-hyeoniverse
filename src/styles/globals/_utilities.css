@@ -129,7 +129,7 @@
   background: linear-gradient(
     120deg,
     transparent 0%,
-    var(--color-gray-alpha-10) 50%,
+    var(--color-accent-alpha-15) 50%,
     transparent 100%
   );
   font-weight: var(--font-weight-medium);
@@ -139,7 +139,7 @@
   background: linear-gradient(
     120deg,
     transparent 0%,
-    var(--color-white-alpha-20) 50%,
+    var(--color-accent-alpha-30) 50%,
     transparent 100%
   );
 }
@@ -149,7 +149,7 @@
   background: linear-gradient(
     120deg,
     transparent 0%,
-    var(--color-gray-alpha-10) 50%,
+    var(--color-accent-alpha-10) 50%,
     transparent 100%
   );
   font-weight: var(--font-weight-medium);
@@ -160,7 +160,7 @@
   background: linear-gradient(
     120deg,
     transparent 0%,
-    rgba(255, 77, 166, 0.5) 50%,
+    var(--color-accent-alpha-30) 50%,
     transparent 100%
   );
   font-weight: var(--font-weight-medium);
@@ -170,7 +170,7 @@
   background: linear-gradient(
     120deg,
     transparent 0%,
-    rgba(255, 128, 194, 0.5) 50%,
+    var(--color-accent-alpha-50) 50%,
     transparent 100%
   );
 }
