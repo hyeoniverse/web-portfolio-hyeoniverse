@@ -10,6 +10,24 @@ import {
   Cormorant_Garamond,
   DM_Sans,
   Fira_Code,
+  Noto_Serif_KR,
+  Nanum_Myeongjo,
+  Gowun_Batang,
+  Noto_Sans_KR,
+  Gothic_A1,
+  IBM_Plex_Sans_KR,
+  Nanum_Gothic_Coding,
+  Hahmlet,
+  Sunflower,
+  Gowun_Dodum,
+  Song_Myung,
+  Diphylleia,
+  Grandiflora_One,
+  Nanum_Gothic,
+  Do_Hyeon,
+  Jua,
+  Dongle,
+  Orbit,
 } from "next/font/google";
 
 import LoadingScreen from "@/components/layout/LoadingScreen";
@@ -113,6 +131,128 @@ const firaCode = Fira_Code({
   variable: "--font-fira-code",
   display: "swap",
 });
+const notoSerifKR = Noto_Serif_KR({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-serif-kr",
+  display: "swap",
+  preload: false,
+});
+const nanumMyeongjo = Nanum_Myeongjo({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-nanum-myeongjo",
+  display: "swap",
+  preload: false,
+});
+const gowunBatang = Gowun_Batang({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-gowun-batang",
+  display: "swap",
+  preload: false,
+});
+const notoSansKR = Noto_Sans_KR({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-noto-sans-kr",
+  display: "swap",
+  preload: false,
+});
+const gothicA1 = Gothic_A1({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-gothic-a1",
+  display: "swap",
+  preload: false,
+});
+const ibmPlexSansKR = IBM_Plex_Sans_KR({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-ibm-plex-sans-kr",
+  display: "swap",
+  preload: false,
+});
+const nanumGothicCoding = Nanum_Gothic_Coding({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-nanum-gothic-coding",
+  display: "swap",
+  preload: false,
+});
+const hahmlet = Hahmlet({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-hahmlet",
+  display: "swap",
+  preload: false,
+});
+const sunflower = Sunflower({
+  weight: ["300", "500", "700"],
+  variable: "--font-sunflower",
+  display: "swap",
+});
+const gowunDodum = Gowun_Dodum({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-gowun-dodum",
+  display: "swap",
+  preload: false,
+});
+const songMyung = Song_Myung({
+  weight: ["400"],
+  variable: "--font-song-myung",
+  display: "swap",
+});
+const diphylleia = Diphylleia({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-diphylleia",
+  display: "swap",
+  preload: false,
+});
+const grandifloraOne = Grandiflora_One({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-grandiflora-one",
+  display: "swap",
+  preload: false,
+});
+const nanumGothic = Nanum_Gothic({
+  subsets: ["latin"],
+  weight: ["400", "700", "800"],
+  variable: "--font-nanum-gothic",
+  display: "swap",
+  preload: false,
+});
+const doHyeon = Do_Hyeon({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-do-hyeon",
+  display: "swap",
+  preload: false,
+});
+const jua = Jua({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-jua",
+  display: "swap",
+  preload: false,
+});
+const dongle = Dongle({
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+  variable: "--font-dongle",
+  display: "swap",
+  preload: false,
+});
+const orbit = Orbit({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-orbit",
+  display: "swap",
+  preload: false,
+});
 
 export default async function RootLayout({
   children,
@@ -125,7 +265,7 @@ export default async function RootLayout({
     <html
       lang="ko"
       suppressHydrationWarning
-      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${cormorant.variable} ${dmSans.variable} ${firaCode.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${cormorant.variable} ${dmSans.variable} ${firaCode.variable} ${notoSerifKR.variable} ${nanumMyeongjo.variable} ${gowunBatang.variable} ${notoSansKR.variable} ${gothicA1.variable} ${ibmPlexSansKR.variable} ${nanumGothicCoding.variable} ${hahmlet.variable} ${sunflower.variable} ${gowunDodum.variable} ${songMyung.variable} ${diphylleia.variable} ${grandifloraOne.variable} ${nanumGothic.variable} ${doHyeon.variable} ${jua.variable} ${dongle.variable} ${orbit.variable}`}
     >
       <head>
         <link rel="icon" href="/favicon-light.ico" />

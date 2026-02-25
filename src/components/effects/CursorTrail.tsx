@@ -76,36 +76,21 @@ export default function CursorTrail() {
     };
 
     let hasMoved = false;
+    let hitTestTimer = 0;
 
-    const handleMouseMove = (e: PointerEvent) => {
-      if (!hasMoved) {
-        hasMoved = true;
-        circleRef.current = { x: e.clientX, y: e.clientY };
-        setIsVisible(true);
-      }
-      mouseRef.current = { x: e.clientX, y: e.clientY };
-
-      // 지연된 원 위치가 아닌 실제 마우스 위치 사용
-      const mx = e.clientX;
-      const my = e.clientY;
-
-      // 포인터 아래의 실제 요소 가져오기 (커서 오버레이 자체는 건너뛰기)
+    const runHitTest = (mx: number, my: number) => {
       const target = checkElementAt(mx, my);
 
-      /* ---------- more ---------- */
       setMore(!!target?.closest("[data-more]"));
 
-      /* ---------- 드래그 가능 ---------- */
       const isDraggable = !!target?.closest("[data-draggable]");
 
-      /* ---------- disabled ---------- */
       const isDisabled = !!target && (
         (target as HTMLButtonElement).disabled === true ||
         !!target.closest("[disabled]") ||
         !!target.closest("[aria-disabled='true']")
       );
 
-      /* ---------- 클릭 가능 ---------- */
       const isClickable = !isDraggable && !isDisabled && !!target && (
         !!target.closest("[data-clickable]") ||
         !!target.closest("a, button") ||
@@ -116,7 +101,6 @@ export default function CursorTrail() {
         target.dataset.clickable === "true"
       );
 
-      /* ---------- 텍스트 ---------- */
       const isText = !isDraggable && !!target && (
         isTextInput(target) ||
         !!target.closest(
@@ -126,12 +110,28 @@ export default function CursorTrail() {
         !!target.closest('[contenteditable="true"]')
       );
 
-      /* ---------- 우선순위 ---------- */
       if (isDraggable) setCursorType("grab");
       else if (isDisabled) setCursorType("disabled");
       else if (isClickable) setCursorType("big");
       else if (isText) setCursorType("text");
       else setCursorType("");
+    };
+
+    const handleMouseMove = (e: PointerEvent) => {
+      if (!hasMoved) {
+        hasMoved = true;
+        circleRef.current = { x: e.clientX, y: e.clientY };
+        setIsVisible(true);
+      }
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+
+      // elementsFromPoint 호출을 ~60ms 간격으로 제한
+      if (!hitTestTimer) {
+        hitTestTimer = window.setTimeout(() => {
+          hitTestTimer = 0;
+          runHitTest(mouseRef.current.x, mouseRef.current.y);
+        }, 60);
+      }
     };
 
     const handleMouseDown = (e: PointerEvent) => {
@@ -197,6 +197,7 @@ export default function CursorTrail() {
       document.removeEventListener("pointerenter", handleEnter);
       document.removeEventListener("pointerleave", handleLeave);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (hitTestTimer) clearTimeout(hitTestTimer);
     };
   }, [isTouch]);
 

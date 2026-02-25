@@ -38,7 +38,9 @@
 - **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. Settings > Content > Profile 서브탭에서 관리. `site_settings` 테이블에 JSONB로 저장. DB 미연결 시 정적 데이터 fallback
 - **방문자 통계**: IP+날짜 기반 일간·누적 방문자 카운터. Footer에 실시간 표시
 - **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Next.js Middleware로 `/admin` 경로 보호. 네비게이션에 Admin 배지 + 관리자 이메일 표시
-- **사이트 콘텐츠 관리**: Admin Settings에서 5개 탭(General, Content, Appearance, Services, Account)으로 관리. Content 탭은 사이드 네비게이션으로 Home/Profile/About/Posts 서브탭 분리. Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. Services 탭에서 API 키(환경변수)를 DB에 저장·관리 가능. Account 탭에서 관리자 이메일/비밀번호 변경 지원. Settings 저장 시 BroadcastChannel로 다른 탭 자동 새로고침. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
+- **사이트 콘텐츠 관리**: Admin Settings에서 5개 탭(General, Content, Appearance, Services, Account)으로 관리. Content 탭은 사이드 네비게이션으로 Home/Profile/About/Posts 서브탭 분리. Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. Services 탭에서 API 키(환경변수)를 DB에 저장·관리하고, 번역 프로바이더(DeepL/Google/Gemini) 선택 가능. Account 탭에서 관리자 이메일/비밀번호 변경 지원(비밀번호 확인 모달). Settings 저장 시 BroadcastChannel로 다른 탭 자동 새로고침. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
+- **자동 번역**: 에디터에서 언어 전환 시 대상 언어가 비어있으면 자동 번역. DeepL API Free(기본), Google Cloud Translation, Gemini 2.0 Flash 중 Settings에서 선택. 재번역 버튼으로 전체/개별 필드 재번역 가능. 번역 중 언어 토글 차단으로 중복 요청 방지
+- **카테고리 관리**: Posts에서 카테고리 삭제 시 소속 포스트를 일괄/개별 재할당하는 모달. 새 카테고리 생성도 지원
 - **시리즈 편집 모달**: Post 에디터에서 시리즈 선택 후 Edit 버튼으로 제목/설명/커버 이미지/카테고리/발행 상태를 인라인 모달에서 편집 가능. 시리즈 내 포스트 목록 표시·드래그 순서 변경·연결 해제 지원. 신규 시리즈 생성도 모달로 처리
 
 ## User Flow
@@ -53,7 +55,7 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 
 - **Works**: 가로 스크롤 갤러리에서 프로젝트를 탐색하고, 상세 페이지에서 IP 기반 좋아요를 남길 수 있습니다
 - **Posts**: 태그/검색으로 블로그 글을 필터링할 수 있습니다. 카테고리를 선택하면 해당 카테고리의 시리즈가 책 모양 카드로 표시되며, 시리즈를 클릭하면 소속 포스트만 필터링됩니다. 상세 페이지에서 좋아요와 게스트 댓글(닉네임+비밀번호)을 남길 수 있으며, 시리즈 소속 글에서는 이전/다음 글 네비게이션이 표시됩니다
-- **About**: 가로 스크롤로 13개 패널(프로젝트 개요, 유저 플로우, 아키텍처, 기능, 디자인 컨셉, 개발 프로세스, 기술 스택, 코드 하이라이트, DB 설계, 트러블슈팅)을 순회합니다
+- **About**: 가로 스크롤로 14개 패널(프로젝트 개요, 유저 플로우, 아키텍처, 기능, 디자인 컨셉, 개발 프로세스, 기술 스택, 백엔드, ERD, 코드 하이라이트, 트러블슈팅)을 순회합니다. UserFlow 패널은 6개 플로우를 탭+SVG 다이어그램으로 시각화, ERD 패널은 DB 테이블 관계도를 인터랙티브하게 표시
 
 ### 관리자 플로우
 
@@ -101,6 +103,12 @@ UNSPLASH_ACCESS_KEY=your_unsplash_access_key
 # site.config.ts의 aiCover.provider 값에 따라 해당 키 사용
 HUGGINGFACE_API_KEY=hf_...          # provider: "huggingface"
 NANOBANANA_API_KEY=your_key         # provider: "nanobanana"
+
+# Translation — 선택한 provider에 맞는 키만 설정
+# site.config.ts의 translation.provider 값에 따라 해당 키 사용 (기본: deepl)
+DEEPL_API_KEY=your_deepl_key                   # provider: "deepl" (기본)
+GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
+GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
 ```
 
 **값 확인 방법:**
@@ -145,7 +153,9 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 >
 > **Comments API**: `GET /api/comments?post_id=`, `POST /api/comments`, `DELETE /api/comments/[id]`
 >
-> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`
+> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`
+>
+> **Utility API**: `POST /api/translate` (공개, Gemini 단일 텍스트), `POST /api/posts/reassign-category` (카테고리 일괄 재할당)
 
 ### 3. Storage 버킷 생성
 
@@ -191,7 +201,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 **로그인 후 사용 가능한 기능:**
 
 - `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기)
-- `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환 가능)
+- `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환, 자동 번역, 재번역, 자동 저장 + revision history)
 - `/admin/posts/[id]/edit` — 기존 포스트 수정
 - `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)

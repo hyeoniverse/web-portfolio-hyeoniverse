@@ -38,19 +38,33 @@ interface TypographyConfig {
 /** font display name → CSS font-family string */
 const HEADING_FONTS: Record<string, string> = {
   "Instrument Serif": "",
-  "Playfair Display": '"Playfair Display", serif',
-  "Cormorant Garamond": '"Cormorant Garamond", serif',
+  "Noto Serif KR": '"Noto Serif KR", serif',
+  "Nanum Myeongjo": '"Nanum Myeongjo", serif',
+  "Gowun Batang": '"Gowun Batang", serif',
+  "Hahmlet": '"Hahmlet", serif',
+  "Song Myung": '"Song Myung", serif',
+  "Diphylleia": '"Diphylleia", serif',
+  "Grandiflora One": '"Grandiflora One", serif',
 };
 
 const BODY_FONTS: Record<string, string> = {
   "Space Grotesk": "",
-  "Inter": '"Inter", sans-serif',
-  "DM Sans": '"DM Sans", sans-serif',
+  "Noto Sans KR": '"Noto Sans KR", sans-serif',
+  "Gothic A1": '"Gothic A1", sans-serif',
+  "IBM Plex Sans KR": '"IBM Plex Sans KR", sans-serif',
+  "Sunflower": '"Sunflower", sans-serif',
+  "Gowun Dodum": '"Gowun Dodum", sans-serif',
+  "Nanum Gothic": '"Nanum Gothic", sans-serif',
+  "Do Hyeon": '"Do Hyeon", sans-serif',
+  "Jua": '"Jua", sans-serif',
+  "Dongle": '"Dongle", sans-serif',
+  "Orbit": '"Orbit", sans-serif',
 };
 
 const MONO_FONTS: Record<string, string> = {
   "JetBrains Mono": "",
   "Fira Code": '"Fira Code", monospace',
+  "Nanum Gothic Coding": '"Nanum Gothic Coding", monospace',
 };
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
