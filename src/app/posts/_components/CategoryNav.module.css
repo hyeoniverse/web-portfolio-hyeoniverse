@@ -12,6 +12,7 @@
 }
 
 .btn {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
@@ -22,7 +23,7 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -33,10 +34,20 @@
 
 .btnActive {
   color: var(--text-primary);
-  border-bottom-color: var(--text-primary);
+  border-bottom-color: transparent;
 }
 
 .nav .btnActive:hover {
   color: var(--text-primary);
-  border-bottom-color: var(--text-primary);
+}
+
+/* Animated indicator */
+.indicator {
+  position: absolute;
+  left: var(--spacing-sm);
+  right: var(--spacing-sm);
+  bottom: -2px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 1px;
 }

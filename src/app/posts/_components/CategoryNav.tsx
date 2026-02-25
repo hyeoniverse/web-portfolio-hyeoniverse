@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useCategories } from "@/hooks/useCategories";
 import styles from "./CategoryNav.module.css";
 
@@ -15,7 +16,6 @@ export default function CategoryNav({
   onCategoryChange,
 }: CategoryNavProps) {
   const categories = useCategories();
-  // Merge preset + custom categories (from DB), deduplicated
   const allCategories = [
     ...categories,
     ...extraCategories.filter((c) => !categories.includes(c)),
@@ -29,6 +29,13 @@ export default function CategoryNav({
         data-clickable="true"
       >
         All
+        {!activeCategory && (
+          <motion.span
+            className={styles.indicator}
+            layoutId="catIndicator"
+            transition={{ type: "spring", stiffness: 500, damping: 32 }}
+          />
+        )}
       </button>
       {allCategories.map((cat) => (
         <button
@@ -38,6 +45,13 @@ export default function CategoryNav({
           data-clickable="true"
         >
           {cat}
+          {activeCategory === cat && (
+            <motion.span
+              className={styles.indicator}
+              layoutId="catIndicator"
+              transition={{ type: "spring", stiffness: 500, damping: 32 }}
+            />
+          )}
         </button>
       ))}
     </div>

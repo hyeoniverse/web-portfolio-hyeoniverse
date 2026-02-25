@@ -5,6 +5,10 @@ import type { Comment } from "@/types/post";
 import CommentForm from "./CommentForm";
 import styles from "./CommentItem.module.css";
 
+function hasKorean(text: string): boolean {
+  return /[\uac00-\ud7af]/.test(text);
+}
+
 interface CommentItemProps {
   comment: Comment;
   postId: string;
@@ -21,12 +25,42 @@ export default function CommentItem({
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  const [translating, setTranslating] = useState(false);
 
   const date = new Date(comment.created_at).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
+
+  const isKorean = hasKorean(comment.content);
+  const targetLang = isKorean ? "en" : "ko";
+  const translateLabel = isKorean ? "EN으로 번역" : "KO로 번역";
+
+  const handleTranslate = useCallback(async () => {
+    if (translatedText !== null) {
+      setTranslatedText(null);
+      return;
+    }
+
+    setTranslating(true);
+    try {
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: comment.content, targetLang }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTranslatedText(data.translation);
+      }
+    } catch {
+      // silent fail
+    } finally {
+      setTranslating(false);
+    }
+  }, [comment.content, targetLang, translatedText]);
 
   const handleDelete = useCallback(async () => {
     if (!deletePassword) return;
@@ -65,7 +99,23 @@ export default function CommentItem({
 
       <div className={styles.content}>{comment.content}</div>
 
+      {translatedText && (
+        <div className={styles.translatedContent}>{translatedText}</div>
+      )}
+
       <div className={styles.commentActions}>
+        <button
+          type="button"
+          className={styles.actionBtn}
+          onClick={handleTranslate}
+          disabled={translating}
+        >
+          {translating
+            ? "..."
+            : translatedText
+              ? "원문 보기"
+              : translateLabel}
+        </button>
         <button
           type="button"
           className={styles.actionBtn}
