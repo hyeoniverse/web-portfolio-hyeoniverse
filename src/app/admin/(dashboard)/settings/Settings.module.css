@@ -1142,8 +1142,14 @@
 }
 
 /* ── Custom Font Input ── */
+.fontCustomWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
 .fontCustomInput {
-  width: 100%;
+  flex: 1;
   padding: var(--spacing-2xs) var(--spacing-sm);
   border: 1px dashed var(--border-secondary-color);
   border-radius: var(--radius-capsule);
@@ -1161,6 +1167,19 @@
 
 .fontCustomInput::placeholder {
   color: var(--text-tertiary);
+}
+
+.fontCustomLink {
+  flex-shrink: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.fieldRow .fontCustomLink:hover {
+  color: var(--text-primary);
 }
 
 /* ── Env Var Editor ── */
