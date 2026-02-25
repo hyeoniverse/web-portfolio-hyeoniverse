@@ -4,54 +4,68 @@ import { useEffect, useRef } from "react";
 import { useSoundStore } from "@/stores/soundStore";
 
 const BGM_URL = "/sounds/Louie Zong - Ghost Duet.mp3";
-const FADE_IN = 1;
-const FADE_OUT = 0.5;
-const VOLUME = 0.35;
+const FADE_IN_MS = 1000;
+const FADE_OUT_MS = 500;
+const TARGET_VOLUME = 0.35;
 
+/**
+ * HTMLAudioElement 기반 BGM 재생.
+ * Web Audio API(AudioContext + BufferSource) 대신 브라우저 네이티브 미디어 파이프라인 사용 —
+ * 하드웨어 가속 디코딩 + 별도 프로세스 처리로 메인 스레드 부하 최소화.
+ */
 export function useBGM() {
-  const ctxRef = useRef<AudioContext | null>(null);
-  const gainRef = useRef<GainNode | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fadeRafRef = useRef(0);
   const startedRef = useRef(false);
 
   useEffect(() => {
     let disposed = false;
 
-    async function initAndPlay() {
+    function fade(to: number, duration: number) {
+      cancelAnimationFrame(fadeRafRef.current);
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      const from = audio.volume;
+      const start = performance.now();
+
+      const step = (now: number) => {
+        const elapsed = now - start;
+        const t = Math.min(elapsed / duration, 1);
+        audio.volume = from + (to - from) * t;
+
+        if (t < 1) {
+          fadeRafRef.current = requestAnimationFrame(step);
+        } else if (to === 0) {
+          audio.pause();
+        }
+      };
+
+      fadeRafRef.current = requestAnimationFrame(step);
+    }
+
+    function initAndPlay() {
       if (startedRef.current) return;
       startedRef.current = true;
 
-      const ctx = new AudioContext();
-      const gain = ctx.createGain();
-      gain.gain.value = 0;
-      gain.connect(ctx.destination);
+      const audio = new Audio(BGM_URL);
+      audio.loop = true;
+      audio.volume = 0;
+      audio.preload = "auto";
+      audioRef.current = audio;
 
-      ctxRef.current = ctx;
-      gainRef.current = gain;
-
-      try {
-        const res = await fetch(BGM_URL);
-        const buf = await res.arrayBuffer();
-        if (disposed) { ctx.close(); return; }
-
-        const audioBuffer = await ctx.decodeAudioData(buf);
-        if (disposed) { ctx.close(); return; }
-
-        const source = ctx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.loop = true;
-        source.connect(gain);
-        source.start(0);
-
-        // fade in
-        gain.gain.linearRampToValueAtTime(VOLUME, ctx.currentTime + FADE_IN);
-      } catch {
-        startedRef.current = false;
-      }
+      audio.play()
+        .then(() => {
+          if (disposed) { audio.pause(); return; }
+          fade(TARGET_VOLUME, FADE_IN_MS);
+        })
+        .catch(() => {
+          startedRef.current = false;
+        });
     }
 
     function onGesture() {
-      const muted = useSoundStore.getState().isMuted;
-      if (muted) return;
+      if (useSoundStore.getState().isMuted) return;
       document.removeEventListener("click", onGesture);
       initAndPlay();
     }
@@ -60,23 +74,15 @@ export function useBGM() {
 
     // zustand subscribe — mute/unmute 반응
     const unsub = useSoundStore.subscribe((state) => {
-      const ctx = ctxRef.current;
-      const gain = gainRef.current;
+      const audio = audioRef.current;
 
       if (state.isMuted) {
-        if (ctx && ctx.state === "running" && gain) {
-          gain.gain.linearRampToValueAtTime(0, ctx.currentTime + FADE_OUT);
-          setTimeout(() => { if (ctx.state === "running") ctx.suspend(); }, FADE_OUT * 1000);
+        if (audio && !audio.paused) {
+          fade(0, FADE_OUT_MS);
         }
       } else {
-        if (ctx && ctx.state === "suspended") {
-          ctx.resume().then(() => {
-            if (gain) {
-              gain.gain.cancelScheduledValues(ctx.currentTime);
-              gain.gain.setValueAtTime(0, ctx.currentTime);
-              gain.gain.linearRampToValueAtTime(VOLUME, ctx.currentTime + FADE_IN);
-            }
-          });
+        if (audio && audio.paused) {
+          audio.play().then(() => fade(TARGET_VOLUME, FADE_IN_MS));
         } else if (!startedRef.current) {
           initAndPlay();
         }
@@ -87,9 +93,12 @@ export function useBGM() {
       disposed = true;
       document.removeEventListener("click", onGesture);
       unsub();
-      ctxRef.current?.close();
-      ctxRef.current = null;
-      gainRef.current = null;
+      cancelAnimationFrame(fadeRafRef.current);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+        audioRef.current = null;
+      }
       startedRef.current = false;
     };
   }, []);
