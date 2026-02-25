@@ -11,6 +11,7 @@ import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
 import Carousel from "@/components/ui/Carousel/Carousel";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import Select from "@/components/ui/Select";
 import styles from "./Posts.module.css";
 
 const POSTS_PER_PAGE = 12;
@@ -252,15 +253,16 @@ export default function PostsPage() {
               </button>
             )}
 
-            <select
-              className={styles.sortSelect}
+            <Select
               value={sort}
-              onChange={(e) => setSort(e.target.value as typeof sort)}
-            >
-              <option value="newest">Latest</option>
-              <option value="oldest">Oldest</option>
-              <option value="popular">Popular</option>
-            </select>
+              options={[
+                { value: "newest", label: "Latest" },
+                { value: "oldest", label: "Oldest" },
+                { value: "popular", label: "Popular" },
+              ]}
+              onChange={(v) => setSort(v as typeof sort)}
+              className={styles.sortSelect}
+            />
           </div>
         </div>
 

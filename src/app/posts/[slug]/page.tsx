@@ -131,7 +131,6 @@ export default function PostDetailPage() {
     setLiked(data.liked);
   }, [post, liked]);
 
-  const hasEnContent = !!(post?.title_en || post?.content_en);
   const displayTitle = viewLang === "en" && post?.title_en ? post.title_en : post?.title ?? "";
   const displayContent = viewLang === "en" && post?.content_en ? post.content_en : post?.content ?? "";
   const displayExcerpt = viewLang === "en" && post?.excerpt_en ? post.excerpt_en : post?.excerpt ?? "";
@@ -325,9 +324,7 @@ export default function PostDetailPage() {
             <span>{post.view_count} views</span>
           </div>
 
-          {hasEnContent && (
-            <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
-          )}
+          <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
         </div>
 
         <h1 className={styles.articleTitle}>{displayTitle}</h1>
