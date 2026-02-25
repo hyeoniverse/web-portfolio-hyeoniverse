@@ -17,6 +17,8 @@ import {
   projectStructure,
   userFlows,
   backendItems,
+  erdTables,
+  erdDesignNotes,
 } from "@/data/about";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
@@ -34,6 +36,7 @@ import {
   TechStackPanel,
   CodeHighlightsPanel,
   BackendPanel,
+  ErdPanel,
   TroubleshootingPanel,
   CreditsPanel,
 } from "./panels";
@@ -50,8 +53,8 @@ export default function AboutSection() {
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
     useHorizontalScroll(styles, {
       infinite: infiniteScroll,
-      panelSetSize: 13,
-      navSectionCount: 12,
+      panelSetSize: 14,
+      navSectionCount: 13,
     });
   useInViewMobile(trackRef, styles.animate, styles.animateVisible);
   const { isLoading } = useLoadingScreen();
@@ -118,6 +121,11 @@ export default function AboutSection() {
         language={language}
         items={backendItems}
         scrollBy={scrollBy}
+      />
+      <ErdPanel
+        language={language}
+        tables={erdTables}
+        designNotes={erdDesignNotes}
       />
       <CodeHighlightsPanel
         language={language}

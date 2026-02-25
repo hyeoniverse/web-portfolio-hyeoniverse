@@ -271,7 +271,7 @@ export default function BackendPanel({
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
-          number="07"
+          number="08"
           title="Backend."
           compact
           animate

@@ -210,7 +210,7 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
 
   return (
     <div className={styles.panel}>
-      <span className={`${styles.panelNumber} ${styles.animate}`}>02</span>
+      <span className={`${styles.panelNumber} ${styles.animate}`}>03</span>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>Architecture.</h3>
 
       {/* ── 데스크톱: 인터랙티브 맵 ── */}

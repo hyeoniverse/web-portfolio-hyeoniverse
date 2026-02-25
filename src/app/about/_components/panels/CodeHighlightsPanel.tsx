@@ -140,7 +140,7 @@ export default function CodeHighlightsPanel({
       {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
-          number="08"
+          number="10"
           title="Code Highlights."
           compact
           animate

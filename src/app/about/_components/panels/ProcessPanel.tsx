@@ -105,7 +105,7 @@ export default function ProcessPanel({ language, process, scrollBy }: ProcessPan
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
         {/* 타이틀 행 */}
-        <PinnedTitleRow number="05" title="Design Process." />
+        <PinnedTitleRow number="06" title="Design Process." />
 
         {/* 타임라인 + 콘텐츠 본문 (모바일은 행, 데스크톱은 열) */}
         <div className={styles.processBody}>

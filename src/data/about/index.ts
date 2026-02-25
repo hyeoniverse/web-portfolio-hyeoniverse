@@ -12,6 +12,9 @@ export type {
   DbTable,
   BackendItem,
   UserFlow,
+  ErdTable,
+  ErdRelation,
+  ErdDesignNote,
 } from "./types";
 
 // Data
@@ -23,3 +26,4 @@ export { designProcess } from "./process";
 export { codeExamples } from "./codeExamples";
 export { troubleShootingItems } from "./troubleshooting";
 export { backendItems } from "./backend";
+export { erdTables, erdRelations, erdDesignNotes } from "./erd";
