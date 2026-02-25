@@ -171,7 +171,7 @@ export default function DesignConceptPanel({
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       <div ref={contentRef} className={`${styles.pinnedContent} ${styles.dcViewport}`}>
         <PinnedTitleRow
-          number="04"
+          number="05"
           title="Design Concept."
           dotNav={{
             count: concepts.length,

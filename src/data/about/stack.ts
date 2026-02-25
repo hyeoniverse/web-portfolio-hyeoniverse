@@ -15,5 +15,6 @@ export const techStack: TechStackItem[] = [
   { name: "Tiptap", category: "Rich Text Editor" },
   { name: "NanoBanana / Hugging Face", category: "AI Image Generation" },
   { name: "Formspree", category: "Form & Email" },
+  { name: "Vercel", category: "Deployment" },
   { name: "Vitest", category: "Testing" },
 ];

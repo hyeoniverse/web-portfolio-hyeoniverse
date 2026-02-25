@@ -221,7 +221,7 @@ export function useHorizontalScroll(
       // 트랙 위치 업데이트
       gsap.set(track, { x: initialX - state.scrollX });
 
-      // 패널 애니메이션 (뷰포트 기반)
+      // 패널 애니메이션 (뷰포트 기반) — off-screen 패널 스킵
       const vw = window.innerWidth;
       allPanels.forEach((panel) => {
         const items = panel.querySelectorAll<HTMLElement>(
@@ -230,6 +230,8 @@ export function useHorizontalScroll(
         if (items.length === 0) return;
 
         const rect = panel.getBoundingClientRect();
+        // 뷰포트 밖이면 건너뛰기 (여유 마진 vw * 0.3)
+        if (rect.right < -vw * 0.3 || rect.left > vw * 1.3) return;
         const entryProgress = gsap.utils.clamp(
           0,
           1,

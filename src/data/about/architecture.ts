@@ -2,8 +2,8 @@ import type { OverviewStat, StructureItem, UserFlow } from "./types";
 
 export const projectOverview = {
   description: {
-    ko: "이 포트폴리오는 Next.js 15 App Router 기반으로, 2025.02.05 ~ 02.10 총 6일 만에 완성되었습니다. AI 페어 프로그래밍(Vibe Coding)을 적극 활용하여 GSAP/Framer Motion 스크롤 애니메이션, Lenis 무한 루프 스크롤, CSS Variables 디자인 토큰, 한/영 이중 언어 지원 등 기술적 도전을 단기간에 구현할 수 있었습니다. 이후 Supabase 기반 블로그·좋아요·댓글 시스템을 추가하여 풀스택 포트폴리오로 확장했습니다.",
-    en: "This portfolio was built on Next.js 15 App Router and completed in just 6 days (2025.02.05 – 02.10). By leveraging AI pair programming (Vibe Coding), complex frontend challenges — GSAP/Framer Motion scroll animations, Lenis infinite loop scroll, CSS Variables design tokens, and bilingual i18n — were implemented in a compressed timeline. Later expanded into a full-stack portfolio with Supabase-powered blog, likes, and comment systems.",
+    ko: "Next.js 15 App Router 기반 풀스택 포트폴리오. AI 페어 프로그래밍으로 6일 만에 완성. GSAP/Framer Motion 애니메이션, Lenis 무한 스크롤, Supabase 블로그·좋아요·댓글 시스템 등을 포함합니다.",
+    en: "Full-stack portfolio built on Next.js 15 App Router, completed in 6 days with AI pair programming. Features GSAP/Framer Motion animations, Lenis infinite scroll, and Supabase-powered blog with likes & comments.",
   },
   highlights: [
     "Next.js 15",
@@ -59,42 +59,167 @@ export const userFlows: UserFlow[] = [
   {
     title: "Visitor",
     description: {
-      ko: "방문자가 포트폴리오를 탐색하고 좋아요·댓글을 남기는 흐름",
-      en: "How visitors browse the portfolio and interact with likes & comments",
+      ko: "첫 방문자의 포트폴리오 탐색 흐름",
+      en: "First visitor's portfolio exploration flow",
     },
     steps: [
-      { label: { ko: "Home", en: "Home" } },
-      { label: { ko: "Works 갤러리", en: "Works Gallery" } },
-      { label: { ko: "Work 상세 + 좋아요", en: "Work Detail + Like" } },
-      { label: { ko: "Posts 목록", en: "Posts List" } },
-      { label: { ko: "Post 상세 + 좋아요/댓글", en: "Post Detail + Like/Comment" } },
+      {
+        label: { ko: "랜딩 페이지", en: "Landing Page" },
+        description: { ko: "Hero + Works 프리뷰 + CTA 섹션", en: "Hero + Works preview + CTA sections" },
+      },
+      {
+        label: { ko: "스크롤 탐색", en: "Scroll Explore" },
+        description: { ko: "GSAP ScrollTrigger 애니메이션으로 각 섹션 순회", en: "Browse sections via GSAP ScrollTrigger animations" },
+      },
+      {
+        label: { ko: "Works 갤러리", en: "Works Gallery" },
+        description: { ko: "Masonry 그리드 + 카테고리 필터", en: "Masonry grid + category filter" },
+      },
+      {
+        label: { ko: "프로젝트 상세", en: "Project Detail" },
+        description: { ko: "갤러리 슬라이드 + 기술 스택 + IP 기반 좋아요", en: "Gallery slide + tech stack + IP-based likes" },
+      },
+      {
+        label: { ko: "Contact", en: "Contact" },
+        description: { ko: "Drawer + reCAPTCHA + 이메일 발송", en: "Drawer + reCAPTCHA + email send" },
+      },
+    ],
+  },
+  {
+    title: "Blog",
+    description: {
+      ko: "블로그 글을 발견하고 읽는 흐름",
+      en: "Discovering and reading blog posts",
+    },
+    steps: [
+      {
+        label: { ko: "Posts 목록", en: "Posts List" },
+        description: { ko: "Featured 캐러셀 + 카테고리별 포스트 목록", en: "Featured carousel + categorized post list" },
+      },
+      {
+        label: { ko: "카테고리 필터", en: "Category Filter" },
+        description: { ko: "카테고리 탭 + 시리즈 그룹핑", en: "Category tabs + series grouping" },
+      },
+      {
+        label: { ko: "시리즈 탐색", en: "Series Browse" },
+        description: { ko: "시리즈 카드 더보기/접기 토글", en: "Series card expand/collapse toggle" },
+      },
+      {
+        label: { ko: "포스트 읽기", en: "Read Post" },
+        description: { ko: "Markdown/Rich Text 렌더링 + TOC", en: "Markdown/Rich Text rendering + TOC" },
+      },
+      {
+        label: { ko: "좋아요 / 댓글", en: "Like / Comment" },
+        description: { ko: "IP 좋아요 토글 + 게스트 댓글 (bcrypt)", en: "IP-based like toggle + guest comments (bcrypt)" },
+      },
     ],
   },
   {
     title: "Admin",
     description: {
-      ko: "관리자가 콘텐츠를 생성·관리하는 흐름",
-      en: "How admins create and manage content",
+      ko: "관리자 콘텐츠 생성·발행 흐름",
+      en: "Admin content creation and publishing flow",
     },
     steps: [
-      { label: { ko: "/admin 접속 → 로그인", en: "/admin URL → Login" } },
-      { label: { ko: "포스트/작업물 관리", en: "Posts/Works CRUD" } },
-      { label: { ko: "Settings — 콘텐츠/프로필/계정", en: "Settings — Content/Profile/Account" } },
-      { label: { ko: "시리즈 편집 모달", en: "Series Editor Modal" } },
-      { label: { ko: "발행", en: "Publish" } },
+      {
+        label: { ko: "로그인", en: "Login" },
+        description: { ko: "Supabase Auth 이메일/비밀번호 인증", en: "Supabase Auth email/password authentication" },
+      },
+      {
+        label: { ko: "포스트 작성", en: "Create Post" },
+        description: { ko: "Markdown/Rich Text 에디터 + 한/영 이중 언어", en: "Markdown/Rich Text editor + bilingual KO/EN" },
+      },
+      {
+        label: { ko: "커버 이미지", en: "Cover Image" },
+        description: { ko: "Unsplash 검색 또는 AI 생성 (스타일 프리셋)", en: "Unsplash search or AI generation (style presets)" },
+      },
+      {
+        label: { ko: "시리즈 연결", en: "Link to Series" },
+        description: { ko: "시리즈 선택 시 카테고리 자동 동기화", en: "Category auto-syncs on series selection" },
+      },
+      {
+        label: { ko: "발행", en: "Publish" },
+        description: { ko: "필수 항목 검증 → 공개/비공개 토글", en: "Required field validation → publish toggle" },
+      },
+    ],
+  },
+  {
+    title: "Contact",
+    description: {
+      ko: "방문자가 연락처를 남기는 흐름",
+      en: "Visitor contact submission flow",
+    },
+    steps: [
+      {
+        label: { ko: "Contact 버튼", en: "Contact Button" },
+        description: { ko: "하단 CTA 또는 Navigation 링크", en: "Bottom CTA or Navigation link" },
+      },
+      {
+        label: { ko: "Drawer 열림", en: "Drawer Opens" },
+        description: { ko: "슬라이드-인 오버레이 Drawer", en: "Slide-in overlay drawer" },
+      },
+      {
+        label: { ko: "폼 작성", en: "Fill Form" },
+        description: { ko: "이름, 이메일, 메시지 입력", en: "Name, email, and message inputs" },
+      },
+      {
+        label: { ko: "reCAPTCHA 인증", en: "reCAPTCHA" },
+        description: { ko: "Google reCAPTCHA v2 봇 방지", en: "Google reCAPTCHA v2 bot prevention" },
+      },
+      {
+        label: { ko: "이메일 발송", en: "Email Sent" },
+        description: { ko: "Resend API → 성공 피드백 + Drawer 닫기", en: "Resend API → success feedback + close drawer" },
+      },
+    ],
+  },
+  {
+    title: "Theme",
+    description: {
+      ko: "다크/라이트 테마 및 언어 전환",
+      en: "Dark/Light theme and language switching",
+    },
+    steps: [
+      {
+        label: { ko: "토글 클릭", en: "Toggle Click" },
+        description: { ko: "Navigation 내 테마/언어 토글 버튼", en: "Theme/language toggle in Navigation" },
+      },
+      {
+        label: { ko: "CSS Variables 갱신", en: "CSS Vars Update" },
+        description: { ko: "html[data-theme] 속성 변경 → 토큰 전환", en: "html[data-theme] attribute change → token swap" },
+      },
+      {
+        label: { ko: "쿠키 저장", en: "Cookie Persist" },
+        description: { ko: "next-themes 쿠키로 설정 유지", en: "Persist setting via next-themes cookie" },
+      },
+      {
+        label: { ko: "전체 UI 반영", en: "Full UI Update" },
+        description: { ko: "0.3s transition으로 모든 컴포넌트 테마 전환", en: "0.3s transition across all components" },
+      },
     ],
   },
   {
     title: "About",
     description: {
-      ko: "이 페이지의 탐색 흐름 — 가로 스크롤로 기술 문서 순회",
-      en: "Navigating this page — horizontal scroll through technical docs",
+      ko: "이 페이지 — 가로 스크롤로 기술 문서 탐색",
+      en: "This page — explore tech docs via horizontal scroll",
     },
     steps: [
-      { label: { ko: "가로 스크롤 시작", en: "Start Horizontal Scroll" } },
-      { label: { ko: "12개 패널 순회", en: "Browse 12 Panels" } },
-      { label: { ko: "기술 문서 탐색", en: "Explore Tech Docs" } },
-      { label: { ko: "하단 Nav로 이동", en: "Jump via Bottom Nav" } },
+      {
+        label: { ko: "가로 스크롤 시작", en: "Start H-Scroll" },
+        description: { ko: "GSAP ScrollTrigger가 세로 스크롤을 가로로 변환", en: "GSAP ScrollTrigger converts vertical to horizontal scroll" },
+      },
+      {
+        label: { ko: "14개 패널 순회", en: "Browse 14 Panels" },
+        description: { ko: "각 패널별 기술 문서 · 코드 · 인터랙티브 요소", en: "Per-panel tech docs, code, and interactive elements" },
+      },
+      {
+        label: { ko: "하단 Nav 바로가기", en: "Nav Shortcuts" },
+        description: { ko: "Spring 인디케이터 + 패널 직접 이동", en: "Spring indicator + direct panel navigation" },
+      },
+      {
+        label: { ko: "기술 문서 탐색", en: "Explore Docs" },
+        description: { ko: "ERD, 코드 하이라이트, 트러블슈팅 등", en: "ERD, code highlights, troubleshooting, etc." },
+      },
     ],
   },
 ];

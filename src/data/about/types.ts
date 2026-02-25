@@ -76,12 +76,40 @@ export interface DbTable {
 
 export interface UserFlowStep {
   label: LocalizedText;
+  description?: LocalizedText;
 }
 
 export interface UserFlow {
   title: string;
   description: LocalizedText;
   steps: UserFlowStep[];
+}
+
+/* ── ERD (Entity Relationship Diagram) ── */
+
+export interface ErdColumn {
+  name: string;
+  type: string;
+  pk?: boolean;
+  fk?: string; // e.g. "series.id"
+}
+
+export interface ErdTable {
+  name: string;
+  columns: ErdColumn[];
+}
+
+export interface ErdRelation {
+  from: string;
+  fromField: string;
+  to: string;
+  toField: string;
+  label: string;
+}
+
+export interface ErdDesignNote {
+  title: LocalizedText;
+  description: LocalizedText;
 }
 
 export interface ApiEndpoint {

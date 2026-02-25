@@ -363,7 +363,7 @@
    ========================================================================== */
 
 .overviewDesc {
-  margin: 0 0 var(--_space-section);
+  margin: 0;
   font-size: var(--_fs-body);
   line-height: var(--_lh-prose);
   color: var(--text-secondary);
@@ -373,7 +373,6 @@
   display: flex;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
-  margin-bottom: var(--_space-section);
 }
 
 .overviewTag {
@@ -386,29 +385,15 @@
   border-radius: var(--radius-capsule);
 }
 
-.overviewStats {
-  display: flex;
-  gap: 0;
-  border-top: var(--_line-primary);
-  border-bottom: var(--_line-primary);
-}
-
 .overviewStat {
   display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: var(--spacing-2xl) var(--spacing-xl);
-  border-right: var(--_line-secondary);
-  text-align: center;
-}
-
-.overviewStat:last-child {
-  border-right: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(0.6rem, 1vh, 1rem) 0;
+  border-bottom: var(--_line-secondary);
 }
 
 .statValue {
-  display: block;
-  margin-bottom: var(--_space-block);
   font-family: var(--_font-display);
   font-size: var(--_fs-lead);
   font-weight: var(--font-weight-regular);
@@ -417,14 +402,12 @@
 }
 
 .statLabel {
-  display: block;
-  margin-top: auto;
-  font-size: var(--_fs-label);
+  font-size: var(--_fs-small);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  text-align: right;
   white-space: pre-line;
+  line-height: 1.3;
 }
 
 /* ==========================================================================
@@ -434,7 +417,7 @@
 .archGrid {
   display: none;
   grid-auto-flow: column;
-  gap: 0 var(--spacing-4xl);
+  gap: 0 var(--spacing-3xl);
   border-top: var(--_line-primary);
   max-width: clamp(560px, 75vw, 1100px);
   grid-template-columns: repeat(2, 1fr);
@@ -446,7 +429,7 @@
   gap: var(--spacing-xl);
   align-items: baseline;
   justify-content: space-between;
-  padding: clamp(0.5rem, 0.8vh, 0.8rem) 0;
+  padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-secondary);
   transition: border-color var(--duration-base) ease;
 }
@@ -1623,6 +1606,8 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .techIcon {
@@ -1640,6 +1625,7 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
   transition: color var(--duration-base) ease;
+  white-space: nowrap;
 }
 
 .techItem:hover .techName {
@@ -1652,6 +1638,9 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  flex-shrink: 0;
+  white-space: nowrap;
+  text-align: right;
 }
 
 /* ==========================================================================
@@ -2739,9 +2728,7 @@
 .dbSchema {
   display: flex;
   flex-direction: column;
-  border: var(--_line-secondary);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  border-top: var(--_line-primary);
   font-size: var(--_fs-small);
 }
 
@@ -2749,21 +2736,21 @@
   display: grid;
   grid-template-columns: 1fr 0.6fr 1.5fr;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-secondary);
+  padding: clamp(0.6rem, 1vh, 1rem) 0;
+  border-bottom: var(--_line-primary);
   font-weight: var(--font-weight-semibold);
   font-size: var(--_fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
 .dbSchemaRow {
   display: grid;
   grid-template-columns: 1fr 0.6fr 1.5fr;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-top: var(--_line-secondary);
+  padding: clamp(0.6rem, 1vh, 1rem) 0;
+  border-bottom: var(--_line-secondary);
   line-height: var(--line-height-relaxed);
 }
 
@@ -2829,9 +2816,7 @@
 .dbEndpointList {
   display: flex;
   flex-direction: column;
-  border: var(--_line-secondary);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  border-top: var(--_line-primary);
   font-size: var(--_fs-small);
 }
 
@@ -2840,18 +2825,14 @@
   grid-template-columns: auto 1fr 1.5fr;
   gap: var(--spacing-sm) var(--spacing-md);
   align-items: baseline;
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-top: var(--_line-secondary);
-}
-
-.dbEndpoint:first-child {
-  border-top: none;
+  padding: clamp(0.6rem, 1vh, 1rem) 0;
+  border-bottom: var(--_line-secondary);
 }
 
 .dbMethodBadge {
   flex-shrink: 0;
-  padding: 0.05rem 0.4rem;
-  border-radius: var(--radius-xs);
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
   font-size: var(--_fs-caption);
   font-weight: var(--font-weight-bold);
@@ -2864,19 +2845,23 @@
 }
 
 .dbMethodGET {
-  color: var(--color-success, #22c55e);
+  color: #16a34a;
+  background: color-mix(in srgb, #16a34a 12%, transparent);
 }
 
 .dbMethodPOST {
-  color: var(--color-info, #3b82f6);
+  color: #3b82f6;
+  background: color-mix(in srgb, #3b82f6 12%, transparent);
 }
 
 .dbMethodPATCH {
-  color: var(--color-warning, #f59e0b);
+  color: #f59e0b;
+  background: color-mix(in srgb, #f59e0b 12%, transparent);
 }
 
 .dbMethodDELETE {
-  color: var(--color-error, #ef4444);
+  color: #ef4444;
+  background: color-mix(in srgb, #ef4444 12%, transparent);
 }
 
 .dbEndpointPath {
@@ -2919,113 +2904,486 @@
 .overviewLayout {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-2xl);
   flex: 1;
   min-height: 0;
+}
+
+.overviewTop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  min-width: 0;
+}
+
+.overviewStats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 var(--spacing-3xl);
+  border-top: var(--_line-primary);
 }
 
 /* ==========================================================================
-   User Flow Panel
+   User Flow Panel — SVG Diagram
    ========================================================================== */
 
-.ufContainer {
+/* ── Tabs ── */
+
+.ufTabs {
   display: flex;
-  flex-direction: column;
-  gap: var(--_space-section);
-  flex: 1;
-  min-height: 0;
-  justify-content: center;
-}
-
-.ufLane {
-  padding: var(--spacing-xl) var(--spacing-2xl);
-  border: var(--_line-secondary);
-  border-radius: var(--radius-lg);
-}
-
-.ufLaneHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-}
-
-.ufLaneIcon {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--_uf-color);
+  gap: var(--spacing-xs);
+  overflow-x: auto;
+  scrollbar-width: none;
   flex-shrink: 0;
 }
 
-.ufLaneInfo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+.ufTabs::-webkit-scrollbar {
+  display: none;
 }
 
-.ufLaneTitle {
+.ufTab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border-radius: var(--radius-capsule);
+  border: 1px solid color-mix(in srgb, var(--_tab-color) 25%, transparent);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--_tab-color);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ufTabs .ufTab {
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.ufTab:hover {
+  background: color-mix(in srgb, var(--_tab-color) 8%, transparent);
+}
+
+.ufTabActive {
+  background: color-mix(in srgb, var(--_tab-color) 12%, transparent);
+  border-color: var(--_tab-color);
+}
+
+.ufTabDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--_tab-color);
+  flex-shrink: 0;
+}
+
+.ufTabActive .ufTabDot {
+  animation: ufPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes ufPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.6); }
+}
+
+/* ── Flow Description ── */
+
+.ufFlowDesc {
+  margin: var(--spacing-sm) 0 0;
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-small);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+/* ── Diagram Wrapper ── */
+
+.ufDiagramWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ufSvg {
+  width: 100%;
+  max-height: 100%;
+}
+
+/* ── SVG: dot grid ── */
+
+.ufGridDot {
+  fill: var(--text-tertiary);
+  opacity: 0.15;
+}
+
+/* ── SVG: connector edges ── */
+
+.ufEdge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--_uf-color) 20%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+  animation: ufDash 1s linear infinite;
+}
+
+.ufEdgeLit {
+  stroke: color-mix(in srgb, var(--_uf-color) 60%, transparent);
+  stroke-width: 2;
+}
+
+@keyframes ufDash {
+  to { stroke-dashoffset: -20; }
+}
+
+/* ── SVG: node group ── */
+
+.ufGNode {
+  cursor: pointer;
+}
+
+.ufNRect {
+  fill: var(--bg-primary);
+  stroke: color-mix(in srgb, var(--_uf-color) 20%, transparent);
+  stroke-width: 1;
+}
+
+.ufGNode .ufNRect {
+  transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.15s ease;
+}
+
+.ufGNodeHov .ufNRect {
+  stroke: color-mix(in srgb, var(--_uf-color) 50%, transparent);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--_uf-color) 15%, transparent));
+}
+
+.ufGNodeSel .ufNRect {
+  stroke: var(--_uf-color);
+  stroke-width: 2;
+  fill: color-mix(in srgb, var(--_uf-color) 6%, transparent);
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--_uf-color) 20%, transparent));
+}
+
+.ufNNum {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  fill: var(--_uf-color);
+  opacity: 0.5;
+}
+
+.ufGNodeSel .ufNNum {
+  opacity: 1;
+}
+
+.ufNLabel {
+  font-family: var(--_font-grotesk);
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  fill: var(--text-secondary);
+}
+
+.ufGNodeSel .ufNLabel {
+  fill: var(--text-primary);
+}
+
+/* ── Terminal nodes (START / END) ── */
+
+.ufNRectTerminal {
+  fill: var(--_uf-color);
+  stroke: var(--_uf-color);
+  stroke-width: 1;
+}
+
+.ufGNode .ufNRectTerminal {
+  transition: fill 0.2s ease, stroke 0.2s ease, filter 0.2s ease;
+}
+
+.ufGNodeHov .ufNRectTerminal {
+  filter: drop-shadow(0 4px 12px color-mix(in srgb, var(--_uf-color) 30%, transparent));
+}
+
+.ufGNodeSel .ufNRectTerminal {
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--_uf-color) 40%, transparent));
+}
+
+.ufNNumTerminal {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: var(--font-weight-semibold);
+  fill: var(--bg-primary);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.ufNLabelTerminal {
+  font-family: var(--_font-grotesk);
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  fill: var(--bg-primary);
+}
+
+/* ── Detail Panel ── */
+
+.ufDetail {
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--_uf-color) 20%, transparent);
+  background: color-mix(in srgb, var(--_uf-color) 4%, transparent);
+}
+
+.ufDetailNum {
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--_uf-color);
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ufDetailTitle {
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.ufDetailDesc {
+  margin: 0;
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-small);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Mobile List (hidden on desktop) ── */
+
+.ufMobileList {
+  display: none;
+}
+
+.ufMobileStep {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--_uf-color) 15%, transparent);
+}
+
+.ufMobileStep:last-child {
+  border-bottom: none;
+}
+
+.ufMobileNum {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--_uf-color);
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.ufMobileLabel {
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-small);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.ufMobileDesc {
+  margin: 2px 0 0;
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-caption);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   ERD Panel — Entity Relationship Diagram
+   ========================================================================== */
+
+.erdLayout {
+  display: flex;
+  gap: var(--spacing-3xl);
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  overflow: visible;
+}
+
+.erdDiagram {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.erdSvg {
+  width: 100%;
+  height: auto;
+  max-height: calc(100vh - 180px);
+}
+
+/* SVG table card */
+
+.erdTableBg {
+  fill: none;
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+}
+
+.erdTableHeader {
+  fill: none;
+  stroke: none;
+}
+
+.erdHeaderLine {
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+}
+
+.erdTableName {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  fill: var(--text-primary);
+}
+
+.erdColName {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--text-secondary);
+}
+
+.erdColType {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--text-tertiary);
+}
+
+.erdColPk {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--color-accent);
+}
+
+.erdColFk {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--color-success);
+}
+
+/* SVG relationship lines */
+
+.erdRelGroup {
+  opacity: 1;
+}
+
+.erdRelLine {
+  stroke: var(--text-tertiary);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.erdRelLineDashed {
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+  fill: none;
+  opacity: 0.5;
+}
+
+.erdRelLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--text-accent);
+}
+
+.erdRelLabelSub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--text-tertiary);
+  font-style: italic;
+}
+
+.erdArrowFill {
+  fill: var(--text-tertiary);
+}
+
+/* Design decision notes */
+
+.erdNotes {
+  flex-shrink: 0;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.erdNotesTitle {
   font-family: var(--font-mono);
   font-size: var(--_fs-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  margin: 0;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--_line-secondary);
 }
 
-.ufLaneDesc {
-  font-family: var(--_font-grotesk);
-  font-size: var(--_fs-small);
-  color: var(--text-tertiary);
-  line-height: 1.4;
-}
-
-.ufPipeline {
+.erdNote {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-md);
+  align-items: flex-start;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-left: 3px solid var(--text-accent);
+  background: var(--bg-secondary);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
-.ufStepGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.ufConnector {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.ufConnector svg {
-  display: block;
-}
-
-.ufNode {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border: 1px solid color-mix(in srgb, var(--_uf-color) 30%, transparent);
-  border-radius: var(--radius-capsule);
-  background: color-mix(in srgb, var(--_uf-color) 6%, transparent);
-  white-space: nowrap;
-}
-
-.ufNodeIndex {
+.erdNoteNum {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
+  color: var(--text-accent);
   font-weight: var(--font-weight-semibold);
-  color: var(--_uf-color);
-  opacity: 0.6;
+  flex-shrink: 0;
+  padding-top: 2px;
 }
 
-.ufNodeLabel {
+.erdNoteTitle {
+  display: block;
   font-family: var(--_font-grotesk);
   font-size: var(--_fs-small);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2xs);
+}
+
+.erdNoteDesc {
+  margin: 0;
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-caption);
   color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 /* ── Highlighted text (inline accent) ── */
@@ -3701,19 +4059,8 @@
     font-size: var(--_fs-body);
   }
 
-  .overviewStats {
-    flex-wrap: wrap;
-    max-width: none;
-  }
-
-  .overviewStat {
-    flex: 0 0 33.33%;
-    border-right: none;
-  }
-
-  /* Row divider: first row (items 1–3) gets bottom border */
-  .overviewStat:nth-child(-n + 3) {
-    border-bottom: var(--_line-secondary);
+  .overviewLayout {
+    gap: var(--spacing-xl);
   }
 
   .techGrid {
@@ -3903,6 +4250,46 @@
   .highlightedText {
     padding: var(--padding-sm);
   }
+
+  /* ── User Flow: mobile ── */
+  .ufTabs {
+    flex-wrap: wrap;
+  }
+
+  .ufDiagramWrap {
+    display: none;
+  }
+
+  .ufDetail {
+    display: none;
+  }
+
+  .ufMobileList {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  /* ── ERD: mobile stack ── */
+  .erdLayout {
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+
+  .erdDiagram {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .erdSvg {
+    min-width: 600px;
+    max-height: none;
+  }
+
+  .erdNotes {
+    width: 100%;
+  }
 }
 
 /* ── Tablet: smaller cards + zigzag ── */
@@ -3936,13 +4323,8 @@
     grid-template-columns: 1fr;
   }
 
-  .overviewStat {
-    flex: 0 0 50%;
-  }
-
-  /* Row divider: first two rows (items 1–4) get bottom border */
-  .overviewStat:nth-child(-n + 4) {
-    border-bottom: var(--_line-secondary);
+  .overviewStats {
+    grid-template-columns: 1fr;
   }
 
   .archIndent1 .archPath {

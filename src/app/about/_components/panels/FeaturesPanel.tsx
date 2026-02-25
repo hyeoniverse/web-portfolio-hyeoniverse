@@ -283,7 +283,7 @@ export default function FeaturesPanel({
 
   return (
     <div className={`${styles.panel} ${styles.panelWide}`}>
-      <span className={`${styles.panelNumber} ${styles.animate}`}>03</span>
+      <span className={`${styles.panelNumber} ${styles.animate}`}>04</span>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>
         Key Features.
       </h3>
