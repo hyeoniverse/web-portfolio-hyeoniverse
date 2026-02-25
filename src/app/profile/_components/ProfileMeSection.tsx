@@ -199,19 +199,23 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <span className={styles.panelWatermark}>mindset</span>
         <span className={`${styles.decorBlob} ${styles.decorBlobAlt}`} />
         <div className={styles.panelInner}>
+          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+            {language === "ko" ? "작업 철학" : "Philosophy"}
+          </h3>
           <div className={styles.philosophyStack}>
             {philosophy.map((item, index) => (
               <div
                 key={index}
                 className={`${styles.philosophyRow} ${styles.animate}`}
               >
-                <span className={styles.philosophyIndex}>
-                  0{index + 1}
-                </span>
-                <h3 className={styles.philosophyHeadline}>
-                  {item.title}
-                  <span className={styles.philosophyDot} />
-                </h3>
+                <div className={styles.philosophyLeft}>
+                  <span className={styles.philosophyIndex}>
+                    0{index + 1}
+                  </span>
+                  <h3 className={styles.philosophyHeadline}>
+                    {item.title}
+                  </h3>
+                </div>
                 <p className={styles.philosophyBody}>
                   {item.description[language]}
                 </p>
@@ -225,6 +229,9 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
       <div className={styles.panel}>
         <span className={styles.panelWatermark}>process</span>
         <div className={styles.panelInner}>
+          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+            {language === "ko" ? "일하는 방식" : "My Approach"}
+          </h3>
           <div className={styles.approachStack}>
             {approachSteps.map((step, index) => (
               <div

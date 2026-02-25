@@ -96,12 +96,12 @@ export default function FloatingObject() {
 
   // Bubble text fade transition on section change
   useEffect(() => {
-    const mobileKey = `profilePage.bubble.${activeSection}_mobile`;
-    const mobileText = mobileLayout ? t(mobileKey) : "";
-    const text =
-      mobileLayout && mobileText !== mobileKey
-        ? mobileText
-        : t(`profilePage.bubble.${activeSection}`);
+    const baseKey = `profilePage.bubble.${activeSection}`;
+    const variantKey = mobileLayout
+      ? `${baseKey}_mobile`
+      : `${baseKey}_desktop`;
+    const variantText = t(variantKey);
+    const text = variantText !== variantKey ? variantText : t(baseKey);
     setShowBubble(false);
     const tid = window.setTimeout(() => {
       setBubbleText(text);
