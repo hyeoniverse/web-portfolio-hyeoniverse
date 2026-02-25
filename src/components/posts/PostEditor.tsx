@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -9,6 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import type { Post, PostFormData, Series } from "@/types/post";
 import { useCategories } from "@/hooks/useCategories";
 import Checkbox from "@/components/ui/Checkbox";
+import Select from "@/components/ui/Select";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
@@ -20,6 +21,28 @@ import styles from "./PostEditor.module.css";
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   ssr: false,
 });
+
+type TranslateResult = { translations: string[] } | { error: string };
+
+async function autoTranslate(
+  texts: string[],
+  sourceLang: "ko" | "en",
+  targetLang: "ko" | "en",
+): Promise<TranslateResult> {
+  try {
+    const res = await fetch("/api/admin/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texts, sourceLang, targetLang }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { error: data.error ?? `HTTP ${res.status}` };
+    if (!data.translations) return { error: "Empty response" };
+    return { translations: data.translations };
+  } catch {
+    return { error: "Network error" };
+  }
+}
 
 interface PostEditorProps {
   post?: Post;
@@ -36,13 +59,16 @@ function generateSlug(title: string): string {
 
 export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { tLang } = useLanguage();
   const isEdit = !!post;
   const categories = useCategories();
 
-  const te = (key: string) => t(`admin.posts.editor.${key}`);
-
   const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
+
+  const te = useCallback(
+    (key: string) => tLang(`admin.posts.editor.${key}`, editorLang),
+    [tLang, editorLang],
+  );
 
   const [form, setForm] = useState<PostFormData>({
     title: post?.title ?? "",
@@ -66,11 +92,14 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [status, setStatus] = useState("");
+  const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [error, setError] = useState("");
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
+  const [revisions, setRevisions] = useState<{ timestamp: number; form: PostFormData }[]>([]);
 
   useEffect(() => {
     fetch("/api/series?all=true")
@@ -84,6 +113,57 @@ export default function PostEditor({ post }: PostEditorProps) {
     }
   }, [form.title, slugManual]);
 
+  // status 메시지는 다음 액션까지 유지
+
+  /* ── Auto-save (5s debounce, new + edit) ── */
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const autoSaveSkip = useRef(true);
+  const autoSaveBusy = useRef(false);
+  const savedId = useRef<string | undefined>(post?.id);
+  autoSaveBusy.current = saving || translating;
+
+  useEffect(() => {
+    if (autoSaveSkip.current) {
+      autoSaveSkip.current = false;
+      return;
+    }
+
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(async () => {
+      if (autoSaveBusy.current) return;
+      // 새 글은 제목이 있어야 자동 저장
+      if (!savedId.current && !form.title.trim()) return;
+
+      try {
+        const url = savedId.current
+          ? `/api/posts/${savedId.current}`
+          : "/api/posts";
+        const method = savedId.current ? "PATCH" : "POST";
+        const res = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        if (res.ok) {
+          if (!savedId.current) {
+            const data = await res.json();
+            savedId.current = data.id;
+          }
+          setRevisions((prev) =>
+            [{ timestamp: Date.now(), form: { ...form } }, ...prev].slice(0, 50),
+          );
+          setStatus(te("autoSaved"));
+          setStatusType("success");
+        }
+      } catch {
+        // silent fail
+      }
+    }, 5000);
+
+    return () => clearTimeout(autoSaveTimer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
+
   const updateField = useCallback(
     <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => {
       setForm((prev) => ({ ...prev, [key]: value }));
@@ -91,6 +171,86 @@ export default function PostEditor({ post }: PostEditorProps) {
       setError("");
     },
     []
+  );
+
+  const translateFields = useCallback(
+    async (fieldKeys: string[], lang: "ko" | "en") => {
+      const isToEn = lang === "en";
+      const sourceLang: "ko" | "en" = isToEn ? "ko" : "en";
+      const targetLang: "ko" | "en" = isToEn ? "en" : "ko";
+      const want = new Set(fieldKeys);
+
+      const srcTitle = isToEn ? form.title : form.title_en;
+      const srcContent = isToEn ? form.content : form.content_en;
+      const srcExcerpt = isToEn ? form.excerpt : form.excerpt_en;
+
+      const texts: string[] = [];
+      const keys: (keyof PostFormData)[] = [];
+
+      if (want.has("title") && srcTitle.trim()) {
+        texts.push(srcTitle);
+        keys.push(isToEn ? "title_en" : "title");
+      }
+      if (want.has("content") && srcContent.trim()) {
+        texts.push(srcContent);
+        keys.push(isToEn ? "content_en" : "content");
+      }
+      if (want.has("excerpt") && srcExcerpt.trim()) {
+        texts.push(srcExcerpt);
+        keys.push(isToEn ? "excerpt_en" : "excerpt");
+      }
+
+      if (texts.length === 0) return;
+
+      setTranslating(true);
+      setStatus(tLang("admin.posts.editor.translating", lang));
+      setStatusType("info");
+
+      const result = await autoTranslate(texts, sourceLang, targetLang);
+      setTranslating(false);
+
+      if ("translations" in result) {
+        const patch: Partial<PostFormData> = {};
+        keys.forEach((k, i) => {
+          (patch as Record<string, string>)[k] = result.translations[i];
+        });
+        setForm((prev) => ({ ...prev, ...patch }));
+        setStatus(tLang("admin.posts.editor.autoTranslated", lang));
+        setStatusType("success");
+      } else {
+        setError(result.error);
+      }
+    },
+    [form, tLang],
+  );
+
+  const handleEditorLangChange = useCallback(
+    async (newLang: "ko" | "en") => {
+      if (translating) return;
+      setEditorLang(newLang);
+
+      const isToEn = newLang === "en";
+      const dstTitle = isToEn ? form.title_en : form.title;
+      const dstContent = isToEn ? form.content_en : form.content;
+      const srcTitle = isToEn ? form.title : form.title_en;
+      const srcContent = isToEn ? form.content : form.content_en;
+
+      const hasSource = !!(srcTitle.trim() || srcContent.trim());
+      const hasDest = !!(dstTitle.trim() || dstContent.trim());
+
+      if (hasSource && !hasDest) {
+        await translateFields(["title", "content", "excerpt"], newLang);
+      }
+    },
+    [form, translating, translateFields],
+  );
+
+  const handleRetranslate = useCallback(
+    async (fieldKeys?: string[]) => {
+      if (translating) return;
+      await translateFields(fieldKeys ?? ["title", "content", "excerpt"], editorLang);
+    },
+    [translating, editorLang, translateFields],
   );
 
   const handleContentTypeChange = useCallback(
@@ -180,18 +340,33 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   const handleSave = useCallback(
     async (publish?: boolean) => {
+      const willPublish = publish !== undefined ? publish : form.published;
+
+      if (willPublish) {
+        const missing: string[] = [];
+        if (!form.title.trim()) missing.push(te("title"));
+        if (!form.slug.trim()) missing.push(te("slug"));
+        if (!form.category.trim()) missing.push(te("category"));
+        if (missing.length > 0) {
+          setError(`${te("requiredFields")}: ${missing.join(", ")}`);
+          return;
+        }
+      }
+
       setSaving(true);
       setError("");
       setStatus("");
 
       const body = {
         ...form,
-        published: publish !== undefined ? publish : form.published,
+        published: willPublish,
       };
 
       try {
-        const url = isEdit ? `/api/posts/${post!.id}` : "/api/posts";
-        const method = isEdit ? "PATCH" : "POST";
+        const url = savedId.current
+          ? `/api/posts/${savedId.current}`
+          : "/api/posts";
+        const method = savedId.current ? "PATCH" : "POST";
 
         const res = await fetch(url, {
           method,
@@ -205,6 +380,8 @@ export default function PostEditor({ post }: PostEditorProps) {
           setError(data.error ?? "Failed to save");
           return;
         }
+
+        if (!savedId.current) savedId.current = data.id;
 
         const savedSlug = data.slug || form.slug;
 
@@ -242,6 +419,18 @@ export default function PostEditor({ post }: PostEditorProps) {
     window.open("/admin/posts/preview", "_blank");
   }, [form]);
 
+  const handleRestoreRevision = useCallback(
+    (index: number) => {
+      const rev = revisions[index];
+      if (rev) {
+        setForm(rev.form);
+        setStatus(te("restored"));
+        setStatusType("success");
+      }
+    },
+    [revisions, te],
+  );
+
   const shellLabels = useMemo(
     () => ({
       delete: te("delete"),
@@ -251,7 +440,20 @@ export default function PostEditor({ post }: PostEditorProps) {
       saveDraft: te("saveDraft"),
       update: te("update"),
       publish: te("publish"),
+      revisionHistory: te("revisionHistory"),
+      restore: te("restore"),
+      retranslate: te("retranslate"),
+      retranslateAll: te("retranslateAll"),
     }),
+    [te]
+  );
+
+  const retranslateOptions = useMemo(
+    () => [
+      { key: "title", label: te("title") },
+      { key: "excerpt", label: te("excerpt") },
+      { key: "content", label: te("content") },
+    ],
     [te]
   );
 
@@ -264,9 +466,9 @@ export default function PostEditor({ post }: PostEditorProps) {
       backHref="/admin/posts"
       backLabel={te("backToPosts")}
       editorLang={editorLang}
-      onEditorLangChange={setEditorLang}
+      onEditorLangChange={handleEditorLangChange}
       isEdit={isEdit}
-      saving={saving}
+      saving={saving || translating}
       deleting={deleting}
       published={form.published}
       onDelete={handleDelete}
@@ -274,20 +476,28 @@ export default function PostEditor({ post }: PostEditorProps) {
       onPublish={() => handleSave(true)}
       onPreview={handlePreview}
       status={status}
+      statusType={statusType}
       error={error}
       labels={shellLabels}
+      revisions={revisions.map((r) => ({
+        timestamp: r.timestamp,
+        title: r.form.title || r.form.title_en,
+        excerpt: r.form.excerpt || r.form.excerpt_en || "",
+        content: r.form.content || r.form.content_en || "",
+      }))}
+      onRestoreRevision={handleRestoreRevision}
+      onRetranslate={handleRetranslate}
+      retranslateOptions={retranslateOptions}
     >
       <div className={styles.meta}>
         <div className={es.field}>
-          <label className={es.fieldLabel}>
-            {editorLang === "ko" ? te("title") : te("titleEN")}
-          </label>
+          <label className={es.fieldLabel}>{te("title")}</label>
           <input
             className={es.titleInput}
             type="text"
             value={form[titleKey]}
             onChange={(e) => updateField(titleKey, e.target.value)}
-            placeholder={editorLang === "ko" ? te("titlePlaceholder") : te("titlePlaceholderEN")}
+            placeholder={te("titlePlaceholder")}
           />
         </div>
 
@@ -305,53 +515,6 @@ export default function PostEditor({ post }: PostEditorProps) {
               placeholder="post-url-slug"
             />
           </div>
-        </div>
-
-        <div className={es.field}>
-          <label className={es.fieldLabel}>
-            {editorLang === "ko" ? te("excerpt") : te("excerptEN")}
-          </label>
-          <textarea
-            className={styles.excerptInput}
-            value={form[excerptKey]}
-            onChange={(e) => updateField(excerptKey, e.target.value)}
-            placeholder={
-              editorLang === "ko"
-                ? te("excerptPlaceholder")
-                : te("excerptPlaceholderEN")
-            }
-            rows={2}
-          />
-        </div>
-
-        <div className={es.row}>
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{te("category")}</label>
-            <div className={styles.categoryWrap}>
-              <select
-                className={es.fieldInput}
-                value={categories.includes(form.category) ? form.category : "__custom__"}
-                onChange={(e) => {
-                  if (e.target.value === "__custom__") return;
-                  updateField("category", e.target.value);
-                }}
-              >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-                <option value="__custom__">{te("customCategory")}</option>
-              </select>
-              {!categories.includes(form.category) && (
-                <input
-                  className={es.fieldInput}
-                  type="text"
-                  value={form.category}
-                  onChange={(e) => updateField("category", e.target.value)}
-                  placeholder={te("customCategory")}
-                />
-              )}
-            </div>
-          </div>
           <div className={es.field}>
             <label className={es.fieldLabel}>{te("pin")}</label>
             <div className={styles.pinToggle}>
@@ -364,53 +527,99 @@ export default function PostEditor({ post }: PostEditorProps) {
           </div>
         </div>
 
-        <div className={es.row}>
+        <div className={es.field}>
+          <label className={es.fieldLabel}>{te("excerpt")}</label>
+          <textarea
+            className={styles.excerptInput}
+            value={form[excerptKey]}
+            onChange={(e) => updateField(excerptKey, e.target.value)}
+            placeholder={te("excerptPlaceholder")}
+            rows={2}
+          />
+        </div>
+
+        <div className={styles.contentGroup}>
+          <div className={styles.contentGroupHeader}>
+            <span className={styles.contentGroupLabel}>
+              {te("category")} &amp; {te("series")}
+            </span>
+            <a
+              href="/admin/settings?tab=content&sub=posts"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.manageLink}
+            >
+              {te("seriesManage")}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+            </a>
+          </div>
+
           <div className={es.field}>
-            <label className={es.fieldLabel}>{te("series")}</label>
-            <div className={styles.seriesRow}>
-              <select
-                className={es.fieldInput}
+            <label className={es.fieldLabel}>{te("category")}</label>
+            <div className={styles.categoryWrap}>
+              <Select
+                value={categories.includes(form.category) ? form.category : "__custom__"}
+                options={[
+                  ...categories.map((cat) => ({ value: cat, label: cat })),
+                  { value: "__custom__", label: te("customCategory") },
+                ]}
+                onChange={(v) => {
+                  if (v === "__custom__") return;
+                  updateField("category", v);
+                }}
+              />
+              {!categories.includes(form.category) && (
+                <input
+                  className={es.fieldInput}
+                  type="text"
+                  value={form.category}
+                  onChange={(e) => updateField("category", e.target.value)}
+                  placeholder={te("customCategory")}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className={es.row}>
+            <div className={es.field}>
+              <label className={es.fieldLabel}>{te("series")}</label>
+              <Select
                 value={form.series_id ?? ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  updateField("series_id", val || null);
-                  if (val) {
-                    const selected = seriesList.find((s) => s.id === val);
+                options={[
+                  { value: "", label: te("seriesNone") },
+                  ...seriesList.map((s) => ({
+                    value: s.id,
+                    label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}`,
+                  })),
+                ]}
+                onChange={(v) => {
+                  updateField("series_id", v || null);
+                  if (v) {
+                    const selected = seriesList.find((s) => s.id === v);
                     if (selected?.category) {
                       updateField("category", selected.category);
                     }
                   }
                 }}
-              >
-                <option value="">{te("seriesNone")}</option>
-                {seriesList.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title} ({s.post_count ?? 0}){s.category ? ` — ${s.category}` : ""}
-                  </option>
-                ))}
-              </select>
-              <a
-                href="/admin/settings?tab=content&sub=posts"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.seriesEditBtn}
-              >
-                {te("seriesManage")}
-              </a>
-            </div>
-          </div>
-          {form.series_id && (
-            <div className={es.field}>
-              <label className={es.fieldLabel}>{te("seriesOrder")}</label>
-              <input
-                className={es.fieldInput}
-                type="number"
-                min={0}
-                value={form.series_order}
-                onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
               />
             </div>
-          )}
+            {form.series_id && (
+              <div className={es.field}>
+                <label className={es.fieldLabel}>{te("seriesOrder")}</label>
+                <input
+                  className={es.fieldInput}
+                  type="number"
+                  min={0}
+                  value={form.series_order}
+                  onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <div className={es.row}>
@@ -512,9 +721,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       <div className={styles.editorSection}>
         <div className={es.editorHeader}>
-          <span className={styles.editorLabel}>
-            {editorLang === "ko" ? te("content") : te("contentEN")}
-          </span>
+          <span className={styles.editorLabel}>{te("content")}</span>
           <EditorToggle
             value={form.content_type}
             onChange={handleContentTypeChange}
@@ -527,6 +734,8 @@ export default function PostEditor({ post }: PostEditorProps) {
             value={form[contentKey]}
             onChange={(v) => updateField(contentKey, v)}
             onImageUpload={handleImageUpload}
+            editLabel={te("editorLabel")}
+            previewLabel={te("previewLabel")}
           />
         ) : (
           <RichTextEditor

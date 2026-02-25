@@ -264,6 +264,24 @@ export const siteConfig = {
   },
 
   // ---------------------------------------------------------------------------
+  // 번역 설정
+  // ---------------------------------------------------------------------------
+  // provider: "gemini" | "google" | "deepl"
+  //
+  // Gemini (기본):
+  //   GEMINI_API_KEY=your_key  (https://aistudio.google.com/apikey)
+  //
+  // Google Cloud Translation:
+  //   GOOGLE_TRANSLATE_API_KEY=your_key  (https://console.cloud.google.com)
+  //
+  // DeepL:
+  //   DEEPL_API_KEY=your_key  (https://www.deepl.com/pro-api)
+  // ---------------------------------------------------------------------------
+  translation: {
+    provider: "deepl" as "gemini" | "google" | "deepl",
+  },
+
+  // ---------------------------------------------------------------------------
   // Profile 페이지
   // ---------------------------------------------------------------------------
   profile: {

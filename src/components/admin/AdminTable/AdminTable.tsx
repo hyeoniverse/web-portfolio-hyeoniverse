@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, type ReactNode } from "react";
+import { useState, useMemo, useCallback, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Checkbox from "@/components/ui/Checkbox";
@@ -42,6 +42,7 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onPageChange?: (page: number) => void;
   onRowHover?: (item: T, e: React.MouseEvent) => void;
   onRowLeave?: () => void;
+  onReorder?: (fromIdx: number, toIdx: number) => void;
   children?: ReactNode;
 }
 
@@ -64,9 +65,18 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onPageChange,
   onRowHover,
   onRowLeave,
+  onReorder,
   children,
 }: AdminTableProps<T>) {
   const router = useRouter();
+
+  /* ── Drag & drop state ── */
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
+  const [dropPos, setDropPos] = useState<"above" | "below">("below");
+  const dragAllowedRef = useRef(false);
+
+  const effectiveGrid = onReorder ? `32px ${gridTemplate}` : gridTemplate;
 
   const getEffectivePublished = (item: T): boolean => {
     return publishOverrides.has(item.id)
@@ -124,13 +134,14 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     return [1, -1, p - 1, p, p + 1, -1, totalPages];
   }, [page, totalPages]);
 
-  const gridStyle = { "--_grid": gridTemplate } as React.CSSProperties;
+  const gridStyle = { "--_grid": effectiveGrid } as React.CSSProperties;
 
   /* ── Loading skeleton ── */
   if (loading) {
     return (
       <div className={styles.table} style={gridStyle}>
         <div className={styles.tableHeader}>
+          {onReorder && <span />}
           <span />
           {columns.map((col) => (
             <span key={col.key}>{col.label}</span>
@@ -143,6 +154,11 @@ export default function AdminTable<T extends { id: string; published: boolean }>
             className={styles.row}
             style={{ pointerEvents: "none" }}
           >
+            {onReorder && (
+              <span>
+                <SkeletonLine width="16px" />
+              </span>
+            )}
             <span>
               <SkeletonLine width="20px" />
             </span>
@@ -169,6 +185,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     <>
       <div className={styles.table} style={gridStyle}>
         <div className={styles.tableHeader}>
+          {onReorder && <span />}
           <span className={styles.colCheck}>
             {onPublishAll && (
               <Checkbox
@@ -184,20 +201,120 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           <span>{labels.actions}</span>
         </div>
 
-        {items.map((item) => {
+        {items.map((item, i) => {
           const published = getEffectivePublished(item);
           const changed = publishOverrides.has(item.id);
+          const isDragging = dragIdx === i;
+          const isOver =
+            overIdx === i && dragIdx !== null && dragIdx !== i;
           return (
             <div
               key={item.id}
-              className={`${styles.row} ${changed ? styles.rowChanged : ""}`}
+              className={`${styles.row} ${changed ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""}`}
               data-clickable="true"
+              draggable={!!onReorder}
               onClick={() => handleRowClick(item)}
+              onDragStart={
+                onReorder
+                  ? (e) => {
+                      if (!dragAllowedRef.current) {
+                        e.preventDefault();
+                        return;
+                      }
+                      setDragIdx(i);
+                      e.dataTransfer.effectAllowed = "move";
+                    }
+                  : undefined
+              }
+              onDragOver={
+                onReorder
+                  ? (e) => {
+                      if (dragIdx === null) return;
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      const rect = (
+                        e.currentTarget as HTMLElement
+                      ).getBoundingClientRect();
+                      const mid = rect.top + rect.height / 2;
+                      setDropPos(e.clientY < mid ? "above" : "below");
+                      setOverIdx(i);
+                    }
+                  : undefined
+              }
+              onDrop={
+                onReorder
+                  ? (e) => {
+                      e.preventDefault();
+                      if (dragIdx === null) return;
+                      const rect = (
+                        e.currentTarget as HTMLElement
+                      ).getBoundingClientRect();
+                      const mid = rect.top + rect.height / 2;
+                      const pos =
+                        e.clientY < mid ? "above" : "below";
+                      let toIdx: number;
+                      if (pos === "above") {
+                        toIdx =
+                          dragIdx < i ? i - 1 : i;
+                      } else {
+                        toIdx =
+                          dragIdx <= i ? i : i + 1;
+                      }
+                      toIdx = Math.max(
+                        0,
+                        Math.min(toIdx, items.length - 1),
+                      );
+                      if (toIdx !== dragIdx) onReorder(dragIdx, toIdx);
+                      setDragIdx(null);
+                      setOverIdx(null);
+                    }
+                  : undefined
+              }
+              onDragEnd={
+                onReorder
+                  ? () => {
+                      setDragIdx(null);
+                      setOverIdx(null);
+                      dragAllowedRef.current = false;
+                    }
+                  : undefined
+              }
               onMouseEnter={
                 onRowHover ? (e) => onRowHover(item, e) : undefined
               }
               onMouseLeave={onRowLeave}
             >
+              {onReorder && (
+                <span
+                  className={styles.dragHandle}
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={() => {
+                    dragAllowedRef.current = true;
+                    const cleanup = () => {
+                      dragAllowedRef.current = false;
+                    };
+                    window.addEventListener("pointerup", cleanup, {
+                      once: true,
+                    });
+                  }}
+                >
+                  <svg
+                    className={styles.dragGrip}
+                    width="8"
+                    height="12"
+                    viewBox="0 0 8 12"
+                    fill="currentColor"
+                  >
+                    <circle cx="2" cy="2" r="1" />
+                    <circle cx="6" cy="2" r="1" />
+                    <circle cx="2" cy="6" r="1" />
+                    <circle cx="6" cy="6" r="1" />
+                    <circle cx="2" cy="10" r="1" />
+                    <circle cx="6" cy="10" r="1" />
+                  </svg>
+                  <span className={styles.dragNum}>{i + 1}</span>
+                </span>
+              )}
               <span
                 className={styles.colCheck}
                 onClick={(e) => e.stopPropagation()}

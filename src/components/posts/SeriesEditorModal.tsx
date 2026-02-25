@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Series } from "@/types/post";
 import Checkbox from "@/components/ui/Checkbox";
+import Select from "@/components/ui/Select";
 import styles from "./SeriesEditorModal.module.css";
 
 interface SeriesForm {
@@ -251,16 +252,14 @@ export default function SeriesEditorModal({
           <div className={styles.row}>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>{ts("category")}</label>
-              <select
-                className={styles.select}
+              <Select
                 value={form.category}
-                onChange={(e) => updateField("category", e.target.value)}
-              >
-                <option value="">{ts("categoryNone")}</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+                options={[
+                  { value: "", label: ts("categoryNone") },
+                  ...categories.map((cat) => ({ value: cat, label: cat })),
+                ]}
+                onChange={(v) => updateField("category", v)}
+              />
             </div>
 
             <div className={styles.fieldGroup}>

@@ -12,7 +12,7 @@
   display: grid;
   grid-template-columns: var(--_grid);
   gap: var(--spacing-md);
-  padding: 0 0 var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
   border-bottom: 1px solid var(--border-tertiary-color);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -31,6 +31,7 @@
   align-items: center;
   border-bottom: 1px solid var(--border-tertiary-color);
   min-width: 0;
+  position: relative;
 }
 
 .table .row:hover {
@@ -133,18 +134,18 @@
 
 .actionBtn {
   padding: var(--spacing-2xs) var(--spacing-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--text-primary);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+  color: var(--text-primary);
   text-decoration: none;
 }
 
 .colActions .actionBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .deleteBtn {
@@ -158,7 +159,76 @@
 }
 
 .colActions .deleteBtn:hover {
-  background: var(--color-accent-alpha-10);
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* ── Drag & Drop ── */
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  color: var(--text-muted);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragGrip {
+  position: absolute;
+  opacity: 0;
+}
+
+.dragNum {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.row .dragGrip {
+  transition: opacity 0.15s;
+}
+
+.row .dragNum {
+  transition: opacity 0.15s;
+}
+
+.row:hover .dragGrip {
+  opacity: 1;
+}
+
+.row:hover .dragNum {
+  opacity: 0;
+}
+
+.rowDragging {
+  opacity: 0.4;
+}
+
+.dropAbove::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-accent);
+  z-index: 1;
+}
+
+.dropBelow::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-accent);
+  z-index: 1;
 }
 
 /* ── Pagination ── */

@@ -14,6 +14,9 @@ const ALLOWED_KEYS = [
   "UNSPLASH_ACCESS_KEY",
   "NANOBANANA_API_KEY",
   "HUGGINGFACE_API_KEY",
+  "GEMINI_API_KEY",
+  "GOOGLE_TRANSLATE_API_KEY",
+  "DEEPL_API_KEY",
 ] as const;
 
 // GET /api/admin/secrets — 저장된 값 조회 (마스킹)

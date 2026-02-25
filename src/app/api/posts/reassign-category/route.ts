@@ -1,0 +1,76 @@
+import { NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+/**
+ * POST /api/posts/reassign-category
+ *
+ * Mode 1 — 일괄 재할당:
+ *   { from: string, to: string }
+ *
+ * Mode 2 — 개별 재할당:
+ *   { assignments: [{ id: string, category: string }] }
+ */
+export async function POST(request: Request) {
+  const body = await request.json();
+  const supabase = createAdminClient();
+
+  // Mode 2: per-post assignments
+  if (Array.isArray(body.assignments)) {
+    const assignments: { id: string; category: string }[] = body.assignments;
+    if (assignments.length === 0) {
+      return NextResponse.json({ updated: 0 });
+    }
+
+    // Group by target category for batch updates
+    const groups = new Map<string, string[]>();
+    for (const { id, category } of assignments) {
+      const ids = groups.get(category) ?? [];
+      ids.push(id);
+      groups.set(category, ids);
+    }
+
+    let updated = 0;
+    for (const [category, ids] of groups) {
+      const { error } = await supabase
+        .from("posts")
+        .update({ category })
+        .in("id", ids);
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      updated += ids.length;
+    }
+
+    return NextResponse.json({ updated });
+  }
+
+  // Mode 1: bulk from → to
+  const { from, to } = body;
+
+  if (!from || !to) {
+    return NextResponse.json(
+      { error: "from and to are required" },
+      { status: 400 },
+    );
+  }
+
+  const { count } = await supabase
+    .from("posts")
+    .select("id", { count: "exact", head: true })
+    .eq("category", from);
+
+  if (!count) {
+    return NextResponse.json({ updated: 0 });
+  }
+
+  const { error } = await supabase
+    .from("posts")
+    .update({ category: to })
+    .eq("category", from);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ updated: count });
+}
