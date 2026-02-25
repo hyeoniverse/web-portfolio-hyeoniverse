@@ -142,7 +142,7 @@
       "typography": "Typography",
       "headingFont": "Heading Font",
       "bodyFont": "Body Font",
-      "monoFont": "Monospace Font",
+      "monoFont": "Code Font",
       "currentPassword": "Current Password",
       "currentPasswordPlaceholder": "Enter current password",
       "currentPasswordRequired": "Current password is required",

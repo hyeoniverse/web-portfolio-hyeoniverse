@@ -142,7 +142,7 @@
       "typography": "타이포그래피",
       "headingFont": "헤딩 폰트",
       "bodyFont": "본문 폰트",
-      "monoFont": "모노스페이스 폰트",
+      "monoFont": "코드 폰트",
       "currentPassword": "현재 비밀번호",
       "currentPasswordPlaceholder": "현재 비밀번호 입력",
       "currentPasswordRequired": "현재 비밀번호를 입력해주세요",

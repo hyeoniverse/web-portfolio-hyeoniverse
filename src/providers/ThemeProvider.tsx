@@ -9,6 +9,7 @@ import {
   useCallback,
 } from "react";
 import { useSiteConfig } from "./SiteConfigProvider";
+import { loadGoogleFont } from "@/lib/loadGoogleFont";
 
 type Theme = "light" | "dark";
 
@@ -35,16 +36,18 @@ interface TypographyConfig {
   monoFont: string;
 }
 
-/** font display name → CSS font-family string */
+/** font display name → CSS font-family string (empty = use preloaded default) */
 const HEADING_FONTS: Record<string, string> = {
   "Instrument Serif": "",
   "Noto Serif KR": '"Noto Serif KR", serif',
   "Nanum Myeongjo": '"Nanum Myeongjo", serif',
   "Gowun Batang": '"Gowun Batang", serif',
   "Hahmlet": '"Hahmlet", serif',
-  "Song Myung": '"Song Myung", serif',
-  "Diphylleia": '"Diphylleia", serif',
-  "Grandiflora One": '"Grandiflora One", serif',
+  "Playfair Display": '"Playfair Display", serif',
+  "Cormorant Garamond": '"Cormorant Garamond", serif',
+  "Lora": '"Lora", serif',
+  "EB Garamond": '"EB Garamond", serif',
+  "Merriweather": '"Merriweather", serif',
 };
 
 const BODY_FONTS: Record<string, string> = {
@@ -52,19 +55,25 @@ const BODY_FONTS: Record<string, string> = {
   "Noto Sans KR": '"Noto Sans KR", sans-serif',
   "Gothic A1": '"Gothic A1", sans-serif',
   "IBM Plex Sans KR": '"IBM Plex Sans KR", sans-serif',
-  "Sunflower": '"Sunflower", sans-serif',
-  "Gowun Dodum": '"Gowun Dodum", sans-serif',
   "Nanum Gothic": '"Nanum Gothic", sans-serif',
-  "Do Hyeon": '"Do Hyeon", sans-serif',
-  "Jua": '"Jua", sans-serif',
-  "Dongle": '"Dongle", sans-serif',
-  "Orbit": '"Orbit", sans-serif',
+  "Gowun Dodum": '"Gowun Dodum", sans-serif',
+  "Inter": '"Inter", sans-serif',
+  "DM Sans": '"DM Sans", sans-serif',
+  "Poppins": '"Poppins", sans-serif',
+  "Nunito": '"Nunito", sans-serif',
 };
 
 const MONO_FONTS: Record<string, string> = {
   "JetBrains Mono": "",
   "Fira Code": '"Fira Code", monospace',
+  "Source Code Pro": '"Source Code Pro", monospace',
+  "IBM Plex Mono": '"IBM Plex Mono", monospace',
+  "Roboto Mono": '"Roboto Mono", monospace',
+  "Inconsolata": '"Inconsolata", monospace',
   "Nanum Gothic Coding": '"Nanum Gothic Coding", monospace',
+  "Ubuntu Mono": '"Ubuntu Mono", monospace',
+  "DM Mono": '"DM Mono", monospace',
+  "Courier Prime": '"Courier Prime", monospace',
 };
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -222,25 +231,32 @@ function applyFontOverrides(
 ) {
   if (!typography) return;
 
-  const heading = HEADING_FONTS[typography.headingFont];
-  if (heading) {
-    root.style.setProperty("--font-instrument", heading);
-  } else {
-    root.style.removeProperty("--font-instrument");
-  }
+  applyFont(root, "--font-instrument", typography.headingFont, HEADING_FONTS, "serif");
+  applyFont(root, "--font-space-grotesk", typography.bodyFont, BODY_FONTS, "sans-serif");
+  applyFont(root, "--font-mono", typography.monoFont, MONO_FONTS, "monospace");
+}
 
-  const body = BODY_FONTS[typography.bodyFont];
-  if (body) {
-    root.style.setProperty("--font-space-grotesk", body);
+function applyFont(
+  root: HTMLElement,
+  cssVar: string,
+  fontName: string,
+  lookup: Record<string, string>,
+  fallback: string,
+) {
+  const mapped = lookup[fontName];
+  if (mapped !== undefined) {
+    // 프리셋 폰트: 빈 문자열이면 기본값 복원, 아니면 오버라이드
+    if (mapped) {
+      root.style.setProperty(cssVar, mapped);
+    } else {
+      root.style.removeProperty(cssVar);
+    }
+  } else if (fontName) {
+    // 커스텀 폰트: Google Fonts에서 동적 로드 후 CSS var 주입
+    loadGoogleFont(fontName);
+    root.style.setProperty(cssVar, `"${fontName}", ${fallback}`);
   } else {
-    root.style.removeProperty("--font-space-grotesk");
-  }
-
-  const mono = MONO_FONTS[typography.monoFont];
-  if (mono) {
-    root.style.setProperty("--font-mono", mono);
-  } else {
-    root.style.removeProperty("--font-mono");
+    root.style.removeProperty(cssVar);
   }
 }
 

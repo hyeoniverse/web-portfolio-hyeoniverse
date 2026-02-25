@@ -18,16 +18,20 @@ import {
   IBM_Plex_Sans_KR,
   Nanum_Gothic_Coding,
   Hahmlet,
-  Sunflower,
   Gowun_Dodum,
-  Song_Myung,
-  Diphylleia,
-  Grandiflora_One,
   Nanum_Gothic,
-  Do_Hyeon,
-  Jua,
-  Dongle,
-  Orbit,
+  Source_Code_Pro,
+  IBM_Plex_Mono,
+  Roboto_Mono,
+  Inconsolata,
+  Lora,
+  EB_Garamond,
+  Merriweather,
+  Poppins,
+  Nunito,
+  Ubuntu_Mono,
+  DM_Mono,
+  Courier_Prime,
 } from "next/font/google";
 
 import LoadingScreen from "@/components/layout/LoadingScreen";
@@ -187,34 +191,10 @@ const hahmlet = Hahmlet({
   display: "swap",
   preload: false,
 });
-const sunflower = Sunflower({
-  weight: ["300", "500", "700"],
-  variable: "--font-sunflower",
-  display: "swap",
-});
 const gowunDodum = Gowun_Dodum({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-gowun-dodum",
-  display: "swap",
-  preload: false,
-});
-const songMyung = Song_Myung({
-  weight: ["400"],
-  variable: "--font-song-myung",
-  display: "swap",
-});
-const diphylleia = Diphylleia({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-diphylleia",
-  display: "swap",
-  preload: false,
-});
-const grandifloraOne = Grandiflora_One({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-grandiflora-one",
   display: "swap",
   preload: false,
 });
@@ -225,31 +205,87 @@ const nanumGothic = Nanum_Gothic({
   display: "swap",
   preload: false,
 });
-const doHyeon = Do_Hyeon({
+const sourceCodePro = Source_Code_Pro({
   subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-do-hyeon",
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-source-code-pro",
   display: "swap",
   preload: false,
 });
-const jua = Jua({
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-jua",
+  weight: ["300", "400", "500"],
+  variable: "--font-ibm-plex-mono",
   display: "swap",
   preload: false,
 });
-const dongle = Dongle({
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-roboto-mono",
+  display: "swap",
+  preload: false,
+});
+const inconsolata = Inconsolata({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-inconsolata",
+  display: "swap",
+  preload: false,
+});
+const lora = Lora({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-lora",
+  display: "swap",
+  preload: false,
+});
+const ebGaramond = EB_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-eb-garamond",
+  display: "swap",
+  preload: false,
+});
+const merriweather = Merriweather({
   subsets: ["latin"],
   weight: ["300", "400", "700"],
-  variable: "--font-dongle",
+  variable: "--font-merriweather",
   display: "swap",
   preload: false,
 });
-const orbit = Orbit({
+const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-orbit",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+  preload: false,
+});
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-nunito",
+  display: "swap",
+  preload: false,
+});
+const ubuntuMono = Ubuntu_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-ubuntu-mono",
+  display: "swap",
+  preload: false,
+});
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-dm-mono",
+  display: "swap",
+  preload: false,
+});
+const courierPrime = Courier_Prime({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-courier-prime",
   display: "swap",
   preload: false,
 });
@@ -265,7 +301,7 @@ export default async function RootLayout({
     <html
       lang="ko"
       suppressHydrationWarning
-      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${cormorant.variable} ${dmSans.variable} ${firaCode.variable} ${notoSerifKR.variable} ${nanumMyeongjo.variable} ${gowunBatang.variable} ${notoSansKR.variable} ${gothicA1.variable} ${ibmPlexSansKR.variable} ${nanumGothicCoding.variable} ${hahmlet.variable} ${sunflower.variable} ${gowunDodum.variable} ${songMyung.variable} ${diphylleia.variable} ${grandifloraOne.variable} ${nanumGothic.variable} ${doHyeon.variable} ${jua.variable} ${dongle.variable} ${orbit.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${cormorant.variable} ${dmSans.variable} ${firaCode.variable} ${notoSerifKR.variable} ${nanumMyeongjo.variable} ${gowunBatang.variable} ${notoSansKR.variable} ${gothicA1.variable} ${ibmPlexSansKR.variable} ${nanumGothicCoding.variable} ${hahmlet.variable} ${gowunDodum.variable} ${nanumGothic.variable} ${sourceCodePro.variable} ${ibmPlexMono.variable} ${robotoMono.variable} ${inconsolata.variable} ${lora.variable} ${ebGaramond.variable} ${merriweather.variable} ${poppins.variable} ${nunito.variable} ${ubuntuMono.variable} ${dmMono.variable} ${courierPrime.variable}`}
     >
       <head>
         <link rel="icon" href="/favicon-light.ico" />
