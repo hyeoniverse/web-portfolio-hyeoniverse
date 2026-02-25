@@ -44,13 +44,28 @@ if (typeof window !== "undefined") {
 export default function HomePage() {
   const hasMounted = useHasMounted();
   const { isLoading } = useLoadingScreen();
-  const { setInfinite } = useLenis();
+  const { setInfinite, stop: lenisStop, start: lenisStart, lenis } = useLenis();
 
-  // 홈은 항상 무한 스크롤 활성화
+  // 로딩 중 Lenis 정지 — 스크롤 위치 밀림 방지
   useEffect(() => {
-    setInfinite(true);
-    return () => setInfinite(false);
-  }, [setInfinite]);
+    if (isLoading) {
+      lenisStop();
+    } else {
+      window.scrollTo(0, 0);
+      lenis?.scrollTo(0, { immediate: true });
+      lenisStart();
+    }
+  }, [isLoading, lenis, lenisStop, lenisStart]);
+
+  // 무한 스크롤: 진입 애니메이션 완료(~1.7s) 후 활성화
+  useEffect(() => {
+    if (isLoading) return;
+    const timer = setTimeout(() => setInfinite(true), 1800);
+    return () => {
+      clearTimeout(timer);
+      setInfinite(false);
+    };
+  }, [isLoading, setInfinite]);
 
   // 레퍼런스
   const containerRef = useRef<HTMLDivElement>(null);
@@ -118,11 +133,12 @@ export default function HomePage() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY]);
 
-  // GSAP 스크롤 애니메이션
+  // GSAP 스크롤 애니메이션 — 로딩 완료 후 초기화
   useEffect(() => {
-    if (!hasMounted) return;
+    if (!hasMounted || isLoading) return;
 
     let ctx: gsap.Context;
+    let refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
     const initTimeout = requestAnimationFrame(() => {
       // 레이아웃 재계산 강제 실행
@@ -247,13 +263,17 @@ export default function HomePage() {
       }, containerRef.current!);
 
       ScrollTrigger.refresh(true);
+
+      // 진입 애니메이션(margin 1.2s delay + 0.5s) 완료 후 트리거 위치 재계산
+      refreshTimer = setTimeout(() => ScrollTrigger.refresh(true), 1800);
     });
 
     return () => {
       cancelAnimationFrame(initTimeout);
+      if (refreshTimer) clearTimeout(refreshTimer);
       ctx?.revert();
     };
-  }, [hasMounted]);
+  }, [hasMounted, isLoading]);
 
   if (!hasMounted) return null;
 
@@ -265,12 +285,12 @@ export default function HomePage() {
         ref={containerRef}
         initial={{
           y: "100vh",
-          width: "90vw",
+          width: "90%",
           borderRadius: "var(--radius-2xl)",
         }}
         animate={{
           y: isLoading ? "100vh" : 0,
-          width: isLoading ? "90vw" : "100vw",
+          width: isLoading ? "90%" : "100%",
           borderRadius: isLoading ? "var(--radius-2xl)" : "0px",
         }}
         transition={{
@@ -279,13 +299,13 @@ export default function HomePage() {
             ease: [0.25, 0.46, 0.45, 0.94],
           },
           width: {
-            duration: 0.4,
-            delay: 0.9,
+            duration: 0.5,
+            delay: 1.2,
             ease: [0.25, 0.46, 0.45, 0.94],
           },
           borderRadius: {
-            duration: 0.4,
-            delay: 0.9,
+            duration: 0.5,
+            delay: 1.2,
             ease: [0.25, 0.46, 0.45, 0.94],
           },
         }}

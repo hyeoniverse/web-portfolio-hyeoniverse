@@ -78,7 +78,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           });
 
           setTimeout(() => {
-            router.push(`/works/${work.id}`);
+            router.push(`/works/${work.projectId}`);
           }, 1200);
           return;
         }
@@ -115,7 +115,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
       });
 
       setTimeout(() => {
-        router.push(`/works/${work.id}`);
+        router.push(`/works/${work.projectId}`);
       }, 1200);
     },
     [router, startTransition]
@@ -161,7 +161,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           });
 
           setTimeout(() => {
-            router.push(`/works/${work.id}`);
+            router.push(`/works/${work.projectId}`);
           }, 1200);
           return;
         }

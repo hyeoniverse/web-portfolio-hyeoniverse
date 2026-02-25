@@ -12,7 +12,7 @@ export const REPEL_STRENGTH = 25;
 export const SPRING_CONFIG = {
   normal: { stiffness: 150, damping: 15 },
   smooth: { stiffness: 50, damping: 20 },
-  velocity: { stiffness: 100, damping: 15 },
+  velocity: { stiffness: 100, damping: 25 },
   serviceGap: { stiffness: 120, damping: 18 },
 } as const;
 
