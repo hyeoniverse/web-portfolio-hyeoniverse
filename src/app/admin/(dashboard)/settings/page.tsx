@@ -14,6 +14,7 @@ import type { Series } from "@/types/post";
 import ProfileSections, { profileDefaults } from "@/components/admin/ProfileSections";
 import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
 import type { ProfileData } from "@/types/profile";
+import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import styles from "./Settings.module.css";
 
 type DeepPartial<T> = {
@@ -667,19 +668,19 @@ export default function SettingsPage() {
                   <FontSelect
                     label={t("admin.settings.headingFont")}
                     value={config.typography?.headingFont ?? "Instrument Serif"}
-                    options={["Instrument Serif", "Noto Serif KR", "Nanum Myeongjo", "Gowun Batang", "Hahmlet", "Song Myung", "Diphylleia", "Grandiflora One"]}
+                    options={["Instrument Serif", "Noto Serif KR", "Nanum Myeongjo", "Gowun Batang", "Hahmlet", "Playfair Display", "Cormorant Garamond", "Lora", "EB Garamond", "Merriweather"]}
                     onChange={(v) => update("typography", "headingFont", v)}
                   />
                   <FontSelect
                     label={t("admin.settings.bodyFont")}
                     value={config.typography?.bodyFont ?? "Space Grotesk"}
-                    options={["Space Grotesk", "Noto Sans KR", "Gothic A1", "IBM Plex Sans KR", "Sunflower", "Gowun Dodum", "Nanum Gothic", "Do Hyeon", "Jua", "Dongle", "Orbit"]}
+                    options={["Space Grotesk", "Noto Sans KR", "Gothic A1", "IBM Plex Sans KR", "Nanum Gothic", "Gowun Dodum", "Inter", "DM Sans", "Poppins", "Nunito"]}
                     onChange={(v) => update("typography", "bodyFont", v)}
                   />
                   <FontSelect
                     label={t("admin.settings.monoFont")}
                     value={config.typography?.monoFont ?? "JetBrains Mono"}
-                    options={["JetBrains Mono", "Fira Code", "Nanum Gothic Coding"]}
+                    options={["JetBrains Mono", "Fira Code", "Source Code Pro", "IBM Plex Mono", "Roboto Mono", "Inconsolata", "Nanum Gothic Coding", "Ubuntu Mono", "DM Mono", "Courier Prime"]}
                     onChange={(v) => update("typography", "monoFont", v)}
                   />
                 </div>
@@ -1100,24 +1101,37 @@ const FONT_CSS_VARS: Record<string, string> = {
   "Nanum Myeongjo": "var(--font-nanum-myeongjo)",
   "Gowun Batang": "var(--font-gowun-batang)",
   "Hahmlet": "var(--font-hahmlet)",
-  "Song Myung": "var(--font-song-myung)",
-  "Diphylleia": "var(--font-diphylleia)",
-  "Grandiflora One": "var(--font-grandiflora-one)",
   "Space Grotesk": "var(--font-space-grotesk)",
   "Noto Sans KR": "var(--font-noto-sans-kr)",
   "Gothic A1": "var(--font-gothic-a1)",
   "IBM Plex Sans KR": "var(--font-ibm-plex-sans-kr)",
-  "Sunflower": "var(--font-sunflower)",
   "Gowun Dodum": "var(--font-gowun-dodum)",
   "Nanum Gothic": "var(--font-nanum-gothic)",
-  "Do Hyeon": "var(--font-do-hyeon)",
-  "Jua": "var(--font-jua)",
-  "Dongle": "var(--font-dongle)",
-  "Orbit": "var(--font-orbit)",
   "JetBrains Mono": "var(--font-jetbrains)",
   "Fira Code": "var(--font-fira-code)",
+  "Source Code Pro": "var(--font-source-code-pro)",
+  "IBM Plex Mono": "var(--font-ibm-plex-mono)",
+  "Roboto Mono": "var(--font-roboto-mono)",
+  "Inconsolata": "var(--font-inconsolata)",
   "Nanum Gothic Coding": "var(--font-nanum-gothic-coding)",
+  "Playfair Display": "var(--font-playfair)",
+  "Cormorant Garamond": "var(--font-cormorant)",
+  "Lora": "var(--font-lora)",
+  "EB Garamond": "var(--font-eb-garamond)",
+  "Merriweather": "var(--font-merriweather)",
+  "Inter": "var(--font-inter)",
+  "DM Sans": "var(--font-dm-sans)",
+  "Poppins": "var(--font-poppins)",
+  "Nunito": "var(--font-nunito)",
+  "Ubuntu Mono": "var(--font-ubuntu-mono)",
+  "DM Mono": "var(--font-dm-mono)",
+  "Courier Prime": "var(--font-courier-prime)",
 };
+
+/** 프리셋이면 CSS var, 커스텀이면 폰트명 그대로 */
+function getFontFamily(name: string) {
+  return FONT_CSS_VARS[name] ?? `"${name}", sans-serif`;
+}
 
 function FontSelect({
   label,
@@ -1130,30 +1144,74 @@ function FontSelect({
   options: string[];
   onChange: (v: string) => void;
 }) {
+  const isCustom = !!value && !options.includes(value);
+  const [customInput, setCustomInput] = useState(isCustom ? value : "");
+
   const selectOptions = options.map((f) => ({ value: f, label: f }));
+
+  // 커스텀 폰트 프리뷰를 위해 동적 로드
+  useEffect(() => {
+    if (customInput && !FONT_CSS_VARS[customInput]) {
+      loadGoogleFont(customInput);
+    }
+  }, [customInput]);
+
+  const handlePresetChange = (v: string) => {
+    setCustomInput("");
+    onChange(v);
+  };
+
+  const handleCustomBlur = () => {
+    const trimmed = customInput.trim();
+    if (trimmed) {
+      onChange(trimmed);
+    } else {
+      // 인풋 비우면 프리셋 값 복원 (현재 value가 프리셋이면 유지, 아니면 첫 번째 프리셋)
+      if (!options.includes(value)) {
+        onChange(options[0]);
+      }
+    }
+  };
+
+  const handleCustomKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
   return (
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>{label}</label>
       <Select
-        value={value}
+        value={isCustom ? "" : value}
         options={selectOptions}
-        onChange={onChange}
+        onChange={handlePresetChange}
         renderValue={(opt) => (
-          <span style={{ fontFamily: FONT_CSS_VARS[opt?.value ?? ""] }}>
-            {opt?.label ?? ""}
+          <span style={{ fontFamily: getFontFamily(isCustom ? value : (opt?.value ?? "")) }}>
+            {isCustom ? value : (opt?.label ?? "")}
           </span>
         )}
         renderOption={(opt) => (
           <div className={styles.fontOption}>
             <span
               className={styles.fontSample}
-              style={{ fontFamily: FONT_CSS_VARS[opt.value] }}
+              style={{ fontFamily: getFontFamily(opt.value) }}
             >
               가나다 Abc
             </span>
             <span className={styles.fontName}>{opt.label}</span>
           </div>
         )}
+      />
+      <input
+        type="text"
+        className={styles.fontCustomInput}
+        placeholder="Google Fonts 이름 직접 입력"
+        value={customInput}
+        onChange={(e) => setCustomInput(e.target.value)}
+        onBlur={handleCustomBlur}
+        onKeyDown={handleCustomKeyDown}
+        style={customInput ? { fontFamily: getFontFamily(customInput) } : undefined}
       />
     </div>
   );
