@@ -198,7 +198,7 @@
       "password": "Password",
       "newPassword": "New Password",
       "confirmPassword": "Confirm Password",
-      "leaveBlank": "Leave blank to keep current",
+      "leaveBlank": "Leave blank if not changing",
       "confirmPlaceholder": "Confirm new password",
       "passwordMismatch": "Passwords don't match",
       "noChanges": "No changes",
@@ -479,17 +479,18 @@
   },
   "profilePage": {
     "bubble": {
-      "0": "Hello! Nice to meet you :)",
-      "1": "Let me introduce myself!",
-      "2": "Here's my journey so far",
-      "3": "Frontend is my strength!",
-      "4": "I do backend too",
-      "5": "Got an eye for design",
-      "6": "Tools I work with",
-      "7": "Values that guide my work",
-      "8": "This is how I work",
-      "9": "Certifications & awards",
-      "10": "Thanks for reading!"
+      "0": "Hi there! ٩( ᐢᗜᐢ)ㅅ(ᐢᗜᐢ )و Scroll down to get to know me!",
+      "1": "This is who I am! ( ⸝⸝⸝˃֊˂)",
+      "1_desktop": "This is who I am! ( ⸝⸝⸝˃֊˂) Try dragging the window — there might be a hidden message!?!?",
+      "2": "Here's what I've been up to!",
+      "3": "Frontend is what I enjoy and know best!",
+      "4": "What I'm most into these days!",
+      "5": "I can handle some backend work too!",
+      "6": "I can work with all sorts of tools!",
+      "7": "My coding philosophy — Just do it!",
+      "8": "This is how I think when I work!",
+      "9": "Here are my certifications & awards! (✌ -͈᷅‎ ⌄ -͈᷄)",
+      "10": "Thanks for reading all the way! 💕"
     }
   }
 }

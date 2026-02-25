@@ -726,49 +726,44 @@
 
 .philosophyRow {
   display: grid;
-  gap: 2rem;
+  gap: 3rem;
   align-items: baseline;
   padding: clamp(1.5rem, 3vh, 2.5rem) 0;
   border-bottom: 1px solid var(--border-default);
-  grid-template-columns: auto 1fr 1.2fr;
+  grid-template-columns: 1fr 1.4fr;
 }
 
 .philosophyRow:first-child {
   border-top: 1px solid var(--border-default);
 }
 
+.philosophyLeft {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+}
+
 .philosophyIndex {
-  padding-top: 0.35em;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(2rem, min(5vw, 6vh), 3.5rem);
   font-weight: 400;
+  line-height: 1;
   color: var(--color-accent);
-  letter-spacing: 0.1em;
+  letter-spacing: -0.02em;
 }
 
 .philosophyHeadline {
   margin: 0;
   font-family: var(--font-instrument), serif;
-  font-size: clamp(1.75rem, min(4vw, 5vh), 3rem);
+  font-size: clamp(1.5rem, min(3.5vw, 4.5vh), 2.5rem);
   font-weight: 400;
   line-height: 1.15;
   color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
-.philosophyDot {
-  display: inline-block;
-  margin-left: 0.15em;
-  width: 0.3em;
-  height: 0.3em;
-  vertical-align: 0.25em;
-  background: var(--color-accent);
-  border-radius: 50%;
-}
-
 .philosophyBody {
   margin: 0;
-  padding-top: 0.25em;
   font-family: var(--font-mono);
   font-size: 0.88rem;
   font-weight: 300;
@@ -1015,13 +1010,8 @@
   }
 
   .philosophyRow {
-    gap: 1.25rem;
-    grid-template-columns: auto 1fr;
-  }
-
-  .philosophyBody {
-    padding-top: 0;
-    grid-column: 1 / -1;
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
   }
 
   .approachRow {
