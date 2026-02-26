@@ -817,6 +817,19 @@ export default function SettingsPage() {
                 </div>
               </section>
 
+              {/* Comment Notifications */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("admin.settings.commentNotifications")}</h2>
+                <div className={styles.fields}>
+                  <Toggle
+                    label={t("admin.settings.commentEmailNotify")}
+                    checked={config.commentEmailNotify ?? false}
+                    onChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
+                  />
+                  <p className={styles.fieldHint}>{t("admin.settings.commentEmailNotifyDesc")}</p>
+                </div>
+              </section>
+
               {/* Security */}
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("admin.settings.securitySettings")}</h2>

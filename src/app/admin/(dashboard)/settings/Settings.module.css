@@ -459,6 +459,13 @@
   margin-top: calc(-1 * var(--spacing-sm));
 }
 
+.fieldHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
 .hintLink {
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
