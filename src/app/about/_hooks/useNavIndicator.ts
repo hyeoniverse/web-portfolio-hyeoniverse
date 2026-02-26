@@ -67,8 +67,8 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
     () => [
       { id: 0, label: "Hello" },
       { id: 1, label: "Overview" },
-      { id: 2, label: "User Flow" },
-      { id: 3, label: "Architecture" },
+      { id: 2, label: "Architecture" },
+      { id: 3, label: "User Flow" },
       { id: 4, label: "Features" },
       { id: 5, label: "Design" },
       { id: 6, label: "Process" },

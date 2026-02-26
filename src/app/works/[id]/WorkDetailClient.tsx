@@ -9,6 +9,7 @@ import type { Project } from "@/data/projects";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import Button from "@/components/ui/Button";
+import CommentSection from "@/components/comments/CommentSection";
 import styles from "./WorkDetail.module.css";
 
 interface WorkDetailClientProps {
@@ -75,7 +76,8 @@ export default function WorkDetailClient({
     setLiked(data.liked);
   }, [project.id, liked]);
 
-  const content = project.content[language];
+  const content = project.content[language] || project.content.ko;
+  const needsTranslation = language === "en" && !project.content[language];
 
   const headings: TocHeading[] = useMemo(() => {
     const contentHeadings = extractHeadings(content, isRichtext);
@@ -139,6 +141,15 @@ export default function WorkDetailClient({
             </Button>
           </motion.div>
 
+          {/* Comments */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.75 }}
+          >
+            <CommentSection commentType="work" targetId={project.id} />
+          </motion.div>
+
           {/* 이전/다음 프로젝트 */}
           {(prevProject || nextProject) && (
             <nav className={styles.adjacentNav}>
@@ -157,7 +168,10 @@ export default function WorkDetailClient({
                     />
                   </div>
                   <div className={styles.adjacentBody}>
-                    <span className={styles.adjacentLabel}>&larr; Previous</span>
+                    <span className={styles.adjacentLabel}>
+                      <span className={styles.adjacentArrow}>&larr;</span>
+                      Previous
+                    </span>
                     <span className={styles.adjacentWorkTitle}>
                       {prevProject.title}
                     </span>
@@ -181,7 +195,10 @@ export default function WorkDetailClient({
                     />
                   </div>
                   <div className={styles.adjacentBody}>
-                    <span className={styles.adjacentLabel}>Next &rarr;</span>
+                    <span className={styles.adjacentLabel}>
+                      Next
+                      <span className={styles.adjacentArrow}>&rarr;</span>
+                    </span>
                     <span className={styles.adjacentWorkTitle}>
                       {nextProject.title}
                     </span>
@@ -273,6 +290,14 @@ export default function WorkDetailClient({
             </div>
           </div>
         </motion.div>
+      )}
+
+      {needsTranslation && (
+        <div className={styles.translateBanner}>
+          <p className={styles.translateMessage}>
+            This work is not yet available in English.
+          </p>
+        </div>
       )}
 
       {/* Content */}

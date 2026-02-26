@@ -7,9 +7,9 @@ interface HeroPanelProps {
 
 export default function HeroPanel({ t }: HeroPanelProps) {
   return (
-    <div className={styles.panel}>
+    <div className={`${styles.panel} ${styles.heroPanelBg}`}>
       <div className={styles.heroContent}>
-        <span className={`${styles.label} ${styles.animate}`}>
+        <span className={`${styles.label} ${styles.animate} ${styles.heroFadeIn1}`}>
           {t("aboutPage.title")}
         </span>
         <KineticHeroTitle
@@ -18,9 +18,10 @@ export default function HeroPanel({ t }: HeroPanelProps) {
             { text: "the Scenes", accent: true },
           ]}
         />
-        <p className={`${styles.heroSubtitle} ${styles.animate}`}>
+        <p className={`${styles.heroSubtitle} ${styles.animate} ${styles.heroFadeIn2}`}>
           {t("aboutPage.description")}
         </p>
+        <span className={styles.heroAccentLine} />
         <span className={styles.heroWatermark}>the build</span>
       </div>
     </div>

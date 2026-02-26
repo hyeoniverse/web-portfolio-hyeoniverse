@@ -18,12 +18,13 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import ProfileWindows from "./ProfileWindows";
 import MarqueeDivider from "./MarqueeDivider";
+import BunnyShowcasePanel from "./BunnyShowcase/BunnyShowcasePanel";
 import KineticHeroTitle from "@/components/common/KineticHeroTitle";
 import styles from "./ProfileMeSection.module.css";
 
-// 11 panels + 3 break dividers = 14 elements per set
-const PANEL_COUNT = 14;
-const NAV_SECTION_COUNT = 11;
+// 12 panels + 3 break dividers = 15 elements per set
+const PANEL_COUNT = 15;
+const NAV_SECTION_COUNT = 12;
 const REPETITIONS = 3;
 
 interface ProfileMeSectionProps {
@@ -76,10 +77,18 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         </div>
       </div>
 
+      {/* Panel 2: Bunny Showcase */}
+      <div className={styles.panel}>
+        <span className={styles.panelWatermark}>mongi</span>
+        <div className={styles.panelInner}>
+          <BunnyShowcasePanel animateClass={styles.animate} />
+        </div>
+      </div>
+
       {/* Break: Marquee 1 */}
       <MarqueeDivider className={styles.breakPanel} />
 
-      {/* Panel 2: Profile */}
+      {/* Panel 3: Profile */}
       <div className={`${styles.panel} ${styles.profilePanel}`}>
         <ProfileWindows className={styles.animate} isMobile={isMobile} />
         <div className={`${styles.profileContent} ${styles.animate}`}>
@@ -88,6 +97,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
           </p>
           <p className={styles.bioText}>{ko ? p.bioText1_ko : p.bioText1}</p>
           <p className={styles.bioText}>{ko ? p.bioText2_ko : p.bioText2}</p>
+          <p className={styles.bioText}>{ko ? p.bioText3_ko : p.bioText3}</p>
 
           <div className={styles.stats}>
             <div className={styles.stat}>
@@ -309,7 +319,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         </div>
       </div>
 
-      {/* Panel 11: Credits */}
+      {/* Panel 12: Credits */}
       <CreditsPanel className={`${styles.panel} ${styles.animate}`} />
     </Fragment>
   );

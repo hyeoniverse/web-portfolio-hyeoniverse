@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { cn } from "@/utils";
 import { useSoundManager } from "@/hooks/useSoundManager";
+import LoadingDots from "./LoadingDots";
 import styles from "./Button.module.css";
 
 /* --------------------------------------------------------------------------
@@ -21,6 +22,7 @@ interface ButtonBaseProps {
   size?: ButtonSize;
   fullWidth?: boolean;
   disabled?: boolean;
+  loading?: boolean;
   active?: boolean;
   icon?: ReactNode;
   iconPosition?: "left" | "right";
@@ -55,6 +57,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
       size = "md",
       fullWidth,
       disabled,
+      loading,
       active,
       icon,
       iconPosition = "left",
@@ -67,6 +70,8 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
   ) => {
     const { playSound } = useSoundManager();
 
+    const isDisabled = disabled || loading;
+
     const classes = cn(
       styles.btn,
       styles[`variant-${variant}`],
@@ -74,15 +79,17 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
       styles[`size-${size}`],
       fullWidth && styles.fullWidth,
       active && styles.active,
-      disabled && styles.disabled,
+      isDisabled && styles.disabled,
       className,
     );
 
     const handleMouseEnter = () => {
-      if (!soundDisabled && !disabled) playSound("hover");
+      if (!soundDisabled && !isDisabled) playSound("hover");
     };
 
-    const content = (
+    const content = loading ? (
+      <LoadingDots />
+    ) : (
       <>
         {icon && iconPosition === "left" && (
           <span className={styles.icon}>{icon}</span>
@@ -99,7 +106,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
       const { href, external, onClick, ...anchorRest } = rest as ButtonAsLink;
 
       const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>) => {
-        if (!soundDisabled && !disabled) playSound("click");
+        if (!soundDisabled && !isDisabled) playSound("click");
         onClick?.(e);
       };
 
@@ -111,7 +118,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
             target="_blank"
             rel="noopener noreferrer"
             className={classes}
-            aria-disabled={disabled || undefined}
+            aria-disabled={isDisabled || undefined}
             onMouseEnter={handleMouseEnter}
             onClick={handleLinkClick}
             {...anchorRest}
@@ -140,7 +147,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
     const { onClick, type } = rest as ButtonAsButton;
 
     const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
-      if (!soundDisabled && !disabled) playSound("click");
+      if (!soundDisabled && !isDisabled) playSound("click");
       onClick?.(e);
     };
 
@@ -149,13 +156,13 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
         ref={ref as React.Ref<HTMLButtonElement>}
         type={type ?? "button"}
         className={classes}
-        disabled={disabled}
+        disabled={isDisabled}
         onMouseEnter={handleMouseEnter}
         onClick={handleClick}
         whileHover={
-          !disabled ? { y: -1, transition: { duration: 0.2 } } : undefined
+          !isDisabled ? { y: -1, transition: { duration: 0.2 } } : undefined
         }
-        whileTap={!disabled ? { scale: 0.97 } : undefined}
+        whileTap={!isDisabled ? { scale: 0.97 } : undefined}
       >
         {content}
       </motion.button>

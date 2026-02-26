@@ -28,9 +28,14 @@ export default function PopularPosts() {
       <div className={styles.list}>
         {posts.map((post, idx) => (
           <Link key={post.id} href={`/posts/${post.slug}`} className={styles.item}>
-            <span className={styles.rank}>{String(idx + 1).padStart(2, "0")}</span>
+            <span className={`${styles.rank} ${idx === 0 ? styles.rankTop : idx <= 2 ? styles.rankHigh : ""}`}>
+              {String(idx + 1).padStart(2, "0")}
+            </span>
             <div className={styles.info}>
-              <span className={styles.itemTitle}>{post.title}</span>
+              <div className={styles.titleRow}>
+                <span className={styles.itemTitle}>{post.title}</span>
+                {idx === 0 && <span className={styles.badge}>HOT</span>}
+              </div>
               <span className={styles.itemMeta}>
                 {post.view_count} views
                 {post.like_count > 0 && <> &middot; {post.like_count} likes</>}

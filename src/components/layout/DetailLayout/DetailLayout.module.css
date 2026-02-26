@@ -106,7 +106,7 @@
   display: block;
   padding: var(--spacing-2xs) var(--spacing-md);
   font-size: var(--font-size-xs);
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   text-decoration: none;
   line-height: var(--line-height-normal);
   border-left: 2px solid transparent;

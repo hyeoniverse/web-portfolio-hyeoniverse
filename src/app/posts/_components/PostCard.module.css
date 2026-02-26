@@ -65,12 +65,12 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2xs) var(--spacing-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -82,12 +82,12 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-2xs) var(--spacing-md);
   border: 1px solid var(--color-accent-alpha-20);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
   color: var(--color-accent);
   text-transform: uppercase;
@@ -187,7 +187,7 @@
   background: var(--bg-primary);
 }
 
-/* 이미지 — 오른쪽 55% */
+/* 이미지 — 오른쪽 58% + Ken Burns 자동 줌·패닝 */
 .heroBg {
   position: absolute;
   top: 0;
@@ -202,11 +202,24 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--duration-slow) var(--ease-material);
+  animation: heroKenBurns 18s ease-in-out infinite alternate;
 }
 
 .hero:hover .heroBg .image {
-  transform: scale(1.04);
+  animation-play-state: paused;
+  transform: scale(1.08);
+}
+
+@keyframes heroKenBurns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.08) translate(-1%, 1%);
+  }
+  100% {
+    transform: scale(1.04) translate(1%, -0.5%);
+  }
 }
 
 /* 이미지 좌측 페이드 — bg와 자연스럽게 연결 */
@@ -216,9 +229,22 @@
   background: linear-gradient(
     to right,
     var(--bg-primary) 0%,
-    transparent 60%
+    color-mix(in srgb, var(--bg-primary) 60%, transparent) 45%,
+    transparent 70%
   );
   z-index: 1;
+}
+
+/* 하단 비네트 그라데이션 */
+.heroOverlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--bg-primary) 40%, transparent) 0%,
+    transparent 30%
+  );
 }
 
 /* 콘텐츠 — 왼쪽 */
@@ -234,14 +260,26 @@
   min-height: 480px;
 }
 
-/* accent 장식선 */
+/* accent 장식선 — 슬라이드 인 애니메이션 */
 .heroContent::before {
   content: "";
-  width: 32px;
+  width: 48px;
   height: 3px;
   background: var(--color-accent);
   border-radius: 2px;
   margin-bottom: var(--spacing-xs);
+  animation: heroAccentSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
+}
+
+@keyframes heroAccentSlide {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 48px;
+    opacity: 1;
+  }
 }
 
 /* 배지 */
@@ -249,8 +287,11 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--color-accent-alpha-30);
+  border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
   color: var(--color-accent);
   text-transform: uppercase;
@@ -270,6 +311,11 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* compound selector — global theme transition 우회 */
+.hero .heroTitle {
+  transition: color 0.3s ease;
 }
 
 .hero:hover .heroTitle {
@@ -299,7 +345,7 @@
 }
 
 .heroDot {
-  color: var(--text-muted);
+  color: var(--text-tertiary);
 }
 
 /* ═══════════════════════════════════════════

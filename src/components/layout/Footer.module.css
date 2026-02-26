@@ -187,6 +187,27 @@
 }
 
 /* ==========================================================================
+  Minimal variant — 조회수 (상단 중앙) / 이메일 + 저작권 (하단 좌우)
+  ========================================================================== */
+
+.footerMinimal {
+  margin-top: 0;
+  padding: var(--spacing-2xl) 4rem var(--spacing-xl);
+}
+
+.visitsCentered {
+  display: flex;
+  justify-content: center;
+}
+
+.bottomMinimal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-accent-alt);
+}
+
+/* ==========================================================================
   Responsive
   ========================================================================== */
 

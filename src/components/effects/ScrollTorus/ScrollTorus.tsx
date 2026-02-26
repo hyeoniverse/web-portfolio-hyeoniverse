@@ -68,9 +68,10 @@ export default function ScrollTorus() {
     []
   );
 
-  const dpr = isTouch
-    ? Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 1.5)
-    : Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2);
+  const dpr = Math.min(
+    typeof window !== "undefined" ? window.devicePixelRatio : 1,
+    1.5,
+  );
 
   return (
     <div className={styles.torusOverlay}>
@@ -79,7 +80,7 @@ export default function ScrollTorus() {
         dpr={dpr}
         gl={(d) => createSafeRenderer(d, { alpha: true, antialias: !isTouch, powerPreference: "high-performance" })}
         style={{ background: "transparent" }}
-        frameloop="always"
+        frameloop="demand"
       >
         <Suspense fallback={null}>
           <TorusScene

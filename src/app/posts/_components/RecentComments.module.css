@@ -63,7 +63,7 @@
 .time {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-3xs);
-  color: var(--text-muted);
+  color: var(--text-tertiary);
 }
 
 .content {
@@ -80,7 +80,7 @@
 .postTitle {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-3xs);
-  color: var(--text-muted);
+  color: var(--text-tertiary);
 }
 
 .postTitle::before {
@@ -90,7 +90,7 @@
 .empty {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   padding: var(--spacing-sm) 0;
   font-style: italic;
 }

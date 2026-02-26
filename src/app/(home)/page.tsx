@@ -27,6 +27,7 @@ import CTASection from "./_sections/CTASection";
 import BridgeSection from "./_sections/BridgeSection";
 
 // 컴포넌트
+import Footer from "@/components/layout/Footer";
 import dynamic from "next/dynamic";
 
 const ScrollTorus = dynamic(
@@ -354,6 +355,8 @@ export default function HomePage() {
           magnetic={magnetic}
           onContactClick={openForm}
         />
+
+        <Footer variant="minimal" />
 
         <BridgeSection
           floatX={floatX}

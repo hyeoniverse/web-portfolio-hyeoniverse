@@ -5,6 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { siteConfig } from "@/config/site.config";
 import { useSoundStore } from "@/stores/soundStore";
+import { useProfileSectionStore } from "@/stores/profileSectionStore";
 
 /* ── Constants ── */
 
@@ -318,22 +319,36 @@ export default function FloatingScene({
     groupRef.current.scale.setScalar(scale);
 
     // ── Expressions ──
-    const HIT_EXPR_DUR = 0.8;
-    const isHitExpr = hitTime.current > 0 && (t - hitTime.current) < HIT_EXPR_DUR;
-    const isSmile = !isHitExpr && !!smileRef?.current;
+    const storeExpr = useProfileSectionStore.getState().bunnyExpression;
+    let showNormal: boolean;
+    let showSquint: boolean;
+    let showSmile: boolean;
 
-    // normal eyes: visible only when no special expression
-    if (leftEyeRef.current) leftEyeRef.current.visible = !isHitExpr && !isSmile;
-    if (rightEyeRef.current) rightEyeRef.current.visible = !isHitExpr && !isSmile;
+    if (storeExpr) {
+      showNormal = storeExpr === "normal";
+      showSquint = storeExpr === "surprised";
+      showSmile = storeExpr === "happy";
+    } else {
+      const HIT_EXPR_DUR = 0.8;
+      const isHitExpr = hitTime.current > 0 && (t - hitTime.current) < HIT_EXPR_DUR;
+      const isSmile = !isHitExpr && !!smileRef?.current;
+      showNormal = !isHitExpr && !isSmile;
+      showSquint = isHitExpr;
+      showSmile = isSmile;
+    }
+
+    // normal eyes
+    if (leftEyeRef.current) leftEyeRef.current.visible = showNormal;
+    if (rightEyeRef.current) rightEyeRef.current.visible = showNormal;
     // hit >< eyes
-    if (leftSquintRef.current) leftSquintRef.current.visible = isHitExpr;
-    if (rightSquintRef.current) rightSquintRef.current.visible = isHitExpr;
+    if (leftSquintRef.current) leftSquintRef.current.visible = showSquint;
+    if (rightSquintRef.current) rightSquintRef.current.visible = showSquint;
     // smile ^^ eyes
-    if (leftSmileRef.current) leftSmileRef.current.visible = isSmile;
-    if (rightSmileRef.current) rightSmileRef.current.visible = isSmile;
+    if (leftSmileRef.current) leftSmileRef.current.visible = showSmile;
+    if (rightSmileRef.current) rightSmileRef.current.visible = showSmile;
 
     // ── Eye blink (특수 표정 중에는 스킵) ──
-    if (!isHitExpr && !isSmile) {
+    if (showNormal) {
       const BLINK_DUR = 0.15;
       if (blinkPhase.current < 0) {
         if (t > nextBlink.current) {

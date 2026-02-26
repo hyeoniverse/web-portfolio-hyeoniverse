@@ -352,13 +352,13 @@
 
 .menuBtnWrapper {
   display: flex;
-  transform: scale(0);
+  opacity: 0;
   visibility: hidden;
   pointer-events: none;
   position: absolute;
   right: 0;
   transition:
-    transform var(--duration-moderate) var(--ease-material),
+    opacity var(--duration-moderate) var(--ease-material),
     visibility var(--duration-moderate);
 }
 
@@ -379,10 +379,18 @@
   Menu Drawer (full-screen dark overlay)
   ========================================================================== */
 
-.menuClipWrapper {
+/* doubled selector (0,2,0) — beats global theme transition rule (0,1,1) */
+.menuClipWrapper.menuClipWrapper {
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 0.8s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.menuClipOpen.menuClipOpen {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 0.9s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .menuBackdrop {
@@ -713,7 +721,7 @@
   }
 
   .menuBtnWrapper {
-    transform: scale(1);
+    opacity: 1;
     visibility: visible;
     pointer-events: auto;
     position: static;

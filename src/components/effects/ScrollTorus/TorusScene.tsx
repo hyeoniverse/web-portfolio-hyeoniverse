@@ -33,7 +33,7 @@ export default function TorusScene({
   pointerActive,
 }: TorusSceneProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const { camera } = useThree();
+  const { camera, invalidate } = useThree();
 
   // 반발 오프셋 (매 프레임 lerp로 부드럽게 보간)
   const repulsionRef = useRef(new THREE.Vector2(0, 0));
@@ -61,6 +61,25 @@ export default function TorusScene({
     return () => { geometry.dispose(); };
   }, [geometry]);
 
+  // frameloop="demand" — 스크롤/마우스 이벤트 시에만 렌더링 요청
+  useEffect(() => {
+    const onScroll = () => invalidate();
+    const onPointer = () => invalidate();
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("mousemove", onPointer, { passive: true });
+    window.addEventListener("touchmove", onPointer, { passive: true });
+
+    // 초기 렌더링
+    invalidate();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("mousemove", onPointer);
+      window.removeEventListener("touchmove", onPointer);
+    };
+  }, [invalidate]);
+
   const matConfig = TORUS_MATERIAL[theme];
 
   useFrame(() => {
@@ -85,6 +104,7 @@ export default function TorusScene({
       2;
 
     // 커서/터치 자석 + 반발 효과
+    let repSettling = false;
     {
       const isActive = isMobile ? pointerActive.current : true;
 
@@ -107,15 +127,12 @@ export default function TorusScene({
 
       if (isActive && dist > 0.01) {
         if (dist < TORUS_ATTRACTION.radius) {
-          // 자석 존 (가까움): 커서를 따라감 — 가까울수록 강하게
           const force =
             ((1 - dist / TORUS_ATTRACTION.radius) ** 2) * TORUS_ATTRACTION.strength;
-          // dx는 토러스→커서 반대 방향이므로 부호 반전하여 끌어당김
           targetRepX = -(dx / dist) * force;
           targetRepY = -(dy / dist) * force;
           smoothing = TORUS_ATTRACTION.smoothing;
         } else if (dist < TORUS_REPULSION.radius) {
-          // 반발 존 (멈): 자석 반경 밖 ~ 반발 반경 안 → 밀어냄
           const range = TORUS_REPULSION.radius - TORUS_ATTRACTION.radius;
           const normalized = (dist - TORUS_ATTRACTION.radius) / range;
           const force = Math.min(
@@ -132,6 +149,11 @@ export default function TorusScene({
       const rep = repulsionRef.current;
       rep.x += (targetRepX - rep.x) * smoothing;
       rep.y += (targetRepY - rep.y) * smoothing;
+
+      // lerp가 아직 수렴 중이면 다음 프레임 요청
+      if (Math.abs(targetRepX - rep.x) > 0.001 || Math.abs(targetRepY - rep.y) > 0.001) {
+        repSettling = true;
+      }
 
       x += rep.x;
       y += rep.y;
@@ -152,6 +174,9 @@ export default function TorusScene({
       TORUS_SCALE.y * s,
       TORUS_SCALE.z * s
     );
+
+    // 반발 lerp 수렴 중이면 계속 렌더링
+    if (repSettling) invalidate();
   });
 
   return (

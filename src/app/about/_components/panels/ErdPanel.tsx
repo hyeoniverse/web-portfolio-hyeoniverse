@@ -199,7 +199,7 @@ function renderRelations() {
   const postsCenter = { x: 380 + 140, y: 195 };
   const postsBottom = { x: 380 + 140, y: 195 + tableHeight(7) };
   const seriesBottom = { x: 380 + 140, y: 8 + tableHeight(4) };
-  const commentsLeft = { x: 730, y: 195 + tableHeight(5) / 2 };
+  const commentsLeft = { x: 730, y: 195 + tableHeight(6) / 2 };
   const postsRight = { x: 380 + 280, y: 195 + tableHeight(7) / 2 };
   const likesTop = { x: 380 + 140, y: 430 };
   const worksRight = { x: 30 + 280, y: 195 + tableHeight(5) / 2 };
