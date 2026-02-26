@@ -30,9 +30,9 @@
 - **About 가로 스크롤**: Webflow 페이지와 통합된 `useHorizontalScroll` 훅으로 About 페이지에서도 GSAP 기반 가로 스크롤 적용 (데스크톱), 모바일에서는 자동 세로 스택
 - **번들 최적화**: react-icons를 inline SVG로 교체, Three.js 데모를 dynamic import로 분리하여 about 페이지 First Load JS 326kB→272kB 절감. 미사용 npm 패키지 정리, 미사용 대용량 이미지(22MB) 삭제
 - **성능 최적화**: Hero/마퀴 애니메이션을 Framer Motion/GSAP에서 CSS animation으로 전환(컴포지터 스레드), useMagneticRepel을 ref 기반 직접 DOM 조작으로 변경(60fps 리렌더 제거), Three.js FrontSide 렌더링 + geometry dispose, AudioContext 지연 초기화
-- **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 이미지 삽입 후 정렬(좌/중앙/우) 및 크기(25%/50%/75%/100%) 조절 가능. 게스트 대댓글(threaded) 지원, 닉네임+비밀번호 방식으로 댓글 작성/삭제. 검색, 태그 필터, 커버 이미지, 조회수 추적
+- **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 이미지 삽입 후 정렬(좌/중앙/우) 및 크기(25%/50%/75%/100%) 조절 가능. 게스트 대댓글(threaded) 지원, 이중 인증(commenter_hash + bcrypt 비밀번호)으로 수정/삭제. Works 상세에서도 동일한 댓글 시스템 지원. 검색, 태그 필터, 커버 이미지, 조회수 추적
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행하는 기능. 시리즈는 카테고리의 하위 요소로, 각 시리즈는 하나의 카테고리에 소속됩니다. 포스트 목록에서 "Posts" / "Series" 뷰 토글로 시리즈 카드 그리드를 별도로 탐색할 수 있으며, 카테고리 선택 시 해당 카테고리의 시리즈만 표시됩니다. 시리즈 카드 클릭 시 해당 시리즈의 포스트만 필터링하여 표시. 포스트 상세 페이지에서 시리즈 네비게이션(이전/다음 글 + 전체 목록 접기/펼치기) 표시. Admin에서 시리즈 CRUD + 카테고리 관리
-- **IP 기반 좋아요**: Posts와 Works 상세 페이지에서 좋아요 기능 지원. `likes` 테이블에서 IP 주소 기반으로 중복 방지 및 토글 처리. Posts는 `posts.like_count` 컬럼에 동기화하여 목록 조회 시 추가 쿼리 없이 카운트 표시
+- **IP 기반 좋아요**: Posts, Works, 댓글(post/work)에서 좋아요 기능 지원. 단일 `likes` 테이블에서 `target_type`('post'|'work'|'post_comment'|'work_comment')으로 구분하고, IP 주소 기반 `UNIQUE` 제약으로 중복 방지 및 토글 처리. Posts는 목록 조회 성능을 위해 `posts.like_count` 캐시 컬럼에 동기화
 - **Cover Image Picker**: 포스트 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
 - **Works Admin CRUD**: Supabase DB 기반 포트폴리오 작업물 관리. Admin에서 작업물 생성/수정/삭제, 발행 토글, 정렬 순서 변경 가능. 단일 콘텐츠 에디터(Markdown/Rich Text 전환) + 템플릿 삽입 방식으로 프로젝트 기술서 작성. 템플릿 8개 섹션: Overview, Background, Key Features, Architecture, Challenges, Solutions, Results, Lessons Learned. 한/영 이중 언어, 기술 스택, 갤러리 이미지, 팀 멤버(이름·역할 한/영·URL) 지원. 상세 페이지에서 콘텐츠 내 `##` 헤딩을 자동 파싱하여 TOC 생성. DB 미연결 시 정적 데이터(`data/projects.ts`)로 자동 fallback
 - **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. Settings > Content > Profile 서브탭에서 관리. `site_settings` 테이블에 JSONB로 저장. DB 미연결 시 정적 데이터 fallback
@@ -42,6 +42,73 @@
 - **자동 번역**: 에디터에서 언어 전환 시 대상 언어가 비어있으면 자동 번역. DeepL API Free(기본), Google Cloud Translation, Gemini 2.0 Flash 중 Settings에서 선택. 재번역 버튼으로 전체/개별 필드 재번역 가능. 번역 중 언어 토글 차단으로 중복 요청 방지
 - **카테고리 관리**: Posts에서 카테고리 삭제 시 소속 포스트를 일괄/개별 재할당하는 모달. 새 카테고리 생성도 지원
 - **시리즈 편집 모달**: Post 에디터에서 시리즈 선택 후 Edit 버튼으로 제목/설명/커버 이미지/카테고리/발행 상태를 인라인 모달에서 편집 가능. 시리즈 내 포스트 목록 표시·드래그 순서 변경·연결 해제 지원. 신규 시리즈 생성도 모달로 처리
+
+## Security
+
+모든 공개 API 엔드포인트에 다층 보안 검증을 적용합니다.
+
+| 보안 레이어 | 구현 방식 | 적용 범위 |
+|------------|-----------|----------|
+| **SQL Injection 방지** | Supabase 파라미터화 쿼리 (prepared statements) | 모든 DB 쿼리 |
+| **XSS 방지** | React JSX 자동 이스케이프 (dangerouslySetInnerHTML 미사용) | 모든 사용자 입력 렌더링 |
+| **입력 검증** | UUID 포맷 검증, 길이 제한, 제어문자 제거, 이메일 포맷 검증 | 모든 공개 API |
+| **인증** | 댓글 이중 인증 (commenter_hash + bcrypt password), Supabase Auth (admin) | 댓글 수정/삭제, 관리자 |
+| **RLS** | Supabase Row Level Security 정책 | 모든 테이블 |
+| **경로 보호** | Next.js Middleware 세션 확인 | `/admin/*` |
+| **중복 방지** | IP 기반 UNIQUE 제약조건 | 좋아요, 방문자 통계 |
+| **비밀번호 보안** | bcrypt (salt round 10), 72바이트 제한 | 댓글 비밀번호 |
+
+**검증 대상 API:**
+
+| 엔드포인트 | 검증 항목 |
+|-----------|----------|
+| `POST/PATCH /api/comments` | UUID, content (2000자), password (72B), 제어문자 제거 |
+| `POST/PATCH /api/work-comments` | UUID, content (2000자), password (72B), 제어문자 제거 |
+| `DELETE /api/comments/[id]` | UUID 포맷 검증 |
+| `DELETE /api/work-comments/[id]` | UUID 포맷 검증 |
+| `POST /api/comment-likes` | UUID, comment_type enum 검증 |
+| `GET/POST /api/posts/[id]/like` | UUID 포맷 검증 |
+| `GET/POST /api/works/[id]/like` | UUID 포맷 검증 |
+| `POST /api/contact` | 이름 (100자), 이메일 포맷/길이, 메시지 (5000자) |
+| `POST /api/translate` | 텍스트 (2000자), targetLang enum |
+
+## DB 설계 결정
+
+### 통합 좋아요 테이블: `likes`
+
+모든 좋아요(포스트, 작업물, 포스트 댓글, 작업물 댓글)를 단일 `likes` 테이블에서 `target_type`으로 구분합니다.
+
+**검토한 대안:**
+
+| 방식 | 장점 | 단점 |
+|------|------|------|
+| **단일 테이블** (현재 구조) | Single Source of Truth, 하나의 UNIQUE 제약으로 전체 중복 방지, 새 엔티티 추가 시 CHECK 값 하나만 추가 | `target_type`이 4개 |
+| **완전 분리** (post_likes, work_likes, ...) | 쿼리 단순 | 테이블 과다, 스키마 중복 |
+| **2테이블** (likes + comment_likes) | 콘텐츠/댓글 관심사 분리 | 동기화 로직 분산, 테이블 수 증가 |
+
+**선택 근거:** `UNIQUE(target_type, target_id, ip)` 하나로 모든 엔티티의 중복을 DB 레벨에서 차단합니다. 댓글 좋아요는 실시간 `COUNT(*)` 쿼리로 조회하고, Posts만 목록 성능을 위해 `posts.like_count` 캐시 컬럼에 동기화합니다. 인덱스가 적용된 상태에서 수천 건까지 성능 차이가 없으므로, 정합성과 단순성을 우선합니다.
+
+### 비정규화 카운트 캐싱: `posts.like_count`
+
+`likes` 테이블이 좋아요의 **source of truth**이고, `posts.like_count`는 목록 조회 성능을 위한 **캐시 컬럼**입니다.
+
+| 엔티티 | 카운트 방식 | 근거 |
+|--------|------------|------|
+| **Posts** | `posts.like_count` 캐시 컬럼 동기화 | 목록 조회 시 JOIN 없이 즉시 표시 |
+| **Works / 댓글** | 실시간 `COUNT(*)` 쿼리 | 목록에서 카운트 불필요, 상세 페이지에서만 조회 |
+
+**선택 근거:** 포트폴리오 사이트는 읽기 >> 쓰기 비율입니다. Posts만 목록에서 좋아요 수를 표시하므로 캐시 컬럼이 필요하고, 나머지는 실시간 조회로 충분합니다.
+
+### 익명 댓글 이중 인증
+
+로그인 없는 댓글 시스템에서 수정/삭제 권한을 **2개 경로**로 검증합니다.
+
+| 인증 경로 | 저장 위치 | 지속성 | 용도 |
+|-----------|----------|--------|------|
+| `commenter_hash` | 브라우저 localStorage UUID → SHA-256 | 같은 브라우저에서 영구 | 자동 인증 (비밀번호 입력 불필요) |
+| `password_hash` | bcrypt (salt round 10) | 사용자가 기억하는 한 영구 | 다른 기기/브라우저에서 인증 |
+
+**왜 둘 다 필요한가:** `commenter_hash`만 있으면 브라우저 변경 시 수정 불가. `password`만 있으면 매번 입력 필요. 병행하면 같은 브라우저에서는 자동 인증, 다른 환경에서는 비밀번호 fallback으로 UX와 보안을 모두 확보합니다.
 
 ## User Flow
 
@@ -54,7 +121,7 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 ```
 
 - **Works**: 가로 스크롤 갤러리에서 프로젝트를 탐색하고, 상세 페이지에서 IP 기반 좋아요를 남길 수 있습니다
-- **Posts**: 태그/검색으로 블로그 글을 필터링할 수 있습니다. 카테고리를 선택하면 해당 카테고리의 시리즈가 책 모양 카드로 표시되며, 시리즈를 클릭하면 소속 포스트만 필터링됩니다. 상세 페이지에서 좋아요와 게스트 댓글(닉네임+비밀번호)을 남길 수 있으며, 시리즈 소속 글에서는 이전/다음 글 네비게이션이 표시됩니다
+- **Posts**: 태그/검색으로 블로그 글을 필터링할 수 있습니다. 카테고리를 선택하면 해당 카테고리의 시리즈가 책 모양 카드로 표시되며, 시리즈를 클릭하면 소속 포스트만 필터링됩니다. 상세 페이지에서 좋아요와 게스트 댓글(이중 인증: 브라우저 UUID + 비밀번호)을 남길 수 있으며, 시리즈 소속 글에서는 이전/다음 글 네비게이션이 표시됩니다
 - **About**: 가로 스크롤로 14개 패널(프로젝트 개요, 유저 플로우, 아키텍처, 기능, 디자인 컨셉, 개발 프로세스, 기술 스택, 백엔드, ERD, 코드 하이라이트, 트러블슈팅)을 순회합니다. UserFlow 패널은 6개 플로우를 탭+SVG 다이어그램으로 시각화, ERD 패널은 DB 테이블 관계도를 인터랙티브하게 표시
 
 ### 관리자 플로우
@@ -127,19 +194,21 @@ GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
-**생성되는 테이블 (7개):**
+**생성되는 테이블 (9개):**
 
 | 테이블 | 용도 |
 |--------|------|
 | `site_settings` | 사이트 설정 + 프로필 데이터 + secrets/API 키 (JSONB) |
 | `series` | 블로그 시리즈 |
 | `posts` | 블로그 포스트 |
-| `comments` | 댓글 (대댓글, 비회원 비밀번호) |
-| `likes` | 좋아요 (포스트/작업물 공용, IP 중복 방지) |
+| `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
+| `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
 | `works` | 포트폴리오 작업물 (team_members jsonb 포함) |
 | `site_visits` | 방문자 통계 (IP+날짜 1회) |
+| `work_comments` | Works 댓글 (대댓글, 이중 인증) |
+| `admin_notifications` | 관리자 알림 로그 |
 
-> `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다.
+> `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다. 기존 배포 DB에 누락된 컬럼(commenter_hash, updated_at 등)은 파일 하단의 마이그레이션 섹션에서 `ALTER TABLE ADD COLUMN IF NOT EXISTS`로 안전하게 추가됩니다.
 
 > **Supabase 없이도 동작**: 환경변수가 설정되지 않으면 Works(`data/projects.ts`), Profile(`data/profile.ts`), Settings(`config/site.config.ts`)의 정적 데이터로 자동 fallback됩니다.
 
@@ -151,7 +220,11 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 >
 > **Works API**: `GET/POST /api/works`, `GET/PATCH/DELETE /api/works/[id]`, `GET/POST /api/works/[id]/like`
 >
-> **Comments API**: `GET /api/comments?post_id=`, `POST /api/comments`, `DELETE /api/comments/[id]`
+> **Comments API**: `GET /api/comments?post_id=`, `POST /api/comments`, `PATCH /api/comments` (수정), `DELETE /api/comments/[id]`
+>
+> **Work Comments API**: `GET /api/work-comments?work_id=`, `POST /api/work-comments`, `PATCH /api/work-comments` (수정), `DELETE /api/work-comments/[id]`
+>
+> **Comment Likes API**: `GET /api/comment-likes?comment_type=&comment_ids=` (좋아요 상태 일괄 조회), `POST /api/comment-likes` (댓글 좋아요 토글)
 >
 > **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`
 >
