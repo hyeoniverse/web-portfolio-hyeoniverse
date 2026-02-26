@@ -1,10 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSecret } from "@/lib/getSecret";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.formData();
     const provider = body.get("_provider") as string;
+
+    // 입력 검증
+    const name = (body.get("name") as string || "").trim();
+    const email = (body.get("email") as string || "").trim();
+    const message = (body.get("message") as string || "").trim();
+
+    if (!name || !email || !message) {
+      return NextResponse.json({ success: false, message: "All fields are required" }, { status: 400 });
+    }
+    if (name.length > 100) {
+      return NextResponse.json({ success: false, message: "Name too long" }, { status: 400 });
+    }
+    if (!EMAIL_RE.test(email) || email.length > 254) {
+      return NextResponse.json({ success: false, message: "Invalid email" }, { status: 400 });
+    }
+    if (message.length > 5000) {
+      return NextResponse.json({ success: false, message: "Message too long" }, { status: 400 });
+    }
 
     // 내부 필드 제거
     body.delete("_provider");
