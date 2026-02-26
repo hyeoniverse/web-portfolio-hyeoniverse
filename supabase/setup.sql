@@ -130,14 +130,17 @@ CREATE POLICY "posts_service_all"
 --    대댓글: parent_id로 트리 구조
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS comments (
-  id            uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  post_id       uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  parent_id     uuid REFERENCES comments(id) ON DELETE CASCADE,
-  nickname      text NOT NULL DEFAULT '',
-  password_hash text NOT NULL DEFAULT '',
-  content       text NOT NULL DEFAULT '',
-  is_admin      boolean NOT NULL DEFAULT false,
-  created_at    timestamptz DEFAULT now()
+  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  post_id         uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  parent_id       uuid REFERENCES comments(id) ON DELETE CASCADE,
+  nickname        text NOT NULL DEFAULT '',
+  password_hash   text NOT NULL DEFAULT '',
+  commenter_hash  text NOT NULL DEFAULT '',
+  content         text NOT NULL DEFAULT '',
+  is_admin        boolean NOT NULL DEFAULT false,
+  like_count      int NOT NULL DEFAULT 0,
+  created_at      timestamptz DEFAULT now(),
+  updated_at      timestamptz
 );
 
 -- 포스트별 댓글 조회용
@@ -164,12 +167,12 @@ CREATE POLICY "comments_service_all"
 
 -- ────────────────────────────────────────────────────────────
 -- 5. likes — 좋아요 (포스트/작업물 공용)
---    target_type: 'post' 또는 'work'
+--    target_type: 'post', 'work', 'post_comment', 'work_comment'
 --    IP 기반 중복 방지
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS likes (
   id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  target_type text NOT NULL CHECK (target_type IN ('post', 'work')),
+  target_type text NOT NULL CHECK (target_type IN ('post', 'work', 'post_comment', 'work_comment')),
   target_id   text NOT NULL,
   ip          text NOT NULL DEFAULT '',
   created_at  timestamptz DEFAULT now()
@@ -280,14 +283,114 @@ CREATE POLICY "site_visits_service_all"
   WITH CHECK (true);
 
 
+-- ────────────────────────────────────────────────────────────
+-- 8. work_comments — Works 댓글 (대댓글 지원)
+--    comments 테이블과 동일 구조, works(id) 참조
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS work_comments (
+  id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  work_id         uuid NOT NULL REFERENCES works(id) ON DELETE CASCADE,
+  parent_id       uuid REFERENCES work_comments(id) ON DELETE CASCADE,
+  nickname        text NOT NULL DEFAULT '',
+  password_hash   text NOT NULL DEFAULT '',
+  commenter_hash  text NOT NULL DEFAULT '',
+  content         text NOT NULL DEFAULT '',
+  is_admin        boolean NOT NULL DEFAULT false,
+  like_count      int NOT NULL DEFAULT 0,
+  created_at      timestamptz DEFAULT now(),
+  updated_at      timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS idx_work_comments_work_id ON work_comments (work_id);
+
+ALTER TABLE work_comments ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "work_comments_public_read"
+  ON work_comments FOR SELECT
+  USING (true);
+
+CREATE POLICY "work_comments_public_insert"
+  ON work_comments FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "work_comments_service_all"
+  ON work_comments FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
+-- 9. admin_notifications — 관리자 알림 로그
+--     댓글 달림, 좋아요 등 관리자에게 보여줄 알림
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS admin_notifications (
+  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  type        text NOT NULL DEFAULT 'comment',
+  title       text NOT NULL DEFAULT '',
+  message     text NOT NULL DEFAULT '',
+  metadata    jsonb NOT NULL DEFAULT '{}',
+  read        boolean NOT NULL DEFAULT false,
+  created_at  timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_admin_notifications_created
+  ON admin_notifications (created_at DESC);
+
+ALTER TABLE admin_notifications ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "admin_notifications_service_all"
+  ON admin_notifications FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
+-- 마이그레이션: 기존 배포 DB에 누락된 컬럼/테이블 안전 추가
+-- (신규 설치 시에도 무해 — IF NOT EXISTS 사용)
+-- ────────────────────────────────────────────────────────────
+
+-- comments 테이블 — 이후 추가된 컬럼
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS commenter_hash text NOT NULL DEFAULT '';
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS updated_at timestamptz;
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAULT 0;
+
+-- work_comments 테이블 — 이후 추가된 컬럼
+ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAULT 0;
+
+-- work_comments RLS 정책 — 이미 존재하면 무시
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'work_comments' AND policyname = 'work_comments_public_read'
+  ) THEN
+    CREATE POLICY "work_comments_public_read" ON work_comments FOR SELECT USING (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'work_comments' AND policyname = 'work_comments_public_insert'
+  ) THEN
+    CREATE POLICY "work_comments_public_insert" ON work_comments FOR INSERT WITH CHECK (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'work_comments' AND policyname = 'work_comments_service_all'
+  ) THEN
+    CREATE POLICY "work_comments_service_all" ON work_comments FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+END $$;
+
+
 -- ============================================================
--- 완료! 총 7개 테이블이 생성되었습니다.
+-- 완료! 총 10개 테이블이 생성되었습니다.
 --
--- site_settings  : 사이트 설정 + 프로필 데이터
--- series         : 블로그 시리즈
--- posts          : 블로그 포스트
--- comments       : 댓글 (대댓글 지원)
--- likes          : 좋아요 (포스트/작업물 공용)
--- works          : 포트폴리오 작업물
--- site_visits    : 방문자 통계
+-- site_settings        : 사이트 설정 + 프로필 데이터
+-- series               : 블로그 시리즈
+-- posts                : 블로그 포스트
+-- comments             : 포스트 댓글 (대댓글, 이중 인증)
+-- likes                : 좋아요 (포스트/작업물 공용)
+-- works                : 포트폴리오 작업물
+-- site_visits          : 방문자 통계
+-- work_comments        : Works 댓글 (대댓글, 이중 인증)
+-- (댓글 좋아요는 likes 테이블에서 target_type='post_comment'/'work_comment'로 통합 관리)
+-- admin_notifications  : 관리자 알림 로그
 -- ============================================================

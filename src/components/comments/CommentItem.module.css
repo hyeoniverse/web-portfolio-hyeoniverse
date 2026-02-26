@@ -1,0 +1,284 @@
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.avatar {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.nickname {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.adminBadge {
+  padding: 1px var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent-alpha-20);
+  font-family: var(--font-space-grotesk);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
+.date {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.editedBadge {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.content {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  white-space: pre-wrap;
+}
+
+.translatedContent {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  line-height: var(--line-height-relaxed);
+  white-space: pre-wrap;
+  font-style: italic;
+  padding-left: var(--spacing-sm);
+  border-left: 2px solid var(--border-tertiary-color);
+  overflow: hidden;
+}
+
+.commentActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.actionBtn {
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  padding: 0;
+}
+
+.comment .actionBtn:hover {
+  color: var(--text-primary);
+}
+
+.headerSpacer {
+  flex: 1;
+}
+
+/* Translate button — header right */
+.translateBtn {
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.comment .translateBtn:hover {
+  color: var(--text-primary);
+}
+
+.translateBtnActive {
+  color: var(--text-secondary);
+}
+
+/* Like button — header right */
+.likeBtn {
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.comment .likeBtn:hover {
+  color: var(--color-accent);
+}
+
+.likeBtnLiked {
+  color: var(--color-accent);
+}
+
+.likeCount {
+  font-variant-numeric: tabular-nums;
+}
+
+.deleteBtn {
+  composes: actionBtn;
+}
+
+.comment .deleteBtn:hover {
+  color: var(--color-accent);
+}
+
+/* Nested replies */
+.replies {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-left: var(--spacing-xl);
+  padding-left: var(--spacing-md);
+  border-left: 1px solid var(--border-tertiary-color);
+  margin-top: var(--spacing-sm);
+}
+
+.replyForm {
+  margin-top: var(--spacing-sm);
+  overflow: hidden;
+}
+
+/* Delete modal — capsule style */
+.deleteModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+  overflow: hidden;
+}
+
+.deleteRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.deleteInput {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  width: 140px;
+}
+
+.deleteConfirm {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--color-accent-alpha-20);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+}
+
+.deleteCancel {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.deleteError {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+}
+
+/* Edit mode */
+.editArea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  overflow: hidden;
+}
+
+.editTextarea {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+  line-height: var(--line-height-relaxed);
+}
+
+.comment .editTextarea:focus {
+  border-color: var(--text-primary);
+}
+
+.editActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.editSubmitBtn {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--text-primary);
+  border-radius: var(--radius-capsule);
+  background: var(--text-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--bg-primary);
+}
+
+.editArea .editSubmitBtn:hover:not(:disabled) {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.editSubmitBtn:disabled {
+  opacity: 0.5;
+}
+
+.editCancelBtn {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.editError {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+}

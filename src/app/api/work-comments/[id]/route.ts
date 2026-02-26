@@ -9,7 +9,7 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-// DELETE /api/comments/[id]
+// DELETE /api/work-comments/[id]
 export async function DELETE(request: Request, context: RouteContext) {
   const { id } = await context.params;
 
@@ -26,7 +26,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   } = await supabase.auth.getUser();
 
   if (user) {
-    const { error } = await admin.from("comments").delete().eq("id", id);
+    const { error } = await admin.from("work_comments").delete().eq("id", id);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
@@ -37,7 +37,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   const { commenter_id, target_id, password } = body;
 
   const { data: comment } = await admin
-    .from("comments")
+    .from("work_comments")
     .select("commenter_hash, password_hash")
     .eq("id", id)
     .single();
@@ -46,31 +46,23 @@ export async function DELETE(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Comment not found" }, { status: 404 });
   }
 
-  // 새 방식: commenter_id 기반
+  // commenter_id 기반 검증
+  let authorized = false;
   if (commenter_id && target_id && comment.commenter_hash) {
     const identity = getIdentity(commenter_id, target_id);
-    if (comment.commenter_hash !== identity.hash) {
-      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
-    }
-
-    const { error } = await admin.from("comments").delete().eq("id", id);
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    return NextResponse.json({ success: true });
+    authorized = comment.commenter_hash === identity.hash;
   }
 
-  // 레거시: 비밀번호 기반
-  if (!password) {
-    return NextResponse.json({ error: "Password is required" }, { status: 400 });
+  // password fallback
+  if (!authorized && password && comment.password_hash) {
+    authorized = await bcrypt.compare(password, comment.password_hash);
   }
 
-  const isMatch = await bcrypt.compare(password, comment.password_hash);
-  if (!isMatch) {
-    return NextResponse.json({ error: "Incorrect password" }, { status: 403 });
+  if (!authorized) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
   }
 
-  const { error } = await admin.from("comments").delete().eq("id", id);
+  const { error } = await admin.from("work_comments").delete().eq("id", id);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
