@@ -58,10 +58,34 @@ export async function GET(request: Request) {
 
   if (sort === "oldest") {
     query = query.order("created_at", { ascending: true });
-  } else if (sort === "popular") {
-    query = query.order("view_count", { ascending: false });
-  } else {
+  } else if (sort !== "popular") {
     query = query.order("created_at", { ascending: false });
+  }
+
+  // popular: 복합 점수 (views + likes*3 + comments*5) → JS 정렬
+  if (sort === "popular") {
+    const selectWithComments = query.select("*, series:series_id(title, title_en), comments(count)", { count: "exact" });
+    const { data: rawData, count: totalCount, error: popError } = await selectWithComments;
+
+    if (popError) {
+      return NextResponse.json({ error: popError.message }, { status: 500 });
+    }
+
+    const scored = (rawData ?? []).map((p) => {
+      const commentCount = Array.isArray(p.comments) ? (p.comments[0]?.count ?? 0) : 0;
+      return { ...p, _score: p.view_count + p.like_count * 3 + commentCount * 5, comments: undefined };
+    });
+    scored.sort((a, b) => b._score - a._score);
+
+    const from = (page - 1) * limit;
+    const paged = scored.slice(from, from + limit).map(({ _score, ...rest }) => rest);
+
+    return NextResponse.json({
+      posts: paged,
+      total: totalCount ?? 0,
+      page,
+      totalPages: Math.ceil((totalCount ?? 0) / limit),
+    });
   }
 
   const from = (page - 1) * limit;
