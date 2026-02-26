@@ -7,10 +7,19 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+/** id(UUID) 또는 정적 number("01"…) 매칭 */
+function findProjectIndex(projects: { id: string; number: string }[], id: string) {
+  const idx = projects.findIndex((p) => p.id === id);
+  if (idx >= 0) return idx;
+  const padded = id.padStart(2, "0");
+  return projects.findIndex((p) => p.number === padded);
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const projects = await getWorks();
-  const project = projects.find((p) => p.id === id);
+  const idx = findProjectIndex(projects, id);
+  const project = idx >= 0 ? projects[idx] : undefined;
   return { title: project?.title ?? "Work" };
 }
 
@@ -18,7 +27,7 @@ export default async function WorkDetailPage({ params }: PageProps) {
   const { id } = await params;
   const projects = await getWorks();
 
-  const projectIndex = projects.findIndex((p) => p.id === id);
+  const projectIndex = findProjectIndex(projects, id);
 
   if (projectIndex < 0) {
     notFound();

@@ -15,10 +15,10 @@ import {
   troubleShootingItems,
   projectOverview,
   projectStructure,
-  userFlows,
   backendItems,
   erdTables,
   erdDesignNotes,
+  userFlows,
 } from "@/data/about";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
@@ -27,8 +27,8 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import {
   HeroPanel,
   OverviewPanel,
-  UserFlowPanel,
   ArchitecturePanel,
+  UserFlowPanel,
   FeaturesPanel,
   DesignConceptPanel,
   ProcessPanel,
@@ -101,8 +101,12 @@ export default function AboutSection() {
     <Fragment key={key}>
       <HeroPanel t={t} />
       <OverviewPanel language={language} overview={projectOverview} />
-      <UserFlowPanel language={language} userFlows={userFlows} scrollBy={scrollBy} />
       <ArchitecturePanel language={language} structure={projectStructure} />
+      <UserFlowPanel
+        language={language}
+        userFlows={userFlows}
+        scrollBy={scrollBy}
+      />
       <FeaturesPanel language={language} features={designFeatures} />
       <DesignConceptPanel
         language={language}

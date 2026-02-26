@@ -38,9 +38,19 @@
 .rank {
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   flex-shrink: 0;
   width: 20px;
+}
+
+.rankTop {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
+}
+
+.rankHigh {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
 .info {
@@ -48,6 +58,27 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 1px var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  color: #fff;
+  font-family: var(--font-space-grotesk);
+  font-size: 9px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.4;
 }
 
 .itemTitle {
@@ -63,5 +94,5 @@
 .itemMeta {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-muted);
+  color: var(--text-tertiary);
 }

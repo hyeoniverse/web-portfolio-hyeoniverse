@@ -12,7 +12,7 @@ import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import { highlightCodeBlocks } from "@/components/posts/highlightCodeBlocks";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import LanguageToggle from "@/components/ui/LanguageToggle";
-import CommentSection from "./_components/CommentSection";
+import CommentSection from "@/components/comments/CommentSection";
 import layoutStyles from "@/components/layout/DetailLayout/DetailLayout.module.css";
 import styles from "./PostDetail.module.css";
 
@@ -86,6 +86,7 @@ export default function PostDetailPage() {
   const [seriesOpen, setSeriesOpen] = useState(false);
   const [adjacentPosts, setAdjacentPosts] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
   const richtextRef = useRef<HTMLDivElement>(null);
+  const [autoTranslating, setAutoTranslating] = useState(false);
 
   useEffect(() => {
     fetch(`/api/posts?slug=${encodeURIComponent(slug)}`)
@@ -131,9 +132,27 @@ export default function PostDetailPage() {
     setLiked(data.liked);
   }, [post, liked]);
 
+  const hasTranslation = !!(post?.content_en);
+  const needsTranslation = viewLang === "en" && !hasTranslation;
   const displayTitle = viewLang === "en" && post?.title_en ? post.title_en : post?.title ?? "";
   const displayContent = viewLang === "en" && post?.content_en ? post.content_en : post?.content ?? "";
   const displayExcerpt = viewLang === "en" && post?.excerpt_en ? post.excerpt_en : post?.excerpt ?? "";
+
+  const handleAutoTranslate = useCallback(async () => {
+    if (!post || autoTranslating) return;
+    setAutoTranslating(true);
+    try {
+      const res = await fetch(`/api/posts/${post.id}/auto-translate`, { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        setPost((prev) => prev ? { ...prev, title_en: data.title_en, content_en: data.content_en, excerpt_en: data.excerpt_en } : prev);
+      }
+    } catch {
+      // silent
+    } finally {
+      setAutoTranslating(false);
+    }
+  }, [post, autoTranslating]);
 
   const headings = useMemo(() => {
     if (!displayContent) return [];
@@ -298,7 +317,7 @@ export default function PostDetailPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <CommentSection postId={post.id} />
+            <CommentSection commentType="post" targetId={post.id} />
           </motion.div>
 
           <div className={styles.footerNav}>
@@ -407,6 +426,26 @@ export default function PostDetailPage() {
             )}
           </div>
         </motion.div>
+      )}
+
+      {needsTranslation && (
+        <div className={styles.translateBanner}>
+          <p className={styles.translateMessage}>
+            {language === "ko"
+              ? "이 게시물은 아직 영어 번역이 제공되지 않습니다."
+              : "This post is not yet available in English."}
+          </p>
+          <button
+            type="button"
+            className={styles.translateBtn}
+            onClick={handleAutoTranslate}
+            disabled={autoTranslating}
+          >
+            {autoTranslating
+              ? (language === "ko" ? "AI 번역 중..." : "Translating...")
+              : (language === "ko" ? "AI 자동 번역" : "Auto-translate with AI")}
+          </button>
+        </div>
       )}
 
       <motion.div

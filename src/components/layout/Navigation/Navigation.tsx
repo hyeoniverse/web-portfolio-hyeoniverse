@@ -619,13 +619,7 @@ export default function Navigation() {
       {menuMounted && showMenu &&
         createPortal(
           <div
-            className={styles.menuClipWrapper}
-            style={{
-              clipPath: menuClipOpen ? "inset(0 0 0 0)" : "inset(0 0 100% 0)",
-              transition: menuClipOpen
-                ? "clip-path 0.9s cubic-bezier(0.25, 0.1, 0.25, 1)"
-                : "clip-path 0.8s cubic-bezier(0.4, 0, 0.6, 1)",
-            }}
+            className={`${styles.menuClipWrapper} ${menuClipOpen ? styles.menuClipOpen : ""}`}
           >
             <div
               className={styles.menuBackdrop}
@@ -633,8 +627,8 @@ export default function Navigation() {
             />
             <div className={styles.menuDrawer}>
               {/* Header: logo center */}
-              <div className={styles.menuHeader}>
-                <Logo variant="full" as="span" className={styles.menuLogo} />
+              <div className={styles.menuHeader} onClick={() => setIsMenuOpen(false)}>
+                <Logo variant="full" as="link" className={styles.menuLogo} />
               </div>
 
               {/* Close button — nav 햄버거와 동일한 우상단 위치 + magnetic */}
