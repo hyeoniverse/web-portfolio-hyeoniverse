@@ -191,6 +191,9 @@
       "emailServiceProvider": "Email Service Provider",
       "emailFileUpload": "Email File Upload",
       "aiCoverProvider": "AI Cover Provider",
+      "commentNotifications": "Comment Notifications",
+      "commentEmailNotify": "Receive comment email notifications",
+      "commentEmailNotifyDesc": "Get notified via email when new comments are posted. Requires RESEND_API_KEY environment variable.",
       "recaptchaEnabled": "reCAPTCHA Enabled",
       "recaptchaVersion": "reCAPTCHA Version",
       "currentEmail": "Current Email",
@@ -469,6 +472,33 @@
     "visitSite": "Visit Site",
     "team": "Team"
   },
+  "comments": {
+    "heading": "Comments",
+    "empty": "No comments yet. Be the first!",
+    "placeholder": "Write a comment...",
+    "replyPlaceholder": "Write a reply...",
+    "submit": "Comment",
+    "reply": "Reply",
+    "posting": "Posting...",
+    "cancel": "Cancel",
+    "asYou": "as you",
+    "replyBtn": "Reply",
+    "delete": "Delete",
+    "edit": "Edit",
+    "edited": "edited",
+    "confirmDelete": "Confirm Delete",
+    "confirm": "Confirm",
+    "deleting": "Deleting",
+    "original": "Original",
+    "translateToEN": "Translate to EN",
+    "translateToKO": "Translate to KO",
+    "password": "Password",
+    "passwordPlaceholder": "Password for edit / delete",
+    "editPlaceholder": "Edit your comment...",
+    "editSubmit": "Save",
+    "editing": "Saving...",
+    "passwordRequired": "Please enter your password"
+  },
   "errorPage": {
     "title": "Something Went Wrong",
     "description": "An unexpected error occurred. Please try again.",
@@ -480,17 +510,28 @@
   "profilePage": {
     "bubble": {
       "0": "Hi there! ٩( ᐢᗜᐢ)ㅅ(ᐢᗜᐢ )و Scroll down to get to know me!",
-      "1": "This is who I am! ( ⸝⸝⸝˃֊˂)",
-      "1_desktop": "This is who I am! ( ⸝⸝⸝˃֊˂) Try dragging the window — there might be a hidden message!?!?",
-      "2": "Here's what I've been up to!",
-      "3": "Frontend is what I enjoy and know best!",
-      "4": "What I'm most into these days!",
-      "5": "I can handle some backend work too!",
-      "6": "I can work with all sorts of tools!",
-      "7": "My coding philosophy — Just do it!",
-      "8": "This is how I think when I work!",
-      "9": "Here are my certifications & awards! (✌ -͈᷅‎ ⌄ -͈᷄)",
-      "10": "Thanks for reading all the way! 💕"
+      "1": "That's me! Call me Mongi! ˙ᵕ˙",
+      "2": "This is who I am! ( ⸝⸝⸝˃֊˂)",
+      "2_desktop": "This is who I am! ( ⸝⸝⸝˃֊˂) Try dragging the window — there might be a hidden message!?!?",
+      "3": "Here's what I've been up to!",
+      "4": "Frontend is what I enjoy and know best!",
+      "5": "What I'm most into these days!",
+      "6": "I can handle some backend work too!",
+      "7": "I can work with all sorts of tools!",
+      "8": "My coding philosophy — Just do it!",
+      "9": "This is how I think when I work!",
+      "10": "Here are my certifications & awards! (✌ -͈᷅‎ ⌄ -͈᷄)",
+      "11": "Thanks for reading all the way! 💕"
     }
+  },
+  "bunny": {
+    "name": "Mongi",
+    "subtitle": "Guardian spirit of this portfolio",
+    "story1": "A bunny who dozed off on a cloud one day and drifted down here on a gentle breeze.",
+    "story2": "Floating in zero gravity, greeting visitors is her daily routine. Curious by nature — poke her and she jumps with surprise, share something new and she beams with joy.",
+    "story3": "When she hears a music box melody, she twirls around slowly in a little dance.",
+    "exprNormal": "Normal",
+    "exprSurprised": "Surprised",
+    "exprHappy": "Happy"
   }
 }

@@ -59,17 +59,21 @@ export interface Series {
 
 export interface Comment {
   id: string;
-  post_id: string;
+  post_id?: string;
+  work_id?: string;
   parent_id: string | null;
   nickname: string;
   content: string;
   is_admin: boolean;
+  like_count: number;
   created_at: string;
+  updated_at?: string | null;
   replies?: Comment[];
 }
 
 export interface CommentFormData {
-  post_id: string;
+  post_id?: string;
+  work_id?: string;
   parent_id?: string;
   nickname: string;
   password: string;

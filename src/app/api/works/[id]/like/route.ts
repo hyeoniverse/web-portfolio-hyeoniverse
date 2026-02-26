@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isValidUUID } from "@/utils/commentValidation";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -12,6 +13,9 @@ function getIp(request: Request): string {
 // GET /api/works/[id]/like — 좋아요 수 + liked 여부
 export async function GET(request: Request, context: RouteContext) {
   const { id } = await context.params;
+  if (!isValidUUID(id)) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
   const ip = getIp(request);
   const admin = createAdminClient();
 
@@ -36,6 +40,9 @@ export async function GET(request: Request, context: RouteContext) {
 // POST /api/works/[id]/like — 토글 (좋아요 / 취소)
 export async function POST(request: Request, context: RouteContext) {
   const { id } = await context.params;
+  if (!isValidUUID(id)) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
   const ip = getIp(request);
   const admin = createAdminClient();
 
