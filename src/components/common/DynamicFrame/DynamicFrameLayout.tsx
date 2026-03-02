@@ -34,7 +34,7 @@ export interface DynamicFrameLayoutProps {
   }) => void;
   showTitle?: boolean;
   title?: string;
-  renderOverlay?: (frame: Frame, index: number) => React.ReactNode;
+  renderOverlay?: (frame: Frame, index: number, isHovered: boolean) => React.ReactNode;
   renderCell?: (params: {
     frame: Frame;
     index: number;
@@ -260,7 +260,7 @@ export default function DynamicFrameLayout({
                         zIndex: 2,
                       }}
                     >
-                      {renderOverlay(frame, frameIndex)}
+                      {renderOverlay(frame, frameIndex, !!isHoveredCell)}
                     </div>
                   )}
                 </>

@@ -185,13 +185,8 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  cursor: grab;
   user-select: none;
   color: var(--text-muted);
-}
-
-.dragHandle:active {
-  cursor: grabbing;
 }
 
 .dragGrip {
@@ -414,7 +409,6 @@
 
 .deleteModalConfirmBtn:disabled {
   opacity: 0.4;
-  cursor: not-allowed;
 }
 
 .deleteModalActions .deleteModalConfirmBtn:not(:disabled):hover {

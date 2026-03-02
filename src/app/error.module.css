@@ -116,7 +116,6 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   border-radius: var(--radius-capsule);
-  cursor: none;
 }
 
 /* (0,2,0) — 전역 theme transition (0,1,1) 오버라이드 */

@@ -71,7 +71,7 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
   const { isTouch } = useIsMobile();
   const [expression, setExpression] = useState<Expression>("normal");
   const cycleIdx = useRef(0);
-  const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   const ac = animateClass ?? "";
 
