@@ -1,20 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { useLenis } from "@/providers/LenisProvider";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Checkbox from "@/components/ui/Checkbox";
 import styles from "./Login.module.css";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
+  const { setInfinite } = useLenis();
+
+  useEffect(() => {
+    setInfinite(false);
+    return () => setInfinite(true);
+  }, [setInfinite]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberEmail, setRememberEmail] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("admin_saved_email");
+    if (saved) {
+      setEmail(saved);
+      setRememberEmail(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    if (rememberEmail) {
+      localStorage.setItem("admin_saved_email", email);
+    } else {
+      localStorage.removeItem("admin_saved_email");
+    }
 
     try {
       const res = await fetch("/api/admin/auth", {
@@ -25,14 +53,17 @@ export default function AdminLoginPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Login failed");
+        const key = data.code === "invalid_credentials"
+          ? "admin.login.invalidCredentials"
+          : "admin.login.loginFailed";
+        setError(t(key));
         return;
       }
 
-      router.push("/admin/posts");
+      router.push("/admin/settings");
       router.refresh();
     } catch {
-      setError("An error occurred");
+      setError(t("admin.login.errorOccurred"));
     } finally {
       setLoading(false);
     }
@@ -41,47 +72,55 @@ export default function AdminLoginPage() {
   return (
     <div className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <h1 className={styles.title}>Admin</h1>
+        <h1 className={styles.title}>{t("admin.login.title")}</h1>
 
-        {error && <p className={styles.error}>{error}</p>}
+        <Input
+          id="email"
+          type="email"
+          label={t("admin.login.email")}
+          value={email}
+          onChange={setEmail}
+          required
+          autoComplete="email"
+        />
 
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            className={styles.input}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
+        <Input
+          id="password"
+          type="password"
+          label={t("admin.login.password")}
+          value={password}
+          onChange={setPassword}
+          required
+          autoComplete="current-password"
+        />
+
+        <div className={styles.bottomRow}>
+          <Checkbox
+            checked={rememberEmail}
+            onChange={setRememberEmail}
+            shape="square"
+            label={t("admin.login.rememberEmail")}
           />
+          {error && <p className={styles.error}>{error}</p>}
         </div>
 
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="password">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            className={styles.input}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className={styles.button}
-          disabled={loading}
-        >
-          {loading ? "Signing in..." : "Sign In"}
-        </button>
+        <Button type="submit" fullWidth disabled={loading} soundDisabled>
+          {loading ? (
+            <span className={styles.wave}>
+              {t("admin.login.signingIn").split("").map((char, i) => (
+                <span
+                  key={i}
+                  className={styles.waveChar}
+                  style={{ animationDelay: `${i * 0.05}s` }}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </span>
+              ))}
+            </span>
+          ) : (
+            t("admin.login.signIn")
+          )}
+        </Button>
       </form>
     </div>
   );

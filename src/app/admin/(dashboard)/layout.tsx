@@ -21,7 +21,7 @@ export default async function AdminLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/admin/login");
+    redirect("/admin/denied");
   }
 
   return <div style={{ paddingTop: "var(--spacing-6xl)" }}>{children}</div>;
