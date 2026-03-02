@@ -533,12 +533,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  cursor: grab;
   user-select: none;
-}
-
-.catTag:active {
-  cursor: grabbing;
 }
 
 .catGrip {
@@ -823,7 +818,6 @@
   font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-primary);
-  cursor: pointer;
 }
 
 .confirmDialog .confirmCancelBtn:hover {
