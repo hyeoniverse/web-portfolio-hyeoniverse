@@ -189,6 +189,73 @@ function applyAccentAll(root: HTMLElement, hex: string) {
   }
 }
 
+/** neutral scale 동적 생성: bg(neutral-50)와 text(neutral-900) 사이를 보간 */
+const NEUTRAL_STOPS = [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 999] as const;
+const MID_BLENDS: [number, number][] = [
+  [100, 0.05], [200, 0.12], [300, 0.22], [400, 0.33],
+  [500, 0.46], [600, 0.65], [700, 0.80], [800, 0.92],
+];
+const NEUTRAL_ALPHA_STEPS = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
+
+function lerpRgb(
+  a: [number, number, number],
+  b: [number, number, number],
+  t: number,
+): [number, number, number] {
+  return [
+    Math.round(a[0] + (b[0] - a[0]) * t),
+    Math.round(a[1] + (b[1] - a[1]) * t),
+    Math.round(a[2] + (b[2] - a[2]) * t),
+  ];
+}
+
+function rgbHex([r, g, b]: [number, number, number]): string {
+  return `#${[r, g, b].map((c) => Math.max(0, Math.min(255, c)).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function applyNeutralScale(root: HTMLElement, bgHex: string, textHex: string) {
+  const bg = hexToRgb(bgHex);
+  const text = hexToRgb(textHex);
+  if (!bg || !text) return;
+  const black: [number, number, number] = [0, 0, 0];
+
+  root.style.setProperty("--color-neutral-0", "#ffffff");
+  root.style.setProperty("--color-neutral-50", bgHex);
+
+  for (const [n, t] of MID_BLENDS) {
+    root.style.setProperty(`--color-neutral-${n}`, rgbHex(lerpRgb(bg, text, t)));
+  }
+
+  root.style.setProperty("--color-neutral-900", textHex);
+  root.style.setProperty("--color-neutral-950", rgbHex(lerpRgb(text, black, 0.3)));
+  root.style.setProperty("--color-neutral-999", "#000000");
+
+  // neutral-alpha: text 컬러 기반
+  for (const a of NEUTRAL_ALPHA_STEPS) {
+    root.style.setProperty(
+      `--color-neutral-alpha-${a}`,
+      `rgba(${text[0]}, ${text[1]}, ${text[2]}, ${a / 100})`,
+    );
+  }
+  // inverse-alpha: bg 컬러 기반
+  for (const a of NEUTRAL_ALPHA_STEPS) {
+    root.style.setProperty(
+      `--color-inverse-alpha-${a}`,
+      `rgba(${bg[0]}, ${bg[1]}, ${bg[2]}, ${a / 100})`,
+    );
+  }
+}
+
+function removeNeutralScale(root: HTMLElement) {
+  for (const n of NEUTRAL_STOPS) {
+    root.style.removeProperty(`--color-neutral-${n}`);
+  }
+  for (const a of NEUTRAL_ALPHA_STEPS) {
+    root.style.removeProperty(`--color-neutral-alpha-${a}`);
+    root.style.removeProperty(`--color-inverse-alpha-${a}`);
+  }
+}
+
 function removeAccentAll(root: HTMLElement) {
   root.style.removeProperty("--color-accent");
   root.style.removeProperty("--color-accent-dark");
@@ -214,13 +281,23 @@ function applyThemeColors(
     removeAccentAll(root);
   }
 
-  // 배경/텍스트 — 테마별 분기
+  // 배경/텍스트 + neutral scale — 테마별 분기
   if (theme === "light") {
     setOrRemove(root, "--bg-primary", colors.lightBg, DEFAULTS.lightBg);
     setOrRemove(root, "--text-primary", colors.lightText, DEFAULTS.lightText);
+    if (colors.lightBg !== DEFAULTS.lightBg || colors.lightText !== DEFAULTS.lightText) {
+      applyNeutralScale(root, colors.lightBg, colors.lightText);
+    } else {
+      removeNeutralScale(root);
+    }
   } else {
     setOrRemove(root, "--bg-primary", colors.darkBg, DEFAULTS.darkBg);
     setOrRemove(root, "--text-primary", colors.darkText, DEFAULTS.darkText);
+    if (colors.darkBg !== DEFAULTS.darkBg || colors.darkText !== DEFAULTS.darkText) {
+      applyNeutralScale(root, colors.darkBg, colors.darkText);
+    } else {
+      removeNeutralScale(root);
+    }
   }
 }
 
