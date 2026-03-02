@@ -1,0 +1,48 @@
+/* ── Switch ── */
+.root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: var(--radius-capsule);
+  border: 1px solid var(--color-neutral-alpha-20);
+  background: var(--color-neutral-alpha-10);
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.root .thumb {
+  transition: transform var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+
+.root:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-neutral-alpha-20);
+}
+
+.root[data-state="checked"] {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.root:disabled,
+.root[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.thumb {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  pointer-events: none;
+  transform: translateX(1px);
+}
+
+.root[data-state="checked"] .thumb {
+  transform: translateX(17px);
+}
