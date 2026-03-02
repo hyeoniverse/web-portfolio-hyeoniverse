@@ -1,16 +1,9 @@
-import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidUUID } from "@/utils/commentValidation";
+import { getIp } from "@/utils/getIp";
+import { jsonOk, jsonError, jsonServerError } from "@/lib/api/response";
 
 export const dynamic = "force-dynamic";
-
-function getIp(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
-  return "unknown";
-}
 
 function toTargetType(commentType: string): string {
   return commentType === "work" ? "work_comment" : "post_comment";
@@ -23,35 +16,19 @@ export async function GET(request: Request) {
     const commentType = searchParams.get("comment_type");
     const commentIds = searchParams.get("comment_ids");
 
-    if (!commentType || !commentIds) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-    }
-    if (commentType !== "post" && commentType !== "work") {
-      return NextResponse.json({ error: "Invalid comment_type" }, { status: 400 });
-    }
+    if (!commentType || !commentIds) return jsonError("Missing fields");
+    if (commentType !== "post" && commentType !== "work") return jsonError("Invalid comment_type");
 
     const ids = commentIds.split(",").filter(isValidUUID);
-    if (ids.length === 0) {
-      return NextResponse.json({ liked: {} });
-    }
+    if (ids.length === 0) return jsonOk({ liked: {} });
 
     const ip = getIp(request);
     const targetType = toTargetType(commentType);
     const admin = createAdminClient();
 
-    // 내 좋아요 여부 + 전체 count 병렬 조회
     const [{ data: myLikes }, { data: allLikes }] = await Promise.all([
-      admin
-        .from("likes")
-        .select("target_id")
-        .eq("target_type", targetType)
-        .in("target_id", ids)
-        .eq("ip", ip),
-      admin
-        .from("likes")
-        .select("target_id")
-        .eq("target_type", targetType)
-        .in("target_id", ids),
+      admin.from("likes").select("target_id").eq("target_type", targetType).in("target_id", ids).eq("ip", ip),
+      admin.from("likes").select("target_id").eq("target_type", targetType).in("target_id", ids),
     ]);
 
     const liked: Record<string, boolean> = {};
@@ -61,10 +38,10 @@ export async function GET(request: Request) {
       counts[id] = allLikes?.filter((row) => row.target_id === id).length ?? 0;
     }
 
-    return NextResponse.json({ liked, counts });
+    return jsonOk({ liked, counts });
   } catch (e) {
     console.error("[comment-likes GET]", e);
-    return NextResponse.json({ liked: {} });
+    return jsonOk({ liked: {} });
   }
 }
 
@@ -73,21 +50,14 @@ export async function POST(request: Request) {
   try {
     const { comment_type, comment_id } = await request.json();
 
-    if (!comment_type || !comment_id) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-    }
-    if (comment_type !== "post" && comment_type !== "work") {
-      return NextResponse.json({ error: "Invalid comment_type" }, { status: 400 });
-    }
-    if (!isValidUUID(comment_id)) {
-      return NextResponse.json({ error: "Invalid comment_id" }, { status: 400 });
-    }
+    if (!comment_type || !comment_id) return jsonError("Missing fields");
+    if (comment_type !== "post" && comment_type !== "work") return jsonError("Invalid comment_type");
+    if (!isValidUUID(comment_id)) return jsonError("Invalid comment_id");
 
     const ip = getIp(request);
     const targetType = toTargetType(comment_type);
     const admin = createAdminClient();
 
-    // 기존 좋아요 확인
     const { data: existing } = await admin
       .from("likes")
       .select("id")
@@ -99,24 +69,17 @@ export async function POST(request: Request) {
     if (existing) {
       await admin.from("likes").delete().eq("id", existing.id);
     } else {
-      await admin.from("likes").insert({
-        target_type: targetType,
-        target_id: comment_id,
-        ip,
-      });
+      await admin.from("likes").insert({ target_type: targetType, target_id: comment_id, ip });
     }
 
-    // 실시간 count
     const { count } = await admin
       .from("likes")
       .select("*", { count: "exact", head: true })
       .eq("target_type", targetType)
       .eq("target_id", comment_id);
 
-    return NextResponse.json({ liked: !existing, count: count ?? 0 });
+    return jsonOk({ liked: !existing, count: count ?? 0 });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.error("[comment-likes POST]", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return jsonServerError(e);
   }
 }

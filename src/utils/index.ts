@@ -26,3 +26,6 @@ export {
   scrollToBottom,
   setLenisInstance,
 } from "./scroll";
+
+// API 유틸리티
+export { getIp } from "./getIp";

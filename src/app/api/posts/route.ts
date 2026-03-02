@@ -64,14 +64,16 @@ export async function GET(request: Request) {
 
   // popular: 복합 점수 (views + likes*3 + comments*5) → JS 정렬
   if (sort === "popular") {
-    const selectWithComments = query.select("*, series:series_id(title, title_en), comments(count)", { count: "exact" });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const selectWithComments = (query as any).select("*, series:series_id(title, title_en), comments(count)", { count: "exact" });
     const { data: rawData, count: totalCount, error: popError } = await selectWithComments;
 
     if (popError) {
       return NextResponse.json({ error: popError.message }, { status: 500 });
     }
 
-    const scored = (rawData ?? []).map((p) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const scored = ((rawData ?? []) as any[]).map((p: any) => {
       const commentCount = Array.isArray(p.comments) ? (p.comments[0]?.count ?? 0) : 0;
       return { ...p, _score: p.view_count + p.like_count * 3 + commentCount * 5, comments: undefined };
     });
