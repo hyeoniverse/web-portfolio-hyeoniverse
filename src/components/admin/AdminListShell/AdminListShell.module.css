@@ -86,7 +86,7 @@
 /* ── Hover Preview Tooltip ── */
 .previewTooltip {
   position: fixed;
-  z-index: var(--z-tooltip, 100);
+  z-index: var(--z-tooltip);
   width: 280px;
   background: var(--bg-primary);
   border: 1px solid var(--border-tertiary-color);
