@@ -11,11 +11,11 @@
 
 ::selection {
   background: transparent;
-  color: var(--text-accent-alt);
+  color: var(--color-accent-light);
 }
 
 [data-theme="dark"] ::selection {
-  color: var(--text-accent);
+  color: var(--color-accent-dark);
 }
 
 input::selection,

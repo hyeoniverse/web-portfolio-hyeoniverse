@@ -96,6 +96,77 @@
   line-height: 1.6;
 }
 
+/* ─── Preset Bar ─── */
+.presetBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+
+.presetBarLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-right: 4px;
+}
+
+.presetSwatch {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-circle);
+  border: 2px solid transparent;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, transform var(--duration-fast) ease;
+}
+
+.presetSwatch:hover {
+  transform: scale(1.15);
+}
+
+.presetSwatchInner {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-circle);
+  border: 1px solid var(--border-primary);
+}
+
+.presetSwatchActive {
+  border-color: var(--text-primary);
+}
+
+.presetSwatchActive .presetSwatchInner {
+  border-color: transparent;
+}
+
+.presetName {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-primary);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.presetSwatch:hover .presetName {
+  opacity: 1;
+}
+
 /* Section */
 .section {
   margin-bottom: 64px;

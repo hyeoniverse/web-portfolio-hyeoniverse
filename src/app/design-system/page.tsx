@@ -13,9 +13,70 @@ import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Checkbox from "@/components/ui/Checkbox";
 import { useModalStore } from "@/stores/modalStore";
+import { useTheme } from "@/providers/ThemeProvider";
+import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
 import styles from "./DesignSystem.module.css";
+
+// ─── Preset application helpers ───
+const ACCENT_ALPHAS = [1, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
+const ACCENT_LIGHT_ALPHAS = [40, 60, 70, 90];
+
+function hexToRgb(hex: string): [number, number, number] | null {
+  const m = hex.match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+  if (!m) return null;
+  return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
+}
+
+function getThemeVarKeys(): string[] {
+  const keys = ["--color-accent", "--color-accent-dark", "--color-accent-light", "--bg-primary", "--text-primary"];
+  for (const a of ACCENT_ALPHAS) keys.push(`--color-accent-alpha-${a}`);
+  for (const a of ACCENT_LIGHT_ALPHAS) keys.push(`--color-accent-light-alpha-${a}`);
+  return keys;
+}
+
+function snapshotVars(root: HTMLElement): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const key of getThemeVarKeys()) {
+    map.set(key, root.style.getPropertyValue(key));
+  }
+  return map;
+}
+
+function restoreVars(root: HTMLElement, snap: Map<string, string>) {
+  for (const [key, val] of snap) {
+    if (val) root.style.setProperty(key, val);
+    else root.style.removeProperty(key);
+  }
+}
+
+function applyPresetColors(
+  root: HTMLElement,
+  currentTheme: "light" | "dark",
+  preset: (typeof THEME_PRESETS)[0]["theme"],
+) {
+  const rgb = hexToRgb(preset.accentColor);
+  if (!rgb) return;
+  const [r, g, b] = rgb;
+
+  root.style.setProperty("--color-accent", preset.accentColor);
+  for (const a of ACCENT_ALPHAS) {
+    root.style.setProperty(`--color-accent-alpha-${a}`, `rgba(${r}, ${g}, ${b}, ${a / 100})`);
+  }
+  root.style.setProperty("--color-accent-dark", `rgb(${Math.round(r * 0.78)}, ${Math.round(g * 0.78)}, ${Math.round(b * 0.78)})`);
+
+  const lr = Math.min(255, Math.round(r + (255 - r) * 0.4));
+  const lg = Math.min(255, Math.round(g + (255 - g) * 0.4));
+  const lb = Math.min(255, Math.round(b + (255 - b) * 0.4));
+  root.style.setProperty("--color-accent-light", `rgb(${lr}, ${lg}, ${lb})`);
+  for (const a of ACCENT_LIGHT_ALPHAS) {
+    root.style.setProperty(`--color-accent-light-alpha-${a}`, `rgba(${lr}, ${lg}, ${lb}, ${a / 100})`);
+  }
+
+  root.style.setProperty("--bg-primary", currentTheme === "light" ? preset.lightBg : preset.darkBg);
+  root.style.setProperty("--text-primary", currentTheme === "light" ? preset.lightText : preset.darkText);
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -150,10 +211,13 @@ const tocSections = [
 
 export default function DesignSystemPage() {
   const router = useRouter();
+  const { theme } = useTheme();
   const { setInfinite, scrollTo, lenis, stop, start } = useLenis();
   const { openModal } = useModalStore();
   const [activeSection, setActiveSection] = useState("");
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const [activePreset, setActivePreset] = useState<number | null>(null);
+  const snapRef = useRef<Map<string, string> | null>(null);
 
   useEffect(() => {
     stop();
@@ -167,11 +231,33 @@ export default function DesignSystemPage() {
       start();
     }, 50);
 
+    // 스냅샷 저장 + 언마운트 시 복원
+    snapRef.current = snapshotVars(document.documentElement);
     return () => {
       clearTimeout(timer);
       setInfinite(true);
+      if (snapRef.current) restoreVars(document.documentElement, snapRef.current);
     };
   }, [setInfinite, lenis, stop, start]);
+
+  const handlePresetClick = useCallback((index: number) => {
+    setActivePreset((prev) => {
+      if (prev === index) {
+        // 같은 프리셋 다시 클릭 → 원래대로 복원
+        if (snapRef.current) restoreVars(document.documentElement, snapRef.current);
+        return null;
+      }
+      applyPresetColors(document.documentElement, theme, THEME_PRESETS[index].theme);
+      return index;
+    });
+  }, [theme]);
+
+  // 라이트/다크 전환 시 활성 프리셋 재적용
+  useEffect(() => {
+    if (activePreset !== null) {
+      applyPresetColors(document.documentElement, theme, THEME_PRESETS[activePreset].theme);
+    }
+  }, [theme, activePreset]);
 
   // IntersectionObserver로 현재 보이는 섹션 추적
   useEffect(() => {
@@ -272,6 +358,22 @@ export default function DesignSystemPage() {
           </motion.div>
           <motion.div variants={itemVariants}>
             <p className={styles.subtitle}>Raw Tokens → Semantic Tokens → Context Variables</p>
+          </motion.div>
+
+          {/* ─── Preset Bar ─── */}
+          <motion.div className={styles.presetBar} variants={itemVariants}>
+            <span className={styles.presetBarLabel}>Presets</span>
+            {THEME_PRESETS.map((p, i) => (
+              <button
+                key={p.name}
+                className={`${styles.presetSwatch} ${activePreset === i ? styles.presetSwatchActive : ""}`}
+                onClick={() => handlePresetClick(i)}
+                aria-label={p.name}
+              >
+                <div className={styles.presetSwatchInner} style={{ background: p.theme.accentColor }} />
+                <span className={styles.presetName}>{p.name}</span>
+              </button>
+            ))}
           </motion.div>
 
           {/* ─── Colors ─── */}
