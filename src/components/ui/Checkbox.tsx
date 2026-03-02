@@ -3,10 +3,13 @@
 import type { ReactNode } from "react";
 import styles from "./Checkbox.module.css";
 
+type CheckboxShape = "circle" | "square";
+
 interface CheckboxProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   indeterminate?: boolean;
+  shape?: CheckboxShape;
   label?: ReactNode;
   disabled?: boolean;
   className?: string;
@@ -16,6 +19,7 @@ export default function Checkbox({
   checked,
   onChange,
   indeterminate = false,
+  shape = "circle",
   label,
   disabled = false,
   className,
@@ -34,7 +38,7 @@ export default function Checkbox({
         onChange={(e) => !disabled && onChange(e.target.checked)}
         disabled={disabled}
       />
-      <span className={`${styles.box} ${state ? styles[state] : ""}`}>
+      <span className={`${styles.box} ${styles[shape]} ${state ? styles[state] : ""}`}>
         {(checked || indeterminate) && (
           <span className={styles.icon}>
             {indeterminate ? (

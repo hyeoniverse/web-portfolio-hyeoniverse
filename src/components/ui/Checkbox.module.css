@@ -19,8 +19,16 @@
   width: 16px;
   height: 16px;
   border: 1.5px solid var(--border-secondary-color);
-  border-radius: 50%;
   background: transparent;
+}
+
+/* Shapes */
+.box.circle {
+  border-radius: 50%;
+}
+
+.box.square {
+  border-radius: var(--radius-xs);
 }
 
 .wrapper:hover:not(.disabled) .box {
@@ -28,16 +36,28 @@
   outline-offset: 2px;
 }
 
-/* Checked */
-.box.checked {
+/* Checked — circle */
+.box.circle.checked {
   background: var(--color-success);
   border-color: var(--color-success);
 }
 
-/* Indeterminate */
-.box.indeterminate {
+/* Checked — square */
+.box.square.checked {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+}
+
+/* Indeterminate — circle */
+.box.circle.indeterminate {
   background: var(--text-muted);
   border-color: var(--text-muted);
+}
+
+/* Indeterminate — square */
+.box.square.indeterminate {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
 }
 
 /* ── Icons ── */
