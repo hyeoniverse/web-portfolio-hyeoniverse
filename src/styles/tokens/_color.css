@@ -14,19 +14,19 @@
   --color-accent-dark: #a3004e;
   --color-accent-light: #ff4f9d;
 
-  /* Neutral Scale (Light Theme: light to dark) */
+  /* Neutral Scale (Light Theme: warm tone matched to neutral-50) */
   --color-neutral-0: #ffffff;
   --color-neutral-50: #f8f6f0;
-  --color-neutral-100: #e9ecef;
-  --color-neutral-200: #dee2e6;
-  --color-neutral-300: #ced4da;
-  --color-neutral-400: #bcc1c7;
-  --color-neutral-500: #adb5bd;
-  --color-neutral-600: #656c79;
-  --color-neutral-700: #495057;
-  --color-neutral-800: #343a40;
-  --color-neutral-900: #212529;
-  --color-neutral-950: #1a1a1a;
+  --color-neutral-100: #efede5;
+  --color-neutral-200: #e1ded4;
+  --color-neutral-300: #ccc8bc;
+  --color-neutral-400: #b4b0a4;
+  --color-neutral-500: #9a968b;
+  --color-neutral-600: #6e6b61;
+  --color-neutral-700: #514e46;
+  --color-neutral-800: #38352e;
+  --color-neutral-900: #24221c;
+  --color-neutral-950: #1b1a15;
   --color-neutral-999: #000000;
 
   /* Cursor Trail */
@@ -64,35 +64,35 @@
   --color-accent-light-alpha-70: rgba(255, 79, 157, 0.7);
   --color-accent-light-alpha-90: rgba(255, 79, 157, 0.9);
 
-  /* Neutral Alpha (Dark on Light) */
-  --color-neutral-alpha-1: rgba(26, 26, 26, 0.015);
-  --color-neutral-alpha-5: rgba(26, 26, 26, 0.05);
-  --color-neutral-alpha-10: rgba(26, 26, 26, 0.1);
-  --color-neutral-alpha-20: rgba(26, 26, 26, 0.2);
-  --color-neutral-alpha-30: rgba(26, 26, 26, 0.3);
-  --color-neutral-alpha-40: rgba(26, 26, 26, 0.4);
-  --color-neutral-alpha-50: rgba(26, 26, 26, 0.5);
-  --color-neutral-alpha-60: rgba(26, 26, 26, 0.6);
-  --color-neutral-alpha-70: rgba(26, 26, 26, 0.7);
-  --color-neutral-alpha-80: rgba(26, 26, 26, 0.8);
-  --color-neutral-alpha-90: rgba(26, 26, 26, 0.9);
-  --color-neutral-alpha-95: rgba(26, 26, 26, 0.95);
-  --color-neutral-alpha-100: rgba(26, 26, 26, 1);
+  /* Neutral Alpha (Warm dark on Light) */
+  --color-neutral-alpha-1: rgba(27, 26, 21, 0.015);
+  --color-neutral-alpha-5: rgba(27, 26, 21, 0.05);
+  --color-neutral-alpha-10: rgba(27, 26, 21, 0.1);
+  --color-neutral-alpha-20: rgba(27, 26, 21, 0.2);
+  --color-neutral-alpha-30: rgba(27, 26, 21, 0.3);
+  --color-neutral-alpha-40: rgba(27, 26, 21, 0.4);
+  --color-neutral-alpha-50: rgba(27, 26, 21, 0.5);
+  --color-neutral-alpha-60: rgba(27, 26, 21, 0.6);
+  --color-neutral-alpha-70: rgba(27, 26, 21, 0.7);
+  --color-neutral-alpha-80: rgba(27, 26, 21, 0.8);
+  --color-neutral-alpha-90: rgba(27, 26, 21, 0.9);
+  --color-neutral-alpha-95: rgba(27, 26, 21, 0.95);
+  --color-neutral-alpha-100: rgba(27, 26, 21, 1);
 
-  /* Inverse Alpha (Light on Dark) */
-  --color-inverse-alpha-1: rgba(250, 250, 250, 0.015);
-  --color-inverse-alpha-5: rgba(250, 250, 250, 0.05);
-  --color-inverse-alpha-10: rgba(250, 250, 250, 0.1);
-  --color-inverse-alpha-20: rgba(250, 250, 250, 0.2);
-  --color-inverse-alpha-30: rgba(250, 250, 250, 0.3);
-  --color-inverse-alpha-40: rgba(250, 250, 250, 0.4);
-  --color-inverse-alpha-50: rgba(250, 250, 250, 0.5);
-  --color-inverse-alpha-60: rgba(250, 250, 250, 0.6);
-  --color-inverse-alpha-70: rgba(250, 250, 250, 0.7);
-  --color-inverse-alpha-80: rgba(250, 250, 250, 0.8);
-  --color-inverse-alpha-90: rgba(250, 250, 250, 0.9);
-  --color-inverse-alpha-95: rgba(250, 250, 250, 0.95);
-  --color-inverse-alpha-100: rgba(250, 250, 250, 1);
+  /* Inverse Alpha (Warm light on Dark) */
+  --color-inverse-alpha-1: rgba(248, 246, 240, 0.015);
+  --color-inverse-alpha-5: rgba(248, 246, 240, 0.05);
+  --color-inverse-alpha-10: rgba(248, 246, 240, 0.1);
+  --color-inverse-alpha-20: rgba(248, 246, 240, 0.2);
+  --color-inverse-alpha-30: rgba(248, 246, 240, 0.3);
+  --color-inverse-alpha-40: rgba(248, 246, 240, 0.4);
+  --color-inverse-alpha-50: rgba(248, 246, 240, 0.5);
+  --color-inverse-alpha-60: rgba(248, 246, 240, 0.6);
+  --color-inverse-alpha-70: rgba(248, 246, 240, 0.7);
+  --color-inverse-alpha-80: rgba(248, 246, 240, 0.8);
+  --color-inverse-alpha-90: rgba(248, 246, 240, 0.9);
+  --color-inverse-alpha-95: rgba(248, 246, 240, 0.95);
+  --color-inverse-alpha-100: rgba(248, 246, 240, 1);
 
   /* Gray Alpha (Pure Black) */
   --color-gray-alpha-1: rgba(0, 0, 0, 0.015);
@@ -136,19 +136,19 @@
   --color-accent-dark: #e6398c;
   --color-accent-light: #ff80c2;
 
-  /* Neutral Scale (Dark Theme: dark to light - inverted) */
+  /* Neutral Scale (Dark Theme: warm tone inverted) */
   --color-neutral-0: #000000;
-  --color-neutral-50: #1d1d1f;
-  --color-neutral-100: #212529;
-  --color-neutral-200: #343a40;
-  --color-neutral-300: #495057;
-  --color-neutral-400: #6b7280;
-  --color-neutral-500: #adb5bd;
-  --color-neutral-600: #bcc1c7;
-  --color-neutral-700: #ced4da;
-  --color-neutral-800: #dee2e6;
-  --color-neutral-900: #e9ecef;
-  --color-neutral-950: #fafafa;
+  --color-neutral-50: #1b1a15;
+  --color-neutral-100: #24221c;
+  --color-neutral-200: #38352e;
+  --color-neutral-300: #514e46;
+  --color-neutral-400: #6e6b61;
+  --color-neutral-500: #9a968b;
+  --color-neutral-600: #b4b0a4;
+  --color-neutral-700: #ccc8bc;
+  --color-neutral-800: #e1ded4;
+  --color-neutral-900: #efede5;
+  --color-neutral-950: #f8f6f0;
   --color-neutral-999: #ffffff;
 
   /* Status */
@@ -179,33 +179,33 @@
   --color-accent-light-alpha-70: rgba(255, 128, 194, 0.7);
   --color-accent-light-alpha-90: rgba(255, 128, 194, 0.9);
 
-  /* Neutral Alpha (Light on Dark - inverted) */
-  --color-neutral-alpha-1: rgba(250, 250, 250, 0.015);
-  --color-neutral-alpha-5: rgba(250, 250, 250, 0.05);
-  --color-neutral-alpha-10: rgba(250, 250, 250, 0.1);
-  --color-neutral-alpha-20: rgba(250, 250, 250, 0.2);
-  --color-neutral-alpha-30: rgba(250, 250, 250, 0.3);
-  --color-neutral-alpha-40: rgba(250, 250, 250, 0.4);
-  --color-neutral-alpha-50: rgba(250, 250, 250, 0.5);
-  --color-neutral-alpha-60: rgba(250, 250, 250, 0.6);
-  --color-neutral-alpha-70: rgba(250, 250, 250, 0.7);
-  --color-neutral-alpha-80: rgba(250, 250, 250, 0.8);
-  --color-neutral-alpha-90: rgba(250, 250, 250, 0.9);
-  --color-neutral-alpha-95: rgba(250, 250, 250, 0.95);
-  --color-neutral-alpha-100: rgba(250, 250, 250, 1);
+  /* Neutral Alpha (Warm light on Dark - inverted) */
+  --color-neutral-alpha-1: rgba(248, 246, 240, 0.015);
+  --color-neutral-alpha-5: rgba(248, 246, 240, 0.05);
+  --color-neutral-alpha-10: rgba(248, 246, 240, 0.1);
+  --color-neutral-alpha-20: rgba(248, 246, 240, 0.2);
+  --color-neutral-alpha-30: rgba(248, 246, 240, 0.3);
+  --color-neutral-alpha-40: rgba(248, 246, 240, 0.4);
+  --color-neutral-alpha-50: rgba(248, 246, 240, 0.5);
+  --color-neutral-alpha-60: rgba(248, 246, 240, 0.6);
+  --color-neutral-alpha-70: rgba(248, 246, 240, 0.7);
+  --color-neutral-alpha-80: rgba(248, 246, 240, 0.8);
+  --color-neutral-alpha-90: rgba(248, 246, 240, 0.9);
+  --color-neutral-alpha-95: rgba(248, 246, 240, 0.95);
+  --color-neutral-alpha-100: rgba(248, 246, 240, 1);
 
-  /* Inverse Alpha (Dark on Light - inverted) */
-  --color-inverse-alpha-1: rgba(26, 26, 26, 0.015);
-  --color-inverse-alpha-5: rgba(26, 26, 26, 0.05);
-  --color-inverse-alpha-10: rgba(26, 26, 26, 0.1);
-  --color-inverse-alpha-20: rgba(26, 26, 26, 0.2);
-  --color-inverse-alpha-30: rgba(26, 26, 26, 0.3);
-  --color-inverse-alpha-40: rgba(26, 26, 26, 0.4);
-  --color-inverse-alpha-50: rgba(26, 26, 26, 0.5);
-  --color-inverse-alpha-60: rgba(26, 26, 26, 0.6);
-  --color-inverse-alpha-70: rgba(26, 26, 26, 0.7);
-  --color-inverse-alpha-80: rgba(26, 26, 26, 0.8);
-  --color-inverse-alpha-90: rgba(26, 26, 26, 0.9);
-  --color-inverse-alpha-95: rgba(26, 26, 26, 0.95);
-  --color-inverse-alpha-100: rgba(26, 26, 26, 1);
+  /* Inverse Alpha (Warm dark on Light - inverted) */
+  --color-inverse-alpha-1: rgba(27, 26, 21, 0.015);
+  --color-inverse-alpha-5: rgba(27, 26, 21, 0.05);
+  --color-inverse-alpha-10: rgba(27, 26, 21, 0.1);
+  --color-inverse-alpha-20: rgba(27, 26, 21, 0.2);
+  --color-inverse-alpha-30: rgba(27, 26, 21, 0.3);
+  --color-inverse-alpha-40: rgba(27, 26, 21, 0.4);
+  --color-inverse-alpha-50: rgba(27, 26, 21, 0.5);
+  --color-inverse-alpha-60: rgba(27, 26, 21, 0.6);
+  --color-inverse-alpha-70: rgba(27, 26, 21, 0.7);
+  --color-inverse-alpha-80: rgba(27, 26, 21, 0.8);
+  --color-inverse-alpha-90: rgba(27, 26, 21, 0.9);
+  --color-inverse-alpha-95: rgba(27, 26, 21, 0.95);
+  --color-inverse-alpha-100: rgba(27, 26, 21, 1);
 }
