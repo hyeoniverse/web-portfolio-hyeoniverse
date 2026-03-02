@@ -2,32 +2,6 @@ import type { DesignConceptItem } from "./types";
 
 export const designConcepts: DesignConceptItem[] = [
   {
-    id: "oval",
-    title: "THE OVAL",
-    subtitle: {
-      ko: "작은 파동이 만드는 연결",
-      en: "Small Ripples, Big Connections",
-    },
-    description: {
-      ko: "타원은 이 포트폴리오를 관통하는 모티프예요. 물에 돌멩이를 던지면 동심원이 퍼지듯, 한 줄의 코드에서 시작된 작은 파동이 조금씩 넓어져 누군가와 연결되기를 바라는 마음을 담았습니다. 끝이 닫히지 않는 곡선이라는 점도 마음에 들었어요 — 아직 어디까지 갈 수 있을지 모르니까요.",
-      en: "The oval is the motif that runs through this entire portfolio. Like a pebble dropped into water sends ripples outward, I wanted to capture the hope that a single line of code can grow into something that connects with people. I liked that an oval never fully closes — there's still so much to explore.",
-    },
-    image: "https://images.unsplash.com/photo-1550859492-d5da9d8e45f3?w=800&q=80",
-  },
-  {
-    id: "line-curve",
-    title: "LINE & CURVE",
-    subtitle: {
-      ko: "직선의 논리, 곡선의 감성",
-      en: "Logic in Lines, Feeling in Curves",
-    },
-    description: {
-      ko: "코드는 논리적이고 정확해야 하지만, 그걸 만나는 사용자의 경험은 부드럽고 자연스러워야 한다고 생각했어요. 이 사이트 곳곳에 직선과 곡선을 섞어 놓은 건, 그 둘 사이의 균형을 찾고 싶었기 때문입니다. 딱딱한 그리드 위에 부드러운 원이 얹혀 있는 느낌이랄까요.",
-      en: "Code needs to be logical and precise, but the experience of using it should feel smooth and natural. I mixed straight lines with curves throughout this site to find a balance between the two — something like a soft circle resting on a rigid grid.",
-    },
-    image: "https://images.unsplash.com/photo-1618761714954-0b8cd0026356?w=800&q=80",
-  },
-  {
     id: "typography",
     title: "TYPOGRAPHY",
     subtitle: {

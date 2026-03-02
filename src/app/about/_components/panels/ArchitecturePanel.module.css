@@ -1,0 +1,363 @@
+.archGrid {
+  display: none;
+  grid-auto-flow: column;
+  gap: 0 var(--spacing-3xl);
+  border-top: var(--_line-primary);
+  max-width: clamp(560px, 75vw, 1100px);
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(9, auto);
+}
+
+.archItem {
+  display: flex;
+  gap: var(--spacing-xl);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: clamp(0.6rem, 1vh, 1rem) 0;
+  border-bottom: var(--_line-secondary);
+  transition: border-color var(--duration-base) ease;
+}
+
+.archItem:hover {
+  border-bottom-color: var(--color-accent-alpha-30);
+}
+
+.archPath {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-size: var(--_fs-body);
+  font-weight: var(--font-weight-medium);
+  transition: color var(--duration-base) ease;
+}
+
+.archItem:hover .archPath {
+  color: var(--text-accent);
+}
+
+.archIndent1 .archPath {
+  padding-left: var(--spacing-lg);
+}
+
+.archIndent2 .archPath {
+  padding-left: var(--_space-block);
+}
+
+.archDesc {
+  font-size: var(--_fs-small);
+  line-height: var(--_lh-reading);
+  color: var(--text-tertiary);
+  text-align: right;
+}
+
+/* ── Architecture Node Map (desktop only) ── */
+
+.archMap {
+  flex: 1;
+  overflow: visible;
+  position: relative;
+  min-height: 0;
+}
+
+/* Mode selector */
+.archModeBar {
+  display: flex;
+  gap: var(--spacing-xs);
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+}
+
+.archMap .archModeBtn {
+  padding: var(--padding-md);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
+  color: var(--text-tertiary);
+  transition:
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.archMap .archModeBtn:hover {
+  color: var(--text-primary);
+}
+
+.archMap .archModeBtnActive {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+/* ── Tree mode: SVG edges ── */
+.archMap .archSvg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  inset: 0;
+}
+
+.archSvg .archEdge {
+  transition:
+    stroke var(--duration-base) ease,
+    opacity var(--duration-base) ease,
+    stroke-width var(--duration-base) ease;
+  fill: none;
+  stroke: var(--text-tertiary);
+  stroke-width: 0.8;
+  opacity: 0.2;
+}
+
+.archSvg .archEdgeActive {
+  stroke: var(--text-accent);
+  stroke-width: 1.2;
+  opacity: 0.7;
+}
+
+.archSvg .archEdgeDimmed {
+  opacity: 0.06;
+}
+
+/* ── Force mode: edge flow animation ── */
+.archSvg .archEdgeForce {
+  stroke-dasharray: 4 6;
+  animation: archEdgeFlow 3s linear infinite;
+}
+
+.archSvg .archEdgePathActive {
+  stroke: var(--text-accent);
+  stroke-width: 1.8;
+  opacity: 0.8;
+  stroke-dasharray: 6 4;
+  animation: archEdgeFlow 1.2s linear infinite;
+}
+
+.archSvg .archEdgeDimmed.archEdgeForce {
+  animation: none;
+  stroke-dasharray: none;
+}
+
+@keyframes archEdgeFlow {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* ── Tree mode: Node boxes ── */
+.archMap .archNodeBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.2rem, 0.3vh, 0.3rem) clamp(0.5rem, 0.6vw, 0.8rem);
+  border: 1.5px solid var(--border-default);
+  position: absolute;
+  background: transparent;
+  transition:
+    border-color var(--duration-base) ease,
+    box-shadow var(--duration-base) ease,
+    opacity var(--duration-base) ease,
+    transform var(--duration-fast) ease;
+  translate: -50% -50%;
+  border-radius: 999px;
+}
+
+.archMap .archNodeBox:hover {
+  transform: scale(1.08);
+}
+
+.archMap .archNodeActive {
+  border-color: var(--text-accent);
+  border-width: 2px;
+  box-shadow: 0 0 16px var(--color-accent-alpha-15);
+}
+
+.archMap .archNodeOnPath {
+  border-color: var(--border-default);
+}
+
+.archMap .archNodeOnPath .archNodePath {
+  color: var(--text-accent);
+}
+
+.archMap .archNodeDimmed {
+  opacity: 0.35;
+}
+
+.archMap .archNodeRoot {
+  padding: clamp(0.35rem, 0.6vh, 0.6rem) clamp(1rem, 1.2vw, 1.6rem);
+  border-width: 2px;
+  border-color: var(--text-accent);
+}
+
+.archNodePath {
+  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-size: var(--_fs-small);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.archMap .archNodeActive .archNodePath {
+  color: var(--text-accent);
+}
+
+.archMap .archNodeDraggable {
+  touch-action: none;
+  user-select: none;
+}
+
+.archMap .archNodeDraggable:active {
+}
+
+/* ── Treemap mode ── */
+.archMap .archTmCell {
+  display: flex;
+  align-items: flex-start;
+  padding: clamp(0.2rem, 0.35vh, 0.4rem) clamp(0.3rem, 0.4vw, 0.55rem);
+  border: 1px solid var(--border-default);
+
+  overflow: hidden;
+  position: absolute;
+  transition:
+    border-color var(--duration-base) ease,
+    box-shadow var(--duration-base) ease,
+    opacity var(--duration-base) ease;
+  border-radius: var(--radius-sm);
+}
+
+.archMap .archTmCell:hover {
+  border-color: var(--color-accent-alpha-30);
+}
+
+.archMap .archTmParent {
+  border-color: var(--color-accent-alpha-15);
+  z-index: 0;
+  background: var(--color-accent-alpha-5);
+}
+
+.archMap .archTmChild {
+  border-color: var(--color-accent-alpha-20);
+  z-index: 1;
+  background: var(--color-accent-alpha-10);
+}
+
+.archMap .archTmLeaf {
+  border-color: var(--border-default);
+  z-index: 0;
+  background: var(--bg-tertiary, var(--bg-secondary));
+}
+
+.archMap .archTmCellActive {
+  border-color: var(--text-accent);
+  box-shadow: 0 0 12px var(--color-accent-alpha-15);
+  z-index: 2;
+}
+
+.archMap .archTmCellDimmed {
+  opacity: 0.3;
+}
+
+.archTmLabel {
+  overflow: hidden;
+  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-size: clamp(9px, 0.7vw, 13px);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.archMap .archTmCellActive .archTmLabel {
+  color: var(--text-accent);
+}
+
+/* ── Sunburst mode ── */
+.archMap .archSunburst {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+}
+
+.archSunburst .archSbArc {
+  transition:
+    fill var(--duration-base) ease,
+    opacity var(--duration-base) ease;
+  fill: var(--bg-secondary);
+  stroke: var(--bg-primary);
+  stroke-width: 2;
+}
+
+.archSunburst .archSbArc:hover {
+  fill: var(--color-accent-alpha-10);
+}
+
+.archSunburst .archSbArcActive {
+  fill: var(--color-accent-alpha-20);
+}
+
+.archSunburst .archSbArcDimmed {
+  opacity: 0.25;
+}
+
+.archSunburst .archSbRoot {
+  transition:
+    fill var(--duration-base) ease,
+    opacity var(--duration-base) ease;
+  fill: var(--bg-secondary);
+  stroke: var(--border-default);
+  stroke-width: 1.5;
+}
+
+.archSunburst .archSbLabel {
+  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-size: clamp(8px, 0.65vw, 12px);
+  font-weight: var(--font-weight-medium);
+  pointer-events: none;
+  fill: var(--text-secondary);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.archSunburst .archSbLabelLg {
+  font-size: clamp(10px, 0.8vw, 14px);
+}
+
+/* ── Shared tooltip ── */
+.archMap .archTooltip {
+  position: absolute;
+  z-index: 10;
+  max-width: clamp(200px, 20vw, 340px);
+  padding: clamp(0.5rem, 0.8vh, 0.75rem) clamp(0.75rem, 1vw, 1.1rem);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--text-accent);
+  font-size: var(--_fs-small);
+  line-height: var(--_lh-reading);
+  color: var(--text-primary);
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .archMap {
+    display: none;
+  }
+
+  .archGrid {
+    display: grid;
+    grid-auto-flow: row;
+    max-width: none;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .archIndent1 .archPath {
+    padding-left: var(--spacing-sm);
+  }
+
+  .archIndent2 .archPath {
+    padding-left: var(--spacing-xl);
+  }
+}

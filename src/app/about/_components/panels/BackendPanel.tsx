@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { BackendItem } from "@/data/about";
 import { renderHighlight } from "../renderHighlight";
@@ -8,7 +8,9 @@ import CodeHighlight from "../CodeHighlight";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./BackendPanel.module.css";
+const styles = { ...shared, ...local };
 
 interface BackendPanelProps {
   language: Language;
@@ -16,7 +18,7 @@ interface BackendPanelProps {
   scrollBy?: (deltaX: number) => void;
 }
 
-export default function BackendPanel({
+function BackendPanel({
   language,
   items,
   scrollBy,
@@ -271,7 +273,7 @@ export default function BackendPanel({
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
-          number="08"
+         
           title="Backend."
           compact
           animate
@@ -352,3 +354,5 @@ export default function BackendPanel({
     </div>
   );
 }
+
+export default memo(BackendPanel);

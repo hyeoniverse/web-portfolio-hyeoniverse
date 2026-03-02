@@ -1,0 +1,140 @@
+.heroContent {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+}
+
+.label {
+  display: inline-block;
+  margin-bottom: var(--_space-block);
+  padding: var(--spacing-xs) var(--spacing-xl);
+  border: 1px solid var(--color-accent-alpha-30);
+  width: fit-content;
+  font-size: var(--_fs-label);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.heroTitle {
+  margin-bottom: var(--_space-divide);
+  font-family: var(--_font-display);
+  font-size: var(--_fs-hero);
+  line-height: var(--_lh-title);
+  letter-spacing: var(--_ls-title);
+}
+
+.heroTitleAccent {
+  color: var(--text-accent);
+}
+
+.heroSubtitle {
+  margin: 0;
+  font-size: var(--_fs-subhead);
+  line-height: var(--line-height-loose);
+  color: var(--text-secondary);
+}
+
+.heroWatermark {
+  position: absolute;
+  right: -4%;
+  bottom: 5%;
+  font-family: var(--font-instrument);
+  font-size: clamp(6rem, min(18vw, 24vh), 16rem);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  line-height: 0.85;
+  pointer-events: none;
+  opacity: 0.04;
+  user-select: none;
+  text-transform: lowercase;
+}
+
+/* Hero — decorative elements */
+.heroPanelBg::after {
+  content: "";
+  position: absolute;
+  top: 15%;
+  right: 10%;
+  width: clamp(200px, 30vw, 500px);
+  height: clamp(200px, 30vw, 500px);
+  background: radial-gradient(
+    circle,
+    var(--color-accent-alpha-10) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: heroGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+  0% {
+    opacity: 0.4;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0.8;
+    transform: translate(-5%, 5%) scale(1.15);
+  }
+}
+
+.heroAccentLine {
+  display: block;
+  width: 48px;
+  height: 2px;
+  margin-top: var(--spacing-lg);
+  background: var(--color-accent);
+  border-radius: 1px;
+  animation: heroLineSlide 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both;
+}
+
+@keyframes heroLineSlide {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 48px;
+    opacity: 1;
+  }
+}
+
+.heroFadeIn1 {
+  animation: heroFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
+}
+
+.heroFadeIn2 {
+  animation: heroFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s both;
+}
+
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .heroContent {
+    padding-top: calc(var(--header-height) + var(--_space-divide));
+  }
+
+  .heroWatermark {
+    right: -3%;
+    bottom: 8%;
+    font-size: clamp(3rem, 12vw, 6rem);
+  }
+
+  .heroSubtitle {
+    max-width: none;
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useLayoutEffect, useCallback } from "react";
+import { useRef, useState, useLayoutEffect, useCallback, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { ProcessStep } from "@/data/about";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
@@ -8,7 +8,9 @@ import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { renderHighlight } from "../renderHighlight";
 import PinnedTitleRow from "../PinnedTitleRow";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./ProcessPanel.module.css";
+const styles = { ...shared, ...local };
 
 interface ProcessPanelProps {
   language: Language;
@@ -16,7 +18,7 @@ interface ProcessPanelProps {
   scrollBy?: (deltaX: number) => void;
 }
 
-export default function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
+function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
   const isMobile = useMobileLayout();
   const progressRef = useRef<HTMLDivElement>(null);
 
@@ -105,7 +107,7 @@ export default function ProcessPanel({ language, process, scrollBy }: ProcessPan
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
         {/* 타이틀 행 */}
-        <PinnedTitleRow number="06" title="Design Process." />
+        <PinnedTitleRow title="Design Process." />
 
         {/* 타임라인 + 콘텐츠 본문 (모바일은 행, 데스크톱은 열) */}
         <div className={styles.processBody}>
@@ -239,3 +241,5 @@ export default function ProcessPanel({ language, process, scrollBy }: ProcessPan
     </div>
   );
 }
+
+export default memo(ProcessPanel);

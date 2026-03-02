@@ -1,0 +1,358 @@
+.ufFlowLayout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-height: 0;
+}
+
+.ufFlowDiagram {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ufFlowSvg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Info Panel (horizontal, top) ── */
+.ufFlowInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  animation: ufFadeIn 0.5s ease both;
+}
+
+/* Profile card — avatar + name/story */
+.ufFlowProfile {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.ufFlowAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  border: 1.5px solid var(--color-accent);
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.ufFlowProfileText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ufFlowTitle {
+  font-family: var(--font-mono);
+  font-size: var(--_fs-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.ufFlowPersona {
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-small);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.ufFlowCounter {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+.ufFlowCounterCurrent {
+  font-size: var(--_fs-subhead);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.ufFlowCounterSep {
+  font-size: var(--_fs-small);
+  color: var(--text-tertiary);
+  margin: 0 1px;
+}
+
+.ufFlowCounterTotal {
+  font-size: var(--_fs-small);
+  color: var(--text-tertiary);
+}
+
+.ufFlowDesc {
+  margin: 0;
+  flex: 1;
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-body);
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ── Legend (vertical, in title row right — same position as dotNav) ── */
+.ufFlowLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ufLegendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* ── SVG: Node animation ── */
+@keyframes ufNodeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ufNodeGroup {
+  animation: ufNodeIn 0.4s ease-out both;
+}
+
+/* ── SVG: Terminal (Start / End) ── */
+.ufTerminalRect {
+  fill: var(--color-accent);
+  stroke: none;
+}
+
+.ufTerminalText {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--bg-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── SVG: Action ── */
+.ufActionRect {
+  fill: var(--bg-primary);
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+}
+
+.ufActionText {
+  font-family: var(--_font-grotesk);
+  font-size: 12px;
+  font-weight: 500;
+  fill: var(--text-primary);
+}
+
+/* ── SVG: Decision Diamond ── */
+.ufDiamondShape {
+  fill: var(--bg-primary);
+  stroke: var(--color-accent);
+  stroke-width: 1.5;
+}
+
+.ufDiamondText {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--color-accent);
+}
+
+/* ── SVG: Edges ── */
+@keyframes ufEdgeIn {
+  from {
+    opacity: 0;
+    stroke-dashoffset: 40;
+  }
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+.ufEdgePath {
+  stroke: var(--text-primary);
+  stroke-width: 1.2;
+  stroke-dasharray: 2000;
+  animation: ufEdgeIn 0.4s ease-out both;
+}
+
+.ufEdgeLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--color-accent);
+  opacity: 0;
+  animation: ufNodeIn 0.3s ease-out both;
+}
+
+/* ── Mobile ── */
+.ufMobileList {
+  display: none;
+}
+
+.ufMobileFlowGroup {
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+}
+
+.ufMobileFlowActive {
+  border-color: var(--color-accent);
+}
+
+.ufMobileFlowHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.ufMobileFlowIcon {
+  display: flex;
+  color: var(--color-accent);
+}
+
+.ufMobileFlowTitle {
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ufMobileFlowCount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-caption);
+  color: var(--text-tertiary);
+}
+
+.ufMobileFlowDesc {
+  margin: var(--spacing-sm) 0 0;
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-caption);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ufMobileNodes {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--spacing-sm);
+}
+
+.ufMobileNode {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  padding: 6px 0;
+}
+
+.ufMobileDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.ufMobileLine {
+  position: absolute;
+  left: 3.5px;
+  top: 20px;
+  bottom: -6px;
+  width: 1px;
+  background: var(--text-tertiary);
+  opacity: 0.3;
+}
+
+.ufMobileDecision .ufMobileDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  background: var(--color-accent);
+}
+
+.ufMobileTerminal .ufMobileDot {
+  background: var(--color-accent);
+}
+
+.ufMobileNodeLabel {
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-small);
+  color: var(--text-primary);
+}
+
+.ufMobileDecision .ufMobileNodeLabel {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+@keyframes ufFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Mobile overrides (1024px)
+   ========================================================================== */
+
+@media (max-width: 1024px), (max-height: 700px) {
+  /* ── User Flow Panel — mobile ── */
+  .ufLane {
+    padding: var(--spacing-lg);
+  }
+
+  .ufPipeline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ufConnector {
+    transform: rotate(90deg);
+    margin: var(--spacing-2xs) var(--spacing-xl);
+  }
+
+  .ufFlowLayout {
+    display: none;
+  }
+
+  .ufMobileList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    flex: 1;
+  }
+}

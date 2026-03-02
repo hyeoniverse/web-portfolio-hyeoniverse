@@ -5,7 +5,9 @@ import dynamic from "next/dynamic";
 import { useMotionValue, useSpring, motion } from "framer-motion";
 import StaggerText from "@/components/effects/StaggerText/StaggerText";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./CodeHighlightsPanel.module.css";
+const styles = { ...shared, ...local };
 
 const LazyDemoScrollTorus = dynamic(() => import("./DemoScrollTorus"), {
   ssr: false,

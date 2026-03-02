@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Language } from "@/providers/LanguageProvider";
 import type { StructureItem } from "@/data/about";
@@ -13,7 +13,9 @@ import {
   CENTER_Y,
 } from "./_utils/architectureLayout";
 import { useForceGraph } from "./_utils/useForceGraph";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./ArchitecturePanel.module.css";
+const styles = { ...shared, ...local };
 
 type ViewMode = "tree" | "treemap" | "force";
 
@@ -28,7 +30,7 @@ const VIEW_MODES: { key: ViewMode; label: string }[] = [
   { key: "force", label: "Force" },
 ];
 
-export default function ArchitecturePanel({ language, structure }: ArchitecturePanelProps) {
+function ArchitecturePanel({ language, structure }: ArchitecturePanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -210,7 +212,6 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
 
   return (
     <div className={styles.panel}>
-      <span className={`${styles.panelNumber} ${styles.animate}`}>03</span>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>Architecture.</h3>
 
       {/* ── 데스크톱: 인터랙티브 맵 ── */}
@@ -399,3 +400,5 @@ export default function ArchitecturePanel({ language, structure }: ArchitectureP
     </div>
   );
 }
+
+export default memo(ArchitecturePanel);

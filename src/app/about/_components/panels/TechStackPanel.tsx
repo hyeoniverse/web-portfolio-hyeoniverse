@@ -1,5 +1,7 @@
 import type { TechStackItem } from "@/data/about";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./TechStackPanel.module.css";
+const styles = { ...shared, ...local };
 
 /* Inline brand SVGs — eliminates react-icons/si (~100kB) */
 const si = (d: string) => (
@@ -39,7 +41,6 @@ interface TechStackPanelProps {
 export default function TechStackPanel({ techStack }: TechStackPanelProps) {
   return (
     <div className={`${styles.panel} ${styles.panelCompact}`}>
-      <span className={`${styles.panelNumber} ${styles.animate}`}>07</span>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>Tech Stack.</h3>
       <div className={styles.techGrid}>
         {techStack.map((tech, index) => (

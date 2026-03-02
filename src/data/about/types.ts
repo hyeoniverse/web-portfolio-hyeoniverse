@@ -52,7 +52,8 @@ export interface DesignConceptItem {
   title: string;
   subtitle: LocalizedText;
   description: LocalizedText;
-  image: string;
+  image?: string;
+  examples?: string[];
 }
 
 export interface DbColumn {

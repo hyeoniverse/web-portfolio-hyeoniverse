@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useLayoutEffect } from "react";
+import { useRef, useCallback, useLayoutEffect, memo } from "react";
 import gsap from "gsap";
 import Image from "next/image";
 import type { Language } from "@/providers/LanguageProvider";
@@ -15,7 +15,9 @@ import MotionScrollDemo from "./demos/MotionScrollDemo";
 import LayoutSpacingDemo from "./demos/LayoutSpacingDemo";
 import GridSystemDemo from "./demos/GridSystemDemo";
 import IconographyDemo from "./demos/IconographyDemo";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./DesignConceptPanel.module.css";
+const styles = { ...shared, ...local };
 
 export type DcTransitionMode = "strip" | "stack";
 
@@ -35,7 +37,7 @@ const demoMap: Record<string, React.FC> = {
   icons: IconographyDemo,
 };
 
-export default function DesignConceptPanel({
+function DesignConceptPanel({
   language,
   concepts,
   mode = "strip",
@@ -147,7 +149,7 @@ export default function DesignConceptPanel({
       <div key={concept.id} className={styles.dcCard}>
         <div className={styles.dcCardBg}>
           <Image
-            src={concept.image}
+            src={concept.image!}
             alt={concept.title}
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
@@ -171,8 +173,8 @@ export default function DesignConceptPanel({
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       <div ref={contentRef} className={`${styles.pinnedContent} ${styles.dcViewport}`}>
         <PinnedTitleRow
-          number="05"
-          title="Design Concept."
+         
+          title="Design System."
           dotNav={{
             count: concepts.length,
             activeIndex,
@@ -202,7 +204,7 @@ export default function DesignConceptPanel({
               <div key={concept.id} className={styles.dcMobileCard}>
                 <div className={styles.dcMobileCardBg}>
                   <Image
-                    src={concept.image}
+                    src={concept.image!}
                     alt={concept.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -227,3 +229,5 @@ export default function DesignConceptPanel({
     </div>
   );
 }
+
+export default memo(DesignConceptPanel);

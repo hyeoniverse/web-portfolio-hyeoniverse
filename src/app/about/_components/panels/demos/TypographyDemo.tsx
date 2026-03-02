@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import styles from "../../AboutSection.module.css";
+import shared from "../../AboutSection.module.css";
+import local from "../DesignConceptPanel.module.css";
+const styles = { ...shared, ...local };
 
 const fonts = [
   { label: "Inter", family: "var(--font-inter)" },

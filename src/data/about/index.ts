@@ -21,6 +21,7 @@ export type {
 
 // Data
 export { designConcepts } from "./concepts";
+export { designPhilosophy } from "./philosophy";
 export { projectOverview, projectStructure, userFlows } from "./architecture";
 export { designFeatures } from "./features";
 export { techStack } from "./stack";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { flushSync } from "react-dom";
 import type { Language } from "@/providers/LanguageProvider";
 import type { CodeExample } from "@/data/about";
@@ -9,7 +9,9 @@ import { renderHighlight } from "../renderHighlight";
 import { getCodeDemo } from "./CodeDemos";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./CodeHighlightsPanel.module.css";
+const styles = { ...shared, ...local };
 
 interface CodeHighlightsPanelProps {
   language: Language;
@@ -17,7 +19,7 @@ interface CodeHighlightsPanelProps {
   scrollBy?: (deltaX: number) => void;
 }
 
-export default function CodeHighlightsPanel({
+function CodeHighlightsPanel({
   language,
   codeExamples,
   scrollBy,
@@ -140,7 +142,7 @@ export default function CodeHighlightsPanel({
       {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
-          number="10"
+         
           title="Code Highlights."
           compact
           animate
@@ -260,3 +262,5 @@ export default function CodeHighlightsPanel({
     </div>
   );
 }
+
+export default memo(CodeHighlightsPanel);

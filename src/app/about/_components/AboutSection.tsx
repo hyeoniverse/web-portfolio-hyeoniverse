@@ -9,6 +9,7 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import {
   designFeatures,
   designConcepts,
+  designPhilosophy,
   techStack,
   designProcess,
   codeExamples,
@@ -30,6 +31,7 @@ import {
   ArchitecturePanel,
   UserFlowPanel,
   FeaturesPanel,
+  DesignMotifPanel,
   DesignConceptPanel,
   ProcessPanel,
   VisualBreakPanel,
@@ -53,8 +55,8 @@ export default function AboutSection() {
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
     useHorizontalScroll(styles, {
       infinite: infiniteScroll,
-      panelSetSize: 14,
-      navSectionCount: 13,
+      panelSetSize: 15,
+      navSectionCount: 14,
     });
   useInViewMobile(trackRef, styles.animate, styles.animateVisible);
   const { isLoading } = useLoadingScreen();
@@ -108,6 +110,11 @@ export default function AboutSection() {
         scrollBy={scrollBy}
       />
       <FeaturesPanel language={language} features={designFeatures} />
+      <DesignMotifPanel
+        language={language}
+        philosophy={designPhilosophy}
+        scrollBy={scrollBy}
+      />
       <DesignConceptPanel
         language={language}
         concepts={designConcepts}
@@ -157,16 +164,44 @@ export default function AboutSection() {
         </div>
       </section>
       {!isLoading && (
-        <SectionNav
-          navRef={navRef}
-          navItemRefs={navItemRefs}
-          navSections={navSections}
-          highlightedSection={highlightedSection}
-          springX={springX}
-          springWidth={springWidth}
-          onHover={setHoveredSection}
-          onNavigate={goToSection}
-        />
+        <>
+          <SectionNav
+            navRef={navRef}
+            navItemRefs={navItemRefs}
+            navSections={navSections}
+            highlightedSection={highlightedSection}
+            springX={springX}
+            springWidth={springWidth}
+            onHover={setHoveredSection}
+            onNavigate={goToSection}
+          />
+          {!isMobile && (
+            <>
+              <button
+                data-clickable="true"
+                className={styles.slideArrow}
+                onClick={() => {
+                  const prev = (activeSection - 1 + navSections.length) % navSections.length;
+                  goToSection(prev);
+                }}
+                aria-label="Previous section"
+              >
+                ‹
+              </button>
+              <button
+                data-clickable="true"
+                className={`${styles.slideArrow} ${styles.slideArrowRight}`}
+                onClick={() => {
+                  const next = (activeSection + 1) % navSections.length;
+                  goToSection(next);
+                }}
+                aria-label="Next section"
+              >
+                ›
+              </button>
+            </>
+          )}
+        </>
       )}
     </>
   );

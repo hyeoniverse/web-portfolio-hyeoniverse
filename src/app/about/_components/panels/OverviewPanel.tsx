@@ -1,5 +1,7 @@
 import type { Language } from "@/providers/LanguageProvider";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./OverviewPanel.module.css";
+const styles = { ...shared, ...local };
 
 interface OverviewPanelProps {
   language: Language;
@@ -13,7 +15,6 @@ interface OverviewPanelProps {
 export default function OverviewPanel({ language, overview }: OverviewPanelProps) {
   return (
     <div className={styles.panel}>
-      <span className={`${styles.panelNumber} ${styles.animate}`}>01</span>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>Overview.</h3>
       <div className={styles.overviewLayout}>
         <div className={styles.overviewTop}>
