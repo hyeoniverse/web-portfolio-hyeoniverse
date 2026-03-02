@@ -20,7 +20,10 @@ export interface AdminTableLabels {
   edit: string;
   delete: string;
   deleteConfirm: string;
+  deleteConfirmInput: string;
+  cancel: string;
   actions: string;
+  publishLabel: string;
 }
 
 export interface AdminTableProps<T extends { id: string; published: boolean }> {
@@ -104,14 +107,32 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     onPublishAll(items, !allChecked);
   }, [items, allChecked, onPublishAll]);
 
+  /* ── Delete confirmation modal state ── */
+  const [deleteTarget, setDeleteTarget] = useState<T | null>(null);
+  const [deleteInput, setDeleteInput] = useState("");
+
   const handleRowClick = (item: T) => {
     router.push(`${editBasePath}/${item.id}/edit`);
   };
 
   const handleDeleteClick = (item: T, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm(`"${getTitle(item)}" — ${labels.deleteConfirm}`)) return;
-    onDelete(item.id, getTitle(item));
+    setDeleteTarget(item);
+    setDeleteInput("");
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return;
+    const title = getTitle(deleteTarget);
+    if (deleteInput !== title) return;
+    onDelete(deleteTarget.id, title);
+    setDeleteTarget(null);
+    setDeleteInput("");
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteTarget(null);
+    setDeleteInput("");
   };
 
   /* Pagination */
@@ -192,6 +213,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 checked={allChecked}
                 indeterminate={someChecked}
                 onChange={handleSelectAll}
+                label={labels.publishLabel}
               />
             )}
           </span>
@@ -385,6 +407,52 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           >
             &rarr;
           </button>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className={styles.deleteOverlay} onClick={handleDeleteCancel}>
+          <div
+            className={styles.deleteModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className={styles.deleteModalTitle}>
+              &ldquo;{getTitle(deleteTarget)}&rdquo;
+            </h3>
+            <p className={styles.deleteModalDesc}>{labels.deleteConfirm}</p>
+            <p className={styles.deleteModalHint}>
+              {labels.deleteConfirmInput}
+            </p>
+            <input
+              className={styles.deleteModalInput}
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
+              placeholder={getTitle(deleteTarget)}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleDeleteConfirm();
+                if (e.key === "Escape") handleDeleteCancel();
+              }}
+            />
+            <div className={styles.deleteModalActions}>
+              <button
+                type="button"
+                onClick={handleDeleteCancel}
+                className={styles.deleteModalCancel}
+              >
+                {labels.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConfirm}
+                className={styles.deleteModalConfirmBtn}
+                disabled={deleteInput !== getTitle(deleteTarget)}
+              >
+                {labels.delete}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>

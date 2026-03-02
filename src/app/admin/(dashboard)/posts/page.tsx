@@ -194,7 +194,10 @@ export default function AdminPostsPage() {
       edit: t("admin.posts.edit"),
       delete: t("admin.posts.delete"),
       deleteConfirm: t("admin.posts.deleteConfirm"),
+      deleteConfirmInput: t("admin.posts.deleteConfirmInput"),
+      cancel: t("admin.posts.cancel"),
       actions: t("admin.posts.tableActions"),
+      publishLabel: t("admin.posts.publishLabel"),
     }),
     [t],
   );

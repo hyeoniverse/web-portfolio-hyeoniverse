@@ -306,15 +306,43 @@ export default function SettingsPage() {
       <div className={styles.header}>
         <h1 className={styles.title}>{t("admin.settings.title")}</h1>
         <div className={styles.headerRight}>
-          {message && (
-            <span
-              className={`${styles.message} ${message === t("admin.settings.saveError") ? styles.messageError : styles.messageSuccess}`}
-            >
-              {message}
-            </span>
-          )}
-          {activeTab !== "account" && (
+          {activeTab === "account" ? (
             <>
+              {accountMessage && (
+                <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
+                  {accountMessage}
+                </span>
+              )}
+              <button
+                className={styles.saveBtn}
+                disabled={accountSaving}
+                onClick={() => {
+                  if (accountPassword && accountPassword !== accountConfirm) {
+                    setAccountMessage(t("admin.settings.passwordMismatch"));
+                    return;
+                  }
+                  const hasEmailChange = accountNewEmail !== accountEmail && accountNewEmail.trim() !== "";
+                  const hasPasswordChange = !!accountPassword;
+                  if (!hasEmailChange && !hasPasswordChange) {
+                    setAccountMessage(t("admin.settings.noChanges"));
+                    return;
+                  }
+                  setAccountMessage("");
+                  setShowPasswordConfirm(true);
+                }}
+              >
+                {accountSaving ? t("admin.settings.saving") : t("admin.settings.updateAccount")}
+              </button>
+            </>
+          ) : (
+            <>
+              {message && (
+                <span
+                  className={`${styles.message} ${message === t("admin.settings.saveError") ? styles.messageError : styles.messageSuccess}`}
+                >
+                  {message}
+                </span>
+              )}
               <button
                 type="button"
                 className={styles.resetBtn}
@@ -863,34 +891,6 @@ export default function SettingsPage() {
 
           {activeTab === "account" && (
             <>
-              <div className={styles.accountActions}>
-                {accountMessage && (
-                  <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
-                    {accountMessage}
-                  </span>
-                )}
-                <button
-                  className={styles.saveBtn}
-                  disabled={accountSaving}
-                  onClick={() => {
-                    if (accountPassword && accountPassword !== accountConfirm) {
-                      setAccountMessage(t("admin.settings.passwordMismatch"));
-                      return;
-                    }
-                    const hasEmailChange = accountNewEmail !== accountEmail && accountNewEmail.trim() !== "";
-                    const hasPasswordChange = !!accountPassword;
-                    if (!hasEmailChange && !hasPasswordChange) {
-                      setAccountMessage(t("admin.settings.noChanges"));
-                      return;
-                    }
-                    setAccountMessage("");
-                    setShowPasswordConfirm(true);
-                  }}
-                >
-                  {accountSaving ? t("admin.settings.saving") : t("admin.settings.updateAccount")}
-                </button>
-              </div>
-
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("admin.settings.email")}</h2>
                 <div className={styles.fields}>

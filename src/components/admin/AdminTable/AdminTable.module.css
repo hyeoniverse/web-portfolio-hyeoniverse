@@ -34,6 +34,10 @@
   position: relative;
 }
 
+.table .row {
+  transition: background-color 0.2s ease;
+}
+
 .table .row:hover {
   background: transparent;
 }
@@ -57,7 +61,11 @@
 .colCheck {
   display: flex;
   align-items: center;
-  justify-content: center;
+}
+
+.tableHeader .colCheck {
+  overflow: visible;
+  white-space: nowrap;
 }
 
 /* Changed row indicator */
@@ -143,6 +151,10 @@
   text-decoration: none;
 }
 
+.colActions .actionBtn {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
 .colActions .actionBtn:hover {
   background: var(--text-primary);
   color: var(--bg-primary);
@@ -156,6 +168,10 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--color-accent);
+}
+
+.colActions .deleteBtn {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .colActions .deleteBtn:hover {
@@ -279,6 +295,130 @@
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   padding: 0 var(--spacing-2xs);
+}
+
+/* ── Delete Confirmation Modal ── */
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.deleteOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 1000);
+  animation: overlayFadeIn 0.2s ease;
+}
+
+.deleteModal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  max-width: 400px;
+  width: 90%;
+  animation: modalSlideIn 0.2s ease;
+}
+
+.deleteModalTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  word-break: break-word;
+}
+
+.deleteModalDesc {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.deleteModalHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-md);
+}
+
+.deleteModalInput {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.deleteModal .deleteModalInput {
+  transition: border-color 0.2s ease;
+}
+
+.deleteModal .deleteModalInput:focus {
+  border-color: var(--color-accent);
+}
+
+.deleteModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+.deleteModalCancel {
+  padding: var(--spacing-xs) var(--spacing-lg);
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.deleteModalActions .deleteModalCancel {
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.deleteModalActions .deleteModalCancel:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.deleteModalConfirmBtn {
+  padding: var(--spacing-xs) var(--spacing-lg);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: #fff;
+}
+
+.deleteModalActions .deleteModalConfirmBtn {
+  transition: opacity 0.2s ease, filter 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.deleteModalConfirmBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.deleteModalActions .deleteModalConfirmBtn:not(:disabled):hover {
+  filter: brightness(1.1);
 }
 
 /* ── Responsive ── */

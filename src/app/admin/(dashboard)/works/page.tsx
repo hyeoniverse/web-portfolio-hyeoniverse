@@ -181,7 +181,10 @@ export default function AdminWorksPage() {
       edit: t("admin.works.edit"),
       delete: t("admin.works.delete"),
       deleteConfirm: t("admin.works.deleteConfirm"),
+      deleteConfirmInput: t("admin.works.deleteConfirmInput"),
+      cancel: t("admin.works.cancel"),
       actions: t("admin.works.tableActions"),
+      publishLabel: t("admin.works.publishLabel"),
     }),
     [t],
   );

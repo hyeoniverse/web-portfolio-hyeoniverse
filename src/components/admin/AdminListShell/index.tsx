@@ -53,11 +53,11 @@ export default function AdminListShell({
       <div className={styles.header}>
         <h1 className={styles.title}>{title}</h1>
         <div className={styles.headerActions}>
-          {hasChanges && onSave && (
+          {onSave && (
             <button
-              className={styles.saveBtn}
+              className={`${styles.saveBtn} ${hasChanges ? styles.saveBtnVisible : ""}`}
               onClick={onSave}
-              disabled={saving}
+              disabled={saving || !hasChanges}
             >
               {saving ? "..." : `${saveLabel} (${saveCount})`}
             </button>
