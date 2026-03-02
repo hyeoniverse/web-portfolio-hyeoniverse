@@ -88,17 +88,24 @@ export default function CursorTrail() {
       const isDisabled = !!target && (
         (target as HTMLButtonElement).disabled === true ||
         !!target.closest("[disabled]") ||
-        !!target.closest("[aria-disabled='true']")
+        !!target.closest("[aria-disabled='true']") ||
+        !!target.closest("[data-disabled]")
       );
 
-      const isClickable = !isDraggable && !isDisabled && !!target && (
-        !!target.closest("[data-clickable]") ||
-        !!target.closest("a, button") ||
-        !!target.closest('input[type="checkbox"], input[type="radio"]') ||
-        target.classList.contains("clickable") ||
-        target.style.cursor === "pointer" ||
-        target.getAttribute("role") === "button" ||
-        target.dataset.clickable === "true"
+      // clickable 판별 시, 매칭된 interactive 요소 자체가 disabled이면 제외
+      const clickableEl = !isDraggable && !isDisabled && target && (
+        target.closest("[data-clickable]") ||
+        target.closest("a, button") ||
+        target.closest('input[type="checkbox"], input[type="radio"]') ||
+        (target.classList.contains("clickable") ? target : null) ||
+        (target.getAttribute("role") === "button" ? target : null) ||
+        (target.dataset.clickable === "true" ? target : null)
+      );
+      const isClickable = !!clickableEl && !(
+        (clickableEl as HTMLButtonElement).disabled === true ||
+        clickableEl.hasAttribute("disabled") ||
+        clickableEl.getAttribute("aria-disabled") === "true" ||
+        clickableEl.hasAttribute("data-disabled")
       );
 
       const isText = !isDraggable && !!target && (
