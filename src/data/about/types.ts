@@ -74,15 +74,30 @@ export interface DbTable {
   };
 }
 
-export interface UserFlowStep {
+export type FlowNodeType = "start" | "action" | "decision" | "end";
+
+export interface FlowNode {
+  id: string;
+  type: FlowNodeType;
   label: LocalizedText;
-  description?: LocalizedText;
+  row: number;
+  col: number; // 0 = main path, 1 = branch
+  y?: number; // optional Y override
+}
+
+export interface FlowEdge {
+  from: string;
+  to: string;
+  label?: string; // "Yes", "No"
+  noArrow?: boolean;
 }
 
 export interface UserFlow {
   title: string;
+  persona: LocalizedText;
   description: LocalizedText;
-  steps: UserFlowStep[];
+  nodes: FlowNode[];
+  edges: FlowEdge[];
 }
 
 /* ── ERD (Entity Relationship Diagram) ── */
@@ -109,7 +124,9 @@ export interface ErdRelation {
 
 export interface ErdDesignNote {
   title: LocalizedText;
+  tag: string;
   description: LocalizedText;
+  relatedTable: string;
 }
 
 export interface ApiEndpoint {

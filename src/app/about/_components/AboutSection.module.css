@@ -158,6 +158,16 @@
   position: relative;
 }
 
+.titleRowRight {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  align-self: flex-start;
+  padding-top: calc(
+    var(--header-height) + var(--spacing-2xl) - var(--_panel-py)
+  );
+}
+
 /* ==========================================================================
    Shared — Dot Navigation
    ========================================================================== */
@@ -1103,8 +1113,8 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: calc(var(--_panel-py) + var(--header-height) + 20vh)
-    var(--_panel-px) calc(var(--_space-section) + 5vh);
+  padding: calc(var(--_panel-py) + var(--header-height) + 20vh) var(--_panel-px)
+    calc(var(--_space-section) + 5vh);
   overflow: visible;
   position: relative;
   z-index: 1;
@@ -1429,11 +1439,7 @@
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--text-accent),
-    var(--color-accent)
-  );
+  background: linear-gradient(90deg, var(--text-accent), var(--color-accent));
   border-radius: 1px;
   will-change: width;
 }
@@ -2994,444 +3000,361 @@
 }
 
 /* ==========================================================================
-   User Flow Panel — Pinned Scroll + 2-column layout
+   User Flow Panel — Flowchart Diagram
    ========================================================================== */
 
-/* ── Tabs (accent 단색) ── */
-
-.ufTabs {
-  display: flex;
-  gap: var(--spacing-xs);
-  overflow-x: auto;
-  scrollbar-width: none;
-  flex-shrink: 0;
-  margin-bottom: var(--spacing-xs);
-}
-
-.ufTabs::-webkit-scrollbar {
-  display: none;
-}
-
-.ufTab {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) var(--spacing-md);
-  border-radius: var(--radius-capsule);
-  border: 1px solid color-mix(in srgb, var(--_uf-color) 25%, transparent);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--_fs-label);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.ufTabs .ufTab {
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.ufTab:hover {
-  background: color-mix(in srgb, var(--_uf-color) 8%, transparent);
-}
-
-.ufTabActive {
-  background: color-mix(in srgb, var(--_uf-color) 12%, transparent);
-  border-color: var(--_uf-color);
-  color: var(--_uf-color);
-}
-
-.ufTabDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-  flex-shrink: 0;
-}
-
-.ufTabActive .ufTabDot {
-  animation: ufPulse 2.5s ease-in-out infinite;
-}
-
-@keyframes ufPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.6); }
-}
-
-/* ── Flow Description ── */
-
-.ufFlowDesc {
-  margin: 0 0 var(--spacing-md);
-  font-family: var(--_font-grotesk);
-  font-size: var(--_fs-small);
-  color: var(--text-tertiary);
-  line-height: 1.4;
-  flex-shrink: 0;
-}
-
-/* ── Body: 2-column (chart left, detail right) ── */
-
-.ufBody {
-  display: flex;
-  gap: clamp(2rem, 4vw, 5rem);
-  flex: 1;
-  min-height: 0;
-  align-items: center;
-}
-
-/* Left column: SVG chart */
-.ufChartCol {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.ufSvg {
-  width: auto;
-  height: 100%;
-  max-height: calc(100vh - 280px);
-}
-
-/* ── SVG: dot grid ── */
-
-.ufGridDot {
-  fill: var(--text-tertiary);
-  opacity: 0.15;
-}
-
-/* ── SVG: connector edges ── */
-
-.ufEdge {
-  fill: none;
-  stroke: color-mix(in srgb, var(--_uf-color) 15%, transparent);
-  stroke-width: 1.5;
-  stroke-dasharray: 6 4;
-}
-
-.ufEdgeReached {
-  stroke: color-mix(in srgb, var(--_uf-color) 60%, transparent);
-  stroke-width: 2;
-  stroke-dasharray: none;
-  animation: ufDash 1s linear infinite;
-}
-
-@keyframes ufDash {
-  to { stroke-dashoffset: -20; }
-}
-
-/* ── SVG: node group — state-based (done / active / future) ── */
-
-.ufNode {
-  cursor: pointer;
-}
-
-.ufNRect {
-  fill: var(--bg-primary);
-  stroke: color-mix(in srgb, var(--_uf-color) 15%, transparent);
-  stroke-width: 1;
-}
-
-.ufNode .ufNRect {
-  transition: fill 0.35s ease, stroke 0.35s ease, stroke-width 0.2s ease, filter 0.35s ease;
-}
-
-/* Done state: filled accent */
-.ufNodeDone .ufNRect {
-  fill: color-mix(in srgb, var(--_uf-color) 10%, transparent);
-  stroke: color-mix(in srgb, var(--_uf-color) 50%, transparent);
-  stroke-width: 1.5;
-}
-
-/* Active state: highlighted glow */
-.ufNodeActive .ufNRect {
-  stroke: var(--_uf-color);
-  stroke-width: 2;
-  fill: color-mix(in srgb, var(--_uf-color) 8%, transparent);
-  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--_uf-color) 25%, transparent));
-}
-
-/* Future state: faded */
-.ufNodeFuture .ufNRect {
-  opacity: 0.5;
-}
-
-.ufNNum {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: var(--font-weight-semibold);
-  fill: var(--_uf-color);
-  opacity: 0.4;
-}
-
-.ufNode .ufNNum {
-  transition: opacity 0.35s ease;
-}
-
-.ufNodeDone .ufNNum,
-.ufNodeActive .ufNNum {
-  opacity: 1;
-}
-
-.ufNLabel {
-  font-family: var(--_font-grotesk);
-  font-size: 13px;
-  font-weight: var(--font-weight-semibold);
-  fill: var(--text-tertiary);
-}
-
-.ufNode .ufNLabel {
-  transition: fill 0.35s ease;
-}
-
-.ufNodeDone .ufNLabel {
-  fill: var(--text-secondary);
-}
-
-.ufNodeActive .ufNLabel {
-  fill: var(--text-primary);
-}
-
-/* ── Terminal nodes (START / END) ── */
-
-.ufNRectTerminal {
-  stroke: var(--_uf-color);
-  stroke-width: 1;
-}
-
-.ufNode .ufNRectTerminal {
-  transition: fill 0.35s ease, filter 0.35s ease;
-}
-
-/* Terminal default: outlined only */
-.ufNodeFuture .ufNRectTerminal {
-  fill: var(--bg-primary);
-  opacity: 0.5;
-}
-
-/* Terminal done/active: solid fill */
-.ufNodeDone .ufNRectTerminal,
-.ufNodeActive .ufNRectTerminal {
-  fill: var(--_uf-color);
-}
-
-.ufNodeActive .ufNRectTerminal {
-  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--_uf-color) 35%, transparent));
-}
-
-.ufNNumTerminal {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: var(--font-weight-semibold);
-  fill: var(--bg-primary);
-  opacity: 0.7;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-}
-
-.ufNodeFuture .ufNNumTerminal {
-  fill: var(--_uf-color);
-}
-
-.ufNLabelTerminal {
-  font-family: var(--_font-grotesk);
-  font-size: 13px;
-  font-weight: var(--font-weight-semibold);
-  fill: var(--bg-primary);
-}
-
-.ufNodeFuture .ufNLabelTerminal {
-  fill: var(--_uf-color);
-}
-
-/* ── Right column: Detail pane (slide stack) ── */
-
-.ufDetailCol {
-  flex: 1;
-  position: relative;
-  min-height: 200px;
-  overflow: hidden;
-}
-
-.ufDetailPane {
-  position: absolute;
-  inset: 0;
+/* ── Layout: Info (top) + Diagram (bottom) ── */
+.ufFlowLayout {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-height: 0;
+}
+
+.ufFlowDiagram {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
   justify-content: center;
+  overflow: hidden;
+}
+
+.ufFlowSvg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Info Panel (horizontal, top) ── */
+.ufFlowInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  animation: ufFadeIn 0.5s ease both;
+}
+
+/* Profile card — avatar + name/story */
+.ufFlowProfile {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-sm);
-  pointer-events: none;
-  transform: translateY(60px);
-  opacity: 0;
 }
 
-.ufDetailCol .ufDetailPane {
-  transition: transform 0.5s var(--ease-material), opacity 0.4s ease;
+.ufFlowAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  border: 1.5px solid var(--color-accent);
+  color: var(--color-accent);
+  flex-shrink: 0;
 }
 
-.ufDetailPanePast {
-  transform: translateY(-60px);
-  opacity: 0;
+.ufFlowProfileText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
-.ufDetailPaneActive {
-  pointer-events: auto;
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.ufDetailNum {
+.ufFlowTitle {
   font-family: var(--font-mono);
-  font-size: var(--_fs-label);
-  font-weight: var(--font-weight-semibold);
-  color: var(--_uf-color);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.ufDetailTitle {
-  margin: 0;
-  font-family: var(--_font-grotesk);
-  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-size: var(--_fs-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
-  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
 }
 
-.ufDetailDesc {
-  margin: var(--spacing-xs) 0 0;
+.ufFlowPersona {
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-small);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.ufFlowCounter {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+.ufFlowCounterCurrent {
+  font-size: var(--_fs-subhead);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.ufFlowCounterSep {
+  font-size: var(--_fs-small);
+  color: var(--text-tertiary);
+  margin: 0 1px;
+}
+
+.ufFlowCounterTotal {
+  font-size: var(--_fs-small);
+  color: var(--text-tertiary);
+}
+
+.ufFlowDesc {
+  margin: 0;
+  flex: 1;
   font-family: var(--_font-grotesk);
   font-size: var(--_fs-body);
   color: var(--text-secondary);
-  line-height: 1.6;
-  max-width: 480px;
+  line-height: 1.7;
 }
 
-/* ── Mobile List (hidden on desktop) ── */
+/* ── Legend (vertical, in title row right — same position as dotNav) ── */
+.ufFlowLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
+.ufLegendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* ── SVG: Node animation ── */
+@keyframes ufNodeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ufNodeGroup {
+  animation: ufNodeIn 0.4s ease-out both;
+}
+
+/* ── SVG: Terminal (Start / End) ── */
+.ufTerminalRect {
+  fill: var(--color-accent);
+  stroke: none;
+}
+
+.ufTerminalText {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--bg-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── SVG: Action ── */
+.ufActionRect {
+  fill: var(--bg-primary);
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+}
+
+.ufActionText {
+  font-family: var(--_font-grotesk);
+  font-size: 12px;
+  font-weight: 500;
+  fill: var(--text-primary);
+}
+
+/* ── SVG: Decision Diamond ── */
+.ufDiamondShape {
+  fill: var(--bg-primary);
+  stroke: var(--color-accent);
+  stroke-width: 1.5;
+}
+
+.ufDiamondText {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--color-accent);
+}
+
+/* ── SVG: Edges ── */
+@keyframes ufEdgeIn {
+  from {
+    opacity: 0;
+    stroke-dashoffset: 40;
+  }
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+.ufEdgePath {
+  stroke: var(--text-primary);
+  stroke-width: 1.2;
+  stroke-dasharray: 2000;
+  animation: ufEdgeIn 0.4s ease-out both;
+}
+
+.ufEdgeLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--color-accent);
+  opacity: 0;
+  animation: ufNodeIn 0.3s ease-out both;
+}
+
+/* ── Mobile ── */
 .ufMobileList {
   display: none;
 }
 
-.ufMobileStep {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: stretch;
-  flex-shrink: 0;
+.ufMobileFlowGroup {
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
 }
 
-/* Connector (vertical line + dot) */
-.ufMobileConnector {
+.ufMobileFlowActive {
+  border-color: var(--color-accent);
+}
+
+.ufMobileFlowHeader {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  width: 20px;
-  flex-shrink: 0;
-  padding-top: 4px;
+  gap: var(--spacing-sm);
 }
 
-.ufMobileDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--_uf-color) 30%, transparent);
-  background: var(--bg-primary);
-  flex-shrink: 0;
+.ufMobileFlowIcon {
+  display: flex;
+  color: var(--color-accent);
 }
 
-.ufMobileStep .ufMobileDot {
-  transition: background 0.3s ease, border-color 0.3s ease;
-}
-
-.ufMobileDotFilled {
-  background: var(--_uf-color);
-  border-color: var(--_uf-color);
-}
-
-.ufMobileLine {
-  flex: 1;
-  width: 2px;
-  background: color-mix(in srgb, var(--_uf-color) 15%, transparent);
-  margin: 4px 0;
-}
-
-.ufMobileStep .ufMobileLine {
-  transition: background 0.3s ease;
-}
-
-.ufMobileLineFilled {
-  background: color-mix(in srgb, var(--_uf-color) 50%, transparent);
-}
-
-/* Content */
-.ufMobileContent {
-  flex: 1;
-  padding: 2px 0 var(--spacing-md);
-}
-
-.ufMobileLabel {
-  font-family: var(--_font-grotesk);
-  font-size: var(--_fs-small);
+.ufMobileFlowTitle {
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
   font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ufMobileFlowCount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-caption);
   color: var(--text-tertiary);
 }
 
-.ufMobileStep .ufMobileLabel {
-  transition: color 0.3s ease;
-}
-
-.ufMobileStepDone .ufMobileLabel {
-  color: var(--text-secondary);
-}
-
-.ufMobileStepActive .ufMobileLabel {
-  color: var(--text-primary);
-}
-
-.ufMobileDesc {
-  margin: 4px 0 0;
+.ufMobileFlowDesc {
+  margin: var(--spacing-sm) 0 0;
   font-family: var(--_font-grotesk);
   font-size: var(--_fs-caption);
   color: var(--text-secondary);
   line-height: 1.5;
-  animation: ufFadeIn 0.4s ease;
+}
+
+.ufMobileNodes {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--spacing-sm);
+}
+
+.ufMobileNode {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  padding: 6px 0;
+}
+
+.ufMobileDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.ufMobileLine {
+  position: absolute;
+  left: 3.5px;
+  top: 20px;
+  bottom: -6px;
+  width: 1px;
+  background: var(--text-tertiary);
+  opacity: 0.3;
+}
+
+.ufMobileDecision .ufMobileDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  background: var(--color-accent);
+}
+
+.ufMobileTerminal .ufMobileDot {
+  background: var(--color-accent);
+}
+
+.ufMobileNodeLabel {
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-small);
+  color: var(--text-primary);
+}
+
+.ufMobileDecision .ufMobileNodeLabel {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
 }
 
 @keyframes ufFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ==========================================================================
    ERD Panel — Entity Relationship Diagram
    ========================================================================== */
 
-.erdLayout {
-  display: flex;
-  gap: var(--spacing-3xl);
+/* ── ERD Pinned Layout ── */
+
+.erdPinnedLayout {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 0;
-  align-items: center;
-  overflow: visible;
 }
 
-.erdDiagram {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
-
-.erdSvg {
+.erdDiagramWrap {
+  position: relative;
   width: 100%;
-  height: auto;
-  max-height: calc(100vh - 180px);
+  max-width: 1000px;
+  aspect-ratio: 1100 / 620;
+}
+
+.erdSvgPinned {
+  width: 100%;
+  height: 100%;
 }
 
 /* SVG table card */
@@ -3440,11 +3363,6 @@
   fill: none;
   stroke: var(--text-tertiary);
   stroke-width: 1;
-}
-
-.erdTableHeader {
-  fill: none;
-  stroke: none;
 }
 
 .erdHeaderLine {
@@ -3485,6 +3403,22 @@
   fill: var(--color-success);
 }
 
+/* Table group highlighting — compound selector to beat global transition */
+
+.erdPinnedLayout .erdTableGroup {
+  opacity: 0.35;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+.erdPinnedLayout .erdTableGroupActive {
+  opacity: 1;
+}
+
+.erdTableBgActive {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+
 /* SVG relationship lines */
 
 .erdRelGroup {
@@ -3523,66 +3457,88 @@
   fill: var(--text-tertiary);
 }
 
-/* Design decision notes */
+/* Note overlay cards — positioned over SVG diagram */
 
-.erdNotes {
-  flex-shrink: 0;
-  width: 320px;
+.erdNoteOverlay {
+  position: absolute;
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  overflow-y: auto;
-  max-height: calc(100vh - 220px);
-}
-
-.erdNotesTitle {
-  font-family: var(--font-mono);
-  font-size: var(--_fs-label);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin: 0;
-  padding-bottom: var(--spacing-sm);
-  border-bottom: 1px solid var(--_line-secondary);
-}
-
-.erdNote {
-  display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   align-items: flex-start;
-  padding: var(--spacing-md) 0;
-  border-bottom: 1px solid var(--border-default);
+  width: min(320px, 34%);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-primary) 92%, transparent);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  z-index: 2;
 }
 
-.erdNote:last-child {
-  border-bottom: none;
+.erdPinnedLayout .erdNoteOverlay {
+  transition:
+    opacity 0.4s var(--ease-out),
+    transform 0.4s var(--ease-out);
 }
+
+.erdNoteOverlayActive {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Mobile note (below diagram) */
+
+.erdMobileNote {
+  display: none;
+}
+
+/* Shared note content styles */
 
 .erdNoteNum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
   font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-accent);
-  font-weight: var(--font-weight-semibold);
+  font-size: 10px;
+  color: #fff;
+  font-weight: var(--font-weight-bold);
   flex-shrink: 0;
-  padding-top: 2px;
 }
 
 .erdNoteTitle {
   display: block;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-small);
+  font-size: var(--_fs-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: var(--spacing-3xs);
+}
+
+.erdNoteTag {
+  display: inline-block;
+  margin-bottom: var(--spacing-xs);
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.02em;
 }
 
 .erdNoteDesc {
   margin: 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-caption);
+  font-size: var(--_fs-small);
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.7;
 }
 
 /* ── Highlighted text (inline accent) ── */
@@ -4477,39 +4433,42 @@
   }
 
   /* ── User Flow: mobile ── */
-  .ufTabs {
-    flex-wrap: wrap;
-  }
-
-  .ufBody {
+  .ufFlowLayout {
     display: none;
   }
 
   .ufMobileList {
     display: flex;
     flex-direction: column;
+    gap: var(--spacing-md);
     flex: 1;
   }
 
-  /* ── ERD: mobile stack ── */
-  .erdLayout {
-    flex-direction: column;
-    gap: var(--spacing-xl);
+  /* ── ERD: mobile ── */
+  .erdNoteOverlay {
+    display: none;
   }
 
-  .erdDiagram {
-    width: 100%;
+  .erdMobileNote {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    animation: fadeIn 0.3s ease;
+  }
+
+  .erdDiagramWrap {
+    aspect-ratio: auto;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  .erdSvg {
+  .erdSvgPinned {
     min-width: 600px;
-    max-height: none;
-  }
-
-  .erdNotes {
     width: 100%;
+    height: auto;
   }
 }
 
@@ -4554,6 +4513,10 @@
 
   .archIndent2 .archPath {
     padding-left: var(--spacing-xl);
+  }
+
+  .erdMobileNote {
+    padding: var(--spacing-sm);
   }
 }
 

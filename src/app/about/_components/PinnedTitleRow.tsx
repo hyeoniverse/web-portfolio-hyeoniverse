@@ -23,6 +23,8 @@ interface PinnedTitleRowProps {
   animate?: boolean;
   /** 점 네비게이션 설정 (없으면 표시 안 함) */
   dotNav?: DotNavConfig;
+  /** dotNav 대신 오른쪽에 커스텀 콘텐츠 표시 */
+  rightContent?: React.ReactNode;
 }
 
 /** 패널 상단 타이틀 행 — 번호 + 제목 + 선택적 점 네비게이션 */
@@ -32,6 +34,7 @@ export default function PinnedTitleRow({
   compact = false,
   animate = false,
   dotNav,
+  rightContent,
 }: PinnedTitleRowProps) {
   const animateClass = animate ? ` ${styles.animate}` : "";
   const titleClasses = `${styles.panelTitle}${compact ? ` ${styles.panelTitleCompact}` : ""}${animateClass}`;
@@ -80,6 +83,11 @@ export default function PinnedTitleRow({
         <span className={`${styles.panelNumber}${animateClass}`}>{number}</span>
         <h3 className={titleClasses}>{title}</h3>
       </div>
+      {rightContent && !dotNav && (
+        <div className={styles.titleRowRight}>
+          {rightContent}
+        </div>
+      )}
       {dotNav && (
         <div className={`${styles.dotNavWrap}${dotNav.className ? ` ${dotNav.className}` : ""}${animateClass}`}>
           <button
