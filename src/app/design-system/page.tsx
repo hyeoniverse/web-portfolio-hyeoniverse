@@ -10,6 +10,8 @@ import { Typography } from "@/components/ui/Typography";
 import { Switch } from "@/components/ui/Switch";
 import { Slider } from "@/components/ui/Slider";
 import Modal from "@/components/ui/Modal";
+import Input from "@/components/ui/Input";
+import Checkbox from "@/components/ui/Checkbox";
 import { useModalStore } from "@/stores/modalStore";
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
@@ -44,7 +46,7 @@ const semanticColors = [
   { name: "--text-primary", ref: "neutral-900" },
   { name: "--text-secondary", ref: "neutral-800" },
   { name: "--text-tertiary", ref: "neutral-600" },
-  { name: "--text-muted", ref: "neutral-400" },
+  { name: "--text-muted", ref: "neutral-500" },
   { name: "--text-accent", ref: "accent" },
   { name: "--text-inverse", ref: "neutral-50" },
   { name: "--bg-primary", ref: "neutral-50" },
@@ -54,14 +56,16 @@ const semanticColors = [
 
 // ─── Spacing Data ───
 const spacingScale = [
-  { name: "--spacing-xs", value: "0.25rem" },
-  { name: "--spacing-sm", value: "0.5rem" },
+  { name: "--spacing-zero", value: "0" },
+  { name: "--spacing-2xs", value: "0.25rem" },
+  { name: "--spacing-xs", value: "0.5rem" },
+  { name: "--spacing-sm", value: "0.75rem" },
   { name: "--spacing-md", value: "1rem" },
-  { name: "--spacing-lg", value: "1.5rem" },
-  { name: "--spacing-xl", value: "2rem" },
-  { name: "--spacing-2xl", value: "3rem" },
-  { name: "--spacing-3xl", value: "4rem" },
-  { name: "--spacing-4xl", value: "5rem" },
+  { name: "--spacing-lg", value: "1.25rem" },
+  { name: "--spacing-xl", value: "1.5rem" },
+  { name: "--spacing-2xl", value: "2rem" },
+  { name: "--spacing-3xl", value: "3rem" },
+  { name: "--spacing-4xl", value: "4rem" },
   { name: "--spacing-5xl", value: "6rem" },
   { name: "--spacing-6xl", value: "8rem" },
 ];
@@ -76,6 +80,9 @@ const radiusScale = [
   { name: "xl", var: "--radius-xl", value: "16px" },
   { name: "2xl", var: "--radius-2xl", value: "24px" },
   { name: "3xl", var: "--radius-3xl", value: "28px" },
+  { name: "4xl", var: "--radius-4xl", value: "32px" },
+  { name: "5xl", var: "--radius-5xl", value: "36px" },
+  { name: "6xl", var: "--radius-6xl", value: "42px" },
   { name: "capsule", var: "--radius-capsule", value: "9999px" },
   { name: "circle", var: "--radius-circle", value: "50%" },
 ];
@@ -114,6 +121,7 @@ const zScale = [
   { name: "--z-content", value: "10", label: "Page Content" },
   { name: "--z-nav", value: "100", label: "Navigation" },
   { name: "--z-float", value: "200", label: "Floating UI" },
+  { name: "--z-dropdown", value: "500", label: "Dropdown / Popover" },
   { name: "--z-overlay", value: "9000", label: "Overlay / Drawer" },
   { name: "--z-top", value: "10000", label: "Cursor / Transition" },
 ];
@@ -205,6 +213,10 @@ export default function DesignSystemPage() {
   const [sliderValue, setSliderValue] = useState([40]);
   const [rangeValue, setRangeValue] = useState([20, 80]);
   const [switchOn, setSwitchOn] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [checkSquare, setCheckSquare] = useState(false);
+  const [checkCircle, setCheckCircle] = useState(true);
+  const [checkIndet, setCheckIndet] = useState(false);
 
   const handleBack = useCallback(() => {
     if (window.history.length > 1 && document.referrer) {
@@ -501,6 +513,30 @@ export default function DesignSystemPage() {
                 <Button variant="outline" icon={<ArrowRight size={16} />} iconPosition="right">Next</Button>
                 <Button variant="outline" active>Active</Button>
                 <Button variant="outline" fullWidth>Full Width</Button>
+              </div>
+            </div>
+
+            {/* Input */}
+            <div className={styles.componentGroup}>
+              <div className={styles.componentGroupTitle}>Input</div>
+              <div className={styles.sliderRow}>
+                <div className={styles.sliderItem}>
+                  <Input label="Label" value={inputValue} onChange={setInputValue} placeholder="Type something..." />
+                </div>
+                <div className={styles.sliderItem}>
+                  <Input value="Read-only value" onChange={() => {}} disabled />
+                </div>
+              </div>
+            </div>
+
+            {/* Checkbox */}
+            <div className={styles.componentGroup}>
+              <div className={styles.componentGroupTitle}>Checkbox</div>
+              <div className={styles.componentRow}>
+                <Checkbox checked={checkSquare} onChange={setCheckSquare} shape="square" label="Square" />
+                <Checkbox checked={checkCircle} onChange={setCheckCircle} shape="circle" label="Circle" />
+                <Checkbox checked={checkIndet} onChange={setCheckIndet} indeterminate label="Indeterminate" />
+                <Checkbox checked={false} onChange={() => {}} disabled label="Disabled" />
               </div>
             </div>
 
