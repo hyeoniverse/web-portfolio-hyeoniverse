@@ -86,6 +86,17 @@
     "credits": "Designed & Developed with ❤ by"
   },
   "admin": {
+    "login": {
+      "title": "Admin",
+      "email": "이메일",
+      "password": "비밀번호",
+      "signIn": "로그인",
+      "signingIn": "로그인 중...",
+      "rememberEmail": "아이디 저장",
+      "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다",
+      "loginFailed": "로그인에 실패했습니다",
+      "errorOccurred": "오류가 발생했습니다"
+    },
     "settings": {
       "title": "설정",
       "save": "전체 저장",
@@ -271,6 +282,9 @@
       "published": "발행됨",
       "draft": "임시저장",
       "deleteConfirm": "삭제하시겠습니까?",
+      "deleteConfirmInput": "삭제하려면 제목을 정확히 입력하세요",
+      "cancel": "취소",
+      "publishLabel": "발행",
       "seriesDeleteConfirm": "시리즈를 삭제하시겠습니까?\n소속 포스트의 시리즈 연결이 해제됩니다.",
       "save": "저장",
       "editor": {
@@ -383,6 +397,9 @@
       "edit": "수정",
       "delete": "삭제",
       "deleteConfirm": "삭제하시겠습니까?",
+      "deleteConfirmInput": "삭제하려면 제목을 정확히 입력하세요",
+      "cancel": "취소",
+      "publishLabel": "발행",
       "save": "저장",
       "editor": {
         "backToWorks": "← 작업 목록",
@@ -503,7 +520,10 @@
     "reference": "오류 참조 번호",
     "tryAgain": "다시 시도",
     "goHome": "홈으로",
-    "notFoundDescription": "요청하신 페이지를 찾을 수 없거나 이동되었습니다."
+    "notFoundDescription": "요청하신 페이지를 찾을 수 없거나 이동되었습니다.",
+    "accessDeniedTitle": "접근 권한 없음",
+    "accessDeniedDescription": "이 페이지에 접근할 권한이 없습니다.\n관리자 계정으로 로그인해주세요.",
+    "signIn": "로그인"
   },
   "profilePage": {
     "bubble": {
@@ -529,7 +549,10 @@
     "story2": "무중력 상태로 둥실둥실 떠다니며 방문자를 반겨주는 게 일상이에요. 호기심이 가득한 성격이라 건드리면 깜짝 놀라고, 새로운 이야기를 들을 때면 함박웃음을 짓기도 해요.",
     "story3": "가끔 오르골 소리가 들리면, 아주 천천히 몸을 돌리며 춤을 춰요.",
     "exprNormal": "평범",
+    "exprNormalDesc": "기본 상태. 가끔 깜빡여요.",
     "exprSurprised": "깜짝",
-    "exprHappy": "함박웃음"
+    "exprSurprisedDesc": "건드리면 깜짝 놀라요.",
+    "exprHappy": "함박웃음",
+    "exprHappyDesc": "새 이야기를 들으면 활짝 웃어요."
   }
 }

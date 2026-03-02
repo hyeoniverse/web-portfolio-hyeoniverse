@@ -86,6 +86,17 @@
     "credits": "Designed & Developed with ❤ by"
   },
   "admin": {
+    "login": {
+      "title": "Admin",
+      "email": "Email",
+      "password": "Password",
+      "signIn": "Sign In",
+      "signingIn": "Signing in...",
+      "rememberEmail": "Remember email",
+      "invalidCredentials": "Invalid email or password",
+      "loginFailed": "Login failed",
+      "errorOccurred": "An error occurred"
+    },
     "settings": {
       "title": "Settings",
       "save": "Save All",
@@ -271,6 +282,9 @@
       "published": "Published",
       "draft": "Draft",
       "deleteConfirm": "Are you sure you want to delete?",
+      "deleteConfirmInput": "Type the exact title to confirm deletion",
+      "cancel": "Cancel",
+      "publishLabel": "Publish",
       "seriesDeleteConfirm": "Delete this series?\nPosts in this series will be unlinked.",
       "save": "Save",
       "editor": {
@@ -385,6 +399,9 @@
       "edit": "Edit",
       "delete": "Delete",
       "deleteConfirm": "Are you sure you want to delete?",
+      "deleteConfirmInput": "Type the exact title to confirm deletion",
+      "cancel": "Cancel",
+      "publishLabel": "Publish",
       "save": "Save",
       "editor": {
         "backToWorks": "← Back to Works",
@@ -505,7 +522,10 @@
     "reference": "Error Reference",
     "tryAgain": "Try Again",
     "goHome": "Go Home",
-    "notFoundDescription": "The page you are looking for does not exist or has been moved."
+    "notFoundDescription": "The page you are looking for does not exist or has been moved.",
+    "accessDeniedTitle": "Access Denied",
+    "accessDeniedDescription": "You do not have permission to access this page.\nPlease sign in with an admin account.",
+    "signIn": "Sign In"
   },
   "profilePage": {
     "bubble": {
@@ -531,7 +551,10 @@
     "story2": "Floating in zero gravity, greeting visitors is her daily routine. Curious by nature — poke her and she jumps with surprise, share something new and she beams with joy.",
     "story3": "When she hears a music box melody, she twirls around slowly in a little dance.",
     "exprNormal": "Normal",
+    "exprNormalDesc": "Default state. Blinks occasionally.",
     "exprSurprised": "Surprised",
-    "exprHappy": "Happy"
+    "exprSurprisedDesc": "Poke her and she jumps.",
+    "exprHappy": "Happy",
+    "exprHappyDesc": "Beams when hearing something new."
   }
 }
