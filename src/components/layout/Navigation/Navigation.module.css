@@ -177,7 +177,7 @@
   white-space: nowrap;
   pointer-events: auto;
   animation: soundTipIn 0.4s var(--ease-material) both;
-  z-index: 100;
+  z-index: var(--z-tooltip);
 }
 
 .soundTip::before {
@@ -660,10 +660,14 @@
 
 /* Admin email */
 .adminEmail {
+  max-width: 180px;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
   color: var(--color-accent);
   letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경 */

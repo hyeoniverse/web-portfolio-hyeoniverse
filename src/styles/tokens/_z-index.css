@@ -8,6 +8,7 @@
   --z-nav: 100; /* 고정 네비게이션 */
   --z-float: 200; /* nav 위 고정 UI (dot nav, credits footer) */
   --z-dropdown: 500; /* 드롭다운, 팝오버 */
+  --z-tooltip: 700; /* 툴팁 (드롭다운 위, 오버레이 아래) */
   --z-overlay: 9000; /* 전체화면 오버레이 (drawer, loading) */
   --z-top: 10000; /* 커서, 페이지 전환 */
 }
