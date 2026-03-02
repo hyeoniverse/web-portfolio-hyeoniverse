@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useLenis } from "@/providers/LenisProvider";
-import { Mail, Send, Star, ArrowRight, Heart, Zap } from "lucide-react";
+import { Mail, Send, Star, ArrowRight, Heart, Zap, RotateCcw } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { Typography } from "@/components/ui/Typography";
 import { Switch } from "@/components/ui/Switch";
@@ -22,6 +22,12 @@ import styles from "./DesignSystem.module.css";
 // ─── Preset application helpers ───
 const ACCENT_ALPHAS = [1, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
 const ACCENT_LIGHT_ALPHAS = [40, 60, 70, 90];
+const NEUTRAL_STOPS = [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 999];
+const MID_BLENDS: [number, number][] = [
+  [100, 0.05], [200, 0.12], [300, 0.22], [400, 0.33],
+  [500, 0.46], [600, 0.65], [700, 0.80], [800, 0.92],
+];
+const NEUTRAL_ALPHA_STEPS = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
 
 function hexToRgb(hex: string): [number, number, number] | null {
   const m = hex.match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
@@ -29,16 +35,29 @@ function hexToRgb(hex: string): [number, number, number] | null {
   return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
 }
 
-function getThemeVarKeys(): string[] {
+function lerpRgb(a: [number, number, number], b: [number, number, number], t: number): [number, number, number] {
+  return [Math.round(a[0] + (b[0] - a[0]) * t), Math.round(a[1] + (b[1] - a[1]) * t), Math.round(a[2] + (b[2] - a[2]) * t)];
+}
+
+function rgbHex([r, g, b]: [number, number, number]): string {
+  return `#${[r, g, b].map((c) => Math.max(0, Math.min(255, c)).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function getAllVarKeys(): string[] {
   const keys = ["--color-accent", "--color-accent-dark", "--color-accent-light", "--bg-primary", "--text-primary"];
   for (const a of ACCENT_ALPHAS) keys.push(`--color-accent-alpha-${a}`);
   for (const a of ACCENT_LIGHT_ALPHAS) keys.push(`--color-accent-light-alpha-${a}`);
+  for (const n of NEUTRAL_STOPS) keys.push(`--color-neutral-${n}`);
+  for (const a of NEUTRAL_ALPHA_STEPS) {
+    keys.push(`--color-neutral-alpha-${a}`);
+    keys.push(`--color-inverse-alpha-${a}`);
+  }
   return keys;
 }
 
 function snapshotVars(root: HTMLElement): Map<string, string> {
   const map = new Map<string, string>();
-  for (const key of getThemeVarKeys()) {
+  for (const key of getAllVarKeys()) {
     map.set(key, root.style.getPropertyValue(key));
   }
   return map;
@@ -56,16 +75,15 @@ function applyPresetColors(
   currentTheme: "light" | "dark",
   preset: (typeof THEME_PRESETS)[0]["theme"],
 ) {
+  // Accent
   const rgb = hexToRgb(preset.accentColor);
   if (!rgb) return;
   const [r, g, b] = rgb;
-
   root.style.setProperty("--color-accent", preset.accentColor);
   for (const a of ACCENT_ALPHAS) {
     root.style.setProperty(`--color-accent-alpha-${a}`, `rgba(${r}, ${g}, ${b}, ${a / 100})`);
   }
   root.style.setProperty("--color-accent-dark", `rgb(${Math.round(r * 0.78)}, ${Math.round(g * 0.78)}, ${Math.round(b * 0.78)})`);
-
   const lr = Math.min(255, Math.round(r + (255 - r) * 0.4));
   const lg = Math.min(255, Math.round(g + (255 - g) * 0.4));
   const lb = Math.min(255, Math.round(b + (255 - b) * 0.4));
@@ -74,8 +92,31 @@ function applyPresetColors(
     root.style.setProperty(`--color-accent-light-alpha-${a}`, `rgba(${lr}, ${lg}, ${lb}, ${a / 100})`);
   }
 
-  root.style.setProperty("--bg-primary", currentTheme === "light" ? preset.lightBg : preset.darkBg);
-  root.style.setProperty("--text-primary", currentTheme === "light" ? preset.lightText : preset.darkText);
+  // Bg / Text
+  const bgHex = currentTheme === "light" ? preset.lightBg : preset.darkBg;
+  const textHex = currentTheme === "light" ? preset.lightText : preset.darkText;
+  root.style.setProperty("--bg-primary", bgHex);
+  root.style.setProperty("--text-primary", textHex);
+
+  // Neutral scale
+  const bgRgb = hexToRgb(bgHex);
+  const textRgb = hexToRgb(textHex);
+  if (!bgRgb || !textRgb) return;
+  const black: [number, number, number] = [0, 0, 0];
+
+  root.style.setProperty("--color-neutral-0", "#ffffff");
+  root.style.setProperty("--color-neutral-50", bgHex);
+  for (const [n, t] of MID_BLENDS) {
+    root.style.setProperty(`--color-neutral-${n}`, rgbHex(lerpRgb(bgRgb, textRgb, t)));
+  }
+  root.style.setProperty("--color-neutral-900", textHex);
+  root.style.setProperty("--color-neutral-950", rgbHex(lerpRgb(textRgb, black, 0.3)));
+  root.style.setProperty("--color-neutral-999", "#000000");
+
+  for (const a of NEUTRAL_ALPHA_STEPS) {
+    root.style.setProperty(`--color-neutral-alpha-${a}`, `rgba(${textRgb[0]}, ${textRgb[1]}, ${textRgb[2]}, ${a / 100})`);
+    root.style.setProperty(`--color-inverse-alpha-${a}`, `rgba(${bgRgb[0]}, ${bgRgb[1]}, ${bgRgb[2]}, ${a / 100})`);
+  }
 }
 
 const containerVariants = {
@@ -183,6 +224,7 @@ const zScale = [
   { name: "--z-nav", value: "100", label: "Navigation" },
   { name: "--z-float", value: "200", label: "Floating UI" },
   { name: "--z-dropdown", value: "500", label: "Dropdown / Popover" },
+  { name: "--z-tooltip", value: "700", label: "Tooltip" },
   { name: "--z-overlay", value: "9000", label: "Overlay / Drawer" },
   { name: "--z-top", value: "10000", label: "Cursor / Transition" },
 ];
@@ -218,6 +260,7 @@ export default function DesignSystemPage() {
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const [activePreset, setActivePreset] = useState<number | null>(null);
   const snapRef = useRef<Map<string, string> | null>(null);
+  const [twReplay, setTwReplay] = useState(0);
 
   useEffect(() => {
     stop();
@@ -695,7 +738,10 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>TypeWriter</div>
               <div className={styles.typewriterDemo}>
-                <TypeWriter text="Design tokens bring consistency." typingSpeed={80} caption="— Design System" fontSize="var(--font-size-xl)" align="center" />
+                <TypeWriter text="Design tokens bring consistency." typingSpeed={80} caption="— Design System" fontSize="var(--font-size-xl)" align="center" replayTrigger={twReplay} />
+                <button className={styles.replayBtn} onClick={() => setTwReplay((n) => n + 1)} aria-label="Replay">
+                  <RotateCcw size={14} />
+                </button>
               </div>
             </div>
           </motion.section>

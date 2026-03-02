@@ -520,10 +520,33 @@
 
 /* TypeWriter demo */
 .typewriterDemo {
+  position: relative;
   padding: 32px;
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-lg);
   text-align: center;
+}
+
+.replayBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-circle);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+
+.replayBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-tertiary);
 }
 
 /* Slider row */

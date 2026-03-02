@@ -19,6 +19,7 @@ interface TypeWriterProps {
   caption?: string;
   captionClassName?: string;
   captionDelay?: number;
+  replayTrigger?: number;
 }
 
 export default function TypeWriter({
@@ -35,6 +36,7 @@ export default function TypeWriter({
   caption,
   captionClassName,
   captionDelay = 500,
+  replayTrigger,
 }: TypeWriterProps) {
   const [displayedText, setDisplayedText] = useState("");
   const [cursorVisible, setCursorVisible] = useState(true);
@@ -139,6 +141,16 @@ export default function TypeWriter({
     setCursorVisible(true);
     setHasTypedOnce(false);
   }, [text]);
+
+  /** replayTrigger 변경 시 재생 */
+  useEffect(() => {
+    if (replayTrigger === undefined || replayTrigger === 0) return;
+    setDisplayedText("");
+    textIndexRef.current = 0;
+    setShowCaption(false);
+    setCursorVisible(true);
+    setHasTypedOnce(false);
+  }, [replayTrigger]);
 
   return (
     <div className="vertical">
