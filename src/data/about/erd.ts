@@ -60,6 +60,35 @@ export const erdTables: ErdTable[] = [
       { name: "updated_at", type: "TIMESTAMPTZ" },
     ],
   },
+  {
+    name: "site_visits",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "ip", type: "TEXT" },
+      { name: "date", type: "DATE" },
+    ],
+  },
+  {
+    name: "work_comments",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "work_id", type: "UUID", fk: "works.id" },
+      { name: "parent_id", type: "UUID" },
+      { name: "nickname", type: "TEXT" },
+      { name: "password_hash", type: "TEXT" },
+      { name: "commenter_hash", type: "TEXT" },
+    ],
+  },
+  {
+    name: "admin_notifications",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "type", type: "TEXT" },
+      { name: "title / message", type: "TEXT" },
+      { name: "metadata", type: "JSONB" },
+      { name: "read", type: "BOOL" },
+    ],
+  },
 ];
 
 export const erdRelations: ErdRelation[] = [
@@ -91,67 +120,100 @@ export const erdRelations: ErdRelation[] = [
     toField: "id",
     label: "N:1",
   },
+  {
+    from: "work_comments",
+    fromField: "work_id",
+    to: "works",
+    toField: "id",
+    label: "N:1",
+  },
+  {
+    from: "likes",
+    fromField: "target_id",
+    to: "comments",
+    toField: "id",
+    label: "N:1",
+  },
+  {
+    from: "likes",
+    fromField: "target_id",
+    to: "work_comments",
+    toField: "id",
+    label: "N:1",
+  },
 ];
 
 export const erdDesignNotes: ErdDesignNote[] = [
   {
     title: {
-      ko: "IP 기반 좋아요",
-      en: "IP-Based Likes",
+      ko: "회원가입 없이 좋아요",
+      en: "Likes Without Sign-Up",
     },
+    tag: "UNIQUE (target_type, target_id, ip)",
     description: {
-      ko: "로그인 없이 IP로 좋아요를 식별합니다. UNIQUE(target_type, target_id, ip) 제약으로 DB 레벨 중복 차단.",
-      en: "Identify likes by IP without login. UNIQUE(target_type, target_id, ip) constraint for DB-level dedup.",
+      ko: "likes 테이블에 (target_type, target_id, ip) 복합 UNIQUE 제약 조건을 걸어서, 같은 IP에서 같은 콘텐츠에 중복 좋아요를 DB 레벨에서 차단해요. 애플리케이션 로직에 의존하지 않으므로, 동시 요청이 와도 race condition 없이 정합성이 유지됩니다.",
+      en: "A composite UNIQUE constraint on (target_type, target_id, ip) in the likes table prevents duplicate likes at the database level. Since this doesn't rely on application logic, data integrity is maintained without race conditions even under concurrent requests.",
     },
+    relatedTable: "likes",
   },
   {
     title: {
-      ko: "통합 좋아요 테이블",
-      en: "Unified Likes Table",
+      ko: "좋아요 테이블 하나로 통합",
+      en: "One Table for All Likes",
     },
+    tag: "Polymorphic Association + CHECK",
     description: {
-      ko: "모든 좋아요(포스트, 작업물, 댓글)를 단일 likes 테이블에서 target_type('post'|'work'|'post_comment'|'work_comment')으로 구분합니다. UNIQUE(target_type, target_id, ip) 하나로 전체 중복을 차단하고, 새 엔티티 추가 시 CHECK 값만 추가하면 됩니다.",
-      en: "All likes (posts, works, comments) use a single likes table with target_type ('post'|'work'|'post_comment'|'work_comment'). One UNIQUE(target_type, target_id, ip) constraint handles all dedup, and adding new entities only requires a CHECK value.",
+      ko: "posts, works, comments 각각에 좋아요 테이블을 만드는 대신, target_type 컬럼으로 구분하는 다형적 연관(Polymorphic Association) 패턴을 사용해요. CHECK 제약으로 허용된 타입만 입력되고, 새 콘텐츠 유형 추가 시 CHECK 값만 확장하면 됩니다.",
+      en: "Instead of creating separate like tables for posts, works, and comments, we use a Polymorphic Association pattern with a target_type discriminator. A CHECK constraint ensures only valid types are inserted, and adding a new content type only requires extending the CHECK values.",
     },
+    relatedTable: "likes",
   },
   {
     title: {
-      ko: "JSONB 블롭 저장",
-      en: "JSONB Blob Storage",
+      ko: "설정은 통째로 저장",
+      en: "Settings Stored as a Bundle",
     },
+    tag: "JSONB + Schema-on-Read",
     description: {
-      ko: "프로필·사이트 설정은 깊이 중첩된 이중 언어 구조여서 JSONB 통째 저장이 유연합니다.",
-      en: "Profile and site settings use deeply nested bilingual structures — JSONB blob is more flexible than individual columns.",
+      ko: "site_settings의 config 컬럼을 JSONB 타입으로 두고, 한·영 구조를 포함한 전체 설정을 하나의 문서로 저장해요. 스키마 변경 없이 필드를 자유롭게 추가/삭제할 수 있고, JSONB 연산자(->, ->>, @>)로 특정 키만 부분 조회도 가능합니다.",
+      en: "The config column in site_settings uses JSONB type, storing the entire configuration—including bilingual structures—as a single document. Fields can be freely added or removed without schema migrations, and JSONB operators (->, ->>, @>) enable efficient partial queries on specific keys.",
     },
+    relatedTable: "site_settings",
   },
   {
     title: {
-      ko: "선택적 카운트 캐싱",
-      en: "Selective Count Caching",
+      ko: "필요한 곳만 숫자 캐싱",
+      en: "Count Caching Where It Matters",
     },
+    tag: "Denormalization + RPC Trigger",
     description: {
-      ko: "Posts만 목록에서 좋아요 수를 표시하므로 posts.like_count 캐시 컬럼에 동기화합니다. Works와 댓글은 상세 페이지에서만 조회하므로 실시간 COUNT(*) 쿼리로 충분합니다. 인덱스가 적용된 상태에서 수천 건까지 성능 차이가 없습니다.",
-      en: "Only Posts display like counts in list views, so posts.like_count is synced as a cache column. Works and comments are viewed on detail pages only, so real-time COUNT(*) queries suffice. With indexes, there's no performance difference up to thousands of rows.",
+      ko: "posts.like_count는 의도적 비정규화에요. 목록 API에서 매번 COUNT 집계하면 N+1 문제가 생기므로, Supabase RPC 함수가 좋아요 토글 시 like_count를 원자적으로 증감합니다. works나 comments는 상세 페이지에서만 조회하므로 실시간 COUNT로 충분합니다.",
+      en: "posts.like_count is an intentional denormalization. Running COUNT aggregation on every list API call would cause N+1 problems, so a Supabase RPC function atomically increments/decrements like_count on each toggle. Works and comments are only viewed on detail pages, where real-time COUNT is efficient enough.",
     },
+    relatedTable: "posts",
   },
   {
     title: {
-      ko: "익명 댓글 이중 인증",
-      en: "Anonymous Comment Dual Auth",
+      ko: "비밀번호 없이도 내 댓글 인식",
+      en: "Your Comments, Recognized Automatically",
     },
+    tag: "SHA-256 Hash + Dual Auth",
     description: {
-      ko: "commenter_hash(브라우저 UUID→SHA-256)로 같은 브라우저에서 자동 인증, password_hash(bcrypt)로 다른 기기에서 fallback 인증. 하나만 쓰면 브라우저 종속 또는 매번 입력이 필요하지만, 병행하면 UX와 보안 모두 확보됩니다.",
-      en: "commenter_hash (browser UUID → SHA-256) enables auto-auth on the same browser; password_hash (bcrypt) provides fallback on other devices. Either alone has drawbacks — browser lock-in or constant input — but together they balance UX and security.",
+      ko: "댓글 작성 시 브라우저의 고유 식별자(닉네임 + User-Agent 등)를 SHA-256 해싱한 commenter_hash를 저장해요. 같은 브라우저에서는 해시 비교로 자동 인식하고, 다른 기기에서는 password_hash(bcrypt)로 검증합니다. 이중 인증 경로로 편의성과 보안을 동시에 확보합니다.",
+      en: "When posting a comment, a commenter_hash is stored by SHA-256 hashing the browser's unique identifier (nickname + User-Agent, etc.). On the same browser, automatic recognition works via hash comparison; on different devices, password_hash (bcrypt) provides verification. This dual authentication path achieves both convenience and security.",
     },
+    relatedTable: "comments",
   },
   {
     title: {
-      ko: "다층 입력 보안",
-      en: "Multi-Layer Input Security",
+      ko: "외부 입력 다중 검증",
+      en: "Multi-Layer Input Validation",
     },
+    tag: "Zod Schema + DOMPurify + RLS",
     description: {
-      ko: "모든 공개 API에 UUID 포맷·길이 제한·제어문자 제거·이메일 검증을 적용. SQL Injection은 Supabase 파라미터화 쿼리, XSS는 React JSX 이스케이프로 방지합니다.",
-      en: "All public APIs enforce UUID format, length limits, control char stripping, and email validation. SQL injection prevented by Supabase parameterized queries; XSS by React JSX escaping.",
+      ko: "API Route에서 Zod 스키마로 타입·형식·길이를 1차 검증하고, HTML 입력은 DOMPurify로 XSS를 제거해요. DB 레벨에서는 Supabase RLS(Row Level Security) 정책이 권한 밖 접근을 차단하여, 클라이언트→서버→DB 3계층 방어를 구성합니다.",
+      en: "API Routes validate types, formats, and lengths using Zod schemas as the first layer. HTML inputs are sanitized with DOMPurify to prevent XSS. At the database level, Supabase RLS (Row Level Security) policies block unauthorized access, forming a three-layer defense across client → server → database.",
     },
+    relatedTable: "comments",
   },
 ];

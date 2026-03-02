@@ -130,6 +130,7 @@ export default function AboutSection() {
         language={language}
         tables={erdTables}
         designNotes={erdDesignNotes}
+        scrollBy={scrollBy}
       />
       <CodeHighlightsPanel
         language={language}

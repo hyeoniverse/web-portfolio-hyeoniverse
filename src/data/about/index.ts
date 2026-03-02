@@ -12,6 +12,8 @@ export type {
   DbTable,
   BackendItem,
   UserFlow,
+  FlowNode,
+  FlowEdge,
   ErdTable,
   ErdRelation,
   ErdDesignNote,

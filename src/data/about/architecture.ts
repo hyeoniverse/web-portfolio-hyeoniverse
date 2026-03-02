@@ -1,4 +1,10 @@
-import type { OverviewStat, StructureItem, UserFlow } from "./types";
+import type {
+  OverviewStat,
+  StructureItem,
+  UserFlow,
+  FlowNode,
+  FlowEdge,
+} from "./types";
 
 export const projectOverview = {
   description: {
@@ -18,7 +24,10 @@ export const projectOverview = {
     "Dark/Light Theme",
   ],
   stats: [
-    { value: "6 Days", label: { ko: "개발 기간\n(2/5 – 2/10)", en: "Dev Period\n(2/5 – 2/10)" } },
+    {
+      value: "6 Days",
+      label: { ko: "개발 기간\n(2/5 – 2/10)", en: "Dev Period\n(2/5 – 2/10)" },
+    },
     { value: "50+", label: { ko: "컴포넌트", en: "Components" } },
     { value: "15+", label: { ko: "커스텀 훅", en: "Custom Hooks" } },
     { value: "98", label: { ko: "Lighthouse", en: "Lighthouse" } },
@@ -28,282 +37,700 @@ export const projectOverview = {
 };
 
 export const projectStructure: StructureItem[] = [
-  { path: "src/", description: { ko: "소스 코드 루트", en: "Source code root" }, indent: 0 },
-  { path: "app/", description: { ko: "Next.js App Router — 페이지 & API 라우트", en: "Next.js App Router — pages & API routes" }, indent: 1 },
-  { path: "(home)/", description: { ko: "랜딩 페이지 — Hero, About, Works, CTA 등 7개 섹션", en: "Landing page — 7 sections: Hero, About, Works, CTA, etc." }, indent: 2 },
-  { path: "works/", description: { ko: "프로젝트 갤러리 + [id] 상세 페이지 (좋아요)", en: "Project gallery + [id] detail pages (likes)" }, indent: 2 },
-  { path: "posts/", description: { ko: "블로그 목록 + [slug] 상세 (좋아요·댓글)", en: "Blog list + [slug] detail (likes & comments)" }, indent: 2 },
-  { path: "profile/", description: { ko: "프로필 페이지 — 소개 & 철학", en: "Profile page — introduction & philosophy" }, indent: 2 },
-  { path: "about/", description: { ko: "이 페이지 — 개발 과정 & 기술 문서", en: "This page — development process & technical docs" }, indent: 2 },
-  { path: "admin/", description: { ko: "어드민 대시보드 — 포스트/작업물 CRUD, 설정(콘텐츠·프로필·계정)", en: "Admin dashboard — posts/works CRUD, settings (content, profile, account)" }, indent: 2 },
-  { path: "api/", description: { ko: "API 라우트 — posts, comments, likes, contact, cover, admin", en: "API routes — posts, comments, likes, contact, cover, admin" }, indent: 2 },
-  { path: "components/", description: { ko: "재사용 가능한 UI 컴포넌트 라이브러리", en: "Reusable UI component library" }, indent: 1 },
-  { path: "layout/", description: { ko: "Navigation, Footer, ContactDrawer, DetailLayout", en: "Navigation, Footer, ContactDrawer, DetailLayout" }, indent: 2 },
-  { path: "effects/", description: { ko: "StaggerText, Parallax, CursorTrail, FontMorph, ScrollTorus", en: "StaggerText, Parallax, CursorTrail, FontMorph, ScrollTorus" }, indent: 2 },
-  { path: "ui/", description: { ko: "Button, Modal, Typography, OptimizedImage", en: "Button, Modal, Typography, OptimizedImage" }, indent: 2 },
-  { path: "posts/", description: { ko: "PostEditor, MarkdownRenderer, CoverImagePicker", en: "PostEditor, MarkdownRenderer, CoverImagePicker" }, indent: 2 },
-  { path: "admin/", description: { ko: "어드민 패널 컴포넌트", en: "Admin panel components" }, indent: 2 },
-  { path: "hooks/", description: { ko: "15개 커스텀 훅 — useMagnetic, useScrollVelocity, useHorizontalScroll 등", en: "15 custom hooks — useMagnetic, useScrollVelocity, useHorizontalScroll, etc." }, indent: 1 },
-  { path: "lib/supabase/", description: { ko: "Supabase 클라이언트 — browser, server, admin (3-tier)", en: "Supabase clients — browser, server, admin (3-tier)" }, indent: 1 },
-  { path: "stores/", description: { ko: "Zustand 상태 관리 — app, project, modal, contact, transition", en: "Zustand state management — app, project, modal, contact, transition" }, indent: 1 },
-  { path: "providers/", description: { ko: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig", en: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig" }, indent: 1 },
-  { path: "types/", description: { ko: "TypeScript 타입 정의 — Post, Comment 등", en: "TypeScript type definitions — Post, Comment, etc." }, indent: 1 },
-  { path: "config/", description: { ko: "사이트 설정 — site.config.ts", en: "Site configuration — site.config.ts" }, indent: 1 },
-  { path: "animations/", description: { ko: "Framer Motion 프리셋 — fade, slide, scale, spring 등 7개 카테고리", en: "Framer Motion presets — 7 categories: fade, slide, scale, spring, etc." }, indent: 1 },
-  { path: "styles/", description: { ko: "디자인 토큰, 베이스 스타일, 애니메이션, 유틸리티", en: "Design tokens, base styles, animations, utilities" }, indent: 1 },
-  { path: "data/", description: { ko: "정적 데이터 — projects, services, profile, about", en: "Static data — projects, services, profile, about" }, indent: 1 },
-  { path: "locales/", description: { ko: "i18n 번역 파일 — ko.json, en.json", en: "i18n translation files — ko.json, en.json" }, indent: 1 },
+  {
+    path: "src/",
+    description: { ko: "소스 코드 루트", en: "Source code root" },
+    indent: 0,
+  },
+  {
+    path: "app/",
+    description: {
+      ko: "Next.js App Router — 페이지 & API 라우트",
+      en: "Next.js App Router — pages & API routes",
+    },
+    indent: 1,
+  },
+  {
+    path: "(home)/",
+    description: {
+      ko: "랜딩 페이지 — Hero, About, Works, CTA 등 7개 섹션",
+      en: "Landing page — 7 sections: Hero, About, Works, CTA, etc.",
+    },
+    indent: 2,
+  },
+  {
+    path: "works/",
+    description: {
+      ko: "프로젝트 갤러리 + [id] 상세 페이지 (좋아요)",
+      en: "Project gallery + [id] detail pages (likes)",
+    },
+    indent: 2,
+  },
+  {
+    path: "posts/",
+    description: {
+      ko: "블로그 목록 + [slug] 상세 (좋아요·댓글)",
+      en: "Blog list + [slug] detail (likes & comments)",
+    },
+    indent: 2,
+  },
+  {
+    path: "profile/",
+    description: {
+      ko: "프로필 페이지 — 소개 & 철학",
+      en: "Profile page — introduction & philosophy",
+    },
+    indent: 2,
+  },
+  {
+    path: "about/",
+    description: {
+      ko: "이 페이지 — 개발 과정 & 기술 문서",
+      en: "This page — development process & technical docs",
+    },
+    indent: 2,
+  },
+  {
+    path: "admin/",
+    description: {
+      ko: "어드민 대시보드 — 포스트/작업물 CRUD, 설정(콘텐츠·프로필·계정)",
+      en: "Admin dashboard — posts/works CRUD, settings (content, profile, account)",
+    },
+    indent: 2,
+  },
+  {
+    path: "api/",
+    description: {
+      ko: "API 라우트 — posts, comments, likes, contact, cover, admin",
+      en: "API routes — posts, comments, likes, contact, cover, admin",
+    },
+    indent: 2,
+  },
+  {
+    path: "components/",
+    description: {
+      ko: "재사용 가능한 UI 컴포넌트 라이브러리",
+      en: "Reusable UI component library",
+    },
+    indent: 1,
+  },
+  {
+    path: "layout/",
+    description: {
+      ko: "Navigation, Footer, ContactDrawer, DetailLayout",
+      en: "Navigation, Footer, ContactDrawer, DetailLayout",
+    },
+    indent: 2,
+  },
+  {
+    path: "effects/",
+    description: {
+      ko: "StaggerText, Parallax, CursorTrail, FontMorph, ScrollTorus",
+      en: "StaggerText, Parallax, CursorTrail, FontMorph, ScrollTorus",
+    },
+    indent: 2,
+  },
+  {
+    path: "ui/",
+    description: {
+      ko: "Button, Modal, Typography, OptimizedImage",
+      en: "Button, Modal, Typography, OptimizedImage",
+    },
+    indent: 2,
+  },
+  {
+    path: "posts/",
+    description: {
+      ko: "PostEditor, MarkdownRenderer, CoverImagePicker",
+      en: "PostEditor, MarkdownRenderer, CoverImagePicker",
+    },
+    indent: 2,
+  },
+  {
+    path: "admin/",
+    description: { ko: "어드민 패널 컴포넌트", en: "Admin panel components" },
+    indent: 2,
+  },
+  {
+    path: "hooks/",
+    description: {
+      ko: "15개 커스텀 훅 — useMagnetic, useScrollVelocity, useHorizontalScroll 등",
+      en: "15 custom hooks — useMagnetic, useScrollVelocity, useHorizontalScroll, etc.",
+    },
+    indent: 1,
+  },
+  {
+    path: "lib/supabase/",
+    description: {
+      ko: "Supabase 클라이언트 — browser, server, admin (3-tier)",
+      en: "Supabase clients — browser, server, admin (3-tier)",
+    },
+    indent: 1,
+  },
+  {
+    path: "stores/",
+    description: {
+      ko: "Zustand 상태 관리 — app, project, modal, contact, transition",
+      en: "Zustand state management — app, project, modal, contact, transition",
+    },
+    indent: 1,
+  },
+  {
+    path: "providers/",
+    description: {
+      ko: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig",
+      en: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig",
+    },
+    indent: 1,
+  },
+  {
+    path: "types/",
+    description: {
+      ko: "TypeScript 타입 정의 — Post, Comment 등",
+      en: "TypeScript type definitions — Post, Comment, etc.",
+    },
+    indent: 1,
+  },
+  {
+    path: "config/",
+    description: {
+      ko: "사이트 설정 — site.config.ts",
+      en: "Site configuration — site.config.ts",
+    },
+    indent: 1,
+  },
+  {
+    path: "animations/",
+    description: {
+      ko: "Framer Motion 프리셋 — fade, slide, scale, spring 등 7개 카테고리",
+      en: "Framer Motion presets — 7 categories: fade, slide, scale, spring, etc.",
+    },
+    indent: 1,
+  },
+  {
+    path: "styles/",
+    description: {
+      ko: "디자인 토큰, 베이스 스타일, 애니메이션, 유틸리티",
+      en: "Design tokens, base styles, animations, utilities",
+    },
+    indent: 1,
+  },
+  {
+    path: "data/",
+    description: {
+      ko: "정적 데이터 — projects, services, profile, about",
+      en: "Static data — projects, services, profile, about",
+    },
+    indent: 1,
+  },
+  {
+    path: "locales/",
+    description: {
+      ko: "i18n 번역 파일 — ko.json, en.json",
+      en: "i18n translation files — ko.json, en.json",
+    },
+    indent: 1,
+  },
 ];
 
+/* ── helper: 노드/엣지 빌더 ── */
+const n = (
+  id: string,
+  type: "start" | "action" | "decision" | "end",
+  row: number,
+  col: number,
+  ko: string,
+  en: string,
+  y?: number,
+): FlowNode => ({ id, type, label: { ko, en }, row, col, ...(y != null && { y }) });
+
+const e = (
+  from: string,
+  to: string,
+  label?: string,
+  noArrow?: boolean,
+): FlowEdge => ({
+  from,
+  to,
+  ...(label && { label }),
+  ...(noArrow && { noArrow }),
+});
+
 export const userFlows: UserFlow[] = [
+  /* ── 1. Visitor Journey ── */
   {
     title: "Visitor",
-    description: {
-      ko: "처음 방문한 사용자가 포트폴리오를 탐색하고, 프로젝트를 확인한 뒤 연락처를 남기기까지의 전체 여정",
-      en: "The complete journey of a first-time visitor exploring the portfolio, viewing projects, and reaching out via contact",
+    persona: {
+      ko: "처음 방문한 사용자 · 검색이나 링크를 통해 유입됨",
+      en: "First-time visitor · arrived via search or shared link",
     },
-    steps: [
-      {
-        label: { ko: "랜딩 페이지", en: "Landing Page" },
-        description: {
-          ko: "사이트에 진입하면 풀스크린 Hero 섹션이 나타나고, 아래로 스크롤하면 대표 프로젝트 프리뷰와 블로그 하이라이트가 순서대로 등장합니다.",
-          en: "Upon entering the site, a full-screen Hero section appears. Scrolling down reveals featured project previews and blog highlights in sequence.",
-        },
-      },
-      {
-        label: { ko: "스크롤 탐색", en: "Scroll Explore" },
-        description: {
-          ko: "GSAP ScrollTrigger 기반 스크롤 애니메이션이 각 섹션을 자연스럽게 연결하며, 시차 효과와 페이드-인으로 콘텐츠를 단계적으로 드러냅니다.",
-          en: "GSAP ScrollTrigger-based scroll animations seamlessly connect each section, using parallax and fade-in effects to progressively reveal content.",
-        },
-      },
-      {
-        label: { ko: "Works 갤러리", en: "Works Gallery" },
-        description: {
-          ko: "Masonry 레이아웃으로 프로젝트 카드가 배치되고, 상단 카테고리 필터로 원하는 분야의 작업물만 골라볼 수 있습니다.",
-          en: "Project cards are arranged in a Masonry layout. Category filters at the top let you narrow down to specific types of work.",
-        },
-      },
-      {
-        label: { ko: "프로젝트 상세", en: "Project Detail" },
-        description: {
-          ko: "프로젝트를 클릭하면 갤러리 슬라이드, 기술 스택 뱃지, 상세 설명이 표시되며 IP 기반 좋아요로 관심을 표현할 수 있습니다.",
-          en: "Clicking a project shows a gallery slideshow, tech stack badges, and detailed description. IP-based likes let visitors express interest.",
-        },
-      },
-      {
-        label: { ko: "Contact", en: "Contact" },
-        description: {
-          ko: "하단 CTA 또는 네비게이션 링크를 통해 Contact Drawer가 열리고, reCAPTCHA 인증 후 이메일이 발송됩니다.",
-          en: "The Contact Drawer opens via the bottom CTA or navigation link. After reCAPTCHA verification, the email is sent.",
-        },
-      },
+    description: {
+      ko: "BGM 선택 후 랜딩 페이지를 스크롤하며 Works Bubble에서 프로젝트를 보거나, CTA에서 연락을 남기는 흐름",
+      en: "Choose BGM, scroll the landing page, explore projects via Works Bubble, or reach out via the CTA section",
+    },
+    nodes: [
+      /* row 0: BGM 수직 체인 */
+      n("start", "start", 0, 3, "사이트에 접속", "Land on Site"),
+      n("bgm_q", "decision", 0, 4, "BGM\n켤까?", "Enable\nBGM?"),
+      n("bgm_on", "action", 0, 5, "BGM 재생", "Play BGM"),
+      /* row 1 */
+      n(
+        "scroll",
+        "action",
+        1,
+        4,
+        "스크롤 내려서\n탐색",
+        "Scroll Down\nand Explore",
+      ),
+      /* row 2: No 수직 체인 */
+      n(
+        "works_q",
+        "decision",
+        2,
+        3,
+        "Selected Works\n발견?",
+        "Found\nSelected Works?",
+      ),
+      n("cta", "action", 2, 4, "CTA까지 스크롤", "Scroll to CTA"),
+      n("contact_q", "decision", 2, 5, "연락\n할까?", "Want to\ncontact?"),
+      n("touch", "action", 2, 6, "Get in Touch\n클릭", "Click\nGet in Touch"),
+      /* row 3+: Yes 수평 체인 */
+      n("end_email", "end", 3, 6, "이메일 전송", "Send Email"),
+      n("detail", "action", 3, 3, "상세페이지 열람", "View Detail Page"),
+      n(
+        "menu_q",
+        "decision",
+        3,
+        4,
+        "다른 메뉴도\n확인할까?",
+        "Check other\nmenus?",
+      ),
+      n("nav", "action", 4, 4, "Navigation 메뉴 클릭", "Click Nav Menu"),
+      n("end_leave", "end", 3, 5, "사이트 이탈", "Leave Site"),
+      n("end_page", "end", 5, 4, "페이지 이동", "Navigate Away"),
+    ],
+    edges: [
+      e("start", "bgm_q"),
+      e("bgm_q", "bgm_on", "Yes"),
+      e("bgm_q", "scroll", "No"),
+      e("bgm_on", "scroll"),
+      e("scroll", "works_q"),
+      e("works_q", "detail", "Yes"),
+      e("works_q", "cta", "No"),
+      e("cta", "contact_q"),
+      e("contact_q", "touch", "Yes"),
+      e("contact_q", "menu_q", "No"),
+      e("touch", "end_email"),
+      e("detail", "menu_q"),
+      e("menu_q", "nav", "Yes"),
+      e("menu_q", "end_leave", "No"),
+      e("nav", "end_page"),
     ],
   },
+
+  /* ── 2. Posts Reading ── */
   {
-    title: "Blog",
-    description: {
-      ko: "블로그에서 관심 있는 주제의 글을 발견하고, 시리즈를 따라가며 읽고, 좋아요와 댓글로 반응하는 흐름",
-      en: "Discovering posts by topic, following a series, reading articles, and engaging through likes and comments",
+    title: "Posts",
+    persona: {
+      ko: "기술 블로그를 탐색 중인 독자",
+      en: "Reader browsing tech blog posts",
     },
-    steps: [
-      {
-        label: { ko: "Posts 목록", en: "Posts List" },
-        description: {
-          ko: "Featured 캐러셀에서 주요 글을 빠르게 훑어보고, 아래 카테고리별 목록에서 전체 포스트를 탐색합니다.",
-          en: "Quickly browse highlighted posts in the Featured carousel, then explore the full post list organized by category below.",
-        },
-      },
-      {
-        label: { ko: "카테고리 필터", en: "Category Filter" },
-        description: {
-          ko: "Frontend, Backend, DevOps 등 카테고리 탭으로 분야별 필터링이 가능하며, 각 카테고리 안에서 시리즈 단위로 글이 그룹핑됩니다.",
-          en: "Filter by categories like Frontend, Backend, or DevOps using tabs. Within each category, posts are grouped by series.",
-        },
-      },
-      {
-        label: { ko: "시리즈 탐색", en: "Series Browse" },
-        description: {
-          ko: "시리즈 카드를 펼치면 해당 시리즈의 모든 글이 순서대로 나타나, 연속 학습이 가능합니다.",
-          en: "Expanding a series card reveals all posts in order, enabling sequential learning through related content.",
-        },
-      },
-      {
-        label: { ko: "포스트 읽기", en: "Read Post" },
-        description: {
-          ko: "Markdown 또는 Rich Text로 작성된 본문이 렌더링되고, 우측 TOC(목차)로 긴 글도 빠르게 탐색할 수 있습니다.",
-          en: "Content written in Markdown or Rich Text is rendered with a Table of Contents on the side for quick navigation through long articles.",
-        },
-      },
-      {
-        label: { ko: "좋아요 / 댓글", en: "Like / Comment" },
-        description: {
-          ko: "로그인 없이 IP 기반으로 좋아요를 토글할 수 있고, 닉네임과 비밀번호만으로 게스트 댓글을 남길 수 있습니다.",
-          en: "Toggle likes without login via IP-based tracking. Leave guest comments with just a nickname and password.",
-        },
-      },
+    description: {
+      ko: "게시물 목록을 탐색하며 마음에 드는 게시물을 읽고, 좋아요·댓글을 남기는 흐름",
+      en: "Browse the post list, read a post you like, and leave likes or comments",
+    },
+    nodes: [
+      n("start", "start", 1, 3, "Posts\n페이지 방문", "Visit Posts Page"),
+      n(
+        "found_q",
+        "decision",
+        1,
+        4,
+        "마음에 드는\n게시물 발견?",
+        "Found a post\nyou like?",
+      ),
+      n("next_page", "action", 1, 5, "다음 페이지", "Next Page"),
+      n("click", "action", 2, 4, "게시물 클릭", "Click Post"),
+      n("read", "action", 4, 4, "게시물 읽기", "Read Article"),
+      n("react_q", "decision", 4, 5, "피드백\n할까?", "Leave\nfeedback?"),
+      n("engage", "action", 4, 6, "좋아요 · 댓글 남기기", "Like & Comment"),
+      n("end_next", "end", 5, 5, "다음 게시물", "Next Post"),
+    ],
+    edges: [
+      e("start", "found_q"),
+      e("found_q", "click", "Yes"),
+      e("found_q", "next_page", "No"),
+      e("next_page", "found_q"),
+      e("click", "read"),
+      e("read", "react_q"),
+      e("react_q", "engage", "Yes"),
+      e("react_q", "end_next", "No"),
+      e("engage", "end_next"),
     ],
   },
+
+  /* ── 3. Works Exploration ── */
   {
-    title: "Admin",
-    description: {
-      ko: "관리자가 새 콘텐츠를 작성하고, 이미지를 설정하고, 시리즈에 연결한 뒤 발행하는 전체 워크플로우",
-      en: "The complete admin workflow from writing new content, setting cover images, linking to series, to publishing",
+    title: "Works",
+    persona: {
+      ko: "포트폴리오를 평가하러 온 채용 담당자",
+      en: "Recruiter evaluating portfolio work",
     },
-    steps: [
-      {
-        label: { ko: "로그인", en: "Login" },
-        description: {
-          ko: "Supabase Auth를 통한 이메일/비밀번호 인증으로 관리자 대시보드에 접근합니다. 미인증 시 자동 리다이렉트됩니다.",
-          en: "Access the admin dashboard via Supabase Auth email/password authentication. Unauthenticated users are automatically redirected.",
-        },
-      },
-      {
-        label: { ko: "포스트 작성", en: "Create Post" },
-        description: {
-          ko: "Markdown 또는 Rich Text 에디터에서 한국어/영어 이중 언어로 작성합니다. 언어 전환 시 자동 번역이 트리거되어 초안을 생성합니다.",
-          en: "Write in Korean/English bilingual mode using Markdown or Rich Text editor. Switching languages triggers auto-translation to generate a draft.",
-        },
-      },
-      {
-        label: { ko: "커버 이미지", en: "Cover Image" },
-        description: {
-          ko: "Unsplash에서 키워드로 검색하거나, AI 이미지 생성(스타일 프리셋 선택)으로 커버를 설정합니다. 직접 업로드도 가능합니다.",
-          en: "Search Unsplash by keyword, generate AI images with style presets, or upload directly to set the cover image.",
-        },
-      },
-      {
-        label: { ko: "시리즈 연결", en: "Link to Series" },
-        description: {
-          ko: "기존 시리즈를 선택하거나 새로 생성하면 카테고리가 자동으로 동기화됩니다. 시리즈 내 순서도 지정 가능합니다.",
-          en: "Select an existing series or create a new one — the category syncs automatically. You can also set the order within a series.",
-        },
-      },
-      {
-        label: { ko: "발행", en: "Publish" },
-        description: {
-          ko: "제목, 본문 등 필수 항목 검증을 거친 뒤 공개/비공개 토글로 발행합니다. 리비전 히스토리에서 이전 버전 복원도 가능합니다.",
-          en: "After validating required fields like title and body, publish with the visibility toggle. Previous versions can be restored from revision history.",
-        },
-      },
+    description: {
+      ko: "가로 스크롤 갤러리에서 프로젝트를 골라 Live Demo를 보거나, GitHub에서 코드를 확인하는 흐름",
+      en: "Pick a project from the horizontal gallery, try the live demo, or check the code on GitHub",
+    },
+    nodes: [
+      /* row 1: 수직 체인 (루프백 여백 확보) */
+      n("start", "start", 1, 3, "Works 페이지\n방문", "Visit Works Page"),
+      n("browse", "action", 1, 4, "Works 페이지 둘러보기", "Browse Works Page"),
+      n(
+        "gallery",
+        "decision",
+        1,
+        5,
+        "궁금한 프로젝트\n발견?",
+        "Found an\ninteresting project?",
+      ),
+      /* row 2: Yes 분기 */
+      n("detail", "action", 2, 3, "상세 페이지 열람", "View Detail Page"),
+      n("demo_q", "decision", 2, 4, "직접\n사용해볼까?", "Try it\nlive?"),
+      n("github", "action", 2, 5, "GitHub 버튼 클릭", "Click GitHub"),
+      n(
+        "end_github",
+        "action",
+        2,
+        6,
+        "Readme, 코드 살펴보기",
+        "Read README & Code",
+      ),
+      /* row 4: demo Yes 체인 */
+      n("visit", "action", 4, 4, "Live Demo 클릭", "Click Live Demo"),
+      n(
+        "like_q",
+        "decision",
+        4,
+        5,
+        "작업물이\n마음에 들까?",
+        "Like the\nproject?",
+      ),
+      n("like", "action", 4, 6, "♥ 좋아요 누르기", "Press ♥ Like"),
+      n("end", "end", 6, 5, "다음 작품으로", "Next Project"),
+    ],
+    edges: [
+      e("start", "browse"),
+      e("browse", "gallery"),
+      e("gallery", "detail", "Yes"),
+      e("gallery", "browse", "No"),
+      e("detail", "demo_q"),
+      e("demo_q", "visit", "Yes"),
+      e("demo_q", "github", "No"),
+      e("github", "end_github"),
+      e("visit", "like_q"),
+      e("like_q", "like", "Yes"),
+      e("like_q", "end", "No"),
+      e("like", "end"),
+      e("end_github", "like_q"),
     ],
   },
+
+  /* ── 4. Profile Journey ── */
+  {
+    title: "Profile",
+    persona: {
+      ko: "개발자의 배경과 철학이 궁금한 방문자",
+      en: "Visitor curious about the developer's background and philosophy",
+    },
+    description: {
+      ko: "프로필 페이지에서 자기소개를 읽고, 3D Bunny Showcase를 감상하며, 연락을 남기는 흐름",
+      en: "Read the self-introduction, enjoy the 3D Bunny Showcase, and reach out via contact",
+    },
+    nodes: [
+      n("start", "start", 0, 3, "Profile\n페이지 방문", "Visit Profile Page"),
+      n("read", "action", 0, 4, "자기소개 읽기", "Read Introduction"),
+      n("more_q", "decision", 1, 3, "더\n알아볼까?", "Learn\nmore?"),
+      n("contact_q", "decision", 1, 4, "연락\n할까?", "Want to\ncontact?"),
+      n("touch", "action", 1, 5, "Get in Touch\n클릭", "Click\nGet in Touch"),
+      n("nav", "action", 2, 3, "네비게이션 메뉴 클릭", "Click Nav Menu"),
+      n("end_nav", "end", 3, 3, "다른 페이지 이동", "Navigate to Other Page"),
+      n("end_leave", "end", 2, 4, "사이트 이탈", "Leave Site"),
+      n("end_sent", "end", 2, 5, "메시지 전송", "Message Sent"),
+    ],
+    edges: [
+      e("start", "read"),
+      e("read", "more_q"),
+      e("more_q", "nav", "Yes"),
+      e("nav", "end_nav"),
+      e("more_q", "contact_q", "No"),
+      e("contact_q", "touch", "Yes"),
+      e("contact_q", "end_leave", "No"),
+      e("touch", "end_sent"),
+    ],
+  },
+
+  /* ── 5. Contact Message ── */
   {
     title: "Contact",
-    description: {
-      ko: "방문자가 사이트를 떠나지 않고 Drawer 인터페이스에서 빠르게 메시지를 보내는 흐름",
-      en: "How visitors quickly send a message through the Drawer interface without leaving the page",
+    persona: {
+      ko: "프로젝트 의뢰를 위해 연락하는 클라이언트",
+      en: "Client reaching out for a project",
     },
-    steps: [
-      {
-        label: { ko: "Contact 버튼", en: "Contact Button" },
-        description: {
-          ko: "페이지 하단의 CTA 버튼이나 네비게이션 메뉴의 Contact 링크를 클릭하면 프로세스가 시작됩니다.",
-          en: "The process begins when clicking the CTA button at the bottom of the page or the Contact link in the navigation menu.",
-        },
-      },
-      {
-        label: { ko: "Drawer 열림", en: "Drawer Opens" },
-        description: {
-          ko: "페이지 우측에서 슬라이드-인 오버레이 Drawer가 나타납니다. 배경은 흐려지고, 현재 페이지 컨텍스트는 유지됩니다.",
-          en: "A slide-in overlay Drawer appears from the right side. The background blurs while maintaining the current page context.",
-        },
-      },
-      {
-        label: { ko: "폼 작성", en: "Fill Form" },
-        description: {
-          ko: "이름, 이메일 주소, 메시지를 입력합니다. 실시간 유효성 검사로 형식 오류를 즉시 안내합니다.",
-          en: "Enter your name, email address, and message. Real-time validation immediately flags any format errors.",
-        },
-      },
-      {
-        label: { ko: "reCAPTCHA 인증", en: "reCAPTCHA" },
-        description: {
-          ko: "Google reCAPTCHA v2 체크박스를 완료해야 전송 버튼이 활성화됩니다. 스팸과 봇 요청을 사전 차단합니다.",
-          en: "Complete the Google reCAPTCHA v2 checkbox to enable the send button. This blocks spam and bot requests upfront.",
-        },
-      },
-      {
-        label: { ko: "이메일 발송", en: "Email Sent" },
-        description: {
-          ko: "Resend API를 통해 이메일이 전송되고, 성공 메시지가 표시된 후 Drawer가 자동으로 닫힙니다.",
-          en: "The email is sent via the Resend API. A success message is displayed, then the Drawer automatically closes.",
-        },
-      },
+    description: {
+      ko: "Get in Touch 버튼으로 Drawer를 열고, 이름·이메일·메시지를 채워 reCAPTCHA를 거쳐 전송하는 흐름",
+      en: "Open the drawer via Get in Touch, fill in name, email, and message, pass reCAPTCHA, and send",
+    },
+    nodes: [
+      n("start", "start", 0, 3, "Get in Touch\n클릭", "Click\nGet in Touch"),
+      n("open", "action", 0, 4, "Drawer 슬라이드 인", "Drawer Slides In"),
+      n(
+        "form",
+        "action",
+        0,
+        5,
+        "이름 · 이메일 · 제목 입력",
+        "Enter Name · Email · Subject",
+      ),
+      n("msg", "action", 0, 6, "메시지 작성", "Write Message"),
+      n(
+        "attach_q",
+        "decision",
+        1,
+        3,
+        "파일 첨부\n지원?",
+        "File Attach\nAvailable?",
+      ),
+      n("file_q", "decision", 2, 3, "파일\n첨부할까?", "Attach\na file?"),
+      n("skip", "action", 2, 4, "첨부 없이 진행", "Continue w/o File"),
+      n("upload", "action", 3, 3, "PDF · DOC 업로드", "Upload PDF · DOC"),
+      n(
+        "captcha",
+        "action",
+        2,
+        5,
+        "개인정보 동의 · reCAPTCHA",
+        "Privacy · reCAPTCHA",
+      ),
+      n("send", "action", 2, 6, "Submit 버튼 클릭", "Click Submit"),
+      n("end", "end", 3, 6, "전송 완료!", "Message Sent!"),
+    ],
+    edges: [
+      e("start", "open"),
+      e("open", "form"),
+      e("form", "msg"),
+      e("msg", "attach_q"),
+      e("attach_q", "file_q", "Yes"),
+      e("attach_q", "skip", "No"),
+      e("file_q", "upload", "Yes"),
+      e("file_q", "skip", "No"),
+      e("upload", "captcha"),
+      e("skip", "captcha"),
+      e("captcha", "send"),
+      e("send", "end"),
     ],
   },
+
+  /* ── 6. Comment Interaction ── */
   {
-    title: "Theme",
-    description: {
-      ko: "다크/라이트 모드 전환과 한국어/영어 언어 전환이 실시간으로 전체 UI에 반영되는 과정",
-      en: "How dark/light mode and Korean/English language switching are applied in real-time across the entire UI",
+    title: "Comment",
+    persona: {
+      ko: "글에 공감해서 댓글을 남기는 독자",
+      en: "Engaged reader leaving a comment",
     },
-    steps: [
-      {
-        label: { ko: "토글 클릭", en: "Toggle Click" },
-        description: {
-          ko: "상단 네비게이션 바의 테마 아이콘(해/달)이나 언어 버튼(KO/EN)을 클릭합니다.",
-          en: "Click the theme icon (sun/moon) or language button (KO/EN) in the top navigation bar.",
-        },
-      },
-      {
-        label: { ko: "CSS Variables 갱신", en: "CSS Vars Update" },
-        description: {
-          ko: "html 요소의 data-theme 속성이 변경되면, 3-layer 토큰 시스템(Raw → Semantic → Context)이 연쇄적으로 갱신됩니다.",
-          en: "When the html element's data-theme attribute changes, the 3-layer token system (Raw → Semantic → Context) cascades updates.",
-        },
-      },
-      {
-        label: { ko: "설정 저장", en: "Persist Setting" },
-        description: {
-          ko: "선택한 테마와 언어가 localStorage에 저장되어 다음 방문 시에도 동일한 설정이 자동 적용됩니다.",
-          en: "The selected theme and language are saved to localStorage, automatically applying the same settings on the next visit.",
-        },
-      },
-      {
-        label: { ko: "전체 UI 반영", en: "Full UI Update" },
-        description: {
-          ko: "0.3초 CSS transition으로 배경, 텍스트, 보더, 그림자 등이 부드럽게 전환됩니다. 커스텀 테마색도 즉시 반영됩니다.",
-          en: "Background, text, borders, and shadows smoothly transition over 0.3s CSS transitions. Custom theme colors are applied instantly.",
-        },
-      },
+    description: {
+      ko: "게시물 하단에서 댓글을 작성하고, 다른 댓글을 번역·좋아요하거나, 비밀번호로 수정·삭제하는 흐름",
+      en: "Write a comment, translate & like others, or edit/delete your own with a password",
+    },
+    nodes: [
+      n("start", "start", 0, 3, "게시물 하단\n도착", "Reach\nPost Bottom"),
+      n("write", "action", 0, 4, "댓글 작성 · 등록", "Write & Submit"),
+      n(
+        "manage_q",
+        "decision",
+        0,
+        5,
+        "내 댓글\n수정·삭제?",
+        "Edit/Delete\nmy comment?",
+      ),
+      n(
+        "read_q",
+        "decision",
+        0,
+        6,
+        "다른 댓글\n읽을까?",
+        "Read other\ncomments?",
+      ),
+      n("manage", "action", 1, 3, "비밀번호 입력", "Enter Password"),
+      n("end", "end", 2, 3, "수정·삭제 완료", "Edit/Delete Done"),
+      n("translate", "action", 1, 5, "자동 번역·읽기", "Auto Translate · Read"),
+      n(
+        "like_q",
+        "decision",
+        1,
+        6,
+        "마음에 드는\n댓글 발견?",
+        "Found a comment\nyou like?",
+      ),
+      n("like", "action", 2, 6, "♥ 좋아요 누르기", "Press ♥ Like"),
+      n("end_done", "end", 3, 6, "피드백 완료", "Feedback Done"),
+    ],
+    edges: [
+      e("start", "write"),
+      e("write", "manage_q"),
+      e("manage_q", "manage", "Yes"),
+      e("manage_q", "read_q", "No"),
+      e("manage", "end"),
+      e("read_q", "translate", "Yes"),
+      e("translate", "like_q"),
+      e("like_q", "like", "Yes"),
+      e("like", "end_done"),
+      e("like_q", "read_q", "No"),
     ],
   },
+
+  /* ── 7. Admin/Settings ── */
   {
-    title: "About",
-    description: {
-      ko: "이 페이지 자체의 구조 — 가로 스크롤 기반 인터랙티브 기술 문서를 탐색하는 흐름",
-      en: "The structure of this page itself — navigating interactive technical documentation via horizontal scroll",
+    title: "Admin/Settings",
+    persona: {
+      ko: "사이트 설정을 미세 조정 중인 관리자",
+      en: "Admin fine-tuning site settings",
     },
-    steps: [
-      {
-        label: { ko: "가로 스크롤 시작", en: "Start H-Scroll" },
-        description: {
-          ko: "데스크톱에서 마우스 휠을 내리면 GSAP ScrollTrigger가 세로 입력을 가로 이동으로 변환하여 패널이 좌우로 흐릅니다.",
-          en: "On desktop, scrolling the mouse wheel triggers GSAP ScrollTrigger to convert vertical input into horizontal movement, flowing panels left to right.",
-        },
-      },
-      {
-        label: { ko: "14개 패널 순회", en: "Browse 14 Panels" },
-        description: {
-          ko: "개요, 유저 플로우, 아키텍처, 기능, 디자인 컨셉, ERD 등 14개 주제별 패널을 순서대로 탐색합니다.",
-          en: "Browse 14 topic-specific panels in order: Overview, User Flow, Architecture, Features, Design Concept, ERD, and more.",
-        },
-      },
-      {
-        label: { ko: "하단 Nav 바로가기", en: "Nav Shortcuts" },
-        description: {
-          ko: "화면 하단의 도트 네비게이션으로 원하는 패널에 직접 점프할 수 있습니다. 스프링 인디케이터가 현재 위치를 표시합니다.",
-          en: "Jump directly to any panel using the dot navigation at the bottom. A spring indicator marks your current position.",
-        },
-      },
-      {
-        label: { ko: "기술 문서 탐색", en: "Explore Docs" },
-        description: {
-          ko: "각 패널에서 인터랙티브 ERD, 코드 하이라이트, 트러블슈팅 사례, 프로세스 타임라인 등을 직접 조작하며 탐색합니다.",
-          en: "Within each panel, interact with ERD diagrams, code highlights, troubleshooting cases, process timelines, and more.",
-        },
-      },
+    description: {
+      ko: "로그인 후 Settings로 리다이렉션되어 콘텐츠·프로필·계정 설정을 수정하고 저장 또는 초기화하는 흐름",
+      en: "After login, redirect to Settings to modify content, profile, or account settings, then save or reset",
+    },
+    nodes: [
+      n("start", "start", 0, 3, "/admin/login\n페이지 접속", "Go to\n/admin/login"),
+      n("login", "action", 0, 4, "이메일 · 비밀번호\n입력", "Enter Email\n& Password"),
+      n("auth_q", "decision", 0, 5, "인증\n성공?", "Auth\npassed?"),
+      n("denied", "end", 0, 6, "접근 거부", "Access Denied"),
+      n("settings", "action", 1, 3, "Settings\n리다이렉션", "Redirect\nto Settings"),
+      n("edit_q", "decision", 1, 4, "수정할\n설정 존재?", "Settings\nto edit?"),
+      n("end_leave", "end", 1, 5, "Posts · Works\n페이지로 이동", "Go to Posts ·\nWorks Page"),
+      n("edit", "action", 2, 3, "내용 수정", "Edit Content"),
+      n("like_q", "decision", 2, 4, "마음에\n드나?", "Satisfied?"),
+      n("reset", "action", 2, 5, "초기화 클릭", "Click Reset"),
+      n("save", "action", 3, 3, "전체 저장 클릭", "Click Save All"),
+      n("end_saved", "end", 4, 3, "저장 완료\n새로고침", "Saved\nRefreshed"),
+      n("end_reset", "end", 3, 5, "초기화 완료", "Reset Done"),
+    ],
+    edges: [
+      e("start", "login"),
+      e("login", "auth_q"),
+      e("auth_q", "settings", "Yes"),
+      e("auth_q", "denied", "No"),
+      e("settings", "edit_q"),
+      e("edit_q", "edit", "Yes"),
+      e("edit_q", "end_leave", "No"),
+      e("edit", "like_q"),
+      e("like_q", "save", "Yes"),
+      e("like_q", "reset", "No"),
+      e("save", "end_saved"),
+      e("reset", "end_reset"),
+    ],
+  },
+
+  /* ── 8. Admin/Settings/Appearance ── */
+  {
+    title: "Admin/Settings/Appearance",
+    persona: {
+      ko: "나만의 테마를 만들고 싶은 사용자",
+      en: "Power user crafting a custom theme",
+    },
+    description: {
+      ko: "설정 페이지에서 Appearance 탭을 열고, 테마 프리셋과 Google Fonts를 골라 실시간으로 미리보는 과정",
+      en: "Open the Appearance tab in settings, pick a theme preset and Google Font, and preview in real-time",
+    },
+    nodes: [
+      n("start", "start", 0, 3, "Settings 열기", "Open Settings"),
+      n("tab", "action", 0, 4, "Appearance\n탭 선택", "Select\nAppearance"),
+      n("theme_q", "decision", 1, 3, "테마 색\n바꿀까?", "Change theme\ncolor?"),
+      n("font_q", "decision", 1, 5, "폰트\n바꿀까?", "Change\nfont?"),
+      n("keep", "action", 0, 5, "현재 테마 유지", "Keep Current"),
+      n("preset", "action", 2, 3, "프리셋 카드 클릭", "Click Preset Card"),
+      n("custom", "action", 2, 4, "커스텀 테마 색 설정", "Custom Theme Color"),
+      n("preset_font", "action", 2, 5, "프리셋 폰트 선택", "Select Preset Font"),
+      n("font", "action", 2, 6, "Google Fonts\n검색 및 입력", "Search & Enter\nGoogle Fonts"),
+      n("end", "end", 4, 5, "커스텀 적용 완료", "Custom Applied", 148),
+      n("end_keep", "end", 0, 6, "설정 닫기", "Close Settings"),
+    ],
+    edges: [
+      e("start", "tab"),
+      e("tab", "theme_q"),
+      e("theme_q", "preset", "Yes"),
+      e("theme_q", "custom", "Yes"),
+      e("theme_q", "font_q", "No"),
+      e("keep", "end_keep"),
+      e("font_q", "font", "Yes"),
+      e("font_q", "preset_font"),
+      e("font_q", "keep", "No"),
+      e("preset", "end"),
+      e("custom", "end"),
+      e("font", "end"),
+      e("preset_font", "end"),
+    ],
+  },
+
+  /* ── 8. Admin/Posts · Works ── */
+  {
+    title: "Admin/Posts · Works",
+    persona: {
+      ko: "게시물과 작업물을 관리하는 사이트 소유자",
+      en: "Site owner managing posts & works",
+    },
+    description: {
+      ko: "대시보드에서 게시물·작업물을 작성·수정·삭제하거나 발행을 취소하는 콘텐츠 관리 흐름",
+      en: "Manage content from the dashboard — create, edit, delete posts/works, or unpublish them",
+    },
+    nodes: [
+      n("start", "start", 0, 3, "Posts · Works\n접속", "Open Posts ·\nWorks"),
+      n("dashboard", "action", 0, 6, "대시보드 열람", "Browse Dashboard", 148),
+      n("create", "decision", 1, 3, "새 게시물\n작성?", "Write new\npost?"),
+      n("edit", "decision", 1, 4, "게시물\n수정?", "Edit\npost?"),
+      n("delete_q", "decision", 1, 5, "게시물\n삭제?", "Delete\npost?"),
+      n("unpublish", "decision", 1, 6, "게시물\n발행 취소?", "Unpublish\npost?"),
+      n("end_editor", "action", 2, 3, "에디터 진입", "Open Editor"),
+      n("write", "action", 2, 4, "글 작성 및 수정", "Write & Edit"),
+      n("uncheck", "action", 2, 6, "체크박스 해제", "Uncheck Checkbox"),
+      n("cover_q", "decision", 3, 4, "커버 이미지\n선택?", "Select cover\nimage?"),
+      n("end_unpub", "end", 3, 6, "임시저장으로\n전환", "Switch to\nDraft"),
+      n("attach_q", "decision", 4, 3, "이미지\n첨부?", "Attach\nimage?"),
+      n("preset_q", "decision", 4, 4, "프리셋 이미지\n사용?", "Use preset\nimage?"),
+      n("ai_q", "decision", 4, 5, "AI 생성 이미지\n사용?", "Use AI-generated\nimage?"),
+      n("del_click", "action", 4, 6, "삭제 버튼 클릭", "Click Delete"),
+      n("keyword", "action", 5, 5, "키워드 입력", "Enter Keywords"),
+      n("del_conf", "decision", 5, 6, "정말로\n삭제?", "Really\ndelete?"),
+      n("generate", "action", 6, 5, "이미지 생성", "Generate Image"),
+      n("del_title", "action", 6, 6, "제목 입력", "Enter Title"),
+      n("upload_done", "end", 7, 4, "업로드 완료", "Upload Done", 40),
+      n("end_del", "end", 7, 6, "삭제 완료", "Deleted"),
+    ],
+    edges: [
+      e("start", "dashboard"),
+      e("dashboard", "unpublish"),
+      e("create", "edit", undefined, true),
+      e("edit", "delete_q", undefined, true),
+      e("delete_q", "unpublish", undefined, true),
+      e("create", "end_editor", "Yes"),
+      e("edit", "end_editor", "Yes"),
+      e("end_editor", "write"),
+      e("write", "cover_q"),
+      e("cover_q", "preset_q", "Yes"),
+      e("cover_q", "upload_done", "No"),
+      e("attach_q", "preset_q", undefined, true),
+      e("preset_q", "ai_q", undefined, true),
+      e("attach_q", "upload_done"),
+      e("preset_q", "upload_done"),
+      e("ai_q", "keyword", "Yes"),
+      e("keyword", "generate"),
+      e("generate", "upload_done"),
+      e("delete_q", "del_click", "Yes"),
+      e("del_click", "del_conf"),
+      e("del_conf", "del_title", "Yes"),
+      e("del_conf", "dashboard", "No"),
+      e("del_title", "end_del"),
+      e("unpublish", "uncheck", "Yes"),
+      e("uncheck", "end_unpub"),
+      e("unpublish", "dashboard", "No"),
     ],
   },
 ];
