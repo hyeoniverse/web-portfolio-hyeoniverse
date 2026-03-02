@@ -37,9 +37,22 @@
   color: #fff;
   letter-spacing: 0.02em;
   text-align: center;
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
 }
 
-.headerActions .saveBtn:hover {
+.headerActions .saveBtn {
+  transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.saveBtnVisible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.headerActions .saveBtn:hover:not(:disabled) {
   opacity: 0.85;
 }
 
@@ -59,6 +72,10 @@
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+}
+
+.header .newBtn {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .header .newBtn:hover {
