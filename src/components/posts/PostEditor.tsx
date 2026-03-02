@@ -13,6 +13,7 @@ import Select from "@/components/ui/Select";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
+import { autoTranslate } from "@/utils/autoTranslate";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
@@ -21,28 +22,6 @@ import styles from "./PostEditor.module.css";
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   ssr: false,
 });
-
-type TranslateResult = { translations: string[] } | { error: string };
-
-async function autoTranslate(
-  texts: string[],
-  sourceLang: "ko" | "en",
-  targetLang: "ko" | "en",
-): Promise<TranslateResult> {
-  try {
-    const res = await fetch("/api/admin/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texts, sourceLang, targetLang }),
-    });
-    const data = await res.json();
-    if (!res.ok) return { error: data.error ?? `HTTP ${res.status}` };
-    if (!data.translations) return { error: "Empty response" };
-    return { translations: data.translations };
-  } catch {
-    return { error: "Network error" };
-  }
-}
 
 interface PostEditorProps {
   post?: Post;

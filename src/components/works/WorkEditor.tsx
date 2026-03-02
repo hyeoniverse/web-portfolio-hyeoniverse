@@ -12,34 +12,13 @@ import AdminEditorShell, {
 import EditorToggle from "@/components/posts/EditorToggle";
 import MarkdownEditor from "@/components/posts/MarkdownEditor";
 import type { Work, WorkFormData, TeamMember } from "@/types/work";
+import { autoTranslate } from "@/utils/autoTranslate";
 import Select from "@/components/ui/Select";
 import styles from "./WorkEditor.module.css";
 
 const RichTextEditor = dynamic(() => import("@/components/posts/RichTextEditor"), {
   ssr: false,
 });
-
-type TranslateResult = { translations: string[] } | { error: string };
-
-async function autoTranslate(
-  texts: string[],
-  sourceLang: "ko" | "en",
-  targetLang: "ko" | "en",
-): Promise<TranslateResult> {
-  try {
-    const res = await fetch("/api/admin/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texts, sourceLang, targetLang }),
-    });
-    const data = await res.json();
-    if (!res.ok) return { error: data.error ?? `HTTP ${res.status}` };
-    if (!data.translations) return { error: "Empty response" };
-    return { translations: data.translations };
-  } catch {
-    return { error: "Network error" };
-  }
-}
 
 interface WorkEditorProps {
   work?: Work;
