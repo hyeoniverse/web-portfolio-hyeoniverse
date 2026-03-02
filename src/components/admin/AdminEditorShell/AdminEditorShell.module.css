@@ -144,7 +144,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  cursor: pointer;
 }
 
 .topBar .revisionBtn:hover {
@@ -194,7 +193,6 @@
   gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-bottom: 1px solid var(--border-tertiary-color);
-  cursor: pointer;
 }
 
 .revisionItem:last-child {
@@ -237,7 +235,6 @@
   font-family: var(--font-space-grotesk);
   font-size: 10px;
   color: var(--text-secondary);
-  cursor: pointer;
   flex-shrink: 0;
 }
 
@@ -272,7 +269,6 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  cursor: pointer;
   padding: 0;
 }
 
@@ -443,7 +439,6 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
-  cursor: pointer;
 }
 
 .topLeft .retranslateBtn:hover {
@@ -453,7 +448,6 @@
 
 .retranslateBtn:disabled {
   opacity: 0.5;
-  cursor: default;
 }
 
 .retranslateDropdown {
@@ -479,7 +473,6 @@
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   text-align: left;
-  cursor: pointer;
 }
 
 .retranslateDropdown .retranslateItem:hover {

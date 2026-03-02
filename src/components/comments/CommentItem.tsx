@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Comment } from "@/types/post";
 import { getCommenterId, identityFromHash } from "@/utils/commenterIdentity";
@@ -35,7 +35,7 @@ interface CommentItemProps {
   onRefresh: () => void;
 }
 
-export default function CommentItem({
+function CommentItem({
   comment,
   commentType,
   targetId,
@@ -469,3 +469,5 @@ export default function CommentItem({
     </div>
   );
 }
+
+export default memo(CommentItem);
