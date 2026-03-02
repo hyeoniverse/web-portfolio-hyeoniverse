@@ -1,0 +1,633 @@
+.codeSingleView {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.codeSinglePane {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+  opacity: 0;
+}
+
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
+.codeSingleView .codeSinglePane {
+  transition: opacity var(--duration-moderate) ease;
+}
+
+.codeSinglePaneActive {
+  pointer-events: auto;
+  opacity: 1;
+  z-index: 1;
+}
+
+/* Header: number + title + description */
+.codeSingleHeader {
+  display: flex;
+  gap: var(--_space-block);
+  align-items: baseline;
+  margin-bottom: var(--_space-divide);
+  font-size: var(--_fs-subhead);
+}
+
+.codeSingleNumber {
+  flex-shrink: 0;
+  font-family: var(--_font-display);
+  font-size: inherit;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-fit);
+  color: var(--text-accent);
+}
+
+.codeSingleMeta h4 {
+  margin-bottom: var(--_space-line);
+  font-family: var(--_font-grotesk);
+  font-size: inherit;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+}
+
+.codeSingleDesc {
+  font-size: var(--_fs-body);
+  line-height: var(--_lh-reading);
+  color: var(--text-tertiary);
+}
+
+/* Body: demo + code side by side */
+.codeSingleBody {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex: 1;
+  padding-bottom: var(--spacing-3xl);
+  min-height: 0;
+}
+
+/* Code scroll wrapper — constrains code height + hosts page nav */
+.codeScrollWrap {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Hide native scrollbar inside code scroll wrapper */
+.codeScrollWrap .codeBlock {
+  scrollbar-width: none;
+}
+
+.codeScrollWrap .codeBlock::-webkit-scrollbar {
+  display: none;
+}
+
+/* Code page navigation — minimal floating indicator */
+.codePageNav {
+  display: flex;
+  gap: var(--_space-block);
+  align-items: center;
+  padding: var(--padding-md);
+  border: var(--_line-secondary);
+  position: absolute;
+  right: var(--_space-line);
+  bottom: var(--_space-line);
+  z-index: 2;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
+  color: var(--text-primary);
+  border-radius: var(--radius-capsule);
+}
+
+/* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
+.codeScrollWrap .codePageNav {
+  transition: opacity var(--duration-base) ease;
+}
+
+.codePageNav:hover {
+  opacity: 1;
+}
+
+.codePageBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: inherit;
+  line-height: 1;
+  color: inherit;
+}
+
+.codePageBtn:hover {
+  color: var(--text-accent);
+}
+
+.codePageBtn:disabled {
+  opacity: 0.3;
+}
+
+.codePageBtn:disabled:hover {
+  color: inherit;
+}
+
+/* Shared classes used by both desktop IDE and mobile accordion */
+.codeNumber {
+  flex-shrink: 0;
+  font-family: var(--_font-display);
+  font-size: var(--_fs-lead);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
+}
+
+.codeTitle {
+  margin: 0;
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-subhead);
+  font-weight: var(--font-weight-semibold);
+}
+
+.codeDesc {
+  flex-shrink: 0;
+  margin: 0.2rem 0 0;
+  font-size: var(--_fs-body);
+  line-height: var(--_lh-reading);
+  color: var(--text-tertiary);
+}
+
+.codeBlock {
+  flex: 1;
+  margin: 0;
+  padding-left: var(--_space-block);
+  border-left: var(--border-accent);
+  overflow: auto;
+  position: relative;
+  min-height: 0;
+}
+
+.codeBlock code {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: var(--_fs-body);
+  line-height: var(--_lh-code);
+  white-space: pre;
+}
+
+/* Mobile code list — hidden on desktop */
+.codeListMobile {
+  display: none;
+}
+
+.codeItemMobile {
+  border-bottom: var(--_line-secondary);
+}
+
+.codeItemMobile:last-child {
+  border-bottom: none;
+}
+
+.codeMobileHeader {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+  padding: var(--spacing-lg) 0;
+}
+
+.codeMobilePreview {
+  flex: 1;
+  min-width: 0;
+}
+
+.codeMobilePreview .codeTitle {
+  margin-bottom: 0.3rem;
+}
+
+.codeMobileToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  border: var(--_line-primary);
+  width: clamp(24px, 2vw, 32px);
+  height: clamp(24px, 2vw, 32px);
+  font-size: var(--_fs-subhead);
+  line-height: var(--line-height-fit);
+  border-radius: var(--radius-circle);
+}
+
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
+.codeItemMobile .codeMobileToggle {
+  transition: transform var(--duration-slow) var(--_ease-bounce);
+}
+
+.codeMobileToggleOpen {
+  transform: rotate(135deg);
+}
+
+.codeMobileBody {
+  padding: 0;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+}
+
+/* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
+.codeItemMobile .codeMobileBody {
+  transition:
+    max-height var(--duration-slow) var(--_ease-material),
+    opacity 0.4s var(--_ease-material),
+    padding var(--duration-slow) var(--_ease-material);
+}
+
+.codeMobileBodyOpen {
+  padding: 0 0 var(--spacing-lg);
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.codeItemMobile .codeBlock {
+  margin-top: 0;
+  overflow-x: auto;
+}
+
+/* ==========================================================================
+   Code Demos — Interactive Demo Widgets
+   ========================================================================== */
+
+/* Demo + Code horizontal layout wrapper */
+.codeRevealContent {
+  display: flex;
+  gap: var(--spacing-lg);
+  height: 100%;
+}
+
+/* Demo area (left side on desktop) */
+.codeDemo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding-right: var(--spacing-lg);
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Inner wrapper for all demos */
+.codeDemoInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding-bottom: 1.8rem;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-small);
+  color: var(--text-secondary);
+}
+
+/* Hint text */
+.demoHint {
+  position: absolute;
+  bottom: 0.25rem;
+  left: 50%;
+  font-size: var(--_fs-caption);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateX(-50%);
+  opacity: 0.7;
+}
+
+/* Generic demo button */
+.demoBtn {
+  padding: clamp(0.3rem, 0.45vh, 0.5rem) clamp(0.7rem, 0.8vw, 1.1rem);
+  border: var(--_line-primary);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-small);
+  color: var(--text-secondary);
+
+  border-radius: var(--radius-sm);
+}
+
+.codeDemoInner .demoBtn {
+  transition:
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.demoBtn:hover {
+  border-color: var(--color-accent-alpha-30);
+  color: var(--text-accent);
+}
+
+/* ── Demo 3: FontMorph ── */
+.demoFontText {
+  font-size: clamp(0.8rem, min(2.2vw, 3.9vh), 1.8rem);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Compound selector (0,2,0) to override global theme transition */
+.codeDemoInner .demoFontText {
+  transition: font-family var(--duration-base) ease;
+}
+
+.demoFontLabel {
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
+  color: var(--text-tertiary);
+}
+
+/* ── Demo 4: Magnetic Hover ── */
+.demoMagneticBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-accent-alpha-30);
+  width: clamp(60px, 5.5vw, 90px);
+  height: clamp(60px, 5.5vw, 90px);
+  font-family: var(--font-mono);
+  font-size: var(--_fs-small);
+  color: var(--text-secondary);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* ── Demo 5: ClipPath Direction Reveal ── */
+.demoClipBox {
+  overflow: hidden;
+  position: relative;
+  width: clamp(90px, 8vw, 140px);
+  height: clamp(90px, 8vw, 140px);
+  border-radius: 50%;
+}
+
+.demoClipBase {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--text-tertiary);
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-small);
+  color: var(--text-tertiary);
+  border-radius: 50%;
+}
+
+.demoClipOverlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  background: var(--color-accent-alpha-30);
+  font-family: var(--font-mono);
+  font-size: var(--_fs-small);
+  color: var(--text-primary);
+  inset: 0;
+  border-radius: 50%;
+  will-change: clip-path;
+}
+
+/* ── Demo 6: Infinite Scroll ── */
+/* 12 blocks per set × (40px + 6px gap) = 552px per set */
+.demoInfiniteTrack {
+  display: flex;
+  gap: 6px;
+  width: max-content;
+  animation: demoMarquee 8s linear infinite;
+}
+
+.codeDemoInner:hover .demoInfiniteTrack {
+  animation-play-state: paused;
+}
+
+.demoInfiniteBlock {
+  flex-shrink: 0;
+  width: 40px;
+  height: 30px;
+  border-radius: 3px;
+}
+
+@keyframes demoMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-552px);
+  }
+}
+
+/* ── Demo 8: Loading Progress ── */
+.demoLoadingNumber {
+  font-family: var(--font-display);
+  font-size: clamp(0.8rem, min(2vw, 3.5vh), 2.8rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-accent);
+  letter-spacing: 0.05em;
+}
+
+.demoLoadingTrack {
+  margin-top: var(--spacing-sm);
+  overflow: hidden;
+  width: clamp(90px, 8vw, 140px);
+  height: 2px;
+  background: var(--text-tertiary);
+  opacity: 0.2;
+  border-radius: 1px;
+}
+
+.demoLoadingBar {
+  width: 100%;
+  height: 100%;
+  background: var(--text-accent);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+/* Compound selector (0,2,0) for transform transition */
+.codeDemoInner .demoLoadingBar {
+  transition: transform var(--duration-base) ease-out;
+}
+
+/* ── Demo 9: i18n Shift ── */
+.demoI18nRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+  overflow: visible;
+  width: 100%;
+  max-width: clamp(200px, 18vw, 320px);
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .demoI18nRow {
+    max-width: 100%;
+  }
+}
+
+.demoI18nCol {
+  flex: 1;
+  min-width: 0;
+}
+
+.demoI18nLabel {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: clamp(0.5rem, 0.55vw, 0.7rem);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.demoI18nTextBox {
+  padding: var(--spacing-xs);
+  border: var(--_line-secondary);
+  font-size: var(--_fs-caption);
+  line-height: 1.5;
+  word-break: break-word;
+  border-radius: var(--radius-sm);
+}
+
+.demoI18nBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.4rem;
+  border: 1px dashed var(--color-accent-alpha-30);
+  height: 1.5rem;
+  font-size: clamp(0.5rem, 0.55vw, 0.7rem);
+  color: var(--text-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+/* ── Demo 11: Unit Test Runner ── */
+.demoTestRunner {
+  display: flex;
+  gap: 0.35rem;
+  flex-direction: column;
+  width: 100%;
+  max-width: clamp(200px, 18vw, 320px);
+  padding: var(--spacing-xs);
+  border: var(--_line-secondary);
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
+  border-radius: var(--radius-sm);
+}
+
+.demoTestHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.3rem;
+  border-bottom: var(--_line-secondary);
+}
+
+.demoTestTitle {
+  font-weight: 600;
+  color: var(--color-success);
+  letter-spacing: 0.05em;
+}
+
+.demoTestCount {
+  color: var(--text-tertiary);
+}
+
+.demoTestList {
+  display: flex;
+  gap: 0.2rem;
+  flex-direction: column;
+}
+
+.demoTestRow {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.demoTestIcon {
+  width: 1.2em;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.demoTestPass {
+  color: var(--color-success);
+}
+
+/* Compound selector (0,2,0) to override global theme transition */
+.codeDemoInner .demoTestPass {
+  transition: color var(--duration-fast) ease;
+}
+
+.demoTestName {
+  flex: 1;
+  min-width: 0;
+}
+
+.demoTestSuite {
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .demoTestRunner {
+    max-width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Mobile overrides (1024px)
+   ========================================================================== */
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .codeSingleView {
+    display: none;
+  }
+
+  .codeRevealContent {
+    flex-direction: column;
+  }
+
+  .codeDemo {
+    flex: none;
+    padding-right: 0;
+    padding-bottom: var(--spacing-md);
+    border-bottom: var(--_line-secondary);
+    border-right: none;
+    height: 240px;
+  }
+
+  .codeListMobile {
+    display: flex;
+    gap: 0;
+    flex-direction: column;
+  }
+
+  .codeMobileHeader {
+    gap: var(--spacing-md);
+    padding: var(--spacing-xl) 0;
+  }
+
+  .codeMobileToggle {
+    width: clamp(30px, 6vw, 40px);
+    height: clamp(30px, 6vw, 40px);
+  }
+
+  .codeMobileBodyOpen {
+    padding-bottom: var(--spacing-xl);
+  }
+
+  .codeDemo {
+    height: 280px;
+  }
+}

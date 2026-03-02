@@ -1,5 +1,7 @@
 import KineticHeroTitle from "@/components/common/KineticHeroTitle";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./HeroPanel.module.css";
+const styles = { ...shared, ...local };
 
 interface HeroPanelProps {
   t: (key: string) => string;

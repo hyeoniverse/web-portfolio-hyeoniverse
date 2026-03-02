@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { ErdTable, ErdDesignNote } from "@/data/about";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import PinnedTitleRow from "../PinnedTitleRow";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./ErdPanel.module.css";
+const styles = { ...shared, ...local };
 
 interface ErdPanelProps {
   language: Language;
@@ -47,7 +49,7 @@ const NOTE_POSITIONS: { left: string; top: string }[] = [
   { left: "66%", top: "58%" }, // comments (#6)
 ];
 
-export default function ErdPanel({
+function ErdPanel({
   language,
   tables,
   designNotes,
@@ -111,7 +113,7 @@ export default function ErdPanel({
         ref={contentRef}
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
-        <PinnedTitleRow number="09" title="Database Design." />
+        <PinnedTitleRow title="Database Design." />
 
         <div className={styles.erdPinnedLayout}>
           <div className={styles.erdDiagramWrap}>
@@ -383,3 +385,5 @@ function renderRelations() {
     </g>
   );
 }
+
+export default memo(ErdPanel);

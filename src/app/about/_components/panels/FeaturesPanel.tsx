@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useLayoutEffect, useEffect } from "react";
+import { useCallback, useRef, useLayoutEffect, useEffect, memo } from "react";
+import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
@@ -14,7 +15,9 @@ import DynamicFrameLayout, {
   defaultFrames,
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./FeaturesPanel.module.css";
+const styles = { ...shared, ...local };
 
 interface FeaturesPanelProps {
   language: Language;
@@ -32,7 +35,7 @@ function buildFrames(features: DesignFeature[]): Frame[] {
   }));
 }
 
-export default function FeaturesPanel({
+function FeaturesPanel({
   language,
   features,
 }: FeaturesPanelProps) {
@@ -263,17 +266,31 @@ export default function FeaturesPanel({
   }, [isMobile, language]);
 
   const renderOverlay = useCallback(
-    (_frame: Frame, index: number) => {
+    (_frame: Frame, index: number, isHovered: boolean) => {
       const feature = features[index];
       if (!feature) return null;
       return (
         <div className={styles.featureDfOverlay}>
           <div className={styles.featureDfInfo}>
             <h4 className={styles.featureDfTitle}>{feature.title}</h4>
-            <p className={styles.featureDfDesc}>
-              {feature.description[language]}
-            </p>
-            <p className={styles.featureDfTech}>{feature.tech.join(" · ")}</p>
+            <motion.div
+              initial={false}
+              animate={{
+                height: isHovered ? "auto" : 0,
+                opacity: isHovered ? 1 : 0,
+              }}
+              transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+              style={{ overflow: "hidden" }}
+            >
+              <div className={styles.featureDfDetails}>
+                <p className={styles.featureDfDesc}>
+                  {feature.description[language]}
+                </p>
+                <p className={styles.featureDfTech}>
+                  {feature.tech.join(" · ")}
+                </p>
+              </div>
+            </motion.div>
           </div>
         </div>
       );
@@ -283,7 +300,6 @@ export default function FeaturesPanel({
 
   return (
     <div className={`${styles.panel} ${styles.panelWide}`}>
-      <span className={`${styles.panelNumber} ${styles.animate}`}>04</span>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>
         Key Features.
       </h3>
@@ -328,3 +344,5 @@ export default function FeaturesPanel({
     </div>
   );
 }
+
+export default memo(FeaturesPanel);

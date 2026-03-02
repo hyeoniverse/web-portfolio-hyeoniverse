@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { TroubleShootingItem } from "@/data/about";
 import { renderHighlight } from "../renderHighlight";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./TroubleshootingPanel.module.css";
+const styles = { ...shared, ...local };
 
 interface TroubleshootingPanelProps {
   language: Language;
@@ -16,7 +18,7 @@ interface TroubleshootingPanelProps {
   scrollBy?: (deltaX: number) => void;
 }
 
-export default function TroubleshootingPanel({
+function TroubleshootingPanel({
   language,
   t,
   items,
@@ -179,7 +181,7 @@ export default function TroubleshootingPanel({
       {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
-          number="11"
+         
           title="Trouble Shooting."
           compact
           animate
@@ -317,3 +319,5 @@ export default function TroubleshootingPanel({
     </div>
   );
 }
+
+export default memo(TroubleshootingPanel);

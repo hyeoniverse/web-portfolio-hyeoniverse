@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useCallback, useMemo, type ReactNode } from "react";
+import { useState, useCallback, useMemo, memo, type ReactNode } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { UserFlow, FlowNode } from "@/data/about";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import PinnedTitleRow from "../PinnedTitleRow";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./UserFlowPanel.module.css";
+const styles = { ...shared, ...local };
 
 interface UserFlowPanelProps {
   language: Language;
@@ -340,7 +342,7 @@ function edgeLabelPos(
   return { x: fx + halfW(from.type) + 6, y: fy - 6, anchor: "start" };
 }
 
-export default function UserFlowPanel({
+function UserFlowPanel({
   language,
   userFlows,
   scrollBy,
@@ -420,7 +422,7 @@ export default function UserFlowPanel({
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
         <PinnedTitleRow
-          number="02"
+         
           title="User Flow."
           rightContent={
             <>
@@ -757,3 +759,5 @@ export default function UserFlowPanel({
     </div>
   );
 }
+
+export default memo(UserFlowPanel);

@@ -15,7 +15,6 @@ interface DotNavConfig {
 }
 
 interface PinnedTitleRowProps {
-  number: string;
   title: string;
   /** panelTitleCompact 클래스 적용 여부 */
   compact?: boolean;
@@ -27,9 +26,8 @@ interface PinnedTitleRowProps {
   rightContent?: React.ReactNode;
 }
 
-/** 패널 상단 타이틀 행 — 번호 + 제목 + 선택적 점 네비게이션 */
+/** 패널 상단 타이틀 행 — 제목 + 선택적 점 네비게이션 */
 export default function PinnedTitleRow({
-  number,
   title,
   compact = false,
   animate = false,
@@ -80,7 +78,6 @@ export default function PinnedTitleRow({
   return (
     <div className={styles.pinnedTitleRow}>
       <div>
-        <span className={`${styles.panelNumber}${animateClass}`}>{number}</span>
         <h3 className={titleClasses}>{title}</h3>
       </div>
       {rightContent && !dotNav && (

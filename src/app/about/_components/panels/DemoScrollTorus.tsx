@@ -11,7 +11,9 @@ import {
   TORUS_MATERIAL,
   TORUS_SCALE,
 } from "@/constants/torus";
-import styles from "../AboutSection.module.css";
+import shared from "../AboutSection.module.css";
+import local from "./CodeHighlightsPanel.module.css";
+const styles = { ...shared, ...local };
 
 function MiniTorusScene() {
   const meshRef = useRef<THREE.Mesh>(null);
