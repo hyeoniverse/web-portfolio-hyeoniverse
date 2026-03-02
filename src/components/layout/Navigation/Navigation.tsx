@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -12,60 +11,11 @@ import { useSoundStore } from "@/stores/soundStore";
 import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { useMotionValue, useSpring } from "framer-motion";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
-import Logo from "@/components/common/Logo";
 import Button from "@/components/ui/Button";
+import MagneticWrapper from "./MagneticWrapper";
+import MobileMenu from "./MobileMenu";
 import styles from "./Navigation.module.css";
-
-function MagneticWrapper({
-  children,
-  strength = 0.4,
-  radius = 80,
-  className,
-}: {
-  children: React.ReactNode;
-  strength?: number;
-  radius?: number;
-  className?: string;
-}) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 150, damping: 15 });
-  const springY = useSpring(y, { stiffness: 150, damping: 15 });
-
-  useEffect(() => {
-    const el = wrapperRef.current;
-    if (!el) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
-      const restCenterX = rect.left - springX.get() + rect.width / 2;
-      const restCenterY = rect.top - springY.get() + rect.height / 2;
-      const deltaX = e.clientX - restCenterX;
-      const deltaY = e.clientY - restCenterY;
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-      if (distance < radius) {
-        x.set(deltaX * strength);
-        y.set(deltaY * strength);
-      } else {
-        x.set(0);
-        y.set(0);
-      }
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [x, y, springX, springY, strength, radius]);
-
-  return (
-    <motion.div ref={wrapperRef} style={{ x: springX, y: springY }} className={className}>
-      {children}
-    </motion.div>
-  );
-}
 
 const navItems = [
   { key: "works", href: "/works" },
@@ -616,89 +566,20 @@ export default function Navigation() {
       </div>
 
       {/* 메뉴 서랍 (clip-path, ContactDrawer pattern) */}
-      {menuMounted && showMenu &&
-        createPortal(
-          <div
-            className={`${styles.menuClipWrapper} ${menuClipOpen ? styles.menuClipOpen : ""}`}
-          >
-            <div
-              className={styles.menuBackdrop}
-              onClick={() => setIsMenuOpen(false)}
-            />
-            <div className={styles.menuDrawer}>
-              {/* Header: logo center */}
-              <div className={styles.menuHeader} onClick={() => setIsMenuOpen(false)}>
-                <Logo variant="full" as="link" className={styles.menuLogo} />
-              </div>
-
-              {/* Close button — nav 햄버거와 동일한 우상단 위치 + magnetic */}
-              <MagneticWrapper strength={0.5} radius={50} className={styles.menuCloseBtn}>
-                <button
-                  className={styles.menuCloseBtnInner}
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-label="Close menu"
-                >
-                  <span className={styles.menuCloseDots}>
-                    <span className={styles.menuCloseDot} />
-                    <span className={styles.menuCloseDot} />
-                    <span className={styles.menuCloseDot} />
-                    <span className={styles.menuCloseDot} />
-                    <span className={styles.menuCloseDot} />
-                    <span className={styles.menuCloseDot} />
-                    <span className={styles.menuCloseDot} />
-                    <span className={styles.menuCloseDot} />
-                    <span className={styles.menuCloseDot} />
-                  </span>
-                </button>
-              </MagneticWrapper>
-
-              <nav className={styles.menuNav}>
-                {(isAdminPage ? adminMenuItems : menuItems).map((item) => {
-                  if (!item.href) {
-                    return (
-                      <button
-                        key={item.key}
-                        className={`${styles.menuLink} glith-on-hover`}
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          if (isAdminPage) {
-                            handleLogout();
-                          } else {
-                            openForm();
-                          }
-                        }}
-                      >
-                        {isAdminPage ? (item as typeof adminMenuItems[number]).label : t(`nav.${item.key}`)}
-                      </button>
-                    );
-                  }
-                  return (
-                    <Link
-                      key={item.key}
-                      href={item.href}
-                      className={`${styles.menuLink} glith-on-hover ${pathname === item.href || pathname.startsWith(item.href + "/") ? styles.menuLinkActive : ""}`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {isAdminPage ? (item as typeof adminMenuItems[number]).label : t(`nav.${item.key}`)}
-                    </Link>
-                  );
-                })}
-              </nav>
-
-              {/* Footer: email */}
-              <div className={styles.menuFooter}>
-                <span className={styles.menuFooterLabel}>Say Hi!</span>
-                <a
-                  href={`mailto:${siteConfig.contact.email}`}
-                  className={styles.menuFooterEmail}
-                >
-                  {siteConfig.contact.email}
-                </a>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
+      <MobileMenu
+        isOpen={isMenuOpen}
+        showMenu={showMenu}
+        menuClipOpen={menuClipOpen}
+        menuMounted={menuMounted}
+        pathname={pathname}
+        isAdminPage={isAdminPage}
+        menuItems={isAdminPage ? adminMenuItems : menuItems}
+        contactEmail={siteConfig.contact.email}
+        t={t}
+        onClose={() => setIsMenuOpen(false)}
+        onContactOpen={openForm}
+        onLogout={handleLogout}
+      />
     </nav>
   );
 }

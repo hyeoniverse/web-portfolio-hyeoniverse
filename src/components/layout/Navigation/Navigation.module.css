@@ -176,7 +176,6 @@
   letter-spacing: 0.02em;
   white-space: nowrap;
   pointer-events: auto;
-  cursor: pointer;
   animation: soundTipIn 0.4s var(--ease-material) both;
   z-index: 100;
 }
@@ -657,11 +656,6 @@
 
 .navAdmin {
   /* mix-blend-mode: difference 유지 */
-}
-
-.navAdmin .navCenter {
-  position: static;
-  transform: none;
 }
 
 /* Admin email */
