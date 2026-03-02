@@ -119,19 +119,16 @@ function applyPresetColors(
   }
 }
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+const sectionVariants = {
+  hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
     y: 0,
     transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const },
   },
 };
+
+const viewportOpts = { once: true, amount: 0.15 as const };
 
 // ─── Color Data ───
 const brandColors = [
@@ -379,9 +376,9 @@ export default function DesignSystemPage() {
 
       {/* ─── Main Content ─── */}
       <div className={styles.main}>
-        <motion.div className={styles.container} variants={containerVariants} initial="hidden" animate="visible">
+        <motion.div className={styles.container} initial="visible" animate="visible">
           {/* Header */}
-          <motion.div className={styles.header} variants={itemVariants}>
+          <motion.div className={styles.header} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <Button
               variant="outline"
               size="sm"
@@ -396,15 +393,15 @@ export default function DesignSystemPage() {
               Back
             </Button>
           </motion.div>
-          <motion.div variants={itemVariants}>
+          <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h1 className={styles.title}>Design System</h1>
           </motion.div>
-          <motion.div variants={itemVariants}>
+          <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <p className={styles.subtitle}>Raw Tokens → Semantic Tokens → Context Variables</p>
           </motion.div>
 
           {/* ─── Preset Bar ─── */}
-          <motion.div className={styles.presetBar} variants={itemVariants}>
+          <motion.div className={styles.presetBar} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <span className={styles.presetBarLabel}>Presets</span>
             {THEME_PRESETS.map((p, i) => (
               <button
@@ -420,7 +417,7 @@ export default function DesignSystemPage() {
           </motion.div>
 
           {/* ─── Colors ─── */}
-          <motion.section id="colors" ref={setSectionRef("colors")} className={styles.section} variants={itemVariants}>
+          <motion.section id="colors" ref={setSectionRef("colors")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Colors</h2>
             <p className={styles.sectionSub}>Brand</p>
             <div className={styles.brandRow}>
@@ -443,7 +440,7 @@ export default function DesignSystemPage() {
           </motion.section>
 
           {/* ─── Alpha Variants ─── */}
-          <motion.section id="alpha" ref={setSectionRef("alpha")} className={styles.section} variants={itemVariants}>
+          <motion.section id="alpha" ref={setSectionRef("alpha")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Alpha Variants</h2>
             <p className={styles.sectionSub}>Accent Alpha</p>
             <div className={styles.alphaRow}>
@@ -466,7 +463,7 @@ export default function DesignSystemPage() {
           </motion.section>
 
           {/* ─── Semantic Colors ─── */}
-          <motion.section id="semantic" ref={setSectionRef("semantic")} className={styles.section} variants={itemVariants}>
+          <motion.section id="semantic" ref={setSectionRef("semantic")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Semantic Colors</h2>
             <div className={styles.semanticGrid}>
               {semanticColors.map((c) => (
@@ -482,7 +479,7 @@ export default function DesignSystemPage() {
           </motion.section>
 
           {/* ─── Typography ─── */}
-          <motion.section id="typography" ref={setSectionRef("typography")} className={styles.section} variants={itemVariants}>
+          <motion.section id="typography" ref={setSectionRef("typography")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Typography</h2>
 
             <p className={styles.sectionSub}>Variants</p>
@@ -520,7 +517,7 @@ export default function DesignSystemPage() {
           </motion.section>
 
           {/* ─── Spacing ─── */}
-          <motion.section id="spacing" ref={setSectionRef("spacing")} className={styles.section} variants={itemVariants}>
+          <motion.section id="spacing" ref={setSectionRef("spacing")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Spacing</h2>
             <div className={styles.spacingRow}>
               {spacingScale.map((s) => (
@@ -534,20 +531,24 @@ export default function DesignSystemPage() {
           </motion.section>
 
           {/* ─── Radius ─── */}
-          <motion.section id="radius" ref={setSectionRef("radius")} className={styles.section} variants={itemVariants}>
+          <motion.section id="radius" ref={setSectionRef("radius")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Border Radius</h2>
             <div className={styles.radiusGrid}>
-              {radiusScale.map((r) => (
-                <div key={r.name} className={styles.radiusItem}>
-                  <div className={styles.radiusBox} style={{ borderRadius: `var(${r.var})` }} />
-                  <span className={styles.radiusLabel}>{r.name}<br />{r.value}</span>
-                </div>
-              ))}
+              {radiusScale.map((r) => {
+                const px = parseInt(r.value, 10);
+                const size = r.name === "circle" || r.name === "capsule" ? 96 : Math.max(64, px * 3);
+                return (
+                  <div key={r.name} className={styles.radiusItem}>
+                    <div className={styles.radiusBox} style={{ borderRadius: `var(${r.var})`, width: size, height: size }} />
+                    <span className={styles.radiusLabel}>{r.name}<br />{r.value}</span>
+                  </div>
+                );
+              })}
             </div>
           </motion.section>
 
           {/* ─── Shadows ─── */}
-          <motion.section id="shadows" ref={setSectionRef("shadows")} className={styles.section} variants={itemVariants}>
+          <motion.section id="shadows" ref={setSectionRef("shadows")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Shadows</h2>
             <div className={styles.shadowGrid}>
               {shadowScale.map((s) => (
@@ -560,7 +561,7 @@ export default function DesignSystemPage() {
           </motion.section>
 
           {/* ─── Motion ─── */}
-          <motion.section id="motion" ref={setSectionRef("motion")} className={styles.section} variants={itemVariants}>
+          <motion.section id="motion" ref={setSectionRef("motion")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Motion</h2>
             <p className={styles.sectionSub}>Duration</p>
             <div className={styles.motionGrid}>
@@ -586,7 +587,7 @@ export default function DesignSystemPage() {
           </motion.section>
 
           {/* ─── Z-index ─── */}
-          <motion.section id="z-index" ref={setSectionRef("z-index")} className={styles.section} variants={itemVariants}>
+          <motion.section id="z-index" ref={setSectionRef("z-index")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Z-Index</h2>
             <div className={styles.zStack}>
               {zScale.map((z, i) => (
@@ -599,7 +600,7 @@ export default function DesignSystemPage() {
           </motion.section>
 
           {/* ─── Components ─── */}
-          <motion.section id="components" ref={setSectionRef("components")} className={styles.section} variants={itemVariants}>
+          <motion.section id="components" ref={setSectionRef("components")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
             <h2 className={styles.sectionTitle}>Components</h2>
 
             {/* Logo */}
