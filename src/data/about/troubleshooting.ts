@@ -32,33 +32,33 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
-    problem: { ko: "TypeScript useRef 타입 에러", en: "TypeScript useRef Type Error" },
+    problem: { ko: "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴", en: "CSS Module Hash Collision Collapsing Desktop Layout" },
     cause: {
-      ko: "타이머 ID를 저장하기 위해 React의 useRef를 사용했는데, **초기값을 넣지 않았더니** TypeScript가 이 변수를 **\"읽기 전용\"으로 인식**해버렸습니다. 이후 새 값을 넣으려 하면 **\"수정할 수 없는 속성입니다\"**라는 에러가 발생했습니다.",
-      en: "I used React's useRef to store a timer ID but **forgot to provide an initial value**. TypeScript then treated it as **read-only**, so when I tried to assign a new value, it threw a **\"cannot modify read-only property\"** error.",
+      ko: "About 페이지의 각 패널은 **공유 CSS Module과 로컬 CSS Module을 `{ ...shared, ...local }`로 병합**하여 사용합니다. ProcessPanel의 `.processBody`는 공유 CSS에서 `display: contents`로 정의되어 있었는데, 로컬 CSS에서 **모바일 미디어 쿼리 안에서만** 같은 이름의 클래스를 정의했습니다. 문제는 CSS Module이 **파일별로 다른 해시를 생성**하기 때문에, 스프레드 병합 시 **로컬 해시가 공유 해시를 덮어써** 데스크톱에서 `display: contents`가 적용되지 않은 것이었습니다.",
+      en: "About page panels merge shared and local CSS Modules via `{ ...shared, ...local }`. ProcessPanel's `.processBody` was defined as `display: contents` in shared CSS, but local CSS only defined the **same class name inside a mobile media query**. Since CSS Modules generate **different hashes per file**, the spread merge caused the **local hash to override the shared hash**, losing `display: contents` on desktop.",
     },
     solution: {
-      ko: "**초기값(undefined)을 명시적으로 전달**했습니다. 초기값이 있으면 TypeScript가 **\"수정 가능한 변수\"로 인식**하여, 이후 자유롭게 새 값을 넣을 수 있게 됩니다.",
-      en: "Added an **explicit initial value (undefined)**. With an initial value present, TypeScript recognizes it as a **\"mutable variable\"**, allowing new values to be freely assigned afterward.",
+      ko: "로컬 CSS 파일에 **미디어 쿼리 바깥에서도 `.processBody { display: contents }`를 명시적으로 선언**하여, 로컬 해시가 적용되더라도 데스크톱에서 올바른 스타일이 유지되도록 했습니다.",
+      en: "Added an **explicit `.processBody { display: contents }` rule outside the media query** in the local CSS file, ensuring the correct style is maintained on desktop even when the local hash takes over.",
     },
     keyInsight: {
-      ko: "React의 useRef는 **초기값을 넣었느냐 안 넣었느냐에 따라 동작이 달라집니다**. 값을 저장하는 용도로 쓸 때는 **반드시 초기값을 넘겨야** 나중에 수정할 수 있습니다.",
-      en: "React's useRef **behaves differently based on whether you provide an initial value**. When using it to store values, you **must provide an initial value** to be able to modify it later.",
+      ko: "`{ ...shared, ...local }` 패턴에서 **같은 클래스명이 양쪽에 존재하면 로컬이 무조건 이깁니다**. 로컬에서 미디어 쿼리 안에서만 정의해도 해시 자체가 달라지므로, **데스크톱 기본 스타일까지 로컬에 복제**해야 합니다.",
+      en: "In the `{ ...shared, ...local }` pattern, **if the same class name exists in both, local always wins**. Even defining it only inside a media query changes the hash, so you must **replicate the desktop default style in local CSS** too.",
     },
   },
   {
-    problem: { ko: "GSAP ScrollTrigger 수평 무한 스크롤 구현", en: "Implementing Horizontal Infinite Scroll with GSAP ScrollTrigger" },
+    problem: { ko: "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀", en: "Global Transition Shorthand Overriding Component Transitions" },
     cause: {
-      ko: "GSAP으로 가로 스크롤을 만들었지만, **스크롤할 수 있는 범위에 끝이 있어서** 끝에 도달하면 더 진행할 수 없었습니다. 위치를 순환시키는 방법도 시도했지만, 끝에 닿는 순간 **갑자기 처음으로 되돌아가는 듯한 끊김**이 보였습니다.",
-      en: "I built horizontal scroll with GSAP, but the **scrollable range had a fixed end** — once you reached it, you couldn't go further. Trying to loop positions caused a **visible snap back to the start** when hitting the boundary.",
+      ko: "테마 전환을 위해 `html[data-theme-ready] *`에 **transition shorthand**를 걸어 `background-color, border-color, color` 등을 부드럽게 전환했습니다. 그런데 이 선택자의 특이성이 `(0,1,1)`로, 단일 클래스 `(0,1,0)`보다 높아서 **컴포넌트의 `max-height`, `opacity`, `transform` 전환이 모두 무시**되었습니다. `transition`이 shorthand이기 때문에 **값을 통째로 교체**한 것이 원인이었습니다.",
+      en: "For theme switching, I set a **transition shorthand** on `html[data-theme-ready] *` to smoothly transition `background-color, border-color, color`, etc. But its specificity `(0,1,1)` beats single-class selectors `(0,1,0)`, and since `transition` is a shorthand, it **completely replaced** component-level transitions for `max-height`, `opacity`, `transform`, etc.",
     },
     solution: {
-      ko: "스크롤 가능 거리를 실제 콘텐츠 폭의 **10배로 넉넉하게** 설정한 뒤, 화면에 보이는 위치만 **콘텐츠 폭 단위로 되감아** 순환시켰습니다. 사용자는 끝에 도달할 일 없이 계속 스크롤하며, 시각적으로는 **콘텐츠가 무한히 반복**됩니다.",
-      en: "Set the scrollable distance to **10 times the actual content width**, then silently **looped the visible position** within that range. Users never reach the end and keep scrolling while **content visually repeats infinitely**.",
+      ko: "컴포넌트에서 글로벌 규칙을 이길 수 있도록 **복합 선택자 `(0,2,0)`**을 사용했습니다. `.parent .child { transition: ... }` 형태로 특이성을 올려 글로벌 shorthand를 안전하게 오버라이드합니다.",
+      en: "Used **compound selectors `(0,2,0)`** in components to outweigh the global rule. Patterns like `.parent .child { transition: ... }` safely override the global shorthand.",
     },
     keyInsight: {
-      ko: "무한 스크롤의 핵심은 스크롤 자체를 되감는 것이 아니라, **보이는 화면만 순환**시키는 것입니다. 사용자의 스크롤 흐름을 끊지 않으면서 무한한 느낌을 줄 수 있습니다.",
-      en: "The key to infinite scroll isn't resetting the scroll itself, but **looping only what's visible**. This creates an infinite feel without disrupting the user's natural scroll flow.",
+      ko: "CSS `transition` shorthand는 **나열하지 않은 속성의 전환까지 초기화**합니다. 글로벌에 `*` 전환을 걸 때는 shorthand 대신 **`transition-property, transition-duration`을 개별 지정**하거나, 컴포넌트 쪽 특이성을 반드시 높여야 합니다.",
+      en: "CSS `transition` shorthand **resets transitions for unlisted properties too**. When applying `*` transitions globally, either use **individual `transition-property` and `transition-duration`** instead of shorthand, or ensure component selectors have higher specificity.",
     },
   },
   {
