@@ -30,21 +30,8 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // 세션 갱신
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // /admin (login 제외) 접근 시 인증 필수
-  if (
-    !user &&
-    request.nextUrl.pathname.startsWith("/admin") &&
-    !request.nextUrl.pathname.startsWith("/admin/login")
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
-  }
+  // 세션 갱신 (쿠키 리프레시 목적 — 반환값 사용하지 않음)
+  await supabase.auth.getUser();
 
   return supabaseResponse;
 }
