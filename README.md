@@ -37,7 +37,7 @@
 - **Works Admin CRUD**: Supabase DB 기반 포트폴리오 작업물 관리. Admin에서 작업물 생성/수정/삭제, 발행 토글, 정렬 순서 변경 가능. 단일 콘텐츠 에디터(Markdown/Rich Text 전환) + 템플릿 삽입 방식으로 프로젝트 기술서 작성. 템플릿 8개 섹션: Overview, Background, Key Features, Architecture, Challenges, Solutions, Results, Lessons Learned. 한/영 이중 언어, 기술 스택, 갤러리 이미지, 팀 멤버(이름·역할 한/영·URL) 지원. 상세 페이지에서 콘텐츠 내 `##` 헤딩을 자동 파싱하여 TOC 생성. DB 미연결 시 정적 데이터(`data/projects.ts`)로 자동 fallback
 - **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. Settings > Content > Profile 서브탭에서 관리. `site_settings` 테이블에 JSONB로 저장. DB 미연결 시 정적 데이터 fallback
 - **방문자 통계**: IP+날짜 기반 일간·누적 방문자 카운터. Footer에 실시간 표시
-- **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Next.js Middleware로 `/admin` 경로 보호. 네비게이션에 Admin 배지 + 관리자 이메일 표시
+- **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Layout 레벨 인증으로 `/admin` 경로 보호, 미인증 시 접근 거부 페이지 표시. 로그인 페이지 i18n 지원, 이메일 기억 기능, Input/Checkbox 공통 컴포넌트 활용. 네비게이션에 Admin 배지 + 관리자 이메일 표시. 삭제 시 제목 입력 확인 모달, 발행 상태 토글 체크박스
 - **사이트 콘텐츠 관리**: Admin Settings에서 5개 탭(General, Content, Appearance, Services, Account)으로 관리. Content 탭은 사이드 네비게이션으로 Home/Profile/About/Posts 서브탭 분리. Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. Services 탭에서 API 키(환경변수)를 DB에 저장·관리하고, 번역 프로바이더(DeepL/Google/Gemini) 선택 가능. Account 탭에서 관리자 이메일/비밀번호 변경 지원(비밀번호 확인 모달). Settings 저장 시 BroadcastChannel로 다른 탭 자동 새로고침. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
 - **자동 번역**: 에디터에서 언어 전환 시 대상 언어가 비어있으면 자동 번역. DeepL API Free(기본), Google Cloud Translation, Gemini 2.0 Flash 중 Settings에서 선택. 재번역 버튼으로 전체/개별 필드 재번역 가능. 번역 중 언어 토글 차단으로 중복 요청 방지
 - **카테고리 관리**: Posts에서 카테고리 삭제 시 소속 포스트를 일괄/개별 재할당하는 모달. 새 카테고리 생성도 지원
@@ -54,7 +54,7 @@
 | **입력 검증** | UUID 포맷 검증, 길이 제한, 제어문자 제거, 이메일 포맷 검증 | 모든 공개 API |
 | **인증** | 댓글 이중 인증 (commenter_hash + bcrypt password), Supabase Auth (admin) | 댓글 수정/삭제, 관리자 |
 | **RLS** | Supabase Row Level Security 정책 | 모든 테이블 |
-| **경로 보호** | Next.js Middleware 세션 확인 | `/admin/*` |
+| **경로 보호** | Layout 레벨 Supabase Auth 세션 확인 + 접근 거부 페이지 | `/admin/*` |
 | **중복 방지** | IP 기반 UNIQUE 제약조건 | 좋아요, 방문자 통계 |
 | **비밀번호 보안** | bcrypt (salt round 10), 72바이트 제한 | 댓글 비밀번호 |
 
@@ -122,19 +122,19 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 
 - **Works**: 가로 스크롤 갤러리에서 프로젝트를 탐색하고, 상세 페이지에서 IP 기반 좋아요를 남길 수 있습니다
 - **Posts**: 태그/검색으로 블로그 글을 필터링할 수 있습니다. 카테고리를 선택하면 해당 카테고리의 시리즈가 책 모양 카드로 표시되며, 시리즈를 클릭하면 소속 포스트만 필터링됩니다. 상세 페이지에서 좋아요와 게스트 댓글(이중 인증: 브라우저 UUID + 비밀번호)을 남길 수 있으며, 시리즈 소속 글에서는 이전/다음 글 네비게이션이 표시됩니다
-- **About**: 가로 스크롤로 14개 패널(프로젝트 개요, 유저 플로우, 아키텍처, 기능, 디자인 컨셉, 개발 프로세스, 기술 스택, 백엔드, ERD, 코드 하이라이트, 트러블슈팅)을 순회합니다. UserFlow 패널은 6개 플로우를 탭+SVG 다이어그램으로 시각화, ERD 패널은 DB 테이블 관계도를 인터랙티브하게 표시
+- **About**: 가로 스크롤로 14개 패널(프로젝트 개요, 유저 플로우, 아키텍처, 기능, 디자인 컨셉, 개발 프로세스, 기술 스택, 백엔드, ERD, 코드 하이라이트, 트러블슈팅)을 순회합니다. UserFlow 패널은 9개 플로우(Visitor, Posts, Works, Profile, Contact, Comment, Admin/Settings, Admin/Settings/Appearance, Admin/Posts·Works)를 탭+SVG 다이어그램으로 시각화, ERD 패널은 DB 테이블 관계도를 인터랙티브하게 표시
 
 ### 관리자 플로우
 
 ```
-/admin 직접 접속 → Supabase Auth 로그인 → 대시보드
+/admin 직접 접속 → Supabase Auth 로그인 → Settings 리다이렉트
 → 포스트 작성(Markdown/Rich Text 전환) → 커버 이미지 선택(프리셋/Unsplash/AI) → 시리즈 선택(선택사항) → 발행
 → 작업물 관리(/admin/works) — 생성, 수정, 삭제, 발행/비공개 전환, 정렬 순서 변경
 → 사이트 설정(/admin/settings) — General(브랜드, SEO), Content(Home/Profile/About/Posts 서브탭), Appearance(테마·타이포그래피), Services(API 키 관리), Account(이메일/비밀번호 변경)
 ```
 
 - 로그인 버튼 없이 URL 직접 접속 방식
-- Next.js Middleware로 `/admin` 경로 보호, Supabase Auth 세션 기반 인증
+- Layout 레벨 Supabase Auth 세션 검증 — 미인증 시 `/admin/denied` 접근 거부 페이지로 리다이렉트
 
 ## 시작하기
 
@@ -269,7 +269,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 1. `/admin/login` 접속
 2. Supabase에서 생성한 이메일/비밀번호 입력
-3. 로그인 성공 → `/admin/posts` (대시보드)로 리다이렉트
+3. 로그인 성공 → `/admin/settings` (설정)으로 리다이렉트
 
 **로그인 후 사용 가능한 기능:**
 
@@ -370,12 +370,16 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   → POST /api/admin/auth
     → supabase.auth.signInWithPassword()
     → 세션 쿠키 설정
-  → /admin/posts로 리다이렉트
+  → /admin/settings로 리다이렉트
 
 /admin/* 접속 시
-  → Next.js Middleware가 세션 확인
-  → 세션 없으면 → /admin/login으로 리다이렉트
+  → Dashboard layout에서 세션 확인
+  → 세션 없으면 → /admin/denied (접근 거부 페이지)
   → 세션 있으면 → 정상 접근
+
+/admin/login 접속 시
+  → Auth layout에서 세션 확인
+  → 이미 로그인 → /admin/settings로 리다이렉트
 ```
 
 > **포인트**: 일반 방문자는 `/posts`에서 글 읽기 + 댓글만 가능하고, 관리자(본인)만 `/admin/login`을 직접 입력해서 접속합니다. 포트폴리오 사이트이므로 로그인 UI를 노출하지 않습니다.
