@@ -12,7 +12,6 @@
   background: var(--color-neutral-alpha-5);
   color: var(--text-tertiary);
   border-radius: var(--radius-circle);
-  cursor: pointer;
   transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 

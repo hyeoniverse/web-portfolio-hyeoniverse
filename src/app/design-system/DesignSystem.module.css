@@ -122,7 +122,6 @@
   border: 2px solid transparent;
   background: transparent;
   padding: 0;
-  cursor: pointer;
   transition: border-color var(--duration-fast) ease, transform var(--duration-fast) ease;
 }
 
@@ -536,17 +535,17 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--color-accent-alpha-30);
+  border: 1px solid var(--color-neutral-alpha-20);
   border-radius: var(--radius-circle);
-  background: var(--color-accent-alpha-5);
-  color: var(--color-accent);
-  cursor: pointer;
-  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease;
+  background: var(--color-neutral-alpha-5);
+  color: var(--text-tertiary);
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 
 .replayBtn:hover {
-  background: var(--color-accent-alpha-15);
-  border-color: var(--color-accent-alpha-50);
+  background: var(--color-neutral-alpha-10);
+  border-color: var(--color-neutral-alpha-40);
+  color: var(--text-primary);
 }
 
 /* Slider row */
