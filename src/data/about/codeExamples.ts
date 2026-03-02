@@ -20,23 +20,27 @@ const delay = isHovered ? forwardDelay : reverseDelay;
 .charExiting { -webkit-text-stroke: 1px; } // stroke 유지`,
   },
   {
-    title: "Magnetic Hover Effect",
+    title: "SSR + ISR Server Component",
     description: {
-      ko: "커서를 버튼 근처로 가져가면 버튼이 **자석에 끌리듯 커서 쪽으로 살짝 이동**합니다. 커서와 버튼 중심 사이의 거리에 비례하여 움직이며, 커서가 멀어지면 **탄성 있게 원래 자리로 되돌아갑니다**.",
-      en: "Move your cursor near the button and it **slides toward you like a magnet**. The closer the cursor gets, the more the button follows. When you move away, it **bounces back to its original position** with a spring-like motion.",
+      ko: "블로그 목록과 상세 페이지를 **Server Component로 전환**하여 초기 데이터를 서버에서 렌더링합니다. 목록은 **60초마다 재검증(ISR)**하고, 상세 페이지는 빌드 시 **35개 이상의 정적 HTML을 미리 생성**합니다. 클라이언트에서 4개의 API를 순차 호출하던 워터폴이 서버에서 **`Promise.all` 병렬 fetch로 대체**되어 TTFB가 크게 개선됩니다.",
+      en: "Blog list and detail pages are converted to **Server Components** that render initial data on the server. The list **revalidates every 60 seconds (ISR)**, while detail pages **pre-generate 35+ static HTML files** at build time. The client-side waterfall of 4 sequential API calls is replaced by **`Promise.all` parallel fetch on the server**, significantly improving TTFB.",
     },
     language: "javascript",
-    code: `const x = useMotionValue(0);
-const y = useMotionValue(0);
-const springX = useSpring(x, { stiffness: 150, damping: 15 });
-const springY = useSpring(y, { stiffness: 150, damping: 15 });
+    code: `// 서버 컴포넌트 — 빌드 시 정적 생성 + ISR 재검증
+export const revalidate = 300;
 
-const onMouseMove = (e) => {
-  const rect = e.currentTarget.getBoundingClientRect();
-  x.set((e.clientX - (rect.left + rect.width / 2)) * 0.35);
-  y.set((e.clientY - (rect.top + rect.height / 2)) * 0.35);
-};
-const onMouseLeave = () => { x.set(0); y.set(0); };`,
+export async function generateStaticParams() {
+  const slugs = await getAllPostSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
+
+export default async function PostDetailPage({ params }) {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
+  if (!post) notFound();
+  return <PostDetailClient post={post} />;
+}
+// → 클라이언트는 이미 렌더된 HTML을 받아 즉시 표시`,
   },
   {
     title: "Infinite Scroll Wrapping",
@@ -60,32 +64,33 @@ while (scrollX < -oneSetWidth * 3) {
 }`,
   },
   {
-    title: "Dynamic Frame Grid",
+    title: "API Route Factory Pattern",
     description: {
-      ko: "3×3 CSS Grid에서 **호버한 셀이 커지고 나머지가 줄어드는** 반응형 레이아웃입니다. `grid-template-rows`와 `grid-template-columns`의 **fr 단위를 동적으로 변경**하여 호버된 행·열에 더 많은 공간을 할당합니다. CSS transition만으로 **부드러운 크기 재분배**가 이루어집니다.",
-      en: "A responsive layout where the **hovered cell expands while others shrink** in a 3×3 CSS Grid. By **dynamically changing fr units** of `grid-template-rows` and `grid-template-columns`, more space is allocated to the hovered row and column. Smooth **size redistribution** is achieved with CSS transitions alone.",
+      ko: "Post와 Work의 좋아요·댓글 API가 **테이블명·FK만 다를 뿐 로직이 동일**했습니다. `createLikeHandlers({ targetType })` 팩토리로 공통 로직을 추출하고, 각 route는 **옵션만 넘기는 5줄 래퍼**로 축소했습니다. 좋아요 route 2개 + 댓글 route 4개에서 **~630줄 → ~130줄**로 줄었습니다.",
+      en: "Post and Work like/comment APIs had **identical logic differing only in table names and FKs**. A `createLikeHandlers({ targetType })` factory extracts the shared logic, reducing each route to a **5-line wrapper** that just passes options. Six routes went from **~630 lines to ~130 lines**.",
     },
     language: "javascript",
-    code: `const GRID_SIZE = 12;
-const HOVER_SIZE = 6;
+    code: `// lib/api/likeHandler.ts — 팩토리 함수
+export function createLikeHandlers({ targetType, countSyncTable }) {
+  async function GET(request, context) {
+    const { id } = await context.params;
+    const [{ count }, { data: myLike }] = await Promise.all([
+      admin.from("likes").select("*", { count: "exact", head: true })
+        .eq("target_type", targetType).eq("target_id", id),
+      admin.from("likes").select("id")
+        .eq("target_type", targetType).eq("target_id", id).eq("ip", ip)
+        .maybeSingle(),
+    ]);
+    return jsonOk({ count: count ?? 0, liked: !!myLike });
+  }
+  async function POST(request, context) { /* toggle + countSync */ }
+  return { GET, POST };
+}
 
-const getSizes = (axis) => {
-  if (!hovered) return "4fr 4fr 4fr";
-  const idx = axis === "row" ? hovered.row : hovered.col;
-  const rest = (GRID_SIZE - HOVER_SIZE) / 2;
-  return [0, 1, 2]
-    .map((i) => (i === idx
-      ? \`\${HOVER_SIZE}fr\` : \`\${rest}fr\`))
-    .join(" ");
-};
-
-// Grid에 적용
-style={{
-  gridTemplateRows: getSizes("row"),
-  gridTemplateColumns: getSizes("col"),
-  transition: "grid-template-rows 0.4s ease,
-               grid-template-columns 0.4s ease",
-}}`,
+// posts/[id]/like/route.ts — 5줄 래퍼
+export const { GET, POST } = createLikeHandlers({
+  targetType: "post", countSyncTable: "posts",
+});`,
   },
   {
     title: "3D Scroll Torus (Lissajous Curve)",
