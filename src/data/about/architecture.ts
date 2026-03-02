@@ -160,10 +160,10 @@ export const projectStructure: StructureItem[] = [
     indent: 1,
   },
   {
-    path: "lib/supabase/",
+    path: "lib/",
     description: {
-      ko: "Supabase 클라이언트 — browser, server, admin (3-tier)",
-      en: "Supabase clients — browser, server, admin (3-tier)",
+      ko: "서버 사이드 로직 — Supabase 클라이언트, API 공통 핸들러, Posts SSR 쿼리",
+      en: "Server-side logic — Supabase clients, API shared handlers, Posts SSR queries",
     },
     indent: 1,
   },
