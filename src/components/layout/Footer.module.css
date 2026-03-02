@@ -195,15 +195,9 @@
   padding: var(--spacing-2xl) 4rem var(--spacing-xl);
 }
 
-.visitsCentered {
-  display: flex;
-  justify-content: center;
-}
-
 .bottomMinimal {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   color: var(--text-accent-alt);
 }
 

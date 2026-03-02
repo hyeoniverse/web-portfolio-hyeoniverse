@@ -32,6 +32,7 @@ export default function PostsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
+  const [popularIds, setPopularIds] = useState<Set<string>>(new Set());
   const [showTags, setShowTags] = useState(false);
   const [showAllSeries, setShowAllSeries] = useState(false);
 
@@ -86,6 +87,13 @@ export default function PostsPage() {
             .map(([tag, count]) => ({ tag, count }))
         );
         setExtraCategories(Array.from(categorySet));
+
+        // 인기 포스트 상위 5개 ID 추출
+        const sorted = [...(data.posts ?? [])]
+          .filter((p: Post) => p.view_count > 0)
+          .sort((a: Post, b: Post) => b.view_count - a.view_count)
+          .slice(0, 5);
+        setPopularIds(new Set(sorted.map((p: Post) => p.id)));
       });
 
     fetch("/api/posts?pinned=true&limit=10")
@@ -185,13 +193,14 @@ export default function PostsPage() {
             pauseOnHover
             showArrows={pinnedPosts.length > 1}
             showDots={pinnedPosts.length > 1}
-            height={480}
+            height={420}
           >
             {pinnedPosts.map((post) => (
               <PostCard
                 key={post.id}
                 post={post}
                 variant="hero"
+                isHot={popularIds.has(post.id)}
                 onImgError={handleImgError}
                 imgError={imgErrors.has(post.id)}
               />
@@ -420,6 +429,7 @@ export default function PostsPage() {
                     <PostCard
                       post={post}
                       variant={i === 0 ? "featured" : "standard"}
+                      isHot={popularIds.has(post.id)}
                       onImgError={handleImgError}
                       imgError={imgErrors.has(post.id)}
                     />

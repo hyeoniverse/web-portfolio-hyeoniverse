@@ -26,7 +26,6 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
     const ctaLabel = ko ? cfg.cta.label_ko : cfg.cta.label;
     const ctaTitle = ko ? cfg.cta.title_ko : cfg.cta.title;
     const ctaButton = ko ? cfg.cta.buttonText_ko : cfg.cta.buttonText;
-    const copyright = ko ? cfg.footer.copyright_ko : cfg.footer.copyright;
 
     return (
       <Section fullHeight center clipOverflow className={styles.cta} ref={ref}>
@@ -81,12 +80,6 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
           </motion.div>
         </div>
 
-        <div className={styles.footer}>
-          <a href={`mailto:${cfg.contact.email}?subject=Hello!`}>
-            {cfg.contact.email}
-          </a>
-          <span>{copyright}</span>
-        </div>
       </Section>
     );
   },

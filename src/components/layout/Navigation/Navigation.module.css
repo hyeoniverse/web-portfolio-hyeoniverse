@@ -659,6 +659,11 @@
   /* mix-blend-mode: difference 유지 */
 }
 
+.navAdmin .navCenter {
+  position: static;
+  transform: none;
+}
+
 /* Admin email */
 .adminEmail {
   font-family: var(--font-space-grotesk), sans-serif;

@@ -4,15 +4,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 2rem;
   width: 100%;
   height: 100%;
+}
+
+/* ── 3D Preview ── */
+.preview {
+  flex-shrink: 0;
+  width: min(50vh, 380px);
+  aspect-ratio: 3 / 4;
 }
 
 /* ── Info Area ── */
 .info {
   display: flex;
   flex-direction: column;
-  max-width: 36rem;
+  max-width: 30rem;
 }
 
 .nameLabel {
@@ -61,58 +69,101 @@
   color: var(--text-secondary);
 }
 
-/* ── Expression Buttons ── */
+/* ── Expression Cards ── */
 .exprBar {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
   margin-top: 2rem;
 }
 
-.exprBtn {
+.exprCard {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.35em;
-  padding: 0.45em 1.2em;
+  gap: var(--spacing-xs);
+  flex: 1;
+  padding: var(--spacing-md) var(--spacing-sm);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-lg);
   background: transparent;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--text-secondary);
   cursor: pointer;
+  text-align: center;
 }
 
 /* compound selector → beats global theme transition (0,1,1) */
-.exprBar .exprBtn {
+.exprBar .exprCard {
   transition:
     border-color var(--duration-base) var(--ease-material),
-    color var(--duration-base) var(--ease-material);
+    background-color var(--duration-base) var(--ease-material);
 }
 
-.exprBar .exprBtn:hover {
-  border-color: var(--text-primary);
+.exprBar .exprCard:hover {
+  border-color: var(--text-muted);
+  background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+}
+
+.exprCardActive {
+  border-color: var(--color-accent) !important;
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent) !important;
+}
+
+/* Face SVG area */
+.exprFace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 40px;
+}
+
+/* Label */
+.exprLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
 
-.exprBtnActive {
-  border-color: var(--color-accent);
+.exprCardActive .exprLabel {
   color: var(--color-accent);
 }
 
-.exprBar .exprBtnActive:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-}
-
-.exprIcon {
-  font-size: 0.9em;
-  line-height: 1;
+/* Description */
+.exprDesc {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  line-height: 1.5;
+  color: var(--text-tertiary);
 }
 
 /* ── Responsive ── */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .preview {
+    width: min(60vw, 260px);
+  }
+
+  .info {
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 480px) {
-  .exprBtn {
-    padding: 0.35em 0.9em;
-    font-size: 0.75rem;
+  .exprCard {
+    padding: var(--spacing-sm) var(--spacing-xs);
+  }
+
+  .exprFace {
+    width: 44px;
+    height: 32px;
+  }
+
+  .exprFace svg {
+    width: 36px;
+    height: 24px;
   }
 }

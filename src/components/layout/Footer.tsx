@@ -36,6 +36,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   if (isHidden) return null;
 
   const isMinimal = variant === "minimal";
+  const isAdmin = pathname.startsWith("/admin");
 
   const visitsBlock = visits && (
     <div className={styles.visits}>
@@ -70,22 +71,34 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
     <footer className={cn(styles.footer, isMinimal && styles.footerMinimal, className)}>
       <div className={styles.content}>
         {isMinimal ? (
-          <>
-            <div className={styles.visitsCentered}>{visitsBlock}</div>
-            <div className={styles.bottomMinimal}>
-              {emailLink}
+          <div className={styles.bottomMinimal}>
+            {emailLink}
+            <div className={styles.bottomRight}>
+              {visitsBlock}
               {copyrightText}
             </div>
-          </>
+          </div>
         ) : (
           <>
             <div className={styles.links}>
-              <Link href="/works" className={pathname.startsWith("/works") ? styles.activeLink : ""}>{t("nav.works")}</Link>
-              <Link href="/posts" className={pathname.startsWith("/posts") ? styles.activeLink : ""}>{t("nav.posts")}</Link>
-              <Link href="/profile" className={pathname.startsWith("/profile") ? styles.activeLink : ""}>{t("nav.profile")}</Link>
-              <Link href="/about" className={pathname.startsWith("/about") ? styles.activeLink : ""}>{t("nav.about")}</Link>
-              <span className={styles.divider}>✧</span>
-              <Link href="/privacy" className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
+              {isAdmin ? (
+                <>
+                  <Link href="/admin/settings" className={pathname.startsWith("/admin/settings") ? styles.activeLink : ""}>Settings</Link>
+                  <Link href="/admin/works" className={pathname.startsWith("/admin/works") ? styles.activeLink : ""}>Works</Link>
+                  <Link href="/admin/posts" className={pathname.startsWith("/admin/posts") ? styles.activeLink : ""}>Posts</Link>
+                  <span className={styles.divider}>✧</span>
+                  <Link href="/">Home</Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/works" className={pathname.startsWith("/works") ? styles.activeLink : ""}>{t("nav.works")}</Link>
+                  <Link href="/posts" className={pathname.startsWith("/posts") ? styles.activeLink : ""}>{t("nav.posts")}</Link>
+                  <Link href="/profile" className={pathname.startsWith("/profile") ? styles.activeLink : ""}>{t("nav.profile")}</Link>
+                  <Link href="/about" className={pathname.startsWith("/about") ? styles.activeLink : ""}>{t("nav.about")}</Link>
+                  <span className={styles.divider}>✧</span>
+                  <Link href="/privacy" className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
+                </>
+              )}
             </div>
             <div className={styles.bottom}>
               {emailLink}

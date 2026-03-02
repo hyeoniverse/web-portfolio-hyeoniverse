@@ -7,6 +7,7 @@ import styles from "./PostCard.module.css";
 interface PostCardProps {
   post: Post;
   variant?: "featured" | "standard" | "hero";
+  isHot?: boolean;
   onImgError?: (id: string) => void;
   imgError?: boolean;
 }
@@ -14,6 +15,7 @@ interface PostCardProps {
 export default function PostCard({
   post,
   variant = "standard",
+  isHot,
   onImgError,
   imgError,
 }: PostCardProps) {
@@ -32,33 +34,45 @@ export default function PostCard({
 
   const cardClass = `${styles.card} ${isFeatured ? styles.featured : ""} ${isHero ? styles.hero : ""}`;
 
-  /* ── Hero variant: 풀스크린 배경 이미지 배너 ── */
+  /* ── Hero variant: 풀 블리드 이미지 + 하단 오버레이 ── */
   if (isHero) {
     return (
       <Link href={`/posts/${post.slug}`} className={cardClass}>
-        {/* 배경 이미지 */}
-        <div className={styles.heroBg}>
-          {showImage ? (
-            <Image
-              src={post.cover_image}
-              alt={post.title}
-              fill
-              sizes="100vw"
-              className={styles.image}
-              priority
-              onError={() => onImgError?.(post.id)}
-            />
-          ) : (
-            <div className={styles.placeholder} />
-          )}
-          <div className={styles.heroOverlay} />
-        </div>
+        {/* 풀 배경 이미지 */}
+        {showImage ? (
+          <Image
+            src={post.cover_image}
+            alt={post.title}
+            fill
+            sizes="100vw"
+            className={`${styles.image} ${styles.heroBgImg}`}
+            priority
+            onError={() => onImgError?.(post.id)}
+          />
+        ) : (
+          <div className={styles.heroPlaceholder} />
+        )}
 
-        {/* 콘텐츠 */}
+        {/* 하단 그라데이션 */}
+        <div className={styles.heroOverlay} />
+
+        {/* HOT 뱃지 */}
+        {isHot && (
+          <span className={styles.hotBadge}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M12 23c-3.866 0-7-3.134-7-7 0-2.2 1.1-4.1 2.5-5.5L9 9l1.5 3 3-5.5C14.5 4.5 16 2 16 2s1.5 2.5 2.5 5c.7 1.7 1.5 3.8 1.5 6 0 3.866-4.134 10-8 10z" />
+            </svg>
+            HOT
+          </span>
+        )}
+
+        {/* 하단 콘텐츠 */}
         <div className={styles.heroContent}>
-          {category && (
-            <span className={styles.heroBadge}>{category}</span>
-          )}
+          <div className={styles.badgeRow}>
+            {category && (
+              <span className={styles.heroBadge}>{category}</span>
+            )}
+          </div>
           <h2 className={styles.heroTitle}>{displayTitle}</h2>
           {post.excerpt && <p className={styles.heroExcerpt}>{post.excerpt}</p>}
           <div className={styles.heroMeta}>
@@ -101,6 +115,14 @@ export default function PostCard({
               <polyline points="21 15 16 10 5 21" />
             </svg>
           </div>
+        )}
+        {isHot && (
+          <span className={styles.hotBadge}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M12 23c-3.866 0-7-3.134-7-7 0-2.2 1.1-4.1 2.5-5.5L9 9l1.5 3 3-5.5C14.5 4.5 16 2 16 2s1.5 2.5 2.5 5c.7 1.7 1.5 3.8 1.5 6 0 3.866-4.134 10-8 10z" />
+            </svg>
+            HOT
+          </span>
         )}
       </div>
 
