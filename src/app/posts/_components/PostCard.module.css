@@ -174,40 +174,28 @@
 }
 
 /* ═══════════════════════════════════════════
-   Hero variant — 스플릿 에디토리얼 배너
+   Hero variant — 풀 블리드 이미지 + 하단 오버레이
    ═══════════════════════════════════════════ */
 .hero {
   position: relative;
-  flex-direction: row;
+  flex-direction: column;
   border: none;
   border-bottom: none;
   padding-bottom: 0;
-  min-height: 480px;
+  min-height: 420px;
   overflow: hidden;
-  background: var(--bg-primary);
+  background: var(--bg-tertiary);
 }
 
-/* 이미지 — 오른쪽 58% + Ken Burns 자동 줌·패닝 */
-.heroBg {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 58%;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.hero .heroBg .image {
-  width: 100%;
-  height: 100%;
+/* 풀 배경 이미지 — Ken Burns */
+.heroBgImg {
   object-fit: cover;
-  animation: heroKenBurns 18s ease-in-out infinite alternate;
+  animation: heroKenBurns 20s ease-in-out infinite alternate;
 }
 
-.hero:hover .heroBg .image {
+.hero:hover .heroBgImg {
   animation-play-state: paused;
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 @keyframes heroKenBurns {
@@ -215,71 +203,46 @@
     transform: scale(1) translate(0, 0);
   }
   50% {
-    transform: scale(1.08) translate(-1%, 1%);
+    transform: scale(1.06) translate(-0.5%, 0.5%);
   }
   100% {
-    transform: scale(1.04) translate(1%, -0.5%);
+    transform: scale(1.03) translate(0.5%, -0.3%);
   }
 }
 
-/* 이미지 좌측 페이드 — bg와 자연스럽게 연결 */
+/* 이미지 없을 때 플레이스홀더 */
+.heroPlaceholder {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-tertiary);
+}
+
+/* 하단 그라데이션 오버레이 */
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to right,
-    var(--bg-primary) 0%,
-    color-mix(in srgb, var(--bg-primary) 60%, transparent) 45%,
-    transparent 70%
-  );
   z-index: 1;
-}
-
-/* 하단 비네트 그라데이션 */
-.heroOverlay::after {
-  content: "";
-  position: absolute;
-  inset: 0;
   background: linear-gradient(
     to top,
-    color-mix(in srgb, var(--bg-primary) 40%, transparent) 0%,
-    transparent 30%
+    rgba(0, 0, 0, 0.82) 0%,
+    rgba(0, 0, 0, 0.45) 40%,
+    rgba(0, 0, 0, 0.1) 70%,
+    transparent 100%
   );
 }
 
-/* 콘텐츠 — 왼쪽 */
+/* 콘텐츠 — 하단 */
 .heroContent {
-  position: relative;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-3xl) var(--spacing-3xl);
-  width: 50%;
-  min-height: 480px;
-}
-
-/* accent 장식선 — 슬라이드 인 애니메이션 */
-.heroContent::before {
-  content: "";
-  width: 48px;
-  height: 3px;
-  background: var(--color-accent);
-  border-radius: 2px;
-  margin-bottom: var(--spacing-xs);
-  animation: heroAccentSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
-}
-
-@keyframes heroAccentSlide {
-  from {
-    width: 0;
-    opacity: 0;
-  }
-  to {
-    width: 48px;
-    opacity: 1;
-  }
+  gap: var(--spacing-sm);
+  padding: var(--spacing-2xl) var(--spacing-2xl);
+  max-width: 680px;
 }
 
 /* 배지 */
@@ -287,28 +250,29 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: var(--spacing-2xs) var(--spacing-md);
-  border: 1px solid var(--color-accent-alpha-30);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
-  color: var(--color-accent);
+  color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* 제목 */
 .heroTitle {
   font-family: var(--font-instrument);
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  font-weight: var(--font-weight-regular);
-  font-style: italic;
-  color: var(--text-primary);
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+  font-weight: var(--font-weight-medium);
+  color: #fff;
   line-height: var(--line-height-tight);
   letter-spacing: -0.02em;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -325,8 +289,8 @@
 /* 발췌 */
 .heroExcerpt {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
-  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.7);
   line-height: var(--line-height-relaxed);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -341,11 +305,32 @@
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .heroDot {
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── HOT badge — 이미지 오른쪽 상단 오버레이 ── */
+.hotBadge {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
 }
 
 /* ═══════════════════════════════════════════
@@ -369,44 +354,28 @@
   }
 
   .hero {
-    min-height: 380px;
+    min-height: 340px;
   }
 
   .heroContent {
-    width: 55%;
-    padding: var(--spacing-2xl);
-    min-height: 380px;
+    padding: var(--spacing-xl) var(--spacing-xl);
+    max-width: 560px;
   }
 }
 
 @media (max-width: 768px) {
   .hero {
-    flex-direction: column;
-    min-height: auto;
-  }
-
-  .heroBg {
-    position: relative;
-    width: 100%;
-    height: 220px;
-  }
-
-  .heroOverlay {
-    background: linear-gradient(
-      to top,
-      var(--bg-primary) 0%,
-      transparent 60%
-    );
+    min-height: 280px;
   }
 
   .heroContent {
-    width: 100%;
-    min-height: auto;
-    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-xl);
+    padding: var(--spacing-lg) var(--spacing-lg);
+    max-width: none;
   }
 
   .heroTitle {
-    font-size: clamp(1.5rem, 6vw, 2rem);
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    -webkit-line-clamp: 2;
   }
 
   .heroExcerpt {

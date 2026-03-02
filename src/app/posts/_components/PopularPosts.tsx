@@ -34,7 +34,6 @@ export default function PopularPosts() {
             <div className={styles.info}>
               <div className={styles.titleRow}>
                 <span className={styles.itemTitle}>{post.title}</span>
-                {idx === 0 && <span className={styles.badge}>HOT</span>}
               </div>
               <span className={styles.itemMeta}>
                 {post.view_count} views

@@ -81,9 +81,9 @@ const menuItems = [
 ];
 
 const adminNavItems = [
-  { key: "admin-posts", href: "/admin/posts", label: "Posts" },
-  { key: "admin-works", href: "/admin/works", label: "Works" },
   { key: "admin-settings", href: "/admin/settings", label: "Settings" },
+  { key: "admin-works", href: "/admin/works", label: "Works" },
+  { key: "admin-posts", href: "/admin/posts", label: "Posts" },
 ];
 
 const adminMenuItems = [
@@ -109,7 +109,7 @@ export default function Navigation() {
   const { openForm } = useContactStore();
   const { stop: lenisStop, start: lenisStart } = useLenis();
 
-  const isAdminPage = pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
+  const isAdminPage = pathname.startsWith("/admin");
 
   const [adminEmail, setAdminEmail] = useState("");
   useEffect(() => {
@@ -449,9 +449,9 @@ export default function Navigation() {
       </div>
 
       <div className={styles.navActions}>
-        {isAdminPage ? (
+        {isAdminPage && adminEmail ? (
           <>
-            {adminEmail && <span className={styles.adminEmail}>{adminEmail}</span>}
+            <span className={styles.adminEmail}>{adminEmail}</span>
             <Button
               variant="outline"
               size="xs"
@@ -462,7 +462,7 @@ export default function Navigation() {
               Logout
             </Button>
           </>
-        ) : (
+        ) : !isAdminPage ? (
           /* Get in Touch */
           <Button
             variant="outline"
@@ -473,7 +473,7 @@ export default function Navigation() {
           >
             Get in Touch
           </Button>
-        )}
+        ) : null}
 
         {/* 언어 토글 — admin에서도 표시 */}
         <button

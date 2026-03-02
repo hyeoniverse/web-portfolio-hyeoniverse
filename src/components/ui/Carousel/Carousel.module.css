@@ -130,15 +130,19 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-capsule);
 }
 
 /* Individual dot */
 .carousel .dot {
   position: relative;
-  width: 28px;
-  height: 3px;
+  width: 32px;
+  height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.5);
   border: none;
   padding: 0;
   overflow: hidden;
@@ -148,12 +152,12 @@
 }
 
 .carousel .dot:hover {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .dotActive {
-  width: 48px !important;
-  background: rgba(255, 255, 255, 0.5) !important;
+  width: 56px !important;
+  background: rgba(255, 255, 255, 0.6) !important;
 }
 
 /* Progress fill inside active dot */

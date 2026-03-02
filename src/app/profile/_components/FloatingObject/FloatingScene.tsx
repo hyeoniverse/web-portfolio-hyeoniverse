@@ -142,8 +142,8 @@ export default function FloatingScene({
   const rightEyeRef = useRef<THREE.Mesh>(null);
   const leftSquintRef = useRef<THREE.Group>(null);
   const rightSquintRef = useRef<THREE.Group>(null);
-  const leftSmileRef = useRef<THREE.Mesh>(null);
-  const rightSmileRef = useRef<THREE.Mesh>(null);
+  const leftSmileRef = useRef<THREE.Group>(null);
+  const rightSmileRef = useRef<THREE.Group>(null);
   const nextBlink = useRef(2 + Math.random() * 3);
   const blinkPhase = useRef(-1); // -1 = idle, 0~1 = blinking
   const hitTime = useRef(-1); // 충돌 시점 (초)
@@ -466,61 +466,81 @@ export default function FloatingScene({
           <meshBasicMaterial color={EYE_COLOR} />
         </mesh>
 
-        {/* ── Left Squint Eye > (충돌 시) ── */}
+        {/* ── Left Squint Eye > (꼭짓점 오른쪽 만남) ── */}
         <group
           ref={leftSquintRef}
-          position={[-0.2, 0.46, 0.49]}
-          rotation={[-0.08, -0.31, 0]}
+          position={[-0.14, 0.46, 0.49]}
+          rotation={[-0.08, -0.2, 0]}
           visible={false}
         >
-          <mesh position={[-0.015, 0.04, 0]} rotation={[0, 0, -0.5]}>
-            <boxGeometry args={[0.16, 0.025, 0.025]} />
+          <mesh position={[-0.088, 0.043, 0]} rotation={[0, 0, -0.45 + Math.PI / 2]}>
+            <capsuleGeometry args={[0.018, 0.16, 4, 8]} />
             <meshBasicMaterial color={EYE_COLOR} />
           </mesh>
-          <mesh position={[-0.015, -0.04, 0]} rotation={[0, 0, 0.5]}>
-            <boxGeometry args={[0.16, 0.025, 0.025]} />
+          <mesh position={[-0.088, -0.043, 0]} rotation={[0, 0, 0.45 + Math.PI / 2]}>
+            <capsuleGeometry args={[0.018, 0.16, 4, 8]} />
             <meshBasicMaterial color={EYE_COLOR} />
           </mesh>
         </group>
 
-        {/* ── Right Squint Eye < (충돌 시) ── */}
+        {/* ── Right Squint Eye < (꼭짓점 왼쪽 만남) ── */}
         <group
           ref={rightSquintRef}
-          position={[0.2, 0.46, 0.49]}
-          rotation={[-0.08, 0.31, 0]}
+          position={[0.14, 0.46, 0.49]}
+          rotation={[-0.08, 0.2, 0]}
           visible={false}
         >
-          <mesh position={[0.015, 0.04, 0]} rotation={[0, 0, 0.5]}>
-            <boxGeometry args={[0.16, 0.025, 0.025]} />
+          <mesh position={[0.088, 0.043, 0]} rotation={[0, 0, 0.45 + Math.PI / 2]}>
+            <capsuleGeometry args={[0.018, 0.16, 4, 8]} />
             <meshBasicMaterial color={EYE_COLOR} />
           </mesh>
-          <mesh position={[0.015, -0.04, 0]} rotation={[0, 0, -0.5]}>
-            <boxGeometry args={[0.16, 0.025, 0.025]} />
+          <mesh position={[0.088, -0.043, 0]} rotation={[0, 0, -0.45 + Math.PI / 2]}>
+            <capsuleGeometry args={[0.018, 0.16, 4, 8]} />
             <meshBasicMaterial color={EYE_COLOR} />
           </mesh>
         </group>
 
         {/* ── Left Smile Eye ^ (말풍선 전환 시) ── */}
-        <mesh
+        <group
           ref={leftSmileRef}
           position={[-0.2, 0.46, 0.49]}
           rotation={[-0.08, -0.31, 0]}
           visible={false}
         >
-          <torusGeometry args={[0.08, 0.02, 8, 16, Math.PI]} />
-          <meshBasicMaterial color={EYE_COLOR} />
-        </mesh>
+          <mesh>
+            <torusGeometry args={[0.08, 0.02, 8, 16, Math.PI]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+          <mesh position={[0.08, 0, 0]}>
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+          <mesh position={[-0.08, 0, 0]}>
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+        </group>
 
         {/* ── Right Smile Eye ^ (말풍선 전환 시) ── */}
-        <mesh
+        <group
           ref={rightSmileRef}
           position={[0.2, 0.46, 0.49]}
           rotation={[-0.08, 0.31, 0]}
           visible={false}
         >
-          <torusGeometry args={[0.08, 0.02, 8, 16, Math.PI]} />
-          <meshBasicMaterial color={EYE_COLOR} />
-        </mesh>
+          <mesh>
+            <torusGeometry args={[0.08, 0.02, 8, 16, Math.PI]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+          <mesh position={[0.08, 0, 0]}>
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+          <mesh position={[-0.08, 0, 0]}>
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshBasicMaterial color={EYE_COLOR} />
+          </mesh>
+        </group>
 
         {/* ── Tail ── */}
         <mesh position={[0, -0.25, -0.38]}>
