@@ -547,7 +547,10 @@ export default function PostEditor({ post }: PostEditorProps) {
                   { value: "__custom__", label: te("customCategory") },
                 ]}
                 onChange={(v) => {
-                  if (v === "__custom__") return;
+                  if (v === "__custom__") {
+                    updateField("category", "");
+                    return;
+                  }
                   updateField("category", v);
                 }}
               />
