@@ -266,6 +266,11 @@ export default function AdminEditorShell({
           </div>
         )}
         <div className={styles.actions}>
+          {(status || error) && (
+            <span className={error ? styles.errorBanner : statusType === "success" ? styles.successBanner : styles.statusBanner}>
+              {error || status}
+            </span>
+          )}
           {isEdit && onDelete && (
             <button
               type="button"
@@ -304,11 +309,6 @@ export default function AdminEditorShell({
           </button>
         </div>
       </div>
-      {(status || error) && (
-        <div className={error ? styles.errorBanner : statusType === "success" ? styles.successBanner : styles.statusBanner}>
-          {error || status}
-        </div>
-      )}
 
       {children}
     </div>
