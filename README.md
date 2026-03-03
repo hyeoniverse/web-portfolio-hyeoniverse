@@ -46,9 +46,9 @@
 - **CTA 이력서 다운로드**: Home 페이지 CTA 영역에 이력서 다운로드 버튼 표시. Admin Settings에서 PDF 업로드(5MB 제한, Supabase Storage) 및 버튼 텍스트 한/영 편집 가능. `resumeUrl`이 비어있으면 버튼 미표시
 - **소셜 링크 관리**: CTA 영역에 소셜 아이콘(GitHub, LinkedIn, Blog, X, Instagram, YouTube, Behance, Dribbble, Custom) 표시. Admin Settings에서 순서 변경·추가·삭제 가능(최대 6개). `socialLinks` 배열과 기존 `social` 객체 자동 호환
 - **Carousel (default / cylinder)**: 공통 Carousel 컴포넌트. default 모드(AnimatePresence 슬라이드 전환)와 cylinder 모드(3D perspective + 사이드 슬라이드 어둡게) 지원. autoPlay, pauseOnHover, arrows, dots, loop
-- **Posts 배너 슬라이더**: 피닝된 포스트를 Carousel cylinder 모드로 full-bleed 배너 표시. 대각선 그라데이션 오버레이, 에디토리얼 레이아웃(인덱스·카테고리·제목·발췌)
-- **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator 애니메이션(layoutId), sticky 상태 감지(IntersectionObserver), 스크롤 방향에 따라 자동 접기, 카테고리/태그 펼칠 때 콘텐츠 영역 blur 효과(ContactDrawer와 동일 기법)
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능
+- **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시. 4가지 레이아웃(fullwidth·split·cards·ticker) + 4가지 오버레이 스타일(editorial·minimal·cinematic·magazine) + 2가지 전환 모드(default·cylinder). Admin Settings에서 선택 가능
+- **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator 애니메이션(layoutId), sticky 상태 감지(IntersectionObserver), 스크롤 방향에 따라 필터 바 숨김/표시 + 자동 접기, 카테고리/태그 펼칠 때 콘텐츠 영역 blur 효과(ContactDrawer와 동일 기법)
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능
 
 ## Security
 
