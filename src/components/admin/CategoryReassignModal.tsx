@@ -5,6 +5,11 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import Select from "@/components/ui/Select";
 import styles from "./CategoryReassignModal.module.css";
 
+interface BilingualCategory {
+  ko: string;
+  en: string;
+}
+
 interface PostItem {
   id: string;
   title: string;
@@ -20,11 +25,11 @@ interface SeriesGroup {
 }
 
 interface Props {
-  category: string;
-  availableCategories: string[];
+  category: BilingualCategory;
+  availableCategories: BilingualCategory[];
   onConfirm: (
     assignments: { id: string; category: string }[],
-    newCategories: string[],
+    newCategories: BilingualCategory[],
   ) => Promise<void>;
   onCancel: () => void;
 }
@@ -38,51 +43,70 @@ export default function CategoryReassignModal({
   const { t, language } = useLanguage();
   const tc = (key: string) => t(`admin.settings.reassignModal.${key}`);
 
+  const catLabel = language === "ko" ? category.ko : category.en;
+
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [assignments, setAssignments] = useState<Record<string, string>>({});
   const [bulkCategory, setBulkCategory] = useState("");
-  const [newCat, setNewCat] = useState("");
-  const [addedCategories, setAddedCategories] = useState<string[]>([]);
+  const [newKo, setNewKo] = useState("");
+  const [newEn, setNewEn] = useState("");
+  const [addedCategories, setAddedCategories] = useState<BilingualCategory[]>([]);
 
   const allCategories = [...availableCategories, ...addedCategories];
 
   useEffect(() => {
-    fetch(
-      `/api/posts?all=true&category=${encodeURIComponent(category)}&limit=200`,
-    )
-      .then((r) => r.json())
-      .then((data) => setPosts(data.posts ?? []))
+    // DB에 ko 또는 en 값이 저장되어 있을 수 있으므로 둘 다 검색
+    Promise.all([
+      fetch(`/api/posts?all=true&category=${encodeURIComponent(category.ko)}&limit=200`).then((r) => r.json()),
+      category.ko !== category.en
+        ? fetch(`/api/posts?all=true&category=${encodeURIComponent(category.en)}&limit=200`).then((r) => r.json())
+        : Promise.resolve({ posts: [] }),
+    ])
+      .then(([dataKo, dataEn]) => {
+        const koIds = new Set((dataKo.posts ?? []).map((p: PostItem) => p.id));
+        const merged = [
+          ...(dataKo.posts ?? []),
+          ...(dataEn.posts ?? []).filter((p: PostItem) => !koIds.has(p.id)),
+        ];
+        setPosts(merged);
+      })
       .finally(() => setLoading(false));
   }, [category]);
 
   const { seriesGroups, standalonePosts } = groupPosts(posts, language);
 
-  const handleBulkAssign = (cat: string) => {
-    if (!cat) return;
-    setBulkCategory(cat);
+  const handleBulkAssign = (koValue: string) => {
+    if (!koValue) return;
+    setBulkCategory(koValue);
     const next: Record<string, string> = {};
     seriesGroups.forEach((g) => {
-      next[`series:${g.seriesId}`] = cat;
+      next[`series:${g.seriesId}`] = koValue;
     });
     standalonePosts.forEach((p) => {
-      next[p.id] = cat;
+      next[p.id] = koValue;
     });
     setAssignments(next);
   };
 
-  const handleAssign = (key: string, cat: string) => {
-    setAssignments((prev) => ({ ...prev, [key]: cat }));
+  const handleAssign = (key: string, koValue: string) => {
+    setAssignments((prev) => ({ ...prev, [key]: koValue }));
     setBulkCategory("");
   };
 
   const handleAddCategory = () => {
-    const cat = newCat.trim();
-    if (cat && !allCategories.includes(cat) && cat !== category) {
-      setAddedCategories((prev) => [...prev, cat]);
+    const ko = newKo.trim();
+    const en = newEn.trim();
+    if (
+      ko && en &&
+      !allCategories.some((c) => c.ko === ko || c.en === en) &&
+      ko !== category.ko && en !== category.en
+    ) {
+      setAddedCategories((prev) => [...prev, { ko, en }]);
     }
-    setNewCat("");
+    setNewKo("");
+    setNewEn("");
   };
 
   const isValid = () => {
@@ -113,8 +137,11 @@ export default function CategoryReassignModal({
   };
 
   const categoryOptions = allCategories
-    .filter((c) => c !== category)
-    .map((c) => ({ value: c, label: c }));
+    .filter((c) => c.ko !== category.ko || c.en !== category.en)
+    .map((c) => ({
+      value: c.ko,
+      label: language === "ko" ? c.ko : c.en,
+    }));
 
   const getTitle = (p: PostItem) => {
     if (language === "en" && p.title_en) return p.title_en;
@@ -127,7 +154,7 @@ export default function CategoryReassignModal({
         <div className={styles.header}>
           <h2 className={styles.title}>{tc("title")}</h2>
           <p className={styles.subtitle}>
-            <span className={styles.catBadge}>{category}</span>
+            <span className={styles.catBadge}>{catLabel}</span>
             {tc("description")}
           </p>
         </div>
@@ -166,24 +193,35 @@ export default function CategoryReassignModal({
 
             {/* New category */}
             <div className={styles.newCatRow}>
-              <input
-                className={styles.newCatInput}
-                type="text"
-                value={newCat}
-                onChange={(e) => setNewCat(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddCategory();
-                  }
-                }}
-                placeholder={tc("newCategoryPlaceholder")}
-              />
+              <label className={styles.newCatGroup}>
+                <span className={styles.newCatGroupLabel}>{t("admin.settings.categoryKoLabel")}</span>
+                <input
+                  className={styles.newCatInput}
+                  type="text"
+                  value={newKo}
+                  onChange={(e) => setNewKo(e.target.value)}
+                />
+              </label>
+              <label className={styles.newCatGroup}>
+                <span className={styles.newCatGroupLabel}>{t("admin.settings.categoryEnLabel")}</span>
+                <input
+                  className={styles.newCatInput}
+                  type="text"
+                  value={newEn}
+                  onChange={(e) => setNewEn(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddCategory();
+                    }
+                  }}
+                />
+              </label>
               <button
                 type="button"
                 className={styles.newCatBtn}
                 onClick={handleAddCategory}
-                disabled={!newCat.trim()}
+                disabled={!newKo.trim() || !newEn.trim()}
               >
                 {tc("addCategory")}
               </button>
