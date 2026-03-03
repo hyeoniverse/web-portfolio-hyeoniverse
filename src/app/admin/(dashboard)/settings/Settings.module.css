@@ -566,20 +566,30 @@
 .catInput {
   display: flex;
   gap: var(--spacing-xs);
+  align-items: flex-end;
 }
 
-.catInput .fieldInput {
+.catInputGroup {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.catInputGroupLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
 }
 
 .catAddBtn {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: 1px solid var(--text-secondary);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .catAddBtn:hover:not(:disabled) {

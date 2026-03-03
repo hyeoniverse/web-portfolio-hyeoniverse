@@ -12,8 +12,13 @@ import styles from "../Settings.module.css";
 
 /* ── SeriesManager ── */
 
+interface BilingualCategory {
+  ko: string;
+  en: string;
+}
+
 interface SeriesManagerProps {
-  categories: string[];
+  categories: BilingualCategory[];
 }
 
 export default function SeriesManager({ categories }: SeriesManagerProps) {
@@ -165,7 +170,7 @@ interface SeriesPostItem {
 
 interface SeriesInlineEditorProps {
   series: Series | null;
-  categories: string[];
+  categories: BilingualCategory[];
   onSave: () => void;
   onCancel: () => void;
   onDelete?: () => void;
@@ -178,16 +183,18 @@ function SeriesInlineEditor({
   onCancel,
   onDelete,
 }: SeriesInlineEditorProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
   const isEdit = !!series;
+
+  const defaultCatKo = categories[0]?.ko || "";
 
   const [form, setForm] = useState({
     title: series?.title ?? "",
     title_en: series?.title_en ?? "",
     description: series?.description ?? "",
     description_en: series?.description_en ?? "",
-    category: series?.category ?? "",
+    category: series?.category || defaultCatKo,
     cover_image: series?.cover_image ?? "",
     published: series?.published ?? true,
   });
@@ -278,6 +285,10 @@ function SeriesInlineEditor({
       setError(ts("titleRequired"));
       return;
     }
+    if (!form.category) {
+      setError(ts("categoryRequired"));
+      return;
+    }
     setSaving(true);
     setError("");
     try {
@@ -311,10 +322,10 @@ function SeriesInlineEditor({
         <label className={styles.fieldLabel}>{ts("category")}</label>
         <Select
           value={form.category}
-          options={[
-            { value: "", label: ts("categoryNone") },
-            ...categories.map((cat) => ({ value: cat, label: cat })),
-          ]}
+          options={categories.map((cat) => ({
+            value: cat.ko,
+            label: language === "ko" ? cat.ko : cat.en,
+          }))}
           onChange={(v) => updateField("category", v)}
         />
       </div>
