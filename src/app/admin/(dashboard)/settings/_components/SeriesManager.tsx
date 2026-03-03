@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Select from "@/components/ui/Select";
 import Toggle from "@/components/ui/Toggle";
 import type { Series } from "@/types/post";
+import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Field from "./SettingsFormFields";
 import styles from "../Settings.module.css";
 
@@ -21,24 +22,37 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [creatingNew, setCreatingNew] = useState(false);
+  const [page, setPage] = useState(0);
   const newFormRef = useRef<HTMLDivElement>(null);
+  const PAGE_SIZE = 5;
 
   const fetchSeries = useCallback(async () => {
     try {
       const res = await fetch("/api/series?all=true");
       const data = await res.json();
-      setSeriesList(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      setSeriesList(list);
+      setPage((prev) => {
+        const maxPage = Math.max(0, Math.ceil(list.length / PAGE_SIZE) - 1);
+        return prev > maxPage ? maxPage : prev;
+      });
     } catch { /* ignore */ }
     setLoading(false);
   }, []);
 
   useEffect(() => { fetchSeries(); }, [fetchSeries]);
 
+  const totalPages = Math.ceil(seriesList.length / PAGE_SIZE);
+  const pagedList = useMemo(
+    () => seriesList.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
+    [seriesList, page],
+  );
+
   if (loading) return <p className={styles.fieldValue}>{t("common.loading")}</p>;
 
   return (
     <div className={styles.seriesList}>
-      {seriesList.map((s) => {
+      {pagedList.map((s) => {
         const expanded = expandedId === s.id;
         return (
           <div key={s.id}>
@@ -78,6 +92,38 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
           </div>
         );
       })}
+
+      {totalPages > 1 && (
+        <div className={styles.seriesPagination}>
+          <button
+            type="button"
+            className={styles.seriesPageBtn}
+            disabled={page === 0}
+            onClick={() => { setPage((p) => p - 1); setExpandedId(null); }}
+          >
+            &lsaquo;
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`${styles.seriesPageBtn} ${i === page ? styles.seriesPageBtnActive : ""}`}
+              onClick={() => { setPage(i); setExpandedId(null); }}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            type="button"
+            className={styles.seriesPageBtn}
+            disabled={page === totalPages - 1}
+            onClick={() => { setPage((p) => p + 1); setExpandedId(null); }}
+          >
+            &rsaquo;
+          </button>
+        </div>
+      )}
+
       {creatingNew && (
         <div ref={newFormRef}>
           <SeriesInlineEditor
@@ -148,6 +194,7 @@ function SeriesInlineEditor({
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [error, setError] = useState("");
   const [posts, setPosts] = useState<SeriesPostItem[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
@@ -291,9 +338,23 @@ function SeriesInlineEditor({
             </button>
           </div>
         ) : (
-          <button type="button" className={styles.logoBtn} onClick={handleImageUpload} disabled={uploading}>
-            {uploading ? ts("uploading") : ts("uploadCover")}
-          </button>
+          <>
+            <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
+              <button type="button" className={styles.logoBtn} onClick={handleImageUpload} disabled={uploading}>
+                {uploading ? ts("uploading") : ts("uploadCover")}
+              </button>
+              <button type="button" className={styles.logoBtn} onClick={() => setShowCoverPicker((v) => !v)}>
+                {showCoverPicker ? ts("closePicker") : ts("chooseCover")}
+              </button>
+            </div>
+            {showCoverPicker && (
+              <CoverImagePicker
+                onSelect={(url) => { updateField("cover_image", url); setShowCoverPicker(false); }}
+                onClose={() => setShowCoverPicker(false)}
+                postContext={{ title: form.title, tags: form.category ? [form.category] : [], excerpt: form.description }}
+              />
+            )}
+          </>
         )}
       </div>
 
