@@ -16,6 +16,7 @@ interface UseRevisionsOptions {
 export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
   const [revisions, setRevisions] = useState<RevisionItem[]>([]);
   const entityIdRef = useRef(entityId);
+  const lastSnapshotHash = useRef<string>("");
 
   useEffect(() => {
     entityIdRef.current = entityId;
@@ -43,11 +44,16 @@ export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
       .catch(() => {});
   }, [entityType, entityId]);
 
-  // 리비전 저장
+  // 리비전 저장 (변경 사항 있을 때만)
   const saveRevision = useCallback(
     async (snapshot: unknown, title: string) => {
       const id = entityIdRef.current;
       if (!id) return;
+
+      // 이전 snapshot과 동일하면 저장 안 함
+      const hash = JSON.stringify(snapshot);
+      if (hash === lastSnapshotHash.current) return;
+      lastSnapshotHash.current = hash;
 
       try {
         const res = await fetch("/api/revisions", {
@@ -94,5 +100,22 @@ export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
     [],
   );
 
-  return { revisions, saveRevision, loadRevisionSnapshot };
+  // 리비전 삭제
+  const deleteRevision = useCallback(
+    async (revisionId: string) => {
+      try {
+        const res = await fetch(`/api/revisions/${revisionId}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) return false;
+        setRevisions((prev) => prev.filter((r) => r.id !== revisionId));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [],
+  );
+
+  return { revisions, saveRevision, loadRevisionSnapshot, deleteRevision };
 }

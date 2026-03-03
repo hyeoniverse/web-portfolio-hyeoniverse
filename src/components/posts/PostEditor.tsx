@@ -85,7 +85,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     [form],
   );
 
-  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot } = useRevisions({
+  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions({
     entityType: "post",
     entityId: post?.id,
   });
@@ -430,9 +430,24 @@ export default function PostEditor({ post }: PostEditorProps) {
       return {
         excerpt: s.excerpt || s.excerpt_en || "",
         content: s.content || s.content_en || "",
+        meta: {
+          Category: s.category || "",
+          Tags: s.tags?.join(", ") || "",
+          Series: seriesList.find((x) => x.id === s.series_id)?.title || "",
+          Pinned: s.is_pinned ? "Yes" : "",
+        },
       };
     },
-    [dbRevisions, loadRevisionSnapshot],
+    [dbRevisions, loadRevisionSnapshot, seriesList],
+  );
+
+  const handleDeleteRevision = useCallback(
+    async (index: number) => {
+      const rev = dbRevisions[index];
+      if (!rev) return false;
+      return deleteRevision(rev.id);
+    },
+    [dbRevisions, deleteRevision],
   );
 
   const handleRevert = useCallback(() => {
@@ -498,12 +513,19 @@ export default function PostEditor({ post }: PostEditorProps) {
       onRevert={handleRevert}
       onRestoreRevision={handleRestoreRevision}
       onLoadRevisionDetail={handleLoadRevisionDetail}
+      onDeleteRevision={handleDeleteRevision}
       onRetranslate={handleRetranslate}
       retranslateOptions={retranslateOptions}
       currentSnapshot={{
         title: form.title || form.title_en,
         excerpt: form.excerpt || form.excerpt_en || "",
         content: form.content || form.content_en || "",
+        meta: {
+          Category: form.category || "",
+          Tags: form.tags?.join(", ") || "",
+          Series: seriesList.find((x) => x.id === form.series_id)?.title || "",
+          Pinned: form.is_pinned ? "Yes" : "",
+        },
       }}
     >
       <div className={styles.meta}>

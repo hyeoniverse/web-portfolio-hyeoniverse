@@ -55,11 +55,12 @@ interface AdminEditorShellProps {
   labels: EditorLabels;
   revisions?: RevisionEntry[];
   onRestoreRevision?: (index: number) => void;
-  onLoadRevisionDetail?: (index: number) => Promise<{ excerpt?: string; content?: string } | null>;
+  onLoadRevisionDetail?: (index: number) => Promise<{ excerpt?: string; content?: string; meta?: Record<string, string> } | null>;
+  onDeleteRevision?: (index: number) => Promise<boolean>;
   onRevert?: () => void;
   onRetranslate?: (fields?: string[]) => void;
   retranslateOptions?: RetranslateOption[];
-  currentSnapshot?: { title: string; excerpt?: string; content?: string };
+  currentSnapshot?: { title: string; excerpt?: string; content?: string; meta?: Record<string, string> };
   children: ReactNode;
 }
 
@@ -133,6 +134,7 @@ export default function AdminEditorShell({
   revisions,
   onRestoreRevision,
   onLoadRevisionDetail,
+  onDeleteRevision,
   onRevert,
   onRetranslate,
   retranslateOptions,
@@ -142,7 +144,7 @@ export default function AdminEditorShell({
   const { setInfinite, lenis } = useLenis();
   const [showRevisions, setShowRevisions] = useState(false);
   const [viewingRevision, setViewingRevision] = useState<number | null>(null);
-  const [revisionDetail, setRevisionDetail] = useState<{ excerpt?: string; content?: string } | null>(null);
+  const [revisionDetail, setRevisionDetail] = useState<{ excerpt?: string; content?: string; meta?: Record<string, string> } | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showRetranslate, setShowRetranslate] = useState(false);
   const revisionRef = useRef<HTMLDivElement>(null);
@@ -284,17 +286,39 @@ export default function AdminEditorShell({
                         </svg>
                         {labels.revisionHistory ?? "History"}
                       </button>
-                      <button
-                        type="button"
-                        className={styles.revisionRestoreBtn}
-                        onClick={() => {
-                          onRestoreRevision?.(viewingRevision);
-                          setShowRevisions(false);
-                          setViewingRevision(null);
-                        }}
-                      >
-                        {labels.restore ?? "Restore"}
-                      </button>
+                      <div className={styles.revisionDetailActions}>
+                        <button
+                          type="button"
+                          className={styles.revisionRestoreBtn}
+                          onClick={() => {
+                            onRestoreRevision?.(viewingRevision);
+                            setShowRevisions(false);
+                            setViewingRevision(null);
+                          }}
+                        >
+                          {labels.restore ?? "Restore"}
+                        </button>
+                        {onDeleteRevision && (
+                          <button
+                            type="button"
+                            className={styles.revisionDeleteBtn}
+                            onClick={async () => {
+                              const ok = await onDeleteRevision(viewingRevision);
+                              if (ok) {
+                                setViewingRevision(null);
+                                if (revisions && revisions.length <= 1) setShowRevisions(false);
+                              }
+                            }}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                              <path d="M10 11v6" />
+                              <path d="M14 11v6" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
                     </div>
                     {detailLoading ? (
                       <div className={styles.revisionDetailMeta}>
@@ -328,6 +352,28 @@ export default function AdminEditorShell({
                       <p className={`${styles.revisionDetailExcerpt} ${styles.diffAdd}`}>
                         {currentSnapshot.excerpt}
                       </p>
+                    )}
+                    {revisionDetail?.meta && Object.keys(revisionDetail.meta).length > 0 && (
+                      <div className={styles.revisionMetaSection}>
+                        {Object.entries(revisionDetail.meta).map(([key, val]) => {
+                          const curVal = currentSnapshot?.meta?.[key] ?? "";
+                          if (!val && !curVal) return null;
+                          const changed = !!currentSnapshot && val !== curVal;
+                          return (
+                            <div key={key} className={styles.revisionMetaRow}>
+                              <span className={styles.revisionMetaKey}>{key}</span>
+                              <span className={`${styles.revisionMetaVal} ${changed ? styles.diffDel : ""}`}>
+                                {val || "—"}
+                              </span>
+                              {changed && (
+                                <span className={`${styles.revisionMetaVal} ${styles.diffAdd}`}>
+                                  {curVal || "—"}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     )}
                     {(() => {
                       const revContent = revisionDetail?.content ?? "";
@@ -377,6 +423,22 @@ export default function AdminEditorShell({
                         <span className={styles.revisionTitle}>
                           {rev.title || "(untitled)"}
                         </span>
+                        {onDeleteRevision && (
+                          <button
+                            type="button"
+                            className={styles.revisionItemDelete}
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              const ok = await onDeleteRevision(i);
+                              if (ok && revisions.length <= 1) setShowRevisions(false);
+                            }}
+                          >
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="18" y1="6" x2="6" y2="18" />
+                              <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                          </button>
+                        )}
                         <svg className={styles.revisionChevron} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="9 18 15 12 9 6" />
                         </svg>
