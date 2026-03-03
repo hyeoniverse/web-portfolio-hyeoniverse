@@ -68,7 +68,7 @@
 
 .dcCardBg img {
   object-fit: cover;
-  filter: brightness(0.3) saturate(0.7);
+  filter: brightness(0.15) saturate(0.3);
 }
 
 /* Compound selector (0,2,0) */
@@ -77,7 +77,7 @@
 }
 
 .dcCard:hover .dcCardBg img {
-  filter: brightness(0.4) saturate(0.85);
+  filter: brightness(0.2) saturate(0.4);
 }
 
 /* Overlay content on top of image — top clears nav+title, bottom clears bottom nav */
@@ -85,8 +85,8 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: calc(var(--_panel-py) + var(--header-height) + 20vh) var(--_panel-px)
-    calc(var(--_space-section) + 5vh);
+  padding: calc(var(--_panel-py) + var(--header-height) + 25vh) var(--_panel-px)
+    calc(var(--_space-section) + 8vh);
   overflow: visible;
   position: relative;
   z-index: 1;
@@ -99,10 +99,10 @@
   margin: 0 0 clamp(6px, min(0.7vh, 0.4vw), 14px);
   font-family: var(--_font-grotesk);
   font-size: clamp(0.8rem, min(1.8vw, 3.2vh), 1.8rem);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-white-alpha-60);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-white-alpha-40);
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.3em;
 }
 
 .dcCardSubtitle {
@@ -110,17 +110,19 @@
   margin: 0 0 clamp(6px, min(1vh, 0.55vw), 18px);
   font-family: var(--font-instrument);
   font-size: clamp(1.3rem, min(4.5vw, 8vh), 4.8rem);
-  font-style: italic;
+  font-weight: var(--font-weight-light);
   color: var(--text-white);
+  letter-spacing: -0.02em;
 }
 
 .dcCardDesc {
   flex-shrink: 0;
   margin: 0;
-  max-width: 640px;
+  max-width: 560px;
   font-size: clamp(0.8rem, min(1.8vw, 3.2vh), 1.8rem);
   line-height: var(--_lh-reading);
-  color: var(--color-white-alpha-70);
+  color: var(--color-white-alpha-50);
+  letter-spacing: 0.01em;
 }
 
 .dcDemo {
@@ -130,6 +132,15 @@
   flex-direction: column;
   margin-top: auto;
   min-height: fit-content;
+}
+
+.dcDemo::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 1px;
+  margin-bottom: clamp(16px, min(2vh, 1.2vw), 28px);
+  background: var(--color-white-alpha-15);
 }
 
 /* ── Typography demo ── */
@@ -142,12 +153,13 @@
 
 .dcToggleBtn {
   padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
-  border: 1px solid var(--color-white-alpha-20);
+  border: 1px solid var(--color-white-alpha-10);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: clamp(0.9rem, 1.25vw, 1.5rem);
-  color: var(--color-white-alpha-60);
+  font-size: clamp(0.85rem, 1.15vw, 1.3rem);
+  color: var(--color-white-alpha-50);
   border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
 }
 
 /* Compound selector (0,2,0) */
@@ -159,8 +171,8 @@
 }
 
 .dcToggleBtnActive {
-  border-color: var(--color-white-alpha-60);
-  background: var(--color-white-alpha-10);
+  border-color: var(--color-white-alpha-40);
+  background: var(--color-white-alpha-5);
   color: var(--text-white);
 }
 
@@ -189,7 +201,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--color-white-alpha-10);
+  border: 1px solid var(--color-white-alpha-5);
   width: clamp(48px, min(8vh, 4.2vw), 84px);
   height: clamp(48px, min(8vh, 4.2vw), 84px);
   font-size: clamp(0.8rem, 1.05vw, 1.3rem);
@@ -353,7 +365,7 @@
   gap: clamp(10px, 0.9vw, 18px);
   align-items: center;
   padding: clamp(10px, min(1.1vh, 0.6vw), 18px) clamp(16px, 1.3vw, 26px);
-  border: 1px solid var(--color-white-alpha-10);
+  border: 1px solid var(--color-white-alpha-5);
   border-radius: var(--radius-sm);
 }
 
@@ -365,8 +377,8 @@
 }
 
 .dcIconCell:hover {
-  border-color: var(--color-white-alpha-30);
-  background: var(--color-white-alpha-5);
+  border-color: var(--color-white-alpha-15);
+  background: var(--color-white-alpha-3);
 }
 
 .dcIconCell svg {
@@ -448,7 +460,7 @@
 
   .dcMobileCardBg img {
     object-fit: cover;
-    filter: brightness(0.3) saturate(0.7);
+    filter: brightness(0.15) saturate(0.3);
   }
 
   .dcMobileCardContent {
