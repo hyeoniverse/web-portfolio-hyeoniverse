@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLenis } from "@/providers/LenisProvider";
-import { content, type Language, type Section } from "@/data/privacyContent";
+import { content, type Language, type Section } from "@/data/privacy";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import { AnimatedSection } from "./components";
 import styles from "./Privacy.module.css";
@@ -181,7 +181,6 @@ export default function PrivacyPage() {
             <SectionContent section={section} />
           </AnimatedSection>
         ))}
-
       </motion.div>
     </div>
   );
