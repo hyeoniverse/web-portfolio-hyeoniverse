@@ -517,6 +517,32 @@
   align-items: center;
 }
 
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-2xl) var(--spacing-xl);
+}
+
+.modalActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+.modalContentCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-2xl) var(--spacing-2xl);
+  text-align: center;
+}
+
+.modalContentCompact {
+  padding: var(--spacing-3xl) var(--spacing-2xl) var(--spacing-xl);
+}
+
 /* TypeWriter demo */
 .typewriterDemo {
   position: relative;

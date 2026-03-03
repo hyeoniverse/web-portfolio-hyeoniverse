@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useLenis } from "@/providers/LenisProvider";
-import { Mail, Send, Star, ArrowRight, Heart, Zap, RotateCcw } from "lucide-react";
+import { Mail, Send, Star, ArrowRight, Zap, RotateCcw } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { Typography } from "@/components/ui/Typography";
 import { Switch } from "@/components/ui/Switch";
@@ -353,7 +353,7 @@ export default function DesignSystemPage() {
   }, [router]);
 
   const handleOpenModal = (title: string, content: React.ReactNode) => {
-    openModal(content, { header: { title }, closeButton: true });
+    openModal(content, { header: { title }, closeButton: true, width: "420px" });
   };
 
   return (
@@ -691,10 +691,9 @@ export default function DesignSystemPage() {
               <div className={styles.componentGroupTitle}>Switch</div>
               <div className={styles.componentRow}>
                 <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-muted)" }}>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-muted)", display: "inline-block", minWidth: "24px", textAlign: "center" }}>
                   {switchOn ? "ON" : "OFF"}
                 </span>
-                <Switch defaultChecked />
                 <Switch disabled />
                 <Switch disabled defaultChecked />
               </div>
@@ -723,13 +722,41 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Modal</div>
               <div className={styles.modalDemo}>
-                <Button variant="outline" onClick={() => handleOpenModal("Basic Modal", <div style={{ padding: "1.5rem" }}><Typography variant="body1">This is a basic modal with header and close button.</Typography></div>)}>
-                  Basic Modal
+                <Button
+                  variant="outline"
+                  onClick={() => handleOpenModal("Confirm Action", (
+                    <div className={styles.modalContent}>
+                      <Typography variant="body1" color="secondary">Are you sure you want to proceed? This action cannot be undone.</Typography>
+                      <div className={styles.modalActions}>
+                        <Button variant="ghost" size="sm" onClick={() => useModalStore.getState().closeModal()}>Cancel</Button>
+                        <Button variant="primary" size="sm" onClick={() => useModalStore.getState().closeModal()}>Confirm</Button>
+                      </div>
+                    </div>
+                  ))}
+                >
+                  Confirm
                 </Button>
-                <Button variant="outline" icon={<Heart size={16} />} onClick={() => handleOpenModal("Rich Content", <div style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}><Zap size={48} color="var(--color-accent)" /><Typography variant="h4">Rich Content</Typography><Typography variant="body2" color="secondary">Modals support any React content.</Typography></div>)}>
-                  Rich Content
+                <Button
+                  variant="outline"
+                  icon={<Star size={16} />}
+                  onClick={() => handleOpenModal("Feature Highlight", (
+                    <div className={styles.modalContentCenter}>
+                      <Zap size={48} color="var(--color-accent)" />
+                      <Typography variant="h4">Design Tokens</Typography>
+                      <Typography variant="body2" color="secondary">A 3-layer token system powering every component with raw, semantic, and contextual variables.</Typography>
+                    </div>
+                  ))}
+                >
+                  Showcase
                 </Button>
-                <Button variant="outline" onClick={() => openModal(<div style={{ padding: "1.5rem" }}><Typography variant="body1">No header, just content.</Typography></div>, { closeButton: true })}>
+                <Button
+                  variant="outline"
+                  onClick={() => openModal((
+                    <div className={styles.modalContentCompact}>
+                      <Typography variant="body2" color="secondary">Minimal modal without a header. Useful for quick notifications or lightweight confirmations.</Typography>
+                    </div>
+                  ), { closeButton: true, width: "420px" })}
+                >
                   No Header
                 </Button>
               </div>
