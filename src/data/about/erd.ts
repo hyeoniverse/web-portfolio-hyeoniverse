@@ -89,6 +89,17 @@ export const erdTables: ErdTable[] = [
       { name: "read", type: "BOOL" },
     ],
   },
+  {
+    name: "revisions",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "entity_type", type: "TEXT CHECK" },
+      { name: "entity_id", type: "UUID" },
+      { name: "snapshot", type: "JSONB" },
+      { name: "title", type: "TEXT" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
 ];
 
 export const erdRelations: ErdRelation[] = [
@@ -138,6 +149,20 @@ export const erdRelations: ErdRelation[] = [
     from: "likes",
     fromField: "target_id",
     to: "work_comments",
+    toField: "id",
+    label: "N:1",
+  },
+  {
+    from: "revisions",
+    fromField: "entity_id",
+    to: "posts",
+    toField: "id",
+    label: "N:1",
+  },
+  {
+    from: "revisions",
+    fromField: "entity_id",
+    to: "works",
     toField: "id",
     label: "N:1",
   },
@@ -215,5 +240,17 @@ export const erdDesignNotes: ErdDesignNote[] = [
       en: "API Routes validate types, formats, and lengths using Zod schemas as the first layer. HTML inputs are sanitized with DOMPurify to prevent XSS. At the database level, Supabase RLS (Row Level Security) policies block unauthorized access, forming a three-layer defense across client → server → database.",
     },
     relatedTable: "comments",
+  },
+  {
+    title: {
+      ko: "리비전은 기기·탭 상관없이",
+      en: "Revisions Across Devices & Tabs",
+    },
+    tag: "Polymorphic JSONB Snapshot",
+    description: {
+      ko: "revisions 테이블은 entity_type('post'|'work')으로 구분하는 다형적 구조예요. 에디터 자동저장 시 폼 전체를 JSONB snapshot으로 저장하고, 목록 조회 시에는 snapshot을 제외해 가볍게 가져옵니다. 엔티티당 50개 초과 시 오래된 것부터 자동 정리됩니다.",
+      en: "The revisions table uses a polymorphic structure distinguished by entity_type ('post'|'work'). On auto-save, the entire form is stored as a JSONB snapshot. List queries exclude snapshots for lightweight fetching. Revisions exceeding 50 per entity are automatically pruned oldest-first.",
+    },
+    relatedTable: "revisions",
   },
 ];

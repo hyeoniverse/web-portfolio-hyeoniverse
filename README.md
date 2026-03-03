@@ -42,6 +42,8 @@
 - **자동 번역**: 에디터에서 언어 전환 시 대상 언어가 비어있으면 자동 번역. DeepL API Free(기본), Google Cloud Translation, Gemini 2.0 Flash 중 Settings에서 선택. 재번역 버튼으로 전체/개별 필드 재번역 가능. 번역 중 언어 토글 차단으로 중복 요청 방지
 - **카테고리 관리**: Posts에서 카테고리 삭제 시 소속 포스트를 일괄/개별 재할당하는 모달. 새 카테고리 생성도 지원
 - **시리즈 편집 모달**: Post 에디터에서 시리즈 선택 후 Edit 버튼으로 제목/설명/커버 이미지/카테고리/발행 상태를 인라인 모달에서 편집 가능. 시리즈 내 포스트 목록 표시·드래그 순서 변경·연결 해제 지원. 신규 시리즈 생성도 모달로 처리
+- **에디터 리비전 히스토리**: Posts/Works 에디터의 자동저장 시 `revisions` DB 테이블에 폼 전체를 JSONB snapshot으로 영구 저장. 탭을 닫거나 다른 기기에서 접속해도 리비전 히스토리 유지. 목록 조회 시 snapshot 제외로 경량 로딩, 상세 보기 시 lazy fetch. 현재 폼과의 diff(LCS 기반 라인 비교) 표시, Revert 버튼으로 초기 상태 복원. 엔티티당 50개 초과 시 자동 정리
+- **CTA 이력서 다운로드**: Home 페이지 CTA 영역에 이력서 다운로드 버튼 표시. Admin Settings에서 PDF 업로드(5MB 제한, Supabase Storage) 및 버튼 텍스트 한/영 편집 가능. `resumeUrl`이 비어있으면 버튼 미표시
 
 ## Security
 
@@ -98,6 +100,19 @@
 | **Works / 댓글** | 실시간 `COUNT(*)` 쿼리 | 목록에서 카운트 불필요, 상세 페이지에서만 조회 |
 
 **선택 근거:** 포트폴리오 사이트는 읽기 >> 쓰기 비율입니다. Posts만 목록에서 좋아요 수를 표시하므로 캐시 컬럼이 필요하고, 나머지는 실시간 조회로 충분합니다.
+
+### 에디터 리비전 히스토리: `revisions`
+
+Posts/Works 에디터의 자동저장 시 폼 전체를 JSONB snapshot으로 영구 저장하는 다형적 테이블입니다.
+
+**검토한 대안:**
+
+| 방식 | 장점 | 단점 |
+|------|------|------|
+| **별도 DB 테이블** (현재 구조) | 기기·탭·세션 간 영속, 엔티티별 자동 정리, diff 비교 가능 | 자동저장마다 DB 쓰기 발생 |
+| **sessionStorage** (이전 구조) | 즉시 접근, DB 부하 없음 | 탭 닫으면 소멸, 기기 간 공유 불가 |
+
+**선택 근거:** 포트폴리오 관리자(1인)가 사용하므로 자동저장 빈도(30초)의 DB 쓰기는 무시 가능. 기기·탭·세션 간 리비전 공유와 diff 기반 상세 비교가 더 중요합니다. `entity_type` CHECK 컬럼으로 posts/works를 단일 테이블에서 구분하고, 목록 조회 시 snapshot을 제외하여 경량 로딩합니다.
 
 ### 익명 댓글 이중 인증
 
@@ -194,7 +209,7 @@ GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
-**생성되는 테이블 (9개):**
+**생성되는 테이블 (10개):**
 
 | 테이블 | 용도 |
 |--------|------|
@@ -207,6 +222,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `site_visits` | 방문자 통계 (IP+날짜 1회) |
 | `work_comments` | Works 댓글 (대댓글, 이중 인증) |
 | `admin_notifications` | 관리자 알림 로그 |
+| `revisions` | 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot) |
 
 > `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다. 기존 배포 DB에 누락된 컬럼(commenter_hash, updated_at 등)은 파일 하단의 마이그레이션 섹션에서 `ALTER TABLE ADD COLUMN IF NOT EXISTS`로 안전하게 추가됩니다.
 
@@ -227,6 +243,8 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 > **Comment Likes API**: `GET /api/comment-likes?comment_type=&comment_ids=` (좋아요 상태 일괄 조회), `POST /api/comment-likes` (댓글 좋아요 토글)
 >
 > **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`
+>
+> **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (목록, snapshot 제외), `POST /api/revisions` (저장 + 50개 초과 정리), `GET /api/revisions/[id]` (snapshot 포함 단건), `DELETE /api/revisions/[id]`
 >
 > **Utility API**: `POST /api/translate` (공개, Gemini 단일 텍스트), `POST /api/posts/reassign-category` (카테고리 일괄 재할당), `GET /api/fonts/search?q=` (Google Fonts 자동완성 검색)
 
@@ -274,7 +292,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 **로그인 후 사용 가능한 기능:**
 
 - `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기)
-- `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환, 자동 번역, 재번역, 자동 저장 + revision history)
+- `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환, 자동 번역, 재번역, 자동 저장 + DB 리비전 히스토리 + diff 비교 + Revert)
 - `/admin/posts/[id]/edit` — 기존 포스트 수정
 - `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
