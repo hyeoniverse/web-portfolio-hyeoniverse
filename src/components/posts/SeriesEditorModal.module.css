@@ -133,6 +133,11 @@
   padding: var(--spacing-xs) 0;
 }
 
+.coverActions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
 .coverPreview {
   display: flex;
   align-items: center;

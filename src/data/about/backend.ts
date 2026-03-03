@@ -85,8 +85,8 @@ const { data } = await admin.from("comments")
     name: "Cover Image API",
     kind: "api",
     description: {
-      ko: "포스트 커버 이미지 생성 API. Unsplash 검색과 AI 이미지 생성(NanoBanana/Hugging Face 선택)을 지원합니다.",
-      en: "Post cover image APIs. Supports Unsplash search and AI image generation (NanoBanana/Hugging Face selectable).",
+      ko: "포스트·시리즈·작업물 커버 이미지 생성 API. Unsplash 검색과 AI 이미지 생성(NanoBanana/Hugging Face 선택)을 지원합니다.",
+      en: "Cover image APIs for posts, series, and works. Supports Unsplash search and AI image generation (NanoBanana/Hugging Face selectable).",
     },
     endpoints: [
       { method: "GET", path: "/api/cover/unsplash", description: { ko: "Unsplash 이미지 검색", en: "Search Unsplash images" } },

@@ -15,6 +15,7 @@ import type { Work, WorkFormData, TeamMember } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
 import { autoTranslate } from "@/utils/autoTranslate";
 import Select from "@/components/ui/Select";
+import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import styles from "./WorkEditor.module.css";
 
 const RichTextEditor = dynamic(() => import("@/components/posts/RichTextEditor"), {
@@ -223,6 +224,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       .catch(() => {});
   }, [isEdit]);
 
+  const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [techInput, setTechInput] = useState("");
   const [memberName, setMemberName] = useState("");
   const [memberRoleKo, setMemberRoleKo] = useState("");
@@ -989,13 +991,22 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             </div>
           ) : (
             <div>
-              <button
-                type="button"
-                className={es.uploadBtn}
-                onClick={() => handleImageUpload("image")}
-              >
-                {tw("uploadImage")}
-              </button>
+              <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
+                <button
+                  type="button"
+                  className={es.uploadBtn}
+                  onClick={() => handleImageUpload("image")}
+                >
+                  {tw("uploadImage")}
+                </button>
+                <button
+                  type="button"
+                  className={es.uploadBtn}
+                  onClick={() => setShowCoverPicker((v) => !v)}
+                >
+                  {showCoverPicker ? tw("closePicker") : tw("chooseCover")}
+                </button>
+              </div>
               <input
                 className={es.fieldInput}
                 type="text"
@@ -1004,6 +1015,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 placeholder={tw("pasteUrl")}
                 style={{ marginTop: "var(--spacing-xs)", width: "100%" }}
               />
+              {showCoverPicker && (
+                <CoverImagePicker
+                  onSelect={(url) => { updateField("image", url); setShowCoverPicker(false); }}
+                  onClose={() => setShowCoverPicker(false)}
+                  postContext={{ title: form.title, tags: form.tech, excerpt: form.description_ko || form.description_en }}
+                />
+              )}
             </div>
           )}
         </div>

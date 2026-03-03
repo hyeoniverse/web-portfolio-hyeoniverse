@@ -384,7 +384,9 @@
         "saveFailed": "저장 실패",
         "uploadFailed": "이미지 업로드 실패",
         "titlePlaceholder": "시리즈 제목",
-        "descPlaceholder": "시리즈 설명"
+        "descPlaceholder": "시리즈 설명",
+        "chooseCover": "커버 선택",
+        "closePicker": "닫기"
       }
     },
     "works": {
@@ -445,6 +447,8 @@
         "mainImage": "메인 이미지",
         "remove": "제거",
         "uploadImage": "이미지 업로드",
+        "chooseCover": "커버 선택",
+        "closePicker": "닫기",
         "pasteUrl": "또는 이미지 URL 붙여넣기",
         "gallery": "갤러리",
         "addGallery": "갤러리 이미지 추가",
