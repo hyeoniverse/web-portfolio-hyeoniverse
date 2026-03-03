@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -73,6 +74,7 @@ interface PostDetailClientProps {
 }
 
 export default function PostDetailClient({ post: initialPost }: PostDetailClientProps) {
+  const router = useRouter();
   const { language } = useLanguage();
 
   const [post, setPost] = useState<Post>(initialPost);
@@ -289,7 +291,27 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
           </motion.div>
 
           <div className={styles.footerNav}>
-            <Link href="/posts" className={styles.footerLink}>
+            <Link
+              href="/posts"
+              className={styles.footerLink}
+              onClick={(e) => {
+                const ref = document.referrer;
+                try {
+                  const refUrl = ref ? new URL(ref) : null;
+                  if (
+                    refUrl &&
+                    refUrl.origin === window.location.origin &&
+                    !refUrl.pathname.startsWith("/admin")
+                  ) {
+                    e.preventDefault();
+                    router.back();
+                    return;
+                  }
+                } catch {
+                  /* fall through */
+                }
+              }}
+            >
               &larr; Back to all posts
             </Link>
           </div>
