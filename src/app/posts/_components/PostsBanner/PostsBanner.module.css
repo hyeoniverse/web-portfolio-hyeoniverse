@@ -1,0 +1,314 @@
+/* ==========================================================================
+   PostsBanner — 4 layout variants
+   ========================================================================== */
+
+/* ── Shared dots ── */
+.splitDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  border: 1px solid var(--color-neutral-alpha-30);
+  background: transparent;
+  padding: 0;
+}
+
+.splitDot .splitDotActive,
+.splitDotActive {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* ==========================================================================
+   1. Fullwidth — wraps existing Carousel
+   ========================================================================== */
+.fullwidth {
+  width: 100vw;
+  margin-left: calc(-1 * var(--page-px));
+}
+
+/* ==========================================================================
+   2. Split — left image / right text
+   ========================================================================== */
+.split {
+  display: flex;
+  gap: 0;
+  height: clamp(280px, 44vh, 480px);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--border-primary);
+}
+
+.splitImage {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.splitImageInner {
+  position: absolute;
+  inset: 0;
+}
+
+.splitImg {
+  object-fit: cover;
+}
+
+.splitFallback {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-surface);
+}
+
+.splitContent {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-2xl) var(--spacing-3xl);
+  background: var(--bg-primary);
+}
+
+.splitCategory {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.splitTitleLink {
+  text-decoration: none;
+}
+
+.splitTitle {
+  font-family: var(--font-instrument);
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  font-weight: var(--font-weight-regular);
+  font-style: italic;
+  color: var(--text-primary);
+  line-height: var(--line-height-snug);
+  letter-spacing: -0.02em;
+}
+
+.splitExcerpt {
+  margin-top: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: var(--line-height-relaxed);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.splitDots {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: var(--spacing-md);
+}
+
+/* ==========================================================================
+   3. Cards — centered focus card
+   ========================================================================== */
+.cards {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.cardsTrack {
+  position: relative;
+  width: 100%;
+  height: clamp(260px, 40vh, 420px);
+  overflow: hidden;
+}
+
+.card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 70%;
+  height: 100%;
+  margin-left: -35%;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.cardLink {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.cardImg {
+  object-fit: cover;
+}
+
+.cardFallback {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-surface);
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.cardContent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-xl) var(--spacing-2xl);
+  z-index: 1;
+}
+
+.cardCategory {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.cardTitle {
+  margin-top: var(--spacing-xs);
+  font-family: var(--font-instrument);
+  font-size: clamp(1rem, 2vw, 1.75rem);
+  font-weight: var(--font-weight-regular);
+  font-style: italic;
+  color: #fff;
+  line-height: var(--line-height-snug);
+  letter-spacing: -0.02em;
+}
+
+.cardCenter {
+  z-index: 2;
+}
+
+.cardsDots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   4. Ticker — minimal bar
+   ========================================================================== */
+.ticker {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  min-height: 72px;
+}
+
+.tickerInner {
+  flex: 1;
+  min-width: 0;
+}
+
+.tickerLink {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  text-decoration: none;
+  min-width: 0;
+}
+
+.tickerThumb {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.tickerThumbImg {
+  object-fit: cover;
+}
+
+.tickerThumbFallback {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-surface);
+}
+
+.tickerCategory {
+  flex-shrink: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.tickerTitle {
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  font-style: italic;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.tickerDots {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Split → stack vertically */
+  .split {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .splitImage {
+    height: 200px;
+    flex: none;
+  }
+
+  .splitContent {
+    flex: none;
+    padding: var(--spacing-lg);
+  }
+
+  .splitExcerpt {
+    display: none;
+  }
+
+  /* Cards → narrower */
+  .card {
+    width: 85%;
+    margin-left: -42.5%;
+  }
+
+  /* Ticker */
+  .tickerCategory {
+    display: none;
+  }
+}

@@ -3,19 +3,16 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import Image from "next/image";
 import { useLenis } from "@/providers/LenisProvider";
-import { formatPostTitle } from "@/utils/post";
 import type { Post, Series } from "@/types/post";
 import type { InitialPostsData } from "@/lib/posts";
 import PostCard from "./_components/PostCard";
 import CategoryNav from "./_components/CategoryNav";
 import SeriesCard from "./_components/SeriesCard";
+import PostsBanner from "./_components/PostsBanner/PostsBanner";
 import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
-import { Carousel } from "@/components/ui";
 import Select from "@/components/ui/Select";
 import styles from "./Posts.module.css";
 
@@ -47,6 +44,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [showAllSeries, setShowAllSeries] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
   const [isStuck, setIsStuck] = useState(false);
+  const [barHidden, setBarHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -60,7 +58,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     const el = sentinelRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setIsStuck(!entry.isIntersecting),
+      ([entry]) => {
+        const stuck = !entry.isIntersecting;
+        setIsStuck(stuck);
+        if (!stuck) setBarHidden(false);
+      },
       { threshold: 0 },
     );
     observer.observe(el);
@@ -90,7 +92,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     return () => clearTimeout(id);
   }, [showTags, catExpanded]);
 
-  // Scroll-down: collapse categories + close tags / Scroll-up: no-op (user re-opens manually)
+  // Scroll-down: hide bar + collapse expansions / Scroll-up: show bar
   useEffect(() => {
     const threshold = 8;
     const handleScroll = () => {
@@ -99,8 +101,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       lastScrollY.current = y;
       if (scrollCooldown.current) return;
       if (delta > threshold && isStuck) {
+        setBarHidden(true);
         setCatExpanded(false);
         setShowTags(false);
+      } else if (delta < -threshold && isStuck) {
+        setBarHidden(false);
       }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -239,53 +244,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <Carousel
-            mode="cylinder"
-            height="clamp(320px, 56vh, 640px)"
-            showDots
-            showArrows
-          >
-            {pinnedPosts.map((post, i) => (
-              <Link
-                key={post.id}
-                href={`/posts/${post.slug}`}
-                className={styles.bannerSlideLink}
-              >
-                {post.cover_image && !imgErrors.has(post.id) ? (
-                  <Image
-                    src={post.cover_image}
-                    alt={formatPostTitle(post)}
-                    fill
-                    sizes="100vw"
-                    className={styles.bannerSlideImg}
-                    priority={i === 0}
-                    onError={() => handleImgError(post.id)}
-                  />
-                ) : (
-                  <div className={styles.bannerSlideFallback} />
-                )}
-                <div className={styles.bannerOverlay} />
-                <div className={styles.bannerContent}>
-                  <span className={styles.bannerIdx}>
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div className={styles.bannerMeta}>
-                    {post.category && (
-                      <span className={styles.bannerCategory}>
-                        {post.category}
-                      </span>
-                    )}
-                    <h2 className={styles.bannerTitle}>
-                      {formatPostTitle(post)}
-                    </h2>
-                    {post.excerpt && (
-                      <p className={styles.bannerExcerpt}>{post.excerpt}</p>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </Carousel>
+          <PostsBanner
+            posts={pinnedPosts}
+            imgErrors={imgErrors}
+            onImgError={handleImgError}
+          />
         </motion.div>
       )}
 
@@ -312,7 +275,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
       {/* ── Filter Bar (Category tabs + Search + Sort) ── */}
       <motion.div
-        className={styles.filterBar}
+        className={`${styles.filterBar} ${barHidden ? styles.filterBarHidden : ""}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}

@@ -218,6 +218,9 @@ export const siteConfig = {
   // Posts 페이지
   // ---------------------------------------------------------------------------
   posts: {
+    bannerLayout: "fullwidth" as "fullwidth" | "split" | "cards" | "ticker",
+    bannerStyle: "editorial" as "editorial" | "minimal" | "cinematic" | "magazine",
+    bannerTransition: "cylinder" as "default" | "cylinder",
     categories: [
       { ko: "프론트엔드", en: "Frontend" },
       { ko: "백엔드", en: "Backend" },
