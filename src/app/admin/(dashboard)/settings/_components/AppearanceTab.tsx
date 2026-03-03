@@ -18,6 +18,25 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
 
   return (
     <>
+      {/* Design System Preview Link */}
+      <section className={styles.section}>
+        <div className={styles.sectionTitleRow}>
+          <h2 className={styles.sectionTitle}>Design System</h2>
+          <a
+            href="/design-system"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.hintLink}
+            data-clickable="true"
+          >
+            {t("admin.settings.openDesignSystem")} ↗
+          </a>
+        </div>
+        <p className={styles.sectionHint}>
+          {t("admin.settings.designSystemPreview")}
+        </p>
+      </section>
+
       {/* Theme Presets */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>{t("admin.settings.presets")}</h2>

@@ -450,6 +450,31 @@
   background: var(--color-accent-alpha-10);
 }
 
+.resumeFile {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  max-width: 220px;
+  flex-shrink: 0;
+}
+
+.resumeFile > svg {
+  flex-shrink: 0;
+}
+
+.resumeFile:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
 /* ── Section hint ── */
 .sectionHint {
   font-family: var(--font-space-grotesk);
@@ -1108,6 +1133,94 @@
 }
 
 .seriesPostRemove:hover {
+  background: var(--color-accent-alpha-10);
+  color: var(--color-accent);
+}
+
+/* ── Social Links Editor ── */
+.socialEditor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.socialItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+}
+
+.socialReorder {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.socialReorderBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 14px;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-tertiary);
+  padding: 0;
+}
+
+.socialReorderBtn:hover:not(:disabled) {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.socialReorderBtn:disabled {
+  opacity: 0.3;
+}
+
+.socialIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.socialIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.socialItemFields {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.socialRemoveBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.socialRemoveBtn:hover {
   background: var(--color-accent-alpha-10);
   color: var(--color-accent);
 }
