@@ -17,6 +17,9 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
+import PostsBanner from "@/app/posts/_components/PostsBanner/PostsBanner";
+import type { BannerLayout } from "@/app/posts/_components/PostsBanner/PostsBanner";
+import type { Post } from "@/types/post";
 import styles from "./DesignSystem.module.css";
 
 // ─── Preset application helpers ───
@@ -233,6 +236,43 @@ const typoVariants = [
 
 const typoColors = ["primary", "secondary", "tertiary", "muted", "accent"] as const;
 
+// ─── Banner mock data ───
+const BANNER_LAYOUTS: BannerLayout[] = ["fullwidth", "split", "cards", "ticker"];
+const BANNER_LAYOUT_LABELS: Record<BannerLayout, string> = {
+  fullwidth: "Fullwidth — 풀 와이드 캐러셀",
+  split: "Split — 좌 이미지 / 우 텍스트",
+  cards: "Cards — 카드 스택",
+  ticker: "Ticker — 미니멀 바",
+};
+const MOCK_POST: Post = {
+  id: "demo-1",
+  title: "The Art of Visual Storytelling",
+  slug: "demo",
+  content: "",
+  content_type: "markdown",
+  excerpt: "Exploring the intersection of design, photography, and narrative through a modern digital lens.",
+  cover_image: "",
+  tags: [],
+  category: "Design",
+  is_pinned: true,
+  published: true,
+  language: "en",
+  view_count: 0,
+  like_count: 0,
+  created_at: "",
+  updated_at: "",
+  title_en: "The Art of Visual Storytelling",
+  content_en: "",
+  excerpt_en: "Exploring the intersection of design, photography, and narrative through a modern digital lens.",
+  series_id: null,
+  series_order: 0,
+};
+const MOCK_POSTS: Post[] = [
+  MOCK_POST,
+  { ...MOCK_POST, id: "demo-2", title: "Building Modern Interfaces", title_en: "Building Modern Interfaces", category: "Frontend", excerpt: "A deep dive into component architecture and design systems.", excerpt_en: "A deep dive into component architecture and design systems." },
+  { ...MOCK_POST, id: "demo-3", title: "Performance at Scale", title_en: "Performance at Scale", category: "DevOps", excerpt: "Techniques for optimizing web applications under heavy load.", excerpt_en: "Techniques for optimizing web applications under heavy load." },
+];
+
 // ─── TOC Data ───
 const tocSections = [
   { id: "colors", label: "Colors" },
@@ -245,6 +285,7 @@ const tocSections = [
   { id: "motion", label: "Motion" },
   { id: "z-index", label: "Z-Index" },
   { id: "components", label: "Components" },
+  { id: "banner", label: "Banner Layouts" },
 ];
 
 
@@ -293,9 +334,14 @@ export default function DesignSystemPage() {
   }, [theme]);
 
   // 라이트/다크 전환 시 활성 프리셋 재적용
+  // rAF로 지연 — ThemeProvider effect(parent)가 child보다 나중에 실행되어
+  // 프리셋 인라인 변수를 덮어쓰는 문제 방지
   useEffect(() => {
     if (activePreset !== null) {
-      applyPresetColors(document.documentElement, theme, THEME_PRESETS[activePreset].theme);
+      const id = requestAnimationFrame(() => {
+        applyPresetColors(document.documentElement, theme, THEME_PRESETS[activePreset].theme);
+      });
+      return () => cancelAnimationFrame(id);
     }
   }, [theme, activePreset]);
 
@@ -535,11 +581,11 @@ export default function DesignSystemPage() {
             <h2 className={styles.sectionTitle}>Border Radius</h2>
             <div className={styles.radiusGrid}>
               {radiusScale.map((r) => {
-                const px = parseInt(r.value, 10);
-                const size = r.name === "circle" || r.name === "capsule" ? 96 : Math.max(64, px * 3);
+                const h = 64;
+                const w = r.name === "capsule" ? 160 : r.name === "circle" ? 64 : Math.min(96, Math.max(64, parseInt(r.value, 10) * 3));
                 return (
                   <div key={r.name} className={styles.radiusItem}>
-                    <div className={styles.radiusBox} style={{ borderRadius: `var(${r.var})`, width: size, height: size }} />
+                    <div className={styles.radiusBox} style={{ borderRadius: `var(${r.var})`, width: w, height: h }} />
                     <span className={styles.radiusLabel}>{r.name}<br />{r.value}</span>
                   </div>
                 );
@@ -771,6 +817,27 @@ export default function DesignSystemPage() {
                   <RotateCcw size={14} />
                 </button>
               </div>
+            </div>
+          </motion.section>
+
+          {/* ─── Banner Layouts ─── */}
+          <motion.section id="banner" ref={setSectionRef("banner")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+            <h2 className={styles.sectionTitle}>Banner Layouts</h2>
+            <p className={styles.sectionSub}>4 layout variants for the Posts banner slider</p>
+            <div className={styles.bannerLayoutList}>
+              {BANNER_LAYOUTS.map((layout) => (
+                <div key={layout} className={styles.bannerLayoutItem}>
+                  <span className={styles.bannerPreviewLabel}>{BANNER_LAYOUT_LABELS[layout]}</span>
+                  <div className={styles.bannerPreviewBox}>
+                    <PostsBanner
+                      posts={MOCK_POSTS}
+                      imgErrors={new Set()}
+                      onImgError={() => {}}
+                      overrideLayout={layout}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.section>
         </motion.div>
