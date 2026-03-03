@@ -19,7 +19,7 @@ const CYCLE_INTERVAL = 3000;
 
 /* ── 3D 모델 표정을 본뜬 SVG 아이콘 ── */
 
-const EYE_COLOR = "#1a1a2e";
+const EYE_COLOR = "currentColor";
 
 function NormalFaceSVG() {
   return (

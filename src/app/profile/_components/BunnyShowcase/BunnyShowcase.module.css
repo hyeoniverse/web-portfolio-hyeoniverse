@@ -106,13 +106,41 @@
   background: color-mix(in srgb, var(--color-accent) 6%, transparent) !important;
 }
 
-/* Face SVG area */
+/* Face SVG area — bunny silhouette */
 .exprFace {
+  --_bunny-bg: var(--color-neutral-100);
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 56px;
   height: 40px;
+  margin-top: 28px;
+  color: var(--text-primary);
+  background: var(--_bunny-bg);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+/* Bunny ears — left */
+.exprFace::before,
+.exprFace::after {
+  content: "";
+  position: absolute;
+  top: -28px;
+  width: 22px;
+  height: 38px;
+  border-radius: 50% 50% 40% 40% / 50% 50% 50% 50%;
+  background: var(--_bunny-bg);
+  z-index: -1;
+}
+
+.exprFace::before {
+  left: 4px;
+}
+
+.exprFace::after {
+  right: 4px;
 }
 
 /* Label */
@@ -121,6 +149,11 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
+}
+
+.exprCardActive .exprFace {
+  --_bunny-bg: color-mix(in srgb, var(--color-accent) 10%, var(--color-neutral-100));
+  color: var(--color-accent);
 }
 
 .exprCardActive .exprLabel {
