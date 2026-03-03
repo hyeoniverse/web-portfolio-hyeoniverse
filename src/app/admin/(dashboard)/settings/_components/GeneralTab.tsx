@@ -5,11 +5,7 @@ import type { SettingsTabProps } from "../_types";
 import Field, { LogoUpload } from "./SettingsFormFields";
 import styles from "../Settings.module.css";
 
-interface GeneralTabProps extends SettingsTabProps {
-  updateSocial: (key: string, value: string) => void;
-}
-
-export default function GeneralTab({ config, update, updateSocial }: GeneralTabProps) {
+export default function GeneralTab({ config, update }: SettingsTabProps) {
   const { t } = useLanguage();
 
   return (
@@ -31,13 +27,16 @@ export default function GeneralTab({ config, update, updateSocial }: GeneralTabP
         <h2 className={styles.sectionTitle}>{t("admin.settings.brand")}</h2>
         <div className={styles.fields}>
           <Field label={t("admin.settings.brandName")} value={config.brand.name} onChange={(v) => update("brand", "name", v)} />
-          <Field
-            label={t("admin.settings.splitName")}
-            value={config.brand.splitName.join(", ")}
-            onChange={(v) =>
-              update("brand", "splitName", v.split(",").map((s) => s.trim()))
-            }
-          />
+          <div>
+            <Field
+              label={t("admin.settings.splitName")}
+              value={config.brand.splitName.join(", ")}
+              onChange={(v) =>
+                update("brand", "splitName", v.split(",").map((s) => s.trim()))
+              }
+            />
+            <p className={styles.fieldHint}>{t("admin.settings.commaHint")}</p>
+          </div>
           <Field label={t("admin.settings.tagline")} value={config.brand.tagline} onChange={(v) => update("brand", "tagline", v)} />
           <LogoUpload
             label={t("admin.settings.logoShort")}
@@ -58,14 +57,11 @@ export default function GeneralTab({ config, update, updateSocial }: GeneralTabP
         </div>
       </section>
 
-      {/* Contact & Social */}
+      {/* Contact */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.contactSocial")}</h2>
+        <h2 className={styles.sectionTitle}>{t("admin.settings.contact")}</h2>
         <div className={styles.fields}>
           <Field label={t("admin.settings.email")} value={config.contact.email} onChange={(v) => update("contact", "email", v)} />
-          <Field label={t("admin.settings.github")} value={config.social.github ?? ""} onChange={(v) => updateSocial("github", v)} />
-          <Field label={t("admin.settings.linkedin")} value={config.social.linkedin ?? ""} onChange={(v) => updateSocial("linkedin", v)} />
-          <Field label={t("admin.settings.blog")} value={config.social.blog ?? ""} onChange={(v) => updateSocial("blog", v)} />
         </div>
       </section>
 

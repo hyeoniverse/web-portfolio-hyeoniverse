@@ -205,13 +205,6 @@ export default function SettingsPage() {
     });
   };
 
-  const updateSocial = (key: string, value: string) => {
-    setConfig((prev) => ({
-      ...prev,
-      social: { ...prev.social, [key]: value },
-    }));
-  };
-
   if (loading) {
     return (
       <div className={styles.container}>
@@ -347,12 +340,13 @@ export default function SettingsPage() {
         {/* ── Panel ── */}
         <div className={styles.panel}>
           {activeTab === "general" && (
-            <GeneralTab config={config} update={update} updateSocial={updateSocial} styles={styles} />
+            <GeneralTab config={config} update={update} styles={styles} />
           )}
           {activeTab === "content" && (
             <ContentTab
               config={config}
               update={update}
+              setConfig={setConfig}
               profileData={profileData}
               setProfileData={setProfileData}
               contentSubTab={contentSubTab}

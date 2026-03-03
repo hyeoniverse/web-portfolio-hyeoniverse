@@ -7,8 +7,8 @@ export type DeepPartial<T> = {
 export const TAB_IDS = ["general", "content", "appearance", "services", "account"] as const;
 
 export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
-  general: ["personal", "brand", "contact", "social", "metadata"],
-  content: ["hero", "homeAbout", "services", "marquee", "cta", "footer", "loading", "posts", "works", "profile", "about"],
+  general: ["personal", "brand", "contact", "metadata"],
+  content: ["hero", "homeAbout", "services", "marquee", "cta", "footer", "loading", "posts", "works", "profile", "about", "social", "socialLinks"],
   appearance: ["theme", "typography"],
   services: ["emailService", "aiCover", "recaptcha", "translation"],
 };
