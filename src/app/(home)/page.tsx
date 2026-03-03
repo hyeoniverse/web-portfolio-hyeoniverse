@@ -84,6 +84,7 @@ export default function HomePage() {
   const scrollVelocity = useScrollVelocity(hasMounted);
   const { openForm } = useContactStore();
   const magnetic = useMagnetic(0.4);
+  const resumeMagnetic = useMagnetic(0.4);
 
   // 패럴랙스용 마우스 추적
   const mouseX = useMotionValue(0);
@@ -353,6 +354,7 @@ export default function HomePage() {
           ctaOvalX={ctaOvalX}
           ctaOvalY={ctaOvalY}
           magnetic={magnetic}
+          resumeMagnetic={resumeMagnetic}
           onContactClick={openForm}
         />
 
