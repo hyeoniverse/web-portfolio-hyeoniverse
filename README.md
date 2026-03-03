@@ -44,6 +44,11 @@
 - **시리즈 편집 모달**: Post 에디터에서 시리즈 선택 후 Edit 버튼으로 제목/설명/커버 이미지/카테고리/발행 상태를 인라인 모달에서 편집 가능. 커버 이미지는 CoverImagePicker(프리셋/Unsplash/AI)로 선택 가능. 시리즈 내 포스트 목록 표시·드래그 순서 변경·연결 해제 지원. 신규 시리즈 생성도 모달로 처리. Settings 시리즈 목록은 페이지당 5개씩 페이징 처리
 - **에디터 리비전 히스토리**: Posts/Works 에디터의 자동저장 시 `revisions` DB 테이블에 폼 전체를 JSONB snapshot으로 영구 저장. 탭을 닫거나 다른 기기에서 접속해도 리비전 히스토리 유지. 목록 조회 시 snapshot 제외로 경량 로딩, 상세 보기 시 lazy fetch. 현재 폼과의 diff(LCS 기반 라인 비교) 표시, Revert 버튼으로 초기 상태 복원. 개별 리비전 삭제 지원(리스트·상세 뷰). 상세 보기에서 카테고리·태그·시리즈 등 메타 항목도 diff 비교 표시. 이전 snapshot과 동일하면 저장 스킵(중복 방지). 엔티티당 50개 초과 시 자동 정리
 - **CTA 이력서 다운로드**: Home 페이지 CTA 영역에 이력서 다운로드 버튼 표시. Admin Settings에서 PDF 업로드(5MB 제한, Supabase Storage) 및 버튼 텍스트 한/영 편집 가능. `resumeUrl`이 비어있으면 버튼 미표시
+- **소셜 링크 관리**: CTA 영역에 소셜 아이콘(GitHub, LinkedIn, Blog, X, Instagram, YouTube, Behance, Dribbble, Custom) 표시. Admin Settings에서 순서 변경·추가·삭제 가능(최대 6개). `socialLinks` 배열과 기존 `social` 객체 자동 호환
+- **Carousel (default / cylinder)**: 공통 Carousel 컴포넌트. default 모드(AnimatePresence 슬라이드 전환)와 cylinder 모드(3D perspective + 사이드 슬라이드 어둡게) 지원. autoPlay, pauseOnHover, arrows, dots, loop
+- **Posts 배너 슬라이더**: 피닝된 포스트를 Carousel cylinder 모드로 full-bleed 배너 표시. 대각선 그라데이션 오버레이, 에디토리얼 레이아웃(인덱스·카테고리·제목·발췌)
+- **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator 애니메이션(layoutId), sticky 상태 감지(IntersectionObserver), 스크롤 방향에 따라 자동 접기, 카테고리/태그 펼칠 때 콘텐츠 영역 blur 효과(ContactDrawer와 동일 기법)
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능
 
 ## Security
 
