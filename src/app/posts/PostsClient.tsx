@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
 import { useLenis } from "@/providers/LenisProvider";
+import { formatPostTitle } from "@/utils/post";
 import type { Post, Series } from "@/types/post";
 import type { InitialPostsData } from "@/lib/posts";
 import PostCard from "./_components/PostCard";
@@ -10,8 +14,8 @@ import CategoryNav from "./_components/CategoryNav";
 import SeriesCard from "./_components/SeriesCard";
 import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
-import Carousel from "@/components/ui/Carousel/Carousel";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import { Carousel } from "@/components/ui";
 import Select from "@/components/ui/Select";
 import styles from "./Posts.module.css";
 
@@ -39,8 +43,89 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
+  const [catExpanded, setCatExpanded] = useState(false);
   const [showAllSeries, setShowAllSeries] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
+  const [isStuck, setIsStuck] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
+  const scrollCooldown = useRef(false);
+
+  useEffect(() => setMounted(true), []);
+
+  // Detect if filterBar is in sticky (stuck) state
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsStuck(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Apply blur to content area when expanded in stuck state (same technique as ContactDrawer)
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const shouldBlur = isStuck && (showTags || catExpanded);
+    if (shouldBlur) {
+      el.style.filter = "blur(6px)";
+      el.style.transition = "filter 0.3s ease";
+    } else {
+      el.style.filter = "";
+      // keep transition so the un-blur also animates
+      setTimeout(() => { el.style.transition = ""; }, 300);
+    }
+  }, [isStuck, showTags, catExpanded]);
+
+  // Cooldown: skip scroll-collapse briefly after expanding tags/categories
+  useEffect(() => {
+    if (!showTags && !catExpanded) return;
+    scrollCooldown.current = true;
+    const id = setTimeout(() => { scrollCooldown.current = false; }, 400);
+    return () => clearTimeout(id);
+  }, [showTags, catExpanded]);
+
+  // Scroll-down: collapse categories + close tags / Scroll-up: no-op (user re-opens manually)
+  useEffect(() => {
+    const threshold = 8;
+    const handleScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastScrollY.current;
+      lastScrollY.current = y;
+      if (scrollCooldown.current) return;
+      if (delta > threshold && isStuck) {
+        setCatExpanded(false);
+        setShowTags(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isStuck]);
+
+  // Close tags on scroll — ignore layout-shift scroll, only close on real user scroll
+  useEffect(() => {
+    if (!showTags) return;
+    let startY = -1;
+    const armTimer = setTimeout(() => {
+      startY = window.scrollY;
+    }, 300);
+    const handleScroll = () => {
+      if (startY < 0) return;
+      if (Math.abs(window.scrollY - startY) > 30) {
+        setShowTags(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      clearTimeout(armTimer);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [showTags]);
 
   useEffect(() => {
     stop();
@@ -121,7 +206,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const hasMoreSeries = seriesList.length > SERIES_LIMIT;
 
   const hasFilter = !!search || !!activeTag || !!activeSeries;
-  const showPinned = pinnedPosts.length > 0 && page === 1 && !loading && !hasFilter;
+  const showBanner = pinnedPosts.length > 0 && page === 1 && !hasFilter;
 
   const pageNumbers = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -146,48 +231,84 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         </p>
       </motion.div>
 
-      {/* ── Featured Carousel (pinned posts) ── */}
-      {loading && page === 1 && !hasFilter && (
-        <div className={styles.pinnedSection}>
-          <HeroSkeleton />
-        </div>
-      )}
-      {showPinned && pinnedPosts.length > 0 && (
+      {/* ── Banner Slider ── */}
+      {showBanner && (
         <motion.div
-          className={styles.pinnedSection}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+          className={styles.bannerSlider}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <div className={styles.pinnedBannerLabel}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 17v5" />
-              <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
-            </svg>
-            Pinned
-            <span className={styles.postsCount}>{pinnedPosts.length}</span>
-          </div>
           <Carousel
-            autoPlay
-            interval={6000}
-            pauseOnHover
-            showArrows={pinnedPosts.length > 1}
-            showDots={pinnedPosts.length > 1}
-            height={420}
+            mode="cylinder"
+            height="clamp(320px, 56vh, 640px)"
+            showDots
+            showArrows
           >
-            {pinnedPosts.map((post) => (
-              <PostCard
+            {pinnedPosts.map((post, i) => (
+              <Link
                 key={post.id}
-                post={post}
-                variant="hero"
-                isHot={popularIds.has(post.id)}
-                onImgError={handleImgError}
-                imgError={imgErrors.has(post.id)}
-              />
+                href={`/posts/${post.slug}`}
+                className={styles.bannerSlideLink}
+              >
+                {post.cover_image && !imgErrors.has(post.id) ? (
+                  <Image
+                    src={post.cover_image}
+                    alt={formatPostTitle(post)}
+                    fill
+                    sizes="100vw"
+                    className={styles.bannerSlideImg}
+                    priority={i === 0}
+                    onError={() => handleImgError(post.id)}
+                  />
+                ) : (
+                  <div className={styles.bannerSlideFallback} />
+                )}
+                <div className={styles.bannerOverlay} />
+                <div className={styles.bannerContent}>
+                  <span className={styles.bannerIdx}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div className={styles.bannerMeta}>
+                    {post.category && (
+                      <span className={styles.bannerCategory}>
+                        {post.category}
+                      </span>
+                    )}
+                    <h2 className={styles.bannerTitle}>
+                      {formatPostTitle(post)}
+                    </h2>
+                    {post.excerpt && (
+                      <p className={styles.bannerExcerpt}>{post.excerpt}</p>
+                    )}
+                  </div>
+                </div>
+              </Link>
             ))}
           </Carousel>
         </motion.div>
       )}
+
+      {/* Sentinel for sticky detection */}
+      <div ref={sentinelRef} style={{ height: 0 }} />
+
+      {/* Backdrop blur — portal to body to avoid stacking context issues */}
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {isStuck && (showTags || catExpanded) && (
+              <motion.div
+                className={styles.filterBackdrop}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => { setShowTags(false); setCatExpanded(false); }}
+              />
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
 
       {/* ── Filter Bar (Category tabs + Search + Sort) ── */}
       <motion.div
@@ -201,6 +322,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             extraCategories={extraCategories}
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
+            expanded={catExpanded}
+            onExpandChange={setCatExpanded}
           />
 
           <div className={styles.filterBarRight}>
@@ -263,32 +386,42 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           </div>
         </div>
 
-        {showTags && allTags.length > 0 && (
-          <div className={styles.tagRow}>
-            <button
-              className={`${styles.tagBtn} ${!activeTag ? styles.tagBtnActive : ""}`}
-              onClick={() => setActiveTag(null)}
-              data-clickable="true"
+        <AnimatePresence>
+          {showTags && allTags.length > 0 && (
+            <motion.div
+              className={isStuck ? styles.tagDropdown : styles.tagInline}
+              initial={isStuck ? { opacity: 0, y: -8 } : { height: 0, opacity: 0 }}
+              animate={isStuck ? { opacity: 1, y: 0 } : { height: "auto", opacity: 1 }}
+              exit={isStuck ? { opacity: 0, y: -8 } : { height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              All
-            </button>
-            {allTags.map(({ tag, count }) => (
-              <button
-                key={tag}
-                className={`${styles.tagBtn} ${activeTag === tag ? styles.tagBtnActive : ""}`}
-                onClick={() => setActiveTag(tag === activeTag ? null : tag)}
-                data-clickable="true"
-              >
-                {tag}
-                <span className={styles.tagCount}>{count}</span>
-              </button>
-            ))}
-          </div>
-        )}
+              <div className={styles.tagRow}>
+                <button
+                  className={`${styles.tagBtn} ${!activeTag ? styles.tagBtnActive : ""}`}
+                  onClick={() => setActiveTag(null)}
+                  data-clickable="true"
+                >
+                  All
+                </button>
+                {allTags.map(({ tag, count }) => (
+                  <button
+                    key={tag}
+                    className={`${styles.tagBtn} ${activeTag === tag ? styles.tagBtnActive : ""}`}
+                    onClick={() => setActiveTag(tag === activeTag ? null : tag)}
+                    data-clickable="true"
+                  >
+                    {tag}
+                    <span className={styles.tagCount}>{count}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       {/* ── Content Area (2-column) ── */}
-      <div className={styles.contentArea}>
+      <div ref={contentRef} className={styles.contentArea}>
         <div className={styles.mainColumn}>
           {/* Series Row */}
           {!loading && (
@@ -349,7 +482,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           {/* Posts */}
           {loading ? (
             <PostsSkeleton />
-          ) : posts.length === 0 && !showPinned ? (
+          ) : posts.length === 0 && !showBanner ? (
             <div className={styles.emptyState}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" />
@@ -469,19 +602,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 }
 
 /* ── Skeleton ── */
-function HeroSkeleton() {
-  return (
-    <div className={styles.skeletonHero}>
-      <div className={styles.skeletonHeroBody}>
-        <SkeletonLine width={80} height={14} />
-        <SkeletonLine width="80%" height={32} />
-        <SkeletonLine width="100%" height={16} />
-        <SkeletonLine width="40%" height={12} />
-      </div>
-    </div>
-  );
-}
-
 function PostsSkeleton() {
   return (
     <div className={styles.grid}>

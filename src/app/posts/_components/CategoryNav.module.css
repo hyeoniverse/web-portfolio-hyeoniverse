@@ -1,14 +1,25 @@
-.nav {
+/* Wrapper — fills available width, keeps moreBtn inline at top */
+.wrapper {
+  flex: 1;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  align-items: flex-start;
 }
 
-.nav::-webkit-scrollbar {
-  display: none;
+/* Nav — flex-wrap, clips via inline maxHeight */
+.nav {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
+.wrapper .nav {
+  transition: max-height 0.3s ease;
 }
 
 .btn {
@@ -39,6 +50,33 @@
 
 .nav .btnActive:hover {
   color: var(--text-primary);
+}
+
+/* "+N more" / "Close" toggle */
+.moreBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+}
+
+.wrapper .moreBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.moreBtnOpen svg {
+  transform: rotate(180deg);
 }
 
 /* Animated indicator */
