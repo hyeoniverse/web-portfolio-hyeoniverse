@@ -149,7 +149,7 @@ nav#side-navigation::after {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--color-neutral-alpha-10);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-2xl);
   position: relative;
   z-index: 2;
   width: calc(
@@ -160,12 +160,7 @@ nav#side-navigation::after {
   overflow: hidden;
   background: var(--bg-primary);
   border-radius: var(--radius-2xl);
-  transform: none !important;
   -webkit-overflow-scrolling: touch;
-}
-
-#modal[data-rounded="true"] {
-  border-radius: var(--radius-2xl);
 }
 
 /* ==========================================================================
