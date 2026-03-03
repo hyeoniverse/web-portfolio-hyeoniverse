@@ -6,10 +6,10 @@ interface BilingualCategory {
   en: string;
 }
 
-// GET /api/categories — 카테고리 목록 (공개, 이중언어)
+// GET /api/works-categories — works 카테고리 목록 (공개, 이중언어)
 export async function GET() {
   const config = await getSiteConfig();
-  const raw = config.posts?.categories ?? [];
+  const raw = config.works?.categories ?? [];
 
   // 기존 string[] → { ko, en }[] 자동 정규화
   const categories: BilingualCategory[] = (raw as unknown[]).map((item) =>
