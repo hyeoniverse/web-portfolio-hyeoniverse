@@ -26,6 +26,11 @@ interface WorkEditorProps {
   work?: Work;
 }
 
+interface WorksCategory {
+  ko: string;
+  en: string;
+}
+
 const SIZES = ["large", "small", "medium", "tall", "wide"] as const;
 
 const TEMPLATE_KO = `## Overview
@@ -153,7 +158,7 @@ function workToFormData(work: Work): WorkFormData {
     live_url: work.live_url,
     github_url: work.github_url,
     published: work.published,
-    sort_order: work.sort_order,
+    sort_order: work.sort_order || 1,
   };
 }
 
@@ -223,6 +228,17 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       })
       .catch(() => {});
   }, [isEdit]);
+
+  const [worksCategories, setWorksCategories] = useState<WorksCategory[]>([]);
+
+  useEffect(() => {
+    fetch("/api/works-categories")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setWorksCategories(data);
+      })
+      .catch(() => {});
+  }, []);
 
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [techInput, setTechInput] = useState("");
@@ -318,7 +334,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [form.tech, updateField],
   );
 
-  const TRANSLATABLE_FIELDS = ["subtitle", "category", "description", "role", "content"] as const;
+  const TRANSLATABLE_FIELDS = ["subtitle", "description", "role", "content"] as const;
 
   const translateFields = useCallback(
     async (fieldKeys: string[], lang: "ko" | "en") => {
@@ -648,7 +664,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const retranslateOptions = useMemo(
     () => [
       { key: "subtitle", label: tw("subtitle") },
-      { key: "category", label: tw("category") },
       { key: "description", label: tw("description") },
       { key: "role", label: tw("role") },
       { key: "content", label: tw("content") },
@@ -766,13 +781,36 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           </div>
           <div className={es.field}>
             <label className={es.fieldLabel}>{tw("category")}</label>
-            <input
-              className={es.fieldInput}
-              type="text"
-              value={form[`category${suf}`]}
-              onChange={(e) => updateField(`category${suf}`, e.target.value)}
-              placeholder={tw("categoryPlaceholder")}
-            />
+            {worksCategories.length > 0 ? (
+              <Select
+                value={String(
+                  worksCategories.findIndex(
+                    (c) => c.ko === form.category_ko && c.en === form.category_en,
+                  ),
+                )}
+                options={worksCategories.map((cat, i) => ({
+                  value: String(i),
+                  label: editorLang === "ko" ? cat.ko : cat.en,
+                }))}
+                onChange={(v) => {
+                  const idx = parseInt(v);
+                  const cat = worksCategories[idx];
+                  if (cat) {
+                    setForm((prev) => ({ ...prev, category_ko: cat.ko, category_en: cat.en }));
+                    setStatus("");
+                    setError("");
+                  }
+                }}
+              />
+            ) : (
+              <input
+                className={es.fieldInput}
+                type="text"
+                value={form[`category${suf}`]}
+                onChange={(e) => updateField(`category${suf}`, e.target.value)}
+                placeholder={tw("categoryPlaceholder")}
+              />
+            )}
           </div>
         </div>
 

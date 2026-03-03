@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
+import { useMemo, type Dispatch, type SetStateAction } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
@@ -8,6 +8,7 @@ import ProfileSections from "@/components/admin/ProfileSections";
 import type { SettingsTabProps } from "../_types";
 import Field, { ResumeUpload, ServiceItemsEditor } from "./SettingsFormFields";
 import CategoriesEditor from "./CategoriesEditor";
+import WorksCategoriesEditor from "./WorksCategoriesEditor";
 import SeriesManager from "./SeriesManager";
 import styles from "../Settings.module.css";
 
@@ -25,6 +26,21 @@ export default function ContentTab({
   contentSubTab,
 }: ContentTabProps) {
   const { t } = useLanguage();
+
+  // Normalize: support both old string[] and new { ko, en }[]
+  const normalizedPostCats = useMemo(() => {
+    const raw = config.posts?.categories ?? [];
+    return (raw as unknown[]).map((item) =>
+      typeof item === "string" ? { ko: item, en: item } : (item as { ko: string; en: string }),
+    );
+  }, [config.posts?.categories]);
+
+  const normalizedWorksCats = useMemo(() => {
+    const raw = config.works?.categories ?? [];
+    return (raw as unknown[]).map((item) =>
+      typeof item === "string" ? { ko: item, en: item } : (item as { ko: string; en: string }),
+    );
+  }, [config.works?.categories]);
 
   return (
     <>
@@ -178,7 +194,7 @@ export default function ContentTab({
             <h2 className={styles.sectionTitle}>{t("admin.settings.postCategories")}</h2>
             <div className={styles.fields}>
               <CategoriesEditor
-                categories={config.posts?.categories ?? []}
+                categories={normalizedPostCats}
                 onChange={(cats) => update("posts", "categories", cats as SiteConfigData["posts"]["categories"])}
               />
             </div>
@@ -187,13 +203,24 @@ export default function ContentTab({
           {/* Series */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>{t("admin.posts.series")}</h2>
-            <SeriesManager categories={config.posts?.categories ?? []} />
+            <SeriesManager categories={normalizedPostCats} />
           </section>
         </>
       )}
 
       {contentSubTab === "works" && (
         <>
+          {/* Works Categories */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>{t("admin.settings.worksCategories")}</h2>
+            <div className={styles.fields}>
+              <WorksCategoriesEditor
+                categories={normalizedWorksCats}
+                onChange={(cats) => update("works", "categories", cats as SiteConfigData["works"]["categories"])}
+              />
+            </div>
+          </section>
+
           {/* Works Intro */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>{t("admin.settings.worksIntro")}</h2>
