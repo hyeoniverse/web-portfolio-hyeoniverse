@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { WorkFormData } from "@/types/work";
-
 // GET /api/works — 목록 조회
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -42,6 +40,23 @@ export async function GET(request: Request) {
 }
 
 // POST /api/works — 새 work 생성 (admin only)
+const ALLOWED_FIELDS = new Set([
+  "number", "title",
+  "subtitle_ko", "subtitle_en",
+  "category_ko", "category_en",
+  "year",
+  "description_ko", "description_en",
+  "role_ko", "role_en",
+  "tech", "image", "size",
+  "content_ko", "content_en", "content_type",
+  "overview_ko", "overview_en", "overview_image",
+  "challenge_ko", "challenge_en", "challenge_image",
+  "solution_ko", "solution_en", "solution_image",
+  "team_members", "gallery",
+  "live_url", "github_url",
+  "published", "sort_order",
+]);
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -52,12 +67,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body: WorkFormData = await request.json();
+  const body = await request.json();
+  const filtered: Record<string, unknown> = {};
+  for (const key of Object.keys(body)) {
+    if (ALLOWED_FIELDS.has(key)) filtered[key] = body[key];
+  }
+
   const admin = createAdminClient();
 
   const { data, error } = await admin
     .from("works")
-    .insert(body)
+    .insert(filtered)
     .select()
     .single();
 

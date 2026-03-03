@@ -25,6 +25,23 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 // PATCH /api/works/[id] — work 수정 (admin only)
+const ALLOWED_FIELDS = new Set([
+  "number", "title",
+  "subtitle_ko", "subtitle_en",
+  "category_ko", "category_en",
+  "year",
+  "description_ko", "description_en",
+  "role_ko", "role_en",
+  "tech", "image", "size",
+  "content_ko", "content_en", "content_type",
+  "overview_ko", "overview_en", "overview_image",
+  "challenge_ko", "challenge_en", "challenge_image",
+  "solution_ko", "solution_en", "solution_image",
+  "team_members", "gallery",
+  "live_url", "github_url",
+  "published", "sort_order",
+]);
+
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const supabase = await createClient();
@@ -37,11 +54,17 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const body = await request.json();
+  const filtered: Record<string, unknown> = {};
+  for (const key of Object.keys(body)) {
+    if (ALLOWED_FIELDS.has(key)) filtered[key] = body[key];
+  }
+  filtered.updated_at = new Date().toISOString();
+
   const admin = createAdminClient();
 
   const { data, error } = await admin
     .from("works")
-    .update({ ...body, updated_at: new Date().toISOString() })
+    .update(filtered)
     .eq("id", id)
     .select()
     .single();
