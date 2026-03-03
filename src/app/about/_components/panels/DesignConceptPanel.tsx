@@ -173,8 +173,18 @@ function DesignConceptPanel({
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       <div ref={contentRef} className={`${styles.pinnedContent} ${styles.dcViewport}`}>
         <PinnedTitleRow
-         
           title="Design System."
+          rightContent={
+            <a
+              href="/design-system"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-clickable="true"
+              className={styles.externalLink}
+            >
+              Open ↗
+            </a>
+          }
           dotNav={{
             count: concepts.length,
             activeIndex,

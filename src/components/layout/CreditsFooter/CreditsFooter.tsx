@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./CreditsFooter.module.css";
@@ -27,6 +28,11 @@ export default function CreditsFooter({
         <span className={styles.heart}>❤</span>
         {parts[1]} {siteConfig.personal.nickname}
       </p>
+      {variant === "panel" && (
+        <Link href="/design-system" className={styles.designSystemLink}>
+          Design System
+        </Link>
+      )}
     </div>
   );
 }

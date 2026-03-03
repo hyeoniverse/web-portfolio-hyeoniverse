@@ -16,10 +16,28 @@
   color: var(--text-accent);
 }
 
+/* ── Design System Link ── */
+.designSystemLink {
+  display: inline-block;
+  margin-top: var(--spacing-lg);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+}
+
+.credits .designSystemLink:hover {
+  opacity: 1;
+  color: var(--text-secondary);
+}
+
 /* ── Variant: panel (전체화면 패널) ── */
 .panel {
   width: 100%;
   height: 100%;
+  flex-direction: column;
 }
 
 /* ── Variant: section (일반 페이지 하단) ── */
