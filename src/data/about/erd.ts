@@ -248,8 +248,8 @@ export const erdDesignNotes: ErdDesignNote[] = [
     },
     tag: "Polymorphic JSONB Snapshot",
     description: {
-      ko: "revisions 테이블은 entity_type('post'|'work')으로 구분하는 다형적 구조예요. 에디터 자동저장 시 폼 전체를 JSONB snapshot으로 저장하고, 목록 조회 시에는 snapshot을 제외해 가볍게 가져옵니다. 엔티티당 50개 초과 시 오래된 것부터 자동 정리됩니다.",
-      en: "The revisions table uses a polymorphic structure distinguished by entity_type ('post'|'work'). On auto-save, the entire form is stored as a JSONB snapshot. List queries exclude snapshots for lightweight fetching. Revisions exceeding 50 per entity are automatically pruned oldest-first.",
+      ko: "revisions 테이블은 entity_type('post'|'work')으로 구분하는 다형적 구조예요. 에디터 자동저장 시 폼 전체를 JSONB snapshot으로 저장하되, 이전과 동일하면 저장을 건너뛰어 중복을 방지해요. 목록 조회 시에는 snapshot을 제외해 가볍게 가져오고, 상세 보기에서 카테고리·태그 등 메타 항목까지 diff 비교를 표시합니다. 엔티티당 50개 초과 시 자동 정리되고 개별 삭제도 가능해요.",
+      en: "The revisions table uses a polymorphic structure distinguished by entity_type ('post'|'work'). On auto-save, the entire form is stored as a JSONB snapshot, with deduplication skipping saves when content hasn't changed. List queries exclude snapshots for lightweight fetching, while detail views show diff comparisons including metadata like category and tags. Revisions exceeding 50 per entity are auto-pruned oldest-first, and individual deletion is supported.",
     },
     relatedTable: "revisions",
   },

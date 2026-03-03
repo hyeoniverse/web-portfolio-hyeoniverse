@@ -252,6 +252,49 @@
   color: var(--text-tertiary);
 }
 
+.revisionDetailActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.revisionDeleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  padding: 2px;
+}
+
+.revisionDetailActions .revisionDeleteBtn:hover {
+  color: var(--color-accent);
+}
+
+.revisionItemDelete {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  padding: 2px;
+}
+
+.revisionItem .revisionItemDelete {
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.revisionItem:hover .revisionItemDelete {
+  opacity: 1;
+}
+
+.revisionItem .revisionItemDelete:hover {
+  color: var(--color-accent);
+}
+
 .revisionRestoreBtn {
   padding: 2px var(--spacing-xs);
   border: 1px solid var(--border-tertiary-color);
@@ -332,6 +375,35 @@
   color: var(--text-tertiary);
   line-height: 1.6;
   white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── Revision Meta ── */
+.revisionMetaSection {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-top: 1px solid var(--border-tertiary-color);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.revisionMetaRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.revisionMetaKey {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  min-width: 56px;
+}
+
+.revisionMetaVal {
+  color: var(--text-secondary);
   word-break: break-word;
 }
 

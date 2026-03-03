@@ -206,7 +206,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [form],
   );
 
-  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot } = useRevisions({
+  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions({
     entityType: "work",
     entityId: work?.id,
   });
@@ -598,9 +598,25 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       return {
         excerpt: s.description_ko || s.description_en || "",
         content: s.content_ko || s.content_en || "",
+        meta: {
+          Category: s.category_ko || s.category_en || "",
+          Year: s.year || "",
+          Tech: s.tech?.join(", ") || "",
+          Size: s.size || "",
+          Role: s.role_ko || s.role_en || "",
+        },
       };
     },
     [dbRevisions, loadRevisionSnapshot],
+  );
+
+  const handleDeleteRevision = useCallback(
+    async (index: number) => {
+      const rev = dbRevisions[index];
+      if (!rev) return false;
+      return deleteRevision(rev.id);
+    },
+    [dbRevisions, deleteRevision],
   );
 
   const handleRevert = useCallback(() => {
@@ -667,12 +683,20 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       onRevert={handleRevert}
       onRestoreRevision={handleRestoreRevision}
       onLoadRevisionDetail={handleLoadRevisionDetail}
+      onDeleteRevision={handleDeleteRevision}
       onRetranslate={handleRetranslate}
       retranslateOptions={retranslateOptions}
       currentSnapshot={{
         title: form.title,
         excerpt: form.description_ko || form.description_en || "",
         content: form.content_ko || form.content_en || "",
+        meta: {
+          Category: form.category_ko || form.category_en || "",
+          Year: form.year || "",
+          Tech: form.tech?.join(", ") || "",
+          Size: form.size || "",
+          Role: form.role_ko || form.role_en || "",
+        },
       }}
     >
       {/* Basic Info */}
