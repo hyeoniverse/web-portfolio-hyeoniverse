@@ -83,14 +83,14 @@ export default function CursorTrail() {
 
       setMore(!!target?.closest("[data-more]"));
 
-      const isDraggable = !!target?.closest("[data-draggable]");
-
       const isDisabled = !!target && (
         (target as HTMLButtonElement).disabled === true ||
         !!target.closest("[disabled]") ||
         !!target.closest("[aria-disabled='true']") ||
         !!target.closest("[data-disabled]")
       );
+
+      const isDraggable = !isDisabled && !!target?.closest("[data-draggable]");
 
       // clickable 판별 시, 매칭된 interactive 요소 자체가 disabled이면 제외
       const clickableEl = !isDraggable && !isDisabled && target && (
