@@ -5,13 +5,14 @@
   padding: 0;
   border: none;
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 14px;
+  right: 14px;
   width: 28px;
   height: 28px;
   background: var(--color-neutral-alpha-5);
   color: var(--text-tertiary);
   border-radius: var(--radius-circle);
+  z-index: 1;
   transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 
@@ -24,7 +25,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-xl) var(--spacing-2xl) var(--spacing-base);
+  padding: var(--spacing-xl) var(--spacing-2xl) var(--spacing-sm);
 }
 
 .headerContent {
@@ -44,4 +45,8 @@
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   letter-spacing: -0.01em;
+}
+
+.modalBody {
+  padding: var(--spacing-base) var(--spacing-2xl) var(--spacing-xl);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import styles from "./Slider.module.css";
 import { cn } from "@/utils";
 
@@ -30,7 +30,8 @@ function Slider({
   );
   const values = controlledValue ?? internalValue;
   const trackRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef<number | null>(null);
+  const valuesRef = useRef(values);
+  valuesRef.current = values;
 
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
   const quantize = (v: number) => Math.round((v - min) / step) * step + min;
@@ -48,9 +49,10 @@ function Slider({
     [min, max, step]
   );
 
-  const updateValue = useCallback(
+  const doUpdate = useCallback(
     (idx: number, newVal: number) => {
-      const next = [...values];
+      const prev = valuesRef.current;
+      const next = [...prev];
       next[idx] = newVal;
 
       // range 모드: thumb 교차 방지
@@ -62,36 +64,30 @@ function Slider({
       if (!controlledValue) setInternalValue(next);
       onValueChange?.(next);
     },
-    [values, controlledValue, onValueChange]
+    [controlledValue, onValueChange]
   );
 
-  useEffect(() => {
-    if (dragging.current === null) return;
+  const startDrag = useCallback(
+    (idx: number, e: React.PointerEvent) => {
+      if (disabled) return;
+      e.preventDefault();
+      document.body.style.userSelect = "none";
 
-    const onMove = (e: PointerEvent) => {
-      if (dragging.current === null) return;
-      updateValue(dragging.current, getValueFromPointer(e.clientX));
-    };
+      const onMove = (ev: PointerEvent) => {
+        doUpdate(idx, getValueFromPointer(ev.clientX));
+      };
 
-    const onUp = () => {
-      dragging.current = null;
-      document.body.style.userSelect = "";
-    };
+      const onUp = () => {
+        document.body.style.userSelect = "";
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+      };
 
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-    return () => {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-  }, [getValueFromPointer, updateValue]);
-
-  const handleThumbDown = (idx: number) => (e: React.PointerEvent) => {
-    if (disabled) return;
-    e.preventDefault();
-    dragging.current = idx;
-    document.body.style.userSelect = "none";
-  };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+    },
+    [disabled, doUpdate, getValueFromPointer]
+  );
 
   const handleTrackClick = (e: React.PointerEvent) => {
     if (disabled) return;
@@ -102,7 +98,8 @@ function Slider({
       const distances = values.map((v) => Math.abs(v - val));
       closestIdx = distances[0] <= distances[1] ? 0 : 1;
     }
-    updateValue(closestIdx, val);
+    doUpdate(closestIdx, val);
+    startDrag(closestIdx, e);
   };
 
   // range 계산
@@ -137,8 +134,9 @@ function Slider({
           aria-valuemax={max}
           aria-valuenow={v}
           aria-disabled={disabled}
+          data-draggable
           style={{ left: `calc(${pct(v)}% - 8px)` }}
-          onPointerDown={handleThumbDown(i)}
+          onPointerDown={(e) => startDrag(i, e)}
         />
       ))}
     </div>
