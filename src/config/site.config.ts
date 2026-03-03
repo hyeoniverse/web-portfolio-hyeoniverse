@@ -82,10 +82,15 @@ export const siteConfig = {
     github: "https://github.com",
     linkedin: "https://linkedin.com",
     blog: "https://velog.io",
-    // 필요에 따라 소셜 링크를 추가하세요:
-    // twitter: "https://twitter.com/username",
-    // instagram: "https://instagram.com/username",
   },
+
+  // 소셜 링크 (순서 변경·추가 가능, 최대 6개 표시)
+  // platform: github | linkedin | blog | twitter | instagram | youtube | behance | dribbble | custom
+  socialLinks: [
+    { platform: "github", url: "https://github.com" },
+    { platform: "linkedin", url: "https://linkedin.com" },
+    { platform: "blog", url: "https://velog.io" },
+  ] as { platform: string; url: string; label?: string }[],
 
   // ---------------------------------------------------------------------------
   // SEO 및 메타데이터
@@ -114,7 +119,8 @@ export const siteConfig = {
 
   // 홈 About 섹션 — {중괄호} 안의 텍스트가 하이라이트 처리됨
   homeAbout: {
-    intro: "I craft digital experiences where {aesthetics} meet {functionality}.",
+    intro:
+      "I craft digital experiences where {aesthetics} meet {functionality}.",
     intro_ko: "{미학}과 {기능}이 만나는 디지털 경험을 만듭니다.",
     description:
       "Focused on creating memorable interactions through thoughtful {design} and clean {code}.",
@@ -171,7 +177,7 @@ export const siteConfig = {
     title_ko: ["Up for a", "coffee chat?"],
     buttonText: "Get in touch",
     buttonText_ko: "Get in touch",
-    resumeUrl: "",
+    resumeUrl: "/docs/resume.pdf",
     resumeButtonText: "Download Resume",
     resumeButtonText_ko: "이력서 다운로드",
   },
