@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./DetailLayout.module.css";
@@ -44,8 +44,11 @@ export default function DetailLayout({
   children,
   afterContent,
 }: DetailLayoutProps) {
+  const router = useRouter();
   const { setInfinite, lenis, stop, start } = useLenis();
   const [activeHeadingId, setActiveHeadingId] = useState("");
+  const [showScrollBtns, setShowScrollBtns] = useState(false);
+  const pageRef = useRef<HTMLDivElement>(null);
 
   // Lenis setup
   useEffect(() => {
@@ -63,6 +66,33 @@ export default function DetailLayout({
       setInfinite(true);
     };
   }, [setInfinite, lenis, stop, start]);
+
+  // Show/hide scroll buttons
+  useEffect(() => {
+    let rafId: number;
+    const handleScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        setShowScrollBtns(window.scrollY > 300);
+      });
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    if (lenis) lenis.scrollTo(0, { duration: 1.2 });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [lenis]);
+
+  const scrollToBottom = useCallback(() => {
+    const target = document.documentElement.scrollHeight;
+    if (lenis) lenis.scrollTo(target, { duration: 1.2 });
+    else window.scrollTo({ top: target, behavior: "smooth" });
+  }, [lenis]);
 
   // Scroll spy
   useEffect(() => {
@@ -112,14 +142,36 @@ export default function DetailLayout({
   );
 
   return (
-    <div className={styles.page}>
+    <div ref={pageRef} className={styles.page}>
       {/* Back button */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
       >
-        <Link href={backHref} className={styles.backBtn}>
+        <a
+          href={backHref}
+          className={styles.backBtn}
+          onClick={(e) => {
+            const ref = document.referrer;
+            try {
+              const refUrl = ref ? new URL(ref) : null;
+              if (
+                refUrl &&
+                refUrl.origin === window.location.origin &&
+                !refUrl.pathname.startsWith("/admin")
+              ) {
+                e.preventDefault();
+                router.back();
+                return;
+              }
+            } catch {
+              /* invalid referrer — fall through */
+            }
+            e.preventDefault();
+            router.push(backHref);
+          }}
+        >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path
               d="M19 12H5M5 12L12 19M5 12L12 5"
@@ -130,7 +182,7 @@ export default function DetailLayout({
             />
           </svg>
           <span>{backLabel}</span>
-        </Link>
+        </a>
       </motion.div>
 
       {/* Hero */}
@@ -218,6 +270,32 @@ export default function DetailLayout({
       {afterContent && (
         <div className={styles.afterContent}>{afterContent}</div>
       )}
+
+      {/* Scroll buttons */}
+      <div className={`${styles.scrollBtns} ${showScrollBtns ? styles.scrollBtnsVisible : ""}`}>
+        <button
+          type="button"
+          className={styles.scrollBtn}
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+          data-clickable="true"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="18 15 12 9 6 15" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          className={styles.scrollBtn}
+          onClick={scrollToBottom}
+          aria-label="Scroll to bottom"
+          data-clickable="true"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }

@@ -599,3 +599,13 @@
     font-size: clamp(0.55rem, 1.8vw, 0.7rem);
   }
 }
+
+/* ── External link button ── */
+.externalLink {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}

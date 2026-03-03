@@ -80,7 +80,7 @@ export default function PinnedTitleRow({
       <div>
         <h3 className={titleClasses}>{title}</h3>
       </div>
-      {rightContent && !dotNav && (
+      {rightContent && (
         <div className={styles.titleRowRight}>
           {rightContent}
         </div>

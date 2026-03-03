@@ -97,6 +97,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                   <Link href="/about" className={pathname.startsWith("/about") ? styles.activeLink : ""}>{t("nav.about")}</Link>
                   <span className={styles.divider}>✧</span>
                   <Link href="/privacy" className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
+                  <Link href="/design-system" className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
                 </>
               )}
             </div>
