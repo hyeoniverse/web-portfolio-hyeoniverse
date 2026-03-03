@@ -602,10 +602,27 @@
 
 /* ── External link button ── */
 .externalLink {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--color-white-alpha-15);
+  border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  color: var(--color-white-alpha-60);
   text-decoration: none;
   letter-spacing: 0.04em;
   white-space: nowrap;
+}
+
+/* Compound selector (0,2,0) */
+.dcViewport .externalLink {
+  transition:
+    color var(--duration-base) ease,
+    border-color var(--duration-base) ease,
+    background-color var(--duration-base) ease;
+}
+
+.externalLink:hover {
+  color: var(--text-white);
+  border-color: var(--color-white-alpha-40);
+  background: var(--color-white-alpha-5);
 }
