@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Post, PostFormData, Series } from "@/types/post";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import AdminEditorShell, {
@@ -39,9 +39,14 @@ function generateSlug(title: string): string {
 
 export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
-  const { tLang } = useLanguage();
+  const { tLang, language } = useLanguage();
   const isEdit = !!post;
   const categories = useCategories();
+
+  // 카테고리 ko 또는 en 값으로 매칭
+  const findCat = (val: string): BilingualCategory | undefined =>
+    categories.find((c) => c.ko === val || c.en === val);
+  const isManagedCat = (val: string) => !!findCat(val);
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
 
@@ -599,31 +604,40 @@ export default function PostEditor({ post }: PostEditorProps) {
 
           <div className={es.field}>
             <label className={es.fieldLabel}>{te("category")}</label>
-            <div className={styles.categoryWrap}>
-              <Select
-                value={categories.includes(form.category) ? form.category : "__custom__"}
-                options={[
-                  ...categories.map((cat) => ({ value: cat, label: cat })),
-                  { value: "__custom__", label: te("customCategory") },
-                ]}
-                onChange={(v) => {
-                  if (v === "__custom__") {
-                    updateField("category", "");
-                    return;
-                  }
-                  updateField("category", v);
-                }}
-              />
-              {!categories.includes(form.category) && (
-                <input
-                  className={es.fieldInput}
-                  type="text"
-                  value={form.category}
-                  onChange={(e) => updateField("category", e.target.value)}
-                  placeholder={te("customCategory")}
+            {form.series_id ? (
+              <p style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-sm)", color: "var(--text-secondary)" }}>
+                {(findCat(form.category) ? (language === "ko" ? findCat(form.category)!.ko : findCat(form.category)!.en) : form.category) || "—"} <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>({te("categoryFromSeries")})</span>
+              </p>
+            ) : (
+              <div className={styles.categoryWrap}>
+                <Select
+                  value={isManagedCat(form.category) ? (findCat(form.category)?.ko ?? form.category) : "__custom__"}
+                  options={[
+                    ...categories.map((cat) => ({
+                      value: cat.ko,
+                      label: language === "ko" ? cat.ko : cat.en,
+                    })),
+                    { value: "__custom__", label: te("customCategory") },
+                  ]}
+                  onChange={(v) => {
+                    if (v === "__custom__") {
+                      updateField("category", "");
+                      return;
+                    }
+                    updateField("category", v);
+                  }}
                 />
-              )}
-            </div>
+                {!isManagedCat(form.category) && (
+                  <input
+                    className={es.fieldInput}
+                    type="text"
+                    value={form.category}
+                    onChange={(e) => updateField("category", e.target.value)}
+                    placeholder={te("customCategory")}
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           <div className={es.row}>

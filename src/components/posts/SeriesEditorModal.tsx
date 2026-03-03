@@ -27,10 +27,15 @@ interface SeriesPost {
   series_order: number;
 }
 
+interface BilingualCategory {
+  ko: string;
+  en: string;
+}
+
 interface SeriesEditorModalProps {
   /** null → create new, object → edit existing */
   series: Series | null;
-  categories: string[];
+  categories: BilingualCategory[];
   onSave: (series: Series) => void;
   onClose: () => void;
 }
@@ -41,17 +46,19 @@ export default function SeriesEditorModal({
   onSave,
   onClose,
 }: SeriesEditorModalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const isEdit = !!series;
 
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
+
+  const defaultCatKo = categories[0]?.ko || "";
 
   const [form, setForm] = useState<SeriesForm>({
     title: series?.title ?? "",
     title_en: series?.title_en ?? "",
     description: series?.description ?? "",
     description_en: series?.description_en ?? "",
-    category: series?.category ?? "",
+    category: series?.category || defaultCatKo,
     cover_image: series?.cover_image ?? "",
     published: series?.published ?? true,
   });
@@ -165,6 +172,10 @@ export default function SeriesEditorModal({
       setError(ts("titleRequired"));
       return;
     }
+    if (!form.category) {
+      setError(ts("categoryRequired"));
+      return;
+    }
 
     setSaving(true);
     setError("");
@@ -256,10 +267,10 @@ export default function SeriesEditorModal({
               <label className={styles.label}>{ts("category")}</label>
               <Select
                 value={form.category}
-                options={[
-                  { value: "", label: ts("categoryNone") },
-                  ...categories.map((cat) => ({ value: cat, label: cat })),
-                ]}
+                options={categories.map((cat) => ({
+                  value: cat.ko,
+                  label: language === "ko" ? cat.ko : cat.en,
+                }))}
                 onChange={(v) => updateField("category", v)}
               />
             </div>
