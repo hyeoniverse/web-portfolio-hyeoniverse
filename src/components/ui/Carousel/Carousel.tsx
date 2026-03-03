@@ -13,6 +13,7 @@ import styles from "./Carousel.module.css";
 
 export interface CarouselProps {
   children: ReactNode;
+  mode?: "default" | "cylinder";
   autoPlay?: boolean;
   interval?: number;
   pauseOnHover?: boolean;
@@ -29,6 +30,7 @@ function wrap(index: number, length: number) {
 
 export default function Carousel({
   children,
+  mode = "default",
   autoPlay = true,
   interval = 5000,
   pauseOnHover = true,
@@ -43,7 +45,7 @@ export default function Carousel({
   const isSingle = count <= 1;
 
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(1); // 1 = next, -1 = prev
+  const [direction, setDirection] = useState(1);
   const [paused, setPaused] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -64,7 +66,6 @@ export default function Carousel({
   const goNext = useCallback(() => goTo(current + 1, 1), [current, goTo]);
   const goPrev = useCallback(() => goTo(current - 1, -1), [current, goTo]);
 
-  /* Auto-play */
   useEffect(() => {
     if (isSingle || !autoPlay || paused) {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -77,46 +78,33 @@ export default function Carousel({
     };
   }, [isSingle, autoPlay, paused, interval, goNext]);
 
-  const viewportStyle = height ? { height: typeof height === "number" ? `${height}px` : height } : undefined;
+  const viewportStyle = height
+    ? { height: typeof height === "number" ? `${height}px` : height }
+    : undefined;
 
-  /* Slide transition variants */
-  const slideVariants = {
-    enter: (d: number) => ({
-      x: d > 0 ? "80%" : "-80%",
-      scale: 0.92,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      scale: 1,
-      opacity: 1,
-    },
-    exit: (d: number) => ({
-      x: d > 0 ? "-80%" : "80%",
-      scale: 0.92,
-      opacity: 0,
-    }),
-  };
+  const handleMouseEnter = pauseOnHover ? () => setPaused(true) : undefined;
+  const handleMouseLeave = pauseOnHover ? () => setPaused(false) : undefined;
 
-  /* Single slide */
+  /* ── Cylinder visible slides ── */
+  const cylinderSlides = isSingle
+    ? []
+    : [-1, 0, 1].map((offset) => ({
+        idx: wrap(current + offset, count),
+        offset,
+      }));
+
+  /* ── Single slide ── */
   if (isSingle) {
     return (
       <div className={`${styles.carousel} ${className ?? ""}`}>
         <div className={styles.viewport} style={viewportStyle}>
-          <div className={`${styles.active} ${styles.edgeBoth}`}>
+          <div className={styles.slideWrapper}>
             <div className={styles.slideInner}>{slides[0] ?? null}</div>
           </div>
         </div>
       </div>
     );
   }
-
-  /* Upcoming 2 slides */
-  const next1 = wrap(current + 1, count);
-  const next2 = wrap(current + 2, count);
-
-  const handleMouseEnter = pauseOnHover ? () => setPaused(true) : undefined;
-  const handleMouseLeave = pauseOnHover ? () => setPaused(false) : undefined;
 
   return (
     <div
@@ -125,62 +113,79 @@ export default function Carousel({
       onMouseLeave={handleMouseLeave}
     >
       <div className={styles.viewportWrap}>
-        <div className={styles.viewport} style={viewportStyle}>
-          {/* Active slide container */}
-          <div className={`${styles.active} ${styles.edgeLeft}`}>
+        {mode === "default" ? (
+          /* ── Default Mode — connected flow (no mode="wait") ── */
+          <div className={styles.viewport} style={viewportStyle}>
             <AnimatePresence initial={false} custom={direction}>
               <motion.div
                 key={current}
                 custom={direction}
-                variants={slideVariants}
+                variants={{
+                  enter: (d: number) => ({ x: `${d * 100}%` }),
+                  center: { x: "0%" },
+                  exit: (d: number) => ({ x: `${-d * 100}%` }),
+                }}
                 initial="enter"
                 animate="center"
                 exit="exit"
-                className={styles.activeSlide}
+                className={styles.slide}
                 transition={{
                   type: "tween",
-                  duration: 0.7,
-                  ease: [0.25, 0.1, 0.25, 1],
+                  duration: 0.6,
+                  ease: [0.16, 1, 0.3, 1],
                 }}
               >
                 <div className={styles.slideInner}>{slides[current]}</div>
               </motion.div>
             </AnimatePresence>
           </div>
-
-          {/* Upcoming slivers */}
+        ) : (
+          /* ── Cylinder Mode (3D) — slides flow together ── */
           <div
-            className={styles.sliver}
-            onClick={() => goTo(next1, 1)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                goTo(next1, 1);
-              }
-            }}
-            data-clickable="true"
+            className={`${styles.viewport} ${styles.viewport3d}`}
+            style={viewportStyle}
           >
-            <div className={styles.slideInner}>{slides[next1]}</div>
+            <AnimatePresence initial={false}>
+              {cylinderSlides.map(({ idx, offset }) => (
+                <motion.div
+                  key={idx}
+                  className={styles.cylinder}
+                  initial={{
+                    x: direction > 0 ? "80%" : "-80%",
+                    rotateY: direction > 0 ? -50 : 50,
+                    scale: 0.65,
+                    opacity: 0,
+                  }}
+                  animate={{
+                    x: `${offset * 58}%`,
+                    rotateY: offset * -40,
+                    scale: offset === 0 ? 1 : 0.78,
+                    opacity: 1,
+                    zIndex: offset === 0 ? 2 : 1,
+                  }}
+                  exit={{
+                    x: direction > 0 ? "-80%" : "80%",
+                    rotateY: direction > 0 ? 50 : -50,
+                    scale: 0.65,
+                    opacity: 0,
+                  }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  onClick={
+                    offset === -1
+                      ? goPrev
+                      : offset === 1
+                        ? goNext
+                        : undefined
+                  }
+                  data-clickable={offset !== 0 ? "true" : undefined}
+                >
+                  <div className={styles.slideInner}>{slides[idx]}</div>
+                  {offset !== 0 && <div className={styles.cylinderOverlay} />}
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
-
-          <div
-            className={`${styles.sliver} ${styles.edgeRight}`}
-            onClick={() => goTo(next2, 1)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                goTo(next2, 1);
-              }
-            }}
-            data-clickable="true"
-          >
-            <div className={styles.slideInner}>{slides[next2]}</div>
-          </div>
-        </div>
+        )}
 
         {/* Arrows */}
         {showArrows && (
@@ -191,7 +196,16 @@ export default function Carousel({
               aria-label="Previous slide"
               data-clickable="true"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <polyline points="15 18 9 12 15 6" />
               </svg>
             </button>
@@ -201,16 +215,25 @@ export default function Carousel({
               aria-label="Next slide"
               data-clickable="true"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </button>
           </>
         )}
 
-        {/* Indicator — progress dots */}
+        {/* Dots indicator */}
         {showDots && (
-          <div className={styles.indicator}>
+          <div className={styles.dots}>
             {slides.map((_, i) => (
               <button
                 key={i}
