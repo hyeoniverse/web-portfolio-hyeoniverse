@@ -13,6 +13,7 @@ import Select from "@/components/ui/Select";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
+import { useRevisions } from "@/hooks/useRevisions";
 import { autoTranslate } from "@/utils/autoTranslate";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
@@ -78,7 +79,16 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
-  const [revisions, setRevisions] = useState<{ timestamp: number; form: PostFormData }[]>([]);
+  const initialFormRef = useRef(form);
+  const isDirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(initialFormRef.current),
+    [form],
+  );
+
+  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot } = useRevisions({
+    entityType: "post",
+    entityId: post?.id,
+  });
 
   useEffect(() => {
     fetch("/api/series?all=true")
@@ -128,9 +138,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             const data = await res.json();
             savedId.current = data.id;
           }
-          setRevisions((prev) =>
-            [{ timestamp: Date.now(), form: { ...form } }, ...prev].slice(0, 50),
-          );
+          saveRevision({ ...form }, form.title || form.title_en || "(untitled)");
           setStatus(te("autoSaved"));
           setStatusType("success");
         }
@@ -399,16 +407,39 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [form]);
 
   const handleRestoreRevision = useCallback(
-    (index: number) => {
-      const rev = revisions[index];
-      if (rev) {
-        setForm(rev.form);
+    async (index: number) => {
+      const rev = dbRevisions[index];
+      if (!rev) return;
+      const snapshot = await loadRevisionSnapshot(rev.id);
+      if (snapshot) {
+        setForm(snapshot as PostFormData);
         setStatus(te("restored"));
         setStatusType("success");
       }
     },
-    [revisions, te],
+    [dbRevisions, loadRevisionSnapshot, te],
   );
+
+  const handleLoadRevisionDetail = useCallback(
+    async (index: number) => {
+      const rev = dbRevisions[index];
+      if (!rev) return null;
+      const snapshot = await loadRevisionSnapshot(rev.id);
+      if (!snapshot) return null;
+      const s = snapshot as PostFormData;
+      return {
+        excerpt: s.excerpt || s.excerpt_en || "",
+        content: s.content || s.content_en || "",
+      };
+    },
+    [dbRevisions, loadRevisionSnapshot],
+  );
+
+  const handleRevert = useCallback(() => {
+    setForm(initialFormRef.current);
+    setStatus(te("reverted"));
+    setStatusType("info");
+  }, [te]);
 
   const shellLabels = useMemo(
     () => ({
@@ -419,6 +450,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       saveDraft: te("saveDraft"),
       update: te("update"),
       publish: te("publish"),
+      revert: te("revert"),
       revisionHistory: te("revisionHistory"),
       restore: te("restore"),
       retranslate: te("retranslate"),
@@ -447,26 +479,32 @@ export default function PostEditor({ post }: PostEditorProps) {
       editorLang={editorLang}
       onEditorLangChange={handleEditorLangChange}
       isEdit={isEdit}
+      isDirty={isDirty}
       saving={saving || translating}
       deleting={deleting}
       published={form.published}
       onDelete={handleDelete}
-      onSaveDraft={() => handleSave(false)}
+      onSaveDraft={() => handleSave()}
       onPublish={() => handleSave(true)}
       onPreview={handlePreview}
       status={status}
       statusType={statusType}
       error={error}
       labels={shellLabels}
-      revisions={revisions.map((r) => ({
+      revisions={dbRevisions.map((r) => ({
         timestamp: r.timestamp,
-        title: r.form.title || r.form.title_en,
-        excerpt: r.form.excerpt || r.form.excerpt_en || "",
-        content: r.form.content || r.form.content_en || "",
+        title: r.title,
       }))}
+      onRevert={handleRevert}
       onRestoreRevision={handleRestoreRevision}
+      onLoadRevisionDetail={handleLoadRevisionDetail}
       onRetranslate={handleRetranslate}
       retranslateOptions={retranslateOptions}
+      currentSnapshot={{
+        title: form.title || form.title_en,
+        excerpt: form.excerpt || form.excerpt_en || "",
+        content: form.content || form.content_en || "",
+      }}
     >
       <div className={styles.meta}>
         <div className={es.field}>

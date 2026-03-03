@@ -380,6 +380,36 @@ BEGIN
 END $$;
 
 
+-- ────────────────────────────────────────────────────────────
+-- 11. revisions — 에디터 리비전 히스토리 (posts + works 공용)
+--     entity_type: 'post' | 'work'
+--     entity_id: 대상 posts.id 또는 works.id
+--     snapshot: 전체 form 데이터 (JSONB)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS revisions (
+  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  entity_type text NOT NULL CHECK (entity_type IN ('post', 'work')),
+  entity_id   uuid NOT NULL,
+  snapshot    jsonb NOT NULL DEFAULT '{}',
+  title       text NOT NULL DEFAULT '',
+  created_at  timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_revisions_entity
+  ON revisions (entity_type, entity_id, created_at DESC);
+
+ALTER TABLE revisions ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'revisions' AND policyname = 'revisions_service_all'
+  ) THEN
+    CREATE POLICY "revisions_service_all" ON revisions FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+END $$;
+
+
 -- ============================================================
 -- 완료! 총 10개 테이블이 생성되었습니다.
 --
@@ -393,4 +423,5 @@ END $$;
 -- work_comments        : Works 댓글 (대댓글, 이중 인증)
 -- (댓글 좋아요는 likes 테이블에서 target_type='post_comment'/'work_comment'로 통합 관리)
 -- admin_notifications  : 관리자 알림 로그
+-- revisions            : 에디터 리비전 히스토리 (posts/works 공용)
 -- ============================================================
