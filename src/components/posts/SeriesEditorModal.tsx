@@ -6,6 +6,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import type { Series } from "@/types/post";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
+import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import styles from "./SeriesEditorModal.module.css";
 
 interface SeriesForm {
@@ -70,6 +71,7 @@ export default function SeriesEditorModal({
 
   const [posts, setPosts] = useState<SeriesPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
+  const [showCoverPicker, setShowCoverPicker] = useState(false);
 
   const fetchSeriesPosts = useCallback(async () => {
     if (!series?.id) return;
@@ -294,14 +296,32 @@ export default function SeriesEditorModal({
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
-                className={styles.uploadBtn}
-                onClick={handleImageUpload}
-                disabled={uploading}
-              >
-                {uploading ? ts("uploading") : ts("uploadCover")}
-              </button>
+              <>
+                <div className={styles.coverActions}>
+                  <button
+                    type="button"
+                    className={styles.uploadBtn}
+                    onClick={handleImageUpload}
+                    disabled={uploading}
+                  >
+                    {uploading ? ts("uploading") : ts("uploadCover")}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.uploadBtn}
+                    onClick={() => setShowCoverPicker((v) => !v)}
+                  >
+                    {showCoverPicker ? ts("closePicker") : ts("chooseCover")}
+                  </button>
+                </div>
+                {showCoverPicker && (
+                  <CoverImagePicker
+                    onSelect={(url) => { updateField("cover_image", url); setShowCoverPicker(false); }}
+                    onClose={() => setShowCoverPicker(false)}
+                    postContext={{ title: form.title, tags: form.category ? [form.category] : [], excerpt: form.description }}
+                  />
+                )}
+              </>
             )}
           </div>
 

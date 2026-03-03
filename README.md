@@ -33,7 +33,7 @@
 - **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. 목록 페이지는 Server Component로 초기 데이터를 서버 사이드 렌더링하고 ISR(`revalidate = 60`)로 CDN 캐시. 상세 페이지는 `generateStaticParams`로 빌드 시 정적 생성(`revalidate = 300`). Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 이미지 삽입 후 정렬(좌/중앙/우) 및 크기(25%/50%/75%/100%) 조절 가능. 게스트 대댓글(threaded) 지원, 이중 인증(commenter_hash + bcrypt 비밀번호)으로 수정/삭제. Works 상세에서도 동일한 댓글 시스템 지원. 검색, 태그 필터, 커버 이미지, 조회수 추적
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행하는 기능. 시리즈는 카테고리의 하위 요소로, 각 시리즈는 하나의 카테고리에 소속됩니다. 포스트 목록에서 "Posts" / "Series" 뷰 토글로 시리즈 카드 그리드를 별도로 탐색할 수 있으며, 카테고리 선택 시 해당 카테고리의 시리즈만 표시됩니다. 시리즈 카드 클릭 시 해당 시리즈의 포스트만 필터링하여 표시. 포스트 상세 페이지에서 시리즈 네비게이션(이전/다음 글 + 전체 목록 접기/펼치기) 표시. Admin에서 시리즈 CRUD + 카테고리 관리
 - **IP 기반 좋아요**: Posts, Works, 댓글(post/work)에서 좋아요 기능 지원. 단일 `likes` 테이블에서 `target_type`('post'|'work'|'post_comment'|'work_comment')으로 구분하고, IP 주소 기반 `UNIQUE` 제약으로 중복 방지 및 토글 처리. Posts는 목록 조회 성능을 위해 `posts.like_count` 캐시 컬럼에 동기화
-- **Cover Image Picker**: 포스트 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
+- **Cover Image Picker**: 포스트·시리즈·작업물 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
 - **Works Admin CRUD**: Supabase DB 기반 포트폴리오 작업물 관리. Admin에서 작업물 생성/수정/삭제, 발행 토글, 정렬 순서 변경 가능. 단일 콘텐츠 에디터(Markdown/Rich Text 전환) + 템플릿 삽입 방식으로 프로젝트 기술서 작성. 템플릿 8개 섹션: Overview, Background, Key Features, Architecture, Challenges, Solutions, Results, Lessons Learned. 한/영 이중 언어, 기술 스택, 갤러리 이미지, 팀 멤버(이름·역할 한/영·URL) 지원. 상세 페이지에서 콘텐츠 내 `##` 헤딩을 자동 파싱하여 TOC 생성. DB 미연결 시 정적 데이터(`data/projects.ts`)로 자동 fallback
 - **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. Settings > Content > Profile 서브탭에서 관리. `site_settings` 테이블에 JSONB로 저장. DB 미연결 시 정적 데이터 fallback
 - **방문자 통계**: IP+날짜 기반 일간·누적 방문자 카운터. Footer에 실시간 표시
@@ -41,7 +41,7 @@
 - **사이트 콘텐츠 관리**: Admin Settings에서 5개 탭(General, Content, Appearance, Services, Account)으로 관리. Content 탭은 사이드 네비게이션으로 Home/Profile/About/Posts 서브탭 분리. Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. Services 탭에서 API 키(환경변수)를 DB에 저장·관리하고, 번역 프로바이더(DeepL/Google/Gemini) 선택 가능. Account 탭에서 관리자 이메일/비밀번호 변경 지원(비밀번호 확인 모달). Settings 저장 시 BroadcastChannel로 다른 탭 자동 새로고침. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
 - **자동 번역**: 에디터에서 언어 전환 시 대상 언어가 비어있으면 자동 번역. DeepL API Free(기본), Google Cloud Translation, Gemini 2.0 Flash 중 Settings에서 선택. 재번역 버튼으로 전체/개별 필드 재번역 가능. 번역 중 언어 토글 차단으로 중복 요청 방지
 - **카테고리 관리**: Posts에서 카테고리 삭제 시 소속 포스트를 일괄/개별 재할당하는 모달. 새 카테고리 생성도 지원
-- **시리즈 편집 모달**: Post 에디터에서 시리즈 선택 후 Edit 버튼으로 제목/설명/커버 이미지/카테고리/발행 상태를 인라인 모달에서 편집 가능. 시리즈 내 포스트 목록 표시·드래그 순서 변경·연결 해제 지원. 신규 시리즈 생성도 모달로 처리
+- **시리즈 편집 모달**: Post 에디터에서 시리즈 선택 후 Edit 버튼으로 제목/설명/커버 이미지/카테고리/발행 상태를 인라인 모달에서 편집 가능. 커버 이미지는 CoverImagePicker(프리셋/Unsplash/AI)로 선택 가능. 시리즈 내 포스트 목록 표시·드래그 순서 변경·연결 해제 지원. 신규 시리즈 생성도 모달로 처리. Settings 시리즈 목록은 페이지당 5개씩 페이징 처리
 - **에디터 리비전 히스토리**: Posts/Works 에디터의 자동저장 시 `revisions` DB 테이블에 폼 전체를 JSONB snapshot으로 영구 저장. 탭을 닫거나 다른 기기에서 접속해도 리비전 히스토리 유지. 목록 조회 시 snapshot 제외로 경량 로딩, 상세 보기 시 lazy fetch. 현재 폼과의 diff(LCS 기반 라인 비교) 표시, Revert 버튼으로 초기 상태 복원. 개별 리비전 삭제 지원(리스트·상세 뷰). 상세 보기에서 카테고리·태그·시리즈 등 메타 항목도 diff 비교 표시. 이전 snapshot과 동일하면 저장 스킵(중복 방지). 엔티티당 50개 초과 시 자동 정리
 - **CTA 이력서 다운로드**: Home 페이지 CTA 영역에 이력서 다운로드 버튼 표시. Admin Settings에서 PDF 업로드(5MB 제한, Supabase Storage) 및 버튼 텍스트 한/영 편집 가능. `resumeUrl`이 비어있으면 버튼 미표시
 
@@ -301,7 +301,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 ### 6. Cover Image Picker 사용법
 
-포스트 작성/수정 화면의 Cover Image 영역에서 **Upload**(직접 업로드)과 **Choose cover**(피커) 중 선택할 수 있습니다.
+포스트·시리즈·작업물 에디터의 Cover Image / Main Image 영역에서 **Upload**(직접 업로드)과 **Choose cover**(피커) 중 선택할 수 있습니다.
 
 **Choose cover** 클릭 시 3개 탭이 표시됩니다:
 
