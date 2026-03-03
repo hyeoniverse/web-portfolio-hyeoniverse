@@ -364,6 +364,50 @@ export default function ContentTab({
 
       {contentSubTab === "posts" && (
         <>
+          {/* Banner Settings */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Banner</h2>
+            <div className={styles.fields}>
+              <div className={styles.fieldRow}>
+                <label className={styles.fieldLabel}>Banner Layout</label>
+                <Select
+                  value={config.posts.bannerLayout ?? "fullwidth"}
+                  options={[
+                    { value: "fullwidth", label: "Fullwidth" },
+                    { value: "split", label: "Split" },
+                    { value: "cards", label: "Cards" },
+                    { value: "ticker", label: "Ticker" },
+                  ]}
+                  onChange={(v) => update("posts", "bannerLayout", v as SiteConfigData["posts"]["bannerLayout"])}
+                />
+              </div>
+              <div className={styles.fieldRow}>
+                <label className={styles.fieldLabel}>Banner Style</label>
+                <Select
+                  value={config.posts.bannerStyle ?? "editorial"}
+                  options={[
+                    { value: "editorial", label: "Editorial" },
+                    { value: "minimal", label: "Minimal" },
+                    { value: "cinematic", label: "Cinematic" },
+                    { value: "magazine", label: "Magazine" },
+                  ]}
+                  onChange={(v) => update("posts", "bannerStyle", v as SiteConfigData["posts"]["bannerStyle"])}
+                />
+              </div>
+              <div className={styles.fieldRow}>
+                <label className={styles.fieldLabel}>Banner Transition</label>
+                <Select
+                  value={config.posts.bannerTransition ?? "default"}
+                  options={[
+                    { value: "default", label: "Default" },
+                    { value: "cylinder", label: "Cylinder" },
+                  ]}
+                  onChange={(v) => update("posts", "bannerTransition", v as SiteConfigData["posts"]["bannerTransition"])}
+                />
+              </div>
+            </div>
+          </section>
+
           {/* Post Categories */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>{t("admin.settings.postCategories")}</h2>
