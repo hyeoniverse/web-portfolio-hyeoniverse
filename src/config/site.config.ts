@@ -213,12 +213,14 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   posts: {
     categories: [
-      "Frontend",
-      "Backend",
-      "DevOps",
-      "CS",
-      "Review",
-      "Career",
+      { ko: "프론트엔드", en: "Frontend" },
+      { ko: "백엔드", en: "Backend" },
+      { ko: "DevOps", en: "DevOps" },
+      { ko: "디자인", en: "Design" },
+      { ko: "튜토리얼", en: "Tutorial" },
+      { ko: "알고리즘", en: "Algorithm" },
+      { ko: "회고", en: "Retrospective" },
+      { ko: "일상", en: "Life" },
     ],
   },
 
@@ -226,6 +228,13 @@ export const siteConfig = {
   // Works 페이지
   // ---------------------------------------------------------------------------
   works: {
+    categories: [
+      { ko: "웹", en: "Web" },
+      { ko: "모바일", en: "Mobile" },
+      { ko: "오픈소스", en: "Open Source" },
+      { ko: "사이드 프로젝트", en: "Side Project" },
+      { ko: "클론", en: "Clone" },
+    ],
     infiniteScroll: true,
     introLabel: "Junior Frontend Developer",
     introLabel_ko: "Junior Frontend Developer",
