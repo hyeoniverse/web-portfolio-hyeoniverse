@@ -70,6 +70,7 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
   const { t } = useLanguage();
   const { isTouch } = useIsMobile();
   const [expression, setExpression] = useState<Expression>("normal");
+  const [snapCount, setSnapCount] = useState(0);
   const cycleIdx = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
@@ -89,10 +90,11 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
     return () => clearInterval(timerRef.current);
   }, [startCycle]);
 
-  /* ── 클릭으로 표정 변경 (자동 로테이션 리셋) ── */
+  /* ── 클릭으로 표정 변경 (자동 로테이션 리셋 + 정면 스냅) ── */
   const handleExpression = useCallback(
     (expr: Expression) => {
       setExpression(expr);
+      setSnapCount((c) => c + 1);
       cycleIdx.current = EXPR_CYCLE.indexOf(expr);
       startCycle();
     },
@@ -137,7 +139,7 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
           frameloop="always"
         >
           <Suspense fallback={null}>
-            <BunnyPreviewScene expression={expression} />
+            <BunnyPreviewScene expression={expression} snapToFront={snapCount} />
           </Suspense>
         </Canvas>
       </div>

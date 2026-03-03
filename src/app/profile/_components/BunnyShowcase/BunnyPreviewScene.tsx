@@ -106,10 +106,13 @@ type Expression = "normal" | "surprised" | "happy";
 
 interface BunnyPreviewSceneProps {
   expression?: Expression;
+  /** 클릭으로 표정 변경 시에만 증가하는 카운터 — 정면 스냅 트리거 */
+  snapToFront?: number;
 }
 
 export default function BunnyPreviewScene({
   expression = "normal",
+  snapToFront = 0,
 }: BunnyPreviewSceneProps) {
   const groupRef = useRef<THREE.Group>(null);
   const leftEyeRef = useRef<THREE.Mesh>(null);
@@ -123,13 +126,44 @@ export default function BunnyPreviewScene({
   const exprRef = useRef<Expression>(expression);
   exprRef.current = expression;
 
+  // ── 클릭 시 정면 스냅 ──
+  const rotationY = useRef(0);
+  const modeRef = useRef<"spin" | "snap" | "hold">("spin");
+  const snapTarget = useRef(0);
+  const holdStart = useRef(0);
+  const prevSnapRef = useRef(snapToFront);
+  const SPIN_SPEED = 0.6; // rad/s
+  const HOLD_DURATION = 2.5; // seconds
+
   useFrame(({ clock }, delta) => {
     if (!groupRef.current) return;
     const dt = Math.min(delta, 0.05);
     const t = clock.getElapsedTime();
 
-    // 오르골 회전: Y축 ~10초에 1회전
-    groupRef.current.rotation.set(0, t * 0.6, 0);
+    // ── 클릭으로 표정 변경 시에만 정면 스냅 ──
+    if (snapToFront !== prevSnapRef.current) {
+      prevSnapRef.current = snapToFront;
+      const nearest = Math.round(rotationY.current / (Math.PI * 2)) * Math.PI * 2;
+      snapTarget.current = nearest;
+      modeRef.current = "snap";
+    }
+
+    if (modeRef.current === "spin") {
+      rotationY.current += SPIN_SPEED * dt;
+    } else if (modeRef.current === "snap") {
+      rotationY.current += (snapTarget.current - rotationY.current) * (1 - Math.pow(0.02, dt));
+      if (Math.abs(rotationY.current - snapTarget.current) < 0.005) {
+        rotationY.current = snapTarget.current;
+        modeRef.current = "hold";
+        holdStart.current = t;
+      }
+    } else if (modeRef.current === "hold") {
+      if (t - holdStart.current > HOLD_DURATION) {
+        modeRef.current = "spin";
+      }
+    }
+
+    groupRef.current.rotation.set(0, rotationY.current, 0);
 
     // 살짝 위아래 보빙
     groupRef.current.position.y = Math.sin(t * 0.4 * Math.PI * 2) * 0.03;
