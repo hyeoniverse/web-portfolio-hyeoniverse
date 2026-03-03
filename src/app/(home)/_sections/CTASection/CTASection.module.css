@@ -95,6 +95,14 @@
 /* ---------------------------------------------------------------------------
    Button
    --------------------------------------------------------------------------- */
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
 .buttonWrapper {
   display: inline-block;
 }
@@ -107,6 +115,19 @@
 
 /* (0,5,0) — outline hover (0,4,0) 이상 필요 */
 .cta .ctaBtn.ctaBtn:hover {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-primary-color);
+  backdrop-filter: blur(2px);
+}
+
+/* Resume Button */
+.resumeBtn.resumeBtn {
+  gap: var(--spacing-md);
+  overflow: hidden;
+}
+
+.cta .resumeBtn.resumeBtn:hover {
   background: transparent;
   color: var(--text-primary);
   border-color: var(--border-primary-color);
@@ -187,7 +208,13 @@
     font-size: clamp(2rem, 10vw, 3.5rem);
   }
 
-  .ctaBtn.ctaBtn {
+  .buttonGroup {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .ctaBtn.ctaBtn,
+  .resumeBtn.resumeBtn {
     padding: var(--padding-2xl);
   }
 }

@@ -150,6 +150,87 @@ export function LogoUpload({
   );
 }
 
+/* ── ResumeUpload ── */
+
+export function ResumeUpload({
+  label,
+  url,
+  uploadLabel,
+  removeLabel,
+  onUploaded,
+  onRemove,
+}: LogoUploadProps) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "resume");
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      onUploaded(data.url);
+    } catch {
+      // silent fail
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className={styles.fieldRow}>
+      <label className={styles.fieldLabel}>{label}</label>
+      <div className={styles.logoUpload}>
+        {url && (
+          <div className={styles.logoPreview}>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.fieldLabel}
+              style={{ textDecoration: "underline", fontSize: "12px" }}
+            >
+              PDF ↗
+            </a>
+          </div>
+        )}
+        <div className={styles.logoActions}>
+          <button
+            type="button"
+            className={styles.logoBtn}
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? "..." : uploadLabel}
+          </button>
+          {url && (
+            <button type="button" className={styles.logoBtnRemove} onClick={onRemove}>
+              {removeLabel}
+            </button>
+          )}
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/pdf"
+          hidden
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleUpload(file);
+            e.target.value = "";
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 /* ── ServiceItemsEditor ── */
 
 interface ServiceItemsEditorProps {

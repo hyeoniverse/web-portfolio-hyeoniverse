@@ -22,18 +22,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
-  // 파일 크기 제한 (2MB)
-  if (file.size > 2 * 1024 * 1024) {
+  // 파일 크기 제한
+  const isResume = folder === "resume";
+  const maxSize = isResume ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
+  if (file.size > maxSize) {
     return NextResponse.json(
-      { error: "File too large (max 2MB)" },
+      { error: `File too large (max ${isResume ? "5MB" : "2MB"})` },
       { status: 400 },
     );
   }
 
-  // 이미지 MIME 타입만 허용
-  if (!file.type.startsWith("image/")) {
+  // MIME 타입 검증
+  const mimeOk = isResume
+    ? file.type === "application/pdf"
+    : file.type.startsWith("image/");
+  if (!mimeOk) {
     return NextResponse.json(
-      { error: "Only image files allowed" },
+      { error: isResume ? "Only PDF files allowed" : "Only image files allowed" },
       { status: 400 },
     );
   }

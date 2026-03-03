@@ -6,7 +6,7 @@ import type { SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
 import ProfileSections from "@/components/admin/ProfileSections";
 import type { SettingsTabProps } from "../_types";
-import Field, { ServiceItemsEditor } from "./SettingsFormFields";
+import Field, { ResumeUpload, ServiceItemsEditor } from "./SettingsFormFields";
 import CategoriesEditor from "./CategoriesEditor";
 import SeriesManager from "./SeriesManager";
 import styles from "../Settings.module.css";
@@ -144,6 +144,18 @@ export default function ContentTab({
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.ctaButtonText")} (EN)`} value={config.cta.buttonText} onChange={(v) => update("cta", "buttonText", v)} />
                 <Field label={`${t("admin.settings.ctaButtonText")} (KO)`} value={config.cta.buttonText_ko} onChange={(v) => update("cta", "buttonText_ko", v)} />
+              </div>
+              <ResumeUpload
+                label={t("admin.settings.resumeFile")}
+                url={config.cta.resumeUrl}
+                uploadLabel={t("admin.settings.uploadResume")}
+                removeLabel={t("admin.settings.removeLogo")}
+                onUploaded={(url) => update("cta", "resumeUrl", url)}
+                onRemove={() => update("cta", "resumeUrl", "")}
+              />
+              <div className={styles.fieldPair}>
+                <Field label={`${t("admin.settings.resumeButtonText")} (EN)`} value={config.cta.resumeButtonText} onChange={(v) => update("cta", "resumeButtonText", v)} />
+                <Field label={`${t("admin.settings.resumeButtonText")} (KO)`} value={config.cta.resumeButtonText_ko} onChange={(v) => update("cta", "resumeButtonText_ko", v)} />
               </div>
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.footerCopyright")} (EN)`} value={config.footer.copyright} onChange={(v) => update("footer", "copyright", v)} />

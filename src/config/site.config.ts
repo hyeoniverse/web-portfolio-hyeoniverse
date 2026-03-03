@@ -171,6 +171,9 @@ export const siteConfig = {
     title_ko: ["Up for a", "coffee chat?"],
     buttonText: "Get in touch",
     buttonText_ko: "Get in touch",
+    resumeUrl: "",
+    resumeButtonText: "Download Resume",
+    resumeButtonText_ko: "이력서 다운로드",
   },
 
   footer: {
