@@ -7,6 +7,11 @@
   padding: 120px 8vw 80px;
 }
 
+/* SSR FOUC 방지 — hydration 전까지 콘텐츠 숨김 */
+.page .notReady {
+  opacity: 0;
+}
+
 .container {
   margin: 0 auto;
   max-width: 1100px;
@@ -185,6 +190,7 @@
 }
 
 .sectionSub {
+  margin-top: 40px;
   margin-bottom: 16px;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
@@ -192,6 +198,10 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.sectionTitle + .sectionSub {
+  margin-top: 0;
 }
 
 /* Color Grid */
@@ -403,7 +413,7 @@
 /* Z-index showcase */
 .zStack {
   position: relative;
-  height: 280px;
+  height: 380px;
 }
 
 .zLayer {
