@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -19,12 +19,52 @@ interface FooterProps {
 
 export default function Footer({ className, variant = "full" }: FooterProps) {
   const pathname = usePathname();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const siteConfig = useSiteConfig();
   const [visits, setVisits] = useState<{ today: number; total: number } | null>(null);
 
   // variant가 명시적으로 전달되면 항상 표시, 아니면 HIDDEN_ROUTES 체크
   const isHidden = variant === "full" && HIDDEN_ROUTES.includes(pathname);
+
+  /* ── Sliding indicator ── */
+  const linksRef = useRef<HTMLDivElement>(null);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+
+  const setLinkRef = useCallback(
+    (href: string) => (el: HTMLAnchorElement | null) => {
+      linkRefs.current[href] = el;
+    },
+    [],
+  );
+
+  const isAdmin = !isHidden && pathname.startsWith("/admin");
+
+  const activeLinkHref = isAdmin
+    ? ["/admin/settings", "/admin/works", "/admin/posts"].find((h) => pathname.startsWith(h)) ?? (pathname === "/" ? "/" : null)
+    : ["/works", "/posts", "/profile", "/about", "/privacy", "/design-system"].find(
+        (h) => pathname === h || pathname.startsWith(h + "/"),
+      ) ?? null;
+
+  const targetHref = hoveredLink ?? activeLinkHref;
+
+  useEffect(() => {
+    if (!targetHref) {
+      setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }));
+      return;
+    }
+    const el = linkRefs.current[targetHref];
+    const parent = linksRef.current;
+    if (!el || !parent) return;
+    const parentRect = parent.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    setIndicatorStyle({
+      left: elRect.left - parentRect.left,
+      width: elRect.width,
+      opacity: 1,
+    });
+  }, [targetHref, language]);
 
   useEffect(() => {
     fetch("/api/visits")
@@ -36,7 +76,6 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   if (isHidden) return null;
 
   const isMinimal = variant === "minimal";
-  const isAdmin = pathname.startsWith("/admin");
 
   const visitsBlock = visits && (
     <div className={styles.visits}>
@@ -80,26 +119,30 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
           </div>
         ) : (
           <>
-            <div className={styles.links}>
+            <div className={styles.links} ref={linksRef} onMouseLeave={() => setHoveredLink(null)}>
               {isAdmin ? (
                 <>
-                  <Link href="/admin/settings" className={pathname.startsWith("/admin/settings") ? styles.activeLink : ""}>Settings</Link>
-                  <Link href="/admin/works" className={pathname.startsWith("/admin/works") ? styles.activeLink : ""}>Works</Link>
-                  <Link href="/admin/posts" className={pathname.startsWith("/admin/posts") ? styles.activeLink : ""}>Posts</Link>
+                  <Link href="/admin/settings" ref={setLinkRef("/admin/settings")} onMouseEnter={() => setHoveredLink("/admin/settings")} className={pathname.startsWith("/admin/settings") ? styles.activeLink : ""}>Settings</Link>
+                  <Link href="/admin/works" ref={setLinkRef("/admin/works")} onMouseEnter={() => setHoveredLink("/admin/works")} className={pathname.startsWith("/admin/works") ? styles.activeLink : ""}>Works</Link>
+                  <Link href="/admin/posts" ref={setLinkRef("/admin/posts")} onMouseEnter={() => setHoveredLink("/admin/posts")} className={pathname.startsWith("/admin/posts") ? styles.activeLink : ""}>Posts</Link>
                   <span className={styles.divider}>✧</span>
-                  <Link href="/">Home</Link>
+                  <Link href="/" ref={setLinkRef("/")} onMouseEnter={() => setHoveredLink("/")}>Home</Link>
                 </>
               ) : (
                 <>
-                  <Link href="/works" className={pathname.startsWith("/works") ? styles.activeLink : ""}>{t("nav.works")}</Link>
-                  <Link href="/posts" className={pathname.startsWith("/posts") ? styles.activeLink : ""}>{t("nav.posts")}</Link>
-                  <Link href="/profile" className={pathname.startsWith("/profile") ? styles.activeLink : ""}>{t("nav.profile")}</Link>
-                  <Link href="/about" className={pathname.startsWith("/about") ? styles.activeLink : ""}>{t("nav.about")}</Link>
+                  <Link href="/works" ref={setLinkRef("/works")} onMouseEnter={() => setHoveredLink("/works")} className={pathname.startsWith("/works") ? styles.activeLink : ""}>Works</Link>
+                  <Link href="/posts" ref={setLinkRef("/posts")} onMouseEnter={() => setHoveredLink("/posts")} className={pathname.startsWith("/posts") ? styles.activeLink : ""}>Posts</Link>
+                  <Link href="/profile" ref={setLinkRef("/profile")} onMouseEnter={() => setHoveredLink("/profile")} className={pathname.startsWith("/profile") ? styles.activeLink : ""}>Profile</Link>
+                  <Link href="/about" ref={setLinkRef("/about")} onMouseEnter={() => setHoveredLink("/about")} className={pathname.startsWith("/about") ? styles.activeLink : ""}>About</Link>
                   <span className={styles.divider}>✧</span>
-                  <Link href="/privacy" className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
-                  <Link href="/design-system" className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
+                  <Link href="/privacy" ref={setLinkRef("/privacy")} onMouseEnter={() => setHoveredLink("/privacy")} className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
+                  <Link href="/design-system" ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
                 </>
               )}
+              <span
+                className={`${styles.footerIndicator} ${indicatorStyle.opacity === 0 ? styles.footerIndicatorHidden : ""}`}
+                style={indicatorStyle}
+              />
             </div>
             <div className={styles.bottom}>
               {emailLink}

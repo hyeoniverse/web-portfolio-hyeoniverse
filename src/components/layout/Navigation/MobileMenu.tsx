@@ -21,7 +21,6 @@ interface MobileMenuProps {
   isAdminPage: boolean;
   menuItems: MenuItem[];
   contactEmail: string;
-  t: (key: string) => string;
   onClose: () => void;
   onContactOpen: () => void;
   onLogout: () => void;
@@ -36,7 +35,6 @@ export default function MobileMenu({
   isAdminPage,
   menuItems,
   contactEmail,
-  t,
   onClose,
   onContactOpen,
   onLogout,
@@ -94,7 +92,7 @@ export default function MobileMenu({
                     }
                   }}
                 >
-                  {isAdminPage ? item.label : t(`nav.${item.key}`)}
+                  {item.label ?? item.key}
                 </button>
               );
             }
@@ -105,7 +103,7 @@ export default function MobileMenu({
                 className={`${styles.menuLink} glith-on-hover ${pathname === item.href || pathname.startsWith(item.href + "/") ? styles.menuLinkActive : ""}`}
                 onClick={onClose}
               >
-                {isAdminPage ? item.label : t(`nav.${item.key}`)}
+                {item.label ?? item.key}
               </Link>
             );
           })}
