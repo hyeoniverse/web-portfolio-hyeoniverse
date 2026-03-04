@@ -89,21 +89,9 @@
   text-align: center;
 }
 
-/* compound selector → beats global theme transition (0,1,1) */
-.exprBar .exprCard {
-  transition:
-    border-color var(--duration-base) var(--ease-material),
-    background-color var(--duration-base) var(--ease-material);
-}
-
-.exprBar .exprCard:hover {
-  border-color: var(--text-muted);
-  background: color-mix(in srgb, var(--text-primary) 5%, transparent);
-}
-
-.exprCardActive {
-  border-color: var(--color-accent) !important;
-  background: color-mix(in srgb, var(--color-accent) 6%, transparent) !important;
+/* Active card — accent outline */
+.exprBar .exprCard[data-active] {
+  border-color: var(--color-accent);
 }
 
 /* Face SVG area — bunny silhouette */

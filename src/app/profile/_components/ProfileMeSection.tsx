@@ -92,6 +92,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
       <div className={`${styles.panel} ${styles.profilePanel}`}>
         <ProfileWindows className={styles.animate} isMobile={isMobile} />
         <div className={`${styles.profileContent} ${styles.animate}`}>
+          <h3 className={styles.sectionSubtitle}>Profile</h3>
           <p className={styles.bioHighlight}>
             {ko ? p.bioHighlight_ko : p.bioHighlight}
           </p>
@@ -127,6 +128,9 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <span className={styles.panelWatermark}>experience</span>
         <span className={styles.decorBlob} />
         <div className={styles.panelInner}>
+          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+            Experience
+          </h3>
           <div className={styles.expTimeline}>
             {experiences.map((exp, index) => (
               <div
@@ -167,6 +171,9 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
             {group.category.split(" ")[0].toLowerCase()}
           </span>
           <div className={styles.panelInner}>
+            <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+              Skills
+            </h3>
             <div className={styles.skillPanelLayout}>
               <div className={`${styles.skillPanelHeader} ${styles.animate}`}>
                 <span className={styles.skillPanelNumber}>
@@ -210,7 +217,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <span className={`${styles.decorBlob} ${styles.decorBlobAlt}`} />
         <div className={styles.panelInner}>
           <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            {language === "ko" ? "작업 철학" : "Philosophy"}
+            Principles
           </h3>
           <div className={styles.philosophyStack}>
             {philosophy.map((item, index) => (
@@ -240,7 +247,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <span className={styles.panelWatermark}>process</span>
         <div className={styles.panelInner}>
           <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            {language === "ko" ? "일하는 방식" : "My Approach"}
+            Workflow
           </h3>
           <div className={styles.approachStack}>
             {approachSteps.map((step, index) => (

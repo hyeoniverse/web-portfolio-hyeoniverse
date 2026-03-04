@@ -162,6 +162,7 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
               key={key}
               type="button"
               className={`${styles.exprCard} ${expression === key ? styles.exprCardActive : ""}`}
+              data-active={expression === key || undefined}
               onClick={() => handleExpression(key)}
             >
               <span className={styles.exprFace}>{FACE_MAP[key]}</span>
