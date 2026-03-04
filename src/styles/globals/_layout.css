@@ -157,6 +157,7 @@ nav#side-navigation::after {
   max-height: 90vh;
   overflow: hidden;
   background: var(--color-neutral-0);
+  border: 1px solid var(--border-primary);
   border-radius: var(--radius-4xl);
   -webkit-overflow-scrolling: touch;
 }
