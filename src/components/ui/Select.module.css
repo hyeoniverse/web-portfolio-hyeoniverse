@@ -52,7 +52,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: var(--bg-primary);
   z-index: var(--z-dropdown);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -64,7 +64,7 @@
 .option {
   padding: var(--spacing-xs) var(--spacing-sm);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);

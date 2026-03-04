@@ -123,13 +123,9 @@
   font-weight: var(--font-weight-bold);
 }
 
-/* Gradient — neutral → accent */
+/* Gradient — uses global token */
 .gradient {
-  background: linear-gradient(
-    135deg,
-    var(--color-neutral-600),
-    var(--color-accent)
-  );
+  background: var(--gradient-accent);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
