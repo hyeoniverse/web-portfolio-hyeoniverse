@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useLenis } from "@/providers/LenisProvider";
+import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { Mail, Send, Star, ArrowRight, Zap, RotateCcw } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { Typography } from "@/components/ui/Typography";
@@ -15,6 +16,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import { useModalStore } from "@/stores/modalStore";
 import { useTheme } from "@/providers/ThemeProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
@@ -125,16 +127,62 @@ function applyPresetColors(
   }
 }
 
-const sectionVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const },
-  },
+// ─── Animation helpers ───
+const ease = [0.25, 0.1, 0.25, 1] as const;
+
+const staggerContainer = {
+  hidden: { transition: { staggerChildren: 0.07, staggerDirection: 1 } },
+  visible: (d?: number) => ({
+    transition: { staggerChildren: 0.08, ...(d != null && { delayChildren: d }) },
+  }),
 };
 
-const viewportOpts = { once: true, amount: 0.15 as const };
+const staggerItem = {
+  hidden: (d?: number) => ({
+    opacity: 0, y: 20,
+    transition: { duration: 0.3, ease, ...(d != null && d > 0 && { delay: d }) },
+  }),
+  visible: (d?: number) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.4, ...(d != null && { delay: d }), ease },
+  }),
+};
+
+// custom: number → page exit delay / [enterDelay, exitDelay] → scroll bidirectional
+const staggerItemX = {
+  hidden: (d?: number | [number, number]) => ({
+    opacity: 0, x: -24,
+    transition: {
+      duration: 0.3, ease,
+      delay: Array.isArray(d) ? d[1] : (typeof d === "number" && d > 0 ? d : 0),
+    },
+  }),
+  visible: (d?: number | [number, number]) => ({
+    opacity: 1, x: 0,
+    transition: {
+      duration: 0.4, ease,
+      delay: Array.isArray(d) ? d[0] : (typeof d === "number" ? d : 0),
+    },
+  }),
+};
+
+// 내부 요소 개별 stagger (자체 opacity/y 없음, 자식만 orchestrate)
+const innerStagger = {
+  hidden: { transition: { staggerChildren: 0.05, staggerDirection: 1 } },
+  visible: (d?: number) => ({
+    transition: { staggerChildren: 0.05, ...(d != null && { delayChildren: d }) },
+  }),
+};
+
+const innerStaggerFast = {
+  hidden: { transition: { staggerChildren: 0.035, staggerDirection: 1 } },
+  visible: (d?: number) => ({
+    transition: { staggerChildren: 0.03, ...(d != null && { delayChildren: d }) },
+  }),
+};
+
+// amount ↑ + margin 확대 → 요소가 화면에 아직 보일 때 exit 트리거
+const viewportOpts = { once: false, amount: 0.2, margin: "-18% 0px -18% 0px" } as const;
 
 // ─── Color Data ───
 const brandColors = [
@@ -232,6 +280,7 @@ const zScale = [
   { name: "--z-top", value: "10000", label: "Cursor / Transition" },
 ];
 
+
 // ─── Typography Data ───
 const typoVariants = [
   "h1", "h2", "h3", "h4", "h5", "h6", "body1", "body2", "caption", "overline",
@@ -241,25 +290,25 @@ const typoColors = ["primary", "secondary", "tertiary", "muted", "accent"] as co
 
 // ─── Banner mock data ───
 const BANNER_LAYOUTS: BannerLayout[] = ["fullwidth", "split", "cards", "ticker"];
-const BANNER_LAYOUT_LABELS: Record<BannerLayout, string> = {
-  fullwidth: "Fullwidth — 풀 와이드 캐러셀",
-  split: "Split — 좌 이미지 / 우 텍스트",
-  cards: "Cards — 카드 스택",
-  ticker: "Ticker — 미니멀 바",
+const BANNER_LAYOUT_LABELS: Record<BannerLayout, { ko: string; en: string }> = {
+  fullwidth: { ko: "Fullwidth — 풀 와이드 캐러셀", en: "Fullwidth — Full-width Carousel" },
+  split: { ko: "Split — 좌 이미지 / 우 텍스트", en: "Split — Image Left / Text Right" },
+  cards: { ko: "Cards — 카드 스택", en: "Cards — Card Stack" },
+  ticker: { ko: "Ticker — 미니멀 바", en: "Ticker — Minimal Bar" },
 };
 const MOCK_POST: Post = {
   id: "demo-1",
-  title: "The Art of Visual Storytelling",
+  title: "비주얼 스토리텔링의 예술",
   slug: "demo",
   content: "",
   content_type: "markdown",
-  excerpt: "Exploring the intersection of design, photography, and narrative through a modern digital lens.",
+  excerpt: "디자인, 사진, 내러티브가 만나는 지점을 현대 디지털 렌즈로 탐구합니다.",
   cover_image: "https://picsum.photos/seed/ds-banner-1/1200/600",
   tags: [],
   category: "Design",
   is_pinned: true,
   published: true,
-  language: "en",
+  language: "ko",
   view_count: 0,
   like_count: 0,
   created_at: "",
@@ -272,8 +321,8 @@ const MOCK_POST: Post = {
 };
 const MOCK_POSTS: Post[] = [
   MOCK_POST,
-  { ...MOCK_POST, id: "demo-2", title: "Building Modern Interfaces", title_en: "Building Modern Interfaces", category: "Frontend", excerpt: "A deep dive into component architecture and design systems.", excerpt_en: "A deep dive into component architecture and design systems.", cover_image: "https://picsum.photos/seed/ds-banner-2/1200/600" },
-  { ...MOCK_POST, id: "demo-3", title: "Performance at Scale", title_en: "Performance at Scale", category: "DevOps", excerpt: "Techniques for optimizing web applications under heavy load.", excerpt_en: "Techniques for optimizing web applications under heavy load.", cover_image: "https://picsum.photos/seed/ds-banner-3/1200/600" },
+  { ...MOCK_POST, id: "demo-2", title: "모던 인터페이스 구축하기", title_en: "Building Modern Interfaces", category: "Frontend", excerpt: "컴포넌트 아키텍처와 디자인 시스템에 대한 깊은 탐구.", excerpt_en: "A deep dive into component architecture and design systems.", cover_image: "https://picsum.photos/seed/ds-banner-2/1200/600" },
+  { ...MOCK_POST, id: "demo-3", title: "대규모 성능 최적화", title_en: "Performance at Scale", category: "DevOps", excerpt: "높은 트래픽 환경에서 웹 애플리케이션을 최적화하는 기법.", excerpt_en: "Techniques for optimizing web applications under heavy load.", cover_image: "https://picsum.photos/seed/ds-banner-3/1200/600" },
 ];
 
 // ─── TOC Data ───
@@ -296,13 +345,18 @@ const tocSections = [
 export default function DesignSystemPage() {
   const router = useRouter();
   const { theme } = useTheme();
+  const { language } = useLanguage();
   const { setInfinite, scrollTo, lenis, stop, start } = useLenis();
+  const { isLoading: isScreenLoading } = useLoadingScreen();
   const { openModal } = useModalStore();
   const [activeSection, setActiveSection] = useState("");
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const [activePreset, setActivePreset] = useState<number | null>(null);
   const snapRef = useRef<Map<string, string> | null>(null);
   const [twReplay, setTwReplay] = useState(0);
+  const [ready, setReady] = useState(false);
+  const [scrollMode, setScrollMode] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     stop();
@@ -314,7 +368,7 @@ export default function DesignSystemPage() {
         lenis.scrollTo(0, { immediate: true });
       }
       start();
-    }, 50);
+    }, 200);
 
     // 스냅샷 저장 + 언마운트 시 복원
     snapRef.current = snapshotVars(document.documentElement);
@@ -336,6 +390,22 @@ export default function DesignSystemPage() {
       return index;
     });
   }, [theme]);
+
+  // 로딩 스크린 완료 후 애니메이션 시작 (페이드아웃 300ms 대기)
+  useEffect(() => {
+    if (!isScreenLoading && !ready) {
+      const t = setTimeout(() => setReady(true), 300);
+      return () => clearTimeout(t);
+    }
+  }, [isScreenLoading, ready]);
+
+  // ready 후 4초 뒤 scroll-driven 모드 전환 (초기 animate 완료 이후)
+  useEffect(() => {
+    if (ready && !scrollMode) {
+      const t = setTimeout(() => setScrollMode(true), 4000);
+      return () => clearTimeout(t);
+    }
+  }, [ready, scrollMode]);
 
   // 라이트/다크 전환 시 활성 프리셋 재적용
   // rAF로 지연 — ThemeProvider effect(parent)가 child보다 나중에 실행되어
@@ -396,40 +466,91 @@ export default function DesignSystemPage() {
   const [selectValue, setSelectValue] = useState("option1");
 
   const handleBack = useCallback(() => {
-    if (window.history.length > 1 && document.referrer) {
-      router.back();
-    } else {
-      router.push("/");
-    }
+    setIsExiting(true);
+    setTimeout(() => {
+      if (window.history.length > 1 && document.referrer) {
+        router.back();
+      } else {
+        router.push("/");
+      }
+    }, 600);
   }, [router]);
 
   const handleOpenModal = (title: string, content: React.ReactNode) => {
     openModal(content, { header: { title }, closeButton: true, width: "420px" });
   };
 
+  // Phase 1 (not ready): initial="hidden" + CSS opacity:0 → 완전 숨김
+  // Phase 2 (ready):     animate="visible" + custom delay → 순차 등장
+  // Phase 3 (scrollMode): whileInView → 스크롤 기반 등장/퇴장
+  let _seq = 0;
+  const nd = (step = 0.15) => { const v = _seq; _seq += step; return v; };
+
+  // 단독 요소용: scrollMode 에서도 whileInView 유지
+  const vp = (delay: number) =>
+    isExiting
+      ? { animate: "hidden" as const, custom: delay }
+      : scrollMode
+        ? { whileInView: "visible" as const, viewport: viewportOpts }
+        : ready
+          ? { animate: "visible" as const, custom: delay }
+          : {};
+
+  // 컨테이너 부모용: scrollMode 에서는 빈 객체 — 자식들이 독립 whileInView 로 제어
+  const vpGroup = (delay: number) =>
+    isExiting
+      ? { animate: "hidden" as const, custom: delay }
+      : scrollMode
+        ? {}
+        : ready
+          ? { animate: "visible" as const, custom: delay }
+          : {};
+
+  // 수평 자식 (staggerItemX): 좌→우 등장 / 우→좌 소멸
+  const scrollChildX = (i: number, total: number) =>
+    !isExiting && scrollMode
+      ? {
+          initial: "hidden" as const,
+          whileInView: "visible" as const,
+          viewport: viewportOpts,
+          custom: [i * 0.05, (total - 1 - i) * 0.05] as [number, number],
+        }
+      : {};
+
+  // 수직 자식 (staggerItem): 위→아래 등장/소멸
+  const scrollChildY = (i: number) =>
+    !isExiting && scrollMode
+      ? {
+          initial: "hidden" as const,
+          whileInView: "visible" as const,
+          viewport: viewportOpts,
+          custom: i * 0.05,
+        }
+      : {};
+
   return (
     <div className={styles.page}>
       {/* ─── TOC Sidebar ─── */}
       <nav className={styles.toc}>
         <ul className={styles.tocList}>
-          {tocSections.map((s) => (
-            <li key={s.id}>
+          {tocSections.map((s, i) => (
+            <motion.li key={s.id} initial={{ opacity: 0, y: -12 }} animate={ready ? { opacity: 1, y: 0 } : undefined} transition={{ duration: 0.3, delay: i * 0.06, ease }}>
               <button
                 className={`${styles.tocItem} ${activeSection === s.id ? styles.tocItemActive : ""}`}
                 onClick={() => handleTocClick(s.id)}
               >
                 {s.label}
               </button>
-            </li>
+            </motion.li>
           ))}
         </ul>
       </nav>
 
       {/* ─── Main Content ─── */}
-      <div className={styles.main}>
-        <motion.div className={styles.container} initial="visible" animate="visible">
+      <div className={`${styles.main} ${ready ? "" : styles.notReady}`}>
+        <div className={styles.container}>
           {/* Header */}
-          <motion.div className={styles.header} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <motion.div className={styles.header} initial="hidden" {...vp(nd())} variants={staggerItem}>
             <Button
               variant="outline"
               size="sm"
@@ -444,388 +565,415 @@ export default function DesignSystemPage() {
               Back
             </Button>
           </motion.div>
-          <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
-            <h1 className={styles.title}>Design System</h1>
-          </motion.div>
-          <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
-            <p className={styles.subtitle}>Raw Tokens → Semantic Tokens → Context Variables</p>
-          </motion.div>
+          <h1 className={styles.title}>Design System</h1>
+          <motion.p className={styles.subtitle} initial="hidden" {...vp(nd())} variants={staggerItem}>
+            Raw Tokens → Semantic Tokens → Context Variables
+          </motion.p>
 
           {/* ─── Preset Bar ─── */}
-          <motion.div className={styles.presetBar} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
-            <span className={styles.presetBarLabel}>Presets</span>
+          <motion.div className={styles.presetBar} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+            <motion.span className={styles.presetBarLabel} variants={staggerItem} {...scrollChildY(0)}>Presets</motion.span>
             {THEME_PRESETS.map((p, i) => (
-              <button
+              <motion.button
                 key={p.name}
                 className={`${styles.presetSwatch} ${activePreset === i ? styles.presetSwatchActive : ""}`}
                 onClick={() => handlePresetClick(i)}
                 aria-label={p.name}
+                variants={staggerItemX}
+                {...scrollChildX(i, THEME_PRESETS.length)}
               >
                 <div className={styles.presetSwatchInner} style={{ background: p.theme.accentColor }} />
                 <span className={styles.presetName}>{p.name}</span>
-              </button>
+              </motion.button>
             ))}
           </motion.div>
 
           {/* ─── Colors ─── */}
-          <motion.section id="colors" ref={setSectionRef("colors")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="colors" ref={setSectionRef("colors")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Colors</h2>
-            <p className={styles.sectionSub}>Brand</p>
-            <div className={styles.brandRow}>
-              {brandColors.map((c) => (
-                <div key={c.name} className={styles.brandSwatch}>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Brand</motion.p>
+            <motion.div className={styles.brandRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {brandColors.map((c, i) => (
+                <motion.div key={c.name} className={styles.brandSwatch} variants={staggerItemX} {...scrollChildX(i, brandColors.length)}>
                   <div className={styles.brandBox} style={{ background: `var(${c.var})` }} />
                   <span className={styles.colorLabel}>{c.name}</span>
-                </div>
+                </motion.div>
               ))}
-            </div>
-            <p className={styles.sectionSub}>Neutral Scale</p>
-            <div className={styles.colorGrid}>
-              {neutralScale.map((n) => (
-                <div key={n} className={styles.colorSwatch}>
+            </motion.div>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Neutral Scale</motion.p>
+            <motion.div className={styles.colorGrid} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {neutralScale.map((n, i) => (
+                <motion.div key={n} className={styles.colorSwatch} variants={staggerItemX} {...scrollChildX(i, neutralScale.length)}>
                   <div className={styles.colorBox} style={{ background: `var(--color-neutral-${n})` }} />
                   <span className={styles.colorLabel}>{n}</span>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </motion.section>
+            </motion.div>
+          </section>
 
           {/* ─── Alpha Variants ─── */}
-          <motion.section id="alpha" ref={setSectionRef("alpha")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="alpha" ref={setSectionRef("alpha")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Alpha Variants</h2>
-            <p className={styles.sectionSub}>Accent Alpha</p>
-            <div className={styles.alphaRow}>
-              {alphaSteps.map((a) => (
-                <div key={a} style={{ flex: 1, textAlign: "center" }}>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Accent Alpha</motion.p>
+            <motion.div className={styles.alphaRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {alphaSteps.map((a, i) => (
+                <motion.div key={a} style={{ flex: 1, textAlign: "center" }} variants={staggerItemX} {...scrollChildX(i, alphaSteps.length)}>
                   <div className={styles.alphaBar} style={{ background: `var(--color-accent-alpha-${a})`, height: `${8 + a * 0.4}px` }} />
                   <div className={styles.alphaLabel}>{a}%</div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-            <p className={styles.sectionSub}>Neutral Alpha</p>
-            <div className={styles.alphaRow}>
-              {alphaSteps.map((a) => (
-                <div key={a} style={{ flex: 1, textAlign: "center" }}>
+            </motion.div>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Neutral Alpha</motion.p>
+            <motion.div className={styles.alphaRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {alphaSteps.map((a, i) => (
+                <motion.div key={a} style={{ flex: 1, textAlign: "center" }} variants={staggerItemX} {...scrollChildX(i, alphaSteps.length)}>
                   <div className={styles.alphaBar} style={{ background: `var(--color-neutral-alpha-${a})`, height: `${8 + a * 0.4}px` }} />
                   <div className={styles.alphaLabel}>{a}%</div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </motion.section>
+            </motion.div>
+          </section>
 
           {/* ─── Semantic Colors ─── */}
-          <motion.section id="semantic" ref={setSectionRef("semantic")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="semantic" ref={setSectionRef("semantic")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Semantic Colors</h2>
-            <div className={styles.semanticGrid}>
-              {semanticColors.map((c) => (
-                <div key={c.name} className={styles.semanticItem}>
+            <motion.div className={styles.semanticGrid} initial="hidden" {...vpGroup(nd())} variants={innerStaggerFast}>
+              {semanticColors.map((c, i) => (
+                <motion.div key={c.name} className={styles.semanticItem} variants={staggerItemX} {...scrollChildX(i, semanticColors.length)}>
                   <div className={styles.semanticDot} style={{ background: `var(${c.name})` }} />
                   <div className={styles.semanticInfo}>
                     <span className={styles.semanticName}>{c.name}</span>
                     <span className={styles.semanticRef}>{c.ref}</span>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </motion.section>
+            </motion.div>
+          </section>
 
           {/* ─── Typography ─── */}
-          <motion.section id="typography" ref={setSectionRef("typography")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="typography" ref={setSectionRef("typography")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Typography</h2>
-
-            <p className={styles.sectionSub}>Variants</p>
-            <div className={styles.typoRow}>
-              {typoVariants.map((v) => (
-                <div key={v} className={styles.typoItem}>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Variants</motion.p>
+            <motion.div className={styles.typoRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {typoVariants.map((v, i) => (
+                <motion.div key={v} className={styles.typoItem} variants={staggerItem} {...scrollChildY(i)}>
                   <span className={styles.typoLabel}>{v}</span>
                   <Typography variant={v}>Design tokens in action</Typography>
-                </div>
+                </motion.div>
               ))}
-            </div>
-
-            <div style={{ height: 32 }} />
-            <p className={styles.sectionSub}>Colors</p>
-            <div className={styles.typoRow}>
-              {typoColors.map((c) => (
-                <div key={c} className={styles.typoItem}>
+            </motion.div>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Colors</motion.p>
+            <motion.div className={styles.typoRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {typoColors.map((c, i) => (
+                <motion.div key={c} className={styles.typoItem} variants={staggerItem} {...scrollChildY(i)}>
                   <span className={styles.typoLabel}>{c}</span>
                   <Typography variant="h5" color={c}>{c} color</Typography>
-                </div>
+                </motion.div>
               ))}
-            </div>
-
-            <div style={{ height: 32 }} />
-            <p className={styles.sectionSub}>Gradient</p>
-            <Typography variant="h2" gradient>Gradient text effect</Typography>
-
-            <div style={{ height: 32 }} />
-            <p className={styles.sectionSub}>Weights</p>
-            <div className={styles.componentRow}>
-              {(["light", "normal", "medium", "semibold", "bold"] as const).map((w) => (
-                <Typography key={w} variant="body1" weight={w}>{w}</Typography>
+            </motion.div>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Gradient Tokens</motion.p>
+            <motion.div style={{ display: "flex", flexDirection: "column", gap: 12 }} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              <motion.div style={{ display: "flex", alignItems: "center", gap: 16 }} variants={staggerItem} {...scrollChildY(0)}>
+                <Typography variant="h3" gradient>--gradient-accent</Typography>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-muted)" }}>accent-light → accent-dark</span>
+              </motion.div>
+              <motion.div style={{ display: "flex", alignItems: "center", gap: 16 }} variants={staggerItem} {...scrollChildY(1)}>
+                <span style={{ background: "var(--gradient-accent-soft)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}><Typography variant="h3">--gradient-accent-soft</Typography></span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-muted)" }}>accent-light → accent</span>
+              </motion.div>
+              <motion.div style={{ display: "flex", alignItems: "center", gap: 16 }} variants={staggerItem} {...scrollChildY(2)}>
+                <span style={{ background: "var(--gradient-neutral)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}><Typography variant="h3">--gradient-neutral</Typography></span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-muted)" }}>neutral-300 → neutral-700</span>
+              </motion.div>
+            </motion.div>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Weights</motion.p>
+            <motion.div className={styles.componentRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {(["light", "normal", "medium", "semibold", "bold"] as const).map((w, i) => (
+                <motion.div key={w} variants={staggerItemX} {...scrollChildX(i, 5)}>
+                  <Typography variant="body1" weight={w}>{w}</Typography>
+                </motion.div>
               ))}
-            </div>
-          </motion.section>
+            </motion.div>
+          </section>
 
           {/* ─── Spacing ─── */}
-          <motion.section id="spacing" ref={setSectionRef("spacing")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="spacing" ref={setSectionRef("spacing")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Spacing</h2>
-            <div className={styles.spacingRow}>
-              {spacingScale.map((s) => (
-                <div key={s.name} className={styles.spacingItem}>
+            <motion.div className={styles.spacingRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {spacingScale.map((s, i) => (
+                <motion.div key={s.name} className={styles.spacingItem} variants={staggerItem} {...scrollChildY(i)}>
                   <span className={styles.spacingLabel}>{s.name.replace("--spacing-", "")}</span>
                   <div className={styles.spacingBar} style={{ width: `var(${s.name})` }} />
                   <span className={styles.spacingValue}>{s.value}</span>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </motion.section>
+            </motion.div>
+          </section>
 
           {/* ─── Radius ─── */}
-          <motion.section id="radius" ref={setSectionRef("radius")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="radius" ref={setSectionRef("radius")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Border Radius</h2>
-            <div className={styles.radiusGrid}>
-              {radiusScale.map((r) => {
+            <motion.div className={styles.radiusGrid} initial="hidden" {...vpGroup(nd())} variants={innerStaggerFast}>
+              {radiusScale.map((r, i) => {
                 const h = 64;
                 const w = r.name === "capsule" ? 160 : r.name === "circle" ? 64 : Math.min(96, Math.max(64, parseInt(r.value, 10) * 3));
                 return (
-                  <div key={r.name} className={styles.radiusItem}>
+                  <motion.div key={r.name} className={styles.radiusItem} variants={staggerItemX} {...scrollChildX(i, radiusScale.length)}>
                     <div className={styles.radiusBox} style={{ borderRadius: `var(${r.var})`, width: w, height: h }} />
                     <span className={styles.radiusLabel}>{r.name}<br />{r.value}</span>
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
-          </motion.section>
+            </motion.div>
+          </section>
 
           {/* ─── Shadows ─── */}
-          <motion.section id="shadows" ref={setSectionRef("shadows")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="shadows" ref={setSectionRef("shadows")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Shadows</h2>
-            <div className={styles.shadowGrid}>
-              {shadowScale.map((s) => (
-                <div key={s} className={styles.shadowItem}>
+            <motion.div className={styles.shadowGrid} initial="hidden" {...vpGroup(nd())} variants={innerStagger}>
+              {shadowScale.map((s, i) => (
+                <motion.div key={s} className={styles.shadowItem} variants={staggerItemX} {...scrollChildX(i, shadowScale.length)}>
                   <div className={styles.shadowBox} style={{ boxShadow: `var(${s})` }} />
                   <span className={styles.shadowLabel}>{s.replace("--shadow-", "")}</span>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </motion.section>
+            </motion.div>
+          </section>
 
           {/* ─── Motion ─── */}
-          <motion.section id="motion" ref={setSectionRef("motion")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="motion" ref={setSectionRef("motion")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Motion</h2>
-            <p className={styles.sectionSub}>Duration</p>
-            <div className={styles.motionGrid}>
-              {durations.map((d) => (
-                <div key={d.name} className={styles.motionItem}>
-                  <div className={styles.motionName}>{d.name.replace("--duration-", "")}</div>
-                  <div className={styles.motionValue}>{d.value}</div>
-                  <div className={styles.motionBar} style={{ transition: `transform var(${d.name}) var(--ease-material)` }} />
-                </div>
-              ))}
-            </div>
-            <div style={{ height: 24 }} />
-            <p className={styles.sectionSub}>Easing</p>
-            <div className={styles.motionGrid}>
-              {easings.map((e) => (
-                <div key={e.name} className={styles.motionItem}>
-                  <div className={styles.motionName}>{e.name.replace("--ease-", "")}</div>
-                  <div className={styles.motionValue}>{e.value}</div>
-                  <div className={styles.motionBar} style={{ transition: `transform var(--duration-slow) var(${e.name})` }} />
-                </div>
-              ))}
-            </div>
-          </motion.section>
+            <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              <p className={styles.sectionSub}>Duration</p>
+              <div className={styles.motionGrid}>
+                {durations.map((d, i) => (
+                  <motion.div key={d.name} className={styles.motionItem} variants={staggerItemX} {...scrollChildX(i, durations.length)}>
+                    <div className={styles.motionName}>{d.name.replace("--duration-", "")}</div>
+                    <div className={styles.motionValue}>{d.value}</div>
+                    <div className={styles.motionBar} style={{ transition: `transform var(${d.name}) var(--ease-material)` }} />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+            <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              <p className={styles.sectionSub}>Easing</p>
+              <div className={styles.motionGrid}>
+                {easings.map((e, i) => (
+                  <motion.div key={e.name} className={styles.motionItem} variants={staggerItemX} {...scrollChildX(i, easings.length)}>
+                    <div className={styles.motionName}>{e.name.replace("--ease-", "")}</div>
+                    <div className={styles.motionValue}>{e.value}</div>
+                    <div className={styles.motionBar} style={{ transition: `transform var(--duration-slow) var(${e.name})` }} />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </section>
 
           {/* ─── Z-index ─── */}
-          <motion.section id="z-index" ref={setSectionRef("z-index")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="z-index" ref={setSectionRef("z-index")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Z-Index</h2>
-            <div className={styles.zStack}>
-              {zScale.map((z, i) => (
-                <div key={z.name} className={styles.zLayer} style={{ top: `${i * 44}px`, left: `${i * 20}px`, zIndex: Number(z.value), width: `calc(100% - ${i * 40}px)` }}>
-                  <strong>{z.label}</strong>
-                  <span style={{ color: "var(--text-muted)" }}>{z.name} = {z.value}</span>
-                </div>
-              ))}
-            </div>
-          </motion.section>
+            <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              <div className={styles.zStack}>
+                {zScale.map((z, i) => (
+                  <motion.div
+                    key={z.name}
+                    className={styles.zLayer}
+                    style={{ top: `${i * 44}px`, left: `${i * 20}px`, width: `calc(100% - ${i * 40}px)` }}
+                    variants={staggerItem}
+                    {...scrollChildY(i)}
+                  >
+                    <strong>{z.label}</strong>
+                    <span style={{ color: "var(--text-muted)" }}>{z.name} = {z.value}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </section>
 
           {/* ─── Components ─── */}
-          <motion.section id="components" ref={setSectionRef("components")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="components" ref={setSectionRef("components")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Components</h2>
 
             {/* Logo */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Logo</div>
               <div className={styles.logoRow}>
-                <div className={styles.logoItem}>
+                <motion.div className={styles.logoItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
                   <Logo variant="short" as="span" />
                   <span className={styles.logoLabel}>short</span>
-                </div>
-                <div className={styles.logoItem}>
+                </motion.div>
+                <motion.div className={styles.logoItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
                   <Logo variant="full" as="span" />
                   <span className={styles.logoLabel}>full</span>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Button — Variants */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Button — Variants</div>
               <div className={styles.componentRow}>
-                <Tooltip content="variant: primary"><Button variant="primary">Primary</Button></Tooltip>
-                <Tooltip content="variant: outline"><Button variant="outline">Outline</Button></Tooltip>
-                <Tooltip content="variant: ghost"><Button variant="ghost">Ghost</Button></Tooltip>
-                <Tooltip content="disabled"><Button disabled>Disabled</Button></Tooltip>
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><Tooltip content="variant: primary"><Button variant="primary">Primary</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><Tooltip content="variant: outline"><Button variant="outline">Outline</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><Tooltip content="variant: ghost"><Button variant="ghost">Ghost</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}><Tooltip content="disabled"><Button disabled>Disabled</Button></Tooltip></motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Button — Sizes */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Button — Sizes</div>
               <div className={styles.componentRow}>
-                <Tooltip content="size: xs"><Button variant="outline" size="xs">XS</Button></Tooltip>
-                <Tooltip content="size: sm"><Button variant="outline" size="sm">Small</Button></Tooltip>
-                <Tooltip content="size: md"><Button variant="outline" size="md">Medium</Button></Tooltip>
-                <Tooltip content="size: lg"><Button variant="outline" size="lg">Large</Button></Tooltip>
-                <Tooltip content="size: xl"><Button variant="outline" size="xl">XL</Button></Tooltip>
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 5)}><Tooltip content="size: xs"><Button variant="outline" size="xs">XS</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 5)}><Tooltip content="size: sm"><Button variant="outline" size="sm">Small</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(2, 5)}><Tooltip content="size: md"><Button variant="outline" size="md">Medium</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(3, 5)}><Tooltip content="size: lg"><Button variant="outline" size="lg">Large</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(4, 5)}><Tooltip content="size: xl"><Button variant="outline" size="xl">XL</Button></Tooltip></motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Button — Shapes */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Button — Shapes</div>
               <div className={styles.componentRow}>
-                <Tooltip content="shape: circle, primary"><Button variant="primary" shape="circle" icon={<Star size={16} />} /></Tooltip>
-                <Tooltip content="shape: circle, outline"><Button variant="outline" shape="circle" icon={<Mail size={16} />} /></Tooltip>
-                <Tooltip content="shape: square, ghost"><Button variant="ghost" shape="square" icon={<Zap size={16} />} /></Tooltip>
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}><Tooltip content="shape: circle, primary"><Button variant="primary" shape="circle" icon={<Star size={16} />} /></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 3)}><Tooltip content="shape: circle, outline"><Button variant="outline" shape="circle" icon={<Mail size={16} />} /></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(2, 3)}><Tooltip content="shape: square, ghost"><Button variant="ghost" shape="square" icon={<Zap size={16} />} /></Tooltip></motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Button — Icons & States */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Button — Icons & States</div>
               <div className={styles.componentRow}>
-                <Tooltip content="icon + text"><Button variant="primary" icon={<Send size={16} />}>Send</Button></Tooltip>
-                <Tooltip content="iconPosition: right"><Button variant="outline" icon={<ArrowRight size={16} />} iconPosition="right">Next</Button></Tooltip>
-                <Tooltip content="active state"><Button variant="outline" active>Active</Button></Tooltip>
-                <Tooltip content="fullWidth"><Button variant="outline" fullWidth>Full Width</Button></Tooltip>
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><Tooltip content="icon + text"><Button variant="primary" icon={<Send size={16} />}>Send</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><Tooltip content="iconPosition: right"><Button variant="outline" icon={<ArrowRight size={16} />} iconPosition="right">Next</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><Tooltip content="active state"><Button variant="outline" active>Active</Button></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}><Tooltip content="fullWidth"><Button variant="outline" fullWidth>Full Width</Button></Tooltip></motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Input */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Input</div>
               <div className={styles.sliderRow}>
-                <div className={styles.sliderItem}>
+                <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
                   <Input label="Label" value={inputValue} onChange={setInputValue} placeholder="Type something..." />
-                </div>
-                <div className={styles.sliderItem}>
+                </motion.div>
+                <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
                   <Input value="Read-only value" onChange={() => {}} disabled />
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Checkbox */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Checkbox</div>
               <div className={styles.componentRow}>
-                <Tooltip content="shape: square"><Checkbox checked={checkSquare} onChange={setCheckSquare} shape="square" label="Square" /></Tooltip>
-                <Tooltip content="shape: circle"><Checkbox checked={checkCircle} onChange={setCheckCircle} shape="circle" label="Circle" /></Tooltip>
-                <Tooltip content="indeterminate"><Checkbox checked={checkIndet} onChange={setCheckIndet} indeterminate label="Indeterminate" /></Tooltip>
-                <Tooltip content="disabled"><Checkbox checked={false} onChange={() => {}} disabled label="Disabled" /></Tooltip>
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><Tooltip content="shape: square"><Checkbox checked={checkSquare} onChange={setCheckSquare} shape="square" label="Square" /></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><Tooltip content="shape: circle"><Checkbox checked={checkCircle} onChange={setCheckCircle} shape="circle" label="Circle" /></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><Tooltip content="indeterminate"><Checkbox checked={checkIndet} onChange={setCheckIndet} indeterminate label="Indeterminate" /></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}><Tooltip content="disabled"><Checkbox checked={false} onChange={() => {}} disabled label="Disabled" /></Tooltip></motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Switch */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Switch</div>
               <div className={styles.componentRow}>
-                <Tooltip content="interactive">
-                  <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
-                </Tooltip>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-muted)", display: "inline-block", minWidth: "24px", textAlign: "center" }}>
-                  {switchOn ? "ON" : "OFF"}
-                </span>
-                <Tooltip content="disabled off"><Switch disabled /></Tooltip>
-                <Tooltip content="disabled on"><Switch disabled defaultChecked /></Tooltip>
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}>
+                  <Tooltip content="interactive"><Switch checked={switchOn} onCheckedChange={setSwitchOn} /></Tooltip>
+                </motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-muted)", display: "inline-block", minWidth: "24px", textAlign: "center" }}>
+                    {switchOn ? "ON" : "OFF"}
+                  </span>
+                </motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><Tooltip content="disabled off"><Switch disabled /></Tooltip></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}><Tooltip content="disabled on"><Switch disabled defaultChecked /></Tooltip></motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Slider */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Slider</div>
               <div className={styles.sliderRow}>
-                <div className={styles.sliderItem}>
+                <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
                   <span className={styles.sliderLabel}>Single — {sliderValue[0]}</span>
                   <Slider value={sliderValue} onValueChange={setSliderValue} max={100} step={1} />
-                </div>
-                <div className={styles.sliderItem}>
+                </motion.div>
+                <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
                   <span className={styles.sliderLabel}>Range — {rangeValue[0]}~{rangeValue[1]}</span>
                   <Slider value={rangeValue} onValueChange={setRangeValue} max={100} step={1} />
-                </div>
-                <div className={styles.sliderItem}>
+                </motion.div>
+                <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
                   <span className={styles.sliderLabel}>Disabled</span>
                   <Slider defaultValue={[60]} max={100} disabled />
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Modal */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Modal</div>
               <div className={styles.modalDemo}>
-                <Tooltip content="Modal with header + actions">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleOpenModal("Confirm Action", (
-                      <div className={styles.modalContent}>
-                        <Typography variant="body1" color="secondary">Are you sure you want to proceed? This action cannot be undone.</Typography>
-                        <div className={styles.modalActions}>
-                          <Button variant="ghost" size="sm" onClick={() => useModalStore.getState().closeModal()}>Cancel</Button>
-                          <Button variant="primary" size="sm" onClick={() => useModalStore.getState().closeModal()}>Confirm</Button>
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}>
+                  <Tooltip content="Modal with header + actions">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleOpenModal("Confirm Action", (
+                        <div className={styles.modalContent}>
+                          <Typography variant="body1" color="secondary">Are you sure you want to proceed? This action cannot be undone.</Typography>
+                          <div className={styles.modalActions}>
+                            <Button variant="ghost" size="sm" onClick={() => useModalStore.getState().closeModal()}>Cancel</Button>
+                            <Button variant="primary" size="sm" onClick={() => useModalStore.getState().closeModal()}>Confirm</Button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  >
-                    Confirm
-                  </Button>
-                </Tooltip>
-                <Tooltip content="Modal with icon + centered layout">
-                  <Button
-                    variant="outline"
-                    icon={<Star size={16} />}
-                    onClick={() => handleOpenModal("Feature Highlight", (
-                      <div className={styles.modalContentCenter}>
-                        <Zap size={48} color="var(--color-accent)" />
-                        <Typography variant="h4">Design Tokens</Typography>
-                        <Typography variant="body2" color="secondary">A 3-layer token system powering every component with raw, semantic, and contextual variables.</Typography>
-                      </div>
-                    ))}
-                  >
-                    Showcase
-                  </Button>
-                </Tooltip>
-                <Tooltip content="Modal without header">
-                  <Button
-                    variant="outline"
-                    onClick={() => openModal((
-                      <div className={styles.modalContentCompact}>
-                        <Typography variant="body2" color="secondary">Minimal modal without a header. Useful for quick notifications or lightweight confirmations.</Typography>
-                      </div>
-                    ), { closeButton: true, width: "420px" })}
-                  >
-                    No Header
-                  </Button>
-                </Tooltip>
+                      ))}
+                    >
+                      Confirm
+                    </Button>
+                  </Tooltip>
+                </motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 3)}>
+                  <Tooltip content="Modal with icon + centered layout">
+                    <Button
+                      variant="outline"
+                      icon={<Star size={16} />}
+                      onClick={() => handleOpenModal("Feature Highlight", (
+                        <div className={styles.modalContentCenter}>
+                          <Zap size={48} color="var(--color-accent)" />
+                          <Typography variant="h4">Design Tokens</Typography>
+                          <Typography variant="body2" color="secondary">A 3-layer token system powering every component with raw, semantic, and contextual variables.</Typography>
+                        </div>
+                      ))}
+                    >
+                      Showcase
+                    </Button>
+                  </Tooltip>
+                </motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(2, 3)}>
+                  <Tooltip content="Modal without header">
+                    <Button
+                      variant="outline"
+                      onClick={() => openModal((
+                        <div className={styles.modalContentCompact}>
+                          <Typography variant="body2" color="secondary">Minimal modal without a header. Useful for quick notifications or lightweight confirmations.</Typography>
+                        </div>
+                      ), { closeButton: true, width: "420px" })}
+                    >
+                      No Header
+                    </Button>
+                  </Tooltip>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Select / Dropdown */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Select / Dropdown</div>
               <div className={styles.sliderRow}>
-                <div className={styles.sliderItem}>
+                <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 1)}>
                   <Tooltip content="Custom dropdown select">
                     <Select
                       value={selectValue}
@@ -838,64 +986,64 @@ export default function DesignSystemPage() {
                       placeholder="Choose..."
                     />
                   </Tooltip>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
 
             {/* TypeWriter */}
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>TypeWriter</div>
-              <div className={styles.typewriterDemo}>
+              <motion.div className={styles.typewriterDemo} variants={staggerItemX} {...scrollChildX(0, 1)}>
                 <TypeWriter text="Design tokens bring consistency." typingSpeed={80} caption="— Design System" fontSize="var(--font-size-xl)" align="center" replayTrigger={twReplay} />
                 <button className={styles.replayBtn} onClick={() => setTwReplay((n) => n + 1)} aria-label="Replay">
                   <RotateCcw size={14} />
                 </button>
-              </div>
-            </div>
-          </motion.section>
+              </motion.div>
+            </motion.div>
+          </section>
 
           {/* ─── Tooltip ─── */}
-          <motion.section id="tooltip" ref={setSectionRef("tooltip")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="tooltip" ref={setSectionRef("tooltip")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Tooltip</h2>
-
-            <div className={styles.componentGroup}>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Basic</div>
               <div className={styles.componentRow}>
-                <Tooltip content="Instant tooltip">
-                  <Button variant="outline" size="sm">Hover me</Button>
-                </Tooltip>
-                <Tooltip content="Delayed 600ms" delay={600}>
-                  <Button variant="outline" size="sm">Long hover</Button>
-                </Tooltip>
-                <Tooltip content="Positioned below" placement="bottom">
-                  <Button variant="ghost" size="sm">Bottom</Button>
-                </Tooltip>
-                <Tooltip content={<><span style={{ opacity: 0.5, marginRight: 4 }}>EN</span><span>Test JSX</span></>}>
-                  <span className={styles.tooltipDemoText}>JSX content</span>
-                </Tooltip>
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}>
+                  <Tooltip content="Instant tooltip"><Button variant="outline" size="sm">Hover me</Button></Tooltip>
+                </motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}>
+                  <Tooltip content="Delayed 600ms" delay={600}><Button variant="outline" size="sm">Long hover</Button></Tooltip>
+                </motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}>
+                  <Tooltip content="Positioned below" placement="bottom"><Button variant="ghost" size="sm">Bottom</Button></Tooltip>
+                </motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}>
+                  <Tooltip content={<><span style={{ opacity: 0.5, marginRight: 4 }}>EN</span><span>Test JSX</span></>}>
+                    <span className={styles.tooltipDemoText}>JSX content</span>
+                  </Tooltip>
+                </motion.div>
               </div>
-            </div>
-
-            <div className={styles.componentGroup}>
+            </motion.div>
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Translation Tooltip — &lt;T&gt;</div>
               <p className={styles.sectionSub}>Hover 시 반대 언어 번역 표시 (delay: 0ms / 600ms)</p>
               <div className={styles.componentRow}>
-                <T k="contact.title" delay={0} className={styles.tooltipDemoText} />
-                <T k="contact.send" delay={0} className={styles.tooltipDemoText} />
-                <T k="contact.successTitle" className={styles.tooltipDemoText} />
-                <T k="postsPage.subtitle" className={styles.tooltipDemoText} />
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><T k="contact.title" delay={0} className={styles.tooltipDemoText} /></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><T k="contact.send" delay={0} className={styles.tooltipDemoText} /></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><T k="contact.successTitle" className={styles.tooltipDemoText} /></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}><T k="postsPage.subtitle" className={styles.tooltipDemoText} /></motion.div>
               </div>
-            </div>
-          </motion.section>
+            </motion.div>
+          </section>
 
           {/* ─── Banner Layouts ─── */}
-          <motion.section id="banner" ref={setSectionRef("banner")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+          <section id="banner" ref={setSectionRef("banner")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Banner Layouts</h2>
-            <p className={styles.sectionSub}>4 layout variants for the Posts banner slider</p>
-            <div className={styles.bannerLayoutList}>
-              {BANNER_LAYOUTS.map((layout) => (
-                <div key={layout} className={styles.bannerLayoutItem}>
-                  <span className={styles.bannerPreviewLabel}>{BANNER_LAYOUT_LABELS[layout]}</span>
+            <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              <motion.p className={styles.sectionSub} variants={staggerItem} {...scrollChildY(0)}>4 layout variants for the Posts banner slider</motion.p>
+              {BANNER_LAYOUTS.map((layout, i) => (
+                <motion.div key={layout} className={styles.bannerLayoutItem} variants={staggerItem} {...scrollChildY(i + 1)}>
+                  <span className={styles.bannerPreviewLabel}>{BANNER_LAYOUT_LABELS[layout][language]}</span>
                   <div className={styles.bannerPreviewBox}>
                     <PostsBanner
                       posts={MOCK_POSTS}
@@ -904,11 +1052,11 @@ export default function DesignSystemPage() {
                       overrideLayout={layout}
                     />
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </motion.section>
-        </motion.div>
+            </motion.div>
+          </section>
+        </div>
       </div>
 
       <Modal />

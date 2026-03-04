@@ -51,7 +51,7 @@
 - **Tooltip & Translation Tooltip**: 범용 Tooltip UI 컴포넌트(`<Tooltip>`)와 번역 tooltip 컴포넌트(`<T>`). `<T k="key" />`로 텍스트를 렌더하면 long hover(600ms) 시 반대 언어 번역을 tooltip으로 표시. createPortal + position: fixed로 stacking context 회피, 모바일 자동 비활성화. Navigation 링크에 페이지 설명 tooltip, 언어/테마/사운드 버튼에 기능 설명 tooltip 적용
 - **Posts i18n & Sort Capsule**: Posts 페이지의 모든 하드코딩된 텍스트를 locale 파일(`postsPage` 섹션)로 이동. 정렬 UI를 Select 드롭다운에서 캡슐형 세그먼트 컨트롤(Framer Motion layoutId 애니메이션)로 변경
 - **Footer Sliding Indicator**: Navigation과 동일한 슬라이딩 인디케이터를 Footer 링크에 적용. hover 시 ►◀ 화살표가 인디케이터와 함께 해당 링크로 이동
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능. Tooltip/T 컴포넌트 섹션, Select 컴포넌트 섹션 추가
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능. Tooltip/T 컴포넌트 섹션, Select 컴포넌트 섹션, Gradient Tokens 섹션 추가. 3-phase scroll 애니메이션 시스템(Phase 1: 숨김 → Phase 2: 순차 등장 → Phase 3: whileInView 스크롤 기반 등장/소멸) 적용. staggerItemX(좌→우 등장/우→좌 소멸), staggerItem(위→아래) 방향별 stagger 지원
 
 ## Security
 
