@@ -410,6 +410,36 @@ BEGIN
 END $$;
 
 
+-- ────────────────────────────────────────────────────────────
+-- Storage: uploads 버킷 정책
+--   폴더: logos/, resume/, bgm/, covers/, images/ 등
+--   Admin API(service_role)로 업로드, 공개 읽기
+-- ────────────────────────────────────────────────────────────
+
+-- 버킷 생성은 Supabase Dashboard > Storage에서 수동으로 합니다.
+-- 버킷 이름: uploads / Public bucket 체크
+
+-- 인증된 사용자만 업로드 가능
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Authenticated users can upload'
+  ) THEN
+    CREATE POLICY "Authenticated users can upload"
+      ON storage.objects FOR INSERT
+      WITH CHECK (bucket_id = 'uploads' AND auth.role() = 'authenticated');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Anyone can view uploads'
+  ) THEN
+    CREATE POLICY "Anyone can view uploads"
+      ON storage.objects FOR SELECT
+      USING (bucket_id = 'uploads');
+  END IF;
+END $$;
+
+
 -- ============================================================
 -- 완료! 총 10개 테이블이 생성되었습니다.
 --
