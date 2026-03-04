@@ -1,3 +1,7 @@
+/* ==========================================================================
+   Close Button — ContactDrawer-style rotating lines
+   ========================================================================== */
+
 .closeButton {
   display: flex;
   align-items: center;
@@ -5,21 +9,53 @@
   padding: 0;
   border: none;
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 28px;
-  height: 28px;
-  background: var(--color-neutral-alpha-5);
-  color: var(--text-tertiary);
-  border-radius: var(--radius-circle);
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  background: transparent;
   z-index: 1;
-  transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
+  border-radius: var(--radius-circle);
 }
 
-.closeButton:hover {
-  background: var(--color-neutral-alpha-10);
-  color: var(--text-primary);
+.closeIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
+
+.closeLine {
+  position: absolute;
+  width: 16px;
+  height: 1.5px;
+  background: var(--text-tertiary);
+  border-radius: 2px;
+}
+
+/* compound (0,2,0) to beat global theme transition */
+.closeButton .closeLine {
+  transition: transform var(--duration-base) var(--ease-material),
+    background var(--duration-base) ease;
+}
+
+.closeButton:hover .closeLine {
+  background: var(--text-primary);
+}
+
+.closeButton:hover .closeLine:first-child {
+  transform: rotate(45deg);
+}
+
+.closeButton:hover .closeLine:last-child {
+  transform: rotate(-45deg);
+}
+
+/* ==========================================================================
+   Modal Header
+   ========================================================================== */
 
 .modalHeader {
   display: flex;
@@ -40,12 +76,16 @@
 
 .modalTitle {
   margin: 0;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-grotesk), sans-serif;
   font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }
+
+/* ==========================================================================
+   Modal Body
+   ========================================================================== */
 
 .modalBody {
   padding: var(--spacing-base) var(--spacing-2xl) var(--spacing-xl);

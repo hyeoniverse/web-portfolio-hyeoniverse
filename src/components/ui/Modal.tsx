@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import { useModalStore } from "@/stores/modalStore";
 import styles from "./Modal.module.css";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
 import { useSoundManager } from "@/hooks/useSoundManager";
 
 export default function Modal() {
@@ -92,17 +91,18 @@ export default function Modal() {
               </div>
             )}
 
-            {/* 닫기 버튼 */}
+            {/* 닫기 버튼 — ContactDrawer-style rotating lines */}
             {closeButton && (
-              <motion.button
+              <button
                 className={styles.closeButton}
                 onClick={() => handleClose(id)}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
                 aria-label="닫기"
               >
-                <X size={16} />
-              </motion.button>
+                <span className={styles.closeIconWrapper}>
+                  <span className={styles.closeLine} />
+                  <span className={styles.closeLine} />
+                </span>
+              </button>
             )}
             {content}
           </motion.div>

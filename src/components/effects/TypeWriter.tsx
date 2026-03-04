@@ -172,8 +172,8 @@ export default function TypeWriter({
         </span>
       </span>
 
-      {showCaption && caption && (
-        <span className={cn(styles.caption, captionClassName)}>{caption}</span>
+      {caption && (
+        <span className={cn(styles.caption, showCaption && styles.captionVisible, captionClassName)}>{caption}</span>
       )}
     </div>
   );
