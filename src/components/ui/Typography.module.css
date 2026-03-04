@@ -123,12 +123,12 @@
   font-weight: var(--font-weight-bold);
 }
 
-/* Gradient */
+/* Gradient — neutral → accent */
 .gradient {
   background: linear-gradient(
     135deg,
-    var(--color-accent),
-    var(--color-accent-light)
+    var(--color-neutral-600),
+    var(--color-accent)
   );
   -webkit-background-clip: text;
   background-clip: text;

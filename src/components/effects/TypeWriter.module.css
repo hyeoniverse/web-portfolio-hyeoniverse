@@ -19,6 +19,12 @@
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-relaxed);
   color: var(--text-tertiary);
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+}
+
+.captionVisible {
+  opacity: 1;
 }
 
 .cursor {
@@ -48,5 +54,5 @@
 }
 
 [data-theme="dark"] .typewriter {
-  color: var(--text-inverse);
+  color: var(--text-primary);
 }

@@ -141,15 +141,13 @@ nav#side-navigation::after {
   bottom: 0;
   left: 0;
   z-index: var(--z-overlay);
-  background: var(--color-neutral-alpha-30);
-  backdrop-filter: var(--blur-md);
+  background: transparent;
+  backdrop-filter: var(--blur-lg);
 }
 
 #modal {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--color-neutral-alpha-10);
-  box-shadow: var(--shadow-2xl);
   position: relative;
   z-index: 2;
   width: calc(
@@ -158,8 +156,8 @@ nav#side-navigation::after {
   max-width: var(--width-6xl);
   max-height: 90vh;
   overflow: hidden;
-  background: var(--bg-primary);
-  border-radius: var(--radius-2xl);
+  background: var(--color-neutral-0);
+  border-radius: var(--radius-4xl);
   -webkit-overflow-scrolling: touch;
 }
 
