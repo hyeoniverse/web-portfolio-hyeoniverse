@@ -48,7 +48,10 @@
 - **Carousel (default / cylinder)**: 공통 Carousel 컴포넌트. default 모드(AnimatePresence 슬라이드 전환)와 cylinder 모드(3D perspective + 사이드 슬라이드 어둡게) 지원. autoPlay, pauseOnHover, arrows, dots, loop
 - **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시. 4가지 레이아웃(fullwidth·split·cards·ticker) + 4가지 오버레이 스타일(editorial·minimal·cinematic·magazine) + 2가지 전환 모드(default·cylinder). Admin Settings에서 선택 가능
 - **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator 애니메이션(layoutId), sticky 상태 감지(IntersectionObserver), 스크롤 방향에 따라 필터 바 숨김/표시 + 자동 접기, 카테고리/태그 펼칠 때 콘텐츠 영역 blur 효과(ContactDrawer와 동일 기법)
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능
+- **Tooltip & Translation Tooltip**: 범용 Tooltip UI 컴포넌트(`<Tooltip>`)와 번역 tooltip 컴포넌트(`<T>`). `<T k="key" />`로 텍스트를 렌더하면 long hover(600ms) 시 반대 언어 번역을 tooltip으로 표시. createPortal + position: fixed로 stacking context 회피, 모바일 자동 비활성화. Navigation 링크에 페이지 설명 tooltip, 언어/테마/사운드 버튼에 기능 설명 tooltip 적용
+- **Posts i18n & Sort Capsule**: Posts 페이지의 모든 하드코딩된 텍스트를 locale 파일(`postsPage` 섹션)로 이동. 정렬 UI를 Select 드롭다운에서 캡슐형 세그먼트 컨트롤(Framer Motion layoutId 애니메이션)로 변경
+- **Footer Sliding Indicator**: Navigation과 동일한 슬라이딩 인디케이터를 Footer 링크에 적용. hover 시 ►◀ 화살표가 인디케이터와 함께 해당 링크로 이동
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능. Tooltip/T 컴포넌트 섹션, Select 컴포넌트 섹션 추가
 
 ## Security
 
