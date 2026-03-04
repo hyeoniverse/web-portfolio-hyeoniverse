@@ -124,6 +124,11 @@
   --color-white-alpha-90: rgba(255, 255, 255, 0.9);
   --color-white-alpha-95: rgba(255, 255, 255, 0.95);
   --color-white-alpha-100: rgba(255, 255, 255, 1);
+
+  /* Gradient */
+  --gradient-accent: linear-gradient(135deg, var(--color-accent-light), var(--color-accent-dark));
+  --gradient-accent-soft: linear-gradient(135deg, var(--color-accent-light), var(--color-accent));
+  --gradient-neutral: linear-gradient(135deg, var(--color-neutral-300), var(--color-neutral-700));
 }
 
 /* ==========================================================================
