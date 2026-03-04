@@ -24,23 +24,29 @@ export async function POST(request: Request) {
 
   // 파일 크기 제한
   const isResume = folder === "resume";
-  const maxSize = isResume ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
+  const isBgm = folder === "bgm";
+  const maxSize = isBgm ? 10 * 1024 * 1024 : isResume ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
+  const maxLabel = isBgm ? "10MB" : isResume ? "5MB" : "2MB";
   if (file.size > maxSize) {
     return NextResponse.json(
-      { error: `File too large (max ${isResume ? "5MB" : "2MB"})` },
+      { error: `File too large (max ${maxLabel})` },
       { status: 400 },
     );
   }
 
   // MIME 타입 검증
-  const mimeOk = isResume
-    ? file.type === "application/pdf"
-    : file.type.startsWith("image/");
+  const mimeOk = isBgm
+    ? file.type.startsWith("audio/")
+    : isResume
+      ? file.type === "application/pdf"
+      : file.type.startsWith("image/");
+  const mimeError = isBgm
+    ? "Only audio files allowed"
+    : isResume
+      ? "Only PDF files allowed"
+      : "Only image files allowed";
   if (!mimeOk) {
-    return NextResponse.json(
-      { error: isResume ? "Only PDF files allowed" : "Only image files allowed" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: mimeError }, { status: 400 });
   }
 
   const admin = createAdminClient();

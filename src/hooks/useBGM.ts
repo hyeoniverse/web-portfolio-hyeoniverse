@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import { useSoundStore } from "@/stores/soundStore";
 
-const BGM_URL = "/sounds/Louie Zong - Ghost Duet.mp3";
 const FADE_IN_MS = 1000;
 const FADE_OUT_MS = 500;
 const TARGET_VOLUME = 0.35;
@@ -13,12 +12,14 @@ const TARGET_VOLUME = 0.35;
  * Web Audio API(AudioContext + BufferSource) 대신 브라우저 네이티브 미디어 파이프라인 사용 —
  * 하드웨어 가속 디코딩 + 별도 프로세스 처리로 메인 스레드 부하 최소화.
  */
-export function useBGM() {
+export function useBGM(bgmUrl?: string) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeRafRef = useRef(0);
   const startedRef = useRef(false);
 
   useEffect(() => {
+    if (!bgmUrl) return;
+
     let disposed = false;
 
     function fade(to: number, duration: number) {
@@ -48,7 +49,7 @@ export function useBGM() {
       if (startedRef.current) return;
       startedRef.current = true;
 
-      const audio = new Audio(BGM_URL);
+      const audio = new Audio(bgmUrl);
       audio.loop = true;
       audio.volume = 0;
       audio.preload = "auto";
@@ -101,5 +102,5 @@ export function useBGM() {
       }
       startedRef.current = false;
     };
-  }, []);
+  }, [bgmUrl]);
 }

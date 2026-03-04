@@ -185,6 +185,16 @@ export const siteConfig = {
   footer: {
     copyright: `HYEON © ${new Date().getFullYear()}, All Rights Reserved`,
     copyright_ko: `HYEON © ${new Date().getFullYear()}, All Rights Reserved`,
+    musicCreditTitle: "Ghost Duet",
+    musicCreditArtist: "Louie Zong",
+    musicCreditUrl: "https://youtu.be/_CzSCWpF7TM",
+  },
+
+  // ---------------------------------------------------------------------------
+  // 배경 음악
+  // ---------------------------------------------------------------------------
+  bgm: {
+    url: "/sounds/Louie Zong - Ghost Duet.mp3",
   },
 
   // ---------------------------------------------------------------------------
@@ -219,7 +229,11 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   posts: {
     bannerLayout: "fullwidth" as "fullwidth" | "split" | "cards" | "ticker",
-    bannerStyle: "editorial" as "editorial" | "minimal" | "cinematic" | "magazine",
+    bannerStyle: "editorial" as
+      | "editorial"
+      | "minimal"
+      | "cinematic"
+      | "magazine",
     bannerTransition: "cylinder" as "default" | "cylinder",
     categories: [
       { ko: "프론트엔드", en: "Frontend" },

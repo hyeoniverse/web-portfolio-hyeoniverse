@@ -102,7 +102,13 @@
   color: var(--text-accent-alt);
 }
 
-/* Left side: Email */
+/* Left side: Email + Copyright */
+.bottomLeft {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
 .email {
   display: inline-block;
   position: relative;
@@ -186,11 +192,22 @@
   background: var(--text-muted);
 }
 
-/* Right side: Copyright */
 .copyright {
   color: inherit;
+  letter-spacing: 0.05em;
+}
+
+.musicCredit {
+  color: var(--text-tertiary);
   text-align: right;
   letter-spacing: 0.05em;
+  font-size: var(--font-size-3xs);
+}
+
+.musicCredit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ==========================================================================
@@ -234,11 +251,19 @@
     text-align: center;
   }
 
+  .bottomLeft {
+    align-items: center;
+  }
+
   .bottomRight {
     align-items: center;
   }
 
   .copyright {
+    text-align: center;
+  }
+
+  .musicCredit {
     text-align: center;
   }
 }
