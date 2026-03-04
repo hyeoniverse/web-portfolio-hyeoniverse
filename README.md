@@ -36,9 +36,10 @@
 - **Cover Image Picker**: 포스트·시리즈·작업물 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
 - **Works Admin CRUD**: Supabase DB 기반 포트폴리오 작업물 관리. Admin에서 작업물 생성/수정/삭제, 발행 토글, 정렬 순서 변경 가능. 단일 콘텐츠 에디터(Markdown/Rich Text 전환) + 템플릿 삽입 방식으로 프로젝트 기술서 작성. 템플릿 8개 섹션: Overview, Background, Key Features, Architecture, Challenges, Solutions, Results, Lessons Learned. 한/영 이중 언어, 기술 스택, 갤러리 이미지, 팀 멤버(이름·역할 한/영·URL) 지원. 상세 페이지에서 콘텐츠 내 `##` 헤딩을 자동 파싱하여 TOC 생성. DB 미연결 시 정적 데이터(`data/projects.ts`)로 자동 fallback
 - **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. Settings > Content > Profile 서브탭에서 관리. `site_settings` 테이블에 JSONB로 저장. DB 미연결 시 정적 데이터 fallback
+- **BGM & 음원 출처 관리**: Admin Settings > General에서 BGM 파일 업로드(오디오 파일, 10MB 제한) 및 교체 가능. Footer에 음원 출처(곡명, 아티스트, YouTube 링크) 표시. `site.config.ts`에 기본값 설정, DB 오버라이드 지원. BGM URL이 비어있으면 재생 안 함
 - **방문자 통계**: IP+날짜 기반 일간·누적 방문자 카운터. Footer에 실시간 표시
 - **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Layout 레벨 인증으로 `/admin` 경로 보호, 미인증 시 접근 거부 페이지 표시. 로그인 페이지 i18n 지원, 이메일 기억 기능, Input/Checkbox 공통 컴포넌트 활용. 네비게이션에 Admin 배지 + 관리자 이메일 표시. 삭제 시 제목 입력 확인 모달, 발행 상태 토글 체크박스
-- **사이트 콘텐츠 관리**: Admin Settings에서 5개 탭(General, Content, Appearance, Services, Account)으로 관리. Content 탭은 사이드 네비게이션으로 Home/Profile/About/Posts/Works 서브탭 분리. Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. Services 탭에서 API 키(환경변수)를 DB에 저장·관리하고, 번역 프로바이더(DeepL/Google/Gemini) 선택 가능. Account 탭에서 관리자 이메일/비밀번호 변경 지원(비밀번호 확인 모달). Settings 저장 시 BroadcastChannel로 다른 탭 자동 새로고침. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
+- **사이트 콘텐츠 관리**: Admin Settings에서 5개 탭(General, Content, Appearance, Services, Account)으로 관리. General 탭에서 브랜드, SEO, 푸터 저작권, BGM 파일 업로드 및 음원 출처(곡명·아티스트·URL) 관리. Content 탭은 사이드 네비게이션으로 Home/Profile/About/Posts/Works 서브탭 분리. Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. Services 탭에서 API 키(환경변수)를 DB에 저장·관리하고, 번역 프로바이더(DeepL/Google/Gemini) 선택 가능. Account 탭에서 관리자 이메일/비밀번호 변경 지원(비밀번호 확인 모달). Settings 저장 시 BroadcastChannel로 다른 탭 자동 새로고침. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
 - **자동 번역**: 에디터에서 언어 전환 시 대상 언어가 비어있으면 자동 번역. DeepL API Free(기본), Google Cloud Translation, Gemini 2.0 Flash 중 Settings에서 선택. 재번역 버튼으로 전체/개별 필드 재번역 가능. 번역 중 언어 토글 차단으로 중복 요청 방지
 - **이중언어 카테고리 관리**: Posts와 Works 카테고리를 `{ ko, en }` 이중언어 쌍으로 관리. Admin Settings의 Content 탭에서 추가/삭제/드래그 순서 변경 가능. 카테고리 삭제 시 소속 포스트를 시리즈 단위/개별로 일괄 재할당하는 모달. DB에는 `ko` 값을 저장하고, 기존 `string[]` 형식과 자동 호환(정규화). 공개 페이지(CategoryNav)와 에디터(PostEditor, WorkEditor, SeriesEditorModal)에서 현재 언어에 맞는 라벨 표시
 - **시리즈 편집 모달**: Post 에디터에서 시리즈 선택 후 Edit 버튼으로 제목/설명/커버 이미지/카테고리/발행 상태를 인라인 모달에서 편집 가능. 커버 이미지는 CoverImagePicker(프리셋/Unsplash/AI)로 선택 가능. 시리즈 내 포스트 목록 표시·드래그 순서 변경·연결 해제 지원. 신규 시리즈 생성도 모달로 처리. Settings 시리즈 목록은 페이지당 5개씩 페이징 처리
@@ -153,7 +154,7 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 /admin 직접 접속 → Supabase Auth 로그인 → Settings 리다이렉트
 → 포스트 작성(Markdown/Rich Text 전환) → 커버 이미지 선택(프리셋/Unsplash/AI) → 시리즈 선택(선택사항) → 발행
 → 작업물 관리(/admin/works) — 생성, 수정, 삭제, 발행/비공개 전환, 정렬 순서 변경
-→ 사이트 설정(/admin/settings) — General(브랜드, SEO), Content(Home/Profile/About/Posts/Works 서브탭), Appearance(테마·타이포그래피), Services(API 키 관리), Account(이메일/비밀번호 변경)
+→ 사이트 설정(/admin/settings) — General(브랜드, SEO, 푸터, BGM), Content(Home/Profile/About/Posts/Works 서브탭), Appearance(테마·타이포그래피), Services(API 키 관리), Account(이메일/비밀번호 변경)
 ```
 
 - 로그인 버튼 없이 URL 직접 접속 방식
@@ -260,13 +261,15 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 
 ### 3. Storage 버킷 생성
 
-포스트 커버 이미지 및 본문 이미지 업로드용:
+이미지·이력서·BGM 업로드용:
 
 1. Supabase Dashboard → **Storage**
 2. **New bucket** 클릭
-3. 버킷 이름: `posts`
-4. **Public bucket** 체크 (이미지를 공개 URL로 접근 가능하게)
+3. 버킷 이름: `uploads`
+4. **Public bucket** 체크 (파일을 공개 URL로 접근 가능하게)
 5. **Create bucket**
+
+> 업로드 API가 폴더별로 파일을 구분합니다: `logos/`, `resume/`, `bgm/`, `covers/`, `images/` 등
 
 **Storage 정책 설정:**
 
@@ -274,12 +277,12 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 -- 인증된 사용자만 업로드 가능
 CREATE POLICY "Authenticated users can upload"
   ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'posts' AND auth.role() = 'authenticated');
+  WITH CHECK (bucket_id = 'uploads' AND auth.role() = 'authenticated');
 
 -- 누구나 읽기 가능 (public bucket)
 CREATE POLICY "Anyone can view uploads"
   ON storage.objects FOR SELECT
-  USING (bucket_id = 'posts');
+  USING (bucket_id = 'uploads');
 ```
 
 ### 4. Admin 계정 생성
@@ -307,7 +310,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
 - `/admin/works/[id]/edit` — 기존 작업물 수정
-- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경
+- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경
 
 ### 6. Cover Image Picker 사용법
 
