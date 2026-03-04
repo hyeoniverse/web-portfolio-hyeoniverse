@@ -10,6 +10,11 @@ export default function PostsLoading() {
         <SkeletonLine width={320} height={16} />
       </div>
 
+      {/* Banner skeleton */}
+      <div className={styles.bannerSlider}>
+        <Skeleton width="100%" height={280} borderRadius="var(--radius-lg)" />
+      </div>
+
       {/* Category nav skeleton */}
       <div style={{ maxWidth: 1100, margin: "0 auto var(--spacing-lg)", display: "flex", gap: "var(--spacing-xs)" }}>
         {[70, 90, 80, 100, 75, 80, 70].map((w, i) => (
