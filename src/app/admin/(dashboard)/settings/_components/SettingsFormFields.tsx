@@ -12,9 +12,10 @@ interface FieldProps {
   value: string;
   onChange: (v: string) => void;
   multiline?: boolean;
+  placeholder?: string;
 }
 
-export default function Field({ label, value, onChange, multiline }: FieldProps) {
+export default function Field({ label, value, onChange, multiline, placeholder }: FieldProps) {
   return (
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>{label}</label>
@@ -31,6 +32,7 @@ export default function Field({ label, value, onChange, multiline }: FieldProps)
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
         />
       )}
     </div>

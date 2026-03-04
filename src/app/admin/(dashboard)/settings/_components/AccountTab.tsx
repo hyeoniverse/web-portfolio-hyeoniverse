@@ -37,6 +37,7 @@ export default function AccountTab({
             label={t("admin.settings.newEmail")}
             value={accountNewEmail}
             onChange={setAccountNewEmail}
+            placeholder={t("admin.settings.newEmailPlaceholder")}
           />
         </div>
       </section>
