@@ -7,7 +7,6 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { createSafeRenderer } from "@/utils/three";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
@@ -21,7 +20,6 @@ export default function FloatingObject() {
   const { theme } = useTheme();
   const { isMobile, isTouch } = useIsMobile();
   const { t } = useLanguage();
-  const siteConfig = useSiteConfig();
   const mobileLayout = useMobileLayout();
   const activeSection = useProfileSectionStore((s) => s.activeSection);
 
@@ -103,8 +101,7 @@ export default function FloatingObject() {
       ? `${baseKey}_mobile`
       : `${baseKey}_desktop`;
     const variantText = t(variantKey);
-    const raw = variantText !== variantKey ? variantText : t(baseKey);
-    const text = raw.replace(/\{\{name\}\}/g, siteConfig.personal.nickname);
+    const text = variantText !== variantKey ? variantText : t(baseKey);
     setShowBubble(false);
     const tid = window.setTimeout(() => {
       setBubbleText(text);
@@ -118,7 +115,7 @@ export default function FloatingObject() {
       window.clearTimeout(tid);
       window.clearTimeout(smileTid);
     };
-  }, [activeSection, t, mobileLayout, siteConfig.personal.nickname]);
+  }, [activeSection, t, mobileLayout]);
 
   // rAF loop: sync bubble DOM position to bunny screen coords
   const syncBubble = useCallback(() => {
