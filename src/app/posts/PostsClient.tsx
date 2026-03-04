@@ -13,7 +13,7 @@ import PostsBanner from "./_components/PostsBanner/PostsBanner";
 import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
-import Select from "@/components/ui/Select";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./Posts.module.css";
 
 const POSTS_PER_PAGE = 12;
@@ -24,6 +24,7 @@ interface PostsClientProps {
 
 export default function PostsClient({ initialData }: PostsClientProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
+  const { t } = useLanguage();
   const [posts, setPosts] = useState<Post[]>(initialData.posts);
   const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
   const [loading, setLoading] = useState(false);
@@ -230,9 +231,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       >
-        <h1 className={styles.title}>Blog.</h1>
+        <h1 className={styles.title}>Posts.</h1>
         <p className={styles.subtitle}>
-          Thoughts, tutorials, and behind-the-scenes notes
+          {t("postsPage.subtitle")}
         </p>
       </motion.div>
 
@@ -310,7 +311,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search..."
+                placeholder={t("postsPage.searchPlaceholder")}
               />
             </div>
 
@@ -320,7 +321,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 onClick={() => setShowTags((v) => !v)}
                 data-clickable="true"
               >
-                Tags
+                {t("postsPage.tags")}
                 <svg
                   width="10"
                   height="10"
@@ -336,16 +337,29 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               </button>
             )}
 
-            <Select
-              value={sort}
-              options={[
-                { value: "newest", label: "Latest" },
-                { value: "oldest", label: "Oldest" },
-                { value: "popular", label: "Popular" },
-              ]}
-              onChange={(v) => setSort(v as typeof sort)}
-              className={styles.sortSelect}
-            />
+            <div className={styles.sortGroup}>
+              {([
+                { value: "newest", label: t("postsPage.sortNewest") },
+                { value: "oldest", label: t("postsPage.sortOldest") },
+                { value: "popular", label: t("postsPage.sortPopular") },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.value}
+                  className={`${styles.sortBtn} ${sort === opt.value ? styles.sortBtnActive : ""}`}
+                  onClick={() => setSort(opt.value as typeof sort)}
+                  data-clickable="true"
+                >
+                  {sort === opt.value && (
+                    <motion.span
+                      className={styles.sortIndicator}
+                      layoutId="sortIndicator"
+                      transition={{ type: "spring", stiffness: 500, damping: 32 }}
+                    />
+                  )}
+                  <span className={styles.sortBtnText}>{opt.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -364,7 +378,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   onClick={() => setActiveTag(null)}
                   data-clickable="true"
                 >
-                  All
+                  {t("postsPage.allTags")}
                 </button>
                 {allTags.map(({ tag, count }) => (
                   <button
@@ -393,7 +407,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
                 </svg>
-                Series
+                {t("postsPage.series")}
                 {activeCategory && (
                   <span className={styles.seriesCategoryTag}>{activeCategory}</span>
                 )}
@@ -414,15 +428,15 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                       onClick={() => setShowAllSeries((v) => !v)}
                       data-clickable="true"
                     >
-                      {showAllSeries ? "Close" : `+${seriesList.length - SERIES_LIMIT}`}
+                      {showAllSeries ? t("postsPage.close") : `+${seriesList.length - SERIES_LIMIT}`}
                     </button>
                   )}
                 </div>
               ) : (
                 <p className={styles.seriesEmpty}>
                   {activeCategory
-                    ? `No series in ${activeCategory}`
-                    : "No series yet"}
+                    ? `${t("postsPage.noSeriesYet")} — ${activeCategory}`
+                    : t("postsPage.noSeriesYet")}
                 </p>
               )}
             </div>
@@ -454,14 +468,14 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               </svg>
               <p className={styles.emptyTitle}>
                 {search
-                  ? `No results for "${search}"`
+                  ? `${t("postsPage.noResultsFor")} "${search}"`
                   : activeTag
-                    ? `No posts tagged "${activeTag}"`
+                    ? `${t("postsPage.noPostsTagged")} "${activeTag}"`
                     : activeSeries && activeSeriesTitle
-                      ? `No posts in "${activeSeriesTitle}"`
+                      ? `${t("postsPage.noPostsInSeries")} "${activeSeriesTitle}"`
                       : activeCategory
-                        ? `No posts in ${activeCategory}`
-                        : "No posts yet"}
+                        ? `${t("postsPage.noPostsInCategory")} ${activeCategory}`
+                        : t("postsPage.noPostsYet")}
               </p>
               {(search || activeTag || activeSeries || activeCategory) && (
                 <button
@@ -469,7 +483,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   onClick={() => { setSearch(""); setActiveTag(null); setActiveSeries(null); setActiveCategory(null); }}
                   data-clickable="true"
                 >
-                  Clear filters
+                  {t("postsPage.clearFilters")}
                 </button>
               )}
             </div>
@@ -482,7 +496,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   <rect x="3" y="14" width="7" height="7" />
                   <rect x="14" y="14" width="7" height="7" />
                 </svg>
-                Posts
+                {t("postsPage.posts")}
                 <span className={styles.postsCount}>{posts.length}</span>
               </div>
               <div className={styles.grid}>

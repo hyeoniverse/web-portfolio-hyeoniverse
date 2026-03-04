@@ -125,11 +125,38 @@
   color: var(--text-tertiary);
 }
 
-/* Sort select — only layout, Select component handles visuals */
-.sortSelect {
-  flex: 0 0 auto;
-  min-width: 100px;
-  max-width: 130px;
+/* Sort capsule group */
+.sortGroup {
+  display: flex;
+  border-radius: var(--radius-capsule);
+  border: 1px solid var(--border-secondary-color);
+}
+
+.sortBtn {
+  position: relative;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.sortBtnActive {
+  color: var(--text-primary);
+}
+
+.sortIndicator {
+  position: absolute;
+  inset: 2px;
+  border-radius: var(--radius-capsule);
+  background: var(--color-neutral-alpha-10);
+}
+
+.sortBtnText {
+  position: relative;
+  z-index: 1;
 }
 
 /* Tag toggle button */
@@ -454,9 +481,8 @@
 }
 
 .pageBtn:disabled {
-  color: var(--text-tertiary);
+  color: var(--text-muted);
   border-color: var(--border-tertiary-color);
-  opacity: 0.5;
 }
 
 .ellipsis {

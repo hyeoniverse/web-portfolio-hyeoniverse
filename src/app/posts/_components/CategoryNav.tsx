@@ -26,12 +26,14 @@ export default function CategoryNav({
   const navRef = useRef<HTMLDivElement>(null);
   const [overflowCount, setOverflowCount] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [rowHeight, setRowHeight] = useState(46);
 
   const checkOverflow = useCallback(() => {
     const el = navRef.current;
     if (!el || expanded) return;
     const buttons = el.querySelectorAll("button");
     if (buttons.length === 0) return;
+    setRowHeight(buttons[0].offsetHeight);
     const firstTop = buttons[0].offsetTop;
     let hidden = 0;
     buttons.forEach((btn) => {
@@ -60,11 +62,10 @@ export default function CategoryNav({
   const isActive = (cat: BilingualCategory) =>
     activeCategory === cat.ko || activeCategory === cat.en;
 
-  const collapsedHeight = 42;
   const navStyle: React.CSSProperties = {
     maxHeight: expanded
       ? (navRef.current?.scrollHeight ?? 500)
-      : collapsedHeight,
+      : rowHeight,
   };
 
   const navCls = styles.nav;
