@@ -617,6 +617,18 @@
   color: var(--text-muted);
 }
 
+/* Tooltip demo text */
+.tooltipDemoText {
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-lg);
+  font-style: italic;
+  color: var(--text-primary);
+  cursor: default;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+}
+
 /* Banner Layouts showcase */
 .bannerLayoutList {
   display: flex;
@@ -640,6 +652,10 @@
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
+}
+
+.bannerPreviewBox a {
+  pointer-events: none;
 }
 
 /* Responsive */

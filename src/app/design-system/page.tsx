@@ -12,11 +12,14 @@ import { Slider } from "@/components/ui/Slider";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Checkbox from "@/components/ui/Checkbox";
+import Select from "@/components/ui/Select";
 import { useModalStore } from "@/stores/modalStore";
 import { useTheme } from "@/providers/ThemeProvider";
 import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
+import Tooltip from "@/components/ui/Tooltip";
+import T from "@/components/ui/T";
 import PostsBanner from "@/app/posts/_components/PostsBanner/PostsBanner";
 import type { BannerLayout } from "@/app/posts/_components/PostsBanner/PostsBanner";
 import type { Post } from "@/types/post";
@@ -251,7 +254,7 @@ const MOCK_POST: Post = {
   content: "",
   content_type: "markdown",
   excerpt: "Exploring the intersection of design, photography, and narrative through a modern digital lens.",
-  cover_image: "",
+  cover_image: "https://picsum.photos/seed/ds-banner-1/1200/600",
   tags: [],
   category: "Design",
   is_pinned: true,
@@ -269,8 +272,8 @@ const MOCK_POST: Post = {
 };
 const MOCK_POSTS: Post[] = [
   MOCK_POST,
-  { ...MOCK_POST, id: "demo-2", title: "Building Modern Interfaces", title_en: "Building Modern Interfaces", category: "Frontend", excerpt: "A deep dive into component architecture and design systems.", excerpt_en: "A deep dive into component architecture and design systems." },
-  { ...MOCK_POST, id: "demo-3", title: "Performance at Scale", title_en: "Performance at Scale", category: "DevOps", excerpt: "Techniques for optimizing web applications under heavy load.", excerpt_en: "Techniques for optimizing web applications under heavy load." },
+  { ...MOCK_POST, id: "demo-2", title: "Building Modern Interfaces", title_en: "Building Modern Interfaces", category: "Frontend", excerpt: "A deep dive into component architecture and design systems.", excerpt_en: "A deep dive into component architecture and design systems.", cover_image: "https://picsum.photos/seed/ds-banner-2/1200/600" },
+  { ...MOCK_POST, id: "demo-3", title: "Performance at Scale", title_en: "Performance at Scale", category: "DevOps", excerpt: "Techniques for optimizing web applications under heavy load.", excerpt_en: "Techniques for optimizing web applications under heavy load.", cover_image: "https://picsum.photos/seed/ds-banner-3/1200/600" },
 ];
 
 // ─── TOC Data ───
@@ -285,6 +288,7 @@ const tocSections = [
   { id: "motion", label: "Motion" },
   { id: "z-index", label: "Z-Index" },
   { id: "components", label: "Components" },
+  { id: "tooltip", label: "Tooltip" },
   { id: "banner", label: "Banner Layouts" },
 ];
 
@@ -389,6 +393,7 @@ export default function DesignSystemPage() {
   const [checkSquare, setCheckSquare] = useState(false);
   const [checkCircle, setCheckCircle] = useState(true);
   const [checkIndet, setCheckIndet] = useState(false);
+  const [selectValue, setSelectValue] = useState("option1");
 
   const handleBack = useCallback(() => {
     if (window.history.length > 1 && document.referrer) {
@@ -668,10 +673,10 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Button — Variants</div>
               <div className={styles.componentRow}>
-                <Button variant="primary">Primary</Button>
-                <Button variant="outline">Outline</Button>
-                <Button variant="ghost">Ghost</Button>
-                <Button disabled>Disabled</Button>
+                <Tooltip content="variant: primary"><Button variant="primary">Primary</Button></Tooltip>
+                <Tooltip content="variant: outline"><Button variant="outline">Outline</Button></Tooltip>
+                <Tooltip content="variant: ghost"><Button variant="ghost">Ghost</Button></Tooltip>
+                <Tooltip content="disabled"><Button disabled>Disabled</Button></Tooltip>
               </div>
             </div>
 
@@ -679,11 +684,11 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Button — Sizes</div>
               <div className={styles.componentRow}>
-                <Button variant="outline" size="xs">XS</Button>
-                <Button variant="outline" size="sm">Small</Button>
-                <Button variant="outline" size="md">Medium</Button>
-                <Button variant="outline" size="lg">Large</Button>
-                <Button variant="outline" size="xl">XL</Button>
+                <Tooltip content="size: xs"><Button variant="outline" size="xs">XS</Button></Tooltip>
+                <Tooltip content="size: sm"><Button variant="outline" size="sm">Small</Button></Tooltip>
+                <Tooltip content="size: md"><Button variant="outline" size="md">Medium</Button></Tooltip>
+                <Tooltip content="size: lg"><Button variant="outline" size="lg">Large</Button></Tooltip>
+                <Tooltip content="size: xl"><Button variant="outline" size="xl">XL</Button></Tooltip>
               </div>
             </div>
 
@@ -691,9 +696,9 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Button — Shapes</div>
               <div className={styles.componentRow}>
-                <Button variant="primary" shape="circle" icon={<Star size={16} />} />
-                <Button variant="outline" shape="circle" icon={<Mail size={16} />} />
-                <Button variant="ghost" shape="square" icon={<Zap size={16} />} />
+                <Tooltip content="shape: circle, primary"><Button variant="primary" shape="circle" icon={<Star size={16} />} /></Tooltip>
+                <Tooltip content="shape: circle, outline"><Button variant="outline" shape="circle" icon={<Mail size={16} />} /></Tooltip>
+                <Tooltip content="shape: square, ghost"><Button variant="ghost" shape="square" icon={<Zap size={16} />} /></Tooltip>
               </div>
             </div>
 
@@ -701,10 +706,10 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Button — Icons & States</div>
               <div className={styles.componentRow}>
-                <Button variant="primary" icon={<Send size={16} />}>Send</Button>
-                <Button variant="outline" icon={<ArrowRight size={16} />} iconPosition="right">Next</Button>
-                <Button variant="outline" active>Active</Button>
-                <Button variant="outline" fullWidth>Full Width</Button>
+                <Tooltip content="icon + text"><Button variant="primary" icon={<Send size={16} />}>Send</Button></Tooltip>
+                <Tooltip content="iconPosition: right"><Button variant="outline" icon={<ArrowRight size={16} />} iconPosition="right">Next</Button></Tooltip>
+                <Tooltip content="active state"><Button variant="outline" active>Active</Button></Tooltip>
+                <Tooltip content="fullWidth"><Button variant="outline" fullWidth>Full Width</Button></Tooltip>
               </div>
             </div>
 
@@ -725,10 +730,10 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Checkbox</div>
               <div className={styles.componentRow}>
-                <Checkbox checked={checkSquare} onChange={setCheckSquare} shape="square" label="Square" />
-                <Checkbox checked={checkCircle} onChange={setCheckCircle} shape="circle" label="Circle" />
-                <Checkbox checked={checkIndet} onChange={setCheckIndet} indeterminate label="Indeterminate" />
-                <Checkbox checked={false} onChange={() => {}} disabled label="Disabled" />
+                <Tooltip content="shape: square"><Checkbox checked={checkSquare} onChange={setCheckSquare} shape="square" label="Square" /></Tooltip>
+                <Tooltip content="shape: circle"><Checkbox checked={checkCircle} onChange={setCheckCircle} shape="circle" label="Circle" /></Tooltip>
+                <Tooltip content="indeterminate"><Checkbox checked={checkIndet} onChange={setCheckIndet} indeterminate label="Indeterminate" /></Tooltip>
+                <Tooltip content="disabled"><Checkbox checked={false} onChange={() => {}} disabled label="Disabled" /></Tooltip>
               </div>
             </div>
 
@@ -736,12 +741,14 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Switch</div>
               <div className={styles.componentRow}>
-                <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
+                <Tooltip content="interactive">
+                  <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
+                </Tooltip>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-muted)", display: "inline-block", minWidth: "24px", textAlign: "center" }}>
                   {switchOn ? "ON" : "OFF"}
                 </span>
-                <Switch disabled />
-                <Switch disabled defaultChecked />
+                <Tooltip content="disabled off"><Switch disabled /></Tooltip>
+                <Tooltip content="disabled on"><Switch disabled defaultChecked /></Tooltip>
               </div>
             </div>
 
@@ -768,43 +775,70 @@ export default function DesignSystemPage() {
             <div className={styles.componentGroup}>
               <div className={styles.componentGroupTitle}>Modal</div>
               <div className={styles.modalDemo}>
-                <Button
-                  variant="outline"
-                  onClick={() => handleOpenModal("Confirm Action", (
-                    <div className={styles.modalContent}>
-                      <Typography variant="body1" color="secondary">Are you sure you want to proceed? This action cannot be undone.</Typography>
-                      <div className={styles.modalActions}>
-                        <Button variant="ghost" size="sm" onClick={() => useModalStore.getState().closeModal()}>Cancel</Button>
-                        <Button variant="primary" size="sm" onClick={() => useModalStore.getState().closeModal()}>Confirm</Button>
+                <Tooltip content="Modal with header + actions">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleOpenModal("Confirm Action", (
+                      <div className={styles.modalContent}>
+                        <Typography variant="body1" color="secondary">Are you sure you want to proceed? This action cannot be undone.</Typography>
+                        <div className={styles.modalActions}>
+                          <Button variant="ghost" size="sm" onClick={() => useModalStore.getState().closeModal()}>Cancel</Button>
+                          <Button variant="primary" size="sm" onClick={() => useModalStore.getState().closeModal()}>Confirm</Button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                >
-                  Confirm
-                </Button>
-                <Button
-                  variant="outline"
-                  icon={<Star size={16} />}
-                  onClick={() => handleOpenModal("Feature Highlight", (
-                    <div className={styles.modalContentCenter}>
-                      <Zap size={48} color="var(--color-accent)" />
-                      <Typography variant="h4">Design Tokens</Typography>
-                      <Typography variant="body2" color="secondary">A 3-layer token system powering every component with raw, semantic, and contextual variables.</Typography>
-                    </div>
-                  ))}
-                >
-                  Showcase
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => openModal((
-                    <div className={styles.modalContentCompact}>
-                      <Typography variant="body2" color="secondary">Minimal modal without a header. Useful for quick notifications or lightweight confirmations.</Typography>
-                    </div>
-                  ), { closeButton: true, width: "420px" })}
-                >
-                  No Header
-                </Button>
+                    ))}
+                  >
+                    Confirm
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Modal with icon + centered layout">
+                  <Button
+                    variant="outline"
+                    icon={<Star size={16} />}
+                    onClick={() => handleOpenModal("Feature Highlight", (
+                      <div className={styles.modalContentCenter}>
+                        <Zap size={48} color="var(--color-accent)" />
+                        <Typography variant="h4">Design Tokens</Typography>
+                        <Typography variant="body2" color="secondary">A 3-layer token system powering every component with raw, semantic, and contextual variables.</Typography>
+                      </div>
+                    ))}
+                  >
+                    Showcase
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Modal without header">
+                  <Button
+                    variant="outline"
+                    onClick={() => openModal((
+                      <div className={styles.modalContentCompact}>
+                        <Typography variant="body2" color="secondary">Minimal modal without a header. Useful for quick notifications or lightweight confirmations.</Typography>
+                      </div>
+                    ), { closeButton: true, width: "420px" })}
+                  >
+                    No Header
+                  </Button>
+                </Tooltip>
+              </div>
+            </div>
+
+            {/* Select / Dropdown */}
+            <div className={styles.componentGroup}>
+              <div className={styles.componentGroupTitle}>Select / Dropdown</div>
+              <div className={styles.sliderRow}>
+                <div className={styles.sliderItem}>
+                  <Tooltip content="Custom dropdown select">
+                    <Select
+                      value={selectValue}
+                      options={[
+                        { value: "option1", label: "Option One" },
+                        { value: "option2", label: "Option Two" },
+                        { value: "option3", label: "Option Three" },
+                      ]}
+                      onChange={setSelectValue}
+                      placeholder="Choose..."
+                    />
+                  </Tooltip>
+                </div>
               </div>
             </div>
 
@@ -816,6 +850,40 @@ export default function DesignSystemPage() {
                 <button className={styles.replayBtn} onClick={() => setTwReplay((n) => n + 1)} aria-label="Replay">
                   <RotateCcw size={14} />
                 </button>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* ─── Tooltip ─── */}
+          <motion.section id="tooltip" ref={setSectionRef("tooltip")} className={styles.section} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={viewportOpts}>
+            <h2 className={styles.sectionTitle}>Tooltip</h2>
+
+            <div className={styles.componentGroup}>
+              <div className={styles.componentGroupTitle}>Basic</div>
+              <div className={styles.componentRow}>
+                <Tooltip content="Instant tooltip">
+                  <Button variant="outline" size="sm">Hover me</Button>
+                </Tooltip>
+                <Tooltip content="Delayed 600ms" delay={600}>
+                  <Button variant="outline" size="sm">Long hover</Button>
+                </Tooltip>
+                <Tooltip content="Positioned below" placement="bottom">
+                  <Button variant="ghost" size="sm">Bottom</Button>
+                </Tooltip>
+                <Tooltip content={<><span style={{ opacity: 0.5, marginRight: 4 }}>EN</span><span>Test JSX</span></>}>
+                  <span className={styles.tooltipDemoText}>JSX content</span>
+                </Tooltip>
+              </div>
+            </div>
+
+            <div className={styles.componentGroup}>
+              <div className={styles.componentGroupTitle}>Translation Tooltip — &lt;T&gt;</div>
+              <p className={styles.sectionSub}>Hover 시 반대 언어 번역 표시 (delay: 0ms / 600ms)</p>
+              <div className={styles.componentRow}>
+                <T k="contact.title" delay={0} className={styles.tooltipDemoText} />
+                <T k="contact.send" delay={0} className={styles.tooltipDemoText} />
+                <T k="contact.successTitle" className={styles.tooltipDemoText} />
+                <T k="postsPage.subtitle" className={styles.tooltipDemoText} />
               </div>
             </div>
           </motion.section>
