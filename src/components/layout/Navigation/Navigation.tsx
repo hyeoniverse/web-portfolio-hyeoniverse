@@ -13,21 +13,29 @@ import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import Button from "@/components/ui/Button";
+import Tooltip from "@/components/ui/Tooltip";
 import MagneticWrapper from "./MagneticWrapper";
 import MobileMenu from "./MobileMenu";
 import styles from "./Navigation.module.css";
 
+const navDescs: Record<string, Record<string, string>> = {
+  works: { ko: "프로젝트 포트폴리오", en: "Project portfolio" },
+  posts: { ko: "블로그 & 아티클", en: "Blog & articles" },
+  profile: { ko: "소개 & 이력", en: "Introduction & career" },
+  about: { ko: "사이트 소개", en: "About this site" },
+};
+
 const navItems = [
-  { key: "works", href: "/works" },
-  { key: "posts", href: "/posts" },
-  { key: "profile", href: "/profile" },
-  { key: "about", href: "/about" },
+  { key: "works", href: "/works", label: "Works" },
+  { key: "posts", href: "/posts", label: "Posts" },
+  { key: "profile", href: "/profile", label: "Profile" },
+  { key: "about", href: "/about", label: "About" },
 ];
 
 const menuItems = [
-  { key: "home", href: "/" },
+  { key: "home", href: "/", label: "Home" },
   ...navItems,
-  { key: "contacts", href: null },
+  { key: "contacts", href: null, label: "Contacts" },
 ];
 
 const adminNavItems = [
@@ -53,7 +61,7 @@ export default function Navigation() {
 
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
-  const { language, toggleLanguage, t } = useLanguage();
+  const { language, toggleLanguage } = useLanguage();
   const { isLoading, isTransitioning } = useLoadingScreen();
   const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
@@ -126,6 +134,7 @@ export default function Navigation() {
 
   // ── Nav sliding indicator ──
   const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const navCenterRef = useRef<HTMLDivElement>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
@@ -144,9 +153,9 @@ export default function Navigation() {
     }
     const el = navLinkRefs.current[targetKey];
     if (!el) return;
-    const parent = el.parentElement;
-    if (!parent) return;
-    const parentRect = parent.getBoundingClientRect();
+    const container = navCenterRef.current;
+    if (!container) return;
+    const parentRect = container.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
     setIndicatorStyle({
       left: elRect.left - parentRect.left,
@@ -366,6 +375,7 @@ export default function Navigation() {
       </div>
 
       <div
+        ref={navCenterRef}
         className={styles.navCenter}
         onMouseLeave={() => setHoveredNav(null)}
       >
@@ -382,15 +392,21 @@ export default function Navigation() {
               </Link>
             ))
           : navItems.map((item) => (
-              <Link
+              <Tooltip
                 key={item.key}
-                href={item.href}
-                ref={(el) => { navLinkRefs.current[item.key] = el; }}
-                className={`${styles.navLink} glith-on-hover`}
-                onMouseEnter={() => setHoveredNav(item.key)}
+                content={navDescs[item.key]?.[language] ?? ""}
+                delay={600}
+                placement="bottom"
               >
-                {t(`nav.${item.key}`)}
-              </Link>
+                <Link
+                  href={item.href}
+                  ref={(el) => { navLinkRefs.current[item.key] = el; }}
+                  className={`${styles.navLink} glith-on-hover`}
+                  onMouseEnter={() => setHoveredNav(item.key)}
+                >
+                  {item.label}
+                </Link>
+              </Tooltip>
             ))}
         <span
           className={`${styles.navIndicator} ${indicatorStyle.opacity === 0 ? styles.navIndicatorHidden : ""}`}
@@ -426,58 +442,61 @@ export default function Navigation() {
         ) : null}
 
         {/* 언어 토글 — admin에서도 표시 */}
-        <button
-          className={styles.actionBtn}
-          onClick={() => {
-            if (isLangClicking) return;
-            setIsLangClicking(true);
-            isLangLocked.current = true;
-            toggleLanguage();
-            setTimeout(() => {
-              setIsLangClicking(false);
-            }, 300);
-          }}
-          onMouseEnter={() => {
-            if (isLangAnimating || isLangClicking) return;
-            clearTimeout(langDisplayTimer.current);
-            clearTimeout(langAnimTimer.current);
-            setIsLangAnimating(true);
-            langDisplayTimer.current = setTimeout(() => {
-              setDisplayLang(language === "ko" ? "en" : "ko");
-            }, 150);
-            langAnimTimer.current = setTimeout(() => setIsLangAnimating(false), 300);
-          }}
-          onMouseLeave={() => {
-            if (isLangClicking) return;
-            if (isLangLocked.current) {
-              isLangLocked.current = false;
-              return;
-            }
-            clearTimeout(langDisplayTimer.current);
-            clearTimeout(langAnimTimer.current);
-            setIsLangAnimating(true);
-            langDisplayTimer.current = setTimeout(() => {
-              setDisplayLang(language);
-            }, 150);
-            langAnimTimer.current = setTimeout(() => setIsLangAnimating(false), 300);
-          }}
-          aria-label={`${language === "ko" ? "KO" : "EN"} - Switch to ${language === "ko" ? "English" : "Korean"}`}
-        >
-          <span className={`${styles.langText} ${isLangAnimating && !isLangClicking ? styles.animating : ""} ${isLangClicking ? styles.clicking : ""}`}>
-            {displayLang === "ko" ? "KO" : "EN"}
-          </span>
-        </button>
+        <Tooltip content={language === "ko" ? "언어 전환" : "Switch language"} delay={600} placement="bottom">
+          <button
+            className={styles.actionBtn}
+            onClick={() => {
+              if (isLangClicking) return;
+              setIsLangClicking(true);
+              isLangLocked.current = true;
+              toggleLanguage();
+              setTimeout(() => {
+                setIsLangClicking(false);
+              }, 300);
+            }}
+            onMouseEnter={() => {
+              if (isLangAnimating || isLangClicking) return;
+              clearTimeout(langDisplayTimer.current);
+              clearTimeout(langAnimTimer.current);
+              setIsLangAnimating(true);
+              langDisplayTimer.current = setTimeout(() => {
+                setDisplayLang(language === "ko" ? "en" : "ko");
+              }, 150);
+              langAnimTimer.current = setTimeout(() => setIsLangAnimating(false), 300);
+            }}
+            onMouseLeave={() => {
+              if (isLangClicking) return;
+              if (isLangLocked.current) {
+                isLangLocked.current = false;
+                return;
+              }
+              clearTimeout(langDisplayTimer.current);
+              clearTimeout(langAnimTimer.current);
+              setIsLangAnimating(true);
+              langDisplayTimer.current = setTimeout(() => {
+                setDisplayLang(language);
+              }, 150);
+              langAnimTimer.current = setTimeout(() => setIsLangAnimating(false), 300);
+            }}
+            aria-label={`${language === "ko" ? "KO" : "EN"} - Switch to ${language === "ko" ? "English" : "Korean"}`}
+          >
+            <span className={`${styles.langText} ${isLangAnimating && !isLangClicking ? styles.animating : ""} ${isLangClicking ? styles.clicking : ""}`}>
+              {displayLang === "ko" ? "KO" : "EN"}
+            </span>
+          </button>
+        </Tooltip>
 
         {/* 사운드 토글 — admin에서 숨김 */}
         {!isAdminPage && (
           <div className={styles.soundBtnWrap}>
-            <button
-              className={styles.actionBtn}
-              onClick={handleSoundToggle}
-              onMouseEnter={() => { setIsSoundHovered(true); setShowSoundTip(false); }}
-              onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
-              aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
-            >
+            <Tooltip content={language === "ko" ? "배경 음악" : "Background music"} delay={600} placement="bottom">
+              <button
+                className={styles.actionBtn}
+                onClick={handleSoundToggle}
+                onMouseEnter={() => { setIsSoundHovered(true); setShowSoundTip(false); }}
+                onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
+                aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
+              >
               <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
                 <svg
                   className={`${styles.soundIcon} ${showMutedIcon ? styles.soundIconMuted : ""}`}
@@ -493,7 +512,8 @@ export default function Navigation() {
                   <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
                 </svg>
               </span>
-            </button>
+              </button>
+            </Tooltip>
             {showSoundTip && (
               <span className={styles.soundTip} onClick={() => setShowSoundTip(false)}>
                 {language === "ko" ? "BGM을 켤 수 있어요" : "Enable BGM"}
@@ -503,13 +523,14 @@ export default function Navigation() {
         )}
 
         {/* 테마 토글 */}
-        <button
-          className={styles.actionBtn}
-          onClick={handleThemeToggle}
-          onMouseEnter={handleThemeMouseEnter}
-          onMouseLeave={handleThemeMouseLeave}
-          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-        >
+        <Tooltip content={language === "ko" ? "테마 전환" : "Toggle theme"} delay={600} placement="bottom">
+          <button
+            className={styles.actionBtn}
+            onClick={handleThemeToggle}
+            onMouseEnter={handleThemeMouseEnter}
+            onMouseLeave={handleThemeMouseLeave}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
           <span className={`${styles.themeIconWrapper} ${isThemeAnimating && !isThemeClicking ? styles.animating : ""} ${isThemeClicking ? styles.clicking : ""}`}>
             {displayTheme === "dark" ? (
               <svg
@@ -540,8 +561,9 @@ export default function Navigation() {
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
               </svg>
             )}
-          </span>
-        </button>
+            </span>
+          </button>
+        </Tooltip>
 
         {/* 메뉴 버튼 (≤1024px) — 2×2 dot grid + magnetic */}
         <MagneticWrapper strength={0.5} radius={50} className={styles.menuBtnWrapper}>
@@ -575,7 +597,6 @@ export default function Navigation() {
         isAdminPage={isAdminPage}
         menuItems={isAdminPage ? adminMenuItems : menuItems}
         contactEmail={siteConfig.contact.email}
-        t={t}
         onClose={() => setIsMenuOpen(false)}
         onContactOpen={openForm}
         onLogout={handleLogout}

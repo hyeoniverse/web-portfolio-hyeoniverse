@@ -1,0 +1,43 @@
+/* ==========================================================================
+   Tooltip
+   ========================================================================== */
+
+/* compound selector (0,2,0) — 글로벌 theme transition 우회 */
+.bubble {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  white-space: nowrap;
+}
+
+.arrow {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--bg-inverse);
+  transform: rotate(45deg);
+}
+
+.arrowBottom {
+  bottom: -3px;
+  left: 50%;
+  margin-left: -3px;
+}
+
+.arrowTop {
+  top: -3px;
+  left: 50%;
+  margin-left: -3px;
+}
+
+/* 번역 툴팁 언어 라벨 */
+.langLabel {
+  opacity: 0.5;
+  font-size: 0.85em;
+  font-weight: var(--font-weight-medium);
+  margin-right: 4px;
+}

@@ -20,6 +20,7 @@
 
 /* Center: Links + Privacy */
 .links {
+  position: relative;
   display: flex;
   gap: var(--spacing-xl);
   align-items: center;
@@ -35,51 +36,57 @@
   text-decoration: none;
 }
 
-.links a::before,
-.links a::after {
-  position: absolute;
-  top: 50%;
-  font-size: 5px;
-  color: currentColor;
-  opacity: 0;
-  /* !important: 전역 theme transition 오버라이드 */
-  transition: opacity var(--duration-base) ease, transform var(--duration-base) ease !important;
-}
-
-.links a::before {
-  content: "►";
-  right: calc(100% + 5px);
-  transform: translateY(-50%) translateX(-3px);
-}
-
-.links a::after {
-  content: "◀︎";
-  left: calc(100% + 5px);
-  transform: translateY(-50%) translateX(3px);
-}
-
-.links a:hover::before {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
-
-.links a:hover::after {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
-
 .links .activeLink {
   color: var(--text-primary);
 }
 
-.links .activeLink::before {
-  opacity: 1;
+/* ── Sliding indicator ── */
+.footerIndicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 0;
+  background: none;
+  pointer-events: none;
+  /* compound selector (0,2,0) → 글로벌 transition 오버라이드 */
+  transition:
+    left var(--duration-moderate) var(--ease-material),
+    width var(--duration-moderate) var(--ease-material),
+    opacity var(--duration-base) ease !important;
+}
+
+.footerIndicator::before {
+  content: "►";
+  position: absolute;
+  right: calc(100% + 5px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-3px);
+  font-size: 5px;
+  color: var(--text-primary);
+  transition: transform var(--duration-base) ease !important;
+}
+
+.footerIndicator::after {
+  content: "◀︎";
+  position: absolute;
+  left: calc(100% + 5px);
+  top: 50%;
+  transform: translateY(-50%) translateX(3px);
+  font-size: 5px;
+  color: var(--text-primary);
+  transition: transform var(--duration-base) ease !important;
+}
+
+.links:hover .footerIndicator::before {
   transform: translateY(-50%) translateX(0);
 }
 
-.links .activeLink::after {
-  opacity: 1;
+.links:hover .footerIndicator::after {
   transform: translateY(-50%) translateX(0);
+}
+
+.footerIndicatorHidden {
+  opacity: 0;
 }
 
 .divider {
