@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useLenis } from "@/providers/LenisProvider";
 import styles from "./error.module.css";
 
 interface ErrorProps {
@@ -13,12 +14,13 @@ interface ErrorProps {
 
 export default function Error({ error, reset }: ErrorProps) {
   const { t } = useLanguage();
+  const { setInfinite } = useLenis();
 
   useEffect(() => {
-    // Log the error to an error reporting service (server-side only in production)
-    // In production, consider sending to a proper error tracking service like Sentry
+    setInfinite(false);
     console.error("Application Error:", error);
-  }, [error]);
+    return () => setInfinite(true);
+  }, [error, setInfinite]);
 
   return (
     <div className={styles.container}>
