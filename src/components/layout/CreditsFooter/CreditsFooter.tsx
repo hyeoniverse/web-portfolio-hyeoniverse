@@ -29,7 +29,7 @@ export default function CreditsFooter({
         {parts[1]} {siteConfig.personal.nickname}
       </p>
       {variant === "panel" && (
-        <Link href="/design-system" className={styles.designSystemLink}>
+        <Link href="/design-system" target="_blank" className={styles.designSystemLink}>
           Design System
         </Link>
       )}
