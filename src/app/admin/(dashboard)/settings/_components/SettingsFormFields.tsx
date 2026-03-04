@@ -235,6 +235,89 @@ export function ResumeUpload({
   );
 }
 
+/* ── AudioUpload ── */
+
+export function AudioUpload({
+  label,
+  url,
+  uploadLabel,
+  removeLabel,
+  onUploaded,
+  onRemove,
+}: LogoUploadProps) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "bgm");
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      onUploaded(data.url);
+    } catch {
+      // silent fail
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className={styles.fieldRow}>
+      <label className={styles.fieldLabel}>{label}</label>
+      <div className={styles.logoUpload}>
+        {url && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.resumeFile}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+            </svg>
+            {decodeURIComponent(url.split("/").pop() ?? "audio.mp3")}
+          </a>
+        )}
+        <div className={styles.logoActions}>
+          <button
+            type="button"
+            className={styles.logoBtn}
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? "..." : uploadLabel}
+          </button>
+          {url && (
+            <button type="button" className={styles.logoBtnRemove} onClick={onRemove}>
+              {removeLabel}
+            </button>
+          )}
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="audio/*"
+          hidden
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleUpload(file);
+            e.target.value = "";
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 /* ── ServiceItemsEditor ── */
 
 interface ServiceItemsEditorProps {

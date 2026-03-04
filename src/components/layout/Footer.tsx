@@ -106,15 +106,33 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
     </span>
   );
 
+  const { musicCreditTitle, musicCreditArtist, musicCreditUrl } = siteConfig.footer;
+  const musicCreditText = musicCreditTitle ? (() => {
+    const titlePart = musicCreditUrl
+      ? <a href={musicCreditUrl} target="_blank" rel="noopener noreferrer">{musicCreditTitle}</a>
+      : <>{musicCreditTitle}</>;
+    const suffix = language === "ko"
+      ? " · 모든 저작권은 원작자에게 있습니다"
+      : " · All rights belong to the original creator";
+    return (
+      <span className={styles.musicCredit}>
+        BGM: {titlePart}{musicCreditArtist && ` by ${musicCreditArtist}`}{suffix}
+      </span>
+    );
+  })() : null;
+
   return (
     <footer className={cn(styles.footer, isMinimal && styles.footerMinimal, className)}>
       <div className={styles.content}>
         {isMinimal ? (
           <div className={styles.bottomMinimal}>
-            {emailLink}
+            <div className={styles.bottomLeft}>
+              {emailLink}
+              {copyrightText}
+            </div>
             <div className={styles.bottomRight}>
               {visitsBlock}
-              {copyrightText}
+              {musicCreditText}
             </div>
           </div>
         ) : (
@@ -145,10 +163,13 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
               />
             </div>
             <div className={styles.bottom}>
-              {emailLink}
+              <div className={styles.bottomLeft}>
+                {emailLink}
+                {copyrightText}
+              </div>
               <div className={styles.bottomRight}>
                 {visitsBlock}
-                {copyrightText}
+                {musicCreditText}
               </div>
             </div>
           </>

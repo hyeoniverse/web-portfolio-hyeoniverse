@@ -268,10 +268,6 @@ export default function ContentTab({
                 <Field label={`${t("admin.settings.resumeButtonText")} (EN)`} value={config.cta.resumeButtonText} onChange={(v) => update("cta", "resumeButtonText", v)} />
                 <Field label={`${t("admin.settings.resumeButtonText")} (KO)`} value={config.cta.resumeButtonText_ko} onChange={(v) => update("cta", "resumeButtonText_ko", v)} />
               </div>
-              <div className={styles.fieldPair}>
-                <Field label={`${t("admin.settings.footerCopyright")} (EN)`} value={config.footer.copyright} onChange={(v) => update("footer", "copyright", v)} />
-                <Field label={`${t("admin.settings.footerCopyright")} (KO)`} value={config.footer.copyright_ko} onChange={(v) => update("footer", "copyright_ko", v)} />
-              </div>
               <Field label={t("admin.settings.loadingDisplayName")} value={config.loading.displayName} onChange={(v) => update("loading", "displayName", v)} />
             </div>
           </section>
