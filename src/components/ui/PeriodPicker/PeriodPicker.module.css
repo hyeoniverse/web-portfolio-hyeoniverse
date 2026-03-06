@@ -1,0 +1,463 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* ── Format segment ── */
+.formatRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.formatLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.formatSegment {
+  display: flex;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.formatBtn {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.formatBtn + .formatBtn {
+  border-left: 1px solid var(--border-tertiary-color);
+}
+
+.formatBtnActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+/* ── Date input row ── */
+.dateRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.dateLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  min-width: 28px;
+}
+
+.dateInputs {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.yearInput {
+  width: 60px;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+}
+
+.yearInput:focus {
+  border-color: var(--text-primary);
+}
+
+.yearInput:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dateSep {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+/* ── Custom Dropdown ── */
+.dropdown {
+  position: relative;
+}
+
+.dropdownTrigger {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  min-width: 48px;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  justify-content: center;
+}
+
+.dropdownTrigger:hover {
+  border-color: var(--text-primary);
+}
+
+.dropdownTrigger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dropdownTrigger svg {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.dropdownList {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 110;
+  min-width: 48px;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dropdownList::-webkit-scrollbar {
+  display: none;
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.dropdownItem:hover {
+  background: var(--color-accent-alpha-10);
+  color: var(--text-primary);
+}
+
+.dropdownItemActive {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── End row (inline: date + ongoing checkbox) ── */
+.endRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* ── Preview ── */
+.preview {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  border: 1px solid var(--border-tertiary-color);
+}
+
+.previewLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.previewText {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ── Picker trigger ── */
+.pickerAnchor {
+  position: relative;
+}
+
+.pickerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.pickerBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.pickerBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Popover ── */
+.popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  min-width: 220px;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.popoverTabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-tertiary-color);
+}
+
+.popoverTab {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  text-align: center;
+}
+
+.popoverTab + .popoverTab {
+  border-left: 1px solid var(--border-tertiary-color);
+}
+
+.popoverTabActive {
+  color: var(--text-primary);
+  font-weight: 600;
+  background: var(--color-accent-alpha-10);
+}
+
+/* ── Spinner ── */
+.spinnerView {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+}
+
+.spinnerCol {
+  position: relative;
+  overflow: hidden;
+}
+
+.spinnerScroll {
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.spinnerScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.spinnerItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0 var(--spacing-sm);
+  user-select: none;
+}
+
+.spinnerItemActive {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.spinnerHighlight {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  border-top: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-tertiary-color);
+  background: var(--color-accent-alpha-10);
+  border-radius: var(--radius-xs);
+}
+
+/* ── Calendar shared ── */
+.calView {
+  padding: var(--spacing-sm);
+}
+
+.calNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.calNav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.calNav button:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.calNav span {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Year grid (4x3) */
+.calYearGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-2xs);
+}
+
+/* Month grid (4x3) */
+.calMonthGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-2xs);
+}
+
+.calCell {
+  padding: var(--spacing-xs) var(--spacing-2xs);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: center;
+}
+
+.calCell:hover {
+  background: var(--color-accent-alpha-10);
+  color: var(--text-primary);
+}
+
+.calCellActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.calCellActive:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+/* Day calendar (7-col) */
+.calDayGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+
+.calWeekday {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-align: center;
+  padding-bottom: var(--spacing-2xs);
+  font-weight: 500;
+}
+
+.calDayCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin: 0 auto;
+}
+
+.calDayCell:hover {
+  background: var(--color-accent-alpha-10);
+  color: var(--text-primary);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .formatRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dateRow {
+    flex-wrap: wrap;
+  }
+
+  .popover {
+    left: 0;
+    transform: none;
+  }
+}

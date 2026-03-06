@@ -1,4 +1,5 @@
 import type {
+  DatePeriod,
   Experience,
   SkillGroup,
   Philosophy,
@@ -6,6 +7,8 @@ import type {
   Certification,
   Award,
 } from "@/data/profile";
+
+export type { DatePeriod };
 
 /** Profile data blob stored in site_settings.config JSONB */
 export interface ProfileData {

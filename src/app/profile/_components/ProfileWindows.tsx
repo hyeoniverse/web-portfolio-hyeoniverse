@@ -301,25 +301,14 @@ export default function ProfileWindows({ className, isMobile }: Props) {
           </div>
         </div>
 
-        {/* Full-width spread image */}
-        <div className={styles.magSpread}>
-          <Image
-            src="/images/profile_pic.webp"
-            alt=""
-            fill
-            sizes="100vw"
-            className={styles.magSpreadImage}
-          />
-        </div>
-
         {/* Pull quote */}
         <blockquote className={styles.magQuote}>
           &ldquo;{pullQuote}&rdquo;
         </blockquote>
 
-        {/* About: info + square B&W image */}
-        <div className={styles.magAbout}>
-          <div className={styles.magAboutInfo}>
+        {/* About + Dev Notes */}
+        <div className={styles.magDetails}>
+          <div className={styles.magAbout}>
             {aboutLines.map((row) => (
               <div key={row.label} className={styles.magInfoRow}>
                 <span className={styles.magInfoLabel}>{row.label}</span>
@@ -327,26 +316,16 @@ export default function ProfileWindows({ className, isMobile }: Props) {
               </div>
             ))}
           </div>
-          <div className={styles.magAboutImage}>
-            <Image
-              src="/images/profile_pic.webp"
-              alt=""
-              fill
-              sizes="40vw"
-              className={styles.profileImage}
-            />
-          </div>
-        </div>
 
-        {/* Dev Notes */}
-        <div className={styles.magNotes}>
-          <span className={styles.magNotesTag}>Dev Notes</span>
-          {easterEggLines.map((row) => (
-            <div key={row.label} className={styles.magInfoRow}>
-              <span className={styles.magInfoLabel}>{row.label}</span>
-              <span className={styles.magInfoValue}>{row.value}</span>
-            </div>
-          ))}
+          <div className={styles.magNotes}>
+            <span className={styles.magNotesTag}>Dev Notes</span>
+            {easterEggLines.map((row) => (
+              <div key={row.label} className={styles.magInfoRow}>
+                <span className={styles.magInfoLabel}>{row.label}</span>
+                <span className={styles.magInfoValue}>{row.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

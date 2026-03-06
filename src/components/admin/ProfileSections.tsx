@@ -9,8 +9,10 @@ import {
   certifications as staticCerts,
   awards as staticAwards,
 } from "@/data/profile";
-import { useLanguage } from "@/providers/LanguageProvider";
+import type { DatePeriod } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
+import T from "@/components/ui/T";
+import PeriodPicker from "@/components/ui/PeriodPicker/PeriodPicker";
 
 export const profileDefaults: ProfileData = {
   experiences: staticExp,
@@ -32,7 +34,7 @@ function updateArrayItem<T>(
   arr: T[],
   idx: number,
   field: string,
-  value: string,
+  value: unknown,
 ): T[] {
   const next = [...arr];
   const item = { ...next[idx] } as Record<string, unknown>;
@@ -47,17 +49,14 @@ function updateArrayItem<T>(
 }
 
 export default function ProfileSections({ data, setData, styles }: ProfileSectionsProps) {
-  const { t } = useLanguage();
-  const tp = (key: string) => t(`admin.settings.profile.${key}`);
-
   /* ── Experiences ── */
-  const updateExperience = (idx: number, field: string, value: string) =>
+  const updateExperience = (idx: number, field: string, value: unknown) =>
     setData((prev) => ({ ...prev, experiences: updateArrayItem(prev.experiences, idx, field, value) }));
 
   const addExperience = () =>
     setData((prev) => ({
       ...prev,
-      experiences: [...prev.experiences, { period: { ko: "", en: "" }, role: { ko: "", en: "" }, company: "", description: { ko: "", en: "" } }],
+      experiences: [...prev.experiences, { period: { start: "", format: "year" as const }, role: { ko: "", en: "" }, company: "", description: { ko: "", en: "" } }],
     }));
 
   const removeExperience = (idx: number) =>
@@ -122,26 +121,26 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
     setData((prev) => ({ ...prev, approachSteps: prev.approachSteps.filter((_, i) => i !== idx) }));
 
   /* ── Certifications ── */
-  const updateCertification = (idx: number, field: string, value: string) =>
+  const updateCertification = (idx: number, field: string, value: unknown) =>
     setData((prev) => ({ ...prev, certifications: updateArrayItem(prev.certifications, idx, field, value) }));
 
   const addCertification = () =>
     setData((prev) => ({
       ...prev,
-      certifications: [...prev.certifications, { year: new Date().getFullYear().toString(), name: { ko: "", en: "" }, issuer: { ko: "", en: "" } }],
+      certifications: [...prev.certifications, { period: { start: new Date().getFullYear().toString(), format: "year" as const }, name: { ko: "", en: "" }, issuer: { ko: "", en: "" } }],
     }));
 
   const removeCertification = (idx: number) =>
     setData((prev) => ({ ...prev, certifications: prev.certifications.filter((_, i) => i !== idx) }));
 
   /* ── Awards ── */
-  const updateAward = (idx: number, field: string, value: string) =>
+  const updateAward = (idx: number, field: string, value: unknown) =>
     setData((prev) => ({ ...prev, awards: updateArrayItem(prev.awards, idx, field, value) }));
 
   const addAward = () =>
     setData((prev) => ({
       ...prev,
-      awards: [...prev.awards, { year: new Date().getFullYear().toString(), name: { ko: "", en: "" }, organization: { ko: "", en: "" } }],
+      awards: [...prev.awards, { period: { start: new Date().getFullYear().toString(), format: "year" as const }, name: { ko: "", en: "" }, organization: { ko: "", en: "" } }],
     }));
 
   const removeAward = (idx: number) =>
@@ -151,233 +150,224 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
     <>
       {/* ── Experiences ── */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tp("experience")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.profile.experience" /></h2>
         {data.experiences.map((exp, i) => (
           <div key={i} className={styles.profileCard}>
             <div className={styles.profileCardHeader}>
               <span className={styles.profileCardTitle}>{exp.company || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removeExperience(i)}>{tp("remove")}</button>
+              <button className={styles.profileRemoveBtn} onClick={() => removeExperience(i)} aria-label="Remove">&minus;</button>
+            </div>
+            <div>
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.company" /></label>
+              <input className={styles.profileFieldInput} value={exp.company} onChange={(e) => updateExperience(i, "company", e.target.value)} />
+            </div>
+            <div>
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+              <PeriodPicker value={exp.period} onChange={(v: DatePeriod) => updateExperience(i, "period", v)} />
             </div>
             <div className={styles.profileGrid}>
               <div>
-                <label className={styles.profileFieldLabel}>{tp("company")}</label>
-                <input className={styles.profileFieldInput} value={exp.company} onChange={(e) => updateExperience(i, "company", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("period")} (KO)</label>
-                <input className={styles.profileFieldInput} value={exp.period.ko} onChange={(e) => updateExperience(i, "period.ko", e.target.value)} />
-              </div>
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("period")} (EN)</label>
-                <input className={styles.profileFieldInput} value={exp.period.en} onChange={(e) => updateExperience(i, "period.en", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("role")} (KO)</label>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (KO)</label>
                 <input className={styles.profileFieldInput} value={exp.role.ko} onChange={(e) => updateExperience(i, "role.ko", e.target.value)} />
               </div>
-            </div>
-            <div className={styles.profileGrid}>
               <div>
-                <label className={styles.profileFieldLabel}>{tp("role")} (EN)</label>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (EN)</label>
                 <input className={styles.profileFieldInput} value={exp.role.en} onChange={(e) => updateExperience(i, "role.en", e.target.value)} />
               </div>
-              <div />
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("description")} (KO)</label>
-              <textarea className={styles.profileFieldTextarea} value={exp.description.ko} onChange={(e) => updateExperience(i, "description.ko", e.target.value)} rows={2} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+              <textarea className={styles.profileFieldTextarea} value={exp.description.ko} onChange={(e) => updateExperience(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("description")} (EN)</label>
-              <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+              <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
             </div>
           </div>
         ))}
-        <button className={styles.profileAddBtn} onClick={addExperience}>{tp("addExperience")}</button>
+        <button className={styles.profileAddBtn} onClick={addExperience}><T k="admin.settings.profile.addExperience" /></button>
       </section>
 
       {/* ── Skills ── */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tp("skills")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.profile.skills" /></h2>
         {data.skillGroups.map((group, gi) => (
           <div key={gi} className={styles.profileCard}>
             <div className={styles.profileCardHeader}>
               <span className={styles.profileCardTitle}>{group.category || `#${gi + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removeSkillGroup(gi)}>{tp("remove")}</button>
+              <button className={styles.profileRemoveBtn} onClick={() => removeSkillGroup(gi)}>&minus;</button>
             </div>
             <div className={styles.profileGrid}>
               <div>
-                <label className={styles.profileFieldLabel}>{tp("category")}</label>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.category" /></label>
                 <input className={styles.profileFieldInput} value={group.category} onChange={(e) => updateSkillGroup(gi, "category", e.target.value)} />
               </div>
               <div />
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("description")} (KO)</label>
-              <textarea className={styles.profileFieldTextarea} value={group.description.ko} onChange={(e) => updateSkillGroup(gi, "description.ko", e.target.value)} rows={2} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+              <textarea className={styles.profileFieldTextarea} value={group.description.ko} onChange={(e) => updateSkillGroup(gi, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("description")} (EN)</label>
-              <textarea className={styles.profileFieldTextarea} value={group.description.en} onChange={(e) => updateSkillGroup(gi, "description.en", e.target.value)} rows={2} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+              <textarea className={styles.profileFieldTextarea} value={group.description.en} onChange={(e) => updateSkillGroup(gi, "description.en", e.target.value)} rows={2} data-lenis-prevent />
             </div>
             {group.skills.map((skill, si) => (
               <div key={si} className={styles.profileNested}>
                 <div className={styles.profileCardHeader}>
                   <span className={styles.profileNestedTitle}>{skill.name || `#${si + 1}`}</span>
-                  <button className={styles.profileRemoveBtn} onClick={() => removeSkill(gi, si)}>{tp("remove")}</button>
+                  <button className={styles.profileRemoveBtn} onClick={() => removeSkill(gi, si)}>&minus;</button>
                 </div>
                 <div>
-                  <label className={styles.profileFieldLabel}>{tp("name")}</label>
+                  <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /></label>
                   <input className={styles.profileFieldInput} value={skill.name} onChange={(e) => updateSkill(gi, si, "name", e.target.value)} />
                 </div>
                 <div>
-                  <label className={styles.profileFieldLabel}>{tp("description")} (KO)</label>
-                  <textarea className={styles.profileFieldTextarea} value={skill.description.ko} onChange={(e) => updateSkill(gi, si, "description.ko", e.target.value)} rows={2} />
+                  <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                  <textarea className={styles.profileFieldTextarea} value={skill.description.ko} onChange={(e) => updateSkill(gi, si, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
                 </div>
                 <div>
-                  <label className={styles.profileFieldLabel}>{tp("description")} (EN)</label>
-                  <textarea className={styles.profileFieldTextarea} value={skill.description.en} onChange={(e) => updateSkill(gi, si, "description.en", e.target.value)} rows={2} />
+                  <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                  <textarea className={styles.profileFieldTextarea} value={skill.description.en} onChange={(e) => updateSkill(gi, si, "description.en", e.target.value)} rows={2} data-lenis-prevent />
                 </div>
               </div>
             ))}
-            <button className={styles.profileAddBtn} onClick={() => addSkill(gi)} style={{ marginTop: "var(--spacing-xs)" }}>{tp("addSkill")}</button>
+            <button className={styles.profileAddBtn} onClick={() => addSkill(gi)} style={{ marginTop: "var(--spacing-xs)" }}><T k="admin.settings.profile.addSkill" /></button>
           </div>
         ))}
-        <button className={styles.profileAddBtn} onClick={addSkillGroup}>{tp("addSkillGroup")}</button>
+        <button className={styles.profileAddBtn} onClick={addSkillGroup}><T k="admin.settings.profile.addSkillGroup" /></button>
       </section>
 
       {/* ── Philosophy & Approach ── */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tp("philosophyApproach")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.profile.philosophyApproach" /></h2>
 
-        <h3 className={styles.profileSubTitle}>{tp("philosophy")}</h3>
+        <h3 className={styles.profileSubTitle}><T k="admin.settings.profile.philosophy" /></h3>
         {data.philosophy.map((item, i) => (
           <div key={i} className={styles.profileCard}>
             <div className={styles.profileCardHeader}>
               <span className={styles.profileCardTitle}>{item.title || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removePhilosophy(i)}>{tp("remove")}</button>
+              <button className={styles.profileRemoveBtn} onClick={() => removePhilosophy(i)}>&minus;</button>
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("title")}</label>
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.title" /></label>
               <input className={styles.profileFieldInput} value={item.title} onChange={(e) => updatePhilosophy(i, "title", e.target.value)} />
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("description")} (KO)</label>
-              <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+              <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("description")} (EN)</label>
-              <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+              <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
             </div>
           </div>
         ))}
-        <button className={styles.profileAddBtn} onClick={addPhilosophy}>{tp("addPhilosophy")}</button>
+        <button className={styles.profileAddBtn} onClick={addPhilosophy}><T k="admin.settings.profile.addPhilosophy" /></button>
 
-        <h3 className={styles.profileSubTitle} style={{ marginTop: "var(--spacing-xl)" }}>{tp("approach")}</h3>
+        <h3 className={styles.profileSubTitle} style={{ marginTop: "var(--spacing-xl)" }}><T k="admin.settings.profile.approach" /></h3>
         {data.approachSteps.map((step, i) => (
           <div key={i} className={styles.profileCard}>
             <div className={styles.profileCardHeader}>
               <span className={styles.profileCardTitle}>{step.title || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removeApproach(i)}>{tp("remove")}</button>
+              <button className={styles.profileRemoveBtn} onClick={() => removeApproach(i)}>&minus;</button>
             </div>
             <div className={styles.profileGrid}>
               <div>
-                <label className={styles.profileFieldLabel}>{tp("number")}</label>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.number" /></label>
                 <input className={styles.profileFieldInput} value={step.number} onChange={(e) => updateApproach(i, "number", e.target.value)} />
               </div>
               <div>
-                <label className={styles.profileFieldLabel}>{tp("title")}</label>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.title" /></label>
                 <input className={styles.profileFieldInput} value={step.title} onChange={(e) => updateApproach(i, "title", e.target.value)} />
               </div>
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("description")} (KO)</label>
-              <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+              <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("description")} (EN)</label>
-              <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+              <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
             </div>
           </div>
         ))}
-        <button className={styles.profileAddBtn} onClick={addApproach}>{tp("addStep")}</button>
+        <button className={styles.profileAddBtn} onClick={addApproach}><T k="admin.settings.profile.addStep" /></button>
       </section>
 
       {/* ── Certifications & Awards ── */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tp("certsAwards")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.profile.certsAwards" /></h2>
 
-        <h3 className={styles.profileSubTitle}>{tp("certifications")}</h3>
+        <h3 className={styles.profileSubTitle}><T k="admin.settings.profile.certifications" /></h3>
         {data.certifications.map((cert, i) => (
           <div key={i} className={styles.profileCard}>
             <div className={styles.profileCardHeader}>
               <span className={styles.profileCardTitle}>{cert.name.ko || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removeCertification(i)}>{tp("remove")}</button>
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("year")}</label>
-                <input className={styles.profileFieldInput} value={cert.year} onChange={(e) => updateCertification(i, "year", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("name")} (KO)</label>
-                <input className={styles.profileFieldInput} value={cert.name.ko} onChange={(e) => updateCertification(i, "name.ko", e.target.value)} />
-              </div>
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("name")} (EN)</label>
-                <input className={styles.profileFieldInput} value={cert.name.en} onChange={(e) => updateCertification(i, "name.en", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("issuer")} (KO)</label>
-                <input className={styles.profileFieldInput} value={cert.issuer.ko} onChange={(e) => updateCertification(i, "issuer.ko", e.target.value)} />
-              </div>
+              <button className={styles.profileRemoveBtn} onClick={() => removeCertification(i)}>&minus;</button>
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("issuer")} (EN)</label>
-              <input className={styles.profileFieldInput} value={cert.issuer.en} onChange={(e) => updateCertification(i, "issuer.en", e.target.value)} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+              <PeriodPicker value={cert.period} onChange={(v: DatePeriod) => updateCertification(i, "period", v)} />
+            </div>
+            <div className={styles.profileGrid}>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (KO)</label>
+                <input className={styles.profileFieldInput} value={cert.name.ko} onChange={(e) => updateCertification(i, "name.ko", e.target.value)} />
+              </div>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (EN)</label>
+                <input className={styles.profileFieldInput} value={cert.name.en} onChange={(e) => updateCertification(i, "name.en", e.target.value)} />
+              </div>
+            </div>
+            <div className={styles.profileGrid}>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.issuer" /> (KO)</label>
+                <input className={styles.profileFieldInput} value={cert.issuer.ko} onChange={(e) => updateCertification(i, "issuer.ko", e.target.value)} />
+              </div>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.issuer" /> (EN)</label>
+                <input className={styles.profileFieldInput} value={cert.issuer.en} onChange={(e) => updateCertification(i, "issuer.en", e.target.value)} />
+              </div>
             </div>
           </div>
         ))}
-        <button className={styles.profileAddBtn} onClick={addCertification}>{tp("addCertification")}</button>
+        <button className={styles.profileAddBtn} onClick={addCertification}><T k="admin.settings.profile.addCertification" /></button>
 
-        <h3 className={styles.profileSubTitle} style={{ marginTop: "var(--spacing-xl)" }}>{tp("awards")}</h3>
+        <h3 className={styles.profileSubTitle} style={{ marginTop: "var(--spacing-xl)" }}><T k="admin.settings.profile.awards" /></h3>
         {data.awards.map((award, i) => (
           <div key={i} className={styles.profileCard}>
             <div className={styles.profileCardHeader}>
               <span className={styles.profileCardTitle}>{award.name.ko || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removeAward(i)}>{tp("remove")}</button>
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("year")}</label>
-                <input className={styles.profileFieldInput} value={award.year} onChange={(e) => updateAward(i, "year", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("name")} (KO)</label>
-                <input className={styles.profileFieldInput} value={award.name.ko} onChange={(e) => updateAward(i, "name.ko", e.target.value)} />
-              </div>
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("name")} (EN)</label>
-                <input className={styles.profileFieldInput} value={award.name.en} onChange={(e) => updateAward(i, "name.en", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}>{tp("organization")} (KO)</label>
-                <input className={styles.profileFieldInput} value={award.organization.ko} onChange={(e) => updateAward(i, "organization.ko", e.target.value)} />
-              </div>
+              <button className={styles.profileRemoveBtn} onClick={() => removeAward(i)}>&minus;</button>
             </div>
             <div>
-              <label className={styles.profileFieldLabel}>{tp("organization")} (EN)</label>
-              <input className={styles.profileFieldInput} value={award.organization.en} onChange={(e) => updateAward(i, "organization.en", e.target.value)} />
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+              <PeriodPicker value={award.period} onChange={(v: DatePeriod) => updateAward(i, "period", v)} />
+            </div>
+            <div className={styles.profileGrid}>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (KO)</label>
+                <input className={styles.profileFieldInput} value={award.name.ko} onChange={(e) => updateAward(i, "name.ko", e.target.value)} />
+              </div>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (EN)</label>
+                <input className={styles.profileFieldInput} value={award.name.en} onChange={(e) => updateAward(i, "name.en", e.target.value)} />
+              </div>
+            </div>
+            <div className={styles.profileGrid}>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.organization" /> (KO)</label>
+                <input className={styles.profileFieldInput} value={award.organization.ko} onChange={(e) => updateAward(i, "organization.ko", e.target.value)} />
+              </div>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.organization" /> (EN)</label>
+                <input className={styles.profileFieldInput} value={award.organization.en} onChange={(e) => updateAward(i, "organization.en", e.target.value)} />
+              </div>
             </div>
           </div>
         ))}
-        <button className={styles.profileAddBtn} onClick={addAward}>{tp("addAward")}</button>
+        <button className={styles.profileAddBtn} onClick={addAward}><T k="admin.settings.profile.addAward" /></button>
       </section>
     </>
   );
