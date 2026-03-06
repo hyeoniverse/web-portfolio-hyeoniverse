@@ -242,6 +242,9 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -275,6 +278,7 @@
   min-height: 60px;
   max-height: 200px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .fieldInput:focus,
@@ -393,6 +397,39 @@
   letter-spacing: 0.02em;
 }
 
+/* ── Logo Color Presets ── */
+.logoColorPresets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.logoColorPresetBtn {
+  display: flex;
+  width: 36px;
+  height: 20px;
+  border-radius: var(--radius-capsule);
+  border: 1px solid var(--border-primary);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  background: transparent;
+  transition: border-color 0.15s;
+}
+
+.section .logoColorPresetBtn:hover {
+  border-color: var(--text-primary);
+}
+
+.logoColorPresetBtnActive {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.logoColorPresetHalf {
+  flex: 1;
+}
+
 /* ── Logo Upload ── */
 .logoUpload {
   display: flex;
@@ -489,6 +526,12 @@
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   margin: 0;
+}
+
+.fieldLabelHint {
+  font-weight: 400;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
 }
 
 .hintLink {
@@ -685,15 +728,25 @@
 }
 
 .profileRemoveBtn {
-  border: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--text-tertiary);
+  border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 
-.profileCard .profileRemoveBtn:hover {
-  text-decoration: underline;
+.profileRemoveBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .profileGrid {
@@ -742,6 +795,7 @@
   min-height: 60px;
   max-height: 200px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .profileFieldTextarea:focus {
@@ -1491,4 +1545,76 @@
 
 .envSaveBtn:disabled {
   opacity: 0.5;
+}
+
+/* ── Scope Tag Input ── */
+.scopeTagField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.scopeTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.scopeTag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.scopeTagRemove {
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  padding: 0;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.scopeTagField .scopeTagRemove:hover {
+  color: var(--color-accent);
+}
+
+.scopeInputRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.scopeAddBtn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--text-tertiary);
+  border-radius: var(--radius-circle);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.scopeAddBtn:hover {
+  background: var(--bg-tertiary);
+}
+
+.scopeAddBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }

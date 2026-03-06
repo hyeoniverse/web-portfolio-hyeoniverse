@@ -15,6 +15,7 @@ import ContentTab from "./_components/ContentTab";
 import AppearanceTab from "./_components/AppearanceTab";
 import ServicesTab from "./_components/ServicesTab";
 import AccountTab from "./_components/AccountTab";
+import T from "@/components/ui/T";
 import styles from "./Settings.module.css";
 
 export default function SettingsPage() {
@@ -239,7 +240,7 @@ export default function SettingsPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>{t("admin.settings.title")}</h1>
+        <h1 className={styles.title}><T k="admin.settings.title" /></h1>
         <div className={styles.headerRight}>
           {activeTab === "account" ? (
             <>
@@ -266,7 +267,7 @@ export default function SettingsPage() {
                   setShowPasswordConfirm(true);
                 }}
               >
-                {accountSaving ? t("admin.settings.saving") : t("admin.settings.updateAccount")}
+                {accountSaving ? <T k="admin.settings.saving" /> : <T k="admin.settings.updateAccount" />}
               </button>
             </>
           ) : (
@@ -283,14 +284,14 @@ export default function SettingsPage() {
                 className={styles.resetBtn}
                 onClick={() => setConfig(structuredClone(siteConfig) as unknown as SiteConfigData)}
               >
-                {t("admin.settings.reset")}
+                <T k="admin.settings.reset" />
               </button>
               <button
                 className={styles.saveBtn}
                 onClick={handleSave}
                 disabled={saving}
               >
-                {saving ? t("admin.settings.saving") : t("admin.settings.save")}
+                {saving ? <T k="admin.settings.saving" /> : <T k="admin.settings.save" />}
               </button>
             </>
           )}

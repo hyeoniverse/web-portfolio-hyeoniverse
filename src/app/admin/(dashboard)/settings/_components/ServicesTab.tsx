@@ -2,6 +2,7 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
 import Toggle from "@/components/ui/Toggle";
 import Select from "@/components/ui/Select";
@@ -20,10 +21,10 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
     <>
       {/* Email Service */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.emailSettings")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.emailSettings" /></h2>
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.emailServiceProvider")}</label>
+            <label className={styles.fieldLabel}><T k="admin.settings.emailServiceProvider" /></label>
             <Select
               value={config.emailService.provider}
               options={[
@@ -44,10 +45,10 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* AI Cover */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.aiSettings")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.aiSettings" /></h2>
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.aiCoverProvider")}</label>
+            <label className={styles.fieldLabel}><T k="admin.settings.aiCoverProvider" /></label>
             <Select
               value={config.aiCover.provider}
               options={[
@@ -81,20 +82,20 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* Comment Notifications */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.commentNotifications")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.commentNotifications" /></h2>
         <div className={styles.fields}>
           <Toggle
             label={t("admin.settings.commentEmailNotify")}
             checked={config.commentEmailNotify ?? false}
             onChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
           />
-          <p className={styles.fieldHint}>{t("admin.settings.commentEmailNotifyDesc")}</p>
+          <p className={styles.fieldHint}><T k="admin.settings.commentEmailNotifyDesc" /></p>
         </div>
       </section>
 
       {/* Security */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.securitySettings")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.securitySettings" /></h2>
         <div className={styles.fields}>
           <Toggle
             label={t("admin.settings.recaptchaEnabled")}
@@ -102,7 +103,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
             onChange={(v) => update("recaptcha", "enabled", v)}
           />
           <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.recaptchaVersion")}</label>
+            <label className={styles.fieldLabel}><T k="admin.settings.recaptchaVersion" /></label>
             <Select
               value={config.recaptcha.version}
               options={[
@@ -117,7 +118,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* Environment Variables */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.envVars")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.envVars" /></h2>
         <EnvVarFields provider={config.emailService.provider} aiProvider={config.aiCover.provider} recaptchaEnabled={config.recaptcha.enabled} translateProvider={config.translation?.provider ?? "deepl"} />
       </section>
     </>

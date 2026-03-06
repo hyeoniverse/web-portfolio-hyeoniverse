@@ -43,7 +43,7 @@ export const content: Record<Language, PrivacyContent> = {
         title: "1. Introduction",
         contentParts: [
           "Welcome to ",
-          { highlight: siteConfig.brand.name },
+          { highlight: siteConfig.metadata.title },
           "'s portfolio. This privacy policy explains how your information is handled when you visit this website or use the contact form.",
         ],
       },
@@ -113,7 +113,7 @@ export const content: Record<Language, PrivacyContent> = {
       {
         title: "1. 소개",
         contentParts: [
-          { highlight: siteConfig.brand.name },
+          { highlight: siteConfig.metadata.title },
           "에 오신 것을 환영합니다. 본 개인정보 처리방침은 웹사이트 방문 및 문의 양식 사용 시 정보가 어떻게 처리되는지 설명합니다.",
         ],
       },

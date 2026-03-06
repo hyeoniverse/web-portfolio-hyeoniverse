@@ -8,7 +8,7 @@ export const TAB_IDS = ["general", "content", "appearance", "services", "account
 
 export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
   general: ["personal", "brand", "contact", "metadata", "footer", "bgm"],
-  content: ["hero", "homeAbout", "services", "marquee", "cta", "loading", "posts", "works", "profile", "about", "social", "socialLinks"],
+  content: ["brand", "hero", "homeAbout", "services", "marquee", "cta", "loading", "posts", "works", "profile", "about", "social", "socialLinks"],
   appearance: ["theme", "typography"],
   services: ["emailService", "aiCover", "recaptcha", "translation"],
 };

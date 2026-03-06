@@ -2,6 +2,7 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
 import type { SettingsTabProps } from "../_types";
 import { ColorField } from "./SettingsFormFields";
@@ -29,17 +30,17 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
             className={styles.hintLink}
             data-clickable="true"
           >
-            {t("admin.settings.openDesignSystem")} ↗
+            <T k="admin.settings.openDesignSystem" /> ↗
           </a>
         </div>
         <p className={styles.sectionHint}>
-          {t("admin.settings.designSystemPreview")}
+          <T k="admin.settings.designSystemPreview" />
         </p>
       </section>
 
       {/* Theme Presets */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.presets")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.presets" /></h2>
         <div className={styles.presetGrid}>
           {THEME_PRESETS.map((preset) => (
             <button
@@ -56,6 +57,11 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
                 setConfig((prev) => ({
                   ...prev,
                   theme: { ...preset.theme },
+                  brand: {
+                    ...prev.brand,
+                    logoColor: preset.theme.lightText,
+                    logoColorDark: preset.theme.darkText,
+                  },
                 }))
               }
             >
@@ -81,7 +87,7 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
 
       {/* Theme Colors */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.themeColors")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.themeColors" /></h2>
         <div className={styles.fields}>
           <ColorField label={t("admin.settings.accentColor")} value={config.theme.accentColor} onChange={(v) => update("theme", "accentColor", v)} />
           <ColorField label={t("admin.settings.lightBg")} value={config.theme.lightBg} onChange={(v) => update("theme", "lightBg", v)} />
@@ -94,7 +100,7 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
       {/* Typography */}
       <section className={styles.section}>
         <div className={styles.sectionTitleRow}>
-          <h2 className={styles.sectionTitle}>{t("admin.settings.typography")}</h2>
+          <h2 className={styles.sectionTitle}><T k="admin.settings.typography" /></h2>
           <a
             href="https://fonts.google.com"
             target="_blank"

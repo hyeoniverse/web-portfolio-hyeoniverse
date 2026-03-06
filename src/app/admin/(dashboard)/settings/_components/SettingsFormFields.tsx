@@ -13,18 +13,23 @@ interface FieldProps {
   onChange: (v: string) => void;
   multiline?: boolean;
   placeholder?: string;
+  hint?: string;
 }
 
-export default function Field({ label, value, onChange, multiline, placeholder }: FieldProps) {
+export default function Field({ label, value, onChange, multiline, placeholder, hint }: FieldProps) {
   return (
     <div className={styles.fieldRow}>
-      <label className={styles.fieldLabel}>{label}</label>
+      <label className={styles.fieldLabel}>
+        {label}
+        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
+      </label>
       {multiline ? (
         <textarea
           className={styles.fieldTextarea}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={3}
+          data-lenis-prevent
         />
       ) : (
         <input
@@ -79,6 +84,7 @@ interface LogoUploadProps {
   removeLabel: string;
   onUploaded: (url: string) => void;
   onRemove: () => void;
+  hint?: string;
 }
 
 export function LogoUpload({
@@ -88,6 +94,7 @@ export function LogoUpload({
   removeLabel,
   onUploaded,
   onRemove,
+  hint,
 }: LogoUploadProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -114,7 +121,10 @@ export function LogoUpload({
 
   return (
     <div className={styles.fieldRow}>
-      <label className={styles.fieldLabel}>{label}</label>
+      <label className={styles.fieldLabel}>
+        {label}
+        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
+      </label>
       <div className={styles.logoUpload}>
         {url && (
           <div className={styles.logoPreview}>
@@ -161,6 +171,7 @@ export function ResumeUpload({
   removeLabel,
   onUploaded,
   onRemove,
+  hint,
 }: LogoUploadProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -187,7 +198,10 @@ export function ResumeUpload({
 
   return (
     <div className={styles.fieldRow}>
-      <label className={styles.fieldLabel}>{label}</label>
+      <label className={styles.fieldLabel}>
+        {label}
+        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
+      </label>
       <div className={styles.logoUpload}>
         {url && (
           <a
@@ -244,6 +258,7 @@ export function AudioUpload({
   removeLabel,
   onUploaded,
   onRemove,
+  hint,
 }: LogoUploadProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -270,7 +285,10 @@ export function AudioUpload({
 
   return (
     <div className={styles.fieldRow}>
-      <label className={styles.fieldLabel}>{label}</label>
+      <label className={styles.fieldLabel}>
+        {label}
+        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
+      </label>
       <div className={styles.logoUpload}>
         {url && (
           <a
@@ -313,6 +331,89 @@ export function AudioUpload({
             e.target.value = "";
           }}
         />
+      </div>
+    </div>
+  );
+}
+
+/* ── TagField ── */
+
+interface TagFieldProps {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  separator?: string;
+  hint?: string;
+  placeholder?: string;
+}
+
+export function TagField({
+  label,
+  value,
+  onChange,
+  separator = ", ",
+  hint,
+  placeholder,
+}: TagFieldProps) {
+  const [input, setInput] = useState("");
+  const tags = value ? value.split(",").map((s) => s.trim()).filter(Boolean) : [];
+
+  const addTags = () => {
+    const newTags = input.split(",").map((s) => s.trim()).filter(Boolean);
+    if (newTags.length === 0) return;
+    const merged = [...tags];
+    for (const tag of newTags) {
+      if (!merged.includes(tag)) merged.push(tag);
+    }
+    onChange(merged.join(separator));
+    setInput("");
+  };
+
+  const removeTag = (idx: number) => {
+    onChange(tags.filter((_, i) => i !== idx).join(separator));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.nativeEvent.isComposing) return;
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTags();
+    }
+    if (e.key === "Backspace" && !input && tags.length > 0) {
+      removeTag(tags.length - 1);
+    }
+  };
+
+  return (
+    <div className={styles.scopeTagField}>
+      <label className={styles.fieldLabel}>
+        {label}
+        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
+      </label>
+      {tags.length > 0 && (
+        <div className={styles.scopeTags}>
+          {tags.map((tag, i) => (
+            <span key={i} className={styles.scopeTag}>
+              {tag}
+              <button type="button" className={styles.scopeTagRemove} onClick={() => removeTag(i)}>
+                &times;
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className={styles.scopeInputRow}>
+        <input
+          className={styles.fieldInput}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+        />
+        <button type="button" className={styles.scopeAddBtn} onClick={addTags} disabled={!input.trim()}>
+          +
+        </button>
       </div>
     </div>
   );
