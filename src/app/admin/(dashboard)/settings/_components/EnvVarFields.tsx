@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import styles from "../Settings.module.css";
 
 interface EnvVarFieldsProps {
@@ -128,7 +129,7 @@ export default function EnvVarFields({
               onClick={handleSaveSecrets}
               disabled={saving}
             >
-              {saving ? t("admin.settings.saving") : t("admin.settings.envVarSave")}
+              {saving ? <T k="admin.settings.saving" /> : <T k="admin.settings.envVarSave" />}
             </button>
           )}
         </div>

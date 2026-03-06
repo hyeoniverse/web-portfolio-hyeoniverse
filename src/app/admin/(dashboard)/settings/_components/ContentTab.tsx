@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, type Dispatch, type SetStateAction } from "react";
+import { useState, useCallback, useMemo, type Dispatch, type SetStateAction } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
 import ProfileSections from "@/components/admin/ProfileSections";
@@ -139,10 +140,18 @@ export default function ContentTab({
         <>
           {/* Hero */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.hero")}</h2>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.hero" /></h2>
             <div className={styles.fields}>
+              <Field
+                label={t("admin.settings.splitName")}
+                hint={t("admin.settings.splitNameHint")}
+                value={config.brand.splitName.join(", ")}
+                onChange={(v) =>
+                  update("brand", "splitName", v.split(",").map((s) => s.trim()))
+                }
+              />
               <div className={styles.fieldPair}>
-                <p className={styles.fieldHint}>{t("admin.settings.multilineHint")}</p>
+                <p className={styles.fieldHint}><T k="admin.settings.multilineHint" /></p>
                 <Field
                   label={`${t("admin.settings.heroHeadline")} (EN)`}
                   value={config.hero.headline.join("\n")}
@@ -157,7 +166,7 @@ export default function ContentTab({
                 />
               </div>
               <div className={styles.fieldPair}>
-                <p className={styles.fieldHint}>{t("admin.settings.multilineHint")}</p>
+                <p className={styles.fieldHint}><T k="admin.settings.multilineHint" /></p>
                 <Field
                   label={`${t("admin.settings.heroSubtext")} (EN)`}
                   value={config.hero.subtext.join("\n")}
@@ -180,8 +189,8 @@ export default function ContentTab({
 
           {/* Home About */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.homeAboutIntro")}</h2>
-            <p className={styles.sectionHint}>{t("admin.settings.highlightHint")}</p>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.homeAboutIntro" /></h2>
+            <p className={styles.sectionHint}><T k="admin.settings.highlightHint" /></p>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label="Intro (EN)" value={config.homeAbout.intro} onChange={(v) => update("homeAbout", "intro", v)} multiline />
@@ -196,7 +205,7 @@ export default function ContentTab({
 
           {/* Services */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.servicesLabel")}</h2>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.servicesLabel" /></h2>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label="Label (EN)" value={config.services.label} onChange={(v) => update("services", "label", v)} />
@@ -211,8 +220,8 @@ export default function ContentTab({
 
           {/* Marquee */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.marqueeWords")}</h2>
-            <p className={styles.sectionHint}>{t("admin.settings.commaHint")}</p>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.marqueeWords" /></h2>
+            <p className={styles.sectionHint}><T k="admin.settings.commaHint" /></p>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field
@@ -231,14 +240,14 @@ export default function ContentTab({
 
           {/* CTA & Footer */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.ctaFooter")}</h2>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.homeCtaFooter" /></h2>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.ctaLabel")} (EN)`} value={config.cta.label} onChange={(v) => update("cta", "label", v)} />
                 <Field label={`${t("admin.settings.ctaLabel")} (KO)`} value={config.cta.label_ko} onChange={(v) => update("cta", "label_ko", v)} />
               </div>
               <div className={styles.fieldPair}>
-                <p className={styles.fieldHint}>{t("admin.settings.multilineHint")}</p>
+                <p className={styles.fieldHint}><T k="admin.settings.multilineHint" /></p>
                 <Field
                   label={`${t("admin.settings.ctaTitle")} (EN)`}
                   value={config.cta.title.join("\n")}
@@ -258,6 +267,7 @@ export default function ContentTab({
               </div>
               <ResumeUpload
                 label={t("admin.settings.resumeFile")}
+                hint={t("admin.settings.resumeUploadHint")}
                 url={config.cta.resumeUrl}
                 uploadLabel={t("admin.settings.uploadResume")}
                 removeLabel={t("admin.settings.removeLogo")}
@@ -268,14 +278,14 @@ export default function ContentTab({
                 <Field label={`${t("admin.settings.resumeButtonText")} (EN)`} value={config.cta.resumeButtonText} onChange={(v) => update("cta", "resumeButtonText", v)} />
                 <Field label={`${t("admin.settings.resumeButtonText")} (KO)`} value={config.cta.resumeButtonText_ko} onChange={(v) => update("cta", "resumeButtonText_ko", v)} />
               </div>
-              <Field label={t("admin.settings.loadingDisplayName")} value={config.loading.displayName} onChange={(v) => update("loading", "displayName", v)} />
+              <Field label={t("admin.settings.loadingDisplayName")} hint={t("admin.settings.loadingDisplayNameHint")} value={config.loading.displayName} onChange={(v) => update("loading", "displayName", v)} />
             </div>
           </section>
 
           {/* Social Links */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.socialLinks")}</h2>
-            <p className={styles.sectionHint}>{t("admin.settings.socialHint")}</p>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.socialLinks" /></h2>
+            <p className={styles.sectionHint}><T k="admin.settings.socialHint" /></p>
             <div className={styles.socialEditor}>
               {socialLinks.map((link, idx) => (
                 <div key={idx} className={styles.socialItem}>
@@ -347,7 +357,7 @@ export default function ContentTab({
                 onClick={addSocialLink}
                 disabled={socialLinks.length >= MAX_SOCIAL_LINKS}
               >
-                + {t("admin.settings.addSocial")} ({socialLinks.length}/{MAX_SOCIAL_LINKS})
+                + <T k="admin.settings.addSocial" /> ({socialLinks.length}/{MAX_SOCIAL_LINKS})
               </button>
             </div>
           </section>
@@ -406,7 +416,7 @@ export default function ContentTab({
 
           {/* Post Categories */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.postCategories")}</h2>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.postCategories" /></h2>
             <div className={styles.fields}>
               <CategoriesEditor
                 categories={normalizedPostCats}
@@ -417,7 +427,7 @@ export default function ContentTab({
 
           {/* Series */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.posts.series")}</h2>
+            <h2 className={styles.sectionTitle}><T k="admin.posts.series" /></h2>
             <SeriesManager categories={normalizedPostCats} />
           </section>
         </>
@@ -427,7 +437,7 @@ export default function ContentTab({
         <>
           {/* Works Categories */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.worksCategories")}</h2>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.worksCategories" /></h2>
             <div className={styles.fields}>
               <WorksCategoriesEditor
                 categories={normalizedWorksCats}
@@ -438,7 +448,7 @@ export default function ContentTab({
 
           {/* Works Intro */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.worksIntro")}</h2>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.worksIntro" /></h2>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.worksIntroLabel")} (EN)`} value={config.works.introLabel} onChange={(v) => update("works", "introLabel", v)} />
@@ -465,15 +475,25 @@ export default function ContentTab({
                 <Field label={`${t("admin.settings.worksIntroQuote")} (KO)`} value={config.works.introQuote_ko} onChange={(v) => update("works", "introQuote_ko", v)} />
               </div>
               <div className={styles.fieldPair}>
-                <Field label={`${t("admin.settings.worksIntroScope")} (EN)`} value={config.works.introScope} onChange={(v) => update("works", "introScope", v)} />
-                <Field label={`${t("admin.settings.worksIntroScope")} (KO)`} value={config.works.introScope_ko} onChange={(v) => update("works", "introScope_ko", v)} />
+                <ScopeTagField
+                  label={`${t("admin.settings.worksIntroScope")} (EN)`}
+                  value={config.works.introScope}
+                  onChange={(v) => update("works", "introScope", v)}
+                  placeholder={t("admin.settings.tagPlaceholder")}
+                />
+                <ScopeTagField
+                  label={`${t("admin.settings.worksIntroScope")} (KO)`}
+                  value={config.works.introScope_ko}
+                  onChange={(v) => update("works", "introScope_ko", v)}
+                  placeholder={t("admin.settings.tagPlaceholder")}
+                />
               </div>
             </div>
           </section>
 
           {/* Works Stats */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("admin.settings.worksStats")}</h2>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.worksStats" /></h2>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.worksStatsProjects")} (EN)`} value={config.works.statsProjects} onChange={(v) => update("works", "statsProjects", v)} />
@@ -488,5 +508,77 @@ export default function ContentTab({
         </>
       )}
     </>
+  );
+}
+
+/* ── Scope Tag Field ── */
+const SCOPE_SEPARATOR = " · ";
+
+function ScopeTagField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  const [input, setInput] = useState("");
+  const tags = value ? value.split(SCOPE_SEPARATOR).filter(Boolean) : [];
+
+  const addTag = () => {
+    const tag = input.trim();
+    if (tag && !tags.includes(tag)) {
+      onChange([...tags, tag].join(SCOPE_SEPARATOR));
+    }
+    setInput("");
+  };
+
+  const removeTag = (idx: number) => {
+    onChange(tags.filter((_, i) => i !== idx).join(SCOPE_SEPARATOR));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.nativeEvent.isComposing) return;
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag();
+    }
+    if (e.key === "Backspace" && !input && tags.length > 0) {
+      removeTag(tags.length - 1);
+    }
+  };
+
+  return (
+    <div className={styles.scopeTagField}>
+      <label className={styles.fieldLabel}>{label}</label>
+      {tags.length > 0 && (
+        <div className={styles.scopeTags}>
+          {tags.map((tag, i) => (
+            <span key={i} className={styles.scopeTag}>
+              {tag}
+              <button type="button" className={styles.scopeTagRemove} onClick={() => removeTag(i)}>
+                &times;
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className={styles.scopeInputRow}>
+        <input
+          className={styles.fieldInput}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+        />
+        <button type="button" className={styles.scopeAddBtn} onClick={addTag} disabled={!input.trim()}>
+          +
+        </button>
+      </div>
+    </div>
   );
 }

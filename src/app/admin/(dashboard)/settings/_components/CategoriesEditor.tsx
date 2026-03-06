@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
+import T from "@/components/ui/T";
 import styles from "../Settings.module.css";
 
 interface BilingualCategory {
@@ -104,7 +105,7 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
       </div>
       <div className={styles.catInput}>
         <label className={styles.catInputGroup}>
-          <span className={styles.catInputGroupLabel}>{t("admin.settings.categoryKoLabel")}</span>
+          <span className={styles.catInputGroupLabel}><T k="admin.settings.categoryKoLabel" /></span>
           <input
             className={styles.fieldInput}
             type="text"
@@ -116,7 +117,7 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
           />
         </label>
         <label className={styles.catInputGroup}>
-          <span className={styles.catInputGroupLabel}>{t("admin.settings.categoryEnLabel")}</span>
+          <span className={styles.catInputGroupLabel}><T k="admin.settings.categoryEnLabel" /></span>
           <input
             className={styles.fieldInput}
             type="text"
@@ -133,7 +134,7 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
           onClick={addCategory}
           disabled={!newKo.trim() || !newEn.trim()}
         >
-          {t("admin.settings.addCategory")}
+          <T k="admin.settings.addCategory" />
         </button>
       </div>
       {reassignTarget && (

@@ -8,6 +8,7 @@ import Toggle from "@/components/ui/Toggle";
 import type { Series } from "@/types/post";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Field from "./SettingsFormFields";
+import T from "@/components/ui/T";
 import styles from "../Settings.module.css";
 
 /* ── SeriesManager ── */
@@ -53,7 +54,7 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
     [seriesList, page],
   );
 
-  if (loading) return <p className={styles.fieldValue}>{t("common.loading")}</p>;
+  if (loading) return <p className={styles.fieldValue}><T k="common.loading" /></p>;
 
   return (
     <div className={styles.seriesList}>
@@ -67,12 +68,12 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
               onClick={() => setExpandedId(expanded ? null : s.id)}
             >
               <div className={styles.seriesCardInfo}>
-                <p className={styles.seriesCardName}>{s.title || t("admin.posts.untitled")}</p>
+                <p className={styles.seriesCardName}>{s.title || <T k="admin.posts.untitled" />}</p>
                 <div className={styles.seriesCardMeta}>
                   {s.category && <span>{s.category}</span>}
-                  <span>{s.post_count ?? 0} {t("admin.posts.postsCount")}</span>
+                  <span>{s.post_count ?? 0} <T k="admin.posts.postsCount" /></span>
                   <span className={`${styles.seriesBadge} ${s.published ? styles.seriesBadgePublished : styles.seriesBadgeDraft}`}>
-                    {s.published ? t("admin.posts.published") : t("admin.posts.draft")}
+                    {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
                   </span>
                 </div>
               </div>
@@ -151,7 +152,7 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
             });
           }}
         >
-          {t("admin.posts.newSeries")}
+          <T k="admin.posts.newSeries" />
         </button>
       )}
     </div>
@@ -319,7 +320,7 @@ function SeriesInlineEditor({
         <Field label={ts("descriptionEN")} value={form.description_en} onChange={(v) => updateField("description_en", v)} multiline />
       </div>
       <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}>{ts("category")}</label>
+        <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.category" /></label>
         <Select
           value={form.category}
           options={categories.map((cat) => ({
@@ -330,7 +331,7 @@ function SeriesInlineEditor({
         />
       </div>
       <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}>{ts("published")}</label>
+        <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.published" /></label>
         <Toggle
           label={form.published ? ts("publishedLabel") : ts("draftLabel")}
           checked={form.published}
@@ -338,24 +339,24 @@ function SeriesInlineEditor({
         />
       </div>
       <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}>{ts("coverImage")}</label>
+        <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.coverImage" /></label>
         {form.cover_image ? (
           <div className={styles.logoUpload}>
             <div className={styles.logoPreview}>
               <Image src={form.cover_image} alt="" width={120} height={75} className={styles.logoPreviewImage} unoptimized />
             </div>
             <button type="button" className={styles.logoBtnRemove} onClick={() => updateField("cover_image", "")}>
-              {ts("remove")}
+              <T k="admin.posts.seriesModal.remove" />
             </button>
           </div>
         ) : (
           <>
             <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
               <button type="button" className={styles.logoBtn} onClick={handleImageUpload} disabled={uploading}>
-                {uploading ? ts("uploading") : ts("uploadCover")}
+                {uploading ? <T k="admin.posts.seriesModal.uploading" /> : <T k="admin.posts.seriesModal.uploadCover" />}
               </button>
               <button type="button" className={styles.logoBtn} onClick={() => setShowCoverPicker((v) => !v)}>
-                {showCoverPicker ? ts("closePicker") : ts("chooseCover")}
+                {showCoverPicker ? <T k="admin.posts.seriesModal.closePicker" /> : <T k="admin.posts.seriesModal.chooseCover" />}
               </button>
             </div>
             {showCoverPicker && (
@@ -371,11 +372,11 @@ function SeriesInlineEditor({
 
       {isEdit && (
         <div className={styles.seriesPostsSection}>
-          <label className={styles.fieldLabel}>{ts("posts")} ({posts.length})</label>
+          <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.posts" /> ({posts.length})</label>
           {postsLoading ? (
-            <p className={styles.seriesPostsEmpty}>{ts("postsLoading")}</p>
+            <p className={styles.seriesPostsEmpty}><T k="admin.posts.seriesModal.postsLoading" /></p>
           ) : posts.length === 0 ? (
-            <p className={styles.seriesPostsEmpty}>{ts("postsEmpty")}</p>
+            <p className={styles.seriesPostsEmpty}><T k="admin.posts.seriesModal.postsEmpty" /></p>
           ) : (
             <div className={styles.seriesPostsList}>
               {posts.map((post, idx) => (
@@ -403,7 +404,7 @@ function SeriesInlineEditor({
                       </svg>
                     </button>
                   </div>
-                  <span className={styles.seriesPostTitle}>{post.title || ts("untitled")}</span>
+                  <span className={styles.seriesPostTitle}>{post.title || <T k="admin.posts.seriesModal.untitled" />}</span>
                   <span className={`${styles.seriesPostStatus} ${post.published ? styles.seriesPostPublished : styles.seriesPostDraft}`}>
                     {post.published ? "P" : "D"}
                   </span>
@@ -426,15 +427,15 @@ function SeriesInlineEditor({
       <div className={styles.seriesCardActions}>
         {onDelete && (
           <button type="button" className={styles.logoBtnRemove} onClick={onDelete}>
-            {t("admin.posts.delete")}
+            <T k="admin.posts.delete" />
           </button>
         )}
         <div style={{ flex: 1 }} />
         <button type="button" className={styles.resetBtn} onClick={onCancel}>
-          {ts("cancel")}
+          <T k="admin.posts.seriesModal.cancel" />
         </button>
         <button type="button" className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-          {saving ? "..." : isEdit ? ts("save") : ts("create")}
+          {saving ? "..." : isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
         </button>
       </div>
     </div>

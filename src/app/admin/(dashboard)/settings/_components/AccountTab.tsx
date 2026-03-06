@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import type { AccountTabProps } from "../_types";
 import Field from "./SettingsFormFields";
 import styles from "../Settings.module.css";
@@ -27,10 +28,10 @@ export default function AccountTab({
   return (
     <>
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.email")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.email" /></h2>
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.currentEmail")}</label>
+            <label className={styles.fieldLabel}><T k="admin.settings.currentEmail" /></label>
             <span className={styles.fieldValue}>{accountEmail}</span>
           </div>
           <Field
@@ -43,10 +44,10 @@ export default function AccountTab({
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.password")}</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.password" /></h2>
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.newPassword")}</label>
+            <label className={styles.fieldLabel}><T k="admin.settings.newPassword" /></label>
             <input
               className={styles.fieldInput}
               type="password"
@@ -56,7 +57,7 @@ export default function AccountTab({
             />
           </div>
           <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.confirmPassword")}</label>
+            <label className={styles.fieldLabel}><T k="admin.settings.confirmPassword" /></label>
             <input
               className={styles.fieldInput}
               type="password"
@@ -72,9 +73,9 @@ export default function AccountTab({
       {showPasswordConfirm && (
         <div className={styles.confirmOverlay} onClick={() => setShowPasswordConfirm(false)}>
           <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.confirmTitle}>{t("admin.settings.currentPassword")}</h3>
+            <h3 className={styles.confirmTitle}><T k="admin.settings.currentPassword" /></h3>
             <p className={styles.confirmDesc}>
-              {t("admin.settings.confirmPasswordDesc")}
+              <T k="admin.settings.confirmPasswordDesc" />
             </p>
             <input
               className={styles.fieldInput}
@@ -107,7 +108,7 @@ export default function AccountTab({
                   setAccountMessage("");
                 }}
               >
-                {t("admin.settings.cancel")}
+                <T k="admin.settings.cancel" />
               </button>
               <button
                 type="button"
@@ -115,7 +116,7 @@ export default function AccountTab({
                 disabled={accountSaving || !accountCurrentPassword}
                 onClick={handleAccountUpdate}
               >
-                {accountSaving ? t("admin.settings.saving") : t("admin.settings.confirm")}
+                {accountSaving ? <T k="admin.settings.saving" /> : <T k="admin.settings.confirm" />}
               </button>
             </div>
           </div>
