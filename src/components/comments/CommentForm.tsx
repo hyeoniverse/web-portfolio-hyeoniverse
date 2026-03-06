@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { getCommenterId, getIdentity } from "@/utils/commenterIdentity";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import styles from "./CommentForm.module.css";
 
 interface CommentFormProps {
@@ -86,7 +87,7 @@ export default function CommentForm({
         <div className={styles.identity}>
           <span className={styles.identityEmoji}>{identity.emoji}</span>
           <span className={styles.identityName}>{identity.name}</span>
-          <span>{t("comments.asYou")}</span>
+          <span><T k="comments.asYou" /></span>
         </div>
         <input
           className={styles.passwordInput}
@@ -117,7 +118,7 @@ export default function CommentForm({
           className={styles.submitBtn}
           disabled={submitting}
         >
-          {submitting ? t("comments.posting") : parentId ? t("comments.reply") : t("comments.submit")}
+          {submitting ? <T k="comments.posting" /> : parentId ? <T k="comments.reply" /> : <T k="comments.submit" />}
         </button>
         {onCancel && (
           <button
@@ -125,7 +126,7 @@ export default function CommentForm({
             className={styles.cancelBtn}
             onClick={onCancel}
           >
-            {t("comments.cancel")}
+            <T k="comments.cancel" />
           </button>
         )}
       </div>

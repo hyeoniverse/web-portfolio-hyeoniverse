@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import type { Post, Series } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
 import AdminListShell, {
@@ -165,8 +166,8 @@ export default function AdminPostsPage() {
             className={`${ts.statusBadge} ${published ? ts.published : ts.draft}`}
           >
             {published
-              ? t("admin.posts.published")
-              : t("admin.posts.draft")}
+              ? <T k="admin.posts.published" />
+              : <T k="admin.posts.draft" />}
           </span>
         ),
         skeletonWidth: "60px",
@@ -211,7 +212,7 @@ export default function AdminPostsPage() {
         onClick={() => setSeriesOpen((v) => !v)}
       >
         <span>
-          {t("admin.posts.series")} ({seriesList.length})
+          <T k="admin.posts.series" /> ({seriesList.length})
         </span>
         <svg
           className={`${styles.seriesToggleIcon} ${seriesOpen ? styles.seriesToggleOpen : ""}`}
@@ -250,7 +251,7 @@ export default function AdminPostsPage() {
                 )}
                 <div className={styles.seriesCardBody}>
                   <p className={styles.seriesCardTitle}>
-                    {s.title || t("admin.posts.untitled")}
+                    {s.title || <T k="admin.posts.untitled" />}
                   </p>
                   <div className={styles.seriesCardMeta}>
                     {s.category && (
@@ -259,14 +260,14 @@ export default function AdminPostsPage() {
                       </span>
                     )}
                     <span>
-                      {s.post_count ?? 0} {t("admin.posts.postsCount")}
+                      {s.post_count ?? 0} <T k="admin.posts.postsCount" />
                     </span>
                     <span
                       className={`${styles.statusBadge} ${s.published ? styles.published : styles.draft}`}
                     >
                       {s.published
-                        ? t("admin.posts.published")
-                        : t("admin.posts.draft")}
+                        ? <T k="admin.posts.published" />
+                        : <T k="admin.posts.draft" />}
                     </span>
                   </div>
                 </div>
@@ -279,7 +280,7 @@ export default function AdminPostsPage() {
                       handleDeleteSeries(s);
                     }}
                   >
-                    {t("admin.posts.delete")}
+                    <T k="admin.posts.delete" />
                   </button>
                 </div>
               </div>
@@ -290,7 +291,7 @@ export default function AdminPostsPage() {
             className={styles.seriesNewBtn}
             onClick={() => setEditingSeries(null)}
           >
-            {t("admin.posts.newSeries")}
+            <T k="admin.posts.newSeries" />
           </button>
         </>
       )}

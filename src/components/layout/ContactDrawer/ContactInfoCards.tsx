@@ -2,19 +2,18 @@
 
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
+import T from "@/components/ui/T";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import Logo from "@/components/common/Logo";
 import styles from "./ContactDrawer.module.css";
 
 interface ContactInfoCardsProps {
-  t: (key: string) => string;
   copied: boolean;
   setCopied: (value: boolean) => void;
   onClose: () => void;
 }
 
 export default function ContactInfoCards({
-  t,
   copied,
   setCopied,
   onClose,
@@ -42,7 +41,7 @@ export default function ContactInfoCards({
         </div>
 
         <div>
-          <h3 className={styles.emailTitle}>{t(isMobile ? "contact.drawer.emailTitleMobile" : "contact.drawer.emailTitle")}</h3>
+          <h3 className={styles.emailTitle}><T k={isMobile ? "contact.drawer.emailTitleMobile" : "contact.drawer.emailTitle"} /></h3>
           <button
             className={`${styles.emailAddress} ${copied ? styles.emailAddressCopied : ""}`}
             onClick={() => {
@@ -69,7 +68,7 @@ export default function ContactInfoCards({
             <span
               className={`${styles.copiedText} ${copied ? "" : styles.hidden}`}
             >
-              {t("contact.drawer.copied")}
+              <T k="contact.drawer.copied" />
               <svg
                 className={styles.checkIcon}
                 viewBox="0 0 24 24"

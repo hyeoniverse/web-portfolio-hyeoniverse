@@ -7,10 +7,9 @@ import styles from "./SuccessMessage.module.css";
 import Button from "@/components/ui/Button";
 import { useContactStore } from "@/stores/contactStore";
 import { useModalStore } from "@/stores/modalStore";
-import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 
 export default function SuccessMessage() {
-  const { t } = useLanguage();
   const { closeForm, resetForm } = useContactStore();
   const { isModalOpen, closeModal } = useModalStore();
 
@@ -30,7 +29,7 @@ export default function SuccessMessage() {
         <div className="flex flex-row w-full justify-center">
           <CheckCircle size={32} className={styles.icon} />
           <motion.h3 className={styles.title} variants={fadeInUpScale}>
-            {t("contact.successTitle")}
+            <T k="contact.successTitle" />
             <motion.div
               variants={sparkle}
               className={styles.sparkle}
@@ -42,12 +41,12 @@ export default function SuccessMessage() {
           </motion.h3>
         </div>
         <motion.p className={styles.message} variants={fadeInUpScale}>
-          {t("contact.successMessage")}
+          <T k="contact.successMessage" />
           <br />
-          {t("contact.successSubMessage")}
+          <T k="contact.successSubMessage" />
         </motion.p>
         <Button variant="primary" onClick={handleClose}>
-          {t("contact.confirm")}
+          <T k="contact.confirm" />
         </Button>
       </div>
     </>

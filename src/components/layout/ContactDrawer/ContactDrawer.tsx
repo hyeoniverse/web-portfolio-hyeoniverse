@@ -10,6 +10,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import T from "@/components/ui/T";
 import ContactSuccessView from "./ContactSuccessView";
 import ContactInfoCards from "./ContactInfoCards";
 import styles from "./ContactDrawer.module.css";
@@ -274,7 +275,7 @@ export default function ContactDrawer({
             <div className={styles.formCard}>
               <div>
                 <h2 className={styles.title}>
-                  {formState.succeeded ? t("contact.drawer.successTitle") : t(isMobile ? "contact.drawer.formTitleMobile" : "contact.drawer.formTitle")}
+                  {formState.succeeded ? <T k="contact.drawer.successTitle" /> : <T k={isMobile ? "contact.drawer.formTitleMobile" : "contact.drawer.formTitle"} />}
                 </h2>
 
                 <AnimatePresence mode="wait">
@@ -282,7 +283,6 @@ export default function ContactDrawer({
                     <ContactSuccessView
                       submittedData={submittedData}
                       resetForm={resetForm}
-                      t={t}
                     />
                   ) : (
                     <motion.form
@@ -343,7 +343,7 @@ export default function ContactDrawer({
                             className={`${styles.fileBtn} ${fileName ? styles.fileBtnActive : ""}`}
                             onClick={() => fileInputRef.current?.click()}
                           >
-                            {fileName || t("contact.drawer.fileUpload")}
+                            {fileName || <T k="contact.drawer.fileUpload" />}
                           </button>
                           {fileName && (
                             <button
@@ -416,13 +416,13 @@ export default function ContactDrawer({
                                   rel="noopener noreferrer"
                                   onClick={(e) => e.stopPropagation()}
                                 >
-                                  {t("contact.drawer.privacyPolicy")}
+                                  <T k="contact.drawer.privacyPolicy" />
                                 </Link>
-                                {t("contact.drawer.acceptPrivacy")}
+                                <T k="contact.drawer.acceptPrivacy" />
                               </>
                             ) : (
                               <>
-                                {t("contact.drawer.acceptPrivacy")}
+                                <T k="contact.drawer.acceptPrivacy" />
                                 <Link
                                   data-more="true"
                                   href="/privacy"
@@ -430,7 +430,7 @@ export default function ContactDrawer({
                                   rel="noopener noreferrer"
                                   onClick={(e) => e.stopPropagation()}
                                 >
-                                  {t("contact.drawer.privacyPolicy")}
+                                  <T k="contact.drawer.privacyPolicy" />
                                 </Link>
                               </>
                             )}
@@ -459,7 +459,7 @@ export default function ContactDrawer({
                         onClick={formState.succeeded ? resetForm : undefined}
                       >
                         {formState.submitting ? (
-                          t("contact.sending")
+                          <T k="contact.sending" />
                         ) : formState.succeeded ? (
                           <>
                             <span className={styles.submitTextDefault}>
@@ -512,7 +512,6 @@ export default function ContactDrawer({
 
             {/* 오른쪽: 정보 카드 */}
             <ContactInfoCards
-              t={t}
               copied={copied}
               setCopied={setCopied}
               onClose={() => { onClose(); resetForm(); }}

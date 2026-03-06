@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Comment } from "@/types/post";
-import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
 import styles from "./CommentSection.module.css";
@@ -35,7 +35,6 @@ function buildTree(comments: Comment[]): Comment[] {
 }
 
 export default function CommentSection({ commentType, targetId }: CommentSectionProps) {
-  const { t } = useLanguage();
   const [comments, setComments] = useState<Comment[]>([]);
   const apiBase = commentType === "work" ? "/api/work-comments" : "/api/comments";
   const paramKey = commentType === "work" ? "work_id" : "post_id";
@@ -74,7 +73,7 @@ export default function CommentSection({ commentType, targetId }: CommentSection
   return (
     <div className={styles.section}>
       <h2 className={styles.heading}>
-        {t("comments.heading")}
+        <T k="comments.heading" />
         {comments.length > 0 && (
           <span className={styles.count}>({comments.length})</span>
         )}
@@ -101,7 +100,7 @@ export default function CommentSection({ commentType, targetId }: CommentSection
           ))}
         </div>
       ) : (
-        <p className={styles.empty}>{t("comments.empty")}</p>
+        <p className={styles.empty}><T k="comments.empty" /></p>
       )}
     </div>
   );

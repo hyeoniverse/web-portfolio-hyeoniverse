@@ -7,20 +7,19 @@ import { renderHighlight } from "../renderHighlight";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
+import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./TroubleshootingPanel.module.css";
 const styles = { ...shared, ...local };
 
 interface TroubleshootingPanelProps {
   language: Language;
-  t: (key: string) => string;
   items: TroubleShootingItem[];
   scrollBy?: (deltaX: number) => void;
 }
 
 function TroubleshootingPanel({
   language,
-  t,
   items,
   scrollBy,
 }: TroubleshootingPanelProps) {
@@ -243,7 +242,7 @@ function TroubleshootingPanel({
                 <div className={styles.troubleBody}>
                   <div className={styles.troubleEntry}>
                     <span className={styles.troubleLabel}>
-                      {t("aboutPage.troubleshooting.cause")}
+                      <T k="aboutPage.troubleshooting.cause" />
                     </span>
                     <p>{renderHighlight(item.cause[language])}</p>
                   </div>
@@ -251,7 +250,7 @@ function TroubleshootingPanel({
                     <span
                       className={`${styles.troubleLabel} ${styles.troubleLabelAccent}`}
                     >
-                      {t("aboutPage.troubleshooting.solution")}
+                      <T k="aboutPage.troubleshooting.solution" />
                     </span>
                     <p>{renderHighlight(item.solution[language])}</p>
                   </div>
@@ -259,7 +258,7 @@ function TroubleshootingPanel({
                     <span
                       className={`${styles.troubleLabel} ${styles.troubleLabelInsight}`}
                     >
-                      {t("aboutPage.troubleshooting.keyInsight")}
+                      <T k="aboutPage.troubleshooting.keyInsight" />
                     </span>
                     <p className={styles.troubleInsightText}>
                       {renderHighlight(item.keyInsight[language])}
@@ -289,7 +288,7 @@ function TroubleshootingPanel({
               <div className={styles.troubleBody}>
                 <div className={styles.troubleEntry}>
                   <span className={styles.troubleLabel}>
-                    {t("aboutPage.troubleshooting.cause")}
+                    <T k="aboutPage.troubleshooting.cause" />
                   </span>
                   <p>{renderHighlight(item.cause[language])}</p>
                 </div>
@@ -297,7 +296,7 @@ function TroubleshootingPanel({
                   <span
                     className={`${styles.troubleLabel} ${styles.troubleLabelAccent}`}
                   >
-                    {t("aboutPage.troubleshooting.solution")}
+                    <T k="aboutPage.troubleshooting.solution" />
                   </span>
                   <p>{renderHighlight(item.solution[language])}</p>
                 </div>
@@ -305,7 +304,7 @@ function TroubleshootingPanel({
                   <span
                     className={`${styles.troubleLabel} ${styles.troubleLabelInsight}`}
                   >
-                    {t("aboutPage.troubleshooting.keyInsight")}
+                    <T k="aboutPage.troubleshooting.keyInsight" />
                   </span>
                   <p className={styles.troubleInsightText}>
                     {renderHighlight(item.keyInsight[language])}

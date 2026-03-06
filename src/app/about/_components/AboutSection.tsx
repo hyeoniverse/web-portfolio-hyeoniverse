@@ -51,7 +51,7 @@ export default function AboutSection() {
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.about.infiniteScroll;
 
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
     useHorizontalScroll(styles, {
       infinite: infiniteScroll,
@@ -101,7 +101,7 @@ export default function AboutSection() {
 
   const panelSet = (key: number) => (
     <Fragment key={key}>
-      <HeroPanel t={t} />
+      <HeroPanel />
       <OverviewPanel language={language} overview={projectOverview} />
       <ArchitecturePanel language={language} structure={projectStructure} />
       <UserFlowPanel
@@ -146,7 +146,6 @@ export default function AboutSection() {
       />
       <TroubleshootingPanel
         language={language}
-        t={t}
         items={troubleShootingItems}
         scrollBy={scrollBy}
       />
