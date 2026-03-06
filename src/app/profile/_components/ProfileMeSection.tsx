@@ -12,6 +12,7 @@ import {
   awards as staticAwards,
 } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
+import { formatPeriod } from "@/utils/formatPeriod";
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
@@ -138,7 +139,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
                 className={`${styles.expRow} ${styles.animate}`}
               >
                 <span className={styles.expPeriod}>
-                  {exp.period[language]}
+                  {formatPeriod(exp.period, language)}
                 </span>
 
                 <div className={styles.expMarker}>
@@ -286,7 +287,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
                     key={index}
                     className={`${styles.credentialItem} ${styles.animate}`}
                   >
-                    <span className={styles.credentialYear}>{cert.year}</span>
+                    <span className={styles.credentialYear}>{formatPeriod(cert.period, language)}</span>
                     <div className={styles.credentialInfo}>
                       <h5 className={styles.credentialName}>
                         {cert.name[language]}
@@ -309,7 +310,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
                     key={index}
                     className={`${styles.credentialItem} ${styles.animate}`}
                   >
-                    <span className={styles.credentialYear}>{award.year}</span>
+                    <span className={styles.credentialYear}>{formatPeriod(award.period, language)}</span>
                     <div className={styles.credentialInfo}>
                       <h5 className={styles.credentialName}>
                         {award.name[language]}

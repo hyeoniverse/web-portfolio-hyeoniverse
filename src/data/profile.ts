@@ -3,8 +3,15 @@ import { siteConfig } from "@/config/site.config";
 
 type LocalizedText = Record<Language, string>;
 
+export interface DatePeriod {
+  start: string;        // "2024" | "2024-03" | "2024-03-15"
+  end?: string;
+  ongoing?: boolean;
+  format: "year" | "yearMonth" | "date";
+}
+
 export interface Experience {
-  period: LocalizedText;
+  period: DatePeriod;
   role: LocalizedText;
   company: string;
   description: LocalizedText;
@@ -28,16 +35,16 @@ export interface Philosophy {
 
 export const experiences: Experience[] = [
   {
-    period: { ko: "2024 - 현재", en: "2024 - Present" },
+    period: { start: "2024", ongoing: true, format: "year" },
     role: { ko: "개인 프로젝트", en: "Personal Projects" },
-    company: siteConfig.brand.name,
+    company: siteConfig.metadata.title,
     description: {
       ko: "포트폴리오 사이트 기획·개발. Next.js, GSAP, Framer Motion 활용.",
       en: "Planned and built this portfolio site with Next.js, GSAP, and Framer Motion.",
     },
   },
   {
-    period: { ko: "2023", en: "2023" },
+    period: { start: "2023", format: "year" },
     role: { ko: "프론트엔드 인턴", en: "Frontend Intern" },
     company: "Web Studio",
     description: {
@@ -46,7 +53,7 @@ export const experiences: Experience[] = [
     },
   },
   {
-    period: { ko: "2020 - 2024", en: "2020 - 2024" },
+    period: { start: "2020", end: "2024", format: "year" },
     role: { ko: "컴퓨터공학 전공", en: "Computer Science Major" },
     company: "University",
     description: {
@@ -318,30 +325,30 @@ export const approachSteps: ApproachStep[] = [
 ];
 
 export interface Certification {
-  year: string;
+  period: DatePeriod;
   name: LocalizedText;
   issuer: LocalizedText;
 }
 
 export interface Award {
-  year: string;
+  period: DatePeriod;
   name: LocalizedText;
   organization: LocalizedText;
 }
 
 export const certifications: Certification[] = [
   {
-    year: "2024",
+    period: { start: "2024", format: "year" },
     name: { ko: "정보처리기사", en: "Engineer Information Processing" },
     issuer: { ko: "한국산업인력공단", en: "HRD Korea" },
   },
   {
-    year: "2023",
+    period: { start: "2023", format: "year" },
     name: { ko: "SQLD", en: "SQLD" },
     issuer: { ko: "한국데이터산업진흥원", en: "Korea Data Agency" },
   },
   {
-    year: "2022",
+    period: { start: "2022", format: "year" },
     name: { ko: "TOEIC 850", en: "TOEIC 850" },
     issuer: { ko: "ETS", en: "ETS" },
   },
@@ -349,12 +356,12 @@ export const certifications: Certification[] = [
 
 export const awards: Award[] = [
   {
-    year: "2024",
+    period: { start: "2024", format: "year" },
     name: { ko: "캡스톤 디자인 우수상", en: "Capstone Design Excellence Award" },
     organization: { ko: "학과", en: "Department" },
   },
   {
-    year: "2023",
+    period: { start: "2023", format: "year" },
     name: { ko: "교내 해커톤 장려상", en: "University Hackathon Encouragement Award" },
     organization: { ko: "학교", en: "University" },
   },

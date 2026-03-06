@@ -6,6 +6,7 @@ import {
   certifications,
   awards,
 } from "@/data/profile";
+import type { DatePeriod, Experience, Certification, Award } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
 
 const staticProfileData: ProfileData = {
@@ -16,6 +17,81 @@ const staticProfileData: ProfileData = {
   certifications,
   awards,
 };
+
+/* ── Migration helpers (old → new DatePeriod) ── */
+
+/** 구 LocalizedText period → DatePeriod */
+function migratePeriodText(period: unknown): DatePeriod {
+  if (
+    period &&
+    typeof period === "object" &&
+    "format" in (period as Record<string, unknown>)
+  ) {
+    return period as DatePeriod;
+  }
+
+  // Old LocalizedText: { ko: "2024 - 현재", en: "2024 - Present" }
+  const text =
+    (period as Record<string, string>)?.ko ||
+    (period as Record<string, string>)?.en ||
+    "";
+
+  const rangeMatch = text.match(/^(\d{4})\s*[-–]\s*(.+)$/);
+  if (rangeMatch) {
+    const start = rangeMatch[1];
+    const endText = rangeMatch[2].trim();
+    const ongoing = endText === "현재" || endText === "Present";
+    return {
+      start,
+      end: ongoing ? undefined : endText,
+      ongoing: ongoing || undefined,
+      format: "year",
+    };
+  }
+
+  return { start: text, format: "year" };
+}
+
+/** 구 year: string → DatePeriod */
+function migrateYear(item: Record<string, unknown>): DatePeriod {
+  if (item.period && typeof item.period === "object" && "format" in (item.period as Record<string, unknown>)) {
+    return item.period as DatePeriod;
+  }
+  const year = (item.year as string) || "";
+  return { start: year, format: "year" };
+}
+
+function migrateExperiences(raw: unknown[]): Experience[] {
+  return raw.map((item) => {
+    const exp = item as Record<string, unknown>;
+    return {
+      ...exp,
+      period: migratePeriodText(exp.period),
+    } as Experience;
+  });
+}
+
+function migrateCertifications(raw: unknown[]): Certification[] {
+  return raw.map((item) => {
+    const cert = item as Record<string, unknown>;
+    return {
+      period: migrateYear(cert),
+      name: cert.name,
+      issuer: cert.issuer,
+    } as Certification;
+  });
+}
+
+function migrateAwards(raw: unknown[]): Award[] {
+  return raw.map((item) => {
+    const award = item as Record<string, unknown>;
+    return {
+      period: migrateYear(award),
+      name: award.name,
+      organization: award.organization,
+    } as Award;
+  });
+}
 
 /**
  * Fetch profile data — Supabase 설정 시 DB에서, 아니면 정적 데이터에서 반환.
@@ -42,16 +118,22 @@ export async function getProfileData(): Promise<ProfileData> {
       return staticProfileData;
     }
 
-    const config = data.config as Partial<ProfileData>;
+    const config = data.config as Record<string, unknown[]>;
 
-    // 각 섹션에 대해 DB 데이터가 있으면 사용, 없으면 정적 fallback
+    // 각 섹션에 대해 DB 데이터가 있으면 사용 (마이그레이션 적용), 없으면 정적 fallback
     return {
-      experiences: config.experiences ?? staticProfileData.experiences,
-      skillGroups: config.skillGroups ?? staticProfileData.skillGroups,
-      philosophy: config.philosophy ?? staticProfileData.philosophy,
-      approachSteps: config.approachSteps ?? staticProfileData.approachSteps,
-      certifications: config.certifications ?? staticProfileData.certifications,
-      awards: config.awards ?? staticProfileData.awards,
+      experiences: config.experiences
+        ? migrateExperiences(config.experiences)
+        : staticProfileData.experiences,
+      skillGroups: (config.skillGroups as ProfileData["skillGroups"]) ?? staticProfileData.skillGroups,
+      philosophy: (config.philosophy as ProfileData["philosophy"]) ?? staticProfileData.philosophy,
+      approachSteps: (config.approachSteps as ProfileData["approachSteps"]) ?? staticProfileData.approachSteps,
+      certifications: config.certifications
+        ? migrateCertifications(config.certifications)
+        : staticProfileData.certifications,
+      awards: config.awards
+        ? migrateAwards(config.awards)
+        : staticProfileData.awards,
     };
   } catch {
     return staticProfileData;
