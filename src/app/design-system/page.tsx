@@ -25,6 +25,8 @@ import T from "@/components/ui/T";
 import PostsBanner from "@/app/posts/_components/PostsBanner/PostsBanner";
 import type { BannerLayout } from "@/app/posts/_components/PostsBanner/PostsBanner";
 import type { Post } from "@/types/post";
+import type { DatePeriod } from "@/data/profile";
+import PeriodPicker from "@/components/ui/PeriodPicker/PeriodPicker";
 import styles from "./DesignSystem.module.css";
 
 // ─── Preset application helpers ───
@@ -464,6 +466,7 @@ export default function DesignSystemPage() {
   const [checkCircle, setCheckCircle] = useState(true);
   const [checkIndet, setCheckIndet] = useState(false);
   const [selectValue, setSelectValue] = useState("option1");
+  const [periodValue, setPeriodValue] = useState<DatePeriod>({ start: "2024", format: "year" });
 
   const handleBack = useCallback(() => {
     setIsExiting(true);
@@ -988,6 +991,14 @@ export default function DesignSystemPage() {
                   </Tooltip>
                 </motion.div>
               </div>
+            </motion.div>
+
+            {/* PeriodPicker */}
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              <div className={styles.componentGroupTitle}>PeriodPicker</div>
+              <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
+                <PeriodPicker value={periodValue} onChange={setPeriodValue} />
+              </motion.div>
             </motion.div>
 
             {/* TypeWriter */}
