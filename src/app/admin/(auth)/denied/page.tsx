@@ -3,12 +3,11 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
+import T from "@/components/ui/T";
 import styles from "@/app/error.module.css";
 
 export default function AccessDeniedPage() {
-  const { t } = useLanguage();
   const { setInfinite } = useLenis();
 
   useEffect(() => {
@@ -41,7 +40,7 @@ export default function AccessDeniedPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          {t("errorPage.accessDeniedTitle")}
+          <T k="errorPage.accessDeniedTitle" />
         </motion.h1>
 
         <motion.p
@@ -50,7 +49,7 @@ export default function AccessDeniedPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          {t("errorPage.accessDeniedDescription")}
+          <T k="errorPage.accessDeniedDescription" />
         </motion.p>
 
         <motion.div
@@ -60,10 +59,10 @@ export default function AccessDeniedPage() {
           transition={{ delay: 0.5, duration: 0.5 }}
         >
           <Link href="/admin/login" className={styles.primaryButton}>
-            {t("errorPage.signIn")}
+            <T k="errorPage.signIn" />
           </Link>
           <Link href="/" className={styles.secondaryButton}>
-            {t("errorPage.goHome")}
+            <T k="errorPage.goHome" />
           </Link>
         </motion.div>
       </motion.div>

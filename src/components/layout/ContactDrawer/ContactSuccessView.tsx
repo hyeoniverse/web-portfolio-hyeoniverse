@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import T from "@/components/ui/T";
 import styles from "./ContactDrawer.module.css";
 
 interface SubmittedData {
@@ -14,7 +15,6 @@ interface SubmittedData {
 interface ContactSuccessViewProps {
   submittedData: SubmittedData;
   resetForm: (e?: React.MouseEvent) => void;
-  t: (key: string) => string;
 }
 
 const clipEase = [0.65, 0, 0.35, 1] as const;
@@ -22,7 +22,6 @@ const clipEase = [0.65, 0, 0.35, 1] as const;
 export default function ContactSuccessView({
   submittedData,
   resetForm,
-  t,
 }: ContactSuccessViewProps) {
   return (
     <motion.div
@@ -41,7 +40,7 @@ export default function ContactSuccessView({
         }}
         transition={{ duration: 0.4, delay: 0.1, ease: clipEase }}
       >
-        {t("contact.drawer.preview")}
+        <T k="contact.drawer.preview" />
       </motion.div>
 
       <motion.div
@@ -91,7 +90,7 @@ export default function ContactSuccessView({
         transition={{ duration: 0.6, delay: 0.3, ease: clipEase }}
       >
         <span className={styles.successMessageLabel}>
-          {t("contact.drawer.messageLabel")}
+          <T k="contact.drawer.messageLabel" />
         </span>
         <p className={styles.successMessage}>{submittedData.message}</p>
       </motion.div>
@@ -135,7 +134,7 @@ export default function ContactSuccessView({
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        {t("contact.send")}
+        <T k="contact.send" />
       </motion.button>
     </motion.div>
   );

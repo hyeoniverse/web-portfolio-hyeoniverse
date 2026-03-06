@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Select from "@/components/ui/Select";
+import T from "@/components/ui/T";
 import styles from "./CategoryReassignModal.module.css";
 
 interface BilingualCategory {
@@ -152,25 +153,25 @@ export default function CategoryReassignModal({
     <div className={styles.overlay} onClick={onCancel}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h2 className={styles.title}>{tc("title")}</h2>
+          <h2 className={styles.title}><T k="admin.settings.reassignModal.title" /></h2>
           <p className={styles.subtitle}>
             <span className={styles.catBadge}>{catLabel}</span>
-            {tc("description")}
+            <T k="admin.settings.reassignModal.description" />
           </p>
         </div>
 
         {loading ? (
-          <p className={styles.loading}>{tc("loading")}</p>
+          <p className={styles.loading}><T k="admin.settings.reassignModal.loading" /></p>
         ) : posts.length === 0 ? (
           <div className={styles.empty}>
-            <p>{tc("noPosts")}</p>
+            <p><T k="admin.settings.reassignModal.noPosts" /></p>
             <div className={styles.footer}>
               <button
                 type="button"
                 className={styles.confirmBtn}
                 onClick={() => onConfirm([], addedCategories)}
               >
-                {tc("confirm")}
+                <T k="admin.settings.reassignModal.confirm" />
               </button>
             </div>
           </div>
@@ -178,7 +179,7 @@ export default function CategoryReassignModal({
           <>
             {/* Bulk assign */}
             <div className={styles.bulkSection}>
-              <label className={styles.bulkLabel}>{tc("bulkAssign")}</label>
+              <label className={styles.bulkLabel}><T k="admin.settings.reassignModal.bulkAssign" /></label>
               <div className={styles.bulkRow}>
                 <Select
                   value={bulkCategory}
@@ -194,7 +195,7 @@ export default function CategoryReassignModal({
             {/* New category */}
             <div className={styles.newCatRow}>
               <label className={styles.newCatGroup}>
-                <span className={styles.newCatGroupLabel}>{t("admin.settings.categoryKoLabel")}</span>
+                <span className={styles.newCatGroupLabel}><T k="admin.settings.categoryKoLabel" /></span>
                 <input
                   className={styles.newCatInput}
                   type="text"
@@ -203,7 +204,7 @@ export default function CategoryReassignModal({
                 />
               </label>
               <label className={styles.newCatGroup}>
-                <span className={styles.newCatGroupLabel}>{t("admin.settings.categoryEnLabel")}</span>
+                <span className={styles.newCatGroupLabel}><T k="admin.settings.categoryEnLabel" /></span>
                 <input
                   className={styles.newCatInput}
                   type="text"
@@ -223,7 +224,7 @@ export default function CategoryReassignModal({
                 onClick={handleAddCategory}
                 disabled={!newKo.trim() || !newEn.trim()}
               >
-                {tc("addCategory")}
+                <T k="admin.settings.reassignModal.addCategory" />
               </button>
             </div>
 
@@ -247,7 +248,7 @@ export default function CategoryReassignModal({
                       {g.seriesTitle}
                     </span>
                     <span className={styles.postCount}>
-                      {g.posts.length} {tc("posts")}
+                      {g.posts.length} <T k="admin.settings.reassignModal.posts" />
                     </span>
                     <div className={styles.seriesSelect}>
                       <Select
@@ -273,7 +274,7 @@ export default function CategoryReassignModal({
                   </div>
                   {!assignments[`series:${g.seriesId}`] && (
                     <p className={styles.warningText}>
-                      {tc("seriesWarning")}
+                      <T k="admin.settings.reassignModal.seriesWarning" />
                     </p>
                   )}
                 </div>
@@ -302,7 +303,7 @@ export default function CategoryReassignModal({
                 className={styles.cancelBtn}
                 onClick={onCancel}
               >
-                {tc("cancel")}
+                <T k="admin.settings.reassignModal.cancel" />
               </button>
               <button
                 type="button"
@@ -310,7 +311,7 @@ export default function CategoryReassignModal({
                 onClick={handleConfirm}
                 disabled={saving || !isValid()}
               >
-                {saving ? tc("saving") : tc("confirm")}
+                {saving ? <T k="admin.settings.reassignModal.saving" /> : <T k="admin.settings.reassignModal.confirm" />}
               </button>
             </div>
           </>

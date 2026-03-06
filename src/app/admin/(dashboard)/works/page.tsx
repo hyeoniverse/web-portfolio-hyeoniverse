@@ -12,6 +12,7 @@ import AdminTable, {
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
+import T from "@/components/ui/T";
 
 const WORKS_PER_PAGE = 20;
 
@@ -159,8 +160,8 @@ export default function AdminWorksPage() {
             className={`${ts.statusBadge} ${published ? ts.published : ts.draft}`}
           >
             {published
-              ? t("admin.works.published")
-              : t("admin.works.draft")}
+              ? <T k="admin.works.published" />
+              : <T k="admin.works.draft" />}
           </span>
         ),
         skeletonWidth: "60px",

@@ -7,6 +7,7 @@ import type { Series } from "@/types/post";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
+import T from "@/components/ui/T";
 import styles from "./SeriesEditorModal.module.css";
 
 interface SeriesForm {
@@ -212,7 +213,7 @@ export default function SeriesEditorModal({
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>
-            {isEdit ? ts("editTitle") : ts("newTitle")}
+            {isEdit ? <T k="admin.posts.seriesModal.editTitle" /> : <T k="admin.posts.seriesModal.newTitle" />}
           </h2>
           <button className={styles.closeBtn} onClick={onClose}>
             &times;
@@ -221,7 +222,7 @@ export default function SeriesEditorModal({
 
         <div className={styles.body}>
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{ts("titleKO")}</label>
+            <label className={styles.label}><T k="admin.posts.seriesModal.titleKO" /></label>
             <input
               className={styles.input}
               value={form.title}
@@ -231,7 +232,7 @@ export default function SeriesEditorModal({
           </div>
 
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{ts("titleEN")}</label>
+            <label className={styles.label}><T k="admin.posts.seriesModal.titleEN" /></label>
             <input
               className={styles.input}
               value={form.title_en}
@@ -241,7 +242,7 @@ export default function SeriesEditorModal({
           </div>
 
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{ts("descriptionKO")}</label>
+            <label className={styles.label}><T k="admin.posts.seriesModal.descriptionKO" /></label>
             <textarea
               className={styles.textarea}
               value={form.description}
@@ -252,7 +253,7 @@ export default function SeriesEditorModal({
           </div>
 
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{ts("descriptionEN")}</label>
+            <label className={styles.label}><T k="admin.posts.seriesModal.descriptionEN" /></label>
             <textarea
               className={styles.textarea}
               value={form.description_en}
@@ -264,7 +265,7 @@ export default function SeriesEditorModal({
 
           <div className={styles.row}>
             <div className={styles.fieldGroup}>
-              <label className={styles.label}>{ts("category")}</label>
+              <label className={styles.label}><T k="admin.posts.seriesModal.category" /></label>
               <Select
                 value={form.category}
                 options={categories.map((cat) => ({
@@ -276,7 +277,7 @@ export default function SeriesEditorModal({
             </div>
 
             <div className={styles.fieldGroup}>
-              <label className={styles.label}>{ts("published")}</label>
+              <label className={styles.label}><T k="admin.posts.seriesModal.published" /></label>
               <div className={styles.toggle}>
                 <Checkbox
                   checked={form.published}
@@ -288,7 +289,7 @@ export default function SeriesEditorModal({
           </div>
 
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>{ts("coverImage")}</label>
+            <label className={styles.label}><T k="admin.posts.seriesModal.coverImage" /></label>
             {form.cover_image ? (
               <div className={styles.coverPreview}>
                 <Image
@@ -303,7 +304,7 @@ export default function SeriesEditorModal({
                   className={styles.coverRemove}
                   onClick={() => updateField("cover_image", "")}
                 >
-                  {ts("remove")}
+                  <T k="admin.posts.seriesModal.remove" />
                 </button>
               </div>
             ) : (
@@ -315,14 +316,14 @@ export default function SeriesEditorModal({
                     onClick={handleImageUpload}
                     disabled={uploading}
                   >
-                    {uploading ? ts("uploading") : ts("uploadCover")}
+                    {uploading ? <T k="admin.posts.seriesModal.uploading" /> : <T k="admin.posts.seriesModal.uploadCover" />}
                   </button>
                   <button
                     type="button"
                     className={styles.uploadBtn}
                     onClick={() => setShowCoverPicker((v) => !v)}
                   >
-                    {showCoverPicker ? ts("closePicker") : ts("chooseCover")}
+                    {showCoverPicker ? <T k="admin.posts.seriesModal.closePicker" /> : <T k="admin.posts.seriesModal.chooseCover" />}
                   </button>
                 </div>
                 {showCoverPicker && (
@@ -339,12 +340,12 @@ export default function SeriesEditorModal({
           {isEdit && (
             <div className={styles.postsSection}>
               <label className={styles.label}>
-                {ts("posts")} ({posts.length})
+                <T k="admin.posts.seriesModal.posts" /> ({posts.length})
               </label>
               {postsLoading ? (
-                <p className={styles.postsEmpty}>{ts("postsLoading")}</p>
+                <p className={styles.postsEmpty}><T k="admin.posts.seriesModal.postsLoading" /></p>
               ) : posts.length === 0 ? (
-                <p className={styles.postsEmpty}>{ts("postsEmpty")}</p>
+                <p className={styles.postsEmpty}><T k="admin.posts.seriesModal.postsEmpty" /></p>
               ) : (
                 <div className={styles.postsList}>
                   {posts.map((post, idx) => (
@@ -375,7 +376,7 @@ export default function SeriesEditorModal({
                         </button>
                       </div>
                       <span className={styles.postTitle}>
-                        {post.title || ts("untitled")}
+                        {post.title || <T k="admin.posts.seriesModal.untitled" />}
                       </span>
                       <span className={`${styles.postStatus} ${post.published ? styles.postPublished : styles.postDraft}`}>
                         {post.published ? "P" : "D"}
@@ -400,14 +401,14 @@ export default function SeriesEditorModal({
 
         <div className={styles.footer}>
           <button className={styles.cancelBtn} onClick={onClose}>
-            {ts("cancel")}
+            <T k="admin.posts.seriesModal.cancel" />
           </button>
           <button
             className={styles.saveBtn}
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? "..." : isEdit ? ts("save") : ts("create")}
+            {saving ? "..." : isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
           </button>
         </div>
       </div>

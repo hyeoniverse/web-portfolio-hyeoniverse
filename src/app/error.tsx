@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
+import T from "@/components/ui/T";
 import styles from "./error.module.css";
 
 interface ErrorProps {
@@ -13,7 +13,6 @@ interface ErrorProps {
 }
 
 export default function Error({ error, reset }: ErrorProps) {
-  const { t } = useLanguage();
   const { setInfinite } = useLenis();
 
   useEffect(() => {
@@ -49,7 +48,7 @@ export default function Error({ error, reset }: ErrorProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          {t("errorPage.title")}
+          <T k="errorPage.title" />
         </motion.h1>
 
         <motion.p
@@ -58,7 +57,7 @@ export default function Error({ error, reset }: ErrorProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          {t("errorPage.description")}
+          <T k="errorPage.description" />
         </motion.p>
 
         {/* Error Reference ID for support (digest is safe to show) */}
@@ -69,7 +68,7 @@ export default function Error({ error, reset }: ErrorProps) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45, duration: 0.5 }}
           >
-            {t("errorPage.reference")}: {error.digest}
+            <T k="errorPage.reference" />: {error.digest}
           </motion.p>
         )}
 
@@ -81,10 +80,10 @@ export default function Error({ error, reset }: ErrorProps) {
           transition={{ delay: 0.5, duration: 0.5 }}
         >
           <button onClick={reset} className={styles.primaryButton}>
-            {t("errorPage.tryAgain")}
+            <T k="errorPage.tryAgain" />
           </button>
           <Link href="/" className={styles.secondaryButton}>
-            {t("errorPage.goHome")}
+            <T k="errorPage.goHome" />
           </Link>
         </motion.div>
       </motion.div>

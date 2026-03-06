@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import type { Project } from "@/data/projects";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
@@ -128,7 +129,7 @@ export default function WorkDetailClient({
           >
             {project.liveUrl && (
               <Button variant="outline" size="lg" href={project.liveUrl} external>
-                {t("workDetail.visitSite")}
+                <T k="workDetail.visitSite" />
               </Button>
             )}
             {project.githubUrl && (
@@ -137,7 +138,7 @@ export default function WorkDetailClient({
               </Button>
             )}
             <Button variant="outline" size="lg" href="/works">
-              {t("workDetail.viewAll")}
+              <T k="workDetail.viewAll" />
             </Button>
           </motion.div>
 
@@ -247,11 +248,11 @@ export default function WorkDetailClient({
         transition={{ delay: 0.45, duration: 0.6 }}
       >
         <div className={styles.infoBlock}>
-          <span className={styles.infoLabel}>{t("workDetail.role")}</span>
+          <span className={styles.infoLabel}><T k="workDetail.role" /></span>
           <span className={styles.infoValue}>{project.role[language]}</span>
         </div>
         <div className={styles.infoBlock}>
-          <span className={styles.infoLabel}>{t("workDetail.tech")}</span>
+          <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
           <div className={styles.techStack}>
             {project.tech.map((tech) => (
               <span key={tech} className={styles.techTag}>
@@ -271,7 +272,7 @@ export default function WorkDetailClient({
           transition={{ delay: 0.48, duration: 0.6 }}
         >
           <div className={styles.infoBlock}>
-            <span className={styles.infoLabel}>{t("workDetail.team")}</span>
+            <span className={styles.infoLabel}><T k="workDetail.team" /></span>
             <div className={styles.teamList}>
               {project.teamMembers.map((member, i) => (
                 <div key={i} className={styles.teamMember}>

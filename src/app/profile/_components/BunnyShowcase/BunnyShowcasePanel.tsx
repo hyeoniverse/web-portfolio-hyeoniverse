@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect, useMemo, useRef, useCallback, type ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
 import dynamic from "next/dynamic";
-import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { createSafeRenderer } from "@/utils/three";
 import styles from "./BunnyShowcase.module.css";
@@ -67,7 +67,6 @@ interface Props {
 }
 
 export default function BunnyShowcasePanel({ animateClass }: Props) {
-  const { t } = useLanguage();
   const { isTouch } = useIsMobile();
   const [expression, setExpression] = useState<Expression>("normal");
   const [snapCount, setSnapCount] = useState(0);
@@ -101,10 +100,10 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
     [startCycle],
   );
 
-  const expressions: { key: Expression; label: string; desc: string }[] = [
-    { key: "normal", label: t("bunny.exprNormal"), desc: t("bunny.exprNormalDesc") },
-    { key: "surprised", label: t("bunny.exprSurprised"), desc: t("bunny.exprSurprisedDesc") },
-    { key: "happy", label: t("bunny.exprHappy"), desc: t("bunny.exprHappyDesc") },
+  const expressions: { key: Expression; labelKey: string; descKey: string }[] = [
+    { key: "normal", labelKey: "bunny.exprNormal", descKey: "bunny.exprNormalDesc" },
+    { key: "surprised", labelKey: "bunny.exprSurprised", descKey: "bunny.exprSurprisedDesc" },
+    { key: "happy", labelKey: "bunny.exprHappy", descKey: "bunny.exprHappyDesc" },
   ];
 
   const cameraConfig = useMemo(
@@ -147,17 +146,17 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
       {/* Info */}
       <div className={`${styles.info} ${ac}`}>
         <span className={styles.nameLabel}>MEET</span>
-        <h3 className={styles.name}>{t("bunny.name")}</h3>
-        <span className={styles.subtitle}>{t("bunny.subtitle")}</span>
+        <h3 className={styles.name}><T k="bunny.name" /></h3>
+        <span className={styles.subtitle}><T k="bunny.subtitle" /></span>
 
         <div className={styles.storyBlock}>
-          <p className={styles.storyText}>{t("bunny.story1")}</p>
-          <p className={styles.storyText}>{t("bunny.story2")}</p>
-          <p className={styles.storyText}>{t("bunny.story3")}</p>
+          <p className={styles.storyText}><T k="bunny.story1" /></p>
+          <p className={styles.storyText}><T k="bunny.story2" /></p>
+          <p className={styles.storyText}><T k="bunny.story3" /></p>
         </div>
 
         <div className={styles.exprBar}>
-          {expressions.map(({ key, label, desc }) => (
+          {expressions.map(({ key, labelKey, descKey }) => (
             <button
               key={key}
               type="button"
@@ -166,8 +165,8 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
               onClick={() => handleExpression(key)}
             >
               <span className={styles.exprFace}>{FACE_MAP[key]}</span>
-              <span className={styles.exprLabel}>{label}</span>
-              <span className={styles.exprDesc}>{desc}</span>
+              <span className={styles.exprLabel}><T k={labelKey} /></span>
+              <span className={styles.exprDesc}><T k={descKey} /></span>
             </button>
           ))}
         </div>

@@ -13,6 +13,7 @@ import { useSoundManager } from "@/hooks/useSoundManager";
 import { useModalStore } from "@/stores/modalStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import T from "@/components/ui/T";
 
 export default function ContactForm() {
   const { publicKeys } = useSiteConfig();
@@ -145,7 +146,7 @@ export default function ContactForm() {
               variant="primary"
               disabled={state.submitting}
             >
-              {state.submitting ? t("contact.sending") : t("contact.send")}
+              {state.submitting ? <T k="contact.sending" /> : <T k="contact.send" />}
             </Button>
           </>
         )}

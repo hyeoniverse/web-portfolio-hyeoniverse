@@ -14,6 +14,7 @@ import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import styles from "./Posts.module.css";
 
 const POSTS_PER_PAGE = 12;
@@ -233,7 +234,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       >
         <h1 className={styles.title}>Posts.</h1>
         <p className={styles.subtitle}>
-          {t("postsPage.subtitle")}
+          <T k="postsPage.subtitle" />
         </p>
       </motion.div>
 
@@ -321,7 +322,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 onClick={() => setShowTags((v) => !v)}
                 data-clickable="true"
               >
-                {t("postsPage.tags")}
+                <T k="postsPage.tags" />
                 <svg
                   width="10"
                   height="10"
@@ -378,7 +379,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   onClick={() => setActiveTag(null)}
                   data-clickable="true"
                 >
-                  {t("postsPage.allTags")}
+                  <T k="postsPage.allTags" />
                 </button>
                 {allTags.map(({ tag, count }) => (
                   <button
@@ -407,7 +408,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
                 </svg>
-                {t("postsPage.series")}
+                <T k="postsPage.series" />
                 {activeCategory && (
                   <span className={styles.seriesCategoryTag}>{activeCategory}</span>
                 )}
@@ -428,7 +429,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                       onClick={() => setShowAllSeries((v) => !v)}
                       data-clickable="true"
                     >
-                      {showAllSeries ? t("postsPage.close") : `+${seriesList.length - SERIES_LIMIT}`}
+                      {showAllSeries ? <T k="postsPage.close" /> : `+${seriesList.length - SERIES_LIMIT}`}
                     </button>
                   )}
                 </div>
@@ -483,7 +484,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   onClick={() => { setSearch(""); setActiveTag(null); setActiveSeries(null); setActiveCategory(null); }}
                   data-clickable="true"
                 >
-                  {t("postsPage.clearFilters")}
+                  <T k="postsPage.clearFilters" />
                 </button>
               )}
             </div>
@@ -496,7 +497,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   <rect x="3" y="14" width="7" height="7" />
                   <rect x="14" y="14" width="7" height="7" />
                 </svg>
-                {t("postsPage.posts")}
+                <T k="postsPage.posts" />
                 <span className={styles.postsCount}>{posts.length}</span>
               </div>
               <div className={styles.grid}>

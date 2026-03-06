@@ -2,11 +2,10 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import styles from "./error.module.css";
 
 export default function NotFound() {
-  const { t } = useLanguage();
 
   return (
     <div className={styles.container}>
@@ -44,7 +43,7 @@ export default function NotFound() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          {t("errorPage.notFoundDescription")}
+          <T k="errorPage.notFoundDescription" />
         </motion.p>
 
         {/* Actions */}

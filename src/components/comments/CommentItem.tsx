@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Comment } from "@/types/post";
 import { getCommenterId, identityFromHash } from "@/utils/commenterIdentity";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import LoadingDots from "@/components/ui/LoadingDots";
 import CommentForm from "./CommentForm";
 import styles from "./CommentItem.module.css";
@@ -217,7 +218,7 @@ function CommentItem({
         <span className={styles.date}>{dateStr}</span>
         {isEdited && (
           <span className={styles.editedBadge} title={editedDateStr ?? ""}>
-            ({t("comments.edited")})
+            (<T k="comments.edited" />)
           </span>
         )}
         <span className={styles.headerSpacer} />
@@ -266,7 +267,7 @@ function CommentItem({
                 onClick={handleEdit}
                 disabled={editSubmitting}
               >
-                {editSubmitting ? t("comments.editing") : t("comments.editSubmit")}
+                {editSubmitting ? <T k="comments.editing" /> : <T k="comments.editSubmit" />}
               </button>
               <button
                 type="button"
@@ -278,7 +279,7 @@ function CommentItem({
                   setEditError("");
                 }}
               >
-                {t("comments.cancel")}
+                <T k="comments.cancel" />
               </button>
             </div>
             {editError && <span className={styles.editError}>{editError}</span>}
@@ -327,7 +328,7 @@ function CommentItem({
                 <path d="M2 12h20" />
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
-              {translatedText ? t("comments.original") : isKorean ? t("comments.translateToEN") : t("comments.translateToKO")}
+              {translatedText ? <T k="comments.original" /> : isKorean ? <T k="comments.translateToEN" /> : <T k="comments.translateToKO" />}
             </>
           )}
         </button>
@@ -340,7 +341,7 @@ function CommentItem({
             setEditing(false);
           }}
         >
-          {t("comments.replyBtn")}
+          <T k="comments.replyBtn" />
         </button>
         {!comment.is_admin && (
           <button
@@ -354,7 +355,7 @@ function CommentItem({
               setEditPassword("");
             }}
           >
-            {t("comments.edit")}
+            <T k="comments.edit" />
           </button>
         )}
         {!comment.is_admin && (
@@ -367,7 +368,7 @@ function CommentItem({
               setEditing(false);
             }}
           >
-            {t("comments.delete")}
+            <T k="comments.delete" />
           </button>
         )}
       </div>
@@ -403,10 +404,10 @@ function CommentItem({
                     animate={{ opacity: [1, 0.3, 1] }}
                     transition={{ repeat: Infinity, duration: 1.2 }}
                   >
-                    {t("comments.deleting")}
+                    <T k="comments.deleting" />
                   </motion.span>
                 ) : (
-                  t("comments.confirmDelete")
+                  <T k="comments.confirmDelete" />
                 )}
               </button>
               <button
@@ -418,7 +419,7 @@ function CommentItem({
                   setDeleteError("");
                 }}
               >
-                {t("comments.cancel")}
+                <T k="comments.cancel" />
               </button>
             </div>
             {deleteError && (

@@ -3,11 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { Post } from "@/types/post";
-import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import styles from "./PopularPosts.module.css";
 
 export default function PopularPosts() {
-  const { t } = useLanguage();
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -25,7 +24,7 @@ export default function PopularPosts() {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14 0-5.5 3-7 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.5-2.25 1.5-3" />
         </svg>
-        {t("postsPage.popular")}
+        <T k="postsPage.popular" />
       </div>
       <div className={styles.list}>
         {posts.map((post, idx) => (
@@ -38,8 +37,8 @@ export default function PopularPosts() {
                 <span className={styles.itemTitle}>{post.title}</span>
               </div>
               <span className={styles.itemMeta}>
-                {post.view_count} {t("postsPage.views")}
-                {post.like_count > 0 && <> &middot; {post.like_count} {t("postsPage.likes")}</>}
+                {post.view_count} <T k="postsPage.views" />
+                {post.like_count > 0 && <> &middot; {post.like_count} <T k="postsPage.likes" /></>}
               </span>
             </div>
           </Link>

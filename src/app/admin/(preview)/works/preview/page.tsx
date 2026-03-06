@@ -6,6 +6,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import type { WorkFormData } from "@/types/work";
+import T from "@/components/ui/T";
 import styles from "@/app/works/[id]/WorkDetail.module.css";
 
 function extractHeadings(content: string, isRichtext: boolean): TocHeading[] {
@@ -33,7 +34,7 @@ function extractHeadings(content: string, isRichtext: boolean): TocHeading[] {
 }
 
 export default function WorkPreviewPage() {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [form, setForm] = useState<WorkFormData | null>(null);
 
   useEffect(() => {
@@ -99,13 +100,13 @@ export default function WorkPreviewPage() {
       <div className={styles.infoRow}>
         {role && (
           <div className={styles.infoBlock}>
-            <span className={styles.infoLabel}>{t("workDetail.role")}</span>
+            <span className={styles.infoLabel}><T k="workDetail.role" /></span>
             <span className={styles.infoValue}>{role}</span>
           </div>
         )}
         {form.tech.length > 0 && (
           <div className={styles.infoBlock}>
-            <span className={styles.infoLabel}>{t("workDetail.tech")}</span>
+            <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
             <div className={styles.techStack}>
               {form.tech.map((tech) => (
                 <span key={tech} className={styles.techTag}>{tech}</span>

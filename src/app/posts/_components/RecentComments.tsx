@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import styles from "./RecentComments.module.css";
 
 interface RecentComment {
@@ -46,10 +47,10 @@ export default function RecentComments() {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
-        {t("postsPage.recentComments")}
+        <T k="postsPage.recentComments" />
       </div>
       {comments.length === 0 ? (
-        <p className={styles.empty}>{t("postsPage.noCommentsYet")}</p>
+        <p className={styles.empty}><T k="postsPage.noCommentsYet" /></p>
       ) : (
         <div className={styles.list}>
           {comments.map((c) => (

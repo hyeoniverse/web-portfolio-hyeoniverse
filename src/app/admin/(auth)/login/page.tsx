@@ -7,6 +7,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Checkbox from "@/components/ui/Checkbox";
+import T from "@/components/ui/T";
 import styles from "./Login.module.css";
 
 export default function AdminLoginPage() {
@@ -72,7 +73,7 @@ export default function AdminLoginPage() {
   return (
     <div className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <h1 className={styles.title}>{t("admin.login.title")}</h1>
+        <h1 className={styles.title}><T k="admin.login.title" /></h1>
 
         <Input
           id="email"
@@ -118,7 +119,7 @@ export default function AdminLoginPage() {
               ))}
             </span>
           ) : (
-            t("admin.login.signIn")
+            <T k="admin.login.signIn" />
           )}
         </Button>
       </form>
