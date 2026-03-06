@@ -1,40 +1,38 @@
 "use client";
 
 import { useEffect } from "react";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 export default function FaviconSwitcher() {
+  const siteConfig = useSiteConfig();
+  const { logoShortUrl, logoShortDarkUrl } = siteConfig.brand;
+
   useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const html = document.documentElement;
+    function updateFavicon() {
       const favicon = document.querySelector('link[rel="icon"]');
       if (!favicon) return;
 
-      const theme = html.getAttribute("data-theme");
-      if (theme === "dark") {
-        favicon.setAttribute("href", "/favicon-dark.ico");
-      } else {
-        favicon.setAttribute("href", "/favicon-light.ico");
-      }
-    });
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
+      const customFavicon = isDark
+        ? (logoShortDarkUrl || logoShortUrl)
+        : logoShortUrl;
+
+      const href = customFavicon || (isDark ? "/favicon-dark.ico" : "/favicon-light.ico");
+      favicon.setAttribute("href", href);
+    }
+
+    const observer = new MutationObserver(updateFavicon);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["data-theme"],
     });
 
     // 초기 실행
-    const html = document.documentElement;
-    const favicon = document.querySelector('link[rel="icon"]');
-    if (favicon) {
-      const theme = html.getAttribute("data-theme");
-      favicon.setAttribute(
-        "href",
-        theme === "dark" ? "/favicon-dark.ico" : "/favicon-light.ico"
-      );
-    }
+    updateFavicon();
 
     return () => observer.disconnect();
-  }, []);
+  }, [logoShortUrl, logoShortDarkUrl]);
 
   return null;
 }

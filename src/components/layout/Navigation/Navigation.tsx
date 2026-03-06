@@ -12,6 +12,7 @@ import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import MagneticWrapper from "./MagneticWrapper";
@@ -56,12 +57,21 @@ export default function Navigation() {
   const router = useRouter();
 
   // Loading logo: full display name with per-letter animation
-  const DISPLAY_NAME = siteConfig.loading.displayName;
-  const EXTRA_LETTERS = DISPLAY_NAME.slice(1).split("");
+  const LOGO_TEXT = siteConfig.brand.logoText || "H";
+  const DISPLAY_NAME = siteConfig.brand.logoFullText || siteConfig.loading.displayName;
+  const EXTRA_LETTERS = DISPLAY_NAME.slice(LOGO_TEXT.length).split("");
 
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage } = useLanguage();
+
+  // 이미지 로고 URL (다크모드 우선 폴백)
+  const isDark = theme === "dark";
+  const shortLogoUrl = (isDark && siteConfig.brand.logoShortDarkUrl) || siteConfig.brand.logoShortUrl;
+  const fullLogoUrl = (isDark && siteConfig.brand.logoFullDarkUrl) || siteConfig.brand.logoFullUrl;
+  const hasImageLogo = !!shortLogoUrl;
+  const loadingLogoUrl = fullLogoUrl || shortLogoUrl;
+  const hasDistinctFullLogo = !!fullLogoUrl && fullLogoUrl !== shortLogoUrl;
   const { isLoading, isTransitioning } = useLoadingScreen();
   const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
@@ -322,53 +332,96 @@ export default function Navigation() {
           }}
         >
           <Link href={isAdminPage ? "/admin/posts" : "/"} className={styles.logo}>
-          <motion.span
-            className="glith-on-hover"
-            initial={showLoadingLogo ? { opacity: 0, y: 20, filter: "blur(12px)" } : false}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{
-              opacity: { duration: 0.6, delay: 0.1, ease: "easeOut" },
-              y: { duration: 0.7, delay: 0.1, ease: "easeOut" },
-              filter: { duration: 1.0, delay: 0.1, ease: "easeOut" },
-            }}
-          >
-            H
-          </motion.span>
-          {showLoadingLogo &&
-            EXTRA_LETTERS.map((char, i) => (
+          {hasImageLogo ? (
+            <>
+              {/* 로딩 중 풀 로고 이미지 (숏과 다를 때만) */}
+              {showLoadingLogo && hasDistinctFullLogo && (
+                <motion.span
+                  className={styles.logoImageWrap}
+                  initial={{ opacity: 0, filter: "blur(12px)" }}
+                  animate={{
+                    opacity: isTransitioning ? 0 : 1,
+                    filter: isTransitioning ? "blur(6px)" : "blur(0px)",
+                  }}
+                  transition={{
+                    opacity: { duration: isTransitioning ? 0.3 : 0.6, delay: 0.1, ease: "easeOut" },
+                    filter: { duration: isTransitioning ? 0.3 : 1.0, delay: 0.1, ease: "easeOut" },
+                  }}
+                  style={{ position: "absolute" }}
+                >
+                  <Image src={loadingLogoUrl!} alt={DISPLAY_NAME} width={120} height={32} className={styles.logoImage} unoptimized />
+                </motion.span>
+              )}
+              {/* 숏 로고 이미지 */}
               <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+                className={styles.logoImageWrap}
+                initial={showLoadingLogo ? { opacity: 0, filter: "blur(12px)" } : false}
                 animate={{
-                  opacity: isTransitioning ? 0 : 1,
-                  y: 0,
-                  filter: isTransitioning ? "blur(6px)" : "blur(0px)",
+                  opacity: showLoadingLogo && hasDistinctFullLogo && !isTransitioning ? 0 : 1,
+                  filter: "blur(0px)",
                 }}
                 transition={{
-                  opacity: {
-                    duration: isTransitioning ? 0.2 : 0.6,
-                    delay: isTransitioning
-                      ? (EXTRA_LETTERS.length - 1 - i) * 0.04
-                      : 0.15 + i * 0.04,
-                    ease: "easeOut",
-                  },
-                  y: {
-                    duration: 0.7,
-                    delay: 0.15 + i * 0.04,
-                    ease: "easeOut",
-                  },
-                  filter: {
-                    duration: isTransitioning ? 0.3 : 1.0,
-                    delay: isTransitioning
-                      ? (EXTRA_LETTERS.length - 1 - i) * 0.04
-                      : 0.2 + i * 0.05,
-                    ease: "easeOut",
-                  },
+                  opacity: { duration: 0.6, delay: showLoadingLogo ? 0.1 : 0, ease: "easeOut" },
+                  filter: { duration: 1.0, delay: 0.1, ease: "easeOut" },
                 }}
               >
-                {char}
+                <Image src={shortLogoUrl!} alt={LOGO_TEXT} width={32} height={32} className={styles.logoImage} unoptimized />
               </motion.span>
-            ))}
+            </>
+          ) : (
+            <>
+              <motion.span
+                className={siteConfig.brand.logoGlitch ? "glith-on-hover" : undefined}
+                initial={showLoadingLogo ? { opacity: 0, y: 20, filter: "blur(12px)" } : false}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{
+                  opacity: { duration: 0.6, delay: 0.1, ease: "easeOut" },
+                  y: { duration: 0.7, delay: 0.1, ease: "easeOut" },
+                  filter: { duration: 1.0, delay: 0.1, ease: "easeOut" },
+                }}
+                style={(isDark ? siteConfig.brand.logoColorDark : siteConfig.brand.logoColor)
+                  ? { color: isDark ? siteConfig.brand.logoColorDark : siteConfig.brand.logoColor }
+                  : undefined}
+              >
+                {LOGO_TEXT}
+              </motion.span>
+              {showLoadingLogo &&
+                EXTRA_LETTERS.map((char, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+                    animate={{
+                      opacity: isTransitioning ? 0 : 1,
+                      y: 0,
+                      filter: isTransitioning ? "blur(6px)" : "blur(0px)",
+                    }}
+                    transition={{
+                      opacity: {
+                        duration: isTransitioning ? 0.2 : 0.6,
+                        delay: isTransitioning
+                          ? (EXTRA_LETTERS.length - 1 - i) * 0.04
+                          : 0.15 + i * 0.04,
+                        ease: "easeOut",
+                      },
+                      y: {
+                        duration: 0.7,
+                        delay: 0.15 + i * 0.04,
+                        ease: "easeOut",
+                      },
+                      filter: {
+                        duration: isTransitioning ? 0.3 : 1.0,
+                        delay: isTransitioning
+                          ? (EXTRA_LETTERS.length - 1 - i) * 0.04
+                          : 0.2 + i * 0.05,
+                        ease: "easeOut",
+                      },
+                    }}
+                  >
+                    {char}
+                  </motion.span>
+                ))}
+            </>
+          )}
         </Link>
         </motion.div>
         {isAdminPage && <span className={styles.adminBadge}>Admin</span>}

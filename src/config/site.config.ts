@@ -26,11 +26,16 @@ export const siteConfig = {
   // 브랜드 / 사이트 아이덴티티
   // ---------------------------------------------------------------------------
   brand: {
-    name: "HYEONIVERSE", // 전체 브랜드명 (네비게이션, 경력 섹션에서 사용)
     splitName: ["HYEONI", "VERSE"], // 히어로 화면 표시용 분리된 브랜드명
-    tagline: "Creative Digital Agency",
-    logoShortUrl: "", // 빈 문자열 = 텍스트 로고("H") 사용
+    logoText: "H", // 숏 로고 텍스트 (이미지 미사용 시)
+    logoFullText: "HYEONIVERSE", // 풀 로고 텍스트 (이미지 미사용 시, 로딩 화면)
+    logoColor: "", // 라이트 모드 로고 색상 (빈 문자열 = 기본 텍스트 색상)
+    logoColorDark: "", // 다크 모드 로고 색상 (빈 문자열 = 기본 텍스트 색상)
+    logoGlitch: true, // 로고 글리치 효과 on/off
+    logoShortUrl: "", // 빈 문자열 = 텍스트 로고(logoText) 사용
+    logoShortDarkUrl: "", // 다크 모드 숏 로고 (빈 문자열 = logoShortUrl 사용)
     logoFullUrl: "", // 빈 문자열 = 텍스트 로고(displayName) 사용
+    logoFullDarkUrl: "", // 다크 모드 풀 로고 (빈 문자열 = logoFullUrl 사용)
   },
 
   // ---------------------------------------------------------------------------
@@ -96,7 +101,7 @@ export const siteConfig = {
   // SEO 및 메타데이터
   // ---------------------------------------------------------------------------
   metadata: {
-    title: "Hyeoniverse",
+    title: "HYEONIVERSE",
     description:
       "Frontend developer creating interactive web experiences with React, Next.js, and TypeScript.",
     keywords:
@@ -186,7 +191,7 @@ export const siteConfig = {
     copyright: `HYEON © ${new Date().getFullYear()}, All Rights Reserved`,
     copyright_ko: `HYEON © ${new Date().getFullYear()}, All Rights Reserved`,
     musicCreditTitle: "Ghost Duet",
-    musicCreditArtist: "Louie Zong",
+    musicCreditArtist: "Louie Zong  ",
     musicCreditUrl: "https://youtu.be/_CzSCWpF7TM",
   },
 

@@ -48,6 +48,20 @@
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   letter-spacing: -0.02em;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.logoImageWrap {
+  display: flex;
+  align-items: center;
+}
+
+.logoImage {
+  height: 1.2em;
+  width: auto;
+  object-fit: contain;
 }
 
 /* Center navigation links */
