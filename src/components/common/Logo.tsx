@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import styles from "./Logo.module.css";
 
 interface LogoProps {
@@ -11,16 +12,17 @@ interface LogoProps {
   className?: string;
 }
 
-const SHORT = "H";
-
 export default function Logo({ variant = "short", as = "link", className }: LogoProps) {
   const siteConfig = useSiteConfig();
-  const FULL = siteConfig.loading.displayName;
+  const { theme } = useTheme();
+  const SHORT = siteConfig.brand.logoText || "H";
+  const FULL = siteConfig.brand.logoFullText || siteConfig.loading.displayName;
 
+  const isDark = theme === "dark";
   const logoUrl =
     variant === "short"
-      ? siteConfig.brand.logoShortUrl
-      : siteConfig.brand.logoFullUrl;
+      ? (isDark && siteConfig.brand.logoShortDarkUrl) || siteConfig.brand.logoShortUrl
+      : (isDark && siteConfig.brand.logoFullDarkUrl) || siteConfig.brand.logoFullUrl;
 
   const combined = className ? `${styles.logo} ${className}` : styles.logo;
 
