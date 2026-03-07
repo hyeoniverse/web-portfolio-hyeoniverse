@@ -101,9 +101,9 @@ function FullwidthBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
 
 /* ── Slide animation variants ── */
 const slideVariants = {
-  enter: (d: number) => ({ x: d > 0 ? "60%" : "-60%", opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (d: number) => ({ x: d > 0 ? "-60%" : "60%", opacity: 0 }),
+  enter: (d: number) => ({ x: d > 0 ? "100%" : "-100%" }),
+  center: { x: 0 },
+  exit: (d: number) => ({ x: d > 0 ? "-100%" : "100%" }),
 };
 
 /* ── 2. Split (좌 이미지 / 우 텍스트) ── */
@@ -115,7 +115,7 @@ function SplitBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
   return (
     <div className={styles.split} onMouseEnter={pause} onMouseLeave={resume}>
       <div className={styles.splitImage}>
-        <AnimatePresence mode="wait" custom={direction}>
+        <AnimatePresence initial={false} custom={direction}>
           <motion.div
             key={post.id}
             className={styles.splitImageInner}
@@ -124,7 +124,7 @@ function SplitBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <Link href={`/posts/${post.slug}`}>
               {post.cover_image && !imgErrors.has(post.id) ? (

@@ -142,7 +142,11 @@ nav#side-navigation::after {
   left: 0;
   z-index: var(--z-overlay);
   background: transparent;
-  backdrop-filter: var(--blur-lg);
+  transition: none;
+}
+
+#modal-root #modal {
+  transition: none;
 }
 
 #modal {
@@ -157,9 +161,8 @@ nav#side-navigation::after {
   max-height: 90vh;
   overflow: hidden;
   background: var(--color-neutral-0);
-  border: 1px solid var(--border-primary);
+  border: var(--border-light);
   border-radius: var(--radius-4xl);
-  -webkit-overflow-scrolling: touch;
 }
 
 /* ==========================================================================

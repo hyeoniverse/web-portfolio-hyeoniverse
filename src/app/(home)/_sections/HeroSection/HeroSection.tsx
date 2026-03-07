@@ -4,6 +4,7 @@ import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import StaggerText from "@/components/effects/StaggerText";
 import Section from "@/components/ui/Section";
+import T from "@/components/ui/T";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./HeroSection.module.css";
@@ -20,10 +21,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
   ({ floatX, floatY, oval2X, oval2Y, onScrollDown }, ref) => {
     const { language } = useLanguage();
     const cfg = useSiteConfig();
-    const ko = language === "ko";
-    const headline = ko ? cfg.hero.headline_ko : cfg.hero.headline;
-    const subtext = ko ? cfg.hero.subtext_ko : cfg.hero.subtext;
-    const scrollLabel = ko ? cfg.hero.scrollLabel_ko : cfg.hero.scrollLabel;
+    const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
 
     return (
       <Section fullHeight clipOverflow className={styles.hero} ref={ref}>
@@ -79,10 +77,12 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
           </h1>
 
           <div className={styles.meta}>
-            <span className="hero-line">{subtext[0]}</span>
+            <span className="hero-line">
+              <T ko={cfg.hero.subtext_ko[0]} en={cfg.hero.subtext[0]} />
+            </span>
             <span className={styles.metaDivider} />
             <span className={`${styles.availabilityWrapper} hero-line`}>
-              {subtext[1]}
+              <T ko={cfg.hero.subtext_ko[1]} en={cfg.hero.subtext[1]} />
               <span className={styles.pulseDot} />
               <div className="pulse" />
             </span>
@@ -109,7 +109,9 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
               }}
             />
           </div>
-          <span className={styles.scrollText}>{scrollLabel}</span>
+          <span className={styles.scrollText}>
+            <T ko={cfg.hero.scrollLabel_ko} en={cfg.hero.scrollLabel} />
+          </span>
         </motion.button>
       </Section>
     );

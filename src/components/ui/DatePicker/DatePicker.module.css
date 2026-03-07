@@ -167,7 +167,7 @@
 }
 
 .dropdownItem:hover {
-  background: var(--color-accent-alpha-10);
+  background: var(--bg-tertiary);
   color: var(--text-primary);
 }
 
@@ -251,38 +251,11 @@
   overflow: hidden;
 }
 
-.popoverTabs {
-  display: flex;
-  border-bottom: 1px solid var(--border-tertiary-color);
-}
-
-.popoverTab {
-  flex: 1;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  text-align: center;
-}
-
-.popoverTab + .popoverTab {
-  border-left: 1px solid var(--border-tertiary-color);
-}
-
-.popoverTabActive {
-  color: var(--text-primary);
-  font-weight: 600;
-  background: var(--color-accent-alpha-10);
-}
-
 /* ── Spinner ── */
 .spinnerView {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-md);
   padding: var(--spacing-sm);
 }
 
@@ -292,6 +265,8 @@
 }
 
 .spinnerScroll {
+  position: relative;
+  z-index: 1;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -310,12 +285,18 @@
   color: var(--text-tertiary);
   cursor: pointer;
   padding: 0 var(--spacing-sm);
+  white-space: nowrap;
   user-select: none;
+  border-radius: var(--radius-capsule);
+}
+
+.spinnerItem:hover {
+  outline: 1px solid var(--text-tertiary);
+  outline-offset: -1px;
 }
 
 .spinnerItemActive {
-  color: var(--text-primary);
-  font-weight: 600;
+  color: var(--bg-primary);
 }
 
 .spinnerHighlight {
@@ -323,10 +304,9 @@
   left: 0;
   right: 0;
   pointer-events: none;
-  border-top: 1px solid var(--border-tertiary-color);
-  border-bottom: 1px solid var(--border-tertiary-color);
-  background: var(--color-accent-alpha-10);
-  border-radius: var(--radius-xs);
+  border: none;
+  background: var(--text-primary);
+  border-radius: var(--radius-capsule);
 }
 
 /* ── Calendar shared ── */
@@ -382,9 +362,9 @@
 }
 
 .calCell {
-  padding: var(--spacing-xs) var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-2xs);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -394,7 +374,8 @@
 }
 
 .calCell:hover {
-  background: var(--color-accent-alpha-10);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--text-tertiary);
   color: var(--text-primary);
 }
 
@@ -406,6 +387,7 @@
 .calCellActive:hover {
   background: var(--text-primary);
   color: var(--bg-primary);
+  box-shadow: none;
 }
 
 /* Day calendar (7-col) */
@@ -440,9 +422,21 @@
   margin: 0 auto;
 }
 
+.calDayCell.calCellActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
 .calDayCell:hover {
-  background: var(--color-accent-alpha-10);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--text-tertiary);
   color: var(--text-primary);
+}
+
+.calDayCell.calCellActive:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  box-shadow: none;
 }
 
 /* ── Responsive ── */

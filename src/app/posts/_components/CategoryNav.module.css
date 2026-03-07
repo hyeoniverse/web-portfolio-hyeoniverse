@@ -3,7 +3,7 @@
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
 }
 
 /* Nav — flex-wrap, clips via inline maxHeight */
@@ -20,6 +20,10 @@
 /* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
 .wrapper .nav {
   transition: max-height 0.3s ease;
+}
+
+.navExpanded {
+  overflow: visible;
 }
 
 .btn {
@@ -67,7 +71,6 @@
   white-space: nowrap;
   flex-shrink: 0;
   margin-left: var(--spacing-xs);
-  margin-top: var(--spacing-sm);
 }
 
 .wrapper .moreBtn:hover {
@@ -75,8 +78,10 @@
   color: var(--text-primary);
 }
 
-.moreBtnOpen svg {
-  transform: rotate(180deg);
+.moreBtnOpen {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 /* Animated indicator */

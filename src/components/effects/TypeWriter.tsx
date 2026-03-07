@@ -75,7 +75,7 @@ export default function TypeWriter({
       }, cursorBlinkSpeed);
     };
 
-    const completeTyping = () => {
+    const _completeTyping = () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       setDisplayedText(text);
       setHasTypedOnce(true); // 완료 표시
@@ -85,7 +85,9 @@ export default function TypeWriter({
     };
 
     if (!inView) {
-      completeTyping();
+      setDisplayedText("");
+      setShowCaption(false);
+      setHasTypedOnce(false);
       return;
     }
 

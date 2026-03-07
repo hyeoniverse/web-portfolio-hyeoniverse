@@ -13,7 +13,7 @@
   --text-secondary: var(--color-neutral-800);
   --text-tertiary: var(--color-neutral-600);
   --text-muted: var(--color-neutral-500);
-  --text-inverse: var(--color-neutral-50);
+  --text-inverse: var(--color-neutral-0);
   --text-success: var(--color-success);
   --text-accent: var(--color-accent);
   --text-accent-alt: var(--color-accent-light);

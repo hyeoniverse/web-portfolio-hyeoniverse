@@ -14,8 +14,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "@/providers/LenisProvider";
-import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import T from "@/components/ui/T";
+import Tooltip from "@/components/ui/Tooltip";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   projects as staticProjects,
@@ -61,6 +63,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   const PROJECT_COUNT = projects.length;
   const allProjects = Array(INFINITE_SCROLL_SETS).fill(projects).flat();
 
+  const { t } = useLanguage();
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.works.infiniteScroll;
 
@@ -81,7 +84,6 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
 
   // 훅
   const router = useRouter();
-  const { language } = useLanguage();
   const { setInfinite } = useLenis();
   const { isMobile: isVerticalLayout } = useIsMobile(768, 700);
 
@@ -430,37 +432,36 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
     return `${styles.project} ${styles[sizeClass]} ${styles[layoutClass]}`;
   };
 
-  const ko = language === "ko";
   const w = siteConfig.works;
 
   const introBlock = (
     <div className={styles.intro}>
-      <span className={styles.introLabel}>{ko ? w.introLabel_ko : w.introLabel}</span>
-      <h1 className={styles.introTitle}>{ko ? w.introTitle_ko : w.introTitle}</h1>
-      <span className={styles.introTagline}>{ko ? w.introTagline_ko : w.introTagline}</span>
+      <span className={styles.introLabel}><T ko={w.introLabel_ko} en={w.introLabel} /></span>
+      <h1 className={styles.introTitle}><T ko={w.introTitle_ko} en={w.introTitle} /></h1>
+      <span className={styles.introTagline}><T ko={w.introTagline_ko} en={w.introTagline} /></span>
       <div className={styles.introDivider} />
-      <p className={styles.introDesc}>{ko ? w.introDesc_ko : w.introDesc}</p>
-      <p className={styles.introDetail}>{ko ? w.introDetail_ko : w.introDetail}</p>
+      <p className={styles.introDesc}><T ko={w.introDesc_ko} en={w.introDesc} /></p>
+      <p className={styles.introDetail}><T ko={w.introDetail_ko} en={w.introDetail} /></p>
       <div className={styles.introStats}>
         <div className={styles.introStat}>
           <span className={styles.introStatNumber}>
             {String(PROJECT_COUNT).padStart(2, "0")}
           </span>
           <span className={styles.introStatLabel}>
-            {ko ? w.statsProjects_ko : w.statsProjects}
+            <T ko={w.statsProjects_ko} en={w.statsProjects} />
           </span>
         </div>
         <div className={styles.introStatDivider} />
         <div className={styles.introStat}>
           <span className={styles.introStatNumber}>05</span>
           <span className={styles.introStatLabel}>
-            {ko ? w.statsClients_ko : w.statsClients}
+            <T ko={w.statsClients_ko} en={w.statsClients} />
           </span>
         </div>
       </div>
-      <span className={styles.introScope}>{ko ? w.introScope_ko : w.introScope}</span>
+      <span className={styles.introScope}><T ko={w.introScope_ko} en={w.introScope} /></span>
       <blockquote className={styles.introQuote}>
-        {ko ? w.introQuote_ko : w.introQuote}
+        <T ko={w.introQuote_ko} en={w.introQuote} />
       </blockquote>
     </div>
   );
@@ -480,9 +481,10 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
               >
               {/* 메타데이터 */}
               <span className={styles.metaNumber}>{project.number}</span>
-              <span className={styles.metaCategory}>{project.category.en}</span>
+              <span className={styles.metaCategory}><T ko={project.category.ko} en={project.category.en} /></span>
 
               {/* 카드 */}
+              <Tooltip content={`${project.title} · ${t("tooltip.viewProject")}`}>
               <article
                 ref={(el) => {
                   if (el) cardRefs.current.set(index, el);
@@ -511,11 +513,12 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
                 <div className={styles.cardOverlay}>
                   <h3 className={styles.metaTitle}>{project.title}</h3>
                   <span className={styles.metaSubtitle}>
-                    {project.subtitle.en}
+                    <T ko={project.subtitle.ko} en={project.subtitle.en} />
                   </span>
                   <span className={styles.metaYear}>{project.year}</span>
                 </div>
               </article>
+              </Tooltip>
 
               {/* 추가 메타데이터 */}
               <div className={styles.metaTech}>
@@ -523,8 +526,8 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
                   <span key={i}>#{tech}</span>
                 ))}
               </div>
-              <span className={styles.metaRole}>{project.role.en}</span>
-              <p className={styles.metaDesc}>{project.description[language]}</p>
+              <span className={styles.metaRole}><T ko={project.role.ko} en={project.role.en} /></span>
+              <p className={styles.metaDesc}><T ko={project.description.ko} en={project.description.en} /></p>
             </div>
             {/* 크레딧 패널: 각 세트의 마지막 프로젝트 뒤에 배치 */}
             {(index + 1) % PROJECT_COUNT === 0 && (
@@ -550,7 +553,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
               {projects[activeIndex]?.title}
             </h2>
             <p className={styles.activeSubtitle}>
-              {projects[activeIndex]?.subtitle.en}
+              <T ko={projects[activeIndex]?.subtitle.ko} en={projects[activeIndex]?.subtitle.en} />
             </p>
           </motion.div>
         </AnimatePresence>

@@ -3,7 +3,7 @@
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import Section from "@/components/ui/Section";
-import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./ServicesSection.module.css";
 
@@ -15,16 +15,14 @@ interface ServicesSectionProps {
 
 const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
   ({ serviceY0, serviceY1, serviceY2 }, ref) => {
-    const { language } = useLanguage();
     const cfg = useSiteConfig();
-    const ko = language === "ko";
     const yTransforms = [serviceY0, serviceY1, serviceY2, undefined];
 
     return (
       <Section className={styles.services} ref={ref}>
         <div className={styles.header}>
           <span className={styles.label}>
-            {ko ? cfg.services.label_ko : cfg.services.label}
+            <T ko={cfg.services.label_ko} en={cfg.services.label} />
           </span>
           <div className={`${styles.headerLine} horizontal-rule`} />
         </div>
@@ -42,10 +40,10 @@ const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
               <div className={styles.itemContent}>
                 <span className={styles.itemNumber}>{service.num}</span>
                 <h2 className={styles.itemTitle}>
-                  {ko ? service.title_ko : service.title}
+                  <T ko={service.title_ko} en={service.title} />
                 </h2>
                 <span className={styles.itemDescription}>
-                  {ko ? service.desc_ko : service.desc}
+                  <T ko={service.desc_ko} en={service.desc} />
                 </span>
                 <motion.div
                   className={styles.itemOval}

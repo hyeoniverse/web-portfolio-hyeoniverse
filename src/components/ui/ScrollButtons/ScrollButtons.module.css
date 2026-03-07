@@ -1,0 +1,53 @@
+/* ── Scroll Buttons (capsule) ── */
+.wrap {
+  position: fixed;
+  right: var(--spacing-xl);
+  bottom: var(--spacing-xl);
+  z-index: var(--z-float);
+  display: flex;
+  border-radius: var(--radius-capsule);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
+.wrap.wrap {
+  transition: opacity var(--duration-base) var(--ease-material);
+}
+
+.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-secondary-color);
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.btn:first-child {
+  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+}
+
+.btn:last-child {
+  border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
+  margin-left: -1px;
+}
+
+/* Compound selector — beats global theme transition */
+.wrap .btn {
+  transition:
+    color var(--duration-base) var(--ease-material),
+    border-color var(--duration-base) var(--ease-material);
+}
+
+.wrap .btn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}

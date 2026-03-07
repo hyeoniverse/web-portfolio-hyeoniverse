@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useLanguage } from "@/providers/LanguageProvider";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
+import T from "@/components/ui/T";
 import styles from "./CategoryNav.module.css";
 
 interface CategoryNavProps {
@@ -21,32 +21,34 @@ export default function CategoryNav({
   expanded,
   onExpandChange,
 }: CategoryNavProps) {
-  const { language } = useLanguage();
   const categories = useCategories();
   const navRef = useRef<HTMLDivElement>(null);
   const [overflowCount, setOverflowCount] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [rowHeight, setRowHeight] = useState(46);
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
 
-  const checkOverflow = useCallback(() => {
-    const el = navRef.current;
-    if (!el || expanded) return;
-    const buttons = el.querySelectorAll("button");
-    if (buttons.length === 0) return;
-    setRowHeight(buttons[0].offsetHeight);
-    const firstTop = buttons[0].offsetTop;
-    let hidden = 0;
-    buttons.forEach((btn) => {
-      if (btn.offsetTop > firstTop) hidden++;
-    });
-    setOverflowCount(hidden);
-  }, [expanded]);
-
+  // ResizeObserver로 nav 크기 변경 시 자동 재측정 (expanded일 때는 건너뜀)
   useEffect(() => {
-    checkOverflow();
-    window.addEventListener("resize", checkOverflow);
-    return () => window.removeEventListener("resize", checkOverflow);
-  }, [checkOverflow]);
+    const el = navRef.current;
+    if (!el) return;
+    const measure = () => {
+      if (expandedRef.current) return;
+      const buttons = el.querySelectorAll("button");
+      if (buttons.length === 0) return;
+      setRowHeight(buttons[0].offsetHeight);
+      const firstTop = buttons[0].offsetTop;
+      let hidden = 0;
+      buttons.forEach((btn) => {
+        if (btn.offsetTop > firstTop) hidden++;
+      });
+      setOverflowCount(hidden);
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // extra categories (DB에 있지만 config에 없는 카테고리) 통합
   const extraBilingual: BilingualCategory[] = extraCategories
@@ -55,20 +57,15 @@ export default function CategoryNav({
 
   const allCategories = [...categories, ...extraBilingual];
 
-  const getLabel = (cat: BilingualCategory) =>
-    language === "ko" ? cat.ko : cat.en;
-
   // ko 또는 en 값으로 매칭
   const isActive = (cat: BilingualCategory) =>
     activeCategory === cat.ko || activeCategory === cat.en;
 
-  const navStyle: React.CSSProperties = {
-    maxHeight: expanded
-      ? (navRef.current?.scrollHeight ?? 500)
-      : rowHeight,
-  };
+  const navStyle: React.CSSProperties = expanded
+    ? {}
+    : { maxHeight: rowHeight };
 
-  const navCls = styles.nav;
+  const navCls = `${styles.nav} ${expanded ? styles.navExpanded : ""}`;
 
   // indicator target: hover takes priority, fallback to active
   const activeId = activeCategory ?? "__all__";
@@ -107,7 +104,7 @@ export default function CategoryNav({
             onMouseEnter={() => setHoveredId(cat.ko)}
             data-clickable="true"
           >
-            {getLabel(cat)}
+            <T ko={cat.ko} en={cat.en} delay={0} alwaysTooltip />
             {indicatorId === cat.ko && indicatorEl}
           </button>
         ))}
@@ -119,18 +116,6 @@ export default function CategoryNav({
           data-clickable="true"
         >
           {expanded ? "Close" : `+${overflowCount}`}
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
         </button>
       )}
     </div>
