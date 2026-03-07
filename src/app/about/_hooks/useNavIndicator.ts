@@ -78,7 +78,8 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
       { id: 10, label: "ERD" },
       { id: 11, label: "Code" },
       { id: 12, label: "Troubleshoot" },
-      { id: 13, label: "Credits" },
+      { id: 13, label: "Security" },
+      { id: 14, label: "Credits" },
     ],
     [],
   );

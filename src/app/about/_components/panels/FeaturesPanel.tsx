@@ -15,6 +15,7 @@ import DynamicFrameLayout, {
   defaultFrames,
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
+import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./FeaturesPanel.module.css";
 const styles = { ...shared, ...local };
@@ -301,7 +302,7 @@ function FeaturesPanel({
   return (
     <div className={`${styles.panel} ${styles.panelWide}`}>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>
-        Key Features.
+        <T k="aboutPage.panels.keyFeatures" />
       </h3>
 
       {/* 데스크톱: DynamicFrameLayout */}

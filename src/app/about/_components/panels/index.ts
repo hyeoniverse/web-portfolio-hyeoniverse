@@ -12,4 +12,5 @@ export { default as BackendPanel } from "./BackendPanel";
 export { default as ErdPanel } from "./ErdPanel";
 export { default as CodeHighlightsPanel } from "./CodeHighlightsPanel";
 export { default as TroubleshootingPanel } from "./TroubleshootingPanel";
+export { default as SecurityPanel } from "./SecurityPanel";
 export { default as CreditsPanel } from "./CreditsPanel";

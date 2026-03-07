@@ -9,6 +9,7 @@ import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
+import T from "@/components/ui/T";
 import TypographyDemo from "./demos/TypographyDemo";
 import ColorSystemDemo from "./demos/ColorSystemDemo";
 import MotionScrollDemo from "./demos/MotionScrollDemo";
@@ -173,7 +174,7 @@ function DesignConceptPanel({
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       <div ref={contentRef} className={`${styles.pinnedContent} ${styles.dcViewport}`}>
         <PinnedTitleRow
-          title="Design System."
+          title={<T k="aboutPage.panels.designSystem" />}
           rightContent={
             <a
               href="/design-system"
