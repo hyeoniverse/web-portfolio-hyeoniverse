@@ -8,6 +8,7 @@ import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
+import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./DesignMotifPanel.module.css";
 const styles = { ...shared, ...local };
@@ -192,7 +193,7 @@ function DesignMotifPanel({
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       <div ref={contentRef} className={`${styles.pinnedContent} ${styles.cpViewport}`}>
         <PinnedTitleRow
-          title="Design Concept."
+          title={<T k="aboutPage.panels.designConcept" />}
           dotNav={{
             count: philosophy.length,
             activeIndex,

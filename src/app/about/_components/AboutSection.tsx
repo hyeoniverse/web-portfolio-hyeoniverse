@@ -20,6 +20,7 @@ import {
   erdTables,
   erdDesignNotes,
   userFlows,
+  securityItems,
 } from "@/data/about";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
@@ -40,6 +41,7 @@ import {
   BackendPanel,
   ErdPanel,
   TroubleshootingPanel,
+  SecurityPanel,
   CreditsPanel,
 } from "./panels";
 import SectionNav from "./SectionNav";
@@ -55,8 +57,8 @@ export default function AboutSection() {
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
     useHorizontalScroll(styles, {
       infinite: infiniteScroll,
-      panelSetSize: 15,
-      navSectionCount: 14,
+      panelSetSize: 16,
+      navSectionCount: 15,
     });
   useInViewMobile(trackRef, styles.animate, styles.animateVisible);
   const { isLoading } = useLoadingScreen();
@@ -149,6 +151,7 @@ export default function AboutSection() {
         items={troubleShootingItems}
         scrollBy={scrollBy}
       />
+      <SecurityPanel language={language} items={securityItems} />
       <CreditsPanel />
     </Fragment>
   );

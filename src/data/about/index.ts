@@ -30,3 +30,5 @@ export { codeExamples } from "./codeExamples";
 export { troubleShootingItems } from "./troubleshooting";
 export { backendItems } from "./backend";
 export { erdTables, erdRelations, erdDesignNotes } from "./erd";
+export type { SecurityItem } from "./security";
+export { securityItems } from "./security";

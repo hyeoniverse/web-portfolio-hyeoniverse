@@ -13,6 +13,7 @@ import {
   CENTER_Y,
 } from "./_utils/architectureLayout";
 import { useForceGraph } from "./_utils/useForceGraph";
+import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./ArchitecturePanel.module.css";
 const styles = { ...shared, ...local };
@@ -212,7 +213,7 @@ function ArchitecturePanel({ language, structure }: ArchitecturePanelProps) {
 
   return (
     <div className={styles.panel}>
-      <h3 className={`${styles.panelTitle} ${styles.animate}`}>Architecture.</h3>
+      <h3 className={`${styles.panelTitle} ${styles.animate}`}><T k="aboutPage.panels.architecture" /></h3>
 
       {/* ── 데스크톱: 인터랙티브 맵 ── */}
       <div ref={mapRef} className={styles.archMap}>

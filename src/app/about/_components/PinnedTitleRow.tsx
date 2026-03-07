@@ -15,7 +15,7 @@ interface DotNavConfig {
 }
 
 interface PinnedTitleRowProps {
-  title: string;
+  title: React.ReactNode;
   /** panelTitleCompact 클래스 적용 여부 */
   compact?: boolean;
   /** animate 클래스 적용 여부 */

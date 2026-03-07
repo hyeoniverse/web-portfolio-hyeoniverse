@@ -181,7 +181,7 @@ function TroubleshootingPanel({
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
          
-          title="Trouble Shooting."
+          title={<T k="aboutPage.panels.troubleShooting" />}
           compact
           animate
           dotNav={{

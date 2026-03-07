@@ -7,6 +7,7 @@ import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import PinnedTitleRow from "../PinnedTitleRow";
+import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./UserFlowPanel.module.css";
 const styles = { ...shared, ...local };
@@ -423,7 +424,7 @@ function UserFlowPanel({
       >
         <PinnedTitleRow
          
-          title="User Flow."
+          title={<T k="aboutPage.panels.userFlow" />}
           rightContent={
             <>
               <div className={styles.ufFlowLegend}>
@@ -431,19 +432,19 @@ function UserFlowPanel({
                   <svg width="28" height="16" viewBox="0 0 28 16">
                     <rect x="1" y="1" width="26" height="14" rx="7" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
                   </svg>
-                  <span>{language === "ko" ? "시작 / 종료" : "Start / End"}</span>
+                  <span><T k="aboutPage.userFlow.startEnd" /></span>
                 </div>
                 <div className={styles.ufLegendItem}>
                   <svg width="28" height="16" viewBox="0 0 28 16">
                     <rect x="1" y="1" width="26" height="14" rx="3" fill="none" stroke="var(--text-secondary)" strokeWidth="1" />
                   </svg>
-                  <span>{language === "ko" ? "화면 / 액션" : "Screen / Action"}</span>
+                  <span><T k="aboutPage.userFlow.screenAction" /></span>
                 </div>
                 <div className={styles.ufLegendItem}>
                   <svg width="22" height="16" viewBox="0 0 22 16">
                     <polygon points="11,0 22,8 11,16 0,8" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
                   </svg>
-                  <span>{language === "ko" ? "결정 (Yes / No)" : "Decision (Yes / No)"}</span>
+                  <span><T k="aboutPage.userFlow.decision" /></span>
                 </div>
               </div>
               <span className={styles.ufFlowCounter} key={`cnt-${currentIdx}`}>
@@ -719,7 +720,7 @@ function UserFlowPanel({
                   </span>
                   <span className={styles.ufMobileFlowCount}>
                     {flow.nodes.filter((n) => n.type !== "end").length}{" "}
-                    {language === "ko" ? "단계" : "steps"}
+                    <T k="aboutPage.userFlow.steps" />
                   </span>
                 </div>
                 {isActive && (

@@ -8,6 +8,7 @@ import CodeHighlight from "../CodeHighlight";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
+import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./BackendPanel.module.css";
 const styles = { ...shared, ...local };
@@ -194,7 +195,7 @@ function BackendPanel({
       {item.kind === "api" && item.endpoints && (
         <div className={styles.dbEntry}>
           <span className={`${styles.dbLabel} ${styles.dbLabelAccent}`}>
-            Endpoints
+            <T k="aboutPage.backend.endpoints" />
           </span>
           <div className={styles.dbEndpointList}>
             {item.endpoints.map((ep, ei) => (
@@ -214,7 +215,7 @@ function BackendPanel({
       {item.kind === "table" && item.designNote && (
         <div className={styles.dbEntry}>
           <span className={`${styles.dbLabel} ${styles.dbLabelAccent}`}>
-            {language === "ko" ? "설계 결정" : "Design Decision"}
+            <T k="aboutPage.backend.designDecision" />
           </span>
           <p>{renderHighlight(item.designNote[language])}</p>
         </div>
@@ -224,13 +225,13 @@ function BackendPanel({
       {item.kind === "table" && item.columns && (
         <div className={styles.dbEntry}>
           <span className={styles.dbLabel}>
-            {language === "ko" ? "스키마" : "Schema"}
+            <T k="aboutPage.backend.schema" />
           </span>
           <div className={styles.dbSchema}>
             <div className={styles.dbSchemaHeader}>
-              <span>Column</span>
-              <span>Type</span>
-              <span>{language === "ko" ? "설명" : "Description"}</span>
+              <span><T k="aboutPage.backend.column" /></span>
+              <span><T k="aboutPage.backend.type" /></span>
+              <span><T k="aboutPage.backend.description" /></span>
             </div>
             {item.columns.map((col, ci) => (
               <div key={ci} className={styles.dbSchemaRow}>
@@ -274,7 +275,7 @@ function BackendPanel({
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
          
-          title="Backend."
+          title={<T k="aboutPage.panels.backend" />}
           compact
           animate
           dotNav={{
