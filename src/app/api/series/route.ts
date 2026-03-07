@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isValidPostCategory } from "@/lib/api/validateCategory";
 
 // GET /api/series — 시리즈 목록
 export async function GET(request: Request) {
@@ -73,6 +74,10 @@ export async function POST(request: Request) {
       .toLowerCase()
       .replace(/[^a-z0-9가-힣]+/g, "-")
       .replace(/^-|-$/g, "");
+  }
+
+  if (body.category && !(await isValidPostCategory(body.category))) {
+    return NextResponse.json({ error: "Invalid category" }, { status: 400 });
   }
 
   const admin = createAdminClient();
