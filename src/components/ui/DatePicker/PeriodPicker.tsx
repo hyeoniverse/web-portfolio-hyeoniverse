@@ -6,7 +6,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { formatPeriod } from "@/utils/formatPeriod";
 import Checkbox from "@/components/ui/Checkbox";
 import DatePickerPopover from "./DatePickerPopover";
-import styles from "./PeriodPicker.module.css";
+import styles from "./DatePicker.module.css";
 
 interface PeriodPickerProps {
   value: DatePeriod;

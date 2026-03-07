@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
+import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import styles from "./DetailLayout.module.css";
 
 export interface TocHeading {
@@ -28,6 +30,8 @@ interface DetailLayoutProps {
   heroFallback?: ReactNode;
   headings?: TocHeading[];
   likeConfig?: LikeConfig;
+  /** Where to render the like button: "content" (after children, default) or "bottom" (after afterContent) */
+  likePosition?: "content" | "bottom";
   children: ReactNode;
   afterContent?: ReactNode;
 }
@@ -41,13 +45,14 @@ export default function DetailLayout({
   heroFallback,
   headings = [],
   likeConfig,
+  likePosition = "content",
   children,
   afterContent,
 }: DetailLayoutProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   const { setInfinite, lenis, stop, start } = useLenis();
   const [activeHeadingId, setActiveHeadingId] = useState("");
-  const [showScrollBtns, setShowScrollBtns] = useState(false);
   const pageRef = useRef<HTMLDivElement>(null);
 
   // Lenis setup
@@ -66,33 +71,6 @@ export default function DetailLayout({
       setInfinite(true);
     };
   }, [setInfinite, lenis, stop, start]);
-
-  // Show/hide scroll buttons
-  useEffect(() => {
-    let rafId: number;
-    const handleScroll = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        setShowScrollBtns(window.scrollY > 300);
-      });
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  const scrollToTop = useCallback(() => {
-    if (lenis) lenis.scrollTo(0, { duration: 1.2 });
-    else window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [lenis]);
-
-  const scrollToBottom = useCallback(() => {
-    const target = document.documentElement.scrollHeight;
-    if (lenis) lenis.scrollTo(target, { duration: 1.2 });
-    else window.scrollTo({ top: target, behavior: "smooth" });
-  }, [lenis]);
 
   // Scroll spy
   useEffect(() => {
@@ -234,8 +212,8 @@ export default function DetailLayout({
       <div className={styles.content}>
         {children}
 
-        {/* Like button */}
-        {likeConfig && (
+        {/* Like button (content position) */}
+        {likeConfig && likePosition === "content" && (
           <motion.div
             className={styles.likeWrapper}
             initial={{ opacity: 0, y: 20 }}
@@ -246,6 +224,7 @@ export default function DetailLayout({
               type="button"
               className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""}`}
               onClick={likeConfig.onToggle}
+              title={t("common.like")}
               data-clickable="true"
             >
               <svg
@@ -271,31 +250,38 @@ export default function DetailLayout({
         <div className={styles.afterContent}>{afterContent}</div>
       )}
 
-      {/* Scroll buttons */}
-      <div className={`${styles.scrollBtns} ${showScrollBtns ? styles.scrollBtnsVisible : ""}`}>
-        <button
-          type="button"
-          className={styles.scrollBtn}
-          onClick={scrollToTop}
-          aria-label="Scroll to top"
-          data-clickable="true"
+      {/* Like button (bottom position) */}
+      {likeConfig && likePosition === "bottom" && (
+        <motion.div
+          className={styles.likeWrapper}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="18 15 12 9 6 15" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          className={styles.scrollBtn}
-          onClick={scrollToBottom}
-          aria-label="Scroll to bottom"
-          data-clickable="true"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
-      </div>
+          <button
+            type="button"
+            className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""}`}
+            onClick={likeConfig.onToggle}
+            data-clickable="true"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill={likeConfig.liked ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+            <span>{likeConfig.count}</span>
+          </button>
+        </motion.div>
+      )}
+
+      <ScrollButtons />
     </div>
   );
 }

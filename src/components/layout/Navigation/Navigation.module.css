@@ -672,6 +672,12 @@
   /* mix-blend-mode: difference 유지 */
 }
 
+.adminActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 /* Admin email */
 .adminEmail {
   max-width: 180px;

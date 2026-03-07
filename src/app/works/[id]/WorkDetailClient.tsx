@@ -2,14 +2,15 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { Project } from "@/data/projects";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import Button from "@/components/ui/Button";
+import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import CommentSection from "@/components/comments/CommentSection";
 import styles from "./WorkDetail.module.css";
 
@@ -95,7 +96,6 @@ export default function WorkDetailClient({
       heroImage={project.image}
       heroAlt={project.title}
       headings={headings}
-      likeConfig={{ count: likeCount, liked, onToggle: handleLikeToggle }}
       afterContent={
         <>
           {/* Gallery */}
@@ -122,6 +122,26 @@ export default function WorkDetailClient({
           )}
 
           <motion.div
+            className={styles.likeWrapper}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.68, duration: 0.5 }}
+          >
+            <button
+              type="button"
+              className={`${styles.likeBtn} ${liked ? styles.likeBtnActive : ""}`}
+              onClick={handleLikeToggle}
+              title={t("common.like")}
+              data-clickable="true"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              <span>{likeCount}</span>
+            </button>
+          </motion.div>
+
+          <motion.div
             className={styles.actions}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -129,18 +149,31 @@ export default function WorkDetailClient({
           >
             {project.liveUrl && (
               <Button variant="outline" size="lg" href={project.liveUrl} external>
-                <T k="workDetail.visitSite" />
+                <T k="workDetail.visitSite" tooltip={t("tooltip.visitSite")} />
               </Button>
             )}
             {project.githubUrl && (
               <Button variant="outline" size="lg" href={project.githubUrl} external>
-                GitHub
+                <T ko="GitHub" en="GitHub" tooltip={t("tooltip.github")} />
               </Button>
             )}
-            <Button variant="outline" size="lg" href="/works">
-              <T k="workDetail.viewAll" />
-            </Button>
           </motion.div>
+
+          {/* 이전/다음 프로젝트 */}
+          <AdjacentNav
+            prev={prevProject ? {
+              href: `/works/${prevProject.id}`,
+              title: prevProject.title,
+              image: prevProject.image,
+            } : null}
+            next={nextProject ? {
+              href: `/works/${nextProject.id}`,
+              title: nextProject.title,
+              image: nextProject.image,
+            } : null}
+            prevLabelKey="workDetail.previous"
+            nextLabelKey="workDetail.next"
+          />
 
           {/* Comments */}
           <motion.div
@@ -151,65 +184,11 @@ export default function WorkDetailClient({
             <CommentSection commentType="work" targetId={project.id} />
           </motion.div>
 
-          {/* 이전/다음 프로젝트 */}
-          {(prevProject || nextProject) && (
-            <nav className={styles.adjacentNav}>
-              {prevProject ? (
-                <Link
-                  href={`/works/${prevProject.id}`}
-                  className={styles.adjacentCard}
-                >
-                  <div className={styles.adjacentThumb}>
-                    <Image
-                      src={prevProject.image}
-                      alt={prevProject.title}
-                      fill
-                      sizes="64px"
-                      className={styles.adjacentThumbImg}
-                    />
-                  </div>
-                  <div className={styles.adjacentBody}>
-                    <span className={styles.adjacentLabel}>
-                      <span className={styles.adjacentArrow}>&larr;</span>
-                      Previous
-                    </span>
-                    <span className={styles.adjacentWorkTitle}>
-                      {prevProject.title}
-                    </span>
-                  </div>
-                </Link>
-              ) : (
-                <span />
-              )}
-              {nextProject ? (
-                <Link
-                  href={`/works/${nextProject.id}`}
-                  className={`${styles.adjacentCard} ${styles.adjacentCardNext}`}
-                >
-                  <div className={styles.adjacentThumb}>
-                    <Image
-                      src={nextProject.image}
-                      alt={nextProject.title}
-                      fill
-                      sizes="64px"
-                      className={styles.adjacentThumbImg}
-                    />
-                  </div>
-                  <div className={styles.adjacentBody}>
-                    <span className={styles.adjacentLabel}>
-                      Next
-                      <span className={styles.adjacentArrow}>&rarr;</span>
-                    </span>
-                    <span className={styles.adjacentWorkTitle}>
-                      {nextProject.title}
-                    </span>
-                  </div>
-                </Link>
-              ) : (
-                <span />
-              )}
-            </nav>
-          )}
+          <div className={styles.footerNav}>
+            <Link href="/works" className={styles.footerLink}>
+              <span className={styles.footerArrow}>&larr;</span> <T k="workDetail.viewAll" />
+            </Link>
+          </div>
         </>
       }
     >
@@ -219,7 +198,7 @@ export default function WorkDetailClient({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.6 }}
       >
-        <span className={styles.category}>{project.category.en}</span>
+        <span className={styles.category}><T ko={project.category.ko} en={project.category.en} /></span>
         <span className={styles.year}>{project.year}</span>
       </motion.div>
 
@@ -238,7 +217,7 @@ export default function WorkDetailClient({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6 }}
       >
-        {project.description[language]}
+        <T ko={project.description.ko} en={project.description.en} />
       </motion.p>
 
       <motion.div
@@ -249,7 +228,7 @@ export default function WorkDetailClient({
       >
         <div className={styles.infoBlock}>
           <span className={styles.infoLabel}><T k="workDetail.role" /></span>
-          <span className={styles.infoValue}>{project.role[language]}</span>
+          <span className={styles.infoValue}><T ko={project.role.ko} en={project.role.en} /></span>
         </div>
         <div className={styles.infoBlock}>
           <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
@@ -285,7 +264,7 @@ export default function WorkDetailClient({
                       member.name
                     )}
                   </span>
-                  <span className={styles.teamRole}>{member.role[language]}</span>
+                  <span className={styles.teamRole}><T ko={member.role.ko} en={member.role.en} /></span>
                 </div>
               ))}
             </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Post, Series } from "@/types/post";
@@ -47,13 +46,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [isInitial, setIsInitial] = useState(true);
   const [isStuck, setIsStuck] = useState(false);
   const [barHidden, setBarHidden] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
   const scrollCooldown = useRef(false);
-
-  useEffect(() => setMounted(true), []);
+  const isStuckRef = useRef(false);
 
   // Detect if filterBar is in sticky (stuck) state
   useEffect(() => {
@@ -62,6 +59,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         const stuck = !entry.isIntersecting;
+        isStuckRef.current = stuck;
         setIsStuck(stuck);
         if (!stuck) setBarHidden(false);
       },
@@ -96,23 +94,36 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
   // Scroll-down: hide bar + collapse expansions / Scroll-up: show bar
   useEffect(() => {
-    const threshold = 8;
+    const threshold = 3;
+    let accumulated = 0;
+    const triggerDist = 15;
     const handleScroll = () => {
       const y = window.scrollY;
       const delta = y - lastScrollY.current;
       lastScrollY.current = y;
       if (scrollCooldown.current) return;
-      if (delta > threshold && isStuck) {
+      if (!isStuckRef.current) {
+        accumulated = 0;
+        return;
+      }
+      // 방향 전환 시 누적값 리셋
+      if ((accumulated > 0 && delta < -threshold) || (accumulated < 0 && delta > threshold)) {
+        accumulated = 0;
+      }
+      accumulated += delta;
+      if (accumulated > triggerDist) {
         setBarHidden(true);
         setCatExpanded(false);
         setShowTags(false);
-      } else if (delta < -threshold && isStuck) {
+        accumulated = 0;
+      } else if (accumulated < -triggerDist) {
         setBarHidden(false);
+        accumulated = 0;
       }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isStuck]);
+  }, []); // no deps — uses refs only
 
   // Close tags on scroll — ignore layout-shift scroll, only close on real user scroll
   useEffect(() => {
@@ -257,41 +268,43 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       {/* Sentinel for sticky detection */}
       <div ref={sentinelRef} style={{ height: 0 }} />
 
-      {/* Backdrop blur — portal to body to avoid stacking context issues */}
-      {mounted &&
-        createPortal(
-          <AnimatePresence>
-            {isStuck && (showTags || catExpanded) && (
-              <motion.div
-                className={styles.filterBackdrop}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                onClick={() => { setShowTags(false); setCatExpanded(false); }}
-              />
-            )}
-          </AnimatePresence>,
-          document.body,
+      {/* Backdrop — close tags/categories on outside click */}
+      <AnimatePresence>
+        {isStuck && (showTags || catExpanded) && (
+          <motion.div
+            className={styles.filterBackdrop}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => { setShowTags(false); setCatExpanded(false); }}
+          />
         )}
+      </AnimatePresence>
 
       {/* ── Filter Bar (Category tabs + Search + Sort) ── */}
-      <motion.div
+      <div
         className={`${styles.filterBar} ${barHidden ? styles.filterBarHidden : ""}`}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <div className={styles.filterBarTop}>
           <CategoryNav
             extraCategories={extraCategories}
             activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
+            onCategoryChange={(cat) => { setActiveCategory(cat); setCatExpanded(false); }}
             expanded={catExpanded}
-            onExpandChange={setCatExpanded}
+            onExpandChange={(v) => { setCatExpanded(v); if (v) setShowTags(false); }}
           />
 
-          <div className={styles.filterBarRight}>
+          <AnimatePresence>
+          {!catExpanded && (
+            <motion.div
+              className={styles.filterBarRight}
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto" }}
+              exit={{ opacity: 0, width: 0 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              style={{ overflow: "hidden" }}
+            >
             <div className={styles.searchWrap}>
               <svg
                 className={styles.searchIcon}
@@ -361,7 +374,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 </button>
               ))}
             </div>
-          </div>
+          </motion.div>
+          )}
+          </AnimatePresence>
         </div>
 
         <AnimatePresence>
@@ -396,7 +411,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
 
       {/* ── Content Area (2-column) ── */}
       <div ref={contentRef} className={styles.contentArea}>
@@ -505,10 +520,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   <motion.div
                     key={post.id}
                     initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{
                       duration: 0.5,
+                      delay: Math.min(i * 0.06, 0.4),
                       ease: [0.25, 0.1, 0.25, 1],
                     }}
                     style={

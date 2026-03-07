@@ -2,6 +2,7 @@
 
 import { motion, MotionValue } from "framer-motion";
 import Section from "@/components/ui/Section";
+import T from "@/components/ui/T";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./BridgeSection.module.css";
@@ -22,10 +23,7 @@ export default function BridgeSection({
 }: BridgeSectionProps) {
   const { language } = useLanguage();
   const cfg = useSiteConfig();
-  const ko = language === "ko";
-  const headline = ko ? cfg.hero.headline_ko : cfg.hero.headline;
-  const subtext = ko ? cfg.hero.subtext_ko : cfg.hero.subtext;
-  const scrollLabel = ko ? cfg.hero.scrollLabel_ko : cfg.hero.scrollLabel;
+  const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
 
   return (
     <Section fullHeight clipOverflow className={styles.bridge}>
@@ -72,10 +70,12 @@ export default function BridgeSection({
         </h2>
 
         <div className={heroStyles.meta}>
-          <span>{subtext[0]}</span>
+          <span>
+            <T ko={cfg.hero.subtext_ko[0]} en={cfg.hero.subtext[0]} />
+          </span>
           <span className={heroStyles.metaDivider} />
           <span className={heroStyles.availabilityWrapper}>
-            {subtext[1]}
+            <T ko={cfg.hero.subtext_ko[1]} en={cfg.hero.subtext[1]} />
             <span className={heroStyles.pulseDot} />
           </span>
         </div>
@@ -90,7 +90,9 @@ export default function BridgeSection({
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           />
         </div>
-        <span className={heroStyles.scrollText}>{scrollLabel}</span>
+        <span className={heroStyles.scrollText}>
+          <T ko={cfg.hero.scrollLabel_ko} en={cfg.hero.scrollLabel} />
+        </span>
       </div>
     </Section>
   );

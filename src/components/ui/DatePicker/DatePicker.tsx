@@ -1,19 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useLanguage } from "@/providers/LanguageProvider";
-import styles from "./PeriodPicker.module.css";
+import styles from "./DatePicker.module.css";
 
 type Format = "year" | "yearMonth" | "date";
-type PickerMode = "spinner" | "calendar";
 
-interface DatePickerPopoverProps {
+export interface DatePickerProps {
   year: string;
   month: string;
   day: string;
   format: Format;
+  mode: "spinner" | "calendar";
+  language: "ko" | "en";
   onSelect: (year: string, month: string, day: string) => void;
-  onClose: () => void;
 }
 
 function daysInMonthCount(y: number, m: number): number {
@@ -28,15 +27,9 @@ const WEEKDAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const WEEKDAYS_EN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 /* ── Spinner Column ── */
-const ITEM_H = 36;
+const ITEM_H = 40;
 const VISIBLE = 5;
 
-/**
- * 스크롤 위치 공식:
- * - 콘텐츠: [패딩 72px] [item0] [item1] ... [패딩 72px]
- * - 하이라이트: viewport 72px 위치 (top: ITEM_H*2)
- * - item N이 하이라이트에 오려면: (72 + N*36) - scrollTop = 72 → scrollTop = N*36
- */
 function SpinnerColumn({
   items,
   value,
@@ -49,12 +42,15 @@ function SpinnerColumn({
   const ref = useRef<HTMLDivElement>(null);
   const scrollTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  const isUserScroll = useRef(false);
+
   useEffect(() => {
     const idx = items.findIndex((i) => i.value === value);
-    if (idx >= 0 && ref.current) {
-      ref.current.scrollTop = idx * ITEM_H;
+    if (idx >= 0 && ref.current && !isUserScroll.current) {
+      ref.current.scrollTo({ top: idx * ITEM_H, behavior: "smooth" });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    isUserScroll.current = false;
+  }, [value, items]);
 
   const handleScroll = useCallback(() => {
     clearTimeout(scrollTimer.current);
@@ -64,18 +60,19 @@ function SpinnerColumn({
       const clamped = Math.max(0, Math.min(idx, items.length - 1));
       const target = clamped * ITEM_H;
 
-      // 가까운 아이템으로 스냅 (이미 정렬됐으면 스킵)
       if (Math.abs(ref.current.scrollTop - target) > 1) {
         ref.current.scrollTo({ top: target, behavior: "smooth" });
       }
 
       if (items[clamped] && items[clamped].value !== value) {
+        isUserScroll.current = true;
         onChange(items[clamped].value);
       }
     }, 120);
   }, [items, value, onChange]);
 
   const clickItem = (v: string) => {
+    isUserScroll.current = true;
     onChange(v);
     const idx = items.findIndex((i) => i.value === v);
     if (idx >= 0 && ref.current) {
@@ -168,6 +165,14 @@ function CalendarView({
   const now = new Date().getFullYear();
   const [viewYear, setViewYear] = useState(Number(year) || now);
   const [viewMonth, setViewMonth] = useState(Number(month) || new Date().getMonth() + 1);
+
+  useEffect(() => {
+    if (year) setViewYear(Number(year));
+  }, [year]);
+
+  useEffect(() => {
+    if (month) setViewMonth(Number(month));
+  }, [month]);
 
   if (format === "year") {
     const base = Math.floor(viewYear / 12) * 12;
@@ -270,60 +275,13 @@ function CalendarView({
   );
 }
 
-/* ── Main Popover ── */
-export default function DatePickerPopover({
-  year, month, day, format, onSelect, onClose,
-}: DatePickerPopoverProps) {
-  const { language } = useLanguage();
-  const [mode, setMode] = useState<PickerMode>("spinner");
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [onClose]);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [onClose]);
-
-  return (
-    <div ref={popoverRef} className={styles.popover}>
-      <div className={styles.popoverTabs}>
-        <button
-          type="button"
-          className={`${styles.popoverTab} ${mode === "spinner" ? styles.popoverTabActive : ""}`}
-          onClick={() => setMode("spinner")}
-        >
-          {language === "ko" ? "스피너" : "Spinner"}
-        </button>
-        <button
-          type="button"
-          className={`${styles.popoverTab} ${mode === "calendar" ? styles.popoverTabActive : ""}`}
-          onClick={() => setMode("calendar")}
-        >
-          {language === "ko" ? "캘린더" : "Calendar"}
-        </button>
-      </div>
-
-      {mode === "spinner" ? (
-        <SpinnerView
-          year={year} month={month} day={day}
-          format={format} onSelect={onSelect} language={language}
-        />
-      ) : (
-        <CalendarView
-          year={year} month={month} day={day}
-          format={format} onSelect={onSelect} language={language}
-        />
-      )}
-    </div>
+/* ── Main ── */
+export default function DatePicker({
+  year, month, day, format, mode, language, onSelect,
+}: DatePickerProps) {
+  return mode === "spinner" ? (
+    <SpinnerView year={year} month={month} day={day} format={format} onSelect={onSelect} language={language} />
+  ) : (
+    <CalendarView year={year} month={month} day={day} format={format} onSelect={onSelect} language={language} />
   );
 }

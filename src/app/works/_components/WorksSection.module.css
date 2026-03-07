@@ -199,6 +199,7 @@
   line-height: var(--line-height-dense);
   color: inherit;
   letter-spacing: -0.03em;
+  pointer-events: auto;
 }
 
 .activeSubtitle {
@@ -207,6 +208,7 @@
   font-weight: var(--font-weight-regular);
   color: inherit;
   letter-spacing: 0.02em;
+  pointer-events: auto;
 }
 
 /* ==========================================================================
@@ -369,6 +371,7 @@
 .metaRole {
   position: absolute;
   z-index: var(--_meta-z);
+  pointer-events: auto;
 }
 
 /* Shared: accent-colored labels */
@@ -393,6 +396,7 @@
   letter-spacing: -0.06em;
   transition: all 0.4s ease;
   -webkit-text-stroke: 1px var(--border-black);
+  pointer-events: auto;
 }
 
 .metaCategory {
@@ -454,6 +458,7 @@
   text-align: right;
   word-break: keep-all;
   overflow-wrap: break-word;
+  pointer-events: auto;
 }
 
 /* ==========================================================================

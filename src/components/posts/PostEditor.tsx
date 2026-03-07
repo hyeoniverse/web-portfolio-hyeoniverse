@@ -63,7 +63,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     excerpt: post?.excerpt ?? "",
     cover_image: post?.cover_image ?? "",
     tags: post?.tags ?? [],
-    category: post?.category ?? "General",
+    category: post?.category || "",
     is_pinned: post?.is_pinned ?? false,
     published: post?.published ?? false,
     language: post?.language ?? "ko",
@@ -73,6 +73,14 @@ export default function PostEditor({ post }: PostEditorProps) {
     series_id: post?.series_id ?? null,
     series_order: post?.series_order ?? 0,
   });
+
+  // Auto-correct invalid category when categories load
+  useEffect(() => {
+    if (categories.length === 0) return;
+    if (!isManagedCat(form.category)) {
+      setForm((prev) => ({ ...prev, category: categories[0].ko }));
+    }
+  }, [categories]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
@@ -609,34 +617,14 @@ export default function PostEditor({ post }: PostEditorProps) {
                 {(findCat(form.category) ? (language === "ko" ? findCat(form.category)!.ko : findCat(form.category)!.en) : form.category) || "—"} <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>({te("categoryFromSeries")})</span>
               </p>
             ) : (
-              <div className={styles.categoryWrap}>
-                <Select
-                  value={isManagedCat(form.category) ? (findCat(form.category)?.ko ?? form.category) : "__custom__"}
-                  options={[
-                    ...categories.map((cat) => ({
-                      value: cat.ko,
-                      label: language === "ko" ? cat.ko : cat.en,
-                    })),
-                    { value: "__custom__", label: te("customCategory") },
-                  ]}
-                  onChange={(v) => {
-                    if (v === "__custom__") {
-                      updateField("category", "");
-                      return;
-                    }
-                    updateField("category", v);
-                  }}
-                />
-                {!isManagedCat(form.category) && (
-                  <input
-                    className={es.fieldInput}
-                    type="text"
-                    value={form.category}
-                    onChange={(e) => updateField("category", e.target.value)}
-                    placeholder={te("customCategory")}
-                  />
-                )}
-              </div>
+              <Select
+                value={isManagedCat(form.category) ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? "")}
+                options={categories.map((cat) => ({
+                  value: cat.ko,
+                  label: language === "ko" ? cat.ko : cat.en,
+                }))}
+                onChange={(v) => updateField("category", v)}
+              />
             )}
           </div>
 

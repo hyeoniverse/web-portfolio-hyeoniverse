@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
@@ -86,6 +86,10 @@ export default function Navigation() {
     supabase.auth.getUser().then(({ data }) => {
       setAdminEmail(data.user?.email ?? "");
     });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAdminEmail(session?.user?.email ?? "");
+    });
+    return () => subscription.unsubscribe();
   }, [isAdminPage]);
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
@@ -305,7 +309,8 @@ export default function Navigation() {
   };
 
   const handleLogout = useCallback(async () => {
-    await fetch("/api/admin/auth", { method: "DELETE" });
+    const supabase = createSupabaseClient();
+    await supabase.auth.signOut();
     router.push("/admin/login");
     router.refresh();
   }, [router]);
@@ -468,20 +473,28 @@ export default function Navigation() {
       </div>
 
       <div className={styles.navActions}>
-        {isAdminPage && adminEmail ? (
-          <>
-            <span className={styles.adminEmail}>{adminEmail}</span>
-            <Button
-              variant="outline"
-              size="xs"
-              className={styles.logoutBtn}
-              onClick={handleLogout}
-              soundDisabled
+        <AnimatePresence mode="wait">
+          {isAdminPage && adminEmail ? (
+            <motion.div
+              key="admin-actions"
+              className={styles.adminActions}
+              initial={{ opacity: 0, x: 8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 8 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              Logout
-            </Button>
-          </>
-        ) : !isAdminPage ? (
+              <span className={styles.adminEmail}>{adminEmail}</span>
+              <Button
+                variant="outline"
+                size="xs"
+                className={styles.logoutBtn}
+                onClick={handleLogout}
+                soundDisabled
+              >
+                Logout
+              </Button>
+            </motion.div>
+          ) : !isAdminPage ? (
           /* Get in Touch */
           <Button
             variant="outline"
@@ -493,6 +506,7 @@ export default function Navigation() {
             Get in Touch
           </Button>
         ) : null}
+        </AnimatePresence>
 
         {/* 언어 토글 — admin에서도 표시 */}
         <Tooltip content={language === "ko" ? "언어 전환" : "Switch language"} delay={600} placement="bottom">

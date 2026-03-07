@@ -8,6 +8,8 @@ import {
   PressingWork,
   HoveringWork,
 } from "@/types";
+import Tooltip from "@/components/ui/Tooltip";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./WorksSection.module.css";
 
 /** 그리드 내 이미지가 배치될 열 인덱스 (행별) */
@@ -23,6 +25,7 @@ const IMAGE_POSITIONS = [
 
 interface WorkCircleProps {
   work: WorkItem;
+  tooltipContent: string;
   smoothWorkImageY: MotionValue<number>;
   isPressing: boolean;
   isHovering: boolean;
@@ -37,8 +40,11 @@ interface WorkCircleProps {
   onHoverEnd: () => void;
 }
 
+const TOOLTIP_WRAPPER_STYLE: React.CSSProperties = { width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" };
+
 const WorkCircle = memo(function WorkCircle({
   work,
+  tooltipContent,
   smoothWorkImageY,
   isPressing,
   isHovering,
@@ -53,6 +59,7 @@ const WorkCircle = memo(function WorkCircle({
   onHoverEnd,
 }: WorkCircleProps) {
   return (
+    <Tooltip content={tooltipContent} placement="top" wrapperStyle={TOOLTIP_WRAPPER_STYLE}>
     <motion.div
       className={`${styles.circle} work-circle`}
       onClick={onClick}
@@ -142,6 +149,7 @@ const WorkCircle = memo(function WorkCircle({
         </motion.div>
       </div>
     </motion.div>
+    </Tooltip>
   );
 });
 
@@ -177,6 +185,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
     },
     ref
   ) => {
+    const { t } = useLanguage();
     const [hoverDirections, setHoverDirections] = useState<{ [key: string]: { x: number; y: number } }>({});
 
     const getHoverDirection = useCallback(
@@ -240,6 +249,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
           >
             <WorkCircle
               work={work}
+              tooltipContent={`${work.title} · ${t("tooltip.viewProject")}`}
               smoothWorkImageY={smoothWorkImageY}
               isPressing={isPressing}
               isHovering={isHovering}

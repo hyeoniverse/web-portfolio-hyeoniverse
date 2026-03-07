@@ -21,12 +21,14 @@ import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsCo
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
 import Tooltip from "@/components/ui/Tooltip";
+import TextLink from "@/components/ui/TextLink";
 import T from "@/components/ui/T";
 import PostsBanner from "@/app/posts/_components/PostsBanner/PostsBanner";
 import type { BannerLayout } from "@/app/posts/_components/PostsBanner/PostsBanner";
 import type { Post } from "@/types/post";
-import type { DatePeriod } from "@/data/profile";
-import PeriodPicker from "@/components/ui/PeriodPicker/PeriodPicker";
+
+import DatePicker from "@/components/ui/DatePicker/DatePicker";
+
 import styles from "./DesignSystem.module.css";
 
 // ─── Preset application helpers ───
@@ -466,7 +468,8 @@ export default function DesignSystemPage() {
   const [checkCircle, setCheckCircle] = useState(true);
   const [checkIndet, setCheckIndet] = useState(false);
   const [selectValue, setSelectValue] = useState("option1");
-  const [periodValue, setPeriodValue] = useState<DatePeriod>({ start: "2024", format: "year" });
+  const [dpFormat, setDpFormat] = useState<"year" | "yearMonth" | "date">("date");
+  const [dpDate, setDpDate] = useState({ year: "2024", month: "03", day: "15" });
 
   const handleBack = useCallback(() => {
     setIsExiting(true);
@@ -607,7 +610,7 @@ export default function DesignSystemPage() {
             <motion.div className={styles.colorGrid} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {neutralScale.map((n, i) => (
                 <motion.div key={n} className={styles.colorSwatch} variants={staggerItemX} {...scrollChildX(i, neutralScale.length)}>
-                  <div className={styles.colorBox} style={{ background: `var(--color-neutral-${n})` }} />
+                  <div className={`${styles.colorBox} ${styles.colorBoxBordered}`} style={{ background: `var(--color-neutral-${n})` }} />
                   <span className={styles.colorLabel}>{n}</span>
                 </motion.div>
               ))}
@@ -856,6 +859,15 @@ export default function DesignSystemPage() {
               </div>
             </motion.div>
 
+            {/* TextLink */}
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              <div className={styles.componentGroupTitle}>TextLink</div>
+              <div className={styles.componentRow}>
+                <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}><TextLink href="/design-system">Internal Link</TextLink></motion.div>
+                <motion.div variants={staggerItemX} {...scrollChildX(1, 2)}><TextLink href="https://fonts.google.com" external>External Link ↗</TextLink></motion.div>
+              </div>
+            </motion.div>
+
             {/* Input */}
             <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Input</div>
@@ -993,11 +1005,68 @@ export default function DesignSystemPage() {
               </div>
             </motion.div>
 
-            {/* PeriodPicker */}
+            {/* DatePicker */}
             <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-              <div className={styles.componentGroupTitle}>PeriodPicker</div>
-              <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
-                <PeriodPicker value={periodValue} onChange={setPeriodValue} />
+              <div className={styles.componentGroupTitle}>DatePicker</div>
+              <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+                  <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>Format</span>
+                  <div style={{ display: "flex", border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-capsule)", overflow: "hidden" }}>
+                    {(["year", "yearMonth", "date"] as const).map((f, i, arr) => (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => setDpFormat(f)}
+                        style={{
+                          padding: "var(--spacing-2xs) var(--spacing-sm)",
+                          border: "none",
+                          borderRight: i < arr.length - 1 ? "1px solid var(--border-tertiary-color)" : "none",
+                          borderRadius: 0,
+                          background: dpFormat === f ? "var(--text-primary)" : "transparent",
+                          color: dpFormat === f ? "var(--bg-primary)" : "var(--text-secondary)",
+                          fontSize: "var(--font-size-xs)",
+                          fontFamily: "var(--font-space-grotesk)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {f === "year" ? (language === "ko" ? "연도" : "Year") : f === "yearMonth" ? (language === "ko" ? "연.월" : "Y.M") : (language === "ko" ? "연.월.일" : "Y.M.D")}
+                      </button>
+                    ))}
+                  </div>
+                  <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-primary)", marginLeft: "var(--spacing-xs)", fontFamily: "var(--font-space-grotesk)", fontWeight: 600 }}>
+                    {dpFormat === "year" ? dpDate.year : dpFormat === "yearMonth" ? `${dpDate.year}.${dpDate.month}` : `${dpDate.year}.${dpDate.month}.${dpDate.day}`}
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: "var(--spacing-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+                  <div style={{ minWidth: 230 }}>
+                    <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
+                    <div style={{ border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+                      <DatePicker
+                        year={dpDate.year}
+                        month={dpDate.month}
+                        day={dpDate.day}
+                        format={dpFormat}
+                        mode="spinner"
+                        language={language}
+                        onSelect={(y, m, d) => setDpDate({ year: y, month: m, day: d })}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ minWidth: 230 }}>
+                    <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
+                    <div style={{ border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+                      <DatePicker
+                        year={dpDate.year}
+                        month={dpDate.month}
+                        day={dpDate.day}
+                        format={dpFormat}
+                        mode="calendar"
+                        language={language}
+                        onSelect={(y, m, d) => setDpDate({ year: y, month: m, day: d })}
+                      />
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             </motion.div>
 
@@ -1037,7 +1106,7 @@ export default function DesignSystemPage() {
             </motion.div>
             <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Translation Tooltip — &lt;T&gt;</div>
-              <p className={styles.sectionSub}>Hover 시 반대 언어 번역 표시 (delay: 0ms / 600ms)</p>
+              <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>{language === "ko" ? "Hover 시 반대 언어 번역 표시 (delay: 0ms / 600ms)" : "Shows opposite language on hover (delay: 0ms / 600ms)"}</p>
               <div className={styles.componentRow}>
                 <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><T k="contact.title" delay={0} className={styles.tooltipDemoText} /></motion.div>
                 <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><T k="contact.send" delay={0} className={styles.tooltipDemoText} /></motion.div>
@@ -1049,11 +1118,11 @@ export default function DesignSystemPage() {
 
           {/* ─── Banner Layouts ─── */}
           <section id="banner" ref={setSectionRef("banner")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Banner Layouts</h2>
-            <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-              <motion.p className={styles.sectionSub} variants={staggerItem} {...scrollChildY(0)}>4 layout variants for the Posts banner slider</motion.p>
-              {BANNER_LAYOUTS.map((layout, i) => (
-                <motion.div key={layout} className={styles.bannerLayoutItem} variants={staggerItem} {...scrollChildY(i + 1)}>
+            <h2 className={styles.sectionTitle} style={{ marginBottom: 8 }}>Banner Layouts</h2>
+            <div>
+              <motion.p className={styles.sectionSub} initial="hidden" whileInView="visible" viewport={viewportOpts} variants={staggerItem} style={{ marginTop: 0, marginBottom: 24, textTransform: "none" }}>{language === "ko" ? "Posts 배너 슬라이더의 4가지 레이아웃" : "4 layout variants for the Posts banner slider"}</motion.p>
+              {BANNER_LAYOUTS.map((layout) => (
+                <motion.div key={layout} className={styles.bannerLayoutItem} initial="hidden" whileInView="visible" viewport={viewportOpts} variants={staggerItem}>
                   <span className={styles.bannerPreviewLabel}>{BANNER_LAYOUT_LABELS[layout][language]}</span>
                   <div className={styles.bannerPreviewBox}>
                     <PostsBanner
@@ -1065,7 +1134,7 @@ export default function DesignSystemPage() {
                   </div>
                 </motion.div>
               ))}
-            </motion.div>
+            </div>
           </section>
         </div>
       </div>

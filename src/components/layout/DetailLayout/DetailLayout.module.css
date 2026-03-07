@@ -167,47 +167,6 @@
   margin: 0 auto;
 }
 
-/* ── Scroll Buttons ── */
-.scrollBtns {
-  position: fixed;
-  right: var(--spacing-xl);
-  bottom: var(--spacing-xl);
-  z-index: var(--z-float);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
-}
-
-.page .scrollBtns {
-  transition: opacity var(--duration-base) var(--ease-material), transform var(--duration-base) var(--ease-material);
-}
-
-.scrollBtnsVisible {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.scrollBtn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border-secondary-color);
-  border-radius: 50%;
-  background: var(--bg-primary);
-  color: var(--text-tertiary);
-  backdrop-filter: blur(8px);
-}
-
-.scrollBtns .scrollBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
 
 @media (max-width: 1200px) {
   .toc {

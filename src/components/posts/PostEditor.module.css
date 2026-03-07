@@ -76,17 +76,6 @@
   color: var(--text-primary);
 }
 
-/* Category */
-.categoryWrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.categoryWrap select {
-  appearance: none;
-}
-
 /* Pin toggle */
 .pinToggle {
   padding: var(--spacing-xs) 0;

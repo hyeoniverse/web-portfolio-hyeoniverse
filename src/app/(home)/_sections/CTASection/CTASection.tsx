@@ -2,10 +2,12 @@
 
 import { forwardRef } from "react";
 import { motion, MotionValue } from "framer-motion";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import Button from "@/components/ui/Button";
 import Section from "@/components/ui/Section";
-import { useLanguage } from "@/providers/LanguageProvider";
+import T from "@/components/ui/T";
+import Tooltip from "@/components/ui/Tooltip";
 import type { UseMagneticReturn } from "@/hooks/useMagnetic";
 import styles from "./CTASection.module.css";
 
@@ -56,14 +58,9 @@ interface CTASectionProps {
 
 const CTASection = forwardRef<HTMLElement, CTASectionProps>(
   ({ floatX, floatY, ctaOvalX, ctaOvalY, magnetic, resumeMagnetic, onContactClick }, ref) => {
+    const { t } = useLanguage();
     const cfg = useSiteConfig();
-    const { language } = useLanguage();
-    const ko = language === "ko";
-    const ctaLabel = ko ? cfg.cta.label_ko : cfg.cta.label;
-    const ctaTitle = ko ? cfg.cta.title_ko : cfg.cta.title;
-    const ctaButton = ko ? cfg.cta.buttonText_ko : cfg.cta.buttonText;
     const resumeUrl = cfg.cta.resumeUrl;
-    const resumeText = ko ? cfg.cta.resumeButtonText_ko : cfg.cta.resumeButtonText;
 
     return (
       <Section fullHeight center clipOverflow className={styles.cta} ref={ref}>
@@ -82,13 +79,15 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
         />
 
         <div className={styles.content}>
-          <p className={`${styles.label} reveal-text`}>{ctaLabel}</p>
+          <p className={`${styles.label} reveal-text`}>
+            <T ko={cfg.cta.label_ko} en={cfg.cta.label} />
+          </p>
           <h2 className={styles.title}>
             <span className={`${styles.titleLine} reveal-text`}>
-              {ctaTitle[0]}
+              <T ko={cfg.cta.title_ko[0]} en={cfg.cta.title[0]} />
             </span>
             <span className={`${styles.titleLine} reveal-text`}>
-              {ctaTitle[1]}
+              <T ko={cfg.cta.title_ko[1]} en={cfg.cta.title[1]} />
             </span>
           </h2>
 
@@ -114,7 +113,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                 }
                 iconPosition="right"
               >
-                {ctaButton}
+                <T ko={cfg.cta.buttonText_ko} en={cfg.cta.buttonText} tooltip={t("tooltip.contact")} placement="bottom" />
               </Button>
             </motion.div>
 
@@ -143,7 +142,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                   }
                   iconPosition="right"
                 >
-                  {resumeText}
+                  <T ko={cfg.cta.resumeButtonText_ko} en={cfg.cta.resumeButtonText} tooltip={t("tooltip.resume")} placement="bottom" />
                 </Button>
               </motion.div>
             )}
@@ -169,20 +168,21 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                   const icon = SOCIAL_ICONS[link.platform];
                   const label = icon?.label ?? link.label ?? link.platform;
                   return (
-                    <a
-                      key={`${link.platform}-${i}`}
-                      className={styles.socialLink}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={label}
-                    >
-                      {icon ? (
-                        <svg viewBox="0 0 24 24"><path d={icon.path} /></svg>
-                      ) : (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={GENERIC_PATH} /></svg>
-                      )}
-                    </a>
+                    <Tooltip key={`${link.platform}-${i}`} content={label} placement="bottom">
+                      <a
+                        className={styles.socialLink}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={label}
+                      >
+                        {icon ? (
+                          <svg viewBox="0 0 24 24"><path d={icon.path} /></svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={GENERIC_PATH} /></svg>
+                        )}
+                      </a>
+                    </Tooltip>
                   );
                 })}
               </div>

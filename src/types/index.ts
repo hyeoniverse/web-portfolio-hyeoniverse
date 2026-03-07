@@ -99,7 +99,6 @@ export interface ModalOptions {
   id?: string;
   style?: CSSProperties;
   closeButton?: boolean;
-  scrollable?: boolean;
   width?: string;
   height?: string;
   background?: string;
