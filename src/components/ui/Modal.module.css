@@ -1,21 +1,23 @@
 /* ==========================================================================
-   Close Button — ContactDrawer-style rotating lines
+   Close Button — minus → X on hover
    ========================================================================== */
 
 .closeButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  border: none;
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  z-index: 1;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border-primary-color);
   border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  z-index: 4;
 }
 
 .closeIconWrapper {
@@ -29,20 +31,21 @@
 
 .closeLine {
   position: absolute;
-  width: 16px;
+  width: 14px;
   height: 1.5px;
-  background: var(--text-tertiary);
+  background: currentColor;
   border-radius: 2px;
 }
 
 /* compound (0,2,0) to beat global theme transition */
 .closeButton .closeLine {
-  transition: transform var(--duration-base) var(--ease-material),
-    background var(--duration-base) ease;
+  transition: transform var(--duration-base) var(--ease-material);
 }
 
-.closeButton:hover .closeLine {
-  background: var(--text-primary);
+.closeButton:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  border-color: var(--bg-inverse);
 }
 
 .closeButton:hover .closeLine:first-child {
@@ -81,6 +84,19 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   Modal Scroll Container
+   ========================================================================== */
+
+.modalScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 /* ==========================================================================

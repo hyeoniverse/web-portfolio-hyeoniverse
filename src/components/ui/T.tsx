@@ -12,28 +12,58 @@ import Tooltip from "./Tooltip";
    -------------------------------------------------------------------------- */
 
 interface TProps extends HTMLAttributes<HTMLSpanElement> {
-  k: string;
+  /** locale key (기존 방식) */
+  k?: string;
+  /** 직접 ko/en 값 전달 (사이트 설정 등 동적 값) */
+  ko?: string;
+  en?: string;
   delay?: number;
+  /** 설명 tooltip — 번역과 한 말풍선에 통합 */
+  tooltip?: string;
+  /** tooltip 위치 */
+  placement?: "top" | "bottom" | "auto";
+  /** ko=en 이어도 항상 번역 tooltip 표시 */
+  alwaysTooltip?: boolean;
 }
 
-export default function T({ k, delay = 600, ...rest }: TProps) {
+export default function T({ k, ko, en, delay = 600, tooltip, placement, alwaysTooltip, ...rest }: TProps) {
   const { t, tAlt, language } = useLanguage();
-  const text = t(k);
-  const altText = tAlt(k);
 
-  // 같은 텍스트이거나 번역이 없으면 tooltip 생략
-  const hasTranslation = altText !== text && altText !== k;
+  let text: string;
+  let altText: string;
 
-  if (!hasTranslation) {
+  if (ko !== undefined || en !== undefined) {
+    text = language === "ko" ? (ko ?? en ?? "") : (en ?? ko ?? "");
+    altText = language === "ko" ? (en ?? ko ?? "") : (ko ?? en ?? "");
+  } else if (k) {
+    text = t(k);
+    altText = tAlt(k);
+  } else {
+    return null;
+  }
+
+  // 같은 텍스트이거나 번역이 없으면 tooltip 생략 (alwaysTooltip 시 강제 표시)
+  const hasTranslation = alwaysTooltip || (altText !== text && (k ? altText !== k : true));
+
+  if (!hasTranslation && !tooltip) {
     return <span {...rest}>{text}</span>;
   }
 
   const langLabel = language === "ko" ? "EN" : "KO";
 
+  const tooltipContent = (
+    <>
+      {tooltip && <span>{tooltip}</span>}
+      {tooltip && hasTranslation && <br />}
+      {hasTranslation && <span>{langLabel} {altText}</span>}
+    </>
+  );
+
   return (
     <Tooltip
-      content={`${langLabel} ${altText}`}
+      content={tooltipContent}
       delay={delay}
+      placement={placement}
     >
       <span {...rest}>{text}</span>
     </Tooltip>
