@@ -1,8 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import bcrypt from "bcryptjs";
 import { getIdentity } from "@/utils/commenterIdentity";
 import { notifyAdmin } from "@/lib/adminNotify";
-import { isValidUUID, sanitizeContent, validatePassword } from "@/utils/commentValidation";
+import { notifyCommenter } from "@/lib/commenterNotify";
+import { isValidUUID, sanitizeContent, validatePassword, validateEmail, validateNickname } from "@/utils/commentValidation";
 import { jsonOk, jsonError, jsonServerError } from "./response";
 
 interface CommentHandlerOptions {
@@ -50,7 +52,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
     try {
       const body = await request.json();
       const targetId = body[foreignKey];
-      const { parent_id, commenter_id, nickname, password, content } = body;
+      const { parent_id, commenter_id, nickname, password, content, is_admin: clientIsAdmin, notify_email } = body;
 
       if (!targetId || !content) return jsonError("Missing required fields");
       if (!isValidUUID(targetId)) return jsonError(`Invalid ${foreignKey}`);
@@ -58,31 +60,99 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
 
       const contentResult = sanitizeContent(content);
       if (!contentResult.valid) return jsonError(contentResult.error!);
-      const pwResult = validatePassword(password);
-      if (!pwResult.valid) return jsonError(pwResult.error!);
 
-      const admin = createAdminClient();
+      const emailResult = validateEmail(notify_email);
+      if (!emailResult.valid) return jsonError(emailResult.error!);
 
-      if (commenter_id) {
-        const identity = getIdentity(commenter_id, targetId);
-        const passwordHash = pwResult.value ? await bcrypt.hash(pwResult.value, 10) : "";
+      const nicknameResult = validateNickname(nickname);
+      if (!nicknameResult.valid) return jsonError(nicknameResult.error!);
 
-        const { data, error } = await admin
+      const adminDb = createAdminClient();
+
+      // Admin comment — verify server-side via Supabase auth
+      if (clientIsAdmin) {
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return jsonError("Not authorized", 403);
+
+        const { data, error } = await adminDb
           .from(table)
           .insert({
             [foreignKey]: targetId,
             parent_id: parent_id || null,
-            nickname: `${identity.emoji} ${identity.name}`,
-            commenter_hash: identity.hash,
-            password_hash: passwordHash,
+            nickname: "Admin",
             content: contentResult.value,
-            is_admin: false,
+            is_admin: true,
           })
           .select(selectFieldsSafe)
           .single();
 
         if (error) return jsonServerError(error);
         const row = data as unknown as Record<string, unknown>;
+
+        // Notify parent comment author if this is a reply
+        if (parent_id) {
+          notifyCommenter({
+            table,
+            parentId: parent_id,
+            replyNickname: "Admin",
+            replyContent: contentResult.value,
+            url: notifyUrl(targetId),
+          });
+        }
+
+        notifyAdmin({
+          type: parent_id ? "reply" : "comment",
+          title: parent_id ? `Admin replied on ${notifyLabel}` : `Admin commented on ${notifyLabel}`,
+          message: `Admin: ${contentResult.value.slice(0, 200)}`,
+          metadata: { [foreignKey]: targetId, comment_id: row.id as string, url: notifyUrl(targetId) },
+        });
+
+        return jsonOk(data, 201);
+      }
+
+      const pwResult = validatePassword(password);
+      if (!pwResult.valid) return jsonError(pwResult.error!);
+
+      if (commenter_id) {
+        const identity = getIdentity(commenter_id, targetId);
+        const passwordHash = pwResult.value ? await bcrypt.hash(pwResult.value, 10) : "";
+        const displayNickname = nickname || `${identity.emoji} ${identity.name}`;
+
+        const insertData: Record<string, unknown> = {
+          [foreignKey]: targetId,
+          parent_id: parent_id || null,
+          nickname: displayNickname,
+          commenter_hash: identity.hash,
+          password_hash: passwordHash,
+          content: contentResult.value,
+          is_admin: false,
+        };
+
+        // Store notify email if provided
+        if (emailResult.value) {
+          insertData.notify_email = emailResult.value;
+        }
+
+        const { data, error } = await adminDb
+          .from(table)
+          .insert(insertData)
+          .select(selectFieldsSafe)
+          .single();
+
+        if (error) return jsonServerError(error);
+        const row = data as unknown as Record<string, unknown>;
+
+        // Notify parent comment author if this is a reply
+        if (parent_id) {
+          notifyCommenter({
+            table,
+            parentId: parent_id,
+            replyNickname: displayNickname,
+            replyContent: contentResult.value,
+            url: notifyUrl(targetId),
+          });
+        }
 
         notifyAdmin({
           type: parent_id ? "reply" : "comment",
@@ -100,7 +170,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
 
         const passwordHash = await bcrypt.hash(pwResult.value || password, 10);
 
-        const { data, error } = await admin
+        const { data, error } = await adminDb
           .from(table)
           .insert({
             [foreignKey]: targetId,
@@ -115,6 +185,16 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
 
         if (error) return jsonServerError(error);
         const row = data as unknown as Record<string, unknown>;
+
+        if (parent_id) {
+          notifyCommenter({
+            table,
+            parentId: parent_id,
+            replyNickname: nickname,
+            replyContent: contentResult.value,
+            url: notifyUrl(targetId),
+          });
+        }
 
         notifyAdmin({
           type: parent_id ? "reply" : "comment",
@@ -143,9 +223,9 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
       const patchContent = sanitizeContent(content);
       if (!patchContent.valid) return jsonError(patchContent.error!);
 
-      const admin = createAdminClient();
+      const adminDb = createAdminClient();
 
-      const { data: comment } = await admin
+      const { data: comment } = await adminDb
         .from(table)
         .select("commenter_hash, password_hash")
         .eq("id", id)
@@ -163,7 +243,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
       }
       if (!authorized) return jsonError("Not authorized", 403);
 
-      const { data, error } = await admin
+      const { data, error } = await adminDb
         .from(table)
         .update({ content: patchContent.value, updated_at: new Date().toISOString() })
         .eq("id", id)

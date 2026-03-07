@@ -354,8 +354,12 @@ ALTER TABLE comments ADD COLUMN IF NOT EXISTS commenter_hash text NOT NULL DEFAU
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS updated_at timestamptz;
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAULT 0;
 
+-- notify_email — 답글 알림용 이메일 (옵션)
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS notify_email text;
+
 -- work_comments 테이블 — 이후 추가된 컬럼
 ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAULT 0;
+ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS notify_email text;
 
 -- work_comments RLS 정책 — 이미 존재하면 무시
 DO $$
