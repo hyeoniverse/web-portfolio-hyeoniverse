@@ -138,6 +138,14 @@ export default function FloatingScene({
   scrollVelRef,
 }: FloatingSceneProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const bodyRef = useRef<THREE.Mesh>(null);
+  const leftEarRef = useRef<THREE.Mesh>(null);
+  const rightEarRef = useRef<THREE.Mesh>(null);
+  const leftArmRef = useRef<THREE.Mesh>(null);
+  const rightArmRef = useRef<THREE.Mesh>(null);
+  const leftLegRef = useRef<THREE.Mesh>(null);
+  const rightLegRef = useRef<THREE.Mesh>(null);
+  const tailRef = useRef<THREE.Mesh>(null);
   const leftEyeRef = useRef<THREE.Mesh>(null);
   const rightEyeRef = useRef<THREE.Mesh>(null);
   const leftSquintRef = useRef<THREE.Group>(null);
@@ -318,6 +326,75 @@ export default function FloatingScene({
     groupRef.current.rotation.set(rx, ry, rz);
     groupRef.current.scale.setScalar(scale);
 
+    // ── Idle animations (breathing, ear wiggle, arm/leg sway, tail wag) ──
+    // Breathing — subtle body scale pulse
+    if (bodyRef.current) {
+      const breath = 1 + Math.sin(t * 1.8) * 0.02;
+      bodyRef.current.scale.set(0.75 * breath, 0.78 * breath, 0.7 * breath);
+    }
+
+    // Ear wiggle — independent sine waves per ear
+    if (leftEarRef.current) {
+      leftEarRef.current.rotation.set(
+        0.12 + Math.sin(t * 2.3) * 0.08,
+        Math.sin(t * 1.7) * 0.05,
+        0.18 + Math.sin(t * 3.1) * 0.06,
+      );
+    }
+    if (rightEarRef.current) {
+      rightEarRef.current.rotation.set(
+        0.12 + Math.sin(t * 2.3 + 0.5) * 0.08,
+        Math.sin(t * 1.7 + 0.5) * -0.05,
+        -0.18 + Math.sin(t * 3.1 + 1) * -0.06,
+      );
+    }
+
+    // Arm sway — gentle pendulum
+    if (leftArmRef.current) {
+      leftArmRef.current.rotation.set(
+        Math.sin(t * 1.5) * 0.12,
+        0,
+        2 + Math.sin(t * 1.2) * 0.15,
+      );
+    }
+    if (rightArmRef.current) {
+      rightArmRef.current.rotation.set(
+        Math.sin(t * 1.5 + Math.PI) * 0.12,
+        0,
+        -2 + Math.sin(t * 1.2 + Math.PI) * -0.15,
+      );
+    }
+
+    // Leg sway — slight kick
+    if (leftLegRef.current) {
+      leftLegRef.current.rotation.set(
+        1.4 + Math.sin(t * 1.0) * 0.08,
+        0,
+        0.1 + Math.sin(t * 0.8) * 0.04,
+      );
+    }
+    if (rightLegRef.current) {
+      rightLegRef.current.rotation.set(
+        1.4 + Math.sin(t * 1.0 + Math.PI) * 0.08,
+        0,
+        -0.1 + Math.sin(t * 0.8 + Math.PI) * -0.04,
+      );
+    }
+
+    // Tail wag
+    if (tailRef.current) {
+      tailRef.current.position.set(
+        Math.sin(t * 4) * 0.03,
+        -0.25,
+        -0.38,
+      );
+      tailRef.current.scale.set(
+        1 + Math.sin(t * 3) * 0.1,
+        1 + Math.cos(t * 3) * 0.1,
+        1,
+      );
+    }
+
     // ── Expressions ──
     const storeExpr = useProfileSectionStore.getState().bunnyExpression;
     let showNormal: boolean;
@@ -389,7 +466,7 @@ export default function FloatingScene({
 
       <group ref={groupRef}>
         {/* ── Body (pear shape) ── */}
-        <mesh position={[0, -0.15, 0]} scale={[0.75, 0.78, 0.7]}>
+        <mesh ref={bodyRef} position={[0, -0.15, 0]} scale={[0.75, 0.78, 0.7]}>
           <latheGeometry args={[BODY_PROFILE, 24]} />
           <meshStandardMaterial
             color={BODY_COLOR}
@@ -414,6 +491,7 @@ export default function FloatingScene({
 
         {/* ── Left Ear ── */}
         <mesh
+          ref={leftEarRef}
           position={[-0.2, 0.82, -0.04]}
           rotation={[0.12, 0, 0.18]}
           scale={[1.3, 1.3, 1]}
@@ -430,6 +508,7 @@ export default function FloatingScene({
 
         {/* ── Right Ear ── */}
         <mesh
+          ref={rightEarRef}
           position={[0.2, 0.82, -0.04]}
           rotation={[0.12, 0, -0.18]}
           scale={[1.3, 1.3, 1]}
@@ -543,7 +622,7 @@ export default function FloatingScene({
         </group>
 
         {/* ── Tail ── */}
-        <mesh position={[0, -0.25, -0.38]}>
+        <mesh ref={tailRef} position={[0, -0.25, -0.38]}>
           <sphereGeometry args={[0.14, 16, 12]} />
           <meshStandardMaterial
             color={BODY_COLOR}
@@ -556,6 +635,7 @@ export default function FloatingScene({
 
         {/* ── Left Arm+Hand ── */}
         <mesh
+          ref={leftArmRef}
           position={[-0.3, -0.1, 0]}
           rotation={[0, 0, 2]}
           scale={[1, 1.6, 1]}
@@ -572,6 +652,7 @@ export default function FloatingScene({
 
         {/* ── Right Arm+Hand ── */}
         <mesh
+          ref={rightArmRef}
           position={[0.3, -0.1, 0]}
           rotation={[0, 0, -2]}
           scale={[1, 1.6, 1]}
@@ -588,6 +669,7 @@ export default function FloatingScene({
 
         {/* ── Left Leg ── */}
         <mesh
+          ref={leftLegRef}
           position={[-0.15, -0.35, 0.25]}
           rotation={[1.4, 0, 0.1]}
           scale={[0.7, 1.8, 0.7]}
@@ -604,6 +686,7 @@ export default function FloatingScene({
 
         {/* ── Right Leg ── */}
         <mesh
+          ref={rightLegRef}
           position={[0.15, -0.35, 0.25]}
           rotation={[1.4, 0, -0.1]}
           scale={[0.7, 1.8, 0.7]}

@@ -255,6 +255,13 @@ export const skillGroups: SkillGroup[] = [
           en: "I use Git with branching strategies and PR-based workflows. In VS Code, I actively use shortcuts and extensions to speed up my workflow.",
         },
       },
+      {
+        name: "QA / Review",
+        description: {
+          ko: "직접 사이트를 렌더링 검수하면서 레이아웃 깨짐, 애니메이션 이상, 반응형 미대응 같은 이슈를 잡아냅니다. 보안 검증(입력 검증, XSS, SQL Injection 방지)도 코드 레벨에서 직접 확인하고 개선합니다.",
+          en: "I personally review rendered pages to catch layout breaks, animation glitches, and responsive issues. I also verify security measures (input validation, XSS/SQL injection prevention) at the code level.",
+        },
+      },
     ],
   },
 ];

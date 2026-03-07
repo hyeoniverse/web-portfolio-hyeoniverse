@@ -83,7 +83,32 @@
       "solution": "Solution",
       "keyInsight": "Key Insight"
     },
-    "credits": "Designed & Developed with ❤ by"
+    "credits": "Designed & Developed with ❤ by",
+    "panels": {
+      "architecture": "Architecture.",
+      "backend": "Backend.",
+      "keyFeatures": "Key Features.",
+      "designProcess": "Design Process.",
+      "designSystem": "Design System.",
+      "designConcept": "Design Concept.",
+      "userFlow": "User Flow.",
+      "troubleShooting": "Trouble Shooting.",
+      "security": "Security."
+    },
+    "backend": {
+      "endpoints": "Endpoints",
+      "designDecision": "Design Decision",
+      "schema": "Schema",
+      "column": "Column",
+      "type": "Type",
+      "description": "Description"
+    },
+    "userFlow": {
+      "startEnd": "Start / End",
+      "screenAction": "Screen / Action",
+      "decision": "Decision (Yes / No)",
+      "steps": "steps"
+    }
   },
   "admin": {
     "login": {
@@ -188,6 +213,9 @@
       "presets": "Presets",
       "designSystemPreview": "Preview applied tokens and components.",
       "openDesignSystem": "Open Design System",
+      "datePickerStyle": "Date Picker Style",
+      "datePickerSpinner": "Spinner",
+      "datePickerCalendar": "Calendar",
       "typography": "Typography",
       "headingFont": "Heading Font",
       "bodyFont": "Body Font",
@@ -205,6 +233,8 @@
       "envVarSave": "Save Keys",
       "envVarSaved": "Saved",
       "envVarPlaceholder": "Enter value",
+      "enterPassword": "Enter your password",
+      "wrongPassword": "Incorrect password",
       "homeAboutIntro": "Philosophy",
       "homeAboutDescription": "Home About — Description",
       "highlightHint": "Text in {curly braces} will be highlighted",
@@ -270,6 +300,40 @@
       "passwordMismatch": "Passwords don't match",
       "noChanges": "No changes",
       "updateSuccess": "Updated successfully",
+      "emailConfirmationSent": "Confirmation emails have been sent to both your current and new email addresses. You must confirm from both to complete the change.",
+      "pendingEmailChange": "Email change pending",
+      "resendEmail": "Resend",
+      "resending": "Sending...",
+      "cancelChange": "Cancel",
+      "cancelling": "Cancelling...",
+      "emailResent": "Confirmation email has been resent.",
+      "emailChangeCancelled": "Email change has been cancelled.",
+      "linkExpired": "Expired",
+      "timeHour": "h ",
+      "timeMin": "min left",
+      "secureEmailChangeHint1": "To change your email, confirmation links must be clicked from both the current and new email addresses. (Secure email change is enabled by default and can be disabled in the Supabase dashboard.)",
+      "secureEmailChangeHint2": "Confirmation links are valid for 1 hour after sending.",
+      "securePasswordChangeHint": "When Secure password change is enabled, users must re-login to change their password if their last login was more than 24 hours ago. (Can be disabled in the Supabase dashboard.)",
+      "passwordPolicyLabel": "Password Policy",
+      "passwordPolicySecure": "Secure (8+ chars, upper/lower/number/special)",
+      "passwordPolicyDefault": "Default (6+ chars)",
+      "passwordRuleSecure": "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character.",
+      "passwordRuleDefault": "Password must be at least 6 characters. (Supabase default)",
+      "authSettingsTitle": "Authentication Settings",
+      "authSettingsDesc": "The following settings can be changed in the Supabase dashboard.",
+      "authSettingsPath1": "Authentication > [Configuration] Sign In / Providers > [Auth Providers] Email",
+      "emailTemplateLabel": "Email template customization",
+      "authSettingsPath2": "Authentication > [Notifications] Email > Templates",
+      "conflictTitle": "Updates available",
+      "conflictDesc": "Code defaults have changed but differ from saved DB values. Select items to apply the latest defaults.",
+      "conflictSelectAll": "Select all",
+      "conflictApply": "Apply selected",
+      "conflictExpand": "Show all",
+      "conflictCollapse": "Collapse",
+      "profileConflictTitle": "Profile updates available",
+      "profileConflictDesc": "Profile defaults have changed in code. You can apply the latest values per section.",
+      "profileConflictApply": "Apply",
+      "profileConflictApplyAll": "Apply all",
       "updateAccount": "Update Account",
       "cancel": "Cancel",
       "confirm": "Confirm",
@@ -543,7 +607,8 @@
     "close": "Close",
     "back": "Back",
     "next": "Next",
-    "prev": "Previous"
+    "prev": "Previous",
+    "like": "Like"
   },
   "workDetail": {
     "back": "Back",
@@ -556,7 +621,9 @@
     "challenge": "Challenge",
     "solution": "Solution",
     "visitSite": "Visit Site",
-    "team": "Team"
+    "team": "Team",
+    "previous": "Previous",
+    "next": "Next"
   },
   "comments": {
     "heading": "Comments",
@@ -583,7 +650,29 @@
     "editPlaceholder": "Edit your comment...",
     "editSubmit": "Save",
     "editing": "Saving...",
-    "passwordRequired": "Please enter your password"
+    "passwordRequired": "Please enter your password",
+    "shuffle": "Change nickname",
+    "emailNotifyTip": "Get reply notifications",
+    "emailPlaceholder": "Email for notifications"
+  },
+  "postDetail": {
+    "recommended": "Recommended for You",
+    "previous": "Previous",
+    "next": "Next",
+    "backToList": "Back to all posts",
+    "minRead": "min read",
+    "views": "views",
+    "series": "Series",
+    "more": "more"
+  },
+  "tooltip": {
+    "contact": "Opens the contact form",
+    "resume": "Download resume as PDF",
+    "viewProject": "Click to view project details",
+    "longPress": "Long press to zoom in",
+    "visitSite": "Opens the live site in a new tab",
+    "github": "Opens the GitHub repository",
+    "viewAllWorks": "Back to all works"
   },
   "errorPage": {
     "title": "Something Went Wrong",
@@ -597,6 +686,15 @@
     "signIn": "Sign In"
   },
   "profilePage": {
+    "profile": "Profile",
+    "experience": "Experience",
+    "skills": "Skills",
+    "principles": "Principles",
+    "workflow": "Workflow",
+    "certsAndAwards": "Certifications & Awards",
+    "certifications": "Certifications",
+    "awards": "Awards",
+    "devNotes": "Dev Notes",
     "bubble": {
       "0": "Hi there! ٩( ᐢᗜᐢ)ㅅ(ᐢᗜᐢ )و Scroll down to get to know me!",
       "1": "That's me! Call me Mongi! ˙ᵕ˙",

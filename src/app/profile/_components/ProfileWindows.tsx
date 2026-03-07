@@ -5,6 +5,7 @@ import { Fragment, useRef, useCallback, useState, useEffect } from "react";
 import Image from "next/image";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
+import T from "@/components/ui/T";
 import styles from "./ProfileMeSection.module.css";
 
 
@@ -318,7 +319,7 @@ export default function ProfileWindows({ className, isMobile }: Props) {
           </div>
 
           <div className={styles.magNotes}>
-            <span className={styles.magNotesTag}>Dev Notes</span>
+            <span className={styles.magNotesTag}><T k="profilePage.devNotes" /></span>
             {easterEggLines.map((row) => (
               <div key={row.label} className={styles.magInfoRow}>
                 <span className={styles.magInfoLabel}>{row.label}</span>
