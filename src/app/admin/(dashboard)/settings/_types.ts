@@ -23,5 +23,10 @@ export interface AccountTabProps {
   showPasswordConfirm: boolean;
   setShowPasswordConfirm: (v: boolean) => void;
   handleAccountUpdate: () => void;
+  pendingEmail: string | null;
+  emailChangeSentAt: string | null;
+  onCancelPendingEmail: () => void;
+  passwordPolicy: string;
+  onPasswordPolicyChange: (v: string) => void;
   styles: Record<string, string>;
 }

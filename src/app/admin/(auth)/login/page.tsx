@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
+import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Checkbox from "@/components/ui/Checkbox";
@@ -46,15 +47,11 @@ export default function AdminLoginPage() {
     }
 
     try {
-      const res = await fetch("/api/admin/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
-      if (!res.ok) {
-        const data = await res.json();
-        const key = data.code === "invalid_credentials"
+      if (authError) {
+        const key = authError.message?.includes("Invalid")
           ? "admin.login.invalidCredentials"
           : "admin.login.loginFailed";
         setError(t(key));

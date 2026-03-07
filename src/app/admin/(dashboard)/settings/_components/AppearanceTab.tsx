@@ -3,6 +3,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
+import TextLink from "@/components/ui/TextLink";
 import type { SiteConfigData } from "@/config/site.config";
 import type { SettingsTabProps } from "../_types";
 import { ColorField } from "./SettingsFormFields";
@@ -23,15 +24,9 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
       <section className={styles.section}>
         <div className={styles.sectionTitleRow}>
           <h2 className={styles.sectionTitle}>Design System</h2>
-          <a
-            href="/design-system"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.hintLink}
-            data-clickable="true"
-          >
+          <TextLink href="/design-system" external>
             <T k="admin.settings.openDesignSystem" /> ↗
-          </a>
+          </TextLink>
         </div>
         <p className={styles.sectionHint}>
           <T k="admin.settings.designSystemPreview" />
@@ -97,18 +92,30 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
         </div>
       </section>
 
+      {/* Date Picker Style */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.datePickerStyle" /></h2>
+        <div className={styles.formatSegmentRow}>
+          {(["spinner", "calendar"] as const).map((style) => (
+            <button
+              key={style}
+              type="button"
+              className={`${styles.formatSegmentBtn} ${config.datePickerStyle === style ? styles.formatSegmentBtnActive : ""}`}
+              onClick={() => setConfig((prev) => ({ ...prev, datePickerStyle: style }))}
+            >
+              <T k={`admin.settings.datePicker${style.charAt(0).toUpperCase()}${style.slice(1)}`} />
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* Typography */}
       <section className={styles.section}>
         <div className={styles.sectionTitleRow}>
           <h2 className={styles.sectionTitle}><T k="admin.settings.typography" /></h2>
-          <a
-            href="https://fonts.google.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.hintLink}
-          >
+          <TextLink href="https://fonts.google.com" external>
             Google Fonts ↗
-          </a>
+          </TextLink>
         </div>
         <p className={styles.sectionHint}>
           프리셋에서 선택하거나, 직접 입력란에 Google Fonts 이름을 입력하세요. (예: Roboto, Nanum Gothic)

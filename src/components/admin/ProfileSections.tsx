@@ -12,7 +12,7 @@ import {
 import type { DatePeriod } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
 import T from "@/components/ui/T";
-import PeriodPicker from "@/components/ui/PeriodPicker/PeriodPicker";
+import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 
 export const profileDefaults: ProfileData = {
   experiences: staticExp,

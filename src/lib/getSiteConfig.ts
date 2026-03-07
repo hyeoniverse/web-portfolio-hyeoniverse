@@ -42,9 +42,11 @@ export async function getSiteConfig(): Promise<SiteConfigData> {
       .single();
 
     if (data?.config && Object.keys(data.config).length > 0) {
+      // delta 형식: { delta: {...}, savedDefaults: {...} }
+      const dbConfig = data.config.delta ?? data.config;
       return deepMerge(
         structuredClone(siteConfig) as unknown as SiteConfigData,
-        data.config
+        dbConfig
       );
     }
   } catch {
