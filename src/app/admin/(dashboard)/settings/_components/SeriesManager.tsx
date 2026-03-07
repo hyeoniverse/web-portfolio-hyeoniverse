@@ -9,6 +9,7 @@ import type { Series } from "@/types/post";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Field from "./SettingsFormFields";
 import T from "@/components/ui/T";
+import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "../Settings.module.css";
 
 /* ── SeriesManager ── */
@@ -54,7 +55,15 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
     [seriesList, page],
   );
 
-  if (loading) return <p className={styles.fieldValue}><T k="common.loading" /></p>;
+  if (loading) return (
+    <div className={styles.seriesList}>
+      {[0, 1, 2].map((i) => (
+        <div key={i} className={styles.seriesItem} style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}>
+          <SkeletonLine width="60%" height={14} />
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className={styles.seriesList}>
@@ -374,7 +383,9 @@ function SeriesInlineEditor({
         <div className={styles.seriesPostsSection}>
           <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.posts" /> ({posts.length})</label>
           {postsLoading ? (
-            <p className={styles.seriesPostsEmpty}><T k="admin.posts.seriesModal.postsLoading" /></p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+              {[0, 1, 2].map((i) => <SkeletonLine key={i} width="100%" height={32} />)}
+            </div>
           ) : posts.length === 0 ? (
             <p className={styles.seriesPostsEmpty}><T k="admin.posts.seriesModal.postsEmpty" /></p>
           ) : (

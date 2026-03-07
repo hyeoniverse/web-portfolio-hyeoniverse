@@ -118,7 +118,11 @@ export async function getProfileData(): Promise<ProfileData> {
       return staticProfileData;
     }
 
-    const config = data.config as Record<string, unknown[]>;
+    // 새 형식: { data, savedDefaults } / 레거시: 전체 ProfileData
+    const raw = data.config as Record<string, unknown>;
+    const config = (raw.data && raw.savedDefaults
+      ? raw.data
+      : raw) as Record<string, unknown[]>;
 
     // 각 섹션에 대해 DB 데이터가 있으면 사용 (마이그레이션 적용), 없으면 정적 fallback
     return {

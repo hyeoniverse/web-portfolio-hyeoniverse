@@ -20,6 +20,7 @@ export async function GET() {
 }
 
 // PATCH /api/admin/profile — profile 데이터 저장
+// Body: { data, savedDefaults } 또는 legacy 전체 config
 export async function PATCH(request: Request) {
   const supabase = await createClient();
   const {
@@ -33,12 +34,18 @@ export async function PATCH(request: Request) {
   const body = await request.json();
   const admin = createAdminClient();
 
+  // 새 형식: { data, savedDefaults } — 그대로 저장
+  // 레거시 형식: 전체 ProfileData — 그대로 저장 (하위 호환)
+  const configToSave = body.data && body.savedDefaults
+    ? { data: body.data, savedDefaults: body.savedDefaults }
+    : body;
+
   const { error } = await admin
     .from("site_settings")
     .upsert(
       {
         id: "profile",
-        config: body,
+        config: configToSave,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "id" },

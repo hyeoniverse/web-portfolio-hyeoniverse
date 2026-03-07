@@ -119,7 +119,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       {/* Environment Variables */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.envVars" /></h2>
-        <EnvVarFields provider={config.emailService.provider} aiProvider={config.aiCover.provider} recaptchaEnabled={config.recaptcha.enabled} translateProvider={config.translation?.provider ?? "deepl"} />
+        <EnvVarFields provider={config.emailService.provider} aiProvider={config.aiCover.provider} recaptchaEnabled={config.recaptcha.enabled} translateProvider={config.translation?.provider ?? "deepl"} commentEmailNotify={config.commentEmailNotify ?? false} />
       </section>
     </>
   );

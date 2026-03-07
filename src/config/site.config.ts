@@ -192,7 +192,7 @@ export const siteConfig = {
     copyright_ko: `HYEON © ${new Date().getFullYear()}, All Rights Reserved`,
     musicCreditTitle: "Ghost Duet",
     musicCreditArtist: "Louie Zong  ",
-    musicCreditUrl: "https://youtu.be/_CzSCWpF7TM",
+    musicCreditUrl: "https://www.youtube.com/channel/UCdkkQvJoB0kGgYHCYwSkdww",
   },
 
   // ---------------------------------------------------------------------------
@@ -345,10 +345,8 @@ export const siteConfig = {
       "Built this portfolio from scratch, picking up GSAP and Framer Motion in the process. I learn best by jumping in and figuring things out as I go.",
     bioText2_ko:
       "이 포트폴리오도 직접 기획부터 개발까지 했고, 그 과정에서 GSAP, Framer Motion 같은 애니메이션 라이브러리도 익혔습니다. 모르는 건 부딪혀보면서 배우는 편입니다.",
-    bioText3:
-      "The little bunny floating around is my portfolio companion — it follows your cursor, reacts to scrolling, and comments on each section. Say hi!",
-    bioText3_ko:
-      "화면 위를 떠다니는 토끼는 이 포트폴리오의 마스코트입니다. 커서를 따라다니고, 스크롤에 반응하며, 각 섹션마다 한마디씩 남깁니다. 인사해 주세요!",
+    bioText3: "",
+    bioText3_ko: "",
     statsYearsValue: "4+",
     statsYears: "Projects",
     statsYears_ko: "프로젝트",
@@ -374,6 +372,18 @@ export const siteConfig = {
   // 댓글 이메일 알림 수신 여부 (기본: 미수신)
   // ---------------------------------------------------------------------------
   commentEmailNotify: false,
+
+  // ---------------------------------------------------------------------------
+  // 비밀번호 정책
+  // ---------------------------------------------------------------------------
+  // "secure": 8자 이상 + 대문자·소문자·숫자·특수문자 포함
+  // "default": Supabase 기본 (6자 이상)
+  passwordPolicy: "secure" as "secure" | "default",
+
+  // ---------------------------------------------------------------------------
+  // DatePicker 스타일 ("spinner" | "calendar")
+  // ---------------------------------------------------------------------------
+  datePickerStyle: "spinner" as "spinner" | "calendar",
 } as const;
 
 // 컴포넌트에서 사용하기 위한 타입 내보내기
