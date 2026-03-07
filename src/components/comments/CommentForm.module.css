@@ -31,6 +31,39 @@
   color: var(--text-secondary);
 }
 
+.shuffleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border-secondary-color);
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-circle);
+}
+
+.identity .shuffleBtn:hover {
+  color: var(--text-primary);
+}
+
+/* Admin identity */
+.adminIdentity {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.adminBadge {
+  padding: 2px var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent-alpha-20);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
 .textarea {
   padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--border-tertiary-color);
@@ -75,6 +108,7 @@
 .actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--spacing-sm);
 }
 
@@ -106,6 +140,55 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* Email notification */
+.emailNotify {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-right: auto;
+}
+
+.notifyToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.form .notifyToggle:hover {
+  color: var(--text-primary);
+}
+
+.notifyToggleOn {
+  color: var(--color-accent);
+  border-color: var(--color-accent-alpha-20);
+}
+
+.emailInput {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  width: 200px;
+}
+
+.form .emailInput:focus {
+  border-color: var(--text-primary);
+}
+
+.emailInput::placeholder {
   color: var(--text-tertiary);
 }
 

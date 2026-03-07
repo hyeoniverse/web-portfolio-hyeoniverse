@@ -68,6 +68,17 @@ export function getIdentity(commenterId: string, targetId: string): {
   return { emoji: identity.emoji, name: identity.name, hash: hashStr };
 }
 
+/** 랜덤 identity 반환 (현재 identity 제외) */
+export function getRandomIdentity(exclude?: { emoji: string; name: string }): {
+  emoji: string;
+  name: string;
+} {
+  const candidates = exclude
+    ? IDENTITIES.filter((i) => i.emoji !== exclude.emoji)
+    : [...IDENTITIES];
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
 /** commenter_hash → identity (서버에서 저장된 hash로 identity 복원) */
 export function identityFromHash(commenterHash: string): {
   emoji: string;
