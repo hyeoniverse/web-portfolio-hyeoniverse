@@ -17,6 +17,7 @@ const ALLOWED_KEYS = [
   "GEMINI_API_KEY",
   "GOOGLE_TRANSLATE_API_KEY",
   "DEEPL_API_KEY",
+  "RESEND_API_KEY",
 ] as const;
 
 // GET /api/admin/secrets — 저장된 값 조회 (마스킹)
@@ -45,7 +46,7 @@ export async function GET() {
     const dbVal = secrets[key] || "";
     const envVal = process.env[key] || "";
     if (dbVal) {
-      result[key] = { value: dbVal, source: "db" };
+      result[key] = { value: mask(dbVal), source: "db" };
     } else if (envVal) {
       result[key] = { value: mask(envVal), source: "env" };
     } else {
@@ -110,6 +111,51 @@ export async function PUT(request: Request) {
   invalidateSecretsCache();
 
   return NextResponse.json({ success: true });
+}
+
+// POST /api/admin/secrets — 비밀번호 확인 후 원본 값 반환
+export async function POST(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { password, key } = await request.json();
+  if (!password || !key) {
+    return NextResponse.json({ error: "Password and key required" }, { status: 400 });
+  }
+
+  // 비밀번호 재확인
+  const { error: authError } = await supabase.auth.signInWithPassword({
+    email: user.email!,
+    password,
+  });
+
+  if (authError) {
+    return NextResponse.json({ error: "Invalid password" }, { status: 403 });
+  }
+
+  if (!ALLOWED_KEYS.includes(key as (typeof ALLOWED_KEYS)[number])) {
+    return NextResponse.json({ error: "Invalid key" }, { status: 400 });
+  }
+
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("site_settings")
+    .select("config")
+    .eq("id", "secrets")
+    .single();
+
+  const secrets = (data?.config as Record<string, string>) ?? {};
+  const dbVal = secrets[key] || "";
+  const envVal = process.env[key] || "";
+  const value = dbVal || envVal || "";
+
+  return NextResponse.json({ value });
 }
 
 function mask(val: string): string {

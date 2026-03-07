@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isValidPostCategory } from "@/lib/api/validateCategory";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -37,6 +38,11 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const body = await request.json();
+
+  if (body.category && !(await isValidPostCategory(body.category))) {
+    return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+  }
+
   const admin = createAdminClient();
 
   const { data, error } = await admin

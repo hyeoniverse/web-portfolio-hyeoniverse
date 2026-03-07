@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isValidWorksCategory } from "@/lib/api/validateCategory";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -58,6 +59,11 @@ export async function PATCH(request: Request, context: RouteContext) {
   for (const key of Object.keys(body)) {
     if (ALLOWED_FIELDS.has(key)) filtered[key] = body[key];
   }
+  if (filtered.category_ko && filtered.category_en &&
+      !(await isValidWorksCategory(filtered.category_ko as string, filtered.category_en as string))) {
+    return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+  }
+
   filtered.updated_at = new Date().toISOString();
 
   const admin = createAdminClient();
