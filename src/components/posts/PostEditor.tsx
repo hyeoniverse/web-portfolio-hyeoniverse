@@ -573,6 +573,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               <Checkbox
                 checked={form.is_pinned}
                 onChange={(v) => updateField("is_pinned", v)}
+                shape="square"
                 label={te("pinLabel")}
               />
             </div>

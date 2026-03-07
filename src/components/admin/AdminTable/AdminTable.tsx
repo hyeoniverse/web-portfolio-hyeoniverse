@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Checkbox from "@/components/ui/Checkbox";
+import Tooltip from "@/components/ui/Tooltip";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./AdminTable.module.css";
 
@@ -24,6 +25,8 @@ export interface AdminTableLabels {
   cancel: string;
   actions: string;
   publishLabel: string;
+  publishedTooltip: string;
+  unpublishedTooltip: string;
 }
 
 export interface AdminTableProps<T extends { id: string; published: boolean }> {
@@ -46,6 +49,7 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onRowHover?: (item: T, e: React.MouseEvent) => void;
   onRowLeave?: () => void;
   onReorder?: (fromIdx: number, toIdx: number) => void;
+  showRowNumbers?: boolean;
   children?: ReactNode;
 }
 
@@ -69,6 +73,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onRowHover,
   onRowLeave,
   onReorder,
+  showRowNumbers = false,
   children,
 }: AdminTableProps<T>) {
   const router = useRouter();
@@ -79,7 +84,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   const [dropPos, setDropPos] = useState<"above" | "below">("below");
   const dragAllowedRef = useRef(false);
 
-  const effectiveGrid = onReorder ? `32px ${gridTemplate}` : gridTemplate;
+  const hasNumCol = onReorder || showRowNumbers;
+  const effectiveGrid = hasNumCol ? `32px ${gridTemplate}` : gridTemplate;
 
   const getEffectivePublished = (item: T): boolean => {
     return publishOverrides.has(item.id)
@@ -162,7 +168,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     return (
       <div className={styles.table} style={gridStyle}>
         <div className={styles.tableHeader}>
-          {onReorder && <span />}
+          {hasNumCol && <span />}
           <span />
           {columns.map((col) => (
             <span key={col.key}>{col.label}</span>
@@ -175,7 +181,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
             className={styles.row}
             style={{ pointerEvents: "none" }}
           >
-            {onReorder && (
+            {hasNumCol && (
               <span>
                 <SkeletonLine width="16px" />
               </span>
@@ -206,15 +212,17 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     <>
       <div className={styles.table} style={gridStyle}>
         <div className={styles.tableHeader}>
-          {onReorder && <span />}
+          {hasNumCol && <span />}
           <span className={styles.colCheck}>
             {onPublishAll && (
-              <Checkbox
-                checked={allChecked}
-                indeterminate={someChecked}
-                onChange={handleSelectAll}
-                label={labels.publishLabel}
-              />
+              <Tooltip content={labels.publishLabel} placement="top">
+                <Checkbox
+                  checked={allChecked}
+                  indeterminate={someChecked}
+                  onChange={handleSelectAll}
+                  shape="square"
+                />
+              </Tooltip>
             )}
           </span>
           {columns.map((col) => (
@@ -306,7 +314,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               }
               onMouseLeave={onRowLeave}
             >
-              {onReorder && (
+              {onReorder ? (
                 <span
                   className={styles.dragHandle}
                   onClick={(e) => e.stopPropagation()}
@@ -336,15 +344,22 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   </svg>
                   <span className={styles.dragNum}>{i + 1}</span>
                 </span>
-              )}
+              ) : showRowNumbers ? (
+                <span className={styles.rowNum}>
+                  <span className={styles.rowNumText}>{i + 1}</span>
+                </span>
+              ) : null}
               <span
                 className={styles.colCheck}
                 onClick={(e) => e.stopPropagation()}
               >
-                <Checkbox
-                  checked={published}
-                  onChange={() => onPublishToggle(item)}
-                />
+                <Tooltip content={published ? labels.publishedTooltip : labels.unpublishedTooltip} placement="top">
+                  <Checkbox
+                    checked={published}
+                    onChange={() => onPublishToggle(item)}
+                    shape="square"
+                  />
+                </Tooltip>
               </span>
               {columns.map((col) => (
                 <span key={col.key} className={col.className}>

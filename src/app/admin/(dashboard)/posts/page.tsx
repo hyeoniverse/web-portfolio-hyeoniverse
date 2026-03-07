@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { Post, Series } from "@/types/post";
@@ -14,8 +15,6 @@ import AdminTable, {
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
-import SeriesEditorModal from "@/components/posts/SeriesEditorModal";
-import { useCategories } from "@/hooks/useCategories";
 import styles from "./AdminPosts.module.css";
 
 const POSTS_PER_PAGE = 20;
@@ -38,10 +37,8 @@ export default function AdminPostsPage() {
   const [imgError, setImgError] = useState(false);
 
   /* Series */
-  const categories = useCategories();
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [seriesOpen, setSeriesOpen] = useState(false);
-  const [editingSeries, setEditingSeries] = useState<Series | null | undefined>(undefined);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -126,7 +123,8 @@ export default function AdminPostsPage() {
     () => [
       {
         key: "thumb",
-        label: "",
+        label: t("admin.posts.tableThumb"),
+        className: ts.colThumbWrap,
         render: (post) => (
           <div className={ts.colThumb}>
             {post.cover_image ? (
@@ -159,20 +157,6 @@ export default function AdminPostsPage() {
         skeletonWidth: "75%",
       },
       {
-        key: "status",
-        label: t("admin.posts.tableStatus"),
-        render: (_post, published) => (
-          <span
-            className={`${ts.statusBadge} ${published ? ts.published : ts.draft}`}
-          >
-            {published
-              ? <T k="admin.posts.published" />
-              : <T k="admin.posts.draft" />}
-          </span>
-        ),
-        skeletonWidth: "60px",
-      },
-      {
         key: "date",
         label: t("admin.posts.tableDate"),
         className: ts.colMeta,
@@ -199,6 +183,8 @@ export default function AdminPostsPage() {
       cancel: t("admin.posts.cancel"),
       actions: t("admin.posts.tableActions"),
       publishLabel: t("admin.posts.publishLabel"),
+      publishedTooltip: t("admin.posts.publishedTooltip"),
+      unpublishedTooltip: t("admin.posts.unpublishedTooltip"),
     }),
     [t],
   );
@@ -231,11 +217,11 @@ export default function AdminPostsPage() {
         <>
           <div className={styles.seriesGrid}>
             {seriesList.map((s) => (
-              <div
+              <Link
                 key={s.id}
+                href={`/admin/posts/series/${s.id}/edit`}
                 className={styles.seriesCard}
                 data-clickable="true"
-                onClick={() => setEditingSeries(s)}
               >
                 {s.cover_image && (
                   <div className={styles.seriesCardThumb}>
@@ -283,16 +269,15 @@ export default function AdminPostsPage() {
                     <T k="admin.posts.delete" />
                   </button>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
-          <button
-            type="button"
+          <Link
+            href="/admin/posts/series/new"
             className={styles.seriesNewBtn}
-            onClick={() => setEditingSeries(null)}
           >
             <T k="admin.posts.newSeries" />
-          </button>
+          </Link>
         </>
       )}
 
@@ -320,7 +305,8 @@ export default function AdminPostsPage() {
         onPublishToggle={toggle}
         onPublishAll={setAll}
         onDelete={handleDelete}
-        gridTemplate="40px 60px 1fr 100px 80px 80px 140px"
+        gridTemplate="40px 80px 1fr 80px 80px 140px"
+        showRowNumbers
         loading={loading}
         emptyMessage={t("admin.posts.noPostsYet")}
         labels={labels}
@@ -387,17 +373,6 @@ export default function AdminPostsPage() {
         )}
       </AdminTable>
 
-      {editingSeries !== undefined && (
-        <SeriesEditorModal
-          series={editingSeries}
-          categories={categories}
-          onSave={() => {
-            setEditingSeries(undefined);
-            fetchSeries();
-          }}
-          onClose={() => setEditingSeries(undefined)}
-        />
-      )}
     </AdminListShell>
   );
 }

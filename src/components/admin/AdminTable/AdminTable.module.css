@@ -21,6 +21,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   align-items: center;
+  white-space: nowrap;
 }
 
 .row {
@@ -87,20 +88,30 @@
 }
 
 /* ── Thumbnail ── */
+.colThumbWrap {
+  align-self: stretch;
+  margin: calc(-1 * var(--spacing-md)) 0;
+}
+
 .colThumb {
-  width: 48px;
-  height: 32px;
-  border-radius: var(--radius-xs);
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  border: 1px solid var(--border-tertiary-color);
   position: relative;
-  flex-shrink: 0;
 }
 
 .thumbImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.row .thumbImg {
+  transition: transform 0.2s ease;
+}
+
+.row:hover .thumbImg {
+  transform: scale(1.08);
 }
 
 .thumbPlaceholder {
@@ -214,6 +225,19 @@
 
 .row:hover .dragNum {
   opacity: 0;
+}
+
+/* Row number (no drag) — always visible */
+.rowNum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rowNumText {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
 }
 
 .rowDragging {
@@ -417,31 +441,22 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .tableHeader {
-    display: none;
+  .table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
+  .tableHeader,
   .row {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-lg) 0;
-    position: relative;
-    padding-right: var(--spacing-2xl);
-  }
-
-  .colTitle {
-    font-size: var(--font-size-md);
-    white-space: normal;
+    min-width: 600px;
   }
 
   .colActions {
-    margin-top: var(--spacing-xs);
+    gap: var(--spacing-2xs);
   }
 
-  .colCheck {
-    position: absolute;
-    top: var(--spacing-lg);
-    right: 0;
+  .actionBtn,
+  .deleteBtn {
+    padding: var(--spacing-2xs) var(--spacing-sm);
   }
 }
