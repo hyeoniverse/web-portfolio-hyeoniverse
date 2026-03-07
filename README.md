@@ -61,25 +61,40 @@
 | 보안 레이어 | 구현 방식 | 적용 범위 |
 |------------|-----------|----------|
 | **SQL Injection 방지** | Supabase 파라미터화 쿼리 (prepared statements) | 모든 DB 쿼리 |
-| **XSS 방지** | React JSX 자동 이스케이프 (dangerouslySetInnerHTML 미사용) | 모든 사용자 입력 렌더링 |
-| **입력 검증** | UUID 포맷 검증, 길이 제한, 제어문자 제거, 이메일 포맷 검증 | 모든 공개 API |
-| **인증** | 댓글 이중 인증 (commenter_hash + bcrypt password), Supabase Auth (admin) | 댓글 수정/삭제, 관리자 |
+| **XSS 방지** | React JSX 자동 이스케이프 + 서버 측 HTML 태그 스트리핑(`<[^>]*>` 제거) + 제어문자 제거 | 모든 사용자 입력 |
+| **입력 검증** | UUID 포맷 검증, 길이 제한, 이메일 포맷 검증, enum 타입 검증, 카테고리 화이트리스트 검증 | 모든 공개 API |
+| **인증** | 댓글 이중 인증 (commenter_hash + bcrypt password), 관리자 댓글 서버 측 Supabase Auth 재검증 | 댓글 수정/삭제, 관리자 |
 | **RLS** | Supabase Row Level Security 정책 | 모든 테이블 |
 | **경로 보호** | Layout 레벨 Supabase Auth 세션 확인 + 접근 거부 페이지 | `/admin/*` |
 | **중복 방지** | IP 기반 UNIQUE 제약조건 | 좋아요, 방문자 통계 |
-| **비밀번호 보안** | bcrypt (salt round 10), 72바이트 제한 | 댓글 비밀번호 |
+| **비밀번호 보안** | bcrypt (salt round 10), 72바이트 제한, 최소 2자 | 댓글 비밀번호 |
+| **카테고리 검증** | 서버 측 화이트리스트 검증 — 사이트 설정에 등록된 카테고리만 허용 | Posts, Works, Series |
+| **시크릿 관리** | API 키 DB 저장, `SUPABASE_SERVICE_ROLE_KEY` 서버 사이드 전용, `NEXT_PUBLIC_` 접두사만 클라이언트 노출 | 환경변수, API 키 |
+
+**서버 측 입력 정제 (`commentValidation.ts`):**
+
+| 함수 | 검증 항목 |
+|------|----------|
+| `isValidUUID()` | UUID v4 정규식 포맷 검증 |
+| `sanitizeContent()` | HTML 태그 스트리핑 + 제어문자 제거 + 2000자 길이 제한 |
+| `validatePassword()` | 최소 2자, bcrypt 72바이트 상한 |
+| `validateEmail()` | RFC 포맷 검증, 254자 제한, 소문자 정규화 |
+| `validateNickname()` | HTML 태그 스트리핑 + 제어문자 제거 + 50자 제한 |
 
 **검증 대상 API:**
 
 | 엔드포인트 | 검증 항목 |
 |-----------|----------|
-| `POST/PATCH /api/comments` | UUID, content (2000자), password (72B), 제어문자 제거 |
-| `POST/PATCH /api/work-comments` | UUID, content (2000자), password (72B), 제어문자 제거 |
+| `POST/PATCH /api/comments` | UUID, content (2000자, HTML strip), nickname (50자), password (72B), email (254자) |
+| `POST/PATCH /api/work-comments` | UUID, content (2000자, HTML strip), nickname (50자), password (72B), email (254자) |
 | `DELETE /api/comments/[id]` | UUID 포맷 검증 |
 | `DELETE /api/work-comments/[id]` | UUID 포맷 검증 |
 | `POST /api/comment-likes` | UUID, comment_type enum 검증 |
 | `GET/POST /api/posts/[id]/like` | UUID 포맷 검증 |
 | `GET/POST /api/works/[id]/like` | UUID 포맷 검증 |
+| `POST/PATCH /api/posts` | 카테고리 화이트리스트 검증 |
+| `POST/PATCH /api/works` | 카테고리 쌍(ko/en) 화이트리스트 검증 |
+| `POST/PATCH /api/series` | 카테고리 화이트리스트 검증 |
 | `POST /api/contact` | 이름 (100자), 이메일 포맷/길이, 메시지 (5000자) |
 | `POST /api/translate` | 텍스트 (2000자), targetLang enum |
 
@@ -134,6 +149,14 @@ Posts/Works 에디터의 자동저장 시 폼 전체를 JSONB snapshot으로 영
 
 **왜 둘 다 필요한가:** `commenter_hash`만 있으면 브라우저 변경 시 수정 불가. `password`만 있으면 매번 입력 필요. 병행하면 같은 브라우저에서는 자동 인증, 다른 환경에서는 비밀번호 fallback으로 UX와 보안을 모두 확보합니다.
 
+### 댓글 시스템 기능
+
+| 기능 | 설명 |
+|------|------|
+| **닉네임 셔플** | 랜덤 이모지+이름 조합, 셔플 버튼으로 변경 가능 |
+| **답글 이메일 알림** | 댓글 작성 시 이메일(선택) 입력하면 답글 알림 발송 (`notify_email` 컬럼) |
+| **관리자 댓글** | 로그인 상태에서 비밀번호 없이 Admin 뱃지로 댓글 작성, 서버 측 Supabase Auth 재검증 |
+
 ## User Flow
 
 ### 방문자 플로우
@@ -146,7 +169,7 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 
 - **Works**: 가로 스크롤 갤러리에서 프로젝트를 탐색하고, 상세 페이지에서 IP 기반 좋아요를 남길 수 있습니다
 - **Posts**: 태그/검색으로 블로그 글을 필터링할 수 있습니다. 카테고리를 선택하면 해당 카테고리의 시리즈가 책 모양 카드로 표시되며, 시리즈를 클릭하면 소속 포스트만 필터링됩니다. 상세 페이지에서 좋아요와 게스트 댓글(이중 인증: 브라우저 UUID + 비밀번호)을 남길 수 있으며, 시리즈 소속 글에서는 이전/다음 글 네비게이션이 표시됩니다
-- **About**: 가로 스크롤로 14개 패널(프로젝트 개요, 유저 플로우, 아키텍처, 기능, 디자인 컨셉, 개발 프로세스, 기술 스택, 백엔드, ERD, 코드 하이라이트, 트러블슈팅)을 순회합니다. UserFlow 패널은 9개 플로우(Visitor, Posts, Works, Profile, Contact, Comment, Admin/Settings, Admin/Settings/Appearance, Admin/Posts·Works)를 탭+SVG 다이어그램으로 시각화, ERD 패널은 DB 테이블 관계도를 인터랙티브하게 표시
+- **About**: 가로 스크롤로 15개 패널(프로젝트 개요, 유저 플로우, 아키텍처, 기능, 디자인 컨셉, 개발 프로세스, 기술 스택, 백엔드, ERD, 코드 하이라이트, 트러블슈팅, 보안)을 순회합니다. UserFlow 패널은 9개 플로우(Visitor, Posts, Works, Profile, Contact, Comment, Admin/Settings, Admin/Settings/Appearance, Admin/Posts·Works)를 탭+SVG 다이어그램으로 시각화, ERD 패널은 DB 테이블 관계도를 인터랙티브하게 표시, Security 패널은 8개 보안 레이어(SQL Injection, XSS, 입력 검증, 이중 인증, RLS, 경로 보호, 중복 방지, 시크릿 관리)를 시각화
 
 ### 관리자 플로우
 
@@ -154,7 +177,8 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 /admin 직접 접속 → Supabase Auth 로그인 → Settings 리다이렉트
 → 포스트 작성(Markdown/Rich Text 전환) → 커버 이미지 선택(프리셋/Unsplash/AI) → 시리즈 선택(선택사항) → 발행
 → 작업물 관리(/admin/works) — 생성, 수정, 삭제, 발행/비공개 전환, 정렬 순서 변경
-→ 사이트 설정(/admin/settings) — General(브랜드/로고 커스터마이징, SEO, 푸터, BGM), Content(Home/Profile/About/Posts/Works 서브탭), Appearance(테마·타이포그래피), Services(API 키 관리), Account(이메일/비밀번호 변경)
+→ 사이트 설정(/admin/settings) — General(브랜드/로고 커스터마이징, SEO, 푸터, BGM), Content(Home/Profile/About/Posts/Works 서브탭), Appearance(테마·타이포그래피·날짜 선택 스타일), Services(API 키 관리·비밀번호 확인 후 원본 노출), Account(이메일 변경 pending 관리·비밀번호 정책·보안 알림 메일)
+→ 설정 충돌 감지 — 코드 기본값 변경 시 DB 저장값과 비교하여 per-hunk diff 모달로 시각화, 저장 시 체크된 항목 자동 반영 (deepEqual 비교로 JSON 키 순서 무관)
 ```
 
 - 로그인 버튼 없이 URL 직접 접속 방식
