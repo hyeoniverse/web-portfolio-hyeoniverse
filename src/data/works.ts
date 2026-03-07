@@ -3,6 +3,7 @@ import { projects } from "./projects";
 export interface WorkItem {
   id: string;        // 그리드 내 고유 식별자 (인터랙션용)
   projectId: string; // 실제 프로젝트 ID (라우팅용)
+  title: string;
   main: string;
   hover: string;
 }
@@ -13,6 +14,7 @@ export const worksData: WorkItem[] = Array.from({ length: 11 }, (_, i) => {
   return {
     id: `work-${i}`,
     projectId: project.id,
+    title: project.title,
     main: project.image,
     hover: project.gallery[0] ?? project.image,
   };

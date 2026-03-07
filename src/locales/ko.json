@@ -83,7 +83,32 @@
       "solution": "해결",
       "keyInsight": "핵심"
     },
-    "credits": "Designed & Developed with ❤ by"
+    "credits": "Designed & Developed with ❤ by",
+    "panels": {
+      "architecture": "Architecture.",
+      "backend": "Backend.",
+      "keyFeatures": "Key Features.",
+      "designProcess": "Design Process.",
+      "designSystem": "Design System.",
+      "designConcept": "Design Concept.",
+      "userFlow": "User Flow.",
+      "troubleShooting": "Trouble Shooting.",
+      "security": "Security."
+    },
+    "backend": {
+      "endpoints": "엔드포인트",
+      "designDecision": "설계 결정",
+      "schema": "스키마",
+      "column": "컬럼",
+      "type": "타입",
+      "description": "설명"
+    },
+    "userFlow": {
+      "startEnd": "시작 / 종료",
+      "screenAction": "화면 / 액션",
+      "decision": "결정 (Yes / No)",
+      "steps": "단계"
+    }
   },
   "admin": {
     "login": {
@@ -188,6 +213,9 @@
       "presets": "프리셋",
       "designSystemPreview": "적용된 토큰·컴포넌트를 미리 확인할 수 있습니다.",
       "openDesignSystem": "Design System 미리보기",
+      "datePickerStyle": "날짜 선택 스타일",
+      "datePickerSpinner": "스피너",
+      "datePickerCalendar": "캘린더",
       "typography": "타이포그래피",
       "headingFont": "헤딩 폰트",
       "bodyFont": "본문 폰트",
@@ -205,6 +233,8 @@
       "envVarSave": "키 저장",
       "envVarSaved": "저장 완료",
       "envVarPlaceholder": "값을 입력하세요",
+      "enterPassword": "비밀번호를 입력하세요",
+      "wrongPassword": "비밀번호가 올바르지 않습니다",
       "homeAboutIntro": "철학",
       "homeAboutDescription": "홈 소개 — 상세 설명",
       "highlightHint": "{중괄호} 안의 텍스트가 강조 처리됩니다",
@@ -270,6 +300,40 @@
       "passwordMismatch": "비밀번호가 일치하지 않습니다",
       "noChanges": "변경 사항 없음",
       "updateSuccess": "업데이트 완료",
+      "emailConfirmationSent": "현재 이메일과 새 이메일 양쪽으로 확인 메일을 발송했습니다. 두 메일 모두에서 링크를 클릭해야 변경이 완료됩니다.",
+      "pendingEmailChange": "이메일 변경 대기 중",
+      "resendEmail": "재전송",
+      "resending": "전송 중...",
+      "cancelChange": "취소",
+      "cancelling": "취소 중...",
+      "emailResent": "확인 메일을 재전송했습니다.",
+      "emailChangeCancelled": "이메일 변경이 취소되었습니다.",
+      "linkExpired": "만료됨",
+      "timeHour": "시간",
+      "timeMin": "분 남음",
+      "secureEmailChangeHint1": "이메일 변경 시 기존 이메일과 새 이메일 양쪽 모두에서 확인 링크를 클릭해야 변경이 완료됩니다. (Secure email change 옵션은 기본 활성화되어 있으며, Supabase 대시보드에서 해제할 수 있습니다.)",
+      "secureEmailChangeHint2": "확인 링크는 발송 후 1시간 동안 유효합니다.",
+      "securePasswordChangeHint": "Secure password change가 활성화되어 있으면, 마지막 로그인으로부터 24시간이 지난 경우 비밀번호 변경 시 재로그인이 필요합니다. (Supabase 대시보드에서 해제할 수 있습니다.)",
+      "passwordPolicyLabel": "비밀번호 정책",
+      "passwordPolicySecure": "강화 (8자 이상 + 대소문자·숫자·특수문자)",
+      "passwordPolicyDefault": "기본 (6자 이상)",
+      "passwordRuleSecure": "비밀번호는 8자 이상이며, 대문자·소문자·숫자·특수문자를 각 1개 이상 포함해야 합니다.",
+      "passwordRuleDefault": "비밀번호는 6자 이상이어야 합니다. (Supabase 기본 설정)",
+      "authSettingsTitle": "인증 설정",
+      "authSettingsDesc": "아래 설정은 Supabase 대시보드에서 변경할 수 있습니다.",
+      "authSettingsPath1": "Authentication > [Configuration] Sign In / Providers > [Auth Providers] Email",
+      "emailTemplateLabel": "이메일 템플릿 커스터마이징",
+      "authSettingsPath2": "Authentication > [Notifications] Email > Templates",
+      "conflictTitle": "업데이트 반영 필요",
+      "conflictDesc": "코드에서 기본값이 변경되었지만, DB에 저장된 값과 다릅니다. 항목을 선택해 최신 기본값으로 업데이트할 수 있습니다.",
+      "conflictSelectAll": "전체 선택",
+      "conflictApply": "선택 항목 반영",
+      "conflictExpand": "전체 보기",
+      "conflictCollapse": "접기",
+      "profileConflictTitle": "프로필 업데이트 반영 필요",
+      "profileConflictDesc": "코드에서 프로필 기본값이 변경되었습니다. 섹션별로 최신 값을 반영할 수 있습니다.",
+      "profileConflictApply": "적용",
+      "profileConflictApplyAll": "전체 적용",
       "updateAccount": "계정 업데이트",
       "cancel": "취소",
       "confirm": "확인",
@@ -541,7 +605,8 @@
     "close": "닫기",
     "back": "뒤로",
     "next": "다음",
-    "prev": "이전"
+    "prev": "이전",
+    "like": "좋아요"
   },
   "workDetail": {
     "back": "뒤로",
@@ -554,7 +619,9 @@
     "overview": "개요",
     "challenge": "과제",
     "solution": "해결 방안",
-    "visitSite": "사이트 방문"
+    "visitSite": "사이트 방문",
+    "previous": "이전 작품",
+    "next": "다음 작품"
   },
   "comments": {
     "heading": "댓글",
@@ -581,7 +648,29 @@
     "editPlaceholder": "수정할 내용을 입력하세요...",
     "editSubmit": "수정",
     "editing": "수정 중...",
-    "passwordRequired": "비밀번호를 입력해주세요"
+    "passwordRequired": "비밀번호를 입력해주세요",
+    "shuffle": "닉네임 변경",
+    "emailNotifyTip": "답글 알림 받기",
+    "emailPlaceholder": "알림 받을 이메일"
+  },
+  "postDetail": {
+    "recommended": "함께 읽어보면 좋은 게시물",
+    "previous": "이전 글",
+    "next": "다음 글",
+    "backToList": "전체 글 보기",
+    "minRead": "분 소요",
+    "views": "조회",
+    "series": "시리즈",
+    "more": "더보기"
+  },
+  "tooltip": {
+    "contact": "연락하기 양식이 열립니다",
+    "resume": "이력서를 PDF로 다운로드합니다",
+    "viewProject": "클릭하여 프로젝트 상세 보기",
+    "longPress": "길게 누르면 확대됩니다",
+    "visitSite": "외부 사이트로 이동합니다",
+    "github": "GitHub 저장소로 이동합니다",
+    "viewAllWorks": "전체 작품 목록으로 돌아갑니다"
   },
   "errorPage": {
     "title": "문제가 발생했습니다",
@@ -595,6 +684,15 @@
     "signIn": "로그인"
   },
   "profilePage": {
+    "profile": "Profile",
+    "experience": "Experience",
+    "skills": "Skills",
+    "principles": "Principles",
+    "workflow": "Workflow",
+    "certsAndAwards": "Certifications & Awards",
+    "certifications": "Certifications",
+    "awards": "Awards",
+    "devNotes": "Dev Notes",
     "bubble": {
       "0": "안녕, 반가워! ٩( ᐢᗜᐢ)ㅅ(ᐢᗜᐢ )و 스크롤해서 나에 대해서 알아가 볼래?",
       "1": "이건 나야! 몽이라고 해! ˙ᵕ˙",

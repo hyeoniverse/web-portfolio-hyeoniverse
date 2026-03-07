@@ -14,6 +14,7 @@ import {
 import type { ProfileData } from "@/types/profile";
 import { formatPeriod } from "@/utils/formatPeriod";
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
+import T from "@/components/ui/T";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
@@ -93,13 +94,15 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
       <div className={`${styles.panel} ${styles.profilePanel}`}>
         <ProfileWindows className={styles.animate} isMobile={isMobile} />
         <div className={`${styles.profileContent} ${styles.animate}`}>
-          <h3 className={styles.sectionSubtitle}>Profile</h3>
+          <h3 className={styles.sectionSubtitle}><T k="profilePage.profile" /></h3>
           <p className={styles.bioHighlight}>
             {ko ? p.bioHighlight_ko : p.bioHighlight}
           </p>
           <p className={styles.bioText}>{ko ? p.bioText1_ko : p.bioText1}</p>
           <p className={styles.bioText}>{ko ? p.bioText2_ko : p.bioText2}</p>
-          <p className={styles.bioText}>{ko ? p.bioText3_ko : p.bioText3}</p>
+          {(ko ? p.bioText3_ko : p.bioText3) && (
+            <p className={styles.bioText}>{ko ? p.bioText3_ko : p.bioText3}</p>
+          )}
 
           <div className={styles.stats}>
             <div className={styles.stat}>
@@ -130,7 +133,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <span className={styles.decorBlob} />
         <div className={styles.panelInner}>
           <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            Experience
+            <T k="profilePage.experience" />
           </h3>
           <div className={styles.expTimeline}>
             {experiences.map((exp, index) => (
@@ -173,7 +176,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
           </span>
           <div className={styles.panelInner}>
             <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-              Skills
+              <T k="profilePage.skills" />
             </h3>
             <div className={styles.skillPanelLayout}>
               <div className={`${styles.skillPanelHeader} ${styles.animate}`}>
@@ -218,7 +221,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <span className={`${styles.decorBlob} ${styles.decorBlobAlt}`} />
         <div className={styles.panelInner}>
           <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            Principles
+            <T k="profilePage.principles" />
           </h3>
           <div className={styles.philosophyStack}>
             {philosophy.map((item, index) => (
@@ -248,7 +251,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <span className={styles.panelWatermark}>process</span>
         <div className={styles.panelInner}>
           <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            Workflow
+            <T k="profilePage.workflow" />
           </h3>
           <div className={styles.approachStack}>
             {approachSteps.map((step, index) => (
@@ -274,12 +277,12 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <span className={styles.panelWatermark}>credentials</span>
         <div className={styles.panelInner}>
           <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            Certifications & Awards
+            <T k="profilePage.certsAndAwards" />
           </h3>
           <div className={styles.credentialColumns}>
             <div className={styles.credentialColumn}>
               <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
-                {language === "ko" ? "자격증" : "Certifications"}
+                <T k="profilePage.certifications" />
               </h4>
               <div className={styles.credentialList}>
                 {certifications.map((cert, index) => (
@@ -302,7 +305,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
             </div>
             <div className={styles.credentialColumn}>
               <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
-                {language === "ko" ? "수상내역" : "Awards"}
+                <T k="profilePage.awards" />
               </h4>
               <div className={styles.credentialList}>
                 {awards.map((award, index) => (
