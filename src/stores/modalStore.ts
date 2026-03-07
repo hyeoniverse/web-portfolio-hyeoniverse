@@ -36,7 +36,6 @@ export const useModalStore = create<ModalState>((set) => ({
               width: options?.width,
               height: options?.height,
               background: options?.background,
-              overflowY: options?.scrollable ? "auto" : "hidden",
             },
             closeButton: options?.closeButton ?? true,
           },
