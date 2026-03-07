@@ -12,7 +12,6 @@ import AdminTable, {
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
-import T from "@/components/ui/T";
 
 const WORKS_PER_PAGE = 20;
 
@@ -126,7 +125,8 @@ export default function AdminWorksPage() {
     () => [
       {
         key: "thumb",
-        label: "",
+        label: t("admin.works.tableThumb"),
+        className: ts.colThumbWrap,
         render: (work) => (
           <div className={ts.colThumb}>
             {work.image ? (
@@ -153,20 +153,6 @@ export default function AdminWorksPage() {
         skeletonWidth: "65%",
       },
       {
-        key: "status",
-        label: t("admin.works.tableStatus"),
-        render: (_work, published) => (
-          <span
-            className={`${ts.statusBadge} ${published ? ts.published : ts.draft}`}
-          >
-            {published
-              ? <T k="admin.works.published" />
-              : <T k="admin.works.draft" />}
-          </span>
-        ),
-        skeletonWidth: "60px",
-      },
-      {
         key: "year",
         label: t("admin.works.tableYear"),
         className: ts.colMono,
@@ -186,6 +172,8 @@ export default function AdminWorksPage() {
       cancel: t("admin.works.cancel"),
       actions: t("admin.works.tableActions"),
       publishLabel: t("admin.works.publishLabel"),
+      publishedTooltip: t("admin.works.publishedTooltip"),
+      unpublishedTooltip: t("admin.works.unpublishedTooltip"),
     }),
     [t],
   );
@@ -211,7 +199,7 @@ export default function AdminWorksPage() {
         onPublishAll={setAll}
         onDelete={handleDelete}
         onReorder={handleDragReorder}
-        gridTemplate="40px 60px 1fr 100px 80px 140px"
+        gridTemplate="40px 80px 1fr 80px 140px"
         loading={loading}
         emptyMessage={t("admin.works.noWorksYet")}
         skeletonRows={4}

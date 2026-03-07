@@ -168,6 +168,25 @@
 }
 
 @media (max-width: 768px) {
+  .header {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .headerActions {
+    gap: var(--spacing-xs);
+  }
+
+  .saveBtn,
+  .newBtn {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+  }
+
   .previewTooltip {
     display: none;
   }
