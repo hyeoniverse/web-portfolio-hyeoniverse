@@ -140,6 +140,7 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
+  transition: gap var(--duration-moderate) var(--ease-material);
 }
 
 .actionBtn {
@@ -688,6 +689,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: max-width var(--duration-moderate) var(--ease-material),
+              opacity var(--duration-moderate) var(--ease-material);
 }
 
 /* Logout 버튼 — contactBtn과 동일하게 mix-blend-mode: difference 환경 */
@@ -729,13 +732,6 @@
   Responsive
   ========================================================================== */
 
-/* 좁은 데스크탑: navCenter gap 축소 → 겹침 방지 */
-@media (max-width: 1200px) {
-  .navCenter {
-    gap: var(--spacing-2xl);
-  }
-}
-
 @media (max-width: 1024px) {
   .navCenter {
     clip-path: inset(0 50% 0 50%);
@@ -751,9 +747,10 @@
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   .adminEmail {
-    display: none;
+    max-width: 0;
+    opacity: 0;
   }
 }
 
