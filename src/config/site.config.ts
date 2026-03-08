@@ -240,6 +240,8 @@ export const siteConfig = {
       | "cinematic"
       | "magazine",
     bannerTransition: "cylinder" as "default" | "cylinder",
+    perPage: 10,
+    adminPerPage: 20,
     categories: [
       { ko: "프론트엔드", en: "Frontend" },
       { ko: "백엔드", en: "Backend" },
@@ -256,6 +258,7 @@ export const siteConfig = {
   // Works 페이지
   // ---------------------------------------------------------------------------
   works: {
+    adminPerPage: 20,
     categories: [
       { ko: "웹", en: "Web" },
       { ko: "모바일", en: "Mobile" },

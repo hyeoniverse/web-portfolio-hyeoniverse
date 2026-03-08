@@ -468,7 +468,7 @@
   color: var(--text-secondary);
 }
 
-.pagination .pageBtn:hover:not(:disabled) {
+.pagination .pageBtn:hover:not(:disabled):not(.pageBtnActive) {
   border-color: var(--text-primary);
   color: var(--text-primary);
 }
@@ -485,8 +485,10 @@
 }
 
 .pageBtn:disabled {
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   border-color: var(--border-tertiary-color);
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .ellipsis {
@@ -494,6 +496,13 @@
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   padding: 0 var(--spacing-2xs);
+}
+
+.pageSizeSelect {
+  flex: 0 0 auto;
+  min-width: 60px;
+  max-width: 80px;
+  margin-left: var(--spacing-sm);
 }
 
 /* ── Skeleton: Card ── */
@@ -542,14 +551,21 @@
   .filterBarTop {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--spacing-sm);
   }
 
   .filterBarRight {
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
   }
 
   .searchWrap {
+    flex: 1 1 100%;
     max-width: none;
+  }
+
+  .sortGroup {
+    margin-left: auto;
   }
 
   .seriesRow {

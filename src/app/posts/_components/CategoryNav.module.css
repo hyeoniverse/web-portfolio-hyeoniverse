@@ -94,3 +94,15 @@
   background: var(--text-primary);
   border-radius: 1px;
 }
+
+@media (max-width: 768px) {
+  .btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+
+  .indicator {
+    left: var(--spacing-xs);
+    right: var(--spacing-xs);
+  }
+}
