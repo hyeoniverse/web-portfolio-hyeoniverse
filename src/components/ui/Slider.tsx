@@ -137,6 +137,30 @@ function Slider({
           data-draggable
           style={{ left: `calc(${pct(v)}% - 8px)` }}
           onPointerDown={(e) => startDrag(i, e)}
+          onKeyDown={(e) => {
+            if (disabled) return;
+            let newVal = v;
+            switch (e.key) {
+              case "ArrowRight":
+              case "ArrowUp":
+                newVal = clamp(v + step);
+                break;
+              case "ArrowLeft":
+              case "ArrowDown":
+                newVal = clamp(v - step);
+                break;
+              case "Home":
+                newVal = min;
+                break;
+              case "End":
+                newVal = max;
+                break;
+              default:
+                return;
+            }
+            e.preventDefault();
+            doUpdate(i, newVal);
+          }}
         />
       ))}
     </div>

@@ -82,6 +82,9 @@ export default function Modal() {
         >
           <motion.div
             id="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={header?.title ? `modal-title-${id}` : undefined}
             data-rounded={id === "project-detail" ? "true" : undefined}
             initial={{ opacity: 0, y: "40px" }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +100,7 @@ export default function Modal() {
                     <div className={styles.headerIcon}>{header.icon}</div>
                   )}
                   {header.title && (
-                    <h2 className={styles.modalTitle}>{header.title}</h2>
+                    <h2 id={`modal-title-${id}`} className={styles.modalTitle}>{header.title}</h2>
                   )}
                 </div>
               </div>

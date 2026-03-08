@@ -276,7 +276,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
 
     items.push(
       <div key="title" className={styles.titleCell}>
-        <h2 className={styles.titleText}>
+        <h2 className={styles.titleText} aria-hidden="true">
           Selected
           <br />
           Works
