@@ -13,9 +13,22 @@ function normalize(raw: unknown[]): BilingualCategory[] {
   );
 }
 
-const DEFAULT_CATEGORIES: BilingualCategory[] = normalize(
+export const DEFAULT_CATEGORIES: BilingualCategory[] = normalize(
   siteConfig.posts.categories as unknown as unknown[],
 );
+
+/**
+ * DB에 저장된 카테고리 값(ko)을 현재 언어에 맞게 변환.
+ * 매칭 실패 시 원본 반환.
+ */
+export function translateCategory(
+  value: string,
+  lang: "ko" | "en",
+  cats: BilingualCategory[] = DEFAULT_CATEGORIES,
+): string {
+  const found = cats.find((c) => c.ko === value || c.en === value);
+  return found ? found[lang] : value;
+}
 
 export function useCategories(): BilingualCategory[] {
   const [categories, setCategories] = useState<BilingualCategory[]>(DEFAULT_CATEGORIES);

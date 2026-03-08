@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Post } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
+import CategoryLabel from "@/components/ui/CategoryLabel";
 import styles from "./PostCard.module.css";
 
 interface PostCardProps {
@@ -70,7 +71,7 @@ export default function PostCard({
         <div className={styles.heroContent}>
           <div className={styles.badgeRow}>
             {category && (
-              <span className={styles.heroBadge}>{category}</span>
+              <span className={styles.heroBadge}><CategoryLabel category={category} /></span>
             )}
           </div>
           <h2 className={styles.heroTitle}>{displayTitle}</h2>
@@ -138,7 +139,7 @@ export default function PostCard({
             </span>
           )}
           {category && (
-            <span className={styles.categoryBadge}>{category}</span>
+            <span className={styles.categoryBadge}><CategoryLabel category={category} /></span>
           )}
         </div>
 

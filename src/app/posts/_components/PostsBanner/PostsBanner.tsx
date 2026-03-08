@@ -10,6 +10,7 @@ import { Carousel } from "@/components/ui";
 import BannerSlide from "../BannerSlide";
 import type { BannerStyle } from "../BannerSlide";
 import type { Post } from "@/types/post";
+import CategoryLabel from "@/components/ui/CategoryLabel";
 import styles from "./PostsBanner.module.css";
 
 interface PostsBannerProps {
@@ -154,7 +155,7 @@ function SplitBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
             exit={{ y: -20, opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            {post.category && <span className={styles.splitCategory}>{post.category}</span>}
+            {post.category && <span className={styles.splitCategory}><CategoryLabel category={post.category} /></span>}
             <Link href={`/posts/${post.slug}`} className={styles.splitTitleLink}>
               <h2 className={styles.splitTitle}>{title}</h2>
             </Link>
@@ -233,7 +234,7 @@ function CardsBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
                 )}
                 <div className={styles.cardOverlay} />
                 <div className={styles.cardContent}>
-                  {post.category && <span className={styles.cardCategory}>{post.category}</span>}
+                  {post.category && <span className={styles.cardCategory}><CategoryLabel category={post.category} /></span>}
                   <h2 className={styles.cardTitle}>{title}</h2>
                 </div>
               </Link>
@@ -289,7 +290,7 @@ function TickerBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
                 <div className={styles.tickerThumbFallback} />
               )}
             </div>
-            {post.category && <span className={styles.tickerCategory}>{post.category}</span>}
+            {post.category && <span className={styles.tickerCategory}><CategoryLabel category={post.category} /></span>}
             <span className={styles.tickerTitle}>{title}</span>
           </Link>
         </motion.div>
