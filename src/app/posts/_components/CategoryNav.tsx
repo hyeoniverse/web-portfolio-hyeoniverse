@@ -33,6 +33,7 @@ export default function CategoryNav({
   useEffect(() => {
     const el = navRef.current;
     if (!el) return;
+    let timer: ReturnType<typeof setTimeout>;
     const measure = () => {
       if (expandedRef.current) return;
       const buttons = el.querySelectorAll("button");
@@ -45,9 +46,13 @@ export default function CategoryNav({
       });
       setOverflowCount(hidden);
     };
-    const ro = new ResizeObserver(measure);
+    const debouncedMeasure = () => {
+      clearTimeout(timer);
+      timer = setTimeout(measure, 100);
+    };
+    const ro = new ResizeObserver(debouncedMeasure);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => { clearTimeout(timer); ro.disconnect(); };
   }, []);
 
   // extra categories (DB에 있지만 config에 없는 카테고리) 통합

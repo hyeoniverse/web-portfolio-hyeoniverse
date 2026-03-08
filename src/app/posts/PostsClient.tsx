@@ -245,32 +245,22 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   return (
     <div className={styles.page}>
       {/* ── Header ── */}
-      <motion.div
-        className={styles.header}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-      >
+      <div className={styles.header}>
         <h1 className={styles.title}>Posts.</h1>
         <p className={styles.subtitle}>
           <T k="postsPage.subtitle" />
         </p>
-      </motion.div>
+      </div>
 
       {/* ── Banner Slider ── */}
       {showBanner && (
-        <motion.div
-          className={styles.bannerSlider}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-        >
+        <div className={styles.bannerSlider}>
           <PostsBanner
             posts={pinnedPosts}
             imgErrors={imgErrors}
             onImgError={handleImgError}
           />
-        </motion.div>
+        </div>
       )}
 
       {/* Sentinel for sticky detection */}
@@ -525,15 +515,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               </div>
               <div className={styles.grid}>
                 {posts.map((post, i) => (
-                  <motion.div
+                  <div
                     key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.5,
-                      delay: Math.min(i * 0.06, 0.4),
-                      ease: [0.25, 0.1, 0.25, 1],
-                    }}
                     style={
                       i === 0 || (i === posts.length - 1 && (posts.length - 1) % 2 === 1)
                         ? { gridColumn: "1 / -1" }
@@ -547,7 +530,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                       onImgError={handleImgError}
                       imgError={imgErrors.has(post.id)}
                     />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
 

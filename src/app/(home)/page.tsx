@@ -151,17 +151,17 @@ export default function HomePage() {
         gsap.from(".hero-line", {
           y: 120,
           opacity: 0,
-          duration: 1.2,
-          stagger: 0.15,
+          duration: 0.8,
+          stagger: 0.1,
           ease: "power4.out",
-          delay: 0.3,
+          delay: 0.1,
         });
 
         gsap.from(".hero-line-decoration", {
           scaleX: 0,
-          duration: 1,
+          duration: 0.7,
           ease: "power3.inOut",
-          delay: 1,
+          delay: 0.6,
         });
 
         // Profile 섹션 등장
@@ -297,17 +297,17 @@ export default function HomePage() {
         }}
         transition={{
           y: {
-            duration: 1.2,
+            duration: 0.7,
             ease: [0.25, 0.46, 0.45, 0.94],
           },
           width: {
-            duration: 0.5,
-            delay: 1.2,
+            duration: 0.4,
+            delay: 0.7,
             ease: [0.25, 0.46, 0.45, 0.94],
           },
           borderRadius: {
-            duration: 0.5,
-            delay: 1.2,
+            duration: 0.4,
+            delay: 0.7,
             ease: [0.25, 0.46, 0.45, 0.94],
           },
         }}

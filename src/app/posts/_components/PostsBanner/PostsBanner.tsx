@@ -152,8 +152,9 @@ function SplitBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
                 src={post.cover_image}
                 alt={title}
                 fill
-                sizes="50vw"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className={styles.splitImg}
+                loading="lazy"
                 onError={() => onImgError(post.id)}
               />
             ) : (
@@ -248,8 +249,9 @@ function CardsBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
                     src={post.cover_image}
                     alt={title}
                     fill
-                    sizes="60vw"
+                    sizes="(max-width: 768px) 90vw, 60vw"
                     className={styles.cardImg}
+                    loading="lazy"
                     onError={() => onImgError(post.id)}
                   />
                 ) : (
