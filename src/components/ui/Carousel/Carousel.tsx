@@ -8,7 +8,7 @@ import {
   Children,
   type ReactNode,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import styles from "./Carousel.module.css";
 
 export interface CarouselProps {
@@ -45,22 +45,20 @@ export default function Carousel({
   const isSingle = count <= 1;
 
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(1);
   const [paused, setPaused] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const goTo = useCallback(
-    (index: number, dir?: number) => {
+    (index: number, _dir?: number) => {
       if (isSingle) return;
       const newIdx = loop
         ? wrap(index, count)
         : Math.max(0, Math.min(index, count - 1));
-      setDirection(dir ?? (index > current ? 1 : -1));
       setCurrent(newIdx);
       setProgressKey((k) => k + 1);
     },
-    [count, loop, isSingle, current],
+    [count, loop, isSingle],
   );
 
   const goNext = useCallback(() => goTo(current + 1, 1), [current, goTo]);
@@ -85,13 +83,17 @@ export default function Carousel({
   const handleMouseEnter = pauseOnHover ? () => setPaused(true) : undefined;
   const handleMouseLeave = pauseOnHover ? () => setPaused(false) : undefined;
 
-  /* ── Cylinder visible slides ── */
-  const cylinderSlides = isSingle
-    ? []
-    : [-1, 0, 1].map((offset) => ({
-        idx: wrap(current + offset, count),
-        offset,
-      }));
+  /* ── Cylinder: 각 슬라이드의 offset 계산 ── */
+  const getCylinderOffset = useCallback(
+    (i: number) => {
+      const diff = ((i - current) % count + count) % count;
+      if (diff === 0) return 0;
+      if (diff === 1) return 1;
+      if (diff === count - 1) return -1;
+      return diff <= count / 2 ? 2 : -2;
+    },
+    [current, count],
+  );
 
   /* ── Single slide ── */
   if (isSingle) {
@@ -114,60 +116,38 @@ export default function Carousel({
     >
       <div className={styles.viewportWrap}>
         {mode === "default" ? (
-          /* ── Default Mode — connected flow (no mode="wait") ── */
+          /* ── Default Mode — 모든 슬라이드 동시 렌더 + CSS opacity 전환 ── */
           <div className={styles.viewport} style={viewportStyle}>
-            <AnimatePresence initial={false} custom={direction}>
-              <motion.div
-                key={current}
-                custom={direction}
-                variants={{
-                  enter: (d: number) => ({ x: `${d * 100}%` }),
-                  center: { x: "0%" },
-                  exit: (d: number) => ({ x: `${-d * 100}%` }),
-                }}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className={styles.slide}
-                transition={{
-                  type: "tween",
-                  duration: 0.6,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
+            {slides.map((slide, i) => (
+              <div
+                key={i}
+                className={`${styles.slide} ${i === current ? styles.slideActive : ""}`}
+                aria-hidden={i !== current}
               >
-                <div className={styles.slideInner}>{slides[current]}</div>
-              </motion.div>
-            </AnimatePresence>
+                <div className={styles.slideInner}>{slide}</div>
+              </div>
+            ))}
           </div>
         ) : (
-          /* ── Cylinder Mode (3D) — slides flow together ── */
+          /* ── Cylinder Mode (3D) — 모든 슬라이드 동시 렌더 ── */
           <div
             className={`${styles.viewport} ${styles.viewport3d}`}
             style={viewportStyle}
           >
-            <AnimatePresence initial={false}>
-              {cylinderSlides.map(({ idx, offset }) => (
+            {slides.map((slide, i) => {
+              const offset = getCylinderOffset(i);
+              const isVisible = Math.abs(offset) <= 1;
+              return (
                 <motion.div
-                  key={idx}
+                  key={i}
                   className={styles.cylinder}
-                  initial={{
-                    x: direction > 0 ? "80%" : "-80%",
-                    rotateY: direction > 0 ? -50 : 50,
-                    scale: 0.65,
-                    opacity: 0,
-                  }}
+                  initial={false}
                   animate={{
                     x: `${offset * 58}%`,
                     rotateY: offset * -40,
                     scale: offset === 0 ? 1 : 0.78,
-                    opacity: 1,
-                    zIndex: offset === 0 ? 2 : 1,
-                  }}
-                  exit={{
-                    x: direction > 0 ? "-80%" : "80%",
-                    rotateY: direction > 0 ? 50 : -50,
-                    scale: 0.65,
-                    opacity: 0,
+                    opacity: isVisible ? 1 : 0,
+                    zIndex: offset === 0 ? 2 : isVisible ? 1 : 0,
                   }}
                   transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                   onClick={
@@ -178,12 +158,15 @@ export default function Carousel({
                         : undefined
                   }
                   data-clickable={offset !== 0 ? "true" : undefined}
+                  style={{ pointerEvents: isVisible ? "auto" : "none" }}
                 >
-                  <div className={styles.slideInner}>{slides[idx]}</div>
-                  {offset !== 0 && <div className={styles.cylinderOverlay} />}
+                  <div className={styles.slideInner}>{slide}</div>
+                  {offset !== 0 && isVisible && (
+                    <div className={styles.cylinderOverlay} />
+                  )}
                 </motion.div>
-              ))}
-            </AnimatePresence>
+              );
+            })}
           </div>
         )}
 
