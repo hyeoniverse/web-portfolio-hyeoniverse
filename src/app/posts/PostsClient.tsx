@@ -13,10 +13,16 @@ import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
+import Select from "@/components/ui/Select";
 import styles from "./Posts.module.css";
 
-const POSTS_PER_PAGE = 12;
+const PAGE_SIZE_OPTIONS = [
+  { value: "10", label: "10" },
+  { value: "20", label: "20" },
+  { value: "50", label: "50" },
+];
 
 interface PostsClientProps {
   initialData: InitialPostsData;
@@ -25,6 +31,7 @@ interface PostsClientProps {
 export default function PostsClient({ initialData }: PostsClientProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
   const { t } = useLanguage();
+  const siteConf = useSiteConfig();
   const [posts, setPosts] = useState<Post[]>(initialData.posts);
   const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
   const [loading, setLoading] = useState(false);
@@ -34,6 +41,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
   const [sort, setSort] = useState<"newest" | "oldest" | "popular">("newest");
+  const [perPage, setPerPage] = useState(siteConf.posts.perPage ?? 10);
   const [activeSeries, setActiveSeries] = useState<string | null>(null);
   const [seriesList, setSeriesList] = useState<Series[]>(initialData.seriesList);
   const [page, setPage] = useState(1);
@@ -170,14 +178,14 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     if (activeSeries) params.set("series_id", activeSeries);
     params.set("sort", sort);
     params.set("page", String(page));
-    params.set("limit", String(POSTS_PER_PAGE));
+    params.set("limit", String(perPage));
 
     const res = await fetch(`/api/posts?${params}`);
     const data = await res.json();
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [search, activeCategory, activeTag, activeSeries, sort, page]);
+  }, [search, activeCategory, activeTag, activeSeries, sort, page, perPage]);
 
   // Fetch series when category changes
   useEffect(() => {
@@ -578,6 +586,12 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   >
                     &rarr;
                   </button>
+                  <Select
+                    value={String(perPage)}
+                    options={PAGE_SIZE_OPTIONS}
+                    onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+                    className={styles.pageSizeSelect}
+                  />
                 </div>
               )}
             </>
