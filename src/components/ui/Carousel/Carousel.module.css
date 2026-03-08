@@ -32,6 +32,22 @@
 .slide {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Compound selector (0,2,0) — global theme transition 우회 */
+.viewport .slide {
+  transition: opacity 0.4s ease;
+}
+
+/* Active slide */
+.slideActive {
+  opacity: 1;
+  z-index: 1;
+  pointer-events: auto;
 }
 
 /* ── Slide inner — fill parent ── */
