@@ -41,8 +41,8 @@
 - **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Layout 레벨 인증으로 `/admin` 경로 보호, 미인증 시 접근 거부 페이지 표시. 로그인 페이지 i18n 지원, 이메일 기억 기능, Input/Checkbox 공통 컴포넌트 활용. 네비게이션에 Admin 배지 + 관리자 이메일 표시. 삭제 시 제목 입력 확인 모달, 발행 상태 토글 체크박스
 - **사이트 콘텐츠 관리**: Admin Settings에서 5개 탭(General, Content, Appearance, Services, Account)으로 관리. General 탭에서 브랜드(로고 텍스트·이미지 URL·다크모드 전용 로고·로고 색상·글리치 효과 on/off), SEO, 푸터 저작권, BGM 파일 업로드 및 음원 출처(곡명·아티스트·URL) 관리. 입력 필드에 힌트(placeholder + 설명 텍스트)를 제공하여 각 설정의 용도를 안내. Content 탭은 사이드 네비게이션으로 Home/Profile/About/Posts/Works 서브탭 분리. Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. Services 탭에서 API 키(환경변수)를 DB에 저장·관리하고, 번역 프로바이더(DeepL/Google/Gemini) 선택 가능. Account 탭에서 관리자 이메일/비밀번호 변경 지원(비밀번호 확인 모달). Settings 저장 시 BroadcastChannel로 다른 탭 자동 새로고침. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
 - **자동 번역**: 에디터에서 언어 전환 시 대상 언어가 비어있으면 자동 번역. DeepL API Free(기본), Google Cloud Translation, Gemini 2.0 Flash 중 Settings에서 선택. 재번역 버튼으로 전체/개별 필드 재번역 가능. 번역 중 언어 토글 차단으로 중복 요청 방지
-- **이중언어 카테고리 관리**: Posts와 Works 카테고리를 `{ ko, en }` 이중언어 쌍으로 관리. Admin Settings의 Content 탭에서 추가/삭제/드래그 순서 변경 가능. 카테고리 삭제 시 소속 포스트를 시리즈 단위/개별로 일괄 재할당하는 모달. DB에는 `ko` 값을 저장하고, 기존 `string[]` 형식과 자동 호환(정규화). 공개 페이지(CategoryNav)와 에디터(PostEditor, WorkEditor, SeriesEditorModal)에서 현재 언어에 맞는 라벨 표시
-- **시리즈 편집 모달**: Post 에디터에서 시리즈 선택 후 Edit 버튼으로 제목/설명/커버 이미지/카테고리/발행 상태를 인라인 모달에서 편집 가능. 커버 이미지는 CoverImagePicker(프리셋/Unsplash/AI)로 선택 가능. 시리즈 내 포스트 목록 표시·드래그 순서 변경·연결 해제 지원. 신규 시리즈 생성도 모달로 처리. Settings 시리즈 목록은 페이지당 5개씩 페이징 처리
+- **이중언어 카테고리 관리**: Posts와 Works 카테고리를 `{ ko, en }` 이중언어 쌍으로 관리. Admin Settings의 Content 탭에서 추가/삭제/드래그 순서 변경 가능. 카테고리 삭제 시 소속 포스트를 시리즈 단위/개별로 일괄 재할당하는 모달. DB에는 `ko` 값을 저장하고, 기존 `string[]` 형식과 자동 호환(정규화). 공개 페이지는 `CategoryLabel` 컴포넌트와 `translateCategory()` 유틸로 현재 언어에 맞게 표시. 에디터(PostEditor, WorkEditor, SeriesEditor)에서도 이중언어 라벨 지원
+- **시리즈 편집 페이지**: Posts 관리 페이지에서 시리즈 카드 클릭 시 전용 편집 페이지(`/admin/posts/series/[id]/edit`)로 이동. 제목/설명/커버 이미지/카테고리/발행 상태를 AdminEditorShell 레이아웃에서 편집. 커버 이미지는 CoverImagePicker(프리셋/Unsplash/AI)로 선택 가능. 시리즈 내 포스트 목록 표시·순서 변경·연결 해제 지원. 신규 시리즈 생성도 전용 페이지(`/admin/posts/series/new`)로 처리. Settings 시리즈 목록은 페이지당 5개씩 페이징 처리
 - **에디터 리비전 히스토리**: Posts/Works 에디터의 자동저장 시 `revisions` DB 테이블에 폼 전체를 JSONB snapshot으로 영구 저장. 탭을 닫거나 다른 기기에서 접속해도 리비전 히스토리 유지. 목록 조회 시 snapshot 제외로 경량 로딩, 상세 보기 시 lazy fetch. 현재 폼과의 diff(LCS 기반 라인 비교) 표시, Revert 버튼으로 초기 상태 복원. 개별 리비전 삭제 지원(리스트·상세 뷰). 상세 보기에서 카테고리·태그·시리즈 등 메타 항목도 diff 비교 표시. 이전 snapshot과 동일하면 저장 스킵(중복 방지). 엔티티당 50개 초과 시 자동 정리
 - **CTA 이력서 다운로드**: Home 페이지 CTA 영역에 이력서 다운로드 버튼 표시. Admin Settings에서 PDF 업로드(5MB 제한, Supabase Storage) 및 버튼 텍스트 한/영 편집 가능. `resumeUrl`이 비어있으면 버튼 미표시
 - **소셜 링크 관리**: CTA 영역에 소셜 아이콘(GitHub, LinkedIn, Blog, X, Instagram, YouTube, Behance, Dribbble, Custom) 표시. Admin Settings에서 순서 변경·추가·삭제 가능(최대 6개). `socialLinks` 배열과 기존 `social` 객체 자동 호환
@@ -328,10 +328,12 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 **로그인 후 사용 가능한 기능:**
 
-- `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기)
+- `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기, 행 번호, 썸네일)
 - `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환, 자동 번역, 재번역, 자동 저장 + DB 리비전 히스토리 + diff 비교 + Revert)
 - `/admin/posts/[id]/edit` — 기존 포스트 수정
-- `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서)
+- `/admin/posts/series/new` — 새 시리즈 생성
+- `/admin/posts/series/[id]/edit` — 시리즈 편집
+- `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서, 썸네일)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
 - `/admin/works/[id]/edit` — 기존 작업물 수정
 - `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경
