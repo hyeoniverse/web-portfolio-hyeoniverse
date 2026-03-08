@@ -11,7 +11,8 @@ import { useSoundStore } from "@/stores/soundStore";
 import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { createClient as createSupabaseClient } from "@/lib/supabase/client";
+// Supabase client는 admin 페이지에서만 동적으로 로드 (630KB 번들 절약)
+const loadSupabaseClient = () => import("@/lib/supabase/client").then(m => m.createClient());
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
@@ -82,14 +83,17 @@ export default function Navigation() {
   const [adminEmail, setAdminEmail] = useState("");
   useEffect(() => {
     if (!isAdminPage) return;
-    const supabase = createSupabaseClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setAdminEmail(data.user?.email ?? "");
+    let subscription: { unsubscribe: () => void } | undefined;
+    loadSupabaseClient().then((supabase) => {
+      supabase.auth.getUser().then(({ data }) => {
+        setAdminEmail(data.user?.email ?? "");
+      });
+      const { data: { subscription: sub } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setAdminEmail(session?.user?.email ?? "");
+      });
+      subscription = sub;
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAdminEmail(session?.user?.email ?? "");
-    });
-    return () => subscription.unsubscribe();
+    return () => subscription?.unsubscribe();
   }, [isAdminPage]);
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
@@ -309,7 +313,7 @@ export default function Navigation() {
   };
 
   const handleLogout = useCallback(async () => {
-    const supabase = createSupabaseClient();
+    const supabase = await loadSupabaseClient();
     await supabase.auth.signOut();
     router.push("/admin/login");
     router.refresh();
@@ -546,6 +550,7 @@ export default function Navigation() {
               langAnimTimer.current = setTimeout(() => setIsLangAnimating(false), 300);
             }}
             aria-label={`${language === "ko" ? "KO" : "EN"} - Switch to ${language === "ko" ? "English" : "Korean"}`}
+            aria-pressed={language === "ko"}
           >
             <span className={`${styles.langText} ${isLangAnimating && !isLangClicking ? styles.animating : ""} ${isLangClicking ? styles.clicking : ""}`}>
               {displayLang === "ko" ? "KO" : "EN"}
@@ -563,6 +568,7 @@ export default function Navigation() {
                 onMouseEnter={() => { setIsSoundHovered(true); setShowSoundTip(false); }}
                 onMouseLeave={() => { isSoundLocked.current = false; setIsSoundHovered(false); }}
                 aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
+                aria-pressed={!isMuted}
               >
               <span className={`${styles.soundIconWrapper} ${isSoundClicking ? styles.clicking : ""}`}>
                 <svg
@@ -597,6 +603,7 @@ export default function Navigation() {
             onMouseEnter={handleThemeMouseEnter}
             onMouseLeave={handleThemeMouseLeave}
             aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            aria-pressed={theme === "dark"}
           >
           <span className={`${styles.themeIconWrapper} ${isThemeAnimating && !isThemeClicking ? styles.animating : ""} ${isThemeClicking ? styles.clicking : ""}`}>
             {displayTheme === "dark" ? (
@@ -638,6 +645,7 @@ export default function Navigation() {
             className={`${styles.actionBtn} ${styles.menuBtn}`}
             onClick={() => setIsMenuOpen((v) => !v)}
             aria-label="Menu"
+            aria-expanded={isMenuOpen}
           >
             <span className={styles.menuDots}>
               <span className={styles.menuDot} />
