@@ -44,6 +44,7 @@ export default function ContactInfoCards({
           <h3 className={styles.emailTitle}><T k={isMobile ? "contact.drawer.emailTitleMobile" : "contact.drawer.emailTitle"} /></h3>
           <button
             className={`${styles.emailAddress} ${copied ? styles.emailAddressCopied : ""}`}
+            aria-label={copied ? "Email copied" : "Copy email to clipboard"}
             onClick={() => {
               navigator.clipboard?.writeText(siteConfig.contact.email);
               setCopied(true);
@@ -52,6 +53,7 @@ export default function ContactInfoCards({
           >
             <span
               className={`${styles.emailTextWrapper} ${copied ? styles.hiddenKeepSpace : ""}`}
+              aria-hidden={copied}
             >
               {siteConfig.contact.email}
               <svg
@@ -67,6 +69,7 @@ export default function ContactInfoCards({
             </span>
             <span
               className={`${styles.copiedText} ${copied ? "" : styles.hidden}`}
+              aria-hidden={!copied}
             >
               <T k="contact.drawer.copied" />
               <svg

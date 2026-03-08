@@ -255,6 +255,9 @@ export default function ContactDrawer({
           <div
             ref={drawerRef}
             className={styles.drawer}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Contact form"
           >
             {/* 닫기 버튼 */}
             <button
@@ -391,9 +394,8 @@ export default function ContactDrawer({
                       </div>
 
                       <div className={styles.formFooter}>
-                        <div
+                        <label
                           className={styles.privacy}
-                          onClick={() => setPrivacyAccepted(!privacyAccepted)}
                           data-clickable="true"
                         >
                           <input
@@ -403,7 +405,6 @@ export default function ContactDrawer({
                             onChange={(e) =>
                               setPrivacyAccepted(e.target.checked)
                             }
-                            onClick={(e) => e.stopPropagation()}
                             data-clickable="true"
                           />
                           <span>
@@ -435,7 +436,7 @@ export default function ContactDrawer({
                               </>
                             )}
                           </span>
-                        </div>
+                        </label>
                       </div>
 
                       {recaptchaEnabled && recaptchaVersion === "v2" && (
