@@ -3,15 +3,24 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { formatPostTitle } from "@/utils/post";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import { Carousel } from "@/components/ui";
 import BannerSlide from "../BannerSlide";
 import type { BannerStyle } from "../BannerSlide";
 import type { Post } from "@/types/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import styles from "./PostsBanner.module.css";
+
+const PlaceholderIcon = ({ size = 48 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21 15 16 10 5 21" />
+  </svg>
+);
 
 interface PostsBannerProps {
   posts: Post[];
@@ -100,80 +109,92 @@ function FullwidthBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
   );
 }
 
-/* ── Slide animation variants ── */
-const slideVariants = {
-  enter: (d: number) => ({ x: d > 0 ? "100%" : "-100%" }),
-  center: { x: 0 },
-  exit: (d: number) => ({ x: d > 0 ? "-100%" : "100%" }),
-};
-
-/* ── 2. Split (좌 이미지 / 우 텍스트) ── */
+/* ── 2. Split (가로 슬라이드 카드 — 무한 루프) ── */
 function SplitBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
-  const { index, direction, go, pause, resume } = useAutoSlide(posts.length, 5000);
-  const post = posts[index];
-  const title = formatPostTitle(post);
+  const { language } = useLanguage();
+  const { index, go, pause, resume } = useAutoSlide(posts.length, 5000);
+  const len = posts.length;
+
+  // 릴 위치: 마지막→처음 이동 시 복제 슬라이드(len번째)로 이동 후 점프
+  const [pos, setPos] = useState(0);
+  const [animate, setAnimate] = useState(true);
+  const prevIndex = useRef(0);
+
+  useEffect(() => {
+    const prev = prevIndex.current;
+    prevIndex.current = index;
+
+    // 마지막→처음 (순방향 순환)
+    if (prev === len - 1 && index === 0) {
+      setAnimate(true);
+      setPos(len); // 복제 슬라이드로 슬라이드
+      // 트랜지션 완료 후 0으로 점프
+      const timer = setTimeout(() => {
+        setAnimate(false);
+        setPos(0);
+      }, 620);
+      return () => clearTimeout(timer);
+    }
+
+    setAnimate(true);
+    setPos(index);
+  }, [index, len]);
+
+  const renderSlide = (post: Post, key: string) => {
+    const title = formatPostTitle(post, language);
+    const excerpt = getPostExcerpt(post, language);
+    return (
+      <div key={key} className={styles.split}>
+        <div className={styles.splitImage}>
+          <Link href={`/posts/${post.slug}`} className={styles.splitImageLink}>
+            {post.cover_image && !imgErrors.has(post.id) ? (
+              <Image
+                src={post.cover_image}
+                alt={title}
+                fill
+                sizes="50vw"
+                className={styles.splitImg}
+                onError={() => onImgError(post.id)}
+              />
+            ) : (
+              <div className={styles.splitFallback}><PlaceholderIcon /></div>
+            )}
+          </Link>
+        </div>
+        <div className={styles.splitContent}>
+          {post.category && <span className={styles.splitCategory}><CategoryLabel category={post.category} /></span>}
+          <Link href={`/posts/${post.slug}`} className={styles.splitTitleLink}>
+            <h2 className={styles.splitTitle}>{title}</h2>
+          </Link>
+          {excerpt && <p className={styles.splitExcerpt}>{excerpt}</p>}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className={styles.split} onMouseEnter={pause} onMouseLeave={resume}>
-      <div className={styles.splitImage}>
-        <AnimatePresence initial={false} custom={direction}>
-          <motion.div
-            key={post.id}
-            className={styles.splitImageInner}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
-          >
-            <Link href={`/posts/${post.slug}`}>
-              {post.cover_image && !imgErrors.has(post.id) ? (
-                <Image
-                  src={post.cover_image}
-                  alt={title}
-                  fill
-                  sizes="50vw"
-                  className={styles.splitImg}
-                  onError={() => onImgError(post.id)}
-                />
-              ) : (
-                <div className={styles.splitFallback} />
-              )}
-            </Link>
-          </motion.div>
-        </AnimatePresence>
+    <div className={styles.splitWrap} onMouseEnter={pause} onMouseLeave={resume}>
+      <div className={styles.splitTrack}>
+        <div
+          className={`${styles.splitReel} ${animate ? styles.splitReelAnimated : ""}`}
+          style={{ transform: `translateX(-${pos * 100}%)` }}
+        >
+          {posts.map((post) => renderSlide(post, post.id))}
+          {/* 첫 번째 복제본 — 무한 루프용 */}
+          {renderSlide(posts[0], "clone-first")}
+        </div>
       </div>
 
-      <div className={styles.splitContent}>
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={post.id}
-            custom={direction}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -20, opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-          >
-            {post.category && <span className={styles.splitCategory}><CategoryLabel category={post.category} /></span>}
-            <Link href={`/posts/${post.slug}`} className={styles.splitTitleLink}>
-              <h2 className={styles.splitTitle}>{title}</h2>
-            </Link>
-            {post.excerpt && <p className={styles.splitExcerpt}>{post.excerpt}</p>}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* dots */}
-        <div className={styles.splitDots}>
-          {posts.map((p, i) => (
-            <button
-              key={p.id}
-              className={`${styles.splitDot} ${i === index ? styles.splitDotActive : ""}`}
-              onClick={() => go(i)}
-              aria-label={`Slide ${i + 1}`}
-            />
-          ))}
-        </div>
+      {/* dots */}
+      <div className={styles.splitDots}>
+        {posts.map((p, i) => (
+          <button
+            key={p.id}
+            className={`${styles.splitDot} ${i === index ? styles.splitDotActive : ""}`}
+            onClick={() => go(i)}
+            aria-label={`Slide ${i + 1}`}
+          />
+        ))}
       </div>
     </div>
   );
@@ -181,6 +202,7 @@ function SplitBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
 
 /* ── 3. Cards (중앙 포커스 카드) ── */
 function CardsBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
+  const { language } = useLanguage();
   const { index, go, pause, resume } = useAutoSlide(posts.length, 4000);
 
   const getOffset = (i: number) => {
@@ -199,12 +221,13 @@ function CardsBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
           const offset = getOffset(i);
           const isCenter = offset === 0;
           const isVisible = Math.abs(offset) <= 1;
-          const title = formatPostTitle(post);
+          const title = formatPostTitle(post, language);
 
           return (
             <motion.div
               key={post.id}
               className={`${styles.card} ${isCenter ? styles.cardCenter : ""}`}
+              initial={false}
               animate={{
                 x: `${offset * 85}%`,
                 scale: isCenter ? 1 : 0.85,
@@ -230,7 +253,7 @@ function CardsBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
                     onError={() => onImgError(post.id)}
                   />
                 ) : (
-                  <div className={styles.cardFallback} />
+                  <div className={styles.cardFallback}><PlaceholderIcon /></div>
                 )}
                 <div className={styles.cardOverlay} />
                 <div className={styles.cardContent}>
@@ -257,44 +280,71 @@ function CardsBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
   );
 }
 
-/* ── 4. Ticker (미니멀 바) ── */
+/* ── 4. Ticker (미니멀 바 — 무한 루프) ── */
 function TickerBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
-  const { index, direction, go } = useAutoSlide(posts.length, 3000);
-  const post = posts[index];
-  const title = formatPostTitle(post);
+  const { language } = useLanguage();
+  const { index, go } = useAutoSlide(posts.length, 3000);
+  const len = posts.length;
+
+  const [pos, setPos] = useState(0);
+  const [animate, setAnimate] = useState(true);
+  const prevIndex = useRef(0);
+
+  useEffect(() => {
+    const prev = prevIndex.current;
+    prevIndex.current = index;
+
+    if (prev === len - 1 && index === 0) {
+      setAnimate(true);
+      setPos(len);
+      const timer = setTimeout(() => {
+        setAnimate(false);
+        setPos(0);
+      }, 420);
+      return () => clearTimeout(timer);
+    }
+
+    setAnimate(true);
+    setPos(index);
+  }, [index, len]);
+
+  const renderItem = (post: Post, key: string) => {
+    const title = formatPostTitle(post, language);
+    return (
+      <div key={key} className={styles.tickerInner}>
+        <Link href={`/posts/${post.slug}`} className={styles.tickerLink}>
+          <div className={styles.tickerThumb}>
+            {post.cover_image && !imgErrors.has(post.id) ? (
+              <Image
+                src={post.cover_image}
+                alt={title}
+                fill
+                sizes="56px"
+                className={styles.tickerThumbImg}
+                onError={() => onImgError(post.id)}
+              />
+            ) : (
+              <div className={styles.tickerThumbFallback}><PlaceholderIcon size={24} /></div>
+            )}
+          </div>
+          {post.category && <span className={styles.tickerCategory}><CategoryLabel category={post.category} /></span>}
+          <span className={styles.tickerTitle}>{title}</span>
+        </Link>
+      </div>
+    );
+  };
 
   return (
     <div className={styles.ticker}>
-      <AnimatePresence mode="wait" custom={direction}>
-        <motion.div
-          key={post.id}
-          className={styles.tickerInner}
-          custom={direction}
-          initial={{ y: 12, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -12, opacity: 0 }}
-          transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+      <div className={styles.tickerTrack}>
+        <div
+          className={`${styles.tickerReel} ${animate ? styles.tickerReelAnimated : ""}`}
+          style={{ transform: `translateY(-${pos * 72}px)` }}
         >
-          <Link href={`/posts/${post.slug}`} className={styles.tickerLink}>
-            <div className={styles.tickerThumb}>
-              {post.cover_image && !imgErrors.has(post.id) ? (
-                <Image
-                  src={post.cover_image}
-                  alt={title}
-                  fill
-                  sizes="56px"
-                  className={styles.tickerThumbImg}
-                  onError={() => onImgError(post.id)}
-                />
-              ) : (
-                <div className={styles.tickerThumbFallback} />
-              )}
-            </div>
-            {post.category && <span className={styles.tickerCategory}><CategoryLabel category={post.category} /></span>}
-            <span className={styles.tickerTitle}>{title}</span>
-          </Link>
-        </motion.div>
-      </AnimatePresence>
+          {posts.map((post) => renderItem(post, post.id))}
+          {renderItem(posts[0], "clone-first")}
+        </div>
+      </div>
 
       <div className={styles.tickerDots}>
         {posts.map((p, i) => (

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { formatPostTitle } from "@/utils/post";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import type { Post } from "@/types/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
+import T from "@/components/ui/T";
 import styles from "./BannerSlide.module.css";
 
 export type BannerStyle = "editorial" | "minimal" | "cinematic" | "magazine";
@@ -24,7 +26,10 @@ export default function BannerSlide({
   imgError,
   onImgError,
 }: BannerSlideProps) {
-  const title = formatPostTitle(post);
+  const { language } = useLanguage();
+  const title = formatPostTitle(post, language);
+  const excerpt = getPostExcerpt(post, language);
+  const showLangHint = language === "en" && !post.content_en;
 
   const image = post.cover_image && !imgError ? (
     <Image
@@ -37,7 +42,13 @@ export default function BannerSlide({
       onError={() => onImgError(post.id)}
     />
   ) : (
-    <div className={styles.slideFallback} />
+    <div className={styles.slideFallback}>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <polyline points="21 15 16 10 5 21" />
+      </svg>
+    </div>
   );
 
   /* ── Editorial ── */
@@ -51,12 +62,20 @@ export default function BannerSlide({
             {String(index + 1).padStart(2, "0")}
           </span>
           <div className={styles.meta}>
-            {post.category && (
-              <span className={styles.category}><CategoryLabel category={post.category} /></span>
+            {(post.category || showLangHint) && (
+              <span className={styles.badgeRow}>
+                {post.category && (
+                  <span className={styles.category}><CategoryLabel category={post.category} /></span>
+                )}
+                {post.category && showLangHint && <span className={styles.badgeSep}>|</span>}
+                {showLangHint && (
+                  <span className={styles.langHint}><T k="postDetail.koOnly" /></span>
+                )}
+              </span>
             )}
             <h2 className={styles.title}>{title}</h2>
-            {post.excerpt && (
-              <p className={styles.excerpt}>{post.excerpt}</p>
+            {excerpt && (
+              <p className={styles.excerpt}>{excerpt}</p>
             )}
           </div>
         </div>
@@ -71,8 +90,16 @@ export default function BannerSlide({
         {image}
         <div className={styles.overlayMinimal} />
         <div className={styles.contentMinimal}>
-          {post.category && (
-            <span className={styles.categoryBadge}><CategoryLabel category={post.category} /></span>
+          {(post.category || showLangHint) && (
+            <span className={styles.badgeRow}>
+              {post.category && (
+                <span className={styles.categoryBadge}><CategoryLabel category={post.category} /></span>
+              )}
+              {post.category && showLangHint && <span className={styles.badgeSep}>|</span>}
+              {showLangHint && (
+                <span className={styles.langHint}><T k="postDetail.koOnly" /></span>
+              )}
+            </span>
           )}
           <h2 className={styles.titleMinimal}>{title}</h2>
           <div className={styles.divider} />
@@ -88,8 +115,16 @@ export default function BannerSlide({
         {image}
         <div className={styles.overlayCinematic} />
         <div className={styles.contentCinematic}>
-          {post.category && (
-            <span className={styles.categoryCinematic}><CategoryLabel category={post.category} /></span>
+          {(post.category || showLangHint) && (
+            <span className={styles.badgeRow}>
+              {post.category && (
+                <span className={styles.categoryCinematic}><CategoryLabel category={post.category} /></span>
+              )}
+              {post.category && showLangHint && <span className={styles.badgeSep}>|</span>}
+              {showLangHint && (
+                <span className={styles.langHint}><T k="postDetail.koOnly" /></span>
+              )}
+            </span>
           )}
           <h2 className={styles.titleCinematic}>{title}</h2>
           {post.excerpt && (
@@ -107,8 +142,16 @@ export default function BannerSlide({
       <div className={styles.overlayMagazine} />
       <div className={styles.contentMagazine}>
         <div className={styles.magazineCard}>
-          {post.category && (
-            <span className={styles.category}><CategoryLabel category={post.category} /></span>
+          {(post.category || showLangHint) && (
+            <span className={styles.badgeRow}>
+              {post.category && (
+                <span className={styles.category}><CategoryLabel category={post.category} /></span>
+              )}
+              {post.category && showLangHint && <span className={styles.badgeSep}>|</span>}
+              {showLangHint && (
+                <span className={styles.langHint}><T k="postDetail.koOnly" /></span>
+              )}
+            </span>
           )}
           <h2 className={styles.title}>{title}</h2>
           {post.excerpt && (

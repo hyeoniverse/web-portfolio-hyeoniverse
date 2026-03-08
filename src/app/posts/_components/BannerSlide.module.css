@@ -18,7 +18,11 @@
 .slideFallback {
   position: absolute;
   inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--bg-surface);
+  color: var(--text-quaternary);
 }
 
 /* ── Shared typography ── */
@@ -243,6 +247,27 @@
   transition: backdrop-filter 0.3s ease;
 }
 
+.badgeRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.badgeSep {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: var(--font-size-2xs);
+}
+
+.langHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
 .readMore {
   margin-top: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
@@ -259,7 +284,7 @@
 @media (max-width: 768px) {
   /* Editorial */
   .contentEditorial {
-    padding: var(--spacing-xl) var(--spacing-lg);
+    padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-4xl);
   }
 
   .idx {
@@ -272,7 +297,7 @@
 
   /* Minimal */
   .contentMinimal {
-    padding: var(--spacing-xl) var(--spacing-lg);
+    padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-4xl);
   }
 
   .titleMinimal {
@@ -290,7 +315,7 @@
 
   /* Magazine */
   .contentMagazine {
-    bottom: var(--spacing-lg);
+    bottom: var(--spacing-3xl);
     left: var(--spacing-lg);
     right: var(--spacing-lg);
     max-width: none;
