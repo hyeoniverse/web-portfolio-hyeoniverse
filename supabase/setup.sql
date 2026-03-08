@@ -79,6 +79,8 @@ CREATE POLICY "series_service_all"
 -- ────────────────────────────────────────────────────────────
 -- 3. posts — 블로그 포스트
 -- ────────────────────────────────────────────────────────────
+CREATE SEQUENCE IF NOT EXISTS posts_post_number_seq;
+
 CREATE TABLE IF NOT EXISTS posts (
   id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   title        text NOT NULL DEFAULT '',
@@ -100,6 +102,8 @@ CREATE TABLE IF NOT EXISTS posts (
   title_en     text NOT NULL DEFAULT '',
   content_en   text NOT NULL DEFAULT '',
   excerpt_en   text NOT NULL DEFAULT '',
+  -- 고유 번호
+  post_number  int NOT NULL DEFAULT nextval('posts_post_number_seq'),
   -- 시리즈 연결
   series_id    uuid REFERENCES series(id) ON DELETE SET NULL,
   series_order int NOT NULL DEFAULT 0
@@ -109,6 +113,8 @@ CREATE TABLE IF NOT EXISTS posts (
 CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts (slug);
 -- 시리즈별 포스트 조회용
 CREATE INDEX IF NOT EXISTS idx_posts_series_id ON posts (series_id);
+-- 고유 번호 유니크 인덱스
+CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_post_number ON posts (post_number);
 
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 
