@@ -12,6 +12,7 @@ import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import { highlightCodeBlocks } from "@/components/posts/highlightCodeBlocks";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import T from "@/components/ui/T";
+import CategoryLabel from "@/components/ui/CategoryLabel";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import CommentSection from "@/components/comments/CommentSection";
 import styles from "./PostDetail.module.css";
@@ -158,7 +159,7 @@ function RecommendedSection({ posts, viewLang }: { posts: RecommendedPost[]; vie
         <span className={styles.recommendedItemTitle}>
           {viewLang === "en" && rp.title_en ? rp.title_en : rp.title}
         </span>
-        {rp.category && <span className={styles.recommendedItemCategory}>{rp.category}</span>}
+        {rp.category && <span className={styles.recommendedItemCategory}><CategoryLabel category={rp.category} /></span>}
       </div>
     </Link>
   );

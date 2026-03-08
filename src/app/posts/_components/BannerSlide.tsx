@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatPostTitle } from "@/utils/post";
 import type { Post } from "@/types/post";
+import CategoryLabel from "@/components/ui/CategoryLabel";
 import styles from "./BannerSlide.module.css";
 
 export type BannerStyle = "editorial" | "minimal" | "cinematic" | "magazine";
@@ -51,7 +52,7 @@ export default function BannerSlide({
           </span>
           <div className={styles.meta}>
             {post.category && (
-              <span className={styles.category}>{post.category}</span>
+              <span className={styles.category}><CategoryLabel category={post.category} /></span>
             )}
             <h2 className={styles.title}>{title}</h2>
             {post.excerpt && (
@@ -71,7 +72,7 @@ export default function BannerSlide({
         <div className={styles.overlayMinimal} />
         <div className={styles.contentMinimal}>
           {post.category && (
-            <span className={styles.categoryBadge}>{post.category}</span>
+            <span className={styles.categoryBadge}><CategoryLabel category={post.category} /></span>
           )}
           <h2 className={styles.titleMinimal}>{title}</h2>
           <div className={styles.divider} />
@@ -88,7 +89,7 @@ export default function BannerSlide({
         <div className={styles.overlayCinematic} />
         <div className={styles.contentCinematic}>
           {post.category && (
-            <span className={styles.categoryCinematic}>{post.category}</span>
+            <span className={styles.categoryCinematic}><CategoryLabel category={post.category} /></span>
           )}
           <h2 className={styles.titleCinematic}>{title}</h2>
           {post.excerpt && (
@@ -107,7 +108,7 @@ export default function BannerSlide({
       <div className={styles.contentMagazine}>
         <div className={styles.magazineCard}>
           {post.category && (
-            <span className={styles.category}>{post.category}</span>
+            <span className={styles.category}><CategoryLabel category={post.category} /></span>
           )}
           <h2 className={styles.title}>{title}</h2>
           {post.excerpt && (
