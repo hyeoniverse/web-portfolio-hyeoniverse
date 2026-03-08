@@ -30,7 +30,7 @@
 - **About 가로 스크롤**: Webflow 페이지와 통합된 `useHorizontalScroll` 훅으로 About 페이지에서도 GSAP 기반 가로 스크롤 적용 (데스크톱), 모바일에서는 자동 세로 스택
 - **번들 최적화**: react-icons를 inline SVG로 교체, Three.js 데모를 dynamic import로 분리하여 about 페이지 First Load JS 326kB→272kB 절감. 미사용 npm 패키지 정리, 미사용 대용량 이미지(22MB) 삭제
 - **성능 최적화**: Hero/마퀴 애니메이션을 Framer Motion/GSAP에서 CSS animation으로 전환(컴포지터 스레드), useMagneticRepel을 ref 기반 직접 DOM 조작으로 변경(60fps 리렌더 제거), Three.js FrontSide 렌더링 + geometry dispose, AudioContext 지연 초기화
-- **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. 목록 페이지는 Server Component로 초기 데이터를 서버 사이드 렌더링하고 ISR(`revalidate = 60`)로 CDN 캐시. 상세 페이지는 `generateStaticParams`로 빌드 시 정적 생성(`revalidate = 300`). Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 이미지 삽입 후 정렬(좌/중앙/우) 및 크기(25%/50%/75%/100%) 조절 가능. 게스트 대댓글(threaded) 지원, 이중 인증(commenter_hash + bcrypt 비밀번호)으로 수정/삭제. Works 상세에서도 동일한 댓글 시스템 지원. 검색, 태그 필터, 커버 이미지, 조회수 추적
+- **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. 목록 페이지는 Server Component로 초기 데이터를 서버 사이드 렌더링하고 ISR(`revalidate = 60`)로 CDN 캐시. 상세 페이지는 `generateStaticParams`로 빌드 시 정적 생성(`revalidate = 300`). Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 이미지 삽입 후 정렬(좌/중앙/우) 및 크기(25%/50%/75%/100%) 조절 가능. 게스트 대댓글(threaded) 지원, 이중 인증(commenter_hash + bcrypt 비밀번호)으로 수정/삭제. Works 상세에서도 동일한 댓글 시스템 지원. 검색, 태그 필터, 커버 이미지, 조회수 추적. 페이지당 글 수 선택(10/20/50) 가능. PostCard에 pinned 배지(이미지 오버레이), langHint(영어 모드에서 한국어만 제공 시 우측 표시) 지원. 상세 페이지 번역 배너 리디자인(좌측 보더 라인 + 아이콘 + i18n 키)
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행하는 기능. 시리즈는 카테고리의 하위 요소로, 각 시리즈는 하나의 카테고리에 소속됩니다. 포스트 목록에서 "Posts" / "Series" 뷰 토글로 시리즈 카드 그리드를 별도로 탐색할 수 있으며, 카테고리 선택 시 해당 카테고리의 시리즈만 표시됩니다. 시리즈 카드 클릭 시 해당 시리즈의 포스트만 필터링하여 표시. 포스트 상세 페이지에서 시리즈 네비게이션(이전/다음 글 + 전체 목록 접기/펼치기) 표시. Admin에서 시리즈 CRUD + 카테고리 관리
 - **IP 기반 좋아요**: Posts, Works, 댓글(post/work)에서 좋아요 기능 지원. 단일 `likes` 테이블에서 `target_type`('post'|'work'|'post_comment'|'work_comment')으로 구분하고, IP 주소 기반 `UNIQUE` 제약으로 중복 방지 및 토글 처리. Posts는 목록 조회 성능을 위해 `posts.like_count` 캐시 컬럼에 동기화
 - **Cover Image Picker**: 포스트·시리즈·작업물 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
@@ -38,7 +38,7 @@
 - **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. Settings > Content > Profile 서브탭에서 관리. `site_settings` 테이블에 JSONB로 저장. DB 미연결 시 정적 데이터 fallback. 기간 입력은 구조화된 `DatePeriod` 타입(`{ start, end?, ongoing?, format }`)과 `PeriodPicker` 컴포넌트로 통합 — 표시 형식(연도/연.월/연.월.일) 선택, 기간/진행 중 토글, 스피너/캘린더 팝오버 피커 지원. 구 형식(`year: string`, `period: LocalizedText`) 데이터는 로드 시 자동 마이그레이션
 - **BGM & 음원 출처 관리**: Admin Settings > General에서 BGM 파일 업로드(오디오 파일, 10MB 제한) 및 교체 가능. Footer에 음원 출처(곡명, 아티스트, YouTube 링크) 표시. `site.config.ts`에 기본값 설정, DB 오버라이드 지원. BGM URL이 비어있으면 재생 안 함
 - **방문자 통계**: IP+날짜 기반 일간·누적 방문자 카운터. Footer에 실시간 표시
-- **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Layout 레벨 인증으로 `/admin` 경로 보호, 미인증 시 접근 거부 페이지 표시. 로그인 페이지 i18n 지원, 이메일 기억 기능, Input/Checkbox 공통 컴포넌트 활용. 네비게이션에 Admin 배지 + 관리자 이메일 표시. 삭제 시 제목 입력 확인 모달, 발행 상태 토글 체크박스
+- **Admin Dashboard**: Supabase Auth 기반 어드민 시스템. 포스트/작업물 CRUD, 발행/비공개 전환, 이미지 업로드(Supabase Storage). Layout 레벨 인증으로 `/admin` 경로 보호, 미인증 시 접근 거부 페이지 표시. 로그인 페이지 i18n 지원, 이메일 기억 기능, Input/Checkbox 공통 컴포넌트 활용. 네비게이션에 Admin 배지 + 관리자 이메일 표시. 삭제 시 제목 입력 확인 모달, 발행 상태 토글 체크박스. 포스트 목록에서 정렬(최신순/오래된순/인기순) + 카테고리·시리즈 필터 + 필터 초기화 지원. 작업물 목록에서 정렬(최신순/오래된순/이름순) + 카테고리·연도 필터 + 필터 초기화 지원. AdminListShell에 공통 필터바 레이아웃 통합
 - **사이트 콘텐츠 관리**: Admin Settings에서 5개 탭(General, Content, Appearance, Services, Account)으로 관리. General 탭에서 브랜드(로고 텍스트·이미지 URL·다크모드 전용 로고·로고 색상·글리치 효과 on/off), SEO, 푸터 저작권, BGM 파일 업로드 및 음원 출처(곡명·아티스트·URL) 관리. 입력 필드에 힌트(placeholder + 설명 텍스트)를 제공하여 각 설정의 용도를 안내. Content 탭은 사이드 네비게이션으로 Home/Profile/About/Posts/Works 서브탭 분리. Hero 카피, About 인트로, Services, Marquee, Works 인트로, Profile 콘텐츠를 EN/KO 이중 언어로 편집 가능. Services 탭에서 API 키(환경변수)를 DB에 저장·관리하고, 번역 프로바이더(DeepL/Google/Gemini) 선택 가능. Account 탭에서 관리자 이메일/비밀번호 변경 지원(비밀번호 확인 모달). Settings 저장 시 BroadcastChannel로 다른 탭 자동 새로고침. `site.config.ts`를 기본값으로 사용하며 DB 오버라이드 지원
 - **자동 번역**: 에디터에서 언어 전환 시 대상 언어가 비어있으면 자동 번역. DeepL API Free(기본), Google Cloud Translation, Gemini 2.0 Flash 중 Settings에서 선택. 재번역 버튼으로 전체/개별 필드 재번역 가능. 번역 중 언어 토글 차단으로 중복 요청 방지
 - **이중언어 카테고리 관리**: Posts와 Works 카테고리를 `{ ko, en }` 이중언어 쌍으로 관리. Admin Settings의 Content 탭에서 추가/삭제/드래그 순서 변경 가능. 카테고리 삭제 시 소속 포스트를 시리즈 단위/개별로 일괄 재할당하는 모달. DB에는 `ko` 값을 저장하고, 기존 `string[]` 형식과 자동 호환(정규화). 공개 페이지는 `CategoryLabel` 컴포넌트와 `translateCategory()` 유틸로 현재 언어에 맞게 표시. 에디터(PostEditor, WorkEditor, SeriesEditor)에서도 이중언어 라벨 지원
@@ -46,13 +46,13 @@
 - **에디터 리비전 히스토리**: Posts/Works 에디터의 자동저장 시 `revisions` DB 테이블에 폼 전체를 JSONB snapshot으로 영구 저장. 탭을 닫거나 다른 기기에서 접속해도 리비전 히스토리 유지. 목록 조회 시 snapshot 제외로 경량 로딩, 상세 보기 시 lazy fetch. 현재 폼과의 diff(LCS 기반 라인 비교) 표시, Revert 버튼으로 초기 상태 복원. 개별 리비전 삭제 지원(리스트·상세 뷰). 상세 보기에서 카테고리·태그·시리즈 등 메타 항목도 diff 비교 표시. 이전 snapshot과 동일하면 저장 스킵(중복 방지). 엔티티당 50개 초과 시 자동 정리
 - **CTA 이력서 다운로드**: Home 페이지 CTA 영역에 이력서 다운로드 버튼 표시. Admin Settings에서 PDF 업로드(5MB 제한, Supabase Storage) 및 버튼 텍스트 한/영 편집 가능. `resumeUrl`이 비어있으면 버튼 미표시
 - **소셜 링크 관리**: CTA 영역에 소셜 아이콘(GitHub, LinkedIn, Blog, X, Instagram, YouTube, Behance, Dribbble, Custom) 표시. Admin Settings에서 순서 변경·추가·삭제 가능(최대 6개). `socialLinks` 배열과 기존 `social` 객체 자동 호환
-- **Carousel (default / cylinder)**: 공통 Carousel 컴포넌트. default 모드(AnimatePresence 슬라이드 전환)와 cylinder 모드(3D perspective + 사이드 슬라이드 어둡게) 지원. autoPlay, pauseOnHover, arrows, dots, loop
-- **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시. 4가지 레이아웃(fullwidth·split·cards·ticker) + 4가지 오버레이 스타일(editorial·minimal·cinematic·magazine) + 2가지 전환 모드(default·cylinder). Admin Settings에서 선택 가능
+- **Carousel (default / cylinder)**: 공통 Carousel 컴포넌트. default 모드(CSS opacity 전환, 모든 슬라이드 동시 렌더)와 cylinder 모드(3D perspective, 모든 슬라이드 동시 렌더 + offset 기반 배치) 지원. autoPlay, pauseOnHover, arrows, dots, loop
+- **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시. 4가지 레이아웃(fullwidth·split·cards·ticker) + 4가지 오버레이 스타일(editorial·minimal·cinematic·magazine) + 2가지 전환 모드(default·cylinder). Split/Ticker는 릴 기반 무한 루프 애니메이션(복제 슬라이드 + translateX/Y 점프). 배너 슬라이드에 다국어 langHint 표시(영어 모드에서 한국어만 제공 시). Admin Settings에서 선택 가능
 - **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator 애니메이션(layoutId), sticky 상태 감지(IntersectionObserver), 스크롤 방향에 따라 필터 바 숨김/표시 + 자동 접기, 카테고리/태그 펼칠 때 콘텐츠 영역 blur 효과(ContactDrawer와 동일 기법)
 - **Tooltip & Translation Tooltip**: 범용 Tooltip UI 컴포넌트(`<Tooltip>`)와 번역 tooltip 컴포넌트(`<T>`). `<T k="key" />`로 텍스트를 렌더하면 long hover(600ms) 시 반대 언어 번역을 tooltip으로 표시. createPortal + position: fixed로 stacking context 회피, 모바일 자동 비활성화. Navigation 링크에 페이지 설명 tooltip, 언어/테마/사운드 버튼에 기능 설명 tooltip 적용
 - **Posts i18n & Sort Capsule**: Posts 페이지의 모든 하드코딩된 텍스트를 locale 파일(`postsPage` 섹션)로 이동. 정렬 UI를 Select 드롭다운에서 캡슐형 세그먼트 컨트롤(Framer Motion layoutId 애니메이션)로 변경
 - **Footer Sliding Indicator**: Navigation과 동일한 슬라이딩 인디케이터를 Footer 링크에 적용. hover 시 ►◀ 화살표가 인디케이터와 함께 해당 링크로 이동
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능. Tooltip/T 컴포넌트 섹션, Select 컴포넌트 섹션, PeriodPicker 섹션, Gradient Tokens 섹션 추가. 3-phase scroll 애니메이션 시스템(Phase 1: 숨김 → Phase 2: 순차 등장 → Phase 3: whileInView 스크롤 기반 등장/소멸) 적용. staggerItemX(좌→우 등장/우→좌 소멸), staggerItem(위→아래) 방향별 stagger 지원
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능. Tooltip/T 컴포넌트 섹션, Select 컴포넌트 섹션, PeriodPicker 섹션, Gradient Tokens 섹션, CategoryLabel 컴포넌트 섹션 추가. 3-phase scroll 애니메이션 시스템(Phase 1: 숨김 → Phase 2: 순차 등장 → Phase 3: whileInView 스크롤 기반 등장/소멸) 적용. staggerItemX(좌→우 등장/우→좌 소멸), staggerItem(위→아래) 방향별 stagger 지원
 
 ## Security
 
@@ -248,7 +248,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 |--------|------|
 | `site_settings` | 사이트 설정 + 프로필 데이터 + secrets/API 키 (JSONB) |
 | `series` | 블로그 시리즈 |
-| `posts` | 블로그 포스트 |
+| `posts` | 블로그 포스트 (post_number 시퀀스 컬럼으로 고유 번호 부여) |
 | `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
 | `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
 | `works` | 포트폴리오 작업물 (team_members jsonb 포함) |
