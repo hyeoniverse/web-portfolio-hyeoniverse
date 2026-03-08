@@ -23,6 +23,7 @@ import TypeWriter from "@/components/effects/TypeWriter";
 import Tooltip from "@/components/ui/Tooltip";
 import TextLink from "@/components/ui/TextLink";
 import T from "@/components/ui/T";
+import CategoryLabel from "@/components/ui/CategoryLabel";
 import PostsBanner from "@/app/posts/_components/PostsBanner/PostsBanner";
 import type { BannerLayout } from "@/app/posts/_components/PostsBanner/PostsBanner";
 import type { Post } from "@/types/post";
@@ -295,10 +296,10 @@ const typoColors = ["primary", "secondary", "tertiary", "muted", "accent"] as co
 // ─── Banner mock data ───
 const BANNER_LAYOUTS: BannerLayout[] = ["fullwidth", "split", "cards", "ticker"];
 const BANNER_LAYOUT_LABELS: Record<BannerLayout, { ko: string; en: string }> = {
-  fullwidth: { ko: "Fullwidth — 풀 와이드 캐러셀", en: "Fullwidth — Full-width Carousel" },
-  split: { ko: "Split — 좌 이미지 / 우 텍스트", en: "Split — Image Left / Text Right" },
-  cards: { ko: "Cards — 카드 스택", en: "Cards — Card Stack" },
-  ticker: { ko: "Ticker — 미니멀 바", en: "Ticker — Minimal Bar" },
+  fullwidth: { ko: "Fullwidth — 풀 와이드 캐러셀 (Default / Cylinder)", en: "Fullwidth — Full-width Carousel (Default / Cylinder)" },
+  split: { ko: "Split — 가로 슬라이드 릴 (무한 루프)", en: "Split — Horizontal Sliding Reel (Infinite Loop)" },
+  cards: { ko: "Cards — 중앙 포커스 카드", en: "Cards — Center-focus Card Stack" },
+  ticker: { ko: "Ticker — 세로 슬라이드 바 (무한 루프)", en: "Ticker — Vertical Sliding Bar (Infinite Loop)" },
 };
 const MOCK_POST: Post = {
   id: "demo-1",
@@ -812,6 +813,23 @@ export default function DesignSystemPage() {
                   <Logo variant="full" as="span" />
                   <span className={styles.logoLabel}>full</span>
                 </motion.div>
+              </div>
+            </motion.div>
+
+            {/* CategoryLabel */}
+            <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              <div className={styles.componentGroupTitle}>CategoryLabel</div>
+              <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>{language === "ko" ? "카테고리를 현재 언어에 맞게 자동 번역" : "Auto-translates category labels to current language"}</p>
+              <div className={styles.componentRow}>
+                {["프론트엔드", "백엔드", "DevOps", "알고리즘", "CS"].map((cat, i) => (
+                  <motion.div key={cat} variants={staggerItemX} {...scrollChildX(i, 5)}>
+                    <Tooltip content={`ko: ${cat}`}>
+                      <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", fontWeight: 500, color: "var(--color-accent)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                        <CategoryLabel category={cat} />
+                      </span>
+                    </Tooltip>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
 
