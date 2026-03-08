@@ -139,7 +139,7 @@
   margin-top: var(--spacing-4xl);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   letter-spacing: 0.02em;
 }
 
@@ -160,26 +160,32 @@
 }
 
 .pulseDot {
+  position: relative;
   width: 8px;
   height: 8px;
   background: var(--text-accent-alt);
-  animation: pulse 2s infinite;
   border-radius: var(--radius-circle);
+}
+
+.pulseDot::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  background: var(--color-accent-light-alpha-60);
+  animation: pulse 2s infinite;
+  will-change: transform, opacity;
 }
 
 @keyframes pulse {
   0%,
   100% {
-    box-shadow:
-      0 0 8px var(--color-accent-light-alpha-90),
-      0 0 12px var(--color-accent-light-alpha-70);
-    opacity: 1;
+    transform: scale(0.5);
+    opacity: 0.9;
   }
   50% {
-    box-shadow:
-      0 0 14px var(--color-accent-light-alpha-60),
-      0 0 20px var(--color-accent-light-alpha-40);
-    opacity: 1;
+    transform: scale(1);
+    opacity: 0.3;
   }
 }
 
