@@ -18,6 +18,7 @@ export interface Post {
   title_en: string;
   content_en: string;
   excerpt_en: string;
+  post_number: number;
   series_id: string | null;
   series_order: number;
   series?: { title: string; title_en: string } | null;

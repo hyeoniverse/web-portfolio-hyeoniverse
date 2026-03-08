@@ -17,7 +17,7 @@ export { createSoundTone } from "./sound";
 export { debounce, throttle, clamp, lerp } from "./function";
 
 // 포스트 유틸리티
-export { formatPostTitle } from "./post";
+export { formatPostTitle, getPostExcerpt } from "./post";
 
 // 스크롤 유틸리티
 export {
