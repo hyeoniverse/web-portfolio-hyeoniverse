@@ -36,9 +36,10 @@ export default function BannerSlide({
       src={post.cover_image}
       alt={title}
       fill
-      sizes="100vw"
+      sizes="(max-width: 768px) 100vw, 80vw"
       className={styles.slideImg}
       priority={index === 0}
+      loading={index === 0 ? "eager" : "lazy"}
       onError={() => onImgError(post.id)}
     />
   ) : (

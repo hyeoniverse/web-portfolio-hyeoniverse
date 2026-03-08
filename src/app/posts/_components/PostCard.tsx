@@ -51,7 +51,7 @@ export default function PostCard({
             src={post.cover_image}
             alt={post.title}
             fill
-            sizes="100vw"
+            sizes="(max-width: 768px) 100vw, 55vw"
             className={`${styles.image} ${styles.heroBgImg}`}
             priority
             onError={() => onImgError?.(post.id)}
@@ -115,6 +115,7 @@ export default function PostCard({
             fill
             sizes={isFeatured ? "(max-width: 768px) 100vw, 55vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
             className={styles.image}
+            loading={isFeatured ? "eager" : "lazy"}
             onError={() => onImgError?.(post.id)}
           />
         ) : (
