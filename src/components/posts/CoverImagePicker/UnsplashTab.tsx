@@ -65,7 +65,7 @@ function extractKeywords(ctx: PostContext): string[] {
 
 export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps) {
   const { t } = useLanguage();
-  const tc = (key: string) => t(`admin.posts.coverPicker.${key}`);
+  const tc = useCallback((key: string) => t(`admin.posts.coverPicker.${key}`), [t]);
   const [query, setQuery] = useState("");
   const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
   const [page, setPage] = useState(1);
@@ -101,7 +101,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
         setLoading(false);
       }
     },
-    []
+    [tc]
   );
 
   const handleInputChange = useCallback(
@@ -151,7 +151,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
         setDownloading(null);
       }
     },
-    [onSelect]
+    [onSelect, tc]
   );
 
   const handleClear = useCallback(() => {

@@ -93,7 +93,7 @@ export default function Tooltip({
         {children}
       </span>
 
-      {visible && typeof window !== "undefined" && createPortal(
+      {visible && createPortal(
         <div
           style={{
             position: "fixed",

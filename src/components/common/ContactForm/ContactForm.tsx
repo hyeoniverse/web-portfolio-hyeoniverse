@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "@formspree/react";
 import { Mail, MessageSquare, Send, User } from "lucide-react";
 
@@ -25,6 +25,8 @@ export default function ContactForm() {
   const { isModalOpen } = useModalStore();
   const { formKey, formData, setFormData, resetForm, setSubmitSuccess } =
     useContactStore();
+  const [origin, setOrigin] = useState("");
+  useEffect(() => { setOrigin(window.location.origin); }, []);
 
   // Formspree 상태 변화 감시 → Zustand에 반영
   useEffect(() => {
@@ -87,9 +89,7 @@ export default function ContactForm() {
             <input
               type="hidden"
               name="_next"
-              value={
-                typeof window !== "undefined" ? window.location.origin : ""
-              }
+              value={origin}
             />
 
             <div className={styles.formGroup}>

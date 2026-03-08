@@ -334,7 +334,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [form.tech, updateField],
   );
 
-  const TRANSLATABLE_FIELDS = ["subtitle", "description", "role", "content"] as const;
+  const TRANSLATABLE_FIELDS = useMemo(
+    () => ["subtitle", "description", "role", "content"] as const,
+    [],
+  );
 
   const translateFields = useCallback(
     async (fieldKeys: string[], lang: "ko" | "en") => {
@@ -371,7 +374,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setError(result.error);
       }
     },
-    [form, tLang],
+    [form, tLang, TRANSLATABLE_FIELDS],
   );
 
   const handleEditorLangChange = useCallback(
@@ -393,7 +396,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         );
       }
     },
-    [form, translating, translateFields],
+    [form, translating, translateFields, TRANSLATABLE_FIELDS],
   );
 
   const handleRetranslate = useCallback(
@@ -401,7 +404,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (translating) return;
       await translateFields(fieldKeys ?? TRANSLATABLE_FIELDS.slice(), editorLang);
     },
-    [translating, editorLang, translateFields],
+    [translating, editorLang, translateFields, TRANSLATABLE_FIELDS],
   );
 
   const addMember = useCallback(() => {
@@ -569,7 +572,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setSaving(false);
       }
     },
-    [form, isEdit, work, router, tw],
+    [form, router, tw],
   );
 
   const handleDelete = useCallback(async () => {
