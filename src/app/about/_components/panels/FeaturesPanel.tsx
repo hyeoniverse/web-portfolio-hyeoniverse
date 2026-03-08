@@ -7,9 +7,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignFeature } from "@/data/about";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 import DynamicFrameLayout, {
   type Frame,
   defaultFrames,
@@ -154,6 +151,7 @@ function FeaturesPanel({
      컨테이너(pinnedEl)는 이동하지 않음 — 개별 카드 transform만 사용. */
   useEffect(() => {
     if (!isMobile || !gridRef.current) return;
+    gsap.registerPlugin(ScrollTrigger);
 
     const grid = gridRef.current;
 

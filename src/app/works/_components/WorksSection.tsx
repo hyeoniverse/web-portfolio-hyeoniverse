@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -28,11 +29,6 @@ import {
 } from "@/data/projects";
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
 import styles from "./WorksSection.module.css";
-
-// GSAP 플러그인 등록
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 // 타입
 interface TransitionData {
@@ -91,6 +87,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   // useLayoutEffect 사용: cleanup이 다음 페이지의 useLayoutEffect 전에 실행되어
   // ScrollTrigger가 올바른 Lenis 상태에서 생성되도록 보장
   useLayoutEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
     setInfinite(false);
     const timer = setTimeout(() => ScrollTrigger.refresh(), 100);
     return () => {
@@ -500,7 +497,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
                 onTouchEnd={handlePressEnd}
               >
                 <div className={styles.cardImageWrap}>
-                  <Image
+                  <ProgressiveImage
                     src={project.image}
                     alt={project.title}
                     fill

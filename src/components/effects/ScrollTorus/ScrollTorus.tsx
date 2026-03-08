@@ -68,10 +68,7 @@ export default function ScrollTorus() {
     []
   );
 
-  const dpr = Math.min(
-    typeof window !== "undefined" ? window.devicePixelRatio : 1,
-    1.5,
-  );
+  const dpr = Math.min(window.devicePixelRatio, 1.5);
 
   return (
     <div className={styles.torusOverlay}>

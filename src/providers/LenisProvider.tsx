@@ -14,11 +14,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { setLenisInstance } from "@/utils/scroll";
 
-// GSAP 플러그인 등록
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
 interface LenisContextType {
   lenis: Lenis | null;
   scrollTo: (target: string | number | HTMLElement, options?: ScrollToOptions) => void;
@@ -67,6 +62,8 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
     // Lenis 초기화
     const lenisInstance = new Lenis({
       duration: options.duration ?? 1.2,

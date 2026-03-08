@@ -5,10 +5,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useMobileLayout } from "./mobileCheck";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
 /**
  * 모바일/태블릿에서 GSAP ScrollTrigger 고정 스크롤을 설정하는 공유 훅.
  *
@@ -40,6 +36,7 @@ export function useMobilePinScroll(
 
   useEffect(() => {
     if (!isMobile) return;
+    gsap.registerPlugin(ScrollTrigger);
 
     const trigger = triggerRef.current;
     if (!trigger) return;

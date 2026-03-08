@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";
@@ -291,16 +291,13 @@ export default function SettingsPage() {
   const [message, setMessage] = useState("");
   const savedConfigRef = useRef<SiteConfigData>(structuredClone(siteConfig) as unknown as SiteConfigData);
   const savedProfileRef = useRef<ProfileData>(structuredClone(profileDefaults));
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>(() => {
-    if (typeof window === "undefined") return "general";
-    const p = new URLSearchParams(window.location.search);
-    const tab = p.get("tab");
+    const tab = searchParams.get("tab");
     return tab && TAB_IDS.includes(tab as TabId) ? (tab as TabId) : "general";
   });
   const [contentSubTab, setContentSubTab] = useState<"home" | "profile" | "works" | "posts">(() => {
-    if (typeof window === "undefined") return "home";
-    const p = new URLSearchParams(window.location.search);
-    const sub = p.get("sub");
+    const sub = searchParams.get("sub");
     return sub && ["home", "profile", "works", "posts"].includes(sub)
       ? (sub as "home" | "profile" | "works" | "posts")
       : "home";
