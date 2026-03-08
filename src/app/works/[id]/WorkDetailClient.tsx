@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import Image from "next/image";
+import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -109,7 +109,7 @@ export default function WorkDetailClient({
             >
               {project.gallery.map((src, i) => (
                 <div key={i} className={styles.galleryItem}>
-                  <Image
+                  <ProgressiveImage
                     src={src}
                     alt={`${project.title} ${i + 1}`}
                     fill
