@@ -7,6 +7,7 @@
   border-top: var(--border-default);
   border-bottom: var(--border-default);
   overflow: hidden;
+  contain: layout style paint;
 }
 
 /* ---------------------------------------------------------------------------

@@ -78,9 +78,6 @@ body {
     "Apple SD Gothic Neo",
     sans-serif;
   color: var(--text-primary);
-  transition:
-    background-color var(--duration-base) ease,
-    color var(--duration-base) ease;
 }
 
 [data-theme="dark"] body::after {

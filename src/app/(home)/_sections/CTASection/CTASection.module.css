@@ -5,6 +5,7 @@
 .cta {
   padding-top: var(--spacing-6xl);
   padding-bottom: var(--spacing-6xl);
+  contain: layout style paint;
 }
 
 /* ---------------------------------------------------------------------------
@@ -136,33 +137,33 @@
 
 /* Button Indicator Dot */
 .buttonIndicator {
+  position: relative;
   width: var(--size-5xs);
   height: var(--size-5xs);
   background: var(--bg-accent-solid-light);
   border-radius: var(--radius-circle);
-  animation: pulse 2s infinite;
   transition: transform var(--duration-base) ease;
 }
 
 .buttonIndicator::after {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -6px;
+  border-radius: inherit;
+  background: var(--color-accent-light-alpha-60);
+  animation: pulse 2s infinite;
+  will-change: transform, opacity;
 }
 
 @keyframes pulse {
   0%,
   100% {
-    box-shadow:
-      0 0 8px var(--color-accent-light-alpha-90),
-      0 0 12px var(--color-accent-light-alpha-70);
-    opacity: 1;
+    transform: scale(0.5);
+    opacity: 0.9;
   }
   50% {
-    box-shadow:
-      0 0 14px var(--color-accent-light-alpha-60),
-      0 0 20px var(--color-accent-light-alpha-40);
-    opacity: 1;
+    transform: scale(1);
+    opacity: 0.3;
   }
 }
 
