@@ -74,7 +74,8 @@
   clip-path: inset(0 -20px 0 -20px);
   transition:
     clip-path var(--duration-moderate) var(--ease-material),
-    visibility var(--duration-moderate);
+    visibility var(--duration-moderate),
+    opacity 0.4s ease;
 }
 
 .navLink {
@@ -140,7 +141,9 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
-  transition: gap var(--duration-moderate) var(--ease-material);
+  transition:
+    gap var(--duration-moderate) var(--ease-material),
+    opacity 0.4s ease;
 }
 
 .actionBtn {
@@ -712,6 +715,11 @@
 .navLoading {
   z-index: calc(var(--z-overlay) + 1);
   pointer-events: none;
+}
+
+/* LoadingScreen 페이드아웃 완료까지 z-index 유지 */
+.navElevated {
+  z-index: calc(var(--z-overlay) + 1);
 }
 
 .navLoading .navCenter,
