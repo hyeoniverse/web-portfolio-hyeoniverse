@@ -303,7 +303,7 @@
 .conflictDiffPre {
   margin: 0;
   padding: var(--spacing-md);
-  font-family: var(--font-jetbrains, var(--font-space-grotesk));
+  font-family: var(--font-jetbrains);
   font-size: var(--font-size-xs);
   line-height: 1.7;
   color: var(--text-primary);
