@@ -338,6 +338,17 @@
       "cancel": "취소",
       "confirm": "확인",
       "confirmPasswordDesc": "변경 사항을 적용하려면 현재 비밀번호를 입력하세요.",
+      "banner": "배너",
+      "bannerLayout": "배너 레이아웃",
+      "bannerStyle": "배너 스타일",
+      "bannerTransition": "배너 전환 효과",
+      "pagination": "페이지네이션",
+      "postsPerPage": "페이지당 글 수",
+      "adminPerPage": "관리자 페이지당 수",
+      "translationSettings": "번역",
+      "translationProvider": "제공자",
+      "designSystem": "Design System",
+      "fontHint": "프리셋에서 선택하거나, 직접 입력란에 Google Fonts 이름을 입력하세요. (예: Roboto, Nanum Gothic)",
       "tabs": {
         "general": "일반",
         "content": "콘텐츠",
@@ -411,6 +422,12 @@
       "publishLabel": "발행 여부",
       "publishedTooltip": "발행됨",
       "unpublishedTooltip": "발행 취소",
+      "sortNewest": "최신순",
+      "sortOldest": "오래된순",
+      "sortPopular": "인기순",
+      "allCategories": "전체 카테고리",
+      "allSeries": "전체 시리즈",
+      "resetFilters": "초기화",
       "seriesDeleteConfirm": "시리즈를 삭제하시겠습니까?\n포함된 글의 시리즈 연결이 해제됩니다.",
       "save": "저장",
       "editor": {
@@ -511,7 +528,8 @@
         "titlePlaceholder": "시리즈 제목을 입력하세요",
         "descPlaceholder": "시리즈에 대한 간단한 설명",
         "chooseCover": "커버 선택",
-        "closePicker": "닫기"
+        "closePicker": "닫기",
+        "viewPost": "글 보기"
       }
     },
     "works": {
@@ -535,6 +553,13 @@
       "publishLabel": "발행 여부",
       "publishedTooltip": "발행됨",
       "unpublishedTooltip": "발행 취소",
+      "sortOrder": "정렬순",
+      "sortNewest": "최신순",
+      "sortOldest": "오래된순",
+      "sortName": "이름순",
+      "allYears": "전체 연도",
+      "allCategories": "전체 카테고리",
+      "resetFilters": "초기화",
       "save": "저장",
       "editor": {
         "backToWorks": "← 작업 목록",
@@ -667,7 +692,11 @@
     "minRead": "분 소요",
     "views": "조회",
     "series": "시리즈",
-    "more": "더보기"
+    "more": "더보기",
+    "noTranslation": "이 게시물은 아직 영어 번역이 제공되지 않습니다.",
+    "autoTranslate": "AI 자동 번역",
+    "translating": "AI 번역 중...",
+    "koOnly": "한국어만 제공"
   },
   "tooltip": {
     "contact": "연락하기 양식이 열립니다",

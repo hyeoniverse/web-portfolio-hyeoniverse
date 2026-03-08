@@ -338,6 +338,17 @@
       "cancel": "Cancel",
       "confirm": "Confirm",
       "confirmPasswordDesc": "Enter your current password to confirm changes.",
+      "banner": "Banner",
+      "bannerLayout": "Banner Layout",
+      "bannerStyle": "Banner Style",
+      "bannerTransition": "Banner Transition",
+      "pagination": "Pagination",
+      "postsPerPage": "Posts per page",
+      "adminPerPage": "Admin per page",
+      "translationSettings": "Translation",
+      "translationProvider": "Provider",
+      "designSystem": "Design System",
+      "fontHint": "Choose from presets or type a Google Fonts name in the input field. (e.g., Roboto, Nanum Gothic)",
       "tabs": {
         "general": "General",
         "content": "Content",
@@ -411,6 +422,12 @@
       "publishLabel": "Publish status",
       "publishedTooltip": "Published",
       "unpublishedTooltip": "Unpublished",
+      "sortNewest": "Newest",
+      "sortOldest": "Oldest",
+      "sortPopular": "Popular",
+      "allCategories": "All Categories",
+      "allSeries": "All Series",
+      "resetFilters": "Reset",
       "seriesDeleteConfirm": "Delete this series?\nPosts in this series will be unlinked.",
       "save": "Save",
       "editor": {
@@ -513,7 +530,8 @@
         "descPlaceholder": "Series description",
         "descPlaceholderEN": "Series description",
         "chooseCover": "Choose cover",
-        "closePicker": "Close picker"
+        "closePicker": "Close picker",
+        "viewPost": "View post"
       }
     },
     "works": {
@@ -537,6 +555,13 @@
       "publishLabel": "Publish status",
       "publishedTooltip": "Published",
       "unpublishedTooltip": "Unpublished",
+      "sortOrder": "Sort Order",
+      "sortNewest": "Newest",
+      "sortOldest": "Oldest",
+      "sortName": "Name",
+      "allYears": "All Years",
+      "allCategories": "All Categories",
+      "resetFilters": "Reset",
       "save": "Save",
       "editor": {
         "backToWorks": "← Back to Works",
@@ -669,7 +694,11 @@
     "minRead": "min read",
     "views": "views",
     "series": "Series",
-    "more": "more"
+    "more": "more",
+    "noTranslation": "This post is not yet available in English.",
+    "autoTranslate": "Auto-translate with AI",
+    "translating": "Translating...",
+    "koOnly": "Korean only"
   },
   "tooltip": {
     "contact": "Opens the contact form",
