@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
 import type { Post, Series } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
+import { useCategories, translateCategory } from "@/hooks/useCategories";
+import Select from "@/components/ui/Select";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -17,24 +20,106 @@ import AdminTable, {
 } from "@/components/admin/AdminTable/AdminTable";
 import styles from "./AdminPosts.module.css";
 
-const POSTS_PER_PAGE = 20;
+const PAGE_SIZE_OPTIONS = [
+  { value: "10", label: "10" },
+  { value: "20", label: "20" },
+  { value: "50", label: "50" },
+  { value: "100", label: "100" },
+];
+
+/* ── Isolated tooltip to prevent parent re-renders from reaching AdminTable ── */
+function PreviewTooltip({
+  post,
+  pos,
+  imgError,
+  onImgError,
+  onDismiss,
+  onNavigate,
+}: {
+  post: Post | null;
+  pos: { top: number; left: number };
+  imgError: boolean;
+  onImgError: () => void;
+  onDismiss: () => void;
+  onNavigate: () => void;
+}) {
+  if (!post) return null;
+  return (
+    <>
+      <div className={shell.previewBackdrop} onClick={onDismiss} />
+      <div
+        className={shell.previewTooltip}
+        style={{ top: pos.top, left: pos.left }}
+        onClick={onNavigate}
+      >
+        {post.cover_image && (
+          <div className={shell.previewImage}>
+            {imgError ? (
+              <div className={shell.previewPlaceholder}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+              </div>
+            ) : (
+              <Image
+                src={post.cover_image}
+                alt=""
+                width={280}
+                height={140}
+                className={shell.previewImg}
+                unoptimized
+                onError={onImgError}
+              />
+            )}
+          </div>
+        )}
+        <div className={shell.previewBody}>
+          <p className={shell.previewTitle}>{formatPostTitle(post)}</p>
+          {post.excerpt && (
+            <p className={shell.previewExcerpt}>{post.excerpt}</p>
+          )}
+          {post.tags.length > 0 && (
+            <div className={shell.previewTags}>
+              {post.tags.map((tag) => (
+                <span key={tag} className={shell.previewTag}>{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
 
 export default function AdminPostsPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const siteConf = useSiteConfig();
+  const router = useRouter();
+  const categories = useCategories();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [saving, setSaving] = useState(false);
 
+  /* Filters & sort */
+  const [sort, setSort] = useState("newest");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterSeries, setFilterSeries] = useState("");
+  const [perPage, setPerPage] = useState(siteConf.posts.adminPerPage ?? 20);
+  const hasFilters = sort !== "newest" || filterCategory !== "" || filterSeries !== "";
+
   /* Publish changes */
   const { publishOverrides, toggle, setAll, reset, toChanges, hasChanges } =
     usePublishChanges<Post>();
 
-  /* Preview tooltip */
-  const [hoveredPost, setHoveredPost] = useState<Post | null>(null);
-  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
-  const [imgError, setImgError] = useState(false);
+  /* Preview tooltip — use refs + minimal state to avoid re-rendering AdminTable */
+  const hoveredPostRef = useRef<Post | null>(null);
+  const [tooltipKey, setTooltipKey] = useState(0);
+  const tooltipPosRef = useRef({ top: 0, left: 0 });
+  const imgErrorRef = useRef(false);
 
   /* Series */
   const [seriesList, setSeriesList] = useState<Series[]>([]);
@@ -45,14 +130,17 @@ export default function AdminPostsPage() {
     const params = new URLSearchParams({
       all: "true",
       page: String(page),
-      limit: String(POSTS_PER_PAGE),
+      limit: String(perPage),
+      sort,
     });
+    if (filterCategory) params.set("category", filterCategory);
+    if (filterSeries) params.set("series_id", filterSeries);
     const res = await fetch(`/api/posts?${params}`);
     const data = await res.json();
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [page]);
+  }, [page, perPage, sort, filterCategory, filterSeries]);
 
   const fetchSeries = useCallback(async () => {
     const res = await fetch("/api/series?all=true");
@@ -97,26 +185,66 @@ export default function AdminPostsPage() {
     fetchSeries();
   };
 
-  const handleRowHover = (post: Post, e: React.MouseEvent) => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const canHover = useRef(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    canHover.current = mq.matches;
+    const onChange = (e: MediaQueryListEvent) => { canHover.current = e.matches; };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  const calcTooltipPos = (el: HTMLElement, post: Post) => {
+    const rect = el.getBoundingClientRect();
     const tooltipWidth = 280;
     const hasImage = !!post.cover_image;
     const tooltipHeight = hasImage ? 260 : 120;
     const gap = 8;
     const rawLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
-    const left = Math.max(
-      8,
-      Math.min(rawLeft, window.innerWidth - tooltipWidth - 8),
-    );
+    const left = Math.max(8, Math.min(rawLeft, window.innerWidth - tooltipWidth - 8));
     const spaceAbove = rect.top;
-    const top =
-      spaceAbove > tooltipHeight + gap
-        ? rect.top - tooltipHeight - gap
-        : rect.bottom + gap;
-    setTooltipPos({ top, left });
-    setImgError(false);
-    setHoveredPost(post);
+    const top = spaceAbove > tooltipHeight + gap
+      ? rect.top - tooltipHeight - gap
+      : rect.bottom + gap;
+    return { top, left };
   };
+
+  const showTooltip = useCallback((post: Post, el: HTMLElement) => {
+    hoveredPostRef.current = post;
+    tooltipPosRef.current = calcTooltipPos(el, post);
+    imgErrorRef.current = false;
+    setTooltipKey((k) => k + 1);
+  }, []);
+
+  const hideTooltip = useCallback(() => {
+    if (!hoveredPostRef.current) return;
+    hoveredPostRef.current = null;
+    setTooltipKey((k) => k + 1);
+  }, []);
+
+  const handleRowHover = useCallback((post: Post, e: React.MouseEvent) => {
+    if (!canHover.current) return;
+    showTooltip(post, e.currentTarget as HTMLElement);
+  }, [showTooltip]);
+
+  const handleRowLeave = useCallback(() => {
+    if (!canHover.current) return;
+    hideTooltip();
+  }, [hideTooltip]);
+
+  const handleRowClick = useCallback((post: Post, e: React.MouseEvent) => {
+    if (canHover.current) {
+      router.push(`/admin/posts/${post.id}/edit`);
+      return;
+    }
+    /* Touch: first tap → preview, second tap → navigate */
+    if (hoveredPostRef.current?.id === post.id) {
+      hideTooltip();
+      router.push(`/admin/posts/${post.id}/edit`);
+      return;
+    }
+    showTooltip(post, e.currentTarget as HTMLElement);
+  }, [router, showTooltip, hideTooltip]);
 
   /* ── Table columns ── */
   const columns: AdminTableColumn<Post>[] = useMemo(
@@ -215,69 +343,61 @@ export default function AdminPostsPage() {
 
       {seriesOpen && (
         <>
-          <div className={styles.seriesGrid}>
+          <ul className={styles.seriesList}>
             {seriesList.map((s) => (
-              <Link
-                key={s.id}
-                href={`/admin/posts/series/${s.id}/edit`}
-                className={styles.seriesCard}
-                data-clickable="true"
-              >
-                {s.cover_image && (
-                  <div className={styles.seriesCardThumb}>
-                    <Image
-                      src={s.cover_image}
-                      alt=""
-                      width={240}
-                      height={80}
-                      unoptimized
-                      className={styles.seriesCardImg}
-                    />
-                  </div>
-                )}
-                <div className={styles.seriesCardBody}>
-                  <p className={styles.seriesCardTitle}>
-                    {s.title || <T k="admin.posts.untitled" />}
-                  </p>
-                  <div className={styles.seriesCardMeta}>
-                    {s.category && (
-                      <span className={styles.seriesCardCat}>
-                        {s.category}
-                      </span>
-                    )}
-                    <span>
-                      {s.post_count ?? 0} <T k="admin.posts.postsCount" />
+              <li key={s.id} className={styles.seriesRow}>
+                <span className={styles.seriesRowThumb}>
+                  {s.cover_image ? (
+                    <Image src={s.cover_image} alt="" width={96} height={56} unoptimized className={styles.seriesRowImg} />
+                  ) : (
+                    <span className={styles.seriesRowNoImg}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <path d="M21 15l-5-5L5 21" />
+                      </svg>
                     </span>
+                  )}
+                </span>
+                <a
+                  href={`/admin/settings?tab=content&sub=posts&series=${s.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.seriesRowLink}
+                >
+                  <span className={styles.seriesRowTitle}>
+                    {s.title || <T k="admin.posts.untitled" />}
+                  </span>
+                  <span className={styles.seriesRowMeta}>
+                    {s.category && (
+                      <span className={styles.seriesRowCat}>{s.category}</span>
+                    )}
+                    <span>{s.post_count ?? 0} <T k="admin.posts.postsCount" /></span>
                     <span
                       className={`${styles.statusBadge} ${s.published ? styles.published : styles.draft}`}
                     >
-                      {s.published
-                        ? <T k="admin.posts.published" />
-                        : <T k="admin.posts.draft" />}
+                      {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
                     </span>
-                  </div>
-                </div>
-                <div className={styles.seriesCardActions}>
-                  <button
-                    type="button"
-                    className={styles.deleteBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteSeries(s);
-                    }}
-                  >
-                    <T k="admin.posts.delete" />
-                  </button>
-                </div>
-              </Link>
+                  </span>
+                </a>
+                <button
+                  type="button"
+                  className={styles.deleteBtn}
+                  onClick={() => handleDeleteSeries(s)}
+                >
+                  <T k="admin.posts.delete" />
+                </button>
+              </li>
             ))}
-          </div>
-          <Link
-            href="/admin/posts/series/new"
+          </ul>
+          <a
+            href="/admin/settings?tab=content&sub=posts"
+            target="_blank"
+            rel="noopener noreferrer"
             className={styles.seriesNewBtn}
           >
             <T k="admin.posts.newSeries" />
-          </Link>
+          </a>
         </>
       )}
 
@@ -294,8 +414,60 @@ export default function AdminPostsPage() {
       onSave={handleSave}
       saveCount={publishOverrides.size}
       saveLabel={t("admin.posts.save")}
-      beforeTable={seriesSection}
+      beforeTable={!loading ? seriesSection : undefined}
     >
+      {/* Filter bar */}
+      <div className={shell.filterBar}>
+        <Select
+          value={sort}
+          options={[
+            { value: "newest", label: t("admin.posts.sortNewest") },
+            { value: "oldest", label: t("admin.posts.sortOldest") },
+            { value: "popular", label: t("admin.posts.sortPopular") },
+          ]}
+          onChange={(v) => { setSort(v); setPage(1); }}
+          className={shell.filterItem}
+        />
+        <Select
+          value={filterCategory}
+          options={[
+            { value: "", label: t("admin.posts.allCategories") },
+            ...categories.map((c) => ({
+              value: c.ko,
+              label: translateCategory(c.ko, language),
+            })),
+          ]}
+          onChange={(v) => { setFilterCategory(v); setPage(1); }}
+          className={shell.filterItem}
+        />
+        <Select
+          value={filterSeries}
+          options={[
+            { value: "", label: t("admin.posts.allSeries") },
+            ...seriesList.map((s) => ({
+              value: s.id,
+              label: s.title,
+            })),
+          ]}
+          onChange={(v) => { setFilterSeries(v); setPage(1); }}
+          className={shell.filterItem}
+        />
+        {hasFilters && (
+          <button
+            className={shell.filterReset}
+            onClick={() => { setSort("newest"); setFilterCategory(""); setFilterSeries(""); setPage(1); }}
+          >
+            {t("admin.posts.resetFilters")}
+          </button>
+        )}
+        <Select
+          value={String(perPage)}
+          options={PAGE_SIZE_OPTIONS}
+          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+          className={shell.filterPageSize}
+        />
+      </div>
+
       <AdminTable<Post>
         items={posts}
         columns={columns}
@@ -307,6 +479,7 @@ export default function AdminPostsPage() {
         onDelete={handleDelete}
         gridTemplate="40px 80px 1fr 80px 80px 140px"
         showRowNumbers
+        getRowLabel={(p) => p.post_number ?? "—"}
         loading={loading}
         emptyMessage={t("admin.posts.noPostsYet")}
         labels={labels}
@@ -314,64 +487,26 @@ export default function AdminPostsPage() {
         totalPages={totalPages}
         onPageChange={setPage}
         onRowHover={handleRowHover}
-        onRowLeave={() => setHoveredPost(null)}
-      >
-        {/* Hover preview tooltip */}
-        {hoveredPost && (
-          <div
-            className={shell.previewTooltip}
-            style={{ top: tooltipPos.top, left: tooltipPos.left }}
-          >
-            {hoveredPost.cover_image && (
-              <div className={shell.previewImage}>
-                {imgError ? (
-                  <div className={shell.previewPlaceholder}>
-                    <svg
-                      width="32"
-                      height="32"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                    >
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
-                    </svg>
-                  </div>
-                ) : (
-                  <Image
-                    src={hoveredPost.cover_image}
-                    alt=""
-                    width={280}
-                    height={140}
-                    className={shell.previewImg}
-                    unoptimized
-                    onError={() => setImgError(true)}
-                  />
-                )}
-              </div>
-            )}
-            <div className={shell.previewBody}>
-              <p className={shell.previewTitle}>{formatPostTitle(hoveredPost)}</p>
-              {hoveredPost.excerpt && (
-                <p className={shell.previewExcerpt}>
-                  {hoveredPost.excerpt}
-                </p>
-              )}
-              {hoveredPost.tags.length > 0 && (
-                <div className={shell.previewTags}>
-                  {hoveredPost.tags.map((tag) => (
-                    <span key={tag} className={shell.previewTag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </AdminTable>
+        onRowLeave={handleRowLeave}
+        onRowClick={handleRowClick}
+      />
+
+      {/* Hover / Tap preview tooltip — reads from refs, keyed by tooltipKey */}
+      <PreviewTooltip
+        key={tooltipKey}
+        post={hoveredPostRef.current}
+        pos={tooltipPosRef.current}
+        imgError={imgErrorRef.current}
+        onImgError={() => { imgErrorRef.current = true; setTooltipKey((k) => k + 1); }}
+        onDismiss={hideTooltip}
+        onNavigate={() => {
+          const post = hoveredPostRef.current;
+          if (post) {
+            hideTooltip();
+            router.push(`/admin/posts/${post.id}/edit`);
+          }
+        }}
+      />
 
     </AdminListShell>
   );
