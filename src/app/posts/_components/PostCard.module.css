@@ -61,22 +61,6 @@
   gap: var(--spacing-xs);
 }
 
-.pinnedBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs) var(--spacing-md);
-  border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
 /* ── Category badge ── */
 .categoryBadge {
   display: inline-flex;
@@ -138,6 +122,20 @@
 
 .dot {
   color: var(--text-tertiary);
+}
+
+.langHint {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 /* ═══════════════════════════════════════════
@@ -312,6 +310,19 @@
   color: rgba(255, 255, 255, 0.35);
 }
 
+.heroLangHint {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
 /* ── HOT badge — 이미지 오른쪽 상단 오버레이 ── */
 .hotBadge {
   position: absolute;
@@ -330,6 +341,29 @@
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  line-height: 1.4;
+}
+
+/* ── Pinned badge — 이미지 왼쪽 상단 오버레이 ── */
+.pinnedOverlay {
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   line-height: 1.4;
 }
 
