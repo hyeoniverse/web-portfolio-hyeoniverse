@@ -16,7 +16,7 @@
   --text-inverse: var(--color-neutral-0);
   --text-success: var(--color-success);
   --text-accent: var(--color-accent);
-  --text-accent-alt: var(--color-accent-light);
+  --text-accent-alt: var(--color-accent);
 }
 
 /* --------------------------------------------------------------------------
