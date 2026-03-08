@@ -5,11 +5,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import styles from "./HorizontalScrollSection.module.css";
 
-// GSAP 플러그인 등록
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
 interface HorizontalScrollSectionProps {
   children: ReactNode;
   id: string;
@@ -31,6 +26,7 @@ export default function HorizontalScrollSection({
   const [isActive, setIsActive] = useState(false);
 
   useLayoutEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
     const container = containerRef.current;
     const wrapper = wrapperRef.current;
     const progress = progressRef.current;

@@ -134,14 +134,8 @@ export default function FloatingObject() {
   }, [syncBubble]);
 
   const dpr = isTouch
-    ? Math.min(
-        typeof window !== "undefined" ? window.devicePixelRatio : 1,
-        1.5
-      )
-    : Math.min(
-        typeof window !== "undefined" ? window.devicePixelRatio : 1,
-        2
-      );
+    ? Math.min(globalThis.devicePixelRatio ?? 1, 1.5)
+    : Math.min(globalThis.devicePixelRatio ?? 1, 2);
 
   return (
     <div className={styles.overlay}>

@@ -20,23 +20,11 @@ export function checkMobileLayout(): boolean {
 
 let listeners: Array<() => void> = [];
 let cachedMobile = false;
+let initialized = false;
 
-function subscribe(cb: () => void) {
-  listeners.push(cb);
-  return () => {
-    listeners = listeners.filter((l) => l !== cb);
-  };
-}
-
-function getSnapshot(): boolean {
-  return cachedMobile;
-}
-
-function getServerSnapshot(): boolean {
-  return false;
-}
-
-if (typeof window !== "undefined") {
+function ensureInit() {
+  if (initialized || typeof window === "undefined") return;
+  initialized = true;
   cachedMobile = checkMobileLayout();
   window.addEventListener("resize", () => {
     const next = checkMobileLayout();
@@ -45,6 +33,23 @@ if (typeof window !== "undefined") {
       listeners.forEach((l) => l());
     }
   });
+}
+
+function subscribe(cb: () => void) {
+  ensureInit();
+  listeners.push(cb);
+  return () => {
+    listeners = listeners.filter((l) => l !== cb);
+  };
+}
+
+function getSnapshot(): boolean {
+  ensureInit();
+  return cachedMobile;
+}
+
+function getServerSnapshot(): boolean {
+  return false;
 }
 
 /**

@@ -181,7 +181,6 @@ export default function TorusScene({
 
   return (
     <>
-      {/* 환경 반사맵 (메탈릭 반사용) */}
       <Environment preset="city" />
 
       <ambientLight intensity={0.3} />
