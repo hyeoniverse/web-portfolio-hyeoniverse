@@ -396,7 +396,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         setSaving(false);
       }
     },
-    [form, isEdit, post, router, te]
+    [form, router, te, isEdit]
   );
 
   const handleDelete = useCallback(async () => {

@@ -70,7 +70,7 @@ function buildPromptSuggestions(ctx: PostContext): string[] {
 
 export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabProps) {
   const { t } = useLanguage();
-  const tc = (key: string) => t(`admin.posts.coverPicker.${key}`);
+  const tc = useCallback((key: string) => t(`admin.posts.coverPicker.${key}`), [t]);
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState<StyleKey>("abstract");
   const [generating, setGenerating] = useState(false);
@@ -106,7 +106,7 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
     } finally {
       setGenerating(false);
     }
-  }, [prompt, style]);
+  }, [prompt, style, tc]);
 
   const handleClear = useCallback(() => {
     setPrompt("");

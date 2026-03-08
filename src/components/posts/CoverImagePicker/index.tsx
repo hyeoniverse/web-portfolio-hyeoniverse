@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import PresetTab from "./PresetTab";
 import UnsplashTab from "./UnsplashTab";
@@ -27,7 +27,7 @@ export default function CoverImagePicker({
   postContext,
 }: CoverImagePickerProps) {
   const { t } = useLanguage();
-  const tc = (key: string) => t(`admin.posts.coverPicker.${key}`);
+  const tc = useCallback((key: string) => t(`admin.posts.coverPicker.${key}`), [t]);
   const [activeTab, setActiveTab] = useState<Tab>("presets");
 
   const tabs = useMemo(

@@ -221,9 +221,12 @@ export default function PeriodPicker({
   const { t, language } = useLanguage();
 
   // 구 형식이나 undefined 방어
-  const safeValue: DatePeriod = value && typeof value === "object" && "format" in value
-    ? value
-    : { start: "", format: "year" };
+  const safeValue: DatePeriod = useMemo(
+    () => value && typeof value === "object" && "format" in value
+      ? value
+      : { start: "", format: "year" },
+    [value],
+  );
 
   const hasRange = !!(safeValue.end || safeValue.ongoing);
 
