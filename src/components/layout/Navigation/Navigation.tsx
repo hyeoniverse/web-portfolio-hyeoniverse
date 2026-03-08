@@ -99,6 +99,18 @@ export default function Navigation() {
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
   const showLoadingLogo = isLoading && !shouldSkipLoading;
 
+  // 로딩→nav 전환 시 z-index 유지: LoadingScreen 페이드아웃 완료까지 nav를 overlay 위에 유지
+  const [elevatedZ, setElevatedZ] = useState(false);
+  useEffect(() => {
+    if (showLoadingLogo) {
+      setElevatedZ(true);
+    } else if (elevatedZ) {
+      // LoadingScreen 페이드아웃(0.5s) + 여유 → 그 후 z-index 정상화
+      const timer = setTimeout(() => setElevatedZ(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [showLoadingLogo, elevatedZ]);
+
   // ── Mobile menu drawer (clip-path, ContactDrawer pattern) ──
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -320,7 +332,7 @@ export default function Navigation() {
   }, [router]);
 
   return (
-    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${isAdminPage ? styles.navAdmin : ""}`}>
+    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""}`}>
       <div className={styles.logoGroup}>
         <motion.div
           ref={logoRef}
@@ -331,9 +343,9 @@ export default function Navigation() {
               : { x: 0, y: 0, scale: 1 }
           }
           transition={{
-            duration: isTransitioning ? 0.7 : 0,
+            duration: isTransitioning ? 0.8 : 0,
             ease: [0.76, 0, 0.24, 1],
-            delay: isTransitioning ? 0.25 : 0,
+            delay: isTransitioning ? 0.05 : 0,
           }}
           style={{
             transformOrigin: "left center",
