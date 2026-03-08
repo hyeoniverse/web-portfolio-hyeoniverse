@@ -4,6 +4,10 @@
   position: relative;
 }
 
+.rootOpen {
+  z-index: var(--z-dropdown);
+}
+
 .trigger {
   display: flex;
   align-items: center;
@@ -14,6 +18,8 @@
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
@@ -34,7 +40,8 @@
 
 .arrow {
   flex-shrink: 0;
-  font-size: var(--font-size-sm);
+  font-size: 10px;
+  line-height: 1;
   color: var(--text-tertiary);
   transition: transform 0.2s;
 }
@@ -45,24 +52,27 @@
 
 .dropdown {
   position: absolute;
-  top: calc(100% + var(--spacing-2xs));
+  top: calc(100% - 1px);
   left: 0;
   right: 0;
   max-height: 280px;
   overflow-y: auto;
   overscroll-behavior: contain;
   border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  background: transparent;
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
   z-index: var(--z-dropdown);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
+  gap: 2px;
   padding: var(--spacing-2xs);
 }
 
 .option {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;

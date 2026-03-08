@@ -44,7 +44,7 @@ export default function Select({
   const selected = options.find((o) => o.value === value);
 
   return (
-    <div className={`${styles.root} ${className ?? ""}`} ref={ref}>
+    <div className={`${styles.root} ${open ? styles.rootOpen : ""} ${className ?? ""}`} ref={ref}>
       <button
         type="button"
         className={styles.trigger}
