@@ -14,8 +14,8 @@ interface LoadingScreenResult {
 // 상수
 // ============================================
 const LOADING_CONFIG = {
-  minLoadingTime: 1500, // 로딩 화면을 표시할 최소 시간
-  transitionDelay: 1200, // 퇴장 애니메이션 지속 시간 (로고 모프 + 와이프)
+  minLoadingTime: 500, // 로딩 화면을 표시할 최소 시간
+  transitionDelay: 700, // 퇴장 애니메이션 지속 시간 (로고 모프 + 와이프)
 } as const;
 
 // ============================================
@@ -71,7 +71,7 @@ export function useLoadingScreen(): LoadingScreenResult {
       hasCompletedRef.current = true;
       hasCompletedInitialLoad = true;
 
-      // 짧은 일시 정지 후 퇴장 전환 시작
+      // 짧은 일시 정지 후 퇴장 전환 시작 (200ms)
       setTimeout(() => {
         if (!mounted) return;
         setIsTransitioning(true);
@@ -82,7 +82,7 @@ export function useLoadingScreen(): LoadingScreenResult {
           setIsLoading(false);
           setIsTransitioning(false);
         }, LOADING_CONFIG.transitionDelay);
-      }, 400);
+      }, 200);
     };
 
     // 폴링 시작
