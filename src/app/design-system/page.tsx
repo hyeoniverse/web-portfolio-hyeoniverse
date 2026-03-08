@@ -321,6 +321,7 @@ const MOCK_POST: Post = {
   title_en: "The Art of Visual Storytelling",
   content_en: "",
   excerpt_en: "Exploring the intersection of design, photography, and narrative through a modern digital lens.",
+  post_number: 0,
   series_id: null,
   series_order: 0,
 };
