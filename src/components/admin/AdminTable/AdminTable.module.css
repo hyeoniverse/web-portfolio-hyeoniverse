@@ -71,7 +71,7 @@
 
 /* Changed row indicator */
 .rowChanged {
-  background: var(--color-accent-alpha-5, rgba(208, 16, 70, 0.03));
+  background: var(--color-accent-alpha-5);
 }
 
 /* ── Meta columns ── */
@@ -301,7 +301,7 @@
 }
 
 .pageBtn:disabled {
-  color: var(--text-muted, var(--text-tertiary));
+  color: var(--text-muted);
   border-color: var(--border-tertiary-color);
   opacity: 0.4;
   cursor: not-allowed;
@@ -332,7 +332,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-modal, 1000);
+  z-index: var(--z-overlay);
   animation: overlayFadeIn 0.2s ease;
 }
 

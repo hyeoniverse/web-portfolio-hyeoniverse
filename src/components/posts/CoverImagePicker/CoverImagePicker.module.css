@@ -226,7 +226,7 @@
   background: rgba(0, 0, 0, 0.6);
   font-family: var(--font-space-grotesk);
   font-size: 9px;
-  color: #ccc;
+  color: var(--text-muted);
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;

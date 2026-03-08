@@ -24,7 +24,7 @@
 
 .archPath {
   flex-shrink: 0;
-  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-family: var(--font-jetbrains), monospace;
   font-size: var(--_fs-body);
   font-weight: var(--font-weight-medium);
   transition: color var(--duration-base) ease;
@@ -190,7 +190,7 @@
 }
 
 .archNodePath {
-  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-family: var(--font-jetbrains), monospace;
   font-size: var(--_fs-small);
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
@@ -258,7 +258,7 @@
 
 .archTmLabel {
   overflow: hidden;
-  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-family: var(--font-jetbrains), monospace;
   font-size: clamp(9px, 0.7vw, 13px);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
@@ -309,7 +309,7 @@
 }
 
 .archSunburst .archSbLabel {
-  font-family: var(--font-jetbrains, var(--font-mono)), monospace;
+  font-family: var(--font-jetbrains), monospace;
   font-size: clamp(8px, 0.65vw, 12px);
   font-weight: var(--font-weight-medium);
   pointer-events: none;
