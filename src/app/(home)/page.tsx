@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -38,9 +38,25 @@ const ScrollTorus = dynamic(
 
 import styles from "./Home.module.css";
 
+// GSAP 플러그인 등록
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export default function HomePage() {
   const hasMounted = useHasMounted();
   const { isLoading } = useLoadingScreen();
+
+  // 콘텐츠 등장 지연: 로고→nav→hero 순차 등장을 위해 isLoading false 후 딜레이
+  const [contentReady, setContentReady] = useState(false);
+  useEffect(() => {
+    if (!isLoading) {
+      // nav 아이템이 페이드인(0.4s)된 후 콘텐츠 슬라이드업 시작
+      const timer = setTimeout(() => setContentReady(true), 300);
+      return () => clearTimeout(timer);
+    }
+    setContentReady(false);
+  }, [isLoading]);
   const { setInfinite, stop: lenisStop, start: lenisStart, lenis } = useLenis();
 
   // 로딩 중 Lenis 정지 — 스크롤 위치 밀림 방지
@@ -57,7 +73,7 @@ export default function HomePage() {
   // 무한 스크롤: 진입 애니메이션 완료(~1.7s) 후 활성화
   useEffect(() => {
     if (isLoading) return;
-    const timer = setTimeout(() => setInfinite(true), 500);
+    const timer = setTimeout(() => setInfinite(true), 2200);
     return () => {
       clearTimeout(timer);
       setInfinite(false);
@@ -69,10 +85,8 @@ export default function HomePage() {
   useEffect(() => {
     if (isLoading || showTorus) return;
     const load = () => { setShowTorus(true); };
-    // 스크롤 또는 마우스 이동 시 로드
     window.addEventListener("scroll", load, { once: true, passive: true });
     window.addEventListener("mousemove", load, { once: true, passive: true });
-    // idle 시 로드 (Lighthouse 측정 후에 로드되도록 충분한 지연)
     const idleId = "requestIdleCallback" in window
       ? requestIdleCallback(() => { setTimeout(load, 8000); }, { timeout: 15000 })
       : setTimeout(load, 10000);
@@ -111,12 +125,12 @@ export default function HomePage() {
 
   const floatX = useTransform(
     smoothMouseX,
-    [0, 1920],
+    [0, typeof window !== "undefined" ? window.innerWidth : 1920],
     [-30, 30],
   );
   const floatY = useTransform(
     smoothMouseY,
-    [0, 1080],
+    [0, typeof window !== "undefined" ? window.innerHeight : 1080],
     [-30, 30],
   );
 
@@ -155,27 +169,29 @@ export default function HomePage() {
   useEffect(() => {
     if (!hasMounted || isLoading) return;
 
-    gsap.registerPlugin(ScrollTrigger);
-
     let ctx: gsap.Context;
     let refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
     const initTimeout = requestAnimationFrame(() => {
+      // 레이아웃 재계산 강제 실행
+      void document.body.offsetHeight;
+
       ctx = gsap.context(() => {
-        // 히어로 섹션 애니메이션 — y/opacity 최소화: LCP 요소가 뷰포트 내 유지
+        // 히어로 섹션 애니메이션
         gsap.from(".hero-line", {
-          y: 30,
-          duration: 0.3,
-          stagger: 0.03,
+          y: 120,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.1,
           ease: "power4.out",
-          delay: 0,
+          delay: 0.1,
         });
 
         gsap.from(".hero-line-decoration", {
           scaleX: 0,
-          duration: 0.3,
+          duration: 0.7,
           ease: "power3.inOut",
-          delay: 0.15,
+          delay: 0.6,
         });
 
         // Profile 섹션 등장
@@ -280,8 +296,8 @@ export default function HomePage() {
 
       ScrollTrigger.refresh(true);
 
-      // 진입 애니메이션 완료 후 트리거 위치 재계산
-      refreshTimer = setTimeout(() => ScrollTrigger.refresh(true), 500);
+      // 진입 애니메이션(1.0s slide + 0.6s expand) 완료 후 트리거 위치 재계산
+      refreshTimer = setTimeout(() => ScrollTrigger.refresh(true), 2000);
     });
 
     return () => {
@@ -291,12 +307,40 @@ export default function HomePage() {
     };
   }, [hasMounted, isLoading]);
 
+  if (!hasMounted) return null;
+
   return (
     <div className={styles.pageWrapper}>
       {showTorus && <ScrollTorus />}
-      <div
-        className={`${styles.home} ${!isLoading ? styles.homeReady : ""}`}
+      <motion.div
+        className={styles.home}
         ref={containerRef}
+        initial={{
+          y: "100vh",
+          width: "90%",
+          borderRadius: "var(--radius-2xl)",
+        }}
+        animate={{
+          y: contentReady ? 0 : "100vh",
+          width: contentReady ? "100%" : "90%",
+          borderRadius: contentReady ? "0px" : "var(--radius-2xl)",
+        }}
+        transition={{
+          y: {
+            duration: 1.0,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          },
+          width: {
+            duration: 0.6,
+            delay: 0.8,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          },
+          borderRadius: {
+            duration: 0.6,
+            delay: 0.8,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          },
+        }}
       >
         <HeroSection
           ref={heroRef}
@@ -365,7 +409,7 @@ export default function HomePage() {
         >
           {toast?.message}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

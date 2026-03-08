@@ -14,8 +14,8 @@ interface LoadingScreenResult {
 // 상수
 // ============================================
 const LOADING_CONFIG = {
-  minLoadingTime: 50, // 로딩 화면을 표시할 최소 시간
-  transitionDelay: 50, // 퇴장 애니메이션 지속 시간
+  minLoadingTime: 1200, // 로딩 화면을 표시할 최소 시간
+  transitionDelay: 700, // 퇴장 애니메이션 지속 시간 (로고 모프 + 와이프)
 } as const;
 
 // ============================================
@@ -37,17 +37,28 @@ export function useLoadingScreen(): LoadingScreenResult {
 
   const startTimeRef = useRef<number>(Date.now());
   const hasCompletedRef = useRef(hasCompletedInitialLoad);
+  const fontsLoadedRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
 
-    // 완료 조건 체크: DOM 파싱 완료 시 즉시 해제 (fonts.ready 대기 제거 — font-display: swap이 처리)
+    // 폰트 로드 상태 추적
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        fontsLoadedRef.current = true;
+      });
+    } else {
+      fontsLoadedRef.current = true;
+    }
+
+    // 완료 조건 체크
     const checkReady = () => {
       if (!mounted || hasCompletedRef.current) return;
 
       const elapsed = Date.now() - startTimeRef.current;
       const minTimePassed = elapsed >= LOADING_CONFIG.minLoadingTime;
-      const isReady = document.readyState !== "loading";
+      const isReady =
+        document.readyState === "complete" && fontsLoadedRef.current;
 
       if (minTimePassed && isReady) {
         completeLoading();
@@ -60,14 +71,18 @@ export function useLoadingScreen(): LoadingScreenResult {
       hasCompletedRef.current = true;
       hasCompletedInitialLoad = true;
 
-      setIsTransitioning(true);
-
-      // 전환 애니메이션 후 로딩 화면 숨김
+      // 짧은 일시 정지 후 퇴장 전환 시작 (200ms)
       setTimeout(() => {
         if (!mounted) return;
-        setIsLoading(false);
-        setIsTransitioning(false);
-      }, LOADING_CONFIG.transitionDelay);
+        setIsTransitioning(true);
+
+        // 전환 애니메이션 후 로딩 화면 숨김
+        setTimeout(() => {
+          if (!mounted) return;
+          setIsLoading(false);
+          setIsTransitioning(false);
+        }, LOADING_CONFIG.transitionDelay);
+      }, 200);
     };
 
     // 폴링 시작
