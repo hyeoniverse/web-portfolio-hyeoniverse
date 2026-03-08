@@ -542,7 +542,7 @@ export default function SettingsPage() {
       if (profileConflicts.length > 0) {
         mergedProfile = { ...profileData };
         for (const c of profileConflicts) {
-          (mergedProfile as Record<string, unknown>)[c.path] =
+          (mergedProfile as unknown as Record<string, unknown>)[c.path] =
             structuredClone((profileDefaults as unknown as Record<string, unknown>)[c.path]);
         }
       }
