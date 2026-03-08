@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import T from "@/components/ui/T";
@@ -51,11 +51,18 @@ export default function CategoryNav({
   }, []);
 
   // extra categories (DB에 있지만 config에 없는 카테고리) 통합
-  const extraBilingual: BilingualCategory[] = extraCategories
-    .filter((ec) => !categories.some((c) => c.ko === ec || c.en === ec))
-    .map((ec) => ({ ko: ec, en: ec }));
+  const extraBilingual = useMemo<BilingualCategory[]>(
+    () =>
+      extraCategories
+        .filter((ec) => !categories.some((c) => c.ko === ec || c.en === ec))
+        .map((ec) => ({ ko: ec, en: ec })),
+    [extraCategories, categories],
+  );
 
-  const allCategories = [...categories, ...extraBilingual];
+  const allCategories = useMemo(
+    () => [...categories, ...extraBilingual],
+    [categories, extraBilingual],
+  );
 
   // ko 또는 en 값으로 매칭
   const isActive = (cat: BilingualCategory) =>
