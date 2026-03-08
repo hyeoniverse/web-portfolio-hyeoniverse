@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
-import Image from "next/image";
+import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
@@ -171,7 +171,7 @@ export default function DetailLayout({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
         >
-          <Image
+          <ProgressiveImage
             src={heroImage}
             alt={heroAlt}
             fill

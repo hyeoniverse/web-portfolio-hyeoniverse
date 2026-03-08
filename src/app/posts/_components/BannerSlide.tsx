@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import type { Post } from "@/types/post";
@@ -32,7 +32,7 @@ export default function BannerSlide({
   const showLangHint = language === "en" && !post.content_en;
 
   const image = post.cover_image && !imgError ? (
-    <Image
+    <ProgressiveImage
       src={post.cover_image}
       alt={title}
       fill

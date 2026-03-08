@@ -1,0 +1,59 @@
+.wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* LQIP: 초소형 이미지를 블러 처리해서 플레이스홀더로 사용 */
+.lqip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(20px);
+  transform: scale(1.1); /* 블러 가장자리 잘림 방지 */
+  transition: opacity 0.4s ease;
+}
+
+.lqipHidden {
+  opacity: 0;
+}
+
+/* CSS shimmer: LQIP가 없는 이미지용 */
+.shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--color-white-alpha-5) 25%,
+    var(--color-white-alpha-10) 50%,
+    var(--color-white-alpha-5) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  transition: opacity 0.4s ease;
+}
+
+.shimmerHidden {
+  opacity: 0;
+}
+
+/* 원본 이미지: 로드 완료 전까지 투명 */
+.full {
+  transition: opacity 0.4s ease;
+  opacity: 0;
+}
+
+.fullLoaded {
+  opacity: 1;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Post } from "@/types/post";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
@@ -47,7 +47,7 @@ export default function PostCard({
       <Link href={`/posts/${post.slug}`} className={cardClass}>
         {/* 풀 배경 이미지 */}
         {showImage ? (
-          <Image
+          <ProgressiveImage
             src={post.cover_image}
             alt={post.title}
             fill
@@ -109,7 +109,7 @@ export default function PostCard({
     >
       <div className={styles.imageWrap}>
         {showImage ? (
-          <Image
+          <ProgressiveImage
             src={post.cover_image}
             alt={post.title}
             fill

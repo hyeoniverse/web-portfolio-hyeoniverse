@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion } from "framer-motion";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -148,7 +149,7 @@ function SplitBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
         <div className={styles.splitImage}>
           <Link href={`/posts/${post.slug}`} className={styles.splitImageLink}>
             {post.cover_image && !imgErrors.has(post.id) ? (
-              <Image
+              <ProgressiveImage
                 src={post.cover_image}
                 alt={title}
                 fill
@@ -245,7 +246,7 @@ function CardsBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
                 onClick={(e) => !isCenter && e.preventDefault()}
               >
                 {post.cover_image && !imgErrors.has(post.id) ? (
-                  <Image
+                  <ProgressiveImage
                     src={post.cover_image}
                     alt={title}
                     fill
