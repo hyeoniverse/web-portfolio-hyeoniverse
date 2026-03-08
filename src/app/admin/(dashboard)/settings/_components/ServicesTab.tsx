@@ -63,10 +63,10 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* Translation */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Translation</h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.translationSettings" /></h2>
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>Provider</label>
+            <label className={styles.fieldLabel}><T k="admin.settings.translationProvider" /></label>
             <Select
               value={config.translation?.provider ?? "deepl"}
               options={[

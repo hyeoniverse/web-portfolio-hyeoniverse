@@ -23,7 +23,7 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
       {/* Design System Preview Link */}
       <section className={styles.section}>
         <div className={styles.sectionTitleRow}>
-          <h2 className={styles.sectionTitle}>Design System</h2>
+          <h2 className={styles.sectionTitle}><T k="admin.settings.designSystem" /></h2>
           <TextLink href="/design-system" external>
             <T k="admin.settings.openDesignSystem" /> ↗
           </TextLink>
@@ -118,7 +118,7 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
           </TextLink>
         </div>
         <p className={styles.sectionHint}>
-          프리셋에서 선택하거나, 직접 입력란에 Google Fonts 이름을 입력하세요. (예: Roboto, Nanum Gothic)
+          <T k="admin.settings.fontHint" />
         </p>
         <div className={styles.fields}>
           <FontSelect

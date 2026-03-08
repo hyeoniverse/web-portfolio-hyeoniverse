@@ -372,10 +372,10 @@ export default function ContentTab({
         <>
           {/* Banner Settings */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Banner</h2>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.banner" /></h2>
             <div className={styles.fields}>
               <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>Banner Layout</label>
+                <label className={styles.fieldLabel}><T k="admin.settings.bannerLayout" /></label>
                 <Select
                   value={config.posts.bannerLayout ?? "fullwidth"}
                   options={[
@@ -388,7 +388,7 @@ export default function ContentTab({
                 />
               </div>
               <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>Banner Style</label>
+                <label className={styles.fieldLabel}><T k="admin.settings.bannerStyle" /></label>
                 <Select
                   value={config.posts.bannerStyle ?? "editorial"}
                   options={[
@@ -401,7 +401,7 @@ export default function ContentTab({
                 />
               </div>
               <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>Banner Transition</label>
+                <label className={styles.fieldLabel}><T k="admin.settings.bannerTransition" /></label>
                 <Select
                   value={config.posts.bannerTransition ?? "default"}
                   options={[
@@ -409,6 +409,39 @@ export default function ContentTab({
                     { value: "cylinder", label: "Cylinder" },
                   ]}
                   onChange={(v) => update("posts", "bannerTransition", v as SiteConfigData["posts"]["bannerTransition"])}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Pagination */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.pagination" /></h2>
+            <div className={styles.fields}>
+              <div className={styles.fieldRow}>
+                <label className={styles.fieldLabel}><T k="admin.settings.postsPerPage" /></label>
+                <Select
+                  value={String(config.posts.perPage ?? 10)}
+                  options={[
+                    { value: "10", label: "10" },
+                    { value: "20", label: "20" },
+                    { value: "50", label: "50" },
+                    { value: "100", label: "100" },
+                  ]}
+                  onChange={(v) => update("posts", "perPage", Number(v))}
+                />
+              </div>
+              <div className={styles.fieldRow}>
+                <label className={styles.fieldLabel}><T k="admin.settings.adminPerPage" /></label>
+                <Select
+                  value={String(config.posts.adminPerPage ?? 20)}
+                  options={[
+                    { value: "10", label: "10" },
+                    { value: "20", label: "20" },
+                    { value: "50", label: "50" },
+                    { value: "100", label: "100" },
+                  ]}
+                  onChange={(v) => update("posts", "adminPerPage", Number(v))}
                 />
               </div>
             </div>
@@ -435,6 +468,26 @@ export default function ContentTab({
 
       {contentSubTab === "works" && (
         <>
+          {/* Works Pagination */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.pagination" /></h2>
+            <div className={styles.fields}>
+              <div className={styles.fieldRow}>
+                <label className={styles.fieldLabel}><T k="admin.settings.adminPerPage" /></label>
+                <Select
+                  value={String(config.works.adminPerPage ?? 20)}
+                  options={[
+                    { value: "10", label: "10" },
+                    { value: "20", label: "20" },
+                    { value: "50", label: "50" },
+                    { value: "100", label: "100" },
+                  ]}
+                  onChange={(v) => update("works", "adminPerPage", Number(v))}
+                />
+              </div>
+            </div>
+          </section>
+
           {/* Works Categories */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}><T k="admin.settings.worksCategories" /></h2>

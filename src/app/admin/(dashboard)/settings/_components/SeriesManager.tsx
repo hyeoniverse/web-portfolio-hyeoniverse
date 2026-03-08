@@ -381,7 +381,7 @@ function SeriesInlineEditor({
 
       {isEdit && (
         <div className={styles.seriesPostsSection}>
-          <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.posts" /> ({posts.length})</label>
+          <label className={styles.fieldLabel} style={{ flexDirection: "row", gap: "4px", whiteSpace: "nowrap" }}><T k="admin.posts.seriesModal.posts" /> ({posts.length})</label>
           {postsLoading ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
               {[0, 1, 2].map((i) => <SkeletonLine key={i} width="100%" height={32} />)}
@@ -415,7 +415,27 @@ function SeriesInlineEditor({
                       </svg>
                     </button>
                   </div>
-                  <span className={styles.seriesPostTitle}>{post.title || <T k="admin.posts.seriesModal.untitled" />}</span>
+                  <a
+                    href={`/admin/posts/${post.id}/edit`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.seriesPostTitle}
+                  >
+                    {post.title || <T k="admin.posts.seriesModal.untitled" />}
+                  </a>
+                  <a
+                    href={`/posts/${post.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.seriesPostViewBtn}
+                    title={t("admin.posts.seriesModal.viewPost")}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                  </a>
                   <span className={`${styles.seriesPostStatus} ${post.published ? styles.seriesPostPublished : styles.seriesPostDraft}`}>
                     {post.published ? "P" : "D"}
                   </span>
