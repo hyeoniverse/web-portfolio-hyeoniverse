@@ -27,15 +27,37 @@
 }
 
 /* ==========================================================================
-   2. Split — left image / right text
+   2. Split — 가로 슬라이드 카드
    ========================================================================== */
+.splitWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.splitTrack {
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  border: var(--border-light);
+}
+
+.splitReel {
+  display: flex;
+  will-change: transform;
+}
+
+/* 애니메이션 활성 시만 전환 — 무한루프 점프 시 제거 */
+/* Compound selector (0,2,0) — global theme transition 우회 */
+.splitTrack .splitReelAnimated {
+  transition: transform 0.6s var(--ease-material);
+}
+
 .split {
   display: flex;
   gap: 0;
   height: clamp(280px, 44vh, 480px);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  border: var(--border-light);
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .splitImage {
@@ -44,9 +66,11 @@
   overflow: hidden;
 }
 
-.splitImageInner {
-  position: absolute;
-  inset: 0;
+.splitImageLink {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .splitImg {
@@ -56,7 +80,11 @@
 .splitFallback {
   position: absolute;
   inset: 0;
-  background: var(--bg-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  color: var(--text-quaternary);
 }
 
 .splitContent {
@@ -107,8 +135,7 @@
 .splitDots {
   display: flex;
   gap: 6px;
-  margin-top: auto;
-  padding-top: var(--spacing-md);
+  justify-content: center;
 }
 
 /* ==========================================================================
@@ -154,7 +181,11 @@
 .cardFallback {
   position: absolute;
   inset: 0;
-  background: var(--bg-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  color: var(--text-quaternary);
 }
 
 .cardOverlay {
@@ -210,17 +241,34 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: 0 var(--spacing-lg) 0 0;
-  border-radius: var(--radius-lg);
-  border: var(--border-light);
-  background: var(--bg-primary);
   min-height: 72px;
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+.tickerTrack {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 72px;
   overflow: hidden;
 }
 
+.tickerReel {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+/* 애니메이션 활성 시만 — 무한루프 점프 시 제거 */
+/* Compound selector (0,2,0) — global theme transition 우회 */
+.tickerTrack .tickerReelAnimated {
+  transition: transform 0.4s var(--ease-material);
+}
+
 .tickerInner {
-  flex: 1;
-  min-width: 0;
+  height: 72px;
+  flex-shrink: 0;
 }
 
 .tickerLink {
@@ -246,7 +294,11 @@
 .tickerThumbFallback {
   position: absolute;
   inset: 0;
-  background: var(--bg-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  color: var(--text-quaternary);
 }
 
 .tickerCategory {
@@ -285,6 +337,7 @@
   .split {
     flex-direction: column;
     height: auto;
+    min-height: 320px;
   }
 
   .splitImage {
