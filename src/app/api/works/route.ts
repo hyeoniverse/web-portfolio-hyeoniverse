@@ -8,6 +8,9 @@ export async function GET(request: Request) {
   const showAll = searchParams.get("all") === "true"; // admin용
   const page = parseInt(searchParams.get("page") ?? "0");
   const limit = parseInt(searchParams.get("limit") ?? "0");
+  const sort = searchParams.get("sort") ?? "order";
+  const category = searchParams.get("category");
+  const year = searchParams.get("year");
 
   const supabase = createAdminClient();
 
@@ -17,7 +20,22 @@ export async function GET(request: Request) {
     query = query.eq("published", true);
   }
 
-  query = query.order("sort_order", { ascending: true });
+  if (category) {
+    query = query.eq("category_ko", category);
+  }
+  if (year) {
+    query = query.eq("year", year);
+  }
+
+  if (sort === "newest") {
+    query = query.order("created_at", { ascending: false });
+  } else if (sort === "oldest") {
+    query = query.order("created_at", { ascending: true });
+  } else if (sort === "name") {
+    query = query.order("title", { ascending: true });
+  } else {
+    query = query.order("sort_order", { ascending: true });
+  }
 
   // 페이지네이션 (page/limit 둘 다 있을 때만 적용)
   if (page > 0 && limit > 0) {

@@ -289,7 +289,7 @@
   color: var(--text-tertiary);
 }
 
-.pagination .pageBtn:hover:not(:disabled) {
+.pagination .pageBtn:hover:not(:disabled):not(.pageBtnActive) {
   border-color: var(--text-primary);
   color: var(--text-primary);
 }
@@ -300,13 +300,11 @@
   color: var(--bg-primary);
 }
 
-.pagination .pageBtnActive:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-}
-
 .pageBtn:disabled {
-  opacity: 0.75;
+  color: var(--text-muted, var(--text-tertiary));
+  border-color: var(--border-tertiary-color);
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .ellipsis {

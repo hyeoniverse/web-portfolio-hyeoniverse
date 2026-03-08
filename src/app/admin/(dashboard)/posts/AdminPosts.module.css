@@ -29,44 +29,66 @@
   transform: rotate(180deg);
 }
 
-.seriesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
+.seriesList {
+  list-style: none;
+  margin: var(--spacing-xs) 0 0;
+  padding: 0;
 }
 
-.seriesCard {
-  border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+.seriesRow {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--border-tertiary-color);
 }
 
-.seriesSection .seriesCard:hover {
-  border-color: var(--text-tertiary);
+.seriesRow:first-child {
+  border-top: 1px solid var(--border-tertiary-color);
 }
 
-.seriesCardThumb {
-  width: 100%;
-  height: 80px;
-  overflow: hidden;
+.seriesRowLink {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-sm);
+  text-decoration: none;
+  color: inherit;
+}
+
+.seriesSection .seriesRow:hover {
   background: var(--bg-tertiary);
 }
 
-.seriesCardImg {
+.seriesRowThumb {
+  flex-shrink: 0;
+  width: 96px;
+  align-self: stretch;
+  margin: calc(-1 * var(--spacing-md)) 0;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  display: flex;
+}
+
+.seriesRowImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
-.seriesCardBody {
-  padding: var(--spacing-sm) var(--spacing-md);
-  flex: 1;
+.seriesRowNoImg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-muted);
 }
 
-.seriesCardTitle {
+.seriesRowTitle {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -74,46 +96,40 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-bottom: var(--spacing-2xs);
+  flex-shrink: 1;
+  min-width: 0;
 }
 
-.seriesCardMeta {
+.seriesRowMeta {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
+  flex-shrink: 0;
 }
 
-.seriesCardCat {
+.seriesRowCat {
   padding: 1px var(--spacing-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-size: 10px;
 }
 
-.seriesCardActions {
-  display: flex;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md) var(--spacing-sm);
-}
-
 .seriesNewBtn {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border: 1px solid var(--border-tertiary-color);
-  border-radius: var(--radius-md);
+  display: inline-block;
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-2xs) 0;
+  border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  width: 100%;
+  text-decoration: none;
 }
 
 .seriesNewBtn:hover {
-  border-color: var(--text-tertiary);
   color: var(--text-primary);
 }
 
@@ -138,6 +154,8 @@
 }
 
 .deleteBtn {
+  align-self: center;
+  margin-right: var(--spacing-sm);
   padding: var(--spacing-2xs) var(--spacing-md);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-capsule);
@@ -147,12 +165,14 @@
   color: var(--color-accent);
 }
 
-.seriesCardActions .deleteBtn:hover {
+.seriesRow .deleteBtn:hover {
   background: var(--color-accent-alpha-10);
 }
 
 @media (max-width: 768px) {
-  .seriesGrid {
-    grid-template-columns: 1fr;
+  .seriesRowLink {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2xs);
   }
 }

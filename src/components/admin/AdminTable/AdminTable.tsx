@@ -48,8 +48,10 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onPageChange?: (page: number) => void;
   onRowHover?: (item: T, e: React.MouseEvent) => void;
   onRowLeave?: () => void;
+  onRowClick?: (item: T, e: React.MouseEvent) => void;
   onReorder?: (fromIdx: number, toIdx: number) => void;
   showRowNumbers?: boolean;
+  getRowLabel?: (item: T, index: number) => string | number;
   children?: ReactNode;
 }
 
@@ -72,8 +74,10 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onPageChange,
   onRowHover,
   onRowLeave,
+  onRowClick,
   onReorder,
   showRowNumbers = false,
+  getRowLabel,
   children,
 }: AdminTableProps<T>) {
   const router = useRouter();
@@ -243,7 +247,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               className={`${styles.row} ${changed ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""}`}
               data-clickable="true"
               draggable={!!onReorder}
-              onClick={() => handleRowClick(item)}
+              onClick={(e) => onRowClick ? onRowClick(item, e) : handleRowClick(item)}
               onDragStart={
                 onReorder
                   ? (e) => {
@@ -346,7 +350,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 </span>
               ) : showRowNumbers ? (
                 <span className={styles.rowNum}>
-                  <span className={styles.rowNumText}>{i + 1}</span>
+                  <span className={styles.rowNumText}>{getRowLabel ? getRowLabel(item, i) : i + 1}</span>
                 </span>
               ) : null}
               <span
