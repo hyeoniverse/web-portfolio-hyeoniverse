@@ -181,6 +181,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                 )}
                 {visits && (
                   <>
+                    <span className={styles.stretchLine} />
                     <span className={styles.visitItem}>
                       <span className={styles.visitLabel}>Today</span>
                       <span className={styles.visitCount}>{visits.today.toLocaleString()}</span>
