@@ -4,6 +4,7 @@ import { forwardRef, memo, useCallback, useState } from "react";
 import Image from "next/image";
 import { motion, MotionValue } from "framer-motion";
 import { worksData, WorkItem } from "@/data/works";
+import type { Language } from "@/providers/LanguageProvider";
 import {
   PressingWork,
   HoveringWork,
@@ -25,6 +26,7 @@ const IMAGE_POSITIONS = [
 
 interface WorkCircleProps {
   work: WorkItem;
+  language: Language;
   tooltipContent: string;
   smoothWorkImageY: MotionValue<number>;
   isPressing: boolean;
@@ -44,6 +46,7 @@ const TOOLTIP_WRAPPER_STYLE: React.CSSProperties = { width: "100%", height: "100
 
 const WorkCircle = memo(function WorkCircle({
   work,
+  language,
   tooltipContent,
   smoothWorkImageY,
   isPressing,
@@ -88,7 +91,7 @@ const WorkCircle = memo(function WorkCircle({
             animate={{
               scale: isHovering ? 1.08 : 1,
               filter: isHovering
-                ? "brightness(0.7) saturate(0.6)"
+                ? "brightness(0.4) saturate(0.5)"
                 : "brightness(1) saturate(1)",
             }}
             transition={{
@@ -148,6 +151,17 @@ const WorkCircle = memo(function WorkCircle({
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Text overlay */}
+      <motion.div
+        className={styles.textOverlay}
+        initial={false}
+        animate={{ opacity: isHovering ? 1 : 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
+        <span className={styles.overlayTitle}>{work.title}</span>
+        <span className={styles.overlayCategory}>{work.category[language]}</span>
+      </motion.div>
     </motion.div>
     </Tooltip>
   );
@@ -185,7 +199,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
     },
     ref
   ) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [hoverDirections, setHoverDirections] = useState<{ [key: string]: { x: number; y: number } }>({});
 
     const getHoverDirection = useCallback(
@@ -249,7 +263,8 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
           >
             <WorkCircle
               work={work}
-              tooltipContent={`${work.title} · ${t("tooltip.longHoverNavigate")}`}
+              language={language}
+              tooltipContent={`${work.title}\n${t("tooltip.longHoverNavigate")}`}
               smoothWorkImageY={smoothWorkImageY}
               isPressing={isPressing}
               isHovering={isHovering}
