@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
-import type { TroubleShootingItem } from "@/data/about";
+import { troubleShootingItems } from "@/data/about/troubleshooting";
 import { renderHighlight } from "../renderHighlight";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
@@ -14,15 +14,14 @@ const styles = { ...shared, ...local };
 
 interface TroubleshootingPanelProps {
   language: Language;
-  items: TroubleShootingItem[];
   scrollBy?: (deltaX: number) => void;
 }
 
 function TroubleshootingPanel({
   language,
-  items,
   scrollBy,
 }: TroubleshootingPanelProps) {
+  const items = troubleShootingItems;
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);

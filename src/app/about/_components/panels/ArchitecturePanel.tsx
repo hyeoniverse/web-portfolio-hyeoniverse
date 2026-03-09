@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useRef, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Language } from "@/providers/LanguageProvider";
-import type { StructureItem } from "@/data/about";
+import { projectStructure } from "@/data/about/architecture";
 import {
   buildGraph,
   computeTree,
@@ -22,7 +22,6 @@ type ViewMode = "tree" | "treemap" | "force";
 
 interface ArchitecturePanelProps {
   language: Language;
-  structure: StructureItem[];
 }
 
 const VIEW_MODES: { key: ViewMode; label: string }[] = [
@@ -31,7 +30,8 @@ const VIEW_MODES: { key: ViewMode; label: string }[] = [
   { key: "force", label: "Force" },
 ];
 
-function ArchitecturePanel({ language, structure }: ArchitecturePanelProps) {
+function ArchitecturePanel({ language }: ArchitecturePanelProps) {
+  const structure = projectStructure;
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);

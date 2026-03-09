@@ -1,16 +1,14 @@
 export { default as HeroPanel } from "./HeroPanel";
 export { default as OverviewPanel } from "./OverviewPanel";
-export { default as ArchitecturePanel } from "./ArchitecturePanel";
-export { default as UserFlowPanel } from "./UserFlowPanel";
 export { default as FeaturesPanel } from "./FeaturesPanel";
 export { default as DesignMotifPanel } from "./DesignMotifPanel";
 export { default as DesignConceptPanel } from "./DesignConceptPanel";
 export { default as ProcessPanel } from "./ProcessPanel";
 export { default as VisualBreakPanel } from "./VisualBreakPanel";
 export { default as TechStackPanel } from "./TechStackPanel";
-export { default as BackendPanel } from "./BackendPanel";
-export { default as ErdPanel } from "./ErdPanel";
-export { default as CodeHighlightsPanel } from "./CodeHighlightsPanel";
-export { default as TroubleshootingPanel } from "./TroubleshootingPanel";
 export { default as SecurityPanel } from "./SecurityPanel";
 export { default as CreditsPanel } from "./CreditsPanel";
+
+// Heavy panels are dynamically imported in AboutSection.tsx:
+// ArchitecturePanel, UserFlowPanel, BackendPanel, ErdPanel,
+// CodeHighlightsPanel, TroubleshootingPanel

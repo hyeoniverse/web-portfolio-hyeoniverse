@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useMemo, memo, type ReactNode } from "react";
 import type { Language } from "@/providers/LanguageProvider";
-import type { UserFlow, FlowNode } from "@/data/about";
+import type { FlowNode } from "@/data/about";
+import { userFlows } from "@/data/about/architecture";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
@@ -14,7 +15,6 @@ const styles = { ...shared, ...local };
 
 interface UserFlowPanelProps {
   language: Language;
-  userFlows: UserFlow[];
   scrollBy?: (deltaX: number) => void;
 }
 
@@ -345,7 +345,6 @@ function edgeLabelPos(
 
 function UserFlowPanel({
   language,
-  userFlows,
   scrollBy,
 }: UserFlowPanelProps) {
   const flowCount = userFlows.length;
