@@ -27,11 +27,13 @@ export default function BridgeSection({
 
   return (
     <Section fullHeight clipOverflow className={styles.bridge}>
-      {/* Floating Ovals - identical to Hero */}
+      {/* Floating Ovals - identical to Hero (정적) */}
       <motion.div
-        className={`${heroStyles.floatingOval} ${heroStyles.ovalPrimary}`}
+        className={heroStyles.ovalPrimaryGroup}
         style={{ x: floatX, y: floatY }}
-      />
+      >
+        <div className={`${heroStyles.floatingOval} ${heroStyles.ovalPrimary}`} />
+      </motion.div>
       <motion.div
         className={`${heroStyles.floatingOval} ${heroStyles.ovalSecondary}`}
         style={{ x: oval2X, y: oval2Y }}
@@ -51,17 +53,6 @@ export default function BridgeSection({
           </span>
           <span className={heroStyles.titleRow}>
             <span className={heroStyles.titleText}>{headline[1]}</span>
-            <span className={heroStyles.titleOvalWrapper}>
-              <motion.span
-                className={heroStyles.titleOvalInline}
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-              />
-            </span>
           </span>
           <span className={heroStyles.titleRow}>
             <span className={heroStyles.titleAccent}>&</span>

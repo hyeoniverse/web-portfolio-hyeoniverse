@@ -1,7 +1,9 @@
 "use client";
 
 import { forwardRef } from "react";
-import { motion, MotionValue } from "framer-motion";
+import { motion, MotionValue, useScroll, useTransform } from "framer-motion";
+
+const OVAL_COUNT = 5;
 import StaggerText from "@/components/effects/StaggerText";
 import Section from "@/components/ui/Section";
 import T from "@/components/ui/T";
@@ -23,13 +25,28 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
     const cfg = useSiteConfig();
     const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
 
+    const { scrollYProgress } = useScroll();
+    const spread = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
+
     return (
       <Section fullHeight clipOverflow className={styles.hero} ref={ref}>
-        {/* Floating Ovals */}
+        {/* Primary Oval — 스크롤에 따라 등간격 위아래 펼침 */}
         <motion.div
-          className={`${styles.floatingOval} ${styles.ovalPrimary} parallax-oval-1`}
-          style={{ x: floatX, y: floatY }}
-        />
+          className={styles.ovalPrimaryGroup}
+          style={{ x: floatX, y: floatY, "--spread": spread } as React.CSSProperties}
+        >
+          {Array.from({ length: OVAL_COUNT }, (_, i) => {
+            const center = (OVAL_COUNT - 1) / 2;
+            const offset = i - center;
+            return (
+              <div
+                key={i}
+                className={`${styles.floatingOval} ${styles.ovalPrimary}`}
+                style={{ "--offset": offset } as React.CSSProperties}
+              />
+            );
+          })}
+        </motion.div>
         <motion.div
           className={`${styles.floatingOval} ${styles.ovalSecondary} parallax-oval-2`}
           style={{ x: oval2X, y: oval2Y }}
@@ -63,9 +80,6 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
               >
                 {headline[1]}
               </StaggerText>
-              <span className={styles.titleOvalWrapper}>
-                <span className={styles.titleOvalInline} />
-              </span>
             </span>
             <span className={`${styles.titleRow} hero-line`}>
               <span className={styles.titleAccent}>&</span>

@@ -6,7 +6,7 @@
 
 /* Individual character styling */
 .char {
-  display: inline-block;
+  display: inline;
 }
 
 /* Compound selector (0,2,0) to beat global html[data-theme-transitioning] * (0,1,1) */
