@@ -24,9 +24,11 @@ interface TProps extends HTMLAttributes<HTMLSpanElement> {
   placement?: "top" | "bottom" | "auto";
   /** ko=en 이어도 항상 번역 tooltip 표시 */
   alwaysTooltip?: boolean;
+  /** 외부 Tooltip과 함께 쓸 때 내부 tooltip 비활성화 */
+  noTooltip?: boolean;
 }
 
-export default function T({ k, ko, en, delay = 600, tooltip, placement, alwaysTooltip, ...rest }: TProps) {
+export default function T({ k, ko, en, delay = 600, tooltip, placement, alwaysTooltip, noTooltip, ...rest }: TProps) {
   const { t, tAlt, language } = useLanguage();
 
   let text: string;
@@ -45,7 +47,7 @@ export default function T({ k, ko, en, delay = 600, tooltip, placement, alwaysTo
   // 같은 텍스트이거나 번역이 없으면 tooltip 생략 (alwaysTooltip 시 강제 표시)
   const hasTranslation = alwaysTooltip || (altText !== text && (k ? altText !== k : true));
 
-  if (!hasTranslation && !tooltip) {
+  if (noTooltip || (!hasTranslation && !tooltip)) {
     return <span {...rest}>{text}</span>;
   }
 
@@ -53,9 +55,8 @@ export default function T({ k, ko, en, delay = 600, tooltip, placement, alwaysTo
 
   const tooltipContent = (
     <>
-      {tooltip && <span>{tooltip}</span>}
-      {tooltip && hasTranslation && <br />}
-      {hasTranslation && <span>{langLabel} {altText}</span>}
+      {hasTranslation && <div>{langLabel} {altText}</div>}
+      {tooltip && <div>{tooltip}</div>}
     </>
   );
 

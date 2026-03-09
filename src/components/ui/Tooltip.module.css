@@ -12,8 +12,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   line-height: var(--line-height-tight);
-  word-break: keep-all;
-  overflow-wrap: break-word;
+  white-space: nowrap;
 }
 
 .arrow {

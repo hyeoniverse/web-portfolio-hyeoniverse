@@ -58,9 +58,20 @@ interface CTASectionProps {
 
 const CTASection = forwardRef<HTMLElement, CTASectionProps>(
   ({ floatX, floatY, ctaOvalX, ctaOvalY, magnetic, resumeMagnetic, onContactClick }, ref) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const cfg = useSiteConfig();
     const resumeUrl = cfg.cta.resumeUrl;
+
+    /** 번역 + 설명을 한 말풍선에 통합 */
+    const combinedTooltip = (label: string, ko: string, en: string) => {
+      const text = language === "ko" ? ko : en;
+      const alt = language === "ko" ? en : ko;
+      const langLabel = language === "ko" ? "EN" : "KO";
+      const hasTranslation = alt !== text;
+      return hasTranslation
+        ? <><div>{langLabel} {alt}</div><div>{label}</div></>
+        : label;
+    };
 
     return (
       <Section fullHeight center clipOverflow className={styles.cta} ref={ref}>
@@ -99,22 +110,24 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
               onMouseMove={magnetic.handleMouseMove}
               onMouseLeave={magnetic.handleMouseLeave}
             >
-              <Button
-                variant="outline"
-                size="xl"
-                className={styles.ctaBtn}
-                onClick={onContactClick}
-                soundDisabled
-                icon={
-                  <motion.span
-                    className={styles.buttonIndicator}
-                    whileHover={{ scale: 1.5 }}
-                  />
-                }
-                iconPosition="right"
-              >
-                <T ko={cfg.cta.buttonText_ko} en={cfg.cta.buttonText} tooltip={t("tooltip.contact")} placement="bottom" />
-              </Button>
+              <Tooltip content={combinedTooltip(t("tooltip.contact"), cfg.cta.buttonText_ko, cfg.cta.buttonText)} placement="bottom" wrapperStyle={{ display: "block" }}>
+                <Button
+                  variant="outline"
+                  size="xl"
+                  className={styles.ctaBtn}
+                  onClick={onContactClick}
+                  soundDisabled
+                  icon={
+                    <motion.span
+                      className={styles.buttonIndicator}
+                      whileHover={{ scale: 1.5 }}
+                    />
+                  }
+                  iconPosition="right"
+                >
+                  <T ko={cfg.cta.buttonText_ko} en={cfg.cta.buttonText} noTooltip />
+                </Button>
+              </Tooltip>
             </motion.div>
 
             {resumeUrl && (
@@ -125,25 +138,27 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                 onMouseMove={resumeMagnetic.handleMouseMove}
                 onMouseLeave={resumeMagnetic.handleMouseLeave}
               >
-                <Button
-                  variant="outline"
-                  size="xl"
-                  className={styles.resumeBtn}
-                  href={resumeUrl}
-                  external
-                  download
-                  soundDisabled
-                  icon={
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                  }
-                  iconPosition="right"
-                >
-                  <T ko={cfg.cta.resumeButtonText_ko} en={cfg.cta.resumeButtonText} tooltip={t("tooltip.resume")} placement="bottom" />
-                </Button>
+                <Tooltip content={combinedTooltip(t("tooltip.resume"), cfg.cta.resumeButtonText_ko, cfg.cta.resumeButtonText)} placement="bottom" wrapperStyle={{ display: "block" }}>
+                  <Button
+                    variant="outline"
+                    size="xl"
+                    className={styles.resumeBtn}
+                    href={resumeUrl}
+                    external
+                    download
+                    soundDisabled
+                    icon={
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    }
+                    iconPosition="right"
+                  >
+                    <T ko={cfg.cta.resumeButtonText_ko} en={cfg.cta.resumeButtonText} noTooltip />
+                  </Button>
+                </Tooltip>
               </motion.div>
             )}
           </div>
