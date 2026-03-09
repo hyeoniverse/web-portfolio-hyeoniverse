@@ -7,14 +7,26 @@ import { useLenis } from "@/providers/LenisProvider";
 import styles from "./Modal.module.css";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSoundManager } from "@/hooks/useSoundManager";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
+const SWIPE_THRESHOLD = 30;
+const DISMISS_THRESHOLD = 100;
 
 export default function Modal() {
+  const { isMobile } = useIsMobile();
   const { playSound } = useSoundManager();
   const { modals, closeModal } = useModalStore();
   const { stop, start } = useLenis();
   const [mounted, setMounted] = useState(false);
   const overflowRef = useRef<string>("");
+  const [sheetExpanded, setSheetExpanded] = useState(false);
+  const startYRef = useRef(0);
+  const swipingRef = useRef(false);
+  const draggingRef = useRef(false);
+  const dismissingRef = useRef(false); // 아래로 드래그 중 (dismiss 모드)
+  const modalElRef = useRef<HTMLDivElement | null>(null);
+  const expandedRef = useRef(false);
+  const baseHeightRef = useRef(0); // 드래그 시작 시 실제 모달 높이
 
   const handleClose = useCallback(
     (id?: string) => {
@@ -24,11 +36,8 @@ export default function Modal() {
     [playSound, closeModal]
   );
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
-  // 모달 열릴 때 overflow + Lenis 잠금
   useEffect(() => {
     if (modals.length > 0) {
       overflowRef.current = document.body.style.overflow;
@@ -37,31 +46,147 @@ export default function Modal() {
     }
   }, [modals, stop]);
 
-  // exit 애니메이션 완료 후 overflow + Lenis 복원
   const handleExitComplete = useCallback(() => {
     if (modals.length === 0) {
       document.body.style.overflow = overflowRef.current;
       start();
     }
+    setSheetExpanded(false);
   }, [modals, start]);
 
-  // ESC 키 이벤트
   useEffect(() => {
     if (modals.length === 0) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        const topModal = modals[modals.length - 1];
-        if (topModal) {
-          handleClose(topModal.id);
-        }
+        const top = modals[modals.length - 1];
+        if (top) handleClose(top.id);
       }
     };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [modals, handleClose]);
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
+  // expandedRef를 state와 동기화 (드래그 콜백에서 최신 값 참조)
+  useEffect(() => { expandedRef.current = sheetExpanded; }, [sheetExpanded]);
+
+  // ── Sheet 드래그: 위로 = 확장(height), 아래로 = dismiss(CSS translate) ──
+  const onHandlePointerDown = useCallback((e: React.PointerEvent) => {
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    startYRef.current = e.clientY;
+    draggingRef.current = true;
+    dismissingRef.current = false;
+    const el = modalElRef.current;
+    if (el) {
+      baseHeightRef.current = el.getBoundingClientRect().height;
+      el.style.setProperty('transition', 'none', 'important');
+    }
+  }, []);
+
+  const onHandlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!draggingRef.current) return;
+    const el = modalElRef.current;
+    if (!el) return;
+
+    const deltaY = e.clientY - startYRef.current; // 양수 = 아래로
+
+    if (deltaY > 0 && !expandedRef.current) {
+      // 비확장 상태에서 아래로 → dismiss 모드 (CSS translate, framer-motion과 독립)
+      dismissingRef.current = true;
+      el.style.setProperty('--sheet-y', `${deltaY}px`);
+    } else {
+      // 위로 드래그 (확장) 또는 확장 상태에서 아래로 (축소)
+      dismissingRef.current = false;
+      el.style.setProperty('--sheet-y', '0px');
+
+      const dragUp = -deltaY; // 양수 = 위로
+      const vh = window.innerHeight;
+      const h = Math.min(vh, Math.max(vh * 0.3, baseHeightRef.current + dragUp));
+      const progress = Math.max(0, Math.min(1, (h - vh * 0.85) / (vh * 0.15)));
+
+      el.style.minHeight = `${h}px`;
+      el.style.maxHeight = `${h}px`;
+      el.style.borderRadius = `${(1 - progress) * 24}px ${(1 - progress) * 24}px 0 0`;
+      el.style.borderTopColor = progress > 0.8 ? 'transparent' : '';
+    }
+  }, []);
+
+  const onHandlePointerUp = useCallback((e: React.PointerEvent) => {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+
+    const el = modalElRef.current;
+    if (!el) return;
+
+    const deltaY = e.clientY - startYRef.current;
+    const vh = window.innerHeight;
+    const wasDismissing = dismissingRef.current;
+    dismissingRef.current = false;
+
+    // CSS transition 복원 → snap 애니메이션
+    el.style.removeProperty('transition');
+
+    if (wasDismissing) {
+      if (deltaY > DISMISS_THRESHOLD) {
+        // threshold 초과 → 화면 밖으로 밀어내고 닫기
+        swipingRef.current = true;
+        el.style.setProperty('--sheet-y', `${vh}px`);
+        const topModal = modals[modals.length - 1];
+        setTimeout(() => {
+          if (topModal) handleClose(topModal.id);
+          swipingRef.current = false;
+          // --sheet-y 제거하지 않음 — 화면 밖 유지한 채 framer-motion exit 후 DOM 언마운트로 자동 정리
+        }, 350);
+      } else {
+        // threshold 미달 → 원위치 복귀
+        el.style.setProperty('--sheet-y', '0px');
+        setTimeout(() => { if (el) el.style.removeProperty('--sheet-y'); }, 350);
+      }
+      return;
+    }
+
+    // 확장/축소 모드
+    const dragUp = -deltaY;
+    const willExpand = dragUp > SWIPE_THRESHOLD;
+    const willCollapse = dragUp < -SWIPE_THRESHOLD;
+
+    if (willExpand) {
+      el.style.minHeight = `${vh}px`;
+      el.style.maxHeight = `${vh}px`;
+      el.style.borderRadius = '0px';
+      el.style.borderTopColor = 'transparent';
+      swipingRef.current = true;
+      setSheetExpanded(true);
+      setTimeout(() => { swipingRef.current = false; }, 400);
+    } else if (willCollapse) {
+      el.style.minHeight = '0px';
+      el.style.maxHeight = `${vh * 0.85}px`;
+      el.style.borderRadius = '';
+      el.style.borderTopColor = '';
+      swipingRef.current = true;
+      setSheetExpanded(false);
+      setTimeout(() => { swipingRef.current = false; }, 400);
+    } else {
+      if (expandedRef.current) {
+        el.style.minHeight = `${vh}px`;
+        el.style.maxHeight = `${vh}px`;
+        el.style.borderRadius = '0px';
+        el.style.borderTopColor = 'transparent';
+      } else {
+        el.style.minHeight = '0px';
+        el.style.maxHeight = `${vh * 0.85}px`;
+        el.style.borderRadius = '';
+        el.style.borderTopColor = '';
+      }
+    }
+
+    // CSS transition 완료 후 인라인 스타일 제거 → CSS 인계
+    setTimeout(() => {
+      if (!el) return;
+      el.style.minHeight = '';
+      el.style.maxHeight = '';
+      el.style.borderRadius = '';
+      el.style.borderTopColor = '';
+    }, 400);
   }, [modals, handleClose]);
 
   if (!mounted) return null;
@@ -76,23 +201,36 @@ export default function Modal() {
           animate={{ opacity: 1, backdropFilter: "blur(10px)" }}
           exit={{ opacity: 0, backdropFilter: "blur(0px)", transition: { duration: 0.3 } }}
           transition={{ duration: 0.35 }}
-          onClick={() => handleClose(id)}
+          onClick={() => { if (!swipingRef.current) handleClose(id); }}
           onWheel={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
         >
           <motion.div
+            ref={modalElRef}
             id="modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby={header?.title ? `modal-title-${id}` : undefined}
             data-rounded={id === "project-detail" ? "true" : undefined}
-            initial={{ opacity: 0, y: "40px" }}
+            data-sheet-expanded={sheetExpanded ? "true" : undefined}
+            initial={{ opacity: 0, y: isMobile ? "100%" : "40px" }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: "40px", transition: { duration: 0.3, ease: [0.4, 0, 1, 1] } }}
-            transition={{ duration: 0.4, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, y: isMobile ? "100%" : "40px", transition: { duration: 0.3, ease: [0.4, 0, 1, 1] } }}
+            transition={{ duration: 0.4, delay: isMobile ? 0.1 : 0.25, ease: [0.16, 1, 0.3, 1] }}
             onClick={(e) => e.stopPropagation()}
             style={style}
           >
+            <div
+              className={styles.sheetHandle}
+              aria-hidden="true"
+              data-draggable
+              onPointerDown={onHandlePointerDown}
+              onPointerMove={onHandlePointerMove}
+              onPointerUp={onHandlePointerUp}
+            >
+              <span className={styles.sheetHandleBar} />
+            </div>
+
             {header && (
               <div className={styles.modalHeader}>
                 <div className={styles.headerContent}>

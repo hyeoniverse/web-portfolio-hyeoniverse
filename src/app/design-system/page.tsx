@@ -10,7 +10,6 @@ import Button from "@/components/ui/Button";
 import { Typography } from "@/components/ui/Typography";
 import { Switch } from "@/components/ui/Switch";
 import { Slider } from "@/components/ui/Slider";
-import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
@@ -1158,7 +1157,6 @@ export default function DesignSystemPage() {
         </div>
       </div>
 
-      <Modal />
     </div>
   );
 }

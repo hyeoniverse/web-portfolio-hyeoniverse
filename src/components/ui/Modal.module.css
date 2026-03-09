@@ -20,6 +20,12 @@
   z-index: 4;
 }
 
+@media (max-width: 768px) {
+  .closeButton {
+    display: none;
+  }
+}
+
 .closeIconWrapper {
   display: flex;
   align-items: center;
@@ -54,6 +60,39 @@
 
 .closeButton:hover .closeLine:last-child {
   transform: rotate(-45deg);
+}
+
+/* ==========================================================================
+   Sheet Handle (mobile)
+   ========================================================================== */
+
+.sheetHandle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-base) 0;
+  min-height: 44px;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .sheetHandle {
+    display: flex;
+  }
+}
+
+.sheetHandle:active {
+  cursor: grabbing;
+}
+
+.sheetHandleBar {
+  width: 40px;
+  height: 5px;
+  border-radius: 99px;
+  background: var(--text-muted);
 }
 
 /* ==========================================================================
@@ -97,6 +136,13 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+
+@media (max-width: 768px) {
+  .modalScroll {
+    padding-bottom: var(--spacing-xl);
+    min-height: 20vh;
+  }
 }
 
 /* ==========================================================================
