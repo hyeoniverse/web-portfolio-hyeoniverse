@@ -170,10 +170,13 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
             </div>
             <div className={styles.bottomRight}>
               <div className={styles.visits}>
+                <Link href="/privacy" className={styles.adminLink}>Privacy</Link>
+                <span className={styles.divider}>✧</span>
+                <Link href="/design-system" target="_blank" className={styles.adminLink}>Design System</Link>
                 {isAuthenticated && (
                   <>
-                    <Link href="/admin/settings" target="_blank" className={styles.adminLink}>Admin</Link>
                     <span className={styles.divider}>✧</span>
+                    <Link href="/admin/settings" target="_blank" className={styles.adminLink}>Admin</Link>
                   </>
                 )}
                 {visits && (
