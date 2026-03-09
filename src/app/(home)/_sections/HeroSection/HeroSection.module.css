@@ -16,12 +16,26 @@
   border-radius: var(--radius-circle);
 }
 
-.ovalPrimary {
+/* Primary oval group — 스크롤에 따라 위아래 등간격 펼침 */
+.ovalPrimaryGroup {
+  position: absolute;
   top: 10%;
   right: -10%;
   width: 600px;
   height: 300px;
-  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+.ovalPrimary {
+  width: 100%;
+  height: 100%;
+  transform: translateY(calc(var(--offset, 0) * var(--spread, 0) * 200px));
+  opacity: calc(0.15 + 0.85 * var(--spread, 0));
+}
+
+/* 중앙 타원(offset=0)은 항상 불투명 */
+.ovalPrimary:nth-child(3) {
+  opacity: 1;
 }
 
 .ovalSecondary {
@@ -108,26 +122,6 @@
   -webkit-text-stroke: 1px var(--text-primary);
 }
 
-/* Inline Oval in Title */
-.titleOvalWrapper {
-  position: relative;
-  width: clamp(60px, 8vw, 100px);
-  height: clamp(30px, 4vw, 50px);
-}
-
-.titleOvalInline {
-  border: var(--border-default);
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-circle);
-  animation: spin 20s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 /* ---------------------------------------------------------------------------
    Hero Meta Info
@@ -233,7 +227,7 @@
    Responsive
    --------------------------------------------------------------------------- */
 @media (max-width: 1024px) {
-  .ovalPrimary {
+  .ovalPrimaryGroup {
     width: 400px;
     height: 200px;
   }
@@ -249,11 +243,6 @@
     gap: var(--spacing-sm);
   }
 
-  .titleOvalWrapper {
-    width: 40px;
-    height: 20px;
-  }
-
   .meta {
     gap: var(--spacing-md);
     flex-direction: column;
@@ -264,7 +253,7 @@
     display: none;
   }
 
-  .ovalPrimary,
+  .ovalPrimaryGroup,
   .ovalSecondary {
     display: none;
   }
@@ -301,7 +290,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .titleOvalInline,
   .scrollLine {
     animation: none;
   }
