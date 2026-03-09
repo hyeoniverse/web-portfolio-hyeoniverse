@@ -137,8 +137,7 @@ export default function HomePage() {
   // 오벌 요소의 사전 계산된 변환
   const oval2X = useTransform(floatX, (v) => -v * 0.5);
   const oval2Y = useTransform(floatY, (v) => -v * 0.5);
-  const ctaOvalX = useTransform(floatX, (v) => v * 0.3);
-  const ctaOvalY = useTransform(floatY, (v) => v * 0.3);
+
 
   // 스크롤 압축을 위한 서비스 Y 변환
   const serviceY0 = useTransform(
@@ -379,10 +378,6 @@ export default function HomePage() {
 
         <CTASection
           ref={ctaRef}
-          floatX={floatX}
-          floatY={floatY}
-          ctaOvalX={ctaOvalX}
-          ctaOvalY={ctaOvalY}
           magnetic={magnetic}
           resumeMagnetic={resumeMagnetic}
           onContactClick={openForm}
