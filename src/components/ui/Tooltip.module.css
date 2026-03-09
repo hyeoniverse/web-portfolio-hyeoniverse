@@ -12,7 +12,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   line-height: var(--line-height-tight);
-  white-space: nowrap;
+  white-space: pre-line;
 }
 
 .arrow {
