@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
-import { motion, MotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import Button from "@/components/ui/Button";
@@ -47,17 +47,13 @@ const SOCIAL_ICONS: Record<string, { label: string; path: string }> = {
 };
 
 interface CTASectionProps {
-  floatX: MotionValue<number>;
-  floatY: MotionValue<number>;
-  ctaOvalX: MotionValue<number>;
-  ctaOvalY: MotionValue<number>;
   magnetic: UseMagneticReturn;
   resumeMagnetic: UseMagneticReturn;
   onContactClick: () => void;
 }
 
 const CTASection = forwardRef<HTMLElement, CTASectionProps>(
-  ({ floatX, floatY, ctaOvalX, ctaOvalY, magnetic, resumeMagnetic, onContactClick }, ref) => {
+  ({ magnetic, resumeMagnetic, onContactClick }, ref) => {
     const { t, language } = useLanguage();
     const cfg = useSiteConfig();
     const resumeUrl = cfg.cta.resumeUrl;
@@ -74,20 +70,15 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
     };
 
     return (
-      <Section fullHeight center clipOverflow className={styles.cta} ref={ref}>
-        {/* 장식 라인 */}
-        <div className={`${styles.decorLine} ${styles.decorLineTop}`} />
-        <div className={`${styles.decorLine} ${styles.decorLineBottom}`} />
-
-        {/* 떠다니는 오벌 */}
-        <motion.div
-          className={`${styles.ovalPrimary} cta-oval`}
-          style={{ x: ctaOvalX, y: ctaOvalY }}
-        />
-        <motion.div
-          className={styles.ovalSecondary}
-          style={{ x: floatX, y: floatY }}
-        />
+      <Section fullHeight center className={styles.cta} ref={ref}>
+        {/* Decorative elements */}
+        <div className={styles.glow} aria-hidden="true" />
+        <div className={`${styles.accentLine} ${styles.accentLineLeft}`} aria-hidden="true" />
+        <div className={`${styles.accentLine} ${styles.accentLineRight}`} aria-hidden="true" />
+        <div className={`${styles.cornerMark} ${styles.cornerTL}`} aria-hidden="true" />
+        <div className={`${styles.cornerMark} ${styles.cornerTR}`} aria-hidden="true" />
+        <div className={`${styles.cornerMark} ${styles.cornerBL}`} aria-hidden="true" />
+        <div className={`${styles.cornerMark} ${styles.cornerBR}`} aria-hidden="true" />
 
         <div className={styles.content}>
           <p className={`${styles.label} reveal-text`}>
