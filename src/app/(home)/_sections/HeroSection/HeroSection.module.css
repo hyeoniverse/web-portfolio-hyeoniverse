@@ -244,19 +244,38 @@
     gap: var(--spacing-sm);
   }
 
+  .content {
+    padding-bottom: 100px;
+  }
+
   .meta {
     gap: var(--spacing-md);
     flex-direction: column;
-    margin-top: var(--spacing-3xl);
+    margin-top: var(--spacing-2xl);
   }
 
   .metaDivider {
     display: none;
   }
 
-  .ovalPrimaryGroup,
+  .scrollIndicator {
+    bottom: var(--spacing-xl);
+  }
+
+  .ovalPrimaryGroup {
+    width: 260px;
+    height: 130px;
+    right: -20%;
+    top: 8%;
+    opacity: 0.5;
+  }
+
   .ovalSecondary {
-    display: none;
+    width: 180px;
+    height: 90px;
+    left: -12%;
+    bottom: 25%;
+    opacity: 0.4;
   }
 }
 
