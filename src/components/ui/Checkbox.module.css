@@ -68,6 +68,13 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  color: var(--text-white);
+}
+
+/* square checked: bg-inverse(다크=밝음) 위에 어두운 아이콘 */
+.box.square.checked .icon,
+.box.square.indeterminate .icon {
+  color: var(--text-inverse);
 }
 
 .icon svg {
