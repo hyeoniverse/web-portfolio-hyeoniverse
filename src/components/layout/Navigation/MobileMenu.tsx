@@ -27,7 +27,7 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({
-  isOpen: _isOpen,
+  isOpen,
   showMenu,
   menuClipOpen,
   menuMounted,
@@ -62,7 +62,7 @@ export default function MobileMenu({
             onClick={onClose}
             aria-label="Close menu"
           >
-            <span className={styles.menuCloseDots}>
+            <span className={`${styles.menuCloseDots} ${!isOpen ? styles.menuCloseDotsClosing : ""}`}>
               <span className={styles.menuCloseDot} />
               <span className={styles.menuCloseDot} />
               <span className={styles.menuCloseDot} />
