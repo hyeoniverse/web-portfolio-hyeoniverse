@@ -3,7 +3,6 @@
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Logo from "@/components/common/Logo";
-import MagneticWrapper from "./MagneticWrapper";
 import styles from "./Navigation.module.css";
 
 interface MenuItem {
@@ -13,7 +12,6 @@ interface MenuItem {
 }
 
 interface MobileMenuProps {
-  isOpen: boolean;
   showMenu: boolean;
   menuClipOpen: boolean;
   menuMounted: boolean;
@@ -27,7 +25,6 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({
-  isOpen,
   showMenu,
   menuClipOpen,
   menuMounted,
@@ -54,27 +51,6 @@ export default function MobileMenu({
         <div className={styles.menuHeader} onClick={onClose}>
           <Logo variant="full" as="link" className={styles.menuLogo} />
         </div>
-
-        {/* Close button — nav 햄버거와 동일한 우상단 위치 + magnetic */}
-        <MagneticWrapper strength={0.5} radius={50} className={styles.menuCloseBtn}>
-          <button
-            className={styles.menuCloseBtnInner}
-            onClick={onClose}
-            aria-label="Close menu"
-          >
-            <span className={`${styles.menuCloseDots} ${!isOpen ? styles.menuCloseDotsClosing : ""}`}>
-              <span className={styles.menuCloseDot} />
-              <span className={styles.menuCloseDot} />
-              <span className={styles.menuCloseDot} />
-              <span className={styles.menuCloseDot} />
-              <span className={styles.menuCloseDot} />
-              <span className={styles.menuCloseDot} />
-              <span className={styles.menuCloseDot} />
-              <span className={styles.menuCloseDot} />
-              <span className={styles.menuCloseDot} />
-            </span>
-          </button>
-        </MagneticWrapper>
 
         <nav className={styles.menuNav}>
           {menuItems.map((item) => {

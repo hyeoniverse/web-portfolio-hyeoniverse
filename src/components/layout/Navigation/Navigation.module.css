@@ -811,6 +811,23 @@
   pointer-events: none;
 }
 
+/* Menu open: nav를 drawer 위로 올리고 햄버거만 표시 */
+.navMenuOpen {
+  z-index: calc(var(--z-overlay) + 1);
+}
+
+.navMenuOpen .logoGroup,
+.navMenuOpen .navCenter,
+.navMenuOpen .contactBtn,
+.navMenuOpen .soundBtnWrap,
+.navMenuOpen .adminActions {
+  visibility: hidden;
+}
+
+.navMenuOpen .actionBtn:not(.menuBtn) {
+  visibility: hidden;
+}
+
 /* Logo wrapper: transform 기반 중앙→nav 이동 애니메이션 */
 .logoWrapper {
   display: inline-flex;

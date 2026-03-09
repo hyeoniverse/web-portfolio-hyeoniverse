@@ -344,7 +344,7 @@ export default function Navigation() {
   }, [router]);
 
   return (
-    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""}`}>
+    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div className={styles.logoGroup}>
         <motion.div
           ref={logoRef}
@@ -688,7 +688,6 @@ export default function Navigation() {
 
       {/* 메뉴 서랍 (clip-path, ContactDrawer pattern) */}
       <MobileMenu
-        isOpen={isMenuOpen}
         showMenu={showMenu}
         menuClipOpen={menuClipOpen}
         menuMounted={menuMounted}
