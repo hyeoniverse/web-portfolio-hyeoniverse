@@ -249,7 +249,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
           >
             <WorkCircle
               work={work}
-              tooltipContent={`${work.title} · ${t("tooltip.viewProject")}`}
+              tooltipContent={`${work.title} · ${t("tooltip.longHoverNavigate")}`}
               smoothWorkImageY={smoothWorkImageY}
               isPressing={isPressing}
               isHovering={isHovering}

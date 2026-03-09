@@ -705,7 +705,8 @@
     "longPress": "길게 누르면 확대됩니다",
     "visitSite": "외부 사이트로 이동합니다",
     "github": "GitHub 저장소로 이동합니다",
-    "viewAllWorks": "전체 작품 목록으로 돌아갑니다"
+    "viewAllWorks": "전체 작품 목록으로 돌아갑니다",
+    "longHoverNavigate": "오래 누르면 페이지로 이동합니다"
   },
   "errorPage": {
     "title": "문제가 발생했습니다",
