@@ -856,9 +856,11 @@
 
 @media (max-width: 768px) {
   .navCenter {
-    clip-path: inset(0 50% 0 50%);
-    visibility: hidden;
-    pointer-events: none;
+    display: none;
+  }
+
+  .contactBtn {
+    display: none;
   }
 
   .menuBtnWrapper {
@@ -895,42 +897,37 @@
   }
 
   .navActions {
-    gap: 0.4vw;
+    gap: 2px;
   }
 
   .actionBtn {
-    width: 5.8vw;
-    height: 5.8vw;
-    padding: 0.8vw;
-  }
-
-  .contactBtn {
-    padding: 0.8vw 2vw;
-    font-size: var(--m-sm);
+    width: 28px;
+    height: 28px;
+    padding: 5px;
   }
 
   .themeIcon {
-    width: var(--m-sm);
-    height: var(--m-sm);
+    width: 11px;
+    height: 11px;
   }
 
   .soundIcon {
-    width: var(--m-sm);
-    height: var(--m-sm);
+    width: 11px;
+    height: 11px;
   }
 
   .langText {
-    font-size: var(--m-sm);
+    font-size: 11px;
   }
 
   .menuDots {
-    grid-template-columns: repeat(3, 0.3vw);
-    gap: 0.3vw;
+    grid-template-columns: repeat(3, 1.5px);
+    gap: 1.5px;
   }
 
   .menuDot {
-    width: 0.3vw;
-    height: 0.3vw;
+    width: 1.5px;
+    height: 1.5px;
   }
 
   .menuCloseBtn {
@@ -938,12 +935,12 @@
   }
 
   .menuCloseDots {
-    grid-template-columns: repeat(3, 0.3vw);
-    gap: 0.3vw;
+    grid-template-columns: repeat(3, 1.5px);
+    gap: 1.5px;
   }
 
   .menuCloseDot {
-    width: 0.3vw;
-    height: 0.3vw;
+    width: 1.5px;
+    height: 1.5px;
   }
 }
