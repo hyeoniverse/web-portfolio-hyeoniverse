@@ -176,7 +176,7 @@ export default function Navigation() {
     )?.key ?? null;
   const targetKey = hoveredNav ?? activeNavKey;
 
-  useEffect(() => {
+  const updateIndicator = useCallback(() => {
     if (!targetKey) {
       setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }));
       return;
@@ -192,7 +192,19 @@ export default function Navigation() {
       width: elRect.width,
       opacity: 1,
     });
-  }, [targetKey, language]);
+  }, [targetKey]);
+
+  useEffect(() => {
+    updateIndicator();
+  }, [updateIndicator, language]);
+
+  useEffect(() => {
+    const container = navCenterRef.current;
+    if (!container) return;
+    const ro = new ResizeObserver(updateIndicator);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [updateIndicator]);
 
   // --- 로고 중앙→nav 이동 애니메이션 ---
   const logoRef = useRef<HTMLDivElement>(null);
@@ -659,7 +671,7 @@ export default function Navigation() {
             aria-label="Menu"
             aria-expanded={isMenuOpen}
           >
-            <span className={styles.menuDots}>
+            <span className={`${styles.menuDots} ${showMenu && !isMenuOpen ? styles.menuDotsClosing : ""}`}>
               <span className={styles.menuDot} />
               <span className={styles.menuDot} />
               <span className={styles.menuDot} />
