@@ -557,6 +557,27 @@ import StaggerText from "@/components/effects/StaggerText";
 
 ---
 
+### Modal (Bottom Sheet)
+
+모바일에서 bottom sheet 패턴으로 동작하는 모달 컴포넌트. 데스크탑에서는 중앙 다이얼로그.
+
+**경로**: `src/components/ui/Modal.tsx`
+
+**모바일 동작**:
+
+- 하단에서 슬라이드업으로 진입 (85vh 높이 제한)
+- **핸들 아래로 드래그**: CSS `translate` 기반 dismiss (threshold 100px 초과 시 닫힘)
+- **핸들 위로 드래그**: height 기반 전체화면 확장
+- 닫기 버튼 숨김 — 핸들 드래그 또는 overlay 탭으로 닫기
+
+**기술 결정**:
+
+- 드래그 dismiss에 CSS `translate` 속성 사용 (framer-motion의 `transform`과 독립)
+- framer-motion은 enter/exit 애니메이션만 담당, 드래그는 `--sheet-y` CSS 변수로 제어
+- `ClientOverlays`에서 글로벌 1회 렌더링 (portal to body)
+
+---
+
 ## Trouble Shooting
 
 ### 1. Lenis Scroll Velocity 효과 미작동
