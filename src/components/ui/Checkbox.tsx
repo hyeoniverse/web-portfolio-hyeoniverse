@@ -48,7 +48,7 @@ export default function Checkbox({
                   y1="5"
                   x2="8"
                   y2="5"
-                  stroke="#fff"
+                  stroke="currentColor"
                   strokeWidth="1.8"
                   strokeLinecap="round"
                 />
@@ -57,7 +57,7 @@ export default function Checkbox({
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path
                   d="M2 5.2 L4 7.2 L8 3"
-                  stroke="#fff"
+                  stroke="currentColor"
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
