@@ -184,12 +184,31 @@ nav#side-navigation::after {
 
   #modal-root {
     padding: 0;
+    align-items: flex-end;
+    background: transparent;
   }
 
-  #modal {
+  #modal-root #modal {
     border: none;
-    width: 100vw;
+    border-top: var(--border-light);
+    width: 100vw !important;
+    max-width: none !important;
+    min-height: 0;
+    max-height: 85vh;
+    border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+    translate: 0 var(--sheet-y, 0px);
+    transition:
+      min-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-radius 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-top-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      translate 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  #modal-root #modal[data-sheet-expanded="true"] {
     min-height: 100vh;
+    max-height: 100vh;
     border-radius: 0;
+    border-top-color: transparent;
   }
 }
