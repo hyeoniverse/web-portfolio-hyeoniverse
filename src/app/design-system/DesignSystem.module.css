@@ -409,6 +409,31 @@
   transform: scaleX(1);
 }
 
+/* 터치 전용: hover 불가 환경에서 순차 자동 재생 */
+@media (hover: none) {
+  .motionBar {
+    animation: motionBarLoop 2.5s var(--ease-material) infinite;
+  }
+
+  .motionItem:nth-child(2) .motionBar { animation-delay: 0.15s; }
+  .motionItem:nth-child(3) .motionBar { animation-delay: 0.3s; }
+  .motionItem:nth-child(4) .motionBar { animation-delay: 0.45s; }
+  .motionItem:nth-child(5) .motionBar { animation-delay: 0.6s; }
+  .motionItem:nth-child(6) .motionBar { animation-delay: 0.75s; }
+  .motionItem:nth-child(7) .motionBar { animation-delay: 0.9s; }
+
+  .motionItem:hover .motionBar {
+    transform: none;
+  }
+}
+
+@keyframes motionBarLoop {
+  0% { transform: scaleX(0); }
+  40% { transform: scaleX(1); }
+  60% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
 /* Z-index showcase */
 .zStack {
   position: relative;
