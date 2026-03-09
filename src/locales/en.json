@@ -708,7 +708,7 @@
     "visitSite": "Opens the live site in a new tab",
     "github": "Opens the GitHub repository",
     "viewAllWorks": "Back to all works",
-    "longHoverNavigate": "Hold to navigate to the page"
+    "longHoverNavigate": "Click or hover to\nnavigate to detail page"
   },
   "errorPage": {
     "title": "Something Went Wrong",
