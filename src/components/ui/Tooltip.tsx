@@ -60,8 +60,11 @@ export default function Tooltip({
     });
   }, [placement]);
 
+  const autoHideRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
   const show = useCallback(() => {
     if (disabled) return;
+    clearTimeout(autoHideRef.current);
     measure();
     if (delay > 0) {
       timerRef.current = setTimeout(() => {
@@ -75,10 +78,24 @@ export default function Tooltip({
 
   const hide = useCallback(() => {
     clearTimeout(timerRef.current);
+    clearTimeout(autoHideRef.current);
     setVisible(false);
   }, []);
 
-  useEffect(() => () => clearTimeout(timerRef.current), []);
+  const handleTouch = useCallback(() => {
+    if (disabled) return;
+    if (visible) {
+      hide();
+      return;
+    }
+    show();
+    autoHideRef.current = setTimeout(hide, 2000);
+  }, [disabled, visible, show, hide]);
+
+  useEffect(() => () => {
+    clearTimeout(timerRef.current);
+    clearTimeout(autoHideRef.current);
+  }, []);
 
   if (disabled) return <>{children}</>;
 
@@ -89,6 +106,7 @@ export default function Tooltip({
         style={{ display: "inline-flex", ...wrapperStyle }}
         onMouseEnter={show}
         onMouseLeave={hide}
+        onTouchStart={handleTouch}
       >
         {children}
       </span>
