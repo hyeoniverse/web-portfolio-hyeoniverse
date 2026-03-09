@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
-import type { ErdTable, ErdDesignNote } from "@/data/about";
+import { erdTables, erdDesignNotes } from "@/data/about/erd";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
@@ -13,8 +13,6 @@ const styles = { ...shared, ...local };
 
 interface ErdPanelProps {
   language: Language;
-  tables: ErdTable[];
-  designNotes: ErdDesignNote[];
   scrollBy?: (deltaX: number) => void;
 }
 
@@ -51,10 +49,10 @@ const NOTE_POSITIONS: { left: string; top: string }[] = [
 
 function ErdPanel({
   language,
-  tables,
-  designNotes,
   scrollBy,
 }: ErdPanelProps) {
+  const tables = erdTables;
+  const designNotes = erdDesignNotes;
   const noteCount = designNotes.length;
   const isMobile = useMobileLayout();
 

@@ -1,27 +1,19 @@
 "use client";
 
 import { Fragment, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import {
-  designFeatures,
-  designConcepts,
-  designPhilosophy,
-  techStack,
-  designProcess,
-  codeExamples,
-  troubleShootingItems,
-  projectOverview,
-  projectStructure,
-  backendItems,
-  erdTables,
-  erdDesignNotes,
-  userFlows,
-  securityItems,
-} from "@/data/about";
+import { projectOverview } from "@/data/about/architecture";
+import { designConcepts } from "@/data/about/concepts";
+import { designFeatures } from "@/data/about/features";
+import { designPhilosophy } from "@/data/about/philosophy";
+import { designProcess } from "@/data/about/process";
+import { securityItems } from "@/data/about/security";
+import { techStack } from "@/data/about/stack";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
 import { useNavIndicator } from "../_hooks/useNavIndicator";
@@ -29,23 +21,47 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import {
   HeroPanel,
   OverviewPanel,
-  ArchitecturePanel,
-  UserFlowPanel,
   FeaturesPanel,
   DesignMotifPanel,
   DesignConceptPanel,
   ProcessPanel,
   VisualBreakPanel,
   TechStackPanel,
-  CodeHighlightsPanel,
-  BackendPanel,
-  ErdPanel,
-  TroubleshootingPanel,
   SecurityPanel,
   CreditsPanel,
 } from "./panels";
 import SectionNav from "./SectionNav";
 import styles from "./AboutSection.module.css";
+
+/* ── Heavy panels: dynamic import for code splitting ── */
+const PanelSkeleton = ({ className }: { className?: string }) => (
+  <div className={`${styles.panel} ${className ?? styles.panelExtraWide}`} />
+);
+
+const ArchitecturePanel = dynamic(() => import("./panels/ArchitecturePanel"), {
+  loading: () => <PanelSkeleton className={styles.panel} />,
+  ssr: false,
+});
+const UserFlowPanel = dynamic(() => import("./panels/UserFlowPanel"), {
+  loading: () => <PanelSkeleton />,
+  ssr: false,
+});
+const BackendPanel = dynamic(() => import("./panels/BackendPanel"), {
+  loading: () => <PanelSkeleton />,
+  ssr: false,
+});
+const ErdPanel = dynamic(() => import("./panels/ErdPanel"), {
+  loading: () => <PanelSkeleton />,
+  ssr: false,
+});
+const CodeHighlightsPanel = dynamic(
+  () => import("./panels/CodeHighlightsPanel"),
+  { loading: () => <PanelSkeleton />, ssr: false },
+);
+const TroubleshootingPanel = dynamic(
+  () => import("./panels/TroubleshootingPanel"),
+  { loading: () => <PanelSkeleton />, ssr: false },
+);
 
 const REPETITIONS = 3;
 
@@ -105,12 +121,8 @@ export default function AboutSection() {
     <Fragment key={key}>
       <HeroPanel />
       <OverviewPanel language={language} overview={projectOverview} />
-      <ArchitecturePanel language={language} structure={projectStructure} />
-      <UserFlowPanel
-        language={language}
-        userFlows={userFlows}
-        scrollBy={scrollBy}
-      />
+      <ArchitecturePanel language={language} />
+      <UserFlowPanel language={language} scrollBy={scrollBy} />
       <FeaturesPanel language={language} features={designFeatures} />
       <DesignMotifPanel
         language={language}
@@ -130,27 +142,10 @@ export default function AboutSection() {
       />
       <VisualBreakPanel />
       <TechStackPanel techStack={techStack} />
-      <BackendPanel
-        language={language}
-        items={backendItems}
-        scrollBy={scrollBy}
-      />
-      <ErdPanel
-        language={language}
-        tables={erdTables}
-        designNotes={erdDesignNotes}
-        scrollBy={scrollBy}
-      />
-      <CodeHighlightsPanel
-        language={language}
-        codeExamples={codeExamples}
-        scrollBy={scrollBy}
-      />
-      <TroubleshootingPanel
-        language={language}
-        items={troubleShootingItems}
-        scrollBy={scrollBy}
-      />
+      <BackendPanel language={language} scrollBy={scrollBy} />
+      <ErdPanel language={language} scrollBy={scrollBy} />
+      <CodeHighlightsPanel language={language} scrollBy={scrollBy} />
+      <TroubleshootingPanel language={language} scrollBy={scrollBy} />
       <SecurityPanel language={language} items={securityItems} />
       <CreditsPanel />
     </Fragment>

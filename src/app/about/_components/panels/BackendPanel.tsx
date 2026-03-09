@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { BackendItem } from "@/data/about";
+import { backendItems } from "@/data/about/backend";
 import { renderHighlight } from "../renderHighlight";
 import CodeHighlight from "../CodeHighlight";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
@@ -15,15 +16,14 @@ const styles = { ...shared, ...local };
 
 interface BackendPanelProps {
   language: Language;
-  items: BackendItem[];
   scrollBy?: (deltaX: number) => void;
 }
 
 function BackendPanel({
   language,
-  items,
   scrollBy,
 }: BackendPanelProps) {
+  const items = backendItems;
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);

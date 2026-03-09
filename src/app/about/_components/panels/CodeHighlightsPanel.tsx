@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { flushSync } from "react-dom";
 import type { Language } from "@/providers/LanguageProvider";
-import type { CodeExample } from "@/data/about";
+import { codeExamples } from "@/data/about/codeExamples";
 import CodeHighlight from "../CodeHighlight";
 import { renderHighlight } from "../renderHighlight";
 import { getCodeDemo } from "./CodeDemos";
@@ -15,13 +15,11 @@ const styles = { ...shared, ...local };
 
 interface CodeHighlightsPanelProps {
   language: Language;
-  codeExamples: CodeExample[];
   scrollBy?: (deltaX: number) => void;
 }
 
 function CodeHighlightsPanel({
   language,
-  codeExamples,
   scrollBy,
 }: CodeHighlightsPanelProps) {
   const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
