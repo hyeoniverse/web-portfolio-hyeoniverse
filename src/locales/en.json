@@ -707,7 +707,8 @@
     "longPress": "Long press to zoom in",
     "visitSite": "Opens the live site in a new tab",
     "github": "Opens the GitHub repository",
-    "viewAllWorks": "Back to all works"
+    "viewAllWorks": "Back to all works",
+    "longHoverNavigate": "Hold to navigate to the page"
   },
   "errorPage": {
     "title": "Something Went Wrong",
