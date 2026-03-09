@@ -225,6 +225,18 @@
   color: var(--text-accent-alt);
 }
 
+/* Admin 진입 링크 */
+.adminLink {
+  color: var(--text-tertiary);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.adminLink:hover {
+  color: var(--text-primary);
+}
+
 /* ==========================================================================
   Responsive
   ========================================================================== */

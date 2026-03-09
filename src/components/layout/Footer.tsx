@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { cn } from "@/utils/cn";
 import styles from "./Footer.module.css";
+
+/** Supabase 클라이언트 동적 로드 (번들 절약) */
+const loadSupabaseClient = () => import("@/lib/supabase/client").then(m => m.createClient());
 
 /** Footer 숨김 경로 (exact match) — 가로 스크롤·특수 레이아웃 페이지 */
 const HIDDEN_ROUTES = ["/", "/works", "/profile", "/about"];
@@ -22,6 +25,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   const { language } = useLanguage();
   const siteConfig = useSiteConfig();
   const [visits, setVisits] = useState<{ today: number; total: number } | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // variant가 명시적으로 전달되면 항상 표시, 아니면 HIDDEN_ROUTES 체크
   const isHidden = variant === "full" && HIDDEN_ROUTES.includes(pathname);
@@ -42,14 +46,14 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   const isAdmin = !isHidden && pathname.startsWith("/admin");
 
   const activeLinkHref = isAdmin
-    ? ["/admin/settings", "/admin/works", "/admin/posts"].find((h) => pathname.startsWith(h)) ?? (pathname === "/" ? "/" : null)
+    ? ["/admin/settings", "/admin/works", "/admin/posts"].find((h) => pathname.startsWith(h)) ?? (pathname === "/design-system" ? "/design-system" : pathname === "/" ? "/" : null)
     : ["/works", "/posts", "/profile", "/about", "/privacy", "/design-system"].find(
         (h) => pathname === h || pathname.startsWith(h + "/"),
       ) ?? null;
 
   const targetHref = hoveredLink ?? activeLinkHref;
 
-  useEffect(() => {
+  const updateIndicator = useCallback(() => {
     if (!targetHref) {
       setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }));
       return;
@@ -64,7 +68,25 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
       width: elRect.width,
       opacity: 1,
     });
-  }, [targetHref, language]);
+  }, [targetHref]);
+
+  // paint 전 위치 계산 (깜빡임 방지)
+  // isAuthenticated: Admin 링크 추가/제거 시 레이아웃 재계산
+  useLayoutEffect(updateIndicator, [updateIndicator, language, isAuthenticated]);
+
+  // 리사이즈·폰트 로드 시 재계산
+  useEffect(() => {
+    const parent = linksRef.current;
+    if (!parent) return;
+
+    // 폰트 로드 후 재계산
+    document.fonts.ready.then(updateIndicator);
+
+    // 컨테이너 크기 변경 감지 (window resize 포함)
+    const ro = new ResizeObserver(updateIndicator);
+    ro.observe(parent);
+    return () => ro.disconnect();
+  }, [updateIndicator]);
 
   useEffect(() => {
     fetch("/api/visits")
@@ -72,6 +94,22 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
       .then((data) => setVisits(data))
       .catch(() => {});
   }, []);
+
+  // Admin 세션 체크 (공개 페이지에서만)
+  useEffect(() => {
+    if (isAdmin) return;
+    let cancelled = false;
+    loadSupabaseClient().then(async (supabase) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!cancelled) setIsAuthenticated(!!user);
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!cancelled) setIsAuthenticated(!!session?.user);
+      });
+      return () => subscription.unsubscribe();
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [isAdmin]);
 
   if (isHidden) return null;
 
@@ -131,7 +169,27 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
               {copyrightText}
             </div>
             <div className={styles.bottomRight}>
-              {visitsBlock}
+              <div className={styles.visits}>
+                {isAuthenticated && (
+                  <>
+                    <Link href="/admin/settings" target="_blank" className={styles.adminLink}>Admin</Link>
+                    <span className={styles.divider}>✧</span>
+                  </>
+                )}
+                {visits && (
+                  <>
+                    <span className={styles.visitItem}>
+                      <span className={styles.visitLabel}>Today</span>
+                      <span className={styles.visitCount}>{visits.today.toLocaleString()}</span>
+                    </span>
+                    <span className={styles.visitDot} />
+                    <span className={styles.visitItem}>
+                      <span className={styles.visitLabel}>Total</span>
+                      <span className={styles.visitCount}>{visits.total.toLocaleString()}</span>
+                    </span>
+                  </>
+                )}
+              </div>
               {musicCreditText}
             </div>
           </div>
@@ -144,6 +202,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                   <Link href="/admin/works" ref={setLinkRef("/admin/works")} onMouseEnter={() => setHoveredLink("/admin/works")} className={pathname.startsWith("/admin/works") ? styles.activeLink : ""}>Works</Link>
                   <Link href="/admin/posts" ref={setLinkRef("/admin/posts")} onMouseEnter={() => setHoveredLink("/admin/posts")} className={pathname.startsWith("/admin/posts") ? styles.activeLink : ""}>Posts</Link>
                   <span className={styles.divider}>✧</span>
+                  <Link href="/design-system" target="_blank" ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
                   <Link href="/" ref={setLinkRef("/")} onMouseEnter={() => setHoveredLink("/")}>Home</Link>
                 </>
               ) : (
@@ -154,7 +213,13 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                   <Link href="/about" ref={setLinkRef("/about")} onMouseEnter={() => setHoveredLink("/about")} className={pathname.startsWith("/about") ? styles.activeLink : ""}>About</Link>
                   <span className={styles.divider}>✧</span>
                   <Link href="/privacy" ref={setLinkRef("/privacy")} onMouseEnter={() => setHoveredLink("/privacy")} className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
-                  <Link href="/design-system" ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
+                  <Link href="/design-system" target="_blank" ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
+                  {isAuthenticated && (
+                    <>
+                      <span className={styles.divider}>✧</span>
+                      <Link href="/admin/settings" target="_blank" ref={setLinkRef("/admin/settings")} onMouseEnter={() => setHoveredLink("/admin/settings")}>Admin</Link>
+                    </>
+                  )}
                 </>
               )}
               <span
