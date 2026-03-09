@@ -8,6 +8,7 @@
 main {
   position: relative;
   box-sizing: border-box;
+  overflow-x: clip;
 }
 
 main > .content {
