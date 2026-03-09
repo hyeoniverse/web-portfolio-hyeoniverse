@@ -1,12 +1,16 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { motion, MotionValue } from "framer-motion";
 import Section from "@/components/ui/Section";
 import T from "@/components/ui/T";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./BridgeSection.module.css";
 import heroStyles from "../HeroSection/HeroSection.module.css";
+
+const OVAL_COUNT = 5;
 
 interface BridgeSectionProps {
   floatX: MotionValue<number>;
@@ -22,17 +26,51 @@ export default function BridgeSection({
   oval2Y,
 }: BridgeSectionProps) {
   const { language } = useLanguage();
+  const { lenis } = useLenis();
   const cfg = useSiteConfig();
   const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
 
+  const groupRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = groupRef.current;
+    if (!el || !lenis) return;
+
+    const update = () => {
+      const scroll = lenis.scroll;
+      const total = lenis.limit;
+      const distance = total > 0 ? Math.min(scroll, total - scroll) : 0;
+      const vh = window.innerHeight;
+      const spread = Math.min(distance / vh, 1);
+      el.style.setProperty("--spread", String(spread));
+    };
+
+    lenis.on("scroll", update);
+    update();
+    return () => {
+      lenis.off("scroll", update);
+    };
+  }, [lenis]);
+
   return (
-    <Section fullHeight clipOverflow className={styles.bridge}>
-      {/* Floating Ovals - identical to Hero (정적) */}
+    <Section fullHeight className={styles.bridge}>
+      {/* Floating Ovals - identical to Hero */}
       <motion.div
+        ref={groupRef}
         className={heroStyles.ovalPrimaryGroup}
         style={{ x: floatX, y: floatY }}
       >
-        <div className={`${heroStyles.floatingOval} ${heroStyles.ovalPrimary}`} />
+        {Array.from({ length: OVAL_COUNT }, (_, i) => {
+          const center = (OVAL_COUNT - 1) / 2;
+          const offset = i - center;
+          return (
+            <div
+              key={i}
+              className={`${heroStyles.floatingOval} ${heroStyles.ovalPrimary}`}
+              style={{ "--offset": offset } as React.CSSProperties}
+            />
+          );
+        })}
       </motion.div>
       <motion.div
         className={`${heroStyles.floatingOval} ${heroStyles.ovalSecondary}`}

@@ -1,13 +1,14 @@
 "use client";
 
-import { forwardRef } from "react";
-import { motion, MotionValue, useScroll, useTransform } from "framer-motion";
+import { forwardRef, useEffect, useRef } from "react";
+import { motion, MotionValue } from "framer-motion";
 
 const OVAL_COUNT = 5;
 import StaggerText from "@/components/effects/StaggerText";
 import Section from "@/components/ui/Section";
 import T from "@/components/ui/T";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./HeroSection.module.css";
 
@@ -22,18 +23,40 @@ interface HeroSectionProps {
 const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
   ({ floatX, floatY, oval2X, oval2Y, onScrollDown }, ref) => {
     const { language } = useLanguage();
+    const { lenis } = useLenis();
     const cfg = useSiteConfig();
     const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
 
-    const { scrollYProgress } = useScroll();
-    const spread = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
+    const groupRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const el = groupRef.current;
+      if (!el || !lenis) return;
+
+      const update = () => {
+        const scroll = lenis.scroll;
+        const total = lenis.limit;
+        // 원형 거리: scroll=0(Hero)과 scroll≈limit(Bridge) 모두 spread=0
+        const distance = total > 0 ? Math.min(scroll, total - scroll) : 0;
+        const vh = window.innerHeight;
+        const spread = Math.min(distance / vh, 1);
+        el.style.setProperty("--spread", String(spread));
+      };
+
+      lenis.on("scroll", update);
+      update();
+      return () => {
+        lenis.off("scroll", update);
+      };
+    }, [lenis]);
 
     return (
-      <Section fullHeight clipOverflow className={styles.hero} ref={ref}>
+      <Section fullHeight className={styles.hero} ref={ref}>
         {/* Primary Oval — 스크롤에 따라 등간격 위아래 펼침 */}
         <motion.div
+          ref={groupRef}
           className={styles.ovalPrimaryGroup}
-          style={{ x: floatX, y: floatY, "--spread": spread } as React.CSSProperties}
+          style={{ x: floatX, y: floatY } as React.CSSProperties}
         >
           {Array.from({ length: OVAL_COUNT }, (_, i) => {
             const center = (OVAL_COUNT - 1) / 2;
