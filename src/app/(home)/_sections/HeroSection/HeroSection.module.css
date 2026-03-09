@@ -31,6 +31,7 @@
   height: 100%;
   transform: translateY(calc(var(--offset, 0) * var(--spread, 0) * 200px));
   opacity: calc(0.15 + 0.85 * var(--spread, 0));
+  /* transition 제거: lenis scroll 이벤트에서 매 프레임 --spread 업데이트 */
 }
 
 /* 중앙 타원(offset=0)은 항상 불투명 */

@@ -6,12 +6,11 @@ interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   as?: "section" | "div";
   fullHeight?: boolean;
   center?: boolean;
-  clipOverflow?: boolean;
 }
 
 const Section = forwardRef<HTMLElement, SectionProps>(
   (
-    { as: Tag = "section", fullHeight, center, clipOverflow, className, children, ...rest },
+    { as: Tag = "section", fullHeight, center, className, children, ...rest },
     ref,
   ) => (
     <Tag
@@ -20,7 +19,6 @@ const Section = forwardRef<HTMLElement, SectionProps>(
         styles.section,
         fullHeight && styles.fullHeight,
         center && styles.center,
-        clipOverflow && styles.clipOverflow,
         className,
       )}
       {...rest}

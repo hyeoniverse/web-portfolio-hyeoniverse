@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .pageWrapper {
-  overflow: hidden;
+  overflow-x: clip;
   min-height: 100vh;
   background: var(--bg-black);
   justify-content: center;
@@ -12,7 +12,7 @@
 }
 
 .home {
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg-primary);
   color: var(--text-primary);
   border-radius: var(--radius-2xl);
