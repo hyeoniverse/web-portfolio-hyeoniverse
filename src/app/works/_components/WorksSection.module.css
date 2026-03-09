@@ -425,7 +425,7 @@
 }
 
 .metaTech span {
-  padding: var(--padding-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: var(--border-accent);
   font-size: var(--font-size-sm);
   letter-spacing: 0.15em;
@@ -928,7 +928,7 @@
   }
 
   .project {
-    --_card-w: calc(100% + 3rem);
+    --_card-w: 100vw;
     --_card-h: auto;
     --_card-radius: 0;
     --_number-size: var(--fluid-font-size-5xl);
@@ -941,15 +941,23 @@
   .sizeMedium,
   .sizeTall,
   .sizeWide {
+    --_mobile-px: 1.5rem;
+
     gap: var(--spacing-md);
     align-self: stretch;
     margin: 0;
-    padding: 3rem 1.5rem;
+    padding: 3rem var(--_mobile-px);
+    pointer-events: auto;
   }
 
   .card {
-    margin-left: -1.5rem;
+    margin-left: calc(-1 * var(--_mobile-px));
+    margin-right: calc(-1 * var(--_mobile-px));
     aspect-ratio: 16 / 10;
+  }
+
+  .intro + .project {
+    margin-left: 0;
   }
 
   .project::after {
@@ -971,30 +979,35 @@
     display: none;
   }
 
-  /* Reset all layout variant metadata positions */
-  .project .metaNumber {
-    margin: 0 0 -20px 0;
+  /* Reset all layout variant metadata positions — unified mobile layout */
+  .project .metaNumber,
+  .project .metaCategory,
+  .project .metaYear,
+  .project .metaTech,
+  .project .metaRole,
+  .project .metaDesc {
     position: relative;
     top: auto;
     right: auto;
     bottom: auto;
     left: auto;
-    z-index: var(--_meta-z);
-    opacity: 0.6;
+    margin: 0;
     transform: none;
+    writing-mode: horizontal-tb;
+    mix-blend-mode: normal;
+    -webkit-text-stroke: 0;
+    pointer-events: auto;
+  }
+
+  .project .metaNumber {
+    margin-bottom: -20px;
+    opacity: 0.6;
   }
 
   .project .metaCategory {
     margin-bottom: var(--spacing-sm);
-    position: relative;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    left: auto;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    writing-mode: horizontal-tb;
-    transform: none;
   }
 
   .cardOverlay {
@@ -1003,8 +1016,8 @@
     gap: var(--spacing-2xs);
     position: absolute;
     top: 20px;
-    left: 1.5rem;
-    right: 1.5rem;
+    left: var(--_mobile-px);
+    right: var(--_mobile-px);
     z-index: 2;
     color: var(--text-white);
     mix-blend-mode: difference;
@@ -1031,15 +1044,10 @@
     position: absolute;
     top: 0;
     right: 0;
-    bottom: auto;
-    left: auto;
-    margin: 0;
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-light);
     letter-spacing: 0.05em;
     color: inherit;
-    mix-blend-mode: normal;
-    -webkit-text-stroke: 0;
   }
 
   .project .metaTech {
@@ -1047,36 +1055,25 @@
     flex-wrap: wrap;
     flex-direction: row;
     margin-top: var(--spacing-xs);
-    position: relative;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    writing-mode: horizontal-tb;
   }
 
   .project .metaTech span {
-    padding: var(--padding-xs);
+    padding: var(--padding-lg);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
   }
 
   .project .metaRole {
-    position: relative;
-    top: auto;
-    left: auto;
+    display: block;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     letter-spacing: 0.15em;
     white-space: normal;
-    transform: none;
   }
 
   .project .metaDesc {
-    margin: var(--spacing-lg) 0 0;
-    position: relative;
-    bottom: auto;
+    margin-top: var(--spacing-lg);
+    max-width: none;
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-relaxed);
@@ -1118,7 +1115,7 @@
   }
 
   .project {
-    --_card-w: calc(100% + var(--m-sm) * 2);
+    --_card-w: 100vw;
     --_number-size: var(--font-size-5xl);
   }
 
@@ -1128,17 +1125,20 @@
   .sizeMedium,
   .sizeTall,
   .sizeWide {
-    padding: var(--m-lg) var(--m-sm);
+    --_mobile-px: var(--m-sm);
+
+    padding: var(--m-lg) var(--_mobile-px);
   }
 
   .card {
-    margin-left: calc(-1 * var(--m-sm));
+    margin-left: calc(-1 * var(--_mobile-px));
+    margin-right: calc(-1 * var(--_mobile-px));
   }
 
   .cardOverlay {
     top: 3.3vw;
-    left: var(--m-sm);
-    right: var(--m-sm);
+    left: var(--_mobile-px);
+    right: var(--_mobile-px);
   }
 
   .project .metaTitle {
@@ -1166,7 +1166,7 @@
   }
 
   .project .metaTech span {
-    padding: var(--spacing-3xs) var(--spacing-xs);
+    padding: var(--padding-md);
     font-size: var(--font-size-xs);
   }
 
