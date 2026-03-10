@@ -6,7 +6,7 @@
 }
 
 .option {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);

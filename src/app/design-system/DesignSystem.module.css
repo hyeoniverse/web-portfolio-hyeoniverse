@@ -655,7 +655,7 @@
   font-style: italic;
   color: var(--text-primary);
   cursor: default;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border-radius: var(--radius-md);
 }
 

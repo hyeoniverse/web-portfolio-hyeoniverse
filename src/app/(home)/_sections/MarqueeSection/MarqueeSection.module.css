@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .marquee {
-  padding: var(--padding-y-6xl);
+  padding: var(--box-y-6xl);
   border-top: var(--border-default);
   border-bottom: var(--border-default);
   overflow: hidden;

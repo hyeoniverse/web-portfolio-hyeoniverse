@@ -9,7 +9,7 @@
 .label {
   display: inline-block;
   margin-bottom: var(--_space-block);
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--color-accent-alpha-30);
   width: fit-content;
   font-size: var(--_fs-label);

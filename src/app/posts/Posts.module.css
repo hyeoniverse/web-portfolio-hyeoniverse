@@ -153,7 +153,7 @@
 
 .sortBtn {
   position: relative;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -183,7 +183,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border: 1px solid var(--text-primary);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -238,7 +238,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -300,7 +300,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -440,7 +440,7 @@
 }
 
 .emptyResetBtn {
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--box-xs-lg);
   border: 1px solid var(--text-primary);
   border-radius: var(--radius-capsule);
   background: transparent;

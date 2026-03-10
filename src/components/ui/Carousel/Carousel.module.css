@@ -138,7 +138,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
   border-radius: var(--radius-capsule);

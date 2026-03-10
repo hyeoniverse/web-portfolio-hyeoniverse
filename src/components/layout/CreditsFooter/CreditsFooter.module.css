@@ -47,7 +47,7 @@
   bottom: 0;
   left: 0;
   z-index: var(--z-float);
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--box-lg-xl);
   pointer-events: none;
 }
 

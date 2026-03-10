@@ -115,7 +115,7 @@
 .label {
   display: inline-block;
   margin-bottom: var(--_space-block);
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--color-accent-alpha-30);
   width: fit-content;
   font-size: var(--_fs-label);
@@ -236,7 +236,7 @@
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  padding: var(--padding-md);
+  padding: var(--box-md);
   border-bottom: var(--border-strong);
   background: var(--bg-primary);
   user-select: none;
@@ -887,7 +887,7 @@
   }
 
   .panel {
-    padding: 4rem 2rem;
+    padding: var(--box-4xl-2xl);
     border-bottom: 1px solid var(--text-primary);
     width: 100%;
     height: auto;
@@ -1009,7 +1009,7 @@
 
 @media (max-width: 768px) {
   .panel {
-    padding: 3rem 1.5rem;
+    padding: var(--box-3xl-xl);
   }
 
   .profilePanel {

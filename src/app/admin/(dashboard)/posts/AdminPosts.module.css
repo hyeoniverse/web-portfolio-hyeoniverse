@@ -156,7 +156,7 @@
 .deleteBtn {
   align-self: center;
   margin-right: var(--spacing-sm);
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-capsule);
   background: transparent;

@@ -103,7 +103,7 @@
 }
 
 .deleteInput {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-md);
   background: transparent;
@@ -115,7 +115,7 @@
 }
 
 .deleteConfirm {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid var(--color-accent-alpha-20);
   border-radius: var(--radius-sm);
   background: transparent;
@@ -125,7 +125,7 @@
 }
 
 .deleteCancel {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);

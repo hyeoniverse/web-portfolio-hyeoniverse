@@ -90,7 +90,7 @@
   display: flex;
   gap: var(--_space-block);
   align-items: center;
-  padding: var(--padding-md);
+  padding: var(--box-md);
   border: var(--_line-secondary);
   position: absolute;
   right: var(--_space-line);

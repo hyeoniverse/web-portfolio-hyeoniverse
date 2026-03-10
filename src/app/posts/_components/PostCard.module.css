@@ -66,7 +66,7 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid var(--color-accent-alpha-20);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -128,7 +128,7 @@
   display: inline-flex;
   align-items: center;
   margin-left: auto;
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
@@ -239,7 +239,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-2xl) var(--spacing-2xl);
+  padding: var(--spacing-2xl);
   max-width: 680px;
 }
 
@@ -248,7 +248,7 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
@@ -313,7 +313,7 @@
 .heroLangHint {
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
@@ -392,7 +392,7 @@
   }
 
   .heroContent {
-    padding: var(--spacing-xl) var(--spacing-xl);
+    padding: var(--spacing-xl);
     max-width: 560px;
   }
 }
@@ -403,7 +403,7 @@
   }
 
   .heroContent {
-    padding: var(--spacing-lg) var(--spacing-lg);
+    padding: var(--spacing-lg);
     max-width: none;
   }
 

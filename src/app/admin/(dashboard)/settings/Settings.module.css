@@ -27,7 +27,7 @@
 .message {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border-radius: var(--radius-capsule);
 }
 
@@ -42,7 +42,7 @@
 }
 
 .resetBtn {
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -60,7 +60,7 @@
 }
 
 .saveBtn {
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--text-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
@@ -112,7 +112,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   cursor: pointer;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   font-weight: var(--font-weight-medium);
 }
 
@@ -194,7 +194,7 @@
   flex: 1;
   min-width: 0;
   border-radius: var(--radius-capsule);
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid transparent;
   background: transparent;
 }
@@ -285,7 +285,7 @@
   align-items: center;
   gap: var(--spacing-md);
   margin: 0 calc(-1 * var(--spacing-lg));
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--box-lg);
   background: var(--color-neutral-0);
   z-index: 3;
 }
@@ -588,7 +588,7 @@
 .fieldSelect {
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -601,7 +601,7 @@
 .fieldTextarea {
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-md);
   background: transparent;
@@ -668,7 +668,7 @@
 .colorText {
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -692,7 +692,7 @@
 }
 
 .formatSegmentBtn {
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--box-xs-lg);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -830,7 +830,7 @@
 
 .logoBtn,
 .logoBtnRemove {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -857,7 +857,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -973,7 +973,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
@@ -1028,7 +1028,7 @@
 }
 
 .catAddBtn {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border: 1px solid var(--text-secondary);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1145,7 +1145,7 @@
 
 .profileFieldInput {
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1161,7 +1161,7 @@
 
 .profileFieldTextarea {
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-md);
   background: transparent;
@@ -1181,7 +1181,7 @@
 }
 
 .profileAddBtn {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1277,7 +1277,7 @@
 }
 
 .confirmCancelBtn {
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--border-primary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1361,7 +1361,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-md);
   background: transparent;
@@ -1471,7 +1471,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border-radius: var(--radius-sm);
 }
 
@@ -1598,7 +1598,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-md);
 }
@@ -1686,7 +1686,7 @@
 
   .resetBtn,
   .saveBtn {
-    padding: var(--spacing-2xs) var(--spacing-md);
+    padding: var(--box-2xs-md);
     font-size: var(--font-size-xs);
   }
 
@@ -1722,7 +1722,7 @@
     flex-shrink: 0;
     width: auto;
     border-bottom: 2px solid transparent;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--box-sm-md);
     font-size: var(--font-size-xs);
     text-align: center;
   }
@@ -1751,7 +1751,7 @@
 
   .mobileSubItem {
     flex-shrink: 0;
-    padding: var(--spacing-xs) var(--spacing-md);
+    padding: var(--box-md);
     border: none;
     border-bottom: 2px solid transparent;
     background: transparent;
@@ -1838,7 +1838,7 @@
 .fontCustomInput {
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1895,7 +1895,7 @@
 }
 
 .fontSuggestionItem {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -1987,7 +1987,7 @@
 }
 
 .envSaveBtn {
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--box-xs-lg);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -2032,7 +2032,7 @@
 
 .pwCancelBtn,
 .pwSubmitBtn {
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--box-xs-lg);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -2081,7 +2081,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
@@ -2142,7 +2142,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   border: var(--border-light);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-md);

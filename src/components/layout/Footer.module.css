@@ -259,7 +259,7 @@
 
   .links {
     flex-wrap: wrap;
-    gap: var(--spacing-sm) var(--spacing-md);
+    gap: var(--box-sm-md);
   }
 
   .footerIndicator {

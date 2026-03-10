@@ -18,7 +18,7 @@
 }
 
 .toolbarBtn {
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-xs);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -53,7 +53,7 @@
 
 /* Font family select */
 .fontSelect {
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-xs);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-xs);
   background: transparent;
@@ -75,7 +75,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-xs);
   border-radius: var(--radius-xs);
 }
 
@@ -310,7 +310,7 @@
 }
 
 .imageBubbleBtn {
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-xs);
   border: none;
   border-radius: var(--radius-xs);
   background: transparent;

@@ -99,7 +99,7 @@ nav#side-navigation::after {
   display: flex;
   flex-direction: column;
   margin: 0 auto;
-  padding: var(--padding-x-xl);
+  padding: var(--box-x-xl);
   padding-bottom: var(--spacing-6xl);
   position: relative;
   max-width: var(--width-6xl);

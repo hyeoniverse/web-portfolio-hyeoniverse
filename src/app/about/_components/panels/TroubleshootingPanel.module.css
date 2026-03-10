@@ -35,7 +35,7 @@
   position: sticky;
   bottom: 0;
   z-index: 2;
-  padding: var(--padding-md);
+  padding: var(--box-md);
   border-top: var(--_line-secondary);
   background: var(--bg-primary);
   font-family: var(--font-mono);
@@ -211,7 +211,7 @@
 }
 
 .troubleLabel {
-  padding: var(--padding-sm);
+  padding: var(--box-sm);
   border: var(--border-default);
   width: fit-content;
   font-size: var(--_fs-label);
@@ -322,7 +322,7 @@
   }
 
   .troubleLabel {
-    padding: var(--padding-sm);
+    padding: var(--box-sm);
     font-size: var(--_fs-label);
   }
 
@@ -332,6 +332,6 @@
   }
 
   .highlightedText {
-    padding: var(--padding-sm);
+    padding: var(--box-sm);
   }
 }

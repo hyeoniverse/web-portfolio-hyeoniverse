@@ -11,7 +11,7 @@
 }
 
 .input {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -30,7 +30,7 @@
 }
 
 .textarea {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-lg);
   background: transparent;
@@ -57,7 +57,7 @@
 }
 
 .submitBtn {
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--text-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
@@ -78,7 +78,7 @@
 }
 
 .cancelBtn {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;

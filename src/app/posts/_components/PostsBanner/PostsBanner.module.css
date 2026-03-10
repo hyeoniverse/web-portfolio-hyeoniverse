@@ -93,7 +93,7 @@
   flex-direction: column;
   justify-content: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-2xl) var(--spacing-3xl);
+  padding: var(--box-2xl-3xl);
   background: var(--bg-primary);
 }
 
@@ -200,7 +200,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: var(--spacing-xl) var(--spacing-2xl);
+  padding: var(--box-xl-2xl);
   z-index: 1;
 }
 

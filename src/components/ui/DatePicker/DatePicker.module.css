@@ -27,7 +27,7 @@
 }
 
 .formatBtn {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -69,7 +69,7 @@
 
 .yearInput {
   width: 60px;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-xs);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -105,7 +105,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   min-width: 48px;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-xs);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -155,7 +155,7 @@
 .dropdownItem {
   display: block;
   width: 100%;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -188,7 +188,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border-radius: var(--radius-capsule);
   border: 1px solid var(--border-tertiary-color);
 }
@@ -362,7 +362,7 @@
 }
 
 .calCell {
-  padding: var(--spacing-2xs) var(--spacing-2xs);
+  padding: var(--spacing-2xs);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;

@@ -34,7 +34,7 @@
 }
 
 .title {
-  padding: var(--padding-x-sm);
+  padding: var(--box-x-sm);
   position: relative;
   font-size: var(--font-size-xl);
   font-weight: 600;
