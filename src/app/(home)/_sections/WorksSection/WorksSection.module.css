@@ -5,8 +5,7 @@
 .works {
   position: relative;
   padding: 20vh 2vw 0;
-  overflow: hidden;
-  contain: layout style paint;
+  contain: layout style;
 }
 
 .container {
