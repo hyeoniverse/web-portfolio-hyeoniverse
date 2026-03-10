@@ -425,7 +425,7 @@
 }
 
 .metaTech span {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border: var(--border-accent);
   font-size: var(--font-size-sm);
   letter-spacing: 0.15em;
@@ -510,7 +510,7 @@
 }
 
 .layout1 .metaTech span {
-  padding: var(--padding-sm);
+  padding: var(--box-sm);
 }
 
 /* Layout 2 */
@@ -1058,7 +1058,7 @@
   }
 
   .project .metaTech span {
-    padding: var(--padding-lg);
+    padding: var(--box-lg);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
   }
@@ -1166,7 +1166,7 @@
   }
 
   .project .metaTech span {
-    padding: var(--padding-md);
+    padding: var(--box-md);
     font-size: var(--font-size-xs);
   }
 
