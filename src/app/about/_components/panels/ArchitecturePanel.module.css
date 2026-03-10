@@ -69,7 +69,7 @@
 }
 
 .archMap .archModeBtn {
-  padding: var(--padding-md);
+  padding: var(--box-md);
   background: transparent;
   font-family: var(--font-mono);
   font-size: var(--_fs-label);

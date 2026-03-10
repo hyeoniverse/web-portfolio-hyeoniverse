@@ -10,7 +10,7 @@
 }
 
 .excerptInput {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-md);
   background: transparent;
@@ -61,7 +61,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;

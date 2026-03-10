@@ -12,7 +12,7 @@
 }
 
 .overviewTag {
-  padding: var(--padding-md);
+  padding: var(--box-md);
   border: var(--border-default);
   font-size: var(--_fs-label);
   font-weight: var(--font-weight-medium);

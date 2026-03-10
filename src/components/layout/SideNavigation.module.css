@@ -18,7 +18,7 @@
 .tocButton {
   border: none;
   background: none;
-  padding: var(--padding-sm);
+  padding: var(--box-sm);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
@@ -88,7 +88,7 @@
 
   .tocButton {
     flex-shrink: 0;
-    padding: var(--padding-md);
+    padding: var(--box-md);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
     letter-spacing: 0.1em;

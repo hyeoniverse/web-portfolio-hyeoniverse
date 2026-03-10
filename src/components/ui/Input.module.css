@@ -13,7 +13,7 @@
 }
 
 .input {
-  padding: var(--spacing-sm) var(--spacing-xl);
+  padding: var(--box-sm-xl);
   border: 1px solid var(--border-primary-color);
   border-radius: var(--radius-capsule);
   background: transparent;

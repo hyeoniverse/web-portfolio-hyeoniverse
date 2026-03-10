@@ -27,7 +27,7 @@
 
 .saveBtn {
   min-width: 110px;
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--box-xs-lg);
   border: 1px solid var(--color-success);
   border-radius: var(--radius-capsule);
   background: var(--color-success);
@@ -61,7 +61,7 @@
 }
 
 .newBtn {
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--text-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
@@ -121,7 +121,7 @@
 
 /* Shrink Select trigger inside filter bar */
 .filterItem button {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   font-size: var(--font-size-xs);
 }
 
@@ -133,12 +133,12 @@
 }
 
 .filterPageSize button {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   font-size: var(--font-size-xs);
 }
 
 .filterReset {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -198,7 +198,7 @@
 }
 
 .previewBody {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
 }
 
 .previewTitle {
@@ -257,7 +257,7 @@
   .saveBtn,
   .newBtn {
     font-size: var(--font-size-xs);
-    padding: var(--spacing-xs) var(--spacing-md);
+    padding: var(--box-md);
   }
 
   .previewTooltip {

@@ -165,7 +165,7 @@
 
 .prose blockquote {
   border-left: 3px solid var(--color-accent);
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--box-lg);
   color: var(--text-secondary);
   margin: var(--spacing-xl) 0;
   font-style: italic;
@@ -226,7 +226,7 @@
 
 .prose th,
 .prose td {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   border-bottom: 1px solid var(--border-tertiary-color);
   text-align: left;
 }
@@ -426,7 +426,7 @@
 }
 
 .relatedCardBody {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
 }
 
 .relatedCardOrder {
@@ -503,7 +503,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-xl) var(--spacing-lg);
+  padding: var(--box-xl-lg);
 }
 
 .recommendedItemImg {
@@ -550,7 +550,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   margin-top: var(--spacing-sm);
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -579,7 +579,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   border-left: 2px solid var(--text-muted);
   background: transparent;
   margin-bottom: var(--spacing-xl);
@@ -600,7 +600,7 @@
 
 .translateBtn {
   flex-shrink: 0;
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -688,7 +688,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   border-bottom: 1px solid var(--border-tertiary-color);
   color: var(--text-tertiary);
 }
@@ -782,7 +782,7 @@
 .toastTitle {
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   font-family: var(--font-instrument);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-regular);

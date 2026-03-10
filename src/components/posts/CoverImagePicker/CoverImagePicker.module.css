@@ -11,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   border-bottom: 1px solid var(--border-tertiary-color);
   background: var(--bg-tertiary);
 }
@@ -24,7 +24,7 @@
 }
 
 .tab {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -49,7 +49,7 @@
 }
 
 .closeBtn {
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-xs);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -241,7 +241,7 @@
 .loadMore {
   display: block;
   margin: var(--spacing-sm) auto 0;
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--box-xs-lg);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -269,7 +269,7 @@
 }
 
 .styleChip {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -296,7 +296,7 @@
 
 .generateBtn {
   align-self: flex-start;
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--text-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
@@ -329,7 +329,7 @@
 }
 
 .useBtn {
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--text-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
@@ -340,7 +340,7 @@
 }
 
 .retryBtn {
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -358,7 +358,7 @@
 }
 
 .suggestionChip {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;

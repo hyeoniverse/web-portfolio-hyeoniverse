@@ -55,7 +55,7 @@
 
 /* ── Bulk Assign ── */
 .bulkSection {
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--box-lg);
   border-bottom: 1px solid var(--border-tertiary-color);
   flex-shrink: 0;
 }
@@ -77,7 +77,7 @@
 .newCatRow {
   display: flex;
   gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--box-xs-lg);
   border-bottom: 1px solid var(--border-tertiary-color);
   flex-shrink: 0;
   align-items: flex-end;
@@ -97,7 +97,7 @@
 
 .newCatInput {
   min-width: 0;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -112,7 +112,7 @@
 }
 
 .newCatBtn {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid var(--text-secondary);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -135,7 +135,7 @@
 .postList {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--box-lg);
   scrollbar-width: thin;
   scrollbar-color: var(--border-primary-color) transparent;
 }
@@ -152,7 +152,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   background: var(--bg-tertiary);
 }
 
@@ -208,7 +208,7 @@
 }
 
 .warningText {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   font-family: var(--font-space-grotesk);
   font-size: 10px;
   color: var(--color-accent);
@@ -219,7 +219,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-xs);
@@ -236,13 +236,13 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--box-md-lg);
   border-top: 1px solid var(--border-tertiary-color);
   flex-shrink: 0;
 }
 
 .cancelBtn {
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--border-tertiary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -258,7 +258,7 @@
 }
 
 .confirmBtn {
-  padding: var(--spacing-xs) var(--spacing-xl);
+  padding: var(--box-xs-xl);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-capsule);
   background: var(--color-accent);
@@ -279,7 +279,7 @@
 /* ── States ── */
 .loading,
 .empty {
-  padding: var(--spacing-xl) var(--spacing-lg);
+  padding: var(--box-xl-lg);
   text-align: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);

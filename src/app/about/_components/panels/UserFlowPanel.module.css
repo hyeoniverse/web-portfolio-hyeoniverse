@@ -342,7 +342,7 @@
 
   .ufConnector {
     transform: rotate(90deg);
-    margin: var(--spacing-2xs) var(--spacing-xl);
+    margin: var(--box-2xs-xl);
   }
 
   .ufFlowLayout {

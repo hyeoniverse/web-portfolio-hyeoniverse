@@ -50,28 +50,28 @@
    Sizes — capsule (기본)
    --------------------------------------------------------------------------- */
 .size-xs {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   font-size: var(--font-size-xs);
 }
 
 .size-sm {
-  padding: var(--padding-md);
+  padding: var(--box-md);
   font-size: var(--font-size-sm);
 }
 
 .size-md {
-  padding: var(--spacing-sm) var(--spacing-xl);
+  padding: var(--box-sm-xl);
   font-size: var(--font-size-sm);
 }
 
 .size-lg {
-  padding: var(--spacing-lg) var(--spacing-2xl);
+  padding: var(--box-lg-2xl);
   font-size: var(--font-size-sm);
   letter-spacing: 0.05em;
 }
 
 .size-xl {
-  padding: var(--padding-3xl);
+  padding: var(--box-3xl);
   font-size: var(--font-size-sm);
   letter-spacing: 0.05em;
 }

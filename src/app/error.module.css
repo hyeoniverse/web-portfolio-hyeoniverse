@@ -106,7 +106,7 @@
 }
 
 .primaryButton {
-  padding: var(--spacing-sm) var(--spacing-xl);
+  padding: var(--box-sm-xl);
   border: 1px solid var(--text-primary);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk), sans-serif;
@@ -129,7 +129,7 @@
 }
 
 .secondaryButton {
-  padding: var(--spacing-sm) var(--spacing-xl);
+  padding: var(--box-sm-xl);
   border: 1px solid var(--text-primary);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;

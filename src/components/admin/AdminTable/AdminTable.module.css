@@ -152,7 +152,7 @@
 }
 
 .actionBtn {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid var(--text-primary);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -172,7 +172,7 @@
 }
 
 .deleteBtn {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--box-2xs-md);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -371,7 +371,7 @@
 
 .deleteModalInput {
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-sm);
   background: var(--bg-secondary);
@@ -397,7 +397,7 @@
 }
 
 .deleteModalCancel {
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--box-xs-lg);
   border: 1px solid var(--border-secondary-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -416,7 +416,7 @@
 }
 
 .deleteModalConfirmBtn {
-  padding: var(--spacing-xs) var(--spacing-lg);
+  padding: var(--box-xs-lg);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-capsule);
   background: var(--color-accent);
@@ -455,6 +455,6 @@
 
   .actionBtn,
   .deleteBtn {
-    padding: var(--spacing-2xs) var(--spacing-sm);
+    padding: var(--box-sm);
   }
 }
