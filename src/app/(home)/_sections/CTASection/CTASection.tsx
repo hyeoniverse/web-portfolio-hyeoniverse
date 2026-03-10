@@ -71,15 +71,6 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
 
     return (
       <Section fullHeight center className={styles.cta} ref={ref}>
-        {/* Decorative elements */}
-        <div className={styles.glow} aria-hidden="true" />
-        <div className={`${styles.accentLine} ${styles.accentLineLeft}`} aria-hidden="true" />
-        <div className={`${styles.accentLine} ${styles.accentLineRight}`} aria-hidden="true" />
-        <div className={`${styles.cornerMark} ${styles.cornerTL}`} aria-hidden="true" />
-        <div className={`${styles.cornerMark} ${styles.cornerTR}`} aria-hidden="true" />
-        <div className={`${styles.cornerMark} ${styles.cornerBL}`} aria-hidden="true" />
-        <div className={`${styles.cornerMark} ${styles.cornerBR}`} aria-hidden="true" />
-
         <div className={styles.content}>
           <p className={`${styles.label} reveal-text`}>
             <T ko={cfg.cta.label_ko} en={cfg.cta.label} />
