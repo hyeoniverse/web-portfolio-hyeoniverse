@@ -1,20 +1,33 @@
-# Web Portfolio - Oval
+<div align="center">
+
+# Web Portfolio — Oval
 
 개인 포트폴리오 웹사이트입니다. Next.js 15, React 19, TypeScript로 구축되었으며, GSAP, Framer Motion, Lenis를 활용한 인터랙티브 애니메이션이 특징입니다.
 
+[![License](https://img.shields.io/badge/license-PolyForm%20NC%201.0-d40063?style=flat-square)](./LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+
+</div>
+
+---
+
 ## 기술 스택
 
-- **Framework**: Next.js 15 (App Router)
-- **Library**: React 19
-- **Language**: TypeScript
-- **Animation**: GSAP + ScrollTrigger, Framer Motion
-- **3D**: Three.js, React Three Fiber, Drei
-- **Scroll**: Lenis Smooth Scroll
-- **Styling**: CSS Modules, CSS Variables
-- **Typography**: Instrument Serif, Space Grotesk, JetBrains Mono (관리자 설정에서 카테고리별 30+ 프리셋 + Google Fonts 직접 입력 지원)
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **Editor**: Tiptap (WYSIWYG), Marked (Markdown)
-- **AI Image**: NanoBanana / Hugging Face (설정으로 선택)
+| Category | Technology |
+|:---|:---|
+| Framework | ![Next.js](https://img.shields.io/badge/Next.js_15-000?style=flat-square&logo=nextdotjs&logoColor=white) (App Router, Turbopack) |
+| Language | ![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white) |
+| UI | ![React](https://img.shields.io/badge/React_19-61dafb?style=flat-square&logo=react&logoColor=black) |
+| Styling | ![CSS Modules](https://img.shields.io/badge/CSS_Modules-1572b6?style=flat-square&logo=css3&logoColor=white) + CSS Variables |
+| Animation | ![Framer Motion](https://img.shields.io/badge/Framer_Motion-e846ff?style=flat-square&logo=framer&logoColor=white) ![GSAP](https://img.shields.io/badge/GSAP-88ce02?style=flat-square&logo=greensock&logoColor=black) ![Lenis](https://img.shields.io/badge/Lenis-000?style=flat-square) |
+| 3D | ![Three.js](https://img.shields.io/badge/Three.js-000?style=flat-square&logo=threedotjs&logoColor=white) ![R3F](https://img.shields.io/badge/React_Three_Fiber-000?style=flat-square&logo=threedotjs) ![Drei](https://img.shields.io/badge/Drei-000?style=flat-square) |
+| Typography | Instrument Serif, Space Grotesk, JetBrains Mono (관리자 설정에서 카테고리별 30+ 프리셋 + Google Fonts 직접 입력 지원) |
+| Backend | ![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white) (PostgreSQL, Auth, Storage) |
+| Editor | ![Tiptap](https://img.shields.io/badge/Tiptap-1a1a2e?style=flat-square) (WYSIWYG) + Markdown |
+| AI Image | NanoBanana / Hugging Face (설정으로 선택) |
 
 ## 주요 기능
 
@@ -54,7 +67,8 @@
 - **Footer Sliding Indicator**: Navigation과 동일한 슬라이딩 인디케이터를 Footer 링크에 적용. hover 시 ►◀ 화살표가 인디케이터와 함께 해당 링크로 이동. `useLayoutEffect` + `ResizeObserver` + `document.fonts.ready`로 indicator 위치 정확도 개선. Admin 인증 시 Footer에 Admin 진입 링크 표시(공개 footer: nav 링크, minimal footer: 조회수 라인에 인라인). Admin footer에 Design System 엔트리 추가(새 탭)
 - **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능. Tooltip/T 컴포넌트 섹션, Select 컴포넌트 섹션, PeriodPicker 섹션, Gradient Tokens 섹션, 3-phase scroll 애니메이션 시스템(Phase 1: 숨김 → Phase 2: 순차 등장 → Phase 3: whileInView 스크롤 기반 등장/소멸) 적용. staggerItemX(좌→우 등장/우→좌 소멸), staggerItem(위→아래) 방향별 stagger 지원
 
-## Security
+<details>
+<summary><strong>Security</strong></summary>
 
 모든 공개 API 엔드포인트에 다층 보안 검증을 적용합니다.
 
@@ -98,7 +112,12 @@
 | `POST /api/contact` | 이름 (100자), 이메일 포맷/길이, 메시지 (5000자) |
 | `POST /api/translate` | 텍스트 (2000자), targetLang enum |
 
-## DB 설계 결정
+
+</details>
+
+<details>
+<summary><strong>DB 설계 결정</strong></summary>
+
 
 ### 통합 좋아요 테이블: `likes`
 
@@ -157,7 +176,12 @@ Posts/Works 에디터의 자동저장 시 폼 전체를 JSONB snapshot으로 영
 | **답글 이메일 알림** | 댓글 작성 시 이메일(선택) 입력하면 답글 알림 발송 (`notify_email` 컬럼) |
 | **관리자 댓글** | 로그인 상태에서 비밀번호 없이 Admin 뱃지로 댓글 작성, 서버 측 Supabase Auth 재검증 |
 
-## User Flow
+
+</details>
+
+<details>
+<summary><strong>User Flow</strong></summary>
+
 
 ### 방문자 플로우
 
@@ -184,6 +208,9 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 - 로그인 버튼 없이 URL 직접 접속 방식
 - Layout 레벨 Supabase Auth 세션 검증 — 미인증 시 `/admin/denied` 접근 거부 페이지로 리다이렉트
 
+
+</details>
+
 ## 시작하기
 
 ```bash
@@ -198,7 +225,8 @@ pnpm dev
 
 ---
 
-## Supabase 세팅 가이드
+<details>
+<summary><strong>Supabase 세팅 가이드</strong></summary>
 
 Posts 기능을 사용하려면 Supabase 프로젝트 세팅이 필요합니다.
 
@@ -441,7 +469,12 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 > **포인트**: 일반 방문자는 `/posts`에서 글 읽기 + 댓글만 가능하고, 관리자(본인)만 `/admin/login`을 직접 입력해서 접속합니다. 포트폴리오 사이트이므로 로그인 UI를 노출하지 않습니다.
 
-## 테스트
+
+</details>
+
+<details>
+<summary><strong>테스트</strong></summary>
+
 
 **스택**: Vitest + React Testing Library + jsdom
 
@@ -467,7 +500,12 @@ npm run test:watch
 
 ---
 
-## Components
+
+</details>
+
+<details>
+<summary><strong>Components</strong></summary>
+
 
 ### StaggerText
 
@@ -578,9 +616,13 @@ import StaggerText from "@/components/effects/StaggerText";
 
 ---
 
+
+</details>
+
 ## Trouble Shooting
 
-### 1. Lenis Scroll Velocity 효과 미작동
+<details>
+<summary><strong>1. Lenis Scroll Velocity 효과 미작동</strong></summary>
 
 #### 문제
 
@@ -627,13 +669,17 @@ useEffect(() => {
 }, [lenis]);
 ```
 
-#### 핵심 교훈
+#### TL;DR
 
 Lenis는 내부적으로 velocity를 계산하여 인스턴스 속성으로 제공하므로, 직접 delta를 계산하는 것보다 정확함
 
 ---
 
-### 2. Framer Motion transform과 CSS transform 충돌
+
+</details>
+
+<details>
+<summary><strong>2. Framer Motion transform과 CSS transform 충돌</strong></summary>
 
 #### 문제
 
@@ -669,13 +715,17 @@ margin 기반 중앙 정렬로 변경하여 CSS transform을 사용하지 않음
 }
 ```
 
-#### 핵심 교훈
+#### TL;DR
 
 Framer Motion의 style 속성은 inline transform을 생성하므로, CSS transform과 분리하여 사용해야 함
 
 ---
 
-### 3. TypeScript useRef 타입 에러
+
+</details>
+
+<details>
+<summary><strong>3. TypeScript useRef 타입 에러</strong></summary>
 
 #### 문제
 
@@ -701,13 +751,17 @@ const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
 );
 ```
 
-#### 핵심 교훈
+#### TL;DR
 
 `clearTimeout`은 `undefined`를 허용하지만 `null`은 허용하지 않음. Timer ref는 `undefined`로 초기화해야 함
 
 ---
 
-### 4. GSAP ScrollTrigger 수평 무한 스크롤 구현
+
+</details>
+
+<details>
+<summary><strong>4. GSAP ScrollTrigger 수평 무한 스크롤 구현</strong></summary>
 
 #### 문제
 
@@ -749,13 +803,17 @@ gsap.to(container, {
 });
 ```
 
-#### 핵심 교훈
+#### TL;DR
 
 스크롤 위치 텔레포트보다 긴 스크롤 범위 + 시각적 위치 루프 방식이 더 자연스러운 무한 스크롤 경험 제공
 
 ---
 
-### 5. Lighthouse 성능 최적화 — reCAPTCHA 지연 로딩
+
+</details>
+
+<details>
+<summary><strong>5. Lighthouse 성능 최적화 — reCAPTCHA 지연 로딩</strong></summary>
 
 #### 문제
 
@@ -816,7 +874,7 @@ return <GoogleReCaptchaProvider ...>{children}</GoogleReCaptchaProvider>;
 - ServicesSection: `<h3>` → `<h2>`로 heading 순서 정상화
 - 언어 토글: `aria-label`에 표시 텍스트("KO"/"EN") 포함
 
-#### 핵심 교훈
+#### TL;DR
 
 - 서드파티 스크립트(reCAPTCHA, Analytics 등)는 초기 로드에서 제외하고 유저 인터랙션 후 로드하면 LCP/TTI에 큰 영향
 - 개발 서버(Turbopack)에서의 Lighthouse 결과는 unminified JS, devtools 등으로 인해 프로덕션보다 훨씬 낮게 측정됨
@@ -824,7 +882,11 @@ return <GoogleReCaptchaProvider ...>{children}</GoogleReCaptchaProvider>;
 
 ---
 
-### 6. reCAPTCHA 배지 z-index 문제
+
+</details>
+
+<details>
+<summary><strong>6. reCAPTCHA 배지 z-index 문제</strong></summary>
 
 #### 문제
 
@@ -843,13 +905,17 @@ Drawer 열릴 때 배지에 `z-index: 9999`를 동적으로 설정, 닫힐 때 �
 badge.style.zIndex = isOpen ? "9999" : "";
 ```
 
-#### 핵심 교훈
+#### TL;DR
 
 서드파티가 삽입하는 DOM 요소는 커스텀 overlay/modal과 z-index 충돌이 발생할 수 있음. 동적으로 z-index를 관리해야 함
 
 ---
 
-### 7. Lighthouse 심화 성능 최적화 — 미사용 폰트 제거 및 리소스 경량화
+
+</details>
+
+<details>
+<summary><strong>7. Lighthouse 심화 성능 최적화 — 미사용 폰트 제거 및 리소스 경량화</strong></summary>
 
 #### 문제
 
@@ -941,7 +1007,7 @@ const events = ["click", "touchstart", "keydown"]; // 타이머/scroll 제거
 | 페이지 용량 | 1,489KB  | **449KB**   | **-70%**      |
 | 폰트 파일   | 19개     | 5개         | -14개         |
 
-#### 핵심 교훈
+#### TL;DR
 
 - `next/font/google`로 등록한 폰트는 CSS에서 미참조여도 폰트 파일이 다운로드됨. 정기적으로 실제 사용 여부를 검증해야 함
 - 서드파티 지연 로딩의 타이머 폴백은 성능 측정 도구에서 의도치 않게 트리거될 수 있음. 의도적 인터랙션(click/touch/keydown)만 사용하는 것이 안전
@@ -949,7 +1015,11 @@ const events = ["click", "touchstart", "keydown"]; // 타이머/scroll 제거
 
 ---
 
-### 8. Works 가로 갤러리 양방향 무한 스크롤 래핑
+
+</details>
+
+<details>
+<summary><strong>8. Works 가로 갤러리 양방향 무한 스크롤 래핑</strong></summary>
 
 #### 문제
 
@@ -990,13 +1060,17 @@ if (oneSetWidth > 0) {
 }
 ```
 
-#### 핵심 교훈
+#### TL;DR
 
 콘텐츠 복제 세트 수를 늘리는 것보다, 스크롤 위치 자체를 래핑하는 방식이 DOM 부담 없이 진정한 무한 스크롤을 구현할 수 있음
 
 ---
 
-### 9. 언어 전환 시 레이아웃 시프트
+
+</details>
+
+<details>
+<summary><strong>9. 언어 전환 시 레이아웃 시프트</strong></summary>
 
 #### 문제
 
@@ -1033,13 +1107,17 @@ Works 인트로 섹션에서 한국어↔영어 전환 시 텍스트 영역의 �
 }
 ```
 
-#### 핵심 교훈
+#### TL;DR
 
 다국어 지원 시 텍스트 영역에 `min-height`로 최대 줄 수 기준의 공간을 예약하면 언어 전환 시 레이아웃 시프트를 방지할 수 있음. `em` 단위를 사용하면 font-size 변경에도 자동 대응됨
 
 ---
 
-### 10. 언어 전환 시 로딩 화면 재출현
+
+</details>
+
+<details>
+<summary><strong>10. 언어 전환 시 로딩 화면 재출현</strong></summary>
 
 #### 문제
 
@@ -1073,13 +1151,17 @@ export function useLoadingScreen() {
 }
 ```
 
-#### 핵심 교훈
+#### TL;DR
 
 서드파티 Provider를 조건부로 렌더링하면(`Fragment` ↔ `Provider`) React가 하위 트리를 remount함. `useState` 초기값에 의존하는 상태는 모듈 레벨 변수로 보완해야 remount에 안전함
 
 ---
 
-### 11. GSAP ScrollTrigger가 breakpoint 변경 시 레이아웃 깨짐
+
+</details>
+
+<details>
+<summary><strong>11. GSAP ScrollTrigger가 breakpoint 변경 시 레이아웃 깨짐</strong></summary>
 
 #### 문제
 
@@ -1135,13 +1217,17 @@ Provider(Theme, Language, Lenis) 위에 배치하면 상태가 초기화되므�
 - 비디오 요소가 DOM에서 제거되면서 `play()` Promise가 AbortError로 reject됨 → `.catch(() => {})` 추가
 - 모든 컴포넌트의 `useState` 초기값이 리셋됨 → 모듈 레벨 플래그(예: `hasCompletedInitialLoad`)로 보완
 
-#### 핵심 교훈
+#### TL;DR
 
 GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이션은 `ScrollTrigger.refresh()`로 부분 갱신하기보다, React의 `key` prop을 활용한 완전 remount가 더 안정적. Provider를 remount 범위 밖에 배치하면 전역 상태 손실 없이 페이지 단위 재초기화가 가능
 
 ---
 
-### 12. 프로젝트 전체 성능 최적화
+
+</details>
+
+<details>
+<summary><strong>12. 프로젝트 전체 성능 최적화</strong></summary>
 
 #### 문제
 
@@ -1169,11 +1255,14 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
 8. will-change: transform 영구 제거 (GPU 레이어 해제)
 ```
 
-#### 핵심 교훈
+#### TL;DR
 
 - 단순 무한 반복 애니메이션(rotate, translateX)은 CSS animation이 JS 기반보다 항상 더 효율적 — 컴포지터 스레드에서 메인 스레드 차단 없이 실행됨
 - 고빈도 이벤트(mousemove)에서 React state를 업데이트하면 프레임당 전체 컴포넌트 트리가 재조정됨. ref + 직접 DOM 조작이 적절한 패턴
 - Three.js의 `useMemo`로 생성한 geometry/material은 React의 GC 대상이지만 GPU 버퍼는 자동 해제되지 않음. 명시적 `dispose()` 필수
+
+
+</details>
 
 ---
 
@@ -1221,6 +1310,12 @@ refactor(hooks): 커스텀 훅 분리
 
 ---
 
+<div align="center">
+
 ## 라이선스
 
-MIT License
+[PolyForm Noncommercial License 1.0.0](./LICENSE)
+
+자유롭게 사용·수정·배포 가능하나, **상업적 이용은 불가**합니다.
+
+</div>
