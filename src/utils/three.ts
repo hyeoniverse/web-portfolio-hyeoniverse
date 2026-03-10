@@ -18,5 +18,20 @@ export function createSafeRenderer(
     e.preventDefault();
     (e as Event).stopImmediatePropagation();
   });
-  return new WebGLRenderer({ ...defaults, ...options });
+
+  // WebGL 컨텍스트 생성 실패 시 (GPU 프로세스 다운 등) 빈 캔버스라도 반환
+  try {
+    return new WebGLRenderer({ ...defaults, ...options });
+  } catch {
+    console.warn("[createSafeRenderer] WebGL context creation failed — browser restart may be needed.");
+    // fallback: 최소 옵션으로 재시도
+    try {
+      return new WebGLRenderer({ ...defaults });
+    } catch {
+      // 완전 실패 — 더미 renderer (R3F 크래시 방지)
+      return new WebGLRenderer({
+        canvas: document.createElement("canvas"),
+      });
+    }
+  }
 }
