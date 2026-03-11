@@ -11,7 +11,9 @@ import { Slider } from "@/components/ui/Slider";
 import Input from "@/components/ui/Input";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
+import { ImageViewer } from "@/components/ui/ImageViewer";
 import { useModalStore } from "@/stores/modalStore";
+import { ModalConfirm, ModalAlert } from "@/components/ui/ModalTemplates";
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
 import Tooltip from "@/components/ui/Tooltip";
@@ -42,9 +44,19 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [checkCircle, setCheckCircle] = useState(true);
   const [checkIndet, setCheckIndet] = useState(false);
   const [selectValue, setSelectValue] = useState("option1");
+  const [selectEmpty, setSelectEmpty] = useState("");
   const [dpFormat, setDpFormat] = useState<"year" | "yearMonth" | "date">("date");
   const [dpDate, setDpDate] = useState({ year: "2024", month: "03", day: "15" });
   const [twReplay, setTwReplay] = useState(0);
+  const [ivOpen, setIvOpen] = useState(false);
+  const [ivIndex, setIvIndex] = useState(0);
+  const ivImages = [
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&h=800&fit=crop",
+    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&h=800&fit=crop",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&h=800&fit=crop",
+    "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=1200&h=800&fit=crop",
+  ];
 
   const handleOpenModal = useCallback((title: string, content: React.ReactNode) => {
     openModal(content, { header: { title }, closeButton: true, width: "420px" });
@@ -187,17 +199,16 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentGroupTitle}>Modal</div>
         <div className={styles.modalDemo}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}>
-            <Tooltip content="Modal with header + actions">
+            <Tooltip content="ModalConfirm template">
               <Button
                 variant="outline"
                 onClick={() => handleOpenModal("Confirm Action", (
-                  <div className={styles.modalContent}>
-                    <Typography variant="body1" color="secondary">Are you sure you want to proceed? This action cannot be undone.</Typography>
-                    <div className={styles.modalActions}>
-                      <Button variant="ghost" size="sm" onClick={() => useModalStore.getState().closeModal()}>Cancel</Button>
-                      <Button variant="primary" size="sm" onClick={() => useModalStore.getState().closeModal()}>Confirm</Button>
-                    </div>
-                  </div>
+                  <ModalConfirm
+                    desc="Are you sure you want to proceed? This action cannot be undone."
+                    cancelText="Cancel"
+                    confirmText="Confirm"
+                    onConfirm={() => {}}
+                  />
                 ))}
               >
                 Confirm
@@ -222,16 +233,17 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             </Tooltip>
           </motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 3)}>
-            <Tooltip content="Modal without header">
+            <Tooltip content="ModalAlert template">
               <Button
                 variant="outline"
                 onClick={() => openModal((
-                  <div className={styles.modalContentCompact}>
-                    <Typography variant="body2" color="secondary">Minimal modal without a header. Useful for quick notifications or lightweight confirmations.</Typography>
-                  </div>
+                  <ModalAlert
+                    desc="Minimal modal without a header. Useful for quick notifications or lightweight confirmations."
+                    confirmText="OK"
+                  />
                 ), { closeButton: true, width: "420px" })}
               >
-                No Header
+                Alert
               </Button>
             </Tooltip>
           </motion.div>
@@ -242,7 +254,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Select / Dropdown</div>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 1)}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
             <Tooltip content="Custom dropdown select">
               <Select
                 value={selectValue}
@@ -253,6 +265,19 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                 ]}
                 onChange={setSelectValue}
                 placeholder="Choose..."
+              />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
+            <Tooltip content="Empty / placeholder state">
+              <Select
+                value={selectEmpty}
+                options={[
+                  { value: "a", label: "Alpha" },
+                  { value: "b", label: "Bravo" },
+                ]}
+                onChange={setSelectEmpty}
+                placeholder="No selection"
               />
             </Tooltip>
           </motion.div>
@@ -322,6 +347,49 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             </div>
           </div>
         </motion.div>
+      </motion.div>
+
+      {/* ImageViewer */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>ImageViewer</div>
+        <div
+          style={{
+            display: "inline-flex",
+            borderTop: "1px solid var(--border-tertiary-color)",
+            borderBottom: "1px solid var(--border-tertiary-color)",
+            lineHeight: 0,
+          }}
+        >
+          {ivImages.map((src, i) => (
+            <motion.div key={i} variants={staggerItemX} {...scrollChildX(i, ivImages.length)}>
+              <Tooltip content={`Sample image ${i + 1} — Click to open ImageViewer`}>
+                <button
+                  type="button"
+                  style={{
+                    width: 120,
+                    height: 68,
+                    borderRadius: 0,
+                    overflow: "hidden",
+                    border: "none",
+                    padding: 0,
+                    background: "var(--bg-secondary)",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => { setIvIndex(i); setIvOpen(true); }}
+                >
+                  <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </button>
+              </Tooltip>
+            </motion.div>
+          ))}
+        </div>
+        <ImageViewer
+          images={ivImages}
+          index={ivIndex}
+          open={ivOpen}
+          onClose={() => setIvOpen(false)}
+          title="Design System Preview"
+        />
       </motion.div>
 
       {/* TypeWriter */}
