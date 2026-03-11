@@ -64,7 +64,7 @@
 | **Admin** | 5탭 Settings, Markdown/Rich Text 전환 에디터, 리비전 히스토리 (diff 비교), 자동 번역 |
 | **성능** | Lighthouse 98점 — 미사용 폰트 제거 + reCAPTCHA 지연 로딩 + CSS animation 전환으로 LCP 1.9s, 페이지 449KB |
 | **반응형** | PC/Tablet/Mobile 3단 breakpoint + BreakpointGuard (GSAP 자동 재초기화) |
-| **다국어** | 한/영 전체 i18n + 번역 Tooltip + 자동 번역 (DeepL/Google/Gemini) |
+| **다국어** | 한/영 전체 i18n + 번역 Tooltip + 자동 번역 (DeepL/Google/Gemini/Claude) |
 | **보안** | 다층 검증 (SQL Injection, XSS, RLS, 이중 인증, 카테고리 화이트리스트) |
 | **디자인 시스템** | 3-layer 토큰 (Raw → Semantic → Context) + `/design-system` 라이브 프리뷰 |
 
@@ -160,8 +160,8 @@
 **에디터 & 콘텐츠**
 
 - **에디터 리비전 히스토리**: 자동저장 시 JSONB snapshot DB 영구 저장 — 기기/탭 간 공유, LCS diff 비교, Revert, 50개 초과 자동 정리
-- **AI 자동 요약**: 발행 시 Gemini/OpenAI로 ko+en 요약 자동 생성 → DB 저장, 상세 페이지 AISummary 컴포넌트로 접기/펼치기 표시, 수동 재생성 지원
-- **자동 번역**: 에디터 언어 전환 시 빈 필드 자동 번역 — DeepL/Google/Gemini 선택, 재번역 버튼, 중복 요청 차단
+- **AI 자동 요약**: 발행 시 Gemini/OpenAI/Claude로 ko+en 요약 자동 생성 → DB 저장, 상세 페이지 AISummary 컴포넌트로 접기/펼치기 표시, 수동 재생성 지원
+- **자동 번역**: 에디터 언어 전환 시 빈 필드 자동 번역 — DeepL/Google/Gemini/Claude 선택, 재번역 버튼, 중복 요청 차단
 - **이중언어 카테고리 관리**: Posts/Works 카테고리를 `{ ko, en }` 쌍으로 관리 — 드래그 순서, 삭제 시 일괄 재할당
 - **시리즈 편집**: 전용 편집 페이지에서 제목/설명/커버/카테고리/발행 상태 관리, 포스트 순서 변경/연결 해제
 - **Cover Image Picker**: 3가지 방식(16종 프리셋 그라데이션, Unsplash 검색, AI 생성) — Supabase Storage 저장
@@ -385,6 +385,7 @@ NANOBANANA_API_KEY=your_key         # provider: "nanobanana"
 DEEPL_API_KEY=your_deepl_key                   # provider: "deepl" (기본)
 GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
 GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
+ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + AI 요약)
 ```
 
 **값 확인 방법:**
@@ -1469,7 +1470,8 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
   DEEPL_API_KEY                # 번역 — DeepL
   GOOGLE_TRANSLATE_API_KEY     # 번역 — Google
   GEMINI_API_KEY               # 번역 + AI 요약 — Gemini
-  OPENAI_API_KEY               # AI 요약 — OpenAI (Gemini 키 없을 시 사용)
+  OPENAI_API_KEY               # AI 요약 — OpenAI
+  ANTHROPIC_API_KEY            # 번역 + AI 요약 — Claude
 ```
 
 > `main` 브랜치에 push할 때마다 자동 배포됩니다. PR을 생성하면 Preview 배포가 별도로 생성됩니다.
