@@ -9,6 +9,11 @@ export function jsonError(message: string, status: 400 | 401 | 403 | 404 | 500 =
 }
 
 export function jsonServerError(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "object" && error !== null && "message" in error
+        ? String((error as { message: unknown }).message)
+        : String(error);
   return NextResponse.json({ error: message }, { status: 500 });
 }

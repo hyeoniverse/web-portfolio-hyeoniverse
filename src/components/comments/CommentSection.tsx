@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Comment } from "@/types/post";
+import { createClient } from "@/lib/supabase/client";
 import T from "@/components/ui/T";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
@@ -31,13 +32,33 @@ function buildTree(comments: Comment[]): Comment[] {
     }
   }
 
-  return roots;
+  // soft-deleted이면서 답글도 없는 노드 제거
+  function prune(nodes: Comment[]): Comment[] {
+    return nodes.filter((n) => {
+      n.replies = prune(n.replies ?? []);
+      return !(n.is_deleted && n.replies.length === 0);
+    });
+  }
+
+  return prune(roots);
 }
 
 export default function CommentSection({ commentType, targetId }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   const apiBase = commentType === "work" ? "/api/work-comments" : "/api/comments";
   const paramKey = commentType === "work" ? "work_id" : "post_id";
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => {
+      setIsAdmin(!!data.session?.user);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAdmin(!!session?.user);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
   const [likeCountMap, setLikeCountMap] = useState<Record<string, number>>({});
@@ -95,6 +116,7 @@ export default function CommentSection({ commentType, targetId }: CommentSection
               targetId={targetId}
               likedMap={likedMap}
               likeCountMap={likeCountMap}
+              isAdmin={isAdmin}
               onRefresh={fetchComments}
             />
           ))}
@@ -102,6 +124,8 @@ export default function CommentSection({ commentType, targetId }: CommentSection
       ) : (
         <p className={styles.empty}><T k="comments.empty" /></p>
       )}
+
+      <p className={styles.disclaimer}><T k="comments.disclaimer" /></p>
     </div>
   );
 }

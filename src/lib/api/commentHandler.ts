@@ -81,6 +81,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
             [foreignKey]: targetId,
             parent_id: parent_id || null,
             nickname: "Admin",
+            password_hash: "",
             content: contentResult.value,
             is_admin: true,
           })

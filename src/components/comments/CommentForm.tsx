@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { getCommenterId, getIdentity, getRandomIdentity } from "@/utils/commenterIdentity";
 import { createClient } from "@/lib/supabase/client";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -42,12 +42,14 @@ export default function CommentForm({
     return () => subscription.unsubscribe();
   }, []);
 
-  const commenterId = useMemo(() => getCommenterId(), []);
-  const defaultIdentity = useMemo(
-    () => getIdentity(commenterId, targetId),
-    [commenterId, targetId],
-  );
-  const [identity, setIdentity] = useState<{ emoji: string; name: string }>(defaultIdentity);
+  const [commenterId, setCommenterId] = useState("");
+  const [identity, setIdentity] = useState<{ emoji: string; name: string } | null>(null);
+
+  useEffect(() => {
+    const id = getCommenterId();
+    setCommenterId(id);
+    setIdentity(getIdentity(id, targetId));
+  }, [targetId]);
 
   const apiBase = commentType === "work" ? "/api/work-comments" : "/api/comments";
 
@@ -64,7 +66,7 @@ export default function CommentForm({
         const body: Record<string, string | boolean | undefined> = {
           commenter_id: isAdmin ? undefined : commenterId,
           parent_id: parentId,
-          nickname: isAdmin ? undefined : `${identity.emoji} ${identity.name}`,
+          nickname: isAdmin ? undefined : `${identity?.emoji} ${identity?.name}`,
           content: content.trim(),
           password: isAdmin ? undefined : password.trim(),
           is_admin: isAdmin || undefined,
@@ -110,7 +112,7 @@ export default function CommentForm({
         <div className={styles.adminIdentity}>
           <span className={styles.adminBadge}>Admin</span>
         </div>
-      ) : (
+      ) : identity ? (
         <div className={styles.identityRow}>
           <div className={styles.identity}>
             <span className={styles.identityEmoji}>{identity.emoji}</span>
@@ -119,7 +121,7 @@ export default function CommentForm({
             <button
               type="button"
               className={styles.shuffleBtn}
-              onClick={() => setIdentity(getRandomIdentity(identity))}
+              onClick={() => setIdentity(getRandomIdentity(identity ?? undefined))}
               data-clickable="true"
               title={t("comments.shuffle")}
             >
@@ -142,7 +144,7 @@ export default function CommentForm({
             required
           />
         </div>
-      )}
+      ) : null}
 
       <textarea
         className={styles.textarea}
