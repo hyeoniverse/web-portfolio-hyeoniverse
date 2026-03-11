@@ -19,7 +19,7 @@
 
 /* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
 .wrapper .nav {
-  transition: max-height 0.3s ease;
+  transition: max-height 0.35s var(--ease-material);
 }
 
 .navExpanded {
