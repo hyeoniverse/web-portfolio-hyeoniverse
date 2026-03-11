@@ -1,0 +1,922 @@
+/* ==========================================================================
+   ImageViewer — Fullscreen lightbox (unified style)
+   Features: zoom, pan, fullscreen, thumbnails (strip/list)
+   ========================================================================== */
+
+.overlayBg {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: transparent;
+  -webkit-backdrop-filter: blur(32px) saturate(1.4);
+  backdrop-filter: blur(32px) saturate(1.4);
+  pointer-events: none;
+}
+
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  -webkit-tap-highlight-color: transparent;
+  background: transparent;
+}
+
+/* ─── Controls auto-hide (fullscreen) ─── */
+.controlsHidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.4s ease;
+}
+
+/* ==========================================================================
+   Top Toolbar
+   ========================================================================== */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  z-index: 10;
+  flex-shrink: 0;
+  background: transparent;
+  border-bottom: none;
+  transition: opacity 0.35s ease;
+}
+
+.toolbarLeft,
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.toolbarLeft {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.toolbarRight {
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.actionBtn:hover {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-primary);
+}
+
+.closeBtnAction {
+  --close-size: 14px;
+  --close-weight: 2px;
+  color: var(--text-primary);
+}
+
+.zoomLevel,
+.zoomInput {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 11px;
+  color: var(--text-primary);
+  width: 54px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 0;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  outline: none;
+}
+
+.zoomLevel {
+  cursor: pointer;
+}
+
+.zoomLevel:hover {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-secondary);
+}
+
+.zoomInput {
+  border-color: var(--border-secondary-color);
+  background: var(--bg-tertiary);
+}
+
+.zoomInput:focus {
+  border-color: var(--border-primary-color);
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-tertiary-color);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.viewerTitle {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  max-width: 320px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 4px;
+}
+
+.viewerTitleMain {
+  font-weight: 500;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.viewerTitleSep {
+  margin: 0 6px;
+  color: var(--text-primary);
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+.viewerTitleFile {
+  font-weight: 400;
+  color: var(--text-primary);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.counter {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  padding: 0 8px;
+}
+
+.counterSep {
+  margin: 0 2px;
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   Nav Arrows
+   ========================================================================== */
+.navArrows {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-base);
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.navBtn {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: rgba(128, 128, 128, 0.15);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  backdrop-filter: blur(12px) saturate(1.4);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.25s, background 0.25s, transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.navBtn:hover {
+  color: var(--text-primary);
+  transform: scale(1.12);
+}
+
+.navBtnPrev {
+  margin-left: var(--spacing-sm);
+}
+
+.navBtnPrev:hover {
+  transform: scale(1.12) translateX(-2px);
+}
+
+.navBtnNext {
+  margin-right: var(--spacing-sm);
+}
+
+.navBtnNext:hover {
+  transform: scale(1.12) translateX(2px);
+}
+
+.navBtn:active {
+  transform: scale(0.9);
+  transition-duration: 0.08s;
+}
+
+.navBtnPrev:active {
+  transform: scale(0.9) translateX(-4px);
+}
+
+.navBtnNext:active {
+  transform: scale(0.9) translateX(4px);
+}
+
+/* ==========================================================================
+   Image Area
+   ========================================================================== */
+.imageArea {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  touch-action: none;
+}
+
+.imageWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.imageWrapZoomed {
+  overflow: hidden;
+  cursor: grab;
+}
+
+.imageWrapZoomed:active {
+  cursor: grabbing;
+}
+
+.image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 0;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: opacity 0.2s ease;
+  transform-origin: center center;
+  will-change: transform;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+}
+
+.imageLoading {
+  opacity: 0;
+}
+
+/* ==========================================================================
+   Keyboard Shortcuts Overlay
+   ========================================================================== */
+.shortcutsOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-overlay);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.shortcutsPanel {
+  padding: 16px 0;
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-tertiary-color);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  min-width: 240px;
+}
+
+.shortcutsTitle {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 0 16px 8px;
+  margin: 0;
+}
+
+.shortcutsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.shortcutsSection {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 6px 16px 4px;
+}
+
+.shortcutsItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 16px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  transition: background 0.12s;
+}
+
+.shortcutsItem:hover {
+  background: var(--bg-tertiary);
+}
+
+.shortcutsItem kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--border-tertiary-color);
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.shortcutsDivider {
+  height: 1px;
+  background: var(--border-tertiary-color);
+  margin: 4px 16px;
+}
+
+/* ==========================================================================
+   Autoplay Settings Popover
+   ========================================================================== */
+.autoplayPopover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-tertiary-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 20;
+  min-width: 160px;
+}
+
+.autoplaySection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.autoplayLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.intervalTrack {
+  position: relative;
+  display: flex;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-tertiary-color);
+  padding: 2px;
+}
+
+.intervalIndicator {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  box-shadow: 0 2px 8px var(--color-accent-alpha-30);
+  pointer-events: none;
+}
+
+.intervalBtn {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 6px;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.intervalBtnActive {
+  color: #fff;
+}
+
+.loopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.loopLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.loopRow .loopSwitch {
+  border: 1px solid var(--border-secondary-color);
+  background: var(--bg-tertiary);
+}
+
+.loopRow .loopSwitch[data-state="checked"] {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+
+/* ─── Fullscreen mode ─── */
+.fullscreen {
+  background: #000;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.fullscreen .imageWrap {
+  max-width: 100%;
+}
+
+.fullscreen .image {
+  max-width: 100vw;
+  max-height: 100%;
+  box-shadow: none;
+}
+
+.fullscreen .navArrows {
+  padding: 0 var(--spacing-sm);
+}
+
+/* Fullscreen: forced light-on-dark (escapes theme tokens) */
+.fullscreen .actionBtn { color: rgba(255, 255, 255, 0.7); }
+.fullscreen .actionBtn:hover { background: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.95); }
+.fullscreen .closeBtnAction { color: rgba(255, 255, 255, 0.85); }
+.fullscreen .zoomLevel { color: rgba(255, 255, 255, 0.5); border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.06); }
+.fullscreen .zoomLevel:hover { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border-color: rgba(255, 255, 255, 0.25); }
+.fullscreen .zoomInput { color: rgba(255, 255, 255, 0.9); border-color: rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.1); }
+.fullscreen .zoomInput:focus { border-color: rgba(255, 255, 255, 0.5); }
+.fullscreen .toolbarDivider { background: rgba(255, 255, 255, 0.2); }
+.fullscreen .viewerTitleMain { color: rgba(255, 255, 255, 0.8); }
+.fullscreen .viewerTitleSep { color: rgba(255, 255, 255, 0.25); }
+.fullscreen .viewerTitleFile { color: rgba(255, 255, 255, 0.45); }
+.fullscreen .counter { color: rgba(255, 255, 255, 0.7); }
+.fullscreen .navBtn { color: rgba(255, 255, 255, 0.5); }
+.fullscreen .navBtn:hover { color: rgba(255, 255, 255, 0.95); }
+.fullscreen .loaderSpinner { border-color: rgba(255, 255, 255, 0.1); border-top-color: rgba(255, 255, 255, 0.5); }
+.fullscreen .shortcutsPanel { background: rgba(30, 30, 30, 0.95); border-color: rgba(255, 255, 255, 0.1); }
+.fullscreen .shortcutsTitle { color: rgba(255, 255, 255, 0.9); }
+.fullscreen .shortcutsSection { color: rgba(255, 255, 255, 0.35); }
+.fullscreen .shortcutsItem { color: rgba(255, 255, 255, 0.7); }
+.fullscreen .shortcutsItem:hover { background: rgba(255, 255, 255, 0.06); }
+.fullscreen .shortcutsItem kbd { border-color: rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.8); }
+.fullscreen .shortcutsDivider { background: rgba(255, 255, 255, 0.1); }
+
+/* ─── Loader ─── */
+.loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.loaderSpinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border-tertiary-color);
+  border-top-color: var(--text-muted);
+  border-radius: 50%;
+  animation: viewer-spin 0.65s linear infinite;
+}
+
+@keyframes viewer-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Thumbnail Strip (bottom)
+   ========================================================================== */
+.thumbStrip {
+  flex-shrink: 0;
+  padding: 0;
+  z-index: 5;
+  overflow: hidden;
+}
+
+.thumbStripRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  height: 100%;
+}
+
+.stripNavBtn {
+  display: none;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.thumbStripInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  padding: 0 3%;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.thumbStripInner::-webkit-scrollbar { display: none; }
+
+.thumbItem {
+  position: relative;
+  flex-shrink: 0;
+  width: 160px;
+  height: 90px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  background: none;
+}
+
+.thumbItem:hover {
+  opacity: 0.8;
+}
+
+.thumbItemActive {
+  opacity: 1;
+}
+
+.thumbIndicator {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-accent);
+  background: transparent;
+  pointer-events: none;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Thumbnail List (sidebar)
+   ========================================================================== */
+.thumbList {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 140px;
+  z-index: 5;
+  background: transparent;
+  border-right: 1px solid var(--border-tertiary-color);
+  overflow: hidden;
+}
+
+.thumbListInner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 56px 0 8px;
+  overflow-y: auto;
+  height: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) transparent;
+}
+
+.thumbListItem {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.15s, transform 0.2s;
+  background: none;
+}
+
+.thumbListItem:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.thumbListItemActive {
+  opacity: 1;
+}
+
+.thumbListItemActive .thumbListImg {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.thumbListImg {
+  width: 100%;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  border-radius: 0;
+  pointer-events: none;
+}
+
+.thumbListLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 10px;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  padding: 2px 6px;
+}
+
+/* Shift content when list is open */
+.hasListPanel .toolbar,
+.hasListPanel .imageArea {
+  margin-left: 140px;
+}
+
+/* ==========================================================================
+   More Menu (mobile overflow)
+   ========================================================================== */
+.toolbarCollapsible {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.moreMenuWrap {
+  position: relative;
+}
+
+.moreBtn {
+  display: none;
+}
+
+.moreMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  padding: 6px 0;
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-tertiary-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  z-index: 20;
+  min-width: 180px;
+}
+
+.moreMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.moreMenuItem:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.moreMenuItem svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.moreMenuDivider {
+  height: 1px;
+  background: var(--border-tertiary-color);
+  margin: 4px 0;
+}
+
+.moreMenuSection {
+  padding: 6px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   Responsive (≤ 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .toolbarCollapsible {
+    display: none;
+  }
+
+  .moreBtn {
+    display: flex;
+  }
+
+  .closeBtnAction {
+    display: none !important;
+  }
+
+  .toolbar {
+    padding: 6px 8px;
+  }
+
+  .actionBtn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .zoomLevel,
+  .zoomInput {
+    font-size: 10px;
+    width: 44px;
+  }
+
+  .toolbarDivider {
+    height: 14px;
+    margin: 0 2px;
+  }
+
+  .imageWrap {
+    max-width: calc(100% - 32px);
+  }
+
+  .image {
+    max-height: 100%;
+  }
+
+  .navArrows {
+    display: none;
+  }
+
+  .stripNavBtn {
+    display: flex;
+    width: 32px;
+    height: 32px;
+  }
+
+  .navBtn {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Thumbnails mobile */
+  .thumbStrip {
+    padding: 0;
+  }
+
+  .thumbStripInner {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  }
+
+  .thumbItem {
+    width: 120px;
+    height: 68px;
+  }
+
+  .thumbList {
+    width: 100px;
+  }
+
+  .thumbListInner {
+    padding-top: 48px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .hasListPanel .toolbar,
+  .hasListPanel .imageArea {
+    margin-left: 100px;
+  }
+
+  /* Autoplay popover mobile */
+  .autoplayPopover {
+    min-width: 140px;
+    padding: 8px 10px;
+  }
+
+  .autoplayLabel {
+    font-size: 9px;
+  }
+
+  .intervalTrack {
+    padding: 2px;
+  }
+
+  .intervalBtn {
+    height: 22px;
+    font-size: 10px;
+    padding: 0 4px;
+  }
+
+  .loopLabel {
+    font-size: 10px;
+  }
+
+  /* Shortcuts panel mobile */
+  .shortcutsPanel {
+    min-width: 200px;
+    padding: 12px 0;
+  }
+
+  .shortcutsTitle {
+    font-size: 12px;
+    padding: 0 12px 6px;
+  }
+
+  .shortcutsSection {
+    font-size: 9px;
+    padding: 4px 12px 2px;
+  }
+
+  .shortcutsItem {
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+
+  .shortcutsItem kbd {
+    min-width: 20px;
+    height: 20px;
+    font-size: 9px;
+    padding: 0 4px;
+  }
+
+  .shortcutsDivider {
+    margin: 3px 12px;
+  }
+}
+
+/* compound selector to beat global theme transition (0,2,0 > 0,1,1) */
+.viewer .toolbar,
+.viewer .imageArea {
+  transition: margin-left 0.45s cubic-bezier(0.25, 0.1, 0.25, 1);
+}

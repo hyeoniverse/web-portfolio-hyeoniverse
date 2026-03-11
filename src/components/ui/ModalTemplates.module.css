@@ -1,0 +1,52 @@
+/* ── Modal Content Templates ── */
+
+.body {
+  padding: var(--spacing-sm) var(--spacing-2xl) var(--spacing-2xl);
+}
+
+.desc {
+  margin: 0 0 var(--spacing-lg);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.hint {
+  margin: 0 0 var(--spacing-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.input {
+  margin-bottom: var(--spacing-lg);
+}
+
+.body .input input {
+  width: 100%;
+  font-size: var(--font-size-sm);
+}
+
+.body .input input:focus {
+  border-color: var(--color-accent);
+}
+
+.error {
+  margin: calc(-1 * var(--spacing-sm)) 0 var(--spacing-lg);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+.dangerBtn {
+  --_bg: var(--color-accent) !important;
+  --_border: var(--color-accent) !important;
+  --_color: #fff !important;
+}

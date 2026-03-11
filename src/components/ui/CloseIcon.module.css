@@ -1,0 +1,37 @@
+/* ==========================================================================
+   CloseIcon — Shared "minus → X on hover" morph
+   Apply `data-active` on parent to force X state without hover.
+   ========================================================================== */
+
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.line {
+  position: absolute;
+  width: var(--close-size, 14px);
+  height: var(--close-weight, 1.5px);
+  background: currentColor;
+  border-radius: 2px;
+}
+
+/* compound (0,2,0) to beat global theme transition (0,1,1) */
+.root .line {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+/* Hover on any ancestor with data-close-trigger */
+[data-close-trigger]:hover .line:first-child,
+.root[data-active] .line:first-child {
+  transform: rotate(45deg);
+}
+
+[data-close-trigger]:hover .line:last-child,
+.root[data-active] .line:last-child {
+  transform: rotate(-45deg);
+}

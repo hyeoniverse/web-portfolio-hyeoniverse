@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Close Button — minus → X on hover
+   Close Button
    ========================================================================== */
 
 .closeButton {
@@ -26,40 +26,10 @@
   }
 }
 
-.closeIconWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.closeLine {
-  position: absolute;
-  width: 14px;
-  height: 1.5px;
-  background: currentColor;
-  border-radius: 2px;
-}
-
-/* compound (0,2,0) to beat global theme transition */
-.closeButton .closeLine {
-  transition: transform var(--duration-base) var(--ease-material);
-}
-
 .closeButton:hover {
   background: var(--bg-inverse);
   color: var(--text-inverse);
   border-color: var(--bg-inverse);
-}
-
-.closeButton:hover .closeLine:first-child {
-  transform: rotate(45deg);
-}
-
-.closeButton:hover .closeLine:last-child {
-  transform: rotate(-45deg);
 }
 
 /* ==========================================================================
@@ -103,7 +73,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-xl) var(--spacing-2xl) var(--spacing-sm);
+  padding: var(--spacing-xl) 56px var(--spacing-sm) var(--spacing-2xl);
 }
 
 .headerContent {

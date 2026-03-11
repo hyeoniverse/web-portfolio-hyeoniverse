@@ -1,10 +1,12 @@
 export { default as Button } from "./Button";
 export { default as Checkbox } from "./Checkbox";
+export { default as CloseIcon } from "./CloseIcon";
 export { default as Input } from "./Input";
 export { default as LazySection } from "./LazySection";
 export { default as LanguageToggle } from "./LanguageToggle";
 export { default as LoadingDots } from "./LoadingDots";
 export { default as Modal } from "./Modal";
+export { ModalAlert, ModalConfirm, ModalPrompt } from "./ModalTemplates";
 export { default as OptimizedImage } from "./OptimizedImage";
 export { default as Section } from "./Section";
 export { default as Select } from "./Select";

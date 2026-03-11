@@ -1,0 +1,39 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* compound selector to beat global theme transition */
+.btn .inner {
+  transition:
+    color var(--duration-base) var(--ease-material),
+    transform var(--duration-base) var(--ease-material);
+}
+
+.btn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.copied {
+  border-color: var(--color-accent);
+  background: transparent;
+  color: var(--color-accent);
+}

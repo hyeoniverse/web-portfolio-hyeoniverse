@@ -11,6 +11,7 @@ interface SwitchProps {
   disabled?: boolean;
   className?: string;
   name?: string;
+  variant?: "default" | "accent";
 }
 
 function Switch({
@@ -20,6 +21,7 @@ function Switch({
   disabled = false,
   className,
   name,
+  variant = "default",
 }: SwitchProps) {
   const [internalChecked, setInternalChecked] = useState(defaultChecked);
   const isChecked = controlledChecked ?? internalChecked;
@@ -39,7 +41,7 @@ function Switch({
       data-state={isChecked ? "checked" : "unchecked"}
       data-disabled={disabled || undefined}
       disabled={disabled}
-      className={cn(styles.root, className)}
+      className={cn(styles.root, variant === "accent" && styles.accent, className)}
       onClick={toggle}
       name={name}
     >

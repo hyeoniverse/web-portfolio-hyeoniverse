@@ -24,15 +24,16 @@ const animationConfig = {
 export default function LanguageToggle({ lang, onLangChange }: LanguageToggleProps) {
   const [hoveredBtn, setHoveredBtn] = useState<Lang | null>(null);
   const [indicatorAt, setIndicatorAt] = useState<Lang>(lang);
+  const [locked, setLocked] = useState(false);
 
   const indicatorX = useMotionValue(lang === "ko" ? KO_POSITION : EN_POSITION);
 
   const targetPosition = useMemo(() => {
-    if (hoveredBtn && hoveredBtn !== lang) {
+    if (!locked && hoveredBtn && hoveredBtn !== lang) {
       return hoveredBtn === "en" ? EN_POSITION : KO_POSITION;
     }
     return lang === "ko" ? KO_POSITION : EN_POSITION;
-  }, [hoveredBtn, lang]);
+  }, [hoveredBtn, lang, locked]);
 
   useEffect(() => {
     const controls = animate(indicatorX.get(), targetPosition, {
@@ -56,6 +57,7 @@ export default function LanguageToggle({ lang, onLangChange }: LanguageTogglePro
   }, [lang]);
 
   const handleToggle = useCallback(() => {
+    setLocked(true);
     onLangChange(lang === "ko" ? "en" : "ko");
   }, [lang, onLangChange]);
 
@@ -64,7 +66,7 @@ export default function LanguageToggle({ lang, onLangChange }: LanguageTogglePro
       className={styles.toggle}
       data-clickable="true"
       onClick={handleToggle}
-      onMouseLeave={() => setHoveredBtn(null)}
+      onMouseLeave={() => { setHoveredBtn(null); setLocked(false); }}
     >
       <motion.div className={styles.indicator} style={{ x: indicatorX }} />
       <div className={styles.inner}>
