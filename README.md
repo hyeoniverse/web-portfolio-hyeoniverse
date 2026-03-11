@@ -160,6 +160,7 @@
 **에디터 & 콘텐츠**
 
 - **에디터 리비전 히스토리**: 자동저장 시 JSONB snapshot DB 영구 저장 — 기기/탭 간 공유, LCS diff 비교, Revert, 50개 초과 자동 정리
+- **AI 자동 요약**: 발행 시 Gemini/OpenAI로 ko+en 요약 자동 생성 → DB 저장, 상세 페이지 AISummary 컴포넌트로 접기/펼치기 표시, 수동 재생성 지원
 - **자동 번역**: 에디터 언어 전환 시 빈 필드 자동 번역 — DeepL/Google/Gemini 선택, 재번역 버튼, 중복 요청 차단
 - **이중언어 카테고리 관리**: Posts/Works 카테고리를 `{ ko, en }` 쌍으로 관리 — 드래그 순서, 삭제 시 일괄 재할당
 - **시리즈 편집**: 전용 편집 페이지에서 제목/설명/커버/카테고리/발행 상태 관리, 포스트 순서 변경/연결 해제
@@ -1467,7 +1468,8 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
   NANOBANANA_API_KEY           # Cover Image — AI (NanoBanana)
   DEEPL_API_KEY                # 번역 — DeepL
   GOOGLE_TRANSLATE_API_KEY     # 번역 — Google
-  GEMINI_API_KEY               # 번역 — Gemini
+  GEMINI_API_KEY               # 번역 + AI 요약 — Gemini
+  OPENAI_API_KEY               # AI 요약 — OpenAI (Gemini 키 없을 시 사용)
 ```
 
 > `main` 브랜치에 push할 때마다 자동 배포됩니다. PR을 생성하면 Preview 배포가 별도로 생성됩니다.

@@ -160,6 +160,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 **Editor & Content**
 
 - **Editor Revision History**: Auto-save stores JSONB snapshots permanently in DB — shared across devices/tabs, LCS diff comparison, Revert, automatic cleanup beyond 50 entries
+- **AI Auto Summary**: On publish, Gemini/OpenAI auto-generates ko+en summaries → saved to DB, displayed in AISummary component with expand/collapse on detail pages, manual regeneration supported
 - **Auto Translation**: Auto-translate empty fields on editor language switch — select DeepL/Google/Gemini, re-translate button, duplicate request blocking
 - **Bilingual Category Management**: Manage Posts/Works categories as `{ ko, en }` pairs — drag ordering, batch reassignment on delete
 - **Series Edit**: Dedicated edit page for managing title/description/cover/category/publish status, post reordering/unlinking
@@ -1467,7 +1468,8 @@ Optional:
   NANOBANANA_API_KEY           # Cover Image — AI (NanoBanana)
   DEEPL_API_KEY                # Translation — DeepL
   GOOGLE_TRANSLATE_API_KEY     # Translation — Google
-  GEMINI_API_KEY               # Translation — Gemini
+  GEMINI_API_KEY               # Translation + AI Summary — Gemini
+  OPENAI_API_KEY               # AI Summary — OpenAI (fallback when no Gemini key)
 ```
 
 > Auto-deploys on every push to `main`. Preview deployments are created for each PR.
