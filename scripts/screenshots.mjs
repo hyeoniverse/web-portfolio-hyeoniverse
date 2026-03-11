@@ -76,8 +76,12 @@ async function setTheme(page, theme) {
 }
 
 async function dismissOverlays(page) {
-  // 쿠키 배너, 모달 등 닫기
   await page.evaluate(() => {
+    // Next.js dev 에러 오버레이 숨기기
+    const nextError = document.querySelector("nextjs-portal");
+    if (nextError) nextError.remove();
+
+    // 쿠키 배너, 모달 등 닫기
     document
       .querySelectorAll('[aria-label="Close"], [data-dismiss]')
       .forEach((el) => el.click());
