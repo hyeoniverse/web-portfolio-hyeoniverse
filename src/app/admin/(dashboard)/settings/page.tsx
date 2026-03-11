@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useLenis } from "@/providers/LenisProvider";
 import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";
@@ -277,7 +277,6 @@ function SettingsSkeleton() {
 
 export default function SettingsPage() {
   const { t } = useLanguage();
-  const router = useRouter();
   const { setInfinite, lenis, stop, start } = useLenis();
   const { openModal, closeModal } = useModalStore();
   const [config, setConfig] = useState<SiteConfigData>(
@@ -581,20 +580,20 @@ export default function SettingsPage() {
       setCheckedConflicts(new Set());
 
       setMessage(t("admin.settings.saveSuccess"));
-      router.refresh();
       try {
         const bc = new BroadcastChannel("settings-updated");
         bc.postMessage({ type: "settings-updated", timestamp: Date.now() });
         bc.close();
       } catch {}
-      setTimeout(() => setMessage(""), 3000);
+      // full reload로 서버 config 반영 (router.refresh()는 hydration mismatch 유발)
+      setTimeout(() => window.location.reload(), 600);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       setMessage(`${t("admin.settings.saveError")}${msg ? ` (${msg})` : ""}`);
     } finally {
       setSaving(false);
     }
-  }, [activeTab, config, profileData, allConflicts, checkedConflicts, t, router, saveDelta]);
+  }, [activeTab, config, profileData, allConflicts, checkedConflicts, t, saveDelta]);
 
   // 단일 충돌 resolve (머지 결과 적용)
   const resolveConflict = useCallback(async (c: ConfigConflict, mergedValue: unknown) => {
@@ -621,8 +620,8 @@ export default function SettingsPage() {
     }
     setAllConflicts((prev) => prev.filter((x) => !(x.source === c.source && x.path === c.path)));
     closeModal();
-    router.refresh();
-  }, [saveDelta, closeModal, router]);
+    setTimeout(() => window.location.reload(), 600);
+  }, [saveDelta, closeModal]);
 
   const openDiffModal = useCallback((c: ConfigConflict) => {
     const label = c.source === "profile" ? (PROFILE_SECTION_LABELS[c.path] ?? c.path) : c.path;

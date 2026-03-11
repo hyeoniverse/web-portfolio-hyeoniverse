@@ -2005,61 +2005,6 @@
   opacity: 0.5;
 }
 
-/* ── Password Prompt (Modal) ── */
-.pwPrompt {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-}
-
-.pwPrompt .fieldInput {
-  width: 100%;
-  font-size: var(--font-size-sm);
-}
-
-.pwError {
-  margin: 0;
-  font-size: var(--font-size-xs);
-  color: var(--color-error);
-}
-
-.pwActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-sm);
-}
-
-.pwCancelBtn,
-.pwSubmitBtn {
-  padding: var(--box-xs-lg);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.pwCancelBtn {
-  border: 1px solid var(--border-tertiary-color);
-  background: transparent;
-  color: var(--text-secondary);
-}
-
-.pwCancelBtn:hover {
-  border-color: var(--text-tertiary);
-}
-
-.pwSubmitBtn {
-  border: none;
-  background: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.pwSubmitBtn:hover {
-  opacity: 0.85;
-}
-
 .pwSubmitBtn:disabled {
   opacity: 0.5;
 }

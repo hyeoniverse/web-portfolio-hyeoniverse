@@ -3,9 +3,11 @@
 import { useState, useMemo, useCallback, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
 import Tooltip from "@/components/ui/Tooltip";
 import { SkeletonLine } from "@/components/ui/Skeleton";
+import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import styles from "./AdminTable.module.css";
 
 /* ── Types ── */
@@ -81,6 +83,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   children,
 }: AdminTableProps<T>) {
   const router = useRouter();
+  const { openModal } = useModalStore();
 
   /* ── Drag & drop state ── */
   const [dragIdx, setDragIdx] = useState<number | null>(null);
@@ -117,32 +120,31 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     onPublishAll(items, !allChecked);
   }, [items, allChecked, onPublishAll]);
 
-  /* ── Delete confirmation modal state ── */
-  const [deleteTarget, setDeleteTarget] = useState<T | null>(null);
-  const [deleteInput, setDeleteInput] = useState("");
-
   const handleRowClick = (item: T) => {
     router.push(`${editBasePath}/${item.id}/edit`);
   };
 
   const handleDeleteClick = (item: T, e: React.MouseEvent) => {
     e.stopPropagation();
-    setDeleteTarget(item);
-    setDeleteInput("");
-  };
-
-  const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    const title = getTitle(deleteTarget);
-    if (deleteInput !== title) return;
-    onDelete(deleteTarget.id, title);
-    setDeleteTarget(null);
-    setDeleteInput("");
-  };
-
-  const handleDeleteCancel = () => {
-    setDeleteTarget(null);
-    setDeleteInput("");
+    const title = getTitle(item);
+    openModal(
+      <ModalPrompt
+        desc={labels.deleteConfirm}
+        hint={labels.deleteConfirmInput}
+        placeholder={title}
+        validate={(v) => v === title}
+        cancelText={labels.cancel}
+        confirmText={labels.delete}
+        danger
+        onConfirm={() => onDelete(item.id, title)}
+      />,
+      {
+        id: "delete-confirm",
+        closeButton: true,
+        width: "400px",
+        header: { title: `\u201C${title}\u201D` },
+      },
+    );
   };
 
   /* Pagination */
@@ -429,51 +431,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         </div>
       )}
 
-      {/* Delete confirmation modal */}
-      {deleteTarget && (
-        <div className={styles.deleteOverlay} onClick={handleDeleteCancel}>
-          <div
-            className={styles.deleteModal}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className={styles.deleteModalTitle}>
-              &ldquo;{getTitle(deleteTarget)}&rdquo;
-            </h3>
-            <p className={styles.deleteModalDesc}>{labels.deleteConfirm}</p>
-            <p className={styles.deleteModalHint}>
-              {labels.deleteConfirmInput}
-            </p>
-            <input
-              className={styles.deleteModalInput}
-              value={deleteInput}
-              onChange={(e) => setDeleteInput(e.target.value)}
-              placeholder={getTitle(deleteTarget)}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleDeleteConfirm();
-                if (e.key === "Escape") handleDeleteCancel();
-              }}
-            />
-            <div className={styles.deleteModalActions}>
-              <button
-                type="button"
-                onClick={handleDeleteCancel}
-                className={styles.deleteModalCancel}
-              >
-                {labels.cancel}
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteConfirm}
-                className={styles.deleteModalConfirmBtn}
-                disabled={deleteInput !== getTitle(deleteTarget)}
-              >
-                {labels.delete}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

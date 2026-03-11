@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import T from "@/components/ui/T";
-import Button from "@/components/ui/Button";
+import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import styles from "../Settings.module.css";
 
 interface EnvVarFieldsProps {
@@ -13,54 +13,6 @@ interface EnvVarFieldsProps {
   recaptchaEnabled: boolean;
   translateProvider: string;
   commentEmailNotify: boolean;
-}
-
-/** Password prompt rendered inside the global Modal */
-function PasswordPrompt({
-  onSubmit,
-  onCancel,
-  error,
-}: {
-  onSubmit: (pw: string) => void;
-  onCancel: () => void;
-  error: string;
-}) {
-  const { t } = useLanguage();
-  const [pw, setPw] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  return (
-    <form
-      className={styles.pwPrompt}
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (pw) onSubmit(pw);
-      }}
-    >
-      <input
-        ref={inputRef}
-        className={styles.fieldInput}
-        type="password"
-        value={pw}
-        placeholder={t("admin.settings.enterPassword")}
-        onChange={(e) => setPw(e.target.value)}
-        autoComplete="current-password"
-      />
-      {error && <p className={styles.pwError}>{error}</p>}
-      <div className={styles.pwActions}>
-        <Button type="button" variant="outline" size="sm" onClick={onCancel}>
-          <T k="admin.settings.cancel" />
-        </Button>
-        <Button type="submit" variant="primary" size="sm" disabled={!pw}>
-          <T k="admin.settings.confirm" />
-        </Button>
-      </div>
-    </form>
-  );
 }
 
 export default function EnvVarFields({
@@ -129,10 +81,15 @@ export default function EnvVarFields({
           if (!res.ok) {
             // Re-open with error
             openModal(
-              <PasswordPrompt
-                onSubmit={doReveal}
-                onCancel={() => closeModal(modalId)}
+              <ModalPrompt
+                placeholder={t("admin.settings.enterPassword")}
+                inputType="password"
+                cancelText={t("admin.settings.cancel")}
+                confirmText={t("admin.settings.confirm")}
                 error={t("admin.settings.wrongPassword")}
+                closeOnConfirm={false}
+                onConfirm={doReveal}
+                onCancel={() => closeModal(modalId)}
               />,
               {
                 id: modalId,
@@ -152,10 +109,14 @@ export default function EnvVarFields({
       };
 
       openModal(
-        <PasswordPrompt
-          onSubmit={doReveal}
+        <ModalPrompt
+          placeholder={t("admin.settings.enterPassword")}
+          inputType="password"
+          cancelText={t("admin.settings.cancel")}
+          confirmText={t("admin.settings.confirm")}
+          closeOnConfirm={false}
+          onConfirm={doReveal}
           onCancel={() => closeModal(modalId)}
-          error=""
         />,
         {
           id: modalId,
