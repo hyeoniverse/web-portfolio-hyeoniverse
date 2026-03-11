@@ -1476,6 +1476,24 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
 
 Next.js를 지원하는 플랫폼이면 배포 가능합니다. 자세한 내용은 [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)을 참고하세요.
 
+## 디자인 시스템
+
+CSS 토큰 3-레이어 구조, 클래스 네이밍 규칙, 특이도 가이드라인 등 스타일 관련 모든 규칙은 **[docs/design-system.md](./docs/design-system.md)** 에 문서화되어 있습니다.
+
+### 개요
+
+| 레이어 | 위치 | 접두사 | 역할 |
+|--------|------|--------|------|
+| Raw Tokens | `src/styles/tokens/` | `--color-*`, `--spacing-*` 등 | 원시 값 |
+| Semantic Tokens | `src/styles/globals/_semantic.css` | `--text-*`, `--bg-*`, `--border-*` | 의미 부여 |
+| Context Tokens | CSS Module 내 | `--_*` | 컴포넌트 스코프 |
+
+**클래스 네이밍**: CSS Modules + camelCase (BEM 미사용)
+**핵심 규칙**: context 토큰은 반드시 글로벌 토큰 참조 / var() fallback 금지 / hex 직접 사용 금지
+**디자인 시스템 미리보기**: `/design-system` 라우트
+
+---
+
 ## 커밋 컨벤션
 
 이 프로젝트는 [Conventional Commits](https://www.conventionalcommits.org/ko/v1.0.0/) 규칙을 따릅니다.
