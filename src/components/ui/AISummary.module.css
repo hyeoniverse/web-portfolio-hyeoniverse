@@ -1,0 +1,88 @@
+/* ==========================================================================
+   AI Summary Component
+   ========================================================================== */
+
+.container {
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  gap: var(--spacing-sm);
+}
+
+.header:hover {
+  background: var(--bg-tertiary);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  width: 14px;
+  height: 14px;
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  width: 14px;
+  height: 14px;
+  transition: transform var(--duration-fast) var(--ease-in-out);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.body {
+  overflow: hidden;
+}
+
+.bodyInner {
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
+
+.text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.generating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
