@@ -15,6 +15,8 @@ import T from "@/components/ui/T";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import CommentSection from "@/components/comments/CommentSection";
+import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
+import ShareButton from "@/components/ui/ShareButton";
 import styles from "./PostDetail.module.css";
 
 interface AdjacentPost {
@@ -222,6 +224,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const [adjacentPosts, setAdjacentPosts] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
   const [recommendedPosts, setRecommendedPosts] = useState<{ id: string; title: string; slug: string; cover_image: string; title_en: string; excerpt: string; excerpt_en: string; category: string; tags: string[] }[]>([]);
   const richtextRef = useRef<HTMLDivElement>(null);
+  const { containerRef: proseViewerRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const [autoTranslating, setAutoTranslating] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastDismissed, setToastDismissed] = useState(false);
@@ -481,6 +484,10 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
           </div>
         )}
 
+        <div className={styles.shareRow}>
+          <ShareButton />
+        </div>
+
         <div className={styles.headerDivider} />
       </motion.div>
 
@@ -580,17 +587,27 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
       >
-        {post.content_type === "markdown" ? (
-          <MarkdownRenderer content={displayContent} className={styles.prose} />
-        ) : (
-          <div
-            ref={richtextRef}
-            className={styles.prose}
-            dangerouslySetInnerHTML={{ __html: processedRichtextHtml }}
-          />
-        )}
+        <div ref={proseViewerRef}>
+          {post.content_type === "markdown" ? (
+            <MarkdownRenderer content={displayContent} className={styles.prose} />
+          ) : (
+            <div
+              ref={richtextRef}
+              className={styles.prose}
+              dangerouslySetInnerHTML={{ __html: processedRichtextHtml }}
+            />
+          )}
+        </div>
       </motion.div>
     </DetailLayout>
+
+    <ImageViewer
+      images={proseViewer.images}
+      index={proseViewer.index}
+      open={proseViewer.open}
+      onClose={closeProseViewer}
+      title={displayTitle}
+    />
 
     <AnimatePresence>
       {showToast && !toastDismissed && recommendedPosts.length > 0 && (
