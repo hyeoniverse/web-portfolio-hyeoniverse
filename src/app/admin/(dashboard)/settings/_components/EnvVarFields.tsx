@@ -13,6 +13,7 @@ interface EnvVarFieldsProps {
   recaptchaEnabled: boolean;
   translateProvider: string;
   commentEmailNotify: boolean;
+  summaryProvider?: string;
 }
 
 export default function EnvVarFields({
@@ -21,6 +22,7 @@ export default function EnvVarFields({
   recaptchaEnabled,
   translateProvider,
   commentEmailNotify: _commentEmailNotify,
+  summaryProvider = "gemini",
 }: EnvVarFieldsProps) {
   const { t } = useLanguage();
   const { openModal, closeModal } = useModalStore();
@@ -39,22 +41,55 @@ export default function EnvVarFields({
       .finally(() => setLoaded(true));
   }, []);
 
-  const rows: { key: string; label: string; show: boolean }[] = [
-    { key: "NEXT_PUBLIC_WEB3FORMS_KEY", label: "Web3Forms Key", show: provider === "web3forms" },
-    { key: "NEXT_PUBLIC_FORMSPREE_ID", label: "Formspree ID", show: provider === "formspree" },
-    { key: "NEXT_PUBLIC_EMAILJS_SERVICE_ID", label: "EmailJS Service ID", show: provider === "emailjs" },
-    { key: "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID", label: "EmailJS Template ID", show: provider === "emailjs" },
-    { key: "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY", label: "EmailJS Public Key", show: provider === "emailjs" },
-    { key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key", show: recaptchaEnabled },
-    { key: "NANOBANANA_API_KEY", label: "NanoBanana API Key", show: aiProvider === "nanobanana" },
-    { key: "HUGGINGFACE_API_KEY", label: "Hugging Face Token", show: aiProvider === "huggingface" },
-    { key: "GEMINI_API_KEY", label: "Gemini API Key", show: translateProvider === "gemini" },
-    { key: "GOOGLE_TRANSLATE_API_KEY", label: "Google Translate API Key", show: translateProvider === "google" },
-    { key: "DEEPL_API_KEY", label: "DeepL API Key", show: translateProvider === "deepl" },
-    { key: "RESEND_API_KEY", label: "Resend API Key", show: true },
+  type FieldRow = { key: string; label: string; show: boolean };
+
+  const groups: { label: string; rows: FieldRow[] }[] = [
+    {
+      label: "이메일 서비스",
+      rows: [
+        { key: "NEXT_PUBLIC_WEB3FORMS_KEY", label: "Web3Forms Key", show: provider === "web3forms" },
+        { key: "NEXT_PUBLIC_FORMSPREE_ID", label: "Formspree ID", show: provider === "formspree" },
+        { key: "NEXT_PUBLIC_EMAILJS_SERVICE_ID", label: "EmailJS Service ID", show: provider === "emailjs" },
+        { key: "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID", label: "EmailJS Template ID", show: provider === "emailjs" },
+        { key: "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY", label: "EmailJS Public Key", show: provider === "emailjs" },
+      ],
+    },
+    {
+      label: "보안",
+      rows: [
+        { key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key", show: recaptchaEnabled },
+      ],
+    },
+    {
+      label: "게시물 커버",
+      rows: [
+        { key: "NANOBANANA_API_KEY", label: "NanoBanana API Key", show: aiProvider === "nanobanana" },
+        { key: "HUGGINGFACE_API_KEY", label: "Hugging Face Token", show: aiProvider === "huggingface" },
+        { key: "UNSPLASH_ACCESS_KEY", label: "Unsplash Access Key", show: true },
+      ],
+    },
+    {
+      label: "AI (요약 / 번역)",
+      rows: [
+        { key: "GEMINI_API_KEY", label: "Gemini API Key", show: translateProvider === "gemini" || summaryProvider === "gemini" },
+        { key: "GOOGLE_TRANSLATE_API_KEY", label: "Google Translate API Key", show: translateProvider === "google" },
+        { key: "DEEPL_API_KEY", label: "DeepL API Key", show: translateProvider === "deepl" },
+        { key: "OPENAI_API_KEY", label: "OpenAI API Key", show: summaryProvider === "openai" },
+      ],
+    },
+    {
+      label: "알림",
+      rows: [
+        { key: "RESEND_API_KEY", label: "Resend API Key", show: true },
+      ],
+    },
   ];
 
-  const visible = rows.filter((r) => r.show);
+  const visibleGroups = groups
+    .map((g) => ({ ...g, rows: g.rows.filter((r) => r.show) }))
+    .filter((g) => g.rows.length > 0);
+
+  const visible = visibleGroups.flatMap((g) => g.rows);
 
   const hasEdits = Object.keys(edits).length > 0;
 
@@ -154,83 +189,85 @@ export default function EnvVarFields({
 
   if (visible.length === 0) return null;
 
+  const renderField = (key: string, label: string) => {
+    const info = secrets[key];
+    const isEditing = key in edits;
+    const source = info?.source ?? "none";
+    const isRevealed = key in revealed;
+    const displayValue = isEditing ? edits[key] : isRevealed ? revealed[key] : "";
+    const placeholder = !loaded ? "..." : source !== "none" ? info.value : t("admin.settings.envVarPlaceholder");
+
+    return (
+      <div key={key} className={`${styles.fieldRow} ${styles.envFieldRow}`}>
+        <label className={`${styles.fieldLabel}${loaded && source === "none" && !isEditing ? ` ${styles.envLabelMissing}` : ""}`}>
+          {label}
+          {source === "env" && !isEditing && (
+            <span className={styles.envSourceBadge}>.env</span>
+          )}
+          {source === "db" && !isEditing && (
+            <span className={styles.envSourceBadge}>DB</span>
+          )}
+        </label>
+        <div className={styles.envInputRow}>
+          <input
+            className={styles.fieldInput}
+            type="text"
+            value={displayValue}
+            placeholder={placeholder}
+            onChange={(e) => setEdits((prev) => ({ ...prev, [key]: e.target.value }))}
+            onBlur={() => {
+              if (isEditing && edits[key] === "") {
+                setEdits((prev) => {
+                  const next = { ...prev };
+                  delete next[key];
+                  return next;
+                });
+              }
+            }}
+          />
+          {source !== "none" && !isEditing && (
+            <button
+              type="button"
+              className={styles.envRevealBtn}
+              onClick={() => handleReveal(key)}
+              title={isRevealed ? "Hide" : "Reveal"}
+            >
+              {isRevealed ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                  <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          )}
+          {isEditing && edits[key] !== "" && (
+            <button
+              type="button"
+              className={styles.envCancelBtn}
+              onClick={() => setEdits((prev) => {
+                const next = { ...prev };
+                delete next[key];
+                return next;
+              })}
+            >
+              &times;
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.fields}>
-      {visible.map(({ key, label }) => {
-        const info = secrets[key];
-        const isEditing = key in edits;
-        const source = info?.source ?? "none";
-        const isRevealed = key in revealed;
-        const displayValue = isEditing ? edits[key] : isRevealed ? revealed[key] : "";
-        const placeholder = !loaded ? "..." : source !== "none" ? info.value : t("admin.settings.envVarPlaceholder");
-
-        return (
-          <div key={key} className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>
-              {label}
-              {source === "env" && !isEditing && (
-                <span className={styles.envSourceBadge}>.env</span>
-              )}
-              {source === "db" && !isEditing && (
-                <span className={styles.envSourceBadge}>DB</span>
-              )}
-            </label>
-            <div className={styles.envInputRow}>
-              <input
-                className={styles.fieldInput}
-                type="text"
-                value={displayValue}
-                placeholder={placeholder}
-                onChange={(e) => setEdits((prev) => ({ ...prev, [key]: e.target.value }))}
-                onBlur={() => {
-                  if (isEditing && edits[key] === "") {
-                    setEdits((prev) => {
-                      const next = { ...prev };
-                      delete next[key];
-                      return next;
-                    });
-                  }
-                }}
-              />
-              {source !== "none" && !isEditing && (
-                <button
-                  type="button"
-                  className={styles.envRevealBtn}
-                  onClick={() => handleReveal(key)}
-                  title={isRevealed ? "Hide" : "Reveal"}
-                >
-                  {isRevealed ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                      <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
-              )}
-              {isEditing && edits[key] !== "" && (
-                <button
-                  type="button"
-                  className={styles.envCancelBtn}
-                  onClick={() => setEdits((prev) => {
-                    const next = { ...prev };
-                    delete next[key];
-                    return next;
-                  })}
-                >
-                  &times;
-                </button>
-              )}
-            </div>
-          </div>
-        );
-      })}
+      {visibleGroups.flatMap((group) => group.rows.map(({ key, label }) => renderField(key, label)))}
       {(hasEdits || msg) && (
         <div className={styles.envActions}>
           {msg && <span className={styles.envMsg}>{msg}</span>}

@@ -44,7 +44,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 width: "80px",
                 height: "80px",
                 marginBottom: "2rem",
-                border: "2px solid #d40063",
+                border: "2px solid #212529",
                 borderRadius: "50%",
               }}
             >
@@ -52,7 +52,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 style={{
                   fontSize: "3rem",
                   fontWeight: "300",
-                  color: "#d40063",
+                  color: "#212529",
                   lineHeight: 1,
                 }}
               >
