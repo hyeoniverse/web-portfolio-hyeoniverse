@@ -129,7 +129,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     const title = getTitle(item);
     openModal(
       <ModalPrompt
-        desc={labels.deleteConfirm}
         hint={labels.deleteConfirmInput}
         placeholder={title}
         validate={(v) => v === title}
@@ -140,7 +139,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
       />,
       {
         id: "delete-confirm",
-        closeButton: true,
+        closeButton: false,
         width: "400px",
         header: { title: `\u201C${title}\u201D` },
       },
