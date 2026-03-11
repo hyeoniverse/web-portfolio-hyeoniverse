@@ -9,7 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { profileDefaults } from "@/components/admin/ProfileSections";
 import type { ProfileData } from "@/types/profile";
-import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, getTabForConfigPath, getContentSubTabForKey, type ConfigConflict } from "./_data/settingsConstants";
+import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, type ConfigConflict } from "./_data/settingsConstants";
 import GeneralTab from "./_components/GeneralTab";
 import ContentTab from "./_components/ContentTab";
 import AppearanceTab from "./_components/AppearanceTab";
@@ -393,9 +393,9 @@ export default function SettingsPage() {
         let dbDelta: Record<string, unknown>;
 
         if (isDeltaFormat(settingsRes.config)) {
-          dbDelta = settingsRes.config.delta;
+          dbDelta = filterOrphanedKeys(settingsRes.config.delta, defaults);
           const found = detectConflicts(
-            settingsRes.config.delta,
+            dbDelta,
             settingsRes.config.savedDefaults,
             defaults
           );
@@ -407,8 +407,8 @@ export default function SettingsPage() {
             });
           }
         } else {
-          dbDelta = settingsRes.config;
-          const diff = computeDelta(settingsRes.config, defaults);
+          dbDelta = filterOrphanedKeys(settingsRes.config, defaults);
+          const diff = computeDelta(dbDelta, defaults);
           if (Object.keys(diff).length > 0) {
             const found = detectConflicts(diff, diff, defaults);
             for (const c of found) {
@@ -644,6 +644,25 @@ export default function SettingsPage() {
   const getConflictLabel = (c: ConfigConflict) =>
     c.source === "profile" ? (PROFILE_SECTION_LABELS[c.path] ?? c.path) : c.path;
 
+  const hasChanges = useMemo(() => {
+    const keys = TAB_CONFIG_KEYS[activeTab] ?? [];
+    for (const key of keys) {
+      if (!deepEqual(config[key as keyof SiteConfigData], savedConfigRef.current[key as keyof SiteConfigData])) return true;
+    }
+    if (activeTab === "content" && !deepEqual(profileData, savedProfileRef.current)) return true;
+    return false;
+  }, [activeTab, config, profileData]);
+
+  const validationError = useMemo(() => {
+    if (activeTab === "general") {
+      if (!String(config.personal?.name ?? "").trim()) return t("admin.settings.nameRequired");
+      if (!String(config.metadata?.title ?? "").trim()) return t("admin.settings.siteTitleRequired");
+      const email = String(config.contact?.email ?? "").trim();
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return t("admin.settings.emailInvalid");
+    }
+    return null;
+  }, [activeTab, config, t]);
+
   const update = <S extends keyof SiteConfigData>(
     section: S,
     key: keyof SiteConfigData[S],
@@ -724,11 +743,11 @@ export default function SettingsPage() {
             </>
           ) : (
             <>
-              {message && (
+              {(message || (hasChanges && validationError)) && (
                 <span
-                  className={`${styles.message} ${message === t("admin.settings.saveError") ? styles.messageError : styles.messageSuccess}`}
+                  className={`${styles.message} ${message.startsWith(t("admin.settings.saveError")) || validationError ? styles.messageError : styles.messageSuccess}`}
                 >
-                  {message}
+                  {message || validationError}
                 </span>
               )}
               <button
@@ -741,7 +760,7 @@ export default function SettingsPage() {
               <button
                 className={styles.saveBtn}
                 onClick={handleSave}
-                disabled={saving}
+                disabled={saving || !hasChanges || !!validationError}
               >
                 {saving ? <T k="admin.settings.saving" /> : <T k="admin.settings.save" />}
               </button>

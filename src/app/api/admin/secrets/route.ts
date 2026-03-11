@@ -17,6 +17,7 @@ const ALLOWED_KEYS = [
   "GEMINI_API_KEY",
   "GOOGLE_TRANSLATE_API_KEY",
   "DEEPL_API_KEY",
+  "OPENAI_API_KEY",
   "RESEND_API_KEY",
 ] as const;
 

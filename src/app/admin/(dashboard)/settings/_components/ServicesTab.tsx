@@ -61,6 +61,24 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
         </div>
       </section>
 
+      {/* AI Summary */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.aiSummarySettings" /></h2>
+        <div className={styles.fields}>
+          <div className={styles.fieldRow}>
+            <label className={styles.fieldLabel}><T k="admin.settings.aiSummaryProvider" /></label>
+            <Select
+              value={config.aiSummary?.provider ?? "gemini"}
+              options={[
+                { value: "gemini", label: "Gemini 2.0 Flash" },
+                { value: "openai", label: "OpenAI GPT-4o mini" },
+              ]}
+              onChange={(v) => update("aiSummary", "provider", v as SiteConfigData["aiSummary"]["provider"])}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Translation */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.translationSettings" /></h2>
@@ -119,7 +137,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       {/* Environment Variables */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.envVars" /></h2>
-        <EnvVarFields provider={config.emailService.provider} aiProvider={config.aiCover.provider} recaptchaEnabled={config.recaptcha.enabled} translateProvider={config.translation?.provider ?? "deepl"} commentEmailNotify={config.commentEmailNotify ?? false} />
+        <EnvVarFields provider={config.emailService.provider} aiProvider={config.aiCover.provider} recaptchaEnabled={config.recaptcha.enabled} translateProvider={config.translation?.provider ?? "deepl"} commentEmailNotify={config.commentEmailNotify ?? false} summaryProvider={config.aiSummary?.provider ?? "gemini"} />
       </section>
     </>
   );
