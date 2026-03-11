@@ -10,16 +10,16 @@ export default function ShareButton({ className }: { className?: string }) {
   const handleShare = useCallback(async () => {
     const url = window.location.href;
     if (navigator.share) {
-      try {
-        await navigator.share({ url });
-        return;
-      } catch {
-        /* user cancelled */
-      }
+      try { await navigator.share({ url }); } catch { /* user cancelled */ }
+      return;
     }
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard not available */
+    }
   }, []);
 
   return (
