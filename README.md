@@ -94,6 +94,7 @@
 - **Scroll-Triggered Animations**: GSAP ScrollTrigger를 활용한 스크롤 기반 등장 애니메이션
 - **Scroll Velocity Parallax**: Lenis velocity 기반 스크롤 속도 연동 이미지 패럴랙스
 - **StaggerText**: 호버 시 글자별 순차 외곽선 애니메이션 효과 컴포넌트
+- **3D Scroll Torus**: Three.js(R3F) 기반 3D 메탈릭 토러스 — 리사주 곡선 경로 회전, 테마별 머티리얼, 모바일 터치 반발 인터랙션
 
 <p align="center">
   <img src="public/docs/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
@@ -103,17 +104,12 @@
 ### Works Gallery
 
 - **Works Horizontal Gallery**: GSAP 기반 가로 스크롤 갤러리 — 양방향 무한 래핑, 인트로 인플로우 배치, 언어 전환 레이아웃 안정화
-- **3D Scroll Torus**: Three.js(R3F) 기반 3D 메탈릭 토러스 — 리사주 곡선 경로 회전, 테마별 머티리얼, 모바일 터치 반발 인터랙션
 - **Breakpoint Guard**: 뷰포트 breakpoint(768/1024px) 전환 시 페이지 자동 remount로 GSAP/ScrollTrigger 재초기화
 
 <p align="center">
   <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
   <img src="public/docs/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
-
-| PC | Tablet | Mobile |
-|:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/works-dark.png" width="100%" /> | <img src="public/docs/screenshots/tablet/works-dark.png" width="100%" /> | <img src="public/docs/screenshots/mobile/works-dark.png" width="100%" /> |
 
 ### Blog System
 
@@ -140,10 +136,6 @@
   <img src="public/docs/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
 </p>
 
-| PC | Tablet | Mobile |
-|:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/work-detail-dark.png" width="100%" /> | <img src="public/docs/screenshots/tablet/work-detail-dark.png" width="100%" /> | <img src="public/docs/screenshots/mobile/work-detail-dark.png" width="100%" /> |
-
 ### Navigation & UX
 
 - **Mix-Blend Navigation**: mix-blend-mode: difference 자동 반전 네비게이션 — 이미지 로고(숏/풀/다크 전용), 글리치 효과 Admin 제어
@@ -159,17 +151,24 @@
 
 ### Admin & CMS
 
+**대시보드 & CRUD**
+
 - **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 발행/비공개 전환, 필터/정렬
 - **사이트 콘텐츠 관리**: Settings 5개 탭(General/Content/Appearance/Services/Account) — 브랜드, SEO, Hero/About/Services 이중언어 편집, BroadcastChannel 동기화
-- **Profile Admin**: 프로필 데이터(경력/스킬/철학/자격증/수상) Admin 편집 — JSONB 저장, `PeriodPicker` 구조화 기간 입력, 구 형식 자동 마이그레이션
-- **시리즈 편집 페이지**: 전용 편집 페이지에서 제목/설명/커버/카테고리/발행 상태 관리, 포스트 순서 변경/연결 해제
+- **Profile Admin**: 프로필 데이터(경력/스킬/철학/자격증/수상) Admin 편집 — JSONB 저장, `PeriodPicker` 구조화 기간 입력
+
+**에디터 & 콘텐츠**
+
 - **에디터 리비전 히스토리**: 자동저장 시 JSONB snapshot DB 영구 저장 — 기기/탭 간 공유, LCS diff 비교, Revert, 50개 초과 자동 정리
-- **CTA 이력서 다운로드**: Home CTA에 이력서 PDF 다운로드 버튼 — Admin에서 업로드(5MB) 및 버튼 텍스트 편집
-- **소셜 링크 관리**: CTA 영역 소셜 아이콘(9종) 표시 — Admin에서 순서 변경/추가/삭제(최대 6개)
 - **자동 번역**: 에디터 언어 전환 시 빈 필드 자동 번역 — DeepL/Google/Gemini 선택, 재번역 버튼, 중복 요청 차단
-- **이중언어 카테고리 관리**: Posts/Works 카테고리를 `{ ko, en }` 쌍으로 관리 — 드래그 순서, 삭제 시 일괄 재할당, `string[]` 자동 호환
+- **이중언어 카테고리 관리**: Posts/Works 카테고리를 `{ ko, en }` 쌍으로 관리 — 드래그 순서, 삭제 시 일괄 재할당
+- **시리즈 편집**: 전용 편집 페이지에서 제목/설명/커버/카테고리/발행 상태 관리, 포스트 순서 변경/연결 해제
 - **Cover Image Picker**: 3가지 방식(16종 프리셋 그라데이션, Unsplash 검색, AI 생성) — Supabase Storage 저장
-- **BGM & 음원 출처 관리**: Admin에서 BGM 파일 업로드(10MB), Footer에 음원 출처(곡명/아티스트/YouTube) 표시
+
+**미디어 & 유틸리티**
+
+- **CTA 이력서 & 소셜 링크**: Home CTA에 이력서 PDF 다운로드 + 소셜 아이콘(9종, 최대 6개) — Admin에서 업로드/순서 변경
+- **BGM & 음원 출처**: Admin에서 BGM 파일 업로드(10MB), Footer에 음원 출처(곡명/아티스트/YouTube) 표시
 - **방문자 통계**: IP+날짜 기반 일간/누적 방문자 카운터, Footer 실시간 표시
 
 <p align="center">
@@ -182,9 +181,12 @@
 - **번들 최적화**: react-icons를 inline SVG로 교체, Three.js dynamic import, About 6개 패널 코드 스플리팅(JS 62% 절감), 미사용 패키지/이미지(22MB) 삭제
 - **성능 최적화**: Hero/마퀴 CSS animation 전환(컴포지터 스레드), useMagneticRepel ref 직접 DOM 조작(60fps), Three.js FrontSide + dispose, AudioContext 지연 초기화
 
-| PC | Tablet | Mobile |
-|:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-light.png" width="100%" /> | <img src="public/docs/screenshots/tablet/home-light.png" width="100%" /> | <img src="public/docs/screenshots/mobile/home-light.png" width="100%" /> |
+| 메트릭 | Before | After |
+|:---|:---:|:---:|
+| Lighthouse Performance | 60 | **98** |
+| LCP | 7,294ms | **1,979ms** |
+| 페이지 용량 | 1,489KB | **449KB** (-70%) |
+| 네트워크 요청 | 63건 | **28건** |
 
 ### Design System
 
@@ -342,14 +344,16 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 ## 시작하기
 
 ```bash
+# 1. 의존성 설치
+npm install
+
+# 2. 개발 서버 실행
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
 [http://localhost:3000](http://localhost:3000)에서 결과를 확인할 수 있습니다.
+
+> **Supabase 없이도 동작합니다.** 환경변수가 없으면 Works, Profile, Settings의 정적 데이터로 자동 fallback됩니다. Posts/댓글/좋아요 등 DB 연동 기능을 사용하려면 아래 Supabase 세팅 가이드를 참고하세요.
 
 ---
 
@@ -766,11 +770,7 @@ import StaggerText from "@/components/effects/StaggerText";
 
 ## Trouble Shooting
 
-> 아래는 개발 과정에서 마주친 주요 이슈들과 해결 과정입니다.
-
-| Works (가로 스크롤 갤러리) | Home (애니메이션/성능) | Posts (블로그) |
-|:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/works-dark.png" width="100%" alt="Works" /> | <img src="public/docs/screenshots/pc/home-dark.png" width="100%" alt="Home" /> | <img src="public/docs/screenshots/pc/posts-dark.png" width="100%" alt="Posts" /> |
+> 아래는 개발 과정에서 마주친 주요 이슈들과 해결 과정입니다. 각 항목은 접어두었습니다.
 
 <details>
 <summary><strong>1. Lenis Scroll Velocity 효과 미작동</strong></summary>
@@ -835,10 +835,6 @@ Lenis는 내부적으로 velocity를 계산하여 인스턴스 속성으로 제�
 
 <details>
 <summary><strong>2. Framer Motion transform과 CSS transform 충돌</strong></summary>
-
-<p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="100%" alt="Works — Transform Conflict" />
-</p>
 
 #### 문제
 
@@ -1194,10 +1190,6 @@ const events = ["click", "touchstart", "keydown"]; // 타이머/scroll 제거
 <details>
 <summary><strong>8. Works 가로 갤러리 양방향 무한 스크롤 래핑</strong></summary>
 
-<p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="100%" alt="Works — Bidirectional Wrapping" />
-</p>
-
 #### 문제
 
 Works 페이지의 가로 스크롤 갤러리에서 프로젝트를 10세트 반복했지만, 끝까지 스크롤하면 흰 화면이 나타나 진정한 무한 스크롤이 아님
@@ -1248,11 +1240,6 @@ if (oneSetWidth > 0) {
 
 <details>
 <summary><strong>9. 언어 전환 시 레이아웃 시프트</strong></summary>
-
-<p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/docs/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
-</p>
 
 #### 문제
 
@@ -1462,9 +1449,32 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
 
 ## 배포
 
-[Vercel Platform](https://vercel.com)을 통해 쉽게 배포할 수 있습니다.
+### Vercel (권장)
 
-자세한 내용은 [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)을 참고하세요.
+1. [Vercel](https://vercel.com)에서 GitHub 레포를 Import
+2. **Environment Variables**에 `.env.local`과 동일한 키-값 추가
+3. **Deploy** 클릭 — 빌드 설정은 자동 감지됨
+
+```
+필수 환경변수:
+  NEXT_PUBLIC_SUPABASE_URL
+  NEXT_PUBLIC_SUPABASE_ANON_KEY
+  SUPABASE_SERVICE_ROLE_KEY
+
+선택 환경변수:
+  UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash
+  HUGGINGFACE_API_KEY          # Cover Image — AI (HuggingFace)
+  NANOBANANA_API_KEY           # Cover Image — AI (NanoBanana)
+  DEEPL_API_KEY                # 번역 — DeepL
+  GOOGLE_TRANSLATE_API_KEY     # 번역 — Google
+  GEMINI_API_KEY               # 번역 — Gemini
+```
+
+> `main` 브랜치에 push할 때마다 자동 배포됩니다. PR을 생성하면 Preview 배포가 별도로 생성됩니다.
+
+### 기타 플랫폼
+
+Next.js를 지원하는 플랫폼이면 배포 가능합니다. 자세한 내용은 [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)을 참고하세요.
 
 ## 커밋 컨벤션
 

@@ -94,6 +94,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Scroll-Triggered Animations**: Scroll-based entrance animations using GSAP ScrollTrigger
 - **Scroll Velocity Parallax**: Image parallax linked to scroll speed via Lenis velocity
 - **StaggerText**: Component with sequential per-character outline animation on hover
+- **3D Scroll Torus**: Three.js (R3F) 3D metallic torus — Lissajous curve path rotation, theme-specific materials, mobile touch repulsion interaction
 
 <p align="center">
   <img src="public/docs/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
@@ -103,17 +104,12 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 ### Works Gallery
 
 - **Works Horizontal Gallery**: GSAP-based horizontal scroll gallery — bidirectional infinite wrapping, intro inflow placement, layout stabilization on language switch
-- **3D Scroll Torus**: Three.js (R3F) 3D metallic torus — Lissajous curve path rotation, theme-specific materials, mobile touch repulsion interaction
 - **Breakpoint Guard**: Automatic page remount on viewport breakpoint (768/1024px) transitions to reinitialize GSAP/ScrollTrigger
 
 <p align="center">
   <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
   <img src="public/docs/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
-
-| PC | Tablet | Mobile |
-|:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/works-dark.png" width="100%" /> | <img src="public/docs/screenshots/tablet/works-dark.png" width="100%" /> | <img src="public/docs/screenshots/mobile/works-dark.png" width="100%" /> |
 
 ### Blog System
 
@@ -140,10 +136,6 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
   <img src="public/docs/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
 </p>
 
-| PC | Tablet | Mobile |
-|:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/work-detail-dark.png" width="100%" /> | <img src="public/docs/screenshots/tablet/work-detail-dark.png" width="100%" /> | <img src="public/docs/screenshots/mobile/work-detail-dark.png" width="100%" /> |
-
 ### Navigation & UX
 
 - **Mix-Blend Navigation**: Auto-inverting navigation with mix-blend-mode: difference — image logo (short/full/dark-only), glitch effect controlled from Admin
@@ -159,17 +151,24 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 ### Admin & CMS
 
+**Dashboard & CRUD**
+
 - **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, publish/private toggle, filter/sort
 - **Site Content Management**: Settings with 5 tabs (General/Content/Appearance/Services/Account) — brand, SEO, Hero/About/Services bilingual editing, BroadcastChannel sync
-- **Profile Admin**: Profile data (career/skills/philosophy/certifications/awards) admin editing — JSONB storage, `PeriodPicker` structured period input, automatic migration of legacy formats
-- **Series Edit Page**: Dedicated edit page for managing title/description/cover/category/publish status, post reordering/unlinking
+- **Profile Admin**: Profile data (career/skills/philosophy/certifications/awards) admin editing — JSONB storage, `PeriodPicker` structured period input
+
+**Editor & Content**
+
 - **Editor Revision History**: Auto-save stores JSONB snapshots permanently in DB — shared across devices/tabs, LCS diff comparison, Revert, automatic cleanup beyond 50 entries
-- **CTA Resume Download**: Resume PDF download button on Home CTA — upload (5MB) and edit button text from Admin
-- **Social Link Management**: Display social icons (9 types) in CTA area — reorder/add/delete (max 6) from Admin
 - **Auto Translation**: Auto-translate empty fields on editor language switch — select DeepL/Google/Gemini, re-translate button, duplicate request blocking
-- **Bilingual Category Management**: Manage Posts/Works categories as `{ ko, en }` pairs — drag ordering, batch reassignment on delete, automatic `string[]` compatibility
+- **Bilingual Category Management**: Manage Posts/Works categories as `{ ko, en }` pairs — drag ordering, batch reassignment on delete
+- **Series Edit**: Dedicated edit page for managing title/description/cover/category/publish status, post reordering/unlinking
 - **Cover Image Picker**: 3 methods (16 preset gradients, Unsplash search, AI generation) — stored in Supabase Storage
-- **BGM & Audio Source Management**: Upload BGM files (10MB) from Admin, display audio source (track name/artist/YouTube) in Footer
+
+**Media & Utilities**
+
+- **CTA Resume & Social Links**: Resume PDF download on Home CTA + social icons (9 types, max 6) — upload/reorder from Admin
+- **BGM & Audio Source**: Upload BGM files (10MB) from Admin, display audio source (track name/artist/YouTube) in Footer
 - **Visitor Statistics**: IP+date-based daily/cumulative visitor counter, real-time display in Footer
 
 <p align="center">
@@ -182,9 +181,12 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Bundle Optimization**: Replaced react-icons with inline SVGs, Three.js dynamic import, About 6-panel code splitting (62% JS reduction), removed unused packages/images (22MB)
 - **Performance Optimization**: Hero/marquee CSS animation transition (compositor thread), useMagneticRepel direct DOM manipulation via refs (60fps), Three.js FrontSide + dispose, AudioContext lazy initialization
 
-| PC | Tablet | Mobile |
-|:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-light.png" width="100%" /> | <img src="public/docs/screenshots/tablet/home-light.png" width="100%" /> | <img src="public/docs/screenshots/mobile/home-light.png" width="100%" /> |
+| Metric | Before | After |
+|:---|:---:|:---:|
+| Lighthouse Performance | 60 | **98** |
+| LCP | 7,294ms | **1,979ms** |
+| Page Size | 1,489KB | **449KB** (-70%) |
+| Network Requests | 63 | **28** |
 
 ### Design System
 
@@ -342,14 +344,16 @@ Direct access to /admin -> Supabase Auth login -> Settings redirect
 ## Getting Started
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-You can view the result at [http://localhost:3000](http://localhost:3000).
+View the result at [http://localhost:3000](http://localhost:3000).
+
+> **Works without Supabase.** If no environment variables are set, the site automatically falls back to static data for Works, Profile, and Settings. To use DB-dependent features (Posts, comments, likes), see the Supabase Setup Guide below.
 
 ---
 
@@ -766,11 +770,7 @@ A modal component that behaves as a bottom sheet pattern on mobile. Center dialo
 
 ## Trouble Shooting
 
-> Below are major issues encountered during development and their resolution processes.
-
-| Works (Horizontal Scroll Gallery) | Home (Animation/Performance) | Posts (Blog) |
-|:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/works-dark.png" width="100%" alt="Works" /> | <img src="public/docs/screenshots/pc/home-dark.png" width="100%" alt="Home" /> | <img src="public/docs/screenshots/pc/posts-dark.png" width="100%" alt="Posts" /> |
+> Major issues encountered during development and their resolutions. Each item is collapsed.
 
 <details>
 <summary><strong>1. Lenis Scroll Velocity Effect Not Working</strong></summary>
@@ -835,10 +835,6 @@ Lenis internally calculates velocity and provides it as an instance property, ma
 
 <details>
 <summary><strong>2. Framer Motion transform and CSS transform Conflict</strong></summary>
-
-<p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="100%" alt="Works — Transform Conflict" />
-</p>
 
 #### Problem
 
@@ -1194,10 +1190,6 @@ const events = ["click", "touchstart", "keydown"]; // Removed timer/scroll
 <details>
 <summary><strong>8. Works Horizontal Gallery Bidirectional Infinite Scroll Wrapping</strong></summary>
 
-<p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="100%" alt="Works — Bidirectional Wrapping" />
-</p>
-
 #### Problem
 
 In the Works page horizontal scroll gallery, projects were repeated 10 sets, but scrolling to the end showed a blank screen — not truly infinite scroll
@@ -1248,11 +1240,6 @@ Rather than increasing content duplication sets, wrapping the scroll position it
 
 <details>
 <summary><strong>9. Layout Shift on Language Switch</strong></summary>
-
-<p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/docs/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
-</p>
 
 #### Problem
 
@@ -1462,9 +1449,32 @@ Project performance audit revealed multiple optimization points: main thread ani
 
 ## Deployment
 
-Easily deployable via [Vercel Platform](https://vercel.com).
+### Vercel (Recommended)
 
-See the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for details.
+1. Import the GitHub repo on [Vercel](https://vercel.com)
+2. Add the same key-value pairs from `.env.local` to **Environment Variables**
+3. Click **Deploy** — build settings are auto-detected
+
+```
+Required:
+  NEXT_PUBLIC_SUPABASE_URL
+  NEXT_PUBLIC_SUPABASE_ANON_KEY
+  SUPABASE_SERVICE_ROLE_KEY
+
+Optional:
+  UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash
+  HUGGINGFACE_API_KEY          # Cover Image — AI (HuggingFace)
+  NANOBANANA_API_KEY           # Cover Image — AI (NanoBanana)
+  DEEPL_API_KEY                # Translation — DeepL
+  GOOGLE_TRANSLATE_API_KEY     # Translation — Google
+  GEMINI_API_KEY               # Translation — Gemini
+```
+
+> Auto-deploys on every push to `main`. Preview deployments are created for each PR.
+
+### Other Platforms
+
+Any platform that supports Next.js can be used. See the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for details.
 
 ## Commit Convention
 
