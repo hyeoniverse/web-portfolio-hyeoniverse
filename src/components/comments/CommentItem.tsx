@@ -33,6 +33,7 @@ interface CommentItemProps {
   targetId: string;
   likedMap?: Record<string, boolean>;
   likeCountMap?: Record<string, number>;
+  isAdmin?: boolean;
   onRefresh: () => void;
 }
 
@@ -42,6 +43,7 @@ function CommentItem({
   targetId,
   likedMap,
   likeCountMap,
+  isAdmin = false,
   onRefresh,
 }: CommentItemProps) {
   const { t } = useLanguage();
@@ -138,7 +140,7 @@ function CommentItem({
   }, [commentType, comment.id]);
 
   const handleDelete = useCallback(async () => {
-    if (!deletePassword.trim()) {
+    if (!isAdmin && !deletePassword.trim()) {
       setDeleteError(t("comments.passwordRequired"));
       return;
     }
@@ -150,9 +152,9 @@ function CommentItem({
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          commenter_id: commenterId,
+          commenter_id: isAdmin ? undefined : commenterId,
           target_id: targetId,
-          password: deletePassword || undefined,
+          password: isAdmin ? undefined : (deletePassword || undefined),
         }),
       });
 
@@ -169,7 +171,7 @@ function CommentItem({
     } finally {
       setDeleting(false);
     }
-  }, [apiBase, comment.id, commenterId, targetId, deletePassword, onRefresh, t]);
+  }, [apiBase, comment.id, commenterId, targetId, deletePassword, isAdmin, onRefresh, t]);
 
   const handleEdit = useCallback(async () => {
     if (!editContent.trim()) return;
@@ -209,12 +211,44 @@ function CommentItem({
     }
   }, [apiBase, comment.id, commenterId, targetId, editContent, editPassword, onRefresh, t]);
 
+  // soft-deleted 댓글 — placeholder만 표시
+  if (comment.is_deleted) {
+    return (
+      <div className={styles.comment}>
+        <p className={styles.deletedPlaceholder}>
+          <T k="comments.deletedComment" />
+        </p>
+        {comment.replies && comment.replies.length > 0 && (
+          <div className={styles.replies}>
+            {comment.replies.map((reply) => (
+              <CommentItem
+                key={reply.id}
+                comment={reply}
+                commentType={commentType}
+                targetId={targetId}
+                likedMap={likedMap}
+                likeCountMap={likeCountMap}
+                isAdmin={isAdmin}
+                onRefresh={onRefresh}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.comment}>
       <div className={styles.commentHeader}>
-        <span className={styles.avatar}>{identity.emoji}</span>
-        <span className={styles.nickname}>{identity.name}</span>
-        {comment.is_admin && <span className={styles.adminBadge}>Admin</span>}
+        {comment.is_admin ? (
+          <span className={styles.adminBadge}>Admin</span>
+        ) : (
+          <>
+            <span className={styles.avatar}>{identity.emoji}</span>
+            <span className={styles.nickname}>{identity.name}</span>
+          </>
+        )}
         <span className={styles.date}>{dateStr}</span>
         {isEdited && (
           <span className={styles.editedBadge} title={editedDateStr ?? ""}>
@@ -343,7 +377,7 @@ function CommentItem({
         >
           <T k="comments.replyBtn" />
         </button>
-        {!comment.is_admin && (
+        {(!comment.is_admin || isAdmin) && (
           <button
             type="button"
             className={styles.actionBtn}
@@ -358,7 +392,7 @@ function CommentItem({
             <T k="comments.edit" />
           </button>
         )}
-        {!comment.is_admin && (
+        {(!comment.is_admin || isAdmin) && (
           <button
             type="button"
             className={styles.deleteBtn}
@@ -383,16 +417,18 @@ function CommentItem({
             transition={{ duration: 0.2 }}
           >
             <div className={styles.deleteRow}>
-              <input
-                className={styles.deleteInput}
-                type="password"
-                value={deletePassword}
-                onChange={(e) => setDeletePassword(e.target.value)}
-                placeholder={t("comments.password")}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleDelete();
-                }}
-              />
+              {!isAdmin && (
+                <input
+                  className={styles.deleteInput}
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder={t("comments.password")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleDelete();
+                  }}
+                />
+              )}
               <button
                 type="button"
                 className={styles.deleteConfirm}
@@ -462,6 +498,7 @@ function CommentItem({
               targetId={targetId}
               likedMap={likedMap}
               likeCountMap={likeCountMap}
+              isAdmin={isAdmin}
               onRefresh={onRefresh}
             />
           ))}

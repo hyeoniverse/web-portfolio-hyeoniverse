@@ -66,6 +66,7 @@ export interface Comment {
   nickname: string;
   content: string;
   is_admin: boolean;
+  is_deleted?: boolean;
   like_count: number;
   created_at: string;
   updated_at?: string | null;

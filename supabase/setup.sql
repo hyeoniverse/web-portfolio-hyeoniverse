@@ -363,9 +363,13 @@ ALTER TABLE comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAULT 0;
 -- notify_email — 답글 알림용 이메일 (옵션)
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS notify_email text;
 
+-- is_deleted — soft delete (답글 있는 댓글 삭제 시)
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS is_deleted boolean NOT NULL DEFAULT false;
+
 -- work_comments 테이블 — 이후 추가된 컬럼
 ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAULT 0;
 ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS notify_email text;
+ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS is_deleted boolean NOT NULL DEFAULT false;
 
 -- work_comments RLS 정책 — 이미 존재하면 무시
 DO $$

@@ -2,6 +2,20 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+  padding: var(--spacing-lg) 0;
+  border-bottom: 1px solid var(--border-tertiary-color);
+}
+
+.comment:first-child {
+  border-top: 1px solid var(--border-tertiary-color);
+}
+
+.deletedPlaceholder {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  font-style: italic;
 }
 
 .commentHeader {
