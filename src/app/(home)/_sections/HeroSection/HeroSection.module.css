@@ -40,7 +40,7 @@
 }
 
 .ovalSecondary {
-  border-color: var(--border-tertiary);
+  border: var(--border-light);
   bottom: 20%;
   left: -5%;
   width: 400px;

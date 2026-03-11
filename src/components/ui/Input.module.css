@@ -14,7 +14,7 @@
 
 .input {
   padding: var(--box-sm-xl);
-  border: 1px solid var(--border-primary-color);
+  border: 1px solid var(--border-strong-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;

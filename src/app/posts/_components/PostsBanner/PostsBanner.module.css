@@ -15,7 +15,7 @@
 .splitDot .splitDotActive,
 .splitDotActive {
   background: var(--color-accent);
-  border-color: var(--color-accent);
+  border: 1px solid var(--color-accent);
 }
 
 /* ==========================================================================

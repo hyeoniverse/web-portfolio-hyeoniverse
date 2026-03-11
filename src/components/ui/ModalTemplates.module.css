@@ -29,11 +29,11 @@
 }
 
 .body .input input {
-  border-color: var(--border-secondary-color);
+  border-color: var(--border-default-color);
 }
 
 .body .input input:focus {
-  border-color: var(--border-primary-color);
+  border-color: var(--border-strong-color);
 }
 
 .error {

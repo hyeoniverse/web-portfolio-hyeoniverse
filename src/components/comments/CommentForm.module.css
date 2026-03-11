@@ -37,7 +37,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   background: transparent;
   color: var(--text-muted);
   border-radius: var(--radius-circle);
@@ -66,7 +66,7 @@
 
 .textarea {
   padding: var(--box-sm-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-lg);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -87,7 +87,7 @@
 
 .passwordInput {
   padding: var(--box-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -135,7 +135,7 @@
 
 .cancelBtn {
   padding: var(--box-md);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -157,7 +157,7 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-muted);
@@ -174,7 +174,7 @@
 
 .emailInput {
   padding: var(--box-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);

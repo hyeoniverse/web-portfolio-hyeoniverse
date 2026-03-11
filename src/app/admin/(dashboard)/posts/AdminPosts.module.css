@@ -40,11 +40,11 @@
   align-items: center;
   gap: 0;
   padding: var(--spacing-md) 0;
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .seriesRow:first-child {
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
 }
 
 .seriesRowLink {

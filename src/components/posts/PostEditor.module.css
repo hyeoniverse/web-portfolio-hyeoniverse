@@ -11,7 +11,7 @@
 
 .excerptInput {
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-md);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -38,7 +38,7 @@
   flex-direction: column;
   gap: var(--spacing-xl);
   padding: var(--spacing-lg);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
 }
 
@@ -62,7 +62,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -95,7 +95,7 @@
   align-self: stretch;
   aspect-ratio: 1;
   flex-shrink: 0;
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: 50%;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -126,7 +126,7 @@
   height: 50px;
   object-fit: cover;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
 }
 
 .coverRemove {
@@ -148,7 +148,7 @@
   flex-direction: column;
   gap: var(--spacing-md);
   padding-top: var(--spacing-xl);
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
 }
 
 .editorHeaderLeft {
@@ -177,7 +177,7 @@
 
 .templateBtn {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);

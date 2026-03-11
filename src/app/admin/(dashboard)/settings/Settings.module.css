@@ -43,7 +43,7 @@
 
 .resetBtn {
   padding: var(--box-xs-xl);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -99,14 +99,14 @@
 
 .conflictDivider {
   border: none;
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
   margin: var(--spacing-md) 0 var(--spacing-xl);
 }
 
 .conflictToggle {
   width: 100%;
   background: none;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   color: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -235,7 +235,7 @@
   width: 28px;
   height: 28px;
   padding: 0;
-  border: 1px solid var(--border-primary-color);
+  border: 1px solid var(--border-strong-color);
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-primary);
@@ -411,7 +411,7 @@
   position: sticky;
   top: calc(var(--header-height) + var(--spacing-2xl));
   align-self: flex-start;
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
 }
 
 .navItem {
@@ -420,7 +420,7 @@
   justify-content: space-between;
   padding: var(--spacing-sm) 0;
   border: none;
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -461,7 +461,7 @@
   justify-content: space-between;
   padding: var(--spacing-xs) 0 var(--spacing-xs) var(--spacing-md);
   border: none;
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -495,7 +495,7 @@
 .section {
   padding-bottom: var(--spacing-2xl);
   margin-bottom: var(--spacing-2xl);
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .section:last-child {
@@ -533,7 +533,7 @@
 
 .fields > * {
   padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .fields > *:last-child {
@@ -589,7 +589,7 @@
   flex: 1;
   min-width: 0;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -602,7 +602,7 @@
   flex: 1;
   min-width: 0;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -651,7 +651,7 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: 50%;
   background: transparent;
   flex-shrink: 0;
@@ -670,7 +670,7 @@
   flex: 1;
   min-width: 0;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
@@ -686,7 +686,7 @@
 /* ── Segment Buttons (DatePicker Style 등) ── */
 .formatSegmentRow {
   display: flex;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   overflow: hidden;
   width: fit-content;
@@ -703,7 +703,7 @@
 }
 
 .formatSegmentBtn + .formatSegmentBtn {
-  border-left: 1px solid var(--border-tertiary-color);
+  border-left: 1px solid var(--border-light-color);
 }
 
 .formatSegmentBtnActive {
@@ -809,7 +809,7 @@
 .logoPreview {
   width: 80px;
   height: 32px;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-sm);
   overflow: hidden;
   display: flex;
@@ -832,7 +832,7 @@
 .logoBtn,
 .logoBtnRemove {
   padding: var(--box-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -859,7 +859,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   padding: var(--box-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -938,7 +938,7 @@
   gap: var(--spacing-md);
   align-items: flex-start;
   padding: var(--spacing-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
 }
 
@@ -1052,7 +1052,7 @@
 .profileDivider {
   padding: var(--spacing-xl) 0;
   margin-bottom: var(--spacing-xl);
-  border-top: 2px solid var(--border-tertiary-color);
+  border-top: 2px solid var(--border-light-color);
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
@@ -1070,7 +1070,7 @@
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--border-tertiary-color);
+  background: var(--border-light-color);
 }
 
 .profileSubTitle {
@@ -1085,7 +1085,7 @@
 
 .profileCard {
   padding: var(--spacing-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-md);
   display: flex;
@@ -1147,7 +1147,7 @@
 .profileFieldInput {
   width: 100%;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1163,7 +1163,7 @@
 .profileFieldTextarea {
   width: 100%;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1183,7 +1183,7 @@
 
 .profileAddBtn {
   padding: var(--box-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1199,7 +1199,7 @@
 
 .profileNested {
   padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
-  border-left: 2px solid var(--border-tertiary-color);
+  border-left: 2px solid var(--border-light-color);
   border-radius: 0;
   background: transparent;
   display: flex;
@@ -1245,7 +1245,7 @@
   width: 100%;
   max-width: 380px;
   background: var(--bg-primary);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
   display: flex;
@@ -1279,7 +1279,7 @@
 
 .confirmCancelBtn {
   padding: var(--box-xs-xl);
-  border: 1px solid var(--border-primary-color);
+  border: 1px solid var(--border-strong-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1302,7 +1302,7 @@
 .skeletonSection {
   padding-bottom: var(--spacing-2xl);
   margin-bottom: var(--spacing-2xl);
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .skeletonSection:last-child {
@@ -1330,7 +1330,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: 50%;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1363,7 +1363,7 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--box-sm-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
   background: transparent;
   width: 100%;
@@ -1431,7 +1431,7 @@
 }
 
 .seriesCardBody {
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-top: none;
   border-radius: 0 0 var(--radius-md) var(--radius-md);
   padding: var(--spacing-md);
@@ -1445,13 +1445,13 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
 }
 
 /* ── Series Posts List (inline) ── */
 .seriesPostsSection {
   padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
 }
 
 .seriesPostsEmpty {
@@ -1600,7 +1600,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--box-sm-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
 }
 
@@ -1617,7 +1617,7 @@
   justify-content: center;
   width: 20px;
   height: 14px;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-xs);
   background: transparent;
   color: var(--text-tertiary);
@@ -1707,7 +1707,7 @@
     gap: 0;
     padding: 0;
     border-top: none;
-    border-bottom: 1px solid var(--border-tertiary-color);
+    border-bottom: 1px solid var(--border-light-color);
   }
 
   .sideNav::-webkit-scrollbar {
@@ -1741,7 +1741,7 @@
     display: flex;
     gap: 0;
     margin-bottom: var(--spacing-lg);
-    border-bottom: 1px solid var(--border-tertiary-color);
+    border-bottom: 1px solid var(--border-light-color);
     overflow-x: auto;
     scrollbar-width: none;
   }
@@ -1840,7 +1840,7 @@
   flex: 1;
   min-width: 0;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1886,7 +1886,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   background: var(--bg-primary);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   z-index: var(--z-dropdown);
@@ -1915,7 +1915,7 @@
 /* ── Env Var Editor ── */
 .envGroupDivider {
   border: none;
-  border-top: 1px dashed var(--border-tertiary-color);
+  border-top: 1px dashed var(--border-light-color);
   margin: 0;
 }
 
@@ -1948,7 +1948,7 @@
 .envCancelBtn {
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: 50%;
   background: transparent;
   color: var(--text-tertiary);
@@ -1965,7 +1965,7 @@
 .envRevealBtn {
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: 50%;
   background: transparent;
   color: var(--text-tertiary);

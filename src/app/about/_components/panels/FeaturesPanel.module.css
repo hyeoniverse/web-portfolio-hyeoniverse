@@ -116,8 +116,8 @@
   background: radial-gradient(
     circle at top right,
     transparent 13px,
-    var(--border-primary-color) 13.5px,
-    var(--border-primary-color) 14px,
+    var(--border-strong-color) 13.5px,
+    var(--border-strong-color) 14px,
     var(--bg-primary) 14.5px
   );
   content: "";
@@ -213,8 +213,8 @@
     background: radial-gradient(
       circle at top right,
       transparent 13px,
-      var(--border-primary-color) 13.5px,
-      var(--border-primary-color) 14px,
+      var(--border-strong-color) 13.5px,
+      var(--border-strong-color) 14px,
       var(--bg-primary) 14.5px
     );
   }

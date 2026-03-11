@@ -82,7 +82,7 @@
 .errorDetails {
   margin-bottom: var(--spacing-xl);
   padding: var(--spacing-md);
-  border: var(--border-strong-125);
+  border: var(--border-width-default) solid var(--border-strong-color);
   overflow-x: auto;
   width: 100%;
   background: var(--bg-white);

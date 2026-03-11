@@ -3,11 +3,11 @@
   flex-direction: column;
   gap: var(--spacing-xs);
   padding: var(--spacing-lg) 0;
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .comment:first-child {
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
 }
 
 .deletedPlaceholder {
@@ -76,7 +76,7 @@
   white-space: pre-wrap;
   font-style: italic;
   padding-left: var(--spacing-sm);
-  border-left: 2px solid var(--border-tertiary-color);
+  border-left: 2px solid var(--border-light-color);
   overflow: hidden;
 }
 
@@ -165,7 +165,7 @@
   gap: var(--spacing-md);
   margin-left: var(--spacing-xl);
   padding-left: var(--spacing-md);
-  border-left: 1px solid var(--border-tertiary-color);
+  border-left: 1px solid var(--border-light-color);
   margin-top: var(--spacing-sm);
 }
 
@@ -191,7 +191,7 @@
 
 .deleteInput {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -237,7 +237,7 @@
 
 .editTextarea {
   padding: var(--box-sm-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-lg);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -281,7 +281,7 @@
 
 .editCancelBtn {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);

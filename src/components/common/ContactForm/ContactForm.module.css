@@ -82,7 +82,7 @@
 
 .formInput:focus,
 .formTextarea:focus {
-  border-color: var(--border-primary-color);
+  border-color: var(--border-strong-color);
   outline: none;
   box-shadow: 0 0 0 3px var(--color-neutral-alpha-5);
   transform: translateY(-1px);

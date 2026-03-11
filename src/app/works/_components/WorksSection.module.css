@@ -82,7 +82,7 @@
   margin-left: calc(-1 * var(--_intro-pad));
   margin-right: calc(-1 * var(--_intro-pad));
   height: 1px;
-  background: var(--border-primary-color);
+  background: var(--border-strong-color);
 }
 
 .introDesc {
@@ -112,8 +112,8 @@
   margin-left: calc(-1 * var(--_intro-pad));
   margin-right: calc(-1 * var(--_intro-pad));
   padding: var(--spacing-md) var(--_intro-pad);
-  border-top: 1px solid var(--border-primary-color);
-  border-bottom: 1px solid var(--border-primary-color);
+  border-top: 1px solid var(--border-strong-color);
+  border-bottom: 1px solid var(--border-strong-color);
 }
 
 .introStat {
@@ -144,7 +144,7 @@
   margin-top: calc(-1 * var(--spacing-md));
   margin-bottom: calc(-1 * var(--spacing-md));
   width: 1px;
-  background: var(--border-primary-color);
+  background: var(--border-strong-color);
 }
 
 .introScope {
@@ -152,7 +152,7 @@
   margin-left: calc(-1 * var(--_intro-pad));
   margin-right: calc(-1 * var(--_intro-pad));
   padding: 0 var(--_intro-pad) var(--spacing-sm);
-  border-bottom: 1px solid var(--border-primary-color);
+  border-bottom: 1px solid var(--border-strong-color);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent-alt);
@@ -263,7 +263,7 @@
   right: -200px;
   width: 1px;
   height: 300vh;
-  background: var(--border-primary-color);
+  background: var(--border-strong-color);
   content: "";
   transform: translateY(-50%);
 }
@@ -973,7 +973,7 @@
     right: 0;
     width: 100%;
     height: 1px;
-    background: var(--border-primary-color);
+    background: var(--border-strong-color);
     transform: none;
   }
 
@@ -1286,7 +1286,7 @@
   right: -200px;
   width: 1px;
   height: 300vh;
-  background: var(--border-primary-color);
+  background: var(--border-strong-color);
   content: "";
   transform: translateY(-50%);
 }
@@ -1305,7 +1305,7 @@
     width: 100%;
     height: auto;
     padding: var(--spacing-3xl) 24px var(--spacing-2xl);
-    border-top: 1px solid var(--border-primary-color);
+    border-top: 1px solid var(--border-strong-color);
   }
 
   .creditsPanel::after {
