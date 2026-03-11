@@ -6,6 +6,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { validateContentSecurity } from "@/utils/contentSecurity";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
@@ -35,67 +36,107 @@ const SIZES = ["large", "small", "medium", "tall", "wide"] as const;
 
 const TEMPLATE_KO = `## Overview
 
-프로젝트 개요를 작성하세요.
+이 프로젝트는 ___를 위한 ___입니다. 주요 사용자는 ___이며, ___한 문제를 해결하기 위해 만들어졌습니다.
 
 ## Background
 
-프로젝트를 시작하게 된 배경과 동기를 설명하세요.
+기존에는 ___한 방식으로 처리하고 있었으나, ___한 한계가 있었습니다. 이를 개선하기 위해 프로젝트를 시작하게 되었습니다.
+
+## My Role
+
+팀 내에서 ___를 담당했습니다. 주요 기여 영역은 다음과 같습니다:
+
+-
+-
+-
 
 ## Key Features
 
-주요 기능을 나열하세요.
+- **___**: ___
+- **___**: ___
+- **___**: ___
 
 ## Architecture
 
-기술 아키텍처를 설명하세요.
+전체 시스템은 ___로 구성되어 있습니다. 프론트엔드는 ___를 사용하고, 백엔드는 ___으로 구축했습니다. 데이터는 ___에 저장되며, ___를 통해 통신합니다.
 
-## Challenges
+## Challenges & Troubleshooting
 
-기술적 도전과 문제를 설명하세요.
+### 문제 1: ___
 
-## Solutions
+**상황**: ___한 상황에서 ___가 발생했습니다.
+**원인**: ___
+**해결**: ___를 적용하여 해결했습니다.
 
-문제를 어떻게 해결했는지 설명하세요.
+### 문제 2: ___
+
+**상황**: ___
+**원인**: ___
+**해결**: ___
 
 ## Results
 
-프로젝트의 결과와 성과를 설명하세요.
+- ___가 기존 대비 ___% 개선되었습니다.
+- 사용자 ___가 ___만큼 증가했습니다.
+- ___
 
 ## Lessons Learned
 
-프로젝트를 통해 배운 점을 정리하세요.`;
+- ___할 때는 ___하는 것이 효과적이라는 것을 배웠습니다.
+- 다음에는 ___를 더 일찍 고려할 것입니다.
+- ___`;
 
 const TEMPLATE_EN = `## Overview
 
-Describe what this project is about.
+This project is a ___ designed for ___. The primary users are ___, and it was built to solve ___.
 
 ## Background
 
-Explain the motivation behind this project.
+Previously, ___ was handled by ___, but it had limitations such as ___. This project was initiated to address these issues.
+
+## My Role
+
+I was responsible for ___ within the team. Key contributions include:
+
+-
+-
+-
 
 ## Key Features
 
-List the main features.
+- **___**: ___
+- **___**: ___
+- **___**: ___
 
 ## Architecture
 
-Explain the technical architecture.
+The system is composed of ___. The frontend uses ___, the backend is built with ___, and data is stored in ___, communicating via ___.
 
-## Challenges
+## Challenges & Troubleshooting
 
-Describe technical challenges faced.
+### Issue 1: ___
 
-## Solutions
+**Context**: ___ occurred under ___ conditions.
+**Root cause**: ___
+**Resolution**: Applied ___ to resolve the issue.
 
-How you solved the challenges.
+### Issue 2: ___
+
+**Context**: ___
+**Root cause**: ___
+**Resolution**: ___
 
 ## Results
 
-Project outcomes and impact.
+- ___ improved by ___% compared to the previous approach.
+- User ___ increased by ___.
+- ___
 
 ## Lessons Learned
 
-Key takeaways from this project.`;
+- Learned that ___ is effective when dealing with ___.
+- Next time, I would consider ___ earlier in the process.
+- ___`;
 
 function workToFormData(work: Work): WorkFormData {
   let contentKo = work.content_ko || "";
@@ -266,33 +307,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     }
 
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(async () => {
+    autoSaveTimer.current = setTimeout(() => {
       if (autoSaveBusy.current) return;
-      // 새 글은 제목이 있어야 자동 저장
-      if (!savedId.current && !form.title.trim()) return;
+      if (!form.title.trim()) return;
 
-      try {
-        const url = savedId.current
-          ? `/api/works/${savedId.current}`
-          : "/api/works";
-        const method = savedId.current ? "PATCH" : "POST";
-        const res = await fetch(url, {
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        });
-        if (res.ok) {
-          if (!savedId.current) {
-            const data = await res.json();
-            savedId.current = data.id;
-          }
-          saveRevision({ ...form }, form.title || "(untitled)");
-          setStatus(tw("autoSaved"));
-          setStatusType("success");
-        }
-      } catch {
-        // silent fail
-      }
+      saveRevision({ ...form }, form.title || "(untitled)");
+      setStatus(tw("autoSaved"));
+      setStatusType("success");
     }, 5000);
 
     return () => clearTimeout(autoSaveTimer.current);
@@ -529,8 +550,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         if (!form.category_ko.trim()) missing.push(tw("category"));
         if (!form.year.trim()) missing.push(tw("year"));
         if (!form.image.trim()) missing.push(tw("mainImage"));
+        if (!form.content_ko.trim()) missing.push(tw("description"));
         if (missing.length > 0) {
           setError(`${tw("requiredFields")}: ${missing.join(", ")}`);
+          return;
+        }
+
+        const security = validateContentSecurity(form.content_ko + form.content_en);
+        if (!security.safe) {
+          setError(`${tw("securityWarning")}: ${security.warnings.join(", ")}`);
           return;
         }
       }
@@ -577,7 +605,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   const handleDelete = useCallback(async () => {
     if (!work) return;
-    if (!confirm(`"${work.title}"${tw("deleteConfirm")}`)) return;
 
     setDeleting(true);
     try {
@@ -650,6 +677,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     () => ({
       delete: tw("delete"),
       deleting: tw("deleting"),
+      deleteConfirm: tw("deleteConfirm"),
+      deleteConfirmInput: tw("deleteConfirmInput"),
+      deleteCancel: tw("deleteCancel"),
       preview: tw("preview"),
       saving: tw("saving"),
       saveDraft: tw("saveDraft"),
@@ -689,6 +719,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       deleting={deleting}
       published={form.published}
       onDelete={handleDelete}
+      deleteTargetName={work?.title}
       onSaveDraft={() => handleSave()}
       onPublish={() => handleSave(true)}
       onPreview={handlePreview}

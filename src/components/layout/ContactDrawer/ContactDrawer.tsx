@@ -11,6 +11,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
+import CloseIcon from "@/components/ui/CloseIcon";
 import ContactSuccessView from "./ContactSuccessView";
 import ContactInfoCards from "./ContactInfoCards";
 import styles from "./ContactDrawer.module.css";
@@ -267,11 +268,9 @@ export default function ContactDrawer({
                 resetForm();
               }}
               aria-label="Close"
+              data-close-trigger
             >
-              <span className={styles.closeIconWrapper}>
-                <span className={styles.closeLine} />
-                <span className={styles.closeLine} />
-              </span>
+              <CloseIcon />
             </button>
 
             {/* 왼쪽: 폼 카드 */}
