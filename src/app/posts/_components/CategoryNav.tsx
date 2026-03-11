@@ -26,25 +26,31 @@ export default function CategoryNav({
   const [overflowCount, setOverflowCount] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [rowHeight, setRowHeight] = useState(46);
+  const [fullHeight, setFullHeight] = useState(9999);
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;
 
-  // ResizeObserver로 nav 크기 변경 시 자동 재측정 (expanded일 때는 건너뜀)
+  // ResizeObserver로 nav 크기 변경 시 자동 재측정
   useEffect(() => {
     const el = navRef.current;
     if (!el) return;
     let timer: ReturnType<typeof setTimeout>;
     const measure = () => {
-      if (expandedRef.current) return;
-      const buttons = el.querySelectorAll("button");
+      const buttons = el.querySelectorAll<HTMLButtonElement>("button");
       if (buttons.length === 0) return;
-      setRowHeight(buttons[0].offsetHeight);
-      const firstTop = buttons[0].offsetTop;
-      let hidden = 0;
-      buttons.forEach((btn) => {
-        if (btn.offsetTop > firstTop) hidden++;
-      });
-      setOverflowCount(hidden);
+      if (!expandedRef.current) {
+        setRowHeight(buttons[0].offsetHeight);
+        const firstTop = buttons[0].offsetTop;
+        let hidden = 0;
+        let maxBottom = 0;
+        buttons.forEach((btn) => {
+          if (btn.offsetTop > firstTop) hidden++;
+          maxBottom = Math.max(maxBottom, btn.offsetTop + btn.offsetHeight);
+        });
+        setOverflowCount(hidden);
+        // Measure full height by summing all rows (maxBottom = full content height)
+        setFullHeight(maxBottom);
+      }
     };
     const debouncedMeasure = () => {
       clearTimeout(timer);
@@ -74,7 +80,7 @@ export default function CategoryNav({
     activeCategory === cat.ko || activeCategory === cat.en;
 
   const navStyle: React.CSSProperties = expanded
-    ? {}
+    ? { maxHeight: fullHeight }
     : { maxHeight: rowHeight };
 
   const navCls = `${styles.nav} ${expanded ? styles.navExpanded : ""}`;
