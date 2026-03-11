@@ -488,7 +488,9 @@
         "restore": "Restore",
         "retranslate": "Retranslate",
         "retranslateAll": "All",
+        "retranslateDisabled": "Translation unavailable: API key not configured",
         "regenerateSummary": "Regenerate AI Summary",
+        "regenerateSummaryDisabled": "AI summary unavailable: API key not configured",
         "insertTemplate": "Insert Template",
         "templateConfirm": "Content exists. Template will be appended. Continue?"
       },
@@ -642,7 +644,9 @@
         "restore": "Restore",
         "retranslate": "Retranslate",
         "retranslateAll": "All",
-        "regenerateSummary": "Regenerate AI Summary"
+        "retranslateDisabled": "Translation unavailable: API key not configured",
+        "regenerateSummary": "Regenerate AI Summary",
+        "regenerateSummaryDisabled": "AI summary unavailable: API key not configured"
       }
     }
   },
@@ -712,11 +716,14 @@
     "views": "views",
     "series": "Series",
     "more": "more",
+    "noTranslationEn": "This post is not yet available in English.",
+    "noTranslationKo": "This post is not yet available in Korean.",
     "noTranslation": "This post is not yet available in English.",
     "autoTranslate": "Auto-translate with AI",
     "translating": "Translating...",
     "koOnly": "Korean only",
-    "enOnly": "English only"
+    "enOnly": "English only",
+    "translateFailed": "Translation failed. Please try again later."
   },
   "aiSummary": {
     "label": "AI Summary",

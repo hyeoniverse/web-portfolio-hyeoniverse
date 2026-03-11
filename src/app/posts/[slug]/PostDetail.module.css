@@ -553,23 +553,36 @@
 }
 
 .recommendedMoreBtn {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
   gap: var(--spacing-2xs);
+  margin-left: auto;
   margin-top: var(--spacing-sm);
-  padding: var(--box-sm);
-  border: 1px solid var(--border-default-color);
-  border-radius: var(--radius-capsule);
+  padding: 0;
+  border: none !important;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .recommendedSection .recommendedMoreBtn:hover {
-  border-color: var(--text-primary);
   color: var(--text-primary);
+}
+
+.recommendedMoreChevron {
+  flex-shrink: 0;
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.recommendedMoreChevronOpen {
+  transform: rotate(180deg);
 }
 
 /* ── Loading / Not found ── */
@@ -625,6 +638,13 @@
 
 .translateBtn:disabled {
   opacity: 0.6;
+}
+
+.translateErrorMsg {
+  flex-shrink: 0;
+  font-size: var(--text-xs);
+  color: var(--color-error, #e53935);
+  margin: 0;
 }
 
 /* ── Comments section ── */

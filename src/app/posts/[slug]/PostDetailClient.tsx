@@ -201,6 +201,12 @@ function RecommendedSection({ posts, viewLang }: { posts: RecommendedPost[]; vie
           data-clickable="true"
         >
           {expanded ? <T k="common.close" /> : <>+{rest.length} <T k="postDetail.more" /></>}
+          <svg
+            className={`${styles.recommendedMoreChevron} ${expanded ? styles.recommendedMoreChevronOpen : ""}`}
+            width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"
+          >
+            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
       )}
     </section>
@@ -209,15 +215,18 @@ function RecommendedSection({ posts, viewLang }: { posts: RecommendedPost[]; vie
 
 interface PostDetailClientProps {
   post: Post;
+  translationEnabled?: boolean;
 }
 
-export default function PostDetailClient({ post: initialPost }: PostDetailClientProps) {
+export default function PostDetailClient({ post: initialPost, translationEnabled = true }: PostDetailClientProps) {
   const router = useRouter();
   const { t, language } = useLanguage();
 
   const [post, setPost] = useState<Post>(initialPost);
   const [heroImgError, setHeroImgError] = useState(false);
-  const [viewLang, setViewLang] = useState<"ko" | "en">(language === "en" ? "en" : "ko");
+  const [viewLang, setViewLang] = useState<"ko" | "en">(
+    !initialPost.content_en ? "ko" : !initialPost.content ? "en" : language === "en" ? "en" : "ko"
+  );
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [seriesData, setSeriesData] = useState<(Series & { posts: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at">[] }) | null>(null);
@@ -227,6 +236,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const richtextRef = useRef<HTMLDivElement>(null);
   const { containerRef: proseViewerRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const [autoTranslating, setAutoTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastDismissed, setToastDismissed] = useState(false);
 
@@ -286,27 +296,42 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
     setLiked(data.liked);
   }, [post.id, liked]);
 
-  const hasTranslation = !!(post?.content_en);
-  const needsTranslation = viewLang === "en" && !hasTranslation;
-  const displayTitle = viewLang === "en" && post?.title_en ? post.title_en : post?.title ?? "";
-  const displayContent = viewLang === "en" && post?.content_en ? post.content_en : post?.content ?? "";
-  const displayExcerpt = viewLang === "en" && post?.excerpt_en ? post.excerpt_en : post?.excerpt ?? "";
+  const needsTranslation =
+    (viewLang === "en" && !post?.content_en) ||
+    (viewLang === "ko" && !post?.content);
+  const displayTitle = viewLang === "en"
+    ? (post?.title_en || post?.title || "")
+    : (post?.title || post?.title_en || "");
+  const displayContent = viewLang === "en"
+    ? (post?.content_en || post?.content || "")
+    : (post?.content || post?.content_en || "");
+  const displayExcerpt = viewLang === "en"
+    ? (post?.excerpt_en || post?.excerpt || "")
+    : (post?.excerpt || post?.excerpt_en || "");
 
   const handleAutoTranslate = useCallback(async () => {
     if (autoTranslating) return;
     setAutoTranslating(true);
+    setTranslateError(false);
+    const direction = viewLang === "en" ? "ko-en" : "en-ko";
     try {
-      const res = await fetch(`/api/posts/${post.id}/auto-translate`, { method: "POST" });
+      const res = await fetch(`/api/posts/${post.id}/auto-translate?direction=${direction}`, { method: "POST" });
       if (res.ok) {
         const data = await res.json();
-        setPost((prev) => ({ ...prev, title_en: data.title_en, content_en: data.content_en, excerpt_en: data.excerpt_en }));
+        if (direction === "ko-en") {
+          setPost((prev) => ({ ...prev, title_en: data.title_en, content_en: data.content_en, excerpt_en: data.excerpt_en }));
+        } else {
+          setPost((prev) => ({ ...prev, title: data.title, content: data.content, excerpt: data.excerpt }));
+        }
+      } else {
+        setTranslateError(true);
       }
     } catch {
-      // silent
+      setTranslateError(true);
     } finally {
       setAutoTranslating(false);
     }
-  }, [post.id, autoTranslating]);
+  }, [post.id, autoTranslating, viewLang]);
 
   const headings = useMemo(() => {
     if (!displayContent) return [];
@@ -359,6 +384,10 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       likeConfig={{ count: likeCount, liked, onToggle: handleLikeToggle }}
       afterContent={
         <>
+          {recommendedPosts.length > 0 && (
+            <RecommendedSection posts={recommendedPosts} viewLang={viewLang} />
+          )}
+
           <AdjacentNav
             prev={adjacentPosts.prev ? {
               href: `/posts/${adjacentPosts.prev.slug}`,
@@ -409,10 +438,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                 ))}
               </div>
             </section>
-          )}
-
-          {recommendedPosts.length > 0 && (
-            <RecommendedSection posts={recommendedPosts} viewLang={viewLang} />
           )}
 
           <motion.div
@@ -557,7 +582,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
         </motion.div>
       )}
 
-      {needsTranslation && (
+      {needsTranslation && translationEnabled && (
         <div className={styles.translateBanner}>
           <svg className={styles.translateIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m5 8 6 6" />
@@ -568,18 +593,24 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
             <path d="M14 18h6" />
           </svg>
           <p className={styles.translateMessage}>
-            <T k="postDetail.noTranslation" />
+            <T k={viewLang === "en" ? "postDetail.noTranslationEn" : "postDetail.noTranslationKo"} />
           </p>
-          <button
-            type="button"
-            className={styles.translateBtn}
-            onClick={handleAutoTranslate}
-            disabled={autoTranslating}
-          >
-            {autoTranslating
-              ? <T k="postDetail.translating" />
-              : <T k="postDetail.autoTranslate" />}
-          </button>
+          {translateError ? (
+            <p className={styles.translateErrorMsg}>
+              <T k="postDetail.translateFailed" />
+            </p>
+          ) : (
+            <button
+              type="button"
+              className={styles.translateBtn}
+              onClick={handleAutoTranslate}
+              disabled={autoTranslating}
+            >
+              {autoTranslating
+                ? <T k="postDetail.translating" />
+                : <T k="postDetail.autoTranslate" />}
+            </button>
+          )}
         </div>
       )}
 

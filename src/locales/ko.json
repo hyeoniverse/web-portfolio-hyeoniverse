@@ -488,7 +488,9 @@
         "restore": "복원",
         "retranslate": "재번역",
         "retranslateAll": "전체",
+        "retranslateDisabled": "API 키 미설정으로 번역 기능을 사용할 수 없습니다",
         "regenerateSummary": "AI 요약 재생성",
+        "regenerateSummaryDisabled": "API 키 미설정으로 AI 요약 기능을 사용할 수 없습니다",
         "insertTemplate": "템플릿 삽입",
         "templateConfirm": "현재 내용이 있습니다. 템플릿을 삽입하면 기존 내용 뒤에 추가됩니다. 계속하시겠습니까?"
       },
@@ -640,7 +642,9 @@
         "restore": "복원",
         "retranslate": "재번역",
         "retranslateAll": "전체",
-        "regenerateSummary": "AI 요약 재생성"
+        "retranslateDisabled": "API 키 미설정으로 번역 기능을 사용할 수 없습니다",
+        "regenerateSummary": "AI 요약 재생성",
+        "regenerateSummaryDisabled": "API 키 미설정으로 AI 요약 기능을 사용할 수 없습니다"
       }
     }
   },
@@ -710,11 +714,14 @@
     "views": "조회",
     "series": "시리즈",
     "more": "더보기",
+    "noTranslationEn": "이 게시물은 아직 영어 번역이 제공되지 않습니다.",
+    "noTranslationKo": "이 게시물은 아직 한국어 번역이 제공되지 않습니다.",
     "noTranslation": "이 게시물은 아직 영어 번역이 제공되지 않습니다.",
     "autoTranslate": "AI 자동 번역",
     "translating": "AI 번역 중...",
     "koOnly": "한국어만 제공",
-    "enOnly": "영어만 제공"
+    "enOnly": "영어만 제공",
+    "translateFailed": "번역 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
   },
   "aiSummary": {
     "label": "AI 요약",

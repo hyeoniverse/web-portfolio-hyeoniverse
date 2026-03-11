@@ -15,6 +15,7 @@ import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
 import { useRevisions } from "@/hooks/useRevisions";
+import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { autoTranslate } from "@/utils/autoTranslate";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
@@ -103,6 +104,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const { tLang, language } = useLanguage();
   const isEdit = !!post;
   const categories = useCategories();
+  const serviceStatus = useServiceStatus();
 
   // 카테고리 ko 또는 en 값으로 매칭
   const findCat = (val: string): BilingualCategory | undefined =>
@@ -582,7 +584,9 @@ export default function PostEditor({ post }: PostEditorProps) {
       restore: te("restore"),
       retranslate: te("retranslate"),
       retranslateAll: te("retranslateAll"),
+      retranslateDisabled: te("retranslateDisabled"),
       regenerateSummary: te("regenerateSummary"),
+      regenerateSummaryDisabled: te("regenerateSummaryDisabled"),
     }),
     [te]
   );
@@ -652,9 +656,11 @@ export default function PostEditor({ post }: PostEditorProps) {
       onRestoreRevision={handleRestoreRevision}
       onLoadRevisionDetail={handleLoadRevisionDetail}
       onDeleteRevision={handleDeleteRevision}
-      onRetranslate={handleRetranslate}
+      onRetranslate={serviceStatus.translation ? handleRetranslate : undefined}
       retranslateOptions={retranslateOptions}
-      onRegenerateSummary={isEdit || !!savedId.current ? handleRegenerateSummary : undefined}
+      retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
+      onRegenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleRegenerateSummary : undefined) : undefined}
+      aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       regeneratingSummary={regeneratingSummary}
       currentSnapshot={{
         title: form.title || form.title_en,
