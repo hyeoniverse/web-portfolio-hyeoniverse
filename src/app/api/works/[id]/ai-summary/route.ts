@@ -6,6 +6,7 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -76,6 +77,28 @@ ${contentEn}`;
       if (!res.ok) return NextResponse.json({ error: `OpenAI error: ${res.status}` }, { status: 502 });
       const data = await res.json();
       const parsed: { ko?: string; en?: string } = JSON.parse(data?.choices?.[0]?.message?.content ?? "{}");
+      summaryKo = parsed.ko ?? "";
+      summaryEn = parsed.en ?? "";
+    } else if (provider === "claude") {
+      const apiKey = await getSecret("ANTHROPIC_API_KEY");
+      if (!apiKey) return NextResponse.json({ error: "ANTHROPIC_API_KEY not configured" }, { status: 503 });
+
+      const res = await fetch(CLAUDE_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 1024,
+          messages: [{ role: "user", content: promptText }],
+        }),
+      });
+      if (!res.ok) return NextResponse.json({ error: `Claude error: ${res.status}` }, { status: 502 });
+      const data = await res.json();
+      const parsed: { ko?: string; en?: string } = JSON.parse(data?.content?.[0]?.text ?? "{}");
       summaryKo = parsed.ko ?? "";
       summaryEn = parsed.en ?? "";
     } else {

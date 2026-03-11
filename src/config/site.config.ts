@@ -311,22 +311,25 @@ export const siteConfig = {
   // ---------------------------------------------------------------------------
   // AI 요약 설정
   // ---------------------------------------------------------------------------
-  // provider: "gemini" | "openai"
+  // provider: "gemini" | "openai" | "claude"
   //
   // Gemini (기본):
   //   GEMINI_API_KEY=your_key  (https://aistudio.google.com/apikey)
   //
   // OpenAI:
   //   OPENAI_API_KEY=your_key  (https://platform.openai.com/api-keys)
+  //
+  // Claude:
+  //   ANTHROPIC_API_KEY=your_key  (https://console.anthropic.com/settings/keys)
   // ---------------------------------------------------------------------------
   aiSummary: {
-    provider: "gemini" as "gemini" | "openai",
+    provider: "gemini" as "gemini" | "openai" | "claude",
   },
 
   // ---------------------------------------------------------------------------
   // 번역 설정
   // ---------------------------------------------------------------------------
-  // provider: "gemini" | "google" | "deepl"
+  // provider: "gemini" | "google" | "deepl" | "claude"
   //
   // Gemini (기본):
   //   GEMINI_API_KEY=your_key  (https://aistudio.google.com/apikey)
@@ -336,9 +339,12 @@ export const siteConfig = {
   //
   // DeepL:
   //   DEEPL_API_KEY=your_key  (https://www.deepl.com/pro-api)
+  //
+  // Claude:
+  //   ANTHROPIC_API_KEY=your_key  (https://console.anthropic.com/settings/keys)
   // ---------------------------------------------------------------------------
   translation: {
-    provider: "deepl" as "gemini" | "google" | "deepl",
+    provider: "deepl" as "gemini" | "google" | "deepl" | "claude",
   },
 
   // ---------------------------------------------------------------------------
