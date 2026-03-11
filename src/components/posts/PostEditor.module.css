@@ -151,6 +151,12 @@
   border-top: 1px solid var(--border-tertiary-color);
 }
 
+.editorHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .editorLabel {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -158,4 +164,19 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.templateBtn {
+  padding: var(--box-2xs-md);
+  border: 1px solid var(--border-secondary-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.editorHeaderLeft .templateBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
 }

@@ -4,6 +4,7 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import T from "@/components/ui/T";
 import OptimizedImage from "@/components/ui/OptimizedImage";
+import CloseIcon from "@/components/ui/CloseIcon";
 import Logo from "@/components/common/Logo";
 import styles from "./ContactDrawer.module.css";
 
@@ -32,11 +33,9 @@ export default function ContactInfoCards({
             className={styles.emailHeaderClose}
             onClick={onClose}
             aria-label="Close"
+            data-close-trigger
           >
-            <span className={styles.closeIconWrapper}>
-              <span className={styles.closeLine} />
-              <span className={styles.closeLine} />
-            </span>
+            <CloseIcon />
           </button>
         </div>
 

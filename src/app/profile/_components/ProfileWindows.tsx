@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 import T from "@/components/ui/T";
+import { ImageViewer } from "@/components/ui/ImageViewer";
 import styles from "./ProfileMeSection.module.css";
 
 
@@ -140,6 +141,7 @@ export default function ProfileWindows({ className, isMobile }: Props) {
   const [stack, setStack] = useState(() => WINS.map((w) => w.id));
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
+  const [profileViewerOpen, setProfileViewerOpen] = useState(false);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -281,7 +283,14 @@ export default function ProfileWindows({ className, isMobile }: Props) {
       <div className={`${styles.mobileProfile} ${className ?? ""}`}>
         {/* Feature: portrait image + name & basic info */}
         <div className={styles.magFeature}>
-          <div className={styles.magFeatureImage}>
+          <div
+            className={styles.magFeatureImage}
+            onClick={() => setProfileViewerOpen(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter") setProfileViewerOpen(true); }}
+            style={{ cursor: "zoom-in" }}
+          >
             <Image
               src="/images/profile_pic.webp"
               alt=""
@@ -328,6 +337,13 @@ export default function ProfileWindows({ className, isMobile }: Props) {
             ))}
           </div>
         </div>
+
+        <ImageViewer
+          images={["/images/profile_pic.webp"]}
+          index={0}
+          open={profileViewerOpen}
+          onClose={() => setProfileViewerOpen(false)}
+        />
       </div>
     );
   }

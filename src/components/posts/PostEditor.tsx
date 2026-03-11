@@ -6,6 +6,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { validateContentSecurity } from "@/utils/contentSecurity";
 import type { Post, PostFormData, Series } from "@/types/post";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import Checkbox from "@/components/ui/Checkbox";
@@ -27,6 +28,66 @@ const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
 interface PostEditorProps {
   post?: Post;
 }
+
+const POST_TEMPLATE_KO = `## 들어가며
+
+이 글에서는 ___에 대해 다루겠습니다. ___를 하다가 ___한 경험을 공유하고자 합니다.
+
+## 배경
+
+___를 사용하고 있었는데, ___한 상황이 발생했습니다. 기존 방식으로는 ___가 어려웠기 때문에 다른 접근이 필요했습니다.
+
+## 본론
+
+### ___
+
+___
+
+### ___
+
+___
+
+## 트러블슈팅
+
+### 문제: ___
+
+**증상**: ___
+**원인**: ___
+**해결**: ___를 적용하여 해결했습니다.
+
+## 마치며
+
+___를 통해 ___를 알 수 있었습니다. 비슷한 문제를 겪고 있다면 ___를 시도해 보시길 추천합니다.`;
+
+const POST_TEMPLATE_EN = `## Introduction
+
+In this post, I'll cover ___. I'd like to share my experience with ___ while working on ___.
+
+## Background
+
+I was using ___ when ___ happened. The existing approach couldn't handle ___, so a different solution was needed.
+
+## Main Content
+
+### ___
+
+___
+
+### ___
+
+___
+
+## Troubleshooting
+
+### Problem: ___
+
+**Symptom**: ___
+**Root cause**: ___
+**Resolution**: Applied ___ to resolve the issue.
+
+## Conclusion
+
+Through ___, I learned ___. If you're facing a similar issue, I'd recommend trying ___.`;
 
 function generateSlug(title: string): string {
   return title
@@ -131,33 +192,13 @@ export default function PostEditor({ post }: PostEditorProps) {
     }
 
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(async () => {
+    autoSaveTimer.current = setTimeout(() => {
       if (autoSaveBusy.current) return;
-      // 새 글은 제목이 있어야 자동 저장
-      if (!savedId.current && !form.title.trim()) return;
+      if (!form.title.trim()) return;
 
-      try {
-        const url = savedId.current
-          ? `/api/posts/${savedId.current}`
-          : "/api/posts";
-        const method = savedId.current ? "PATCH" : "POST";
-        const res = await fetch(url, {
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        });
-        if (res.ok) {
-          if (!savedId.current) {
-            const data = await res.json();
-            savedId.current = data.id;
-          }
-          saveRevision({ ...form }, form.title || form.title_en || "(untitled)");
-          setStatus(te("autoSaved"));
-          setStatusType("success");
-        }
-      } catch {
-        // silent fail
-      }
+      saveRevision({ ...form }, form.title || form.title_en || "(untitled)");
+      setStatus(te("autoSaved"));
+      setStatusType("success");
     }, 5000);
 
     return () => clearTimeout(autoSaveTimer.current);
@@ -347,8 +388,15 @@ export default function PostEditor({ post }: PostEditorProps) {
         if (!form.title.trim()) missing.push(te("title"));
         if (!form.slug.trim()) missing.push(te("slug"));
         if (!form.category.trim()) missing.push(te("category"));
+        if (!form.content.trim()) missing.push(te("content"));
         if (missing.length > 0) {
           setError(`${te("requiredFields")}: ${missing.join(", ")}`);
+          return;
+        }
+
+        const security = validateContentSecurity(form.content + form.content_en);
+        if (!security.safe) {
+          setError(`${te("securityWarning")}: ${security.warnings.join(", ")}`);
           return;
         }
       }
@@ -401,7 +449,6 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   const handleDelete = useCallback(async () => {
     if (!post) return;
-    if (!confirm(`"${post.title}"${te("deleteConfirm")}`)) return;
 
     setDeleting(true);
     try {
@@ -473,6 +520,9 @@ export default function PostEditor({ post }: PostEditorProps) {
     () => ({
       delete: te("delete"),
       deleting: te("deleting"),
+      deleteConfirm: te("deleteConfirm"),
+      deleteConfirmInput: te("deleteConfirmInput"),
+      deleteCancel: te("deleteCancel"),
       preview: te("preview"),
       saving: te("saving"),
       saveDraft: te("saveDraft"),
@@ -496,6 +546,19 @@ export default function PostEditor({ post }: PostEditorProps) {
     [te]
   );
 
+  const handleInsertTemplate = useCallback(() => {
+    const key = editorLang === "ko" ? "content" : "content_en";
+    const template = editorLang === "ko" ? POST_TEMPLATE_KO : POST_TEMPLATE_EN;
+    const current = form[key as keyof PostFormData] as string;
+
+    if (current.trim()) {
+      if (!confirm(te("templateConfirm"))) return;
+      updateField(key as keyof PostFormData, current + "\n\n" + template);
+    } else {
+      updateField(key as keyof PostFormData, template);
+    }
+  }, [editorLang, form, updateField, te]);
+
   const titleKey = editorLang === "ko" ? "title" : "title_en";
   const contentKey = editorLang === "ko" ? "content" : "content_en";
   const excerptKey = editorLang === "ko" ? "excerpt" : "excerpt_en";
@@ -512,6 +575,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       deleting={deleting}
       published={form.published}
       onDelete={handleDelete}
+      deleteTargetName={post?.title}
       onSaveDraft={() => handleSave()}
       onPublish={() => handleSave(true)}
       onPreview={handlePreview}
@@ -766,7 +830,16 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       <div className={styles.editorSection}>
         <div className={es.editorHeader}>
-          <span className={styles.editorLabel}>{te("content")}</span>
+          <div className={styles.editorHeaderLeft}>
+            <span className={styles.editorLabel}>{te("content")}</span>
+            <button
+              type="button"
+              className={styles.templateBtn}
+              onClick={handleInsertTemplate}
+            >
+              {te("insertTemplate")}
+            </button>
+          </div>
           <EditorToggle
             value={form.content_type}
             onChange={handleContentTypeChange}
