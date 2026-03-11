@@ -14,6 +14,7 @@ import EditorToggle from "@/components/posts/EditorToggle";
 import MarkdownEditor from "@/components/posts/MarkdownEditor";
 import type { Work, WorkFormData, TeamMember } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
+import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { autoTranslate } from "@/utils/autoTranslate";
 import Select from "@/components/ui/Select";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
@@ -233,6 +234,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
   const { tLang } = useLanguage();
   const isEdit = !!work;
+  const serviceStatus = useServiceStatus();
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
 
@@ -724,7 +726,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       restore: tw("restore"),
       retranslate: tw("retranslate"),
       retranslateAll: tw("retranslateAll"),
+      retranslateDisabled: tw("retranslateDisabled"),
       regenerateSummary: tw("regenerateSummary"),
+      regenerateSummaryDisabled: tw("regenerateSummaryDisabled"),
     }),
     [tw],
   );
@@ -770,9 +774,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       onRestoreRevision={handleRestoreRevision}
       onLoadRevisionDetail={handleLoadRevisionDetail}
       onDeleteRevision={handleDeleteRevision}
-      onRetranslate={handleRetranslate}
+      onRetranslate={serviceStatus.translation ? handleRetranslate : undefined}
       retranslateOptions={retranslateOptions}
-      onRegenerateSummary={isEdit || !!savedId.current ? handleRegenerateSummary : undefined}
+      retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
+      onRegenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleRegenerateSummary : undefined) : undefined}
+      aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       regeneratingSummary={regeneratingSummary}
       currentSnapshot={{
         title: form.title,

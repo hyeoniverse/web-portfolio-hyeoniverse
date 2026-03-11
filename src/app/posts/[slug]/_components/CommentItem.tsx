@@ -27,6 +27,7 @@ export default function CommentItem({
   const [deleting, setDeleting] = useState(false);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
+  const [translateServiceUnavailable, setTranslateServiceUnavailable] = useState(false);
 
   const date = new Date(comment.created_at).toLocaleDateString("en-US", {
     year: "numeric",
@@ -54,9 +55,13 @@ export default function CommentItem({
       if (res.ok) {
         const data = await res.json();
         setTranslatedText(data.translation);
+      } else if (res.status === 503) {
+        setTranslateServiceUnavailable(true);
+      } else {
+        setTranslatedText("⚠ Translation failed. Please try again.");
       }
     } catch {
-      // silent fail
+      setTranslatedText("⚠ Translation failed. Please try again.");
     } finally {
       setTranslating(false);
     }
@@ -104,7 +109,7 @@ export default function CommentItem({
       )}
 
       <div className={styles.commentActions}>
-        <button
+        {!translateServiceUnavailable && <button
           type="button"
           className={styles.actionBtn}
           onClick={handleTranslate}
@@ -115,7 +120,7 @@ export default function CommentItem({
             : translatedText
               ? "원문 보기"
               : translateLabel}
-        </button>
+        </button>}
         <button
           type="button"
           className={styles.actionBtn}

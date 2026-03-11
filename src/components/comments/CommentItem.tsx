@@ -54,6 +54,7 @@ function CommentItem({
   const [deleting, setDeleting] = useState(false);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
+  const [translateServiceUnavailable, setTranslateServiceUnavailable] = useState(false);
   const [liked, setLiked] = useState(likedMap?.[comment.id] ?? false);
   const [likeCount, setLikeCount] = useState(likeCountMap?.[comment.id] ?? 0);
 
@@ -109,11 +110,13 @@ function CommentItem({
       if (res.ok) {
         const data = await res.json();
         setTranslatedText(data.translation);
+      } else if (res.status === 503) {
+        setTranslateServiceUnavailable(true);
       } else {
-        setTranslatedText("⚠ Translation unavailable");
+        setTranslatedText("⚠ Translation failed. Please try again.");
       }
     } catch {
-      setTranslatedText("⚠ Translation unavailable");
+      setTranslatedText("⚠ Translation failed. Please try again.");
     } finally {
       setTranslating(false);
     }
@@ -346,7 +349,7 @@ function CommentItem({
       </AnimatePresence>
 
       <div className={styles.commentActions}>
-        <button
+        {!translateServiceUnavailable && <button
           type="button"
           className={`${styles.translateBtn} ${translatedText ? styles.translateBtnActive : ""}`}
           onClick={handleTranslate}
@@ -365,7 +368,7 @@ function CommentItem({
               {translatedText ? <T k="comments.original" /> : isKorean ? <T k="comments.translateToEN" /> : <T k="comments.translateToKO" />}
             </>
           )}
-        </button>
+        </button>}
         <button
           type="button"
           className={styles.actionBtn}

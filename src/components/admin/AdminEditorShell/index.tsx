@@ -28,7 +28,9 @@ interface EditorLabels {
   restore?: string;
   retranslate?: string;
   retranslateAll?: string;
+  retranslateDisabled?: string;
   regenerateSummary?: string;
+  regenerateSummaryDisabled?: string;
 }
 
 export interface RetranslateOption {
@@ -69,8 +71,10 @@ interface AdminEditorShellProps {
   onRevert?: () => void;
   onRetranslate?: (fields?: string[]) => void;
   retranslateOptions?: RetranslateOption[];
+  retranslateDisabled?: boolean;
   onRegenerateSummary?: () => void;
   regeneratingSummary?: boolean;
+  aiSummaryDisabled?: boolean;
   currentSnapshot?: { title: string; excerpt?: string; content?: string; meta?: Record<string, string> };
   children: ReactNode;
 }
@@ -150,8 +154,10 @@ export default function AdminEditorShell({
   onRevert,
   onRetranslate,
   retranslateOptions,
+  retranslateDisabled = false,
   onRegenerateSummary,
   regeneratingSummary = false,
+  aiSummaryDisabled = false,
   currentSnapshot,
   children,
 }: AdminEditorShellProps) {
@@ -223,16 +229,16 @@ export default function AdminEditorShell({
           </Link>
           <div className={styles.actionsDivider} />
           <LanguageToggle lang={editorLang} onLangChange={onEditorLangChange} />
-          {onRetranslate && retranslateOptions && (
+          {(onRetranslate || retranslateDisabled) && retranslateOptions && (
             <div className={styles.retranslateWrap} ref={retranslateRef}>
-              <Tooltip content={labels.retranslate ?? "Retranslate"} placement="bottom">
+              <Tooltip content={retranslateDisabled ? (labels.retranslateDisabled ?? "API key not configured") : (labels.retranslate ?? "Retranslate")} placement="bottom">
                 <Button
                   variant="outline"
                   shape="circle"
                   size="xs"
                   className={styles.retranslateBtn}
-                  onClick={() => setShowRetranslate((v) => !v)}
-                  disabled={saving}
+                  onClick={retranslateDisabled ? undefined : () => setShowRetranslate((v) => !v)}
+                  disabled={saving || retranslateDisabled}
                   soundDisabled
                   icon={
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -252,7 +258,7 @@ export default function AdminEditorShell({
                     type="button"
                     className={styles.retranslateItem}
                     onClick={() => {
-                      onRetranslate();
+                      onRetranslate?.();
                       setShowRetranslate(false);
                     }}
                   >
@@ -264,7 +270,7 @@ export default function AdminEditorShell({
                       type="button"
                       className={styles.retranslateItem}
                       onClick={() => {
-                        onRetranslate([opt.key]);
+                        onRetranslate?.([opt.key]);
                         setShowRetranslate(false);
                       }}
                     >
@@ -275,14 +281,14 @@ export default function AdminEditorShell({
               )}
             </div>
           )}
-          {onRegenerateSummary && (
-            <Tooltip content={labels.regenerateSummary ?? "Regenerate AI Summary"} placement="bottom">
+          {(onRegenerateSummary || aiSummaryDisabled) && (
+            <Tooltip content={aiSummaryDisabled ? (labels.regenerateSummaryDisabled ?? "API key not configured") : (labels.regenerateSummary ?? "Regenerate AI Summary")} placement="bottom">
               <Button
                 variant="outline"
                 shape="circle"
                 size="xs"
-                onClick={onRegenerateSummary}
-                disabled={saving || regeneratingSummary}
+                onClick={aiSummaryDisabled ? undefined : onRegenerateSummary}
+                disabled={saving || regeneratingSummary || aiSummaryDisabled}
                 soundDisabled
                 icon={
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
