@@ -12,6 +12,7 @@ import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import { highlightCodeBlocks } from "@/components/posts/highlightCodeBlocks";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import T from "@/components/ui/T";
+import AISummary from "@/components/ui/AISummary";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import CommentSection from "@/components/comments/CommentSection";
@@ -581,6 +582,12 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
           </button>
         </div>
       )}
+
+      <AISummary
+        summaryKo={post.summary_ko ?? ""}
+        summaryEn={post.summary_en ?? ""}
+        lang={viewLang}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

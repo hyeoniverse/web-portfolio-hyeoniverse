@@ -22,6 +22,8 @@ export interface Post {
   series_id: string | null;
   series_order: number;
   series?: { title: string; title_en: string } | null;
+  summary_ko: string;
+  summary_en: string;
 }
 
 export interface PostFormData {

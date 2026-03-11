@@ -28,6 +28,7 @@ interface EditorLabels {
   restore?: string;
   retranslate?: string;
   retranslateAll?: string;
+  regenerateSummary?: string;
 }
 
 export interface RetranslateOption {
@@ -68,6 +69,8 @@ interface AdminEditorShellProps {
   onRevert?: () => void;
   onRetranslate?: (fields?: string[]) => void;
   retranslateOptions?: RetranslateOption[];
+  onRegenerateSummary?: () => void;
+  regeneratingSummary?: boolean;
   currentSnapshot?: { title: string; excerpt?: string; content?: string; meta?: Record<string, string> };
   children: ReactNode;
 }
@@ -147,6 +150,8 @@ export default function AdminEditorShell({
   onRevert,
   onRetranslate,
   retranslateOptions,
+  onRegenerateSummary,
+  regeneratingSummary = false,
   currentSnapshot,
   children,
 }: AdminEditorShellProps) {
@@ -269,6 +274,24 @@ export default function AdminEditorShell({
                 </div>
               )}
             </div>
+          )}
+          {onRegenerateSummary && (
+            <Tooltip content={labels.regenerateSummary ?? "Regenerate AI Summary"} placement="bottom">
+              <Button
+                variant="outline"
+                shape="circle"
+                size="xs"
+                onClick={onRegenerateSummary}
+                disabled={saving || regeneratingSummary}
+                soundDisabled
+                icon={
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+                  </svg>
+                }
+              />
+            </Tooltip>
           )}
         </div>
 
@@ -518,7 +541,6 @@ export default function AdminEditorShell({
                     }
                     openModal(
                       <ModalPrompt
-                        desc={labels.deleteConfirm}
                         hint={labels.deleteConfirmInput}
                         placeholder={deleteTargetName}
                         validate={(v) => v === deleteTargetName}
@@ -529,7 +551,7 @@ export default function AdminEditorShell({
                       />,
                       {
                         id: "delete-confirm",
-                        closeButton: true,
+                        closeButton: false,
                         width: "400px",
                         header: { title: `\u201C${deleteTargetName}\u201D` },
                       },

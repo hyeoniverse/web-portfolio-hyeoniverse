@@ -371,6 +371,12 @@ ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAU
 ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS notify_email text;
 ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS is_deleted boolean NOT NULL DEFAULT false;
 
+-- AI 요약 컬럼
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS summary_ko text NOT NULL DEFAULT '';
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS summary_en text NOT NULL DEFAULT '';
+ALTER TABLE works ADD COLUMN IF NOT EXISTS summary_ko text NOT NULL DEFAULT '';
+ALTER TABLE works ADD COLUMN IF NOT EXISTS summary_en text NOT NULL DEFAULT '';
+
 -- work_comments RLS 정책 — 이미 존재하면 무시
 DO $$
 BEGIN
