@@ -713,7 +713,8 @@
     "noTranslation": "이 게시물은 아직 영어 번역이 제공되지 않습니다.",
     "autoTranslate": "AI 자동 번역",
     "translating": "AI 번역 중...",
-    "koOnly": "한국어만 제공"
+    "koOnly": "한국어만 제공",
+    "enOnly": "영어만 제공"
   },
   "aiSummary": {
     "label": "AI 요약",

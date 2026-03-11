@@ -36,8 +36,17 @@ export default function PostCard({
   const showImage = post.cover_image && !imgError;
   const { language } = useLanguage();
   const category = post.category || null;
-  const displayTitle = formatPostTitle(post, language);
-  const displayExcerpt = getPostExcerpt(post, language);
+
+  // 언어 단독 여부 판단 — 없는 언어는 있는 쪽으로 강제
+  const hasKo = !!post.content;
+  const hasEn = !!post.content_en;
+  const displayLang: "ko" | "en" =
+    !hasEn ? "ko" : !hasKo ? "en" : language;
+  const langBadge: "koOnly" | "enOnly" | null =
+    !hasEn ? "koOnly" : !hasKo ? "enOnly" : null;
+
+  const displayTitle = formatPostTitle(post, displayLang);
+  const displayExcerpt = getPostExcerpt(post, displayLang);
 
   const cardClass = `${styles.card} ${isFeatured ? styles.featured : ""} ${isHero ? styles.hero : ""}`;
 
@@ -79,8 +88,8 @@ export default function PostCard({
             {category && (
               <span className={styles.heroBadge}><CategoryLabel category={category} /></span>
             )}
-            {language === "en" && !post.content_en && (
-              <span className={styles.heroLangHint}><T k="postDetail.koOnly" /></span>
+            {langBadge && (
+              <span className={styles.heroLangHint}><T k={`postDetail.${langBadge}`} /></span>
             )}
           </div>
           <h2 className={styles.heroTitle}>{displayTitle}</h2>
@@ -151,14 +160,14 @@ export default function PostCard({
           {category && (
             <span className={styles.categoryBadge}><CategoryLabel category={category} /></span>
           )}
-          {language === "en" && !post.content_en && (
-            <span className={styles.langHint}><T k="postDetail.koOnly" /></span>
+          {langBadge && (
+            <span className={styles.langHint}><T k={`postDetail.${langBadge}`} /></span>
           )}
         </div>
 
         <h2 className={styles.title}>{displayTitle}</h2>
 
-        {displayExcerpt && <p className={styles.excerpt}>{displayExcerpt}</p>}
+        <p className={styles.excerpt}>{displayExcerpt}</p>
 
         <div className={styles.meta}>
           <span>{date}</span>

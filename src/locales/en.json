@@ -715,7 +715,8 @@
     "noTranslation": "This post is not yet available in English.",
     "autoTranslate": "Auto-translate with AI",
     "translating": "Translating...",
-    "koOnly": "Korean only"
+    "koOnly": "Korean only",
+    "enOnly": "English only"
   },
   "aiSummary": {
     "label": "AI Summary",
