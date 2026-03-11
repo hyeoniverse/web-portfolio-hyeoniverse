@@ -64,7 +64,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 | **Admin** | 5-tab Settings, Markdown/Rich Text toggle editor, revision history (diff comparison), auto translation |
 | **Performance** | Lighthouse 98 — unused font removal + reCAPTCHA lazy loading + CSS animation transition for LCP 1.9s, page 449KB |
 | **Responsive** | PC/Tablet/Mobile 3-tier breakpoints + BreakpointGuard (automatic GSAP reinitialization) |
-| **i18n** | Full Korean/English i18n + translation Tooltip + auto translation (DeepL/Google/Gemini) |
+| **i18n** | Full Korean/English i18n + translation Tooltip + auto translation (DeepL/Google/Gemini/Claude) |
 | **Security** | Multi-layer validation (SQL Injection, XSS, RLS, dual auth, category whitelist) |
 | **Design System** | 3-layer tokens (Raw → Semantic → Context) + `/design-system` live preview |
 
@@ -160,8 +160,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 **Editor & Content**
 
 - **Editor Revision History**: Auto-save stores JSONB snapshots permanently in DB — shared across devices/tabs, LCS diff comparison, Revert, automatic cleanup beyond 50 entries
-- **AI Auto Summary**: On publish, Gemini/OpenAI auto-generates ko+en summaries → saved to DB, displayed in AISummary component with expand/collapse on detail pages, manual regeneration supported
-- **Auto Translation**: Auto-translate empty fields on editor language switch — select DeepL/Google/Gemini, re-translate button, duplicate request blocking
+- **AI Auto Summary**: On publish, Gemini/OpenAI/Claude auto-generates ko+en summaries → saved to DB, displayed in AISummary component with expand/collapse on detail pages, manual regeneration supported
+- **Auto Translation**: Auto-translate empty fields on editor language switch — select DeepL/Google/Gemini/Claude, re-translate button, duplicate request blocking
 - **Bilingual Category Management**: Manage Posts/Works categories as `{ ko, en }` pairs — drag ordering, batch reassignment on delete
 - **Series Edit**: Dedicated edit page for managing title/description/cover/category/publish status, post reordering/unlinking
 - **Cover Image Picker**: 3 methods (16 preset gradients, Unsplash search, AI generation) — stored in Supabase Storage
@@ -385,6 +385,7 @@ NANOBANANA_API_KEY=your_key         # provider: "nanobanana"
 DEEPL_API_KEY=your_deepl_key                   # provider: "deepl" (default)
 GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
 GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
+ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (translation + AI summary)
 ```
 
 **How to find the values:**
@@ -1469,7 +1470,8 @@ Optional:
   DEEPL_API_KEY                # Translation — DeepL
   GOOGLE_TRANSLATE_API_KEY     # Translation — Google
   GEMINI_API_KEY               # Translation + AI Summary — Gemini
-  OPENAI_API_KEY               # AI Summary — OpenAI (fallback when no Gemini key)
+  OPENAI_API_KEY               # AI Summary — OpenAI
+  ANTHROPIC_API_KEY            # Translation + AI Summary — Claude
 ```
 
 > Auto-deploys on every push to `main`. Preview deployments are created for each PR.

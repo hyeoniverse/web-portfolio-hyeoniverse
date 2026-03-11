@@ -15,10 +15,10 @@ export const designFeatures: DesignFeature[] = [
     icon: "02",
     title: "i18n Bilingual System",
     description: {
-      ko: "한국어/영어 전환을 지원하는 다국어 시스템입니다. Context API 기반으로 모든 UI가 즉시 전환되며, 어드민 콘텐츠도 이중 언어를 지원합니다. DeepL API 기반 자동 번역도 제공합니다.",
-      en: "A bilingual system with instant Korean/English switching via Context API. Admin content supports dual languages, with DeepL API-powered auto-translation.",
+      ko: "한국어/영어 전환을 지원하는 다국어 시스템입니다. Context API 기반으로 모든 UI가 즉시 전환되며, 어드민 콘텐츠도 이중 언어를 지원합니다. DeepL/Google/Gemini/Claude API 기반 자동 번역도 제공합니다.",
+      en: "A bilingual system with instant Korean/English switching via Context API. Admin content supports dual languages, with auto-translation powered by DeepL/Google/Gemini/Claude API.",
     },
-    tech: ["Context API", "JSON Locale", "Bilingual Content", "DeepL API"],
+    tech: ["Context API", "JSON Locale", "Bilingual Content", "DeepL/Gemini/Claude"],
     image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80",
   },
   {
@@ -65,8 +65,8 @@ export const designFeatures: DesignFeature[] = [
     icon: "07",
     title: "Posts & Series",
     description: {
-      ko: "Supabase 기반 블로그 시스템. Markdown/Rich Text 전환 에디터, 시리즈 발행, 카테고리별 책 모양 카드 탐색, 검색·태그 필터, 커버 이미지(프리셋/Unsplash/AI 생성), 발행 시 Gemini/OpenAI AI 자동 요약(ko+en)을 지원합니다.",
-      en: "A full blog system on Supabase. Switchable Markdown/Rich Text editor, series publishing, book-shaped category browsing, search/tag filtering, cover images (presets/Unsplash/AI generation), and Gemini/OpenAI auto-summary (ko+en) on publish.",
+      ko: "Supabase 기반 블로그 시스템. Markdown/Rich Text 전환 에디터, 시리즈 발행, 카테고리별 책 모양 카드 탐색, 검색·태그 필터, 커버 이미지(프리셋/Unsplash/AI 생성), 발행 시 Gemini/OpenAI/Claude AI 자동 요약(ko+en)을 지원합니다.",
+      en: "A full blog system on Supabase. Switchable Markdown/Rich Text editor, series publishing, book-shaped category browsing, search/tag filtering, cover images (presets/Unsplash/AI generation), and Gemini/OpenAI/Claude auto-summary (ko+en) on publish.",
     },
     tech: ["Supabase", "Tiptap", "Series", "Canvas API", "AI Cover", "AI Summary"],
     image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
