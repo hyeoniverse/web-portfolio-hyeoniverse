@@ -20,6 +20,15 @@
   border-bottom: 1px solid var(--border-tertiary-color);
 }
 
+.sectionTitleError {
+  color: var(--color-accent) !important;
+}
+
+.sectionTitleError::after {
+  content: "•";
+  margin-left: 4px;
+}
+
 .row3 {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

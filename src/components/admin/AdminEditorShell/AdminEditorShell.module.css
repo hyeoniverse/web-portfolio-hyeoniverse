@@ -410,6 +410,23 @@
   border-color: var(--text-primary);
 }
 
+.titleInputError {
+  border-color: var(--color-accent) !important;
+}
+
+.fieldInputError {
+  border-color: var(--color-accent) !important;
+}
+
+.fieldLabelError {
+  color: var(--color-accent) !important;
+}
+
+.fieldLabelError::after {
+  content: "•";
+  margin-left: 4px;
+}
+
 .titleInput::placeholder {
   color: var(--text-tertiary);
 }
