@@ -65,10 +65,10 @@ export const designFeatures: DesignFeature[] = [
     icon: "07",
     title: "Posts & Series",
     description: {
-      ko: "Supabase 기반 블로그 시스템. Markdown/Rich Text 전환 에디터, 시리즈 발행, 카테고리별 책 모양 카드 탐색, 검색·태그 필터, 커버 이미지(프리셋/Unsplash/AI 생성)를 지원합니다.",
-      en: "A full blog system on Supabase. Switchable Markdown/Rich Text editor, series publishing, book-shaped category browsing, search/tag filtering, and cover images (presets/Unsplash/AI generation).",
+      ko: "Supabase 기반 블로그 시스템. Markdown/Rich Text 전환 에디터, 시리즈 발행, 카테고리별 책 모양 카드 탐색, 검색·태그 필터, 커버 이미지(프리셋/Unsplash/AI 생성), 발행 시 Gemini/OpenAI AI 자동 요약(ko+en)을 지원합니다.",
+      en: "A full blog system on Supabase. Switchable Markdown/Rich Text editor, series publishing, book-shaped category browsing, search/tag filtering, cover images (presets/Unsplash/AI generation), and Gemini/OpenAI auto-summary (ko+en) on publish.",
     },
-    tech: ["Supabase", "Tiptap", "Series", "Canvas API", "AI Cover"],
+    tech: ["Supabase", "Tiptap", "Series", "Canvas API", "AI Cover", "AI Summary"],
     image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
   },
   {
