@@ -155,6 +155,11 @@ export function useHorizontalScroll(
     if (infinite && allPanels.length < panelSetSize) return;
     if (!infinite && allPanels.length === 0) return;
 
+    // extraWide 패널 (350vw 등) — 이 구간에서는 lookahead 제한 해제
+    const extraWidePanels = allPanels.filter(
+      (p) => p.offsetWidth > window.innerWidth * 2,
+    );
+
     // 한 세트 너비 (infinite 모드)
     let oneSetWidth = 0;
     if (infinite) {
@@ -191,6 +196,21 @@ export function useHorizontalScroll(
       e.preventDefault();
       const clamped = Math.max(-MAX_WHEEL_DELTA, Math.min(MAX_WHEEL_DELTA, e.deltaY));
       state.targetScrollX += clamped;
+
+      // 실수로 여러 패널 건너뜀 방지: extraWide 패널 구간이 아니면 lookahead 제한
+      const insideWide = extraWidePanels.some((p) => {
+        const enter = initialX + p.offsetLeft - window.innerWidth;
+        const exit = initialX + p.offsetLeft + p.offsetWidth;
+        return state.scrollX > enter && state.scrollX < exit;
+      });
+      if (!insideWide) {
+        const cap = window.innerWidth * 1.2;
+        state.targetScrollX = gsap.utils.clamp(
+          state.scrollX - cap,
+          state.scrollX + cap,
+          state.targetScrollX,
+        );
+      }
     };
     section.addEventListener("wheel", handleWheel, { passive: false });
 

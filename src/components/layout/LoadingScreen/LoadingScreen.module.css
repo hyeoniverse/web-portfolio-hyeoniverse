@@ -7,7 +7,8 @@
   inset: 0;
   z-index: var(--z-overlay);
   pointer-events: auto;
-  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  /* (0,1,0) → 글로벌 theme transition (0,1,1)에 덮임 → !important로 opacity 보호 */
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* Black backdrop — 로딩 중 표시, isLoading: false 시 컴포넌트 언마운트로 즉시 제거 */

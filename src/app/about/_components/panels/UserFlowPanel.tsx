@@ -351,7 +351,7 @@ function UserFlowPanel({
   const isMobile = useMobileLayout();
 
   /* ── Pinned Scroll ── */
-  const { panelRef, contentRef, activeIndex } = usePinnedScroll(
+  const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
     flowCount,
     undefined,
     scrollBy,
@@ -365,8 +365,6 @@ function UserFlowPanel({
     useCallback((idx: number) => setMobileActiveIdx(idx), []),
     [],
   );
-  // suppress unused — mobileStRef is used internally by the hook
-  void mobileStRef;
 
   const currentIdx = isMobile ? mobileActiveIdx : activeIndex;
   const activeFlow = userFlows[currentIdx] ?? userFlows[0];
@@ -422,36 +420,34 @@ function UserFlowPanel({
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
         <PinnedTitleRow
-         
           title={<T k="aboutPage.panels.userFlow" />}
+          dotNav={{
+            count: flowCount,
+            activeIndex: currentIdx,
+            onDotClick: (i) => scrollToItem(i, mobileStRef),
+            labels: userFlows.map((f) => f.title),
+          }}
           rightContent={
-            <>
-              <div className={styles.ufFlowLegend}>
-                <div className={styles.ufLegendItem}>
-                  <svg width="28" height="16" viewBox="0 0 28 16">
-                    <rect x="1" y="1" width="26" height="14" rx="7" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
-                  </svg>
-                  <span><T k="aboutPage.userFlow.startEnd" /></span>
-                </div>
-                <div className={styles.ufLegendItem}>
-                  <svg width="28" height="16" viewBox="0 0 28 16">
-                    <rect x="1" y="1" width="26" height="14" rx="3" fill="none" stroke="var(--text-secondary)" strokeWidth="1" />
-                  </svg>
-                  <span><T k="aboutPage.userFlow.screenAction" /></span>
-                </div>
-                <div className={styles.ufLegendItem}>
-                  <svg width="22" height="16" viewBox="0 0 22 16">
-                    <polygon points="11,0 22,8 11,16 0,8" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
-                  </svg>
-                  <span><T k="aboutPage.userFlow.decision" /></span>
-                </div>
+            <div className={styles.ufFlowLegend}>
+              <div className={styles.ufLegendItem}>
+                <svg width="28" height="16" viewBox="0 0 28 16">
+                  <rect x="1" y="1" width="26" height="14" rx="7" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
+                </svg>
+                <span><T k="aboutPage.userFlow.startEnd" /></span>
               </div>
-              <span className={styles.ufFlowCounter} key={`cnt-${currentIdx}`}>
-                <span className={styles.ufFlowCounterCurrent}>{currentIdx + 1}</span>
-                <span className={styles.ufFlowCounterSep}>/</span>
-                <span className={styles.ufFlowCounterTotal}>{flowCount}</span>
-              </span>
-            </>
+              <div className={styles.ufLegendItem}>
+                <svg width="28" height="16" viewBox="0 0 28 16">
+                  <rect x="1" y="1" width="26" height="14" rx="3" fill="none" stroke="var(--text-secondary)" strokeWidth="1" />
+                </svg>
+                <span><T k="aboutPage.userFlow.screenAction" /></span>
+              </div>
+              <div className={styles.ufLegendItem}>
+                <svg width="22" height="16" viewBox="0 0 22 16">
+                  <polygon points="11,0 22,8 11,16 0,8" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
+                </svg>
+                <span><T k="aboutPage.userFlow.decision" /></span>
+              </div>
+            </div>
           }
         />
 
