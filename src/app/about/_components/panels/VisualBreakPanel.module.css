@@ -1,12 +1,4 @@
-.breakPanel {
-  flex-shrink: 0;
-  overflow: hidden;
-  position: relative;
-  width: 35vw;
-  height: 100vh;
-}
-
-.breakPanel::after {
+.visualBreak::after {
   position: absolute;
   background: var(--bg-primary);
   content: "";
@@ -15,12 +7,12 @@
   opacity: 0.15;
 }
 
-.breakPanel img {
+.visualBreak img {
   filter: grayscale(0.5) contrast(1.1);
 }
 
 @media (max-width: 1024px), (max-height: 700px) {
-  .breakPanel {
+  .visualBreak {
     display: none;
   }
 }

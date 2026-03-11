@@ -91,6 +91,14 @@
   width: 85vw;
 }
 
+.breakPanel {
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+  width: 35vw;
+  height: 100vh;
+}
+
 .panelTitleCompact {
   flex-shrink: 0;
   margin: 0 0 var(--spacing-xl);

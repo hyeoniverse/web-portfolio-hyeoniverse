@@ -1,11 +1,10 @@
 import Image from "next/image";
 import shared from "../AboutSection.module.css";
 import local from "./VisualBreakPanel.module.css";
-const styles = { ...shared, ...local };
 
 export default function VisualBreakPanel() {
   return (
-    <div className={styles.breakPanel}>
+    <div className={`${shared.breakPanel} ${local.visualBreak}`}>
       <Image
         src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&h=1000&fit=crop"
         alt="Visual break"

@@ -8,8 +8,8 @@ import type {
 
 export const projectOverview = {
   description: {
-    ko: "Next.js 15 App Router 기반 풀스택 포트폴리오. AI 페어 프로그래밍으로 6일 만에 완성. GSAP/Framer Motion 애니메이션, Lenis 무한 스크롤, Supabase 블로그·좋아요·댓글 시스템 등을 포함합니다.",
-    en: "Full-stack portfolio built on Next.js 15 App Router, completed in 6 days with AI pair programming. Features GSAP/Framer Motion animations, Lenis infinite scroll, and Supabase-powered blog with likes & comments.",
+    ko: "Claude와 함께 만든 풀스택 포트폴리오. Next.js 15 App Router를 기반으로 GSAP·Framer Motion 애니메이션, Lenis 무한 스크롤, Supabase 블로그까지 직접 설계하고 구현했습니다.",
+    en: "A full-stack portfolio built alongside Claude. Designed and implemented from scratch — Next.js 15 App Router, GSAP & Framer Motion animations, Lenis infinite scroll, and a Supabase-powered blog.",
   },
   highlights: [
     "Next.js 15",
@@ -25,8 +25,8 @@ export const projectOverview = {
   ],
   stats: [
     {
-      value: "6 Days",
-      label: { ko: "개발 기간\n(2/5 – 2/10)", en: "Dev Period\n(2/5 – 2/10)" },
+      value: "5 Wks+",
+      label: { ko: "개발 기간\n(2/5 – 3/12)", en: "Dev Period\n(2/5 – 3/12)" },
     },
     { value: "50+", label: { ko: "컴포넌트", en: "Components" } },
     { value: "15+", label: { ko: "커스텀 훅", en: "Custom Hooks" } },
