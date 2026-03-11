@@ -1476,6 +1476,24 @@ Optional:
 
 Any platform that supports Next.js can be used. See the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for details.
 
+## Design System
+
+CSS token 3-layer architecture, class naming conventions, specificity guidelines, and all styling rules are documented in **[docs/design-system.md](./docs/design-system.md)**.
+
+### Overview
+
+| Layer | Location | Prefix | Role |
+|-------|----------|--------|------|
+| Raw Tokens | `src/styles/tokens/` | `--color-*`, `--spacing-*`, etc. | Primitive values |
+| Semantic Tokens | `src/styles/globals/_semantic.css` | `--text-*`, `--bg-*`, `--border-*` | Meaning-based mapping |
+| Context Tokens | Inside CSS Module | `--_*` | Component-scoped |
+
+**Class naming**: CSS Modules + camelCase (no BEM)
+**Key rules**: Context tokens must reference global tokens / No var() fallbacks / No direct hex values
+**Design system preview**: `/design-system` route
+
+---
+
 ## Commit Convention
 
 This project follows [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) rules.

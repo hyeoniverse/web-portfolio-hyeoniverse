@@ -1,0 +1,298 @@
+# 디자인 시스템 규칙
+
+> CSS 네이밍 컨벤션 · 토큰 구조 · 컴포넌트 스타일링 규칙
+
+---
+
+## 1. 토큰 3-레이어 구조
+
+```
+Raw Tokens          →  Semantic Tokens       →  Context Tokens
+(src/styles/tokens/)   (globals/_semantic.css)   (CSS Module: --_*)
+원시값 (숫자/색상)       의미 부여 (역할 이름)         컴포넌트 스코프
+```
+
+### Layer 1 — Raw Tokens (`src/styles/tokens/`)
+
+파일별 카테고리:
+
+| 파일 | 접두사 | 예시 |
+|------|--------|------|
+| `_color.css` | `--color-*` | `--color-accent`, `--color-neutral-50` |
+| `_spacing.css` | `--spacing-*`, `--box-*` | `--spacing-md`, `--box-sm-xl` |
+| `_typography.css` | `--font-*`, `--font-size-*` | `--font-size-lg`, `--font-weight-medium` |
+| `_motion.css` | `--duration-*`, `--ease-*`, `--delay-*` | `--duration-base`, `--ease-material` |
+| `_radius.css` | `--radius-*` | `--radius-md`, `--radius-capsule` |
+| `_shadow.css` | `--shadow-*` | `--shadow-sm`, `--shadow-glow` |
+| `_sizing.css` | `--size-*`, `--breakpoint-*`, `--z-*` | `--z-modal`, `--breakpoint-md` |
+| `_z-index.css` | `--z-*` | `--z-nav` (100), `--z-modal` (8000) |
+
+**박스 토큰 (`--box-*`)**: padding/margin 복합값 (spacing 토큰 참조)
+```css
+--box-sm:       var(--spacing-sm) var(--spacing-sm);      /* 정사각 */
+--box-sm-xl:    var(--spacing-sm) var(--spacing-xl);      /* Y-sm, X-xl */
+--box-y-lg:     var(--spacing-lg) 0;                      /* Y축만 */
+--box-x-md:     0 var(--spacing-md);                      /* X축만 */
+```
+
+### Layer 2 — Semantic Tokens (`src/styles/globals/_semantic.css`)
+
+원시값에 **역할(의미)**을 부여. 다크/라이트 테마 분기 포함.
+
+```css
+/* 텍스트 */
+--text-primary, --text-secondary, --text-tertiary, --text-muted
+--text-accent, --text-inverse, --text-success
+
+/* 배경 */
+--bg-primary, --bg-secondary, --bg-tertiary, --bg-surface
+--bg-accent, --bg-overlay, --bg-glass
+
+/* 테두리 */
+--border-primary-color, --border-secondary-color, --border-tertiary-color
+--border-strong, --border-default, --border-light, --border-accent
+
+/* Editorial (페이지 레이아웃) */
+--editorial-panel-py, --editorial-panel-px
+--editorial-fs-hero, --editorial-fs-lead
+--editorial-space-section, --editorial-space-block
+```
+
+### Layer 3 — Context Tokens (CSS Module 내 `--_*`)
+
+컴포넌트 루트 선택자에 정의. **항상 글로벌 토큰을 참조**.
+
+```css
+/* ✓ 올바른 예 */
+.section {
+  --_panel-py: var(--editorial-panel-py);
+  --_color-accent: var(--color-accent);
+  --_ease: var(--ease-material);
+}
+
+/* ✗ 잘못된 예 — 직접 값 금지 */
+.section {
+  --_panel-py: 48px;             /* raw value 금지 */
+  --_color: var(--color-accent, #d40063);  /* fallback 금지 */
+  --_bg: #f5f5f0;                /* hex 직접 사용 금지 */
+}
+```
+
+**예외**: 컴포넌트 고유 이펙트 색상은 파일당 1–2개 허용 (e.g., CursorTrail `--_color: #3b82f6`).
+
+---
+
+## 2. CSS 클래스 네이밍
+
+### 기본 원칙
+
+- **CSS Modules** 사용 — 모든 클래스는 자동으로 해시됨
+- **camelCase** — BEM(`__`, `--`) 미사용
+- **의미 기반** 이름 — 시각적 설명보다 역할/용도 우선
+
+### 클래스 분류별 컨벤션
+
+| 분류 | 예시 |
+|------|------|
+| 루트/컨테이너 | `.section`, `.container`, `.card`, `.panel` |
+| 레이아웃 래퍼 | `.track`, `.content`, `.body`, `.wrapper`, `.group`, `.row` |
+| 패널 변형 | `.panelWide`, `.panelNarrow`, `.panelExtraWide`, `.panelCompact` |
+| 타이포그래피 | `.title`, `.titleLine`, `.label`, `.description`, `.meta` |
+| 인터랙티브 | `.button`, `.link`, `.toggle`, `.badge` |
+| 상태 (JS 연동) | `.isActive`, `.isOpen`, `.isLoading` |
+| 애니메이션 트리거 | `.animate`, `.animateVisible` |
+| 에러 상태 | `.fieldLabelError`, `.editorLabelError`, `.sectionTitleError` |
+
+### 계층 표현
+
+중첩은 CSS의 자식 선택자로, 별도 클래스 없이 처리:
+
+```css
+/* ✓ 올바른 예 — 자식 선택자 */
+.card .image { ... }
+.actions .primaryButton { transition: ...; }  /* 특이도 (0,2,0) 확보 */
+
+/* ✗ 지양 — BEM 스타일 */
+.card__image { ... }
+.card--active { ... }
+```
+
+---
+
+## 3. CSS 특이도 주의사항
+
+### 글로벌 테마 트랜지션
+
+`src/styles/globals/_base.css`에 전역 transition 규칙이 있음:
+
+```css
+html[data-theme-ready] *,
+html[data-theme-ready] *::before,
+*::after {
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s,
+              fill 0.3s, stroke 0.3s, box-shadow 0.3s;
+}
+```
+
+**특이도: `(0,1,1)`** — 단일 클래스 선택자 `(0,1,0)`을 이김.
+
+`transition` shorthand는 지정된 속성 외의 모든 트랜지션을 **덮어씀**.
+`opacity`, `transform`, `max-height`, `padding` 등은 컴포넌트에서 직접 정의해도 무시됨.
+
+**해결 방법**: 복합 선택자 `(0,2,0)` 사용:
+
+```css
+/* ✓ 글로벌 규칙을 이기는 방법 */
+.actions .primaryButton {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 또는 !important (최후 수단) */
+.loadingScreen {
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+```
+
+전역 테마 트랜지션이 커버하는 속성: `background-color`, `border-color`, `color`, `fill`, `stroke`, `box-shadow`.
+
+---
+
+## 4. 다크/라이트 테마
+
+```css
+/* _semantic.css 패턴 */
+:root {
+  --bg-primary: var(--color-neutral-50);   /* light: 밝은 배경 */
+}
+
+[data-theme="dark"] {
+  --bg-primary: var(--color-neutral-950);  /* dark: 어두운 배경 */
+}
+```
+
+컴포넌트에서는 `--bg-primary`, `--text-primary` 등 semantic 토큰만 사용 → 테마 전환 자동 적용.
+
+---
+
+## 5. 반응형 & 유동 값
+
+**Fluid tokens**: 뷰포트에 따라 자동 스케일 (clamp 기반)
+
+```css
+--fluid-font-size-2xl: clamp(1.25rem, 2.5vw, 2rem);
+--fluid-spacing-section: clamp(2rem, 5vw, 5rem);
+```
+
+**Breakpoint**: 컴포넌트별 미디어 쿼리에 `--breakpoint-*` 토큰 사용 지양 (CSS에서 var() 미디어쿼리 미지원). 대신 직접 값 사용:
+
+```css
+@media (max-width: 1024px) { ... }   /* tablet */
+@media (max-width: 768px) { ... }    /* mobile */
+```
+
+---
+
+## 6. z-index 레이어
+
+| 토큰 | 값 | 용도 |
+|------|----|------|
+| `--z-below` | -1 | 배경 요소 |
+| `--z-content` | 10 | 일반 콘텐츠 |
+| `--z-nav` | 100 | 네비게이션 |
+| `--z-float` | 200 | 플로팅 버튼 |
+| `--z-dropdown` | 500 | 드롭다운 |
+| `--z-tooltip` | 700 | 툴팁 |
+| `--z-modal` | 8000 | 모달 |
+| `--z-overlay` | 9000 | 오버레이 (LoadingScreen) |
+| `--z-top` | 10000 | 최상위 |
+
+---
+
+## 7. 타이포그래피 토큰 선택 기준
+
+| 상황 | 사용 토큰 |
+|------|----------|
+| 본문 텍스트 | `--font-size-sm` ~ `--font-size-lg` |
+| 제목 (고정) | `--font-size-2xl` ~ `--font-size-5xl` |
+| 제목 (반응형) | `--fluid-font-size-2xl` ~ `--fluid-font-size-6xl` |
+| 에디토리얼 히어로 | `--editorial-fs-hero` |
+| 코드/모노 | `--font-mono` |
+| 디스플레이 세리프 | `--font-display` (Instrument Serif) |
+| UI 산세리프 | `--font-grotesk` (Space Grotesk) |
+
+---
+
+## 8. 모션 토큰 사용
+
+```css
+/* ✓ 토큰 활용 */
+.image {
+  transition: transform var(--duration-slow) var(--ease-material);
+}
+
+.overlay {
+  transition: opacity var(--duration-base) var(--ease-out-expo);
+  animation-duration: var(--duration-slower);
+  animation-delay: var(--delay-base);
+}
+```
+
+| 토큰 | 값 | 적합한 용도 |
+|------|----|------------|
+| `--duration-instant` | 100ms | 즉각 피드백 (토글) |
+| `--duration-fast` | 150ms | 호버 효과 |
+| `--duration-base` | 250ms | 기본 전환 |
+| `--duration-slow` | 400ms | 패널 슬라이드 |
+| `--duration-slower` | 600ms | 페이지 전환 |
+| `--ease-material` | cubic-bezier(.4,0,.2,1) | 범용 |
+| `--ease-bounce` | cubic-bezier(.34,1.56,.64,1) | 탄성 효과 |
+| `--ease-out-expo` | cubic-bezier(.16,1,.3,1) | 등장 애니메이션 |
+
+---
+
+## 9. 금지 사항
+
+```css
+/* ✗ hex/rgba 직접 사용 */
+color: #1a1a1a;
+background: rgba(0,0,0,0.5);
+
+/* ✗ var() fallback */
+color: var(--text-primary, #333);
+
+/* ✗ 글로벌 토큰 우회 */
+--_bg: #f5f5f0;
+
+/* ✗ 매직 넘버 z-index */
+z-index: 9999;
+
+/* ✗ BEM 클래스 */
+.card__title { }
+.card--active { }
+```
+
+---
+
+## 10. 파일 위치 참조
+
+```
+src/styles/
+├── tokens/
+│   ├── _index.css          # 배럴 (모든 토큰 import)
+│   ├── _color.css
+│   ├── _spacing.css
+│   ├── _typography.css
+│   ├── _motion.css
+│   ├── _radius.css
+│   ├── _shadow.css
+│   ├── _sizing.css
+│   └── _z-index.css
+└── globals/
+    ├── _base.css           # reset + 글로벌 테마 transition
+    ├── _semantic.css       # Layer 2: 의미 토큰 + 다크테마
+    ├── _layout.css         # 공통 레이아웃
+    ├── _animations.css     # @keyframes
+    └── _utilities.css      # 유틸리티 클래스
+```
+
+디자인 시스템 미리보기: `/design-system` 라우트에서 토큰/컴포넌트 확인 가능.
