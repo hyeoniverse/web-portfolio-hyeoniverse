@@ -1,6 +1,8 @@
 <div align="center">
 
-# Web Portfolio — Oval
+**[English](./README.en.md)** | 한국어
+
+# Arc — Where Growth Takes Shape
 
 개인 포트폴리오 웹사이트입니다. Next.js 15, React 19, TypeScript로 구축되었으며, GSAP, Framer Motion, Lenis를 활용한 인터랙티브 애니메이션이 특징입니다.
 
@@ -73,17 +75,53 @@
 - **Scroll Velocity Parallax**: Lenis velocity를 활용한 스크롤 속도 기반 이미지 패럴랙스
 - **Mix-Blend Navigation**: mix-blend-mode: difference를 활용한 자동 반전 네비게이션. 이미지 로고 지원 — 숏/풀 로고를 이미지 URL로 설정 가능하며, 다크모드 전용 로고 URL 별도 지정 가능. 로고 색상·글리치 효과를 Admin에서 제어
 - **StaggerText**: 호버 시 글자별 순차 애니메이션 효과 컴포넌트
+
+<p align="center">
+  <img src="public/docs/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
+  <img src="public/docs/screenshots/pc/home-light.png" width="49%" alt="Home — Light" />
+  <br />
+  <sub>Home — Infinite Scroll Loop · Mouse Parallax · Mix-Blend Navigation · StaggerText</sub>
+</p>
+
 - **Works Horizontal Gallery**: GSAP 기반 가로 스크롤 갤러리, 양방향 무한 스크롤 래핑, 인트로 인플로우 배치, 언어 전환 레이아웃 안정화
 - **3D Scroll Torus**: Three.js(React Three Fiber) 기반 3D 메탈릭 토러스가 스크롤에 연동되어 리사주 곡선 경로를 따라 회전·이동. Lenis 누적 스크롤 추적, 테마별 머티리얼, 모바일 최적화(geometry 간소화, 스케일 축소). 모바일에서는 터치/클릭 반발 인터랙션 지원 (Canvas pointer-events 차단으로 window 이벤트 수동 추적)
 - **Breakpoint Guard**: 뷰포트가 breakpoint(768px, 1024px)를 넘을 때 페이지 콘텐츠를 자동 remount하여 GSAP/ScrollTrigger 등 레이아웃 의존 애니메이션을 재초기화. R3F 호환 전환 오버레이로 깜빡임 없는 리사이즈 전환
+<p align="center">
+  <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="public/docs/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <br />
+  <sub>Works — Horizontal Gallery · 3D Scroll Torus · Breakpoint Guard</sub>
+</p>
+
 - **About 가로 스크롤**: Webflow 페이지와 통합된 `useHorizontalScroll` 훅으로 About 페이지에서도 GSAP 기반 가로 스크롤 적용 (데스크톱), 모바일에서는 자동 세로 스택
 - **번들 최적화**: react-icons를 inline SVG로 교체, Three.js 데모를 dynamic import로 분리하여 about 페이지 First Load JS 326kB→272kB 절감. About 페이지의 6개 무거운 패널(Architecture, UserFlow, Backend, ERD, CodeHighlights, Troubleshooting)을 `next/dynamic`으로 코드 스플리팅하고 데이터 import를 barrel에서 직접 파일로 전환하여 페이지 JS 62% 추가 절감. 미사용 npm 패키지 정리, 미사용 대용량 이미지(22MB) 삭제
 - **성능 최적화**: Hero/마퀴 애니메이션을 Framer Motion/GSAP에서 CSS animation으로 전환(컴포지터 스레드), useMagneticRepel을 ref 기반 직접 DOM 조작으로 변경(60fps 리렌더 제거), Three.js FrontSide 렌더링 + geometry dispose, AudioContext 지연 초기화
 - **Posts (Blog)**: Supabase 기반 포스트 작성/관리 시스템. 목록 페이지는 Server Component로 초기 데이터를 서버 사이드 렌더링하고 ISR(`revalidate = 60`)로 CDN 캐시. 상세 페이지는 `generateStaticParams`로 빌드 시 정적 생성(`revalidate = 300`). Admin 로그인 후 Markdown/Rich Text(Tiptap) 전환 가능한 에디터로 아티클 작성. 이미지 삽입 후 정렬(좌/중앙/우) 및 크기(25%/50%/75%/100%) 조절 가능. 게스트 대댓글(threaded) 지원, 이중 인증(commenter_hash + bcrypt 비밀번호)으로 수정/삭제. Works 상세에서도 동일한 댓글 시스템 지원. 검색, 태그 필터, 커버 이미지, 조회수 추적. 페이지당 글 수 선택(10/20/50) 가능. PostCard에 pinned 배지(이미지 오버레이), langHint(영어 모드에서 한국어만 제공 시 우측 표시) 지원. 상세 페이지 번역 배너 리디자인(좌측 보더 라인 + 아이콘 + i18n 키)
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행하는 기능. 시리즈는 카테고리의 하위 요소로, 각 시리즈는 하나의 카테고리에 소속됩니다. 포스트 목록에서 "Posts" / "Series" 뷰 토글로 시리즈 카드 그리드를 별도로 탐색할 수 있으며, 카테고리 선택 시 해당 카테고리의 시리즈만 표시됩니다. 시리즈 카드 클릭 시 해당 시리즈의 포스트만 필터링하여 표시. 포스트 상세 페이지에서 시리즈 네비게이션(이전/다음 글 + 전체 목록 접기/펼치기) 표시. Admin에서 시리즈 CRUD + 카테고리 관리
+<p align="center">
+  <img src="public/docs/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
+  <img src="public/docs/screenshots/pc/posts-light.png" width="49%" alt="Posts — Light" />
+  <br />
+  <sub>Posts — Blog · Series · Banner Slider · Filter Bar</sub>
+</p>
+
+<p align="center">
+  <img src="public/docs/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
+  <img src="public/docs/screenshots/pc/about-light.png" width="49%" alt="About — Light" />
+  <br />
+  <sub>About — 가로 스크롤 기술 문서 (15개 패널)</sub>
+</p>
+
 - **IP 기반 좋아요**: Posts, Works, 댓글(post/work)에서 좋아요 기능 지원. 단일 `likes` 테이블에서 `target_type`('post'|'work'|'post_comment'|'work_comment')으로 구분하고, IP 주소 기반 `UNIQUE` 제약으로 중복 방지 및 토글 처리. Posts는 목록 조회 성능을 위해 `posts.like_count` 캐시 컬럼에 동기화
 - **Cover Image Picker**: 포스트·시리즈·작업물 커버 이미지를 3가지 방식으로 선택 가능 — 16종 프리셋 그라데이션(Canvas API 렌더), Unsplash 키워드 검색, AI 이미지 생성(NanoBanana / Hugging Face 중 선택 가능). 모든 이미지는 Supabase Storage에 저장
 - **Works Admin CRUD**: Supabase DB 기반 포트폴리오 작업물 관리. Admin에서 작업물 생성/수정/삭제, 발행 토글, 정렬 순서 변경 가능. 단일 콘텐츠 에디터(Markdown/Rich Text 전환) + 템플릿 삽입 방식으로 프로젝트 기술서 작성. 템플릿 8개 섹션: Overview, Background, Key Features, Architecture, Challenges, Solutions, Results, Lessons Learned. 한/영 이중 언어, 기술 스택, 갤러리 이미지, 팀 멤버(이름·역할 한/영·URL) 지원. 상세 페이지에서 콘텐츠 내 `##` 헤딩을 자동 파싱하여 TOC 생성. DB 미연결 시 정적 데이터(`data/projects.ts`)로 자동 fallback
+<p align="center">
+  <img src="public/docs/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
+  <img src="public/docs/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
+  <br />
+  <sub>Work Detail — 프로젝트 상세 · TOC 자동 생성 · 갤러리 · 댓글</sub>
+</p>
+
 - **Profile Admin**: 프로필 데이터(경력, 스킬, 철학, 접근법, 자격증, 수상) Admin 편집. Settings > Content > Profile 서브탭에서 관리. `site_settings` 테이블에 JSONB로 저장. DB 미연결 시 정적 데이터 fallback. 기간 입력은 구조화된 `DatePeriod` 타입(`{ start, end?, ongoing?, format }`)과 `PeriodPicker` 컴포넌트로 통합 — 표시 형식(연도/연.월/연.월.일) 선택, 기간/진행 중 토글, 스피너/캘린더 팝오버 피커 지원. 구 형식(`year: string`, `period: LocalizedText`) 데이터는 로드 시 자동 마이그레이션
 - **BGM & 음원 출처 관리**: Admin Settings > General에서 BGM 파일 업로드(오디오 파일, 10MB 제한) 및 교체 가능. Footer에 음원 출처(곡명, 아티스트, YouTube 링크) 표시. `site.config.ts`에 기본값 설정, DB 오버라이드 지원. BGM URL이 비어있으면 재생 안 함
 - **방문자 통계**: IP+날짜 기반 일간·누적 방문자 카운터. Footer에 실시간 표시
@@ -101,7 +139,21 @@
 - **Tooltip & Translation Tooltip**: 범용 Tooltip UI 컴포넌트(`<Tooltip>`)와 번역 tooltip 컴포넌트(`<T>`). `<T k="key" />`로 텍스트를 렌더하면 long hover(600ms) 시 반대 언어 번역을 tooltip으로 표시. 번역과 설명 tooltip이 모두 있으면 한 말풍선에 줄바꿈으로 통합 표시. `noTooltip` prop으로 외부 Tooltip과 함께 사용 시 내부 tooltip 비활성화 가능. createPortal + position: fixed로 stacking context 회피, 모바일 터치 토글(탭 시 표시 → 2초 후 자동 숨김). Navigation 링크에 페이지 설명 tooltip, 언어/테마/사운드 버튼에 기능 설명 tooltip, CTA 버튼에 번역+설명 통합 tooltip, Works bubble에 long hover 네비게이션 설명 tooltip 적용
 - **Posts i18n & Sort Capsule**: Posts 페이지의 모든 하드코딩된 텍스트를 locale 파일(`postsPage` 섹션)로 이동. 정렬 UI를 Select 드롭다운에서 캡슐형 세그먼트 컨트롤(Framer Motion layoutId 애니메이션)로 변경
 - **Footer Sliding Indicator**: Navigation과 동일한 슬라이딩 인디케이터를 Footer 링크에 적용. hover 시 ►◀ 화살표가 인디케이터와 함께 해당 링크로 이동. `useLayoutEffect` + `ResizeObserver` + `document.fonts.ready`로 indicator 위치 정확도 개선. Admin 인증 시 Footer에 Admin 진입 링크 표시(공개 footer: nav 링크, minimal footer: 조회수 라인에 인라인). Admin footer에 Design System 엔트리 추가(새 탭)
+<p align="center">
+  <img src="public/docs/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
+  <img src="public/docs/screenshots/pc/profile-light.png" width="49%" alt="Profile — Light" />
+  <br />
+  <sub>Profile — 경력 · 스킬 · 철학 · 자격증 · 수상</sub>
+</p>
+
 - **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인. Admin Settings 외관 탭 + About 페이지 Design System 패널 + CreditsFooter(panel)에서 진입 가능. Tooltip/T 컴포넌트 섹션, Select 컴포넌트 섹션, PeriodPicker 섹션, Gradient Tokens 섹션, 3-phase scroll 애니메이션 시스템(Phase 1: 숨김 → Phase 2: 순차 등장 → Phase 3: whileInView 스크롤 기반 등장/소멸) 적용. staggerItemX(좌→우 등장/우→좌 소멸), staggerItem(위→아래) 방향별 stagger 지원
+
+<p align="center">
+  <img src="public/docs/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
+  <img src="public/docs/screenshots/pc/design-system-light.png" width="49%" alt="Design System — Light" />
+  <br />
+  <sub>Design System — 토큰 프리뷰 · 컴포넌트 쇼케이스 · 배너 레이아웃</sub>
+</p>
 
 <details>
 <summary><strong>Security</strong></summary>
@@ -542,6 +594,11 @@ npm run test:watch
 <details>
 <summary><strong>Components</strong></summary>
 
+<p align="center">
+  <img src="public/docs/screenshots/pc/design-system-dark.png" width="100%" alt="Design System — Components Preview" />
+  <br />
+  <sub><code>/design-system</code> 페이지에서 모든 토큰과 컴포넌트를 확인할 수 있습니다</sub>
+</p>
 
 ### StaggerText
 
@@ -635,6 +692,10 @@ import StaggerText from "@/components/effects/StaggerText";
 
 모바일에서 bottom sheet 패턴으로 동작하는 모달 컴포넌트. 데스크탑에서는 중앙 다이얼로그.
 
+| PC (Desktop Dialog) | Tablet | Mobile (Bottom Sheet) |
+|:---:|:---:|:---:|
+| <img src="public/docs/screenshots/pc/work-detail-dark.png" width="100%" alt="PC" /> | <img src="public/docs/screenshots/tablet/work-detail-dark.png" width="100%" alt="Tablet" /> | <img src="public/docs/screenshots/mobile/work-detail-dark.png" width="100%" alt="Mobile" /> |
+
 **경로**: `src/components/ui/Modal.tsx`
 
 **모바일 동작**:
@@ -656,6 +717,12 @@ import StaggerText from "@/components/effects/StaggerText";
 </details>
 
 ## Trouble Shooting
+
+> 아래는 개발 과정에서 마주친 주요 이슈들과 해결 과정입니다. 각 항목에서 다루는 페이지의 실제 모습은 다음과 같습니다.
+
+| Works (가로 스크롤 갤러리) | Home (애니메이션/성능) | Posts (블로그) |
+|:---:|:---:|:---:|
+| <img src="public/docs/screenshots/pc/works-dark.png" width="100%" alt="Works" /> | <img src="public/docs/screenshots/pc/home-dark.png" width="100%" alt="Home" /> | <img src="public/docs/screenshots/pc/posts-dark.png" width="100%" alt="Posts" /> |
 
 <details>
 <summary><strong>1. Lenis Scroll Velocity 효과 미작동</strong></summary>
@@ -952,6 +1019,11 @@ badge.style.zIndex = isOpen ? "9999" : "";
 
 <details>
 <summary><strong>7. Lighthouse 심화 성능 최적화 — 미사용 폰트 제거 및 리소스 경량화</strong></summary>
+
+| PC | Tablet | Mobile |
+|:---:|:---:|:---:|
+| <img src="public/docs/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="public/docs/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="public/docs/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
+<sub>최적화 대상: Home 페이지 — 3개 디바이스에서 Performance 98점 달성</sub>
 
 #### 문제
 
