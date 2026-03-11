@@ -72,6 +72,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
               options={[
                 { value: "gemini", label: "Gemini 2.0 Flash" },
                 { value: "openai", label: "OpenAI GPT-4o mini" },
+                { value: "claude", label: "Claude Haiku 4.5" },
               ]}
               onChange={(v) => update("aiSummary", "provider", v as SiteConfigData["aiSummary"]["provider"])}
             />
@@ -91,6 +92,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
                 { value: "gemini", label: "Gemini 2.0 Flash" },
                 { value: "google", label: "Google Cloud Translation" },
                 { value: "deepl", label: "DeepL API Free" },
+                { value: "claude", label: "Claude Haiku 4.5" },
               ]}
               onChange={(v) => update("translation", "provider", v as SiteConfigData["translation"]["provider"])}
             />

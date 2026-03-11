@@ -75,6 +75,7 @@ export default function EnvVarFields({
         { key: "GOOGLE_TRANSLATE_API_KEY", label: "Google Translate API Key", show: translateProvider === "google" },
         { key: "DEEPL_API_KEY", label: "DeepL API Key", show: translateProvider === "deepl" },
         { key: "OPENAI_API_KEY", label: "OpenAI API Key", show: summaryProvider === "openai" },
+        { key: "ANTHROPIC_API_KEY", label: "Anthropic API Key", show: translateProvider === "claude" || summaryProvider === "claude" },
       ],
     },
     {

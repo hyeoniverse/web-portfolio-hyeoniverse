@@ -3,12 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { getSecret } from "@/lib/getSecret";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 
-type Provider = "gemini" | "google" | "deepl";
+type Provider = "gemini" | "google" | "deepl" | "claude";
 
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 const DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
+
+const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
 const GOOGLE_TRANSLATE_URL =
   "https://translation.googleapis.com/language/translate/v2";
@@ -48,6 +50,9 @@ export async function POST(request: Request) {
         break;
       case "deepl":
         translations = await translateWithDeepL(texts, sourceLang, targetLang);
+        break;
+      case "claude":
+        translations = await translateWithClaude(texts, sourceLang, targetLang);
         break;
       default:
         translations = await translateWithGemini(texts, sourceLang, targetLang);
@@ -168,4 +173,52 @@ async function translateWithDeepL(
   if (!Array.isArray(data?.translations)) throw new Error("Invalid DeepL response");
 
   return data.translations.map((t: { text: string }) => t.text);
+}
+
+/* ── Claude ── */
+async function translateWithClaude(
+  texts: string[],
+  sourceLang: string,
+  targetLang: string,
+): Promise<string[]> {
+  const apiKey = await getSecret("ANTHROPIC_API_KEY");
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
+
+  const sourceName = sourceLang === "ko" ? "Korean" : "English";
+  const targetName = targetLang === "ko" ? "Korean" : "English";
+
+  const prompt = `Translate the following ${texts.length} text(s) from ${sourceName} to ${targetName}.
+
+Rules:
+- Return ONLY a JSON array of translated strings, in the same order as the input.
+- Preserve all formatting: markdown syntax, HTML tags, line breaks, code blocks.
+- Do not add explanations or wrapper text.
+- For short labels (1-3 words), keep the translation concise.
+- For technical terms (e.g. "Next.js", "GSAP", "Supabase"), keep them as-is.
+
+Input texts:
+${JSON.stringify(texts, null, 2)}`;
+
+  const res = await fetch(CLAUDE_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 4096,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => "");
+    throw new Error(`Claude API error: ${res.status} ${errBody}`);
+  }
+
+  const data = await res.json();
+  const rawText = data?.content?.[0]?.text ?? "[]";
+  return JSON.parse(rawText);
 }

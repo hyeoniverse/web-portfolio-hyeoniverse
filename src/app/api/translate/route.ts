@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSecret } from "@/lib/getSecret";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 
-type Provider = "gemini" | "google" | "deepl";
+type Provider = "gemini" | "google" | "deepl" | "claude";
 
 const DEEPL_API_URL = "https://api-free.deepl.com/v2/translate";
 const GEMINI_API_URL =
@@ -12,6 +12,8 @@ const GOOGLE_TRANSLATE_URL =
 
 const LANG_MAP_DEEPL: Record<string, string> = { ko: "KO", en: "EN" };
 const LANG_MAP_GOOGLE: Record<string, string> = { ko: "ko", en: "en" };
+
+const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
 const MAX_LENGTH = 2000;
 
@@ -43,6 +45,9 @@ export async function POST(request: Request) {
       case "gemini":
         translated = await translateGemini(text, targetLang);
         break;
+      case "claude":
+        translated = await translateClaude(text, targetLang);
+        break;
       default:
         translated = await translateDeepL(text, sourceLang, targetLang);
         break;
@@ -56,7 +61,8 @@ export async function POST(request: Request) {
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
     console.error("[translate]", provider, msg);
-    return NextResponse.json({ error: msg }, { status: 502 });
+    const status = msg.includes("not configured") ? 503 : 502;
+    return NextResponse.json({ error: msg }, { status });
   }
 }
 
@@ -112,6 +118,37 @@ async function translateGemini(text: string, targetLang: string): Promise<string
 
   const data = await res.json();
   return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "";
+}
+
+/* ── Claude ── */
+async function translateClaude(text: string, targetLang: string): Promise<string> {
+  const apiKey = await getSecret("ANTHROPIC_API_KEY");
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
+
+  const targetName = targetLang === "ko" ? "Korean" : "English";
+  const prompt = `Translate the following text to ${targetName}.\nReturn ONLY the translated text, nothing else.\nPreserve line breaks and formatting.\n\nText:\n${text}`;
+
+  const res = await fetch(CLAUDE_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 2048,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => "");
+    throw new Error(`Claude API error: ${res.status} ${errBody}`);
+  }
+
+  const data = await res.json();
+  return data?.content?.[0]?.text?.trim() ?? "";
 }
 
 /* ── Google Cloud Translation ── */
