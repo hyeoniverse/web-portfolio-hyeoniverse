@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import Button from "@/components/ui/Button";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { content, type Language, type Section } from "@/data/privacy";
@@ -139,30 +138,28 @@ export default function PrivacyPage() {
       >
         {/* 헤더 */}
         <motion.div className={styles.header} variants={itemVariants}>
-          <Button
-            variant="outline"
-            size="sm"
-            className={styles.backLink}
-            onClick={handleBack}
-            icon={
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                width="20"
-                height="20"
-              >
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <button
+              type="button"
+              className={styles.backLink}
+              onClick={handleBack}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
-                  d="M19 12H5M12 19l-7-7 7-7"
+                  d="M19 12H5M5 12L12 19M5 12L12 5"
+                  stroke="currentColor"
+                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
-            }
-          >
-            {t.backLink}
-          </Button>
+              <span>{t.backLink}</span>
+            </button>
+          </motion.div>
 
           <LanguageToggle lang={lang} onLangChange={setLang} />
         </motion.div>
