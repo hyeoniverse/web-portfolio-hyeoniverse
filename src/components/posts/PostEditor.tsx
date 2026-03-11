@@ -147,9 +147,11 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const [regeneratingSummary, setRegeneratingSummary] = useState(false);
   const [status, setStatus] = useState("");
   const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [error, setError] = useState("");
+  const [showErrors, setShowErrors] = useState(false);
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
@@ -210,6 +212,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       setForm((prev) => ({ ...prev, [key]: value }));
       setStatus("");
       setError("");
+      setShowErrors(false);
     },
     []
   );
@@ -385,12 +388,29 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       if (willPublish) {
         const missing: string[] = [];
-        if (!form.title.trim()) missing.push(te("title"));
+        const _koStarted = !!(form.title.trim() || form.content.trim());
+        const _enStarted = !!(form.title_en.trim() || form.content_en.trim());
+
         if (!form.slug.trim()) missing.push(te("slug"));
         if (!form.category.trim()) missing.push(te("category"));
-        if (!form.content.trim()) missing.push(te("content"));
+
+        if (!_koStarted && !_enStarted) {
+          missing.push(te("title"));
+          missing.push(te("content"));
+        } else {
+          if (_koStarted) {
+            if (!form.title.trim()) missing.push(`${te("title")} (KO)`);
+            if (!form.content.trim()) missing.push(`${te("content")} (KO)`);
+          }
+          if (_enStarted) {
+            if (!form.title_en.trim()) missing.push(`${te("title")} (EN)`);
+            if (!form.content_en.trim()) missing.push(`${te("content")} (EN)`);
+          }
+        }
+
         if (missing.length > 0) {
-          setError(`${te("requiredFields")}: ${missing.join(", ")}`);
+          setError(`${missing.join(" · ")} ${te("requiredFields")}`);
+          setShowErrors(true);
           return;
         }
 
@@ -430,6 +450,11 @@ export default function PostEditor({ post }: PostEditorProps) {
         }
 
         if (!savedId.current) savedId.current = data.id;
+
+        // 발행 시 AI 요약 자동 생성 (fire-and-forget)
+        if (willPublish && savedId.current) {
+          fetch(`/api/posts/${savedId.current}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }).catch(() => {});
+        }
 
         const savedSlug = data.slug || form.slug;
 
@@ -516,6 +541,30 @@ export default function PostEditor({ post }: PostEditorProps) {
     setStatusType("info");
   }, [te]);
 
+  const handleRegenerateSummary = useCallback(async () => {
+    const id = savedId.current ?? post?.id;
+    if (!id) return;
+    setRegeneratingSummary(true);
+    try {
+      const res = await fetch(`/api/posts/${id}/ai-summary`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ force: true }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? te("saveError"));
+        return;
+      }
+      setStatus(te("regenerateSummary"));
+      setStatusType("success");
+    } catch {
+      setError(te("saveError"));
+    } finally {
+      setRegeneratingSummary(false);
+    }
+  }, [post?.id, te]);
+
   const shellLabels = useMemo(
     () => ({
       delete: te("delete"),
@@ -533,6 +582,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       restore: te("restore"),
       retranslate: te("retranslate"),
       retranslateAll: te("retranslateAll"),
+      regenerateSummary: te("regenerateSummary"),
     }),
     [te]
   );
@@ -562,6 +612,17 @@ export default function PostEditor({ post }: PostEditorProps) {
   const titleKey = editorLang === "ko" ? "title" : "title_en";
   const contentKey = editorLang === "ko" ? "content" : "content_en";
   const excerptKey = editorLang === "ko" ? "excerpt" : "excerpt_en";
+
+  const koStarted = !!(form.title.trim() || form.content.trim());
+  const enStarted = !!(form.title_en.trim() || form.content_en.trim());
+  const titleFieldError = showErrors && (
+    (editorLang === "ko" && koStarted && !form.title.trim()) ||
+    (editorLang === "en" && enStarted && !form.title_en.trim())
+  );
+  const contentFieldError = showErrors && (
+    (editorLang === "ko" && koStarted && !form.content.trim()) ||
+    (editorLang === "en" && enStarted && !form.content_en.trim())
+  );
 
   return (
     <AdminEditorShell
@@ -593,6 +654,8 @@ export default function PostEditor({ post }: PostEditorProps) {
       onDeleteRevision={handleDeleteRevision}
       onRetranslate={handleRetranslate}
       retranslateOptions={retranslateOptions}
+      onRegenerateSummary={isEdit || !!savedId.current ? handleRegenerateSummary : undefined}
+      regeneratingSummary={regeneratingSummary}
       currentSnapshot={{
         title: form.title || form.title_en,
         excerpt: form.excerpt || form.excerpt_en || "",
@@ -607,9 +670,9 @@ export default function PostEditor({ post }: PostEditorProps) {
     >
       <div className={styles.meta}>
         <div className={es.field}>
-          <label className={es.fieldLabel}>{te("title")}</label>
+          <label className={`${es.fieldLabel}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
           <input
-            className={es.titleInput}
+            className={`${es.titleInput}${titleFieldError ? ` ${es.titleInputError}` : ""}`}
             type="text"
             value={form[titleKey]}
             onChange={(e) => updateField(titleKey, e.target.value)}
@@ -619,9 +682,9 @@ export default function PostEditor({ post }: PostEditorProps) {
 
         <div className={es.row}>
           <div className={es.field}>
-            <label className={es.fieldLabel}>{te("slug")}</label>
+            <label className={`${es.fieldLabel}${showErrors && !form.slug.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
             <input
-              className={es.fieldInput}
+              className={`${es.fieldInput}${showErrors && !form.slug.trim() ? ` ${es.fieldInputError}` : ""}`}
               type="text"
               value={form.slug}
               onChange={(e) => {
@@ -676,7 +739,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           </div>
 
           <div className={es.field}>
-            <label className={es.fieldLabel}>{te("category")}</label>
+            <label className={`${es.fieldLabel}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
             {form.series_id ? (
               <p style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-sm)", color: "var(--text-secondary)" }}>
                 {(findCat(form.category) ? (language === "ko" ? findCat(form.category)!.ko : findCat(form.category)!.en) : form.category) || "—"} <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>({te("categoryFromSeries")})</span>
@@ -831,7 +894,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       <div className={styles.editorSection}>
         <div className={es.editorHeader}>
           <div className={styles.editorHeaderLeft}>
-            <span className={styles.editorLabel}>{te("content")}</span>
+            <span className={`${styles.editorLabel}${contentFieldError ? ` ${styles.editorLabelError}` : ""}`}>{te("content")}</span>
             <button
               type="button"
               className={styles.templateBtn}

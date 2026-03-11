@@ -224,7 +224,7 @@
       "currentPasswordPlaceholder": "현재 비밀번호 입력",
       "currentPasswordRequired": "현재 비밀번호를 입력해주세요",
       "emailSettings": "이메일 서비스",
-      "aiSettings": "AI 커버 생성",
+      "aiSettings": "게시물 커버",
       "securitySettings": "보안",
       "envVars": "환경 변수",
       "envVarKey": "키",
@@ -284,6 +284,8 @@
       "emailServiceProvider": "이메일 서비스 제공자",
       "emailFileUpload": "이메일 파일 업로드",
       "aiCoverProvider": "AI 커버 제공자",
+      "aiSummarySettings": "AI 자동 요약",
+      "aiSummaryProvider": "AI 요약 제공자",
       "commentNotifications": "댓글 알림",
       "commentEmailNotify": "댓글 이메일 알림 수신",
       "commentEmailNotifyDesc": "새 댓글이 달리면 이메일로 알림을 받습니다. RESEND_API_KEY 환경 변수가 필요합니다.",
@@ -299,6 +301,9 @@
       "confirmPlaceholder": "새 비밀번호 확인",
       "passwordMismatch": "비밀번호가 일치하지 않습니다",
       "noChanges": "변경 사항 없음",
+      "nameRequired": "이름을 입력해주세요",
+      "siteTitleRequired": "사이트 제목을 입력해주세요",
+      "emailInvalid": "올바른 이메일 형식이 아닙니다",
       "updateSuccess": "업데이트 완료",
       "emailConfirmationSent": "현재 이메일과 새 이메일 양쪽으로 확인 메일을 발송했습니다. 두 메일 모두에서 링크를 클릭해야 변경이 완료됩니다.",
       "pendingEmailChange": "이메일 변경 대기 중",
@@ -345,7 +350,7 @@
       "pagination": "페이지네이션",
       "postsPerPage": "페이지당 글 수",
       "adminPerPage": "관리자 페이지당 수",
-      "translationSettings": "번역",
+      "translationSettings": "AI 자동 번역",
       "translationProvider": "제공자",
       "designSystem": "Design System",
       "fontHint": "프리셋에서 선택하거나, 직접 입력란에 Google Fonts 이름을 입력하세요. (예: Roboto, Nanum Gothic)",
@@ -468,7 +473,7 @@
         "excerptPlaceholder": "포스트 요약...",
         "networkError": "네트워크 오류",
         "deleteFailed": "삭제 실패",
-        "requiredFields": "필수 항목을 입력해주세요",
+        "requiredFields": "항목이 비어있습니다",
         "securityWarning": "보안 경고: 위험한 콘텐츠가 감지되었습니다",
         "translating": "번역 중...",
         "autoTranslated": "자동 번역된 내용입니다. 검토 후 수정하세요.",
@@ -483,6 +488,7 @@
         "restore": "복원",
         "retranslate": "재번역",
         "retranslateAll": "전체",
+        "regenerateSummary": "AI 요약 재생성",
         "insertTemplate": "템플릿 삽입",
         "templateConfirm": "현재 내용이 있습니다. 템플릿을 삽입하면 기존 내용 뒤에 추가됩니다. 계속하시겠습니까?"
       },
@@ -619,7 +625,7 @@
         "networkError": "네트워크 오류",
         "deleteFailed": "삭제 실패",
         "saveFailed": "저장 실패",
-        "requiredFields": "필수 항목을 입력해주세요",
+        "requiredFields": "항목이 비어있습니다",
         "securityWarning": "보안 경고: 위험한 콘텐츠가 감지되었습니다",
         "translating": "번역 중...",
         "autoTranslated": "자동 번역된 내용입니다. 검토 후 수정하세요.",
@@ -633,7 +639,8 @@
         "revisionHistory": "저장 기록",
         "restore": "복원",
         "retranslate": "재번역",
-        "retranslateAll": "전체"
+        "retranslateAll": "전체",
+        "regenerateSummary": "AI 요약 재생성"
       }
     }
   },
@@ -707,6 +714,11 @@
     "autoTranslate": "AI 자동 번역",
     "translating": "AI 번역 중...",
     "koOnly": "한국어만 제공"
+  },
+  "aiSummary": {
+    "label": "AI 요약",
+    "generating": "요약 생성 중...",
+    "regenerate": "재생성"
   },
   "tooltip": {
     "contact": "연락하기 양식이 열립니다",

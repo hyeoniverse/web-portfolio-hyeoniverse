@@ -46,6 +46,8 @@ export interface Work {
   sort_order: number;
   created_at: string;
   updated_at: string;
+  summary_ko: string;
+  summary_en: string;
 }
 
 /** Editor form — uses content_ko/en only (no legacy fields) */
@@ -139,5 +141,6 @@ export function workToProject(w: Work): Project {
     gallery: w.gallery,
     liveUrl: w.live_url || undefined,
     githubUrl: w.github_url || undefined,
+    summary: (w.summary_ko || w.summary_en) ? loc(w.summary_ko, w.summary_en) : undefined,
   };
 }

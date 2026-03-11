@@ -31,6 +31,7 @@ export interface Project {
   gallery: string[];
   liveUrl?: string;
   githubUrl?: string;
+  summary?: LocalizedText;
 }
 
 export const projects: Project[] = [

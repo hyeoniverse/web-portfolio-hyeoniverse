@@ -13,6 +13,7 @@ import Button from "@/components/ui/Button";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import CommentSection from "@/components/comments/CommentSection";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
+import AISummary from "@/components/ui/AISummary";
 import ShareButton from "@/components/ui/ShareButton";
 import styles from "./WorkDetail.module.css";
 
@@ -329,6 +330,12 @@ export default function WorkDetailClient({
           </p>
         </div>
       )}
+
+      <AISummary
+        summaryKo={project.summary?.ko ?? ""}
+        summaryEn={project.summary?.en ?? ""}
+        lang={language}
+      />
 
       {/* Content */}
       {content && (

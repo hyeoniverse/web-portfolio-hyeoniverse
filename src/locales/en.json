@@ -224,7 +224,7 @@
       "currentPasswordPlaceholder": "Enter current password",
       "currentPasswordRequired": "Current password is required",
       "emailSettings": "Email Service",
-      "aiSettings": "AI Cover Generation",
+      "aiSettings": "Post Cover",
       "securitySettings": "Security",
       "envVars": "Environment Variables",
       "envVarKey": "Key",
@@ -284,6 +284,8 @@
       "emailServiceProvider": "Email Service Provider",
       "emailFileUpload": "Email File Upload",
       "aiCoverProvider": "AI Cover Provider",
+      "aiSummarySettings": "AI Auto Summary",
+      "aiSummaryProvider": "AI Summary Provider",
       "commentNotifications": "Comment Notifications",
       "commentEmailNotify": "Receive comment email notifications",
       "commentEmailNotifyDesc": "Get notified via email when new comments are posted. Requires RESEND_API_KEY environment variable.",
@@ -299,6 +301,9 @@
       "confirmPlaceholder": "Confirm new password",
       "passwordMismatch": "Passwords don't match",
       "noChanges": "No changes",
+      "nameRequired": "Name is required",
+      "siteTitleRequired": "Site title is required",
+      "emailInvalid": "Invalid email format",
       "updateSuccess": "Updated successfully",
       "emailConfirmationSent": "Confirmation emails have been sent to both your current and new email addresses. You must confirm from both to complete the change.",
       "pendingEmailChange": "Email change pending",
@@ -345,7 +350,7 @@
       "pagination": "Pagination",
       "postsPerPage": "Posts per page",
       "adminPerPage": "Admin per page",
-      "translationSettings": "Translation",
+      "translationSettings": "AI Auto Translate",
       "translationProvider": "Provider",
       "designSystem": "Design System",
       "fontHint": "Choose from presets or type a Google Fonts name in the input field. (e.g., Roboto, Nanum Gothic)",
@@ -468,7 +473,7 @@
         "excerptPlaceholder": "Brief description...",
         "networkError": "Network error",
         "deleteFailed": "Delete failed",
-        "requiredFields": "Required fields missing",
+        "requiredFields": "required to publish",
         "securityWarning": "Security warning: dangerous content detected",
         "translating": "Translating...",
         "autoTranslated": "Auto-translated. Please review and edit.",
@@ -483,6 +488,7 @@
         "restore": "Restore",
         "retranslate": "Retranslate",
         "retranslateAll": "All",
+        "regenerateSummary": "Regenerate AI Summary",
         "insertTemplate": "Insert Template",
         "templateConfirm": "Content exists. Template will be appended. Continue?"
       },
@@ -621,7 +627,7 @@
         "networkError": "Network error",
         "deleteFailed": "Delete failed",
         "saveFailed": "Failed to save",
-        "requiredFields": "Required fields missing",
+        "requiredFields": "required to publish",
         "securityWarning": "Security warning: dangerous content detected",
         "translating": "Translating...",
         "autoTranslated": "Auto-translated. Please review and edit.",
@@ -635,7 +641,8 @@
         "revisionHistory": "History",
         "restore": "Restore",
         "retranslate": "Retranslate",
-        "retranslateAll": "All"
+        "retranslateAll": "All",
+        "regenerateSummary": "Regenerate AI Summary"
       }
     }
   },
@@ -709,6 +716,11 @@
     "autoTranslate": "Auto-translate with AI",
     "translating": "Translating...",
     "koOnly": "Korean only"
+  },
+  "aiSummary": {
+    "label": "AI Summary",
+    "generating": "Generating summary...",
+    "regenerate": "Regenerate"
   },
   "tooltip": {
     "contact": "Opens the contact form",

@@ -292,6 +292,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const [status, setStatus] = useState("");
   const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [error, setError] = useState("");
+  const [showErrors, setShowErrors] = useState(false);
 
   /* ── Auto-save (5s debounce, new + edit) ── */
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -325,6 +326,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       setForm((prev) => ({ ...prev, [key]: value }));
       setStatus("");
       setError("");
+      setShowErrors(false);
     },
     [],
   );
@@ -550,9 +552,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         if (!form.category_ko.trim()) missing.push(tw("category"));
         if (!form.year.trim()) missing.push(tw("year"));
         if (!form.image.trim()) missing.push(tw("mainImage"));
-        if (!form.content_ko.trim()) missing.push(tw("description"));
+        if (!form.content_ko.trim() && !form.content_en.trim()) missing.push(tw("description"));
         if (missing.length > 0) {
-          setError(`${tw("requiredFields")}: ${missing.join(", ")}`);
+          setError(`${missing.join(" · ")} ${tw("requiredFields")}`);
+          setShowErrors(true);
           return;
         }
 
@@ -592,6 +595,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         }
 
         if (!savedId.current) savedId.current = data.id;
+
+        // 발행 시 AI 요약 자동 생성 (fire-and-forget)
+        if (willPublish && savedId.current) {
+          fetch(`/api/works/${savedId.current}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }).catch(() => {});
+        }
 
         router.push("/admin/works");
       } catch {
@@ -673,6 +681,32 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     setStatusType("info");
   }, [tw]);
 
+  const [regeneratingSummary, setRegeneratingSummary] = useState(false);
+
+  const handleRegenerateSummary = useCallback(async () => {
+    const id = savedId.current ?? work?.id;
+    if (!id) return;
+    setRegeneratingSummary(true);
+    try {
+      const res = await fetch(`/api/works/${id}/ai-summary`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ force: true }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? tw("saveError"));
+        return;
+      }
+      setStatus(tw("regenerateSummary"));
+      setStatusType("success");
+    } catch {
+      setError(tw("saveError"));
+    } finally {
+      setRegeneratingSummary(false);
+    }
+  }, [work?.id, tw]);
+
   const shellLabels = useMemo(
     () => ({
       delete: tw("delete"),
@@ -690,6 +724,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       restore: tw("restore"),
       retranslate: tw("retranslate"),
       retranslateAll: tw("retranslateAll"),
+      regenerateSummary: tw("regenerateSummary"),
     }),
     [tw],
   );
@@ -737,6 +772,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       onDeleteRevision={handleDeleteRevision}
       onRetranslate={handleRetranslate}
       retranslateOptions={retranslateOptions}
+      onRegenerateSummary={isEdit || !!savedId.current ? handleRegenerateSummary : undefined}
+      regeneratingSummary={regeneratingSummary}
       currentSnapshot={{
         title: form.title,
         excerpt: form.description_ko || form.description_en || "",
@@ -754,9 +791,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>{tw("basicInfo")}</h2>
         <div className={es.field}>
-          <label className={es.fieldLabel}>{tw("title")}</label>
+          <label className={`${es.fieldLabel}${showErrors && !form.title.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
           <input
-            className={es.titleInput}
+            className={`${es.titleInput}${showErrors && !form.title.trim() ? ` ${es.titleInputError}` : ""}`}
             type="text"
             value={form.title}
             onChange={(e) => updateField("title", e.target.value)}
@@ -776,9 +813,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             />
           </div>
           <div className={es.field}>
-            <label className={es.fieldLabel}>{tw("year")}</label>
+            <label className={`${es.fieldLabel}${showErrors && !form.year.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("year")}</label>
             <input
-              className={es.fieldInput}
+              className={`${es.fieldInput}${showErrors && !form.year.trim() ? ` ${es.fieldInputError}` : ""}`}
               type="text"
               value={form.year}
               onChange={(e) => updateField("year", e.target.value)}
@@ -814,7 +851,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             />
           </div>
           <div className={es.field}>
-            <label className={es.fieldLabel}>{tw("category")}</label>
+            <label className={`${es.fieldLabel}${showErrors && !form.category_ko.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
             {worksCategories.length > 0 ? (
               <Select
                 value={String(
@@ -888,7 +925,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       <div className={styles.section}>
         <div className={styles.editorHeader}>
           <div className={styles.editorHeaderLeft}>
-            <h2 className={styles.sectionTitle} style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
+            <h2 className={`${styles.sectionTitle}${showErrors && !form.content_ko.trim() && !form.content_en.trim() ? ` ${styles.sectionTitleError}` : ""}`} style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
               {tw("content")}
             </h2>
             <button
@@ -1042,7 +1079,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <h2 className={styles.sectionTitle}>{tw("images")}</h2>
 
         <div className={es.field} style={{ marginBottom: "var(--spacing-lg)" }}>
-          <label className={es.fieldLabel}>{tw("mainImage")}</label>
+          <label className={`${es.fieldLabel}${showErrors && !form.image.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("mainImage")}</label>
           {form.image ? (
             <div className={styles.imagePreview}>
               <Image
