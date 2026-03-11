@@ -193,8 +193,8 @@ export default function DetailLayout({
         <nav className={styles.toc}>
           <p className={styles.tocTitle}>Contents</p>
           <ul className={styles.tocList}>
-            {headings.map(({ id, text, level }) => (
-              <li key={id}>
+            {headings.map(({ id, text, level }, idx) => (
+              <li key={`${id}-${idx}`}>
                 <a
                   href={`#${id}`}
                   className={`${styles.tocLink} ${styles[`tocLevel${level}` as keyof typeof styles] ?? ""} ${activeHeadingId === id ? styles.tocActive : ""}`}

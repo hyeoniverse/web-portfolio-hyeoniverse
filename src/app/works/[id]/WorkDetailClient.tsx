@@ -12,6 +12,8 @@ import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import Button from "@/components/ui/Button";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import CommentSection from "@/components/comments/CommentSection";
+import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
+import ShareButton from "@/components/ui/ShareButton";
 import styles from "./WorkDetail.module.css";
 
 interface WorkDetailClientProps {
@@ -45,6 +47,45 @@ function extractHeadings(content: string, isRichtext: boolean): TocHeading[] {
   return headings;
 }
 
+/**
+ * Bento grid class assignment — irregular 3-col layout
+ * 12-item cycle for maximum variety:
+ *
+ *  Row 1-2: [hero 2×2] [tall 1×2]
+ *  Row 3:   [  normal ] [  wide 2×1  ]
+ *  Row 4:   [  wide 2×1  ] [ normal ]
+ *  Row 5-6: [tall 1×2] [   hero 2×2  ]
+ *  Row 7:   [ normal ] [ normal ] [ normal ]
+ */
+function getBentoClass(
+  i: number,
+  count: number,
+  s: Record<string, string>,
+): string {
+  if (count === 1) return s.bentoFull;
+  if (count === 2) return s.bentoWide;
+  if (count === 3) {
+    if (i === 0) return s.bentoHero;
+    return "";
+  }
+  if (count === 4) {
+    if (i === 0) return s.bentoHero;
+    if (i === 1) return s.bentoTall;
+    return "";
+  }
+
+  const pos = i % 12;
+  switch (pos) {
+    case 0: return s.bentoHero;   // 2×2
+    case 1: return s.bentoTall;   // 1×2
+    case 3: return s.bentoWide;   // 2×1
+    case 4: return s.bentoWide;   // 2×1
+    case 6: return s.bentoTall;   // 1×2
+    case 7: return s.bentoHero;   // 2×2
+    default: return "";           // 1×1
+  }
+}
+
 export default function WorkDetailClient({
   project,
   prevProject,
@@ -54,6 +95,8 @@ export default function WorkDetailClient({
   const isRichtext = project.contentType === "richtext";
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
+  const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
+  const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
 
   useEffect(() => {
     fetch(`/api/works/${project.id}/like`)
@@ -90,6 +133,7 @@ export default function WorkDetailClient({
   }, [content, isRichtext, project.gallery.length]);
 
   return (
+    <>
     <DetailLayout
       backHref="/works"
       backLabel={t("workDetail.back")}
@@ -107,8 +151,18 @@ export default function WorkDetailClient({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.65, duration: 0.6 }}
             >
-              {project.gallery.map((src, i) => (
-                <div key={i} className={styles.galleryItem}>
+              {project.gallery.map((src, i) => {
+                const count = project.gallery.length;
+                const bentoClass = getBentoClass(i, count, styles);
+                return (
+                <div
+                  key={i}
+                  className={`${styles.galleryItem} ${bentoClass ?? ""}`}
+                  onClick={() => setGalleryViewer({ open: true, index: i })}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === "Enter") setGalleryViewer({ open: true, index: i }); }}
+                >
                   <ProgressiveImage
                     src={src}
                     alt={`${project.title} ${i + 1}`}
@@ -117,7 +171,8 @@ export default function WorkDetailClient({
                     className={styles.galleryImage}
                   />
                 </div>
-              ))}
+                );
+              })}
             </motion.div>
           )}
 
@@ -177,6 +232,7 @@ export default function WorkDetailClient({
 
           {/* Comments */}
           <motion.div
+            className={styles.commentWrap}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.75 }}
@@ -192,16 +248,21 @@ export default function WorkDetailClient({
         </>
       }
     >
+      {/* ── Meta header ── */}
       <motion.div
         className={styles.meta}
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.6 }}
       >
-        <span className={styles.category}><T ko={project.category.ko} en={project.category.en} /></span>
-        <span className={styles.year}>{project.year}</span>
+        <div className={styles.metaLeft}>
+          <span className={styles.projectNumber}>#{project.number}</span>
+          <span className={styles.category}><T ko={project.category.ko} en={project.category.en} /></span>
+        </div>
+        <ShareButton />
       </motion.div>
 
+      {/* ── Title ── */}
       <motion.h1
         className={styles.title}
         initial={{ opacity: 0, y: 40 }}
@@ -211,6 +272,7 @@ export default function WorkDetailClient({
         {project.title}
       </motion.h1>
 
+      {/* ── Description ── */}
       <motion.p
         className={styles.description}
         initial={{ opacity: 0, y: 30 }}
@@ -220,57 +282,45 @@ export default function WorkDetailClient({
         <T ko={project.description.ko} en={project.description.en} />
       </motion.p>
 
+      {/* ── Info grid ── */}
       <motion.div
-        className={styles.infoRow}
+        className={styles.infoGrid}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.45, duration: 0.6 }}
       >
+        <div className={styles.infoBlock}>
+          <span className={styles.infoLabel}>Year</span>
+          <span className={styles.infoValue}>{project.year}</span>
+        </div>
         <div className={styles.infoBlock}>
           <span className={styles.infoLabel}><T k="workDetail.role" /></span>
           <span className={styles.infoValue}><T ko={project.role.ko} en={project.role.en} /></span>
         </div>
         <div className={styles.infoBlock}>
           <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-          <div className={styles.techStack}>
-            {project.tech.map((tech) => (
-              <span key={tech} className={styles.techTag}>
-                {tech}
-              </span>
-            ))}
-          </div>
+          <span className={styles.infoValue}>{project.tech.join(", ")}</span>
         </div>
-      </motion.div>
-
-      {/* Team Members */}
-      {project.teamMembers && project.teamMembers.length > 0 && (
-        <motion.div
-          className={styles.infoRow}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.48, duration: 0.6 }}
-        >
+        {project.teamMembers && project.teamMembers.length > 0 && (
           <div className={styles.infoBlock}>
             <span className={styles.infoLabel}><T k="workDetail.team" /></span>
             <div className={styles.teamList}>
               {project.teamMembers.map((member, i) => (
-                <div key={i} className={styles.teamMember}>
-                  <span className={styles.teamName}>
-                    {member.url ? (
-                      <a href={member.url} target="_blank" rel="noopener noreferrer">
-                        {member.name}
-                      </a>
-                    ) : (
-                      member.name
-                    )}
-                  </span>
-                  <span className={styles.teamRole}><T ko={member.role.ko} en={member.role.en} /></span>
-                </div>
+                <span key={i} className={styles.teamMember}>
+                  {member.url ? (
+                    <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
+                      {member.name}
+                    </a>
+                  ) : (
+                    member.name
+                  )}
+                  <span className={styles.teamRole}> — <T ko={member.role.ko} en={member.role.en} /></span>
+                </span>
               ))}
             </div>
           </div>
-        </motion.div>
-      )}
+        )}
+      </motion.div>
 
       {needsTranslation && (
         <div className={styles.translateBanner}>
@@ -288,14 +338,35 @@ export default function WorkDetailClient({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          {isRichtext ? (
-            <div className={styles.sectionProse} dangerouslySetInnerHTML={{ __html: content }} />
-          ) : (
-            <MarkdownRenderer content={content} className={styles.sectionProse} />
-          )}
+          <div ref={proseRef}>
+            {isRichtext ? (
+              <div className={styles.sectionProse} dangerouslySetInnerHTML={{ __html: content }} />
+            ) : (
+              <MarkdownRenderer content={content} className={styles.sectionProse} />
+            )}
+          </div>
         </motion.div>
       )}
 
     </DetailLayout>
+
+    {/* Gallery ImageViewer */}
+    <ImageViewer
+      images={project.gallery}
+      index={galleryViewer.index}
+      open={galleryViewer.open}
+      onClose={() => setGalleryViewer({ open: false, index: 0 })}
+      title={project.title}
+    />
+
+    {/* Prose ImageViewer */}
+    <ImageViewer
+      images={proseViewer.images}
+      index={proseViewer.index}
+      open={proseViewer.open}
+      onClose={closeProseViewer}
+      title={project.title}
+    />
+    </>
   );
 }
