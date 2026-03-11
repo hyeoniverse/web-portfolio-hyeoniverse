@@ -96,7 +96,7 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
   padding: 2px 0;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   outline: none;
@@ -112,18 +112,18 @@
 }
 
 .zoomInput {
-  border-color: var(--border-secondary-color);
+  border-color: var(--border-default-color);
   background: var(--bg-tertiary);
 }
 
 .zoomInput:focus {
-  border-color: var(--border-primary-color);
+  border-color: var(--border-strong-color);
 }
 
 .toolbarDivider {
   width: 1px;
   height: 18px;
-  background: var(--border-tertiary-color);
+  background: var(--border-light-color);
   margin: 0 4px;
   flex-shrink: 0;
 }
@@ -311,7 +311,7 @@
   padding: 16px 0;
   border-radius: var(--radius-lg);
   background: var(--bg-primary);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   min-width: 240px;
 }
@@ -363,7 +363,7 @@
   min-width: 22px;
   height: 22px;
   padding: 0 6px;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-xs);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
@@ -374,7 +374,7 @@
 
 .shortcutsDivider {
   height: 1px;
-  background: var(--border-tertiary-color);
+  background: var(--border-light-color);
   margin: 4px 16px;
 }
 
@@ -389,7 +389,7 @@
   padding: 10px 12px;
   border-radius: var(--radius-md);
   background: var(--bg-primary);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   z-index: 20;
   min-width: 160px;
@@ -415,7 +415,7 @@
   display: flex;
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   padding: 2px;
 }
 
@@ -467,7 +467,7 @@
 }
 
 .loopRow .loopSwitch {
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   background: var(--bg-tertiary);
 }
 
@@ -535,7 +535,7 @@
 .loaderSpinner {
   width: 28px;
   height: 28px;
-  border: 2px solid var(--border-tertiary-color);
+  border: 2px solid var(--border-light-color);
   border-top-color: var(--text-muted);
   border-radius: 50%;
   animation: viewer-spin 0.65s linear infinite;
@@ -633,7 +633,7 @@
   width: 140px;
   z-index: 5;
   background: transparent;
-  border-right: 1px solid var(--border-tertiary-color);
+  border-right: 1px solid var(--border-light-color);
   overflow: hidden;
 }
 
@@ -724,7 +724,7 @@
   padding: 6px 0;
   border-radius: var(--radius-md);
   background: var(--bg-primary);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   z-index: 20;
   min-width: 180px;
@@ -758,7 +758,7 @@
 
 .moreMenuDivider {
   height: 1px;
-  background: var(--border-tertiary-color);
+  background: var(--border-light-color);
   margin: 4px 0;
 }
 

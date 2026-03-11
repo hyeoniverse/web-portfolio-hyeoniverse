@@ -167,7 +167,7 @@
 .variant-outline {
   background: transparent;
   color: var(--text-primary);
-  border-color: var(--border-primary-color);
+  border-color: var(--border-strong-color);
 }
 
 .variant-outline.btn {

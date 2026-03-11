@@ -24,7 +24,7 @@ Raw Tokens          →  Semantic Tokens       →  Context Tokens
 | `_motion.css` | `--duration-*`, `--ease-*`, `--delay-*` | `--duration-base`, `--ease-material` |
 | `_radius.css` | `--radius-*` | `--radius-md`, `--radius-capsule` |
 | `_shadow.css` | `--shadow-*` | `--shadow-sm`, `--shadow-glow` |
-| `_sizing.css` | `--size-*`, `--breakpoint-*`, `--z-*` | `--z-modal`, `--breakpoint-md` |
+| `_sizing.css` | `--size-*`, `--breakpoint-*`, `--width-*`, `--icon-*` | `--size-md`, `--breakpoint-lg`, `--width-xl` |
 | `_z-index.css` | `--z-*` | `--z-nav` (100), `--z-modal` (8000) |
 
 **박스 토큰 (`--box-*`)**: padding/margin 복합값 (spacing 토큰 참조)
@@ -48,9 +48,17 @@ Raw Tokens          →  Semantic Tokens       →  Context Tokens
 --bg-primary, --bg-secondary, --bg-tertiary, --bg-surface
 --bg-accent, --bg-overlay, --bg-glass
 
-/* 테두리 */
---border-primary-color, --border-secondary-color, --border-tertiary-color
---border-strong, --border-default, --border-light, --border-accent
+/* 테두리 — Color (shorthand base 이름과 1:1 대응) */
+--border-strong-color, --border-default-color, --border-light-color
+--border-white-color, --border-black-color, --border-accent-color
+
+/* 테두리 — Width scale */
+--border-width-thin (1px), --border-width-default (1.5px), --border-width-thick (2px)
+--border-width-thicker (3px), --border-width-thickest (4px)
+
+/* 테두리 — Shorthand (1px 기본; 두께 변경 시 컴포넌트에서 조합) */
+--border-strong, --border-default, --border-light
+--border-white, --border-inverse, --border-accent
 
 /* Editorial (페이지 레이아웃) */
 --editorial-panel-py, --editorial-panel-px
@@ -101,6 +109,14 @@ Raw Tokens          →  Semantic Tokens       →  Context Tokens
 | 인터랙티브 | `.button`, `.link`, `.toggle`, `.badge` |
 | 상태 (JS 연동) | `.isActive`, `.isOpen`, `.isLoading` |
 | 애니메이션 트리거 | `.animate`, `.animateVisible` |
+
+> **CSS Modules + 상태 클래스 주의**: JS로 동적 클래스를 추가할 때는 반드시 `styles.isActive`(해시된 이름)를 사용. 일반 문자열 `'isActive'`로 `classList.add` 하면 해시된 클래스와 불일치해 적용 안 됨.
+> ```tsx
+> // ✓ 올바른 예
+> el.classList.toggle(styles.isActive, condition);
+> // ✗ 잘못된 예
+> el.classList.toggle('isActive', condition);
+> ```
 | 에러 상태 | `.fieldLabelError`, `.editorLabelError`, `.sectionTitleError` |
 
 ### 계층 표현
@@ -176,6 +192,8 @@ html[data-theme-ready] *::before,
 
 ## 5. 반응형 & 유동 값
 
+**모바일 vw 토큰**: `_sizing.css`에 480px 이하 전용 토큰 있음 — `--m-sm` (2.1vw), `--m-md` (4.2vw), `--m-lg` (5vw). 모바일에서 px 대신 vw 기반 여백/크기 조정 시 사용.
+
 **Fluid tokens**: 뷰포트에 따라 자동 스케일 (clamp 기반)
 
 ```css
@@ -183,12 +201,19 @@ html[data-theme-ready] *::before,
 --fluid-spacing-section: clamp(2rem, 5vw, 5rem);
 ```
 
-**Breakpoint**: 컴포넌트별 미디어 쿼리에 `--breakpoint-*` 토큰 사용 지양 (CSS에서 var() 미디어쿼리 미지원). 대신 직접 값 사용:
+**Breakpoint**: CSS 미디어 쿼리는 `var()` 미지원 → `--breakpoint-*` 토큰을 직접 쓸 수 없음. 미디어 쿼리에서는 직접 값 사용:
 
 ```css
 @media (max-width: 1024px) { ... }   /* tablet */
 @media (max-width: 768px) { ... }    /* mobile */
 ```
+
+`--breakpoint-*` 토큰은 JS에서만 활용 가능:
+```ts
+getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-md') // "768px"
+```
+
+> **`--pc` / `--tablet` / `--mobile`**: `_sizing.css`에 별도 Device Breakpoint 세트도 존재 (`--pc: 1025px`, `--tablet: 768px`, `--mobile: 378px`). 미디어 쿼리 기준값으로는 이 세 값을 사용.
 
 ---
 
@@ -253,7 +278,7 @@ html[data-theme-ready] *::before,
 ## 9. 금지 사항
 
 ```css
-/* ✗ hex/rgba 직접 사용 */
+/* ✗ hex/rgba 직접 사용 (예외: 컴포넌트 고유 이펙트 색상은 파일당 1–2개 허용) */
 color: #1a1a1a;
 background: rgba(0,0,0,0.5);
 

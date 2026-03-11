@@ -99,7 +99,7 @@
 }
 
 .item:hover .itemOval {
-  border-color: var(--border-strong);
+  border-color: var(--border-strong-color);
 }
 
 /* ---------------------------------------------------------------------------

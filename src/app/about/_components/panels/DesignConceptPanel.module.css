@@ -445,7 +445,7 @@
   .dcMobileCard {
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--border-primary-color);
+    border: 1px solid var(--border-strong-color);
     overflow: hidden;
     position: relative;
     min-height: 65vh;

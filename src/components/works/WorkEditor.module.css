@@ -17,7 +17,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding-bottom: var(--spacing-xs);
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .sectionTitleError {
@@ -38,7 +38,7 @@
 
 .fieldTextarea {
   padding: var(--spacing-sm);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-md);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -59,7 +59,7 @@
 
 .fieldSelect {
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -87,7 +87,7 @@
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: 50%;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -112,7 +112,7 @@
   justify-content: space-between;
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-xs);
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
   gap: var(--spacing-md);
 }
 
@@ -124,7 +124,7 @@
 
 .templateBtn {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -157,7 +157,7 @@
   height: 70px;
   object-fit: cover;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
 }
 
 .imageRemove {
@@ -181,7 +181,7 @@
   aspect-ratio: 3 / 2;
   border-radius: var(--radius-sm);
   overflow: hidden;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
 }
 
 .galleryImg {
@@ -241,7 +241,7 @@
   justify-content: space-between;
   gap: var(--spacing-md);
   padding: var(--box-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
 }
 

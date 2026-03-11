@@ -12,7 +12,7 @@
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-2xl);
   padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .topBarRow {
@@ -53,7 +53,7 @@
 .actionsDivider {
   width: 1px;
   height: 20px;
-  background: var(--border-tertiary-color);
+  background: var(--border-light-color);
 }
 
 /* ── Action Buttons ── */
@@ -66,7 +66,7 @@
 }
 
 .deleteBtn {
-  border-color: var(--border-secondary-color);
+  border-color: var(--border-default-color);
   color: var(--text-secondary);
 }
 
@@ -83,7 +83,7 @@
 }
 
 .revertBtn {
-  border-color: var(--border-secondary-color);
+  border-color: var(--border-default-color);
   color: var(--text-secondary);
 }
 
@@ -125,7 +125,7 @@
   align-items: center;
   gap: 4px;
   padding: var(--box-xs);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -152,7 +152,7 @@
   max-height: 280px;
   overflow-y: auto;
   background: var(--bg-primary);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
   z-index: var(--z-dropdown);
@@ -166,7 +166,7 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .revisionDropdownWide {
@@ -179,7 +179,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--box-xs-sm);
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .revisionItem:last-child {
@@ -259,7 +259,7 @@
 
 .revisionRestoreBtn {
   padding: 2px var(--spacing-xs);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -284,7 +284,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--box-xs-sm);
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 .revisionBackBtn {
@@ -331,7 +331,7 @@
 
 .revisionDetailContent {
   padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-sm);
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
   font-family: var(--font-space-grotesk);
   font-size: 11px;
   color: var(--text-tertiary);
@@ -343,7 +343,7 @@
 /* ── Revision Meta ── */
 .revisionMetaSection {
   padding: var(--box-xs-sm);
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -397,7 +397,7 @@
   width: 100%;
   padding: 0;
   border: none;
-  border-bottom: 1px solid var(--border-secondary-color);
+  border-bottom: 1px solid var(--border-default-color);
   background: transparent;
   font-family: var(--font-instrument);
   font-size: var(--font-size-3xl);
@@ -456,7 +456,7 @@
 
 .fieldInput {
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -509,7 +509,7 @@
 /* ── Upload Button ── */
 .uploadBtn {
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -529,7 +529,7 @@
 }
 
 .retranslateBtn {
-  border-color: var(--border-secondary-color);
+  border-color: var(--border-default-color);
   color: var(--text-secondary);
 }
 
@@ -544,7 +544,7 @@
   left: 0;
   min-width: 120px;
   background: var(--bg-primary);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
   z-index: var(--z-dropdown);
@@ -569,7 +569,7 @@
 
 .retranslateItem:first-child {
   font-weight: 600;
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
 }
 
 /* ── Editor Header ── */

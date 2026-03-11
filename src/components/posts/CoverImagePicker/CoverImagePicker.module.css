@@ -1,7 +1,7 @@
 /* ── Container ── */
 .picker {
   margin-top: var(--spacing-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -12,13 +12,13 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--box-xs-sm);
-  border-bottom: 1px solid var(--border-tertiary-color);
+  border-bottom: 1px solid var(--border-light-color);
   background: var(--bg-tertiary);
 }
 
 .tabs {
   display: flex;
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   overflow: hidden;
 }
@@ -69,7 +69,7 @@
   height: 360px;
   overflow-y: scroll;
   scrollbar-width: thin;
-  scrollbar-color: var(--border-primary-color) transparent;
+  scrollbar-color: var(--border-strong-color) transparent;
   scrollbar-gutter: stable;
 }
 
@@ -83,7 +83,7 @@
 }
 
 .body::-webkit-scrollbar-thumb {
-  background: var(--border-primary-color);
+  background: var(--border-strong-color);
   border-radius: 3px;
 }
 
@@ -97,7 +97,7 @@
 .presetItem {
   aspect-ratio: 1200 / 630;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   overflow: hidden;
 
   position: relative;
@@ -144,7 +144,7 @@
   width: 100%;
   padding: var(--spacing-xs) var(--spacing-2xl) var(--spacing-xs)
     var(--spacing-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -185,7 +185,7 @@
 }
 
 .inputWrapper .clearBtn:hover {
-  background: var(--border-primary-color);
+  background: var(--border-strong-color);
   color: var(--text-primary);
 }
 
@@ -242,7 +242,7 @@
   display: block;
   margin: var(--spacing-sm) auto 0;
   padding: var(--box-xs-lg);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -270,7 +270,7 @@
 
 .styleChip {
   padding: var(--box-sm);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -320,7 +320,7 @@
 .aiPreview img {
   width: 100%;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
 }
 
 .aiActions {
@@ -341,7 +341,7 @@
 
 .retryBtn {
   padding: var(--box-xs-xl);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -359,7 +359,7 @@
 
 .suggestionChip {
   padding: var(--box-sm);
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);

@@ -196,7 +196,7 @@
   flex: 1;
   min-width: var(--spacing-lg);
   height: 1px;
-  background: var(--border-tertiary-color);
+  background: var(--border-light-color);
 }
 
 .copyright {

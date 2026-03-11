@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   background: transparent;
   color: var(--text-tertiary);
 }

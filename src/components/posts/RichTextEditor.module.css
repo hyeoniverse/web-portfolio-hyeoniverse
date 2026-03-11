@@ -11,7 +11,7 @@
   flex-wrap: wrap;
   gap: 2px;
   padding: var(--spacing-xs);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-bottom: none;
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   background: var(--bg-tertiary);
@@ -48,13 +48,13 @@
 .divider {
   width: 1px;
   margin: 2px var(--spacing-2xs);
-  background: var(--border-tertiary-color);
+  background: var(--border-light-color);
 }
 
 /* Font family select */
 .fontSelect {
   padding: var(--box-xs);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-xs);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -117,7 +117,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
 
   padding: 0;
 }
@@ -130,11 +130,11 @@
 .editor {
   flex: 1;
   min-height: 0;
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--border-primary-color) transparent;
+  scrollbar-color: var(--border-strong-color) transparent;
 }
 
 .editor::-webkit-scrollbar {
@@ -147,7 +147,7 @@
 }
 
 .editor::-webkit-scrollbar-thumb {
-  background: var(--border-primary-color);
+  background: var(--border-strong-color);
   border-radius: 3px;
 }
 
@@ -269,7 +269,7 @@
 
 .editor :global(.tiptap) hr {
   border: none;
-  border-top: 1px solid var(--border-tertiary-color);
+  border-top: 1px solid var(--border-light-color);
   margin: var(--spacing-lg) 0;
 }
 
@@ -304,7 +304,7 @@
   gap: 2px;
   padding: var(--spacing-2xs);
   background: var(--bg-primary);
-  border: 1px solid var(--border-tertiary-color);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }

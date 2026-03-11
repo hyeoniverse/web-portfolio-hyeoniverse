@@ -101,34 +101,27 @@
    Border Colors & Shorthands
    -------------------------------------------------------------------------- */
 :root {
-  /* Color primitives */
-  --border-primary-color: var(--color-neutral-alpha-80);
-  --border-secondary-color: var(--color-neutral-alpha-30);
-  --border-tertiary-color: var(--color-neutral-alpha-10);
+  /* Color primitives (shorthand base 이름과 1:1 대응) */
+  --border-strong-color: var(--color-neutral-alpha-80);
+  --border-default-color: var(--color-neutral-alpha-30);
+  --border-light-color: var(--color-neutral-alpha-10);
   --border-white-color: var(--color-white-alpha-100);
   --border-black-color: var(--color-gray-alpha-100);
   --border-accent-color: var(--color-accent-light);
 
-  /* Shorthands */
-  --border-strong: 1px solid var(--border-primary-color);
-  --border-strong-125: 1.25px solid var(--border-primary-color);
-  --border-strong-15: 1.5px solid var(--border-primary-color);
-  --border-strong-2: 2px solid var(--border-primary-color);
-  --border-strong-3: 3px solid var(--border-primary-color);
-  --border-strong-4: 4px solid var(--border-primary-color);
-  --border-default: 1px solid var(--border-secondary-color);
-  --border-default-125: 1.25px solid var(--border-secondary-color);
-  --border-default-15: 1.5px solid var(--border-secondary-color);
-  --border-default-2: 2px solid var(--border-secondary-color);
-  --border-default-3: 3px solid var(--border-secondary-color);
-  --border-light: 1px solid var(--border-tertiary-color);
-  --border-light-125: 1.25px solid var(--border-tertiary-color);
-  --border-light-15: 1.5px solid var(--border-tertiary-color);
-  --border-light-2: 2px solid var(--border-tertiary-color);
-  --border-light-3: 3px solid var(--border-tertiary-color);
+  /* Width scale */
+  --border-width-thin: 1px;
+  --border-width-default: 1.5px;
+  --border-width-thick: 2px;
+  --border-width-thicker: 3px;
+  --border-width-thickest: 4px;
+
+  /* Shorthands (1px 기본값; 두께 변경 시 컴포넌트에서 조합) */
+  --border-strong: 1px solid var(--border-strong-color);
+  --border-default: 1px solid var(--border-default-color);
+  --border-light: 1px solid var(--border-light-color);
   --border-white: 1px solid var(--border-white-color);
   --border-inverse: 1px solid var(--border-white-color);
-  --border-focus: 1px solid var(--border-accent-color);
   --border-accent: 1px solid var(--border-accent-color);
 }
 

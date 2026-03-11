@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .container {
-  border: 1px solid var(--border-secondary-color);
+  border: 1px solid var(--border-default-color);
   border-radius: var(--radius-lg);
   overflow: hidden;
   margin-bottom: var(--spacing-2xl);
