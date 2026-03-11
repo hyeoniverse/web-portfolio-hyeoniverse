@@ -1,11 +1,11 @@
 /* ── Modal Content Templates ── */
 
 .body {
-  padding: var(--spacing-sm) var(--spacing-2xl) var(--spacing-2xl);
+  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
 }
 
 .desc {
-  margin: 0 0 var(--spacing-lg);
+  margin: 0 0 var(--spacing-3xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
@@ -15,7 +15,7 @@
 .hint {
   margin: 0 0 var(--spacing-md);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--text-tertiary);
 }
 
@@ -28,8 +28,12 @@
   font-size: var(--font-size-sm);
 }
 
+.body .input input {
+  border-color: var(--border-secondary-color);
+}
+
 .body .input input:focus {
-  border-color: var(--color-accent);
+  border-color: var(--border-primary-color);
 }
 
 .error {

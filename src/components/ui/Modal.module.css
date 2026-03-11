@@ -80,6 +80,7 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
+  min-width: 0;
 }
 
 .headerIcon {
