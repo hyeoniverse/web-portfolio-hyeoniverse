@@ -92,8 +92,8 @@
 }
 
 .tagAddBtn {
-  width: 32px;
-  height: 32px;
+  align-self: stretch;
+  aspect-ratio: 1;
   flex-shrink: 0;
   border: 1px solid var(--border-secondary-color);
   border-radius: 50%;
@@ -164,6 +164,15 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.editorLabelError {
+  color: var(--color-accent) !important;
+}
+
+.editorLabelError::after {
+  content: "•";
+  margin-left: 4px;
 }
 
 .templateBtn {
