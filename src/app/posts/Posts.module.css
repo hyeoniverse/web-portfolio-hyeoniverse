@@ -518,7 +518,6 @@
   color: var(--text-tertiary);
   border-color: var(--border-light-color);
   opacity: 0.65;
-  cursor: not-allowed;
 }
 
 .ellipsis {

@@ -9,7 +9,8 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import type { Post, Series } from "@/types/post";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
-import { highlightCodeBlocks } from "@/components/posts/highlightCodeBlocks";
+import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
+import "katex/dist/katex.min.css";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import T from "@/components/ui/T";
 import AISummary from "@/components/ui/AISummary";
@@ -175,6 +176,21 @@ function RecommendedSection({ posts, viewLang }: { posts: RecommendedPost[]; vie
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
         </svg>
         <span className={styles.recommendedLabel}><T k="postDetail.recommended" /></span>
+        {rest.length > 0 && (
+          <button
+            className={styles.recommendedMoreBtn}
+            onClick={() => setExpanded(!expanded)}
+            data-clickable="true"
+          >
+            {expanded ? <T k="common.close" /> : <>+{rest.length} <T k="postDetail.more" /></>}
+            <svg
+              className={`${styles.recommendedMoreChevron} ${expanded ? styles.recommendedMoreChevronOpen : ""}`}
+              width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"
+            >
+              <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )}
       </div>
       <div className={styles.recommendedList}>
         {renderItem(first)}
@@ -194,21 +210,6 @@ function RecommendedSection({ posts, viewLang }: { posts: RecommendedPost[]; vie
           ))}
         </AnimatePresence>
       </div>
-      {rest.length > 0 && (
-        <button
-          className={styles.recommendedMoreBtn}
-          onClick={() => setExpanded(!expanded)}
-          data-clickable="true"
-        >
-          {expanded ? <T k="common.close" /> : <>+{rest.length} <T k="postDetail.more" /></>}
-          <svg
-            className={`${styles.recommendedMoreChevron} ${expanded ? styles.recommendedMoreChevronOpen : ""}`}
-            width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"
-          >
-            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      )}
     </section>
   );
 }
@@ -229,8 +230,9 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
   );
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
-  const [seriesData, setSeriesData] = useState<(Series & { posts: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at">[] }) | null>(null);
+  const [seriesData, setSeriesData] = useState<(Series & { posts: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at" | "excerpt" | "excerpt_en" | "tags" | "category">[] }) | null>(null);
   const [seriesOpen, setSeriesOpen] = useState(false);
+  const [seriesPreview, setSeriesPreview] = useState<{ post: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at" | "excerpt" | "excerpt_en" | "tags">; top: number; left: number } | null>(null);
   const [adjacentPosts, setAdjacentPosts] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
   const [recommendedPosts, setRecommendedPosts] = useState<{ id: string; title: string; slug: string; cover_image: string; title_en: string; excerpt: string; excerpt_en: string; category: string; tags: string[] }[]>([]);
   const richtextRef = useRef<HTMLDivElement>(null);
@@ -343,9 +345,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
     return addIdsToHtml(displayContent);
   }, [post.content_type, displayContent]);
 
-  useEffect(() => {
-    if (richtextRef.current) highlightCodeBlocks(richtextRef.current);
-  }, [processedRichtextHtml]);
+  useRichtextEnhance(proseViewerRef, displayContent);
 
   const date = new Date(post.created_at).toLocaleDateString("en-US", {
     year: "numeric",
@@ -359,6 +359,26 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
   const prevSeriesPost = currentSeriesIdx > 0 ? seriesPosts[currentSeriesIdx - 1] : null;
   const nextSeriesPost = currentSeriesIdx < seriesPosts.length - 1 ? seriesPosts[currentSeriesIdx + 1] : null;
   const relatedSeriesPosts = seriesPosts.filter((p) => p.id !== post.id);
+
+  const handleSeriesHover = useCallback((sp: typeof seriesPosts[number], e: React.MouseEvent) => {
+    if (sp.id === post.id) return;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const tooltipW = 240;
+    const tooltipH = 200;
+    const gap = 8;
+    // 가로: 항목 중앙 기준, 뷰포트 안에 clamp
+    const rawLeft = rect.left + rect.width / 2 - tooltipW / 2;
+    const left = Math.max(gap, Math.min(rawLeft, window.innerWidth - tooltipW - gap));
+    // 세로: 위에 공간 있으면 위, 없으면 아래
+    const top = rect.top > tooltipH + gap
+      ? rect.top - tooltipH - gap
+      : rect.bottom + gap;
+    setSeriesPreview({ post: sp, top, left });
+  }, [post.id]);
+
+  const handleSeriesLeave = useCallback(() => {
+    setSeriesPreview(null);
+  }, []);
 
   const showHero = post.cover_image && !heroImgError;
   const heroErrorFallback = post.cover_image && heroImgError ? (
@@ -418,7 +438,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
                 {relatedSeriesPosts.map((sp, idx) => (
                   <Link key={sp.id} href={`/posts/${sp.slug}`} className={styles.relatedCard}>
                     <div className={styles.relatedCardImage}>
-                      {sp.cover_image && (
+                      {sp.cover_image ? (
                         <Image
                           src={sp.cover_image}
                           alt={viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
@@ -426,12 +446,25 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
                           sizes="(max-width: 768px) 50vw, 220px"
                           className={styles.relatedCardImg}
                         />
+                      ) : (
+                        <svg className={styles.relatedCardPlaceholder} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
                       )}
                     </div>
                     <div className={styles.relatedCardBody}>
-                      <span className={styles.relatedCardOrder}>#{sp.series_order ?? idx + 1}</span>
+                      <div className={styles.relatedCardMeta}>
+                        <span className={styles.relatedCardOrder}>#{(sp.series_order ?? idx) + 1}</span>
+                        {sp.category && <span className={styles.relatedCardCategory}>{sp.category}</span>}
+                      </div>
                       <span className={styles.relatedCardTitle}>
                         {viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
+                      </span>
+                      {(viewLang === "en" ? sp.excerpt_en || sp.excerpt : sp.excerpt) && (
+                        <span className={styles.relatedCardExcerpt}>
+                          {viewLang === "en" ? sp.excerpt_en || sp.excerpt : sp.excerpt}
+                        </span>
+                      )}
+                      <span className={styles.relatedCardDate}>
+                        {new Date(sp.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric" })}
                       </span>
                     </div>
                   </Link>
@@ -447,7 +480,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <CommentSection commentType="post" targetId={post.id} />
+            <CommentSection commentType="post" targetId={post.id} translationEnabled={translationEnabled} />
           </motion.div>
 
           <div className={styles.footerNav}>
@@ -500,17 +533,16 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
 
         {displayExcerpt && <p className={styles.excerpt}>{displayExcerpt}</p>}
 
-        {post.tags.length > 0 && (
-          <div className={styles.tags}>
-            {post.tags.map((tag) => (
-              <span key={tag} className={styles.tag}>
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className={styles.shareRow}>
+        <div className={styles.tagsShareRow}>
+          {post.tags.length > 0 && (
+            <div className={styles.tags}>
+              {post.tags.map((tag) => (
+                <span key={tag} className={styles.tag}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
           <ShareButton />
         </div>
 
@@ -539,41 +571,51 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
               {currentSeriesIdx + 1} / {seriesPosts.length}
             </span>
             <span className={`${styles.seriesChevron} ${seriesOpen ? styles.seriesChevronOpen : ""}`}>
-              &#9662;
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
             </span>
           </button>
 
-          {seriesOpen && (
-            <ol className={styles.seriesList}>
-              {seriesPosts.map((sp, idx) => (
-                <li
-                  key={sp.id}
-                  className={`${styles.seriesItem} ${sp.id === post.id ? styles.seriesItemCurrent : ""}`}
-                >
-                  {sp.id === post.id ? (
-                    <span>{viewLang === "en" && sp.title_en ? sp.title_en : sp.title}</span>
-                  ) : (
-                    <Link href={`/posts/${sp.slug}`}>
-                      {viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
-                    </Link>
-                  )}
-                  <span className={styles.seriesNum}>{idx + 1}</span>
-                </li>
-              ))}
-            </ol>
-          )}
+          <div className={`${styles.seriesListWrap} ${seriesOpen ? styles.seriesListWrapOpen : ""}`}>
+            <div className={styles.seriesListInner}>
+              <ol className={styles.seriesList}>
+                {seriesPosts.map((sp, idx) => (
+                  <li
+                    key={sp.id}
+                    className={`${styles.seriesItem} ${sp.id === post.id ? styles.seriesItemCurrent : ""}`}
+                    onMouseEnter={(e) => handleSeriesHover(sp, e)}
+                    onMouseLeave={handleSeriesLeave}
+                  >
+                    <span className={`${styles.seriesIndicator} ${sp.id === post.id ? styles.seriesIndicatorActive : ""}`}><svg width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg></span>
+                    <span className={styles.seriesNum}>#{(sp.series_order ?? idx) + 1}</span>
+                    {sp.id === post.id ? (
+                      <span>{viewLang === "en" && sp.title_en ? sp.title_en : sp.title}</span>
+                    ) : (
+                      <Link href={`/posts/${sp.slug}`}>
+                        {viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
 
           <div className={styles.seriesNav}>
             {prevSeriesPost ? (
               <Link href={`/posts/${prevSeriesPost.slug}`} className={styles.seriesNavLink}>
-                &larr; {viewLang === "en" && prevSeriesPost.title_en ? prevSeriesPost.title_en : prevSeriesPost.title}
+                <span className={styles.seriesNavBadge}><svg className={styles.seriesNavArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg> <T k="postDetail.previous" /></span>
+                <span className={styles.seriesNavSep}>|</span>
+                <span className={styles.seriesNavTitle}>{viewLang === "en" && prevSeriesPost.title_en ? prevSeriesPost.title_en : prevSeriesPost.title}</span>
               </Link>
             ) : (
               <span />
             )}
+            {prevSeriesPost && nextSeriesPost && <span className={styles.seriesNavDivider} />}
             {nextSeriesPost ? (
               <Link href={`/posts/${nextSeriesPost.slug}`} className={`${styles.seriesNavLink} ${styles.seriesNavRight}`}>
-                {viewLang === "en" && nextSeriesPost.title_en ? nextSeriesPost.title_en : nextSeriesPost.title} &rarr;
+                <span className={styles.seriesNavTitle}>{viewLang === "en" && nextSeriesPost.title_en ? nextSeriesPost.title_en : nextSeriesPost.title}</span>
+                <span className={styles.seriesNavSep}>|</span>
+                <span className={styles.seriesNavBadge}><T k="postDetail.next" /> <svg className={styles.seriesNavArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg></span>
               </Link>
             ) : (
               <span />
@@ -656,6 +698,50 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
         />
       )}
     </AnimatePresence>
+
+    {seriesPreview && (
+      <div
+        className={styles.seriesPreview}
+        style={{ top: seriesPreview.top, left: seriesPreview.left }}
+      >
+        <div className={styles.seriesPreviewImg}>
+          {seriesPreview.post.cover_image ? (
+            <Image
+              src={seriesPreview.post.cover_image}
+              alt={seriesPreview.post.title}
+              width={240}
+              height={135}
+              style={{ objectFit: "cover", width: "100%", height: "100%" }}
+            />
+          ) : (
+            <div className={styles.seriesPreviewPlaceholder}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
+              </svg>
+            </div>
+          )}
+        </div>
+        <div className={styles.seriesPreviewBody}>
+          <span className={styles.seriesPreviewTitle}>
+            {viewLang === "en" && seriesPreview.post.title_en ? seriesPreview.post.title_en : seriesPreview.post.title}
+          </span>
+          {(() => {
+            const excerpt = viewLang === "en" && seriesPreview.post.excerpt_en ? seriesPreview.post.excerpt_en : seriesPreview.post.excerpt;
+            return excerpt ? <p className={styles.seriesPreviewExcerpt}>{excerpt}</p> : null;
+          })()}
+          {seriesPreview.post.tags && seriesPreview.post.tags.length > 0 && (
+            <div className={styles.seriesPreviewTags}>
+              {seriesPreview.post.tags.slice(0, 4).map((tag) => (
+                <span key={tag} className={styles.seriesPreviewTag}>{tag}</span>
+              ))}
+            </div>
+          )}
+          <span className={styles.seriesPreviewDate}>
+            {new Date(seriesPreview.post.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric" })}
+          </span>
+        </div>
+      </div>
+    )}
     </>
   );
 }

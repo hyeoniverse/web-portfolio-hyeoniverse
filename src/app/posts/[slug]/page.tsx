@@ -51,7 +51,7 @@ export default async function PostDetailPage({
   const provider = config?.translation?.provider ?? "deepl";
   const keyName = PROVIDER_KEY_MAP[provider] ?? "";
   const apiKey = keyName ? await getSecret(keyName) : "";
-  const translationEnabled = !!apiKey;
+  const translationEnabled = config?.translation?.enabled !== false && !!apiKey;
 
   return <PostDetailClient post={post} translationEnabled={translationEnabled} />;
 }

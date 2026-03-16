@@ -159,3 +159,173 @@
 [data-theme="light"] pre code .hljs-addition {
   color: #0c969b;
 }
+
+/* Code block wrapper */
+.code-block-wrap {
+  position: relative;
+}
+
+/* Code wrap toggle button — wrapper 기준 absolute (스크롤 영향 없음) */
+.code-block-wrap .code-wrap-toggle {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ── Desktop: hover slide ── */
+.code-wrap-label-default,
+.code-wrap-label-hover {
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.code-wrap-label-default {
+  display: inline-block;
+}
+
+.code-wrap-label-hover {
+  position: absolute;
+  left: 12px;
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.code-block-wrap .code-wrap-toggle:hover .code-wrap-label-default {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.code-block-wrap .code-wrap-toggle:hover .code-wrap-label-hover {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Mobile (touch-only): capsule toggle ── */
+@media (hover: none) {
+  .code-wrap-label-default,
+  .code-wrap-label-hover {
+    position: static;
+    display: inline;
+    transform: none;
+    transition: none;
+  }
+
+  .code-wrap-label-default {
+    opacity: 1;
+  }
+
+  .code-wrap-label-hover {
+    opacity: 0.5;
+  }
+
+  .code-wrap-label-default::after {
+    content: " | ";
+    opacity: 0.4;
+  }
+
+  .code-block-wrap .code-wrap-toggle:hover .code-wrap-label-default,
+  .code-block-wrap .code-wrap-toggle:hover .code-wrap-label-hover {
+    transform: none;
+  }
+
+  .code-block-wrap .code-wrap-toggle:hover .code-wrap-label-default {
+    opacity: 1;
+  }
+
+  .code-block-wrap .code-wrap-toggle:hover .code-wrap-label-hover {
+    opacity: 0.5;
+  }
+}
+
+/* ── Math element — appear animation ── */
+@keyframes mathRevealBlock {
+  0% { max-width: 0; opacity: 0; }
+  100% { max-width: 100%; opacity: 1; }
+}
+
+div.math-element-wrap {
+  animation: mathRevealBlock 0.3s var(--ease-material);
+  overflow: hidden;
+}
+
+span.math-element-wrap {
+  display: inline-block;
+  overflow: visible;
+  vertical-align: middle;
+}
+
+span.math-element-wrap .math-katex-content {
+  display: inline-block;
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.math-element-wrap:hover .math-mode-toggle {
+  opacity: 1;
+}
+
+/* ── Toggle button: hover slide + press scale ── */
+.math-mode-toggle,
+.code-wrap-toggle,
+[class*="codeWrapToggle"] {
+  overflow: hidden;
+  white-space: nowrap;
+  transition: transform 0.15s ease-out;
+}
+
+.math-mode-toggle:active,
+.code-wrap-toggle:active,
+[class*="codeWrapToggle"]:active {
+  transform: scale(1.08);
+}
+
+.toggle-label-default,
+.toggle-label-hover {
+  display: inline-block;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.toggle-label-default {
+  /* default visible */
+}
+
+.toggle-label-hover {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(calc(-50% + 100%), -50%);
+  opacity: 0;
+}
+
+.just-clicked .toggle-label-default,
+.just-clicked .toggle-label-hover {
+  transition: none;
+}
+
+.math-mode-toggle:hover:not(.just-clicked) .toggle-label-default,
+.code-wrap-toggle:hover:not(.just-clicked) .toggle-label-default,
+[class*="codeWrapToggle"]:hover:not(.just-clicked) .toggle-label-default {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.math-mode-toggle:hover:not(.just-clicked) .toggle-label-hover,
+.code-wrap-toggle:hover:not(.just-clicked) .toggle-label-hover,
+[class*="codeWrapToggle"]:hover:not(.just-clicked) .toggle-label-hover {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
