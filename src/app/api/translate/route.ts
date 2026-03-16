@@ -17,6 +17,20 @@ const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
 const MAX_LENGTH = 2000;
 
+async function callProvider(
+  provider: Provider,
+  text: string,
+  sourceLang: string,
+  targetLang: string,
+): Promise<string> {
+  switch (provider) {
+    case "google": return translateGoogle(text, sourceLang, targetLang);
+    case "gemini": return translateGemini(text, targetLang);
+    case "claude": return translateClaude(text, targetLang);
+    default:       return translateDeepL(text, sourceLang, targetLang);
+  }
+}
+
 export async function POST(request: Request) {
   const { text, targetLang } = (await request.json()) as {
     text: string;
@@ -32,38 +46,31 @@ export async function POST(request: Request) {
   }
 
   const config = await getSiteConfig();
-  const provider: Provider = (config?.translation?.provider as Provider) ?? "deepl";
+  const primary: Provider = (config?.translation?.provider as Provider) ?? "deepl";
+  const fallbackCfg = config?.translation?.fallback;
   const sourceLang = targetLang === "ko" ? "en" : "ko";
 
-  try {
-    let translated: string;
-
-    switch (provider) {
-      case "google":
-        translated = await translateGoogle(text, sourceLang, targetLang);
-        break;
-      case "gemini":
-        translated = await translateGemini(text, targetLang);
-        break;
-      case "claude":
-        translated = await translateClaude(text, targetLang);
-        break;
-      default:
-        translated = await translateDeepL(text, sourceLang, targetLang);
-        break;
+  const providerList: Provider[] = [primary];
+  if (fallbackCfg?.enabled && fallbackCfg.priority?.length) {
+    for (const p of fallbackCfg.priority) {
+      if (p !== primary) providerList.push(p as Provider);
     }
-
-    if (!translated) {
-      return NextResponse.json({ error: "Empty translation" }, { status: 502 });
-    }
-
-    return NextResponse.json({ translation: translated });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    console.error("[translate]", provider, msg);
-    const status = msg.includes("not configured") ? 503 : 502;
-    return NextResponse.json({ error: msg }, { status });
   }
+
+  let lastError = "Unknown error";
+  for (const provider of providerList) {
+    try {
+      const translated = await callProvider(provider, text, sourceLang, targetLang);
+      if (!translated) { lastError = "Empty translation"; continue; }
+      return NextResponse.json({ translation: translated });
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : "Unknown error";
+      console.error("[translate]", provider, lastError);
+    }
+  }
+
+  const status = lastError.includes("not configured") ? 503 : 502;
+  return NextResponse.json({ error: lastError }, { status });
 }
 
 /* ── DeepL ── */
