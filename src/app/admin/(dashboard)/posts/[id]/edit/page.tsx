@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import PostEditor from "@/components/posts/PostEditor";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
+import { useLenis } from "@/providers/LenisProvider";
 import type { Post } from "@/types/post";
 import styles from "@/components/posts/PostEditor.module.css";
 
@@ -13,6 +14,12 @@ export default function EditPostPage() {
   const id = params.id as string;
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
+  const { setInfinite } = useLenis();
+
+  useEffect(() => {
+    setInfinite(false);
+    return () => { setInfinite(true); };
+  }, [setInfinite]);
 
   useEffect(() => {
     fetch(`/api/posts/${id}`)

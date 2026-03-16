@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import WorkEditor from "@/components/works/WorkEditor";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
+import { useLenis } from "@/providers/LenisProvider";
 import type { Work } from "@/types/work";
 import wStyles from "@/components/works/WorkEditor.module.css";
 
@@ -13,6 +14,12 @@ export default function EditWorkPage() {
   const [work, setWork] = useState<Work | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { setInfinite } = useLenis();
+
+  useEffect(() => {
+    setInfinite(false);
+    return () => { setInfinite(true); };
+  }, [setInfinite]);
 
   useEffect(() => {
     async function load() {

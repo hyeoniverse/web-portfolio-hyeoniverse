@@ -114,6 +114,10 @@
   color: var(--color-success);
 }
 
+.statusTime {
+  color: var(--text-tertiary);
+}
+
 /* ── Revision History ── */
 .revisionWrap {
   position: relative;
@@ -159,6 +163,9 @@
 }
 
 .revisionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: var(--box-xs-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -167,6 +174,70 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 1px solid var(--border-light-color);
+}
+
+.revisionSelectToggle {
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 0;
+}
+
+.revisionHeader .revisionSelectToggle:hover {
+  color: var(--text-primary);
+}
+
+.revisionSelectAll {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.revisionSelectActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.revisionDeleteSelectedBtn {
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-accent);
+  padding: 0;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.revisionSelectActions .revisionDeleteSelectedBtn:hover {
+  opacity: 0.75;
+}
+
+.revisionSelectCancel {
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  padding: 0;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.revisionSelectActions .revisionSelectCancel:hover {
+  color: var(--text-primary);
+}
+
+.revisionItemSelected {
+  background: var(--bg-tertiary);
 }
 
 .revisionDropdownWide {
@@ -390,6 +461,7 @@
   flex-shrink: 0;
   user-select: none;
   opacity: 0.6;
+  font-family: monospace;
 }
 
 /* ── Shared form elements ── */
@@ -478,7 +550,61 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  margin-top: var(--spacing-2xs);
+  margin-top: var(--spacing-sm);
+  max-height: 64px;
+  overflow: hidden;
+  position: relative;
+}
+
+.tags.tagsExpanded {
+  max-height: none;
+}
+
+.tagMore {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--spacing-xs);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* Tag exit animation (last tag shrinks when collapsing) */
+.tagExiting {
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tagExit 0.3s ease forwards;
+}
+
+@keyframes tagExit {
+  to {
+    max-width: 0;
+    padding: 0;
+    opacity: 0;
+    margin-right: calc(-1 * var(--spacing-xs));
+  }
+}
+
+/* "더보기" button slide-in during swap */
+.tagMore.tagMoreEntering {
+  animation: tagMoreSlideIn 0.3s ease both;
+}
+
+@keyframes tagMoreSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+
+.tagMore:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 
 .tag {

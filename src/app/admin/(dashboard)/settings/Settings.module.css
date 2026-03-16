@@ -111,7 +111,6 @@
   color: var(--text-primary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  cursor: pointer;
   padding: var(--box-xs-sm);
   font-weight: var(--font-weight-medium);
 }
@@ -142,7 +141,6 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) var(--spacing-md);
   font-size: var(--font-size-xs);
-  cursor: pointer;
   border-radius: var(--radius-capsule);
 }
 
@@ -239,7 +237,6 @@
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-primary);
-  cursor: pointer;
 }
 
 .conflictCloseIcon {
@@ -382,7 +379,6 @@
   border-radius: 50%;
   font-size: 12px;
   line-height: 1;
-  cursor: pointer;
 }
 
 .diffHunkFloatAccept,
@@ -699,7 +695,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  cursor: pointer;
 }
 
 .formatSegmentBtn + .formatSegmentBtn {
@@ -778,7 +773,6 @@
   border-radius: var(--radius-capsule);
   border: var(--border-light);
   overflow: hidden;
-  cursor: pointer;
   padding: 0;
   background: transparent;
   transition: border-color 0.15s;
@@ -924,6 +918,89 @@
 }
 
 
+
+/* ── Fallback Priority List ── */
+.fallbackSection {
+  padding: var(--spacing-sm) 0;
+}
+
+.fallbackLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin: 0 0 var(--spacing-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.priorityList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.priorityItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--box-xs-sm);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+}
+
+.priorityBadge {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-circle);
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.priorityLabel {
+  flex: 1;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.priorityBtns {
+  display: flex;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+}
+
+.priorityBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  padding: 0;
+  line-height: 1;
+}
+
+.priorityBtn:disabled {
+  opacity: 0.3;
+}
+
+.fields .priorityBtn:not(:disabled):hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
 
 /* ── Service Items Editor ── */
 .serviceItems {
@@ -1120,7 +1197,6 @@
   font-size: var(--font-size-sm);
   line-height: 1;
   color: var(--text-secondary);
-  cursor: pointer;
 }
 
 .profileRemoveBtn:hover {
@@ -1760,7 +1836,6 @@
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
     color: var(--text-secondary);
-    cursor: pointer;
     white-space: nowrap;
   }
 
@@ -1931,8 +2006,14 @@
   color: var(--color-accent);
 }
 
-.envInputRow {
+.envFieldRight {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.envInputRow {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -1962,14 +2043,14 @@
   color: var(--color-accent);
 }
 
-.envRevealBtn {
+.envRevealBtn,
+.envDeleteBtn {
   width: 28px;
   height: 28px;
   border: 1px solid var(--border-light-color);
   border-radius: 50%;
   background: transparent;
   color: var(--text-tertiary);
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1979,6 +2060,35 @@
 .envRevealBtn:hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
+}
+
+.envDeleteBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.envDeleteBtnDisabled {
+  opacity: 0.35;
+}
+
+.envDeleteBtnDisabled:hover {
+  border-color: var(--border-light-color);
+  color: var(--text-tertiary);
+}
+
+.envHintMobile {
+  display: none;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: var(--spacing-2xs);
+  line-height: 1.4;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .envHintMobile {
+    display: block;
+  }
 }
 
 .envSourceBadge {
@@ -2059,7 +2169,6 @@
   font-size: var(--font-size-xs);
   padding: 0;
   line-height: 1;
-  cursor: pointer;
 }
 
 .scopeTagField .scopeTagRemove:hover {
@@ -2087,7 +2196,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   line-height: 1;
-  cursor: pointer;
 }
 
 .scopeAddBtn:hover {
@@ -2096,7 +2204,6 @@
 
 .scopeAddBtn:disabled {
   opacity: 0.4;
-  cursor: default;
 }
 
 /* ── Pending Email Banner ── */
