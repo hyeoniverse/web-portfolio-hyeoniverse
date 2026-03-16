@@ -323,7 +323,13 @@ export const siteConfig = {
   //   ANTHROPIC_API_KEY=your_key  (https://console.anthropic.com/settings/keys)
   // ---------------------------------------------------------------------------
   aiSummary: {
+    enabled: true,
     provider: "gemini" as "gemini" | "openai" | "claude",
+    // 폴백 설정: 기본 제공자 실패 시 순서대로 시도
+    fallback: {
+      enabled: false,
+      priority: [] as ("gemini" | "openai" | "claude")[],
+    },
   },
 
   // ---------------------------------------------------------------------------
@@ -344,7 +350,13 @@ export const siteConfig = {
   //   ANTHROPIC_API_KEY=your_key  (https://console.anthropic.com/settings/keys)
   // ---------------------------------------------------------------------------
   translation: {
+    enabled: true,
     provider: "deepl" as "gemini" | "google" | "deepl" | "claude",
+    // 폴백 설정: 기본 제공자 실패 시 순서대로 시도
+    fallback: {
+      enabled: false,
+      priority: [] as ("gemini" | "google" | "deepl" | "claude")[],
+    },
   },
 
   // ---------------------------------------------------------------------------

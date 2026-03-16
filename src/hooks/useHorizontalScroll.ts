@@ -148,15 +148,15 @@ export function useHorizontalScroll(
 
     const state = scrollStateRef.current;
 
-    // DOM 측정
-    const allPanels = gsap.utils.toArray<HTMLElement>(panelSelector, track);
+    // DOM 측정 (dynamic import 교체 시 재쿼리 가능하도록 let 사용)
+    let allPanels = gsap.utils.toArray<HTMLElement>(panelSelector, track);
 
     // 최소 패널 수 확인
     if (infinite && allPanels.length < panelSetSize) return;
     if (!infinite && allPanels.length === 0) return;
 
     // extraWide 패널 (350vw 등) — 이 구간에서는 lookahead 제한 해제
-    const extraWidePanels = allPanels.filter(
+    let extraWidePanels = allPanels.filter(
       (p) => p.offsetWidth > window.innerWidth * 2,
     );
 
@@ -173,6 +173,24 @@ export function useHorizontalScroll(
     for (let i = 0; i < allPanels.length; i++) {
       totalWidth += allPanels[i].offsetWidth;
     }
+
+    // dynamic import가 DOM 요소를 교체했을 때 allPanels를 재쿼리하는 헬퍼
+    const refreshPanelsIfStale = () => {
+      if (!allPanels.some((el) => !document.contains(el))) return;
+      allPanels = gsap.utils.toArray<HTMLElement>(panelSelector, track);
+      extraWidePanels = allPanels.filter(
+        (p) => p.offsetWidth > window.innerWidth * 2,
+      );
+      if (infinite) {
+        oneSetWidth = 0;
+        for (let i = 0; i < panelSetSize && i < allPanels.length; i++) {
+          oneSetWidth += allPanels[i].offsetWidth;
+        }
+      } else {
+        totalWidth = 0;
+        for (const p of allPanels) totalWidth += p.offsetWidth;
+      }
+    };
 
     // 초기 위치: infinite → 중간 세트, finite → 0
     const middleSetFirst = infinite ? allPanels[panelSetSize] : null;
@@ -216,6 +234,9 @@ export function useHorizontalScroll(
 
     // RAF 애니메이션 루프
     const animate = () => {
+      // dynamic import로 교체된 DOM 요소가 있으면 allPanels 재쿼리
+      refreshPanelsIfStale();
+
       state.scrollX += (state.targetScrollX - state.scrollX) * SCROLL_LERP;
 
       // infinite 래핑 또는 clamp
