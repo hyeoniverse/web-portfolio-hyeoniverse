@@ -125,6 +125,10 @@ export default function AdminPostsPage() {
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [seriesOpen, setSeriesOpen] = useState(false);
 
+  /* Trash */
+  const [trashPosts, setTrashPosts] = useState<Post[]>([]);
+  const [trashOpen, setTrashOpen] = useState(false);
+
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({
@@ -148,6 +152,12 @@ export default function AdminPostsPage() {
     setSeriesList(Array.isArray(data) ? data : []);
   }, []);
 
+  const fetchTrash = useCallback(async () => {
+    const res = await fetch("/api/posts?trash=true&limit=100");
+    const data = await res.json();
+    setTrashPosts(data.posts ?? []);
+  }, []);
+
   useEffect(() => {
     fetchPosts();
     fetchSeries();
@@ -157,6 +167,19 @@ export default function AdminPostsPage() {
   const handleDelete = async (id: string) => {
     await fetch(`/api/posts/${id}`, { method: "DELETE" });
     fetchPosts();
+    if (trashOpen) fetchTrash();
+  };
+
+  const handleRestore = async (id: string) => {
+    await fetch(`/api/posts/${id}/restore`, { method: "POST" });
+    fetchTrash();
+    fetchPosts();
+  };
+
+  const handlePurge = async (id: string, title: string) => {
+    if (!confirm(`"${title}" — ${t("admin.posts.trashPurgeConfirm")}`)) return;
+    await fetch(`/api/posts/${id}/purge`, { method: "DELETE" });
+    fetchTrash();
   };
 
   const handleSave = async () => {
@@ -317,6 +340,100 @@ export default function AdminPostsPage() {
     [t],
   );
 
+  /* ── Trash Section ── */
+  const TRASH_RETENTION_DAYS = 30;
+  const getDaysLeft = (deletedAt: string) => {
+    const deleted = new Date(deletedAt).getTime();
+    const expiresAt = deleted + TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+    return Math.max(0, Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
+  };
+
+  const trashSection = (
+    <div className={styles.trashSection}>
+      <button
+        type="button"
+        className={styles.trashToggle}
+        onClick={() => {
+          if (!trashOpen) fetchTrash();
+          setTrashOpen((v) => !v);
+        }}
+      >
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="3 6 5 6 21 6" />
+          <path d="M19 6l-1 14H6L5 6" />
+          <path d="M10 11v6" />
+          <path d="M14 11v6" />
+          <path d="M9 6V4h6v2" />
+        </svg>
+        <span>
+          <T k="admin.posts.trash" />
+          {trashPosts.length > 0 && ` (${trashPosts.length})`}
+        </span>
+        <svg
+          className={`${styles.trashToggleIcon} ${trashOpen ? styles.trashToggleOpen : ""}`}
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {trashOpen && (
+        <>
+          <p className={styles.trashHint}><T k="admin.posts.trashAutoDelete" /></p>
+          {trashPosts.length === 0 ? (
+            <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
+          ) : (
+            <ul className={styles.trashList}>
+              {trashPosts.map((post) => {
+                const daysLeft = getDaysLeft(post.deleted_at!);
+                const title = formatPostTitle(post) || t("admin.posts.untitled");
+                return (
+                  <li key={post.id} className={styles.trashRow}>
+                    <span className={styles.trashTitle}>{title}</span>
+                    <span className={styles.trashMeta}>
+                      <span className={daysLeft <= 7 ? styles.trashDaysLeft : ""}>
+                        {daysLeft}
+                      </span>
+                      {" "}<T k="admin.posts.trashDaysLeft" />
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.trashRestoreBtn}
+                      onClick={() => handleRestore(post.id)}
+                    >
+                      <T k="admin.posts.trashRestore" />
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.trashPurgeBtn}
+                      onClick={() => handlePurge(post.id, title)}
+                    >
+                      <T k="admin.posts.trashPurge" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </>
+      )}
+    </div>
+  );
+
   /* ── Series Section ── */
   const seriesSection = (
     <div className={styles.seriesSection}>
@@ -414,7 +531,7 @@ export default function AdminPostsPage() {
       onSave={handleSave}
       saveCount={publishOverrides.size}
       saveLabel={t("admin.posts.save")}
-      beforeTable={!loading ? seriesSection : undefined}
+      beforeTable={!loading ? <>{seriesSection}{trashSection}</> : undefined}
     >
       {/* Filter bar */}
       <div className={shell.filterBar}>

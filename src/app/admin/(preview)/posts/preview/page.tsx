@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { slugify } from "@/components/posts/MarkdownRenderer";
-import { highlightCodeBlocks } from "@/components/posts/highlightCodeBlocks";
+import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import type { PostFormData } from "@/types/post";
 import styles from "@/app/posts/[slug]/PostDetail.module.css";
@@ -81,9 +81,7 @@ export default function PostPreviewPage() {
     return addIdsToHtml(content);
   }, [content, isMarkdown]);
 
-  useEffect(() => {
-    if (richtextRef.current) highlightCodeBlocks(richtextRef.current);
-  }, [processedHtml]);
+  useRichtextEnhance(richtextRef, processedHtml);
 
   if (!form) {
     return (

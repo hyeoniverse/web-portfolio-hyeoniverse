@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import T from "@/components/ui/T";
-import { ModalPrompt } from "@/components/ui/ModalTemplates";
+import { ModalPrompt, ModalConfirm } from "@/components/ui/ModalTemplates";
+import Tooltip from "@/components/ui/Tooltip";
 import styles from "../Settings.module.css";
 
 interface EnvVarFieldsProps {
@@ -165,6 +166,49 @@ export default function EnvVarFields({
     [revealed, openModal, closeModal, t]
   );
 
+  const handleDelete = useCallback(
+    (key: string) => {
+      const modalId = "delete-secret";
+
+      const doDelete = async () => {
+        const res = await fetch("/api/admin/secrets", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key }),
+        });
+        if (res.ok) {
+          setSecrets((prev) => ({
+            ...prev,
+            [key]: { value: "", source: "none" },
+          }));
+          setRevealed((prev) => {
+            const next = { ...prev };
+            delete next[key];
+            return next;
+          });
+        }
+      };
+
+      openModal(
+        <ModalConfirm
+          desc={t("admin.settings.envVarDeleteDesc")}
+          cancelText={t("admin.settings.cancel")}
+          confirmText={t("admin.settings.envVarDelete")}
+          danger
+          onConfirm={doDelete}
+          onCancel={() => closeModal(modalId)}
+        />,
+        {
+          id: modalId,
+          header: { title: t("admin.settings.envVarDeleteConfirm") },
+          width: "360px",
+          closeButton: false,
+        }
+      );
+    },
+    [openModal, closeModal, t]
+  );
+
   const handleSaveSecrets = async () => {
     if (!hasEdits) return;
     setSaving(true);
@@ -209,6 +253,7 @@ export default function EnvVarFields({
             <span className={styles.envSourceBadge}>DB</span>
           )}
         </label>
+        <div className={styles.envFieldRight}>
         <div className={styles.envInputRow}>
           <input
             className={styles.fieldInput}
@@ -226,6 +271,28 @@ export default function EnvVarFields({
               }
             }}
           />
+          {(source === "db" || source === "env") && !isEditing && (
+            <Tooltip
+              content={source === "env" ? t("admin.settings.envVarEnvHint") : undefined}
+              disabled={source !== "env"}
+              placement="top"
+            >
+              <button
+                type="button"
+                className={`${styles.envDeleteBtn}${source === "env" ? ` ${styles.envDeleteBtnDisabled}` : ""}`}
+                onClick={source === "env" ? undefined : () => handleDelete(key)}
+                disabled={source === "env"}
+                title={source === "env" ? undefined : t("admin.settings.envVarDelete")}
+                aria-disabled={source === "env"}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+              </button>
+            </Tooltip>
+          )}
           {source !== "none" && !isEditing && (
             <button
               type="button"
@@ -261,6 +328,10 @@ export default function EnvVarFields({
               &times;
             </button>
           )}
+        </div>
+        {source === "env" && !isEditing && (
+          <span className={styles.envHintMobile}>{t("admin.settings.envVarEnvHint")}</span>
+        )}
         </div>
       </div>
     );

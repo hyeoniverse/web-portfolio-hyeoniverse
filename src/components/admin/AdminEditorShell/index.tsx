@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
+import Checkbox from "@/components/ui/Checkbox";
 import Tooltip from "@/components/ui/Tooltip";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
@@ -62,6 +63,7 @@ interface AdminEditorShellProps {
   onPreview?: () => void;
   status?: string;
   statusType?: "info" | "success";
+  statusTimestamp?: number;
   error?: string;
   labels: EditorLabels;
   revisions?: RevisionEntry[];
@@ -76,6 +78,7 @@ interface AdminEditorShellProps {
   regeneratingSummary?: boolean;
   aiSummaryDisabled?: boolean;
   currentSnapshot?: { title: string; excerpt?: string; content?: string; meta?: Record<string, string> };
+  topBarSecondRowLeft?: ReactNode;
   children: ReactNode;
 }
 
@@ -85,6 +88,17 @@ function formatTime(ts: number): string {
     minute: "2-digit",
     second: "2-digit",
   });
+}
+
+function formatStatusTime(ts: number): string {
+  const d = new Date(ts);
+  const now = new Date();
+  const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()) {
+    return time;
+  }
+  const date = d.toLocaleDateString([], { month: "short", day: "numeric" });
+  return `${date} ${time}`;
 }
 
 type DiffLine = { type: "same" | "add" | "del"; text: string };
@@ -145,6 +159,7 @@ export default function AdminEditorShell({
   onPreview,
   status,
   statusType = "info",
+  statusTimestamp,
   error,
   labels,
   revisions,
@@ -159,6 +174,7 @@ export default function AdminEditorShell({
   regeneratingSummary = false,
   aiSummaryDisabled = false,
   currentSnapshot,
+  topBarSecondRowLeft,
   children,
 }: AdminEditorShellProps) {
   const { setInfinite, lenis } = useLenis();
@@ -167,9 +183,22 @@ export default function AdminEditorShell({
   const [viewingRevision, setViewingRevision] = useState<number | null>(null);
   const [revisionDetail, setRevisionDetail] = useState<{ excerpt?: string; content?: string; meta?: Record<string, string> } | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [statusTime, setStatusTime] = useState("");
   const [showRetranslate, setShowRetranslate] = useState(false);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedRevisions, setSelectedRevisions] = useState<Set<number>>(new Set());
   const revisionRef = useRef<HTMLDivElement>(null);
   const retranslateRef = useRef<HTMLDivElement>(null);
+  const revisionsRef = useRef(revisions);
+  revisionsRef.current = revisions;
+  const onLoadRevisionDetailRef = useRef(onLoadRevisionDetail);
+  onLoadRevisionDetailRef.current = onLoadRevisionDetail;
+
+  useEffect(() => {
+    if (status || error) {
+      setStatusTime(statusTimestamp ? formatStatusTime(statusTimestamp) : new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+    }
+  }, [status, error, statusTimestamp]);
 
   useEffect(() => {
     setInfinite(false);
@@ -186,7 +215,7 @@ export default function AdminEditorShell({
       setRevisionDetail(null);
       return;
     }
-    const rev = revisions?.[viewingRevision];
+    const rev = revisionsRef.current?.[viewingRevision];
     if (!rev) return;
 
     // 이미 excerpt/content가 있으면 (sessionStorage 방식 호환) 그대로 사용
@@ -196,13 +225,14 @@ export default function AdminEditorShell({
     }
 
     // DB 방식: onLoadRevisionDetail 콜백으로 비동기 로드
-    if (onLoadRevisionDetail) {
+    if (onLoadRevisionDetailRef.current) {
       setDetailLoading(true);
-      onLoadRevisionDetail(viewingRevision)
+      onLoadRevisionDetailRef.current(viewingRevision)
         .then((detail) => setRevisionDetail(detail))
         .finally(() => setDetailLoading(false));
     }
-  }, [viewingRevision, revisions, onLoadRevisionDetail]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewingRevision]);
 
   useEffect(() => {
     if (!showRevisions && !showRetranslate) return;
@@ -291,9 +321,9 @@ export default function AdminEditorShell({
                 disabled={saving || regeneratingSummary || aiSummaryDisabled}
                 soundDisabled
                 icon={
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="1 4 1 10 7 10" />
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
                   </svg>
                 }
               />
@@ -305,7 +335,7 @@ export default function AdminEditorShell({
         <div className={styles.topBarActions}>
           {(status || error) && (
             <span className={error ? styles.errorBanner : statusType === "success" ? styles.successBanner : styles.statusBanner}>
-              {error || status}
+              {error || status}{statusTime && <span className={styles.statusTime}> · {statusTime}</span>}
             </span>
           )}
           <div className={styles.actionGroup}>
@@ -337,6 +367,8 @@ export default function AdminEditorShell({
                     onClick={() => {
                       setShowRevisions((v) => !v);
                       setViewingRevision(null);
+                      setIsSelectMode(false);
+                      setSelectedRevisions(new Set());
                     }}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -489,19 +521,104 @@ export default function AdminEditorShell({
                       /* ── List view ── */
                       <>
                         <div className={styles.revisionHeader}>
-                          {labels.revisionHistory ?? "History"}
+                          {isSelectMode ? (
+                            <>
+                              <Checkbox
+                                shape="square"
+                                checked={selectedRevisions.size === revisions.length && revisions.length > 0}
+                                indeterminate={selectedRevisions.size > 0 && selectedRevisions.size < revisions.length}
+                                onChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedRevisions(new Set(revisions.map((_, i) => i)));
+                                  } else {
+                                    setSelectedRevisions(new Set());
+                                  }
+                                }}
+                                label={selectedRevisions.size > 0 ? `${selectedRevisions.size}개 선택됨` : "전체 선택"}
+                                className={styles.revisionSelectAll}
+                              />
+                              <div className={styles.revisionSelectActions}>
+                                {selectedRevisions.size > 0 && (
+                                  <button
+                                    type="button"
+                                    className={styles.revisionDeleteSelectedBtn}
+                                    onClick={async () => {
+                                      if (!onDeleteRevision) return;
+                                      const indices = Array.from(selectedRevisions);
+                                      await Promise.all(indices.map((idx) => onDeleteRevision(idx)));
+                                      setSelectedRevisions(new Set());
+                                      setIsSelectMode(false);
+                                      if (revisions.length <= indices.length) setShowRevisions(false);
+                                    }}
+                                  >
+                                    삭제
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  className={styles.revisionSelectCancel}
+                                  onClick={() => {
+                                    setIsSelectMode(false);
+                                    setSelectedRevisions(new Set());
+                                  }}
+                                >
+                                  취소
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <span>{labels.revisionHistory ?? "History"}</span>
+                              {onDeleteRevision && (
+                                <button
+                                  type="button"
+                                  className={styles.revisionSelectToggle}
+                                  onClick={() => setIsSelectMode(true)}
+                                >
+                                  선택
+                                </button>
+                              )}
+                            </>
+                          )}
                         </div>
                         {revisions.map((rev, i) => (
                           <div
-                            key={rev.timestamp}
-                            className={styles.revisionItem}
-                            onClick={() => setViewingRevision(i)}
+                            key={`${rev.timestamp}-${i}`}
+                            className={`${styles.revisionItem} ${isSelectMode && selectedRevisions.has(i) ? styles.revisionItemSelected : ""}`}
+                            onClick={() => {
+                              if (isSelectMode) {
+                                setSelectedRevisions((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(i)) next.delete(i);
+                                  else next.add(i);
+                                  return next;
+                                });
+                              } else {
+                                setViewingRevision(i);
+                              }
+                            }}
                           >
+                            {isSelectMode ? (
+                              <span onClick={(e) => e.stopPropagation()}>
+                                <Checkbox
+                                  shape="square"
+                                  checked={selectedRevisions.has(i)}
+                                  onChange={(checked) => {
+                                    setSelectedRevisions((prev) => {
+                                      const next = new Set(prev);
+                                      if (checked) next.add(i);
+                                      else next.delete(i);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </span>
+                            ) : null}
                             <span className={styles.revisionTime}>{formatTime(rev.timestamp)}</span>
                             <span className={styles.revisionTitle}>
                               {rev.title || "(untitled)"}
                             </span>
-                            {onDeleteRevision && (
+                            {!isSelectMode && onDeleteRevision && (
                               <Tooltip content={labels.delete} placement="left">
                                 <button
                                   type="button"
@@ -519,9 +636,11 @@ export default function AdminEditorShell({
                                 </button>
                               </Tooltip>
                             )}
-                            <svg className={styles.revisionChevron} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="9 18 15 12 9 6" />
-                            </svg>
+                            {!isSelectMode && (
+                              <svg className={styles.revisionChevron} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="9 18 15 12 9 6" />
+                              </svg>
+                            )}
                           </div>
                         ))}
                       </>
@@ -581,6 +700,7 @@ export default function AdminEditorShell({
 
         {/* ── 둘째 줄: 저장 그룹 ── */}
         <div className={styles.topBarRow}>
+          {topBarSecondRowLeft && <div style={{ marginRight: "auto", display: "flex", alignItems: "flex-end" }}>{topBarSecondRowLeft}</div>}
           {onPreview && (
             <Button
               variant="outline"
