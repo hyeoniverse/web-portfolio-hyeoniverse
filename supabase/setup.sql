@@ -109,6 +109,9 @@ CREATE TABLE IF NOT EXISTS posts (
   series_order int NOT NULL DEFAULT 0
 );
 
+-- 휴지통(소프트 삭제)
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS deleted_at timestamptz DEFAULT NULL;
+
 -- slug 검색용 인덱스
 CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts (slug);
 -- 시리즈별 포스트 조회용

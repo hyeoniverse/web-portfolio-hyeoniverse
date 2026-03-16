@@ -24,6 +24,7 @@ export interface Post {
   series?: { title: string; title_en: string } | null;
   summary_ko: string;
   summary_en: string;
+  deleted_at?: string | null;
 }
 
 export interface PostFormData {
