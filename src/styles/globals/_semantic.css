@@ -27,8 +27,8 @@
   --bg-black: var(--color-gray-alpha-100);
   --bg-primary: var(--color-neutral-50);
   --bg-primary-alt: var(--color-neutral-alpha-95);
-  --bg-secondary: var(--color-neutral-400);
-  --bg-secondary-alt: var(--color-neutral-alpha-50);
+  --bg-secondary: var(--color-neutral-100);
+  --bg-secondary-alt: var(--color-neutral-alpha-20);
   --bg-tertiary: var(--color-neutral-alpha-5);
   --bg-tertiary-alt: var(--color-neutral-alpha-10);
   --bg-inverse: var(--color-neutral-950);
@@ -132,10 +132,14 @@
   --page-px: 8vw;
 }
 @media (max-width: 768px) {
-  :root { --page-px: 5vw; }
+  :root {
+    --page-px: 5vw;
+  }
 }
 @media (max-width: 480px) {
-  :root { --page-px: 4vw; }
+  :root {
+    --page-px: 4vw;
+  }
 }
 
 /* --------------------------------------------------------------------------
