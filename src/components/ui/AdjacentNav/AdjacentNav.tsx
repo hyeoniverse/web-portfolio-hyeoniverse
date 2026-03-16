@@ -16,6 +16,7 @@ interface AdjacentNavProps {
   next: AdjacentItem | null;
   prevLabelKey?: string;
   nextLabelKey?: string;
+  className?: string;
 }
 
 export default function AdjacentNav({
@@ -23,9 +24,10 @@ export default function AdjacentNav({
   next,
   prevLabelKey = "common.prev",
   nextLabelKey = "common.next",
+  className,
 }: AdjacentNavProps) {
   return (
-    <nav className={styles.nav}>
+    <nav className={`${styles.nav}${className ? ` ${className}` : ""}`}>
       {prev ? (
         <Link href={prev.href} className={styles.card} data-clickable="true">
           <div className={styles.thumb}>

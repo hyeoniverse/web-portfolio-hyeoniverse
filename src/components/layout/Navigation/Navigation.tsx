@@ -82,7 +82,6 @@ export default function Navigation() {
 
   const [adminEmail, setAdminEmail] = useState("");
   useEffect(() => {
-    if (!isAdminPage) return;
     let subscription: { unsubscribe: () => void } | undefined;
     loadSupabaseClient().then((supabase) => {
       supabase.auth.getUser().then(({ data }) => {
@@ -94,7 +93,7 @@ export default function Navigation() {
       subscription = sub;
     });
     return () => subscription?.unsubscribe();
-  }, [isAdminPage]);
+  }, []);
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
   const showLoadingLogo = isLoading && !shouldSkipLoading;
@@ -523,16 +522,29 @@ export default function Navigation() {
               </Button>
             </motion.div>
           ) : !isAdminPage ? (
-          /* Get in Touch */
-          <Button
-            variant="outline"
-            size="xs"
-            className={styles.contactBtn}
-            onClick={openForm}
-            soundDisabled
-          >
-            Get in Touch
-          </Button>
+            adminEmail ? (
+              /* Admin logged in on public page — show logout */
+              <Button
+                variant="outline"
+                size="xs"
+                className={styles.logoutBtn}
+                onClick={handleLogout}
+                soundDisabled
+              >
+                Logout
+              </Button>
+            ) : (
+              /* Get in Touch */
+              <Button
+                variant="outline"
+                size="xs"
+                className={styles.contactBtn}
+                onClick={openForm}
+                soundDisabled
+              >
+                Get in Touch
+              </Button>
+            )
         ) : null}
         </AnimatePresence>
 

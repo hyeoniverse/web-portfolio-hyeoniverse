@@ -3,7 +3,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  padding: 0 var(--page-px);
   border-top: 1px solid var(--border-light-color);
   border-bottom: 1px solid var(--border-light-color);
 }
@@ -13,6 +12,7 @@
   align-items: stretch;
   gap: 0;
   padding: 0;
+  min-height: 88px;
   border-right: 1px solid var(--border-light-color);
   text-decoration: none;
   color: inherit;

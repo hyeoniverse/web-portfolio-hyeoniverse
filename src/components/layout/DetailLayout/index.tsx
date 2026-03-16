@@ -72,6 +72,26 @@ export default function DetailLayout({
     };
   }, [setInfinite, lenis, stop, start]);
 
+  // Back button hide on scroll down
+  const [backHidden, setBackHidden] = useState(false);
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let rafId: number;
+    const onScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        setBackHidden(y > 100 && y > lastY);
+        lastY = y;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
   // Scroll spy
   useEffect(() => {
     if (headings.length === 0) return;
@@ -129,7 +149,7 @@ export default function DetailLayout({
       >
         <a
           href={backHref}
-          className={styles.backBtn}
+          className={`${styles.backBtn} ${backHidden ? styles.backBtnHidden : ""}`}
           onClick={(e) => {
             const ref = document.referrer;
             try {
@@ -159,7 +179,7 @@ export default function DetailLayout({
               strokeLinejoin="round"
             />
           </svg>
-          <span>{backLabel}</span>
+          <span className={styles.backBtnLabel}>{backLabel}</span>
         </a>
       </motion.div>
 
