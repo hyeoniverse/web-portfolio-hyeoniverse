@@ -3,6 +3,104 @@
   flex-direction: column;
   height: 70vh;
   min-height: 400px;
+  position: relative;
+}
+
+/* External column resize indicator — positioned outside contenteditable */
+.colResizeIndicator {
+  position: absolute;
+  width: 3px;
+  background: var(--color-accent);
+  pointer-events: none;
+  z-index: 20;
+  border-radius: 2px;
+}
+
+/* 컬럼 드래그 중 rowResizeHandle hover 방지 */
+.wrapper[data-col-dragging] .rowResizeHandle {
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* 셀 드래그 선택 중: cursor + 리사이즈 핸들 비활성화 */
+.wrapper[data-cell-dragging] {
+  cursor: cell;
+}
+.wrapper[data-cell-dragging] .rowResizeHandle,
+.wrapper[data-cell-dragging] .tableResizeRight,
+.wrapper[data-cell-dragging] .tableResizeBottom {
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Row height resize handle — external div at each row's bottom edge */
+.rowResizeHandle {
+  position: absolute;
+  height: 8px;
+  cursor: row-resize;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+}
+
+.rowResizeHandle::after {
+  content: "";
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  background: transparent;
+  transition: background-color 0.15s;
+}
+
+.rowResizeHandle:hover::after {
+  background: var(--color-accent);
+}
+
+/* Table-level resize handles */
+.tableResizeRight {
+  position: absolute;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tableResizeRight::after {
+  content: "";
+  width: 4px;
+  height: 100%;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-accent) 0%, transparent);
+  transition: background-color 0.15s;
+}
+
+.tableResizeRight:hover::after {
+  background: var(--color-accent);
+}
+
+.tableResizeBottom {
+  position: absolute;
+  height: 8px;
+  cursor: row-resize;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tableResizeBottom::after {
+  content: "";
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-accent) 0%, transparent);
+  transition: background-color 0.15s;
+}
+
+.tableResizeBottom:hover::after {
+  background: var(--color-accent);
 }
 
 /* Toolbar */
@@ -18,6 +116,7 @@
 }
 
 .toolbarBtn {
+  position: relative;
   padding: var(--box-xs);
   border: none;
   border-radius: var(--radius-capsule);
@@ -25,11 +124,13 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   font-weight: 500;
-  color: var(--text-tertiary);
+  color: var(--text-primary);
   line-height: 1;
 }
 
-.toolbar .toolbarBtn:hover {
+
+.toolbar .toolbarBtn:hover,
+.tableToolbar .toolbarBtn:hover {
   background: var(--color-neutral-alpha-10);
   color: var(--text-primary);
 }
@@ -51,22 +152,518 @@
   background: var(--border-light-color);
 }
 
-/* Font family select */
+/* ── Select wrapper: custom chevron via ::after ── */
+.selectWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+.selectWrap::after {
+  content: '';
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+}
+
+/* ── 공통 캡슐 드롭다운 스타일 ── */
 .fontSelect {
-  padding: var(--box-xs);
+  height: 24px;
+  padding: 0 22px 0 var(--spacing-sm);
   border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-xs);
-  background: transparent;
+  border-radius: var(--radius-capsule);
+  background-color: transparent;
+  background-image: none;
+  -webkit-appearance: none;
+  appearance: none;
   font-family: var(--font-space-grotesk);
   font-size: 10px;
   color: var(--text-secondary);
-
   outline: none;
-  max-width: 120px;
+  max-width: 140px;
+}
+
+.toolbar .selectWrap:hover .fontSelect {
+  border-color: var(--text-secondary);
 }
 
 .toolbar .fontSelect:focus {
   border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+/* Width overrides for narrower selects */
+.fontSizeSelect {
+  width: 62px;
+}
+
+.lhSelect {
+  width: 56px;
+}
+
+.lsSelect {
+  width: 80px;
+}
+
+/* Input mode: hide arrow, reduce right padding */
+.selectWrapEditing::after {
+  display: none;
+}
+
+.metricInput {
+  padding-right: var(--spacing-sm);
+}
+
+/* Table controls group */
+.tableGroup {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.tableGroupLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-primary);
+  padding: 0 3px 0 6px;
+  user-select: none;
+  line-height: 1;
+}
+
+.tableGroup .toolbarBtn {
+  border-radius: 0;
+  border-left: 1px solid var(--border-light-color);
+  padding: 3px 6px;
+}
+
+.tableGroup .fontSelect {
+  border: none;
+  border-left: 1px solid var(--border-light-color);
+  border-radius: 0;
+}
+
+.tableGroup .selectWrap {
+  border-left: 1px solid var(--border-light-color);
+}
+
+.tableGroup .selectWrap .fontSelect {
+  border-left: none;
+}
+
+.tableDangerBtn {
+  color: var(--color-error, #e05252);
+}
+
+.toolbar .tableDangerBtn:hover,
+.tableToolbar .tableDangerBtn:hover {
+  background: rgba(224, 82, 82, 0.1);
+  color: var(--color-error, #e05252);
+}
+
+/* Table toolbar — absolutely positioned over editor top, no layout impact */
+.tableToolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--border-light-color);
+  border-top: none;
+  background: var(--bg-primary);
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+}
+
+/* 글로벌 html[data-theme-ready] * transition shorthand 강제 override */
+.tableToolbar {
+  transition: opacity 0.2s ease-out,
+              clip-path 0.2s ease-out,
+              border-color 0.2s ease-out !important;
+}
+
+.tableToolbarFull {
+  width: 100%;
+  right: 0;
+}
+
+.tableToolbarRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  position: relative;
+}
+
+.tableToolbarRow + .tableToolbarRow {
+  border-top: 1px solid var(--border-light-color);
+}
+
+.tableToolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.tableToolbarHidden {
+  pointer-events: none;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  border-color: transparent;
+}
+
+.tableToolbarLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 var(--spacing-3xs) 0 0;
+  user-select: none;
+  min-width: 32px;
+  flex-shrink: 0;
+}
+
+/* Link / Embed input wrapper — matches .tableGroup capsule style */
+.linkInputWrap {
+  display: inline-flex;
+  max-width: 320px;
+  align-items: center;
+  height: 24px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.linkInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  padding: 0 6px;
+  outline: none;
+}
+
+.linkInput::placeholder {
+  color: var(--text-muted);
+}
+
+.linkInputWrap .toolbarBtn {
+  flex-shrink: 0;
+  border: none;
+  border-left: 1px solid var(--border-light-color);
+  border-radius: 0;
+  padding: 3px 6px;
+}
+
+/* Color picker inline cell */
+.colorPickerCell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 4px;
+  border-left: 1px solid var(--border-light-color);
+  cursor: pointer;
+}
+
+.colorDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light-color);
+  flex-shrink: 0;
+}
+
+/* Inline preset dots (inside tableGroup, no extra padding wrapper) */
+.presetDotInline {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light-color);
+  padding: 0;
+  margin-left: 1px;
+  flex-shrink: 0;
+}
+
+.presetDotInline:last-child {
+  margin-right: 4px;
+}
+
+.tableToolbar .presetDotInline:hover {
+  box-shadow: 0 0 0 1.5px var(--bg-primary), 0 0 0 3px var(--text-primary);
+}
+
+/* Caption input */
+.captionInput {
+  border: none;
+  border-left: 1px solid var(--border-light-color);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  padding: 2px 6px;
+  width: 120px;
+  outline: none;
+}
+
+.captionInput::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Cell border popover ── */
+.borderPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: var(--spacing-xs) var(--spacing-xs) var(--spacing-sm);
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.borderPopSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.borderPopLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.borderGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+}
+
+.borderGridBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0;
+}
+
+.borderGridBtn:hover {
+  background: var(--color-neutral-alpha-10);
+}
+
+.borderGridBtnActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+.borderGridBtnActive:hover {
+  background: var(--text-primary);
+}
+
+/* Select inside border popover */
+.borderPopSelect {
+  width: 100%;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+}
+
+/* Border width capsule group */
+.borderWidthCapsule {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.borderWidthBtn {
+  padding: 0 10px;
+  height: 24px;
+  border: none;
+  border-left: 1px solid var(--border-light-color);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.borderWidthBtn:first-child {
+  border-left: none;
+}
+
+.borderWidthBtn:hover {
+  background: var(--color-neutral-alpha-10);
+}
+
+.borderWidthBtnActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.borderWidthBtnActive:hover {
+  background: var(--text-primary);
+}
+
+/* ── Border dropdown ── */
+.borderDropWrap {
+  position: relative;
+}
+
+.borderDropPanel {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 4px);
+  z-index: 800;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
+  min-width: 220px;
+  /* 닫힘 상태: 숨김 */
+  opacity: 0;
+  transform: translateX(-6px);
+  pointer-events: none;
+  visibility: hidden;
+  /* 닫힐 때: visibility는 transition 끝난 후 hidden */
+  transition:
+    opacity 0.18s var(--ease-out-expo),
+    transform 0.18s var(--ease-out-expo),
+    visibility 0s 0.18s;
+}
+
+.borderDropPanelOpen {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  visibility: visible;
+  /* 열릴 때: visibility 즉시 */
+  transition:
+    opacity 0.18s var(--ease-out-expo),
+    transform 0.18s var(--ease-out-expo);
+}
+
+/* (0,2,0) — 글로벌 transition (0,1,1) 보다 높아서 transform transition 유지 */
+.borderDropWrap .borderDropArrow {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.22s var(--ease-out-expo);
+}
+
+.borderDropArrowOpen {
+  transform: rotate(90deg);
+}
+
+.borderDropInner {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+}
+
+.borderPresetGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 26px);
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.borderPresetBtn {
+  border-radius: var(--radius-xs) !important;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.borderControls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-width: 120px;
+}
+
+.borderControlLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  padding-top: 4px;
+}
+
+.borderStyleRow {
+  display: flex;
+  gap: 1px;
+}
+
+.borderWidthRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.borderColorRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.borderColorValue {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
 }
 
 /* Color picker group */
@@ -79,7 +676,8 @@
   border-radius: var(--radius-xs);
 }
 
-.toolbar .colorGroup:hover {
+.toolbar .colorGroup:hover,
+.tableToolbar .colorGroup:hover {
   background: var(--color-neutral-alpha-10);
 }
 
@@ -109,7 +707,7 @@
 .presetColors {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   padding: 0 var(--spacing-2xs);
 }
 
@@ -118,21 +716,32 @@
   height: 14px;
   border-radius: 50%;
   border: 1px solid var(--border-light-color);
-
   padding: 0;
 }
 
-.toolbar .presetDot:hover {
-  transform: scale(1.2);
+.toolbar .presetDot:hover,
+.tableToolbar .presetDot:hover {
+  box-shadow: 0 0 0 1.5px var(--bg-primary), 0 0 0 3px var(--text-primary);
+}
+
+.presetDotActive {
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 3.5px var(--text-primary);
+}
+
+/* Editor container: takes remaining flex space, provides position context for toolbar overlay */
+.editorContainer {
+  flex: 1;
+  min-height: 0;
+  position: relative;
 }
 
 /* Editor content */
 .editor {
-  flex: 1;
-  min-height: 0;
+  height: 100%;
   border: 1px solid var(--border-light-color);
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-radius: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong-color) transparent;
 }
@@ -155,6 +764,8 @@
   background: var(--text-muted);
 }
 
+/* tableToolbar is position:absolute — overlays content, no padding adjustment needed */
+
 .editor :global(.tiptap) {
   padding: var(--spacing-md);
   outline: none;
@@ -163,6 +774,7 @@
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
   color: var(--text-primary);
+  font-synthesis: style; /* 글로벌 font-synthesis: none 우회 — italic 합성 허용 */
 }
 
 .editor :global(.tiptap) h1,
@@ -230,6 +842,184 @@
 .editor :global(.tiptap) img.ProseMirror-selectednode {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* Figure + caption */
+.editor :global(.tiptap) figure {
+  margin: var(--spacing-md) 0;
+}
+
+.editor :global(.tiptap) figure[data-align="left"] {
+  margin-right: auto;
+}
+
+.editor :global(.tiptap) figure[data-align="center"] {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.editor :global(.tiptap) figure[data-align="right"] {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.editor :global(.tiptap) figcaption {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-align: center;
+  padding: var(--spacing-xs) 0;
+  outline: none;
+}
+
+.editor :global(.tiptap) figcaption:empty::before,
+.figCaption:empty::before {
+  content: "캡션을 입력하세요";
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.figureSelected img {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+.figCaption {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-align: center;
+  padding: var(--spacing-xs) 0;
+  outline: none;
+}
+
+/* Task list */
+.editor :global(.tiptap) ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.editor :global(.tiptap) ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-2xs);
+}
+
+.editor :global(.tiptap) ul[data-type="taskList"] li > label {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.editor :global(.tiptap) ul[data-type="taskList"] li > label input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-accent);
+}
+
+.editor :global(.tiptap) ul[data-type="taskList"] li > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.editor :global(.tiptap) ul[data-type="taskList"] li[data-checked="true"] > div {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+/* Table */
+.editor :global(.tiptap .tableWrapper) {
+  overflow-x: auto;
+}
+
+.editor :global(.tiptap) table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin: var(--spacing-md) 0;
+  font-size: var(--font-size-sm);
+  border-right: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-light-color);
+  table-layout: fixed;
+}
+
+.editor :global(.tiptap) table th,
+.editor :global(.tiptap) table td {
+  border-top: 1px solid var(--border-light-color);
+  border-left: 1px solid var(--border-light-color);
+  border-right: none;
+  border-bottom: none;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  vertical-align: top;
+  min-width: 60px;
+  position: relative;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  transition: background-color 0.15s;
+}
+
+.editor :global(.tiptap) table th {
+  background: var(--bg-tertiary);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+}
+
+
+/* 셀 안 마지막 p의 margin-bottom 제거 (셀 패딩과 중복 방지) */
+.editor :global(.tiptap) table td p:last-child,
+.editor :global(.tiptap) table th p:last-child {
+  margin-bottom: 0;
+}
+
+
+/* Built-in handle hidden — layout impact 방지. 시각적 indicator는 외부 React overlay로 렌더링 */
+.editor :global(.column-resize-handle) {
+  display: none;
+}
+
+/* Focused cell: 커서가 위치한 셀 — ::before overlay (border-collapse와 무관하게 동작) */
+.editor :global(.tiptap) table td[data-focused]::before,
+.editor :global(.tiptap) table th[data-focused]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-accent);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* 선택된 셀: pseudo-element + border 모두 제거 — 외곽선은 box-shadow inset이 담당 */
+.editor :global(.tiptap) table :global(.selectedCell)::before,
+.editor :global(.tiptap) table :global(.selectedCell)::after {
+  display: none !important;
+}
+
+.editor :global(.tiptap) table :global(.selectedCell) {
+  border-top: 1px solid transparent !important;
+  border-left: 1px solid transparent !important;
+}
+
+.editor :global(.tiptap) table td[data-cell-selected],
+.editor :global(.tiptap) table th[data-cell-selected] {
+  border-top: 1px solid transparent !important;
+  border-left: 1px solid transparent !important;
+}
+
+/* Underline */
+.editor :global(.tiptap) u {
+  text-decoration: underline;
+}
+
+/* Superscript / Subscript */
+.editor :global(.tiptap) sup {
+  font-size: 0.75em;
+  vertical-align: super;
+}
+
+.editor :global(.tiptap) sub {
+  font-size: 0.75em;
+  vertical-align: sub;
 }
 
 .editor :global(.tiptap) a {
@@ -336,6 +1126,598 @@
   color: var(--bg-primary);
 }
 
+/* Status bar */
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid var(--border-light-color);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: var(--bg-tertiary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* ── Attached images panel ── */
+.imagePanel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.imagePanelLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light-color);
+}
+
+.imagePanelList {
+  display: flex;
+  gap: var(--spacing-xs);
+  overflow-x: auto;
+  padding: var(--spacing-sm);
+  background: var(--bg-primary);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong-color) transparent;
+}
+
+.imagePanelItem {
+  position: relative;
+  flex-shrink: 0;
+  width: 72px;
+  display: flex;
+  overflow: visible;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  transition: background-color 0.15s;
+}
+
+.imagePanelItem:hover {
+  background: var(--color-neutral-alpha-10);
+}
+
+.imagePanelRemove {
+  --close-size: 9px;
+  --close-weight: 1.5px;
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-neutral-alpha-50);
+  color: var(--color-neutral-0);
+  cursor: pointer;
+  padding: 0;
+}
+
+.imagePanelEmpty {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: var(--spacing-xs) 0;
+}
+
+.imagePanelItem .imagePanelRemove:hover {
+  background: var(--color-neutral-alpha-70);
+}
+
+.imagePanelItem img {
+  width: 66px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-light-color);
+}
+
+.imagePanelName {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+  width: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Embed / Link modal ── */
+/* Modal content (embed / link) — 공통 Modal 컴포넌트 안에 들어가는 content */
+.embedModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
+}
+
+.embedModalDesc {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: var(--line-height-relaxed);
+}
+
+.embedModalInput {
+  width: 100%;
+  padding: var(--box-xs-sm);
+  border: 1px solid var(--border-default-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+  margin-top: var(--spacing-2xs);
+}
+
+.embedModalInput:focus {
+  border-color: var(--text-primary);
+}
+
+.embedModalInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.embedModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-2xs);
+}
+
+.embedModalCancel {
+  padding: var(--box-xs-sm);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.embedModalCancel:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.embedModalConfirm {
+  padding: var(--box-xs-sm);
+  border: 1px solid var(--text-primary);
+  border-radius: var(--radius-capsule);
+  background: var(--text-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--bg-primary);
+}
+
+.embedModalConfirm:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.embedModalConfirm:disabled {
+  opacity: 0.4;
+}
+
+/* ── Math nodes ── */
+.mathInline {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  padding: 0 3px;
+  transition: background-color 0.15s;
+}
+
+.mathInline:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.mathBlock {
+  display: block;
+  cursor: pointer;
+  text-align: center;
+  padding: var(--spacing-sm) 0;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s;
+  overflow-x: auto;
+}
+
+.mathBlock:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+/* ── Math floating edit panel ── */
+.mathSymbolBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: var(--spacing-2xs);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.mathSymbolGroup {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.mathSymbolLabel {
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  padding: var(--box-xs);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.mathFloating {
+  position: absolute;
+  z-index: var(--z-dropdown);
+  width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
+}
+
+.mathFloatingTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--border-light-color);
+}
+
+.mathFloatingToolGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.mathFloatingToolGroup::after {
+  content: "";
+  width: 1px;
+  align-self: stretch;
+  background: var(--border-light-color);
+  margin: 0 2px;
+}
+
+.mathFloatingToolGroup:last-child::after {
+  display: none;
+}
+
+.mathFloatingInput {
+  width: 100%;
+  padding: 30px 14px 10px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-jetbrains), monospace;
+  font-size: var(--font-size-md);
+  line-height: 1.8;
+  resize: vertical;
+  outline: none;
+  min-height: 80px;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.mathFloatingInput:focus {
+  border-color: var(--text-primary);
+}
+
+.mathFloatingInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.mathFloatingCapsule {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-default-color);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.mathCapsuleCancel,
+.mathCapsuleConfirm {
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  padding: 3px 10px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.mathCapsuleCancel {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.mathCapsuleConfirm {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.mathCapsuleConfirm:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+
+/* Math modal */
+/* ── Math Toolbar Panel (inline, no modal) ── */
+.mathPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-top: 1px solid var(--border-light-color);
+}
+
+.mathPanelRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.mathPanelInput {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--border-default-color);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-jetbrains), monospace;
+  font-size: var(--font-size-xs);
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.mathPanelInput:focus {
+  border-color: var(--text-primary);
+}
+
+.mathPanelPreview {
+  min-width: 60px;
+  max-width: 200px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  overflow-x: auto;
+  font-size: 12px;
+}
+
+.mathPanelModes {
+  display: flex;
+  gap: 2px;
+}
+
+.mathPanelModeBtn {
+  padding: 2px 8px;
+  border: 1px solid var(--border-default-color);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: 10px;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.mathPanelModeBtn:hover {
+  color: var(--text-secondary);
+  border-color: var(--text-secondary);
+}
+
+.mathPanelModeBtnActive {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.mathPanelModeBtnActive:hover {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.mathPanelInsert {
+  padding: 4px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.mathPanelInsert:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.mathPanelInsert:not(:disabled):hover {
+  opacity: 0.85;
+}
+
+.mathModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
+}
+
+.mathToolGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.mathToolCategory {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2xs);
+}
+
+.mathToolCatLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  padding-top: 4px;
+  min-width: 36px;
+}
+
+.mathToolItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.mathToolBtn {
+  padding: var(--box-xs);
+  border: none;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mathSymbolBar .mathToolBtn:hover {
+  background: var(--color-neutral-alpha-10);
+  color: var(--text-primary);
+}
+
+.mathModeRow {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.mathModeBtn {
+  flex: 1;
+  padding: var(--box-xs-sm);
+  border: 1px solid var(--border-default-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.mathModeBtnActive {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.mathModalInput {
+  width: 100%;
+  min-height: 76px;
+  padding: var(--box-xs-sm);
+  border: 1px solid var(--border-default-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-jetbrains), monospace;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.mathModalInput:focus {
+  border-color: var(--text-primary);
+}
+
+.mathPreview {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  overflow-x: auto;
+}
+
+/* Code block wrap toggle */
+.codeWrapToggle {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  z-index: 2;
+}
+
 @media (max-width: 768px) {
   .wrapper {
     min-height: 400px;
@@ -345,4 +1727,205 @@
     gap: 1px;
     padding: var(--spacing-2xs);
   }
+}
+
+/* ── Plate editor content styles ── */
+.editorContent {
+  padding: var(--spacing-md);
+  outline: none;
+  min-height: 400px;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-primary);
+  font-synthesis: style;
+  height: 100%;
+  border: 1px solid var(--border-light-color);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong-color) transparent;
+}
+
+.editorContent::-webkit-scrollbar { display: block; width: 6px; }
+.editorContent::-webkit-scrollbar-track { background: transparent; }
+.editorContent::-webkit-scrollbar-thumb { background: var(--border-strong-color); border-radius: 3px; }
+.editorContent::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+.editorContent h1,
+.editorContent h2,
+.editorContent h3 {
+  font-family: var(--font-instrument);
+  font-weight: var(--font-weight-regular);
+  margin: var(--spacing-lg) 0 var(--spacing-sm);
+}
+.editorContent h1 { font-size: var(--font-size-2xl); }
+.editorContent h2 { font-size: var(--font-size-lg); }
+.editorContent p { margin-bottom: var(--spacing-sm); }
+/* 표 바로 뒤 빈 paragraph 여백 축소 */
+.editorContent [data-table-wrap] + p { margin-top: 0; margin-bottom: var(--spacing-2xs); }
+
+/* Slate가 <tr>/<tbody> 안에 삽입하는 text span과 paragraph div 숨김 */
+.editorContent :global(.slate-tr) > :global([data-slate-node="text"]) {
+  display: none;
+}
+.editorContent :global(tbody) > :global(.slate-p) {
+  display: none;
+}
+
+.editorContent code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 2px 6px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-xs);
+}
+.editorContent pre {
+  padding: var(--spacing-md);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin: var(--spacing-md) 0;
+}
+.editorContent pre code { padding: 0; background: transparent; }
+/* Code syntax highlighting — VSCode Dark+ / Light+ inspired */
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-keyword),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-selector-tag),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-built_in) { color: #c792ea; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-string),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-attr),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-addition) { color: #ecc48d; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-comment),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-quote) { color: #637777; font-style: italic; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-number),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-literal) { color: #f78c6c; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-title),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-section),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-title.function_) { color: #82aaff; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-type),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-name) { color: #f07178; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-variable),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-template-variable) { color: #addb67; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-property) { color: #7fdbca; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-operator),
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-punctuation) { color: #89ddff; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-regexp) { color: #5ca7e4; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-deletion) { color: #ef5350; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-meta) { color: #82aaff; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-params) { color: #d6deeb; }
+
+:global([data-theme="light"]) .editorContent pre :global(.hljs-keyword),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-selector-tag),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-built_in) { color: #994cc3; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-string),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-attr),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-addition) { color: #c96765; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-comment),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-quote) { color: #93a1a1; font-style: italic; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-number),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-literal) { color: #aa0982; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-title),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-section),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-title.function_) { color: #4876d6; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-type),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-name) { color: #994cc3; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-variable),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-template-variable) { color: #0c969b; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-property) { color: #0c969b; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-operator),
+:global([data-theme="light"]) .editorContent pre :global(.hljs-punctuation) { color: #0431fa; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-regexp) { color: #4876d6; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-deletion) { color: #de3d3b; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-meta) { color: #4876d6; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-params) { color: #403f53; }
+
+.editorContent img {
+  max-width: 100%;
+  display: block;
+}
+
+.editorContent blockquote {
+  border-left: 3px solid var(--text-accent);
+  padding-left: var(--spacing-md);
+  color: var(--text-secondary);
+  margin: var(--spacing-md) 0;
+}
+
+.editorContent ul,
+.editorContent ol {
+  padding-left: 1.5em;
+  margin-bottom: var(--spacing-sm);
+  list-style-position: outside;
+}
+.editorContent ul { list-style-type: disc; }
+.editorContent ol { list-style-type: decimal; }
+.editorContent li { margin-bottom: var(--spacing-2xs); }
+/* Plate indent list (div with listStyleType) */
+.editorContent :global([data-slate-node="element"][style*="list-style-type"]) {
+  padding-left: 1.5em;
+  margin-bottom: var(--spacing-2xs);
+  display: list-item;
+}
+
+.editorContent hr {
+  border: none;
+  border-top: 1px solid var(--border-light-color);
+  margin: var(--spacing-lg) 0;
+}
+
+.editorContent a { color: var(--text-accent); }
+.editorContent mark { border-radius: 2px; padding: 0 2px; }
+.editorContent u { text-decoration: underline; }
+.editorContent sup { font-size: 0.75em; vertical-align: super; }
+.editorContent sub { font-size: 0.75em; vertical-align: sub; }
+
+.editorContent table {
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  table-layout: fixed;
+}
+.editorContent table th,
+.editorContent table td {
+  border-top: 1px solid var(--border-light-color);
+  border-left: 1px solid var(--border-light-color);
+  border-right: none;
+  border-bottom: none;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  vertical-align: top;
+  min-width: 60px;
+  position: relative;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  transition: background-color 0.15s;
+}
+.editorContent table th {
+  background: var(--bg-tertiary);
+  font-weight: inherit;
+  text-align: left;
+}
+.editorContent table td p:last-child,
+.editorContent table th p:last-child {
+  margin-bottom: 0;
+}
+
+.editorContent iframe {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  margin: var(--spacing-md) 0;
+}
+
+/* tableToolbar is position:absolute — no extra padding needed */
+
+/* Override ProseMirror default selectedCell overlays */
+.editorContent :global(.selectedCell)::before,
+.editorContent :global(.selectedCell)::after {
+  display: none !important;
+}
+
+
+/* Plate placeholder */
+.editorContent :global([data-slate-placeholder]) {
+  color: var(--text-muted);
 }
