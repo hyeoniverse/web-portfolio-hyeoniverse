@@ -115,6 +115,8 @@
   color: var(--text-accent);
   margin: 0;
   line-height: 1.15;
+  text-align: left;
+  word-break: keep-all;
 }
 
 .cpDesc {
@@ -272,6 +274,13 @@
   padding-left: 0;
   align-items: center;
   text-align: center;
+}
+
+.cpCard[data-variant="space"] .cpSubtitle,
+.cpCard[data-variant="space"] .cpDesc {
+  align-self: flex-start;
+  text-align: left;
+  word-break: keep-all;
 }
 
 .cpCard[data-variant="space"] .cpSubtitle {

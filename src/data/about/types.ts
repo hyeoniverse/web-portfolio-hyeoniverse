@@ -24,11 +24,31 @@ export interface CodeExample {
   media?: string;
 }
 
+export interface TroubleshootingDiagram {
+  title?: LocalizedText;
+  nodes: FlowNode[];
+  edges: FlowEdge[];
+}
+
+export interface ComparisonRow {
+  cells: LocalizedText[];
+  highlight?: boolean;
+}
+
+export interface ComparisonTable {
+  label?: LocalizedText;
+  headers: LocalizedText[];
+  rows: ComparisonRow[];
+  description?: LocalizedText;
+}
+
 export interface TroubleShootingItem {
   problem: LocalizedText;
   cause: LocalizedText;
   solution: LocalizedText;
   keyInsight: LocalizedText;
+  comparisons?: ComparisonTable[];
+  diagrams?: TroubleshootingDiagram[];
 }
 
 export interface TechStackItem {

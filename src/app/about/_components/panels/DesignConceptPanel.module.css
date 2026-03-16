@@ -113,6 +113,8 @@
   font-weight: var(--font-weight-light);
   color: var(--text-white);
   letter-spacing: -0.02em;
+  text-align: left;
+  word-break: keep-all;
 }
 
 .dcCardDesc {
