@@ -95,3 +95,38 @@ export async function POST(request: Request) {
 
   return NextResponse.json(data);
 }
+
+// DELETE /api/revisions?entity_type=post&entity_id=xxx — 엔티티의 전체 리비전 삭제
+export async function DELETE(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const entityType = searchParams.get("entity_type");
+  const entityId = searchParams.get("entity_id");
+
+  if (!entityType || !entityId) {
+    return NextResponse.json(
+      { error: "entity_type and entity_id required" },
+      { status: 400 },
+    );
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("revisions")
+    .delete()
+    .eq("entity_type", entityType)
+    .eq("entity_id", entityId);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
+}

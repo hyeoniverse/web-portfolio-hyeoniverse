@@ -35,7 +35,14 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   const config = await getSiteConfig();
-  const provider = config?.aiSummary?.provider ?? "gemini";
+  const primary = config?.aiSummary?.provider ?? "gemini";
+  const fallbackCfg = config?.aiSummary?.fallback;
+  const providerList: string[] = [primary];
+  if (fallbackCfg?.enabled && fallbackCfg.priority?.length) {
+    for (const p of fallbackCfg.priority) {
+      if (p !== primary) providerList.push(p);
+    }
+  }
 
   const contentKo = (post.content || "").slice(0, 3000);
   const contentEn = (post.content_en || "").slice(0, 3000);
@@ -56,77 +63,58 @@ ${contentKo}
 English content (if available):
 ${contentEn}`;
 
-  try {
-    let summaryKo = "";
-    let summaryEn = "";
+  let lastError = "Unknown error";
+  for (const provider of providerList) {
+    try {
+      let summaryKo = "";
+      let summaryEn = "";
 
-    if (provider === "openai") {
-      const apiKey = await getSecret("OPENAI_API_KEY");
-      if (!apiKey) return NextResponse.json({ error: "OPENAI_API_KEY not configured" }, { status: 503 });
+      if (provider === "openai") {
+        const apiKey = await getSecret("OPENAI_API_KEY");
+        if (!apiKey) throw new Error("OPENAI_API_KEY not configured");
+        const res = await fetch(OPENAI_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: promptText }], temperature: 0.2, response_format: { type: "json_object" } }),
+        });
+        if (!res.ok) throw new Error(`OpenAI error: ${res.status}`);
+        const data = await res.json();
+        const parsed: { ko?: string; en?: string } = JSON.parse(data?.choices?.[0]?.message?.content ?? "{}");
+        summaryKo = parsed.ko ?? ""; summaryEn = parsed.en ?? "";
+      } else if (provider === "claude") {
+        const apiKey = await getSecret("ANTHROPIC_API_KEY");
+        if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
+        const res = await fetch(CLAUDE_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+          body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 1024, messages: [{ role: "user", content: promptText }] }),
+        });
+        if (!res.ok) throw new Error(`Claude error: ${res.status}`);
+        const data = await res.json();
+        const parsed: { ko?: string; en?: string } = JSON.parse(data?.content?.[0]?.text ?? "{}");
+        summaryKo = parsed.ko ?? ""; summaryEn = parsed.en ?? "";
+      } else {
+        const apiKey = await getSecret("GEMINI_API_KEY");
+        if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
+        const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }], generationConfig: { temperature: 0.2, responseMimeType: "application/json" } }),
+        });
+        if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
+        const data = await res.json();
+        const parsed: { ko?: string; en?: string } = JSON.parse(data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}");
+        summaryKo = parsed.ko ?? ""; summaryEn = parsed.en ?? "";
+      }
 
-      const res = await fetch(OPENAI_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [{ role: "user", content: promptText }],
-          temperature: 0.2,
-          response_format: { type: "json_object" },
-        }),
-      });
-      if (!res.ok) return NextResponse.json({ error: `OpenAI error: ${res.status}` }, { status: 502 });
-      const data = await res.json();
-      const parsed: { ko?: string; en?: string } = JSON.parse(data?.choices?.[0]?.message?.content ?? "{}");
-      summaryKo = parsed.ko ?? "";
-      summaryEn = parsed.en ?? "";
-    } else if (provider === "claude") {
-      const apiKey = await getSecret("ANTHROPIC_API_KEY");
-      if (!apiKey) return NextResponse.json({ error: "ANTHROPIC_API_KEY not configured" }, { status: 503 });
-
-      const res = await fetch(CLAUDE_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-        },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 1024,
-          messages: [{ role: "user", content: promptText }],
-        }),
-      });
-      if (!res.ok) return NextResponse.json({ error: `Claude error: ${res.status}` }, { status: 502 });
-      const data = await res.json();
-      const parsed: { ko?: string; en?: string } = JSON.parse(data?.content?.[0]?.text ?? "{}");
-      summaryKo = parsed.ko ?? "";
-      summaryEn = parsed.en ?? "";
-    } else {
-      // gemini (default)
-      const apiKey = await getSecret("GEMINI_API_KEY");
-      if (!apiKey) return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 503 });
-
-      const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }],
-          generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
-        }),
-      });
-      if (!res.ok) return NextResponse.json({ error: `Gemini error: ${res.status}` }, { status: 502 });
-      const data = await res.json();
-      const parsed: { ko?: string; en?: string } = JSON.parse(
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}"
-      );
-      summaryKo = parsed.ko ?? "";
-      summaryEn = parsed.en ?? "";
+      await admin.from("posts").update({ summary_ko: summaryKo, summary_en: summaryEn }).eq("id", id);
+      return NextResponse.json({ summary_ko: summaryKo, summary_en: summaryEn });
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : "Unknown error";
+      console.error("[posts/ai-summary]", provider, lastError);
     }
-
-    await admin.from("posts").update({ summary_ko: summaryKo, summary_en: summaryEn }).eq("id", id);
-    return NextResponse.json({ summary_ko: summaryKo, summary_en: summaryEn });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    return NextResponse.json({ error: msg }, { status: 500 });
   }
+
+  const status = lastError.includes("not configured") ? 503 : 502;
+  return NextResponse.json({ error: lastError }, { status });
 }

@@ -14,8 +14,9 @@ export async function GET(request: Request) {
   const search = searchParams.get("search");
   const slug = searchParams.get("slug");
   const showAll = searchParams.get("all") === "true"; // admin용
+  const showTrash = searchParams.get("trash") === "true"; // 휴지통
 
-  const supabase = showAll ? createAdminClient() : await createClient();
+  const supabase = showAll || showTrash ? createAdminClient() : await createClient();
 
   const sort = searchParams.get("sort") ?? "newest";
 
@@ -23,8 +24,15 @@ export async function GET(request: Request) {
     .from("posts")
     .select("*, series:series_id(title, title_en)", { count: "exact" });
 
-  if (!showAll) {
-    query = query.eq("published", true);
+  if (showTrash) {
+    // 휴지통: deleted_at IS NOT NULL
+    query = query.not("deleted_at", "is", null);
+  } else if (!showAll) {
+    // 공개: published=true + deleted_at IS NULL
+    query = query.eq("published", true).is("deleted_at", null);
+  } else {
+    // 어드민 전체: deleted_at IS NULL (삭제 안된 것만)
+    query = query.is("deleted_at", null);
   }
 
   if (tag) {

@@ -39,38 +39,38 @@ export async function POST(request: Request) {
   }
 
   const config = await getSiteConfig();
-  const provider: Provider = (config?.translation?.provider as Provider) ?? "deepl";
+  const primary: Provider = (config?.translation?.provider as Provider) ?? "deepl";
+  const fallbackCfg = config?.translation?.fallback;
 
-  try {
-    let translations: string[];
-
-    switch (provider) {
-      case "google":
-        translations = await translateWithGoogle(texts, sourceLang, targetLang);
-        break;
-      case "deepl":
-        translations = await translateWithDeepL(texts, sourceLang, targetLang);
-        break;
-      case "claude":
-        translations = await translateWithClaude(texts, sourceLang, targetLang);
-        break;
-      default:
-        translations = await translateWithGemini(texts, sourceLang, targetLang);
-        break;
+  const providerList: Provider[] = [primary];
+  if (fallbackCfg?.enabled && fallbackCfg.priority?.length) {
+    for (const p of fallbackCfg.priority) {
+      if (p !== primary) providerList.push(p as Provider);
     }
-
-    if (translations.length !== texts.length) {
-      return NextResponse.json(
-        { error: "Translation count mismatch" },
-        { status: 502 },
-      );
-    }
-
-    return NextResponse.json({ translations });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    return NextResponse.json({ error: msg }, { status: 500 });
   }
+
+  let lastError = "Unknown error";
+  for (const provider of providerList) {
+    try {
+      let translations: string[];
+      switch (provider) {
+        case "google": translations = await translateWithGoogle(texts, sourceLang, targetLang); break;
+        case "deepl":  translations = await translateWithDeepL(texts, sourceLang, targetLang); break;
+        case "claude": translations = await translateWithClaude(texts, sourceLang, targetLang); break;
+        default:       translations = await translateWithGemini(texts, sourceLang, targetLang); break;
+      }
+      if (translations.length !== texts.length) {
+        lastError = "Translation count mismatch";
+        continue;
+      }
+      return NextResponse.json({ translations });
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : "Unknown error";
+      console.error("[admin/translate]", provider, lastError);
+    }
+  }
+
+  return NextResponse.json({ error: lastError }, { status: 502 });
 }
 
 /* ── Gemini ── */

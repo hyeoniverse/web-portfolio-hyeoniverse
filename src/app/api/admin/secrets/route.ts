@@ -18,6 +18,7 @@ const ALLOWED_KEYS = [
   "GOOGLE_TRANSLATE_API_KEY",
   "DEEPL_API_KEY",
   "OPENAI_API_KEY",
+  "ANTHROPIC_API_KEY",
   "RESEND_API_KEY",
 ] as const;
 
@@ -157,6 +158,47 @@ export async function POST(request: Request) {
   const value = dbVal || envVal || "";
 
   return NextResponse.json({ value });
+}
+
+// DELETE /api/admin/secrets — DB에서 키 삭제
+export async function DELETE(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { key } = await request.json();
+  if (!key || !ALLOWED_KEYS.includes(key as (typeof ALLOWED_KEYS)[number])) {
+    return NextResponse.json({ error: "Invalid key" }, { status: 400 });
+  }
+
+  const admin = createAdminClient();
+  const { data: existing } = await admin
+    .from("site_settings")
+    .select("config")
+    .eq("id", "secrets")
+    .single();
+
+  const config = { ...((existing?.config as Record<string, string>) ?? {}) };
+  delete config[key];
+
+  const { error } = await admin
+    .from("site_settings")
+    .upsert({ id: "secrets", config, updated_at: new Date().toISOString() })
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  invalidateSecretsCache();
+
+  return NextResponse.json({ success: true });
 }
 
 function mask(val: string): string {

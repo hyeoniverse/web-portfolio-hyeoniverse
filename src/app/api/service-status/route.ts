@@ -21,8 +21,11 @@ export async function GET() {
     getSecret(PROVIDER_KEY_MAP[summaryProvider] ?? ""),
   ]);
 
+  const translationOn = config?.translation?.enabled !== false;
+  const aiSummaryOn = config?.aiSummary?.enabled !== false;
+
   return NextResponse.json({
-    translation: !!translateKey,
-    aiSummary: !!summaryKey,
+    translation: translationOn && !!translateKey,
+    aiSummary: aiSummaryOn && !!summaryKey,
   });
 }
