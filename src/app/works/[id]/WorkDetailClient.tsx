@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
+import "katex/dist/katex.min.css";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -21,6 +23,7 @@ interface WorkDetailClientProps {
   project: Project;
   prevProject: Project | null;
   nextProject: Project | null;
+  translationEnabled?: boolean;
 }
 
 /** Extract h2 headings from content for TOC */
@@ -91,6 +94,7 @@ export default function WorkDetailClient({
   project,
   prevProject,
   nextProject,
+  translationEnabled = true,
 }: WorkDetailClientProps) {
   const { t, language } = useLanguage();
   const isRichtext = project.contentType === "richtext";
@@ -98,6 +102,7 @@ export default function WorkDetailClient({
   const [liked, setLiked] = useState(false);
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
   const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
+  const richtextRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch(`/api/works/${project.id}/like`)
@@ -124,6 +129,8 @@ export default function WorkDetailClient({
 
   const content = project.content[language] || project.content.ko;
   const needsTranslation = language === "en" && !project.content[language];
+
+  useRichtextEnhance(richtextRef, content);
 
   const headings: TocHeading[] = useMemo(() => {
     const contentHeadings = extractHeadings(content, isRichtext);
@@ -238,7 +245,7 @@ export default function WorkDetailClient({
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.75 }}
           >
-            <CommentSection commentType="work" targetId={project.id} />
+            <CommentSection commentType="work" targetId={project.id} translationEnabled={translationEnabled} />
           </motion.div>
 
           <div className={styles.footerNav}>
@@ -323,10 +330,10 @@ export default function WorkDetailClient({
         )}
       </motion.div>
 
-      {needsTranslation && (
+      {needsTranslation && translationEnabled && (
         <div className={styles.translateBanner}>
           <p className={styles.translateMessage}>
-            This work is not yet available in English.
+            <T k="workDetail.noTranslationEn" />
           </p>
         </div>
       )}
@@ -347,7 +354,7 @@ export default function WorkDetailClient({
         >
           <div ref={proseRef}>
             {isRichtext ? (
-              <div className={styles.sectionProse} dangerouslySetInnerHTML={{ __html: content }} />
+              <div ref={richtextRef} className={styles.sectionProse} dangerouslySetInnerHTML={{ __html: content }} />
             ) : (
               <MarkdownRenderer content={content} className={styles.sectionProse} />
             )}
