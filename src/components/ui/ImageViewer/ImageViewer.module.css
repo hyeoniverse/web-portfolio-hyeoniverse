@@ -72,7 +72,6 @@
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-secondary);
-  cursor: pointer;
   transition: background 0.12s, color 0.12s;
 }
 
@@ -103,7 +102,6 @@
 }
 
 .zoomLevel {
-  cursor: pointer;
 }
 
 .zoomLevel:hover {
@@ -204,7 +202,6 @@
   -webkit-backdrop-filter: blur(12px) saturate(1.4);
   backdrop-filter: blur(12px) saturate(1.4);
   color: var(--text-secondary);
-  cursor: pointer;
   transition: color 0.25s, background 0.25s, transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
@@ -268,11 +265,9 @@
 
 .imageWrapZoomed {
   overflow: hidden;
-  cursor: grab;
 }
 
 .imageWrapZoomed:active {
-  cursor: grabbing;
 }
 
 .image {
@@ -445,7 +440,6 @@
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
-  cursor: pointer;
   transition: color 0.15s ease;
 }
 
@@ -593,7 +587,6 @@
   border: none;
   border-radius: 0;
   overflow: hidden;
-  cursor: pointer;
   opacity: 0.5;
   transition: opacity 0.15s;
   background: none;
@@ -657,7 +650,6 @@
   padding: 0;
   border: none;
   border-radius: 0;
-  cursor: pointer;
   opacity: 0.5;
   transition: opacity 0.15s, transform 0.2s;
   background: none;
@@ -741,7 +733,6 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 13px;
   color: var(--text-secondary);
-  cursor: pointer;
   transition: background 0.12s;
 }
 

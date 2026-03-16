@@ -10,7 +10,6 @@
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.03em;
   color: var(--text-secondary);
-  cursor: pointer;
   overflow: hidden;
 }
 

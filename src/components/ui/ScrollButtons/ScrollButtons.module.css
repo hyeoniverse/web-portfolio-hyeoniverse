@@ -1,53 +1,50 @@
-/* ── Scroll Buttons (capsule) ── */
-.wrap {
-  position: fixed;
-  right: var(--spacing-xl);
-  bottom: var(--spacing-xl);
-  z-index: var(--z-float);
-  display: flex;
-  border-radius: var(--radius-capsule);
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
-.wrap.wrap {
-  transition: opacity var(--duration-base) var(--ease-material);
-}
-
-.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
+/* ── Scroll Buttons ── */
 .btn {
+  position: fixed;
+  z-index: var(--z-float);
   width: 36px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-default-color);
-  background: transparent;
-  color: var(--text-tertiary);
+  border: var(--border-default);
+  background: var(--bg-primary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  text-decoration: none;
+  visibility: hidden;
+  pointer-events: none;
 }
 
-.btn:first-child {
+.btnTop {
+  right: calc(var(--spacing-xl) + 36px - 1px);
+  bottom: var(--spacing-3xl);
   border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  border-right-color: transparent;
 }
 
-.btn:last-child {
+.btnBottom {
+  right: var(--spacing-xl);
+  bottom: var(--spacing-3xl);
   border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
-  margin-left: -1px;
 }
 
-/* Compound selector — beats global theme transition */
-.wrap .btn {
+.visible {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Compound selector (0,2,0) — beats global theme transition (0,1,1) */
+.btn.btn {
   transition:
+    background-color var(--duration-base) var(--ease-material),
     color var(--duration-base) var(--ease-material),
     border-color var(--duration-base) var(--ease-material);
 }
 
-.wrap .btn:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
+.btn:hover {
+  background-color: var(--bg-inverse);
+  color: var(--text-inverse);
+  border-color: var(--bg-inverse) !important;
 }

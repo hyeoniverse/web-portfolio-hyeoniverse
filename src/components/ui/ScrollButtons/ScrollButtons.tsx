@@ -38,20 +38,20 @@ export default function ScrollButtons({ threshold = 300 }: ScrollButtonsProps) {
     else window.scrollTo({ top: target, behavior: "smooth" });
   }, [lenis]);
 
-  const cls = `${styles.wrap} ${visible ? styles.visible : ""}`;
+  const visCls = visible ? styles.visible : "";
 
   return (
-    <div className={cls}>
-      <button type="button" className={styles.btn} onClick={scrollToTop} aria-label="Scroll to top" data-clickable="true">
+    <>
+      <button type="button" className={`${styles.btn} ${styles.btnTop} ${visCls}`} onClick={scrollToTop} aria-label="Scroll to top" data-clickable="true">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="18 15 12 9 6 15" />
         </svg>
       </button>
-      <button type="button" className={styles.btn} onClick={scrollToBottom} aria-label="Scroll to bottom" data-clickable="true">
+      <button type="button" className={`${styles.btn} ${styles.btnBottom} ${visCls}`} onClick={scrollToBottom} aria-label="Scroll to bottom" data-clickable="true">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
-    </div>
+    </>
   );
 }

@@ -10,6 +10,7 @@
   height: 50vh;
   min-height: 300px;
   overflow: hidden;
+  margin-bottom: -1px;
 }
 
 .heroCover {
@@ -21,15 +22,13 @@
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 30%,
-    var(--bg-primary) 100%
-  );
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0%, transparent 20%),
+    linear-gradient(to bottom, transparent 30%, var(--bg-primary) 100%);
 }
 
 .heroSpacer {
-  height: calc(var(--spacing-6xl) + 40px);
+  height: var(--spacing-3xl);
 }
 
 .heroPlaceholder {
@@ -49,8 +48,8 @@
   gap: var(--spacing-sm);
   align-items: center;
   position: fixed;
-  top: var(--spacing-5xl);
-  left: var(--spacing-3xl);
+  top: calc(var(--spacing-2xl) + var(--spacing-3xl));
+  left: calc(var(--spacing-4xl) + var(--spacing-md));
   z-index: var(--z-nav);
   padding: var(--box-md-xl);
   border: var(--border-default);
@@ -61,10 +60,21 @@
   color: var(--text-primary);
   text-decoration: none;
   backdrop-filter: blur(10px);
+  transition: opacity 0.3s, transform 0.3s, padding 0.3s, font-size 0.3s, gap 0.3s, top 0.3s, left 0.3s;
 }
 
+.backBtnHidden {
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+}
+
+/* Compound selector — beats global theme transition */
 .page .backBtn:hover {
-  background: var(--bg-surface);
+  background-color: #000;
+  mix-blend-mode: difference;
+  color: #fff;
+  border-color: #fff;
 }
 
 /* ── Content wrapper ── */
@@ -165,6 +175,7 @@
 .afterContent {
   max-width: 1100px;
   margin: 0 auto;
+  padding: 0 var(--page-px);
 }
 
 
@@ -186,8 +197,18 @@
   }
 
   .backBtn {
-    top: calc(var(--spacing-3xl) + var(--spacing-2xl));
-    left: var(--spacing-xl);
+    top: calc(var(--spacing-2xl) + var(--spacing-3xl));
+    left: var(--page-px);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    gap: var(--spacing-xs);
+    transition: opacity 0.3s, transform 0.3s, padding 0.3s, font-size 0.3s, gap 0.3s, top 0.3s, left 0.3s;
+  }
+
+  .backBtn svg {
+    width: 16px;
+    height: 16px;
+    transition: width 0.3s, height 0.3s;
   }
 
 }

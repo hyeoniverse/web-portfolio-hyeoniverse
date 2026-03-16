@@ -4,7 +4,6 @@
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   text-decoration: none;
-  cursor: pointer;
 }
 
 .textLink::after {
