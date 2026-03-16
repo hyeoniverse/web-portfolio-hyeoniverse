@@ -13,6 +13,7 @@ interface CommentSectionProps {
   commentType: "post" | "work";
   /** post_id 또는 work_id */
   targetId: string;
+  translationEnabled?: boolean;
 }
 
 function buildTree(comments: Comment[]): Comment[] {
@@ -43,7 +44,7 @@ function buildTree(comments: Comment[]): Comment[] {
   return prune(roots);
 }
 
-export default function CommentSection({ commentType, targetId }: CommentSectionProps) {
+export default function CommentSection({ commentType, targetId, translationEnabled = true }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const apiBase = commentType === "work" ? "/api/work-comments" : "/api/comments";
@@ -93,12 +94,15 @@ export default function CommentSection({ commentType, targetId }: CommentSection
 
   return (
     <div className={styles.section}>
-      <h2 className={styles.heading}>
-        <T k="comments.heading" />
-        {comments.length > 0 && (
-          <span className={styles.count}>({comments.length})</span>
-        )}
-      </h2>
+      <div className={styles.headingRow}>
+        <h2 className={styles.heading}>
+          <T k="comments.heading" />
+          {comments.length > 0 && (
+            <span className={styles.count}>({comments.length})</span>
+          )}
+        </h2>
+        <p className={styles.disclaimer}><T k="comments.disclaimer" noTooltip /></p>
+      </div>
 
       <CommentForm
         commentType={commentType}
@@ -117,6 +121,7 @@ export default function CommentSection({ commentType, targetId }: CommentSection
               likedMap={likedMap}
               likeCountMap={likeCountMap}
               isAdmin={isAdmin}
+              translationEnabled={translationEnabled}
               onRefresh={fetchComments}
             />
           ))}
@@ -125,7 +130,6 @@ export default function CommentSection({ commentType, targetId }: CommentSection
         <p className={styles.empty}><T k="comments.empty" /></p>
       )}
 
-      <p className={styles.disclaimer}><T k="comments.disclaimer" /></p>
     </div>
   );
 }

@@ -226,6 +226,20 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
 
       const adminDb = createAdminClient();
 
+      // Admin: authorize via Supabase session
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await adminDb
+          .from(table)
+          .update({ content: patchContent.value, updated_at: new Date().toISOString() })
+          .eq("id", id)
+          .select(selectFieldsSafe)
+          .single();
+        if (error) return jsonServerError(error);
+        return jsonOk(data);
+      }
+
       const { data: comment } = await adminDb
         .from(table)
         .select("commenter_hash, password_hash")

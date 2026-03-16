@@ -32,9 +32,17 @@
   margin-bottom: var(--spacing-2xl);
 }
 
+.headingRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
 .disclaimer {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  margin-top: var(--spacing-md);
+  text-align: right;
+  flex-shrink: 0;
 }

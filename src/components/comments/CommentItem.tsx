@@ -14,6 +14,12 @@ function hasKorean(text: string): boolean {
   return /[\uac00-\ud7af]/.test(text);
 }
 
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "m";
+  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+  return String(n);
+}
+
 function formatDateTime(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString(undefined, {
@@ -34,6 +40,7 @@ interface CommentItemProps {
   likedMap?: Record<string, boolean>;
   likeCountMap?: Record<string, number>;
   isAdmin?: boolean;
+  translationEnabled?: boolean;
   onRefresh: () => void;
 }
 
@@ -44,6 +51,7 @@ function CommentItem({
   likedMap,
   likeCountMap,
   isAdmin = false,
+  translationEnabled = true,
   onRefresh,
 }: CommentItemProps) {
   const { t } = useLanguage();
@@ -54,7 +62,7 @@ function CommentItem({
   const [deleting, setDeleting] = useState(false);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
-  const [translateServiceUnavailable, setTranslateServiceUnavailable] = useState(false);
+  const [translateServiceUnavailable, setTranslateServiceUnavailable] = useState(!translationEnabled);
   const [liked, setLiked] = useState(likedMap?.[comment.id] ?? false);
   const [likeCount, setLikeCount] = useState(likeCountMap?.[comment.id] ?? 0);
 
@@ -178,7 +186,7 @@ function CommentItem({
 
   const handleEdit = useCallback(async () => {
     if (!editContent.trim()) return;
-    if (!editPassword.trim()) {
+    if (!isAdmin && !editPassword.trim()) {
       setEditError(t("comments.passwordRequired"));
       return;
     }
@@ -191,10 +199,10 @@ function CommentItem({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: comment.id,
-          commenter_id: commenterId,
+          commenter_id: isAdmin ? undefined : commenterId,
           target_id: targetId,
           content: editContent.trim(),
-          password: editPassword || undefined,
+          password: isAdmin ? undefined : (editPassword || undefined),
         }),
       });
 
@@ -254,8 +262,8 @@ function CommentItem({
         )}
         <span className={styles.date}>{dateStr}</span>
         {isEdited && (
-          <span className={styles.editedBadge} title={editedDateStr ?? ""}>
-            (<T k="comments.edited" />)
+          <span className={styles.editedBadge}>
+            (<T k="comments.edited" tooltip={editedDateStr ?? undefined} placement="top" />)
           </span>
         )}
         <span className={styles.headerSpacer} />
@@ -264,10 +272,10 @@ function CommentItem({
           className={`${styles.likeBtn} ${liked ? styles.likeBtnLiked : ""}`}
           onClick={handleLike}
         >
+          {likeCount > 0 && <span className={styles.likeCount}>{formatCount(likeCount)}</span>}
           <svg width="12" height="12" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
-          {likeCount > 0 && <span className={styles.likeCount}>{likeCount}</span>}
         </button>
       </div>
 
@@ -288,16 +296,18 @@ function CommentItem({
               rows={3}
             />
             <div className={styles.editActions}>
-              <input
-                className={styles.deleteInput}
-                type="password"
-                value={editPassword}
-                onChange={(e) => setEditPassword(e.target.value)}
-                placeholder={t("comments.password")}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleEdit();
-                }}
-              />
+              {!isAdmin && (
+                <input
+                  className={styles.deleteInput}
+                  type="password"
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                  placeholder={t("comments.password")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleEdit();
+                  }}
+                />
+              )}
               <button
                 type="button"
                 className={styles.editSubmitBtn}
