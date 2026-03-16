@@ -637,7 +637,6 @@
   font-size: var(--font-size-lg);
   font-style: italic;
   color: var(--text-primary);
-  cursor: default;
   padding: var(--box-md);
   border-radius: var(--radius-md);
 }

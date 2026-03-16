@@ -81,6 +81,7 @@
     "troubleshooting": {
       "cause": "원인",
       "solution": "해결",
+      "flow": "흐름",
       "keyInsight": "핵심"
     },
     "credits": "Designed & Developed with ❤ by",
@@ -233,6 +234,10 @@
       "envVarSave": "키 저장",
       "envVarSaved": "저장 완료",
       "envVarPlaceholder": "값을 입력하세요",
+      "envVarDelete": "삭제",
+      "envVarDeleteConfirm": "API 키 삭제",
+      "envVarDeleteDesc": "DB에 저장된 이 키를 삭제합니다. .env에 설정되어 있으면 계속 사용됩니다.",
+      "envVarEnvHint": "서버 .env 파일에 설정된 값입니다. 변경하려면 .env 파일을 직접 수정하세요.",
       "enterPassword": "비밀번호를 입력하세요",
       "wrongPassword": "비밀번호가 올바르지 않습니다",
       "homeAboutIntro": "철학",
@@ -351,7 +356,11 @@
       "postsPerPage": "페이지당 글 수",
       "adminPerPage": "관리자 페이지당 수",
       "translationSettings": "AI 자동 번역",
+      "translationEnabled": "번역 기능 활성화",
+      "aiSummaryEnabled": "AI 요약 기능 활성화",
       "translationProvider": "제공자",
+      "fallbackEnabled": "폴백 사용",
+      "fallbackPriority": "폴백 우선순위",
       "designSystem": "Design System",
       "fontHint": "프리셋에서 선택하거나, 직접 입력란에 Google Fonts 이름을 입력하세요. (예: Roboto, Nanum Gothic)",
       "tabs": {
@@ -435,6 +444,13 @@
       "resetFilters": "초기화",
       "seriesDeleteConfirm": "시리즈를 삭제하시겠습니까?\n포함된 글의 시리즈 연결이 해제됩니다.",
       "save": "저장",
+      "trash": "휴지통",
+      "trashEmpty": "휴지통이 비었습니다",
+      "trashDaysLeft": "일 후 자동 삭제",
+      "trashRestore": "복구",
+      "trashPurge": "영구 삭제",
+      "trashPurgeConfirm": "영구 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      "trashAutoDelete": "30일 후 자동 삭제됩니다.",
       "editor": {
         "backToPosts": "← 포스트 목록",
         "delete": "삭제",
@@ -452,6 +468,7 @@
         "category": "카테고리",
         "customCategory": "직접 입력...",
         "categoryFromSeries": "시리즈에서 지정",
+        "optionalFields": "선택 입력",
         "pin": "고정",
         "pinLabel": "상단에 고정",
         "series": "시리즈",
@@ -481,6 +498,7 @@
         "editorLabel": "편집",
         "previewLabel": "미리보기",
         "autoSaved": "자동 저장됨",
+        "draftRestored": "이전 초안을 불러왔습니다",
         "restored": "복원됨",
         "reverted": "되돌림",
         "revert": "되돌리기",
@@ -635,6 +653,7 @@
         "editorLabel": "편집",
         "previewLabel": "미리보기",
         "autoSaved": "자동 저장됨",
+        "draftRestored": "이전 초안을 불러왔습니다",
         "restored": "복원됨",
         "reverted": "되돌림",
         "revert": "되돌리기",
@@ -656,7 +675,11 @@
     "back": "뒤로",
     "next": "다음",
     "prev": "이전",
-    "like": "좋아요"
+    "like": "좋아요",
+    "codeWrap": "줄바꿈",
+    "codeScroll": "스크롤",
+    "codeWrapTitle": "줄바꿈으로 전환",
+    "codeScrollTitle": "가로 스크롤로 전환"
   },
   "workDetail": {
     "back": "뒤로",
@@ -671,7 +694,8 @@
     "solution": "해결 방안",
     "visitSite": "사이트 방문",
     "previous": "이전 작품",
-    "next": "다음 작품"
+    "next": "다음 작품",
+    "noTranslationEn": "이 작품은 아직 영어 번역이 제공되지 않습니다."
   },
   "comments": {
     "heading": "댓글",

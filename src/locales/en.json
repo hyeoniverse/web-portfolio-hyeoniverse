@@ -81,6 +81,7 @@
     "troubleshooting": {
       "cause": "Cause",
       "solution": "Solution",
+      "flow": "Flow",
       "keyInsight": "Key Insight"
     },
     "credits": "Designed & Developed with ❤ by",
@@ -233,6 +234,10 @@
       "envVarSave": "Save Keys",
       "envVarSaved": "Saved",
       "envVarPlaceholder": "Enter value",
+      "envVarDelete": "Delete",
+      "envVarDeleteConfirm": "Delete API Key",
+      "envVarDeleteDesc": "This will remove the key from the DB. If it's also set in .env, it will continue to be used.",
+      "envVarEnvHint": "Set via server .env file. Edit the file directly to change.",
       "enterPassword": "Enter your password",
       "wrongPassword": "Incorrect password",
       "homeAboutIntro": "Philosophy",
@@ -351,7 +356,11 @@
       "postsPerPage": "Posts per page",
       "adminPerPage": "Admin per page",
       "translationSettings": "AI Auto Translate",
+      "translationEnabled": "Enable Translation",
+      "aiSummaryEnabled": "Enable AI Summary",
       "translationProvider": "Provider",
+      "fallbackEnabled": "Enable Fallback",
+      "fallbackPriority": "Fallback Priority",
       "designSystem": "Design System",
       "fontHint": "Choose from presets or type a Google Fonts name in the input field. (e.g., Roboto, Nanum Gothic)",
       "tabs": {
@@ -435,6 +444,13 @@
       "resetFilters": "Reset",
       "seriesDeleteConfirm": "Delete this series?\nPosts in this series will be unlinked.",
       "save": "Save",
+      "trash": "Trash",
+      "trashEmpty": "Trash is empty",
+      "trashDaysLeft": "days until auto-delete",
+      "trashRestore": "Restore",
+      "trashPurge": "Delete Permanently",
+      "trashPurgeConfirm": "Permanently delete this post? This cannot be undone.",
+      "trashAutoDelete": "Posts are automatically deleted after 30 days.",
       "editor": {
         "backToPosts": "← Back to Posts",
         "delete": "Delete",
@@ -452,6 +468,7 @@
         "category": "Category",
         "customCategory": "Custom...",
         "categoryFromSeries": "from series",
+        "optionalFields": "Optional",
         "pin": "Pin",
         "pinLabel": "Pin this post to top",
         "series": "Series",
@@ -481,6 +498,7 @@
         "editorLabel": "Editor",
         "previewLabel": "Preview",
         "autoSaved": "Auto-saved",
+        "draftRestored": "Previous draft restored",
         "restored": "Restored",
         "reverted": "Reverted",
         "revert": "Revert",
@@ -637,6 +655,7 @@
         "editorLabel": "Editor",
         "previewLabel": "Preview",
         "autoSaved": "Auto-saved",
+        "draftRestored": "Previous draft restored",
         "restored": "Restored",
         "reverted": "Reverted",
         "revert": "Revert",
@@ -658,7 +677,11 @@
     "back": "Back",
     "next": "Next",
     "prev": "Previous",
-    "like": "Like"
+    "like": "Like",
+    "codeWrap": "Wrap",
+    "codeScroll": "Scroll",
+    "codeWrapTitle": "Switch to line wrap",
+    "codeScrollTitle": "Switch to horizontal scroll"
   },
   "workDetail": {
     "back": "Back",
@@ -673,7 +696,8 @@
     "visitSite": "Visit Site",
     "team": "Team",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "noTranslationEn": "This work is not yet available in English."
   },
   "comments": {
     "heading": "Comments",

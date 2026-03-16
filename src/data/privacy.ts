@@ -127,7 +127,7 @@ export const content: Record<Language, PrivacyContent> = {
     footer: "All rights reserved.",
   },
   ko: {
-    backLink: "Go back",
+    backLink: "뒤로 가기",
     title: "개인정보 처리방침",
     lastUpdated: "최종 수정일",
     sections: [
