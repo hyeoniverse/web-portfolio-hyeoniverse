@@ -128,6 +128,8 @@
   line-height: var(--_lh-title);
   color: var(--text-accent);
   letter-spacing: var(--_ls-title);
+  text-align: left;
+  word-break: keep-all;
 }
 
 .animate {

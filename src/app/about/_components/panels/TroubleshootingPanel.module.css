@@ -237,6 +237,7 @@
   font-size: var(--_fs-body);
   line-height: var(--_lh-body);
   color: var(--text-secondary);
+  white-space: pre-line;
 }
 
 .troubleInsightText {
@@ -262,6 +263,98 @@
   gap: var(--spacing-md);
   align-items: baseline;
   margin-bottom: var(--spacing-sm);
+}
+
+/* ── Comparison tables ── */
+.troubleComparisons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_space-block);
+}
+
+.troubleComparisonWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_space-line);
+  overflow-x: auto;
+}
+
+.troubleComparisonLabel {
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+}
+
+.troubleTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
+}
+
+.troubleTable th {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+  border-bottom: var(--_line-secondary);
+  white-space: nowrap;
+}
+
+.troubleTable td {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  color: var(--text-secondary);
+  border-bottom: var(--_line-secondary);
+  line-height: var(--line-height-snug);
+  vertical-align: top;
+}
+
+.troubleTable tr:last-child td {
+  border-bottom: none;
+}
+
+.troubleTable td:first-child {
+  color: var(--text-primary);
+  white-space: nowrap;
+  padding-right: var(--spacing-md);
+}
+
+.troubleTableRowHighlight td {
+  color: var(--text-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.troubleComparisonDesc {
+  margin: 0;
+  padding-top: var(--_space-line);
+  font-family: var(--_font-grotesk);
+  font-size: var(--_fs-body);
+  line-height: var(--_lh-body);
+  color: var(--text-secondary);
+  border-top: var(--_line-secondary);
+}
+
+/* ── Flow diagrams ── */
+.troubleDiagrams {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_space-block);
+}
+
+.troubleDiagramWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_space-line);
+}
+
+.troubleDiagramTitle {
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
 }
 
 /* ── Highlighted text (inline accent) ── */

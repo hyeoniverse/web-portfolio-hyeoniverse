@@ -1,0 +1,84 @@
+.diagram {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  min-height: 120px;
+  display: block;
+}
+
+/* ── Node animation ── */
+@keyframes fdNodeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.nodeGroup {
+  animation: fdNodeIn 0.35s ease-out both;
+}
+
+/* ── Terminal (Start / End) ── */
+.terminal {
+  fill: var(--color-accent);
+  stroke: none;
+}
+
+.terminalText {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  fill: #fff;
+}
+
+/* ── Action ── */
+.action {
+  fill: var(--bg-primary);
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+}
+
+.actionText {
+  font-family: var(--font-space-grotesk);
+  font-size: 11px;
+  font-weight: 500;
+  fill: var(--text-primary);
+}
+
+/* ── Decision Diamond ── */
+.diamond {
+  fill: var(--bg-primary);
+  stroke: var(--color-accent);
+  stroke-width: 1.5;
+}
+
+.diamondText {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--color-accent);
+}
+
+/* ── Edges ── */
+@keyframes fdEdgeIn {
+  from { opacity: 0; stroke-dashoffset: 40; }
+  to   { opacity: 1; stroke-dashoffset: 0; }
+}
+
+.edge {
+  stroke: var(--text-secondary);
+  stroke-width: 1.2;
+  stroke-dasharray: 2000;
+  animation: fdEdgeIn 0.35s ease-out both;
+}
+
+.edgeLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--color-accent);
+  opacity: 0;
+  animation: fdNodeIn 0.3s ease-out both;
+}

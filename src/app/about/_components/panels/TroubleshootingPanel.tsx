@@ -7,6 +7,7 @@ import { renderHighlight } from "../renderHighlight";
 import { useMobileLayout } from "../../_hooks/mobileCheck";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
+import FlowDiagram from "../FlowDiagram";
 import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./TroubleshootingPanel.module.css";
@@ -253,6 +254,57 @@ function TroubleshootingPanel({
                     </span>
                     <p>{renderHighlight(item.solution[language])}</p>
                   </div>
+                  {item.comparisons && item.comparisons.length > 0 && (
+                    <div className={styles.troubleEntry}>
+                      <div className={local.troubleComparisons}>
+                        {item.comparisons.map((table, ti) => (
+                          <div key={ti} className={local.troubleComparisonWrap}>
+                            {table.label && (
+                              <span className={local.troubleComparisonLabel}>{table.label[language]}</span>
+                            )}
+                            <table className={local.troubleTable}>
+                              <thead>
+                                <tr>
+                                  {table.headers.map((h, hi) => (
+                                    <th key={hi}>{h[language]}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {table.rows.map((row, ri) => (
+                                  <tr key={ri} className={row.highlight ? local.troubleTableRowHighlight : undefined}>
+                                    {row.cells.map((cell, ci) => (
+                                      <td key={ci}>{renderHighlight(cell[language])}</td>
+                                    ))}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                            {table.description && (
+                              <p className={local.troubleComparisonDesc}>{renderHighlight(table.description[language])}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {item.diagrams && item.diagrams.length > 0 && (
+                    <div className={styles.troubleEntry}>
+                      <span className={styles.troubleLabel}>
+                        <T k="aboutPage.troubleshooting.flow" />
+                      </span>
+                      <div className={local.troubleDiagrams}>
+                        {item.diagrams.map((d, di) => (
+                          <div key={di} className={local.troubleDiagramWrap}>
+                            {d.title && (
+                              <span className={local.troubleDiagramTitle}>{d.title[language]}</span>
+                            )}
+                            <FlowDiagram nodes={d.nodes} edges={d.edges} language={language} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className={styles.troubleEntry}>
                     <span
                       className={`${styles.troubleLabel} ${styles.troubleLabelInsight}`}
@@ -299,6 +351,54 @@ function TroubleshootingPanel({
                   </span>
                   <p>{renderHighlight(item.solution[language])}</p>
                 </div>
+                {item.comparisons && item.comparisons.length > 0 && (
+                  <div className={styles.troubleEntry}>
+                    <div className={local.troubleComparisons}>
+                      {item.comparisons.map((table, ti) => (
+                        <div key={ti} className={local.troubleComparisonWrap}>
+                          {table.label && (
+                            <span className={local.troubleComparisonLabel}>{table.label[language]}</span>
+                          )}
+                          <table className={local.troubleTable}>
+                            <thead>
+                              <tr>
+                                {table.headers.map((h, hi) => (
+                                  <th key={hi}>{h[language]}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {table.rows.map((row, ri) => (
+                                <tr key={ri} className={row.highlight ? local.troubleTableRowHighlight : undefined}>
+                                  {row.cells.map((cell, ci) => (
+                                    <td key={ci}>{renderHighlight(cell[language])}</td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {item.diagrams && item.diagrams.length > 0 && (
+                  <div className={styles.troubleEntry}>
+                    <span className={styles.troubleLabel}>
+                      <T k="aboutPage.troubleshooting.flow" />
+                    </span>
+                    <div className={local.troubleDiagrams}>
+                      {item.diagrams.map((d, di) => (
+                        <div key={di} className={local.troubleDiagramWrap}>
+                          {d.title && (
+                            <span className={local.troubleDiagramTitle}>{d.title[language]}</span>
+                          )}
+                          <FlowDiagram nodes={d.nodes} edges={d.edges} language={language} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className={styles.troubleEntry}>
                   <span
                     className={`${styles.troubleLabel} ${styles.troubleLabelInsight}`}
