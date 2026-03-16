@@ -3,6 +3,10 @@
 import { useMemo } from "react";
 import { marked } from "marked";
 import { hljs } from "./highlightCodeBlocks";
+import { useLanguage } from "@/providers/LanguageProvider";
+
+let _wrapLabel = "↩ Wrap";
+let _scrollLabel = "↔ Scroll";
 
 export function slugify(text: string): string {
   return text
@@ -33,7 +37,7 @@ marked.use({
       const highlighted = language
         ? hljs.highlight(text, { language }).value
         : hljs.highlightAuto(text).value;
-      return `<pre><code class="hljs${language ? ` language-${language}` : ""}">${highlighted}</code></pre>\n`;
+      return `<div class="code-block-wrap"><pre><code class="hljs${language ? ` language-${language}` : ""}">${highlighted}</code></pre><button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${_wrapLabel}</span><span class="code-wrap-label-hover">${_scrollLabel}</span></button></div>\n`;
     },
   },
 });
@@ -47,9 +51,13 @@ export default function MarkdownRenderer({
   content,
   className,
 }: MarkdownRendererProps) {
+  const { t } = useLanguage();
+
   const html = useMemo(() => {
+    _wrapLabel = `↩ ${t("common.codeWrap")}`;
+    _scrollLabel = `↔ ${t("common.codeScroll")}`;
     return marked.parse(content, { async: false }) as string;
-  }, [content]);
+  }, [content, t]);
 
   return (
     <div

@@ -20,7 +20,7 @@ import Select from "@/components/ui/Select";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import styles from "./WorkEditor.module.css";
 
-const RichTextEditor = dynamic(() => import("@/components/posts/RichTextEditor"), {
+const RichTextEditor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
 });
 
@@ -250,6 +250,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   });
 
   const initialFormRef = useRef(form);
+  const formRef = useRef(form);
+  formRef.current = form;
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(initialFormRef.current),
     [form],
@@ -259,6 +261,21 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     entityType: "work",
     entityId: work?.id,
   });
+
+  // 편집기 진입 시 최신 자동저장 초안 자동 복원
+  const draftRestored = useRef(false);
+  useEffect(() => {
+    if (draftRestored.current || dbRevisions.length === 0) return;
+    draftRestored.current = true;
+    loadRevisionSnapshot(dbRevisions[0].id).then((snapshot) => {
+      if (!snapshot) return;
+      autoSaveSkip.current = true; // 복원 후 즉시 autosave 방지
+      setForm(snapshot as WorkFormData);
+      setStatus(tw("draftRestored"));
+      setStatusType("info");
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dbRevisions]);
 
   const [totalWorks, setTotalWorks] = useState(0);
 
@@ -296,11 +313,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const [error, setError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
 
-  /* ── Auto-save (5s debounce, new + edit) ── */
+  /* ── Auto-save (30s debounce, new + edit) ── */
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const autoSaveSkip = useRef(true);
   const autoSaveBusy = useRef(false);
   const savedId = useRef<string | undefined>(work?.id);
+  const lastAutoSaveJson = useRef<string>("");
   autoSaveBusy.current = saving || translating;
 
   useEffect(() => {
@@ -314,14 +332,55 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (autoSaveBusy.current) return;
       if (!form.title.trim()) return;
 
+      lastAutoSaveJson.current = JSON.stringify(form);
       saveRevision({ ...form }, form.title || "(untitled)");
       setStatus(tw("autoSaved"));
       setStatusType("success");
-    }, 5000);
+    }, 30000);
 
     return () => clearTimeout(autoSaveTimer.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
+
+  /* ── Save on leave (SPA nav + browser close) ── */
+  useEffect(() => {
+    const doSave = () => {
+      const id = savedId.current;
+      if (!id) return;
+      const current = JSON.stringify(formRef.current);
+      if (!current || current === lastAutoSaveJson.current) return;
+      if (!formRef.current.title?.trim()) return;
+      const body = JSON.stringify({
+        entity_type: "work",
+        entity_id: id,
+        snapshot: formRef.current,
+        title: formRef.current.title || "(untitled)",
+      });
+      navigator.sendBeacon("/api/revisions", new Blob([body], { type: "application/json" }));
+    };
+
+    window.addEventListener("beforeunload", doSave);
+    return () => {
+      window.removeEventListener("beforeunload", doSave);
+      const id = savedId.current;
+      if (!id) return;
+      const current = JSON.stringify(formRef.current);
+      if (!current || current === lastAutoSaveJson.current) return;
+      if (!formRef.current.title?.trim()) return;
+      fetch("/api/revisions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entity_type: "work",
+          entity_id: id,
+          snapshot: formRef.current,
+          title: formRef.current.title || "(untitled)",
+        }),
+        keepalive: true,
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateField = useCallback(
     <K extends keyof WorkFormData>(key: K, value: WorkFormData[K]) => {
@@ -653,9 +712,16 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (!snapshot) return null;
       const s = snapshot as WorkFormData;
+      const stripHtml = (html: string) =>
+        html
+          .replace(/<\/?(p|div|br|li|tr|h[1-6]|blockquote)[^>]*>/gi, "\n")
+          .replace(/<[^>]+>/g, "")
+          .replace(/&nbsp;/g, " ")
+          .replace(/\n{3,}/g, "\n\n")
+          .trim();
       return {
         excerpt: s.description_ko || s.description_en || "",
-        content: s.content_ko || s.content_en || "",
+        content: stripHtml(s.content_ko || s.content_en || ""),
         meta: {
           Category: s.category_ko || s.category_en || "",
           Year: s.year || "",
@@ -780,18 +846,27 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       onRegenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleRegenerateSummary : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       regeneratingSummary={regeneratingSummary}
-      currentSnapshot={{
-        title: form.title,
-        excerpt: form.description_ko || form.description_en || "",
-        content: form.content_ko || form.content_en || "",
-        meta: {
-          Category: form.category_ko || form.category_en || "",
-          Year: form.year || "",
-          Tech: form.tech?.join(", ") || "",
-          Size: form.size || "",
-          Role: form.role_ko || form.role_en || "",
-        },
-      }}
+      currentSnapshot={(() => {
+        const stripHtml = (html: string) =>
+          html
+            .replace(/<\/?(p|div|br|li|tr|h[1-6]|blockquote)[^>]*>/gi, "\n")
+            .replace(/<[^>]+>/g, "")
+            .replace(/&nbsp;/g, " ")
+            .replace(/\n{3,}/g, "\n\n")
+            .trim();
+        return {
+          title: form.title,
+          excerpt: form.description_ko || form.description_en || "",
+          content: stripHtml(form.content_ko || form.content_en || ""),
+          meta: {
+            Category: form.category_ko || form.category_en || "",
+            Year: form.year || "",
+            Tech: form.tech?.join(", ") || "",
+            Size: form.size || "",
+            Role: form.role_ko || form.role_en || "",
+          },
+        };
+      })()}
     >
       {/* Basic Info */}
       <div className={styles.section}>
