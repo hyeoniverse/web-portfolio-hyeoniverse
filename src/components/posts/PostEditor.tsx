@@ -20,11 +20,211 @@ import { autoTranslate } from "@/utils/autoTranslate";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
+import { useModalStore } from "@/stores/modalStore";
 import styles from "./PostEditor.module.css";
 
-const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
+function TagsList({ tags, onRemove }: { tags: string[]; onRemove: (tag: string) => void }) {
+  const measureRef = useRef<HTMLDivElement>(null);
+  const displayRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(tags.length);
+  const [swapping, setSwapping] = useState<'exiting' | 'entering' | false>(false);
+  const animating = useRef(false);
+
+  useEffect(() => {
+    if (expanded) { setVisibleCount(tags.length); return; }
+    const el = measureRef.current;
+    if (!el) return;
+
+    const check = () => {
+      const children = Array.from(el.children) as HTMLElement[];
+      if (children.length === 0) return;
+      const cutoff = el.getBoundingClientRect().top + el.clientHeight;
+
+      let fitCount = 0;
+      for (const child of children) {
+        if (child.getBoundingClientRect().bottom <= cutoff + 1) fitCount++;
+        else break;
+      }
+
+      if (fitCount >= tags.length) {
+        setVisibleCount(tags.length);
+      } else {
+        setVisibleCount(Math.max(1, fitCount - 1));
+      }
+    };
+
+    const frame = requestAnimationFrame(check);
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => { cancelAnimationFrame(frame); ro.disconnect(); };
+  }, [tags, expanded]);
+
+  const animateToggle = useCallback((toExpanded: boolean) => {
+    const el = displayRef.current;
+    if (!el) { setExpanded(toExpanded); return; }
+
+    const fromH = el.offsetHeight;
+    animating.current = true;
+
+    if (toExpanded) {
+      // 펼치기: 먼저 상태 변경 → 새 높이 측정 → 애니메이션
+      setExpanded(true);
+      requestAnimationFrame(() => {
+        const toH = el.scrollHeight;
+        el.style.height = `${fromH}px`;
+        el.style.transition = "none";
+        requestAnimationFrame(() => {
+          el.style.transition = "height 0.25s ease";
+          el.style.height = `${toH}px`;
+          const onEnd = () => {
+            el.style.height = "";
+            el.style.transition = "";
+            animating.current = false;
+            el.removeEventListener("transitionend", onEnd);
+          };
+          el.addEventListener("transitionend", onEnd);
+        });
+      });
+    } else {
+      // 접기: 높이 애니메이션 → 끝나면 마지막 태그 shrink + 더보기 slide-in
+      const targetH = measureRef.current?.clientHeight ?? 64;
+      const measureEl = measureRef.current;
+      let newVC = 0;
+      let total = 0;
+      if (measureEl) {
+        const children = Array.from(measureEl.children) as HTMLElement[];
+        total = children.length;
+        const cutoff = measureEl.getBoundingClientRect().top + measureEl.clientHeight;
+        let fitCount = 0;
+        for (const child of children) {
+          if (child.getBoundingClientRect().bottom <= cutoff + 1) fitCount++;
+          else break;
+        }
+        newVC = fitCount >= total ? total : Math.max(1, fitCount - 1);
+      }
+      el.style.height = `${fromH}px`;
+      el.style.overflow = "clip";
+      el.style.transition = "none";
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          el.style.transition = "height 0.25s ease";
+          el.style.height = `${targetH}px`;
+          const onEnd = () => {
+            el.style.height = "";
+            el.style.overflow = "";
+            el.style.transition = "";
+            setVisibleCount(newVC);
+            setExpanded(false);
+            if (newVC < total) setSwapping('exiting');
+            animating.current = false;
+            el.removeEventListener("transitionend", onEnd);
+          };
+          el.addEventListener("transitionend", onEnd);
+        });
+      });
+    }
+  }, []);
+
+  const hiddenCount = tags.length - visibleCount;
+
+  return (
+    <div style={{ position: "relative" }}>
+      {/* 숨겨진 측정용 */}
+      <div
+        ref={measureRef}
+        className={es.tags}
+        aria-hidden
+        style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", left: 0, right: 0 }}
+      >
+        {tags.map((tag) => (
+          <span key={tag} className={es.tag}>
+            {tag}
+            <button type="button" className={es.tagRemove} tabIndex={-1}>&times;</button>
+          </span>
+        ))}
+      </div>
+      {/* 실제 표시 */}
+      <div ref={displayRef} className={es.tags} style={{ maxHeight: "none", overflow: "visible" }}>
+        {(expanded ? tags : swapping === 'exiting' ? tags.slice(0, visibleCount + 1) : tags.slice(0, visibleCount)).map((tag, i) => (
+          <span
+            key={tag}
+            className={`${es.tag}${swapping === 'exiting' && i === visibleCount ? ` ${es.tagExiting}` : ""}`}
+            onAnimationEnd={swapping === 'exiting' && i === visibleCount ? () => setSwapping('entering') : undefined}
+          >
+            {tag}
+            <button type="button" className={es.tagRemove} onClick={() => onRemove(tag)}>&times;</button>
+          </span>
+        ))}
+        {hiddenCount > 0 && !expanded && swapping !== 'exiting' && (
+          <button
+            type="button"
+            className={`${es.tagMore}${swapping === 'entering' ? ` ${es.tagMoreEntering}` : ""}`}
+            onClick={() => animateToggle(true)}
+            onAnimationEnd={() => { if (swapping === 'entering') setSwapping(false); }}
+          >
+            + 더보기 ({hiddenCount})
+          </button>
+        )}
+        {expanded && (
+          <button type="button" className={es.tagMore} onClick={() => animateToggle(false)}>
+            접기
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ShortcutsModalContent() {
+  return (
+    <div className={styles.helpGrid}>
+      <div className={styles.helpSection}>
+        <p className={styles.helpSectionTitle}>텍스트 서식</p>
+        <div className={styles.helpRows}>
+          {([["굵게", "⌘B"], ["기울임", "⌘I"], ["밑줄", "⌘U"], ["취소선", "⌘⇧S"], ["인라인 코드", "⌘E"]] as const).map(([label, key]) => (
+            <div key={label} className={styles.helpRow}><span>{label}</span><kbd className={styles.helpKbd}>{key}</kbd></div>
+          ))}
+        </div>
+      </div>
+      <div className={styles.helpSection}>
+        <p className={styles.helpSectionTitle}>단락</p>
+        <div className={styles.helpRows}>
+          {([["제목 1", "⌘⌥1"], ["제목 2", "⌘⌥2"], ["제목 3", "⌘⌥3"], ["인용구", "⌘⇧B"], ["불릿 리스트", "⌘⇧8"], ["순서 리스트", "⌘⇧7"]] as const).map(([label, key]) => (
+            <div key={label} className={styles.helpRow}><span>{label}</span><kbd className={styles.helpKbd}>{key}</kbd></div>
+          ))}
+        </div>
+      </div>
+      <div className={styles.helpSection}>
+        <p className={styles.helpSectionTitle}>편집</p>
+        <div className={styles.helpRows}>
+          {([["실행 취소", "⌘Z"], ["다시 실행", "⌘⇧Z"]] as const).map(([label, key]) => (
+            <div key={label} className={styles.helpRow}><span>{label}</span><kbd className={styles.helpKbd}>{key}</kbd></div>
+          ))}
+        </div>
+      </div>
+      <div className={styles.helpSection}>
+        <p className={styles.helpSectionTitle}>폰트 설정</p>
+        <div className={styles.helpRows}>
+          <div className={styles.helpRow}><span>FS / LH / LS 더블클릭</span><span className={styles.helpDesc}>직접 값 입력</span></div>
+          <div className={styles.helpRow}><span>Enter</span><span className={styles.helpDesc}>입력 확정</span></div>
+          <div className={styles.helpRow}><span>Escape</span><span className={styles.helpDesc}>입력 취소</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const RichTextEditor = dynamic(() => import("./PlateEditor"), {
   ssr: false,
 });
+
+const ImagePanel = dynamic(
+  () => import("./PlateEditor").then((m) => ({ default: m.ImagePanel })),
+  { ssr: false },
+);
+
+import type { PlateEditorHandle, EditorImageInfo } from "./PlateEditor";
 
 interface PostEditorProps {
   post?: Post;
@@ -145,28 +345,102 @@ export default function PostEditor({ post }: PostEditorProps) {
     }
   }, [categories]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const { openModal } = useModalStore();
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [regeneratingSummary, setRegeneratingSummary] = useState(false);
-  const [status, setStatus] = useState("");
+  const [status, setStatusRaw] = useState("");
   const [statusType, setStatusType] = useState<"info" | "success">("info");
+  const [statusTimestamp, setStatusTimestamp] = useState<number | undefined>(undefined);
+  const setStatus = useCallback((s: string) => { setStatusRaw(s); setStatusTimestamp(undefined); }, []);
   const [error, setError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
+  const [optionalOpen, setOptionalOpen] = useState(false);
+  const optionalInnerRef = useRef<HTMLDivElement>(null);
+  const optionalContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const inner = optionalInnerRef.current;
+    const content = optionalContentRef.current;
+    if (!inner || !content) return;
+    if (optionalOpen) {
+      content.style.setProperty("--_content-height", `${inner.scrollHeight}px`);
+    }
+  }, [optionalOpen]);
+
+  // 에디터 ref + 첨부 이미지
+  const plateRef = useRef<PlateEditorHandle>(null);
+  const [editorImages, setEditorImages] = useState<EditorImageInfo[]>([]);
+  // 초기 로드 후 이미지 목록 동기화 (에디터 준비될 때까지 polling)
+  useEffect(() => {
+    let cancelled = false;
+    let attempts = 0;
+    const poll = setInterval(() => {
+      attempts++;
+      const imgs = plateRef.current?.getImages();
+      if (!cancelled && imgs !== undefined) {
+        setEditorImages(imgs);
+        // 이미지가 있거나 충분히 시도했으면 중단
+        if (imgs.length > 0 || attempts >= 10) clearInterval(poll);
+      }
+    }, 300);
+    return () => { cancelled = true; clearInterval(poll); };
+  }, [editorLang, form.content_type]);
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const initialFormRef = useRef(form);
+  const formRef = useRef(form);
+  formRef.current = form;
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(initialFormRef.current),
     [form],
   );
 
+  // 새 글도 DB revision 저장을 위해 임시 ID 사용
+  const draftEntityId = post?.id ?? "draft-new-post";
   const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions({
     entityType: "post",
-    entityId: post?.id,
+    entityId: draftEntityId,
   });
+
+  // 편집기 진입 시 초안 복원 (localStorage → DB revision 순서)
+  const draftRestored = useRef(false);
+  useEffect(() => {
+    if (draftRestored.current) return;
+    // localStorage 먼저 확인
+    try {
+      const local = localStorage.getItem(localDraftKey);
+      if (local) {
+        const parsed = JSON.parse(local) as PostFormData;
+        // 내용이 실제로 다를 때만 복원
+        if (JSON.stringify(parsed) !== JSON.stringify(initialFormRef.current)) {
+          draftRestored.current = true;
+          autoSaveSkip.current = true;
+          setForm(parsed);
+          lastAutoSaveJson.current = local;
+          setStatus(te("draftRestored"));
+          setStatusType("info");
+          localStorage.removeItem(localDraftKey);
+          return;
+        }
+        localStorage.removeItem(localDraftKey);
+      }
+    } catch { /* ignore */ }
+    // DB revision fallback
+    if (dbRevisions.length === 0) return;
+    draftRestored.current = true;
+    loadRevisionSnapshot(dbRevisions[0].id).then((snapshot) => {
+      if (!snapshot) return;
+      autoSaveSkip.current = true;
+      setForm(snapshot as PostFormData);
+      setStatus(te("draftRestored"));
+      setStatusType("info");
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dbRevisions]);
 
   useEffect(() => {
     fetch("/api/series?all=true")
@@ -182,12 +456,31 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // status 메시지는 다음 액션까지 유지
 
-  /* ── Auto-save (5s debounce, new + edit) ── */
+  /* ── Auto-save (5s debounce) ── */
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const autoSaveSkip = useRef(true);
   const autoSaveBusy = useRef(false);
   const savedId = useRef<string | undefined>(post?.id);
+  const lastAutoSaveJson = useRef<string>("");
   autoSaveBusy.current = saving || translating;
+
+  // localStorage 키 (새 글: "post-draft-new", 기존 글: "post-draft-{id}")
+  const localDraftKey = `post-draft-${post?.id ?? "new"}`;
+
+  const flushSave = useCallback(() => {
+    const current = JSON.stringify(formRef.current);
+    if (!current || current === lastAutoSaveJson.current) return;
+
+    // localStorage에 항상 백업 (id 없어도)
+    try { localStorage.setItem(localDraftKey, current); } catch { /* quota */ }
+
+    if (autoSaveBusy.current) return;
+    lastAutoSaveJson.current = current;
+    saveRevision({ ...formRef.current }, formRef.current.title || formRef.current.title_en || "(untitled)");
+    setStatus(te("autoSaved"));
+    setStatusType("success");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saveRevision, te, localDraftKey]);
 
   useEffect(() => {
     if (autoSaveSkip.current) {
@@ -196,18 +489,54 @@ export default function PostEditor({ post }: PostEditorProps) {
     }
 
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(() => {
-      if (autoSaveBusy.current) return;
-      if (!form.title.trim()) return;
-
-      saveRevision({ ...form }, form.title || form.title_en || "(untitled)");
-      setStatus(te("autoSaved"));
-      setStatusType("success");
-    }, 5000);
+    autoSaveTimer.current = setTimeout(flushSave, 30000);
 
     return () => clearTimeout(autoSaveTimer.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
+
+  /* ── Save on leave (visibility change + beforeunload + SPA nav) ── */
+  useEffect(() => {
+    const onVisChange = () => { if (document.hidden) flushSave(); };
+    const onBeforeUnload = () => {
+      // localStorage에 즉시 백업 (동기, 항상 동작)
+      try { localStorage.setItem(localDraftKey, JSON.stringify(formRef.current)); } catch { /* quota */ }
+      // DB revision도 시도 (새 글이면 draftEntityId 사용)
+      const id = savedId.current || draftEntityId;
+      const current = JSON.stringify(formRef.current);
+      if (!current || current === lastAutoSaveJson.current) return;
+      const body = JSON.stringify({
+        entity_type: "post",
+        entity_id: id,
+        snapshot: formRef.current,
+        title: formRef.current.title || formRef.current.title_en || "(untitled)",
+      });
+      navigator.sendBeacon("/api/revisions", new Blob([body], { type: "application/json" }));
+    };
+
+    document.addEventListener("visibilitychange", onVisChange);
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisChange);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      // SPA 이탈 시 keepalive fetch
+      const id = savedId.current || draftEntityId;
+      const current = JSON.stringify(formRef.current);
+      if (!current || current === lastAutoSaveJson.current) return;
+      fetch("/api/revisions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entity_type: "post",
+          entity_id: id,
+          snapshot: formRef.current,
+          title: formRef.current.title || formRef.current.title_en || "(untitled)",
+        }),
+        keepalive: true,
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flushSave]);
 
   const updateField = useCallback(
     <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => {
@@ -464,6 +793,11 @@ export default function PostEditor({ post }: PostEditorProps) {
           window.open(`/posts/${savedSlug}`, "_blank");
         }
 
+        try { localStorage.removeItem(localDraftKey); } catch { /* ignore */ }
+        // 새 글이었으면 임시 draft revision 정리
+        if (!isEdit) {
+          fetch(`/api/revisions?entity_type=post&entity_id=draft-new-post`, { method: "DELETE" }).catch(() => {});
+        }
         router.push("/admin/posts");
       } catch {
         setError(te("networkError"));
@@ -481,6 +815,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     try {
       const res = await fetch(`/api/posts/${post.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete");
+      try { localStorage.removeItem(localDraftKey); } catch { /* ignore */ }
       router.push("/admin/posts");
     } catch {
       setError(te("deleteFailed"));
@@ -502,6 +837,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         setForm(snapshot as PostFormData);
         setStatus(te("restored"));
         setStatusType("success");
+        setStatusTimestamp(rev.timestamp);
       }
     },
     [dbRevisions, loadRevisionSnapshot, te],
@@ -514,9 +850,16 @@ export default function PostEditor({ post }: PostEditorProps) {
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (!snapshot) return null;
       const s = snapshot as PostFormData;
+      const stripHtml = (html: string) =>
+        html
+          .replace(/<\/?(p|div|br|li|tr|h[1-6]|blockquote)[^>]*>/gi, "\n")
+          .replace(/<[^>]+>/g, "")
+          .replace(/&nbsp;/g, " ")
+          .replace(/\n{3,}/g, "\n\n")
+          .trim();
       return {
         excerpt: s.excerpt || s.excerpt_en || "",
-        content: s.content || s.content_en || "",
+        content: stripHtml(s.content || s.content_en || ""),
         meta: {
           Category: s.category || "",
           Tags: s.tags?.join(", ") || "",
@@ -541,6 +884,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     setForm(initialFormRef.current);
     setStatus(te("reverted"));
     setStatusType("info");
+    setStatusTimestamp(undefined);
   }, [te]);
 
   const handleRegenerateSummary = useCallback(async () => {
@@ -629,6 +973,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   );
 
   return (
+    <>
     <AdminEditorShell
       backHref="/admin/posts"
       backLabel={te("backToPosts")}
@@ -646,6 +991,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       onPreview={handlePreview}
       status={status}
       statusType={statusType}
+      statusTimestamp={statusTimestamp}
       error={error}
       labels={shellLabels}
       revisions={dbRevisions.map((r) => ({
@@ -662,19 +1008,37 @@ export default function PostEditor({ post }: PostEditorProps) {
       onRegenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleRegenerateSummary : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       regeneratingSummary={regeneratingSummary}
-      currentSnapshot={{
-        title: form.title || form.title_en,
-        excerpt: form.excerpt || form.excerpt_en || "",
-        content: form.content || form.content_en || "",
-        meta: {
-          Category: form.category || "",
-          Tags: form.tags?.join(", ") || "",
-          Series: seriesList.find((x) => x.id === form.series_id)?.title || "",
-          Pinned: form.is_pinned ? "Yes" : "",
-        },
-      }}
+      currentSnapshot={(() => {
+        const stripHtml = (html: string) =>
+          html
+            .replace(/<\/?(p|div|br|li|tr|h[1-6]|blockquote)[^>]*>/gi, "\n")
+            .replace(/<[^>]+>/g, "")
+            .replace(/&nbsp;/g, " ")
+            .replace(/\n{3,}/g, "\n\n")
+            .trim();
+        return {
+          title: form.title || form.title_en,
+          excerpt: form.excerpt || form.excerpt_en || "",
+          content: stripHtml(form.content || form.content_en || ""),
+          meta: {
+            Category: form.category || "",
+            Tags: form.tags?.join(", ") || "",
+            Series: seriesList.find((x) => x.id === form.series_id)?.title || "",
+            Pinned: form.is_pinned ? "Yes" : "",
+          },
+        };
+      })()}
+      topBarSecondRowLeft={
+        <Checkbox
+          checked={form.is_pinned}
+          onChange={(v) => updateField("is_pinned", v)}
+          shape="square"
+          label={te("pinLabel")}
+        />
+      }
     >
       <div className={styles.meta}>
+        {/* ── 필수 입력 ── */}
         <div className={es.field}>
           <label className={`${es.fieldLabel}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
           <input
@@ -700,49 +1064,6 @@ export default function PostEditor({ post }: PostEditorProps) {
               placeholder="post-url-slug"
             />
           </div>
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{te("pin")}</label>
-            <div className={styles.pinToggle}>
-              <Checkbox
-                checked={form.is_pinned}
-                onChange={(v) => updateField("is_pinned", v)}
-                shape="square"
-                label={te("pinLabel")}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className={es.field}>
-          <label className={es.fieldLabel}>{te("excerpt")}</label>
-          <textarea
-            className={styles.excerptInput}
-            value={form[excerptKey]}
-            onChange={(e) => updateField(excerptKey, e.target.value)}
-            placeholder={te("excerptPlaceholder")}
-            rows={2}
-          />
-        </div>
-
-        <div className={styles.contentGroup}>
-          <div className={styles.contentGroupHeader}>
-            <span className={styles.contentGroupLabel}>
-              {te("category")} &amp; {te("series")}
-            </span>
-            <a
-              href="/admin/settings?tab=content&sub=posts"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.manageLink}
-            >
-              {te("seriesManage")}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-                <line x1="10" y1="14" x2="21" y2="3" />
-              </svg>
-            </a>
-          </div>
 
           <div className={es.field}>
             <label className={`${es.fieldLabel}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
@@ -761,10 +1082,45 @@ export default function PostEditor({ post }: PostEditorProps) {
               />
             )}
           </div>
+        </div>
 
-          <div className={es.row}>
+        {/* ── 선택 입력 (접기/펼치기) ── */}
+        <div className={styles.optionalSection}>
+          <button
+            type="button"
+            className={styles.optionalToggle}
+            onClick={() => setOptionalOpen((v) => !v)}
+          >
+            <span>{te("optionalFields")}</span>
+            <svg
+              width="12" height="12" viewBox="0 0 12 12" fill="none"
+              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+              style={{ transform: optionalOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+            >
+              <polyline points="2.5 4.5 6 8 9.5 4.5" />
+            </svg>
+          </button>
+
+          {/* 첫 줄: 항상 표시 (시리즈 + 태그) */}
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+          <div className={styles.optionalFirstRow} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
             <div className={es.field}>
-              <label className={es.fieldLabel}>{te("series")}</label>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <label className={es.fieldLabel}>{te("series")}</label>
+                <a
+                  href="/admin/settings?tab=content&sub=posts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.manageLink}
+                >
+                  {te("seriesManage")}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </a>
+              </div>
               <Select
                 value={form.series_id ?? ""}
                 options={[
@@ -784,115 +1140,119 @@ export default function PostEditor({ post }: PostEditorProps) {
                   }
                 }}
               />
+              {form.series_id && (
+                <div className={es.field}>
+                  <label className={es.fieldLabel}>{te("seriesOrder")}</label>
+                  <input
+                    className={es.fieldInput}
+                    type="number"
+                    min={0}
+                    value={form.series_order}
+                    onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
+                  />
+                </div>
+              )}
             </div>
-            {form.series_id && (
-              <div className={es.field}>
-                <label className={es.fieldLabel}>{te("seriesOrder")}</label>
-                <input
-                  className={es.fieldInput}
-                  type="number"
-                  min={0}
-                  value={form.series_order}
-                  onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
-                />
-              </div>
-            )}
-          </div>
-        </div>
 
-        <div className={es.row}>
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{te("tags")}</label>
-            <div className={styles.tagInputRow}>
-              <input
-                className={es.fieldInput}
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleTagKeyDown}
-                placeholder={te("tagsPlaceholder")}
-              />
-              <button
-                type="button"
-                className={styles.tagAddBtn}
-                onClick={addTag}
-                disabled={!tagInput.trim()}
-              >
-                +
-              </button>
-            </div>
-            {form.tags.length > 0 && (
-              <div className={es.tags}>
-                {form.tags.map((tag) => (
-                  <span key={tag} className={es.tag}>
-                    {tag}
-                    <button
-                      type="button"
-                      className={es.tagRemove}
-                      onClick={() => removeTag(tag)}
-                    >
-                      &times;
-                    </button>
-                  </span>
-                ))}
+            <div className={es.field}>
+              <label className={es.fieldLabel} style={{ alignSelf: "center" }}>{te("tags")}</label>
+              <div>
+                <div className={styles.tagInputRow}>
+                  <input
+                    className={es.fieldInput}
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleTagKeyDown}
+                    placeholder={te("tagsPlaceholder")}
+                  />
+                  <button
+                    type="button"
+                    className={styles.tagAddBtn}
+                    onClick={addTag}
+                    disabled={!tagInput.trim()}
+                  >
+                    +
+                  </button>
+                </div>
+                {form.tags.length > 0 && optionalOpen && (
+                  <TagsList tags={form.tags} onRemove={removeTag} />
+                )}
               </div>
-            )}
+            </div>
           </div>
 
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{te("coverImage")}</label>
-          {form.cover_image ? (
-            <div className={styles.coverPreview}>
-              <Image
-                src={form.cover_image}
-                alt="Cover"
-                width={80}
-                height={50}
-                className={styles.coverThumb}
-              />
-              <button
-                type="button"
-                className={styles.coverRemove}
-                onClick={() => {
-                  updateField("cover_image", "");
-                  setShowCoverPicker(false);
-                }}
-              >
-                {te("remove")}
-              </button>
+          <div ref={optionalContentRef} className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
+            <div ref={optionalInnerRef} className={styles.optionalInner}>
+              <div className={es.row}>
+                <div className={es.field}>
+                  <label className={es.fieldLabel}>{te("excerpt")}</label>
+                  <textarea
+                    className={styles.excerptInput}
+                    value={form[excerptKey]}
+                    onChange={(e) => updateField(excerptKey, e.target.value)}
+                    placeholder={te("excerptPlaceholder")}
+                    rows={2}
+                  />
+                </div>
+
+                <div className={es.field}>
+                  <label className={es.fieldLabel}>{te("coverImage")}</label>
+                  {form.cover_image ? (
+                    <div className={styles.coverPreview}>
+                      <Image
+                        src={form.cover_image}
+                        alt="Cover"
+                        width={80}
+                        height={50}
+                        className={styles.coverThumb}
+                      />
+                      <button
+                        type="button"
+                        className={styles.coverRemove}
+                        onClick={() => {
+                          updateField("cover_image", "");
+                          setShowCoverPicker(false);
+                        }}
+                      >
+                        {te("remove")}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.coverActions}>
+                      <button
+                        type="button"
+                        className={es.uploadBtn}
+                        onClick={handleCoverUpload}
+                      >
+                        {te("upload")}
+                      </button>
+                      <button
+                        type="button"
+                        className={es.uploadBtn}
+                        onClick={() => setShowCoverPicker((v) => !v)}
+                      >
+                        {showCoverPicker ? te("closePicker") : te("chooseCover")}
+                      </button>
+                    </div>
+                  )}
+                  {showCoverPicker && !form.cover_image && (
+                    <CoverImagePicker
+                      onSelect={(url) => {
+                        updateField("cover_image", url);
+                        setShowCoverPicker(false);
+                      }}
+                      onClose={() => setShowCoverPicker(false)}
+                      postContext={{
+                        title: form.title,
+                        tags: form.tags,
+                        excerpt: form.excerpt,
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className={styles.coverActions}>
-              <button
-                type="button"
-                className={es.uploadBtn}
-                onClick={handleCoverUpload}
-              >
-                {te("upload")}
-              </button>
-              <button
-                type="button"
-                className={es.uploadBtn}
-                onClick={() => setShowCoverPicker((v) => !v)}
-              >
-                {showCoverPicker ? te("closePicker") : te("chooseCover")}
-              </button>
-            </div>
-          )}
-          {showCoverPicker && !form.cover_image && (
-            <CoverImagePicker
-              onSelect={(url) => {
-                updateField("cover_image", url);
-                setShowCoverPicker(false);
-              }}
-              onClose={() => setShowCoverPicker(false)}
-              postContext={{
-                title: form.title,
-                tags: form.tags,
-                excerpt: form.excerpt,
-              }}
-            />
-          )}
           </div>
         </div>
       </div>
@@ -907,6 +1267,14 @@ export default function PostEditor({ post }: PostEditorProps) {
               onClick={handleInsertTemplate}
             >
               {te("insertTemplate")}
+            </button>
+            <button
+              type="button"
+              className={styles.editorHelpBtn}
+              onClick={() => openModal(<ShortcutsModalContent />, { id: "shortcuts-help", header: { title: "단축키 및 기능 안내" }, closeButton: true })}
+              title="단축키 및 기능 안내"
+            >
+              ?
             </button>
           </div>
           <EditorToggle
@@ -928,12 +1296,34 @@ export default function PostEditor({ post }: PostEditorProps) {
           <RichTextEditor
             key={editorLang}
             value={form[contentKey]}
-            onChange={(v) => updateField(contentKey, v)}
+            onChange={(v) => {
+              updateField(contentKey, v);
+              // 이미지 목록 동기화
+              requestAnimationFrame(() => {
+                const imgs = plateRef.current?.getImages();
+                if (imgs) setEditorImages(imgs);
+              });
+            }}
             onImageUpload={handleImageUpload}
+            editorRef={plateRef}
           />
         )}
       </div>
 
+      {/* ── 첨부 이미지 패널 (에디터 외부 별개 영역) ── */}
+      {form.content_type !== "markdown" && (
+        <div className={styles.attachedImagesSection}>
+          <ImagePanel
+            images={editorImages}
+            onSelect={(path) => plateRef.current?.selectImageAt(path)}
+            onReorder={(from, to) => plateRef.current?.reorderImage(from, to)}
+            onRemove={(path) => plateRef.current?.removeImage(path)}
+          />
+        </div>
+      )}
+
     </AdminEditorShell>
+
+</>
   );
 }
