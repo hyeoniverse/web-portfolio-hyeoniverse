@@ -90,7 +90,11 @@ export function ImageElement(props: PlateElementProps) {
   const editor = useEditorRef();
   const selected = useSelected();
   const focused = useFocused();
-  const isActive = selected && focused;
+  const [clicked, setClicked] = useState(false);
+  const isActive = selected && focused && clicked;
+
+  // 선택 해제 시 clicked도 리셋
+  useEffect(() => { if (!selected) setClicked(false); }, [selected]);
 
   const el = props.element as Record<string, unknown>;
   const url = (el.url as string) || "";
@@ -258,6 +262,7 @@ export function ImageElement(props: PlateElementProps) {
             src={url}
             alt={alt}
             onLoad={onImgLoad}
+            onClick={() => setClicked(true)}
             style={{
               width: imgWidth > 0 ? imgWidth : undefined,
               height: imgHeight > 0 ? imgHeight : undefined,
