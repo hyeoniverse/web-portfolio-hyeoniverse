@@ -327,65 +327,53 @@ export default function PlateEditor({
     }
   }, [editor]);
 
-  // ── All media (images + video embeds, for ref) ──
-  const contentImages = React.useMemo(() => {
-    const imgs: { url: string; path: number[]; mediaType?: string }[] = [];
+  // ── All media (images + video embeds) + detached 동기 관리 ──
+  const detachedRef = useRef<{ url: string; mediaType?: string }[]>([]);
+  const prevContentUrlsRef = useRef<Map<string, string>>(new Map()); // url → mediaType
+
+  const allImages = React.useMemo(() => {
+    // 본문에서 현재 미디어 수집
+    const content: { url: string; path: number[]; mediaType?: string }[] = [];
     const walk = (nodes: unknown[], path: number[]) => {
       if (!Array.isArray(nodes)) return;
       nodes.forEach((node, i) => {
         const n = node as Record<string, unknown>;
-        if (n.type === "img" && n.url) imgs.push({ url: n.url as string, path: [...path, i], mediaType: "img" });
-        if (n.type === "media_embed" && n.url) imgs.push({ url: n.url as string, path: [...path, i], mediaType: "media_embed" });
+        if (n.type === "img" && n.url) content.push({ url: n.url as string, path: [...path, i], mediaType: "img" });
+        if (n.type === "media_embed" && n.url) content.push({ url: n.url as string, path: [...path, i], mediaType: "media_embed" });
         if (n.children) walk(n.children as unknown[], [...path, i]);
       });
     };
     walk(editor.children as unknown[], []);
-    return imgs;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, editor.children]);
 
-  // ── 본문에서 제거된 미디어를 패널에 유지 ──
-  const [detachedImages, setDetachedImages] = useState<{ url: string; mediaType?: string }[]>([]);
-  const prevUrlSetRef = useRef<Set<string>>(new Set());
+    const contentUrls = new Set(content.map((img) => img.url));
+    const detachedUrls = new Set(detachedRef.current.map((d) => d.url));
 
-  useEffect(() => {
-    const currentUrls = new Set(contentImages.map((img) => img.url));
-    const prevUrls = prevUrlSetRef.current;
-    // 이전에 있었는데 지금 없는 URL → detached로 추가
-    if (prevUrls.size > 0) {
-      const removed: { url: string; mediaType?: string }[] = [];
-      for (const url of prevUrls) {
-        if (!currentUrls.has(url)) {
-          const prev = contentImages.find((img) => img.url === url) ??
-            detachedImages.find((img) => img.url === url);
-          removed.push({ url, mediaType: prev?.mediaType });
-        }
-      }
-      if (removed.length > 0) {
-        setDetachedImages((prev) => {
-          const existing = new Set(prev.map((d) => d.url));
-          const newItems = removed.filter((r) => !existing.has(r.url) && !currentUrls.has(r.url));
-          return newItems.length > 0 ? [...prev, ...newItems] : prev;
-        });
+    // 이전에 본문에 있었는데 지금 없는 URL → detached로 추가
+    for (const [url, mediaType] of prevContentUrlsRef.current) {
+      if (!contentUrls.has(url) && !detachedUrls.has(url)) {
+        detachedRef.current.push({ url, mediaType });
       }
     }
-    // 본문에 다시 삽입된 URL은 detached에서 제거
-    setDetachedImages((prev) => prev.filter((d) => !currentUrls.has(d.url)));
-    prevUrlSetRef.current = currentUrls;
-  }, [contentImages]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 패널에 표시할 전체 미디어: 본문 + detached
-  const allImages = React.useMemo(() => {
-    const detachedItems = detachedImages.map((d) => ({
+    // 본문에 다시 삽입된 URL은 detached에서 제거
+    detachedRef.current = detachedRef.current.filter((d) => !contentUrls.has(d.url));
+
+    // 현재 본문 URL 기록
+    prevContentUrlsRef.current = new Map(content.map((img) => [img.url, img.mediaType || ""]));
+
+    // detached 항목을 패널용 형태로 변환
+    const detachedItems = detachedRef.current.map((d) => ({
       ...d,
       path: [] as number[],
       detached: true,
     }));
-    return [...contentImages, ...detachedItems];
-  }, [contentImages, detachedImages]);
+
+    return [...content, ...detachedItems];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, editor.children]);
 
   const removeDetached = useCallback((url: string) => {
-    setDetachedImages((prev) => prev.filter((d) => d.url !== url));
+    detachedRef.current = detachedRef.current.filter((d) => d.url !== url);
   }, []);
 
   const selectImageAt = useCallback((path: number[]) => {
