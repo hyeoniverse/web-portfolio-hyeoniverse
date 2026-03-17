@@ -69,6 +69,11 @@ function buildPath(from: FlowNode, to: FlowNode, mergeX?: number, entryDir?: "to
       const loopX = Math.max(8, Math.min(fx, tx) - Math.max(hW(from.type), hW(to.type)) - loopGap);
       return [`M${fx},${exitY}`, `L${fx},${runnerY - r}`, `Q${fx},${runnerY} ${fx - r},${runnerY}`, `L${loopX + r},${runnerY}`, `Q${loopX},${runnerY} ${loopX},${runnerY - r}`, `L${loopX},${entryY + r}`, `Q${loopX},${entryY} ${loopX + r},${entryY}`, `L${entryX},${entryY}`].join(" ");
     }
+    if (ty > fy) {
+      const exitY = fy + hH(from.type);
+      const entryX = tx + hW(to.type);
+      return [`M${fx},${exitY}`, `L${fx},${ty - r}`, `Q${fx},${ty} ${fx - r},${ty}`, `L${entryX},${ty}`].join(" ");
+    }
     const loopX = PAD_X / 2;
     return [`M${fx - hW(from.type)},${fy}`, `L${loopX + r},${fy}`, `Q${loopX},${fy} ${loopX},${fy - r}`, `L${loopX},${ty + r}`, `Q${loopX},${ty} ${loopX + r},${ty}`, `L${tx - hW(to.type)},${ty}`].join(" ");
   }
@@ -106,6 +111,9 @@ function labelPos(from: FlowNode, to: FlowNode): { x: number; y: number; anchor:
     if (from.col >= 3) {
       const runnerY = Math.max(fy + hH(from.type), ty + hH(to.type)) + 28;
       return { x: (fx + nX(to.row)) / 2, y: runnerY - 6, anchor: "middle" };
+    }
+    if (ty > fy) {
+      return { x: fx + 10, y: fy + hH(from.type) + 14, anchor: "start" };
     }
     return { x: PAD_X / 2 - 6, y: (fy + ty) / 2, anchor: "end" };
   }
