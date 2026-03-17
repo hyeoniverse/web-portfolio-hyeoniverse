@@ -1304,8 +1304,8 @@
 }
 
 .imagePanelItemSelected {
-  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
-  outline: 1.5px solid var(--color-accent);
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  outline: 1.5px solid var(--text-primary);
   outline-offset: -1.5px;
 }
 
@@ -1332,9 +1332,9 @@
 }
 
 .imagePanelCheckboxChecked {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: #fff;
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .imagePanelName {
