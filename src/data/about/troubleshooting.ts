@@ -6,8 +6,8 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     section: { ko: "Backend / Admin", en: "Backend / Admin" },
     problem: { ko: "포스트 실수 삭제 시 복구 불가", en: "Accidental Post Deletion with No Recovery" },
     definition: {
-      ko: "관리자가 포스트를 실수로 삭제하면 **DB에서 영구 제거**되어, 복구 수단이 전혀 없는 상태입니다.",
-      en: "When the admin accidentally deletes a post, it's **permanently removed from the DB** with no recovery mechanism available.",
+      ko: "관리자가 포스트를 실수로 삭제하면 **DB에서 영구 제거**되어, 복구 수단이 전혀 없었습니다.",
+      en: "When the admin accidentally deleted a post, it was **permanently removed from the DB** with no recovery mechanism available.",
     },
     cause: {
       ko: "초기에는 DELETE 요청이 **DB row를 즉시 영구 삭제**하는 구조였습니다. 작성 중이던 글을 실수로 삭제하면 복구할 방법이 전혀 없었고, 관리자가 직접 DB에 접속해야 하는 상황이 발생했습니다. 단일 관리자 환경이라 '실수할 일 없다'고 생각했지만, **실제로는 UI 오조작이나 의도하지 않은 삭제가 발생**했습니다.",
@@ -47,20 +47,20 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     problem: { ko: "AI 번역/요약이 provider 장애 시 완전 중단", en: "AI Translation/Summary Completely Down on Provider Outage" },
     definition: {
-      ko: "AI provider 하나가 장애를 일으키면 번역·요약 기능이 **전부 중단**되고, 관리자가 수동으로 개입할 때까지 복구되지 않습니다.",
-      en: "When a single AI provider fails, **all translation and summary features stop working** until the admin manually intervenes.",
+      ko: "테스트 중 `.env`의 API 키를 주석 처리했더니, 번역·요약을 시도할 때마다 **오류 메시지가 사용자에게 그대로 노출**되었습니다. 대부분의 API를 무료 티어로 사용하고 있어 **rate limit이나 장애가 실제 운영에서도 충분히 발생할 수 있는 상황**이었고, 현재 사용할 수 없는 기능이 사용자에게 그대로 노출되거나, 관리자가 사용하지 않으려는 기능이라도 **API 키가 없으면 오류가 계속 발생**하는 구조였습니다.",
+      en: "While testing, I commented out an API key in `.env` — every translation or summary attempt **surfaced error messages directly to users**. Since most APIs were on free tiers, **rate limits and outages were a realistic production concern**. Unavailable features remained visible to users, and even features the admin didn't intend to use **kept throwing errors when no API key was registered**.",
     },
     cause: {
-      ko: "번역과 AI 요약 기능이 **단일 provider(DeepL)에만 의존**하고 있었습니다. provider가 rate limit에 걸리거나 장애가 발생하면, 관리자가 직접 설정을 바꾸기 전까지 **번역·요약 기능이 전부 중단**되었습니다. 포트폴리오 특성상 사용 빈도가 낮아 '장애가 오래 지속될 일은 없다'고 가정했지만, **무료 티어 rate limit은 예상보다 자주 발생**했습니다.",
-      en: "Translation and AI summary features **depended on a single provider (DeepL)**. When rate-limited or experiencing outages, **all translation/summary features stopped** until the admin manually changed settings. Low usage was expected to avoid issues, but **free-tier rate limits hit more often than anticipated**.",
+      ko: "여러 provider를 지원하지만 **fallback 없이 하나의 provider만 사용하는 구조**였습니다. provider 장애 시 **자동으로 대체 경로가 없었고**, API 키가 미등록된 기능도 UI에서 숨기거나 비활성화하는 처리가 없어 **사용자가 실패할 수밖에 없는 기능을 계속 시도**할 수 있었습니다.",
+      en: "Multiple providers were supported but **each feature used a single provider with no fallback**. There was **no automatic alternative path** on provider failure, and features without registered API keys were neither hidden nor disabled in the UI — **users could keep triggering features that were guaranteed to fail**.",
     },
     solution: {
-      ko: "사이트 설정에서 **primary provider + fallback 우선순위 리스트**를 구성할 수 있도록 변경했습니다. primary가 실패하면 fallback 리스트(DeepL → Gemini → Google → Claude)를 순서대로 시도하여, 하나가 성공하면 즉시 반환합니다. 번역 결과 개수가 입력과 불일치하면 해당 provider를 건너뛰는 **검증 로직**도 추가했습니다. provider별 API 키가 없으면 자동으로 다음으로 넘어갑니다.",
-      en: "Changed to a **primary provider + fallback priority list** configurable in site settings. On primary failure, the fallback list (DeepL → Gemini → Google → Claude) is tried in order, returning on first success. Added **validation logic** that skips a provider if translation count doesn't match input count. Providers without API keys are automatically skipped.",
+      ko: "사이트 설정에서 **primary provider + fallback 우선순위 리스트**를 구성할 수 있도록 변경했습니다. primary가 실패하면 fallback 리스트(DeepL → Gemini → Google → Claude)를 순서대로 시도하여, 하나가 성공하면 즉시 반환합니다. 배치 번역 시 5개의 텍스트를 보냈는데 번역 결과가 4개만 돌아오는 경우처럼 **입력 개수와 결과 개수가 맞지 않으면 해당 provider를 불완전한 응답으로 판단하고 건너뛰도록** 검증 로직도 추가했습니다. API 키가 등록되지 않은 provider는 호출 자체를 시도하지 않고 자동으로 다음 provider로 넘어갑니다.",
+      en: "Changed to a **primary provider + fallback priority list** configurable in site settings. On primary failure, the fallback list (DeepL → Gemini → Google → Claude) is tried in order, returning on first success. For batch translations, if 5 texts are sent but only 4 results come back, the provider is **treated as returning an incomplete response and skipped** in favor of the next one. Providers without a registered API key are **not called at all** and automatically bypassed.",
     },
     keyInsight: {
-      ko: "외부 API에 의존하는 기능은 **\"이 API가 죽으면 어떻게 되는가?\"를 항상 가정**해야 합니다. 단일 장애점(Single Point of Failure)은 사용 빈도와 관계없이 **반드시 발생**합니다.",
-      en: "Features depending on external APIs must always assume **\"what happens when this API goes down?\"**. Single Points of Failure **will occur** regardless of usage frequency.",
+      ko: "외부 API에 의존하는 기능은 **\"이 API가 응답하지 않으면 사용자에게 무엇이 보이는가?\"를 항상 가정**해야 합니다. provider가 완전히 죽지 않더라도 rate limit만으로 API 호출이 실패할 수 있고, 그때 **오류를 그대로 노출할지, 기능을 숨길지, 대체 경로를 제공할지**를 미리 정해두어야 합니다.",
+      en: "Features depending on external APIs must always assume **\"what will the user see when this API stops responding?\"** Even if the provider isn't completely down, rate limits alone can cause API calls to fail — and you need to decide in advance whether to **expose the error, hide the feature, or provide a fallback path**.",
     },
     diagrams: [
       {
@@ -70,9 +70,9 @@ export const troubleShootingItems: TroubleShootingItem[] = [
           { id: "primary",  type: "action",   row: 1, col: 0, label: { ko: "Primary\nProvider 시도", en: "Try Primary\nProvider" } },
           { id: "ok1",      type: "decision", row: 2, col: 0, label: { ko: "성공?",             en: "Success?" } },
           { id: "fb",       type: "action",   row: 3, col: 0, label: { ko: "Fallback 리스트\n순차 시도", en: "Try Fallback\nList in Order" } },
-          { id: "ok2",      type: "decision", row: 4, col: 0, label: { ko: "성공?",             en: "Success?" } },
+          { id: "ok2",      type: "decision", row: 4, col: 0, y: 100, label: { ko: "성공?",       en: "Success?" } },
           { id: "done",     type: "end",      row: 2, col: 1, label: { ko: "결과 반환 ✓",       en: "Return ✓" } },
-          { id: "err",      type: "end",      row: 4, col: 1, label: { ko: "502 에러",          en: "502 Error" } },
+          { id: "err",      type: "end",      row: 4, col: 2, label: { ko: "502 에러",          en: "502 Error" } },
         ],
         edges: [
           { from: "start",   to: "primary" },
@@ -89,12 +89,12 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     problem: { ko: "API 키 변경마다 재배포가 필요", en: "Every API Key Change Requires Redeployment" },
     definition: {
-      ko: "API 키를 하나 교체하려면 **Vercel 환경변수 수정 → 빌드 → 배포** 전체 과정을 거쳐야 하며, 20개 이상의 키를 이 방식으로 관리해야 합니다.",
-      en: "Changing a single API key requires the **full Vercel env edit → build → deploy cycle**, and 20+ keys must all be managed this way.",
+      ko: "API 키를 하나 교체하려면 **Vercel 환경변수 수정 → 빌드 → 배포** 전체 과정을 거쳐야 했고, 10개 이상의 키를 이 방식으로 관리해야 했습니다.",
+      en: "Changing a single API key required the **full Vercel env edit → build → deploy cycle**, and 10+ keys all had to be managed this way.",
     },
     cause: {
-      ko: "모든 API 키를 **`.env` 환경변수에 하드코딩**해 두고 있었습니다. 키를 교체하려면 Vercel 대시보드에서 환경변수를 수정한 뒤 **빌드·배포를 다시 실행**해야 했습니다. AI provider를 여러 개 사용하면서 키가 20개 이상으로 늘어났고, 키 하나 바꾸는 데 **3~5분의 빌드 시간**이 소요되었습니다.",
-      en: "All API keys were **hardcoded in `.env` environment variables**. Changing a key required editing Vercel dashboard env vars and **re-running build/deploy**. With multiple AI providers, keys grew to 20+, and changing one took **3-5 minutes of build time**.",
+      ko: "모든 API 키를 **`.env` 환경변수에 하드코딩**해 두고 있었습니다. 키를 교체하려면 Vercel 대시보드에서 환경변수를 수정한 뒤 **빌드·배포를 다시 실행**해야 했습니다. AI provider를 여러 개 사용하면서 키가 10개 이상으로 늘어났고, 키 하나 바꾸는 데 **3~5분의 빌드 시간**이 소요되었습니다.",
+      en: "All API keys were **hardcoded in `.env` environment variables**. Changing a key required editing Vercel dashboard env vars and **re-running build/deploy**. With multiple AI providers, keys grew to 10+, and changing one took **3-5 minutes of build time**.",
     },
     solution: {
       ko: "API 키를 `site_settings` 테이블의 JSONB에 저장하고, **어드민 UI에서 실시간으로 관리**할 수 있도록 변경했습니다. 서버에서는 **DB 값을 우선 사용하고, 없으면 env로 fallback**하는 2단계 조회를 적용합니다. 60초 TTL 캐시로 매 요청마다 DB를 조회하지 않으며, 키 저장/삭제 시 캐시를 즉시 무효화합니다. 키 조회(GET) 시에는 **앞 3자리 + 뒤 3자리만 노출**하고, 전체 값 확인(POST)에는 **비밀번호 재인증**을 요구합니다.",
@@ -118,11 +118,11 @@ export const troubleShootingItems: TroubleShootingItem[] = [
           { cells: [{ ko: "장애 내성", en: "Fault tolerance" }, { ko: "높음 (빌드에 포함)", en: "High (in build)" }, { ko: "DB 의존", en: "DB-dependent" }, { ko: "높음 (이중 경로)", en: "High (dual path)" }] },
           { cells: [{ ko: "비기술 관리자", en: "Non-tech admin" }, { ko: "✗ (Vercel 접근 필요)", en: "✗ (Vercel access)" }, { ko: "✓ (UI 관리)", en: "✓ (UI managed)" }, { ko: "✓ (UI 관리)", en: "✓ (UI managed)" }] },
           { cells: [{ ko: "초기 설정", en: "Initial setup" }, { ko: "간단", en: "Simple" }, { ko: "DB 마이그레이션", en: "DB migration" }, { ko: "DB + env 양쪽", en: "DB + env both" }] },
-          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 키 20개+ 관리 불편", en: "✗ 20+ keys unwieldy" }, { ko: "△ DB 장애 시 중단", en: "△ Down on DB failure" }, { ko: "✓ 유연 + 안전", en: "✓ Flexible + safe" }], highlight: true },
+          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 키 10개+ 관리 불편", en: "✗ 10+ keys unwieldy" }, { ko: "△ DB 장애 시 중단", en: "△ Down on DB failure" }, { ko: "✓ 유연 + 안전", en: "✓ Flexible + safe" }], highlight: true },
         ],
         description: {
-          ko: "env only는 키가 적을 때는 충분하지만, **20개 이상의 키를 관리하면서 잦은 교체가 필요**해지자 한계가 드러났습니다. DB only는 변경은 편하지만 DB 장애 시 모든 외부 연동이 중단됩니다. **DB + env fallback 방식**은 평소에는 DB에서 즉시 변경하고, DB 장애 시에는 env 값으로 자동 전환되어 **가용성과 편의성을 동시에 확보**합니다.",
-          en: "env only works fine with few keys, but **managing 20+ keys with frequent rotation** revealed its limits. DB only makes changes easy but stops all integrations on DB failure. **DB + env fallback** allows instant DB changes normally, with automatic env fallback on DB failure, **achieving both availability and convenience**.",
+          ko: "env only는 키가 적을 때는 충분하지만, **10개 이상의 키를 관리하면서 잦은 교체가 필요**해지자 한계가 드러났습니다. DB only는 변경은 편하지만 DB 장애 시 모든 외부 연동이 중단됩니다. **DB + env fallback 방식**은 평소에는 DB에서 즉시 변경하고, DB 장애 시에는 env 값으로 자동 전환되어 **가용성과 편의성을 동시에 확보**합니다.",
+          en: "env only works fine with few keys, but **managing 10+ keys with frequent rotation** revealed its limits. DB only makes changes easy but stops all integrations on DB failure. **DB + env fallback** allows instant DB changes normally, with automatic env fallback on DB failure, **achieving both availability and convenience**.",
         },
       } satisfies ComparisonTable,
     ],
@@ -130,8 +130,8 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     problem: { ko: "비회원 댓글에서 본인 확인이 번거로움", en: "Tedious Identity Verification for Guest Comments" },
     definition: {
-      ko: "비회원 댓글 수정/삭제 시 **매번 비밀번호를 입력**해야 하고, 다른 기기에서 작성한 댓글은 **본인 확인 자체가 불가능**합니다.",
-      en: "Editing/deleting guest comments requires **re-entering the password every time**, and comments from other devices are **completely unidentifiable**.",
+      ko: "비회원 댓글 수정/삭제 시 **매번 비밀번호를 입력**해야 했고, 다른 기기에서 작성한 댓글은 **본인 확인 자체가 불가능**했습니다.",
+      en: "Editing/deleting guest comments required **re-entering the password every time**, and comments from other devices were **completely unidentifiable**.",
     },
     cause: {
       ko: "초기 댓글 시스템은 **비밀번호만으로 본인 확인**을 처리했습니다. 댓글을 수정하거나 삭제할 때마다 비밀번호를 입력해야 했고, 다른 기기에서 작성한 댓글은 비밀번호를 기억하지 못하면 **본인 글인지 확인조차 불가능**했습니다. 회원가입을 도입하면 해결되지만, 포트폴리오 사이트에서 **가입 허들은 댓글 참여율을 크게 떨어뜨립니다**.",
@@ -171,16 +171,16 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     problem: { ko: "에디터 자동저장 주기가 너무 잦아 리비전이 의미 없이 누적됨", en: "Auto-save Interval Too Frequent — Revisions Accumulated Meaninglessly" },
     definition: {
-      ko: "자동저장이 **5초마다 실행**되어 한 시간 작업 시 수십 개의 리비전이 쌓이고, 대부분 의미 없는 변경이라 **되돌아갈 시점을 찾기 어렵습니다**.",
-      en: "Auto-save fires **every 5 seconds**, generating dozens of revisions per hour — most are trivial changes, making it **hard to find meaningful restore points**.",
+      ko: "자동저장이 **5초마다 실행**되어 한 시간 작업 시 수십 개의 리비전이 쌓였고, 대부분 의미 없는 변경이라 **되돌아갈 시점을 찾기 어려웠습니다**.",
+      en: "Auto-save fired **every 5 seconds**, generating dozens of revisions per hour — most were trivial changes, making it **hard to find meaningful restore points**.",
     },
     cause: {
       ko: "편집 중 변경사항을 보호하기 위해 **5초 debounce**로 자동저장을 구현했습니다. 그런데 5초는 지나치게 짧은 주기여서, **사소한 편집마다 저장이 트리거**되었습니다. 한 시간 작업하면 리비전이 수십 개 쌓였고 대부분 '단어 하나 추가', '오타 수정' 수준으로, 정작 **되돌아가고 싶은 시점을 찾기가 어려웠습니다**.",
       en: "Auto-save was implemented with a **5-second debounce** to protect edits. But 5 seconds was far too short — **every minor edit triggered a save**. After an hour of writing, dozens of revisions piled up, most just 'added a word' or 'fixed a typo', making it **hard to find the checkpoint you actually wanted**.",
     },
     solution: {
-      ko: "다른 서비스들과 비교해 이 프로젝트에 맞는 방식을 정했습니다. diff 방식(변경분만 저장)은 구현이 복잡하고, 단일 사용자·리비전 50개 제한 규모에서는 이득이 없다고 판단해 제외했습니다. 저장 주기를 **30초로 늘리고**, 타이머가 울리기 전에 페이지를 이탈해도 마지막 내용이 날아가지 않도록 **페이지 이탈 시 강제 저장**도 추가했습니다. 이탈 방식에 따라 두 경로로 처리합니다.\n- 브라우저 닫기·새로고침은 `navigator.sendBeacon`\n- Next.js SPA 라우팅은 언마운트 시 `fetch({ keepalive: true })`를 사용합니다.",
-      en: "Compared with other services to find the right approach. A diff-based approach (saving only changes) was rejected — too complex, no real benefit at single-user scale with a 50-revision cap. Changed to **30-second debounce** + **forced save on page leave**. Two paths handle leave-saves: `navigator.sendBeacon` for browser close/refresh, and `fetch({ keepalive: true })` in the unmount cleanup for Next.js SPA navigation.",
+      ko: "다른 서비스들과 비교해 이 프로젝트에 맞는 방식을 정했습니다. diff 방식(변경분만 저장)은 구현이 복잡하고, 단일 사용자·리비전 50개 제한 규모에서는 이득이 없다고 판단해 제외했습니다. 저장 주기를 **30초로 늘리고**, 타이머가 울리기 전에 페이지를 이탈해도 마지막 내용이 날아가지 않도록 **페이지 이탈 시 강제 저장**도 추가했습니다. 페이지를 떠나는 방식이 두 가지이므로 각각 다른 API를 사용합니다.\n- **브라우저 닫기·새로고침**: 탭 자체가 사라지면 진행 중인 fetch도 함께 취소되므로, 브라우저에 전송을 위임하는 `navigator.sendBeacon`을 사용합니다.\n- **Next.js SPA 라우팅**: 브라우저 탭은 그대로이고 자바스크립트가 화면을 교체하는 것이라(예: 에디터에서 네비게이션 링크를 눌러 다른 페이지로 이동) `beforeunload`가 발생하지 않습니다. 대신 에디터 컴포넌트의 언마운트 시점에 `fetch({ keepalive: true })`로 전송하면, 컴포넌트가 사라져도 요청이 중단되지 않습니다.\n\n에디터에 다시 진입하면 자동 저장된 초안이 있는지 확인하고, **확인 팝업을 띄워 사용자가 불러올지 무시할지 선택**할 수 있도록 했습니다. 이전에는 자동으로 복원했지만, 의도하지 않은 복원이 오히려 혼란을 줄 수 있어 **명시적 확인 후 복원**으로 변경했습니다.",
+      en: "Compared with other services to find the right approach. A diff-based approach (saving only changes) was rejected — too complex, no real benefit at single-user scale with a 50-revision cap. Changed to **30-second debounce** + **forced save on page leave**. Two different APIs handle leave-saves depending on how the user leaves:\n- **Browser close/refresh**: The tab itself is destroyed, canceling any in-flight fetch — `navigator.sendBeacon` delegates the send to the browser so it completes even after the tab is gone.\n- **Next.js SPA routing**: The browser tab stays open — JavaScript swaps the view (e.g., clicking a nav link from the editor to another page), so `beforeunload` never fires. Instead, `fetch({ keepalive: true })` is called during the editor component's unmount cleanup, keeping the request alive even after the component is gone.\n\nWhen re-entering the editor, a **confirmation popup asks whether to restore** the auto-saved draft or discard it. Previously drafts were restored automatically, but this could cause confusion — so it was changed to **explicit confirmation before restore**.",
     },
     keyInsight: {
       ko: "저장이 잦다고 좋은 게 아닙니다. **주기가 짧을수록 저장 기록에 잡음이 쌓여** 정작 필요한 시점을 찾기 어렵습니다. 주기적 저장에만 기대면 마지막 편집이 날아갈 수 있으므로, `beforeunload`와 언마운트 cleanup을 **반드시 함께** 구현해야 합니다.",
@@ -274,8 +274,8 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     section: { ko: "Frontend / Performance", en: "Frontend / Performance" },
     problem: { ko: "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)", en: "reCAPTCHA v3 Initial Load Performance Degradation (LCP 17.1s, TTI 18.2s)" },
     definition: {
-      ko: "reCAPTCHA 스크립트(784KB)가 페이지 로드 시 즉시 다운로드되어, **LCP 17.1초 / TTI 18.2초**로 초기 렌더링을 심각하게 지연시킵니다.",
-      en: "The reCAPTCHA script (784KB) downloads immediately on page load, severely delaying initial rendering to **LCP 17.1s / TTI 18.2s**.",
+      ko: "reCAPTCHA 스크립트(784KB)가 페이지 로드 시 즉시 다운로드되어, **LCP 17.1초 / TTI 18.2초**로 초기 렌더링을 심각하게 지연시켰습니다.",
+      en: "The reCAPTCHA script (784KB) downloaded immediately on page load, severely delaying initial rendering to **LCP 17.1s / TTI 18.2s**.",
     },
     cause: {
       ko: "공식 문서대로 보안 스크립트(reCAPTCHA)를 앱 시작 시 바로 불러왔더니, 페이지를 열자마자 **784KB짜리 파일이 다운로드**되었습니다. 이 파일이 다른 작업을 막으면서 **페이지가 화면에 표시되기까지 17초**나 걸리게 되었습니다.",
@@ -286,8 +286,8 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Instead of loading the security script upfront, it now loads **when the user first clicks or touches the page**. I also **pre-established the connection (preconnect)** to Google's server so the actual load is faster when needed.",
     },
     keyInsight: {
-      ko: "외부 스크립트는 **\"지금 당장 필요한가?\"를 먼저 따져야** 합니다. 당장 안 쓰는 무거운 파일을 처음부터 불러오면, 정작 사용자가 보는 화면이 수 초씩 늦어집니다.",
-      en: "Always ask **\"is this needed right now?\"** before loading external scripts. Loading heavy files upfront that aren't immediately needed **delays what the user actually sees** by several seconds.",
+      ko: "외부 스크립트는 **\"지금 당장 필요한가?\"를 먼저 따져야** 합니다. 당장 안 쓰는 무거운 파일을 처음부터 불러오면, 정작 사용자가 보는 화면이 수 초씩 늦어집니다. reCAPTCHA는 **컨택트 폼에만 적용**하고 댓글에는 넣지 않았는데, 댓글은 이미 비밀번호 + commenter_hash 이중 인증으로 보호되어 **captcha를 추가하면 참여 허들만 높아질 뿐**입니다.",
+      en: "Always ask **\"is this needed right now?\"** before loading external scripts. Loading heavy files upfront that aren't immediately needed **delays what the user actually sees** by several seconds. reCAPTCHA is applied **only to the contact form** — comments are already protected by password + commenter_hash dual auth, so adding captcha would **only raise the participation barrier**.",
     },
     comparisons: [
       {
@@ -303,11 +303,11 @@ export const troubleShootingItems: TroubleShootingItem[] = [
           { cells: [{ ko: "초기 성능 영향", en: "Initial perf impact" }, { ko: "⚠ 높음 (784KB 블로킹)", en: "⚠ High (784KB blocking)" }, { ko: "중간", en: "Medium" }, { ko: "없음", en: "None" }] },
           { cells: [{ ko: "사용자 대기", en: "User wait time" }, { ko: "없음 (이미 로드)", en: "None (preloaded)" }, { ko: "짧음", en: "Short" }, { ko: "첫 인터랙션 시 짧은 지연", en: "Brief delay on first interaction" }] },
           { cells: [{ ko: "적합한 경우", en: "Best for" }, { ko: "즉시 필요한 스크립트", en: "Immediately needed scripts" }, { ko: "스크롤 후 필요", en: "Needed after scroll" }, { ko: "사용자 행동 후 필요", en: "Needed after user action" }] },
-          { cells: [{ ko: "reCAPTCHA에 적합?", en: "Right for reCAPTCHA?" }, { ko: "✗ LCP 17s 유발", en: "✗ Causes 17s LCP" }, { ko: "△ 댓글 영역 도달 전 불필요", en: "△ Unnecessary before comment area" }, { ko: "✓ 댓글 작성 시점에만 필요", en: "✓ Only needed when commenting" }], highlight: true },
+          { cells: [{ ko: "reCAPTCHA에 적합?", en: "Right for reCAPTCHA?" }, { ko: "✗ LCP 17s 유발", en: "✗ Causes 17s LCP" }, { ko: "△ 컨택트 드로어 열기 전 불필요", en: "△ Unnecessary before contact drawer" }, { ko: "✓ 컨택트 폼 제출 시점에만 필요", en: "✓ Only needed on contact form submit" }], highlight: true },
         ],
         description: {
-          ko: "reCAPTCHA는 **댓글을 작성할 때만 필요**합니다. 페이지를 읽기만 하는 대다수 방문자에게는 불필요한 784KB입니다. Lazy 방식은 댓글 영역이 뷰포트에 들어올 때 로드하지만, 스크롤만으로 트리거되어 댓글을 쓸 의도 없는 사용자에게도 로드됩니다. **Interaction 방식**은 실제 클릭/터치가 발생한 시점에만 로드하므로, **불필요한 로드를 완전히 제거**합니다. preconnect로 DNS/TLS 핸드셰이크를 미리 완료해 두면 실제 로드 시 체감 지연도 최소화됩니다.",
-          en: "reCAPTCHA is **only needed when writing a comment**. For the majority of visitors who just read, it's an unnecessary 784KB. Lazy loading triggers on viewport entry, loading even for users with no intent to comment. **Interaction-based loading** only fires on actual click/touch, **completely eliminating unnecessary loads**. Preconnect completes DNS/TLS handshake early, minimizing perceived delay when actually loaded.",
+          ko: "reCAPTCHA는 **컨택트 폼 제출 시에만 필요**합니다. 페이지를 읽기만 하는 대다수 방문자에게는 불필요한 784KB입니다. Lazy 방식은 폼 영역이 뷰포트에 들어올 때 로드하지만, 스크롤만으로 트리거되어 폼을 사용할 의도 없는 사용자에게도 로드됩니다. **Interaction 방식**은 실제 클릭/터치가 발생한 시점에만 로드하므로, **불필요한 로드를 완전히 제거**합니다. preconnect로 DNS/TLS 핸드셰이크를 미리 완료해 두면 실제 로드 시 체감 지연도 최소화됩니다.",
+          en: "reCAPTCHA is **only needed when submitting the contact form**. For the majority of visitors who just read, it's an unnecessary 784KB. Lazy loading triggers on viewport entry, loading even for users with no intent to submit a form. **Interaction-based loading** only fires on actual click/touch, **completely eliminating unnecessary loads**. Preconnect completes DNS/TLS handshake early, minimizing perceived delay when actually loaded.",
         },
       } satisfies ComparisonTable,
     ],
@@ -315,11 +315,11 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     problem: { ko: "mousemove마다 React 리렌더 (60fps 성능 저하)", en: "React Re-render on Every mousemove (60fps Performance Degradation)" },
     definition: {
-      ko: "마우스를 움직이면 **초당 60번 React 리렌더**가 발생하여 25개 이상의 그리드 아이템이 매번 다시 그려지고, 프레임 드롭이 체감됩니다.",
-      en: "Moving the mouse triggers **~60 React re-renders per second**, causing 25+ grid items to re-render each time with visible frame drops.",
+      ko: "홈 Works 섹션에서 마우스를 움직이면 원형 아이템들이 밀려나는 반발 효과가 있는데, 반발 오프셋을 `useState`로 관리하면서 mousemove마다 **25개 이상의 그리드 아이템이 통째로 리렌더**되어 마우스를 빠르게 움직일수록 **애니메이션이 버벅거리고 프레임이 끊겼습니다**.",
+      en: "The Works section on the home page has a magnetic repulsion effect where circular items push away from the cursor. Repulsion offsets were managed with `useState`, triggering a **full re-render of 25+ grid items on every mousemove** — the faster the mouse moved, the **more visible the stuttering and frame drops** became.",
     },
     cause: {
-      ko: "Works 섹션의 마우스 반발 효과가 **mousemove마다 React state를 업데이트**하고 있었습니다. 마우스를 움직일 때마다 **초당 60번의 setState 호출**이 발생하고, 매번 WorksSection 전체(25개 이상의 그리드 아이템)가 **다시 그려졌습니다**. 이로 인해 마우스를 움직이는 동안 메인 스레드가 계속 바빴습니다.",
+      ko: "Works 섹션의 마우스 반발 효과가 **mousemove마다 React state를 업데이트**하고 있었습니다. 마우스를 움직일 때마다 **초당 60번의 setState 호출**이 발생하고, 매번 WorksSection 전체(25개 이상의 그리드 아이템)가 **다시 그려졌습니다**. 결과적으로 마우스를 움직이는 내내 **렌더링 작업이 끊임없이 쌓여** 프레임이 밀렸습니다.",
       en: "The mouse repulsion effect in the Works section was **updating React state on every mousemove**. This caused **~60 setState calls per second**, each triggering a full re-render of WorksSection with 25+ grid items. The main thread stayed busy the entire time the mouse was moving.",
     },
     solution: {
@@ -356,8 +356,8 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     problem: { ko: "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐", en: "Layout Jumps When Toggling Code Block Line Wrap" },
     definition: {
-      ko: "코드 블록의 줄바꿈을 토글하면 높이가 순간적으로 변하면서, **아래쪽 콘텐츠가 갑자기 밀려나는 레이아웃 시프트**가 발생합니다.",
-      en: "Toggling line wrap on code blocks causes an instant height change, producing a **layout shift that jolts content below**.",
+      ko: "코드 블록의 줄바꿈을 토글하면 높이가 순간적으로 변하면서, **아래쪽 콘텐츠가 갑자기 밀려나는 레이아웃 시프트**가 발생했습니다.",
+      en: "Toggling line wrap on code blocks caused an instant height change, producing a **layout shift that jolted content below**.",
     },
     cause: {
       ko: "블로그 포스트의 코드 블록에 **줄바꿈 토글 버튼**을 추가했습니다. `white-space: pre` → `pre-wrap` 전환 시 코드 블록의 높이가 변하면서, **아래쪽 콘텐츠가 갑자기 밀려나는 레이아웃 시프트**가 발생했습니다. CSS `transition`으로 `max-height`를 애니메이션하려 했지만, **최대 높이를 미리 알 수 없어** 값을 크게 잡으면 타이밍이 어긋나고, 작게 잡으면 잘리는 문제가 있었습니다.",
@@ -395,10 +395,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
-    problem: { ko: "커스텀 커서의 hit-test가 매 프레임 DOM을 탐색", en: "Custom Cursor Hit-Testing Traversing DOM Every Frame" },
+    problem: { ko: "커스텀 커서의 무거운 hit-test가 가벼운 위치 보간을 함께 느리게 만듦", en: "Heavy Cursor Hit-Test Dragging Down Lightweight Position Interpolation" },
     definition: {
-      ko: "`elementsFromPoint()`가 **매 프레임(~60/s) 호출**되어 수백 개 DOM 요소를 탐색하고, 커서 위치 업데이트까지 함께 느려집니다.",
-      en: "`elementsFromPoint()` is called **every frame (~60/s)**, traversing hundreds of DOM elements and slowing down cursor position updates.",
+      ko: "커스텀 커서는 **위치 보간(LERP)**과 **요소 타입 판별(hit-test)**을 동시에 처리하는데, 둘 다 같은 RAF 루프에 묶여 있었습니다. hit-test에 쓰이는 `elementsFromPoint()`가 매 프레임 수백 개 DOM을 탐색하면서, **그 자체로는 가벼운 위치 보간까지 함께 느려졌습니다**.",
+      en: "The custom cursor handled both **position interpolation (LERP)** and **element type detection (hit-test)** in the same RAF loop. The `elementsFromPoint()` call for hit-testing traversed hundreds of DOM elements per frame, **dragging down the otherwise lightweight position updates** along with it.",
     },
     cause: {
       ko: "커스텀 커서 효과에서 마우스 아래의 요소 타입(클릭 가능, 텍스트, 비활성 등)을 판별하기 위해 **`elementsFromPoint()`를 매 프레임 호출**하고 있었습니다. 이 API는 해당 좌표의 **모든 DOM 요소를 탐색**하므로, 복잡한 레이아웃에서는 **프레임당 수백 개의 요소를 순회**하게 됩니다. 커서 위치 보간(LERP)과 hit-test가 같은 RAF 루프에 묶여 있어, **위치 업데이트까지 함께 느려졌습니다**.",
@@ -409,8 +409,8 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "**Decoupled** position interpolation from hit-testing. Position LERP runs in **every RAF frame** for smooth 60fps, while `elementsFromPoint()` hit-test runs on a **60ms debounce** separately. Cursor shape changes (grab, pointer, text, disabled) update asynchronously, but the **delay is imperceptible to users**. Custom cursor is disabled entirely on touch devices.",
     },
     keyInsight: {
-      ko: "고빈도 업데이트에서 **모든 작업이 같은 주기로 실행될 필요는 없습니다**. 위치처럼 즉각 반영이 필요한 값은 매 프레임, 상태 판별처럼 약간의 지연이 허용되는 값은 **낮은 빈도로 분리**하면 전체 성능이 크게 개선됩니다.",
-      en: "In high-frequency updates, **not everything needs to run at the same rate**. Values needing instant reflection (position) run every frame, while values tolerating slight delay (state detection) run at **lower frequency** — this separation dramatically improves overall performance.",
+      ko: "07번이 \"React를 우회할 것인가\"의 문제였다면, 이 항목은 **\"같은 루프 안에서 비용이 다른 작업을 분리할 것인가\"**의 문제입니다. 위치 보간처럼 즉각 반영이 필요한 작업은 매 프레임, DOM 탐색처럼 무겁지만 지연이 허용되는 작업은 **낮은 빈도로 분리**하면 전체 성능이 크게 개선됩니다.",
+      en: "While item 07 was about **whether to bypass React entirely**, this issue is about **separating tasks of different costs within the same loop**. Lightweight work needing instant reflection (position LERP) runs every frame, while heavy work tolerating slight delay (DOM traversal) runs at **lower frequency** — this tiered approach dramatically improves overall performance.",
     },
     comparisons: [
       {
@@ -435,14 +435,134 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       } satisfies ComparisonTable,
     ],
   },
+  {
+    problem: {
+      ko: "커스텀 RichTextEditor의 기능 확장 한계",
+      en: "Custom RichTextEditor Hitting Feature Extension Limits",
+    },
+    definition: {
+      ko: "직접 구현한 RichTextEditor(textarea + 마크다운 프리뷰)는 **인라인 서식 미리보기 불가, 구조화된 콘텐츠 모델 부재, 테이블·수식·임베드 등 기능 추가가 극도로 어려운** 상태였습니다.",
+      en: "The custom-built RichTextEditor (textarea + markdown preview) had **no inline formatting preview, no structured content model, and adding features like tables, math, and embeds was extremely difficult**.",
+    },
+    cause: {
+      ko: "에디터가 **단순 textarea에 마크다운 렌더링을 붙인 구조**였기 때문에, 새로운 기능(테이블, 수식, 코드 블록, 이미지 등)을 추가할 때마다 **커스텀 파싱/렌더링 로직을 직접 구현**해야 했습니다. 각 기능이 독립적인 파싱 규칙을 필요로 하면서 **코드가 취약해지고 유지보수 비용이 누적**되었습니다. 결국 WYSIWYG 프레임워크가 이미 해결한 문제의 **80%를 직접 재구현**하고 있는 상황이었습니다.",
+      en: "The editor was built as a **simple textarea with markdown rendering on preview**. Every new feature (tables, math, code blocks, images) required **custom parsing and rendering logic from scratch**. Each feature needed independent parsing rules, making the **codebase fragile and accumulating maintenance costs**. Ultimately, we were **reimplementing 80% of what WYSIWYG frameworks already solve**.",
+    },
+    solution: {
+      ko: "**Plate.js(Slate.js 기반)**로 마이그레이션했습니다. 구조화된 문서 모델, 플러그인 아키텍처, 인라인 WYSIWYG 편집을 제공합니다. 기존 RichTextEditor의 CSS Module은 **공유 스타일로 유지**하고, 수식(KaTeX), 코드 블록(highlight.js), 테이블, 이미지, 임베드용 **커스텀 플러그인**을 구현했습니다.",
+      en: "Migrated to **Plate.js (built on Slate.js)** — providing a structured document model, plugin architecture, and inline WYSIWYG editing. Kept the old RichTextEditor CSS module as **shared styles**. Built **custom plugins** for math (KaTeX), code blocks (highlight.js), tables, images, and embeds.",
+    },
+    keyInsight: {
+      ko: "전형적인 **\"Build vs Buy\" 의사결정** 문제입니다. 커스텀 솔루션이 성숙한 프레임워크가 제공하는 기능의 80%를 재구현하고 있다면, **마이그레이션 비용이 커스텀 접근법의 지속적 유지보수 비용보다 낮습니다**.",
+      en: "A classic **\"Build vs Buy\" decision** — when the custom solution requires reimplementing 80% of what an established framework provides, the **migration cost is lower than the ongoing maintenance cost** of the custom approach.",
+    },
+    comparisons: [
+      {
+        label: { ko: "에디터 접근 방식 비교", en: "Editor approach comparison" },
+        headers: [
+          { ko: "비교 항목", en: "Criteria" },
+          { ko: "Custom textarea + MD", en: "Custom textarea + MD" },
+          { ko: "Plate.js (채택)", en: "Plate.js (adopted)" },
+        ],
+        rows: [
+          { cells: [{ ko: "인라인 서식 미리보기", en: "Inline formatting preview" }, { ko: "✗ 프리뷰 탭 전환 필요", en: "✗ Requires preview tab switch" }, { ko: "✓ WYSIWYG", en: "✓ WYSIWYG" }] },
+          { cells: [{ ko: "콘텐츠 모델", en: "Content model" }, { ko: "평문 문자열", en: "Plain text string" }, { ko: "구조화된 문서 트리", en: "Structured document tree" }] },
+          { cells: [{ ko: "기능 추가 비용", en: "Feature addition cost" }, { ko: "⚠ 파싱/렌더링 직접 구현", en: "⚠ Custom parsing/rendering" }, { ko: "플러그인으로 확장", en: "Plugin-based extension" }] },
+          { cells: [{ ko: "테이블·수식·임베드", en: "Tables, math, embeds" }, { ko: "✗ 각각 커스텀 파서 필요", en: "✗ Each needs custom parser" }, { ko: "✓ 플러그인 아키텍처", en: "✓ Plugin architecture" }] },
+          { cells: [{ ko: "유지보수 비용", en: "Maintenance cost" }, { ko: "⚠ 기능 추가마다 누적", en: "⚠ Accumulates per feature" }, { ko: "프레임워크가 핵심 로직 관리", en: "Framework handles core logic" }] },
+          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 확장 한계 도달", en: "✗ Hit extension limits" }, { ko: "✓ 구조화된 편집 + 플러그인", en: "✓ Structured editing + plugins" }], highlight: true },
+        ],
+        description: {
+          ko: "커스텀 textarea 에디터는 초기에는 빠르게 구현할 수 있지만, **기능이 늘어날수록 파싱 로직이 복잡해지고 버그가 늘어납니다**. Plate.js는 Slate.js의 구조화된 문서 모델 위에 플러그인 시스템을 제공하므로, 테이블·수식·코드 블록 같은 복잡한 기능도 **독립적인 플러그인으로 격리**하여 관리할 수 있습니다. 기존 RichTextEditor의 CSS Module을 공유 스타일로 유지하여 **마이그레이션 시 시각적 일관성을 보존**했습니다.",
+          en: "A custom textarea editor is quick to build initially, but **parsing logic grows complex and bugs multiply as features increase**. Plate.js provides a plugin system on top of Slate.js's structured document model, allowing complex features like tables, math, and code blocks to be **isolated as independent plugins**. Keeping the existing RichTextEditor CSS module as shared styles **preserved visual consistency during migration**.",
+        },
+      } satisfies ComparisonTable,
+    ],
+  },
+  {
+    problem: {
+      ko: "이미지 원본 무압축 업로드 — 10MB 초과 실패 + 네트워크 낭비",
+      en: "Uncompressed Image Upload — 10MB Limit Failures + Network Waste",
+    },
+    definition: {
+      ko: "사용자가 선택한 이미지 파일을 **압축 없이 원본 그대로** FormData에 담아 서버로 전송했습니다. 스마트폰 사진(5–15MB)이나 고해상도 스크린샷은 **용량 제한에 걸려 업로드가 거부**되고, 제한 이하인 파일도 **불필요하게 큰 원본이 그대로 전송**되어 네트워크와 스토리지를 낭비했습니다.",
+      en: "Image files were sent to the server **as-is without compression** via FormData. Smartphone photos (5–15MB) and high-resolution screenshots **hit the size limit and failed**, while files under the limit **wasted network bandwidth and storage** by uploading unnecessarily large originals.",
+    },
+    cause: {
+      ko: "업로드 함수에 **클라이언트 압축 로직이 없었고**, 서버에서 용량 초과를 거부하는 것이 유일한 방어선이었습니다. 사용자는 **왜 업로드가 실패하는지 모른 채** 다시 시도하거나 포기하는 상황이 발생했습니다.",
+      en: "The upload function had **no client-side compression logic** — the server's size rejection was the only defense. Users would **retry or give up without understanding** why the upload failed.",
+    },
+    solution: {
+      ko: "업로드 전에 **브라우저에서 단계적 압축 파이프라인**을 실행합니다:\n\n1. **SVG/GIF → 스킵** (벡터/애니메이션은 Canvas 변환 불가)\n2. **용량 이하 → 스킵** (이미 작은 파일은 건드리지 않음)\n3. **WebP 변환** (`canvas.toBlob`, quality 0.85)\n4. **해상도 축소** (긴 변 최대 2560px)\n5. **품질 단계적 하향** (0.05씩 감소, 최저 0.7)\n\n`compressImage()` 유틸리티를 **dynamic import**로 불러와 번들 크기에 영향을 주지 않습니다.",
+      en: "A **step-by-step compression pipeline runs in the browser** before upload:\n\n1. **SVG/GIF → skip** (vector/animation can't be Canvas-converted)\n2. **Under limit → skip** (don't touch already-small files)\n3. **WebP conversion** (`canvas.toBlob`, quality 0.85)\n4. **Resolution reduction** (max 2560px on longest side)\n5. **Quality step-down** (decrease by 0.05, minimum 0.7)\n\nThe `compressImage()` utility is loaded via **dynamic import** to avoid affecting bundle size.",
+    },
+    keyInsight: {
+      ko: "이미지 압축은 **서버보다 클라이언트에서 하는 것이 합리적**입니다. 서버 압축은 이미 **큰 원본이 네트워크를 타고 올라온 뒤** 처리하므로 대역폭 절감 효과가 없고, 서버 CPU도 소모합니다. 클라이언트 압축은 **전송 전에 크기를 줄여** 업로드 시간과 스토리지를 동시에 절약합니다. WebP는 AVIF보다 압축률은 낮지만 **브라우저 인코딩 속도가 3–10배 빠르고 지원률도 높아** 클라이언트 처리에 적합합니다.",
+      en: "Image compression is **more effective on the client than the server**. Server compression processes files **after they've already traveled the network at full size**, offering no bandwidth savings while consuming server CPU. Client compression **reduces size before transmission**, saving both upload time and storage. WebP has lower compression ratios than AVIF but is **3–10× faster to encode in browsers with wider support**, making it ideal for client-side processing.",
+    },
+    comparisons: [
+      {
+        label: { ko: "이미지 업로드 전략 비교", en: "Image upload strategy comparison" },
+        headers: [
+          { ko: "비교 항목", en: "Criteria" },
+          { ko: "원본 전송", en: "Raw upload" },
+          { ko: "서버 압축", en: "Server compression" },
+          { ko: "클라이언트 압축 (채택)", en: "Client compression (adopted)" },
+        ],
+        rows: [
+          { cells: [{ ko: "네트워크 사용량", en: "Network usage" }, { ko: "⚠ 원본 크기 그대로", en: "⚠ Full original size" }, { ko: "⚠ 원본 크기 그대로", en: "⚠ Full original size" }, { ko: "✓ 압축 후 전송", en: "✓ Compressed before send" }] },
+          { cells: [{ ko: "업로드 실패율", en: "Upload failure rate" }, { ko: "⚠ 10MB 초과 시 거부", en: "⚠ Rejected over 10MB" }, { ko: "수용 가능 (제한 완화)", en: "Acceptable (relaxed limit)" }, { ko: "✓ 거의 없음", en: "✓ Near zero" }] },
+          { cells: [{ ko: "서버 부하", en: "Server load" }, { ko: "없음", en: "None" }, { ko: "⚠ CPU 사용", en: "⚠ CPU usage" }, { ko: "없음", en: "None" }] },
+          { cells: [{ ko: "사용자 체감", en: "User experience" }, { ko: "큰 파일 = 긴 대기", en: "Large files = long wait" }, { ko: "업로드 느림 + 서버 처리 대기", en: "Slow upload + server processing" }, { ko: "✓ 빠른 업로드", en: "✓ Fast upload" }] },
+          { cells: [{ ko: "구현 위치", en: "Implementation" }, { ko: "없음", en: "None" }, { ko: "API 라우트 (Sharp 등)", en: "API route (Sharp, etc.)" }, { ko: "Canvas API (브라우저)", en: "Canvas API (browser)" }] },
+          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 대용량 실패", en: "✗ Large files fail" }, { ko: "△ 대역폭 낭비", en: "△ Bandwidth waste" }, { ko: "✓ 전송 전 최적화", en: "✓ Optimized before transfer" }], highlight: true },
+        ],
+        description: {
+          ko: "원본 전송은 용량 제한에 취약하고, 서버 압축은 이미 큰 파일이 네트워크를 거친 뒤 처리됩니다. **클라이언트 압축은 브라우저에서 WebP 변환 + 리사이즈 + 품질 조절을 수행한 뒤** 작아진 파일만 전송하므로, 업로드 실패를 방지하고 네트워크·스토리지를 동시에 절약합니다.",
+          en: "Raw upload is vulnerable to size limits, and server compression only processes after the large file has already traversed the network. **Client compression performs WebP conversion + resize + quality adjustment in the browser**, sending only the reduced file — preventing upload failures while saving both network bandwidth and storage.",
+        },
+      } satisfies ComparisonTable,
+    ],
+    diagrams: [
+      {
+        title: { ko: "클라이언트 이미지 압축 파이프라인", en: "Client-side Image Compression Pipeline" },
+        nodes: [
+          { id: "start", type: "start", label: { ko: "이미지 선택", en: "Select image" }, row: 0, col: 0 },
+          { id: "check_type", type: "decision", label: { ko: "SVG / GIF?", en: "SVG / GIF?" }, row: 1, col: 0 },
+          { id: "skip", type: "end", label: { ko: "원본 그대로 업로드", en: "Upload original" }, row: 1, col: 1 },
+          { id: "check_size", type: "decision", label: { ko: "용량 초과?", en: "Over limit?" }, row: 2, col: 0 },
+          { id: "webp", type: "action", label: { ko: "WebP 변환 (q: 0.85)", en: "Convert WebP (q: 0.85)" }, row: 3, col: 0 },
+          { id: "check_webp", type: "decision", label: { ko: "아직 큰가?", en: "Still over?" }, row: 4, col: 0 },
+          { id: "resize", type: "action", label: { ko: "해상도 축소 (max 2560px)", en: "Resize (max 2560px)" }, row: 5, col: 0 },
+          { id: "check_resize", type: "decision", label: { ko: "아직 큰가?", en: "Still over?" }, row: 6, col: 0 },
+          { id: "quality", type: "action", label: { ko: "품질 하향 (0.05씩, 최저 0.7)", en: "Quality step-down (−0.05, min 0.7)" }, row: 7, col: 0 },
+          { id: "done", type: "end", label: { ko: "압축 완료 → 업로드", en: "Compressed → Upload" }, row: 8, col: 0 },
+        ],
+        edges: [
+          { from: "start", to: "check_type" },
+          { from: "check_type", to: "skip", label: "Yes" },
+          { from: "check_type", to: "check_size", label: "No" },
+          { from: "check_size", to: "done", label: "No" },
+          { from: "check_size", to: "webp", label: "Yes" },
+          { from: "webp", to: "check_webp" },
+          { from: "check_webp", to: "done", label: "No" },
+          { from: "check_webp", to: "resize", label: "Yes" },
+          { from: "resize", to: "check_resize" },
+          { from: "check_resize", to: "done", label: "No" },
+          { from: "check_resize", to: "quality", label: "Yes" },
+          { from: "quality", to: "done" },
+        ],
+      } satisfies TroubleshootingDiagram,
+    ],
+  },
 
   /* ── CSS / Styling ── */
   {
     section: { ko: "CSS / Styling", en: "CSS / Styling" },
     problem: { ko: "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀", en: "Global Transition Shorthand Overriding Component Transitions" },
     definition: {
-      ko: "테마 전환용 글로벌 `transition`이 컴포넌트의 **`max-height`, `opacity`, `transform` 전환을 모두 무시**시켜, 인터랙션 애니메이션이 동작하지 않습니다.",
-      en: "The global theme `transition` **overrides component-level `max-height`, `opacity`, `transform` transitions**, causing interaction animations to stop working.",
+      ko: "테마 전환용 글로벌 `transition`이 컴포넌트의 **`max-height`, `opacity`, `transform` 전환을 모두 무시**시켜, 인터랙션 애니메이션이 동작하지 않았습니다.",
+      en: "The global theme `transition` **overrode component-level `max-height`, `opacity`, `transform` transitions**, causing interaction animations to stop working.",
     },
     cause: {
       ko: "테마 전환을 위해 `html[data-theme-ready] *`에 **transition shorthand**를 걸어 `background-color, border-color, color` 등을 부드럽게 전환했습니다. 그런데 이 선택자의 특이성이 `(0,1,1)`로, 단일 클래스 `(0,1,0)`보다 높아서 **컴포넌트의 `max-height`, `opacity`, `transform` 전환이 모두 무시**되었습니다. `transition`이 shorthand이기 때문에 **나열되지 않은 속성의 전환까지 통째로 교체**한 것이 원인이었습니다.",
@@ -460,8 +580,8 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     problem: { ko: "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴", en: "CSS Module Hash Collision Collapsing Desktop Layout" },
     definition: {
-      ko: "데스크톱에서 `display: contents`가 적용되지 않아, About 페이지의 ProcessPanel **레이아웃이 완전히 무너집니다**.",
-      en: "On desktop, `display: contents` fails to apply, **completely breaking** the ProcessPanel layout on the About page.",
+      ko: "데스크톱에서 `display: contents`가 적용되지 않아, About 페이지의 ProcessPanel **레이아웃이 완전히 무너졌습니다**.",
+      en: "On desktop, `display: contents` failed to apply, **completely breaking** the ProcessPanel layout on the About page.",
     },
     cause: {
       ko: "About 페이지의 각 패널은 **공유 CSS Module과 로컬 CSS Module을 `{ ...shared, ...local }`로 병합**하여 사용합니다. ProcessPanel의 `.processBody`는 공유 CSS에서 `display: contents`로 정의되어 있었는데, 로컬 CSS에서 **모바일 미디어 쿼리 안에서만** 같은 이름의 클래스를 정의했습니다. 문제는 CSS Module이 **파일별로 다른 해시를 생성**하기 때문에, 스프레드 병합 시 **로컬 해시가 공유 해시를 덮어써** 데스크톱에서 `display: contents`가 적용되지 않은 것이었습니다.",

@@ -178,3 +178,12 @@
 .semibold-text {
   font-weight: var(--font-weight-semibold);
 }
+
+/* ── Glossary Term ── */
+.glossary-term {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--text-tertiary);
+  text-underline-offset: 3px;
+  cursor: help;
+}

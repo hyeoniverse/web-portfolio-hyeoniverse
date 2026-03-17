@@ -26,6 +26,7 @@ function TroubleshootingPanel({
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
+  const userScrolledRef = useRef(false);
   const [listPage, setListPage] = useState({ page: 1, total: 1 });
   const [detailIndex, setDetailIndex] = useState(0);
   const { panelRef, contentRef } = usePinnedScroll(
@@ -44,6 +45,7 @@ function TroubleshootingPanel({
       const itemEls = detail.querySelectorAll(`.${styles.troubleDetailItem}`);
       const target = itemEls[index] as HTMLElement | undefined;
       if (target) {
+        userScrolledRef.current = true;
         detail.scrollTo({ top: target.offsetTop, behavior: "smooth" });
       }
     },
@@ -164,10 +166,15 @@ function TroubleshootingPanel({
 
       if (progress >= 0.98) {
         // 오른쪽 밖 → 역스크롤 시 하단부터 시작하도록 사전 설정
+        userScrolledRef.current = false;
         detail.scrollTop = detail.scrollHeight - detail.clientHeight;
       } else if (progress <= 0.02) {
-        // 왼쪽 밖 → 정방향 진입 시 상단부터
-        detail.scrollTop = 0;
+        // 왼쪽 밖 → 정방향 진입 시 상단부터 (사용자 클릭 스크롤 중이면 건너뜀)
+        if (!userScrolledRef.current) {
+          detail.scrollTop = 0;
+        }
+      } else {
+        // 패널이 뷰포트 안에 있으면 플래그 유지 (사용자 클릭 상태 존중)
       }
     };
 
@@ -250,13 +257,13 @@ function TroubleshootingPanel({
                     <span className={styles.troubleLabel}>
                       <T k="aboutPage.troubleshooting.definition" />
                     </span>
-                    <p>{renderHighlight(item.definition[language])}</p>
+                    <p>{renderHighlight(item.definition[language], language)}</p>
                   </div>
                   <div className={styles.troubleEntry}>
                     <span className={styles.troubleLabel}>
                       <T k="aboutPage.troubleshooting.cause" />
                     </span>
-                    <p>{renderHighlight(item.cause[language])}</p>
+                    <p>{renderHighlight(item.cause[language], language)}</p>
                   </div>
                   <div className={styles.troubleEntry}>
                     <span
@@ -264,7 +271,7 @@ function TroubleshootingPanel({
                     >
                       <T k="aboutPage.troubleshooting.solution" />
                     </span>
-                    <p>{renderHighlight(item.solution[language])}</p>
+                    <p>{renderHighlight(item.solution[language], language)}</p>
                   </div>
                   {item.comparisons && item.comparisons.length > 0 && (
                     <div className={styles.troubleEntry}>
@@ -286,14 +293,14 @@ function TroubleshootingPanel({
                                 {table.rows.map((row, ri) => (
                                   <tr key={ri} className={row.highlight ? local.troubleTableRowHighlight : undefined}>
                                     {row.cells.map((cell, ci) => (
-                                      <td key={ci}>{renderHighlight(cell[language])}</td>
+                                      <td key={ci}>{renderHighlight(cell[language], language)}</td>
                                     ))}
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
                             {table.description && (
-                              <p className={local.troubleComparisonDesc}>{renderHighlight(table.description[language])}</p>
+                              <p className={local.troubleComparisonDesc}>{renderHighlight(table.description[language], language)}</p>
                             )}
                           </div>
                         ))}
@@ -324,7 +331,7 @@ function TroubleshootingPanel({
                       <T k="aboutPage.troubleshooting.keyInsight" />
                     </span>
                     <p className={styles.troubleInsightText}>
-                      {renderHighlight(item.keyInsight[language])}
+                      {renderHighlight(item.keyInsight[language], language)}
                     </p>
                   </div>
                 </div>
@@ -358,7 +365,7 @@ function TroubleshootingPanel({
                   <span className={styles.troubleLabel}>
                     <T k="aboutPage.troubleshooting.cause" />
                   </span>
-                  <p>{renderHighlight(item.cause[language])}</p>
+                  <p>{renderHighlight(item.cause[language], language)}</p>
                 </div>
                 <div className={styles.troubleEntry}>
                   <span
@@ -366,7 +373,7 @@ function TroubleshootingPanel({
                   >
                     <T k="aboutPage.troubleshooting.solution" />
                   </span>
-                  <p>{renderHighlight(item.solution[language])}</p>
+                  <p>{renderHighlight(item.solution[language], language)}</p>
                 </div>
                 {item.comparisons && item.comparisons.length > 0 && (
                   <div className={styles.troubleEntry}>
@@ -388,7 +395,7 @@ function TroubleshootingPanel({
                               {table.rows.map((row, ri) => (
                                 <tr key={ri} className={row.highlight ? local.troubleTableRowHighlight : undefined}>
                                   {row.cells.map((cell, ci) => (
-                                    <td key={ci}>{renderHighlight(cell[language])}</td>
+                                    <td key={ci}>{renderHighlight(cell[language], language)}</td>
                                   ))}
                                 </tr>
                               ))}
@@ -423,7 +430,7 @@ function TroubleshootingPanel({
                     <T k="aboutPage.troubleshooting.keyInsight" />
                   </span>
                   <p className={styles.troubleInsightText}>
-                    {renderHighlight(item.keyInsight[language])}
+                    {renderHighlight(item.keyInsight[language], language)}
                   </p>
                 </div>
               </div>
