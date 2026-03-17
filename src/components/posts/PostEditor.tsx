@@ -1362,6 +1362,11 @@ export default function PostEditor({ post }: PostEditorProps) {
                 plateRef.current?.selectImageAt(path);
               }
             }}
+            onReinsert={(url, mediaType) => {
+              if (mediaType === "media_embed") plateRef.current?.insertMediaByUrl(url);
+              else plateRef.current?.insertImageByUrl(url);
+            }}
+            onRemoveDetached={(url) => plateRef.current?.removeDetached(url)}
           />
         </div>
       )}

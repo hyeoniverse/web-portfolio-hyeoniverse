@@ -328,7 +328,7 @@ export default function PlateEditor({
   }, [editor]);
 
   // ── All media (images + video embeds, for ref) ──
-  const allImages = React.useMemo(() => {
+  const contentImages = React.useMemo(() => {
     const imgs: { url: string; path: number[]; mediaType?: string }[] = [];
     const walk = (nodes: unknown[], path: number[]) => {
       if (!Array.isArray(nodes)) return;
@@ -343,6 +343,50 @@ export default function PlateEditor({
     return imgs;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, editor.children]);
+
+  // ── 본문에서 제거된 미디어를 패널에 유지 ──
+  const [detachedImages, setDetachedImages] = useState<{ url: string; mediaType?: string }[]>([]);
+  const prevUrlSetRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    const currentUrls = new Set(contentImages.map((img) => img.url));
+    const prevUrls = prevUrlSetRef.current;
+    // 이전에 있었는데 지금 없는 URL → detached로 추가
+    if (prevUrls.size > 0) {
+      const removed: { url: string; mediaType?: string }[] = [];
+      for (const url of prevUrls) {
+        if (!currentUrls.has(url)) {
+          const prev = contentImages.find((img) => img.url === url) ??
+            detachedImages.find((img) => img.url === url);
+          removed.push({ url, mediaType: prev?.mediaType });
+        }
+      }
+      if (removed.length > 0) {
+        setDetachedImages((prev) => {
+          const existing = new Set(prev.map((d) => d.url));
+          const newItems = removed.filter((r) => !existing.has(r.url) && !currentUrls.has(r.url));
+          return newItems.length > 0 ? [...prev, ...newItems] : prev;
+        });
+      }
+    }
+    // 본문에 다시 삽입된 URL은 detached에서 제거
+    setDetachedImages((prev) => prev.filter((d) => !currentUrls.has(d.url)));
+    prevUrlSetRef.current = currentUrls;
+  }, [contentImages]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 패널에 표시할 전체 미디어: 본문 + detached
+  const allImages = React.useMemo(() => {
+    const detachedItems = detachedImages.map((d) => ({
+      ...d,
+      path: [] as number[],
+      detached: true,
+    }));
+    return [...contentImages, ...detachedItems];
+  }, [contentImages, detachedImages]);
+
+  const removeDetached = useCallback((url: string) => {
+    setDetachedImages((prev) => prev.filter((d) => d.url !== url));
+  }, []);
 
   const selectImageAt = useCallback((path: number[]) => {
     try {
@@ -382,7 +426,8 @@ export default function PlateEditor({
     removeImage,
     insertImageByUrl,
     insertMediaByUrl,
-  }), [allImages, selectImageAt, reorderImage, removeImage, insertImageByUrl, insertMediaByUrl]);
+    removeDetached,
+  }), [allImages, selectImageAt, reorderImage, removeImage, insertImageByUrl, insertMediaByUrl, removeDetached]);
 
   // ── MainToolbar toggle handlers ──
   const toggleLinkInput = useCallback(() => {

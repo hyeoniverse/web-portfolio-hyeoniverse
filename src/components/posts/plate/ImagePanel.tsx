@@ -20,6 +20,8 @@ export function ImagePanel({
   onImageUpload,
   onVideoUpload,
   onBulkInsert,
+  onReinsert,
+  onRemoveDetached,
 }: {
   images: EditorImageInfo[];
   onSelect: (path: number[]) => void;
@@ -28,6 +30,10 @@ export function ImagePanel({
   onImageUpload?: (file: File) => Promise<string>;
   onVideoUpload?: (file: File) => Promise<string>;
   onBulkInsert?: (paths: number[][]) => void;
+  /** detached 미디어를 본문에 재삽입 */
+  onReinsert?: (url: string, mediaType?: string) => void;
+  /** detached 미디어를 패널에서 완전 삭제 */
+  onRemoveDetached?: (url: string) => void;
 }) {
   const { t } = useLanguage();
   const [dragIdx, setDragIdx] = React.useState<number | null>(null);
@@ -252,40 +258,48 @@ export function ImagePanel({
         )}
         {images.map((img, i) => {
           const fileName = decodeURIComponent(img.url.split("/").pop()?.split("?")[0] || "");
+          const isDetached = !!img.detached;
           const isDragging = dragIdx === i;
           const isOver = overIdx === i && dragIdx !== i;
           const isSelected = selected.has(i);
+          const isVideo = img.mediaType === "media_embed" && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(img.url);
           return (
             <div
               key={`${img.url}-${i}`}
               className={`${styles.imagePanelItem} ${isSelected ? styles.imagePanelItemSelected : ""}`}
-              draggable
-              onDragStart={(e) => onDragStart(e, i)}
-              onDragOver={(e) => onDragOver(e, i)}
-              onDrop={(e) => onDrop(e, i)}
-              onDragEnd={onDragEnd}
-              onClick={() => onSelect(img.path)}
-              title={fileName}
+              draggable={!isDetached}
+              onDragStart={isDetached ? undefined : (e) => onDragStart(e, i)}
+              onDragOver={isDetached ? undefined : (e) => onDragOver(e, i)}
+              onDrop={isDetached ? undefined : (e) => onDrop(e, i)}
+              onDragEnd={isDetached ? undefined : onDragEnd}
+              onClick={() => isDetached ? onReinsert?.(img.url, img.mediaType) : onSelect(img.path)}
+              title={isDetached ? t("editor.mediaReinsertHint") : fileName}
               style={{
-                opacity: isDragging ? 0.4 : 1,
+                opacity: isDetached ? 0.5 : isDragging ? 0.4 : 1,
                 outline: isOver ? "2px solid var(--color-accent)" : undefined,
                 outlineOffset: isOver ? -2 : undefined,
               }}
             >
-              {/* 체크박스 */}
-              <span
-                className={styles.imagePanelCheck}
-                onClick={(e) => toggleSelect(i, e)}
-              >
-                <span className={`${styles.imagePanelCheckbox} ${isSelected ? styles.imagePanelCheckboxChecked : ""}`}>
-                  {isSelected && (
-                    <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="2.5 6.5 5 9 9.5 3.5" />
-                    </svg>
-                  )}
+              {/* 체크박스 — detached는 재삽입 아이콘 */}
+              {isDetached ? (
+                <span className={styles.imagePanelCheck} onClick={(e) => { e.stopPropagation(); onReinsert?.(img.url, img.mediaType); }}>
+                  <span className={styles.imagePanelCheckbox} style={{ fontSize: 9, lineHeight: 1 }}>↩</span>
                 </span>
-              </span>
-              {img.mediaType === "media_embed" && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(img.url)
+              ) : (
+                <span
+                  className={styles.imagePanelCheck}
+                  onClick={(e) => toggleSelect(i, e)}
+                >
+                  <span className={`${styles.imagePanelCheckbox} ${isSelected ? styles.imagePanelCheckboxChecked : ""}`}>
+                    {isSelected && (
+                      <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="2.5 6.5 5 9 9.5 3.5" />
+                      </svg>
+                    )}
+                  </span>
+                </span>
+              )}
+              {isVideo
                 ? <video src={img.url} draggable={false} muted preload="metadata" />
                 : <img src={img.url} alt={fileName} draggable={false} />
               }
@@ -293,7 +307,7 @@ export function ImagePanel({
               <button
                 type="button"
                 className={styles.imagePanelRemove}
-                onClick={(e) => { e.stopPropagation(); onRemove(img.path); }}
+                onClick={(e) => { e.stopPropagation(); if (isDetached) onRemoveDetached?.(img.url); else onRemove(img.path); }}
                 title={t("editor.imageRemove")}
                 aria-label={t("editor.imageRemove")}
                 data-close-trigger
