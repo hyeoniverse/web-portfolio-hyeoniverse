@@ -176,6 +176,7 @@ export const plugins = [
   }),
   // Media — 이미지 커스텀 렌더러 (크기/정렬/캡션)
   ImagePlugin.configure({
+    node: { isInline: true },
     render: { node: ImageElement },
   }),
   MediaEmbedPlugin.configure({

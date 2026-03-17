@@ -101,7 +101,6 @@ export function ImageElement(props: PlateElementProps) {
   const alt = (el.alt as string) || "";
   const imgWidth = (el.width as number) || 0;   // px, 0 = auto
   const imgHeight = (el.height as number) || 0;  // px, 0 = auto
-  const align = (el.align as string) || "center";
   const caption = (el.caption as string) || "";
   const lockAspect = (el.lockAspect as boolean) ?? true;
   const imgFilter = (el.filter as string) || "";
@@ -190,8 +189,6 @@ export function ImageElement(props: PlateElementProps) {
     document.addEventListener("pointerup", onPointerUp);
   }, [lockAspect, setAttr]);
 
-  const justifyMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
-
   const handleStyle: React.CSSProperties = {
     position: "absolute",
     background: "var(--color-accent, #3b82f6)",
@@ -227,7 +224,7 @@ export function ImageElement(props: PlateElementProps) {
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
 
   return (
-    <PlateElement {...props} as="figure" style={{ ...props.style, display: "flex", flexDirection: "column", alignItems: justifyMap[align] || "center", margin: "var(--spacing-md, 16px) 0" }}>
+    <PlateElement {...props} as="span" style={{ ...props.style, display: "inline-block", verticalAlign: "bottom", margin: "2px 4px" }}>
       <BlockDropZone path={elPath}>
         <div
           contentEditable={false}
@@ -727,6 +724,56 @@ export function LinkElement(props: PlateElementProps) {
         {props.children}
       </PlateElement>
     </Tooltip>
+  );
+}
+
+/** 파일 첨부 — PDF/오디오 등 다운로드 가능한 파일 카드 */
+const AUDIO_EXT = /\.(mp3|wav|ogg|m4a|flac|aac|wma)(\?|$)/i;
+
+export function FileElement(props: PlateElementProps) {
+  const editor = useEditorRef();
+  const el = props.element as Record<string, unknown>;
+  const url = (el.url as string) || "";
+  const fileName = (el.fileName as string) || decodeURIComponent(url.split("/").pop()?.split("?")[0] || "file");
+  const fileSize = el.fileSize as number | undefined;
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  const { blockDragProps } = useBlockDrag(elPath);
+
+  const isAudio = AUDIO_EXT.test(url);
+  const isPdf = /\.pdf(\?|$)/i.test(url);
+  const icon = isPdf ? "📄" : isAudio ? "🎵" : "📎";
+  const sizeLabel = fileSize ? (fileSize < 1024 * 1024 ? `${(fileSize / 1024).toFixed(1)} KB` : `${(fileSize / (1024 * 1024)).toFixed(1)} MB`) : "";
+
+  return (
+    <PlateElement {...props} style={{ margin: "var(--spacing-sm) 0", ...props.style }}>
+      <BlockDropZone path={elPath}>
+        <div {...blockDragProps} contentEditable={false} style={{ maxWidth: 480, cursor: "default" }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 10,
+            padding: "10px 14px", borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border-light-color)",
+            background: "var(--bg-secondary)",
+          }}>
+            <span style={{ fontSize: 24, flexShrink: 0 }}>{icon}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fileName}</div>
+              {sizeLabel && <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{sizeLabel}</div>}
+            </div>
+            <a href={url} target="_blank" rel="noopener noreferrer" download style={{
+              flexShrink: 0, padding: "4px 10px", fontSize: 12, borderRadius: "var(--radius-xs)",
+              border: "1px solid var(--border-light-color)", background: "var(--bg-primary)",
+              color: "var(--text-primary)", textDecoration: "none", cursor: "pointer",
+            }}>
+              ↓
+            </a>
+          </div>
+          {isAudio && (
+            <audio src={url} controls preload="metadata" style={{ width: "100%", marginTop: 6, borderRadius: "var(--radius-sm)" }} />
+          )}
+        </div>
+      </BlockDropZone>
+      {props.children}
+    </PlateElement>
   );
 }
 
