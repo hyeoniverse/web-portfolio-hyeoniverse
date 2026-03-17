@@ -70,11 +70,22 @@
 
 .erdPinnedLayout .erdTableGroup {
   opacity: 0.35;
-  transition: opacity 0.4s var(--ease-out);
+  transition:
+    opacity 0.4s var(--ease-out),
+    transform 0.4s var(--ease-out),
+    filter 0.4s var(--ease-out) !important;
+  transform-origin: center;
+  transform: scale(1);
 }
 
 .erdPinnedLayout .erdTableGroupActive {
   opacity: 1;
+  transform: scale(1.03);
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-accent) 25%, transparent));
+}
+
+.erdPinnedLayout .erdTableBg {
+  transition: stroke 0.4s var(--ease-out), stroke-width 0.3s var(--ease-out) !important;
 }
 
 .erdTableBgActive {
@@ -134,20 +145,20 @@
   background: color-mix(in srgb, var(--surface-primary) 92%, transparent);
   backdrop-filter: blur(8px);
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(12px) scale(0.97);
   pointer-events: none;
   z-index: 2;
 }
 
 .erdPinnedLayout .erdNoteOverlay {
   transition:
-    opacity 0.4s var(--ease-out),
-    transform 0.4s var(--ease-out);
+    opacity 0.35s var(--ease-out),
+    transform 0.35s var(--ease-out) !important;
 }
 
 .erdNoteOverlayActive {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
@@ -227,7 +238,18 @@
     padding: var(--spacing-md);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-lg);
-    animation: fadeIn 0.3s ease;
+    animation: erdNoteSlideIn 0.35s var(--ease-out);
+  }
+
+  @keyframes erdNoteSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .erdDiagramWrap {
