@@ -70,18 +70,11 @@
 
 .erdPinnedLayout .erdTableGroup {
   opacity: 0.35;
-  transition:
-    opacity 0.4s var(--ease-out),
-    transform 0.4s var(--ease-out),
-    filter 0.4s var(--ease-out) !important;
-  transform-origin: center;
-  transform: scale(1);
+  transition: opacity 0.4s var(--ease-out) !important;
 }
 
 .erdPinnedLayout .erdTableGroupActive {
   opacity: 1;
-  transform: scale(1.03);
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-accent) 25%, transparent));
 }
 
 .erdPinnedLayout .erdTableBg {
