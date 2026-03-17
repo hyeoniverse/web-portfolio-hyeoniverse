@@ -1,6 +1,8 @@
 export interface EditorImageInfo {
   url: string;
   path: number[];
+  /** "img" | "media_embed" */
+  mediaType?: string;
 }
 
 export interface PlateEditorHandle {

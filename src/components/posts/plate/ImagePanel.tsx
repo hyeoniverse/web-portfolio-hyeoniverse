@@ -285,7 +285,10 @@ export function ImagePanel({
                   )}
                 </span>
               </span>
-              <img src={img.url} alt={fileName} draggable={false} />
+              {img.mediaType === "media_embed" && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(img.url)
+                ? <video src={img.url} draggable={false} muted preload="metadata" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : <img src={img.url} alt={fileName} draggable={false} />
+              }
               <span className={styles.imagePanelName}>{fileName}</span>
               <button
                 type="button"
