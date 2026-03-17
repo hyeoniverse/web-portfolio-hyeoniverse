@@ -716,3 +716,16 @@
     padding: 21vw var(--m-lg) 12.5vw;
   }
 }
+
+/* ── Editor Demo ── */
+.editorDemo {
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.editorPlaceholder {
+  height: 400px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+}

@@ -24,6 +24,7 @@ import {
   shadowScale, durations, easings, zScale, tocSections,
 } from "./_data/tokenData";
 import ComponentsSection from "./_sections/ComponentsSection";
+import EditorSection from "./_sections/EditorSection";
 import BannerSection from "./_sections/BannerSection";
 import styles from "./DesignSystem.module.css";
 
@@ -453,6 +454,9 @@ export default function DesignSystemPage() {
               </div>
             </motion.div>
           </section>
+
+          {/* ─── Editor (dynamic import — RichTextEditor lazy) ─── */}
+          <EditorSection language={language} setSectionRef={setSectionRef} />
 
           {/* ─── Banner Layouts (dynamic import — PostsBanner lazy) ─── */}
           <BannerSection language={language} setSectionRef={setSectionRef} />

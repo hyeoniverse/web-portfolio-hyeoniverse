@@ -698,6 +698,16 @@
   border-bottom: 1px solid var(--border-light-color);
 }
 
+/* ── Bottom Bar ── */
+.bottomBar {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-light-color);
+}
+
 /* ── Editor Header ── */
 .editorHeader {
   display: flex;
@@ -724,5 +734,9 @@
 
   .actionsDivider {
     display: none;
+  }
+
+  .bottomBar {
+    justify-content: flex-start;
   }
 }
