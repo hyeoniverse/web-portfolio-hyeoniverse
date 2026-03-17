@@ -6,13 +6,16 @@ export const backendItems: BackendItem[] = [
     name: "Posts API",
     kind: "api",
     description: {
-      ko: "블로그 포스트 CRUD + 좋아요/조회수 API. 목록 조회 시 태그·검색·정렬·시리즈 필터를 지원하며, 좋아요는 IP 기반 토글 방식입니다.",
-      en: "Blog post CRUD + like/view APIs. List queries support tag, search, sort, and series filters. Likes use IP-based toggling.",
+      ko: "블로그 포스트 CRUD + 좋아요/조회수 API. 목록 조회 시 태그·검색·정렬·시리즈 필터를 지원하며, 좋아요는 IP 기반 토글 방식입니다. 삭제는 soft delete(deleted_at) 방식으로, 30일 후 자동 영구 삭제됩니다.",
+      en: "Blog post CRUD + like/view APIs. List queries support tag, search, sort, and series filters. Likes use IP-based toggling. Deletion uses soft delete (deleted_at), with auto-purge after 30 days.",
     },
     endpoints: [
-      { method: "GET", path: "/api/posts", description: { ko: "포스트 목록 (페이지네이션, 태그/검색/정렬 필터)", en: "List posts (pagination, tag/search/sort filters)" } },
+      { method: "GET", path: "/api/posts", description: { ko: "포스트 목록 (페이지네이션, 태그/검색/정렬 필터, ?trash=true: 휴지통)", en: "List posts (pagination, tag/search/sort filters, ?trash=true: trash)" } },
       { method: "GET", path: "/api/posts/[id]", description: { ko: "포스트 단건 조회", en: "Get single post" } },
       { method: "PATCH", path: "/api/posts/[id]", description: { ko: "포스트 수정 (admin)", en: "Update post (admin)" } },
+      { method: "DELETE", path: "/api/posts/[id]", description: { ko: "soft delete — deleted_at 마킹 (admin)", en: "Soft delete — mark deleted_at (admin)" } },
+      { method: "POST", path: "/api/posts/[id]/restore", description: { ko: "삭제된 포스트 복원 (admin)", en: "Restore soft-deleted post (admin)" } },
+      { method: "DELETE", path: "/api/posts/[id]/purge", description: { ko: "영구 삭제 (admin)", en: "Permanent delete (admin)" } },
       { method: "POST", path: "/api/posts/[id]/view", description: { ko: "조회수 증가", en: "Increment view count" } },
       { method: "GET", path: "/api/posts/[id]/like", description: { ko: "좋아요 수 + IP liked 여부", en: "Like count + IP liked status" } },
       { method: "POST", path: "/api/posts/[id]/like", description: { ko: "좋아요 토글 (IP 기반 삽입/삭제)", en: "Toggle like (IP-based insert/delete)" } },
@@ -45,13 +48,14 @@ await admin.from("posts")
     name: "Comments API",
     kind: "api",
     description: {
-      ko: "게스트 댓글 시스템 API. 닉네임+비밀번호로 작성하며, 삭제 시 비밀번호 검증 또는 어드민 인증이 필요합니다.",
-      en: "Guest comment system API. Create with nickname + password. Deletion requires password verification or admin auth.",
+      ko: "게스트 댓글 시스템 API. 닉네임+비밀번호로 작성하며, 삭제 시 비밀번호 검증 또는 어드민 세션 인증이 필요합니다. 관리자는 비밀번호 없이 편집/삭제가 가능합니다.",
+      en: "Guest comment system API. Create with nickname + password. Deletion requires password verification or admin session. Admins can edit/delete without password.",
     },
     endpoints: [
       { method: "GET", path: "/api/comments?post_id=", description: { ko: "포스트의 전체 댓글 조회", en: "Get all comments for a post" } },
       { method: "POST", path: "/api/comments", description: { ko: "댓글 작성 (비밀번호 bcrypt 해시 저장)", en: "Create comment (password stored as bcrypt hash)" } },
-      { method: "DELETE", path: "/api/comments/[id]", description: { ko: "댓글 삭제 (비밀번호 검증 or admin)", en: "Delete comment (password verify or admin)" } },
+      { method: "PATCH", path: "/api/comments/[id]", description: { ko: "댓글 수정 (비밀번호 검증 or admin 세션)", en: "Edit comment (password verify or admin session)" } },
+      { method: "DELETE", path: "/api/comments/[id]", description: { ko: "댓글 삭제 (비밀번호 검증 or admin 세션)", en: "Delete comment (password verify or admin session)" } },
     ],
     exampleQuery: {
       title: "Threaded Comments",
@@ -70,8 +74,8 @@ const { data } = await admin.from("comments")
     name: "Admin API",
     kind: "api",
     description: {
-      ko: "어드민 인증 및 관리 API. Supabase Auth 기반 로그인, 계정 관리(이메일/비밀번호 변경), 파일 업로드(Storage), 사이트 설정 관리를 처리합니다.",
-      en: "Admin auth and management APIs. Handles Supabase Auth login, account management (email/password change), file upload (Storage), and site settings management.",
+      ko: "어드민 인증 및 관리 API. Supabase Auth 기반 로그인, 계정 관리(이메일/비밀번호 변경), 파일 업로드(Storage), 사이트 설정 관리, API 키 관리를 처리합니다.",
+      en: "Admin auth and management APIs. Handles Supabase Auth login, account management (email/password change), file upload (Storage), site settings management, and API key management.",
     },
     endpoints: [
       { method: "POST", path: "/api/admin/auth", description: { ko: "어드민 로그인 (Supabase Auth)", en: "Admin login (Supabase Auth)" } },
@@ -79,6 +83,9 @@ const { data } = await admin.from("comments")
       { method: "GET", path: "/api/admin/account", description: { ko: "관리자 계정 정보 조회", en: "Get admin account info" } },
       { method: "PATCH", path: "/api/admin/account", description: { ko: "관리자 이메일/비밀번호 변경", en: "Update admin email/password" } },
       { method: "POST", path: "/api/admin/upload", description: { ko: "파일 업로드 (인증 필요)", en: "File upload (auth required)" } },
+      { method: "GET", path: "/api/admin/secrets", description: { ko: "API 키 목록 조회 (마스킹)", en: "List API keys (masked)" } },
+      { method: "PUT", path: "/api/admin/secrets", description: { ko: "API 키 저장/갱신", en: "Save/update API key" } },
+      { method: "DELETE", path: "/api/admin/secrets", description: { ko: "API 키 삭제", en: "Delete API key" } },
     ],
   },
   {
@@ -148,6 +155,50 @@ return data?.length ? data.map(workToProject) : projects;`,
     },
   },
   {
+    name: "Translation / AI Summary API",
+    kind: "api",
+    description: {
+      ko: "번역 및 AI 요약 API. 복수 provider를 우선순위대로 시도하는 fallback 체인을 지원합니다. 기본 provider 실패 시 자동으로 다음 provider로 전환됩니다.",
+      en: "Translation and AI summary APIs. Supports a fallback provider chain that tries providers in priority order. Automatically switches to the next provider on failure.",
+    },
+    endpoints: [
+      { method: "POST", path: "/api/translate", description: { ko: "텍스트 번역 (fallback provider 체인)", en: "Translate text (fallback provider chain)" } },
+      { method: "POST", path: "/api/admin/translate", description: { ko: "관리자 번역 (긴 콘텐츠, fallback 지원)", en: "Admin translate (long content, fallback)" } },
+      { method: "POST", path: "/api/posts/[id]/ai-summary", description: { ko: "포스트 AI 요약 생성 (fallback provider 체인)", en: "Generate post AI summary (fallback provider chain)" } },
+      { method: "POST", path: "/api/works/[id]/ai-summary", description: { ko: "작업물 AI 요약 생성 (fallback provider 체인)", en: "Generate work AI summary (fallback provider chain)" } },
+      { method: "GET", path: "/api/service-status", description: { ko: "서비스 상태 조회 (기능 토글 + API 키 유무)", en: "Service status (feature toggles + API key availability)" } },
+    ],
+    exampleQuery: {
+      title: "Fallback Provider Chain",
+      code: `// provider 우선순위대로 시도, 실패 시 다음으로
+for (const name of providerOrder) {
+  try {
+    const result = await callProvider(name, text, targetLang);
+    return NextResponse.json({ result, provider: name });
+  } catch (e) {
+    lastError = e;
+    continue;
+  }
+}
+// 모든 provider 실패
+return NextResponse.json({ error: lastError.message }, { status: 502 });`,
+      language: "javascript",
+    },
+  },
+  {
+    name: "Revisions API",
+    kind: "api",
+    description: {
+      ko: "에디터 자동저장 리비전 API. 포스트/작업물의 편집 스냅샷을 저장하고 복원할 수 있습니다. 엔티티당 최대 50개 리비전, 초과 시 오래된 것부터 삭제됩니다.",
+      en: "Editor auto-save revisions API. Saves and restores edit snapshots for posts/works. Max 50 revisions per entity, oldest pruned on overflow.",
+    },
+    endpoints: [
+      { method: "GET", path: "/api/revisions?entity_type=&entity_id=", description: { ko: "리비전 목록 조회 (최신순)", en: "List revisions (newest first)" } },
+      { method: "POST", path: "/api/revisions", description: { ko: "리비전 저장 (스냅샷)", en: "Save revision (snapshot)" } },
+      { method: "DELETE", path: "/api/revisions?entity_type=&entity_id=", description: { ko: "엔티티의 전체 리비전 삭제", en: "Purge all revisions for entity" } },
+    ],
+  },
+  {
     name: "Profile API",
     kind: "api",
     description: {
@@ -187,6 +238,7 @@ return data?.length ? data.map(workToProject) : projects;`,
       { name: "like_count", type: "INTEGER", description: { ko: "좋아요 수 (likes 동기화)", en: "Like count (synced)" } },
       { name: "series_id", type: "UUID", constraint: "FK → series", description: { ko: "소속 시리즈 (NULL = 미소속)", en: "Parent series (NULL = none)" } },
       { name: "series_order", type: "INTEGER", description: { ko: "시리즈 내 순서", en: "Order within series" } },
+      { name: "deleted_at", type: "TIMESTAMPTZ", constraint: "NULLABLE", description: { ko: "soft delete 시각 (NULL = 활성)", en: "Soft delete timestamp (NULL = active)" } },
     ],
   },
   {
