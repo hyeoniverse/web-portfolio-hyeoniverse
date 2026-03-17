@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, useEffect, memo } from "react";
+import React, { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { troubleShootingItems } from "@/data/about/troubleshooting";
 import { renderHighlight } from "../renderHighlight";
@@ -195,23 +195,29 @@ function TroubleshootingPanel({
         {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
         <div className={`${styles.troubleSplit} ${styles.animate}`}>
           {/* 왼쪽: 항목 목록 */}
-          <div ref={listRef} className={styles.troubleList} style={{ '--items-count': items.length + 1 } as React.CSSProperties}>
+          <div ref={listRef} className={styles.troubleList} style={{ '--items-count': items.length + items.filter(i => i.section).length + 1 } as React.CSSProperties}>
             {items.map((item, index) => (
-              <div
-                data-clickable="true"
-                key={index}
-                className={`${styles.troubleListItem} ${
-                  index === displayIndex ? styles.troubleListItemActive : ""
-                }`}
-                onClick={() => handleItemClick(index)}
-              >
-                <span className={styles.troubleNumber}>
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className={styles.troubleListTitle}>
-                  {item.problem[language]}
-                </span>
-              </div>
+              <React.Fragment key={index}>
+                {item.section && (
+                  <div className={styles.troubleSectionLabel}>
+                    {item.section[language]}
+                  </div>
+                )}
+                <div
+                  data-clickable="true"
+                  className={`${styles.troubleListItem} ${
+                    index === displayIndex ? styles.troubleListItemActive : ""
+                  }`}
+                  onClick={() => handleItemClick(index)}
+                >
+                  <span className={styles.troubleNumber}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className={styles.troubleListTitle}>
+                    {item.problem[language]}
+                  </span>
+                </div>
+              </React.Fragment>
             ))}
             {listPage.total > 1 && (
               <div className={styles.troublePageNav}>
@@ -324,12 +330,17 @@ function TroubleshootingPanel({
         {/* 모바일: 모든 항목 표시 (폴백, pin 활성 시 숨김) */}
         <div className={styles.troubleMobileList}>
           {items.map((item, index) => (
-            <div
-              key={index}
-              className={`${styles.troubleMobileItem} ${styles.animate}`}
-            >
-              <div className={styles.troubleMobileHeader}>
-                <span className={styles.troubleNumber}>
+            <React.Fragment key={index}>
+              {item.section && (
+                <div className={`${styles.troubleSectionLabel} ${styles.troubleSectionLabelMobile}`}>
+                  {item.section[language]}
+                </div>
+              )}
+              <div
+                className={`${styles.troubleMobileItem} ${styles.animate}`}
+              >
+                <div className={styles.troubleMobileHeader}>
+                  <span className={styles.troubleNumber}>
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <h4 className={styles.troubleTitle}>
@@ -411,6 +422,7 @@ function TroubleshootingPanel({
                 </div>
               </div>
             </div>
+            </React.Fragment>
           ))}
         </div>
       </div>
