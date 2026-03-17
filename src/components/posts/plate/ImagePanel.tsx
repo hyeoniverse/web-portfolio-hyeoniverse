@@ -262,11 +262,11 @@ export function ImagePanel({
                     {t("editor.imageInsertSelected")} ({selectedContentCount})
                   </button>
                 )}
-                <button type="button" className={`${styles.imagePanelActionBtn} ${styles.imagePanelActionDanger}`} onClick={handleBulkDelete}>
-                  {t("editor.imageDeleteSelected")} ({selected.size})
-                </button>
                 <button type="button" className={styles.imagePanelActionBtn} onClick={deselectAll}>
                   {t("editor.imageDeselectAll")}
+                </button>
+                <button type="button" className={`${styles.imagePanelActionBtn} ${styles.imagePanelActionDanger}`} onClick={handleBulkDelete}>
+                  {t("editor.imageDeleteSelected")} ({selected.size})
                 </button>
               </>
             )}
