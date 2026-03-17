@@ -234,10 +234,15 @@ export function ImageElement(props: PlateElementProps) {
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", "block-dnd");
             _blockDragPath.current = elPath;
-            // 이미지만 고스트로 사용 (오버레이 UI 제외)
+            // 오프스크린 클론으로 이미지만 고스트 표시
             if (imgRef.current) {
-              const rect = imgRef.current.getBoundingClientRect();
-              e.dataTransfer.setDragImage(imgRef.current, e.clientX - rect.left, e.clientY - rect.top);
+              const img = imgRef.current;
+              const clone = img.cloneNode(true) as HTMLImageElement;
+              clone.style.cssText = `width:${img.offsetWidth}px;height:${img.offsetHeight}px;position:fixed;top:-9999px;left:-9999px;pointer-events:none;outline:none;filter:none;`;
+              document.body.appendChild(clone);
+              const rect = img.getBoundingClientRect();
+              e.dataTransfer.setDragImage(clone, e.clientX - rect.left, e.clientY - rect.top);
+              requestAnimationFrame(() => clone.remove());
             }
             setIsDragging(true);
           }}
