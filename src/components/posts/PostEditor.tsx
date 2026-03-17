@@ -16,7 +16,6 @@ import AdminEditorShell, {
 } from "@/components/admin/AdminEditorShell";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
-import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { autoTranslate } from "@/utils/autoTranslate";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
@@ -309,9 +308,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   const isEdit = !!post;
   const categories = useCategories();
   const serviceStatus = useServiceStatus();
-  const siteConf = useSiteConfig();
-  const maxImageSizeMB = (siteConf.posts as Record<string, unknown>)?.maxImageSizeMB as number ?? 10;
-
   // 카테고리 ko 또는 en 값으로 매칭
   const findCat = (val: string): BilingualCategory | undefined =>
     categories.find((c) => c.ko === val || c.en === val);
@@ -681,11 +677,14 @@ export default function PostEditor({ post }: PostEditorProps) {
   );
 
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
-    const limitBytes = maxImageSizeMB * 1024 * 1024;
+    const { compressImage, validateFileSize } = await import("@/lib/compressImage");
 
-    // 용량 초과 시 클라이언트 압축
-    const { compressImage } = await import("@/lib/compressImage");
-    const compressed = await compressImage(file, { maxBytes: limitBytes });
+    // GIF/동영상은 압축 불가 → 형식별 크기 제한 검증
+    const sizeError = validateFileSize(file);
+    if (sizeError) throw new Error(sizeError);
+
+    // 일반 이미지는 압축 파이프라인 적용
+    const compressed = await compressImage(file);
 
     const formData = new FormData();
     formData.append("file", compressed);
@@ -695,7 +694,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
     if (!res.ok) throw new Error(data.error);
     return data.url;
-  }, [maxImageSizeMB]);
+  }, []);
 
   const handleCoverUpload = useCallback(async () => {
     const input = document.createElement("input");
@@ -1363,7 +1362,6 @@ export default function PostEditor({ post }: PostEditorProps) {
                 plateRef.current?.selectImageAt(path);
               }
             }}
-            maxImageSizeMB={maxImageSizeMB}
           />
         </div>
       )}
