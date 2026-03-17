@@ -248,6 +248,12 @@ function TroubleshootingPanel({
                 <div className={styles.troubleBody}>
                   <div className={styles.troubleEntry}>
                     <span className={styles.troubleLabel}>
+                      <T k="aboutPage.troubleshooting.definition" />
+                    </span>
+                    <p>{renderHighlight(item.definition[language])}</p>
+                  </div>
+                  <div className={styles.troubleEntry}>
+                    <span className={styles.troubleLabel}>
                       <T k="aboutPage.troubleshooting.cause" />
                     </span>
                     <p>{renderHighlight(item.cause[language])}</p>

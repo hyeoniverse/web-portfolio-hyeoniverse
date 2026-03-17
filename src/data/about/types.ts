@@ -45,6 +45,7 @@ export interface ComparisonTable {
 export interface TroubleShootingItem {
   section?: LocalizedText;
   problem: LocalizedText;
+  definition: LocalizedText;
   cause: LocalizedText;
   solution: LocalizedText;
   keyInsight: LocalizedText;

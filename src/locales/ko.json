@@ -79,6 +79,7 @@
       "worksGallery": "Works 가로 갤러리 구현"
     },
     "troubleshooting": {
+      "definition": "문제 정의",
       "cause": "원인",
       "solution": "해결",
       "flow": "흐름",

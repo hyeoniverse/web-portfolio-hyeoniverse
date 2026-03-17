@@ -79,6 +79,7 @@
       "worksGallery": "Works Horizontal Gallery Implementation"
     },
     "troubleshooting": {
+      "definition": "Definition",
       "cause": "Cause",
       "solution": "Solution",
       "flow": "Flow",
