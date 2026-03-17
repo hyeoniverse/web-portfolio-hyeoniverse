@@ -245,6 +245,26 @@
   opacity: 0.85;
 }
 
+/* ── Section label ── */
+.troubleSectionLabel {
+  display: flex;
+  flex: none;
+  height: calc(100cqh / var(--items-count, 16));
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: var(--_line-secondary);
+}
+
+.troubleSectionLabelMobile {
+  padding: var(--spacing-lg) 0 var(--spacing-sm);
+  border-bottom: none;
+}
+
 .troubleMobileList {
   display: none;
 }
