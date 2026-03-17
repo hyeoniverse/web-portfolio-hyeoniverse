@@ -224,7 +224,7 @@ export function ImageElement(props: PlateElementProps) {
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
 
   return (
-    <PlateElement {...props} as="span" style={{ ...props.style, display: "inline-block", verticalAlign: "bottom", margin: "2px 4px" }}>
+    <PlateElement {...props} as="span" style={{ ...props.style, display: "inline-block", verticalAlign: "baseline", margin: "2px 4px" }}>
       <BlockDropZone path={elPath}>
         <div
           contentEditable={false}
