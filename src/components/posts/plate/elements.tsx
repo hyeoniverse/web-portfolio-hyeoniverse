@@ -556,26 +556,125 @@ function ScriptEmbed({ platform, href }: { platform: string; href: string }) {
   return <div ref={containerRef} style={{ maxWidth: 550 }} />;
 }
 
-/** 미디어 임베드 — iframe / script 렌더링 */
+/** 미디어 임베드 — iframe / script / video 렌더링 */
 export function MediaEmbedElement(props: PlateElementProps) {
   const editor = useEditorRef();
-  const url = ((props.element as Record<string, unknown>).url as string) || "";
+  const selected = useSelected();
+  const focused = useFocused();
+  const el = props.element as Record<string, unknown>;
+  const url = (el.url as string) || "";
   const embed = parseEmbed(url);
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const { blockDragProps } = useBlockDrag(elPath);
+  const isVideo = embed?.type === "video";
 
+  // 동영상 정렬/크기 속성
+  const vidAlign = (el.align as string) || "center";
+  const vidWidth = (el.width as number) || 0;
+  const vidHeight = (el.height as number) || 0;
+
+  const [clicked, setClicked] = useState(false);
+  const isActive = isVideo && selected && focused && clicked;
+  useEffect(() => { if (!selected) setClicked(false); }, [selected]);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [resizeSize, setResizeSize] = useState<{ w: number; h: number } | null>(null);
+  const draggingRef = useRef<{ startX: number; startY: number; startW: number; startH: number; ratio: number } | null>(null);
+
+  const setMediaAttr = useCallback((attrs: Record<string, unknown>) => {
+    if (elPath) editor.tf.setNodes(attrs, { at: elPath });
+  }, [editor, elPath]);
+
+  const onPointerDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const vid = videoRef.current;
+    if (!vid) return;
+    const rect = vid.getBoundingClientRect();
+    draggingRef.current = { startX: e.clientX, startY: e.clientY, startW: rect.width, startH: rect.height, ratio: rect.width / rect.height };
+
+    const onPointerMove = (ev: PointerEvent) => {
+      const d = draggingRef.current;
+      if (!d || !vid) return;
+      const newW = Math.max(120, d.startW + (ev.clientX - d.startX));
+      const newH = Math.round(newW / d.ratio);
+      vid.style.width = `${newW}px`;
+      vid.style.height = `${newH}px`;
+      setResizeSize({ w: Math.round(newW), h: newH });
+    };
+
+    const onPointerUp = () => {
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerup", onPointerUp);
+      if (!vid) return;
+      const w = Math.round(parseFloat(vid.style.width));
+      const h = Math.round(parseFloat(vid.style.height));
+      setMediaAttr({ width: w, height: h });
+      draggingRef.current = null;
+      setResizeSize(null);
+    };
+
+    document.addEventListener("pointermove", onPointerMove);
+    document.addEventListener("pointerup", onPointerUp);
+  }, [setMediaAttr]);
+
+  const justifyMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
+
+  if (isVideo) {
+    const handleStyle: React.CSSProperties = { position: "absolute", background: "var(--color-accent, #3b82f6)", borderRadius: 3, zIndex: 2, cursor: "nwse-resize" };
+    return (
+      <PlateElement {...props} as="figure" style={{ ...props.style, display: "flex", flexDirection: "column", alignItems: justifyMap[vidAlign] || "center", margin: "var(--spacing-md, 16px) 0" }}>
+        <BlockDropZone path={elPath}>
+          <div {...blockDragProps} contentEditable={false} style={{ display: "inline-block", maxWidth: "100%", position: "relative", cursor: "default" }} onClick={() => setClicked(true)}>
+            <video
+              ref={videoRef}
+              src={embed.src}
+              controls
+              preload="metadata"
+              style={{
+                width: vidWidth > 0 ? vidWidth : undefined,
+                height: vidHeight > 0 ? vidHeight : undefined,
+                maxWidth: "100%",
+                display: "block",
+                borderRadius: 8,
+                outline: isActive ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+              }}
+              draggable={false}
+            />
+            {resizeSize && (
+              <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", padding: "3px 8px", background: "rgba(0,0,0,0.7)", color: "#fff", borderRadius: "var(--radius-xs)", fontSize: 13, fontWeight: 600, fontFamily: "var(--font-mono)", pointerEvents: "none", zIndex: 3 }}>
+                {resizeSize.w}×{resizeSize.h}px
+              </div>
+            )}
+            {isActive && (
+              <div onPointerDown={onPointerDown} data-no-drag style={{ ...handleStyle, right: -5, bottom: -5, width: 10, height: 10 }} />
+            )}
+          </div>
+          {/* 정렬 버튼 */}
+          {isActive && (
+            <div contentEditable={false} style={{ display: "flex", gap: 4, justifyContent: "center", marginTop: 4 }}>
+              {(["left", "center", "right"] as const).map((a) => (
+                <button key={a} type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => setMediaAttr({ align: a })} style={{ padding: "2px 8px", fontSize: 11, border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-xs)", background: vidAlign === a ? "var(--bg-tertiary)" : "transparent", cursor: "pointer" }}>
+                  {a === "left" ? "◧" : a === "center" ? "◻" : "◨"}
+                </button>
+              ))}
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => { setMediaAttr({ width: 0, height: 0 }); }} style={{ padding: "2px 8px", fontSize: 11, border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-xs)", background: "transparent", cursor: "pointer" }}>
+                ↺
+              </button>
+            </div>
+          )}
+        </BlockDropZone>
+        {props.children}
+      </PlateElement>
+    );
+  }
+
+  // iframe / script / link fallback
   return (
     <PlateElement {...props} style={{ margin: "16px 0", ...props.style }}>
       <BlockDropZone path={elPath}>
         <div {...blockDragProps} contentEditable={false} style={{ position: "relative", width: "100%", maxWidth: 640, cursor: "default" }}>
-          {embed?.type === "video" ? (
-            <video
-              src={embed.src}
-              controls
-              preload="metadata"
-              style={{ maxWidth: "100%", borderRadius: 8 }}
-            />
-          ) : embed?.type === "iframe" ? (
+          {embed?.type === "iframe" ? (
             <iframe
               src={embed.src}
               style={{ width: "100%", aspectRatio: embed.aspect || "16/9", border: "none", borderRadius: 8 }}
