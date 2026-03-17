@@ -280,6 +280,67 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     },
   },
 
+  {
+    problem: { ko: "About 패널 6개가 초기 하이드레이션을 지연시킴", en: "Six About Panels Delaying Initial Hydration" },
+    cause: {
+      ko: "About 페이지에는 Architecture, UserFlow, Backend, ERD, CodeHighlights, Troubleshooting 등 **무거운 패널 6개**가 있습니다. 각 패널이 SVG 다이어그램, 코드 하이라이터 등을 포함하고 있어, 서버에서 모두 렌더링하면 **HTML 크기가 급증**하고 클라이언트 하이드레이션 시간이 길어졌습니다. 특히 수평 스크롤 구조에서 **화면에 보이지 않는 패널까지 모두 로드**되고 있었습니다.",
+      en: "The About page has **six heavy panels** including Architecture, UserFlow, Backend, ERD, CodeHighlights, and Troubleshooting. Each contains SVG diagrams, code highlighters, etc. Server-rendering all of them **inflated HTML size** and slowed client hydration. In the horizontal scroll layout, **panels not yet visible were all loaded upfront**.",
+    },
+    solution: {
+      ko: "6개 패널을 **`next/dynamic`으로 코드 스플릿**하고 `ssr: false`를 적용했습니다. 서버에서는 패널 대신 **스켈레톤 로더를 렌더링**하여 레이아웃이 유지되고, 클라이언트에서 청크가 도착하면 교체됩니다. `ssr: false`는 서버에서 무거운 라이브러리(GSAP, 코드 하이라이터 등)를 **아예 불러오지 않게** 하여 초기 번들을 크게 줄입니다.",
+      en: "Split all six panels with **`next/dynamic` + `ssr: false`**. The server renders **skeleton loaders** instead, maintaining layout while client-side chunks load asynchronously. `ssr: false` ensures heavy libraries (GSAP, code highlighters) are **never loaded on the server**, significantly reducing the initial bundle.",
+    },
+    keyInsight: {
+      ko: "수평 스크롤처럼 **뷰포트 밖에 콘텐츠가 대량으로 존재하는 레이아웃**에서는 코드 스플릿이 필수입니다. `ssr: false`와 스켈레톤 로더를 조합하면, **초기 페이지가 빠르게 표시**되면서도 사용자가 해당 패널에 도달할 때쯤 로딩이 완료됩니다.",
+      en: "Code splitting is essential in layouts where **large amounts of content exist off-viewport**, like horizontal scroll. Combining `ssr: false` with skeleton loaders ensures the **initial page renders fast** while panels finish loading by the time users reach them.",
+    },
+  },
+  {
+    problem: { ko: "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐", en: "Layout Jumps When Toggling Code Block Line Wrap" },
+    cause: {
+      ko: "블로그 포스트의 코드 블록에 **줄바꿈 토글 버튼**을 추가했습니다. `white-space: pre` → `pre-wrap` 전환 시 코드 블록의 높이가 변하면서, **아래쪽 콘텐츠가 갑자기 밀려나는 레이아웃 시프트**가 발생했습니다. CSS `transition`으로 `max-height`를 애니메이션하려 했지만, **최대 높이를 미리 알 수 없어** 값을 크게 잡으면 타이밍이 어긋나고, 작게 잡으면 잘리는 문제가 있었습니다.",
+      en: "Added a **line-wrap toggle button** to blog code blocks. Switching `white-space: pre` → `pre-wrap` changed block height, causing **layout shift that pushed content below**. Tried CSS `transition` on `max-height`, but **the actual max height isn't known in advance** — set too high, timing feels wrong; too low, content clips.",
+    },
+    solution: {
+      ko: "**FLIP(First-Last-Invert-Play) 기법**을 적용했습니다. 스타일 변경 전 높이를 측정(First)하고, 스타일을 바꾼 뒤 새 높이를 측정(Last)한 다음, **Web Animations API로 이전 높이 → 새 높이를 250ms 동안 애니메이션**합니다. React 상태를 거치지 않으므로 리렌더가 없고, 정확한 높이를 기반으로 동작하여 **어떤 코드 블록 길이에서도 자연스럽게 전환**됩니다.",
+      en: "Applied the **FLIP (First-Last-Invert-Play) technique**. Measure height before style change (First), apply style and measure new height (Last), then **animate from old to new height over 250ms using Web Animations API**. No React re-renders involved, and since it's based on exact measurements, **transitions feel natural at any code block length**.",
+    },
+    keyInsight: {
+      ko: "높이가 **동적으로 변하는 요소의 애니메이션에는 `max-height` 트릭보다 FLIP이 적합**합니다. 실제 높이를 측정한 뒤 애니메이션하므로 **타이밍이 정확**하고, Web Animations API는 React와 독립적이라 **리렌더 비용이 없습니다**.",
+      en: "For animating **dynamically-sized elements, FLIP beats the `max-height` trick**. It measures actual heights before animating, ensuring **precise timing**, and Web Animations API runs independently of React with **zero re-render cost**.",
+    },
+  },
+  {
+    problem: { ko: "커스텀 커서의 hit-test가 매 프레임 DOM을 탐색", en: "Custom Cursor Hit-Testing Traversing DOM Every Frame" },
+    cause: {
+      ko: "커스텀 커서 효과에서 마우스 아래의 요소 타입(클릭 가능, 텍스트, 비활성 등)을 판별하기 위해 **`elementsFromPoint()`를 매 프레임 호출**하고 있었습니다. 이 API는 해당 좌표의 **모든 DOM 요소를 탐색**하므로, 복잡한 레이아웃에서는 **프레임당 수백 개의 요소를 순회**하게 됩니다. 커서 위치 보간(LERP)과 hit-test가 같은 RAF 루프에 묶여 있어, **위치 업데이트까지 함께 느려졌습니다**.",
+      en: "The custom cursor effect called **`elementsFromPoint()` every frame** to determine the element type under the cursor (clickable, text, disabled, etc.). This API **traverses all DOM elements** at the coordinate, potentially **iterating hundreds of elements per frame** in complex layouts. Hit-testing and position interpolation (LERP) were coupled in the same RAF loop, so **even position updates slowed down**.",
+    },
+    solution: {
+      ko: "커서 위치 보간과 hit-test를 **분리**했습니다. 위치 보간은 **매 프레임 RAF에서 실행**하여 부드러운 60fps를 유지하고, `elementsFromPoint()` hit-test는 **60ms 간격으로 디바운스**하여 별도로 실행합니다. 커서 모양(grab, pointer, text, disabled) 변경은 비동기로 반영되지만, **사람 눈에는 차이가 느껴지지 않습니다**. 터치 디바이스에서는 커스텀 커서 자체를 비활성화합니다.",
+      en: "**Decoupled** position interpolation from hit-testing. Position LERP runs in **every RAF frame** for smooth 60fps, while `elementsFromPoint()` hit-test runs on a **60ms debounce** separately. Cursor shape changes (grab, pointer, text, disabled) update asynchronously, but the **delay is imperceptible to users**. Custom cursor is disabled entirely on touch devices.",
+    },
+    keyInsight: {
+      ko: "고빈도 업데이트에서 **모든 작업이 같은 주기로 실행될 필요는 없습니다**. 위치처럼 즉각 반영이 필요한 값은 매 프레임, 상태 판별처럼 약간의 지연이 허용되는 값은 **낮은 빈도로 분리**하면 전체 성능이 크게 개선됩니다.",
+      en: "In high-frequency updates, **not everything needs to run at the same rate**. Values needing instant reflection (position) run every frame, while values tolerating slight delay (state detection) run at **lower frequency** — this separation dramatically improves overall performance.",
+    },
+  },
+  {
+    problem: { ko: "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀", en: "Global Transition Shorthand Overriding Component Transitions" },
+    cause: {
+      ko: "테마 전환을 위해 `html[data-theme-ready] *`에 **transition shorthand**를 걸어 `background-color, border-color, color` 등을 부드럽게 전환했습니다. 그런데 이 선택자의 특이성이 `(0,1,1)`로, 단일 클래스 `(0,1,0)`보다 높아서 **컴포넌트의 `max-height`, `opacity`, `transform` 전환이 모두 무시**되었습니다. `transition`이 shorthand이기 때문에 **나열되지 않은 속성의 전환까지 통째로 교체**한 것이 원인이었습니다.",
+      en: "For theme switching, I set a **transition shorthand** on `html[data-theme-ready] *` to smoothly transition `background-color, border-color, color`, etc. But its specificity `(0,1,1)` beats single-class selectors `(0,1,0)`, and since `transition` is a shorthand, it **completely replaced** component-level transitions for `max-height`, `opacity`, `transform`, etc.",
+    },
+    solution: {
+      ko: "컴포넌트에서 글로벌 규칙을 이길 수 있도록 **복합 선택자 `(0,2,0)`**을 사용했습니다. `.parent .child { transition: ... }` 형태로 특이성을 올려 글로벌 shorthand를 안전하게 오버라이드합니다.",
+      en: "Used **compound selectors `(0,2,0)`** in components to outweigh the global rule. Patterns like `.parent .child { transition: ... }` safely override the global shorthand.",
+    },
+    keyInsight: {
+      ko: "CSS `transition` shorthand는 **나열하지 않은 속성의 전환까지 초기화**합니다. 글로벌에 `*` 전환을 걸 때는 shorthand 대신 **`transition-property, transition-duration`을 개별 지정**하거나, 컴포넌트 쪽 특이성을 반드시 높여야 합니다.",
+      en: "CSS `transition` shorthand **resets transitions for unlisted properties too**. When applying `*` transitions globally, either use **individual `transition-property` and `transition-duration`** instead of shorthand, or ensure component selectors have higher specificity.",
+    },
+  },
+
   /* ── CSS / Styling ── */
   {
     problem: { ko: "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴", en: "CSS Module Hash Collision Collapsing Desktop Layout" },
