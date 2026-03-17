@@ -210,7 +210,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--color-accent);
+  color: var(--color-danger, #ef4444);
   padding: 0;
   text-transform: none;
   letter-spacing: 0;
@@ -302,7 +302,7 @@
 }
 
 .revisionDetailActions .revisionDeleteBtn:hover {
-  color: var(--color-accent);
+  color: var(--color-danger, #ef4444);
 }
 
 .revisionItemDelete {
@@ -325,7 +325,7 @@
 }
 
 .revisionItem .revisionItemDelete:hover {
-  color: var(--color-accent);
+  color: var(--color-danger, #ef4444);
 }
 
 .revisionRestoreBtn {

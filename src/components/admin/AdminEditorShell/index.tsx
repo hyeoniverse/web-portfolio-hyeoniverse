@@ -19,6 +19,7 @@ interface EditorLabels {
   deleteConfirm?: string;
   deleteConfirmInput?: string;
   deleteCancel?: string;
+  deleteRevisionConfirm?: string;
   preview?: string;
   saving: string;
   saveDraft: string;
@@ -412,6 +413,7 @@ export default function AdminEditorShell({
                                   type="button"
                                   className={styles.revisionDeleteBtn}
                                   onClick={async () => {
+                                    if (!confirm(labels.deleteRevisionConfirm ?? "이 로그를 삭제하시겠습니까?")) return;
                                     const ok = await onDeleteRevision(viewingRevision);
                                     if (ok) {
                                       setViewingRevision(null);
@@ -544,6 +546,7 @@ export default function AdminEditorShell({
                                     className={styles.revisionDeleteSelectedBtn}
                                     onClick={async () => {
                                       if (!onDeleteRevision) return;
+                                      if (!confirm(labels.deleteRevisionConfirm ?? `선택한 ${selectedRevisions.size}개 로그를 삭제하시겠습니까?`)) return;
                                       const indices = Array.from(selectedRevisions);
                                       await Promise.all(indices.map((idx) => onDeleteRevision(idx)));
                                       setSelectedRevisions(new Set());
@@ -625,6 +628,7 @@ export default function AdminEditorShell({
                                   className={styles.revisionItemDelete}
                                   onClick={async (e) => {
                                     e.stopPropagation();
+                                    if (!confirm(labels.deleteRevisionConfirm ?? "이 로그를 삭제하시겠습니까?")) return;
                                     const ok = await onDeleteRevision(i);
                                     if (ok && revisions.length <= 1) setShowRevisions(false);
                                   }}
