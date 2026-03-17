@@ -249,7 +249,7 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     ],
   },
 
-  /* ── Frontend Performance ── */
+  /* ── Frontend / Performance ── */
   {
     section: { ko: "Frontend / Performance", en: "Frontend / Performance" },
     problem: { ko: "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)", en: "reCAPTCHA v3 Initial Load Performance Degradation (LCP 17.1s, TTI 18.2s)" },
@@ -258,13 +258,35 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Following official docs, I loaded the security script (reCAPTCHA) immediately on app start, which caused a **784KB file to download right away**. This blocked other work and pushed the **page display time to 17 seconds**.",
     },
     solution: {
-      ko: "보안 스크립트를 처음부터 불러오지 않고, **사용자가 처음 클릭하거나 터치하는 시점**에 불러오도록 변경했습니다. 또한 Google 서버와의 **연결을 미리 준비**해 두어 실제 로드 시 더 빨라지도록 했습니다.",
-      en: "Instead of loading the security script upfront, it now loads **when the user first clicks or touches the page**. I also **pre-established the connection** to Google's server so the actual load is faster when needed.",
+      ko: "보안 스크립트를 처음부터 불러오지 않고, **사용자가 처음 클릭하거나 터치하는 시점**에 불러오도록 변경했습니다. 또한 Google 서버와의 **연결을 미리 준비(preconnect)**해 두어 실제 로드 시 더 빨라지도록 했습니다.",
+      en: "Instead of loading the security script upfront, it now loads **when the user first clicks or touches the page**. I also **pre-established the connection (preconnect)** to Google's server so the actual load is faster when needed.",
     },
     keyInsight: {
       ko: "외부 스크립트는 **\"지금 당장 필요한가?\"를 먼저 따져야** 합니다. 당장 안 쓰는 무거운 파일을 처음부터 불러오면, 정작 사용자가 보는 화면이 수 초씩 늦어집니다.",
       en: "Always ask **\"is this needed right now?\"** before loading external scripts. Loading heavy files upfront that aren't immediately needed **delays what the user actually sees** by several seconds.",
     },
+    comparisons: [
+      {
+        label: { ko: "외부 스크립트 로딩 전략 비교", en: "External script loading strategy comparison" },
+        headers: [
+          { ko: "전략", en: "Strategy" },
+          { ko: "Eager (즉시)", en: "Eager (immediate)" },
+          { ko: "Lazy (뷰포트)", en: "Lazy (viewport)" },
+          { ko: "Interaction (채택)", en: "Interaction (adopted)" },
+        ],
+        rows: [
+          { cells: [{ ko: "로드 시점", en: "Load timing" }, { ko: "페이지 로드 즉시", en: "On page load" }, { ko: "요소가 뷰포트 진입", en: "Element enters viewport" }, { ko: "첫 클릭/터치", en: "First click/touch" }] },
+          { cells: [{ ko: "초기 성능 영향", en: "Initial perf impact" }, { ko: "⚠ 높음 (784KB 블로킹)", en: "⚠ High (784KB blocking)" }, { ko: "중간", en: "Medium" }, { ko: "없음", en: "None" }] },
+          { cells: [{ ko: "사용자 대기", en: "User wait time" }, { ko: "없음 (이미 로드)", en: "None (preloaded)" }, { ko: "짧음", en: "Short" }, { ko: "첫 인터랙션 시 짧은 지연", en: "Brief delay on first interaction" }] },
+          { cells: [{ ko: "적합한 경우", en: "Best for" }, { ko: "즉시 필요한 스크립트", en: "Immediately needed scripts" }, { ko: "스크롤 후 필요", en: "Needed after scroll" }, { ko: "사용자 행동 후 필요", en: "Needed after user action" }] },
+          { cells: [{ ko: "reCAPTCHA에 적합?", en: "Right for reCAPTCHA?" }, { ko: "✗ LCP 17s 유발", en: "✗ Causes 17s LCP" }, { ko: "△ 댓글 영역 도달 전 불필요", en: "△ Unnecessary before comment area" }, { ko: "✓ 댓글 작성 시점에만 필요", en: "✓ Only needed when commenting" }], highlight: true },
+        ],
+        description: {
+          ko: "reCAPTCHA는 **댓글을 작성할 때만 필요**합니다. 페이지를 읽기만 하는 대다수 방문자에게는 불필요한 784KB입니다. Lazy 방식은 댓글 영역이 뷰포트에 들어올 때 로드하지만, 스크롤만으로 트리거되어 댓글을 쓸 의도 없는 사용자에게도 로드됩니다. **Interaction 방식**은 실제 클릭/터치가 발생한 시점에만 로드하므로, **불필요한 로드를 완전히 제거**합니다. preconnect로 DNS/TLS 핸드셰이크를 미리 완료해 두면 실제 로드 시 체감 지연도 최소화됩니다.",
+          en: "reCAPTCHA is **only needed when writing a comment**. For the majority of visitors who just read, it's an unnecessary 784KB. Lazy loading triggers on viewport entry, loading even for users with no intent to comment. **Interaction-based loading** only fires on actual click/touch, **completely eliminating unnecessary loads**. Preconnect completes DNS/TLS handshake early, minimizing perceived delay when actually loaded.",
+        },
+      } satisfies ComparisonTable,
+    ],
   },
   {
     problem: { ko: "mousemove마다 React 리렌더 (60fps 성능 저하)", en: "React Re-render on Every mousemove (60fps Performance Degradation)" },
@@ -280,22 +302,28 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       ko: "초당 수십 번 변하는 값(마우스 위치, 스크롤 오프셋 등)은 **React state로 관리하면 안 됩니다**. 화면에 반영만 하면 되는 값은 **ref + 직접 DOM 조작**이 훨씬 효율적입니다.",
       en: "Values that change dozens of times per second (mouse position, scroll offsets) **should never be React state**. When you only need visual output, **ref + direct DOM manipulation** is far more efficient.",
     },
-  },
-
-  {
-    problem: { ko: "About 패널 6개가 초기 하이드레이션을 지연시킴", en: "Six About Panels Delaying Initial Hydration" },
-    cause: {
-      ko: "About 페이지에는 Architecture, UserFlow, Backend, ERD, CodeHighlights, Troubleshooting 등 **무거운 패널 6개**가 있습니다. 각 패널이 SVG 다이어그램, 코드 하이라이터 등을 포함하고 있어, 서버에서 모두 렌더링하면 **HTML 크기가 급증**하고 클라이언트 하이드레이션 시간이 길어졌습니다. 특히 수평 스크롤 구조에서 **화면에 보이지 않는 패널까지 모두 로드**되고 있었습니다.",
-      en: "The About page has **six heavy panels** including Architecture, UserFlow, Backend, ERD, CodeHighlights, and Troubleshooting. Each contains SVG diagrams, code highlighters, etc. Server-rendering all of them **inflated HTML size** and slowed client hydration. In the horizontal scroll layout, **panels not yet visible were all loaded upfront**.",
-    },
-    solution: {
-      ko: "6개 패널을 **`next/dynamic`으로 코드 스플릿**하고 `ssr: false`를 적용했습니다. 서버에서는 패널 대신 **스켈레톤 로더를 렌더링**하여 레이아웃이 유지되고, 클라이언트에서 청크가 도착하면 교체됩니다. `ssr: false`는 서버에서 무거운 라이브러리(GSAP, 코드 하이라이터 등)를 **아예 불러오지 않게** 하여 초기 번들을 크게 줄입니다.",
-      en: "Split all six panels with **`next/dynamic` + `ssr: false`**. The server renders **skeleton loaders** instead, maintaining layout while client-side chunks load asynchronously. `ssr: false` ensures heavy libraries (GSAP, code highlighters) are **never loaded on the server**, significantly reducing the initial bundle.",
-    },
-    keyInsight: {
-      ko: "수평 스크롤처럼 **뷰포트 밖에 콘텐츠가 대량으로 존재하는 레이아웃**에서는 코드 스플릿이 필수입니다. `ssr: false`와 스켈레톤 로더를 조합하면, **초기 페이지가 빠르게 표시**되면서도 사용자가 해당 패널에 도달할 때쯤 로딩이 완료됩니다.",
-      en: "Code splitting is essential in layouts where **large amounts of content exist off-viewport**, like horizontal scroll. Combining `ssr: false` with skeleton loaders ensures the **initial page renders fast** while panels finish loading by the time users reach them.",
-    },
+    comparisons: [
+      {
+        label: { ko: "고빈도 업데이트 처리 방식 비교", en: "High-frequency update approach comparison" },
+        headers: [
+          { ko: "비교 항목", en: "Criteria" },
+          { ko: "useState", en: "useState" },
+          { ko: "useMemo + throttle", en: "useMemo + throttle" },
+          { ko: "useRef + RAF (채택)", en: "useRef + RAF (adopted)" },
+        ],
+        rows: [
+          { cells: [{ ko: "리렌더 횟수", en: "Re-renders" }, { ko: "~60/s", en: "~60/s" }, { ko: "~15/s (throttle)", en: "~15/s (throttle)" }, { ko: "0", en: "0" }] },
+          { cells: [{ ko: "부드러움", en: "Smoothness" }, { ko: "프레임 드롭", en: "Frame drops" }, { ko: "끊김 있음", en: "Stuttery" }, { ko: "60fps 유지", en: "Smooth 60fps" }] },
+          { cells: [{ ko: "React 생태계", en: "React ecosystem" }, { ko: "✓ 일반적", en: "✓ Idiomatic" }, { ko: "✓ 일반적", en: "✓ Idiomatic" }, { ko: "△ 탈출구 패턴", en: "△ Escape hatch" }] },
+          { cells: [{ ko: "구현 복잡도", en: "Complexity" }, { ko: "낮음", en: "Low" }, { ko: "중간", en: "Medium" }, { ko: "중간", en: "Medium" }] },
+          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 60fps 불가능", en: "✗ Can't hit 60fps" }, { ko: "△ 끊김 체감됨", en: "△ Stutter noticeable" }, { ko: "✓ 부드러운 시각 효과", en: "✓ Smooth visual effect" }], highlight: true },
+        ],
+        description: {
+          ko: "useState는 React의 일반적인 패턴이지만, **초당 60번 리렌더는 25개 그리드 아이템 전체를 다시 그리게** 합니다. throttle로 빈도를 줄여도 마우스 추적 같은 연속적 시각 효과에서는 **끊김이 체감**됩니다. useRef + RAF 방식은 React의 렌더 사이클을 완전히 우회하여 **DOM을 직접 조작**하므로, 리렌더 비용 없이 60fps를 유지할 수 있습니다. 이 패턴은 React 공식 문서에서도 **\"탈출구(escape hatch)\"**로 안내하는 정당한 최적화 기법입니다.",
+          en: "useState is idiomatic React, but **60 re-renders/second forces all 25+ grid items to re-render**. Throttling reduces frequency but **stutter is still noticeable** in continuous visual effects like mouse tracking. useRef + RAF completely bypasses React's render cycle, **manipulating DOM directly** for zero re-render cost at 60fps. This pattern is acknowledged in React docs as a legitimate **\"escape hatch\"** optimization.",
+        },
+      } satisfies ComparisonTable,
+    ],
   },
   {
     problem: { ko: "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐", en: "Layout Jumps When Toggling Code Block Line Wrap" },
@@ -311,6 +339,28 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       ko: "높이가 **동적으로 변하는 요소의 애니메이션에는 `max-height` 트릭보다 FLIP이 적합**합니다. 실제 높이를 측정한 뒤 애니메이션하므로 **타이밍이 정확**하고, Web Animations API는 React와 독립적이라 **리렌더 비용이 없습니다**.",
       en: "For animating **dynamically-sized elements, FLIP beats the `max-height` trick**. It measures actual heights before animating, ensuring **precise timing**, and Web Animations API runs independently of React with **zero re-render cost**.",
     },
+    comparisons: [
+      {
+        label: { ko: "동적 높이 애니메이션 기법 비교", en: "Dynamic height animation technique comparison" },
+        headers: [
+          { ko: "비교 항목", en: "Criteria" },
+          { ko: "max-height 트릭", en: "max-height trick" },
+          { ko: "CSS grid rows", en: "CSS grid rows" },
+          { ko: "FLIP + WAAPI (채택)", en: "FLIP + WAAPI (adopted)" },
+        ],
+        rows: [
+          { cells: [{ ko: "높이 추정", en: "Height estimation" }, { ko: "임의 큰 값 필요", en: "Arbitrary large value" }, { ko: "0fr → 1fr", en: "0fr → 1fr" }, { ko: "실제 측정값 사용", en: "Uses measured value" }] },
+          { cells: [{ ko: "타이밍 정확도", en: "Timing accuracy" }, { ko: "✗ 실제 높이와 불일치", en: "✗ Mismatch with actual" }, { ko: "△ 제한적", en: "△ Limited" }, { ko: "✓ 정확", en: "✓ Exact" }] },
+          { cells: [{ ko: "콘텐츠 클리핑", en: "Content clipping" }, { ko: "값 작으면 잘림", en: "Clips if too small" }, { ko: "없음", en: "None" }, { ko: "없음", en: "None" }] },
+          { cells: [{ ko: "리렌더 필요", en: "Re-render needed" }, { ko: "✗ (CSS only)", en: "✗ (CSS only)" }, { ko: "✗ (CSS only)", en: "✗ (CSS only)" }, { ko: "✗ (WAAPI)", en: "✗ (WAAPI)" }] },
+          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 코드 블록 높이 예측 불가", en: "✗ Code block height unpredictable" }, { ko: "△ 래퍼 요소 필요", en: "△ Wrapper element needed" }, { ko: "✓ 모든 높이에서 정확", en: "✓ Exact at any height" }], highlight: true },
+        ],
+        description: {
+          ko: "`max-height` 트릭은 높이를 미리 알 수 있는 경우에만 유효합니다. 코드 블록은 **내용 길이에 따라 높이가 크게 달라지므로** 임의 값을 설정하면 타이밍이 맞지 않습니다. CSS `grid-template-rows: 0fr → 1fr` 방식은 래퍼 요소가 필요하고, 기존 마크다운 렌더러의 DOM 구조를 변경해야 합니다. **FLIP은 변경 전후의 실제 높이를 측정**하므로 어떤 코드 블록에서도 정확하게 동작하며, Web Animations API(WAAPI)는 **메인 스레드와 별도로 실행**되어 성능 영향이 없습니다.",
+          en: "`max-height` only works when the target height is known in advance. Code blocks **vary dramatically in height by content length**, making arbitrary values unreliable. CSS `grid-template-rows: 0fr → 1fr` requires wrapper elements and changing the existing markdown renderer's DOM structure. **FLIP measures actual before/after heights**, working accurately for any code block, and Web Animations API (WAAPI) runs **off the main thread** with zero performance impact.",
+        },
+      } satisfies ComparisonTable,
+    ],
   },
   {
     problem: { ko: "커스텀 커서의 hit-test가 매 프레임 DOM을 탐색", en: "Custom Cursor Hit-Testing Traversing DOM Every Frame" },
@@ -326,8 +376,33 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       ko: "고빈도 업데이트에서 **모든 작업이 같은 주기로 실행될 필요는 없습니다**. 위치처럼 즉각 반영이 필요한 값은 매 프레임, 상태 판별처럼 약간의 지연이 허용되는 값은 **낮은 빈도로 분리**하면 전체 성능이 크게 개선됩니다.",
       en: "In high-frequency updates, **not everything needs to run at the same rate**. Values needing instant reflection (position) run every frame, while values tolerating slight delay (state detection) run at **lower frequency** — this separation dramatically improves overall performance.",
     },
+    comparisons: [
+      {
+        label: { ko: "커서 상태 감지 전략 비교", en: "Cursor state detection strategy comparison" },
+        headers: [
+          { ko: "비교 항목", en: "Criteria" },
+          { ko: "매 프레임 hit-test", en: "Per-frame hit-test" },
+          { ko: "CSS :hover 위임", en: "CSS :hover delegation" },
+          { ko: "디바운스 분리 (채택)", en: "Debounced separation (adopted)" },
+        ],
+        rows: [
+          { cells: [{ ko: "호출 빈도", en: "Call frequency" }, { ko: "~60/s", en: "~60/s" }, { ko: "이벤트 기반", en: "Event-driven" }, { ko: "~16/s (60ms)", en: "~16/s (60ms)" }] },
+          { cells: [{ ko: "DOM 탐색 비용", en: "DOM traversal cost" }, { ko: "⚠ 매 프레임", en: "⚠ Every frame" }, { ko: "없음", en: "None" }, { ko: "프레임당 0~1회", en: "0-1 per frame" }] },
+          { cells: [{ ko: "커서 위치 부드러움", en: "Cursor smoothness" }, { ko: "느려질 수 있음", en: "Can degrade" }, { ko: "영향 없음", en: "No impact" }, { ko: "항상 60fps", en: "Always 60fps" }] },
+          { cells: [{ ko: "커스텀 커서 모양", en: "Custom cursor shapes" }, { ko: "✓ 다양", en: "✓ Multiple" }, { ko: "✗ 제한적", en: "✗ Limited" }, { ko: "✓ 다양", en: "✓ Multiple" }] },
+          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 복잡 레이아웃에서 병목", en: "✗ Bottleneck in complex layouts" }, { ko: "✗ 커서 모양 커스텀 불가", en: "✗ Can't customize cursor shapes" }, { ko: "✓ 성능 + 유연성", en: "✓ Performance + flexibility" }], highlight: true },
+        ],
+        description: {
+          ko: "CSS `:hover`는 브라우저가 최적화하지만, **커서 모양을 data-attribute 기반으로 5종류(grab, pointer, text, disabled, default) 전환**하려면 JS가 필요합니다. 매 프레임 `elementsFromPoint()`는 정확하지만 **About 페이지처럼 중첩 요소가 많은 레이아웃에서 수백 개 요소를 탐색**합니다. 60ms 디바운스로 분리하면 호출 횟수를 **75% 줄이면서도** 커서 모양 변화의 지연(최대 60ms)은 **사람 눈에 감지되지 않습니다**.",
+          en: "CSS `:hover` is browser-optimized, but **switching cursor shapes among 5 types (grab, pointer, text, disabled, default) based on data-attributes** requires JS. Per-frame `elementsFromPoint()` is accurate but **traverses hundreds of elements in nested layouts like the About page**. A 60ms debounce reduces calls by **75%** while the cursor shape delay (max 60ms) is **imperceptible to humans**.",
+        },
+      } satisfies ComparisonTable,
+    ],
   },
+
+  /* ── CSS / Styling ── */
   {
+    section: { ko: "CSS / Styling", en: "CSS / Styling" },
     problem: { ko: "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀", en: "Global Transition Shorthand Overriding Component Transitions" },
     cause: {
       ko: "테마 전환을 위해 `html[data-theme-ready] *`에 **transition shorthand**를 걸어 `background-color, border-color, color` 등을 부드럽게 전환했습니다. 그런데 이 선택자의 특이성이 `(0,1,1)`로, 단일 클래스 `(0,1,0)`보다 높아서 **컴포넌트의 `max-height`, `opacity`, `transform` 전환이 모두 무시**되었습니다. `transition`이 shorthand이기 때문에 **나열되지 않은 속성의 전환까지 통째로 교체**한 것이 원인이었습니다.",
@@ -342,10 +417,7 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "CSS `transition` shorthand **resets transitions for unlisted properties too**. When applying `*` transitions globally, either use **individual `transition-property` and `transition-duration`** instead of shorthand, or ensure component selectors have higher specificity.",
     },
   },
-
-  /* ── CSS / Styling ── */
   {
-    section: { ko: "CSS / Styling", en: "CSS / Styling" },
     problem: { ko: "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴", en: "CSS Module Hash Collision Collapsing Desktop Layout" },
     cause: {
       ko: "About 페이지의 각 패널은 **공유 CSS Module과 로컬 CSS Module을 `{ ...shared, ...local }`로 병합**하여 사용합니다. ProcessPanel의 `.processBody`는 공유 CSS에서 `display: contents`로 정의되어 있었는데, 로컬 CSS에서 **모바일 미디어 쿼리 안에서만** 같은 이름의 클래스를 정의했습니다. 문제는 CSS Module이 **파일별로 다른 해시를 생성**하기 때문에, 스프레드 병합 시 **로컬 해시가 공유 해시를 덮어써** 데스크톱에서 `display: contents`가 적용되지 않은 것이었습니다.",
