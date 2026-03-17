@@ -234,6 +234,11 @@ export function ImageElement(props: PlateElementProps) {
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", "block-dnd");
             _blockDragPath.current = elPath;
+            // 이미지만 고스트로 사용 (오버레이 UI 제외)
+            if (imgRef.current) {
+              const rect = imgRef.current.getBoundingClientRect();
+              e.dataTransfer.setDragImage(imgRef.current, e.clientX - rect.left, e.clientY - rect.top);
+            }
             setIsDragging(true);
           }}
           onDragEnd={() => { _blockDragPath.current = null; setIsDragging(false); }}
