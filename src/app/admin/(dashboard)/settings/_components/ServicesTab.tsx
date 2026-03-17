@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
+import { type Dispatch, type SetStateAction, useRef, useState } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
@@ -10,8 +10,14 @@ import type { SettingsTabProps } from "../_types";
 import EnvVarFields from "./EnvVarFields";
 import styles from "../Settings.module.css";
 
+type AICoverProvider = "nanobanana" | "huggingface";
 type AISummaryProvider = "gemini" | "openai" | "claude";
 type TranslationProvider = "gemini" | "google" | "deepl" | "claude";
+
+const AI_COVER_OPTIONS: { value: AICoverProvider; label: string }[] = [
+  { value: "nanobanana", label: "NanoBanana (Gemini)" },
+  { value: "huggingface", label: "Hugging Face (FLUX)" },
+];
 
 const AI_SUMMARY_OPTIONS: { value: AISummaryProvider; label: string }[] = [
   { value: "gemini", label: "Gemini 2.0 Flash" },
@@ -39,6 +45,11 @@ function PriorityList<T extends string>({ primary, priority, options, onChange }
     ? priority.filter((p) => p !== primary)
     : nonPrimary.map((o) => o.value);
 
+  const dragIdx = useRef<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef(0);
+
   const move = (idx: number, dir: -1 | 1) => {
     const next = [...ordered];
     const target = idx + dir;
@@ -47,13 +58,77 @@ function PriorityList<T extends string>({ primary, priority, options, onChange }
     onChange(next);
   };
 
+  /* ── HTML5 drag (desktop) ── */
+  const handleDragStart = (idx: number) => { dragIdx.current = idx; };
+  const handleDragOver = (e: React.DragEvent, idx: number) => { e.preventDefault(); setOverIdx(idx); };
+  const handleDrop = (idx: number) => {
+    const from = dragIdx.current;
+    if (from === null || from === idx) return;
+    const next = [...ordered];
+    const [moved] = next.splice(from, 1);
+    next.splice(idx, 0, moved);
+    onChange(next);
+    dragIdx.current = null;
+    setOverIdx(null);
+  };
+  const handleDragEnd = () => { dragIdx.current = null; setOverIdx(null); };
+
+  /* ── Touch drag (mobile) ── */
+  const handleTouchStart = (e: React.TouchEvent, idx: number) => {
+    dragIdx.current = idx;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (dragIdx.current === null || !listRef.current) return;
+    const y = e.touches[0].clientY;
+    const items = listRef.current.querySelectorAll<HTMLElement>(`.${styles.priorityItem}`);
+    for (let i = 0; i < items.length; i++) {
+      const rect = items[i].getBoundingClientRect();
+      if (y >= rect.top && y <= rect.bottom) {
+        setOverIdx(i);
+        return;
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (dragIdx.current !== null && overIdx !== null && dragIdx.current !== overIdx) {
+      const next = [...ordered];
+      const [moved] = next.splice(dragIdx.current, 1);
+      next.splice(overIdx, 0, moved);
+      onChange(next);
+    }
+    dragIdx.current = null;
+    setOverIdx(null);
+  };
+
   return (
-    <div className={styles.priorityList}>
+    <div className={styles.priorityList} ref={listRef}>
       {ordered.map((val, idx) => {
         const label = options.find((o) => o.value === val)?.label ?? val;
         return (
-          <div key={val} className={styles.priorityItem}>
+          <div
+            key={val}
+            className={`${styles.priorityItem}${overIdx === idx ? ` ${styles.priorityItemOver}` : ""}`}
+            data-draggable
+            draggable
+            onDragStart={() => handleDragStart(idx)}
+            onDragOver={(e) => handleDragOver(e, idx)}
+            onDrop={() => handleDrop(idx)}
+            onDragEnd={handleDragEnd}
+            onTouchStart={(e) => handleTouchStart(e, idx)}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <span className={styles.priorityBadge}>{idx + 1}</span>
+            <span className={styles.priorityGrip}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="9" cy="6" r="1" fill="currentColor" /><circle cx="15" cy="6" r="1" fill="currentColor" />
+                <circle cx="9" cy="12" r="1" fill="currentColor" /><circle cx="15" cy="12" r="1" fill="currentColor" />
+                <circle cx="9" cy="18" r="1" fill="currentColor" /><circle cx="15" cy="18" r="1" fill="currentColor" />
+              </svg>
+            </span>
             <span className={styles.priorityLabel}>{label}</span>
             <div className={styles.priorityBtns}>
               <button
@@ -62,14 +137,14 @@ function PriorityList<T extends string>({ primary, priority, options, onChange }
                 disabled={idx === 0}
                 onClick={() => move(idx, -1)}
                 aria-label="Move up"
-              >▲</button>
+              ><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 15l-6-6-6 6" /></svg></button>
               <button
                 type="button"
                 className={styles.priorityBtn}
                 disabled={idx === ordered.length - 1}
                 onClick={() => move(idx, 1)}
                 aria-label="Move down"
-              >▼</button>
+              ><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg></button>
             </div>
           </div>
         );
@@ -115,17 +190,76 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.aiSettings" /></h2>
         <div className={styles.fields}>
+          <Toggle
+            label={t("admin.settings.aiCoverEnabled")}
+            checked={config.aiCover?.enabled !== false}
+            onChange={(v) => setConfig((prev) => ({ ...prev, aiCover: { ...prev.aiCover, enabled: v } }))}
+          />
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.aiCoverProvider" /></label>
             <Select
               value={config.aiCover.provider}
-              options={[
-                { value: "nanobanana", label: "NanoBanana (Gemini)" },
-                { value: "huggingface", label: "Hugging Face (FLUX)" },
-              ]}
-              onChange={(v) => update("aiCover", "provider", v as SiteConfigData["aiCover"]["provider"])}
+              options={AI_COVER_OPTIONS}
+              onChange={(v) => {
+                const newProvider = v as AICoverProvider;
+                setConfig((prev) => {
+                  const oldProvider = (prev.aiCover?.provider ?? "nanobanana") as AICoverProvider;
+                  const oldPriority = (prev.aiCover?.fallback?.priority ?? []) as AICoverProvider[];
+                  const newPriority = [
+                    ...oldPriority.filter((p) => p !== newProvider),
+                    ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
+                  ].filter((p) => p !== newProvider);
+                  return {
+                    ...prev,
+                    aiCover: {
+                      ...prev.aiCover,
+                      provider: newProvider,
+                      fallback: prev.aiCover?.fallback ? { ...prev.aiCover.fallback, priority: newPriority } : prev.aiCover?.fallback,
+                    },
+                  };
+                });
+              }}
             />
           </div>
+          <Toggle
+            label={t("admin.settings.fallbackEnabled")}
+            checked={config.aiCover?.fallback?.enabled ?? false}
+            onChange={(v) => {
+              const defaultPriority = AI_COVER_OPTIONS
+                .filter((o) => o.value !== (config.aiCover?.provider ?? "nanobanana"))
+                .map((o) => o.value) as AICoverProvider[];
+              setConfig((prev) => ({
+                ...prev,
+                aiCover: {
+                  ...prev.aiCover,
+                  fallback: {
+                    enabled: v,
+                    priority: prev.aiCover?.fallback?.priority?.length
+                      ? prev.aiCover.fallback.priority
+                      : defaultPriority,
+                  },
+                },
+              }));
+            }}
+          />
+          {(config.aiCover?.fallback?.enabled) && (
+            <div className={styles.fallbackSection}>
+              <PriorityList<AICoverProvider>
+                primary={(config.aiCover?.provider ?? "nanobanana") as AICoverProvider}
+                priority={(config.aiCover?.fallback?.priority ?? []) as AICoverProvider[]}
+                options={AI_COVER_OPTIONS}
+                onChange={(next) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    aiCover: {
+                      ...prev.aiCover,
+                      fallback: { ...prev.aiCover?.fallback, enabled: true, priority: next },
+                    },
+                  }))
+                }
+              />
+            </div>
+          )}
         </div>
       </section>
 
@@ -143,7 +277,25 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
             <Select
               value={config.aiSummary?.provider ?? "gemini"}
               options={AI_SUMMARY_OPTIONS}
-              onChange={(v) => update("aiSummary", "provider", v as SiteConfigData["aiSummary"]["provider"])}
+              onChange={(v) => {
+                const newProvider = v as AISummaryProvider;
+                setConfig((prev) => {
+                  const oldProvider = (prev.aiSummary?.provider ?? "gemini") as AISummaryProvider;
+                  const oldPriority = (prev.aiSummary?.fallback?.priority ?? []) as AISummaryProvider[];
+                  const newPriority = [
+                    ...oldPriority.filter((p) => p !== newProvider),
+                    ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
+                  ].filter((p) => p !== newProvider);
+                  return {
+                    ...prev,
+                    aiSummary: {
+                      ...prev.aiSummary,
+                      provider: newProvider,
+                      fallback: prev.aiSummary?.fallback ? { ...prev.aiSummary.fallback, priority: newPriority } : prev.aiSummary?.fallback,
+                    },
+                  };
+                });
+              }}
             />
           </div>
           <Toggle
@@ -169,7 +321,6 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
           />
           {(config.aiSummary?.fallback?.enabled) && (
             <div className={styles.fallbackSection}>
-              <p className={styles.fallbackLabel}><T k="admin.settings.fallbackPriority" /></p>
               <PriorityList<AISummaryProvider>
                 primary={(config.aiSummary?.provider ?? "gemini") as AISummaryProvider}
                 priority={(config.aiSummary?.fallback?.priority ?? []) as AISummaryProvider[]}
@@ -203,7 +354,25 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
             <Select
               value={config.translation?.provider ?? "deepl"}
               options={TRANSLATION_OPTIONS}
-              onChange={(v) => update("translation", "provider", v as SiteConfigData["translation"]["provider"])}
+              onChange={(v) => {
+                const newProvider = v as TranslationProvider;
+                setConfig((prev) => {
+                  const oldProvider = (prev.translation?.provider ?? "deepl") as TranslationProvider;
+                  const oldPriority = (prev.translation?.fallback?.priority ?? []) as TranslationProvider[];
+                  const newPriority = [
+                    ...oldPriority.filter((p) => p !== newProvider),
+                    ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
+                  ].filter((p) => p !== newProvider);
+                  return {
+                    ...prev,
+                    translation: {
+                      ...prev.translation,
+                      provider: newProvider,
+                      fallback: prev.translation?.fallback ? { ...prev.translation.fallback, priority: newPriority } : prev.translation?.fallback,
+                    },
+                  };
+                });
+              }}
             />
           </div>
           <Toggle
@@ -229,7 +398,6 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
           />
           {(config.translation?.fallback?.enabled) && (
             <div className={styles.fallbackSection}>
-              <p className={styles.fallbackLabel}><T k="admin.settings.fallbackPriority" /></p>
               <PriorityList<TranslationProvider>
                 primary={(config.translation?.provider ?? "deepl") as TranslationProvider}
                 priority={(config.translation?.fallback?.priority ?? []) as TranslationProvider[]}
@@ -288,7 +456,17 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       {/* Environment Variables */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.envVars" /></h2>
-        <EnvVarFields provider={config.emailService.provider} aiProvider={config.aiCover.provider} recaptchaEnabled={config.recaptcha.enabled} translateProvider={config.translation?.provider ?? "deepl"} commentEmailNotify={config.commentEmailNotify ?? false} summaryProvider={config.aiSummary?.provider ?? "gemini"} />
+        <EnvVarFields
+          provider={config.emailService.provider}
+          aiProvider={config.aiCover.provider}
+          aiProviderFallbacks={config.aiCover?.fallback?.enabled ? (config.aiCover.fallback.priority ?? []) as string[] : []}
+          recaptchaEnabled={config.recaptcha.enabled}
+          translateProvider={config.translation?.provider ?? "deepl"}
+          translateFallbacks={config.translation?.fallback?.enabled ? (config.translation.fallback.priority ?? []) as string[] : []}
+          commentEmailNotify={config.commentEmailNotify ?? false}
+          summaryProvider={config.aiSummary?.provider ?? "gemini"}
+          summaryFallbacks={config.aiSummary?.fallback?.enabled ? (config.aiSummary.fallback.priority ?? []) as string[] : []}
+        />
       </section>
     </>
   );
