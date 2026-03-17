@@ -79,7 +79,6 @@ function ErdPanel({
 
   /* ── Hover state ── */
   const [hoveredTable, setHoveredTable] = useState<string | null>(null);
-  const highlightedTable = hoveredTable || activeTable;
 
   /* Table → first note index (hover → scroll) */
   const tableToNoteIdx = useMemo(() => {
@@ -145,14 +144,15 @@ function ErdPanel({
                 const layout = TABLE_LAYOUT[table.name];
                 if (!layout) return null;
                 const h = tableHeight(table.columns.length);
-                const isHighlighted = table.name === highlightedTable;
+                const isActive = table.name === activeTable;
+                const isHovered = table.name === hoveredTable;
                 const hasNote = tableToNoteIdx.has(table.name);
 
                 return (
                   <g
                     key={table.name}
                     transform={`translate(${layout.x}, ${layout.y})`}
-                    className={`${styles.erdTableGroup} ${isHighlighted ? styles.erdTableGroupActive : ""}`}
+                    className={`${styles.erdTableGroup} ${isActive ? styles.erdTableGroupActive : ""} ${isHovered ? styles.erdTableGroupHover : ""}`}
                     onMouseEnter={() => setHoveredTable(table.name)}
                     onMouseLeave={() => setHoveredTable(null)}
                     onClick={() => handleTableClick(table.name)}
@@ -162,7 +162,7 @@ function ErdPanel({
                       width={layout.w}
                       height={h}
                       rx="6"
-                      className={`${styles.erdTableBg} ${isHighlighted ? styles.erdTableBgActive : ""}`}
+                      className={`${styles.erdTableBg} ${isActive ? styles.erdTableBgActive : ""} ${isHovered && !isActive ? styles.erdTableBgHover : ""}`}
                     />
                     <line
                       x1={0}
