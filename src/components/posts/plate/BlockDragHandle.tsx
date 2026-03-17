@@ -63,8 +63,7 @@ function onDocDrag(e: DragEvent) {
 }
 
 /**
- * 블록 요소(이미지, 표, 수식, 코드블록)에 부착하는 드래그 핸들.
- * 드래그 시작 시 path를 모듈 ref에 저장, 드롭 시 moveNodes로 이동.
+ * @deprecated BlockDragHandle 대신 useBlockDrag 훅을 사용하세요.
  */
 export function BlockDragHandle({ path }: { path: number[] | null }) {
   if (!path) return null;
@@ -80,7 +79,6 @@ export function BlockDragHandle({ path }: { path: number[] | null }) {
         _blockDragPath.current = path;
         _lastClientY = e.clientY;
 
-        // 에디터 영역 찾아서 auto-scroll 시작
         const editorEl = (e.target as HTMLElement).closest("[data-slate-editor]") as HTMLElement | null;
         document.addEventListener("drag", onDocDrag);
         startAutoScroll(editorEl);
@@ -102,6 +100,64 @@ export function BlockDragHandle({ path }: { path: number[] | null }) {
       </svg>
     </div>
   );
+}
+
+const LONGPRESS_MS = 400;
+
+/**
+ * 블록 요소에 롱프레스 드래그를 부여하는 훅.
+ * 반환된 props를 드래그 대상 래퍼 div에 스프레드하면 됨.
+ *
+ * 롱프레스(400ms) 후 draggable 활성화 → 드래그 시작 → 드롭/취소 시 해제.
+ * ghostRef를 전달하면 해당 요소만 고스트로 표시.
+ */
+export function useBlockDrag(
+  path: number[] | null,
+  ghostRef?: React.RefObject<HTMLElement | null>,
+) {
+  const [ready, setReady] = React.useState(false);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const clearTimer = React.useCallback(() => {
+    if (timerRef.current !== undefined) { clearTimeout(timerRef.current); timerRef.current = undefined; }
+    setReady(false);
+  }, []);
+
+  const props: React.HTMLAttributes<HTMLElement> & { draggable?: boolean } = {
+    draggable: ready,
+    onPointerDown: (e: React.PointerEvent) => {
+      // 인터랙티브 요소 위에서는 무시 (버튼, 입력, 리사이즈 핸들 등)
+      const tag = (e.target as HTMLElement).tagName;
+      if (["BUTTON", "INPUT", "TEXTAREA", "SELECT", "A", "TD", "TH", "CODE"].includes(tag)) return;
+      if ((e.target as HTMLElement).closest("[data-no-drag], td, th, code, pre")) return;
+      timerRef.current = setTimeout(() => setReady(true), LONGPRESS_MS);
+    },
+    onPointerUp: clearTimer,
+    onPointerCancel: clearTimer,
+    onPointerLeave: clearTimer,
+    onDragStart: (e: React.DragEvent) => {
+      if (!ready || !path) { e.preventDefault(); return; }
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", "block-dnd");
+      _blockDragPath.current = path;
+      // 고스트 지정
+      if (ghostRef?.current) {
+        const el = ghostRef.current;
+        const clone = el.cloneNode(true) as HTMLElement;
+        clone.style.cssText = `width:${el.offsetWidth}px;height:${el.offsetHeight}px;position:fixed;top:-9999px;left:-9999px;pointer-events:none;outline:none;`;
+        document.body.appendChild(clone);
+        const rect = el.getBoundingClientRect();
+        e.dataTransfer.setDragImage(clone, e.clientX - rect.left, e.clientY - rect.top);
+        requestAnimationFrame(() => clone.remove());
+      }
+    },
+    onDragEnd: () => {
+      _blockDragPath.current = null;
+      setReady(false);
+    },
+  };
+
+  return { blockDragProps: props, isDragging: ready };
 }
 
 /**
