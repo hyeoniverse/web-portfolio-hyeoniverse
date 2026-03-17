@@ -295,7 +295,7 @@ export function ImagePanel({
               onClick={() => { if (!isDetached) onSelect(img.path); }}
               title={isDetached ? t("editor.mediaReinsertHint") : fileName}
               style={{
-                opacity: isDetached ? 0.55 : isDragging ? 0.4 : 1,
+                opacity: isDetached ? 0.7 : isDragging ? 0.4 : 1,
                 outline: isOver ? "2px solid var(--color-accent)" : undefined,
                 outlineOffset: isOver ? -2 : undefined,
               }}
