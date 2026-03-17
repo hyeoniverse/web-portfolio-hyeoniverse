@@ -11,6 +11,7 @@ export const erdTables: ErdTable[] = [
       { name: "series_id", type: "UUID", fk: "series.id" },
       { name: "published", type: "BOOL" },
       { name: "like_count", type: "INT" },
+      { name: "deleted_at", type: "TIMESTAMPTZ" },
     ],
   },
   {
