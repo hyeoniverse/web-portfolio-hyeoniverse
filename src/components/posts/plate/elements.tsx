@@ -337,7 +337,7 @@ export function CodeBlockElement(props: PlateElementProps) {
   );
 }
 
-// ── Paragraph 엘리먼트 (todo 체크박스 렌더링) ──
+// ── Paragraph 엘리먼트 (todo 체크박스 렌더링 + 블록 드롭 존) ──
 export function ParagraphElement(props: PlateElementProps) {
   const editor = useEditorRef();
   const el = props.element as Record<string, unknown>;
@@ -354,57 +354,63 @@ export function ParagraphElement(props: PlateElementProps) {
     } catch { return null; }
   })();
   const isInsideTable = parentType === "table" || parentType === "tr";
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
 
   if (!hasTodo) {
     if (isInsideTable) {
-      // table 내 spurious paragraph — DOM에 영향 없이 Slate 경로 유지
       return <PlateElement {...props} as="span" style={{ display: "none" }} />;
     }
-    return <PlateElement {...props} as="div" style={{ ...props.style }} />;
+    return (
+      <BlockDropZone path={elPath}>
+        <PlateElement {...props} as="div" style={{ ...props.style }} />
+      </BlockDropZone>
+    );
   }
 
   const checked = !!el.checked;
-  const path = editor.api.findPath(props.element);
+  const todoPath = editor.api.findPath(props.element);
 
   return (
-    <PlateElement
-      {...props}
-      as="div"
-      style={{
-        ...props.style,
-        display: "flex",
-        alignItems: "flex-start",
-        gap: 6,
-      }}
-    >
-      <span
-        contentEditable={false}
-        onClick={() => { if (path) editor.tf.setNodes({ checked: !checked }, { at: path }); }}
+    <BlockDropZone path={elPath}>
+      <PlateElement
+        {...props}
+        as="div"
         style={{
-          flexShrink: 0,
-          width: 16,
-          height: 16,
-          marginTop: 3,
-          borderRadius: 3,
-          border: checked ? "none" : "1.5px solid var(--text-tertiary)",
-          background: checked ? "var(--bg-inverse)" : "transparent",
+          ...props.style,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          transition: "background 0.15s, border-color 0.15s",
+          alignItems: "flex-start",
+          gap: 6,
         }}
       >
-        {checked && (
-          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="var(--bg-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="2.5 6.5 5 9 9.5 3.5" />
-          </svg>
-        )}
-      </span>
-      <span style={{ flex: 1, textDecoration: checked ? "line-through" : undefined, color: checked ? "var(--text-muted)" : undefined }}>
-        {props.children}
-      </span>
-    </PlateElement>
+        <span
+          contentEditable={false}
+          onClick={() => { if (todoPath) editor.tf.setNodes({ checked: !checked }, { at: todoPath }); }}
+          style={{
+            flexShrink: 0,
+            width: 16,
+            height: 16,
+            marginTop: 3,
+            borderRadius: 3,
+            border: checked ? "none" : "1.5px solid var(--text-tertiary)",
+            background: checked ? "var(--bg-inverse)" : "transparent",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "background 0.15s, border-color 0.15s",
+          }}
+        >
+          {checked && (
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="var(--bg-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="2.5 6.5 5 9 9.5 3.5" />
+            </svg>
+          )}
+        </span>
+        <span style={{ flex: 1, textDecoration: checked ? "line-through" : undefined, color: checked ? "var(--text-muted)" : undefined }}>
+          {props.children}
+        </span>
+      </PlateElement>
+    </BlockDropZone>
   );
 }
 
@@ -591,5 +597,43 @@ export function LinkElement(props: PlateElementProps) {
         {props.children}
       </PlateElement>
     </Tooltip>
+  );
+}
+
+/** Heading (h1–h6) — 드롭 존 래퍼 */
+export function HeadingElement(props: PlateElementProps) {
+  const editor = useEditorRef();
+  const el = props.element as Record<string, unknown>;
+  const tag = (el.type as string) || "h1";
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  return (
+    <BlockDropZone path={elPath}>
+      <PlateElement {...props} as={tag as "h1"} style={{ ...props.style }} />
+    </BlockDropZone>
+  );
+}
+
+/** Blockquote — 드롭 존 래퍼 */
+export function BlockquoteElement(props: PlateElementProps) {
+  const editor = useEditorRef();
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  return (
+    <BlockDropZone path={elPath}>
+      <PlateElement {...props} as="blockquote" style={{ ...props.style }} />
+    </BlockDropZone>
+  );
+}
+
+/** Horizontal Rule — 드롭 존 래퍼 */
+export function HrElement(props: PlateElementProps) {
+  const editor = useEditorRef();
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  return (
+    <BlockDropZone path={elPath}>
+      <PlateElement {...props} style={{ ...props.style }}>
+        <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-light-color)", margin: "var(--spacing-md) 0" }} />
+        {props.children}
+      </PlateElement>
+    </BlockDropZone>
   );
 }

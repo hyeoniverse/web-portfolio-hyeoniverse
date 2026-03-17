@@ -40,7 +40,7 @@ import { ListPlugin } from "@platejs/list/react";
 import { IndentPlugin } from "@platejs/indent/react";
 import { EquationPlugin, InlineEquationPlugin } from "@platejs/math/react";
 
-import { ImageElement, CodeBlockElement, ParagraphElement, LinkElement, MediaEmbedElement } from "./elements";
+import { ImageElement, CodeBlockElement, ParagraphElement, LinkElement, MediaEmbedElement, HeadingElement, BlockquoteElement, HrElement } from "./elements";
 import { TableElement, TableRowElement, TableCellElement, TableCellHeaderElement } from "./TableElements";
 import { EquationElement, InlineEquationElement } from "./MathElements";
 
@@ -81,10 +81,10 @@ export const plugins = [
   SubscriptPlugin,
   HighlightPlugin,
   CodePlugin,
-  // Block elements
-  HeadingPlugin,
-  BlockquotePlugin,
-  HorizontalRulePlugin,
+  // Block elements (드롭 존 래퍼 포함)
+  HeadingPlugin.configure({ render: { node: HeadingElement } }),
+  BlockquotePlugin.configure({ render: { node: BlockquoteElement } }),
+  HorizontalRulePlugin.configure({ render: { node: HrElement } }),
   // Table — 블록 요소 (table>tbody>tr>td 구조상 inline 불가)
   TablePlugin.configure({
     options: {
