@@ -204,13 +204,28 @@ export function ImagePanel({
 
   const handleBulkDelete = () => {
     if (selected.size === 0) return;
-    // 뒤에서부터 삭제해야 인덱스가 안 꼬임
     const sorted = Array.from(selected).sort((a, b) => b - a);
     for (const idx of sorted) {
-      onRemove(images[idx].path);
+      const img = images[idx];
+      if (img.detached) onRemoveDetached?.(img.url);
+      else onRemove(img.path);
     }
     setSelected(new Set());
   };
+
+  const handleBulkReinsert = () => {
+    if (selected.size === 0) return;
+    const sorted = Array.from(selected).sort((a, b) => a - b);
+    for (const idx of sorted) {
+      const img = images[idx];
+      if (img.detached) onReinsert?.(img.url, img.mediaType);
+    }
+    setSelected(new Set());
+  };
+
+  // 선택된 항목 중 detached / content 구분
+  const selectedDetachedCount = Array.from(selected).filter((i) => images[i]?.detached).length;
+  const selectedContentCount = selected.size - selectedDetachedCount;
 
   const sizeLabel = totalSize !== null && totalSize > 0 ? ` (${formatBytes(totalSize)})` : "";
   const hasSelection = selected.size > 0;
@@ -235,9 +250,14 @@ export function ImagePanel({
             </button>
             {hasSelection && (
               <>
-                {onBulkInsert && (
+                {selectedDetachedCount > 0 && (
+                  <button type="button" className={styles.imagePanelActionBtn} onClick={handleBulkReinsert}>
+                    {t("editor.mediaReinsert")} ({selectedDetachedCount})
+                  </button>
+                )}
+                {selectedContentCount > 0 && onBulkInsert && (
                   <button type="button" className={styles.imagePanelActionBtn} onClick={handleBulkInsert}>
-                    {t("editor.imageInsertSelected")} ({selected.size})
+                    {t("editor.imageInsertSelected")} ({selectedContentCount})
                   </button>
                 )}
                 <button type="button" className={`${styles.imagePanelActionBtn} ${styles.imagePanelActionDanger}`} onClick={handleBulkDelete}>
@@ -272,33 +292,27 @@ export function ImagePanel({
               onDragOver={isDetached ? undefined : (e) => onDragOver(e, i)}
               onDrop={isDetached ? undefined : (e) => onDrop(e, i)}
               onDragEnd={isDetached ? undefined : onDragEnd}
-              onClick={() => isDetached ? onReinsert?.(img.url, img.mediaType) : onSelect(img.path)}
+              onClick={() => { if (!isDetached) onSelect(img.path); }}
               title={isDetached ? t("editor.mediaReinsertHint") : fileName}
               style={{
-                opacity: isDetached ? 0.5 : isDragging ? 0.4 : 1,
+                opacity: isDetached ? 0.55 : isDragging ? 0.4 : 1,
                 outline: isOver ? "2px solid var(--color-accent)" : undefined,
                 outlineOffset: isOver ? -2 : undefined,
               }}
             >
-              {/* 체크박스 — detached는 재삽입 아이콘 */}
-              {isDetached ? (
-                <span className={styles.imagePanelCheck} onClick={(e) => { e.stopPropagation(); onReinsert?.(img.url, img.mediaType); }}>
-                  <span className={styles.imagePanelCheckbox} style={{ fontSize: 9, lineHeight: 1 }}>↩</span>
+              {/* 체크박스 */}
+              <span
+                className={styles.imagePanelCheck}
+                onClick={(e) => toggleSelect(i, e)}
+              >
+                <span className={`${styles.imagePanelCheckbox} ${isSelected ? styles.imagePanelCheckboxChecked : ""}`}>
+                  {isSelected && (
+                    <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="2.5 6.5 5 9 9.5 3.5" />
+                    </svg>
+                  )}
                 </span>
-              ) : (
-                <span
-                  className={styles.imagePanelCheck}
-                  onClick={(e) => toggleSelect(i, e)}
-                >
-                  <span className={`${styles.imagePanelCheckbox} ${isSelected ? styles.imagePanelCheckboxChecked : ""}`}>
-                    {isSelected && (
-                      <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="2.5 6.5 5 9 9.5 3.5" />
-                      </svg>
-                    )}
-                  </span>
-                </span>
-              )}
+              </span>
               {isVideo
                 ? <video src={img.url} draggable={false} muted preload="metadata" />
                 : <img src={img.url} alt={fileName} draggable={false} />
