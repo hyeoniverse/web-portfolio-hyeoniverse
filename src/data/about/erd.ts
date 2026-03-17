@@ -254,4 +254,28 @@ export const erdDesignNotes: ErdDesignNote[] = [
     },
     relatedTable: "revisions",
   },
+  {
+    title: {
+      ko: "배열 타입으로 유연한 태깅",
+      en: "Flexible Tagging with Array Type",
+    },
+    tag: "TEXT[] + @> Operator",
+    description: {
+      ko: "works.tech 컬럼을 TEXT[] 배열 타입으로 저장하여, 별도 조인 테이블 없이 다중 기술 태그를 관리해요. @> 연산자로 특정 기술 포함 여부를 빠르게 확인하고, unnest()로 개별 요소를 풀어 집계할 수도 있습니다. 태그가 독립 엔티티가 아닌 속성에 가까울 때 조인 비용 없이 단순하게 처리하는 전략이에요.",
+      en: "The works.tech column uses a TEXT[] array type to manage multiple tech tags without a separate join table. The @> operator quickly checks for inclusion, and unnest() can expand elements for aggregation. This strategy keeps things simple without join overhead when tags are closer to attributes than independent entities.",
+    },
+    relatedTable: "works",
+  },
+  {
+    title: {
+      ko: "시리즈-카테고리 자동 동기화",
+      en: "Auto-Synced Series Category",
+    },
+    tag: "FK + Application-Level Sync",
+    description: {
+      ko: "posts.series_id FK로 시리즈를 참조하면, 해당 시리즈의 카테고리가 포스트에 자동 적용돼요. 프론트에서는 시리즈 선택 시 카테고리 필드를 잠금 처리하고, 시리즈 해제 시 수동 선택으로 복원합니다. DB에서는 FK로 참조 무결성만 보장하고, 동기화 로직은 애플리케이션 레이어에서 처리해 유연성을 확보합니다.",
+      en: "When posts.series_id references a series via FK, the series' category is automatically applied to the post. The frontend locks the category field when a series is selected and restores manual selection on deselection. The database only ensures referential integrity via FK, while sync logic is handled at the application layer for flexibility.",
+    },
+    relatedTable: "series",
+  },
 ];
