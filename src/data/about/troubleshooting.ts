@@ -5,6 +5,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     section: { ko: "Backend / Admin", en: "Backend / Admin" },
     problem: { ko: "포스트 실수 삭제 시 복구 불가", en: "Accidental Post Deletion with No Recovery" },
+    definition: {
+      ko: "관리자가 포스트를 실수로 삭제하면 **DB에서 영구 제거**되어, 복구 수단이 전혀 없는 상태입니다.",
+      en: "When the admin accidentally deletes a post, it's **permanently removed from the DB** with no recovery mechanism available.",
+    },
     cause: {
       ko: "초기에는 DELETE 요청이 **DB row를 즉시 영구 삭제**하는 구조였습니다. 작성 중이던 글을 실수로 삭제하면 복구할 방법이 전혀 없었고, 관리자가 직접 DB에 접속해야 하는 상황이 발생했습니다. 단일 관리자 환경이라 '실수할 일 없다'고 생각했지만, **실제로는 UI 오조작이나 의도하지 않은 삭제가 발생**했습니다.",
       en: "Initially, DELETE requests **permanently removed the DB row immediately**. Accidentally deleting a draft left no recovery path — the admin had to access the database directly. In a single-admin environment, 'mistakes won't happen' seemed reasonable, but **UI misclicks and unintended deletions did occur**.",
@@ -42,6 +46,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   },
   {
     problem: { ko: "AI 번역/요약이 provider 장애 시 완전 중단", en: "AI Translation/Summary Completely Down on Provider Outage" },
+    definition: {
+      ko: "AI provider 하나가 장애를 일으키면 번역·요약 기능이 **전부 중단**되고, 관리자가 수동으로 개입할 때까지 복구되지 않습니다.",
+      en: "When a single AI provider fails, **all translation and summary features stop working** until the admin manually intervenes.",
+    },
     cause: {
       ko: "번역과 AI 요약 기능이 **단일 provider(DeepL)에만 의존**하고 있었습니다. provider가 rate limit에 걸리거나 장애가 발생하면, 관리자가 직접 설정을 바꾸기 전까지 **번역·요약 기능이 전부 중단**되었습니다. 포트폴리오 특성상 사용 빈도가 낮아 '장애가 오래 지속될 일은 없다'고 가정했지만, **무료 티어 rate limit은 예상보다 자주 발생**했습니다.",
       en: "Translation and AI summary features **depended on a single provider (DeepL)**. When rate-limited or experiencing outages, **all translation/summary features stopped** until the admin manually changed settings. Low usage was expected to avoid issues, but **free-tier rate limits hit more often than anticipated**.",
@@ -80,6 +88,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   },
   {
     problem: { ko: "API 키 변경마다 재배포가 필요", en: "Every API Key Change Requires Redeployment" },
+    definition: {
+      ko: "API 키를 하나 교체하려면 **Vercel 환경변수 수정 → 빌드 → 배포** 전체 과정을 거쳐야 하며, 20개 이상의 키를 이 방식으로 관리해야 합니다.",
+      en: "Changing a single API key requires the **full Vercel env edit → build → deploy cycle**, and 20+ keys must all be managed this way.",
+    },
     cause: {
       ko: "모든 API 키를 **`.env` 환경변수에 하드코딩**해 두고 있었습니다. 키를 교체하려면 Vercel 대시보드에서 환경변수를 수정한 뒤 **빌드·배포를 다시 실행**해야 했습니다. AI provider를 여러 개 사용하면서 키가 20개 이상으로 늘어났고, 키 하나 바꾸는 데 **3~5분의 빌드 시간**이 소요되었습니다.",
       en: "All API keys were **hardcoded in `.env` environment variables**. Changing a key required editing Vercel dashboard env vars and **re-running build/deploy**. With multiple AI providers, keys grew to 20+, and changing one took **3-5 minutes of build time**.",
@@ -117,6 +129,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   },
   {
     problem: { ko: "비회원 댓글에서 본인 확인이 번거로움", en: "Tedious Identity Verification for Guest Comments" },
+    definition: {
+      ko: "비회원 댓글 수정/삭제 시 **매번 비밀번호를 입력**해야 하고, 다른 기기에서 작성한 댓글은 **본인 확인 자체가 불가능**합니다.",
+      en: "Editing/deleting guest comments requires **re-entering the password every time**, and comments from other devices are **completely unidentifiable**.",
+    },
     cause: {
       ko: "초기 댓글 시스템은 **비밀번호만으로 본인 확인**을 처리했습니다. 댓글을 수정하거나 삭제할 때마다 비밀번호를 입력해야 했고, 다른 기기에서 작성한 댓글은 비밀번호를 기억하지 못하면 **본인 글인지 확인조차 불가능**했습니다. 회원가입을 도입하면 해결되지만, 포트폴리오 사이트에서 **가입 허들은 댓글 참여율을 크게 떨어뜨립니다**.",
       en: "The initial comment system used **password-only verification**. Every edit/delete required re-entering the password, and comments from other devices were **impossible to identify** if the password was forgotten. Adding sign-up would solve this, but in a portfolio site, **registration hurdles dramatically reduce comment participation**.",
@@ -154,6 +170,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   },
   {
     problem: { ko: "에디터 자동저장 주기가 너무 잦아 리비전이 의미 없이 누적됨", en: "Auto-save Interval Too Frequent — Revisions Accumulated Meaninglessly" },
+    definition: {
+      ko: "자동저장이 **5초마다 실행**되어 한 시간 작업 시 수십 개의 리비전이 쌓이고, 대부분 의미 없는 변경이라 **되돌아갈 시점을 찾기 어렵습니다**.",
+      en: "Auto-save fires **every 5 seconds**, generating dozens of revisions per hour — most are trivial changes, making it **hard to find meaningful restore points**.",
+    },
     cause: {
       ko: "편집 중 변경사항을 보호하기 위해 **5초 debounce**로 자동저장을 구현했습니다. 그런데 5초는 지나치게 짧은 주기여서, **사소한 편집마다 저장이 트리거**되었습니다. 한 시간 작업하면 리비전이 수십 개 쌓였고 대부분 '단어 하나 추가', '오타 수정' 수준으로, 정작 **되돌아가고 싶은 시점을 찾기가 어려웠습니다**.",
       en: "Auto-save was implemented with a **5-second debounce** to protect edits. But 5 seconds was far too short — **every minor edit triggered a save**. After an hour of writing, dozens of revisions piled up, most just 'added a word' or 'fixed a typo', making it **hard to find the checkpoint you actually wanted**.",
@@ -253,6 +273,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     section: { ko: "Frontend / Performance", en: "Frontend / Performance" },
     problem: { ko: "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)", en: "reCAPTCHA v3 Initial Load Performance Degradation (LCP 17.1s, TTI 18.2s)" },
+    definition: {
+      ko: "reCAPTCHA 스크립트(784KB)가 페이지 로드 시 즉시 다운로드되어, **LCP 17.1초 / TTI 18.2초**로 초기 렌더링을 심각하게 지연시킵니다.",
+      en: "The reCAPTCHA script (784KB) downloads immediately on page load, severely delaying initial rendering to **LCP 17.1s / TTI 18.2s**.",
+    },
     cause: {
       ko: "공식 문서대로 보안 스크립트(reCAPTCHA)를 앱 시작 시 바로 불러왔더니, 페이지를 열자마자 **784KB짜리 파일이 다운로드**되었습니다. 이 파일이 다른 작업을 막으면서 **페이지가 화면에 표시되기까지 17초**나 걸리게 되었습니다.",
       en: "Following official docs, I loaded the security script (reCAPTCHA) immediately on app start, which caused a **784KB file to download right away**. This blocked other work and pushed the **page display time to 17 seconds**.",
@@ -290,6 +314,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   },
   {
     problem: { ko: "mousemove마다 React 리렌더 (60fps 성능 저하)", en: "React Re-render on Every mousemove (60fps Performance Degradation)" },
+    definition: {
+      ko: "마우스를 움직이면 **초당 60번 React 리렌더**가 발생하여 25개 이상의 그리드 아이템이 매번 다시 그려지고, 프레임 드롭이 체감됩니다.",
+      en: "Moving the mouse triggers **~60 React re-renders per second**, causing 25+ grid items to re-render each time with visible frame drops.",
+    },
     cause: {
       ko: "Works 섹션의 마우스 반발 효과가 **mousemove마다 React state를 업데이트**하고 있었습니다. 마우스를 움직일 때마다 **초당 60번의 setState 호출**이 발생하고, 매번 WorksSection 전체(25개 이상의 그리드 아이템)가 **다시 그려졌습니다**. 이로 인해 마우스를 움직이는 동안 메인 스레드가 계속 바빴습니다.",
       en: "The mouse repulsion effect in the Works section was **updating React state on every mousemove**. This caused **~60 setState calls per second**, each triggering a full re-render of WorksSection with 25+ grid items. The main thread stayed busy the entire time the mouse was moving.",
@@ -327,6 +355,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   },
   {
     problem: { ko: "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐", en: "Layout Jumps When Toggling Code Block Line Wrap" },
+    definition: {
+      ko: "코드 블록의 줄바꿈을 토글하면 높이가 순간적으로 변하면서, **아래쪽 콘텐츠가 갑자기 밀려나는 레이아웃 시프트**가 발생합니다.",
+      en: "Toggling line wrap on code blocks causes an instant height change, producing a **layout shift that jolts content below**.",
+    },
     cause: {
       ko: "블로그 포스트의 코드 블록에 **줄바꿈 토글 버튼**을 추가했습니다. `white-space: pre` → `pre-wrap` 전환 시 코드 블록의 높이가 변하면서, **아래쪽 콘텐츠가 갑자기 밀려나는 레이아웃 시프트**가 발생했습니다. CSS `transition`으로 `max-height`를 애니메이션하려 했지만, **최대 높이를 미리 알 수 없어** 값을 크게 잡으면 타이밍이 어긋나고, 작게 잡으면 잘리는 문제가 있었습니다.",
       en: "Added a **line-wrap toggle button** to blog code blocks. Switching `white-space: pre` → `pre-wrap` changed block height, causing **layout shift that pushed content below**. Tried CSS `transition` on `max-height`, but **the actual max height isn't known in advance** — set too high, timing feels wrong; too low, content clips.",
@@ -364,6 +396,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   },
   {
     problem: { ko: "커스텀 커서의 hit-test가 매 프레임 DOM을 탐색", en: "Custom Cursor Hit-Testing Traversing DOM Every Frame" },
+    definition: {
+      ko: "`elementsFromPoint()`가 **매 프레임(~60/s) 호출**되어 수백 개 DOM 요소를 탐색하고, 커서 위치 업데이트까지 함께 느려집니다.",
+      en: "`elementsFromPoint()` is called **every frame (~60/s)**, traversing hundreds of DOM elements and slowing down cursor position updates.",
+    },
     cause: {
       ko: "커스텀 커서 효과에서 마우스 아래의 요소 타입(클릭 가능, 텍스트, 비활성 등)을 판별하기 위해 **`elementsFromPoint()`를 매 프레임 호출**하고 있었습니다. 이 API는 해당 좌표의 **모든 DOM 요소를 탐색**하므로, 복잡한 레이아웃에서는 **프레임당 수백 개의 요소를 순회**하게 됩니다. 커서 위치 보간(LERP)과 hit-test가 같은 RAF 루프에 묶여 있어, **위치 업데이트까지 함께 느려졌습니다**.",
       en: "The custom cursor effect called **`elementsFromPoint()` every frame** to determine the element type under the cursor (clickable, text, disabled, etc.). This API **traverses all DOM elements** at the coordinate, potentially **iterating hundreds of elements per frame** in complex layouts. Hit-testing and position interpolation (LERP) were coupled in the same RAF loop, so **even position updates slowed down**.",
@@ -404,6 +440,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   {
     section: { ko: "CSS / Styling", en: "CSS / Styling" },
     problem: { ko: "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀", en: "Global Transition Shorthand Overriding Component Transitions" },
+    definition: {
+      ko: "테마 전환용 글로벌 `transition`이 컴포넌트의 **`max-height`, `opacity`, `transform` 전환을 모두 무시**시켜, 인터랙션 애니메이션이 동작하지 않습니다.",
+      en: "The global theme `transition` **overrides component-level `max-height`, `opacity`, `transform` transitions**, causing interaction animations to stop working.",
+    },
     cause: {
       ko: "테마 전환을 위해 `html[data-theme-ready] *`에 **transition shorthand**를 걸어 `background-color, border-color, color` 등을 부드럽게 전환했습니다. 그런데 이 선택자의 특이성이 `(0,1,1)`로, 단일 클래스 `(0,1,0)`보다 높아서 **컴포넌트의 `max-height`, `opacity`, `transform` 전환이 모두 무시**되었습니다. `transition`이 shorthand이기 때문에 **나열되지 않은 속성의 전환까지 통째로 교체**한 것이 원인이었습니다.",
       en: "For theme switching, I set a **transition shorthand** on `html[data-theme-ready] *` to smoothly transition `background-color, border-color, color`, etc. But its specificity `(0,1,1)` beats single-class selectors `(0,1,0)`, and since `transition` is a shorthand, it **completely replaced** component-level transitions for `max-height`, `opacity`, `transform`, etc.",
@@ -419,6 +459,10 @@ export const troubleShootingItems: TroubleShootingItem[] = [
   },
   {
     problem: { ko: "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴", en: "CSS Module Hash Collision Collapsing Desktop Layout" },
+    definition: {
+      ko: "데스크톱에서 `display: contents`가 적용되지 않아, About 페이지의 ProcessPanel **레이아웃이 완전히 무너집니다**.",
+      en: "On desktop, `display: contents` fails to apply, **completely breaking** the ProcessPanel layout on the About page.",
+    },
     cause: {
       ko: "About 페이지의 각 패널은 **공유 CSS Module과 로컬 CSS Module을 `{ ...shared, ...local }`로 병합**하여 사용합니다. ProcessPanel의 `.processBody`는 공유 CSS에서 `display: contents`로 정의되어 있었는데, 로컬 CSS에서 **모바일 미디어 쿼리 안에서만** 같은 이름의 클래스를 정의했습니다. 문제는 CSS Module이 **파일별로 다른 해시를 생성**하기 때문에, 스프레드 병합 시 **로컬 해시가 공유 해시를 덮어써** 데스크톱에서 `display: contents`가 적용되지 않은 것이었습니다.",
       en: "About page panels merge shared and local CSS Modules via `{ ...shared, ...local }`. ProcessPanel's `.processBody` was defined as `display: contents` in shared CSS, but local CSS only defined the **same class name inside a mobile media query**. Since CSS Modules generate **different hashes per file**, the spread merge caused the **local hash to override the shared hash**, losing `display: contents` on desktop.",
