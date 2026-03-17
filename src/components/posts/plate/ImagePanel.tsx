@@ -292,10 +292,10 @@ export function ImagePanel({
               onDragOver={isDetached ? undefined : (e) => onDragOver(e, i)}
               onDrop={isDetached ? undefined : (e) => onDrop(e, i)}
               onDragEnd={isDetached ? undefined : onDragEnd}
-              onClick={() => { if (!isDetached) onSelect(img.path); }}
+              onClick={(e) => { if (isDetached) toggleSelect(i, e); else onSelect(img.path); }}
               title={isDetached ? t("editor.mediaReinsertHint") : fileName}
               style={{
-                opacity: isDetached ? 0.7 : isDragging ? 0.4 : 1,
+                opacity: isDragging ? 0.4 : 1,
                 outline: isOver ? "2px solid var(--color-accent)" : undefined,
                 outlineOffset: isOver ? -2 : undefined,
               }}
@@ -314,8 +314,8 @@ export function ImagePanel({
                 </span>
               </span>
               {isVideo
-                ? <video src={img.url} draggable={false} muted preload="metadata" />
-                : <img src={img.url} alt={fileName} draggable={false} />
+                ? <video src={img.url} draggable={false} muted preload="metadata" style={isDetached ? { opacity: 0.7 } : undefined} />
+                : <img src={img.url} alt={fileName} draggable={false} style={isDetached ? { opacity: 0.7 } : undefined} />
               }
               <span className={styles.imagePanelName}>{fileName}</span>
               <button
