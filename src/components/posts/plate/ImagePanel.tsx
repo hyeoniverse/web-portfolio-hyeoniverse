@@ -1,22 +1,81 @@
 import React from "react";
 import CloseIcon from "@/components/ui/CloseIcon";
+import Tooltip from "@/components/ui/Tooltip";
+import { useLanguage } from "@/providers/LanguageProvider";
 import type { EditorImageInfo } from "./types";
 import styles from "../RichTextEditor.module.css";
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return "0 B";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export function ImagePanel({
   images,
   onSelect,
   onReorder,
   onRemove,
+  onImageUpload,
+  onVideoUpload,
+  onBulkInsert,
+  maxImageSizeMB,
 }: {
   images: EditorImageInfo[];
   onSelect: (path: number[]) => void;
   onReorder: (fromIdx: number, toIdx: number) => void;
   onRemove: (path: number[]) => void;
+  onImageUpload?: (file: File) => Promise<string>;
+  onVideoUpload?: (file: File) => Promise<string>;
+  onBulkInsert?: (paths: number[][]) => void;
+  maxImageSizeMB?: number;
 }) {
+  const { t } = useLanguage();
   const [dragIdx, setDragIdx] = React.useState<number | null>(null);
   const [overIdx, setOverIdx] = React.useState<number | null>(null);
+  const [fileDragOver, setFileDragOver] = React.useState(false);
+  const [totalSize, setTotalSize] = React.useState<number | null>(null);
+  const prevUrlsRef = React.useRef<string>("");
+  const [selected, setSelected] = React.useState<Set<number>>(new Set());
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  // 이미지 변경 시 선택 상태 리셋
+  React.useEffect(() => {
+    setSelected(new Set());
+  }, [images.length]);
+
+  // 이미지 용량 합산 (HEAD 요청)
+  React.useEffect(() => {
+    const urls = images.map((img) => img.url).join(",");
+    if (urls === prevUrlsRef.current) return;
+    prevUrlsRef.current = urls;
+
+    if (images.length === 0) {
+      setTotalSize(0);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      let sum = 0;
+      await Promise.all(
+        images.map(async (img) => {
+          try {
+            const res = await fetch(img.url, { method: "HEAD" });
+            const cl = res.headers.get("content-length");
+            if (cl) sum += parseInt(cl, 10);
+          } catch {
+            /* ignore */
+          }
+        }),
+      );
+      if (!cancelled) setTotalSize(sum);
+    })();
+    return () => { cancelled = true; };
+  }, [images]);
+
+  // ── 썸네일 드래그 재정렬 ──
   const onDragStart = (e: React.DragEvent, idx: number) => {
     setDragIdx(idx);
     e.dataTransfer.effectAllowed = "move";
@@ -42,21 +101,166 @@ export function ImagePanel({
     setOverIdx(null);
   };
 
+  // ── 외부 파일 드래그앤드롭 ──
+  const fileDropCounter = React.useRef(0);
+
+  const handleFileDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    fileDropCounter.current++;
+    if (e.dataTransfer.types.includes("Files")) {
+      setFileDragOver(true);
+    }
+  };
+
+  const handleFileDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    fileDropCounter.current--;
+    if (fileDropCounter.current <= 0) {
+      fileDropCounter.current = 0;
+      setFileDragOver(false);
+    }
+  };
+
+  const handleFileDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const uploadFile = async (file: File) => {
+    if (file.type.startsWith("video/")) {
+      if (onVideoUpload) await onVideoUpload(file);
+    } else {
+      if (onImageUpload) await onImageUpload(file);
+    }
+  };
+
+  const handleFileDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    fileDropCounter.current = 0;
+    setFileDragOver(false);
+    if (!onImageUpload && !onVideoUpload) return;
+
+    const files = Array.from(e.dataTransfer.files).filter((f) =>
+      f.type.startsWith("image/") || f.type.startsWith("video/"),
+    );
+    for (const file of files) {
+      try {
+        await uploadFile(file);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : t("editor.imageUploadFail"));
+      }
+    }
+  };
+
+  // ── 파일 첨부 버튼 ──
+  const handleAttachClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if ((!onImageUpload && !onVideoUpload) || !e.target.files) return;
+    const files = Array.from(e.target.files).filter((f) => f.type.startsWith("image/") || f.type.startsWith("video/"));
+    for (const file of files) {
+      try {
+        await uploadFile(file);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : t("editor.imageUploadFail"));
+      }
+    }
+    e.target.value = "";
+  };
+
+  // ── 멀티 셀렉트 ──
+  const toggleSelect = (idx: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    setSelected(new Set(images.map((_, i) => i)));
+  };
+
+  const deselectAll = () => {
+    setSelected(new Set());
+  };
+
+  const handleBulkInsert = () => {
+    if (selected.size === 0) return;
+    const paths = Array.from(selected)
+      .sort((a, b) => a - b)
+      .map((idx) => images[idx].path);
+    onBulkInsert?.(paths);
+    setSelected(new Set());
+  };
+
+  const handleBulkDelete = () => {
+    if (selected.size === 0) return;
+    // 뒤에서부터 삭제해야 인덱스가 안 꼬임
+    const sorted = Array.from(selected).sort((a, b) => b - a);
+    for (const idx of sorted) {
+      onRemove(images[idx].path);
+    }
+    setSelected(new Set());
+  };
+
+  const sizeLabel = totalSize !== null && totalSize > 0 ? ` (${formatBytes(totalSize)})` : "";
+  const hasSelection = selected.size > 0;
+
   return (
-    <div className={styles.imagePanel}>
-      <span className={styles.imagePanelLabel}>첨부된 이미지 ({images.length})</span>
+    <div
+      className={`${styles.imagePanel} ${fileDragOver ? styles.imagePanelDragOver : ""}`}
+      onDragEnter={handleFileDragEnter}
+      onDragLeave={handleFileDragLeave}
+      onDragOver={handleFileDragOver}
+      onDrop={handleFileDrop}
+    >
+      {/* ── 헤더: 라벨 + 멀티셀렉트 액션 ── */}
+      <div className={styles.imagePanelHeader}>
+        <span className={styles.imagePanelLabel}>
+          {t("editor.imageCount").replace("{count}", String(images.length))}{sizeLabel}
+        </span>
+        {images.length > 0 && (
+          <div className={styles.imagePanelActions}>
+            <button type="button" className={styles.imagePanelActionBtn} onClick={hasSelection ? deselectAll : selectAll}>
+              {hasSelection ? t("editor.imageDeselectAll") : t("editor.imageSelectAll")}
+            </button>
+            {hasSelection && (
+              <>
+                {onBulkInsert && (
+                  <button type="button" className={styles.imagePanelActionBtn} onClick={handleBulkInsert}>
+                    {t("editor.imageInsertSelected")} ({selected.size})
+                  </button>
+                )}
+                <button type="button" className={`${styles.imagePanelActionBtn} ${styles.imagePanelActionDanger}`} onClick={handleBulkDelete}>
+                  {t("editor.imageDeleteSelected")} ({selected.size})
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── 이미지 목록 ── */}
       <div className={styles.imagePanelList}>
         {images.length === 0 && (
-          <span className={styles.imagePanelEmpty}>첨부된 이미지가 없습니다</span>
+          <span className={styles.imagePanelEmpty}>
+            {fileDragOver ? t("editor.imageDragDrop") : t("editor.imageDragHint")}
+          </span>
         )}
         {images.map((img, i) => {
           const fileName = decodeURIComponent(img.url.split("/").pop()?.split("?")[0] || "");
           const isDragging = dragIdx === i;
           const isOver = overIdx === i && dragIdx !== i;
+          const isSelected = selected.has(i);
           return (
             <div
               key={`${img.url}-${i}`}
-              className={styles.imagePanelItem}
+              className={`${styles.imagePanelItem} ${isSelected ? styles.imagePanelItemSelected : ""}`}
               draggable
               onDragStart={(e) => onDragStart(e, i)}
               onDragOver={(e) => onDragOver(e, i)}
@@ -70,14 +274,27 @@ export function ImagePanel({
                 outlineOffset: isOver ? -2 : undefined,
               }}
             >
+              {/* 체크박스 */}
+              <span
+                className={styles.imagePanelCheck}
+                onClick={(e) => toggleSelect(i, e)}
+              >
+                <span className={`${styles.imagePanelCheckbox} ${isSelected ? styles.imagePanelCheckboxChecked : ""}`}>
+                  {isSelected && (
+                    <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="2.5 6.5 5 9 9.5 3.5" />
+                    </svg>
+                  )}
+                </span>
+              </span>
               <img src={img.url} alt={fileName} draggable={false} />
               <span className={styles.imagePanelName}>{fileName}</span>
               <button
                 type="button"
                 className={styles.imagePanelRemove}
                 onClick={(e) => { e.stopPropagation(); onRemove(img.path); }}
-                title="이미지 제거"
-                aria-label="이미지 제거"
+                title={t("editor.imageRemove")}
+                aria-label={t("editor.imageRemove")}
                 data-close-trigger
               >
                 <CloseIcon />
@@ -85,6 +302,33 @@ export function ImagePanel({
             </div>
           );
         })}
+      </div>
+
+      {/* ── 하단: 파일 첨부 버튼 + 안내 텍스트 ── */}
+      <div className={styles.imagePanelFooter}>
+        <Tooltip
+          content={t("editor.imageSizeLimit").replace("{size}", String(maxImageSizeMB ?? 10))}
+          placement="top"
+          delay={200}
+        >
+          <button type="button" className={styles.imagePanelAttachBtn} onClick={handleAttachClick}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 8.5l-5.5 5.5a4 4 0 01-5.66-5.66l5.5-5.5a2.67 2.67 0 013.77 3.77l-5.5 5.5a1.33 1.33 0 01-1.88-1.88l5-5" />
+            </svg>
+            {t("editor.imageAttach")}
+          </button>
+        </Tooltip>
+        <span className={styles.imagePanelInfoText}>
+          {t("editor.imageAttachInfo")}
+        </span>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          style={{ display: "none" }}
+          onChange={handleFileInputChange}
+        />
       </div>
     </div>
   );

@@ -1,0 +1,394 @@
+"use client";
+
+import { useState, useCallback, useEffect, useRef } from "react";
+import { getTableGridAbove } from "@platejs/table";
+import { findAncestorOfType, findCurrentCell, nodeAtPath } from "./utils";
+import { LINE_HEIGHT_PRESETS, ZEBRA_COLOR_DEFAULT } from "./constants";
+
+// ── useOutsideClick ──
+export function useOutsideClick(
+  ref: React.RefObject<HTMLElement | null>,
+  active: boolean,
+  onOutside: () => void,
+) {
+  useEffect(() => {
+    if (!active) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onOutside();
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [ref, active, onOutside]);
+}
+
+// ── useEditorMarks: 현재 커서/선택 위치의 마크 정보 ──
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useEditorMarks(editor: any) {
+  let marks: Record<string, unknown> = {};
+  try {
+    if (editor.selection) {
+      const leafEntry = editor.api.leaf(editor.selection.focus);
+      if (leafEntry) {
+        const { text: _t, ...leafMarks } = leafEntry[0] as Record<string, unknown>;
+        marks = leafMarks;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pending = (editor as any).marks as Record<string, unknown> | null;
+      if (pending) marks = { ...marks, ...pending };
+    }
+  } catch { /* selection 일시 무효 */ }
+
+  const hasMark = (key: string) => {
+    try { return editor.api.hasMark(key); } catch { return false; }
+  };
+
+  const color = (marks.color as string) ?? "";
+  const bgColor = (marks.backgroundColor as string) ?? "";
+  const fontFamily = (marks.fontFamily as string) ?? "";
+  const fontSize = (marks.fontSize as string) || "";
+  const letterSpacing = (marks.letterSpacing as string) || "";
+
+  return { marks, hasMark, color, bgColor, fontFamily, fontSize, letterSpacing };
+}
+
+// ── useBlockInfo: 현재 블록 타입, align, lineHeight 등 ──
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useBlockInfo(editor: any) {
+  let block: [{ type?: string; align?: string; lineHeight?: string; listStyleType?: string }, unknown] | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  try { block = (editor.api as any).block?.() as typeof block; } catch { /* ignore */ }
+
+  const blockType = block?.[0]?.type ?? "p";
+  const align = (block?.[0]?.align as string) ?? "left";
+  const lineHeight = block?.[0]?.lineHeight as string | undefined;
+
+  return { block, blockType, align, lineHeight };
+}
+
+// ── useComputedStyle: DOM computed style에서 현재값 읽기 ──
+export function useComputedStyle() {
+  try {
+    const sel = window.getSelection();
+    if (!sel || !sel.focusNode) return null;
+    const el = sel.focusNode.nodeType === Node.TEXT_NODE ? sel.focusNode.parentElement : sel.focusNode as Element;
+    if (!el) return null;
+    return window.getComputedStyle(el);
+  } catch { return null; }
+}
+
+// ── useResolvedFontSize: mark + computed에서 fontSize 결정 ──
+export function resolvedFontSize(markFontSize: string, computed: CSSStyleDeclaration | null): string {
+  return markFontSize || (computed ? `${Math.round(parseFloat(computed.fontSize))}px` : "");
+}
+
+export function resolvedLineHeight(blockLineHeight: string | undefined, computed: CSSStyleDeclaration | null): string {
+  if (blockLineHeight) return blockLineHeight;
+  if (!computed) return "";
+  const ratio = parseFloat(computed.lineHeight) / parseFloat(computed.fontSize);
+  if (isNaN(ratio)) return "";
+  let closest = LINE_HEIGHT_PRESETS[0];
+  let minDiff = Math.abs(ratio - parseFloat(closest));
+  for (const p of LINE_HEIGHT_PRESETS) {
+    const diff = Math.abs(ratio - parseFloat(p));
+    if (diff < minDiff) { closest = p; minDiff = diff; }
+  }
+  return minDiff < 0.05 ? closest : "";
+}
+
+// ── useTableInfo: 현재 커서의 테이블/셀 정보 ──
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useTableInfo(editor: any, isInTable: boolean) {
+  const currentCell = (() => {
+    if (!isInTable) return null;
+    return findCurrentCell(editor);
+  })();
+
+  const currentTableInfo = (() => {
+    if (!isInTable) return null;
+    return findAncestorOfType(editor, "table");
+  })();
+
+  const cellBg = (currentCell?.background as string) ?? "";
+  const cellVAlign = (currentCell?.verticalAlign as string) ?? "";
+  const tableCaption = (currentTableInfo?.node?.caption as string) ?? "";
+
+  // Zebra state
+  const { isZebraActive, currentZebraColor } = (() => {
+    if (!currentTableInfo) return { isZebraActive: false, currentZebraColor: null as string | null };
+    const secondRow = currentTableInfo.node.children?.[1];
+    if (!secondRow) return { isZebraActive: false, currentZebraColor: null };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const bg = secondRow.children?.find((c: any) => !!c.background)?.background ?? null;
+    return { isZebraActive: !!bg, currentZebraColor: bg };
+  })();
+
+  return {
+    currentCell, currentTableInfo,
+    cellBg, cellVAlign, tableCaption,
+    isZebraActive, currentZebraColor,
+  };
+}
+
+// ── useBorderPopover: 테두리 팝오버 상태 + 셀 캡처 로직 ──
+type CellBorderSide = { style?: string; width?: string; color?: string } | null;
+type CellBorders = { top?: CellBorderSide; right?: CellBorderSide; bottom?: CellBorderSide; left?: CellBorderSide };
+export type BorderMode = "all" | "none" | "outer" | "inner" | "innerH" | "innerV" | "top" | "bottom" | "left" | "right";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useBorderPopover(editor: any, savedSelectionRef: React.RefObject<typeof editor.selection>) {
+  const [open, setOpen] = useState(false);
+  const [style, setStyle] = useState("solid");
+  const [width, setWidth] = useState("1px");
+  const [color, setColor] = useState("var(--border-light-color)");
+  const popRef = useRef<HTMLDivElement>(null);
+  const cellEntriesRef = useRef<[Record<string, unknown>, number[]][]>([]);
+
+  useOutsideClick(popRef, open, useCallback(() => setOpen(false), []));
+
+  const captureCells = useCallback(() => {
+    if (!editor) return;
+    // getTableGridAbove
+    try {
+      const grid = getTableGridAbove(editor, { format: "cell" });
+      if (grid && grid.length > 0) {
+        cellEntriesRef.current = grid.map(([node, path]: [unknown, number[]]) => [node as Record<string, unknown>, [...path]]);
+        return;
+      }
+    } catch { /* fallback */ }
+    // editor.selection에서 직접 셀 찾기
+    const sel = editor.selection;
+    if (!sel) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const isCell = (n: any) => n.type === "td" || n.type === "th";
+    const entries = Array.from(editor.api.nodes({ at: sel, match: isCell })) as [Record<string, unknown>, number[]][];
+    if (entries.length > 0) { cellEntriesRef.current = entries; return; }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cellAbove = editor.api.above({ match: isCell as any });
+    if (cellAbove) cellEntriesRef.current = [cellAbove as [Record<string, unknown>, number[]]];
+  }, [editor]);
+
+  const applyBorders = useCallback((mode: BorderMode) => {
+    if (!editor) return;
+    const bStyle = style, bWidth = width, bColor = color;
+
+    // 1) 캡처된 path에서 최신 노드 읽기
+    let freshEntries: [Record<string, unknown>, number[]][] = [];
+    for (const [, path] of cellEntriesRef.current) {
+      const node = nodeAtPath(editor, path);
+      if (node && (node.type === "td" || node.type === "th")) {
+        freshEntries.push([node as Record<string, unknown>, path]);
+      }
+    }
+
+    // 2) 캡처 실패 시 selection 복원
+    if (!freshEntries.length) {
+      const sel = savedSelectionRef.current ?? editor.selection;
+      if (!sel) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const isCell = (n: any) => n.type === "td" || n.type === "th";
+      freshEntries = Array.from(editor.api.nodes({ at: sel, match: isCell })) as [Record<string, unknown>, number[]][];
+    }
+    if (!freshEntries.length) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cellAbove = editor.api.above({ match: (n: any) => n.type === "td" || n.type === "th" });
+      if (cellAbove) freshEntries = [cellAbove as [Record<string, unknown>, number[]]];
+    }
+    if (!freshEntries.length) return;
+
+    const sideVal: CellBorderSide = bStyle === "none" ? null : { style: bStyle, width: bWidth, color: bColor };
+    const clearVal: CellBorderSide = null;
+
+    let minRow = Infinity, maxRow = -1, minCol = Infinity, maxCol = -1;
+    for (const [, path] of freshEntries) {
+      const r = path[path.length - 2];
+      const c = path[path.length - 1];
+      if (r < minRow) minRow = r;
+      if (r > maxRow) maxRow = r;
+      if (c < minCol) minCol = c;
+      if (c > maxCol) maxCol = c;
+    }
+
+    for (const [node, path] of freshEntries) {
+      const r = path[path.length - 2];
+      const c = path[path.length - 1];
+      const atTop = r === minRow;
+      const atBottom = r === maxRow;
+      const atLeft = c === minCol;
+      const atRight = c === maxCol;
+      const existing = ((node as Record<string, unknown>).cellBorders as CellBorders) || {};
+
+      let result: CellBorders;
+      switch (mode) {
+        case "all":
+          result = { top: sideVal, left: sideVal, bottom: clearVal, right: clearVal };
+          if (atBottom) result.bottom = sideVal;
+          if (atRight) result.right = sideVal;
+          break;
+        case "none":
+          result = { top: undefined, right: undefined, bottom: undefined, left: undefined };
+          break;
+        case "outer":
+          result = {
+            top: atTop ? sideVal : existing.top,
+            bottom: atBottom ? sideVal : existing.bottom,
+            left: atLeft ? sideVal : existing.left,
+            right: atRight ? sideVal : existing.right,
+          };
+          break;
+        case "inner":
+          result = { ...existing, top: atTop ? existing.top : sideVal, left: atLeft ? existing.left : sideVal };
+          break;
+        case "innerH":
+          result = { ...existing, top: atTop ? existing.top : sideVal };
+          break;
+        case "innerV":
+          result = { ...existing, left: atLeft ? existing.left : sideVal };
+          break;
+        case "top":
+          result = { ...existing, top: sideVal };
+          break;
+        case "bottom":
+          result = { ...existing, bottom: atBottom ? sideVal : existing.bottom };
+          break;
+        case "left":
+          result = { ...existing, left: sideVal };
+          break;
+        case "right":
+          result = { ...existing, right: atRight ? sideVal : existing.right };
+          break;
+        default:
+          result = existing;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      editor.tf.setNodes({ cellBorders: result } as any, { at: path, match: (n: any) => (n as any).type === "td" || (n as any).type === "th" });
+    }
+
+    // 인접 셀 면 제거
+    const needsClear = mode === "outer" || mode === "all" || mode === "top" || mode === "bottom" || mode === "left" || mode === "right";
+    if (needsClear) {
+      const tablePath = freshEntries[0][1].slice(0, -2);
+      const selectedSet = new Set(freshEntries.map(([, p]) => p.join(",")));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const isCell = (n: any) => n.type === "td" || n.type === "th";
+      const allCellEntries = Array.from(editor.api.nodes({ at: tablePath, match: isCell })) as [Record<string, unknown>, number[]][];
+      const cellMap = new Map<string, [Record<string, unknown>, number[]]>();
+      for (const entry of allCellEntries) {
+        const p = entry[1];
+        cellMap.set(`${p[p.length - 2]},${p[p.length - 1]}`, entry);
+      }
+      const adjSides = new Map<string, Set<keyof CellBorders>>();
+      for (const [, path] of freshEntries) {
+        const r = path[path.length - 2];
+        const c = path[path.length - 1];
+        const add = (ar: number, ac: number, side: keyof CellBorders) => {
+          const k = `${ar},${ac}`;
+          if (selectedSet.has([...tablePath, ar, ac].join(","))) return;
+          if (!cellMap.has(k)) return;
+          if (!adjSides.has(k)) adjSides.set(k, new Set());
+          adjSides.get(k)!.add(side);
+        };
+        if (r === minRow && (mode === "outer" || mode === "all" || mode === "top")) add(r - 1, c, "bottom");
+        if (r === maxRow && (mode === "outer" || mode === "all" || mode === "bottom")) add(r + 1, c, "top");
+        if (c === minCol && (mode === "outer" || mode === "all" || mode === "left")) add(r, c - 1, "right");
+        if (c === maxCol && (mode === "outer" || mode === "all" || mode === "right")) add(r, c + 1, "left");
+      }
+      for (const [rc, sides] of adjSides) {
+        const entry = cellMap.get(rc);
+        if (!entry) continue;
+        const [adjNode, adjPath] = entry;
+        const cur = (adjNode.cellBorders as CellBorders) || {};
+        const updated: CellBorders = { ...cur };
+        for (const s of sides) updated[s] = null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (editor as any).apply({ type: "set_node", path: adjPath, properties: { cellBorders: cur }, newProperties: { cellBorders: updated } });
+      }
+    }
+  }, [editor, style, width, color, savedSelectionRef]);
+
+  return {
+    open, setOpen, style, setStyle, width, setWidth, color, setColor,
+    popRef, captureCells, applyBorders,
+  };
+}
+
+// ── useTableActions: 줄무늬, 서식 초기화 등 테이블 관련 콜백 ──
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useTableActions(editor: any) {
+  const toggleZebraStripe = useCallback((customColor?: string) => {
+    const info = findAncestorOfType(editor, "table");
+    if (!info) return;
+    const { node: tableNode, path: tablePath } = info;
+
+    let isZebra = false;
+    if (!customColor && tableNode.children?.[1]) {
+      const secondRow = tableNode.children[1];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      secondRow.children?.forEach((cell: any) => { if (cell.background) isZebra = true; });
+    }
+    const zebraColor = customColor || ZEBRA_COLOR_DEFAULT;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tableNode.children?.forEach((rowNode: any, rowIndex: number) => {
+      const targetColor = (!customColor && isZebra) ? null : (rowIndex % 2 === 1 ? zebraColor : null);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      rowNode.children?.forEach((cellNode: any, cellIndex: number) => {
+        if (cellNode.type === "td" || cellNode.type === "th") {
+          editor.tf.setNodes({ background: targetColor }, { at: [...tablePath, rowIndex, cellIndex] });
+        }
+      });
+    });
+  }, [editor]);
+
+  const reapplyZebraIfActive = useCallback(() => {
+    const info = findAncestorOfType(editor, "table");
+    if (!info) return;
+    const { node: tableNode, path: tablePath } = info;
+    const secondRow = tableNode.children?.[1];
+    if (!secondRow) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const zebraColor = secondRow.children?.find((c: any) => !!c.background)?.background;
+    if (!zebraColor) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tableNode.children?.forEach((rowNode: any, rowIndex: number) => {
+      const targetColor = rowIndex % 2 === 1 ? zebraColor : null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      rowNode.children?.forEach((cellNode: any, cellIndex: number) => {
+        if (cellNode.type === "td" || cellNode.type === "th") {
+          editor.tf.setNodes({ background: targetColor }, { at: [...tablePath, rowIndex, cellIndex] });
+        }
+      });
+    });
+  }, [editor]);
+
+  const resetTableFormat = useCallback(() => {
+    const info = findAncestorOfType(editor, "table");
+    if (!info) return;
+    const { node: tableNode, path: tablePath } = info;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tableNode.children?.forEach((rowNode: any, rowIndex: number) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      rowNode.children?.forEach((cellNode: any, cellIndex: number) => {
+        if (cellNode.type === "td" || cellNode.type === "th") {
+          editor.tf.setNodes(
+            { background: null, colwidth: null, verticalAlign: null, cellBorders: null },
+            { at: [...tablePath, rowIndex, cellIndex] },
+          );
+        }
+      });
+    });
+    editor.tf.setNodes(
+      { borderColor: null, borderStyle: null, borderWidth: null },
+      { at: tablePath },
+    );
+  }, [editor]);
+
+  const setCellAttr = useCallback((attr: string, val: unknown) => {
+    if (!editor?.selection) return;
+    editor.tf.setNodes(
+      { [attr]: val } as Record<string, unknown>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { match: (n: any) => n.type === "td" || n.type === "th", at: editor.selection },
+    );
+  }, [editor]);
+
+  return { toggleZebraStripe, reapplyZebraIfActive, resetTableFormat, setCellAttr };
+}

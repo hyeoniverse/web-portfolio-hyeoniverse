@@ -71,11 +71,11 @@ export const ZEBRA_COLOR_DEFAULT = "var(--bg-tertiary)";
 export const ZEBRA_ALL = [ZEBRA_COLOR_DEFAULT];
 
 export const TABLE_BORDER_STYLES = [
-  { label: "실선", value: "solid" },
-  { label: "점선", value: "dotted" },
-  { label: "파선", value: "dashed" },
-  { label: "이중선", value: "double" },
-  { label: "선없음", value: "none" },
+  { labelKey: "editor.borderSolid", value: "solid" },
+  { labelKey: "editor.borderDotted", value: "dotted" },
+  { labelKey: "editor.borderDashed", value: "dashed" },
+  { labelKey: "editor.borderDouble", value: "double" },
+  { labelKey: "editor.borderNoneStyle", value: "none" },
 ] as const;
 
 export const TABLE_BORDER_WIDTHS = ["1px", "2px", "3px", "4px"] as const;
@@ -87,55 +87,55 @@ export const TABLE_BORDER_COLORS = [
 
 export const IMG_ALIGNS = ["left", "center", "right"] as const;
 export const IMG_ALIGN_ICONS: Record<string, string> = { left: "◧", center: "◻", right: "◨" };
-export const IMG_FILTERS: { label: string; value: string }[] = [
-  { label: "원본", value: "" },
-  { label: "흑백", value: "grayscale(100%)" },
-  { label: "세피아", value: "sepia(80%)" },
-  { label: "밝게", value: "brightness(1.2)" },
-  { label: "어둡게", value: "brightness(0.7)" },
-  { label: "고대비", value: "contrast(1.4)" },
-  { label: "저채도", value: "saturate(0.4)" },
-  { label: "고채도", value: "saturate(1.8)" },
-  { label: "반전", value: "invert(100%)" },
-  { label: "블러", value: "blur(2px)" },
+export const IMG_FILTERS: { labelKey: string; value: string }[] = [
+  { labelKey: "editor.filterOriginal", value: "" },
+  { labelKey: "editor.filterGrayscale", value: "grayscale(100%)" },
+  { labelKey: "editor.filterSepia", value: "sepia(80%)" },
+  { labelKey: "editor.filterBright", value: "brightness(1.2)" },
+  { labelKey: "editor.filterDark", value: "brightness(0.7)" },
+  { labelKey: "editor.filterContrast", value: "contrast(1.4)" },
+  { labelKey: "editor.filterDesaturate", value: "saturate(0.4)" },
+  { labelKey: "editor.filterSaturate", value: "saturate(1.8)" },
+  { labelKey: "editor.filterInvert", value: "invert(100%)" },
+  { labelKey: "editor.filterBlur", value: "blur(2px)" },
 ];
 
-export const MATH_TOOLS: { category: string; items: { label: string; latex: string; tip?: string }[] }[] = [
-  { category: "기본", items: [
-    { label: "a/b", latex: "\\frac{a}{b}", tip: "분수" },
-    { label: "√", latex: "\\sqrt{x}", tip: "제곱근" },
-    { label: "ⁿ√", latex: "\\sqrt[n]{x}", tip: "n제곱근" },
-    { label: "x²", latex: "x^{2}", tip: "거듭제곱" },
-    { label: "xₙ", latex: "x_{n}", tip: "아래첨자" },
-    { label: "±", latex: "\\pm ", tip: "플러스마이너스" },
-    { label: "×", latex: "\\times ", tip: "곱셈" },
-    { label: "÷", latex: "\\div ", tip: "나눗셈" },
-    { label: "≠", latex: "\\neq ", tip: "같지 않음" },
-    { label: "≈", latex: "\\approx ", tip: "약" },
-    { label: "≤", latex: "\\leq ", tip: "이하" },
-    { label: "≥", latex: "\\geq ", tip: "이상" },
-    { label: "∞", latex: "\\infty ", tip: "무한" },
+export const MATH_TOOLS: { categoryKey: string; items: { label: string; latex: string; tipKey?: string }[] }[] = [
+  { categoryKey: "editor.mathBasic", items: [
+    { label: "a/b", latex: "\\frac{a}{b}", tipKey: "editor.mathFraction" },
+    { label: "√", latex: "\\sqrt{x}", tipKey: "editor.mathSqrt" },
+    { label: "ⁿ√", latex: "\\sqrt[n]{x}", tipKey: "editor.mathNthRoot" },
+    { label: "x²", latex: "x^{2}", tipKey: "editor.mathPower" },
+    { label: "xₙ", latex: "x_{n}", tipKey: "editor.mathSubscript" },
+    { label: "±", latex: "\\pm ", tipKey: "editor.mathPlusMinus" },
+    { label: "×", latex: "\\times ", tipKey: "editor.mathMultiply" },
+    { label: "÷", latex: "\\div ", tipKey: "editor.mathDivide" },
+    { label: "≠", latex: "\\neq ", tipKey: "editor.mathNotEqual" },
+    { label: "≈", latex: "\\approx ", tipKey: "editor.mathApprox" },
+    { label: "≤", latex: "\\leq ", tipKey: "editor.mathLeq" },
+    { label: "≥", latex: "\\geq ", tipKey: "editor.mathGeq" },
+    { label: "∞", latex: "\\infty ", tipKey: "editor.mathInfinity" },
   ]},
-  { category: "함수", items: [
-    { label: "Σ", latex: "\\sum_{i=0}^{n} ", tip: "합" },
-    { label: "∏", latex: "\\prod_{i=1}^{n} ", tip: "곱" },
-    { label: "∫", latex: "\\int_{a}^{b} ", tip: "적분" },
-    { label: "lim", latex: "\\lim_{x \\to \\infty} ", tip: "극한" },
-    { label: "log", latex: "\\log ", tip: "로그" },
-    { label: "ln", latex: "\\ln ", tip: "자연로그" },
-    { label: "sin", latex: "\\sin ", tip: "사인" },
-    { label: "cos", latex: "\\cos ", tip: "코사인" },
-    { label: "tan", latex: "\\tan ", tip: "탄젠트" },
+  { categoryKey: "editor.mathFunction", items: [
+    { label: "Σ", latex: "\\sum_{i=0}^{n} ", tipKey: "editor.mathSum" },
+    { label: "∏", latex: "\\prod_{i=1}^{n} ", tipKey: "editor.mathProduct" },
+    { label: "∫", latex: "\\int_{a}^{b} ", tipKey: "editor.mathIntegral" },
+    { label: "lim", latex: "\\lim_{x \\to \\infty} ", tipKey: "editor.mathLimit" },
+    { label: "log", latex: "\\log ", tipKey: "editor.mathLog" },
+    { label: "ln", latex: "\\ln ", tipKey: "editor.mathLn" },
+    { label: "sin", latex: "\\sin ", tipKey: "editor.mathSin" },
+    { label: "cos", latex: "\\cos ", tipKey: "editor.mathCos" },
+    { label: "tan", latex: "\\tan ", tipKey: "editor.mathTan" },
   ]},
-  { category: "구조", items: [
-    { label: "( )", latex: "\\left( \\right)", tip: "괄호" },
-    { label: "[ ]", latex: "\\left[ \\right]", tip: "대괄호" },
-    { label: "{ }", latex: "\\left\\{ \\right\\}", tip: "중괄호" },
-    { label: "| |", latex: "\\left| \\right|", tip: "절댓값" },
-    { label: "행렬", latex: "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}", tip: "2×2 행렬" },
-    { label: "케이스", latex: "\\begin{cases} a & x > 0 \\\\ b & x \\leq 0 \\end{cases}", tip: "조건 분기" },
+  { categoryKey: "editor.mathStructure", items: [
+    { label: "( )", latex: "\\left( \\right)", tipKey: "editor.mathParens" },
+    { label: "[ ]", latex: "\\left[ \\right]", tipKey: "editor.mathBrackets" },
+    { label: "{ }", latex: "\\left\\{ \\right\\}", tipKey: "editor.mathBraces" },
+    { label: "| |", latex: "\\left| \\right|", tipKey: "editor.mathAbs" },
+    { label: "M", latex: "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}", tipKey: "editor.mathMatrix" },
+    { label: "C", latex: "\\begin{cases} a & x > 0 \\\\ b & x \\leq 0 \\end{cases}", tipKey: "editor.mathCases" },
   ]},
-  { category: "그리스", items: [
+  { categoryKey: "editor.mathGreek", items: [
     { label: "α", latex: "\\alpha " }, { label: "β", latex: "\\beta " },
     { label: "γ", latex: "\\gamma " }, { label: "δ", latex: "\\delta " },
     { label: "θ", latex: "\\theta " }, { label: "λ", latex: "\\lambda " },
@@ -143,16 +143,16 @@ export const MATH_TOOLS: { category: string; items: { label: string; latex: stri
     { label: "σ", latex: "\\sigma " }, { label: "φ", latex: "\\varphi " },
     { label: "ω", latex: "\\omega " },
   ]},
-  { category: "화살표", items: [
+  { categoryKey: "editor.mathArrow", items: [
     { label: "→", latex: "\\rightarrow " }, { label: "←", latex: "\\leftarrow " },
     { label: "⇒", latex: "\\Rightarrow " }, { label: "⇔", latex: "\\Leftrightarrow " },
     { label: "↦", latex: "\\mapsto " },
   ]},
-  { category: "간격", items: [
-    { label: "␣", latex: "\\,", tip: "좁은 간격" },
-    { label: "␣␣", latex: "\\;", tip: "중간 간격" },
-    { label: "quad", latex: "\\quad ", tip: "넓은 간격" },
-    { label: "2quad", latex: "\\qquad ", tip: "아주 넓은 간격" },
-    { label: "text", latex: "\\text{ }", tip: "텍스트 스페이스" },
+  { categoryKey: "editor.mathSpacing", items: [
+    { label: "␣", latex: "\\,", tipKey: "editor.mathThinSpace" },
+    { label: "␣␣", latex: "\\;", tipKey: "editor.mathMedSpace" },
+    { label: "quad", latex: "\\quad ", tipKey: "editor.mathQuad" },
+    { label: "2quad", latex: "\\qquad ", tipKey: "editor.mathQquad" },
+    { label: "text", latex: "\\text{ }", tipKey: "editor.mathTextSpace" },
   ]},
 ];

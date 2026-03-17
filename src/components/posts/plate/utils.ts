@@ -14,6 +14,54 @@ export function isInAncestor(editor: any, type: string): boolean {
   } catch { return false; }
 }
 
+/** selection 경로를 따라 특정 type 노드와 path를 찾는다 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function findAncestorOfType(editor: any, type: string): { node: any; path: number[] } | null {
+  if (!editor?.selection) return null;
+  try {
+    const anchorPath: number[] = editor.selection.anchor.path;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let node: any = { children: editor.children };
+    for (let i = 0; i < anchorPath.length; i++) {
+      if (!node?.children?.[anchorPath[i]]) return null;
+      node = node.children[anchorPath[i]];
+      if (node.type === type) return { node, path: anchorPath.slice(0, i + 1) };
+    }
+    return null;
+  } catch { return null; }
+}
+
+/** path를 따라 노드를 직접 가져온다 (editor.api.node 대체) */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function nodeAtPath(editor: any, path: number[]): any | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let node: any = { children: editor.children };
+    for (const idx of path) {
+      node = node?.children?.[idx];
+      if (!node) return null;
+    }
+    return node;
+  } catch { return null; }
+}
+
+/** selection 경로에서 td/th 셀 노드를 찾는다 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function findCurrentCell(editor: any): any | null {
+  if (!editor?.selection) return null;
+  try {
+    const path: number[] = editor.selection.anchor.path;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let node: any = { children: editor.children };
+    for (const idx of path) {
+      if (!node?.children?.[idx]) return null;
+      node = node.children[idx];
+      if (node.type === "td" || node.type === "th") return node;
+    }
+    return null;
+  } catch { return null; }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getEditorText(editor: any): string {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,6 +73,10 @@ export function getEditorText(editor: any): string {
   return (editor.children || []).map(getText).join("");
 }
 
+// ── 블록 DnD를 위한 모듈 스코프 ref ──
+export const _blockDragPath: { current: number[] | null } = { current: null };
+
 // 수식 편집 중 심볼 삽입을 위한 모듈 스코프 ref (MathFloatingEdit ↔ 툴바 통신)
 export const _mathSymbolInsert: { current: ((latex: string) => void) | null } = { current: null };
 export const _mathEditingSet: { current: ((v: boolean) => void) | null } = { current: null };
+export const _mathDeleteNode: { current: (() => void) | null } = { current: null };
