@@ -297,7 +297,8 @@ export function ImagePanel({
               onDragOver={isDetached ? undefined : (e) => onDragOver(e, i)}
               onDrop={isDetached ? undefined : (e) => onDrop(e, i)}
               onDragEnd={isDetached ? undefined : onDragEnd}
-              onClick={(e) => { if (isDetached) toggleSelect(i, e); else onSelect(img.path); }}
+              onClick={(e) => toggleSelect(i, e)}
+              onDoubleClick={() => { if (!isDetached) onSelect(img.path); }}
               title={isDetached ? t("editor.mediaReinsertHint") : fileName}
               style={{
                 opacity: isDragging ? 0.4 : 1,
