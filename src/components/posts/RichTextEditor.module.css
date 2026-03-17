@@ -1294,7 +1294,8 @@
   background: var(--color-neutral-alpha-70);
 }
 
-.imagePanelItem img {
+.imagePanelItem img,
+.imagePanelItem video {
   width: 66px;
   height: 50px;
   object-fit: cover;
