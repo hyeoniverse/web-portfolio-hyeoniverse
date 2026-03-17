@@ -736,6 +736,41 @@ export default function AdminEditorShell({
       </div>
 
       {children}
+
+      {/* ── Bottom Bar: 미리보기 / 임시저장 / 저장 ── */}
+      <div className={styles.bottomBar}>
+        {onPreview && (
+          <Button
+            variant="outline"
+            size="sm"
+            className={styles.saveBtn}
+            onClick={onPreview}
+            soundDisabled
+          >
+            {labels.preview ?? "Preview"}
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className={styles.saveBtn}
+          onClick={onSaveDraft}
+          disabled={saving || !isDirty}
+          soundDisabled
+        >
+          {saving ? labels.saving : labels.saveDraft}
+        </Button>
+        <Button
+          variant="primary"
+          size="sm"
+          className={styles.publishBtn}
+          onClick={onPublish}
+          disabled={saving || (isEdit && published && !isDirty)}
+          soundDisabled
+        >
+          {published ? labels.update : labels.publish}
+        </Button>
+      </div>
     </div>
   );
 }

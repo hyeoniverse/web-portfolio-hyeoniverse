@@ -117,6 +117,7 @@ export const tocSections = [
   { id: "z-index", label: "Z-Index" },
   { id: "components", label: "Components" },
   { id: "tooltip", label: "Tooltip" },
+  { id: "editor", label: "Editor" },
   { id: "banner", label: "Banner Layouts" },
 ];
 
