@@ -8,6 +8,8 @@ export interface PlateEditorHandle {
   selectImageAt: (path: number[]) => void;
   reorderImage: (fromIdx: number, toIdx: number) => void;
   removeImage: (path: number[]) => void;
+  insertImageByUrl: (url: string) => void;
+  insertMediaByUrl: (url: string) => void;
 }
 
 export interface PlateEditorProps {

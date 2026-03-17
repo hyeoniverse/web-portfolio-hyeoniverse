@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ButtonHTMLAttri
 import { Extension, Node, mergeAttributes } from "@tiptap/core";
 import katex from "katex";
 import "katex/dist/katex.min.css";
+import { localizeKatexErrors } from "./renderMathNodes";
 import {
   useEditor,
   EditorContent,
@@ -88,6 +89,7 @@ function MathModalContent({
   const { closeModal } = useModalStore();
   const [latex, setLatex] = useState(initialLatex);
   const [mode, setMode] = useState<"inline" | "block">(initialMode);
+  const [hasError, setHasError] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -97,6 +99,8 @@ function MathModalContent({
         throwOnError: false,
         displayMode: mode === "block",
       });
+      localizeKatexErrors(previewRef.current);
+      setHasError(!!previewRef.current.querySelector(".katex-error"));
     } catch {}
   }, [latex, mode]);
 
@@ -118,7 +122,7 @@ function MathModalContent({
         autoFocus
         onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit(); }}
       />
-      <div ref={previewRef} className={styles.mathPreview} />
+      <div ref={previewRef} className={`${styles.mathPreview}${hasError ? ` ${styles.mathPreviewError}` : ""}`} />
       <div className={styles.embedModalActions}>
         <button type="button" className={styles.embedModalCancel} onClick={() => closeModal()}>취소</button>
         <button type="button" className={styles.embedModalConfirm} disabled={!latex.trim()} onClick={submit}>삽입</button>
@@ -419,6 +423,7 @@ function MathInlineView({ node, editor, getPos }: NodeViewProps) {
   useEffect(() => {
     if (!ref.current) return;
     katex.render(node.attrs.latex || "\\square", ref.current, { throwOnError: false, displayMode: false });
+    localizeKatexErrors(ref.current);
   }, [node.attrs.latex]);
 
   return (
@@ -456,6 +461,7 @@ function MathBlockView({ node, editor, getPos }: NodeViewProps) {
   useEffect(() => {
     if (!ref.current) return;
     katex.render(node.attrs.latex || "f(x)", ref.current, { throwOnError: false, displayMode: true });
+    localizeKatexErrors(ref.current);
   }, [node.attrs.latex]);
 
   return (

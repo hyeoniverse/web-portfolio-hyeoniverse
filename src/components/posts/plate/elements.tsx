@@ -8,10 +8,12 @@ import {
 } from "platejs/react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
+import { BlockDragHandle, BlockDropZone } from "./BlockDragHandle";
 import styles from "../RichTextEditor.module.css";
 
 /** 인라인 캡션 입력 — 이미지/표 공용 */
 export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit }: { caption: string; onCommit: (v: string) => void; onEditingChange?: (editing: boolean) => void; autoEdit?: boolean }) {
+  const { t } = useLanguage();
   const [editing, setEditing] = useState(false);
   const setEditingWrapped = useCallback((v: boolean) => { setEditing(v); onEditingChange?.(v); }, [onEditingChange]);
   const [draft, setDraft] = useState(caption);
@@ -46,7 +48,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit }: 
           if (e.key === "Enter") { e.preventDefault(); commit(); }
           if (e.key === "Escape") { setDraft(caption); setEditingWrapped(false); }
         }}
-        placeholder="캡션 입력..."
+        placeholder={t("editor.captionInput")}
         autoFocus
         style={{
           width: "100%",
@@ -78,7 +80,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit }: 
       onMouseEnter={(e) => { if (!caption) (e.currentTarget as HTMLElement).style.opacity = "0.5"; }}
       onMouseLeave={(e) => { if (!caption) (e.currentTarget as HTMLElement).style.opacity = "0"; }}
     >
-      {caption || "캡션 추가..."}
+      {caption || t("editor.captionAdd")}
     </div>
   );
 }
@@ -216,15 +218,19 @@ export function ImageElement(props: PlateElementProps) {
     maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis",
   };
 
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+
   return (
     <PlateElement {...props} as="figure" style={{ ...props.style, display: "flex", flexDirection: "column", alignItems: justifyMap[align] || "center", margin: "var(--spacing-md, 16px) 0" }}>
-      <div contentEditable={false} style={{ display: "inline-block", maxWidth: "100%" }}>
-        <div
-          style={{ position: "relative" }}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        >
-          <img
+      <BlockDropZone path={elPath}>
+        <BlockDragHandle path={elPath} />
+        <div contentEditable={false} style={{ display: "inline-block", maxWidth: "100%" }}>
+          <div
+            style={{ position: "relative" }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
+            <img
             ref={imgRef}
             src={url}
             alt={alt}
@@ -266,6 +272,7 @@ export function ImageElement(props: PlateElementProps) {
           onCommit={(v) => setAttr({ caption: v || undefined })}
         />
       </div>
+      </BlockDropZone>
       {props.children}
     </PlateElement>
   );
@@ -281,13 +288,15 @@ export function CodeBlockElement(props: PlateElementProps) {
   const isEmpty = !el.children || (el.children as Array<{ children?: Array<{ text?: string }> }>).every(
     (line) => !line.children?.some((leaf) => leaf.text && leaf.text.length > 0),
   );
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
 
   const toggleWrap = () => {
-    const path = editor.api.findPath(props.element);
-    if (path) editor.tf.setNodes({ wrap: !wrap }, { at: path });
+    if (elPath) editor.tf.setNodes({ wrap: !wrap }, { at: elPath });
   };
 
   return (
+    <BlockDropZone path={elPath}>
+    <BlockDragHandle path={elPath} />
     <PlateElement
       {...props}
       as="pre"
@@ -319,11 +328,12 @@ export function CodeBlockElement(props: PlateElementProps) {
           <span contentEditable={false} style={{
             position: "absolute", top: 0, left: 0, color: "var(--text-tertiary)",
             fontStyle: "italic", pointerEvents: "none", userSelect: "none",
-          }}>코드를 입력하세요</span>
+          }}>{t("editor.codeEnter")}</span>
         )}
         {props.children}
       </code>
     </PlateElement>
+    </BlockDropZone>
   );
 }
 
@@ -402,9 +412,15 @@ export function ParagraphElement(props: PlateElementProps) {
 type EmbedInfo =
   | { type: "iframe"; src: string; aspect?: string }
   | { type: "script"; platform: string; id: string; href: string }
+  | { type: "video"; src: string }
   | null;
 
+const VIDEO_EXTENSIONS = /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i;
+
 function parseEmbed(url: string): EmbedInfo {
+  // 직접 업로드된 비디오 파일
+  if (VIDEO_EXTENSIONS.test(url)) return { type: "video", src: url };
+
   let m: RegExpMatchArray | null;
   // YouTube
   m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
@@ -505,29 +521,41 @@ function ScriptEmbed({ platform, href }: { platform: string; href: string }) {
 
 /** 미디어 임베드 — iframe / script 렌더링 */
 export function MediaEmbedElement(props: PlateElementProps) {
+  const editor = useEditorRef();
   const url = ((props.element as Record<string, unknown>).url as string) || "";
   const embed = parseEmbed(url);
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
 
   return (
     <PlateElement {...props} style={{ margin: "16px 0", ...props.style }}>
-      <div contentEditable={false} style={{ position: "relative", width: "100%", maxWidth: 640 }}>
-        {embed?.type === "iframe" ? (
-          <iframe
-            src={embed.src}
-            style={{ width: "100%", aspectRatio: embed.aspect || "16/9", border: "none", borderRadius: 8 }}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        ) : embed?.type === "script" ? (
-          <ScriptEmbed platform={embed.platform} href={embed.href} />
-        ) : (
-          <a href={url} target="_blank" rel="noopener noreferrer"
-            style={{ display: "block", padding: "12px 16px", background: "var(--bg-secondary)", borderRadius: 8, color: "var(--color-accent)", wordBreak: "break-all" }}
-          >
-            {url}
-          </a>
-        )}
-      </div>
+      <BlockDropZone path={elPath}>
+        <BlockDragHandle path={elPath} />
+        <div contentEditable={false} style={{ position: "relative", width: "100%", maxWidth: 640 }}>
+          {embed?.type === "video" ? (
+            <video
+              src={embed.src}
+              controls
+              preload="metadata"
+              style={{ width: "100%", maxHeight: 480, borderRadius: 8, background: "#000" }}
+            />
+          ) : embed?.type === "iframe" ? (
+            <iframe
+              src={embed.src}
+              style={{ width: "100%", aspectRatio: embed.aspect || "16/9", border: "none", borderRadius: 8 }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : embed?.type === "script" ? (
+            <ScriptEmbed platform={embed.platform} href={embed.href} />
+          ) : (
+            <a href={url} target="_blank" rel="noopener noreferrer"
+              style={{ display: "block", padding: "12px 16px", background: "var(--bg-secondary)", borderRadius: 8, color: "var(--color-accent)", wordBreak: "break-all" }}
+            >
+              {url}
+            </a>
+          )}
+        </div>
+      </BlockDropZone>
       {props.children}
     </PlateElement>
   );
