@@ -920,8 +920,13 @@
 
 
 /* ── Fallback Priority List ── */
-.fallbackSection {
-  padding: var(--spacing-sm) 0;
+.fields .fallbackSection {
+  padding: 0;
+  border-bottom: none;
+}
+
+.fields > *:has(+ .fallbackSection) {
+  border-bottom: none;
 }
 
 .fallbackLabel {
@@ -942,21 +947,31 @@
 .priorityItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--box-xs-sm);
   border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+}
+
+.priorityItem:active {
+  cursor: grabbing;
+}
+
+.priorityItemOver {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
 }
 
 .priorityBadge {
-  width: 20px;
-  height: 20px;
+  width: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-circle);
-  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  align-self: stretch;
+  border-right: 1px solid var(--border-light-color);
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   font-weight: 600;
@@ -966,39 +981,59 @@
 
 .priorityLabel {
   flex: 1;
+  padding: var(--box-xs-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   min-width: 0;
 }
 
-.priorityBtns {
-  display: flex;
-  gap: var(--spacing-2xs);
-  flex-shrink: 0;
-}
-
-.priorityBtn {
+.priorityGrip {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 24px;
-  height: 24px;
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-sm);
+  align-self: stretch;
+  color: var(--text-quaternary);
+  flex-shrink: 0;
+  touch-action: none;
+}
+
+.priorityBtns {
+  display: flex;
+  flex-shrink: 0;
+  align-self: stretch;
+  border-left: 1px solid var(--border-light-color);
+}
+
+.priorityBtn {
+  --_row-h: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_row-h);
+  height: 100%;
+  border: none;
+  border-radius: 0;
   background: transparent;
   color: var(--text-tertiary);
-  font-size: 9px;
+  font-size: var(--font-size-xs);
   padding: 0;
   line-height: 1;
+  cursor: pointer;
+}
+
+.priorityBtn + .priorityBtn {
+  border-left: 1px solid var(--border-light-color);
 }
 
 .priorityBtn:disabled {
   opacity: 0.3;
+  cursor: default;
 }
 
 .fields .priorityBtn:not(:disabled):hover {
-  border-color: var(--text-primary);
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
   color: var(--text-primary);
 }
 
@@ -1988,6 +2023,22 @@
 
 
 /* ── Env Var Editor ── */
+.envGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.envGroupLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
 .envGroupDivider {
   border: none;
   border-top: 1px dashed var(--border-light-color);

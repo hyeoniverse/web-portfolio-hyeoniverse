@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { siteConfig } from "@/config/site.config";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getSecret } from "@/lib/getSecret";
 
 const stylePrompts: Record<string, string> = {
@@ -138,47 +138,57 @@ export async function POST(request: Request) {
   const styleHint = stylePrompts[style] || stylePrompts.abstract;
   const fullPrompt = `Blog cover image: ${prompt}. Style: ${styleHint}. Wide landscape format, no text.`;
 
-  const provider = siteConfig.aiCover.provider;
+  type Provider = "nanobanana" | "huggingface";
+  const config = await getSiteConfig();
+  const primary: Provider = (config?.aiCover?.provider as Provider) ?? "nanobanana";
+  const fallbackCfg = config?.aiCover?.fallback;
 
-  try {
-    let imgBuffer: ArrayBuffer;
-
-    switch (provider) {
-      case "nanobanana":
-        imgBuffer = await generateWithNanoBanana(fullPrompt);
-        break;
-      case "huggingface":
-        imgBuffer = await generateWithHuggingFace(fullPrompt);
-        break;
-      default:
-        return NextResponse.json(
-          { error: `Unknown AI cover provider: ${provider}` },
-          { status: 400 }
-        );
+  const providerList: Provider[] = [primary];
+  if (fallbackCfg?.enabled && fallbackCfg.priority?.length) {
+    for (const p of fallbackCfg.priority) {
+      if (p !== primary) providerList.push(p as Provider);
     }
-
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
-    const filePath = `posts/${fileName}`;
-
-    const admin = createAdminClient();
-    const { error } = await admin.storage
-      .from("posts")
-      .upload(filePath, imgBuffer, {
-        contentType: "image/jpeg",
-        upsert: false,
-      });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    const {
-      data: { publicUrl },
-    } = admin.storage.from("posts").getPublicUrl(filePath);
-
-    return NextResponse.json({ url: publicUrl });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "AI generation failed";
-    return NextResponse.json({ error: message }, { status: 500 });
   }
+
+  async function callProvider(provider: Provider, prompt: string): Promise<ArrayBuffer> {
+    switch (provider) {
+      case "nanobanana": return generateWithNanoBanana(prompt);
+      case "huggingface": return generateWithHuggingFace(prompt);
+      default: throw new Error(`Unknown AI cover provider: ${provider}`);
+    }
+  }
+
+  let lastError = "Unknown error";
+  for (const provider of providerList) {
+    try {
+      const imgBuffer = await callProvider(provider, fullPrompt);
+
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+      const filePath = `posts/${fileName}`;
+
+      const admin = createAdminClient();
+      const { error } = await admin.storage
+        .from("posts")
+        .upload(filePath, imgBuffer, {
+          contentType: "image/jpeg",
+          upsert: false,
+        });
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      const {
+        data: { publicUrl },
+      } = admin.storage.from("posts").getPublicUrl(filePath);
+
+      return NextResponse.json({ url: publicUrl });
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : "Unknown error";
+      console.error("[cover/ai-generate]", provider, lastError);
+    }
+  }
+
+  const status = lastError.includes("not configured") ? 503 : 502;
+  return NextResponse.json({ error: lastError }, { status });
 }

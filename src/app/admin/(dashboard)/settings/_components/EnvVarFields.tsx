@@ -11,19 +11,25 @@ import styles from "../Settings.module.css";
 interface EnvVarFieldsProps {
   provider: string;
   aiProvider: string;
+  aiProviderFallbacks?: string[];
   recaptchaEnabled: boolean;
   translateProvider: string;
+  translateFallbacks?: string[];
   commentEmailNotify: boolean;
   summaryProvider?: string;
+  summaryFallbacks?: string[];
 }
 
 export default function EnvVarFields({
   provider,
   aiProvider,
+  aiProviderFallbacks = [],
   recaptchaEnabled,
   translateProvider,
+  translateFallbacks = [],
   commentEmailNotify: _commentEmailNotify,
   summaryProvider = "gemini",
+  summaryFallbacks = [],
 }: EnvVarFieldsProps) {
   const { t } = useLanguage();
   const { openModal, closeModal } = useModalStore();
@@ -42,54 +48,53 @@ export default function EnvVarFields({
       .finally(() => setLoaded(true));
   }, []);
 
-  type FieldRow = { key: string; label: string; show: boolean };
+  type FieldRow = { key: string; label: string };
+
+  const PROVIDER_KEYS: Record<string, { key: string; label: string }[]> = {
+    nanobanana: [{ key: "NANOBANANA_API_KEY", label: "NanoBanana API Key" }],
+    huggingface: [{ key: "HUGGINGFACE_API_KEY", label: "Hugging Face Token" }],
+    gemini: [{ key: "GEMINI_API_KEY", label: "Gemini API Key" }],
+    google: [{ key: "GOOGLE_TRANSLATE_API_KEY", label: "Google Translate API Key" }],
+    deepl: [{ key: "DEEPL_API_KEY", label: "DeepL API Key" }],
+    openai: [{ key: "OPENAI_API_KEY", label: "OpenAI API Key" }],
+    claude: [{ key: "ANTHROPIC_API_KEY", label: "Anthropic API Key" }],
+  };
+
+  const toRows = (providers: string[]): FieldRow[] => {
+    const seen = new Set<string>();
+    const rows: FieldRow[] = [];
+    for (const p of providers) {
+      for (const r of PROVIDER_KEYS[p] ?? []) {
+        if (!seen.has(r.key)) { seen.add(r.key); rows.push(r); }
+      }
+    }
+    return rows;
+  };
+
+  const coverProviders = [aiProvider, ...aiProviderFallbacks];
+  const sumProviders = [summaryProvider, ...summaryFallbacks];
+  const transProviders = [translateProvider, ...translateFallbacks];
+
+  const emailRows: FieldRow[] = [
+    provider === "web3forms" && { key: "NEXT_PUBLIC_WEB3FORMS_KEY", label: "Web3Forms Key" },
+    provider === "formspree" && { key: "NEXT_PUBLIC_FORMSPREE_ID", label: "Formspree ID" },
+    ...(provider === "emailjs" ? [
+      { key: "NEXT_PUBLIC_EMAILJS_SERVICE_ID", label: "EmailJS Service ID" },
+      { key: "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID", label: "EmailJS Template ID" },
+      { key: "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY", label: "EmailJS Public Key" },
+    ] : []),
+  ].filter(Boolean) as FieldRow[];
 
   const groups: { label: string; rows: FieldRow[] }[] = [
-    {
-      label: "이메일 서비스",
-      rows: [
-        { key: "NEXT_PUBLIC_WEB3FORMS_KEY", label: "Web3Forms Key", show: provider === "web3forms" },
-        { key: "NEXT_PUBLIC_FORMSPREE_ID", label: "Formspree ID", show: provider === "formspree" },
-        { key: "NEXT_PUBLIC_EMAILJS_SERVICE_ID", label: "EmailJS Service ID", show: provider === "emailjs" },
-        { key: "NEXT_PUBLIC_EMAILJS_TEMPLATE_ID", label: "EmailJS Template ID", show: provider === "emailjs" },
-        { key: "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY", label: "EmailJS Public Key", show: provider === "emailjs" },
-      ],
-    },
-    {
-      label: "보안",
-      rows: [
-        { key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key", show: recaptchaEnabled },
-      ],
-    },
-    {
-      label: "게시물 커버",
-      rows: [
-        { key: "NANOBANANA_API_KEY", label: "NanoBanana API Key", show: aiProvider === "nanobanana" },
-        { key: "HUGGINGFACE_API_KEY", label: "Hugging Face Token", show: aiProvider === "huggingface" },
-        { key: "UNSPLASH_ACCESS_KEY", label: "Unsplash Access Key", show: true },
-      ],
-    },
-    {
-      label: "AI (요약 / 번역)",
-      rows: [
-        { key: "GEMINI_API_KEY", label: "Gemini API Key", show: translateProvider === "gemini" || summaryProvider === "gemini" },
-        { key: "GOOGLE_TRANSLATE_API_KEY", label: "Google Translate API Key", show: translateProvider === "google" },
-        { key: "DEEPL_API_KEY", label: "DeepL API Key", show: translateProvider === "deepl" },
-        { key: "OPENAI_API_KEY", label: "OpenAI API Key", show: summaryProvider === "openai" },
-        { key: "ANTHROPIC_API_KEY", label: "Anthropic API Key", show: translateProvider === "claude" || summaryProvider === "claude" },
-      ],
-    },
-    {
-      label: "알림",
-      rows: [
-        { key: "RESEND_API_KEY", label: "Resend API Key", show: true },
-      ],
-    },
+    { label: "이메일 서비스", rows: emailRows },
+    { label: "보안", rows: recaptchaEnabled ? [{ key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" }] : [] },
+    { label: "커버 이미지", rows: [...toRows(coverProviders), { key: "UNSPLASH_ACCESS_KEY", label: "Unsplash Access Key" }] },
+    { label: "AI 요약", rows: toRows(sumProviders) },
+    { label: "번역", rows: toRows(transProviders) },
+    { label: "알림", rows: [{ key: "RESEND_API_KEY", label: "Resend API Key" }] },
   ];
 
-  const visibleGroups = groups
-    .map((g) => ({ ...g, rows: g.rows.filter((r) => r.show) }))
-    .filter((g) => g.rows.length > 0);
+  const visibleGroups = groups.filter((g) => g.rows.length > 0);
 
   const visible = visibleGroups.flatMap((g) => g.rows);
 
@@ -339,7 +344,12 @@ export default function EnvVarFields({
 
   return (
     <div className={styles.fields}>
-      {visibleGroups.flatMap((group) => group.rows.map(({ key, label }) => renderField(key, label)))}
+      {visibleGroups.map((group) => (
+        <div key={group.label} className={styles.envGroup}>
+          <p className={styles.envGroupLabel}>{group.label}</p>
+          {group.rows.map(({ key, label }) => renderField(key, label))}
+        </div>
+      ))}
       {(hasEdits || msg) && (
         <div className={styles.envActions}>
           {msg && <span className={styles.envMsg}>{msg}</span>}

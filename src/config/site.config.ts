@@ -242,6 +242,7 @@ export const siteConfig = {
     bannerTransition: "cylinder" as "default" | "cylinder",
     perPage: 10,
     adminPerPage: 20,
+    maxImageSizeMB: 10, // 이미지 1개당 최대 업로드 용량 (MB)
     categories: [
       { ko: "프론트엔드", en: "Frontend" },
       { ko: "백엔드", en: "Backend" },
@@ -305,7 +306,12 @@ export const siteConfig = {
   //   HUGGINGFACE_API_KEY=your_token  (https://huggingface.co/settings/tokens)
   // ---------------------------------------------------------------------------
   aiCover: {
+    enabled: true,
     provider: "nanobanana" as "nanobanana" | "huggingface",
+    fallback: {
+      enabled: false,
+      priority: [] as ("nanobanana" | "huggingface")[],
+    },
   },
 
   // ---------------------------------------------------------------------------
