@@ -1036,6 +1036,7 @@
     "imageDragHint": "Drag images here to attach",
     "imageDragDrop": "Drop here",
     "imageRemove": "Remove image",
+    "mediaReinsertHint": "Click to reinsert into content",
     "imageUploadFail": "Image upload failed",
     "imageAttach": "Attach File",
     "imageAttachInfo": "Drop files here or click the attach button. (Image 5MB · GIF 10MB · Video 50MB)",

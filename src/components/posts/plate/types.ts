@@ -3,6 +3,8 @@ export interface EditorImageInfo {
   path: number[];
   /** "img" | "media_embed" */
   mediaType?: string;
+  /** 본문에서 제거되었지만 패널에 남아 있는 미디어 */
+  detached?: boolean;
 }
 
 export interface PlateEditorHandle {
@@ -12,6 +14,7 @@ export interface PlateEditorHandle {
   removeImage: (path: number[]) => void;
   insertImageByUrl: (url: string) => void;
   insertMediaByUrl: (url: string) => void;
+  removeDetached: (url: string) => void;
 }
 
 export interface PlateEditorProps {
