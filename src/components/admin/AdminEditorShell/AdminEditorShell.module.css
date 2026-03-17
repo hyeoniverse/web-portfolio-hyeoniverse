@@ -210,14 +210,14 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--color-danger, #ef4444);
+  color: var(--text-primary);
   padding: 0;
   text-transform: none;
   letter-spacing: 0;
 }
 
 .revisionSelectActions .revisionDeleteSelectedBtn:hover {
-  opacity: 0.75;
+  opacity: 0.6;
 }
 
 .revisionSelectCancel {
@@ -302,7 +302,7 @@
 }
 
 .revisionDetailActions .revisionDeleteBtn:hover {
-  color: var(--color-danger, #ef4444);
+  color: var(--text-primary);
 }
 
 .revisionItemDelete {
@@ -325,7 +325,7 @@
 }
 
 .revisionItem .revisionItemDelete:hover {
-  color: var(--color-danger, #ef4444);
+  color: var(--text-primary);
 }
 
 .revisionRestoreBtn {
