@@ -568,7 +568,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
               src={embed.src}
               controls
               preload="metadata"
-              style={{ width: "100%", maxHeight: 480, borderRadius: 8, background: "#000" }}
+              style={{ maxWidth: "100%", borderRadius: 8 }}
             />
           ) : embed?.type === "iframe" ? (
             <iframe
