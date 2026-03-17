@@ -1036,7 +1036,7 @@
     "imageRemove": "이미지 제거",
     "imageUploadFail": "이미지 업로드 실패",
     "imageAttach": "파일 첨부",
-    "imageAttachInfo": "여기에 파일을 끌어 놓거나 파일 첨부 버튼을 클릭하세요.",
+    "imageAttachInfo": "여기에 파일을 끌어 놓거나 파일 첨부 버튼을 클릭하세요. (최대 {size}MB)",
     "imageSizeLimit": "이미지당 최대 {size}MB",
     "imageInsertSelected": "선택 삽입",
     "imageDeleteSelected": "선택 삭제",
