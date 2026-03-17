@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useServiceStatus } from "@/hooks/useServiceStatus";
 import PresetTab from "./PresetTab";
 import UnsplashTab from "./UnsplashTab";
 import AIGenerateTab from "./AIGenerateTab";
@@ -27,6 +28,7 @@ export default function CoverImagePicker({
   postContext,
 }: CoverImagePickerProps) {
   const { t } = useLanguage();
+  const { aiCover } = useServiceStatus();
   const tc = useCallback((key: string) => t(`admin.posts.coverPicker.${key}`), [t]);
   const [activeTab, setActiveTab] = useState<Tab>("presets");
 
@@ -34,9 +36,9 @@ export default function CoverImagePicker({
     () => [
       { key: "presets" as Tab, label: tc("presets") },
       { key: "unsplash" as Tab, label: tc("unsplash") },
-      { key: "ai" as Tab, label: tc("aiGenerate") },
+      ...(aiCover ? [{ key: "ai" as Tab, label: tc("aiGenerate") }] : []),
     ],
-    [tc],
+    [tc, aiCover],
   );
 
   return (

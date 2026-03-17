@@ -18,9 +18,11 @@ import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { autoTranslate } from "@/utils/autoTranslate";
 import Select from "@/components/ui/Select";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
+import { useModalStore } from "@/stores/modalStore";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import styles from "./WorkEditor.module.css";
 
-const RichTextEditor = dynamic(() => import("@/components/posts/PlateEditor"), {
+const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
 });
 
@@ -233,6 +235,7 @@ const defaultForm: WorkFormData = {
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
   const { tLang } = useLanguage();
+  const { openModal } = useModalStore();
   const isEdit = !!work;
   const serviceStatus = useServiceStatus();
 
@@ -262,17 +265,35 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     entityId: work?.id,
   });
 
-  // 편집기 진입 시 최신 자동저장 초안 자동 복원
+  // 편집기 진입 시 자동저장 초안 복원 확인
   const draftRestored = useRef(false);
+  const applyDraft = useCallback((data: WorkFormData) => {
+    autoSaveSkip.current = true;
+    setForm(data);
+    setStatus(tw("draftRestored"));
+    setStatusType("info");
+  }, [tw]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const askRestore = useCallback((data: WorkFormData) => {
+    const modalId = "draft-restore";
+    openModal(
+      <ModalConfirm
+        desc={tw("draftFoundDesc")}
+        cancelText={tw("draftFoundDiscard")}
+        confirmText={tw("draftFoundLoad")}
+        onConfirm={() => applyDraft(data)}
+        onCancel={() => {}}
+      />,
+      { id: modalId, header: { title: tw("draftFoundTitle") }, width: "360px", closeButton: false },
+    );
+  }, [tw, openModal, applyDraft]);
+
   useEffect(() => {
     if (draftRestored.current || dbRevisions.length === 0) return;
     draftRestored.current = true;
     loadRevisionSnapshot(dbRevisions[0].id).then((snapshot) => {
       if (!snapshot) return;
-      autoSaveSkip.current = true; // 복원 후 즉시 autosave 방지
-      setForm(snapshot as WorkFormData);
-      setStatus(tw("draftRestored"));
-      setStatusType("info");
+      askRestore(snapshot as WorkFormData);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbRevisions]);
@@ -559,8 +580,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [editorLang, form, updateField, tw]);
 
   const handleContentImageUpload = useCallback(async (file: File): Promise<string> => {
+    const { compressImage } = await import("@/lib/compressImage");
+    const compressed = await compressImage(file);
+
     const fd = new FormData();
-    fd.append("file", file);
+    fd.append("file", compressed);
     const res = await fetch("/api/upload", { method: "POST", body: fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
@@ -576,9 +600,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const files = input.files;
       if (!files) return;
 
+      const { compressImage } = await import("@/lib/compressImage");
       for (const file of Array.from(files)) {
+        const compressed = await compressImage(file);
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", compressed);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
         const data = await res.json();
         if (!res.ok) continue;
@@ -1035,7 +1061,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               previewLabel={tw("previewLabel")}
             />
           ) : (
-            <RichTextEditor
+            <Editor
               key={editorLang}
               value={form[contentKey]}
               onChange={(v) => updateField(contentKey, v)}

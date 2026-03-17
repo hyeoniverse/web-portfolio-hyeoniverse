@@ -16,14 +16,17 @@ import AdminEditorShell, {
 } from "@/components/admin/AdminEditorShell";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { autoTranslate } from "@/utils/autoTranslate";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
 import { useModalStore } from "@/stores/modalStore";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import styles from "./PostEditor.module.css";
 
 function TagsList({ tags, onRemove }: { tags: string[]; onRemove: (tag: string) => void }) {
+  const { t } = useLanguage();
   const measureRef = useRef<HTMLDivElement>(null);
   const displayRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
@@ -163,12 +166,12 @@ function TagsList({ tags, onRemove }: { tags: string[]; onRemove: (tag: string) 
             onClick={() => animateToggle(true)}
             onAnimationEnd={() => { if (swapping === 'entering') setSwapping(false); }}
           >
-            + 더보기 ({hiddenCount})
+            + {t("editor.showMore")} ({hiddenCount})
           </button>
         )}
         {expanded && (
           <button type="button" className={es.tagMore} onClick={() => animateToggle(false)}>
-            접기
+            {t("editor.collapse")}
           </button>
         )}
       </div>
@@ -177,45 +180,46 @@ function TagsList({ tags, onRemove }: { tags: string[]; onRemove: (tag: string) 
 }
 
 function ShortcutsModalContent() {
+  const { t } = useLanguage();
   return (
     <div className={styles.helpGrid}>
       <div className={styles.helpSection}>
-        <p className={styles.helpSectionTitle}>텍스트 서식</p>
+        <p className={styles.helpSectionTitle}>{t("editor.helpTextFormat")}</p>
         <div className={styles.helpRows}>
-          {([["굵게", "⌘B"], ["기울임", "⌘I"], ["밑줄", "⌘U"], ["취소선", "⌘⇧S"], ["인라인 코드", "⌘E"]] as const).map(([label, key]) => (
+          {([[t("editor.bold"), "⌘B"], [t("editor.italic"), "⌘I"], [t("editor.underline"), "⌘U"], [t("editor.strikethrough"), "⌘⇧S"], [t("editor.inlineCode"), "⌘E"]]).map(([label, key]) => (
             <div key={label} className={styles.helpRow}><span>{label}</span><kbd className={styles.helpKbd}>{key}</kbd></div>
           ))}
         </div>
       </div>
       <div className={styles.helpSection}>
-        <p className={styles.helpSectionTitle}>단락</p>
+        <p className={styles.helpSectionTitle}>{t("editor.helpParagraph")}</p>
         <div className={styles.helpRows}>
-          {([["제목 1", "⌘⌥1"], ["제목 2", "⌘⌥2"], ["제목 3", "⌘⌥3"], ["인용구", "⌘⇧B"], ["불릿 리스트", "⌘⇧8"], ["순서 리스트", "⌘⇧7"]] as const).map(([label, key]) => (
+          {([[t("editor.heading1"), "⌘⌥1"], [t("editor.heading2"), "⌘⌥2"], [t("editor.heading3"), "⌘⌥3"], [t("editor.blockquote"), "⌘⇧B"], [t("editor.helpBulletList"), "⌘⇧8"], [t("editor.helpOrderedList"), "⌘⇧7"]]).map(([label, key]) => (
             <div key={label} className={styles.helpRow}><span>{label}</span><kbd className={styles.helpKbd}>{key}</kbd></div>
           ))}
         </div>
       </div>
       <div className={styles.helpSection}>
-        <p className={styles.helpSectionTitle}>편집</p>
+        <p className={styles.helpSectionTitle}>{t("editor.helpEdit")}</p>
         <div className={styles.helpRows}>
-          {([["실행 취소", "⌘Z"], ["다시 실행", "⌘⇧Z"]] as const).map(([label, key]) => (
+          {([[t("editor.undo"), "⌘Z"], [t("editor.redo"), "⌘⇧Z"]]).map(([label, key]) => (
             <div key={label} className={styles.helpRow}><span>{label}</span><kbd className={styles.helpKbd}>{key}</kbd></div>
           ))}
         </div>
       </div>
       <div className={styles.helpSection}>
-        <p className={styles.helpSectionTitle}>폰트 설정</p>
+        <p className={styles.helpSectionTitle}>{t("editor.helpFont")}</p>
         <div className={styles.helpRows}>
-          <div className={styles.helpRow}><span>FS / LH / LS 더블클릭</span><span className={styles.helpDesc}>직접 값 입력</span></div>
-          <div className={styles.helpRow}><span>Enter</span><span className={styles.helpDesc}>입력 확정</span></div>
-          <div className={styles.helpRow}><span>Escape</span><span className={styles.helpDesc}>입력 취소</span></div>
+          <div className={styles.helpRow}><span>{t("editor.helpFontDblClick")}</span><span className={styles.helpDesc}>{t("editor.helpDirectInput")}</span></div>
+          <div className={styles.helpRow}><span>Enter</span><span className={styles.helpDesc}>{t("editor.helpConfirmInput")}</span></div>
+          <div className={styles.helpRow}><span>Escape</span><span className={styles.helpDesc}>{t("editor.helpCancelInput")}</span></div>
         </div>
       </div>
     </div>
   );
 }
 
-const RichTextEditor = dynamic(() => import("./PlateEditor"), {
+const Editor = dynamic(() => import("./PlateEditor"), {
   ssr: false,
 });
 
@@ -305,6 +309,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   const isEdit = !!post;
   const categories = useCategories();
   const serviceStatus = useServiceStatus();
+  const siteConf = useSiteConfig();
+  const maxImageSizeMB = (siteConf.posts as Record<string, unknown>)?.maxImageSizeMB as number ?? 10;
 
   // 카테고리 ko 또는 en 값으로 매칭
   const findCat = (val: string): BilingualCategory | undefined =>
@@ -406,8 +412,30 @@ export default function PostEditor({ post }: PostEditorProps) {
     entityId: draftEntityId,
   });
 
-  // 편집기 진입 시 초안 복원 (localStorage → DB revision 순서)
+  // 편집기 진입 시 초안 복원 확인 (localStorage → DB revision 순서)
   const draftRestored = useRef(false);
+  const applyDraft = useCallback((data: PostFormData, json?: string) => {
+    autoSaveSkip.current = true;
+    setForm(data);
+    if (json) lastAutoSaveJson.current = json;
+    setStatus(te("draftRestored"));
+    setStatusType("info");
+  }, [te]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const askRestore = useCallback((data: PostFormData, json?: string) => {
+    const modalId = "draft-restore";
+    openModal(
+      <ModalConfirm
+        desc={te("draftFoundDesc")}
+        cancelText={te("draftFoundDiscard")}
+        confirmText={te("draftFoundLoad")}
+        onConfirm={() => applyDraft(data, json)}
+        onCancel={() => {}}
+      />,
+      { id: modalId, header: { title: te("draftFoundTitle") }, width: "360px", closeButton: false },
+    );
+  }, [te, openModal, applyDraft]);
+
   useEffect(() => {
     if (draftRestored.current) return;
     // localStorage 먼저 확인
@@ -415,15 +443,10 @@ export default function PostEditor({ post }: PostEditorProps) {
       const local = localStorage.getItem(localDraftKey);
       if (local) {
         const parsed = JSON.parse(local) as PostFormData;
-        // 내용이 실제로 다를 때만 복원
         if (JSON.stringify(parsed) !== JSON.stringify(initialFormRef.current)) {
           draftRestored.current = true;
-          autoSaveSkip.current = true;
-          setForm(parsed);
-          lastAutoSaveJson.current = local;
-          setStatus(te("draftRestored"));
-          setStatusType("info");
           localStorage.removeItem(localDraftKey);
+          askRestore(parsed, local);
           return;
         }
         localStorage.removeItem(localDraftKey);
@@ -434,10 +457,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     draftRestored.current = true;
     loadRevisionSnapshot(dbRevisions[0].id).then((snapshot) => {
       if (!snapshot) return;
-      autoSaveSkip.current = true;
-      setForm(snapshot as PostFormData);
-      setStatus(te("draftRestored"));
-      setStatusType("info");
+      askRestore(snapshot as PostFormData);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbRevisions]);
@@ -661,15 +681,21 @@ export default function PostEditor({ post }: PostEditorProps) {
   );
 
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
+    const limitBytes = maxImageSizeMB * 1024 * 1024;
+
+    // 용량 초과 시 클라이언트 압축
+    const { compressImage } = await import("@/lib/compressImage");
+    const compressed = await compressImage(file, { maxBytes: limitBytes });
+
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", compressed);
 
     const res = await fetch("/api/upload", { method: "POST", body: formData });
     const data = await res.json();
 
     if (!res.ok) throw new Error(data.error);
     return data.url;
-  }, []);
+  }, [maxImageSizeMB]);
 
   const handleCoverUpload = useCallback(async () => {
     const input = document.createElement("input");
@@ -1293,7 +1319,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             previewLabel={te("previewLabel")}
           />
         ) : (
-          <RichTextEditor
+          <Editor
             key={editorLang}
             value={form[contentKey]}
             onChange={(v) => {
@@ -1318,6 +1344,26 @@ export default function PostEditor({ post }: PostEditorProps) {
             onSelect={(path) => plateRef.current?.selectImageAt(path)}
             onReorder={(from, to) => plateRef.current?.reorderImage(from, to)}
             onRemove={(path) => plateRef.current?.removeImage(path)}
+            onImageUpload={async (file) => {
+              const url = await handleImageUpload(file);
+              plateRef.current?.insertImageByUrl(url);
+              requestAnimationFrame(() => {
+                const imgs = plateRef.current?.getImages();
+                if (imgs) setEditorImages(imgs);
+              });
+              return url;
+            }}
+            onVideoUpload={async (file) => {
+              const url = await handleImageUpload(file);
+              plateRef.current?.insertMediaByUrl(url);
+              return url;
+            }}
+            onBulkInsert={(paths) => {
+              for (const path of paths) {
+                plateRef.current?.selectImageAt(path);
+              }
+            }}
+            maxImageSizeMB={maxImageSizeMB}
           />
         </div>
       )}
