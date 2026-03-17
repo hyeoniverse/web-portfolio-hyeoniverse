@@ -13,7 +13,7 @@ import { _blockDragPath } from "./utils";
 import styles from "../RichTextEditor.module.css";
 
 /** 인라인 캡션 입력 — 이미지/표 공용 */
-export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit }: { caption: string; onCommit: (v: string) => void; onEditingChange?: (editing: boolean) => void; autoEdit?: boolean }) {
+export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, overlayMode }: { caption: string; onCommit: (v: string) => void; onEditingChange?: (editing: boolean) => void; autoEdit?: boolean; overlayMode?: boolean }) {
   const { t } = useLanguage();
   const [editing, setEditing] = useState(false);
   const setEditingWrapped = useCallback((v: boolean) => { setEditing(v); onEditingChange?.(v); }, [onEditingChange]);
@@ -56,9 +56,9 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit }: 
           border: "none",
           outline: "none",
           background: "transparent",
-          fontSize: "var(--font-size-xs)",
-          color: "var(--text-muted)",
-          padding: "var(--spacing-3xs) var(--spacing-3xs) 0",
+          fontSize: overlayMode ? 11 : "var(--font-size-xs)",
+          color: overlayMode ? "#fff" : "var(--text-muted)",
+          padding: overlayMode ? "0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
           fontFamily: "inherit",
         }}
       />
@@ -70,13 +70,14 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit }: 
       contentEditable={false}
       onClick={() => { setEditingWrapped(true); setTimeout(() => inputRef.current?.focus(), 0); }}
       style={{
-        fontSize: "var(--font-size-xs)",
-        color: caption ? "var(--text-muted)" : "var(--text-disabled, var(--text-muted))",
-        padding: "var(--spacing-3xs) var(--spacing-3xs) 0",
+        fontSize: overlayMode ? 11 : "var(--font-size-xs)",
+        color: overlayMode ? "rgba(255,255,255,0.9)" : caption ? "var(--text-muted)" : "var(--text-disabled, var(--text-muted))",
+        padding: overlayMode ? "0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
         cursor: "text",
         opacity: caption ? 1 : 0,
         transition: "opacity 0.15s",
         userSelect: "none",
+        lineHeight: overlayMode ? 1.3 : undefined,
       }}
       onMouseEnter={(e) => { if (!caption) (e.currentTarget as HTMLElement).style.opacity = "0.5"; }}
       onMouseLeave={(e) => { if (!caption) (e.currentTarget as HTMLElement).style.opacity = "0"; }}
@@ -292,11 +293,21 @@ export function ImageElement(props: PlateElementProps) {
               <div onPointerDown={onPointerDown("corner")} style={{ ...handleStyle, right: -5, bottom: -5, width: 10, height: 10, borderRadius: 3, cursor: "nwse-resize" }} />
             </>
           )}
+          {/* 캡션 — 이미지 하단 오버레이 */}
+          {(caption || isActive) && (
+            <div style={{
+              position: "absolute", bottom: 0, left: 0, right: 0,
+              background: "rgba(0,0,0,0.55)", borderRadius: "0 0 var(--radius-xs) var(--radius-xs)",
+              padding: "2px 6px", zIndex: 3,
+            }}>
+              <InlineCaption
+                caption={caption}
+                onCommit={(v) => setAttr({ caption: v || undefined })}
+                overlayMode
+              />
+            </div>
+          )}
         </div>
-        <InlineCaption
-          caption={caption}
-          onCommit={(v) => setAttr({ caption: v || undefined })}
-        />
       </div>
       </BlockDropZone>
       {props.children}
