@@ -9,6 +9,7 @@ import {
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import { BlockDragHandle, BlockDropZone } from "./BlockDragHandle";
+import { _blockDragPath } from "./utils";
 import styles from "../RichTextEditor.module.css";
 
 /** 인라인 캡션 입력 — 이미지/표 공용 */
@@ -223,8 +224,18 @@ export function ImageElement(props: PlateElementProps) {
   return (
     <PlateElement {...props} as="figure" style={{ ...props.style, display: "flex", flexDirection: "column", alignItems: justifyMap[align] || "center", margin: "var(--spacing-md, 16px) 0" }}>
       <BlockDropZone path={elPath}>
-        <BlockDragHandle path={elPath} />
-        <div contentEditable={false} style={{ display: "inline-block", maxWidth: "100%" }}>
+        <div
+          contentEditable={false}
+          style={{ display: "inline-block", maxWidth: "100%" }}
+          draggable={!draggingRef.current}
+          onDragStart={(e) => {
+            if (draggingRef.current) { e.preventDefault(); return; }
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", "block-dnd");
+            _blockDragPath.current = elPath;
+          }}
+          onDragEnd={() => { _blockDragPath.current = null; }}
+        >
           <div
             style={{ position: "relative" }}
             onMouseEnter={() => setHovered(true)}
@@ -242,7 +253,7 @@ export function ImageElement(props: PlateElementProps) {
               display: "block",
               outline: isActive ? "2px solid var(--color-accent, #3b82f6)" : undefined,
               filter: imgFilter || undefined,
-              cursor: "pointer",
+              cursor: "grab",
             }}
             draggable={false}
           />
