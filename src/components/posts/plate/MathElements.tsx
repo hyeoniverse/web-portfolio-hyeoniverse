@@ -10,7 +10,7 @@ import katex from "katex";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { localizeKatexErrors } from "../renderMathNodes";
 import { _mathSymbolInsert, _mathEditingSet, _mathDeleteNode } from "./utils";
-import { BlockDragHandle, BlockDropZone } from "./BlockDragHandle";
+import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import styles from "../RichTextEditor.module.css";
 
 // ── 수식 편집 floating 패널 (블록/인라인 공통) ──
@@ -307,10 +307,11 @@ export function EquationElement(props: PlateElementProps) {
   };
 
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  const { blockDragProps } = useBlockDrag(elPath);
 
   return (
     <BlockDropZone path={elPath}>
-    <BlockDragHandle path={elPath} />
+    <div {...blockDragProps} style={{ cursor: "default" }}>
     <PlateElement {...props} as="div"
       style={{
         ...props.style, textAlign: "center", margin: "var(--spacing-md, 16px) 0",
@@ -329,6 +330,7 @@ export function EquationElement(props: PlateElementProps) {
       <MathToggleButton isBlock onToggle={toggleMode} />
       {props.children}
     </PlateElement>
+    </div>
     </BlockDropZone>
   );
 }

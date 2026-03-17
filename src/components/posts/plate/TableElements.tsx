@@ -21,7 +21,7 @@ import {
   insertTableMergeColumn,
 } from "@platejs/table";
 import { InlineCaption } from "./elements";
-import { BlockDragHandle, BlockDropZone } from "./BlockDragHandle";
+import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 // ── 테이블 엘리먼트 (colgroup + tbody + 가로스크롤 래핑) ──
 // TableProvider를 바깥에 감싸야 useTableElement / useTableColSizes가 store에 접근 가능
 export function TableElement(props: PlateElementProps) {
@@ -210,10 +210,11 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
 
   const elPath = (() => { try { const p = editor.api.findPath(element); return p ? Array.from(p) : null; } catch { return null; } })();
 
+  const { blockDragProps } = useBlockDrag(elPath);
+
   return (
     <BlockDropZone path={elPath}>
-    <BlockDragHandle path={elPath} />
-    <div
+    <div {...blockDragProps}
       data-table-wrap
       style={{
         position: "relative",

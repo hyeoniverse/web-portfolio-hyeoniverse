@@ -8,7 +8,7 @@ import {
 } from "platejs/react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
-import { BlockDragHandle, BlockDropZone } from "./BlockDragHandle";
+import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { _blockDragPath } from "./utils";
 import styles from "../RichTextEditor.module.css";
 
@@ -313,6 +313,7 @@ export function CodeBlockElement(props: PlateElementProps) {
     (line) => !line.children?.some((leaf) => leaf.text && leaf.text.length > 0),
   );
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  const { blockDragProps } = useBlockDrag(elPath);
 
   const toggleWrap = () => {
     if (elPath) editor.tf.setNodes({ wrap: !wrap }, { at: elPath });
@@ -320,7 +321,7 @@ export function CodeBlockElement(props: PlateElementProps) {
 
   return (
     <BlockDropZone path={elPath}>
-    <BlockDragHandle path={elPath} />
+    <div {...blockDragProps} style={{ cursor: "default" }}>
     <PlateElement
       {...props}
       as="pre"
@@ -357,6 +358,7 @@ export function CodeBlockElement(props: PlateElementProps) {
         {props.children}
       </code>
     </PlateElement>
+    </div>
     </BlockDropZone>
   );
 }
@@ -555,12 +557,12 @@ export function MediaEmbedElement(props: PlateElementProps) {
   const url = ((props.element as Record<string, unknown>).url as string) || "";
   const embed = parseEmbed(url);
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  const { blockDragProps } = useBlockDrag(elPath);
 
   return (
     <PlateElement {...props} style={{ margin: "16px 0", ...props.style }}>
       <BlockDropZone path={elPath}>
-        <BlockDragHandle path={elPath} />
-        <div contentEditable={false} style={{ position: "relative", width: "100%", maxWidth: 640 }}>
+        <div {...blockDragProps} contentEditable={false} style={{ position: "relative", width: "100%", maxWidth: 640, cursor: "default" }}>
           {embed?.type === "video" ? (
             <video
               src={embed.src}
