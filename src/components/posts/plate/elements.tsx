@@ -104,6 +104,7 @@ export function ImageElement(props: PlateElementProps) {
 
   const imgRef = useRef<HTMLImageElement>(null);
   const [hovered, setHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [resizeSize, setResizeSize] = useState<{ w: number; h: number } | null>(null);
   const draggingRef = useRef<{
     handle: "right" | "bottom" | "corner";
@@ -233,8 +234,9 @@ export function ImageElement(props: PlateElementProps) {
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", "block-dnd");
             _blockDragPath.current = elPath;
+            setIsDragging(true);
           }}
-          onDragEnd={() => { _blockDragPath.current = null; }}
+          onDragEnd={() => { _blockDragPath.current = null; setIsDragging(false); }}
         >
           <div
             style={{ position: "relative" }}
@@ -251,26 +253,27 @@ export function ImageElement(props: PlateElementProps) {
               height: imgHeight > 0 ? imgHeight : undefined,
               maxWidth: "100%",
               display: "block",
-              outline: isActive ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+              outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
               filter: imgFilter || undefined,
               cursor: "grab",
             }}
             draggable={false}
           />
-          {/* Hover info */}
-          {hovered && !resizeSize && displaySize && (
+          {/* Hover info — 드래그 중 숨김 */}
+          {hovered && !isDragging && !resizeSize && displaySize && (
             <div style={infoStyle}>
               {fileName && <span>{fileName} · </span>}
               <span>{displaySize.w}×{displaySize.h}px</span>
             </div>
           )}
           {/* Resize live size */}
-          {resizeSize && (
+          {resizeSize && !isDragging && (
             <div style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: 13, fontWeight: 600 }}>
               {resizeSize.w}×{resizeSize.h}px
             </div>
           )}
-          {isActive && (
+          {/* Resize handles — 드래그 중 숨김 */}
+          {isActive && !isDragging && (
             <>
               <div onPointerDown={onPointerDown("right")} style={{ ...handleStyle, right: -4, top: "50%", transform: "translateY(-50%)", width: 6, height: 32, cursor: "ew-resize" }} />
               <div onPointerDown={onPointerDown("bottom")} style={{ ...handleStyle, bottom: -4, left: "50%", transform: "translateX(-50%)", width: 32, height: 6, cursor: "ns-resize" }} />
