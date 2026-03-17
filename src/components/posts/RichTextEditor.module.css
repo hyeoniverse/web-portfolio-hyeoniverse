@@ -1304,7 +1304,6 @@
 }
 
 .imagePanelItemSelected {
-  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
   outline: 1.5px solid var(--text-primary);
   outline-offset: -1.5px;
 }
