@@ -156,7 +156,7 @@ function ErdPanel({
                     onMouseEnter={() => setHoveredTable(table.name)}
                     onMouseLeave={() => setHoveredTable(null)}
                     onClick={() => handleTableClick(table.name)}
-                    style={{ cursor: hasNote ? "pointer" : undefined }}
+                    data-clickable={hasNote ? "true" : undefined}
                   >
                     <rect
                       width={layout.w}
