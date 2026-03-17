@@ -245,9 +245,11 @@ export function ImagePanel({
         </span>
         {images.length > 0 && (
           <div className={styles.imagePanelActions}>
-            <button type="button" className={styles.imagePanelActionBtn} onClick={hasSelection ? deselectAll : selectAll}>
-              {hasSelection ? t("editor.imageDeselectAll") : t("editor.imageSelectAll")}
-            </button>
+            {!hasSelection && (
+              <button type="button" className={styles.imagePanelActionBtn} onClick={selectAll}>
+                {t("editor.imageSelectAll")}
+              </button>
+            )}
             {hasSelection && (
               <>
                 {selectedDetachedCount > 0 && (
@@ -262,6 +264,9 @@ export function ImagePanel({
                 )}
                 <button type="button" className={`${styles.imagePanelActionBtn} ${styles.imagePanelActionDanger}`} onClick={handleBulkDelete}>
                   {t("editor.imageDeleteSelected")} ({selected.size})
+                </button>
+                <button type="button" className={styles.imagePanelActionBtn} onClick={deselectAll}>
+                  {t("editor.imageDeselectAll")}
                 </button>
               </>
             )}
