@@ -20,7 +20,6 @@ export function ImagePanel({
   onImageUpload,
   onVideoUpload,
   onBulkInsert,
-  maxImageSizeMB,
 }: {
   images: EditorImageInfo[];
   onSelect: (path: number[]) => void;
@@ -29,7 +28,6 @@ export function ImagePanel({
   onImageUpload?: (file: File) => Promise<string>;
   onVideoUpload?: (file: File) => Promise<string>;
   onBulkInsert?: (paths: number[][]) => void;
-  maxImageSizeMB?: number;
 }) {
   const { t } = useLanguage();
   const [dragIdx, setDragIdx] = React.useState<number | null>(null);
@@ -307,7 +305,7 @@ export function ImagePanel({
       {/* ── 하단: 파일 첨부 버튼 + 안내 텍스트 ── */}
       <div className={styles.imagePanelFooter}>
         <Tooltip
-          content={t("editor.imageSizeLimit").replace("{size}", String(maxImageSizeMB ?? 10))}
+          content={t("editor.imageSizeLimit")}
           placement="top"
           delay={200}
         >
@@ -319,7 +317,7 @@ export function ImagePanel({
           </button>
         </Tooltip>
         <span className={styles.imagePanelInfoText}>
-          {t("editor.imageAttachInfo").replace("{size}", String(maxImageSizeMB ?? 10))}
+          {t("editor.imageAttachInfo")}
         </span>
         <input
           ref={fileInputRef}

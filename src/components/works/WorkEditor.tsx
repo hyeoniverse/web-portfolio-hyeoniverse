@@ -580,7 +580,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [editorLang, form, updateField, tw]);
 
   const handleContentImageUpload = useCallback(async (file: File): Promise<string> => {
-    const { compressImage } = await import("@/lib/compressImage");
+    const { compressImage, validateFileSize } = await import("@/lib/compressImage");
+
+    const sizeError = validateFileSize(file);
+    if (sizeError) throw new Error(sizeError);
+
     const compressed = await compressImage(file);
 
     const fd = new FormData();
@@ -600,8 +604,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const files = input.files;
       if (!files) return;
 
-      const { compressImage } = await import("@/lib/compressImage");
+      const { compressImage, validateFileSize } = await import("@/lib/compressImage");
       for (const file of Array.from(files)) {
+        const sizeError = validateFileSize(file);
+        if (sizeError) { alert(sizeError); continue; }
         const compressed = await compressImage(file);
         const formData = new FormData();
         formData.append("file", compressed);
