@@ -327,14 +327,15 @@ export default function PlateEditor({
     }
   }, [editor]);
 
-  // ── All images (for ref) ──
+  // ── All media (images + video embeds, for ref) ──
   const allImages = React.useMemo(() => {
-    const imgs: { url: string; path: number[] }[] = [];
+    const imgs: { url: string; path: number[]; mediaType?: string }[] = [];
     const walk = (nodes: unknown[], path: number[]) => {
       if (!Array.isArray(nodes)) return;
       nodes.forEach((node, i) => {
         const n = node as Record<string, unknown>;
-        if (n.type === "img" && n.url) imgs.push({ url: n.url as string, path: [...path, i] });
+        if (n.type === "img" && n.url) imgs.push({ url: n.url as string, path: [...path, i], mediaType: "img" });
+        if (n.type === "media_embed" && n.url) imgs.push({ url: n.url as string, path: [...path, i], mediaType: "media_embed" });
         if (n.children) walk(n.children as unknown[], [...path, i]);
       });
     };
