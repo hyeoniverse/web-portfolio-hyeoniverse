@@ -61,7 +61,7 @@
 | **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, 스크롤 속도 기반 패럴랙스, 글자별 StaggerText |
 | **Works** | GSAP 양방향 무한 가로 스크롤 갤러리 + Three.js 3D 토러스 (리사주 곡선 경로) |
 | **Blog** | SSR + ISR 캐싱, 시리즈, 배너 슬라이더 (4 레이아웃 x 4 오버레이), 게스트 댓글 (이중 인증) |
-| **Admin** | 5탭 Settings, Markdown/Rich Text 전환 에디터, 리비전 히스토리 (diff 비교), 자동 번역 |
+| **Admin** | 5탭 Settings, Plate.js 모듈형 에디터 (React.memo 최적화), 클라이언트 이미지 압축, AI fallback chain, 리비전 히스토리 (diff 비교), 자동 번역 |
 | **성능** | Lighthouse 98점 — 미사용 폰트 제거 + reCAPTCHA 지연 로딩 + CSS animation 전환으로 LCP 1.9s, 페이지 449KB |
 | **반응형** | PC/Tablet/Mobile 3단 breakpoint + BreakpointGuard (GSAP 자동 재초기화) |
 | **다국어** | 한/영 전체 i18n + 번역 Tooltip + 자동 번역 (DeepL/Google/Gemini/Claude) |
@@ -82,8 +82,8 @@
 | 3D | ![Three.js](https://img.shields.io/badge/Three.js-000?style=flat-square&logo=threedotjs&logoColor=white) ![R3F](https://img.shields.io/badge/React_Three_Fiber-000?style=flat-square&logo=threedotjs) ![Drei](https://img.shields.io/badge/Drei-000?style=flat-square) |
 | Typography | Instrument Serif, Space Grotesk, JetBrains Mono (관리자 설정에서 카테고리별 30+ 프리셋 + Google Fonts 직접 입력 지원) |
 | Backend | ![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white) (PostgreSQL, Auth, Storage) |
-| Editor | ![Tiptap](https://img.shields.io/badge/Tiptap-1a1a2e?style=flat-square) (WYSIWYG) + Markdown |
-| AI Image | NanoBanana / Hugging Face (설정으로 선택) |
+| Editor | ![Plate.js](https://img.shields.io/badge/Plate.js-1a1a2e?style=flat-square) (Slate 기반 WYSIWYG) + Markdown |
+| AI Image | NanoBanana / Hugging Face (우선순위 기반 fallback chain) |
 
 ## 주요 기능
 
@@ -164,7 +164,9 @@
 - **자동 번역**: 에디터 언어 전환 시 빈 필드 자동 번역 — DeepL/Google/Gemini/Claude 선택, 재번역 버튼, 중복 요청 차단
 - **이중언어 카테고리 관리**: Posts/Works 카테고리를 `{ ko, en }` 쌍으로 관리 — 드래그 순서, 삭제 시 일괄 재할당
 - **시리즈 편집**: 전용 편집 페이지에서 제목/설명/커버/카테고리/발행 상태 관리, 포스트 순서 변경/연결 해제
-- **Cover Image Picker**: 3가지 방식(16종 프리셋 그라데이션, Unsplash 검색, AI 생성) — Supabase Storage 저장
+- **Cover Image Picker**: 3가지 방식(16종 프리셋 그라데이션, Unsplash 검색, AI 생성) — Supabase Storage 저장, AI 제공자 우선순위 기반 fallback chain
+- **클라이언트 이미지 압축**: 업로드 전 브라우저에서 WebP 변환 → 해상도 축소(2560px) → 품질 단계적 하향(0.85→0.7). SVG/GIF 스킵, dynamic import로 번들 미포함
+- **PlateEditor 모듈 구조**: Slate 기반 Plate.js 에디터를 MainToolbar·TableToolbar·ImageToolbar·MathToolbar로 분리, 각 툴바에 React.memo 적용하여 불필요한 리렌더 방지
 
 **미디어 & 유틸리티**
 
@@ -1445,6 +1447,40 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
 - 단순 무한 반복 애니메이션(rotate, translateX)은 CSS animation이 JS 기반보다 항상 더 효율적 — 컴포지터 스레드에서 메인 스레드 차단 없이 실행됨
 - 고빈도 이벤트(mousemove)에서 React state를 업데이트하면 프레임당 전체 컴포넌트 트리가 재조정됨. ref + 직접 DOM 조작이 적절한 패턴
 - Three.js의 `useMemo`로 생성한 geometry/material은 React의 GC 대상이지만 GPU 버퍼는 자동 해제되지 않음. 명시적 `dispose()` 필수
+
+
+</details>
+
+<details>
+<summary><strong>13. 이미지 원본 무압축 업로드 — 용량 초과 실패 + 네트워크 낭비</strong></summary>
+
+#### 문제
+
+사용자가 선택한 이미지를 압축 없이 원본 그대로 업로드하여, 스마트폰 사진(5–15MB)은 10MB 제한에 걸려 실패하고, 제한 이하 파일도 불필요하게 큰 원본이 전송됨
+
+#### 원인
+
+업로드 함수에 클라이언트 압축 로직이 없었고, 서버에서 용량 초과를 거부하는 것이 유일한 방어선
+
+#### 해결
+
+업로드 전 브라우저에서 단계적 압축 파이프라인 실행:
+
+```
+1. SVG/GIF → 스킵 (벡터/애니메이션은 Canvas 변환 불가)
+2. 용량 이하 → 스킵
+3. WebP 변환 (canvas.toBlob, quality 0.85)
+4. 해상도 축소 (긴 변 최대 2560px)
+5. 품질 단계적 하향 (0.05씩, 최저 0.7)
+```
+
+`compressImage()` 유틸리티를 dynamic import로 불러와 번들 크기에 영향 없음
+
+#### TL;DR
+
+이미지 압축은 서버보다 클라이언트에서 하는 것이 합리적 — 전송 전에 크기를 줄여 대역폭과 스토리지를 동시에 절약. WebP는 AVIF보다 압축률은 낮지만 브라우저 인코딩 속도가 3–10배 빠르고 지원률도 높아 클라이언트 처리에 적합
+
+---
 
 
 </details>

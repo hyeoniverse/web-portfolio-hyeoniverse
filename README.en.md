@@ -61,7 +61,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 | **Interaction** | Infinite scroll loop, mouse parallax, scroll velocity parallax, per-character StaggerText |
 | **Works** | GSAP bidirectional infinite horizontal scroll gallery + Three.js 3D torus (Lissajous curve path) |
 | **Blog** | SSR + ISR caching, series, banner slider (4 layouts x 4 overlays), guest comments (dual auth) |
-| **Admin** | 5-tab Settings, Markdown/Rich Text toggle editor, revision history (diff comparison), auto translation |
+| **Admin** | 5-tab Settings, modular Plate.js editor (React.memo optimized), client-side image compression, AI fallback chain, revision history (diff comparison), auto translation |
 | **Performance** | Lighthouse 98 — unused font removal + reCAPTCHA lazy loading + CSS animation transition for LCP 1.9s, page 449KB |
 | **Responsive** | PC/Tablet/Mobile 3-tier breakpoints + BreakpointGuard (automatic GSAP reinitialization) |
 | **i18n** | Full Korean/English i18n + translation Tooltip + auto translation (DeepL/Google/Gemini/Claude) |
@@ -82,8 +82,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 | 3D | ![Three.js](https://img.shields.io/badge/Three.js-000?style=flat-square&logo=threedotjs&logoColor=white) ![R3F](https://img.shields.io/badge/React_Three_Fiber-000?style=flat-square&logo=threedotjs) ![Drei](https://img.shields.io/badge/Drei-000?style=flat-square) |
 | Typography | Instrument Serif, Space Grotesk, JetBrains Mono (30+ presets per category + direct Google Fonts input in admin settings) |
 | Backend | ![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white) (PostgreSQL, Auth, Storage) |
-| Editor | ![Tiptap](https://img.shields.io/badge/Tiptap-1a1a2e?style=flat-square) (WYSIWYG) + Markdown |
-| AI Image | NanoBanana / Hugging Face (selectable via settings) |
+| Editor | ![Plate.js](https://img.shields.io/badge/Plate.js-1a1a2e?style=flat-square) (Slate-based WYSIWYG) + Markdown |
+| AI Image | NanoBanana / Hugging Face (priority-based fallback chain) |
 
 ## Key Features
 
@@ -164,7 +164,9 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Auto Translation**: Auto-translate empty fields on editor language switch — select DeepL/Google/Gemini/Claude, re-translate button, duplicate request blocking
 - **Bilingual Category Management**: Manage Posts/Works categories as `{ ko, en }` pairs — drag ordering, batch reassignment on delete
 - **Series Edit**: Dedicated edit page for managing title/description/cover/category/publish status, post reordering/unlinking
-- **Cover Image Picker**: 3 methods (16 preset gradients, Unsplash search, AI generation) — stored in Supabase Storage
+- **Cover Image Picker**: 3 methods (16 preset gradients, Unsplash search, AI generation) — stored in Supabase Storage, AI provider priority-based fallback chain
+- **Client-side Image Compression**: WebP conversion → resolution reduction (2560px) → quality step-down (0.85→0.7) in browser before upload. SVG/GIF skipped, dynamic import keeps it out of the main bundle
+- **Modular PlateEditor**: Slate-based Plate.js editor split into MainToolbar, TableToolbar, ImageToolbar, MathToolbar — each wrapped with React.memo to prevent unnecessary re-renders
 
 **Media & Utilities**
 
@@ -1445,6 +1447,40 @@ Project performance audit revealed multiple optimization points: main thread ani
 - For simple infinite loop animations (rotate, translateX), CSS animation is always more efficient than JS-based approaches — runs on the compositor thread without blocking the main thread
 - Updating React state on high-frequency events (mousemove) triggers full component tree reconciliation per frame. ref + direct DOM manipulation is the appropriate pattern
 - Geometry/material created with Three.js `useMemo` is subject to React's GC, but GPU buffers are not automatically released. Explicit `dispose()` is required
+
+
+</details>
+
+<details>
+<summary><strong>13. Uncompressed Image Upload — Size Limit Failures + Network Waste</strong></summary>
+
+#### Problem
+
+Images were uploaded as-is without compression — smartphone photos (5–15MB) failed the 10MB limit, and files under the limit still wasted bandwidth with unnecessarily large originals
+
+#### Cause
+
+No client-side compression logic in the upload function — server-side size rejection was the only defense
+
+#### Solution
+
+Step-by-step compression pipeline runs in the browser before upload:
+
+```
+1. SVG/GIF → skip (vector/animation can't be Canvas-converted)
+2. Under limit → skip
+3. WebP conversion (canvas.toBlob, quality 0.85)
+4. Resolution reduction (max 2560px on longest side)
+5. Quality step-down (−0.05 per step, minimum 0.7)
+```
+
+The `compressImage()` utility is loaded via dynamic import to avoid affecting bundle size
+
+#### TL;DR
+
+Image compression is more effective on the client than the server — reduces size before transmission, saving both bandwidth and storage. WebP has lower compression ratios than AVIF but is 3–10× faster to encode in browsers with wider support, making it ideal for client-side processing
+
+---
 
 
 </details>
