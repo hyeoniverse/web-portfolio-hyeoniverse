@@ -319,7 +319,7 @@ export function ImagePanel({
           </button>
         </Tooltip>
         <span className={styles.imagePanelInfoText}>
-          {t("editor.imageAttachInfo")}
+          {t("editor.imageAttachInfo").replace("{size}", String(maxImageSizeMB ?? 10))}
         </span>
         <input
           ref={fileInputRef}
