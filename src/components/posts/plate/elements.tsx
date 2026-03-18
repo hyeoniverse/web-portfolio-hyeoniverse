@@ -44,8 +44,8 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
       value={editing ? draft : caption}
       readOnly={!editing}
       onChange={(e) => setDraft(e.target.value)}
-      onBlur={() => { if (editing) commit(); }}
-      onClick={() => { if (!editing) { setEditingWrapped(true); setTimeout(() => inputRef.current?.focus(), 0); } }}
+      onBlur={() => { if (editing) setTimeout(() => commit(), 0); }}
+      onMouseDown={(e) => { if (!editing) { e.preventDefault(); setEditingWrapped(true); setDraft(caption); setTimeout(() => { inputRef.current?.focus(); }, 0); } }}
       onKeyDown={(e) => {
         if (!editing) return;
         if (e.key === "Enter") { e.preventDefault(); commit(); }
