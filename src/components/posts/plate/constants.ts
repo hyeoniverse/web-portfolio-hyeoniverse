@@ -62,6 +62,11 @@ export const PRESET_COLORS = [
   "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899",
 ];
 
+export const PRESET_BG_COLORS = [
+  "#fef08a", "#bbf7d0", "#bfdbfe", "#fbcfe8", "#e9d5ff",
+  "#fecaca", "#fed7aa", "#d1d5db", "#ffffff", "transparent",
+];
+
 export const TABLE_BG_PRESETS = [
   "#fef3c7", "#dcfce7", "#dbeafe", "#fce7f3", "#f3e8ff", "#fee2e2", "#f3f4f6",
 ];
