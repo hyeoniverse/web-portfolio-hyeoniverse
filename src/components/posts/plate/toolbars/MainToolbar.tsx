@@ -18,6 +18,7 @@ import {
   LINE_HEIGHT_PRESETS,
   LETTER_SPACING_PRESETS,
   PRESET_COLORS,
+  PRESET_BG_COLORS,
 } from "../constants";
 import {
   useEditorMarks,
@@ -200,11 +201,25 @@ export default React.memo(function MainToolbar({
         <input type="color" className={styles.colorInput} value={currentBgColor || "#ffff00"} onChange={(e) => editor.tf.addMarks({ backgroundColor: e.target.value })} title="Highlight color" />
       </div>
 
-      {/* Color presets */}
+      {/* Text color presets */}
       <div className={styles.presetColors}>
         {PRESET_COLORS.map((color) => (
           <Tooltip key={color} content={color} delay={200} placement="top">
             <button type="button" className={`${styles.presetDot} ${currentColor === color ? styles.presetDotActive : ""}`} style={{ background: color }} onClick={() => editor.tf.addMarks({ color })} />
+          </Tooltip>
+        ))}
+      </div>
+
+      {/* BG color presets */}
+      <div className={styles.presetColors}>
+        {PRESET_BG_COLORS.map((color) => (
+          <Tooltip key={color} content={color === "transparent" ? "None" : color} delay={200} placement="top">
+            <button
+              type="button"
+              className={`${styles.presetDot} ${currentBgColor === color ? styles.presetDotActive : ""}`}
+              style={{ background: color === "transparent" ? "var(--bg-primary)" : color, border: color === "transparent" || color === "#ffffff" ? "1px solid var(--border-light-color)" : undefined }}
+              onClick={() => { if (color === "transparent") editor.tf.removeMarks(["backgroundColor"]); else editor.tf.addMarks({ backgroundColor: color }); }}
+            />
           </Tooltip>
         ))}
       </div>
