@@ -213,7 +213,6 @@ export function ImageElement(props: PlateElementProps) {
     height: badgeHeight, display: "flex", alignItems: "center",
     pointerEvents: "none", whiteSpace: "nowrap", zIndex: 4,
     maxWidth: "calc(100% - 8px)", overflow: "hidden", textOverflow: "ellipsis",
-    transition: "bottom 0.2s ease",
   };
 
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
@@ -267,8 +266,13 @@ export function ImageElement(props: PlateElementProps) {
             draggable={false}
           />
           {/* Hover info — 드래그 중 숨김 */}
-          {hovered && !isDragging && !resizeSize && displaySize && (
-            <div style={infoStyle}>
+          {displaySize && (
+            <div style={{
+              ...infoStyle,
+              opacity: hovered && !isDragging && !resizeSize ? 1 : 0,
+              transform: hovered && !isDragging && !resizeSize ? "translateY(0)" : "translateY(4px)",
+              transition: "opacity 0.2s ease, transform 0.2s ease, bottom 0.2s ease",
+            }}>
               {fileName && <span>{fileName} · </span>}
               <span>{displaySize.w}×{displaySize.h}px</span>
             </div>
