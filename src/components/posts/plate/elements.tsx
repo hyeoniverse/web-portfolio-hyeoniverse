@@ -301,7 +301,7 @@ export function ImageElement(props: PlateElementProps) {
           <div style={{
             position: "absolute", bottom: 4, left: 4, right: 4,
             background: "rgba(0,0,0,0.55)",
-            borderRadius: "var(--radius-sm)",
+            borderRadius: "var(--radius-capsule)",
             padding: "3px 8px", zIndex: 3,
             opacity: showCaption ? 1 : 0,
             transform: showCaption ? "translateY(0)" : "translateY(4px)",
