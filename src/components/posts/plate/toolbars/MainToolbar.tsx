@@ -208,7 +208,7 @@ export default React.memo(function MainToolbar({
       <div className={styles.divider} />
 
       {/* Color mode toggle + palette */}
-      <div ref={colorSectionRef} data-color-section style={{ display: "flex", alignItems: "center" }}>
+      <div data-color-section style={{ display: "flex", alignItems: "center" }}>
         <TBtn
           active={colorMode === "text"}
           onClick={() => setColorMode(colorMode === "text" ? null : "text")}
