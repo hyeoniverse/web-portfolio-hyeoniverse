@@ -207,7 +207,7 @@ export function ImageElement(props: PlateElementProps) {
     position: "absolute", left: 4,
     bottom: showCaption ? badgeHeight + 10 : 4,
     padding: "2px 10px",
-    background: "rgba(0,0,0,0.7)", color: "#fff",
+    background: "var(--color-gray-alpha-70)", color: "#fff",
     borderRadius: "var(--radius-capsule)", fontSize: 11,
     fontFamily: "var(--font-mono)", lineHeight: 1.4,
     height: badgeHeight, display: "flex", alignItems: "center",
@@ -294,7 +294,7 @@ export function ImageElement(props: PlateElementProps) {
           {/* 캡션 — 이미지 하단 오버레이 */}
           <div style={{
             position: "absolute", bottom: 4, left: 4, right: 4,
-            background: "rgba(0,0,0,0.7)",
+            background: "var(--color-gray-alpha-70)",
             borderRadius: "var(--radius-capsule)",
             height: badgeHeight, display: "flex", alignItems: "center",
             padding: "0 10px", zIndex: 3,
@@ -653,7 +653,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
               draggable={false}
             />
             {resizeSize && (
-              <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", padding: "3px 8px", background: "rgba(0,0,0,0.7)", color: "#fff", borderRadius: "var(--radius-xs)", fontSize: 13, fontWeight: 600, fontFamily: "var(--font-mono)", pointerEvents: "none", zIndex: 3 }}>
+              <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", padding: "3px 8px", background: "var(--color-gray-alpha-70)", color: "#fff", borderRadius: "var(--radius-xs)", fontSize: 13, fontWeight: 600, fontFamily: "var(--font-mono)", pointerEvents: "none", zIndex: 3 }}>
                 {resizeSize.w}×{resizeSize.h}px
               </div>
             )}
