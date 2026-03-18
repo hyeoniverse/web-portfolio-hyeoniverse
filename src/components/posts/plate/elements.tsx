@@ -216,7 +216,7 @@ export function ImageElement(props: PlateElementProps) {
   const showCaption = !!(caption || isActive || captionEditing);
   const infoStyle: React.CSSProperties = {
     position: "absolute", left: 6,
-    bottom: showCaption ? 28 : 6,
+    bottom: showCaption ? 32 : 6,
     padding: "3px 8px",
     background: "rgba(0,0,0,0.7)", color: "#fff",
     borderRadius: "var(--radius-capsule)", fontSize: 11,
@@ -298,20 +298,23 @@ export function ImageElement(props: PlateElementProps) {
             </>
           )}
           {/* 캡션 — 이미지 하단 오버레이 */}
-          {showCaption && (
-            <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0,
-              background: "rgba(0,0,0,0.55)",
-              padding: "2px 6px", zIndex: 3,
-            }}>
-              <InlineCaption
-                caption={caption}
-                onCommit={(v) => setAttr({ caption: v || undefined })}
-                onEditingChange={setCaptionEditing}
-                overlayMode
-              />
-            </div>
-          )}
+          <div style={{
+            position: "absolute", bottom: 4, left: 4, right: 4,
+            background: "rgba(0,0,0,0.55)",
+            borderRadius: "var(--radius-sm)",
+            padding: "3px 8px", zIndex: 3,
+            opacity: showCaption ? 1 : 0,
+            transform: showCaption ? "translateY(0)" : "translateY(4px)",
+            transition: "opacity 0.2s ease, transform 0.2s ease",
+            pointerEvents: showCaption ? "auto" : "none",
+          }}>
+            <InlineCaption
+              caption={caption}
+              onCommit={(v) => setAttr({ caption: v || undefined })}
+              onEditingChange={setCaptionEditing}
+              overlayMode
+            />
+          </div>
         </div>
       </div>
       </BlockDropZone>
