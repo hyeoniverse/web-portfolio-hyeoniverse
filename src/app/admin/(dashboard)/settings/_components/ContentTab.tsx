@@ -447,25 +447,6 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* Image Upload */}
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.imageUpload" /></h2>
-            <div className={styles.fields}>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}><T k="admin.settings.maxImageSizeMB" /></label>
-                <Select
-                  value={String(config.posts.maxImageSizeMB ?? 10)}
-                  options={[
-                    { value: "5", label: "5 MB" },
-                    { value: "10", label: "10 MB" },
-                    { value: "20", label: "20 MB" },
-                    { value: "50", label: "50 MB" },
-                  ]}
-                  onChange={(v) => update("posts", "maxImageSizeMB", Number(v))}
-                />
-              </div>
-            </div>
-          </section>
 
           {/* Post Categories */}
           <section className={styles.section}>
