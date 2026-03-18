@@ -274,13 +274,11 @@ export default function WorkDetailClient({
         transition={{ delay: 0.2, duration: 0.6 }}
       >
         <div className={styles.metaLeft}>
+          <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
           <span className={styles.projectNumber}>#{project.number}</span>
           <span className={styles.category}><T ko={project.category.ko} en={project.category.en} /></span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
-          <ShareButton />
-        </div>
+        <ShareButton />
       </motion.div>
 
       {/* ── Title ── */}
