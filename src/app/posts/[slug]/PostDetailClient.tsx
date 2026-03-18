@@ -532,7 +532,10 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
             <span>{post.view_count} <T k="postDetail.views" /></span>
           </div>
 
-          <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <ShareButton />
+            <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
+          </div>
         </div>
 
         <h1 className={styles.articleTitle}>
@@ -565,7 +568,6 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
               ))}
             </div>
           )}
-          <ShareButton />
         </div>
 
         <div className={styles.headerDivider} />
