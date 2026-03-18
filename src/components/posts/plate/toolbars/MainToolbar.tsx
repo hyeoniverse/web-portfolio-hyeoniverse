@@ -187,31 +187,32 @@ export default React.memo(function MainToolbar({
       })}
       <div className={styles.divider} />
 
-      {/* Text color */}
-      <div className={styles.colorGroup}>
-        <span className={styles.colorLabel}>A</span>
-        <div className={styles.colorIndicator} style={{ background: currentColor || "var(--text-primary)" }} />
-        <input type="color" className={styles.colorInput} value={currentColor || "#000000"} onChange={(e) => editor.tf.addMarks({ color: e.target.value })} title="Text color" />
-      </div>
-
-      {/* Highlight / BG color */}
-      <div className={styles.colorGroup}>
-        <span className={styles.colorLabel}>BG</span>
-        <div className={styles.colorIndicator} style={{ background: currentBgColor || "transparent" }} />
-        <input type="color" className={styles.colorInput} value={currentBgColor || "#ffff00"} onChange={(e) => editor.tf.addMarks({ backgroundColor: e.target.value })} title="Highlight color" />
-      </div>
-
-      {/* Text color presets */}
-      <div className={styles.presetColors}>
+      {/* Text color — picker + presets */}
+      <div className={styles.colorSection}>
+        <div className={styles.colorGroup}>
+          <span className={styles.colorLabel}>A</span>
+          <div className={styles.colorIndicator} style={{ background: currentColor || "var(--text-primary)" }} />
+          <input type="color" className={styles.colorInput} value={currentColor || "#000000"} onChange={(e) => editor.tf.addMarks({ color: e.target.value })} title={t("editor.textColor")} />
+        </div>
         {PRESET_COLORS.map((color) => (
           <Tooltip key={color} content={color} delay={200} placement="top">
             <button type="button" className={`${styles.presetDot} ${currentColor === color ? styles.presetDotActive : ""}`} style={{ background: color }} onClick={() => editor.tf.addMarks({ color })} />
           </Tooltip>
         ))}
+        {currentColor && (
+          <Tooltip content={t("editor.removeColor")} delay={200} placement="top">
+            <button type="button" className={styles.presetDotClear} onClick={() => editor.tf.removeMarks(["color"])}>×</button>
+          </Tooltip>
+        )}
       </div>
 
-      {/* BG color presets */}
-      <div className={styles.presetColors}>
+      {/* BG color — picker + presets */}
+      <div className={styles.colorSection}>
+        <div className={styles.colorGroup}>
+          <span className={styles.colorLabel}>BG</span>
+          <div className={styles.colorIndicator} style={{ background: currentBgColor || "transparent", border: !currentBgColor ? "1px solid var(--border-light-color)" : undefined }} />
+          <input type="color" className={styles.colorInput} value={currentBgColor || "#ffff00"} onChange={(e) => editor.tf.addMarks({ backgroundColor: e.target.value })} title={t("editor.bgColor")} />
+        </div>
         {PRESET_BG_COLORS.map((color) => (
           <Tooltip key={color} content={color === "transparent" ? "None" : color} delay={200} placement="top">
             <button
@@ -222,6 +223,11 @@ export default React.memo(function MainToolbar({
             />
           </Tooltip>
         ))}
+        {currentBgColor && (
+          <Tooltip content={t("editor.removeBgColor")} delay={200} placement="top">
+            <button type="button" className={styles.presetDotClear} onClick={() => editor.tf.removeMarks(["backgroundColor"])}>×</button>
+          </Tooltip>
+        )}
       </div>
 
       {/* Clear formatting */}
