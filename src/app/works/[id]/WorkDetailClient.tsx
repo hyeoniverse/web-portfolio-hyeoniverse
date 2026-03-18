@@ -17,6 +17,7 @@ import CommentSection from "@/components/comments/CommentSection";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import AISummary from "@/components/ui/AISummary";
 import ShareButton from "@/components/ui/ShareButton";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 import { createClient } from "@/lib/supabase/client";
 import styles from "./WorkDetail.module.css";
 
@@ -99,6 +100,9 @@ export default function WorkDetailClient({
 }: WorkDetailClientProps) {
   const { t, language } = useLanguage();
   const isRichtext = project.contentType === "richtext";
+  const [viewLang, setViewLang] = useState<"ko" | "en">(
+    !project.content.en ? "ko" : !project.content.ko ? "en" : language === "en" ? "en" : "ko"
+  );
   const [isAdmin, setIsAdmin] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -133,8 +137,8 @@ export default function WorkDetailClient({
     setLiked(data.liked);
   }, [project.id, liked]);
 
-  const content = project.content[language] || project.content.ko;
-  const needsTranslation = language === "en" && !project.content[language];
+  const content = project.content[viewLang] || project.content.ko;
+  const needsTranslation = viewLang === "en" && !project.content[viewLang];
 
   useRichtextEnhance(richtextRef, content);
 
@@ -273,7 +277,10 @@ export default function WorkDetailClient({
           <span className={styles.projectNumber}>#{project.number}</span>
           <span className={styles.category}><T ko={project.category.ko} en={project.category.en} /></span>
         </div>
-        <ShareButton />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
+          <ShareButton />
+        </div>
       </motion.div>
 
       {/* ── Title ── */}
@@ -362,7 +369,7 @@ export default function WorkDetailClient({
       <AISummary
         summaryKo={project.summary?.ko ?? ""}
         summaryEn={project.summary?.en ?? ""}
-        lang={language}
+        lang={viewLang}
       />
 
       {/* Content */}
