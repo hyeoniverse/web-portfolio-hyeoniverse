@@ -37,6 +37,13 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
     if (trimmed !== caption) onCommit(trimmed);
   }, [draft, caption, onCommit, setEditingWrapped]);
 
+  const sharedStyle: React.CSSProperties = {
+    fontSize: overlayMode ? 11 : "var(--font-size-xs)",
+    lineHeight: 1.4,
+    padding: overlayMode ? "2px 0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
+    fontFamily: "inherit",
+  };
+
   if (editing) {
     return (
       <input
@@ -52,14 +59,12 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
         placeholder={t("editor.captionInput")}
         autoFocus
         style={{
+          ...sharedStyle,
           width: "100%",
           border: "none",
           outline: "none",
           background: "transparent",
-          fontSize: overlayMode ? 11 : "var(--font-size-xs)",
           color: overlayMode ? "#fff" : "var(--text-muted)",
-          padding: overlayMode ? "0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
-          fontFamily: "inherit",
         }}
       />
     );
@@ -70,14 +75,12 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
       contentEditable={false}
       onClick={() => { setEditingWrapped(true); setTimeout(() => inputRef.current?.focus(), 0); }}
       style={{
-        fontSize: overlayMode ? 11 : "var(--font-size-xs)",
+        ...sharedStyle,
         color: overlayMode ? "rgba(255,255,255,0.9)" : caption ? "var(--text-muted)" : "var(--text-disabled, var(--text-muted))",
-        padding: overlayMode ? "0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
         cursor: "text",
         opacity: caption ? 1 : 0,
         transition: "opacity 0.15s",
         userSelect: "none",
-        lineHeight: overlayMode ? 1.3 : undefined,
       }}
       onMouseEnter={(e) => { if (!caption) (e.currentTarget as HTMLElement).style.opacity = "0.5"; }}
       onMouseLeave={(e) => { if (!caption) (e.currentTarget as HTMLElement).style.opacity = "0"; }}
