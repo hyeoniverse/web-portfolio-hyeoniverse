@@ -33,6 +33,8 @@ export interface MainToolbarProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editor: any;
   isMac: boolean;
+  /** 에디터 변경마다 증가 — React.memo 리렌더 트리거 */
+  tick?: number;
   // link / embed input toggle
   showLinkInput: boolean;
   onToggleLinkInput: () => void;
