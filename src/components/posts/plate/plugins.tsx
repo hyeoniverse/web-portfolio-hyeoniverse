@@ -21,6 +21,7 @@ import {
 } from "@platejs/basic-nodes/react";
 import {
   FontColorPlugin,
+  FontBackgroundColorPlugin,
   FontFamilyPlugin,
   FontSizePlugin,
   LineHeightPlugin,
@@ -259,6 +260,7 @@ export const plugins = [
   }),
   // Styles
   FontColorPlugin,
+  FontBackgroundColorPlugin,
   FontFamilyPlugin,
   FontSizePlugin,
   LineHeightPlugin,
