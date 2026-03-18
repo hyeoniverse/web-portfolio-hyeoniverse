@@ -19,6 +19,7 @@ import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import CommentSection from "@/components/comments/CommentSection";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import ShareButton from "@/components/ui/ShareButton";
+import { createClient } from "@/lib/supabase/client";
 import styles from "./PostDetail.module.css";
 
 interface AdjacentPost {
@@ -237,10 +238,15 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
   const [recommendedPosts, setRecommendedPosts] = useState<{ id: string; title: string; slug: string; cover_image: string; title_en: string; excerpt: string; excerpt_en: string; category: string; tags: string[] }[]>([]);
   const richtextRef = useRef<HTMLDivElement>(null);
   const { containerRef: proseViewerRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
+  const [isAdmin, setIsAdmin] = useState(false);
   const [autoTranslating, setAutoTranslating] = useState(false);
   const [translateError, setTranslateError] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastDismissed, setToastDismissed] = useState(false);
+
+  useEffect(() => {
+    createClient().auth.getSession().then(({ data }) => setIsAdmin(!!data.session?.user));
+  }, []);
 
   useEffect(() => {
     fetch(`/api/posts/${post.id}/view`, { method: "POST" });
@@ -529,7 +535,23 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
           <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
         </div>
 
-        <h1 className={styles.articleTitle}>{displayTitle}</h1>
+        <h1 className={styles.articleTitle}>
+          {displayTitle}
+          {isAdmin && (
+            <a
+              href={`/admin/posts/${post.id}/edit`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginLeft: 8, fontSize: 14, fontWeight: 400, color: "var(--text-tertiary)", textDecoration: "none", verticalAlign: "middle" }}
+              title="Edit"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle" }}>
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </a>
+          )}
+        </h1>
 
         {displayExcerpt && <p className={styles.excerpt}>{displayExcerpt}</p>}
 
