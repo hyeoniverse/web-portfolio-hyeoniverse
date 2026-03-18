@@ -4,6 +4,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SettingsTabProps } from "../_types";
 import Checkbox from "@/components/ui/Checkbox";
+import Select from "@/components/ui/Select";
 import Field, { AudioUpload, LogoUpload, TagField } from "./SettingsFormFields";
 import styles from "../Settings.module.css";
 
@@ -212,6 +213,26 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
             onUploaded={(url) => update("bgm", "url", url)}
             onRemove={() => update("bgm", "url", "")}
           />
+        </div>
+      </section>
+
+      {/* Media Upload */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.imageUpload" /></h2>
+        <div className={styles.fields}>
+          <div className={styles.fieldRow}>
+            <label className={styles.fieldLabel}><T k="admin.settings.maxImageSizeMB" /></label>
+            <Select
+              value={String(config.media?.maxImageSizeMB ?? 10)}
+              options={[
+                { value: "5", label: "5 MB" },
+                { value: "10", label: "10 MB" },
+                { value: "20", label: "20 MB" },
+                { value: "50", label: "50 MB" },
+              ]}
+              onChange={(v) => update("media", "maxImageSizeMB", Number(v))}
+            />
+          </div>
         </div>
       </section>
     </>
