@@ -92,10 +92,11 @@ export function ImageElement(props: PlateElementProps) {
   const selected = useSelected();
   const focused = useFocused();
   const [clicked, setClicked] = useState(false);
+  const [captionEditing, setCaptionEditing] = useState(false);
   const isActive = selected && focused && clicked;
 
-  // 선택 해제 시 clicked도 리셋
-  useEffect(() => { if (!selected) setClicked(false); }, [selected]);
+  // 선택 해제 시 clicked도 리셋 (캡션 편집 중이면 유지)
+  useEffect(() => { if (!selected && !captionEditing) setClicked(false); }, [selected, captionEditing]);
 
   const el = props.element as Record<string, unknown>;
   const url = (el.url as string) || "";
@@ -212,7 +213,7 @@ export function ImageElement(props: PlateElementProps) {
     || (imgWidth > 0 && imgHeight > 0 ? { w: imgWidth, h: imgHeight } : null)
     || naturalSize;
 
-  const showCaption = !!(caption || isActive);
+  const showCaption = !!(caption || isActive || captionEditing);
   const infoStyle: React.CSSProperties = {
     position: "absolute", left: 6,
     bottom: showCaption ? 28 : 6,
@@ -306,6 +307,7 @@ export function ImageElement(props: PlateElementProps) {
               <InlineCaption
                 caption={caption}
                 onCommit={(v) => setAttr({ caption: v || undefined })}
+                onEditingChange={setCaptionEditing}
                 overlayMode
               />
             </div>
