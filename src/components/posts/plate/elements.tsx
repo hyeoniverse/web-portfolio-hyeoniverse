@@ -294,7 +294,7 @@ export function ImageElement(props: PlateElementProps) {
           {/* 캡션 — 이미지 하단 오버레이 */}
           <div style={{
             position: "absolute", bottom: 4, left: 4, right: 4,
-            background: "rgba(0,0,0,0.55)",
+            background: "rgba(0,0,0,0.7)",
             borderRadius: "var(--radius-capsule)",
             height: badgeHeight, display: "flex", alignItems: "center",
             padding: "0 10px", zIndex: 3,
