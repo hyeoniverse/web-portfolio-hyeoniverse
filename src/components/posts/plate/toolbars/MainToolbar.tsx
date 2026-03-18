@@ -60,8 +60,9 @@ export default React.memo(function MainToolbar({
   onAddImage, onInsertMath,
 }: MainToolbarProps) {
   const { t } = useLanguage();
-  const [colorMode, setColorMode] = useState<"text" | "bg">("text");
+  const [colorMode, setColorMode] = useState<"text" | "bg" | null>(null);
   const recentColorsRef = useRef<string[]>([]);
+  const colorSectionRef = useRef<HTMLDivElement>(null);
 
   // ── Keyboard shortcut label ──
   const kb = useCallback((mac: string) => {
@@ -88,7 +89,12 @@ export default React.memo(function MainToolbar({
   const canRedo = (editor.history?.redos?.length ?? 0) > 0;
 
   return (
-    <div className={styles.toolbar}>
+    <div className={styles.toolbar} onClick={(e) => {
+      // 색상 섹션 바깥 클릭 시 colorMode 해제
+      if (colorMode && colorSectionRef.current && !colorSectionRef.current.contains(e.target as Node)) {
+        setColorMode(null);
+      }
+    }}>
       {/* Undo / Redo */}
       <TBtn onClick={() => editor.undo()} disabled={!canUndo} tooltip={`${t("editor.undo")}\n${kb("⌘Z")}`}>↩</TBtn>
       <TBtn onClick={() => editor.redo()} disabled={!canRedo} tooltip={`${t("editor.redo")}\n${kb("⌘⇧Z")}`}>↪</TBtn>
@@ -195,76 +201,78 @@ export default React.memo(function MainToolbar({
       })}
       <div className={styles.divider} />
 
-      {/* Color mode toggle: A / BG */}
-      <TBtn
-        active={colorMode === "text"}
-        onClick={() => setColorMode("text")}
-        tooltip={t("editor.textColor")}
-      >
-        <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-          <span style={{ fontWeight: 700, fontSize: 11 }}>A</span>
-          <span style={{ width: 12, height: 3, borderRadius: 1, background: currentColor || "var(--text-primary)" }} />
-        </span>
-      </TBtn>
-      <TBtn
-        active={colorMode === "bg"}
-        onClick={() => setColorMode("bg")}
-        tooltip={t("editor.bgColor")}
-      >
-        <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-          <span style={{ fontWeight: 700, fontSize: 11 }}>BG</span>
-          <span style={{ width: 12, height: 3, borderRadius: 1, background: currentBgColor || "transparent", border: !currentBgColor ? "1px solid var(--border-light-color)" : undefined }} />
-        </span>
-      </TBtn>
+      {/* Color mode toggle + palette */}
+      <div ref={colorSectionRef} style={{ display: "contents" }}>
+        <TBtn
+          active={colorMode === "text"}
+          onClick={() => setColorMode(colorMode === "text" ? null : "text")}
+          tooltip={t("editor.textColor")}
+        >
+          <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+            <span style={{ fontWeight: 700, fontSize: 11 }}>A</span>
+            <span style={{ width: 12, height: 3, borderRadius: 1, background: currentColor || "var(--text-primary)" }} />
+          </span>
+        </TBtn>
+        <TBtn
+          active={colorMode === "bg"}
+          onClick={() => setColorMode(colorMode === "bg" ? null : "bg")}
+          tooltip={t("editor.bgColor")}
+        >
+          <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+            <span style={{ fontWeight: 700, fontSize: 11 }}>BG</span>
+            <span style={{ width: 12, height: 3, borderRadius: 1, background: currentBgColor || "transparent", border: !currentBgColor ? "1px solid var(--border-light-color)" : undefined }} />
+          </span>
+        </TBtn>
 
-      {/* 프리셋 (공용) */}
-      {(() => {
-        const activeColor = colorMode === "text" ? currentColor : currentBgColor;
-        const apply = (color: string) => {
-          if (colorMode === "text") editor.tf.addMarks({ color });
-          else editor.tf.addMarks({ backgroundColor: color });
-          if (!ALL_PRESETS.has(color)) {
-            const list = recentColorsRef.current;
-            const idx = list.indexOf(color);
-            if (idx !== -1) list.splice(idx, 1);
-            list.unshift(color);
-            if (list.length > MAX_RECENT) list.pop();
-          }
-        };
-        const isLight = (c: string) => c === "#ffffff" || c === "#d1d5db" || PASTEL_COLORS.includes(c);
-        const dot = (c: string) => (
-          <Tooltip key={c} content={c} delay={200} placement="top">
-            <button type="button" className={`${styles.presetDot} ${activeColor === c ? styles.presetDotActive : ""}`} style={{ background: c, border: isLight(c) ? "1px solid var(--border-light-color)" : undefined }} onClick={() => apply(c)} />
-          </Tooltip>
-        );
-        return (
-          <div className={styles.colorSection}>
-            {BASE_COLORS.map(dot)}
-            <div className={styles.divider} />
-            {VIVID_COLORS.map(dot)}
-            <div className={styles.divider} />
-            {PASTEL_COLORS.map(dot)}
-            {recentColorsRef.current.length > 0 && (
-              <>
-                <div className={styles.divider} />
-                {recentColorsRef.current.map(dot)}
-              </>
-            )}
-            {/* 컬러피커 */}
-            <div className={styles.divider} />
-            <div className={styles.colorGroup}>
-              <div className={styles.colorIndicator} style={{ width: 14, height: 14, borderRadius: "50%", background: activeColor || "var(--bg-primary)", border: "1px solid var(--border-light-color)" }} />
-              <input type="color" className={styles.colorInput} value={activeColor || "#000000"} onChange={(e) => apply(e.target.value)} title={colorMode === "text" ? t("editor.textColor") : t("editor.bgColor")} />
+        {/* 프리셋 — colorMode 선택 시에만 표시 */}
+        {colorMode && (() => {
+          const activeColor = colorMode === "text" ? currentColor : currentBgColor;
+          const apply = (color: string) => {
+            if (colorMode === "text") editor.tf.addMarks({ color });
+            else editor.tf.addMarks({ backgroundColor: color });
+            if (!ALL_PRESETS.has(color)) {
+              const list = recentColorsRef.current;
+              const idx = list.indexOf(color);
+              if (idx !== -1) list.splice(idx, 1);
+              list.unshift(color);
+              if (list.length > MAX_RECENT) list.pop();
+            }
+          };
+          const isLight = (c: string) => c === "#ffffff" || c === "#d1d5db" || PASTEL_COLORS.includes(c);
+          const dot = (c: string) => (
+            <Tooltip key={c} content={c} delay={200} placement="top">
+              <button type="button" className={`${styles.presetDot} ${activeColor === c ? styles.presetDotActive : ""}`} style={{ background: c, border: isLight(c) ? "1px solid var(--border-light-color)" : undefined }} onClick={() => apply(c)} />
+            </Tooltip>
+          );
+          return (
+            <div className={styles.colorSection}>
+              {BASE_COLORS.map(dot)}
+              <div className={styles.divider} />
+              {VIVID_COLORS.map(dot)}
+              <div className={styles.divider} />
+              {PASTEL_COLORS.map(dot)}
+              {recentColorsRef.current.length > 0 && (
+                <>
+                  <div className={styles.divider} />
+                  {recentColorsRef.current.map(dot)}
+                </>
+              )}
+              {/* 컬러피커 */}
+              <div className={styles.divider} />
+              <div className={styles.colorGroup}>
+                <div className={styles.colorIndicator} style={{ width: 14, height: 14, borderRadius: "50%", background: activeColor || "var(--bg-primary)", border: "1px solid var(--border-light-color)" }} />
+                <input type="color" className={styles.colorInput} value={activeColor || "#000000"} onChange={(e) => apply(e.target.value)} title={colorMode === "text" ? t("editor.textColor") : t("editor.bgColor")} />
+              </div>
+              {/* 제거 */}
+              {activeColor && (
+                <Tooltip content={colorMode === "text" ? t("editor.removeColor") : t("editor.removeBgColor")} delay={200} placement="top">
+                  <button type="button" className={styles.presetDotClear} onClick={() => { if (colorMode === "text") editor.tf.removeMarks(["color"]); else editor.tf.removeMarks(["backgroundColor"]); }}>×</button>
+                </Tooltip>
+              )}
             </div>
-            {/* 제거 */}
-            {activeColor && (
-              <Tooltip content={colorMode === "text" ? t("editor.removeColor") : t("editor.removeBgColor")} delay={200} placement="top">
-                <button type="button" className={styles.presetDotClear} onClick={() => { if (colorMode === "text") editor.tf.removeMarks(["color"]); else editor.tf.removeMarks(["backgroundColor"]); }}>×</button>
-              </Tooltip>
-            )}
-          </div>
-        );
-      })()}
+          );
+        })()}
+      </div>
 
       {/* Clear formatting */}
       <TBtn
