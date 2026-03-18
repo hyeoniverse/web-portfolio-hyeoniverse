@@ -349,7 +349,7 @@
 }
 
 .commentWrap {
-  padding: var(--spacing-2xl) var(--page-px);
+  padding: var(--spacing-2xl) 0;
 }
 
 .footerNav {
