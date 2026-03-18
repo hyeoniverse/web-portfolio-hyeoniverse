@@ -60,7 +60,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
         background: "transparent",
         fontSize: overlayMode ? 11 : "var(--font-size-xs)",
         lineHeight: 1.4,
-        padding: overlayMode ? "2px 0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
+        padding: overlayMode ? "0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
         fontFamily: "inherit",
         color: overlayMode
           ? (editing ? "#fff" : "rgba(255,255,255,0.9)")
@@ -202,15 +202,17 @@ export function ImageElement(props: PlateElementProps) {
     || naturalSize;
 
   const showCaption = !!(caption || isActive || captionEditing);
+  const badgeHeight = 22;
   const infoStyle: React.CSSProperties = {
-    position: "absolute", left: 6,
-    bottom: showCaption ? 32 : 6,
-    padding: "3px 8px",
+    position: "absolute", left: 4,
+    bottom: showCaption ? badgeHeight + 10 : 4,
+    padding: "2px 10px",
     background: "rgba(0,0,0,0.7)", color: "#fff",
     borderRadius: "var(--radius-capsule)", fontSize: 11,
-    fontFamily: "var(--font-mono)", lineHeight: 1.3,
+    fontFamily: "var(--font-mono)", lineHeight: 1.4,
+    height: badgeHeight, display: "flex", alignItems: "center",
     pointerEvents: "none", whiteSpace: "nowrap", zIndex: 4,
-    maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis",
+    maxWidth: "calc(100% - 8px)", overflow: "hidden", textOverflow: "ellipsis",
     transition: "bottom 0.2s ease",
   };
 
@@ -290,7 +292,8 @@ export function ImageElement(props: PlateElementProps) {
             position: "absolute", bottom: 4, left: 4, right: 4,
             background: "rgba(0,0,0,0.55)",
             borderRadius: "var(--radius-capsule)",
-            padding: "3px 8px", zIndex: 3,
+            height: badgeHeight, display: "flex", alignItems: "center",
+            padding: "0 10px", zIndex: 3,
             opacity: showCaption ? 1 : 0,
             transform: showCaption ? "translateY(0)" : "translateY(4px)",
             transition: "opacity 0.2s ease, transform 0.2s ease",
