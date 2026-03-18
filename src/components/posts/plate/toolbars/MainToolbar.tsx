@@ -89,7 +89,7 @@ export default React.memo(function MainToolbar({
   const canRedo = (editor.history?.redos?.length ?? 0) > 0;
 
   return (
-    <div className={styles.toolbar} onClick={(e) => {
+    <div className={styles.toolbar} onMouseDownCapture={(e) => {
       if (colorMode && !(e.target as HTMLElement).closest("[data-color-section]")) {
         setColorMode(null);
       }
