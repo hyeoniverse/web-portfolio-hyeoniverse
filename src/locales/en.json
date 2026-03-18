@@ -696,6 +696,7 @@
   },
   "workDetail": {
     "back": "Back",
+    "editWork": "Edit this work (new tab)",
     "viewAll": "View All Works",
     "notFound": "Work not found",
     "notFoundLink": "Go back home",
@@ -749,6 +750,7 @@
     "backToList": "Back to all posts",
     "minRead": "min read",
     "views": "views",
+    "editPost": "Edit this post (new tab)",
     "series": "Series",
     "more": "more",
     "noTranslationEn": "This post is not yet available in English.",
