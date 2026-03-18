@@ -297,7 +297,7 @@ export function ImageElement(props: PlateElementProps) {
           {(caption || isActive) && (
             <div style={{
               position: "absolute", bottom: 0, left: 0, right: 0,
-              background: "rgba(0,0,0,0.55)", borderRadius: "0 0 var(--radius-xs) var(--radius-xs)",
+              background: "rgba(0,0,0,0.55)",
               padding: "2px 6px", zIndex: 3,
             }}>
               <InlineCaption
