@@ -701,7 +701,7 @@
   align-items: center;
   gap: 2px;
   padding: var(--box-xs);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-capsule);
 }
 
 .toolbar .colorGroup:hover,
