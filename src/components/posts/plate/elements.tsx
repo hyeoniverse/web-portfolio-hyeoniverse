@@ -212,14 +212,17 @@ export function ImageElement(props: PlateElementProps) {
     || (imgWidth > 0 && imgHeight > 0 ? { w: imgWidth, h: imgHeight } : null)
     || naturalSize;
 
+  const showCaption = !!(caption || isActive);
   const infoStyle: React.CSSProperties = {
-    position: "absolute", left: 6, bottom: 6,
+    position: "absolute", left: 6,
+    bottom: showCaption ? 28 : 6,
     padding: "3px 8px",
     background: "rgba(0,0,0,0.7)", color: "#fff",
-    borderRadius: "var(--radius-xs)", fontSize: 11,
+    borderRadius: "var(--radius-capsule)", fontSize: 11,
     fontFamily: "var(--font-mono)", lineHeight: 1.3,
-    pointerEvents: "none", whiteSpace: "nowrap", zIndex: 3,
+    pointerEvents: "none", whiteSpace: "nowrap", zIndex: 4,
     maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis",
+    transition: "bottom 0.2s ease",
   };
 
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
@@ -294,7 +297,7 @@ export function ImageElement(props: PlateElementProps) {
             </>
           )}
           {/* 캡션 — 이미지 하단 오버레이 */}
-          {(caption || isActive) && (
+          {showCaption && (
             <div style={{
               position: "absolute", bottom: 0, left: 0, right: 0,
               background: "rgba(0,0,0,0.55)",
