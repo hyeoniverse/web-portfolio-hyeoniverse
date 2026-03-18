@@ -37,56 +37,41 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
     if (trimmed !== caption) onCommit(trimmed);
   }, [draft, caption, onCommit, setEditingWrapped]);
 
-  const sharedStyle: React.CSSProperties = {
-    fontSize: overlayMode ? 11 : "var(--font-size-xs)",
-    lineHeight: 1.4,
-    padding: overlayMode ? "2px 0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
-    fontFamily: "inherit",
-  };
-
-  if (editing) {
-    return (
-      <input
-        ref={inputRef}
-        contentEditable={false}
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") { e.preventDefault(); commit(); }
-          if (e.key === "Escape") { setDraft(caption); setEditingWrapped(false); }
-        }}
-        placeholder={t("editor.captionInput")}
-        autoFocus
-        style={{
-          ...sharedStyle,
-          width: "100%",
-          border: "none",
-          outline: "none",
-          background: "transparent",
-          color: overlayMode ? "#fff" : "var(--text-muted)",
-        }}
-      />
-    );
-  }
-
   return (
-    <div
+    <input
+      ref={inputRef}
       contentEditable={false}
-      onClick={() => { setEditingWrapped(true); setTimeout(() => inputRef.current?.focus(), 0); }}
-      style={{
-        ...sharedStyle,
-        color: overlayMode ? "rgba(255,255,255,0.9)" : caption ? "var(--text-muted)" : "var(--text-disabled, var(--text-muted))",
-        cursor: "text",
-        opacity: caption ? 1 : 0,
-        transition: "opacity 0.15s",
-        userSelect: "none",
+      value={editing ? draft : caption}
+      readOnly={!editing}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => { if (editing) commit(); }}
+      onClick={() => { if (!editing) { setEditingWrapped(true); setTimeout(() => inputRef.current?.focus(), 0); } }}
+      onKeyDown={(e) => {
+        if (!editing) return;
+        if (e.key === "Enter") { e.preventDefault(); commit(); }
+        if (e.key === "Escape") { setDraft(caption); setEditingWrapped(false); }
       }}
-      onMouseEnter={(e) => { if (!caption) (e.currentTarget as HTMLElement).style.opacity = "0.5"; }}
-      onMouseLeave={(e) => { if (!caption) (e.currentTarget as HTMLElement).style.opacity = "0"; }}
-    >
-      {caption || t("editor.captionAdd")}
-    </div>
+      placeholder={editing ? t("editor.captionInput") : (caption || t("editor.captionAdd"))}
+      autoFocus={editing}
+      style={{
+        width: "100%",
+        border: "none",
+        outline: "none",
+        background: "transparent",
+        fontSize: overlayMode ? 11 : "var(--font-size-xs)",
+        lineHeight: 1.4,
+        padding: overlayMode ? "2px 0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
+        fontFamily: "inherit",
+        color: overlayMode
+          ? (editing ? "#fff" : "rgba(255,255,255,0.9)")
+          : (caption || editing ? "var(--text-muted)" : "var(--text-disabled, var(--text-muted))"),
+        cursor: editing ? "text" : "pointer",
+        opacity: caption || editing ? 1 : 0,
+        transition: "opacity 0.15s",
+      }}
+      onMouseEnter={(e) => { if (!caption && !editing) e.currentTarget.style.opacity = "0.5"; }}
+      onMouseLeave={(e) => { if (!caption && !editing) e.currentTarget.style.opacity = "0"; }}
+    />
   );
 }
 
