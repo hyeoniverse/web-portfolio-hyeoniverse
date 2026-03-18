@@ -90,8 +90,7 @@ export default React.memo(function MainToolbar({
 
   return (
     <div className={styles.toolbar} onClick={(e) => {
-      // 색상 섹션 바깥 클릭 시 colorMode 해제
-      if (colorMode && colorSectionRef.current && !colorSectionRef.current.contains(e.target as Node)) {
+      if (colorMode && !(e.target as HTMLElement).closest("[data-color-section]")) {
         setColorMode(null);
       }
     }}>
@@ -202,7 +201,7 @@ export default React.memo(function MainToolbar({
       <div className={styles.divider} />
 
       {/* Color mode toggle + palette */}
-      <div ref={colorSectionRef} style={{ display: "contents" }}>
+      <div ref={colorSectionRef} data-color-section style={{ display: "flex", alignItems: "center" }}>
         <TBtn
           active={colorMode === "text"}
           onClick={() => setColorMode(colorMode === "text" ? null : "text")}
