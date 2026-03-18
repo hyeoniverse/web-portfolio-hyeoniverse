@@ -57,15 +57,17 @@ export const FONT_SIZE_PRESETS = [12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 64
 export const LINE_HEIGHT_PRESETS = ["1", "1.2", "1.4", "1.5", "1.6", "1.65", "1.8", "2", "2.5"];
 export const LETTER_SPACING_PRESETS = ["-0.05em", "0em", "0.05em", "0.1em", "0.15em", "0.2em", "0.3em"];
 
-export const PRESET_COLORS = [
-  "#000000", "#374151", "#6b7280", "#ef4444", "#f97316",
-  "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899",
-];
+/** 기본 색상 (검정/흰/회색) */
+export const BASE_COLORS = ["#000000", "#374151", "#6b7280", "#d1d5db", "#ffffff"];
 
-export const PRESET_BG_COLORS = [
-  "#fef08a", "#bbf7d0", "#bfdbfe", "#fbcfe8", "#e9d5ff",
-  "#fecaca", "#fed7aa", "#d1d5db", "#ffffff", "transparent",
-];
+/** 비비드 프리셋 */
+export const VIVID_COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899"];
+
+/** 파스텔 프리셋 */
+export const PASTEL_COLORS = ["#fecaca", "#fed7aa", "#fef08a", "#bbf7d0", "#bfdbfe", "#e9d5ff", "#fbcfe8"];
+
+/** 글자색/배경색 공용 프리셋 (기본 + 비비드 + 파스텔) */
+export const PRESET_COLORS = [...BASE_COLORS, ...VIVID_COLORS, ...PASTEL_COLORS];
 
 export const TABLE_BG_PRESETS = [
   "#fef3c7", "#dcfce7", "#dbeafe", "#fce7f3", "#f3e8ff", "#fee2e2", "#f3f4f6",
