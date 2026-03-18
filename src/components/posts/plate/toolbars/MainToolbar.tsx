@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { setAlign, setLineHeight } from "@platejs/basic-styles";
 import { insertTable } from "@platejs/table";
 import { toggleCodeBlock } from "@platejs/code-block";
@@ -62,7 +62,18 @@ export default React.memo(function MainToolbar({
   const { t } = useLanguage();
   const [colorMode, setColorMode] = useState<"text" | "bg" | null>(null);
   const recentColorsRef = useRef<string[]>([]);
-  const colorSectionRef = useRef<HTMLDivElement>(null);
+
+  // 색상 팔레트 바깥 클릭 시 닫기
+  useEffect(() => {
+    if (!colorMode) return;
+    const handler = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest("[data-color-section]")) {
+        setColorMode(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [colorMode]);
 
   // ── Keyboard shortcut label ──
   const kb = useCallback((mac: string) => {
@@ -89,11 +100,7 @@ export default React.memo(function MainToolbar({
   const canRedo = (editor.history?.redos?.length ?? 0) > 0;
 
   return (
-    <div className={styles.toolbar} onMouseDownCapture={(e) => {
-      if (colorMode && !(e.target as HTMLElement).closest("[data-color-section]")) {
-        setColorMode(null);
-      }
-    }}>
+    <div className={styles.toolbar}>
       {/* Undo / Redo */}
       <TBtn onClick={() => editor.undo()} disabled={!canUndo} tooltip={`${t("editor.undo")}\n${kb("⌘Z")}`}>↩</TBtn>
       <TBtn onClick={() => editor.redo()} disabled={!canRedo} tooltip={`${t("editor.redo")}\n${kb("⌘⇧Z")}`}>↪</TBtn>
