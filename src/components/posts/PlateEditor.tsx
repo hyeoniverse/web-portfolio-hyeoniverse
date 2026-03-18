@@ -52,7 +52,7 @@ export default function PlateEditor({
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
   const lastSlateValueRef = useRef<SlateNode[] | undefined>(undefined);
-  const [, setTick] = useState(0);
+  const [tick, setTick] = useState(0);
   const [isMac, setIsMac] = useState(false);
   useEffect(() => { setIsMac(/Mac|iPhone|iPad/.test(navigator.platform)); }, []);
 
@@ -471,6 +471,7 @@ export default function PlateEditor({
         <MainToolbar
           editor={editor}
           isMac={isMac}
+          tick={tick}
           showLinkInput={showLinkInput}
           onToggleLinkInput={toggleLinkInput}
           showEmbedInput={showEmbedInput}
