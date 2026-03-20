@@ -16,6 +16,7 @@ interface SelectProps {
   renderOption?: (option: SelectOption, isActive: boolean) => ReactNode;
   renderValue?: (option: SelectOption | undefined) => ReactNode;
   className?: string;
+  disabled?: boolean;
 }
 
 export default function Select({
@@ -26,6 +27,7 @@ export default function Select({
   renderOption,
   renderValue,
   className,
+  disabled,
 }: SelectProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -44,11 +46,12 @@ export default function Select({
   const selected = options.find((o) => o.value === value);
 
   return (
-    <div className={`${styles.root} ${open ? styles.rootOpen : ""} ${className ?? ""}`} ref={ref}>
+    <div className={`${styles.root} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${className ?? ""}`} ref={ref}>
       <button
         type="button"
         className={styles.trigger}
-        onClick={() => setOpen(!open)}
+        onClick={() => { if (!disabled) setOpen(!open); }}
+        disabled={disabled}
       >
         <span className={styles.value}>
           {renderValue

@@ -3,51 +3,68 @@ type FontGroup = { group: string; fonts: FontEntry[] };
 
 export const FONT_GROUPS: FontGroup[] = [
   {
-    group: "Sans",
+    group: "기본",
     fonts: [
-      { label: "Inter", value: "'Inter', sans-serif", googleName: "Inter" },
       { label: "Space Grotesk", value: "'Space Grotesk', sans-serif", googleName: "Space Grotesk" },
-      { label: "DM Sans", value: "'DM Sans', sans-serif", googleName: "DM Sans" },
-      { label: "Poppins", value: "'Poppins', sans-serif", googleName: "Poppins" },
-      { label: "Nunito", value: "'Nunito', sans-serif", googleName: "Nunito" },
+      { label: "Instrument Serif", value: "'Instrument Serif', serif", googleName: "Instrument Serif" },
+      { label: "Inter", value: "'Inter', sans-serif", googleName: "Inter" },
+      { label: "Noto Sans KR", value: "'Noto Sans KR', sans-serif", googleName: "Noto Sans KR" },
+      { label: "Noto Serif KR", value: "'Noto Serif KR', serif", googleName: "Noto Serif KR" },
+      { label: "JetBrains Mono", value: "'JetBrains Mono', monospace", googleName: "JetBrains Mono" },
     ],
   },
   {
-    group: "Serif",
+    group: "Sans (한글)",
     fonts: [
-      { label: "Instrument Serif", value: "'Instrument Serif', serif", googleName: "Instrument Serif" },
+      { label: "Gothic A1", value: "'Gothic A1', sans-serif", googleName: "Gothic A1" },
+      { label: "Nanum Gothic", value: "'Nanum Gothic', sans-serif", googleName: "Nanum Gothic" },
+      { label: "Gowun Dodum", value: "'Gowun Dodum', sans-serif", googleName: "Gowun Dodum" },
+      { label: "IBM Plex Sans KR", value: "'IBM Plex Sans KR', sans-serif", googleName: "IBM Plex Sans KR" },
+      { label: "Pretendard", value: "'Pretendard Variable', sans-serif", googleName: "Pretendard Variable" },
+      { label: "Spoqa Han Sans Neo", value: "'Spoqa Han Sans Neo', sans-serif" },
+    ],
+  },
+  {
+    group: "Serif (한글)",
+    fonts: [
+      { label: "Nanum Myeongjo", value: "'Nanum Myeongjo', serif", googleName: "Nanum Myeongjo" },
+      { label: "Gowun Batang", value: "'Gowun Batang', serif", googleName: "Gowun Batang" },
+      { label: "KoPub Batang", value: "'KoPubWorldBatang', serif" },
+    ],
+  },
+  {
+    group: "Display (한글)",
+    fonts: [
+      { label: "Black Han Sans", value: "'Black Han Sans', sans-serif", googleName: "Black Han Sans" },
+      { label: "Jua", value: "'Jua', sans-serif", googleName: "Jua" },
+      { label: "Do Hyeon", value: "'Do Hyeon', sans-serif", googleName: "Do Hyeon" },
+      { label: "Gaegu", value: "'Gaegu', cursive", googleName: "Gaegu" },
+      { label: "Hi Melody", value: "'Hi Melody', cursive", googleName: "Hi Melody" },
+      { label: "Sunflower", value: "'Sunflower', sans-serif", googleName: "Sunflower" },
+      { label: "Dokdo", value: "'Dokdo', cursive", googleName: "Dokdo" },
+    ],
+  },
+  {
+    group: "Sans (영문)",
+    fonts: [
+      { label: "Roboto", value: "'Roboto', sans-serif", googleName: "Roboto" },
+      { label: "Open Sans", value: "'Open Sans', sans-serif", googleName: "Open Sans" },
+    ],
+  },
+  {
+    group: "Serif (영문)",
+    fonts: [
       { label: "Playfair Display", value: "'Playfair Display', serif", googleName: "Playfair Display" },
-      { label: "Cormorant Garamond", value: "'Cormorant Garamond', serif", googleName: "Cormorant Garamond" },
       { label: "Lora", value: "'Lora', serif", googleName: "Lora" },
-      { label: "EB Garamond", value: "'EB Garamond', serif", googleName: "EB Garamond" },
       { label: "Merriweather", value: "'Merriweather', serif", googleName: "Merriweather" },
     ],
   },
   {
     group: "Mono",
     fonts: [
-      { label: "JetBrains Mono", value: "'JetBrains Mono', monospace", googleName: "JetBrains Mono" },
       { label: "Fira Code", value: "'Fira Code', monospace", googleName: "Fira Code" },
       { label: "Source Code Pro", value: "'Source Code Pro', monospace", googleName: "Source Code Pro" },
-      { label: "IBM Plex Mono", value: "'IBM Plex Mono', monospace", googleName: "IBM Plex Mono" },
-      { label: "DM Mono", value: "'DM Mono', monospace", googleName: "DM Mono" },
-    ],
-  },
-  {
-    group: "Korean Serif",
-    fonts: [
-      { label: "Noto Serif KR", value: "'Noto Serif KR', serif", googleName: "Noto Serif KR" },
-      { label: "Nanum Myeongjo", value: "'Nanum Myeongjo', serif", googleName: "Nanum Myeongjo" },
-      { label: "Gowun Batang", value: "'Gowun Batang', serif", googleName: "Gowun Batang" },
-    ],
-  },
-  {
-    group: "Korean Sans",
-    fonts: [
-      { label: "Noto Sans KR", value: "'Noto Sans KR', sans-serif", googleName: "Noto Sans KR" },
-      { label: "Gothic A1", value: "'Gothic A1', sans-serif", googleName: "Gothic A1" },
-      { label: "Nanum Gothic", value: "'Nanum Gothic', sans-serif", googleName: "Nanum Gothic" },
-      { label: "Gowun Dodum", value: "'Gowun Dodum', sans-serif", googleName: "Gowun Dodum" },
+      { label: "D2Coding", value: "'D2Coding', monospace", googleName: "D2Coding" },
     ],
   },
 ];
@@ -94,6 +111,8 @@ export const TABLE_BORDER_COLORS = [
 
 export const IMG_ALIGNS = ["left", "center", "right"] as const;
 export const IMG_ALIGN_ICONS: Record<string, string> = { left: "◧", center: "◻", right: "◨" };
+export const IMG_LAYOUTS = ["inline", "block", "float-left", "float-right"] as const;
+export type ImgLayout = (typeof IMG_LAYOUTS)[number];
 export const IMG_FILTERS: { labelKey: string; value: string }[] = [
   { labelKey: "editor.filterOriginal", value: "" },
   { labelKey: "editor.filterGrayscale", value: "grayscale(100%)" },
@@ -139,8 +158,20 @@ export const MATH_TOOLS: { categoryKey: string; items: { label: string; latex: s
     { label: "[ ]", latex: "\\left[ \\right]", tipKey: "editor.mathBrackets" },
     { label: "{ }", latex: "\\left\\{ \\right\\}", tipKey: "editor.mathBraces" },
     { label: "| |", latex: "\\left| \\right|", tipKey: "editor.mathAbs" },
-    { label: "M", latex: "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}", tipKey: "editor.mathMatrix" },
+    { label: "‖ ‖", latex: "\\left\\| \\right\\|", tipKey: "editor.mathNorm" },
+    { label: "⌊ ⌋", latex: "\\lfloor \\rfloor", tipKey: "editor.mathFloor" },
+    { label: "⌈ ⌉", latex: "\\lceil \\rceil", tipKey: "editor.mathCeil" },
     { label: "C", latex: "\\begin{cases} a & x > 0 \\\\ b & x \\leq 0 \\end{cases}", tipKey: "editor.mathCases" },
+  ]},
+  { categoryKey: "editor.mathMatrix", items: [
+    { label: "(M)", latex: "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}", tipKey: "editor.mathMatrixParen" },
+    { label: "[M]", latex: "\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}", tipKey: "editor.mathMatrixBracket" },
+    { label: "{M}", latex: "\\begin{Bmatrix} a & b \\\\ c & d \\end{Bmatrix}", tipKey: "editor.mathMatrixBrace" },
+    { label: "|M|", latex: "\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix}", tipKey: "editor.mathMatrixDet" },
+    { label: "‖M‖", latex: "\\begin{Vmatrix} a & b \\\\ c & d \\end{Vmatrix}", tipKey: "editor.mathMatrixNorm" },
+    { label: "3×3", latex: "\\begin{pmatrix} a & b & c \\\\ d & e & f \\\\ g & h & i \\end{pmatrix}", tipKey: "editor.mathMatrix3" },
+    { label: "I", latex: "\\begin{pmatrix} 1 & 0 & 0 \\\\ 0 & 1 & 0 \\\\ 0 & 0 & 1 \\end{pmatrix}", tipKey: "editor.mathMatrixIdentity" },
+    { label: "⋯", latex: "\\begin{pmatrix} a_{11} & \\cdots & a_{1n} \\\\ \\vdots & \\ddots & \\vdots \\\\ a_{m1} & \\cdots & a_{mn} \\end{pmatrix}", tipKey: "editor.mathMatrixDots" },
   ]},
   { categoryKey: "editor.mathGreek", items: [
     { label: "α", latex: "\\alpha " }, { label: "β", latex: "\\beta " },

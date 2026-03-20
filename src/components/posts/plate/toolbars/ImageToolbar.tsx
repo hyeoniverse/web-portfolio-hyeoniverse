@@ -4,7 +4,7 @@ import React, { useCallback } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import TBtn from "../TBtn";
 import { TblTrash, LockIcon, UnlockIcon } from "../icons";
-import { IMG_ALIGNS, IMG_ALIGN_ICONS, IMG_FILTERS } from "../constants";
+import { IMG_ALIGNS, IMG_ALIGN_ICONS, IMG_FILTERS, IMG_LAYOUTS } from "../constants";
 import styles from "../../RichTextEditor.module.css";
 
 interface ImageToolbarProps {
@@ -29,7 +29,7 @@ export default React.memo(function ImageToolbar({
   }, [editor]);
 
   return (
-    <div className={`${styles.tableToolbar} ${styles.tableToolbarFull} ${!visible ? styles.tableToolbarHidden : ""}`}>
+    <div className={`${styles.tableToolbar} ${!visible ? styles.tableToolbarHidden : ""}`}>
       <div className={styles.tableToolbarRow}>
         <span className={styles.tableToolbarLabel}>IMAGE</span>
         <div className={styles.divider} />
@@ -57,19 +57,49 @@ export default React.memo(function ImageToolbar({
 
         <div className={styles.divider} />
 
-        {/* 정렬 */}
+        {/* 배치 */}
+        <div className={styles.tableGroup}>
+          <span className={styles.tableGroupLabel}>{t("editor.imageLayout")}</span>
+          {IMG_LAYOUTS.map((l) => {
+            const labels: Record<string, string> = {
+              inline: "Inline",
+              block: "Block",
+              "float-left": "Float ◧",
+              "float-right": "Float ◨",
+            };
+            return (
+              <TBtn
+                key={l}
+                active={selectedImage ? (selectedImage.layout as string || "inline") === l : false}
+                onClick={() => setImageAttr("layout", l)}
+                tooltip={labels[l]}
+              >
+                <span style={{ fontSize: 9 }}>{labels[l]}</span>
+              </TBtn>
+            );
+          })}
+        </div>
+
+        <div className={styles.divider} />
+
+        {/* 정렬 — inline/float에서는 비활성화 */}
         <div className={styles.tableGroup}>
           <span className={styles.tableGroupLabel}>{t("editor.imageAlign")}</span>
-          {IMG_ALIGNS.map((a) => (
-            <TBtn
-              key={a}
-              active={selectedImage ? (selectedImage.align as string || "center") === a : false}
-              onClick={() => setImageAttr("align", a)}
-              tooltip={a === "left" ? t("editor.left") : a === "center" ? t("editor.center") : t("editor.right")}
-            >
-              {IMG_ALIGN_ICONS[a]}
-            </TBtn>
-          ))}
+          {IMG_ALIGNS.map((a) => {
+            const currentLayout = (selectedImage?.layout as string) || "inline";
+            const disabled = currentLayout !== "block";
+            return (
+              <TBtn
+                key={a}
+                active={!disabled && selectedImage ? (selectedImage.align as string || "center") === a : false}
+                onClick={() => setImageAttr("align", a)}
+                tooltip={a === "left" ? t("editor.left") : a === "center" ? t("editor.center") : t("editor.right")}
+                disabled={disabled}
+              >
+                {IMG_ALIGN_ICONS[a]}
+              </TBtn>
+            );
+          })}
         </div>
 
         <div className={styles.divider} />

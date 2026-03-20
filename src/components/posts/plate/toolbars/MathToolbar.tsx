@@ -16,7 +16,7 @@ export default React.memo(function MathToolbar({ visible }: MathToolbarProps) {
   const { t } = useLanguage();
 
   return (
-    <div className={`${styles.tableToolbar} ${styles.tableToolbarFull} ${!visible ? styles.tableToolbarHidden : ""}`} data-math-symbols>
+    <div className={`${styles.tableToolbar} ${!visible ? styles.tableToolbarHidden : ""}`} data-math-symbols>
       <div className={styles.mathToolbarWrap}>
         <span className={styles.mathToolbarLabel}>MATH</span>
         {MATH_TOOLS.map((cat) => (

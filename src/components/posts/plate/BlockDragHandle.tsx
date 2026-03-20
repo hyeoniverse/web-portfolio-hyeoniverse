@@ -10,7 +10,7 @@ const SCROLL_SPEED = 12; // px per frame
 let _scrollRaf: number | null = null;
 let _lastClientY = 0;
 
-function startAutoScroll(editorEl: HTMLElement | null) {
+export function startAutoScroll(editorEl: HTMLElement | null) {
   stopAutoScroll();
   if (!editorEl) return;
 
@@ -38,7 +38,7 @@ function startAutoScroll(editorEl: HTMLElement | null) {
   _scrollRaf = requestAnimationFrame(tick);
 }
 
-function stopAutoScroll() {
+export function stopAutoScroll() {
   if (_scrollRaf !== null) {
     cancelAnimationFrame(_scrollRaf);
     _scrollRaf = null;
@@ -58,7 +58,7 @@ function findScrollParent(el: HTMLElement): HTMLElement | null {
 }
 
 // document-level drag listener for tracking mouse Y
-function onDocDrag(e: DragEvent) {
+export function onDocDrag(e: DragEvent) {
   _lastClientY = e.clientY;
 }
 
@@ -102,7 +102,7 @@ export function BlockDragHandle({ path }: { path: number[] | null }) {
   );
 }
 
-const LONGPRESS_MS = 400;
+const LONGPRESS_MS = 250;
 
 /**
  * 블록 요소에 롱프레스 드래그를 부여하는 훅.
@@ -128,8 +128,8 @@ export function useBlockDrag(
     onPointerDown: (e: React.PointerEvent) => {
       // 인터랙티브 요소 위에서는 무시 (버튼, 입력, 리사이즈 핸들 등)
       const tag = (e.target as HTMLElement).tagName;
-      if (["BUTTON", "INPUT", "TEXTAREA", "SELECT", "A", "TD", "TH", "CODE"].includes(tag)) return;
-      if ((e.target as HTMLElement).closest("[data-no-drag], td, th, code, pre")) return;
+      if (["BUTTON", "INPUT", "TEXTAREA", "SELECT", "A"].includes(tag)) return;
+      if ((e.target as HTMLElement).closest("[data-no-drag]")) return;
       timerRef.current = setTimeout(() => setReady(true), LONGPRESS_MS);
     },
     onPointerUp: clearTimer,
@@ -150,10 +150,17 @@ export function useBlockDrag(
         e.dataTransfer.setDragImage(clone, e.clientX - rect.left, e.clientY - rect.top);
         requestAnimationFrame(() => clone.remove());
       }
+      // 자동 스크롤 활성화
+      _lastClientY = e.clientY;
+      const editorEl = (e.target as HTMLElement).closest("[data-slate-editor]") as HTMLElement | null;
+      document.addEventListener("drag", onDocDrag);
+      startAutoScroll(editorEl);
     },
     onDragEnd: () => {
       _blockDragPath.current = null;
       setReady(false);
+      document.removeEventListener("drag", onDocDrag);
+      stopAutoScroll();
     },
   };
 

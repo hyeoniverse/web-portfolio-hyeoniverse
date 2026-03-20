@@ -1485,6 +1485,57 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
 
 </details>
 
+<details>
+<summary><strong>14. Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐</strong></summary>
+
+#### 문제
+
+Plate 에디터로 작성한 richtext 게시물의 코드블록에서 구문 하이라이팅과 줄바꿈/스크롤 토글 버튼이 표시되지 않음. Markdown 게시물에서는 정상 동작
+
+#### 원인
+
+코드 하이라이팅(highlight.js)과 버튼 라벨을 `useEffect`에서 **DOM을 직접 조작**하여 적용하고 있었음. 페이지 로드 후 API 호출(좋아요 수, 인접 게시물, 추천 게시물 등)이 완료되면 state 변경 → React 리렌더 → `dangerouslySetInnerHTML`이 원본 HTML로 DOM을 덮어쓰기 → hljs 클래스와 버튼 라벨 전부 소실. `useEffect` 의존성은 변하지 않아 재실행되지 않음
+
+```
+[초기 렌더]  dangerouslySetInnerHTML = 원본 HTML (하이라이트 없음)
+     ↓
+[useEffect]  highlight.js 적용 + 버튼 라벨 생성 ✓
+     ↓
+[API 완료]   setLikeCount / setAdjacentPosts → state 변경
+     ↓
+[리렌더]     dangerouslySetInnerHTML = 원본 HTML → DOM 덮어쓰기
+     ↓
+[결과]       하이라이트·버튼 라벨 사라짐, useEffect 재실행 안 됨 ✗
+```
+
+Markdown 게시물은 `MarkdownRenderer`가 서버에서 이미 하이라이팅을 적용한 HTML을 생성하므로 영향 없음
+
+#### 해결
+
+DOM 조작 대신 `useMemo` 단계에서 **HTML 문자열 자체에 하이라이팅과 버튼 라벨을 적용**:
+
+```tsx
+const processedHtml = useMemo(() => {
+  let html = addIdsToHtml(displayContent);
+  // 정규식으로 <pre><code> 블록을 찾아 hljs.highlight() 적용
+  html = html.replace(/<pre><code ...>/, (code) => hljs.highlight(code).value);
+  // 빈 <button data-wrap-btn> 에 라벨 span 삽입
+  html = html.replace(/<button data-wrap-btn><\/button>/, labelHtml);
+  return html;
+}, [displayContent, t]);
+```
+
+`useEffect`는 **클릭 이벤트 위임만** 담당
+
+#### TL;DR
+
+`dangerouslySetInnerHTML`로 렌더하는 콘텐츠를 `useEffect`로 DOM 조작하면, 어떤 state 변경이든 리렌더 시 소실됨. HTML은 **렌더 전(useMemo/서버)에 완성**해야 함
+
+---
+
+
+</details>
+
 ---
 
 ## 배포

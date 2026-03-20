@@ -11,6 +11,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { localizeKatexErrors } from "../renderMathNodes";
 import { _mathSymbolInsert, _mathEditingSet, _mathDeleteNode } from "./utils";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
+import { BlockTailClickZone } from "./elements";
 import styles from "../RichTextEditor.module.css";
 
 // ── 수식 편집 floating 패널 (블록/인라인 공통) ──
@@ -55,10 +56,39 @@ function MathFloatingEdit({
     }
 
     const panelW = 420;
+    const panelH = panelRef.current?.offsetHeight || 200;
     let left = rect.left;
     if (left < 8) left = 8;
     if (left + panelW > window.innerWidth - 8) left = window.innerWidth - 8 - panelW;
-    setPos({ top: rect.bottom + window.scrollY + 6, left });
+
+    // 하단에 공간이 있는지 판단 (에디터 영역 또는 뷰포트 기준)
+    const bottomBound = editorEl
+      ? Math.min(editorEl.getBoundingClientRect().bottom, window.innerHeight)
+      : window.innerHeight;
+    const spaceBelow = bottomBound - rect.bottom;
+    const spaceAbove = rect.top - (editorEl ? editorEl.getBoundingClientRect().top : 0);
+
+    let top: number;
+    if (spaceBelow >= panelH + 6) {
+      // 아래에 공간 충분 → 아래 배치
+      top = rect.bottom + window.scrollY + 6;
+    } else if (spaceAbove >= panelH + 6) {
+      // 위에 공간 충분 → 위 배치
+      top = rect.top + window.scrollY - panelH - 6;
+    } else {
+      // 양쪽 다 부족 → 위에 배치 (잘리더라도)
+      top = rect.top + window.scrollY - panelH - 6;
+    }
+
+    // 에디터 영역 안에 clamp
+    if (editorEl) {
+      const editorRect = editorEl.getBoundingClientRect();
+      const editorBottom = editorRect.bottom + window.scrollY;
+      const editorTop = editorRect.top + window.scrollY;
+      if (top + panelH > editorBottom) top = editorBottom - panelH - 16;
+      if (top < editorTop) top = editorTop + 16;
+    }
+    setPos({ top, left });
   }, [anchorRef]);
 
   // anchor 위치가 안정화되면 위치 계산
@@ -175,14 +205,32 @@ function MathFloatingEdit({
       style={{ top: pos.top, left: pos.left }}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div style={{ position: "relative" }}>
-        <div className={styles.mathFloatingCapsule}>
-          <button type="button" className={styles.mathCapsuleCancel} onClick={onCancel}>{t("editor.mathCancel")}</button>
-          <button type="button" className={styles.mathCapsuleConfirm} onClick={onConfirm} disabled={!draft.trim()}>{t("editor.mathConfirm")}</button>
+      <div
+        className={styles.mathFloatingInput}
+        onClick={() => inputRef.current?.focus()}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 4 }}>
+          {texError ? (
+            <span style={{
+              fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--color-error, #e05252)",
+              lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis",
+              whiteSpace: "nowrap", flex: 1, minWidth: 0,
+            }}>
+              ⚠ {texError}
+            </span>
+          ) : <span style={{ flex: 1 }} />}
+          <div className={styles.mathFloatingCapsule} style={{ position: "static" }}>
+            <button type="button" className={styles.mathCapsuleCancel} onClick={onCancel}>{t("editor.mathCancel")}</button>
+            <button type="button" className={styles.mathCapsuleConfirm} onClick={onConfirm} disabled={!draft.trim()}>{t("editor.mathConfirm")}</button>
+          </div>
         </div>
         <textarea
           ref={inputRef}
-          className={styles.mathFloatingInput}
+          style={{
+            width: "100%", border: "none", outline: "none", resize: "vertical",
+            background: "transparent", color: "inherit", fontFamily: "inherit",
+            fontSize: "inherit", lineHeight: "inherit", padding: 0, minHeight: 60,
+          }}
           value={draft}
           onChange={(e) => onUpdate(e.target.value)}
           onKeyDown={(e) => {
@@ -193,15 +241,6 @@ function MathFloatingEdit({
           placeholder={t("editor.mathPlaceholder")}
         />
       </div>
-      {texError && (
-        <div style={{
-          fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--color-error, #e05252)",
-          padding: "2px 4px", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}>
-          ⚠ {texError}
-        </div>
-      )}
     </div>,
     document.body,
   );
@@ -307,7 +346,7 @@ export function EquationElement(props: PlateElementProps) {
   };
 
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
-  const { blockDragProps } = useBlockDrag(elPath);
+  const { blockDragProps, isDragging: dragReady } = useBlockDrag(elPath);
 
   return (
     <BlockDropZone path={elPath}>
@@ -320,8 +359,8 @@ export function EquationElement(props: PlateElementProps) {
       }}
       className="math-element-wrap"
     >
-      <div ref={wrapRef} contentEditable={false} onClick={startEdit}
-        style={{ cursor: "pointer", minHeight: 32, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}
+      <div ref={wrapRef} contentEditable={false} onClick={() => { if (!dragReady) startEdit(); }}
+        style={{ cursor: "pointer", minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}
       >
         <div ref={katexRef} />
         {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: 14, fontStyle: "italic" }}>{t("editor.mathEmptyBlock")}</span>}
@@ -331,6 +370,7 @@ export function EquationElement(props: PlateElementProps) {
       {props.children}
     </PlateElement>
     </div>
+    <BlockTailClickZone path={elPath} />
     </BlockDropZone>
   );
 }
@@ -415,11 +455,16 @@ export function InlineEquationElement(props: PlateElementProps) {
   };
   return (
     <PlateElement {...props} as="span"
-      style={{ ...props.style, position: "relative", padding: "0 2px" }}
+      style={{
+        ...props.style, position: "relative",
+        background: "var(--bg-tertiary)", borderRadius: "var(--radius-sm, 4px)",
+        padding: "4px 10px", minWidth: 60, minHeight: 32,
+        display: "inline-flex", alignItems: "center", verticalAlign: "middle",
+      }}
       className="math-element-wrap"
     >
       <span ref={wrapRef} contentEditable={false} className="math-katex-content" onClick={startEdit}
-        style={{ cursor: "pointer", minHeight: 18, display: "inline-flex", alignItems: "center" }}
+        style={{ cursor: "pointer", minHeight: 24, display: "inline-flex", alignItems: "center" }}
       >
         <span ref={katexRef} />
         {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: 13, fontStyle: "italic" }}>{t("editor.mathEmptyInline")}</span>}

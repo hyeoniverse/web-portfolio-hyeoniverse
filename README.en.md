@@ -1485,6 +1485,57 @@ Image compression is more effective on the client than the server — reduces si
 
 </details>
 
+<details>
+<summary><strong>14. Code Highlighting & Wrap Button Vanishing on Richtext Posts</strong></summary>
+
+#### Problem
+
+Code blocks in richtext posts written with the Plate editor lost syntax highlighting and the wrap/scroll toggle button. Markdown posts worked correctly
+
+#### Cause
+
+Code highlighting (highlight.js) and button labels were applied by **directly manipulating the DOM in `useEffect`**. After page load, API calls (like count, adjacent posts, recommended posts) completed → state changes → React re-render → `dangerouslySetInnerHTML` overwrites DOM with original HTML → all hljs classes and button labels wiped. The `useEffect` dependencies hadn't changed, so it never re-ran
+
+```
+[Initial render]  dangerouslySetInnerHTML = original HTML (no highlighting)
+       ↓
+[useEffect]        highlight.js applied + button labels created ✓
+       ↓
+[API complete]     setLikeCount / setAdjacentPosts → state change
+       ↓
+[Re-render]        dangerouslySetInnerHTML = original HTML → DOM overwritten
+       ↓
+[Result]           Highlighting & button labels gone, useEffect won't re-run ✗
+```
+
+Markdown posts were unaffected because `MarkdownRenderer` generates pre-highlighted HTML on the server
+
+#### Solution
+
+Instead of DOM manipulation, apply **highlighting and button labels to the HTML string itself in `useMemo`**:
+
+```tsx
+const processedHtml = useMemo(() => {
+  let html = addIdsToHtml(displayContent);
+  // Find <pre><code> blocks via regex, apply hljs.highlight()
+  html = html.replace(/<pre><code ...>/, (code) => hljs.highlight(code).value);
+  // Fill empty <button data-wrap-btn> with label spans
+  html = html.replace(/<button data-wrap-btn><\/button>/, labelHtml);
+  return html;
+}, [displayContent, t]);
+```
+
+`useEffect` only handles **click event delegation**
+
+#### TL;DR
+
+DOM manipulation on `dangerouslySetInnerHTML` content is erased on any state-triggered re-render. HTML must be **finalized before render (useMemo/server-side)**
+
+---
+
+
+</details>
+
 ---
 
 ## Deployment

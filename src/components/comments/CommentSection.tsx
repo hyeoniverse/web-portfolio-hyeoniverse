@@ -3,10 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Comment } from "@/types/post";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
 import styles from "./CommentSection.module.css";
+
+const PAGE_SIZE = 10;
 
 interface CommentSectionProps {
   /** "post" | "work" */
@@ -45,8 +48,10 @@ function buildTree(comments: Comment[]): Comment[] {
 }
 
 export default function CommentSection({ commentType, targetId, translationEnabled = true }: CommentSectionProps) {
+  const { language } = useLanguage();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const apiBase = commentType === "work" ? "/api/work-comments" : "/api/comments";
   const paramKey = commentType === "work" ? "work_id" : "post_id";
 
@@ -91,6 +96,8 @@ export default function CommentSection({ commentType, targetId, translationEnabl
   }, [fetchComments]);
 
   const tree = buildTree(comments);
+  const visibleTree = tree.slice(0, visibleCount);
+  const remaining = tree.length - visibleCount;
 
   return (
     <div className={styles.section}>
@@ -104,15 +111,9 @@ export default function CommentSection({ commentType, targetId, translationEnabl
         <p className={styles.disclaimer}><T k="comments.disclaimer" noTooltip /></p>
       </div>
 
-      <CommentForm
-        commentType={commentType}
-        targetId={targetId}
-        onSubmit={fetchComments}
-      />
-
       {tree.length > 0 ? (
         <div className={styles.list}>
-          {tree.map((comment) => (
+          {visibleTree.map((comment) => (
             <CommentItem
               key={comment.id}
               comment={comment}
@@ -129,6 +130,24 @@ export default function CommentSection({ commentType, targetId, translationEnabl
       ) : (
         <p className={styles.empty}><T k="comments.empty" /></p>
       )}
+
+      {remaining > 0 && (
+        <button
+          type="button"
+          className={styles.loadMore}
+          onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+        >
+          {language === "ko"
+            ? `이전 댓글 ${remaining}개 더보기`
+            : `Load ${remaining} more comment${remaining > 1 ? "s" : ""}`}
+        </button>
+      )}
+
+      <CommentForm
+        commentType={commentType}
+        targetId={targetId}
+        onSubmit={fetchComments}
+      />
 
     </div>
   );
