@@ -9,8 +9,36 @@ import {
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
-import { _blockDragPath } from "./utils";
+import { _blockDragPath, _imageUploadFn } from "./utils";
+import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import styles from "../RichTextEditor.module.css";
+
+/** 블록 void 요소 아래 클릭 가능 영역 — 클릭 시 다음 줄에 커서 배치 */
+export function BlockTailClickZone({ path }: { path: number[] | null }) {
+  const editor = useEditorRef();
+  if (!path) return null;
+  return (
+    <span
+      contentEditable={false}
+      onClick={(e) => {
+        e.stopPropagation();
+        try {
+          const nextPath = [path[0] + 1];
+          const nextNode = editor.api.node(nextPath);
+          if (nextNode) {
+            editor.tf.select({ path: [...nextPath, 0], offset: 0 });
+          } else {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            editor.tf.insertNodes({ type: "p", children: [{ text: "" }] } as any, { at: nextPath });
+            editor.tf.select({ path: [...nextPath, 0], offset: 0 });
+          }
+          editor.tf.focus();
+        } catch { /* ignore */ }
+      }}
+      style={{ display: "block", width: "100%", minHeight: 8, cursor: "text" }}
+    />
+  );
+}
 
 /** 인라인 캡션 입력 — 이미지/표 공용 */
 export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, overlayMode }: { caption: string; onCommit: (v: string) => void; onEditingChange?: (editing: boolean) => void; autoEdit?: boolean; overlayMode?: boolean }) {
@@ -755,8 +783,25 @@ export function FileElement(props: PlateElementProps) {
 
   const isAudio = AUDIO_EXT.test(url);
   const isPdf = /\.pdf(\?|$)/i.test(url);
-  const icon = isPdf ? "📄" : isAudio ? "🎵" : "📎";
   const sizeLabel = fileSize ? (fileSize < 1024 * 1024 ? `${(fileSize / 1024).toFixed(1)} KB` : `${(fileSize / (1024 * 1024)).toFixed(1)} MB`) : "";
+
+  const FileIcon = () => {
+    if (isPdf) return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 13h4"/><path d="M10 17h4"/><path d="M10 9h1"/>
+      </svg>
+    );
+    if (isAudio) return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+      </svg>
+    );
+    return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+      </svg>
+    );
+  };
 
   return (
     <PlateElement {...props} style={{ margin: "var(--spacing-sm) 0", ...props.style }}>
@@ -764,21 +809,31 @@ export function FileElement(props: PlateElementProps) {
         <div {...blockDragProps} contentEditable={false} style={{ maxWidth: 480, cursor: "default" }}>
           <div style={{
             display: "flex", alignItems: "center", gap: 10,
-            padding: "10px 14px", borderRadius: "var(--radius-md)",
+            padding: "8px 12px", borderRadius: "var(--radius-capsule, 999px)",
             border: "1px solid var(--border-light-color)",
             background: "var(--bg-secondary)",
           }}>
-            <span style={{ fontSize: 24, flexShrink: 0 }}>{icon}</span>
+            <div style={{
+              width: 32, height: 32, borderRadius: "50%",
+              background: "var(--color-neutral-alpha-6)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, color: "var(--text-secondary)",
+            }}>
+              <FileIcon />
+            </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fileName}</div>
               {sizeLabel && <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{sizeLabel}</div>}
             </div>
             <a href={url} target="_blank" rel="noopener noreferrer" download style={{
-              flexShrink: 0, padding: "4px 10px", fontSize: 12, borderRadius: "var(--radius-xs)",
+              width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
               border: "1px solid var(--border-light-color)", background: "var(--bg-primary)",
               color: "var(--text-primary)", textDecoration: "none", cursor: "pointer",
             }}>
-              ↓
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+              </svg>
             </a>
           </div>
           {isAudio && (
@@ -816,6 +871,31 @@ export function BlockquoteElement(props: PlateElementProps) {
 }
 
 /** Horizontal Rule — 드롭 존 래퍼 */
+export function AudioElement(props: PlateElementProps) {
+  const editor = useEditorRef();
+  const el = props.element as Record<string, unknown>;
+  const url = (el.url as string) || "";
+  const title = (el.title as string) || "";
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  return (
+    <BlockDropZone path={elPath}>
+      <PlateElement {...props} style={{ ...props.style }}>
+        <div contentEditable={false} style={{ maxWidth: 480, padding: "10px 14px", borderRadius: 8, margin: "8px 0" }}>
+          {title && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <span style={{ fontSize: 16 }}>🎵</span>
+              <span style={{ fontSize: 13, fontWeight: 500 }}>{title}</span>
+            </div>
+          )}
+          <audio src={url} controls preload="metadata" style={{ width: "100%" }} />
+        </div>
+        <BlockTailClickZone path={elPath} />
+        {props.children}
+      </PlateElement>
+    </BlockDropZone>
+  );
+}
+
 export function HrElement(props: PlateElementProps) {
   const editor = useEditorRef();
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
@@ -823,8 +903,271 @@ export function HrElement(props: PlateElementProps) {
     <BlockDropZone path={elPath}>
       <PlateElement {...props} style={{ ...props.style }}>
         <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-light-color)", margin: "var(--spacing-md) 0" }} />
+        <BlockTailClickZone path={elPath} />
         {props.children}
       </PlateElement>
+    </BlockDropZone>
+  );
+}
+
+// ── Column resize handle ──
+function ColumnResizeHandle({ onResize, dividerColor }: { onResize: (deltaPercent: number) => void; dividerColor?: string }) {
+  const handleRef = useRef<HTMLDivElement>(null);
+
+  const onPointerDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const container = handleRef.current?.closest("[data-col-group]") as HTMLElement | null;
+    const containerWidth = container?.getBoundingClientRect().width || 600;
+
+    const onMove = (ev: PointerEvent) => {
+      const dx = ev.clientX - startX;
+      const deltaPercent = (dx / containerWidth) * 100;
+      onResize(deltaPercent);
+    };
+    const onUp = () => {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  }, [onResize]);
+
+  return (
+    <div
+      ref={handleRef}
+      contentEditable={false}
+      onPointerDown={onPointerDown}
+      style={{
+        width: 8, flexShrink: 0, alignSelf: "stretch", cursor: "col-resize",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        userSelect: "none", touchAction: "none", position: "relative",
+      }}
+    >
+      <div style={{
+        width: dividerColor ? 1 : 3,
+        position: dividerColor ? "absolute" as const : "static" as const,
+        top: dividerColor ? 0 : undefined,
+        bottom: dividerColor ? 0 : undefined,
+        height: dividerColor ? undefined : 24,
+        borderRadius: dividerColor ? 0 : 2,
+        background: dividerColor || "var(--border-light-color)",
+        transition: "background 0.15s, width 0.15s",
+      }}
+        onMouseEnter={(e) => { if (!dividerColor) e.currentTarget.style.background = "var(--text-muted)"; }}
+        onMouseLeave={(e) => { if (!dividerColor) e.currentTarget.style.background = "var(--border-light-color)"; }}
+      />
+    </div>
+  );
+}
+
+// ── Column layout ──
+export function ColumnGroupElement(props: PlateElementProps) {
+  const editor = useEditorRef();
+  const el = props.element as Record<string, unknown>;
+  const colBg = el.columnBg as string | undefined;
+  const colDivider = el.columnDivider as string | undefined;
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const colChildren = (el.children as any[]) || [];
+  const startWidthsRef = useRef<number[]>([]);
+
+  const groupStyle: React.CSSProperties = {
+    ...props.style,
+    display: "flex",
+    gap: "var(--spacing-xs)",
+    margin: "var(--spacing-md) 0",
+    borderRadius: "var(--radius-sm)",
+    "--_col-bg-base": colBg || "color-mix(in srgb, var(--text-primary) 3%, transparent)",
+  } as React.CSSProperties;
+
+  // children 사이에 리사이즈 핸들 + 선택적 구분선 삽입
+  const childArr = React.Children.toArray(props.children);
+  const slateChildren = childArr.filter((child) =>
+    React.isValidElement(child) && (child as React.ReactElement<{ "data-slate-node"?: string }>).props?.["data-slate-node"]
+  );
+  const nonSlateChildren = childArr.filter((child) =>
+    !React.isValidElement(child) || !(child as React.ReactElement<{ "data-slate-node"?: string }>).props?.["data-slate-node"]
+  );
+
+  const withHandles = slateChildren.reduce<React.ReactNode[]>((acc, child, i) => {
+    if (i > 0) {
+      acc.push(
+        <ColumnResizeHandle
+          key={`handle-${i}`}
+          dividerColor={colDivider}
+          onResize={(deltaPercent) => {
+            if (!elPath) return;
+            // 첫 드래그 시 현재 너비 기록
+            if (startWidthsRef.current.length === 0) {
+              startWidthsRef.current = colChildren.map((c: { width?: string }) => {
+                const w = c.width ? parseInt(c.width) : Math.round(100 / colChildren.length);
+                return w;
+              });
+            }
+            const widths = [...startWidthsRef.current];
+            const leftIdx = i - 1;
+            const rightIdx = i;
+            const newLeft = Math.max(10, Math.min(90, widths[leftIdx] + deltaPercent));
+            const newRight = Math.max(10, Math.min(90, widths[rightIdx] - deltaPercent));
+            editor.tf.setNodes({ width: `${Math.round(newLeft)}%` }, { at: [...elPath, leftIdx] });
+            editor.tf.setNodes({ width: `${Math.round(newRight)}%` }, { at: [...elPath, rightIdx] });
+          }}
+        />
+      );
+    }
+    acc.push(child);
+    return acc;
+  }, []);
+
+  // pointerup 시 startWidths 리셋
+  useEffect(() => {
+    const reset = () => { startWidthsRef.current = []; };
+    document.addEventListener("pointerup", reset);
+    return () => document.removeEventListener("pointerup", reset);
+  }, []);
+
+  return (
+    <BlockDropZone path={elPath}>
+      <PlateElement {...props} style={groupStyle} data-col-group>
+        {withHandles}
+        {nonSlateChildren}
+      </PlateElement>
+    </BlockDropZone>
+  );
+}
+
+export function ColumnElement(props: PlateElementProps) {
+  const selected = useSelected();
+  const focused = useFocused();
+  const el = props.element as Record<string, unknown>;
+  const width = el.width as string | undefined;
+
+  // 내용이 비어있는지 확인
+  const isEmpty = (() => {
+    const children = (el.children as { children?: { text?: string }[] }[]) || [];
+    return children.every((child) =>
+      !child.children || child.children.every((leaf) => !leaf.text || leaf.text.length === 0)
+    );
+  })();
+
+  // 이 열에 커서가 있는지 (개별 감지)
+  const isEditing = selected && focused;
+
+  const showBg = isEmpty && !isEditing;
+
+  return (
+    <PlateElement {...props} style={{
+      ...props.style, flex: width ? `${parseFloat(width)} 0 0` : "1 0 0", minWidth: 0,
+      borderRadius: "var(--radius-sm)", overflow: "hidden",
+      background: showBg ? "var(--_col-bg-base)" : "transparent",
+      padding: "var(--spacing-sm)", transition: "background-color 0.15s",
+    }}>
+      {props.children}
+    </PlateElement>
+  );
+}
+
+// ── Toggle (접기/펼치기) ──
+export function ToggleElement(props: PlateElementProps) {
+  const editor = useEditorRef();
+  const el = props.element as Record<string, unknown>;
+  const [open, setOpen] = useState((el.open as boolean) ?? true);
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  const { blockDragProps } = useBlockDrag(elPath);
+
+  const toggleOpen = () => {
+    const next = !open;
+    setOpen(next);
+    if (elPath) editor.tf.setNodes({ open: next }, { at: elPath });
+  };
+
+  // 첫 번째 child의 heading type 확인
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const children = (el.children as any[]) || [];
+  const firstType = children[0]?.type || "p";
+  const headingStyles: Record<string, React.CSSProperties> = {
+    h1: { fontSize: "var(--font-size-2xl)", fontFamily: "var(--font-instrument)", fontWeight: "var(--font-weight-regular)" as string },
+    h2: { fontSize: "var(--font-size-lg)", fontFamily: "var(--font-instrument)", fontWeight: "var(--font-weight-regular)" as string },
+    h3: { fontSize: "var(--font-size-md)", fontFamily: "var(--font-instrument)", fontWeight: "var(--font-weight-regular)" as string },
+  };
+  const titleStyle: React.CSSProperties = headingStyles[firstType] || {};
+
+  return (
+    <BlockDropZone path={elPath}>
+      <div {...blockDragProps} style={{ margin: "var(--spacing-xs) 0" }}>
+        <PlateElement {...props} style={{ ...props.style }}>
+          {React.Children.map(props.children, (child, i) => {
+            if (i === 0) {
+              return (
+                <div className="toggle-title-wrap" style={{ display: "flex", alignItems: "flex-start", gap: 4, ...titleStyle }}>
+                  <button type="button" contentEditable={false} style={{
+                    border: "none", background: "transparent", cursor: "pointer",
+                    padding: 0, color: "var(--text-muted)",
+                    transition: "transform 0.15s", transform: open ? "rotate(90deg)" : "rotate(0deg)",
+                    display: "flex", alignItems: "center", flexShrink: 0,
+                    height: "1.4em",
+                  }} onMouseDown={(e) => e.preventDefault()} onClick={toggleOpen}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M9 6l6 6-6 6z" /></svg>
+                  </button>
+                  <div style={{ flex: 1, minWidth: 0 }}>{child}</div>
+                </div>
+              );
+            }
+            return (
+              <div style={{
+                overflow: "hidden", maxHeight: open ? 2000 : 0, opacity: open ? 1 : 0,
+                transition: "max-height 0.25s ease-out, opacity 0.2s ease-out", paddingLeft: 24,
+              }}>
+                {child}
+              </div>
+            );
+          })}
+        </PlateElement>
+      </div>
+    </BlockDropZone>
+  );
+}
+
+// ── Callout ──
+export function CalloutElement(props: PlateElementProps) {
+  const editor = useEditorRef();
+  const el = props.element as Record<string, unknown>;
+  const bg = (el.bg as string) || "var(--bg-tertiary)";
+  const icon = (el.icon as string) || "";
+  const hasIcon = icon.length > 0;
+  const [showIconPicker, setShowIconPicker] = useState(false);
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  const { blockDragProps } = useBlockDrag(elPath);
+
+  return (
+    <BlockDropZone path={elPath}>
+      <div {...blockDragProps} style={{ position: "relative", margin: "var(--spacing-md) 0" }}>
+        {hasIcon && (
+          <span contentEditable={false} style={{
+            position: "absolute", left: 12, top: "calc(var(--spacing-md) + 2px)", zIndex: 1,
+            fontSize: 20, lineHeight: 1, cursor: "pointer", userSelect: "none",
+          }} onMouseDown={(e) => e.preventDefault()} onClick={() => setShowIconPicker(!showIconPicker)} data-clickable="true">
+            <EmojiIcon value={icon} />
+          </span>
+        )}
+        <EmojiPickerPopup
+          open={showIconPicker}
+          onClose={() => setShowIconPicker(false)}
+          onSelect={(val) => { if (elPath) editor.tf.setNodes({ icon: val || undefined }, { at: elPath }); }}
+          onImageUpload={_imageUploadFn.current || undefined}
+          currentValue={icon}
+        />
+        <PlateElement {...props} style={{
+          ...props.style,
+          padding: hasIcon ? "var(--spacing-md) var(--spacing-md) var(--spacing-md) 44px" : "var(--spacing-md)",
+          borderRadius: "var(--radius-md)", background: bg,
+          border: bg === "var(--bg-primary)" ? "1px solid var(--border-light-color)" : "1px solid transparent",
+        }}>
+          {props.children}
+        </PlateElement>
+      </div>
     </BlockDropZone>
   );
 }
