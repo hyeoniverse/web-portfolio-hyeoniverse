@@ -40,8 +40,10 @@ import { LinkPlugin } from "@platejs/link/react";
 import { ListPlugin } from "@platejs/list/react";
 import { IndentPlugin } from "@platejs/indent/react";
 import { EquationPlugin, InlineEquationPlugin } from "@platejs/math/react";
+import { ColumnPlugin, ColumnItemPlugin } from "@platejs/layout/react";
 
-import { ImageElement, CodeBlockElement, ParagraphElement, LinkElement, MediaEmbedElement, HeadingElement, BlockquoteElement, HrElement } from "./elements";
+import { ImageElement, CodeBlockElement, ParagraphElement, LinkElement, MediaEmbedElement, HeadingElement, BlockquoteElement, HrElement, FileElement, AudioElement, ColumnGroupElement, ColumnElement, ToggleElement, CalloutElement } from "./elements";
+import { createSlatePlugin } from "platejs";
 import { TableElement, TableRowElement, TableCellElement, TableCellHeaderElement } from "./TableElements";
 import { EquationElement, InlineEquationElement } from "./MathElements";
 
@@ -86,6 +88,39 @@ export const plugins = [
   HeadingPlugin.configure({ render: { node: HeadingElement } }),
   BlockquotePlugin.configure({ render: { node: BlockquoteElement } }),
   HorizontalRulePlugin.configure({ render: { node: HrElement } }),
+  // Column layout
+  ColumnPlugin.configure({
+    render: { node: ColumnGroupElement },
+    parsers: {
+      html: {
+        deserializer: {
+          rules: [{ validNodeName: "DIV" }],
+          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-column-group"),
+          parse: ({ element }: { element: HTMLElement }) => ({
+            type: "column_group",
+            layout: element.getAttribute("data-layout") || undefined,
+            columnBg: element.getAttribute("data-column-bg") || undefined,
+            columnDivider: element.getAttribute("data-column-divider") || undefined,
+          }),
+        },
+      },
+    },
+  }),
+  ColumnItemPlugin.configure({
+    render: { node: ColumnElement },
+    parsers: {
+      html: {
+        deserializer: {
+          rules: [{ validNodeName: "DIV" }],
+          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-column"),
+          parse: ({ element }: { element: HTMLElement }) => ({
+            type: "column",
+            width: element.getAttribute("data-width") || undefined,
+          }),
+        },
+      },
+    },
+  }),
   // Table — 블록 요소 (table>tbody>tr>td 구조상 inline 불가)
   TablePlugin.configure({
     options: {
@@ -179,6 +214,46 @@ export const plugins = [
   ImagePlugin.configure({
     node: { isInline: true },
     render: { node: ImageElement },
+    parsers: {
+      html: {
+        deserializer: {
+          rules: [{ validNodeName: ["IMG", "FIGURE"] }],
+          parse: ({ element }: { element: HTMLElement }) => {
+            // FIGURE → 내부 IMG를 찾아서 처리
+            const imgEl = element.nodeName === "FIGURE"
+              ? element.querySelector("img")
+              : element;
+            if (!imgEl) return { text: "" };
+            const figureEl = element.nodeName === "FIGURE" ? element : element.parentElement;
+            const url = imgEl.getAttribute("src") || "";
+            const alt = imgEl.getAttribute("alt") || undefined;
+            const style = imgEl.getAttribute("style") || "";
+            const wMatch = imgEl.getAttribute("data-width") || style.match(/width:\s*(\d+)px/)?.[1];
+            const hMatch = imgEl.getAttribute("data-height") || style.match(/height:\s*(\d+)px/)?.[1];
+            const filterMatch = imgEl.getAttribute("data-filter") || style.match(/filter:\s*([^;]+)/)?.[1] || undefined;
+            const caption = imgEl.getAttribute("data-caption")
+              || figureEl?.querySelector("figcaption")?.textContent
+              || undefined;
+            const layout = imgEl.getAttribute("data-layout") || undefined;
+            const align = imgEl.getAttribute("data-align") || undefined;
+            const lockAspect = imgEl.getAttribute("data-lock-aspect") === "false" ? false : undefined;
+            return {
+              type: "img",
+              url,
+              ...(alt && { alt }),
+              ...(wMatch && { width: parseInt(String(wMatch), 10) }),
+              ...(hMatch && { height: parseInt(String(hMatch), 10) }),
+              ...(caption && { caption }),
+              ...(layout && { layout }),
+              ...(align && { align }),
+              ...(lockAspect !== undefined && { lockAspect }),
+              ...(filterMatch && { filter: filterMatch }),
+              children: [{ text: "" }],
+            };
+          },
+        },
+      },
+    },
   }),
   MediaEmbedPlugin.configure({
     render: { node: MediaEmbedElement },
@@ -253,6 +328,84 @@ export const plugins = [
             type: "inline_equation",
             texExpression: element.getAttribute("data-latex") || "",
             children: [{ text: "" }],
+          }),
+        },
+      },
+    },
+  }),
+  // File embed (PDF, audio, etc.)
+  createSlatePlugin({
+    key: "file_embed",
+    node: { isElement: true, isVoid: true },
+    render: { node: FileElement },
+    parsers: {
+      html: {
+        deserializer: {
+          rules: [{ validNodeName: "DIV" }],
+          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-file-embed"),
+          parse: ({ element }: { element: HTMLElement }) => ({
+            type: "file_embed",
+            url: element.getAttribute("data-url") || "",
+            fileName: element.getAttribute("data-filename") || "",
+            fileSize: parseInt(element.getAttribute("data-filesize") || "0", 10) || undefined,
+            children: [{ text: "" }],
+          }),
+        },
+      },
+    },
+  }),
+  // Audio player
+  createSlatePlugin({
+    key: "audio_embed",
+    node: { isElement: true, isVoid: true },
+    render: { node: AudioElement },
+    parsers: {
+      html: {
+        deserializer: {
+          rules: [{ validNodeName: "DIV" }],
+          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-audio-embed"),
+          parse: ({ element }: { element: HTMLElement }) => ({
+            type: "audio_embed",
+            url: element.getAttribute("data-url") || "",
+            title: element.getAttribute("data-title") || "",
+            children: [{ text: "" }],
+          }),
+        },
+      },
+    },
+  }),
+  // Toggle (접기/펼치기)
+  createSlatePlugin({
+    key: "toggle",
+    node: { isElement: true },
+    render: { node: ToggleElement },
+    parsers: {
+      html: {
+        deserializer: {
+          rules: [{ validNodeName: "DIV" }],
+          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-toggle"),
+          parse: ({ element }: { element: HTMLElement }) => ({
+            type: "toggle",
+            open: element.hasAttribute("data-open"),
+          }),
+        },
+      },
+    },
+  }),
+  // Callout
+  createSlatePlugin({
+    key: "callout",
+    node: { isElement: true },
+    render: { node: CalloutElement },
+    parsers: {
+      html: {
+        deserializer: {
+          rules: [{ validNodeName: "DIV" }],
+          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-callout"),
+          parse: ({ element }: { element: HTMLElement }) => ({
+            type: "callout",
+            bg: element.getAttribute("data-callout-bg") || "var(--bg-tertiary)",
+            icon: element.getAttribute("data-callout-icon") || "💡",
           }),
         },
       },
