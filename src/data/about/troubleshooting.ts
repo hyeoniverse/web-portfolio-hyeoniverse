@@ -596,4 +596,56 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "In the `{ ...shared, ...local }` pattern, **if the same class name exists in both, local always wins**. Even defining it only inside a media query changes the hash, so you must **replicate the desktop default style in local CSS** too.",
     },
   },
+  {
+    problem: { ko: "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐", en: "Code Highlighting & Wrap Button Vanishing on Richtext Posts" },
+    definition: {
+      ko: "Plate 에디터로 작성한 richtext 게시물의 코드블록에서 **구문 하이라이팅과 줄바꿈/스크롤 토글 버튼이 표시되지 않았습니다**. Markdown 게시물에서는 정상 동작했습니다.",
+      en: "Code blocks in richtext posts written with the Plate editor **lost syntax highlighting and the wrap/scroll toggle button**. Markdown posts worked correctly.",
+    },
+    cause: {
+      ko: "코드 하이라이팅(highlight.js)과 버튼 라벨은 `useEffect`에서 **DOM을 직접 조작**하여 적용하고 있었습니다. 그러나 페이지 로드 후 API 호출(`좋아요 수`, `인접 게시물`, `추천 게시물` 등)이 완료되면 **state 변경 → React 리렌더 → `dangerouslySetInnerHTML`이 원본 HTML로 DOM을 덮어쓰기** → `useEffect`로 추가한 hljs 클래스와 버튼 라벨이 전부 사라졌습니다. `useEffect`의 의존성(`displayContent`, `t`)은 변하지 않아 **재실행되지 않았습니다**. Markdown 게시물은 `MarkdownRenderer`가 **서버에서 이미 하이라이팅을 적용한 HTML**을 생성하므로 영향이 없었습니다.",
+      en: "Code highlighting (highlight.js) and button labels were applied by **directly manipulating the DOM in `useEffect`**. However, after page load, API calls (like count, adjacent posts, recommended posts) completed → **state changes → React re-render → `dangerouslySetInnerHTML` overwrites DOM with original HTML** → all hljs classes and button labels added by `useEffect` were wiped. The `useEffect` dependencies (`displayContent`, `t`) hadn't changed, so it **never re-ran**. Markdown posts were unaffected because `MarkdownRenderer` generates **pre-highlighted HTML on the server**.",
+    },
+    solution: {
+      ko: "DOM 조작 대신 `useMemo` 단계에서 **HTML 문자열 자체에 하이라이팅과 버튼 라벨을 적용**했습니다. `<pre><code>` 블록을 정규식으로 찾아 `hljs.highlight()`로 구문 강조하고, 빈 `<button data-wrap-btn>` 에 라벨 span을 삽입한 완성된 HTML을 `dangerouslySetInnerHTML`에 전달합니다. `useEffect`는 **클릭 이벤트 위임만** 담당합니다.",
+      en: "Instead of DOM manipulation, applied **highlighting and button labels to the HTML string itself in `useMemo`**. `<pre><code>` blocks are found via regex, highlighted with `hljs.highlight()`, and empty `<button data-wrap-btn>` elements are filled with label spans — all before passing the completed HTML to `dangerouslySetInnerHTML`. `useEffect` only handles **click event delegation**.",
+    },
+    keyInsight: {
+      ko: "`dangerouslySetInnerHTML`로 렌더하는 콘텐츠는 **React의 리렌더 사이클에서 보호받지 못합니다**. DOM 조작으로 추가한 변경은 어떤 state 변경이든 리렌더가 발생하면 사라집니다. **서버/빌드 타임에 HTML을 완성**하거나, `useMemo`에서 **문자열 단계로 처리**해야 합니다.",
+      en: "`dangerouslySetInnerHTML` content is **not protected across React's re-render cycle**. DOM changes added via `useEffect` vanish on any state-triggered re-render. The HTML must be **finalized at server/build time** or **processed at the string level in `useMemo`**.",
+    },
+    comparisons: [
+      {
+        label: { ko: "코드 하이라이팅 적용 방식 비교", en: "Code highlighting approach comparison" },
+        headers: [
+          { ko: "비교 항목", en: "Criteria" },
+          { ko: "useEffect DOM 조작", en: "useEffect DOM manipulation" },
+          { ko: "useMemo 문자열 처리 (채택)", en: "useMemo string processing (adopted)" },
+        ],
+        rows: [
+          {
+            cells: [
+              { ko: "리렌더 내성", en: "Re-render resilience" },
+              { ko: "❌ state 변경 시 소실", en: "❌ Lost on state change" },
+              { ko: "✅ HTML에 포함되어 유지", en: "✅ Embedded in HTML, persists" },
+            ],
+          },
+          {
+            cells: [
+              { ko: "SSR 호환", en: "SSR compatible" },
+              { ko: "❌ 클라이언트 전용", en: "❌ Client-only" },
+              { ko: "✅ 서버 렌더 가능", en: "✅ Can run server-side" },
+            ],
+          },
+          {
+            cells: [
+              { ko: "실행 시점", en: "Execution timing" },
+              { ko: "렌더 후 (깜빡임 가능)", en: "Post-render (may flash)" },
+              { ko: "렌더 전 (즉시 표시)", en: "Pre-render (instant display)" },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];

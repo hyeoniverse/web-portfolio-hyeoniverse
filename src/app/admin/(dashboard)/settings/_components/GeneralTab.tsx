@@ -218,21 +218,45 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
 
       {/* Media Upload */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.imageUpload" /></h2>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.mediaUpload" /></h2>
         <div className={styles.fields}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.maxImageSizeMB" /></label>
-            <Select
-              value={String(config.media?.maxImageSizeMB ?? 10)}
-              options={[
-                { value: "5", label: "5 MB" },
-                { value: "10", label: "10 MB" },
-                { value: "20", label: "20 MB" },
-                { value: "50", label: "50 MB" },
-              ]}
-              onChange={(v) => update("media", "maxImageSizeMB", Number(v))}
-            />
-          </div>
+          {/* 형식별 용량 제한 */}
+          {[
+            { label: "JPEG / PNG / WebP", key: "image/jpeg", keys: ["image/jpeg", "image/png", "image/webp"] },
+            { label: "SVG", key: "image/svg+xml" },
+            { label: "GIF", key: "image/gif" },
+            { label: "MP4 / WebM", key: "video/mp4", keys: ["video/mp4", "video/webm"] },
+            { label: "Audio (MP3/WAV/OGG)", key: "audio/mpeg", keys: ["audio/mpeg", "audio/wav", "audio/ogg"] },
+            { label: "PDF", key: "application/pdf" },
+            { label: "ZIP / RAR", key: "application/zip", keys: ["application/zip"] },
+            { label: t("admin.settings.mediaOther"), key: "_default" },
+          ].map(({ label, key, keys }) => {
+            const limits = ((config.media as Record<string, unknown>)?.limits ?? {}) as Record<string, number>;
+            const val = limits[key] ?? 20;
+            return (
+              <div className={styles.fieldRow} key={key}>
+                <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{label}</label>
+                <Select
+                  value={String(val)}
+                  options={[
+                    { value: "1", label: "1 MB" },
+                    { value: "2", label: "2 MB" },
+                    { value: "5", label: "5 MB" },
+                    { value: "10", label: "10 MB" },
+                    { value: "20", label: "20 MB" },
+                    { value: "50", label: "50 MB" },
+                    { value: "100", label: "100 MB" },
+                  ]}
+                  onChange={(v) => {
+                    const newLimits = { ...limits };
+                    const allKeys = keys ?? [key];
+                    for (const k of allKeys) newLimits[k] = Number(v);
+                    update("media", "limits", newLimits);
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
       </section>
     </>

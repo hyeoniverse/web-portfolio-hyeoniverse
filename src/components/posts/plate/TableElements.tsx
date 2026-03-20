@@ -22,6 +22,7 @@ import {
 } from "@platejs/table";
 import { InlineCaption } from "./elements";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
+import { BlockTailClickZone } from "./elements";
 // ── 테이블 엘리먼트 (colgroup + tbody + 가로스크롤 래핑) ──
 // TableProvider를 바깥에 감싸야 useTableElement / useTableColSizes가 store에 접근 가능
 export function TableElement(props: PlateElementProps) {
@@ -273,6 +274,7 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
         </div>
       )}
     </div>
+    <BlockTailClickZone path={elPath} />
     </BlockDropZone>
   );
 }

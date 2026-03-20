@@ -37,7 +37,7 @@ marked.use({
       const highlighted = language
         ? hljs.highlight(text, { language }).value
         : hljs.highlightAuto(text).value;
-      return `<div class="code-block-wrap"><pre><code class="hljs${language ? ` language-${language}` : ""}">${highlighted}</code></pre><button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${_wrapLabel}</span><span class="code-wrap-label-hover">${_scrollLabel}</span></button></div>\n`;
+      return `<div class="code-block-wrap"><pre><code class="hljs${language ? ` language-${language}` : ""}">${highlighted}</code></pre><button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${_scrollLabel}</span><span class="code-wrap-label-hover">${_wrapLabel}</span></button></div>\n`;
     },
   },
 });

@@ -206,7 +206,32 @@ export const siteConfig = {
   // 미디어 업로드
   // ---------------------------------------------------------------------------
   media: {
-    maxImageSizeMB: 10, // 이미지 1개당 최대 업로드 용량 (MB)
+    maxImageSizeMB: 10, // 이미지 1개당 최대 업로드 용량 (MB) — 레거시, 아래 limits 사용
+    // 파일 형식별 최대 업로드 크기 (MB)
+    limits: {
+      "image/jpeg": 5,
+      "image/png": 5,
+      "image/webp": 5,
+      "image/svg+xml": 2,
+      "image/gif": 10,
+      "video/mp4": 50,
+      "video/webm": 50,
+      "audio/mpeg": 20,
+      "audio/wav": 20,
+      "audio/ogg": 20,
+      "application/pdf": 20,
+      "application/zip": 50,
+      _default: 20, // 기타 파일
+    } as Record<string, number>,
+    // 허용 MIME 타입 (빈 배열 = 모두 허용)
+    allowedTypes: [] as string[],
+    // 차단 확장자
+    blockedExtensions: [
+      "exe", "bat", "cmd", "com", "msi", "scr", "pif",
+      "sh", "bash", "csh", "ksh",
+      "vbs", "vbe", "js", "jse", "wsf", "wsh", "ps1",
+      "dll", "sys", "drv",
+    ] as string[],
   },
 
   // ---------------------------------------------------------------------------

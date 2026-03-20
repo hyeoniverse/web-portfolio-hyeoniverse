@@ -77,7 +77,7 @@ export default React.memo(function TableToolbar({
   const bp = borderPopover;
 
   return (
-    <div className={`${styles.tableToolbar} ${styles.tableToolbarFull} ${!visible ? styles.tableToolbarHidden : ""}`}>
+    <div className={`${styles.tableToolbar} ${!visible ? styles.tableToolbarHidden : ""}`}>
       {/* Row 1: 구조 */}
       <div className={styles.tableToolbarRow}>
         <span className={styles.tableToolbarLabel}>TABLE</span>

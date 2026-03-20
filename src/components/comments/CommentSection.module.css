@@ -46,3 +46,21 @@
   text-align: right;
   flex-shrink: 0;
 }
+
+.loadMore {
+  align-self: center;
+  padding: 8px 24px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.loadMore:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}

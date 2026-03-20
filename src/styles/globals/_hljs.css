@@ -214,6 +214,12 @@
   transform: translateX(0);
 }
 
+/* just-clicked: hover 라벨 유지 + mouseleave 시 텍스트 교체할 때 transition 제거 */
+.code-wrap-toggle.just-clicked .code-wrap-label-default,
+.code-wrap-toggle.just-clicked .code-wrap-label-hover {
+  transition: none;
+}
+
 /* ── Mobile (touch-only): capsule toggle ── */
 @media (hover: none) {
   .code-wrap-label-default,
@@ -329,3 +335,17 @@ span.math-element-wrap .math-katex-content {
   opacity: 1;
   transform: translate(-50%, -50%);
 }
+
+/* ── Toggle title: heading 스타일 ── */
+.toggle-title-wrap h1,
+.toggle-title-wrap h2,
+.toggle-title-wrap h3,
+.toggle-title-wrap p,
+.toggle-title-wrap [data-slate-node] {
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+}
+.toggle-title-wrap h1 { font-size: var(--font-size-2xl); font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }
+.toggle-title-wrap h2 { font-size: var(--font-size-lg); font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }
+.toggle-title-wrap h3 { font-size: var(--font-size-md); font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -222,7 +221,6 @@ interface PostDetailClientProps {
 }
 
 export default function PostDetailClient({ post: initialPost, translationEnabled = true }: PostDetailClientProps) {
-  const router = useRouter();
   const { t, language } = useLanguage();
 
   const [post, setPost] = useState<Post>(initialPost);
@@ -349,10 +347,57 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
 
   const processedRichtextHtml = useMemo(() => {
     if (post.content_type === "markdown") return "";
-    return addIdsToHtml(displayContent);
-  }, [post.content_type, displayContent]);
+    let html = addIdsToHtml(displayContent);
+    // 코드블록: hljs 하이라이트 + 버튼 라벨을 HTML 문자열 단계에서 적용
+    // (DOM 조작은 리렌더 시 사라지므로 문자열 처리)
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { hljs } = require("@/components/posts/highlightCodeBlocks") as typeof import("@/components/posts/highlightCodeBlocks");
+      const wrapLabel = `↔ ${t("common.codeScroll")}`;
+      const hoverLabel = `↩ ${t("common.codeWrap")}`;
+      html = html.replace(
+        /<pre><code(?:\s+class="([^"]*)")?>([\s\S]*?)<\/code><\/pre>/g,
+        (_match, cls, code) => {
+          const langMatch = (cls || "").match(/language-(\S+)/);
+          const lang = langMatch?.[1];
+          const validLang = lang && hljs.getLanguage(lang) ? lang : null;
+          let highlighted: string;
+          try {
+            highlighted = validLang
+              ? hljs.highlight(code.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"'), { language: validLang }).value
+              : hljs.highlightAuto(code.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')).value;
+          } catch {
+            highlighted = code;
+          }
+          return `<pre><code class="hljs${validLang ? ` language-${validLang}` : ""}">${highlighted}</code></pre>`;
+        }
+      );
+      // 빈 버튼에 라벨 span 삽입
+      html = html.replace(
+        /<button[^>]*data-wrap-btn[^>]*><\/button>/g,
+        `<button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${wrapLabel}</span><span class="code-wrap-label-hover">${hoverLabel}</span></button>`
+      );
+    } catch { /* hljs 로드 실패 시 무시 */ }
+    return html;
+  }, [post.content_type, displayContent, t]);
 
-  useRichtextEnhance(proseViewerRef, displayContent);
+  // markdown: proseViewerRef로 처리 (MarkdownRenderer가 이미 하이라이트, 이벤트만 위임)
+  useRichtextEnhance(post.content_type === "markdown" ? proseViewerRef : { current: null }, displayContent);
+
+  // richtext 전용: 이벤트 위임만 (하이라이트/라벨은 useMemo에서 HTML에 포함)
+  useEffect(() => {
+    if (post.content_type === "markdown") return;
+    const el = richtextRef.current;
+    if (!el) return;
+    import("@/components/posts/highlightCodeBlocks").then(({ attachCodeWrapToggle }) => {
+      attachCodeWrapToggle(el, {
+        wrap: t("common.codeWrap"),
+        scroll: t("common.codeScroll"),
+        wrapTitle: t("common.codeWrapTitle"),
+        scrollTitle: t("common.codeScrollTitle"),
+      });
+    });
+  }, [post.content_type, displayContent, t]);
 
   const date = new Date(post.created_at).toLocaleDateString("en-US", {
     year: "numeric",
@@ -491,27 +536,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
           </motion.div>
 
           <div className={styles.footerNav}>
-            <Link
-              href="/posts"
-              className={styles.footerLink}
-              onClick={(e) => {
-                const ref = document.referrer;
-                try {
-                  const refUrl = ref ? new URL(ref) : null;
-                  if (
-                    refUrl &&
-                    refUrl.origin === window.location.origin &&
-                    !refUrl.pathname.startsWith("/admin")
-                  ) {
-                    e.preventDefault();
-                    router.back();
-                    return;
-                  }
-                } catch {
-                  /* fall through */
-                }
-              }}
-            >
+            <Link href="/posts" className={styles.footerLink}>
               <span className={styles.footerArrow}>&larr;</span> <T k="postDetail.backToList" />
             </Link>
           </div>

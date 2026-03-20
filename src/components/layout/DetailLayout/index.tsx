@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -50,7 +49,6 @@ export default function DetailLayout({
   afterContent,
 }: DetailLayoutProps) {
   const { t } = useLanguage();
-  const router = useRouter();
   const { setInfinite, lenis, stop, start } = useLenis();
   const [activeHeadingId, setActiveHeadingId] = useState("");
   const pageRef = useRef<HTMLDivElement>(null);
@@ -150,25 +148,6 @@ export default function DetailLayout({
         <a
           href={backHref}
           className={`${styles.backBtn} ${backHidden ? styles.backBtnHidden : ""}`}
-          onClick={(e) => {
-            const ref = document.referrer;
-            try {
-              const refUrl = ref ? new URL(ref) : null;
-              if (
-                refUrl &&
-                refUrl.origin === window.location.origin &&
-                !refUrl.pathname.startsWith("/admin")
-              ) {
-                e.preventDefault();
-                router.back();
-                return;
-              }
-            } catch {
-              /* invalid referrer — fall through */
-            }
-            e.preventDefault();
-            router.push(backHref);
-          }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path

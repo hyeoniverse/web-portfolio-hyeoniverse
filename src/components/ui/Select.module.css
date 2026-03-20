@@ -8,6 +8,10 @@
   z-index: var(--z-dropdown);
 }
 
+.rootDisabled {
+  opacity: 0.5;
+}
+
 .trigger {
   display: flex;
   align-items: center;

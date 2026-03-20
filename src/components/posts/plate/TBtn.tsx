@@ -18,6 +18,7 @@ function TBtn({
       className={cls}
       onMouseDown={(e) => { e.preventDefault(); props.onMouseDown?.(e as React.MouseEvent<HTMLButtonElement>); }}
       {...props}
+      style={{ ...props.style, ...(props.disabled ? { opacity: 0.35, cursor: "not-allowed" } : {}) }}
     >
       {children}
     </button>

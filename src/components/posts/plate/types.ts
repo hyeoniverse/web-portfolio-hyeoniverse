@@ -22,4 +22,6 @@ export interface PlateEditorProps {
   onChange: (value: string) => void;
   onImageUpload?: (file: File) => Promise<string>;
   editorRef?: React.Ref<PlateEditorHandle>;
+  /** 게시물 작성 언어 (폰트 그룹 정렬에 사용) */
+  postLang?: "ko" | "en";
 }

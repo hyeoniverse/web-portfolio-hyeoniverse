@@ -80,3 +80,6 @@ export const _blockDragPath: { current: number[] | null } = { current: null };
 export const _mathSymbolInsert: { current: ((latex: string) => void) | null } = { current: null };
 export const _mathEditingSet: { current: ((v: boolean) => void) | null } = { current: null };
 export const _mathDeleteNode: { current: (() => void) | null } = { current: null };
+
+// 이미지 업로드 함수 공유 (CalloutElement 이모지 피커에서 사용)
+export const _imageUploadFn: { current: ((file: File) => Promise<string>) | null } = { current: null };
