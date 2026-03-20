@@ -1,14 +1,23 @@
 "use client";
 
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem, viewportOpts } from "../_data/animations";
+import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
+import { useLanguage } from "@/providers/LanguageProvider";
+import "katex/dist/katex.min.css";
 import styles from "../DesignSystem.module.css";
+import proseStyles from "@/app/posts/[slug]/PostDetail.module.css";
 
 const PlateEditor = dynamic(
   () => import("@/components/posts/PlateEditor"),
   { ssr: false, loading: () => <div className={styles.editorPlaceholder} /> }
+);
+
+const ImagePanel = dynamic(
+  () => import("@/components/posts/PlateEditor").then((m) => ({ default: m.ImagePanel })),
+  { ssr: false },
 );
 
 interface EditorSectionProps {
@@ -16,14 +25,186 @@ interface EditorSectionProps {
   setSectionRef: (id: string) => (el: HTMLElement | null) => void;
 }
 
-const SAMPLE_HTML = `<h2>Plate Editor</h2><p>This is a <strong>live preview</strong> of the plate editor used across the admin panel.</p><p>Try the toolbar above to format text, insert images, add code blocks, and more.</p><blockquote><p>Images uploaded here are <em>not</em> saved to the database — they use a local blob URL for preview only.</p></blockquote><pre><code class="language-typescript">const greeting = "Hello, Design System!";\nconsole.log(greeting);</code></pre>`;
+const SAMPLE_HTML = [
+  // ── Headings ──
+  `<h1>Heading 1</h1>`,
+  `<h2>Heading 2</h2>`,
+  `<h3>Heading 3</h3>`,
+  `<p>This is a <strong>live preview</strong> of the Plate editor. Every feature below is fully interactive.</p>`,
+
+  // ── Text formatting ──
+  `<h3>Text Formatting</h3>`,
+  `<p><strong>Bold</strong>, <em>Italic</em>, <u>Underline</u>, <s>Strikethrough</s>, <code>Inline Code</code>, <mark>Highlight</mark>, <sup>Superscript</sup>, <sub>Subscript</sub>, <kbd>Kbd</kbd></p>`,
+  `<p><span style="color: #ef4444">Red text</span>, <span style="color: #3b82f6">Blue text</span>, <span style="color: #22c55e">Green text</span>, <span style="background-color: #fef08a">Yellow BG</span>, <span style="background-color: #dbeafe">Blue BG</span></p>`,
+  `<p><span style="font-family: 'JetBrains Mono', monospace">Monospace</span>, <span style="font-size: 20px">Large</span>, <span style="font-size: 12px">Small</span>, <span style="font-weight: 300">Light</span>, <span style="font-weight: 700">Bold weight</span>, <span style="letter-spacing: 3px">W i d e</span></p>`,
+  `<p style="text-align: center">Center aligned paragraph</p>`,
+  `<p style="text-align: right">Right aligned paragraph</p>`,
+
+  // ── Blockquote ──
+  `<h3>Blockquote</h3>`,
+  `<blockquote><p>Blockquotes can contain <strong>rich text</strong>, <a href="#">links</a>, and multiple paragraphs.</p><p>— Design System Guide</p></blockquote>`,
+
+  // ── Lists (indent-list model) ──
+  `<h3>Lists</h3>`,
+  `<ul><li style="list-style-type: disc" data-list-style-type="disc" data-indent="1">Disc list item</li></ul>`,
+  `<ul><li style="list-style-type: circle" data-list-style-type="circle" data-indent="1">Circle list item</li></ul>`,
+  `<ul><li style="list-style-type: square" data-list-style-type="square" data-indent="1">Square list item</li></ul>`,
+  `<ul><li style="list-style-type: '- '" data-list-style-type="'- '" data-indent="1">Dash list item</li></ul>`,
+  `<ul><li style="list-style-type: '→ '" data-list-style-type="'→ '" data-indent="1">Arrow list item</li></ul>`,
+  `<ul><li style="list-style-type: '★ '" data-list-style-type="'★ '" data-indent="1">Star list item</li></ul>`,
+  `<ol><li style="list-style-type: decimal" data-list-style-type="decimal" data-indent="1">Decimal ordered</li></ol>`,
+  `<ol><li style="list-style-type: decimal" data-list-style-type="decimal" data-indent="1">Second item</li></ol>`,
+  `<ol><li style="list-style-type: lower-alpha" data-list-style-type="lower-alpha" data-indent="1">Lower alpha</li></ol>`,
+  `<ol><li style="list-style-type: upper-roman" data-list-style-type="upper-roman" data-indent="1">Upper roman</li></ol>`,
+  `<ul data-list-style="todo"><li data-checked="true" style="list-style-type: disc" data-list-style-type="todo" data-indent="1">Completed todo item</li></ul>`,
+  `<ul data-list-style="todo"><li data-checked="false" style="list-style-type: disc" data-list-style-type="todo" data-indent="1">Pending todo item</li></ul>`,
+  `<ul><li style="list-style-type: disc" data-list-style-type="disc" data-indent="1">Nested list parent</li></ul>`,
+  `<ul><li style="list-style-type: circle; margin-left: 24px" data-list-style-type="circle" data-indent="2">Nested child (indent 2)</li></ul>`,
+
+  // ── Code block ──
+  `<h3>Code Block</h3>`,
+  `<div class="code-block-wrap"><pre><code class="language-typescript">import { useEffect, useState } from "react";
+
+export function Counter({ initialCount = 0 }: { initialCount?: number }) {
+  const [count, setCount] = useState(initialCount);
+
+  useEffect(() =&gt; {
+    console.log(\`Count: \${count}\`);
+  }, [count]);
+
+  return &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;{count}&lt;/button&gt;;
+}</code></pre></div>`,
+
+  `<div class="code-block-wrap"><pre><code class="language-css">:root {
+  --color-primary: #3b82f6;
+  --radius-md: 8px;
+}
+
+.card {
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}</code></pre></div>`,
+
+  // ── Table ──
+  `<h3>Table</h3>`,
+  `<table data-col-sizes="180,200,160"><colgroup><col style="width: 180px" /><col style="width: 200px" /><col style="width: 160px" /></colgroup>`,
+  `<tr><th>Feature</th><th>Description</th><th>Status</th></tr>`,
+  `<tr><td>Text formatting</td><td>Bold, italic, color, font</td><td><strong>✓</strong> Complete</td></tr>`,
+  `<tr><td>Code blocks</td><td>Syntax highlighting + wrap</td><td><strong>✓</strong> Complete</td></tr>`,
+  `<tr><td>Math equations</td><td>KaTeX inline &amp; block</td><td><strong>✓</strong> Complete</td></tr>`,
+  `<tr><td>Column layout</td><td>2–4 columns, resize, bg, divider</td><td><strong>✓</strong> Complete</td></tr>`,
+  `<tr><td>Toggle &amp; Callout</td><td>Collapsible + highlighted blocks</td><td><strong>✓</strong> Complete</td></tr>`,
+  `</table>`,
+
+  // ── Math equations ──
+  `<h3>Math Equations</h3>`,
+  `<p>Inline: <span data-math-inline="true" data-latex="E = mc^2">E = mc^2</span> and <span data-math-inline="true" data-latex="\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}">sum</span> within text.</p>`,
+  `<div data-math-block="true" data-latex="\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}">integral</div>`,
+  `<div data-math-block="true" data-latex="\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix} \\cdot \\begin{pmatrix} x \\\\ y \\end{pmatrix} = \\begin{pmatrix} ax + by \\\\ cx + dy \\end{pmatrix}">matrix</div>`,
+
+  // ── Column layout ──
+  `<h3>Column Layout</h3>`,
+  `<div data-column-group data-layout="2" style="display:flex;gap:16px;margin:16px 0">`,
+  `<div data-column data-width="50%" style="flex:0 0 50%;min-width:0"><p><strong>Left Column</strong></p><p>Columns support all block elements. Resize by dragging the handle between columns.</p></div>`,
+  `<div data-column data-width="50%" style="flex:0 0 50%;min-width:0"><p><strong>Right Column</strong></p><p>Use the toolbar to set background color, divider line, and adjust width ratios.</p></div>`,
+  `</div>`,
+  `<div data-column-group data-layout="3" data-column-bg="#f0f9ff" data-column-divider="#93c5fd" style="display:flex;gap:0;margin:16px 0;background:#f0f9ff;padding:8px;border-radius:6px">`,
+  `<div data-column data-width="33%" style="flex:0 0 33%;min-width:0"><p><strong>Col 1</strong></p><p>With background</p></div>`,
+  `<div data-column data-width="34%" style="flex:0 0 34%;min-width:0"><p><strong>Col 2</strong></p><p>And divider line</p></div>`,
+  `<div data-column data-width="33%" style="flex:0 0 33%;min-width:0"><p><strong>Col 3</strong></p><p>3-column layout</p></div>`,
+  `</div>`,
+
+  // ── Toggle ──
+  `<h3>Toggle</h3>`,
+  `<div data-toggle data-open><h3>Expanded toggle with heading title</h3><p>Toggle content supports all block types: text, lists, code, math, and more.</p><ul><li style="list-style-type: disc" data-list-style-type="disc" data-indent="1">List inside toggle</li></ul><ul><li style="list-style-type: disc" data-list-style-type="disc" data-indent="1">Another item</li></ul></div>`,
+  `<div data-toggle><p>Collapsed toggle (click to open)</p><p>Hidden content revealed on click. Great for FAQs or optional details.</p></div>`,
+
+  // ── Callout ──
+  `<h3>Callout</h3>`,
+  `<div data-callout data-callout-bg="var(--bg-tertiary)" data-callout-icon="💡"><p>Tip: Callouts highlight important information with customizable icon and background.</p></div>`,
+  `<div data-callout data-callout-bg="#fee2e2" data-callout-icon="⚠️"><p>Warning: This action cannot be undone.</p></div>`,
+  `<div data-callout data-callout-bg="#dcfce7" data-callout-icon="✅"><p>Success: All changes have been saved.</p></div>`,
+  `<div data-callout data-callout-bg="#dbeafe" data-callout-icon="ℹ️"><p>Info: Callouts support rich text, <strong>bold</strong>, <code>code</code>, and <a href="#">links</a>.</p></div>`,
+
+  // ── Horizontal rule ──
+  `<hr />`,
+
+  // ── File & Audio embed ──
+  `<h3>File &amp; Audio Embed</h3>`,
+  `<div data-file-embed data-url="/docs/resume.pdf" data-filename="resume.pdf" data-filesize="0"></div>`,
+  `<div data-audio-embed data-url="/sounds/Louie Zong - Ghost Duet.mp3" data-title="Louie Zong — Ghost Duet" style="max-width:480px;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;margin:8px 0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🎵</span><span style="font-size:13px;font-weight:500">Louie Zong — Ghost Duet</span></div><audio controls preload="none" src="/sounds/Louie Zong - Ghost Duet.mp3" style="width:100%"></audio></div>`,
+
+  // ── Links & Embed ──
+  `<h3>Link &amp; Embed</h3>`,
+  `<p>Links: <a href="https://nextjs.org">Next.js</a>, <a href="https://react.dev">React</a>, <a href="https://typescriptlang.org" target="_blank">TypeScript (new tab)</a></p>`,
+  `<iframe src="https://www.youtube.com/embed/_CzSCWpF7TM" data-original-url="https://youtu.be/_CzSCWpF7TM" width="100%" height="400" frameborder="0" loading="lazy" allowfullscreen></iframe>`,
+
+  // ── Image ──
+  `<h3>Image</h3>`,
+  `<figure style="display:flex;flex-direction:column;align-items:center;margin:1em 0"><img src="/images/profile_pic.webp" alt="Profile" style="width:240px;max-width:100%" data-width="240" data-caption="Profile picture" /><figcaption style="font-size:12px;color:#6b7280;margin-top:6px">Profile picture</figcaption></figure>`,
+].join("");
+
 
 function EditorSection({ language, setSectionRef }: EditorSectionProps) {
+  const { t } = useLanguage();
   const [value, setValue] = useState(SAMPLE_HTML);
+  const [showPreview, setShowPreview] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const plateRef = useRef<import("@/components/posts/PlateEditor").PlateEditorHandle>(null);
+  const [editorImages, setEditorImages] = useState<import("@/components/posts/PlateEditor").EditorImageInfo[]>([]);
 
   const mockImageUpload = useCallback(async (file: File): Promise<string> => {
     return URL.createObjectURL(file);
   }, []);
+
+  // 이미지 목록 동기화
+  const handleEditorChange = useCallback((v: string) => {
+    setValue(v);
+    requestAnimationFrame(() => {
+      const imgs = plateRef.current?.getImages();
+      if (imgs) setEditorImages(imgs);
+    });
+  }, []);
+
+  // 미리보기용 HTML: hljs 하이라이팅 + 수식 + 버튼 라벨 적용
+  const previewHtml = useMemo(() => {
+    if (!showPreview) return "";
+    let html = value;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { hljs } = require("@/components/posts/highlightCodeBlocks") as typeof import("@/components/posts/highlightCodeBlocks");
+      const scrollLabel = `↔ ${t("common.codeScroll")}`;
+      const wrapLabel = `↩ ${t("common.codeWrap")}`;
+      html = html.replace(
+        /<pre><code(?:\s+class="([^"]*)")?>([\s\S]*?)<\/code><\/pre>/g,
+        (_m, cls, code) => {
+          const langMatch = (cls || "").match(/language-(\S+)/);
+          const lang = langMatch?.[1];
+          const validLang = lang && hljs.getLanguage(lang) ? lang : null;
+          const decoded = code.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+          let highlighted: string;
+          try {
+            highlighted = validLang ? hljs.highlight(decoded, { language: validLang }).value : hljs.highlightAuto(decoded).value;
+          } catch { highlighted = code; }
+          return `<pre><code class="hljs${validLang ? ` language-${validLang}` : ""}">${highlighted}</code></pre>`;
+        }
+      );
+      // code-block-wrap 안에 wrap 토글 버튼 삽입
+      html = html.replace(
+        /<\/pre><\/div>/g,
+        `</pre><button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${scrollLabel}</span><span class="code-wrap-label-hover">${wrapLabel}</span></button></div>`
+      );
+    } catch { /* ignore */ }
+    return html;
+  }, [showPreview, value, t]);
+
+  // 미리보기 수식 렌더링 + 코드 토글 이벤트 위임
+  useRichtextEnhance(previewRef, showPreview ? previewHtml : null);
 
   return (
     <section id="editor" ref={setSectionRef("editor")} className={styles.section}>
@@ -43,13 +224,57 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
             ? "게시물 작성에 사용되는 에디터 (이미지 업로드는 로컬 미리보기 전용)"
             : "Editor used for posts (image uploads are local preview only)"}
         </motion.p>
+
+        {/* Editor */}
         <motion.div variants={staggerItem} className={styles.editorDemo}>
           <PlateEditor
             value={value}
-            onChange={setValue}
+            onChange={handleEditorChange}
             onImageUpload={mockImageUpload}
+            editorRef={plateRef}
           />
         </motion.div>
+
+        {/* Image Panel */}
+        <motion.div variants={staggerItem} style={{ marginTop: 16 }}>
+          <ImagePanel
+            images={editorImages}
+            onSelect={(path) => plateRef.current?.selectImageAt(path)}
+            onReorder={(from, to) => plateRef.current?.reorderImage(from, to)}
+            onRemove={(path) => plateRef.current?.removeImage(path)}
+            onRemoveDetached={(url) => plateRef.current?.removeDetached(url)}
+          />
+        </motion.div>
+
+        {/* Preview toggle */}
+        <motion.div variants={staggerItem} style={{ marginTop: 24 }}>
+          <button
+            type="button"
+            onClick={() => setShowPreview(!showPreview)}
+            className={styles.previewToggle}
+          >
+            {showPreview
+              ? (language === "ko" ? "미리보기 닫기" : "Close Preview")
+              : (language === "ko" ? "디테일 페이지 미리보기" : "Detail Page Preview")}
+          </button>
+        </motion.div>
+
+        {/* Preview panel */}
+        {showPreview && (
+          <motion.div
+            variants={staggerItem}
+            className={styles.previewPanel}
+          >
+            <div className={styles.previewHeader}>
+              {language === "ko" ? "게시물 디테일 페이지 미리보기" : "Post Detail Page Preview"}
+            </div>
+            <div
+              ref={previewRef}
+              className={proseStyles.prose}
+              dangerouslySetInnerHTML={{ __html: previewHtml }}
+            />
+          </motion.div>
+        )}
       </motion.div>
     </section>
   );

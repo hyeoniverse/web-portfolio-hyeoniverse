@@ -721,11 +721,51 @@
 .editorDemo {
   border: 1px solid var(--border-light-color);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow: auto;
+  resize: both;
+  min-height: 200px;
+  min-width: 320px;
+  max-width: 100%;
 }
 
 .editorPlaceholder {
   height: 400px;
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
+}
+
+.previewToggle {
+  padding: 8px 20px;
+  border: 1px solid var(--border-default-color);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.previewToggle:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.previewPanel {
+  margin-top: 16px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.previewHeader {
+  padding: 10px 20px;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-light-color);
+  background: var(--bg-tertiary);
 }
