@@ -104,8 +104,26 @@ function serializeNode(node: SlateNode): string {
 
   switch (el.type) {
     // ── Blocks ──
-    case "p":
+    case "p": {
+      const lst = el.listStyleType as string | undefined;
+      if (lst) {
+        const olTypes = new Set(["decimal", "decimal-leading-zero", "lower-alpha", "upper-alpha", "lower-roman", "upper-roman"]);
+        const start = el.listStart ? ` start="${el.listStart}"` : "";
+        const checked = el.checked;
+        const indentLevel = (el.indent as number) || 1;
+        const indentAttr = ` data-indent="${indentLevel}"`;
+        const indentMargin = indentLevel > 1 ? `; margin-left: ${(indentLevel - 1) * 24}px` : "";
+        // li에 style + data-list-style-type 두 가지 모두 넣어야 ListPlugin deserializer가 인식
+        if (checked !== undefined) {
+          return `<ul${indentAttr}><li style="list-style-type: ${esc(lst)}" data-list-style-type="${esc(lst)}" data-checked="${checked ? "true" : "false"}">${children}</li></ul>`;
+        }
+        if (olTypes.has(lst)) {
+          return `<ol${start}><li style="list-style-type: ${esc(lst)}${indentMargin}" data-list-style-type="${esc(lst)}"${indentAttr}>${children}</li></ol>`;
+        }
+        return `<ul><li style="list-style-type: ${esc(lst)}${indentMargin}" data-list-style-type="${esc(lst)}"${indentAttr}>${children}</li></ul>`;
+      }
       return `<p${styleAttr}>${children}</p>`;
+    }
     case "h1": return `<h1${styleAttr}>${children}</h1>`;
     case "h2": return `<h2${styleAttr}>${children}</h2>`;
     case "h3": return `<h3${styleAttr}>${children}</h3>`;
@@ -117,10 +135,74 @@ function serializeNode(node: SlateNode): string {
     case "hr":
       return `<hr />`;
 
+    // ── Toggle (접기/펼치기) ──
+    case "toggle": {
+      const isOpen = el.open !== false;
+      // children 중 text leaf가 직접 있으면 p로 감싸서 직렬화
+      const toggleChildren = (el.children || []).map((child) => {
+        if (isText(child)) return `<p>${serializeLeaf(child as SlateText)}</p>`;
+        return serializeNode(child);
+      }).join("");
+      return `<div data-toggle${isOpen ? " data-open" : ""}>${toggleChildren}</div>`;
+    }
+
+    // ── Callout ──
+    case "callout": {
+      // children 중 text leaf가 직접 있으면 p로 감싸서 직렬화
+      const calloutChildren = (el.children || []).map((child) => {
+        if (isText(child)) return `<p>${serializeLeaf(child as SlateText)}</p>`;
+        return serializeNode(child);
+      }).join("");
+      const cBg = esc(String(el.bg ?? "var(--bg-tertiary)"));
+      const cIcon = String(el.icon ?? "");
+      let iconHtml: string;
+      if (cIcon.startsWith("img:")) {
+        iconHtml = `<img src="${esc(cIcon.slice(4))}" alt="" style="width:20px;height:20px;object-fit:contain;border-radius:2px" />`;
+      } else if (cIcon.startsWith("icon:")) {
+        // SVG 아이콘 — data 속성에 id 저장, detail page에서 렌더
+        iconHtml = `<span data-icon="${esc(cIcon.slice(5))}" style="display:inline-flex;width:20px;height:20px"></span>`;
+      } else {
+        iconHtml = esc(cIcon);
+      }
+      const borderStyle = cBg === "var(--bg-primary)" ? ";border:1px solid var(--border-light-color)" : "";
+      const iconSpan = cIcon ? `<span style="font-size:20px;line-height:1;flex-shrink:0">${iconHtml}</span>` : "";
+      return `<div data-callout data-callout-bg="${cBg}"${cIcon ? ` data-callout-icon="${esc(cIcon)}"` : ""} style="display:flex;gap:${cIcon ? "12px" : "0"};padding:16px;border-radius:8px;background:${cBg};margin:16px 0${borderStyle}">${iconSpan}<div style="flex:1;min-width:0">${calloutChildren}</div></div>`;
+    }
+
+    // ── Column layout ──
+    case "column_group": {
+      const layout = el.layout as string | undefined;
+      const colBg = el.columnBg as string | undefined;
+      const colDiv = el.columnDivider as string | undefined;
+      const attrs = [
+        "data-column-group",
+        layout ? ` data-layout="${esc(layout)}"` : "",
+        colBg ? ` data-column-bg="${esc(colBg)}"` : "",
+        colDiv ? ` data-column-divider="${esc(colDiv)}"` : "",
+      ].join("");
+      const gapStyle = colDiv ? "gap:0" : "gap:16px";
+      const bgStyle = colBg ? `;background:${colBg};padding:8px;border-radius:6px` : "";
+      // text leaf 방어
+      const groupChildren = (el.children || []).map((child) => {
+        if (isText(child)) return `<div data-column style="flex:1;min-width:0"><p>${serializeLeaf(child as SlateText)}</p></div>`;
+        return serializeNode(child);
+      }).join("");
+      return `<div ${attrs} style="display:flex;${gapStyle};margin:16px 0${bgStyle}">${groupChildren}</div>`;
+    }
+    case "column": {
+      const colW = el.width as string | undefined;
+      // text leaf 방어
+      const colChildren = (el.children || []).map((child) => {
+        if (isText(child)) return `<p>${serializeLeaf(child as SlateText)}</p>`;
+        return serializeNode(child);
+      }).join("");
+      return `<div data-column${colW ? ` data-width="${esc(colW)}" style="flex:0 0 ${esc(colW)};min-width:0"` : ` style="flex:1;min-width:0"`}>${colChildren}</div>`;
+    }
+
     // ── Code block ──
     case "code_block": {
       const lang = el.lang ? ` class="language-${esc(String(el.lang))}"` : "";
-      return `<div class="code-block-wrap"><pre><code${lang}>${children}</code></pre><button type="button" class="code-wrap-toggle" data-wrap-btn></button></div>`;
+      return `<div class="code-block-wrap"><pre><code${lang}>${children}</code></pre></div>`;
     }
     case "code_line":
       return `${children}\n`;
@@ -195,7 +277,7 @@ function serializeNode(node: SlateNode): string {
     case "a":
       return `<a href="${esc(String(el.url ?? ""))}"${el.target ? ` target="${el.target}"` : ""}>${children}</a>`;
 
-    // ── Image (with width%, align, caption) ──
+    // ── Image (with width%, align, caption, layout) ──
     case "img": {
       const imgUrl = esc(String(el.url ?? ""));
       const imgAlt = el.alt ? ` alt="${esc(String(el.alt))}"` : "";
@@ -204,6 +286,8 @@ function serializeNode(node: SlateNode): string {
       const imgFilter = el.filter as string | undefined;
       const imgAlign = (el.align as string) || "center";
       const imgCaption = el.caption as string | undefined;
+      const imgLayout = (el.layout as string) || "inline";
+      const imgLockAspect = (el.lockAspect as boolean) ?? true;
       const justifyMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
       const figStyle = `display:flex;flex-direction:column;align-items:${justifyMap[imgAlign] || "center"};margin:1em 0`;
       const imgStyles: string[] = [];
@@ -212,8 +296,18 @@ function serializeNode(node: SlateNode): string {
       imgStyles.push("max-width:100%");
       if (imgFilter) imgStyles.push(`filter:${imgFilter}`);
       const imgStyleAttr = imgStyles.length ? ` style="${imgStyles.join(";")}"` : "";
+      // data 속성으로 에디터 메타데이터 보존
+      const dataAttrs = [
+        imgW && imgW > 0 ? ` data-width="${imgW}"` : "",
+        imgH && imgH > 0 ? ` data-height="${imgH}"` : "",
+        imgCaption ? ` data-caption="${esc(imgCaption)}"` : "",
+        imgLayout !== "inline" ? ` data-layout="${imgLayout}"` : "",
+        imgAlign !== "center" ? ` data-align="${imgAlign}"` : "",
+        !imgLockAspect ? ` data-lock-aspect="false"` : "",
+        imgFilter ? ` data-filter="${esc(imgFilter)}"` : "",
+      ].join("");
       const capHtml = imgCaption ? `<figcaption style="font-size:0.85em;color:#6b7280;margin-top:4px;text-align:${imgAlign}">${esc(imgCaption)}</figcaption>` : "";
-      return `<figure style="${figStyle}"><img src="${imgUrl}"${imgAlt}${imgStyleAttr} />${capHtml}</figure>`;
+      return `<figure style="${figStyle}"><img src="${imgUrl}"${imgAlt}${imgStyleAttr}${dataAttrs} />${capHtml}</figure>`;
     }
 
     // ── Figure (legacy) ──
@@ -228,6 +322,23 @@ function serializeNode(node: SlateNode): string {
     // ── Media embed ──
     case "media_embed":
       return `<iframe src="${esc(String(el.url ?? ""))}" data-original-url="${esc(String(el.url ?? ""))}" width="100%" height="400" frameborder="0" loading="lazy" allowfullscreen></iframe>`;
+
+    // ── File embed (PDF, audio, etc.) ──
+    case "file_embed": {
+      const fileUrl = esc(String(el.url ?? ""));
+      const fName = esc(String(el.fileName ?? ""));
+      const fSize = el.fileSize as number | undefined;
+      const isAudio = /\.(mp3|wav|ogg|m4a|flac|aac|wma)(\?|$)/i.test(fileUrl);
+      const audioHtml = isAudio ? `<audio src="${fileUrl}" controls preload="metadata" style="width:100%;margin-top:6px"></audio>` : "";
+      return `<div data-file-embed data-url="${fileUrl}" data-filename="${fName}"${fSize ? ` data-filesize="${fSize}"` : ""} style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;max-width:480px;margin:8px 0"><span style="font-size:24px">${isAudio ? "🎵" : /\.pdf/i.test(fileUrl) ? "📄" : "📎"}</span><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fName}</div>${fSize ? `<div style="font-size:11px;color:#6b7280;margin-top:1px">${fSize < 1024 * 1024 ? (fSize / 1024).toFixed(1) + " KB" : (fSize / (1024 * 1024)).toFixed(1) + " MB"}</div>` : ""}</div><a href="${fileUrl}" download style="flex-shrink:0;padding:4px 10px;font-size:12px;border-radius:4px;border:1px solid #e5e7eb;background:#fff;color:#111;text-decoration:none">↓</a></div>${audioHtml}`;
+    }
+
+    // ── Audio player ──
+    case "audio_embed": {
+      const audioUrl = esc(String(el.url ?? ""));
+      const audioTitle = esc(String(el.title ?? ""));
+      return `<div data-audio-embed data-url="${audioUrl}" data-title="${audioTitle}" style="max-width:480px;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;margin:8px 0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🎵</span><span style="font-size:13px;font-weight:500">${audioTitle}</span></div><audio src="${audioUrl}" controls preload="metadata" style="width:100%"></audio></div>`;
+    }
 
     // ── Math (KaTeX) ──
     case "equation":
