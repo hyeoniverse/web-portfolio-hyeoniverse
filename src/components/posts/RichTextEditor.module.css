@@ -148,6 +148,8 @@
 
 .divider {
   width: 1px;
+  align-self: stretch;
+  min-height: 14px;
   margin: 2px var(--spacing-2xs);
   background: var(--border-light-color);
 }
@@ -222,6 +224,65 @@
   padding-right: var(--spacing-sm);
 }
 
+.ratioWrap {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  gap: 0;
+}
+
+.ratioWrap:last-child {
+  margin-right: 4px;
+}
+
+.ratioInput {
+  width: 26px;
+  height: 20px;
+  border: none;
+  text-align: center;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+  padding: 0;
+  -moz-appearance: textfield;
+}
+
+.ratioInput::-webkit-inner-spin-button,
+.ratioInput::-webkit-outer-spin-button {
+  display: none;
+}
+
+.ratioSpin {
+  display: flex;
+  flex-direction: column;
+  height: 20px;
+  background: var(--color-neutral-alpha-6);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ratioSpinBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.ratioSpinBtn:hover {
+  background: var(--color-neutral-alpha-10);
+  color: var(--text-primary);
+}
+
 /* Table controls group */
 .tableGroup {
   display: inline-flex;
@@ -229,7 +290,7 @@
   height: 24px;
   border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
-  overflow: hidden;
+  overflow: visible;
   flex-shrink: 0;
 }
 
@@ -277,11 +338,11 @@
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  width: fit-content;
-  max-width: 100%;
+  width: 100%;
   border: 1px solid var(--border-light-color);
   border-top: none;
   background: var(--bg-primary);
@@ -296,22 +357,18 @@
               border-color 0.2s ease-out !important;
 }
 
-.tableToolbarFull {
-  width: 100%;
-  right: 0;
-}
-
 .tableToolbarRow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
   padding: var(--spacing-3xs) var(--spacing-xs);
+  padding-right: 80px;
   position: relative;
 }
 
 .tableToolbarRow + .tableToolbarRow {
-  border-top: 1px solid var(--border-light-color);
+  border-top: none;
 }
 
 /* Math toolbar — tableToolbarRow와 동일한 레이아웃 */
@@ -346,7 +403,9 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  margin-left: auto;
+  position: absolute;
+  top: var(--spacing-3xs);
+  right: var(--spacing-xs);
 }
 
 .tableToolbarHidden {
@@ -431,7 +490,7 @@
   border-radius: 50%;
   border: 1px solid var(--border-light-color);
   padding: 0;
-  margin-left: 1px;
+  margin: 0 4px;
   flex-shrink: 0;
 }
 
@@ -788,6 +847,9 @@
   flex: 1;
   min-height: 0;
   position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Editor content */
@@ -1598,7 +1660,7 @@
   flex-direction: column;
   gap: var(--spacing-xs);
   padding: var(--spacing-sm);
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-light-color);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
@@ -1632,22 +1694,20 @@
 
 .mathFloatingInput {
   width: 100%;
-  padding: 30px 14px 10px;
+  padding: 6px 8px;
   border: 1px solid var(--border-light-color);
   border-radius: var(--radius-sm);
-  background: transparent;
+  background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-jetbrains), monospace;
   font-size: var(--font-size-md);
   line-height: 1.8;
-  resize: vertical;
-  outline: none;
-  min-height: 80px;
   box-sizing: border-box;
   transition: border-color 0.15s;
+  cursor: text;
 }
 
-.mathFloatingInput:focus {
+.mathFloatingInput:focus-within {
   border-color: var(--text-primary);
 }
 
@@ -1915,12 +1975,9 @@
 }
 
 .mathPreviewError {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
 }
 
 .mathPreviewError .mathFloatingInput {
-  background: var(--bg-primary);
 }
 
 /* Code block wrap toggle */
@@ -1957,6 +2014,11 @@
 }
 
 /* ── Plate editor content styles ── */
+.editorContent ::selection {
+  background: var(--color-accent-alpha-20, rgba(0, 120, 255, 0.2));
+  color: inherit;
+}
+
 .editorContent {
   padding: var(--spacing-md);
   outline: none;
@@ -1966,7 +2028,8 @@
   line-height: var(--line-height-relaxed);
   color: var(--text-primary);
   font-synthesis: style;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   border: 1px solid var(--border-light-color);
   overflow-y: auto;
   overflow-x: hidden;
@@ -2005,7 +2068,7 @@
   font-size: 0.9em;
   padding: 2px 6px;
   background: var(--bg-tertiary);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-capsule);
 }
 .editorContent pre {
   padding: var(--spacing-md);
@@ -2155,4 +2218,76 @@
 /* Plate placeholder */
 .editorContent :global([data-slate-placeholder]) {
   color: var(--text-muted);
+}
+
+/* ── Find & Replace Panel ── */
+.findPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light-color);
+}
+
+.findRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.findInput {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.findInput:focus {
+  border-color: var(--text-secondary);
+}
+
+.findCount {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 36px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.findBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.findBtn:hover {
+  background: var(--color-neutral-alpha-10);
+  color: var(--text-primary);
+}
+
+.findBtnActive {
+  background: var(--color-neutral-alpha-10);
+  color: var(--text-primary);
+  box-shadow: inset 0 -2px 0 var(--text-primary);
 }

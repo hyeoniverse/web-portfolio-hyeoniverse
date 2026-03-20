@@ -288,6 +288,11 @@
   color: var(--text-primary);
 }
 
+.editorHelpBtnActive {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
 /* ── Shortcuts modal content ── */
 .helpGrid {
   display: grid;
