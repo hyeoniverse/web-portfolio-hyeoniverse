@@ -6,6 +6,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
 import type { Post, PostFormData, Series } from "@/types/post";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
@@ -18,7 +19,7 @@ import { useRevisions } from "@/hooks/useRevisions";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { autoTranslate } from "@/utils/autoTranslate";
 import EditorToggle from "./EditorToggle";
-import MarkdownEditor from "./MarkdownEditor";
+import MarkdownEditor, { extractMarkdownImages } from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
@@ -305,6 +306,8 @@ function generateSlug(title: string): string {
 export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
   const { tLang, language } = useLanguage();
+  const config = useSiteConfig();
+  const mediaLimits = (config.media as Record<string, unknown>)?.limits as Record<string, number> | undefined;
   const isEdit = !!post;
   const categories = useCategories();
   const serviceStatus = useServiceStatus();
@@ -392,6 +395,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [editorLang, form.content_type]);
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
+  const [showMdHelp, setShowMdHelp] = useState(false);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const initialFormRef = useRef(form);
   const formRef = useRef(form);
@@ -679,8 +683,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
     const { compressImage, validateFileSize } = await import("@/lib/compressImage");
 
-    // GIF/동영상은 압축 불가 → 형식별 크기 제한 검증
-    const sizeError = validateFileSize(file);
+    // 보안 + 형식별 크기 제한 검증 (설정 값 사용)
+    const sizeError = validateFileSize(file, mediaLimits);
     if (sizeError) throw new Error(sizeError);
 
     // 일반 이미지는 압축 파이프라인 적용
@@ -694,7 +698,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
     if (!res.ok) throw new Error(data.error);
     return data.url;
-  }, []);
+  }, [mediaLimits]);
 
   const handleCoverUpload = useCallback(async () => {
     const input = document.createElement("input");
@@ -1090,23 +1094,6 @@ export default function PostEditor({ post }: PostEditorProps) {
             />
           </div>
 
-          <div className={es.field}>
-            <label className={`${es.fieldLabel}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
-            {form.series_id ? (
-              <p style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-sm)", color: "var(--text-secondary)" }}>
-                {(findCat(form.category) ? (language === "ko" ? findCat(form.category)!.ko : findCat(form.category)!.en) : form.category) || "—"} <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>({te("categoryFromSeries")})</span>
-              </p>
-            ) : (
-              <Select
-                value={isManagedCat(form.category) ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? "")}
-                options={categories.map((cat) => ({
-                  value: cat.ko,
-                  label: language === "ko" ? cat.ko : cat.en,
-                }))}
-                onChange={(v) => updateField("category", v)}
-              />
-            )}
-          </div>
         </div>
 
         {/* ── 선택 입력 (접기/펼치기) ── */}
@@ -1126,89 +1113,70 @@ export default function PostEditor({ post }: PostEditorProps) {
             </svg>
           </button>
 
-          {/* 첫 줄: 항상 표시 (시리즈 + 태그) */}
+          {/* 첫 줄: [시리즈 + 시리즈순서] — 항상 표시 */}
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <div className={styles.optionalFirstRow} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
             <div className={es.field}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <label className={es.fieldLabel}>{te("series")}</label>
-                <a
-                  href="/admin/settings?tab=content&sub=posts"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.manageLink}
-                >
+                <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
                   {te("seriesManage")}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
                 </a>
               </div>
               <Select
                 value={form.series_id ?? ""}
                 options={[
                   { value: "", label: te("seriesNone") },
-                  ...seriesList.map((s) => ({
-                    value: s.id,
-                    label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}`,
-                  })),
+                  ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}` })),
                 ]}
                 onChange={(v) => {
                   updateField("series_id", v || null);
                   if (v) {
                     const selected = seriesList.find((s) => s.id === v);
-                    if (selected?.category) {
-                      updateField("category", selected.category);
-                    }
+                    if (selected?.category) updateField("category", selected.category);
                   }
                 }}
               />
-              {form.series_id && (
-                <div className={es.field}>
-                  <label className={es.fieldLabel}>{te("seriesOrder")}</label>
-                  <input
-                    className={es.fieldInput}
-                    type="number"
-                    min={0}
-                    value={form.series_order}
-                    onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
-                  />
-                </div>
-              )}
             </div>
-
-            <div className={es.field}>
-              <label className={es.fieldLabel} style={{ alignSelf: "center" }}>{te("tags")}</label>
-              <div>
-                <div className={styles.tagInputRow}>
-                  <input
-                    className={es.fieldInput}
-                    type="text"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={handleTagKeyDown}
-                    placeholder={te("tagsPlaceholder")}
-                  />
-                  <button
-                    type="button"
-                    className={styles.tagAddBtn}
-                    onClick={addTag}
-                    disabled={!tagInput.trim()}
-                  >
-                    +
-                  </button>
-                </div>
-                {form.tags.length > 0 && optionalOpen && (
-                  <TagsList tags={form.tags} onRemove={removeTag} />
-                )}
+            {form.series_id && (
+              <div className={es.field}>
+                <label className={es.fieldLabel}>{te("seriesOrder")}</label>
+                <input className={es.fieldInput} type="number" min={0} value={form.series_order} onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)} />
               </div>
-            </div>
+            )}
           </div>
 
           <div ref={optionalContentRef} className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
             <div ref={optionalInnerRef} className={styles.optionalInner}>
+              {/* 줄2: [카테고리 + 태그] */}
+              <div className={es.row}>
+                <div className={es.field}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                    <label className={`${es.fieldLabel}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
+                    {form.series_id && (
+                      <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>{te("categoryFromSeries")}</span>
+                    )}
+                  </div>
+                  <Select
+                    value={isManagedCat(form.category) ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? "")}
+                    options={categories.map((cat) => ({ value: cat.ko, label: language === "ko" ? cat.ko : cat.en }))}
+                    onChange={(v) => updateField("category", v)}
+                    disabled={!!form.series_id}
+                  />
+                </div>
+                <div className={es.field} style={{ flex: 1 }}>
+                  <label className={es.fieldLabel}>{te("tags")}</label>
+                  <div>
+                    <div className={styles.tagInputRow}>
+                      <input className={es.fieldInput} type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} placeholder={te("tagsPlaceholder")} />
+                      <button type="button" className={styles.tagAddBtn} onClick={addTag} disabled={!tagInput.trim()}>+</button>
+                    </div>
+                    {form.tags.length > 0 && <TagsList tags={form.tags} onRemove={removeTag} />}
+                  </div>
+                </div>
+              </div>
+              {/* 줄3: [요약 + 커버이미지] */}
               <div className={es.row}>
                 <div className={es.field}>
                   <label className={es.fieldLabel}>{te("excerpt")}</label>
@@ -1301,6 +1269,16 @@ export default function PostEditor({ post }: PostEditorProps) {
             >
               ?
             </button>
+            {form.content_type === "markdown" && (
+              <button
+                type="button"
+                className={`${styles.editorHelpBtn} ${showMdHelp ? styles.editorHelpBtnActive : ""}`}
+                onClick={() => setShowMdHelp(!showMdHelp)}
+                title="Markdown"
+              >
+                MD
+              </button>
+            )}
           </div>
           <EditorToggle
             value={form.content_type}
@@ -1316,6 +1294,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             onImageUpload={handleImageUpload}
             editLabel={te("editorLabel")}
             previewLabel={te("previewLabel")}
+            showHelp={showMdHelp}
           />
         ) : (
           <Editor
@@ -1331,12 +1310,36 @@ export default function PostEditor({ post }: PostEditorProps) {
             }}
             onImageUpload={handleImageUpload}
             editorRef={plateRef}
+            postLang={editorLang}
           />
         )}
       </div>
 
-      {/* ── 첨부 이미지 패널 (에디터 외부 별개 영역) ── */}
-      {form.content_type !== "markdown" && (
+      {/* ── 첨부 이미지 패널 ── */}
+      {form.content_type === "markdown" ? (
+        (() => {
+          const mdImages = extractMarkdownImages(form[contentKey]).map((url, i) => ({
+            url, path: [i], mediaType: "img" as const,
+          }));
+          return (
+            <div className={styles.attachedImagesSection}>
+              <ImagePanel
+                images={mdImages}
+                onSelect={() => {}}
+                onReorder={() => {}}
+                onRemove={() => {}}
+                onImageUpload={async (file) => {
+                  const url = await handleImageUpload(file);
+                  // 마크다운 본문 끝에 이미지 삽입
+                  const content = form[contentKey] as string;
+                  updateField(contentKey, `${content}\n![image](${url})\n`);
+                  return url;
+                }}
+              />
+            </div>
+          );
+        })()
+      ) : (
         <div className={styles.attachedImagesSection}>
           <ImagePanel
             images={editorImages}
