@@ -941,7 +941,7 @@ function ColumnResizeHandle({ onResize, dividerColor }: { onResize: (deltaPercen
       contentEditable={false}
       onPointerDown={onPointerDown}
       style={{
-        width: dividerColor ? 3 : 8,
+        width: 8,
         flexShrink: 0,
         alignSelf: "stretch",
         cursor: "col-resize",
@@ -950,18 +950,23 @@ function ColumnResizeHandle({ onResize, dividerColor }: { onResize: (deltaPercen
         justifyContent: "center",
         userSelect: "none",
         touchAction: "none",
-        background: dividerColor ? `linear-gradient(to right, transparent, ${dividerColor}, transparent)` : undefined,
       }}
-      onMouseEnter={(e) => { if (!dividerColor) e.currentTarget.querySelector<HTMLElement>("[data-handle]")!.style.background = "var(--text-muted)"; }}
-      onMouseLeave={(e) => { if (!dividerColor) e.currentTarget.querySelector<HTMLElement>("[data-handle]")!.style.background = "var(--border-light-color)"; }}
+      onMouseEnter={(e) => {
+        const h = e.currentTarget.querySelector<HTMLElement>("[data-handle]");
+        if (h && !dividerColor) h.style.background = "var(--text-muted)";
+      }}
+      onMouseLeave={(e) => {
+        const h = e.currentTarget.querySelector<HTMLElement>("[data-handle]");
+        if (h && !dividerColor) h.style.background = "var(--border-light-color)";
+      }}
     >
-      {!dividerColor && (
-        <div data-handle style={{
-          width: 3, height: 24, borderRadius: 2,
-          background: "var(--border-light-color)",
-          transition: "background 0.15s",
-        }} />
-      )}
+      <div data-handle style={{
+        width: dividerColor ? 2 : 3,
+        height: dividerColor ? "100%" : 24,
+        borderRadius: dividerColor ? 0 : 2,
+        background: dividerColor || "var(--border-light-color)",
+        transition: "background 0.15s",
+      }} />
     </div>
   );
 }
