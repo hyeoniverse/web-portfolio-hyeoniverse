@@ -192,117 +192,99 @@ export default function DesignSystemPage() {
             Raw Tokens → Semantic Tokens → Context Variables
           </motion.p>
 
-          {/* ─── Preset Bar ─── */}
-          <motion.div className={styles.presetBar} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-            <motion.span className={styles.presetBarLabel} variants={staggerItem} {...scrollChildY(0)}>Presets</motion.span>
-            {THEME_PRESETS.map((p, i) => (
-              <motion.button
-                key={p.name}
-                className={`${styles.presetSwatch} ${activePreset === i ? styles.presetSwatchActive : ""}`}
-                onClick={() => handlePresetClick(i)}
-                aria-label={p.name}
-                variants={staggerItemX}
-                {...scrollChildX(i, THEME_PRESETS.length)}
-              >
-                <div className={styles.presetSwatchInner} style={{ background: p.theme.accentColor }} />
-                <span className={styles.presetName}>{p.name}</span>
-              </motion.button>
-            ))}
-          </motion.div>
-
           {/* ─── Principles ─── */}
           <section id="principles" ref={setSectionRef("principles")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Principles</h2>
 
             {/* 3-Layer Architecture */}
-            <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-              <motion.p className={styles.sectionSub} variants={staggerItem} style={{ marginTop: 0 }}>3-Layer Token Architecture</motion.p>
-              <motion.p className={styles.principleDesc} variants={staggerItem}>
-                {language === "ko"
-                  ? "모든 스타일 값은 3단계 추상화를 거칩니다. Raw 토큰은 원시 값, Semantic 토큰은 용도별 의미, Context 변수는 컴포넌트별 맥락을 정의합니다."
-                  : "All style values go through 3 levels of abstraction — Raw tokens for primitive values, Semantic tokens for purpose-based meaning, Context variables for per-component context."}
-              </motion.p>
-              <motion.div className={styles.principleFlow} variants={staggerItem}>
-                <span className={styles.principleFlowItem}>
-                  <strong>Raw</strong>
-                  <code>--color-neutral-900</code>
-                </span>
-                <span className={styles.principleFlowArrow}>→</span>
-                <span className={styles.principleFlowItem}>
-                  <strong>Semantic</strong>
-                  <code>--text-primary</code>
-                </span>
-                <span className={styles.principleFlowArrow}>→</span>
-                <span className={styles.principleFlowItem}>
-                  <strong>Context</strong>
-                  <code>--_color-heading</code>
-                </span>
-              </motion.div>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem} style={{ marginTop: 0 }}>3-Layer Token Architecture</motion.p>
+            <motion.p className={styles.principleDesc} initial="hidden" {...vp(nd())} variants={staggerItem}>
+              {language === "ko"
+                ? "모든 스타일 값은 3단계 추상화를 거칩니다. Raw 토큰은 원시 값, Semantic 토큰은 용도별 의미, Context 변수는 컴포넌트별 맥락을 정의합니다."
+                : "All style values go through 3 levels of abstraction — Raw tokens for primitive values, Semantic tokens for purpose-based meaning, Context variables for per-component context."}
+            </motion.p>
+            <motion.div className={styles.principleFlow} initial="hidden" {...vp(nd())} variants={staggerItem}>
+              <span className={styles.principleFlowItem}>
+                <strong>Raw</strong>
+                <code>--color-neutral-900</code>
+              </span>
+              <span className={styles.principleFlowArrow}>→</span>
+              <span className={styles.principleFlowItem}>
+                <strong>Semantic</strong>
+                <code>--text-primary</code>
+              </span>
+              <span className={styles.principleFlowArrow}>→</span>
+              <span className={styles.principleFlowItem}>
+                <strong>Context</strong>
+                <code>--_color-heading</code>
+              </span>
             </motion.div>
 
             {/* Rules */}
-            <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-              <motion.p className={styles.sectionSub} variants={staggerItem}>{language === "ko" ? "Core Rules" : "Core Rules"}</motion.p>
-              <motion.ul className={styles.principleList} variants={staggerItem}>
-                <li>
-                  <strong>{language === "ko" ? "컨텍스트 토큰은 반드시 글로벌 토큰 참조" : "Context tokens must reference global tokens"}</strong>
-                  <div className={styles.principleExample}>
-                    <code className={styles.principleBad}>--_color-bg: #f5f5f0</code>
-                    <code className={styles.principleGood}>--_color-bg: var(--color-neutral-50)</code>
-                  </div>
-                </li>
-                <li>
-                  <strong>{language === "ko" ? "var() fallback 금지" : "No var() fallbacks"}</strong>
-                  <div className={styles.principleExample}>
-                    <code className={styles.principleBad}>var(--color-accent, #d01046)</code>
-                    <code className={styles.principleGood}>var(--color-accent)</code>
-                  </div>
-                </li>
-                <li>
-                  <strong>{language === "ko" ? "컴포넌트 CSS에 직접 hex/rgba 금지" : "No raw hex/rgba in component CSS"}</strong>
-                  <div className={styles.principleExample}>
-                    <code className={styles.principleBad}>color: #333333</code>
-                    <code className={styles.principleGood}>color: var(--text-primary)</code>
-                  </div>
-                </li>
-                <li>
-                  <strong>{language === "ko" ? "테마 전환은 Semantic 레이어에서 처리" : "Theme switching at the Semantic layer"}</strong>
-                  <span className={styles.principleNote}>
-                    {language === "ko"
-                      ? "html[data-theme=\"dark\"]에서 semantic 변수만 재정의"
-                      : "Redefine semantic variables under html[data-theme=\"dark\"]"}
-                  </span>
-                </li>
-              </motion.ul>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Core Rules</motion.p>
+            <motion.div className={styles.principleRules} initial="hidden" {...vp(nd())} variants={staggerItem}>
+              <div className={styles.principleRule}>
+                <span className={styles.principleRuleLabel}>{language === "ko" ? "글로벌 토큰 참조 필수" : "Must reference global tokens"}</span>
+                <code className={styles.principleBad}>--_color-bg: #f5f5f0</code>
+                <code className={styles.principleGood}>--_color-bg: var(--color-neutral-50)</code>
+              </div>
+              <div className={styles.principleRule}>
+                <span className={styles.principleRuleLabel}>{language === "ko" ? "var() fallback 금지" : "No var() fallbacks"}</span>
+                <code className={styles.principleBad}>var(--color-accent, #d01046)</code>
+                <code className={styles.principleGood}>var(--color-accent)</code>
+              </div>
+              <div className={styles.principleRule}>
+                <span className={styles.principleRuleLabel}>{language === "ko" ? "직접 hex/rgba 금지" : "No raw hex/rgba"}</span>
+                <code className={styles.principleBad}>color: #333333</code>
+                <code className={styles.principleGood}>color: var(--text-primary)</code>
+              </div>
+              <div className={styles.principleRule}>
+                <span className={styles.principleRuleLabel}>{language === "ko" ? "테마 전환은 Semantic 레이어" : "Theme switch at Semantic layer"}</span>
+                <code className={styles.principleGood}>html[data-theme=&quot;dark&quot;] {'{'} --text-primary: ... {'}'}</code>
+              </div>
             </motion.div>
 
             {/* Token Categories */}
-            <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-              <motion.p className={styles.sectionSub} variants={staggerItem}>{language === "ko" ? "Token Categories" : "Token Categories"}</motion.p>
-              <motion.div className={styles.principleTokenGrid} variants={staggerItem}>
-                {[
-                  { name: "Color", file: "_color.css", desc: language === "ko" ? "브랜드·중립·알파 색상" : "Brand, neutral, alpha colors" },
-                  { name: "Typography", file: "_typography.css", desc: language === "ko" ? "폰트·크기·굵기·행간" : "Font family, size, weight, line-height" },
-                  { name: "Spacing", file: "_spacing.css", desc: language === "ko" ? "--spacing-* + --box-*" : "--spacing-* + --box-*" },
-                  { name: "Radius", file: "_radius.css", desc: language === "ko" ? "xs~circle, capsule" : "xs to circle, capsule" },
-                  { name: "Shadow", file: "_shadow.css", desc: language === "ko" ? "xs~2xl 그림자" : "xs to 2xl shadows" },
-                  { name: "Motion", file: "_motion.css", desc: "duration, easing, delay" },
-                  { name: "Z-Index", file: "_z-index.css", desc: language === "ko" ? "레이어 스택 순서" : "Layer stacking order" },
-                  { name: "Sizing", file: "_sizing.css", desc: language === "ko" ? "컴포넌트 크기 프리셋" : "Component size presets" },
-                ].map((t) => (
-                  <div key={t.name} className={styles.principleTokenItem}>
-                    <strong>{t.name}</strong>
-                    <code>{t.file}</code>
-                    <span>{t.desc}</span>
-                  </div>
-                ))}
-              </motion.div>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Token Categories</motion.p>
+            <motion.div className={styles.principleTokenGrid} initial="hidden" {...vp(nd())} variants={staggerItem}>
+              {[
+                { name: "Color", file: "_color.css", desc: language === "ko" ? "브랜드·중립·알파 색상" : "Brand, neutral, alpha colors" },
+                { name: "Typography", file: "_typography.css", desc: language === "ko" ? "폰트·크기·굵기·행간" : "Font, size, weight, line-height" },
+                { name: "Spacing", file: "_spacing.css", desc: "--spacing-* + --box-*" },
+                { name: "Radius", file: "_radius.css", desc: "xs ~ circle, capsule" },
+                { name: "Shadow", file: "_shadow.css", desc: "xs ~ 2xl" },
+                { name: "Motion", file: "_motion.css", desc: "duration, easing, delay" },
+                { name: "Z-Index", file: "_z-index.css", desc: language === "ko" ? "레이어 스택 순서" : "Layer stacking order" },
+                { name: "Sizing", file: "_sizing.css", desc: language === "ko" ? "컴포넌트 크기" : "Component sizes" },
+              ].map((t) => (
+                <div key={t.name} className={styles.principleTokenItem}>
+                  <strong>{t.name}</strong>
+                  <code>{t.file}</code>
+                  <span>{t.desc}</span>
+                </div>
+              ))}
             </motion.div>
           </section>
 
           {/* ─── Colors ─── */}
           <section id="colors" ref={setSectionRef("colors")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Colors</h2>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem} style={{ marginTop: 0 }}>Presets</motion.p>
+            <motion.div className={styles.presetBar} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {THEME_PRESETS.map((p, i) => (
+                <motion.button
+                  key={p.name}
+                  className={`${styles.presetSwatch} ${activePreset === i ? styles.presetSwatchActive : ""}`}
+                  onClick={() => handlePresetClick(i)}
+                  aria-label={p.name}
+                  variants={staggerItemX}
+                  {...scrollChildX(i, THEME_PRESETS.length)}
+                >
+                  <div className={styles.presetSwatchInner} style={{ background: p.theme.accentColor }} />
+                  <span className={styles.presetName}>{p.name}</span>
+                </motion.button>
+              ))}
+            </motion.div>
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Brand</motion.p>
             <motion.div className={styles.brandRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {brandColors.map((c, i) => (
