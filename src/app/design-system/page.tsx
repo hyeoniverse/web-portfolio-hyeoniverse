@@ -196,53 +196,80 @@ export default function DesignSystemPage() {
           <section id="principles" ref={setSectionRef("principles")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Principles</h2>
 
-            {/* Principle items — topology.vc style */}
-            <div className={styles.pList}>
+            {/* Principle cards — 2x2 grid with SVG visuals */}
+            <div className={styles.pGrid}>
               {[
                 {
                   title: "3-Layer Abstraction",
                   desc: language === "ko"
-                    ? "모든 스타일 값은 Raw → Semantic → Context 3단계 추상화를 거칩니다. 원시 값을 직접 쓰지 않고 계층을 두어 변경의 영향 범위를 제어합니다."
-                    : "Every style value passes through 3 layers: Raw → Semantic → Context. Instead of using primitives directly, layering controls the blast radius of any change.",
-                  detail: language === "ko"
-                    ? "Raw 토큰(--color-neutral-900)은 의미 없는 값, Semantic 토큰(--text-primary)은 용도, Context 변수(--_color-heading)는 컴포넌트 맥락을 정의합니다."
-                    : "Raw tokens (--color-neutral-900) are meaningless values, Semantic tokens (--text-primary) define purpose, Context variables (--_color-heading) define component scope.",
+                    ? "Raw → Semantic → Context. 원시 값을 직접 쓰지 않고 3단계 계층으로 변경의 영향 범위를 제어합니다."
+                    : "Raw → Semantic → Context. Three layers of abstraction control the blast radius of any change.",
+                  icon: (
+                    <svg viewBox="0 0 80 80" fill="none" className={styles.pIcon}>
+                      <rect x="8" y="8" width="64" height="16" rx="8" fill="var(--color-neutral-alpha-15)" />
+                      <rect x="8" y="32" width="64" height="16" rx="8" fill="color-mix(in srgb, var(--color-accent) 25%, transparent)" />
+                      <rect x="8" y="56" width="64" height="16" rx="8" fill="color-mix(in srgb, var(--color-success) 20%, transparent)" />
+                      <text x="40" y="20" textAnchor="middle" fontSize="9" fontWeight="600" fill="var(--text-primary)">RAW</text>
+                      <text x="40" y="44" textAnchor="middle" fontSize="9" fontWeight="600" fill="var(--text-accent)">SEMANTIC</text>
+                      <text x="40" y="68" textAnchor="middle" fontSize="9" fontWeight="600" fill="var(--color-success)">CONTEXT</text>
+                    </svg>
+                  ),
                 },
                 {
-                  title: language === "ko" ? "Single Source of Truth" : "Single Source of Truth",
+                  title: "Single Source of Truth",
                   desc: language === "ko"
-                    ? "하나의 Raw 토큰을 바꾸면 그걸 참조하는 모든 Semantic·Context 변수가 함께 바뀝니다. hex 값이 CSS 전체에 흩어지지 않습니다."
-                    : "Change one Raw token and every Semantic + Context variable referencing it updates together. No scattered hex values across the codebase.",
-                  detail: language === "ko"
-                    ? "브랜드 색상 변경, 간격 체계 수정, 폰트 교체 — 모두 tokens/ 디렉토리의 파일 하나만 수정하면 됩니다."
-                    : "Brand color changes, spacing system tweaks, font swaps — all require editing just one file in tokens/.",
+                    ? "토큰 하나를 바꾸면 모든 참조가 함께 바뀝니다. hex 값이 코드베이스에 흩어지지 않습니다."
+                    : "Change one token and every reference updates. No scattered hex values across the codebase.",
+                  icon: (
+                    <svg viewBox="0 0 80 80" fill="none" className={styles.pIcon}>
+                      <circle cx="40" cy="24" r="12" fill="var(--color-accent)" opacity="0.3" />
+                      <circle cx="40" cy="24" r="6" fill="var(--color-accent)" />
+                      <line x1="40" y1="36" x2="20" y2="60" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.3" />
+                      <line x1="40" y1="36" x2="40" y2="64" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.3" />
+                      <line x1="40" y1="36" x2="60" y2="60" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.3" />
+                      <circle cx="20" cy="62" r="5" fill="var(--color-neutral-alpha-20)" />
+                      <circle cx="40" cy="66" r="5" fill="var(--color-neutral-alpha-20)" />
+                      <circle cx="60" cy="62" r="5" fill="var(--color-neutral-alpha-20)" />
+                    </svg>
+                  ),
                 },
                 {
-                  title: language === "ko" ? "테마 전환은 Semantic 레이어" : "Theme at the Semantic Layer",
+                  title: language === "ko" ? "Semantic 레이어에서 테마 전환" : "Theme at the Semantic Layer",
                   desc: language === "ko"
-                    ? "html[data-theme=\"dark\"]에서 Semantic 변수만 재정의하면 dark/light 전환이 모든 컴포넌트에 자동 반영됩니다."
-                    : "Redefine Semantic variables under html[data-theme=\"dark\"] and dark/light switching propagates to every component automatically.",
-                  detail: language === "ko"
-                    ? "컴포넌트마다 조건 분기를 넣지 않습니다. 테마 로직은 한 곳에만 존재합니다."
-                    : "No per-component branching. Theme logic exists in exactly one place.",
+                    ? "Semantic 변수만 재정의하면 dark/light 전환이 모든 컴포넌트에 자동 반영됩니다."
+                    : "Redefine Semantic variables and dark/light switching propagates to every component automatically.",
+                  icon: (
+                    <svg viewBox="0 0 80 80" fill="none" className={styles.pIcon}>
+                      <rect x="4" y="12" width="34" height="56" rx="6" fill="var(--bg-primary)" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.8" />
+                      <rect x="42" y="12" width="34" height="56" rx="6" fill="var(--text-primary)" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.8" />
+                      <circle cx="21" cy="36" r="8" fill="var(--color-accent)" opacity="0.6" />
+                      <circle cx="59" cy="36" r="8" fill="var(--color-accent)" opacity="0.6" />
+                      <rect x="12" y="50" width="18" height="3" rx="1.5" fill="var(--text-primary)" opacity="0.3" />
+                      <rect x="12" y="56" width="12" height="3" rx="1.5" fill="var(--text-primary)" opacity="0.15" />
+                      <rect x="50" y="50" width="18" height="3" rx="1.5" fill="var(--bg-primary)" opacity="0.3" />
+                      <rect x="50" y="56" width="12" height="3" rx="1.5" fill="var(--bg-primary)" opacity="0.15" />
+                    </svg>
+                  ),
                 },
                 {
                   title: language === "ko" ? "컴포넌트에 raw 값 금지" : "No Raw Values in Components",
                   desc: language === "ko"
-                    ? "컴포넌트 CSS에 직접 #hex, rgba, px 값을 쓰지 않습니다. 반드시 토큰을 통해 참조합니다. var() fallback도 금지합니다."
-                    : "Component CSS never contains raw #hex, rgba, or px values. Always reference through tokens. var() fallbacks are also forbidden.",
-                  detail: language === "ko"
-                    ? "이 규칙 덕분에 디자인 시스템 외부의 '마법의 숫자'가 사라지고, 모든 시각적 결정이 추적 가능합니다."
-                    : "This eliminates 'magic numbers' outside the design system — every visual decision becomes traceable.",
+                    ? "직접 #hex, rgba 사용 금지. 반드시 토큰을 통해 참조합니다. 모든 시각적 결정이 추적 가능합니다."
+                    : "No raw #hex or rgba. Always reference through tokens. Every visual decision becomes traceable.",
+                  icon: (
+                    <svg viewBox="0 0 80 80" fill="none" className={styles.pIcon}>
+                      <rect x="10" y="20" width="60" height="40" rx="4" fill="var(--color-neutral-alpha-10)" />
+                      <text x="18" y="38" fontSize="10" fontFamily="monospace" fill="var(--color-error)" opacity="0.6"><tspan textDecoration="line-through">#ff3333</tspan></text>
+                      <text x="18" y="52" fontSize="10" fontFamily="monospace" fill="var(--color-success)">var(--accent)</text>
+                      <line x1="14" y1="18" x2="66" y2="62" stroke="var(--color-error)" strokeWidth="2" opacity="0.3" />
+                    </svg>
+                  ),
                 },
               ].map((p, i) => (
-                <motion.div key={i} className={styles.pItem} initial="hidden" {...vp(nd())} variants={staggerItem}>
-                  <span className={styles.pNum}>{String(i + 1).padStart(2, "0")}</span>
-                  <div className={styles.pContent}>
-                    <h3 className={styles.pTitle}>{p.title}</h3>
-                    <p className={styles.pDesc}>{p.desc}</p>
-                    <p className={styles.pDetail}>{p.detail}</p>
-                  </div>
+                <motion.div key={i} className={styles.pCard} initial="hidden" {...vp(nd())} variants={staggerItem}>
+                  <div className={styles.pCardVisual}>{p.icon}</div>
+                  <h3 className={styles.pCardTitle}>{p.title}</h3>
+                  <p className={styles.pCardDesc}>{p.desc}</p>
                 </motion.div>
               ))}
             </div>
