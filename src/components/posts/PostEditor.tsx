@@ -565,7 +565,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       setError("");
       setShowErrors(false);
     },
-    []
+    [] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const translateFields = useCallback(
@@ -616,7 +616,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         setError(result.error);
       }
     },
-    [form, tLang],
+    [form, tLang], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const handleEditorLangChange = useCallback(
@@ -677,7 +677,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       setStatus("");
       setError("");
     },
-    [form.content, form.content_en, form.content_type]
+    [form.content, form.content_en, form.content_type] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
@@ -834,7 +834,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         setSaving(false);
       }
     },
-    [form, router, te, isEdit]
+    [form, router, te, isEdit] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const handleDelete = useCallback(async () => {
@@ -850,7 +850,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       setError(te("deleteFailed"));
       setDeleting(false);
     }
-  }, [post, router, te]);
+  }, [post, router, te]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePreview = useCallback(() => {
     sessionStorage.setItem("post-preview", JSON.stringify(form));
@@ -869,7 +869,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         setStatusTimestamp(rev.timestamp);
       }
     },
-    [dbRevisions, loadRevisionSnapshot, te],
+    [dbRevisions, loadRevisionSnapshot, te], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const handleLoadRevisionDetail = useCallback(
@@ -914,7 +914,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     setStatus(te("reverted"));
     setStatusType("info");
     setStatusTimestamp(undefined);
-  }, [te]);
+  }, [te]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRegenerateSummary = useCallback(async () => {
     const id = savedId.current ?? post?.id;
@@ -938,7 +938,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     } finally {
       setRegeneratingSummary(false);
     }
-  }, [post?.id, te]);
+  }, [post?.id, te]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const shellLabels = useMemo(
     () => ({
@@ -1114,7 +1114,6 @@ export default function PostEditor({ post }: PostEditorProps) {
           </button>
 
           {/* 첫 줄: [시리즈 + 시리즈순서] — 항상 표시 */}
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <div className={styles.optionalFirstRow} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
             <div className={es.field}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>

@@ -220,7 +220,7 @@ function CommentItem({
     } finally {
       setEditSubmitting(false);
     }
-  }, [apiBase, comment.id, commenterId, targetId, editContent, editPassword, onRefresh, t]);
+  }, [apiBase, comment.id, commenterId, targetId, editContent, editPassword, onRefresh, t, isAdmin]);
 
   // soft-deleted 댓글 — placeholder만 표시
   if (comment.is_deleted) {

@@ -606,7 +606,6 @@ function useCellFocused(cellRef: React.RefObject<HTMLTableCellElement | null>) {
     (editor as any).onChange = (...args: any[]) => { orig.apply(editor, args); check(); };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return () => { (editor as any).onChange = orig; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, element, cellRef]);
 
   return focused;

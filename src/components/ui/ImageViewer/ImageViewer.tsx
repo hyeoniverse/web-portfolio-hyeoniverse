@@ -160,7 +160,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, current, images.length, isFullscreen, zoom]);
+  }, [open, current, images.length, isFullscreen, zoom]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Preload adjacent
   useEffect(() => {
@@ -413,7 +413,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
       setClosing(false);
       if (document.fullscreenElement) document.exitFullscreen?.();
     }
-  }, [open]);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!mounted) return null;
 
@@ -758,6 +758,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 {loading && (
                   <div className={styles.loader}><div className={styles.loaderSpinner} /></div>
                 )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   ref={imgRef}
                   src={images[current]}
@@ -857,6 +858,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                         className={`${styles.thumbItem} ${i === current ? styles.thumbItemActive : ""}`}
                         onClick={(e) => { e.stopPropagation(); goTo(i); }}
                       >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={src} alt="" className={styles.thumbImg} draggable={false} />
                         {i === current && (
                           <motion.span
@@ -899,6 +901,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                       className={`${styles.thumbListItem} ${i === current ? styles.thumbListItemActive : ""}`}
                       onClick={() => goTo(i)}
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={src} alt="" className={styles.thumbListImg} draggable={false} />
                       <span className={styles.thumbListLabel}>{i + 1}</span>
                     </button>

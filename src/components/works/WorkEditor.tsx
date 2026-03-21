@@ -272,7 +272,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     setForm(data);
     setStatus(tw("draftRestored"));
     setStatusType("info");
-  }, [tw]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [tw]);
 
   const askRestore = useCallback((data: WorkFormData) => {
     const modalId = "draft-restore";
@@ -400,7 +400,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         keepalive: true,
       });
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateField = useCallback(

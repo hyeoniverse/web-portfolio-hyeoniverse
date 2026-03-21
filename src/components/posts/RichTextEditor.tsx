@@ -253,6 +253,7 @@ function FigureView({ node, selected }: NodeViewProps) {
       data-align={dataAlign}
       className={selected ? styles.figureSelected : ""}
     >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
@@ -962,7 +963,7 @@ export default function RichTextEditor({
   onChange,
   onImageUpload,
 }: RichTextEditorProps) {
-  const { theme } = useTheme();
+  useTheme(); // hook 호출 유지 (테마 변경 시 리렌더 필요)
   const { openModal } = useModalStore();
   const [isMac, setIsMac] = useState(false);
   useEffect(() => { setIsMac(/Mac|iPhone|iPad/.test(navigator.platform)); }, []);
@@ -1254,7 +1255,7 @@ export default function RichTextEditor({
       rowIndex++;
     });
     dispatch(pmTr);
-  }, [editor, theme]);
+  }, [editor]);
 
 
   // Row resize handles: sync bottom-edge positions on every transaction (same pattern as tableHandles)

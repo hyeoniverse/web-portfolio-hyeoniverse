@@ -377,6 +377,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                   }}
                   onClick={() => { setIvIndex(i); setIvOpen(true); }}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 </button>
               </Tooltip>
