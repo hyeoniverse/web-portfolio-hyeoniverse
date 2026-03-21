@@ -270,15 +270,16 @@ export default function DesignSystemPage() {
                   : "No raw #hex or rgba. Always reference through tokens. Every visual decision becomes traceable.",
                 icon: (
                   <svg viewBox="0 0 80 80" fill="none" className={styles.pIcon}>
-                    {/* Bad: raw hex */}
-                    <rect x="6" y="10" width="68" height="24" rx="4" fill="color-mix(in srgb, var(--color-error) 10%, transparent)" />
-                    <text x="14" y="26" fontSize="11" fontFamily="monospace" fill="var(--color-error)" opacity="0.7">#ff3333</text>
-                    <line x1="12" y1="22" x2="58" y2="22" stroke="var(--color-error)" strokeWidth="1.5" opacity="0.5" />
-                    {/* Good: token ref */}
-                    <rect x="6" y="44" width="68" height="24" rx="4" fill="color-mix(in srgb, var(--color-success) 10%, transparent)" />
-                    <text x="14" y="60" fontSize="11" fontFamily="monospace" fill="var(--color-success)">var(--accent)</text>
-                    {/* Check mark */}
-                    <path d="M62 54l3 3 5-6" stroke="var(--color-success)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    {/* Shield with lock — protected values */}
+                    <path d="M40 8L12 22v20c0 16.6 12 30.4 28 34 16-3.6 28-17.4 28-34V22L40 8z" fill="var(--color-neutral-alpha-10)" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.6" />
+                    {/* Inner token symbol */}
+                    <circle cx="40" cy="38" r="10" fill="var(--color-accent)" opacity="0.3" />
+                    <text x="40" y="42" textAnchor="middle" fontSize="11" fontWeight="700" fill="var(--color-accent)">T</text>
+                    {/* Blocked raw values — small crossed circles */}
+                    <circle cx="20" cy="58" r="4" fill="var(--color-error)" opacity="0.2" />
+                    <line x1="17.2" y1="55.2" x2="22.8" y2="60.8" stroke="var(--color-error)" strokeWidth="1.2" opacity="0.6" />
+                    <circle cx="60" cy="58" r="4" fill="var(--color-error)" opacity="0.2" />
+                    <line x1="57.2" y1="55.2" x2="62.8" y2="60.8" stroke="var(--color-error)" strokeWidth="1.2" opacity="0.6" />
                   </svg>
                 ),
               },
