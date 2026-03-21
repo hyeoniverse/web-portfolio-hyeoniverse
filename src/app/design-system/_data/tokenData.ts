@@ -106,6 +106,7 @@ export const typoColors = ["primary", "secondary", "tertiary", "muted", "accent"
 
 // ─── TOC Data ───
 export const tocSections = [
+  { id: "principles", label: "Principles" },
   { id: "colors", label: "Colors" },
   { id: "alpha", label: "Alpha" },
   { id: "semantic", label: "Semantic" },
