@@ -1102,6 +1102,13 @@
     "helpConfirmInput": "Confirm input",
     "helpCancelInput": "Cancel input",
     "charUnit": "chars",
-    "wordUnit": "words"
+    "wordUnit": "words",
+    "findPlaceholder": "Find...",
+    "replacePlaceholder": "Replace...",
+    "findNext": "Next",
+    "findPrev": "Previous",
+    "replace": "Replace",
+    "replaceOne": "Replace",
+    "replaceAll": "Replace All"
   }
 }

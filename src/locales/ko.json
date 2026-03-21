@@ -1100,6 +1100,13 @@
     "helpConfirmInput": "입력 확정",
     "helpCancelInput": "입력 취소",
     "charUnit": "자",
-    "wordUnit": "단어"
+    "wordUnit": "단어",
+    "findPlaceholder": "찾기...",
+    "replacePlaceholder": "바꾸기...",
+    "findNext": "다음",
+    "findPrev": "이전",
+    "replace": "바꾸기",
+    "replaceOne": "바꾸기",
+    "replaceAll": "모두 바꾸기"
   }
 }

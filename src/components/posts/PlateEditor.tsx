@@ -91,27 +91,41 @@ export default function PlateEditor({
   const [findQuery, setFindQuery] = useState("");
   const [replaceQuery, setReplaceQuery] = useState("");
   const [findCase, setFindCase] = useState(false);
+  const [findWord, setFindWord] = useState(false);
+  const [findRegex, setFindRegex] = useState(false);
   const [findIdx, setFindIdx] = useState(0);
   const findInputRef = useRef<HTMLInputElement>(null);
+  const findToolbarRef = useRef<HTMLDivElement>(null);
 
   // 텍스트 노드에서 매칭 위치 찾기
   const findMatches = useCallback(() => {
     if (!findQuery || !editor) return [];
     const matches: { path: number[]; offset: number; length: number }[] = [];
-    const q = findCase ? findQuery : findQuery.toLowerCase();
-    // Slate 트리를 순회하며 텍스트 노드 탐색
+
+    // 정규식 빌드
+    let regex: RegExp;
+    try {
+      if (findRegex) {
+        regex = new RegExp(findQuery, findCase ? "g" : "gi");
+      } else {
+        const escaped = findQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const pattern = findWord ? `\\b${escaped}\\b` : escaped;
+        regex = new RegExp(pattern, findCase ? "g" : "gi");
+      }
+    } catch {
+      return []; // 잘못된 정규식
+    }
+
     const walk = (nodes: unknown[], parentPath: number[]) => {
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i] as Record<string, unknown>;
         const path = [...parentPath, i];
         if (typeof node.text === "string") {
-          const text = findCase ? node.text : node.text.toLowerCase();
-          let start = 0;
-          while (start < text.length) {
-            const idx = text.indexOf(q, start);
-            if (idx === -1) break;
-            matches.push({ path, offset: idx, length: q.length });
-            start = idx + 1;
+          let m: RegExpExecArray | null;
+          regex.lastIndex = 0;
+          while ((m = regex.exec(node.text)) !== null) {
+            matches.push({ path, offset: m.index, length: m[0].length });
+            if (m[0].length === 0) regex.lastIndex++; // 무한루프 방지
           }
         } else if (Array.isArray(node.children)) {
           walk(node.children, path);
@@ -120,33 +134,72 @@ export default function PlateEditor({
     };
     walk(editor.children as unknown[], []);
     return matches;
-  }, [findQuery, findCase, editor]);
+  }, [findQuery, findCase, findWord, findRegex, editor]);
 
   const matches = findOpen ? findMatches() : [];
+
+  // decorate: 매칭 텍스트에 findHighlight mark 추가
+  const decorate = useCallback(({ entry }: { entry: [Record<string, unknown>, number[]] }) => {
+    const [node, path] = entry;
+    const ranges: { anchor: { path: number[]; offset: number }; focus: { path: number[]; offset: number }; findHighlight?: boolean; findCurrent?: boolean }[] = [];
+    if (!findOpen || !findQuery || typeof node.text !== "string") return ranges;
+    let regex: RegExp;
+    try {
+      if (findRegex) {
+        regex = new RegExp(findQuery, findCase ? "g" : "gi");
+      } else {
+        const escaped = findQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const pattern = findWord ? `\\b${escaped}\\b` : escaped;
+        regex = new RegExp(pattern, findCase ? "g" : "gi");
+      }
+    } catch { return ranges; }
+    let m: RegExpExecArray | null;
+    regex.lastIndex = 0;
+    while ((m = regex.exec(node.text)) !== null) {
+      const isCurrent = matches.length > 0 && findIdx < matches.length &&
+        matches[findIdx].path.join(",") === path.join(",") && matches[findIdx].offset === m.index;
+      ranges.push({
+        anchor: { path, offset: m.index },
+        focus: { path, offset: m.index + m[0].length },
+        findHighlight: true,
+        findCurrent: isCurrent,
+      });
+      if (m[0].length === 0) regex.lastIndex++;
+    }
+    return ranges;
+  }, [findOpen, findQuery, findCase, findWord, findRegex, findIdx, matches]);
+
+  const selectAndScroll = useCallback((match: { path: number[]; offset: number; length: number }) => {
+    editor.tf.select({
+      anchor: { path: match.path, offset: match.offset },
+      focus: { path: match.path, offset: match.offset + match.length },
+    });
+    setTimeout(() => {
+      try {
+        const nodeEntry = editor.api.node(match.path.slice(0, -1));
+        if (!nodeEntry) return;
+        const domNode = editor.api.toDOMNode(nodeEntry[0]);
+        if (!(domNode instanceof HTMLElement)) return;
+        domNode.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } catch { /* ignore */ }
+    }, 0);
+  }, [editor]);
 
   const doFindNext = useCallback(() => {
     const m = findMatches();
     if (m.length === 0) return;
     const next = (findIdx + 1) % m.length;
     setFindIdx(next);
-    const match = m[next];
-    editor.tf.select({
-      anchor: { path: match.path, offset: match.offset },
-      focus: { path: match.path, offset: match.offset + match.length },
-    });
-  }, [findMatches, findIdx, editor]);
+    selectAndScroll(m[next]);
+  }, [findMatches, findIdx, selectAndScroll]);
 
   const doFindPrev = useCallback(() => {
     const m = findMatches();
     if (m.length === 0) return;
     const prev = (findIdx - 1 + m.length) % m.length;
     setFindIdx(prev);
-    const match = m[prev];
-    editor.tf.select({
-      anchor: { path: match.path, offset: match.offset },
-      focus: { path: match.path, offset: match.offset + match.length },
-    });
-  }, [findMatches, findIdx, editor]);
+    selectAndScroll(m[prev]);
+  }, [findMatches, findIdx, selectAndScroll]);
 
   const doReplace = useCallback(() => {
     const m = findMatches();
@@ -916,6 +969,59 @@ export default function PlateEditor({
 
   const insertMathBlock = useCallback(() => doInsertMath("", "block"), [doInsertMath]);
 
+  // ── Active toolbar height → paddingTop + scrollTop 보정 ──
+  const editorContainerRef = useRef<HTMLDivElement>(null);
+  const toolbarPadRef = useRef(0);
+  useEffect(() => {
+    const container = editorContainerRef.current;
+    if (!container) return;
+    const measure = () => {
+      // find 툴바 높이 측정 → 다른 툴바 top offset
+      const findH = findToolbarRef.current && !findToolbarRef.current.classList.contains(styles.tableToolbarHidden)
+        ? findToolbarRef.current.offsetHeight : 0;
+      // 다른 툴바에 top offset 적용
+      // hidden 툴바는 top:0 유지, visible 툴바만 findH로 이동
+      container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
+        if (tb === findToolbarRef.current) return;
+        const isHidden = tb.classList.contains(styles.tableToolbarHidden);
+        if (isHidden) {
+          tb.style.top = "0px";
+        } else if (findH > 0) {
+          if (tb.style.top !== `${findH}px`) {
+            requestAnimationFrame(() => { tb.style.top = `${findH}px`; });
+          }
+        } else {
+          tb.style.top = "";
+        }
+      });
+      // 전체 visible 툴바 높이 합산
+      let maxH = 0;
+      container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
+        if (!tb.classList.contains(styles.tableToolbarHidden)) {
+          maxH = Math.max(maxH, (tb === findToolbarRef.current ? 0 : findH) + tb.offsetHeight);
+        }
+      });
+      const prev = toolbarPadRef.current;
+      if (prev === maxH) return;
+      const delta = maxH - prev;
+      toolbarPadRef.current = maxH;
+      const scrollEl = container.querySelector<HTMLElement>("[data-slate-editor]");
+      if (!scrollEl) return;
+      const oldScroll = scrollEl.scrollTop;
+      scrollEl.style.overflow = "hidden";
+      scrollEl.style.paddingTop = maxH > 0 ? `calc(var(--spacing-md) + ${maxH}px)` : "";
+      scrollEl.style.scrollPaddingTop = maxH > 0 ? `${maxH}px` : "";
+      void scrollEl.offsetHeight;
+      scrollEl.scrollTop = oldScroll + delta;
+      void scrollEl.offsetHeight;
+      scrollEl.style.overflow = "";
+    };
+    measure();
+    const obs = new MutationObserver(measure);
+    obs.observe(container, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  });
+
   if (!editor) return null;
 
   // ── Character count ──
@@ -947,61 +1053,8 @@ export default function PlateEditor({
           onInsertMath={insertMathBlock}
         />
 
-        {/* ── Find & Replace Panel ── */}
-        {findOpen && (
-          <div className={styles.findPanel}>
-            <div className={styles.findRow}>
-              <input
-                ref={findInputRef}
-                type="text"
-                className={styles.findInput}
-                placeholder={t("editor.findPlaceholder") || "Find..."}
-                value={findQuery}
-                onChange={(e) => { setFindQuery(e.target.value); setFindIdx(0); }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") { e.preventDefault(); if (e.shiftKey) doFindPrev(); else doFindNext(); }
-                  if (e.key === "Escape") { setFindOpen(false); editor.tf.focus(); }
-                }}
-              />
-              <span className={styles.findCount}>{matches.length > 0 ? `${Math.min(findIdx + 1, matches.length)}/${matches.length}` : "0"}</span>
-              <button type="button" className={`${styles.findBtn} ${findCase ? styles.findBtnActive : ""}`} onClick={() => setFindCase(!findCase)} title="Match Case">Aa</button>
-              <button type="button" className={styles.findBtn} onClick={doFindPrev} title={t("editor.findPrev") || "Previous"}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-              </button>
-              <button type="button" className={styles.findBtn} onClick={doFindNext} title={t("editor.findNext") || "Next"}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <button type="button" className={styles.findBtn} onClick={() => setFindReplace(!findReplace)} title={t("editor.replace") || "Replace"}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-              </button>
-              <button type="button" className={styles.findBtn} onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); editor.tf.focus(); }} title={t("common.close") || "Close"}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-            {findReplace && (
-              <div className={styles.findRow}>
-                <input
-                  type="text"
-                  className={styles.findInput}
-                  placeholder={t("editor.replacePlaceholder") || "Replace..."}
-                  value={replaceQuery}
-                  onChange={(e) => setReplaceQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") { e.preventDefault(); doReplace(); }
-                    if (e.key === "Escape") { setFindOpen(false); editor.tf.focus(); }
-                  }}
-                />
-                <button type="button" className={styles.findBtn} onClick={doReplace} title={t("editor.replaceOne") || "Replace"}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-                <button type="button" className={styles.findBtn} onClick={doReplaceAll} title={t("editor.replaceAll") || "Replace All"}>All</button>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* ── Contextual Toolbars ── */}
-        <div className={`${styles.editorContainer} ${isInTable && noOverlay ? styles.editorContainerActive : ""}`}>
+        <div ref={editorContainerRef} className={`${styles.editorContainer} ${isInTable && noOverlay ? styles.editorContainerActive : ""}`}>
           <TableToolbar
             editor={editor}
             visible={isInTable && noOverlay}
@@ -1028,6 +1081,71 @@ export default function PlateEditor({
           />
 
           <MathToolbar visible={mathEditing && noOverlay} />
+
+          {/* Find & Replace toolbar — always on top */}
+          <div ref={findToolbarRef} className={`${styles.tableToolbar} ${styles.findToolbar} ${!findOpen ? styles.tableToolbarHidden : ""}`}>
+            <div className={styles.tableToolbarRow}>
+              <span className={styles.tableToolbarLabel} style={{ minWidth: 52 }}>FIND</span>
+              <div className={styles.tableGroup} style={{ width: 220 }}>
+                <input
+                  ref={findInputRef}
+                  type="text"
+                  className={styles.findInput}
+                  placeholder={t("editor.findPlaceholder")}
+                  value={findQuery}
+                  onChange={(e) => { setFindQuery(e.target.value); setFindIdx(0); }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { e.preventDefault(); if (e.shiftKey) doFindPrev(); else doFindNext(); }
+                    if (e.key === "Escape") { setFindOpen(false); editor.tf.focus(); }
+                  }}
+                />
+                <span className={styles.findCount}>{matches.length > 0 ? `${Math.min(findIdx + 1, matches.length)}/${matches.length}` : "0"}</span>
+              </div>
+              <div className={styles.tableGroup}>
+                <TBtn active={findCase} onClick={() => setFindCase(!findCase)} tooltip="Match Case (Aa)">Aa</TBtn>
+                <TBtn active={findWord} onClick={() => setFindWord(!findWord)} tooltip="Match Whole Word">
+                  <span style={{ fontSize: 10, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 }}>ab</span>
+                </TBtn>
+                <TBtn active={findRegex} onClick={() => setFindRegex(!findRegex)} tooltip="Use Regular Expression">.*</TBtn>
+              </div>
+              <div className={styles.tableGroup}>
+                <TBtn onClick={doFindPrev} tooltip={t("editor.findPrev")}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                </TBtn>
+                <TBtn onClick={doFindNext} tooltip={t("editor.findNext")}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </TBtn>
+                <TBtn active={findReplace} onClick={() => setFindReplace(!findReplace)} tooltip={t("editor.replace")}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+                </TBtn>
+              </div>
+              <div className={styles.tableToolbarActions}>
+                <TBtn onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); editor.tf.focus(); }} tooltip="Close (Esc)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </TBtn>
+              </div>
+            </div>
+            {findReplace && (
+              <div className={styles.tableToolbarRow}>
+                <span className={styles.tableToolbarLabel} style={{ minWidth: 52 }}>REPLACE</span>
+                <div className={styles.tableGroup} style={{ width: 220 }}>
+                  <input
+                    type="text"
+                    className={styles.findInput}
+                    placeholder={t("editor.replacePlaceholder")}
+                    value={replaceQuery}
+                    onChange={(e) => setReplaceQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { e.preventDefault(); doReplace(); }
+                      if (e.key === "Escape") { setFindOpen(false); editor.tf.focus(); }
+                    }}
+                  />
+                </div>
+                <TBtn onClick={doReplace} tooltip={t("editor.replaceOne")}>One</TBtn>
+                <TBtn onClick={doReplaceAll} tooltip={t("editor.replaceAll")}>All</TBtn>
+              </div>
+            )}
+          </div>
 
           {/* Column toolbar */}
           <div className={`${styles.tableToolbar} ${!(isInColumn && columnGroupNode && noOverlay) ? styles.tableToolbarHidden : ""}`}>
@@ -1599,6 +1717,19 @@ export default function PlateEditor({
               style={{ minHeight: 300, paddingBottom: 40 }}
               data-lenis-prevent
               onKeyDown={handleContentKeyDown}
+              decorate={decorate}
+              renderLeaf={({ children, leaf, attributes }) => {
+                if ((leaf as Record<string, unknown>).findHighlight) {
+                  const isCurrent = (leaf as Record<string, unknown>).findCurrent;
+                  return <span {...attributes} style={{
+                    backgroundColor: isCurrent ? "var(--color-info, #3b82f6)" : "var(--color-neutral-alpha-10)",
+                    borderRadius: 2,
+                    color: isCurrent ? "#fff" : undefined,
+                    outline: isCurrent ? undefined : "1px solid var(--color-neutral-alpha-20)",
+                  }}>{children}</span>;
+                }
+                return <span {...attributes}>{children}</span>;
+              }}
               onClick={(e) => {
                 // 에디터 하단 빈 영역 클릭 시 맨 끝에 커서
                 const target = e.target as HTMLElement;
