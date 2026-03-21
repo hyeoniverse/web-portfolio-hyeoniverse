@@ -194,7 +194,7 @@ function MathFloatingEdit({
       if (/extra/i.test(msg)) return cleaned.replace(/^Extra\s*/i, `${t("editor.mathErrExtra")} `) || t("editor.mathErrGeneric");
       return cleaned || t("editor.mathErrGeneric");
     }
-  }, [draft]);
+  }, [draft, t]);
 
   if (!pos) return null;
 

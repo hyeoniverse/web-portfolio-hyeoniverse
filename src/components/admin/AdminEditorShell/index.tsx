@@ -232,7 +232,6 @@ export default function AdminEditorShell({
         .then((detail) => setRevisionDetail(detail))
         .finally(() => setDetailLoading(false));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewingRevision]);
 
   useEffect(() => {

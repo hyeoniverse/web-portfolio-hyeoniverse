@@ -276,6 +276,7 @@ export function ImageElement(props: PlateElementProps) {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
             ref={imgRef}
             src={url}

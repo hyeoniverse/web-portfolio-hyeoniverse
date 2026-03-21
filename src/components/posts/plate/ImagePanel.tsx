@@ -321,7 +321,7 @@ export function ImagePanel({
               </span>
               {isVideo
                 ? <video src={img.url} draggable={false} muted preload="metadata" style={isDetached ? { opacity: 0.7 } : undefined} />
-                : <img src={img.url} alt={fileName} draggable={false} style={isDetached ? { opacity: 0.7 } : undefined} />
+                : <img src={img.url} alt={fileName} draggable={false} style={isDetached ? { opacity: 0.7 } : undefined} /> // eslint-disable-line @next/next/no-img-element
               }
               <span className={styles.imagePanelName}>{fileName}</span>
               <button
