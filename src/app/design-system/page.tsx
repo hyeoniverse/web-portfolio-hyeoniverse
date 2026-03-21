@@ -293,27 +293,6 @@ export default function DesignSystemPage() {
               </motion.div>
             ))}
 
-            {/* Flow diagram */}
-            <motion.div className={styles.pFlow} initial="hidden" {...vp(nd())} variants={staggerItem}>
-              <div className={styles.pFlowStep}>
-                <span className={styles.pFlowCapsule} data-layer="raw">Raw</span>
-                <code className={styles.pFlowCode}>--color-neutral-900</code>
-                <span className={styles.pFlowFile}>tokens/*.css</span>
-              </div>
-              <div className={styles.pFlowLine} />
-              <div className={styles.pFlowStep}>
-                <span className={styles.pFlowCapsule} data-layer="semantic">Semantic</span>
-                <code className={styles.pFlowCode}>--text-primary</code>
-                <span className={styles.pFlowFile}>_semantic.css</span>
-              </div>
-              <div className={styles.pFlowLine} />
-              <div className={styles.pFlowStep}>
-                <span className={styles.pFlowCapsule} data-layer="context">Context</span>
-                <code className={styles.pFlowCode}>--_color-heading</code>
-                <span className={styles.pFlowFile}>*.module.css</span>
-              </div>
-            </motion.div>
-
             {/* Token file tree */}
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Token Files</motion.p>
             <motion.div className={styles.pFileTree} initial="hidden" {...vp(nd())} variants={staggerItem}>
