@@ -946,7 +946,7 @@ function ColumnResizeHandle({ onResize, dividerColor }: { onResize: (deltaPercen
         alignSelf: "stretch",
         cursor: "col-resize",
         display: "flex",
-        alignItems: "center",
+        alignItems: dividerColor ? "stretch" : "center",
         justifyContent: "center",
         userSelect: "none",
         touchAction: "none",
@@ -962,7 +962,7 @@ function ColumnResizeHandle({ onResize, dividerColor }: { onResize: (deltaPercen
     >
       <div data-handle style={{
         width: dividerColor ? 2 : 3,
-        height: dividerColor ? "100%" : 24,
+        ...(!dividerColor ? { height: 24 } : {}),
         borderRadius: dividerColor ? 0 : 2,
         background: dividerColor || "var(--border-light-color)",
         transition: "background 0.15s",
