@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef, useImperativeHandle } from "react";
+import React, { useState, useCallback, useEffect, useRef, useImperativeHandle, useMemo } from "react";
 import {
   Plate,
   PlateContent,
