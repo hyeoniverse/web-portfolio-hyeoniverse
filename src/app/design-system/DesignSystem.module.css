@@ -775,148 +775,184 @@
   font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-lg);
+  margin: 0 0 var(--spacing-md);
 }
 
-/* Flow diagram — colored step indicators */
-.principleFlow {
+/* Flow — 캡슐 + 직선 */
+.pFlow {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 0;
   flex-wrap: wrap;
   margin-bottom: var(--spacing-sm);
 }
 
-.principleFlowItem {
+.pFlowStep {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: var(--spacing-md) var(--spacing-xl);
-  flex: 1;
+  gap: 4px;
   min-width: 140px;
-  text-align: center;
-  background: var(--color-neutral-alpha-5);
 }
 
-.principleFlowItem:first-child {
-  border-radius: var(--radius-md) 0 0 var(--radius-md);
-}
-
-.principleFlowItem:last-child {
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-}
-
-.principleFlowItem strong {
+.pFlowCapsule {
+  display: inline-block;
+  padding: 6px 20px;
+  border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-}
-
-.principleFlowItem code {
-  font-family: var(--font-mono);
   font-size: 13px;
-  color: var(--text-accent);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
 }
 
-.principleFlowArrow {
-  display: flex;
-  align-items: center;
-  padding: 0 var(--spacing-xs);
-  font-size: 18px;
-  color: var(--text-muted);
-  flex-shrink: 0;
-  background: var(--color-neutral-alpha-5);
-}
-
-/* Rules — numbered grid */
-.principleRules {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-md);
-  counter-reset: rule;
-}
-
-.principleRule {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  counter-increment: rule;
-}
-
-.principleRuleLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+.pFlowCapsule[data-layer="raw"] {
+  background: var(--color-neutral-alpha-10);
   color: var(--text-primary);
 }
 
-.principleRuleLabel::before {
-  content: counter(rule) ". ";
+.pFlowCapsule[data-layer="semantic"] {
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
   color: var(--text-accent);
-  font-weight: var(--font-weight-bold);
 }
 
-.principleBad,
-.principleGood {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  width: fit-content;
-}
-
-.principleBad {
-  background: color-mix(in srgb, var(--color-error) 8%, transparent);
-  color: var(--color-error);
-  text-decoration: line-through;
-}
-
-.principleGood {
-  background: color-mix(in srgb, var(--color-success) 8%, transparent);
+.pFlowCapsule[data-layer="context"] {
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
   color: var(--color-success);
 }
 
-/* Token categories — accent dot + inline layout */
-.principleTokenGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-sm);
-}
-
-.principleTokenItem {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) 0;
-}
-
-.principleTokenItem::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-circle);
-  background: var(--color-accent);
-  flex-shrink: 0;
-  margin-top: 5px;
-  align-self: flex-start;
-}
-
-.principleTokenItem strong {
-  font-family: var(--font-space-grotesk);
-  font-size: 13px;
-  flex-shrink: 0;
-}
-
-.principleTokenItem code {
+.pFlowFile {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
 }
 
-.principleTokenItem span {
-  display: none;
+.pFlowCode {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.pFlowLine {
+  width: 32px;
+  height: 2px;
+  background: var(--border-light-color);
+  flex-shrink: 0;
+  align-self: center;
+  margin-top: -16px;
+}
+
+/* Rules — 표 */
+.pRulesTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.pRulesTable th,
+.pRulesTable td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light-color);
+}
+
+.pRulesTable th {
+  font-family: var(--font-space-grotesk);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.pRulesTable td:first-child {
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.pRulesTable code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.pRuleBadCol,
+.pRulesTable td:nth-child(2) code {
+  color: var(--color-error);
+}
+
+.pRuleGoodCol,
+.pRulesTable td:nth-child(3) code {
+  color: var(--color-success);
+}
+
+.pRulesTable td:nth-child(2) code {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Token files — 파일 트리 */
+.pFileTree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.pFileRoot {
+  display: flex;
+  flex-direction: column;
+}
+
+.pFileFolder {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--border-light-color);
+  margin-bottom: var(--spacing-3xs);
+}
+
+.pFileItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  padding: 3px 0 3px 20px;
+  position: relative;
+}
+
+.pFileItem::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-light-color);
+}
+
+.pFileItem::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  background: var(--border-light-color);
+}
+
+.pFileItem:last-child::before {
+  bottom: 50%;
+}
+
+.pFileName {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-accent);
+  flex-shrink: 0;
+}
+
+.pFileDesc {
+  font-size: 11px;
+  color: var(--text-muted);
 }
