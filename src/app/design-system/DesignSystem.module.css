@@ -775,30 +775,44 @@
   font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-md);
+  margin: 0 0 var(--spacing-lg);
 }
 
+/* Flow diagram — colored step indicators */
 .principleFlow {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  align-items: stretch;
+  gap: 0;
   flex-wrap: wrap;
+  margin-bottom: var(--spacing-sm);
 }
 
 .principleFlowItem {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-xl);
+  flex: 1;
+  min-width: 140px;
   text-align: center;
+  background: var(--color-neutral-alpha-5);
+}
+
+.principleFlowItem:first-child {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.principleFlowItem:last-child {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 .principleFlowItem strong {
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--text-muted);
 }
 
@@ -809,21 +823,28 @@
 }
 
 .principleFlowArrow {
-  font-size: 20px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-xs);
+  font-size: 18px;
   color: var(--text-muted);
   flex-shrink: 0;
+  background: var(--color-neutral-alpha-5);
 }
 
+/* Rules — numbered grid */
 .principleRules {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--spacing-sm);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+  counter-reset: rule;
 }
 
 .principleRule {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  counter-increment: rule;
 }
 
 .principleRuleLabel {
@@ -831,7 +852,12 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
-  margin-bottom: 2px;
+}
+
+.principleRuleLabel::before {
+  content: counter(rule) ". ";
+  color: var(--text-accent);
+  font-weight: var(--font-weight-bold);
 }
 
 .principleBad,
@@ -854,31 +880,43 @@
   color: var(--color-success);
 }
 
+/* Token categories — accent dot + inline layout */
 .principleTokenGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: var(--spacing-xs);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-sm);
 }
 
 .principleTokenItem {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: baseline;
+  gap: var(--spacing-xs);
   padding: var(--spacing-xs) 0;
+}
+
+.principleTokenItem::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
+  flex-shrink: 0;
+  margin-top: 5px;
+  align-self: flex-start;
 }
 
 .principleTokenItem strong {
   font-family: var(--font-space-grotesk);
   font-size: 13px;
+  flex-shrink: 0;
 }
 
 .principleTokenItem code {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-accent);
+  color: var(--text-muted);
 }
 
 .principleTokenItem span {
-  font-size: 11px;
-  color: var(--text-muted);
+  display: none;
 }
