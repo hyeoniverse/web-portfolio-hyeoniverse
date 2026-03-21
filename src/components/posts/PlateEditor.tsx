@@ -136,7 +136,8 @@ export default function PlateEditor({
     return matches;
   }, [findQuery, findCase, findWord, findRegex, editor]);
 
-  const matches = findOpen ? findMatches() : [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const matches = useMemo(() => findOpen ? findMatches() : [], [findOpen, findQuery, findCase, findWord, findRegex, editor]);
 
   // decorate: 매칭 텍스트에 findHighlight mark 추가
   const decorate = useCallback(({ entry }: { entry: [Record<string, unknown>, number[]] }) => {
@@ -507,7 +508,6 @@ export default function PlateEditor({
         onChangeRef.current(html);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [editor],
   );
 
