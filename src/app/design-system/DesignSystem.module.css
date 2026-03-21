@@ -772,31 +772,20 @@
 
 /* ── Principles Section ── */
 
-/* Principle grid — 2x2 with SVG visuals */
-.pGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-}
-
-.pCard {
+/* Principle rows — icon left + text right */
+.pRow {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-lg);
-  transition: border-color 0.2s;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) 0;
+  border-bottom: 1px solid var(--border-light-color);
 }
 
-.pCard:hover {
-  border-color: var(--text-muted);
+.pRow:first-of-type {
+  padding-top: 0;
 }
 
-.pCardVisual {
-  width: 80px;
-  height: 80px;
+.pRowVisual {
   flex-shrink: 0;
 }
 
@@ -805,23 +794,30 @@
   height: 80px;
 }
 
-.pCardTitle {
+.pRowText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.pRowTitle {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   margin: 0;
 }
 
-.pCardDesc {
-  font-size: var(--font-size-sm);
+.pRowDesc {
+  font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
   margin: 0;
 }
 
 @media (max-width: 600px) {
-  .pGrid { grid-template-columns: 1fr; }
+  .pRow { flex-direction: column; gap: var(--spacing-sm); }
 }
 
 /* Flow — 캡슐 + 직선 */
