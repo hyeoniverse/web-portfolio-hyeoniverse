@@ -772,67 +772,56 @@
 
 /* ── Principles Section ── */
 
-/* Principle list — large numbered items */
-.pList {
-  display: flex;
-  flex-direction: column;
+/* Principle grid — 2x2 with SVG visuals */
+.pGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
   margin-bottom: var(--spacing-xl);
 }
 
-.pItem {
-  display: flex;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg) 0;
-  border-top: 1px solid var(--text-primary);
-}
-
-.pItem:last-child {
-  border-bottom: 1px solid var(--text-primary);
-}
-
-.pNum {
-  font-family: var(--font-instrument);
-  font-size: 48px;
-  font-weight: var(--font-weight-light);
-  line-height: 1;
-  color: var(--text-primary);
-  flex-shrink: 0;
-  min-width: 56px;
-  opacity: 0.3;
-}
-
-.pContent {
+.pCard {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding-top: 4px;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.2s;
 }
 
-.pTitle {
+.pCard:hover {
+  border-color: var(--text-muted);
+}
+
+.pCardVisual {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.pIcon {
+  width: 80px;
+  height: 80px;
+}
+
+.pCardTitle {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   margin: 0;
 }
 
-.pDesc {
-  font-size: var(--font-size-base);
+.pCardDesc {
+  font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
   margin: 0;
 }
 
-.pDetail {
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
-  color: var(--text-muted);
-  margin: 0;
-}
-
 @media (max-width: 600px) {
-  .pNum { font-size: 36px; min-width: 40px; }
-  .pItem { gap: var(--spacing-md); }
+  .pGrid { grid-template-columns: 1fr; }
 }
 
 /* Flow — 캡슐 + 직선 */
