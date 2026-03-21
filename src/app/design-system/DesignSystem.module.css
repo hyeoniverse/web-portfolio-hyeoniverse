@@ -778,6 +778,37 @@
   margin: 0 0 var(--spacing-md);
 }
 
+.pWhyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm) var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.pWhyItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pWhyItem strong {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.pWhyItem span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+@media (max-width: 600px) {
+  .pWhyGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Flow — 캡슐 + 직선 */
 .pFlow {
   display: flex;
