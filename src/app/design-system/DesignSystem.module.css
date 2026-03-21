@@ -772,7 +772,7 @@
 
 /* ── Principles Section ── */
 .principleDesc {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
   margin: 0 0 var(--spacing-md);
@@ -783,23 +783,20 @@
   align-items: center;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-md);
 }
 
 .principleFlowItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-bottom: 2px solid var(--border-light-color);
-  min-width: 100px;
+  gap: 6px;
+  padding: var(--spacing-sm) var(--spacing-lg);
   text-align: center;
 }
 
 .principleFlowItem strong {
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
@@ -807,66 +804,54 @@
 
 .principleFlowItem code {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-accent);
 }
 
 .principleFlowArrow {
-  font-size: 16px;
+  font-size: 20px;
   color: var(--text-muted);
   flex-shrink: 0;
 }
 
-.principleList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+.principleRules {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--spacing-sm);
 }
 
-.principleList li {
+.principleRule {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding-left: var(--spacing-sm);
-  border-left: 2px solid var(--border-light-color);
 }
 
-.principleList li > strong {
-  font-size: var(--font-size-xs);
+.principleRuleLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: var(--text-primary);
-}
-
-.principleExample {
-  display: flex;
-  gap: var(--spacing-xs);
-  flex-wrap: wrap;
+  margin-bottom: 2px;
 }
 
 .principleBad,
 .principleGood {
   font-family: var(--font-mono);
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: var(--radius-xs);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  width: fit-content;
 }
 
 .principleBad {
-  background: color-mix(in srgb, var(--color-error) 10%, transparent);
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
   color: var(--color-error);
   text-decoration: line-through;
 }
 
 .principleGood {
-  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  background: color-mix(in srgb, var(--color-success) 8%, transparent);
   color: var(--color-success);
-}
-
-.principleNote {
-  font-size: 11px;
-  color: var(--text-muted);
 }
 
 .principleTokenGrid {
@@ -878,23 +863,22 @@
 .principleTokenItem {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-left: 2px solid var(--border-light-color);
+  gap: 2px;
+  padding: var(--spacing-xs) 0;
 }
 
 .principleTokenItem strong {
   font-family: var(--font-space-grotesk);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .principleTokenItem code {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-accent);
 }
 
 .principleTokenItem span {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted);
 }
