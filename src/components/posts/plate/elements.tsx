@@ -977,9 +977,11 @@ export function ColumnGroupElement(props: PlateElementProps) {
   const groupStyle: React.CSSProperties = {
     ...props.style,
     display: "flex",
-    gap: "var(--spacing-xs)",
+    gap: colDivider ? 0 : "var(--spacing-xs)",
     margin: "var(--spacing-md) 0",
     borderRadius: "var(--radius-sm)",
+    background: colBg || undefined,
+    padding: colBg ? "var(--spacing-xs)" : undefined,
     "--_col-bg-base": colBg || "color-mix(in srgb, var(--text-primary) 3%, transparent)",
   } as React.CSSProperties;
 
