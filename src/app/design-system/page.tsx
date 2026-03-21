@@ -204,7 +204,7 @@ export default function DesignSystemPage() {
                   ? "Raw → Semantic → Context. 원시 값을 직접 쓰지 않고 3단계 계층으로 변경의 영향 범위를 제어합니다."
                   : "Raw → Semantic → Context. Three layers of abstraction control the blast radius of any change.",
                 icon: (
-                  <svg viewBox="0 0 120 80" fill="none" className={styles.pIcon} style={{ width: 120 }}>
+                  <svg viewBox="0 0 120 80" fill="none" className={styles.pIcon}>
                     {/* Raw capsule */}
                     <rect x="0" y="28" width="32" height="24" rx="12" fill="var(--color-neutral-alpha-15)" />
                     <text x="16" y="44" textAnchor="middle" fontSize="8" fontWeight="600" fill="var(--text-primary)">RAW</text>
