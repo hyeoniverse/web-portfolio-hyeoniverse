@@ -196,96 +196,79 @@ export default function DesignSystemPage() {
           <section id="principles" ref={setSectionRef("principles")} className={styles.section}>
             <h2 className={styles.sectionTitle}>Principles</h2>
 
-            {/* 3-Layer Architecture */}
-            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem} style={{ marginTop: 0 }}>3-Layer Token Architecture</motion.p>
-            <motion.p className={styles.principleDesc} initial="hidden" {...vp(nd())} variants={staggerItem}>
-              {language === "ko"
-                ? "모든 스타일 값은 3단계 추상화를 거칩니다. 단일 색상 값을 직접 쓰는 대신, 원시 값 → 의미 → 맥락의 계층을 두어 변경의 영향 범위를 제어합니다."
-                : "All style values go through 3 levels of abstraction. Instead of using raw values directly, we layer primitive → meaning → context to control the blast radius of any change."}
-            </motion.p>
-            <motion.div className={styles.pWhyGrid} initial="hidden" {...vp(nd())} variants={staggerItem}>
-              <div className={styles.pWhyItem}>
-                <strong>{language === "ko" ? "테마 전환이 쉬워진다" : "Easy theme switching"}</strong>
-                <span>{language === "ko"
-                  ? "Semantic 레이어만 재정의하면 dark/light 전환이 자동으로 모든 컴포넌트에 반영됩니다."
-                  : "Redefine the Semantic layer and dark/light changes propagate to every component automatically."}</span>
-              </div>
-              <div className={styles.pWhyItem}>
-                <strong>{language === "ko" ? "브랜드 색상을 한 곳에서 관리" : "Single source of truth"}</strong>
-                <span>{language === "ko"
-                  ? "Raw 토큰 하나를 바꾸면 그걸 참조하는 모든 Semantic·Context 변수가 함께 바뀝니다."
-                  : "Change one Raw token and every Semantic + Context variable referencing it updates together."}</span>
-              </div>
-              <div className={styles.pWhyItem}>
-                <strong>{language === "ko" ? "컴포넌트 간 일관성 보장" : "Cross-component consistency"}</strong>
-                <span>{language === "ko"
-                  ? "같은 Semantic 토큰을 쓰면 버튼, 카드, 헤더가 항상 동일한 시각적 규칙을 따릅니다."
-                  : "Shared Semantic tokens ensure buttons, cards, and headers always follow the same visual rules."}</span>
-              </div>
-              <div className={styles.pWhyItem}>
-                <strong>{language === "ko" ? "리팩터링 비용 최소화" : "Minimal refactor cost"}</strong>
-                <span>{language === "ko"
-                  ? "hex 값이 CSS 전체에 흩어져 있으면 변경 시 모든 파일을 수정해야 하지만, 토큰 1개만 바꾸면 됩니다."
-                  : "Scattered hex values mean touching every file on change — with tokens, you update one variable."}</span>
-              </div>
-            </motion.div>
+            {/* Principle items — topology.vc style */}
+            <div className={styles.pList}>
+              {[
+                {
+                  title: "3-Layer Abstraction",
+                  desc: language === "ko"
+                    ? "모든 스타일 값은 Raw → Semantic → Context 3단계 추상화를 거칩니다. 원시 값을 직접 쓰지 않고 계층을 두어 변경의 영향 범위를 제어합니다."
+                    : "Every style value passes through 3 layers: Raw → Semantic → Context. Instead of using primitives directly, layering controls the blast radius of any change.",
+                  detail: language === "ko"
+                    ? "Raw 토큰(--color-neutral-900)은 의미 없는 값, Semantic 토큰(--text-primary)은 용도, Context 변수(--_color-heading)는 컴포넌트 맥락을 정의합니다."
+                    : "Raw tokens (--color-neutral-900) are meaningless values, Semantic tokens (--text-primary) define purpose, Context variables (--_color-heading) define component scope.",
+                },
+                {
+                  title: language === "ko" ? "Single Source of Truth" : "Single Source of Truth",
+                  desc: language === "ko"
+                    ? "하나의 Raw 토큰을 바꾸면 그걸 참조하는 모든 Semantic·Context 변수가 함께 바뀝니다. hex 값이 CSS 전체에 흩어지지 않습니다."
+                    : "Change one Raw token and every Semantic + Context variable referencing it updates together. No scattered hex values across the codebase.",
+                  detail: language === "ko"
+                    ? "브랜드 색상 변경, 간격 체계 수정, 폰트 교체 — 모두 tokens/ 디렉토리의 파일 하나만 수정하면 됩니다."
+                    : "Brand color changes, spacing system tweaks, font swaps — all require editing just one file in tokens/.",
+                },
+                {
+                  title: language === "ko" ? "테마 전환은 Semantic 레이어" : "Theme at the Semantic Layer",
+                  desc: language === "ko"
+                    ? "html[data-theme=\"dark\"]에서 Semantic 변수만 재정의하면 dark/light 전환이 모든 컴포넌트에 자동 반영됩니다."
+                    : "Redefine Semantic variables under html[data-theme=\"dark\"] and dark/light switching propagates to every component automatically.",
+                  detail: language === "ko"
+                    ? "컴포넌트마다 조건 분기를 넣지 않습니다. 테마 로직은 한 곳에만 존재합니다."
+                    : "No per-component branching. Theme logic exists in exactly one place.",
+                },
+                {
+                  title: language === "ko" ? "컴포넌트에 raw 값 금지" : "No Raw Values in Components",
+                  desc: language === "ko"
+                    ? "컴포넌트 CSS에 직접 #hex, rgba, px 값을 쓰지 않습니다. 반드시 토큰을 통해 참조합니다. var() fallback도 금지합니다."
+                    : "Component CSS never contains raw #hex, rgba, or px values. Always reference through tokens. var() fallbacks are also forbidden.",
+                  detail: language === "ko"
+                    ? "이 규칙 덕분에 디자인 시스템 외부의 '마법의 숫자'가 사라지고, 모든 시각적 결정이 추적 가능합니다."
+                    : "This eliminates 'magic numbers' outside the design system — every visual decision becomes traceable.",
+                },
+              ].map((p, i) => (
+                <motion.div key={i} className={styles.pItem} initial="hidden" {...vp(nd())} variants={staggerItem}>
+                  <span className={styles.pNum}>{String(i + 1).padStart(2, "0")}</span>
+                  <div className={styles.pContent}>
+                    <h3 className={styles.pTitle}>{p.title}</h3>
+                    <p className={styles.pDesc}>{p.desc}</p>
+                    <p className={styles.pDetail}>{p.detail}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
 
-            {/* Flow — 직선 + 캡슐 */}
+            {/* Flow diagram */}
             <motion.div className={styles.pFlow} initial="hidden" {...vp(nd())} variants={staggerItem}>
               <div className={styles.pFlowStep}>
-                <span className={styles.pFlowCapsule} data-layer="raw">Raw Tokens</span>
-                <span className={styles.pFlowFile}>tokens/*.css</span>
+                <span className={styles.pFlowCapsule} data-layer="raw">Raw</span>
                 <code className={styles.pFlowCode}>--color-neutral-900</code>
+                <span className={styles.pFlowFile}>tokens/*.css</span>
               </div>
               <div className={styles.pFlowLine} />
               <div className={styles.pFlowStep}>
                 <span className={styles.pFlowCapsule} data-layer="semantic">Semantic</span>
-                <span className={styles.pFlowFile}>_semantic.css</span>
                 <code className={styles.pFlowCode}>--text-primary</code>
+                <span className={styles.pFlowFile}>_semantic.css</span>
               </div>
               <div className={styles.pFlowLine} />
               <div className={styles.pFlowStep}>
                 <span className={styles.pFlowCapsule} data-layer="context">Context</span>
-                <span className={styles.pFlowFile}>*.module.css</span>
                 <code className={styles.pFlowCode}>--_color-heading</code>
+                <span className={styles.pFlowFile}>*.module.css</span>
               </div>
             </motion.div>
 
-            {/* Rules — 표 형식 */}
-            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Core Rules</motion.p>
-            <motion.table className={styles.pRulesTable} initial="hidden" {...vp(nd())} variants={staggerItem}>
-              <thead>
-                <tr>
-                  <th>{language === "ko" ? "규칙" : "Rule"}</th>
-                  <th className={styles.pRuleBadCol}>✗</th>
-                  <th className={styles.pRuleGoodCol}>✓</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{language === "ko" ? "글로벌 토큰 참조" : "Reference global tokens"}</td>
-                  <td><code>--_bg: #f5f5f0</code></td>
-                  <td><code>--_bg: var(--color-neutral-50)</code></td>
-                </tr>
-                <tr>
-                  <td>{language === "ko" ? "fallback 금지" : "No fallbacks"}</td>
-                  <td><code>var(--accent, #d01046)</code></td>
-                  <td><code>var(--accent)</code></td>
-                </tr>
-                <tr>
-                  <td>{language === "ko" ? "hex/rgba 금지" : "No raw hex/rgba"}</td>
-                  <td><code>color: #333</code></td>
-                  <td><code>color: var(--text-primary)</code></td>
-                </tr>
-                <tr>
-                  <td>{language === "ko" ? "테마 전환" : "Theme switch"}</td>
-                  <td><code>{language === "ko" ? "컴포넌트마다 분기" : "Per-component branch"}</code></td>
-                  <td><code>html[data-theme] {"{...}"}</code></td>
-                </tr>
-              </tbody>
-            </motion.table>
-
-            {/* Token Categories — 파일 트리 */}
+            {/* Token file tree */}
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Token Files</motion.p>
             <motion.div className={styles.pFileTree} initial="hidden" {...vp(nd())} variants={staggerItem}>
               <div className={styles.pFileRoot}>
