@@ -174,12 +174,12 @@
 
 /* Section */
 .section {
-  margin-bottom: 64px;
+  margin-bottom: 48px;
 }
 
 .sectionTitle {
-  margin-bottom: 24px;
-  padding-bottom: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border-primary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xl);
@@ -188,8 +188,8 @@
 }
 
 .sectionSub {
-  margin-top: 40px;
-  margin-bottom: 16px;
+  margin-top: 28px;
+  margin-bottom: 12px;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -771,21 +771,6 @@
 }
 
 /* ── Principles Section ── */
-.principleCard {
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
-  background: var(--bg-secondary);
-}
-
-.principleTitle {
-  font-family: var(--font-instrument);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
-  margin: 0 0 var(--spacing-sm);
-}
-
 .principleDesc {
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
@@ -798,6 +783,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
+  margin-bottom: var(--spacing-md);
 }
 
 .principleFlowItem {
@@ -805,17 +791,15 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-md);
-  background: var(--bg-primary);
-  min-width: 120px;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-bottom: 2px solid var(--border-light-color);
+  min-width: 100px;
   text-align: center;
 }
 
 .principleFlowItem strong {
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
@@ -828,7 +812,7 @@
 }
 
 .principleFlowArrow {
-  font-size: 18px;
+  font-size: 16px;
   color: var(--text-muted);
   flex-shrink: 0;
 }
@@ -839,32 +823,34 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
 .principleList li {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  padding-left: var(--spacing-sm);
+  border-left: 2px solid var(--border-light-color);
 }
 
 .principleList li > strong {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--text-primary);
 }
 
 .principleExample {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
   flex-wrap: wrap;
 }
 
 .principleBad,
 .principleGood {
   font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 3px 10px;
-  border-radius: var(--radius-sm);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
 }
 
 .principleBad {
@@ -879,39 +865,36 @@
 }
 
 .principleNote {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
-  font-style: italic;
 }
 
 .principleTokenGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-sm);
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--spacing-xs);
 }
 
 .principleTokenItem {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: var(--spacing-sm);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-md);
-  background: var(--bg-primary);
+  gap: 1px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-left: 2px solid var(--border-light-color);
 }
 
 .principleTokenItem strong {
   font-family: var(--font-space-grotesk);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .principleTokenItem code {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-accent);
 }
 
 .principleTokenItem span {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
 }
