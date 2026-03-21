@@ -961,10 +961,10 @@ function ColumnResizeHandle({ onResize, dividerColor }: { onResize: (deltaPercen
       }}
     >
       <div data-handle style={{
-        width: dividerColor ? 2 : 3,
-        ...(!dividerColor ? { height: 24 } : {}),
-        borderRadius: dividerColor ? 0 : 2,
-        background: dividerColor || "var(--border-light-color)",
+        width: 3,
+        height: 24,
+        borderRadius: 2,
+        background: "var(--border-light-color)",
         transition: "background 0.15s",
       }} />
     </div>
@@ -985,11 +985,11 @@ export function ColumnGroupElement(props: PlateElementProps) {
   const groupStyle: React.CSSProperties = {
     ...props.style,
     display: "flex",
-    gap: colDivider ? 0 : "var(--spacing-xs)",
+    gap: "var(--spacing-xs)",
     margin: "var(--spacing-md) 0",
     borderRadius: "var(--radius-sm)",
-    background: colBg || undefined,
-    padding: colBg ? "var(--spacing-xs)" : undefined,
+    "--_col-bg": colBg || "",
+    "--_col-divider": colDivider || "",
     "--_col-bg-base": colBg || "color-mix(in srgb, var(--text-primary) 3%, transparent)",
   } as React.CSSProperties;
 
@@ -1072,8 +1072,9 @@ export function ColumnElement(props: PlateElementProps) {
     <PlateElement {...props} style={{
       ...props.style, flex: width ? `${parseFloat(width)} 0 0` : "1 0 0", minWidth: 0,
       borderRadius: "var(--radius-sm)", overflow: "hidden",
-      background: showBg ? "var(--_col-bg-base)" : "transparent",
+      background: showBg ? "var(--_col-bg, var(--_col-bg-base))" : "var(--_col-bg, transparent)",
       padding: "var(--spacing-sm)", transition: "background-color 0.15s",
+      borderRight: "2px solid var(--_col-divider, transparent)",
     }}>
       {props.children}
     </PlateElement>
