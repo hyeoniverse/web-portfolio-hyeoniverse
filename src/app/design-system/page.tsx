@@ -200,9 +200,35 @@ export default function DesignSystemPage() {
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem} style={{ marginTop: 0 }}>3-Layer Token Architecture</motion.p>
             <motion.p className={styles.principleDesc} initial="hidden" {...vp(nd())} variants={staggerItem}>
               {language === "ko"
-                ? "모든 스타일 값은 3단계 추상화를 거칩니다."
-                : "All style values go through 3 levels of abstraction."}
+                ? "모든 스타일 값은 3단계 추상화를 거칩니다. 단일 색상 값을 직접 쓰는 대신, 원시 값 → 의미 → 맥락의 계층을 두어 변경의 영향 범위를 제어합니다."
+                : "All style values go through 3 levels of abstraction. Instead of using raw values directly, we layer primitive → meaning → context to control the blast radius of any change."}
             </motion.p>
+            <motion.div className={styles.pWhyGrid} initial="hidden" {...vp(nd())} variants={staggerItem}>
+              <div className={styles.pWhyItem}>
+                <strong>{language === "ko" ? "테마 전환이 쉬워진다" : "Easy theme switching"}</strong>
+                <span>{language === "ko"
+                  ? "Semantic 레이어만 재정의하면 dark/light 전환이 자동으로 모든 컴포넌트에 반영됩니다."
+                  : "Redefine the Semantic layer and dark/light changes propagate to every component automatically."}</span>
+              </div>
+              <div className={styles.pWhyItem}>
+                <strong>{language === "ko" ? "브랜드 색상을 한 곳에서 관리" : "Single source of truth"}</strong>
+                <span>{language === "ko"
+                  ? "Raw 토큰 하나를 바꾸면 그걸 참조하는 모든 Semantic·Context 변수가 함께 바뀝니다."
+                  : "Change one Raw token and every Semantic + Context variable referencing it updates together."}</span>
+              </div>
+              <div className={styles.pWhyItem}>
+                <strong>{language === "ko" ? "컴포넌트 간 일관성 보장" : "Cross-component consistency"}</strong>
+                <span>{language === "ko"
+                  ? "같은 Semantic 토큰을 쓰면 버튼, 카드, 헤더가 항상 동일한 시각적 규칙을 따릅니다."
+                  : "Shared Semantic tokens ensure buttons, cards, and headers always follow the same visual rules."}</span>
+              </div>
+              <div className={styles.pWhyItem}>
+                <strong>{language === "ko" ? "리팩터링 비용 최소화" : "Minimal refactor cost"}</strong>
+                <span>{language === "ko"
+                  ? "hex 값이 CSS 전체에 흩어져 있으면 변경 시 모든 파일을 수정해야 하지만, 토큰 1개만 바꾸면 됩니다."
+                  : "Scattered hex values mean touching every file on change — with tokens, you update one variable."}</span>
+              </div>
+            </motion.div>
 
             {/* Flow — 직선 + 캡슐 */}
             <motion.div className={styles.pFlow} initial="hidden" {...vp(nd())} variants={staggerItem}>
