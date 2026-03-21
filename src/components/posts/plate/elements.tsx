@@ -941,24 +941,27 @@ function ColumnResizeHandle({ onResize, dividerColor }: { onResize: (deltaPercen
       contentEditable={false}
       onPointerDown={onPointerDown}
       style={{
-        width: 8, flexShrink: 0, alignSelf: "stretch", cursor: "col-resize",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        userSelect: "none", touchAction: "none", position: "relative",
+        width: dividerColor ? 3 : 8,
+        flexShrink: 0,
+        alignSelf: "stretch",
+        cursor: "col-resize",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        userSelect: "none",
+        touchAction: "none",
+        background: dividerColor ? `linear-gradient(to right, transparent, ${dividerColor}, transparent)` : undefined,
       }}
+      onMouseEnter={(e) => { if (!dividerColor) e.currentTarget.querySelector<HTMLElement>("[data-handle]")!.style.background = "var(--text-muted)"; }}
+      onMouseLeave={(e) => { if (!dividerColor) e.currentTarget.querySelector<HTMLElement>("[data-handle]")!.style.background = "var(--border-light-color)"; }}
     >
-      <div style={{
-        width: dividerColor ? 1 : 3,
-        position: dividerColor ? "absolute" as const : "static" as const,
-        top: dividerColor ? 0 : undefined,
-        bottom: dividerColor ? 0 : undefined,
-        height: dividerColor ? undefined : 24,
-        borderRadius: dividerColor ? 0 : 2,
-        background: dividerColor || "var(--border-light-color)",
-        transition: "background 0.15s, width 0.15s",
-      }}
-        onMouseEnter={(e) => { if (!dividerColor) e.currentTarget.style.background = "var(--text-muted)"; }}
-        onMouseLeave={(e) => { if (!dividerColor) e.currentTarget.style.background = "var(--border-light-color)"; }}
-      />
+      {!dividerColor && (
+        <div data-handle style={{
+          width: 3, height: 24, borderRadius: 2,
+          background: "var(--border-light-color)",
+          transition: "background 0.15s",
+        }} />
+      )}
     </div>
   );
 }
