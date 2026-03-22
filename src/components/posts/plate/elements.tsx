@@ -1094,10 +1094,11 @@ export function ColumnElement(props: PlateElementProps) {
       {!isLast && <div contentEditable={false} style={{
         position: "absolute",
         top: 0, bottom: 0,
-        right: "calc(-1 * var(--spacing-xs) / 2 - 1px)",
-        width: 2,
+        right: "calc(-1 * var(--spacing-xs) / 2)",
+        width: 1,
         background: "var(--_col-divider, transparent)",
         pointerEvents: "none",
+        transform: "scaleX(0.5)",
       }} />}
     </PlateElement>
   );
