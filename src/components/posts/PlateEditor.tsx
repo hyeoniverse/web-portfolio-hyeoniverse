@@ -1767,6 +1767,18 @@ export default function PlateEditor({
               style={{ minHeight: 300, paddingBottom: 40 }}
               data-lenis-prevent
               onKeyDown={handleContentKeyDown}
+              onMouseDown={(e) => {
+                // column container 밖 클릭 시 Plate의 container selection 유지를 우회
+                const target = e.target as HTMLElement;
+                if (!target.closest("[data-col-group]")) {
+                  // column 밖 클릭 → Slate가 정상적으로 selection 처리하도록
+                  const colGroup = editor.api.above({ match: { type: "column_group" } });
+                  if (colGroup) {
+                    // 현재 column 안에 있으면 deselect 후 기본 동작
+                    editor.tf.deselect();
+                  }
+                }
+              }}
               decorate={findOpen ? decorate : undefined}
               renderLeaf={findOpen ? renderFindLeaf : undefined}
               onClick={(e) => {
