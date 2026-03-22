@@ -397,7 +397,7 @@ export default function PlateEditor({
       if (path.length === 1) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const type = (node as any).type;
-        const blockVoids = new Set(["media_embed", "hr", "file_embed", "audio_embed", "equation", "table", "code_block", "callout", "toggle", "column_group"]);
+        const blockVoids = new Set(["media_embed", "hr", "file_embed", "audio_embed", "equation", "table", "code_block", "callout", "toggle"]);
         if (blockVoids.has(type)) {
           const idx = path[0];
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -969,58 +969,43 @@ export default function PlateEditor({
 
   const insertMathBlock = useCallback(() => doInsertMath("", "block"), [doInsertMath]);
 
-  // ── Active toolbar height → paddingTop + scrollTop 보정 ──
+  // ── Active toolbar height → scrollPaddingTop만 설정 (overflow 조작 없음) ──
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const toolbarPadRef = useRef(0);
-  useEffect(() => {
+  const measureToolbar = useCallback(() => {
     const container = editorContainerRef.current;
     if (!container) return;
-    const measure = () => {
-      // find 툴바 높이 측정 → 다른 툴바 top offset
-      const findH = findToolbarRef.current && !findToolbarRef.current.classList.contains(styles.tableToolbarHidden)
-        ? findToolbarRef.current.offsetHeight : 0;
-      // 다른 툴바에 top offset 적용
-      // hidden 툴바는 top:0 유지, visible 툴바만 findH로 이동
-      container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
-        if (tb === findToolbarRef.current) return;
-        const isHidden = tb.classList.contains(styles.tableToolbarHidden);
-        if (isHidden) {
-          tb.style.top = "0px";
-        } else if (findH > 0) {
-          if (tb.style.top !== `${findH}px`) {
-            requestAnimationFrame(() => { tb.style.top = `${findH}px`; });
-          }
-        } else {
-          tb.style.top = "";
-        }
-      });
-      // 전체 visible 툴바 높이 합산
-      let maxH = 0;
-      container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
-        if (!tb.classList.contains(styles.tableToolbarHidden)) {
-          maxH = Math.max(maxH, (tb === findToolbarRef.current ? 0 : findH) + tb.offsetHeight);
-        }
-      });
-      const prev = toolbarPadRef.current;
-      if (prev === maxH) return;
-      const delta = maxH - prev;
-      toolbarPadRef.current = maxH;
-      const scrollEl = container.querySelector<HTMLElement>("[data-slate-editor]");
-      if (!scrollEl) return;
-      const oldScroll = scrollEl.scrollTop;
-      scrollEl.style.overflow = "hidden";
-      scrollEl.style.paddingTop = maxH > 0 ? `calc(var(--spacing-md) + ${maxH}px)` : "";
+    // find 툴바 높이
+    const findH = findToolbarRef.current && !findToolbarRef.current.classList.contains(styles.tableToolbarHidden)
+      ? findToolbarRef.current.offsetHeight : 0;
+    // 다른 툴바에 top offset
+    container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
+      if (tb === findToolbarRef.current) return;
+      const isHidden = tb.classList.contains(styles.tableToolbarHidden);
+      if (isHidden) {
+        tb.style.top = "0px";
+      } else if (findH > 0) {
+        tb.style.top = `${findH}px`;
+      } else {
+        tb.style.top = "";
+      }
+    });
+    // scrollPaddingTop만 설정 — paddingTop/overflow 조작 안 함
+    let maxH = 0;
+    container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
+      if (!tb.classList.contains(styles.tableToolbarHidden)) {
+        maxH = Math.max(maxH, (tb === findToolbarRef.current ? 0 : findH) + tb.offsetHeight);
+      }
+    });
+    if (toolbarPadRef.current === maxH) return;
+    toolbarPadRef.current = maxH;
+    const scrollEl = container.querySelector<HTMLElement>("[data-slate-editor]");
+    if (scrollEl) {
       scrollEl.style.scrollPaddingTop = maxH > 0 ? `${maxH}px` : "";
-      void scrollEl.offsetHeight;
-      scrollEl.scrollTop = oldScroll + delta;
-      void scrollEl.offsetHeight;
-      scrollEl.style.overflow = "";
-    };
-    measure();
-    const obs = new MutationObserver(measure);
-    obs.observe(container, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
-    return () => obs.disconnect();
-  });
+    }
+  }, [findOpen, findReplace]); // eslint-disable-line react-hooks/exhaustive-deps
+  // find 상태 변경 시에만 측정
+  useEffect(() => { measureToolbar(); }, [measureToolbar]);
 
   if (!editor) return null;
 
@@ -1167,9 +1152,13 @@ export default function PlateEditor({
                       <div style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
                     </Tooltip>
                     <div className={styles.divider} />
-                    {/* 기본색(transparent) */}
+                    {/* default(배경색) */}
+                    <Tooltip content="default" placement="top" delay={200}>
+                      <button type="button" className={`${styles.presetDotInline} ${!colBg ? styles.presetDotActive : ""}`} style={{ background: "var(--bg-secondary)" }} onClick={() => editor.tf.setNodes({ columnBg: undefined }, { at: columnGroupNode.path })} />
+                    </Tooltip>
+                    {/* none(투명) */}
                     <Tooltip content="none" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${!colBg ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnBg: undefined }, { at: columnGroupNode.path })} />
+                      <button type="button" className={`${styles.presetDotInline} ${colBg === "transparent" ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnBg: "transparent" }, { at: columnGroupNode.path })} />
                     </Tooltip>
                     {/* 프리셋 */}
                     {BG_PRESETS.filter((c) => c !== "transparent").map((c) => (
@@ -1204,12 +1193,12 @@ export default function PlateEditor({
                     <span className={styles.tableGroupLabel}>Line</span>
                     <div className={styles.divider} />
                     <Tooltip content={colDiv === "transparent" ? "none" : colDiv || "default"} placement="top" delay={200}>
-                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--color-neutral-alpha-10)", border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
+                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
                     </Tooltip>
                     <div className={styles.divider} />
                     {/* 기본색(default) */}
                     <Tooltip content="default" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${!colDiv ? styles.presetDotActive : ""}`} style={{ background: "var(--color-neutral-alpha-10)" }} onClick={() => editor.tf.setNodes({ columnDivider: undefined }, { at: columnGroupNode.path })} />
+                      <button type="button" className={`${styles.presetDotInline} ${!colDiv ? styles.presetDotActive : ""}`} style={{ background: "var(--text-muted)" }} onClick={() => editor.tf.setNodes({ columnDivider: undefined }, { at: columnGroupNode.path })} />
                     </Tooltip>
                     {/* none(transparent) */}
                     <Tooltip content="none" placement="top" delay={200}>
@@ -1224,7 +1213,7 @@ export default function PlateEditor({
                     <div className={styles.divider} />
                     <div className={styles.colorGroup} style={{ gap: 3 }}>
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
-                      <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--color-neutral-alpha-10)", border: "1px solid var(--border-light-color)" }} />
+                      <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", border: "1px solid var(--border-light-color)" }} />
                       <input type="color" className={styles.colorInput} value={colDiv && colDiv !== "transparent" ? colDiv : "#d1d5db"}
                         onChange={(e) => editor.tf.setNodes({ columnDivider: e.target.value }, { at: columnGroupNode.path })}
                         ref={(el) => {
