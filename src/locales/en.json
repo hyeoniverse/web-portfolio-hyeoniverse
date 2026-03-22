@@ -1109,6 +1109,7 @@
     "findPrev": "Previous",
     "replace": "Replace",
     "replaceOne": "Replace",
-    "replaceAll": "Replace All"
+    "replaceAll": "Replace All",
+    "deleteColumnLayout": "Delete column layout"
   }
 }
