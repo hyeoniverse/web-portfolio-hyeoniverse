@@ -80,6 +80,19 @@ body {
   color: var(--text-primary);
 }
 
+kbd {
+  display: inline-block;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  line-height: 1;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border: var(--border-light);
+  border-radius: var(--radius-xs);
+  box-shadow: var(--shadow-xs);
+}
+
 [data-theme="dark"] body::after {
   mix-blend-mode: screen;
 }
