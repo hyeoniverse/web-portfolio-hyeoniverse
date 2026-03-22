@@ -1213,8 +1213,8 @@ export default function PlateEditor({
                     <div className={styles.divider} />
                     <div className={styles.colorGroup} style={{ gap: 3 }}>
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
-                      <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv || CHECKER_BG, border: "1px solid var(--border-light-color)" }} />
-                      <input type="color" className={styles.colorInput} value={colDiv || "#d1d5db"}
+                      <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv || "var(--color-neutral-alpha-10)", border: "1px solid var(--border-light-color)" }} />
+                      <input type="color" className={styles.colorInput} value={colDiv || "#e5e5e5"}
                         onChange={(e) => editor.tf.setNodes({ columnDivider: e.target.value }, { at: columnGroupNode.path })}
                         ref={(el) => {
                           if (!el || (el as HTMLInputElement & { _b?: boolean })._b) return;
