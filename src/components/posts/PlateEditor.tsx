@@ -332,6 +332,21 @@ export default function PlateEditor({
     };
   }, [editor]);
 
+  // ── Enter 시 kbd/code mark 제거 ──
+  useEffect(() => {
+    if (!editor) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ed = editor as any;
+    const prevBreak = ed.insertBreak.bind(ed);
+    ed.insertBreak = () => {
+      const marks = ed.api.marks();
+      prevBreak();
+      // break 후 kbd/code mark가 남아있으면 제거
+      if (marks?.kbd) ed.tf.removeMark("kbd");
+      if (marks?.code) ed.tf.removeMark("code");
+    };
+  }, [editor]);
+
   // ── Selection save/restore ──
   const savedSelectionRef = useRef<typeof editor.selection>(null);
   const saveSelection = useCallback(() => {
