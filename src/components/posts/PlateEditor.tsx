@@ -1296,7 +1296,7 @@ export default function PlateEditor({
                       <TBtn
                         className={styles.tableDangerBtn}
                         onClick={() => { if (columnGroupNode.path) editor.tf.removeNodes({ at: columnGroupNode.path }); }}
-                        tooltip={t("editor.deleteTable")}
+                        tooltip={t("editor.deleteColumnLayout")}
                       >
                         <TblTrash />
                       </TBtn>

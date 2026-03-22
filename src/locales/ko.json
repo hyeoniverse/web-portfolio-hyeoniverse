@@ -1107,6 +1107,7 @@
     "findPrev": "이전",
     "replace": "바꾸기",
     "replaceOne": "바꾸기",
-    "replaceAll": "모두 바꾸기"
+    "replaceAll": "모두 바꾸기",
+    "deleteColumnLayout": "열 블록 삭제"
   }
 }
