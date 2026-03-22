@@ -985,16 +985,12 @@ const columnBaseStyle: React.CSSProperties = {
 export function ColumnElement(props: PlateElementProps) {
   const el = props.element as Record<string, unknown>;
   const width = el.width as string | undefined;
-  const flex = width ? `${parseFloat(width)} 0 0` : "1 0 0";
-
-  const style = React.useMemo<React.CSSProperties>(
-    () => ({ ...props.style, ...columnBaseStyle, flex }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [flex]
-  );
 
   return (
-    <PlateElement {...props} style={style}>
+    <PlateElement {...props} style={{
+      ...props.style, ...columnBaseStyle,
+      flex: width ? `${parseFloat(width)} 0 0` : "1 0 0",
+    }}>
       {props.children}
     </PlateElement>
   );
