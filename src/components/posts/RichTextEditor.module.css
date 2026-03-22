@@ -410,9 +410,13 @@
   align-items: center;
   gap: 2px;
   position: absolute;
+  top: 4px;
+  right: var(--spacing-xs);
+}
+
+.findToolbar .tableToolbarActions {
   top: 50%;
   transform: translateY(-50%);
-  right: var(--spacing-xs);
 }
 
 .tableToolbarHidden {
