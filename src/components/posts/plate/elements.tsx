@@ -920,22 +920,48 @@ export function ColumnGroupElement(props: PlateElementProps) {
   const colDivider = el.columnDivider as string | undefined;
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
 
-  const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "var(--text-muted)";
-  const hasDivider = colDivider !== "transparent";
-  const groupStyle: React.CSSProperties = {
+  const dividerColor = colDivider === "transparent" ? undefined : colDivider || "var(--text-muted)";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const colCount = ((el.children as any[]) || []).length;
+  const colBgVal = colBg === "transparent" ? "transparent" : colBg || "var(--bg-primary)";
+  const groupStyle = React.useMemo<React.CSSProperties>(() => ({
     ...props.style,
     display: "flex",
-    gap: hasDivider ? 1 : "var(--spacing-xs)",
+    gap: "var(--spacing-xs)",
     margin: "var(--spacing-md) 0",
-    background: hasDivider ? dividerColor : undefined,
-    "--_col-bg": colBg === "transparent" ? "transparent" : colBg || "var(--bg-primary)",
-  } as React.CSSProperties;
+    position: "relative" as const,
+    "--_col-bg": colBgVal,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [colBgVal]) as React.CSSProperties;
 
   return (
     <BlockDropZone path={elPath}>
-      <PlateElement {...props} style={groupStyle} data-col-group>
-        {props.children}
-      </PlateElement>
+      <div style={{ position: "relative", margin: "var(--spacing-md) 0" }}>
+        <PlateElement {...props} style={{ ...groupStyle, margin: 0 }} data-col-group>
+          {props.children}
+        </PlateElement>
+        {/* 구분선 overlay — PlateElement 바깥, Slate 무관 */}
+        {dividerColor && colCount > 1 && (
+          <div style={{ position: "absolute", inset: 0, pointerEvents: "none", display: "flex" }}>
+            {Array.from({ length: colCount }).map((_, i) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const w = ((el.children as any[])?.[i]?.width as string) || `${Math.round(100 / colCount)}%`;
+              return (
+                <div key={i} style={{ flex: `${parseFloat(w)} 0 0`, position: "relative" }}>
+                  {i < colCount - 1 && (
+                    <div style={{
+                      position: "absolute",
+                      top: 0, bottom: 0, right: "calc(-1 * var(--spacing-xs) / 2)",
+                      width: 1,
+                      background: dividerColor,
+                    }} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </BlockDropZone>
   );
 }
