@@ -1767,22 +1767,6 @@ export default function PlateEditor({
               style={{ minHeight: 300, paddingBottom: 40 }}
               data-lenis-prevent
               onKeyDown={handleContentKeyDown}
-              onMouseDown={(e) => {
-                // column container 밖 클릭 시 Plate의 container selection 유지를 우회
-                const target = e.target as HTMLElement;
-                if (!target.closest("[data-col-group]")) {
-                  try {
-                    const colGroup = editor.api.above({ match: { type: "column_group" } });
-                    if (colGroup) {
-                      // 스크롤 위치 보존하면서 deselect
-                      const scrollEl = (e.currentTarget as HTMLElement);
-                      const scrollTop = scrollEl.scrollTop;
-                      editor.tf.deselect();
-                      scrollEl.scrollTop = scrollTop;
-                    }
-                  } catch { /* ignore */ }
-                }
-              }}
               decorate={findOpen ? decorate : undefined}
               renderLeaf={findOpen ? renderFindLeaf : undefined}
               onClick={(e) => {
