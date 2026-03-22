@@ -815,7 +815,7 @@ export default function PlateEditor({
         }
       }
     }
-  }, [editor]);
+  }, [editor, findOpen]);
 
   // ── All media (images + video embeds) + detached 동기 관리 ──
   const detachedRef = useRef<{ url: string; mediaType?: string }[]>([]);
