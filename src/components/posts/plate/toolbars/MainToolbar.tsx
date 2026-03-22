@@ -647,31 +647,30 @@ export default React.memo(function MainToolbar({
                 if (currentCount === cols) return; // 같으면 무시
                 editor.tf.withoutNormalizing(() => {
                   if (cols > currentCount) {
-                    // 열 추가
                     for (let i = currentCount; i < cols; i++) {
+                      const w = i < cols - 1 ? Math.floor(100 / cols) : 100 - Math.floor(100 / cols) * (cols - 1);
                       editor.tf.insertNodes(
-                        { type: "column", width: `${Math.round(100 / cols)}%`, children: [{ type: "p", children: [{ text: "" }] }] },
+                        { type: "column", width: `${w}%`, children: [{ type: "p", children: [{ text: "" }] }] },
                         { at: [...groupPath, i] }
                       );
                     }
                   } else {
-                    // 열 제거 (뒤에서부터)
                     for (let i = currentCount - 1; i >= cols; i--) {
                       editor.tf.removeNodes({ at: [...groupPath, i] });
                     }
                   }
-                  // 모든 열 너비 균등 재설정
                   for (let i = 0; i < cols; i++) {
-                    editor.tf.setNodes({ width: `${Math.round(100 / cols)}%` }, { at: [...groupPath, i] });
+                    const w = i < cols - 1 ? Math.floor(100 / cols) : 100 - Math.floor(100 / cols) * (cols - 1);
+                    editor.tf.setNodes({ width: `${w}%` }, { at: [...groupPath, i] });
                   }
                 });
                 return;
               }
             } catch { /* ignore */ }
             // 새 열블록 삽입
-            const colChildren = Array.from({ length: cols }, () => ({
+            const colChildren = Array.from({ length: cols }, (_, i) => ({
               type: "column",
-              width: `${Math.round(100 / cols)}%`,
+              width: `${i < cols - 1 ? Math.floor(100 / cols) : 100 - Math.floor(100 / cols) * (cols - 1)}%`,
               children: [{ type: "p", children: [{ text: "" }] }],
             }));
             const node = { type: "column_group", children: colChildren };
