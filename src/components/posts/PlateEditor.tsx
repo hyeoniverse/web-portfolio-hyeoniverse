@@ -1156,7 +1156,8 @@ export default function PlateEditor({
               const colChildren = ((columnGroupNode.node as any).children || []) as { width?: string }[];
               const colCount = colChildren.length;
               const BG_PRESETS = ["transparent", "#fef3c7", "#dcfce7", "#dbeafe", "#fce7f3", "#f3e8ff", "#fee2e2", "#f3f4f6"];
-              const LINE_PRESETS = ["transparent", "#d1d5db", "#000000", "#374151", "#ef4444", "#3b82f6", "#22c55e", "#8b5cf6"];
+              const LINE_DEFAULT = "default";
+              const LINE_PRESETS = [LINE_DEFAULT, "transparent", "#d1d5db", "#000000", "#374151", "#ef4444", "#3b82f6", "#22c55e", "#8b5cf6"];
               return (
                 <div className={styles.tableToolbarRow}>
                   <span className={styles.tableToolbarLabel}>COLS</span>
@@ -1200,16 +1201,23 @@ export default function PlateEditor({
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>Line</span>
                     <div className={styles.divider} />
-                    {LINE_PRESETS.map((c) => (
-                      <Tooltip key={`line-${c}`} content={c === "transparent" ? "none" : c} placement="top" delay={200}>
-                        <button
-                          type="button"
-                          className={`${styles.presetDotInline} ${(c === colDiv || (!colDiv && c === "transparent")) ? styles.presetDotActive : ""}`}
-                          style={{ background: c === "transparent" ? CHECKER_BG : c }}
-                          onClick={() => editor.tf.setNodes({ columnDivider: c === "transparent" ? undefined : c }, { at: columnGroupNode.path })}
-                        />
-                      </Tooltip>
-                    ))}
+                    {LINE_PRESETS.map((c) => {
+                      const isDefault = c === LINE_DEFAULT;
+                      const isTransparent = c === "transparent";
+                      const label = isDefault ? "default" : isTransparent ? "none" : c;
+                      const bg = isDefault ? "var(--color-neutral-alpha-10)" : isTransparent ? CHECKER_BG : c;
+                      const active = isDefault ? !colDiv : isTransparent ? colDiv === "transparent" : c === colDiv;
+                      return (
+                        <Tooltip key={`line-${c}`} content={label} placement="top" delay={200}>
+                          <button
+                            type="button"
+                            className={`${styles.presetDotInline} ${active ? styles.presetDotActive : ""}`}
+                            style={{ background: bg }}
+                            onClick={() => editor.tf.setNodes({ columnDivider: isDefault ? undefined : isTransparent ? "transparent" : c }, { at: columnGroupNode.path })}
+                          />
+                        </Tooltip>
+                      );
+                    })}
                     <div className={styles.divider} />
                     <div className={styles.colorGroup} style={{ gap: 3 }}>
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />

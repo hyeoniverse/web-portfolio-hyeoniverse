@@ -989,7 +989,7 @@ export function ColumnGroupElement(props: PlateElementProps) {
     margin: "var(--spacing-md) 0",
     borderRadius: "var(--radius-sm)",
     "--_col-bg": colBg || "",
-    "--_col-divider": colDivider || "var(--color-neutral-alpha-10)",
+    "--_col-divider": colDivider === "transparent" ? "transparent" : colDivider || "var(--color-neutral-alpha-10)",
     "--_col-bg-base": colBg || "color-mix(in srgb, var(--text-primary) 3%, transparent)",
   } as React.CSSProperties;
 
