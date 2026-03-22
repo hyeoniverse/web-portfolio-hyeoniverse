@@ -90,7 +90,6 @@ export const plugins = [
   HorizontalRulePlugin.configure({ render: { node: HrElement } }),
   // Column layout
   ColumnPlugin.configure({
-    node: { isContainer: false },
     render: { node: ColumnGroupElement },
     parsers: {
       html: {
@@ -108,7 +107,6 @@ export const plugins = [
     },
   }),
   ColumnItemPlugin.configure({
-    node: { isContainer: false },
     render: { node: ColumnElement },
     parsers: {
       html: {
