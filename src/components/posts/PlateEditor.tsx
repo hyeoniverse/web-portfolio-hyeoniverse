@@ -354,6 +354,10 @@ export default function PlateEditor({
       return entry ? { node: entry[0] as Record<string, unknown>, path: Array.from(entry[1]) } : null;
     } catch { return null; }
   })();
+  // 닫힘 애니메이션용 캐시
+  const cachedColumnGroupRef = useRef(columnGroupNode);
+  if (columnGroupNode) cachedColumnGroupRef.current = columnGroupNode;
+  const columnGroupForRender = columnGroupNode || cachedColumnGroupRef.current;
   const colBgRecentColors = useRef<string[]>(
     typeof window !== "undefined"
       ? (() => { try { return JSON.parse(localStorage.getItem("col-bg-recent") || "[]"); } catch { return []; } })()
@@ -1013,12 +1017,13 @@ export default function PlateEditor({
           maxH = Math.max(maxH, (tb === findToolbarRef.current ? 0 : findH) + tb.offsetHeight);
         }
       });
-      if (toolbarPadRef.current === maxH) return;
-      toolbarPadRef.current = maxH;
       const scrollEl = container.querySelector<HTMLElement>("[data-slate-editor]");
-      if (scrollEl) {
-        scrollEl.style.scrollPaddingTop = maxH > 0 ? `${maxH}px` : "";
-      }
+      if (!scrollEl) return;
+      const prev = toolbarPadRef.current;
+      if (prev === maxH) return;
+      toolbarPadRef.current = maxH;
+      scrollEl.style.paddingTop = maxH > 0 ? `calc(var(--spacing-md) + ${maxH}px)` : "";
+      scrollEl.style.scrollPaddingTop = maxH > 0 ? `${maxH}px` : "";
     });
     return () => cancelAnimationFrame(id);
   }, [toolbarKey]);
@@ -1150,11 +1155,12 @@ export default function PlateEditor({
 
           {/* Column toolbar */}
           <div className={`${styles.tableToolbar} ${!(isInColumn && columnGroupNode && noOverlay) ? styles.tableToolbarHidden : ""}`}>
-            {columnGroupNode && (() => {
-              const colBg = (columnGroupNode.node.columnBg as string) || "";
-              const colDiv = (columnGroupNode.node.columnDivider as string) || "";
+            {columnGroupForRender && (() => {
+              const colBg = (columnGroupForRender.node.columnBg as string) || "";
+              const colDiv = (columnGroupForRender.node.columnDivider as string) || "";
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const colChildren = ((columnGroupNode.node as any).children || []) as { width?: string }[];
+              const colChildren = ((columnGroupForRender.node as any).children || []) as { width?: string }[];
+              const activePath = columnGroupNode?.path || columnGroupForRender.path;
               const colCount = colChildren.length;
               const BG_PRESETS = ["transparent", "#fef3c7", "#dcfce7", "#dbeafe", "#fce7f3", "#f3e8ff", "#fee2e2", "#f3f4f6"];
               return (
@@ -1170,16 +1176,16 @@ export default function PlateEditor({
                     <div className={styles.divider} />
                     {/* default(배경색) */}
                     <Tooltip content="default" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${!colBg ? styles.presetDotActive : ""}`} style={{ background: "var(--bg-secondary)" }} onClick={() => editor.tf.setNodes({ columnBg: undefined }, { at: columnGroupNode.path })} />
+                      <button type="button" className={`${styles.presetDotInline} ${!colBg ? styles.presetDotActive : ""}`} style={{ background: "var(--bg-secondary)" }} onClick={() => editor.tf.setNodes({ columnBg: undefined }, { at: activePath })} />
                     </Tooltip>
                     {/* none(투명) */}
                     <Tooltip content="none" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${colBg === "transparent" ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnBg: "transparent" }, { at: columnGroupNode.path })} />
+                      <button type="button" className={`${styles.presetDotInline} ${colBg === "transparent" ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnBg: "transparent" }, { at: activePath })} />
                     </Tooltip>
                     {/* 프리셋 */}
                     {BG_PRESETS.filter((c) => c !== "transparent").map((c) => (
                       <Tooltip key={`bg-${c}`} content={c} placement="top" delay={200}>
-                        <button type="button" className={`${styles.presetDotInline} ${c === colBg ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnBg: c }, { at: columnGroupNode.path })} />
+                        <button type="button" className={`${styles.presetDotInline} ${c === colBg ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnBg: c }, { at: activePath })} />
                       </Tooltip>
                     ))}
                     <div className={styles.divider} />
@@ -1187,7 +1193,7 @@ export default function PlateEditor({
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
                       <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)" }} />
                       <input type="color" className={styles.colorInput} value={colBg || "#ffffff"}
-                        onChange={(e) => editor.tf.setNodes({ columnBg: e.target.value }, { at: columnGroupNode.path })}
+                        onChange={(e) => editor.tf.setNodes({ columnBg: e.target.value }, { at: activePath })}
                         ref={(el) => {
                           if (!el || (el as HTMLInputElement & { _b?: boolean })._b) return;
                           (el as HTMLInputElement & { _b?: boolean })._b = true;
@@ -1200,7 +1206,7 @@ export default function PlateEditor({
                     </div>
                     {Array.from({ length: 5 }).map((_, i) => {
                       const c = colBgRecentColors.current[i];
-                      const btn = <button key={i} type="button" className={`${styles.presetDotInline} ${c && colBg === c ? styles.presetDotActive : ""}`} disabled={!c} style={{ background: c || CHECKER_BG, cursor: c ? "pointer" : "default" }} onClick={() => { if (c) editor.tf.setNodes({ columnBg: c }, { at: columnGroupNode.path }); }} />;
+                      const btn = <button key={i} type="button" className={`${styles.presetDotInline} ${c && colBg === c ? styles.presetDotActive : ""}`} disabled={!c} style={{ background: c || CHECKER_BG, cursor: c ? "pointer" : "default" }} onClick={() => { if (c) editor.tf.setNodes({ columnBg: c }, { at: activePath }); }} />;
                       return c ? <Tooltip key={i} content={c} placement="top" delay={200}>{btn}</Tooltip> : btn;
                     })}
                   </div>
@@ -1214,16 +1220,16 @@ export default function PlateEditor({
                     <div className={styles.divider} />
                     {/* 기본색(default) */}
                     <Tooltip content="default" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${!colDiv ? styles.presetDotActive : ""}`} style={{ background: "var(--text-muted)" }} onClick={() => editor.tf.setNodes({ columnDivider: undefined }, { at: columnGroupNode.path })} />
+                      <button type="button" className={`${styles.presetDotInline} ${!colDiv ? styles.presetDotActive : ""}`} style={{ background: "var(--text-muted)" }} onClick={() => editor.tf.setNodes({ columnDivider: undefined }, { at: activePath })} />
                     </Tooltip>
                     {/* none(transparent) */}
                     <Tooltip content="none" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${colDiv === "transparent" ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnDivider: "transparent" }, { at: columnGroupNode.path })} />
+                      <button type="button" className={`${styles.presetDotInline} ${colDiv === "transparent" ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnDivider: "transparent" }, { at: activePath })} />
                     </Tooltip>
                     {/* 프리셋 */}
                     {["#d1d5db", "#000000", "#374151", "#ef4444", "#3b82f6", "#22c55e", "#8b5cf6"].map((c) => (
                       <Tooltip key={`line-${c}`} content={c} placement="top" delay={200}>
-                        <button type="button" className={`${styles.presetDotInline} ${c === colDiv ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnDivider: c }, { at: columnGroupNode.path })} />
+                        <button type="button" className={`${styles.presetDotInline} ${c === colDiv ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnDivider: c }, { at: activePath })} />
                       </Tooltip>
                     ))}
                     <div className={styles.divider} />
@@ -1231,7 +1237,7 @@ export default function PlateEditor({
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
                       <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", border: "1px solid var(--border-light-color)" }} />
                       <input type="color" className={styles.colorInput} value={colDiv && colDiv !== "transparent" ? colDiv : "#d1d5db"}
-                        onChange={(e) => editor.tf.setNodes({ columnDivider: e.target.value }, { at: columnGroupNode.path })}
+                        onChange={(e) => editor.tf.setNodes({ columnDivider: e.target.value }, { at: activePath })}
                         ref={(el) => {
                           if (!el || (el as HTMLInputElement & { _b?: boolean })._b) return;
                           (el as HTMLInputElement & { _b?: boolean })._b = true;
@@ -1244,7 +1250,7 @@ export default function PlateEditor({
                     </div>
                     {Array.from({ length: 5 }).map((_, i) => {
                       const c = colLineRecentColors.current[i];
-                      const btn = <button key={i} type="button" className={`${styles.presetDotInline} ${c && colDiv === c ? styles.presetDotActive : ""}`} disabled={!c} style={{ background: c || CHECKER_BG, cursor: c ? "pointer" : "default" }} onClick={() => { if (c) editor.tf.setNodes({ columnDivider: c }, { at: columnGroupNode.path }); }} />;
+                      const btn = <button key={i} type="button" className={`${styles.presetDotInline} ${c && colDiv === c ? styles.presetDotActive : ""}`} disabled={!c} style={{ background: c || CHECKER_BG, cursor: c ? "pointer" : "default" }} onClick={() => { if (c) editor.tf.setNodes({ columnDivider: c }, { at: activePath }); }} />;
                       return c ? <Tooltip key={i} content={c} placement="top" delay={200}>{btn}</Tooltip> : btn;
                     })}
                   </div>
@@ -1260,12 +1266,12 @@ export default function PlateEditor({
                           const othersTotal = others.reduce((a, b) => a + b, 0);
                           const remaining = 100 - clamped;
                           editor.tf.withoutNormalizing(() => {
-                            editor.tf.setNodes({ width: `${clamped}%` }, { at: [...columnGroupNode.path, idx] });
+                            editor.tf.setNodes({ width: `${clamped}%` }, { at: [...activePath, idx] });
                             colChildren.forEach((_, j) => {
                               if (j === idx) return;
                               const ratio = othersTotal > 0 ? others[j] / othersTotal : 1 / (colCount - 1);
                               const adjusted = Math.max(10, Math.round(remaining * ratio));
-                              editor.tf.setNodes({ width: `${adjusted}%` }, { at: [...columnGroupNode.path, j] });
+                              editor.tf.setNodes({ width: `${adjusted}%` }, { at: [...activePath, j] });
                             });
                           });
                         };
@@ -1300,9 +1306,9 @@ export default function PlateEditor({
                     <div className={styles.tableGroup}>
                       <TBtn
                         onClick={() => {
-                          editor.tf.setNodes({ columnBg: undefined, columnDivider: undefined }, { at: columnGroupNode.path });
+                          editor.tf.setNodes({ columnBg: undefined, columnDivider: undefined }, { at: activePath });
                           colChildren.forEach((_, i) => {
-                            editor.tf.setNodes({ width: `${Math.round(100 / colCount)}%` }, { at: [...columnGroupNode.path, i] });
+                            editor.tf.setNodes({ width: `${Math.round(100 / colCount)}%` }, { at: [...activePath, i] });
                           });
                         }}
                         tooltip={t("editor.clearFormat")}
@@ -1311,7 +1317,7 @@ export default function PlateEditor({
                       </TBtn>
                       <TBtn
                         className={styles.tableDangerBtn}
-                        onClick={() => { if (columnGroupNode.path) editor.tf.removeNodes({ at: columnGroupNode.path }); }}
+                        onClick={() => { if (activePath) editor.tf.removeNodes({ at: activePath }); }}
                         tooltip={t("editor.deleteColumnLayout")}
                       >
                         <TblTrash />
