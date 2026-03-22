@@ -1085,12 +1085,20 @@ export function ColumnElement(props: PlateElementProps) {
   return (
     <PlateElement {...props} style={{
       ...props.style, flex: width ? `${parseFloat(width)} 0 0` : "1 0 0", minWidth: 0,
-      borderRadius: "var(--radius-sm)", overflow: "hidden",
+      borderRadius: "var(--radius-sm)", overflow: "visible",
       background: showBg ? "var(--_col-bg, var(--_col-bg-base))" : "var(--_col-bg, transparent)",
       padding: "var(--spacing-sm)", transition: "background-color 0.15s",
-      borderRight: isLast ? undefined : "2px solid var(--_col-divider, transparent)",
+      position: "relative",
     }}>
       {props.children}
+      {!isLast && <div contentEditable={false} style={{
+        position: "absolute",
+        top: 0, bottom: 0,
+        right: "calc(-1 * var(--spacing-xs) / 2 - 1px)",
+        width: 2,
+        background: "var(--_col-divider, transparent)",
+        pointerEvents: "none",
+      }} />}
     </PlateElement>
   );
 }
