@@ -1784,15 +1784,13 @@ export default function PlateEditor({
               onMouseDown={(e) => {
                 // column 밖 클릭 시 container selection 해제 (column→column 이동은 제외)
                 const target = e.target as HTMLElement;
-                const clickedInColumn = !!target.closest("[data-col-group]");
+                const clickedInColumn = !!target.closest(`.${styles.colElement}`) || !!target.closest("[data-col-group]");
                 if (!clickedInColumn) {
                   try {
                     if (editor.api.above({ match: { type: "column_group" } })) {
-                      // 현재 column 안 → 밖 클릭: 즉시 deselect 없이, 다음 프레임에서 처리
                       requestAnimationFrame(() => {
                         try {
                           if (editor.api.above({ match: { type: "column_group" } })) {
-                            // Slate가 아직 column 안에 selection을 유지하고 있으면 deselect
                             editor.tf.deselect();
                           }
                         } catch { /* ignore */ }
