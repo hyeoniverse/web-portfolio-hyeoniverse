@@ -346,14 +346,26 @@ export default function PlateEditor({
 
   // ── Hooks for derived state ──
   const isInTable = isInAncestor(editor, "table");
-  const isInColumn = isInAncestor(editor, "column_group");
+  const isInColumnRaw = isInAncestor(editor, "column_group");
   const columnGroupNode = (() => {
-    if (!isInColumn || !editor.selection) return null;
+    if (!isInColumnRaw || !editor.selection) return null;
     try {
       const entry = editor.api.above({ match: { type: "column_group" } });
       return entry ? { node: entry[0] as Record<string, unknown>, path: Array.from(entry[1]) } : null;
     } catch { return null; }
   })();
+  // debounce: isInColumn이 false→true 깜빡임 방지 (열간 이동 시)
+  const [isInColumn, setIsInColumn] = useState(isInColumnRaw);
+  const colDebounceRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    if (isInColumnRaw) {
+      clearTimeout(colDebounceRef.current);
+      setIsInColumn(true);
+    } else {
+      colDebounceRef.current = setTimeout(() => setIsInColumn(false), 150);
+    }
+    return () => clearTimeout(colDebounceRef.current);
+  }, [isInColumnRaw]);
   // 닫힘 애니메이션용 캐시
   const cachedColumnGroupRef = useRef(columnGroupNode);
   if (columnGroupNode) cachedColumnGroupRef.current = columnGroupNode;
