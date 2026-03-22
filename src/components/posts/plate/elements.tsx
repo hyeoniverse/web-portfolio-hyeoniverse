@@ -989,7 +989,6 @@ export function ColumnGroupElement(props: PlateElementProps) {
     display: "flex",
     gap: hasDivider ? 1 : "var(--spacing-xs)",
     margin: "var(--spacing-md) 0",
-    borderRadius: "var(--radius-sm)",
     background: hasDivider ? dividerColor : undefined,
     "--_col-bg": colBg === "transparent" ? "transparent" : colBg || "var(--bg-primary)",
   } as React.CSSProperties;
@@ -1058,7 +1057,7 @@ export function ColumnElement(props: PlateElementProps) {
     <PlateElement {...props} style={{
       ...props.style, flex: width ? `${parseFloat(width)} 0 0` : "1 0 0", minWidth: 0,
       borderRadius: "var(--radius-sm)",
-      background: "var(--_col-bg, transparent)",
+      background: "var(--_col-bg, var(--bg-primary))",
       padding: "var(--spacing-sm)",
     }}>
       {props.children}
