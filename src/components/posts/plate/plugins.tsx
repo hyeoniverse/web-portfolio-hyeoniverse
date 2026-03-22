@@ -84,8 +84,8 @@ export const plugins = [
   SuperscriptPlugin,
   SubscriptPlugin,
   HighlightPlugin,
-  CodePlugin,
-  KbdPlugin,
+  CodePlugin.configure({ rules: { selection: { affinity: "directional" } } }),
+  KbdPlugin.configure({ rules: { selection: { affinity: "directional" } } }),
   // Block elements (드롭 존 래퍼 포함)
   HeadingPlugin.configure({ render: { node: HeadingElement } }),
   BlockquotePlugin.configure({ render: { node: BlockquoteElement } }),

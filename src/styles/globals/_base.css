@@ -81,16 +81,19 @@ body {
 }
 
 kbd {
-  display: inline-block;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  padding: 0 6px;
+  margin: 0 2px;
   font-family: var(--font-mono);
-  font-size: 0.85em;
-  line-height: 1;
-  color: var(--text-secondary);
-  background: var(--bg-secondary);
-  border: var(--border-light);
-  border-radius: var(--radius-xs);
-  box-shadow: var(--shadow-xs);
+  font-size: 0.8em;
+  line-height: inherit;
+  color: var(--text-primary);
+  background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
+  border: var(--border-default);
+  border-bottom-width: var(--border-width-thick);
+  border-radius: var(--radius-capsule);
+  vertical-align: baseline;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 [data-theme="dark"] body::after {
