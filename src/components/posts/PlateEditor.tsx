@@ -339,11 +339,13 @@ export default function PlateEditor({
     const ed = editor as any;
     const prevBreak = ed.insertBreak.bind(ed);
     ed.insertBreak = () => {
-      const marks = ed.api.marks();
+      const hadKbd = !!ed.api.marks()?.kbd;
+      const hadCode = !!ed.api.marks()?.code;
       prevBreak();
-      // break 후 kbd/code mark가 남아있으면 제거
-      if (marks?.kbd) ed.tf.removeMark("kbd");
-      if (marks?.code) ed.tf.removeMark("code");
+      if (hadKbd || hadCode) {
+        // Slate 내부 marks 캐시를 직접 리셋
+        ed.marks = null;
+      }
     };
   }, [editor]);
 
