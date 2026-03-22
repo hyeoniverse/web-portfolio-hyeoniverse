@@ -914,11 +914,9 @@ export function HrElement(props: PlateElementProps) {
 
 // ── Column layout ──
 export function ColumnGroupElement(props: PlateElementProps) {
-  const editor = useEditorRef();
   const el = props.element as Record<string, unknown>;
   const colBg = el.columnBg as string | undefined;
   const colDivider = el.columnDivider as string | undefined;
-  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
 
   const dividerColor = colDivider === "transparent" ? undefined : colDivider || "var(--text-muted)";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -967,11 +965,9 @@ export function ColumnGroupElement(props: PlateElementProps) {
   });
 
   return (
-    <BlockDropZone path={elPath}>
-      <PlateElement {...props} ref={groupRef} style={groupStyle} data-col-group>
-        {props.children}
-      </PlateElement>
-    </BlockDropZone>
+    <PlateElement {...props} ref={groupRef} style={groupStyle} data-col-group>
+      {props.children}
+    </PlateElement>
   );
 }
 
@@ -985,7 +981,6 @@ const columnBaseStyle: React.CSSProperties = {
 export function ColumnElement(props: PlateElementProps) {
   const el = props.element as Record<string, unknown>;
   const width = el.width as string | undefined;
-
   return (
     <PlateElement {...props} style={{
       ...props.style, ...columnBaseStyle,
