@@ -332,17 +332,35 @@ export default function PlateEditor({
     };
   }, [editor]);
 
-  // ── Enter 시 kbd/code mark 해제 후 break ──
+  // ── kbd/code: Enter 시 mark 해제 + 내부에 다른 mark 금지 ──
   useEffect(() => {
     if (!editor) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ed = editor as any;
+
+    // Enter 시 kbd/code mark 해제
     const prevBreak = ed.insertBreak.bind(ed);
     ed.insertBreak = () => {
       const marks = ed.api.marks();
       if (marks?.kbd) ed.tf.toggleMark("kbd");
       if (marks?.code) ed.tf.toggleMark("code");
       prevBreak();
+    };
+
+    // kbd/code 안에서 다른 mark 적용 금지
+    const prevToggleMark = ed.tf.toggleMark.bind(ed.tf);
+    ed.tf.toggleMark = (key: string, ...args: unknown[]) => {
+      const marks = ed.api.marks();
+      // kbd 안에서는 kbd 해제만 허용, 다른 mark 금지
+      if (marks?.kbd && key !== "kbd") return;
+      // code 안에서는 code 해제만 허용, 다른 mark 금지
+      if (marks?.code && key !== "code") return;
+      // kbd/code 적용 시 다른 mark가 있으면 먼저 해제
+      if (key === "kbd" || key === "code") {
+        const exclusive = ["bold", "italic", "underline", "strikethrough", "superscript", "subscript", "highlight", "kbd", "code"];
+        exclusive.forEach((m) => { if (m !== key && marks?.[m]) prevToggleMark(m); });
+      }
+      prevToggleMark(key, ...args);
     };
   }, [editor]);
 
