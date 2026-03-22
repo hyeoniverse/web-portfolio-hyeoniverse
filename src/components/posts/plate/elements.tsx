@@ -934,49 +934,64 @@ export function ColumnGroupElement(props: PlateElementProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [colBgVal]) as React.CSSProperties;
 
+  // 구분선 overlay ref — PlateElement 밖에서 DOM 직접 생성
+  const groupRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const container = groupRef.current;
+    if (!container) return;
+    // 기존 overlay 제거
+    container.querySelectorAll("[data-col-divider]").forEach((el) => el.remove());
+    if (!dividerColor || colCount <= 1) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cols = (el.children as any[]) || [];
+    const overlay = document.createElement("div");
+    overlay.setAttribute("data-col-divider", "");
+    Object.assign(overlay.style, { position: "absolute", inset: "0", pointerEvents: "none", display: "flex" });
+    for (let i = 0; i < colCount; i++) {
+      const w = (cols[i]?.width as string) || `${Math.round(100 / colCount)}%`;
+      const cell = document.createElement("div");
+      cell.style.flex = `${parseFloat(w)} 0 0`;
+      cell.style.position = "relative";
+      if (i < colCount - 1) {
+        const line = document.createElement("div");
+        Object.assign(line.style, { position: "absolute", top: "0", bottom: "0", right: "calc(-1 * var(--spacing-xs) / 2)", width: "1px", background: dividerColor });
+        cell.appendChild(line);
+      }
+      overlay.appendChild(cell);
+    }
+    container.style.position = "relative";
+    container.appendChild(overlay);
+  });
+
   return (
     <BlockDropZone path={elPath}>
-      <div style={{ position: "relative", margin: "var(--spacing-md) 0" }}>
-        <PlateElement {...props} style={{ ...groupStyle, margin: 0 }} data-col-group>
-          {props.children}
-        </PlateElement>
-        {/* 구분선 overlay — PlateElement 바깥, Slate 무관 */}
-        {dividerColor && colCount > 1 && (
-          <div style={{ position: "absolute", inset: 0, pointerEvents: "none", display: "flex" }}>
-            {Array.from({ length: colCount }).map((_, i) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const w = ((el.children as any[])?.[i]?.width as string) || `${Math.round(100 / colCount)}%`;
-              return (
-                <div key={i} style={{ flex: `${parseFloat(w)} 0 0`, position: "relative" }}>
-                  {i < colCount - 1 && (
-                    <div style={{
-                      position: "absolute",
-                      top: 0, bottom: 0, right: "calc(-1 * var(--spacing-xs) / 2)",
-                      width: 1,
-                      background: dividerColor,
-                    }} />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      <PlateElement {...props} ref={groupRef} style={groupStyle} data-col-group>
+        {props.children}
+      </PlateElement>
     </BlockDropZone>
   );
 }
 
+const columnBaseStyle: React.CSSProperties = {
+  minWidth: 0,
+  borderRadius: "var(--radius-sm)",
+  background: "var(--_col-bg, var(--bg-primary))",
+  padding: "var(--spacing-sm)",
+};
+
 export function ColumnElement(props: PlateElementProps) {
   const el = props.element as Record<string, unknown>;
   const width = el.width as string | undefined;
+  const flex = width ? `${parseFloat(width)} 0 0` : "1 0 0";
+
+  const style = React.useMemo<React.CSSProperties>(
+    () => ({ ...props.style, ...columnBaseStyle, flex }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [flex]
+  );
 
   return (
-    <PlateElement {...props} style={{
-      ...props.style, flex: width ? `${parseFloat(width)} 0 0` : "1 0 0", minWidth: 0,
-      borderRadius: "var(--radius-sm)",
-      background: "var(--_col-bg, var(--bg-primary))",
-      padding: "var(--spacing-sm)",
-    }}>
+    <PlateElement {...props} style={style}>
       {props.children}
     </PlateElement>
   );
