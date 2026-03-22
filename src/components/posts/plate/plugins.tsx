@@ -17,6 +17,7 @@ import {
   HeadingPlugin,
   BlockquotePlugin,
   CodePlugin,
+  KbdPlugin,
   HorizontalRulePlugin,
 } from "@platejs/basic-nodes/react";
 import {
@@ -84,6 +85,7 @@ export const plugins = [
   SubscriptPlugin,
   HighlightPlugin,
   CodePlugin,
+  KbdPlugin,
   // Block elements (드롭 존 래퍼 포함)
   HeadingPlugin.configure({ render: { node: HeadingElement } }),
   BlockquotePlugin.configure({ render: { node: BlockquoteElement } }),
