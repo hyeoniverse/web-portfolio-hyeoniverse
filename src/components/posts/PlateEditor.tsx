@@ -1162,9 +1162,11 @@ export default function PlateEditor({
                   {/* BG 캡슐: 현재색 | 기본색 | 프리셋 | 초기화 | 피커 */}
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>BG</span>
+                    <div className={styles.divider} />
                     <Tooltip content={colBg || "transparent"} placement="top" delay={200}>
-                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)", flexShrink: 0, marginRight: 2 }} />
+                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
                     </Tooltip>
+                    <div className={styles.divider} />
                     {/* 기본색(transparent) */}
                     <Tooltip content="none" placement="top" delay={200}>
                       <button type="button" className={`${styles.presetDotInline} ${!colBg ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnBg: undefined }, { at: columnGroupNode.path })} />
@@ -1176,11 +1178,9 @@ export default function PlateEditor({
                       </Tooltip>
                     ))}
                     <div className={styles.divider} />
-                    {/* 초기화 */}
-                    <TBtn onClick={() => editor.tf.setNodes({ columnBg: undefined }, { at: columnGroupNode.path })} tooltip={t("editor.clearFormat")}>Clear</TBtn>
-                    {/* 피커 */}
                     <div className={styles.colorGroup} style={{ gap: 3 }}>
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
+                      <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)" }} />
                       <input type="color" className={styles.colorInput} value={colBg || "#ffffff"}
                         onChange={(e) => editor.tf.setNodes({ columnBg: e.target.value }, { at: columnGroupNode.path })}
                         ref={(el) => {
@@ -1193,13 +1193,20 @@ export default function PlateEditor({
                         }}
                       />
                     </div>
+                    {Array.from({ length: 5 }).map((_, i) => {
+                      const c = colBgRecentColors.current[i];
+                      const btn = <button key={i} type="button" className={`${styles.presetDotInline} ${c && colBg === c ? styles.presetDotActive : ""}`} disabled={!c} style={{ background: c || CHECKER_BG, cursor: c ? "pointer" : "default" }} onClick={() => { if (c) editor.tf.setNodes({ columnBg: c }, { at: columnGroupNode.path }); }} />;
+                      return c ? <Tooltip key={i} content={c} placement="top" delay={200}>{btn}</Tooltip> : btn;
+                    })}
                   </div>
                   {/* LINE 캡슐: 현재색 | 기본색 | none | 프리셋 | 초기화 | 피커 */}
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>Line</span>
+                    <div className={styles.divider} />
                     <Tooltip content={colDiv === "transparent" ? "none" : colDiv || "default"} placement="top" delay={200}>
-                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--color-neutral-alpha-10)", border: "1px solid var(--border-light-color)", flexShrink: 0, marginRight: 2 }} />
+                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--color-neutral-alpha-10)", border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
                     </Tooltip>
+                    <div className={styles.divider} />
                     {/* 기본색(default) */}
                     <Tooltip content="default" placement="top" delay={200}>
                       <button type="button" className={`${styles.presetDotInline} ${!colDiv ? styles.presetDotActive : ""}`} style={{ background: "var(--color-neutral-alpha-10)" }} onClick={() => editor.tf.setNodes({ columnDivider: undefined }, { at: columnGroupNode.path })} />
@@ -1215,11 +1222,9 @@ export default function PlateEditor({
                       </Tooltip>
                     ))}
                     <div className={styles.divider} />
-                    {/* 초기화 */}
-                    <TBtn onClick={() => editor.tf.setNodes({ columnDivider: undefined }, { at: columnGroupNode.path })} tooltip={t("editor.clearFormat")}>Clear</TBtn>
-                    {/* 피커 */}
                     <div className={styles.colorGroup} style={{ gap: 3 }}>
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
+                      <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--color-neutral-alpha-10)", border: "1px solid var(--border-light-color)" }} />
                       <input type="color" className={styles.colorInput} value={colDiv && colDiv !== "transparent" ? colDiv : "#d1d5db"}
                         onChange={(e) => editor.tf.setNodes({ columnDivider: e.target.value }, { at: columnGroupNode.path })}
                         ref={(el) => {
@@ -1232,6 +1237,11 @@ export default function PlateEditor({
                         }}
                       />
                     </div>
+                    {Array.from({ length: 5 }).map((_, i) => {
+                      const c = colLineRecentColors.current[i];
+                      const btn = <button key={i} type="button" className={`${styles.presetDotInline} ${c && colDiv === c ? styles.presetDotActive : ""}`} disabled={!c} style={{ background: c || CHECKER_BG, cursor: c ? "pointer" : "default" }} onClick={() => { if (c) editor.tf.setNodes({ columnDivider: c }, { at: columnGroupNode.path }); }} />;
+                      return c ? <Tooltip key={i} content={c} placement="top" delay={200}>{btn}</Tooltip> : btn;
+                    })}
                   </div>
                   {/* 너비 캡슐 */}
                   {colCount > 1 && (
