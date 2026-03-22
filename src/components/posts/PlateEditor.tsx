@@ -1162,11 +1162,9 @@ export default function PlateEditor({
                   {/* BG 캡슐: 현재색 | 기본색 | 프리셋 | 초기화 | 피커 */}
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>BG</span>
-                    {/* 현재색 */}
                     <Tooltip content={colBg || "transparent"} placement="top" delay={200}>
-                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
+                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)", flexShrink: 0, marginRight: 2 }} />
                     </Tooltip>
-                    <div className={styles.divider} />
                     {/* 기본색(transparent) */}
                     <Tooltip content="none" placement="top" delay={200}>
                       <button type="button" className={`${styles.presetDotInline} ${!colBg ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnBg: undefined }, { at: columnGroupNode.path })} />
@@ -1199,11 +1197,9 @@ export default function PlateEditor({
                   {/* LINE 캡슐: 현재색 | 기본색 | none | 프리셋 | 초기화 | 피커 */}
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>Line</span>
-                    {/* 현재색 */}
                     <Tooltip content={colDiv === "transparent" ? "none" : colDiv || "default"} placement="top" delay={200}>
-                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--color-neutral-alpha-10)", border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
+                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--color-neutral-alpha-10)", border: "1px solid var(--border-light-color)", flexShrink: 0, marginRight: 2 }} />
                     </Tooltip>
-                    <div className={styles.divider} />
                     {/* 기본색(default) */}
                     <Tooltip content="default" placement="top" delay={200}>
                       <button type="button" className={`${styles.presetDotInline} ${!colDiv ? styles.presetDotActive : ""}`} style={{ background: "var(--color-neutral-alpha-10)" }} onClick={() => editor.tf.setNodes({ columnDivider: undefined }, { at: columnGroupNode.path })} />
