@@ -911,65 +911,6 @@ export function HrElement(props: PlateElementProps) {
   );
 }
 
-// ── Column resize handle ──
-function ColumnResizeHandle({ onResize, dividerColor }: { onResize: (deltaPercent: number) => void; dividerColor?: string }) {
-  const handleRef = useRef<HTMLDivElement>(null);
-
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const startX = e.clientX;
-    const container = handleRef.current?.closest("[data-col-group]") as HTMLElement | null;
-    const containerWidth = container?.getBoundingClientRect().width || 600;
-
-    const onMove = (ev: PointerEvent) => {
-      const dx = ev.clientX - startX;
-      const deltaPercent = (dx / containerWidth) * 100;
-      onResize(deltaPercent);
-    };
-    const onUp = () => {
-      document.removeEventListener("pointermove", onMove);
-      document.removeEventListener("pointerup", onUp);
-    };
-    document.addEventListener("pointermove", onMove);
-    document.addEventListener("pointerup", onUp);
-  }, [onResize]);
-
-  return (
-    <div
-      ref={handleRef}
-      contentEditable={false}
-      onPointerDown={onPointerDown}
-      style={{
-        width: 8,
-        flexShrink: 0,
-        alignSelf: "stretch",
-        cursor: "col-resize",
-        display: "flex",
-        alignItems: dividerColor ? "stretch" : "center",
-        justifyContent: "center",
-        userSelect: "none",
-        touchAction: "none",
-      }}
-      onMouseEnter={(e) => {
-        const h = e.currentTarget.querySelector<HTMLElement>("[data-handle]");
-        if (h && !dividerColor) h.style.background = "var(--text-muted)";
-      }}
-      onMouseLeave={(e) => {
-        const h = e.currentTarget.querySelector<HTMLElement>("[data-handle]");
-        if (h && !dividerColor) h.style.background = "var(--border-light-color)";
-      }}
-    >
-      <div data-handle style={{
-        width: 3,
-        height: 24,
-        borderRadius: 2,
-        background: "var(--border-light-color)",
-        transition: "background 0.15s",
-      }} />
-    </div>
-  );
-}
 
 // ── Column layout ──
 export function ColumnGroupElement(props: PlateElementProps) {
@@ -978,9 +919,6 @@ export function ColumnGroupElement(props: PlateElementProps) {
   const colBg = el.columnBg as string | undefined;
   const colDivider = el.columnDivider as string | undefined;
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const colChildren = (el.children as any[]) || [];
-  const startWidthsRef = useRef<number[]>([]);
 
   const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "var(--text-muted)";
   const hasDivider = colDivider !== "transparent";
@@ -993,57 +931,10 @@ export function ColumnGroupElement(props: PlateElementProps) {
     "--_col-bg": colBg === "transparent" ? "transparent" : colBg || "var(--bg-primary)",
   } as React.CSSProperties;
 
-  // children 사이에 리사이즈 핸들 + 선택적 구분선 삽입
-  const childArr = React.Children.toArray(props.children);
-  const slateChildren = childArr.filter((child) =>
-    React.isValidElement(child) && (child as React.ReactElement<{ "data-slate-node"?: string }>).props?.["data-slate-node"]
-  );
-  const nonSlateChildren = childArr.filter((child) =>
-    !React.isValidElement(child) || !(child as React.ReactElement<{ "data-slate-node"?: string }>).props?.["data-slate-node"]
-  );
-
-  const withHandles = slateChildren.reduce<React.ReactNode[]>((acc, child, i) => {
-    if (i > 0) {
-      acc.push(
-        <ColumnResizeHandle
-          key={`handle-${i}`}
-          dividerColor={colDivider}
-          onResize={(deltaPercent) => {
-            if (!elPath) return;
-            // 첫 드래그 시 현재 너비 기록
-            if (startWidthsRef.current.length === 0) {
-              startWidthsRef.current = colChildren.map((c: { width?: string }) => {
-                const w = c.width ? parseInt(c.width) : Math.round(100 / colChildren.length);
-                return w;
-              });
-            }
-            const widths = [...startWidthsRef.current];
-            const leftIdx = i - 1;
-            const rightIdx = i;
-            const newLeft = Math.max(10, Math.min(90, widths[leftIdx] + deltaPercent));
-            const newRight = Math.max(10, Math.min(90, widths[rightIdx] - deltaPercent));
-            editor.tf.setNodes({ width: `${Math.round(newLeft)}%` }, { at: [...elPath, leftIdx] });
-            editor.tf.setNodes({ width: `${Math.round(newRight)}%` }, { at: [...elPath, rightIdx] });
-          }}
-        />
-      );
-    }
-    acc.push(child);
-    return acc;
-  }, []);
-
-  // pointerup 시 startWidths 리셋
-  useEffect(() => {
-    const reset = () => { startWidthsRef.current = []; };
-    document.addEventListener("pointerup", reset);
-    return () => document.removeEventListener("pointerup", reset);
-  }, []);
-
   return (
     <BlockDropZone path={elPath}>
       <PlateElement {...props} style={groupStyle} data-col-group>
-        {withHandles}
-        {nonSlateChildren}
+        {props.children}
       </PlateElement>
     </BlockDropZone>
   );
