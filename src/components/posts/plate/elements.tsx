@@ -1050,10 +1050,24 @@ export function ColumnGroupElement(props: PlateElementProps) {
 }
 
 export function ColumnElement(props: PlateElementProps) {
+  const editor = useEditorRef();
   const selected = useSelected();
   const focused = useFocused();
   const el = props.element as Record<string, unknown>;
   const width = el.width as string | undefined;
+
+  // 마지막 열인지 확인
+  const isLast = (() => {
+    try {
+      const path = editor.api.findPath(props.element);
+      if (!path || path.length < 2) return false;
+      const parentPath = path.slice(0, -1);
+      const parent = editor.api.node(parentPath);
+      if (!parent) return false;
+      const siblings = (parent[0] as Record<string, unknown>).children as unknown[];
+      return path[path.length - 1] === siblings.length - 1;
+    } catch { return false; }
+  })();
 
   // 내용이 비어있는지 확인
   const isEmpty = (() => {
@@ -1074,7 +1088,7 @@ export function ColumnElement(props: PlateElementProps) {
       borderRadius: "var(--radius-sm)", overflow: "hidden",
       background: showBg ? "var(--_col-bg, var(--_col-bg-base))" : "var(--_col-bg, transparent)",
       padding: "var(--spacing-sm)", transition: "background-color 0.15s",
-      borderRight: "2px solid var(--_col-divider, transparent)",
+      borderRight: isLast ? undefined : "2px solid var(--_col-divider, transparent)",
     }}>
       {props.children}
     </PlateElement>
