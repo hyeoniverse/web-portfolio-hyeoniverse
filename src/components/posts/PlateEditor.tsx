@@ -43,6 +43,21 @@ import Tooltip from "@/components/ui/Tooltip";
 // Re-export ImagePanel for backward compatibility
 export { ImagePanel } from "./plate/ImagePanel";
 
+// ── Find highlight leaf renderer (stable reference) ──
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const renderFindLeaf = ({ children, leaf, attributes }: any) => {
+  if (leaf.findHighlight) {
+    const isCurrent = leaf.findCurrent;
+    return <span {...attributes} style={{
+      backgroundColor: isCurrent ? "var(--color-info, #3b82f6)" : "var(--color-neutral-alpha-10)",
+      borderRadius: 2,
+      color: isCurrent ? "#fff" : undefined,
+      outline: isCurrent ? undefined : "1px solid var(--color-neutral-alpha-20)",
+    }}>{children}</span>;
+  }
+  return <span {...attributes}>{children}</span>;
+};
+
 // ── Main component ──
 const CHECKER_BG = "repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 6px 6px";
 
@@ -1717,19 +1732,8 @@ export default function PlateEditor({
               style={{ minHeight: 300, paddingBottom: 40 }}
               data-lenis-prevent
               onKeyDown={handleContentKeyDown}
-              decorate={decorate}
-              renderLeaf={({ children, leaf, attributes }) => {
-                if ((leaf as Record<string, unknown>).findHighlight) {
-                  const isCurrent = (leaf as Record<string, unknown>).findCurrent;
-                  return <span {...attributes} style={{
-                    backgroundColor: isCurrent ? "var(--color-info, #3b82f6)" : "var(--color-neutral-alpha-10)",
-                    borderRadius: 2,
-                    color: isCurrent ? "#fff" : undefined,
-                    outline: isCurrent ? undefined : "1px solid var(--color-neutral-alpha-20)",
-                  }}>{children}</span>;
-                }
-                return <span {...attributes}>{children}</span>;
-              }}
+              decorate={findOpen ? decorate : undefined}
+              renderLeaf={findOpen ? renderFindLeaf : undefined}
               onClick={(e) => {
                 // 에디터 하단 빈 영역 클릭 시 맨 끝에 커서
                 const target = e.target as HTMLElement;
