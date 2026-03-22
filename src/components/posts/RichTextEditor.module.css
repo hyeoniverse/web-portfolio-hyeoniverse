@@ -2269,3 +2269,24 @@
   border-left: 1px solid var(--border-light-color);
   transition: min-width 0.2s ease;
 }
+
+/* ── Column divider line (pseudo-element) ── */
+.colElement {
+  position: relative;
+  overflow: visible;
+}
+
+.colElement::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(-1 * var(--spacing-xs) / 2);
+  width: 1px;
+  background: var(--_col-divider, transparent);
+  pointer-events: none;
+}
+
+.colElement:last-child::after {
+  display: none;
+}

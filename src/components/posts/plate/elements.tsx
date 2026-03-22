@@ -926,7 +926,6 @@ export function ColumnGroupElement(props: PlateElementProps) {
     display: "flex",
     gap: "var(--spacing-xs)",
     margin: "var(--spacing-md) 0",
-    overflow: "hidden",
     "--_col-bg": colBgVal,
     "--_col-divider": dividerColor,
   } as React.CSSProperties;
@@ -942,14 +941,13 @@ export function ColumnElement(props: PlateElementProps) {
   const el = props.element as Record<string, unknown>;
   const width = el.width as string | undefined;
   return (
-    <PlateElement {...props} style={{
+    <PlateElement {...props} className={styles.colElement} style={{
       ...props.style,
       flex: width ? `${parseFloat(width)} 0 0` : "1 0 0",
       minWidth: 0,
       borderRadius: "var(--radius-sm)",
       background: "var(--_col-bg, var(--bg-primary))",
       padding: "var(--spacing-sm)",
-      boxShadow: "1px 0 0 var(--_col-divider, transparent)",
     }}>
       {props.children}
     </PlateElement>
