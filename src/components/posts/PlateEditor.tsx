@@ -821,6 +821,22 @@ export default function PlateEditor({
         return;
       }
     }
+    // kbd/code 빈 상태에서 Backspace → mark 해제
+    if (e.key === "Backspace" && editor.selection && editor.api.isCollapsed()) {
+      const marks = editor.api.marks();
+      if (marks?.kbd || marks?.code) {
+        const leaf = editor.api.node(editor.selection.anchor.path);
+        if (leaf) {
+          const text = (leaf[0] as Record<string, unknown>).text as string;
+          if (!text || text.length === 0) {
+            e.preventDefault();
+            if (marks.kbd) editor.tf.toggleMark("kbd");
+            if (marks.code) editor.tf.toggleMark("code");
+            return;
+          }
+        }
+      }
+    }
     // toggle/callout 제목에서 Backspace → 빈 제목이면 블록 삭제
     if (e.key === "Backspace" && editor.selection && editor.api.isCollapsed()) {
       const { anchor } = editor.selection;
