@@ -332,28 +332,17 @@ export default function PlateEditor({
     };
   }, [editor]);
 
-  // ── Enter 시 kbd/code mark 제거 ──
+  // ── Enter 시 kbd/code mark 해제 후 break ──
   useEffect(() => {
     if (!editor) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ed = editor as any;
     const prevBreak = ed.insertBreak.bind(ed);
     ed.insertBreak = () => {
-      const hadKbd = !!ed.api.marks()?.kbd;
-      const hadCode = !!ed.api.marks()?.code;
+      const marks = ed.api.marks();
+      if (marks?.kbd) ed.tf.toggleMark("kbd");
+      if (marks?.code) ed.tf.toggleMark("code");
       prevBreak();
-      if (hadKbd || hadCode) {
-        ed.marks = null;
-        // 새 줄의 현재 leaf node에서도 mark 속성 제거
-        if (ed.selection) {
-          const marksToRemove: Record<string, undefined> = {};
-          if (hadKbd) marksToRemove.kbd = undefined;
-          if (hadCode) marksToRemove.code = undefined;
-          try {
-            ed.tf.setNodes(marksToRemove, { at: ed.selection, match: (n: Record<string, unknown>) => !!n.text, split: true });
-          } catch { /* ignore */ }
-        }
-      }
     };
   }, [editor]);
 
