@@ -984,43 +984,44 @@ export default function PlateEditor({
 
   const insertMathBlock = useCallback(() => doInsertMath("", "block"), [doInsertMath]);
 
-  // ── Active toolbar height → scrollPaddingTop만 설정 (overflow 조작 없음) ──
+  // ── Active toolbar height → scrollPaddingTop + find offset ──
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const toolbarPadRef = useRef(0);
-  const measureToolbar = useCallback(() => {
-    const container = editorContainerRef.current;
-    if (!container) return;
-    // find 툴바 높이
-    const findH = findToolbarRef.current && !findToolbarRef.current.classList.contains(styles.tableToolbarHidden)
-      ? findToolbarRef.current.offsetHeight : 0;
-    // 다른 툴바에 top offset
-    container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
-      if (tb === findToolbarRef.current) return;
-      const isHidden = tb.classList.contains(styles.tableToolbarHidden);
-      if (isHidden) {
-        tb.style.top = "0px";
-      } else if (findH > 0) {
-        tb.style.top = `${findH}px`;
-      } else {
-        tb.style.top = "";
+  // 어떤 toolbar든 visibility가 바뀌면 재측정
+  const toolbarKey = `${findOpen}|${findReplace}|${isInTable}|${isInColumn}|${isInToggle}|${isInCallout}|${mathEditing}|${isInImage}`;
+  useEffect(() => {
+    // 다음 프레임에서 측정 — DOM 업데이트 후
+    const id = requestAnimationFrame(() => {
+      const container = editorContainerRef.current;
+      if (!container) return;
+      const findH = findToolbarRef.current && !findToolbarRef.current.classList.contains(styles.tableToolbarHidden)
+        ? findToolbarRef.current.offsetHeight : 0;
+      container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
+        if (tb === findToolbarRef.current) return;
+        const isHidden = tb.classList.contains(styles.tableToolbarHidden);
+        if (isHidden) {
+          tb.style.top = "0px";
+        } else if (findH > 0) {
+          tb.style.top = `${findH}px`;
+        } else {
+          tb.style.top = "";
+        }
+      });
+      let maxH = 0;
+      container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
+        if (!tb.classList.contains(styles.tableToolbarHidden)) {
+          maxH = Math.max(maxH, (tb === findToolbarRef.current ? 0 : findH) + tb.offsetHeight);
+        }
+      });
+      if (toolbarPadRef.current === maxH) return;
+      toolbarPadRef.current = maxH;
+      const scrollEl = container.querySelector<HTMLElement>("[data-slate-editor]");
+      if (scrollEl) {
+        scrollEl.style.scrollPaddingTop = maxH > 0 ? `${maxH}px` : "";
       }
     });
-    // scrollPaddingTop만 설정 — paddingTop/overflow 조작 안 함
-    let maxH = 0;
-    container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
-      if (!tb.classList.contains(styles.tableToolbarHidden)) {
-        maxH = Math.max(maxH, (tb === findToolbarRef.current ? 0 : findH) + tb.offsetHeight);
-      }
-    });
-    if (toolbarPadRef.current === maxH) return;
-    toolbarPadRef.current = maxH;
-    const scrollEl = container.querySelector<HTMLElement>("[data-slate-editor]");
-    if (scrollEl) {
-      scrollEl.style.scrollPaddingTop = maxH > 0 ? `${maxH}px` : "";
-    }
-  }, [findOpen, findReplace]); // eslint-disable-line react-hooks/exhaustive-deps
-  // find 상태 변경 시에만 측정
-  useEffect(() => { measureToolbar(); }, [measureToolbar]);
+    return () => cancelAnimationFrame(id);
+  }, [toolbarKey]);
 
   if (!editor) return null;
 

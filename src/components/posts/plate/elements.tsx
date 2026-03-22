@@ -933,35 +933,39 @@ export function ColumnGroupElement(props: PlateElementProps) {
     "--_col-bg": colBgVal,
   } as React.CSSProperties;
 
-  // 구분선 overlay — dividerColor 또는 colWidths 변경 시에만 DOM 업데이트
+  // 구분선 overlay — dividerColor 또는 colWidths 변경 시에만 DOM 업데이트 (rAF으로 지연)
   const groupRef = React.useRef<HTMLDivElement>(null);
   const prevDividerKey = React.useRef("");
+  const rafId = React.useRef(0);
   React.useEffect(() => {
-    const container = groupRef.current;
-    if (!container) return;
     const key = `${dividerColor || ""}|${colWidths}`;
     if (prevDividerKey.current === key) return;
     prevDividerKey.current = key;
-    // 기존 overlay 제거
-    const existing = container.querySelector("[data-col-divider]");
-    if (existing) existing.remove();
-    if (!dividerColor || colCount <= 1) return;
-    const widths = colWidths.split(",");
-    const overlay = document.createElement("div");
-    overlay.setAttribute("data-col-divider", "");
-    Object.assign(overlay.style, { position: "absolute", inset: "0", pointerEvents: "none", display: "flex" });
-    for (let i = 0; i < widths.length; i++) {
-      const cell = document.createElement("div");
-      cell.style.flex = `${parseFloat(widths[i])} 0 0`;
-      cell.style.position = "relative";
-      if (i < widths.length - 1) {
-        const line = document.createElement("div");
-        Object.assign(line.style, { position: "absolute", top: "0", bottom: "0", right: "calc(-1 * var(--spacing-xs) / 2)", width: "1px", background: dividerColor });
-        cell.appendChild(line);
+    cancelAnimationFrame(rafId.current);
+    rafId.current = requestAnimationFrame(() => {
+      const container = groupRef.current;
+      if (!container) return;
+      const existing = container.querySelector("[data-col-divider]");
+      if (existing) existing.remove();
+      if (!dividerColor || colCount <= 1) return;
+      const widths = colWidths.split(",");
+      const overlay = document.createElement("div");
+      overlay.setAttribute("data-col-divider", "");
+      Object.assign(overlay.style, { position: "absolute", inset: "0", pointerEvents: "none", display: "flex" });
+      for (let i = 0; i < widths.length; i++) {
+        const cell = document.createElement("div");
+        cell.style.flex = `${parseFloat(widths[i])} 0 0`;
+        cell.style.position = "relative";
+        if (i < widths.length - 1) {
+          const line = document.createElement("div");
+          Object.assign(line.style, { position: "absolute", top: "0", bottom: "0", right: "calc(-1 * var(--spacing-xs) / 2)", width: "1px", background: dividerColor });
+          cell.appendChild(line);
+        }
+        overlay.appendChild(cell);
       }
-      overlay.appendChild(cell);
-    }
-    container.appendChild(overlay);
+      container.appendChild(overlay);
+    });
+    return () => cancelAnimationFrame(rafId.current);
   });
 
   return (
