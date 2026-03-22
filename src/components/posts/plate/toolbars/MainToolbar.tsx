@@ -636,6 +636,39 @@ export default React.memo(function MainToolbar({
           key={cols}
           tooltip={`${cols}${t("editor.columns")}`}
           onClick={() => {
+            // 현재 커서가 column_group 안에 있으면 열 개수 변경
+            try {
+              const colGroupEntry = editor.api.above({ match: { type: "column_group" } });
+              if (colGroupEntry) {
+                const [groupNode, groupPath] = colGroupEntry;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const currentChildren = (groupNode as any).children || [];
+                const currentCount = currentChildren.length;
+                if (currentCount === cols) return; // 같으면 무시
+                editor.tf.withoutNormalizing(() => {
+                  if (cols > currentCount) {
+                    // 열 추가
+                    for (let i = currentCount; i < cols; i++) {
+                      editor.tf.insertNodes(
+                        { type: "column", width: `${Math.round(100 / cols)}%`, children: [{ type: "p", children: [{ text: "" }] }] },
+                        { at: [...groupPath, i] }
+                      );
+                    }
+                  } else {
+                    // 열 제거 (뒤에서부터)
+                    for (let i = currentCount - 1; i >= cols; i--) {
+                      editor.tf.removeNodes({ at: [...groupPath, i] });
+                    }
+                  }
+                  // 모든 열 너비 균등 재설정
+                  for (let i = 0; i < cols; i++) {
+                    editor.tf.setNodes({ width: `${Math.round(100 / cols)}%` }, { at: [...groupPath, i] });
+                  }
+                });
+                return;
+              }
+            } catch { /* ignore */ }
+            // 새 열블록 삽입
             const colChildren = Array.from({ length: cols }, () => ({
               type: "column",
               width: `${Math.round(100 / cols)}%`,
