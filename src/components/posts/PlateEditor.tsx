@@ -1781,23 +1781,13 @@ export default function PlateEditor({
               onKeyDown={handleContentKeyDown}
               decorate={findOpen ? decorate : undefined}
               renderLeaf={findOpen ? renderFindLeaf : undefined}
-              onMouseDown={(e) => {
-                // column 밖 클릭 시 container selection 해제 (column→column 이동은 제외)
-                const target = e.target as HTMLElement;
-                const clickedInColumn = !!target.closest(`.${styles.colElement}`) || !!target.closest("[data-col-group]");
-                if (!clickedInColumn) {
-                  try {
-                    if (editor.api.above({ match: { type: "column_group" } })) {
-                      requestAnimationFrame(() => {
-                        try {
-                          if (editor.api.above({ match: { type: "column_group" } })) {
-                            editor.tf.deselect();
-                          }
-                        } catch { /* ignore */ }
-                      });
-                    }
-                  } catch { /* ignore */ }
-                }
+              onMouseDown={() => {
+                // column 안에서 클릭 시 container 유지 로직 우회
+                try {
+                  if (editor.api.above({ match: { type: "column_group" } })) {
+                    editor.tf.deselect();
+                  }
+                } catch { /* ignore */ }
               }}
               onClick={(e) => {
                 // 에디터 하단 빈 영역 클릭 시 맨 끝에 커서
