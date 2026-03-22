@@ -342,8 +342,11 @@ export default function PlateEditor({
     const prevBreak = ed.insertBreak.bind(ed);
     ed.insertBreak = () => {
       const marks = ed.api.marks();
-      if (marks?.kbd) ed.tf.toggleMark("kbd");
-      if (marks?.code) ed.tf.toggleMark("code");
+      const hadKbd = !!marks?.kbd;
+      const hadCode = !!marks?.code;
+      if (hadKbd) ed.tf.toggleMark("kbd");
+      if (hadCode) ed.tf.toggleMark("code");
+      if (hadKbd || hadCode) ed.marks = null;
       prevBreak();
     };
 
@@ -821,7 +824,7 @@ export default function PlateEditor({
         return;
       }
     }
-    // kbd/code 빈 상태에서 Backspace → mark 해제
+    // kbd/code 빈 상태에서 Backspace → mark 해제 + 캐시 리셋
     if (e.key === "Backspace" && editor.selection && editor.api.isCollapsed()) {
       const marks = editor.api.marks();
       if (marks?.kbd || marks?.code) {
@@ -832,6 +835,8 @@ export default function PlateEditor({
             e.preventDefault();
             if (marks.kbd) editor.tf.toggleMark("kbd");
             if (marks.code) editor.tf.toggleMark("code");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (editor as any).marks = null;
             return;
           }
         }
