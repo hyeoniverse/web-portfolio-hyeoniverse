@@ -119,10 +119,10 @@
   left: 0;
   right: 0;
   padding: 2px var(--spacing-2xs);
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-neutral-alpha-50);
   font-family: var(--font-space-grotesk);
   font-size: 10px;
-  color: #fff;
+  color: var(--text-inverse);
   text-align: center;
 }
 
@@ -223,7 +223,7 @@
   left: 0;
   right: 0;
   padding: 2px var(--spacing-2xs);
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--bg-overlay);
   font-family: var(--font-space-grotesk);
   font-size: 9px;
   color: var(--text-muted);
