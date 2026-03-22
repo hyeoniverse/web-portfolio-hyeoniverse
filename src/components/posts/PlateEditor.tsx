@@ -343,8 +343,16 @@ export default function PlateEditor({
       const hadCode = !!ed.api.marks()?.code;
       prevBreak();
       if (hadKbd || hadCode) {
-        // Slate 내부 marks 캐시를 직접 리셋
         ed.marks = null;
+        // 새 줄의 현재 leaf node에서도 mark 속성 제거
+        if (ed.selection) {
+          const marksToRemove: Record<string, undefined> = {};
+          if (hadKbd) marksToRemove.kbd = undefined;
+          if (hadCode) marksToRemove.code = undefined;
+          try {
+            ed.tf.setNodes(marksToRemove, { at: ed.selection, match: (n: Record<string, unknown>) => !!n.text, split: true });
+          } catch { /* ignore */ }
+        }
       }
     };
   }, [editor]);
