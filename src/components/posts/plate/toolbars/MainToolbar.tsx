@@ -396,6 +396,9 @@ export default React.memo(function MainToolbar({
       <TBtn active={hasMark("underline")} onClick={() => editor.tf.toggleMark("underline")} style={{ textDecoration: "underline" }} tooltip={`${t("editor.underline")}\n${kb("⌘U")}`}>U</TBtn>
       <TBtn active={hasMark("strikethrough")} onClick={() => editor.tf.toggleMark("strikethrough")} style={{ textDecoration: "line-through" }} tooltip={t("editor.strikethrough")}>S</TBtn>
       <TBtn active={hasMark("code")} onClick={() => editor.tf.toggleMark("code")} tooltip={`${t("editor.inlineCode")}\n${kb("⌘E")}`}>{"<>"}</TBtn>
+      <TBtn active={hasMark("kbd")} onClick={() => editor.tf.toggleMark("kbd")} tooltip="Kbd">
+        <span style={{ fontSize: 9, padding: "1px 3px", border: "var(--border-light)", borderRadius: 3 }}>⌘</span>
+      </TBtn>
       <div className={styles.divider} />
 
       {/* Superscript / Subscript */}
