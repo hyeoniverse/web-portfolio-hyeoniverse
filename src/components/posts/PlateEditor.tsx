@@ -749,6 +749,12 @@ export default function PlateEditor({
       setTimeout(() => findInputRef.current?.focus(), 50);
       return;
     }
+    if (e.key === "Escape" && findOpen) {
+      setFindOpen(false);
+      setFindQuery("");
+      setReplaceQuery("");
+      return;
+    }
     // toggle/callout 제목에서 Backspace → 빈 제목이면 블록 삭제
     if (e.key === "Backspace" && editor.selection && editor.api.isCollapsed()) {
       const { anchor } = editor.selection;
@@ -1170,7 +1176,7 @@ export default function PlateEditor({
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>BG</span>
                     <div className={styles.divider} />
-                    <Tooltip content={colBg || "transparent"} placement="top" delay={200}>
+                    <Tooltip content="current" placement="top" delay={200}>
                       <div style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
                     </Tooltip>
                     <div className={styles.divider} />
@@ -1214,7 +1220,7 @@ export default function PlateEditor({
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>Line</span>
                     <div className={styles.divider} />
-                    <Tooltip content={colDiv === "transparent" ? "none" : colDiv || "default"} placement="top" delay={200}>
+                    <Tooltip content="current" placement="top" delay={200}>
                       <div style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
                     </Tooltip>
                     <div className={styles.divider} />
