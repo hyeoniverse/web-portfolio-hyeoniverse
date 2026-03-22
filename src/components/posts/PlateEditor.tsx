@@ -1771,12 +1771,16 @@ export default function PlateEditor({
                 // column container 밖 클릭 시 Plate의 container selection 유지를 우회
                 const target = e.target as HTMLElement;
                 if (!target.closest("[data-col-group]")) {
-                  // column 밖 클릭 → Slate가 정상적으로 selection 처리하도록
-                  const colGroup = editor.api.above({ match: { type: "column_group" } });
-                  if (colGroup) {
-                    // 현재 column 안에 있으면 deselect 후 기본 동작
-                    editor.tf.deselect();
-                  }
+                  try {
+                    const colGroup = editor.api.above({ match: { type: "column_group" } });
+                    if (colGroup) {
+                      // 스크롤 위치 보존하면서 deselect
+                      const scrollEl = (e.currentTarget as HTMLElement);
+                      const scrollTop = scrollEl.scrollTop;
+                      editor.tf.deselect();
+                      scrollEl.scrollTop = scrollTop;
+                    }
+                  } catch { /* ignore */ }
                 }
               }}
               decorate={findOpen ? decorate : undefined}
