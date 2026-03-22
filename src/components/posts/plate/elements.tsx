@@ -982,15 +982,16 @@ export function ColumnGroupElement(props: PlateElementProps) {
   const colChildren = (el.children as any[]) || [];
   const startWidthsRef = useRef<number[]>([]);
 
+  const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "var(--text-muted)";
+  const hasDivider = colDivider !== "transparent";
   const groupStyle: React.CSSProperties = {
     ...props.style,
     display: "flex",
-    gap: "var(--spacing-xs)",
+    gap: hasDivider ? 1 : "var(--spacing-xs)",
     margin: "var(--spacing-md) 0",
     borderRadius: "var(--radius-sm)",
-    "--_col-bg": colBg || "",
-    "--_col-divider": colDivider === "transparent" ? "transparent" : colDivider || "var(--color-neutral-alpha-10)",
-    "--_col-bg-base": colBg || "color-mix(in srgb, var(--text-primary) 3%, transparent)",
+    background: hasDivider ? dividerColor : undefined,
+    "--_col-bg": colBg === "transparent" ? "transparent" : colBg || "var(--bg-primary)",
   } as React.CSSProperties;
 
   // children 사이에 리사이즈 핸들 + 선택적 구분선 삽입
@@ -1050,56 +1051,17 @@ export function ColumnGroupElement(props: PlateElementProps) {
 }
 
 export function ColumnElement(props: PlateElementProps) {
-  const editor = useEditorRef();
-  const selected = useSelected();
-  const focused = useFocused();
   const el = props.element as Record<string, unknown>;
   const width = el.width as string | undefined;
-
-  // 마지막 열인지 확인
-  const isLast = (() => {
-    try {
-      const path = editor.api.findPath(props.element);
-      if (!path || path.length < 2) return false;
-      const parentPath = path.slice(0, -1);
-      const parent = editor.api.node(parentPath);
-      if (!parent) return false;
-      const siblings = (parent[0] as Record<string, unknown>).children as unknown[];
-      return path[path.length - 1] === siblings.length - 1;
-    } catch { return false; }
-  })();
-
-  // 내용이 비어있는지 확인
-  const isEmpty = (() => {
-    const children = (el.children as { children?: { text?: string }[] }[]) || [];
-    return children.every((child) =>
-      !child.children || child.children.every((leaf) => !leaf.text || leaf.text.length === 0)
-    );
-  })();
-
-  // 이 열에 커서가 있는지 (개별 감지)
-  const isEditing = selected && focused;
-
-  const showBg = isEmpty && !isEditing;
 
   return (
     <PlateElement {...props} style={{
       ...props.style, flex: width ? `${parseFloat(width)} 0 0` : "1 0 0", minWidth: 0,
       borderRadius: "var(--radius-sm)",
-      background: showBg ? "var(--_col-bg, var(--_col-bg-base))" : "var(--_col-bg, transparent)",
-      padding: "var(--spacing-sm)", transition: "background-color 0.15s",
-      position: "relative",
+      background: "var(--_col-bg, transparent)",
+      padding: "var(--spacing-sm)",
     }}>
       {props.children}
-      {!isLast && <div contentEditable={false} style={{
-        position: "absolute",
-        top: 0, bottom: 0,
-        right: "calc(-1 * var(--spacing-xs) / 2)",
-        width: 1,
-        background: "var(--_col-divider, transparent)",
-        pointerEvents: "none",
-        transform: "scaleX(0.5)",
-      }} />}
     </PlateElement>
   );
 }
