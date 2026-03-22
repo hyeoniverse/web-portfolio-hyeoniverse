@@ -749,11 +749,33 @@ export default function PlateEditor({
       setTimeout(() => findInputRef.current?.focus(), 50);
       return;
     }
-    if (e.key === "Escape" && findOpen) {
-      setFindOpen(false);
-      setFindQuery("");
-      setReplaceQuery("");
-      return;
+    if (e.key === "Escape") {
+      // 아래 toolbar부터 순차적으로 닫기: contextual → find
+      const inContextual = isInTable || isInColumn || isInToggle || isInCallout || mathEditing || isInImage;
+      if (inContextual && editor.selection) {
+        // 현재 블록 밖으로 커서 이동 → contextual toolbar 닫힘
+        e.preventDefault();
+        try {
+          const topPath = [editor.selection.anchor.path[0]];
+          const after = editor.api.after(topPath);
+          if (after) {
+            editor.tf.select(after);
+          } else {
+            // 마지막 블록이면 뒤에 빈 p 추가
+            const insertAt = [editor.children.length];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            editor.tf.insertNodes({ type: "p", children: [{ text: "" }] } as any, { at: insertAt });
+            editor.tf.select({ path: [...insertAt, 0], offset: 0 });
+          }
+        } catch { /* ignore */ }
+        return;
+      }
+      if (findOpen) {
+        setFindOpen(false);
+        setFindQuery("");
+        setReplaceQuery("");
+        return;
+      }
     }
     // toggle/callout 제목에서 Backspace → 빈 제목이면 블록 삭제
     if (e.key === "Backspace" && editor.selection && editor.api.isCollapsed()) {
@@ -815,7 +837,7 @@ export default function PlateEditor({
         }
       }
     }
-  }, [editor, findOpen]);
+  }, [editor, findOpen, isInTable, isInColumn, isInToggle, isInCallout, mathEditing, isInImage]);
 
   // ── All media (images + video embeds) + detached 동기 관리 ──
   const detachedRef = useRef<{ url: string; mediaType?: string }[]>([]);
