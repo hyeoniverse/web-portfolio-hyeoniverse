@@ -581,6 +581,12 @@
     min-height: 100vh;
   }
 
+  /* GSAP pin-spacer width 강제 100% */
+  .track :global(.pin-spacer) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   .mobilePinViewport .pinnedTitleRow {
     padding-top: var(--_panel-py);
   }

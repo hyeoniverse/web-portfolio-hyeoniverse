@@ -346,7 +346,8 @@
   }
 
   .ufFlowLayout {
-    display: none;
+    overflow-x: auto;
+    min-height: 200px;
   }
 
   .ufMobileList {
