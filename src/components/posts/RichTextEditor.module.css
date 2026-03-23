@@ -2087,9 +2087,11 @@
 
 .editorContent code {
   font-family: var(--font-mono);
-  font-size: 0.9em;
-  padding: 0 6px;
+  font-size: 0.85em;
+  padding: 2px 6px;
+  color: var(--text-secondary);
   background: var(--bg-tertiary);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   line-height: inherit;
   box-decoration-break: clone;
@@ -2102,7 +2104,7 @@
   overflow-x: auto;
   margin: var(--spacing-md) 0;
 }
-.editorContent pre code { padding: 0; background: transparent; }
+.editorContent pre code { padding: 0; background: transparent; border: none; color: inherit; border-radius: 0; }
 /* Code syntax highlighting — VSCode Dark+ / Light+ inspired */
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-keyword),
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-selector-tag),
