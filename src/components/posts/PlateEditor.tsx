@@ -1850,6 +1850,32 @@ export default function PlateEditor({
               decorate={findOpen ? decorate : undefined}
               renderLeaf={findOpen ? renderFindLeaf : undefined}
               onClick={(e) => {
+                // kbd/code 가장자리 클릭 → mark 밖으로 커서
+                try {
+                  const target = e.target as HTMLElement;
+                  const markEl = target.closest("code, kbd") as HTMLElement | null;
+                  if (markEl && editor.selection && editor.api.isCollapsed()) {
+                    const rect = markEl.getBoundingClientRect();
+                    const clickX = e.clientX;
+                    const edgeThreshold = 8;
+                    const isLeftEdge = clickX - rect.left < edgeThreshold;
+                    const isRightEdge = rect.right - clickX < edgeThreshold;
+                    if (isLeftEdge || isRightEdge) {
+                      e.preventDefault();
+                      const { anchor } = editor.selection;
+                      const leaf = editor.api.node(anchor.path);
+                      if (leaf) {
+                        const point = isLeftEdge
+                          ? editor.api.before(anchor.path)
+                          : editor.api.after(anchor.path);
+                        if (point) {
+                          editor.tf.select(point);
+                          return;
+                        }
+                      }
+                    }
+                  }
+                } catch { /* ignore */ }
                 // 에디터 하단 빈 영역 클릭 시 맨 끝에 커서
                 const target = e.target as HTMLElement;
                 const isEditorRoot = target.getAttribute("data-slate-editor") === "true";
