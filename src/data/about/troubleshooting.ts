@@ -648,4 +648,72 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       },
     ],
   },
+
+  /* ── Editor ── */
+  {
+    section: { ko: "Editor", en: "Editor" },
+    problem: { ko: "Plate 에디터에서 컨텍스트 툴바 표시 시 커서가 멋대로 튐", en: "Cursor Jumping Randomly When Contextual Toolbar Appears in Plate Editor" },
+    definition: {
+      ko: "에디터에서 테이블·열블록·수식 등 블록을 선택하면 상단에 컨텍스트 툴바가 나타나는데, **툴바가 나타나는 순간 커서가 다른 위치로 점프**하거나, 일반 텍스트를 입력하는 중에도 **커서가 갑자기 문서 앞쪽으로 이동**하는 현상이 발생했습니다.",
+      en: "When selecting blocks like tables, columns, or equations, a contextual toolbar appears at the top. **The cursor jumped to random positions the moment the toolbar appeared**, and even during normal text input, **the cursor suddenly moved to the beginning of the document**.",
+    },
+    cause: {
+      ko: "`MutationObserver`를 사용하여 에디터 DOM의 **모든 변경(childList, subtree, attributes)**을 감시하고, 변경이 감지되면 `scrollEl.style.overflow = 'hidden'` → `scrollEl.style.overflow = ''`를 토글하여 스크롤 위치를 보정하고 있었습니다. 문제는 **타이핑할 때마다** Slate가 DOM을 업데이트하면 이 observer가 실행되고, `overflow` 토글이 **브라우저의 `contentEditable` selection을 리셋**시킨다는 것이었습니다. 또한 `renderLeaf`에 **매 렌더마다 새로운 inline 함수**를 전달하여 PlateContent가 모든 leaf를 리렌더링하는 것도 원인이었습니다.",
+      en: "A `MutationObserver` was watching **all DOM changes (childList, subtree, attributes)** in the editor, toggling `scrollEl.style.overflow = 'hidden'` → `scrollEl.style.overflow = ''` on each mutation to adjust scroll position. The problem was that **every keystroke** triggered Slate DOM updates → observer fired → `overflow` toggle **reset the browser's `contentEditable` selection**. Additionally, passing a **new inline function to `renderLeaf` on every render** caused PlateContent to re-render all leaves.",
+    },
+    solution: {
+      ko: "`MutationObserver`를 **완전히 제거**하고, `overflow` 토글 없이 `scrollPaddingTop`만 설정하도록 변경했습니다. 툴바 visibility 상태를 문자열 key로 통합하여 **상태 변경 시에만 `requestAnimationFrame`으로 측정**합니다. `renderLeaf`는 **모듈 레벨의 안정적인 함수 참조**로 분리하고, `decorate`와 함께 **find가 열려있을 때만** PlateContent에 전달합니다.",
+      en: "**Completely removed the `MutationObserver`** and switched to only setting `scrollPaddingTop` without any `overflow` toggling. Toolbar visibility states are combined into a string key and **measured only on state changes via `requestAnimationFrame`**. `renderLeaf` was extracted to a **stable module-level function reference**, and both `decorate` and `renderLeaf` are **only passed to PlateContent when find is open**.",
+    },
+    keyInsight: {
+      ko: "`contentEditable` 요소에서 **`overflow` 속성을 동적으로 변경하면 브라우저가 selection을 리셋**할 수 있습니다. Slate/Plate 에디터의 DOM은 프레임워크가 관리하므로, `MutationObserver`로 감시하면 **모든 키 입력이 observer를 트리거**합니다. 성능에 민감한 영역에서는 DOM 감시 대신 **React state 기반으로 반응**해야 합니다.",
+      en: "**Dynamically changing `overflow` on a `contentEditable` element can cause browsers to reset the selection.** Since Slate/Plate manages the DOM, a `MutationObserver` means **every keystroke triggers the observer**. In performance-sensitive areas, react to **React state changes instead of observing DOM mutations**.",
+    },
+  },
+  {
+    problem: { ko: "토글·콜아웃·열블록 콘텐츠가 저장 후 사라짐", en: "Toggle, Callout, and Column Block Content Disappearing After Save" },
+    definition: {
+      ko: "Plate 에디터에서 토글·콜아웃·열블록을 작성하고 저장한 뒤 다시 열면, **블록 자체는 남아있지만 내부 콘텐츠가 모두 비어있었습니다**. 제목이나 구조는 유지되었으나 본문 텍스트, 목록, 중첩 블록이 전부 유실되었습니다.",
+      en: "After writing toggle, callout, and column blocks in the Plate editor and reloading, **the blocks themselves remained but all inner content was empty**. Titles and structure were preserved, but body text, lists, and nested blocks were completely lost.",
+    },
+    cause: {
+      ko: "각 플러그인의 HTML deserializer `parse` 함수에서 **`children: []`를 명시적으로 반환**하고 있었습니다. Plate의 HTML deserializer는 `parse`가 `children`을 반환하지 않으면 **HTML 자식 노드를 자동으로 재귀 파싱**하지만, 빈 배열 `[]`이 명시되면 **'자식이 없다'고 판단하여 HTML 파싱을 건너뛰었습니다**. 토글·콜아웃·열블록·열 아이템 4개 플러그인 모두 동일한 문제가 있었습니다.",
+      en: "Each plugin's HTML deserializer `parse` function **explicitly returned `children: []`**. Plate's HTML deserializer **automatically parses child HTML nodes recursively** when `parse` doesn't return `children`, but when an empty array `[]` is explicitly provided, it **treats it as 'no children' and skips HTML parsing**. All four plugins — toggle, callout, column group, and column item — had the same issue.",
+    },
+    solution: {
+      ko: "각 deserializer의 `parse` 반환 객체에서 **`children: []`를 제거**했습니다. `children` 필드가 없으면 Plate가 `<div>` 내부의 HTML을 자동으로 재귀 파싱하여 Slate 노드로 변환합니다.",
+      en: "**Removed `children: []`** from each deserializer's `parse` return object. Without the `children` field, Plate automatically parses the inner HTML recursively and converts it to Slate nodes.",
+    },
+    keyInsight: {
+      ko: "프레임워크의 **기본 동작(convention over configuration)**을 이해해야 합니다. Plate deserializer에서 `children`을 생략하면 자동 파싱, 명시하면 수동 제어 — 빈 배열은 **'자식 없음'이라는 의도적 선언**으로 해석됩니다. 불필요한 명시가 프레임워크의 자동 동작을 차단할 수 있습니다.",
+      en: "Understanding a framework's **default behavior (convention over configuration)** is essential. In Plate's deserializer, omitting `children` triggers automatic parsing, while specifying it means manual control — an empty array is interpreted as **an intentional declaration of 'no children'**. Unnecessary explicit values can block the framework's automatic behavior.",
+    },
+    comparisons: [
+      {
+        label: { ko: "deserializer children 반환 방식 비교", en: "Deserializer children return comparison" },
+        headers: [
+          { ko: "반환 방식", en: "Return style" },
+          { ko: "Plate 동작", en: "Plate behavior" },
+          { ko: "결과", en: "Result" },
+        ],
+        rows: [
+          {
+            cells: [
+              { ko: "children: []", en: "children: []" },
+              { ko: "HTML 자식 파싱 건너뜀", en: "Skips HTML child parsing" },
+              { ko: "❌ 내부 콘텐츠 유실", en: "❌ Inner content lost" },
+            ],
+          },
+          {
+            cells: [
+              { ko: "children 생략 (채택)", en: "Omit children (adopted)" },
+              { ko: "HTML 자식 자동 재귀 파싱", en: "Auto-recursive HTML child parsing" },
+              { ko: "✅ 콘텐츠 보존", en: "✅ Content preserved" },
+            ],
+            highlight: true,
+          },
+        ],
+      } satisfies ComparisonTable,
+    ],
+  },
 ];
