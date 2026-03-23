@@ -338,32 +338,6 @@ export default function PlateEditor({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ed = editor as any;
 
-    // Enter 시 kbd/code → break 후 새 블록에서 mark 제거
-    const prevBreak = ed.insertBreak.bind(ed);
-    ed.insertBreak = () => {
-      const marks = ed.api.marks();
-      const hadKbd = !!marks?.kbd;
-      const hadCode = !!marks?.code;
-      prevBreak();
-      if ((hadKbd || hadCode) && ed.selection) {
-        ed.marks = null;
-        try {
-          const block = ed.api.block();
-          if (block) {
-            const [, blockPath] = block;
-            const props: string[] = [];
-            if (hadKbd) props.push("kbd");
-            if (hadCode) props.push("code");
-            ed.tf.withoutNormalizing(() => {
-              ed.tf.unsetNodes(props, {
-                at: blockPath,
-                match: (n: Record<string, unknown>) => typeof n.text === "string",
-              });
-            });
-          }
-        } catch { /* ignore */ }
-      }
-    };
 
     // kbd/code 안에서 다른 mark 적용 금지
     const prevToggleMark = ed.tf.toggleMark.bind(ed.tf);
@@ -836,6 +810,22 @@ export default function PlateEditor({
         setFindOpen(false);
         setFindQuery("");
         setReplaceQuery("");
+        return;
+      }
+    }
+    // kbd/code 안에서 Enter → mark 해제 후 기본 break
+    if (e.key === "Enter" && !e.shiftKey && editor.selection && editor.api.isCollapsed()) {
+      const marks = editor.api.marks();
+      if (marks?.kbd || marks?.code) {
+        e.preventDefault();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const ed = editor as any;
+        // mark를 명시적으로 빈 상태로 설정
+        ed.marks = {};
+        // 기본 insertBreak 실행 — marks={}이므로 새 줄에 mark 안 붙음
+        ed.insertBreak();
+        // break 후에도 marks 캐시 유지
+        ed.marks = {};
         return;
       }
     }
@@ -1850,41 +1840,6 @@ export default function PlateEditor({
               decorate={findOpen ? decorate : undefined}
               renderLeaf={findOpen ? renderFindLeaf : undefined}
               onClick={(e) => {
-                // kbd/code 가장자리 클릭 → mark 밖으로 커서
-                try {
-                  const clickTarget = e.target as HTMLElement;
-                  const markEl = clickTarget.closest("code, kbd") as HTMLElement | null;
-                  // 코드블록 내부 code는 제외
-                  if (markEl && !markEl.closest("pre") && editor.selection && editor.api.isCollapsed()) {
-                    const rect = markEl.getBoundingClientRect();
-                    const clickX = e.clientX;
-                    const edgeThreshold = 10;
-                    const isLeftEdge = clickX - rect.left < edgeThreshold;
-                    const isRightEdge = rect.right - clickX < edgeThreshold;
-                    if (isLeftEdge || isRightEdge) {
-                      setTimeout(() => {
-                        try {
-                          if (!editor.selection) return;
-                          const { anchor } = editor.selection;
-                          const leafNode = editor.api.node(anchor.path);
-                          if (!leafNode) return;
-                          const ln = leafNode[0] as Record<string, unknown>;
-                          if (!ln.kbd && !ln.code) return;
-                          const text = (ln.text as string) || "";
-                          if (isLeftEdge) {
-                            editor.tf.select({ path: anchor.path, offset: 0 });
-                          } else {
-                            editor.tf.select({ path: anchor.path, offset: text.length });
-                          }
-                          // leaf marks를 override — 빈 객체로 설정하면 다음 입력이 plain text
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          (editor as any).marks = {};
-                        } catch { /* ignore */ }
-                      }, 0);
-                      return;
-                    }
-                  }
-                } catch { /* ignore */ }
                 // 에디터 하단 빈 영역 클릭 시 맨 끝에 커서
                 const target = e.target as HTMLElement;
                 const isEditorRoot = target.getAttribute("data-slate-editor") === "true";
