@@ -537,6 +537,7 @@
   .track {
     flex-direction: column;
     will-change: auto;
+    transform: none !important;
   }
 
   .panel,
