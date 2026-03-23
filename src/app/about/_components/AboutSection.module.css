@@ -501,8 +501,7 @@
 @media (max-width: 1024px), (max-height: 700px) {
   .section {
     padding-top: 80px;
-    overflow-x: hidden;
-    overflow-y: visible;
+    overflow: visible;
     height: auto;
     min-height: 100vh;
   }
@@ -539,7 +538,6 @@
   .track {
     flex-direction: column;
     will-change: auto;
-    transform: none !important;
   }
 
   .panel,
@@ -583,11 +581,6 @@
     min-height: 100vh;
   }
 
-  /* GSAP pin-spacer width 강제 100% */
-  .track :global(.pin-spacer) {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
 
   .mobilePinViewport .pinnedTitleRow {
     padding-top: var(--_panel-py);
