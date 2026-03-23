@@ -813,7 +813,7 @@ export default function PlateEditor({
         return;
       }
     }
-    // kbd/code 안에서 Enter → 텍스트 끝에서만 새 plain p 삽입
+    // kbd/code 안에서 Enter → 맨앞이면 위에 plain p, 끝이면 아래에 plain p
     if (e.key === "Enter" && !e.shiftKey && editor.selection && editor.api.isCollapsed()) {
       const marks = editor.api.marks();
       if (marks?.kbd || marks?.code) {
@@ -821,19 +821,26 @@ export default function PlateEditor({
         const leafNode = editor.api.node(anchor.path);
         if (leafNode) {
           const text = ((leafNode[0] as Record<string, unknown>).text as string || "").replace(/[\uFEFF\u200B]/g, "");
+          const atStart = anchor.offset === 0;
           const atEnd = anchor.offset >= text.length;
-          if (atEnd) {
+          if (atStart || atEnd) {
             e.preventDefault();
-            // insertBreak 대신 수동으로 새 p 삽입 (mark 복사 방지)
             const blockEntry = editor.api.block();
             if (blockEntry) {
               const [, blockPath] = blockEntry;
-              const newPath = [blockPath[0] + 1];
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              editor.tf.insertNodes({ type: "p", children: [{ text: "" }] } as any, { at: newPath });
-              editor.tf.select({ path: [...newPath, 0], offset: 0 });
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (editor as any).marks = {};
+              if (atStart) {
+                // 맨앞: 위에 plain p 삽입, 커서는 현재 위치 유지
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                editor.tf.insertNodes({ type: "p", children: [{ text: "" }] } as any, { at: blockPath });
+              } else {
+                // 끝: 아래에 plain p 삽입, 커서 이동
+                const newPath = [blockPath[0] + 1];
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                editor.tf.insertNodes({ type: "p", children: [{ text: "" }] } as any, { at: newPath });
+                editor.tf.select({ path: [...newPath, 0], offset: 0 });
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (editor as any).marks = {};
+              }
             }
             return;
           }
