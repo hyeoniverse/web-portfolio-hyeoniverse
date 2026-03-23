@@ -1862,7 +1862,6 @@ export default function PlateEditor({
                     const isLeftEdge = clickX - rect.left < edgeThreshold;
                     const isRightEdge = rect.right - clickX < edgeThreshold;
                     if (isLeftEdge || isRightEdge) {
-                      // setTimeout으로 Slate selection 처리 완료 후 실행
                       setTimeout(() => {
                         try {
                           if (!editor.selection) return;
@@ -1872,18 +1871,14 @@ export default function PlateEditor({
                           const ln = leafNode[0] as Record<string, unknown>;
                           if (!ln.kbd && !ln.code) return;
                           const text = (ln.text as string) || "";
-                          // 커서를 leaf 경계로 이동
                           if (isLeftEdge) {
                             editor.tf.select({ path: anchor.path, offset: 0 });
                           } else {
-                            editor.tf.select({ path: anchor.path, offset: text.replace(/[\uFEFF\u200B]/g, "").length });
+                            editor.tf.select({ path: anchor.path, offset: text.length });
                           }
-                          // mark 해제
+                          // leaf marks를 override — 빈 객체로 설정하면 다음 입력이 plain text
                           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          const ed = editor as any;
-                          if (ln.kbd) ed.tf.toggleMark("kbd");
-                          if (ln.code) ed.tf.toggleMark("code");
-                          ed.marks = null;
+                          (editor as any).marks = {};
                         } catch { /* ignore */ }
                       }, 0);
                       return;
