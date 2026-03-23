@@ -501,7 +501,8 @@
 @media (max-width: 1024px), (max-height: 700px) {
   .section {
     padding-top: 80px;
-    overflow: visible;
+    overflow-x: clip;
+    overflow-y: visible;
     height: auto;
     min-height: 100vh;
   }
