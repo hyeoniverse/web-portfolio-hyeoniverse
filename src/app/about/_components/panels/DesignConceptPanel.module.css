@@ -402,13 +402,8 @@
 
 @media (max-width: 1024px), (max-height: 700px) {
   .dcViewport {
-    width: 100vw;
-    max-width: 100vw;
     height: 100vh;
     min-height: 100vh;
-    margin-left: calc(-1 * var(--_panel-px));
-    padding-left: var(--_panel-px);
-    padding-right: var(--_panel-px);
   }
 
   .dcCardStack {
