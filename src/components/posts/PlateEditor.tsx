@@ -813,7 +813,7 @@ export default function PlateEditor({
         return;
       }
     }
-    // kbd/code 안에서 Enter → 텍스트 끝에서만 mark 해제
+    // kbd/code 안에서 Enter → 텍스트 끝에서만 새 plain p 삽입
     if (e.key === "Enter" && !e.shiftKey && editor.selection && editor.api.isCollapsed()) {
       const marks = editor.api.marks();
       if (marks?.kbd || marks?.code) {
@@ -824,14 +824,19 @@ export default function PlateEditor({
           const atEnd = anchor.offset >= text.length;
           if (atEnd) {
             e.preventDefault();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const ed = editor as any;
-            ed.marks = {};
-            ed.insertBreak();
-            ed.marks = {};
+            // insertBreak 대신 수동으로 새 p 삽입 (mark 복사 방지)
+            const blockEntry = editor.api.block();
+            if (blockEntry) {
+              const [, blockPath] = blockEntry;
+              const newPath = [blockPath[0] + 1];
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              editor.tf.insertNodes({ type: "p", children: [{ text: "" }] } as any, { at: newPath });
+              editor.tf.select({ path: [...newPath, 0], offset: 0 });
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (editor as any).marks = {};
+            }
             return;
           }
-          // 맨앞/중간 → 기본 break (mark 유지)
         }
       }
     }
