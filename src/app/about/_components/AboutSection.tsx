@@ -153,6 +153,7 @@ export default function AboutSection() {
 
   return (
     <>
+      <div className={styles.sectionWrap}>
       <section className={styles.section} ref={sectionRef}>
         <div className={styles.track} ref={trackRef}>
           {isMobile || !infiniteScroll
@@ -160,6 +161,7 @@ export default function AboutSection() {
             : Array.from({ length: REPETITIONS }, (_, i) => panelSet(i))}
         </div>
       </section>
+      </div>
       {!isLoading && (
         <>
           <SectionNav

@@ -47,6 +47,10 @@
   background: var(--bg-primary);
 }
 
+.sectionWrap {
+  overflow-x: hidden;
+}
+
 .track {
   display: flex;
   align-items: stretch;
@@ -501,8 +505,7 @@
 @media (max-width: 1024px), (max-height: 700px) {
   .section {
     padding-top: 80px;
-    overflow-x: clip;
-    overflow-y: visible;
+    overflow: visible;
     height: auto;
     min-height: 100vh;
   }
