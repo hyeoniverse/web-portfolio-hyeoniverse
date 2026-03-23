@@ -1858,6 +1858,22 @@ export default function PlateEditor({
               decorate={findOpen ? decorate : undefined}
               renderLeaf={findOpen ? renderFindLeaf : undefined}
               onClick={(e) => {
+                // kbd/code 밖 클릭 시 plain text 모드로 전환
+                const clickTarget = e.target as HTMLElement;
+                const clickedOnMark = !!clickTarget.closest("code:not(pre code), kbd");
+                if (!clickedOnMark) {
+                  setTimeout(() => {
+                    try {
+                      if (!editor.selection) return;
+                      const marks = editor.api.marks();
+                      if (marks?.kbd || marks?.code) {
+                        // 커서가 kbd/code leaf 안이지만 클릭은 밖 → plain text 모드
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        (editor as any).marks = {};
+                      }
+                    } catch { /* ignore */ }
+                  }, 0);
+                }
                 // 에디터 하단 빈 영역 클릭 시 맨 끝에 커서
                 const target = e.target as HTMLElement;
                 const isEditorRoot = target.getAttribute("data-slate-editor") === "true";
