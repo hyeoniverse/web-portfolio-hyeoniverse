@@ -845,8 +845,8 @@ export default function PlateEditor({
       if (marks?.kbd || marks?.code) {
         const leaf = editor.api.node(editor.selection.anchor.path);
         if (leaf) {
-          const text = (leaf[0] as Record<string, unknown>).text as string;
-          if (!text || text.length === 0) {
+          const text = ((leaf[0] as Record<string, unknown>).text as string || "").replace(/[\uFEFF\u200B]/g, "");
+          if (text.length === 0) {
             e.preventDefault();
             if (marks.kbd) editor.tf.toggleMark("kbd");
             if (marks.code) editor.tf.toggleMark("code");
