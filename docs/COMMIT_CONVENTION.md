@@ -1,6 +1,8 @@
 # Git 커밋 컨벤션
 
-이 프로젝트는 [Conventional Commits](https://www.conventionalcommits.org/ko/v1.0.0/) 규칙을 따릅니다.
+> [Conventional Commits](https://www.conventionalcommits.org/ko/v1.0.0/) 기반 커밋 메시지 규칙
+
+---
 
 ## 커밋 메시지 형식
 
