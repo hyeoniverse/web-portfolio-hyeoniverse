@@ -171,7 +171,7 @@ function DesignConceptPanel({
   });
 
   return (
-    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
+    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide} ${styles.dcPanel}`}>
       <div ref={contentRef} className={`${styles.pinnedContent} ${styles.dcViewport}`}>
         <PinnedTitleRow
           title={<T k="aboutPage.panels.designSystem" />}

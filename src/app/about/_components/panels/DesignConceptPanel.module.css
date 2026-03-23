@@ -401,6 +401,12 @@
 }
 
 @media (max-width: 1024px), (max-height: 700px) {
+  .dcPanel {
+    width: 100vw;
+    max-width: 100vw;
+    overflow: hidden;
+  }
+
   .dcViewport {
     height: 100vh;
     min-height: 100vh;
