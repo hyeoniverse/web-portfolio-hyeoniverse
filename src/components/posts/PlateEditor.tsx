@@ -1852,26 +1852,37 @@ export default function PlateEditor({
               onClick={(e) => {
                 // kbd/code 가장자리 클릭 → mark 밖으로 커서
                 try {
-                  const target = e.target as HTMLElement;
-                  const markEl = target.closest("code, kbd") as HTMLElement | null;
+                  const clickTarget = e.target as HTMLElement;
+                  const markEl = clickTarget.closest("code, kbd") as HTMLElement | null;
                   if (markEl && editor.selection && editor.api.isCollapsed()) {
                     const rect = markEl.getBoundingClientRect();
                     const clickX = e.clientX;
-                    const edgeThreshold = 8;
+                    const edgeThreshold = 10;
                     const isLeftEdge = clickX - rect.left < edgeThreshold;
                     const isRightEdge = rect.right - clickX < edgeThreshold;
                     if (isLeftEdge || isRightEdge) {
-                      e.preventDefault();
                       const { anchor } = editor.selection;
-                      const leaf = editor.api.node(anchor.path);
-                      if (leaf) {
-                        const point = isLeftEdge
-                          ? editor.api.before(anchor.path)
-                          : editor.api.after(anchor.path);
-                        if (point) {
-                          editor.tf.select(point);
-                          return;
+                      const leafNode = editor.api.node(anchor.path);
+                      if (leafNode) {
+                        const text = (leafNode[0] as Record<string, unknown>).text as string || "";
+                        if (isLeftEdge) {
+                          // leaf 시작으로 이동 후 mark 해제
+                          editor.tf.select({ path: anchor.path, offset: 0 });
+                          const marks = editor.api.marks();
+                          if (marks?.kbd) editor.tf.toggleMark("kbd");
+                          if (marks?.code) editor.tf.toggleMark("code");
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          (editor as any).marks = null;
+                        } else {
+                          // leaf 끝으로 이동 후 mark 해제
+                          editor.tf.select({ path: anchor.path, offset: text.length });
+                          const marks = editor.api.marks();
+                          if (marks?.kbd) editor.tf.toggleMark("kbd");
+                          if (marks?.code) editor.tf.toggleMark("code");
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          (editor as any).marks = null;
                         }
+                        return;
                       }
                     }
                   }
