@@ -509,6 +509,8 @@
 
   .pinnedContent {
     will-change: auto;
+    width: 100%;
+    max-width: 100%;
   }
 
   /* ── Mobile InView animation (reverse on exit) ── */
