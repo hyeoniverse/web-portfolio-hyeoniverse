@@ -47,10 +47,6 @@
   background: var(--bg-primary);
 }
 
-.sectionWrap {
-  overflow-x: hidden;
-}
-
 .track {
   display: flex;
   align-items: stretch;
