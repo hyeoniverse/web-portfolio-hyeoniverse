@@ -813,20 +813,26 @@ export default function PlateEditor({
         return;
       }
     }
-    // kbd/code 안에서 Enter → mark 해제 후 기본 break
+    // kbd/code 안에서 Enter → 텍스트 끝에서만 mark 해제
     if (e.key === "Enter" && !e.shiftKey && editor.selection && editor.api.isCollapsed()) {
       const marks = editor.api.marks();
       if (marks?.kbd || marks?.code) {
-        e.preventDefault();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const ed = editor as any;
-        // mark를 명시적으로 빈 상태로 설정
-        ed.marks = {};
-        // 기본 insertBreak 실행 — marks={}이므로 새 줄에 mark 안 붙음
-        ed.insertBreak();
-        // break 후에도 marks 캐시 유지
-        ed.marks = {};
-        return;
+        const { anchor } = editor.selection;
+        const leafNode = editor.api.node(anchor.path);
+        if (leafNode) {
+          const text = ((leafNode[0] as Record<string, unknown>).text as string || "").replace(/[\uFEFF\u200B]/g, "");
+          const atEnd = anchor.offset >= text.length;
+          if (atEnd) {
+            e.preventDefault();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const ed = editor as any;
+            ed.marks = {};
+            ed.insertBreak();
+            ed.marks = {};
+            return;
+          }
+          // 맨앞/중간 → 기본 break (mark 유지)
+        }
       }
     }
     // kbd/code 빈 상태에서 Backspace → mark 해제 + 캐시 리셋
