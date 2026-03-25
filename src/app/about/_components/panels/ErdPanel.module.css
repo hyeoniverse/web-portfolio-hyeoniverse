@@ -230,16 +230,30 @@
 
 @media (max-width: 1024px), (max-height: 700px) {
   .erdTitleRow.erdTitleRow.erdTitleRow {
-    padding-top: calc(80px + 40px);
+    padding-top: calc(80px + 40px + var(--spacing-xs));
+    margin-bottom: var(--spacing-2xs);
+  }
+
+  .erdTitleRow h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .erdViewport.erdViewport {
+    height: fit-content;
+    min-height: fit-content;
   }
 
   .erdPinnedLayout {
+    flex: none;
+    align-items: flex-start;
     min-height: 0;
     overflow: hidden;
   }
 
   .erdDiagramWrap {
     max-width: 100%;
+    padding: var(--spacing-lg) 0;
   }
 
   .erdNoteOverlay {
@@ -251,6 +265,7 @@
     gap: var(--spacing-sm);
     align-items: flex-start;
     padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-lg);
     animation: erdNoteSlideIn 0.35s var(--ease-out);
