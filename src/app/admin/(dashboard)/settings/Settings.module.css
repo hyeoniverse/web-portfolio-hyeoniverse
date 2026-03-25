@@ -1774,6 +1774,38 @@
   gap: var(--spacing-xs);
 }
 
+.socialIconImg {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  border-radius: var(--radius-xs);
+}
+
+.socialIconUpload {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+}
+
+.socialIconUploadBtn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light-color);
+  border-radius: 50%;
+  background: transparent;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.socialIconUploadBtn:hover:not(:disabled) {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
 .socialRemoveBtn {
   width: 24px;
   height: 24px;
