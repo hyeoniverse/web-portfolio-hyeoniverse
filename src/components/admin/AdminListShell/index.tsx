@@ -17,6 +17,7 @@ interface AdminListShellProps {
   saveCount?: number;
   saveLabel?: string;
   beforeTable?: ReactNode;
+  afterTable?: ReactNode;
   children: ReactNode;
 }
 
@@ -30,6 +31,7 @@ export default function AdminListShell({
   saveCount = 0,
   saveLabel = "Save",
   beforeTable,
+  afterTable,
   children,
 }: AdminListShellProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
@@ -90,6 +92,8 @@ export default function AdminListShell({
       {beforeTable}
 
       {children}
+
+      {afterTable}
     </div>
   );
 }

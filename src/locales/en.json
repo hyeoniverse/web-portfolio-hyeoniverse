@@ -603,6 +603,13 @@
       "allCategories": "All Categories",
       "resetFilters": "Reset",
       "save": "Save",
+      "trash": "Trash",
+      "trashEmpty": "Trash is empty",
+      "trashDaysLeft": "days until auto-delete",
+      "trashRestore": "Restore",
+      "trashPurge": "Delete Permanently",
+      "trashPurgeConfirm": "Permanently delete this work? This cannot be undone.",
+      "trashAutoDelete": "Works are automatically deleted after 30 days.",
       "editor": {
         "backToWorks": "← Back to Works",
         "delete": "Delete",
