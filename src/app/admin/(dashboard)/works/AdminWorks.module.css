@@ -5,6 +5,10 @@
   align-items: center;
 }
 
+.searchGroupRight {
+  margin-left: auto;
+}
+
 .searchTypeSelect {
   flex-shrink: 0;
   min-width: 80px;
@@ -71,7 +75,7 @@
 }
 
 .trashHint {
-  margin: var(--spacing-xs) 0 0;
+  margin-left: auto;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
@@ -89,7 +93,12 @@
 }
 
 .trashContent > * {
+  min-height: 0;
   overflow: hidden;
+}
+
+.trashContentOpen > * {
+  overflow: visible;
 }
 
 .trashList {
@@ -182,7 +191,7 @@
 }
 
 .subFilterInput {
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-sm);
   border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -190,8 +199,8 @@
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   outline: none;
-  min-width: 80px;
-  max-width: 140px;
+  min-width: 100px;
+  max-width: 180px;
 }
 
 .subFilterInput:focus {
@@ -202,9 +211,26 @@
   color: var(--text-muted);
 }
 
+.subPageSize {
+  flex: 0 0 auto;
+  min-width: 60px;
+  max-width: 80px;
+}
+
+.subPageSize button {
+  padding: var(--box-sm);
+  font-size: var(--font-size-xs);
+}
+
 .subFilterSelect {
-  min-width: 80px;
-  max-width: 140px;
+  flex: 0 1 auto;
+  min-width: 100px;
+  max-width: 180px;
+}
+
+.subFilterSelect button {
+  padding: var(--box-sm);
+  font-size: var(--font-size-xs);
 }
 
 .trashPaging {

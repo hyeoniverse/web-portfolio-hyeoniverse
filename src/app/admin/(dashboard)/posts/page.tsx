@@ -131,7 +131,7 @@ export default function AdminPostsPage() {
   const [seriesSearchType, setSeriesSearchType] = useState<"all" | "title" | "content">("all");
   const [seriesSort, setSeriesSort] = useState<"newest" | "oldest" | "name">("newest");
   const [seriesFilter, setSeriesFilter] = useState<"" | "published" | "draft">("");
-  const SERIES_PER_PAGE = 5;
+  const [seriesPerPage, setSeriesPerPage] = useState(5);
 
   /* Trash */
   const [trashPosts, setTrashPosts] = useState<Post[]>([]);
@@ -139,7 +139,7 @@ export default function AdminPostsPage() {
   const [trashSearch, setTrashSearch] = useState("");
   const [trashSort, setTrashSort] = useState<"newest" | "oldest">("newest");
   const [trashPage, setTrashPage] = useState(1);
-  const TRASH_PER_PAGE = 10;
+  const [trashPerPage, setTrashPerPage] = useState(10);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -448,16 +448,32 @@ export default function AdminPostsPage() {
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
+        <span className={styles.trashHint}><T k="admin.posts.trashAutoDelete" /></span>
       </button>
 
       <div className={`${styles.trashContent} ${trashOpen ? styles.trashContentOpen : ""}`}>
         <div>
-        <p className={styles.trashHint}><T k="admin.posts.trashAutoDelete" /></p>
-        {trashPosts.length === 0 ? (
-          <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
-        ) : (
-          <>
-          <div className={styles.subFilterBar}>
+        <div className={styles.subFilterBar}>
+          <Select
+            value={String(trashPerPage)}
+            options={[
+              { value: "10", label: "10" },
+              { value: "20", label: "20" },
+              { value: "50", label: "50" },
+            ]}
+            onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
+            className={styles.subPageSize}
+          />
+          <Select
+            value={trashSort}
+            options={[
+              { value: "newest", label: t("admin.posts.sortNewestDeleted") },
+              { value: "oldest", label: t("admin.posts.sortOldestDeleted") },
+            ]}
+            onChange={(v) => setTrashSort(v as "newest" | "oldest")}
+            className={styles.subFilterSelect}
+          />
+          <div className={`${styles.searchGroup} ${styles.searchGroupRight}`}>
             <input
               type="text"
               placeholder={t("admin.posts.trashSearch")}
@@ -465,18 +481,13 @@ export default function AdminPostsPage() {
               onChange={(e) => setTrashSearch(e.target.value)}
               className={styles.subFilterInput}
             />
-            <Select
-              value={trashSort}
-              options={[
-                { value: "newest", label: t("admin.posts.sortNewestDeleted") },
-                { value: "oldest", label: t("admin.posts.sortOldestDeleted") },
-              ]}
-              onChange={(v) => setTrashSort(v as "newest" | "oldest")}
-              className={styles.subFilterSelect}
-            />
           </div>
+        </div>
+        {filteredTrash.length === 0 ? (
+          <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
+        ) : (
           <ul className={styles.trashList}>
-            {filteredTrash.slice((trashPage - 1) * TRASH_PER_PAGE, trashPage * TRASH_PER_PAGE).map((post) => {
+            {filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage).map((post) => {
               const daysLeft = getDaysLeft(post.deleted_at!);
               const title = formatPostTitle(post) || t("admin.posts.untitled");
               return (
@@ -506,31 +517,28 @@ export default function AdminPostsPage() {
               );
             })}
           </ul>
-          {filteredTrash.length > TRASH_PER_PAGE && (
-            <div className={styles.trashPaging}>
-              <button
-                type="button"
-                className={styles.trashPageBtn}
-                disabled={trashPage <= 1}
-                onClick={() => setTrashPage((p) => p - 1)}
-              >
-                &larr;
-              </button>
-              <span className={styles.trashPageInfo}>
-                {trashPage} / {Math.ceil(filteredTrash.length / TRASH_PER_PAGE)}
-              </span>
-              <button
-                type="button"
-                className={styles.trashPageBtn}
-                disabled={trashPage >= Math.ceil(filteredTrash.length / TRASH_PER_PAGE)}
-                onClick={() => setTrashPage((p) => p + 1)}
-              >
-                &rarr;
-              </button>
-            </div>
-          )}
-          </>
         )}
+        <div className={styles.trashPaging}>
+          <button
+            type="button"
+            className={styles.trashPageBtn}
+            disabled={trashPage <= 1}
+            onClick={() => setTrashPage((p) => p - 1)}
+          >
+            &larr;
+          </button>
+          <span className={styles.trashPageInfo}>
+            {trashPage} / {Math.max(1, Math.ceil(filteredTrash.length / trashPerPage))}
+          </span>
+          <button
+            type="button"
+            className={styles.trashPageBtn}
+            disabled={trashPage >= Math.ceil(filteredTrash.length / trashPerPage)}
+            onClick={() => setTrashPage((p) => p + 1)}
+          >
+            &rarr;
+          </button>
+        </div>
         </div>
       </div>
     </div>
@@ -574,21 +582,14 @@ export default function AdminPostsPage() {
         <div>
         <div className={styles.subFilterBar}>
           <Select
-            value={seriesSearchType}
+            value={String(seriesPerPage)}
             options={[
-              { value: "all", label: t("admin.posts.searchAll") },
-              { value: "title", label: t("admin.posts.searchTitle") },
-              { value: "content", label: t("admin.posts.searchContent") },
+              { value: "5", label: "5" },
+              { value: "10", label: "10" },
+              { value: "20", label: "20" },
             ]}
-            onChange={(v) => setSeriesSearchType(v as "all" | "title" | "content")}
-            className={styles.subFilterSelect}
-          />
-          <input
-            type="text"
-            placeholder={t("admin.posts.seriesSearch")}
-            value={seriesSearch}
-            onChange={(e) => setSeriesSearch(e.target.value)}
-            className={styles.subFilterInput}
+            onChange={(v) => { setSeriesPerPage(Number(v)); setSeriesPage(1); }}
+            className={styles.subPageSize}
           />
           <Select
             value={seriesSort}
@@ -610,9 +611,28 @@ export default function AdminPostsPage() {
             onChange={(v) => setSeriesFilter(v as "" | "published" | "draft")}
             className={styles.subFilterSelect}
           />
+          <div className={`${styles.searchGroup} ${styles.searchGroupRight}`}>
+            <Select
+              value={seriesSearchType}
+              options={[
+                { value: "all", label: t("admin.posts.searchAll") },
+                { value: "title", label: t("admin.posts.searchTitle") },
+                { value: "content", label: t("admin.posts.searchContent") },
+              ]}
+              onChange={(v) => setSeriesSearchType(v as "all" | "title" | "content")}
+              className={styles.subFilterSelect}
+            />
+            <input
+              type="text"
+              placeholder={t("admin.posts.seriesSearch")}
+              value={seriesSearch}
+              onChange={(e) => setSeriesSearch(e.target.value)}
+              className={styles.subFilterInput}
+            />
+          </div>
         </div>
         <ul className={styles.seriesList}>
-          {filteredSeries.slice((seriesPage - 1) * SERIES_PER_PAGE, seriesPage * SERIES_PER_PAGE).map((s) => (
+          {filteredSeries.slice((seriesPage - 1) * seriesPerPage, seriesPage * seriesPerPage).map((s) => (
             <li key={s.id} className={styles.seriesRow}>
                 <span className={styles.seriesRowThumb}>
                   {s.cover_image ? (
@@ -658,7 +678,7 @@ export default function AdminPostsPage() {
               </li>
             ))}
           </ul>
-        {filteredSeries.length > SERIES_PER_PAGE && (
+        {filteredSeries.length > 0 && (
           <div className={styles.seriesPaging}>
             <button
               type="button"
@@ -669,12 +689,12 @@ export default function AdminPostsPage() {
               &larr;
             </button>
             <span className={styles.seriesPageInfo}>
-              {seriesPage} / {Math.ceil(filteredSeries.length / SERIES_PER_PAGE)}
+              {seriesPage} / {Math.ceil(filteredSeries.length / seriesPerPage)}
             </span>
             <button
               type="button"
               className={styles.seriesPageBtn}
-              disabled={seriesPage >= Math.ceil(filteredSeries.length / SERIES_PER_PAGE)}
+              disabled={seriesPage >= Math.ceil(filteredSeries.length / seriesPerPage)}
               onClick={() => setSeriesPage((p) => p + 1)}
             >
               &rarr;
@@ -702,25 +722,12 @@ export default function AdminPostsPage() {
     >
       {/* Filter bar */}
       <div className={shell.filterBar}>
-        <div className={styles.searchGroup}>
-          <Select
-            value={searchType}
-            options={[
-              { value: "all", label: t("admin.posts.searchAll") },
-              { value: "title", label: t("admin.posts.searchTitle") },
-              { value: "content", label: t("admin.posts.searchContent") },
-            ]}
-            onChange={(v) => { setSearchType(v); setPage(1); }}
-            className={styles.searchTypeSelect}
-          />
-          <input
-            type="text"
-            placeholder={t("admin.posts.search")}
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className={styles.searchInput}
-          />
-        </div>
+        <Select
+          value={String(perPage)}
+          options={PAGE_SIZE_OPTIONS}
+          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+          className={`${shell.filterPageSize} ${styles.filterPageSizeLeft}`}
+        />
         <Select
           value={sort}
           options={[
@@ -763,12 +770,25 @@ export default function AdminPostsPage() {
             {t("admin.posts.resetFilters")}
           </button>
         )}
-        <Select
-          value={String(perPage)}
-          options={PAGE_SIZE_OPTIONS}
-          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-          className={shell.filterPageSize}
-        />
+        <div className={`${styles.searchGroup} ${styles.searchGroupRight}`}>
+          <Select
+            value={searchType}
+            options={[
+              { value: "all", label: t("admin.posts.searchAll") },
+              { value: "title", label: t("admin.posts.searchTitle") },
+              { value: "content", label: t("admin.posts.searchContent") },
+            ]}
+            onChange={(v) => { setSearchType(v); setPage(1); }}
+            className={styles.searchTypeSelect}
+          />
+          <input
+            type="text"
+            placeholder={t("admin.posts.search")}
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className={styles.searchInput}
+          />
+        </div>
       </div>
 
       <AdminTable<Post>

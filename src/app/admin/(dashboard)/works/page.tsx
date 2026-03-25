@@ -119,7 +119,7 @@ export default function AdminWorksPage() {
   const [trashSearch, setTrashSearch] = useState("");
   const [trashSort, setTrashSort] = useState<"newest" | "oldest">("newest");
   const [trashPage, setTrashPage] = useState(1);
-  const TRASH_PER_PAGE = 10;
+  const [trashPerPage, setTrashPerPage] = useState(10);
 
   /* Preview tooltip — use refs + minimal state to avoid re-rendering AdminTable */
   const hoveredWorkRef = useRef<Work | null>(null);
@@ -425,16 +425,32 @@ export default function AdminWorksPage() {
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
+        <span className={styles.trashHint}><T k="admin.works.trashAutoDelete" /></span>
       </button>
 
       <div className={`${styles.trashContent} ${trashOpen ? styles.trashContentOpen : ""}`}>
         <div>
-        <p className={styles.trashHint}><T k="admin.works.trashAutoDelete" /></p>
-        {trashWorks.length === 0 ? (
-          <p className={styles.trashEmpty}><T k="admin.works.trashEmpty" /></p>
-        ) : (
-          <>
-          <div className={styles.subFilterBar}>
+        <div className={styles.subFilterBar}>
+          <Select
+            value={String(trashPerPage)}
+            options={[
+              { value: "10", label: "10" },
+              { value: "20", label: "20" },
+              { value: "50", label: "50" },
+            ]}
+            onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
+            className={styles.subPageSize}
+          />
+          <Select
+            value={trashSort}
+            options={[
+              { value: "newest", label: t("admin.works.sortNewestDeleted") },
+              { value: "oldest", label: t("admin.works.sortOldestDeleted") },
+            ]}
+            onChange={(v) => setTrashSort(v as "newest" | "oldest")}
+            className={styles.subFilterSelect}
+          />
+          <div className={`${styles.searchGroup} ${styles.searchGroupRight}`}>
             <input
               type="text"
               placeholder={t("admin.works.trashSearch")}
@@ -442,18 +458,13 @@ export default function AdminWorksPage() {
               onChange={(e) => setTrashSearch(e.target.value)}
               className={styles.subFilterInput}
             />
-            <Select
-              value={trashSort}
-              options={[
-                { value: "newest", label: t("admin.works.sortNewestDeleted") },
-                { value: "oldest", label: t("admin.works.sortOldestDeleted") },
-              ]}
-              onChange={(v) => setTrashSort(v as "newest" | "oldest")}
-              className={styles.subFilterSelect}
-            />
           </div>
+        </div>
+        {filteredTrash.length === 0 ? (
+          <p className={styles.trashEmpty}><T k="admin.works.trashEmpty" /></p>
+        ) : (
           <ul className={styles.trashList}>
-            {filteredTrash.slice((trashPage - 1) * TRASH_PER_PAGE, trashPage * TRASH_PER_PAGE).map((work) => {
+            {filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage).map((work) => {
               const daysLeft = work.deleted_at ? getDaysLeft(work.deleted_at) : 30;
               const title = work.title || t("admin.works.untitled");
               return (
@@ -483,31 +494,28 @@ export default function AdminWorksPage() {
               );
             })}
           </ul>
-          {filteredTrash.length > TRASH_PER_PAGE && (
-            <div className={styles.trashPaging}>
-              <button
-                type="button"
-                className={styles.trashPageBtn}
-                disabled={trashPage <= 1}
-                onClick={() => setTrashPage((p) => p - 1)}
-              >
-                &larr;
-              </button>
-              <span className={styles.trashPageInfo}>
-                {trashPage} / {Math.ceil(filteredTrash.length / TRASH_PER_PAGE)}
-              </span>
-              <button
-                type="button"
-                className={styles.trashPageBtn}
-                disabled={trashPage >= Math.ceil(filteredTrash.length / TRASH_PER_PAGE)}
-                onClick={() => setTrashPage((p) => p + 1)}
-              >
-                &rarr;
-              </button>
-            </div>
-          )}
-          </>
         )}
+        <div className={styles.trashPaging}>
+          <button
+            type="button"
+            className={styles.trashPageBtn}
+            disabled={trashPage <= 1}
+            onClick={() => setTrashPage((p) => p - 1)}
+          >
+            &larr;
+          </button>
+          <span className={styles.trashPageInfo}>
+            {trashPage} / {Math.max(1, Math.ceil(filteredTrash.length / trashPerPage))}
+          </span>
+          <button
+            type="button"
+            className={styles.trashPageBtn}
+            disabled={trashPage >= Math.ceil(filteredTrash.length / trashPerPage)}
+            onClick={() => setTrashPage((p) => p + 1)}
+          >
+            &rarr;
+          </button>
+        </div>
         </div>
       </div>
     </div>
