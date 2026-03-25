@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import shared from "../../AboutSection.module.css";
-import local from "../DesignConceptPanel.module.css";
+import local from "../DesignSystemPanel.module.css";
 const styles = { ...shared, ...local };
 
 export default function MotionScrollDemo() {

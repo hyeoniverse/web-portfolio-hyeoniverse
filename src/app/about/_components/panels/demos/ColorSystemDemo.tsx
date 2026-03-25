@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTheme } from "@/providers/ThemeProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import shared from "../../AboutSection.module.css";
-import local from "../DesignConceptPanel.module.css";
+import local from "../DesignSystemPanel.module.css";
 const styles = { ...shared, ...local };
 
 function hexLuminance(hex: string) {
@@ -21,8 +22,14 @@ function mixHex(a: string, b: string, t: number): string {
 }
 
 export default function ColorSystemDemo() {
+  const { theme } = useTheme();
   const [demoTheme, setDemoTheme] = useState<"dark" | "light">("dark");
   const config = useSiteConfig();
+
+  // 현재 테마에 맞춰 초기값 동기화
+  useEffect(() => {
+    setDemoTheme(theme);
+  }, [theme]);
 
   const accent = config.theme?.accentColor || "#d40063";
   const palettes = {

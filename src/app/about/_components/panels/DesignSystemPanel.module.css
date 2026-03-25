@@ -1,0 +1,689 @@
+/* ==========================================================================
+   Design Concept Panel — Stacked Crossfade (fixed frame, content swaps)
+   ========================================================================== */
+
+.dcViewport {
+  /* placeholder — mobile override below */
+}
+
+.dcCardStack {
+  outline: none;
+  overflow: hidden;
+  position: absolute;
+  top: calc(-1 * var(--_panel-py) - 1px);
+  left: calc(-1 * var(--_panel-px) - 1px);
+  z-index: 1;
+  width: calc(100vw + 2px);
+  height: calc(100vh + 2px);
+}
+
+/* ── Strip mode: horizontal row, translateX to slide ── */
+.dcCardStrip {
+  display: flex;
+  height: 100%;
+}
+
+/* Compound selector (0,2,0) — smooth strip slide */
+.dcCardStack .dcCardStrip {
+  transition: transform var(--duration-slower) var(--ease-material);
+  will-change: transform;
+}
+
+.dcModeStrip .dcCard {
+  flex: 0 0 100%;
+}
+
+/* ── Stack mode: cards stacked, overlay crossfade + bg slide-out ── */
+.dcModeStack .dcCard {
+  position: absolute;
+  inset: 0;
+}
+
+/* Compound selector (0,2,0) — smooth overlay crossfade */
+.dcModeStack .dcCardOverlay {
+  transition: opacity var(--duration-slow) ease;
+}
+
+/* Compound selector (0,2,0) — slide-out background transition */
+.dcModeStack .dcCardBg {
+  transition: transform var(--duration-slower) var(--ease-material);
+  will-change: transform;
+}
+
+/* ── Shared card base ── */
+.dcCard {
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+/* Full-cover background image */
+.dcCardBg,
+.dcMobileCardBg {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+}
+
+.dcCardBg img {
+  object-fit: cover;
+  object-position: center bottom;
+  filter: brightness(0.35) saturate(0.5);
+}
+
+/* Compound selector (0,2,0) */
+.dcCard .dcCardBg img {
+  transition: filter 0.4s ease;
+}
+
+.dcCard:hover .dcCardBg img {
+  filter: brightness(0.2) saturate(0.4);
+}
+
+/* Overlay content on top of image — top clears nav+title, bottom clears bottom nav */
+.dcCardOverlay {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: calc(var(--_panel-py) + var(--header-height) + 25vh) var(--_panel-px)
+    calc(var(--_space-section) + 8vh);
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.dcCardTitle {
+  flex-shrink: 0;
+  margin: 0 0 clamp(6px, min(0.7vh, 0.4vw), 14px);
+  font-family: var(--_font-grotesk);
+  font-size: clamp(0.8rem, min(1.8vw, 3.2vh), 1.8rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-white-alpha-40);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+
+.dcCardSubtitle {
+  flex-shrink: 0;
+  margin: 0 0 clamp(6px, min(1vh, 0.55vw), 18px);
+  font-family: var(--font-instrument);
+  font-size: clamp(1.3rem, min(4.5vw, 8vh), 4.8rem);
+  font-weight: var(--font-weight-light);
+  color: var(--text-white);
+  letter-spacing: -0.02em;
+  text-align: left;
+  word-break: keep-all;
+}
+
+.dcCardDesc {
+  flex-shrink: 0;
+  margin: 0;
+  max-width: 560px;
+  font-size: clamp(0.8rem, min(1.8vw, 3.2vh), 1.8rem);
+  line-height: var(--_lh-reading);
+  color: var(--color-white-alpha-50);
+  letter-spacing: 0.01em;
+}
+
+.dcDemo {
+  display: flex;
+  justify-content: flex-end;
+  flex: 1 1 auto;
+  flex-direction: column;
+  margin-top: auto;
+  min-height: fit-content;
+}
+
+.dcDemo::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 1px;
+  margin-bottom: clamp(16px, min(2vh, 1.2vw), 28px);
+  background: var(--color-white-alpha-15);
+}
+
+/* ── Typography demo ── */
+.dcFontTabs {
+  display: flex;
+  gap: clamp(8px, 0.8vw, 16px);
+  flex-wrap: wrap;
+  margin-bottom: clamp(12px, min(1.5vh, 0.9vw), 24px);
+}
+
+.dcToggleBtn {
+  padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
+  border: 1px solid var(--color-white-alpha-10);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.15vw, 1.3rem);
+  color: var(--color-white-alpha-50);
+  border-radius: var(--radius-capsule);
+  letter-spacing: 0.05em;
+}
+
+/* Compound selector (0,2,0) */
+.dcDemo .dcToggleBtn {
+  transition:
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease,
+    background-color var(--duration-base) ease;
+}
+
+.dcToggleBtnActive {
+  border-color: var(--color-white-alpha-40);
+  background: var(--color-white-alpha-5);
+  color: var(--text-white);
+}
+
+.dcSpecimen {
+  font-size: clamp(2.5rem, min(8vw, 13vh), 9rem);
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--text-white);
+  white-space: nowrap;
+}
+
+/* ── Color System demo ── */
+.dcThemeToggle {
+  display: inline-flex;
+  gap: clamp(6px, 0.6vw, 12px);
+  margin-bottom: clamp(10px, min(1.2vh, 0.7vw), 20px);
+}
+
+.dcSwatchRow {
+  display: flex;
+  gap: clamp(6px, 0.6vw, 14px);
+  flex-wrap: wrap;
+}
+
+.dcSwatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-white-alpha-5);
+  width: clamp(56px, min(10vh, 5.5vw), 100px);
+  height: clamp(56px, min(10vh, 5.5vw), 100px);
+  font-size: clamp(0.8rem, 1.05vw, 1.3rem);
+  border-radius: var(--radius-circle);
+}
+
+/* Compound selector (0,2,0) */
+.dcDemo .dcSwatch {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+
+/* ── Motion & Scroll demo ── */
+.dcSpringTrack {
+  position: relative;
+  width: 100%;
+  height: clamp(42px, min(7vh, 3.8vw), 68px);
+  background: var(--color-white-alpha-5);
+  border-radius: 24px;
+}
+
+.dcSpringBall {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: clamp(30px, min(4.8vh, 2.6vw), 52px);
+  height: clamp(30px, min(4.8vh, 2.6vw), 52px);
+  background: var(--text-accent);
+  border-radius: 50%;
+  translate: 0 -50%;
+  will-change: left;
+}
+
+/* Compound selector (0,2,0) */
+.dcDemo .dcSpringBall {
+  transition: left var(--duration-fast) ease-out;
+}
+
+.dcMotionLabels {
+  display: flex;
+  gap: clamp(12px, 1.2vw, 24px);
+  margin-top: clamp(12px, min(1.5vh, 0.8vw), 22px);
+  font-size: clamp(0.9rem, 1.15vw, 1.4rem);
+  color: var(--color-white-alpha-50);
+}
+
+/* ── Layout & Spacing demo ── */
+.dcSpacingList {
+  display: flex;
+  gap: clamp(6px, min(0.7vh, 0.4vw), 12px);
+  flex-direction: column;
+}
+
+.dcSpacingRow {
+  display: flex;
+  gap: clamp(12px, 1vw, 20px);
+  align-items: center;
+}
+
+.dcSpacingLabel {
+  flex-shrink: 0;
+  width: clamp(44px, 4.5vw, 70px);
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.05vw, 1.25rem);
+  color: var(--color-white-alpha-50);
+  text-align: right;
+}
+
+.dcSpacingBar {
+  height: clamp(12px, min(1.8vh, 1vw), 22px);
+  background: var(--color-white-alpha-10);
+  border-radius: 5px;
+}
+
+/* Compound selector (0,2,0) */
+.dcDemo .dcSpacingBar {
+  transition: background-color var(--duration-base) ease;
+}
+
+.dcSpacingRow:hover .dcSpacingBar {
+  background: var(--color-white-alpha-30);
+}
+
+.dcSpacingPx {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.05vw, 1.25rem);
+  color: var(--color-white-alpha-50);
+}
+
+/* ── Grid System demo (breakpoint bar) ── */
+.dcBreakpoints {
+  display: flex;
+  gap: clamp(8px, 0.8vw, 16px);
+  align-items: flex-end;
+  height: clamp(60px, min(11vh, 6vw), 120px);
+}
+
+.dcBpBar {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  background: var(--color-white-alpha-10);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+/* Compound selector (0,2,0) */
+.dcBreakpoints .dcBpBar {
+  transition:
+    background-color var(--duration-base) ease,
+    transform var(--duration-fast) ease;
+}
+
+.dcBpBar:hover {
+  background: var(--color-white-alpha-30);
+  transform: scaleY(1.1);
+  transform-origin: bottom;
+}
+
+.dcBpLabel {
+  position: absolute;
+  bottom: clamp(-20px, max(-2.2vh, -1.2vw), -28px);
+  left: 50%;
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 0.95vw, 1.1rem);
+  color: var(--color-white-alpha-50);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+
+/* Compound selector (0,2,0) */
+.dcBreakpoints .dcBpLabel {
+  transition: opacity var(--duration-fast) ease;
+}
+
+.dcBpBar:hover .dcBpLabel {
+  opacity: 1;
+}
+
+.dcBpName {
+  position: absolute;
+  top: clamp(4px, min(0.6vh, 0.35vw), 10px);
+  left: 50%;
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.05vw, 1.25rem);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-white-alpha-70);
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.dcIconGrid {
+  display: flex;
+  gap: clamp(10px, 0.9vw, 18px);
+  flex-wrap: wrap;
+}
+
+.dcIconCell {
+  display: flex;
+  gap: clamp(10px, 0.9vw, 18px);
+  align-items: center;
+  padding: clamp(10px, min(1.1vh, 0.6vw), 18px) clamp(16px, 1.3vw, 26px);
+  border: 1px solid var(--color-white-alpha-5);
+  border-radius: var(--radius-sm);
+}
+
+/* Compound selector (0,2,0) */
+.dcIconGrid .dcIconCell {
+  transition:
+    border-color var(--duration-base) ease,
+    background-color var(--duration-base) ease;
+}
+
+.dcIconCell:hover {
+  border-color: var(--color-white-alpha-15);
+  background: var(--color-white-alpha-3);
+}
+
+.dcIconCell svg {
+  width: clamp(28px, 2.6vw, 40px);
+  height: clamp(28px, 2.6vw, 40px);
+  color: var(--color-white-alpha-80);
+}
+
+.dcIconCellLabel {
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.05vw, 1.25rem);
+  color: var(--color-white-alpha-50);
+}
+
+/* ── Tab bar portal controls ── */
+.tabNavBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tabNavBtn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.tabNavCounter {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.tabNavLink {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* ── Mobile: bg layer on panel root ── */
+.dcMobileBg {
+  display: none;
+}
+
+/* ── Mobile: content overlay stack inside viewport ── */
+.dcMobileContentStack {
+  display: none;
+}
+
+.dcPanel {
+  /* placeholder — mobile override below */
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .dcPanel {
+    padding: 0 var(--page-px);
+  }
+
+  /* Desktop card stack hidden on mobile */
+  .dcCardStack {
+    display: none;
+  }
+
+  /* ── Background layer: absolute on panel root, covers pin-spacer ── */
+  .dcMobileBg {
+    display: block;
+    position: absolute;
+    top: -150px;
+    left: calc(-1 * var(--page-px));
+    right: calc(-1 * var(--page-px));
+    bottom: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .dcMobileBgItem {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Compound selector (0,2,0) — smooth bg crossfade */
+  .dcMobileBg .dcMobileBgItem {
+    transition:
+      opacity var(--duration-slow) ease,
+      transform var(--duration-slower) var(--ease-material);
+    will-change: transform;
+  }
+
+  .dcMobileBgItem img {
+    object-fit: cover;
+    object-position: center bottom;
+    filter: brightness(0.35) saturate(0.5);
+  }
+
+  /* ── Pinned viewport ── */
+  .dcViewport {
+    position: relative;
+    z-index: 1;
+    height: calc(100vh - 150px);
+    min-height: calc(100vh - 150px);
+    background: transparent;
+  }
+
+  .dcTitleRow.dcTitleRow.dcTitleRow {
+    padding-top: 0 !important;
+    margin-bottom: var(--spacing-sm) !important;
+  }
+
+  .dcTitleRow h3 {
+    margin-top: var(--spacing-md) !important;
+    margin-bottom: 0 !important;
+  }
+
+  .dcTitleRow > div:last-child {
+    padding-top: 0 !important;
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* ── Content overlay stack: fills remaining space below title ── */
+  .dcMobileContentStack {
+    display: block;
+    position: relative;
+    flex: 1;
+  }
+
+  .dcMobileContentCard {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Compound selector (0,2,0) — smooth content crossfade */
+  .dcMobileContentStack .dcMobileContentCard {
+    transition: opacity var(--duration-slow) ease;
+  }
+
+  .dcCardTitle,
+  .dcCardSubtitle,
+  .dcCardDesc {
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .dcDemo {
+    justify-content: flex-start;
+    flex: none;
+    position: relative;
+    min-height: auto;
+    margin-top: var(--spacing-md);
+  }
+
+  .dcCardTitle {
+    margin-bottom: 2px;
+    font-size: clamp(0.65rem, 2vw, 0.85rem);
+    letter-spacing: 0.25em;
+  }
+
+  .dcCardSubtitle {
+    margin-bottom: 4px;
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+  }
+
+  .dcCardDesc {
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(0.7rem, 2.2vw, 0.9rem);
+  }
+
+  .dcDemo {
+    margin-top: var(--spacing-sm);
+  }
+
+  .dcSpecimen {
+    font-size: clamp(1.6rem, 6vw, 2.8rem);
+  }
+
+  .dcFontTabs {
+    gap: clamp(4px, 1.5vw, 8px);
+    margin-bottom: clamp(8px, 2.5vw, 14px);
+  }
+
+  .dcToggleBtn {
+    padding: 5px 12px;
+    font-size: clamp(0.65rem, 2vw, 0.85rem);
+  }
+
+  .dcThemeToggle {
+    gap: clamp(4px, 1.5vw, 8px);
+    margin-bottom: clamp(8px, 2.5vw, 14px);
+  }
+
+  .dcSwatchRow {
+    gap: clamp(6px, 2vw, 12px);
+  }
+
+  .dcSwatch {
+    width: clamp(36px, 10vw, 52px);
+    height: clamp(36px, 10vw, 52px);
+    font-size: clamp(0.5rem, 1.5vw, 0.7rem);
+  }
+
+  .dcSpringTrack {
+    height: clamp(28px, 6vw, 40px);
+  }
+
+  .dcSpringBall {
+    width: clamp(22px, 5vw, 32px);
+    height: clamp(22px, 5vw, 32px);
+  }
+
+  .dcMotionLabels {
+    gap: clamp(6px, 2vw, 12px);
+    margin-top: clamp(8px, 2.5vw, 14px);
+    font-size: clamp(0.6rem, 2vw, 0.8rem);
+  }
+
+  .dcSpacingList {
+    gap: clamp(3px, 1vw, 6px);
+  }
+
+  .dcSpacingLabel {
+    width: clamp(30px, 8vw, 44px);
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+  }
+
+  .dcSpacingBar {
+    height: clamp(8px, 2vw, 14px);
+  }
+
+  .dcSpacingPx {
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+  }
+
+  .dcBreakpoints {
+    gap: clamp(4px, 1.5vw, 8px);
+    height: clamp(50px, 12vw, 80px);
+  }
+
+  .dcBpName {
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+  }
+
+  .dcBpLabel {
+    font-size: clamp(0.5rem, 1.5vw, 0.65rem);
+  }
+
+  .dcIconGrid {
+    gap: clamp(6px, 2vw, 10px);
+  }
+
+  .dcIconCell {
+    gap: clamp(4px, 1.5vw, 8px);
+    padding: clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 14px);
+  }
+
+  .dcIconCell svg {
+    width: clamp(16px, 4vw, 24px);
+    height: clamp(16px, 4vw, 24px);
+  }
+
+  .dcIconCellLabel {
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+  }
+}
+
+/* ── External link button ── */
+.externalLink {
+  padding: var(--box-md);
+  border: 1px solid var(--color-white-alpha-15);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-white-alpha-60);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Compound selector (0,2,0) */
+.dcViewport .externalLink {
+  transition:
+    color var(--duration-base) ease,
+    border-color var(--duration-base) ease,
+    background-color var(--duration-base) ease;
+}
+
+.externalLink:hover {
+  color: var(--text-white);
+  border-color: var(--color-white-alpha-40);
+  background: var(--color-white-alpha-5);
+}
+
