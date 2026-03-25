@@ -146,7 +146,6 @@ export default function AboutSection() {
         setTabBarHidden(false);
         accumulated = 0;
         bottomHoldFrames = 0;
-        topHoldFrames = 0;
         return;
       }
 
