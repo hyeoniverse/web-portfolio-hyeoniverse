@@ -17,7 +17,7 @@ import WorksCategoriesEditor from "./WorksCategoriesEditor";
 import SeriesManager from "./SeriesManager";
 import styles from "../Settings.module.css";
 
-type SocialLink = { platform: string; url: string; label?: string };
+type SocialLink = { platform: string; url: string; label?: string; icon?: string };
 
 const MAX_SOCIAL_LINKS = 6;
 
@@ -302,7 +302,10 @@ export default function ContentTab({
               {socialLinks.map((link, idx) => (
                 <SortableSocialItem key={socialIds[idx]} id={socialIds[idx]}>
                   <span className={styles.socialIcon}>
-                    {(() => {
+                    {link.icon ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={link.icon} alt="" className={styles.socialIconImg} />
+                    ) : (() => {
                       const icon = SOCIAL_ICONS[link.platform];
                       if (!icon) return null;
                       return icon.stroke ? (
@@ -319,12 +322,23 @@ export default function ContentTab({
                       onChange={(v) => updateSocialItem(idx, "platform", v)}
                     />
                     {link.platform === "custom" && (
-                      <input
-                        className={styles.fieldInput}
-                        placeholder={t("admin.settings.socialLabelPlaceholder")}
-                        value={link.label ?? ""}
-                        onChange={(e) => updateSocialItem(idx, "label", e.target.value)}
-                      />
+                      <>
+                        <input
+                          className={styles.fieldInput}
+                          placeholder={t("admin.settings.socialLabelPlaceholder")}
+                          value={link.label ?? ""}
+                          onChange={(e) => updateSocialItem(idx, "label", e.target.value)}
+                        />
+                        <div className={styles.socialIconUpload}>
+                          <input
+                            className={styles.fieldInput}
+                            placeholder={t("admin.settings.socialIconPlaceholder")}
+                            value={link.icon ?? ""}
+                            onChange={(e) => updateSocialItem(idx, "icon", e.target.value)}
+                          />
+                          <SocialIconFileUpload onUploaded={(url) => updateSocialItem(idx, "icon", url)} />
+                        </div>
+                      </>
                     )}
                     <input
                       className={styles.fieldInput}
@@ -658,5 +672,48 @@ function SortableSocialItem({ id, children }: { id: string; children: React.Reac
       </button>
       {children}
     </div>
+  );
+}
+
+/* ── Social icon file upload (tiny button) ── */
+function SocialIconFileUpload({ onUploaded }: { onUploaded: (url: string) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (file: File) => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "icons");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      onUploaded(data.url);
+    } catch {
+      // silent
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.socialIconUploadBtn}
+        onClick={() => fileRef.current?.click()}
+        disabled={uploading}
+      >
+        {uploading ? "..." : "↑"}
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
+      />
+    </>
   );
 }

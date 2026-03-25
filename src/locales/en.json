@@ -139,6 +139,7 @@
       "socialLinks": "Social Links",
       "socialHint": "Displayed in the CTA section. Reorder or add items.",
       "socialLabelPlaceholder": "Display name (e.g. My Site)",
+      "socialIconPlaceholder": "Icon URL (image link)",
       "addSocial": "Add Social",
       "seoMetadata": "SEO / Metadata",
       "siteContent": "Site Content",
