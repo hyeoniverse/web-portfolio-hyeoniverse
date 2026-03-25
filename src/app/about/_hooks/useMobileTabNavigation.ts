@@ -115,7 +115,7 @@ export function useMobileTabNavigation({
 
     const isAtTop = () => {
       const sectionTop = sectionRef.current?.offsetTop ?? 0;
-      return window.scrollY <= sectionTop + 2;
+      return window.scrollY <= sectionTop + 10;
     };
 
     let transitioning = false;
