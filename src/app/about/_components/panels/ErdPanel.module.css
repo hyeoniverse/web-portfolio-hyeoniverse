@@ -182,7 +182,7 @@
   background: var(--color-accent);
   font-family: var(--font-mono);
   font-size: 10px;
-  color: #fff;
+  color: var(--text-white);
   font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
