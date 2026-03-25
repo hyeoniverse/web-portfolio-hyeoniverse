@@ -353,7 +353,8 @@ export default function ContentTab({
                     onClick={() => removeSocialLink(idx)}
                     aria-label="Remove"
                   >
-                    &times;
+                    <span className={styles.socialRemoveLine} />
+                    <span className={styles.socialRemoveLine} />
                   </button>
                 </SortableSocialItem>
               ))}
