@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useCallback, useMemo, type Dispatch, type SetStateAction } from "react";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
@@ -84,16 +87,23 @@ export default function ContentTab({
     [setConfig],
   );
 
-  const moveSocial = useCallback(
-    (idx: number, dir: -1 | 1) => {
-      updateSocialLinks((prev) => {
-        const arr = [...prev];
-        const target = idx + dir;
-        [arr[idx], arr[target]] = [arr[target], arr[idx]];
-        return arr;
-      });
+  const socialIds = useMemo(() => socialLinks.map((_, i) => `social-${i}`), [socialLinks]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  const handleSocialDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIdx = socialIds.indexOf(String(active.id));
+      const newIdx = socialIds.indexOf(String(over.id));
+      if (oldIdx === -1 || newIdx === -1) return;
+      updateSocialLinks((prev) => arrayMove([...prev], oldIdx, newIdx));
     },
-    [updateSocialLinks],
+    [socialIds, updateSocialLinks],
   );
 
   const updateSocialItem = useCallback(
@@ -286,29 +296,11 @@ export default function ContentTab({
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}><T k="admin.settings.socialLinks" /></h2>
             <p className={styles.sectionHint}><T k="admin.settings.socialHint" /></p>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSocialDragEnd}>
+              <SortableContext items={socialIds} strategy={verticalListSortingStrategy}>
             <div className={styles.socialEditor}>
               {socialLinks.map((link, idx) => (
-                <div key={idx} className={styles.socialItem}>
-                  <div className={styles.socialReorder}>
-                    <button
-                      type="button"
-                      className={styles.socialReorderBtn}
-                      disabled={idx === 0}
-                      onClick={() => moveSocial(idx, -1)}
-                      aria-label="Move up"
-                    >
-                      <svg width="10" height="10" viewBox="0 0 10 10"><path d="M5 2L1 7h8z" fill="currentColor" /></svg>
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.socialReorderBtn}
-                      disabled={idx === socialLinks.length - 1}
-                      onClick={() => moveSocial(idx, 1)}
-                      aria-label="Move down"
-                    >
-                      <svg width="10" height="10" viewBox="0 0 10 10"><path d="M5 8L1 3h8z" fill="currentColor" /></svg>
-                    </button>
-                  </div>
+                <SortableSocialItem key={socialIds[idx]} id={socialIds[idx]}>
                   <span className={styles.socialIcon}>
                     {(() => {
                       const icon = SOCIAL_ICONS[link.platform];
@@ -349,7 +341,7 @@ export default function ContentTab({
                   >
                     &times;
                   </button>
-                </div>
+                </SortableSocialItem>
               ))}
               <button
                 type="button"
@@ -360,6 +352,8 @@ export default function ContentTab({
                 + <T k="admin.settings.addSocial" /> ({socialLinks.length}/{MAX_SOCIAL_LINKS})
               </button>
             </div>
+              </SortableContext>
+            </DndContext>
           </section>
         </>
       )}
@@ -633,6 +627,36 @@ function ScopeTagField({
           +
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ── Sortable social link item ── */
+function SortableSocialItem({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`${styles.socialItem} ${isDragging ? styles.socialItemDragging : ""}`}
+      {...attributes}
+    >
+      <button type="button" className={styles.socialDragHandle} {...listeners} aria-label="Drag to reorder">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="9" cy="6" r="1.5" />
+          <circle cx="15" cy="6" r="1.5" />
+          <circle cx="9" cy="12" r="1.5" />
+          <circle cx="15" cy="12" r="1.5" />
+          <circle cx="9" cy="18" r="1.5" />
+          <circle cx="15" cy="18" r="1.5" />
+        </svg>
+      </button>
+      {children}
     </div>
   );
 }
