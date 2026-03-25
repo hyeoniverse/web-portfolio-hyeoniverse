@@ -346,7 +346,7 @@
 
   .archTitle {
     margin-top: var(--spacing-md);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
   }
 
   .archMap {
@@ -354,49 +354,78 @@
   }
 
   .archGrid {
-    display: grid;
-    grid-auto-flow: column;
-    gap: 0 var(--spacing-2xl);
-    max-width: none;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(12, auto);
-  }
-}
-
-@media (max-width: 768px) {
-  .archGrid {
-    grid-auto-flow: row;
+    display: flex;
+    flex-direction: column;
     gap: 0;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+    max-width: none;
+    border-top: none;
   }
 
   .archItem {
     flex-direction: column;
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-3xs);
     align-items: flex-start;
-    padding: var(--spacing-sm) 0;
+    padding: var(--spacing-xs) 0;
+    padding-left: var(--spacing-md);
+    border-bottom: none;
+    border-left: 1px solid var(--border-default-color);
+    position: relative;
+  }
+
+  /* 연결선: 왼쪽 가지 */
+  .archItem::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: calc(var(--spacing-xs) + 0.55em);
+    width: var(--spacing-sm);
+    height: 1px;
+    background: var(--border-default-color);
+  }
+
+  /* indent 0: 루트 — 연결선 없음, 굵은 스타일 */
+  .archItem:not(.archIndent1):not(.archIndent2) {
+    padding-left: 0;
+    border-left: none;
+    padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+  }
+
+  .archItem:not(.archIndent1):not(.archIndent2)::before {
+    display: none;
+  }
+
+  .archItem:not(.archIndent1):not(.archIndent2) .archPath {
+    font-size: clamp(0.95rem, 3vw, 1.15rem);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-accent);
+  }
+
+  /* indent 1 */
+  .archIndent1 {
+    margin-left: var(--spacing-lg);
+  }
+
+  /* indent 2 */
+  .archIndent2 {
+    margin-left: calc(var(--spacing-lg) * 2);
+  }
+
+  .archPath {
+    font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+    padding-left: 0;
+  }
+
+  .archIndent1 .archPath,
+  .archIndent2 .archPath {
+    padding-left: 0;
   }
 
   .archDesc {
     text-align: left;
-    font-size: var(--_fs-caption);
-  }
-
-  .archIndent1 .archPath {
-    padding-left: var(--spacing-md);
-  }
-
-  .archIndent2 .archPath {
-    padding-left: var(--spacing-xl);
-  }
-
-  .archIndent1 .archDesc,
-  .archIndent2 .archDesc {
-    padding-left: var(--spacing-md);
-  }
-
-  .archIndent2 .archDesc {
-    padding-left: var(--spacing-xl);
+    font-size: clamp(0.7rem, 2.2vw, 0.82rem);
+    color: var(--text-tertiary);
+    padding-left: 0;
+    line-height: 1.5;
   }
 }
