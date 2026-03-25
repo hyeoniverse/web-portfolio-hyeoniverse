@@ -1108,7 +1108,7 @@ export default function PlateEditor({
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const toolbarPadRef = useRef(0);
   // 어떤 toolbar든 visibility가 바뀌면 재측정
-  const toolbarKey = `${findOpen}|${findReplace}|${isInTable}|${isInColumn}|${isInToggle}|${isInCallout}|${mathEditing}|${isInImage}`;
+  const toolbarKey = `${findOpen}|${findReplace}|${isInTable}|${isInColumn}|${isInToggle}|${isInCallout}|${mathEditing}|${isInImage}|${showLinkInput}|${showEmbedInput}`;
   useEffect(() => {
     // 다음 프레임에서 측정 — DOM 업데이트 후
     const id = requestAnimationFrame(() => {
