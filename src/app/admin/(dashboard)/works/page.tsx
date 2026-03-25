@@ -116,6 +116,10 @@ export default function AdminWorksPage() {
   /* Trash */
   const [trashWorks, setTrashWorks] = useState<Work[]>([]);
   const [trashOpen, setTrashOpen] = useState(false);
+  const [trashSearch, setTrashSearch] = useState("");
+  const [trashSort, setTrashSort] = useState<"newest" | "oldest">("newest");
+  const [trashPage, setTrashPage] = useState(1);
+  const TRASH_PER_PAGE = 10;
 
   /* Preview tooltip — use refs + minimal state to avoid re-rendering AdminTable */
   const hoveredWorkRef = useRef<Work | null>(null);
@@ -169,6 +173,26 @@ export default function AdminWorksPage() {
     fetchWorks();
     fetchTrash();
   }, [fetchWorks, fetchTrash]);
+
+  /* ── Filtered trash ── */
+  const filteredTrash = useMemo(() => {
+    let list = [...trashWorks];
+    if (trashSearch) {
+      const q = trashSearch.toLowerCase();
+      list = list.filter((w) => {
+        const title = w.title || "";
+        return title.toLowerCase().includes(q);
+      });
+    }
+    list.sort((a, b) => {
+      const da = new Date(a.deleted_at!).getTime();
+      const db = new Date(b.deleted_at!).getTime();
+      return trashSort === "newest" ? db - da : da - db;
+    });
+    return list;
+  }, [trashWorks, trashSearch, trashSort]);
+
+  useEffect(() => { setTrashPage(1); }, [trashSearch, trashSort]);
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/works/${id}`, { method: "DELETE" });
@@ -409,8 +433,32 @@ export default function AdminWorksPage() {
         {trashWorks.length === 0 ? (
           <p className={styles.trashEmpty}><T k="admin.works.trashEmpty" /></p>
         ) : (
+          <>
+          <div className={styles.subFilterBar}>
+            <input
+              type="text"
+              placeholder={t("admin.works.trashSearch")}
+              value={trashSearch}
+              onChange={(e) => setTrashSearch(e.target.value)}
+              className={styles.subFilterInput}
+            />
+            <button
+              type="button"
+              className={`${styles.subFilterBtn} ${trashSort === "newest" ? styles.subFilterBtnActive : ""}`}
+              onClick={() => setTrashSort("newest")}
+            >
+              {t("admin.works.sortNewestDeleted")}
+            </button>
+            <button
+              type="button"
+              className={`${styles.subFilterBtn} ${trashSort === "oldest" ? styles.subFilterBtnActive : ""}`}
+              onClick={() => setTrashSort("oldest")}
+            >
+              {t("admin.works.sortOldestDeleted")}
+            </button>
+          </div>
           <ul className={styles.trashList}>
-            {trashWorks.map((work) => {
+            {filteredTrash.slice((trashPage - 1) * TRASH_PER_PAGE, trashPage * TRASH_PER_PAGE).map((work) => {
               const daysLeft = work.deleted_at ? getDaysLeft(work.deleted_at) : 30;
               const title = work.title || t("admin.works.untitled");
               return (
@@ -440,6 +488,30 @@ export default function AdminWorksPage() {
               );
             })}
           </ul>
+          {filteredTrash.length > TRASH_PER_PAGE && (
+            <div className={styles.trashPaging}>
+              <button
+                type="button"
+                className={styles.trashPageBtn}
+                disabled={trashPage <= 1}
+                onClick={() => setTrashPage((p) => p - 1)}
+              >
+                &larr;
+              </button>
+              <span className={styles.trashPageInfo}>
+                {trashPage} / {Math.ceil(filteredTrash.length / TRASH_PER_PAGE)}
+              </span>
+              <button
+                type="button"
+                className={styles.trashPageBtn}
+                disabled={trashPage >= Math.ceil(filteredTrash.length / TRASH_PER_PAGE)}
+                onClick={() => setTrashPage((p) => p + 1)}
+              >
+                &rarr;
+              </button>
+            </div>
+          )}
+          </>
         )}
         </div>
       </div>
