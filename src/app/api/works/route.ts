@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   const category = searchParams.get("category");
   const year = searchParams.get("year");
   const search = searchParams.get("search") ?? "";
+  const searchType = searchParams.get("searchType") ?? "title";
 
   const supabase = createAdminClient();
 
@@ -34,7 +35,13 @@ export async function GET(request: Request) {
   }
 
   if (search) {
-    query = query.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%`);
+    if (searchType === "all") {
+      query = query.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%,content_ko.ilike.%${search}%,content_en.ilike.%${search}%`);
+    } else if (searchType === "content") {
+      query = query.or(`content_ko.ilike.%${search}%,content_en.ilike.%${search}%`);
+    } else {
+      query = query.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%`);
+    }
   }
 
   if (sort === "newest") {
@@ -62,7 +69,13 @@ export async function GET(request: Request) {
     if (category) fallback = fallback.eq("category_ko", category);
     if (year) fallback = fallback.eq("year", year);
     if (search) {
-      fallback = fallback.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%`);
+      if (searchType === "all") {
+        fallback = fallback.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%,content_ko.ilike.%${search}%,content_en.ilike.%${search}%`);
+      } else if (searchType === "content") {
+        fallback = fallback.or(`content_ko.ilike.%${search}%,content_en.ilike.%${search}%`);
+      } else {
+        fallback = fallback.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%`);
+      }
     }
     if (sort === "newest") fallback = fallback.order("created_at", { ascending: false });
     else if (sort === "oldest") fallback = fallback.order("created_at", { ascending: true });

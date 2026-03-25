@@ -106,6 +106,7 @@ export default function AdminPostsPage() {
 
   /* Filters & sort */
   const [search, setSearch] = useState("");
+  const [searchType, setSearchType] = useState("all");
   const [sort, setSort] = useState("newest");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSeries, setFilterSeries] = useState("");
@@ -142,13 +143,16 @@ export default function AdminPostsPage() {
     });
     if (filterCategory) params.set("category", filterCategory);
     if (filterSeries) params.set("series_id", filterSeries);
-    if (search) params.set("search", search);
+    if (search) {
+      params.set("search", search);
+      params.set("searchType", searchType);
+    }
     const res = await fetch(`/api/posts?${params}`);
     const data = await res.json();
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterSeries, search]);
+  }, [page, perPage, sort, filterCategory, filterSeries, search, searchType]);
 
   const fetchSeries = useCallback(async () => {
     const res = await fetch("/api/series?all=true");
@@ -565,13 +569,25 @@ export default function AdminPostsPage() {
     >
       {/* Filter bar */}
       <div className={shell.filterBar}>
-        <input
-          type="text"
-          placeholder={t("admin.posts.search")}
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className={`${shell.filterItem} ${styles.searchInput}`}
-        />
+        <div className={styles.searchGroup}>
+          <Select
+            value={searchType}
+            options={[
+              { value: "all", label: t("admin.posts.searchAll") },
+              { value: "title", label: t("admin.posts.searchTitle") },
+              { value: "content", label: t("admin.posts.searchContent") },
+            ]}
+            onChange={(v) => { setSearchType(v); setPage(1); }}
+            className={styles.searchTypeSelect}
+          />
+          <input
+            type="text"
+            placeholder={t("admin.posts.search")}
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className={styles.searchInput}
+          />
+        </div>
         <Select
           value={sort}
           options={[
@@ -609,7 +625,7 @@ export default function AdminPostsPage() {
         {hasFilters && (
           <button
             className={shell.filterReset}
-            onClick={() => { setSearch(""); setSort("newest"); setFilterCategory(""); setFilterSeries(""); setPage(1); }}
+            onClick={() => { setSearch(""); setSearchType("all"); setSort("newest"); setFilterCategory(""); setFilterSeries(""); setPage(1); }}
           >
             {t("admin.posts.resetFilters")}
           </button>
