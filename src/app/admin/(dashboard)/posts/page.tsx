@@ -127,11 +127,18 @@ export default function AdminPostsPage() {
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [seriesOpen, setSeriesOpen] = useState(false);
   const [seriesPage, setSeriesPage] = useState(1);
+  const [seriesSearch, setSeriesSearch] = useState("");
+  const [seriesSort, setSeriesSort] = useState<"newest" | "oldest" | "name">("newest");
+  const [seriesFilter, setSeriesFilter] = useState<"" | "published" | "draft">("");
   const SERIES_PER_PAGE = 5;
 
   /* Trash */
   const [trashPosts, setTrashPosts] = useState<Post[]>([]);
   const [trashOpen, setTrashOpen] = useState(false);
+  const [trashSearch, setTrashSearch] = useState("");
+  const [trashSort, setTrashSort] = useState<"newest" | "oldest">("newest");
+  const [trashPage, setTrashPage] = useState(1);
+  const TRASH_PER_PAGE = 10;
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -170,6 +177,43 @@ export default function AdminPostsPage() {
     fetchPosts();
     fetchSeries();
   }, [fetchPosts, fetchSeries]);
+
+  /* ── Filtered series ── */
+  const filteredSeries = useMemo(() => {
+    let list = [...seriesList];
+    if (seriesSearch) {
+      const q = seriesSearch.toLowerCase();
+      list = list.filter((s) => s.title.toLowerCase().includes(q));
+    }
+    if (seriesFilter === "published") list = list.filter((s) => s.published);
+    if (seriesFilter === "draft") list = list.filter((s) => !s.published);
+    if (seriesSort === "newest") list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    else if (seriesSort === "oldest") list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    else if (seriesSort === "name") list.sort((a, b) => a.title.localeCompare(b.title));
+    return list;
+  }, [seriesList, seriesSearch, seriesSort, seriesFilter]);
+
+  useEffect(() => { setSeriesPage(1); }, [seriesSearch, seriesSort, seriesFilter]);
+
+  /* ── Filtered trash ── */
+  const filteredTrash = useMemo(() => {
+    let list = [...trashPosts];
+    if (trashSearch) {
+      const q = trashSearch.toLowerCase();
+      list = list.filter((p) => {
+        const title = formatPostTitle(p) || "";
+        return title.toLowerCase().includes(q);
+      });
+    }
+    list.sort((a, b) => {
+      const da = new Date(a.deleted_at!).getTime();
+      const db = new Date(b.deleted_at!).getTime();
+      return trashSort === "newest" ? db - da : da - db;
+    });
+    return list;
+  }, [trashPosts, trashSearch, trashSort]);
+
+  useEffect(() => { setTrashPage(1); }, [trashSearch, trashSort]);
 
   /* ── Handlers ── */
   const handleDelete = async (id: string) => {
@@ -405,8 +449,32 @@ export default function AdminPostsPage() {
         {trashPosts.length === 0 ? (
           <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
         ) : (
+          <>
+          <div className={styles.subFilterBar}>
+            <input
+              type="text"
+              placeholder={t("admin.posts.trashSearch")}
+              value={trashSearch}
+              onChange={(e) => setTrashSearch(e.target.value)}
+              className={styles.subFilterInput}
+            />
+            <button
+              type="button"
+              className={`${styles.subFilterBtn} ${trashSort === "newest" ? styles.subFilterBtnActive : ""}`}
+              onClick={() => setTrashSort("newest")}
+            >
+              {t("admin.posts.sortNewestDeleted")}
+            </button>
+            <button
+              type="button"
+              className={`${styles.subFilterBtn} ${trashSort === "oldest" ? styles.subFilterBtnActive : ""}`}
+              onClick={() => setTrashSort("oldest")}
+            >
+              {t("admin.posts.sortOldestDeleted")}
+            </button>
+          </div>
           <ul className={styles.trashList}>
-            {trashPosts.map((post) => {
+            {filteredTrash.slice((trashPage - 1) * TRASH_PER_PAGE, trashPage * TRASH_PER_PAGE).map((post) => {
               const daysLeft = getDaysLeft(post.deleted_at!);
               const title = formatPostTitle(post) || t("admin.posts.untitled");
               return (
@@ -436,6 +504,30 @@ export default function AdminPostsPage() {
               );
             })}
           </ul>
+          {filteredTrash.length > TRASH_PER_PAGE && (
+            <div className={styles.trashPaging}>
+              <button
+                type="button"
+                className={styles.trashPageBtn}
+                disabled={trashPage <= 1}
+                onClick={() => setTrashPage((p) => p - 1)}
+              >
+                &larr;
+              </button>
+              <span className={styles.trashPageInfo}>
+                {trashPage} / {Math.ceil(filteredTrash.length / TRASH_PER_PAGE)}
+              </span>
+              <button
+                type="button"
+                className={styles.trashPageBtn}
+                disabled={trashPage >= Math.ceil(filteredTrash.length / TRASH_PER_PAGE)}
+                onClick={() => setTrashPage((p) => p + 1)}
+              >
+                &rarr;
+              </button>
+            </div>
+          )}
+          </>
         )}
         </div>
       </div>
@@ -478,8 +570,59 @@ export default function AdminPostsPage() {
 
       <div className={`${styles.trashContent} ${seriesOpen ? styles.trashContentOpen : ""}`}>
         <div>
+        <div className={styles.subFilterBar}>
+          <input
+            type="text"
+            placeholder={t("admin.posts.seriesSearch")}
+            value={seriesSearch}
+            onChange={(e) => setSeriesSearch(e.target.value)}
+            className={styles.subFilterInput}
+          />
+          <button
+            type="button"
+            className={`${styles.subFilterBtn} ${seriesSort === "newest" ? styles.subFilterBtnActive : ""}`}
+            onClick={() => setSeriesSort("newest")}
+          >
+            {t("admin.posts.sortNewest")}
+          </button>
+          <button
+            type="button"
+            className={`${styles.subFilterBtn} ${seriesSort === "oldest" ? styles.subFilterBtnActive : ""}`}
+            onClick={() => setSeriesSort("oldest")}
+          >
+            {t("admin.posts.sortOldest")}
+          </button>
+          <button
+            type="button"
+            className={`${styles.subFilterBtn} ${seriesSort === "name" ? styles.subFilterBtnActive : ""}`}
+            onClick={() => setSeriesSort("name")}
+          >
+            {t("admin.posts.sortName")}
+          </button>
+          <button
+            type="button"
+            className={`${styles.subFilterBtn} ${seriesFilter === "" ? styles.subFilterBtnActive : ""}`}
+            onClick={() => setSeriesFilter("")}
+          >
+            {t("admin.posts.filterAll")}
+          </button>
+          <button
+            type="button"
+            className={`${styles.subFilterBtn} ${seriesFilter === "published" ? styles.subFilterBtnActive : ""}`}
+            onClick={() => setSeriesFilter("published")}
+          >
+            {t("admin.posts.filterPublished")}
+          </button>
+          <button
+            type="button"
+            className={`${styles.subFilterBtn} ${seriesFilter === "draft" ? styles.subFilterBtnActive : ""}`}
+            onClick={() => setSeriesFilter("draft")}
+          >
+            {t("admin.posts.filterDraft")}
+          </button>
+        </div>
         <ul className={styles.seriesList}>
-          {seriesList.slice((seriesPage - 1) * SERIES_PER_PAGE, seriesPage * SERIES_PER_PAGE).map((s) => (
+          {filteredSeries.slice((seriesPage - 1) * SERIES_PER_PAGE, seriesPage * SERIES_PER_PAGE).map((s) => (
             <li key={s.id} className={styles.seriesRow}>
                 <span className={styles.seriesRowThumb}>
                   {s.cover_image ? (
@@ -525,7 +668,7 @@ export default function AdminPostsPage() {
               </li>
             ))}
           </ul>
-        {seriesList.length > 0 && (
+        {filteredSeries.length > SERIES_PER_PAGE && (
           <div className={styles.seriesPaging}>
             <button
               type="button"
@@ -533,18 +676,18 @@ export default function AdminPostsPage() {
               disabled={seriesPage <= 1}
               onClick={() => setSeriesPage((p) => p - 1)}
             >
-              ←
+              &larr;
             </button>
             <span className={styles.seriesPageInfo}>
-              {seriesPage} / {Math.ceil(seriesList.length / SERIES_PER_PAGE)}
+              {seriesPage} / {Math.ceil(filteredSeries.length / SERIES_PER_PAGE)}
             </span>
             <button
               type="button"
               className={styles.seriesPageBtn}
-              disabled={seriesPage >= Math.ceil(seriesList.length / SERIES_PER_PAGE)}
+              disabled={seriesPage >= Math.ceil(filteredSeries.length / SERIES_PER_PAGE)}
               onClick={() => setSeriesPage((p) => p + 1)}
             >
-              →
+              &rarr;
             </button>
           </div>
         )}
