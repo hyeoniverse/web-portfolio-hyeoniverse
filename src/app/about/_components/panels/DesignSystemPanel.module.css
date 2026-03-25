@@ -404,7 +404,7 @@
   padding: var(--spacing-2xs) var(--spacing-xs);
   border: none;
   background: transparent;
-  color: #fff;
+  color: var(--text-white);
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
@@ -418,14 +418,14 @@
 .tabNavCounter {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-white-alpha-60);
   white-space: nowrap;
 }
 
 .tabNavLink {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: #fff;
+  color: var(--text-white);
   text-decoration: none;
   white-space: nowrap;
 }
