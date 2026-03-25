@@ -398,20 +398,11 @@ export default function AdminTable<T extends { id: string; published: boolean }>
       {/* Pagination */}
       {totalPages >= 1 && page && onPageChange && (
         <div className={styles.pagination}>
-          <button
-            disabled={page <= 1}
-            onClick={() => onPageChange(1)}
-            className={styles.pageBtn}
-            title="First"
-          >
-            &#171;
+          <button disabled={page <= 1} onClick={() => onPageChange(1)} className={styles.pageBtn} title="First">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" /></svg>
           </button>
-          <button
-            disabled={page <= 1}
-            onClick={() => onPageChange(page - 1)}
-            className={styles.pageBtn}
-          >
-            &larr;
+          <button disabled={page <= 1} onClick={() => onPageChange(page - 1)} className={styles.pageBtn}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
           </button>
           {pageNumbers.map((p, i) =>
             p === -1 ? (
@@ -428,39 +419,12 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               </button>
             ),
           )}
-          <button
-            disabled={page >= totalPages}
-            onClick={() => onPageChange(page + 1)}
-            className={styles.pageBtn}
-          >
-            &rarr;
+          <button disabled={page >= totalPages} onClick={() => onPageChange(page + 1)} className={styles.pageBtn}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
           </button>
-          <button
-            disabled={page >= totalPages}
-            onClick={() => onPageChange(totalPages)}
-            className={styles.pageBtn}
-            title="Last"
-          >
-            &#187;
+          <button disabled={page >= totalPages} onClick={() => onPageChange(totalPages)} className={styles.pageBtn} title="Last">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>
           </button>
-          <input
-            type="number"
-            min={1}
-            max={totalPages}
-            defaultValue={page}
-            key={page}
-            className={styles.pageInput}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const v = Math.min(totalPages, Math.max(1, Number((e.target as HTMLInputElement).value)));
-                if (v) onPageChange(v);
-              }
-            }}
-            onBlur={(e) => {
-              const v = Math.min(totalPages, Math.max(1, Number(e.target.value)));
-              if (v && v !== page) onPageChange(v);
-            }}
-          />
         </div>
       )}
 

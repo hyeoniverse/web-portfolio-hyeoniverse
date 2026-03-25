@@ -313,25 +313,6 @@
   padding: 0 var(--spacing-2xs);
 }
 
-.pageInput {
-  width: 48px;
-  height: 36px;
-  margin-left: var(--spacing-xs);
-  padding: 0 var(--spacing-xs);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  text-align: center;
-  outline: none;
-}
-
-.pageInput:focus {
-  border-color: var(--text-primary);
-}
-
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .table {
