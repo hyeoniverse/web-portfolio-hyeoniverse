@@ -102,11 +102,12 @@ export default function AdminWorksPage() {
   const [saving, setSaving] = useState(false);
 
   /* Filters & sort */
+  const [search, setSearch] = useState("");
   const [sort, setSort] = useState("order");
   const [filterYear, setFilterYear] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [perPage, setPerPage] = useState(siteConf.works.adminPerPage ?? 20);
-  const hasFilters = sort !== "order" || filterYear !== "" || filterCategory !== "";
+  const hasFilters = sort !== "order" || filterYear !== "" || filterCategory !== "" || search;
 
   const { publishOverrides, toggle, setAll, reset, toChanges, hasChanges } =
     usePublishChanges<Work>();
@@ -146,12 +147,13 @@ export default function AdminWorksPage() {
     });
     if (filterCategory) params.set("category", filterCategory);
     if (filterYear) params.set("year", filterYear);
+    if (search) params.set("search", search);
     const res = await fetch(`/api/works?${params}`);
     const data = await res.json();
     setWorks(data.works ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterYear]);
+  }, [page, perPage, sort, filterCategory, filterYear, search]);
 
   const fetchTrash = useCallback(async () => {
     const res = await fetch("/api/works?trash=true&limit=100");
@@ -398,13 +400,14 @@ export default function AdminWorksPage() {
       </button>
 
       <div className={`${styles.trashContent} ${trashOpen ? styles.trashContentOpen : ""}`}>
+        <div>
         <p className={styles.trashHint}><T k="admin.works.trashAutoDelete" /></p>
         {trashWorks.length === 0 ? (
           <p className={styles.trashEmpty}><T k="admin.works.trashEmpty" /></p>
         ) : (
           <ul className={styles.trashList}>
             {trashWorks.map((work) => {
-              const daysLeft = getDaysLeft(work.deleted_at!);
+              const daysLeft = work.deleted_at ? getDaysLeft(work.deleted_at) : 30;
               const title = work.title || t("admin.works.untitled");
               return (
                 <li key={work.id} className={styles.trashRow}>
@@ -434,6 +437,7 @@ export default function AdminWorksPage() {
             })}
           </ul>
         )}
+        </div>
       </div>
     </div>
   );
@@ -452,6 +456,13 @@ export default function AdminWorksPage() {
     >
       {/* Filter bar */}
       <div className={shell.filterBar}>
+        <input
+          type="text"
+          placeholder={t("admin.works.search")}
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className={`${shell.filterItem} ${styles.searchInput}`}
+        />
         <Select
           value={sort}
           options={[
@@ -491,7 +502,7 @@ export default function AdminWorksPage() {
         {hasFilters && (
           <button
             className={shell.filterReset}
-            onClick={() => { setSort("order"); setFilterYear(""); setFilterCategory(""); setPage(1); }}
+            onClick={() => { setSearch(""); setSort("order"); setFilterYear(""); setFilterCategory(""); setPage(1); }}
           >
             {t("admin.works.resetFilters")}
           </button>

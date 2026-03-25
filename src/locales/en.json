@@ -419,6 +419,7 @@
     },
     "posts": {
       "title": "Posts",
+      "search": "Search...",
       "newPost": "New Post",
       "series": "Series",
       "untitled": "Untitled",
@@ -576,6 +577,7 @@
     },
     "works": {
       "title": "Works",
+      "search": "Search...",
       "newWork": "New Work",
       "untitled": "Untitled",
       "noWorksYet": "No works yet",

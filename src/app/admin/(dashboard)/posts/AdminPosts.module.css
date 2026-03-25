@@ -1,6 +1,34 @@
+/* ── Search Input ── */
+.searchInput {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-strong-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+  min-width: 140px;
+  max-width: 220px;
+}
+
+.searchInput:focus {
+  border-color: var(--text-primary);
+}
+
+.searchInput::placeholder {
+  color: var(--text-muted);
+}
+
 /* ── Series Section ── */
 .seriesSection {
   margin-bottom: var(--spacing-2xl);
+}
+
+.seriesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .seriesToggle {
@@ -133,6 +161,45 @@
   color: var(--text-primary);
 }
 
+.seriesPaging {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+}
+
+.seriesPageBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light-color);
+  border-radius: 50%;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.seriesPageBtn:hover:not(:disabled) {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.seriesPageBtn:disabled {
+  color: var(--text-muted);
+  border-color: var(--border-light-color);
+  opacity: 0.4;
+}
+
+.seriesPageInfo {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
 /* ── Series card badges & actions ── */
 .statusBadge {
   padding: 2px var(--spacing-xs);
@@ -218,13 +285,18 @@
 }
 
 .trashContent {
+  display: grid;
+  grid-template-rows: 0fr;
   overflow: hidden;
-  clip-path: inset(0 0 100% 0);
-  transition: clip-path 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .trashContentOpen {
-  clip-path: inset(0 0 0 0);
+  grid-template-rows: 1fr;
+}
+
+.trashContent > * {
+  overflow: hidden;
 }
 
 .trashList {
