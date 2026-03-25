@@ -58,12 +58,7 @@
 
 @media (max-width: 1024px), (max-height: 700px) {
   .techGrid {
-    max-width: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .techGrid {
+    max-width: 100%;
     grid-template-columns: 1fr;
   }
 }

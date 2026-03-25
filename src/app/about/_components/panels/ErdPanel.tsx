@@ -113,7 +113,7 @@ function ErdPanel({
         ref={contentRef}
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
-        <PinnedTitleRow title="Database Design." />
+        <PinnedTitleRow className={isMobile ? styles.erdTitleRow : undefined} title="Database Design." />
 
         <div className={styles.erdPinnedLayout}>
           <div className={styles.erdDiagramWrap}>

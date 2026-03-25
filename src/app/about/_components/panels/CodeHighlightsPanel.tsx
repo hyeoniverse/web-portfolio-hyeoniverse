@@ -136,11 +136,11 @@ function CodeHighlightsPanel({
   );
 
   return (
-    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
+    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide} ${styles.chPanel}`}>
       {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
-         
+          className={styles.chTitleRow}
           title="Code Highlights."
           compact
           animate

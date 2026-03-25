@@ -111,6 +111,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  width: max-content;
+  margin-left: auto;
 }
 
 .ufLegendItem {
@@ -119,6 +121,11 @@
   gap: var(--spacing-xs);
   font-family: var(--font-mono);
   font-size: 11px;
+}
+
+.ufLegendItem svg {
+  flex-shrink: 0;
+  width: 28px;
   color: var(--text-tertiary);
 }
 
@@ -330,6 +337,27 @@
    ========================================================================== */
 
 @media (max-width: 1024px), (max-height: 700px) {
+  .ufPanel.ufPanel.ufPanel {
+    padding-top: 0 !important;
+  }
+
+  .ufTitleRow.ufTitleRow.ufTitleRow {
+    padding-top: 0 !important;
+    margin-bottom: var(--spacing-sm) !important;
+  }
+
+  .ufTitleRow h3 {
+    margin-top: calc(80px + 40px + var(--spacing-md)) !important;
+    margin-bottom: 0 !important;
+  }
+
+  .ufTitleRow > div:nth-child(2) {
+    padding: calc(80px + 40px + var(--spacing-md)) 0 0 0 !important;
+    align-self: flex-start;
+    margin-left: auto;
+    margin-right: 0;
+  }
+
   /* ── User Flow Panel — mobile ── */
   .ufLane {
     padding: var(--spacing-lg);
@@ -346,14 +374,22 @@
   }
 
   .ufFlowLayout {
-    overflow-x: auto;
-    min-height: 200px;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .ufFlowDiagram {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ufFlowInfo {
+    flex-shrink: 0;
   }
 
   .ufMobileList {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-    flex: 1;
+    display: none;
   }
 }

@@ -92,7 +92,7 @@ function FeaturesPanel({
       const slots = count - 1;
       const isTabletLayout = window.innerWidth >= 768;
       const spacing = tabH + (isTabletLayout ? 48 : 32); // 탭 + 여백 (태블릿은 더 넓게)
-      const vh = window.innerHeight;
+      const vh = window.innerHeight - 120; // padding-top 120px 반영
 
       // 스택 전체 높이: (카드 수-1) × 탭 간격 + 마지막 카드 탭 + bodyPeek
       const stackTotal = slots * spacing + tabH + bodyPeek;
@@ -217,8 +217,8 @@ function FeaturesPanel({
         return pos + cardHeight;
       };
 
-      // 마지막 카드 시작 시 pin 해제 → 자연 스크롤로 전환
-      const scrollDist = cardStarts[count - 1];
+      // 마지막 카드까지 완전히 올라온 뒤 pin 해제
+      const scrollDist = cardStarts[count - 1] + getScrollForCard(count - 1);
 
       ctx = gsap.context(() => {
         ScrollTrigger.create({
@@ -244,7 +244,10 @@ function FeaturesPanel({
             }
           },
         });
+
       }, grid);
+
+      ScrollTrigger.refresh();
     };
 
     // 초기 설정: 1프레임 대기 — BreakpointGuard 리마운트 후 DOM 안정화 보장

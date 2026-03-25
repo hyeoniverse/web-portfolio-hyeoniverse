@@ -229,6 +229,19 @@
    ========================================================================== */
 
 @media (max-width: 1024px), (max-height: 700px) {
+  .erdTitleRow.erdTitleRow.erdTitleRow {
+    padding-top: calc(80px + 40px);
+  }
+
+  .erdPinnedLayout {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .erdDiagramWrap {
+    max-width: 100%;
+  }
+
   .erdNoteOverlay {
     display: none;
   }
