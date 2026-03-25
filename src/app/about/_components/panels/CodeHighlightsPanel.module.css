@@ -471,6 +471,20 @@
 }
 
 @media (max-width: 1024px), (max-height: 700px) {
+  .chPanel.chPanel.chPanel {
+    padding-top: 0 !important;
+  }
+
+  .chTitleRow.chTitleRow.chTitleRow {
+    padding-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .chTitleRow h3 {
+    margin-top: var(--spacing-md) !important;
+    margin-bottom: 0 !important;
+  }
+
   .demoI18nRow {
     max-width: 100%;
   }

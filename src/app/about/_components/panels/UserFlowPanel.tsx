@@ -413,13 +413,14 @@ function UserFlowPanel({
   return (
     <div
       ref={panelRef}
-      className={`${styles.panel} ${styles.panelExtraWide}`}
+      className={`${styles.panel} ${styles.panelExtraWide} ${styles.ufPanel}`}
     >
       <div
         ref={contentRef}
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
         <PinnedTitleRow
+          className={isMobile ? styles.ufTitleRow : undefined}
           title={<T k="aboutPage.panels.userFlow" />}
           dotNav={{
             count: flowCount,

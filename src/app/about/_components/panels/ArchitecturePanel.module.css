@@ -339,25 +339,64 @@
 }
 
 @media (max-width: 1024px), (max-height: 700px) {
+  .archPanel {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .archTitle {
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+  }
+
   .archMap {
     display: none;
   }
 
   .archGrid {
     display: grid;
-    grid-auto-flow: row;
+    grid-auto-flow: column;
+    gap: 0 var(--spacing-2xl);
     max-width: none;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(12, auto);
   }
 }
 
 @media (max-width: 768px) {
+  .archGrid {
+    grid-auto-flow: row;
+    gap: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .archItem {
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+    align-items: flex-start;
+    padding: var(--spacing-sm) 0;
+  }
+
+  .archDesc {
+    text-align: left;
+    font-size: var(--_fs-caption);
+  }
+
   .archIndent1 .archPath {
-    padding-left: var(--spacing-sm);
+    padding-left: var(--spacing-md);
   }
 
   .archIndent2 .archPath {
+    padding-left: var(--spacing-xl);
+  }
+
+  .archIndent1 .archDesc,
+  .archIndent2 .archDesc {
+    padding-left: var(--spacing-md);
+  }
+
+  .archIndent2 .archDesc {
     padding-left: var(--spacing-xl);
   }
 }
