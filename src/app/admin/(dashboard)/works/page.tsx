@@ -25,6 +25,11 @@ const PAGE_SIZE_OPTIONS = [
   { value: "100", label: "100" },
 ];
 
+const ChevronFirst = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" /></svg>;
+const ChevronPrev = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>;
+const ChevronNext = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>;
+const ChevronLast = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>;
+
 /* ── Isolated tooltip to prevent parent re-renders from reaching AdminTable ── */
 function PreviewTooltip({
   work,
@@ -513,15 +518,11 @@ export default function AdminWorksPage() {
           const tp = Math.max(1, Math.ceil(filteredTrash.length / trashPerPage));
           return (
             <div className={styles.trashPaging}>
-              <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage(1)}>&#171;</button>
-              <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage((p) => p - 1)}>&larr;</button>
+              <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage(1)}><ChevronFirst /></button>
+              <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage((p) => p - 1)}><ChevronPrev /></button>
               <span className={styles.trashPageInfo}>{trashPage} / {tp}</span>
-              <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage((p) => p + 1)}>&rarr;</button>
-              <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage(tp)}>&#187;</button>
-              <input type="number" min={1} max={tp} defaultValue={trashPage} key={trashPage} className={styles.trashPageInput}
-                onKeyDown={(e) => { if (e.key === "Enter") { const v = Math.min(tp, Math.max(1, Number((e.target as HTMLInputElement).value))); if (v) setTrashPage(v); } }}
-                onBlur={(e) => { const v = Math.min(tp, Math.max(1, Number(e.target.value))); if (v && v !== trashPage) setTrashPage(v); }}
-              />
+              <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage((p) => p + 1)}><ChevronNext /></button>
+              <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage(tp)}><ChevronLast /></button>
             </div>
           );
         })()}
