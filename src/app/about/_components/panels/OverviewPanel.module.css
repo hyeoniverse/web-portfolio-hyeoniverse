@@ -29,7 +29,7 @@
   border-bottom: var(--_line-secondary);
 }
 
-.statValue {
+.overviewStatValue {
   font-family: var(--_font-display);
   font-size: var(--_fs-lead);
   font-weight: var(--font-weight-regular);
@@ -37,7 +37,7 @@
   color: var(--text-accent);
 }
 
-.statLabel {
+.overviewStatLabel {
   font-size: var(--_fs-small);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);

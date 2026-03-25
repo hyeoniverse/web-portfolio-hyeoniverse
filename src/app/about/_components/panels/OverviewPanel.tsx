@@ -30,8 +30,8 @@ export default function OverviewPanel({ language, overview }: OverviewPanelProps
         <div className={`${styles.overviewStats} ${styles.animate}`}>
           {overview.stats.map((stat, i) => (
             <div key={i} className={styles.overviewStat}>
-              <span className={styles.statValue}>{stat.value}</span>
-              <span className={styles.statLabel}>{stat.label[language]}</span>
+              <span className={styles.overviewStatValue}>{stat.value}</span>
+              <span className={styles.overviewStatLabel}>{stat.label[language]}</span>
             </div>
           ))}
         </div>
