@@ -137,6 +137,7 @@ export default function AdminPostsPage() {
   const [trashPosts, setTrashPosts] = useState<Post[]>([]);
   const [trashOpen, setTrashOpen] = useState(false);
   const [trashSearch, setTrashSearch] = useState("");
+  const [trashSearchType, setTrashSearchType] = useState<"all" | "title" | "content">("all");
   const [trashSort, setTrashSort] = useState<"newest" | "oldest">("newest");
   const [trashPage, setTrashPage] = useState(1);
   const [trashPerPage, setTrashPerPage] = useState(10);
@@ -208,8 +209,11 @@ export default function AdminPostsPage() {
     if (trashSearch) {
       const q = trashSearch.toLowerCase();
       list = list.filter((p) => {
-        const title = formatPostTitle(p) || "";
-        return title.toLowerCase().includes(q);
+        const title = (formatPostTitle(p) || "").toLowerCase();
+        const content = ((p.content || "") + " " + (p.content_en || "")).toLowerCase();
+        if (trashSearchType === "title") return title.includes(q);
+        if (trashSearchType === "content") return content.includes(q);
+        return title.includes(q) || content.includes(q);
       });
     }
     list.sort((a, b) => {
@@ -218,9 +222,9 @@ export default function AdminPostsPage() {
       return trashSort === "newest" ? db - da : da - db;
     });
     return list;
-  }, [trashPosts, trashSearch, trashSort]);
+  }, [trashPosts, trashSearch, trashSearchType, trashSort]);
 
-  useEffect(() => { setTrashPage(1); }, [trashSearch, trashSort]);
+  useEffect(() => { setTrashPage(1); }, [trashSearch, trashSearchType, trashSort]);
 
   /* ── Handlers ── */
   const handleDelete = async (id: string) => {
@@ -474,6 +478,16 @@ export default function AdminPostsPage() {
             className={styles.subFilterSelect}
           />
           <div className={`${styles.searchGroup} ${styles.searchGroupRight}`}>
+            <Select
+              value={trashSearchType}
+              options={[
+                { value: "all", label: t("admin.posts.searchAll") },
+                { value: "title", label: t("admin.posts.searchTitle") },
+                { value: "content", label: t("admin.posts.searchContent") },
+              ]}
+              onChange={(v) => setTrashSearchType(v as "all" | "title" | "content")}
+              className={styles.subFilterSelect}
+            />
             <input
               type="text"
               placeholder={t("admin.posts.trashSearch")}
@@ -518,27 +532,22 @@ export default function AdminPostsPage() {
             })}
           </ul>
         )}
-        <div className={styles.trashPaging}>
-          <button
-            type="button"
-            className={styles.trashPageBtn}
-            disabled={trashPage <= 1}
-            onClick={() => setTrashPage((p) => p - 1)}
-          >
-            &larr;
-          </button>
-          <span className={styles.trashPageInfo}>
-            {trashPage} / {Math.max(1, Math.ceil(filteredTrash.length / trashPerPage))}
-          </span>
-          <button
-            type="button"
-            className={styles.trashPageBtn}
-            disabled={trashPage >= Math.ceil(filteredTrash.length / trashPerPage)}
-            onClick={() => setTrashPage((p) => p + 1)}
-          >
-            &rarr;
-          </button>
-        </div>
+        {(() => {
+          const tp = Math.max(1, Math.ceil(filteredTrash.length / trashPerPage));
+          return (
+            <div className={styles.trashPaging}>
+              <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage(1)}>&#171;</button>
+              <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage((p) => p - 1)}>&larr;</button>
+              <span className={styles.trashPageInfo}>{trashPage} / {tp}</span>
+              <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage((p) => p + 1)}>&rarr;</button>
+              <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage(tp)}>&#187;</button>
+              <input type="number" min={1} max={tp} defaultValue={trashPage} key={trashPage} className={styles.trashPageInput}
+                onKeyDown={(e) => { if (e.key === "Enter") { const v = Math.min(tp, Math.max(1, Number((e.target as HTMLInputElement).value))); if (v) setTrashPage(v); } }}
+                onBlur={(e) => { const v = Math.min(tp, Math.max(1, Number(e.target.value))); if (v && v !== trashPage) setTrashPage(v); }}
+              />
+            </div>
+          );
+        })()}
         </div>
       </div>
     </div>
@@ -678,29 +687,22 @@ export default function AdminPostsPage() {
               </li>
             ))}
           </ul>
-        {filteredSeries.length > 0 && (
-          <div className={styles.seriesPaging}>
-            <button
-              type="button"
-              className={styles.seriesPageBtn}
-              disabled={seriesPage <= 1}
-              onClick={() => setSeriesPage((p) => p - 1)}
-            >
-              &larr;
-            </button>
-            <span className={styles.seriesPageInfo}>
-              {seriesPage} / {Math.ceil(filteredSeries.length / seriesPerPage)}
-            </span>
-            <button
-              type="button"
-              className={styles.seriesPageBtn}
-              disabled={seriesPage >= Math.ceil(filteredSeries.length / seriesPerPage)}
-              onClick={() => setSeriesPage((p) => p + 1)}
-            >
-              &rarr;
-            </button>
-          </div>
-        )}
+        {(() => {
+          const tp = Math.max(1, Math.ceil(filteredSeries.length / seriesPerPage));
+          return (
+            <div className={styles.seriesPaging}>
+              <button type="button" className={styles.seriesPageBtn} disabled={seriesPage <= 1} onClick={() => setSeriesPage(1)}>&#171;</button>
+              <button type="button" className={styles.seriesPageBtn} disabled={seriesPage <= 1} onClick={() => setSeriesPage((p) => p - 1)}>&larr;</button>
+              <span className={styles.seriesPageInfo}>{seriesPage} / {tp}</span>
+              <button type="button" className={styles.seriesPageBtn} disabled={seriesPage >= tp} onClick={() => setSeriesPage((p) => p + 1)}>&rarr;</button>
+              <button type="button" className={styles.seriesPageBtn} disabled={seriesPage >= tp} onClick={() => setSeriesPage(tp)}>&#187;</button>
+              <input type="number" min={1} max={tp} defaultValue={seriesPage} key={seriesPage} className={styles.seriesPageInput}
+                onKeyDown={(e) => { if (e.key === "Enter") { const v = Math.min(tp, Math.max(1, Number((e.target as HTMLInputElement).value))); if (v) setSeriesPage(v); } }}
+                onBlur={(e) => { const v = Math.min(tp, Math.max(1, Number(e.target.value))); if (v && v !== seriesPage) setSeriesPage(v); }}
+              />
+            </div>
+          );
+        })()}
         </div>
       </div>
 
