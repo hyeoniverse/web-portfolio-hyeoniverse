@@ -411,7 +411,7 @@
    ========================================================================== */
 
 @media (max-width: 1024px), (max-height: 700px) {
-  /* ── Database Panel — mobile ── */
+  /* ── Backend Panel — mobile ── */
   .dbSplit {
     display: none;
   }
@@ -419,11 +419,19 @@
   .dbMobileList {
     display: flex;
     flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+
+  .dbMobileItem {
+    padding: var(--spacing-xl) 0;
+    border-bottom: var(--_line-secondary);
   }
 
   .dbDetailHeader {
-    gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+    align-items: center;
   }
 
   .dbDetailNumber {
@@ -431,7 +439,7 @@
     top: 50%;
     left: 50%;
     z-index: 0;
-    font-size: clamp(10rem, 40vw, 20rem);
+    font-size: clamp(8rem, 30vw, 16rem);
     line-height: 1;
     color: var(--text-accent);
     white-space: nowrap;
@@ -446,36 +454,75 @@
     font-size: clamp(1rem, 3.5vw, 1.4rem);
   }
 
+  .dbKindBadge {
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+  }
+
   .dbEntry {
     position: relative;
     z-index: 1;
-    gap: 0.4rem;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .dbEntry:last-child {
+    margin-bottom: 0;
   }
 
   .dbLabel {
-    padding: var(--box-sm);
-    font-size: var(--_fs-label);
+    padding: var(--spacing-3xs) var(--spacing-sm);
+    font-size: clamp(0.6rem, 1.8vw, 0.7rem);
   }
 
   .dbEntry p {
-    font-size: var(--_fs-body);
+    font-size: clamp(0.8rem, 2.5vw, 0.95rem);
     line-height: var(--line-height-relaxed);
+  }
+
+  .dbSchema {
+    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
   }
 
   .dbSchemaHeader {
     grid-template-columns: 1fr 0.5fr 1fr;
+    padding: var(--spacing-sm) 0;
+    font-size: clamp(0.6rem, 1.8vw, 0.7rem);
   }
 
   .dbSchemaRow {
     grid-template-columns: 1fr 0.5fr 1fr;
+    padding: var(--spacing-sm) 0;
+    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+  }
+
+  .dbEndpointList {
+    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
   }
 
   .dbEndpoint {
     grid-template-columns: auto 1fr;
-    gap: var(--box-xs-sm);
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) 0;
+  }
+
+  .dbMethodBadge {
+    font-size: clamp(0.55rem, 1.6vw, 0.65rem);
+    padding: 0.1rem 0.4rem;
+    min-width: 2.5rem;
+  }
+
+  .dbEndpointPath {
+    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+    word-break: break-all;
   }
 
   .dbEndpointDesc {
     grid-column: 1 / -1;
+    font-size: clamp(0.75rem, 2.3vw, 0.9rem);
+    color: var(--text-tertiary);
+  }
+
+  .dbQuery {
+    font-size: clamp(0.7rem, 2vw, 0.8rem);
   }
 }
