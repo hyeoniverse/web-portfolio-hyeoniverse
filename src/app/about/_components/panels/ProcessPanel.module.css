@@ -223,6 +223,21 @@
    ========================================================================== */
 
 @media (max-width: 1024px), (max-height: 700px) {
+  .procPanel {
+    padding-top: var(--spacing-xl);
+    padding-bottom: 0;
+  }
+
+  .procTitleRow.procTitleRow.procTitleRow {
+    padding-top: calc(80px + 40px + var(--spacing-md));
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .procTitleRow h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
   .processBody {
     display: none;
   }
