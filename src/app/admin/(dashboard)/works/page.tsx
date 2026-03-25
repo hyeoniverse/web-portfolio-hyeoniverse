@@ -442,20 +442,15 @@ export default function AdminWorksPage() {
               onChange={(e) => setTrashSearch(e.target.value)}
               className={styles.subFilterInput}
             />
-            <button
-              type="button"
-              className={`${styles.subFilterBtn} ${trashSort === "newest" ? styles.subFilterBtnActive : ""}`}
-              onClick={() => setTrashSort("newest")}
-            >
-              {t("admin.works.sortNewestDeleted")}
-            </button>
-            <button
-              type="button"
-              className={`${styles.subFilterBtn} ${trashSort === "oldest" ? styles.subFilterBtnActive : ""}`}
-              onClick={() => setTrashSort("oldest")}
-            >
-              {t("admin.works.sortOldestDeleted")}
-            </button>
+            <Select
+              value={trashSort}
+              options={[
+                { value: "newest", label: t("admin.works.sortNewestDeleted") },
+                { value: "oldest", label: t("admin.works.sortOldestDeleted") },
+              ]}
+              onChange={(v) => setTrashSort(v as "newest" | "oldest")}
+              className={styles.subFilterSelect}
+            />
           </div>
           <ul className={styles.trashList}>
             {filteredTrash.slice((trashPage - 1) * TRASH_PER_PAGE, trashPage * TRASH_PER_PAGE).map((work) => {

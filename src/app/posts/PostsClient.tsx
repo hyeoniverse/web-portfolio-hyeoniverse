@@ -308,18 +308,16 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               style={{ overflow: "hidden" }}
             >
             <div className={styles.searchGroup}>
-              <div className={styles.searchTypeGroup}>
-                {(["all", "title", "content"] as const).map((type) => (
-                  <button
-                    key={type}
-                    data-clickable="true"
-                    className={`${styles.searchTypeBtn} ${searchType === type ? styles.searchTypeBtnActive : ""}`}
-                    onClick={() => setSearchType(type)}
-                  >
-                    {t(`postsPage.search${type.charAt(0).toUpperCase() + type.slice(1)}`)}
-                  </button>
-                ))}
-              </div>
+              <Select
+                value={searchType}
+                options={[
+                  { value: "all", label: t("postsPage.searchAll") },
+                  { value: "title", label: t("postsPage.searchTitle") },
+                  { value: "content", label: t("postsPage.searchContent") },
+                ]}
+                onChange={(v) => setSearchType(v as "all" | "title" | "content")}
+                className={styles.searchTypeSelect}
+              />
               <div className={styles.searchWrap}>
                 <svg
                   className={styles.searchIcon}
