@@ -200,7 +200,7 @@ function TroubleshootingPanel({
         />
 
         {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
-        <div className={`${styles.troubleSplit} ${styles.desktopOnly} ${styles.animate}`}>
+        <div className={`${styles.troubleSplit} ${styles.animate}`}>
           {/* 왼쪽: 항목 목록 */}
           <div ref={listRef} className={styles.troubleList} style={{ '--items-count': items.length + items.filter(i => i.section).length + 1 } as React.CSSProperties}>
             {items.map((item, index) => (
@@ -341,7 +341,7 @@ function TroubleshootingPanel({
         </div>
 
         {/* 모바일: 모든 항목 표시 (폴백, pin 활성 시 숨김) */}
-        <div className={`${styles.troubleMobileList} ${styles.mobileOnly}`}>
+        <div className={styles.troubleMobileList}>
           {items.map((item, index) => (
             <React.Fragment key={index}>
               {item.section && (
