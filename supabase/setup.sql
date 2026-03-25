@@ -247,15 +247,19 @@ CREATE TABLE IF NOT EXISTS works (
   published      boolean NOT NULL DEFAULT false,
   sort_order     int NOT NULL DEFAULT 0,
   created_at     timestamptz DEFAULT now(),
-  updated_at     timestamptz DEFAULT now()
+  updated_at     timestamptz DEFAULT now(),
+  deleted_at     timestamptz DEFAULT NULL
 );
+
+-- 기존 테이블에 deleted_at 컬럼이 없으면 추가
+ALTER TABLE works ADD COLUMN IF NOT EXISTS deleted_at timestamptz DEFAULT NULL;
 
 ALTER TABLE works ENABLE ROW LEVEL SECURITY;
 
--- 공개된 작업물만 읽기
+-- 공개된 작업물만 읽기 (삭제되지 않은 것만)
 CREATE POLICY "works_public_read"
   ON works FOR SELECT
-  USING (published = true);
+  USING (published = true AND deleted_at IS NULL);
 
 -- service_role 전체 접근
 CREATE POLICY "works_service_all"

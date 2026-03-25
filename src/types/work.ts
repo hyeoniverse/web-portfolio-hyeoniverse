@@ -46,6 +46,7 @@ export interface Work {
   sort_order: number;
   created_at: string;
   updated_at: string;
+  deleted_at?: string | null;
   summary_ko: string;
   summary_en: string;
 }
