@@ -24,6 +24,8 @@ interface PinnedTitleRowProps {
   dotNav?: DotNavConfig;
   /** dotNav 대신 오른쪽에 커스텀 콘텐츠 표시 */
   rightContent?: React.ReactNode;
+  /** 추가 CSS 클래스 */
+  className?: string;
 }
 
 /** 패널 상단 타이틀 행 — 제목 + 선택적 점 네비게이션 */
@@ -33,6 +35,7 @@ export default function PinnedTitleRow({
   animate = false,
   dotNav,
   rightContent,
+  className,
 }: PinnedTitleRowProps) {
   const animateClass = animate ? ` ${styles.animate}` : "";
   const titleClasses = `${styles.panelTitle}${compact ? ` ${styles.panelTitleCompact}` : ""}${animateClass}`;
@@ -76,7 +79,7 @@ export default function PinnedTitleRow({
   }, [targetDot, updateIndicator, dotNav, dotNav?.activeIndex]);
 
   return (
-    <div className={styles.pinnedTitleRow}>
+    <div className={`${styles.pinnedTitleRow}${className ? ` ${className}` : ""}`}>
       <div>
         <h3 className={titleClasses}>{title}</h3>
       </div>
