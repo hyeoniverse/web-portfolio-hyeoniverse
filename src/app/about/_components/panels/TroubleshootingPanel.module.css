@@ -173,21 +173,11 @@
   /* 좌측 리스트 연동용 — 시각 변경 없음 */
 }
 
-.troubleDetailHeader {
-  display: flex;
-  gap: var(--spacing-lg);
-  align-items: baseline;
-  margin-bottom: var(--spacing-xl);
-  font-size: var(--_fs-subhead);
-}
+/* detailHeader / detailNumber → shared (AboutSection.module.css) */
 
+/* Panel-specific number class — mobile size override targets this */
 .troubleDetailNumber {
-  flex-shrink: 0;
-  font-family: var(--_font-display);
-  font-size: inherit;
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-fit);
-  color: var(--text-accent);
+  /* base: no-op; shared .detailNumber + .watermarkNumber handle styles */
 }
 
 .troubleTitle {
@@ -210,26 +200,7 @@
   flex-direction: column;
 }
 
-.troubleLabel {
-  padding: var(--box-sm);
-  border: var(--border-default);
-  width: fit-content;
-  font-size: var(--_fs-label);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  border-radius: var(--radius-capsule);
-}
-
-.troubleLabelAccent {
-  border: var(--border-accent);
-  color: var(--text-accent);
-}
-
-.troubleLabelInsight {
-  color: var(--text-accent);
-}
+/* entryLabel / entryLabelAccent / entryLabelInsight → shared (AboutSection.module.css) */
 
 .troubleEntry p {
   margin: 0;
@@ -265,8 +236,9 @@
   border-bottom: none;
 }
 
+/* troubleMobileList display toggle → shared .mobileOnly */
 .troubleMobileList {
-  display: none;
+  /* base: no-op; display handled by shared .mobileOnly */
 }
 
 .troubleMobileItem {
@@ -389,33 +361,13 @@
    ========================================================================== */
 
 @media (max-width: 1024px), (max-height: 700px) {
-  .troubleSplit {
-    display: none;
-  }
+  /* troubleSplit hide → shared .desktopOnly */
+  /* troubleMobileList show → shared .mobileOnly */
 
-  .troubleMobileList {
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Background number — large watermark behind entire detail item */
-  .troubleDetailHeader {
-    gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
-  }
-
+  /* detailHeader mobile → shared .detailHeader mobile */
+  /* watermarkNumber base → shared; panel-specific size override: */
   .troubleDetailNumber {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 0;
     font-size: clamp(10rem, 40vw, 20rem);
-    line-height: 1;
-    color: var(--text-accent);
-    white-space: nowrap;
-    pointer-events: none;
-    translate: -50% -50%;
-    opacity: 0.06;
   }
 
   .troubleTitle {
@@ -434,10 +386,7 @@
     gap: 0.4rem;
   }
 
-  .troubleLabel {
-    padding: var(--box-sm);
-    font-size: var(--_fs-label);
-  }
+  /* troubleLabel mobile → shared .entryLabel mobile */
 
   .troubleEntry p {
     font-size: var(--_fs-body);
