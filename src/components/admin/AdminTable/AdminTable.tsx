@@ -400,6 +400,14 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         <div className={styles.pagination}>
           <button
             disabled={page <= 1}
+            onClick={() => onPageChange(1)}
+            className={styles.pageBtn}
+            title="First"
+          >
+            &#171;
+          </button>
+          <button
+            disabled={page <= 1}
             onClick={() => onPageChange(page - 1)}
             className={styles.pageBtn}
           >
@@ -427,6 +435,32 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           >
             &rarr;
           </button>
+          <button
+            disabled={page >= totalPages}
+            onClick={() => onPageChange(totalPages)}
+            className={styles.pageBtn}
+            title="Last"
+          >
+            &#187;
+          </button>
+          <input
+            type="number"
+            min={1}
+            max={totalPages}
+            defaultValue={page}
+            key={page}
+            className={styles.pageInput}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const v = Math.min(totalPages, Math.max(1, Number((e.target as HTMLInputElement).value)));
+                if (v) onPageChange(v);
+              }
+            }}
+            onBlur={(e) => {
+              const v = Math.min(totalPages, Math.max(1, Number(e.target.value)));
+              if (v && v !== page) onPageChange(v);
+            }}
+          />
         </div>
       )}
 

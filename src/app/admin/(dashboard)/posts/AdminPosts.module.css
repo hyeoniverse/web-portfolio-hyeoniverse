@@ -226,6 +226,25 @@
   color: var(--text-tertiary);
 }
 
+.seriesPageInput {
+  width: 40px;
+  height: 32px;
+  margin-left: var(--spacing-2xs);
+  padding: 0 var(--spacing-2xs);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+}
+
+.seriesPageInput:focus {
+  border-color: var(--text-primary);
+}
+
 /* ── Series card badges & actions ── */
 .statusBadge {
   padding: 2px var(--spacing-xs);
@@ -281,6 +300,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  width: 100%;
   padding: var(--spacing-xs) 0;
   border: none;
   background: transparent;
@@ -499,4 +519,23 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
+}
+
+.trashPageInput {
+  width: 40px;
+  height: 32px;
+  margin-left: var(--spacing-2xs);
+  padding: 0 var(--spacing-2xs);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+}
+
+.trashPageInput:focus {
+  border-color: var(--text-primary);
 }
