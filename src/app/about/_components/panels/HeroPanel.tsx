@@ -8,7 +8,7 @@ export default function HeroPanel() {
   return (
     <div className={`${styles.panel} ${styles.heroPanelBg}`}>
       <div className={styles.heroContent}>
-        <span className={`${styles.heroLabel} ${styles.animate} ${styles.heroFadeIn1}`}>
+        <span className={`${styles.label} ${styles.animate} ${styles.heroFadeIn1}`}>
           <T k="aboutPage.title" />
         </span>
         <KineticHeroTitle
