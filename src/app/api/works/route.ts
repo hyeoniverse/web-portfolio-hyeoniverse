@@ -18,13 +18,10 @@ export async function GET(request: Request) {
   let query = supabase.from("works").select("*", { count: "exact" });
 
   if (showTrash) {
-    // 휴지통: deleted_at IS NOT NULL
     query = query.not("deleted_at", "is", null);
   } else if (!showAll) {
-    // 공개: published=true + deleted_at IS NULL
     query = query.eq("published", true).is("deleted_at", null);
   } else {
-    // 어드민 전체: deleted_at IS NULL (삭제 안된 것만)
     query = query.is("deleted_at", null);
   }
 
@@ -51,7 +48,24 @@ export async function GET(request: Request) {
     query = query.range(from, from + limit - 1);
   }
 
-  const { data, count, error } = await query;
+  let { data, count, error } = await query;
+
+  // deleted_at 컬럼이 아직 없는 경우 fallback — 컬럼 필터 없이 재조회
+  if (error?.message?.includes("deleted_at")) {
+    let fallback = supabase.from("works").select("*", { count: "exact" });
+    if (!showAll && !showTrash) fallback = fallback.eq("published", true);
+    if (category) fallback = fallback.eq("category_ko", category);
+    if (year) fallback = fallback.eq("year", year);
+    if (sort === "newest") fallback = fallback.order("created_at", { ascending: false });
+    else if (sort === "oldest") fallback = fallback.order("created_at", { ascending: true });
+    else if (sort === "name") fallback = fallback.order("title", { ascending: true });
+    else fallback = fallback.order("sort_order", { ascending: true });
+    if (page > 0 && limit > 0) {
+      const from = (page - 1) * limit;
+      fallback = fallback.range(from, from + limit - 1);
+    }
+    ({ data, count, error } = await fallback);
+  }
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
