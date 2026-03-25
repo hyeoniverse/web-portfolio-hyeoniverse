@@ -212,8 +212,10 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
   const hoveredNode = hoveredIndex !== null ? nodes[hoveredIndex] : null;
 
   return (
-    <div className={`${styles.panel} ${styles.archPanel}`}>
-      <h3 className={`${styles.panelTitle} ${styles.archTitle} ${styles.animate}`}><T k="aboutPage.panels.architecture" /></h3>
+    <div className={`${styles.panel} ${styles.panelFlush}`}>
+      <div className={styles.titleRowCompact}>
+        <h3 className={`${styles.panelTitle} ${styles.archTitle} ${styles.animate}`}><T k="aboutPage.panels.architecture" /></h3>
+      </div>
 
       {/* ── 데스크톱: 인터랙티브 맵 ── */}
       <div ref={mapRef} className={styles.archMap}>

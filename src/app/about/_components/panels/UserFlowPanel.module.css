@@ -337,22 +337,18 @@
    ========================================================================== */
 
 @media (max-width: 1024px), (max-height: 700px) {
-  .ufPanel.ufPanel.ufPanel {
-    padding-top: 0 !important;
-  }
-
   .ufTitleRow.ufTitleRow.ufTitleRow {
-    padding-top: 0 !important;
-    margin-bottom: var(--spacing-sm) !important;
+    padding-top: 0;
+    margin-bottom: var(--spacing-sm);
   }
 
   .ufTitleRow h3 {
-    margin-top: calc(80px + 40px + var(--spacing-md)) !important;
-    margin-bottom: 0 !important;
+    margin-top: calc(80px + 40px + var(--spacing-md));
+    margin-bottom: 0;
   }
 
   .ufTitleRow > div:nth-child(2) {
-    padding: calc(80px + 40px + var(--spacing-md)) 0 0 0 !important;
+    padding: calc(80px + 40px + var(--spacing-md)) 0 0 0;
     align-self: flex-start;
     margin-left: auto;
     margin-right: 0;

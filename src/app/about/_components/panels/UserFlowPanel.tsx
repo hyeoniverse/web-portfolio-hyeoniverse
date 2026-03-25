@@ -413,7 +413,7 @@ function UserFlowPanel({
   return (
     <div
       ref={panelRef}
-      className={`${styles.panel} ${styles.panelExtraWide} ${styles.ufPanel}`}
+      className={`${styles.panel} ${styles.panelExtraWide} ${styles.panelFlush}`}
     >
       <div
         ref={contentRef}
