@@ -10,6 +10,7 @@ import type { Post, Series } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
 import { useCategories, translateCategory } from "@/hooks/useCategories";
 import Select from "@/components/ui/Select";
+import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -130,6 +131,7 @@ export default function AdminPostsPage() {
 
   /* Series */
   const [seriesList, setSeriesList] = useState<Series[]>([]);
+  const [seriesLoading, setSeriesLoading] = useState(true);
   const [seriesOpen, setSeriesOpen] = useState(false);
   const [seriesPage, setSeriesPage] = useState(1);
   const [seriesSearch, setSeriesSearch] = useState("");
@@ -169,9 +171,11 @@ export default function AdminPostsPage() {
   }, [page, perPage, sort, filterCategory, filterSeries, search, searchType]);
 
   const fetchSeries = useCallback(async () => {
+    setSeriesLoading(true);
     const res = await fetch("/api/series?all=true");
     const data = await res.json();
     setSeriesList(Array.isArray(data) ? data : []);
+    setSeriesLoading(false);
   }, []);
 
   const fetchTrash = useCallback(async () => {
@@ -641,6 +645,21 @@ export default function AdminPostsPage() {
             />
           </div>
         </div>
+        {seriesLoading ? (
+          <ul className={styles.seriesList}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <li key={i} className={styles.seriesRow}>
+                <span className={styles.seriesRowThumb}>
+                  <Skeleton width={96} height={56} borderRadius="var(--radius-sm)" />
+                </span>
+                <span className={styles.seriesRowLink} style={{ flex: 1, gap: "var(--spacing-2xs)", display: "flex", flexDirection: "column" }}>
+                  <SkeletonLine width="60%" height={14} />
+                  <SkeletonLine width="40%" height={12} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
         <ul className={styles.seriesList}>
           {filteredSeries.slice((seriesPage - 1) * seriesPerPage, seriesPage * seriesPerPage).map((s) => (
             <li key={s.id} className={styles.seriesRow}>
@@ -688,6 +707,7 @@ export default function AdminPostsPage() {
               </li>
             ))}
           </ul>
+        )}
         {(() => {
           const tp = Math.max(1, Math.ceil(filteredSeries.length / seriesPerPage));
           return (
