@@ -1,3 +1,25 @@
+/* ── Search Input ── */
+.searchInput {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-strong-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+  min-width: 140px;
+  max-width: 220px;
+}
+
+.searchInput:focus {
+  border-color: var(--text-primary);
+}
+
+.searchInput::placeholder {
+  color: var(--text-muted);
+}
+
 /* ── Trash Section ── */
 .trashSection {
   margin-top: var(--spacing-2xl);
@@ -39,13 +61,18 @@
 }
 
 .trashContent {
+  display: grid;
+  grid-template-rows: 0fr;
   overflow: hidden;
-  clip-path: inset(0 0 100% 0);
-  transition: clip-path 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .trashContentOpen {
-  clip-path: inset(0 0 0 0);
+  grid-template-rows: 1fr;
+}
+
+.trashContent > * {
+  overflow: hidden;
 }
 
 .trashList {

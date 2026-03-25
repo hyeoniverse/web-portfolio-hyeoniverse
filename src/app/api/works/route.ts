@@ -12,6 +12,7 @@ export async function GET(request: Request) {
   const sort = searchParams.get("sort") ?? "order";
   const category = searchParams.get("category");
   const year = searchParams.get("year");
+  const search = searchParams.get("search") ?? "";
 
   const supabase = createAdminClient();
 
@@ -30,6 +31,10 @@ export async function GET(request: Request) {
   }
   if (year) {
     query = query.eq("year", year);
+  }
+
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%`);
   }
 
   if (sort === "newest") {
@@ -56,6 +61,9 @@ export async function GET(request: Request) {
     if (!showAll && !showTrash) fallback = fallback.eq("published", true);
     if (category) fallback = fallback.eq("category_ko", category);
     if (year) fallback = fallback.eq("year", year);
+    if (search) {
+      fallback = fallback.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%`);
+    }
     if (sort === "newest") fallback = fallback.order("created_at", { ascending: false });
     else if (sort === "oldest") fallback = fallback.order("created_at", { ascending: true });
     else if (sort === "name") fallback = fallback.order("title", { ascending: true });

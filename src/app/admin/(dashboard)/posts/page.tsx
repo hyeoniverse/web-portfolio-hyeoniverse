@@ -105,11 +105,12 @@ export default function AdminPostsPage() {
   const [saving, setSaving] = useState(false);
 
   /* Filters & sort */
+  const [search, setSearch] = useState("");
   const [sort, setSort] = useState("newest");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSeries, setFilterSeries] = useState("");
   const [perPage, setPerPage] = useState(siteConf.posts.adminPerPage ?? 20);
-  const hasFilters = sort !== "newest" || filterCategory !== "" || filterSeries !== "";
+  const hasFilters = sort !== "newest" || filterCategory !== "" || filterSeries !== "" || search;
 
   /* Publish changes */
   const { publishOverrides, toggle, setAll, reset, toChanges, hasChanges } =
@@ -124,6 +125,8 @@ export default function AdminPostsPage() {
   /* Series */
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [seriesOpen, setSeriesOpen] = useState(false);
+  const [seriesPage, setSeriesPage] = useState(1);
+  const SERIES_PER_PAGE = 5;
 
   /* Trash */
   const [trashPosts, setTrashPosts] = useState<Post[]>([]);
@@ -139,12 +142,13 @@ export default function AdminPostsPage() {
     });
     if (filterCategory) params.set("category", filterCategory);
     if (filterSeries) params.set("series_id", filterSeries);
+    if (search) params.set("search", search);
     const res = await fetch(`/api/posts?${params}`);
     const data = await res.json();
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterSeries]);
+  }, [page, perPage, sort, filterCategory, filterSeries, search]);
 
   const fetchSeries = useCallback(async () => {
     const res = await fetch("/api/series?all=true");
@@ -392,6 +396,7 @@ export default function AdminPostsPage() {
       </button>
 
       <div className={`${styles.trashContent} ${trashOpen ? styles.trashContentOpen : ""}`}>
+        <div>
         <p className={styles.trashHint}><T k="admin.posts.trashAutoDelete" /></p>
         {trashPosts.length === 0 ? (
           <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
@@ -428,6 +433,7 @@ export default function AdminPostsPage() {
             })}
           </ul>
         )}
+        </div>
       </div>
     </div>
   );
@@ -435,32 +441,42 @@ export default function AdminPostsPage() {
   /* ── Series Section ── */
   const seriesSection = (
     <div className={styles.seriesSection}>
-      <button
-        type="button"
-        className={styles.seriesToggle}
-        onClick={() => setSeriesOpen((v) => !v)}
-      >
-        <span>
-          <T k="admin.posts.series" /> ({seriesList.length})
-        </span>
-        <svg
-          className={`${styles.seriesToggleIcon} ${seriesOpen ? styles.seriesToggleOpen : ""}`}
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
+      <div className={styles.seriesHeader}>
+        <button
+          type="button"
+          className={styles.seriesToggle}
+          onClick={() => setSeriesOpen((v) => !v)}
         >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
+          <span>
+            <T k="admin.posts.series" /> ({seriesList.length})
+          </span>
+          <svg
+            className={`${styles.seriesToggleIcon} ${seriesOpen ? styles.seriesToggleOpen : ""}`}
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <a
+          href="/admin/settings?tab=content&sub=posts"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.seriesNewBtn}
+        >
+          <T k="admin.posts.newSeries" />
+        </a>
+      </div>
 
-      {seriesOpen && (
-        <>
-          <ul className={styles.seriesList}>
-            {seriesList.map((s) => (
-              <li key={s.id} className={styles.seriesRow}>
+      <div className={`${styles.trashContent} ${seriesOpen ? styles.trashContentOpen : ""}`}>
+        <div>
+        <ul className={styles.seriesList}>
+          {seriesList.slice((seriesPage - 1) * SERIES_PER_PAGE, seriesPage * SERIES_PER_PAGE).map((s) => (
+            <li key={s.id} className={styles.seriesRow}>
                 <span className={styles.seriesRowThumb}>
                   {s.cover_image ? (
                     <Image src={s.cover_image} alt="" width={96} height={56} unoptimized className={styles.seriesRowImg} />
@@ -505,16 +521,31 @@ export default function AdminPostsPage() {
               </li>
             ))}
           </ul>
-          <a
-            href="/admin/settings?tab=content&sub=posts"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.seriesNewBtn}
-          >
-            <T k="admin.posts.newSeries" />
-          </a>
-        </>
-      )}
+        {seriesList.length > 0 && (
+          <div className={styles.seriesPaging}>
+            <button
+              type="button"
+              className={styles.seriesPageBtn}
+              disabled={seriesPage <= 1}
+              onClick={() => setSeriesPage((p) => p - 1)}
+            >
+              ←
+            </button>
+            <span className={styles.seriesPageInfo}>
+              {seriesPage} / {Math.ceil(seriesList.length / SERIES_PER_PAGE)}
+            </span>
+            <button
+              type="button"
+              className={styles.seriesPageBtn}
+              disabled={seriesPage >= Math.ceil(seriesList.length / SERIES_PER_PAGE)}
+              onClick={() => setSeriesPage((p) => p + 1)}
+            >
+              →
+            </button>
+          </div>
+        )}
+        </div>
+      </div>
 
     </div>
   );
@@ -534,6 +565,13 @@ export default function AdminPostsPage() {
     >
       {/* Filter bar */}
       <div className={shell.filterBar}>
+        <input
+          type="text"
+          placeholder={t("admin.posts.search")}
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className={`${shell.filterItem} ${styles.searchInput}`}
+        />
         <Select
           value={sort}
           options={[
@@ -571,7 +609,7 @@ export default function AdminPostsPage() {
         {hasFilters && (
           <button
             className={shell.filterReset}
-            onClick={() => { setSort("newest"); setFilterCategory(""); setFilterSeries(""); setPage(1); }}
+            onClick={() => { setSearch(""); setSort("newest"); setFilterCategory(""); setFilterSeries(""); setPage(1); }}
           >
             {t("admin.posts.resetFilters")}
           </button>
