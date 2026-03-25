@@ -36,6 +36,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [searchType, setSearchType] = useState<"all" | "title" | "content">("all");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [allTags] = useState(initialData.allTags);
@@ -172,7 +173,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
-    if (search) params.set("search", search);
+    if (search) {
+      params.set("search", search);
+      params.set("searchType", searchType);
+    }
     if (activeCategory) params.set("category", activeCategory);
     if (activeTag) params.set("tag", activeTag);
     if (activeSeries) params.set("series_id", activeSeries);
@@ -185,7 +189,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [search, activeCategory, activeTag, activeSeries, sort, page, perPage]);
+  }, [search, searchType, activeCategory, activeTag, activeSeries, sort, page, perPage]);
 
   // Fetch series when category changes
   useEffect(() => {
@@ -208,7 +212,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
   useEffect(() => {
     setPage(1);
-  }, [search, activeCategory, activeTag, activeSeries, sort]);
+  }, [search, searchType, activeCategory, activeTag, activeSeries, sort]);
 
   const handleImgError = useCallback((id: string) => {
     setImgErrors((prev) => new Set(prev).add(id));
@@ -303,28 +307,42 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
               style={{ overflow: "hidden" }}
             >
-            <div className={styles.searchWrap}>
-              <svg
-                className={styles.searchIcon}
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input
-                className={styles.searchInput}
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t("postsPage.searchPlaceholder")}
-              />
+            <div className={styles.searchGroup}>
+              <div className={styles.searchTypeGroup}>
+                {(["all", "title", "content"] as const).map((type) => (
+                  <button
+                    key={type}
+                    data-clickable="true"
+                    className={`${styles.searchTypeBtn} ${searchType === type ? styles.searchTypeBtnActive : ""}`}
+                    onClick={() => setSearchType(type)}
+                  >
+                    {t(`postsPage.search${type.charAt(0).toUpperCase() + type.slice(1)}`)}
+                  </button>
+                ))}
+              </div>
+              <div className={styles.searchWrap}>
+                <svg
+                  className={styles.searchIcon}
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  className={styles.searchInput}
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={t("postsPage.searchPlaceholder")}
+                />
+              </div>
             </div>
 
             {allTags.length > 0 && (
@@ -494,7 +512,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               {(search || activeTag || activeSeries || activeCategory) && (
                 <button
                   className={styles.emptyResetBtn}
-                  onClick={() => { setSearch(""); setActiveTag(null); setActiveSeries(null); setActiveCategory(null); }}
+                  onClick={() => { setSearch(""); setSearchType("all"); setActiveTag(null); setActiveSeries(null); setActiveCategory(null); }}
                   data-clickable="true"
                 >
                   <T k="postsPage.clearFilters" />

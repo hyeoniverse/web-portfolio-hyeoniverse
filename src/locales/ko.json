@@ -832,6 +832,9 @@
   "postsPage": {
     "subtitle": "먼저 동작하게, 그 다음 올바르게, 그 다음 빠르게.",
     "searchPlaceholder": "검색...",
+    "searchAll": "제목+내용",
+    "searchTitle": "제목",
+    "searchContent": "내용",
     "tags": "태그",
     "sortNewest": "최신순",
     "sortOldest": "오래된순",
