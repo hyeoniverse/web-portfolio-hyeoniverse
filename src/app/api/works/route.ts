@@ -6,6 +6,7 @@ import { isValidWorksCategory } from "@/lib/api/validateCategory";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const showAll = searchParams.get("all") === "true"; // admin용
+  const showTrash = searchParams.get("trash") === "true"; // 휴지통
   const page = parseInt(searchParams.get("page") ?? "0");
   const limit = parseInt(searchParams.get("limit") ?? "0");
   const sort = searchParams.get("sort") ?? "order";
@@ -16,8 +17,15 @@ export async function GET(request: Request) {
 
   let query = supabase.from("works").select("*", { count: "exact" });
 
-  if (!showAll) {
-    query = query.eq("published", true);
+  if (showTrash) {
+    // 휴지통: deleted_at IS NOT NULL
+    query = query.not("deleted_at", "is", null);
+  } else if (!showAll) {
+    // 공개: published=true + deleted_at IS NULL
+    query = query.eq("published", true).is("deleted_at", null);
+  } else {
+    // 어드민 전체: deleted_at IS NULL (삭제 안된 것만)
+    query = query.is("deleted_at", null);
   }
 
   if (category) {
