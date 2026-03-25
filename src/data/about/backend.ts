@@ -87,6 +87,24 @@ const { data } = await admin.from("comments")
       { method: "PUT", path: "/api/admin/secrets", description: { ko: "API 키 저장/갱신", en: "Save/update API key" } },
       { method: "DELETE", path: "/api/admin/secrets", description: { ko: "API 키 삭제", en: "Delete API key" } },
     ],
+    exampleQuery: {
+      title: "Admin Auth Flow",
+      code: `// Supabase Auth 로그인 + 세션 쿠키 설정
+const { data, error } = await supabase.auth
+  .signInWithPassword({ email, password });
+
+if (error) return NextResponse.json(
+  { error: "Invalid credentials" }, { status: 401 }
+);
+
+// 서버 쿠키에 세션 저장
+const res = NextResponse.json({ user: data.user });
+res.cookies.set("sb-token", data.session.access_token, {
+  httpOnly: true, secure: true, sameSite: "lax",
+  maxAge: 60 * 60 * 24 * 7, // 7 days
+});`,
+      language: "javascript",
+    },
   },
   {
     name: "Cover Image API",
@@ -100,6 +118,24 @@ const { data } = await admin.from("comments")
       { method: "POST", path: "/api/cover/unsplash/download", description: { ko: "Unsplash 이미지 → Storage 저장", en: "Save Unsplash image to Storage" } },
       { method: "POST", path: "/api/cover/ai-generate", description: { ko: "AI 커버 이미지 생성 (스타일 프리셋)", en: "Generate AI cover image (style presets)" } },
     ],
+    exampleQuery: {
+      title: "AI Image Generation",
+      code: `// provider 선택 → 이미지 생성 → Storage 업로드
+const provider = settings.ai_image_provider || "nanobanana";
+const imageUrl = await generateImage(provider, {
+  prompt: \`\${style.prefix} \${userPrompt}\`,
+  negative_prompt: style.negative,
+  width: 1024, height: 576,
+});
+
+// Supabase Storage에 업로드
+const fileName = \`covers/\${Date.now()}.webp\`;
+const { data } = await admin.storage
+  .from("images").upload(fileName, buffer, {
+    contentType: "image/webp",
+  });`,
+      language: "javascript",
+    },
   },
 
   {
@@ -116,6 +152,20 @@ const { data } = await admin.from("comments")
       { method: "PATCH", path: "/api/series/[id]", description: { ko: "시리즈 수정 (admin)", en: "Update series (admin)" } },
       { method: "DELETE", path: "/api/series/[id]", description: { ko: "시리즈 삭제 (admin)", en: "Delete series (admin)" } },
     ],
+    exampleQuery: {
+      title: "Series with Post Count",
+      code: `// 시리즈 목록 + 각 시리즈의 포스트 수 조회
+const { data } = await admin.from("series")
+  .select("*, posts!inner(count)")
+  .eq("published", true)
+  .order("created_at", { ascending: false });
+
+// ?category= 필터 적용
+if (category) {
+  query = query.eq("category", category);
+}`,
+      language: "javascript",
+    },
   },
   {
     name: "Works API",
@@ -197,6 +247,28 @@ return NextResponse.json({ error: lastError.message }, { status: 502 });`,
       { method: "POST", path: "/api/revisions", description: { ko: "리비전 저장 (스냅샷)", en: "Save revision (snapshot)" } },
       { method: "DELETE", path: "/api/revisions?entity_type=&entity_id=", description: { ko: "엔티티의 전체 리비전 삭제", en: "Purge all revisions for entity" } },
     ],
+    exampleQuery: {
+      title: "Auto-save with Pruning",
+      code: `// 리비전 저장 + 50개 초과 시 오래된 것 삭제
+await admin.from("revisions").insert({
+  entity_type, entity_id,
+  snapshot: { title, content, tags },
+});
+
+// 엔티티당 최대 50개 유지
+const { data: old } = await admin.from("revisions")
+  .select("id")
+  .eq("entity_type", entity_type)
+  .eq("entity_id", entity_id)
+  .order("created_at", { ascending: false })
+  .range(50, 999);
+
+if (old?.length) {
+  await admin.from("revisions")
+    .delete().in("id", old.map(r => r.id));
+}`,
+      language: "javascript",
+    },
   },
   {
     name: "Profile API",
@@ -209,6 +281,17 @@ return NextResponse.json({ error: lastError.message }, { status: 502 });`,
       { method: "GET", path: "/api/admin/profile", description: { ko: "프로필 데이터 조회", en: "Get profile data" } },
       { method: "PATCH", path: "/api/admin/profile", description: { ko: "프로필 데이터 수정 (admin, upsert)", en: "Update profile data (admin, upsert)" } },
     ],
+    exampleQuery: {
+      title: "JSONB Upsert Pattern",
+      code: `// site_settings 테이블에 profile JSONB upsert
+const { error } = await admin.from("site_settings")
+  .upsert({
+    id: "profile",
+    config: profileData, // { experiences, skills, ... }
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "id" });`,
+      language: "javascript",
+    },
   },
 
   /* ── Database Tables ── */
