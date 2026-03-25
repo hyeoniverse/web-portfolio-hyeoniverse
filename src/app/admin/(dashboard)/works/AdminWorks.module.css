@@ -202,20 +202,9 @@
   color: var(--text-muted);
 }
 
-.subFilterBtn {
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
-
-.subFilterBtnActive {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
+.subFilterSelect {
+  min-width: 80px;
+  max-width: 140px;
 }
 
 .trashPaging {

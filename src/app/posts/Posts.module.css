@@ -115,30 +115,9 @@
   align-items: center;
 }
 
-.searchTypeGroup {
-  display: flex;
-  border: 1px solid var(--border-default-color);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-}
-
-.searchTypeBtn {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-}
-
-.searchTypeBtn + .searchTypeBtn {
-  border-left: 1px solid var(--border-default-color);
-}
-
-.searchTypeBtnActive {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+.searchTypeSelect {
+  min-width: 80px;
+  max-width: 120px;
 }
 
 .searchWrap {
