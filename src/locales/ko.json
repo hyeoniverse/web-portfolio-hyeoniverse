@@ -420,6 +420,9 @@
     "posts": {
       "title": "POSTS",
       "search": "검색...",
+      "searchAll": "제목+내용",
+      "searchTitle": "제목",
+      "searchContent": "내용",
       "newPost": "새 글",
       "series": "시리즈",
       "untitled": "제목 없음",
@@ -576,6 +579,9 @@
     "works": {
       "title": "WORKS",
       "search": "검색...",
+      "searchAll": "제목+내용",
+      "searchTitle": "제목",
+      "searchContent": "내용",
       "newWork": "새 작업",
       "untitled": "제목 없음",
       "noWorksYet": "아직 작업물이 없습니다",

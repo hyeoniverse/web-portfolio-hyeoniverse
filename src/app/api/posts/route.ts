@@ -12,6 +12,7 @@ export async function GET(request: Request) {
   const tag = searchParams.get("tag");
   const category = searchParams.get("category");
   const search = searchParams.get("search");
+  const searchType = searchParams.get("searchType") ?? "title"; // title | all
   const slug = searchParams.get("slug");
   const showAll = searchParams.get("all") === "true"; // admin용
   const showTrash = searchParams.get("trash") === "true"; // 휴지통
@@ -62,7 +63,13 @@ export async function GET(request: Request) {
   }
 
   if (search) {
-    query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
+    if (searchType === "all") {
+      query = query.or(`title.ilike.%${search}%,title_en.ilike.%${search}%,content.ilike.%${search}%,content_en.ilike.%${search}%`);
+    } else if (searchType === "content") {
+      query = query.or(`content.ilike.%${search}%,content_en.ilike.%${search}%`);
+    } else {
+      query = query.or(`title.ilike.%${search}%,title_en.ilike.%${search}%`);
+    }
   }
 
   if (sort === "oldest") {

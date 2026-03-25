@@ -420,6 +420,9 @@
     "posts": {
       "title": "Posts",
       "search": "Search...",
+      "searchAll": "Title+Content",
+      "searchTitle": "Title",
+      "searchContent": "Content",
       "newPost": "New Post",
       "series": "Series",
       "untitled": "Untitled",
@@ -578,6 +581,9 @@
     "works": {
       "title": "Works",
       "search": "Search...",
+      "searchAll": "Title+Content",
+      "searchTitle": "Title",
+      "searchContent": "Content",
       "newWork": "New Work",
       "untitled": "Untitled",
       "noWorksYet": "No works yet",

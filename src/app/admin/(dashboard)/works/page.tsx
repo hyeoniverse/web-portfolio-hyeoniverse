@@ -103,6 +103,7 @@ export default function AdminWorksPage() {
 
   /* Filters & sort */
   const [search, setSearch] = useState("");
+  const [searchType, setSearchType] = useState("all");
   const [sort, setSort] = useState("order");
   const [filterYear, setFilterYear] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
@@ -147,13 +148,16 @@ export default function AdminWorksPage() {
     });
     if (filterCategory) params.set("category", filterCategory);
     if (filterYear) params.set("year", filterYear);
-    if (search) params.set("search", search);
+    if (search) {
+      params.set("search", search);
+      params.set("searchType", searchType);
+    }
     const res = await fetch(`/api/works?${params}`);
     const data = await res.json();
     setWorks(data.works ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterYear, search]);
+  }, [page, perPage, sort, filterCategory, filterYear, search, searchType]);
 
   const fetchTrash = useCallback(async () => {
     const res = await fetch("/api/works?trash=true&limit=100");
@@ -456,13 +460,25 @@ export default function AdminWorksPage() {
     >
       {/* Filter bar */}
       <div className={shell.filterBar}>
-        <input
-          type="text"
-          placeholder={t("admin.works.search")}
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className={`${shell.filterItem} ${styles.searchInput}`}
-        />
+        <div className={styles.searchGroup}>
+          <Select
+            value={searchType}
+            options={[
+              { value: "all", label: t("admin.works.searchAll") },
+              { value: "title", label: t("admin.works.searchTitle") },
+              { value: "content", label: t("admin.works.searchContent") },
+            ]}
+            onChange={(v) => { setSearchType(v); setPage(1); }}
+            className={styles.searchTypeSelect}
+          />
+          <input
+            type="text"
+            placeholder={t("admin.works.search")}
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className={styles.searchInput}
+          />
+        </div>
         <Select
           value={sort}
           options={[
@@ -502,7 +518,7 @@ export default function AdminWorksPage() {
         {hasFilters && (
           <button
             className={shell.filterReset}
-            onClick={() => { setSearch(""); setSort("order"); setFilterYear(""); setFilterCategory(""); setPage(1); }}
+            onClick={() => { setSearch(""); setSearchType("all"); setSort("order"); setFilterYear(""); setFilterCategory(""); setPage(1); }}
           >
             {t("admin.works.resetFilters")}
           </button>

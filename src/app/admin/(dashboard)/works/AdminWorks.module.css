@@ -1,4 +1,16 @@
-/* ── Search Input ── */
+/* ── Search ── */
+.searchGroup {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+}
+
+.searchTypeSelect {
+  flex-shrink: 0;
+  min-width: 100px;
+  max-width: 120px;
+}
+
 .searchInput {
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px solid var(--border-strong-color);
