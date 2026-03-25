@@ -495,19 +495,19 @@
   }
 
   .dcTitleRow.dcTitleRow.dcTitleRow {
-    padding-top: 0 !important;
-    margin-bottom: var(--spacing-sm) !important;
+    padding-top: 0;
+    margin-bottom: var(--spacing-sm);
   }
 
   .dcTitleRow h3 {
-    margin-top: var(--spacing-md) !important;
-    margin-bottom: 0 !important;
+    margin-top: var(--spacing-md);
+    margin-bottom: 0;
   }
 
   .dcTitleRow > div:last-child {
-    padding-top: 0 !important;
-    padding-right: 0 !important;
-    margin-right: 0 !important;
+    padding-top: 0;
+    padding-right: 0;
+    margin-right: 0;
   }
 
   /* ── Content overlay stack: fills remaining space below title ── */

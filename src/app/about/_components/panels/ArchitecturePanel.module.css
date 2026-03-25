@@ -339,13 +339,7 @@
 }
 
 @media (max-width: 1024px), (max-height: 700px) {
-  .archPanel {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
   .archTitle {
-    margin-top: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
   }
 

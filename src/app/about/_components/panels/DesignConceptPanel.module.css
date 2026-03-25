@@ -308,13 +308,13 @@
   }
 
   .cpTitleRow.cpTitleRow.cpTitleRow {
-    padding-top: 0 !important;
-    margin-bottom: var(--spacing-sm) !important;
+    padding-top: 0;
+    margin-bottom: var(--spacing-sm);
   }
 
   .cpTitleRow h3 {
-    margin-top: var(--spacing-md) !important;
-    margin-bottom: 0 !important;
+    margin-top: var(--spacing-md);
+    margin-bottom: 0;
   }
 
   /* ── Design Concept Panel — mobile ── */
