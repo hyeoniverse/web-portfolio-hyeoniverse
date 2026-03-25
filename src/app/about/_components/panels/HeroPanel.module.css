@@ -6,7 +6,7 @@
   height: 100%;
 }
 
-.heroLabel {
+.label {
   display: inline-block;
   margin-bottom: var(--_space-block);
   padding: var(--box-xs-xl);
