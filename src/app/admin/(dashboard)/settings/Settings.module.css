@@ -557,9 +557,11 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
-.fieldRow:has(.fieldTextarea) {
+.fieldRow:has(.fieldTextarea),
+.fieldRow:has(.logoUpload) {
   align-items: flex-start;
 }
 
@@ -798,6 +800,7 @@
   gap: var(--spacing-sm);
   flex: 1;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .logoPreview {
@@ -821,6 +824,7 @@
 .logoActions {
   display: flex;
   gap: var(--spacing-2xs);
+  flex-wrap: wrap;
 }
 
 .logoBtn,
@@ -1003,18 +1007,21 @@
 
 .priorityBtns {
   display: flex;
+  flex-direction: column;
   flex-shrink: 0;
-  align-self: stretch;
-  border-left: 1px solid var(--border-light-color);
+  gap: 2px;
+  align-self: center;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
 }
 
 .priorityBtn {
-  --_row-h: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--_row-h);
-  height: 100%;
+  width: 24px;
+  height: 18px;
   border: none;
   border-radius: 0;
   background: transparent;
@@ -1026,7 +1033,7 @@
 }
 
 .priorityBtn + .priorityBtn {
-  border-left: 1px solid var(--border-light-color);
+  border-top: 1px solid var(--border-light-color);
 }
 
 .priorityBtn:disabled {
@@ -1714,36 +1721,34 @@
   gap: var(--spacing-sm);
   padding: var(--box-sm-md);
   border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
+  transition: box-shadow 0.2s ease;
 }
 
-.socialReorder {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex-shrink: 0;
+.socialItemDragging {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 10;
 }
 
-.socialReorderBtn {
+.socialDragHandle {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 20px;
+  height: 32px;
+  cursor: grab;
+  color: var(--text-muted);
+  touch-action: none;
+}
+
+.socialDragHandle:active {
+  cursor: grabbing;
+}
+
+.socialDragHandle svg {
+  width: 14px;
   height: 14px;
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--text-tertiary);
-  padding: 0;
-}
-
-.socialReorderBtn:hover:not(:disabled) {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.socialReorderBtn:disabled {
-  opacity: 0.3;
 }
 
 .socialIcon {
