@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useMobileLayout } from "./mobileCheck";
 
+
 /**
  * 모바일/태블릿에서 GSAP ScrollTrigger 고정 스크롤을 설정하는 공유 훅.
  *
@@ -24,13 +25,34 @@ import { useMobileLayout } from "./mobileCheck";
  * @param deps - 추가 의존성 배열
  * @returns ScrollTrigger 인스턴스에 대한 ref (ProcessPanel의 클릭 스크롤에 필요)
  */
+interface MobilePinOptions {
+  deps?: React.DependencyList;
+  pinSpacing?: boolean;
+  anticipatePin?: number;
+  start?: string;
+}
+
 export function useMobilePinScroll(
   triggerRef: React.RefObject<HTMLElement | null>,
   itemCount: number,
   scrollPerItem: number,
   onIndexChange: (newIndex: number) => void,
-  deps: React.DependencyList = [],
+  depsOrOptions?: React.DependencyList | MobilePinOptions,
 ): React.RefObject<ScrollTrigger | null> {
+  // 하위 호환: 5번째 인자가 배열이면 deps, 객체면 options
+  const isLegacy = Array.isArray(depsOrOptions);
+  const deps: React.DependencyList = isLegacy
+    ? depsOrOptions
+    : (depsOrOptions as MobilePinOptions | undefined)?.deps ?? [];
+  const usePinSpacing = isLegacy
+    ? true
+    : (depsOrOptions as MobilePinOptions | undefined)?.pinSpacing ?? true;
+  const useAnticipatePin = isLegacy
+    ? 0
+    : (depsOrOptions as MobilePinOptions | undefined)?.anticipatePin ?? 0;
+  const useStart = isLegacy
+    ? "top top"
+    : (depsOrOptions as MobilePinOptions | undefined)?.start ?? "top top";
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const isMobile = useMobileLayout();
 
@@ -55,10 +77,11 @@ export function useMobilePinScroll(
         ctx = gsap.context(() => {
           const instance = ScrollTrigger.create({
             trigger,
-            start: "top top",
+            start: useStart,
             end: `+=${scrollDist}`,
             pin: true,
-            pinSpacing: true,
+            pinSpacing: usePinSpacing,
+            anticipatePin: useAnticipatePin,
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               const newIndex = Math.min(

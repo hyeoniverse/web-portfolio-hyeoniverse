@@ -498,6 +498,60 @@
    Responsive — Shared overrides
    ========================================================================== */
 
+/* ── Mobile tab bar (hidden on desktop) ── */
+.mobileTabBar {
+  display: none;
+}
+
+.mobileTabBtn {
+  position: relative;
+  padding: var(--spacing-sm) 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--_fs-small, 0.8rem);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Compound selector (0,2,0) to beat global theme transition */
+.mobileTabBar .mobileTabBtn {
+  transition: color var(--duration-base) ease;
+}
+
+.mobileTabBar .mobileTabBtn:hover {
+  color: #fff;
+}
+
+.mobileTabBtnActive {
+  color: #fff;
+}
+
+/* Spring-animated indicator (Framer Motion layoutId) */
+.mobileTabIndicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: #fff;
+  border-radius: 1px;
+}
+
+.mobileTabActions {
+  display: none;
+}
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 @media (max-width: 1024px), (max-height: 700px) {
   .section {
     padding-top: 80px;
@@ -506,10 +560,70 @@
     min-height: 100vh;
   }
 
+  .navBlur {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: calc(var(--z-nav) - 1);
+    pointer-events: none;
+  }
+
+  .mobileTabBar {
+    display: flex;
+    gap: var(--spacing-xl);
+    position: sticky;
+    top: 80px; /* section padding-top과 일치 — nav 높이(패딩 포함) */
+    z-index: var(--z-float, 20);
+    padding: var(--spacing-2xs) var(--page-px);
+    background: transparent;
+    border-bottom: none;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .mobileTabBar .mobileTabBtn {
+    pointer-events: auto;
+  }
+
+  .mobileTabActions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-left: auto;
+    pointer-events: auto;
+    font-family: var(--font-mono);
+    font-size: var(--_fs-small, 0.8rem);
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .mobileTabActions:empty {
+    display: none;
+  }
+
+  /* Compound selector (0,2,0) — hide on scroll down */
+  .mobileTabBar.mobileTabBarHidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      transform 0.3s ease,
+      opacity 0.2s ease;
+  }
+
+  .mobileTabBar:not(.mobileTabBarHidden) {
+    transition:
+      transform 0.3s ease,
+      opacity 0.2s ease;
+  }
+
   .pinnedContent {
     will-change: auto;
-    width: 100%;
-    max-width: 100%;
   }
 
   /* ── Mobile InView animation (reverse on exit) ── */
@@ -545,7 +659,7 @@
   .panelNarrow,
   .panelExtraWide,
   .panelCompact {
-    padding: var(--box-4xl-2xl);
+    padding: var(--spacing-4xl) var(--page-px);
     width: 100%;
     height: auto;
     min-height: auto;
@@ -557,6 +671,7 @@
   }
 
   .panelTitle {
+    margin-top: var(--spacing-4xl);
     margin-bottom: var(--_space-section);
     font-size: clamp(2.5rem, 8vw, 4rem);
   }
@@ -575,15 +690,14 @@
     display: flex;
   }
 
-  /* Pin animation on mobile — shared by Process & Troubleshooting */
   .mobilePinViewport {
     height: 100vh;
     min-height: 100vh;
   }
 
-
-  .mobilePinViewport .pinnedTitleRow {
-    padding-top: var(--_panel-py);
+  /* nav(80) + tab(40) + 여백 = 160px — pin 콘텐츠를 헤더+탭 아래로 밀기 */
+  .pinnedContent > .pinnedTitleRow {
+    padding-top: 160px;
   }
 }
 
