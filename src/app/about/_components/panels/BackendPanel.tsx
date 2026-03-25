@@ -288,7 +288,7 @@ function BackendPanel({
         />
 
         {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
-        <div className={`${styles.dbSplit} ${styles.desktopOnly} ${styles.animate}`}>
+        <div className={`${styles.dbSplit} ${styles.animate}`}>
           {/* 왼쪽: 항목 목록 */}
           <div ref={listRef} className={styles.dbList} style={{ "--items-count": items.length } as React.CSSProperties}>
             {items.map((item, index) => (
@@ -341,7 +341,7 @@ function BackendPanel({
         </div>
 
         {/* 모바일: 모든 항목 표시 */}
-        <div className={`${styles.dbMobileList} ${styles.mobileOnly}`}>
+        <div className={styles.dbMobileList}>
           {items.map((item, index) => (
             <div
               key={index}

@@ -236,12 +236,13 @@
   border-bottom: none;
 }
 
-/* troubleMobileList display toggle → shared .mobileOnly */
 .troubleMobileList {
-  /* base: no-op; display handled by shared .mobileOnly */
+  display: none;
 }
 
 .troubleMobileItem {
+  position: relative;
+  overflow: hidden;
   padding: var(--spacing-lg) 0;
   border-bottom: var(--_line-secondary);
 }
@@ -361,8 +362,14 @@
    ========================================================================== */
 
 @media (max-width: 1024px), (max-height: 700px) {
-  /* troubleSplit hide → shared .desktopOnly */
-  /* troubleMobileList show → shared .mobileOnly */
+  .troubleSplit {
+    display: none;
+  }
+
+  .troubleMobileList {
+    display: flex;
+    flex-direction: column;
+  }
 
   /* detailHeader mobile → shared .detailHeader mobile */
   /* watermarkNumber base → shared; panel-specific size override: */
