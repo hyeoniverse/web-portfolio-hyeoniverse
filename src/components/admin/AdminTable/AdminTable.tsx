@@ -148,7 +148,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
   /* Pagination */
   const pageNumbers = useMemo(() => {
-    if (!totalPages || totalPages <= 1) return [];
+    if (!totalPages || totalPages < 1) return [];
     const p = page ?? 1;
     if (totalPages <= 7)
       return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -396,7 +396,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
       {children}
 
       {/* Pagination */}
-      {totalPages > 1 && page && onPageChange && (
+      {totalPages >= 1 && page && onPageChange && (
         <div className={styles.pagination}>
           <button
             disabled={page <= 1}
