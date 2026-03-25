@@ -82,7 +82,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   return NextResponse.json(data);
 }
 
-// DELETE /api/works/[id] — work 삭제 (admin only)
+// DELETE /api/works/[id] — 휴지통으로 이동 (소프트 삭제, admin only)
 export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const supabase = await createClient();
@@ -95,7 +95,10 @@ export async function DELETE(_request: Request, context: RouteContext) {
   }
 
   const admin = createAdminClient();
-  const { error } = await admin.from("works").delete().eq("id", id);
+  const { error } = await admin
+    .from("works")
+    .update({ deleted_at: new Date().toISOString(), published: false })
+    .eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
