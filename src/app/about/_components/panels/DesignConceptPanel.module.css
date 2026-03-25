@@ -169,17 +169,7 @@
    Design Concept — Per-card Variants
    ========================================================================== */
 
-/* ── oval (default): content indented left, SVG right, vertical accent line ── */
-.cpCard[data-variant="oval"] .cpHero::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 15%;
-  bottom: 5%;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, var(--color-accent), transparent);
-  opacity: 0.18;
-}
+/* ── oval (default): content indented left, SVG right ── */
 
 /* ── line-curve: mirror layout — SVG left, content right-indented ── */
 .cpCard[data-variant="line-curve"] .cpObjectWrap {
