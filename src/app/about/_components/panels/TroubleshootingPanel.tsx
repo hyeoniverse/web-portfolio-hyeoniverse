@@ -200,7 +200,7 @@ function TroubleshootingPanel({
         />
 
         {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
-        <div className={`${styles.troubleSplit} ${styles.animate}`}>
+        <div className={`${styles.troubleSplit} ${styles.desktopOnly} ${styles.animate}`}>
           {/* 왼쪽: 항목 목록 */}
           <div ref={listRef} className={styles.troubleList} style={{ '--items-count': items.length + items.filter(i => i.section).length + 1 } as React.CSSProperties}>
             {items.map((item, index) => (
@@ -244,8 +244,8 @@ function TroubleshootingPanel({
                   index === displayIndex ? styles.troubleDetailItemActive : ""
                 }`}
               >
-                <div className={styles.troubleDetailHeader}>
-                  <span className={styles.troubleDetailNumber}>
+                <div className={styles.detailHeader}>
+                  <span className={`${styles.detailNumber} ${styles.watermarkNumber} ${styles.troubleDetailNumber}`}>
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <h4 className={styles.troubleTitle}>
@@ -254,20 +254,20 @@ function TroubleshootingPanel({
                 </div>
                 <div className={styles.troubleBody}>
                   <div className={styles.troubleEntry}>
-                    <span className={styles.troubleLabel}>
+                    <span className={styles.entryLabel}>
                       <T k="aboutPage.troubleshooting.definition" />
                     </span>
                     <p>{renderHighlight(item.definition[language], language)}</p>
                   </div>
                   <div className={styles.troubleEntry}>
-                    <span className={styles.troubleLabel}>
+                    <span className={styles.entryLabel}>
                       <T k="aboutPage.troubleshooting.cause" />
                     </span>
                     <p>{renderHighlight(item.cause[language], language)}</p>
                   </div>
                   <div className={styles.troubleEntry}>
                     <span
-                      className={`${styles.troubleLabel} ${styles.troubleLabelAccent}`}
+                      className={`${styles.entryLabel} ${styles.entryLabelAccent}`}
                     >
                       <T k="aboutPage.troubleshooting.solution" />
                     </span>
@@ -309,7 +309,7 @@ function TroubleshootingPanel({
                   )}
                   {item.diagrams && item.diagrams.length > 0 && (
                     <div className={styles.troubleEntry}>
-                      <span className={styles.troubleLabel}>
+                      <span className={styles.entryLabel}>
                         <T k="aboutPage.troubleshooting.flow" />
                       </span>
                       <div className={local.troubleDiagrams}>
@@ -326,7 +326,7 @@ function TroubleshootingPanel({
                   )}
                   <div className={styles.troubleEntry}>
                     <span
-                      className={`${styles.troubleLabel} ${styles.troubleLabelInsight}`}
+                      className={`${styles.entryLabel} ${styles.entryLabelInsight}`}
                     >
                       <T k="aboutPage.troubleshooting.keyInsight" />
                     </span>
@@ -341,7 +341,7 @@ function TroubleshootingPanel({
         </div>
 
         {/* 모바일: 모든 항목 표시 (폴백, pin 활성 시 숨김) */}
-        <div className={styles.troubleMobileList}>
+        <div className={`${styles.troubleMobileList} ${styles.mobileOnly}`}>
           {items.map((item, index) => (
             <React.Fragment key={index}>
               {item.section && (
@@ -362,14 +362,14 @@ function TroubleshootingPanel({
               </div>
               <div className={styles.troubleBody}>
                 <div className={styles.troubleEntry}>
-                  <span className={styles.troubleLabel}>
+                  <span className={styles.entryLabel}>
                     <T k="aboutPage.troubleshooting.cause" />
                   </span>
                   <p>{renderHighlight(item.cause[language], language)}</p>
                 </div>
                 <div className={styles.troubleEntry}>
                   <span
-                    className={`${styles.troubleLabel} ${styles.troubleLabelAccent}`}
+                    className={`${styles.entryLabel} ${styles.entryLabelAccent}`}
                   >
                     <T k="aboutPage.troubleshooting.solution" />
                   </span>
@@ -408,7 +408,7 @@ function TroubleshootingPanel({
                 )}
                 {item.diagrams && item.diagrams.length > 0 && (
                   <div className={styles.troubleEntry}>
-                    <span className={styles.troubleLabel}>
+                    <span className={styles.entryLabel}>
                       <T k="aboutPage.troubleshooting.flow" />
                     </span>
                     <div className={local.troubleDiagrams}>
@@ -425,7 +425,7 @@ function TroubleshootingPanel({
                 )}
                 <div className={styles.troubleEntry}>
                   <span
-                    className={`${styles.troubleLabel} ${styles.troubleLabelInsight}`}
+                    className={`${styles.entryLabel} ${styles.entryLabelInsight}`}
                   >
                     <T k="aboutPage.troubleshooting.keyInsight" />
                   </span>

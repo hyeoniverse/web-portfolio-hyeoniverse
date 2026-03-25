@@ -176,8 +176,8 @@ function BackendPanel({
   /** 공통: 항목 상세 렌더링 */
   const renderDetail = (item: BackendItem, index: number) => (
     <>
-      <div className={styles.dbDetailHeader}>
-        <span className={styles.dbDetailNumber}>
+      <div className={styles.detailHeader}>
+        <span className={`${styles.detailNumber} ${styles.watermarkNumber}`}>
           {String(index + 1).padStart(2, "0")}
         </span>
         <h4 className={styles.dbTitle}>{item.name}</h4>
@@ -187,14 +187,14 @@ function BackendPanel({
       </div>
 
       {/* 설명 */}
-      <div className={styles.dbEntry}>
+      <div className={`${styles.entryBlock} ${styles.dbEntry}`}>
         <p>{item.description[language]}</p>
       </div>
 
       {/* API: 엔드포인트 목록 */}
       {item.kind === "api" && item.endpoints && (
-        <div className={styles.dbEntry}>
-          <span className={`${styles.dbLabel} ${styles.dbLabelAccent}`}>
+        <div className={styles.entryBlock}>
+          <span className={`${styles.entryLabel} ${styles.entryLabelAccent}`}>
             <T k="aboutPage.backend.endpoints" />
           </span>
           <div className={styles.dbEndpointList}>
@@ -213,8 +213,8 @@ function BackendPanel({
 
       {/* Table: 설계 노트 */}
       {item.kind === "table" && item.designNote && (
-        <div className={styles.dbEntry}>
-          <span className={`${styles.dbLabel} ${styles.dbLabelAccent}`}>
+        <div className={`${styles.entryBlock} ${styles.dbEntry}`}>
+          <span className={`${styles.entryLabel} ${styles.entryLabelAccent}`}>
             <T k="aboutPage.backend.designDecision" />
           </span>
           <p>{renderHighlight(item.designNote[language])}</p>
@@ -223,8 +223,8 @@ function BackendPanel({
 
       {/* Table: 스키마 */}
       {item.kind === "table" && item.columns && (
-        <div className={styles.dbEntry}>
-          <span className={styles.dbLabel}>
+        <div className={styles.entryBlock}>
+          <span className={styles.entryLabel}>
             <T k="aboutPage.backend.schema" />
           </span>
           <div className={styles.dbSchema}>
@@ -255,8 +255,8 @@ function BackendPanel({
 
       {/* 예시 쿼리/코드 */}
       {item.exampleQuery && (
-        <div className={styles.dbEntry}>
-          <span className={`${styles.dbLabel} ${styles.dbLabelInsight}`}>
+        <div className={styles.entryBlock}>
+          <span className={`${styles.entryLabel} ${styles.entryLabelInsight}`}>
             {item.exampleQuery.title}
           </span>
           <div className={styles.dbQuery}>
@@ -288,7 +288,7 @@ function BackendPanel({
         />
 
         {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
-        <div className={`${styles.dbSplit} ${styles.animate}`}>
+        <div className={`${styles.dbSplit} ${styles.desktopOnly} ${styles.animate}`}>
           {/* 왼쪽: 항목 목록 */}
           <div ref={listRef} className={styles.dbList} style={{ "--items-count": items.length } as React.CSSProperties}>
             {items.map((item, index) => (
@@ -341,7 +341,7 @@ function BackendPanel({
         </div>
 
         {/* 모바일: 모든 항목 표시 */}
-        <div className={styles.dbMobileList}>
+        <div className={`${styles.dbMobileList} ${styles.mobileOnly}`}>
           {items.map((item, index) => (
             <div
               key={index}
