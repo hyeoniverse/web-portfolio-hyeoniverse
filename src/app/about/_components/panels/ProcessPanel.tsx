@@ -102,13 +102,13 @@ function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
   );
 
   return (
-    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide} ${styles.panelFlush}`}>
+    <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide} ${styles.procPanel}`}>
       <div
         ref={contentRef}
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
         {/* 타이틀 행 */}
-        <PinnedTitleRow className={isMobile ? styles.titleRowCompact : undefined} title={<T k="aboutPage.panels.designProcess" />} />
+        <PinnedTitleRow className={isMobile ? styles.procTitleRow : undefined} title={<T k="aboutPage.panels.designProcess" />} />
 
         {/* 타임라인 + 콘텐츠 본문 (모바일은 행, 데스크톱은 열) */}
         <div className={styles.processBody}>
