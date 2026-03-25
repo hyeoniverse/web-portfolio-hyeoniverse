@@ -834,6 +834,9 @@
   "postsPage": {
     "subtitle": "Make it work, make it right, make it fast.",
     "searchPlaceholder": "Search...",
+    "searchAll": "Title+Content",
+    "searchTitle": "Title",
+    "searchContent": "Content",
     "tags": "Tags",
     "sortNewest": "Latest",
     "sortOldest": "Oldest",
