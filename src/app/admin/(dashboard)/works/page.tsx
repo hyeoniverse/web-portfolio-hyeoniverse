@@ -10,11 +10,13 @@ import Select from "@/components/ui/Select";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
+import T from "@/components/ui/T";
 import AdminTable, {
   usePublishChanges,
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
+import styles from "./AdminWorks.module.css";
 
 const PAGE_SIZE_OPTIONS = [
   { value: "10", label: "10" },
@@ -109,6 +111,10 @@ export default function AdminWorksPage() {
   const { publishOverrides, toggle, setAll, reset, toChanges, hasChanges } =
     usePublishChanges<Work>();
 
+  /* Trash */
+  const [trashWorks, setTrashWorks] = useState<Work[]>([]);
+  const [trashOpen, setTrashOpen] = useState(false);
+
   /* Preview tooltip — use refs + minimal state to avoid re-rendering AdminTable */
   const hoveredWorkRef = useRef<Work | null>(null);
   const [tooltipKey, setTooltipKey] = useState(0);
@@ -147,13 +153,33 @@ export default function AdminWorksPage() {
     setLoading(false);
   }, [page, perPage, sort, filterCategory, filterYear]);
 
+  const fetchTrash = useCallback(async () => {
+    const res = await fetch("/api/works?trash=true&limit=100");
+    const data = await res.json();
+    setTrashWorks(data.works ?? []);
+  }, []);
+
   useEffect(() => {
     fetchWorks();
-  }, [fetchWorks]);
+    fetchTrash();
+  }, [fetchWorks, fetchTrash]);
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/works/${id}`, { method: "DELETE" });
     fetchWorks();
+    if (trashOpen) fetchTrash();
+  };
+
+  const handleRestore = async (id: string) => {
+    await fetch(`/api/works/${id}/restore`, { method: "POST" });
+    fetchTrash();
+    fetchWorks();
+  };
+
+  const handlePurge = async (id: string, title: string) => {
+    if (!confirm(`"${title}" — ${t("admin.works.trashPurgeConfirm")}`)) return;
+    await fetch(`/api/works/${id}/purge`, { method: "DELETE" });
+    fetchTrash();
   };
 
   const handleDragReorder = async (fromIdx: number, toIdx: number) => {
@@ -320,6 +346,98 @@ export default function AdminWorksPage() {
     [t],
   );
 
+  /* ── Trash Section ── */
+  const TRASH_RETENTION_DAYS = 30;
+  const getDaysLeft = (deletedAt: string) => {
+    const deleted = new Date(deletedAt).getTime();
+    const expiresAt = deleted + TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+    return Math.max(0, Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
+  };
+
+  const trashSection = (
+    <div className={styles.trashSection}>
+      <button
+        type="button"
+        className={styles.trashToggle}
+        onClick={() => {
+          if (!trashOpen) fetchTrash();
+          setTrashOpen((v) => !v);
+        }}
+      >
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="3 6 5 6 21 6" />
+          <path d="M19 6l-1 14H6L5 6" />
+          <path d="M10 11v6" />
+          <path d="M14 11v6" />
+          <path d="M9 6V4h6v2" />
+        </svg>
+        <span>
+          <T k="admin.works.trash" />
+          {trashWorks.length > 0 && ` (${trashWorks.length})`}
+        </span>
+        <svg
+          className={`${styles.trashToggleIcon} ${trashOpen ? styles.trashToggleOpen : ""}`}
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      <div className={`${styles.trashContent} ${trashOpen ? styles.trashContentOpen : ""}`}>
+        <p className={styles.trashHint}><T k="admin.works.trashAutoDelete" /></p>
+        {trashWorks.length === 0 ? (
+          <p className={styles.trashEmpty}><T k="admin.works.trashEmpty" /></p>
+        ) : (
+          <ul className={styles.trashList}>
+            {trashWorks.map((work) => {
+              const daysLeft = getDaysLeft(work.deleted_at!);
+              const title = work.title || t("admin.works.untitled");
+              return (
+                <li key={work.id} className={styles.trashRow}>
+                  <span className={styles.trashTitle}>{title}</span>
+                  <span className={styles.trashMeta}>
+                    <span className={daysLeft <= 7 ? styles.trashDaysLeft : ""}>
+                      {daysLeft}
+                    </span>
+                    {" "}<T k="admin.works.trashDaysLeft" />
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.trashRestoreBtn}
+                    onClick={() => handleRestore(work.id)}
+                  >
+                    <T k="admin.works.trashRestore" />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.trashPurgeBtn}
+                    onClick={() => handlePurge(work.id, title)}
+                  >
+                    <T k="admin.works.trashPurge" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <AdminListShell
       title={t("admin.works.title")}
@@ -330,6 +448,7 @@ export default function AdminWorksPage() {
       onSave={handleSave}
       saveCount={publishOverrides.size}
       saveLabel={t("admin.works.save")}
+      afterTable={trashSection}
     >
       {/* Filter bar */}
       <div className={shell.filterBar}>
@@ -426,6 +545,7 @@ export default function AdminWorksPage() {
           }
         }}
       />
+
     </AdminListShell>
   );
 }
