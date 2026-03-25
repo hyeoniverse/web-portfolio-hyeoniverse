@@ -220,10 +220,10 @@
   opacity: 0.4;
 }
 
-.seriesPageInfo {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+.seriesPageBtnActive {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 /* ── Series card badges & actions ── */
@@ -496,9 +496,9 @@
   opacity: 0.4;
 }
 
-.trashPageInfo {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+.trashPageBtnActive {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
 }
 

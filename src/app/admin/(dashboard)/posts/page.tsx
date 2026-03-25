@@ -543,7 +543,7 @@ export default function AdminPostsPage() {
             <div className={styles.trashPaging}>
               <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage(1)}><ChevronFirst /></button>
               <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage((p) => p - 1)}><ChevronPrev /></button>
-              <span className={styles.trashPageInfo}>{trashPage} / {tp}</span>
+              <span className={`${styles.trashPageBtn} ${styles.trashPageBtnActive}`}>{trashPage}</span>
               <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage((p) => p + 1)}><ChevronNext /></button>
               <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage(tp)}><ChevronLast /></button>
             </div>
@@ -694,7 +694,7 @@ export default function AdminPostsPage() {
             <div className={styles.seriesPaging}>
               <button type="button" className={styles.seriesPageBtn} disabled={seriesPage <= 1} onClick={() => setSeriesPage(1)}><ChevronFirst /></button>
               <button type="button" className={styles.seriesPageBtn} disabled={seriesPage <= 1} onClick={() => setSeriesPage((p) => p - 1)}><ChevronPrev /></button>
-              <span className={styles.seriesPageInfo}>{seriesPage} / {tp}</span>
+              <span className={`${styles.seriesPageBtn} ${styles.seriesPageBtnActive}`}>{seriesPage}</span>
               <button type="button" className={styles.seriesPageBtn} disabled={seriesPage >= tp} onClick={() => setSeriesPage((p) => p + 1)}><ChevronNext /></button>
               <button type="button" className={styles.seriesPageBtn} disabled={seriesPage >= tp} onClick={() => setSeriesPage(tp)}><ChevronLast /></button>
             </div>
