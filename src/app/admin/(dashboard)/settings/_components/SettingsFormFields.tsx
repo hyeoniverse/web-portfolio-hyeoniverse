@@ -449,7 +449,11 @@ export function ServiceItemsEditor({ items, onChange }: ServiceItemsEditorProps)
     const oldIdx = ids.indexOf(String(active.id));
     const newIdx = ids.indexOf(String(over.id));
     if (oldIdx === -1 || newIdx === -1) return;
-    onChange(arrayMove([...items], oldIdx, newIdx));
+    const reordered = arrayMove([...items], oldIdx, newIdx).map((item, i) => ({
+      ...item,
+      num: String(i + 1).padStart(2, "0"),
+    }));
+    onChange(reordered);
   }, [ids, items, onChange]);
 
   return (
@@ -458,7 +462,7 @@ export function ServiceItemsEditor({ items, onChange }: ServiceItemsEditorProps)
         <div className={styles.serviceItems}>
           {items.map((item, i) => (
             <SortableServiceItem key={ids[i]} id={ids[i]}>
-              <span className={styles.serviceItemNum}>{item.num}</span>
+              <SlotNumber value={i + 1} />
               <div className={styles.serviceItemFields}>
                 <div className={styles.fieldPair}>
                   <Field label="Title (EN)" value={item.title} onChange={(v) => updateItem(i, "title", v)} />
@@ -496,5 +500,26 @@ function SortableServiceItem({ id, children }: { id: string; children: React.Rea
       </button>
       {children}
     </div>
+  );
+}
+
+/* ── Slot machine number animation ── */
+function SlotNumber({ value }: { value: number }) {
+  const display = String(value).padStart(2, "0");
+  return (
+    <span className={styles.serviceItemNum}>
+      {display.split("").map((digit, i) => (
+        <span key={i} className={styles.slotDigit}>
+          <span
+            className={styles.slotReel}
+            style={{ transform: `translateY(-${Number(digit) * 10}%)` }}
+          >
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+              <span key={n} className={styles.slotChar}>{n}</span>
+            ))}
+          </span>
+        </span>
+      ))}
+    </span>
   );
 }

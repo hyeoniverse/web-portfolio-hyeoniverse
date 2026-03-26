@@ -1091,11 +1091,31 @@
 }
 
 .serviceItemNum {
+  display: inline-flex;
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   min-width: 24px;
   padding-top: var(--spacing-xs);
+}
+
+.slotDigit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.slotReel {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.slotChar {
+  display: block;
+  height: 1em;
+  line-height: 1;
 }
 
 .serviceItemFields {
