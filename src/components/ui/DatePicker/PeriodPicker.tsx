@@ -138,7 +138,7 @@ function DateInputRow({
 
   return (
     <div className={styles.dateRow}>
-      <span className={styles.dateLabel}>{label}</span>
+      {label && <span className={styles.dateLabel}>{label}</span>}
       <div className={styles.dateInputs}>
         <input
           type="text"

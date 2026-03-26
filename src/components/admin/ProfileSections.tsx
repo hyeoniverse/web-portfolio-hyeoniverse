@@ -330,10 +330,6 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                       </div>
                       <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
                         <div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
-                            <PeriodPicker value={exp.period} onChange={(v: DatePeriod) => updateExperience(i, "period", v)} />
-                          </div>
                           <div className={styles.profileGrid}>
                             <div>
                               <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (KO)</label>
@@ -343,6 +339,10 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                               <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (EN)</label>
                               <input className={styles.profileFieldInput} value={exp.role.en} onChange={(e) => updateExperience(i, "role.en", e.target.value)} />
                             </div>
+                          </div>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+                            <PeriodPicker value={exp.period} onChange={(v: DatePeriod) => updateExperience(i, "period", v)} />
                           </div>
                           <div>
                             <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
@@ -785,33 +785,14 @@ function SkillList({
         <SortableContext items={skillIds} strategy={verticalListSortingStrategy}>
           {group.skills.map((skill, si) => (
             <SortableSkillItem key={skillIds[si]} id={skillIds[si]} styles={styles}>
-              <div className={styles.skillFields}>
-                <input
-                  className={styles.skillFieldInline}
-                  value={skill.name}
-                  onChange={(e) => updateSkill(gi, si, "name", e.target.value)}
-                  placeholder="Skill name"
-                />
-                <div className={styles.profileGrid}>
-                  <div>
-                    <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-                    <textarea className={styles.profileFieldTextarea} value={skill.description.ko} onChange={(e) => updateSkill(gi, si, "description.ko", e.target.value)} rows={1} data-lenis-prevent />
-                  </div>
-                  <div>
-                    <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-                    <textarea className={styles.profileFieldTextarea} value={skill.description.en} onChange={(e) => updateSkill(gi, si, "description.en", e.target.value)} rows={1} data-lenis-prevent />
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                className={styles.skillRemoveBtn}
-                onClick={() => removeSkill(gi, si)}
-                aria-label="Remove"
-              >
-                <span className={styles.skillRemoveLine} />
-                <span className={styles.skillRemoveLine} />
-              </button>
+              <SkillItemContent
+                skill={skill}
+                gi={gi}
+                si={si}
+                updateSkill={updateSkill}
+                removeSkill={removeSkill}
+                styles={styles}
+              />
             </SortableSkillItem>
           ))}
         </SortableContext>
@@ -820,5 +801,62 @@ function SkillList({
         <T k="admin.settings.profile.addSkill" />
       </button>
     </div>
+  );
+}
+
+/* ── Individual skill item with expand/collapse ── */
+function SkillItemContent({ skill, gi, si, updateSkill, removeSkill, styles }: {
+  skill: { name: string; description: { ko: string; en: string } };
+  gi: number;
+  si: number;
+  updateSkill: (gi: number, si: number, field: string, value: string) => void;
+  removeSkill: (gi: number, si: number) => void;
+  styles: Record<string, string>;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const hasDesc = !!(skill.description.ko || skill.description.en);
+
+  return (
+    <>
+      <div className={styles.skillFields}>
+        <div className={styles.skillGroupHeader}>
+          <button type="button" className={styles.skillExpandBtn} onClick={() => setExpanded(!expanded)} aria-label={expanded ? "Collapse" : "Expand"}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+          <input
+            className={styles.skillFieldInline}
+            value={skill.name}
+            onChange={(e) => updateSkill(gi, si, "name", e.target.value)}
+            placeholder="Skill name"
+          />
+          {hasDesc && !expanded && <span className={styles.skillCount}>…</span>}
+        </div>
+        <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
+          <div>
+            <div className={styles.profileGrid}>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                <textarea className={styles.profileFieldTextarea} value={skill.description.ko} onChange={(e) => updateSkill(gi, si, "description.ko", e.target.value)} rows={1} data-lenis-prevent />
+              </div>
+              <div>
+                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                <textarea className={styles.profileFieldTextarea} value={skill.description.en} onChange={(e) => updateSkill(gi, si, "description.en", e.target.value)} rows={1} data-lenis-prevent />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        className={styles.skillRemoveBtn}
+        onClick={() => removeSkill(gi, si)}
+        aria-label="Remove"
+      >
+        <span className={styles.skillRemoveLine} />
+        <span className={styles.skillRemoveLine} />
+      </button>
+    </>
   );
 }
