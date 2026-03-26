@@ -1305,7 +1305,7 @@
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
-  margin-bottom: 2px;
+  margin-bottom: var(--spacing-2xs);
   display: block;
 }
 
@@ -1938,6 +1938,9 @@
 .skillExpandable > * {
   min-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 .skillExpandableOpen > * {
@@ -1994,7 +1997,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
 }
 
 .skillGroupHeader {
