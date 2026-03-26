@@ -1712,21 +1712,20 @@
 .socialEditor {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  border-top: 1px solid var(--border-light-color);
 }
 
 .socialItem {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-sm);
-  padding: var(--box-sm-md);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-capsule);
-  transition: box-shadow 0.2s ease;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-light-color);
+  transition: background-color 0.2s ease;
 }
 
 .socialItemDragging {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  background: var(--bg-secondary);
   z-index: 10;
 }
 
@@ -1735,8 +1734,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 20px;
-  height: 32px;
+  width: 16px;
+  height: 20px;
+  margin-top: var(--spacing-xs);
   cursor: grab;
   color: var(--text-muted);
   touch-action: none;
@@ -1752,8 +1752,8 @@
 }
 
 .socialIcon {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   color: var(--text-tertiary);
   display: flex;
@@ -1762,8 +1762,8 @@
 }
 
 .socialIcon svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .socialItemFields {
@@ -1777,7 +1777,7 @@
 .socialIconClickable {
   cursor: pointer;
   border: 1px dashed var(--border-light-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-circle);
   transition: border-color 0.2s ease;
 }
 
@@ -1786,10 +1786,10 @@
 }
 
 .socialIconImg {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-circle);
 }
 
 .socialIconSpinner {
@@ -1798,9 +1798,14 @@
 }
 
 .socialIconError {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+  color: var(--color-error, #e53e3e);
+  background: color-mix(in srgb, var(--color-error, #e53e3e) 8%, transparent);
+  border-radius: var(--radius-sm);
 }
 
 .socialIconUpload {
@@ -1811,8 +1816,9 @@
 
 .socialIconUploadBtn {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
+  aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1831,6 +1837,7 @@
 .socialRemoveBtn {
   width: 24px;
   height: 24px;
+  margin-top: var(--spacing-xs);
   display: flex;
   align-items: center;
   justify-content: center;
