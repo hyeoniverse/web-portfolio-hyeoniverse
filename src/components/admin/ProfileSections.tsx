@@ -52,6 +52,15 @@ function updateArrayItem<T>(
   return next;
 }
 
+/* ── Brief period display for collapsed rows ── */
+function briefPeriod(p: DatePeriod | undefined): string {
+  if (!p?.start) return "";
+  const s = p.start.split("-")[0];
+  if (p.ongoing) return `${s} -`;
+  if (p.end) return `${s} - ${p.end.split("-")[0]}`;
+  return s;
+}
+
 export default function ProfileSections({ data, setData, styles }: ProfileSectionsProps) {
   /* ── Experiences ── */
   const updateExperience = (idx: number, field: string, value: unknown) =>
@@ -65,6 +74,10 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
 
   const removeExperience = (idx: number) =>
     setData((prev) => ({ ...prev, experiences: prev.experiences.filter((_, i) => i !== idx) }));
+
+  const moveExperience = useCallback((oldIdx: number, newIdx: number) =>
+    setData((prev) => ({ ...prev, experiences: arrayMove([...prev.experiences], oldIdx, newIdx) })),
+  [setData]);
 
   /* ── Skills ── */
   const updateSkillGroup = (gi: number, field: string, value: string) =>
@@ -112,29 +125,6 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
       return { ...prev, skillGroups: groups };
     });
 
-  /* ── DnD sensors ── */
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor),
-  );
-
-  const groupIds = useMemo(() => data.skillGroups.map((_, i) => `skill-group-${i}`), [data.skillGroups]);
-
-  const handleGroupDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over || active.id === over.id) return;
-      const oldIdx = groupIds.indexOf(String(active.id));
-      const newIdx = groupIds.indexOf(String(over.id));
-      if (oldIdx === -1 || newIdx === -1) return;
-      moveSkillGroup(oldIdx, newIdx);
-    },
-    [groupIds, moveSkillGroup],
-  );
-
-  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
-  const toggleGroup = (gi: number) => setExpandedGroups((prev) => ({ ...prev, [gi]: !prev[gi] }));
-
   /* ── Philosophy ── */
   const updatePhilosophy = (idx: number, field: string, value: string) =>
     setData((prev) => ({ ...prev, philosophy: updateArrayItem(prev.philosophy, idx, field, value) }));
@@ -144,6 +134,10 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
 
   const removePhilosophy = (idx: number) =>
     setData((prev) => ({ ...prev, philosophy: prev.philosophy.filter((_, i) => i !== idx) }));
+
+  const movePhilosophy = useCallback((oldIdx: number, newIdx: number) =>
+    setData((prev) => ({ ...prev, philosophy: arrayMove([...prev.philosophy], oldIdx, newIdx) })),
+  [setData]);
 
   /* ── Approach ── */
   const updateApproach = (idx: number, field: string, value: string) =>
@@ -158,6 +152,15 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
   const removeApproach = (idx: number) =>
     setData((prev) => ({ ...prev, approachSteps: prev.approachSteps.filter((_, i) => i !== idx) }));
 
+  const moveApproach = useCallback((oldIdx: number, newIdx: number) =>
+    setData((prev) => {
+      const reordered = arrayMove([...prev.approachSteps], oldIdx, newIdx);
+      // Auto-update number after reorder
+      const renumbered = reordered.map((step, i) => ({ ...step, number: String(i + 1).padStart(2, "0") }));
+      return { ...prev, approachSteps: renumbered };
+    }),
+  [setData]);
+
   /* ── Certifications ── */
   const updateCertification = (idx: number, field: string, value: unknown) =>
     setData((prev) => ({ ...prev, certifications: updateArrayItem(prev.certifications, idx, field, value) }));
@@ -170,6 +173,10 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
 
   const removeCertification = (idx: number) =>
     setData((prev) => ({ ...prev, certifications: prev.certifications.filter((_, i) => i !== idx) }));
+
+  const moveCertification = useCallback((oldIdx: number, newIdx: number) =>
+    setData((prev) => ({ ...prev, certifications: arrayMove([...prev.certifications], oldIdx, newIdx) })),
+  [setData]);
 
   /* ── Awards ── */
   const updateAward = (idx: number, field: string, value: unknown) =>
@@ -184,45 +191,185 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
   const removeAward = (idx: number) =>
     setData((prev) => ({ ...prev, awards: prev.awards.filter((_, i) => i !== idx) }));
 
+  const moveAward = useCallback((oldIdx: number, newIdx: number) =>
+    setData((prev) => ({ ...prev, awards: arrayMove([...prev.awards], oldIdx, newIdx) })),
+  [setData]);
+
+  /* ── DnD sensors ── */
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  /* ── DnD IDs ── */
+  const groupIds = useMemo(() => data.skillGroups.map((_, i) => `skill-group-${i}`), [data.skillGroups]);
+  const expIds = useMemo(() => data.experiences.map((_, i) => `exp-${i}`), [data.experiences]);
+  const philIds = useMemo(() => data.philosophy.map((_, i) => `phil-${i}`), [data.philosophy]);
+  const approachIds = useMemo(() => data.approachSteps.map((_, i) => `approach-${i}`), [data.approachSteps]);
+  const certIds = useMemo(() => data.certifications.map((_, i) => `cert-${i}`), [data.certifications]);
+  const awardIds = useMemo(() => data.awards.map((_, i) => `award-${i}`), [data.awards]);
+
+  /* ── DnD handlers ── */
+  const handleGroupDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIdx = groupIds.indexOf(String(active.id));
+      const newIdx = groupIds.indexOf(String(over.id));
+      if (oldIdx === -1 || newIdx === -1) return;
+      moveSkillGroup(oldIdx, newIdx);
+    },
+    [groupIds, moveSkillGroup],
+  );
+
+  const handleExpDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIdx = expIds.indexOf(String(active.id));
+      const newIdx = expIds.indexOf(String(over.id));
+      if (oldIdx === -1 || newIdx === -1) return;
+      moveExperience(oldIdx, newIdx);
+    },
+    [expIds, moveExperience],
+  );
+
+  const handlePhilDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIdx = philIds.indexOf(String(active.id));
+      const newIdx = philIds.indexOf(String(over.id));
+      if (oldIdx === -1 || newIdx === -1) return;
+      movePhilosophy(oldIdx, newIdx);
+    },
+    [philIds, movePhilosophy],
+  );
+
+  const handleApproachDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIdx = approachIds.indexOf(String(active.id));
+      const newIdx = approachIds.indexOf(String(over.id));
+      if (oldIdx === -1 || newIdx === -1) return;
+      moveApproach(oldIdx, newIdx);
+    },
+    [approachIds, moveApproach],
+  );
+
+  const handleCertDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIdx = certIds.indexOf(String(active.id));
+      const newIdx = certIds.indexOf(String(over.id));
+      if (oldIdx === -1 || newIdx === -1) return;
+      moveCertification(oldIdx, newIdx);
+    },
+    [certIds, moveCertification],
+  );
+
+  const handleAwardDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIdx = awardIds.indexOf(String(active.id));
+      const newIdx = awardIds.indexOf(String(over.id));
+      if (oldIdx === -1 || newIdx === -1) return;
+      moveAward(oldIdx, newIdx);
+    },
+    [awardIds, moveAward],
+  );
+
+  /* ── Expanded states ── */
+  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
+  const toggleGroup = (gi: number) => setExpandedGroups((prev) => ({ ...prev, [gi]: !prev[gi] }));
+
+  const [expandedExp, setExpandedExp] = useState<Record<number, boolean>>({});
+  const toggleExp = (i: number) => setExpandedExp((prev) => ({ ...prev, [i]: !prev[i] }));
+
+  const [expandedPhil, setExpandedPhil] = useState<Record<number, boolean>>({});
+  const togglePhil = (i: number) => setExpandedPhil((prev) => ({ ...prev, [i]: !prev[i] }));
+
+  const [expandedApproach, setExpandedApproach] = useState<Record<number, boolean>>({});
+  const toggleApproach = (i: number) => setExpandedApproach((prev) => ({ ...prev, [i]: !prev[i] }));
+
+  const [expandedCert, setExpandedCert] = useState<Record<number, boolean>>({});
+  const toggleCert = (i: number) => setExpandedCert((prev) => ({ ...prev, [i]: !prev[i] }));
+
+  const [expandedAward, setExpandedAward] = useState<Record<number, boolean>>({});
+  const toggleAward = (i: number) => setExpandedAward((prev) => ({ ...prev, [i]: !prev[i] }));
+
   return (
     <>
       {/* ── Experiences ── */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.profile.experience" /></h2>
-        {data.experiences.map((exp, i) => (
-          <div key={i} className={styles.profileCard}>
-            <div className={styles.profileCardHeader}>
-              <span className={styles.profileCardTitle}>{exp.company || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removeExperience(i)} aria-label="Remove">&minus;</button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleExpDragEnd}>
+          <SortableContext items={expIds} strategy={verticalListSortingStrategy}>
+            <div className={styles.skillEditor}>
+              {data.experiences.map((exp, i) => {
+                const expanded = expandedExp[i] !== false;
+                return (
+                  <SortableRow key={expIds[i]} id={expIds[i]} styles={styles}>
+                    <div className={styles.skillFields}>
+                      <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillExpandBtn} onClick={() => toggleExp(i)} aria-label={expanded ? "Collapse" : "Expand"}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                        <input
+                          className={styles.skillFieldInline}
+                          value={exp.company}
+                          onChange={(e) => updateExperience(i, "company", e.target.value)}
+                          placeholder="Company"
+                        />
+                        <span className={styles.skillCount}>{briefPeriod(exp.period)}</span>
+                      </div>
+                      {expanded && (
+                        <>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+                            <PeriodPicker value={exp.period} onChange={(v: DatePeriod) => updateExperience(i, "period", v)} />
+                          </div>
+                          <div className={styles.profileGrid}>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (KO)</label>
+                              <input className={styles.profileFieldInput} value={exp.role.ko} onChange={(e) => updateExperience(i, "role.ko", e.target.value)} />
+                            </div>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (EN)</label>
+                              <input className={styles.profileFieldInput} value={exp.role.en} onChange={(e) => updateExperience(i, "role.en", e.target.value)} />
+                            </div>
+                          </div>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                            <textarea className={styles.profileFieldTextarea} value={exp.description.ko} onChange={(e) => updateExperience(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                          </div>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                            <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.skillRemoveBtn}
+                      onClick={() => removeExperience(i)}
+                      aria-label="Remove"
+                    >
+                      <span className={styles.skillRemoveLine} />
+                      <span className={styles.skillRemoveLine} />
+                    </button>
+                  </SortableRow>
+                );
+              })}
             </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.company" /></label>
-              <input className={styles.profileFieldInput} value={exp.company} onChange={(e) => updateExperience(i, "company", e.target.value)} />
-            </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
-              <PeriodPicker value={exp.period} onChange={(v: DatePeriod) => updateExperience(i, "period", v)} />
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (KO)</label>
-                <input className={styles.profileFieldInput} value={exp.role.ko} onChange={(e) => updateExperience(i, "role.ko", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (EN)</label>
-                <input className={styles.profileFieldInput} value={exp.role.en} onChange={(e) => updateExperience(i, "role.en", e.target.value)} />
-              </div>
-            </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-              <textarea className={styles.profileFieldTextarea} value={exp.description.ko} onChange={(e) => updateExperience(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-            </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-              <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
-            </div>
-          </div>
-        ))}
+          </SortableContext>
+        </DndContext>
         <button className={styles.profileAddBtn} onClick={addExperience}><T k="admin.settings.profile.addExperience" /></button>
       </section>
 
@@ -236,7 +383,7 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                 const expanded = expandedGroups[gi] !== false;
                 const skillIds = group.skills.map((_, si) => `skill-${gi}-${si}`);
                 return (
-                  <SortableSkillGroup key={groupIds[gi]} id={groupIds[gi]} styles={styles}>
+                  <SortableRow key={groupIds[gi]} id={groupIds[gi]} styles={styles}>
                     <div className={styles.skillFields}>
                       <div className={styles.skillGroupHeader}>
                         <button type="button" className={styles.skillExpandBtn} onClick={() => toggleGroup(gi)} aria-label={expanded ? "Collapse" : "Expand"}>
@@ -287,7 +434,7 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                       <span className={styles.skillRemoveLine} />
                       <span className={styles.skillRemoveLine} />
                     </button>
-                  </SortableSkillGroup>
+                  </SortableRow>
                 );
               })}
             </div>
@@ -301,55 +448,108 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
         <h2 className={styles.sectionTitle}><T k="admin.settings.profile.philosophyApproach" /></h2>
 
         <h3 className={styles.profileSubTitle}><T k="admin.settings.profile.philosophy" /></h3>
-        {data.philosophy.map((item, i) => (
-          <div key={i} className={styles.profileCard}>
-            <div className={styles.profileCardHeader}>
-              <span className={styles.profileCardTitle}>{item.title || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removePhilosophy(i)}>&minus;</button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhilDragEnd}>
+          <SortableContext items={philIds} strategy={verticalListSortingStrategy}>
+            <div className={styles.skillEditor}>
+              {data.philosophy.map((item, i) => {
+                const expanded = expandedPhil[i] !== false;
+                return (
+                  <SortableRow key={philIds[i]} id={philIds[i]} styles={styles}>
+                    <div className={styles.skillFields}>
+                      <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillExpandBtn} onClick={() => togglePhil(i)} aria-label={expanded ? "Collapse" : "Expand"}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                        <input
+                          className={styles.skillFieldInline}
+                          value={item.title}
+                          onChange={(e) => updatePhilosophy(i, "title", e.target.value)}
+                          placeholder="Title"
+                        />
+                      </div>
+                      {expanded && (
+                        <div className={styles.profileGrid}>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                            <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                          </div>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                            <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.skillRemoveBtn}
+                      onClick={() => removePhilosophy(i)}
+                      aria-label="Remove"
+                    >
+                      <span className={styles.skillRemoveLine} />
+                      <span className={styles.skillRemoveLine} />
+                    </button>
+                  </SortableRow>
+                );
+              })}
             </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.title" /></label>
-              <input className={styles.profileFieldInput} value={item.title} onChange={(e) => updatePhilosophy(i, "title", e.target.value)} />
-            </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-              <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-            </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-              <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
-            </div>
-          </div>
-        ))}
+          </SortableContext>
+        </DndContext>
         <button className={styles.profileAddBtn} onClick={addPhilosophy}><T k="admin.settings.profile.addPhilosophy" /></button>
 
         <h3 className={styles.profileSubTitle} style={{ marginTop: "var(--spacing-xl)" }}><T k="admin.settings.profile.approach" /></h3>
-        {data.approachSteps.map((step, i) => (
-          <div key={i} className={styles.profileCard}>
-            <div className={styles.profileCardHeader}>
-              <span className={styles.profileCardTitle}>{step.title || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removeApproach(i)}>&minus;</button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleApproachDragEnd}>
+          <SortableContext items={approachIds} strategy={verticalListSortingStrategy}>
+            <div className={styles.skillEditor}>
+              {data.approachSteps.map((step, i) => {
+                const expanded = expandedApproach[i] !== false;
+                return (
+                  <SortableRow key={approachIds[i]} id={approachIds[i]} styles={styles}>
+                    <div className={styles.skillFields}>
+                      <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillExpandBtn} onClick={() => toggleApproach(i)} aria-label={expanded ? "Collapse" : "Expand"}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                        <span className={styles.skillCount}>{step.number}</span>
+                        <input
+                          className={styles.skillFieldInline}
+                          value={step.title}
+                          onChange={(e) => updateApproach(i, "title", e.target.value)}
+                          placeholder="Step title"
+                        />
+                      </div>
+                      {expanded && (
+                        <div className={styles.profileGrid}>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                            <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                          </div>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                            <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.skillRemoveBtn}
+                      onClick={() => removeApproach(i)}
+                      aria-label="Remove"
+                    >
+                      <span className={styles.skillRemoveLine} />
+                      <span className={styles.skillRemoveLine} />
+                    </button>
+                  </SortableRow>
+                );
+              })}
             </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.number" /></label>
-                <input className={styles.profileFieldInput} value={step.number} onChange={(e) => updateApproach(i, "number", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.title" /></label>
-                <input className={styles.profileFieldInput} value={step.title} onChange={(e) => updateApproach(i, "title", e.target.value)} />
-              </div>
-            </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-              <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-            </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-              <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
-            </div>
-          </div>
-        ))}
+          </SortableContext>
+        </DndContext>
         <button className={styles.profileAddBtn} onClick={addApproach}><T k="admin.settings.profile.addStep" /></button>
       </section>
 
@@ -358,81 +558,137 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
         <h2 className={styles.sectionTitle}><T k="admin.settings.profile.certsAwards" /></h2>
 
         <h3 className={styles.profileSubTitle}><T k="admin.settings.profile.certifications" /></h3>
-        {data.certifications.map((cert, i) => (
-          <div key={i} className={styles.profileCard}>
-            <div className={styles.profileCardHeader}>
-              <span className={styles.profileCardTitle}>{cert.name.ko || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removeCertification(i)}>&minus;</button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleCertDragEnd}>
+          <SortableContext items={certIds} strategy={verticalListSortingStrategy}>
+            <div className={styles.skillEditor}>
+              {data.certifications.map((cert, i) => {
+                const expanded = expandedCert[i] !== false;
+                return (
+                  <SortableRow key={certIds[i]} id={certIds[i]} styles={styles}>
+                    <div className={styles.skillFields}>
+                      <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillExpandBtn} onClick={() => toggleCert(i)} aria-label={expanded ? "Collapse" : "Expand"}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                        <input
+                          className={styles.skillFieldInline}
+                          value={cert.name.ko}
+                          onChange={(e) => updateCertification(i, "name.ko", e.target.value)}
+                          placeholder="Name (KO)"
+                        />
+                        <span className={styles.skillCount}>{briefPeriod(cert.period)}</span>
+                      </div>
+                      {expanded && (
+                        <>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+                            <PeriodPicker value={cert.period} onChange={(v: DatePeriod) => updateCertification(i, "period", v)} />
+                          </div>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (EN)</label>
+                            <input className={styles.profileFieldInput} value={cert.name.en} onChange={(e) => updateCertification(i, "name.en", e.target.value)} />
+                          </div>
+                          <div className={styles.profileGrid}>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.issuer" /> (KO)</label>
+                              <input className={styles.profileFieldInput} value={cert.issuer.ko} onChange={(e) => updateCertification(i, "issuer.ko", e.target.value)} />
+                            </div>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.issuer" /> (EN)</label>
+                              <input className={styles.profileFieldInput} value={cert.issuer.en} onChange={(e) => updateCertification(i, "issuer.en", e.target.value)} />
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.skillRemoveBtn}
+                      onClick={() => removeCertification(i)}
+                      aria-label="Remove"
+                    >
+                      <span className={styles.skillRemoveLine} />
+                      <span className={styles.skillRemoveLine} />
+                    </button>
+                  </SortableRow>
+                );
+              })}
             </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
-              <PeriodPicker value={cert.period} onChange={(v: DatePeriod) => updateCertification(i, "period", v)} />
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (KO)</label>
-                <input className={styles.profileFieldInput} value={cert.name.ko} onChange={(e) => updateCertification(i, "name.ko", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (EN)</label>
-                <input className={styles.profileFieldInput} value={cert.name.en} onChange={(e) => updateCertification(i, "name.en", e.target.value)} />
-              </div>
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.issuer" /> (KO)</label>
-                <input className={styles.profileFieldInput} value={cert.issuer.ko} onChange={(e) => updateCertification(i, "issuer.ko", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.issuer" /> (EN)</label>
-                <input className={styles.profileFieldInput} value={cert.issuer.en} onChange={(e) => updateCertification(i, "issuer.en", e.target.value)} />
-              </div>
-            </div>
-          </div>
-        ))}
+          </SortableContext>
+        </DndContext>
         <button className={styles.profileAddBtn} onClick={addCertification}><T k="admin.settings.profile.addCertification" /></button>
 
         <h3 className={styles.profileSubTitle} style={{ marginTop: "var(--spacing-xl)" }}><T k="admin.settings.profile.awards" /></h3>
-        {data.awards.map((award, i) => (
-          <div key={i} className={styles.profileCard}>
-            <div className={styles.profileCardHeader}>
-              <span className={styles.profileCardTitle}>{award.name.ko || `#${i + 1}`}</span>
-              <button className={styles.profileRemoveBtn} onClick={() => removeAward(i)}>&minus;</button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleAwardDragEnd}>
+          <SortableContext items={awardIds} strategy={verticalListSortingStrategy}>
+            <div className={styles.skillEditor}>
+              {data.awards.map((award, i) => {
+                const expanded = expandedAward[i] !== false;
+                return (
+                  <SortableRow key={awardIds[i]} id={awardIds[i]} styles={styles}>
+                    <div className={styles.skillFields}>
+                      <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillExpandBtn} onClick={() => toggleAward(i)} aria-label={expanded ? "Collapse" : "Expand"}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                        <input
+                          className={styles.skillFieldInline}
+                          value={award.name.ko}
+                          onChange={(e) => updateAward(i, "name.ko", e.target.value)}
+                          placeholder="Name (KO)"
+                        />
+                        <span className={styles.skillCount}>{briefPeriod(award.period)}</span>
+                      </div>
+                      {expanded && (
+                        <>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+                            <PeriodPicker value={award.period} onChange={(v: DatePeriod) => updateAward(i, "period", v)} />
+                          </div>
+                          <div>
+                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (EN)</label>
+                            <input className={styles.profileFieldInput} value={award.name.en} onChange={(e) => updateAward(i, "name.en", e.target.value)} />
+                          </div>
+                          <div className={styles.profileGrid}>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.organization" /> (KO)</label>
+                              <input className={styles.profileFieldInput} value={award.organization.ko} onChange={(e) => updateAward(i, "organization.ko", e.target.value)} />
+                            </div>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.organization" /> (EN)</label>
+                              <input className={styles.profileFieldInput} value={award.organization.en} onChange={(e) => updateAward(i, "organization.en", e.target.value)} />
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.skillRemoveBtn}
+                      onClick={() => removeAward(i)}
+                      aria-label="Remove"
+                    >
+                      <span className={styles.skillRemoveLine} />
+                      <span className={styles.skillRemoveLine} />
+                    </button>
+                  </SortableRow>
+                );
+              })}
             </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
-              <PeriodPicker value={award.period} onChange={(v: DatePeriod) => updateAward(i, "period", v)} />
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (KO)</label>
-                <input className={styles.profileFieldInput} value={award.name.ko} onChange={(e) => updateAward(i, "name.ko", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (EN)</label>
-                <input className={styles.profileFieldInput} value={award.name.en} onChange={(e) => updateAward(i, "name.en", e.target.value)} />
-              </div>
-            </div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.organization" /> (KO)</label>
-                <input className={styles.profileFieldInput} value={award.organization.ko} onChange={(e) => updateAward(i, "organization.ko", e.target.value)} />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.organization" /> (EN)</label>
-                <input className={styles.profileFieldInput} value={award.organization.en} onChange={(e) => updateAward(i, "organization.en", e.target.value)} />
-              </div>
-            </div>
-          </div>
-        ))}
+          </SortableContext>
+        </DndContext>
         <button className={styles.profileAddBtn} onClick={addAward}><T k="admin.settings.profile.addAward" /></button>
       </section>
     </>
   );
 }
 
-/* ── Sortable Skill Group wrapper ── */
-function SortableSkillGroup({ id, children, styles }: { id: string; children: ReactNode; styles: Record<string, string> }) {
+/* ── Sortable Row wrapper (reused by all sections) ── */
+function SortableRow({ id, children, styles }: { id: string; children: ReactNode; styles: Record<string, string> }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -458,7 +714,7 @@ function SortableSkillGroup({ id, children, styles }: { id: string; children: Re
   );
 }
 
-/* ── Sortable Skill wrapper ── */
+/* ── Sortable Skill wrapper (nested inside skill groups) ── */
 function SortableSkillItem({ id, children, styles }: { id: string; children: ReactNode; styles: Record<string, string> }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition };
