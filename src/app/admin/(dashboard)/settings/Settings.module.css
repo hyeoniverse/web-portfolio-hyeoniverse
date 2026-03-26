@@ -1077,7 +1077,6 @@
   flex-shrink: 0;
   width: 16px;
   height: 20px;
-  margin-top: var(--spacing-xs);
   cursor: grab;
   color: var(--text-muted);
   border: none;
@@ -1096,7 +1095,6 @@
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   min-width: 24px;
-  padding-top: var(--spacing-xs);
 }
 
 .slotDigit {
