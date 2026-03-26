@@ -1924,7 +1924,28 @@
   flex-direction: column;
 }
 
+/* ── Expand/collapse animation (grid-template-rows) ── */
+.skillExpandable {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.skillExpandableOpen {
+  grid-template-rows: 1fr;
+}
+
+.skillExpandable > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.skillExpandableOpen > * {
+  overflow: visible;
+}
+
 .skillRow {
+  --_skill-row-h: 36px;
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-sm);
@@ -1947,8 +1968,8 @@
   justify-content: center;
   flex-shrink: 0;
   width: 16px;
-  height: 20px;
-  margin-top: var(--spacing-xs);
+  height: var(--_skill-row-h);
+  align-self: flex-start;
   cursor: grab;
   color: var(--text-muted);
   touch-action: none;
@@ -1980,6 +2001,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  min-height: var(--_skill-row-h);
 }
 
 .skillExpandBtn {
@@ -2009,8 +2031,10 @@
 .skillFieldInline {
   flex: 1;
   min-width: 0;
-  padding: var(--box-2xs-xs);
-  border: 1px solid transparent;
+  height: var(--_skill-row-h);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--border-light-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -2031,10 +2055,13 @@
 }
 
 .skillCount {
-  font-family: var(--font-space-grotesk);
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
   flex-shrink: 0;
+  min-width: 80px;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .skillNested {
@@ -2057,9 +2084,10 @@
 /* — → × rotate animation (skill remove) */
 .skillRemoveBtn {
   position: relative;
-  width: 24px;
-  height: 24px;
-  margin-top: var(--spacing-xs);
+  width: var(--_skill-row-h);
+  height: var(--_skill-row-h);
+  flex-shrink: 0;
+  align-self: flex-start;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -328,8 +328,8 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                         />
                         <span className={styles.skillCount}>{briefPeriod(exp.period)}</span>
                       </div>
-                      {expanded && (
-                        <>
+                      <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
+                        <div>
                           <div>
                             <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
                             <PeriodPicker value={exp.period} onChange={(v: DatePeriod) => updateExperience(i, "period", v)} />
@@ -352,8 +352,8 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                             <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
                             <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
                           </div>
-                        </>
-                      )}
+                        </div>
+                      </div>
                     </div>
                     <button
                       type="button"
@@ -399,8 +399,8 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                         />
                         <span className={styles.skillCount}>{group.skills.length}</span>
                       </div>
-                      {expanded && (
-                        <>
+                      <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
+                        <div>
                           <div className={styles.profileGrid}>
                             <div>
                               <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
@@ -422,8 +422,8 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                             addSkill={addSkill}
                             styles={styles}
                           />
-                        </>
-                      )}
+                        </div>
+                      </div>
                     </div>
                     <button
                       type="button"
@@ -469,18 +469,20 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           placeholder="Title"
                         />
                       </div>
-                      {expanded && (
-                        <div className={styles.profileGrid}>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-                            <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-                          </div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-                            <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                      <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
+                        <div>
+                          <div className={styles.profileGrid}>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                              <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                            </div>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                              <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                            </div>
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
                     <button
                       type="button"
@@ -522,18 +524,20 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           placeholder="Step title"
                         />
                       </div>
-                      {expanded && (
-                        <div className={styles.profileGrid}>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-                            <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-                          </div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-                            <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                      <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
+                        <div>
+                          <div className={styles.profileGrid}>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                              <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                            </div>
+                            <div>
+                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                              <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                            </div>
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
                     <button
                       type="button"
@@ -580,8 +584,8 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                         />
                         <span className={styles.skillCount}>{briefPeriod(cert.period)}</span>
                       </div>
-                      {expanded && (
-                        <>
+                      <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
+                        <div>
                           <div>
                             <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
                             <PeriodPicker value={cert.period} onChange={(v: DatePeriod) => updateCertification(i, "period", v)} />
@@ -600,8 +604,8 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                               <input className={styles.profileFieldInput} value={cert.issuer.en} onChange={(e) => updateCertification(i, "issuer.en", e.target.value)} />
                             </div>
                           </div>
-                        </>
-                      )}
+                        </div>
+                      </div>
                     </div>
                     <button
                       type="button"
@@ -643,8 +647,8 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                         />
                         <span className={styles.skillCount}>{briefPeriod(award.period)}</span>
                       </div>
-                      {expanded && (
-                        <>
+                      <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
+                        <div>
                           <div>
                             <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
                             <PeriodPicker value={award.period} onChange={(v: DatePeriod) => updateAward(i, "period", v)} />
@@ -663,8 +667,8 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                               <input className={styles.profileFieldInput} value={award.organization.en} onChange={(e) => updateAward(i, "organization.en", e.target.value)} />
                             </div>
                           </div>
-                        </>
-                      )}
+                        </div>
+                      </div>
                     </div>
                     <button
                       type="button"
