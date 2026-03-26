@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useCallback } from "react";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
 import type { SiteConfigData } from "@/config/site.config";
 import styles from "../Settings.module.css";
@@ -434,23 +437,64 @@ export function ServiceItemsEditor({ items, onChange }: ServiceItemsEditorProps)
     onChange(next);
   };
 
+  const ids = useMemo(() => items.map((_, i) => `svc-${i}`), [items]);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIdx = ids.indexOf(String(active.id));
+    const newIdx = ids.indexOf(String(over.id));
+    if (oldIdx === -1 || newIdx === -1) return;
+    onChange(arrayMove([...items], oldIdx, newIdx));
+  }, [ids, items, onChange]);
+
   return (
-    <div className={styles.serviceItems}>
-      {items.map((item, i) => (
-        <div key={i} className={styles.serviceItem}>
-          <span className={styles.serviceItemNum}>{item.num}</span>
-          <div className={styles.serviceItemFields}>
-            <div className={styles.fieldPair}>
-              <Field label="Title (EN)" value={item.title} onChange={(v) => updateItem(i, "title", v)} />
-              <Field label="Title (KO)" value={item.title_ko} onChange={(v) => updateItem(i, "title_ko", v)} />
-            </div>
-            <div className={styles.fieldPair}>
-              <Field label="Desc (EN)" value={item.desc} onChange={(v) => updateItem(i, "desc", v)} />
-              <Field label="Desc (KO)" value={item.desc_ko} onChange={(v) => updateItem(i, "desc_ko", v)} />
-            </div>
-          </div>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+        <div className={styles.serviceItems}>
+          {items.map((item, i) => (
+            <SortableServiceItem key={ids[i]} id={ids[i]}>
+              <span className={styles.serviceItemNum}>{item.num}</span>
+              <div className={styles.serviceItemFields}>
+                <div className={styles.fieldPair}>
+                  <Field label="Title (EN)" value={item.title} onChange={(v) => updateItem(i, "title", v)} />
+                  <Field label="Title (KO)" value={item.title_ko} onChange={(v) => updateItem(i, "title_ko", v)} />
+                </div>
+                <div className={styles.fieldPair}>
+                  <Field label="Desc (EN)" value={item.desc} onChange={(v) => updateItem(i, "desc", v)} />
+                  <Field label="Desc (KO)" value={item.desc_ko} onChange={(v) => updateItem(i, "desc_ko", v)} />
+                </div>
+              </div>
+            </SortableServiceItem>
+          ))}
         </div>
-      ))}
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+function SortableServiceItem({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`${styles.serviceItem} ${isDragging ? styles.serviceItemDragging : ""}`}
+      {...attributes}
+    >
+      <button type="button" className={styles.serviceItemDrag} {...listeners} aria-label="Drag">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
+          <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+          <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
+        </svg>
+      </button>
+      {children}
     </div>
   );
 }
