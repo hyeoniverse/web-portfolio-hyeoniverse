@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, type Dispatch, type SetStateAction } from "react";
+import { useState, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -301,20 +301,11 @@ export default function ContentTab({
             <div className={styles.socialEditor}>
               {socialLinks.map((link, idx) => (
                 <SortableSocialItem key={socialIds[idx]} id={socialIds[idx]}>
-                  <span className={styles.socialIcon}>
-                    {link.icon ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={link.icon} alt="" className={styles.socialIconImg} />
-                    ) : (() => {
-                      const icon = SOCIAL_ICONS[link.platform];
-                      if (!icon) return null;
-                      return icon.stroke ? (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
-                      ) : (
-                        <svg viewBox="0 0 24 24"><path d={icon.path} fill="currentColor" /></svg>
-                      );
-                    })()}
-                  </span>
+                  <SocialIconArea
+                    link={link}
+                    isCustom={link.platform === "custom"}
+                    onUploaded={(url) => updateSocialItem(idx, "icon", url)}
+                  />
                   <div className={styles.socialItemFields}>
                     <Select
                       value={link.platform}
@@ -676,23 +667,95 @@ function SortableSocialItem({ id, children }: { id: string; children: React.Reac
   );
 }
 
-/* ── Social icon file upload (tiny button) ── */
-function SocialIconFileUpload({ onUploaded }: { onUploaded: (url: string) => void }) {
+/* ── Clickable social icon area with upload ── */
+function SocialIconArea({ link, isCustom, onUploaded }: {
+  link: SocialLink;
+  isCustom: boolean;
+  onUploaded: (url: string) => void;
+}) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleFile = async (file: File) => {
     setUploading(true);
+    setError("");
     try {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("folder", "icons");
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setError(err.error || "Upload failed");
+        return;
+      }
       const data = await res.json();
       onUploaded(data.url);
-    } catch {
-      // silent
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const icon = SOCIAL_ICONS[link.platform];
+
+  return (
+    <>
+      <span
+        className={`${styles.socialIcon} ${isCustom ? styles.socialIconClickable : ""}`}
+        onClick={isCustom ? () => fileRef.current?.click() : undefined}
+        title={isCustom ? "Click to upload icon" : undefined}
+      >
+        {uploading ? (
+          <span className={styles.socialIconSpinner}>…</span>
+        ) : link.icon ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={link.icon} alt="" className={styles.socialIconImg} />
+        ) : icon?.stroke ? (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
+        ) : icon ? (
+          <svg viewBox="0 0 24 24"><path d={icon.path} fill="currentColor" /></svg>
+        ) : null}
+      </span>
+      {isCustom && (
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
+        />
+      )}
+      {error && <span className={styles.socialIconError}>{error}</span>}
+    </>
+  );
+}
+
+/* ── Social icon file upload (tiny button) ── */
+function SocialIconFileUpload({ onUploaded }: { onUploaded: (url: string) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleFile = async (file: File) => {
+    setUploading(true);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "icons");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setError(err.error || "Upload failed");
+        return;
+      }
+      const data = await res.json();
+      onUploaded(data.url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -708,6 +771,7 @@ function SocialIconFileUpload({ onUploaded }: { onUploaded: (url: string) => voi
       >
         {uploading ? "..." : "↑"}
       </button>
+      {error && <span className={styles.socialIconError}>{error}</span>}
       <input
         ref={fileRef}
         type="file"
