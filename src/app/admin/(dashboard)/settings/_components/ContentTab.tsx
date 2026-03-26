@@ -22,6 +22,7 @@ type SocialLink = { platform: string; url: string; label?: string; icon?: string
 const MAX_SOCIAL_LINKS = 6;
 
 const SOCIAL_ICONS: Record<string, { label: string; path: string; stroke?: boolean }> = {
+  custom: { label: "Custom", path: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", stroke: true },
   github: { label: "GitHub", path: "M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" },
   linkedin: { label: "LinkedIn", path: "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" },
   blog: { label: "Blog", path: "M19.199 24C19.199 13.467 10.533 4.8 0 4.8V0c13.165 0 24 10.835 24 24h-4.801zM3.291 17.415a3.3 3.3 0 013.293 3.295A3.303 3.303 0 013.283 24C1.47 24 0 22.526 0 20.71s1.475-3.294 3.291-3.295zM15.909 24h-4.665c0-6.169-5.075-11.245-11.244-11.245V8.09c8.727 0 15.909 7.184 15.909 15.91z" },
@@ -30,7 +31,6 @@ const SOCIAL_ICONS: Record<string, { label: string; path: string; stroke?: boole
   youtube: { label: "YouTube", path: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" },
   behance: { label: "Behance", path: "M22 7h-7V5h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14H15.97c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988H0V5.021h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zM3 11h3.584c2.508 0 2.906-3-.312-3H3v3zm3.391 3H3v3.016h3.341c3.055 0 2.868-3.016.05-3.016z" },
   dribbble: { label: "Dribbble", path: "M12 24C5.385 24 0 18.615 0 12S5.385 0 12 0s12 5.385 12 12-5.385 12-12 12zm10.12-10.358c-.35-.11-3.17-.953-6.384-.438 1.34 3.684 1.887 6.684 1.992 7.308a10.29 10.29 0 004.395-6.87zm-6.115 7.808c-.153-.9-.75-4.032-2.19-7.77l-.066.02c-5.79 2.015-7.86 6.025-8.04 6.4a10.161 10.161 0 006.29 2.166c1.42 0 2.77-.29 4.006-.816zm-11.62-2.58c.232-.4 3.045-5.055 8.332-6.765.135-.045.27-.084.405-.12-.26-.585-.54-1.167-.832-1.74C7.17 11.775 2.206 11.71 1.756 11.7l-.004.312c0 2.633.998 5.037 2.634 6.855zm-2.42-8.955c.46.008 4.683.026 9.477-1.248-1.698-3.018-3.53-5.558-3.8-5.928-2.868 1.35-5.01 3.99-5.676 7.17zM9.6 2.052c.282.38 2.145 2.914 3.822 6 3.645-1.365 5.19-3.44 5.373-3.702A10.176 10.176 0 0012 1.764c-.825 0-1.63.1-2.4.288zm10.335 3.483c-.218.29-1.91 2.493-5.724 4.04.24.49.47.985.68 1.486.08.18.15.36.22.53 3.41-.43 6.8.26 7.14.33-.02-2.42-.88-4.64-2.31-6.38z" },
-  custom: { label: "Custom", path: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", stroke: true },
 };
 
 const SOCIAL_PLATFORM_OPTIONS = Object.entries(SOCIAL_ICONS).map(([value, { label }]) => ({
@@ -320,15 +320,12 @@ export default function ContentTab({
                           value={link.label ?? ""}
                           onChange={(e) => updateSocialItem(idx, "label", e.target.value)}
                         />
-                        <div className={styles.socialIconUpload}>
-                          <input
-                            className={styles.fieldInput}
-                            placeholder={t("admin.settings.socialIconPlaceholder")}
-                            value={link.icon ?? ""}
-                            onChange={(e) => updateSocialItem(idx, "icon", e.target.value)}
-                          />
-                          <SocialIconFileUpload onUploaded={(url) => updateSocialItem(idx, "icon", url)} />
-                        </div>
+                        <SocialIconUploadRow
+                          icon={link.icon ?? ""}
+                          onIconChange={(v) => updateSocialItem(idx, "icon", v)}
+                          onUploaded={(url) => updateSocialItem(idx, "icon", url)}
+                          placeholder={t("admin.settings.socialIconPlaceholder")}
+                        />
                       </>
                     )}
                     <input
@@ -675,11 +672,9 @@ function SocialIconArea({ link, isCustom, onUploaded }: {
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleFile = async (file: File) => {
     setUploading(true);
-    setError("");
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -728,13 +723,17 @@ function SocialIconArea({ link, isCustom, onUploaded }: {
           onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
         />
       )}
-      {error && <span className={styles.socialIconError}>{error}</span>}
     </>
   );
 }
 
-/* ── Social icon file upload (tiny button) ── */
-function SocialIconFileUpload({ onUploaded }: { onUploaded: (url: string) => void }) {
+/* ── Social icon upload row (input + button + error as placeholder) ── */
+function SocialIconUploadRow({ icon, onIconChange, onUploaded, placeholder }: {
+  icon: string;
+  onIconChange: (v: string) => void;
+  onUploaded: (url: string) => void;
+  placeholder: string;
+}) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -762,7 +761,13 @@ function SocialIconFileUpload({ onUploaded }: { onUploaded: (url: string) => voi
   };
 
   return (
-    <>
+    <div className={styles.socialIconUpload}>
+      <input
+        className={`${styles.fieldInput} ${error ? styles.fieldInputError : ""}`}
+        placeholder={error || placeholder}
+        value={icon}
+        onChange={(e) => { onIconChange(e.target.value); if (error) setError(""); }}
+      />
       <button
         type="button"
         className={styles.socialIconUploadBtn}
@@ -771,7 +776,6 @@ function SocialIconFileUpload({ onUploaded }: { onUploaded: (url: string) => voi
       >
         {uploading ? "..." : "↑"}
       </button>
-      {error && <span className={styles.socialIconError}>{error}</span>}
       <input
         ref={fileRef}
         type="file"
@@ -779,6 +783,6 @@ function SocialIconFileUpload({ onUploaded }: { onUploaded: (url: string) => voi
         hidden
         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
       />
-    </>
+    </div>
   );
 }

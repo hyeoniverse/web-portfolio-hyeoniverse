@@ -1712,7 +1712,6 @@
 .socialEditor {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--border-light-color);
 }
 
 .socialItem {
@@ -1720,8 +1719,11 @@
   align-items: flex-start;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--border-light-color);
   transition: background-color 0.2s ease;
+}
+
+.socialItem + .socialItem {
+  border-top: 1px solid var(--border-light-color);
 }
 
 .socialItemDragging {
@@ -1797,21 +1799,15 @@
   color: var(--text-muted);
 }
 
-.socialIconError {
-  display: block;
-  width: 100%;
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--color-error, #e53e3e);
-  background: color-mix(in srgb, var(--color-error, #e53e3e) 8%, transparent);
-  border-radius: var(--radius-sm);
+.fieldInputError::placeholder {
+  color: var(--color-accent);
 }
 
 .socialIconUpload {
   display: flex;
   gap: var(--spacing-2xs);
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .socialIconUploadBtn {
@@ -1874,6 +1870,182 @@
 }
 
 .socialRemoveBtn:hover .socialRemoveLine:last-child {
+  transform: rotate(-45deg);
+}
+
+/* ── Skills Editor (table / line layout) ── */
+.skillEditor {
+  display: flex;
+  flex-direction: column;
+}
+
+.skillRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  transition: background-color 0.2s ease;
+}
+
+.skillRow + .skillRow {
+  border-top: 1px solid var(--border-light-color);
+}
+
+.skillRowDragging {
+  background: var(--bg-secondary);
+  z-index: 10;
+}
+
+.skillDragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 20px;
+  margin-top: var(--spacing-xs);
+  cursor: grab;
+  color: var(--text-muted);
+  touch-action: none;
+}
+
+.skillDragHandle:active {
+  cursor: grabbing;
+}
+
+.skillDragHandle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.skillDragHandleSm svg {
+  width: 10px;
+  height: 10px;
+}
+
+.skillFields {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.skillGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.skillExpandBtn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.skillExpandBtn svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.skillExpandBtn:hover {
+  color: var(--text-primary);
+}
+
+.skillFieldInline {
+  flex: 1;
+  min-width: 0;
+  padding: var(--box-2xs-xs);
+  border: 1px solid transparent;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.skillFieldInline:hover,
+.skillFieldInline:focus {
+  border-color: var(--border-light-color);
+}
+
+.skillFieldInline:focus {
+  border-color: var(--text-primary);
+}
+
+.skillCount {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.skillNested {
+  padding-left: var(--spacing-md);
+  border-left: 2px solid var(--border-light-color);
+  margin-top: var(--spacing-2xs);
+}
+
+.skillNestedRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) 0;
+}
+
+.skillNestedRow + .skillNestedRow {
+  border-top: 1px solid color-mix(in srgb, var(--border-light-color) 50%, transparent);
+}
+
+/* — → × rotate animation (skill remove) */
+.skillRemoveBtn {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+}
+
+.skillRemoveBtn:hover {
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  color: var(--text-primary);
+}
+
+.skillRemoveLine {
+  position: absolute;
+  width: 12px;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: transform 0.25s ease;
+  transform: rotate(0deg);
+}
+
+.skillRemoveBtn:hover .skillRemoveLine:first-child {
+  transform: rotate(45deg);
+}
+
+.skillRemoveBtn:hover .skillRemoveLine:last-child {
   transform: rotate(-45deg);
 }
 
