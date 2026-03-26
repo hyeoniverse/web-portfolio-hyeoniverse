@@ -1774,11 +1774,33 @@
   gap: var(--spacing-xs);
 }
 
+.socialIconClickable {
+  cursor: pointer;
+  border: 1px dashed var(--border-light-color);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s ease;
+}
+
+.socialIconClickable:hover {
+  border-color: var(--text-primary);
+}
+
 .socialIconImg {
   width: 16px;
   height: 16px;
   object-fit: contain;
   border-radius: var(--radius-xs);
+}
+
+.socialIconSpinner {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.socialIconError {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
 }
 
 .socialIconUpload {
@@ -1825,22 +1847,19 @@
   color: var(--text-primary);
 }
 
-/* — / × rotate animation */
+/* — → × rotate animation */
+.socialRemoveBtn {
+  position: relative;
+}
+
 .socialRemoveLine {
-  display: block;
+  position: absolute;
   width: 12px;
   height: 1.5px;
   background: currentColor;
   border-radius: 1px;
   transition: transform 0.25s ease;
-}
-
-.socialRemoveLine:first-child {
-  transform: rotate(0deg) translateY(0.75px);
-}
-
-.socialRemoveLine:last-child {
-  transform: rotate(0deg) translateY(-0.75px);
+  transform: rotate(0deg);
 }
 
 .socialRemoveBtn:hover .socialRemoveLine:first-child {

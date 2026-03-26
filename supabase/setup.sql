@@ -443,8 +443,10 @@ END $$;
 --   Admin API(service_role)로 업로드, 공개 읽기
 -- ────────────────────────────────────────────────────────────
 
--- 버킷 생성은 Supabase Dashboard > Storage에서 수동으로 합니다.
--- 버킷 이름: uploads / Public bucket 체크
+-- 버킷 자동 생성 (없으면 생성)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('uploads', 'uploads', true)
+ON CONFLICT (id) DO NOTHING;
 
 -- 인증된 사용자만 업로드 가능
 DO $$
