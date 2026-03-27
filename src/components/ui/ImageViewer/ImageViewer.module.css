@@ -95,7 +95,7 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
   padding: 2px 0;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   outline: none;
@@ -306,7 +306,7 @@
   padding: 16px 0;
   border-radius: var(--radius-lg);
   background: var(--bg-primary);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   min-width: 240px;
 }
@@ -358,7 +358,7 @@
   min-width: 22px;
   height: 22px;
   padding: 0 6px;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-xs);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
@@ -384,7 +384,7 @@
   padding: 10px 12px;
   border-radius: var(--radius-md);
   background: var(--bg-primary);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   z-index: 20;
   min-width: 160px;
@@ -410,7 +410,7 @@
   display: flex;
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   padding: 2px;
 }
 
@@ -461,7 +461,7 @@
 }
 
 .loopRow .loopSwitch {
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   background: var(--bg-tertiary);
 }
 
@@ -626,7 +626,7 @@
   width: 140px;
   z-index: 5;
   background: transparent;
-  border-right: 1px solid var(--border-light-color);
+  border-right: var(--border-light);
   overflow: hidden;
 }
 
@@ -716,7 +716,7 @@
   padding: 6px 0;
   border-radius: var(--radius-md);
   background: var(--bg-primary);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   z-index: 20;
   min-width: 180px;

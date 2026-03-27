@@ -22,7 +22,7 @@
 
 .searchInput {
   padding: var(--box-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -44,7 +44,7 @@
 /* ── Trash Section ── */
 .trashSection {
   margin-top: var(--spacing-2xl);
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
   padding-top: var(--spacing-md);
 }
 
@@ -113,11 +113,11 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
 }
 
 .trashRow:first-child {
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .trashTitle {
@@ -147,7 +147,7 @@
 .trashRestoreBtn {
   flex-shrink: 0;
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -163,7 +163,7 @@
 .trashPurgeBtn {
   flex-shrink: 0;
   padding: var(--box-2xs-md);
-  border: 1px solid var(--color-accent);
+  border: var(--border-accent-solid);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -193,7 +193,7 @@
 
 .subFilterInput {
   padding: var(--box-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -248,7 +248,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: 50%;
   background: transparent;
   font-family: var(--font-space-grotesk);

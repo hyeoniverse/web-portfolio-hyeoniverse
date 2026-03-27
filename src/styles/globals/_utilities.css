@@ -57,7 +57,7 @@
 }
 
 .glass {
-  border: 1px solid var(--color-gray-alpha-10);
+  border: var(--border-gray-alpha-10);
 
   box-shadow: 0 8px 24px var(--color-gray-alpha-25);
   overflow: hidden;
@@ -101,7 +101,7 @@
 
 /* 다크 모드 */
 [data-theme="dark"] .glass {
-  border: 1px solid var(--color-white-alpha-10);
+  border: var(--border-white-alpha-10);
   box-shadow: 0 8px 24px var(--color-gray-alpha-60);
   background: var(--color-gray-alpha-30);
   background-image: linear-gradient(

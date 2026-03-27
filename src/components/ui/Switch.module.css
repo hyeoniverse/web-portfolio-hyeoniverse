@@ -7,7 +7,7 @@
   height: 20px;
   flex-shrink: 0;
   border-radius: var(--radius-capsule);
-  border: 1px solid var(--color-neutral-alpha-20);
+  border: var(--border-neutral-alpha-20);
   background: var(--color-neutral-alpha-10);
   outline: none;
   -webkit-tap-highlight-color: transparent;

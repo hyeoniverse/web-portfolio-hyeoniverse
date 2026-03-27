@@ -160,7 +160,7 @@
   gap: var(--spacing-md);
   margin-left: var(--spacing-xl);
   padding-left: var(--spacing-md);
-  border-left: 1px solid var(--border-light-color);
+  border-left: var(--border-light);
   margin-top: var(--spacing-sm);
 }
 
@@ -186,7 +186,7 @@
 
 .deleteInput {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -198,7 +198,7 @@
 
 .deleteConfirm {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--color-accent-alpha-20);
+  border: var(--border-accent-alpha-20);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -232,7 +232,7 @@
 
 .editTextarea {
   padding: var(--box-sm-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-lg);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -256,7 +256,7 @@
 
 .editSubmitBtn {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--text-primary);
+  border: var(--border-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -276,7 +276,7 @@
 
 .editCancelBtn {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);

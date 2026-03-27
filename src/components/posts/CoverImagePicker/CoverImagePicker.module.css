@@ -1,7 +1,7 @@
 /* ── Container ── */
 .picker {
   margin-top: var(--spacing-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -12,13 +12,13 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--box-xs-sm);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   background: var(--bg-tertiary);
 }
 
 .tabs {
   display: flex;
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   overflow: hidden;
 }
@@ -97,7 +97,7 @@
 .presetItem {
   aspect-ratio: 1200 / 630;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   overflow: hidden;
 
   position: relative;
@@ -144,7 +144,7 @@
   width: 100%;
   padding: var(--spacing-xs) var(--spacing-2xl) var(--spacing-xs)
     var(--spacing-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -242,7 +242,7 @@
   display: block;
   margin: var(--spacing-sm) auto 0;
   padding: var(--box-xs-lg);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -270,7 +270,7 @@
 
 .styleChip {
   padding: var(--box-sm);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -297,7 +297,7 @@
 .generateBtn {
   align-self: flex-start;
   padding: var(--box-xs-xl);
-  border: 1px solid var(--text-primary);
+  border: var(--border-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -320,7 +320,7 @@
 .aiPreview img {
   width: 100%;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
 }
 
 .aiActions {
@@ -330,7 +330,7 @@
 
 .useBtn {
   padding: var(--box-xs-xl);
-  border: 1px solid var(--text-primary);
+  border: var(--border-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -341,7 +341,7 @@
 
 .retryBtn {
   padding: var(--box-xs-xl);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -359,7 +359,7 @@
 
 .suggestionChip {
   padding: var(--box-sm);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);

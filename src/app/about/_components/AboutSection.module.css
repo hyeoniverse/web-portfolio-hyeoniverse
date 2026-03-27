@@ -214,7 +214,7 @@
 }
 
 .dotArrow:not(:disabled):hover {
-  border: 1px solid var(--border-white-color);
+  border: var(--border-white);
 }
 
 .dotArrow:disabled {
@@ -232,7 +232,7 @@
 
 /* Spring-animated capsule indicator (framer-motion) — wraps active dotItem */
 .dotIndicator {
-  border: 1px solid var(--border-white-color);
+  border: var(--border-white);
   position: absolute;
   top: 50%;
   left: 0;

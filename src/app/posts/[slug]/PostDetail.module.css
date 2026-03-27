@@ -76,7 +76,7 @@
 
 .tag {
   padding: 2px var(--spacing-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -115,7 +115,7 @@
 .prose h2 {
   font-size: var(--font-size-xl);
   padding-bottom: var(--spacing-sm);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
 }
 
 .prose h3 {
@@ -198,7 +198,7 @@
   padding: var(--spacing-lg);
   background: var(--bg-tertiary);
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   overflow-x: auto;
   margin: var(--spacing-xl) 0;
 }
@@ -226,7 +226,7 @@
 
 .prose hr {
   border: none;
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
   margin: var(--spacing-3xl) 0;
 }
 
@@ -240,7 +240,7 @@
 .prose th,
 .prose td {
   padding: var(--box-sm-md);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   text-align: left;
 }
 
@@ -340,7 +340,7 @@
   list-style: none;
   padding: var(--spacing-sm) 0;
   margin: 0;
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .seriesItem {
@@ -422,7 +422,7 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--spacing-md);
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .seriesNavDivider {
@@ -497,7 +497,7 @@
   z-index: var(--z-tooltip);
   width: 240px;
   background: var(--bg-primary);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-lg);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   overflow: hidden;
@@ -581,7 +581,7 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: var(--spacing-2xl) 0;
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .relatedHeader {
@@ -623,7 +623,7 @@
 .relatedCard {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-lg);
   overflow: hidden;
   text-decoration: none;
@@ -746,7 +746,7 @@
   display: flex;
   align-items: stretch;
   min-height: 88px;
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
   text-decoration: none;
   color: inherit;
 }
@@ -876,7 +876,7 @@
 .translateBtn {
   flex-shrink: 0;
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -905,13 +905,13 @@
 /* ── Comments section ── */
 .commentSection {
   padding: var(--spacing-2xl) 0 var(--spacing-3xl);
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 /* ── Footer nav ── */
 .footerNav {
   padding: var(--spacing-xl) 0 var(--spacing-3xl);
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .footerLink {
@@ -952,7 +952,7 @@
   left: var(--spacing-xl);
   z-index: var(--z-float);
   width: 300px;
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-lg);
   background: var(--bg-primary);
   overflow: hidden;
@@ -967,7 +967,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--box-sm-md);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   color: var(--text-tertiary);
 }
 

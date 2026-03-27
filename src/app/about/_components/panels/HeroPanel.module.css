@@ -10,7 +10,7 @@
   display: inline-block;
   margin-bottom: var(--_space-block);
   padding: var(--box-xs-xl);
-  border: 1px solid var(--color-accent-alpha-30);
+  border: var(--border-accent-alpha-30);
   width: fit-content;
   font-size: var(--_fs-label);
   font-weight: var(--font-weight-regular);

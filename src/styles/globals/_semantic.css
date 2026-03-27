@@ -123,6 +123,25 @@
   --border-white: 1px solid var(--border-white-color);
   --border-inverse: 1px solid var(--border-white-color);
   --border-accent: 1px solid var(--border-accent-color);
+
+  /* Text-color borders */
+  --border-primary: 1px solid var(--text-primary);
+  --border-secondary: 1px solid var(--text-secondary);
+  --border-tertiary: 1px solid var(--text-tertiary);
+
+  /* Accent alpha borders */
+  --border-accent-solid: 1px solid var(--color-accent);
+  --border-accent-alpha-20: 1px solid var(--color-accent-alpha-20);
+  --border-accent-alpha-30: 1px solid var(--color-accent-alpha-30);
+
+  /* Utility borders */
+  --border-success: 1px solid var(--color-success);
+  --border-neutral-alpha-20: 1px solid var(--color-neutral-alpha-20);
+  --border-white-alpha-5: 1px solid var(--color-white-alpha-5);
+  --border-white-alpha-10: 1px solid var(--color-white-alpha-10);
+  --border-white-alpha-15: 1px solid var(--color-white-alpha-15);
+  --border-white-alpha-50: 1px solid var(--color-white-alpha-50);
+  --border-gray-alpha-10: 1px solid var(--color-gray-alpha-10);
 }
 
 /* --------------------------------------------------------------------------

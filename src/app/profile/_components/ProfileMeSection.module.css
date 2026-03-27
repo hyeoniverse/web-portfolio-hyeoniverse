@@ -116,7 +116,7 @@
   display: inline-block;
   margin-bottom: var(--_space-block);
   padding: var(--box-xs-xl);
-  border: 1px solid var(--color-accent-alpha-30);
+  border: var(--border-accent-alpha-30);
   width: fit-content;
   font-size: var(--_fs-label);
   font-weight: var(--font-weight-regular);
@@ -293,7 +293,7 @@
 .bgInfoLabel {
   display: inline-block;
   padding: 0.2em 0.7em;
-  border: 1px solid var(--color-white-alpha-50);
+  border: var(--border-white-alpha-50);
   width: fit-content;
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
@@ -888,7 +888,7 @@
 
   .panel {
     padding: var(--box-4xl-2xl);
-    border-bottom: 1px solid var(--text-primary);
+    border-bottom: var(--border-primary);
     width: 100%;
     height: auto;
     min-height: auto;
@@ -902,7 +902,7 @@
     margin: 0;
     padding: 3rem 2.5rem;
     border: none;
-    border-bottom: 1px solid var(--text-primary);
+    border-bottom: var(--border-primary);
     overflow: visible;
     width: 100%;
     height: auto;
