@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { setAlign, setLineHeight } from "@platejs/basic-styles";
 import { insertTable } from "@platejs/table";
 import { toggleCodeBlock } from "@platejs/code-block";
@@ -8,6 +8,7 @@ import { toggleList, someList, someTodoList } from "@platejs/list";
 import { indent, outdent } from "@platejs/indent";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
+import Select from "@/components/ui/Select";
 import { loadGoogleFont, validateGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
 import { MessageSquareQuote, ChevronRight } from "lucide-react";
@@ -57,25 +58,11 @@ export interface MainToolbarProps {
 // ── Font Picker (검색 + Google Fonts) ──
 function FontPicker({ value, onChange, preferEn }: { value: string; onChange: (val: string, googleName?: string) => void; preferEn?: boolean }) {
   const { t } = useLanguage();
-  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [googleResult, setGoogleResult] = useState<{ name: string; valid: boolean } | null>(null);
   const [loading, setLoading] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  // 바깥 클릭 시 닫기
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
-
-  const listRef = useRef<HTMLDivElement>(null);
 
   // 검색어 변경 시 Google Fonts 검증 (debounce)
   useEffect(() => {
@@ -129,98 +116,43 @@ function FontPicker({ value, onChange, preferEn }: { value: string; onChange: (v
       })).filter((g) => g.fonts.length > 0)
     : orderedGroups;
 
-  const [dropOffset, setDropOffset] = useState(0);
-  const dropRef = useRef<HTMLDivElement>(null);
-
-  // 열릴 때 현재 선택 항목 위치로 드롭다운 이동 (paint 전에 측정)
-  useLayoutEffect(() => {
-    if (!open) { setDropOffset(0); return; }
-    const drop = dropRef.current;
-    const list = listRef.current;
-    if (!drop) return;
-    const active = drop.querySelector("[data-active]") as HTMLElement | null;
-    if (!active) { setDropOffset(0); return; }
-    // 1. 스크롤로 활성 항목을 리스트 중앙에
-    if (list) {
-      const activeInList = active.offsetTop - list.offsetTop;
-      list.scrollTop = Math.max(0, activeInList - list.clientHeight / 2 + active.offsetHeight / 2);
-    }
-    // 2. 스크롤 후 위치 측정
-    const dropRect = drop.getBoundingClientRect();
-    const activeRect = active.getBoundingClientRect();
-    let offset = activeRect.top - dropRect.top;
-    // 3. viewport 밖으로 나가지 않게 제한
-    const wrapRect = wrapRef.current?.getBoundingClientRect();
-    if (wrapRect) {
-      offset = Math.min(offset, Math.max(0, wrapRect.top - 8));
-      const dropBottom = wrapRect.top - offset + dropRect.height;
-      if (dropBottom > window.innerHeight - 8) offset += dropBottom - (window.innerHeight - 8);
-    }
-    setDropOffset(Math.max(0, offset));
-  }, [open]);
-
-  const selectFont = (val: string, googleName?: string) => {
+  const selectFont = (val: string, close: () => void, googleName?: string) => {
     onChange(val, googleName);
-    setOpen(false);
+    close();
     setQuery("");
   };
 
   return (
-    <div ref={wrapRef} style={{ position: "relative", display: "inline-flex", alignItems: "flex-start" }}>
-      <div className={styles.selectWrap}>
-        <button
-          type="button"
-          className={styles.fontSelect}
-          style={{ width: 120, textAlign: "left", cursor: "pointer" }}
-          onMouseDown={(e) => { e.preventDefault(); setOpen(!open); setTimeout(() => inputRef.current?.focus(), 30); }}
-        >
-          {currentLabel}
-        </button>
-      </div>
-      {open && (
-        <div ref={dropRef} style={{
-          position: "absolute", top: -dropOffset, left: 0, zIndex: 100,
-          width: 220,
-          background: "rgba(255, 255, 255, 0.5)",
-          WebkitBackdropFilter: "blur(4px)",
-          backdropFilter: "blur(4px)",
-          border: "1px solid var(--border-default-color, #c0c0c0)", borderRadius: 14,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-          padding: "2px 0",
-          fontFamily: "var(--font-space-grotesk)", fontSize: 13, color: "var(--text-primary)",
-        }}>
+    <Select
+      value={matchedValue}
+      onChange={() => {}}
+      variant="compact"
+      renderValue={() => currentLabel}
+      className={styles.fontPickerSelect}
+    >
+      {({ close }) => (
+        <>
           {/* 검색 입력 */}
-          <div style={{ padding: "4px 8px", borderBottom: "1px solid var(--border-light-color)" }}>
+          <div className={styles.fontDropSearch}>
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("editor.fontSearch")}
-              style={{
-                width: "100%", border: "none", outline: "none",
-                fontSize: 13, fontFamily: "inherit",
-                background: "transparent", color: "var(--text-primary)", padding: "2px 0",
-              }}
+              className={styles.fontDropSearchInput}
             />
           </div>
           {/* 폰트 목록 */}
-          <div ref={listRef} data-lenis-prevent style={{ maxHeight: 280, overflowY: "auto", padding: "4px 0" }}>
+          <div data-lenis-prevent className={styles.fontDropList}>
             {/* Default 옵션 */}
             {!query && (() => {
               const isDefault = !matchedValue && !value;
               return (
               <div
-                onMouseDown={(e) => { e.preventDefault(); selectFont(""); }}
-                {...(isDefault ? { "data-active": "" } : {})}
-                style={{
-                  padding: "2px 8px", cursor: "default",
-                  background: isDefault ? "#1E90FF" : undefined,
-                  color: isDefault ? "#fff" : undefined,
-                  borderRadius: 8, margin: "1px 4px",
-                }}
-                onMouseEnter={(e) => { if (!isDefault) { e.currentTarget.style.background = "#1E90FF"; e.currentTarget.style.color = "#fff"; } }}
-                onMouseLeave={(e) => { if (!isDefault) { e.currentTarget.style.background = ""; e.currentTarget.style.color = ""; } }}
+                onMouseDown={(e) => { e.preventDefault(); selectFont("", close); }}
+                data-active={isDefault ? "" : undefined}
+                className={`${styles.fontDropItem} ${isDefault ? styles.fontDropItemActive : ""}`}
               >
                 {isDefault ? "✓ " : ""}Default
               </div>
@@ -228,28 +160,17 @@ function FontPicker({ value, onChange, preferEn }: { value: string; onChange: (v
             })()}
             {filtered.map((g) => (
               <div key={g.group}>
-                <div style={{ padding: "4px 8px 2px", fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>{g.group}</div>
+                <div className={styles.fontDropGroup}>{g.group}</div>
                 {g.fonts.map((f) => {
                   const active = matchedValue === f.value;
                   return (
                   <div
                     key={f.value}
-                    onMouseDown={(e) => { e.preventDefault(); selectFont(f.value, f.googleName); }}
-                    {...(active ? { "data-active": "" } : {})}
-                    style={{
-                      padding: "2px 8px", cursor: "default",
-                      fontFamily: f.value,
-                      background: active ? "#1E90FF" : undefined,
-                      color: active ? "#fff" : undefined,
-                      borderRadius: 8, margin: "1px 4px",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!active) { e.currentTarget.style.background = "#1E90FF"; e.currentTarget.style.color = "#fff"; }
-                      if (f.googleName) loadGoogleFont(f.googleName);
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!active) { e.currentTarget.style.background = ""; e.currentTarget.style.color = ""; }
-                    }}
+                    onMouseDown={(e) => { e.preventDefault(); selectFont(f.value, close, f.googleName); }}
+                    data-active={active ? "" : undefined}
+                    className={`${styles.fontDropItem} ${active ? styles.fontDropItemActive : ""}`}
+                    style={{ fontFamily: f.value }}
+                    onMouseEnter={() => { if (f.googleName) loadGoogleFont(f.googleName); }}
                   >
                     {active ? "✓ " : ""}{f.label}
                   </div>
@@ -259,57 +180,50 @@ function FontPicker({ value, onChange, preferEn }: { value: string; onChange: (v
             ))}
             {/* Google Fonts 검색 결과 */}
             {query.trim() && !loading && googleResult && (
-              <div style={{ borderTop: "1px solid var(--border-light-color)", padding: "2px 0" }}>
-                <div style={{ padding: "4px 8px 2px", fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>Google Fonts</div>
+              <div className={styles.fontDropFooter}>
+                <div className={styles.fontDropGroup}>Google Fonts</div>
                 {googleResult.valid ? (
                   <div
                     onMouseDown={(e) => {
                       e.preventDefault();
-                      const name = googleResult.name;
-                      selectFont(`'${name}', sans-serif`, name);
+                      selectFont(`'${googleResult.name}', sans-serif`, close, googleResult.name);
                     }}
-                    onMouseEnter={(e) => { loadGoogleFont(googleResult.name); e.currentTarget.style.background = "#1E90FF"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = ""; e.currentTarget.style.color = ""; }}
-                    style={{ padding: "2px 8px", cursor: "default", fontFamily: `'${googleResult.name}', sans-serif`, borderRadius: 2 }}
+                    className={styles.fontDropItem}
+                    style={{ fontFamily: `'${googleResult.name}', sans-serif` }}
+                    onMouseEnter={() => loadGoogleFont(googleResult.name)}
                   >
                     {googleResult.name} ✓
                   </div>
                 ) : (
-                  <div style={{ padding: "2px 8px", color: "var(--text-muted)" }}>
+                  <div className={styles.fontDropHint}>
                     &quot;{googleResult.name}&quot; {t("editor.fontNotFound")}
                   </div>
                 )}
               </div>
             )}
             {query.trim() && loading && (
-              <div style={{ padding: "4px 12px", fontSize: 10, color: "var(--text-muted)" }}>...</div>
+              <div className={styles.fontDropHint}>...</div>
             )}
             {query.trim() && filtered.length === 0 && !googleResult && !loading && (
-              <div style={{ padding: "4px 12px", fontSize: 10, color: "var(--text-muted)" }}>{t("editor.fontNoResult")}</div>
+              <div className={styles.fontDropHint}>{t("editor.fontNoResult")}</div>
             )}
           </div>
           {/* Google Fonts 새 창 열기 */}
-          <div style={{ borderTop: "1px solid var(--border-light-color)", padding: "4px 8px" }}>
+          <div className={styles.fontDropFooter}>
             <a
               href="https://fonts.google.com"
               target="_blank"
               rel="noopener noreferrer"
               onMouseDown={(e) => e.stopPropagation()}
-              style={{
-                display: "flex", alignItems: "center", gap: 4,
-                fontSize: 11, color: "var(--text-muted)", textDecoration: "none",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+              className={styles.fontDropFooterLink}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               Google Fonts
             </a>
           </div>
-        </div>
+        </>
       )}
-    </div>
+    </Select>
   );
 }
 

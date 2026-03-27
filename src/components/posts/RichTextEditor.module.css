@@ -202,6 +202,125 @@
   color: var(--text-primary);
 }
 
+/* ── Font picker Select override ── */
+.fontPickerSelect {
+  flex: 0 0 auto;
+}
+
+/* trigger */
+.fontPickerSelect button {
+  height: 24px;
+  padding: 0 22px 0 var(--spacing-sm);
+  font-size: 10px;
+  color: var(--text-secondary);
+  max-width: 140px;
+}
+
+.toolbar .fontPickerSelect button:hover {
+  border-color: var(--text-secondary);
+}
+
+/* dropdown */
+.fontPickerSelect > div:last-child {
+  width: 220px;
+  padding: 2px 0;
+  gap: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  border-radius: 14px;
+  max-height: none;
+  overflow: visible;
+}
+
+/* ── Font picker dropdown ── */
+.fontDrop {
+  position: absolute;
+  left: 0;
+  z-index: 100;
+  width: 220px;
+  background: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border: var(--border-default);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 2px 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.fontDropSearch {
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-bottom: var(--border-light);
+}
+
+.fontDropSearchInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  background: transparent;
+  color: var(--text-primary);
+  padding: 2px 0;
+}
+
+.fontDropList {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: var(--spacing-3xs) 0;
+}
+
+.fontDropGroup {
+  padding: var(--spacing-3xs) var(--spacing-xs) 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.fontDropItem {
+  padding: 2px var(--spacing-xs);
+  cursor: default;
+  border-radius: var(--radius-sm);
+  margin: 1px var(--spacing-3xs);
+}
+
+.fontDropItem:hover {
+  background: #1E90FF;
+  color: #fff;
+}
+
+.fontDropItemActive {
+  background: #1E90FF;
+  color: #fff;
+}
+
+.fontDropFooter {
+  border-top: var(--border-light);
+  padding: var(--spacing-3xs) var(--spacing-xs);
+}
+
+.fontDropFooterLink {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.fontDropFooterLink:hover {
+  color: var(--text-primary);
+}
+
+.fontDropHint {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
 /* Width overrides for narrower selects */
 .fontSizeSelect {
   width: 62px;
