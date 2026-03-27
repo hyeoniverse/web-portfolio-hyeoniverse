@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect, useLayoutEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import T from "@/components/ui/T";
@@ -42,14 +42,11 @@ export default function CategoryNav({
         setRowHeight(buttons[0].offsetHeight);
         const firstTop = buttons[0].offsetTop;
         let hidden = 0;
-        let maxBottom = 0;
         buttons.forEach((btn) => {
           if (btn.offsetTop > firstTop) hidden++;
-          maxBottom = Math.max(maxBottom, btn.offsetTop + btn.offsetHeight);
         });
         setOverflowCount(hidden);
-        // Measure full height by summing all rows (maxBottom = full content height)
-        setFullHeight(maxBottom);
+        setFullHeight(el.scrollHeight);
       }
     };
     const debouncedMeasure = () => {
@@ -79,11 +76,50 @@ export default function CategoryNav({
   const isActive = (cat: BilingualCategory) =>
     activeCategory === cat.ko || activeCategory === cat.en;
 
-  const navStyle: React.CSSProperties = expanded
-    ? { maxHeight: fullHeight }
-    : { maxHeight: rowHeight };
+  const [settled, setSettled] = useState(!expanded);
+  const prevExpandedRef = useRef(expanded);
 
-  const navCls = `${styles.nav} ${expanded ? styles.navExpanded : ""}`;
+  // useLayoutEffect: React가 DOM을 커밋한 직후, 브라우저 paint 전에 실행
+  useLayoutEffect(() => {
+    const el = navRef.current;
+    if (!el) { prevExpandedRef.current = expanded; return; }
+
+    if (prevExpandedRef.current && !expanded) {
+      // 닫기: transition 끄고 현재 높이 고정 → transition 켜고 rowHeight로
+      setSettled(false);
+      const currentH = el.getBoundingClientRect().height;
+      el.style.transition = "none";
+      el.style.maxHeight = `${currentH}px`;
+      el.getBoundingClientRect(); // force reflow
+      el.style.transition = "";
+      el.style.maxHeight = `${rowHeight}px`;
+    }
+    if (!prevExpandedRef.current && expanded) {
+      // 열기: transition 끄고 현재 높이 고정 → transition 켜고 fullHeight로
+      setSettled(false);
+      const currentH = el.getBoundingClientRect().height;
+      el.style.transition = "none";
+      el.style.maxHeight = `${currentH}px`;
+      el.getBoundingClientRect(); // force reflow
+      el.style.transition = "";
+      el.style.maxHeight = `${fullHeight}px`;
+    }
+    prevExpandedRef.current = expanded;
+  }, [expanded, rowHeight, fullHeight]);
+
+  // 초기 렌더 시 maxHeight 설정
+  useEffect(() => {
+    const el = navRef.current;
+    if (el && !expanded) {
+      el.style.maxHeight = `${rowHeight}px`;
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleTransitionEnd = () => {
+    setSettled(true);
+  };
+
+  const navCls = `${styles.nav} ${expanded && settled ? styles.navExpanded : ""}`;
 
   // indicator target: hover takes priority, fallback to active
   const activeId = activeCategory ?? "__all__";
@@ -93,6 +129,7 @@ export default function CategoryNav({
     <motion.span
       className={styles.indicator}
       layoutId="catIndicator"
+      layout="position"
       transition={{ type: "spring", stiffness: 500, damping: 32 }}
     />
   );
@@ -102,7 +139,7 @@ export default function CategoryNav({
       <div
         className={navCls}
         ref={navRef}
-        style={navStyle}
+        onTransitionEnd={handleTransitionEnd}
         onMouseLeave={() => setHoveredId(null)}
       >
         <button

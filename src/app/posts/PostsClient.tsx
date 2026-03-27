@@ -302,8 +302,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             <motion.div
               className={styles.filterBarRight}
               initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: "auto" }}
-              exit={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto", overflow: "visible" }}
+              exit={{ opacity: 0, width: 0, overflow: "hidden" }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
               style={{ overflow: "hidden" }}
             >
@@ -598,7 +598,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         </div>
 
         {/* ── Sidebar ── */}
-        <aside className={styles.sidebar}>
+        <aside className={`${styles.sidebar} ${barHidden ? styles.sidebarUp : ""}`} data-lenis-prevent>
           <PopularPosts />
           <RecentComments />
         </aside>
