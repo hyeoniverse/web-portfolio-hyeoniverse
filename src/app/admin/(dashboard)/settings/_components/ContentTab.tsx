@@ -218,10 +218,11 @@ export default function ContentTab({
             <h2 className={styles.sectionTitle}><T k="admin.settings.servicesLabel" /></h2>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
-                <Field label="Label (EN)" value={config.services.label} onChange={(v) => update("services", "label", v)} />
-                <Field label="Label (KO)" value={config.services.label_ko} onChange={(v) => update("services", "label_ko", v)} />
+                <Field label="Section Title (EN)" value={config.services.label} onChange={(v) => update("services", "label", v)} />
+                <Field label="Section Title (KO)" value={config.services.label_ko} onChange={(v) => update("services", "label_ko", v)} />
               </div>
             </div>
+            <hr className={styles.sectionDivider} />
             <ServiceItemsEditor
               items={config.services.items}
               onChange={(items) => update("services", "items", items as SiteConfigData["services"]["items"])}

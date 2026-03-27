@@ -11,6 +11,7 @@ export async function GET(request: Request) {
   const { data: comments, error } = await admin
     .from("comments")
     .select("id, post_id, nickname, content, is_admin, created_at")
+    .eq("is_deleted", false)
     .order("created_at", { ascending: false })
     .limit(limit);
 

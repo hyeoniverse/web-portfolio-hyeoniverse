@@ -17,11 +17,12 @@ interface FieldProps {
   multiline?: boolean;
   placeholder?: string;
   hint?: string;
+  labelInline?: boolean;
 }
 
-export default function Field({ label, value, onChange, multiline, placeholder, hint }: FieldProps) {
+export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline }: FieldProps) {
   return (
-    <div className={styles.fieldRow}>
+    <div className={`${styles.fieldRow} ${labelInline ? styles.fieldRowInline : ""}`}>
       <label className={styles.fieldLabel}>
         {label}
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
