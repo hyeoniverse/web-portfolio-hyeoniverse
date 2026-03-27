@@ -281,25 +281,35 @@ export default function PeriodPicker({
             </button>
           ))}
         </div>
-        <Checkbox
-          checked={hasRange}
-          onChange={toggleRange}
-          shape="square"
-          label={t("admin.settings.profile.showAsRange")}
-        />
-        {hasRange && (
+        <div className={styles.formatChecks}>
           <Checkbox
-            checked={!!safeValue.ongoing}
-            onChange={toggleOngoing}
+            checked={hasRange}
+            onChange={toggleRange}
             shape="square"
-            label={t("admin.settings.profile.ongoing")}
+            label={t("admin.settings.profile.showAsRange")}
           />
-        )}
+          {hasRange && (
+            <Checkbox
+              checked={!!safeValue.ongoing}
+              onChange={toggleOngoing}
+              shape="square"
+              label={t("admin.settings.profile.ongoing")}
+            />
+          )}
+        </div>
       </div>
+
+      {/* Preview */}
+      {safeValue.start && (
+        <div className={styles.preview}>
+          <span className={styles.previewLabel}>{t("admin.settings.profile.preview")}</span>
+          <span className={styles.previewText}>{preview}</span>
+        </div>
+      )}
 
       {/* Start date */}
       <DateInputRow
-        label={hasRange ? (t("admin.settings.profile.startDate")) : ""}
+        label={t("admin.settings.profile.startDate")}
         dateStr={safeValue.start}
         format={safeValue.format}
         onChange={(v) => onChange({ ...safeValue, start: v })}
@@ -314,14 +324,6 @@ export default function PeriodPicker({
           onChange={(v) => onChange({ ...safeValue, end: v })}
           disabled={safeValue.ongoing}
         />
-      )}
-
-      {/* Preview */}
-      {safeValue.start && (
-        <div className={styles.preview}>
-          <span className={styles.previewLabel}>{t("admin.settings.profile.preview")}</span>
-          <span className={styles.previewText}>{preview}</span>
-        </div>
       )}
     </div>
   );

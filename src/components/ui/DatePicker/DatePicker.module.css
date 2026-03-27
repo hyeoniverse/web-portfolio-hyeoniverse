@@ -1,14 +1,14 @@
 .wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--spacing-sm);
+  row-gap: var(--spacing-sm);
+  align-items: center;
 }
 
 /* ── Format segment ── */
 .formatRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  display: contents;
 }
 
 .formatLabel {
@@ -21,7 +21,9 @@
 
 .formatSegment {
   display: flex;
-  border: 1px solid var(--border-light-color);
+  grid-column: 2;
+  width: fit-content;
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   overflow: hidden;
 }
@@ -37,7 +39,7 @@
 }
 
 .formatBtn + .formatBtn {
-  border-left: 1px solid var(--border-light-color);
+  border-left: var(--border-light);
 }
 
 .formatBtnActive {
@@ -47,9 +49,7 @@
 
 /* ── Date input row ── */
 .dateRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  display: contents;
 }
 
 .dateLabel {
@@ -64,12 +64,13 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
+  grid-column: 2;
 }
 
 .yearInput {
   width: 60px;
   padding: var(--box-xs);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -104,7 +105,7 @@
   gap: var(--spacing-2xs);
   min-width: 48px;
   padding: var(--box-xs);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -136,7 +137,7 @@
   min-width: 48px;
   max-height: 180px;
   overflow-y: auto;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-primary);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -180,17 +181,12 @@
 
 /* ── Preview ── */
 .preview {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--box-sm);
-  border-radius: var(--radius-capsule);
-  border: 1px solid var(--border-light-color);
+  display: contents;
 }
 
 .previewLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   font-weight: 500;
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -214,7 +210,7 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-tertiary);
@@ -237,7 +233,7 @@
   transform: translateX(-50%);
   z-index: 100;
   min-width: 220px;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-primary);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -283,7 +279,7 @@
 }
 
 .spinnerItem:hover {
-  outline: 1px solid var(--text-tertiary);
+  outline: var(--border-tertiary);
   outline-offset: -1px;
 }
 
@@ -319,7 +315,7 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-size: var(--font-size-md);
@@ -428,17 +424,16 @@
   box-shadow: none;
 }
 
+.formatChecks {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  grid-column: 2;
+  padding-left: var(--spacing-2xs);
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .formatRow {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .dateRow {
-    flex-wrap: wrap;
-  }
-
   .popover {
     left: 0;
     transform: none;
