@@ -19,7 +19,7 @@
   gap: var(--spacing-xs);
   width: 100%;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -61,7 +61,7 @@
   max-height: 280px;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-xl);
   background: transparent;
   -webkit-backdrop-filter: blur(20px) saturate(1.4);

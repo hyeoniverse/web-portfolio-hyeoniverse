@@ -156,7 +156,7 @@
 
 .dcToggleBtn {
   padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
-  border: 1px solid var(--color-white-alpha-10);
+  border: var(--border-white-alpha-10);
   background: transparent;
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.15vw, 1.3rem);
@@ -204,7 +204,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--color-white-alpha-5);
+  border: var(--border-white-alpha-5);
   width: clamp(56px, min(10vh, 5.5vw), 100px);
   height: clamp(56px, min(10vh, 5.5vw), 100px);
   font-size: clamp(0.8rem, 1.05vw, 1.3rem);
@@ -368,7 +368,7 @@
   gap: clamp(10px, 0.9vw, 18px);
   align-items: center;
   padding: clamp(10px, min(1.1vh, 0.6vw), 18px) clamp(16px, 1.3vw, 26px);
-  border: 1px solid var(--color-white-alpha-5);
+  border: var(--border-white-alpha-5);
   border-radius: var(--radius-sm);
 }
 
@@ -663,7 +663,7 @@
 /* ── External link button ── */
 .externalLink {
   padding: var(--box-md);
-  border: 1px solid var(--color-white-alpha-15);
+  border: var(--border-white-alpha-15);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);

@@ -50,7 +50,7 @@
 
 .actionBtn {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -75,7 +75,7 @@
 .list {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .item {
@@ -83,7 +83,7 @@
   align-items: flex-start;
   gap: var(--spacing-sm);
   padding: var(--box-md-sm);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   position: relative;
 }
 

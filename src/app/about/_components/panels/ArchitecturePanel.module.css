@@ -362,7 +362,7 @@
     padding: var(--spacing-xs) 0;
     padding-left: var(--spacing-md);
     border-bottom: none;
-    border-left: 1px solid var(--border-default-color);
+    border-left: var(--border-default);
     position: relative;
   }
 

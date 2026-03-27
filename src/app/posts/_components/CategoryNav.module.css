@@ -62,7 +62,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   padding: var(--box-sm);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);

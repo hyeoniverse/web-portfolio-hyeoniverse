@@ -12,7 +12,7 @@
 
 .input {
   padding: var(--box-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -31,7 +31,7 @@
 
 .textarea {
   padding: var(--box-sm-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-lg);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -58,7 +58,7 @@
 
 .submitBtn {
   padding: var(--box-xs-xl);
-  border: 1px solid var(--text-primary);
+  border: var(--border-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -79,7 +79,7 @@
 
 .cancelBtn {
   padding: var(--box-md);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);

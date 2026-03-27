@@ -112,8 +112,8 @@
   margin-left: calc(-1 * var(--_intro-pad));
   margin-right: calc(-1 * var(--_intro-pad));
   padding: var(--spacing-md) var(--_intro-pad);
-  border-top: 1px solid var(--border-strong-color);
-  border-bottom: 1px solid var(--border-strong-color);
+  border-top: var(--border-strong);
+  border-bottom: var(--border-strong);
 }
 
 .introStat {
@@ -152,7 +152,7 @@
   margin-left: calc(-1 * var(--_intro-pad));
   margin-right: calc(-1 * var(--_intro-pad));
   padding: 0 var(--_intro-pad) var(--spacing-sm);
-  border-bottom: 1px solid var(--border-strong-color);
+  border-bottom: var(--border-strong);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent-alt);
@@ -1305,7 +1305,7 @@
     width: 100%;
     height: auto;
     padding: var(--spacing-3xl) 24px var(--spacing-2xl);
-    border-top: 1px solid var(--border-strong-color);
+    border-top: var(--border-strong);
   }
 
   .creditsPanel::after {

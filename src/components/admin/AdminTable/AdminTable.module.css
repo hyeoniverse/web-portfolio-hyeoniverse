@@ -13,7 +13,7 @@
   grid-template-columns: var(--_grid);
   gap: var(--spacing-md);
   padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -30,7 +30,7 @@
   gap: var(--spacing-md);
   padding: var(--spacing-md) 0;
   align-items: center;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   min-width: 0;
   position: relative;
 }
@@ -153,7 +153,7 @@
 
 .actionBtn {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--text-primary);
+  border: var(--border-primary);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -173,7 +173,7 @@
 
 .deleteBtn {
   padding: var(--box-2xs-md);
-  border: 1px solid var(--color-accent);
+  border: var(--border-accent-solid);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -281,7 +281,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: 50%;
   background: transparent;
   font-family: var(--font-space-grotesk);

@@ -73,7 +73,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   margin-bottom: var(--spacing-2xl);
   transform: translateY(0);
   opacity: 1;
@@ -138,7 +138,7 @@
   width: 100%;
   padding: var(--spacing-xs) var(--spacing-md) var(--spacing-xs)
     calc(var(--spacing-sm) + 22px);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -159,7 +159,7 @@
 .sortGroup {
   display: flex;
   border-radius: var(--radius-capsule);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
 }
 
 .sortBtn {
@@ -195,7 +195,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   padding: var(--box-md);
-  border: 1px solid var(--text-primary);
+  border: var(--border-primary);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -224,7 +224,7 @@
   left: 0;
   right: 0;
   padding: var(--spacing-sm) 0 var(--spacing-md);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   z-index: 1;
 }
 
@@ -250,7 +250,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   padding: var(--box-2xs-md);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -312,7 +312,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--box-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -373,7 +373,7 @@
 
 .seriesCategoryTag {
   padding: 1px var(--spacing-xs);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-size: var(--font-size-3xs);
@@ -427,7 +427,7 @@
 
 .postsCount {
   padding: 1px var(--spacing-xs);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-size: var(--font-size-3xs);
@@ -452,7 +452,7 @@
 
 .emptyResetBtn {
   padding: var(--box-xs-lg);
-  border: 1px solid var(--text-primary);
+  border: var(--border-primary);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -501,7 +501,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: 50%;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -547,7 +547,7 @@
 
 /* ── Skeleton: Card ── */
 .skeletonCard {
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   overflow: hidden;
   padding-bottom: var(--spacing-lg);
 }

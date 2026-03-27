@@ -1,7 +1,7 @@
 .outer {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -21,7 +21,7 @@
 .panelTabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
 }
 
 .panelTab {
@@ -33,7 +33,7 @@
   letter-spacing: 0.05em;
   padding: var(--spacing-xs) var(--spacing-md);
   background: var(--bg-secondary);
-  border-right: 1px solid var(--border-light-color);
+  border-right: var(--border-light);
 }
 
 .panelTab:last-child {
@@ -45,7 +45,7 @@
   flex-direction: column;
   min-height: 0;
   min-width: 0;
-  border-right: 1px solid var(--border-light-color);
+  border-right: var(--border-light);
 }
 
 .label {
@@ -236,7 +236,7 @@
   gap: 2px;
   padding: 4px 6px;
   border: none;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   border-radius: 0;
   background: var(--bg-secondary);
 }
@@ -278,7 +278,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: 50%;
   background: transparent;
   color: var(--text-muted);
@@ -303,7 +303,7 @@
 /* ── Help panel ── */
 .helpPanel {
   border: none;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   border-radius: 0;
   background: transparent;
   padding: 0 var(--spacing-md);

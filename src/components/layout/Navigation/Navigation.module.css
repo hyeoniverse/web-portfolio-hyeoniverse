@@ -36,7 +36,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-white);
-  border: 1px solid var(--text-white);
+  border: var(--border-white);
   border-radius: var(--radius-capsule);
   padding: 2px 8px;
   opacity: 0.6;

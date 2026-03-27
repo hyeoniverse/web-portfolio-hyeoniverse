@@ -1,6 +1,6 @@
 .toggle {
   display: flex;
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   overflow: hidden;
 }
