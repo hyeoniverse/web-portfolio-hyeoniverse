@@ -13,8 +13,9 @@
 }
 
 .input {
+  width: 100%;
   padding: var(--box-sm-xl);
-  border: 1px solid var(--border-strong-color);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
@@ -34,4 +35,61 @@
 
 .input:disabled {
   opacity: 0.5;
+}
+
+/* ── Size: sm ── */
+.wrapperSm {
+  gap: var(--spacing-2xs);
+}
+
+.wrapperSm .label {
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.sm {
+  padding: var(--box-xs-sm);
+  border-color: var(--border-light-color);
+  font-size: var(--font-size-sm);
+}
+
+.sm:focus {
+  border-color: var(--text-primary);
+}
+
+/* ── Underline variant ── */
+.underline {
+  border: none;
+  border-bottom: var(--border-strong);
+  border-radius: 0;
+  padding: var(--box-xs-sm);
+  padding-left: 0;
+}
+
+.underline:focus {
+  border-color: var(--text-primary);
+}
+
+/* ── Inline label (inside input) ── */
+.inlineWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inlineLabel {
+  position: absolute;
+  left: var(--spacing-sm);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  user-select: none;
+}
+
+.hasInlineLabel {
+  padding-left: calc(var(--spacing-sm) + 24px);
 }
