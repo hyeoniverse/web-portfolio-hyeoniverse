@@ -39,11 +39,17 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [sliderValue, setSliderValue] = useState([40]);
   const [rangeValue, setRangeValue] = useState([20, 80]);
   const [switchOn, setSwitchOn] = useState(false);
+  const [switchAccent, setSwitchAccent] = useState(true);
   const [inputValue, setInputValue] = useState("");
+  const [inputUnderline, setInputUnderline] = useState("");
+  const [inputSm, setInputSm] = useState("");
+  const [inputInline, setInputInline] = useState("");
   const [checkSquare, setCheckSquare] = useState(false);
   const [checkCircle, setCheckCircle] = useState(true);
   const [checkIndet, setCheckIndet] = useState(false);
   const [selectValue, setSelectValue] = useState("option1");
+  const [selectCompact, setSelectCompact] = useState("option1");
+  const [selectChildren, setSelectChildren] = useState("b");
   const [selectEmpty, setSelectEmpty] = useState("");
   const [dpFormat, setDpFormat] = useState<"year" | "yearMonth" | "date">("date");
   const [dpDate, setDpDate] = useState({ year: "2024", month: "03", day: "15" });
@@ -134,15 +140,46 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
       </motion.div>
 
-      {/* Input */}
+      {/* Input — Variants */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Input</div>
+        <div className={styles.componentGroupTitle}>Input — Variants</div>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
-            <Input label="Label" value={inputValue} onChange={setInputValue} placeholder="Type something..." />
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+            <Tooltip content="variant: capsule (default)">
+              <Input label="Label" value={inputValue} onChange={setInputValue} placeholder="Type something..." />
+            </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
-            <Input value="Read-only value" onChange={() => {}} disabled />
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+            <Tooltip content="variant: underline">
+              <Input label="Underline" value={inputUnderline} onChange={setInputUnderline} variant="underline" placeholder="Underline style..." />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+            <Tooltip content="inlineLabel">
+              <Input inlineLabel="EN" value={inputInline} onChange={setInputInline} placeholder="Inline label..." />
+            </Tooltip>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Input — Sizes & States */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Input — Sizes & States</div>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+            <Tooltip content="size: md (default)">
+              <Input label="Medium" value="" onChange={() => {}} placeholder="Default size" />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+            <Tooltip content="size: sm">
+              <Input label="Small" value={inputSm} onChange={setInputSm} size="sm" placeholder="Small input..." />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+            <Tooltip content="disabled">
+              <Input value="Read-only value" onChange={() => {}} disabled />
+            </Tooltip>
           </motion.div>
         </div>
       </motion.div>
@@ -162,16 +199,22 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Switch</div>
         <div className={styles.componentRow}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}>
-            <Tooltip content="interactive"><Switch checked={switchOn} onCheckedChange={setSwitchOn} /></Tooltip>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Default</span>
           </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-muted)", display: "inline-block", minWidth: "24px", textAlign: "center" }}>
-              {switchOn ? "ON" : "OFF"}
-            </span>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <Switch checked={switchAccent} onCheckedChange={setSwitchAccent} variant="accent" />
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Accent</span>
           </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><Tooltip content="disabled off"><Switch disabled /></Tooltip></motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}><Tooltip content="disabled on"><Switch disabled defaultChecked /></Tooltip></motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(2, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <Switch disabled />
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Disabled</span>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(3, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <Switch disabled defaultChecked />
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Disabled On</span>
+          </motion.div>
         </div>
       </motion.div>
 
@@ -250,12 +293,12 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
       </motion.div>
 
-      {/* Select / Dropdown */}
+      {/* Select — Variants */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Select / Dropdown</div>
+        <div className={styles.componentGroupTitle}>Select — Variants</div>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
-            <Tooltip content="Custom dropdown select">
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+            <Tooltip content="variant: default">
               <Select
                 value={selectValue}
                 options={[
@@ -268,16 +311,85 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
-            <Tooltip content="Empty / placeholder state">
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+            <Tooltip content="variant: compact">
+              <Select
+                value={selectCompact}
+                options={[
+                  { value: "option1", label: "Option One" },
+                  { value: "option2", label: "Option Two" },
+                  { value: "option3", label: "Option Three" },
+                ]}
+                onChange={setSelectCompact}
+                variant="compact"
+              />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+            <Tooltip content="children (custom content)">
+              <Select
+                value={selectChildren}
+                onChange={setSelectChildren}
+                variant="compact"
+                renderValue={() => selectChildren === "a" ? "Option A" : selectChildren === "b" ? "Option B" : "Option C"}
+              >
+                {({ close }) => (
+                  <>
+                    <div style={{ padding: "var(--spacing-3xs) var(--spacing-xs)", fontSize: "var(--font-size-xs)", fontWeight: 600, color: "var(--text-muted)" }}>Group</div>
+                    {[{ value: "a", label: "Option A" }, { value: "b", label: "Option B" }, { value: "c", label: "Option C" }].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        data-active={selectChildren === opt.value ? "" : undefined}
+                        style={{
+                          display: "flex", alignItems: "center", gap: "var(--spacing-2xs)",
+                          padding: "var(--spacing-2xs) var(--spacing-sm)",
+                          border: "none", borderRadius: "var(--radius-capsule)",
+                          background: selectChildren === opt.value ? "#1E90FF" : "transparent",
+                          color: selectChildren === opt.value ? "#fff" : "var(--text-primary)",
+                          fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-sm)",
+                          width: "100%", textAlign: "left", cursor: "default",
+                        }}
+                        onMouseEnter={(e) => { if (selectChildren !== opt.value) { e.currentTarget.style.background = "#1E90FF"; e.currentTarget.style.color = "#fff"; } }}
+                        onMouseLeave={(e) => { if (selectChildren !== opt.value) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-primary)"; } }}
+                        onClick={() => { setSelectChildren(opt.value); close(); }}
+                      >
+                        <span style={{ width: "1em", textAlign: "center", fontSize: "1.6em", lineHeight: 0 }}>{selectChildren === opt.value ? "✓" : "\u2002"}</span>
+                        {opt.label}
+                      </button>
+                    ))}
+                  </>
+                )}
+              </Select>
+            </Tooltip>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Select — States */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Select — States</div>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
+            <Tooltip content="placeholder state">
               <Select
                 value={selectEmpty}
                 options={[
-                  { value: "a", label: "Alpha" },
-                  { value: "b", label: "Bravo" },
+                  { value: "a", label: "Option A" },
+                  { value: "b", label: "Option B" },
                 ]}
                 onChange={setSelectEmpty}
                 placeholder="No selection"
+              />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
+            <Tooltip content="disabled">
+              <Select
+                value="option1"
+                options={[{ value: "option1", label: "Disabled" }]}
+                onChange={() => {}}
+                disabled
               />
             </Tooltip>
           </motion.div>
@@ -290,7 +402,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
             <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>Format</span>
-            <div style={{ display: "flex", border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-capsule)", overflow: "hidden" }}>
+            <div style={{ display: "flex", border: "var(--border-tertiary)", borderRadius: "var(--radius-capsule)", overflow: "hidden" }}>
               {(["year", "yearMonth", "date"] as const).map((f, i, arr) => (
                 <button
                   key={f}
@@ -299,7 +411,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                   style={{
                     padding: "var(--spacing-2xs) var(--spacing-sm)",
                     border: "none",
-                    borderRight: i < arr.length - 1 ? "1px solid var(--border-tertiary-color)" : "none",
+                    borderRight: i < arr.length - 1 ? "var(--border-tertiary)" : "none",
                     borderRadius: 0,
                     background: dpFormat === f ? "var(--text-primary)" : "transparent",
                     color: dpFormat === f ? "var(--bg-primary)" : "var(--text-secondary)",
@@ -318,8 +430,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           </div>
           <div style={{ display: "flex", gap: "var(--spacing-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ minWidth: 230 }}>
-              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
-              <div style={{ border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-tertiary)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
+              <div style={{ border: "var(--border-tertiary)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
                 <DatePicker
                   year={dpDate.year}
                   month={dpDate.month}
@@ -332,8 +444,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               </div>
             </div>
             <div style={{ minWidth: 230 }}>
-              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
-              <div style={{ border: "1px solid var(--border-tertiary-color)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-tertiary)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
+              <div style={{ border: "var(--border-tertiary)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
                 <DatePicker
                   year={dpDate.year}
                   month={dpDate.month}
@@ -355,8 +467,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div
           style={{
             display: "inline-flex",
-            borderTop: "1px solid var(--border-tertiary-color)",
-            borderBottom: "1px solid var(--border-tertiary-color)",
+            borderTop: "var(--border-tertiary)",
+            borderBottom: "var(--border-tertiary)",
             lineHeight: 0,
           }}
         >
