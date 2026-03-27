@@ -14,12 +14,12 @@
 
 .input {
   width: 100%;
-  padding: var(--box-sm-xl);
+  padding: var(--box-xs-sm);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
 }
