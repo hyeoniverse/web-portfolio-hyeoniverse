@@ -18,6 +18,51 @@ import T from "@/components/ui/T";
 import Select from "@/components/ui/Select";
 import styles from "./Posts.module.css";
 
+function SidebarWrap({ barHidden, children }: { barHidden: boolean; children: React.ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  const [canUp, setCanUp] = useState(false);
+  const [canDown, setCanDown] = useState(false);
+
+  const check = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    setCanUp(el.scrollTop > 4);
+    setCanDown(el.scrollTop + el.clientHeight < el.scrollHeight - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => { el.removeEventListener("scroll", check); ro.disconnect(); };
+  }, [check]);
+
+  return (
+    <div className={`${styles.sidebarWrap} ${barHidden ? styles.sidebarUp : ""}`}>
+      {canUp && (
+        <div className={styles.sidebarFadeTop}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 15l-6-6-6 6" />
+          </svg>
+        </div>
+      )}
+      <aside ref={ref} className={styles.sidebar} data-lenis-prevent>
+        {children}
+      </aside>
+      {canDown && (
+        <div className={styles.sidebarFadeBottom}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const PAGE_SIZE_OPTIONS = [
   { value: "10", label: "10" },
   { value: "20", label: "20" },
@@ -598,10 +643,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         </div>
 
         {/* ── Sidebar ── */}
-        <aside className={`${styles.sidebar} ${barHidden ? styles.sidebarUp : ""}`} data-lenis-prevent>
+        <SidebarWrap barHidden={barHidden}>
           <PopularPosts />
           <RecentComments />
-        </aside>
+        </SidebarWrap>
       </div>
     </div>
   );
