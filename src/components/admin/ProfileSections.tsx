@@ -13,6 +13,7 @@ import {
 import type { DatePeriod } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
 import T from "@/components/ui/T";
+import Input from "@/components/ui/Input";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
@@ -308,13 +309,16 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
         <h2 className={styles.sectionTitle}><T k="admin.settings.profile.experience" /></h2>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleExpDragEnd}>
           <SortableContext items={expIds} strategy={verticalListSortingStrategy}>
-            <div className={styles.skillEditor}>
+            <div className={styles.sortableList}>
               {data.experiences.map((exp, i) => {
                 const expanded = expandedExp[i] !== false;
                 return (
                   <SortableRow key={expIds[i]} id={expIds[i]} styles={styles}>
-                    <div className={styles.skillFields}>
+                    {(listeners) => (<>
                       <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
+                          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" /><circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" /><circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" /></svg>
+                        </button>
                         <button type="button" className={styles.skillExpandBtn} onClick={() => toggleExp(i)} aria-label={expanded ? "Collapse" : "Expand"}>
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
                             <polyline points="9 18 15 12 9 6" />
@@ -326,44 +330,39 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           onChange={(e) => updateExperience(i, "company", e.target.value)}
                           placeholder="Company"
                         />
-                        <span className={styles.skillCount}>{briefPeriod(exp.period)}</span>
+                        <span className={styles.periodBadge}>{briefPeriod(exp.period)}</span>
+                        <button type="button" className={styles.skillRemoveBtn} onClick={() => removeExperience(i)} aria-label="Remove">
+                          <span className={styles.skillRemoveLine} />
+                          <span className={styles.skillRemoveLine} />
+                        </button>
                       </div>
                       <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
                         <div>
-                          <div className={styles.profileGrid}>
-                            <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (KO)</label>
-                              <input className={styles.profileFieldInput} value={exp.role.ko} onChange={(e) => updateExperience(i, "role.ko", e.target.value)} />
-                            </div>
-                            <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.role" /> (EN)</label>
-                              <input className={styles.profileFieldInput} value={exp.role.en} onChange={(e) => updateExperience(i, "role.en", e.target.value)} />
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.role" /></label>
+                            <div className={styles.profileGrid}>
+                              <Input size="sm" inlineLabel="KO" value={exp.role.ko} onChange={(v) => updateExperience(i, "role.ko", v)} />
+                              <Input size="sm" inlineLabel="EN" value={exp.role.en} onChange={(v) => updateExperience(i, "role.en", v)} />
                             </div>
                           </div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
                             <PeriodPicker value={exp.period} onChange={(v: DatePeriod) => updateExperience(i, "period", v)} />
                           </div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-                            <textarea className={styles.profileFieldTextarea} value={exp.description.ko} onChange={(e) => updateExperience(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-                          </div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-                            <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
+                            <div>
+                              <label className={styles.profileFieldLabel}>KO</label>
+                              <textarea className={styles.profileFieldTextarea} value={exp.description.ko} onChange={(e) => updateExperience(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                            </div>
+                            <div>
+                              <label className={styles.profileFieldLabel}>EN</label>
+                              <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.skillRemoveBtn}
-                      onClick={() => removeExperience(i)}
-                      aria-label="Remove"
-                    >
-                      <span className={styles.skillRemoveLine} />
-                      <span className={styles.skillRemoveLine} />
-                    </button>
+                    </>)}
                   </SortableRow>
                 );
               })}
@@ -378,14 +377,17 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
         <h2 className={styles.sectionTitle}><T k="admin.settings.profile.skills" /></h2>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleGroupDragEnd}>
           <SortableContext items={groupIds} strategy={verticalListSortingStrategy}>
-            <div className={styles.skillEditor}>
+            <div className={styles.sortableList}>
               {data.skillGroups.map((group, gi) => {
                 const expanded = expandedGroups[gi] !== false;
                 const skillIds = group.skills.map((_, si) => `skill-${gi}-${si}`);
                 return (
                   <SortableRow key={groupIds[gi]} id={groupIds[gi]} styles={styles}>
-                    <div className={styles.skillFields}>
+                    {(listeners) => (<>
                       <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
+                          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" /><circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" /><circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" /></svg>
+                        </button>
                         <button type="button" className={styles.skillExpandBtn} onClick={() => toggleGroup(gi)} aria-label={expanded ? "Collapse" : "Expand"}>
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
                             <polyline points="9 18 15 12 9 6" />
@@ -397,17 +399,22 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           onChange={(e) => updateSkillGroup(gi, "category", e.target.value)}
                           placeholder="Category"
                         />
-                        <span className={styles.skillCount}>{group.skills.length}</span>
+                        <span className={styles.skillCount}>({group.skills.length})</span>
+                        <button type="button" className={styles.skillRemoveBtn} onClick={() => removeSkillGroup(gi)} aria-label="Remove">
+                          <span className={styles.skillRemoveLine} />
+                          <span className={styles.skillRemoveLine} />
+                        </button>
                       </div>
                       <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
                         <div>
-                          <div className={styles.profileGrid}>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
                             <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                              <label className={styles.profileFieldLabel}>KO</label>
                               <textarea className={styles.profileFieldTextarea} value={group.description.ko} onChange={(e) => updateSkillGroup(gi, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
                             </div>
                             <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                              <label className={styles.profileFieldLabel}>EN</label>
                               <textarea className={styles.profileFieldTextarea} value={group.description.en} onChange={(e) => updateSkillGroup(gi, "description.en", e.target.value)} rows={2} data-lenis-prevent />
                             </div>
                           </div>
@@ -424,16 +431,7 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           />
                         </div>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.skillRemoveBtn}
-                      onClick={() => removeSkillGroup(gi)}
-                      aria-label="Remove"
-                    >
-                      <span className={styles.skillRemoveLine} />
-                      <span className={styles.skillRemoveLine} />
-                    </button>
+                    </>)}
                   </SortableRow>
                 );
               })}
@@ -450,13 +448,16 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
         <h3 className={styles.profileSubTitle}><T k="admin.settings.profile.philosophy" /></h3>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhilDragEnd}>
           <SortableContext items={philIds} strategy={verticalListSortingStrategy}>
-            <div className={styles.skillEditor}>
+            <div className={styles.sortableList}>
               {data.philosophy.map((item, i) => {
                 const expanded = expandedPhil[i] !== false;
                 return (
                   <SortableRow key={philIds[i]} id={philIds[i]} styles={styles}>
-                    <div className={styles.skillFields}>
+                    {(listeners) => (<>
                       <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
+                          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" /><circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" /><circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" /></svg>
+                        </button>
                         <button type="button" className={styles.skillExpandBtn} onClick={() => togglePhil(i)} aria-label={expanded ? "Collapse" : "Expand"}>
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
                             <polyline points="9 18 15 12 9 6" />
@@ -468,31 +469,27 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           onChange={(e) => updatePhilosophy(i, "title", e.target.value)}
                           placeholder="Title"
                         />
+                        <button type="button" className={styles.skillRemoveBtn} onClick={() => removePhilosophy(i)} aria-label="Remove">
+                          <span className={styles.skillRemoveLine} />
+                          <span className={styles.skillRemoveLine} />
+                        </button>
                       </div>
                       <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
                         <div>
-                          <div className={styles.profileGrid}>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
                             <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                              <label className={styles.profileFieldLabel}>KO</label>
                               <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
                             </div>
                             <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                              <label className={styles.profileFieldLabel}>EN</label>
                               <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.skillRemoveBtn}
-                      onClick={() => removePhilosophy(i)}
-                      aria-label="Remove"
-                    >
-                      <span className={styles.skillRemoveLine} />
-                      <span className={styles.skillRemoveLine} />
-                    </button>
+                    </>)}
                   </SortableRow>
                 );
               })}
@@ -504,13 +501,16 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
         <h3 className={styles.profileSubTitle} style={{ marginTop: "var(--spacing-xl)" }}><T k="admin.settings.profile.approach" /></h3>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleApproachDragEnd}>
           <SortableContext items={approachIds} strategy={verticalListSortingStrategy}>
-            <div className={styles.skillEditor}>
+            <div className={styles.sortableList}>
               {data.approachSteps.map((step, i) => {
                 const expanded = expandedApproach[i] !== false;
                 return (
                   <SortableRow key={approachIds[i]} id={approachIds[i]} styles={styles}>
-                    <div className={styles.skillFields}>
+                    {(listeners) => (<>
                       <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
+                          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" /><circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" /><circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" /></svg>
+                        </button>
                         <button type="button" className={styles.skillExpandBtn} onClick={() => toggleApproach(i)} aria-label={expanded ? "Collapse" : "Expand"}>
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
                             <polyline points="9 18 15 12 9 6" />
@@ -523,31 +523,27 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           onChange={(e) => updateApproach(i, "title", e.target.value)}
                           placeholder="Step title"
                         />
+                        <button type="button" className={styles.skillRemoveBtn} onClick={() => removeApproach(i)} aria-label="Remove">
+                          <span className={styles.skillRemoveLine} />
+                          <span className={styles.skillRemoveLine} />
+                        </button>
                       </div>
                       <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
                         <div>
-                          <div className={styles.profileGrid}>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
                             <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+                              <label className={styles.profileFieldLabel}>KO</label>
                               <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
                             </div>
                             <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+                              <label className={styles.profileFieldLabel}>EN</label>
                               <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.skillRemoveBtn}
-                      onClick={() => removeApproach(i)}
-                      aria-label="Remove"
-                    >
-                      <span className={styles.skillRemoveLine} />
-                      <span className={styles.skillRemoveLine} />
-                    </button>
+                    </>)}
                   </SortableRow>
                 );
               })}
@@ -564,13 +560,16 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
         <h3 className={styles.profileSubTitle}><T k="admin.settings.profile.certifications" /></h3>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleCertDragEnd}>
           <SortableContext items={certIds} strategy={verticalListSortingStrategy}>
-            <div className={styles.skillEditor}>
+            <div className={styles.sortableList}>
               {data.certifications.map((cert, i) => {
                 const expanded = expandedCert[i] !== false;
                 return (
                   <SortableRow key={certIds[i]} id={certIds[i]} styles={styles}>
-                    <div className={styles.skillFields}>
+                    {(listeners) => (<>
                       <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
+                          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" /><circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" /><circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" /></svg>
+                        </button>
                         <button type="button" className={styles.skillExpandBtn} onClick={() => toggleCert(i)} aria-label={expanded ? "Collapse" : "Expand"}>
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
                             <polyline points="9 18 15 12 9 6" />
@@ -582,40 +581,32 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           onChange={(e) => updateCertification(i, "name.ko", e.target.value)}
                           placeholder="Name (KO)"
                         />
-                        <span className={styles.skillCount}>{briefPeriod(cert.period)}</span>
+                        <span className={styles.periodBadge}>{briefPeriod(cert.period)}</span>
+                        <button type="button" className={styles.skillRemoveBtn} onClick={() => removeCertification(i)} aria-label="Remove">
+                          <span className={styles.skillRemoveLine} />
+                          <span className={styles.skillRemoveLine} />
+                        </button>
                       </div>
                       <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
                         <div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.name" /></label>
+                            <Input size="sm" label="EN" value={cert.name.en} onChange={(v) => updateCertification(i, "name.en", v)} />
+                          </div>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
                             <PeriodPicker value={cert.period} onChange={(v: DatePeriod) => updateCertification(i, "period", v)} />
                           </div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (EN)</label>
-                            <input className={styles.profileFieldInput} value={cert.name.en} onChange={(e) => updateCertification(i, "name.en", e.target.value)} />
-                          </div>
-                          <div className={styles.profileGrid}>
-                            <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.issuer" /> (KO)</label>
-                              <input className={styles.profileFieldInput} value={cert.issuer.ko} onChange={(e) => updateCertification(i, "issuer.ko", e.target.value)} />
-                            </div>
-                            <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.issuer" /> (EN)</label>
-                              <input className={styles.profileFieldInput} value={cert.issuer.en} onChange={(e) => updateCertification(i, "issuer.en", e.target.value)} />
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.issuer" /></label>
+                            <div className={styles.profileGrid}>
+                              <Input size="sm" label="KO" value={cert.issuer.ko} onChange={(v) => updateCertification(i, "issuer.ko", v)} />
+                              <Input size="sm" label="EN" value={cert.issuer.en} onChange={(v) => updateCertification(i, "issuer.en", v)} />
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.skillRemoveBtn}
-                      onClick={() => removeCertification(i)}
-                      aria-label="Remove"
-                    >
-                      <span className={styles.skillRemoveLine} />
-                      <span className={styles.skillRemoveLine} />
-                    </button>
+                    </>)}
                   </SortableRow>
                 );
               })}
@@ -627,13 +618,16 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
         <h3 className={styles.profileSubTitle} style={{ marginTop: "var(--spacing-xl)" }}><T k="admin.settings.profile.awards" /></h3>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleAwardDragEnd}>
           <SortableContext items={awardIds} strategy={verticalListSortingStrategy}>
-            <div className={styles.skillEditor}>
+            <div className={styles.sortableList}>
               {data.awards.map((award, i) => {
                 const expanded = expandedAward[i] !== false;
                 return (
                   <SortableRow key={awardIds[i]} id={awardIds[i]} styles={styles}>
-                    <div className={styles.skillFields}>
+                    {(listeners) => (<>
                       <div className={styles.skillGroupHeader}>
+                        <button type="button" className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
+                          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" /><circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" /><circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" /></svg>
+                        </button>
                         <button type="button" className={styles.skillExpandBtn} onClick={() => toggleAward(i)} aria-label={expanded ? "Collapse" : "Expand"}>
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
                             <polyline points="9 18 15 12 9 6" />
@@ -645,40 +639,32 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           onChange={(e) => updateAward(i, "name.ko", e.target.value)}
                           placeholder="Name (KO)"
                         />
-                        <span className={styles.skillCount}>{briefPeriod(award.period)}</span>
+                        <span className={styles.periodBadge}>{briefPeriod(award.period)}</span>
+                        <button type="button" className={styles.skillRemoveBtn} onClick={() => removeAward(i)} aria-label="Remove">
+                          <span className={styles.skillRemoveLine} />
+                          <span className={styles.skillRemoveLine} />
+                        </button>
                       </div>
                       <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
                         <div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.period" /></label>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.name" /></label>
+                            <Input size="sm" label="EN" value={award.name.en} onChange={(v) => updateAward(i, "name.en", v)} />
+                          </div>
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
                             <PeriodPicker value={award.period} onChange={(v: DatePeriod) => updateAward(i, "period", v)} />
                           </div>
-                          <div>
-                            <label className={styles.profileFieldLabel}><T k="admin.settings.profile.name" /> (EN)</label>
-                            <input className={styles.profileFieldInput} value={award.name.en} onChange={(e) => updateAward(i, "name.en", e.target.value)} />
-                          </div>
-                          <div className={styles.profileGrid}>
-                            <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.organization" /> (KO)</label>
-                              <input className={styles.profileFieldInput} value={award.organization.ko} onChange={(e) => updateAward(i, "organization.ko", e.target.value)} />
-                            </div>
-                            <div>
-                              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.organization" /> (EN)</label>
-                              <input className={styles.profileFieldInput} value={award.organization.en} onChange={(e) => updateAward(i, "organization.en", e.target.value)} />
+                          <div className={styles.fieldGroup}>
+                            <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.organization" /></label>
+                            <div className={styles.profileGrid}>
+                              <Input size="sm" label="KO" value={award.organization.ko} onChange={(v) => updateAward(i, "organization.ko", v)} />
+                              <Input size="sm" label="EN" value={award.organization.en} onChange={(v) => updateAward(i, "organization.en", v)} />
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.skillRemoveBtn}
-                      onClick={() => removeAward(i)}
-                      aria-label="Remove"
-                    >
-                      <span className={styles.skillRemoveLine} />
-                      <span className={styles.skillRemoveLine} />
-                    </button>
+                    </>)}
                   </SortableRow>
                 );
               })}
@@ -692,7 +678,7 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
 }
 
 /* ── Sortable Row wrapper (reused by all sections) ── */
-function SortableRow({ id, children, styles }: { id: string; children: ReactNode; styles: Record<string, string> }) {
+function SortableRow({ id, children, styles }: { id: string; children: (listeners: Record<string, unknown>) => ReactNode; styles: Record<string, string> }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -700,20 +686,10 @@ function SortableRow({ id, children, styles }: { id: string; children: ReactNode
     <div
       ref={setNodeRef}
       style={style}
-      className={`${styles.skillRow} ${isDragging ? styles.skillRowDragging : ""}`}
+      className={`${styles.sortableItem} ${isDragging ? styles.sortableItemDragging : ""}`}
       {...attributes}
     >
-      <button type="button" className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="9" cy="6" r="1.5" />
-          <circle cx="15" cy="6" r="1.5" />
-          <circle cx="9" cy="12" r="1.5" />
-          <circle cx="15" cy="12" r="1.5" />
-          <circle cx="9" cy="18" r="1.5" />
-          <circle cx="15" cy="18" r="1.5" />
-        </svg>
-      </button>
-      {children}
+      {children(listeners ?? {})}
     </div>
   );
 }
@@ -727,7 +703,7 @@ function SortableSkillItem({ id, children, styles }: { id: string; children: Rea
     <div
       ref={setNodeRef}
       style={style}
-      className={`${styles.skillNestedRow} ${isDragging ? styles.skillRowDragging : ""}`}
+      className={`${styles.skillNestedRow} ${isDragging ? styles.sortableItemDragging : ""}`}
       {...attributes}
     >
       <button type="button" className={`${styles.skillDragHandle} ${styles.skillDragHandleSm}`} {...listeners} aria-label="Drag to reorder">
@@ -814,7 +790,6 @@ function SkillItemContent({ skill, gi, si, updateSkill, removeSkill, styles }: {
   styles: Record<string, string>;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const hasDesc = !!(skill.description.ko || skill.description.en);
 
   return (
     <>
@@ -831,19 +806,16 @@ function SkillItemContent({ skill, gi, si, updateSkill, removeSkill, styles }: {
             onChange={(e) => updateSkill(gi, si, "name", e.target.value)}
             placeholder="Skill name"
           />
-          {hasDesc && !expanded && <span className={styles.skillCount}>…</span>}
         </div>
         <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
           <div>
-            <div className={styles.profileGrid}>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-                <textarea className={styles.profileFieldTextarea} value={skill.description.ko} onChange={(e) => updateSkill(gi, si, "description.ko", e.target.value)} rows={1} data-lenis-prevent />
-              </div>
-              <div>
-                <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-                <textarea className={styles.profileFieldTextarea} value={skill.description.en} onChange={(e) => updateSkill(gi, si, "description.en", e.target.value)} rows={1} data-lenis-prevent />
-              </div>
+            <div>
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
+              <textarea className={styles.profileFieldTextarea} value={skill.description.ko} onChange={(e) => updateSkill(gi, si, "description.ko", e.target.value)} rows={1} data-lenis-prevent />
+            </div>
+            <div>
+              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
+              <textarea className={styles.profileFieldTextarea} value={skill.description.en} onChange={(e) => updateSkill(gi, si, "description.en", e.target.value)} rows={1} data-lenis-prevent />
             </div>
           </div>
         </div>

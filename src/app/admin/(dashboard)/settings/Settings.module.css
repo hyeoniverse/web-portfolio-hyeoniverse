@@ -43,7 +43,7 @@
 
 .resetBtn {
   padding: var(--box-xs-xl);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -61,7 +61,7 @@
 
 .saveBtn {
   padding: var(--box-xs-xl);
-  border: 1px solid var(--text-primary);
+  border: var(--border-primary);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -99,14 +99,14 @@
 
 .conflictDivider {
   border: none;
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
   margin: var(--spacing-md) 0 var(--spacing-xl);
 }
 
 .conflictToggle {
   width: 100%;
   background: none;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   color: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -233,7 +233,7 @@
   width: 28px;
   height: 28px;
   padding: 0;
-  border: 1px solid var(--border-strong-color);
+  border: var(--border-strong);
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-primary);
@@ -407,7 +407,7 @@
   position: sticky;
   top: calc(var(--header-height) + var(--spacing-2xl));
   align-self: flex-start;
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .navItem {
@@ -416,7 +416,7 @@
   justify-content: space-between;
   padding: var(--spacing-sm) 0;
   border: none;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -457,7 +457,7 @@
   justify-content: space-between;
   padding: var(--spacing-xs) 0 var(--spacing-xs) var(--spacing-md);
   border: none;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -491,7 +491,7 @@
 .section {
   padding-bottom: var(--spacing-2xl);
   margin-bottom: var(--spacing-2xl);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
 }
 
 .section:last-child {
@@ -508,6 +508,12 @@
   margin-bottom: var(--spacing-lg);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.sectionDivider {
+  border: none;
+  border-top: var(--border-light);
+  margin: var(--spacing-md) 0;
 }
 
 .sectionTitleRow {
@@ -529,7 +535,7 @@
 
 .fields > * {
   padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
 }
 
 .fields > *:last-child {
@@ -560,6 +566,25 @@
   flex-wrap: wrap;
 }
 
+.fieldRowInline {
+  position: relative;
+  gap: 0;
+}
+
+.fieldRowInline .fieldLabel {
+  position: absolute;
+  left: var(--spacing-sm);
+  top: 50%;
+  translate: 0 -50%;
+  width: auto;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.fieldRowInline .fieldInput {
+  padding-left: calc(var(--spacing-sm) + 60px);
+}
+
 .fieldRow:has(.fieldTextarea),
 .fieldRow:has(.logoUpload) {
   align-items: flex-start;
@@ -570,7 +595,7 @@
 }
 
 .fieldLabel {
-  width: 180px;
+  width: 130px;
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -587,7 +612,7 @@
   flex: 1;
   min-width: 0;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -600,7 +625,7 @@
   flex: 1;
   min-width: 0;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-md);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -649,7 +674,7 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: 50%;
   background: transparent;
   flex-shrink: 0;
@@ -668,7 +693,7 @@
   flex: 1;
   min-width: 0;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
@@ -684,7 +709,7 @@
 /* ── Segment Buttons (DatePicker Style 등) ── */
 .formatSegmentRow {
   display: flex;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   overflow: hidden;
   width: fit-content;
@@ -700,7 +725,7 @@
 }
 
 .formatSegmentBtn + .formatSegmentBtn {
-  border-left: 1px solid var(--border-light-color);
+  border-left: var(--border-light);
 }
 
 .formatSegmentBtnActive {
@@ -742,7 +767,7 @@
 
 .presetSwatches {
   display: flex;
-  width: 100px;
+  width: 140px;
   height: 100%;
   overflow: hidden;
   flex-shrink: 0;
@@ -806,7 +831,7 @@
 .logoPreview {
   width: 80px;
   height: 32px;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-sm);
   overflow: hidden;
   display: flex;
@@ -830,7 +855,7 @@
 .logoBtn,
 .logoBtnRemove {
   padding: var(--box-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -859,7 +884,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   padding: var(--box-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -950,10 +975,18 @@
   gap: var(--spacing-2xs);
 }
 
-.priorityItem {
+.priorityRow {
   display: flex;
   align-items: center;
-  border: 1px solid var(--border-light-color);
+  gap: var(--spacing-xs);
+}
+
+.priorityItem {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   overflow: hidden;
@@ -976,7 +1009,7 @@
   align-items: center;
   justify-content: center;
   align-self: stretch;
-  border-right: 1px solid var(--border-light-color);
+  border-right: var(--border-light);
   background: color-mix(in srgb, var(--text-primary) 6%, transparent);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
@@ -1011,7 +1044,7 @@
   flex-shrink: 0;
   gap: 2px;
   align-self: center;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   overflow: hidden;
 }
@@ -1033,7 +1066,7 @@
 }
 
 .priorityBtn + .priorityBtn {
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .priorityBtn:disabled {
@@ -1062,7 +1095,7 @@
 }
 
 .serviceItem + .serviceItem {
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .serviceItemDragging {
@@ -1076,7 +1109,7 @@
   justify-content: center;
   flex-shrink: 0;
   width: 16px;
-  height: 20px;
+  height: 32px;
   cursor: grab;
   color: var(--text-muted);
   border: none;
@@ -1091,10 +1124,12 @@
 
 .serviceItemNum {
   display: inline-flex;
+  align-items: center;
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   min-width: 24px;
+  height: 32px;
 }
 
 .slotDigit {
@@ -1123,9 +1158,10 @@
   gap: var(--spacing-xs);
 }
 
-/* service item 내부 필드는 라벨 폭 축소 */
+/* service item 내부 필드는 라벨 폭 축소 — 바깥 input 시작선과 정렬 */
 .serviceItemFields .fieldLabel {
-  width: 100px;
+  /* 바깥 fieldLabel(130px) - 핸들(16) - gap(sm) - 숫자(24) - gap(sm) */
+  width: calc(130px - 16px - var(--spacing-sm) - 24px - var(--spacing-sm));
 }
 
 /* ── Categories Editor ── */
@@ -1196,7 +1232,7 @@
 
 .catAddBtn {
   padding: var(--box-md);
-  border: 1px solid var(--text-secondary);
+  border: var(--border-secondary);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1251,7 +1287,7 @@
 
 .profileCard {
   padding: var(--spacing-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-md);
   display: flex;
@@ -1279,7 +1315,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid var(--text-tertiary);
+  border: var(--border-tertiary);
   border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1312,7 +1348,7 @@
 .profileFieldInput {
   width: 100%;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1328,7 +1364,7 @@
 .profileFieldTextarea {
   width: 100%;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-md);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1348,7 +1384,7 @@
 
 .profileAddBtn {
   padding: var(--box-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1410,7 +1446,7 @@
   width: 100%;
   max-width: 380px;
   background: var(--bg-primary);
-  border: 1px solid var(--border-default-color);
+  border: var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
   display: flex;
@@ -1444,7 +1480,7 @@
 
 .confirmCancelBtn {
   padding: var(--box-xs-xl);
-  border: 1px solid var(--border-strong-color);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1467,7 +1503,7 @@
 .skeletonSection {
   padding-bottom: var(--spacing-2xl);
   margin-bottom: var(--spacing-2xl);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: var(--border-light);
 }
 
 .skeletonSection:last-child {
@@ -1495,7 +1531,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: 50%;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1528,7 +1564,7 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--box-sm-md);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-md);
   background: transparent;
   width: 100%;
@@ -1596,7 +1632,7 @@
 }
 
 .seriesCardBody {
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-top: none;
   border-radius: 0 0 var(--radius-md) var(--radius-md);
   padding: var(--spacing-md);
@@ -1610,13 +1646,13 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 /* ── Series Posts List (inline) ── */
 .seriesPostsSection {
   padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .seriesPostsEmpty {
@@ -1768,7 +1804,7 @@
 }
 
 .socialItem + .socialItem {
-  border-top: 1px solid var(--border-light-color);
+  border-top: var(--border-light);
 }
 
 .socialItemDragging {
@@ -1863,7 +1899,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: 50%;
   background: transparent;
   font-size: var(--font-size-xs);
@@ -1919,7 +1955,7 @@
 }
 
 /* ── Skills Editor (table / line layout) ── */
-.skillEditor {
+.sortableList {
   display: flex;
   flex-direction: column;
 }
@@ -1929,6 +1965,7 @@
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: calc(16px + var(--spacing-xs));
 }
 
 .skillExpandableOpen {
@@ -1947,20 +1984,38 @@
   overflow: visible;
 }
 
-.skillRow {
+/* ── Field group (label + inputs) ── */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.fieldGroupLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--text-tertiary);
+  padding-bottom: var(--spacing-2xs);
+  border-bottom: var(--border-light);
+}
+
+.sortableItem {
   --_skill-row-h: 36px;
   display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
+  flex-direction: column;
+  gap: var(--spacing-xs);
   padding: var(--spacing-sm) 0;
   transition: background-color 0.2s ease;
 }
 
-.skillRow + .skillRow {
-  border-top: 1px solid var(--border-light-color);
+.sortableItem + .sortableItem {
+  border-top: var(--border-light);
+  margin-top: var(--spacing-xs);
+  padding-top: var(--spacing-md);
 }
 
-.skillRowDragging {
+.sortableItemDragging {
   background: var(--bg-secondary);
   z-index: 10;
 }
@@ -1988,8 +2043,8 @@
 }
 
 .skillDragHandleSm svg {
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
 }
 
 .skillFields {
@@ -2036,9 +2091,10 @@
   min-width: 0;
   height: var(--_skill-row-h);
   box-sizing: border-box;
-  padding: 0 var(--spacing-sm);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-2xs);
+  border: none;
+  border-bottom: var(--border-default);
+  border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -2048,29 +2104,37 @@
   transition: border-color 0.2s ease;
 }
 
-.skillFieldInline:hover,
-.skillFieldInline:focus {
-  border-color: var(--border-light-color);
+.skillFieldInline:hover {
+  border-bottom-color: var(--border-default-color);
 }
 
 .skillFieldInline:focus {
-  border-color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
 }
 
 .skillCount {
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   flex-shrink: 0;
-  min-width: 80px;
-  text-align: left;
+  height: 100%;
+  min-width: 20px;
+  text-align: center;
   white-space: nowrap;
+  padding: var(--spacing-3xs) 0;
+  border-radius: var(--radius-capsule);
+}
+
+.periodBadge {
+  composes: skillCount;
+  width: 90px;
+  border: none;
+  padding: 0;
+  text-align: left;
 }
 
 .skillNested {
-  padding-left: var(--spacing-md);
-  border-left: 2px solid var(--border-light-color);
-  margin-top: var(--spacing-2xs);
+  padding-left: var(--spacing-sm);
 }
 
 .skillNestedRow {
@@ -2081,14 +2145,15 @@
 }
 
 .skillNestedRow + .skillNestedRow {
-  border-top: 1px solid color-mix(in srgb, var(--border-light-color) 50%, transparent);
+  border-top: var(--border-light);
 }
 
 /* — → × rotate animation (skill remove) */
 .skillRemoveBtn {
   position: relative;
   width: var(--_skill-row-h);
-  height: var(--_skill-row-h);
+  min-height: var(--_skill-row-h);
+  max-height: var(--_skill-row-h);
   flex-shrink: 0;
   align-self: flex-start;
   display: flex;
@@ -2098,7 +2163,6 @@
   border-radius: 50%;
   background: transparent;
   color: var(--text-tertiary);
-  flex-shrink: 0;
   transition: background-color 0.2s ease;
 }
 
@@ -2156,7 +2220,7 @@
     gap: 0;
     padding: 0;
     border-top: none;
-    border-bottom: 1px solid var(--border-light-color);
+    border-bottom: var(--border-light);
   }
 
   .sideNav::-webkit-scrollbar {
@@ -2190,7 +2254,7 @@
     display: flex;
     gap: 0;
     margin-bottom: var(--spacing-lg);
-    border-bottom: 1px solid var(--border-light-color);
+    border-bottom: var(--border-light);
     overflow-x: auto;
     scrollbar-width: none;
   }
@@ -2288,7 +2352,7 @@
   flex: 1;
   min-width: 0;
   padding: var(--box-xs-sm);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -2334,7 +2398,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   background: var(--bg-primary);
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: var(--radius-md);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   z-index: var(--z-dropdown);
@@ -2418,7 +2482,7 @@
 .envCancelBtn {
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: 50%;
   background: transparent;
   color: var(--text-tertiary);
@@ -2436,7 +2500,7 @@
 .envDeleteBtn {
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-light-color);
+  border: var(--border-light);
   border-radius: 50%;
   background: transparent;
   color: var(--text-tertiary);
@@ -2505,7 +2569,7 @@
 
 .envSaveBtn {
   padding: var(--box-xs-lg);
-  border: 1px solid var(--color-accent);
+  border: var(--border-accent-solid);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -2579,7 +2643,7 @@
   justify-content: center;
   padding: 0;
   background: transparent;
-  border: 1px solid var(--text-tertiary);
+  border: var(--border-tertiary);
   border-radius: var(--radius-circle);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
