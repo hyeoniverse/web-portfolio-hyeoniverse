@@ -25,7 +25,7 @@ function stripHtmlTags(str: string): string {
 /** 댓글 content 검증 + 정제 */
 export function sanitizeContent(raw: unknown): { valid: boolean; value: string; error?: string } {
   if (typeof raw !== "string") {
-    return { valid: false, value: "", error: "Content must be a string" };
+    return { valid: false, value: "", error: "CONTENT_INVALID" };
   }
 
   let sanitized = stripControlChars(raw);
@@ -33,11 +33,11 @@ export function sanitizeContent(raw: unknown): { valid: boolean; value: string; 
   const trimmed = sanitized.trim();
 
   if (!trimmed) {
-    return { valid: false, value: "", error: "Content is empty" };
+    return { valid: false, value: "", error: "CONTENT_EMPTY" };
   }
 
   if (trimmed.length > 2000) {
-    return { valid: false, value: "", error: "Content exceeds 2000 characters" };
+    return { valid: false, value: "", error: "CONTENT_TOO_LONG" };
   }
 
   return { valid: true, value: trimmed };
@@ -52,11 +52,11 @@ export function validatePassword(raw: unknown): { valid: boolean; value: string;
   const trimmed = raw.trim();
 
   if (trimmed.length < 2) {
-    return { valid: false, value: "", error: "Password must be at least 2 characters" };
+    return { valid: false, value: "", error: "PASSWORD_TOO_SHORT" };
   }
 
   if (new TextEncoder().encode(trimmed).length > 72) {
-    return { valid: false, value: "", error: "Password exceeds 72 bytes (bcrypt limit)" };
+    return { valid: false, value: "", error: "PASSWORD_TOO_LONG" };
   }
 
   return { valid: true, value: trimmed };
@@ -71,17 +71,17 @@ export function validateEmail(raw: unknown): { valid: boolean; value: string; er
   }
 
   if (typeof raw !== "string") {
-    return { valid: false, value: "", error: "Email must be a string" };
+    return { valid: false, value: "", error: "EMAIL_INVALID" };
   }
 
   const trimmed = raw.trim().toLowerCase();
 
   if (trimmed.length > 254) {
-    return { valid: false, value: "", error: "Email exceeds maximum length" };
+    return { valid: false, value: "", error: "EMAIL_TOO_LONG" };
   }
 
   if (!EMAIL_RE.test(trimmed)) {
-    return { valid: false, value: "", error: "Invalid email format" };
+    return { valid: false, value: "", error: "EMAIL_INVALID" };
   }
 
   return { valid: true, value: trimmed };
@@ -98,7 +98,7 @@ export function validateNickname(raw: unknown): { valid: boolean; value: string;
   const trimmed = sanitized.trim();
 
   if (trimmed.length > 50) {
-    return { valid: false, value: "", error: "Nickname exceeds 50 characters" };
+    return { valid: false, value: "", error: "NICKNAME_TOO_LONG" };
   }
 
   return { valid: true, value: trimmed };
