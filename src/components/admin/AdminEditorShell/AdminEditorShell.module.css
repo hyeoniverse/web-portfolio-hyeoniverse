@@ -527,6 +527,7 @@
 }
 
 .fieldInput {
+  width: 100%;
   padding: var(--box-xs-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
@@ -535,6 +536,7 @@
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
+  box-sizing: border-box;
 }
 
 .field .fieldInput:focus {
