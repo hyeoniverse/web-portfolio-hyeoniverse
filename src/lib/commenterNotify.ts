@@ -21,13 +21,15 @@ export async function notifyCommenter(opts: NotifyCommenterOptions) {
     const admin = createAdminClient();
     const { data: parent } = await admin
       .from(opts.table)
-      .select("nickname, notify_email")
+      .select("nickname, notify_email, content")
       .eq("id", opts.parentId)
       .single();
 
+    console.log("[notifyCommenter] parent:", opts.parentId, "notify_email:", parent?.notify_email ?? "없음");
+
     if (!parent?.notify_email) return;
 
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -39,10 +41,14 @@ export async function notifyCommenter(opts: NotifyCommenterOptions) {
         subject: `New reply to your comment`,
         html: `
           <div style="font-family: sans-serif; max-width: 480px;">
-            <p style="color: #333; margin: 0 0 12px;">
-              <strong>${escapeHtml(opts.replyNickname)}</strong> replied to your comment:
+            <p style="color: #999; font-size: 13px; margin: 0 0 4px;">Your comment:</p>
+            <blockquote style="margin: 0 0 16px; padding: 8px 12px; border-left: 3px solid #eee; color: #888; font-size: 13px;">
+              ${escapeHtml((parent.content ?? "").slice(0, 200))}
+            </blockquote>
+            <p style="color: #333; margin: 0 0 8px;">
+              <strong>${escapeHtml(opts.replyNickname)}</strong> replied:
             </p>
-            <blockquote style="margin: 0 0 16px; padding: 8px 12px; border-left: 3px solid #ddd; color: #555;">
+            <blockquote style="margin: 0 0 16px; padding: 8px 12px; border-left: 3px solid #0066cc; color: #333;">
               ${escapeHtml(opts.replyContent.slice(0, 300))}
             </blockquote>
             ${opts.url ? `<p><a href="${opts.url}" style="color: #0066cc;">View conversation</a></p>` : ""}
@@ -54,8 +60,10 @@ export async function notifyCommenter(opts: NotifyCommenterOptions) {
         `,
       }),
     });
-  } catch {
-    // 이메일 실패는 무시
+    const resBody = await res.json();
+    console.log("[notifyCommenter] Resend response:", res.status, resBody);
+  } catch (err) {
+    console.error("[notifyCommenter] error:", err);
   }
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { getCommenterId, getIdentity, getRandomIdentity } from "@/utils/commenterIdentity";
 import { createClient } from "@/lib/supabase/client";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -27,9 +27,22 @@ export default function CommentForm({
   const [password, setPassword] = useState("");
   const [notifyEmail, setNotifyEmail] = useState("");
   const [emailNotify, setEmailNotify] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const emailJustOpened = useRef(false);
+  const [emailConfirmed, setEmailConfirmed] = useState(false);
+  const [confirmedEmail, setConfirmedEmail] = useState("");
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notifyEmail);
+  const emailChanged = notifyEmail !== confirmedEmail;
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [formHint, setFormHint] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (emailNotify && emailJustOpened.current) {
+      emailJustOpened.current = false;
+      requestAnimationFrame(() => emailInputRef.current?.focus());
+    }
+  }, [emailNotify]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -56,11 +69,12 @@ export default function CommentForm({
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!content.trim()) return;
-      if (!isAdmin && !password.trim()) return;
+      setFormHint("");
+      if (!content.trim()) { setFormHint(t("comments.hintContent")); return; }
+      if (!isAdmin && !password.trim()) { setFormHint(t("comments.hintPassword")); return; }
 
       setSubmitting(true);
-      setError("");
+      setFormHint("");
 
       try {
         const body: Record<string, string | boolean | undefined> = {
@@ -90,15 +104,27 @@ export default function CommentForm({
 
         if (!res.ok) {
           const data = await res.json();
-          setError(data.error ?? "Failed to post comment");
+          const code = data.error as string | undefined;
+          const errorMap: Record<string, string> = {
+            CONTENT_INVALID: "comments.hintContent",
+            CONTENT_EMPTY: "comments.hintContent",
+            CONTENT_TOO_LONG: "comments.hintContentTooLong",
+            PASSWORD_TOO_SHORT: "comments.hintPasswordTooShort",
+            PASSWORD_TOO_LONG: "comments.hintPasswordTooLong",
+            EMAIL_INVALID: "comments.invalidEmail",
+            EMAIL_TOO_LONG: "comments.invalidEmail",
+            NICKNAME_TOO_LONG: "comments.hintNicknameTooLong",
+          };
+          setFormHint(t(code && errorMap[code] ? errorMap[code] : "comments.hintSubmitFailed"));
           return;
         }
 
         setContent("");
         setPassword("");
+        setFormHint("");
         onSubmit();
       } catch {
-        setError("Network error");
+        setFormHint(t("comments.hintNetwork"));
       } finally {
         setSubmitting(false);
       }
@@ -107,7 +133,7 @@ export default function CommentForm({
   );
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form className={styles.form} onSubmit={handleSubmit} noValidate>
       {isAdmin ? (
         <div className={styles.adminIdentity}>
           <span className={styles.adminBadge}>Admin</span>
@@ -138,10 +164,9 @@ export default function CommentForm({
             className={styles.passwordInput}
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value); setFormHint(""); }}
             placeholder={t("comments.passwordPlaceholder")}
             maxLength={72}
-            required
           />
         </div>
       ) : null}
@@ -149,42 +174,102 @@ export default function CommentForm({
       <textarea
         className={styles.textarea}
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={(e) => { setContent(e.target.value); setFormHint(""); }}
         placeholder={parentId ? t("comments.replyPlaceholder") : t("comments.placeholder")}
         rows={3}
         maxLength={2000}
-        required
       />
 
-      {error && <span className={styles.error}>{error}</span>}
-
-      <div className={styles.actions}>
-        {!isAdmin && (
-          <div className={styles.emailNotify}>
-            <button
-              type="button"
-              className={`${styles.notifyToggle} ${emailNotify ? styles.notifyToggleOn : ""}`}
-              onClick={() => setEmailNotify(!emailNotify)}
-              data-clickable="true"
-              title={t("comments.emailNotifyTip")}
-            >
+      {!isAdmin && (
+        <div className={styles.notifyWrap}>
+          <div
+            className={`${styles.notifyCapsule} ${emailNotify ? styles.notifyCapsuleOpen : ""} ${emailConfirmed ? styles.notifyCapsuleConfirmed : ""}`}
+            onClick={() => { if (!emailNotify) { emailJustOpened.current = true; setEmailNotify(true); } }}
+            data-clickable="true"
+            title={!emailNotify ? t("comments.emailNotifyTip") : undefined}
+          >
+            <svg className={styles.notifyIcon} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+            </svg>
+            <span className={styles.notifyConfirmedLabel}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect width="20" height="16" x="2" y="4" rx="2" />
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
               </svg>
-            </button>
-            {emailNotify && (
-              <input
-                className={styles.emailInput}
-                type="email"
-                value={notifyEmail}
-                onChange={(e) => setNotifyEmail(e.target.value)}
-                placeholder={t("comments.emailPlaceholder")}
-                maxLength={254}
-              />
+              {notifyEmail}
+            </span>
+            <input
+              ref={emailInputRef}
+              className={`${styles.notifyInput} ${emailConfirmed ? styles.notifyInputConfirmed : ""}`}
+              type="email"
+              autoComplete="off"
+              value={notifyEmail}
+              onChange={(e) => { setNotifyEmail(e.target.value); }}
+              placeholder={t("comments.emailPlaceholder")}
+              maxLength={254}
+              tabIndex={emailNotify ? 0 : -1}
+              readOnly={emailConfirmed}
+              onClick={(e) => e.stopPropagation()}
+              onBlur={() => { if (!emailConfirmed && !emailChanged && confirmedEmail && isValidEmail) setEmailConfirmed(true); }}
+            />
+            {emailNotify && isValidEmail && !emailConfirmed && emailChanged && (
+              <>
+                <span className={styles.notifyDivider} />
+                <button
+                  type="button"
+                  className={styles.notifyCheck}
+                  onClick={(e) => { e.stopPropagation(); setEmailConfirmed(true); setConfirmedEmail(notifyEmail); }}
+                  tabIndex={0}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </button>
+              </>
+            )}
+            {emailConfirmed ? (
+              <button
+                type="button"
+                className={styles.notifyAction}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEmailConfirmed(false);
+                  requestAnimationFrame(() => emailInputRef.current?.focus());
+                }}
+                tabIndex={0}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                </svg>
+              </button>
+            ) : (
+              <>
+                <span className={styles.notifyDivider} />
+                <button
+                  type="button"
+                  className={styles.notifyAction}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEmailNotify(false); setEmailConfirmed(false); setConfirmedEmail(""); setNotifyEmail("");
+                  }}
+                  tabIndex={emailNotify ? 0 : -1}
+                >
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M18 6L6 18" /><path d="M6 6l12 12" />
+                  </svg>
+                </button>
+              </>
             )}
           </div>
-        )}
+          {emailNotify && notifyEmail.trim() && !isValidEmail && (
+            <span className={styles.notifyHint}>{t("comments.invalidEmail")}</span>
+          )}
+        </div>
+      )}
+
+      <div className={styles.actions}>
+        {formHint && <span className={styles.formHint}>{formHint}</span>}
         <button
           type="submit"
           className={styles.submitBtn}

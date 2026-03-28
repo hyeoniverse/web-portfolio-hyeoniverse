@@ -1,4 +1,5 @@
 .form {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -37,7 +38,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  border: var(--border-default);
+  border: var(--border-light);
   background: transparent;
   color: var(--text-muted);
   border-radius: var(--radius-circle);
@@ -143,56 +144,217 @@
   color: var(--text-tertiary);
 }
 
-/* Email notification */
-.emailNotify {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  margin-right: auto;
+.notifyWrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  overflow: visible;
 }
 
-.notifyToggle {
+/* Notify capsule */
+.notifyCapsule {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
   width: 28px;
   height: 28px;
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-muted);
+  cursor: pointer;
+  overflow: hidden;
 }
 
-.form .notifyToggle:hover {
+/* compound (0,2,0) — override global theme transition */
+.notifyWrap .notifyCapsule {
+  transition: width 0.25s ease, border-radius 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.notifyWrap .notifyCapsule:hover {
   color: var(--text-primary);
 }
 
-.notifyToggleOn {
-  color: var(--color-accent);
-  border-color: var(--color-accent-alpha-20);
+.notifyCapsuleOpen {
+  width: 240px;
+  border-radius: var(--radius-capsule);
+  color: var(--text-primary);
+  cursor: default;
 }
 
-.emailInput {
-  padding: var(--box-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
+.notifyCapsuleOpen:focus-within {
+  border-color: var(--border-strong-color);
+}
+
+/* Confirmed: 캡슐이 수정 버튼 크기 원형, 아이콘+이메일은 왼쪽에 absolute */
+.notifyCapsuleConfirmed {
+  width: 28px;
+  border-radius: var(--radius-circle);
+  border-color: var(--border-strong-color);
+  overflow: visible;
+}
+
+.notifyCapsuleConfirmed:focus-within {
+  border-color: var(--border-strong-color);
+}
+
+/* confirmed: [종] [이메일] [●수정●] */
+.notifyConfirmedLabel {
+  display: none;
+}
+
+.notifyCapsuleConfirmed .notifyConfirmedLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  position: absolute;
+  top: 50%;
+  right: calc(100% + var(--spacing-xs));
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.notifyConfirmedLabel svg {
+  flex-shrink: 0;
+}
+
+.notifyCapsuleConfirmed .notifyIcon,
+.notifyCapsuleConfirmed .notifyInput {
+  display: none;
+}
+
+.notifyIcon {
+  flex-shrink: 0;
+  margin: 0 var(--spacing-xs);
+}
+
+.notifyInput {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   outline: none;
-  width: 200px;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
-.form .emailInput:focus {
-  border-color: var(--text-primary);
+.notifyCapsuleOpen .notifyInput {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.emailInput::placeholder {
+.notifyInput::placeholder {
   color: var(--text-tertiary);
 }
 
-.error {
+.notifyAction {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  aspect-ratio: 1;
+  border: var(--border-default);
+  border-color: transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, border-color 0.25s ease;
+}
+
+.notifyCapsuleOpen .notifyAction {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* confirmed: 수정 버튼이 원 전체를 채움 */
+.notifyCapsuleConfirmed .notifyAction {
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  opacity: 1;
+  pointer-events: auto;
+  color: var(--text-primary);
+}
+
+
+.notifyCapsuleConfirmed .notifyDivider {
+  opacity: 0;
+}
+
+.notifyDivider {
+  width: 1px;
+  align-self: stretch;
+  margin: 0;
+  background: var(--border-light-color);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.notifyCapsuleOpen .notifyDivider {
+  opacity: 1;
+}
+
+.notifyCapsule .notifyAction:hover {
+  color: var(--text-primary);
+}
+
+/* Confirmed state — input looks like text */
+.notifyInputConfirmed {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  cursor: default;
+}
+
+/* Check button */
+.notifyCheck {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-success);
+  padding: 0;
+}
+
+.notifyCapsule .notifyCheck:hover {
+  background: var(--color-success);
+  color: #fff;
+}
+
+/* Email hint */
+.notifyHint {
+  position: absolute;
+  bottom: 100%;
+  right: var(--spacing-md);
+  margin-bottom: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk);
+  font-size: 10px;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.formHint {
+  margin-right: auto;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--color-accent);
