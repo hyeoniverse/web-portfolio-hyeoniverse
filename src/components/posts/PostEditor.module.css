@@ -127,6 +127,68 @@
   align-items: start;
 }
 
+@media (max-width: 768px) {
+  .optionalFirstRow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .optionalFirstRow > * {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+}
+
+/* ── Number input with custom spinner ── */
+.numberInput {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-xs);
+  width: 100%;
+}
+
+.numberInputField {
+  -moz-appearance: textfield;
+}
+
+.numberInputField::-webkit-inner-spin-button,
+.numberInputField::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.numberBtns {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.numberBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  padding: 0;
+}
+
+.numberBtn + .numberBtn {
+  border-top: var(--border-light);
+}
+
+.numberBtns .numberBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
 .optionalContent {
   overflow: hidden;
   max-height: 0;

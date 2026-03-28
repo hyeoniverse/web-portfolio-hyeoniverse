@@ -1080,7 +1080,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         </div>
 
         <div className={es.row}>
-          <div className={es.field}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }}>
             <label className={`${es.fieldLabel}${showErrors && !form.slug.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
             <input
               className={`${es.fieldInput}${showErrors && !form.slug.trim() ? ` ${es.fieldInputError}` : ""}`}
@@ -1116,7 +1116,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           {/* 첫 줄: [시리즈 + 시리즈순서] — 항상 표시 */}
           <div className={styles.optionalFirstRow} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
             <div className={es.field}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
                 <label className={es.fieldLabel}>{te("series")}</label>
                 <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
                   {te("seriesManage")}
@@ -1141,7 +1141,23 @@ export default function PostEditor({ post }: PostEditorProps) {
             {form.series_id && (
               <div className={es.field}>
                 <label className={es.fieldLabel}>{te("seriesOrder")}</label>
-                <input className={es.fieldInput} type="number" min={0} value={form.series_order} onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)} />
+                <div className={styles.numberInput}>
+                  <input
+                    className={`${es.fieldInput} ${styles.numberInputField}`}
+                    type="number"
+                    min={0}
+                    value={form.series_order}
+                    onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
+                  />
+                  <div className={styles.numberBtns}>
+                    <button type="button" className={styles.numberBtn} onClick={() => updateField("series_order", (form.series_order ?? 0) + 1)}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 15l-6-6-6 6" /></svg>
+                    </button>
+                    <button type="button" className={styles.numberBtn} onClick={() => updateField("series_order", Math.max(0, (form.series_order ?? 0) - 1))}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
