@@ -1027,6 +1027,11 @@
   min-width: 0;
 }
 
+.priorityLabelDisabled {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
 .priorityGrip {
   display: flex;
   align-items: center;

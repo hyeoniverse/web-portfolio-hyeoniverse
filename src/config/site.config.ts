@@ -342,6 +342,7 @@ export const siteConfig = {
     fallback: {
       enabled: false,
       priority: [] as ("nanobanana" | "huggingface")[],
+      excluded: [] as ("nanobanana" | "huggingface")[],
     },
   },
 
@@ -366,6 +367,7 @@ export const siteConfig = {
     fallback: {
       enabled: false,
       priority: [] as ("gemini" | "openai" | "claude")[],
+      excluded: [] as ("gemini" | "openai" | "claude")[],
     },
   },
 
@@ -393,6 +395,7 @@ export const siteConfig = {
     fallback: {
       enabled: false,
       priority: [] as ("gemini" | "google" | "deepl" | "claude")[],
+      excluded: [] as ("gemini" | "google" | "deepl" | "claude")[],
     },
   },
 

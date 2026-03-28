@@ -5,6 +5,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
 import Toggle from "@/components/ui/Toggle";
+import { Switch } from "@/components/ui/Switch";
 import Select from "@/components/ui/Select";
 import type { SettingsTabProps } from "../_types";
 import EnvVarFields from "./EnvVarFields";
@@ -35,11 +36,13 @@ const TRANSLATION_OPTIONS: { value: TranslationProvider; label: string }[] = [
 interface PriorityListProps<T extends string> {
   primary: T;
   priority: T[];
+  excluded: T[];
   options: { value: T; label: string }[];
   onChange: (next: T[]) => void;
+  onExcludedChange: (next: T[]) => void;
 }
 
-function PriorityList<T extends string>({ primary, priority, options, onChange }: PriorityListProps<T>) {
+function PriorityList<T extends string>({ primary, priority, excluded, options, onChange, onExcludedChange }: PriorityListProps<T>) {
   const nonPrimary = options.filter((o) => o.value !== primary);
   const ordered = priority.length
     ? priority.filter((p) => p !== primary)
@@ -129,8 +132,18 @@ function PriorityList<T extends string>({ primary, priority, options, onChange }
                   <circle cx="9" cy="18" r="1" fill="currentColor" /><circle cx="15" cy="18" r="1" fill="currentColor" />
                 </svg>
               </span>
-              <span className={styles.priorityLabel}>{label}</span>
+              <span className={`${styles.priorityLabel} ${excluded.includes(val) ? styles.priorityLabelDisabled : ""}`}>{label}</span>
             </div>
+            <Switch
+              checked={!excluded.includes(val)}
+              onCheckedChange={(checked) => {
+                onExcludedChange(
+                  checked
+                    ? excluded.filter((e) => e !== val)
+                    : [...excluded, val]
+                );
+              }}
+            />
             <div className={styles.priorityBtns}>
               <button
                 type="button"
@@ -248,6 +261,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
               <PriorityList<AICoverProvider>
                 primary={(config.aiCover?.provider ?? "nanobanana") as AICoverProvider}
                 priority={(config.aiCover?.fallback?.priority ?? []) as AICoverProvider[]}
+                excluded={(config.aiCover?.fallback?.excluded ?? []) as AICoverProvider[]}
                 options={AI_COVER_OPTIONS}
                 onChange={(next) =>
                   setConfig((prev) => ({
@@ -255,6 +269,15 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
                     aiCover: {
                       ...prev.aiCover,
                       fallback: { ...prev.aiCover?.fallback, enabled: true, priority: next },
+                    },
+                  }))
+                }
+                onExcludedChange={(next) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    aiCover: {
+                      ...prev.aiCover,
+                      fallback: { ...prev.aiCover?.fallback, enabled: true, excluded: next },
                     },
                   }))
                 }
@@ -325,6 +348,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
               <PriorityList<AISummaryProvider>
                 primary={(config.aiSummary?.provider ?? "gemini") as AISummaryProvider}
                 priority={(config.aiSummary?.fallback?.priority ?? []) as AISummaryProvider[]}
+                excluded={(config.aiSummary?.fallback?.excluded ?? []) as AISummaryProvider[]}
                 options={AI_SUMMARY_OPTIONS}
                 onChange={(next) =>
                   setConfig((prev) => ({
@@ -332,6 +356,15 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
                     aiSummary: {
                       ...prev.aiSummary,
                       fallback: { ...prev.aiSummary?.fallback, enabled: true, priority: next },
+                    },
+                  }))
+                }
+                onExcludedChange={(next) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    aiSummary: {
+                      ...prev.aiSummary,
+                      fallback: { ...prev.aiSummary?.fallback, enabled: true, excluded: next },
                     },
                   }))
                 }
@@ -402,6 +435,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
               <PriorityList<TranslationProvider>
                 primary={(config.translation?.provider ?? "deepl") as TranslationProvider}
                 priority={(config.translation?.fallback?.priority ?? []) as TranslationProvider[]}
+                excluded={(config.translation?.fallback?.excluded ?? []) as TranslationProvider[]}
                 options={TRANSLATION_OPTIONS}
                 onChange={(next) =>
                   setConfig((prev) => ({
@@ -409,6 +443,15 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
                     translation: {
                       ...prev.translation,
                       fallback: { ...prev.translation?.fallback, enabled: true, priority: next },
+                    },
+                  }))
+                }
+                onExcludedChange={(next) =>
+                  setConfig((prev) => ({
+                    ...prev,
+                    translation: {
+                      ...prev.translation,
+                      fallback: { ...prev.translation?.fallback, enabled: true, excluded: next },
                     },
                   }))
                 }
