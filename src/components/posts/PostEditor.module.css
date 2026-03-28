@@ -382,7 +382,7 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .editorHeaderLeft .templateBtn:hover {
@@ -395,7 +395,7 @@
   height: 22px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: var(--border-light);
+  border: var(--border-default);
   background: transparent;
   font-family: var(--font-mono);
   font-size: 11px;

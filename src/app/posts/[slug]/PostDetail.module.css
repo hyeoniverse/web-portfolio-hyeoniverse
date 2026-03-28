@@ -235,13 +235,18 @@
   border-collapse: collapse;
   margin: var(--spacing-xl) 0;
   font-size: var(--font-size-sm);
+  border: var(--border-light);
 }
 
 .prose th,
 .prose td {
-  padding: var(--box-sm-md);
-  border-bottom: var(--border-light);
+  padding: var(--box-xs);
+  border: var(--border-light);
   text-align: left;
+}
+
+.prose td:empty::after {
+  content: "\00a0";
 }
 
 /* 테이블 border 커스텀: CSS custom property 전파 */
@@ -255,8 +260,42 @@
   color: var(--text-secondary);
   font-size: var(--font-size-xs);
   text-transform: uppercase;
+  background: var(--bg-tertiary);
   letter-spacing: 0.05em;
 }
+
+/* ── Alert blocks ── */
+.prose :global(.markdown-alert) {
+  padding: var(--spacing-md);
+  margin: var(--spacing-xl) 0;
+  border: var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+}
+
+.prose :global(.markdown-alert-title) {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: var(--spacing-xs);
+}
+
+.prose :global(.markdown-alert-title) svg {
+  width: 16px;
+  height: 16px;
+}
+
+
+.prose :global(.markdown-alert) > :last-child {
+  margin-bottom: 0;
+}
+
+.prose :global(.markdown-alert-title) { color: var(--color-accent); }
+.prose :global(.markdown-alert-title) svg { color: var(--color-accent); }
 
 /* ── Series navigation ── */
 .seriesBox {
