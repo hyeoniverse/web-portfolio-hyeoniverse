@@ -39,8 +39,9 @@ export async function POST(request: Request, context: RouteContext) {
   const fallbackCfg = config?.aiSummary?.fallback;
   const providerList: string[] = [primary];
   if (fallbackCfg?.enabled && fallbackCfg.priority?.length) {
+    const excl = new Set(fallbackCfg.excluded ?? []);
     for (const p of fallbackCfg.priority) {
-      if (p !== primary) providerList.push(p);
+      if (p !== primary && !excl.has(p)) providerList.push(p);
     }
   }
 

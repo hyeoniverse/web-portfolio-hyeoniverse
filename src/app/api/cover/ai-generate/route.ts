@@ -145,8 +145,9 @@ export async function POST(request: Request) {
 
   const providerList: Provider[] = [primary];
   if (fallbackCfg?.enabled && fallbackCfg.priority?.length) {
+    const excl = new Set(fallbackCfg.excluded ?? []);
     for (const p of fallbackCfg.priority) {
-      if (p !== primary) providerList.push(p as Provider);
+      if (p !== primary && !excl.has(p)) providerList.push(p as Provider);
     }
   }
 
