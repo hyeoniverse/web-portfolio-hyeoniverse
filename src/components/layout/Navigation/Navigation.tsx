@@ -338,9 +338,11 @@ export default function Navigation() {
   const handleLogout = useCallback(async () => {
     const supabase = await loadSupabaseClient();
     await supabase.auth.signOut();
-    router.push("/admin/login");
+    if (pathname.startsWith("/admin")) {
+      router.push("/admin/login");
+    }
     router.refresh();
-  }, [router]);
+  }, [router, pathname]);
 
   return (
     <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
