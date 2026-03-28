@@ -218,11 +218,11 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                   <span className={styles.divider}>✧</span>
                   <Link href="/privacy" ref={setLinkRef("/privacy")} onMouseEnter={() => setHoveredLink("/privacy")} className={pathname === "/privacy" ? styles.activeLink : ""}>Privacy Policy</Link>
                   <Link href="/design-system" target="_blank" ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
-                  {isAuthenticated && (
-                    <>
-                      <span className={styles.divider}>✧</span>
-                      <Link href="/admin/settings" target="_blank" ref={setLinkRef("/admin/settings")} onMouseEnter={() => setHoveredLink("/admin/settings")}>Admin</Link>
-                    </>
+                  <span className={styles.divider}>✧</span>
+                  {isAuthenticated ? (
+                    <Link href="/admin/settings" target="_blank" ref={setLinkRef("/admin/settings")} onMouseEnter={() => setHoveredLink("/admin/settings")}>Admin</Link>
+                  ) : (
+                    <Link href="/admin/login" target="_blank" ref={setLinkRef("/admin/login")} onMouseEnter={() => setHoveredLink("/admin/login")}>Login</Link>
                   )}
                 </>
               )}
