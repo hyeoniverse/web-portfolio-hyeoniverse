@@ -2,6 +2,9 @@
 
 import { useMemo } from "react";
 import { marked } from "marked";
+import markedFootnote from "marked-footnote";
+import markedAlert from "marked-alert";
+import markedKatex from "marked-katex-extension";
 import { hljs } from "./highlightCodeBlocks";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -16,7 +19,11 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-marked.use({
+marked.use(
+  markedFootnote(),
+  markedAlert(),
+  markedKatex({ throwOnError: false }),
+  {
   breaks: true,
   gfm: true,
   renderer: {
@@ -41,6 +48,9 @@ marked.use({
     },
   },
 });
+
+// KaTeX CSS (이미 글로벌에 포함되어 있지 않으면 여기서 import)
+import "katex/dist/katex.min.css";
 
 interface MarkdownRendererProps {
   content: string;
