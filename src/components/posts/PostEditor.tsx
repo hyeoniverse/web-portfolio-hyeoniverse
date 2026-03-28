@@ -370,9 +370,15 @@ export default function PostEditor({ post }: PostEditorProps) {
     const inner = optionalInnerRef.current;
     const content = optionalContentRef.current;
     if (!inner || !content) return;
-    if (optionalOpen) {
-      content.style.setProperty("--_content-height", `${inner.scrollHeight}px`);
-    }
+    const update = () => {
+      if (optionalOpen) {
+        content.style.setProperty("--_content-height", `${inner.scrollHeight}px`);
+      }
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(inner);
+    return () => ro.disconnect();
   }, [optionalOpen]);
 
   // 에디터 ref + 첨부 이미지
@@ -397,6 +403,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [showMdHelp, setShowMdHelp] = useState(false);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
+  const [seriesPosts, setSeriesPosts] = useState<{ id: string; title: string; series_order: number }[]>([]);
+  const [seriesPostsLoading, setSeriesPostsLoading] = useState(false);
   const initialFormRef = useRef(form);
   const formRef = useRef(form);
   formRef.current = form;
@@ -467,6 +475,25 @@ export default function PostEditor({ post }: PostEditorProps) {
       .then((res) => res.json())
       .then((data) => setSeriesList(Array.isArray(data) ? data : []));
   }, []);
+
+  // 시리즈 선택 시 해당 시리즈 게시물 목록 fetch + 순서 자동 설정
+  useEffect(() => {
+    if (!form.series_id) { setSeriesPosts([]); setSeriesPostsLoading(false); return; }
+    setSeriesPostsLoading(true);
+    fetch(`/api/series/${form.series_id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const posts = (data.posts ?? []) as { id: string; title: string; series_order: number }[];
+        setSeriesPosts(posts);
+        // 새 글이면 마지막 순서 +1
+        if (!isEdit || !posts.some((p) => p.id === post?.id)) {
+          const maxOrder = posts.reduce((max, p) => Math.max(max, p.series_order ?? 0), 0);
+          updateField("series_order", maxOrder + 1);
+        }
+      })
+      .finally(() => setSeriesPostsLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.series_id]);
 
   useEffect(() => {
     if (!slugManual && form.title) {
@@ -1113,57 +1140,136 @@ export default function PostEditor({ post }: PostEditorProps) {
             </svg>
           </button>
 
-          {/* 첫 줄: [시리즈 + 시리즈순서] — 항상 표시 */}
-          <div className={styles.optionalFirstRow} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
-            <div className={es.field}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                <label className={es.fieldLabel}>{te("series")}</label>
-                <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
-                  {te("seriesManage")}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
-                </a>
-              </div>
-              <Select
-                value={form.series_id ?? ""}
-                options={[
-                  { value: "", label: te("seriesNone") },
-                  ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}` })),
-                ]}
-                onChange={(v) => {
-                  updateField("series_id", v || null);
-                  if (v) {
-                    const selected = seriesList.find((s) => s.id === v);
-                    if (selected?.category) updateField("category", selected.category);
-                  }
-                }}
-              />
+          {/* 시리즈 — 항상 표시 */}
+          <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+              <label className={es.fieldLabel}>{te("series")}</label>
+              <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
+                {te("seriesManage")}
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+              </a>
             </div>
-            {form.series_id && (
-              <div className={es.field}>
-                <label className={es.fieldLabel}>{te("seriesOrder")}</label>
-                <div className={styles.numberInput}>
-                  <input
-                    className={`${es.fieldInput} ${styles.numberInputField}`}
-                    type="number"
-                    min={0}
-                    value={form.series_order}
-                    onChange={(e) => updateField("series_order", parseInt(e.target.value) || 0)}
-                  />
-                  <div className={styles.numberBtns}>
-                    <button type="button" className={styles.numberBtn} onClick={() => updateField("series_order", (form.series_order ?? 0) + 1)}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 15l-6-6-6 6" /></svg>
-                    </button>
-                    <button type="button" className={styles.numberBtn} onClick={() => updateField("series_order", Math.max(0, (form.series_order ?? 0) - 1))}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-                    </button>
+            <Select
+              value={form.series_id ?? ""}
+              options={[
+                { value: "", label: te("seriesNone") },
+                ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}` })),
+              ]}
+              onChange={(v) => {
+                updateField("series_id", v || null);
+                if (v) {
+                  const selected = seriesList.find((s) => s.id === v);
+                  if (selected?.category) updateField("category", selected.category);
+                }
+              }}
+            />
+          </div>
+          <div ref={optionalContentRef} className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
+            <div ref={optionalInnerRef} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+              {form.series_id && seriesPostsLoading && (
+                <div className={es.field}>
+                  <label className={es.fieldLabel}>{te("seriesOrder")}</label>
+                  <div className={styles.seriesOrderList}>
+                    {[1, 2].map((i) => (
+                      <div key={i} className={styles.seriesOrderItem} style={{ opacity: 0.4 }}>
+                        <span className={styles.seriesOrderNum}>{i}</span>
+                        <span className={styles.seriesOrderTitle} style={{ background: "var(--bg-tertiary)", borderRadius: "var(--radius-sm)", height: "1em", width: `${60 + i * 20}px` }} />
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+              {form.series_id && !seriesPostsLoading && (() => {
+                const currentPostId = post?.id ?? "__new__";
+                const otherPosts = seriesPosts.filter((p) => p.id !== post?.id);
+                const currentItem = { id: currentPostId, title: form.title || te("currentPost"), series_order: form.series_order };
+                const allItems = [...otherPosts, currentItem].sort((a, b) => a.series_order - b.series_order);
 
-          <div ref={optionalContentRef} className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
-            <div ref={optionalInnerRef} className={styles.optionalInner}>
+                const reorder = (fromIdx: number, toIdx: number) => {
+                  if (fromIdx === toIdx) return;
+                  const reordered = [...allItems];
+                  const [moved] = reordered.splice(fromIdx, 1);
+                  reordered.splice(toIdx, 0, moved);
+                  // 전체 순서 재할당 (1-based)
+                  const updates: { id: string; series_order: number }[] = [];
+                  reordered.forEach((item, i) => {
+                    const newOrder = i + 1;
+                    if (item.id === currentPostId) {
+                      updateField("series_order", newOrder);
+                    } else if (item.series_order !== newOrder) {
+                      updates.push({ id: item.id, series_order: newOrder });
+                    }
+                  });
+                  // 다른 게시물 순서 업데이트 (seriesPosts 로컬 상태도 반영)
+                  if (updates.length) {
+                    setSeriesPosts((prev) => prev.map((p) => {
+                      const u = updates.find((x) => x.id === p.id);
+                      return u ? { ...p, series_order: u.series_order } : p;
+                    }));
+                    // API로 다른 게시물 순서 저장
+                    updates.forEach((u) => {
+                      fetch(`/api/posts/${u.id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ series_order: u.series_order }),
+                      });
+                    });
+                  }
+                };
+
+                const dragIdxRef = { current: -1 };
+                const handleDragStart = (e: React.DragEvent, idx: number) => {
+                  dragIdxRef.current = idx;
+                  e.dataTransfer.effectAllowed = "move";
+                };
+                const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; };
+                const handleDrop = (e: React.DragEvent, targetIdx: number) => {
+                  e.preventDefault();
+                  reorder(dragIdxRef.current, targetIdx);
+                  dragIdxRef.current = -1;
+                };
+
+                return (
+                  <div className={es.field}>
+                    <label className={es.fieldLabel}>{te("seriesOrder")}</label>
+                    <div className={styles.seriesOrderList}>
+                      {allItems.map((item, idx) => {
+                        const isCurrent = item.id === currentPostId;
+                        return (
+                          <div
+                            key={item.id}
+                            className={`${styles.seriesOrderItem} ${isCurrent ? styles.seriesOrderItemCurrent : ""}`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, idx)}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, idx)}
+                          >
+                            <span className={styles.seriesOrderNum}>{idx + 1}</span>
+                            <span className={styles.seriesOrderGrip}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                <circle cx="9" cy="6" r="1" fill="currentColor" /><circle cx="15" cy="6" r="1" fill="currentColor" />
+                                <circle cx="9" cy="12" r="1" fill="currentColor" /><circle cx="15" cy="12" r="1" fill="currentColor" />
+                                <circle cx="9" cy="18" r="1" fill="currentColor" /><circle cx="15" cy="18" r="1" fill="currentColor" />
+                              </svg>
+                            </span>
+                            <span className={styles.seriesOrderTitle}>{item.title || "Untitled"}</span>
+                            {isCurrent && (
+                              <div className={styles.seriesOrderBtns}>
+                                <button type="button" className={styles.numberBtn} disabled={idx === 0} onClick={() => reorder(idx, idx - 1)}>
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 15l-6-6-6 6" /></svg>
+                                </button>
+                                <button type="button" className={styles.numberBtn} disabled={idx === allItems.length - 1} onClick={() => reorder(idx, idx + 1)}>
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               {/* 줄2: [카테고리 + 태그] */}
               <div className={es.row}>
                 <div className={es.field}>

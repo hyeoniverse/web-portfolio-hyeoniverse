@@ -87,8 +87,17 @@
 
 /* ── Optional fields (collapsible) ── */
 .optionalSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-md);
+}
+
+/* optionalContent가 접혀있으면 gap 차지 안 하게 */
+.optionalContent:not(.optionalContentOpen) {
+  margin-top: calc(var(--spacing-md) * -1);
 }
 
 .optionalToggle {
@@ -96,7 +105,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 0;
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -110,35 +119,6 @@
 
 .optionalSection .optionalToggle:hover {
   color: var(--text-secondary);
-}
-
-.optionalFirstRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr;
-  gap: var(--spacing-xs) var(--spacing-xl);
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-sm);
-}
-
-.optionalFirstRow > * {
-  display: grid;
-  grid-template-rows: subgrid;
-  grid-row: span 2;
-  align-items: start;
-}
-
-@media (max-width: 768px) {
-  .optionalFirstRow {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .optionalFirstRow > * {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
 }
 
 /* ── Number input with custom spinner ── */
@@ -172,38 +152,120 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  flex: 1;
+  width: 20px;
+  height: 20px;
   border: none;
   background: transparent;
   color: var(--text-tertiary);
   padding: 0;
 }
 
-.numberBtn + .numberBtn {
-  border-top: var(--border-light);
+.numberBtn:disabled {
+  color: var(--text-muted);
+  opacity: 0.4;
 }
+
 
 .numberBtns .numberBtn:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
 }
 
+/* ── Series order list ── */
+.seriesOrderList {
+  display: flex;
+  flex-direction: column;
+}
+
+.seriesOrderItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  height: 36px;
+  padding: 0 var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.seriesOrderItem + .seriesOrderItem {
+  border-top: var(--border-light);
+}
+
+.seriesOrderItemCurrent {
+  background: var(--color-accent-alpha-5);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.seriesOrderNum {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.seriesOrderItemCurrent .seriesOrderNum {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
+}
+
+.seriesOrderGrip {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.seriesOrderGrip:active {
+  cursor: grabbing;
+}
+
+.seriesOrderTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seriesOrderBtns {
+  display: flex;
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.seriesOrderBtns .numberBtn + .numberBtn {
+  box-shadow: -1px 0 0 var(--border-light-color);
+}
+
+.seriesOrderBtns .numberBtn:hover:not(:disabled) {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  box-shadow: none;
+}
+
 .optionalContent {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   max-height: 0;
-  transition: max-height 0.25s ease;
+  clip-path: inset(0 0 100% 0);
+  transition: max-height 0.3s ease, clip-path 0.3s ease;
+}
+
+.optionalContentOpen {
+  max-height: var(--_content-height, 500px);
+  clip-path: inset(0);
+  gap: var(--spacing-md);
 }
 
 .optionalSection .optionalContentOpen {
   max-height: var(--_content-height, 500px);
-}
-
-.optionalInner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-  padding: 0 var(--spacing-sm) var(--spacing-sm);
 }
 
 /* Pin toggle */
