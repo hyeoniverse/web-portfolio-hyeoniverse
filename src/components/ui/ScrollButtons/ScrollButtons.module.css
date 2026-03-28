@@ -18,16 +18,16 @@
 }
 
 .btnTop {
-  right: calc(var(--spacing-xl) + 36px - 1px);
-  bottom: var(--spacing-3xl);
-  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
-  border-right-color: transparent;
+  right: var(--spacing-xl);
+  bottom: calc(var(--spacing-3xl) + 36px - 1px);
+  border-radius: var(--radius-capsule) var(--radius-capsule) 0 0;
+  border-bottom-color: transparent;
 }
 
 .btnBottom {
   right: var(--spacing-xl);
   bottom: var(--spacing-3xl);
-  border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
+  border-radius: 0 0 var(--radius-capsule) var(--radius-capsule);
 }
 
 .visible {
