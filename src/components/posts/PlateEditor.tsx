@@ -479,20 +479,28 @@ export default function PlateEditor({
     prevValueRef.current = value;
     try {
       const nodes = editor.api.html.deserialize({ element: value || "<p></p>" });
-      // todo 노드 보정: listStyleType이 "todo"인데 checked가 없으면 추가
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fixTodo = (items: any[]) => {
-        for (const n of items) {
-          if (!n || typeof n !== "object") continue;
-          if (n.listStyleType === "todo" && !Object.hasOwn(n, "checked")) {
-            n.checked = false;
-          }
-          if (Array.isArray(n.children)) fixTodo(n.children);
-        }
-      };
-      if (Array.isArray(nodes)) fixTodo(nodes);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       editor.tf.setValue(nodes as any);
+
+      // ☐ 마커(U+200B + U+2610)가 있는 리스트 → todo 변환
+      editor.tf.withoutNormalizing(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const [node, path] of editor.api.nodes({ at: [], match: (n: any) => !!n.listStyleType })) {
+          const el = node as Record<string, unknown>;
+          if (!Array.isArray(el.children)) continue;
+          const first = (el.children as Record<string, unknown>[])[0];
+          if (!first || typeof first.text !== "string") continue;
+          if (first.text.startsWith("\u200B\u2610 ")) {
+            // 마커 텍스트 제거
+            const textPath = [...path, 0];
+            const newText = (first.text as string).slice(3);
+            editor.tf.delete({ at: { anchor: { path: textPath, offset: 0 }, focus: { path: textPath, offset: 3 } } });
+            if (newText !== first.text) { /* delete already handled */ }
+            // todo 속성 설정
+            editor.tf.setNodes({ listStyleType: "todo", checked: false }, { at: path });
+          }
+        }
+      });
     } catch {
       editor.tf.setValue(value || "<p></p>");
     }
