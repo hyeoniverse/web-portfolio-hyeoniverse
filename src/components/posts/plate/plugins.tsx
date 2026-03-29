@@ -278,8 +278,30 @@ export const plugins = [
   LinkPlugin.configure({
     render: { node: LinkElement },
   }),
-  // List
-  ListPlugin,
+  // List — data-checked 지원 확장
+  ListPlugin.extend({
+    parsers: {
+      html: {
+        deserializer: {
+          parse: ({ editor, element }) => {
+            const dataIndent = element.dataset.indent;
+            const ariaLevel = element.getAttribute("aria-level");
+            const indent = dataIndent ? Number(dataIndent) : Number(ariaLevel);
+            const listStyleType = element.dataset.listStyleType || element.style.listStyleType;
+            const result: Record<string, unknown> = {
+              indent: indent || undefined,
+              listStyleType: listStyleType || undefined,
+              type: editor.getType("p"),
+            };
+            if (element.dataset.checked !== undefined) {
+              result.checked = element.dataset.checked === "true";
+            }
+            return result;
+          },
+        },
+      },
+    },
+  }),
   // Indent
   IndentPlugin,
   // Math (KaTeX)
