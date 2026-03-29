@@ -771,6 +771,14 @@ function postProcessMarkedHtml(html: string): string {
         nested += convertList(inner, tag === "ol" ? "decimal" : "disc", depth + 1);
         return "";
       });
+      // checkbox → Plate todo list
+      const checkboxMatch = text.match(/<input[^>]*type="checkbox"([^>]*)>/);
+      if (checkboxMatch) {
+        const checked = checkboxMatch[1].includes("checked");
+        text = text.replace(/<input[^>]*type="checkbox"[^>]*>\s*/, "");
+        text = text.replace(/<\/?p>/g, "").trim();
+        return `<ul data-indent="${depth}"><li style="list-style-type: todo" data-list-style-type="todo" data-checked="${checked}">${text}</li></ul>${nested}`;
+      }
       text = text.replace(/<\/?p>/g, "").trim();
       return `<li data-indent="${depth}" data-list-style-type="${type}">${text}</li>${nested}`;
     });
