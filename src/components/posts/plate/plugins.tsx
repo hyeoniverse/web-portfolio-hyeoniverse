@@ -47,6 +47,7 @@ import { ImageElement, CodeBlockElement, ParagraphElement, LinkElement, MediaEmb
 import { createSlatePlugin } from "platejs";
 import { TableElement, TableRowElement, TableCellElement, TableCellHeaderElement } from "./TableElements";
 import { EquationElement, InlineEquationElement } from "./MathElements";
+import { FootnoteRefElement, FootnoteContentElement } from "./FootnoteElements";
 
 const lowlight = createLowlight(common);
 
@@ -409,6 +410,77 @@ export const plugins = [
             type: "callout",
             bg: element.getAttribute("data-callout-bg") || "var(--bg-tertiary)",
             icon: element.getAttribute("data-callout-icon") || "💡",
+          }),
+        },
+      },
+    },
+  }),
+  // Footnote (인라인 참조 + 블록 정의)
+  createSlatePlugin({
+    key: "footnote_ref",
+    node: { isElement: true, isInline: true, isVoid: true },
+    render: { node: FootnoteRefElement },
+    handlers: {
+      onChange: ({ editor }) => {
+        // 참조가 삭제되면 고아 정의 블록도 삭제
+        const refIds = new Set<string>();
+        for (const [node] of editor.api.nodes({ at: [], match: (n) => (n as Record<string, unknown>).type === "footnote_ref" })) {
+          refIds.add(String((node as Record<string, unknown>).footnoteId ?? ""));
+        }
+        const orphans: number[][] = [];
+        for (const [node, path] of editor.api.nodes({ at: [], match: (n) => (n as Record<string, unknown>).type === "footnote_content" })) {
+          const id = String((node as Record<string, unknown>).footnoteId ?? "");
+          if (!refIds.has(id)) orphans.push(path as number[]);
+        }
+        // 뒤에서부터 삭제 (path 꼬임 방지)
+        for (const path of orphans.reverse()) {
+          editor.tf.removeNodes({ at: path });
+        }
+      },
+    },
+    parsers: {
+      html: {
+        deserializer: {
+          rules: [{ validNodeName: "SUP" }],
+          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-footnote-ref"),
+          parse: ({ element }: { element: HTMLElement }) => ({
+            type: "footnote_ref",
+            footnoteId: element.getAttribute("data-footnote-ref") || "",
+            children: [{ text: "" }],
+          }),
+        },
+      },
+    },
+  }),
+  createSlatePlugin({
+    key: "footnote_content",
+    node: { isElement: true },
+    render: { node: FootnoteContentElement },
+    handlers: {
+      onChange: ({ editor }) => {
+        // 정의가 삭제되면 고아 참조도 삭제
+        const contentIds = new Set<string>();
+        for (const [node] of editor.api.nodes({ at: [], match: (n) => (n as Record<string, unknown>).type === "footnote_content" })) {
+          contentIds.add(String((node as Record<string, unknown>).footnoteId ?? ""));
+        }
+        const orphans: number[][] = [];
+        for (const [node, path] of editor.api.nodes({ at: [], match: (n) => (n as Record<string, unknown>).type === "footnote_ref" })) {
+          const id = String((node as Record<string, unknown>).footnoteId ?? "");
+          if (!contentIds.has(id)) orphans.push(path as number[]);
+        }
+        for (const path of orphans.reverse()) {
+          editor.tf.removeNodes({ at: path });
+        }
+      },
+    },
+    parsers: {
+      html: {
+        deserializer: {
+          rules: [{ validNodeName: "DIV" }],
+          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-footnote-content"),
+          parse: ({ element }: { element: HTMLElement }) => ({
+            type: "footnote_content",
+            footnoteId: element.getAttribute("data-footnote-content") || "",
           }),
         },
       },
