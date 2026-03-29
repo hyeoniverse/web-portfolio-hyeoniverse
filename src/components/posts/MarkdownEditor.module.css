@@ -4,6 +4,7 @@
   border: var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
+  height: 100%;
 }
 
 .wrapper {
@@ -253,6 +254,74 @@
 
 .preview :global(.markdown-alert-title) { color: var(--color-accent); }
 .preview :global(.markdown-alert-title) svg { color: var(--color-accent); }
+
+/* Footnote ref */
+.preview :global([data-footnote-ref]) {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.preview :global([data-footnote-ref]):hover {
+  text-decoration: underline;
+}
+
+/* Footnote section */
+.preview :global(.footnotes) {
+  margin-top: var(--spacing-3xl);
+  padding-top: var(--spacing-md);
+  border-top: var(--border-default);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.preview :global(.footnotes) :global(.sr-only) {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  text-transform: none;
+  letter-spacing: normal;
+  margin: 0 0 var(--spacing-sm);
+}
+
+.preview :global(.footnotes) ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: footnote;
+}
+
+.preview :global(.footnotes) li {
+  margin: var(--spacing-2xs) 0;
+  counter-increment: footnote;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+}
+
+.preview :global(.footnotes) li::before {
+  content: counter(footnote) ".";
+  color: var(--color-accent);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.preview :global(.footnotes) li p {
+  margin: 0;
+}
+
+.preview :global([data-footnote-backref]) {
+  text-decoration: none;
+  color: var(--color-accent);
+  margin-left: var(--spacing-2xs);
+}
 
 .preview a {
   color: var(--text-accent);

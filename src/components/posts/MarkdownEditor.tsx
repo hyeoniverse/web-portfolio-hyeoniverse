@@ -281,8 +281,9 @@ export default function MarkdownEditor({
           const before = value.slice(0, pos);
           const after = value.slice(pos);
           const refText = `[^${nextNum}]`;
-          const defText = `\n[^${nextNum}]: ${fnLabel}`;
-          onChange(`${before}${refText}${after}${defText}\n`);
+          const defText = `\n\n[^${nextNum}]: ${fnLabel}`;
+          const trimmedAfter = after.replace(/\n+$/, "");
+          onChange(`${before}${refText}${trimmedAfter}${defText}\n`);
           requestAnimationFrame(() => {
             ta.selectionStart = ta.selectionEnd = pos + refText.length;
             ta.focus();
@@ -305,7 +306,18 @@ export default function MarkdownEditor({
             className={styles.textarea}
             data-lenis-prevent
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => {
+              let val = e.target.value;
+              // 고아 각주 정의 자동 정리: 참조 [^N]이 없는 정의 [^N]: 삭제
+              const refs = new Set((val.match(/\[\^(\d+)\](?!:)/g) ?? []).map((m) => m.replace(/\D/g, "")));
+              val = val.replace(/\n\[\^(\d+)\]:.*$/gm, (line, num) => refs.has(num) ? line : "");
+              // 고아 각주 참조 자동 정리: 정의 [^N]: 이 없는 참조 [^N] 삭제
+              const defs = new Set((val.match(/\[\^(\d+)\]:/g) ?? []).map((m) => m.replace(/\D/g, "")));
+              val = val.replace(/\[\^(\d+)\](?!:)/g, (match, num) => defs.has(num) ? match : "");
+              // 끝에 빈 줄 정리
+              val = val.replace(/\n{3,}$/g, "\n\n");
+              onChange(val);
+            }}
             onScroll={handleEditorScroll}
             onPaste={handlePaste}
             onDrop={handleDrop}
