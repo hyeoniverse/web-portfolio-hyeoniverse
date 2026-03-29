@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import styles from "./Select.module.css";
 
 export interface SelectOption {
@@ -18,6 +19,7 @@ interface SelectProps {
   renderOption?: (option: SelectOption, isActive: boolean) => ReactNode;
   renderValue?: (option: SelectOption | undefined) => ReactNode;
   className?: string;
+  dropdownClassName?: string;
   disabled?: boolean;
   variant?: SelectVariant;
   children?: ReactNode | ((ctx: { close: () => void }) => ReactNode);
@@ -31,6 +33,7 @@ export default function Select({
   renderOption,
   renderValue,
   className,
+  dropdownClassName,
   disabled,
   variant = "default",
   children,
@@ -39,11 +42,36 @@ export default function Select({
   const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [dropPos, setDropPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
   const [dropOffset, setDropOffset] = useState(0);
 
   useEffect(() => {
     if (open) setVisible(true);
   }, [open]);
+
+  // trigger 위치 기반으로 dropdown 좌표 계산
+  const updatePosition = useCallback(() => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    setDropPos({ top: rect.bottom, left: rect.left, width: rect.width });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!visible) return;
+    updatePosition();
+  }, [visible, updatePosition]);
+
+  // scroll/resize 시 위치 재계산
+  useEffect(() => {
+    if (!visible) return;
+    const onUpdate = () => updatePosition();
+    window.addEventListener("scroll", onUpdate, true);
+    window.addEventListener("resize", onUpdate);
+    return () => {
+      window.removeEventListener("scroll", onUpdate, true);
+      window.removeEventListener("resize", onUpdate);
+    };
+  }, [visible, updatePosition]);
 
   // compact: 선택된 옵션이 trigger 위치에 오도록 offset 계산
   useLayoutEffect(() => {
@@ -60,12 +88,14 @@ export default function Select({
 
   const close = useCallback(() => setOpen(false), []);
 
+  // click outside: trigger + portal dropdown 둘 다 확인
   useEffect(() => {
     if (!open && !visible) return;
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      const target = e.target as Node;
+      if (ref.current?.contains(target)) return;
+      if (dropdownRef.current?.contains(target)) return;
+      setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -96,6 +126,10 @@ export default function Select({
         );
       });
 
+  const portalStyle: React.CSSProperties = isCompact
+    ? { top: dropPos.top - dropOffset, left: dropPos.left, width: dropPos.width }
+    : { top: dropPos.top, left: dropPos.left, width: dropPos.width };
+
   return (
     <div className={`${styles.root} ${isCompact ? styles.rootCompact : ""} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${className ?? ""}`} ref={ref}>
       <button
@@ -113,16 +147,17 @@ export default function Select({
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
-      {visible && (
+      {visible && createPortal(
         <div
           ref={dropdownRef}
-          className={`${styles.dropdown} ${open ? styles.dropdownOpen : styles.dropdownClose}`}
-          style={isCompact ? { top: -dropOffset } : undefined}
+          className={`${styles.dropdown} ${isCompact ? styles.dropdownCompact : ""} ${open ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
+          style={portalStyle}
           onTransitionEnd={handleTransitionEnd}
           data-lenis-prevent
         >
           {dropdownContent}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
