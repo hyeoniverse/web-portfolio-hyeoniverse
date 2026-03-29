@@ -280,25 +280,6 @@ export const plugins = [
   }),
   // List
   ListPlugin,
-  // Todo list deserializer (postProcessMarkedHtml의 data-plate-todo div 처리)
-  createSlatePlugin({
-    key: "todo_deserializer",
-    parsers: {
-      html: {
-        deserializer: {
-          isElement: true,
-          rules: [{ validNodeName: "DIV" }],
-          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-plate-todo"),
-          parse: ({ element }: { element: HTMLElement }) => ({
-            type: "p",
-            indent: Number(element.dataset.todoIndent) || 1,
-            listStyleType: "todo",
-            checked: element.dataset.todoChecked === "true",
-          }),
-        },
-      },
-    },
-  }),
   // Indent
   IndentPlugin,
   // Math (KaTeX)
