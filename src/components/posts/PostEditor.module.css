@@ -416,7 +416,7 @@
 .editorSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-xs);
   padding-top: var(--spacing-xl);
   border-top: var(--border-light);
 }
