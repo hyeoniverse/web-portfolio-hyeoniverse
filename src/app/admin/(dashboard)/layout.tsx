@@ -24,5 +24,5 @@ export default async function AdminLayout({
     redirect("/admin/denied");
   }
 
-  return <div style={{ paddingTop: "var(--spacing-6xl)" }}>{children}</div>;
+  return <>{children}</>;
 }

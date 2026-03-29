@@ -481,28 +481,29 @@ export default function PlateEditor({
       const nodes = editor.api.html.deserialize({ element: value || "<p></p>" });
       // {{TODO_CHECKED}} / {{TODO_UNCHECKED}} 마커를 todo 노드로 변환
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fixTodo = (n: any): any => {
-        if (!n || typeof n !== "object") return n;
-        // listStyleType: "todo"인데 checked 누락 보정
-        if (n.listStyleType === "todo" && !Object.hasOwn(n, "checked")) {
-          n.checked = false;
-        }
-        // 텍스트 마커 → todo 변환
-        if (Array.isArray(n.children)) {
-          const firstText = n.children[0];
-          if (firstText && typeof firstText.text === "string") {
-            const m = firstText.text.match(/^\{\{TODO_(CHECKED|UNCHECKED)\}\}/);
+      const fixTodo = (nodes: any[]) => {
+        for (const n of nodes) {
+          if (!n || typeof n !== "object") continue;
+          // listStyleType: "todo"인데 checked 누락 보정
+          if (n.listStyleType === "todo" && !Object.hasOwn(n, "checked")) {
+            n.checked = false;
+          }
+          if (!Array.isArray(n.children)) continue;
+          // 모든 텍스트 노드에서 마커 검색
+          for (const child of n.children) {
+            if (typeof child.text !== "string") continue;
+            const m = child.text.match(/\{\{TODO_(CHECKED|UNCHECKED)\}\}/);
             if (m) {
-              firstText.text = firstText.text.replace(/^\{\{TODO_(?:CHECKED|UNCHECKED)\}\}/, "");
+              child.text = child.text.replace(/\{\{TODO_(?:CHECKED|UNCHECKED)\}\}/, "");
               n.listStyleType = "todo";
               n.checked = m[1] === "CHECKED";
+              break;
             }
           }
-          n.children.forEach(fixTodo);
+          fixTodo(n.children);
         }
-        return n;
       };
-      if (Array.isArray(nodes)) nodes.forEach(fixTodo);
+      if (Array.isArray(nodes)) fixTodo(nodes);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       editor.tf.setValue(nodes as any);
     } catch {
