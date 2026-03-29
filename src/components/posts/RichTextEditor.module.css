@@ -112,6 +112,9 @@
   border-bottom: none;
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   background: var(--bg-tertiary);
+  overflow: visible;
+  position: relative;
+  z-index: var(--z-dropdown);
 }
 
 .toolbarBtn {
@@ -205,24 +208,32 @@
 .fontPickerSelect {
   flex: 0 0 auto;
   width: auto;
+  overflow: visible;
+  z-index: var(--z-dropdown);
 }
 
 /* trigger */
 .fontPickerSelect button {
   height: 24px;
-  padding: 0 22px 0 var(--spacing-sm);
+  padding: 0 var(--spacing-xs) 0 var(--spacing-sm);
   font-size: 10px;
   color: var(--text-secondary);
-  max-width: 140px;
+  width: 120px;
+}
+
+.fontPickerSelect button svg {
+  width: 8px;
+  height: 8px;
+  stroke-width: 1.5;
 }
 
 .toolbar .fontPickerSelect button:hover {
   border-color: var(--text-secondary);
 }
 
-/* dropdown */
-.fontPickerSelect > div:last-child {
-  width: 220px;
+/* dropdown (portal) */
+.fontPickerDropdown {
+  width: 280px !important;
   padding: 2px 0;
   gap: 0;
   font-family: var(--font-space-grotesk);
@@ -237,7 +248,7 @@
   position: absolute;
   left: 0;
   z-index: 100;
-  width: 220px;
+  width: 280px;
   background: rgba(255, 255, 255, 0.5);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
@@ -284,6 +295,10 @@
   cursor: default;
   border-radius: var(--radius-sm);
   margin: 1px var(--spacing-3xs);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fontDropItem:hover {
@@ -2289,19 +2304,35 @@
 
 .editorContent ul,
 .editorContent ol {
-  padding-left: 1.5em;
+  padding-left: 0 !important;
+  margin-left: -24px !important;
   margin-bottom: var(--spacing-sm);
-  list-style-position: outside;
+  list-style-position: inside;
 }
 .editorContent ul { list-style-type: disc; }
 .editorContent ol { list-style-type: decimal; }
-.editorContent li { margin-bottom: var(--spacing-2xs); }
+.editorContent li {
+  margin-bottom: var(--spacing-2xs);
+}
+
+.editorContent ul li::marker {
+  font-size: 0.8em;
+}
+
+.editorContent li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: calc(-1 * var(--spacing-md));
+}
+
+.editorContent li > input[type="checkbox"] {
+  margin-right: var(--spacing-2xs);
+}
 /* Plate indent list (div with listStyleType) */
 .editorContent :global([data-slate-node="element"][style*="list-style-type"]) {
-  padding-left: 1.5em;
   margin-bottom: var(--spacing-2xs);
   display: list-item;
 }
+
 
 .editorContent hr {
   border: none;

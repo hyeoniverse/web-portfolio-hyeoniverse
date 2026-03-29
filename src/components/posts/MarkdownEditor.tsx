@@ -65,6 +65,39 @@ export default function MarkdownEditor({
   const [tableHover, setTableHover] = useState({ cols: 0, rows: 0 });
   const tableRef = useRef<HTMLDivElement>(null);
 
+  // Undo/Redo
+  const historyRef = useRef<string[]>([value]);
+  const historyIdxRef = useRef(0);
+  const skipHistoryRef = useRef(false);
+
+  useEffect(() => {
+    if (skipHistoryRef.current) { skipHistoryRef.current = false; return; }
+    const h = historyRef.current;
+    const idx = historyIdxRef.current;
+    // 현재 위치 이후 히스토리 자르고 새 값 추가
+    if (value !== h[idx]) {
+      historyRef.current = [...h.slice(0, idx + 1), value].slice(-100);
+      historyIdxRef.current = historyRef.current.length - 1;
+    }
+  }, [value]);
+
+  const undo = useCallback(() => {
+    const idx = historyIdxRef.current;
+    if (idx <= 0) return;
+    historyIdxRef.current = idx - 1;
+    skipHistoryRef.current = true;
+    onChange(historyRef.current[idx - 1]);
+  }, [onChange]);
+
+  const redo = useCallback(() => {
+    const h = historyRef.current;
+    const idx = historyIdxRef.current;
+    if (idx >= h.length - 1) return;
+    historyIdxRef.current = idx + 1;
+    skipHistoryRef.current = true;
+    onChange(h[idx + 1]);
+  }, [onChange]);
+
   // 테이블 그리드 바깥 클릭 닫기
   useEffect(() => {
     if (!tableGrid) return;
@@ -74,14 +107,6 @@ export default function MarkdownEditor({
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [tableGrid]);
-
-  const insertTable = useCallback((cols: number, rows: number) => {
-    const header = `| ${Array.from({ length: cols }, (_, i) => `Col ${i + 1}`).join(" | ")} |`;
-    const divider = `| ${Array.from({ length: cols }, () => "---").join(" | ")} |`;
-    const body = Array.from({ length: rows }, () => `| ${Array.from({ length: cols }, () => " ").join(" | ")} |`).join("\n");
-    insertAtCursor(`\n${header}\n${divider}\n${body}\n\n`);
-    setTableGrid(false);
-  }, [insertAtCursor]);
 
   /** 현재 커서 위치에 텍스트 삽입 */
   const insertAtCursor = useCallback((text: string) => {
@@ -97,6 +122,14 @@ export default function MarkdownEditor({
       ta.focus();
     });
   }, [value, onChange]);
+
+  const insertTable = useCallback((cols: number, rows: number) => {
+    const header = `| ${Array.from({ length: cols }, (_, i) => `Col ${i + 1}`).join(" | ")} |`;
+    const divider = `| ${Array.from({ length: cols }, () => "---").join(" | ")} |`;
+    const body = Array.from({ length: rows }, () => `| ${Array.from({ length: cols }, () => " ").join(" | ")} |`).join("\n");
+    insertAtCursor(`\n${header}\n${divider}\n${body}\n\n`);
+    setTableGrid(false);
+  }, [insertAtCursor]);
 
   /** 선택 텍스트를 prefix/suffix로 감싸기 (선택 없으면 placeholder 삽입) */
   const wrapSelection = useCallback((prefix: string, suffix: string, placeholder: string) => {
@@ -207,6 +240,13 @@ export default function MarkdownEditor({
         </div>
       </div>
       <div className={styles.toolbar}>
+        <Tooltip content={language === "ko" ? "실행 취소" : "Undo"}><button type="button" className={styles.tbBtn} onClick={undo}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
+        </button></Tooltip>
+        <Tooltip content={language === "ko" ? "다시 실행" : "Redo"}><button type="button" className={styles.tbBtn} onClick={redo}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" /></svg>
+        </button></Tooltip>
+        <div className={styles.tbDivider} />
         <Tooltip content={language === "ko" ? "제목 1" : "Heading 1"}><button type="button" className={styles.tbBtn} onClick={() => insertLinePrefix("# ")}>H1</button></Tooltip>
         <Tooltip content={language === "ko" ? "제목 2" : "Heading 2"}><button type="button" className={styles.tbBtn} onClick={() => insertLinePrefix("## ")}>H2</button></Tooltip>
         <Tooltip content={language === "ko" ? "제목 3" : "Heading 3"}><button type="button" className={styles.tbBtn} onClick={() => insertLinePrefix("### ")}>H3</button></Tooltip>
@@ -322,6 +362,12 @@ export default function MarkdownEditor({
             onPaste={handlePaste}
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
+            onKeyDown={(e) => {
+              if ((e.metaKey || e.ctrlKey) && e.key === "z") {
+                e.preventDefault();
+                if (e.shiftKey) redo(); else undo();
+              }
+            }}
             placeholder="Write your content in Markdown..."
             spellCheck={false}
           />

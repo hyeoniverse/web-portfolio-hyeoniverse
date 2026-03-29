@@ -220,6 +220,15 @@
   margin-bottom: var(--spacing-xs);
 }
 
+.prose li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: calc(-1 * var(--spacing-md));
+}
+
+.prose li > input[type="checkbox"] {
+  margin-right: var(--spacing-2xs);
+}
+
 .prose li::marker {
   color: var(--text-muted);
 }
