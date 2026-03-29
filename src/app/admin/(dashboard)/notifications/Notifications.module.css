@@ -1,7 +1,7 @@
 .container {
   max-width: 720px;
   margin: 0 auto;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-6xl) var(--spacing-xl) var(--spacing-xl);
 }
 
 .loading {
