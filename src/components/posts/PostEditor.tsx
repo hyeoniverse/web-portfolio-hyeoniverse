@@ -771,14 +771,14 @@ function postProcessMarkedHtml(html: string): string {
         nested += convertList(inner, tag === "ol" ? "decimal" : "disc", depth + 1);
         return "";
       });
-      // checkbox → Plate todo list
+      // checkbox → Plate todo (일반 li가 아닌 별도 처리)
       const checkboxMatch = text.match(/<input([^>]*)type="checkbox"([^>]*)>/);
       if (checkboxMatch) {
         const fullAttrs = (checkboxMatch[1] || "") + (checkboxMatch[2] || "");
         const checked = fullAttrs.includes("checked");
         text = text.replace(/<input[^>]*type="checkbox"[^>]*>\s*/, "");
         text = text.replace(/<\/?p>/g, "").trim();
-        return `<li data-indent="${depth}" data-list-style-type="todo" data-checked="${checked}" style="list-style-type: todo">${text}</li>${nested}`;
+        return `<div data-plate-todo="true" data-todo-checked="${checked}" data-todo-indent="${depth}">${text}</div>${nested}`;
       }
       text = text.replace(/<\/?p>/g, "").trim();
       return `<li data-indent="${depth}" data-list-style-type="${type}">${text}</li>${nested}`;

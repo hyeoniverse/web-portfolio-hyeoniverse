@@ -278,26 +278,23 @@ export const plugins = [
   LinkPlugin.configure({
     render: { node: LinkElement },
   }),
-  // List — data-checked 지원 확장
-  ListPlugin.extend({
+  // List
+  ListPlugin,
+  // Todo list deserializer (postProcessMarkedHtml의 data-plate-todo div 처리)
+  createSlatePlugin({
+    key: "todo_deserializer",
     parsers: {
       html: {
         deserializer: {
-          parse: ({ editor, element }) => {
-            const dataIndent = element.dataset.indent;
-            const ariaLevel = element.getAttribute("aria-level");
-            const indent = dataIndent ? Number(dataIndent) : Number(ariaLevel);
-            const listStyleType = element.dataset.listStyleType || element.style.listStyleType;
-            const result: Record<string, unknown> = {
-              indent: indent || undefined,
-              listStyleType: listStyleType || undefined,
-              type: editor.getType("p"),
-            };
-            if (element.dataset.checked !== undefined) {
-              result.checked = element.dataset.checked === "true";
-            }
-            return result;
-          },
+          isElement: true,
+          rules: [{ validNodeName: "DIV" }],
+          query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-plate-todo"),
+          parse: ({ element }: { element: HTMLElement }) => ({
+            type: "p",
+            indent: Number(element.dataset.todoIndent) || 1,
+            listStyleType: "todo",
+            checked: element.dataset.todoChecked === "true",
+          }),
         },
       },
     },
