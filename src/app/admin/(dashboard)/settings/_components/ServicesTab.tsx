@@ -252,6 +252,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
                     priority: prev.aiCover?.fallback?.priority?.length
                       ? prev.aiCover.fallback.priority
                       : defaultPriority,
+                    excluded: prev.aiCover?.fallback?.excluded ?? [],
                   },
                 },
               }));
@@ -339,6 +340,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
                     priority: prev.aiSummary?.fallback?.priority?.length
                       ? prev.aiSummary.fallback.priority
                       : defaultPriority,
+                    excluded: prev.aiSummary?.fallback?.excluded ?? [],
                   },
                 },
               }));
@@ -426,6 +428,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
                     priority: prev.translation?.fallback?.priority?.length
                       ? prev.translation.fallback.priority
                       : defaultPriority,
+                    excluded: prev.translation?.fallback?.excluded ?? [],
                   },
                 },
               }));

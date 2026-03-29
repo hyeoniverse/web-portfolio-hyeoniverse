@@ -454,7 +454,7 @@ export function ServiceItemsEditor({ items, onChange }: ServiceItemsEditorProps)
       ...item,
       num: String(i + 1).padStart(2, "0"),
     }));
-    onChange(reordered);
+    onChange(reordered as typeof items);
   }, [ids, items, onChange]);
 
   return (
