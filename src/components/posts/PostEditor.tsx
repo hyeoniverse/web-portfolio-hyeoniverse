@@ -303,6 +303,19 @@ function generateSlug(title: string): string {
     .slice(0, 80);
 }
 
+const SLUG_RE = /^[a-z0-9가-힣]+(?:-[a-z0-9가-힣]+)*$/;
+
+function validateSlug(slug: string): string | null {
+  if (!slug.trim()) return null; // 빈 건 다른 검증에서 처리
+  if (slug !== slug.toLowerCase()) return "SLUG_UPPERCASE";
+  if (/\s/.test(slug)) return "SLUG_SPACE";
+  if (/--/.test(slug)) return "SLUG_DOUBLE_HYPHEN";
+  if (/^-|-$/.test(slug)) return "SLUG_EDGE_HYPHEN";
+  if (!SLUG_RE.test(slug)) return "SLUG_INVALID_CHAR";
+  if (slug.length > 80) return "SLUG_TOO_LONG";
+  return null;
+}
+
 export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
   const { tLang, language } = useLanguage();
@@ -355,7 +368,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [translating, setTranslating] = useState(false);
-  const [regeneratingSummary, setRegeneratingSummary] = useState(false);
+  const [generatingSummary, setRegeneratingSummary] = useState(false);
   const [status, setStatusRaw] = useState("");
   const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [statusTimestamp, setStatusTimestamp] = useState<number | undefined>(undefined);
@@ -675,17 +688,124 @@ export default function PostEditor({ post }: PostEditorProps) {
     [translating, editorLang, translateFields],
   );
 
+  const [converting, setConverting] = useState(false);
+
   const handleContentTypeChange = useCallback(
     async (newType: "markdown" | "richtext") => {
       if (newType === form.content_type) return;
+      setConverting(true);
 
       const convert = async (content: string): Promise<string> => {
         if (!content) return content;
         if (form.content_type === "markdown" && newType === "richtext") {
-          return marked.parse(content, { async: false }) as string;
+          let html = marked.parse(content, { async: false }) as string;
+          // marked-footnote → Plate 호환 변환
+          // 참조: <sup><a data-footnote-ref ...>1</a></sup> → <sup data-footnote-ref="1">[1]</sup>
+          html = html.replace(
+            /<sup><a[^>]*data-footnote-ref[^>]*>(\d+)<\/a><\/sup>/g,
+            (_, num) => `<sup data-footnote-ref="${num}" id="fnref-${num}">[${num}]</sup>`
+          );
+          // 정의: <section class="footnotes"...><ol><li id="footnote-N"><p>text <a...>↩</a></p></li>...</ol></section>
+          html = html.replace(
+            /<section[^>]*data-footnotes[^>]*>[\s\S]*?<\/section>/g,
+            (section) => {
+              const items: string[] = [];
+              const liRe = /<li id="footnote-(\d+)"[^>]*>([\s\S]*?)<\/li>/g;
+              let m;
+              while ((m = liRe.exec(section)) !== null) {
+                const id = m[1];
+                const text = m[2].replace(/<\/?p>/g, "").replace(/<a[^>]*data-footnote-backref[^>]*>[^<]*<\/a>/g, "").trim();
+                items.push(`<div data-footnote-content="${id}" id="fn-${id}">${text}</div>`);
+              }
+              return items.join("\n");
+            }
+          );
+          // marked-alert → Plate callout 변환
+          html = html.replace(
+            /<div class="markdown-alert markdown-alert-(\w+)">([\s\S]*?)<\/div>/g,
+            (_, type, inner) => {
+              const iconMap: Record<string, string> = { note: "ℹ️", tip: "💡", important: "❗", warning: "⚠️", caution: "🔴" };
+              const body = inner.replace(/<p class="markdown-alert-title">[\s\S]*?<\/p>/, "").trim();
+              return `<div data-callout data-callout-bg="var(--bg-tertiary)" data-callout-icon="${iconMap[type] || "💡"}">${body}</div>`;
+            }
+          );
+          // marked-katex inline → Plate inline_equation
+          html = html.replace(
+            /<span class="katex">([\s\S]*?)<\/span>(?=(?:(?!<span class="katex">).)*?(?:<\/p>|$))/g,
+            (full) => {
+              const ann = full.match(/<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>/);
+              if (!ann) return full;
+              const tex = ann[1];
+              return `<span data-math-inline="true" data-latex="${tex}">${tex}</span>`;
+            }
+          );
+          // marked-katex block → Plate equation
+          html = html.replace(
+            /<span class="katex-display">([\s\S]*?)<\/span>\s*(?=\n|$)/g,
+            (full) => {
+              const ann = full.match(/<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>/);
+              if (!ann) return full;
+              const tex = ann[1];
+              return `<div data-math-block="true" data-latex="${tex}">${tex}</div>`;
+            }
+          );
+          // 코드블록 wrap toggle 버튼 제거
+          html = html.replace(/<button[^>]*class="code-wrap-toggle"[^>]*>[\s\S]*?<\/button>/g, "");
+          return html;
         } else {
           const TurndownService = (await import("turndown")).default;
-          const td = new TurndownService({ headingStyle: "atx" });
+          const td = new TurndownService({ headingStyle: "atx", codeBlockStyle: "fenced" });
+          // 백틱 이스케이프 방지
+          td.escape = (str: string) => str;
+
+          // 각주 참조: <sup data-footnote-ref="1">[1]</sup> → [^1]
+          td.addRule("footnoteRef", {
+            filter: (node) => node.nodeName === "SUP" && node.hasAttribute("data-footnote-ref"),
+            replacement: (_content, node) => `[^${(node as HTMLElement).getAttribute("data-footnote-ref")}]`,
+          });
+          // 각주 ID span: <span data-footnote-id="1">[1]</span> → 무시
+          td.addRule("footnoteIdSpan", {
+            filter: (node) => node.nodeName === "SPAN" && (node as HTMLElement).hasAttribute("data-footnote-id"),
+            replacement: () => "",
+          });
+          // 각주 내용: <div data-footnote-content="1">text</div> → [^1]: text
+          td.addRule("footnoteContent", {
+            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-footnote-content"),
+            replacement: (content, node) => {
+              const id = (node as HTMLElement).getAttribute("data-footnote-content");
+              return `\n[^${id}]: ${content.trim()}\n`;
+            },
+          });
+          // 수식 블록: <div data-math-block data-latex="..."> → $$...$$
+          td.addRule("mathBlock", {
+            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-math-block"),
+            replacement: (_content, node) => `\n$$\n${(node as HTMLElement).getAttribute("data-latex") ?? ""}\n$$\n`,
+          });
+          // 인라인 수식: <span data-math-inline data-latex="..."> → $...$
+          td.addRule("mathInline", {
+            filter: (node) => node.nodeName === "SPAN" && (node as HTMLElement).hasAttribute("data-math-inline"),
+            replacement: (_content, node) => `$${(node as HTMLElement).getAttribute("data-latex") ?? ""}$`,
+          });
+          // 코드 블록: fenced style 보장
+          td.addRule("codeBlock", {
+            filter: (node) => {
+              if (node.nodeName === "PRE") {
+                const code = (node as HTMLElement).querySelector("code");
+                return !!code;
+              }
+              if (node.nodeName === "DIV" && (node as HTMLElement).classList.contains("code-block-wrap")) return true;
+              return false;
+            },
+            replacement: (_content, node) => {
+              const el = node as HTMLElement;
+              const code = el.querySelector("code");
+              if (!code) return _content;
+              const lang = Array.from(code.classList).find(c => c.startsWith("language-"))?.replace("language-", "") ?? "";
+              const text = code.textContent ?? "";
+              return `\n\`\`\`${lang}\n${text}\n\`\`\`\n`;
+            },
+          });
+
           return td.turndown(content);
         }
       };
@@ -701,6 +821,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         content_en: newContentEn,
         content_type: newType,
       }));
+      setConverting(false);
       setStatus("");
       setError("");
     },
@@ -778,7 +899,9 @@ export default function PostEditor({ post }: PostEditorProps) {
         const _koStarted = !!(form.title.trim() || form.content.trim());
         const _enStarted = !!(form.title_en.trim() || form.content_en.trim());
 
-        if (!form.slug.trim()) missing.push(te("slug"));
+        if (!form.slug.trim()) {
+          missing.push(te("slug"));
+        }
         if (!form.category.trim()) missing.push(te("category"));
 
         if (!_koStarted && !_enStarted) {
@@ -797,6 +920,13 @@ export default function PostEditor({ post }: PostEditorProps) {
 
         if (missing.length > 0) {
           setError(`${missing.join(" · ")} ${te("requiredFields")}`);
+          setShowErrors(true);
+          return;
+        }
+
+        const slugError = validateSlug(form.slug);
+        if (slugError) {
+          setError(`[Slug] ${te(`slugError.${slugError}`)}`);
           setShowErrors(true);
           return;
         }
@@ -943,7 +1073,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     setStatusTimestamp(undefined);
   }, [te]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleRegenerateSummary = useCallback(async () => {
+  const handleGenerateSummary = useCallback(async () => {
     const id = savedId.current ?? post?.id;
     if (!id) return;
     setRegeneratingSummary(true);
@@ -955,13 +1085,20 @@ export default function PostEditor({ post }: PostEditorProps) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? te("saveError"));
+        const raw = data.error ?? "";
+        const status = res.status;
+        const msg = raw.includes("not configured") || status === 503 ? te("summaryNoKey")
+          : status === 429 || raw.includes("429") ? te("summaryRateLimit")
+          : status === 401 || status === 403 || raw.includes("401") || raw.includes("403") ? te("summaryAuthError")
+          : status === 400 || raw.includes("400") ? te("summaryBadRequest")
+          : te("summaryFailed");
+        setError(msg);
         return;
       }
-      setStatus(te("regenerateSummary"));
+      setStatus(te("generateSummaryDone"));
       setStatusType("success");
     } catch {
-      setError(te("saveError"));
+      setError(te("summaryFailed"));
     } finally {
       setRegeneratingSummary(false);
     }
@@ -985,8 +1122,8 @@ export default function PostEditor({ post }: PostEditorProps) {
       retranslate: te("retranslate"),
       retranslateAll: te("retranslateAll"),
       retranslateDisabled: te("retranslateDisabled"),
-      regenerateSummary: te("regenerateSummary"),
-      regenerateSummaryDisabled: te("regenerateSummaryDisabled"),
+      generateSummary: te("generateSummary"),
+      generateSummaryDisabled: te("generateSummaryDisabled"),
     }),
     [te]
   );
@@ -1061,9 +1198,9 @@ export default function PostEditor({ post }: PostEditorProps) {
       onRetranslate={serviceStatus.translation ? handleRetranslate : undefined}
       retranslateOptions={retranslateOptions}
       retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
-      onRegenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleRegenerateSummary : undefined) : undefined}
+      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
-      regeneratingSummary={regeneratingSummary}
+      generatingSummary={generatingSummary}
       currentSnapshot={(() => {
         const stripHtml = (html: string) =>
           html
@@ -1108,9 +1245,14 @@ export default function PostEditor({ post }: PostEditorProps) {
 
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }}>
-            <label className={`${es.fieldLabel}${showErrors && !form.slug.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
+              <label className={`${es.fieldLabel}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
+              {form.slug.trim() && validateSlug(form.slug) && (
+                <span className={styles.slugHint}>{te(`slugError.${validateSlug(form.slug)}`)}</span>
+              )}
+            </div>
             <input
-              className={`${es.fieldInput}${showErrors && !form.slug.trim() ? ` ${es.fieldInputError}` : ""}`}
+              className={`${es.fieldInput}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldInputError}` : ""}`}
               type="text"
               value={form.slug}
               onChange={(e) => {
@@ -1407,7 +1549,16 @@ export default function PostEditor({ post }: PostEditorProps) {
           />
         </div>
 
-        {form.content_type === "markdown" ? (
+        <div className={styles.editorWrap}>
+        {converting ? (
+          <div className={styles.editorSkeleton}>
+            <div className={styles.editorSkeletonBar} style={{ width: "60%" }} />
+            <div className={styles.editorSkeletonBar} style={{ width: "90%" }} />
+            <div className={styles.editorSkeletonBar} style={{ width: "75%" }} />
+            <div className={styles.editorSkeletonBar} style={{ width: "85%" }} />
+            <div className={styles.editorSkeletonBar} style={{ width: "40%" }} />
+          </div>
+        ) : form.content_type === "markdown" ? (
           <MarkdownEditor
             key={editorLang}
             value={form[contentKey]}
@@ -1434,6 +1585,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             postLang={editorLang}
           />
         )}
+        </div>
       </div>
 
       {/* ── 첨부 이미지 패널 ── */}
