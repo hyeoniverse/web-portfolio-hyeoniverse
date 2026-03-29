@@ -1045,10 +1045,8 @@
 
 .priorityBtns {
   display: flex;
-  flex-direction: column;
   flex-shrink: 0;
-  gap: 2px;
-  align-self: center;
+  height: 30px;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   overflow: hidden;
@@ -1058,8 +1056,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 18px;
+  height: 100%;
+  aspect-ratio: 1;
   border: none;
   border-radius: 0;
   background: transparent;
@@ -1071,7 +1069,7 @@
 }
 
 .priorityBtn + .priorityBtn {
-  border-top: var(--border-light);
+  border-left: var(--border-light);
 }
 
 .priorityBtn:disabled {

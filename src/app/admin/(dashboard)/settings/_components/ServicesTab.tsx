@@ -5,7 +5,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
 import Toggle from "@/components/ui/Toggle";
-import { Switch } from "@/components/ui/Switch";
+import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import type { SettingsTabProps } from "../_types";
 import EnvVarFields from "./EnvVarFields";
@@ -112,6 +112,17 @@ function PriorityList<T extends string>({ primary, priority, excluded, options, 
         const label = options.find((o) => o.value === val)?.label ?? val;
         return (
           <div key={val} className={styles.priorityRow}>
+            <Checkbox
+              shape="square"
+              checked={!excluded.includes(val)}
+              onChange={(checked) => {
+                onExcludedChange(
+                  checked
+                    ? excluded.filter((e) => e !== val)
+                    : [...excluded, val]
+                );
+              }}
+            />
             <div
               className={`${styles.priorityItem}${overIdx === idx ? ` ${styles.priorityItemOver}` : ""}`}
               data-draggable
@@ -134,16 +145,6 @@ function PriorityList<T extends string>({ primary, priority, excluded, options, 
               </span>
               <span className={`${styles.priorityLabel} ${excluded.includes(val) ? styles.priorityLabelDisabled : ""}`}>{label}</span>
             </div>
-            <Switch
-              checked={!excluded.includes(val)}
-              onCheckedChange={(checked) => {
-                onExcludedChange(
-                  checked
-                    ? excluded.filter((e) => e !== val)
-                    : [...excluded, val]
-                );
-              }}
-            />
             <div className={styles.priorityBtns}>
               <button
                 type="button"
