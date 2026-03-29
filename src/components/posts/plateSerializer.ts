@@ -165,7 +165,7 @@ function serializeNode(node: SlateNode): string {
         iconHtml = esc(cIcon);
       }
       const borderStyle = cBg === "var(--bg-primary)" ? ";border:1px solid var(--border-light-color)" : "";
-      const iconSpan = cIcon ? `<span style="font-size:20px;line-height:1;flex-shrink:0">${iconHtml}</span>` : "";
+      const iconSpan = cIcon ? `<span data-callout-icon-visual style="font-size:20px;line-height:1;flex-shrink:0">${iconHtml}</span>` : "";
       return `<div data-callout data-callout-bg="${cBg}"${cIcon ? ` data-callout-icon="${esc(cIcon)}"` : ""} style="display:flex;gap:${cIcon ? "12px" : "0"};padding:16px;border-radius:8px;background:${cBg};margin:16px 0${borderStyle}">${iconSpan}<div style="flex:1;min-width:0">${calloutChildren}</div></div>`;
     }
 

@@ -90,7 +90,7 @@ export function FootnoteRefElement(props: PlateElementProps) {
               className={styles.footnoteEditInput}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              onBlur={commitEdit}
+              onBlur={() => commitEdit()}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); commitEdit(true); }
                 else if (e.key === "ArrowLeft") { e.preventDefault(); commitEdit(); requestAnimationFrame(() => { const p = editor.api.findPath(element); if (p) { const before = editor.api.before(p); if (before) editor.tf.select(before); editor.tf.focus(); } }); }
@@ -189,7 +189,7 @@ export function FootnoteContentElement(props: PlateElementProps) {
               className={styles.footnoteEditInput}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              onBlur={commitEdit}
+              onBlur={() => commitEdit()}
               onKeyDown={(e) => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") { setEditing(false); setDraft(id); } }}
             />]
           </>

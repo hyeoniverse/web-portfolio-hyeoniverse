@@ -112,12 +112,19 @@ export default function PlateEditor({
   const findInputRef = useRef<HTMLInputElement>(null);
   const findToolbarRef = useRef<HTMLDivElement>(null);
 
-  // 텍스트 노드에서 매칭 위치 찾기
+  // ── Math editing ──
+  const [mathEditing, setMathEditing] = useState(false);
+  _mathEditingSet.current = setMathEditing;
+
+  const editor = usePlateEditor({
+    plugins,
+    value: value || "<p></p>",
+  });
+
+  // ── Find & Replace helpers (editor 필요) ──
   const findMatches = useCallback(() => {
     if (!findQuery || !editor) return [];
     const matches: { path: number[]; offset: number; length: number }[] = [];
-
-    // 정규식 빌드
     let regex: RegExp;
     try {
       if (findRegex) {
@@ -128,9 +135,8 @@ export default function PlateEditor({
         regex = new RegExp(pattern, findCase ? "g" : "gi");
       }
     } catch {
-      return []; // 잘못된 정규식
+      return [];
     }
-
     const walk = (nodes: unknown[], parentPath: number[]) => {
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i] as Record<string, unknown>;
@@ -140,7 +146,7 @@ export default function PlateEditor({
           regex.lastIndex = 0;
           while ((m = regex.exec(node.text)) !== null) {
             matches.push({ path, offset: m.index, length: m[0].length });
-            if (m[0].length === 0) regex.lastIndex++; // 무한루프 방지
+            if (m[0].length === 0) regex.lastIndex++;
           }
         } else if (Array.isArray(node.children)) {
           walk(node.children, path);
@@ -154,7 +160,6 @@ export default function PlateEditor({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const matches = useMemo(() => findOpen ? findMatches() : [], [findOpen, findQuery, findCase, findWord, findRegex, editor]);
 
-  // decorate: 매칭 텍스트에 findHighlight mark 추가
   const decorate = useCallback(({ entry }: { entry: [Record<string, unknown>, number[]] }) => {
     const [node, path] = entry;
     const ranges: { anchor: { path: number[]; offset: number }; focus: { path: number[]; offset: number }; findHighlight?: boolean; findCurrent?: boolean }[] = [];
@@ -232,7 +237,6 @@ export default function PlateEditor({
   const doReplaceAll = useCallback(() => {
     const m = findMatches();
     if (m.length === 0) return;
-    // 역순으로 교체 (offset 유지)
     editor.tf.withoutNormalizing(() => {
       for (let i = m.length - 1; i >= 0; i--) {
         const match = m[i];
@@ -245,15 +249,6 @@ export default function PlateEditor({
     });
     setFindIdx(0);
   }, [findMatches, replaceQuery, editor]);
-
-  // ── Math editing ──
-  const [mathEditing, setMathEditing] = useState(false);
-  _mathEditingSet.current = setMathEditing;
-
-  const editor = usePlateEditor({
-    plugins,
-    value: value || "<p></p>",
-  });
 
   // ── callout/toggle 안에서 Enter → container split 방지 ──
   useEffect(() => {
@@ -380,7 +375,7 @@ export default function PlateEditor({
   })();
   // debounce: isInColumn이 false→true 깜빡임 방지 (열간 이동 시)
   const [isInColumn, setIsInColumn] = useState(isInColumnRaw);
-  const colDebounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const colDebounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => {
     if (isInColumnRaw) {
       clearTimeout(colDebounceRef.current);
