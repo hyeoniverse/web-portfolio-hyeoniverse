@@ -2,7 +2,7 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-5xl) var(--page-px) var(--spacing-3xl);
 }
 
 /* ── Top Bar ── */
