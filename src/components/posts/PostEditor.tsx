@@ -735,7 +735,7 @@ function postProcessMarkedHtml(html: string): string {
   html = html.replace(
     /<div class="markdown-alert markdown-alert-(\w+)">([\s\S]*?)<\/div>/g,
     (_, type, inner) => {
-      const iconMap: Record<string, string> = { note: "ℹ️", tip: "💡", important: "❗", warning: "⚠��", caution: "🔴" };
+      const iconMap: Record<string, string> = { note: "ℹ️", tip: "💡", important: "❗", warning: "⚠️", caution: "🔴" };
       const body = inner.replace(/<p class="markdown-alert-title">[\s\S]*?<\/p>/, "").trim();
       return `<div data-callout data-callout-bg="var(--bg-tertiary)" data-callout-icon="${iconMap[type] || "💡"}">${body}</div>`;
     }
