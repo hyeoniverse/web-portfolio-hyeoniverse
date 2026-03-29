@@ -780,9 +780,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     setStatusType("info");
   }, [tw]);
 
-  const [regeneratingSummary, setRegeneratingSummary] = useState(false);
+  const [generatingSummary, setRegeneratingSummary] = useState(false);
 
-  const handleRegenerateSummary = useCallback(async () => {
+  const handleGenerateSummary = useCallback(async () => {
     const id = savedId.current ?? work?.id;
     if (!id) return;
     setRegeneratingSummary(true);
@@ -797,7 +797,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setError(data.error ?? tw("saveError"));
         return;
       }
-      setStatus(tw("regenerateSummary"));
+      setStatus(tw("generateSummaryDone"));
       setStatusType("success");
     } catch {
       setError(tw("saveError"));
@@ -824,8 +824,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       retranslate: tw("retranslate"),
       retranslateAll: tw("retranslateAll"),
       retranslateDisabled: tw("retranslateDisabled"),
-      regenerateSummary: tw("regenerateSummary"),
-      regenerateSummaryDisabled: tw("regenerateSummaryDisabled"),
+      generateSummary: tw("generateSummary"),
+      generateSummaryDisabled: tw("generateSummaryDisabled"),
     }),
     [tw],
   );
@@ -874,9 +874,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       onRetranslate={serviceStatus.translation ? handleRetranslate : undefined}
       retranslateOptions={retranslateOptions}
       retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
-      onRegenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleRegenerateSummary : undefined) : undefined}
+      onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
-      regeneratingSummary={regeneratingSummary}
+      generatingSummary={generatingSummary}
       currentSnapshot={(() => {
         const stripHtml = (html: string) =>
           html

@@ -482,6 +482,14 @@
         "update": "Save",
         "publish": "Publish",
         "slug": "Slug",
+        "slugError": {
+          "SLUG_UPPERCASE": "Only lowercase allowed",
+          "SLUG_SPACE": "Spaces not allowed (use hyphens)",
+          "SLUG_DOUBLE_HYPHEN": "No consecutive hyphens",
+          "SLUG_EDGE_HYPHEN": "Cannot start or end with hyphen",
+          "SLUG_INVALID_CHAR": "Only lowercase, numbers, Korean, hyphens",
+          "SLUG_TOO_LONG": "Must be 80 characters or less"
+        },
         "excerpt": "Excerpt",
         "category": "Category",
         "customCategory": "Custom...",
@@ -530,8 +538,14 @@
         "retranslate": "Retranslate",
         "retranslateAll": "All",
         "retranslateDisabled": "Translation unavailable: API key not configured",
-        "regenerateSummary": "Regenerate AI Summary",
-        "regenerateSummaryDisabled": "AI summary unavailable: API key not configured",
+        "generateSummary": "Generate AI Summary",
+        "generateSummaryDone": "AI summary generated",
+        "generateSummaryDisabled": "AI summary unavailable: API key not configured",
+        "summaryFailed": "Failed to generate AI summary.",
+        "summaryNoKey": "AI API key is not configured.",
+        "summaryBadRequest": "AI request failed. Please check your API key or settings.",
+        "summaryAuthError": "AI API key is invalid.",
+        "summaryRateLimit": "AI API rate limit exceeded. Please try again later.",
         "insertTemplate": "Insert Template",
         "templateConfirm": "Content exists. Template will be appended. Continue?"
       },
@@ -543,7 +557,7 @@
         "generating": "Generating...",
         "generate": "Generate",
         "useThis": "Use this",
-        "regenerate": "Regenerate",
+        "generate": "Generate",
         "generationFailed": "Generation failed",
         "searchPlaceholder": "Search photos...",
         "noPhotos": "No photos found",
@@ -705,8 +719,9 @@
         "retranslate": "Retranslate",
         "retranslateAll": "All",
         "retranslateDisabled": "Translation unavailable: API key not configured",
-        "regenerateSummary": "Regenerate AI Summary",
-        "regenerateSummaryDisabled": "AI summary unavailable: API key not configured"
+        "generateSummary": "Generate AI Summary",
+        "generateSummaryDone": "AI summary generated",
+        "generateSummaryDisabled": "AI summary unavailable: API key not configured"
       }
     }
   },
@@ -804,7 +819,7 @@
   "aiSummary": {
     "label": "AI Summary",
     "generating": "Generating summary...",
-    "regenerate": "Regenerate"
+    "generate": "Generate"
   },
   "tooltip": {
     "contact": "Opens the contact form",
