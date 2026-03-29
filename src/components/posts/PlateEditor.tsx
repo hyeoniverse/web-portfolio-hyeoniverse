@@ -479,6 +479,18 @@ export default function PlateEditor({
     prevValueRef.current = value;
     try {
       const nodes = editor.api.html.deserialize({ element: value || "<p></p>" });
+      // todo 노드 보정: listStyleType이 "todo"인데 checked가 없으면 추가
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fixTodo = (n: any): any => {
+        if (n && typeof n === "object") {
+          if (n.listStyleType === "todo" && !Object.hasOwn(n, "checked")) {
+            n.checked = false;
+          }
+          if (Array.isArray(n.children)) n.children.forEach(fixTodo);
+        }
+        return n;
+      };
+      if (Array.isArray(nodes)) nodes.forEach(fixTodo);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       editor.tf.setValue(nodes as any);
     } catch {
