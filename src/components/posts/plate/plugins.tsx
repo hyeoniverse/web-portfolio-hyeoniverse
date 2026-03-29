@@ -406,11 +406,20 @@ export const plugins = [
         deserializer: {
           rules: [{ validNodeName: "DIV" }],
           query: ({ element }: { element: HTMLElement }) => element.hasAttribute("data-callout"),
-          parse: ({ element }: { element: HTMLElement }) => ({
-            type: "callout",
-            bg: element.getAttribute("data-callout-bg") || "var(--bg-tertiary)",
-            icon: element.getAttribute("data-callout-icon") || "💡",
-          }),
+          parse: ({ element }: { element: HTMLElement }) => {
+            // 아이콘 visual span 제거 (children에 중복 삽입 방지)
+            element.querySelectorAll("[data-callout-icon-visual]").forEach((el) => el.remove());
+            // flex wrapper div 안의 내용을 바로 callout children으로
+            const contentDiv = element.querySelector("div[style*='flex:1']") || element.querySelector("div[style*='flex: 1']");
+            if (contentDiv) {
+              element.innerHTML = contentDiv.innerHTML;
+            }
+            return {
+              type: "callout",
+              bg: element.getAttribute("data-callout-bg") || "var(--bg-tertiary)",
+              icon: element.getAttribute("data-callout-icon") || "💡",
+            };
+          },
         },
       },
     },
@@ -420,24 +429,6 @@ export const plugins = [
     key: "footnote_ref",
     node: { isElement: true, isInline: true, isVoid: true },
     render: { node: FootnoteRefElement },
-    handlers: {
-      onChange: ({ editor }) => {
-        // 참조가 삭제되면 고아 정의 블록도 삭제
-        const refIds = new Set<string>();
-        for (const [node] of editor.api.nodes({ at: [], match: (n) => (n as Record<string, unknown>).type === "footnote_ref" })) {
-          refIds.add(String((node as Record<string, unknown>).footnoteId ?? ""));
-        }
-        const orphans: number[][] = [];
-        for (const [node, path] of editor.api.nodes({ at: [], match: (n) => (n as Record<string, unknown>).type === "footnote_content" })) {
-          const id = String((node as Record<string, unknown>).footnoteId ?? "");
-          if (!refIds.has(id)) orphans.push(path as number[]);
-        }
-        // 뒤에서부터 삭제 (path 꼬임 방지)
-        for (const path of orphans.reverse()) {
-          editor.tf.removeNodes({ at: path });
-        }
-      },
-    },
     parsers: {
       html: {
         deserializer: {
@@ -456,23 +447,6 @@ export const plugins = [
     key: "footnote_content",
     node: { isElement: true },
     render: { node: FootnoteContentElement },
-    handlers: {
-      onChange: ({ editor }) => {
-        // 정의가 삭제되면 고아 참조도 삭제
-        const contentIds = new Set<string>();
-        for (const [node] of editor.api.nodes({ at: [], match: (n) => (n as Record<string, unknown>).type === "footnote_content" })) {
-          contentIds.add(String((node as Record<string, unknown>).footnoteId ?? ""));
-        }
-        const orphans: number[][] = [];
-        for (const [node, path] of editor.api.nodes({ at: [], match: (n) => (n as Record<string, unknown>).type === "footnote_ref" })) {
-          const id = String((node as Record<string, unknown>).footnoteId ?? "");
-          if (!contentIds.has(id)) orphans.push(path as number[]);
-        }
-        for (const path of orphans.reverse()) {
-          editor.tf.removeNodes({ at: path });
-        }
-      },
-    },
     parsers: {
       html: {
         deserializer: {

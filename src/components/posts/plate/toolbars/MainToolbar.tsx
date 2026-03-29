@@ -129,6 +129,7 @@ function FontPicker({ value, onChange, preferEn }: { value: string; onChange: (v
       variant="compact"
       renderValue={() => currentLabel}
       className={styles.fontPickerSelect}
+      dropdownClassName={styles.fontPickerDropdown}
     >
       {({ close }) => (
         <>
@@ -650,7 +651,7 @@ export default React.memo(function MainToolbar({
         // 현재 각주 번호 계산
         const existing = Array.from(editor.api.nodes({
           at: [],
-          match: (n) => (n as Record<string, unknown>).type === "footnote_ref",
+          match: (n: Record<string, unknown>) => n.type === "footnote_ref",
         }));
         const nextId = String(existing.length + 1);
         // 커서 위치에 참조 삽입
