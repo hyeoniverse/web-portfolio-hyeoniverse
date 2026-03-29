@@ -396,7 +396,7 @@ Error: Module not found: Can't resolve '@/lib/utils'
 
 빌드 성공. CI/CD 파이프라인 정상 통과.
 
-## 교훈
+## TL;DR
 
 - 대소문자 구분은 OS마다 다르므로 항상 일관되게 작성할 것
 - CI 환경(Linux)에서 반드시 빌드 테스트할 것
@@ -454,7 +454,7 @@ Investigation revealed mismatched casing in import paths.
 
 Build successful. CI/CD pipeline passed.
 
-## Takeaway
+## TL;DR
 
 - Casing rules differ across OS — always be consistent
 - Always test builds in CI environment (Linux)
