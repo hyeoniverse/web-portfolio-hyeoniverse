@@ -765,10 +765,6 @@
     gap: var(--spacing-xs);
   }
 
-  .saveBtn,
-  .publishBtn {
-    flex: 1;
-  }
 
   .bottomBar {
     justify-content: flex-start;
