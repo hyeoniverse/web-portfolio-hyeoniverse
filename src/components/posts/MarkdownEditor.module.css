@@ -156,6 +156,30 @@
   margin-bottom: var(--spacing-sm);
 }
 
+.preview ul,
+.preview ol {
+  padding-left: var(--spacing-xl);
+  margin-bottom: var(--spacing-sm);
+}
+
+.preview li {
+  margin-bottom: var(--spacing-2xs);
+}
+
+.preview ul li::marker {
+  font-size: 0.8em;
+}
+
+/* 체크리스트: checkbox가 마커 대신 */
+.preview li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: calc(-1 * var(--spacing-md));
+}
+
+.preview li > input[type="checkbox"] {
+  margin-right: var(--spacing-2xs);
+}
+
 .preview code {
   font-family: var(--font-mono);
   font-size: 0.9em;
@@ -481,7 +505,7 @@
 /* ── Help panel ── */
 .helpPanel {
   border: none;
-  border-bottom: var(--border-light);
+  border-bottom: none;
   border-radius: 0;
   background: transparent;
   padding: 0 var(--spacing-md);
@@ -495,6 +519,7 @@
 .helpPanelOpen {
   max-height: 300px;
   padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: var(--border-light);
   clip-path: inset(0);
 }
 
