@@ -7,6 +7,7 @@
 
 /* ── Top Bar ── */
 .topBar {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -48,6 +49,9 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
+  min-width: 0;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .actionsDivider {
@@ -96,10 +100,17 @@
 .statusBanner,
 .errorBanner,
 .successBanner {
+  position: absolute;
+  top: calc(-1 * var(--spacing-md));
+  right: 0;
+  transform: translateY(-100%);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  line-height: 1;
+  line-height: 1.4;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .statusBanner {
@@ -726,16 +737,37 @@
     font-size: var(--font-size-2xl);
   }
 
-  .topBarRow {
-    flex-wrap: wrap;
-  }
-
-  .topBarRow:last-child {
-    justify-content: flex-start;
+  .topBar {
+    gap: var(--spacing-xs);
   }
 
   .actionsDivider {
     display: none;
+  }
+
+  /* 1줄: 뒤로가기(왼) + 액션버튼들(오) */
+  .topBarRow:first-child {
+    gap: var(--spacing-xs);
+  }
+
+  .topLeft {
+    flex: 1;
+    min-width: 0;
+    gap: var(--spacing-xs);
+  }
+
+  .topBarActions {
+    gap: var(--spacing-2xs);
+  }
+
+  /* 2줄: 저장/발행 균등 배치 */
+  .topBarRow:last-child {
+    gap: var(--spacing-xs);
+  }
+
+  .saveBtn,
+  .publishBtn {
+    flex: 1;
   }
 
   .bottomBar {
