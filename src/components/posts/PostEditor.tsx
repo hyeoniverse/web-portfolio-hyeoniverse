@@ -772,9 +772,10 @@ function postProcessMarkedHtml(html: string): string {
         return "";
       });
       // checkbox → Plate todo list
-      const checkboxMatch = text.match(/<input[^>]*type="checkbox"([^>]*)>/);
+      const checkboxMatch = text.match(/<input([^>]*)type="checkbox"([^>]*)>/);
       if (checkboxMatch) {
-        const checked = checkboxMatch[1].includes("checked");
+        const fullAttrs = (checkboxMatch[1] || "") + (checkboxMatch[2] || "");
+        const checked = fullAttrs.includes("checked");
         text = text.replace(/<input[^>]*type="checkbox"[^>]*>\s*/, "");
         text = text.replace(/<\/?p>/g, "").trim();
         return `<li data-indent="${depth}" data-list-style-type="todo" data-checked="${checked}" style="list-style-type: todo">${text}</li>${nested}`;
