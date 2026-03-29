@@ -1,6 +1,27 @@
 /* ── PostEditor-specific styles ── */
 /* Shared shell styles (container, topBar, buttons, field, tags, etc.) are in AdminEditorShell */
 
+/* ── Editor conversion skeleton ── */
+.editorSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  min-height: 300px;
+}
+
+.editorSkeletonBar {
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
 /* Meta fields — open, breathing */
 .meta {
   display: flex;
@@ -337,6 +358,13 @@
   gap: var(--spacing-xs);
 }
 
+/* ── Slug hint ── */
+.slugHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+}
+
 /* ── Editor area ── */
 .editorSection {
   display: flex;
@@ -344,6 +372,22 @@
   gap: var(--spacing-md);
   padding-top: var(--spacing-xl);
   border-top: var(--border-light);
+}
+
+/* ── Editor wrap (resizable) ── */
+.editorWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 60vh;
+  min-height: 200px;
+  resize: vertical;
+  overflow: hidden;
+}
+
+.editorWrap > * {
+  flex: 1;
+  min-height: 0;
 }
 
 /* 첨부 이미지 패널 — 에디터 섹션 아래 별개 영역 */
@@ -377,17 +421,18 @@
 
 .templateBtn {
   padding: var(--box-2xs-md);
-  border: var(--border-default);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 .editorHeaderLeft .templateBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 .editorHelpBtn {
@@ -395,12 +440,12 @@
   height: 22px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: var(--border-default);
+  border: var(--border-strong);
   background: transparent;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -408,13 +453,15 @@
 }
 
 .editorHeaderLeft .editorHelpBtn:hover {
-  border-color: var(--text-secondary);
-  color: var(--text-primary);
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 .editorHelpBtnActive {
-  border-color: var(--text-secondary);
-  color: var(--text-primary);
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 /* ── Shortcuts modal content ── */

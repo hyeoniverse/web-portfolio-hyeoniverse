@@ -31,8 +31,8 @@ interface EditorLabels {
   retranslate?: string;
   retranslateAll?: string;
   retranslateDisabled?: string;
-  regenerateSummary?: string;
-  regenerateSummaryDisabled?: string;
+  generateSummary?: string;
+  generateSummaryDisabled?: string;
 }
 
 export interface RetranslateOption {
@@ -75,8 +75,8 @@ interface AdminEditorShellProps {
   onRetranslate?: (fields?: string[]) => void;
   retranslateOptions?: RetranslateOption[];
   retranslateDisabled?: boolean;
-  onRegenerateSummary?: () => void;
-  regeneratingSummary?: boolean;
+  onGenerateSummary?: () => void;
+  generatingSummary?: boolean;
   aiSummaryDisabled?: boolean;
   currentSnapshot?: { title: string; excerpt?: string; content?: string; meta?: Record<string, string> };
   topBarSecondRowLeft?: ReactNode;
@@ -171,8 +171,8 @@ export default function AdminEditorShell({
   onRetranslate,
   retranslateOptions,
   retranslateDisabled = false,
-  onRegenerateSummary,
-  regeneratingSummary = false,
+  onGenerateSummary,
+  generatingSummary = false,
   aiSummaryDisabled = false,
   currentSnapshot,
   topBarSecondRowLeft,
@@ -311,19 +311,18 @@ export default function AdminEditorShell({
               )}
             </div>
           )}
-          {(onRegenerateSummary || aiSummaryDisabled) && (
-            <Tooltip content={aiSummaryDisabled ? (labels.regenerateSummaryDisabled ?? "API key not configured") : (labels.regenerateSummary ?? "Regenerate AI Summary")} placement="bottom">
+          {(onGenerateSummary || aiSummaryDisabled) && (
+            <Tooltip content={aiSummaryDisabled ? (labels.generateSummaryDisabled ?? "API key not configured") : (labels.generateSummary ?? "Generate AI Summary")} placement="bottom">
               <Button
                 variant="outline"
                 shape="circle"
                 size="xs"
-                onClick={aiSummaryDisabled ? undefined : onRegenerateSummary}
-                disabled={saving || regeneratingSummary || aiSummaryDisabled}
+                onClick={aiSummaryDisabled ? undefined : onGenerateSummary}
+                disabled={saving || generatingSummary || aiSummaryDisabled}
                 soundDisabled
                 icon={
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="1 4 1 10 7 10" />
-                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z" />
                   </svg>
                 }
               />
