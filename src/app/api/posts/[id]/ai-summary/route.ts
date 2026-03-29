@@ -14,6 +14,7 @@ interface RouteContext {
 
 // POST /api/posts/[id]/ai-summary — AI 자동 요약 생성 (ko + en)
 export async function POST(request: Request, context: RouteContext) {
+  try {
   const { id } = await context.params;
   const body = await request.json().catch(() => ({}));
   const force = body.force === true;
@@ -90,7 +91,11 @@ ${contentEn}`;
           headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
           body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 1024, messages: [{ role: "user", content: promptText }] }),
         });
-        if (!res.ok) throw new Error(`Claude error: ${res.status}`);
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          console.error("[posts/ai-summary] Claude detail:", JSON.stringify(errBody));
+          throw new Error(`Claude error: ${res.status}`);
+        }
         const data = await res.json();
         const parsed: { ko?: string; en?: string } = JSON.parse(data?.content?.[0]?.text ?? "{}");
         summaryKo = parsed.ko ?? ""; summaryEn = parsed.en ?? "";
@@ -116,6 +121,14 @@ ${contentEn}`;
     }
   }
 
-  const status = lastError.includes("not configured") ? 503 : 502;
+  const status = lastError.includes("not configured") ? 503
+    : lastError.includes("429") ? 429
+    : lastError.includes("401") || lastError.includes("403") ? 401
+    : lastError.includes("400") ? 400
+    : 502;
   return NextResponse.json({ error: lastError }, { status });
+  } catch (outerError) {
+    console.error("[posts/ai-summary] OUTER ERROR:", outerError);
+    return NextResponse.json({ error: String(outerError) }, { status: 500 });
+  }
 }

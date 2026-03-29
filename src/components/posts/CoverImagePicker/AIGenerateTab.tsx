@@ -188,7 +188,7 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
               onClick={handleGenerate}
               disabled={generating}
             >
-              {tc("regenerate")}
+              {tc("generate")}
             </button>
           </div>
         </div>

@@ -116,6 +116,10 @@ ${contentEn}`;
     }
   }
 
-  const status = lastError.includes("not configured") ? 503 : 502;
+  const status = lastError.includes("not configured") ? 503
+    : lastError.includes("429") ? 429
+    : lastError.includes("401") || lastError.includes("403") ? 401
+    : lastError.includes("400") ? 400
+    : 502;
   return NextResponse.json({ error: lastError }, { status });
 }
