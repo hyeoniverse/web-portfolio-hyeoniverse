@@ -101,7 +101,7 @@
 .errorBanner,
 .successBanner {
   position: absolute;
-  top: calc(-1 * var(--spacing-md));
+  top: 0;
   right: 0;
   transform: translateY(-100%);
   font-family: var(--font-space-grotesk);
