@@ -646,6 +646,31 @@ export default React.memo(function MainToolbar({
         Embed
       </TBtn>
       <TBtn tooltip={t("editor.insertMath")} onClick={onInsertMath}>∑</TBtn>
+      <TBtn tooltip={language === "ko" ? "각주" : "Footnote"} onClick={() => {
+        // 현재 각주 번호 계산
+        const existing = Array.from(editor.api.nodes({
+          at: [],
+          match: (n) => (n as Record<string, unknown>).type === "footnote_ref",
+        }));
+        const nextId = String(existing.length + 1);
+        // 커서 위치에 참조 삽입
+        editor.tf.insertNodes({
+          type: "footnote_ref",
+          footnoteId: nextId,
+          children: [{ text: "" }],
+        }, { at: editor.selection ?? undefined });
+        // void 뒤에 zero-width space 삽입 + 커서 이동
+        editor.tf.insertText("\u200B");
+        // 문서 끝에 각주 내용 블록 추가
+        const lastPath = [editor.children.length];
+        editor.tf.insertNodes({
+          type: "footnote_content",
+          footnoteId: nextId,
+          children: [{ text: language === "ko" ? "각주 내용" : "Footnote text" }],
+        }, { at: lastPath });
+      }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 016.5 2H20v20H6.5a2.5 2.5 0 010-5H20"/><text x="9" y="15" fontSize="10" fill="currentColor" stroke="none" fontFamily="serif">1</text></svg>
+      </TBtn>
       <div className={styles.divider} />
 
       <TBtn

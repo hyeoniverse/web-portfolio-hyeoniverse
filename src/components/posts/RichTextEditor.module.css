@@ -1,8 +1,7 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  height: 70vh;
-  min-height: 400px;
+  height: 100%;
   position: relative;
 }
 
@@ -205,6 +204,7 @@
 /* ── Font picker Select override ── */
 .fontPickerSelect {
   flex: 0 0 auto;
+  width: auto;
 }
 
 /* trigger */
@@ -2413,4 +2413,120 @@
 
 .colElement:last-child::after {
   display: none;
+}
+
+/* ── Footnote ── */
+
+/* 참조: accent 위첨자 */
+.footnoteRef {
+  color: var(--color-accent);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+}
+
+.footnoteRef:hover {
+  text-decoration: underline;
+}
+
+.footnoteRefSelected {
+  background: var(--color-accent-alpha-20);
+  border-radius: var(--radius-xs);
+  padding: 1px 3px;
+}
+
+.footnoteEditInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  width: 2ch;
+  min-width: 1ch;
+  padding: 0;
+  text-align: center;
+}
+
+/* 각주 내용 블록 */
+.footnoteContent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  margin: var(--spacing-2xs) 0;
+  background: transparent;
+  position: relative;
+}
+
+/* 첫 각주: 상단 구분선 + 제목 + 넓은 여백 */
+.footnoteContent:not(.footnoteContent + .footnoteContent) {
+  border-top: var(--border-default);
+  margin-top: var(--spacing-3xl);
+  padding-top: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.footnoteContent:not(.footnoteContent + .footnoteContent)::before {
+  width: 100%;
+  content: "Footnotes";
+  display: block;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2xs);
+}
+
+.footnoteContent + .footnoteContent {
+  border-top: none;
+  margin-top: var(--spacing-2xs);
+  padding-top: var(--spacing-sm);
+}
+
+.footnoteContentId {
+  color: var(--color-accent);
+  font-weight: 600;
+  flex-shrink: 0;
+  user-select: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.footnoteContentId:hover {
+  text-decoration: underline;
+}
+
+.footnoteContentBody {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* 삭제 버튼: 우상단, 호버 시만 */
+.footnoteRemoveBtn {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.6;
+}
+
+.footnoteRemoveBtn:hover {
+  background: var(--color-accent);
+  color: #fff;
+  opacity: 1;
 }

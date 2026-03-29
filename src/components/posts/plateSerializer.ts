@@ -352,6 +352,16 @@ function serializeNode(node: SlateNode): string {
       return `<span data-math-inline="true" data-latex="${esc(tex)}">${esc(tex)}</span>`;
     }
 
+    // ── Footnote ──
+    case "footnote_ref": {
+      const fnId = String(el.footnoteId ?? "");
+      return `<sup data-footnote-ref="${esc(fnId)}" id="fnref-${esc(fnId)}">[${esc(fnId)}]</sup>`;
+    }
+    case "footnote_content": {
+      const fnId = String(el.footnoteId ?? "");
+      return `<div data-footnote-content="${esc(fnId)}" id="fn-${esc(fnId)}">${children}</div>`;
+    }
+
     // ── Fallback ──
     default:
       return children || "";
