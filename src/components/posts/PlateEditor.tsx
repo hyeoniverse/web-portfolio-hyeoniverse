@@ -479,28 +479,15 @@ export default function PlateEditor({
     prevValueRef.current = value;
     try {
       const nodes = editor.api.html.deserialize({ element: value || "<p></p>" });
-      // {{TODO_CHECKED}} / {{TODO_UNCHECKED}} 마커를 todo 노드로 변환
+      // todo 노드 보정: listStyleType이 "todo"인데 checked가 없으면 추가
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fixTodo = (nodes: any[]) => {
-        for (const n of nodes) {
+      const fixTodo = (items: any[]) => {
+        for (const n of items) {
           if (!n || typeof n !== "object") continue;
-          // listStyleType: "todo"인데 checked 누락 보정
           if (n.listStyleType === "todo" && !Object.hasOwn(n, "checked")) {
             n.checked = false;
           }
-          if (!Array.isArray(n.children)) continue;
-          // 모든 텍스트 노드에서 마커 검색
-          for (const child of n.children) {
-            if (typeof child.text !== "string") continue;
-            const m = child.text.match(/\{\{TODO_(CHECKED|UNCHECKED)\}\}/);
-            if (m) {
-              child.text = child.text.replace(/\{\{TODO_(?:CHECKED|UNCHECKED)\}\}/, "");
-              n.listStyleType = "todo";
-              n.checked = m[1] === "CHECKED";
-              break;
-            }
-          }
-          fixTodo(n.children);
+          if (Array.isArray(n.children)) fixTodo(n.children);
         }
       };
       if (Array.isArray(nodes)) fixTodo(nodes);

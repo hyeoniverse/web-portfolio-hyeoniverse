@@ -771,15 +771,12 @@ function postProcessMarkedHtml(html: string): string {
         nested += convertList(inner, tag === "ol" ? "decimal" : "disc", depth + 1);
         return "";
       });
-      // checkbox → 일반 리스트 + 텍스트 마커 (PlateEditor에서 todo 노드로 후처리)
+      // checkbox → todo list item
       const checkboxMatch = text.match(/<input([^>]*)type="checkbox"([^>]*)>/);
       if (checkboxMatch) {
-        const fullAttrs = (checkboxMatch[1] || "") + (checkboxMatch[2] || "");
-        const checked = fullAttrs.includes("checked");
         text = text.replace(/<input[^>]*type="checkbox"[^>]*>\s*/, "");
         text = text.replace(/<\/?p>/g, "").trim();
-        const marker = checked ? "{{TODO_CHECKED}}" : "{{TODO_UNCHECKED}}";
-        return `<li data-indent="${depth}" data-list-style-type="disc">${marker}${text}</li>${nested}`;
+        return `<li data-indent="${depth}" data-list-style-type="todo" style="list-style-type: todo">${text}</li>${nested}`;
       }
       text = text.replace(/<\/?p>/g, "").trim();
       return `<li data-indent="${depth}" data-list-style-type="${type}">${text}</li>${nested}`;
