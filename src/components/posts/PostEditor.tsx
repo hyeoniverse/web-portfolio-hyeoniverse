@@ -777,7 +777,7 @@ function postProcessMarkedHtml(html: string): string {
         const checked = checkboxMatch[1].includes("checked");
         text = text.replace(/<input[^>]*type="checkbox"[^>]*>\s*/, "");
         text = text.replace(/<\/?p>/g, "").trim();
-        return `<ul data-indent="${depth}"><li style="list-style-type: todo" data-list-style-type="todo" data-checked="${checked}">${text}</li></ul>${nested}`;
+        return `<li data-indent="${depth}" data-list-style-type="todo" data-checked="${checked}" style="list-style-type: todo">${text}</li>${nested}`;
       }
       text = text.replace(/<\/?p>/g, "").trim();
       return `<li data-indent="${depth}" data-list-style-type="${type}">${text}</li>${nested}`;
