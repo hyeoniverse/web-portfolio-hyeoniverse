@@ -681,15 +681,11 @@ function SocialIconArea({ link, isCustom, onUploaded }: {
       formData.append("file", file);
       formData.append("folder", "icons");
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        setError(err.error || "Upload failed");
-        return;
-      }
+      if (!res.ok) return;
       const data = await res.json();
       onUploaded(data.url);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+    } catch {
+      // upload failed
     } finally {
       setUploading(false);
     }
