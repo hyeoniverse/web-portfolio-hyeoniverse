@@ -419,6 +419,7 @@ CREATE TABLE IF NOT EXISTS revisions (
   entity_id   uuid NOT NULL,
   snapshot    jsonb NOT NULL DEFAULT '{}',
   title       text NOT NULL DEFAULT '',
+  dismissed   boolean NOT NULL DEFAULT false,
   created_at  timestamptz DEFAULT now()
 );
 

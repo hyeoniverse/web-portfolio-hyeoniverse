@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("revisions")
-    .select("id, entity_type, entity_id, title, created_at")
+    .select("id, entity_type, entity_id, title, dismissed, created_at")
     .eq("entity_type", entityType)
     .eq("entity_id", entityId)
     .order("created_at", { ascending: false })
