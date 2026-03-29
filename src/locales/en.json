@@ -547,7 +547,9 @@
         "summaryAuthError": "AI API key is invalid.",
         "summaryRateLimit": "AI API rate limit exceeded. Please try again later.",
         "insertTemplate": "Insert Template",
-        "templateConfirm": "Content exists. Template will be appended. Continue?"
+        "templateDesc": "Choose a template to insert.",
+        "templateConfirm": "Template will be appended after existing content. Continue?",
+        "cancel": "Cancel"
       },
       "coverPicker": {
         "presets": "Presets",
