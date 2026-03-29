@@ -6,6 +6,7 @@ export interface RevisionItem {
   id: string;
   timestamp: number;
   title: string;
+  dismissed?: boolean;
 }
 
 interface UseRevisionsOptions {
@@ -33,10 +34,11 @@ export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
       .then((data) => {
         if (Array.isArray(data)) {
           setRevisions(
-            data.map((r: { id: string; created_at: string; title: string }) => ({
+            data.map((r: { id: string; created_at: string; title: string; dismissed?: boolean }) => ({
               id: r.id,
               timestamp: new Date(r.created_at).getTime(),
               title: r.title,
+              dismissed: r.dismissed,
             })),
           );
         }
@@ -117,5 +119,24 @@ export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
     [],
   );
 
-  return { revisions, saveRevision, loadRevisionSnapshot, deleteRevision };
+  // 리비전 거절 (dismissed 마킹)
+  const dismissRevision = useCallback(
+    async (revisionId: string) => {
+      try {
+        const res = await fetch(`/api/revisions/${revisionId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dismissed: true }),
+        });
+        if (!res.ok) return false;
+        setRevisions((prev) => prev.map((r) => r.id === revisionId ? { ...r, dismissed: true } : r));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [],
+  );
+
+  return { revisions, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision };
 }
