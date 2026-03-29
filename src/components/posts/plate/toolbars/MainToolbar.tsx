@@ -518,8 +518,13 @@ export default React.memo(function MainToolbar({
         const [node, path] = entry;
         const el = node as Record<string, unknown>;
         if (Object.hasOwn(el, "checked")) {
+          // todo → 일반 블록
           editor.tf.unsetNodes(["checked", "listStyleType"], { at: path });
         } else {
+          // 기존 리스트(disc/decimal 등)면 먼저 해제
+          if (el.listStyleType && el.listStyleType !== "todo") {
+            editor.tf.unsetNodes(["listStyleType", "indent"], { at: path });
+          }
           editor.tf.setNodes({ checked: false, listStyleType: "todo" }, { at: path });
         }
       }} tooltip={t("editor.todoList")}>
