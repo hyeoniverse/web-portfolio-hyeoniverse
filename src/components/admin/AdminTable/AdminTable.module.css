@@ -70,9 +70,7 @@
 }
 
 /* Changed row indicator */
-.rowChanged {
-  background: var(--bg-tertiary);
-}
+.rowChanged {}
 
 /* ── Meta columns ── */
 .colMeta {
