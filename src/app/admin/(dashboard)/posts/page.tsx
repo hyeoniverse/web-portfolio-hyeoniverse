@@ -178,6 +178,38 @@ export default function AdminPostsPage() {
     setSeriesLoading(false);
   }, []);
 
+  const mdInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleMdUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    let created = 0;
+    for (const file of Array.from(files)) {
+      if (!file.name.endsWith(".md")) continue;
+      const text = await file.text();
+      // 파일명에서 제목 추출 (확장자 제거)
+      const title = file.name.replace(/\.md$/, "");
+      const slug = title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-|-$/g, "");
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          slug,
+          content: text,
+          content_type: "markdown",
+          published: false,
+        }),
+      });
+      if (res.ok) created++;
+    }
+    if (mdInputRef.current) mdInputRef.current.value = "";
+    setUploading(false);
+    if (created > 0) fetchPosts();
+  }, [fetchPosts]);
+
   const fetchTrash = useCallback(async () => {
     const res = await fetch("/api/posts?trash=true&limit=100");
     const data = await res.json();
@@ -736,6 +768,14 @@ export default function AdminPostsPage() {
       onSave={handleSave}
       saveCount={publishOverrides.size}
       saveLabel={t("admin.posts.save")}
+      headerExtra={
+        <>
+          <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
+          <button className={shell.newBtn} style={{ opacity: 0.7 }} onClick={() => mdInputRef.current?.click()} disabled={uploading}>
+            {uploading ? "..." : t("admin.posts.uploadMd")}
+          </button>
+        </>
+      }
       beforeTable={!loading ? seriesSection : undefined}
       afterTable={!loading ? trashSection : undefined}
     >
