@@ -133,9 +133,8 @@
   max-width: 140px;
 }
 
-/* Shrink Select trigger + dropdown inside filter bar */
 .filterItem button {
-  padding: var(--box-2xs-sm);
+  padding: var(--box-sm);
   font-size: var(--font-size-xs);
 }
 
@@ -147,7 +146,7 @@
 }
 
 .filterPageSize button {
-  padding: var(--box-2xs-sm);
+  padding: var(--box-sm);
   font-size: var(--font-size-xs);
 }
 
