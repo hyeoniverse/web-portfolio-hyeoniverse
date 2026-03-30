@@ -83,6 +83,30 @@
   color: var(--text-primary);
 }
 
+/* ── Help button ── */
+.helpBtn {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: var(--border-default);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.header .helpBtn:hover {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
 /* ── Button Group (capsule) ── */
 .btnGroup {
   display: flex;

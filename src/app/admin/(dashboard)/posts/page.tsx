@@ -20,6 +20,7 @@ import AdminTable, {
 } from "@/components/admin/AdminTable/AdminTable";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import styles from "./AdminPosts.module.css";
 
 const PAGE_SIZE_OPTIONS = [
@@ -820,6 +821,22 @@ export default function AdminPostsPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
+          <button
+            className={shell.helpBtn}
+            title={t("admin.posts.uploadGuide")}
+            onClick={async () => {
+              const res = await fetch("/docs/md-upload-guide.md");
+              const md = await res.text();
+              openModal(
+                <div style={{ padding: "0 var(--spacing-xl) var(--spacing-xl)", maxHeight: "70vh", overflowY: "auto" }}>
+                  <MarkdownRenderer content={md} />
+                </div>,
+                { header: { title: t("admin.posts.uploadGuide") }, closeButton: true, width: "600px" },
+              );
+            }}
+          >
+            ?
+          </button>
           <div className={shell.btnGroup}>
             <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
               {uploading ? "..." : t("admin.posts.uploadMd")}
