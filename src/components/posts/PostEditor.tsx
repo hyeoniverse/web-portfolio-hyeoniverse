@@ -961,17 +961,17 @@ export default function PostEditor({ post }: PostEditorProps) {
     entityId: draftEntityId,
   });
 
-  // 편집기 진입 시 초안 복원 확인 (localStorage → DB revision 순서)
+  // 편집기 진입 시 DB revision 복원 확인
   const draftRestored = useRef(false);
-  const applyDraft = useCallback((data: PostFormData, json?: string) => {
+  const applyDraft = useCallback((data: PostFormData) => {
     autoSaveSkip.current = true;
     setForm(data);
-    if (json) lastAutoSaveJson.current = json;
+    lastAutoSaveJson.current = JSON.stringify(data);
     setStatus(te("draftRestored"));
     setStatusType("info");
   }, [te]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const askRestore = useCallback((data: PostFormData, json?: string, revisionId?: string) => {
+  const askRestore = useCallback((data: PostFormData, revisionId?: string) => {
     draftRestored.current = true;
     const modalId = "draft-restore";
     openModal(
@@ -979,7 +979,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         desc={te("draftFoundDesc")}
         cancelText={te("draftFoundDiscard")}
         confirmText={te("draftFoundLoad")}
-        onConfirm={() => applyDraft(data, json)}
+        onConfirm={() => applyDraft(data)}
         onCancel={() => { if (revisionId) dismissRevision(revisionId); }}
       />,
       { id: modalId, header: { title: te("draftFoundTitle") }, width: "360px", closeButton: false },
@@ -988,20 +988,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   useEffect(() => {
     if (draftRestored.current) return;
-    // localStorage 먼저 확인
-    try {
-      const local = localStorage.getItem(localDraftKey);
-      if (local) {
-        const parsed = JSON.parse(local) as PostFormData;
-        if (JSON.stringify(parsed) !== JSON.stringify(initialFormRef.current)) {
-          localStorage.removeItem(localDraftKey);
-          askRestore(parsed, local);
-          return;
-        }
-        localStorage.removeItem(localDraftKey);
-      }
-    } catch { /* ignore */ }
-    // DB revision fallback — dismissed 된 건 건너뛰고, 저장된 데이터와 다른 것만 제안
+    // DB revision — dismissed 된 건 건너뛰고, 저장된 데이터와 다른 것만 제안
     const candidates = dbRevisions.filter((r) => !r.dismissed);
     if (candidates.length === 0) return;
     const initialJson = JSON.stringify(initialFormRef.current);
@@ -1023,7 +1010,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         if (snapJson === initialJson) continue;
         // dismissed된 것과 동일한 내용이면 건너뜀
         if (dismissedSnapshots.has(snapJson)) continue;
-        askRestore(snapshot as PostFormData, undefined, rev.id);
+        askRestore(snapshot as PostFormData, rev.id);
         return;
       }
     })();
@@ -1071,23 +1058,16 @@ export default function PostEditor({ post }: PostEditorProps) {
   const lastAutoSaveJson = useRef<string>(JSON.stringify(initialFormRef.current));
   autoSaveBusy.current = saving || translating;
 
-  // localStorage 키 (새 글: "post-draft-new", 기존 글: "post-draft-{id}")
-  const localDraftKey = `post-draft-${post?.id ?? "new"}`;
-
   const flushSave = useCallback(() => {
     const current = JSON.stringify(formRef.current);
     if (!current || current === lastAutoSaveJson.current) return;
-
-    // localStorage에 항상 백업 (id 없어도)
-    try { localStorage.setItem(localDraftKey, current); } catch { /* quota */ }
-
     if (autoSaveBusy.current) return;
     lastAutoSaveJson.current = current;
     saveRevision({ ...formRef.current }, formRef.current.title || formRef.current.title_en || "(untitled)");
     setStatus(te("autoSaved"));
     setStatusType("success");
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [saveRevision, te, localDraftKey]);
+  }, [saveRevision, te]);
 
   useEffect(() => {
     if (autoSaveSkip.current) {
@@ -1106,12 +1086,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   useEffect(() => {
     const onVisChange = () => { if (document.hidden) flushSave(); };
     const onBeforeUnload = () => {
-      // localStorage에 백업 (변경된 경우만)
-      const cur = JSON.stringify(formRef.current);
-      if (cur && cur !== lastAutoSaveJson.current) {
-        try { localStorage.setItem(localDraftKey, cur); } catch { /* quota */ }
-      }
-      // DB revision도 시도 (새 글이면 draftEntityId 사용)
+      // DB revision 시도 (새 글이면 draftEntityId 사용)
       const id = savedId.current || draftEntityId;
       const current = JSON.stringify(formRef.current);
       if (!current || current === lastAutoSaveJson.current) return;
@@ -1550,7 +1525,6 @@ export default function PostEditor({ post }: PostEditorProps) {
           window.open(`/posts/${savedSlug}`, "_blank");
         }
 
-        try { localStorage.removeItem(localDraftKey); } catch { /* ignore */ }
         // 새 글이었으면 임시 draft revision 정리
         if (!isEdit) {
           fetch(`/api/revisions?entity_type=post&entity_id=draft-new-post`, { method: "DELETE" }).catch(() => {});
@@ -1572,7 +1546,6 @@ export default function PostEditor({ post }: PostEditorProps) {
     try {
       const res = await fetch(`/api/posts/${post.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete");
-      try { localStorage.removeItem(localDraftKey); } catch { /* ignore */ }
       router.push("/admin/posts");
     } catch {
       setError(te("deleteFailed"));
