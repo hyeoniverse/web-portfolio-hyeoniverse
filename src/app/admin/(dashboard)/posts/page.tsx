@@ -850,9 +850,14 @@ export default function AdminPostsPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
-            {uploading ? "..." : t("admin.posts.uploadMd")}
-          </button>
+          <div className={shell.btnGroup}>
+            <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
+              {uploading ? "..." : t("admin.posts.uploadMd")}
+            </button>
+            <a href="/admin/posts/new" className={shell.newBtn}>
+              {t("admin.posts.newPost")}
+            </a>
+          </div>
         </>
       }
       beforeTable={!loading ? seriesSection : undefined}

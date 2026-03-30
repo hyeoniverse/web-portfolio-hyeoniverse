@@ -83,6 +83,28 @@
   color: var(--text-primary);
 }
 
+/* ── Button Group (capsule) ── */
+.btnGroup {
+  display: flex;
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  border: var(--border-primary);
+}
+
+.btnGroup .newBtn {
+  border: none;
+  border-radius: 0;
+}
+
+.btnGroup .newBtn + .newBtn {
+  border-left: var(--border-primary);
+}
+
+.header .btnGroup .newBtn:hover {
+  background: transparent;
+  color: var(--text-primary);
+}
+
 /* ── Filter Bar ── */
 .filterBar {
   display: flex;
