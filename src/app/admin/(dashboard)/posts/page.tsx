@@ -221,6 +221,10 @@ export default function AdminPostsPage() {
       if (meta.tags) body.tags = Array.isArray(meta.tags) ? meta.tags : [meta.tags];
       if (meta.excerpt) body.excerpt = meta.excerpt;
       if (meta.cover_image) body.cover_image = meta.cover_image;
+      if (meta.date) {
+        const d = new Date(meta.date as string);
+        if (!isNaN(d.getTime())) body.created_at = d.toISOString();
+      }
 
       const res = await fetch("/api/posts", {
         method: "POST",

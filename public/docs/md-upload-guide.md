@@ -24,6 +24,7 @@ category: Development
 tags: [React, Next.js, TypeScript]
 excerpt: 포스트 요약 텍스트
 cover_image: https://example.com/image.jpg
+date: 2024-03-15
 ---
 
 여기부터 본문 내용...
@@ -39,6 +40,20 @@ cover_image: https://example.com/image.jpg
 | `tags` | string[] | 태그 목록 | 없음 |
 | `excerpt` | string | 요약/발췌문 | 없음 |
 | `cover_image` | string | 커버 이미지 URL | 없음 |
+| `date` | string | 작성 날짜/시간 (ISO 8601 또는 `YYYY-MM-DD` 형식) | 업로드 시점 |
+
+### 날짜 작성법
+
+```yaml
+# 날짜만
+date: 2024-03-15
+
+# 날짜 + 시간
+date: 2024-03-15T14:30:00
+
+# 타임존 포함
+date: 2024-03-15T14:30:00+09:00
+```
 
 ### 태그 작성법
 
@@ -70,6 +85,7 @@ title: Next.js 15 마이그레이션 가이드
 slug: nextjs-15-migration
 category: Development
 tags: [Next.js, React, Migration]
+date: 2024-03-15
 excerpt: Next.js 14에서 15로 마이그레이션하면서 겪은 이슈와 해결 방법을 정리합니다.
 ---
 
