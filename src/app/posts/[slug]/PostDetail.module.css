@@ -276,7 +276,9 @@
 /* ── Footnote (RichText) ── */
 .prose sup[data-footnote-ref] {
   color: var(--color-accent);
-  font-weight: 600;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
   text-decoration: none;
   cursor: pointer;
 }
