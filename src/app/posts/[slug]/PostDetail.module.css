@@ -290,6 +290,15 @@
   text-decoration: underline;
 }
 
+.prose h1 > sup,
+.prose h2 > sup,
+.prose h3 > sup,
+.prose h4 > sup,
+.prose h5 > sup,
+.prose h6 > sup {
+  font-size: var(--font-size-xs);
+}
+
 .prose div[data-footnote-content] {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
