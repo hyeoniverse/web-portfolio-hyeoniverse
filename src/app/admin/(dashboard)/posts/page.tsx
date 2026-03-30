@@ -771,7 +771,7 @@ export default function AdminPostsPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <button className={shell.newBtn} style={{ opacity: 0.7 }} onClick={() => mdInputRef.current?.click()} disabled={uploading}>
+          <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading}>
             {uploading ? "..." : t("admin.posts.uploadMd")}
           </button>
         </>
