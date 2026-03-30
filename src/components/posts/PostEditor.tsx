@@ -1286,6 +1286,23 @@ export default function PostEditor({ post }: PostEditorProps) {
               return `\n${header}\n${divider}\n${body}\n`;
             },
           });
+          // 열블록 (column_group) → 마크다운
+          td.addRule("columnGroup", {
+            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-column-group"),
+            replacement: (content) => {
+              return `\n${content.trim()}\n`;
+            },
+          });
+          td.addRule("column", {
+            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-column"),
+            replacement: (content, node) => {
+              const el = node as HTMLElement;
+              const parent = el.parentElement;
+              const siblings = parent ? Array.from(parent.querySelectorAll("[data-column]")) : [];
+              const isLast = siblings[siblings.length - 1] === el;
+              return isLast ? `\n${content.trim()}\n` : `\n${content.trim()}\n\n---\n`;
+            },
+          });
           // 인라인 리스트 div (Plate indent-list) → 마크다운 리스트
           td.addRule("indentList", {
             filter: (node) => {
