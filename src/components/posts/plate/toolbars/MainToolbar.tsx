@@ -665,8 +665,8 @@ export default React.memo(function MainToolbar({
           footnoteId: nextId,
           children: [{ text: "" }],
         }, { at: editor.selection ?? undefined });
-        // void 뒤에 zero-width space 삽입 + 커서 이동
-        editor.tf.insertText("\u200B");
+        // void 뒤로 커서 이동
+        editor.tf.move({ unit: "offset" });
         // 문서 끝에 각주 내용 블록 추가
         const lastPath = [editor.children.length];
         editor.tf.insertNodes({
