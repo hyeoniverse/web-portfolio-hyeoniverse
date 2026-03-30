@@ -19,6 +19,8 @@ import AdminTable, {
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
+import { useModalStore } from "@/stores/modalStore";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import styles from "./AdminPosts.module.css";
 
 const PAGE_SIZE_OPTIONS = [
@@ -181,51 +183,47 @@ export default function AdminPostsPage() {
   const mdInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
-  const handleMdUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    setUploading(true);
-    let created = 0;
-    for (const file of Array.from(files)) {
-      if (!file.name.endsWith(".md")) continue;
-      let text = await file.text();
+  const { openModal, closeAll } = useModalStore();
 
-      // frontmatter 파싱 (--- ... ---)
-      const meta: Record<string, string | string[]> = {};
-      const fmMatch = text.match(/^---\n([\s\S]*?)\n---\n?/);
-      if (fmMatch) {
-        text = text.slice(fmMatch[0].length);
-        for (const line of fmMatch[1].split("\n")) {
-          const kv = line.match(/^(\w+)\s*:\s*(.+)$/);
-          if (!kv) continue;
-          const [, key, val] = kv;
-          if (val.startsWith("[") && val.endsWith("]")) {
-            meta[key] = val.slice(1, -1).split(",").map((s) => s.trim().replace(/^["']|["']$/g, ""));
-          } else {
-            meta[key] = val.trim().replace(/^["']|["']$/g, "");
-          }
+  // frontmatter 파싱
+  const parseMdFile = (raw: string, fileName: string) => {
+    let text = raw;
+    const meta: Record<string, string | string[]> = {};
+    const fmMatch = text.match(/^---\n([\s\S]*?)\n---\n?/);
+    if (fmMatch) {
+      text = text.slice(fmMatch[0].length);
+      for (const line of fmMatch[1].split("\n")) {
+        const kv = line.match(/^(\w+)\s*:\s*(.+)$/);
+        if (!kv) continue;
+        const [, key, val] = kv;
+        if (val.startsWith("[") && val.endsWith("]")) {
+          meta[key] = val.slice(1, -1).split(",").map((s) => s.trim().replace(/^["']|["']$/g, ""));
+        } else {
+          meta[key] = val.trim().replace(/^["']|["']$/g, "");
         }
       }
+    }
+    const title = (meta.title as string) || fileName.replace(/\.md$/, "");
+    const slug = ((meta.slug as string) || title).toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-|-$/g, "");
+    const body: Record<string, unknown> = {
+      title, slug, content: text, content_type: "markdown", published: false,
+    };
+    body.category = (meta.category as string) || categories[0]?.ko || "";
+    if (meta.tags) body.tags = Array.isArray(meta.tags) ? meta.tags : [meta.tags];
+    if (meta.excerpt) body.excerpt = meta.excerpt;
+    if (meta.cover_image) body.cover_image = meta.cover_image;
+    if (meta.date) {
+      const d = new Date(meta.date as string);
+      if (!isNaN(d.getTime())) body.created_at = d.toISOString();
+    }
+    return body;
+  };
 
-      const title = (meta.title as string) || file.name.replace(/\.md$/, "");
-      const slug = ((meta.slug as string) || title).toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-|-$/g, "");
-
-      const body: Record<string, unknown> = {
-        title,
-        slug,
-        content: text,
-        content_type: "markdown",
-        published: false,
-      };
-      body.category = (meta.category as string) || categories[0] || "";
-      if (meta.tags) body.tags = Array.isArray(meta.tags) ? meta.tags : [meta.tags];
-      if (meta.excerpt) body.excerpt = meta.excerpt;
-      if (meta.cover_image) body.cover_image = meta.cover_image;
-      if (meta.date) {
-        const d = new Date(meta.date as string);
-        if (!isNaN(d.getTime())) body.created_at = d.toISOString();
-      }
-
+  // 포스트 일괄 생성
+  const createPosts = useCallback(async (posts: Record<string, unknown>[]) => {
+    setUploading(true);
+    let created = 0;
+    for (const body of posts) {
       const res = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -233,10 +231,63 @@ export default function AdminPostsPage() {
       });
       if (res.ok) created++;
     }
-    if (mdInputRef.current) mdInputRef.current.value = "";
     setUploading(false);
     if (created > 0) fetchPosts();
   }, [fetchPosts]);
+
+  // 새 카테고리를 site_config에 추가
+  const addNewCategories = useCallback(async (newCats: string[]) => {
+    const res = await fetch("/api/admin/settings");
+    if (!res.ok) return;
+    const { config } = await res.json();
+    const existing = (config.posts?.categories ?? []) as { ko: string; en: string }[];
+    const updated = [...existing, ...newCats.map((c) => ({ ko: c, en: c }))];
+    await fetch("/api/admin/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ config: { ...config, posts: { ...config.posts, categories: updated } } }),
+    });
+  }, []);
+
+  const handleMdUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // 파일 파싱
+    const parsed: Record<string, unknown>[] = [];
+    for (const file of Array.from(files)) {
+      if (!file.name.endsWith(".md")) continue;
+      const raw = await file.text();
+      parsed.push(parseMdFile(raw, file.name));
+    }
+    if (mdInputRef.current) mdInputRef.current.value = "";
+    if (parsed.length === 0) return;
+
+    // 새 카테고리 확인
+    const existingCats = new Set(categories.map((c) => c.ko));
+    const newCats = [...new Set(parsed.map((p) => p.category as string).filter((c) => c && !existingCats.has(c)))];
+
+    const doCreate = async () => {
+      if (newCats.length > 0) await addNewCategories(newCats);
+      await createPosts(parsed);
+    };
+
+    if (newCats.length > 0) {
+      openModal(
+        <ModalConfirm
+          desc={`${t("admin.posts.newCategoriesFound")}\n\n${newCats.map((c) => `• ${c}`).join("\n")}\n\n${t("admin.posts.newCategoriesConfirm")}`}
+          cancelText={t("admin.posts.cancel")}
+          confirmText={t("admin.posts.createAndUpload")}
+          onConfirm={() => { closeAll(); doCreate(); }}
+          onCancel={() => closeAll()}
+        />,
+        { header: { title: t("admin.posts.newCategories") }, closeButton: true, width: "400px" },
+      );
+    } else {
+      doCreate();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories, fetchPosts, openModal, closeAll, addNewCategories, createPosts, t]);
 
   const fetchTrash = useCallback(async () => {
     const res = await fetch("/api/posts?trash=true&limit=100");
