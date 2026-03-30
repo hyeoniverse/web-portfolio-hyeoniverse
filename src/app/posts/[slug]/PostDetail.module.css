@@ -245,6 +245,7 @@
   margin: var(--spacing-xl) 0;
   font-size: var(--font-size-sm);
   border: var(--border-light);
+  table-layout: fixed;
 }
 
 .prose th,
