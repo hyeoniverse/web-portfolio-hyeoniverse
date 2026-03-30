@@ -209,21 +209,19 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   return (
     <>
       <div className={styles.table} style={gridStyle}>
-        {selected.size > 0 && (
-          <div className={styles.bulkBar}>
-            <span>{selected.size}개 선택</span>
-            {onBulkPublish && (
-              <>
-                <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(true)}>{labels.publishLabel}</button>
-                <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</button>
-              </>
-            )}
-            {onBulkDelete && (
-              <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
-            )}
-            <button className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())}>✕</button>
-          </div>
-        )}
+        <div className={`${styles.bulkBar} ${selected.size > 0 ? styles.bulkBarOpen : ""}`}>
+          <span>{selected.size}개 선택</span>
+          {onBulkPublish && (
+            <>
+              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(true)}>{labels.publishLabel}</button>
+              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</button>
+            </>
+          )}
+          {onBulkDelete && (
+            <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
+          )}
+          <button className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())}>✕</button>
+        </div>
         <div className={styles.tableHeader}>
           <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={allSelected} indeterminate={someSelected} onChange={toggleSelectAll} shape="square" />
