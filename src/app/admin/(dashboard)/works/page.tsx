@@ -607,7 +607,7 @@ export default function AdminWorksPage() {
           fetchWorks();
         }}
         onReorder={sort === "order" && !filterYear && !filterCategory ? handleDragReorder : undefined}
-        gridTemplate="40px 80px 1fr 80px 140px"
+        gridTemplate="64px 1fr 80px 120px"
         showRowNumbers
         getRowLabel={(w) => w.number || "—"}
         loading={loading}

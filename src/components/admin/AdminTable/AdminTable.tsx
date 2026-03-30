@@ -90,7 +90,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   const dragAllowedRef = useRef(false);
 
   const hasNumCol = onReorder || showRowNumbers;
-  const effectiveGrid = `32px ${hasNumCol ? "32px " : ""}${gridTemplate}`;
+  const effectiveGrid = `28px ${hasNumCol ? "28px " : ""}${gridTemplate}`;
 
   /* ── Selection ── */
   const allSelected = items.length > 0 && items.every((item) => selected.has(item.id));

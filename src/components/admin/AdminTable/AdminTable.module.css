@@ -191,6 +191,7 @@
 .colActions {
   display: flex;
   gap: var(--spacing-xs);
+  white-space: nowrap;
 }
 
 .actionBtn {

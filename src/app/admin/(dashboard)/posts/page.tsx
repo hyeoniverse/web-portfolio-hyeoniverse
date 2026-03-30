@@ -929,7 +929,7 @@ export default function AdminPostsPage() {
           ));
           fetchPosts();
         }}
-        gridTemplate="40px 80px 1fr 80px 80px 140px"
+        gridTemplate="64px 1fr 80px 80px 120px"
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}
         loading={loading}
