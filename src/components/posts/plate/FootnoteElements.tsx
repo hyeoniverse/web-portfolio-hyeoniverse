@@ -20,10 +20,21 @@ export function FootnoteRefElement(props: PlateElementProps) {
     if (editing) inputRef.current?.select();
   }, [editing]);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     if (editing) return;
+    // Shift+클릭 또는 Ctrl/Cmd+클릭이면 커서 이동 (기본 동작)
+    if (e.shiftKey || e.metaKey || e.ctrlKey) return;
     const container = document.querySelector(`[data-footnote-content="${id}"]`);
     if (container) container.scrollIntoView({ behavior: "smooth", block: "center" });
+    // 클릭 후 각주 뒤로 커서 이동
+    requestAnimationFrame(() => {
+      const path = editor.api.findPath(element);
+      if (path) {
+        const after = editor.api.after(path);
+        if (after) editor.tf.select(after);
+        editor.tf.focus();
+      }
+    });
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
