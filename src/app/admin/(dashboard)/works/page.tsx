@@ -12,7 +12,6 @@ import AdminListShell, {
 } from "@/components/admin/AdminListShell";
 import T from "@/components/ui/T";
 import AdminTable, {
-  usePublishChanges,
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
@@ -104,7 +103,6 @@ export default function AdminWorksPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [saving, setSaving] = useState(false);
 
   /* Filters & sort */
   const [search, setSearch] = useState("");
@@ -114,9 +112,6 @@ export default function AdminWorksPage() {
   const [filterCategory, setFilterCategory] = useState("");
   const [perPage, setPerPage] = useState(siteConf.works.adminPerPage ?? 20);
   const hasFilters = sort !== "order" || filterYear !== "" || filterCategory !== "" || search;
-
-  const { publishOverrides, toggle, setAll, reset, toChanges, hasChanges } =
-    usePublishChanges<Work>();
 
   /* Trash */
   const [trashWorks, setTrashWorks] = useState<Work[]>([]);
@@ -250,22 +245,6 @@ export default function AdminWorksPage() {
     fetchWorks();
   };
 
-  const handleSave = async () => {
-    if (!hasChanges) return;
-    setSaving(true);
-    await Promise.all(
-      toChanges().map((c) =>
-        fetch(`/api/works/${c.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ published: c.published }),
-        }),
-      ),
-    );
-    reset();
-    setSaving(false);
-    fetchWorks();
-  };
 
   const canHover = useRef(false);
   useEffect(() => {
@@ -536,11 +515,6 @@ export default function AdminWorksPage() {
       title={t("admin.works.title")}
       newHref="/admin/works/new"
       newLabel={t("admin.works.newWork")}
-      saving={saving}
-      hasChanges={hasChanges}
-      onSave={handleSave}
-      saveCount={publishOverrides.size}
-      saveLabel={t("admin.works.save")}
       afterTable={trashSection}
     >
       {/* Filter bar */}
@@ -621,10 +595,17 @@ export default function AdminWorksPage() {
         columns={columns}
         editBasePath="/admin/works"
         getTitle={(w) => w.title || t("admin.works.untitled")}
-        publishOverrides={publishOverrides}
-        onPublishToggle={toggle}
-        onPublishAll={setAll}
         onDelete={handleDelete}
+        onBulkPublish={async (ids, published) => {
+          await Promise.all(ids.map((id) =>
+            fetch(`/api/works/${id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ published }),
+            })
+          ));
+          fetchWorks();
+        }}
         onReorder={sort === "order" && !filterYear && !filterCategory ? handleDragReorder : undefined}
         gridTemplate="40px 80px 1fr 80px 140px"
         showRowNumbers

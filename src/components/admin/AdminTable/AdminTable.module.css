@@ -21,7 +21,7 @@
   border-radius: var(--radius-md);
 }
 
-.bulkDeleteBtn {
+.bulkActionBtn {
   padding: var(--spacing-3xs) var(--spacing-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
@@ -32,9 +32,14 @@
   cursor: pointer;
 }
 
-.bulkDeleteBtn:hover {
+.bulkActionBtn:hover {
   background: var(--text-primary);
   color: var(--bg-primary);
+}
+
+.bulkActionDanger:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .bulkCancelBtn {
