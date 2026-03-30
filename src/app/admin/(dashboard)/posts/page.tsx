@@ -21,7 +21,6 @@ import AdminTable, {
 import Checkbox from "@/components/ui/Checkbox";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import styles from "./AdminPosts.module.css";
 
 const PAGE_SIZE_OPTIONS = [
@@ -897,14 +896,36 @@ export default function AdminPostsPage() {
           <button
             className={shell.helpBtn}
             title={t("admin.posts.uploadGuide")}
-            onClick={async () => {
-              const res = await fetch("/docs/md-upload-guide.md");
-              const md = await res.text();
+            onClick={() => {
               openModal(
-                <div style={{ padding: "0 var(--spacing-xl) var(--spacing-xl)", maxHeight: "70vh", overflowY: "auto" }}>
-                  <MarkdownRenderer content={md} />
+                <div className={styles.uploadGuide}>
+                  <p>.md 파일을 선택하면 각 파일이 <strong>비공개 초안</strong>으로 생성됩니다.</p>
+                  <h4>Frontmatter</h4>
+                  <p>파일 상단에 아래 형식을 추가하면 메타데이터가 자동 반영됩니다.</p>
+                  <table>
+                    <thead><tr><th>필드</th><th>설명</th><th>기본값</th></tr></thead>
+                    <tbody>
+                      <tr><td>title</td><td>포스트 제목</td><td>파일명</td></tr>
+                      <tr><td>category</td><td>카테고리</td><td>기타</td></tr>
+                      <tr><td>tags</td><td>태그 (예: [React, Next.js])</td><td>없음</td></tr>
+                      <tr><td>date</td><td>작성일 (YYYY-MM-DD)</td><td>업로드 시점</td></tr>
+                      <tr><td>excerpt</td><td>요약</td><td>없음</td></tr>
+                      <tr><td>slug</td><td>URL 슬러그</td><td>제목에서 자동 생성</td></tr>
+                      <tr><td>cover_image</td><td>커버 이미지 URL</td><td>없음</td></tr>
+                    </tbody>
+                  </table>
+                  <h4>예시</h4>
+                  <pre><code>{`---
+title: Next.js 마이그레이션
+category: Development
+tags: [Next.js, React]
+date: 2024-03-15
+---
+
+본문 내용...`}</code></pre>
+                  <p className={styles.uploadGuideNote}>frontmatter 없이 업로드하면 파일명이 제목으로 사용됩니다. 등록되지 않은 카테고리는 생성 여부를 확인합니다.</p>
                 </div>,
-                { header: { title: t("admin.posts.uploadGuide") }, closeButton: true, width: "600px" },
+                { header: { title: t("admin.posts.uploadGuide") }, closeButton: true, width: "520px" },
               );
             }}
           >
