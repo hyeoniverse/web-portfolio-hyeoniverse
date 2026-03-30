@@ -211,12 +211,14 @@ export default function AdminTable<T extends { id: string; published: boolean }>
       <div className={styles.table} style={gridStyle}>
         <div className={`${styles.bulkBar} ${selected.size > 0 ? styles.bulkBarOpen : ""}`}>
           <span>{selected.size}개 선택</span>
-          {onBulkPublish && (
-            <>
-              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(true)}>{labels.publishLabel}</button>
-              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</button>
-            </>
-          )}
+          {onBulkPublish && (() => {
+            const allPublished = items.filter((i) => selected.has(i.id)).every((i) => i.published);
+            return (
+              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(!allPublished)}>
+                {allPublished ? labels.unpublishedTooltip : labels.publishLabel}
+              </button>
+            );
+          })()}
           {onBulkDelete && (
             <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
           )}
