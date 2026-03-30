@@ -227,8 +227,10 @@ export default function MarkdownEditor({
     [onImageUpload, uploadAndInsert]
   );
 
+  const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
+
   return (
-    <div className={`${styles.outer} ${compact ? styles.compact : ""}`}>
+    <div className={`${styles.outer} ${compact ? styles.compact : ""}`} data-mobile-tab={mobileTab}>
       <div className={`${styles.helpPanel} ${showHelp ? styles.helpPanelOpen : ""}`} data-lenis-prevent>
         <div className={styles.helpGrid}>
           {MD_HELP.map((h) => (
@@ -336,8 +338,8 @@ export default function MarkdownEditor({
         </button></Tooltip>
       </div>
       <div className={styles.panelTabs}>
-        <span className={styles.panelTab}>{editLabel ?? "Editor"}</span>
-        <span className={styles.panelTab}>{previewLabel ?? "Preview"}</span>
+        <button type="button" className={`${styles.panelTab} ${mobileTab === "edit" ? styles.panelTabActive : ""}`} onClick={() => setMobileTab("edit")}>{editLabel ?? "Editor"}</button>
+        <button type="button" className={`${styles.panelTab} ${mobileTab === "preview" ? styles.panelTabActive : ""}`} onClick={() => setMobileTab("preview")}>{previewLabel ?? "Preview"}</button>
       </div>
       <div className={styles.wrapper}>
         <div className={styles.editorPane}>
