@@ -1005,13 +1005,24 @@ export default function PostEditor({ post }: PostEditorProps) {
     const candidates = dbRevisions.filter((r) => !r.dismissed);
     if (candidates.length === 0) return;
     const initialJson = JSON.stringify(initialFormRef.current);
+    // dismissed된 revision의 snapshot을 수집하여 같은 내용 건너뛰기
+    const dismissedSnapshots = new Set<string>();
     (async () => {
+      // 먼저 dismissed된 것들의 snapshot 수집
+      const dismissedRevs = dbRevisions.filter((r) => r.dismissed);
+      for (const rev of dismissedRevs) {
+        const snap = await loadRevisionSnapshot(rev.id);
+        if (snap) dismissedSnapshots.add(JSON.stringify(snap));
+      }
       for (const rev of candidates) {
         if (draftRestored.current) return;
         const snapshot = await loadRevisionSnapshot(rev.id);
         if (!snapshot) continue;
+        const snapJson = JSON.stringify(snapshot);
         // 저장된 데이터와 동일하면 건너뜀
-        if (JSON.stringify(snapshot) === initialJson) continue;
+        if (snapJson === initialJson) continue;
+        // dismissed된 것과 동일한 내용이면 건너뜀
+        if (dismissedSnapshots.has(snapJson)) continue;
         askRestore(snapshot as PostFormData, undefined, rev.id);
         return;
       }
@@ -1095,8 +1106,11 @@ export default function PostEditor({ post }: PostEditorProps) {
   useEffect(() => {
     const onVisChange = () => { if (document.hidden) flushSave(); };
     const onBeforeUnload = () => {
-      // localStorage에 즉시 백업 (동기, 항상 동작)
-      try { localStorage.setItem(localDraftKey, JSON.stringify(formRef.current)); } catch { /* quota */ }
+      // localStorage에 백업 (변경된 경우만)
+      const cur = JSON.stringify(formRef.current);
+      if (cur && cur !== lastAutoSaveJson.current) {
+        try { localStorage.setItem(localDraftKey, cur); } catch { /* quota */ }
+      }
       // DB revision도 시도 (새 글이면 draftEntityId 사용)
       const id = savedId.current || draftEntityId;
       const current = JSON.stringify(formRef.current);
