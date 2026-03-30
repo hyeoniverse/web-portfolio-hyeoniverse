@@ -153,7 +153,7 @@
 
 **대시보드 & CRUD**
 
-- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 발행/비공개 전환, 필터/정렬, .md 파일 일괄 업로드(다중 선택 → 초안 생성)
+- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 일괄 선택(드래그) + 발행/삭제, .md 파일 업로드(frontmatter 메타데이터 + 새 카테고리 자동 감지), 시리즈 삭제 시 제목 확인 + 하위 포스트 삭제 옵션
 - **사이트 콘텐츠 관리**: Settings 5개 탭(General/Content/Appearance/Services/Account) — 브랜드, SEO, Hero/About/Services 이중언어 편집, BroadcastChannel 동기화
 - **Profile Admin**: 프로필 데이터(경력/스킬/철학/자격증/수상) Admin 편집 — JSONB 저장, `PeriodPicker` 구조화 기간 입력
 
@@ -196,7 +196,7 @@
 
 ### Design System
 
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown), PeriodPicker, Gradient Tokens, 3-phase scroll 애니메이션
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown), Pagination(smart ellipsis), PeriodPicker, Gradient Tokens, 3-phase scroll 애니메이션
 
 <p align="center">
   <img src="public/docs/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />

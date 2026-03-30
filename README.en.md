@@ -153,7 +153,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 **Dashboard & CRUD**
 
-- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, publish/private toggle, filter/sort, bulk .md file upload (multi-select → draft creation)
+- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, bulk select (drag) + publish/delete, .md file upload (frontmatter metadata + auto category detection), series deletion with title confirmation + child post deletion option
 - **Site Content Management**: Settings with 5 tabs (General/Content/Appearance/Services/Account) — brand, SEO, Hero/About/Services bilingual editing, BroadcastChannel sync
 - **Profile Admin**: Profile data (career/skills/philosophy/certifications/awards) admin editing — JSONB storage, `PeriodPicker` structured period input
 
@@ -196,7 +196,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 ### Design System
 
-- **Design System Preview**: View tokens/components/banner layouts at `/design-system` route — Tooltip, Select (portal-based dropdown), PeriodPicker, Gradient Tokens, 3-phase scroll animation
+- **Design System Preview**: View tokens/components/banner layouts at `/design-system` route — Tooltip, Select (portal-based dropdown), Pagination (smart ellipsis), PeriodPicker, Gradient Tokens, 3-phase scroll animation
 
 <p align="center">
   <img src="public/docs/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
