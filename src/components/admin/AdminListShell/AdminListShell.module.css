@@ -96,11 +96,20 @@
   border-radius: 0;
 }
 
+.btnGroup .newBtn:first-child {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.header .btnGroup .newBtn:first-child:hover {
+  background: var(--bg-tertiary);
+}
+
 .btnGroup .newBtn + .newBtn {
   border-left: var(--border-primary);
 }
 
-.header .btnGroup .newBtn:hover {
+.header .btnGroup .newBtn:last-child:hover {
   background: transparent;
   color: var(--text-primary);
 }
