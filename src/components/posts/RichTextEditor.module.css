@@ -2207,6 +2207,12 @@
 }
 .editorContent h1 { font-size: var(--font-size-2xl); }
 .editorContent h2 { font-size: var(--font-size-lg); }
+.editorContent h1 .footnoteRef,
+.editorContent h2 .footnoteRef,
+.editorContent h3 .footnoteRef {
+  font-size: var(--font-size-xs);
+  vertical-align: super;
+}
 .editorContent p { margin-bottom: var(--spacing-sm); }
 /* 표 바로 뒤 빈 paragraph 여백 축소 */
 .editorContent [data-table-wrap] + p { margin-top: 0; margin-bottom: var(--spacing-2xs); }

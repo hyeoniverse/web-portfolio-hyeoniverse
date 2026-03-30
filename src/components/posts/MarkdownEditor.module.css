@@ -286,7 +286,6 @@
 .preview :global(.markdown-alert-title) svg { color: var(--color-accent); }
 
 /* Footnote ref */
-.preview sup:has(:global([data-footnote-ref])),
 .preview :global([data-footnote-ref]) {
   color: var(--color-accent);
   text-decoration: none;
@@ -297,6 +296,15 @@
 
 .preview :global([data-footnote-ref])::before { content: "["; }
 .preview :global([data-footnote-ref])::after { content: "]"; }
+
+.preview h1 > sup,
+.preview h2 > sup,
+.preview h3 > sup,
+.preview h4 > sup,
+.preview h5 > sup,
+.preview h6 > sup {
+  font-size: var(--font-size-xs);
+}
 
 .preview :global([data-footnote-ref]):hover {
   text-decoration: underline;
