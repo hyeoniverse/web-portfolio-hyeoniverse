@@ -188,20 +188,44 @@ export default function AdminPostsPage() {
     let created = 0;
     for (const file of Array.from(files)) {
       if (!file.name.endsWith(".md")) continue;
-      const text = await file.text();
-      // 파일명에서 제목 추출 (확장자 제거)
-      const title = file.name.replace(/\.md$/, "");
-      const slug = title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-|-$/g, "");
+      let text = await file.text();
+
+      // frontmatter 파싱 (--- ... ---)
+      const meta: Record<string, string | string[]> = {};
+      const fmMatch = text.match(/^---\n([\s\S]*?)\n---\n?/);
+      if (fmMatch) {
+        text = text.slice(fmMatch[0].length);
+        for (const line of fmMatch[1].split("\n")) {
+          const kv = line.match(/^(\w+)\s*:\s*(.+)$/);
+          if (!kv) continue;
+          const [, key, val] = kv;
+          if (val.startsWith("[") && val.endsWith("]")) {
+            meta[key] = val.slice(1, -1).split(",").map((s) => s.trim().replace(/^["']|["']$/g, ""));
+          } else {
+            meta[key] = val.trim().replace(/^["']|["']$/g, "");
+          }
+        }
+      }
+
+      const title = (meta.title as string) || file.name.replace(/\.md$/, "");
+      const slug = ((meta.slug as string) || title).toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-|-$/g, "");
+
+      const body: Record<string, unknown> = {
+        title,
+        slug,
+        content: text,
+        content_type: "markdown",
+        published: false,
+      };
+      if (meta.category) body.category = meta.category;
+      if (meta.tags) body.tags = Array.isArray(meta.tags) ? meta.tags : [meta.tags];
+      if (meta.excerpt) body.excerpt = meta.excerpt;
+      if (meta.cover_image) body.cover_image = meta.cover_image;
+
       const res = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          slug,
-          content: text,
-          content_type: "markdown",
-          published: false,
-        }),
+        body: JSON.stringify(body),
       });
       if (res.ok) created++;
     }
