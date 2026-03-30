@@ -18,6 +18,7 @@ import AdminTable, {
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
+import Checkbox from "@/components/ui/Checkbox";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
@@ -136,6 +137,7 @@ export default function AdminPostsPage() {
 
   /* Trash */
   const [trashPosts, setTrashPosts] = useState<Post[]>([]);
+  const [trashSelected, setTrashSelected] = useState<Set<string>>(new Set());
   const [trashOpen, setTrashOpen] = useState(false);
   const [trashSearch, setTrashSearch] = useState("");
   const [trashSearchType, setTrashSearchType] = useState<"all" | "title" | "content">("all");
@@ -596,37 +598,66 @@ export default function AdminPostsPage() {
         {filteredTrash.length === 0 ? (
           <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
         ) : (
-          <ul className={styles.trashList}>
-            {filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage).map((post) => {
-              const daysLeft = getDaysLeft(post.deleted_at!);
-              const title = formatPostTitle(post) || t("admin.posts.untitled");
-              return (
-                <li key={post.id} className={styles.trashRow}>
-                  <span className={styles.trashTitle}>{title}</span>
-                  <span className={styles.trashMeta}>
-                    <span className={daysLeft <= 7 ? styles.trashDaysLeft : ""}>
-                      {daysLeft}
+          <>
+            {trashSelected.size > 0 && (
+              <div className={styles.trashBulkBar}>
+                <span>{trashSelected.size}개 선택</span>
+                <button className={styles.trashBulkBtn} onClick={async () => {
+                  for (const id of trashSelected) await handleRestore(id);
+                  setTrashSelected(new Set());
+                }}><T k="admin.posts.trashRestore" /></button>
+                <button className={styles.trashBulkBtn} onClick={async () => {
+                  if (!confirm(`${trashSelected.size}개 항목을 영구 삭제합니다.`)) return;
+                  for (const id of trashSelected) {
+                    await fetch(`/api/posts/${id}/purge`, { method: "DELETE" });
+                  }
+                  fetchTrash();
+                  setTrashSelected(new Set());
+                }}><T k="admin.posts.trashPurge" /></button>
+                <button className={styles.trashBulkCancel} onClick={() => setTrashSelected(new Set())}>✕</button>
+              </div>
+            )}
+            <ul className={styles.trashList}>
+              {filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage).map((post) => {
+                const daysLeft = getDaysLeft(post.deleted_at!);
+                const title = formatPostTitle(post) || t("admin.posts.untitled");
+                return (
+                  <li key={post.id} className={styles.trashRow}>
+                    <Checkbox
+                      checked={trashSelected.has(post.id)}
+                      onChange={() => setTrashSelected((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(post.id)) next.delete(post.id); else next.add(post.id);
+                        return next;
+                      })}
+                      shape="square"
+                    />
+                    <span className={styles.trashTitle}>{title}</span>
+                    <span className={styles.trashMeta}>
+                      <span className={daysLeft <= 7 ? styles.trashDaysLeft : ""}>
+                        {daysLeft}
+                      </span>
+                      {" "}<T k="admin.posts.trashDaysLeft" />
                     </span>
-                    {" "}<T k="admin.posts.trashDaysLeft" />
-                  </span>
-                  <button
-                    type="button"
-                    className={styles.trashRestoreBtn}
-                    onClick={() => handleRestore(post.id)}
-                  >
-                    <T k="admin.posts.trashRestore" />
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.trashPurgeBtn}
-                    onClick={() => handlePurge(post.id, title)}
-                  >
-                    <T k="admin.posts.trashPurge" />
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+                    <button
+                      type="button"
+                      className={styles.trashRestoreBtn}
+                      onClick={() => handleRestore(post.id)}
+                    >
+                      <T k="admin.posts.trashRestore" />
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.trashPurgeBtn}
+                      onClick={() => handlePurge(post.id, title)}
+                    >
+                      <T k="admin.posts.trashPurge" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
         {(() => {
           const tp = Math.max(1, Math.ceil(filteredTrash.length / trashPerPage));
