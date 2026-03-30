@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { PlateElement, type PlateElementProps, useEditorRef, useSelected } from "platejs/react";
+import { PlateElement, type PlateElementProps, useEditorRef } from "platejs/react";
 import styles from "../RichTextEditor.module.css";
 
 /**
@@ -13,43 +13,22 @@ export function FootnoteRefElement(props: PlateElementProps) {
   const el = element as unknown as { footnoteId?: string };
   const id = el.footnoteId || "?";
   const editor = useEditorRef();
-  const selected = useSelected();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(id);
   const inputRef = useRef<HTMLInputElement>(null);
-  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
 
-  // 선택되면 바로 편집 모드
-  useEffect(() => {
-    if (selected && !editing) {
-      setEditing(true);
-      setDraft(id);
-    }
-    if (!selected && editing) {
-      commitEdit();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
-
-  const handleSingleClick = () => {
+  const handleClick = () => {
+    if (editing) return;
     const container = document.querySelector(`[data-footnote-content="${id}"]`);
     if (container) container.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  const handleClick = () => {
-    if (clickTimer.current) return;
-    clickTimer.current = setTimeout(() => {
-      clickTimer.current = null;
-      handleSingleClick();
-    }, 300);
-  };
-
   const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    if (clickTimer.current) { clearTimeout(clickTimer.current); clickTimer.current = null; }
     setEditing(true);
     setDraft(id);
   };
@@ -99,7 +78,7 @@ export function FootnoteRefElement(props: PlateElementProps) {
             />]
           </sup>
         ) : (
-          <sup className={`${styles.footnoteRef} ${selected ? styles.footnoteRefSelected : ""}`} data-footnote-ref={id} onClick={handleClick} onDoubleClick={handleDoubleClick}>
+          <sup className={styles.footnoteRef} data-footnote-ref={id} onClick={handleClick} onDoubleClick={handleDoubleClick}>
             [{id}]
           </sup>
         )}
