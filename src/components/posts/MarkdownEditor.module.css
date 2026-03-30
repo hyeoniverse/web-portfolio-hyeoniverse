@@ -231,6 +231,7 @@
   width: 100%;
   border-collapse: collapse;
   margin: var(--spacing-md) 0;
+  table-layout: fixed;
   border: var(--border-light);
 }
 
