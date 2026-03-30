@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { PlateElement, type PlateElementProps, useEditorRef, useSelected } from "platejs/react";
 import styles from "../RichTextEditor.module.css";
 
@@ -118,7 +118,6 @@ export function FootnoteContentElement(props: PlateElementProps) {
   const el = element as unknown as { footnoteId?: string };
   const id = el.footnoteId || "?";
   const editor = useEditorRef();
-  const [hovered, setHovered] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(id);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -158,25 +157,11 @@ export function FootnoteContentElement(props: PlateElementProps) {
     setDraft(id);
   };
 
-  const handleRemove = useCallback(() => {
-    const path = editor.api.findPath(element);
-    if (path) editor.tf.removeNodes({ at: path });
-    const refs = editor.api.nodes({
-      at: [],
-      match: (n) => (n as Record<string, unknown>).type === "footnote_ref" && (n as Record<string, unknown>).footnoteId === id,
-    });
-    for (const [, refPath] of refs) {
-      editor.tf.removeNodes({ at: refPath });
-    }
-  }, [editor, element, id]);
-
   return (
     <div
       {...attributes}
       className={styles.footnoteContent}
       data-footnote-content={id}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
       <span
         className={styles.footnoteContentId}
@@ -200,17 +185,6 @@ export function FootnoteContentElement(props: PlateElementProps) {
         )}
       </span>
       <div className={styles.footnoteContentBody}>{children}</div>
-      {hovered && (
-        <button
-          type="button"
-          className={styles.footnoteRemoveBtn}
-          contentEditable={false}
-          onClick={handleRemove}
-          title="Remove footnote"
-        >
-          ×
-        </button>
-      )}
     </div>
   );
 }
