@@ -54,34 +54,30 @@ function PreviewTooltip({
         style={{ top: pos.top, left: pos.left }}
         onClick={onNavigate}
       >
-        {work.image && (
-          <div className={shell.previewImage}>
-            {imgError ? (
-              <div className={shell.previewPlaceholder}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <polyline points="21 15 16 10 5 21" />
-                </svg>
-              </div>
-            ) : (
-              <Image
-                src={work.image}
-                alt=""
-                width={280}
-                height={140}
-                className={shell.previewImg}
-                unoptimized
-                onError={onImgError}
-              />
-            )}
-          </div>
-        )}
+        <div className={shell.previewImage}>
+          {work.image && !imgError ? (
+            <Image
+              src={work.image}
+              alt=""
+              width={280}
+              height={140}
+              className={shell.previewImg}
+              unoptimized
+              onError={onImgError}
+            />
+          ) : (
+            <div className={shell.previewPlaceholder}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </div>
+          )}
+        </div>
         <div className={shell.previewBody}>
           <p className={shell.previewTitle}>{work.title}</p>
-          {work.subtitle_ko && (
-            <p className={shell.previewExcerpt}>{work.subtitle_ko}</p>
-          )}
+          <p className={shell.previewExcerpt}>{work.subtitle_ko || "\u00A0"}</p>
           {work.tech.length > 0 && (
             <div className={shell.previewTags}>
               {work.tech.map((tag) => (
