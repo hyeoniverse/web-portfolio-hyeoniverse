@@ -28,11 +28,16 @@ marked.use(
   gfm: true,
   hooks: {
     postprocess(html: string): string {
-      // heading에 id 추가 (renderer 대신 postprocess로 처리하여 marked-footnote 파싱 유지)
-      return html.replace(/<h(\d)>([\s\S]*?)<\/h\1>/g, (_, depth, content) => {
+      // heading에 id 추가
+      html = html.replace(/<h(\d)>([\s\S]*?)<\/h\1>/g, (_, depth, content) => {
         const id = slugify(content);
         return `<h${depth} id="${id}">${content}</h${depth}>`;
       });
+      // 각주 정의 li에 data-label 추가 (원본 번호 표시용)
+      html = html.replace(/<li id="footnote-([^"]+)">/g, (_, label) =>
+        `<li id="footnote-${label}" data-label="${label}">`
+      );
+      return html;
     },
   },
   renderer: {
