@@ -45,7 +45,6 @@
 
 .panelTabActive {
   color: var(--text-primary);
-  background: var(--bg-primary);
 }
 
 .editorPane {
@@ -578,6 +577,26 @@
   }
 
   /* 모바일 탭 전환 */
+  .panelTab {
+    position: relative;
+  }
+
+  .panelTab::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--text-primary);
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+  }
+
+  .panelTabActive::after {
+    transform: scaleX(1);
+  }
+
   .outer[data-mobile-tab="preview"] .editorPane {
     display: none;
   }
