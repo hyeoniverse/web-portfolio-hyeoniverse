@@ -16,6 +16,7 @@ interface AdminListShellProps {
   onSave?: () => void;
   saveCount?: number;
   saveLabel?: string;
+  headerExtra?: ReactNode;
   beforeTable?: ReactNode;
   afterTable?: ReactNode;
   children: ReactNode;
@@ -30,6 +31,7 @@ export default function AdminListShell({
   onSave,
   saveCount = 0,
   saveLabel = "Save",
+  headerExtra,
   beforeTable,
   afterTable,
   children,
@@ -83,6 +85,7 @@ export default function AdminListShell({
               {saving ? "..." : `${saveLabel} (${saveCount})`}
             </button>
           )}
+          {headerExtra}
           <Link href={newHref} className={styles.newBtn}>
             {newLabel}
           </Link>
