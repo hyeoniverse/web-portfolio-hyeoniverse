@@ -36,7 +36,7 @@ date: 2024-03-15
 |------|------|------|--------|
 | `title` | string | 포스트 제목 | 파일명 |
 | `slug` | string | URL 슬러그 | 제목에서 자동 생성 |
-| `category` | string | 카테고리 (사이트에 등록된 카테고리명) | 첫 번째 카테고리 |
+| `category` | string | 카테고리 (사이트에 등록된 카테고리명) | 기타 |
 | `tags` | string[] | 태그 목록 | 없음 |
 | `excerpt` | string | 요약/발췌문 | 없음 |
 | `cover_image` | string | 커버 이미지 URL | 없음 |
