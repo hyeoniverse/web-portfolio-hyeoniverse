@@ -758,6 +758,30 @@ function postProcessMarkedHtml(html: string): string {
       return `<div data-math-block="true" data-latex="${ann[1]}">${ann[1]}</div>`;
     }
   );
+  // 열블록 마커 + 표 → column HTML 복원
+  html = html.replace(
+    /<!-- columns ([^>]*) -->\s*<table>([\s\S]*?)<\/table>/g,
+    (_, widthsStr: string, tableBody: string) => {
+      const widths = widthsStr.trim().split(",");
+      // 표 본문에서 셀 내용 추출 (thead 제외, tbody의 첫 행)
+      const cells: string[] = [];
+      const tdRe = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g;
+      let m: RegExpExecArray | null;
+      const rows = tableBody.split(/<\/tr>/);
+      // 마지막 데이터 행 (thead 제외)
+      const dataRow = rows.length > 1 ? rows[rows.length - 2] : rows[0];
+      while ((m = tdRe.exec(dataRow)) !== null) {
+        cells.push(m[1].trim());
+      }
+      if (cells.length === 0) return _;
+      const columns = cells.map((content, i) => {
+        const w = widths[i] || "";
+        const wAttr = w ? ` data-width="${w}"` : "";
+        return `<div data-column${wAttr}>${content || "<p></p>"}</div>`;
+      }).join("");
+      return `<div data-column-group>${columns}</div>`;
+    }
+  );
   // 코드블록 wrap toggle 버튼 제거
   html = html.replace(/<button[^>]*class="code-wrap-toggle"[^>]*>[\s\S]*?<\/button>/g, "");
   // callout 아이콘 visual span 제거 (deserialize 시 중복 방지)
@@ -1286,17 +1310,18 @@ export default function PostEditor({ post }: PostEditorProps) {
               return `\n${header}\n${divider}\n${body}\n`;
             },
           });
-          // 열블록 (column_group) → 마크다운 표
+          // 열블록 (column_group) → 마크다운 표 + 열블록 마커
           td.addRule("columnGroup", {
             filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-column-group"),
             replacement: (_content, node) => {
               const el = node as HTMLElement;
               const cols = Array.from(el.querySelectorAll(":scope > [data-column]"));
               if (cols.length === 0) return _content;
+              const widths = cols.map((c) => (c as HTMLElement).getAttribute("data-width") || "");
               const header = `| ${cols.map((_, i) => `Col ${i + 1}`).join(" | ")} |`;
               const divider = `| ${cols.map(() => "---").join(" | ")} |`;
               const body = `| ${cols.map((c) => (c.textContent ?? "").trim().replace(/\n/g, " ").replace(/\|/g, "\\|")).join(" | ")} |`;
-              return `\n${header}\n${divider}\n${body}\n`;
+              return `\n<!-- columns ${widths.join(",")} -->\n${header}\n${divider}\n${body}\n`;
             },
           });
           td.addRule("column", {
