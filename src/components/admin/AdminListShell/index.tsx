@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./AdminListShell.module.css";
@@ -37,8 +37,6 @@ export default function AdminListShell({
   children,
 }: AdminListShellProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
-  const [filterHidden, setFilterHidden] = useState(false);
-  const lastScrollY = useRef(0);
 
   useEffect(() => {
     stop();
@@ -54,25 +52,8 @@ export default function AdminListShell({
     };
   }, [setInfinite, lenis, stop, start]);
 
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (y < 120) {
-        setFilterHidden(false);
-        lastScrollY.current = y;
-        return;
-      }
-      const delta = y - lastScrollY.current;
-      if (delta > 10) setFilterHidden(true);
-      else if (delta < -10) setFilterHidden(false);
-      lastScrollY.current = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
-    <div className={`${styles.container} ${filterHidden ? styles.filterHidden : ""}`}>
+    <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>{title}</h1>
         <div className={styles.headerActions}>
