@@ -71,7 +71,7 @@
 
 /* Changed row indicator */
 .rowChanged {
-  background: var(--color-accent-alpha-5);
+  background: var(--bg-tertiary);
 }
 
 /* ── Meta columns ── */
