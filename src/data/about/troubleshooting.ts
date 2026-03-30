@@ -729,12 +729,12 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "The custom `heading` renderer executed **before** `marked-footnote` could process inline footnotes, so `[^N]` inside heading text was output as-is without conversion to footnote HTML. Body `[^N]` worked fine, but **the heading renderer bypassed the parsing pipeline**.",
     },
     solution: {
-      ko: "두 곳에서 수동 변환을 추가했습니다: (1) `MarkdownRenderer`의 heading renderer에서 `[^N]` 패턴을 각주 링크 HTML로 직접 변환, (2) `postProcessMarkedHtml`에서 `<h1>`~`<h6>` 태그 안에 남은 `[^N]`을 Plate 호환 각주 HTML로 변환.",
-      en: "Added manual conversion in two places: (1) In `MarkdownRenderer`'s heading renderer, directly converting `[^N]` patterns to footnote link HTML, (2) In `postProcessMarkedHtml`, converting remaining `[^N]` inside `<h1>`-`<h6>` tags to Plate-compatible footnote HTML.",
+      ko: "커스텀 heading renderer를 제거하고, `postprocess` hook으로 대체했습니다. `marked-footnote`가 heading 포함 모든 각주를 먼저 처리한 뒤, `postprocess`에서 `<h1>`~`<h6>` 태그에 id(slug)만 추가합니다. 추가로 `keepLabels: true` 옵션을 적용하여 사용자가 입력한 각주 번호를 그대로 유지합니다.",
+      en: "Replaced the custom heading renderer with a `postprocess` hook. `marked-footnote` processes all footnotes (including headings) first, then `postprocess` adds id (slug) to `<h1>`-`<h6>` tags. Additionally applied `keepLabels: true` to preserve user-specified footnote numbers.",
     },
     keyInsight: {
-      ko: "마크다운 플러그인의 **실행 순서는 커스텀 renderer에 의해 우회될 수 있습니다**. renderer를 오버라이드할 때는 해당 renderer가 다른 플러그인의 인라인 파싱을 방해하지 않는지 확인해야 합니다.",
-      en: "Markdown plugin **execution order can be bypassed by custom renderers**. When overriding renderers, verify they don't interfere with other plugins' inline parsing.",
+      ko: "마크다운 플러그인과 커스텀 renderer가 **같은 토큰을 경합**하면 파싱이 꼬입니다. renderer 대신 `postprocess` hook을 사용하면 플러그인이 먼저 동작한 **결과 HTML을 안전하게 후처리**할 수 있습니다.",
+      en: "When markdown plugins and custom renderers **compete for the same tokens**, parsing breaks. Using `postprocess` hooks instead of renderers allows **safe post-processing of the plugin-generated HTML**.",
     },
   },
   {
