@@ -937,7 +937,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [te]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const askRestore = useCallback((data: PostFormData, json?: string, revisionId?: string) => {
-    if (draftRestored.current) return;
     draftRestored.current = true;
     const modalId = "draft-restore";
     openModal(
@@ -960,7 +959,6 @@ export default function PostEditor({ post }: PostEditorProps) {
       if (local) {
         const parsed = JSON.parse(local) as PostFormData;
         if (JSON.stringify(parsed) !== JSON.stringify(initialFormRef.current)) {
-          draftRestored.current = true;
           localStorage.removeItem(localDraftKey);
           askRestore(parsed, local);
           return;
@@ -971,9 +969,8 @@ export default function PostEditor({ post }: PostEditorProps) {
     // DB revision fallback — dismissed 된 건 건너뜀
     const latestRevision = dbRevisions.find((r) => !r.dismissed);
     if (!latestRevision) return;
-    draftRestored.current = true;
     loadRevisionSnapshot(latestRevision.id).then((snapshot) => {
-      if (!snapshot) return;
+      if (!snapshot || draftRestored.current) return;
       askRestore(snapshot as PostFormData, undefined, latestRevision.id);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
