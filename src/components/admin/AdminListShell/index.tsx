@@ -67,9 +67,11 @@ export default function AdminListShell({
             </button>
           )}
           {headerExtra}
-          <Link href={newHref} className={styles.newBtn}>
-            {newLabel}
-          </Link>
+          {!headerExtra && (
+            <Link href={newHref} className={styles.newBtn}>
+              {newLabel}
+            </Link>
+          )}
         </div>
       </div>
 
