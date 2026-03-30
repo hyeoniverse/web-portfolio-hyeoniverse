@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
-import { ModalPrompt } from "@/components/ui/ModalTemplates";
+import { ModalPrompt, ModalConfirm } from "@/components/ui/ModalTemplates";
 import styles from "./AdminTable.module.css";
 
 /* ── Types ── */
@@ -111,8 +111,16 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
   const handleBulkDelete = useCallback(() => {
     if (!onBulkDelete || selected.size === 0) return;
-    onBulkDelete([...selected]).then(() => setSelected(new Set()));
-  }, [onBulkDelete, selected]);
+    openModal(
+      <ModalConfirm
+        desc={`${selected.size}개 항목을 삭제합니다.`}
+        cancelText={labels.cancel}
+        confirmText={labels.delete}
+        onConfirm={() => onBulkDelete([...selected]).then(() => setSelected(new Set()))}
+      />,
+      { id: "bulk-delete-confirm", header: { title: labels.delete }, closeButton: true, width: "360px" },
+    );
+  }, [onBulkDelete, selected, openModal, labels]);
 
   const handleBulkPublish = useCallback((published: boolean) => {
     if (!onBulkPublish || selected.size === 0) return;
@@ -211,14 +219,12 @@ export default function AdminTable<T extends { id: string; published: boolean }>
       <div className={styles.table} style={gridStyle}>
         <div className={`${styles.bulkBar} ${selected.size > 0 ? styles.bulkBarOpen : ""}`}>
           <span>{selected.size}개 선택</span>
-          {onBulkPublish && (() => {
-            const allPublished = items.filter((i) => selected.has(i.id)).every((i) => i.published);
-            return (
-              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(!allPublished)}>
-                {allPublished ? labels.unpublishedTooltip : labels.publishLabel}
-              </button>
-            );
-          })()}
+          {onBulkPublish && (
+            <>
+              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</button>
+              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</button>
+            </>
+          )}
           {onBulkDelete && (
             <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
           )}

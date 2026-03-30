@@ -49,8 +49,8 @@
 }
 
 .bulkActionDanger:hover {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
 }
 
 .bulkCancelBtn {
