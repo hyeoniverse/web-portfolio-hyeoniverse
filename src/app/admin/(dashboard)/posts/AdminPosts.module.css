@@ -331,6 +331,43 @@
   overflow: visible;
 }
 
+.trashBulkBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  margin-top: var(--spacing-xs);
+  border-bottom: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.trashBulkBtn {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.trashBulkBtn:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.trashBulkCancel {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+}
+
 .trashList {
   list-style: none;
   margin: var(--spacing-xs) 0 0;
