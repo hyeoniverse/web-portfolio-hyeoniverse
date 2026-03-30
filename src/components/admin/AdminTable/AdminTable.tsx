@@ -54,6 +54,8 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onReorder?: (fromIdx: number, toIdx: number) => void;
   showRowNumbers?: boolean;
   getRowLabel?: (item: T, index: number) => string | number;
+  onBulkDelete?: (ids: string[]) => Promise<void>;
+  bulkDeleteLabel?: string;
   children?: ReactNode;
 }
 
@@ -80,10 +82,13 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onReorder,
   showRowNumbers = false,
   getRowLabel,
+  onBulkDelete,
+  bulkDeleteLabel = "Delete selected",
   children,
 }: AdminTableProps<T>) {
   const router = useRouter();
   const { openModal } = useModalStore();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   /* ── Drag & drop state ── */
   const [dragIdx, setDragIdx] = useState<number | null>(null);
@@ -92,7 +97,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   const dragAllowedRef = useRef(false);
 
   const hasNumCol = onReorder || showRowNumbers;
-  const effectiveGrid = hasNumCol ? `32px ${gridTemplate}` : gridTemplate;
+  const hasSelectCol = !!onBulkDelete;
+  const effectiveGrid = `${hasSelectCol ? "32px " : ""}${hasNumCol ? "32px " : ""}${gridTemplate}`;
 
   const getEffectivePublished = (item: T): boolean => {
     return publishOverrides.has(item.id)
@@ -116,9 +122,30 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
   const handleSelectAll = useCallback(() => {
     if (!onPublishAll) return;
-    // If all checked → uncheck all, otherwise check all
     onPublishAll(items, !allChecked);
   }, [items, allChecked, onPublishAll]);
+
+  /* ── Bulk selection ── */
+  const allSelected = items.length > 0 && items.every((item) => selected.has(item.id));
+  const someSelected = items.some((item) => selected.has(item.id)) && !allSelected;
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    if (allSelected) setSelected(new Set());
+    else setSelected(new Set(items.map((item) => item.id)));
+  }, [items, allSelected]);
+
+  const handleBulkDelete = useCallback(() => {
+    if (!onBulkDelete || selected.size === 0) return;
+    onBulkDelete([...selected]).then(() => setSelected(new Set()));
+  }, [onBulkDelete, selected]);
 
   const handleRowClick = (item: T) => {
     router.push(`${editBasePath}/${item.id}/edit`);
@@ -173,6 +200,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     return (
       <div className={styles.table} style={gridStyle}>
         <div className={styles.tableHeader}>
+          {hasSelectCol && <span />}
           {hasNumCol && <span />}
           <span />
           {columns.map((col) => (
@@ -186,14 +214,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
             className={styles.row}
             style={{ pointerEvents: "none" }}
           >
-            {hasNumCol && (
-              <span>
-                <SkeletonLine width="16px" />
-              </span>
-            )}
-            <span>
-              <SkeletonLine width="20px" />
-            </span>
+            {hasSelectCol && <span><SkeletonLine width="16px" /></span>}
+            {hasNumCol && <span><SkeletonLine width="16px" /></span>}
+            <span><SkeletonLine width="20px" /></span>
             {columns.map((col) => (
               <span key={col.key}>
                 <SkeletonLine width={col.skeletonWidth ?? "60%"} />
@@ -216,7 +239,19 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   return (
     <>
       <div className={styles.table} style={gridStyle}>
+        {selected.size > 0 && onBulkDelete && (
+          <div className={styles.bulkBar}>
+            <span>{selected.size}개 선택</span>
+            <button className={styles.bulkDeleteBtn} onClick={handleBulkDelete}>{bulkDeleteLabel}</button>
+            <button className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())}>✕</button>
+          </div>
+        )}
         <div className={styles.tableHeader}>
+          {hasSelectCol && (
+            <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
+              <Checkbox checked={allSelected} indeterminate={someSelected} onChange={toggleSelectAll} shape="square" />
+            </span>
+          )}
           {hasNumCol && <span />}
           <span className={styles.colCheck}>
             {onPublishAll && (
@@ -319,6 +354,11 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               }
               onMouseLeave={onRowLeave}
             >
+              {hasSelectCol && (
+                <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}>
+                  <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
+                </span>
+              )}
               {onReorder ? (
                 <span
                   className={styles.dragHandle}
