@@ -15,7 +15,6 @@ import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
 import AdminTable, {
-  usePublishChanges,
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
@@ -110,7 +109,6 @@ export default function AdminPostsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [saving, setSaving] = useState(false);
 
   /* Filters & sort */
   const [search, setSearch] = useState("");
@@ -121,9 +119,6 @@ export default function AdminPostsPage() {
   const [perPage, setPerPage] = useState(siteConf.posts.adminPerPage ?? 20);
   const hasFilters = sort !== "newest" || filterCategory !== "" || filterSeries !== "" || search;
 
-  /* Publish changes */
-  const { publishOverrides, toggle, setAll, reset, toChanges, hasChanges } =
-    usePublishChanges<Post>();
 
   /* Preview tooltip — use refs + minimal state to avoid re-rendering AdminTable */
   const hoveredPostRef = useRef<Post | null>(null);
@@ -365,22 +360,6 @@ export default function AdminPostsPage() {
     fetchTrash();
   };
 
-  const handleSave = async () => {
-    if (!hasChanges) return;
-    setSaving(true);
-    await Promise.all(
-      toChanges().map((c) =>
-        fetch(`/api/posts/${c.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ published: c.published }),
-        }),
-      ),
-    );
-    reset();
-    setSaving(false);
-    fetchPosts();
-  };
 
   const handleDeleteSeries = async (s: Series) => {
     if (
@@ -842,11 +821,6 @@ export default function AdminPostsPage() {
       title={t("admin.posts.title")}
       newHref="/admin/posts/new"
       newLabel={t("admin.posts.newPost")}
-      saving={saving}
-      hasChanges={hasChanges}
-      onSave={handleSave}
-      saveCount={publishOverrides.size}
-      saveLabel={t("admin.posts.save")}
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
@@ -939,16 +913,22 @@ export default function AdminPostsPage() {
         columns={columns}
         editBasePath="/admin/posts"
         getTitle={(p) => formatPostTitle(p) || t("admin.posts.untitled")}
-        publishOverrides={publishOverrides}
-        onPublishToggle={toggle}
-        onPublishAll={setAll}
         onDelete={handleDelete}
         onBulkDelete={async (ids) => {
           for (const id of ids) await fetch(`/api/posts/${id}`, { method: "DELETE" });
           fetchPosts();
           if (trashOpen) fetchTrash();
         }}
-        bulkDeleteLabel={t("admin.posts.bulkDelete")}
+        onBulkPublish={async (ids, published) => {
+          await Promise.all(ids.map((id) =>
+            fetch(`/api/posts/${id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ published }),
+            })
+          ));
+          fetchPosts();
+        }}
         gridTemplate="40px 80px 1fr 80px 80px 140px"
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}

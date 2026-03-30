@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
-import Tooltip from "@/components/ui/Tooltip";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import styles from "./AdminTable.module.css";
@@ -36,10 +35,9 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   columns: AdminTableColumn<T>[];
   editBasePath: string;
   getTitle: (item: T) => string;
-  publishOverrides: Map<string, boolean>;
-  onPublishToggle: (item: T) => void;
-  onPublishAll?: (items: T[], published: boolean) => void;
   onDelete: (id: string, title: string) => Promise<void>;
+  onBulkDelete?: (ids: string[]) => Promise<void>;
+  onBulkPublish?: (ids: string[], published: boolean) => Promise<void>;
   gridTemplate: string;
   loading?: boolean;
   emptyMessage?: string;
@@ -54,8 +52,6 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onReorder?: (fromIdx: number, toIdx: number) => void;
   showRowNumbers?: boolean;
   getRowLabel?: (item: T, index: number) => string | number;
-  onBulkDelete?: (ids: string[]) => Promise<void>;
-  bulkDeleteLabel?: string;
   children?: ReactNode;
 }
 
@@ -64,10 +60,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   columns,
   editBasePath,
   getTitle,
-  publishOverrides,
-  onPublishToggle,
-  onPublishAll,
   onDelete,
+  onBulkDelete,
+  onBulkPublish,
   gridTemplate,
   loading = false,
   emptyMessage = "No items yet",
@@ -82,8 +77,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onReorder,
   showRowNumbers = false,
   getRowLabel,
-  onBulkDelete,
-  bulkDeleteLabel = "Delete selected",
   children,
 }: AdminTableProps<T>) {
   const router = useRouter();
@@ -97,35 +90,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   const dragAllowedRef = useRef(false);
 
   const hasNumCol = onReorder || showRowNumbers;
-  const hasSelectCol = !!onBulkDelete;
-  const effectiveGrid = `${hasSelectCol ? "32px " : ""}${hasNumCol ? "32px " : ""}${gridTemplate}`;
+  const effectiveGrid = `32px ${hasNumCol ? "32px " : ""}${gridTemplate}`;
 
-  const getEffectivePublished = (item: T): boolean => {
-    return publishOverrides.has(item.id)
-      ? publishOverrides.get(item.id)!
-      : item.published;
-  };
-
-  /* Select-all state */
-  const { allChecked, someChecked } = useMemo(() => {
-    if (items.length === 0) return { allChecked: false, someChecked: false };
-    let checked = 0;
-    for (const item of items) {
-      if (getEffectivePublished(item)) checked++;
-    }
-    return {
-      allChecked: checked === items.length,
-      someChecked: checked > 0 && checked < items.length,
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, publishOverrides]);
-
-  const handleSelectAll = useCallback(() => {
-    if (!onPublishAll) return;
-    onPublishAll(items, !allChecked);
-  }, [items, allChecked, onPublishAll]);
-
-  /* ── Bulk selection ── */
+  /* ── Selection ── */
   const allSelected = items.length > 0 && items.every((item) => selected.has(item.id));
   const someSelected = items.some((item) => selected.has(item.id)) && !allSelected;
 
@@ -146,6 +113,11 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     if (!onBulkDelete || selected.size === 0) return;
     onBulkDelete([...selected]).then(() => setSelected(new Set()));
   }, [onBulkDelete, selected]);
+
+  const handleBulkPublish = useCallback((published: boolean) => {
+    if (!onBulkPublish || selected.size === 0) return;
+    onBulkPublish([...selected], published).then(() => setSelected(new Set()));
+  }, [onBulkPublish, selected]);
 
   const handleRowClick = (item: T) => {
     router.push(`${editBasePath}/${item.id}/edit`);
@@ -200,9 +172,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     return (
       <div className={styles.table} style={gridStyle}>
         <div className={styles.tableHeader}>
-          {hasSelectCol && <span />}
-          {hasNumCol && <span />}
           <span />
+          {hasNumCol && <span />}
           {columns.map((col) => (
             <span key={col.key}>{col.label}</span>
           ))}
@@ -214,9 +185,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
             className={styles.row}
             style={{ pointerEvents: "none" }}
           >
-            {hasSelectCol && <span><SkeletonLine width="16px" /></span>}
+            <span><SkeletonLine width="16px" /></span>
             {hasNumCol && <span><SkeletonLine width="16px" /></span>}
-            <span><SkeletonLine width="20px" /></span>
             {columns.map((col) => (
               <span key={col.key}>
                 <SkeletonLine width={col.skeletonWidth ?? "60%"} />
@@ -239,32 +209,26 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   return (
     <>
       <div className={styles.table} style={gridStyle}>
-        {selected.size > 0 && onBulkDelete && (
+        {selected.size > 0 && (
           <div className={styles.bulkBar}>
             <span>{selected.size}개 선택</span>
-            <button className={styles.bulkDeleteBtn} onClick={handleBulkDelete}>{bulkDeleteLabel}</button>
+            {onBulkPublish && (
+              <>
+                <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(true)}>{labels.publishLabel}</button>
+                <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</button>
+              </>
+            )}
+            {onBulkDelete && (
+              <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
+            )}
             <button className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())}>✕</button>
           </div>
         )}
         <div className={styles.tableHeader}>
-          {hasSelectCol && (
-            <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
-              <Checkbox checked={allSelected} indeterminate={someSelected} onChange={toggleSelectAll} shape="square" />
-            </span>
-          )}
-          {hasNumCol && <span />}
-          <span className={styles.colCheck}>
-            {onPublishAll && (
-              <Tooltip content={labels.publishLabel} placement="top">
-                <Checkbox
-                  checked={allChecked}
-                  indeterminate={someChecked}
-                  onChange={handleSelectAll}
-                  shape="square"
-                />
-              </Tooltip>
-            )}
+          <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
+            <Checkbox checked={allSelected} indeterminate={someSelected} onChange={toggleSelectAll} shape="square" />
           </span>
+          {hasNumCol && <span />}
           {columns.map((col) => (
             <span key={col.key}>{col.label}</span>
           ))}
@@ -272,15 +236,13 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         </div>
 
         {items.map((item, i) => {
-          const published = getEffectivePublished(item);
-          const changed = publishOverrides.has(item.id);
           const isDragging = dragIdx === i;
           const isOver =
             overIdx === i && dragIdx !== null && dragIdx !== i;
           return (
             <div
               key={item.id}
-              className={`${styles.row} ${changed ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""}`}
+              className={`${styles.row} ${selected.has(item.id) ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""}`}
               data-clickable="true"
               draggable={!!onReorder}
               onClick={(e) => onRowClick ? onRowClick(item, e) : handleRowClick(item)}
@@ -354,11 +316,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               }
               onMouseLeave={onRowLeave}
             >
-              {hasSelectCol && (
-                <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}>
-                  <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
-                </span>
-              )}
+              <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}>
+                <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
+              </span>
               {onReorder ? (
                 <span
                   className={styles.dragHandle}
@@ -394,21 +354,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   <span className={styles.rowNumText}>{getRowLabel ? getRowLabel(item, i) : i + 1}</span>
                 </span>
               ) : null}
-              <span
-                className={styles.colCheck}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Tooltip content={published ? labels.publishedTooltip : labels.unpublishedTooltip} placement="top">
-                  <Checkbox
-                    checked={published}
-                    onChange={() => onPublishToggle(item)}
-                    shape="square"
-                  />
-                </Tooltip>
-              </span>
               {columns.map((col) => (
                 <span key={col.key} className={col.className}>
-                  {col.render(item, published)}
+                  {col.render(item, item.published)}
                 </span>
               ))}
               <span
