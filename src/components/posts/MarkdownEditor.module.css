@@ -294,6 +294,9 @@
   font-family: var(--font-mono);
 }
 
+.preview :global([data-footnote-ref])::before { content: "["; }
+.preview :global([data-footnote-ref])::after { content: "]"; }
+
 .preview :global([data-footnote-ref]):hover {
   text-decoration: underline;
 }

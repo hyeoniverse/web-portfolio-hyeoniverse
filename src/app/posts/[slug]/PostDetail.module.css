@@ -283,6 +283,9 @@
   cursor: pointer;
 }
 
+.prose sup[data-footnote-ref]::before { content: "["; }
+.prose sup[data-footnote-ref]::after { content: "]"; }
+
 .prose sup[data-footnote-ref]:hover {
   text-decoration: underline;
 }
