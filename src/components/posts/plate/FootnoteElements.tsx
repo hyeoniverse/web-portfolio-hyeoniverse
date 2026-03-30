@@ -89,9 +89,17 @@ export function FootnoteRefElement(props: PlateElementProps) {
 
   return (
     <PlateElement {...props} as="span">
-      <span contentEditable={false} style={{ userSelect: "none" }}>
+      <sup
+        className={styles.footnoteRef}
+        data-footnote-ref={id}
+        contentEditable={false}
+        suppressContentEditableWarning
+        onMouseDown={handleMouseDown}
+        onClick={handleClick}
+        onDoubleClick={handleDoubleClick}
+      >
         {editing ? (
-          <sup className={styles.footnoteRef}>
+          <>
             [<input
               ref={inputRef}
               className={styles.footnoteEditInput}
@@ -104,13 +112,11 @@ export function FootnoteRefElement(props: PlateElementProps) {
                 else if (e.key === "Escape") { setEditing(false); setDraft(id); }
               }}
             />]
-          </sup>
+          </>
         ) : (
-          <sup className={styles.footnoteRef} data-footnote-ref={id} onMouseDown={handleMouseDown} onClick={handleClick} onDoubleClick={handleDoubleClick}>
-            [{id}]
-          </sup>
+          <span>[{id}]</span>
         )}
-      </span>
+      </sup>
       {props.children}
     </PlateElement>
   );
