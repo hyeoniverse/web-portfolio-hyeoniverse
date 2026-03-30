@@ -716,4 +716,44 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       } satisfies ComparisonTable,
     ],
   },
+  /* ── Editor ── */
+  {
+    section: { ko: "Editor", en: "Editor" },
+    problem: { ko: "제목(heading) 안 각주가 마크다운 변환 시 처리 안 됨", en: "Footnotes Inside Headings Not Processed During Markdown Conversion" },
+    definition: {
+      ko: "리치텍스트 에디터에서 제목에 각주를 넣고 마크다운으로 전환하면, 각주가 `[^1]` 텍스트 그대로 남아 **미리보기에서 각주로 인식되지 않았습니다**.",
+      en: "When converting headings with footnotes from richtext to markdown, the footnote remained as literal `[^1]` text and **was not recognized as a footnote in preview**.",
+    },
+    cause: {
+      ko: "`marked-footnote` 플러그인이 인라인 각주를 처리하기 **전에** 커스텀 `heading` renderer가 먼저 실행되어, 제목 텍스트 안의 `[^N]`이 각주 HTML로 변환되지 않고 원본 그대로 출력되었습니다. 본문의 `[^N]`은 정상 변환되었지만, **heading renderer가 파싱 파이프라인을 우회**하는 구조적 문제였습니다.",
+      en: "The custom `heading` renderer executed **before** `marked-footnote` could process inline footnotes, so `[^N]` inside heading text was output as-is without conversion to footnote HTML. Body `[^N]` worked fine, but **the heading renderer bypassed the parsing pipeline**.",
+    },
+    solution: {
+      ko: "두 곳에서 수동 변환을 추가했습니다: (1) `MarkdownRenderer`의 heading renderer에서 `[^N]` 패턴을 각주 링크 HTML로 직접 변환, (2) `postProcessMarkedHtml`에서 `<h1>`~`<h6>` 태그 안에 남은 `[^N]`을 Plate 호환 각주 HTML로 변환.",
+      en: "Added manual conversion in two places: (1) In `MarkdownRenderer`'s heading renderer, directly converting `[^N]` patterns to footnote link HTML, (2) In `postProcessMarkedHtml`, converting remaining `[^N]` inside `<h1>`-`<h6>` tags to Plate-compatible footnote HTML.",
+    },
+    keyInsight: {
+      ko: "마크다운 플러그인의 **실행 순서는 커스텀 renderer에 의해 우회될 수 있습니다**. renderer를 오버라이드할 때는 해당 renderer가 다른 플러그인의 인라인 파싱을 방해하지 않는지 확인해야 합니다.",
+      en: "Markdown plugin **execution order can be bypassed by custom renderers**. When overriding renderers, verify they don't interfere with other plugins' inline parsing.",
+    },
+  },
+  {
+    problem: { ko: "Plate inline void 노드에서 클릭 vs 키보드 구분 불가", en: "Cannot Distinguish Click vs Keyboard for Plate Inline Void Nodes" },
+    definition: {
+      ko: "각주 참조(`[1]`)를 클릭하면 설명란으로 스크롤해야 하고, 방향키로 진입하면 편집 모드로 들어가야 하는데, `useSelected` 훅이 **두 경우를 구분하지 못해** 클릭해도 편집 모드로 진입하는 문제가 있었습니다.",
+      en: "Clicking a footnote ref `[1]` should scroll to its definition, while arrow-key navigation should enter edit mode. But the `useSelected` hook **couldn't distinguish between the two**, causing edit mode to activate on click.",
+    },
+    cause: {
+      ko: "Plate의 `useSelected()`는 노드가 **어떤 방식으로든 선택되면** true를 반환합니다. 클릭이든 방향키든 구분하지 않습니다. `<sup>` 요소에 `onMouseDown` 핸들러를 달아도, void 노드 **바깥** 클릭(오른쪽 빈 공간)은 해당 핸들러를 거치지 않아 구분이 불가능했습니다.",
+      en: "Plate's `useSelected()` returns true when the node is **selected by any means** — click or arrow key. Adding `onMouseDown` to the `<sup>` element didn't help because clicks on the **outside** of the void node (right side empty space) bypassed the handler.",
+    },
+    solution: {
+      ko: "`document.addEventListener('mousedown')` 레벨에서 마우스 사용 여부를 플래그(`wasMouseRef`)로 기록합니다. `useSelected`가 true가 될 때 이 플래그를 확인하여: **마우스 → 편집 안 함**, **키보드 → 편집 진입**. `mouseup` 후 `requestAnimationFrame`으로 플래그를 리셋합니다.",
+      en: "Track mouse usage at the `document.addEventListener('mousedown')` level with a flag (`wasMouseRef`). When `useSelected` becomes true, check this flag: **mouse → no edit**, **keyboard → enter edit**. Reset the flag after `mouseup` via `requestAnimationFrame`.",
+    },
+    keyInsight: {
+      ko: "**이벤트 소스 구분은 컴포넌트 레벨이 아닌 document 레벨에서** 해야 합니다. inline void 노드는 주변 클릭도 선택을 트리거하므로, 컴포넌트 내부 핸들러만으로는 모든 케이스를 커버할 수 없습니다.",
+      en: "**Event source distinction must happen at the document level, not component level**. Inline void nodes can be selected by clicks on surrounding areas, so component-internal handlers alone cannot cover all cases.",
+    },
+  },
 ];
