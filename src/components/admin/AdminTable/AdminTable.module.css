@@ -12,13 +12,24 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-md);
-  margin-bottom: var(--spacing-xs);
+  padding: 0 var(--spacing-md);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-bottom: 0;
+  transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease, margin 0.25s ease;
+}
+
+.bulkBarOpen {
+  max-height: 48px;
+  opacity: 1;
+  padding: var(--spacing-xs) var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
 }
 
 .bulkActionBtn {
