@@ -966,13 +966,21 @@ export default function PostEditor({ post }: PostEditorProps) {
         localStorage.removeItem(localDraftKey);
       }
     } catch { /* ignore */ }
-    // DB revision fallback — dismissed 된 건 건너뜀
-    const latestRevision = dbRevisions.find((r) => !r.dismissed);
-    if (!latestRevision) return;
-    loadRevisionSnapshot(latestRevision.id).then((snapshot) => {
-      if (!snapshot || draftRestored.current) return;
-      askRestore(snapshot as PostFormData, undefined, latestRevision.id);
-    });
+    // DB revision fallback — dismissed 된 건 건너뛰고, 저장된 데이터와 다른 것만 제안
+    const candidates = dbRevisions.filter((r) => !r.dismissed);
+    if (candidates.length === 0) return;
+    const initialJson = JSON.stringify(initialFormRef.current);
+    (async () => {
+      for (const rev of candidates) {
+        if (draftRestored.current) return;
+        const snapshot = await loadRevisionSnapshot(rev.id);
+        if (!snapshot) continue;
+        // 저장된 데이터와 동일하면 건너뜀
+        if (JSON.stringify(snapshot) === initialJson) continue;
+        askRestore(snapshot as PostFormData, undefined, rev.id);
+        return;
+      }
+    })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbRevisions]);
 
