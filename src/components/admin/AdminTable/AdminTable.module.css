@@ -321,49 +321,7 @@
 
 /* ── Pagination ── */
 .pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-xs);
   margin-top: var(--spacing-3xl);
-}
-
-.pageBtn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: var(--border-light);
-  border-radius: 50%;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
-
-.pagination .pageBtn:hover:not(:disabled):not(.pageBtnActive) {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.pageBtnActive {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.pageBtn:disabled {
-  color: var(--text-muted);
-  border-color: var(--border-light-color);
-  opacity: 0.4;
-}
-
-.ellipsis {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  padding: 0 var(--spacing-2xs);
 }
 
 /* ── Responsive ── */
