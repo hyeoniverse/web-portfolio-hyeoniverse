@@ -125,7 +125,7 @@ export function FootnoteRefElement(props: PlateElementProps) {
           </sup>
         )}
       </span>
-      {props.children}
+      <span style={{ padding: "0 1px" }}>{props.children}</span>
     </PlateElement>
   );
 }
