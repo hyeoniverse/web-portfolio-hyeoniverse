@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useRef, type ReactNode } from "react";
+import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { ModalPrompt, ModalConfirm } from "@/components/ui/ModalTemplates";
+import Pagination from "@/components/ui/Pagination";
 import styles from "./AdminTable.module.css";
 
 /* ── Types ── */
@@ -193,25 +194,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     );
   };
 
-  /* Pagination */
-  const pageNumbers = useMemo(() => {
-    if (!totalPages || totalPages < 1) return [];
-    const p = page ?? 1;
-    if (totalPages <= 7)
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    if (p <= 3) return [1, 2, 3, 4, 5, -1, totalPages];
-    if (p >= totalPages - 2)
-      return [
-        1,
-        -1,
-        totalPages - 4,
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      ];
-    return [1, -1, p - 1, p, p + 1, -1, totalPages];
-  }, [page, totalPages]);
 
   const gridStyle = { "--_grid": effectiveGrid } as React.CSSProperties;
 
@@ -431,37 +413,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
       {children}
 
-      {/* Pagination */}
-      {totalPages >= 1 && page && onPageChange && (
-        <div className={styles.pagination}>
-          <button disabled={page <= 1} onClick={() => onPageChange(1)} className={styles.pageBtn} title="First">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" /></svg>
-          </button>
-          <button disabled={page <= 1} onClick={() => onPageChange(page - 1)} className={styles.pageBtn}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-          </button>
-          {pageNumbers.map((p, i) =>
-            p === -1 ? (
-              <span key={`ellipsis-${i}`} className={styles.ellipsis}>
-                &hellip;
-              </span>
-            ) : (
-              <button
-                key={p}
-                onClick={() => onPageChange(p)}
-                className={`${styles.pageBtn} ${page === p ? styles.pageBtnActive : ""}`}
-              >
-                {p}
-              </button>
-            ),
-          )}
-          <button disabled={page >= totalPages} onClick={() => onPageChange(page + 1)} className={styles.pageBtn}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-          </button>
-          <button disabled={page >= totalPages} onClick={() => onPageChange(totalPages)} className={styles.pageBtn} title="Last">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>
-          </button>
-        </div>
+      {page && onPageChange && (
+        <Pagination page={page} totalPages={totalPages} onChange={onPageChange} className={styles.pagination} />
       )}
 
     </>

@@ -11,6 +11,7 @@ import { formatPostTitle } from "@/utils/post";
 import { useCategories, translateCategory } from "@/hooks/useCategories";
 import Select from "@/components/ui/Select";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import Pagination from "@/components/ui/Pagination";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -88,10 +89,6 @@ function SeriesDeleteModal({ series, deletePostsRef, onConfirm }: {
   );
 }
 
-const ChevronFirst = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" /></svg>;
-const ChevronPrev = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>;
-const ChevronNext = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>;
-const ChevronLast = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>;
 
 /* ── Isolated tooltip to prevent parent re-renders from reaching AdminTable ── */
 function PreviewTooltip({
@@ -759,18 +756,7 @@ export default function AdminPostsPage() {
             </ul>
           </>
         )}
-        {(() => {
-          const tp = Math.max(1, Math.ceil(filteredTrash.length / trashPerPage));
-          return (
-            <div className={styles.trashPaging}>
-              <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage(1)}><ChevronFirst /></button>
-              <button type="button" className={styles.trashPageBtn} disabled={trashPage <= 1} onClick={() => setTrashPage((p) => p - 1)}><ChevronPrev /></button>
-              <span className={`${styles.trashPageBtn} ${styles.trashPageBtnActive}`}>{trashPage}</span>
-              <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage((p) => p + 1)}><ChevronNext /></button>
-              <button type="button" className={styles.trashPageBtn} disabled={trashPage >= tp} onClick={() => setTrashPage(tp)}><ChevronLast /></button>
-            </div>
-          );
-        })()}
+        <Pagination page={trashPage} totalPages={Math.max(1, Math.ceil(filteredTrash.length / trashPerPage))} onChange={setTrashPage} />
         </div>
       </div>
     </div>
@@ -926,18 +912,7 @@ export default function AdminPostsPage() {
             ))}
           </ul>
         )}
-        {(() => {
-          const tp = Math.max(1, Math.ceil(filteredSeries.length / seriesPerPage));
-          return (
-            <div className={styles.seriesPaging}>
-              <button type="button" className={styles.seriesPageBtn} disabled={seriesPage <= 1} onClick={() => setSeriesPage(1)}><ChevronFirst /></button>
-              <button type="button" className={styles.seriesPageBtn} disabled={seriesPage <= 1} onClick={() => setSeriesPage((p) => p - 1)}><ChevronPrev /></button>
-              <span className={`${styles.seriesPageBtn} ${styles.seriesPageBtnActive}`}>{seriesPage}</span>
-              <button type="button" className={styles.seriesPageBtn} disabled={seriesPage >= tp} onClick={() => setSeriesPage((p) => p + 1)}><ChevronNext /></button>
-              <button type="button" className={styles.seriesPageBtn} disabled={seriesPage >= tp} onClick={() => setSeriesPage(tp)}><ChevronLast /></button>
-            </div>
-          );
-        })()}
+        <Pagination page={seriesPage} totalPages={Math.max(1, Math.ceil(filteredSeries.length / seriesPerPage))} onChange={setSeriesPage} />
         </div>
       </div>
 
