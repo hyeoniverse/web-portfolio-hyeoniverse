@@ -30,6 +30,30 @@ const PAGE_SIZE_OPTIONS = [
   { value: "100", label: "100" },
 ];
 
+function PurgeModal({ title, onConfirm }: { title: string; onConfirm: () => void }) {
+  const { t } = useLanguage();
+  const { closeAll } = useModalStore();
+  const [input, setInput] = useState("");
+  const valid = input === title;
+  return (
+    <div className={styles.seriesDeleteModal}>
+      <p className={styles.seriesDeleteHint}>{t("admin.posts.trashPurgeHint")}</p>
+      <input
+        className={styles.seriesDeleteInput}
+        type="text"
+        placeholder={title}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter" && valid) { closeAll(); onConfirm(); } }}
+      />
+      <div className={styles.seriesDeleteActions}>
+        <button className={styles.seriesDeleteCancel} onClick={closeAll}>{t("admin.posts.cancel")}</button>
+        <button className={styles.seriesDeleteConfirm} disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>{t("admin.posts.trashPurge")}</button>
+      </div>
+    </div>
+  );
+}
+
 function SeriesDeleteModal({ series, deletePostsRef, onConfirm }: {
   series: Series;
   deletePostsRef: { current: boolean };
@@ -170,6 +194,7 @@ export default function AdminPostsPage() {
 
   /* Trash */
   const [trashPosts, setTrashPosts] = useState<Post[]>([]);
+  const [trashLoading, setTrashLoading] = useState(false);
   const [trashSelected, setTrashSelected] = useState<Set<string>>(new Set());
   const [trashOpen, setTrashOpen] = useState(false);
   const [trashSearch, setTrashSearch] = useState("");
@@ -317,9 +342,11 @@ export default function AdminPostsPage() {
   }, [categories, fetchPosts, openModal, closeAll, addNewCategories, createPosts, t]);
 
   const fetchTrash = useCallback(async () => {
+    setTrashLoading(true);
     const res = await fetch("/api/posts?trash=true&limit=100");
     const data = await res.json();
     setTrashPosts(data.posts ?? []);
+    setTrashLoading(false);
   }, []);
 
   useEffect(() => {
@@ -386,10 +413,11 @@ export default function AdminPostsPage() {
     fetchPosts();
   };
 
-  const handlePurge = async (id: string, title: string) => {
-    if (!confirm(`"${title}" — ${t("admin.posts.trashPurgeConfirm")}`)) return;
-    await fetch(`/api/posts/${id}/purge`, { method: "DELETE" });
-    fetchTrash();
+  const handlePurge = (id: string, title: string) => {
+    openModal(
+      <PurgeModal title={title} onConfirm={async () => { await fetch(`/api/posts/${id}/purge`, { method: "DELETE" }); fetchTrash(); }} />,
+      { id: "purge-confirm", header: { title: `"${title}"` }, closeButton: true, width: "400px" },
+    );
   };
 
 
@@ -636,7 +664,16 @@ export default function AdminPostsPage() {
             />
           </div>
         </div>
-        {filteredTrash.length === 0 ? (
+        {trashLoading ? (
+          <ul className={styles.trashList}>
+            {Array.from({ length: 3 }, (_, i) => (
+              <li key={i} className={styles.trashRow} style={{ opacity: 0.4 }}>
+                <span className={styles.trashTitle}><SkeletonLine width="60%" /></span>
+                <span className={styles.trashMeta}><SkeletonLine width="50px" /></span>
+              </li>
+            ))}
+          </ul>
+        ) : filteredTrash.length === 0 ? (
           <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
         ) : (
           <>
@@ -647,13 +684,20 @@ export default function AdminPostsPage() {
                   for (const id of trashSelected) await handleRestore(id);
                   setTrashSelected(new Set());
                 }}><T k="admin.posts.trashRestore" /></button>
-                <button className={styles.trashBulkBtn} onClick={async () => {
-                  if (!confirm(`${trashSelected.size}개 항목을 영구 삭제합니다.`)) return;
-                  for (const id of trashSelected) {
-                    await fetch(`/api/posts/${id}/purge`, { method: "DELETE" });
-                  }
-                  fetchTrash();
-                  setTrashSelected(new Set());
+                <button className={styles.trashBulkBtn} onClick={() => {
+                  openModal(
+                    <ModalConfirm
+                      desc={`${trashSelected.size}개 항목을 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+                      cancelText={t("admin.posts.cancel")}
+                      confirmText={t("admin.posts.trashPurge")}
+                      onConfirm={async () => {
+                        for (const id of trashSelected) await fetch(`/api/posts/${id}/purge`, { method: "DELETE" });
+                        fetchTrash();
+                        setTrashSelected(new Set());
+                      }}
+                    />,
+                    { id: "bulk-purge", header: { title: t("admin.posts.trashPurge") }, closeButton: true, width: "400px" },
+                  );
                 }}><T k="admin.posts.trashPurge" /></button>
                 <button className={styles.trashBulkCancel} onClick={() => setTrashSelected(new Set())}>✕</button>
               </div>
@@ -663,7 +707,22 @@ export default function AdminPostsPage() {
                 const daysLeft = getDaysLeft(post.deleted_at!);
                 const title = formatPostTitle(post) || t("admin.posts.untitled");
                 return (
-                  <li key={post.id} className={styles.trashRow}>
+                  <li
+                    key={post.id}
+                    className={styles.trashRow}
+                    onMouseEnter={(e) => {
+                      if (!canHover.current) return;
+                      hoveredPostRef.current = post;
+                      imgErrorRef.current = false;
+                      calcTooltipPos(e.currentTarget as HTMLElement, post);
+                      setTooltipKey((k) => k + 1);
+                    }}
+                    onMouseLeave={() => {
+                      if (!hoveredPostRef.current) return;
+                      hoveredPostRef.current = null;
+                      setTooltipKey((k) => k + 1);
+                    }}
+                  >
                     <Checkbox
                       checked={trashSelected.has(post.id)}
                       onChange={() => setTrashSelected((prev) => {
