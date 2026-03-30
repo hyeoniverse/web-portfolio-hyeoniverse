@@ -286,6 +286,7 @@
 .preview :global(.markdown-alert-title) svg { color: var(--color-accent); }
 
 /* Footnote ref */
+.preview sup:has(:global([data-footnote-ref])),
 .preview :global([data-footnote-ref]) {
   color: var(--color-accent);
   text-decoration: none;
