@@ -962,58 +962,42 @@ export default function PostEditor({ post }: PostEditorProps) {
   });
 
   // 편집기 진입 시 DB revision 복원 확인
-  const draftRestored = useRef(false);
-  const applyDraft = useCallback((data: PostFormData) => {
-    autoSaveSkip.current = true;
-    setForm(data);
-    lastAutoSaveJson.current = JSON.stringify(data);
-    setStatus(te("draftRestored"));
-    setStatusType("info");
-  }, [te]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const askRestore = useCallback((data: PostFormData, revisionId?: string) => {
-    draftRestored.current = true;
-    const modalId = "draft-restore";
-    openModal(
-      <ModalConfirm
-        desc={te("draftFoundDesc")}
-        cancelText={te("draftFoundDiscard")}
-        confirmText={te("draftFoundLoad")}
-        onConfirm={() => applyDraft(data)}
-        onCancel={() => { if (revisionId) dismissRevision(revisionId); }}
-      />,
-      { id: modalId, header: { title: te("draftFoundTitle") }, width: "360px", closeButton: false },
-    );
-  }, [te, openModal, applyDraft, dismissRevision]);
+  // 최신 non-dismissed revision(B)이 저장된 데이터(A)와 다르면 한 번만 물어봄
+  // 무시 → B dismissed, A 유지 / 불러오기 → B dismissed, B 적용
+  const draftAsked = useRef(false);
 
   useEffect(() => {
-    if (draftRestored.current) return;
-    // DB revision — dismissed 된 건 건너뛰고, 저장된 데이터와 다른 것만 제안
-    const candidates = dbRevisions.filter((r) => !r.dismissed);
-    if (candidates.length === 0) return;
+    if (draftAsked.current) return;
+    if (dbRevisions.length === 0) return;
+    const latest = dbRevisions.find((r) => !r.dismissed);
+    if (!latest) return;
     const initialJson = JSON.stringify(initialFormRef.current);
-    // dismissed된 revision의 snapshot을 수집하여 같은 내용 건너뛰기
-    const dismissedSnapshots = new Set<string>();
-    (async () => {
-      // 먼저 dismissed된 것들의 snapshot 수집
-      const dismissedRevs = dbRevisions.filter((r) => r.dismissed);
-      for (const rev of dismissedRevs) {
-        const snap = await loadRevisionSnapshot(rev.id);
-        if (snap) dismissedSnapshots.add(JSON.stringify(snap));
-      }
-      for (const rev of candidates) {
-        if (draftRestored.current) return;
-        const snapshot = await loadRevisionSnapshot(rev.id);
-        if (!snapshot) continue;
-        const snapJson = JSON.stringify(snapshot);
-        // 저장된 데이터와 동일하면 건너뜀
-        if (snapJson === initialJson) continue;
-        // dismissed된 것과 동일한 내용이면 건너뜀
-        if (dismissedSnapshots.has(snapJson)) continue;
-        askRestore(snapshot as PostFormData, rev.id);
-        return;
-      }
-    })();
+    draftAsked.current = true;
+    loadRevisionSnapshot(latest.id).then((snapshot) => {
+      if (!snapshot) return;
+      if (JSON.stringify(snapshot) === initialJson) return;
+      openModal(
+        <ModalConfirm
+          desc={te("draftFoundDesc")}
+          cancelText={te("draftFoundDiscard")}
+          confirmText={te("draftFoundLoad")}
+          onConfirm={() => {
+            // 불러오기: B 적용 + dismissed 처리
+            autoSaveSkip.current = true;
+            setForm(snapshot as PostFormData);
+            lastAutoSaveJson.current = JSON.stringify(snapshot);
+            setStatus(te("draftRestored"));
+            setStatusType("info");
+            dismissRevision(latest.id);
+          }}
+          onCancel={() => {
+            // 무시: dismissed 처리만
+            dismissRevision(latest.id);
+          }}
+        />,
+        { id: "draft-restore", header: { title: te("draftFoundTitle") }, width: "360px", closeButton: false },
+      );
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbRevisions]);
 
