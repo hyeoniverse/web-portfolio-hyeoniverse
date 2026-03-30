@@ -115,6 +115,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
   const handleSelectMouseEnter = useCallback((idx: number) => {
     if (dragSelectStart.current === null) return;
+    if (idx !== dragSelectStart.current) dragSelected.current = true;
     const start = Math.min(dragSelectStart.current, idx);
     const end = Math.max(dragSelectStart.current, idx);
     setSelected((prev) => {
@@ -127,8 +128,18 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     });
   }, [items]);
 
+  const dragSelected = useRef(false);
+
   useEffect(() => {
-    const onMouseUp = () => { dragSelectStart.current = null; };
+    const onMouseUp = () => {
+      if (dragSelectStart.current !== null && dragSelected.current) {
+        // 드래그 선택 직후 클릭 이벤트 차단
+        setTimeout(() => { dragSelected.current = false; }, 0);
+      } else {
+        dragSelected.current = false;
+      }
+      dragSelectStart.current = null;
+    };
     window.addEventListener("mouseup", onMouseUp);
     return () => window.removeEventListener("mouseup", onMouseUp);
   }, []);
@@ -280,7 +291,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               className={`${styles.row} ${selected.has(item.id) ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""}`}
               data-clickable="true"
               draggable={!!onReorder}
-              onClick={(e) => onRowClick ? onRowClick(item, e) : handleRowClick(item)}
+              onMouseDown={(e) => { if (e.button === 0 && !onReorder) { e.preventDefault(); handleSelectMouseDown(i); } }}
+              onClick={(e) => { if (dragSelected.current) return; if (onRowClick) onRowClick(item, e); else handleRowClick(item); }}
               onDragStart={
                 onReorder
                   ? (e) => {
@@ -346,12 +358,13 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                     }
                   : undefined
               }
-              onMouseEnter={
-                onRowHover ? (e) => onRowHover(item, e) : undefined
-              }
+              onMouseEnter={(e) => {
+                handleSelectMouseEnter(i);
+                if (onRowHover) onRowHover(item, e);
+              }}
               onMouseLeave={onRowLeave}
             >
-              <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }} onMouseDown={(e) => { e.preventDefault(); handleSelectMouseDown(i); }} onMouseEnter={() => handleSelectMouseEnter(i)}>
+              <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}>
                 <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
               </span>
               {onReorder ? (
