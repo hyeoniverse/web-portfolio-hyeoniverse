@@ -18,6 +18,7 @@ import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
 import Tooltip from "@/components/ui/Tooltip";
 import TextLink from "@/components/ui/TextLink";
+import Pagination from "@/components/ui/Pagination";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -54,6 +55,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [dpFormat, setDpFormat] = useState<"year" | "yearMonth" | "date">("date");
   const [dpDate, setDpDate] = useState({ year: "2024", month: "03", day: "15" });
   const [twReplay, setTwReplay] = useState(0);
+  const [paginationPage, setPaginationPage] = useState(3);
   const [ivOpen, setIvOpen] = useState(false);
   const [ivIndex, setIvIndex] = useState(0);
   const ivImages = [
@@ -394,6 +396,15 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             </Tooltip>
           </motion.div>
         </div>
+      </motion.div>
+
+      {/* Pagination */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Pagination</div>
+        <motion.div variants={staggerItemX} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+          <Pagination page={paginationPage} totalPages={12} onChange={setPaginationPage} />
+          <Pagination page={1} totalPages={1} onChange={() => {}} />
+        </motion.div>
       </motion.div>
 
       {/* DatePicker */}
