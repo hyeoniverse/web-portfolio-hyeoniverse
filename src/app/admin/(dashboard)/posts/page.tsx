@@ -159,6 +159,7 @@ export default function AdminPostsPage() {
   const categories = useCategories();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -680,20 +681,24 @@ export default function AdminPostsPage() {
             {trashSelected.size > 0 && (
               <div className={styles.trashBulkBar}>
                 <span>{trashSelected.size}개 선택</span>
-                <button className={styles.trashBulkBtn} onClick={async () => {
+                <button className={styles.trashBulkBtn} disabled={busy} onClick={async () => {
+                  setBusy(true);
                   for (const id of trashSelected) await handleRestore(id);
                   setTrashSelected(new Set());
+                  setBusy(false);
                 }}><T k="admin.posts.trashRestore" /></button>
-                <button className={styles.trashBulkBtn} onClick={() => {
+                <button className={styles.trashBulkBtn} disabled={busy} onClick={() => {
                   openModal(
                     <ModalConfirm
                       desc={`${trashSelected.size}개 항목을 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
                       cancelText={t("admin.posts.cancel")}
                       confirmText={t("admin.posts.trashPurge")}
                       onConfirm={async () => {
+                        setBusy(true);
                         for (const id of trashSelected) await fetch(`/api/posts/${id}/purge`, { method: "DELETE" });
-                        fetchTrash();
+                        await fetchTrash();
                         setTrashSelected(new Set());
+                        setBusy(false);
                       }}
                     />,
                     { id: "bulk-purge", header: { title: t("admin.posts.trashPurge") }, closeButton: true, width: "400px" },
@@ -946,6 +951,8 @@ export default function AdminPostsPage() {
   );
 
   return (
+    <div style={{ position: "relative" }}>
+    {busy && <div className={styles.busyOverlay}><span className={styles.busySpinner} /></div>}
     <AdminListShell
       title={t("admin.posts.title")}
       newHref="/admin/posts/new"
@@ -1082,11 +1089,14 @@ date: 2024-03-15
         getTitle={(p) => formatPostTitle(p) || t("admin.posts.untitled")}
         onDelete={handleDelete}
         onBulkDelete={async (ids) => {
+          setBusy(true);
           for (const id of ids) await fetch(`/api/posts/${id}`, { method: "DELETE" });
-          fetchPosts();
-          if (trashOpen) fetchTrash();
+          await fetchPosts();
+          if (trashOpen) await fetchTrash();
+          setBusy(false);
         }}
         onBulkPublish={async (ids, published) => {
+          setBusy(true);
           await Promise.all(ids.map((id) =>
             fetch(`/api/posts/${id}`, {
               method: "PATCH",
@@ -1094,7 +1104,8 @@ date: 2024-03-15
               body: JSON.stringify({ published }),
             })
           ));
-          fetchPosts();
+          await fetchPosts();
+          setBusy(false);
         }}
         gridTemplate="64px 1fr 80px 80px 120px"
         showRowNumbers
@@ -1128,5 +1139,6 @@ date: 2024-03-15
       />
 
     </AdminListShell>
+    </div>
   );
 }
