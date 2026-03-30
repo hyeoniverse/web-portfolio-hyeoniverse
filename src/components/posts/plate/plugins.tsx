@@ -110,7 +110,6 @@ export const plugins = [
     },
   }),
   ColumnItemPlugin.configure({
-    node: { isContainer: false },
     render: { node: ColumnElement },
     parsers: {
       html: {
