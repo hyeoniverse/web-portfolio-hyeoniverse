@@ -1057,7 +1057,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const autoSaveSkip = useRef(true);
   const autoSaveBusy = useRef(false);
   const savedId = useRef<string | undefined>(post?.id);
-  const lastAutoSaveJson = useRef<string>("");
+  const lastAutoSaveJson = useRef<string>(JSON.stringify(initialFormRef.current));
   autoSaveBusy.current = saving || translating;
 
   // localStorage 키 (새 글: "post-draft-new", 기존 글: "post-draft-{id}")
