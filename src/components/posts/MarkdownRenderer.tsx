@@ -29,7 +29,11 @@ marked.use(
   renderer: {
     heading({ text, depth }: { text: string; depth: number }): string {
       const id = slugify(text);
-      return `<h${depth} id="${id}">${text}</h${depth}>\n`;
+      // marked-footnote가 heading 안의 [^N]을 처리 못하므로 수동 변환
+      const processed = text.replace(/\[\^(\d+)\]/g, (_, num) =>
+        `<sup><a id="footnote-ref-${num}" href="#footnote-${num}" data-footnote-ref aria-describedby="footnote-label">${num}</a></sup>`
+      );
+      return `<h${depth} id="${id}">${processed}</h${depth}>\n`;
     },
     image({ href, title, text }: { href: string; title?: string | null; text: string }): string {
       const alt = text || "";
