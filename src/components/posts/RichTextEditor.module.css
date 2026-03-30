@@ -2537,27 +2537,3 @@
 }
 
 /* 삭제 버튼: 우상단, 호버 시만 */
-.footnoteRemoveBtn {
-  position: absolute;
-  top: var(--spacing-2xs);
-  right: var(--spacing-2xs);
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 11px;
-  cursor: pointer;
-  padding: 0;
-  opacity: 0.6;
-}
-
-.footnoteRemoveBtn:hover {
-  background: var(--color-accent);
-  color: #fff;
-  opacity: 1;
-}
