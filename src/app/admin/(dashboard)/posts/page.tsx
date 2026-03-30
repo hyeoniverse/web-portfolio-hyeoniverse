@@ -217,7 +217,7 @@ export default function AdminPostsPage() {
         content_type: "markdown",
         published: false,
       };
-      if (meta.category) body.category = meta.category;
+      body.category = (meta.category as string) || categories[0] || "";
       if (meta.tags) body.tags = Array.isArray(meta.tags) ? meta.tags : [meta.tags];
       if (meta.excerpt) body.excerpt = meta.excerpt;
       if (meta.cover_image) body.cover_image = meta.cover_image;
