@@ -20,7 +20,7 @@ export function slugify(text: string): string {
 }
 
 marked.use(
-  markedFootnote(),
+  markedFootnote({ keepLabels: true }),
   markedAlert(),
   markedKatex({ throwOnError: false }),
   {
