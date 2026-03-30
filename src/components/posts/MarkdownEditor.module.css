@@ -32,7 +32,7 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   background: var(--bg-secondary);
   border: none;
   border-right: var(--border-light);
