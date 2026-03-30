@@ -2506,7 +2506,7 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
-  margin-bottom: var(--spacing-2xs);
+  margin-bottom: 0;
 }
 
 .footnoteContent + .footnoteContent {
