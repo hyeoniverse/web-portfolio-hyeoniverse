@@ -426,6 +426,7 @@
       "searchContent": "Content",
       "newPost": "New Post",
       "uploadMd": "Upload .md",
+      "uploadGuide": "Upload Guide",
       "newCategories": "New Categories Found",
       "newCategoriesFound": "The uploaded files contain unregistered categories.",
       "newCategoriesConfirm": "Create new categories and proceed with upload?",
