@@ -55,7 +55,7 @@
 .tableHeader {
   display: grid;
   grid-template-columns: var(--_grid);
-  gap: var(--spacing-md);
+  gap: var(--spacing-xs);
   padding: var(--spacing-sm) 0;
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
@@ -71,7 +71,7 @@
 .row {
   display: grid;
   grid-template-columns: var(--_grid);
-  gap: var(--spacing-md);
+  gap: var(--spacing-xs);
   padding: var(--spacing-md) 0;
   align-items: center;
   border-bottom: var(--border-light);
