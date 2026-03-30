@@ -431,6 +431,7 @@
       "newCategoriesConfirm": "새 카테고리를 생성하고 업로드할까요?",
       "createAndUpload": "생성 후 업로드",
       "cancel": "취소",
+      "bulkDelete": "선택 삭제",
       "series": "시리즈",
       "untitled": "제목 없음",
       "postsCount": "개의 글",

@@ -431,6 +431,7 @@
       "newCategoriesConfirm": "Create new categories and proceed with upload?",
       "createAndUpload": "Create & Upload",
       "cancel": "Cancel",
+      "bulkDelete": "Delete Selected",
       "series": "Series",
       "untitled": "Untitled",
       "postsCount": "posts",

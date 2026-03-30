@@ -7,6 +7,45 @@
   padding: var(--spacing-3xl) 0;
 }
 
+/* ── Bulk action bar ── */
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.bulkDeleteBtn {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.bulkDeleteBtn:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.bulkCancelBtn {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+}
+
 /* ── Table ── */
 .tableHeader {
   display: grid;

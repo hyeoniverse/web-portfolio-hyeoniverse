@@ -943,6 +943,12 @@ export default function AdminPostsPage() {
         onPublishToggle={toggle}
         onPublishAll={setAll}
         onDelete={handleDelete}
+        onBulkDelete={async (ids) => {
+          for (const id of ids) await fetch(`/api/posts/${id}`, { method: "DELETE" });
+          fetchPosts();
+          if (trashOpen) fetchTrash();
+        }}
+        bulkDeleteLabel={t("admin.posts.bulkDelete")}
         gridTemplate="40px 80px 1fr 80px 80px 140px"
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}
