@@ -711,16 +711,6 @@ CSS \`has()\` selector allows styling a parent element based on the state of its
 
 /** marked HTML → Plate 호환 후처리 */
 function postProcessMarkedHtml(html: string): string {
-  // heading 안에 남은 [^N] → 각주 참조 변환 (marked-footnote가 heading 내부를 처리 못함)
-  html = html.replace(
-    /(<h[1-6][^>]*>)([\s\S]*?)(<\/h[1-6]>)/g,
-    (full, open, inner, close) => {
-      const processed = inner.replace(/\[\^(\d+)\]/g, (_m: string, num: string) =>
-        `<sup data-footnote-ref="${num}" id="fnref-${num}">[${num}]</sup>`
-      );
-      return processed !== inner ? `${open}${processed}${close}` : full;
-    }
-  );
   // 각주 참조
   html = html.replace(
     /<sup><a[^>]*data-footnote-ref[^>]*>(\d+)<\/a><\/sup>/g,
