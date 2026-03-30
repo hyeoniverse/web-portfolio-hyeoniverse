@@ -21,7 +21,7 @@ export default function Pagination({ page, totalPages, onChange, className }: Pa
     return [1, -1, page - 1, page, page + 1, -1, totalPages];
   }, [page, totalPages]);
 
-  if (totalPages <= 1) return null;
+  const singlePage = totalPages <= 1;
 
   return (
     <div className={`${styles.pagination} ${className ?? ""}`}>
@@ -31,7 +31,9 @@ export default function Pagination({ page, totalPages, onChange, className }: Pa
       <button disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
       </button>
-      {pageNumbers.map((p, i) =>
+      {singlePage ? (
+        <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>1</button>
+      ) : pageNumbers.map((p, i) =>
         p === -1 ? (
           <span key={`ellipsis-${i}`} className={styles.ellipsis}>&hellip;</span>
         ) : (

@@ -193,6 +193,9 @@ export default function AdminPostsPage() {
   const [trashPosts, setTrashPosts] = useState<Post[]>([]);
   const [trashLoading, setTrashLoading] = useState(false);
   const [trashSelected, setTrashSelected] = useState<Set<string>>(new Set());
+  const trashDragStart = useRef<number | null>(null);
+  const trashDragAdding = useRef(true);
+  const trashDragMoved = useRef(false);
   const [trashOpen, setTrashOpen] = useState(false);
   const [trashSearch, setTrashSearch] = useState("");
   const [trashSearchType, setTrashSearchType] = useState<"all" | "title" | "content">("all");
@@ -699,15 +702,38 @@ export default function AdminPostsPage() {
                 <button className={styles.trashBulkCancel} onClick={() => setTrashSelected(new Set())}>✕</button>
               </div>
             )}
-            <ul className={styles.trashList}>
-              {filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage).map((post) => {
+            <ul className={styles.trashList} onMouseUp={() => { trashDragStart.current = null; }}>
+              {filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage).map((post, idx) => {
                 const daysLeft = getDaysLeft(post.deleted_at!);
                 const title = formatPostTitle(post) || t("admin.posts.untitled");
                 return (
                   <li
                     key={post.id}
                     className={styles.trashRow}
+                    onMouseDown={(e) => {
+                      if (e.button !== 0) return;
+                      e.preventDefault();
+                      trashDragStart.current = idx;
+                      trashDragAdding.current = !trashSelected.has(post.id);
+                      trashDragMoved.current = false;
+                    }}
                     onMouseEnter={(e) => {
+                      // 드래그 선택
+                      if (trashDragStart.current !== null) {
+                        trashDragMoved.current = true;
+                        const start = Math.min(trashDragStart.current, idx);
+                        const end = Math.max(trashDragStart.current, idx);
+                        const pageItems = filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage);
+                        setTrashSelected((prev) => {
+                          const next = new Set(prev);
+                          for (let i = start; i <= end; i++) {
+                            if (trashDragAdding.current) next.add(pageItems[i].id);
+                            else next.delete(pageItems[i].id);
+                          }
+                          return next;
+                        });
+                      }
+                      // 프리뷰 툴팁
                       if (!canHover.current) return;
                       hoveredPostRef.current = post;
                       imgErrorRef.current = false;
