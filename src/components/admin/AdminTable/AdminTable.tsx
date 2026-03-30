@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useRef, type ReactNode } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useModalStore } from "@/stores/modalStore";
@@ -96,12 +96,41 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   const allSelected = items.length > 0 && items.every((item) => selected.has(item.id));
   const someSelected = items.some((item) => selected.has(item.id)) && !allSelected;
 
+  // 드래그 선택
+  const dragSelectStart = useRef<number | null>(null);
+  const dragSelectAdding = useRef(true);
+
   const toggleSelect = useCallback((id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  }, []);
+
+  const handleSelectMouseDown = useCallback((idx: number) => {
+    dragSelectStart.current = idx;
+    dragSelectAdding.current = !selected.has(items[idx]?.id);
+  }, [items, selected]);
+
+  const handleSelectMouseEnter = useCallback((idx: number) => {
+    if (dragSelectStart.current === null) return;
+    const start = Math.min(dragSelectStart.current, idx);
+    const end = Math.max(dragSelectStart.current, idx);
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (let i = start; i <= end; i++) {
+        if (dragSelectAdding.current) next.add(items[i].id);
+        else next.delete(items[i].id);
+      }
+      return next;
+    });
+  }, [items]);
+
+  useEffect(() => {
+    const onMouseUp = () => { dragSelectStart.current = null; };
+    window.addEventListener("mouseup", onMouseUp);
+    return () => window.removeEventListener("mouseup", onMouseUp);
   }, []);
 
   const toggleSelectAll = useCallback(() => {
@@ -322,7 +351,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               }
               onMouseLeave={onRowLeave}
             >
-              <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}>
+              <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }} onMouseDown={(e) => { e.preventDefault(); handleSelectMouseDown(i); }} onMouseEnter={() => handleSelectMouseEnter(i)}>
                 <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
               </span>
               {onReorder ? (
