@@ -10,8 +10,8 @@
 .wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 70vh;
-  min-height: 400px;
+  flex: 1;
+  min-height: 0;
 }
 
 .compact .wrapper {
