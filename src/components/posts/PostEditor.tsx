@@ -777,7 +777,8 @@ function postProcessMarkedHtml(html: string): string {
       const columns = cells.map((content, i) => {
         const w = widths[i] || "";
         const wAttr = w ? ` data-width="${w}"` : "";
-        return `<div data-column${wAttr}>${content || "<p></p>"}</div>`;
+        const inner = content.startsWith("<") ? content : `<p>${content}</p>`;
+        return `<div data-column${wAttr}>${inner || "<p></p>"}</div>`;
       }).join("");
       return `<div data-column-group>${columns}</div>`;
     }
