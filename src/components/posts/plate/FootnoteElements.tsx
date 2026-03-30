@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { PlateElement, type PlateElementProps, useEditorRef } from "platejs/react";
+import { PlateElement, type PlateElementProps, useEditorRef, useSelected } from "platejs/react";
 import styles from "../RichTextEditor.module.css";
 
 /**
@@ -13,16 +13,33 @@ export function FootnoteRefElement(props: PlateElementProps) {
   const el = element as unknown as { footnoteId?: string };
   const id = el.footnoteId || "?";
   const editor = useEditorRef();
+  const selected = useSelected();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(id);
   const inputRef = useRef<HTMLInputElement>(null);
+  const mouseDownRef = useRef(false);
+
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
 
+  // 방향키로 선택 시 편집 모드 진입 (클릭은 mouseDownRef로 제외)
+  useEffect(() => {
+    if (selected && !editing && !mouseDownRef.current) {
+      setEditing(true);
+      setDraft(id);
+    }
+    if (!selected && editing) {
+      commitEdit();
+    }
+    mouseDownRef.current = false;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
+
+  const handleMouseDown = () => { mouseDownRef.current = true; };
+
   const handleClick = (e: React.MouseEvent) => {
     if (editing) return;
-    // Shift+클릭 또는 Ctrl/Cmd+클릭이면 커서 이동 (기본 동작)
     if (e.shiftKey || e.metaKey || e.ctrlKey) return;
     const container = document.querySelector(`[data-footnote-content="${id}"]`);
     if (container) container.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -89,7 +106,7 @@ export function FootnoteRefElement(props: PlateElementProps) {
             />]
           </sup>
         ) : (
-          <sup className={styles.footnoteRef} data-footnote-ref={id} onClick={handleClick} onDoubleClick={handleDoubleClick}>
+          <sup className={styles.footnoteRef} data-footnote-ref={id} onMouseDown={handleMouseDown} onClick={handleClick} onDoubleClick={handleDoubleClick}>
             [{id}]
           </sup>
         )}
