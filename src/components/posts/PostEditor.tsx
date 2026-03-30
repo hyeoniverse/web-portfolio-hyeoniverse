@@ -760,27 +760,37 @@ function postProcessMarkedHtml(html: string): string {
   );
   // 열블록 마커 + 표 → column HTML 복원
   html = html.replace(
-    /<!-- columns ([^>]*) -->\s*<table>([\s\S]*?)<\/table>/g,
-    (_, widthsStr: string, tableBody: string) => {
-      const widths = widthsStr.trim().split(",");
+    /<!-- columns ([^>]*?) -->\s*<table>([\s\S]*?)<\/table>/g,
+    (full, metaStr: string, tableBody: string) => {
+      // 메타 파싱: "33%,33%,34% layout=2-col bg=var(--bg-tertiary) divider=transparent"
+      const parts = metaStr.trim().split(/\s+/);
+      const widths = (parts[0] || "").split(",");
+      const layout = parts.find((p) => p.startsWith("layout="))?.slice(7) || "";
+      const bg = parts.find((p) => p.startsWith("bg="))?.slice(3) || "";
+      const divider = parts.find((p) => p.startsWith("divider="))?.slice(8) || "";
       // 표 본문에서 셀 내용 추출 (thead 제외, tbody의 첫 행)
       const cells: string[] = [];
       const tdRe = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g;
       let m: RegExpExecArray | null;
       const rows = tableBody.split(/<\/tr>/);
-      // 마지막 데이터 행 (thead 제외)
       const dataRow = rows.length > 1 ? rows[rows.length - 2] : rows[0];
       while ((m = tdRe.exec(dataRow)) !== null) {
         cells.push(m[1].trim());
       }
-      if (cells.length === 0) return _;
+      if (cells.length === 0) return full;
+      const groupAttrs = [
+        "data-column-group",
+        layout ? ` data-layout="${layout}"` : "",
+        bg ? ` data-column-bg="${bg}"` : "",
+        divider ? ` data-column-divider="${divider}"` : "",
+      ].join("");
       const columns = cells.map((content, i) => {
         const w = widths[i] || "";
         const wAttr = w ? ` data-width="${w}"` : "";
         const inner = content.startsWith("<") ? content : `<p>${content}</p>`;
         return `<div data-column${wAttr}>${inner || "<p></p>"}</div>`;
       }).join("");
-      return `<div data-column-group>${columns}</div>`;
+      return `<div ${groupAttrs}>${columns}</div>`;
     }
   );
   // 코드블록 wrap toggle 버튼 제거
@@ -1319,10 +1329,19 @@ export default function PostEditor({ post }: PostEditorProps) {
               const cols = Array.from(el.querySelectorAll(":scope > [data-column]"));
               if (cols.length === 0) return _content;
               const widths = cols.map((c) => (c as HTMLElement).getAttribute("data-width") || "");
+              const layout = el.getAttribute("data-layout") || "";
+              const bg = el.getAttribute("data-column-bg") || "";
+              const divider = el.getAttribute("data-column-divider") || "";
+              const meta = [
+                widths.join(","),
+                layout && `layout=${layout}`,
+                bg && `bg=${bg}`,
+                divider && `divider=${divider}`,
+              ].filter(Boolean).join(" ");
               const header = `| ${cols.map((_, i) => `Col ${i + 1}`).join(" | ")} |`;
-              const divider = `| ${cols.map(() => "---").join(" | ")} |`;
+              const sep = `| ${cols.map(() => "---").join(" | ")} |`;
               const body = `| ${cols.map((c) => (c.textContent ?? "").trim().replace(/\n/g, " ").replace(/\|/g, "\\|")).join(" | ")} |`;
-              return `\n<!-- columns ${widths.join(",")} -->\n${header}\n${divider}\n${body}\n`;
+              return `\n<!-- columns ${meta} -->\n${header}\n${sep}\n${body}\n`;
             },
           });
           td.addRule("column", {
