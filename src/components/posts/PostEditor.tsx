@@ -758,33 +758,6 @@ function postProcessMarkedHtml(html: string): string {
       return `<div data-math-block="true" data-latex="${ann[1]}">${ann[1]}</div>`;
     }
   );
-  // 열블록 주석 마커 → column HTML 복원
-  html = html.replace(
-    /<!-- col-start([\s\S]*?) -->([\s\S]*?)<!-- col-end -->/g,
-    (_, attrsStr: string, body: string) => {
-      const layout = attrsStr.match(/layout="([^"]*)"/)?.[1] || "";
-      const bg = attrsStr.match(/bg="([^"]*)"/)?.[1] || "";
-      const divider = attrsStr.match(/divider="([^"]*)"/)?.[1] || "";
-      const attrs = [
-        "data-column-group",
-        layout ? ` data-layout="${layout}"` : "",
-        bg ? ` data-column-bg="${bg}"` : "",
-        divider ? ` data-column-divider="${divider}"` : "",
-      ].join("");
-      // <!-- col width="..." --> 마커로 열 분리
-      const colParts = body.split(/<!-- col(?:\s+width="([^"]*)")? -->/);
-      // colParts: [before, width1|undefined, content1, width2|undefined, content2, ...]
-      let columns = "";
-      for (let i = 1; i < colParts.length; i += 2) {
-        const width = colParts[i] || "";
-        const content = (colParts[i + 1] || "").trim();
-        const wAttr = width ? ` data-width="${width}"` : "";
-        columns += `<div data-column${wAttr}>${content || "<p></p>"}</div>`;
-      }
-      if (!columns) columns = `<div data-column>${body.trim() || "<p></p>"}</div>`;
-      return `<div ${attrs}>${columns}</div>`;
-    }
-  );
   // 코드블록 wrap toggle 버튼 제거
   html = html.replace(/<button[^>]*class="code-wrap-toggle"[^>]*>[\s\S]*?<\/button>/g, "");
   // callout 아이콘 visual span 제거 (deserialize 시 중복 방지)
@@ -1313,31 +1286,22 @@ export default function PostEditor({ post }: PostEditorProps) {
               return `\n${header}\n${divider}\n${body}\n`;
             },
           });
-          // 열블록 (column_group) → 마크다운 (주석 마커로 round-trip 보장)
+          // 열블록 (column_group) → 마크다운 표
           td.addRule("columnGroup", {
             filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-column-group"),
-            replacement: (content, node) => {
+            replacement: (_content, node) => {
               const el = node as HTMLElement;
-              const layout = el.getAttribute("data-layout") || "";
-              const bg = el.getAttribute("data-column-bg") || "";
-              const divider = el.getAttribute("data-column-divider") || "";
-              const attrs = [layout && `layout="${layout}"`, bg && `bg="${bg}"`, divider && `divider="${divider}"`].filter(Boolean).join(" ");
-              return `\n<!-- col-start ${attrs} -->\n${content.trim()}\n<!-- col-end -->\n`;
+              const cols = Array.from(el.querySelectorAll(":scope > [data-column]"));
+              if (cols.length === 0) return _content;
+              const header = `| ${cols.map((_, i) => `Col ${i + 1}`).join(" | ")} |`;
+              const divider = `| ${cols.map(() => "---").join(" | ")} |`;
+              const body = `| ${cols.map((c) => (c.textContent ?? "").trim().replace(/\n/g, " ").replace(/\|/g, "\\|")).join(" | ")} |`;
+              return `\n${header}\n${divider}\n${body}\n`;
             },
           });
           td.addRule("column", {
             filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-column"),
-            replacement: (content, node) => {
-              const el = node as HTMLElement;
-              const width = el.getAttribute("data-width") || "";
-              const parent = el.parentElement;
-              const siblings = parent ? Array.from(parent.querySelectorAll("[data-column]")) : [];
-              const isLast = siblings[siblings.length - 1] === el;
-              const widthAttr = width ? ` width="${width}"` : "";
-              return isLast
-                ? `\n<!-- col${widthAttr} -->\n${content.trim()}\n`
-                : `\n<!-- col${widthAttr} -->\n${content.trim()}\n`;
-            },
+            replacement: (content) => content,
           });
           // 인라인 리스트 div (Plate indent-list) → 마크다운 리스트
           td.addRule("indentList", {
