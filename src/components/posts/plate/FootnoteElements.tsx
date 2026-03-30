@@ -89,34 +89,32 @@ export function FootnoteRefElement(props: PlateElementProps) {
 
   return (
     <PlateElement {...props} as="span">
-      <sup
-        className={styles.footnoteRef}
-        data-footnote-ref={id}
-        contentEditable={false}
-        suppressContentEditableWarning
-        onMouseDown={handleMouseDown}
-        onClick={handleClick}
-        onDoubleClick={handleDoubleClick}
-      >
-        {editing ? (
-          <>
-            [<input
-              ref={inputRef}
-              className={styles.footnoteEditInput}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onBlur={() => commitEdit()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); commitEdit(true); }
-                else if (e.key === "ArrowLeft") { e.preventDefault(); commitEdit(); requestAnimationFrame(() => { const p = editor.api.findPath(element); if (p) { const before = editor.api.before(p); if (before) editor.tf.select(before); editor.tf.focus(); } }); }
-                else if (e.key === "Escape") { setEditing(false); setDraft(id); }
-              }}
-            />]
-          </>
-        ) : (
-          <span>[{id}]</span>
-        )}
-      </sup>
+      {editing ? (
+        <sup className={styles.footnoteRef} contentEditable={false} suppressContentEditableWarning>
+          [<input
+            ref={inputRef}
+            className={styles.footnoteEditInput}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={() => commitEdit()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); commitEdit(true); }
+              else if (e.key === "ArrowLeft") { e.preventDefault(); commitEdit(); requestAnimationFrame(() => { const p = editor.api.findPath(element); if (p) { const before = editor.api.before(p); if (before) editor.tf.select(before); editor.tf.focus(); } }); }
+              else if (e.key === "Escape") { setEditing(false); setDraft(id); }
+            }}
+          />]
+        </sup>
+      ) : (
+        <sup
+          className={styles.footnoteRef}
+          data-footnote-ref={id}
+          onMouseDown={handleMouseDown}
+          onClick={handleClick}
+          onDoubleClick={handleDoubleClick}
+        >
+          [{id}]
+        </sup>
+      )}
       {props.children}
     </PlateElement>
   );
