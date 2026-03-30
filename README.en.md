@@ -61,7 +61,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 | **Interaction** | Infinite scroll loop, mouse parallax, scroll velocity parallax, per-character StaggerText |
 | **Works** | GSAP bidirectional infinite horizontal scroll gallery + Three.js 3D torus (Lissajous curve path) |
 | **Blog** | SSR + ISR caching, series, banner slider (4 layouts x 4 overlays), guest comments (dual auth) |
-| **Admin** | 5-tab Settings, modular Plate.js editor (React.memo optimized), client-side image compression, AI fallback chain, revision history (diff comparison), auto translation |
+| **Admin** | 5-tab Settings, modular Plate.js editor (React.memo optimized, custom footnotes, 5 templates), MD↔richtext bidirectional conversion, client-side image compression, AI fallback chain, revision history (diff comparison + dismissed tracking), auto translation |
 | **Performance** | Lighthouse 98 — unused font removal + reCAPTCHA lazy loading + CSS animation transition for LCP 1.9s, page 449KB |
 | **Responsive** | PC/Tablet/Mobile 3-tier breakpoints + BreakpointGuard (automatic GSAP reinitialization) |
 | **i18n** | Full Korean/English i18n + translation Tooltip + auto translation (DeepL/Google/Gemini/Claude) |
@@ -159,14 +159,17 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 **Editor & Content**
 
-- **Editor Revision History**: Auto-save stores JSONB snapshots permanently in DB — shared across devices/tabs, LCS diff comparison, Revert, automatic cleanup beyond 50 entries
+- **Editor Revision History**: Auto-save stores JSONB snapshots permanently in DB — shared across devices/tabs, LCS diff comparison, Revert, dismissed tracking (prevents repeated prompts for same version), automatic cleanup beyond 50 entries
+- **Template Insertion**: 5 bilingual templates (Tutorial, Troubleshooting, Review, Essay, TIL) via modal — supports both Markdown/Rich Text, append after existing content or insert into empty editor
+- **Markdown ↔ Rich Text Conversion**: Bidirectional conversion for footnotes, callouts, math, column blocks (table conversion), checklists (todo). Column block round-trip guaranteed
+- **Markdown Editor**: Undo/redo history (Cmd+Z/Shift+Z), mobile Editor/Preview tab toggle, table grid picker
 - **AI Auto Summary**: On publish, Gemini/OpenAI/Claude auto-generates ko+en summaries → saved to DB, displayed in AISummary component with expand/collapse on detail pages, manual regeneration supported
 - **Auto Translation**: Auto-translate empty fields on editor language switch — select DeepL/Google/Gemini/Claude, re-translate button, duplicate request blocking
 - **Bilingual Category Management**: Manage Posts/Works categories as `{ ko, en }` pairs — drag ordering, batch reassignment on delete
 - **Series Edit**: Dedicated edit page for managing title/description/cover/category/publish status, post reordering/unlinking
 - **Cover Image Picker**: 3 methods (16 preset gradients, Unsplash search, AI generation) — stored in Supabase Storage, AI provider priority-based fallback chain
 - **Client-side Image Compression**: WebP conversion → resolution reduction (2560px) → quality step-down (0.85→0.7) in browser before upload. SVG/GIF skipped, dynamic import keeps it out of the main bundle
-- **Modular PlateEditor**: Slate-based Plate.js editor split into MainToolbar, TableToolbar, ImageToolbar, MathToolbar — each wrapped with React.memo to prevent unnecessary re-renders
+- **Modular PlateEditor**: Slate-based Plate.js editor split into MainToolbar, TableToolbar, ImageToolbar, MathToolbar — each wrapped with React.memo to prevent unnecessary re-renders. Custom footnote plugin (inline ref + block definition, heading support, click→scroll / double-click→edit / arrow-key→edit separation)
 
 **Media & Utilities**
 
@@ -193,7 +196,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 ### Design System
 
-- **Design System Preview**: View tokens/components/banner layouts at `/design-system` route — Tooltip, Select, PeriodPicker, Gradient Tokens, 3-phase scroll animation
+- **Design System Preview**: View tokens/components/banner layouts at `/design-system` route — Tooltip, Select (portal-based dropdown), PeriodPicker, Gradient Tokens, 3-phase scroll animation
 
 <p align="center">
   <img src="public/docs/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />

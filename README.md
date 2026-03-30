@@ -61,7 +61,7 @@
 | **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, 스크롤 속도 기반 패럴랙스, 글자별 StaggerText |
 | **Works** | GSAP 양방향 무한 가로 스크롤 갤러리 + Three.js 3D 토러스 (리사주 곡선 경로) |
 | **Blog** | SSR + ISR 캐싱, 시리즈, 배너 슬라이더 (4 레이아웃 x 4 오버레이), 게스트 댓글 (이중 인증) |
-| **Admin** | 5탭 Settings, Plate.js 모듈형 에디터 (React.memo 최적화), 클라이언트 이미지 압축, AI fallback chain, 리비전 히스토리 (diff 비교), 자동 번역 |
+| **Admin** | 5탭 Settings, Plate.js 모듈형 에디터 (React.memo 최적화, 커스텀 각주, 5종 템플릿), MD↔리치텍스트 양방향 변환, 클라이언트 이미지 압축, AI fallback chain, 리비전 히스토리 (diff 비교 + dismissed 추적), 자동 번역 |
 | **성능** | Lighthouse 98점 — 미사용 폰트 제거 + reCAPTCHA 지연 로딩 + CSS animation 전환으로 LCP 1.9s, 페이지 449KB |
 | **반응형** | PC/Tablet/Mobile 3단 breakpoint + BreakpointGuard (GSAP 자동 재초기화) |
 | **다국어** | 한/영 전체 i18n + 번역 Tooltip + 자동 번역 (DeepL/Google/Gemini/Claude) |
@@ -159,14 +159,17 @@
 
 **에디터 & 콘텐츠**
 
-- **에디터 리비전 히스토리**: 자동저장 시 JSONB snapshot DB 영구 저장 — 기기/탭 간 공유, LCS diff 비교, Revert, 50개 초과 자동 정리
+- **에디터 리비전 히스토리**: 자동저장 시 JSONB snapshot DB 영구 저장 — 기기/탭 간 공유, LCS diff 비교, Revert, dismissed 추적(동일 버전 중복 질문 방지), 50개 초과 자동 정리
+- **템플릿 삽입**: 5종 이중언어 템플릿(Tutorial, Troubleshooting, Review, Essay, TIL) 모달 선택 — Markdown/Rich Text 모두 지원, 기존 내용 뒤에 추가 또는 빈 에디터에 삽입
+- **마크다운 ↔ 리치텍스트 변환**: 각주, 콜아웃, 수식, 열블록(표 변환), 체크리스트(todo) 양방향 변환, 열블록 round-trip 보장
+- **마크다운 에디터**: undo/redo 히스토리(Cmd+Z/Shift+Z), 모바일 Editor/Preview 탭 전환, 표 그리드 피커
 - **AI 자동 요약**: 발행 시 Gemini/OpenAI/Claude로 ko+en 요약 자동 생성 → DB 저장, 상세 페이지 AISummary 컴포넌트로 접기/펼치기 표시, 수동 재생성 지원
 - **자동 번역**: 에디터 언어 전환 시 빈 필드 자동 번역 — DeepL/Google/Gemini/Claude 선택, 재번역 버튼, 중복 요청 차단
 - **이중언어 카테고리 관리**: Posts/Works 카테고리를 `{ ko, en }` 쌍으로 관리 — 드래그 순서, 삭제 시 일괄 재할당
 - **시리즈 편집**: 전용 편집 페이지에서 제목/설명/커버/카테고리/발행 상태 관리, 포스트 순서 변경/연결 해제
 - **Cover Image Picker**: 3가지 방식(16종 프리셋 그라데이션, Unsplash 검색, AI 생성) — Supabase Storage 저장, AI 제공자 우선순위 기반 fallback chain
 - **클라이언트 이미지 압축**: 업로드 전 브라우저에서 WebP 변환 → 해상도 축소(2560px) → 품질 단계적 하향(0.85→0.7). SVG/GIF 스킵, dynamic import로 번들 미포함
-- **PlateEditor 모듈 구조**: Slate 기반 Plate.js 에디터를 MainToolbar·TableToolbar·ImageToolbar·MathToolbar로 분리, 각 툴바에 React.memo 적용하여 불필요한 리렌더 방지
+- **PlateEditor 모듈 구조**: Slate 기반 Plate.js 에디터를 MainToolbar·TableToolbar·ImageToolbar·MathToolbar로 분리, 각 툴바에 React.memo 적용하여 불필요한 리렌더 방지. 커스텀 각주 플러그인(인라인 참조 + 블록 정의, heading 지원, 클릭→스크롤/더블클릭→편집/방향키→편집 분리)
 
 **미디어 & 유틸리티**
 
@@ -193,7 +196,7 @@
 
 ### Design System
 
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select, PeriodPicker, Gradient Tokens, 3-phase scroll 애니메이션
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown), PeriodPicker, Gradient Tokens, 3-phase scroll 애니메이션
 
 <p align="center">
   <img src="public/docs/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
