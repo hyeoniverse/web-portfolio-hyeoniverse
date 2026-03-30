@@ -153,7 +153,7 @@
 
 **대시보드 & CRUD**
 
-- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 발행/비공개 전환, 필터/정렬
+- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 발행/비공개 전환, 필터/정렬, .md 파일 일괄 업로드(다중 선택 → 초안 생성)
 - **사이트 콘텐츠 관리**: Settings 5개 탭(General/Content/Appearance/Services/Account) — 브랜드, SEO, Hero/About/Services 이중언어 편집, BroadcastChannel 동기화
 - **Profile Admin**: 프로필 데이터(경력/스킬/철학/자격증/수상) Admin 편집 — JSONB 저장, `PeriodPicker` 구조화 기간 입력
 

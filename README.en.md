@@ -153,7 +153,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 **Dashboard & CRUD**
 
-- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, publish/private toggle, filter/sort
+- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, publish/private toggle, filter/sort, bulk .md file upload (multi-select → draft creation)
 - **Site Content Management**: Settings with 5 tabs (General/Content/Appearance/Services/Account) — brand, SEO, Hero/About/Services bilingual editing, BroadcastChannel sync
 - **Profile Admin**: Profile data (career/skills/philosophy/certifications/awards) admin editing — JSONB storage, `PeriodPicker` structured period input
 
