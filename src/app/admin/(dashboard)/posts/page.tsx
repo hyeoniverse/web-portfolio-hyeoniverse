@@ -208,7 +208,7 @@ export default function AdminPostsPage() {
     const body: Record<string, unknown> = {
       title, slug, content: text, content_type: "markdown", published: false,
     };
-    body.category = (meta.category as string) || categories[0]?.ko || "";
+    body.category = (meta.category as string) || "기타";
     if (meta.tags) body.tags = Array.isArray(meta.tags) ? meta.tags : [meta.tags];
     if (meta.excerpt) body.excerpt = meta.excerpt;
     if (meta.cover_image) body.cover_image = meta.cover_image;
