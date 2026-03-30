@@ -539,3 +539,71 @@
   color: var(--bg-primary);
 }
 
+/* ── Series Delete Modal ── */
+.seriesDeleteModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-xl) var(--spacing-xl);
+}
+
+.seriesDeleteHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.seriesDeleteCheck {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.seriesDeleteInput {
+  padding: var(--box-xs-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.seriesDeleteInput:focus {
+  border-color: var(--text-primary);
+}
+
+.seriesDeleteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+}
+
+.seriesDeleteCancel,
+.seriesDeleteConfirm {
+  padding: var(--box-xs-lg);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.seriesDeleteConfirm {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.seriesDeleteConfirm:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+

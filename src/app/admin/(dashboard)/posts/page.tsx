@@ -31,6 +31,40 @@ const PAGE_SIZE_OPTIONS = [
   { value: "100", label: "100" },
 ];
 
+function SeriesDeleteModal({ series, deletePostsRef, onConfirm }: {
+  series: Series;
+  deletePostsRef: { current: boolean };
+  onConfirm: () => void;
+}) {
+  const { t } = useLanguage();
+  const [withPosts, setWithPosts] = useState(false);
+  const [input, setInput] = useState("");
+  const { closeAll } = useModalStore();
+  const valid = input === series.title;
+
+  return (
+    <div className={styles.seriesDeleteModal}>
+      <p className={styles.seriesDeleteHint}>{t("admin.posts.seriesDeleteHint")}</p>
+      <label className={styles.seriesDeleteCheck}>
+        <Checkbox checked={withPosts} onChange={(v) => { setWithPosts(v); deletePostsRef.current = v; }} shape="square" />
+        {t("admin.posts.seriesDeleteWithPosts")}
+      </label>
+      <input
+        className={styles.seriesDeleteInput}
+        type="text"
+        placeholder={series.title}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter" && valid) { closeAll(); onConfirm(); } }}
+      />
+      <div className={styles.seriesDeleteActions}>
+        <button className={styles.seriesDeleteCancel} onClick={closeAll}>{t("admin.posts.cancel")}</button>
+        <button className={styles.seriesDeleteConfirm} disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>{t("admin.posts.delete")}</button>
+      </div>
+    </div>
+  );
+}
+
 const ChevronFirst = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" /></svg>;
 const ChevronPrev = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>;
 const ChevronNext = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>;
@@ -360,13 +394,21 @@ export default function AdminPostsPage() {
   };
 
 
-  const handleDeleteSeries = async (s: Series) => {
-    if (
-      !confirm(`"${s.title}" — ${t("admin.posts.seriesDeleteConfirm")}`)
-    )
-      return;
-    await fetch(`/api/series/${s.id}`, { method: "DELETE" });
-    fetchSeries();
+  const handleDeleteSeries = (s: Series) => {
+    const deletePostsRef = { current: false };
+    openModal(
+      <SeriesDeleteModal
+        series={s}
+        deletePostsRef={deletePostsRef}
+        onConfirm={async () => {
+          await fetch(`/api/series/${s.id}${deletePostsRef.current ? "?deletePosts=true" : ""}`, { method: "DELETE" });
+          fetchSeries();
+          fetchPosts();
+          if (trashOpen) fetchTrash();
+        }}
+      />,
+      { id: "series-delete", header: { title: `"${s.title}"` }, closeButton: true, width: "400px" },
+    );
   };
 
   const canHover = useRef(false);

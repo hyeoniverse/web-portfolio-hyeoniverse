@@ -65,8 +65,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   return NextResponse.json(data);
 }
 
-// DELETE /api/series/[id] — 시리즈 삭제 (admin only)
-export async function DELETE(_request: Request, context: RouteContext) {
+// DELETE /api/series/[id]?deletePosts=true — 시리즈 삭제 (admin only)
+export async function DELETE(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const supabase = await createClient();
   const {
@@ -78,9 +78,16 @@ export async function DELETE(_request: Request, context: RouteContext) {
   }
 
   const admin = createAdminClient();
+  const { searchParams } = new URL(request.url);
+  const deletePosts = searchParams.get("deletePosts") === "true";
 
-  // 소속 포스트의 series_id를 null로 초기화
-  await admin.from("posts").update({ series_id: null, series_order: 0 }).eq("series_id", id);
+  if (deletePosts) {
+    // 하위 포스트도 soft delete
+    await admin.from("posts").update({ deleted_at: new Date().toISOString(), series_id: null, series_order: 0 }).eq("series_id", id);
+  } else {
+    // 소속 포스트의 series_id를 null로 초기화
+    await admin.from("posts").update({ series_id: null, series_order: 0 }).eq("series_id", id);
+  }
 
   const { error } = await admin.from("series").delete().eq("id", id);
 
