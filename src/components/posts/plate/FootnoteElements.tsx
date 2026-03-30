@@ -17,26 +17,35 @@ export function FootnoteRefElement(props: PlateElementProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(id);
   const inputRef = useRef<HTMLInputElement>(null);
-  const mouseDownRef = useRef(false);
+  const wasMouseRef = useRef(false);
 
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
 
-  // 방향키로 선택 시 편집 모드 진입 (클릭은 mouseDownRef로 제외)
+  // 마우스 클릭 vs 키보드 구분: document mousedown에서 플래그 세팅
   useEffect(() => {
-    if (selected && !editing && !mouseDownRef.current) {
+    const setMouse = () => { wasMouseRef.current = true; };
+    const clearMouse = () => { requestAnimationFrame(() => { wasMouseRef.current = false; }); };
+    document.addEventListener("mousedown", setMouse, true);
+    document.addEventListener("mouseup", clearMouse, true);
+    return () => {
+      document.removeEventListener("mousedown", setMouse, true);
+      document.removeEventListener("mouseup", clearMouse, true);
+    };
+  }, []);
+
+  // 방향키로 선택 시에만 편집 모드 진입
+  useEffect(() => {
+    if (selected && !editing && !wasMouseRef.current) {
       setEditing(true);
       setDraft(id);
     }
     if (!selected && editing) {
       commitEdit();
     }
-    mouseDownRef.current = false;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
-
-  const handleMouseDown = () => { mouseDownRef.current = true; };
 
   const handleClick = (e: React.MouseEvent) => {
     if (editing) return;
@@ -108,7 +117,6 @@ export function FootnoteRefElement(props: PlateElementProps) {
         <sup
           className={styles.footnoteRef}
           data-footnote-ref={id}
-          onMouseDown={handleMouseDown}
           onClick={handleClick}
           onDoubleClick={handleDoubleClick}
         >
