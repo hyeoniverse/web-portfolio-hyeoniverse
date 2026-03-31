@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
+import DraggableTag from "@/components/ui/DraggableTag";
 import T from "@/components/ui/T";
 import styles from "../Settings.module.css";
 
@@ -78,29 +79,18 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
     <div>
       <div className={styles.catList}>
         {categories.map((cat, i) => (
-          <span
+          <DraggableTag
             key={`${cat.ko}-${cat.en}`}
-            className={`${styles.catTag} ${dragIdx === i ? styles.catTagDragging : ""} ${overIdx === i && dragIdx !== i ? styles.catTagOver : ""}`}
-            draggable
+            label={language === "ko" ? cat.ko : cat.en}
+            index={i}
+            dragging={dragIdx === i}
+            over={overIdx === i && dragIdx !== i}
             onDragStart={() => setDragIdx(i)}
             onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }}
             onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
             onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
-          >
-            <svg className={styles.catGrip} width="6" height="10" viewBox="0 0 6 10" fill="currentColor">
-              <circle cx="1.5" cy="1.5" r="1" /><circle cx="4.5" cy="1.5" r="1" />
-              <circle cx="1.5" cy="5" r="1" /><circle cx="4.5" cy="5" r="1" />
-              <circle cx="1.5" cy="8.5" r="1" /><circle cx="4.5" cy="8.5" r="1" />
-            </svg>
-            {language === "ko" ? cat.ko : cat.en}
-            <button
-              type="button"
-              className={styles.catRemove}
-              onClick={() => removeCategory(i)}
-            >
-              &times;
-            </button>
-          </span>
+            onRemove={() => removeCategory(i)}
+          />
         ))}
       </div>
       <div className={styles.catInput}>
