@@ -408,7 +408,6 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-2xs) var(--spacing-2xs);
-  border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 500;
