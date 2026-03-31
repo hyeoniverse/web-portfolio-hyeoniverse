@@ -679,19 +679,6 @@ export default function AdminPostsPage() {
           <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
         ) : (
           <>
-            <div className={styles.trashSelectAll}>
-              <Checkbox
-                checked={filteredTrash.length > 0 && filteredTrash.every((p) => trashSelected.has(p.id))}
-                indeterminate={filteredTrash.some((p) => trashSelected.has(p.id)) && !filteredTrash.every((p) => trashSelected.has(p.id))}
-                onChange={() => {
-                  const allSelected = filteredTrash.every((p) => trashSelected.has(p.id));
-                  if (allSelected) setTrashSelected(new Set());
-                  else setTrashSelected(new Set(filteredTrash.map((p) => p.id)));
-                }}
-                shape="square"
-              />
-              <span>{t("admin.posts.selectAll")}</span>
-            </div>
             {trashSelected.size > 0 && (
               <div className={styles.trashBulkBar}>
                 <span>{trashSelected.size}개 선택</span>
@@ -722,7 +709,16 @@ export default function AdminPostsPage() {
               </div>
             )}
             <div className={styles.trashHeader}>
-              <span />
+              <Checkbox
+                checked={filteredTrash.length > 0 && filteredTrash.every((p) => trashSelected.has(p.id))}
+                indeterminate={filteredTrash.some((p) => trashSelected.has(p.id)) && !filteredTrash.every((p) => trashSelected.has(p.id))}
+                onChange={() => {
+                  const allSelected = filteredTrash.every((p) => trashSelected.has(p.id));
+                  if (allSelected) setTrashSelected(new Set());
+                  else setTrashSelected(new Set(filteredTrash.map((p) => p.id)));
+                }}
+                shape="square"
+              />
               <span>{t("admin.posts.tableTitle")}</span>
               <span>{t("admin.posts.trashDaysLeftLabel")}</span>
               <span>{t("admin.posts.actions")}</span>
