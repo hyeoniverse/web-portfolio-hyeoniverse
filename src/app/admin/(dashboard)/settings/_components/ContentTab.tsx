@@ -15,6 +15,7 @@ import Field, { ResumeUpload, ServiceItemsEditor } from "./SettingsFormFields";
 import CategoriesEditor from "./CategoriesEditor";
 import WorksCategoriesEditor from "./WorksCategoriesEditor";
 import SeriesManager from "./SeriesManager";
+import DraggableTag from "@/components/ui/DraggableTag";
 import styles from "../Settings.module.css";
 
 type SocialLink = { platform: string; url: string; label?: string; icon?: string };
@@ -578,6 +579,8 @@ function ScopeTagField({
   placeholder?: string;
 }) {
   const [input, setInput] = useState("");
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
   const tags = value ? value.split(SCOPE_SEPARATOR).filter(Boolean) : [];
 
   const addTag = () => {
@@ -590,6 +593,16 @@ function ScopeTagField({
 
   const removeTag = (idx: number) => {
     onChange(tags.filter((_, i) => i !== idx).join(SCOPE_SEPARATOR));
+  };
+
+  const handleDrop = (targetIdx: number) => {
+    if (dragIdx === null || dragIdx === targetIdx) return;
+    const next = [...tags];
+    const [moved] = next.splice(dragIdx, 1);
+    next.splice(targetIdx, 0, moved);
+    onChange(next.join(SCOPE_SEPARATOR));
+    setDragIdx(null);
+    setOverIdx(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -609,12 +622,18 @@ function ScopeTagField({
       {tags.length > 0 && (
         <div className={styles.scopeTags}>
           {tags.map((tag, i) => (
-            <span key={i} className={styles.scopeTag}>
-              {tag}
-              <button type="button" className={styles.scopeTagRemove} onClick={() => removeTag(i)}>
-                &times;
-              </button>
-            </span>
+            <DraggableTag
+              key={`${tag}-${i}`}
+              label={tag}
+              index={i}
+              dragging={dragIdx === i}
+              over={overIdx === i && dragIdx !== i}
+              onDragStart={() => setDragIdx(i)}
+              onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }}
+              onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
+              onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+              onRemove={() => removeTag(i)}
+            />
           ))}
         </div>
       )}

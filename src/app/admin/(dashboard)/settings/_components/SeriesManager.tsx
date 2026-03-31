@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Select from "@/components/ui/Select";
@@ -25,12 +26,16 @@ interface SeriesManagerProps {
 
 export default function SeriesManager({ categories }: SeriesManagerProps) {
   const { t } = useLanguage();
+  const searchParams = useSearchParams();
+  const targetSeriesId = searchParams.get("series");
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [creatingNew, setCreatingNew] = useState(false);
   const [page, setPage] = useState(0);
   const newFormRef = useRef<HTMLDivElement>(null);
+  const seriesRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const didScrollRef = useRef(false);
   const PAGE_SIZE = 5;
 
   const fetchSeries = useCallback(async () => {
@@ -48,6 +53,21 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
   }, []);
 
   useEffect(() => { fetchSeries(); }, [fetchSeries]);
+
+  /* URL에 ?series=ID가 있으면 해당 시리즈 페이지로 이동 + 펼치기 + 스크롤 */
+  useEffect(() => {
+    if (!targetSeriesId || loading || seriesList.length === 0 || didScrollRef.current) return;
+    const idx = seriesList.findIndex((s) => s.id === targetSeriesId);
+    if (idx === -1) return;
+    const targetPage = Math.floor(idx / PAGE_SIZE);
+    setPage(targetPage);
+    setExpandedId(targetSeriesId);
+    didScrollRef.current = true;
+    requestAnimationFrame(() => {
+      const el = seriesRefs.current.get(targetSeriesId);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }, [targetSeriesId, loading, seriesList]);
 
   const totalPages = Math.ceil(seriesList.length / PAGE_SIZE);
   const pagedList = useMemo(
@@ -70,16 +90,22 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
       {pagedList.map((s) => {
         const expanded = expandedId === s.id;
         return (
-          <div key={s.id}>
+          <div
+            key={s.id}
+            ref={(el) => { if (el) seriesRefs.current.set(s.id, el); else seriesRefs.current.delete(s.id); }}
+            className={styles.seriesCard}
+          >
             <button
               type="button"
-              className={`${styles.seriesCardHead} ${expanded ? styles.seriesCardHeadExpanded : ""}`}
+              className={`${styles.seriesCardHead} ${expanded ? styles.seriesCardHeadExpanded : ""} ${s.cover_image ? styles.seriesCardHeadCover : ""}`}
+              style={s.cover_image ? { backgroundImage: `url(${s.cover_image})` } : undefined}
               onClick={() => setExpandedId(expanded ? null : s.id)}
             >
+              {s.cover_image && <span className={styles.seriesCardOverlay} />}
               <div className={styles.seriesCardInfo}>
                 <p className={styles.seriesCardName}>{s.title || <T k="admin.posts.untitled" />}</p>
                 <div className={styles.seriesCardMeta}>
-                  {s.category && <span>{s.category}</span>}
+                  {s.category && <span className={styles.seriesBadgeCat}>{s.category}</span>}
                   <span>{s.post_count ?? 0} <T k="admin.posts.postsCount" /></span>
                   <span className={`${styles.seriesBadge} ${s.published ? styles.seriesBadgePublished : styles.seriesBadgeDraft}`}>
                     {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
@@ -101,6 +127,9 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
                   await fetch(`/api/series/${s.id}`, { method: "DELETE" });
                   setExpandedId(null);
                   fetchSeries();
+                }}
+                onCoverChange={(url) => {
+                  setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, cover_image: url } : item));
                 }}
               />
             )}
@@ -184,6 +213,7 @@ interface SeriesInlineEditorProps {
   onSave: () => void;
   onCancel: () => void;
   onDelete?: () => void;
+  onCoverChange?: (url: string) => void;
 }
 
 function SeriesInlineEditor({
@@ -192,6 +222,7 @@ function SeriesInlineEditor({
   onSave,
   onCancel,
   onDelete,
+  onCoverChange,
 }: SeriesInlineEditorProps) {
   const { t, language } = useLanguage();
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
@@ -215,6 +246,8 @@ function SeriesInlineEditor({
   const [error, setError] = useState("");
   const [posts, setPosts] = useState<SeriesPostItem[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
 
   useEffect(() => {
     if (!series?.id) return;
@@ -233,6 +266,7 @@ function SeriesInlineEditor({
 
   const updateField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    if (key === "cover_image") onCoverChange?.(value as string);
     setError("");
   };
 
@@ -290,6 +324,26 @@ function SeriesInlineEditor({
     ]);
   };
 
+  const handleDragDrop = async (fromIdx: number, toIdx: number) => {
+    if (fromIdx === toIdx) return;
+    const updated = [...posts];
+    const [moved] = updated.splice(fromIdx, 1);
+    updated.splice(toIdx, 0, moved);
+    updated.forEach((p, i) => (p.series_order = i));
+    setPosts(updated);
+    const lo = Math.min(fromIdx, toIdx);
+    const hi = Math.max(fromIdx, toIdx);
+    await Promise.all(
+      updated.slice(lo, hi + 1).map((p) =>
+        fetch(`/api/posts/${p.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ series_order: p.series_order }),
+        })
+      )
+    );
+  };
+
   const handleSave = async () => {
     if (!form.title.trim()) {
       setError(ts("titleRequired"));
@@ -341,18 +395,20 @@ function SeriesInlineEditor({
       </div>
       <div className={styles.fieldRow}>
         <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.published" /></label>
-        <Toggle
-          label={form.published ? ts("publishedLabel") : ts("draftLabel")}
-          checked={form.published}
-          onChange={(v) => updateField("published", v)}
-        />
+        <div className={styles.publishToggle}>
+          <span key={form.published ? "pub" : "draft"} className={styles.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
+          <Toggle
+            checked={form.published}
+            onChange={(v) => updateField("published", v)}
+          />
+        </div>
       </div>
       <div className={styles.fieldRow}>
         <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.coverImage" /></label>
         {form.cover_image ? (
           <div className={styles.logoUpload}>
             <div className={styles.logoPreview}>
-              <Image src={form.cover_image} alt="" width={120} height={75} className={styles.logoPreviewImage} unoptimized />
+              <Image src={form.cover_image} alt="" width={285} height={90} className={styles.logoPreviewImage} unoptimized />
             </div>
             <button type="button" className={styles.logoBtnRemove} onClick={() => updateField("cover_image", "")}>
               <T k="admin.posts.seriesModal.remove" />
@@ -391,13 +447,27 @@ function SeriesInlineEditor({
           ) : (
             <div className={styles.seriesPostsList}>
               {posts.map((post, idx) => (
-                <div key={post.id} className={styles.seriesPostItem}>
-                  <div className={styles.seriesPostOrder}>
+                <div
+                  key={post.id}
+                  className={`${styles.seriesPostItem} ${dragIdx === idx ? styles.seriesPostDragging : ""} ${overIdx === idx && dragIdx !== idx ? (dragIdx !== null && dragIdx < idx ? styles.seriesPostDropBelow : styles.seriesPostDropAbove) : ""}`}
+                  draggable
+                  onDragStart={() => setDragIdx(idx)}
+                  onDragOver={(e) => { e.preventDefault(); setOverIdx(idx); }}
+                  onDragLeave={() => setOverIdx(null)}
+                  onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+                  onDrop={() => {
+                    if (dragIdx !== null) handleDragDrop(dragIdx, idx);
+                    setDragIdx(null);
+                    setOverIdx(null);
+                  }}
+                >
+                  <div className={styles.seriesPostOrder} draggable={false}>
                     <button
                       type="button"
                       className={styles.seriesPostOrderBtn}
                       disabled={idx === 0}
                       onClick={() => handleReorder(idx, -1)}
+                      onMouseDown={(e) => e.stopPropagation()}
                     >
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <path d="M2 6.5 L5 3.5 L8 6.5" />
@@ -409,6 +479,7 @@ function SeriesInlineEditor({
                       className={styles.seriesPostOrderBtn}
                       disabled={idx === posts.length - 1}
                       onClick={() => handleReorder(idx, 1)}
+                      onMouseDown={(e) => e.stopPropagation()}
                     >
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <path d="M2 3.5 L5 6.5 L8 3.5" />
