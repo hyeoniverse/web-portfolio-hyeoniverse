@@ -1,0 +1,41 @@
+.tag {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--box-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  user-select: none;
+  cursor: grab;
+}
+
+.dragging {
+  opacity: 0.4;
+}
+
+.over {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -1px;
+}
+
+.grip {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.remove {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.remove:hover {
+  color: var(--color-accent);
+}
