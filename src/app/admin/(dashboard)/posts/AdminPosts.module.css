@@ -403,6 +403,40 @@
   font-size: var(--font-size-xs);
 }
 
+.trashHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-2xs) var(--spacing-2xs);
+  border-bottom: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.trashHeader > span:first-child {
+  width: 20px;
+  flex-shrink: 0;
+}
+
+.trashHeader > span:nth-child(2) {
+  flex: 1;
+}
+
+.trashHeader > span:nth-child(3) {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.trashHeader > span:last-child {
+  width: 120px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
 .trashList {
   list-style: none;
   margin: var(--spacing-xs) 0 0;

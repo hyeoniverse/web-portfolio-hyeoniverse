@@ -721,6 +721,12 @@ export default function AdminPostsPage() {
                 <button className={styles.trashBulkCancel} onClick={() => setTrashSelected(new Set())}>✕</button>
               </div>
             )}
+            <div className={styles.trashHeader}>
+              <span />
+              <span>{t("admin.posts.tableTitle")}</span>
+              <span>{t("admin.posts.trashDaysLeftLabel")}</span>
+              <span>{t("admin.posts.actions")}</span>
+            </div>
             <ul className={styles.trashList} onMouseUp={() => { trashDragStart.current = null; }}>
               {filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage).map((post, idx) => {
                 const daysLeft = getDaysLeft(post.deleted_at!);
