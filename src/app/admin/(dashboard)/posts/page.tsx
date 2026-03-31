@@ -10,8 +10,6 @@ import type { Post, Series } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
 import { useCategories, translateCategory } from "@/hooks/useCategories";
 import Select from "@/components/ui/Select";
-import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
-import Pagination from "@/components/ui/Pagination";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -22,6 +20,9 @@ import AdminTable, {
 import Checkbox from "@/components/ui/Checkbox";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
+import SearchCapsule from "@/components/admin/SearchCapsule/SearchCapsule";
+import { presets } from "@/components/posts/CoverImagePicker/presets";
 import styles from "./AdminPosts.module.css";
 
 const PAGE_SIZE_OPTIONS = [
@@ -195,9 +196,6 @@ export default function AdminPostsPage() {
   const [trashPosts, setTrashPosts] = useState<Post[]>([]);
   const [trashLoading, setTrashLoading] = useState(false);
   const [trashSelected, setTrashSelected] = useState<Set<string>>(new Set());
-  const trashDragStart = useRef<number | null>(null);
-  const trashDragAdding = useRef(true);
-  const trashDragMoved = useRef(false);
   const [trashOpen, setTrashOpen] = useState(false);
   const [trashSearch, setTrashSearch] = useState("");
   const [trashSearchType, setTrashSearchType] = useState<"all" | "title" | "content">("all");
@@ -273,11 +271,38 @@ export default function AdminPostsPage() {
     return body;
   };
 
+  // 프리셋 커버 렌더링 → 업로드 → URL 반환
+  const uploadRandomCover = useCallback(async (): Promise<string | null> => {
+    try {
+      const preset = presets[Math.floor(Math.random() * presets.length)];
+      const canvas = document.createElement("canvas");
+      canvas.width = 1200;
+      canvas.height = 630;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      preset.render(ctx, 1200, 630);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (!blob) return null;
+      const formData = new FormData();
+      formData.append("file", new File([blob], `cover-${preset.id}.png`, { type: "image/png" }));
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.url ?? null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   // 포스트 일괄 생성
   const createPosts = useCallback(async (posts: Record<string, unknown>[]) => {
     setUploading(true);
     let created = 0;
     for (const body of posts) {
+      if (!body.cover_image) {
+        const url = await uploadRandomCover();
+        if (url) body.cover_image = url;
+      }
       const res = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -287,7 +312,7 @@ export default function AdminPostsPage() {
     }
     setUploading(false);
     if (created > 0) fetchPosts();
-  }, [fetchPosts]);
+  }, [fetchPosts, uploadRandomCover]);
 
   // 새 카테고리를 site_config에 추가
   const addNewCategories = useCallback(async (newCats: string[]) => {
@@ -580,434 +605,336 @@ export default function AdminPostsPage() {
     return Math.max(0, Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
   };
 
+  const trashIcon = (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
+    </svg>
+  );
+
+  const trashColumns: SubTableColumn<Post>[] = useMemo(() => [
+    {
+      key: "num",
+      label: "#",
+      className: st.colMeta,
+      render: (post) => <span>{post.post_number ?? "—"}</span>,
+      skeletonWidth: "24px",
+    },
+    {
+      key: "thumb",
+      label: t("admin.posts.tableThumb"),
+      className: st.colThumbWrap,
+      render: (post) => (
+        <div className={st.colThumb}>
+          {post.cover_image ? (
+            <Image src={post.cover_image} alt="" fill sizes="48px" className={st.thumbImg} unoptimized />
+          ) : (
+            <div className={st.thumbPlaceholder}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+              </svg>
+            </div>
+          )}
+        </div>
+      ),
+      skeletonWidth: "48px",
+    },
+    {
+      key: "title",
+      label: t("admin.posts.tableTitle"),
+      className: st.colTitle,
+      render: (post) => formatPostTitle(post) || t("admin.posts.untitled"),
+      skeletonWidth: "60%",
+    },
+    {
+      key: "daysLeft",
+      label: t("admin.posts.trashDaysLeftLabel"),
+      className: st.colMeta,
+      render: (post) => {
+        const daysLeft = getDaysLeft(post.deleted_at!);
+        return (
+          <span className={st.colDaysLeft}>
+            <span className={daysLeft <= 7 ? st.accentText : ""}>{daysLeft}<T k="admin.posts.trashDaysLeftUnit" /></span>
+            <span className={st.colDaysSub}><T k="admin.posts.trashAutoDeleteShort" /></span>
+          </span>
+        );
+      },
+    },
+    {
+      key: "actions",
+      label: t("admin.posts.actions"),
+      className: st.colActions,
+      render: (post) => (
+        <>
+          <button type="button" className={st.actionBtn} onClick={() => handleRestore(post.id)}>
+            <T k="admin.posts.trashRestore" />
+          </button>
+          <button type="button" className={st.dangerBtn} onClick={() => handlePurge(post.id, formatPostTitle(post) || t("admin.posts.untitled"))}>
+            <T k="admin.posts.trashPurge" />
+          </button>
+        </>
+      ),
+    },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [t]);
+
   const trashSection = (
     <div className={styles.trashSection}>
-      <button
-        type="button"
-        className={styles.trashToggle}
-        onClick={() => {
-          if (!trashOpen) fetchTrash();
-          setTrashOpen((v) => !v);
-        }}
-      >
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="3 6 5 6 21 6" />
-          <path d="M19 6l-1 14H6L5 6" />
-          <path d="M10 11v6" />
-          <path d="M14 11v6" />
-          <path d="M9 6V4h6v2" />
-        </svg>
-        <span>
-          <T k="admin.posts.trash" />
-          {trashPosts.length > 0 && ` (${trashPosts.length})`}
-        </span>
-        <svg
-          className={`${styles.trashToggleIcon} ${trashOpen ? styles.trashToggleOpen : ""}`}
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-        <span className={styles.trashHint}><T k="admin.posts.trashAutoDelete" /></span>
-      </button>
-
-      <div className={`${styles.trashContent} ${trashOpen ? styles.trashContentOpen : ""}`}>
-        <div>
-        <div className={styles.subFilterBar}>
-          <Select
-            value={String(trashPerPage)}
-            options={[
-              { value: "10", label: "10" },
-              { value: "20", label: "20" },
-              { value: "50", label: "50" },
-            ]}
-            onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
-            className={styles.subPageSize}
-          />
-          <Select
-            value={trashSort}
-            options={[
-              { value: "newest", label: t("admin.posts.sortNewestDeleted") },
-              { value: "oldest", label: t("admin.posts.sortOldestDeleted") },
-            ]}
-            onChange={(v) => setTrashSort(v as "newest" | "oldest")}
-            className={styles.subFilterSelect}
-          />
-          <div className={`${styles.searchGroup} ${styles.searchGroupRight}`}>
+      <SubTable<Post>
+        icon={trashIcon}
+        title={<T k="admin.posts.trash" />}
+        count={trashPosts.length}
+        hint={<T k="admin.posts.trashAutoDelete" />}
+        open={trashOpen}
+        onToggle={() => { if (!trashOpen) fetchTrash(); setTrashOpen((v) => !v); }}
+        allItems={filteredTrash}
+        columns={trashColumns}
+        gridTemplate="28px 64px 1fr 200px 160px"
+        selected={trashSelected}
+        onSelectChange={setTrashSelected}
+        bulkActions={[
+          {
+            label: <T k="admin.posts.trashRestore" />,
+            disabled: busy,
+            onClick: async () => {
+              setBusy(true);
+              for (const id of trashSelected) await handleRestore(id);
+              setTrashSelected(new Set());
+              setBusy(false);
+            },
+          },
+          {
+            label: <T k="admin.posts.trashPurge" />,
+            disabled: busy,
+            onClick: () => {
+              openModal(
+                <ModalConfirm
+                  desc={`${trashSelected.size}개 항목을 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+                  cancelText={t("admin.posts.cancel")}
+                  confirmText={t("admin.posts.trashPurge")}
+                  onConfirm={async () => {
+                    setBusy(true);
+                    for (const id of trashSelected) await fetch(`/api/posts/${id}/purge`, { method: "DELETE" });
+                    await fetchTrash();
+                    setTrashSelected(new Set());
+                    setBusy(false);
+                  }}
+                />,
+                { id: "bulk-purge", header: { title: t("admin.posts.trashPurge") }, closeButton: true, width: "400px" },
+              );
+            },
+          },
+        ]}
+        page={trashPage}
+        perPage={trashPerPage}
+        onPageChange={setTrashPage}
+        emptyMessage={t("admin.posts.trashEmpty")}
+        loading={trashLoading}
+        filterBar={
+          <div className={styles.subFilterBar}>
             <Select
-              value={trashSearchType}
+              value={String(trashPerPage)}
+              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
+              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
+              className={styles.subPageSize}
+            />
+            <Select
+              value={trashSort}
               options={[
+                { value: "newest", label: t("admin.posts.sortNewestDeleted") },
+                { value: "oldest", label: t("admin.posts.sortOldestDeleted") },
+              ]}
+              onChange={(v) => setTrashSort(v as "newest" | "oldest")}
+              className={styles.subFilterSelect}
+            />
+            <SearchCapsule
+              searchType={trashSearchType}
+              searchTypeOptions={[
                 { value: "all", label: t("admin.posts.searchAll") },
                 { value: "title", label: t("admin.posts.searchTitle") },
                 { value: "content", label: t("admin.posts.searchContent") },
               ]}
-              onChange={(v) => setTrashSearchType(v as "all" | "title" | "content")}
-              className={styles.subFilterSelect}
-            />
-            <input
-              type="text"
+              onSearchTypeChange={(v) => setTrashSearchType(v as "all" | "title" | "content")}
+              search={trashSearch}
+              onSearchChange={setTrashSearch}
               placeholder={t("admin.posts.trashSearch")}
-              value={trashSearch}
-              onChange={(e) => setTrashSearch(e.target.value)}
-              className={styles.subFilterInput}
             />
           </div>
-        </div>
-        {trashLoading ? (
-          <ul className={styles.trashList}>
-            {Array.from({ length: 3 }, (_, i) => (
-              <li key={i} className={styles.trashRow} style={{ opacity: 0.4 }}>
-                <span className={styles.trashTitle}><SkeletonLine width="60%" /></span>
-                <span className={styles.trashMeta}><SkeletonLine width="50px" /></span>
-              </li>
-            ))}
-          </ul>
-        ) : filteredTrash.length === 0 ? (
-          <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
-        ) : (
-          <>
-            <div className={`${styles.trashBulkBar} ${trashSelected.size > 0 ? styles.trashBulkBarOpen : ""}`}>
-                <span>{trashSelected.size}개 선택</span>
-                <button className={styles.trashBulkBtn} disabled={busy} onClick={async () => {
-                  setBusy(true);
-                  for (const id of trashSelected) await handleRestore(id);
-                  setTrashSelected(new Set());
-                  setBusy(false);
-                }}><T k="admin.posts.trashRestore" /></button>
-                <button className={styles.trashBulkBtn} disabled={busy} onClick={() => {
-                  openModal(
-                    <ModalConfirm
-                      desc={`${trashSelected.size}개 항목을 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
-                      cancelText={t("admin.posts.cancel")}
-                      confirmText={t("admin.posts.trashPurge")}
-                      onConfirm={async () => {
-                        setBusy(true);
-                        for (const id of trashSelected) await fetch(`/api/posts/${id}/purge`, { method: "DELETE" });
-                        await fetchTrash();
-                        setTrashSelected(new Set());
-                        setBusy(false);
-                      }}
-                    />,
-                    { id: "bulk-purge", header: { title: t("admin.posts.trashPurge") }, closeButton: true, width: "400px" },
-                  );
-                }}><T k="admin.posts.trashPurge" /></button>
-                <button className={styles.trashBulkCancel} onClick={() => setTrashSelected(new Set())}>✕</button>
-            </div>
-            <div className={styles.trashHeader}>
-              <Checkbox
-                checked={filteredTrash.length > 0 && filteredTrash.every((p) => trashSelected.has(p.id))}
-                indeterminate={filteredTrash.some((p) => trashSelected.has(p.id)) && !filteredTrash.every((p) => trashSelected.has(p.id))}
-                onChange={() => {
-                  const allSelected = filteredTrash.every((p) => trashSelected.has(p.id));
-                  if (allSelected) setTrashSelected(new Set());
-                  else setTrashSelected(new Set(filteredTrash.map((p) => p.id)));
-                }}
-                shape="square"
-              />
-              <span>{t("admin.posts.tableTitle")}</span>
-              <span>{t("admin.posts.trashDaysLeftLabel")}</span>
-              <span>{t("admin.posts.actions")}</span>
-            </div>
-            <ul className={styles.trashList} onMouseUp={() => { trashDragStart.current = null; }}>
-              {filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage).map((post, idx) => {
-                const daysLeft = getDaysLeft(post.deleted_at!);
-                const title = formatPostTitle(post) || t("admin.posts.untitled");
-                return (
-                  <li
-                    key={post.id}
-                    className={styles.trashRow}
-                    onMouseDown={(e) => {
-                      if (e.button !== 0) return;
-                      e.preventDefault();
-                      trashDragStart.current = idx;
-                      trashDragAdding.current = !trashSelected.has(post.id);
-                      trashDragMoved.current = false;
-                    }}
-                    onMouseEnter={(e) => {
-                      // 드래그 선택
-                      if (trashDragStart.current !== null) {
-                        trashDragMoved.current = true;
-                        const start = Math.min(trashDragStart.current, idx);
-                        const end = Math.max(trashDragStart.current, idx);
-                        const pageItems = filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage);
-                        setTrashSelected((prev) => {
-                          const next = new Set(prev);
-                          for (let i = start; i <= end; i++) {
-                            if (trashDragAdding.current) next.add(pageItems[i].id);
-                            else next.delete(pageItems[i].id);
-                          }
-                          return next;
-                        });
-                      }
-                      // 프리뷰 툴팁
-                      if (!canHover.current) return;
-                      hoveredPostRef.current = post;
-                      imgErrorRef.current = false;
-                      calcTooltipPos(e.currentTarget as HTMLElement, post);
-                      setTooltipKey((k) => k + 1);
-                    }}
-                    onMouseLeave={() => {
-                      if (!hoveredPostRef.current) return;
-                      hoveredPostRef.current = null;
-                      setTooltipKey((k) => k + 1);
-                    }}
-                  >
-                    <Checkbox
-                      checked={trashSelected.has(post.id)}
-                      onChange={() => setTrashSelected((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(post.id)) next.delete(post.id); else next.add(post.id);
-                        return next;
-                      })}
-                      shape="square"
-                    />
-                    <span className={styles.trashTitle}>{title}</span>
-                    <span className={styles.trashMeta}>
-                      <span className={daysLeft <= 7 ? styles.trashDaysLeft : ""}>
-                        {daysLeft}
-                      </span>
-                      {" "}<T k="admin.posts.trashDaysLeft" />
-                    </span>
-                    <button
-                      type="button"
-                      className={styles.trashRestoreBtn}
-                      onClick={() => handleRestore(post.id)}
-                    >
-                      <T k="admin.posts.trashRestore" />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.trashPurgeBtn}
-                      onClick={() => handlePurge(post.id, title)}
-                    >
-                      <T k="admin.posts.trashPurge" />
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
-        <Pagination page={trashPage} totalPages={Math.max(1, Math.ceil(filteredTrash.length / trashPerPage))} onChange={setTrashPage} />
-        </div>
-      </div>
+        }
+      />
     </div>
   );
 
   /* ── Series Section ── */
-  const seriesSection = (
-    <div className={styles.seriesSection}>
-      <div className={styles.seriesHeader}>
-        <button
-          type="button"
-          className={styles.seriesToggle}
-          onClick={() => setSeriesOpen((v) => !v)}
-        >
-          <span>
-            <T k="admin.posts.series" /> ({seriesList.length})
-          </span>
-          <svg
-            className={`${styles.seriesToggleIcon} ${seriesOpen ? styles.seriesToggleOpen : ""}`}
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
+  const seriesColumns: SubTableColumn<Series>[] = useMemo(() => [
+    {
+      key: "thumb",
+      label: t("admin.posts.tableThumb"),
+      className: st.colThumbWrap,
+      render: (s) => (
+        <div className={st.colThumb}>
+          {s.cover_image ? (
+            <Image src={s.cover_image} alt="" fill sizes="48px" unoptimized className={st.thumbImg} />
+          ) : (
+            <div className={st.thumbPlaceholder}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
+              </svg>
+            </div>
+          )}
+        </div>
+      ),
+      skeletonWidth: "48px",
+    },
+    {
+      key: "title",
+      label: t("admin.posts.tableTitle"),
+      className: st.colTitle,
+      render: (s) => (
         <a
-          href="/admin/settings?tab=content&sub=posts"
+          href={`/admin/settings?tab=content&sub=posts&series=${s.id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className={styles.seriesNewBtn}
+          className={styles.seriesRowLink}
         >
-          <T k="admin.posts.newSeries" />
+          {s.title || t("admin.posts.untitled")}
         </a>
-      </div>
+      ),
+      skeletonWidth: "60%",
+    },
+    {
+      key: "category",
+      label: t("admin.posts.tableCategory"),
+      className: st.colMeta,
+      render: (s) => s.category ? <span className={styles.seriesRowCat}>{s.category}</span> : <span>—</span>,
+    },
+    {
+      key: "count",
+      label: t("admin.posts.tablePostCount"),
+      className: st.colMeta,
+      render: (s) => <span>{s.post_count ?? 0}</span>,
+    },
+    {
+      key: "status",
+      label: t("admin.posts.tableStatus"),
+      className: st.colMeta,
+      render: (s) => (
+        <span className={`${st.statusBadge} ${s.published ? st.published : st.draft}`}>
+          {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      label: t("admin.posts.actions"),
+      className: st.colActions,
+      render: (s) => (
+        <>
+          <a
+            href={`/admin/settings?tab=content&sub=posts&series=${s.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={st.actionBtn}
+          >
+            <T k="admin.posts.edit" />
+          </a>
+          <button type="button" className={st.dangerBtn} onClick={() => handleDeleteSeries(s)}>
+            <T k="admin.posts.delete" />
+          </button>
+        </>
+      ),
+    },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [t]);
 
-      <div className={`${styles.trashContent} ${seriesOpen ? styles.trashContentOpen : ""}`}>
-        <div>
-        <div className={styles.subFilterBar}>
-          <Select
-            value={String(seriesPerPage)}
-            options={[
-              { value: "5", label: "5" },
-              { value: "10", label: "10" },
-              { value: "20", label: "20" },
-            ]}
-            onChange={(v) => { setSeriesPerPage(Number(v)); setSeriesPage(1); }}
-            className={styles.subPageSize}
-          />
-          <Select
-            value={seriesSort}
-            options={[
-              { value: "newest", label: t("admin.posts.sortNewest") },
-              { value: "oldest", label: t("admin.posts.sortOldest") },
-              { value: "name", label: t("admin.posts.sortName") },
-            ]}
-            onChange={(v) => setSeriesSort(v as "newest" | "oldest" | "name")}
-            className={styles.subFilterSelect}
-          />
-          <Select
-            value={seriesFilter}
-            options={[
-              { value: "", label: t("admin.posts.filterAll") },
-              { value: "published", label: t("admin.posts.filterPublished") },
-              { value: "draft", label: t("admin.posts.filterDraft") },
-            ]}
-            onChange={(v) => setSeriesFilter(v as "" | "published" | "draft")}
-            className={styles.subFilterSelect}
-          />
-          <div className={`${styles.searchGroup} ${styles.searchGroupRight}`}>
+  const seriesSection = (
+    <div className={styles.seriesSection}>
+      <SubTable<Series>
+        title={<T k="admin.posts.series" />}
+        count={seriesList.length}
+        open={seriesOpen}
+        onToggle={() => setSeriesOpen((v) => !v)}
+        headerExtra={
+          <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.seriesNewBtn}>
+            <T k="admin.posts.newSeries" />
+          </a>
+        }
+        allItems={filteredSeries}
+        columns={seriesColumns}
+        gridTemplate="92px 1fr 80px 60px 60px 160px"
+        selected={seriesSelected}
+        onSelectChange={setSeriesSelected}
+        bulkActions={[
+          {
+            label: t("admin.posts.delete"),
+            disabled: busy,
+            onClick: () => {
+              const ids = [...seriesSelected];
+              openModal(
+                <ModalConfirm
+                  desc={`${ids.length}개 시리즈를 삭제합니다.`}
+                  cancelText={t("admin.posts.cancel")}
+                  confirmText={t("admin.posts.delete")}
+                  onConfirm={async () => {
+                    setBusy(true);
+                    for (const id of ids) await fetch(`/api/series/${id}`, { method: "DELETE" });
+                    await fetchSeries();
+                    setSeriesSelected(new Set());
+                    setBusy(false);
+                  }}
+                />,
+                { id: "bulk-series-delete", header: { title: t("admin.posts.delete") }, closeButton: true, width: "400px" },
+              );
+            },
+          },
+        ]}
+        page={seriesPage}
+        perPage={seriesPerPage}
+        onPageChange={setSeriesPage}
+        emptyMessage={t("admin.posts.noSeriesYet")}
+        loading={seriesLoading}
+        filterBar={
+          <div className={styles.subFilterBar}>
             <Select
-              value={seriesSearchType}
+              value={String(seriesPerPage)}
+              options={[{ value: "5", label: "5" }, { value: "10", label: "10" }, { value: "20", label: "20" }]}
+              onChange={(v) => { setSeriesPerPage(Number(v)); setSeriesPage(1); }}
+              className={styles.subPageSize}
+            />
+            <Select
+              value={seriesSort}
               options={[
+                { value: "newest", label: t("admin.posts.sortNewest") },
+                { value: "oldest", label: t("admin.posts.sortOldest") },
+                { value: "name", label: t("admin.posts.sortName") },
+              ]}
+              onChange={(v) => setSeriesSort(v as "newest" | "oldest" | "name")}
+              className={styles.subFilterSelect}
+            />
+            <Select
+              value={seriesFilter}
+              options={[
+                { value: "", label: t("admin.posts.filterAll") },
+                { value: "published", label: t("admin.posts.filterPublished") },
+                { value: "draft", label: t("admin.posts.filterDraft") },
+              ]}
+              onChange={(v) => setSeriesFilter(v as "" | "published" | "draft")}
+              className={styles.subFilterSelect}
+            />
+            <SearchCapsule
+              searchType={seriesSearchType}
+              searchTypeOptions={[
                 { value: "all", label: t("admin.posts.searchAll") },
                 { value: "title", label: t("admin.posts.searchTitle") },
                 { value: "content", label: t("admin.posts.searchContent") },
               ]}
-              onChange={(v) => setSeriesSearchType(v as "all" | "title" | "content")}
-              className={styles.subFilterSelect}
-            />
-            <input
-              type="text"
+              onSearchTypeChange={(v) => setSeriesSearchType(v as "all" | "title" | "content")}
+              search={seriesSearch}
+              onSearchChange={setSeriesSearch}
               placeholder={t("admin.posts.seriesSearch")}
-              value={seriesSearch}
-              onChange={(e) => setSeriesSearch(e.target.value)}
-              className={styles.subFilterInput}
             />
           </div>
-        </div>
-        {seriesLoading ? (
-          <ul className={styles.seriesList}>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <li key={i} className={styles.seriesRow}>
-                <span className={styles.seriesRowThumb}>
-                  <Skeleton width={96} height={56} borderRadius="var(--radius-sm)" />
-                </span>
-                <span className={styles.seriesRowLink} style={{ flex: 1, gap: "var(--spacing-2xs)", display: "flex", flexDirection: "column" }}>
-                  <SkeletonLine width="60%" height={14} />
-                  <SkeletonLine width="40%" height={12} />
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-        <>
-        <div className={styles.trashSelectAll}>
-          <Checkbox
-            checked={filteredSeries.length > 0 && filteredSeries.every((s) => seriesSelected.has(s.id))}
-            indeterminate={filteredSeries.some((s) => seriesSelected.has(s.id)) && !filteredSeries.every((s) => seriesSelected.has(s.id))}
-            onChange={() => {
-              const allSel = filteredSeries.every((s) => seriesSelected.has(s.id));
-              if (allSel) setSeriesSelected(new Set());
-              else setSeriesSelected(new Set(filteredSeries.map((s) => s.id)));
-            }}
-            shape="square"
-          />
-          <span>{t("admin.posts.selectAll")}</span>
-          {seriesSelected.size > 0 && (
-            <>
-              <span style={{ marginLeft: "auto", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>{seriesSelected.size}개 선택</span>
-              <button className={styles.trashBulkBtn} disabled={busy} onClick={() => {
-                const selected = [...seriesSelected];
-                openModal(
-                  <ModalConfirm
-                    desc={`${selected.length}개 시리즈를 삭제합니다.`}
-                    cancelText={t("admin.posts.cancel")}
-                    confirmText={t("admin.posts.delete")}
-                    onConfirm={async () => {
-                      setBusy(true);
-                      for (const id of selected) await fetch(`/api/series/${id}`, { method: "DELETE" });
-                      await fetchSeries();
-                      setSeriesSelected(new Set());
-                      setBusy(false);
-                    }}
-                  />,
-                  { id: "bulk-series-delete", header: { title: t("admin.posts.delete") }, closeButton: true, width: "400px" },
-                );
-              }}>{t("admin.posts.delete")}</button>
-            </>
-          )}
-        </div>
-        <ul className={styles.seriesList}>
-          {filteredSeries.slice((seriesPage - 1) * seriesPerPage, seriesPage * seriesPerPage).map((s) => (
-            <li key={s.id} className={styles.seriesRow}>
-                <Checkbox
-                  checked={seriesSelected.has(s.id)}
-                  onChange={() => setSeriesSelected((prev) => {
-                    const next = new Set(prev);
-                    if (next.has(s.id)) next.delete(s.id); else next.add(s.id);
-                    return next;
-                  })}
-                  shape="square"
-                />
-                <span className={styles.seriesRowThumb}>
-                  {s.cover_image ? (
-                    <Image src={s.cover_image} alt="" width={96} height={56} unoptimized className={styles.seriesRowImg} />
-                  ) : (
-                    <span className={styles.seriesRowNoImg}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <path d="M21 15l-5-5L5 21" />
-                      </svg>
-                    </span>
-                  )}
-                </span>
-                <a
-                  href={`/admin/settings?tab=content&sub=posts&series=${s.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.seriesRowLink}
-                >
-                  <span className={styles.seriesRowTitle}>
-                    {s.title || <T k="admin.posts.untitled" />}
-                  </span>
-                  <span className={styles.seriesRowMeta}>
-                    {s.category && (
-                      <span className={styles.seriesRowCat}>{s.category}</span>
-                    )}
-                    <span>{s.post_count ?? 0} <T k="admin.posts.postsCount" /></span>
-                    <span
-                      className={`${styles.statusBadge} ${s.published ? styles.published : styles.draft}`}
-                    >
-                      {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
-                    </span>
-                  </span>
-                </a>
-                <button
-                  type="button"
-                  className={styles.deleteBtn}
-                  onClick={() => handleDeleteSeries(s)}
-                >
-                  <T k="admin.posts.delete" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
-        )}
-        <Pagination page={seriesPage} totalPages={Math.max(1, Math.ceil(filteredSeries.length / seriesPerPage))} onChange={setSeriesPage} />
-        </div>
-      </div>
-
+        }
+      />
     </div>
   );
 
@@ -1027,33 +954,57 @@ export default function AdminPostsPage() {
             onClick={() => {
               openModal(
                 <div className={styles.uploadGuide}>
-                  <p>.md 파일을 선택하면 각 파일이 <strong>비공개 초안</strong>으로 생성됩니다.</p>
+                  <h4>기본 사용법</h4>
+                  <p><code>.md</code> 파일을 선택하면 각 파일이 <strong>비공개 초안</strong>으로 생성됩니다. 여러 파일을 한번에 선택할 수 있습니다.</p>
+                  <ul>
+                    <li>파일명이 포스트 제목으로 사용됩니다 (확장자 제외)</li>
+                    <li>파일 내용이 마크다운 콘텐츠로 들어갑니다</li>
+                    <li>발행 상태는 <strong>비공개(draft)</strong>로 설정됩니다</li>
+                  </ul>
+
                   <h4>Frontmatter</h4>
-                  <p>파일 상단에 아래 형식을 추가하면 메타데이터가 자동 반영됩니다.</p>
+                  <p>파일 상단에 YAML frontmatter를 작성하면 메타데이터가 자동 반영됩니다.</p>
                   <table>
-                    <thead><tr><th>필드</th><th>설명</th><th>기본값</th></tr></thead>
+                    <thead><tr><th>필드</th><th>타입</th><th>설명</th><th>기본값</th></tr></thead>
                     <tbody>
-                      <tr><td>title</td><td>포스트 제목</td><td>파일명</td></tr>
-                      <tr><td>category</td><td>카테고리</td><td>기타</td></tr>
-                      <tr><td>tags</td><td>태그 (예: [React, Next.js])</td><td>없음</td></tr>
-                      <tr><td>date</td><td>작성일 (YYYY-MM-DD)</td><td>업로드 시점</td></tr>
-                      <tr><td>excerpt</td><td>요약</td><td>없음</td></tr>
-                      <tr><td>slug</td><td>URL 슬러그</td><td>제목에서 자동 생성</td></tr>
-                      <tr><td>cover_image</td><td>커버 이미지 URL</td><td>없음</td></tr>
+                      <tr><td><code>title</code></td><td>string</td><td>포스트 제목</td><td>파일명</td></tr>
+                      <tr><td><code>slug</code></td><td>string</td><td>URL 슬러그</td><td>제목에서 자동 생성</td></tr>
+                      <tr><td><code>category</code></td><td>string</td><td>카테고리</td><td>기타</td></tr>
+                      <tr><td><code>tags</code></td><td>string[]</td><td>태그 목록 (예: [React, Next.js])</td><td>없음</td></tr>
+                      <tr><td><code>excerpt</code></td><td>string</td><td>요약/발췌문</td><td>없음</td></tr>
+                      <tr><td><code>cover_image</code></td><td>string</td><td>커버 이미지 URL</td><td>없음</td></tr>
+                      <tr><td><code>date</code></td><td>string</td><td>작성일 (ISO 8601 또는 YYYY-MM-DD)</td><td>업로드 시점</td></tr>
                     </tbody>
                   </table>
-                  <h4>예시</h4>
+
+                  <h4>예시 — 전체 형식</h4>
                   <pre><code>{`---
-title: Next.js 마이그레이션
+title: Next.js 15 마이그레이션 가이드
+slug: nextjs-15-migration
 category: Development
-tags: [Next.js, React]
+tags: [Next.js, React, Migration]
 date: 2024-03-15
+excerpt: Next.js 14에서 15로 마이그레이션 정리
 ---
 
+## 개요
+
 본문 내용...`}</code></pre>
-                  <p className={styles.uploadGuideNote}>frontmatter 없이 업로드하면 파일명이 제목으로 사용됩니다. 등록되지 않은 카테고리는 생성 여부를 확인합니다.</p>
+
+                  <h4>날짜/태그 작성법</h4>
+                  <pre><code>{`# 날짜
+date: 2024-03-15
+date: 2024-03-15T14:30:00+09:00
+
+# 태그 — 배열 또는 단일
+tags: [React, Next.js, TypeScript]
+tags: React`}</code></pre>
+
+                  <h4>GitHub Pages 마이그레이션</h4>
+                  <p>Jekyll/Hugo 등 기존 블로그의 <code>_posts/</code> 디렉토리에서 <code>.md</code> 파일을 선택하면 <code>title</code>, <code>tags</code>, <code>categories</code> 필드가 자동 인식됩니다.</p>
+                  <p className={styles.uploadGuideNote}>등록되지 않은 카테고리는 생성 여부를 확인합니다. Jekyll의 layout, permalink 등 미지원 필드는 무시됩니다.</p>
                 </div>,
-                { header: { title: t("admin.posts.uploadGuide") }, closeButton: true, width: "520px" },
+                { header: { title: t("admin.posts.uploadGuide") }, closeButton: true, width: "560px" },
               );
             }}
           >
@@ -1122,25 +1073,18 @@ date: 2024-03-15
             {t("admin.posts.resetFilters")}
           </button>
         )}
-        <div className={`${styles.searchGroup} ${styles.searchGroupRight}`}>
-          <Select
-            value={searchType}
-            options={[
-              { value: "all", label: t("admin.posts.searchAll") },
-              { value: "title", label: t("admin.posts.searchTitle") },
-              { value: "content", label: t("admin.posts.searchContent") },
-            ]}
-            onChange={(v) => { setSearchType(v); setPage(1); }}
-            className={styles.searchTypeSelect}
-          />
-          <input
-            type="text"
-            placeholder={t("admin.posts.search")}
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className={styles.searchInput}
-          />
-        </div>
+        <SearchCapsule
+          searchType={searchType}
+          searchTypeOptions={[
+            { value: "all", label: t("admin.posts.searchAll") },
+            { value: "title", label: t("admin.posts.searchTitle") },
+            { value: "content", label: t("admin.posts.searchContent") },
+          ]}
+          onSearchTypeChange={(v) => { setSearchType(v); setPage(1); }}
+          search={search}
+          onSearchChange={(v) => { setSearch(v); setPage(1); }}
+          placeholder={t("admin.posts.search")}
+        />
       </div>
 
       <AdminTable<Post>
@@ -1168,7 +1112,7 @@ date: 2024-03-15
           await fetchPosts();
           setBusy(false);
         }}
-        gridTemplate="64px 1fr 80px 80px 120px"
+        gridTemplate="64px 1fr 100px 100px 160px"
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}
         loading={loading}
