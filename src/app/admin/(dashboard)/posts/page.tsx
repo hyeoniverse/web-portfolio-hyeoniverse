@@ -679,8 +679,7 @@ export default function AdminPostsPage() {
           <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
         ) : (
           <>
-            {trashSelected.size > 0 && (
-              <div className={styles.trashBulkBar}>
+            <div className={`${styles.trashBulkBar} ${trashSelected.size > 0 ? styles.trashBulkBarOpen : ""}`}>
                 <span>{trashSelected.size}개 선택</span>
                 <button className={styles.trashBulkBtn} disabled={busy} onClick={async () => {
                   setBusy(true);
@@ -706,8 +705,7 @@ export default function AdminPostsPage() {
                   );
                 }}><T k="admin.posts.trashPurge" /></button>
                 <button className={styles.trashBulkCancel} onClick={() => setTrashSelected(new Set())}>✕</button>
-              </div>
-            )}
+            </div>
             <div className={styles.trashHeader}>
               <Checkbox
                 checked={filteredTrash.length > 0 && filteredTrash.every((p) => trashSelected.has(p.id))}
