@@ -221,6 +221,15 @@ function ShortcutsModalContent() {
 
 const Editor = dynamic(() => import("./PlateEditor"), {
   ssr: false,
+  loading: () => (
+    <div className={styles.editorSkeleton}>
+      <div className={styles.editorSkeletonBar} style={{ width: "60%" }} />
+      <div className={styles.editorSkeletonBar} style={{ width: "90%" }} />
+      <div className={styles.editorSkeletonBar} style={{ width: "75%" }} />
+      <div className={styles.editorSkeletonBar} style={{ width: "85%" }} />
+      <div className={styles.editorSkeletonBar} style={{ width: "40%" }} />
+    </div>
+  ),
 });
 
 const ImagePanel = dynamic(
@@ -1535,7 +1544,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       setError(te("deleteFailed"));
       setDeleting(false);
     }
-  }, [post, router, te]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [post, router, te]);
 
   const handlePreview = useCallback(() => {
     sessionStorage.setItem("post-preview", JSON.stringify(form));

@@ -203,7 +203,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
       <div className={styles.table} style={gridStyle}>
         <div className={styles.tableHeader}>
           <span />
-          {hasNumCol && <span />}
+          {hasNumCol && <span>#</span>}
           {columns.map((col) => (
             <span key={col.key}>{col.label}</span>
           ))}
@@ -256,7 +256,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={allSelected} indeterminate={someSelected} onChange={toggleSelectAll} shape="square" />
           </span>
-          {hasNumCol && <span />}
+          {hasNumCol && <span>#</span>}
           {columns.map((col) => (
             <span key={col.key}>{col.label}</span>
           ))}
