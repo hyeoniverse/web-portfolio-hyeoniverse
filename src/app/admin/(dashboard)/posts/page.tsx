@@ -189,6 +189,7 @@ export default function AdminPostsPage() {
   const [seriesSort, setSeriesSort] = useState<"newest" | "oldest" | "name">("newest");
   const [seriesFilter, setSeriesFilter] = useState<"" | "published" | "draft">("");
   const [seriesPerPage, setSeriesPerPage] = useState(5);
+  const [seriesSelected, setSeriesSelected] = useState<Set<string>>(new Set());
 
   /* Trash */
   const [trashPosts, setTrashPosts] = useState<Post[]>([]);
@@ -678,6 +679,19 @@ export default function AdminPostsPage() {
           <p className={styles.trashEmpty}><T k="admin.posts.trashEmpty" /></p>
         ) : (
           <>
+            <div className={styles.trashSelectAll}>
+              <Checkbox
+                checked={filteredTrash.length > 0 && filteredTrash.every((p) => trashSelected.has(p.id))}
+                indeterminate={filteredTrash.some((p) => trashSelected.has(p.id)) && !filteredTrash.every((p) => trashSelected.has(p.id))}
+                onChange={() => {
+                  const allSelected = filteredTrash.every((p) => trashSelected.has(p.id));
+                  if (allSelected) setTrashSelected(new Set());
+                  else setTrashSelected(new Set(filteredTrash.map((p) => p.id)));
+                }}
+                shape="square"
+              />
+              <span>{t("admin.posts.selectAll")}</span>
+            </div>
             {trashSelected.size > 0 && (
               <div className={styles.trashBulkBar}>
                 <span>{trashSelected.size}개 선택</span>
@@ -895,9 +909,55 @@ export default function AdminPostsPage() {
             ))}
           </ul>
         ) : (
+        <>
+        <div className={styles.trashSelectAll}>
+          <Checkbox
+            checked={filteredSeries.length > 0 && filteredSeries.every((s) => seriesSelected.has(s.id))}
+            indeterminate={filteredSeries.some((s) => seriesSelected.has(s.id)) && !filteredSeries.every((s) => seriesSelected.has(s.id))}
+            onChange={() => {
+              const allSel = filteredSeries.every((s) => seriesSelected.has(s.id));
+              if (allSel) setSeriesSelected(new Set());
+              else setSeriesSelected(new Set(filteredSeries.map((s) => s.id)));
+            }}
+            shape="square"
+          />
+          <span>{t("admin.posts.selectAll")}</span>
+          {seriesSelected.size > 0 && (
+            <>
+              <span style={{ marginLeft: "auto", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>{seriesSelected.size}개 선택</span>
+              <button className={styles.trashBulkBtn} disabled={busy} onClick={() => {
+                const selected = [...seriesSelected];
+                openModal(
+                  <ModalConfirm
+                    desc={`${selected.length}개 시리즈를 삭제합니다.`}
+                    cancelText={t("admin.posts.cancel")}
+                    confirmText={t("admin.posts.delete")}
+                    onConfirm={async () => {
+                      setBusy(true);
+                      for (const id of selected) await fetch(`/api/series/${id}`, { method: "DELETE" });
+                      await fetchSeries();
+                      setSeriesSelected(new Set());
+                      setBusy(false);
+                    }}
+                  />,
+                  { id: "bulk-series-delete", header: { title: t("admin.posts.delete") }, closeButton: true, width: "400px" },
+                );
+              }}>{t("admin.posts.delete")}</button>
+            </>
+          )}
+        </div>
         <ul className={styles.seriesList}>
           {filteredSeries.slice((seriesPage - 1) * seriesPerPage, seriesPage * seriesPerPage).map((s) => (
             <li key={s.id} className={styles.seriesRow}>
+                <Checkbox
+                  checked={seriesSelected.has(s.id)}
+                  onChange={() => setSeriesSelected((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(s.id)) next.delete(s.id); else next.add(s.id);
+                    return next;
+                  })}
+                  shape="square"
+                />
                 <span className={styles.seriesRowThumb}>
                   {s.cover_image ? (
                     <Image src={s.cover_image} alt="" width={96} height={56} unoptimized className={styles.seriesRowImg} />
@@ -942,6 +1002,7 @@ export default function AdminPostsPage() {
               </li>
             ))}
           </ul>
+        </>
         )}
         <Pagination page={seriesPage} totalPages={Math.max(1, Math.ceil(filteredSeries.length / seriesPerPage))} onChange={setSeriesPage} />
         </div>

@@ -438,6 +438,7 @@
       "postsCount": "개의 글",
       "edit": "수정",
       "delete": "삭제",
+      "selectAll": "전체 선택",
       "newSeries": "+ 새 시리즈",
       "noPostsYet": "아직 작성한 글이 없습니다",
       "noExcerpt": "내용 없음",
