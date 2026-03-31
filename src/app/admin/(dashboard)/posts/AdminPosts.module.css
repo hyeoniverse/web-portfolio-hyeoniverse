@@ -417,11 +417,6 @@
   letter-spacing: 0.06em;
 }
 
-.trashHeader > span:first-child {
-  width: 20px;
-  flex-shrink: 0;
-}
-
 .trashHeader > span:nth-child(2) {
   flex: 1;
 }
