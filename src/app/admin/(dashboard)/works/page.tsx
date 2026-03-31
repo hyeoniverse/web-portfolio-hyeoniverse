@@ -7,7 +7,6 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Work } from "@/types/work";
 import Select from "@/components/ui/Select";
-import Pagination from "@/components/ui/Pagination";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -16,6 +15,9 @@ import AdminTable, {
   adminTableStyles as ts,
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
+import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
+import SearchCapsule from "@/components/admin/SearchCapsule/SearchCapsule";
+import { presets } from "@/components/posts/CoverImagePicker/presets";
 import styles from "./AdminWorks.module.css";
 
 const PAGE_SIZE_OPTIONS = [
@@ -167,6 +169,99 @@ export default function AdminWorksPage() {
     fetchWorks();
     fetchTrash();
   }, [fetchWorks, fetchTrash]);
+
+  /* ── MD Upload ── */
+  const mdInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const uploadRandomCover = useCallback(async (): Promise<string | null> => {
+    try {
+      const preset = presets[Math.floor(Math.random() * presets.length)];
+      const canvas = document.createElement("canvas");
+      canvas.width = 1200;
+      canvas.height = 630;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      preset.render(ctx, 1200, 630);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (!blob) return null;
+      const formData = new FormData();
+      formData.append("file", new File([blob], `cover-${preset.id}.png`, { type: "image/png" }));
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.url ?? null;
+    } catch { return null; }
+  }, []);
+
+  const parseMdWork = (raw: string, fileName: string) => {
+    let text = raw;
+    const meta: Record<string, string | string[]> = {};
+    const fmMatch = text.match(/^---\n([\s\S]*?)\n---\n?/);
+    if (fmMatch) {
+      text = text.slice(fmMatch[0].length);
+      for (const line of fmMatch[1].split("\n")) {
+        const kv = line.match(/^(\w+)\s*:\s*(.+)$/);
+        if (!kv) continue;
+        const [, key, val] = kv;
+        if (val.startsWith("[") && val.endsWith("]")) {
+          meta[key] = val.slice(1, -1).split(",").map((s) => s.trim().replace(/^["']|["']$/g, ""));
+        } else {
+          meta[key] = val.trim().replace(/^["']|["']$/g, "");
+        }
+      }
+    }
+    const title = (meta.title as string) || fileName.replace(/\.md$/, "");
+    const body: Record<string, unknown> = {
+      title,
+      content_ko: text,
+      content_type: "markdown",
+      published: false,
+    };
+    if (meta.subtitle) body.subtitle_ko = meta.subtitle;
+    if (meta.category) body.category_ko = meta.category;
+    if (meta.year) body.year = meta.year;
+    if (meta.tech) body.tech = Array.isArray(meta.tech) ? meta.tech : [meta.tech];
+    if (meta.description) body.description_ko = meta.description;
+    if (meta.role) body.role_ko = meta.role;
+    if (meta.image) body.image = meta.image;
+    if (meta.live_url) body.live_url = meta.live_url;
+    if (meta.github_url) body.github_url = meta.github_url;
+    return body;
+  };
+
+  const createWorks = useCallback(async (items: Record<string, unknown>[]) => {
+    setUploading(true);
+    let created = 0;
+    for (const body of items) {
+      if (!body.image) {
+        const url = await uploadRandomCover();
+        if (url) body.image = url;
+      }
+      const res = await fetch("/api/works", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) created++;
+    }
+    setUploading(false);
+    if (created > 0) fetchWorks();
+  }, [fetchWorks, uploadRandomCover]);
+
+  const handleMdUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const parsed: Record<string, unknown>[] = [];
+    for (const file of Array.from(files)) {
+      if (!file.name.endsWith(".md")) continue;
+      const raw = await file.text();
+      parsed.push(parseMdWork(raw, file.name));
+    }
+    if (mdInputRef.current) mdInputRef.current.value = "";
+    if (parsed.length === 0) return;
+    await createWorks(parsed);
+  }, [createWorks]);
 
   /* ── Filtered trash ── */
   const filteredTrash = useMemo(() => {
@@ -365,130 +460,124 @@ export default function AdminWorksPage() {
     return Math.max(0, Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
   };
 
+  const trashIcon = (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
+    </svg>
+  );
+
+  const trashColumns: SubTableColumn<Work>[] = useMemo(() => [
+    {
+      key: "num",
+      label: "#",
+      className: st.colMeta,
+      render: (work) => <span>{work.number || "—"}</span>,
+      skeletonWidth: "24px",
+    },
+    {
+      key: "thumb",
+      label: t("admin.works.tableThumb"),
+      className: st.colThumbWrap,
+      render: (work) => (
+        <div className={st.colThumb}>
+          {work.image ? (
+            <Image src={work.image} alt="" fill sizes="48px" className={st.thumbImg} unoptimized />
+          ) : (
+            <div className={st.thumbPlaceholder}>—</div>
+          )}
+        </div>
+      ),
+      skeletonWidth: "48px",
+    },
+    {
+      key: "title",
+      label: t("admin.works.tableTitle"),
+      className: st.colTitle,
+      render: (work) => work.title || t("admin.works.untitled"),
+      skeletonWidth: "60%",
+    },
+    {
+      key: "daysLeft",
+      label: t("admin.works.trashDaysLeftLabel") ?? "",
+      className: st.colMeta,
+      render: (work) => {
+        const daysLeft = work.deleted_at ? getDaysLeft(work.deleted_at) : 30;
+        return (
+          <span className={st.colDaysLeft}>
+            <span className={daysLeft <= 7 ? st.accentText : ""}>{daysLeft}<T k="admin.works.trashDaysLeftUnit" /></span>
+            <span className={st.colDaysSub}><T k="admin.works.trashAutoDeleteShort" /></span>
+          </span>
+        );
+      },
+    },
+    {
+      key: "actions",
+      label: t("admin.works.actions"),
+      className: st.colActions,
+      render: (work) => (
+        <>
+          <button type="button" className={st.actionBtn} onClick={() => handleRestore(work.id)}>
+            <T k="admin.works.trashRestore" />
+          </button>
+          <button type="button" className={st.dangerBtn} onClick={() => handlePurge(work.id, work.title || t("admin.works.untitled"))}>
+            <T k="admin.works.trashPurge" />
+          </button>
+        </>
+      ),
+    },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [t]);
+
   const trashSection = (
     <div className={styles.trashSection}>
-      <button
-        type="button"
-        className={styles.trashToggle}
-        onClick={() => {
-          if (!trashOpen) fetchTrash();
-          setTrashOpen((v) => !v);
-        }}
-      >
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="3 6 5 6 21 6" />
-          <path d="M19 6l-1 14H6L5 6" />
-          <path d="M10 11v6" />
-          <path d="M14 11v6" />
-          <path d="M9 6V4h6v2" />
-        </svg>
-        <span>
-          <T k="admin.works.trash" />
-          {trashWorks.length > 0 && ` (${trashWorks.length})`}
-        </span>
-        <svg
-          className={`${styles.trashToggleIcon} ${trashOpen ? styles.trashToggleOpen : ""}`}
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-        <span className={styles.trashHint}><T k="admin.works.trashAutoDelete" /></span>
-      </button>
-
-      <div className={`${styles.trashContent} ${trashOpen ? styles.trashContentOpen : ""}`}>
-        <div>
-        <div className={styles.subFilterBar}>
-          <Select
-            value={String(trashPerPage)}
-            options={[
-              { value: "10", label: "10" },
-              { value: "20", label: "20" },
-              { value: "50", label: "50" },
-            ]}
-            onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
-            className={styles.subPageSize}
-          />
-          <Select
-            value={trashSort}
-            options={[
-              { value: "newest", label: t("admin.works.sortNewestDeleted") },
-              { value: "oldest", label: t("admin.works.sortOldestDeleted") },
-            ]}
-            onChange={(v) => setTrashSort(v as "newest" | "oldest")}
-            className={styles.subFilterSelect}
-          />
-          <div className={`${styles.searchGroup} ${styles.searchGroupRight}`}>
+      <SubTable<Work>
+        icon={trashIcon}
+        title={<T k="admin.works.trash" />}
+        count={trashWorks.length}
+        hint={<T k="admin.works.trashAutoDelete" />}
+        open={trashOpen}
+        onToggle={() => { if (!trashOpen) fetchTrash(); setTrashOpen((v) => !v); }}
+        allItems={filteredTrash}
+        columns={trashColumns}
+        gridTemplate="28px 64px 1fr 100px 160px"
+        selected={new Set<string>()}
+        onSelectChange={() => {}}
+        page={trashPage}
+        perPage={trashPerPage}
+        onPageChange={setTrashPage}
+        emptyMessage={t("admin.works.trashEmpty")}
+        filterBar={
+          <div className={styles.subFilterBar}>
             <Select
-              value={trashSearchType}
+              value={String(trashPerPage)}
+              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
+              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
+              className={styles.subPageSize}
+            />
+            <Select
+              value={trashSort}
               options={[
+                { value: "newest", label: t("admin.works.sortNewestDeleted") },
+                { value: "oldest", label: t("admin.works.sortOldestDeleted") },
+              ]}
+              onChange={(v) => setTrashSort(v as "newest" | "oldest")}
+              className={styles.subFilterSelect}
+            />
+            <SearchCapsule
+              searchType={trashSearchType}
+              searchTypeOptions={[
                 { value: "all", label: t("admin.works.searchAll") },
                 { value: "title", label: t("admin.works.searchTitle") },
                 { value: "content", label: t("admin.works.searchContent") },
               ]}
-              onChange={(v) => setTrashSearchType(v as "all" | "title" | "content")}
-              className={styles.subFilterSelect}
-            />
-            <input
-              type="text"
+              onSearchTypeChange={(v) => setTrashSearchType(v as "all" | "title" | "content")}
+              search={trashSearch}
+              onSearchChange={setTrashSearch}
               placeholder={t("admin.works.trashSearch")}
-              value={trashSearch}
-              onChange={(e) => setTrashSearch(e.target.value)}
-              className={styles.subFilterInput}
             />
           </div>
-        </div>
-        {filteredTrash.length === 0 ? (
-          <p className={styles.trashEmpty}><T k="admin.works.trashEmpty" /></p>
-        ) : (
-          <ul className={styles.trashList}>
-            {filteredTrash.slice((trashPage - 1) * trashPerPage, trashPage * trashPerPage).map((work) => {
-              const daysLeft = work.deleted_at ? getDaysLeft(work.deleted_at) : 30;
-              const title = work.title || t("admin.works.untitled");
-              return (
-                <li key={work.id} className={styles.trashRow}>
-                  <span className={styles.trashTitle}>{title}</span>
-                  <span className={styles.trashMeta}>
-                    <span className={daysLeft <= 7 ? styles.trashDaysLeft : ""}>
-                      {daysLeft}
-                    </span>
-                    {" "}<T k="admin.works.trashDaysLeft" />
-                  </span>
-                  <button
-                    type="button"
-                    className={styles.trashRestoreBtn}
-                    onClick={() => handleRestore(work.id)}
-                  >
-                    <T k="admin.works.trashRestore" />
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.trashPurgeBtn}
-                    onClick={() => handlePurge(work.id, title)}
-                  >
-                    <T k="admin.works.trashPurge" />
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        <Pagination page={trashPage} totalPages={Math.max(1, Math.ceil(filteredTrash.length / trashPerPage))} onChange={setTrashPage} />
-        </div>
-      </div>
+        }
+      />
     </div>
   );
 
@@ -498,28 +587,35 @@ export default function AdminWorksPage() {
       newHref="/admin/works/new"
       newLabel={t("admin.works.newWork")}
       afterTable={trashSection}
+      headerExtra={
+        <>
+          <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
+          <div className={shell.btnGroup}>
+            <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
+              {uploading ? "..." : t("admin.works.uploadMd")}
+            </button>
+            <a href="/admin/works/new" className={shell.newBtn}>
+              {t("admin.works.newWork")}
+            </a>
+          </div>
+        </>
+      }
     >
       {/* Filter bar */}
       <div className={shell.filterBar}>
-        <div className={styles.searchGroup}>
-          <Select
-            value={searchType}
-            options={[
-              { value: "all", label: t("admin.works.searchAll") },
-              { value: "title", label: t("admin.works.searchTitle") },
-              { value: "content", label: t("admin.works.searchContent") },
-            ]}
-            onChange={(v) => { setSearchType(v); setPage(1); }}
-            className={styles.searchTypeSelect}
-          />
-          <input
-            type="text"
-            placeholder={t("admin.works.search")}
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className={styles.searchInput}
-          />
-        </div>
+        <SearchCapsule
+          searchType={searchType}
+          searchTypeOptions={[
+            { value: "all", label: t("admin.works.searchAll") },
+            { value: "title", label: t("admin.works.searchTitle") },
+            { value: "content", label: t("admin.works.searchContent") },
+          ]}
+          onSearchTypeChange={(v) => { setSearchType(v); setPage(1); }}
+          search={search}
+          onSearchChange={(v) => { setSearch(v); setPage(1); }}
+          placeholder={t("admin.works.search")}
+          align="left"
+        />
         <Select
           value={sort}
           options={[
@@ -589,7 +685,7 @@ export default function AdminWorksPage() {
           fetchWorks();
         }}
         onReorder={sort === "order" && !filterYear && !filterCategory ? handleDragReorder : undefined}
-        gridTemplate="64px 1fr 80px 120px"
+        gridTemplate="64px 1fr 100px 160px"
         showRowNumbers
         getRowLabel={(w) => w.number || "—"}
         loading={loading}
