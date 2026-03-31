@@ -153,7 +153,7 @@
 
 **대시보드 & CRUD**
 
-- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 일괄 선택(드래그) + 발행/삭제, .md 파일 업로드(frontmatter 메타데이터 + 새 카테고리 자동 감지), 시리즈 삭제 시 제목 확인 + 하위 포스트 삭제 옵션
+- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 일괄 선택(드래그) + 발행/삭제, .md 파일 업로드(frontmatter 메타데이터 + 새 카테고리 자동 감지 + 프리셋 랜덤 커버 자동 생성, Posts/Works 공용), 시리즈 삭제 시 제목 확인 + 하위 포스트 삭제 옵션, 공통 SubTable(접기/펼치기 + 체크박스 + 드래그 선택 + bulk bar + 페이지네이션) · SearchCapsule(검색 타입 + 입력 캡슐) · DraggableTag(드래그 정렬 태그) 컴포넌트
 - **사이트 콘텐츠 관리**: Settings 5개 탭(General/Content/Appearance/Services/Account) — 브랜드, SEO, Hero/About/Services 이중언어 편집, BroadcastChannel 동기화
 - **Profile Admin**: 프로필 데이터(경력/스킬/철학/자격증/수상) Admin 편집 — JSONB 저장, `PeriodPicker` 구조화 기간 입력
 
@@ -499,10 +499,10 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 - `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기, 행 번호, 썸네일)
 - `/admin/posts/new` — 새 포스트 작성 (Markdown ↔ Rich Text 전환, 자동 번역, 재번역, 자동 저장 + DB 리비전 히스토리 + diff 비교 + Revert)
-- `/admin/posts/[id]/edit` — 기존 포스트 수정
+- `/admin/posts/[id]/edit` — 기존 포스트 수정 (PlateEditor 로딩 스켈레톤)
 - `/admin/posts/series/new` — 새 시리즈 생성
 - `/admin/posts/series/[id]/edit` — 시리즈 편집
-- `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서, 썸네일)
+- `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서, 썸네일, .md 업로드)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
 - `/admin/works/[id]/edit` — 기존 작업물 수정
 - `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경

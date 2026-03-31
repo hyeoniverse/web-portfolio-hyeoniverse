@@ -153,7 +153,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 **Dashboard & CRUD**
 
-- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, bulk select (drag) + publish/delete, .md file upload (frontmatter metadata + auto category detection), series deletion with title confirmation + child post deletion option
+- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, bulk select (drag) + publish/delete, .md file upload (frontmatter metadata + auto category detection + random preset cover generation, shared for Posts/Works), series deletion with title confirmation + child post deletion option, shared SubTable (collapsible + checkbox + drag select + bulk bar + pagination) · SearchCapsule (search type + input capsule) · DraggableTag (drag-sortable tag) components
 - **Site Content Management**: Settings with 5 tabs (General/Content/Appearance/Services/Account) — brand, SEO, Hero/About/Services bilingual editing, BroadcastChannel sync
 - **Profile Admin**: Profile data (career/skills/philosophy/certifications/awards) admin editing — JSONB storage, `PeriodPicker` structured period input
 
@@ -499,10 +499,10 @@ There is no login button on the site. Only the admin accesses it by entering the
 
 - `/admin/posts` — Post list (publish/private status, hover preview, row numbers, thumbnails)
 - `/admin/posts/new` — New post creation (Markdown <-> Rich Text toggle, auto translation, re-translate, auto save + DB revision history + diff comparison + Revert)
-- `/admin/posts/[id]/edit` — Edit existing post
+- `/admin/posts/[id]/edit` — Edit existing post (PlateEditor loading skeleton)
 - `/admin/posts/series/new` — Create new series
 - `/admin/posts/series/[id]/edit` — Edit series
-- `/admin/works` — Works list (table view, publish/private toggle, sort order, thumbnails)
+- `/admin/works` — Works list (table view, publish/private toggle, sort order, thumbnails, .md upload)
 - `/admin/works/new` — Create new work (single content editor + template, Korean/English bilingual, tech stack, gallery)
 - `/admin/works/[id]/edit` — Edit existing work
 - `/admin/settings` — Site settings (General, Content, Appearance, Services, Account — 5 tabs). General tab for brand/SEO/footer copyright/BGM file upload/audio source (track name/artist/URL) management. Content tab split into Home/Profile/About/Posts/Works sub-navigation. Services tab for email service, AI cover, reCAPTCHA settings and API key editing. Account tab for admin email/password changes

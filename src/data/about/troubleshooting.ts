@@ -756,4 +756,42 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "**Event source distinction must happen at the document level, not component level**. Inline void nodes can be selected by clicks on surrounding areas, so component-internal handlers alone cannot cover all cases.",
     },
   },
+  /* ── Admin / Refactoring ── */
+  {
+    section: { ko: "Admin / Refactoring", en: "Admin / Refactoring" },
+    problem: { ko: "Admin 리스트(시리즈/휴지통/게시물)의 UI 코드 중복과 스타일 불일치", en: "Admin List (Series/Trash/Posts) UI Code Duplication and Style Inconsistency" },
+    definition: {
+      ko: "시리즈·휴지통·게시물 세 영역이 각각 **별도의 ul/li 또는 grid 레이아웃**으로 구현되어, 헤더·행 높이·패딩·폰트·bulk bar 스타일이 제각각이었습니다. 검색 UI도 페이지마다 인라인으로 반복 구현되어 있었습니다.",
+      en: "Series, trash, and post lists were each implemented with **separate ul/li or grid layouts**, resulting in inconsistent header, row height, padding, font, and bulk bar styles. Search UI was also inline-duplicated per page.",
+    },
+    cause: {
+      ko: "메인 게시물 테이블(`AdminTable`)은 publish 토글·편집 링크·드래그 정렬 등 고유 기능이 있어 시리즈/휴지통에 그대로 재사용이 어려웠습니다. 이로 인해 각 영역이 **독자적으로 체크박스·드래그 선택·bulk bar·페이지네이션을 구현**하면서 CSS만 700줄 이상, 동일 패턴이 3곳에 중복되었습니다.",
+      en: "The main post table (`AdminTable`) had unique features like publish toggle, edit links, and drag reorder, making it difficult to reuse for series/trash. Each area **independently implemented checkboxes, drag selection, bulk bar, and pagination**, resulting in 700+ lines of CSS and the same patterns duplicated in 3 places.",
+    },
+    solution: {
+      ko: "공통 패턴을 3개 컴포넌트로 추출했습니다: **SubTable**(접기/펼치기 토글 + 그리드 행 + 체크박스/드래그 선택 + bulk bar + 페이지네이션), **SearchCapsule**(검색 타입 Select + input을 캡슐 형태로 묶음), **DraggableTag**(드래그 정렬 가능한 태그). 시리즈·휴지통을 SubTable로 전환하고, 모든 검색 UI를 SearchCapsule로 교체했습니다. CSS는 700줄 이상 → 약 220줄로 줄었습니다.",
+      en: "Extracted common patterns into 3 components: **SubTable** (collapsible toggle + grid rows + checkbox/drag select + bulk bar + pagination), **SearchCapsule** (search type Select + input grouped in capsule), **DraggableTag** (drag-sortable tag). Converted series/trash to SubTable and replaced all search UI with SearchCapsule. CSS reduced from 700+ lines to ~220 lines.",
+    },
+    keyInsight: {
+      ko: "기존 컴포넌트(AdminTable)를 무리하게 확장하는 대신, **공통 패턴만 추출하여 별도 컴포넌트로 분리**하면 기존 기능을 깨뜨리지 않으면서 중복을 제거할 수 있습니다. 100% 재사용보다 **80% 공통화 + 20% 커스텀**이 현실적입니다.",
+      en: "Rather than force-extending the existing component (AdminTable), **extracting only common patterns into separate components** removes duplication without breaking existing features. **80% shared + 20% custom** is more practical than 100% reuse.",
+    },
+    comparisons: [
+      {
+        label: { ko: "리팩토링 전후 비교", en: "Before/After refactoring comparison" },
+        headers: [
+          { ko: "비교 항목", en: "Criteria" },
+          { ko: "리팩토링 전", en: "Before" },
+          { ko: "리팩토링 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "시리즈 리스트", en: "Series list" }, { ko: "수동 ul/li + flex", en: "Manual ul/li + flex" }, { ko: "SubTable 컴포넌트", en: "SubTable component" }] },
+          { cells: [{ ko: "휴지통 리스트", en: "Trash list" }, { ko: "수동 ul/li + flex", en: "Manual ul/li + flex" }, { ko: "SubTable 컴포넌트", en: "SubTable component" }] },
+          { cells: [{ ko: "검색 UI", en: "Search UI" }, { ko: "페이지별 인라인 3벌", en: "3 inline copies per page" }, { ko: "SearchCapsule 공통", en: "Shared SearchCapsule" }] },
+          { cells: [{ ko: "카테고리 태그", en: "Category tags" }, { ko: "페이지별 개별 구현", en: "Per-page implementation" }, { ko: "DraggableTag 공통", en: "Shared DraggableTag" }] },
+          { cells: [{ ko: "CSS 규모 (Posts)", en: "CSS size (Posts)" }, { ko: "~744줄", en: "~744 lines" }, { ko: "~220줄", en: "~220 lines" }] },
+        ],
+      } satisfies ComparisonTable,
+    ],
+  },
 ];
