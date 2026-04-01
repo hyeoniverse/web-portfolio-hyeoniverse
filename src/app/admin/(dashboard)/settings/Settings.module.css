@@ -1572,23 +1572,38 @@
   background: transparent;
   width: 100%;
   text-align: left;
+  /* 접힐 때: 접기(0.35s) 끝나고 모서리 둥글게(0.25s) */
+  transition: border-radius 0.25s ease 0.35s, border-color 0.2s ease, background-size 0.3s ease;
 }
 
 .seriesList .seriesCardHead:hover {
-  border-color: var(--text-tertiary);
+  border-color: var(--border-light-color);
 }
 
 .seriesCard {
   border-radius: var(--radius-md);
+  position: relative;
+}
+
+.seriesCardDeleteBtn {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  z-index: 2;
 }
 
 .seriesCardHeadCover {
-  background-size: cover;
+  background-size: 100%;
   background-position: center;
   background-origin: padding-box;
   background-clip: padding-box;
   position: relative;
   overflow: hidden;
+  transition: background-size 0.3s ease, border-radius 0.25s ease, border-color 0.2s ease;
+}
+
+.seriesCardHeadCover:hover {
+  background-size: 108%;
 }
 
 .seriesCardHeadCover .seriesCardInfo,
@@ -1622,9 +1637,76 @@
   pointer-events: none;
 }
 
+.seriesCoverPreview {
+  width: 210px;
+  aspect-ratio: 16 / 9;
+  border: var(--border-light);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seriesCoverPreview .logoPreviewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/* ── Series Delete Modal ── */
+.seriesDeleteModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-xl) var(--spacing-xl);
+}
+
+.seriesDeleteHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.seriesDeleteCheck {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.seriesDeleteInput {
+  padding: var(--box-xs-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.seriesDeleteInput:focus {
+  border-color: var(--text-primary);
+}
+
+.seriesDeleteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+}
+
+
 .seriesCardHeadExpanded {
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   border-bottom-color: transparent;
+  /* 펼칠 때: 모서리 먼저 각지게(0.25s), delay 없음 */
+  transition: border-radius 0.25s ease, border-color 0.2s ease, background-size 0.3s ease;
 }
 
 .seriesCardInfo {
@@ -1689,8 +1771,8 @@
 }
 
 .seriesBadgePublished {
-  background: var(--color-success-alpha);
-  color: var(--color-success);
+  background: var(--color-success);
+  color: var(--bg-white);
 }
 
 .seriesBadgeDraft {
@@ -1707,6 +1789,29 @@
   transform: rotate(180deg);
 }
 
+.seriesCardCollapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  /* 접힐 때: 즉시 접기 시작 (0.35s) */
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.seriesCardCollapseOpen {
+  grid-template-rows: 1fr;
+  /* 펼칠 때: 모서리 전환(0.25s) 완료 후 펼치기 시작 */
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s;
+}
+
+.seriesCardCollapse > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.seriesCardCollapseOpen > * {
+  overflow: visible;
+}
+
 .seriesCardBody {
   border: var(--border-light);
   border-top: none;
@@ -1721,14 +1826,235 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+}
+
+
+/* ── Series Posts List (inline) ── */
+.seriesPostsSection {
+  display: flex;
+  flex-direction: column;
   padding-top: var(--spacing-sm);
   border-top: var(--border-light);
 }
 
-/* ── Series Posts List (inline) ── */
-.seriesPostsSection {
-  padding-top: var(--spacing-sm);
+.seriesPostsSection > * + * {
+  margin-top: var(--spacing-sm);
+}
+
+.seriesPostsSection > .addPostModal {
+  margin-top: 0;
+}
+
+.seriesPostsSection > .addPostModalOpen {
+  margin-top: var(--spacing-sm);
+}
+
+.seriesPostsSection > .addPostModal {
+  transition: grid-template-rows 0.25s ease, margin-top 0.25s ease;
+}
+
+.seriesPostsHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.seriesPostsAddBtn {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.seriesPostsAddBtn:hover {
+  color: var(--text-primary);
+}
+
+/* ── Add Post Modal ── */
+.addPostModal {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+}
+
+.addPostModalOpen {
+  grid-template-rows: 1fr;
+}
+
+.addPostModal > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.addPostModalOpen > * {
+  overflow: visible;
+}
+
+.addPostHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) 0;
   border-top: var(--border-light);
+  border-bottom: var(--border-light);
+  height: 36px;
+}
+
+.addPostHeader button[class] {
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.addPostSearch {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  padding: var(--spacing-2xs) 0;
+}
+
+.addPostSearch::placeholder {
+  color: var(--text-muted);
+}
+
+.addPostClose {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+}
+
+.addPostList {
+  height: 200px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.addPostItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-xs) 0;
+  border: none;
+  border-bottom: var(--border-light);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.addPostItem:last-child {
+  border-bottom: none;
+}
+
+.addPostItem:hover {
+  background: var(--bg-secondary);
+}
+
+.addPostItemSelected {
+  background: var(--bg-tertiary-alt);
+}
+
+.addPostNum {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  min-width: 28px;
+}
+
+.addPostTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: inherit;
+  text-decoration: none;
+}
+
+.addPostTitle:hover {
+  text-decoration: underline;
+}
+
+.addPostEmpty {
+  padding: var(--spacing-md) var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.seriesPostOrderInput {
+  width: 32px;
+  padding: 1px 2px;
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.seriesPostOrderInput::-webkit-inner-spin-button,
+.seriesPostOrderInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.seriesPostOrderInput:focus {
+  border-color: var(--text-primary);
+}
+
+.seriesPostsPaging {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-xs) 0;
+}
+
+.seriesPostsPageBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-light);
+  border-radius: 50%;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.seriesPostsPageBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.seriesPostsPageBtnActive {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .seriesPostsEmpty {
@@ -1741,16 +2067,23 @@
 .seriesPostsList {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin-top: var(--spacing-xs);
 }
+
+.seriesPostsList .seriesPostItem {
+  border-bottom: var(--border-light);
+}
+
+.seriesPostsList .seriesPostItem:first-child {
+  border-top: var(--border-light);
+}
+
 
 .seriesPostItem {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--box-xs-sm);
-  border-radius: var(--radius-capsule);
+  padding: var(--spacing-xs) 0;
+  border-radius: 0;
 }
 
 .seriesPostItem {
@@ -1790,30 +2123,51 @@
 
 .seriesPostOrder {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 1px;
   flex-shrink: 0;
+}
+
+.seriesPostActions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
 }
 
 .seriesPostOrderBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 12px;
+  width: 24px;
+  height: 24px;
   border: none;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   padding: 0;
+  cursor: pointer;
+}
+
+.seriesPostOrderBtn + .seriesPostOrderBtn {
+  border-left: var(--border-default);
 }
 
 .seriesPostOrderBtn:hover:not(:disabled) {
   color: var(--text-primary);
+  background: var(--bg-secondary);
 }
 
 .seriesPostOrderBtn:disabled {
-  opacity: 0.45;
+  opacity: 0.3;
+  cursor: default;
+}
+
+.seriesPostRemoveBtn:hover,
+.seriesPostDeleteBtn:hover {
+  color: var(--color-accent) !important;
+  background: var(--color-accent-alpha-10) !important;
 }
 
 .seriesPostOrderNum {
