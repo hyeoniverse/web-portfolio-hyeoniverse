@@ -896,7 +896,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   useEffect(() => {
     if (categories.length === 0) return;
     if (!isManagedCat(form.category)) {
-      setForm((prev) => ({ ...prev, category: categories[0].ko }));
+      const fallback = categories.find((c) => c.ko === "기타")?.ko ?? categories[0]?.ko ?? "";
+      setForm((prev) => ({ ...prev, category: fallback }));
     }
   }, [categories]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -985,6 +986,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     loadRevisionSnapshot(latest.id).then((snapshot) => {
       if (!snapshot) return;
       if (JSON.stringify(snapshot) === initialJson) return;
+
       openModal(
         <ModalConfirm
           desc={te("draftFoundDesc")}
@@ -1051,14 +1053,16 @@ export default function PostEditor({ post }: PostEditorProps) {
   const lastAutoSaveJson = useRef<string>(JSON.stringify(initialFormRef.current));
   autoSaveBusy.current = saving || translating;
 
-  const flushSave = useCallback(() => {
+  const flushSave = useCallback(async () => {
     const current = JSON.stringify(formRef.current);
     if (!current || current === lastAutoSaveJson.current) return;
     if (autoSaveBusy.current) return;
     lastAutoSaveJson.current = current;
-    saveRevision({ ...formRef.current }, formRef.current.title || formRef.current.title_en || "(untitled)");
-    setStatus(te("autoSaved"));
-    setStatusType("success");
+    const saved = await saveRevision({ ...formRef.current }, formRef.current.title || formRef.current.title_en || "(untitled)");
+    if (saved) {
+      setStatus(te("autoSaved"));
+      setStatusType("success");
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveRevision, te]);
 

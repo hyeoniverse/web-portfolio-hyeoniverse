@@ -1755,78 +1755,97 @@ export default function PlateEditor({
 
           {/* ── Link form (advanced) ── */}
           <div ref={linkToolbarRef} className={`${styles.tableToolbar} ${!showLinkInput ? styles.tableToolbarHidden : ""}`}>
-            <div className={styles.tableToolbarRow} style={{ gap: 6, flexWrap: "wrap" }}>
+            <div className={styles.tableToolbarRow} style={{ gap: 6, paddingRight: "var(--spacing-xs)" }}>
               <span className={styles.tableToolbarLabel}>LINK</span>
-              {/* 프로토콜 */}
-              <select
-                className={styles.fontSelect}
-                style={{ width: 80, height: 22, fontSize: 11 }}
-                value={linkForm.protocol}
-                onChange={(e) => setLinkForm((f) => ({ ...f, protocol: e.target.value }))}
-              >
-                <option value="https://">https://</option>
-                <option value="http://">http://</option>
-                <option value="mailto:">mailto:</option>
-                <option value="tel:">tel:</option>
-              </select>
-              {/* URL */}
-              <input
-                ref={linkUrlRef}
-                type="text"
-                className={styles.linkInput}
-                style={{ flex: 1, minWidth: 140 }}
-                placeholder="example.com"
-                value={linkForm.url}
-                onChange={(e) => setLinkForm((f) => ({ ...f, url: e.target.value }))}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && linkForm.url.trim()) { doInsertLink(linkForm); closeLinkInput(); }
-                  else if (e.key === "Escape") closeLinkInput();
-                }}
-              />
-              {/* 표시 텍스트 */}
-              <input
-                type="text"
-                className={styles.linkInput}
-                style={{ width: 120 }}
-                placeholder={t("editor.linkText")}
-                value={linkForm.text}
-                onChange={(e) => setLinkForm((f) => ({ ...f, text: e.target.value }))}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && linkForm.url.trim()) { doInsertLink(linkForm); closeLinkInput(); }
-                  else if (e.key === "Escape") closeLinkInput();
-                }}
-              />
-              {/* 타겟 */}
-              <select
-                className={styles.fontSelect}
-                style={{ width: 90, height: 22, fontSize: 11 }}
-                value={linkForm.target}
-                onChange={(e) => setLinkForm((f) => ({ ...f, target: e.target.value }))}
-              >
-                <option value="_blank">{t("editor.linkNewTab")}</option>
-                <option value="_self">{t("editor.linkSameTab")}</option>
-              </select>
-              {/* 확인/취소 */}
-              <TBtn
-                onClick={() => { if (linkForm.url.trim()) { doInsertLink(linkForm); closeLinkInput(); } }}
-                tooltip={t("editor.insertLink")}
-              >✓</TBtn>
-              {/* 링크 제거 */}
-              <TBtn
-                onClick={() => {
-                  restoreSelection();
-                  try { unwrapLink(editor); } catch { /* ignore */ }
-                  closeLinkInput();
-                }}
-                tooltip={t("editor.removeLink")}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18.84 12.25l1.72-1.71h-.02a5.004 5.004 0 00-7.07-7.07l-1.72 1.71" />
-                  <path d="M5.17 11.75l-1.71 1.71a5 5 0 007.07 7.07l1.71-1.71" />
-                  <line x1="8" y1="2" x2="8" y2="5" /><line x1="2" y1="8" x2="5" y2="8" /><line x1="16" y1="19" x2="16" y2="22" /><line x1="19" y1="16" x2="22" y2="16" />
-                </svg>
-              </TBtn>
-              <TBtn onClick={closeLinkInput} tooltip={t("common.cancel")}>×</TBtn>
+              {/* 프로토콜 + URL 캡슐 */}
+              <div className={styles.linkCapsule}>
+                <select
+                  className={styles.linkProtocol}
+                  value={linkForm.protocol}
+                  onChange={(e) => {
+                    const proto = e.target.value;
+                    setLinkForm((f) => ({ ...f, protocol: proto, ...(proto === "" ? { target: "_self" } : {}) }));
+                  }}
+                >
+                  <option value="https://">https://</option>
+                  <option value="http://">http://</option>
+                  <option value="mailto:">mailto:</option>
+                  <option value="tel:">tel:</option>
+                  <option value="">/</option>
+                </select>
+                <input
+                  ref={linkUrlRef}
+                  type="text"
+                  className={styles.linkCapsuleInput}
+                  placeholder={linkForm.protocol === "" ? "/posts/my-post" : linkForm.protocol.startsWith("mailto") ? "user@example.com" : linkForm.protocol.startsWith("tel") ? "010-1234-5678" : "example.com"}
+                  value={linkForm.url}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    // URL 붙여넣기 시 프로토콜 자동 분리
+                    const protoMatch = val.match(/^(https?:\/\/|mailto:|tel:)(.*)/);
+                    if (protoMatch) {
+                      setLinkForm((f) => ({ ...f, protocol: protoMatch[1], url: protoMatch[2] }));
+                      return;
+                    }
+                    setLinkForm((f) => ({ ...f, url: val }));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && linkForm.url.trim()) { doInsertLink(linkForm); closeLinkInput(); }
+                    else if (e.key === "Escape") closeLinkInput();
+                  }}
+                />
+              </div>
+              {/* 표시 텍스트 그룹 */}
+              <div className={styles.tableGroup}>
+                <span className={styles.tableGroupLabel}>{t("editor.linkText")}</span>
+                <input
+                  type="text"
+                  className={styles.linkInput}
+                  style={{ width: 100 }}
+                  placeholder="Text"
+                  value={linkForm.text}
+                  onChange={(e) => setLinkForm((f) => ({ ...f, text: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && linkForm.url.trim()) { doInsertLink(linkForm); closeLinkInput(); }
+                    else if (e.key === "Escape") closeLinkInput();
+                  }}
+                />
+              </div>
+              {/* 타겟 그룹 */}
+              <div className={styles.tableGroup}>
+                <span className={styles.tableGroupLabel}>{t("editor.linkTarget")}</span>
+                <select
+                  className={styles.fontSelect}
+                  style={{ width: 80, height: 24, fontSize: 11, border: "none", borderLeft: "var(--border-light)", borderRadius: 0 }}
+                  value={linkForm.target}
+                  onChange={(e) => setLinkForm((f) => ({ ...f, target: e.target.value }))}
+                >
+                  <option value="_blank">{t("editor.linkNewTab")}</option>
+                  <option value="_self">{t("editor.linkSameTab")}</option>
+                </select>
+              </div>
+              {/* 삽입/제거/닫기 그룹 — 오른쪽 끝 */}
+              <div className={styles.linkActions}>
+                <TBtn
+                  onClick={() => { if (linkForm.url.trim()) { doInsertLink(linkForm); closeLinkInput(); } }}
+                  tooltip={t("editor.insertLink")}
+                >✓</TBtn>
+                <TBtn
+                  onClick={() => {
+                    restoreSelection();
+                    try { unwrapLink(editor); } catch { /* ignore */ }
+                    closeLinkInput();
+                  }}
+                  tooltip={t("editor.removeLink")}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18.84 12.25l1.72-1.71h-.02a5.004 5.004 0 00-7.07-7.07l-1.72 1.71" />
+                    <path d="M5.17 11.75l-1.71 1.71a5 5 0 007.07 7.07l1.71-1.71" />
+                    <line x1="8" y1="2" x2="8" y2="5" /><line x1="2" y1="8" x2="5" y2="8" /><line x1="16" y1="19" x2="16" y2="22" /><line x1="19" y1="16" x2="22" y2="16" />
+                  </svg>
+                </TBtn>
+                <TBtn onClick={closeLinkInput} tooltip={t("common.cancel")}>×</TBtn>
+              </div>
             </div>
           </div>
 

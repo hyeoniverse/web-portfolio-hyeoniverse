@@ -462,6 +462,11 @@
   border-left: none;
 }
 
+.tableGroup .linkInput {
+  border-left: var(--border-light);
+  border-radius: 0;
+}
+
 .tableDangerBtn {
   color: var(--color-error);
 }
@@ -505,6 +510,7 @@
   padding: 4px var(--spacing-xs);
   padding-right: 80px;
   position: relative;
+  width: 100%;
 }
 
 .tableToolbarRow + .tableToolbarRow {
@@ -610,6 +616,65 @@
 
 .linkInput::placeholder {
   color: var(--text-muted);
+}
+
+/* ── Link capsule (protocol + url) ── */
+.linkCapsule {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 140px;
+  max-width: 220px;
+  height: 24px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.linkCapsule:focus-within {
+  border-color: var(--text-primary);
+}
+
+.linkProtocol {
+  flex-shrink: 0;
+  height: 100%;
+  border: none;
+  border-right: var(--border-light);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  padding: 0 4px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.linkCapsuleInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  padding: 0 6px;
+  outline: none;
+}
+
+.linkCapsuleInput::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Link actions group ── */
+.linkActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .linkInputWrap .toolbarBtn {

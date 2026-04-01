@@ -90,7 +90,8 @@ export default function CursorTrail() {
         !!target.closest("[data-disabled]")
       );
 
-      const isDraggable = !isDisabled && !!target?.closest("[data-draggable]");
+      const draggableEl = !isDisabled && target?.closest("[data-draggable], [draggable]");
+      const isDraggable = !!draggableEl && draggableEl.getAttribute("draggable") !== "false";
 
       // clickable 판별 시, 매칭된 interactive 요소 자체가 disabled이면 제외
       const clickableEl = !isDraggable && !isDisabled && target && (
@@ -143,7 +144,8 @@ export default function CursorTrail() {
 
     const handleMouseDown = (e: PointerEvent) => {
       const target = checkElementAt(e.clientX, e.clientY);
-      if (target?.closest("[data-draggable]")) {
+      const dragEl = target?.closest("[data-draggable], [draggable]");
+      if (dragEl && dragEl.getAttribute("draggable") !== "false") {
         setIsDragging(true);
       } else {
         setIsClicking(true);
