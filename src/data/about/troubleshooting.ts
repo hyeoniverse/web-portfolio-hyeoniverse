@@ -794,4 +794,25 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       } satisfies ComparisonTable,
     ],
   },
+  /* ── Backend / Autosave ── */
+  {
+    section: { ko: "Backend / Autosave", en: "Backend / Autosave" },
+    problem: { ko: "카테고리 자동 보정으로 리비전 프롬프트가 무한 반복", en: "Revision Prompt Loops Due to Category Auto-Correction" },
+    definition: {
+      ko: "게시물을 열 때마다 '자동저장된 버전을 불러올까요?' 프롬프트가 반복 표시되었습니다. 무시를 눌러도 새로고침하면 다시 물어봤습니다.",
+      en: "Every time a post was opened, the 'Load autosaved version?' prompt appeared repeatedly. Even after dismissing, refreshing would ask again.",
+    },
+    cause: {
+      ko: "등록되지 않은 카테고리(예: 'General')를 가진 게시물이 열리면 '기타'로 자동 보정됩니다. 이 변경이 30초 후 자동저장을 트리거하여 새 리비전이 생성되고, 무시(dismiss) 처리된 기존 리비전과 **내용은 동일하지만 새 row**가 DB에 추가되어 매번 프롬프트가 뜨는 루프가 발생했습니다.",
+      en: "Posts with unregistered categories (e.g., 'General') get auto-corrected to a default. This change triggers autosave after 30s, creating a new revision row with **identical content** to the dismissed one, causing an infinite prompt loop.",
+    },
+    solution: {
+      ko: "리비전 저장 API에서 **직전 리비전의 snapshot과 키 정렬 비교**를 수행하여, 내용이 동일하면 새 row를 생성하지 않고 기존 리비전의 ID를 반환합니다. 클라이언트는 `skipped` 플래그를 확인하여 목록에 추가하지 않고 '자동저장됨' 상태도 표시하지 않습니다.",
+      en: "The revision save API performs **sorted-key comparison** with the previous revision's snapshot. If identical, it returns the existing revision ID without creating a new row. The client checks the `skipped` flag to avoid adding to the list or showing 'autosaved' status.",
+    },
+    keyInsight: {
+      ko: "자동 보정(카테고리, 기본값 등)은 **사용자 의도와 무관한 변경**입니다. 이런 변경이 자동저장 → 리비전 생성 → 프롬프트 루프를 만들 수 있으므로, **서버 측에서 중복 snapshot을 거르는 것**이 클라이언트 로직을 복잡하게 만들지 않는 가장 확실한 해결책입니다.",
+      en: "Auto-corrections (categories, defaults) are **changes unrelated to user intent**. They can create autosave → revision → prompt loops, so **server-side duplicate snapshot filtering** is the most robust solution without complicating client logic.",
+    },
+  },
 ];

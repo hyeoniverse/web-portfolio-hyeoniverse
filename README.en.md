@@ -153,13 +153,13 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 **Dashboard & CRUD**
 
-- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, bulk select (drag) + publish/delete, .md file upload (frontmatter metadata + auto category detection + random preset cover generation, shared for Posts/Works), series deletion with title confirmation + child post deletion option, shared SubTable (collapsible + checkbox + drag select + bulk bar + pagination) · SearchCapsule (search type + input capsule) · DraggableTag (drag-sortable tag) components
+- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, bulk select (drag) + publish/delete (count input confirmation), .md file upload (frontmatter metadata + auto category detection + random preset cover generation, shared for Posts/Works), series management (cover background + collapse animation + add post modal (multi-select/drag) + double-click order insert + delete modal with child post option), trash preview (hover tooltip + full preview + restore/purge), shared SubTable · SearchCapsule · DraggableTag components
 - **Site Content Management**: Settings with 5 tabs (General/Content/Appearance/Services/Account) — brand, SEO, Hero/About/Services bilingual editing, BroadcastChannel sync
 - **Profile Admin**: Profile data (career/skills/philosophy/certifications/awards) admin editing — JSONB storage, `PeriodPicker` structured period input
 
 **Editor & Content**
 
-- **Editor Revision History**: Auto-save stores JSONB snapshots permanently in DB — shared across devices/tabs, LCS diff comparison, Revert, dismissed tracking (prevents repeated prompts for same version), automatic cleanup beyond 50 entries
+- **Editor Revision History**: Auto-save stores JSONB snapshots permanently in DB — shared across devices/tabs, LCS diff comparison (current→revision direction), Revert, dismissed tracking (prevents repeated prompts for same version), duplicate revision prevention, drag multi-select + modal delete confirmation, skeleton loading + height transition animation, automatic cleanup beyond 50 entries
 - **Template Insertion**: 5 bilingual templates (Tutorial, Troubleshooting, Review, Essay, TIL) via modal — supports both Markdown/Rich Text, append after existing content or insert into empty editor
 - **Markdown ↔ Rich Text Conversion**: Bidirectional conversion for footnotes, callouts, math, column blocks (table conversion), checklists (todo). Column block round-trip guaranteed
 - **Markdown Editor**: Undo/redo history (Cmd+Z/Shift+Z), mobile Editor/Preview tab toggle, table grid picker

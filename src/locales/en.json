@@ -480,6 +480,7 @@
       "trashPurge": "Delete Permanently",
       "trashPurgeConfirm": "Permanently delete this post? This cannot be undone.",
       "trashPurgeHint": "Type the post title to permanently delete. This cannot be undone.",
+      "trashPreviewNotice": "This post is in the trash.",
       "trashAutoDelete": "Posts are automatically deleted after 30 days.",
       "seriesSearch": "Search...",
       "trashSearch": "Search trash...",
@@ -621,7 +622,11 @@
         "descPlaceholderEN": "Series description",
         "chooseCover": "Choose cover",
         "closePicker": "Close picker",
-        "viewPost": "View post"
+        "viewPost": "View post",
+        "removeFromSeries": "Remove from series",
+        "addPost": "Add post",
+        "addPostHint": "Already loaded. Select below ↓",
+        "noAvailablePosts": "No available posts to add"
       }
     },
     "works": {
@@ -981,7 +986,8 @@
     "indent": "Indent",
     "outdent": "Outdent",
     "insertLink": "Insert Link",
-    "linkText": "Display text",
+    "linkText": "Text",
+    "linkTarget": "Target",
     "linkNewTab": "New tab",
     "linkSameTab": "Same tab",
     "removeLink": "Remove link",
