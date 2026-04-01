@@ -53,6 +53,11 @@ export interface SubTableProps<T extends { id: string }> {
   loading?: boolean;
   skeletonRows?: number;
 
+  /* Row interactions */
+  onRowHover?: (item: T, e: React.MouseEvent) => void;
+  onRowLeave?: () => void;
+  onRowClick?: (item: T, e: React.MouseEvent) => void;
+
   /* Slots */
   filterBar?: ReactNode;
 }
@@ -85,6 +90,9 @@ export default function SubTable<T extends { id: string }>({
   emptyMessage = "No items",
   loading = false,
   skeletonRows = 3,
+  onRowHover,
+  onRowLeave,
+  onRowClick,
   filterBar,
 }: SubTableProps<T>) {
   /* Grid: checkbox col + user columns */
@@ -237,7 +245,12 @@ export default function SubTable<T extends { id: string }>({
                       e.preventDefault();
                       handleMouseDown(idx, item.id);
                     }}
-                    onMouseEnter={() => handleMouseEnter(idx)}
+                    onMouseEnter={(e) => {
+                      handleMouseEnter(idx);
+                      onRowHover?.(item, e);
+                    }}
+                    onMouseLeave={() => onRowLeave?.()}
+                    onClick={(e) => onRowClick?.(item, e)}
                   >
                     <Checkbox
                       checked={selected.has(item.id)}

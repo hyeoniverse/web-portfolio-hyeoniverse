@@ -996,6 +996,55 @@
   color: var(--text-tertiary);
 }
 
+/* ── Trash preview bar ── */
+.trashBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+}
+
+.trashBarLabel {
+  flex: 1;
+  color: var(--text-tertiary);
+}
+
+.trashBarRestore {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: var(--border-primary);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.trashBarRestore:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.trashBarPurge {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: var(--border-accent-solid);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.trashBarPurge:hover {
+  background: var(--color-accent-alpha-10);
+}
+
 /* ── Translation banner ── */
 .translateBanner {
   display: flex;
