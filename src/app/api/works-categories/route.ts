@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSiteConfig } from "@/lib/getSiteConfig";
-
-interface BilingualCategory {
-  ko: string;
-  en: string;
-}
+import type { BilingualCategory } from "@/types/common";
 
 // GET /api/works-categories — works 카테고리 목록 (공개, 이중언어)
 export async function GET() {

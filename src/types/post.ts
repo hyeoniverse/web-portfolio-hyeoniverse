@@ -61,6 +61,17 @@ export interface Series {
   post_count?: number;
 }
 
+/** 시리즈 내 포스트 항목 (순서 관리용) */
+export interface SeriesPostItem {
+  id: string;
+  title: string;
+  slug: string;
+  published: boolean;
+  series_order: number;
+  series_id?: string | null;
+  post_number?: number;
+}
+
 export interface Comment {
   id: string;
   post_id?: string;

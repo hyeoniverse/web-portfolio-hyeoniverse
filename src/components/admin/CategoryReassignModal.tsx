@@ -2,14 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import type { BilingualCategory } from "@/types/common";
 import Select from "@/components/ui/Select";
 import T from "@/components/ui/T";
 import styles from "./CategoryReassignModal.module.css";
-
-interface BilingualCategory {
-  ko: string;
-  en: string;
-}
 
 interface PostItem {
   id: string;

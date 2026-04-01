@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Series } from "@/types/post";
+import type { BilingualCategory } from "@/types/common";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
@@ -28,10 +29,6 @@ interface SeriesPost {
   series_order: number;
 }
 
-interface BilingualCategory {
-  ko: string;
-  en: string;
-}
 
 interface SeriesEditorModalProps {
   /** null → create new, object → edit existing */

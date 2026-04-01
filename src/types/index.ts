@@ -21,59 +21,12 @@ export interface Project {
 export type ProjectCategories = "all" | "team" | "single";
 
 // ============================================
-// 블로그 타입
-// ============================================
-export interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  date: string;
-  readTime: string;
-  category: string;
-  tags: string[];
-  url: string;
-  featured?: boolean;
-}
-
-// ============================================
 // 연락처 타입
 // ============================================
 export interface ContactForm {
   name: string;
   email: string;
   message: string;
-}
-
-// ============================================
-// UI 요소 타입
-// ============================================
-export interface MousePosition {
-  x: number;
-  y: number;
-}
-
-export interface FloatingElement {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-  color: string;
-  speed: number;
-}
-
-export interface Droplet {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-  opacity: number;
-  speed: number;
-}
-
-export interface ClickEffect {
-  id: number;
-  x: number;
-  y: number;
 }
 
 // ============================================

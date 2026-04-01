@@ -1,7 +1,5 @@
-import type { Language } from "@/providers/LanguageProvider";
+import type { LocalizedText } from "@/types/common";
 import { siteConfig } from "@/config/site.config";
-
-type LocalizedText = Record<Language, string>;
 
 export interface DatePeriod {
   start: string;        // "2024" | "2024-03" | "2024-03-15"

@@ -3,12 +3,7 @@
 import { useEffect, useCallback, useRef } from "react";
 import { useMotionValue, MotionValue } from "framer-motion";
 import { REPEL_RADIUS_MULTIPLIER, REPEL_STRENGTH } from "@/constants/animation";
-
-interface MagneticOffset {
-  x: number;
-  y: number;
-  rotation: number;
-}
+import type { MagneticOffset } from "@/types";
 
 interface CachedRect {
   cx: number; // centerX
