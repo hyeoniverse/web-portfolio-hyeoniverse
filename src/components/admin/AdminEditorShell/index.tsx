@@ -9,6 +9,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import Tooltip from "@/components/ui/Tooltip";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
+import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./AdminEditorShell.module.css";
 
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
@@ -188,7 +189,54 @@ export default function AdminEditorShell({
   const [showRetranslate, setShowRetranslate] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedRevisions, setSelectedRevisions] = useState<Set<number>>(new Set());
+  const revDragStart = useRef<number | null>(null);
+  const revDragAdding = useRef(true);
+  useEffect(() => {
+    const onUp = () => { revDragStart.current = null; };
+    window.addEventListener("mouseup", onUp);
+    return () => window.removeEventListener("mouseup", onUp);
+  }, []);
   const revisionRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const prevHeightRef = useRef<number>(0);
+
+  useEffect(() => {
+    const el = dropdownRef.current;
+    if (!el) return;
+    // 로딩 중에는 이전 높이 고정
+    if (detailLoading) {
+      const h = el.offsetHeight;
+      if (h) {
+        el.style.height = `${h}px`;
+        el.style.overflow = "hidden";
+        el.style.transition = "none";
+        prevHeightRef.current = h;
+      }
+      return;
+    }
+    // 높이 계산을 위해 일시적으로 auto
+    el.style.height = "auto";
+    el.style.overflow = "";
+    const newHeight = el.scrollHeight;
+    const oldHeight = prevHeightRef.current;
+    if (oldHeight && Math.abs(oldHeight - newHeight) > 2) {
+      el.style.height = `${oldHeight}px`;
+      el.style.overflow = "hidden";
+      el.style.transition = "none";
+      // 강제 reflow
+      void el.offsetHeight;
+      el.style.transition = "height 0.35s cubic-bezier(0.4, 0, 0.2, 1)";
+      el.style.height = `${newHeight}px`;
+      const onEnd = () => {
+        el.style.height = "";
+        el.style.overflow = "";
+        el.style.transition = "";
+        el.removeEventListener("transitionend", onEnd);
+      };
+      el.addEventListener("transitionend", onEnd);
+    }
+    prevHeightRef.current = newHeight;
+  }, [viewingRevision, detailLoading]);
   const retranslateRef = useRef<HTMLDivElement>(null);
   const revisionsRef = useRef(revisions);
   revisionsRef.current = revisions;
@@ -378,9 +426,9 @@ export default function AdminEditorShell({
                   </button>
                 </Tooltip>
                 {showRevisions && (
-                  <div className={`${styles.revisionDropdown} ${viewingRevision !== null ? styles.revisionDropdownWide : ""}`} data-lenis-prevent>
+                  <div ref={dropdownRef} className={`${styles.revisionDropdown} ${viewingRevision !== null ? styles.revisionDropdownWide : ""}`} data-lenis-prevent>
                     {viewingRevision !== null && revisions[viewingRevision] ? (
-                      /* ── Detail view ── */
+                      /* ── Detail view (clip-path reveal) ── */
                       <div className={styles.revisionDetail}>
                         <div className={styles.revisionDetailHeader}>
                           <button
@@ -411,12 +459,24 @@ export default function AdminEditorShell({
                                   type="button"
                                   className={styles.revisionDeleteBtn}
                                   onClick={async () => {
-                                    if (!confirm(labels.deleteRevisionConfirm ?? "이 로그를 삭제하시겠습니까?")) return;
-                                    const ok = await onDeleteRevision(viewingRevision);
-                                    if (ok) {
-                                      setViewingRevision(null);
-                                      if (revisions && revisions.length <= 1) setShowRevisions(false);
-                                    }
+                                    openModal(
+                                      <ModalPrompt
+                                        hint="이 로그를 삭제하려면 &quot;삭제&quot;를 입력하세요."
+                                        placeholder="삭제"
+                                        validate={(v) => v === "삭제"}
+                                        cancelText="취소"
+                                        confirmText="삭제"
+                                        danger
+                                        onConfirm={async () => {
+                                          const ok = await onDeleteRevision(viewingRevision);
+                                          if (ok) {
+                                            setViewingRevision(null);
+                                            if (revisions && revisions.length <= 1) setShowRevisions(false);
+                                          }
+                                        }}
+                                      />,
+                                      { id: "rev-delete", header: { title: "로그 삭제" }, closeButton: true, width: "400px" },
+                                    );
                                   }}
                                 >
                                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -431,8 +491,12 @@ export default function AdminEditorShell({
                           </div>
                         </div>
                         {detailLoading ? (
-                          <div className={styles.revisionDetailMeta}>
-                            <span className={styles.revisionTime}>Loading…</span>
+                          <div className={styles.revisionDetailSkeleton}>
+                            <SkeletonLine width="80px" height={12} />
+                            <SkeletonLine width="60%" height={16} />
+                            <SkeletonLine width="40%" height={12} />
+                            <SkeletonLine width="100%" height={80} />
+                            <SkeletonLine width="90%" height={80} />
                           </div>
                         ) : (
                         <>
@@ -441,25 +505,25 @@ export default function AdminEditorShell({
                             {formatTime(revisions[viewingRevision].timestamp)}
                           </span>
                           <strong className={`${styles.revisionDetailTitle} ${
-                            currentSnapshot && revisions[viewingRevision].title !== currentSnapshot.title ? styles.diffDel : ""
+                            currentSnapshot && revisions[viewingRevision].title !== currentSnapshot.title ? styles.diffAdd : ""
                           }`}>
                             {revisions[viewingRevision].title || "(untitled)"}
                           </strong>
                           {currentSnapshot && revisions[viewingRevision].title !== currentSnapshot.title && (
-                            <strong className={`${styles.revisionDetailTitle} ${styles.diffAdd}`}>
+                            <strong className={`${styles.revisionDetailTitle} ${styles.diffDel}`}>
                               {currentSnapshot.title || "(untitled)"}
                             </strong>
                           )}
                         </div>
                         {revisionDetail?.excerpt && (
                           <p className={`${styles.revisionDetailExcerpt} ${
-                            currentSnapshot && revisionDetail.excerpt !== (currentSnapshot.excerpt ?? "") ? styles.diffDel : ""
+                            currentSnapshot && revisionDetail.excerpt !== (currentSnapshot.excerpt ?? "") ? styles.diffAdd : ""
                           }`}>
                             {revisionDetail.excerpt}
                           </p>
                         )}
                         {currentSnapshot && revisionDetail?.excerpt !== (currentSnapshot.excerpt ?? "") && currentSnapshot.excerpt && (
-                          <p className={`${styles.revisionDetailExcerpt} ${styles.diffAdd}`}>
+                          <p className={`${styles.revisionDetailExcerpt} ${styles.diffDel}`}>
                             {currentSnapshot.excerpt}
                           </p>
                         )}
@@ -472,11 +536,11 @@ export default function AdminEditorShell({
                               return (
                                 <div key={key} className={styles.revisionMetaRow}>
                                   <span className={styles.revisionMetaKey}>{key}</span>
-                                  <span className={`${styles.revisionMetaVal} ${changed ? styles.diffDel : ""}`}>
+                                  <span className={`${styles.revisionMetaVal} ${changed ? styles.diffAdd : ""}`}>
                                     {val || "—"}
                                   </span>
                                   {changed && (
-                                    <span className={`${styles.revisionMetaVal} ${styles.diffAdd}`}>
+                                    <span className={`${styles.revisionMetaVal} ${styles.diffDel}`}>
                                       {curVal || "—"}
                                     </span>
                                   )}
@@ -494,7 +558,7 @@ export default function AdminEditorShell({
                               <div className={styles.revisionDetailContent}>{revContent}</div>
                             ) : null;
                           }
-                          const diff = lineDiff(revContent, curContent);
+                          const diff = lineDiff(curContent, revContent);
                           return (
                             <div className={styles.revisionDetailContent}>
                               {diff.map((line, idx) => (
@@ -519,7 +583,7 @@ export default function AdminEditorShell({
                       </div>
                     ) : (
                       /* ── List view ── */
-                      <>
+                      <div className={styles.revisionListView}>
                         <div className={styles.revisionHeader}>
                           {isSelectMode ? (
                             <>
@@ -544,12 +608,25 @@ export default function AdminEditorShell({
                                     className={styles.revisionDeleteSelectedBtn}
                                     onClick={async () => {
                                       if (!onDeleteRevision) return;
-                                      if (!confirm(labels.deleteRevisionConfirm ?? `선택한 ${selectedRevisions.size}개 로그를 삭제하시겠습니까?`)) return;
-                                      const indices = Array.from(selectedRevisions);
-                                      await Promise.all(indices.map((idx) => onDeleteRevision(idx)));
-                                      setSelectedRevisions(new Set());
-                                      setIsSelectMode(false);
-                                      if (revisions.length <= indices.length) setShowRevisions(false);
+                                      const count = String(selectedRevisions.size);
+                                      openModal(
+                                        <ModalPrompt
+                                          hint={`${selectedRevisions.size}개 로그를 삭제하려면 "${count}"을(를) 입력하세요.`}
+                                          placeholder={count}
+                                          validate={(v) => v === count}
+                                          cancelText="취소"
+                                          confirmText="삭제"
+                                          danger
+                                          onConfirm={async () => {
+                                            const indices = Array.from(selectedRevisions);
+                                            await Promise.all(indices.map((idx) => onDeleteRevision(idx)));
+                                            setSelectedRevisions(new Set());
+                                            setIsSelectMode(false);
+                                            if (revisions.length <= indices.length) setShowRevisions(false);
+                                          }}
+                                        />,
+                                        { id: "bulk-rev-delete", header: { title: `삭제 (${count})` }, closeButton: true, width: "400px" },
+                                      );
                                     }}
                                   >
                                     삭제
@@ -598,6 +675,26 @@ export default function AdminEditorShell({
                                 setViewingRevision(i);
                               }
                             }}
+                            onMouseDown={(e) => {
+                              if (!isSelectMode || e.button !== 0) return;
+                              e.preventDefault();
+                              revDragStart.current = i;
+                              revDragAdding.current = !selectedRevisions.has(i);
+                            }}
+                            onMouseEnter={() => {
+                              if (revDragStart.current === null || revDragStart.current === i) return;
+                              const start = Math.min(revDragStart.current, i);
+                              const end = Math.max(revDragStart.current, i);
+                              setSelectedRevisions((prev) => {
+                                const next = new Set(prev);
+                                for (let j = start; j <= end; j++) {
+                                  if (revDragAdding.current) next.add(j);
+                                  else next.delete(j);
+                                }
+                                return next;
+                              });
+                            }}
+                            onMouseUp={() => { revDragStart.current = null; }}
                           >
                             {isSelectMode ? (
                               <span onClick={(e) => e.stopPropagation()}>
@@ -626,9 +723,21 @@ export default function AdminEditorShell({
                                   className={styles.revisionItemDelete}
                                   onClick={async (e) => {
                                     e.stopPropagation();
-                                    if (!confirm(labels.deleteRevisionConfirm ?? "이 로그를 삭제하시겠습니까?")) return;
-                                    const ok = await onDeleteRevision(i);
-                                    if (ok && revisions.length <= 1) setShowRevisions(false);
+                                    openModal(
+                                      <ModalPrompt
+                                        hint="이 로그를 삭제하려면 &quot;삭제&quot;를 입력하세요."
+                                        placeholder="삭제"
+                                        validate={(v) => v === "삭제"}
+                                        cancelText="취소"
+                                        confirmText="삭제"
+                                        danger
+                                        onConfirm={async () => {
+                                          const ok = await onDeleteRevision(i);
+                                          if (ok && revisions.length <= 1) setShowRevisions(false);
+                                        }}
+                                      />,
+                                      { id: "rev-delete-item", header: { title: "로그 삭제" }, closeButton: true, width: "400px" },
+                                    );
                                   }}
                                 >
                                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -645,7 +754,7 @@ export default function AdminEditorShell({
                             )}
                           </div>
                         ))}
-                      </>
+                      </div>
                     )}
                   </div>
                 )}
