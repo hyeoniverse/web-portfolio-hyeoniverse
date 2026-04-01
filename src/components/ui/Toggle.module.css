@@ -31,7 +31,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--text-tertiary);
+  background: var(--text-primary);
   transition: transform var(--duration-base) var(--ease-material),
               background-color var(--duration-base) var(--ease-material);
   will-change: transform;
