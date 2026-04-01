@@ -2,15 +2,11 @@
 
 import { useState } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import type { BilingualCategory } from "@/types/common";
 import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
 import DraggableTag from "@/components/ui/DraggableTag";
 import T from "@/components/ui/T";
 import styles from "../Settings.module.css";
-
-interface BilingualCategory {
-  ko: string;
-  en: string;
-}
 
 interface CategoriesEditorProps {
   categories: BilingualCategory[];

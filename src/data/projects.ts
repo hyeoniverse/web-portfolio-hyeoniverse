@@ -1,10 +1,9 @@
 // 작품 페이지 프로젝트 데이터
 
-import type { Language } from "@/providers/LanguageProvider";
+import type { LocalizedText } from "@/types/common";
+export type { LocalizedText };
 
 export type CardSize = "large" | "small" | "medium" | "tall" | "wide";
-
-export type LocalizedText = Record<Language, string>;
 
 export interface ProjectTeamMember {
   name: string;

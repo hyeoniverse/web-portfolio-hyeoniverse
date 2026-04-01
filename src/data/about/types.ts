@@ -1,6 +1,5 @@
-import type { Language } from "@/providers/LanguageProvider";
-
-export type LocalizedText = Record<Language, string>;
+import type { LocalizedText } from "@/types/common";
+export type { LocalizedText };
 
 export interface DesignFeature {
   icon: string;

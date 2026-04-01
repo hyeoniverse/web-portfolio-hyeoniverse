@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { siteConfig } from "@/config/site.config";
+import type { BilingualCategory } from "@/types/common";
 
-export interface BilingualCategory {
-  ko: string;
-  en: string;
-}
+export type { BilingualCategory } from "@/types/common";
 
 // 기존 string[] → { ko, en }[] 자동 정규화
 function normalize(raw: unknown[]): BilingualCategory[] {

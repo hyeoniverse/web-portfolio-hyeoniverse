@@ -1,9 +1,5 @@
 import { getSiteConfig } from "@/lib/getSiteConfig";
-
-interface BilingualCategory {
-  ko: string;
-  en: string;
-}
+import type { BilingualCategory } from "@/types/common";
 
 /** Get valid post categories (ko/en) */
 export async function getPostCategories(): Promise<BilingualCategory[]> {

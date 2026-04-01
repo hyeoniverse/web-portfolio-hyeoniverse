@@ -4,9 +4,10 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
+import type { BilingualCategory } from "@/types/common";
 import Select from "@/components/ui/Select";
 import Toggle from "@/components/ui/Toggle";
-import type { Series } from "@/types/post";
+import type { Series, SeriesPostItem } from "@/types/post";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Field from "./SettingsFormFields";
 import T from "@/components/ui/T";
@@ -17,11 +18,6 @@ import Checkbox from "@/components/ui/Checkbox";
 import styles from "../Settings.module.css";
 
 /* ── SeriesManager ── */
-
-interface BilingualCategory {
-  ko: string;
-  en: string;
-}
 
 interface SeriesManagerProps {
   categories: BilingualCategory[];
@@ -271,16 +267,6 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
 }
 
 /* ── SeriesInlineEditor ── */
-
-interface SeriesPostItem {
-  id: string;
-  title: string;
-  slug: string;
-  published: boolean;
-  series_order: number;
-  series_id?: string | null;
-  post_number?: number;
-}
 
 interface SeriesInlineEditorProps {
   series: Series | null;
