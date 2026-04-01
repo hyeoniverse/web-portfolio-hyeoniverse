@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
-import { ModalPrompt, ModalConfirm } from "@/components/ui/ModalTemplates";
+import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import Pagination from "@/components/ui/Pagination";
 import styles from "./AdminTable.module.css";
 
@@ -53,6 +53,7 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onReorder?: (fromIdx: number, toIdx: number) => void;
   showRowNumbers?: boolean;
   getRowLabel?: (item: T, index: number) => string | number;
+  highlightId?: string | null;
   children?: ReactNode;
 }
 
@@ -78,6 +79,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onReorder,
   showRowNumbers = false,
   getRowLabel,
+  highlightId,
   children,
 }: AdminTableProps<T>) {
   const router = useRouter();
@@ -89,6 +91,15 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   const [overIdx, setOverIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<"above" | "below">("below");
   const dragAllowedRef = useRef(false);
+  const highlightRef = useRef<HTMLDivElement>(null);
+  const didHighlightScroll = useRef(false);
+
+  useEffect(() => {
+    if (highlightId && highlightRef.current && !didHighlightScroll.current) {
+      didHighlightScroll.current = true;
+      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightId, items]);
 
   const hasNumCol = onReorder || showRowNumbers;
   const effectiveGrid = `28px ${hasNumCol ? "28px " : ""}${gridTemplate}`;
@@ -152,14 +163,18 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
   const handleBulkDelete = useCallback(() => {
     if (!onBulkDelete || selected.size === 0) return;
+    const count = String(selected.size);
     openModal(
-      <ModalConfirm
-        desc={`${selected.size}개 항목을 삭제합니다.`}
+      <ModalPrompt
+        hint={`${selected.size}개 항목을 삭제하려면 "${count}"을(를) 입력하세요.`}
+        placeholder={count}
+        validate={(v) => v === count}
         cancelText={labels.cancel}
         confirmText={labels.delete}
+        danger
         onConfirm={() => onBulkDelete([...selected]).then(() => setSelected(new Set()))}
       />,
-      { id: "bulk-delete-confirm", header: { title: labels.delete }, closeButton: true, width: "360px" },
+      { id: "bulk-delete-confirm", header: { title: `${labels.delete} (${count})` }, closeButton: true, width: "400px" },
     );
   }, [onBulkDelete, selected, openModal, labels]);
 
@@ -270,7 +285,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           return (
             <div
               key={item.id}
-              className={`${styles.row} ${selected.has(item.id) ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""}`}
+              ref={highlightId === item.id ? highlightRef : undefined}
+              className={`${styles.row} ${selected.has(item.id) ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""} ${highlightId === item.id ? styles.rowHighlight : ""}`}
               data-clickable="true"
               draggable={!!onReorder}
               onMouseDown={(e) => { if (e.button === 0 && !onReorder) { e.preventDefault(); handleSelectMouseDown(i); } }}

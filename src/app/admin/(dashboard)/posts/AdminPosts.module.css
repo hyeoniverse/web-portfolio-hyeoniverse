@@ -89,6 +89,8 @@
   padding-top: var(--spacing-md);
 }
 
+
+
 /* ── Sub-filter bar (series / trash) ── */
 .subFilterBar {
   display: flex;

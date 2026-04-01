@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -157,6 +157,8 @@ export default function AdminPostsPage() {
   const { t, language } = useLanguage();
   const siteConf = useSiteConfig();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const restoredId = searchParams.get("restored");
   const categories = useCategories();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -729,6 +731,21 @@ export default function AdminPostsPage() {
         onPageChange={setTrashPage}
         emptyMessage={t("admin.posts.trashEmpty")}
         loading={trashLoading}
+        onRowHover={handleRowHover}
+        onRowLeave={handleRowLeave}
+        onRowClick={(post) => {
+          hideTooltip();
+          sessionStorage.setItem("post-preview", JSON.stringify({
+            title: formatPostTitle(post) || t("admin.posts.untitled"),
+            content: post.content || "",
+            content_type: post.content_type || "markdown",
+            cover_image: post.cover_image || "",
+            excerpt: post.excerpt || "",
+            tags: post.tags || [],
+            _trashId: post.id,
+          }));
+          window.open("/admin/posts/preview", "_blank");
+        }}
         filterBar={
           <div className={styles.subFilterBar}>
             <Select
@@ -1124,6 +1141,7 @@ tags: React`}</code></pre>
         onRowHover={handleRowHover}
         onRowLeave={handleRowLeave}
         onRowClick={handleRowClick}
+        highlightId={restoredId}
       />
 
       {/* Hover / Tap preview tooltip — reads from refs, keyed by tooltipKey */}

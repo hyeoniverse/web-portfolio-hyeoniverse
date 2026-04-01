@@ -297,6 +297,15 @@
   opacity: 0.4;
 }
 
+.rowHighlight {
+  animation: rowFlash 2s ease;
+}
+
+@keyframes rowFlash {
+  0%, 30% { background: var(--color-accent-alpha-10); }
+  100% { background: transparent; }
+}
+
 .dropAbove::before {
   content: "";
   position: absolute;
