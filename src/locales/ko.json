@@ -480,6 +480,7 @@
       "trashPurge": "영구 삭제",
       "trashPurgeConfirm": "영구 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
       "trashPurgeHint": "영구 삭제하려면 게시물 제목을 입력하세요. 이 작업은 되돌릴 수 없습니다.",
+      "trashPreviewNotice": "이 게시물은 휴지통에 있습니다.",
       "trashAutoDelete": "30일 후 자동 삭제됩니다.",
       "seriesSearch": "검색...",
       "trashSearch": "휴지통 검색...",
@@ -619,7 +620,11 @@
         "descPlaceholder": "시리즈에 대한 간단한 설명",
         "chooseCover": "커버 선택",
         "closePicker": "닫기",
-        "viewPost": "글 보기"
+        "viewPost": "글 보기",
+        "removeFromSeries": "시리즈에서 제거",
+        "addPost": "게시물 추가",
+        "addPostHint": "이미 불러왔습니다. 아래에서 선택하세요 ↓",
+        "noAvailablePosts": "추가할 수 있는 게시물이 없습니다"
       }
     },
     "works": {
@@ -980,7 +985,8 @@
     "indent": "들여쓰기",
     "outdent": "내어쓰기",
     "insertLink": "링크 삽입",
-    "linkText": "표시 텍스트",
+    "linkText": "텍스트",
+    "linkTarget": "타겟",
     "linkNewTab": "새 탭",
     "linkSameTab": "현재 탭",
     "removeLink": "링크 제거",

@@ -153,13 +153,13 @@
 
 **대시보드 & CRUD**
 
-- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 일괄 선택(드래그) + 발행/삭제, .md 파일 업로드(frontmatter 메타데이터 + 새 카테고리 자동 감지 + 프리셋 랜덤 커버 자동 생성, Posts/Works 공용), 시리즈 삭제 시 제목 확인 + 하위 포스트 삭제 옵션, 공통 SubTable(접기/펼치기 + 체크박스 + 드래그 선택 + bulk bar + 페이지네이션) · SearchCapsule(검색 타입 + 입력 캡슐) · DraggableTag(드래그 정렬 태그) 컴포넌트
+- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 일괄 선택(드래그) + 발행/삭제(개수 입력 확인), .md 파일 업로드(frontmatter 메타데이터 + 새 카테고리 자동 감지 + 프리셋 랜덤 커버 자동 생성, Posts/Works 공용), 시리즈 관리(커버 배경 + 접기/펼치기 애니메이션 + 게시물 추가 모달(다중선택/드래그) + 순서 더블클릭 삽입 이동 + 삭제 모달(하위 게시물 옵션)), 휴지통 프리뷰(호버 툴팁 + 클릭 시 전체 미리보기 + 복구/영구삭제), 공통 SubTable · SearchCapsule · DraggableTag 컴포넌트
 - **사이트 콘텐츠 관리**: Settings 5개 탭(General/Content/Appearance/Services/Account) — 브랜드, SEO, Hero/About/Services 이중언어 편집, BroadcastChannel 동기화
 - **Profile Admin**: 프로필 데이터(경력/스킬/철학/자격증/수상) Admin 편집 — JSONB 저장, `PeriodPicker` 구조화 기간 입력
 
 **에디터 & 콘텐츠**
 
-- **에디터 리비전 히스토리**: 자동저장 시 JSONB snapshot DB 영구 저장 — 기기/탭 간 공유, LCS diff 비교, Revert, dismissed 추적(동일 버전 중복 질문 방지), 50개 초과 자동 정리
+- **에디터 리비전 히스토리**: 자동저장 시 JSONB snapshot DB 영구 저장 — 기기/탭 간 공유, LCS diff 비교(현재→리비전 방향), Revert, dismissed 추적(동일 버전 중복 질문 방지), 직전 리비전 중복 저장 방지, 드래그 다중 선택 + 모달 삭제 확인, skeleton 로딩 + 높이 전환 애니메이션, 50개 초과 자동 정리
 - **템플릿 삽입**: 5종 이중언어 템플릿(Tutorial, Troubleshooting, Review, Essay, TIL) 모달 선택 — Markdown/Rich Text 모두 지원, 기존 내용 뒤에 추가 또는 빈 에디터에 삽입
 - **마크다운 ↔ 리치텍스트 변환**: 각주, 콜아웃, 수식, 열블록(표 변환), 체크리스트(todo) 양방향 변환, 열블록 round-trip 보장
 - **마크다운 에디터**: undo/redo 히스토리(Cmd+Z/Shift+Z), 모바일 Editor/Preview 탭 전환, 표 그리드 피커
