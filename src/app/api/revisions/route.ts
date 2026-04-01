@@ -64,6 +64,23 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
 
+  // 직전 리비전과 snapshot이 같으면 새로 생성하지 않음
+  const { data: latest } = await admin
+    .from("revisions")
+    .select("id, snapshot, created_at")
+    .eq("entity_type", entity_type)
+    .eq("entity_id", entity_id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (latest) {
+    const sortedStringify = (obj: unknown) => JSON.stringify(obj, Object.keys(obj as Record<string, unknown>).sort());
+    if (sortedStringify(latest.snapshot) === sortedStringify(snapshot)) {
+      return NextResponse.json({ id: latest.id, created_at: latest.created_at, skipped: true });
+    }
+  }
+
   const { data, error } = await admin
     .from("revisions")
     .insert({ entity_type, entity_id, snapshot, title: title || "" })

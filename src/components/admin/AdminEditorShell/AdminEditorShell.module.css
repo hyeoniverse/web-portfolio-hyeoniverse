@@ -163,9 +163,9 @@
   position: absolute;
   top: calc(100% + var(--spacing-xs));
   right: 0;
-  min-width: 200px;
+  width: 360px;
   max-height: 280px;
-  overflow-y: auto;
+  overflow: hidden;
   background: var(--bg-primary);
   border: var(--border-default);
   border-radius: var(--radius-md);
@@ -251,9 +251,15 @@
   background: var(--bg-tertiary);
 }
 
+.revisionListView {
+  animation: revealDown 0.2s ease both;
+  overflow-y: auto;
+  max-height: 260px;
+}
+
 .revisionDropdownWide {
-  min-width: 360px;
   max-height: 70vh;
+  overflow-y: auto;
 }
 
 .revisionItem {
@@ -359,6 +365,25 @@
 .revisionDetail {
   display: flex;
   flex-direction: column;
+  animation: revealDown 0.25s ease both;
+}
+
+@keyframes revealDown {
+  from {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+.revisionDetailSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
 }
 
 .revisionDetailHeader {

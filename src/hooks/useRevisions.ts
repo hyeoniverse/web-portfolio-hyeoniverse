@@ -48,13 +48,13 @@ export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
 
   // 리비전 저장 (변경 사항 있을 때만)
   const saveRevision = useCallback(
-    async (snapshot: unknown, title: string) => {
+    async (snapshot: unknown, title: string): Promise<boolean> => {
       const id = entityIdRef.current;
-      if (!id) return;
+      if (!id) return false;
 
       // 이전 snapshot과 동일하면 저장 안 함
       const hash = JSON.stringify(snapshot);
-      if (hash === lastSnapshotHash.current) return;
+      if (hash === lastSnapshotHash.current) return false;
       lastSnapshotHash.current = hash;
 
       try {
@@ -68,8 +68,9 @@ export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
             title,
           }),
         });
-        if (!res.ok) return;
+        if (!res.ok) return false;
         const data = await res.json();
+        if (data.skipped) return false; // 직전 리비전과 동일 — 새로 추가하지 않음
         setRevisions((prev) =>
           [
             {
@@ -80,8 +81,9 @@ export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
             ...prev,
           ].slice(0, 50),
         );
+        return true;
       } catch {
-        // silent
+        return false;
       }
     },
     [entityType],
