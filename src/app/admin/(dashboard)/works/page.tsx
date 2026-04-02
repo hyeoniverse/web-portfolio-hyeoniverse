@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Work } from "@/types/work";
 import Select from "@/components/ui/Select";
@@ -118,10 +119,17 @@ export default function AdminWorksPage() {
   const [trashPerPage, setTrashPerPage] = useState(10);
 
   /* Preview tooltip — use refs + minimal state to avoid re-rendering AdminTable */
-  const hoveredWorkRef = useRef<Work | null>(null);
-  const [tooltipKey, setTooltipKey] = useState(0);
-  const tooltipPosRef = useRef({ top: 0, left: 0 });
-  const imgErrorRef = useRef(false);
+  const {
+    hoveredRef: hoveredWorkRef,
+    tooltipKey,
+    tooltipPosRef,
+    imgErrorRef,
+    handleRowHover,
+    handleRowLeave,
+    handleRowClick,
+    handleImgError,
+    hideTooltip,
+  } = usePreviewTooltip<Work>("/admin/works", { hasImage: (w) => !!(w as Work).image });
 
   /* Derived filter options from data */
   const yearOptions = useMemo(() => {
@@ -333,67 +341,6 @@ export default function AdminWorksPage() {
     fetchWorks();
   };
 
-
-  const canHover = useRef(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-    canHover.current = mq.matches;
-    const onChange = (e: MediaQueryListEvent) => { canHover.current = e.matches; };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  const calcTooltipPos = (el: HTMLElement, work: Work) => {
-    const rect = el.getBoundingClientRect();
-    const tooltipWidth = 280;
-    const hasImage = !!work.image;
-    const tooltipHeight = hasImage ? 260 : 120;
-    const gap = 8;
-    const rawLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
-    const left = Math.max(8, Math.min(rawLeft, window.innerWidth - tooltipWidth - 8));
-    const spaceAbove = rect.top;
-    const top = spaceAbove > tooltipHeight + gap
-      ? rect.top - tooltipHeight - gap
-      : rect.bottom + gap;
-    return { top, left };
-  };
-
-  const showTooltip = useCallback((work: Work, el: HTMLElement) => {
-    hoveredWorkRef.current = work;
-    tooltipPosRef.current = calcTooltipPos(el, work);
-    imgErrorRef.current = false;
-    setTooltipKey((k) => k + 1);
-  }, []);
-
-  const hideTooltip = useCallback(() => {
-    if (!hoveredWorkRef.current) return;
-    hoveredWorkRef.current = null;
-    setTooltipKey((k) => k + 1);
-  }, []);
-
-  const handleRowHover = useCallback((work: Work, e: React.MouseEvent) => {
-    if (!canHover.current) return;
-    showTooltip(work, e.currentTarget as HTMLElement);
-  }, [showTooltip]);
-
-  const handleRowLeave = useCallback(() => {
-    if (!canHover.current) return;
-    hideTooltip();
-  }, [hideTooltip]);
-
-  const handleRowClick = useCallback((work: Work, e: React.MouseEvent) => {
-    if (canHover.current) {
-      router.push(`/admin/works/${work.id}/edit`);
-      return;
-    }
-    /* Touch: first tap → preview, second tap → navigate */
-    if (hoveredWorkRef.current?.id === work.id) {
-      hideTooltip();
-      router.push(`/admin/works/${work.id}/edit`);
-      return;
-    }
-    showTooltip(work, e.currentTarget as HTMLElement);
-  }, [router, showTooltip, hideTooltip]);
 
   const columns: AdminTableColumn<Work>[] = useMemo(
     () => [
@@ -706,7 +653,7 @@ export default function AdminWorksPage() {
         work={hoveredWorkRef.current}
         pos={tooltipPosRef.current}
         imgError={imgErrorRef.current}
-        onImgError={() => { imgErrorRef.current = true; setTooltipKey((k) => k + 1); }}
+        onImgError={handleImgError}
         onDismiss={hideTooltip}
         onNavigate={() => {
           const work = hoveredWorkRef.current;
