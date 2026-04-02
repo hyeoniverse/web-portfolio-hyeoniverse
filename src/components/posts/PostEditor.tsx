@@ -25,6 +25,7 @@ import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { useTagInput } from "@/hooks/useTagInput";
 import TagsList from "./TagsList";
 import ShortcutsModalContent from "./ShortcutsModal";
 import styles from "./PostEditor.module.css";
@@ -107,7 +108,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [categories]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { openModal, closeAll } = useModalStore();
-  const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -334,6 +334,8 @@ export default function PostEditor({ post }: PostEditorProps) {
     },
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
+
+  const tag = useTagInput(form.tags, (tags) => updateField("tags", tags));
 
   const translateFields = useCallback(
     async (fieldKeys: string[], lang: "ko" | "en") => {
@@ -609,34 +611,6 @@ export default function PostEditor({ post }: PostEditorProps) {
     input.click();
   }, [handleImageUpload, updateField]);
 
-  const addTag = useCallback(() => {
-    const tag = tagInput.trim().replace(/,/g, "");
-    if (tag && !form.tags.includes(tag)) {
-      updateField("tags", [...form.tags, tag]);
-    }
-    setTagInput("");
-  }, [tagInput, form.tags, updateField]);
-
-  const handleTagKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.nativeEvent.isComposing) return;
-      if (e.key === "Enter" || e.key === ",") {
-        e.preventDefault();
-        addTag();
-      }
-    },
-    [addTag]
-  );
-
-  const removeTag = useCallback(
-    (tag: string) => {
-      updateField(
-        "tags",
-        form.tags.filter((t) => t !== tag)
-      );
-    },
-    [form.tags, updateField]
-  );
 
   const handleSave = useCallback(
     async (publish?: boolean) => {
@@ -1220,10 +1194,10 @@ export default function PostEditor({ post }: PostEditorProps) {
                   <label className={es.fieldLabel}>{te("tags")}</label>
                   <div>
                     <div className={styles.tagInputRow}>
-                      <input className={es.fieldInput} type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} placeholder={te("tagsPlaceholder")} />
-                      <button type="button" className={styles.tagAddBtn} onClick={addTag} disabled={!tagInput.trim()}>+</button>
+                      <input className={es.fieldInput} type="text" value={tag.input} onChange={(e) => tag.setInput(e.target.value)} onKeyDown={tag.handleKeyDown} placeholder={te("tagsPlaceholder")} />
+                      <button type="button" className={styles.tagAddBtn} onClick={tag.add} disabled={!tag.input.trim()}>+</button>
                     </div>
-                    {form.tags.length > 0 && <TagsList tags={form.tags} onRemove={removeTag} />}
+                    {form.tags.length > 0 && <TagsList tags={form.tags} onRemove={tag.remove} />}
                   </div>
                 </div>
               </div>
