@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidPostCategory } from "@/lib/api/validateCategory";
+import { requireAuth } from "@/lib/api/requireAuth";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -28,14 +28,8 @@ export async function GET(_request: Request, context: RouteContext) {
 // PATCH /api/posts/[id] — 포스트 수정 (admin only)
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
 
@@ -62,14 +56,8 @@ export async function PATCH(request: Request, context: RouteContext) {
 // DELETE /api/posts/[id] — 휴지통으로 이동 (소프트 삭제, admin only)
 export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const admin = createAdminClient();
   const { error } = await admin

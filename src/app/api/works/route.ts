@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidWorksCategory } from "@/lib/api/validateCategory";
+import { requireAuth } from "@/lib/api/requireAuth";
 // GET /api/works — 목록 조회
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -120,14 +120,8 @@ const ALLOWED_FIELDS = new Set([
 ]);
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
   const filtered: Record<string, unknown> = {};

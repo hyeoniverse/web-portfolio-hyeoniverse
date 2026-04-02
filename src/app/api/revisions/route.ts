@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
 
 const MAX_REVISIONS = 50;
 
 // GET /api/revisions?entity_type=post&entity_id=xxx&limit=50
 export async function GET(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const { searchParams } = new URL(request.url);
   const entityType = searchParams.get("entity_type");
@@ -44,13 +39,8 @@ export async function GET(request: Request) {
 
 // POST /api/revisions — 리비전 저장 + 오래된 항목 정리
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
   const { entity_type, entity_id, snapshot, title } = body;
@@ -115,13 +105,8 @@ export async function POST(request: Request) {
 
 // DELETE /api/revisions?entity_type=post&entity_id=xxx — 엔티티의 전체 리비전 삭제
 export async function DELETE(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const { searchParams } = new URL(request.url);
   const entityType = searchParams.get("entity_type");
