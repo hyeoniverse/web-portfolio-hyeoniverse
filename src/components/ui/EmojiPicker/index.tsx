@@ -3,7 +3,12 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
-import { EMOJI_CATEGORIES, SVG_ICONS, ICON_CATEGORIES, EMOJI_KEYWORDS } from "./emojiData";
+import { EMOJI_CATEGORIES, ICON_CATEGORIES, EMOJI_KEYWORDS } from "../emojiData";
+import { resizeEmojiImage } from "./resizeEmojiImage";
+import { UploadTab } from "./UploadTab";
+import { EmojiIcon } from "./EmojiIcon";
+
+export { EmojiIcon } from "./EmojiIcon";
 
 interface EmojiPickerProps {
   open: boolean;
@@ -19,45 +24,9 @@ const STORAGE_KEY = "custom-emojis";
 const RECENT_KEY = "recent-emojis";
 const MAX_RECENT = 24;
 
-// 이미지 크기 제한
-const EMOJI_MIN = 16;
-const EMOJI_MAX = 256;
-const EMOJI_RECOMMENDED = 128;
-
-function resizeEmojiImage(file: File): Promise<File> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const { width, height } = img;
-      if (width < EMOJI_MIN || height < EMOJI_MIN) {
-        reject(new Error(`최소 ${EMOJI_MIN}×${EMOJI_MIN}px`));
-        return;
-      }
-      if (width > EMOJI_MAX || height > EMOJI_MAX) {
-        const scale = EMOJI_RECOMMENDED / Math.max(width, height);
-        const w = Math.round(width * scale);
-        const h = Math.round(height * scale);
-        const canvas = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
-        canvas.toBlob((blob) => {
-          if (!blob) { reject(new Error("리사이즈 실패")); return; }
-          resolve(new File([blob], file.name.replace(/\.\w+$/, ".png"), { type: "image/png" }));
-        }, "image/png");
-      } else {
-        resolve(file);
-      }
-    };
-    img.onerror = () => reject(new Error("잘못된 이미지"));
-    img.src = URL.createObjectURL(file);
-  });
-}
-
 export default function EmojiPicker({ open, onClose, onSelect, currentValue, onImageUpload }: EmojiPickerProps) {
   const { language } = useLanguage();
   const ref = useRef<HTMLDivElement>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<"emoji" | "icon" | "upload">("emoji");
   const indicatorRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
@@ -528,98 +497,17 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
 
       {/* 업로드 탭 */}
       {tab === "upload" && (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "16px 16px 12px", gap: 8 }}>
-          <button
-            type="button"
-            disabled={uploading || !onImageUpload}
-            style={{
-              width: "100%", padding: "18px 16px",
-              border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-md)",
-              background: "var(--bg-tertiary)", cursor: uploading ? "wait" : "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              color: "var(--text-secondary)", fontSize: 13, fontFamily: "var(--font-space-grotesk)",
-              opacity: uploading ? 0.5 : 1,
-            }}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => fileRef.current?.click()}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
-            </svg>
-            {uploading ? t("업로드 중...", "Uploading...") : t("이미지 업로드", "Upload Image")}
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (file) await handleUpload(file);
-              e.target.value = "";
-            }}
-          />
-          <span style={{ fontSize: 10, color: "var(--text-muted)", textAlign: "center", lineHeight: 1.4 }}>
-            {t(
-              `권장 ${EMOJI_RECOMMENDED}×${EMOJI_RECOMMENDED}px · 최소 ${EMOJI_MIN} · 최대 ${EMOJI_MAX}px`,
-              `${EMOJI_RECOMMENDED}×${EMOJI_RECOMMENDED}px recommended · ${EMOJI_MIN}–${EMOJI_MAX}px`
-            )}
-            <br />
-            {t("또는 ⌘+V로 이미지나 링크를 붙여넣으세요.", "Or paste image/link with ⌘+V.")}
-          </span>
-          {uploadError && (
-            <span style={{ fontSize: 11, color: "var(--color-error, #e05252)", textAlign: "center" }}>{uploadError}</span>
-          )}
-          {/* 취소 / 저장 */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "auto", paddingTop: 4 }}>
-            <button
-              type="button"
-              style={{
-                border: "none", background: "transparent", cursor: "pointer",
-                color: "var(--text-muted)", fontSize: 13, fontFamily: "var(--font-space-grotesk)",
-              }}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={onClose}
-            >
-              {t("취소", "Cancel")}
-            </button>
-            {currentValue && (
-              <button
-                type="button"
-                style={{
-                  border: "none", background: "transparent", cursor: "pointer",
-                  color: "var(--color-error, #e05252)", fontSize: 13, fontFamily: "var(--font-space-grotesk)",
-                }}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => { onSelect(""); onClose(); }}
-              >
-                {t("제거", "Remove")}
-              </button>
-            )}
-          </div>
-        </div>
+        <UploadTab
+          uploading={uploading}
+          uploadError={uploadError}
+          currentValue={currentValue}
+          onImageUpload={onImageUpload}
+          onUpload={handleUpload}
+          onClose={onClose}
+          onSelect={onSelect}
+          t={t}
+        />
       )}
     </div>
   );
-}
-
-/** 이모지 값(native / img:url / icon:id)을 렌더링 */
-export function EmojiIcon({ value, size = 20 }: { value: string; size?: number }) {
-  if (value.startsWith("img:")) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={value.slice(4)} alt="" style={{ width: size, height: size, objectFit: "contain", borderRadius: 2 }} />
-    );
-  }
-  if (value.startsWith("icon:")) {
-    const ic = SVG_ICONS.find((i) => i.id === value.slice(5));
-    if (ic) {
-      return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d={ic.path} />
-        </svg>
-      );
-    }
-  }
-  return <span style={{ fontSize: size, lineHeight: 1 }}>{value}</span>;
 }
