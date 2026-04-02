@@ -28,6 +28,14 @@ import {
   INITIAL_MARGIN,
 } from "@/data/projects";
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
+import {
+  SCROLL_LERP,
+  VELOCITY_DECAY,
+  MOUSE_EFFECT_RADIUS,
+  MAX_CARD_OFFSET,
+  MOUSE_SENSITIVITY,
+  IMAGE_PARALLAX_MULTIPLIER,
+} from "../_constants";
 import styles from "./WorksSection.module.css";
 
 // 타입
@@ -41,14 +49,6 @@ interface PressedCard {
   index: number;
   project: Project;
 }
-
-// 애니메이션 상수
-const SCROLL_LERP = 0.08;
-const VELOCITY_DECAY = 0.96;
-const MOUSE_EFFECT_RADIUS = 500;
-const MAX_CARD_OFFSET = 12;
-const MOUSE_SENSITIVITY = 0.012;
-const IMAGE_PARALLAX_MULTIPLIER = 1.3;
 
 interface WorksSectionProps {
   projects?: Project[];
