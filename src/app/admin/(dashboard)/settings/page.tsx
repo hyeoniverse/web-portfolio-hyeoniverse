@@ -20,6 +20,7 @@ import AccountTab from "./_components/AccountTab";
 import T from "@/components/ui/T";
 import Checkbox from "@/components/ui/Checkbox";
 import { useModalStore } from "@/stores/modalStore";
+import { useAccountSettings } from "./_hooks/useAccountSettings";
 import styles from "./Settings.module.css";
 
 const PROFILE_SECTION_LABELS: Record<string, string> = {
@@ -58,16 +59,7 @@ export default function SettingsPage() {
       ? (sub as "home" | "profile" | "works" | "posts")
       : "home";
   });
-  const [accountEmail, setAccountEmail] = useState("");
-  const [accountNewEmail, setAccountNewEmail] = useState("");
-  const [accountPassword, setAccountPassword] = useState("");
-  const [accountConfirm, setAccountConfirm] = useState("");
-  const [accountCurrentPassword, setAccountCurrentPassword] = useState("");
-  const [accountMessage, setAccountMessage] = useState("");
-  const [accountSaving, setAccountSaving] = useState(false);
-  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
-  const [emailChangeSentAt, setEmailChangeSentAt] = useState<string | null>(null);
+  const account = useAccountSettings(t);
 
   // ── 통합 충돌 상태 ──
   const [allConflicts, setAllConflicts] = useState<ConfigConflict[]>([]);
@@ -81,49 +73,6 @@ export default function SettingsPage() {
     }
     return allConflicts.filter((c) => c.tab === activeTab);
   }, [allConflicts, activeTab, contentSubTab]);
-
-  const handleAccountUpdate = useCallback(async () => {
-    if (!accountCurrentPassword) return;
-    setAccountSaving(true);
-    setAccountMessage("");
-    try {
-      const body: { currentPassword: string; email?: string; password?: string } = {
-        currentPassword: accountCurrentPassword,
-      };
-      if (accountNewEmail !== accountEmail && accountNewEmail.trim() !== "") body.email = accountNewEmail;
-      if (accountPassword) body.password = accountPassword;
-      if (!body.email && !body.password) {
-        setAccountMessage(t("admin.settings.noChanges"));
-        return;
-      }
-      const res = await fetch("/api/admin/account", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      if (data.emailConfirmationSent) {
-        setAccountMessage(t("admin.settings.emailConfirmationSent"));
-        setPendingEmail(accountNewEmail);
-        setEmailChangeSentAt(new Date().toISOString());
-      } else {
-        setAccountMessage(t("admin.settings.updateSuccess"));
-      }
-      setAccountNewEmail("");
-      setAccountCurrentPassword("");
-      setAccountPassword("");
-      setAccountConfirm("");
-      setShowPasswordConfirm(false);
-      if (!data.emailConfirmationSent) {
-        setTimeout(() => setAccountMessage(""), 3000);
-      }
-    } catch (err) {
-      setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
-    } finally {
-      setAccountSaving(false);
-    }
-  }, [accountCurrentPassword, accountNewEmail, accountEmail, accountPassword, t]);
 
   useEffect(() => {
     stop();
@@ -238,11 +187,14 @@ export default function SettingsPage() {
       if (foundConflicts.length > 0) setAllConflicts(foundConflicts);
 
       if (accountRes?.email) {
-        setAccountEmail(accountRes.email);
-        setPendingEmail(accountRes.pendingEmail ?? null);
-        setEmailChangeSentAt(accountRes.emailChangeSentAt ?? null);
+        account.setInitialData(
+          accountRes.email,
+          accountRes.pendingEmail ?? null,
+          accountRes.emailChangeSentAt ?? null,
+        );
       }
     }).finally(() => setLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const saveDelta = useCallback(async (fullConfig: SiteConfigData) => {
@@ -472,30 +424,30 @@ export default function SettingsPage() {
         <div className={styles.headerRight}>
           {activeTab === "account" ? (
             <>
-              {accountMessage && (
-                <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
-                  {accountMessage}
+              {account.accountMessage && (
+                <span className={`${styles.message} ${account.accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
+                  {account.accountMessage}
                 </span>
               )}
               <button
                 className={styles.saveBtn}
-                disabled={accountSaving}
+                disabled={account.accountSaving}
                 onClick={() => {
-                  if (accountPassword && accountPassword !== accountConfirm) {
-                    setAccountMessage(t("admin.settings.passwordMismatch"));
+                  if (account.accountPassword && account.accountPassword !== account.accountConfirm) {
+                    account.setAccountMessage(t("admin.settings.passwordMismatch"));
                     return;
                   }
-                  const hasEmailChange = accountNewEmail !== accountEmail && accountNewEmail.trim() !== "";
-                  const hasPasswordChange = !!accountPassword;
+                  const hasEmailChange = account.accountNewEmail !== account.accountEmail && account.accountNewEmail.trim() !== "";
+                  const hasPasswordChange = !!account.accountPassword;
                   if (!hasEmailChange && !hasPasswordChange) {
-                    setAccountMessage(t("admin.settings.noChanges"));
+                    account.setAccountMessage(t("admin.settings.noChanges"));
                     return;
                   }
-                  setAccountMessage("");
-                  setShowPasswordConfirm(true);
+                  account.setAccountMessage("");
+                  account.setShowPasswordConfirm(true);
                 }}
               >
-                {accountSaving ? <T k="admin.settings.saving" /> : <T k="admin.settings.updateAccount" />}
+                {account.accountSaving ? <T k="admin.settings.saving" /> : <T k="admin.settings.updateAccount" />}
               </button>
             </>
           ) : (
@@ -726,24 +678,24 @@ export default function SettingsPage() {
               )}
               {activeTab === "account" && (
                 <AccountTab
-                  accountEmail={accountEmail}
-                  accountNewEmail={accountNewEmail}
-                  setAccountNewEmail={setAccountNewEmail}
-                  accountPassword={accountPassword}
-                  setAccountPassword={setAccountPassword}
-                  accountConfirm={accountConfirm}
-                  setAccountConfirm={setAccountConfirm}
-                  accountCurrentPassword={accountCurrentPassword}
-                  setAccountCurrentPassword={setAccountCurrentPassword}
-                  accountMessage={accountMessage}
-                  setAccountMessage={setAccountMessage}
-                  accountSaving={accountSaving}
-                  showPasswordConfirm={showPasswordConfirm}
-                  setShowPasswordConfirm={setShowPasswordConfirm}
-                  handleAccountUpdate={handleAccountUpdate}
-                  pendingEmail={pendingEmail}
-                  emailChangeSentAt={emailChangeSentAt}
-                  onCancelPendingEmail={() => { setPendingEmail(null); setEmailChangeSentAt(null); }}
+                  accountEmail={account.accountEmail}
+                  accountNewEmail={account.accountNewEmail}
+                  setAccountNewEmail={account.setAccountNewEmail}
+                  accountPassword={account.accountPassword}
+                  setAccountPassword={account.setAccountPassword}
+                  accountConfirm={account.accountConfirm}
+                  setAccountConfirm={account.setAccountConfirm}
+                  accountCurrentPassword={account.accountCurrentPassword}
+                  setAccountCurrentPassword={account.setAccountCurrentPassword}
+                  accountMessage={account.accountMessage}
+                  setAccountMessage={account.setAccountMessage}
+                  accountSaving={account.accountSaving}
+                  showPasswordConfirm={account.showPasswordConfirm}
+                  setShowPasswordConfirm={account.setShowPasswordConfirm}
+                  handleAccountUpdate={account.handleAccountUpdate}
+                  pendingEmail={account.pendingEmail}
+                  emailChangeSentAt={account.emailChangeSentAt}
+                  onCancelPendingEmail={() => { account.setPendingEmail(null); account.setEmailChangeSentAt(null); }}
                   passwordPolicy={config.passwordPolicy ?? "secure"}
                   onPasswordPolicyChange={async (v: string) => {
                     const next = { ...config, passwordPolicy: v as "secure" | "default" };
