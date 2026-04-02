@@ -33,7 +33,7 @@
 }
 
 .bulkActionBtn {
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--box-3xs-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;

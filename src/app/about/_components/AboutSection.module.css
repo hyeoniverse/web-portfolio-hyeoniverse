@@ -829,7 +829,7 @@
   }
 
   .entryLabel {
-    padding: var(--spacing-3xs) var(--spacing-sm);
+    padding: var(--box-3xs-sm);
     font-size: clamp(0.6rem, 1.8vw, 0.7rem);
   }
 
