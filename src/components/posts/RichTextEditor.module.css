@@ -247,7 +247,7 @@
 .fontDrop {
   position: absolute;
   left: 0;
-  z-index: 100;
+  z-index: var(--z-nav);
   width: 280px;
   background: rgba(255, 255, 255, 0.5);
   -webkit-backdrop-filter: blur(4px);
@@ -871,7 +871,7 @@
   position: absolute;
   top: 0;
   left: calc(100% + 4px);
-  z-index: 800;
+  z-index: var(--z-tooltip);
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-md);

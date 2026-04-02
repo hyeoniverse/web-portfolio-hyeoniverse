@@ -2,7 +2,7 @@
 .busyOverlay {
   position: absolute;
   inset: 0;
-  z-index: 100;
+  z-index: var(--z-nav);
   background: var(--bg-primary-alpha-60, rgba(255, 255, 255, 0.6));
   display: flex;
   align-items: center;
