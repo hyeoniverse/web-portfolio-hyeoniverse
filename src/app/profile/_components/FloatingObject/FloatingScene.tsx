@@ -6,115 +6,16 @@ import * as THREE from "three";
 import { siteConfig } from "@/config/site.config";
 import { useSoundStore } from "@/stores/soundStore";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
-
-/* ── Constants ── */
-
-const BUNNY = {
-  speed: 0.15,
-  z: -2,
-  hitRadius: 0.7,
-  impulse: 4.0,
-  wallRestitution: 0.8,
-  friction: 0.996,
-  margin: 1.0,
-  baseRotation: { x: 0.06, y: 0.12, z: 0.03 },
-  bob: { amp: 0.06, freq: 0.4 },
-} as const;
-
-/* Egg-shaped body profile (wider at bottom, rounded poles) */
-const BODY_PROFILE = (() => {
-  const pts: THREE.Vector2[] = [];
-  const N = 32;
-  for (let i = 0; i <= N; i++) {
-    const t = i / N;
-    const angle = t * Math.PI; // 0 (bottom) → π (top)
-    // R varies: 0.65 at bottom → 0.15 at top → extra chubby hip
-    const R = 0.4 + 0.25 * Math.cos(angle);
-    const r = R * Math.sin(angle);
-    const y = -0.55 * Math.cos(angle);
-    pts.push(new THREE.Vector2(r, y));
-  }
-  return pts;
-})();
-
-/* Ear profile — thin base, thick rounded tip */
-const EAR_PROFILE = (() => {
-  const pts: THREE.Vector2[] = [];
-  const N = 20;
-  for (let i = 0; i <= N; i++) {
-    const t = i / N;
-    const angle = t * Math.PI;
-    const R = 0.22 - 0.04 * Math.cos(angle); // 0.18 base → 0.26 tip
-    const r = R * Math.sin(angle);
-    const normalY = -0.45 * Math.cos(angle);
-    // Tip end (t > 0.6): smooth dome
-    if (t <= 0.6) {
-      pts.push(new THREE.Vector2(r, normalY));
-    } else {
-      const flatY = -0.45 * Math.cos(0.6 * Math.PI);
-      const b = (t - 0.6) / 0.4;
-      const s = b * b * (3 - 2 * b);
-      const retain = 1 - s * 0.2;
-      pts.push(new THREE.Vector2(r, flatY + (normalY - flatY) * retain));
-    }
-  }
-  return pts;
-})();
-
-/* Arm profile — hand end has smooth dome (봉긋) */
-const ARM_PROFILE = (() => {
-  const pts: THREE.Vector2[] = [];
-  const N = 20;
-  const flatT = 0.6;
-  const flatY = -0.15 * Math.cos(flatT * Math.PI);
-  for (let i = 0; i <= N; i++) {
-    const t = i / N;
-    const angle = t * Math.PI;
-    const R = 0.11 - 0.03 * Math.cos(angle); // 0.08 shoulder → 0.14 hand
-    const r = R * Math.sin(angle);
-    const normalY = -0.15 * Math.cos(angle);
-    if (t <= flatT) {
-      pts.push(new THREE.Vector2(r, normalY));
-    } else {
-      const b = (t - flatT) / (1 - flatT);
-      const s = b * b * (3 - 2 * b);
-      // retain 80% → 손바닥 쪽 도톰하게 튀어나옴
-      const retain = 1 - s * 0.2;
-      pts.push(new THREE.Vector2(r, flatY + (normalY - flatY) * retain));
-    }
-  }
-  return pts;
-})();
-
-/* Teardrop foot profile — toe end has smooth dome (봉긋) */
-const FOOT_PROFILE = (() => {
-  const pts: THREE.Vector2[] = [];
-  const N = 20;
-  const flatT = 0.6;
-  const flatY = -0.18 * Math.cos(flatT * Math.PI);
-  for (let i = 0; i <= N; i++) {
-    const t = i / N;
-    const angle = t * Math.PI;
-    const R = 0.19 - 0.06 * Math.cos(angle); // 0.13 ankle → 0.25 toe
-    const r = R * Math.sin(angle);
-    const normalY = -0.18 * Math.cos(angle);
-    if (t <= flatT) {
-      pts.push(new THREE.Vector2(r, normalY));
-    } else {
-      const b = (t - flatT) / (1 - flatT);
-      const s = b * b * (3 - 2 * b);
-      // retain 80% of curvature at tip → 도톰하게 튀어나옴
-      const retain = 1 - s * 0.2;
-      pts.push(new THREE.Vector2(r, flatY + (normalY - flatY) * retain));
-    }
-  }
-  return pts;
-})();
-
-/* Soft plush colors — no metal */
-const BODY_COLOR = "#f0e6dc";
-const BODY_EMISSIVE = "#c8b8a8";
-const EYE_COLOR = "#1a1a2e";
+import {
+  BUNNY,
+  BODY_PROFILE,
+  EAR_PROFILE,
+  ARM_PROFILE,
+  FOOT_PROFILE,
+  BODY_COLOR,
+  BODY_EMISSIVE,
+  EYE_COLOR,
+} from "./bunnyGeometry";
 
 /* ── Component ── */
 
