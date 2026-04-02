@@ -21,163 +21,41 @@ import { autoTranslate } from "@/utils/autoTranslate";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor, { extractMarkdownImages } from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
+import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
+import { generateSlug, validateSlug } from "@/utils/postSlug";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import TagsList from "./TagsList";
 import styles from "./PostEditor.module.css";
 
-function TagsList({ tags, onRemove }: { tags: string[]; onRemove: (tag: string) => void }) {
-  const { t } = useLanguage();
-  const measureRef = useRef<HTMLDivElement>(null);
-  const displayRef = useRef<HTMLDivElement>(null);
-  const [expanded, setExpanded] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(tags.length);
-  const [swapping, setSwapping] = useState<'exiting' | 'entering' | false>(false);
-  const animating = useRef(false);
 
-  useEffect(() => {
-    if (expanded) { setVisibleCount(tags.length); return; }
-    const el = measureRef.current;
-    if (!el) return;
-
-    const check = () => {
-      const children = Array.from(el.children) as HTMLElement[];
-      if (children.length === 0) return;
-      const cutoff = el.getBoundingClientRect().top + el.clientHeight;
-
-      let fitCount = 0;
-      for (const child of children) {
-        if (child.getBoundingClientRect().bottom <= cutoff + 1) fitCount++;
-        else break;
-      }
-
-      if (fitCount >= tags.length) {
-        setVisibleCount(tags.length);
-      } else {
-        setVisibleCount(Math.max(1, fitCount - 1));
-      }
-    };
-
-    const frame = requestAnimationFrame(check);
-    const ro = new ResizeObserver(check);
-    ro.observe(el);
-    return () => { cancelAnimationFrame(frame); ro.disconnect(); };
-  }, [tags, expanded]);
-
-  const animateToggle = useCallback((toExpanded: boolean) => {
-    const el = displayRef.current;
-    if (!el) { setExpanded(toExpanded); return; }
-
-    const fromH = el.offsetHeight;
-    animating.current = true;
-
-    if (toExpanded) {
-      // 펼치기: 먼저 상태 변경 → 새 높이 측정 → 애니메이션
-      setExpanded(true);
-      requestAnimationFrame(() => {
-        const toH = el.scrollHeight;
-        el.style.height = `${fromH}px`;
-        el.style.transition = "none";
-        requestAnimationFrame(() => {
-          el.style.transition = "height 0.25s ease";
-          el.style.height = `${toH}px`;
-          const onEnd = () => {
-            el.style.height = "";
-            el.style.transition = "";
-            animating.current = false;
-            el.removeEventListener("transitionend", onEnd);
-          };
-          el.addEventListener("transitionend", onEnd);
-        });
-      });
-    } else {
-      // 접기: 높이 애니메이션 → 끝나면 마지막 태그 shrink + 더보기 slide-in
-      const targetH = measureRef.current?.clientHeight ?? 64;
-      const measureEl = measureRef.current;
-      let newVC = 0;
-      let total = 0;
-      if (measureEl) {
-        const children = Array.from(measureEl.children) as HTMLElement[];
-        total = children.length;
-        const cutoff = measureEl.getBoundingClientRect().top + measureEl.clientHeight;
-        let fitCount = 0;
-        for (const child of children) {
-          if (child.getBoundingClientRect().bottom <= cutoff + 1) fitCount++;
-          else break;
-        }
-        newVC = fitCount >= total ? total : Math.max(1, fitCount - 1);
-      }
-      el.style.height = `${fromH}px`;
-      el.style.overflow = "clip";
-      el.style.transition = "none";
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          el.style.transition = "height 0.25s ease";
-          el.style.height = `${targetH}px`;
-          const onEnd = () => {
-            el.style.height = "";
-            el.style.overflow = "";
-            el.style.transition = "";
-            setVisibleCount(newVC);
-            setExpanded(false);
-            if (newVC < total) setSwapping('exiting');
-            animating.current = false;
-            el.removeEventListener("transitionend", onEnd);
-          };
-          el.addEventListener("transitionend", onEnd);
-        });
-      });
-    }
-  }, []);
-
-  const hiddenCount = tags.length - visibleCount;
-
-  return (
-    <div style={{ position: "relative" }}>
-      {/* 숨겨진 측정용 */}
-      <div
-        ref={measureRef}
-        className={es.tags}
-        aria-hidden
-        style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", left: 0, right: 0 }}
-      >
-        {tags.map((tag) => (
-          <span key={tag} className={es.tag}>
-            {tag}
-            <button type="button" className={es.tagRemove} tabIndex={-1}>&times;</button>
-          </span>
-        ))}
-      </div>
-      {/* 실제 표시 */}
-      <div ref={displayRef} className={es.tags} style={{ maxHeight: "none", overflow: "visible" }}>
-        {(expanded ? tags : swapping === 'exiting' ? tags.slice(0, visibleCount + 1) : tags.slice(0, visibleCount)).map((tag, i) => (
-          <span
-            key={tag}
-            className={`${es.tag}${swapping === 'exiting' && i === visibleCount ? ` ${es.tagExiting}` : ""}`}
-            onAnimationEnd={swapping === 'exiting' && i === visibleCount ? () => setSwapping('entering') : undefined}
-          >
-            {tag}
-            <button type="button" className={es.tagRemove} onClick={() => onRemove(tag)}>&times;</button>
-          </span>
-        ))}
-        {hiddenCount > 0 && !expanded && swapping !== 'exiting' && (
-          <button
-            type="button"
-            className={`${es.tagMore}${swapping === 'entering' ? ` ${es.tagMoreEntering}` : ""}`}
-            onClick={() => animateToggle(true)}
-            onAnimationEnd={() => { if (swapping === 'entering') setSwapping(false); }}
-          >
-            + {t("editor.showMore")} ({hiddenCount})
-          </button>
-        )}
-        {expanded && (
-          <button type="button" className={es.tagMore} onClick={() => animateToggle(false)}>
-            {t("editor.collapse")}
-          </button>
-        )}
-      </div>
+const Editor = dynamic(() => import("./PlateEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className={styles.editorSkeleton}>
+      <div className={styles.editorSkeletonBar} style={{ width: "60%" }} />
+      <div className={styles.editorSkeletonBar} style={{ width: "90%" }} />
+      <div className={styles.editorSkeletonBar} style={{ width: "75%" }} />
+      <div className={styles.editorSkeletonBar} style={{ width: "85%" }} />
+      <div className={styles.editorSkeletonBar} style={{ width: "40%" }} />
     </div>
-  );
+  ),
+});
+
+const ImagePanel = dynamic(
+  () => import("./PlateEditor").then((m) => ({ default: m.ImagePanel })),
+  { ssr: false },
+);
+
+import type { PlateEditorHandle, EditorImageInfo } from "./PlateEditor";
+
+interface PostEditorProps {
+  post?: Post;
 }
+
+import { POST_TEMPLATES } from "@/data/postTemplates";
+import type { PostTemplate } from "@/data/postTemplates";
+
 
 function ShortcutsModalContent() {
   const { t } = useLanguage();
@@ -217,170 +95,6 @@ function ShortcutsModalContent() {
       </div>
     </div>
   );
-}
-
-const Editor = dynamic(() => import("./PlateEditor"), {
-  ssr: false,
-  loading: () => (
-    <div className={styles.editorSkeleton}>
-      <div className={styles.editorSkeletonBar} style={{ width: "60%" }} />
-      <div className={styles.editorSkeletonBar} style={{ width: "90%" }} />
-      <div className={styles.editorSkeletonBar} style={{ width: "75%" }} />
-      <div className={styles.editorSkeletonBar} style={{ width: "85%" }} />
-      <div className={styles.editorSkeletonBar} style={{ width: "40%" }} />
-    </div>
-  ),
-});
-
-const ImagePanel = dynamic(
-  () => import("./PlateEditor").then((m) => ({ default: m.ImagePanel })),
-  { ssr: false },
-);
-
-import type { PlateEditorHandle, EditorImageInfo } from "./PlateEditor";
-
-interface PostEditorProps {
-  post?: Post;
-}
-
-import { POST_TEMPLATES } from "@/data/postTemplates";
-import type { PostTemplate } from "@/data/postTemplates";
-
-/* POST_TEMPLATES → src/data/postTemplates.ts */
-
-/** marked HTML → Plate 호환 후처리 */
-function postProcessMarkedHtml(html: string): string {
-  // 각주 참조
-  html = html.replace(
-    /<sup><a[^>]*data-footnote-ref[^>]*>(\d+)<\/a><\/sup>/g,
-    (_, num) => `<sup data-footnote-ref="${num}" id="fnref-${num}">[${num}]</sup>`
-  );
-  // 각주 정의
-  html = html.replace(
-    /<section[^>]*data-footnotes[^>]*>[\s\S]*?<\/section>/g,
-    (section) => {
-      const items: string[] = [];
-      const liRe = /<li id="footnote-(\d+)"[^>]*>([\s\S]*?)<\/li>/g;
-      let m;
-      while ((m = liRe.exec(section)) !== null) {
-        const id = m[1];
-        const text = m[2].replace(/<\/?p>/g, "").replace(/<a[^>]*data-footnote-backref[^>]*>[^<]*<\/a>/g, "").trim();
-        items.push(`<div data-footnote-content="${id}" id="fn-${id}">${text}</div>`);
-      }
-      return items.join("\n");
-    }
-  );
-  // ��림 블록 → callout
-  html = html.replace(
-    /<div class="markdown-alert markdown-alert-(\w+)">([\s\S]*?)<\/div>/g,
-    (_, type, inner) => {
-      const iconMap: Record<string, string> = { note: "ℹ️", tip: "💡", important: "❗", warning: "⚠️", caution: "🔴" };
-      const body = inner.replace(/<p class="markdown-alert-title">[\s\S]*?<\/p>/, "").trim();
-      return `<div data-callout data-callout-bg="var(--bg-tertiary)" data-callout-icon="${iconMap[type] || "💡"}">${body}</div>`;
-    }
-  );
-  // 인라인 수식
-  html = html.replace(
-    /<span class="katex">([\s\S]*?)<\/span>(?=(?:(?!<span class="katex">).)*?(?:<\/p>|$))/g,
-    (full) => {
-      const ann = full.match(/<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>/);
-      if (!ann) return full;
-      return `<span data-math-inline="true" data-latex="${ann[1]}">${ann[1]}</span>`;
-    }
-  );
-  // 블록 수식
-  html = html.replace(
-    /<span class="katex-display">([\s\S]*?)<\/span>\s*(?=\n|$)/g,
-    (full) => {
-      const ann = full.match(/<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>/);
-      if (!ann) return full;
-      return `<div data-math-block="true" data-latex="${ann[1]}">${ann[1]}</div>`;
-    }
-  );
-  // 열블록 마커 + 표 → column HTML 복원
-  html = html.replace(
-    /<!-- columns ([^>]*?) -->\s*<table>([\s\S]*?)<\/table>/g,
-    (full, metaStr: string, tableBody: string) => {
-      // 메타 파싱: "33%,33%,34% layout=2-col bg=var(--bg-tertiary) divider=transparent"
-      const parts = metaStr.trim().split(/\s+/);
-      const widths = (parts[0] || "").split(",");
-      const layout = parts.find((p) => p.startsWith("layout="))?.slice(7) || "";
-      const bg = parts.find((p) => p.startsWith("bg="))?.slice(3) || "";
-      const divider = parts.find((p) => p.startsWith("divider="))?.slice(8) || "";
-      // 표 본문에서 셀 내용 추출 (thead 제외, tbody의 첫 행)
-      const cells: string[] = [];
-      const tdRe = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g;
-      let m: RegExpExecArray | null;
-      const rows = tableBody.split(/<\/tr>/);
-      const dataRow = rows.length > 1 ? rows[rows.length - 2] : rows[0];
-      while ((m = tdRe.exec(dataRow)) !== null) {
-        cells.push(m[1].trim());
-      }
-      if (cells.length === 0) return full;
-      const groupAttrs = [
-        "data-column-group",
-        layout ? ` data-layout="${layout}"` : "",
-        bg ? ` data-column-bg="${bg}"` : "",
-        divider ? ` data-column-divider="${divider}"` : "",
-      ].join("");
-      const columns = cells.map((content, i) => {
-        const w = widths[i] || "";
-        const wAttr = w ? ` data-width="${w}"` : "";
-        const inner = content.startsWith("<") ? content : `<p>${content}</p>`;
-        return `<div data-column${wAttr}>${inner || "<p></p>"}</div>`;
-      }).join("");
-      return `<div ${groupAttrs}>${columns}</div>`;
-    }
-  );
-  // 코드블록 wrap toggle 버튼 제거
-  html = html.replace(/<button[^>]*class="code-wrap-toggle"[^>]*>[\s\S]*?<\/button>/g, "");
-  // callout 아이콘 visual span 제거 (deserialize 시 중복 방지)
-  html = html.replace(/<span data-callout-icon-visual[^>]*>[\s\S]*?<\/span>/g, "");
-  // <ul>/<ol> → Plate indent-list 호환 (li를 개별 div로)
-  const convertList = (listHtml: string, type: "disc" | "decimal", depth = 1): string => {
-    return listHtml.replace(/<li>([\s\S]*?)<\/li>/g, (_, content: string) => {
-      let nested = "";
-      let text = content;
-      text = text.replace(/<(ul|ol)>([\s\S]*?)<\/\1>/g, (_m: string, tag: string, inner: string) => {
-        nested += convertList(inner, tag === "ol" ? "decimal" : "disc", depth + 1);
-        return "";
-      });
-      // checkbox → 일반 리스트로 변환 (PlateEditor fixTodo에서 todo로 후처리)
-      const checkboxMatch = text.match(/<input([^>]*)type="checkbox"([^>]*)>/);
-      if (checkboxMatch) {
-        text = text.replace(/<input[^>]*type="checkbox"[^>]*>\s*/, "");
-        text = text.replace(/<\/?p>/g, "").trim();
-        return `<p>\u200B\u2610 ${text}</p>${nested}`;
-      }
-      text = text.replace(/<\/?p>/g, "").trim();
-      return `<li data-indent="${depth}" data-list-style-type="${type}">${text}</li>${nested}`;
-    });
-  };
-  html = html.replace(/<ul>([\s\S]*?)<\/ul>/g, (_, inner) => convertList(inner, "disc"));
-  html = html.replace(/<ol>([\s\S]*?)<\/ol>/g, (_, inner) => convertList(inner, "decimal"));
-  return html;
-}
-
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9가-힣\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 80);
-}
-
-const SLUG_RE = /^[a-z0-9가-힣]+(?:-[a-z0-9가-힣]+)*$/;
-
-function validateSlug(slug: string): string | null {
-  if (!slug.trim()) return null; // 빈 건 다른 검증에서 처리
-  if (slug !== slug.toLowerCase()) return "SLUG_UPPERCASE";
-  if (/\s/.test(slug)) return "SLUG_SPACE";
-  if (/--/.test(slug)) return "SLUG_DOUBLE_HYPHEN";
-  if (/^-|-$/.test(slug)) return "SLUG_EDGE_HYPHEN";
-  if (!SLUG_RE.test(slug)) return "SLUG_INVALID_CHAR";
-  if (slug.length > 80) return "SLUG_TOO_LONG";
-  return null;
 }
 
 export default function PostEditor({ post }: PostEditorProps) {
