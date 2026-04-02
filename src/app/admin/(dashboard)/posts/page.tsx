@@ -23,7 +23,8 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
 import SearchCapsule from "@/components/admin/SearchCapsule/SearchCapsule";
-import { presets } from "@/components/posts/CoverImagePicker/presets";
+import { parseMdPost } from "@/utils/mdParser";
+import { uploadRandomCover } from "@/utils/uploadRandomCover";
 import styles from "./AdminPosts.module.css";
 
 const PAGE_SIZE_OPTIONS = [
@@ -247,62 +248,6 @@ export default function AdminPostsPage() {
 
   const { openModal, closeAll } = useModalStore();
 
-  // frontmatter 파싱
-  const parseMdFile = (raw: string, fileName: string) => {
-    let text = raw;
-    const meta: Record<string, string | string[]> = {};
-    const fmMatch = text.match(/^---\n([\s\S]*?)\n---\n?/);
-    if (fmMatch) {
-      text = text.slice(fmMatch[0].length);
-      for (const line of fmMatch[1].split("\n")) {
-        const kv = line.match(/^(\w+)\s*:\s*(.+)$/);
-        if (!kv) continue;
-        const [, key, val] = kv;
-        if (val.startsWith("[") && val.endsWith("]")) {
-          meta[key] = val.slice(1, -1).split(",").map((s) => s.trim().replace(/^["']|["']$/g, ""));
-        } else {
-          meta[key] = val.trim().replace(/^["']|["']$/g, "");
-        }
-      }
-    }
-    const title = (meta.title as string) || fileName.replace(/\.md$/, "");
-    const slug = ((meta.slug as string) || title).toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-|-$/g, "");
-    const body: Record<string, unknown> = {
-      title, slug, content: text, content_type: "markdown", published: false,
-    };
-    body.category = (meta.category as string) || "기타";
-    if (meta.tags) body.tags = Array.isArray(meta.tags) ? meta.tags : [meta.tags];
-    if (meta.excerpt) body.excerpt = meta.excerpt;
-    if (meta.cover_image) body.cover_image = meta.cover_image;
-    if (meta.date) {
-      const d = new Date(meta.date as string);
-      if (!isNaN(d.getTime())) body.created_at = d.toISOString();
-    }
-    return body;
-  };
-
-  // 프리셋 커버 렌더링 → 업로드 → URL 반환
-  const uploadRandomCover = useCallback(async (): Promise<string | null> => {
-    try {
-      const preset = presets[Math.floor(Math.random() * presets.length)];
-      const canvas = document.createElement("canvas");
-      canvas.width = 1200;
-      canvas.height = 630;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return null;
-      preset.render(ctx, 1200, 630);
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
-      if (!blob) return null;
-      const formData = new FormData();
-      formData.append("file", new File([blob], `cover-${preset.id}.png`, { type: "image/png" }));
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return data.url ?? null;
-    } catch {
-      return null;
-    }
-  }, []);
 
   // 포스트 일괄 생성
   const createPosts = useCallback(async (posts: Record<string, unknown>[]) => {
@@ -322,7 +267,7 @@ export default function AdminPostsPage() {
     }
     setUploading(false);
     if (created > 0) fetchPosts();
-  }, [fetchPosts, uploadRandomCover]);
+  }, [fetchPosts]);
 
   // 새 카테고리를 site_config에 추가
   const addNewCategories = useCallback(async (newCats: string[]) => {
@@ -347,7 +292,7 @@ export default function AdminPostsPage() {
     for (const file of Array.from(files)) {
       if (!file.name.endsWith(".md")) continue;
       const raw = await file.text();
-      parsed.push(parseMdFile(raw, file.name));
+      parsed.push(parseMdPost(raw, file.name));
     }
     if (mdInputRef.current) mdInputRef.current.value = "";
     if (parsed.length === 0) return;
