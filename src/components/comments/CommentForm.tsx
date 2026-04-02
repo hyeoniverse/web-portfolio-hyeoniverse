@@ -129,7 +129,7 @@ export default function CommentForm({
         setSubmitting(false);
       }
     },
-    [apiBase, commentType, targetId, parentId, commenterId, content, password, identity, isAdmin, emailNotify, notifyEmail, onSubmit],
+    [apiBase, commentType, targetId, parentId, commenterId, content, password, identity, isAdmin, emailNotify, notifyEmail, onSubmit, t],
   );
 
   return (
