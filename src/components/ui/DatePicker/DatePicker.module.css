@@ -133,7 +133,7 @@
   top: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 110;
+  z-index: var(--z-float);
   min-width: 48px;
   max-height: 180px;
   overflow-y: auto;
@@ -231,7 +231,7 @@
   top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100;
+  z-index: var(--z-nav);
   min-width: 220px;
   border: var(--border-light);
   border-radius: var(--radius-md);
