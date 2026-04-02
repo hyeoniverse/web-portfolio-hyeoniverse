@@ -168,6 +168,83 @@ const glossary: GlossaryEntry[] = [
       en: "Foreign Key. Constraint defining referential relationships between DB tables",
     },
   },
+  {
+    match: ["Plate"],
+    tip: {
+      ko: "Slate 기반의 Rich Text 에디터 프레임워크. 플러그인으로 기능 확장 가능",
+      en: "Slate-based rich text editor framework. Extensible via plugins",
+    },
+  },
+  {
+    match: ["inline void", "Inline Void"],
+    tip: {
+      ko: "편집 불가한 인라인 요소. 각주·멘션 등 텍스트 흐름 속 특수 노드에 사용",
+      en: "Non-editable inline element used for footnotes, mentions, and other special nodes within text flow",
+    },
+  },
+  {
+    match: ["void node"],
+    tip: {
+      ko: "자식 텍스트를 가지지 않는 Slate 노드. 이미지·구분선 등에 사용",
+      en: "Slate node with no child text. Used for images, dividers, etc.",
+    },
+  },
+  {
+    match: ["dangerouslySetInnerHTML"],
+    tip: {
+      ko: "React에서 HTML 문자열을 직접 삽입하는 속성. XSS 위험이 있어 주의 필요",
+      en: "React prop for injecting raw HTML strings. Requires caution due to XSS risks",
+    },
+  },
+  {
+    match: ["SSR"],
+    tip: {
+      ko: "Server-Side Rendering. 서버에서 HTML을 미리 생성하여 전달하는 방식",
+      en: "Server-Side Rendering. Pre-generates HTML on the server before sending to the client",
+    },
+  },
+  {
+    match: ["MutationObserver"],
+    tip: {
+      ko: "DOM 변경을 비동기로 감지하는 브라우저 API",
+      en: "Browser API that asynchronously observes DOM changes",
+    },
+  },
+  {
+    match: ["contentEditable"],
+    tip: {
+      ko: "HTML 요소를 브라우저에서 직접 편집 가능하게 만드는 속성",
+      en: "HTML attribute that makes an element editable directly in the browser",
+    },
+  },
+  {
+    match: ["slug"],
+    tip: {
+      ko: "URL에 사용되는 사람이 읽을 수 있는 고유 식별자 (예: my-first-post)",
+      en: "Human-readable unique identifier used in URLs (e.g., my-first-post)",
+    },
+  },
+  {
+    match: ["WebP"],
+    tip: {
+      ko: "Google이 개발한 이미지 포맷. JPEG/PNG 대비 25~35% 작은 파일 크기",
+      en: "Image format by Google. 25-35% smaller file sizes compared to JPEG/PNG",
+    },
+  },
+  {
+    match: ["RLS"],
+    tip: {
+      ko: "Row Level Security. DB 행 단위로 접근 권한을 제어하는 Supabase/PostgreSQL 기능",
+      en: "Row Level Security. Supabase/PostgreSQL feature controlling access at the row level",
+    },
+  },
+  {
+    match: ["marked-footnote"],
+    tip: {
+      ko: "마크다운 파서 marked의 각주 확장 플러그인",
+      en: "Footnote extension plugin for the marked markdown parser",
+    },
+  },
 ];
 
 /** 언어별로 match → tip 맵을 한 번만 빌드 */

@@ -7,45 +7,40 @@
   overflow: hidden;
 }
 
-/* ── Left: navigation list ── */
+/* ── Left: navigation list (wrapper) ── */
 .troubleList {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  position: relative;
-  overflow-y: auto;
-  border-right: var(--_line-secondary);
   width: clamp(260px, 25vw, 400px);
-  scrollbar-width: none;
-  container-type: size;
+  height: 100%;
+  border-right: var(--_line-secondary);
 }
 
-.troubleList::-webkit-scrollbar {
+/* Scrollable area inside troubleList */
+.troubleListScroll {
+  flex: 1 1 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.troubleListScroll::-webkit-scrollbar {
   display: none;
 }
 
-/* Page navigation — sticky footer inside scrollable list */
+/* Page navigation — fixed at bottom of sidebar */
 .troublePageNav {
   display: flex;
   flex: none;
-  height: calc(100cqh / var(--items-count, 11));
   gap: var(--_space-block);
   align-items: center;
   justify-content: center;
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
   padding: var(--box-md);
   border-top: var(--_line-secondary);
   background: var(--bg-primary);
   font-family: var(--font-mono);
   font-size: var(--_fs-label);
   color: var(--text-primary);
-}
-
-/* Compound selector (0,2,0) to beat global theme transition (0,1,1) */
-.troubleList .troublePageNav {
-  transition: opacity var(--duration-base) ease;
 }
 
 .troublePageBtn {
@@ -75,11 +70,10 @@
 .troubleListItem {
   display: flex;
   flex: none;
-  height: calc(100cqh / var(--items-count, 10));
   gap: var(--_space-line);
   align-items: baseline;
-  padding: var(--_space-line) 0;
-  padding-right: var(--_space-line);
+  padding: var(--_space-line);
+  padding-left: 0;
   border-bottom: var(--_line-secondary);
 }
 
@@ -220,7 +214,7 @@
 .troubleSectionLabel {
   display: flex;
   flex: none;
-  height: calc(100cqh / var(--items-count, 16));
+  padding: var(--_space-line) 0;
   align-items: center;
   font-family: var(--font-mono);
   font-size: var(--_fs-label);

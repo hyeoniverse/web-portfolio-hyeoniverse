@@ -85,11 +85,15 @@
 
 .heroAccentLine {
   display: block;
-  width: 48px;
+  width: 0;
   height: 2px;
   margin-top: var(--spacing-lg);
   background: var(--color-accent);
   border-radius: 1px;
+  opacity: 0;
+}
+
+.heroReady .heroAccentLine {
   animation: heroLineSlide 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both;
 }
 
@@ -104,11 +108,17 @@
   }
 }
 
-.heroFadeIn1 {
+.heroFadeIn1,
+.heroFadeIn2 {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.heroReady .heroFadeIn1 {
   animation: heroFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
 }
 
-.heroFadeIn2 {
+.heroReady .heroFadeIn2 {
   animation: heroFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s both;
 }
 
