@@ -23,8 +23,9 @@ import {
   typoVariants, typoColors, spacingScale, radiusScale,
   shadowScale, durations, easings, zScale, tocSections,
 } from "./_data/tokenData";
+import dynamic from "next/dynamic";
 import ComponentsSection from "./_sections/ComponentsSection";
-import EditorSection from "./_sections/EditorSection";
+const EditorSection = dynamic(() => import("./_sections/EditorSection"), { ssr: false });
 import BannerSection from "./_sections/BannerSection";
 import styles from "./DesignSystem.module.css";
 

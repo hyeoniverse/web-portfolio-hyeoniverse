@@ -13,8 +13,9 @@ import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout"
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { extractHeadings, getBentoClass } from "../_utils";
 import Button from "@/components/ui/Button";
+import dynamic from "next/dynamic";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
-import CommentSection from "@/components/comments/CommentSection";
+const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import AISummary from "@/components/ui/AISummary";
 import ShareButton from "@/components/ui/ShareButton";
