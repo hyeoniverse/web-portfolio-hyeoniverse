@@ -66,10 +66,22 @@ export async function getInitialPostsData() {
     .slice(0, 5)
     .map((p) => p.id);
 
+  // 배너용: pinned가 3개 미만이면 인기 게시물로 채움
+  const MIN_BANNER = 3;
+  let bannerPosts = [...pinnedPosts];
+  if (bannerPosts.length < MIN_BANNER) {
+    const pinnedIds = new Set(bannerPosts.map((p) => p.id));
+    const hotPosts = posts
+      .filter((p) => !pinnedIds.has(p.id))
+      .sort((a, b) => b.view_count - a.view_count)
+      .slice(0, MIN_BANNER - bannerPosts.length);
+    bannerPosts = [...bannerPosts, ...hotPosts];
+  }
+
   return {
     posts,
     totalPages,
-    pinnedPosts,
+    pinnedPosts: bannerPosts,
     seriesList,
     allTags,
     extraCategories,

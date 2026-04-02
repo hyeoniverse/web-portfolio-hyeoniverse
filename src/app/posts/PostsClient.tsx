@@ -281,7 +281,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const hasMoreSeries = seriesList.length > SERIES_LIMIT;
 
   const hasFilter = !!search || !!activeTag || !!activeSeries;
-  const showBanner = pinnedPosts.length > 0 && page === 1 && !hasFilter;
+  const showBanner = pinnedPosts.length >= 1 && page === 1 && !hasFilter;
 
   const pageNumbers = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);

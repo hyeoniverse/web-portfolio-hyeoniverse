@@ -22,7 +22,7 @@
    1. Fullwidth — wraps existing Carousel
    ========================================================================== */
 .fullwidth {
-  width: 100vw;
+  width: calc(100% + var(--page-px) * 2);
   margin-left: calc(-1 * var(--page-px));
 }
 
