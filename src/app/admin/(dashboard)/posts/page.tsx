@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
@@ -14,17 +13,16 @@ import Select from "@/components/ui/Select";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
-import AdminTable, {
-  adminTableStyles as ts,
-  type AdminTableColumn,
-} from "@/components/admin/AdminTable/AdminTable";
-import Checkbox from "@/components/ui/Checkbox";
+import AdminTable from "@/components/admin/AdminTable/AdminTable";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
-import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
+import SubTable from "@/components/admin/SubTable/SubTable";
 import SearchCapsule from "@/components/admin/SearchCapsule/SearchCapsule";
 import { parseMdPost } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
+import { PurgeModal, SeriesDeleteModal } from "./_components/PostModals";
+import PreviewTooltip from "./_components/PreviewTooltip";
+import { createPostColumns, createTrashColumns, createSeriesColumns } from "./_columns";
 import styles from "./AdminPosts.module.css";
 
 const PAGE_SIZE_OPTIONS = [
@@ -33,127 +31,6 @@ const PAGE_SIZE_OPTIONS = [
   { value: "50", label: "50" },
   { value: "100", label: "100" },
 ];
-
-function PurgeModal({ title, onConfirm }: { title: string; onConfirm: () => void }) {
-  const { t } = useLanguage();
-  const { closeAll } = useModalStore();
-  const [input, setInput] = useState("");
-  const valid = input === title;
-  return (
-    <div className={styles.seriesDeleteModal}>
-      <p className={styles.seriesDeleteHint}>{t("admin.posts.trashPurgeHint")}</p>
-      <input
-        className={styles.seriesDeleteInput}
-        type="text"
-        placeholder={title}
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter" && valid) { closeAll(); onConfirm(); } }}
-      />
-      <div className={styles.seriesDeleteActions}>
-        <button className={styles.seriesDeleteCancel} onClick={closeAll}>{t("admin.posts.cancel")}</button>
-        <button className={styles.seriesDeleteConfirm} disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>{t("admin.posts.trashPurge")}</button>
-      </div>
-    </div>
-  );
-}
-
-function SeriesDeleteModal({ series, deletePostsRef, onConfirm }: {
-  series: Series;
-  deletePostsRef: { current: boolean };
-  onConfirm: () => void;
-}) {
-  const { t } = useLanguage();
-  const [withPosts, setWithPosts] = useState(false);
-  const [input, setInput] = useState("");
-  const { closeAll } = useModalStore();
-  const valid = input === series.title;
-
-  return (
-    <div className={styles.seriesDeleteModal}>
-      <p className={styles.seriesDeleteHint}>{t("admin.posts.seriesDeleteHint")}</p>
-      <label className={styles.seriesDeleteCheck}>
-        <Checkbox checked={withPosts} onChange={(v) => { setWithPosts(v); deletePostsRef.current = v; }} shape="square" />
-        {t("admin.posts.seriesDeleteWithPosts")}
-      </label>
-      <input
-        className={styles.seriesDeleteInput}
-        type="text"
-        placeholder={series.title}
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter" && valid) { closeAll(); onConfirm(); } }}
-      />
-      <div className={styles.seriesDeleteActions}>
-        <button className={styles.seriesDeleteCancel} onClick={closeAll}>{t("admin.posts.cancel")}</button>
-        <button className={styles.seriesDeleteConfirm} disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>{t("admin.posts.delete")}</button>
-      </div>
-    </div>
-  );
-}
-
-
-/* ── Isolated tooltip to prevent parent re-renders from reaching AdminTable ── */
-function PreviewTooltip({
-  post,
-  pos,
-  imgError,
-  onImgError,
-  onDismiss,
-  onNavigate,
-}: {
-  post: Post | null;
-  pos: { top: number; left: number };
-  imgError: boolean;
-  onImgError: () => void;
-  onDismiss: () => void;
-  onNavigate: () => void;
-}) {
-  if (!post) return null;
-  return (
-    <>
-      <div className={shell.previewBackdrop} onClick={onDismiss} />
-      <div
-        className={shell.previewTooltip}
-        style={{ top: pos.top, left: pos.left }}
-        onClick={onNavigate}
-      >
-        <div className={shell.previewImage}>
-          {post.cover_image && !imgError ? (
-            <Image
-              src={post.cover_image}
-              alt=""
-              width={280}
-              height={140}
-              className={shell.previewImg}
-              unoptimized
-              onError={onImgError}
-            />
-          ) : (
-            <div className={shell.previewPlaceholder}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-            </div>
-          )}
-        </div>
-        <div className={shell.previewBody}>
-          <p className={shell.previewTitle}>{formatPostTitle(post)}</p>
-          <p className={shell.previewExcerpt} style={!post.excerpt ? { color: "var(--text-muted)", fontStyle: "italic" } : undefined}>{post.excerpt || "내용 없음"}</p>
-          {post.tags.length > 0 && (
-            <div className={shell.previewTags}>
-              {post.tags.map((tag) => (
-                <span key={tag} className={shell.previewTag}>{tag}</span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </>
-  );
-}
 
 export default function AdminPostsPage() {
   const { t, language } = useLanguage();
@@ -422,60 +299,7 @@ export default function AdminPostsPage() {
 
 
   /* ── Table columns ── */
-  const columns: AdminTableColumn<Post>[] = useMemo(
-    () => [
-      {
-        key: "thumb",
-        label: t("admin.posts.tableThumb"),
-        className: ts.colThumbWrap,
-        render: (post) => (
-          <div className={ts.colThumb}>
-            {post.cover_image ? (
-              <Image
-                src={post.cover_image}
-                alt=""
-                fill
-                sizes="48px"
-                className={ts.thumbImg}
-                unoptimized
-              />
-            ) : (
-              <div className={ts.thumbPlaceholder}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <polyline points="21 15 16 10 5 21" />
-                </svg>
-              </div>
-            )}
-          </div>
-        ),
-        skeletonWidth: "48px",
-      },
-      {
-        key: "title",
-        label: t("admin.posts.tableTitle"),
-        className: ts.colTitle,
-        render: (post) => formatPostTitle(post) || t("admin.posts.untitled"),
-        skeletonWidth: "75%",
-      },
-      {
-        key: "date",
-        label: t("admin.posts.tableDate"),
-        className: ts.colMeta,
-        render: (post) => new Date(post.created_at).toLocaleDateString(),
-        skeletonWidth: "80px",
-      },
-      {
-        key: "views",
-        label: t("admin.posts.tableViews"),
-        className: ts.colMono,
-        render: (post) => String(post.view_count),
-        skeletonWidth: "30px",
-      },
-    ],
-    [t],
-  );
+  const columns = useMemo(() => createPostColumns(t), [t]);
 
   const labels = useMemo(
     () => ({
@@ -506,71 +330,8 @@ export default function AdminPostsPage() {
     </svg>
   );
 
-  const trashColumns: SubTableColumn<Post>[] = useMemo(() => [
-    {
-      key: "num",
-      label: "#",
-      className: st.colMeta,
-      render: (post) => <span>{post.post_number ?? "—"}</span>,
-      skeletonWidth: "24px",
-    },
-    {
-      key: "thumb",
-      label: t("admin.posts.tableThumb"),
-      className: st.colThumbWrap,
-      render: (post) => (
-        <div className={st.colThumb}>
-          {post.cover_image ? (
-            <Image src={post.cover_image} alt="" fill sizes="48px" className={st.thumbImg} unoptimized />
-          ) : (
-            <div className={st.thumbPlaceholder}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
-              </svg>
-            </div>
-          )}
-        </div>
-      ),
-      skeletonWidth: "48px",
-    },
-    {
-      key: "title",
-      label: t("admin.posts.tableTitle"),
-      className: st.colTitle,
-      render: (post) => formatPostTitle(post) || t("admin.posts.untitled"),
-      skeletonWidth: "60%",
-    },
-    {
-      key: "daysLeft",
-      label: t("admin.posts.trashDaysLeftLabel"),
-      className: st.colMeta,
-      render: (post) => {
-        const daysLeft = getDaysLeft(post.deleted_at!);
-        return (
-          <span className={st.colDaysLeft}>
-            <span className={daysLeft <= 7 ? st.accentText : ""}>{daysLeft}<T k="admin.posts.trashDaysLeftUnit" /></span>
-            <span className={st.colDaysSub}><T k="admin.posts.trashAutoDeleteShort" /></span>
-          </span>
-        );
-      },
-    },
-    {
-      key: "actions",
-      label: t("admin.posts.actions"),
-      className: st.colActions,
-      render: (post) => (
-        <>
-          <button type="button" className={st.actionBtn} onClick={() => handleRestore(post.id)}>
-            <T k="admin.posts.trashRestore" />
-          </button>
-          <button type="button" className={st.dangerBtn} onClick={() => handlePurge(post.id, formatPostTitle(post) || t("admin.posts.untitled"))}>
-            <T k="admin.posts.trashPurge" />
-          </button>
-        </>
-      ),
-    },
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  ], [t]);
+  const trashColumns = useMemo(() => createTrashColumns(t, getDaysLeft, handleRestore, handlePurge), [t]);
 
   const trashSection = (
     <div className={styles.trashSection}>
@@ -675,86 +436,8 @@ export default function AdminPostsPage() {
   );
 
   /* ── Series Section ── */
-  const seriesColumns: SubTableColumn<Series>[] = useMemo(() => [
-    {
-      key: "thumb",
-      label: t("admin.posts.tableThumb"),
-      className: st.colThumbWrap,
-      render: (s) => (
-        <div className={st.colThumb}>
-          {s.cover_image ? (
-            <Image src={s.cover_image} alt="" fill sizes="48px" unoptimized className={st.thumbImg} />
-          ) : (
-            <div className={st.thumbPlaceholder}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
-              </svg>
-            </div>
-          )}
-        </div>
-      ),
-      skeletonWidth: "48px",
-    },
-    {
-      key: "title",
-      label: t("admin.posts.tableTitle"),
-      className: st.colTitle,
-      render: (s) => (
-        <a
-          href={`/admin/settings?tab=content&sub=posts&series=${s.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.seriesRowLink}
-        >
-          {s.title || t("admin.posts.untitled")}
-        </a>
-      ),
-      skeletonWidth: "60%",
-    },
-    {
-      key: "category",
-      label: t("admin.posts.tableCategory"),
-      className: st.colMeta,
-      render: (s) => s.category ? <span className={styles.seriesRowCat}>{s.category}</span> : <span>—</span>,
-    },
-    {
-      key: "count",
-      label: t("admin.posts.tablePostCount"),
-      className: st.colMeta,
-      render: (s) => <span>{s.post_count ?? 0}</span>,
-    },
-    {
-      key: "status",
-      label: t("admin.posts.tableStatus"),
-      className: st.colMeta,
-      render: (s) => (
-        <span className={`${st.statusBadge} ${s.published ? st.published : st.draft}`}>
-          {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
-        </span>
-      ),
-    },
-    {
-      key: "actions",
-      label: t("admin.posts.actions"),
-      className: st.colActions,
-      render: (s) => (
-        <>
-          <a
-            href={`/admin/settings?tab=content&sub=posts&series=${s.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={st.actionBtn}
-          >
-            <T k="admin.posts.edit" />
-          </a>
-          <button type="button" className={st.dangerBtn} onClick={() => handleDeleteSeries(s)}>
-            <T k="admin.posts.delete" />
-          </button>
-        </>
-      ),
-    },
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  ], [t]);
+  const seriesColumns = useMemo(() => createSeriesColumns(t, handleDeleteSeries), [t]);
 
   const seriesSection = (
     <div className={styles.seriesSection}>
