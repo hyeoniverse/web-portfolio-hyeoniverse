@@ -9,6 +9,7 @@ import T from "@/components/ui/T";
 import type { Post, Series } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
 import { useCategories, translateCategory } from "@/hooks/useCategories";
+import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import Select from "@/components/ui/Select";
 import AdminListShell, {
   adminShellStyles as shell,
@@ -176,11 +177,18 @@ export default function AdminPostsPage() {
   const hasFilters = sort !== "newest" || filterCategory !== "" || filterSeries !== "" || search;
 
 
-  /* Preview tooltip — use refs + minimal state to avoid re-rendering AdminTable */
-  const hoveredPostRef = useRef<Post | null>(null);
-  const [tooltipKey, setTooltipKey] = useState(0);
-  const tooltipPosRef = useRef({ top: 0, left: 0 });
-  const imgErrorRef = useRef(false);
+  /* Preview tooltip */
+  const {
+    hoveredRef: hoveredPostRef,
+    tooltipKey,
+    tooltipPosRef,
+    imgErrorRef,
+    handleRowHover,
+    handleRowLeave,
+    handleRowClick,
+    handleImgError,
+    hideTooltip,
+  } = usePreviewTooltip<Post>("/admin/posts");
 
   /* Series */
   const [seriesList, setSeriesList] = useState<Series[]>([]);
@@ -467,66 +475,6 @@ export default function AdminPostsPage() {
     );
   };
 
-  const canHover = useRef(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-    canHover.current = mq.matches;
-    const onChange = (e: MediaQueryListEvent) => { canHover.current = e.matches; };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  const calcTooltipPos = (el: HTMLElement, post: Post) => {
-    const rect = el.getBoundingClientRect();
-    const tooltipWidth = 280;
-    const hasImage = !!post.cover_image;
-    const tooltipHeight = hasImage ? 260 : 120;
-    const gap = 8;
-    const rawLeft = rect.left + rect.width / 2 - tooltipWidth / 2;
-    const left = Math.max(8, Math.min(rawLeft, window.innerWidth - tooltipWidth - 8));
-    const spaceAbove = rect.top;
-    const top = spaceAbove > tooltipHeight + gap
-      ? rect.top - tooltipHeight - gap
-      : rect.bottom + gap;
-    return { top, left };
-  };
-
-  const showTooltip = useCallback((post: Post, el: HTMLElement) => {
-    hoveredPostRef.current = post;
-    tooltipPosRef.current = calcTooltipPos(el, post);
-    imgErrorRef.current = false;
-    setTooltipKey((k) => k + 1);
-  }, []);
-
-  const hideTooltip = useCallback(() => {
-    if (!hoveredPostRef.current) return;
-    hoveredPostRef.current = null;
-    setTooltipKey((k) => k + 1);
-  }, []);
-
-  const handleRowHover = useCallback((post: Post, e: React.MouseEvent) => {
-    if (!canHover.current) return;
-    showTooltip(post, e.currentTarget as HTMLElement);
-  }, [showTooltip]);
-
-  const handleRowLeave = useCallback(() => {
-    if (!canHover.current) return;
-    hideTooltip();
-  }, [hideTooltip]);
-
-  const handleRowClick = useCallback((post: Post, e: React.MouseEvent) => {
-    if (canHover.current) {
-      router.push(`/admin/posts/${post.id}/edit`);
-      return;
-    }
-    /* Touch: first tap → preview, second tap → navigate */
-    if (hoveredPostRef.current?.id === post.id) {
-      hideTooltip();
-      router.push(`/admin/posts/${post.id}/edit`);
-      return;
-    }
-    showTooltip(post, e.currentTarget as HTMLElement);
-  }, [router, showTooltip, hideTooltip]);
 
   /* ── Table columns ── */
   const columns: AdminTableColumn<Post>[] = useMemo(
@@ -1150,7 +1098,7 @@ tags: React`}</code></pre>
         post={hoveredPostRef.current}
         pos={tooltipPosRef.current}
         imgError={imgErrorRef.current}
-        onImgError={() => { imgErrorRef.current = true; setTooltipKey((k) => k + 1); }}
+        onImgError={handleImgError}
         onDismiss={hideTooltip}
         onNavigate={() => {
           const post = hoveredPostRef.current;
