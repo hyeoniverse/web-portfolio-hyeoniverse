@@ -16,6 +16,9 @@ import type { Work, WorkFormData, TeamMember } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { autoTranslate } from "@/utils/autoTranslate";
+import { SIZES, TEMPLATE_KO, TEMPLATE_EN } from "@/data/workTemplates";
+import { workToFormData, defaultForm } from "@/utils/workFormUtils";
+import { stripHtml } from "@/utils/htmlUtils";
 import Select from "@/components/ui/Select";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { useModalStore } from "@/stores/modalStore";
@@ -35,202 +38,6 @@ interface WorksCategory {
   en: string;
 }
 
-const SIZES = ["large", "small", "medium", "tall", "wide"] as const;
-
-const TEMPLATE_KO = `## Overview
-
-이 프로젝트는 ___를 위한 ___입니다. 주요 사용자는 ___이며, ___한 문제를 해결하기 위해 만들어졌습니다.
-
-## Background
-
-기존에는 ___한 방식으로 처리하고 있었으나, ___한 한계가 있었습니다. 이를 개선하기 위해 프로젝트를 시작하게 되었습니다.
-
-## My Role
-
-팀 내에서 ___를 담당했습니다. 주요 기여 영역은 다음과 같습니다:
-
--
--
--
-
-## Key Features
-
-- **___**: ___
-- **___**: ___
-- **___**: ___
-
-## Architecture
-
-전체 시스템은 ___로 구성되어 있습니다. 프론트엔드는 ___를 사용하고, 백엔드는 ___으로 구축했습니다. 데이터는 ___에 저장되며, ___를 통해 통신합니다.
-
-## Challenges & Troubleshooting
-
-### 문제 1: ___
-
-**상황**: ___한 상황에서 ___가 발생했습니다.
-**원인**: ___
-**해결**: ___를 적용하여 해결했습니다.
-
-### 문제 2: ___
-
-**상황**: ___
-**원인**: ___
-**해결**: ___
-
-## Results
-
-- ___가 기존 대비 ___% 개선되었습니다.
-- 사용자 ___가 ___만큼 증가했습니다.
-- ___
-
-## Lessons Learned
-
-- ___할 때는 ___하는 것이 효과적이라는 것을 배웠습니다.
-- 다음에는 ___를 더 일찍 고려할 것입니다.
-- ___`;
-
-const TEMPLATE_EN = `## Overview
-
-This project is a ___ designed for ___. The primary users are ___, and it was built to solve ___.
-
-## Background
-
-Previously, ___ was handled by ___, but it had limitations such as ___. This project was initiated to address these issues.
-
-## My Role
-
-I was responsible for ___ within the team. Key contributions include:
-
--
--
--
-
-## Key Features
-
-- **___**: ___
-- **___**: ___
-- **___**: ___
-
-## Architecture
-
-The system is composed of ___. The frontend uses ___, the backend is built with ___, and data is stored in ___, communicating via ___.
-
-## Challenges & Troubleshooting
-
-### Issue 1: ___
-
-**Context**: ___ occurred under ___ conditions.
-**Root cause**: ___
-**Resolution**: Applied ___ to resolve the issue.
-
-### Issue 2: ___
-
-**Context**: ___
-**Root cause**: ___
-**Resolution**: ___
-
-## Results
-
-- ___ improved by ___% compared to the previous approach.
-- User ___ increased by ___.
-- ___
-
-## Lessons Learned
-
-- Learned that ___ is effective when dealing with ___.
-- Next time, I would consider ___ earlier in the process.
-- ___`;
-
-function workToFormData(work: Work): WorkFormData {
-  let contentKo = work.content_ko || "";
-  let contentEn = work.content_en || "";
-
-  if (!contentKo && (work.overview_ko || work.challenge_ko || work.solution_ko)) {
-    const parts: string[] = [];
-    if (work.overview_ko) {
-      parts.push(`## Overview\n\n${work.overview_ko}`);
-      if (work.overview_image) parts.push(`\n\n![Overview](${work.overview_image})`);
-    }
-    if (work.challenge_ko) {
-      parts.push(`## Challenges\n\n${work.challenge_ko}`);
-      if (work.challenge_image) parts.push(`\n\n![Challenges](${work.challenge_image})`);
-    }
-    if (work.solution_ko) {
-      parts.push(`## Solutions\n\n${work.solution_ko}`);
-      if (work.solution_image) parts.push(`\n\n![Solutions](${work.solution_image})`);
-    }
-    contentKo = parts.join("\n\n");
-  }
-
-  if (!contentEn && (work.overview_en || work.challenge_en || work.solution_en)) {
-    const parts: string[] = [];
-    if (work.overview_en) {
-      parts.push(`## Overview\n\n${work.overview_en}`);
-      if (work.overview_image) parts.push(`\n\n![Overview](${work.overview_image})`);
-    }
-    if (work.challenge_en) {
-      parts.push(`## Challenges\n\n${work.challenge_en}`);
-      if (work.challenge_image) parts.push(`\n\n![Challenges](${work.challenge_image})`);
-    }
-    if (work.solution_en) {
-      parts.push(`## Solutions\n\n${work.solution_en}`);
-      if (work.solution_image) parts.push(`\n\n![Solutions](${work.solution_image})`);
-    }
-    contentEn = parts.join("\n\n");
-  }
-
-  return {
-    number: work.number,
-    title: work.title,
-    subtitle_ko: work.subtitle_ko,
-    subtitle_en: work.subtitle_en,
-    category_ko: work.category_ko,
-    category_en: work.category_en,
-    year: work.year,
-    description_ko: work.description_ko,
-    description_en: work.description_en,
-    role_ko: work.role_ko,
-    role_en: work.role_en,
-    tech: work.tech,
-    image: work.image,
-    size: work.size,
-    content_ko: contentKo,
-    content_en: contentEn,
-    content_type: work.content_type || "markdown",
-    team_members: work.team_members ?? [],
-    gallery: work.gallery,
-    live_url: work.live_url,
-    github_url: work.github_url,
-    published: work.published,
-    sort_order: work.sort_order || 1,
-  };
-}
-
-const defaultForm: WorkFormData = {
-  number: "",
-  title: "",
-  subtitle_ko: "",
-  subtitle_en: "",
-  category_ko: "",
-  category_en: "",
-  year: new Date().getFullYear().toString(),
-  description_ko: "",
-  description_en: "",
-  role_ko: "",
-  role_en: "",
-  tech: [],
-  image: "",
-  size: "medium",
-  content_ko: "",
-  content_en: "",
-  content_type: "markdown",
-  team_members: [],
-  gallery: [],
-  live_url: "",
-  github_url: "",
-  published: false,
-  sort_order: 1,
-};
 
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
@@ -743,13 +550,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (!snapshot) return null;
       const s = snapshot as WorkFormData;
-      const stripHtml = (html: string) =>
-        html
-          .replace(/<\/?(p|div|br|li|tr|h[1-6]|blockquote)[^>]*>/gi, "\n")
-          .replace(/<[^>]+>/g, "")
-          .replace(/&nbsp;/g, " ")
-          .replace(/\n{3,}/g, "\n\n")
-          .trim();
       return {
         excerpt: s.description_ko || s.description_en || "",
         content: stripHtml(s.content_ko || s.content_en || ""),
@@ -878,13 +678,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
       currentSnapshot={(() => {
-        const stripHtml = (html: string) =>
-          html
-            .replace(/<\/?(p|div|br|li|tr|h[1-6]|blockquote)[^>]*>/gi, "\n")
-            .replace(/<[^>]+>/g, "")
-            .replace(/&nbsp;/g, " ")
-            .replace(/\n{3,}/g, "\n\n")
-            .trim();
         return {
           title: form.title,
           excerpt: form.description_ko || form.description_en || "",
