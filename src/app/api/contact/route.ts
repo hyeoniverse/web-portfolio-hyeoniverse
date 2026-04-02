@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSecret } from "@/lib/getSecret";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_RE } from "@/utils/commentValidation";
 
 export async function POST(request: NextRequest) {
   try {
