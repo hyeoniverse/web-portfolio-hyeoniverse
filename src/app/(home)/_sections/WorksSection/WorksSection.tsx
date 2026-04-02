@@ -11,6 +11,7 @@ import {
 } from "@/types";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { getHoverDirection } from "@/utils/gestureUtils";
 import styles from "./WorksSection.module.css";
 
 /** 그리드 내 이미지가 배치될 열 인덱스 (행별) */
@@ -202,27 +203,13 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
     const { t, language } = useLanguage();
     const [hoverDirections, setHoverDirections] = useState<{ [key: string]: { x: number; y: number } }>({});
 
-    const getHoverDirection = useCallback(
+    const updateHoverDirection = useCallback(
       (e: React.MouseEvent<HTMLDivElement>, workId: string) => {
         const rect = e.currentTarget.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const deltaX = e.clientX - centerX;
-        const deltaY = e.clientY - centerY;
-        const absX = Math.abs(deltaX);
-        const absY = Math.abs(deltaY);
-
-        let x = 0;
-        let y = 0;
-        if (absX > absY) {
-          x = deltaX > 0 ? 1 : -1;
-        } else {
-          y = deltaY > 0 ? 1 : -1;
-        }
-
+        const dir = getHoverDirection(rect, e.clientX, e.clientY);
         setHoverDirections((prev) => ({
           ...prev,
-          [workId]: { x, y },
+          [workId]: dir,
         }));
       },
       []
@@ -276,7 +263,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
               onPressEnd={handlePressEnd}
               onClick={(e) => handleWorkClick(work, e)}
               onHoverStart={(e) => {
-                getHoverDirection(e, work.id);
+                updateHoverDirection(e, work.id);
                 handleHoverStart(e, work);
               }}
               onHoverEnd={() => {
