@@ -8,7 +8,7 @@ import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
-import type { Post, PostFormData, Series } from "@/types/post";
+import type { Post, PostFormData } from "@/types/post";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
@@ -26,6 +26,7 @@ import { generateSlug, validateSlug } from "@/utils/postSlug";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useTagInput } from "@/hooks/useTagInput";
+import { usePostSeries } from "@/hooks/usePostSeries";
 import TagsList from "./TagsList";
 import ShortcutsModalContent from "./ShortcutsModal";
 import styles from "./PostEditor.module.css";
@@ -158,9 +159,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [showMdHelp, setShowMdHelp] = useState(false);
-  const [seriesList, setSeriesList] = useState<Series[]>([]);
-  const [seriesPosts, setSeriesPosts] = useState<{ id: string; title: string; series_order: number }[]>([]);
-  const [seriesPostsLoading, setSeriesPostsLoading] = useState(false);
   const initialFormRef = useRef(form);
   const formRef = useRef(form);
   formRef.current = form;
@@ -216,31 +214,6 @@ export default function PostEditor({ post }: PostEditorProps) {
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbRevisions]);
-
-  useEffect(() => {
-    fetch("/api/series?all=true")
-      .then((res) => res.json())
-      .then((data) => setSeriesList(Array.isArray(data) ? data : []));
-  }, []);
-
-  // 시리즈 선택 시 해당 시리즈 게시물 목록 fetch + 순서 자동 설정
-  useEffect(() => {
-    if (!form.series_id) { setSeriesPosts([]); setSeriesPostsLoading(false); return; }
-    setSeriesPostsLoading(true);
-    fetch(`/api/series/${form.series_id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const posts = (data.posts ?? []) as { id: string; title: string; series_order: number }[];
-        setSeriesPosts(posts);
-        // 새 글이면 마지막 순서 +1
-        if (!isEdit || !posts.some((p) => p.id === post?.id)) {
-          const maxOrder = posts.reduce((max, p) => Math.max(max, p.series_order ?? 0), 0);
-          updateField("series_order", maxOrder + 1);
-        }
-      })
-      .finally(() => setSeriesPostsLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.series_id]);
 
   useEffect(() => {
     if (!slugManual && form.title) {
@@ -336,6 +309,13 @@ export default function PostEditor({ post }: PostEditorProps) {
   );
 
   const tag = useTagInput(form.tags, (tags) => updateField("tags", tags));
+
+  const { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading } = usePostSeries(
+    form.series_id,
+    isEdit,
+    post?.id,
+    (order) => updateField("series_order", order),
+  );
 
   const translateFields = useCallback(
     async (fieldKeys: string[], lang: "ko" | "en") => {

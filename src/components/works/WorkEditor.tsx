@@ -12,9 +12,11 @@ import AdminEditorShell, {
 } from "@/components/admin/AdminEditorShell";
 import EditorToggle from "@/components/posts/EditorToggle";
 import MarkdownEditor from "@/components/posts/MarkdownEditor";
-import type { Work, WorkFormData, TeamMember } from "@/types/work";
+import type { Work, WorkFormData } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
+import { useTagInput } from "@/hooks/useTagInput";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { autoTranslate } from "@/utils/autoTranslate";
 import { SIZES, TEMPLATE_KO, TEMPLATE_EN } from "@/data/workTemplates";
 import { workToFormData, defaultForm } from "@/utils/workFormUtils";
@@ -129,11 +131,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, []);
 
   const [showCoverPicker, setShowCoverPicker] = useState(false);
-  const [techInput, setTechInput] = useState("");
-  const [memberName, setMemberName] = useState("");
-  const [memberRoleKo, setMemberRoleKo] = useState("");
-  const [memberRoleEn, setMemberRoleEn] = useState("");
-  const [memberUrl, setMemberUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [status, setStatus] = useState("");
@@ -219,31 +216,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [],
   );
 
-  const addTech = useCallback(() => {
-    const tag = techInput.trim().replace(/,/g, "");
-    if (tag && !form.tech.includes(tag)) {
-      updateField("tech", [...form.tech, tag]);
-    }
-    setTechInput("");
-  }, [techInput, form.tech, updateField]);
-
-  const handleTechKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.nativeEvent.isComposing) return;
-      if (e.key === "Enter" || e.key === ",") {
-        e.preventDefault();
-        addTech();
-      }
-    },
-    [addTech],
-  );
-
-  const removeTech = useCallback(
-    (tag: string) => {
-      updateField("tech", form.tech.filter((t) => t !== tag));
-    },
-    [form.tech, updateField],
-  );
+  const tech = useTagInput(form.tech, (tags) => updateField("tech", tags));
 
   const TRANSLATABLE_FIELDS = useMemo(
     () => ["subtitle", "description", "role", "content"] as const,
@@ -318,27 +291,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [translating, editorLang, translateFields, TRANSLATABLE_FIELDS],
   );
 
-  const addMember = useCallback(() => {
-    if (!memberName.trim()) return;
-    const member: TeamMember = {
-      name: memberName.trim(),
-      role_ko: memberRoleKo.trim(),
-      role_en: memberRoleEn.trim(),
-      url: memberUrl.trim() || undefined,
-    };
-    updateField("team_members", [...form.team_members, member]);
-    setMemberName("");
-    setMemberRoleKo("");
-    setMemberRoleEn("");
-    setMemberUrl("");
-  }, [memberName, memberRoleKo, memberRoleEn, memberUrl, form.team_members, updateField]);
-
-  const removeMember = useCallback(
-    (index: number) => {
-      updateField("team_members", form.team_members.filter((_, i) => i !== index));
-    },
-    [form.team_members, updateField],
-  );
+  const team = useTeamMembers(form.team_members, (members) => updateField("team_members", members));
 
   const handleContentTypeChange = useCallback(
     async (newType: "markdown" | "richtext") => {
@@ -877,16 +830,16 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             <input
               className={es.fieldInput}
               type="text"
-              value={techInput}
-              onChange={(e) => setTechInput(e.target.value)}
-              onKeyDown={handleTechKeyDown}
+              value={tech.input}
+              onChange={(e) => tech.setInput(e.target.value)}
+              onKeyDown={tech.handleKeyDown}
               placeholder={tw("techPlaceholder")}
             />
             <button
               type="button"
               className={styles.techAddBtn}
-              onClick={addTech}
-              disabled={!techInput.trim()}
+              onClick={tech.add}
+              disabled={!tech.input.trim()}
             >
               +
             </button>
@@ -896,7 +849,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               {form.tech.map((t) => (
                 <span key={t} className={es.tag}>
                   {t}
-                  <button type="button" className={es.tagRemove} onClick={() => removeTech(t)}>
+                  <button type="button" className={es.tagRemove} onClick={() => tech.remove(t)}>
                     &times;
                   </button>
                 </span>
@@ -914,22 +867,22 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             <input
               className={es.fieldInput}
               type="text"
-              value={memberName}
-              onChange={(e) => setMemberName(e.target.value)}
+              value={team.memberName}
+              onChange={(e) => team.setMemberName(e.target.value)}
               placeholder={tw("memberName")}
             />
             <input
               className={es.fieldInput}
               type="text"
-              value={memberRoleKo}
-              onChange={(e) => setMemberRoleKo(e.target.value)}
+              value={team.memberRoleKo}
+              onChange={(e) => team.setMemberRoleKo(e.target.value)}
               placeholder={tw("memberRole")}
             />
             <input
               className={es.fieldInput}
               type="text"
-              value={memberRoleEn}
-              onChange={(e) => setMemberRoleEn(e.target.value)}
+              value={team.memberRoleEn}
+              onChange={(e) => team.setMemberRoleEn(e.target.value)}
               placeholder={tw("memberRoleEN")}
             />
           </div>
@@ -937,15 +890,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             <input
               className={es.fieldInput}
               type="url"
-              value={memberUrl}
-              onChange={(e) => setMemberUrl(e.target.value)}
+              value={team.memberUrl}
+              onChange={(e) => team.setMemberUrl(e.target.value)}
               placeholder={tw("memberUrl")}
             />
             <button
               type="button"
               className={styles.techAddBtn}
-              onClick={addMember}
-              disabled={!memberName.trim()}
+              onClick={team.addMember}
+              disabled={!team.memberName.trim()}
             >
               +
             </button>
@@ -969,7 +922,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 <button
                   type="button"
                   className={es.tagRemove}
-                  onClick={() => removeMember(i)}
+                  onClick={() => team.removeMember(i)}
                 >
                   &times;
                 </button>
