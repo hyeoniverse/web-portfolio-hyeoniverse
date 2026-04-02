@@ -116,12 +116,17 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     posts: data,
     total: count ?? 0,
     page,
     totalPages: Math.ceil((count ?? 0) / limit),
   });
+  // 공개 목록은 짧은 TTL + stale-while-revalidate
+  if (!showAll && !showTrash) {
+    res.headers.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+  }
+  return res;
 }
 
 // POST /api/posts — 새 포스트 생성 (admin only)

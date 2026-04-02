@@ -93,12 +93,16 @@ export async function GET(request: Request) {
   }
 
   const total = count ?? 0;
-  return NextResponse.json({
+  const res = NextResponse.json({
     works: data,
     total,
     page: page || 1,
     totalPages: limit > 0 ? Math.ceil(total / limit) : 1,
   });
+  if (!showAll && !showTrash) {
+    res.headers.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+  }
+  return res;
 }
 
 // POST /api/works — 새 work 생성 (admin only)
