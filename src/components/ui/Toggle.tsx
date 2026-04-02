@@ -11,7 +11,7 @@ interface ToggleProps {
 
 export default function Toggle({ checked, onChange, label, disabled }: ToggleProps) {
   return (
-    <div className={styles.row}>
+    <div className={styles.toggleRow}>
       {label && <span className={styles.label}>{label}</span>}
       <button
         type="button"
