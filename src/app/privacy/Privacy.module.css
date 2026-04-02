@@ -1,48 +1,15 @@
-.privacy {
-  padding: 120px 8vw 80px;
-  min-height: 100vh;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+/* Override DetailLayout contentNoHero padding */
+.wrapper.wrapper {
+  padding-top: var(--spacing-3xl);
 }
 
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-/* Header */
+/* Header — last updated + language toggle */
 .header {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 40px;
-}
-
-.backLink {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: center;
-  position: fixed;
-  top: var(--spacing-5xl);
-  left: var(--spacing-3xl);
-  z-index: var(--z-nav);
-  padding: var(--box-md-xl);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  backdrop-filter: blur(10px);
-  text-decoration: none;
-}
-
-/* Compound selector — beats global theme transition */
-.privacy .backLink:hover {
-  background-color: #000;
-  mix-blend-mode: difference;
-  color: #fff;
-  border-color: #fff;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 /* Title */
@@ -56,10 +23,16 @@
 }
 
 .lastUpdated {
-  margin-bottom: 48px;
+  margin: 0;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
+}
+
+.divider {
+  height: 1px;
+  margin: var(--spacing-xl) 0 var(--spacing-2xl);
+  background: var(--border-default-color);
 }
 
 /* Sections */
@@ -110,19 +83,10 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .privacy {
-    padding: 100px 6vw 60px;
-  }
-
   .header {
     gap: 20px;
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .backLink {
-    top: calc(var(--spacing-5xl) + var(--spacing-sm));
-    left: var(--spacing-xl);
   }
 
   .section h2 {
@@ -132,15 +96,5 @@
   .section p,
   .section li {
     font-size: var(--font-size-sm);
-  }
-}
-
-@media (max-width: 480px) {
-  .privacy {
-    padding: 21vw var(--m-lg) 12.5vw;
-  }
-
-  .header {
-    gap: var(--m-md);
   }
 }
