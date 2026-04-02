@@ -29,6 +29,7 @@ export default function SectionNav({
       className={styles.sectionNav}
       ref={navRef}
       onMouseLeave={() => onHover(null)}
+      aria-label="Section navigation"
     >
       <motion.span
         className={styles.navIndicator}

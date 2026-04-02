@@ -5,7 +5,7 @@ import type { Language } from "@/providers/LanguageProvider";
 import { erdTables, erdDesignNotes } from "@/data/about/erd";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import PinnedTitleRow from "../PinnedTitleRow";
 import { TABLE_LAYOUT, NOTE_POSITIONS } from "./erdConfig";
 import shared from "../AboutSection.module.css";

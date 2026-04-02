@@ -19,7 +19,7 @@ import {
   SecurityPanel,
   CreditsPanel,
 } from "../_components/panels";
-import type { DcTransitionMode } from "../_components/panels/DesignSystemPanel";
+import type { DcTransitionMode } from "@/data/about";
 import styles from "../_components/AboutSection.module.css";
 
 /* ── Context passed to each panel's props factory ── */

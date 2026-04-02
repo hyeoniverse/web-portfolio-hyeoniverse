@@ -4,7 +4,7 @@ import React, { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { troubleShootingItems } from "@/data/about/troubleshooting";
 import { renderHighlight } from "../renderHighlight";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import FlowDiagram from "../FlowDiagram";

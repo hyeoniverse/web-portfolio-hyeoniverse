@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import StaggerText from "@/components/effects/StaggerText/StaggerText";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { DemoMagnetic, DemoInfiniteScroll, DemoFrameGrid } from "./DemoComponents";
 import shared from "../AboutSection.module.css";
 import local from "./CodeHighlightsPanel.module.css";

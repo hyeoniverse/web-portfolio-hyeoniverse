@@ -70,7 +70,7 @@
 
 .erdPinnedLayout .erdTableGroup {
   opacity: 0.35;
-  transition: opacity 0.4s var(--ease-out) !important;
+  transition: opacity 0.4s var(--ease-out);
 }
 
 .erdPinnedLayout .erdTableGroupHover {
@@ -82,7 +82,7 @@
 }
 
 .erdPinnedLayout .erdTableBg {
-  transition: stroke 0.4s var(--ease-out), stroke-width 0.3s var(--ease-out) !important;
+  transition: stroke 0.4s var(--ease-out), stroke-width 0.3s var(--ease-out);
 }
 
 .erdTableBgHover {
@@ -155,7 +155,7 @@
 .erdPinnedLayout .erdNoteOverlay {
   transition:
     clip-path 0.4s var(--ease-out),
-    opacity 0.3s var(--ease-out) !important;
+    opacity 0.3s var(--ease-out);
 }
 
 .erdNoteOverlayActive {

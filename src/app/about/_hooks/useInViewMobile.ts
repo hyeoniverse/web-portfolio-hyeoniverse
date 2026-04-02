@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useMobileLayout } from "./mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 
 /**
  * 컨테이너 내부의 `.animate` 요소를 관찰하고

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useMobileLayout } from "./mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 
 
 /**

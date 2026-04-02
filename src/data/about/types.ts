@@ -1,6 +1,8 @@
 import type { LocalizedText } from "@/types/common";
 export type { LocalizedText };
 
+export type DcTransitionMode = "strip" | "stack";
+
 export interface DesignFeature {
   icon: string;
   title: string;

@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { backendItems } from "@/data/about/backend";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { renderDetail } from "./BackendDetail";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";

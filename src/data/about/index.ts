@@ -17,6 +17,7 @@ export type {
   ErdTable,
   ErdRelation,
   ErdDesignNote,
+  DcTransitionMode,
 } from "./types";
 
 // Data
