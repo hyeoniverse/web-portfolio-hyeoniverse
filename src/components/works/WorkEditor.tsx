@@ -14,6 +14,7 @@ import EditorToggle from "@/components/posts/EditorToggle";
 import MarkdownEditor from "@/components/posts/MarkdownEditor";
 import type { Work, WorkFormData } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
+import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useTagInput } from "@/hooks/useTagInput";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -81,7 +82,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     setForm(data);
     setStatus(tw("draftRestored"));
     setStatusType("info");
-  }, [tw]);
+  }, [tw, autoSaveSkip]);
 
   const askRestore = useCallback((data: WorkFormData) => {
     const modalId = "draft-restore";
@@ -138,73 +139,29 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const [error, setError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
 
-  /* ── Auto-save (30s debounce, new + edit) ── */
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const autoSaveSkip = useRef(true);
-  const autoSaveBusy = useRef(false);
-  const savedId = useRef<string | undefined>(work?.id);
-  const lastAutoSaveJson = useRef<string>("");
-  autoSaveBusy.current = saving || translating;
+  /* ── Auto-save ── */
+  const getWorkTitle = useCallback(
+    () => (formRef.current as WorkFormData).title || "(untitled)",
+    [],
+  );
+  const onAutoSaved = useCallback(() => {
+    setStatus(tw("autoSaved"));
+    setStatusType("success");
+  }, [tw]);
 
-  useEffect(() => {
-    if (autoSaveSkip.current) {
-      autoSaveSkip.current = false;
-      return;
-    }
+  const { savedId, autoSaveSkip, scheduleAutoSave } =
+    useEditorAutoSave({
+      entityType: "work",
+      entityId: work?.id,
+      formRef: formRef as { current: unknown },
+      saveRevision,
+      getTitle: getWorkTitle,
+      busyFlags: { saving, translating },
+      onSaved: onAutoSaved,
+    });
 
-    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(() => {
-      if (autoSaveBusy.current) return;
-      if (!form.title.trim()) return;
-
-      lastAutoSaveJson.current = JSON.stringify(form);
-      saveRevision({ ...form }, form.title || "(untitled)");
-      setStatus(tw("autoSaved"));
-      setStatusType("success");
-    }, 30000);
-
-    return () => clearTimeout(autoSaveTimer.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form]);
-
-  /* ── Save on leave (SPA nav + browser close) ── */
-  useEffect(() => {
-    const doSave = () => {
-      const id = savedId.current;
-      if (!id) return;
-      const current = JSON.stringify(formRef.current);
-      if (!current || current === lastAutoSaveJson.current) return;
-      if (!formRef.current.title?.trim()) return;
-      const body = JSON.stringify({
-        entity_type: "work",
-        entity_id: id,
-        snapshot: formRef.current,
-        title: formRef.current.title || "(untitled)",
-      });
-      navigator.sendBeacon("/api/revisions", new Blob([body], { type: "application/json" }));
-    };
-
-    window.addEventListener("beforeunload", doSave);
-    return () => {
-      window.removeEventListener("beforeunload", doSave);
-      const id = savedId.current;
-      if (!id) return;
-      const current = JSON.stringify(formRef.current);
-      if (!current || current === lastAutoSaveJson.current) return;
-      if (!formRef.current.title?.trim()) return;
-      fetch("/api/revisions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          entity_type: "work",
-          entity_id: id,
-          snapshot: formRef.current,
-          title: formRef.current.title || "(untitled)",
-        }),
-        keepalive: true,
-      });
-    };
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(scheduleAutoSave, [form]);
 
   const updateField = useCallback(
     <K extends keyof WorkFormData>(key: K, value: WorkFormData[K]) => {
@@ -460,7 +417,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setSaving(false);
       }
     },
-    [form, router, tw],
+    [form, router, tw, savedId],
   );
 
   const handleDelete = useCallback(async () => {
@@ -557,7 +514,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     } finally {
       setRegeneratingSummary(false);
     }
-  }, [work?.id, tw]);
+  }, [work?.id, tw, savedId]);
 
   const shellLabels = useMemo(
     () => ({
