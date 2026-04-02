@@ -16,6 +16,7 @@ import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
 import { useRevisions } from "@/hooks/useRevisions";
+import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { autoTranslate } from "@/utils/autoTranslate";
 import EditorToggle from "./EditorToggle";
@@ -223,80 +224,30 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // status 메시지는 다음 액션까지 유지
 
-  /* ── Auto-save (5s debounce) ── */
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const autoSaveSkip = useRef(true);
-  const autoSaveBusy = useRef(false);
-  const savedId = useRef<string | undefined>(post?.id);
-  const lastAutoSaveJson = useRef<string>(JSON.stringify(initialFormRef.current));
-  autoSaveBusy.current = saving || translating;
+  /* ── Auto-save ── */
+  const getPostTitle = useCallback(
+    () => formRef.current.title || formRef.current.title_en || "(untitled)",
+    [],
+  );
+  const onAutoSaved = useCallback(() => {
+    setStatus(te("autoSaved"));
+    setStatusType("success");
+  }, [te, setStatus]);
 
-  const flushSave = useCallback(async () => {
-    const current = JSON.stringify(formRef.current);
-    if (!current || current === lastAutoSaveJson.current) return;
-    if (autoSaveBusy.current) return;
-    lastAutoSaveJson.current = current;
-    const saved = await saveRevision({ ...formRef.current }, formRef.current.title || formRef.current.title_en || "(untitled)");
-    if (saved) {
-      setStatus(te("autoSaved"));
-      setStatusType("success");
-    }
+  const { savedId, autoSaveSkip, lastAutoSaveJson, scheduleAutoSave } =
+    useEditorAutoSave({
+      entityType: "post",
+      entityId: post?.id,
+      draftEntityId,
+      formRef: formRef as { current: unknown },
+      saveRevision,
+      getTitle: getPostTitle,
+      busyFlags: { saving, translating },
+      onSaved: onAutoSaved,
+    });
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [saveRevision, te]);
-
-  useEffect(() => {
-    if (autoSaveSkip.current) {
-      autoSaveSkip.current = false;
-      return;
-    }
-
-    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(flushSave, 30000);
-
-    return () => clearTimeout(autoSaveTimer.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form]);
-
-  /* ── Save on leave (visibility change + beforeunload + SPA nav) ── */
-  useEffect(() => {
-    const onVisChange = () => { if (document.hidden) flushSave(); };
-    const onBeforeUnload = () => {
-      // DB revision 시도 (새 글이면 draftEntityId 사용)
-      const id = savedId.current || draftEntityId;
-      const current = JSON.stringify(formRef.current);
-      if (!current || current === lastAutoSaveJson.current) return;
-      const body = JSON.stringify({
-        entity_type: "post",
-        entity_id: id,
-        snapshot: formRef.current,
-        title: formRef.current.title || formRef.current.title_en || "(untitled)",
-      });
-      navigator.sendBeacon("/api/revisions", new Blob([body], { type: "application/json" }));
-    };
-
-    document.addEventListener("visibilitychange", onVisChange);
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => {
-      document.removeEventListener("visibilitychange", onVisChange);
-      window.removeEventListener("beforeunload", onBeforeUnload);
-      // SPA 이탈 시 keepalive fetch
-      const id = savedId.current || draftEntityId;
-      const current = JSON.stringify(formRef.current);
-      if (!current || current === lastAutoSaveJson.current) return;
-      fetch("/api/revisions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          entity_type: "post",
-          entity_id: id,
-          snapshot: formRef.current,
-          title: formRef.current.title || formRef.current.title_en || "(untitled)",
-        }),
-        keepalive: true,
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flushSave]);
+  useEffect(scheduleAutoSave, [form]);
 
   const updateField = useCallback(
     <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => {
