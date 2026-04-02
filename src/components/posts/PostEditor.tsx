@@ -18,7 +18,7 @@ import AdminEditorShell, {
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
-import { autoTranslate } from "@/utils/autoTranslate";
+import { useEditorTranslation } from "@/hooks/useEditorTranslation";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor, { extractMarkdownImages } from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
@@ -74,11 +74,18 @@ export default function PostEditor({ post }: PostEditorProps) {
     categories.find((c) => c.ko === val || c.en === val);
   const isManagedCat = (val: string) => !!findCat(val);
 
-  const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
+  const POST_FIELD_KEYS = ["title", "content", "excerpt"];
 
-  const te = useCallback(
-    (key: string) => tLang(`admin.posts.editor.${key}`, editorLang),
-    [tLang, editorLang],
+  const postFieldMapper = useCallback(
+    (lang: "ko" | "en") => {
+      const isToEn = lang === "en";
+      return [
+        { key: "title", sourceKey: isToEn ? "title" : "title_en", targetKey: isToEn ? "title_en" : "title" },
+        { key: "content", sourceKey: isToEn ? "content" : "content_en", targetKey: isToEn ? "content_en" : "content" },
+        { key: "excerpt", sourceKey: isToEn ? "excerpt" : "excerpt_en", targetKey: isToEn ? "excerpt_en" : "excerpt" },
+      ];
+    },
+    [],
   );
 
   const [form, setForm] = useState<PostFormData>({
@@ -112,7 +119,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   const { openModal, closeAll } = useModalStore();
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [translating, setTranslating] = useState(false);
   const [generatingSummary, setRegeneratingSummary] = useState(false);
   const [status, setStatusRaw] = useState("");
   const [statusType, setStatusType] = useState<"info" | "success">("info");
@@ -120,6 +126,27 @@ export default function PostEditor({ post }: PostEditorProps) {
   const setStatus = useCallback((s: string) => { setStatusRaw(s); setStatusTimestamp(undefined); }, []);
   const [error, setError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
+
+  const {
+    editorLang,
+    translating,
+    handleEditorLangChange,
+    handleRetranslate,
+  } = useEditorTranslation({
+    form: form as unknown as Record<string, unknown>,
+    tLang,
+    i18nPrefix: "admin.posts.editor",
+    fieldMapper: postFieldMapper,
+    allFieldKeys: POST_FIELD_KEYS,
+    onUpdate: (patch) => setForm((prev) => ({ ...prev, ...patch })),
+    onStatus: (msg, type) => { setStatus(msg); setStatusType(type); },
+    onError: setError,
+  });
+
+  const te = useCallback(
+    (key: string) => tLang(`admin.posts.editor.${key}`, editorLang),
+    [tLang, editorLang],
+  );
   const [optionalOpen, setOptionalOpen] = useState(false);
   const optionalInnerRef = useRef<HTMLDivElement>(null);
   const optionalContentRef = useRef<HTMLDivElement>(null);
@@ -268,85 +295,6 @@ export default function PostEditor({ post }: PostEditorProps) {
     (order) => updateField("series_order", order),
   );
 
-  const translateFields = useCallback(
-    async (fieldKeys: string[], lang: "ko" | "en") => {
-      const isToEn = lang === "en";
-      const sourceLang: "ko" | "en" = isToEn ? "ko" : "en";
-      const targetLang: "ko" | "en" = isToEn ? "en" : "ko";
-      const want = new Set(fieldKeys);
-
-      const srcTitle = isToEn ? form.title : form.title_en;
-      const srcContent = isToEn ? form.content : form.content_en;
-      const srcExcerpt = isToEn ? form.excerpt : form.excerpt_en;
-
-      const texts: string[] = [];
-      const keys: (keyof PostFormData)[] = [];
-
-      if (want.has("title") && srcTitle.trim()) {
-        texts.push(srcTitle);
-        keys.push(isToEn ? "title_en" : "title");
-      }
-      if (want.has("content") && srcContent.trim()) {
-        texts.push(srcContent);
-        keys.push(isToEn ? "content_en" : "content");
-      }
-      if (want.has("excerpt") && srcExcerpt.trim()) {
-        texts.push(srcExcerpt);
-        keys.push(isToEn ? "excerpt_en" : "excerpt");
-      }
-
-      if (texts.length === 0) return;
-
-      setTranslating(true);
-      setStatus(tLang("admin.posts.editor.translating", lang));
-      setStatusType("info");
-
-      const result = await autoTranslate(texts, sourceLang, targetLang);
-      setTranslating(false);
-
-      if ("translations" in result) {
-        const patch: Partial<PostFormData> = {};
-        keys.forEach((k, i) => {
-          (patch as Record<string, string>)[k] = result.translations[i];
-        });
-        setForm((prev) => ({ ...prev, ...patch }));
-        setStatus(tLang("admin.posts.editor.autoTranslated", lang));
-        setStatusType("success");
-      } else {
-        setError(result.error);
-      }
-    },
-    [form, tLang], // eslint-disable-line react-hooks/exhaustive-deps
-  );
-
-  const handleEditorLangChange = useCallback(
-    async (newLang: "ko" | "en") => {
-      if (translating) return;
-      setEditorLang(newLang);
-
-      const isToEn = newLang === "en";
-      const dstTitle = isToEn ? form.title_en : form.title;
-      const dstContent = isToEn ? form.content_en : form.content;
-      const srcTitle = isToEn ? form.title : form.title_en;
-      const srcContent = isToEn ? form.content : form.content_en;
-
-      const hasSource = !!(srcTitle.trim() || srcContent.trim());
-      const hasDest = !!(dstTitle.trim() || dstContent.trim());
-
-      if (hasSource && !hasDest) {
-        await translateFields(["title", "content", "excerpt"], newLang);
-      }
-    },
-    [form, translating, translateFields],
-  );
-
-  const handleRetranslate = useCallback(
-    async (fieldKeys?: string[]) => {
-      if (translating) return;
-      await translateFields(fieldKeys ?? ["title", "content", "excerpt"], editorLang);
-    },
-    [translating, editorLang, translateFields],
-  );
 
   const [converting, setConverting] = useState(false);
 
