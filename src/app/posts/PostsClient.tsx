@@ -352,7 +352,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
               style={{ overflow: "hidden" }}
             >
-            <div className={styles.searchGroup}>
+            <div className={styles.searchCapsule}>
               <Select
                 value={searchType}
                 options={[
@@ -363,29 +363,27 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 onChange={(v) => setSearchType(v as "all" | "title" | "content")}
                 className={styles.searchTypeSelect}
               />
-              <div className={styles.searchWrap}>
-                <svg
-                  className={styles.searchIcon}
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input
-                  className={styles.searchInput}
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder={t("postsPage.searchPlaceholder")}
-                />
-              </div>
+              <svg
+                className={styles.searchIcon}
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                className={styles.searchInput}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("postsPage.searchPlaceholder")}
+              />
             </div>
 
             {allTags.length > 0 && (
@@ -433,6 +431,13 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 </button>
               ))}
             </div>
+
+            <Select
+              value={String(perPage)}
+              options={PAGE_SIZE_OPTIONS}
+              onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+              className={styles.pageSizeSelect}
+            />
           </motion.div>
           )}
           </AnimatePresence>
@@ -630,12 +635,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   >
                     &rarr;
                   </button>
-                  <Select
-                    value={String(perPage)}
-                    options={PAGE_SIZE_OPTIONS}
-                    onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-                    className={styles.pageSizeSelect}
-                  />
                 </div>
               )}
             </>

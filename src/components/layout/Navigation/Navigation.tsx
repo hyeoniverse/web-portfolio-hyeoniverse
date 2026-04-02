@@ -656,7 +656,7 @@ export default function Navigation() {
             aria-label="Menu"
             aria-expanded={isMenuOpen}
           >
-            <span className={`${styles.menuDots} ${showMenu && !isMenuOpen ? styles.menuDotsClosing : ""}`}>
+            <span className={`${styles.menuDots} ${isMenuOpen ? styles.menuDotsOpen : ""} ${showMenu && !isMenuOpen ? styles.menuDotsClosing : ""}`}>
               <span className={styles.menuDot} />
               <span className={styles.menuDot} />
               <span className={styles.menuDot} />

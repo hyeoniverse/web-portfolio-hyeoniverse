@@ -392,6 +392,34 @@
   background: var(--text-white);
 }
 
+/* Nav 햄버거: 메뉴 열릴 때 전체 중앙 모임 → X 형태로 퍼짐 */
+/* 코너: 중앙으로 모였다가 → 제자리(X 대각선) */
+.menuDotsOpen .menuDot:nth-child(1) {
+  animation: dotToX_TL 0.6s var(--ease-material) forwards;
+}
+.menuDotsOpen .menuDot:nth-child(3) {
+  animation: dotToX_TR 0.6s var(--ease-material) forwards;
+}
+.menuDotsOpen .menuDot:nth-child(7) {
+  animation: dotToX_BL 0.6s var(--ease-material) forwards;
+}
+.menuDotsOpen .menuDot:nth-child(9) {
+  animation: dotToX_BR 0.6s var(--ease-material) forwards;
+}
+/* 가장자리: 중앙으로 모였다가 → fade out */
+.menuDotsOpen .menuDot:nth-child(2) {
+  animation: dotToX_T 0.6s var(--ease-material) forwards;
+}
+.menuDotsOpen .menuDot:nth-child(4) {
+  animation: dotToX_L 0.6s var(--ease-material) forwards;
+}
+.menuDotsOpen .menuDot:nth-child(6) {
+  animation: dotToX_R 0.6s var(--ease-material) forwards;
+}
+.menuDotsOpen .menuDot:nth-child(8) {
+  animation: dotToX_B 0.6s var(--ease-material) forwards;
+}
+
 /* Nav 햄버거: 메뉴 닫힐 때 모임→펼침 애니메이션 */
 .menuDotsClosing .menuDot:nth-child(1) {
   animation: closeTL 0.8s var(--ease-material) both;
@@ -427,6 +455,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);
+  isolation: isolate;
   clip-path: inset(0 0 100% 0);
   transition: clip-path 0.8s cubic-bezier(0.4, 0, 0.6, 1);
 }
@@ -751,6 +780,50 @@
   }
 }
 
+/* Dot → X keyframes
+   0–50%: 전부 중앙으로 모임
+   50–100%: 코너는 제자리로 복귀(X), 나머지는 fade out */
+@keyframes dotToX_TL {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(4px, 4px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes dotToX_TR {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(-4px, 4px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes dotToX_BL {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(4px, -4px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes dotToX_BR {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(-4px, -4px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes dotToX_T {
+  0%   { transform: translate(0, 0); opacity: 1; }
+  50%  { transform: translate(0, 4px); opacity: 1; }
+  100% { transform: translate(0, 4px); opacity: 0; }
+}
+@keyframes dotToX_B {
+  0%   { transform: translate(0, 0); opacity: 1; }
+  50%  { transform: translate(0, -4px); opacity: 1; }
+  100% { transform: translate(0, -4px); opacity: 0; }
+}
+@keyframes dotToX_L {
+  0%   { transform: translate(0, 0); opacity: 1; }
+  50%  { transform: translate(4px, 0); opacity: 1; }
+  100% { transform: translate(4px, 0); opacity: 0; }
+}
+@keyframes dotToX_R {
+  0%   { transform: translate(0, 0); opacity: 1; }
+  50%  { transform: translate(-4px, 0); opacity: 1; }
+  100% { transform: translate(-4px, 0); opacity: 0; }
+}
+
 /* ==========================================================================
   Admin Mode — mix-blend-mode 해제, 일반 색상 사용
   ========================================================================== */
@@ -820,7 +893,8 @@
 .navMenuOpen .navCenter,
 .navMenuOpen .contactBtn,
 .navMenuOpen .soundBtnWrap,
-.navMenuOpen .adminActions {
+.navMenuOpen .adminActions,
+.navMenuOpen .navActions {
   visibility: hidden;
 }
 

@@ -74,7 +74,7 @@ export default function AboutSection() {
   return (
     <>
       {isMobile && <div className={styles.navBlur} />}
-      <section className={styles.section} ref={sectionRef}>
+      <section className={styles.section} ref={sectionRef} style={isLoading ? { visibility: "hidden" } : undefined}>
         {isMobile && (
           <nav
             className={`${styles.mobileTabBar} ${

@@ -347,7 +347,7 @@
 
 /* ── Mobile: all items shown (display toggle → shared .mobileOnly) ── */
 .dbMobileList {
-  /* base: no-op; mobile gap below */
+  display: none;
 }
 
 .dbMobileItem {

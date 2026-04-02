@@ -70,6 +70,10 @@
 }
 
 /* Compound selector — beats global theme transition */
+.page .backBtn svg {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
 .page .backBtn:hover {
   background-color: #000;
   mix-blend-mode: difference;
@@ -77,9 +81,13 @@
   border-color: #fff;
 }
 
+.page .backBtn:hover svg {
+  transform: translateX(-3px);
+}
+
 /* ── Content wrapper ── */
 .content {
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: var(--spacing-2xl) var(--page-px) var(--spacing-3xl);
 }
@@ -173,7 +181,7 @@
 
 /* ── After-content wrapper (adjacent nav, comments, etc.) ── */
 .afterContent {
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 var(--page-px);
 }

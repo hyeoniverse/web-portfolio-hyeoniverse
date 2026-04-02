@@ -54,22 +54,33 @@ function TroubleshootingPanel({
 
   // 활성 항목 변경 시 해당 항목으로 리스트 자동 스크롤
   useEffect(() => {
-    const list = listRef.current;
-    if (!list || isMobile) return;
-    const item = list.children[displayIndex] as HTMLElement | undefined;
+    const scroll = listRef.current;
+    if (!scroll || isMobile) return;
+
+    // 첫 번째 항목이면 맨 위로 (section label 포함)
+    if (displayIndex === 0) {
+      scroll.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const listItems = scroll.querySelectorAll(`.${styles.troubleListItem}`);
+    const item = listItems[displayIndex] as HTMLElement | undefined;
     if (!item) return;
-    const lastChild = list.lastElementChild as HTMLElement | null;
-    const navH = lastChild?.classList.contains(styles.troublePageNav)
-      ? lastChild.offsetHeight
-      : 0;
-    const itemTop = item.offsetTop;
-    const itemBottom = itemTop + item.offsetHeight;
-    const viewTop = list.scrollTop;
-    const visibleBottom = viewTop + list.clientHeight - navH;
-    if (itemTop < viewTop) {
-      list.scrollTo({ top: itemTop, behavior: "smooth" });
+
+    // section label이 바로 위에 있으면 그것까지 보이도록
+    const prev = item.previousElementSibling;
+    const targetTop = prev?.classList.contains(styles.troubleSectionLabel)
+      ? (prev as HTMLElement).offsetTop
+      : item.offsetTop;
+
+    const itemBottom = item.offsetTop + item.offsetHeight;
+    const viewTop = scroll.scrollTop;
+    const visibleBottom = viewTop + scroll.clientHeight;
+
+    if (targetTop < viewTop) {
+      scroll.scrollTo({ top: targetTop, behavior: "smooth" });
     } else if (itemBottom > visibleBottom) {
-      list.scrollTo({ top: itemBottom - list.clientHeight + navH, behavior: "smooth" });
+      scroll.scrollTo({ top: itemBottom - scroll.clientHeight, behavior: "smooth" });
     }
   }, [displayIndex, isMobile]);
 
@@ -202,37 +213,37 @@ function TroubleshootingPanel({
         {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
         <div className={`${styles.troubleSplit} ${styles.animate}`}>
           {/* 왼쪽: 항목 목록 */}
-          <div ref={listRef} className={styles.troubleList} style={{ '--items-count': items.length + items.filter(i => i.section).length + 1 } as React.CSSProperties}>
-            {items.map((item, index) => (
-              <React.Fragment key={index}>
-                {item.section && (
-                  <div className={styles.troubleSectionLabel}>
-                    {item.section[language]}
+          <div className={styles.troubleList}>
+            <div ref={listRef} className={styles.troubleListScroll}>
+              {items.map((item, index) => (
+                <React.Fragment key={index}>
+                  {item.section && (
+                    <div className={styles.troubleSectionLabel}>
+                      {item.section[language]}
+                    </div>
+                  )}
+                  <div
+                    data-clickable="true"
+                    className={`${styles.troubleListItem} ${
+                      index === displayIndex ? styles.troubleListItemActive : ""
+                    }`}
+                    onClick={() => handleItemClick(index)}
+                  >
+                    <span className={styles.troubleNumber}>
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className={styles.troubleListTitle}>
+                      {item.problem[language]}
+                    </span>
                   </div>
-                )}
-                <div
-                  data-clickable="true"
-                  className={`${styles.troubleListItem} ${
-                    index === displayIndex ? styles.troubleListItemActive : ""
-                  }`}
-                  onClick={() => handleItemClick(index)}
-                >
-                  <span className={styles.troubleNumber}>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className={styles.troubleListTitle}>
-                    {item.problem[language]}
-                  </span>
-                </div>
-              </React.Fragment>
-            ))}
-            {listPage.total > 1 && (
-              <div className={styles.troublePageNav}>
-                <button className={styles.troublePageBtn} disabled={listPage.page <= 1} onClick={() => scrollListPage(-1)}>↑</button>
-                <span>{listPage.page}/{listPage.total}</span>
-                <button className={styles.troublePageBtn} disabled={listPage.page >= listPage.total} onClick={() => scrollListPage(1)}>↓</button>
-              </div>
-            )}
+                </React.Fragment>
+              ))}
+            </div>
+            <div className={styles.troublePageNav}>
+              <button className={styles.troublePageBtn} disabled={listPage.page <= 1} onClick={() => scrollListPage(-1)}>↑</button>
+              <span>{listPage.page}/{listPage.total}</span>
+              <button className={styles.troublePageBtn} disabled={listPage.page >= listPage.total} onClick={() => scrollListPage(1)}>↓</button>
+            </div>
           </div>
 
           {/* 오른쪽: 상세 콘텐츠 (세로 연속 스크롤) */}
