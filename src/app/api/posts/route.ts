@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidPostCategory } from "@/lib/api/validateCategory";
+import { requireAuth } from "@/lib/api/requireAuth";
 import type { PostFormData } from "@/types/post";
 
 // GET /api/posts — 목록 조회
@@ -125,14 +126,8 @@ export async function GET(request: Request) {
 
 // POST /api/posts — 새 포스트 생성 (admin only)
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body: PostFormData = await request.json();
 

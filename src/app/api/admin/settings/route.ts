@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
 
 // GET /api/admin/settings — 설정 조회 (공개)
 export async function GET() {
@@ -21,15 +21,8 @@ export async function GET() {
 
 // PATCH /api/admin/settings — 설정 업데이트 (인증 필수)
 export async function PATCH(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    console.error("[Settings PATCH] Unauthorized — no user session");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
   const admin = createAdminClient();

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
 
 // GET /api/admin/profile — profile 데이터 조회
 export async function GET() {
@@ -22,14 +22,8 @@ export async function GET() {
 // PATCH /api/admin/profile — profile 데이터 저장
 // Body: { data, savedDefaults } 또는 legacy 전체 config
 export async function PATCH(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
   const admin = createAdminClient();
