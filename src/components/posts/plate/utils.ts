@@ -83,3 +83,62 @@ export const _mathDeleteNode: { current: (() => void) | null } = { current: null
 
 // 이미지 업로드 함수 공유 (CalloutElement 이모지 피커에서 사용)
 export const _imageUploadFn: { current: ((file: File) => Promise<string>) | null } = { current: null };
+
+// ── Find & Replace: pure text-match helper ──
+
+export interface FindMatch {
+  path: number[];
+  offset: number;
+  length: number;
+}
+
+export interface FindOptions {
+  caseSensitive?: boolean;
+  wholeWord?: boolean;
+  useRegex?: boolean;
+}
+
+/**
+ * Walk a Slate node tree and collect regex matches.
+ * Pure function — no editor state dependency.
+ */
+export function findTextMatches(
+  nodes: unknown[],
+  query: string,
+  opts: FindOptions = {},
+): FindMatch[] {
+  if (!query) return [];
+  const { caseSensitive = false, wholeWord = false, useRegex = false } = opts;
+  let regex: RegExp;
+  try {
+    if (useRegex) {
+      regex = new RegExp(query, caseSensitive ? "g" : "gi");
+    } else {
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const pattern = wholeWord ? `\\b${escaped}\\b` : escaped;
+      regex = new RegExp(pattern, caseSensitive ? "g" : "gi");
+    }
+  } catch {
+    return [];
+  }
+
+  const matches: FindMatch[] = [];
+  const walk = (children: unknown[], parentPath: number[]) => {
+    for (let i = 0; i < children.length; i++) {
+      const node = children[i] as Record<string, unknown>;
+      const path = [...parentPath, i];
+      if (typeof node.text === "string") {
+        let m: RegExpExecArray | null;
+        regex.lastIndex = 0;
+        while ((m = regex.exec(node.text)) !== null) {
+          matches.push({ path, offset: m.index, length: m[0].length });
+          if (m[0].length === 0) regex.lastIndex++;
+        }
+      } else if (Array.isArray(node.children)) {
+        walk(node.children, path);
+      }
+    }
+  };
+  walk(nodes, []);
+  return matches;
+}

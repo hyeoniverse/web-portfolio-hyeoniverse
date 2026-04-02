@@ -18,7 +18,8 @@ import styles from "./RichTextEditor.module.css";
 // ── plate/ submodules ──
 import type { PlateEditorProps } from "./plate/types";
 export type { EditorImageInfo, PlateEditorHandle } from "./plate/types";
-import { isInAncestor, getEditorText, _mathEditingSet, _imageUploadFn } from "./plate/utils";
+import { isInAncestor, getEditorText, _mathEditingSet, _imageUploadFn, findTextMatches } from "./plate/utils";
+import { CHECKER_BG, COLUMN_BG_PRESETS, CALLOUT_BG_PRESETS } from "./plate/presets";
 import { plugins } from "./plate/plugins";
 
 // ── hooks ──
@@ -59,8 +60,6 @@ const renderFindLeaf = ({ children, leaf, attributes }: any) => {
 };
 
 // ── Main component ──
-const CHECKER_BG = "repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 6px 6px";
-
 export default function PlateEditor({
   value,
   onChange,
@@ -124,37 +123,11 @@ export default function PlateEditor({
   // ── Find & Replace helpers (editor 필요) ──
   const findMatches = useCallback(() => {
     if (!findQuery || !editor) return [];
-    const matches: { path: number[]; offset: number; length: number }[] = [];
-    let regex: RegExp;
-    try {
-      if (findRegex) {
-        regex = new RegExp(findQuery, findCase ? "g" : "gi");
-      } else {
-        const escaped = findQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const pattern = findWord ? `\\b${escaped}\\b` : escaped;
-        regex = new RegExp(pattern, findCase ? "g" : "gi");
-      }
-    } catch {
-      return [];
-    }
-    const walk = (nodes: unknown[], parentPath: number[]) => {
-      for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i] as Record<string, unknown>;
-        const path = [...parentPath, i];
-        if (typeof node.text === "string") {
-          let m: RegExpExecArray | null;
-          regex.lastIndex = 0;
-          while ((m = regex.exec(node.text)) !== null) {
-            matches.push({ path, offset: m.index, length: m[0].length });
-            if (m[0].length === 0) regex.lastIndex++;
-          }
-        } else if (Array.isArray(node.children)) {
-          walk(node.children, path);
-        }
-      }
-    };
-    walk(editor.children as unknown[], []);
-    return matches;
+    return findTextMatches(editor.children as unknown[], findQuery, {
+      caseSensitive: findCase,
+      wholeWord: findWord,
+      useRegex: findRegex,
+    });
   }, [findQuery, findCase, findWord, findRegex, editor]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1292,7 +1265,7 @@ export default function PlateEditor({
               const colChildren = ((columnGroupForRender.node as any).children || []) as { width?: string }[];
               const activePath = columnGroupNode?.path || columnGroupForRender.path;
               const colCount = colChildren.length;
-              const BG_PRESETS = ["transparent", "#fef3c7", "#dcfce7", "#dbeafe", "#fce7f3", "#f3e8ff", "#fee2e2", "#f3f4f6"];
+              const BG_PRESETS = COLUMN_BG_PRESETS;
               return (
                 <div className={styles.tableToolbarRow}>
                   <span className={styles.tableToolbarLabel}>COLS</span>
@@ -1608,18 +1581,6 @@ export default function PlateEditor({
           <div className={`${styles.tableToolbar} ${!(isInCallout && calloutNode && noOverlay) ? styles.tableToolbarHidden : ""}`}>
             {calloutNode && (() => {
               const cBg = (calloutNode.node.bg as string) || "var(--bg-tertiary)";
-              const CALLOUT_BG_PRESETS = [
-                { color: "var(--bg-primary)" },
-                { color: "var(--bg-tertiary)" },
-                { color: "#e8d5b7" }, // 갈색 (Notion brown)
-                { color: "#fedba0" }, // 노랑 (Notion yellow)
-                { color: "#fbd5a0" }, // 주황 (Notion orange)
-                { color: "#f5c2c2" }, // 빨강 (Notion red)
-                { color: "#e8d0f0" }, // 보라 (Notion purple)
-                { color: "#c5dbf0" }, // 파랑 (Notion blue)
-                { color: "#c5e8d0" }, // 초록 (Notion green)
-                { color: "#d4d4d4" }, // 회색 (Notion gray)
-              ];
               return (
                 <div className={styles.tableToolbarRow}>
                   <span className={styles.tableToolbarLabel}>CALLOUT</span>
