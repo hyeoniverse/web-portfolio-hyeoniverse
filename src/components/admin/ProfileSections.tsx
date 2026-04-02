@@ -2,31 +2,18 @@
 
 import { useMemo, useCallback, useState, type ReactNode } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import {
-  experiences as staticExp,
-  skillGroups as staticSkills,
-  philosophy as staticPhilo,
-  approachSteps as staticApproach,
-  certifications as staticCerts,
-  awards as staticAwards,
-} from "@/data/profile";
 import type { DatePeriod } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
+import { profileDefaults } from "@/data/profileDefaults";
 import T from "@/components/ui/T";
 import Input from "@/components/ui/Input";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import SkillList from "./ProfileSkillList";
 
-export const profileDefaults: ProfileData = {
-  experiences: staticExp,
-  skillGroups: staticSkills,
-  philosophy: staticPhilo,
-  approachSteps: staticApproach,
-  certifications: staticCerts,
-  awards: staticAwards,
-};
+export { profileDefaults };
 
 interface ProfileSectionsProps {
   data: ProfileData;
@@ -695,7 +682,7 @@ function SortableRow({ id, children, styles }: { id: string; children: (listener
 }
 
 /* ── Sortable Skill wrapper (nested inside skill groups) ── */
-function SortableSkillItem({ id, children, styles }: { id: string; children: ReactNode; styles: Record<string, string> }) {
+export function SortableSkillItem({ id, children, styles }: { id: string; children: ReactNode; styles: Record<string, string> }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -721,114 +708,3 @@ function SortableSkillItem({ id, children, styles }: { id: string; children: Rea
   );
 }
 
-/* ── Nested skill list with its own DnD context ── */
-function SkillList({
-  group,
-  gi,
-  skillIds,
-  sensors,
-  moveSkill,
-  updateSkill,
-  removeSkill,
-  addSkill,
-  styles,
-}: {
-  group: { skills: { name: string; description: { ko: string; en: string } }[] };
-  gi: number;
-  skillIds: string[];
-  sensors: ReturnType<typeof useSensors>;
-  moveSkill: (gi: number, oldIdx: number, newIdx: number) => void;
-  updateSkill: (gi: number, si: number, field: string, value: string) => void;
-  removeSkill: (gi: number, si: number) => void;
-  addSkill: (gi: number) => void;
-  styles: Record<string, string>;
-}) {
-  const handleSkillDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over || active.id === over.id) return;
-      const oldIdx = skillIds.indexOf(String(active.id));
-      const newIdx = skillIds.indexOf(String(over.id));
-      if (oldIdx === -1 || newIdx === -1) return;
-      moveSkill(gi, oldIdx, newIdx);
-    },
-    [skillIds, gi, moveSkill],
-  );
-
-  return (
-    <div className={styles.skillNested}>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSkillDragEnd}>
-        <SortableContext items={skillIds} strategy={verticalListSortingStrategy}>
-          {group.skills.map((skill, si) => (
-            <SortableSkillItem key={skillIds[si]} id={skillIds[si]} styles={styles}>
-              <SkillItemContent
-                skill={skill}
-                gi={gi}
-                si={si}
-                updateSkill={updateSkill}
-                removeSkill={removeSkill}
-                styles={styles}
-              />
-            </SortableSkillItem>
-          ))}
-        </SortableContext>
-      </DndContext>
-      <button className={styles.profileAddBtn} onClick={() => addSkill(gi)} style={{ marginTop: "var(--spacing-xs)" }}>
-        <T k="admin.settings.profile.addSkill" />
-      </button>
-    </div>
-  );
-}
-
-/* ── Individual skill item with expand/collapse ── */
-function SkillItemContent({ skill, gi, si, updateSkill, removeSkill, styles }: {
-  skill: { name: string; description: { ko: string; en: string } };
-  gi: number;
-  si: number;
-  updateSkill: (gi: number, si: number, field: string, value: string) => void;
-  removeSkill: (gi: number, si: number) => void;
-  styles: Record<string, string>;
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <>
-      <div className={styles.skillFields}>
-        <div className={styles.skillGroupHeader}>
-          <button type="button" className={styles.skillExpandBtn} onClick={() => setExpanded(!expanded)} aria-label={expanded ? "Collapse" : "Expand"}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
-          <input
-            className={styles.skillFieldInline}
-            value={skill.name}
-            onChange={(e) => updateSkill(gi, si, "name", e.target.value)}
-            placeholder="Skill name"
-          />
-        </div>
-        <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
-          <div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-              <textarea className={styles.profileFieldTextarea} value={skill.description.ko} onChange={(e) => updateSkill(gi, si, "description.ko", e.target.value)} rows={1} data-lenis-prevent />
-            </div>
-            <div>
-              <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-              <textarea className={styles.profileFieldTextarea} value={skill.description.en} onChange={(e) => updateSkill(gi, si, "description.en", e.target.value)} rows={1} data-lenis-prevent />
-            </div>
-          </div>
-        </div>
-      </div>
-      <button
-        type="button"
-        className={styles.skillRemoveBtn}
-        onClick={() => removeSkill(gi, si)}
-        aria-label="Remove"
-      >
-        <span className={styles.skillRemoveLine} />
-        <span className={styles.skillRemoveLine} />
-      </button>
-    </>
-  );
-}
