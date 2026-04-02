@@ -25,19 +25,20 @@ export default function Pagination({ page, totalPages, onChange, className }: Pa
 
   return (
     <div className={`${styles.pagination} ${className ?? ""}`}>
-      <button disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} title="First">
+      <button type="button" disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} title="First">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" /></svg>
       </button>
-      <button disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn}>
+      <button type="button" disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
       </button>
       {singlePage ? (
-        <button className={`${styles.pageBtn} ${styles.pageBtnActive}`}>1</button>
+        <button type="button" className={`${styles.pageBtn} ${styles.pageBtnActive}`}>1</button>
       ) : pageNumbers.map((p, i) =>
         p === -1 ? (
           <span key={`ellipsis-${i}`} className={styles.ellipsis}>&hellip;</span>
         ) : (
           <button
+            type="button"
             key={p}
             onClick={() => onChange(p)}
             className={`${styles.pageBtn} ${page === p ? styles.pageBtnActive : ""}`}
@@ -46,10 +47,10 @@ export default function Pagination({ page, totalPages, onChange, className }: Pa
           </button>
         ),
       )}
-      <button disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn}>
+      <button type="button" disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
       </button>
-      <button disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} title="Last">
+      <button type="button" disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} title="Last">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>
       </button>
     </div>

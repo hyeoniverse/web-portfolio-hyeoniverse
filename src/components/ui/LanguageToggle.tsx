@@ -65,7 +65,11 @@ export default function LanguageToggle({ lang, onLangChange }: LanguageTogglePro
     <div
       className={styles.toggle}
       data-clickable="true"
+      role="switch"
+      tabIndex={0}
+      aria-checked={lang === "en"}
       onClick={handleToggle}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleToggle(); } }}
       onMouseLeave={() => { setHoveredBtn(null); setLocked(false); }}
     >
       <motion.div className={styles.indicator} style={{ x: indicatorX }} />
