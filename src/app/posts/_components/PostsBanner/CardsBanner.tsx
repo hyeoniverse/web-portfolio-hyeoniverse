@@ -1,0 +1,98 @@
+"use client";
+
+import Link from "next/link";
+import ProgressiveImage from "@/components/ui/ProgressiveImage";
+import { motion } from "framer-motion";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { formatPostTitle } from "@/utils/post";
+import CategoryLabel from "@/components/ui/CategoryLabel";
+import { PlaceholderIcon } from "./PlaceholderIcon";
+import { useAutoSlide } from "./useAutoSlide";
+import type { Post } from "@/types/post";
+import styles from "./PostsBanner.module.css";
+
+interface CardsBannerProps {
+  posts: Post[];
+  imgErrors: Set<string>;
+  onImgError: (id: string) => void;
+}
+
+export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBannerProps) {
+  const { language } = useLanguage();
+  const { index, go, pause, resume } = useAutoSlide(posts.length, 4000);
+
+  const getOffset = (i: number) => {
+    const diff = i - index;
+    const len = posts.length;
+    if (diff === 0) return 0;
+    if (diff === 1 || diff === -(len - 1)) return 1;
+    if (diff === -1 || diff === len - 1) return -1;
+    return diff > 0 ? 2 : -2;
+  };
+
+  return (
+    <div className={styles.cards} onMouseEnter={pause} onMouseLeave={resume}>
+      <div className={styles.cardsTrack}>
+        {posts.map((post, i) => {
+          const offset = getOffset(i);
+          const isCenter = offset === 0;
+          const isVisible = Math.abs(offset) <= 1;
+          const title = formatPostTitle(post, language);
+
+          return (
+            <motion.div
+              key={post.id}
+              className={`${styles.card} ${isCenter ? styles.cardCenter : ""}`}
+              initial={false}
+              animate={{
+                x: `${offset * 85}%`,
+                scale: isCenter ? 1 : 0.85,
+                opacity: isVisible ? 1 : 0,
+                zIndex: isCenter ? 2 : 1,
+              }}
+              transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+              onClick={() => !isCenter && go(i)}
+              style={{ cursor: isCenter ? "default" : "pointer" }}
+            >
+              <Link
+                href={`/posts/${post.slug}`}
+                className={styles.cardLink}
+                onClick={(e) => !isCenter && e.preventDefault()}
+              >
+                {post.cover_image && !imgErrors.has(post.id) ? (
+                  <ProgressiveImage
+                    src={post.cover_image}
+                    alt={title}
+                    fill
+                    sizes="(max-width: 768px) 90vw, 60vw"
+                    className={styles.cardImg}
+                    loading="lazy"
+                    onError={() => onImgError(post.id)}
+                  />
+                ) : (
+                  <div className={styles.cardFallback}><PlaceholderIcon /></div>
+                )}
+                <div className={styles.cardOverlay} />
+                <div className={styles.cardContent}>
+                  {post.category && <span className={styles.cardCategory}><CategoryLabel category={post.category} /></span>}
+                  <h2 className={styles.cardTitle}>{title}</h2>
+                </div>
+              </Link>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <div className={styles.cardsDots}>
+        {posts.map((p, i) => (
+          <button
+            key={p.id}
+            className={`${styles.splitDot} ${i === index ? styles.splitDotActive : ""}`}
+            onClick={() => go(i)}
+            aria-label={`Slide ${i + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
