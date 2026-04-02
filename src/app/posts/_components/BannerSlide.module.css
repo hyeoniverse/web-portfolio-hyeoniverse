@@ -66,7 +66,7 @@
   padding-bottom: var(--spacing-xs);
 }
 
-.idx {
+.slideIndex {
   font-family: var(--font-instrument);
   font-size: clamp(4rem, 8vw, 8rem);
   font-weight: var(--font-weight-light);
@@ -287,7 +287,7 @@
     padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-4xl);
   }
 
-  .idx {
+  .slideIndex {
     display: none;
   }
 

@@ -59,7 +59,7 @@ export default function BannerSlide({
         {image}
         <div className={styles.overlayEditorial} />
         <div className={styles.contentEditorial}>
-          <span className={styles.idx}>
+          <span className={styles.slideIndex}>
             {String(index + 1).padStart(2, "0")}
           </span>
           <div className={styles.meta}>
