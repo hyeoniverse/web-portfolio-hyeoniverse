@@ -18,7 +18,8 @@ import AdminTable, {
 } from "@/components/admin/AdminTable/AdminTable";
 import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
 import SearchCapsule from "@/components/admin/SearchCapsule/SearchCapsule";
-import { presets } from "@/components/posts/CoverImagePicker/presets";
+import { parseMdWork } from "@/utils/mdParser";
+import { uploadRandomCover } from "@/utils/uploadRandomCover";
 import styles from "./AdminWorks.module.css";
 
 const PAGE_SIZE_OPTIONS = [
@@ -182,62 +183,6 @@ export default function AdminWorksPage() {
   const mdInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
-  const uploadRandomCover = useCallback(async (): Promise<string | null> => {
-    try {
-      const preset = presets[Math.floor(Math.random() * presets.length)];
-      const canvas = document.createElement("canvas");
-      canvas.width = 1200;
-      canvas.height = 630;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return null;
-      preset.render(ctx, 1200, 630);
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
-      if (!blob) return null;
-      const formData = new FormData();
-      formData.append("file", new File([blob], `cover-${preset.id}.png`, { type: "image/png" }));
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return data.url ?? null;
-    } catch { return null; }
-  }, []);
-
-  const parseMdWork = (raw: string, fileName: string) => {
-    let text = raw;
-    const meta: Record<string, string | string[]> = {};
-    const fmMatch = text.match(/^---\n([\s\S]*?)\n---\n?/);
-    if (fmMatch) {
-      text = text.slice(fmMatch[0].length);
-      for (const line of fmMatch[1].split("\n")) {
-        const kv = line.match(/^(\w+)\s*:\s*(.+)$/);
-        if (!kv) continue;
-        const [, key, val] = kv;
-        if (val.startsWith("[") && val.endsWith("]")) {
-          meta[key] = val.slice(1, -1).split(",").map((s) => s.trim().replace(/^["']|["']$/g, ""));
-        } else {
-          meta[key] = val.trim().replace(/^["']|["']$/g, "");
-        }
-      }
-    }
-    const title = (meta.title as string) || fileName.replace(/\.md$/, "");
-    const body: Record<string, unknown> = {
-      title,
-      content_ko: text,
-      content_type: "markdown",
-      published: false,
-    };
-    if (meta.subtitle) body.subtitle_ko = meta.subtitle;
-    if (meta.category) body.category_ko = meta.category;
-    if (meta.year) body.year = meta.year;
-    if (meta.tech) body.tech = Array.isArray(meta.tech) ? meta.tech : [meta.tech];
-    if (meta.description) body.description_ko = meta.description;
-    if (meta.role) body.role_ko = meta.role;
-    if (meta.image) body.image = meta.image;
-    if (meta.live_url) body.live_url = meta.live_url;
-    if (meta.github_url) body.github_url = meta.github_url;
-    return body;
-  };
-
   const createWorks = useCallback(async (items: Record<string, unknown>[]) => {
     setUploading(true);
     let created = 0;
@@ -255,7 +200,7 @@ export default function AdminWorksPage() {
     }
     setUploading(false);
     if (created > 0) fetchWorks();
-  }, [fetchWorks, uploadRandomCover]);
+  }, [fetchWorks]);
 
   const handleMdUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
