@@ -109,39 +109,38 @@ export default function PostPreviewPage() {
 
   return (
     <DetailLayout
-      backHref="/admin/posts"
+      onBack={() => window.close()}
       backLabel="Close Preview"
       heroImage={form.cover_image || undefined}
       heroAlt={form.title}
       headings={headings}
     >
-      {trashId && (
-        <div className={styles.trashBar}>
-          <span className={styles.trashBarLabel}>{t("admin.posts.trashPreviewNotice")}</span>
-          <button
-            type="button"
-            className={styles.trashBarRestore}
-            disabled={busy}
-            onClick={handleRestore}
-          >
-            {t("admin.posts.trashRestore")}
-          </button>
-          <button
-            type="button"
-            className={styles.trashBarPurge}
-            disabled={busy}
-            onClick={handlePurge}
-          >
-            {t("admin.posts.trashPurge")}
-          </button>
-        </div>
-      )}
-
       <div className={styles.articleHeader}>
         <div className={styles.meta}>
           <span>{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
           <span className={styles.dot}>&middot;</span>
           <span>{readTime} min read</span>
+          {trashId && (
+            <>
+              <span className={styles.trashBarLabel}>{t("admin.posts.trashPreviewNotice")}</span>
+              <button
+                type="button"
+                className={styles.trashBarRestore}
+                disabled={busy}
+                onClick={handleRestore}
+              >
+                {t("admin.posts.trashRestore")}
+              </button>
+              <button
+                type="button"
+                className={styles.trashBarPurge}
+                disabled={busy}
+                onClick={handlePurge}
+              >
+                {t("admin.posts.trashPurge")}
+              </button>
+            </>
+          )}
         </div>
 
         <h1 className={styles.articleTitle}>{form.title}</h1>

@@ -996,21 +996,9 @@
   color: var(--text-tertiary);
 }
 
-/* ── Trash preview bar ── */
-.trashBar {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--box-sm-md);
-  margin-bottom: var(--spacing-md);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-}
-
+/* ── Trash preview (inline in meta row) ── */
 .trashBarLabel {
-  flex: 1;
+  margin-left: auto;
   color: var(--text-tertiary);
 }
 

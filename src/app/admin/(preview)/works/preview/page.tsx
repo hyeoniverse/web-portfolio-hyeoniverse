@@ -80,7 +80,7 @@ export default function WorkPreviewPage() {
 
   return (
     <DetailLayout
-      backHref="/admin/works"
+      onBack={() => window.close()}
       backLabel="Close Preview"
       heroImage={form.image || undefined}
       heroAlt={form.title}
