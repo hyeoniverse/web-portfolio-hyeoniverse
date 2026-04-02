@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 interface HasId { id: string }
@@ -16,7 +16,7 @@ interface UsePreviewTooltipOptions {
  * - 모바일: 첫 탭 → 툴팁, 두 번째 탭 → 편집
  */
 export function usePreviewTooltip<T extends HasId>(editBasePath: string, options?: UsePreviewTooltipOptions) {
-  const checkImage = options?.hasImage ?? ((item: unknown) => !!(item as { cover_image?: string }).cover_image);
+  const checkImage = useMemo(() => options?.hasImage ?? ((item: unknown) => !!(item as { cover_image?: string }).cover_image), [options?.hasImage]);
   const router = useRouter();
   const hoveredRef = useRef<T | null>(null);
   const [tooltipKey, setTooltipKey] = useState(0);
@@ -32,7 +32,7 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const calcPos = (el: HTMLElement, item: T) => {
+  const calcPos = useCallback((el: HTMLElement, item: T) => {
     const rect = el.getBoundingClientRect();
     const w = 280;
     const h = checkImage(item) ? 260 : 120;
@@ -41,14 +41,14 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
     const left = Math.max(8, Math.min(rawLeft, window.innerWidth - w - 8));
     const top = rect.top > h + gap ? rect.top - h - gap : rect.bottom + gap;
     return { top, left };
-  };
+  }, [checkImage]);
 
   const show = useCallback((item: T, el: HTMLElement) => {
     hoveredRef.current = item;
     tooltipPosRef.current = calcPos(el, item);
     imgErrorRef.current = false;
     setTooltipKey((k) => k + 1);
-  }, []);
+  }, [calcPos]);
 
   const hide = useCallback(() => {
     if (!hoveredRef.current) return;
