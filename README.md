@@ -1539,6 +1539,54 @@ const processedHtml = useMemo(() => {
 
 </details>
 
+<details>
+<summary><strong>15. About Backend 패널 — dbMobileList가 데스크톱에서 노출</strong></summary>
+
+#### 문제
+
+About 페이지의 Backend 패널에서 모바일 전용 DB 목록(`dbMobileList`)이 데스크톱 뷰포트에서도 렌더링되어 레이아웃이 깨짐
+
+#### 원인
+
+`dbMobileList`에 `display: none` 미디어 쿼리가 누락되어, 데스크톱에서도 DOM에 공간을 차지하며 표시됨. 기능적으로는 문제없지만 레이아웃이 의도와 다르게 배치됨
+
+#### 해결
+
+CSS만으로 수정 — 데스크톱 브레이크포인트에서 `display: none`을 추가하여 모바일에서만 표시되도록 제한
+
+#### TL;DR
+
+반응형 전용 요소는 **반드시 반대 브레이크포인트에서 `display: none` 처리**해야 함. JS 분기 없이 CSS 미디어 쿼리만으로 충분한 경우가 많음
+
+---
+
+
+</details>
+
+<details>
+<summary><strong>16. About HeroPanel이 로딩 화면 뒤에서 미리 렌더링</strong></summary>
+
+#### 문제
+
+About 페이지 진입 시 로딩 스크린이 표시되는 동안 HeroPanel의 콘텐츠(텍스트, 애니메이션)가 뒤에서 이미 렌더링·재생되어, 로딩이 끝났을 때 첫 인상이 의도한 것과 다름
+
+#### 원인
+
+HeroPanel의 진입 애니메이션이 컴포넌트 마운트 시 즉시 시작되었음. 로딩 화면은 `z-index`로 위에 덮고 있을 뿐, 아래 레이어에서 애니메이션은 이미 진행·완료됨
+
+#### 해결
+
+`heroReady` 클래스를 로딩 완료 후에만 부여하고, HeroPanel의 진입 애니메이션과 콘텐츠 표시를 이 클래스에 의존하도록 변경. 로딩이 끝나기 전까지 패널은 **시각적으로 비활성 상태**를 유지
+
+#### TL;DR
+
+로딩 화면 아래의 콘텐츠는 **z-index로 가리는 것만으로 부족**. 애니메이션 시작 시점을 로딩 완료에 연동해야 의도한 첫 인상을 보장할 수 있음
+
+---
+
+
+</details>
+
 ---
 
 ## 배포
