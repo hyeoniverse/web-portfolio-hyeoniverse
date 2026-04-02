@@ -1539,6 +1539,54 @@ DOM manipulation on `dangerouslySetInnerHTML` content is erased on any state-tri
 
 </details>
 
+<details>
+<summary><strong>15. About Backend Panel — dbMobileList Visible on Desktop</strong></summary>
+
+#### Problem
+
+The mobile-only DB list (`dbMobileList`) in the About page's Backend panel was rendering on desktop viewports, breaking the layout
+
+#### Cause
+
+The `dbMobileList` element was missing a `display: none` media query for desktop breakpoints. It occupied DOM space and displayed on desktop even though it was intended for mobile only
+
+#### Solution
+
+CSS-only fix — added `display: none` at the desktop breakpoint so the element only renders on mobile
+
+#### TL;DR
+
+Responsive-only elements **must have `display: none` at the opposite breakpoint**. CSS media queries alone are often sufficient without JS branching
+
+---
+
+
+</details>
+
+<details>
+<summary><strong>16. About HeroPanel Pre-rendering Behind Loading Screen</strong></summary>
+
+#### Problem
+
+When entering the About page, HeroPanel content (text, animations) was already rendering and playing behind the loading screen, so the first impression after loading completed was not as intended
+
+#### Cause
+
+HeroPanel's entrance animations started immediately on component mount. The loading screen only covered the panel via `z-index`, while animations underneath had already played to completion
+
+#### Solution
+
+Added a `heroReady` class that is only applied after loading completes. HeroPanel's entrance animations and content visibility depend on this class, keeping the panel **visually inactive** until loading finishes
+
+#### TL;DR
+
+Content behind a loading screen **cannot be hidden by z-index alone**. Animation start timing must be tied to loading completion to guarantee the intended first impression
+
+---
+
+
+</details>
+
 ---
 
 ## Deployment
