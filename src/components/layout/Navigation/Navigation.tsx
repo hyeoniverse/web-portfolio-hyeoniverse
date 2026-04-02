@@ -18,40 +18,11 @@ import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import MagneticWrapper from "./MagneticWrapper";
 import MobileMenu from "./MobileMenu";
+import {
+  navDescs, navItems, menuItems,
+  adminNavItems, adminMenuItems, SKIP_LOADING_PAGES,
+} from "./navigationData";
 import styles from "./Navigation.module.css";
-
-const navDescs: Record<string, Record<string, string>> = {
-  works: { ko: "프로젝트 포트폴리오", en: "Project portfolio" },
-  posts: { ko: "블로그 & 아티클", en: "Blog & articles" },
-  profile: { ko: "소개 & 이력", en: "Introduction & career" },
-  about: { ko: "사이트 소개", en: "About this site" },
-};
-
-const navItems = [
-  { key: "works", href: "/works", label: "Works" },
-  { key: "posts", href: "/posts", label: "Posts" },
-  { key: "profile", href: "/profile", label: "Profile" },
-  { key: "about", href: "/about", label: "About" },
-];
-
-const menuItems = [
-  { key: "home", href: "/", label: "Home" },
-  ...navItems,
-  { key: "contacts", href: null, label: "Contacts" },
-];
-
-const adminNavItems = [
-  { key: "admin-settings", href: "/admin/settings", label: "Settings" },
-  { key: "admin-works", href: "/admin/works", label: "Works" },
-  { key: "admin-posts", href: "/admin/posts", label: "Posts" },
-];
-
-const adminMenuItems = [
-  ...adminNavItems,
-  { key: "logout", href: null as string | null, label: "Logout" },
-];
-
-const SKIP_LOADING_PAGES = ["/privacy"];
 
 export default function Navigation() {
   const siteConfig = useSiteConfig();
