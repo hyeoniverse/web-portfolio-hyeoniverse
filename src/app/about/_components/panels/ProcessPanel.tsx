@@ -3,7 +3,7 @@
 import { useRef, useState, useLayoutEffect, useCallback, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { ProcessStep } from "@/data/about";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { renderHighlight } from "../renderHighlight";
@@ -12,6 +12,9 @@ import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./ProcessPanel.module.css";
 const styles = { ...shared, ...local };
+
+/** Collapsed row height for mobile accordion layout (px) */
+const COLLAPSED_HEIGHT = 36;
 
 interface ProcessPanelProps {
   language: Language;
@@ -43,7 +46,6 @@ function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
   // 모바일/태블릿: 아코디언 레이아웃
   const stepListRef = useRef<HTMLDivElement>(null);
   const [mobileActiveIdx, setMobileActiveIdx] = useState(0);
-  const COLLAPSED_HEIGHT = 36;
 
   const handleMobileIndexChange = useCallback((activeIdx: number) => {
     setMobileActiveIdx(activeIdx);

@@ -11,7 +11,7 @@ import DynamicFrameLayout, {
   type Frame,
   defaultFrames,
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./FeaturesPanel.module.css";

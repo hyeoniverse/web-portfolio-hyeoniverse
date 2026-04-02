@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import type { ScrollTrigger } from "gsap/ScrollTrigger";
-import { checkMobileLayout, useMobileLayout } from "./mobileCheck";
+import { checkMobileLayout, useMobileLayout } from "@/hooks/useMobileLayout";
 
 /**
  * 데스크톱 수평 스크롤 고정이 필요한 "초광폭" 패널용 공유 훅.

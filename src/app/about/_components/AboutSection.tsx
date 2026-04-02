@@ -15,7 +15,7 @@ import {
   mobileTabPanels,
   type PanelContext,
 } from "../_config/panelConfig";
-import type { DcTransitionMode } from "./panels/DesignSystemPanel";
+import type { DcTransitionMode } from "@/data/about";
 import SectionNav from "./SectionNav";
 import styles from "./AboutSection.module.css";
 

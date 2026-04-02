@@ -128,6 +128,8 @@ export default function PinnedTitleRow({
                 className={`${styles.dotItem} ${i === dotNav.activeIndex ? styles.dotItemActive : ""}`}
                 onClick={() => dotNav.onDotClick(i)}
                 onMouseEnter={() => setHoveredDot(i)}
+                aria-label={dotNav.labels?.[i] ?? `Item ${i + 1} of ${dotNav.count}`}
+                aria-current={i === dotNav.activeIndex ? "step" : undefined}
               >
                 <span className={styles.dotCircle} />
                 {dotNav.labels?.[i] && (

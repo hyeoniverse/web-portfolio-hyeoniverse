@@ -4,7 +4,7 @@ import { useRef, useCallback, useLayoutEffect, memo } from "react";
 import gsap from "gsap";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem } from "@/data/about";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";

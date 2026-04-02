@@ -5,8 +5,8 @@ import { createPortal } from "react-dom";
 import gsap from "gsap";
 import Image from "next/image";
 import type { Language } from "@/providers/LanguageProvider";
-import type { DesignConceptItem } from "@/data/about";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import type { DesignConceptItem, DcTransitionMode } from "@/data/about";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
@@ -20,8 +20,6 @@ import IconographyDemo from "./demos/IconographyDemo";
 import shared from "../AboutSection.module.css";
 import local from "./DesignSystemPanel.module.css";
 const styles = { ...shared, ...local };
-
-export type DcTransitionMode = "strip" | "stack";
 
 interface DesignSystemPanelProps {
   language: Language;

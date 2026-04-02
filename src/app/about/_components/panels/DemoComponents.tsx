@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useMotionValue, useSpring, motion } from "framer-motion";
-import { useMobileLayout } from "../../_hooks/mobileCheck";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { MARQUEE_COLORS, GRID_COLORS } from "./demoColors";
 import shared from "../AboutSection.module.css";
 import local from "./CodeHighlightsPanel.module.css";
