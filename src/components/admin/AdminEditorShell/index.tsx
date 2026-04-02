@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -11,138 +11,11 @@ import LanguageToggle from "@/components/ui/LanguageToggle";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./AdminEditorShell.module.css";
+import type { AdminEditorShellProps } from "./types";
+import { formatTime, formatStatusTime, lineDiff } from "./utils";
 
+export type { RetranslateOption, RevisionEntry } from "./types";
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
-
-interface EditorLabels {
-  delete: string;
-  deleting: string;
-  deleteConfirm?: string;
-  deleteConfirmInput?: string;
-  deleteCancel?: string;
-  deleteRevisionConfirm?: string;
-  preview?: string;
-  saving: string;
-  saveDraft: string;
-  update: string;
-  publish: string;
-  revert?: string;
-  revisionHistory?: string;
-  restore?: string;
-  retranslate?: string;
-  retranslateAll?: string;
-  retranslateDisabled?: string;
-  generateSummary?: string;
-  generateSummaryDisabled?: string;
-}
-
-export interface RetranslateOption {
-  key: string;
-  label: string;
-}
-
-export interface RevisionEntry {
-  timestamp: number;
-  title: string;
-  excerpt?: string;
-  content?: string;
-}
-
-interface AdminEditorShellProps {
-  backHref: string;
-  backLabel: string;
-  editorLang: "ko" | "en";
-  onEditorLangChange: (lang: "ko" | "en") => void;
-  isEdit: boolean;
-  isDirty?: boolean;
-  saving: boolean;
-  deleting: boolean;
-  published: boolean;
-  onDelete?: () => void;
-  deleteTargetName?: string;
-  onSaveDraft: () => void;
-  onPublish: () => void;
-  onPreview?: () => void;
-  status?: string;
-  statusType?: "info" | "success";
-  statusTimestamp?: number;
-  error?: string;
-  labels: EditorLabels;
-  revisions?: RevisionEntry[];
-  onRestoreRevision?: (index: number) => void;
-  onLoadRevisionDetail?: (index: number) => Promise<{ excerpt?: string; content?: string; meta?: Record<string, string> } | null>;
-  onDeleteRevision?: (index: number) => Promise<boolean>;
-  onRevert?: () => void;
-  onRetranslate?: (fields?: string[]) => void;
-  retranslateOptions?: RetranslateOption[];
-  retranslateDisabled?: boolean;
-  onGenerateSummary?: () => void;
-  generatingSummary?: boolean;
-  aiSummaryDisabled?: boolean;
-  currentSnapshot?: { title: string; excerpt?: string; content?: string; meta?: Record<string, string> };
-  topBarSecondRowLeft?: ReactNode;
-  children: ReactNode;
-}
-
-function formatTime(ts: number): string {
-  return new Date(ts).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
-
-function formatStatusTime(ts: number): string {
-  const d = new Date(ts);
-  const now = new Date();
-  const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()) {
-    return time;
-  }
-  const date = d.toLocaleDateString([], { month: "short", day: "numeric" });
-  return `${date} ${time}`;
-}
-
-type DiffLine = { type: "same" | "add" | "del"; text: string };
-
-function lineDiff(oldText: string, newText: string): DiffLine[] {
-  const oldLines = oldText.split("\n");
-  const newLines = newText.split("\n");
-  if (oldLines.length + newLines.length > 2000) {
-    return [
-      ...oldLines.map((t) => ({ type: "del" as const, text: t })),
-      ...newLines.map((t) => ({ type: "add" as const, text: t })),
-    ];
-  }
-  const m = oldLines.length;
-  const n = newLines.length;
-  const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      dp[i][j] =
-        oldLines[i - 1] === newLines[j - 1]
-          ? dp[i - 1][j - 1] + 1
-          : Math.max(dp[i - 1][j], dp[i][j - 1]);
-    }
-  }
-  const result: DiffLine[] = [];
-  let i = m;
-  let j = n;
-  while (i > 0 || j > 0) {
-    if (i > 0 && j > 0 && oldLines[i - 1] === newLines[j - 1]) {
-      result.unshift({ type: "same", text: oldLines[i - 1] });
-      i--;
-      j--;
-    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-      result.unshift({ type: "add", text: newLines[j - 1] });
-      j--;
-    } else {
-      result.unshift({ type: "del", text: oldLines[i - 1] });
-      i--;
-    }
-  }
-  return result;
-}
 
 export default function AdminEditorShell({
   backHref,
