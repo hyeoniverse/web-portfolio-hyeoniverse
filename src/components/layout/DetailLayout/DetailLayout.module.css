@@ -199,7 +199,7 @@
   .backBtn {
     top: calc(var(--spacing-2xl) + var(--spacing-3xl));
     left: var(--page-px);
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: var(--box-xs-sm);
     font-size: var(--font-size-xs);
     gap: var(--spacing-xs);
     transition: opacity 0.3s, transform 0.3s, padding 0.3s, font-size 0.3s, gap 0.3s, top 0.3s, left 0.3s;

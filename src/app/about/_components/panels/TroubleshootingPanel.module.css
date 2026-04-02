@@ -288,7 +288,7 @@
 }
 
 .troubleTable th {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   text-align: left;
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
@@ -297,7 +297,7 @@
 }
 
 .troubleTable td {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--box-xs-sm);
   color: var(--text-secondary);
   border-bottom: var(--_line-secondary);
   line-height: var(--line-height-snug);
