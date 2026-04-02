@@ -62,7 +62,7 @@ export function validatePassword(raw: unknown): { valid: boolean; value: string;
   return { valid: true, value: trimmed };
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** 이메일 검증 */
 export function validateEmail(raw: unknown): { valid: boolean; value: string; error?: string } {

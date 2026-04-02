@@ -51,11 +51,6 @@ export function getFileSizeLimit(file: File, limits?: Record<string, number>): n
   return mb * 1024 * 1024;
 }
 
-/** 파일 형식에 따른 최대 업로드 크기(MB) 반환 */
-export function getFileSizeLimitMB(file: File, limits?: Record<string, number>): number {
-  return getFileSizeLimit(file, limits) / (1024 * 1024);
-}
-
 /** 파일 확장자가 차단 목록에 있는지 확인 */
 export function isBlockedExtension(file: File): boolean {
   const ext = file.name.split(".").pop()?.toLowerCase() || "";

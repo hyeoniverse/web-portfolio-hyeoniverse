@@ -5,6 +5,7 @@ import { useForm } from "@formspree/react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { siteConfig } from "@/config/site.config";
+import { EMAIL_RE } from "@/utils/commentValidation";
 
 interface SubmittedData {
   name: string;
@@ -116,8 +117,7 @@ export function useContactForm(): UseContactFormReturn {
         showFormToastRef.current("Please enter your email");
         return;
       }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
+      if (!EMAIL_RE.test(email)) {
         showFormToastRef.current("Please enter a valid email address");
         return;
       }

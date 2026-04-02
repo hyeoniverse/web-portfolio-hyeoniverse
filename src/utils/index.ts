@@ -4,9 +4,6 @@ export { cn } from "./cn";
 // 날짜 유틸리티
 export { formatDate, getYear, thisYear, lastUpdated } from "./date";
 
-// DOM 유틸리티
-export { getCurrentSection } from "./dom";
-
 // 랜덤 생성기
 export { generateRandomElements, generateRandomDroplets } from "./random";
 
