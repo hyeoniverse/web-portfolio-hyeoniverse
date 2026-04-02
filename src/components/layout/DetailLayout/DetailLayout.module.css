@@ -92,6 +92,10 @@
   padding: var(--spacing-2xl) var(--page-px) var(--spacing-3xl);
 }
 
+.contentNoHero {
+  padding-top: calc(var(--spacing-2xl) + var(--spacing-3xl) + 40px);
+}
+
 /* ── Table of Contents ── */
 .toc {
   position: fixed;
