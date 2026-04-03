@@ -20,7 +20,7 @@
   gap: var(--spacing-xs);
   width: 100%;
   padding: var(--box-xs-sm);
-  border: var(--border-default);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -119,7 +119,7 @@
   background: rgba(255, 255, 255, 0.5);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
-  border: var(--border-default);
+  border: var(--border-light);
   border-radius: var(--radius-2xl);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   padding: var(--spacing-xs) var(--spacing-2xs);

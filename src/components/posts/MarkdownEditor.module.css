@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
   height: 100%;
 }
@@ -12,6 +12,7 @@
   grid-template-columns: 1fr 1fr;
   flex: 1;
   min-height: 0;
+  position: relative;
 }
 
 .compact .wrapper {
@@ -50,6 +51,7 @@
 .editorPane {
   display: flex;
   flex-direction: column;
+  position: relative;
   min-height: 0;
   min-width: 0;
   border-right: var(--border-light);
@@ -102,6 +104,7 @@
 .editorPane .textarea:focus {
   outline: none;
 }
+
 
 .previewPane {
   display: flex;
@@ -191,13 +194,13 @@
   font-size: 0.9em;
   padding: 2px 6px;
   background: var(--bg-tertiary);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-capsule);
 }
 
 .preview pre {
   padding: var(--spacing-md);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
   overflow-x: auto;
   margin-bottom: var(--spacing-md);
 }
@@ -209,7 +212,7 @@
 
 .preview img {
   max-width: 100%;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
 }
 
 .preview figure {
@@ -258,7 +261,7 @@
   padding: var(--spacing-md);
   margin: var(--spacing-md) 0;
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
 }
 
@@ -445,7 +448,7 @@
   z-index: var(--z-dropdown);
   background: var(--bg-primary);
   border: var(--border-default);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   padding: var(--spacing-xs);
   display: flex;

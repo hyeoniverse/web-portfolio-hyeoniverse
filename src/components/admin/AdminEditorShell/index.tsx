@@ -278,11 +278,12 @@ export default function AdminEditorShell({
                 />
               </Tooltip>
             )}
-            {revisions && revisions.length > 0 && (
+            {revisions && (
               <div className={styles.revisionWrap} ref={revisionRef}>
                 <Tooltip content={labels.revisionHistory ?? "History"} placement="bottom">
-                  <button
-                    type="button"
+                  <Button
+                    variant="outline"
+                    size="xs"
                     className={styles.revisionBtn}
                     onClick={() => {
                       setShowRevisions((v) => !v);
@@ -290,17 +291,20 @@ export default function AdminEditorShell({
                       setIsSelectMode(false);
                       setSelectedRevisions(new Set());
                     }}
+                    soundDisabled
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
                     <span className={styles.revisionBadge}>{revisions.length}</span>
-                  </button>
+                  </Button>
                 </Tooltip>
                 {showRevisions && (
                   <div ref={dropdownRef} className={`${styles.revisionDropdown} ${viewingRevision !== null ? styles.revisionDropdownWide : ""}`} data-lenis-prevent>
-                    {viewingRevision !== null && revisions[viewingRevision] ? (
+                    {revisions.length === 0 ? (
+                      <div className={styles.revisionEmpty}>저장된 기록이 없습니다.</div>
+                    ) : viewingRevision !== null && revisions[viewingRevision] ? (
                       /* ── Detail view (clip-path reveal) ── */
                       <div className={styles.revisionDetail}>
                         <div className={styles.revisionDetailHeader}>

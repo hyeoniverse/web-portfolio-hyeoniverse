@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -105,6 +106,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     excerpt_en: post?.excerpt_en ?? "",
     series_id: post?.series_id ?? null,
     series_order: post?.series_order ?? 0,
+    github_url: post?.github_url ?? "",
   });
 
   // Auto-correct invalid category when categories load
@@ -301,7 +303,10 @@ export default function PostEditor({ post }: PostEditorProps) {
   const handleContentTypeChange = useCallback(
     async (newType: "markdown" | "richtext") => {
       if (newType === form.content_type) return;
-      setConverting(true);
+      // 1) fade-out
+      flushSync(() => setConverting(true));
+      // 2) fade-out 완료 대기 (0.2s transition)
+      await new Promise((r) => setTimeout(r, 220));
 
       const convert = async (content: string): Promise<string> => {
         if (!content) return content;
@@ -450,9 +455,10 @@ export default function PostEditor({ post }: PostEditorProps) {
         content_en: newContentEn,
         content_type: newType,
       }));
-      setConverting(false);
       setStatus("");
       setError("");
+      // 3) 새 에디터 mount 후 fade-in
+      requestAnimationFrame(() => setConverting(false));
     },
     [form.content, form.content_en, form.content_type] // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -1094,16 +1100,9 @@ export default function PostEditor({ post }: PostEditorProps) {
                 </div>
 
                 <div className={es.field}>
-                  <label className={es.fieldLabel}>{te("coverImage")}</label>
-                  {form.cover_image ? (
-                    <div className={styles.coverPreview}>
-                      <Image
-                        src={form.cover_image}
-                        alt="Cover"
-                        width={80}
-                        height={50}
-                        className={styles.coverThumb}
-                      />
+                  <div className={styles.coverLabelRow}>
+                    <label className={es.fieldLabel}>{te("coverImage")}</label>
+                    {form.cover_image && (
                       <button
                         type="button"
                         className={styles.coverRemove}
@@ -1114,6 +1113,17 @@ export default function PostEditor({ post }: PostEditorProps) {
                       >
                         {te("remove")}
                       </button>
+                    )}
+                  </div>
+                  {form.cover_image ? (
+                    <div className={styles.coverPreview}>
+                      <Image
+                        src={form.cover_image}
+                        alt="Cover"
+                        width={160}
+                        height={90}
+                        className={styles.coverThumb}
+                      />
                     </div>
                   ) : (
                     <div className={styles.coverActions}>
@@ -1148,6 +1158,17 @@ export default function PostEditor({ post }: PostEditorProps) {
                     />
                   )}
                 </div>
+              </div>
+              {/* 줄4: [GitHub URL] */}
+              <div className={es.field}>
+                <label className={es.fieldLabel}>GitHub URL</label>
+                <input
+                  className={es.fieldInput}
+                  type="url"
+                  value={form.github_url}
+                  onChange={(e) => updateField("github_url", e.target.value)}
+                  placeholder="https://github.com/..."
+                />
               </div>
             </div>
           </div>
@@ -1190,16 +1211,8 @@ export default function PostEditor({ post }: PostEditorProps) {
           />
         </div>
 
-        <div className={styles.editorWrap}>
-        {converting ? (
-          <div className={styles.editorSkeleton}>
-            <div className={styles.editorSkeletonBar} style={{ width: "60%" }} />
-            <div className={styles.editorSkeletonBar} style={{ width: "90%" }} />
-            <div className={styles.editorSkeletonBar} style={{ width: "75%" }} />
-            <div className={styles.editorSkeletonBar} style={{ width: "85%" }} />
-            <div className={styles.editorSkeletonBar} style={{ width: "40%" }} />
-          </div>
-        ) : form.content_type === "markdown" ? (
+        <div className={`${styles.editorWrap} ${converting ? styles.editorWrapConverting : ""}`}>
+        {form.content_type === "markdown" ? (
           <MarkdownEditor
             key={editorLang}
             value={form[contentKey]}
