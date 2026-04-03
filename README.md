@@ -113,12 +113,12 @@
 
 ### Blog System
 
-- **Posts (Blog)**: Supabase 기반 블로그 시스템 — SSR + ISR 캐싱, Markdown/Rich Text 전환 에디터, 검색/태그 필터, 조회수 추적
+- **Posts (Blog)**: Supabase 기반 블로그 시스템 — SSR + ISR 캐싱, Markdown/Rich Text 전환 에디터, 검색/태그 필터, 조회수 추적, GitHub 링크
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행 — 카테고리 하위 요소, 시리즈/포스트 뷰 토글, 상세 페이지 이전/다음 네비게이션
 - **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시 — 4가지 레이아웃 x 4가지 오버레이 x 2가지 전환 모드, Admin에서 선택
 - **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator(layoutId), sticky + 스크롤 방향 감지, 콘텐츠 blur 효과
 - **Posts i18n & Sort Capsule**: 모든 텍스트 locale 파일 이동, 정렬 UI를 캡슐형 세그먼트 컨트롤(Framer Motion layoutId)로 변경
-- **IP 기반 좋아요**: Posts/Works/댓글에서 단일 `likes` 테이블 + `target_type` 구분, IP 기반 UNIQUE 제약으로 중복 방지
+- **IP 기반 좋아요**: Posts/Works/댓글에서 단일 `likes` 테이블 + `target_type` 구분, IP 기반 UNIQUE 제약으로 중복 방지, 연타 방지(ref lock + busy disabled), formatCount(1k/1.2m) 숫자 축약
 - **댓글 시스템**: 게스트 대댓글(threaded) 지원 — 이중 인증(commenter_hash + bcrypt), 닉네임 셔플, 이메일 답글 알림, 관리자 댓글
 
 <p align="center">
@@ -129,7 +129,7 @@
 ### Works Detail & Project Pages
 
 - **Works Admin CRUD**: Supabase DB 기반 작업물 관리 — 단일 에디터(MD/Rich Text) + 8섹션 템플릿, TOC 자동 생성, 한/영 이중언어, 갤러리/팀멤버
-- **Work Detail**: 프로젝트 상세 페이지 — 콘텐츠 내 `##` 헤딩 파싱 TOC, 갤러리 이미지, 좋아요/댓글, DB 미연결 시 정적 데이터 fallback
+- **Work Detail**: 프로젝트 상세 페이지 — 콘텐츠 내 `##` 헤딩 파싱 TOC, 갤러리 이미지, 좋아요/댓글, GitHub 링크 버튼, DB 미연결 시 정적 데이터 fallback
 
 <p align="center">
   <img src="public/docs/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
@@ -1581,6 +1581,36 @@ HeroPanel의 진입 애니메이션이 컴포넌트 마운트 시 즉시 시작�
 #### TL;DR
 
 로딩 화면 아래의 콘텐츠는 **z-index로 가리는 것만으로 부족**. 애니메이션 시작 시점을 로딩 완료에 연동해야 의도한 첫 인상을 보장할 수 있음
+
+---
+
+
+</details>
+
+<details>
+<summary><strong>17. 자동저장 초기값 버그 — 수정 없이도 리비전 생성</strong></summary>
+
+#### 문제
+
+에디터를 열고 아무 수정도 하지 않았는데 30초 후 '자동저장됨' 표시가 나타나고, 다음 방문 시 '자동저장된 버전을 불러올까요?' 프롬프트가 표시됨
+
+#### 원인
+
+`useEditorAutoSave` 훅의 `lastAutoSaveJson` ref 초기값이 빈 문자열(`""`)이었음. 30초 debounce 후 현재 폼을 `JSON.stringify`한 결과와 `""`를 비교하면 항상 다르므로, **변경 없이도 리비전이 생성**됨
+
+```
+lastAutoSaveJson.current = ""    // 초기값
+JSON.stringify(form)     = "{...}"  // 현재 폼
+"" !== "{...}"           → 변경으로 판단 → 리비전 저장 ✗
+```
+
+#### 해결
+
+초기값을 `JSON.stringify(formRef.current)`로 변경하여, 최초 폼 상태와 동일하면 저장을 건너뜀
+
+#### TL;DR
+
+비교 기준 ref의 초기값이 실제 데이터와 다른 타입/형태이면, **첫 비교가 항상 '변경됨'으로 판단**됨. 초기값은 반드시 실제 초기 상태를 반영해야 함
 
 ---
 
