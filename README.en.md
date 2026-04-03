@@ -113,12 +113,12 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 ### Blog System
 
-- **Posts (Blog)**: Supabase-based blog system — SSR + ISR caching, Markdown/Rich Text toggle editor, search/tag filters, view count tracking
+- **Posts (Blog)**: Supabase-based blog system — SSR + ISR caching, Markdown/Rich Text toggle editor, search/tag filters, view count tracking, GitHub link
 - **Series**: Group posts into series for sequential publishing — subcategory element, series/post view toggle, previous/next navigation on detail pages
 - **Posts Banner Slider**: Display pinned posts as banners — 4 layouts x 4 overlays x 2 transition modes, selectable from Admin
 - **Posts Filter Bar**: Category collapse/expand (+N more), hover indicator (layoutId), sticky + scroll direction detection, content blur effect
 - **Posts i18n & Sort Capsule**: All text moved to locale files, sort UI changed to capsule-style segment control (Framer Motion layoutId)
-- **IP-based Likes**: Single `likes` table with `target_type` discrimination for Posts/Works/comments, IP-based UNIQUE constraint to prevent duplicates
+- **IP-based Likes**: Single `likes` table with `target_type` discrimination for Posts/Works/comments, IP-based UNIQUE constraint to prevent duplicates, rapid-click prevention (ref lock + busy disabled), formatCount (1k/1.2m) number abbreviation
 - **Comment System**: Guest threaded replies — dual authentication (commenter_hash + bcrypt), nickname shuffle, email reply notifications, admin comments
 
 <p align="center">
@@ -129,7 +129,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 ### Works Detail & Project Pages
 
 - **Works Admin CRUD**: Supabase DB-based work management — single editor (MD/Rich Text) + 8-section template, auto-generated TOC, Korean/English bilingual, gallery/team members
-- **Work Detail**: Project detail page — TOC from `##` heading parsing in content, gallery images, likes/comments, static data fallback when DB is not connected
+- **Work Detail**: Project detail page — TOC from `##` heading parsing in content, gallery images, likes/comments, GitHub link button, static data fallback when DB is not connected
 
 <p align="center">
   <img src="public/docs/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
@@ -1581,6 +1581,36 @@ Added a `heroReady` class that is only applied after loading completes. HeroPane
 #### TL;DR
 
 Content behind a loading screen **cannot be hidden by z-index alone**. Animation start timing must be tied to loading completion to guarantee the intended first impression
+
+---
+
+
+</details>
+
+<details>
+<summary><strong>17. Auto-save Initial Value Bug — Revision Created Without Any Edits</strong></summary>
+
+#### Problem
+
+Opening the editor without making any changes still showed 'Autosaved' after 30 seconds, and the next visit triggered a 'Load autosaved version?' prompt
+
+#### Cause
+
+The `lastAutoSaveJson` ref in `useEditorAutoSave` was initialized with an empty string (`""`). When the 30-second debounce fires, `JSON.stringify` of the current form is compared against `""` — always different, so **a revision was created even with zero changes**
+
+```
+lastAutoSaveJson.current = ""       // initial value
+JSON.stringify(form)     = "{...}"  // current form
+"" !== "{...}"           → detected as changed → revision saved ✗
+```
+
+#### Solution
+
+Changed the initial value to `JSON.stringify(formRef.current)` so the first comparison matches the actual initial form state and skips saving
+
+#### TL;DR
+
+When a comparison ref is initialized with a value of a different type/shape than the actual data, **the first comparison always evaluates as 'changed'**. Initial values must reflect the real initial state
 
 ---
 
