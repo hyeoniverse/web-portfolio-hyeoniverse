@@ -191,13 +191,13 @@
   font-size: 0.88em;
   padding: 2px 6px;
   background: var(--bg-tertiary);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-capsule);
 }
 
 .prose pre {
   padding: var(--spacing-lg);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
   border: var(--border-light);
   overflow-x: auto;
   margin: var(--spacing-xl) 0;
@@ -377,7 +377,7 @@
   padding: var(--spacing-md);
   margin: var(--spacing-xl) 0;
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
 }
 

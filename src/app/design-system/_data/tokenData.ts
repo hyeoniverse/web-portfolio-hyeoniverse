@@ -156,6 +156,7 @@ const MOCK_POST: Post = {
   series_order: 0,
   summary_ko: "",
   summary_en: "",
+  github_url: "",
 };
 
 export const MOCK_POSTS: Post[] = [
