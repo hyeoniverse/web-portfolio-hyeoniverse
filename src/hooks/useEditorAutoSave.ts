@@ -41,7 +41,7 @@ export function useEditorAutoSave({
   const autoSaveSkip = useRef(true);
   const autoSaveBusy = useRef(false);
   const savedId = useRef<string | undefined>(entityId);
-  const lastAutoSaveJson = useRef<string>("");
+  const lastAutoSaveJson = useRef<string>(JSON.stringify(formRef.current));
 
   // Keep busy flag in sync
   autoSaveBusy.current = busyFlags.saving || busyFlags.translating;

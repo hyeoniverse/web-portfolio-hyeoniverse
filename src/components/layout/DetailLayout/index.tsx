@@ -8,6 +8,12 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import styles from "./DetailLayout.module.css";
 
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}m`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}k`;
+  return String(n);
+}
+
 export interface TocHeading {
   id: string;
   text: string;
@@ -17,6 +23,7 @@ export interface TocHeading {
 export interface LikeConfig {
   count: number;
   liked: boolean;
+  busy?: boolean;
   onToggle: () => void;
 }
 
@@ -244,8 +251,9 @@ export default function DetailLayout({
           >
             <button
               type="button"
-              className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""}`}
+              className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${likeConfig.busy ? styles.likeBtnBusy : ""}`}
               onClick={likeConfig.onToggle}
+              disabled={likeConfig.busy}
               title={t("common.like")}
               data-clickable="true"
             >
@@ -261,7 +269,7 @@ export default function DetailLayout({
               >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
-              <span>{likeConfig.count}</span>
+              <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
             </button>
           </motion.div>
         )}
@@ -282,8 +290,9 @@ export default function DetailLayout({
         >
           <button
             type="button"
-            className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""}`}
+            className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${likeConfig.busy ? styles.likeBtnBusy : ""}`}
             onClick={likeConfig.onToggle}
+            disabled={likeConfig.busy}
             data-clickable="true"
           >
             <svg
@@ -298,7 +307,7 @@ export default function DetailLayout({
             >
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
-            <span>{likeConfig.count}</span>
+            <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
           </button>
         </motion.div>
       )}

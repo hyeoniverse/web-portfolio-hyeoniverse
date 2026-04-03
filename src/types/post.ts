@@ -24,6 +24,7 @@ export interface Post {
   series?: { title: string; title_en: string } | null;
   summary_ko: string;
   summary_en: string;
+  github_url: string;
   deleted_at?: string | null;
 }
 
@@ -44,6 +45,7 @@ export interface PostFormData {
   excerpt_en: string;
   series_id: string | null;
   series_order: number;
+  github_url: string;
 }
 
 export interface Series {

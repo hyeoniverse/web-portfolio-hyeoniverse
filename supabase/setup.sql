@@ -109,6 +109,9 @@ CREATE TABLE IF NOT EXISTS posts (
   series_order int NOT NULL DEFAULT 0
 );
 
+-- GitHub 링크
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS github_url text DEFAULT '';
+
 -- 휴지통(소프트 삭제)
 ALTER TABLE posts ADD COLUMN IF NOT EXISTS deleted_at timestamptz DEFAULT NULL;
 

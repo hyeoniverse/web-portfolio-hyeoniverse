@@ -14,6 +14,13 @@
 }
 
 /* compound selector to beat global theme transition */
+.btn.btn {
+  transition:
+    background var(--duration-base) var(--ease-material),
+    border-color var(--duration-base) var(--ease-material),
+    color var(--duration-base) var(--ease-material);
+}
+
 .btn .inner {
   transition:
     color var(--duration-base) var(--ease-material),
@@ -21,8 +28,9 @@
 }
 
 .btn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 .inner {

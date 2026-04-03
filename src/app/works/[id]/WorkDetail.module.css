@@ -257,7 +257,7 @@
   grid-auto-rows: 160px;
   grid-auto-flow: dense;
   gap: var(--spacing-sm);
-  padding: var(--spacing-2xl) var(--page-px);
+  padding: var(--spacing-2xl) 0;
 }
 
 .galleryItem {
@@ -296,7 +296,7 @@
 .likeWrapper {
   display: flex;
   justify-content: center;
-  padding: var(--spacing-2xl) var(--page-px);
+  padding: var(--spacing-2xl) 0;
 }
 
 .likeBtn {
@@ -322,10 +322,22 @@
   color: var(--color-accent);
 }
 
+.likeBtnBusy {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.likeCount {
+  display: inline-block;
+  min-width: 2ch;
+  text-align: center;
+}
+
 .actions {
   display: flex;
-  gap: var(--spacing-xl);
-  padding: 0 var(--page-px) var(--spacing-2xl);
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  padding: 0 0 var(--spacing-2xl);
 }
 
 /* ── Translation banner ── */
@@ -355,7 +367,7 @@
 .footerNav {
   max-width: 1280px;
   margin: 0 auto;
-  padding: var(--spacing-xl) var(--page-px) var(--spacing-3xl);
+  padding: var(--spacing-xl) 0 var(--spacing-3xl);
   border-top: var(--border-light);
 }
 
