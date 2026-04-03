@@ -1894,6 +1894,7 @@ export default function PlateEditor({
               }}
             />
           )}
+
         </div>
 
         {/* ── Status bar ── */}

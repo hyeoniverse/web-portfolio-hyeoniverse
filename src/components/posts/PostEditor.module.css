@@ -1,26 +1,7 @@
 /* ── PostEditor-specific styles ── */
 /* Shared shell styles (container, topBar, buttons, field, tags, etc.) are in AdminEditorShell */
 
-/* ── Editor conversion skeleton ── */
-.editorSkeleton {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-xl);
-  min-height: 300px;
-}
 
-.editorSkeletonBar {
-  height: 14px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-tertiary);
-  animation: skeletonPulse 1.2s ease-in-out infinite;
-}
-
-@keyframes skeletonPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-}
 
 /* Meta fields — open, breathing */
 .meta {
@@ -32,8 +13,8 @@
 
 .excerptInput {
   padding: var(--box-xs-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -60,7 +41,7 @@
   gap: var(--spacing-xl);
   padding: var(--spacing-lg);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
 }
 
 .contentGroupHeader {
@@ -83,7 +64,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   padding: var(--box-2xs-md);
-  border: var(--border-default);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -113,7 +94,7 @@
   gap: var(--spacing-md);
   padding: var(--spacing-sm);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
 }
 
 /* optionalContent가 접혀있으면 gap 차지 안 하게 */
@@ -132,7 +113,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   cursor: pointer;
@@ -163,7 +144,7 @@
 .numberBtns {
   display: flex;
   flex-direction: column;
-  border: var(--border-default);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   overflow: hidden;
   flex-shrink: 0;
@@ -254,7 +235,7 @@
 
 .seriesOrderBtns {
   display: flex;
-  border: var(--border-default);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   overflow: hidden;
   flex-shrink: 0;
@@ -309,7 +290,7 @@
   width: 36px;
   height: 36px;
   flex-shrink: 0;
-  border: var(--border-default);
+  border: var(--border-light);
   border-radius: 50%;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -332,17 +313,23 @@
 
 /* Cover image */
 .coverPreview {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
+  position: relative;
+  display: inline-flex;
+  height: 100px;
 }
 
 .coverThumb {
-  width: 80px;
-  height: 50px;
+  height: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   border: var(--border-light);
+}
+
+.coverLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .coverRemove {
@@ -351,6 +338,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--color-accent);
+  cursor: pointer;
 }
 
 .coverActions {
@@ -382,7 +370,7 @@
   gap: var(--spacing-3xs);
   padding: var(--box-sm-md);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: transparent;
   text-align: left;
   cursor: pointer;
@@ -430,8 +418,13 @@
   height: 60vh;
   min-height: 200px;
   resize: vertical;
-  overflow-x: visible;
-  overflow-y: auto;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.editorWrapConverting {
+  opacity: 0;
 }
 
 .editorWrap > * {
@@ -470,7 +463,7 @@
 
 .templateBtn {
   padding: var(--box-2xs-md);
-  border: var(--border-strong);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -489,7 +482,7 @@
   height: 22px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: var(--border-strong);
+  border: var(--border-light);
   background: transparent;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -554,7 +547,7 @@
   color: var(--text-primary);
   background: var(--bg-tertiary);
   border: var(--border-light);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-2xl);
   padding: 1px 5px;
   white-space: nowrap;
 }

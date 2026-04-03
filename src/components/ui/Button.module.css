@@ -45,18 +45,21 @@
 .label {
   display: inline-flex;
   align-items: center;
+  gap: var(--spacing-xs);
 }
 
 /* ---------------------------------------------------------------------------
    Sizes — capsule (기본)
    --------------------------------------------------------------------------- */
 .size-xs {
-  padding: var(--box-md);
+  height: 28px;
+  padding: 0 var(--spacing-md);
   font-size: var(--font-size-xs);
 }
 
 .size-sm {
-  padding: var(--box-md);
+  height: 36px;
+  padding: 0 var(--spacing-md);
   font-size: var(--font-size-sm);
 }
 
@@ -167,7 +170,7 @@
 .variant-outline {
   background: transparent;
   color: var(--text-primary);
-  border-color: var(--border-strong-color);
+  border: var(--border-strong);
 }
 
 .variant-outline.btn {
