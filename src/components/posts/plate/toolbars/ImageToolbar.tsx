@@ -30,6 +30,14 @@ export default React.memo(function ImageToolbar({
 
   return (
     <div className={`${styles.tableToolbar} ${!visible ? styles.tableToolbarHidden : ""}`}>
+      <TBtn
+        className={styles.tableDangerBtn}
+        onClick={deleteImage}
+        tooltip={t("editor.deleteImage")}
+        style={{ position: "absolute", top: 4, right: 4, zIndex: 1 }}
+      >
+        <TblTrash />
+      </TBtn>
       <div className={styles.tableToolbarRow}>
         <span className={styles.tableToolbarLabel}>IMAGE</span>
         <div className={styles.divider} />
@@ -144,10 +152,6 @@ export default React.memo(function ImageToolbar({
           <TBtn onClick={() => moveImage("down")} tooltip={t("editor.moveDown")}>↓</TBtn>
         </div>
 
-        <div style={{ marginLeft: "auto" }} />
-
-        {/* 삭제 */}
-        <TBtn className={styles.tableDangerBtn} onClick={deleteImage} tooltip={t("editor.deleteImage")}><TblTrash /></TBtn>
       </div>
     </div>
   );

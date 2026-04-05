@@ -6,6 +6,7 @@ import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import DetailLayout from "@/components/layout/DetailLayout";
 import { extractHeadings, addIdsToHtml } from "@/utils/headingUtils";
+import { fixEmbedUrls } from "@/utils/htmlUtils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
@@ -15,13 +16,14 @@ import styles from "@/app/posts/[slug]/PostDetail.module.css";
 export default function PostPreviewPage() {
   const { t } = useLanguage();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fetchId = searchParams.get("fetch");
+
   const [form, setForm] = useState<(PostFormData & { _trashId?: string }) | null>(null);
+  const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const { openModal } = useModalStore();
   const richtextRef = useRef<HTMLDivElement>(null);
-
-  const searchParams = useSearchParams();
-  const fetchId = searchParams.get("fetch");
 
   useEffect(() => {
     if (fetchId) {
@@ -39,15 +41,15 @@ export default function PostPreviewPage() {
             } as PostFormData);
           }
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => setReady(true));
       return;
     }
     try {
       const raw = sessionStorage.getItem("post-preview");
       if (raw) setForm(JSON.parse(raw));
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
+    setReady(true);
   }, [fetchId]);
 
   const trashId = form?._trashId;
@@ -92,12 +94,13 @@ export default function PostPreviewPage() {
 
   const processedHtml = useMemo(() => {
     if (isMarkdown || !content) return "";
-    return addIdsToHtml(content);
+    return fixEmbedUrls(addIdsToHtml(content));
   }, [content, isMarkdown]);
 
   useRichtextEnhance(richtextRef, processedHtml);
 
   if (!form) {
+    if (!ready) return null;
     return (
       <div className={styles.loadingState}>
         미리보기 데이터가 없습니다. 에디터에서 Preview 버튼을 눌러주세요.

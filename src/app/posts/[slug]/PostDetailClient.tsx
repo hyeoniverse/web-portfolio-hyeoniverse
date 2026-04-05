@@ -9,6 +9,7 @@ import type { Post, Series } from "@/types/post";
 import DetailLayout from "@/components/layout/DetailLayout";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { extractHeadings, addIdsToHtml } from "@/utils/headingUtils";
+import { fixEmbedUrls } from "@/utils/htmlUtils";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import "katex/dist/katex.min.css";
 import LanguageToggle from "@/components/ui/LanguageToggle";
@@ -174,7 +175,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
 
   const processedRichtextHtml = useMemo(() => {
     if (post.content_type === "markdown") return "";
-    let html = addIdsToHtml(displayContent);
+    let html = fixEmbedUrls(addIdsToHtml(displayContent));
     // 코드블록: hljs 하이라이트 + 버튼 라벨을 HTML 문자열 단계에서 적용
     // (DOM 조작은 리렌더 시 사라지므로 문자열 처리)
     try {

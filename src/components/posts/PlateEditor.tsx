@@ -409,6 +409,16 @@ export default function PlateEditor({
   })();
   const isInImage = !!selectedImage;
 
+  // ── Media embed state ──
+  const selectedMediaEmbed = (() => {
+    if (!editor.selection) return null;
+    try {
+      const entry = editor.api.above({ match: { type: "media_embed" } });
+      return entry ? { node: entry[0] as Record<string, unknown>, path: Array.from(entry[1]) } : null;
+    } catch { return null; }
+  })();
+  const isInMediaEmbed = !!selectedMediaEmbed;
+
   // ── void 블록 전후에 빈 paragraph 보장 ──
   useEffect(() => {
     if (!editor) return;
@@ -417,9 +427,42 @@ export default function PlateEditor({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (editor as any).normalizeNode = (entry: any, options: any) => {
       const [node, path] = entry;
+      // paragraph 안의 inline img 앞뒤에 빈 텍스트 노드 보장
+      if (path.length === 2) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const n = node as any;
+        if (n.type === "img") {
+          const parentPath = path.slice(0, 1);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const parent = editor.children[parentPath[0]] as any;
+          if (parent?.children) {
+            const idx = path[1];
+            const prev = parent.children[idx - 1];
+            const next = parent.children[idx + 1];
+            // 앞에 텍스트 노드가 없으면 삽입
+            if (!prev || prev.type) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              editor.tf.insertNodes({ text: "\u200B" } as any, { at: [...parentPath, idx] });
+              return;
+            }
+            // 뒤에 텍스트 노드가 없으면 삽입
+            if (!next || next.type) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              editor.tf.insertNodes({ text: "\u200B" } as any, { at: [...parentPath, idx + 1] });
+              return;
+            }
+          }
+        }
+      }
       if (path.length === 1) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const type = (node as any).type;
+        // inline img가 top-level에 있으면 paragraph로 감싸기
+        if (type === "img") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          editor.tf.wrapNodes({ type: "p", children: [] } as any, { at: path });
+          return;
+        }
         const blockVoids = new Set(["media_embed", "hr", "file_embed", "audio_embed", "equation", "table", "code_block", "callout", "toggle"]);
         if (blockVoids.has(type)) {
           const idx = path[0];
@@ -559,23 +602,36 @@ export default function PlateEditor({
     const sel = editor.selection ? JSON.parse(JSON.stringify(editor.selection)) : null;
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = "image/*,video/*";
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
       try {
         const url = await onImageUpload(file);
-        const imgNode = { type: "img", url, children: [{ text: "" }] };
+        const isVideo = file.type.startsWith("video/");
         if (sel) {
           try { editor.tf.select(sel); } catch { /* ignore */ }
         }
-        if (editor.selection) {
-          editor.tf.insertNodes(imgNode, { at: editor.selection });
+        if (isVideo) {
+          // 동영상 → media_embed 노드 (mediaType으로 강제 video 판별)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const node = { type: "media_embed", url, mediaType: "video", children: [{ text: "" }] } as any;
+          if (editor.selection) {
+            editor.tf.insertNodes(node, { at: [editor.selection.anchor.path[0] + 1] });
+          } else {
+            editor.tf.insertNodes(node, { at: [editor.children.length] });
+          }
         } else {
-          const lastIdx = editor.children.length - 1;
-          const lastBlock = editor.children[lastIdx] as { children?: unknown[] };
-          const innerLen = lastBlock?.children?.length ?? 0;
-          editor.tf.insertNodes(imgNode, { at: [lastIdx, innerLen] });
+          // 이미지 → img 노드 (inline)
+          const imgNode = { type: "img", url, children: [{ text: "" }] };
+          if (editor.selection) {
+            editor.tf.insertNodes(imgNode, { at: editor.selection });
+          } else {
+            const lastIdx = editor.children.length - 1;
+            const lastBlock = editor.children[lastIdx] as { children?: unknown[] };
+            const innerLen = lastBlock?.children?.length ?? 0;
+            editor.tf.insertNodes(imgNode, { at: [lastIdx, innerLen] });
+          }
         }
       } catch (e) {
         console.error("[addImage] ERROR:", e);
@@ -774,7 +830,7 @@ export default function PlateEditor({
     }
     if (e.key === "Escape") {
       // 아래 toolbar부터 순차적으로 닫기: contextual → find
-      const inContextual = isInTable || isInColumn || isInToggle || isInCallout || mathEditing || isInImage;
+      const inContextual = isInTable || isInColumn || isInToggle || isInCallout || mathEditing || isInImage || isInMediaEmbed;
       if (inContextual && editor.selection) {
         // 현재 블록 밖으로 커서 이동 → contextual toolbar 닫힘
         e.preventDefault();
@@ -927,7 +983,7 @@ export default function PlateEditor({
       nodes.forEach((node, i) => {
         const n = node as Record<string, unknown>;
         if (n.type === "img" && n.url) content.push({ url: n.url as string, path: [...path, i], mediaType: "img" });
-        if (n.type === "media_embed" && n.url) content.push({ url: n.url as string, path: [...path, i], mediaType: "media_embed" });
+        if (n.type === "media_embed" && n.url && (n.mediaType === "video" || /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(n.url as string))) content.push({ url: n.url as string, path: [...path, i], mediaType: "video" });
         if (n.children) walk(n.children as unknown[], [...path, i]);
       });
     };
@@ -959,11 +1015,12 @@ export default function PlateEditor({
 
     return [...content, ...detachedItems];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, editor.children]);
+  }, [editor, editor.children, tick]);
 
   const removeDetached = useCallback((url: string) => {
     detachedRef.current = detachedRef.current.filter((d) => d.url !== url);
     deletedUrlsRef.current.add(url);
+    setTick((t) => t + 1); // 리렌더 트리거 → allImages 재계산
   }, []);
 
   const selectImageAt = useCallback((path: number[]) => {
@@ -1028,8 +1085,26 @@ export default function PlateEditor({
     console.log("[insertMediaByUrl] done");
   }, [editor]);
 
+  const getImagesLive = useCallback((): import("./plate/types").EditorImageInfo[] => {
+    const content: import("./plate/types").EditorImageInfo[] = [];
+    const walk = (nodes: unknown[], path: number[]) => {
+      if (!Array.isArray(nodes)) return;
+      nodes.forEach((node, i) => {
+        const n = node as Record<string, unknown>;
+        if (n.type === "img" && n.url) content.push({ url: n.url as string, path: [...path, i], mediaType: "img" });
+        if (n.type === "media_embed" && n.url && (n.mediaType === "video" || /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(n.url as string))) content.push({ url: n.url as string, path: [...path, i], mediaType: "video" });
+        if (n.children) walk(n.children as unknown[], [...path, i]);
+      });
+    };
+    walk(editor.children as unknown[], []);
+    const detachedItems = detachedRef.current.map((d) => ({
+      ...d, path: [] as number[], detached: true,
+    }));
+    return [...content, ...detachedItems];
+  }, [editor]);
+
   useImperativeHandle(editorRef, () => ({
-    getImages: () => allImages,
+    getImages: getImagesLive,
     selectImageAt,
     reorderImage,
     removeImage,
@@ -1190,6 +1265,62 @@ export default function PlateEditor({
           />
 
           <MathToolbar visible={mathEditing && noOverlay} />
+
+          {/* Media Embed toolbar */}
+          <div className={`${styles.tableToolbar} ${!isInMediaEmbed || !noOverlay ? styles.tableToolbarHidden : ""}`}>
+            {selectedMediaEmbed && (() => {
+              const mel = selectedMediaEmbed.node;
+              const mUrl = (mel.url as string) || "";
+              const isYT = /youtube\.com\/embed\//.test(mUrl) || /youtube\.com\/watch|youtu\.be/.test(mUrl);
+              const mAlign = (mel.align as string) || "center";
+              const mWidth = (mel.width as number) || 0;
+              const mStart = (mel.ytStart as number) || 0;
+              const mAutoplay = (mel.ytAutoplay as boolean) || false;
+              const mLoop = (mel.ytLoop as boolean) || false;
+              const mMute = (mel.ytMute as boolean) || false;
+              const setAttr = (attrs: Record<string, unknown>) => {
+                try { editor.tf.setNodes(attrs, { at: selectedMediaEmbed.path }); } catch {}
+              };
+              const SIZES = [{ label: "S", w: 400 }, { label: "M", w: 560 }, { label: "L", w: 720 }, { label: "Full", w: 0 }];
+              return (
+                <div className={styles.tableToolbarRow}>
+                  <span className={styles.tableToolbarLabel}>EMBED</span>
+                  <div className={styles.tableGroup}>
+                    {(["left", "center", "right"] as const).map((a) => (
+                      <TBtn key={a} active={mAlign === a} onClick={() => setAttr({ align: a })}>{a === "left" ? "◧" : a === "center" ? "◻" : "◨"}</TBtn>
+                    ))}
+                  </div>
+                  <div className={styles.tableGroup}>
+                    {SIZES.map((s) => (
+                      <TBtn key={s.label} active={mWidth === s.w} onClick={() => setAttr({ width: s.w })}>{s.label}</TBtn>
+                    ))}
+                  </div>
+                  <TBtn onClick={() => setAttr({ width: 0, align: "center", ytStart: 0, ytAutoplay: false, ytLoop: false, ytMute: false, ytControls: true })}>↺</TBtn>
+                  {isYT && (
+                    <>
+                      <div className={styles.tableGroup}>
+                        <span style={{ fontSize: 10, padding: "0 4px", color: "var(--text-tertiary)" }}>Start</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={mStart}
+                          onChange={(e) => setAttr({ ytStart: Math.max(0, Number(e.target.value) || 0) })}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          style={{ width: 44, padding: "1px 4px", fontSize: 11, border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-xs)", background: "transparent", color: "inherit", textAlign: "center" }}
+                        />
+                        <span style={{ fontSize: 9, color: "var(--text-muted)" }}>s</span>
+                      </div>
+                      <div className={styles.tableGroup}>
+                        <TBtn active={mAutoplay} onClick={() => setAttr({ ytAutoplay: !mAutoplay })}>Autoplay</TBtn>
+                        <TBtn active={mLoop} onClick={() => setAttr({ ytLoop: !mLoop })}>Loop</TBtn>
+                        <TBtn active={mMute} onClick={() => setAttr({ ytMute: !mMute })}>Mute</TBtn>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
 
           {/* Find & Replace toolbar — always on top */}
           <div ref={findToolbarRef} className={`${styles.tableToolbar} ${styles.findToolbar} ${!findOpen ? styles.tableToolbarHidden : ""}`}>
@@ -1674,9 +1805,9 @@ export default function PlateEditor({
                       tooltip="Insight"
                     >🔮</TBtn>
                   </div>
-                  {/* 우측 — 이모지 제거/추가, 서식 초기화, 콜아웃 삭제 (캡슐 그룹) */}
+                  {/* 우측 — 이모지 제거/추가, 서식 초기화, 콜아웃 삭제 */}
                   <div className={styles.tableToolbarActions}>
-                    <div className={styles.tableGroup}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
                       {calloutNode.node.icon ? (
                         <TBtn
                           onClick={() => editor.tf.setNodes({ icon: undefined }, { at: calloutNode.path })}

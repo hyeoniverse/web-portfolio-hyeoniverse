@@ -36,14 +36,11 @@ function extractHeadings(content: string, isRichtext: boolean): TocHeading[] {
 export default function WorkPreviewPage() {
   const { language } = useLanguage();
   const [form, setForm] = useState<WorkFormData | null>(null);
-
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("work-preview");
       if (raw) setForm(JSON.parse(raw));
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
   }, []);
 
   const suf = language === "ko" ? "_ko" : "_en";
