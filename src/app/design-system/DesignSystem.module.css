@@ -749,22 +749,6 @@
   border-radius: var(--radius-lg);
 }
 
-.previewToggle {
-  padding: 8px 20px;
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  transition: background-color 0.15s, color 0.15s;
-}
-
-.previewToggle:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
 .previewPanel {
   margin-top: 16px;
   border: var(--border-light);

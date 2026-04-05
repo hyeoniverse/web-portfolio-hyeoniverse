@@ -3,6 +3,8 @@
 import { memo, useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
+import { ExternalLink } from "lucide-react";
+import Button from "@/components/ui/Button";
 import { staggerContainer, staggerItem, viewportOpts } from "../_data/animations";
 import { SAMPLE_HTML } from "../_data/editorSampleHtml";
 import styles from "../DesignSystem.module.css";
@@ -89,13 +91,15 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
     <section id="editor" ref={setSectionRef("editor")} className={styles.section}>
       <div className={styles.sectionTitleRow}>
         <h2 className={styles.sectionTitle}>Editor</h2>
-        <button
-          type="button"
+        <Button
+          variant="link"
           onClick={handlePreview}
-          className={styles.previewToggle}
+          icon={<ExternalLink size={12} />}
+          iconPosition="right"
+          soundDisabled
         >
           {language === "ko" ? "디테일 페이지 미리보기" : "Detail Page Preview"}
-        </button>
+        </Button>
       </div>
       <motion.div
         initial="hidden"
