@@ -177,6 +177,21 @@
   margin-bottom: 48px;
 }
 
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.sectionTitleRow .sectionTitle {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
 .sectionTitle {
   margin-bottom: 16px;
   padding-bottom: 8px;
@@ -532,6 +547,7 @@
 
 .alphaBar {
   flex: 1;
+  border: var(--border-light);
   border-radius: var(--radius-xs) var(--radius-xs) 0 0;
   min-width: 0;
 }
@@ -719,9 +735,8 @@
 
 /* ── Editor Demo ── */
 .editorDemo {
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-  overflow: auto;
+  height: 500px;
+  overflow: hidden;
   resize: both;
   min-height: 200px;
   min-width: 320px;
@@ -742,7 +757,6 @@
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
 }
 
