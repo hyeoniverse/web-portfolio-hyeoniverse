@@ -46,7 +46,7 @@ export default function PostsBanner({ posts, imgErrors, onImgError, overrideLayo
 function FullwidthBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
   const siteConfig = useSiteConfig();
   return (
-    <div className={styles.fullwidth}>
+    <div className={styles.fullwidth} data-cursor="stop">
       <Carousel
         mode={siteConfig.posts.bannerTransition as "default" | "cylinder"}
         height="clamp(320px, 56vh, 640px)"

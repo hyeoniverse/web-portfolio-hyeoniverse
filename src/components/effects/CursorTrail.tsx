@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./CursorTrail.module.css";
 
-type CursorType = "big" | "text" | "grab" | "disabled" | "";
+type CursorType = "big" | "text" | "grab" | "disabled" | "stop" | "";
 
 /* ---------------- 헬퍼 함수 ---------------- */
 
@@ -118,9 +118,12 @@ export default function CursorTrail() {
         !!target.closest('[contenteditable="true"]')
       );
 
+      const dataCursor = target?.closest("[data-cursor]")?.getAttribute("data-cursor") as CursorType | null;
+
       if (isDraggable) setCursorType("grab");
       else if (isDisabled) setCursorType("disabled");
       else if (isClickable) setCursorType("big");
+      else if (dataCursor) setCursorType(dataCursor);
       else if (isText) setCursorType("text");
       else setCursorType("");
     };
@@ -225,7 +228,7 @@ export default function CursorTrail() {
     >
       <div className={styles.cursorInner}>
         <span className={styles.cursorText}>
-          {cursorType === "grab" ? "Drag" : isMore ? "More" : "Click"}
+          {cursorType === "grab" ? "Drag" : cursorType === "stop" ? "Stop" : isMore ? "More" : "Click"}
         </span>
       </div>
     </div>

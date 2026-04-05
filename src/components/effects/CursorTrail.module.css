@@ -124,6 +124,23 @@
   filter: none;
 }
 
+/* stop 커서 (배너 hover 등) */
+.stop .cursorInner {
+  width: var(--cursor-big-width);
+  height: var(--cursor-big-width);
+  backdrop-filter: var(--blur-sm);
+}
+.stop .cursorText {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  opacity: 1;
+}
+.stop .cursorInner::before {
+  inset: 0px;
+  opacity: 0;
+  filter: none;
+}
+
 /* disabled 요소 */
 .disabled .cursorInner {
   width: var(--cursor-width);
