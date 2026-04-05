@@ -100,12 +100,14 @@ export default function DesignSystemPage() {
 
   const observersRef = useRef<Map<string, IntersectionObserver>>(new Map());
   const entriesRef = useRef<Map<string, boolean>>(new Map());
+  const tocLockRef = useRef(false);
 
   const observeSection = useCallback((id: string, el: HTMLElement) => {
     if (observersRef.current.has(id)) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         entriesRef.current.set(id, entry.isIntersecting);
+        if (tocLockRef.current) return;
         for (const section of tocSections) {
           if (entriesRef.current.get(section.id)) {
             setActiveSection(section.id);
@@ -129,10 +131,14 @@ export default function DesignSystemPage() {
   }, [observeSection]);
 
   const handleTocClick = (id: string) => {
+    setActiveSection(id);
+    // 스크롤 완료까지 observer가 activeSection을 덮어쓰지 않도록 잠금
+    tocLockRef.current = true;
     const el = sectionRefs.current.get(id);
     if (el) {
       scrollTo(el, { offset: -100, duration: 0.8 });
     }
+    setTimeout(() => { tocLockRef.current = false; }, 1000);
   };
 
   const setSectionRef = useCallback((id: string) => (el: HTMLElement | null) => {
