@@ -1614,6 +1614,45 @@ JSON.stringify(form)     = "{...}"  // 현재 폼
 
 ---
 
+</details>
+
+<details>
+<summary><strong>18. Plate Editor 인라인 이미지 — 양옆에 커서 배치·텍스트 입력 불가</strong></summary>
+
+#### 문제
+
+Plate(Slate) 에디터에서 이미지를 인라인 void(`isInline: true, isVoid: true`)로 설정했으나, 이미지 양옆에 **클릭으로 커서를 놓거나 방향키로 이동하는 것이 불가능**하여 텍스트를 삽입할 수 없었음
+
+#### 원인
+
+Slate의 정규화는 인라인 void 주변에 빈 텍스트 노드(zero-width space)를 자동 삽입하지만, ImageElement 내부에서 `<div>` (BlockDropZone + wrapper)가 인라인 `<span>` (PlateElement) 안에 중첩되어 있었음. **`<div>`는 블록 요소라 인라인 흐름을 깨뜨려**, 브라우저가 인접 텍스트 노드에 대한 커서 접근을 차단함
+
+```
+❌ <span display="inline">          ← PlateElement (인라인)
+     <div>                          ← BlockDropZone (블록!)
+       <div contentEditable={false}> ← wrapper (블록!)
+         <div>                       ← hover container (블록!)
+           <img />
+```
+
+#### 해결
+
+`imgLayout === "inline"`일 때 별도 렌더링 분기를 만들어 **모든 wrapper를 `<span>`으로 변경**하고 BlockDropZone을 제거함. 또한 이미지 양쪽에 absolute로 배치된 6px 너비의 `InlineCursorTarget` 컴포넌트를 추가하여, **클릭 시 `editor.api.before()`/`after()`로 커서를 정확히 배치**함
+
+```
+✅ <span display="inline">          ← PlateElement (인라인)
+     <span display="inline-block">  ← 단일 wrapper (인라인!)
+       <InlineCursorTarget left />  ← 클릭 → 커서 before
+       <img />
+       <InlineCursorTarget right /> ← 클릭 → 커서 after
+```
+
+#### TL;DR
+
+인라인 void 요소 안에 `<div>`가 들어가면 **브라우저가 인라인 흐름을 파괴**하여, Slate가 자동 삽입한 빈 텍스트 노드에 커서를 배치할 수 없게 됨. 인라인 요소 내부에는 반드시 `<span>` 등 인라인 태그만 사용해야 함
+
+---
+
 
 </details>
 

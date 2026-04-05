@@ -815,4 +815,26 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Auto-corrections (categories, defaults) are **changes unrelated to user intent**. They can create autosave → revision → prompt loops, so **server-side duplicate snapshot filtering** is the most robust solution without complicating client logic.",
     },
   },
+
+  /* ── Editor ── */
+  {
+    section: { ko: "에디터", en: "Editor" },
+    problem: { ko: "인라인 이미지 양옆에 커서 배치·텍스트 입력 불가", en: "Cannot Place Cursor or Type Next to Inline Images" },
+    definition: {
+      ko: "Plate(Slate) 에디터에서 이미지를 인라인 void로 설정했으나, 이미지 양옆에 **클릭이나 방향키로 커서를 놓을 수 없어** 텍스트를 삽입할 수 없었습니다.",
+      en: "Images in the Plate (Slate) editor were set as inline void, but it was **impossible to place the cursor beside the image via click or arrow keys**, preventing text insertion.",
+    },
+    cause: {
+      ko: "Slate의 정규화는 인라인 void 주변에 빈 텍스트 노드(zero-width space)를 자동 삽입하지만, ImageElement 내부에서 `<div>` (BlockDropZone + wrapper)가 인라인 `<span>` (PlateElement) 안에 중첩되어 있었습니다. **`<div>`는 블록 요소라 인라인 흐름을 깨뜨려**, 브라우저가 인접 텍스트 노드에 대한 커서 접근을 차단했습니다.",
+      en: "Slate's normalization correctly inserts empty text nodes around inline voids, but the ImageElement nested `<div>` elements (BlockDropZone + wrapper) inside an inline `<span>` (PlateElement). **`<div>` is a block element that breaks inline flow**, causing the browser to block cursor access to adjacent text nodes.",
+    },
+    solution: {
+      ko: "`imgLayout === \"inline\"`일 때 별도 렌더링 분기를 만들어 **모든 wrapper를 `<span>`으로 변경**하고 BlockDropZone을 제거했습니다. 또한 이미지 양쪽에 absolute 배치된 `InlineCursorTarget`을 추가하여, 클릭 시 `editor.api.before()`/`after()`로 커서를 정확히 배치합니다.",
+      en: "Created a separate rendering branch for `imgLayout === \"inline\"` that **converts all wrappers to `<span>`** and removes BlockDropZone. Added absolute-positioned `InlineCursorTarget` components that use `editor.api.before()`/`after()` to precisely place the cursor on click.",
+    },
+    keyInsight: {
+      ko: "인라인 void 요소 안에 `<div>`가 들어가면 **브라우저가 인라인 흐름을 파괴**하여, Slate가 자동 삽입한 빈 텍스트 노드에 커서를 배치할 수 없게 됩니다. 인라인 요소 내부에는 반드시 `<span>` 등 인라인 태그만 사용해야 합니다.",
+      en: "Placing `<div>` inside an inline void element **destroys the browser's inline flow**, preventing cursor placement in Slate's auto-inserted empty text nodes. Only inline tags like `<span>` should be used inside inline elements.",
+    },
+  },
 ];
