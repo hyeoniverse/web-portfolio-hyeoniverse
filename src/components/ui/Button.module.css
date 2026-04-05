@@ -219,3 +219,26 @@
 .variant-ghost.btn.active {
   color: var(--text-primary);
 }
+
+/* ---------------------------------------------------------------------------
+   Variant: link — 텍스트 링크 스타일, underline + 최소 패딩
+   --------------------------------------------------------------------------- */
+.variant-link {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+  padding: 0;
+  height: auto;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: var(--font-size-xs);
+  gap: var(--spacing-2xs);
+}
+
+.variant-link.btn {
+  transition: color var(--duration-base) ease;
+}
+
+.variant-link.btn:hover:not(:disabled) {
+  color: var(--text-primary);
+}
