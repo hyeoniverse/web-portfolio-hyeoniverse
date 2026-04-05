@@ -355,15 +355,58 @@ function serializeNode(node: SlateNode): string {
       const fName = esc(String(el.fileName ?? ""));
       const fSize = el.fileSize as number | undefined;
       const isAudio = /\.(mp3|wav|ogg|m4a|flac|aac|wma)(\?|$)/i.test(fileUrl);
-      const audioHtml = isAudio ? `<audio src="${fileUrl}" controls preload="metadata" style="width:100%;margin-top:6px"></audio>` : "";
-      return `<div data-file-embed data-url="${fileUrl}" data-filename="${fName}"${fSize ? ` data-filesize="${fSize}"` : ""} style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;max-width:480px;margin:8px 0"><span style="font-size:24px">${isAudio ? "🎵" : /\.pdf/i.test(fileUrl) ? "📄" : "📎"}</span><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fName}</div>${fSize ? `<div style="font-size:11px;color:#6b7280;margin-top:1px">${fSize < 1024 * 1024 ? (fSize / 1024).toFixed(1) + " KB" : (fSize / (1024 * 1024)).toFixed(1) + " MB"}</div>` : ""}</div><a href="${fileUrl}" download style="flex-shrink:0;padding:4px 10px;font-size:12px;border-radius:4px;border:1px solid #e5e7eb;background:#fff;color:#111;text-decoration:none">↓</a></div>${audioHtml}`;
+      const iconSvg = isAudio
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
+          + '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>'
+        : /\.pdf/i.test(fileUrl)
+          ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
+            + '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>'
+            + '<path d="M10 13h4"/><path d="M10 17h4"/><path d="M10 9h1"/></svg>'
+          : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
+            + '<path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>';
+      const dlSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+        + '<path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>';
+      const sizeHtml = fSize
+        ? `<div style="font-size:11px;color:var(--text-muted);margin-top:1px">`
+          + `${fSize < 1024 * 1024 ? (fSize / 1024).toFixed(1) + " KB" : (fSize / (1024 * 1024)).toFixed(1) + " MB"}</div>`
+        : "";
+      const audioHtml = isAudio
+        ? `<audio src="${fileUrl}" controls preload="metadata" style="width:100%;margin-top:6px;border-radius:var(--radius-sm)"></audio>`
+        : "";
+      return [
+        `<div data-file-embed data-url="${fileUrl}" data-filename="${fName}"${fSize ? ` data-filesize="${fSize}"` : ""}`,
+        ` style="max-width:480px;margin:var(--spacing-sm) 0">`,
+        `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;`,
+        `border-radius:var(--radius-capsule,999px);border:1px solid var(--border-light-color);background:var(--bg-secondary)">`,
+        `<div style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-alpha-6);`,
+        `display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary)">${iconSvg}</div>`,
+        `<div style="flex:1;min-width:0">`,
+        `<div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fName}</div>`,
+        `${sizeHtml}</div>`,
+        `<a href="${fileUrl}" download style="width:34px;height:34px;border-radius:50%;flex-shrink:0;`,
+        `display:flex;align-items:center;justify-content:center;border:1px solid var(--border-light-color);`,
+        `background:var(--bg-primary);color:var(--text-primary);text-decoration:none">${dlSvg}</a>`,
+        `</div>${audioHtml}</div>`,
+      ].join("");
     }
 
     // ── Audio player ──
     case "audio_embed": {
       const audioUrl = esc(String(el.url ?? ""));
       const audioTitle = esc(String(el.title ?? ""));
-      return `<div data-audio-embed data-url="${audioUrl}" data-title="${audioTitle}" style="max-width:480px;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;margin:8px 0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🎵</span><span style="font-size:13px;font-weight:500">${audioTitle}</span></div><audio src="${audioUrl}" controls preload="metadata" style="width:100%"></audio></div>`;
+      const audioIconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
+        + '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+      const titleHtml = audioTitle
+        ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;color:var(--text-secondary)">`
+          + `${audioIconSvg}<span style="font-size:13px;font-weight:500">${audioTitle}</span></div>`
+        : "";
+      return [
+        `<div data-audio-embed data-url="${audioUrl}" data-title="${audioTitle}"`,
+        ` style="max-width:480px;padding:10px 14px;margin:var(--spacing-sm) 0">`,
+        `${titleHtml}`,
+        `<audio src="${audioUrl}" controls preload="metadata" style="width:100%"></audio>`,
+        `</div>`,
+      ].join("");
     }
 
     // ── Math (KaTeX) ──
