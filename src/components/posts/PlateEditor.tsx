@@ -1199,9 +1199,14 @@ export default function PlateEditor({
       if (!scrollEl) return;
       const prev = toolbarPadRef.current;
       if (prev === maxH) return;
+      const delta = maxH - prev;
       toolbarPadRef.current = maxH;
       scrollEl.style.paddingTop = maxH > 0 ? `calc(var(--spacing-md) + ${maxH}px)` : "";
       scrollEl.style.scrollPaddingTop = maxH > 0 ? `${maxH}px` : "";
+      // padding 변경분만큼 scrollTop 보정 → 콘텐츠 점프 방지
+      if (delta !== 0 && scrollEl.scrollTop > 0) {
+        scrollEl.scrollTop += delta;
+      }
     });
     return () => cancelAnimationFrame(id);
   }, [toolbarKey]);
