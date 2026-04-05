@@ -1121,10 +1121,15 @@ export function AudioElement(props: PlateElementProps) {
   return (
     <BlockDropZone path={elPath}>
       <PlateElement {...props} style={{ ...props.style }}>
-        <div contentEditable={false} style={{ maxWidth: 480, padding: "10px 14px", borderRadius: 8, margin: "8px 0" }}>
+        <div contentEditable={false} style={{
+          maxWidth: 480, padding: "10px 14px",
+          margin: "var(--spacing-sm) 0",
+        }}>
           {title && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-              <span style={{ fontSize: 16 }}>🎵</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, color: "var(--text-secondary)" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
+              </svg>
               <span style={{ fontSize: 13, fontWeight: 500 }}>{title}</span>
             </div>
           )}
