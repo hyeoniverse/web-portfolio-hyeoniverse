@@ -98,29 +98,35 @@ export default function DesignSystemPage() {
     }
   }, [theme, activePreset]);
 
-  useEffect(() => {
-    const observers: IntersectionObserver[] = [];
-    const entries = new Map<string, boolean>();
+  const observersRef = useRef<Map<string, IntersectionObserver>>(new Map());
+  const entriesRef = useRef<Map<string, boolean>>(new Map());
 
-    sectionRefs.current.forEach((el, id) => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          entries.set(id, entry.isIntersecting);
-          for (const section of tocSections) {
-            if (entries.get(section.id)) {
-              setActiveSection(section.id);
-              break;
-            }
+  const observeSection = useCallback((id: string, el: HTMLElement) => {
+    if (observersRef.current.has(id)) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        entriesRef.current.set(id, entry.isIntersecting);
+        for (const section of tocSections) {
+          if (entriesRef.current.get(section.id)) {
+            setActiveSection(section.id);
+            break;
           }
-        },
-        { rootMargin: "-20% 0px -60% 0px" }
-      );
-      observer.observe(el);
-      observers.push(observer);
-    });
-
-    return () => observers.forEach((o) => o.disconnect());
+        }
+      },
+      { rootMargin: "-20% 0px -60% 0px" }
+    );
+    observer.observe(el);
+    observersRef.current.set(id, observer);
   }, []);
+
+  // 초기 마운트 시 이미 등록된 ref observe
+  useEffect(() => {
+    sectionRefs.current.forEach((el, id) => observeSection(id, el));
+    return () => {
+      observersRef.current.forEach((o) => o.disconnect());
+      observersRef.current.clear();
+    };
+  }, [observeSection]);
 
   const handleTocClick = (id: string) => {
     const el = sectionRefs.current.get(id);
@@ -130,8 +136,11 @@ export default function DesignSystemPage() {
   };
 
   const setSectionRef = useCallback((id: string) => (el: HTMLElement | null) => {
-    if (el) sectionRefs.current.set(id, el);
-  }, []);
+    if (el) {
+      sectionRefs.current.set(id, el);
+      observeSection(id, el);
+    }
+  }, [observeSection]);
 
   const handleBack = useCallback(() => {
     setIsExiting(true);
