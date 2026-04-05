@@ -56,7 +56,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
 }
 

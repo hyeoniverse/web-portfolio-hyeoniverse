@@ -163,7 +163,6 @@
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-muted);
-  cursor: pointer;
   overflow: hidden;
 }
 
@@ -180,7 +179,6 @@
   width: 240px;
   border-radius: var(--radius-capsule);
   color: var(--text-primary);
-  cursor: default;
 }
 
 .notifyCapsuleOpen:focus-within {
@@ -318,7 +316,6 @@
 .notifyInputConfirmed {
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
-  cursor: default;
 }
 
 /* Check button */

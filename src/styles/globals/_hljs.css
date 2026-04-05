@@ -181,7 +181,6 @@
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1;
-  cursor: pointer;
   z-index: 2;
   white-space: nowrap;
   overflow: hidden;

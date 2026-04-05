@@ -37,7 +37,6 @@
   background: var(--bg-secondary);
   border: none;
   border-right: var(--border-light);
-  cursor: pointer;
 }
 
 .panelTab:last-child {
@@ -425,7 +424,6 @@
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
-  cursor: pointer;
   line-height: 1;
 }
 
@@ -468,7 +466,6 @@
   border-radius: 2px;
   background: transparent;
   padding: 0;
-  cursor: pointer;
 }
 
 .tbTableCell:hover,
@@ -506,7 +503,6 @@
   font-family: var(--font-space-grotesk);
   font-size: 12px;
   font-weight: 600;
-  cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
 }
 
