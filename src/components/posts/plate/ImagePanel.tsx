@@ -1,4 +1,5 @@
 import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/ui/CloseIcon";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -207,6 +208,7 @@ export function ImagePanel({
     const sorted = Array.from(selected).sort((a, b) => b - a);
     for (const idx of sorted) {
       const img = images[idx];
+      if (!img) continue;
       if (img.detached) onRemoveDetached?.(img.url);
       else onRemove(img.path);
     }
@@ -233,6 +235,7 @@ export function ImagePanel({
   return (
     <div
       className={`${styles.imagePanel} ${fileDragOver ? styles.imagePanelDragOver : ""}`}
+      onMouseDown={(e) => { if (!(e.target as HTMLElement).closest("input, button")) e.preventDefault(); }}
       onDragEnter={handleFileDragEnter}
       onDragLeave={handleFileDragLeave}
       onDragOver={handleFileDragOver}
@@ -275,29 +278,27 @@ export function ImagePanel({
       </div>
 
       {/* ── 이미지 목록 ── */}
-      <div className={styles.imagePanelList}>
-        {images.length === 0 && (
-          <span className={styles.imagePanelEmpty}>
-            {fileDragOver ? t("editor.imageDragDrop") : t("editor.imageDragHint")}
-          </span>
-        )}
-        {images.map((img, i) => {
+      {(() => {
+        const contentImages = images.filter((img) => !img.detached);
+        const detachedImages = images.filter((img) => img.detached);
+        const renderItem = (img: typeof images[0], i: number) => {
           const fileName = decodeURIComponent(img.url.split("/").pop()?.split("?")[0] || "");
           const isDetached = !!img.detached;
-          const isDragging = dragIdx === i;
-          const isOver = overIdx === i && dragIdx !== i;
-          const isSelected = selected.has(i);
-          const isVideo = img.mediaType === "media_embed" && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(img.url);
+          const globalIdx = images.indexOf(img);
+          const isDragging = dragIdx === globalIdx;
+          const isOver = overIdx === globalIdx && dragIdx !== globalIdx;
+          const isSelected = selected.has(globalIdx);
+          const isVideo = img.mediaType === "media_embed" || img.mediaType === "video" || /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(img.url);
           return (
             <div
               key={`${img.url}-${i}`}
               className={`${styles.imagePanelItem} ${isSelected ? styles.imagePanelItemSelected : ""}`}
               draggable={!isDetached}
-              onDragStart={isDetached ? undefined : (e) => onDragStart(e, i)}
-              onDragOver={isDetached ? undefined : (e) => onDragOver(e, i)}
-              onDrop={isDetached ? undefined : (e) => onDrop(e, i)}
+              onDragStart={isDetached ? undefined : (e) => onDragStart(e, globalIdx)}
+              onDragOver={isDetached ? undefined : (e) => onDragOver(e, globalIdx)}
+              onDrop={isDetached ? undefined : (e) => onDrop(e, globalIdx)}
               onDragEnd={isDetached ? undefined : onDragEnd}
-              onClick={(e) => toggleSelect(i, e)}
+              onClick={(e) => toggleSelect(globalIdx, e)}
               onDoubleClick={() => { if (!isDetached) onSelect(img.path); }}
               title={isDetached ? t("editor.mediaReinsertHint") : fileName}
               style={{
@@ -306,10 +307,9 @@ export function ImagePanel({
                 outlineOffset: isOver ? -2 : undefined,
               }}
             >
-              {/* 체크박스 */}
               <span
                 className={styles.imagePanelCheck}
-                onClick={(e) => toggleSelect(i, e)}
+                onClick={(e) => toggleSelect(globalIdx, e)}
               >
                 <span className={`${styles.imagePanelCheckbox} ${isSelected ? styles.imagePanelCheckboxChecked : ""}`}>
                   {isSelected && (
@@ -336,8 +336,39 @@ export function ImagePanel({
               </button>
             </div>
           );
-        })}
-      </div>
+        };
+        return (
+          <>
+            <div className={styles.imagePanelList}>
+              {contentImages.length === 0 && detachedImages.length === 0 && (
+                <span className={styles.imagePanelEmpty}>
+                  {fileDragOver ? t("editor.imageDragDrop") : t("editor.imageDragHint")}
+                </span>
+              )}
+              {contentImages.map((img, i) => renderItem(img, i))}
+            </div>
+            <AnimatePresence>
+              {detachedImages.length > 0 && (
+                <motion.div
+                  className={styles.imagePanelDetachedSection}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <div className={styles.imagePanelDivider}>
+                    <span className={styles.imagePanelDividerLabel}>{t("editor.detachedMedia")}</span>
+                  </div>
+                  <div className={styles.imagePanelList}>
+                    {detachedImages.map((img, i) => renderItem(img, i))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        );
+      })()}
 
       {/* ── 하단: 파일 첨부 버튼 + 안내 텍스트 ── */}
       <div className={styles.imagePanelFooter}>

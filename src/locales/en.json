@@ -1170,6 +1170,7 @@
     "imageRemove": "Remove image",
     "mediaReinsertHint": "Select and use reinsert button",
     "mediaReinsert": "Reinsert",
+    "detachedMedia": "Removed",
     "imageUploadFail": "Image upload failed",
     "imageAttach": "Attach File",
     "imageAttachInfo": "Drop files here or click the attach button. (Image 5MB · GIF 10MB · Video 50MB)",

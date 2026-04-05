@@ -289,7 +289,12 @@ function serializeNode(node: SlateNode): string {
       const imgLayout = (el.layout as string) || "inline";
       const imgLockAspect = (el.lockAspect as boolean) ?? true;
       const justifyMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
-      const figStyle = `display:flex;flex-direction:column;align-items:${justifyMap[imgAlign] || "center"};margin:1em 0`;
+      const isFloat = imgLayout === "float-left" || imgLayout === "float-right";
+      const figStyle = isFloat
+        ? `float:${imgLayout === "float-left" ? "left" : "right"};margin:0`
+        : imgLayout === "block"
+          ? `display:block;margin:1em 0`
+          : `display:flex;flex-direction:column;align-items:${justifyMap[imgAlign] || "center"};margin:1em 0`;
       const imgStyles: string[] = [];
       if (imgW && imgW > 0) imgStyles.push(`width:${imgW}px`);
       if (imgH && imgH > 0) imgStyles.push(`height:${imgH}px`);
@@ -320,8 +325,29 @@ function serializeNode(node: SlateNode): string {
     }
 
     // ── Media embed ──
-    case "media_embed":
-      return `<iframe src="${esc(String(el.url ?? ""))}" data-original-url="${esc(String(el.url ?? ""))}" width="100%" height="400" frameborder="0" loading="lazy" allowfullscreen></iframe>`;
+    case "media_embed": {
+      const rawUrl = String(el.url ?? "");
+      let embedSrc = rawUrl;
+      const ytMatch = rawUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]+)/);
+      if (ytMatch) {
+        embedSrc = `https://www.youtube.com/embed/${ytMatch[1]}`;
+        const params = new URLSearchParams();
+        if (el.ytStart && (el.ytStart as number) > 0) params.set("start", String(el.ytStart));
+        if (el.ytAutoplay) params.set("autoplay", "1");
+        if (el.ytLoop) { params.set("loop", "1"); params.set("playlist", ytMatch[1]); }
+        if (el.ytMute) params.set("mute", "1");
+        if (el.ytControls === false) params.set("controls", "0");
+        const qs = params.toString();
+        if (qs) embedSrc += `?${qs}`;
+      } else {
+        const vimeoMatch = rawUrl.match(/vimeo\.com\/(\d+)/);
+        if (vimeoMatch) embedSrc = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+      }
+      const w = el.width ? `${el.width}px` : "100%";
+      const align = (el.align as string) || "center";
+      const justify = align === "left" ? "flex-start" : align === "right" ? "flex-end" : "center";
+      return `<div style="display:flex;justify-content:${justify}"><iframe src="${esc(embedSrc)}" data-original-url="${esc(rawUrl)}" style="width:${w};max-width:100%;aspect-ratio:16/9" frameborder="0" loading="lazy" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`;
+    }
 
     // ── File embed (PDF, audio, etc.) ──
     case "file_embed": {

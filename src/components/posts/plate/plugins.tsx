@@ -215,7 +215,7 @@ export const plugins = [
   }),
   // Media — 이미지 커스텀 렌더러 (크기/정렬/캡션)
   ImagePlugin.configure({
-    node: { isInline: true },
+    node: { isElement: true, isInline: true, isVoid: true },
     render: { node: ImageElement },
     parsers: {
       html: {
@@ -264,11 +264,33 @@ export const plugins = [
       html: {
         deserializer: {
           rules: [{ validNodeName: "IFRAME" }],
-          parse: ({ element }: { element: HTMLElement }) => ({
-            type: "media_embed",
-            url: element.getAttribute("data-original-url") || element.getAttribute("src") || "",
-            children: [{ text: "" }],
-          }),
+          parse: ({ element }: { element: HTMLElement }) => {
+            const url = element.getAttribute("data-original-url") || element.getAttribute("src") || "";
+            const node: Record<string, unknown> = { type: "media_embed", url, children: [{ text: "" }] };
+            // width from inline style (style="width:400px") or parent div style
+            const style = element.getAttribute("style") || "";
+            const wMatch = style.match(/width:\s*(\d+)px/);
+            if (wMatch) node.width = Number(wMatch[1]);
+            // align from parent div (justify-content)
+            const parent = element.parentElement;
+            if (parent?.tagName === "DIV") {
+              const pStyle = parent.getAttribute("style") || "";
+              if (pStyle.includes("flex-end")) node.align = "right";
+              else if (pStyle.includes("flex-start")) node.align = "left";
+            }
+            // YouTube 옵션 복원 from embed src params
+            const src = element.getAttribute("src") || "";
+            try {
+              const u = new URL(src);
+              const start = u.searchParams.get("start");
+              if (start) node.ytStart = Number(start);
+              if (u.searchParams.get("autoplay") === "1") node.ytAutoplay = true;
+              if (u.searchParams.get("loop") === "1") node.ytLoop = true;
+              if (u.searchParams.get("mute") === "1") node.ytMute = true;
+              if (u.searchParams.get("controls") === "0") node.ytControls = false;
+            } catch { /* not a valid URL */ }
+            return node;
+          },
         },
       },
     },
