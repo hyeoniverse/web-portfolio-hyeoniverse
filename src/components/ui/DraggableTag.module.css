@@ -9,7 +9,6 @@
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
   user-select: none;
-  cursor: grab;
 }
 
 .dragging {
@@ -32,7 +31,6 @@
   color: var(--text-secondary);
   font-size: var(--font-size-xs);
   padding: 0;
-  cursor: pointer;
   line-height: 1;
 }
 

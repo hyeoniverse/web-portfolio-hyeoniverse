@@ -26,7 +26,6 @@
 
 /* 셀 드래그 선택 중: cursor + 리사이즈 핸들 비활성화 */
 .wrapper[data-cell-dragging] {
-  cursor: cell;
 }
 .wrapper[data-cell-dragging] .rowResizeHandle,
 .wrapper[data-cell-dragging] .tableResizeRight,
@@ -39,7 +38,6 @@
 .rowResizeHandle {
   position: absolute;
   height: 8px;
-  cursor: row-resize;
   z-index: 15;
   display: flex;
   align-items: center;
@@ -62,7 +60,6 @@
 .tableResizeRight {
   position: absolute;
   width: 8px;
-  cursor: col-resize;
   z-index: 15;
   display: flex;
   align-items: center;
@@ -85,7 +82,6 @@
 .tableResizeBottom {
   position: absolute;
   height: 8px;
-  cursor: row-resize;
   z-index: 15;
   display: flex;
   align-items: center;
@@ -112,7 +108,6 @@
   gap: 2px;
   padding: var(--spacing-xs);
   border: none;
-  border-bottom: var(--border-light);
   border-radius: 0;
   background: var(--bg-tertiary);
   overflow: visible;
@@ -122,7 +117,12 @@
 
 .toolbarBtn {
   position: relative;
-  padding: var(--box-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  min-width: 24px;
+  padding: 0 var(--spacing-2xs);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -295,7 +295,6 @@
 
 .fontDropItem {
   padding: 2px var(--spacing-xs);
-  cursor: default;
   border-radius: var(--radius-sm);
   margin: 1px var(--spacing-3xs);
   font-size: 12px;
@@ -326,7 +325,6 @@
   font-size: 11px;
   color: var(--text-muted);
   text-decoration: none;
-  cursor: pointer;
 }
 
 .fontDropFooterLink:hover {
@@ -411,7 +409,6 @@
   background: transparent;
   color: var(--text-muted);
   padding: 0;
-  cursor: pointer;
   line-height: 0;
 }
 
@@ -427,11 +424,13 @@
   height: 24px;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
-  overflow: visible;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
 .tableGroupLabel {
+  display: flex;
+  align-items: center;
   font-family: var(--font-mono);
   font-size: 9px;
   color: var(--text-primary);
@@ -649,7 +648,6 @@
   color: var(--text-tertiary);
   padding: 0 4px;
   outline: none;
-  cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
 }
@@ -696,7 +694,6 @@
   gap: 3px;
   padding: 0 4px;
   border-left: var(--border-light);
-  cursor: pointer;
 }
 
 .colorDot {
@@ -705,6 +702,7 @@
   border-radius: 50%;
   border: var(--border-light);
   flex-shrink: 0;
+  align-self: center;
 }
 
 /* Inline preset dots (inside tableGroup, no extra padding wrapper) */
@@ -714,6 +712,7 @@
   border-radius: 50%;
   border: var(--border-light);
   padding: 0;
+  align-self: center;
   margin: 0 4px;
   flex-shrink: 0;
 }
@@ -741,7 +740,7 @@
 }
 
 .captionInput::placeholder {
-  color: var(--text-muted);
+  color: var(--text-white);
 }
 
 /* ── Cell border popover ── */
@@ -793,7 +792,6 @@
   border-radius: var(--radius-xs);
   background: transparent;
   color: var(--text-primary);
-  cursor: pointer;
   padding: 0;
 }
 
@@ -822,7 +820,6 @@
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-primary);
-  cursor: pointer;
   outline: none;
 }
 
@@ -844,7 +841,6 @@
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-secondary);
-  cursor: pointer;
   transition: background 0.1s;
 }
 
@@ -1079,7 +1075,8 @@
 }
 
 .editorContainer > * {
-  border: none !important;
+  border-left: none !important;
+  border-right: none !important;
 }
 
 /* Editor content */
@@ -1539,7 +1536,6 @@
   border-radius: 999px;
   background: var(--bg-primary);
   color: var(--text-secondary);
-  cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.15s, border-color 0.15s;
 }
@@ -1556,6 +1552,7 @@
 
 .imagePanelActionDanger:hover {
   background: color-mix(in srgb, var(--color-error) 8%, transparent);
+  border-color: var(--color-error);
 }
 
 .imagePanelList {
@@ -1577,7 +1574,6 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  cursor: pointer;
   border-radius: var(--radius-sm);
   padding: 3px;
   transition: background-color 0.15s;
@@ -1599,7 +1595,6 @@
   border: none;
   background: var(--color-neutral-alpha-50);
   color: var(--color-neutral-0);
-  cursor: pointer;
   padding: 0;
 }
 
@@ -1607,6 +1602,26 @@
   font-size: 12px;
   color: var(--text-muted);
   padding: var(--spacing-xs) 0;
+}
+
+.imagePanelDetachedSection {
+}
+
+.imagePanelDivider {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+
+.imagePanelDividerLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .imagePanelItem .imagePanelRemove:hover {
@@ -1633,7 +1648,6 @@
   left: -2px;
   z-index: 2;
   padding: 2px;
-  cursor: pointer;
 }
 
 .imagePanelCheckbox {
@@ -1687,7 +1701,6 @@
   border-radius: 999px;
   background: var(--bg-primary);
   color: var(--text-secondary);
-  cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
   transition: background-color 0.15s, border-color 0.15s;
@@ -1715,7 +1728,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: grab;
   color: var(--text-tertiary);
   opacity: 0;
   border-radius: var(--radius-xs);
@@ -1730,7 +1742,6 @@
 }
 
 .blockDragHandle:active {
-  cursor: grabbing;
 }
 
 .blockDragWrap:hover .blockDragHandle {
@@ -1829,7 +1840,6 @@
 .mathInline {
   display: inline-block;
   vertical-align: middle;
-  cursor: pointer;
   border-radius: var(--radius-xs);
   padding: 0 3px;
   transition: background-color 0.15s;
@@ -1841,7 +1851,6 @@
 
 .mathBlock {
   display: block;
-  cursor: pointer;
   text-align: center;
   padding: var(--spacing-sm) 0;
   border-radius: var(--radius-sm);
@@ -1934,7 +1943,6 @@
   line-height: 1.8;
   box-sizing: border-box;
   transition: border-color 0.15s;
-  cursor: text;
 }
 
 .mathFloatingInput:focus-within {
@@ -1964,7 +1972,6 @@
   font-size: var(--font-size-xs);
   font-weight: 500;
   padding: 3px 10px;
-  cursor: pointer;
   line-height: 1;
 }
 
@@ -1980,7 +1987,6 @@
 
 .mathCapsuleConfirm:disabled {
   opacity: 0.4;
-  cursor: default;
 }
 
 
@@ -2048,7 +2054,6 @@
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: 10px;
-  cursor: pointer;
   transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
@@ -2078,14 +2083,12 @@
   font-family: var(--font-space-grotesk);
   font-size: 11px;
   font-weight: 600;
-  cursor: pointer;
   white-space: nowrap;
   transition: opacity 0.15s;
 }
 
 .mathPanelInsert:disabled {
   opacity: 0.4;
-  cursor: default;
 }
 
 .mathPanelInsert:not(:disabled):hover {
@@ -2139,7 +2142,6 @@
   font-weight: 500;
   color: var(--text-tertiary);
   line-height: 1;
-  cursor: pointer;
 }
 
 .mathSymbolBar .mathToolBtn:hover {
@@ -2161,7 +2163,6 @@
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  cursor: pointer;
   transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
@@ -2226,7 +2227,6 @@
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1;
-  cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   z-index: 2;
@@ -2528,7 +2528,6 @@
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-xs);
   font-family: var(--font-mono);
-  cursor: pointer;
   user-select: none;
   text-decoration: none;
 }
@@ -2596,7 +2595,6 @@
   font-weight: 600;
   flex-shrink: 0;
   user-select: none;
-  cursor: pointer;
   text-decoration: none;
 }
 

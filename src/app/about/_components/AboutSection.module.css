@@ -513,7 +513,6 @@
   font-size: var(--_fs-small, 0.8rem);
   font-weight: var(--font-weight-medium);
   color: var(--color-white-alpha-40);
-  cursor: pointer;
   white-space: nowrap;
 }
 

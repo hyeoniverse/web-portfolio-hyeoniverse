@@ -213,7 +213,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  cursor: pointer;
 }
 
 .seriesDeleteInput {
@@ -245,7 +244,6 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  cursor: pointer;
 }
 
 .seriesDeleteConfirm {
@@ -256,5 +254,4 @@
 
 .seriesDeleteConfirm:disabled {
   opacity: 0.3;
-  cursor: not-allowed;
 }

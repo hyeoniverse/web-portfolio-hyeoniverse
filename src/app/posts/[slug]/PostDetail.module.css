@@ -281,7 +281,6 @@
   font-size: var(--font-size-xs);
   font-family: var(--font-mono);
   text-decoration: none;
-  cursor: pointer;
 }
 
 .prose sup[data-footnote-ref]::before { content: "["; }
@@ -1010,7 +1009,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
-  cursor: pointer;
 }
 
 .trashBarRestore:hover {
@@ -1026,7 +1024,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--color-accent);
-  cursor: pointer;
 }
 
 .trashBarPurge:hover {

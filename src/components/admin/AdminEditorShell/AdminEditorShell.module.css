@@ -603,7 +603,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  cursor: pointer;
 }
 
 /* Tag exit animation (last tag shrinks when collapsing) */

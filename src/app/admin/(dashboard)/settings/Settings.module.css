@@ -990,12 +990,10 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   overflow: hidden;
-  cursor: grab;
   user-select: none;
 }
 
 .priorityItem:active {
-  cursor: grabbing;
 }
 
 .priorityItemOver {
@@ -1065,7 +1063,6 @@
   font-size: var(--font-size-xs);
   padding: 0;
   line-height: 1;
-  cursor: pointer;
 }
 
 .priorityBtn + .priorityBtn {
@@ -1074,7 +1071,6 @@
 
 .priorityBtn:disabled {
   opacity: 0.3;
-  cursor: default;
 }
 
 .fields .priorityBtn:not(:disabled):hover {
@@ -1113,7 +1109,6 @@
   flex-shrink: 0;
   width: 16px;
   height: 32px;
-  cursor: grab;
   color: var(--text-muted);
   border: none;
   background: transparent;
@@ -1122,7 +1117,6 @@
 }
 
 .serviceItemDrag:active {
-  cursor: grabbing;
 }
 
 .serviceItemNum {
@@ -1677,7 +1671,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  cursor: pointer;
 }
 
 .seriesDeleteInput {
@@ -1866,7 +1859,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  cursor: pointer;
   padding: 0;
   white-space: nowrap;
 }
@@ -1930,7 +1922,6 @@
   border: none;
   background: transparent;
   color: var(--text-muted);
-  cursor: pointer;
   font-size: var(--font-size-xs);
 }
 
@@ -1950,7 +1941,6 @@
   border-bottom: var(--border-light);
   background: transparent;
   text-align: left;
-  cursor: pointer;
   user-select: none;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -2043,7 +2033,6 @@
   font-family: var(--font-space-grotesk);
   font-size: 10px;
   color: var(--text-tertiary);
-  cursor: pointer;
 }
 
 .seriesPostsPageBtn:hover {
@@ -2087,7 +2076,6 @@
 }
 
 .seriesPostItem {
-  cursor: grab;
   position: relative;
 }
 
@@ -2147,7 +2135,6 @@
   background: transparent;
   color: var(--text-muted);
   padding: 0;
-  cursor: pointer;
 }
 
 .seriesPostOrderBtn + .seriesPostOrderBtn {
@@ -2161,7 +2148,6 @@
 
 .seriesPostOrderBtn:disabled {
   opacity: 0.3;
-  cursor: default;
 }
 
 .seriesPostRemoveBtn:hover,
@@ -2281,13 +2267,11 @@
   width: 16px;
   height: 20px;
   margin-top: var(--spacing-xs);
-  cursor: grab;
   color: var(--text-muted);
   touch-action: none;
 }
 
 .socialDragHandle:active {
-  cursor: grabbing;
 }
 
 .socialDragHandle svg {
@@ -2319,7 +2303,6 @@
 }
 
 .socialIconClickable {
-  cursor: pointer;
   border: 1px dashed var(--border-light-color);
   border-radius: var(--radius-circle);
   transition: border-color 0.2s ease;
@@ -2489,13 +2472,11 @@
   width: 16px;
   height: var(--_skill-row-h);
   align-self: flex-start;
-  cursor: grab;
   color: var(--text-muted);
   touch-action: none;
 }
 
 .skillDragHandle:active {
-  cursor: grabbing;
 }
 
 .skillDragHandle svg {
@@ -2532,7 +2513,6 @@
   border: none;
   background: transparent;
   color: var(--text-tertiary);
-  cursor: pointer;
   flex-shrink: 0;
   padding: 0;
 }

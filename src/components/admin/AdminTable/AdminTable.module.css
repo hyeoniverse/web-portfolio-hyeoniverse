@@ -40,7 +40,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
-  cursor: pointer;
 }
 
 .bulkActionBtn:hover {
@@ -58,7 +57,6 @@
   border: none;
   background: transparent;
   color: var(--text-muted);
-  cursor: pointer;
   font-size: var(--font-size-xs);
 }
 

@@ -116,7 +116,6 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  cursor: pointer;
 }
 
 .optionalSection .optionalToggle:hover {
@@ -217,12 +216,10 @@
 .seriesOrderGrip {
   flex-shrink: 0;
   color: var(--text-muted);
-  cursor: grab;
   touch-action: none;
 }
 
 .seriesOrderGrip:active {
-  cursor: grabbing;
 }
 
 .seriesOrderTitle {
@@ -338,7 +335,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--color-accent);
-  cursor: pointer;
 }
 
 .coverActions {
@@ -373,7 +369,6 @@
   border-radius: var(--radius-2xl);
   background: transparent;
   text-align: left;
-  cursor: pointer;
   font-family: var(--font-space-grotesk);
 }
 
@@ -491,7 +486,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
 .editorHeaderLeft .editorHelpBtn:hover {
