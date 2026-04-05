@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import {
   PlateElement,
   type PlateElementProps,
@@ -81,6 +81,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
       }}
       placeholder={editing ? t("editor.captionInput") : (caption || t("editor.captionAdd"))}
       autoFocus={editing}
+      className={styles.captionInput}
       style={{
         width: "100%",
         border: "none",
@@ -122,6 +123,7 @@ export function ImageElement(props: PlateElementProps) {
   const caption = (el.caption as string) || "";
   const lockAspect = (el.lockAspect as boolean) ?? true;
   const imgFilter = (el.filter as string) || "";
+  const imgLayout = (el.layout as string) || "inline";
 
   const imgRef = useRef<HTMLImageElement>(null);
   const [hovered, setHovered] = useState(false);
@@ -245,19 +247,136 @@ export function ImageElement(props: PlateElementProps) {
 
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
 
+  // float 시 Plate wrapper div 자체에 float 적용 (useEffect)
+  const plateElRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = plateElRef.current;
+    if (!el) return;
+    // Plate가 감싸는 [data-slate-node="element"] div를 찾아서 float 적용
+    const wrapper = el.closest("[data-slate-node=\"element\"]") as HTMLElement | null;
+    if (!wrapper) return;
+    if (imgLayout === "float-left") {
+      wrapper.style.cssText = "float:left;margin:0;padding:0;display:block;clear:none;";
+    } else if (imgLayout === "float-right") {
+      wrapper.style.cssText = "float:right;margin:0;padding:0;display:block;clear:none;";
+    } else {
+      wrapper.style.cssText = "";
+    }
+  }, [imgLayout]);
+
   return (
-    <PlateElement {...props} as="span" style={{ ...props.style, display: "inline-block", verticalAlign: "baseline", margin: "2px 4px" }}>
-      <BlockDropZone path={elPath}>
-        <div
+    <PlateElement {...props} ref={plateElRef} as="span" style={{
+      ...props.style,
+      display: imgLayout === "block" ? "block" : "inline",
+      verticalAlign: imgLayout === "inline" ? "baseline" : undefined,
+      margin: imgLayout === "block" ? "16px 0" : imgLayout.startsWith("float-") ? "0" : undefined,
+      ...(imgLayout.startsWith("float-") ? { lineHeight: 0, fontSize: 0 } : {}),
+      position: "relative",
+    }}>
+      {imgLayout === "inline" ? (
+        <span
           contentEditable={false}
-          style={{ display: "inline-block", maxWidth: "100%" }}
+          style={{ display: "inline-block", maxWidth: "100%", position: "relative", margin: "0 2px" }}
           draggable={!draggingRef.current}
+          onClick={() => setClicked(true)}
           onDragStart={(e) => {
             if (draggingRef.current) { e.preventDefault(); return; }
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", "block-dnd");
             _blockDragPath.current = elPath;
-            // 오프스크린 클론으로 이미지만 고스트 표시
+            if (imgRef.current) {
+              const img = imgRef.current;
+              const clone = img.cloneNode(true) as HTMLImageElement;
+              clone.style.cssText = `width:${img.offsetWidth}px;height:${img.offsetHeight}px;position:fixed;top:-9999px;left:-9999px;pointer-events:none;outline:none;filter:none;`;
+              document.body.appendChild(clone);
+              const rect = img.getBoundingClientRect();
+              e.dataTransfer.setDragImage(clone, e.clientX - rect.left, e.clientY - rect.top);
+              requestAnimationFrame(() => clone.remove());
+            }
+            setIsDragging(true);
+          }}
+          onDragEnd={() => { _blockDragPath.current = null; setIsDragging(false); }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+            ref={imgRef}
+            src={url}
+            alt={alt}
+            onLoad={onImgLoad}
+            onClick={() => setClicked(true)}
+            style={{
+              width: imgWidth > 0 ? imgWidth : undefined,
+              height: imgHeight > 0 ? imgHeight : undefined,
+              maxWidth: "100%",
+              display: "block",
+              outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+              filter: imgFilter || undefined,
+              cursor: "grab",
+            }}
+            draggable={false}
+          />
+          {/* Hover info — 드래그 중 숨김 */}
+          {displaySize && (
+            <span style={{
+              ...infoStyle,
+              opacity: hovered && !isDragging && !resizeSize ? 1 : 0,
+              transform: hovered && !isDragging && !resizeSize ? "translateY(0)" : "translateY(4px)",
+              transition: "opacity 0.2s ease, transform 0.2s ease, bottom 0.2s ease",
+            }}>
+              {fileName && <span>{fileName} · </span>}
+              <span>{displaySize.w}×{displaySize.h}px</span>
+            </span>
+          )}
+          {/* Resize live size */}
+          {resizeSize && !isDragging && (
+            <span style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: 13, fontWeight: 600 }}>
+              {resizeSize.w}×{resizeSize.h}px
+            </span>
+          )}
+          {/* Resize handles — 드래그 중 숨김 */}
+          {isActive && !isDragging && (
+            <>
+              <span onPointerDown={onPointerDown("right")} style={{ ...handleStyle, right: -4, top: "50%", transform: "translateY(-50%)", width: 6, height: 32, cursor: "ew-resize" }} />
+              <span onPointerDown={onPointerDown("bottom")} style={{ ...handleStyle, bottom: -4, left: "50%", transform: "translateX(-50%)", width: 32, height: 6, cursor: "ns-resize" }} />
+              <span onPointerDown={onPointerDown("corner")} style={{ ...handleStyle, right: -5, bottom: -5, width: 10, height: 10, borderRadius: 3, cursor: "nwse-resize" }} />
+            </>
+          )}
+          {/* 캡션 — 이미지 하단 오버레이 */}
+          <span style={{
+            position: "absolute", bottom: 4, left: 4, right: 4,
+            background: "var(--bg-overlay)",
+            borderRadius: "var(--radius-capsule)",
+            height: badgeHeight, display: "flex", alignItems: "center",
+            padding: "0 10px", zIndex: 3,
+            opacity: showCaption ? 1 : 0,
+            transform: showCaption ? "translateY(0)" : "translateY(4px)",
+            transition: "opacity 0.2s ease, transform 0.2s ease",
+            pointerEvents: showCaption ? "auto" : "none",
+          }}>
+            <InlineCaption
+              caption={caption}
+              onCommit={(v) => setAttr({ caption: v || undefined })}
+              onEditingChange={setCaptionEditing}
+              overlayMode
+            />
+          </span>
+          <InlineCursorTarget side="before" element={el} />
+          <InlineCursorTarget side="after" element={el} />
+        </span>
+      ) : (
+      <BlockDropZone path={elPath}>
+        <div
+          contentEditable={false}
+          style={{ display: imgLayout.startsWith("float-") ? "block" : "inline-block", maxWidth: "100%" }}
+          draggable={!draggingRef.current}
+          onClick={() => setClicked(true)}
+          onDragStart={(e) => {
+            if (draggingRef.current) { e.preventDefault(); return; }
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", "block-dnd");
+            _blockDragPath.current = elPath;
             if (imgRef.current) {
               const img = imgRef.current;
               const clone = img.cloneNode(true) as HTMLImageElement;
@@ -278,22 +397,22 @@ export function ImageElement(props: PlateElementProps) {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-            ref={imgRef}
-            src={url}
-            alt={alt}
-            onLoad={onImgLoad}
-            onClick={() => setClicked(true)}
-            style={{
-              width: imgWidth > 0 ? imgWidth : undefined,
-              height: imgHeight > 0 ? imgHeight : undefined,
-              maxWidth: "100%",
-              display: "block",
-              outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
-              filter: imgFilter || undefined,
-              cursor: "grab",
-            }}
-            draggable={false}
-          />
+              ref={imgRef}
+              src={url}
+              alt={alt}
+              onLoad={onImgLoad}
+              onClick={() => setClicked(true)}
+              style={{
+                width: imgWidth > 0 ? imgWidth : undefined,
+                height: imgHeight > 0 ? imgHeight : undefined,
+                maxWidth: "100%",
+                display: "block",
+                outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+                filter: imgFilter || undefined,
+                cursor: "grab",
+              }}
+              draggable={false}
+            />
           {/* Hover info — 드래그 중 숨김 */}
           {displaySize && (
             <div style={{
@@ -342,8 +461,44 @@ export function ImageElement(props: PlateElementProps) {
         </div>
       </div>
       </BlockDropZone>
+      )}
       {props.children}
     </PlateElement>
+  );
+}
+
+/* ── Cursor target for inline void — click to place cursor before/after ── */
+function InlineCursorTarget({ side, element }: { side: "before" | "after"; element: Record<string, unknown> }) {
+  const editor = useEditorRef();
+  return (
+    <span
+      contentEditable={false}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+          const path = editor.api.findPath(element as Parameters<typeof editor.api.findPath>[0]);
+          if (!path) return;
+          if (side === "before") {
+            const point = editor.api.before({ path, offset: 0 });
+            if (point) editor.tf.select(point);
+          } else {
+            const point = editor.api.after({ path, offset: 0 });
+            if (point) editor.tf.select(point);
+          }
+          editor.tf.focus();
+        } catch { /* ignore */ }
+      }}
+      style={{
+        position: "absolute",
+        [side === "before" ? "left" : "right"]: -6,
+        top: 0,
+        width: 6,
+        height: "100%",
+        cursor: "text",
+        zIndex: 5,
+      }}
+    />
   );
 }
 
@@ -500,7 +655,7 @@ function parseEmbed(url: string): EmbedInfo {
 
   let m: RegExpMatchArray | null;
   // YouTube
-  m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+  m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube-nocookie\.com\/embed\/)([\w-]+)/);
   if (m) return { type: "iframe", src: `https://www.youtube.com/embed/${m[1]}` };
   // YouTube Shorts
   m = url.match(/youtube\.com\/shorts\/([\w-]+)/);
@@ -603,7 +758,8 @@ export function MediaEmbedElement(props: PlateElementProps) {
   const focused = useFocused();
   const el = props.element as Record<string, unknown>;
   const url = (el.url as string) || "";
-  const embed = parseEmbed(url);
+  const nodeMediaType = (el.mediaType as string) || "";
+  const embed = nodeMediaType === "video" ? { type: "video" as const, src: url } : parseEmbed(url);
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const { blockDragProps } = useBlockDrag(elPath);
   const isVideo = embed?.type === "video";
@@ -660,6 +816,69 @@ export function MediaEmbedElement(props: PlateElementProps) {
 
   const justifyMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
 
+  // iframe 타입 (YouTube 등) — 크기 조절 + 정렬 + 옵션
+  const iframeAlign = (el.align as string) || "center";
+  const iframeWidth = (el.width as number) || 0;
+  const isIframe = embed?.type === "iframe";
+  const iframeActive = isIframe && selected && focused;
+  const isYouTube = isIframe && /youtube\.com\/embed\//.test((embed as { src: string }).src || "");
+
+  // YouTube 옵션 (노드 속성에 저장)
+  const ytStart = (el.ytStart as number) || 0;
+  const ytAutoplay = (el.ytAutoplay as boolean) || false;
+  const ytLoop = (el.ytLoop as boolean) || false;
+  const ytMute = (el.ytMute as boolean) || false;
+  const ytControls = el.ytControls !== false; // 기본 true
+
+  // YouTube embed src에 옵션 파라미터 적용
+  const iframeSrc = useMemo(() => {
+    if (!embed || embed.type !== "iframe") return "";
+    let src = embed.src;
+    if (isYouTube) {
+      const params = new URLSearchParams();
+      if (ytStart > 0) params.set("start", String(ytStart));
+      if (ytAutoplay) params.set("autoplay", "1");
+      if (ytLoop) { params.set("loop", "1"); const vid = src.split("/embed/")[1]; if (vid) params.set("playlist", vid); }
+      if (ytMute) params.set("mute", "1");
+      if (!ytControls) params.set("controls", "0");
+      const qs = params.toString();
+      if (qs) src += `?${qs}`;
+    }
+    return src;
+  }, [embed, isYouTube, ytStart, ytAutoplay, ytLoop, ytMute, ytControls]);
+
+  const iframeRef = useRef<HTMLDivElement>(null);
+  const [iframeResizeW, setIframeResizeW] = useState<number | null>(null);
+  const iframeDragRef = useRef<{ startX: number; startW: number; ratio: number } | null>(null);
+
+  const onIframeResizeDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const container = iframeRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const ratio = rect.width / rect.height;
+    iframeDragRef.current = { startX: e.clientX, startW: rect.width, ratio };
+
+    const onMove = (ev: PointerEvent) => {
+      const d = iframeDragRef.current;
+      if (!d) return;
+      const newW = Math.max(200, d.startW + (ev.clientX - d.startX));
+      setIframeResizeW(Math.round(newW));
+    };
+    const onUp = () => {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      if (iframeResizeW) setMediaAttr({ width: iframeResizeW });
+      iframeDragRef.current = null;
+      setIframeResizeW(null);
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  }, [iframeResizeW, setMediaAttr]);
+
+  const iframeJustify: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
+
   if (isVideo) {
     const handleStyle: React.CSSProperties = { position: "absolute", background: "var(--color-accent, #3b82f6)", borderRadius: 3, zIndex: 2, cursor: "nwse-resize" };
     return (
@@ -711,16 +930,37 @@ export function MediaEmbedElement(props: PlateElementProps) {
 
   // iframe / script / link fallback
   return (
-    <PlateElement {...props} style={{ margin: "16px 0", ...props.style }}>
+    <PlateElement {...props} style={{ margin: "16px 0", display: "flex", flexDirection: "column", alignItems: iframeWidth > 0 ? (iframeJustify[iframeAlign] || "center") : "stretch", ...props.style }}>
       <BlockDropZone path={elPath}>
-        <div {...blockDragProps} contentEditable={false} style={{ position: "relative", width: "100%", maxWidth: 640, cursor: "default" }}>
-          {embed?.type === "iframe" ? (
-            <iframe
-              src={embed.src}
-              style={{ width: "100%", aspectRatio: embed.aspect || "16/9", border: "none", borderRadius: 8 }}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+        <div
+          {...blockDragProps}
+          ref={iframeRef}
+          contentEditable={false}
+          style={{
+            position: "relative",
+            width: iframeWidth > 0 ? iframeResizeW || iframeWidth : "100%",
+            maxWidth: "100%",
+            alignSelf: iframeWidth > 0 ? undefined : "stretch",
+          }}
+        >
+          {isIframe ? (
+            <>
+              <iframe
+                src={iframeSrc}
+                style={{
+                  width: "100%",
+                  aspectRatio: embed.aspect || "16/9",
+                  border: "none",
+                  borderRadius: 8,
+                  outline: iframeActive ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+                }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+              {iframeActive && (
+                <div onPointerDown={onIframeResizeDown} data-no-drag style={{ position: "absolute", right: -5, bottom: -5, width: 10, height: 10, background: "var(--color-accent, #3b82f6)", borderRadius: 3, zIndex: 2 }} />
+              )}
+            </>
           ) : embed?.type === "script" ? (
             <ScriptEmbed platform={embed.platform} href={embed.href} />
           ) : (
@@ -1047,7 +1287,7 @@ export function CalloutElement(props: PlateElementProps) {
         <PlateElement {...props} style={{
           ...props.style,
           padding: hasIcon ? "var(--spacing-md) var(--spacing-md) var(--spacing-md) 44px" : "var(--spacing-md)",
-          borderRadius: "var(--radius-md)", background: bg,
+          borderRadius: "var(--radius-2xl)", background: bg,
           border: bg === "var(--bg-primary)" ? "1px solid var(--border-light-color)" : "1px solid transparent",
         }}>
           {props.children}
