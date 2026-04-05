@@ -1614,6 +1614,45 @@ When a comparison ref is initialized with a value of a different type/shape than
 
 ---
 
+</details>
+
+<details>
+<summary><strong>18. Plate Editor Inline Image — Cannot Place Cursor or Type Text Next to Image</strong></summary>
+
+#### Problem
+
+Images in the Plate (Slate) editor were configured as inline void (`isInline: true, isVoid: true`), but it was **impossible to click to place the cursor or use arrow keys to navigate** beside the image, making text insertion impossible
+
+#### Cause
+
+Slate's normalization correctly inserts empty text nodes (zero-width spaces) around inline voids, but the ImageElement internally nested `<div>` elements (BlockDropZone + wrapper) inside an inline `<span>` (PlateElement). **`<div>` is a block element that breaks inline flow**, causing the browser to block cursor access to adjacent text nodes
+
+```
+❌ <span display="inline">          ← PlateElement (inline)
+     <div>                          ← BlockDropZone (block!)
+       <div contentEditable={false}> ← wrapper (block!)
+         <div>                       ← hover container (block!)
+           <img />
+```
+
+#### Solution
+
+Created a separate rendering branch for `imgLayout === "inline"` that **converts all wrappers to `<span>`** and removes BlockDropZone. Also added absolute-positioned 6px-wide `InlineCursorTarget` components on each side of the image that **use `editor.api.before()`/`after()` to precisely place the cursor on click**
+
+```
+✅ <span display="inline">          ← PlateElement (inline)
+     <span display="inline-block">  ← single wrapper (inline!)
+       <InlineCursorTarget left />  ← click → cursor before
+       <img />
+       <InlineCursorTarget right /> ← click → cursor after
+```
+
+#### TL;DR
+
+Placing `<div>` inside an inline void element **destroys the browser's inline flow**, preventing cursor placement in Slate's auto-inserted empty text nodes. Only inline tags like `<span>` should be used inside inline elements
+
+---
+
 
 </details>
 
