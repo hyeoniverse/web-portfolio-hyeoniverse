@@ -5,8 +5,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 export function useAutoSlide(length: number, interval = 4000) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [isPaused, setIsPaused] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval>>(undefined);
-  const paused = useRef(false);
+  const hovered = useRef(false);
 
   const go = useCallback(
     (next: number) => {
@@ -16,16 +17,27 @@ export function useAutoSlide(length: number, interval = 4000) {
     [index, length],
   );
 
-  const pause = useCallback(() => { paused.current = true; }, []);
-  const resume = useCallback(() => { paused.current = false; }, []);
+  const prev = useCallback(() => {
+    setIndex((i) => { setDirection(-1); return ((i - 1) + length) % length; });
+  }, [length]);
+
+  const next = useCallback(() => {
+    setIndex((i) => { setDirection(1); return (i + 1) % length; });
+  }, [length]);
+
+  const pause = useCallback(() => { hovered.current = true; }, []);
+  const resume = useCallback(() => { hovered.current = false; }, []);
+  const togglePause = useCallback(() => setIsPaused((v) => !v), []);
 
   useEffect(() => {
     if (length <= 1) return;
     timer.current = setInterval(() => {
-      if (!paused.current) setIndex((i) => { setDirection(1); return (i + 1) % length; });
+      if (!hovered.current && !isPaused) {
+        setIndex((i) => { setDirection(1); return (i + 1) % length; });
+      }
     }, interval);
     return () => clearInterval(timer.current);
-  }, [length, interval]);
+  }, [length, interval, isPaused]);
 
-  return { index, direction, go, pause, resume };
+  return { index, direction, go, prev, next, pause, resume, isPaused, togglePause };
 }

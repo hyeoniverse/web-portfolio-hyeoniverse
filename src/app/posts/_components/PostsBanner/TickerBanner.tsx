@@ -19,7 +19,7 @@ interface TickerBannerProps {
 
 export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBannerProps) {
   const { language } = useLanguage();
-  const { index, go } = useAutoSlide(posts.length, 3000);
+  const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 3000);
   const len = posts.length;
 
   const [pos, setPos] = useState(0);
@@ -71,7 +71,7 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
   };
 
   return (
-    <div className={styles.ticker}>
+    <div className={styles.ticker} onMouseEnter={pause} onMouseLeave={resume} data-cursor="stop">
       <div className={styles.tickerTrack}>
         <div
           className={`${styles.tickerReel} ${animate ? styles.tickerReelAnimated : ""}`}
@@ -82,15 +82,30 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
         </div>
       </div>
 
-      <div className={styles.tickerDots}>
-        {posts.map((p, i) => (
-          <button
-            key={p.id}
-            className={`${styles.splitDot} ${i === index ? styles.splitDotActive : ""}`}
-            onClick={() => go(i)}
-            aria-label={`Slide ${i + 1}`}
-          />
-        ))}
+      <div className={styles.splitControls}>
+        <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <div className={styles.splitDots}>
+          {posts.map((p, i) => (
+            <button
+              key={p.id}
+              className={`${styles.splitDot} ${i === index ? styles.splitDotActive : ""}`}
+              onClick={() => go(i)}
+              aria-label={`Slide ${i + 1}`}
+            />
+          ))}
+        </div>
+        <button className={styles.splitArrowBtn} onClick={next} aria-label="Next slide">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
+        <button className={styles.splitPlayBtn} onClick={togglePause} aria-label={isPaused ? "Play" : "Pause"}>
+          {isPaused ? (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21" /></svg>
+          ) : (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+          )}
+        </button>
       </div>
     </div>
   );

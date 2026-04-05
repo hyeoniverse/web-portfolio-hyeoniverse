@@ -37,8 +37,6 @@
 
 .splitTrack {
   overflow: hidden;
-  border-radius: var(--radius-xl);
-  border: var(--border-light);
 }
 
 .splitReel {
@@ -58,6 +56,9 @@
   height: clamp(280px, 44vh, 480px);
   flex-shrink: 0;
   width: 100%;
+  border: var(--border-light);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
 }
 
 .splitImage {
@@ -132,10 +133,51 @@
   overflow: hidden;
 }
 
+.splitControls {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: center;
+}
+
 .splitDots {
   display: flex;
   gap: 6px;
+  align-items: center;
+}
+
+.splitArrowBtn {
+  display: flex;
+  align-items: center;
   justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.splitArrowBtn:hover {
+  color: var(--text-primary);
+}
+
+.splitPlayBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.splitPlayBtn:hover {
+  color: var(--text-primary);
 }
 
 /* ==========================================================================
@@ -222,6 +264,18 @@
   color: #fff;
   line-height: var(--line-height-snug);
   letter-spacing: -0.02em;
+}
+
+.cardExcerpt {
+  margin-top: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.6);
+  line-height: var(--line-height-relaxed);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cardCenter {
