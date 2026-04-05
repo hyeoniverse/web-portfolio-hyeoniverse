@@ -837,4 +837,104 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "Placing `<div>` inside an inline void element **destroys the browser's inline flow**, preventing cursor placement in Slate's auto-inserted empty text nodes. Only inline tags like `<span>` should be used inside inline elements.",
     },
   },
+  {
+    section: { ko: "에디터 / CSS", en: "Editor / CSS" },
+    problem: { ko: "테마 전환 글로벌 transition이 컴포넌트 애니메이션 덮어쓰기", en: "Global Theme Transition Overriding Component Animations" },
+    definition: {
+      ko: "다크/라이트 테마 전환을 위한 글로벌 CSS transition 규칙이, 에디터 toolbar 접기·토글 열기 등 **`max-height`, `opacity`, `transform` transition을 모두 무시**하게 만들었습니다.",
+      en: "A global CSS transition rule for dark/light theme switching caused **`max-height`, `opacity`, `transform` transitions to be silently ignored** in editor toolbar collapse, toggle open, etc.",
+    },
+    cause: {
+      ko: "`transition`은 shorthand 속성이라, `transition: background-color 0.3s` 선언이 컴포넌트의 `transition: max-height 0.3s`를 **완전히 덮어씁니다**. 글로벌 `html[attr] *`의 specificity `(0,1,1)`이 CSS Module 단일 클래스 `(0,1,0)`보다 높아 항상 우선합니다.",
+      en: "`transition` is a shorthand property, so `transition: background-color 0.3s` **completely overwrites** a component's `transition: max-height 0.3s`. The global `html[attr] *` specificity `(0,1,1)` always beats CSS Module single-class `(0,1,0)`.",
+    },
+    solution: {
+      ko: "글로벌 transition을 `data-theme-transitioning` 속성으로 변경하여 **테마 전환 시 350ms 윈도우 동안만 적용**. 평상시에는 비활성이므로 컴포넌트 transition이 정상 동작합니다.",
+      en: "Changed the global transition to a `data-theme-transitioning` attribute **active only during a 350ms window when the theme switches**. During normal operation, component transitions work as expected.",
+    },
+    keyInsight: {
+      ko: "CSS `transition`은 shorthand이므로, 글로벌에서 특정 속성만 지정해도 **컴포넌트의 다른 속성 transition을 전부 제거**합니다. 상시 적용 대신 속성 토글로 필요한 순간에만 활성화해야 합니다.",
+      en: "CSS `transition` is a shorthand — specifying just a few properties globally **removes all other property transitions** from components. Use an attribute toggle to activate only when needed.",
+    },
+  },
+  {
+    section: { ko: "에디터 / 마크다운", en: "Editor / Markdown" },
+    problem: { ko: "마크다운 각주 번호 꼬임 — heading renderer 충돌", en: "Footnote Number Tangling — Heading Renderer Execution Order" },
+    definition: {
+      ko: "마크다운에서 heading(`# 제목`)과 footnote(`[^1]`)를 함께 사용하면 **각주 번호가 꼬이거나 heading 안의 각주가 변환되지 않았습니다**.",
+      en: "Using headings and footnotes together in markdown caused **footnote numbers to tangle or footnotes inside headings to not convert at all**.",
+    },
+    cause: {
+      ko: "커스텀 heading renderer가 `marked-footnote` 확장보다 **먼저 실행**되어, heading 내부의 `[^1]`이 각주로 변환되기 전에 원본 텍스트로 소비되었습니다.",
+      en: "The custom heading renderer executed **before** the `marked-footnote` extension, consuming raw `[^1]` text before it could be converted to footnotes.",
+    },
+    solution: {
+      ko: "heading renderer를 제거하고 `postprocess` hook으로 대체. marked-footnote가 **먼저 모든 각주를 처리한 뒤** heading에 `id` 속성만 후처리합니다. `keepLabels: true`로 사용자 입력 번호도 유지합니다.",
+      en: "Removed the heading renderer, replaced with a `postprocess` hook. marked-footnote **processes all footnotes first**, then headings get `id` attributes afterward. `keepLabels: true` preserves user-specified numbers.",
+    },
+    keyInsight: {
+      ko: "marked 확장과 커스텀 renderer가 같은 구문을 처리할 때 **실행 순서가 결과를 결정**합니다. renderer 대신 postprocess hook을 사용하면 모든 확장이 먼저 처리됩니다.",
+      en: "When marked extensions and custom renderers target the same syntax, **execution order determines the result**. A postprocess hook guarantees all extensions process first.",
+    },
+  },
+  {
+    section: { ko: "에디터 / 자동저장", en: "Editor / Auto-save" },
+    problem: { ko: "자동저장 — localStorage에서 DB 리비전으로의 진화", en: "Auto-save Evolution from localStorage to DB Revisions" },
+    definition: {
+      ko: "초기 자동저장은 `localStorage`에 직접 저장했으나, **탭/기기 간 공유 불가**, **새로고침 시 불필요한 저장**, **무시한 리비전 동일 내용 재질문** 등 여러 문제가 복합적으로 발생했습니다.",
+      en: "Initial auto-save used `localStorage` directly, but multiple issues compounded: **no cross-tab/device sharing**, **unnecessary saves on refresh**, and **re-prompting after dismissing identical content**.",
+    },
+    cause: {
+      ko: "localStorage의 태생적 한계(브라우저 로컬), ref 초기값 `\"\"`와 `JSON.stringify(form)` 불일치, dismissed 리비전 snapshot 미추적이 복합적으로 작용했습니다.",
+      en: "Inherent localStorage limitations (browser-local), ref initial value `\"\"` mismatching `JSON.stringify(form)`, and untracked dismissed revision snapshots all compounded.",
+    },
+    solution: {
+      ko: "3단계 개선: ① localStorage 완전 제거 → **DB `revisions` 테이블을 유일한 저장소**로 변경 ② `lastAutoSaveJson` 초기값을 실제 폼 상태로 설정 ③ dismissed snapshot을 `Set`으로 추적하여 동일 내용 재질문 방지. 페이지 이탈 시 `sendBeacon` + `keepalive: true`로 마지막 상태 보장.",
+      en: "3-stage improvement: ① Removed localStorage entirely → **DB `revisions` table as sole storage** ② Set `lastAutoSaveJson` initial value to actual form state ③ Track dismissed snapshots in a `Set` to prevent re-prompting. Page leave uses `sendBeacon` + `keepalive: true` to guarantee final state.",
+    },
+    keyInsight: {
+      ko: "자동저장은 '언제 저장할지'가 아니라 **'언제 저장하지 않을지'가 핵심**입니다. 비교 기준 초기화, 중복 감지, dismissed 추적까지 고려해야 불필요한 리비전 누적을 방지할 수 있습니다.",
+      en: "Auto-save isn't about 'when to save' — the key challenge is **'when NOT to save'**. Proper initial value comparison, duplicate detection, and dismissed tracking are all necessary to prevent unnecessary revision accumulation.",
+    },
+  },
+  {
+    section: { ko: "에디터 / 직렬화", en: "Editor / Serialization" },
+    problem: { ko: "열블록 스타일 round-trip 유실", en: "Column Block Styles Lost on Round-Trip" },
+    definition: {
+      ko: "2열/3열 레이아웃 블록의 **배경색, 구분선, 열 비율** 등이 richtext→markdown→richtext 변환 시 모두 사라졌습니다.",
+      en: "Column layout blocks lost **background color, dividers, and column ratios** when converting between richtext and markdown formats.",
+    },
+    cause: {
+      ko: "Plate Column 노드의 `layout`, `columnBg`, `columnDivider` 같은 커스텀 속성은 표준 HTML에 대응하는 개념이 없어, 단순 `<div>` 변환 시 **커스텀 속성이 모두 탈락**했습니다.",
+      en: "Plate Column node custom attributes like `layout`, `columnBg`, `columnDivider` have no standard HTML equivalent, so simple `<div>` conversion **dropped all custom attributes**.",
+    },
+    solution: {
+      ko: "직렬화 시 HTML 주석 + `data-*` 속성으로 이중 인코딩하여 round-trip 보존. 주석이 제거되더라도 `data-*`에서 복원 가능하도록 설계했습니다.",
+      en: "Dual encoding with HTML comments + `data-*` attributes during serialization. Even if comments are stripped, recovery is possible from `data-*` attributes.",
+    },
+    keyInsight: {
+      ko: "표준 HTML에 없는 에디터 고유 속성은 직렬화 시 **명시적으로 인코딩**해야 round-trip이 보존됩니다. `data-*` + HTML 주석 이중 저장으로 강건성을 확보할 수 있습니다.",
+      en: "Editor-specific attributes not in standard HTML must be **explicitly encoded** during serialization for round-trip preservation. Dual `data-*` + HTML comment storage provides robustness.",
+    },
+  },
+  {
+    section: { ko: "에디터 / 미디어", en: "Editor / Media" },
+    problem: { ko: "YouTube embed URL — watch URL이 iframe에서 로드 실패", en: "YouTube Embed URL — Watch URL Fails to Load in iframe" },
+    definition: {
+      ko: "에디터에서 YouTube `watch?v=xxx` URL을 입력하면 에디터 안에서는 보이지만, **게시물 디테일 페이지에서 빈 화면**이 표시되었습니다.",
+      en: "Entering a YouTube `watch?v=xxx` URL in the editor displayed correctly inside the editor, but showed **a blank screen on the published post detail page**.",
+    },
+    cause: {
+      ko: "에디터 내부 `parseEmbed()`는 watch→embed 변환을 하지만, `plateSerializer`는 노드의 원본 URL을 그대로 `<iframe src>`에 직렬화합니다. **에디터와 DB 저장 URL이 달라** iframe이 로드에 실패했습니다.",
+      en: "The editor's `parseEmbed()` converts watch→embed URLs, but `plateSerializer` serializes the node's original URL into `<iframe src>` as-is. **The editor and DB URLs diverged**, causing iframe load failures.",
+    },
+    solution: {
+      ko: "`fixEmbedUrls()` 유틸리티로 HTML 렌더링 직전에 **iframe src의 watch/shorts URL을 embed URL로 일괄 변환**. 디테일 페이지와 미리보기 양쪽에 적용했습니다.",
+      en: "Created `fixEmbedUrls()` utility to **bulk-convert iframe src watch/shorts URLs to embed URLs** just before HTML rendering. Applied to both detail and preview pages.",
+    },
+    keyInsight: {
+      ko: "에디터 런타임 변환과 직렬화 사이의 **URL 불일치**는 '에디터에서는 보이는데 실제 페이지에서 안 보이는' 버그를 만듭니다. 렌더링 직전 URL 정규화 후처리로 해결할 수 있습니다.",
+      en: "A URL mismatch between editor runtime conversion and serialization creates 'works in editor, broken on page' bugs. A URL normalization post-processing step before rendering resolves this.",
+    },
+  },
 ];

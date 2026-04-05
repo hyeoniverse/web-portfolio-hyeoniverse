@@ -1653,6 +1653,173 @@ Placing `<div>` inside an inline void element **destroys the browser's inline fl
 
 ---
 
+</details>
+
+<details>
+<summary><strong>19. Global Theme Transition Overriding Component Animations</strong></summary>
+
+#### Problem
+
+A global CSS rule `html[data-theme-ready] * { transition: background-color, color ... }` was applied for smooth dark/light theme switching, but **component transitions using `max-height`, `opacity`, `transform` were all silently ignored** — editor toolbar collapse, toggle open, etc.
+
+#### Cause
+
+`transition` is a **shorthand property**, so `transition: background-color 0.3s` completely **overwrites** a component's `transition: max-height 0.3s, opacity 0.2s`. The global selector `html[attr] *` has specificity `(0,1,1)`, which beats CSS Module single-class selectors `(0,1,0)` every time
+
+```css
+/* Global (0,1,1) — wins */
+html[data-theme-ready] * { transition: background-color 0.3s, color 0.3s; }
+
+/* Component (0,1,0) — loses, max-height transition vanishes */
+.toolbar { transition: max-height 0.3s ease; }
+```
+
+#### Solution
+
+Changed the global transition to use a `data-theme-transitioning` attribute that is **only active during a 350ms window when the theme actually switches**. During normal operation, the global transition is inactive, so component transitions work as expected
+
+```css
+/* ✅ Only active during theme switch moment */
+html[data-theme-transitioning] * {
+  transition: background-color var(--duration-base) ease, ...;
+}
+```
+
+#### TL;DR
+
+CSS `transition` is a shorthand — specifying just a few properties globally **removes all other property transitions** from components. Use an attribute toggle (`data-theme-transitioning`) to activate only when needed instead of leaving it always-on
+
+---
+
+</details>
+
+<details>
+<summary><strong>20. Markdown Footnote Number Tangling — Heading Renderer vs marked-footnote Execution Order</strong></summary>
+
+#### Problem
+
+When using headings (`# Title`) and footnotes (`[^1]`) together in the markdown renderer, **footnote numbers got tangled or footnotes inside headings were not converted at all**
+
+#### Cause
+
+The custom heading renderer executed **before** the `marked-footnote` extension, consuming the raw `[^1]` text before it could be converted to a footnote. This left heading footnote references as plain text, and shifted the numbering for all remaining footnotes
+
+```
+# Title [^1]     ← heading renderer processes first → [^1] not converted
+Body [^2]         ← should be [^1] but number shifted
+```
+
+#### Solution
+
+Removed the heading renderer and replaced it with a `postprocess` hook. This ensures marked-footnote **processes all footnotes first**, then the postprocess hook adds `id` attributes to headings afterward. Additionally applied `keepLabels: true` to preserve user-specified footnote numbers (`[^2]` → 2) instead of auto-renumbering
+
+#### TL;DR
+
+When marked extensions and custom renderers target the same syntax, **execution order determines the result**. Using a postprocess hook instead of a renderer guarantees all extensions process first before any post-processing
+
+---
+
+</details>
+
+<details>
+<summary><strong>21. Editor Auto-save — Evolution from localStorage to DB Revisions</strong></summary>
+
+#### Problem
+
+The initial auto-save used `localStorage` directly, but multiple issues compounded:
+1. **No cross-tab/device sharing** — localStorage is browser-local only
+2. **Unnecessary saves on refresh** — "Auto-saved" appeared even without any changes
+3. **Re-prompting after dismissing identical content** — same revision content kept triggering restore prompts
+
+#### Cause
+
+1. Inherent limitation of localStorage (browser-local storage)
+2. `lastAutoSaveJson` ref initialized to `""` (empty string), so `JSON.stringify(form)` always differed
+3. Dismissed revision snapshots weren't tracked, so identical content recreated in DB triggered re-prompts
+
+#### Solution
+
+**Improved in 3 stages:**
+1. Completely removed localStorage, made **DB `revisions` table the sole storage** — enables cross-tab/device sharing
+2. Set `lastAutoSaveJson` initial value to `JSON.stringify(formRef.current)` so **unchanged state skips saving**
+3. Track dismissed revision snapshots in a `Set`, so **identical content doesn't re-prompt**
+
+Additionally, page leave saves use `navigator.sendBeacon` (browser close) and `fetch({ keepalive: true })` (SPA routing) to **guarantee the final state is never lost**
+
+#### TL;DR
+
+Auto-save isn't just "save periodically" — the key challenge is **knowing when NOT to save**. Proper initial value comparison, duplicate detection, and dismissed tracking are all necessary to prevent unnecessary revision accumulation and UX confusion
+
+---
+
+</details>
+
+<details>
+<summary><strong>22. Column Block Styles Lost on Round-Trip — Metadata Dropped During richtext↔markdown Conversion</strong></summary>
+
+#### Problem
+
+2-column/3-column layout blocks lost **background color, dividers, and column ratios** when converting between richtext and markdown formats
+
+#### Cause
+
+Plate's Column nodes store custom attributes like `layout`, `columnBg`, `columnDivider`, but the HTML serializer had no rules to preserve this metadata. Standard HTML has no column layout concept, so simple `<div>` conversion **dropped all custom attributes**
+
+#### Solution
+
+Encode metadata as HTML comments during serialization, parse and restore during deserialization:
+
+```html
+<!-- columns 50,50 layout=side bg=var(--bg-tertiary) divider=solid -->
+<div data-column-group data-layout="side" data-column-bg="...">
+  <div data-column data-width="50%">...</div>
+  <div data-column data-width="50%">...</div>
+</div>
+```
+
+Dual encoding with `data-*` attributes and HTML comments ensures recovery even if comments are stripped
+
+#### TL;DR
+
+Editor-specific attributes not in standard HTML must be **explicitly encoded** during serialization for round-trip preservation. Dual storage via `data-*` attributes + HTML comments provides robustness
+
+---
+
+</details>
+
+<details>
+<summary><strong>23. YouTube/Vimeo Embed URL — Watch URL Fails to Load in iframe</strong></summary>
+
+#### Problem
+
+When users insert a YouTube video with a `youtube.com/watch?v=xxx` URL, it's stored as-is in `<iframe src="...">`. **Watch URLs cannot load in iframes**, showing a blank screen both in the editor preview and on the published post detail page
+
+#### Cause
+
+Inside the editor, `parseEmbed()` converts watch URLs to embed URLs so **the editor displays correctly**, but `plateSerializer` serializes the node's original `url` property (the watch URL) directly into `<iframe src="...">`. The **editor and serialized URLs diverge** in the database
+
+```
+Editor display: youtube.com/embed/xxx  (parseEmbed conversion) → plays OK
+DB storage:     youtube.com/watch?v=xxx (raw original)          → iframe load fails
+```
+
+#### Solution
+
+Created a `fixEmbedUrls()` utility that **bulk-converts iframe src watch/shorts URLs to embed URLs** just before HTML rendering. Applied to both the post detail page and preview page
+
+```ts
+// youtube.com/watch?v=xxx → youtube.com/embed/xxx
+// youtu.be/xxx → youtube.com/embed/xxx
+// vimeo.com/123 → player.vimeo.com/video/123
+html.replace(/<iframe([^>]*)\ssrc="([^"]*)"([^>]*)>/gi, ...)
+```
+
+#### TL;DR
+
+A URL mismatch between editor runtime conversion and serialization creates "works in editor but broken on the actual page" bugs. Adding a URL normalization post-processing step before rendering resolves this
+
+---
+
 
 </details>
 

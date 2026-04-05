@@ -1653,6 +1653,173 @@ Slate의 정규화는 인라인 void 주변에 빈 텍스트 노드(zero-width s
 
 ---
 
+</details>
+
+<details>
+<summary><strong>19. 테마 전환 글로벌 transition이 컴포넌트 애니메이션을 덮어쓰기</strong></summary>
+
+#### 문제
+
+다크/라이트 테마 전환 시 부드러운 색상 전환을 위해 글로벌 CSS에 `html[data-theme-ready] * { transition: background-color, color ... }` 규칙을 적용했으나, 에디터 toolbar 접기, 토글 열기 등 **`max-height`, `opacity`, `transform`을 사용하는 컴포넌트 transition이 모두 무시**됨
+
+#### 원인
+
+`transition`은 **shorthand 속성**으로, `transition: background-color 0.3s` 같은 선언이 컴포넌트의 `transition: max-height 0.3s, opacity 0.2s`를 **완전히 덮어씀**. 글로벌 셀렉터 `html[attr] *`의 specificity `(0,1,1)`이 CSS Module 단일 클래스 `(0,1,0)`보다 높아서 항상 우선함
+
+```css
+/* 글로벌 (0,1,1) — 승리 */
+html[data-theme-ready] * { transition: background-color 0.3s, color 0.3s; }
+
+/* 컴포넌트 (0,1,0) — 패배, max-height transition 사라짐 */
+.toolbar { transition: max-height 0.3s ease; }
+```
+
+#### 해결
+
+글로벌 transition을 `data-theme-transitioning` 속성으로 변경하여 **테마 전환 시 350ms 윈도우 동안만 적용**되도록 함. 평상시에는 글로벌 transition이 비활성이므로 컴포넌트 자체 transition이 정상 동작
+
+```css
+/* ✅ 테마 전환 순간만 활성 */
+html[data-theme-transitioning] * {
+  transition: background-color var(--duration-base) ease, ...;
+}
+```
+
+#### TL;DR
+
+CSS `transition`은 shorthand이므로, 글로벌에서 특정 속성만 지정해도 **컴포넌트의 다른 속성 transition을 전부 제거**함. 상시 적용 대신 속성 토글(`data-theme-transitioning`)로 필요한 순간에만 활성화해야 충돌을 방지할 수 있음
+
+---
+
+</details>
+
+<details>
+<summary><strong>20. 마크다운 각주 번호 꼬임 — heading renderer와 marked-footnote 실행 순서 충돌</strong></summary>
+
+#### 문제
+
+마크다운 렌더러에서 heading(`# 제목`)과 footnote(`[^1]`)를 함께 사용하면 **각주 번호가 꼬이거나 heading 안의 각주가 변환되지 않음**
+
+#### 원인
+
+커스텀 heading renderer가 `marked-footnote` 확장보다 **먼저 실행**되어, heading 내부의 `[^1]` 구문이 각주로 변환되기 전에 heading renderer가 원본 텍스트를 소비해버림. 결과적으로 heading 안의 각주 참조가 일반 텍스트로 남고, 나머지 각주의 번호 매핑이 틀어짐
+
+```
+# 제목 [^1]     ← heading renderer가 먼저 처리 → [^1] 변환 안 됨
+본문 [^2]        ← 실제로는 [^1]이어야 하는데 번호 밀림
+```
+
+#### 해결
+
+heading renderer를 제거하고 `postprocess` hook으로 대체. marked-footnote가 **먼저 모든 각주를 처리한 뒤**, postprocess에서 heading에 `id` 속성만 추가하는 방식으로 순서 보장. 추가로 `keepLabels: true` 옵션을 적용하여 사용자가 입력한 각주 번호(`[^2]` → 2)를 그대로 유지
+
+#### TL;DR
+
+marked 확장(extension)과 커스텀 renderer가 같은 구문을 처리할 때 **실행 순서가 결과를 결정**함. renderer 대신 postprocess hook을 사용하면 모든 확장이 먼저 처리된 후에 후처리할 수 있음
+
+---
+
+</details>
+
+<details>
+<summary><strong>21. 에디터 자동저장 — localStorage에서 DB 리비전으로의 진화</strong></summary>
+
+#### 문제
+
+초기 자동저장은 `localStorage`에 직접 저장하는 방식이었으나, 여러 문제가 복합적으로 발생:
+1. **탭/기기 간 공유 불가** — localStorage는 같은 브라우저에서만 접근 가능
+2. **새로고침 시 불필요한 저장** — 변경 없이도 "자동저장됨" 표시
+3. **무시한 리비전과 동일 내용 재질문** — dismiss 후 같은 내용이 반복 알림
+
+#### 원인
+
+1. localStorage의 태생적 한계 (브라우저 로컬 저장소)
+2. `lastAutoSaveJson` ref 초기값이 `""`(빈 문자열)이라 `JSON.stringify(form)`과 항상 다르게 판단
+3. dismissed 리비전의 snapshot을 추적하지 않아, DB에 동일 내용 리비전이 다시 생성되면 재알림
+
+#### 해결
+
+**3단계에 걸쳐 개선:**
+1. localStorage를 완전 제거하고 **DB `revisions` 테이블을 유일한 저장소**로 변경 — 탭/기기 간 공유 가능
+2. `lastAutoSaveJson` 초기값을 `JSON.stringify(formRef.current)`로 설정하여 **최초 상태와 동일하면 저장 건너뜀**
+3. dismissed 리비전의 snapshot을 `Set`으로 추적하여, **동일 내용이면 재질문하지 않음**
+
+추가로 페이지 이탈 시 `navigator.sendBeacon`(브라우저 종료)과 `fetch({ keepalive: true })`(SPA 라우팅)를 사용하여 **마지막 상태가 절대 유실되지 않도록** 보장
+
+#### TL;DR
+
+자동저장은 단순히 "주기적으로 저장"이 아니라, **"언제 저장하지 않을지"가 핵심**. 비교 기준 초기화, 중복 감지, dismissed 추적까지 고려해야 불필요한 리비전 누적과 UX 혼란을 방지할 수 있음
+
+---
+
+</details>
+
+<details>
+<summary><strong>22. 열블록(Column) 스타일 round-trip 유실 — richtext↔markdown 변환 시 메타데이터 소실</strong></summary>
+
+#### 문제
+
+2열/3열 레이아웃 블록의 **배경색, 구분선, 열 비율** 등 스타일 속성이 richtext→markdown→richtext 변환 시 모두 사라짐
+
+#### 원인
+
+Plate의 Column 노드에는 `layout`, `columnBg`, `columnDivider` 같은 커스텀 속성이 저장되지만, HTML 직렬화 시 이 메타데이터를 보존하는 규칙이 없었음. 표준 HTML에는 열 레이아웃 개념이 없으므로, 단순 `<div>` 변환 시 **커스텀 속성이 모두 탈락**
+
+#### 해결
+
+직렬화 시 HTML 주석으로 메타데이터를 인코딩하고, 역직렬화 시 파싱하여 복원:
+
+```html
+<!-- columns 50,50 layout=side bg=var(--bg-tertiary) divider=solid -->
+<div data-column-group data-layout="side" data-column-bg="...">
+  <div data-column data-width="50%">...</div>
+  <div data-column data-width="50%">...</div>
+</div>
+```
+
+`data-*` 속성과 HTML 주석의 이중 인코딩으로, 주석이 제거되더라도 `data-*` 속성에서 복원 가능하도록 설계
+
+#### TL;DR
+
+표준 HTML에 없는 에디터 고유 속성은 직렬화 시 반드시 **명시적으로 인코딩**해야 round-trip이 보존됨. `data-*` 속성 + HTML 주석 이중 저장으로 강건성 확보
+
+---
+
+</details>
+
+<details>
+<summary><strong>23. YouTube/Vimeo embed URL — watch URL이 iframe에서 로드 실패</strong></summary>
+
+#### 문제
+
+에디터에서 YouTube 영상을 삽입할 때 사용자가 `youtube.com/watch?v=xxx` 형태의 URL을 입력하면, 이 URL이 그대로 `<iframe src="...">` 에 저장됨. **watch URL은 iframe에서 로드할 수 없어** 빈 화면이 표시되고, 게시물 디테일 페이지에서도 영상이 재생되지 않음
+
+#### 원인
+
+에디터 내부에서는 `parseEmbed()` 함수가 watch URL을 embed URL로 변환하여 **에디터 안에서는 정상 표시**되지만, `plateSerializer`는 노드의 `url` 속성(원본 watch URL)을 그대로 `<iframe src="...">` 로 직렬화. 즉 **에디터와 직렬화의 URL이 다른 상태**로 DB에 저장됨
+
+```
+에디터 표시: youtube.com/embed/xxx  (parseEmbed 변환) → 재생 OK
+DB 저장:    youtube.com/watch?v=xxx (원본 그대로)     → iframe 로드 실패
+```
+
+#### 해결
+
+`fixEmbedUrls()` 유틸리티를 만들어 HTML을 렌더링하기 직전에 **iframe src 속성의 watch/shorts URL을 embed URL로 일괄 변환**. 게시물 디테일 페이지와 미리보기 페이지 양쪽에 적용
+
+```ts
+// youtube.com/watch?v=xxx → youtube.com/embed/xxx
+// youtu.be/xxx → youtube.com/embed/xxx
+// vimeo.com/123 → player.vimeo.com/video/123
+html.replace(/<iframe([^>]*)\ssrc="([^"]*)"([^>]*)>/gi, ...)
+```
+
+#### TL;DR
+
+에디터 내부 변환(런타임)과 직렬화(저장) 사이의 **URL 불일치**는 "에디터에서는 보이는데 실제 페이지에서 안 보이는" 버그를 만듦. 렌더링 직전에 URL을 정규화하는 후처리 단계를 추가하여 해결
+
+---
+
 
 </details>
 
