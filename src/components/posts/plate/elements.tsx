@@ -8,8 +8,9 @@ import {
 } from "platejs/react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
+import { ReactEditor } from "slate-react";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
-import { _blockDragPath, _imageUploadFn } from "./utils";
+import { _blockDragPath, _inlineDragPath, _imageUploadFn } from "./utils";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import styles from "../RichTextEditor.module.css";
 
@@ -90,7 +91,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
         fontSize: overlayMode ? 11 : "var(--font-size-xs)",
         lineHeight: 1.4,
         padding: overlayMode ? "0" : "var(--spacing-3xs) var(--spacing-3xs) 0",
-        fontFamily: "inherit",
+        fontFamily: "var(--font-space-grotesk)",
         color: overlayMode
           ? (editing ? "#fff" : "rgba(255,255,255,0.9)")
           : (caption || editing ? "var(--text-muted)" : "var(--text-disabled, var(--text-muted))"),
@@ -239,7 +240,7 @@ export function ImageElement(props: PlateElementProps) {
     padding: "2px 10px",
     background: "var(--bg-overlay)", color: "#fff",
     borderRadius: "var(--radius-capsule)", fontSize: 11,
-    fontFamily: "var(--font-mono)", lineHeight: 1.4,
+    fontFamily: "var(--font-space-grotesk)", lineHeight: 1.4,
     height: badgeHeight, display: "flex", alignItems: "center",
     pointerEvents: "none", whiteSpace: "nowrap", zIndex: 4,
     maxWidth: "calc(100% - 8px)", overflow: "hidden", textOverflow: "ellipsis",
@@ -277,25 +278,75 @@ export function ImageElement(props: PlateElementProps) {
         <span
           contentEditable={false}
           style={{ display: "inline-block", maxWidth: "100%", position: "relative", margin: "0 2px" }}
-          draggable={!draggingRef.current}
+          draggable={false}
           onClick={() => setClicked(true)}
-          onDragStart={(e) => {
-            if (draggingRef.current) { e.preventDefault(); return; }
-            e.dataTransfer.effectAllowed = "move";
-            e.dataTransfer.setData("text/plain", "block-dnd");
-            _blockDragPath.current = elPath;
-            if (imgRef.current) {
-              const img = imgRef.current;
-              const clone = img.cloneNode(true) as HTMLImageElement;
-              clone.style.cssText = `width:${img.offsetWidth}px;height:${img.offsetHeight}px;position:fixed;top:-9999px;left:-9999px;pointer-events:none;outline:none;filter:none;`;
-              document.body.appendChild(clone);
-              const rect = img.getBoundingClientRect();
-              e.dataTransfer.setDragImage(clone, e.clientX - rect.left, e.clientY - rect.top);
-              requestAnimationFrame(() => clone.remove());
-            }
-            setIsDragging(true);
+          onPointerDown={(e) => {
+            if (draggingRef.current || e.button !== 0) return;
+            // 드래그 시작 준비 — pointermove에서 threshold 초과 시 활성화
+            const startX = e.clientX;
+            const startY = e.clientY;
+            let activated = false;
+            const onMove = (ev: PointerEvent) => {
+              if (!activated) {
+                if (Math.abs(ev.clientX - startX) + Math.abs(ev.clientY - startY) < 5) return;
+                activated = true;
+                _inlineDragPath.current = elPath;
+                setIsDragging(true);
+              }
+              // indicator 표시 — PlateContent의 onDragOver 대신 여기서 처리
+              const caret = document.getElementById("inline-drag-caret");
+              if (!caret) return;
+              const range = document.caretRangeFromPoint?.(ev.clientX, ev.clientY);
+              if (!range) { caret.style.opacity = "0"; return; }
+              const rect = range.getClientRects()[0] || range.getBoundingClientRect();
+              if (!rect || (rect.width === 0 && rect.height === 0 && rect.x === 0)) { caret.style.opacity = "0"; return; }
+              const container = caret.parentElement;
+              if (!container) return;
+              const containerRect = container.getBoundingClientRect();
+              caret.style.opacity = "1";
+              caret.style.left = `${rect.left - containerRect.left}px`;
+              caret.style.top = `${rect.top - containerRect.top}px`;
+              caret.style.height = `${rect.height || 18}px`;
+            };
+            const onUp = (ev: PointerEvent) => {
+              document.removeEventListener("pointermove", onMove);
+              document.removeEventListener("pointerup", onUp);
+              const caret = document.getElementById("inline-drag-caret");
+              if (caret) caret.style.opacity = "0";
+              if (!activated) return;
+              _inlineDragPath.current = null;
+              setIsDragging(false);
+              // 드롭 처리
+              try {
+                const range = document.caretRangeFromPoint?.(ev.clientX, ev.clientY);
+                if (!range) return;
+                const slateRange = ReactEditor.toSlateRange(editor as unknown as ReactEditor, range, { exactMatch: false, suppressThrow: true });
+                if (!slateRange) return;
+                const point = slateRange.anchor;
+                // 최신 source path (렌더 시점 elPath는 stale할 수 있음)
+                const freshSrcPath = editor.api.findPath(props.element);
+                if (!freshSrcPath) return;
+                const srcPathArr = Array.from(freshSrcPath);
+                const srcEntry = editor.api.node(srcPathArr);
+                if (!srcEntry) return;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const nodeClone = JSON.parse(JSON.stringify(srcEntry[0])) as any;
+                editor.tf.withoutNormalizing(() => {
+                  // 드롭 위치를 pointRef로 추적 (remove 시 자동 보정)
+                  const destPointRef = editor.api.pointRef(point);
+                  // 원본 제거
+                  editor.tf.removeNodes({ at: srcPathArr });
+                  // 추적된 위치에 인라인 삽입 (Slate이 텍스트 분할을 자동 처리)
+                  const destPoint = destPointRef.unref();
+                  if (destPoint) {
+                    editor.tf.insertNodes(nodeClone, { at: destPoint });
+                  }
+                });
+              } catch { /* ignore */ }
+            };
+            document.addEventListener("pointermove", onMove);
+            document.addEventListener("pointerup", onUp);
           }}
-          onDragEnd={() => { _blockDragPath.current = null; setIsDragging(false); }}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
         >
@@ -606,6 +657,7 @@ export function ParagraphElement(props: PlateElementProps) {
           display: "flex",
           alignItems: "flex-start",
           gap: 6,
+          listStyleType: "none",
         }}
       >
         <span
@@ -1122,12 +1174,12 @@ export function AudioElement(props: PlateElementProps) {
     <BlockDropZone path={elPath}>
       <PlateElement {...props} style={{ ...props.style }}>
         <div contentEditable={false} style={{
-          maxWidth: 480, padding: "10px 14px",
+          maxWidth: 480,
           margin: "var(--spacing-sm) 0",
         }}>
           {title && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, color: "var(--text-secondary)" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, paddingLeft: 18, color: "var(--text-secondary)" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
               </svg>
               <span style={{ fontSize: 13, fontWeight: 500 }}>{title}</span>
@@ -1158,26 +1210,129 @@ export function HrElement(props: PlateElementProps) {
 
 
 // ── Column layout ──
+
 export function ColumnGroupElement(props: PlateElementProps) {
+  const editor = useEditorRef();
   const el = props.element as Record<string, unknown>;
   const colBg = el.columnBg as string | undefined;
   const colDivider = el.columnDivider as string | undefined;
+  const groupRef = useRef<HTMLDivElement>(null);
 
   const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "var(--text-muted)";
   const colBgVal = colBg === "transparent" ? "transparent" : colBg || "var(--bg-primary)";
+
+  const colChildren = (el.children as unknown[]) || [];
+  const colCount = colChildren.length;
+
+  const onResizeDown = useCallback((index: number, e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const group = groupRef.current;
+    if (!group) return;
+
+    const colEls = Array.from(group.querySelectorAll<HTMLElement>(":scope > [data-slate-node='element']"));
+    if (colEls.length < 2 || index >= colEls.length - 1) return;
+
+    const groupW = group.getBoundingClientRect().width;
+    const startLeftW = colEls[index].getBoundingClientRect().width;
+    const startRightW = colEls[index + 1].getBoundingClientRect().width;
+    const totalW = startLeftW + startRightW;
+    const startX = e.clientX;
+
+    const onMove = (ev: PointerEvent) => {
+      const dx = ev.clientX - startX;
+      const newLeftW = Math.max(groupW * 0.1, Math.min(totalW - groupW * 0.1, startLeftW + dx));
+      const newRightW = totalW - newLeftW;
+      colEls[index].style.flex = `${(newLeftW / groupW) * 100} 0 0`;
+      colEls[index + 1].style.flex = `${(newRightW / groupW) * 100} 0 0`;
+    };
+
+    const onUp = () => {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      // 최종 비율 Slate에 저장
+      try {
+        const path = editor.api.findPath(props.element);
+        if (!path) return;
+        const finalGroupW = group.getBoundingClientRect().width;
+        editor.tf.withoutNormalizing(() => {
+          colEls.forEach((colEl, i) => {
+            const pct = Math.round((colEl.getBoundingClientRect().width / finalGroupW) * 100);
+            editor.tf.setNodes({ width: `${pct}%` }, { at: [...Array.from(path), i] });
+          });
+        });
+      } catch { /* ignore */ }
+    };
+
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  }, [editor, props.element]);
 
   const groupStyle: React.CSSProperties = {
     ...props.style,
     display: "flex",
     gap: "var(--spacing-xs)",
     margin: "var(--spacing-md) 0",
+    position: "relative",
     "--_col-bg": colBgVal,
     "--_col-divider": dividerColor,
   } as React.CSSProperties;
 
+  // 구분선 handle — colElement::after 위에 겹쳐서 배치
+  const handles = [];
+  for (let i = 0; i < colCount - 1; i++) {
+    handles.push(
+      <div
+        key={i}
+        data-col-handle={i}
+        contentEditable={false}
+        onPointerDown={(e) => onResizeDown(i, e)}
+        style={{
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          width: 12,
+          cursor: "col-resize",
+          zIndex: 3,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          // JS로 위치 계산하지 않음 — useEffect에서 배치
+          left: 0,
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+      >
+        <div className={styles.colResizeBar} style={{
+          width: 3, height: 24, borderRadius: 2,
+          background: "var(--text-muted)",
+        }} />
+      </div>,
+    );
+  }
+
+  // handle 위치를 DOM 기반으로 배치
+  useEffect(() => {
+    const group = groupRef.current;
+    if (!group) return;
+    const colEls = Array.from(group.querySelectorAll<HTMLElement>(":scope > [data-slate-node='element']"));
+    const handleEls = Array.from(group.querySelectorAll<HTMLElement>("[data-col-handle]"));
+    const groupRect = group.getBoundingClientRect();
+    colEls.forEach((colEl, i) => {
+      if (i >= handleEls.length) return;
+      const colRect = colEl.getBoundingClientRect();
+      const left = colRect.right - groupRect.left;
+      handleEls[i].style.left = `${left}px`;
+      handleEls[i].style.transform = "translateX(-50%)";
+      handleEls[i].style.opacity = "";
+      handleEls[i].style.pointerEvents = "";
+    });
+  });
+
   return (
-    <PlateElement {...props} style={groupStyle} data-col-group>
+    <PlateElement {...props} ref={groupRef as React.Ref<HTMLElement>} style={groupStyle} data-col-group>
       {props.children}
+      {handles}
     </PlateElement>
   );
 }
@@ -1248,7 +1403,7 @@ export function ToggleElement(props: PlateElementProps) {
             return (
               <div style={{
                 overflow: "hidden", maxHeight: open ? 2000 : 0, opacity: open ? 1 : 0,
-                transition: "max-height 0.25s ease-out, opacity 0.2s ease-out", paddingLeft: 24,
+                transition: "max-height 0.25s ease-out, opacity 0.2s ease-out", paddingLeft: 18,
               }}>
                 {child}
               </div>

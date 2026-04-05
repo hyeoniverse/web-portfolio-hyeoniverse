@@ -2520,6 +2520,15 @@
   display: none;
 }
 
+.colResizeBar {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+[data-col-group]:hover .colResizeBar {
+  opacity: 1;
+}
+
 /* ── Footnote ── */
 
 /* 참조: accent 위첨자 */

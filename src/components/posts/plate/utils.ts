@@ -76,6 +76,9 @@ export function getEditorText(editor: any): string {
 // ── 블록 DnD를 위한 모듈 스코프 ref ──
 export const _blockDragPath: { current: number[] | null } = { current: null };
 
+// ── 인라인 이미지 DnD를 위한 모듈 스코프 ref ──
+export const _inlineDragPath: { current: number[] | null } = { current: null };
+
 // 수식 편집 중 심볼 삽입을 위한 모듈 스코프 ref (MathFloatingEdit ↔ 툴바 통신)
 export const _mathSymbolInsert: { current: ((latex: string) => void) | null } = { current: null };
 export const _mathEditingSet: { current: ((v: boolean) => void) | null } = { current: null };

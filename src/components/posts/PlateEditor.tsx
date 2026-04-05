@@ -38,7 +38,7 @@ import MathToolbar from "./plate/toolbars/MathToolbar";
 import InlineInputToolbar from "./plate/toolbars/InlineInputToolbar";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
-import { Pipette } from "lucide-react";
+import { Pipette, ListTodo } from "lucide-react";
 import Tooltip from "@/components/ui/Tooltip";
 
 // Re-export ImagePanel for backward compatibility
@@ -58,6 +58,105 @@ const renderFindLeaf = ({ children, leaf, attributes }: any) => {
   }
   return <span {...attributes}>{children}</span>;
 };
+
+// ── Column ratio inputs (Enter/blur로 적용) ──
+function ColumnRatioInputs({ colChildren, colCount, activePath, editor }: {
+  colChildren: { width?: string }[];
+  colCount: number;
+  activePath: number[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  editor: any;
+}) {
+  const getWidths = () => colChildren.map((c) => c.width ? parseInt(c.width) : Math.round(100 / colCount));
+  const [drafts, setDrafts] = useState<string[]>(() => getWidths().map(String));
+  const prevKey = colChildren.map((c) => c.width).join(",") + colCount;
+  const prevKeyRef = useRef(prevKey);
+  if (prevKey !== prevKeyRef.current) {
+    prevKeyRef.current = prevKey;
+    setDrafts(getWidths().map(String));
+  }
+
+  const applyWidth = (idx: number, raw: string) => {
+    const v = parseInt(raw);
+    if (isNaN(v)) { setDrafts(getWidths().map(String)); return; }
+    const clamped = Math.max(10, Math.min(90, v));
+    const others = colChildren.map((c, j) => j === idx ? 0 : (c.width ? parseInt(c.width) : Math.round(100 / colCount)));
+    const othersTotal = others.reduce((a, b) => a + b, 0);
+    const remaining = 100 - clamped;
+    editor.tf.withoutNormalizing(() => {
+      editor.tf.setNodes({ width: `${clamped}%` }, { at: [...activePath, idx] });
+      colChildren.forEach((_: unknown, j: number) => {
+        if (j === idx) return;
+        const ratio = othersTotal > 0 ? others[j] / othersTotal : 1 / (colCount - 1);
+        const adjusted = Math.max(10, Math.round(remaining * ratio));
+        editor.tf.setNodes({ width: `${adjusted}%` }, { at: [...activePath, j] });
+      });
+    });
+  };
+
+  const spinWidth = (idx: number, delta: number) => {
+    const current = colChildren[idx]?.width ? parseInt(colChildren[idx].width!) : Math.round(100 / colCount);
+    applyWidth(idx, String(current + delta));
+  };
+
+  const applyAll = () => {
+    drafts.forEach((d, i) => applyWidth(i, d));
+  };
+
+  const currentWidths = getWidths();
+  const isDirty = drafts.some((d, i) => d !== String(currentWidths[i]));
+
+  return (
+    <>
+      {colChildren.map((_, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <span style={{ color: "var(--text-muted)", fontSize: 10, lineHeight: 1, padding: "0 1px" }}>:</span>}
+          <div className={styles.ratioWrap}>
+            <input
+              type="text" inputMode="numeric"
+              value={drafts[i] ?? ""}
+              className={styles.ratioInput}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const next = [...drafts];
+                next[i] = raw;
+                const v = parseInt(raw);
+                if (!isNaN(v)) {
+                  const clamped = Math.max(0, Math.min(100, v));
+                  const remaining = 100 - clamped;
+                  const others = currentWidths.map((w, j) => j === i ? 0 : w);
+                  const othersTotal = others.reduce((a, b) => a + b, 0);
+                  colChildren.forEach((_, j) => {
+                    if (j === i) return;
+                    const ratio = othersTotal > 0 ? others[j] / othersTotal : 1 / (colCount - 1);
+                    next[j] = String(Math.max(0, Math.round(remaining * ratio)));
+                  });
+                }
+                setDrafts(next);
+              }}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyAll(); } }}
+              onMouseDown={(e) => e.stopPropagation()}
+            />
+            <div className={styles.ratioSpin}>
+              <button type="button" className={styles.ratioSpinBtn} onClick={() => spinWidth(i, 1)}>
+                <svg width="8" height="5" viewBox="0 0 8 5"><path d="M4 0L8 5H0z" fill="currentColor"/></svg>
+              </button>
+              <button type="button" className={styles.ratioSpinBtn} onClick={() => spinWidth(i, -1)}>
+                <svg width="8" height="5" viewBox="0 0 8 5"><path d="M4 5L0 0h8z" fill="currentColor"/></svg>
+              </button>
+            </div>
+          </div>
+        </React.Fragment>
+      ))}
+      <div className={styles.divider} />
+      <TBtn tooltip="Apply" disabled={!isDirty} onClick={applyAll}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </TBtn>
+    </>
+  );
+}
 
 // ── Main component ──
 export default function PlateEditor({
@@ -1498,46 +1597,12 @@ export default function PlateEditor({
                     <div className={styles.tableGroup}>
                       <span className={styles.tableGroupLabel}>Ratio</span>
                       <div className={styles.divider} />
-                      {(() => {
-                        const setColWidth = (idx: number, newW: number) => {
-                          const clamped = Math.max(10, Math.min(90, newW));
-                          const others = colChildren.map((c, j) => j === idx ? 0 : (c.width ? parseInt(c.width) : Math.round(100 / colCount)));
-                          const othersTotal = others.reduce((a, b) => a + b, 0);
-                          const remaining = 100 - clamped;
-                          editor.tf.withoutNormalizing(() => {
-                            editor.tf.setNodes({ width: `${clamped}%` }, { at: [...activePath, idx] });
-                            colChildren.forEach((_, j) => {
-                              if (j === idx) return;
-                              const ratio = othersTotal > 0 ? others[j] / othersTotal : 1 / (colCount - 1);
-                              const adjusted = Math.max(10, Math.round(remaining * ratio));
-                              editor.tf.setNodes({ width: `${adjusted}%` }, { at: [...activePath, j] });
-                            });
-                          });
-                        };
-                        return colChildren.map((col, i) => {
-                          const w = col.width ? parseInt(col.width) : Math.round(100 / colCount);
-                          return (
-                            <React.Fragment key={i}>
-                              {i > 0 && <span style={{ color: "var(--text-muted)", fontSize: 10, lineHeight: 1, padding: "0 1px" }}>:</span>}
-                              <div className={styles.ratioWrap}>
-                                <input
-                                  type="text" inputMode="numeric" value={w}
-                                  className={styles.ratioInput}
-                                  onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) setColWidth(i, v); }}
-                                />
-                                <div className={styles.ratioSpin}>
-                                  <button type="button" className={styles.ratioSpinBtn} onClick={() => setColWidth(i, w + 1)}>
-                                    <svg width="8" height="5" viewBox="0 0 8 5"><path d="M4 0L8 5H0z" fill="currentColor"/></svg>
-                                  </button>
-                                  <button type="button" className={styles.ratioSpinBtn} onClick={() => setColWidth(i, w - 1)}>
-                                    <svg width="8" height="5" viewBox="0 0 8 5"><path d="M4 5L0 0h8z" fill="currentColor"/></svg>
-                                  </button>
-                                </div>
-                              </div>
-                            </React.Fragment>
-                          );
-                        });
-                      })()}
+                      <ColumnRatioInputs
+                        colChildren={colChildren}
+                        colCount={colCount}
+                        activePath={activePath}
+                        editor={editor}
+                      />
                     </div>
                   )}
                   {/* 액션 캡슐 */}
@@ -1644,9 +1709,10 @@ export default function PlateEditor({
                       }
                     };
                     return (
-                      <>
+                      <div className={styles.tableGroup}>
+                        <span className={styles.tableGroupLabel}>List</span>
                         <div className={styles.selectWrap}>
-                          <select className={`${styles.fontSelect} ${styles.tableGroup}`} style={{ width: "auto" }} value={currentUl} onChange={(e) => { if (e.target.value) insertListInToggle(e.target.value); }}>
+                          <select className={styles.fontSelect} style={{ width: "auto" }} value={currentUl} onChange={(e) => { if (e.target.value) insertListInToggle(e.target.value); }}>
                             <option value="">● UL</option>
                             <option value="disc">{`● ${t("editor.ulDisc")}`}</option>
                             <option value="circle">{`○ ${t("editor.ulCircle")}`}</option>
@@ -1658,7 +1724,7 @@ export default function PlateEditor({
                           </select>
                         </div>
                         <div className={styles.selectWrap}>
-                          <select className={`${styles.fontSelect} ${styles.tableGroup}`} style={{ width: "auto" }} value={currentOl} onChange={(e) => { if (e.target.value) insertListInToggle(e.target.value); }}>
+                          <select className={styles.fontSelect} style={{ width: "auto" }} value={currentOl} onChange={(e) => { if (e.target.value) insertListInToggle(e.target.value); }}>
                             <option value="">1. OL</option>
                             <option value="decimal">1, 2, 3</option>
                             <option value="decimal-leading-zero">01, 02, 03</option>
@@ -1668,8 +1734,10 @@ export default function PlateEditor({
                             <option value="upper-roman">I, II, III</option>
                           </select>
                         </div>
-                        <TBtn onClick={() => insertListInToggle("todo", true)} tooltip={t("editor.todoList")}>☑</TBtn>
-                      </>
+                        <TBtn onClick={() => insertListInToggle("todo", true)} tooltip={t("editor.todoList")}>
+                          <ListTodo size={14} />
+                        </TBtn>
+                      </div>
                     );
                   })()}
                   {/* 기본 펼침/접힘 설정 */}
@@ -1979,6 +2047,21 @@ export default function PlateEditor({
               spellCheck={false}
             />
           ) : (
+            <>
+            {/* 인라인 이미지 드래그 시 드롭 위치 캐럿 */}
+            <div
+              id="inline-drag-caret"
+              style={{
+                position: "absolute",
+                width: 2,
+                background: "var(--color-accent)",
+                borderRadius: 1,
+                pointerEvents: "none",
+                zIndex: 10,
+                opacity: 0,
+                transition: "opacity 0.1s",
+              }}
+            />
             <PlateContent
               className={styles.editorContent}
               placeholder="Write your content..."
@@ -2029,6 +2112,7 @@ export default function PlateEditor({
                 }
               }}
             />
+            </>
           )}
 
         </div>
