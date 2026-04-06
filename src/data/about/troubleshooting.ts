@@ -937,4 +937,64 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "A URL mismatch between editor runtime conversion and serialization creates 'works in editor, broken on page' bugs. A URL normalization post-processing step before rendering resolves this.",
     },
   },
+  {
+    section: { ko: "에디터 / UI", en: "Editor / UI" },
+    problem: { ko: "커스텀 커서 리사이즈 모드에서 마우스 방향에 따라 커서 회전", en: "Custom Cursor Rotates with Mouse Direction in Resize Mode" },
+    definition: {
+      ko: "이미지·열블록 리사이즈 핸들에 커스텀 커서(↔, ↕, ⤡)를 적용했더니, **마우스 이동 방향에 따라 커서가 회전·찌그러짐**이 발생했습니다.",
+      en: "After applying custom cursors (↔, ↕, ⤡) to image/column resize handles, **the cursor rotated and distorted** based on mouse movement direction.",
+    },
+    cause: {
+      ko: "CursorTrail 애니메이션 루프가 마우스 속도 기반 `angleRef`(회전)·`scaleRef`(스케일)를 계산하는데, 리사이즈 모드 진입 시 이전 값이 남아있었고, classList 기반 감지는 React 렌더 타이밍과 1~2프레임 어긋났습니다.",
+      en: "The CursorTrail animation loop calculated `angleRef`/`scaleRef` from mouse velocity, but previous values persisted on resize entry. classList-based detection was also 1-2 frames behind React render timing.",
+    },
+    solution: {
+      ko: "`cursorTypeRef`(동기 ref)를 추가하여 `setCursorType`과 동시에 갱신하고, 리사이즈 진입 시 즉시 리셋. 애니메이션 루프에서 ref로 리사이즈 여부를 판단하여 회전·스케일을 비활성화했습니다.",
+      en: "Added `cursorTypeRef` (synchronous ref) updated with `setCursorType`, immediately resetting on resize entry. The animation loop checks the ref to disable rotation/scale in resize mode.",
+    },
+    keyInsight: {
+      ko: "React state 기반 감지는 렌더 지연이 있으므로, **requestAnimationFrame 루프에서는 동기 ref**를 사용해야 프레임 정확도를 보장할 수 있습니다.",
+      en: "React state detection has render delays, so **synchronous refs are needed in requestAnimationFrame loops** to guarantee frame-accurate detection.",
+    },
+  },
+  {
+    section: { ko: "에디터 / 이미지", en: "Editor / Image" },
+    problem: { ko: "이미지 리사이즈 핸들 클릭 시 이미지가 삭제됨", en: "Image Resize Handle Click Deletes Image" },
+    definition: {
+      ko: "인라인 이미지의 리사이즈 핸들을 클릭하면 **리사이즈가 아닌 이미지 삭제**(DnD 드롭)가 발생했습니다.",
+      en: "Clicking an inline image's resize handle triggered **image deletion (DnD drop)** instead of resize.",
+    },
+    cause: {
+      ko: "인라인 이미지의 `onPointerDown`이 DnD 드래그를 시작하는데, 리사이즈 핸들 위의 클릭도 가로채서 드래그→드롭으로 처리했습니다.",
+      en: "The inline image's `onPointerDown` initiates DnD drag, intercepting resize handle clicks and processing them as drag→drop.",
+    },
+    solution: {
+      ko: "`closest(\"[data-cursor^='resize']\")` 체크로 리사이즈 핸들 클릭 시 DnD 비활성화. 히트박스와 시각적 핸들을 별개 sibling으로 분리하여 독립 조정이 가능하도록 했습니다.",
+      en: "Added `closest(\"[data-cursor^='resize']\")` check to disable DnD on resize handle clicks. Separated hitboxes and visual handles into independent siblings for independent positioning.",
+    },
+    keyInsight: {
+      ko: "인라인 void 요소에서 **DnD와 리사이즈는 동일한 포인터 이벤트를 공유**하므로, 이벤트 타겟 기반 분기가 필수적입니다.",
+      en: "In inline void elements, **DnD and resize share the same pointer events**, making event-target-based branching essential.",
+    },
+  },
+  {
+    section: { ko: "에디터 / UI", en: "Editor / UI" },
+    problem: { ko: "에디터 툴바 active 상태 — wrapper 블록 감지 실패", en: "Editor Toolbar Active State — Wrapper Block Detection Failure" },
+    definition: {
+      ko: "blockquote, code block, table 안에 커서를 놓아도 **메인 툴바의 해당 버튼이 active 스타일로 바뀌지 않았습니다**.",
+      en: "Placing cursor inside blockquote, code block, or table **didn't activate the corresponding toolbar button**.",
+    },
+    cause: {
+      ko: "`useBlockInfo` 훅이 `editor.api.block()`으로 가장 가까운 블록을 가져오는데, wrapper 블록 안의 자식 블록(`p`, `code_line`)이 먼저 반환되어 실제 블록 타입과 불일치했습니다.",
+      en: "`useBlockInfo` uses `editor.api.block()` to get the nearest block, but child blocks (`p`, `code_line`) inside wrapper blocks are returned first, mismatching the actual block type.",
+    },
+    solution: {
+      ko: "`blockType`이 `p`/`code_line`일 때 `editor.api.above()`로 `[\"blockquote\", \"code_block\", \"table\"]`을 순회하여 상위 wrapper 블록을 탐색하고 `blockType`을 갱신했습니다.",
+      en: "When `blockType` is `p`/`code_line`, traverse `[\"blockquote\", \"code_block\", \"table\"]` via `editor.api.above()` to find parent wrapper blocks and update `blockType`.",
+    },
+    keyInsight: {
+      ko: "Slate 에디터에서 **`api.block()`은 leaf-level 블록을 반환**하므로, nested 구조에서는 `api.above()`로 wrapper를 별도 탐색해야 합니다.",
+      en: "In Slate editors, **`api.block()` returns leaf-level blocks**, so nested structures require separate `api.above()` traversal for wrapper detection.",
+    },
+  },
 ];
