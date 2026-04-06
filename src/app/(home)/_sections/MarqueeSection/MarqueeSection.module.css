@@ -57,7 +57,7 @@
   flex-shrink: 0;
   width: 100px;
   height: 1px;
-  background: var(--border-secondary);
+  background: var(--border-default-color);
 }
 
 /* ---------------------------------------------------------------------------

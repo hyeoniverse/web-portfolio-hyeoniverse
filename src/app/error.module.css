@@ -38,10 +38,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--text-primary);
+  border: var(--border-strong-2);
   width: 80px;
   height: 80px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 .iconText {
@@ -107,7 +107,7 @@
 
 .primaryButton {
   padding: var(--box-sm-xl);
-  border: var(--border-primary);
+  border: var(--border-strong);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
@@ -130,7 +130,7 @@
 
 .secondaryButton {
   padding: var(--box-sm-xl);
-  border: var(--border-primary);
+  border: var(--border-strong);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
@@ -154,26 +154,26 @@
 
 /* Decorative Elements */
 .decorOval1 {
-  border: 1px solid var(--border-tertiary);
+  border: var(--border-light);
   position: absolute;
   top: 10%;
   right: -10%;
   width: 400px;
   height: 200px;
   pointer-events: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   transform: rotate(-15deg);
 }
 
 .decorOval2 {
-  border: 1px solid var(--border-tertiary);
+  border: var(--border-light);
   position: absolute;
   bottom: 15%;
   left: -5%;
   width: 300px;
   height: 150px;
   pointer-events: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   transform: rotate(25deg);
 }
 

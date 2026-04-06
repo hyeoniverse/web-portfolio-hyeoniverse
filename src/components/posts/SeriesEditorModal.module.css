@@ -63,7 +63,7 @@
 .fieldGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--spacing-2xs);
 }
 
 .label {
@@ -154,7 +154,7 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .coverRemove:hover {
@@ -185,7 +185,7 @@
   padding: 0 var(--spacing-xl);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .footer {
@@ -215,7 +215,7 @@
 
 .saveBtn {
   padding: var(--box-xs-xl);
-  border: var(--border-primary);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -237,7 +237,7 @@
 .postsSection {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   margin-top: var(--spacing-sm);
   padding-top: var(--spacing-md);
   border-top: var(--border-light);
@@ -253,7 +253,7 @@
 .postsList {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .postItem {
@@ -272,7 +272,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: var(--spacing-4xs);
   flex-shrink: 0;
 }
 
@@ -298,7 +298,7 @@
 
 .orderNum {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   line-height: 1;
 }
@@ -317,23 +317,23 @@
 .postStatus {
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: 500;
   width: 16px;
   height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 .postPublished {
-  background: var(--color-success-alpha);
-  color: var(--color-success);
+  background: var(--bg-success);
+  color: var(--text-success);
 }
 
 .postDraft {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
 }
 
@@ -350,12 +350,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 .postRemoveBtn:hover {
-  background: var(--color-accent-alpha-10);
-  color: var(--color-accent);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
 }
 
 @media (max-width: 768px) {

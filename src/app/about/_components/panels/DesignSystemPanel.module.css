@@ -101,7 +101,7 @@
   font-family: var(--_font-grotesk);
   font-size: clamp(0.8rem, min(1.8vw, 3.2vh), 1.8rem);
   font-weight: var(--font-weight-regular);
-  color: var(--color-white-alpha-40);
+  color: var(--text-white-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.3em;
 }
@@ -124,7 +124,7 @@
   max-width: 560px;
   font-size: clamp(0.8rem, min(1.8vw, 3.2vh), 1.8rem);
   line-height: var(--_lh-reading);
-  color: var(--color-white-alpha-50);
+  color: var(--text-white-tertiary);
   letter-spacing: 0.01em;
 }
 
@@ -143,7 +143,7 @@
   width: 40px;
   height: 1px;
   margin-bottom: clamp(16px, min(2vh, 1.2vw), 28px);
-  background: var(--color-white-alpha-15);
+  background: var(--bg-glass);
 }
 
 /* ── Typography demo ── */
@@ -156,11 +156,11 @@
 
 .dcToggleBtn {
   padding: clamp(10px, min(1.2vh, 0.7vw), 16px) clamp(18px, 1.6vw, 32px);
-  border: var(--border-white-alpha-10);
+  border: var(--border-ghost-light);
   background: transparent;
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.15vw, 1.3rem);
-  color: var(--color-white-alpha-50);
+  color: var(--text-white-tertiary);
   border-radius: var(--radius-capsule);
   letter-spacing: 0.05em;
 }
@@ -174,8 +174,8 @@
 }
 
 .dcToggleBtnActive {
-  border-color: var(--color-white-alpha-40);
-  background: var(--color-white-alpha-5);
+  border-color: var(--text-white-tertiary);
+  background: var(--bg-glass-subtle);
   color: var(--text-white);
 }
 
@@ -204,7 +204,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: var(--border-white-alpha-5);
+  border: var(--border-ghost-light);
   width: clamp(56px, min(10vh, 5.5vw), 100px);
   height: clamp(56px, min(10vh, 5.5vw), 100px);
   font-size: clamp(0.8rem, 1.05vw, 1.3rem);
@@ -222,8 +222,8 @@
   position: relative;
   width: 100%;
   height: clamp(42px, min(7vh, 3.8vw), 68px);
-  background: var(--color-white-alpha-5);
-  border-radius: 24px;
+  background: var(--bg-glass-subtle);
+  border-radius: var(--radius-2xl);
 }
 
 .dcSpringBall {
@@ -233,7 +233,7 @@
   width: clamp(30px, min(4.8vh, 2.6vw), 52px);
   height: clamp(30px, min(4.8vh, 2.6vw), 52px);
   background: var(--text-accent);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   translate: 0 -50%;
   will-change: left;
 }
@@ -248,7 +248,7 @@
   gap: clamp(12px, 1.2vw, 24px);
   margin-top: clamp(12px, min(1.5vh, 0.8vw), 22px);
   font-size: clamp(0.9rem, 1.15vw, 1.4rem);
-  color: var(--color-white-alpha-50);
+  color: var(--text-white-tertiary);
 }
 
 /* ── Layout & Spacing demo ── */
@@ -269,14 +269,14 @@
   width: clamp(44px, 4.5vw, 70px);
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.05vw, 1.25rem);
-  color: var(--color-white-alpha-50);
+  color: var(--text-white-tertiary);
   text-align: right;
 }
 
 .dcSpacingBar {
   height: clamp(12px, min(1.8vh, 1vw), 22px);
-  background: var(--color-white-alpha-10);
-  border-radius: 5px;
+  background: var(--bg-glass);
+  border-radius: var(--radius-sm);
 }
 
 /* Compound selector (0,2,0) */
@@ -285,14 +285,14 @@
 }
 
 .dcSpacingRow:hover .dcSpacingBar {
-  background: var(--color-white-alpha-30);
+  background: var(--bg-glass-strong);
 }
 
 .dcSpacingPx {
   flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.05vw, 1.25rem);
-  color: var(--color-white-alpha-50);
+  color: var(--text-white-tertiary);
 }
 
 /* ── Grid System demo (breakpoint bar) ── */
@@ -307,7 +307,7 @@
   flex: 1;
   position: relative;
   min-width: 0;
-  background: var(--color-white-alpha-10);
+  background: var(--bg-glass);
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
@@ -319,7 +319,7 @@
 }
 
 .dcBpBar:hover {
-  background: var(--color-white-alpha-30);
+  background: var(--bg-glass-strong);
   transform: scaleY(1.1);
   transform-origin: bottom;
 }
@@ -330,7 +330,7 @@
   left: 50%;
   font-family: var(--font-mono);
   font-size: clamp(0.75rem, 0.95vw, 1.1rem);
-  color: var(--color-white-alpha-50);
+  color: var(--text-white-tertiary);
   white-space: nowrap;
   transform: translateX(-50%);
   opacity: 0;
@@ -352,7 +352,7 @@
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.05vw, 1.25rem);
   font-weight: var(--font-weight-medium);
-  color: var(--color-white-alpha-70);
+  color: var(--text-white-secondary);
   white-space: nowrap;
   transform: translateX(-50%);
 }
@@ -368,7 +368,7 @@
   gap: clamp(10px, 0.9vw, 18px);
   align-items: center;
   padding: clamp(10px, min(1.1vh, 0.6vw), 18px) clamp(16px, 1.3vw, 26px);
-  border: var(--border-white-alpha-5);
+  border: var(--border-ghost-light);
   border-radius: var(--radius-sm);
 }
 
@@ -380,20 +380,20 @@
 }
 
 .dcIconCell:hover {
-  border-color: var(--color-white-alpha-15);
-  background: var(--color-white-alpha-3);
+  border-color: var(--border-ghost-light);
+  background: var(--bg-glass-subtle);
 }
 
 .dcIconCell svg {
   width: clamp(28px, 2.6vw, 40px);
   height: clamp(28px, 2.6vw, 40px);
-  color: var(--color-white-alpha-80);
+  color: var(--text-white);
 }
 
 .dcIconCellLabel {
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.05vw, 1.25rem);
-  color: var(--color-white-alpha-50);
+  color: var(--text-white-tertiary);
 }
 
 /* ── Tab bar portal controls ── */
@@ -416,7 +416,7 @@
 .tabNavCounter {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--color-white-alpha-60);
+  color: var(--text-white-secondary);
   white-space: nowrap;
 }
 
@@ -546,13 +546,13 @@
   }
 
   .dcCardTitle {
-    margin-bottom: 2px;
+    margin-bottom: var(--spacing-3xs);
     font-size: clamp(0.65rem, 2vw, 0.85rem);
     letter-spacing: 0.25em;
   }
 
   .dcCardSubtitle {
-    margin-bottom: 4px;
+    margin-bottom: var(--spacing-2xs);
     font-size: clamp(1.2rem, 4vw, 1.8rem);
   }
 
@@ -575,7 +575,7 @@
   }
 
   .dcToggleBtn {
-    padding: 5px 12px;
+    padding: var(--box-xs-sm);
     font-size: clamp(0.65rem, 2vw, 0.85rem);
   }
 
@@ -661,11 +661,11 @@
 /* ── External link button ── */
 .externalLink {
   padding: var(--box-md);
-  border: var(--border-white-alpha-15);
+  border: var(--border-ghost-light);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-white-alpha-60);
+  color: var(--text-white-secondary);
   text-decoration: none;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -681,7 +681,7 @@
 
 .externalLink:hover {
   color: var(--text-white);
-  border-color: var(--color-white-alpha-40);
-  background: var(--color-white-alpha-5);
+  border-color: var(--text-white-tertiary);
+  background: var(--bg-glass-subtle);
 }
 

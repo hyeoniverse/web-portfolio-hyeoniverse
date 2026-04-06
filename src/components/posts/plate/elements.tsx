@@ -12,6 +12,7 @@ import { ReactEditor } from "slate-react";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { _blockDragPath, _inlineDragPath, _imageUploadFn } from "./utils";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
+import { RxReset } from "react-icons/rx";
 import styles from "../RichTextEditor.module.css";
 
 /** 블록 void 요소 아래 클릭 가능 영역 — 클릭 시 다음 줄에 커서 배치 */
@@ -127,7 +128,7 @@ export function ImageElement(props: PlateElementProps) {
   const imgLayout = (el.layout as string) || "inline";
 
   const imgRef = useRef<HTMLImageElement>(null);
-  const [hovered, setHovered] = useState(false);
+  const [, setHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [resizeSize, setResizeSize] = useState<{ w: number; h: number } | null>(null);
   const draggingRef = useRef<{
@@ -232,6 +233,7 @@ export function ImageElement(props: PlateElementProps) {
     || (imgWidth > 0 && imgHeight > 0 ? { w: imgWidth, h: imgHeight } : null)
     || naturalSize;
 
+  const isSmall = (imgWidth > 0 && imgWidth < 150) || (imgHeight > 0 && imgHeight < 80);
   const showCaption = !!(caption || isActive || captionEditing);
   const badgeHeight = 22;
   const infoStyle: React.CSSProperties = {
@@ -277,11 +279,13 @@ export function ImageElement(props: PlateElementProps) {
       {imgLayout === "inline" ? (
         <span
           contentEditable={false}
-          style={{ display: "inline-block", maxWidth: "100%", position: "relative", margin: "0 2px" }}
+          style={{ display: "inline-block", maxWidth: "100%", margin: "0 2px" }}
           draggable={false}
           onClick={() => setClicked(true)}
           onPointerDown={(e) => {
             if (draggingRef.current || e.button !== 0) return;
+            // 리사이즈 핸들 클릭 시 DnD 비활성화
+            if ((e.target as HTMLElement).closest("[data-cursor^='resize']")) return;
             // 드래그 시작 준비 — pointermove에서 threshold 초과 시 활성화
             const startX = e.clientX;
             const startY = e.clientY;
@@ -350,69 +354,64 @@ export function ImageElement(props: PlateElementProps) {
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
         >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-            ref={imgRef}
-            src={url}
-            alt={alt}
-            onLoad={onImgLoad}
-            onClick={() => setClicked(true)}
-            style={{
-              width: imgWidth > 0 ? imgWidth : undefined,
-              height: imgHeight > 0 ? imgHeight : undefined,
-              maxWidth: "100%",
-              display: "block",
-              outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
-              filter: imgFilter || undefined,
-              cursor: "grab",
-            }}
-            draggable={false}
-          />
-          {/* Hover info — 드래그 중 숨김 */}
-          {displaySize && (
-            <span style={{
-              ...infoStyle,
-              opacity: hovered && !isDragging && !resizeSize ? 1 : 0,
-              transform: hovered && !isDragging && !resizeSize ? "translateY(0)" : "translateY(4px)",
-              transition: "opacity 0.2s ease, transform 0.2s ease, bottom 0.2s ease",
-            }}>
-              {fileName && <span>{fileName} · </span>}
-              <span>{displaySize.w}×{displaySize.h}px</span>
-            </span>
-          )}
-          {/* Resize live size */}
-          {resizeSize && !isDragging && (
-            <span style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: 13, fontWeight: 600 }}>
-              {resizeSize.w}×{resizeSize.h}px
-            </span>
-          )}
-          {/* Resize handles — 드래그 중 숨김 */}
-          {isActive && !isDragging && (
-            <>
-              <span onPointerDown={onPointerDown("right")} style={{ ...handleStyle, right: -4, top: "50%", transform: "translateY(-50%)", width: 6, height: 32, cursor: "ew-resize" }} />
-              <span onPointerDown={onPointerDown("bottom")} style={{ ...handleStyle, bottom: -4, left: "50%", transform: "translateX(-50%)", width: 32, height: 6, cursor: "ns-resize" }} />
-              <span onPointerDown={onPointerDown("corner")} style={{ ...handleStyle, right: -5, bottom: -5, width: 10, height: 10, borderRadius: 3, cursor: "nwse-resize" }} />
-            </>
-          )}
-          {/* 캡션 — 이미지 하단 오버레이 */}
-          <span style={{
-            position: "absolute", bottom: 4, left: 4, right: 4,
-            background: "var(--bg-overlay)",
-            borderRadius: "var(--radius-capsule)",
-            height: badgeHeight, display: "flex", alignItems: "center",
-            padding: "0 10px", zIndex: 3,
-            opacity: showCaption ? 1 : 0,
-            transform: showCaption ? "translateY(0)" : "translateY(4px)",
-            transition: "opacity 0.2s ease, transform 0.2s ease",
-            pointerEvents: showCaption ? "auto" : "none",
-          }}>
-            <InlineCaption
-              caption={caption}
-              onCommit={(v) => setAttr({ caption: v || undefined })}
-              onEditingChange={setCaptionEditing}
-              overlayMode
-            />
-          </span>
+          <Tooltip content={displaySize ? `${fileName ? `${fileName} · ` : ""}${displaySize.w}×${displaySize.h}px${isSmall && caption ? `\n${caption}` : ""}` : undefined} delay={300} placement="auto" wrapperStyle={{ display: "block", position: "relative", lineHeight: 0 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                ref={imgRef}
+                src={url}
+                alt={alt}
+                onLoad={onImgLoad}
+                onClick={() => setClicked(true)}
+                style={{
+                  width: imgWidth > 0 ? imgWidth : undefined,
+                  height: imgHeight > 0 ? imgHeight : undefined,
+                  maxWidth: "100%",
+                  display: "block",
+                  outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+                  filter: imgFilter || undefined,
+                  cursor: "grab",
+                }}
+                draggable={false}
+              />
+              {/* Resize live size */}
+              {resizeSize && !isDragging && (
+                <span style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: 13, fontWeight: 600 }}>
+                  {resizeSize.w}×{resizeSize.h}px
+                </span>
+              )}
+              {/* Resize handles */}
+              {isActive && !isDragging && (
+                <>
+                  <span data-cursor="resizeH" onPointerDown={onPointerDown("right")} style={{ position: "absolute", right: -5, top: 0, bottom: 0, width: 10, cursor: "ew-resize", zIndex: 4 }} />
+                  <span data-cursor="resizeV" onPointerDown={onPointerDown("bottom")} style={{ position: "absolute", bottom: -5, left: 0, right: 0, height: 10, cursor: "ns-resize", zIndex: 4 }} />
+                  <span data-cursor="resizeDiag" onPointerDown={onPointerDown("corner")} style={{ position: "absolute", right: -7, bottom: -7, width: 14, height: 14, cursor: "nwse-resize", zIndex: 5 }} />
+                  <span style={{ ...handleStyle, width: 6, height: 32, position: "absolute", right: -4, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                  <span style={{ ...handleStyle, width: 32, height: 6, position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }} />
+                  <span style={{ ...handleStyle, width: 10, height: 10, borderRadius: 3, position: "absolute", right: -5, bottom: -5, pointerEvents: "none" }} />
+                </>
+              )}
+              {/* 캡션 — 큰 이미지: 오버레이 */}
+              {!isSmall && (
+                <span style={{
+                  position: "absolute", bottom: 4, left: 4, right: 4,
+                  background: "var(--bg-overlay)",
+                  borderRadius: "var(--radius-capsule)",
+                  height: badgeHeight, display: "flex", alignItems: "center",
+                  padding: "0 10px", zIndex: 3,
+                  opacity: showCaption ? 1 : 0,
+                  transform: showCaption ? "translateY(0)" : "translateY(4px)",
+                  transition: "opacity 0.2s ease, transform 0.2s ease",
+                  pointerEvents: showCaption ? "auto" : "none",
+                }}>
+                  <InlineCaption
+                    caption={caption}
+                    onCommit={(v) => setAttr({ caption: v || undefined })}
+                    onEditingChange={setCaptionEditing}
+                    overlayMode
+                  />
+                </span>
+              )}
+          </Tooltip>
           <InlineCursorTarget side="before" element={el} />
           <InlineCursorTarget side="after" element={el} />
         </span>
@@ -446,36 +445,26 @@ export function ImageElement(props: PlateElementProps) {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              ref={imgRef}
-              src={url}
-              alt={alt}
-              onLoad={onImgLoad}
-              onClick={() => setClicked(true)}
-              style={{
-                width: imgWidth > 0 ? imgWidth : undefined,
-                height: imgHeight > 0 ? imgHeight : undefined,
-                maxWidth: "100%",
-                display: "block",
-                outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
-                filter: imgFilter || undefined,
-                cursor: "grab",
-              }}
-              draggable={false}
-            />
-          {/* Hover info — 드래그 중 숨김 */}
-          {displaySize && (
-            <div style={{
-              ...infoStyle,
-              opacity: hovered && !isDragging && !resizeSize ? 1 : 0,
-              transform: hovered && !isDragging && !resizeSize ? "translateY(0)" : "translateY(4px)",
-              transition: "opacity 0.2s ease, transform 0.2s ease, bottom 0.2s ease",
-            }}>
-              {fileName && <span>{fileName} · </span>}
-              <span>{displaySize.w}×{displaySize.h}px</span>
-            </div>
-          )}
+            <Tooltip content={displaySize ? `${fileName ? `${fileName} · ` : ""}${displaySize.w}×${displaySize.h}px${isSmall && caption ? `\n${caption}` : ""}` : undefined} delay={300} placement="auto">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                ref={imgRef}
+                src={url}
+                alt={alt}
+                onLoad={onImgLoad}
+                onClick={() => setClicked(true)}
+                style={{
+                  width: imgWidth > 0 ? imgWidth : undefined,
+                  height: imgHeight > 0 ? imgHeight : undefined,
+                  maxWidth: "100%",
+                  display: "block",
+                  outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+                  filter: imgFilter || undefined,
+                  cursor: "grab",
+                }}
+                draggable={false}
+              />
+            </Tooltip>
           {/* Resize live size */}
           {resizeSize && !isDragging && (
             <div style={{ ...infoStyle, left: "50%", bottom: "auto", top: "50%", transform: "translate(-50%, -50%)", fontSize: 13, fontWeight: 600 }}>
@@ -485,30 +474,37 @@ export function ImageElement(props: PlateElementProps) {
           {/* Resize handles — 드래그 중 숨김 */}
           {isActive && !isDragging && (
             <>
-              <div onPointerDown={onPointerDown("right")} style={{ ...handleStyle, right: -4, top: "50%", transform: "translateY(-50%)", width: 6, height: 32, cursor: "ew-resize" }} />
-              <div onPointerDown={onPointerDown("bottom")} style={{ ...handleStyle, bottom: -4, left: "50%", transform: "translateX(-50%)", width: 32, height: 6, cursor: "ns-resize" }} />
-              <div onPointerDown={onPointerDown("corner")} style={{ ...handleStyle, right: -5, bottom: -5, width: 10, height: 10, borderRadius: 3, cursor: "nwse-resize" }} />
+              {/* 히트박스 (감지 영역) */}
+              <div data-cursor="resizeH" onPointerDown={onPointerDown("right")} style={{ position: "absolute", right: -5, top: 0, bottom: 0, width: 10, cursor: "ew-resize", zIndex: 4 }} />
+              <div data-cursor="resizeV" onPointerDown={onPointerDown("bottom")} style={{ position: "absolute", bottom: -5, left: 0, right: 0, height: 10, cursor: "ns-resize", zIndex: 4 }} />
+              <div data-cursor="resizeDiag" onPointerDown={onPointerDown("corner")} style={{ position: "absolute", right: -7, bottom: -7, width: 14, height: 14, cursor: "nwse-resize", zIndex: 5 }} />
+              {/* 시각적 핸들 */}
+              <div style={{ ...handleStyle, width: 6, height: 32, position: "absolute", right: -4, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+              <div style={{ ...handleStyle, width: 32, height: 6, position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }} />
+              <div style={{ ...handleStyle, width: 10, height: 10, borderRadius: 3, position: "absolute", right: -5, bottom: -5, pointerEvents: "none" }} />
             </>
           )}
-          {/* 캡션 — 이미지 하단 오버레이 */}
-          <div style={{
-            position: "absolute", bottom: 4, left: 4, right: 4,
-            background: "var(--bg-overlay)",
-            borderRadius: "var(--radius-capsule)",
-            height: badgeHeight, display: "flex", alignItems: "center",
-            padding: "0 10px", zIndex: 3,
-            opacity: showCaption ? 1 : 0,
-            transform: showCaption ? "translateY(0)" : "translateY(4px)",
-            transition: "opacity 0.2s ease, transform 0.2s ease",
-            pointerEvents: showCaption ? "auto" : "none",
-          }}>
-            <InlineCaption
-              caption={caption}
-              onCommit={(v) => setAttr({ caption: v || undefined })}
-              onEditingChange={setCaptionEditing}
-              overlayMode
-            />
-          </div>
+          {/* 캡션 — 큰 이미지: 오버레이, 작은 이미지: 이미지 아래 */}
+          {!isSmall && (
+            <div style={{
+              position: "absolute", bottom: 4, left: 4, right: 4,
+              background: "var(--bg-overlay)",
+              borderRadius: "var(--radius-capsule)",
+              height: badgeHeight, display: "flex", alignItems: "center",
+              padding: "0 10px", zIndex: 3,
+              opacity: showCaption ? 1 : 0,
+              transform: showCaption ? "translateY(0)" : "translateY(4px)",
+              transition: "opacity 0.2s ease, transform 0.2s ease",
+              pointerEvents: showCaption ? "auto" : "none",
+            }}>
+              <InlineCaption
+                caption={caption}
+                onCommit={(v) => setAttr({ caption: v || undefined })}
+                onEditingChange={setCaptionEditing}
+                overlayMode
+              />
+            </div>
+          )}
         </div>
       </div>
       </BlockDropZone>
@@ -969,8 +965,8 @@ export function MediaEmbedElement(props: PlateElementProps) {
                   {a === "left" ? "◧" : a === "center" ? "◻" : "◨"}
                 </button>
               ))}
-              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => { setMediaAttr({ width: 0, height: 0 }); }} style={{ padding: "2px 8px", fontSize: 11, border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-xs)", background: "transparent", cursor: "pointer" }}>
-                ↺
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => { setMediaAttr({ width: 0, height: 0 }); }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, padding: 0, border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-xs)", background: "transparent", cursor: "pointer", color: "var(--text-primary)" }}>
+                <RxReset size={13} />
               </button>
             </div>
           )}
@@ -1050,6 +1046,9 @@ export function LinkElement(props: PlateElementProps) {
           target: "_blank",
           rel: "noopener noreferrer",
           onClick: (e: React.MouseEvent) => {
+            e.preventDefault();
+          },
+          onDoubleClick: (e: React.MouseEvent) => {
             e.preventDefault();
             window.open(url, "_blank", "noopener,noreferrer");
           },
@@ -1285,6 +1284,7 @@ export function ColumnGroupElement(props: PlateElementProps) {
       <div
         key={i}
         data-col-handle={i}
+        data-cursor="resize"
         contentEditable={false}
         onPointerDown={(e) => onResizeDown(i, e)}
         style={{
@@ -1315,18 +1315,26 @@ export function ColumnGroupElement(props: PlateElementProps) {
   useEffect(() => {
     const group = groupRef.current;
     if (!group) return;
-    const colEls = Array.from(group.querySelectorAll<HTMLElement>(":scope > [data-slate-node='element']"));
-    const handleEls = Array.from(group.querySelectorAll<HTMLElement>("[data-col-handle]"));
-    const groupRect = group.getBoundingClientRect();
-    colEls.forEach((colEl, i) => {
-      if (i >= handleEls.length) return;
-      const colRect = colEl.getBoundingClientRect();
-      const left = colRect.right - groupRect.left;
-      handleEls[i].style.left = `${left}px`;
-      handleEls[i].style.transform = "translateX(-50%)";
-      handleEls[i].style.opacity = "";
-      handleEls[i].style.pointerEvents = "";
-    });
+
+    const positionHandles = () => {
+      const colEls = Array.from(group.querySelectorAll<HTMLElement>(":scope > [data-slate-node='element']"));
+      const handleEls = Array.from(group.querySelectorAll<HTMLElement>("[data-col-handle]"));
+      if (handleEls.length === 0) return;
+      const groupRect = group.getBoundingClientRect();
+      colEls.forEach((colEl, i) => {
+        if (i >= handleEls.length) return;
+        const colRect = colEl.getBoundingClientRect();
+        const left = colRect.right - groupRect.left;
+        handleEls[i].style.left = `${left}px`;
+        handleEls[i].style.transform = "translateX(-50%)";
+        handleEls[i].style.opacity = "";
+        handleEls[i].style.pointerEvents = "";
+      });
+    };
+
+    // 초기 배치 + DOM 갱신 후 재배치
+    positionHandles();
+    requestAnimationFrame(positionHandles);
   });
 
   return (

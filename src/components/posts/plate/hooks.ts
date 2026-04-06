@@ -58,9 +58,21 @@ export function useBlockInfo(editor: any) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   try { block = (editor.api as any).block?.() as typeof block; } catch { /* ignore */ }
 
-  const blockType = block?.[0]?.type ?? "p";
+  let blockType = block?.[0]?.type ?? "p";
   const align = (block?.[0]?.align as string) ?? "left";
   const lineHeight = block?.[0]?.lineHeight as string | undefined;
+
+  // 래퍼 블록 감지 (blockquote, code_block 등)
+  if (blockType === "p" || blockType === "code_line") {
+    try {
+      const wrapperTypes = ["blockquote", "code_block", "table"];
+      for (const wt of wrapperTypes) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const above = (editor.api as any).above?.({ match: { type: wt } });
+        if (above) { blockType = wt; break; }
+      }
+    } catch { /* ignore */ }
+  }
 
   return { block, blockType, align, lineHeight };
 }

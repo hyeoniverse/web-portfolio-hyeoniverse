@@ -20,12 +20,13 @@
   left: 0;
   will-change: transform;
   white-space: nowrap;
-  padding: 8px 20px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
+  padding: var(--box-xs-lg);
+  border-radius: var(--radius-capsule);
+  --_bg-glass: color-mix(in srgb, var(--bg-primary) 70%, transparent);
+  background: var(--_bg-glass);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: var(--border-primary);
+  border: var(--border-strong);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   pointer-events: none;

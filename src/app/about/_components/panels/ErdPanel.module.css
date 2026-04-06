@@ -35,33 +35,33 @@
 
 .erdTableName {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   fill: var(--text-primary);
 }
 
 .erdColName {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   fill: var(--text-secondary);
 }
 
 .erdColType {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   fill: var(--text-tertiary);
 }
 
 .erdColPk {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: 700;
   fill: var(--color-accent);
 }
 
 .erdColFk {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: 700;
   fill: var(--color-success);
 }
@@ -117,14 +117,14 @@
 
 .erdRelLabel {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   fill: var(--text-accent);
 }
 
 .erdRelLabelSub {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   fill: var(--text-tertiary);
   font-style: italic;
 }
@@ -142,9 +142,10 @@
   align-items: flex-start;
   width: min(500px, 52%);
   padding: var(--spacing-xl);
-  border: 1px solid var(--border-default);
+  border: var(--border-default);
   border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface-primary) 92%, transparent);
+  --_bg-panel: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+  background: var(--_bg-panel);
   backdrop-filter: blur(8px);
   clip-path: inset(0 100% 0 0 round var(--radius-lg));
   opacity: 0;
@@ -179,9 +180,9 @@
   width: 24px;
   height: 24px;
   border-radius: var(--radius-circle);
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-white);
   font-weight: var(--font-weight-bold);
   flex-shrink: 0;
@@ -199,12 +200,12 @@
 .erdNoteTag {
   display: inline-block;
   margin-bottom: var(--spacing-xs);
-  padding: 3px 10px;
+  padding: var(--box-3xs-xs);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  color: var(--text-accent);
+  background: var(--bg-accent-subtle);
   border-radius: var(--radius-sm);
   letter-spacing: 0.02em;
 }
@@ -266,7 +267,7 @@
     align-items: flex-start;
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
-    border: 1px solid var(--border-default);
+    border: var(--border-default);
     border-radius: var(--radius-lg);
     animation: erdNoteSlideIn 0.35s var(--ease-out);
   }

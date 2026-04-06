@@ -188,7 +188,7 @@
   position: absolute;
   inset: 2px;
   border-radius: var(--radius-capsule);
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
 }
 
 .sortBtnText {
@@ -411,7 +411,7 @@
   width: 20px;
   height: 20px;
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   font-size: var(--font-size-md);
   color: var(--text-tertiary);
@@ -445,7 +445,7 @@
   display: flex;
   gap: var(--spacing-lg);
   overflow-x: auto;
-  padding: 12px var(--spacing-md) 32px;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-2xl);
   margin: 0 calc(var(--spacing-md) * -1);
   scrollbar-width: none;
 }
@@ -455,7 +455,7 @@
 }
 
 .seriesCategoryTag {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -509,7 +509,7 @@
 }
 
 .postsCount {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -535,7 +535,7 @@
 
 .emptyResetBtn {
   padding: var(--box-xs-lg);
-  border: var(--border-primary);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -585,7 +585,7 @@
   align-items: center;
   justify-content: center;
   border: var(--border-default);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);

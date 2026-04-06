@@ -31,7 +31,7 @@
 }
 
 .techItem:hover {
-  border-bottom-color: var(--color-accent-alpha-30);
+  border-bottom-color: var(--border-accent);
 }
 
 .techName {

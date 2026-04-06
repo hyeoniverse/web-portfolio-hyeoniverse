@@ -66,7 +66,7 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: var(--spacing-2xs);
   transform-origin: top center;
   opacity: 0;
@@ -105,45 +105,45 @@
 }
 
 .optionActive {
-  color: var(--color-accent);
-  background: var(--color-accent-alpha-5);
+  color: var(--text-accent);
+  background: var(--bg-accent-subtle);
 }
 
 .dropdown .optionActive:hover {
-  background: var(--color-accent-alpha-10);
+  background: var(--bg-accent-light);
 }
 
 /* ── Variant: compact ── */
 
 .dropdownCompact {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--bg-glass-strong);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  padding: var(--spacing-xs) var(--spacing-2xs);
+  padding: var(--box-xs);
 }
 
 .dropdownCompact .option {
   border-radius: var(--radius-capsule);
-  margin: 1px var(--spacing-3xs);
+  margin: var(--spacing-4xs) var(--spacing-3xs);
   width: calc(100% - var(--spacing-3xs) * 2);
 }
 
 .dropdownCompact .option:hover {
-  background: #1E90FF;
-  color: #fff;
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
 }
 
 .dropdownCompact .optionActive {
-  background: #1E90FF;
-  color: #fff;
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
 }
 
 .dropdownCompact .optionActive:hover {
-  background: #1E90FF;
-  color: #fff;
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
 }
 
 .check {

@@ -75,10 +75,10 @@
 }
 
 .page .backBtn:hover {
-  background-color: #000;
+  background-color: var(--bg-black);
   mix-blend-mode: difference;
-  color: #fff;
-  border-color: #fff;
+  color: var(--text-white);
+  border-color: var(--text-white);
 }
 
 .page .backBtn:hover svg {
@@ -109,7 +109,7 @@
 }
 
 .tocTitle {
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -141,7 +141,7 @@
 
 .tocLink.tocActive {
   color: var(--text-primary);
-  border-left-color: var(--color-accent);
+  border-left-color: var(--text-accent);
 }
 
 .tocLevel2 {
@@ -150,7 +150,7 @@
 
 .tocLevel3 {
   padding-left: var(--spacing-2xl);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 
 /* ── Like button ── */
@@ -174,13 +174,13 @@
 }
 
 .likeWrapper .likeBtn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 .likeBtnActive {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 .likeBtnBusy {

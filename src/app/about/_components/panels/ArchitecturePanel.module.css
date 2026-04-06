@@ -19,7 +19,7 @@
 }
 
 .archItem:hover {
-  border-bottom-color: var(--color-accent-alpha-30);
+  border-bottom-color: var(--border-accent);
 }
 
 .archPath {
@@ -158,7 +158,7 @@
     opacity var(--duration-base) ease,
     transform var(--duration-fast) ease;
   translate: -50% -50%;
-  border-radius: 999px;
+  border-radius: var(--radius-capsule);
 }
 
 .archMap .archNodeBox:hover {
@@ -213,7 +213,7 @@
   display: flex;
   align-items: flex-start;
   padding: clamp(0.2rem, 0.35vh, 0.4rem) clamp(0.3rem, 0.4vw, 0.55rem);
-  border: 1px solid var(--border-default);
+  border: var(--border-default);
 
   overflow: hidden;
   position: absolute;
@@ -225,19 +225,19 @@
 }
 
 .archMap .archTmCell:hover {
-  border-color: var(--color-accent-alpha-30);
+  border-color: var(--border-accent);
 }
 
 .archMap .archTmParent {
-  border-color: var(--color-accent-alpha-15);
+  border-color: var(--border-accent-light);
   z-index: 0;
-  background: var(--color-accent-alpha-5);
+  background: var(--bg-accent-subtle);
 }
 
 .archMap .archTmChild {
-  border-color: var(--color-accent-alpha-20);
+  border-color: var(--border-accent-light);
   z-index: 1;
-  background: var(--color-accent-alpha-10);
+  background: var(--bg-accent-light);
 }
 
 .archMap .archTmLeaf {
@@ -329,7 +329,7 @@
   max-width: clamp(200px, 20vw, 340px);
   padding: clamp(0.5rem, 0.8vh, 0.75rem) clamp(0.75rem, 1vw, 1.1rem);
   background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
+  border: var(--border-default);
   border-left: 3px solid var(--text-accent);
   font-size: var(--_fs-small);
   line-height: var(--_lh-reading);

@@ -279,7 +279,7 @@
 }
 
 .spinnerItem:hover {
-  outline: var(--border-tertiary);
+  outline: var(--border-light);
   outline-offset: -1px;
 }
 
@@ -380,7 +380,7 @@
 .calDayGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 
 .calWeekday {

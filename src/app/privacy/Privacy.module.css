@@ -14,7 +14,7 @@
 
 /* Title */
 .title {
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
   font-family: var(--font-instrument), serif;
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: var(--font-weight-regular);
@@ -37,11 +37,11 @@
 
 /* Sections */
 .section {
-  margin-bottom: 40px;
+  margin-bottom: var(--spacing-2xl-plus);
 }
 
 .section h2 {
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-medium);
@@ -49,7 +49,7 @@
 }
 
 .section p {
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-base);
   line-height: 1.8;
@@ -57,13 +57,13 @@
 }
 
 .section ul {
-  margin: 16px 0;
-  padding-left: 24px;
+  margin: var(--spacing-md) 0;
+  padding-left: var(--spacing-xl);
   list-style-type: disc;
 }
 
 .section li {
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-sm);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-base);
   line-height: 1.8;
@@ -84,7 +84,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   .header {
-    gap: 20px;
+    gap: var(--spacing-lg);
     align-items: flex-start;
     flex-direction: column;
   }

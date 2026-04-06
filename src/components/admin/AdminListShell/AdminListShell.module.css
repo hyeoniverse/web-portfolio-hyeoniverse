@@ -30,11 +30,11 @@
   padding: var(--box-xs-lg);
   border: var(--border-success);
   border-radius: var(--radius-capsule);
-  background: var(--color-success);
+  background: var(--bg-success-solid);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: #fff;
+  color: var(--text-white);
   letter-spacing: 0.02em;
   text-align: center;
   opacity: 0;
@@ -62,7 +62,7 @@
 
 .newBtn {
   padding: var(--box-xs-xl);
-  border: var(--border-primary);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -88,11 +88,11 @@
   width: 24px;
   height: 24px;
   flex-shrink: 0;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: var(--border-default);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
   color: var(--text-secondary);
   display: flex;
@@ -111,7 +111,7 @@
   display: flex;
   border-radius: var(--radius-capsule);
   overflow: hidden;
-  border: var(--border-primary);
+  border: var(--border-strong);
 }
 
 .btnGroup .newBtn {
@@ -129,7 +129,7 @@
 }
 
 .btnGroup .newBtn + .newBtn {
-  border-left: var(--border-primary);
+  border-left: var(--border-strong);
 }
 
 .header .btnGroup .newBtn:last-child:hover {
@@ -264,15 +264,15 @@
 .previewTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--spacing-2xs);
 }
 
 .previewTag {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
 }
 

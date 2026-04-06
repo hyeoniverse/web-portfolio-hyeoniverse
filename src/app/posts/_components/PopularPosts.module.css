@@ -32,7 +32,7 @@
 }
 
 .section .item:hover .itemTitle {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .rank {
@@ -44,7 +44,7 @@
 }
 
 .rankTop {
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: var(--font-weight-bold);
 }
 
@@ -56,7 +56,7 @@
 .info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   min-width: 0;
 }
 

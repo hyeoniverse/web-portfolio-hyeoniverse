@@ -32,13 +32,13 @@
 }
 
 .messageSuccess {
-  background: var(--color-success-alpha);
-  color: var(--color-success);
+  background: var(--bg-success);
+  color: var(--text-success);
 }
 
 .messageError {
-  background: var(--color-accent-alpha-10);
-  color: var(--color-accent);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
 }
 
 .resetBtn {
@@ -55,13 +55,13 @@
 }
 
 .header .resetBtn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 .saveBtn {
   padding: var(--box-xs-xl);
-  border: var(--border-primary);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -145,7 +145,7 @@
 }
 
 .conflictPreviewItem:hover {
-  background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  background: var(--bg-tertiary);
 }
 
 .conflictSelectAll {
@@ -253,7 +253,7 @@
   width: 14px;
   height: 1.5px;
   background: currentColor;
-  border-radius: 2px;
+  border-radius: var(--radius-2xs);
 }
 
 /* compound (0,2,0) to beat global theme transition */
@@ -283,7 +283,7 @@
   gap: var(--spacing-md);
   margin: 0 calc(-1 * var(--spacing-lg));
   padding: var(--box-lg);
-  background: var(--color-neutral-0);
+  background: var(--bg-white);
   z-index: 3;
 }
 
@@ -304,7 +304,7 @@
   font-size: var(--font-size-xs);
   line-height: 1.7;
   color: var(--text-primary);
-  background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+  background: var(--bg-tertiary);
   border-radius: var(--radius-md);
   white-space: pre;
   overflow-x: auto;
@@ -321,15 +321,15 @@
 }
 
 .diffLineRemoved {
-  background: color-mix(in srgb, #ef4444 12%, transparent);
-  color: #ef4444;
+  background: var(--bg-error);
+  color: var(--text-error);
   margin: 0 calc(-1 * var(--spacing-md));
   padding: 0 var(--spacing-md);
 }
 
 .diffLineAdded {
-  background: color-mix(in srgb, #22c55e 12%, transparent);
-  color: #22c55e;
+  background: var(--bg-success);
+  color: var(--text-success);
   margin: 0 calc(-1 * var(--spacing-md));
   padding: 0 var(--spacing-md);
 }
@@ -344,7 +344,7 @@
   color: var(--text-secondary);
   margin: 0 calc(-1 * var(--spacing-md));
   padding: 0 var(--spacing-md);
-  background: color-mix(in srgb, #22c55e 5%, transparent);
+  background: var(--bg-success);
 }
 
 /* ── Diff hunk with hover float button ── */
@@ -376,20 +376,20 @@
   justify-content: center;
   padding: 0;
   border: none;
-  border-radius: 50%;
-  font-size: 12px;
+  border-radius: var(--radius-circle);
+  font-size: var(--font-size-xs);
   line-height: 1;
 }
 
 .diffHunkFloatAccept,
 .diffHunkFloatRevert {
-  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  background: var(--bg-tertiary-alt);
   color: var(--text-secondary);
 }
 
 .diffHunk .diffHunkFloatAccept:hover,
 .diffHunk .diffHunkFloatRevert:hover {
-  background: color-mix(in srgb, var(--text-primary) 20%, transparent);
+  background: var(--bg-secondary-alt);
   color: var(--text-primary);
 }
 
@@ -429,11 +429,11 @@
 }
 
 .sideNav .navItem:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .navItemActive {
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: 600;
 }
 
@@ -441,7 +441,7 @@
   width: 6px;
   height: 6px;
   border-radius: var(--radius-circle);
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   flex-shrink: 0;
 }
 
@@ -470,11 +470,11 @@
 }
 
 .navSub .navSubItem:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .navSubItemActive {
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: 600;
 }
 
@@ -602,7 +602,7 @@
   font-weight: 500;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -675,18 +675,18 @@
   height: 32px;
   padding: 0;
   border: var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   flex-shrink: 0;
 }
 
 .colorPicker::-webkit-color-swatch-wrapper {
-  padding: 2px;
+  padding: var(--spacing-3xs);
 }
 
 .colorPicker::-webkit-color-swatch {
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 .colorText {
@@ -757,11 +757,11 @@
 }
 
 .presetCardActive {
-  border-color: var(--color-accent);
+  border-color: var(--text-accent);
 }
 
 .section .presetCardActive .presetName {
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: 600;
 }
 
@@ -790,7 +790,7 @@
 .logoColorPresets {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--spacing-xs);
 }
 
 .logoColorPresetBtn {
@@ -810,7 +810,7 @@
 }
 
 .logoColorPresetBtnActive {
-  border-color: var(--color-accent);
+  border-color: var(--text-accent);
   box-shadow: 0 0 0 1px var(--color-accent);
 }
 
@@ -871,12 +871,12 @@
 }
 
 .logoBtnRemove {
-  color: var(--color-accent);
-  border-color: var(--color-accent);
+  color: var(--text-accent);
+  border-color: var(--text-accent);
 }
 
 .logoBtnRemove:hover {
-  background: var(--color-accent-alpha-10);
+  background: var(--bg-accent-light);
 }
 
 .resumeFile {
@@ -928,7 +928,7 @@
   list-style: disc;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .hintLabel {
@@ -997,8 +997,8 @@
 }
 
 .priorityItemOver {
-  border-color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  border-color: var(--text-accent);
+  background: var(--bg-accent-subtle);
 }
 
 .priorityBadge {
@@ -1008,7 +1008,7 @@
   justify-content: center;
   align-self: stretch;
   border-right: var(--border-light);
-  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   font-weight: 600;
@@ -1074,7 +1074,7 @@
 }
 
 .fields .priorityBtn:not(:disabled):hover {
-  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  background: var(--bg-tertiary);
   color: var(--text-primary);
 }
 
@@ -1206,7 +1206,7 @@
 }
 
 .catList .catRemove:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .catInput {
@@ -1229,7 +1229,7 @@
 
 .catAddBtn {
   padding: var(--box-md);
-  border: var(--border-secondary);
+  border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1312,7 +1312,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: var(--border-tertiary);
+  border: var(--border-light);
   border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1322,8 +1322,8 @@
 }
 
 .profileRemoveBtn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 .profileGrid {
@@ -1432,7 +1432,7 @@
 .confirmOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1529,7 +1529,7 @@
   align-items: center;
   justify-content: center;
   border: var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -1607,16 +1607,16 @@
 }
 
 .seriesCardHeadCover .seriesCardName {
-  color: #fff;
+  color: var(--text-inverse);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .seriesCardHeadCover .seriesCardMeta {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-white);
 }
 
 .seriesCardHeadCover .seriesChevron {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-white);
 }
 
 .seriesCardOverlay {
@@ -1724,7 +1724,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  margin-top: 2px;
+  margin-top: var(--spacing-3xs);
 }
 
 .publishToggle {
@@ -1749,27 +1749,27 @@
 }
 
 .seriesBadgeCat {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   background: var(--bg-secondary);
   color: var(--text-secondary);
 }
 
 .seriesBadge {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: 500;
 }
 
 .seriesBadgePublished {
-  background: var(--color-success);
+  background: var(--bg-success-solid);
   color: var(--bg-white);
 }
 
 .seriesBadgeDraft {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
 }
 
@@ -1898,8 +1898,8 @@
 }
 
 .addPostHeader button[class] {
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  font-size: 10px;
+  padding: var(--box-3xs-xs);
+  font-size: var(--font-size-2xs);
   line-height: 1;
 }
 
@@ -1962,7 +1962,7 @@
 .addPostNum {
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
   min-width: 28px;
 }
@@ -1982,7 +1982,7 @@
 }
 
 .addPostEmpty {
-  padding: var(--spacing-md) var(--spacing-sm);
+  padding: var(--box-md-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
@@ -1991,12 +1991,12 @@
 
 .seriesPostOrderInput {
   width: 32px;
-  padding: 1px 2px;
+  padding: var(--spacing-4xs) var(--spacing-3xs);
   border: var(--border-default);
   border-radius: var(--radius-sm);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-primary);
   text-align: center;
   outline: none;
@@ -2028,10 +2028,10 @@
   align-items: center;
   justify-content: center;
   border: var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
 }
 
@@ -2094,7 +2094,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   z-index: 1;
 }
 
@@ -2105,14 +2105,14 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   z-index: 1;
 }
 
 .seriesPostOrder {
   display: flex;
   align-items: center;
-  gap: 1px;
+  gap: var(--spacing-4xs);
   flex-shrink: 0;
 }
 
@@ -2152,13 +2152,13 @@
 
 .seriesPostRemoveBtn:hover,
 .seriesPostDeleteBtn:hover {
-  color: var(--color-accent) !important;
-  background: var(--color-accent-alpha-10) !important;
+  color: var(--text-accent) !important;
+  background: var(--bg-accent-light) !important;
 }
 
 .seriesPostOrderNum {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   line-height: 1;
 }
@@ -2195,23 +2195,23 @@
 .seriesPostStatus {
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: 500;
   width: 16px;
   height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 .seriesPostPublished {
-  background: var(--color-success-alpha);
-  color: var(--color-success);
+  background: var(--bg-success);
+  color: var(--text-success);
 }
 
 .seriesPostDraft {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
 }
 
@@ -2228,12 +2228,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 .seriesPostRemove:hover {
-  background: var(--color-accent-alpha-10);
-  color: var(--color-accent);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
 }
 
 /* ── Social Links Editor ── */
@@ -2320,12 +2320,12 @@
 }
 
 .socialIconSpinner {
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
 }
 
 .fieldInputError::placeholder {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .socialIconUpload {
@@ -2344,7 +2344,7 @@
   align-items: center;
   justify-content: center;
   border: var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
@@ -2363,7 +2363,7 @@
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-tertiary);
   flex-shrink: 0;
@@ -2371,7 +2371,7 @@
 }
 
 .socialRemoveBtn:hover {
-  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 
@@ -2385,7 +2385,7 @@
   width: 12px;
   height: 1.5px;
   background: currentColor;
-  border-radius: 1px;
+  border-radius: var(--spacing-4xs);
   transition: transform 0.25s ease;
   transform: rotate(0deg);
 }
@@ -2601,14 +2601,14 @@
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-tertiary);
   transition: background-color 0.2s ease;
 }
 
 .skillRemoveBtn:hover {
-  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 
@@ -2617,7 +2617,7 @@
   width: 12px;
   height: 1.5px;
   background: currentColor;
-  border-radius: 1px;
+  border-radius: var(--spacing-4xs);
   transition: transform 0.25s ease;
   transform: rotate(0deg);
 }
@@ -2683,8 +2683,8 @@
   }
 
   .navItemActive {
-    border-bottom-color: var(--color-accent);
-    color: var(--color-accent);
+    border-bottom-color: var(--text-accent);
+    color: var(--text-accent);
   }
 
   .navSub {
@@ -2718,8 +2718,8 @@
   }
 
   .mobileSubItemActive {
-    color: var(--color-accent);
-    border-bottom-color: var(--color-accent);
+    color: var(--text-accent);
+    border-bottom-color: var(--text-accent);
   }
 
   .fieldRow {
@@ -2757,7 +2757,7 @@
 .fontOption {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .fontSample {
@@ -2768,7 +2768,7 @@
 
 .fontName {
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -2811,7 +2811,7 @@
 }
 
 .fontCustomInputError {
-  border-color: var(--color-accent);
+  border-color: var(--text-accent);
 }
 
 .fontValidating {
@@ -2825,7 +2825,7 @@
 .fontValidationMsg {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
   margin: 0;
 }
 
@@ -2897,7 +2897,7 @@
 }
 
 .envLabelMissing {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .envFieldRight {
@@ -2924,7 +2924,7 @@
   width: 28px;
   height: 28px;
   border: var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-tertiary);
   font-size: var(--font-size-md);
@@ -2933,8 +2933,8 @@
 }
 
 .envCancelBtn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 .envRevealBtn,
@@ -2942,7 +2942,7 @@
   width: 28px;
   height: 28px;
   border: var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-tertiary);
   display: flex;
@@ -2957,8 +2957,8 @@
 }
 
 .envDeleteBtn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 .envDeleteBtnDisabled {
@@ -2986,9 +2986,9 @@
 }
 
 .envSourceBadge {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: 500;
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
@@ -3005,22 +3005,22 @@
 .envMsg {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-success);
+  color: var(--text-success);
 }
 
 .envSaveBtn {
   padding: var(--box-xs-lg);
-  border: var(--border-accent-solid);
+  border: var(--border-accent-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 500;
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .envSaveBtn:hover {
-  background: var(--color-accent-alpha-10);
+  background: var(--bg-accent-light);
 }
 
 .envSaveBtn:disabled {
@@ -3047,7 +3047,7 @@
 .scopeTag {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   padding: var(--box-sm);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
@@ -3066,7 +3066,7 @@
 }
 
 .scopeTagField .scopeTagRemove:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .scopeInputRow {
@@ -3084,7 +3084,7 @@
   justify-content: center;
   padding: 0;
   background: transparent;
-  border: var(--border-tertiary);
+  border: var(--border-light);
   border-radius: var(--radius-circle);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
@@ -3115,7 +3115,7 @@
 .pendingEmailInfo {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   min-width: 0;
 }
 
@@ -3125,7 +3125,7 @@
 }
 
 .pendingEmailExpiry {
-  color: var(--color-accent);
+  color: var(--text-accent);
   margin-left: var(--spacing-xs);
 }
 

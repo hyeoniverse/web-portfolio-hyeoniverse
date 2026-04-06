@@ -85,7 +85,7 @@
 }
 
 .troubleListItem:hover {
-  border-bottom-color: var(--color-accent-alpha-30);
+  border-bottom-color: var(--border-accent);
 }
 
 .troubleListItem:hover .troubleNumber {
@@ -98,7 +98,7 @@
 
 .troubleListItemActive {
   padding-left: var(--_space-block);
-  border-bottom-color: var(--color-accent-alpha-30);
+  border-bottom-color: var(--border-accent);
 }
 
 .troubleListItem:last-child,

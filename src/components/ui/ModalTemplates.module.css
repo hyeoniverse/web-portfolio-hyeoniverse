@@ -40,7 +40,7 @@
   margin: calc(-1 * var(--spacing-sm)) 0 var(--spacing-lg);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .actions {
@@ -52,5 +52,5 @@
 .dangerBtn {
   --_bg: var(--color-accent) !important;
   --_border: var(--color-accent) !important;
-  --_color: #fff !important;
+  --_color: var(--text-white) !important;
 }

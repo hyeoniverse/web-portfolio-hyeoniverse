@@ -86,7 +86,7 @@
 .cylinderOverlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--bg-overlay);
   pointer-events: none;
   z-index: 1;
 }
@@ -102,11 +102,11 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: var(--border-ghost-light);
   border-radius: var(--radius-circle);
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-white);
   opacity: 0;
 }
 
@@ -115,9 +115,9 @@
 }
 
 .carousel .arrow:hover {
-  background: rgba(0, 0, 0, 0.55);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #fff;
+  background: var(--bg-overlay);
+  border-color: var(--border-ghost);
+  color: var(--text-white);
 }
 
 .arrowPrev {
@@ -139,7 +139,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--box-sm);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border-radius: var(--radius-capsule);
 }
@@ -148,26 +148,26 @@
   position: relative;
   width: 32px;
   height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-2xs);
+  background: var(--bg-glass-strong);
   border: none;
   padding: 0;
   overflow: hidden;
 }
 
 .carousel .dot:hover {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--bg-white);
 }
 
 .dotActive {
   width: 56px !important;
-  background: rgba(255, 255, 255, 0.6) !important;
+  background: var(--bg-white) !important;
 }
 
 .dotFill {
   position: absolute;
   inset: 0;
-  background: #fff;
+  background: var(--bg-white);
   border-radius: inherit;
   transform-origin: left center;
 }

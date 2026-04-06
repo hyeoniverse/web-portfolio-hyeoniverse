@@ -67,7 +67,7 @@
   padding-left: calc(var(--spacing-sm) * 4);
   border: var(--border-default);
   width: 100%;
-  background: var(--color-inverse-alpha-50);
+  background: var(--bg-overlay);
   font-size: inhirit;
   color: var(--text-primary);
   transition: all var(--duration-base) ease;
@@ -102,8 +102,8 @@
 /* Dark mode */
 [data-theme="dark"] .formInput,
 [data-theme="dark"] .formTextarea {
-  border-color: rgba(100, 100, 100, 0.2);
-  background: var(--color-neutral-alpha-50);
+  border-color: var(--border-default-color);
+  background: var(--bg-overlay);
   color: var(--text-inverse);
 }
 

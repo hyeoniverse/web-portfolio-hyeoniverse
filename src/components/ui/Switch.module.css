@@ -7,8 +7,8 @@
   height: 20px;
   flex-shrink: 0;
   border-radius: var(--radius-capsule);
-  border: var(--border-neutral-alpha-20);
-  background: var(--color-neutral-alpha-10);
+  border: var(--border-neutral-light);
+  background: var(--bg-tertiary-alt);
   outline: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -48,12 +48,12 @@
 /* ── Variant: accent ── */
 .accent[data-state="unchecked"] {
   background: var(--bg-accent);
-  border-color: var(--color-neutral-alpha-20);
+  border-color: var(--border-default-color);
 }
 
 .accent[data-state="checked"] {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--bg-accent-solid);
+  border-color: var(--text-accent);
 }
 
 .accent[data-state="checked"] .thumb {

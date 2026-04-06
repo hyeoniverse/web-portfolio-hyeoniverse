@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
   border: var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);

@@ -56,13 +56,13 @@
 }
 
 .adminBadge {
-  padding: 2px var(--spacing-sm);
+  padding: var(--box-3xs-sm);
   border-radius: var(--radius-capsule);
-  background: var(--color-accent-alpha-20);
+  background: var(--bg-accent);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 500;
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .textarea {
@@ -115,7 +115,7 @@
 
 .submitBtn {
   padding: var(--box-xs-xl);
-  border: var(--border-primary);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -329,13 +329,13 @@
   border: none;
   border-radius: 0;
   background: transparent;
-  color: var(--color-success);
+  color: var(--text-success);
   padding: 0;
 }
 
 .notifyCapsule .notifyCheck:hover {
-  background: var(--color-success);
-  color: #fff;
+  background: var(--bg-success-solid);
+  color: var(--text-white);
 }
 
 /* Email hint */
@@ -345,8 +345,8 @@
   right: var(--spacing-md);
   margin-bottom: var(--spacing-3xs);
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
-  color: var(--color-accent);
+  font-size: var(--font-size-2xs);
+  color: var(--text-accent);
   white-space: nowrap;
 }
 
@@ -354,5 +354,5 @@
   margin-right: auto;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }

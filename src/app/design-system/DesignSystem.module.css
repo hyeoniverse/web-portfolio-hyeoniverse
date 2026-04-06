@@ -4,7 +4,7 @@
 }
 
 .main {
-  padding: 120px 8vw 80px;
+  padding: var(--spacing-6xl) 8vw var(--spacing-5xl);
 }
 
 /* SSR FOUC 방지 — hydration 전까지 콘텐츠 숨김 */
@@ -33,19 +33,19 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  border-left: 1px solid var(--border-primary);
+  border-left: var(--border-light);
 }
 
 .tocItem {
   display: block;
   width: 100%;
-  padding: 6px 16px;
+  padding: var(--box-md);
   margin-left: -1px;
   border: none;
-  border-left: 1.5px solid transparent;
+  border-left: 2px solid transparent;
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   letter-spacing: 0.02em;
   color: var(--text-primary);
   opacity: 0.7;
@@ -63,9 +63,9 @@
 }
 
 .tocItemActive {
-  color: var(--color-accent);
+  color: var(--text-accent);
   opacity: 1;
-  border-left-color: var(--color-accent);
+  border-left-color: var(--border-accent-strong-color);
 }
 
 /* Header */
@@ -73,7 +73,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 40px;
+  margin-bottom: var(--spacing-2xl-plus);
 }
 
 .backLink.backLink {
@@ -89,7 +89,7 @@
 }
 
 .title {
-  margin-bottom: 8px;
+  margin-bottom: var(--spacing-xs);
   font-family: var(--font-instrument), serif;
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: var(--font-weight-regular);
@@ -97,7 +97,7 @@
 }
 
 .subtitle {
-  margin-bottom: 60px;
+  margin-bottom: var(--spacing-5xl);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-base);
   color: var(--text-tertiary);
@@ -108,18 +108,18 @@
 .presetBar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--spacing-xs);
   flex-wrap: wrap;
-  margin-bottom: 48px;
+  margin-bottom: var(--spacing-3xl);
 }
 
 .presetBarLabel {
   font-family: var(--font-mono), monospace;
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-right: 4px;
+  margin-right: var(--spacing-2xs);
 }
 
 .presetSwatch {
@@ -157,10 +157,10 @@
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-mono), monospace;
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   background: var(--bg-primary);
-  padding: 2px 6px;
+  padding: var(--box-3xs-xs);
   border-radius: var(--radius-xs);
   white-space: nowrap;
   opacity: 0;
@@ -174,16 +174,16 @@
 
 /* Section */
 .section {
-  margin-bottom: 48px;
+  margin-bottom: var(--spacing-3xl);
 }
 
 .sectionTitleRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-primary);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: var(--border-strong);
 }
 
 .sectionTitleRow .sectionTitle {
@@ -193,9 +193,9 @@
 }
 
 .sectionTitle {
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-primary);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: var(--border-strong);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
@@ -203,8 +203,8 @@
 }
 
 .sectionSub {
-  margin-top: 28px;
-  margin-bottom: 12px;
+  margin-top: var(--spacing-2xl);
+  margin-bottom: var(--spacing-sm);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -221,14 +221,14 @@
 .colorGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 8px;
+  gap: var(--spacing-xs);
 }
 
 .colorSwatch {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: var(--spacing-xs);
 }
 
 .colorBox {
@@ -243,7 +243,7 @@
 
 .colorLabel {
   font-family: var(--font-mono), monospace;
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   text-align: center;
   word-break: break-all;
@@ -252,16 +252,16 @@
 /* Brand color row */
 .brandRow {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  margin-bottom: var(--spacing-xl);
 }
 
 .brandSwatch {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-xs);
 }
 
 .brandBox {
@@ -274,13 +274,13 @@
 .typoRow {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-lg);
 }
 
 .typoItem {
   display: flex;
   align-items: baseline;
-  gap: 16px;
+  gap: var(--spacing-md);
 }
 
 .typoLabel {
@@ -296,38 +296,38 @@
 .spacingRow {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-xs);
 }
 
 .spacingItem {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .spacingBar {
   height: 20px;
-  background: var(--color-accent-alpha-20);
+  background: var(--bg-accent);
   border-radius: var(--radius-xs);
-  border: var(--border-accent-alpha-30);
+  border: var(--border-accent);
   transition: background var(--duration-base) var(--ease-material);
 }
 
 .spacingBar:hover {
-  background: var(--color-accent-alpha-30);
+  background: var(--bg-accent-strong);
 }
 
 .spacingLabel {
   flex-shrink: 0;
   width: 100px;
   font-family: var(--font-mono), monospace;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
 }
 
 .spacingValue {
   font-family: var(--font-mono), monospace;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
 }
 
@@ -335,26 +335,26 @@
 .radiusGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--spacing-md);
 }
 
 .radiusItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-xs);
 }
 
 .radiusBox {
   width: 64px;
   height: 64px;
-  background: var(--color-accent-alpha-10);
-  border: 2px solid var(--color-accent-alpha-50);
+  background: var(--bg-accent-light);
+  border: var(--border-accent-2);
 }
 
 .radiusLabel {
   font-family: var(--font-mono), monospace;
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   text-align: center;
 }
@@ -363,14 +363,14 @@
 .shadowGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 24px;
+  gap: var(--spacing-xl);
 }
 
 .shadowItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .shadowBox {
@@ -382,7 +382,7 @@
 
 .shadowLabel {
   font-family: var(--font-mono), monospace;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
 }
 
@@ -390,31 +390,31 @@
 .motionGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
+  gap: var(--spacing-md);
 }
 
 .motionItem {
-  padding: 16px;
+  padding: var(--spacing-md);
   border-radius: var(--radius-md);
 }
 
 .motionName {
   font-family: var(--font-mono), monospace;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-bottom: var(--spacing-2xs);
 }
 
 .motionValue {
   font-family: var(--font-mono), monospace;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-sm);
 }
 
 .motionBar {
   height: 4px;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   border-radius: var(--radius-capsule);
   transform-origin: left;
   transform: scaleX(0);
@@ -460,11 +460,11 @@
   left: 0;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
+  gap: var(--spacing-sm);
+  padding: var(--box-md);
   border-radius: var(--radius-md);
   font-family: var(--font-mono), monospace;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--text-primary);
   background: var(--bg-primary);
 }
@@ -473,16 +473,16 @@
 .componentRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--spacing-sm);
   align-items: center;
 }
 
 .componentGroup {
-  margin-bottom: 32px;
+  margin-bottom: var(--spacing-2xl);
 }
 
 .componentGroupTitle {
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-sm);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -493,7 +493,7 @@
 .semanticGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .semanticItem {
@@ -514,14 +514,14 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   min-width: 0;
-  padding: 6px 12px 6px 8px;
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) var(--spacing-xs);
 }
 
 .semanticName {
   font-family: var(--font-mono), monospace;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -530,7 +530,7 @@
 
 .semanticRef {
   font-family: var(--font-mono), monospace;
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -540,9 +540,9 @@
 /* Alpha showcase */
 .alphaRow {
   display: flex;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   align-items: flex-end;
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-sm);
 }
 
 .alphaBar {
@@ -553,9 +553,9 @@
 }
 
 .alphaLabel {
-  margin-top: 6px;
+  margin-top: var(--spacing-xs);
   font-family: var(--font-mono), monospace;
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
   text-align: center;
 }
@@ -564,7 +564,7 @@
 .modalDemo {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--spacing-sm);
   align-items: center;
 }
 
@@ -580,7 +580,7 @@
 /* TypeWriter demo */
 .typewriterDemo {
   position: relative;
-  padding: 32px;
+  padding: var(--spacing-2xl);
   border-radius: var(--radius-lg);
   text-align: center;
 }
@@ -594,16 +594,16 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: var(--border-neutral-alpha-20);
+  border: var(--border-neutral-light);
   border-radius: var(--radius-circle);
-  background: var(--color-neutral-alpha-5);
+  background: var(--bg-tertiary);
   color: var(--text-tertiary);
   transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 
 .replayBtn:hover {
-  background: var(--color-neutral-alpha-10);
-  border-color: var(--color-neutral-alpha-40);
+  background: var(--bg-tertiary-alt);
+  border-color: var(--border-default-color);
   color: var(--text-primary);
 }
 
@@ -611,26 +611,26 @@
 .sliderRow {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-lg);
   max-width: 400px;
 }
 
 .sliderItem {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-xs);
 }
 
 .sliderLabel {
   font-family: var(--font-mono), monospace;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
 }
 
 /* Logo showcase */
 .logoRow {
   display: flex;
-  gap: 32px;
+  gap: var(--spacing-2xl);
   align-items: center;
 }
 
@@ -638,12 +638,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-xs);
 }
 
 .logoLabel {
   font-family: var(--font-mono), monospace;
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
 }
 
@@ -661,14 +661,14 @@
 .bannerLayoutList {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: var(--spacing-2xl);
 }
 
 .bannerLayoutItem {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 32px;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .bannerLayoutItem:last-child {
@@ -677,7 +677,7 @@
 
 .bannerPreviewLabel {
   font-family: var(--font-mono), monospace;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
 }
 
@@ -705,12 +705,12 @@
 
 @media (max-width: 768px) {
   .main {
-    padding: 100px 6vw 60px;
+    padding: 6.25rem 6vw var(--spacing-5xl);
   }
 
   .typoItem {
     flex-direction: column;
-    gap: 4px;
+    gap: var(--spacing-2xs);
   }
 
   .typoLabel {
@@ -750,14 +750,14 @@
 }
 
 .previewPanel {
-  margin-top: 16px;
+  margin-top: var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
 .previewHeader {
-  padding: 10px 20px;
+  padding: var(--box-xs-lg);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 600;
@@ -799,8 +799,8 @@
 .pRowText {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding-top: 4px;
+  gap: var(--spacing-xs);
+  padding-top: var(--spacing-2xs);
 }
 
 .pRowTitle {
@@ -836,11 +836,11 @@
 
 .pFileFolder {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   padding-bottom: var(--spacing-xs);
-  border-bottom: var(--border-primary);
+  border-bottom: var(--border-strong);
   margin-bottom: var(--spacing-3xs);
   opacity: 0.8;
 }
@@ -849,7 +849,7 @@
   display: flex;
   align-items: baseline;
   gap: var(--spacing-sm);
-  padding: 4px 0 4px 24px;
+  padding: var(--spacing-2xs) 0 var(--spacing-2xs) var(--spacing-xl);
   position: relative;
 }
 
@@ -881,12 +881,12 @@
 
 .pFileName {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--text-accent);
   flex-shrink: 0;
 }
 
 .pFileDesc {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
 }
