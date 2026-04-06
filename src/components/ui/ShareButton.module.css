@@ -1,7 +1,7 @@
 .btn {
   display: inline-flex;
   align-items: center;
-  padding: 8px 16px;
+  padding: var(--box-md);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -36,11 +36,11 @@
 .inner {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--spacing-xs);
 }
 
 .copied {
-  border-color: var(--color-accent);
+  border-color: var(--text-accent);
   background: transparent;
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
