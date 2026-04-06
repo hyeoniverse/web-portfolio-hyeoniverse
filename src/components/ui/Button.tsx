@@ -14,7 +14,7 @@ import styles from "./Button.module.css";
 
 type ButtonVariant = "primary" | "outline" | "ghost" | "link";
 type ButtonShape = "capsule" | "circle" | "square";
-type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
+type ButtonSize = "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
 
 interface ButtonBaseProps {
   variant?: ButtonVariant;
