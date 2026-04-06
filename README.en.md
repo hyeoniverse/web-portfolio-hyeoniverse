@@ -1820,6 +1820,100 @@ A URL mismatch between editor runtime conversion and serialization creates "work
 
 ---
 
+</details>
+
+<details>
+<summary><strong>24. Custom Cursor Resize Mode — Cursor Rotates with Mouse Direction</strong></summary>
+
+#### Problem
+
+After applying custom cursors (↔, ↕, ⤡) to image/column resize handles, the cursor arrows rotated and distorted based on mouse movement direction
+
+#### Cause
+
+The CursorTrail animation loop calculated `angleRef` (rotation) and `scaleRef` (scale) based on mouse velocity. When entering resize mode, previous values persisted. Additionally, detecting resize via classList caused 1-2 frame delays due to React render timing
+
+#### Solution
+
+Added `cursorTypeRef` (synchronous ref) updated simultaneously with `setCursorType`. On resize mode entry, immediately reset `angleRef`/`scaleRef` to 0. The animation loop uses `cursorTypeRef.current` to detect resize mode and completely disables rotation/scale
+
+---
+
+</details>
+
+<details>
+<summary><strong>25. Image Resize Handle Click Deletes Image Instead</strong></summary>
+
+#### Problem
+
+Clicking an inline image's resize handle triggered image deletion (DnD drop) instead of resize
+
+#### Cause
+
+The inline image's `onPointerDown` handler initiates DnD drag, and clicks on resize handles were intercepted by this handler, processed as drag→drop
+
+#### Solution
+
+Added `closest("[data-cursor^='resize']")` check at the top of `onPointerDown` to disable DnD on resize handle clicks. Separated hitboxes and visual handles into independent sibling elements for independent positioning
+
+---
+
+</details>
+
+<details>
+<summary><strong>26. Image Caption Overlay Blocks Resize Hitbox Detection</strong></summary>
+
+#### Problem
+
+Mouse cursor didn't change to resize shape at the bottom resize hitbox area — the hitbox was not being detected
+
+#### Cause
+
+The caption overlay (`zIndex: 3`) rendered above the bottom resize hitbox (`zIndex: 2`), intercepting pointer events
+
+#### Solution
+
+Raised hitbox `zIndex` to 4-5 to position above the caption overlay. Extended hitboxes to cover the full image edge for intuitive Figma-style resize UX
+
+---
+
+</details>
+
+<details>
+<summary><strong>27. Tooltip Auto Placement — Ignores Scroll Container Boundary</strong></summary>
+
+#### Problem
+
+When displaying image Tooltip (size info) in the editor, if the image scrolls above the editor area, the Tooltip renders outside the editor or gets clipped
+
+#### Cause
+
+Tooltip's `auto` placement logic only checked viewport top (`rect.top < 60`), ignoring the editor's scroll container boundary
+
+#### Solution
+
+In the `measure()` function, traverse up from the trigger to find the nearest overflow parent (`overflow-y: auto|scroll|hidden`). If the distance between scroll container top and trigger top is less than 40px, switch to `bottom` placement
+
+---
+
+</details>
+
+<details>
+<summary><strong>28. Editor Toolbar Active State — Wrapper Block Detection Failure</strong></summary>
+
+#### Problem
+
+Placing cursor inside blockquote, code block, or table didn't activate the corresponding toolbar button
+
+#### Cause
+
+`useBlockInfo` hook uses `editor.api.block()` to get the nearest block, but child blocks inside wrapper blocks (`p`, `code_line`, etc.) are returned first, setting `blockType` to `"p"` or `"code_line"`
+
+#### Solution
+
+When `blockType` is `"p"` or `"code_line"`, use `editor.api.above()` to search for parent wrapper blocks. Iterate through `["blockquote", "code_block", "table"]` and update `blockType` when found
+
+---
 
 </details>
 

@@ -1820,6 +1820,100 @@ html.replace(/<iframe([^>]*)\ssrc="([^"]*)"([^>]*)>/gi, ...)
 
 ---
 
+</details>
+
+<details>
+<summary><strong>24. 커스텀 커서 리사이즈 모드 — 마우스 방향에 따라 커서가 회전</strong></summary>
+
+#### 문제
+
+에디터 이미지·열블록 리사이즈 핸들에 커스텀 커서(↔, ↕, ⤡ 등)를 적용했더니, 마우스 이동 방향에 따라 커서 화살표가 회전·찌그러짐
+
+#### 원인
+
+CursorTrail의 애니메이션 루프가 마우스 속도에 따라 `angleRef`(회전)와 `scaleRef`(스케일)를 계산하는데, 리사이즈 모드 진입 시에도 이전 값이 그대로 남아 있었음. 또한 리사이즈 감지를 classList로 하면 React 렌더 타이밍과 어긋나서 1~2프레임 지연 발생
+
+#### 해결
+
+`cursorTypeRef`(동기 ref)를 추가하여 `setCursorType`과 동시에 갱신. 리사이즈 모드 진입 시 `angleRef`·`scaleRef`를 즉시 0으로 리셋하고, 애니메이션 루프에서 `cursorTypeRef.current`로 리사이즈 여부를 판단하여 회전·스케일을 완전히 비활성화
+
+---
+
+</details>
+
+<details>
+<summary><strong>25. 이미지 리사이즈 핸들 클릭 시 이미지가 삭제됨</strong></summary>
+
+#### 문제
+
+인라인 이미지의 리사이즈 핸들을 클릭하면, 리사이즈가 아닌 이미지 삭제(DnD 드롭)가 발생
+
+#### 원인
+
+인라인 이미지의 `onPointerDown` 핸들러가 DnD 드래그를 시작하는데, 리사이즈 핸들 위의 클릭도 이 핸들러가 가로채서 드래그→드롭으로 처리됨
+
+#### 해결
+
+`onPointerDown` 최상단에 `closest("[data-cursor^='resize']")` 체크를 추가하여 리사이즈 핸들 클릭 시 DnD를 비활성화. 히트박스와 시각적 핸들을 별개의 sibling 요소로 분리하여 감지 범위와 시각적 위치를 독립 조정
+
+---
+
+</details>
+
+<details>
+<summary><strong>26. 이미지 캡션 오버레이가 리사이즈 히트박스를 덮어 감지 불가</strong></summary>
+
+#### 문제
+
+이미지 하단 리사이즈 히트박스가 있어야 할 위치에서 마우스 커서가 리사이즈 모양으로 바뀌지 않고 감지 안 됨
+
+#### 원인
+
+캡션 오버레이(`zIndex: 3`)가 아래쪽 리사이즈 히트박스(`zIndex: 2`) 위에 렌더링되어 포인터 이벤트를 가로챔
+
+#### 해결
+
+히트박스의 `zIndex`를 4~5로 올려 캡션 오버레이보다 위에 위치시킴. 이미지 변 전체를 히트박스 영역으로 확장하여 Figma 스타일의 직관적인 리사이즈 UX 구현
+
+---
+
+</details>
+
+<details>
+<summary><strong>27. Tooltip auto placement — 스크롤 컨테이너 경계 미인식</strong></summary>
+
+#### 문제
+
+에디터에서 이미지에 Tooltip(크기 정보)을 표시할 때, 이미지가 에디터 영역 상단 밖으로 스크롤되면 Tooltip이 에디터 밖에 뜨거나 잘림
+
+#### 원인
+
+Tooltip의 `auto` placement 판정이 뷰포트 상단(`rect.top < 60`)만 기준으로 판단하여, 에디터 스크롤 컨테이너의 경계를 고려하지 않음
+
+#### 해결
+
+`measure()` 함수에서 trigger의 가장 가까운 overflow 부모(`overflow-y: auto|scroll|hidden`)를 탐색하여 스크롤 컨테이너 상단과 trigger 상단의 거리가 40px 미만이면 `bottom`으로 전환
+
+---
+
+</details>
+
+<details>
+<summary><strong>28. 에디터 툴바 active 상태 — wrapper 블록 감지 실패</strong></summary>
+
+#### 문제
+
+에디터에서 blockquote, code block, table 안에 커서를 놓아도 메인 툴바의 해당 버튼이 active 스타일로 바뀌지 않음
+
+#### 원인
+
+`useBlockInfo` 훅이 `editor.api.block()`으로 가장 가까운 블록을 가져오는데, wrapper 블록(blockquote, code_block, table) 안의 자식 블록(`p`, `code_line` 등)이 먼저 반환되어 `blockType`이 `"p"`나 `"code_line"`으로 설정됨
+
+#### 해결
+
+`blockType`이 `"p"` 또는 `"code_line"`일 때 `editor.api.above()`로 상위에 wrapper 블록이 있는지 추가 탐색. `["blockquote", "code_block", "table"]`을 순회하며 발견 시 `blockType`을 해당 타입으로 갱신
+
+---
 
 </details>
 
