@@ -93,7 +93,7 @@
   bottom: 0;
   height: 2px;
   background: var(--text-primary);
-  border-radius: 1px;
+  border-radius: var(--spacing-4xs);
 }
 
 @media (max-width: 768px) {

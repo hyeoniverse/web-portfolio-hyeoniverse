@@ -324,7 +324,7 @@
 }
 
 .demoBtn:hover {
-  border-color: var(--color-accent-alpha-30);
+  border-color: var(--border-accent);
   color: var(--text-accent);
 }
 
@@ -352,14 +352,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: var(--border-accent-alpha-30);
+  border: var(--border-accent);
   width: clamp(60px, 5.5vw, 90px);
   height: clamp(60px, 5.5vw, 90px);
   font-family: var(--font-mono);
   font-size: var(--_fs-small);
   color: var(--text-secondary);
   pointer-events: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 /* ── Demo 5: ClipPath Direction Reveal ── */
@@ -368,20 +368,20 @@
   position: relative;
   width: clamp(90px, 8vw, 140px);
   height: clamp(90px, 8vw, 140px);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 .demoClipBase {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: var(--border-tertiary);
+  border: var(--border-light);
   width: 100%;
   height: 100%;
   font-family: var(--font-mono);
   font-size: var(--_fs-small);
   color: var(--text-tertiary);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 .demoClipOverlay {
@@ -389,12 +389,12 @@
   align-items: center;
   justify-content: center;
   position: absolute;
-  background: var(--color-accent-alpha-30);
+  background: var(--bg-accent-strong);
   font-family: var(--font-mono);
   font-size: var(--_fs-small);
   color: var(--text-primary);
   inset: 0;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   will-change: clip-path;
 }
 
@@ -402,7 +402,7 @@
 /* 12 blocks per set × (40px + 6px gap) = 552px per set */
 .demoInfiniteTrack {
   display: flex;
-  gap: 6px;
+  gap: var(--spacing-xs);
   width: max-content;
   animation: demoMarquee 8s linear infinite;
 }
@@ -415,7 +415,7 @@
   flex-shrink: 0;
   width: 40px;
   height: 30px;
-  border-radius: 3px;
+  border-radius: var(--radius-2xs);
 }
 
 @keyframes demoMarquee {
@@ -444,7 +444,7 @@
   height: 2px;
   background: var(--text-tertiary);
   opacity: 0.2;
-  border-radius: 1px;
+  border-radius: var(--spacing-4xs);
 }
 
 .demoLoadingBar {
@@ -535,7 +535,7 @@
 
 .demoTestTitle {
   font-weight: 600;
-  color: var(--color-success);
+  color: var(--text-success);
   letter-spacing: 0.05em;
 }
 
@@ -562,7 +562,7 @@
 }
 
 .demoTestPass {
-  color: var(--color-success);
+  color: var(--text-success);
 }
 
 /* Compound selector (0,2,0) to override global theme transition */

@@ -15,6 +15,7 @@
   --text-muted: var(--color-neutral-500);
   --text-inverse: var(--color-neutral-0);
   --text-success: var(--color-success);
+  --text-error: var(--color-error);
   --text-accent: var(--color-accent);
   --text-accent-alt: var(--color-accent);
 }
@@ -36,15 +37,24 @@
   --bg-inverse-alt: var(--color-inverse-alpha-30);
 
   /* Accent */
+  --bg-accent-subtle: var(--color-accent-alpha-5);
+  --bg-accent-light: var(--color-accent-alpha-10);
   --bg-accent: var(--color-accent-alpha-20);
   --bg-accent-solid: var(--color-accent);
   --bg-accent-solid-light: var(--color-accent-light);
   --bg-accent-solid-dark: var(--color-accent-dark);
   --bg-success: var(--color-success-alpha);
+  --bg-success-solid: var(--color-success);
+  --bg-error: var(--color-error-alpha);
+  --bg-error-solid: var(--color-error);
+
+  --bg-accent-strong: var(--color-accent-alpha-30);
 
   /* Surface & Glass */
   --bg-surface: var(--color-gray-alpha-5);
+  --bg-glass-subtle: var(--color-white-alpha-5);
   --bg-glass: var(--color-white-alpha-10);
+  --bg-glass-strong: var(--color-white-alpha-30);
   --bg-overlay: var(--color-gray-alpha-50);
 
   /* Gradients - Neutral */
@@ -79,6 +89,11 @@
     var(--color-neutral-300) 100%
   );
 
+  /* Gradients - Accent Fade */
+  --bg-gradient-accent-fade: linear-gradient(
+    to right, transparent, var(--border-accent-strong-color), transparent
+  );
+
   /* Gradients - Accent Secondary */
   --bg-gradient-accent-horizontal: linear-gradient(
     90deg,
@@ -101,47 +116,54 @@
    Border Colors & Shorthands
    -------------------------------------------------------------------------- */
 :root {
-  /* Color primitives (shorthand base 이름과 1:1 대응) */
+  /* Border colors */
   --border-strong-color: var(--color-neutral-alpha-80);
   --border-default-color: var(--color-neutral-alpha-30);
   --border-light-color: var(--color-neutral-alpha-10);
   --border-white-color: var(--color-white-alpha-100);
   --border-black-color: var(--color-gray-alpha-100);
-  --border-accent-color: var(--color-accent-light);
+  --border-accent-light-color: var(--color-accent-alpha-20);
+  --border-accent-color: var(--color-accent-alpha-30);
+  --border-accent-strong-color: var(--color-accent);
+  --border-ghost-light-color: var(--color-white-alpha-10);
+  --border-ghost-color: var(--color-white-alpha-20);
+  --border-ghost-strong-color: var(--color-white-alpha-50);
+  --border-success-color: var(--color-success);
+  --border-neutral-light-color: var(--color-neutral-alpha-20);
 
-  /* Width scale */
+  /* Border width */
   --border-width-thin: 1px;
   --border-width-default: 1.5px;
   --border-width-thick: 2px;
   --border-width-thicker: 3px;
   --border-width-thickest: 4px;
 
-  /* Shorthands (1px 기본값; 두께 변경 시 컴포넌트에서 조합) */
-  --border-strong: 1px solid var(--border-strong-color);
-  --border-default: 1px solid var(--border-default-color);
+  /* Neutral borders */
   --border-light: 1px solid var(--border-light-color);
+  --border-light-2: 2px solid var(--border-light-color);
+  --border-default: 1px solid var(--border-default-color);
+  --border-strong: 1px solid var(--border-strong-color);
+  --border-strong-2: 2px solid var(--border-strong-color);
   --border-white: 1px solid var(--border-white-color);
   --border-inverse: 1px solid var(--border-white-color);
+  --border-neutral-light: 1px solid var(--border-neutral-light-color);
+
+  /* Accent borders (light → default → strong) */
+  --border-accent-light: 1px solid var(--border-accent-light-color);
   --border-accent: 1px solid var(--border-accent-color);
+  --border-accent-2: 2px solid var(--border-accent-color);
+  --border-accent-strong: 1px solid var(--border-accent-strong-color);
+  --border-accent-strong-2: 2px solid var(--border-accent-strong-color);
 
-  /* Text-color borders */
-  --border-primary: 1px solid var(--text-primary);
-  --border-secondary: 1px solid var(--text-secondary);
-  --border-tertiary: 1px solid var(--text-tertiary);
+  /* Ghost borders — on-dark (light → default → strong) */
+  --border-ghost-light: 1px solid var(--border-ghost-light-color);
+  --border-ghost: 1px solid var(--border-ghost-color);
+  --border-ghost-strong: 1px solid var(--border-ghost-strong-color);
 
-  /* Accent alpha borders */
-  --border-accent-solid: 1px solid var(--color-accent);
-  --border-accent-alpha-20: 1px solid var(--color-accent-alpha-20);
-  --border-accent-alpha-30: 1px solid var(--color-accent-alpha-30);
+  /* (removed: border-primary/secondary/tertiary → use strong/default/light) */
 
   /* Utility borders */
-  --border-success: 1px solid var(--color-success);
-  --border-neutral-alpha-20: 1px solid var(--color-neutral-alpha-20);
-  --border-white-alpha-5: 1px solid var(--color-white-alpha-5);
-  --border-white-alpha-10: 1px solid var(--color-white-alpha-10);
-  --border-white-alpha-15: 1px solid var(--color-white-alpha-15);
-  --border-white-alpha-50: 1px solid var(--color-white-alpha-50);
-  --border-gray-alpha-10: 1px solid var(--color-gray-alpha-10);
+  --border-success: 1px solid var(--border-success-color);
 }
 
 /* --------------------------------------------------------------------------

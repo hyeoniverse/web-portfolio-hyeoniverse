@@ -86,7 +86,7 @@
 }
 
 .dbListItem:hover {
-  border-bottom-color: var(--color-accent-alpha-30);
+  border-bottom-color: var(--border-accent);
 }
 
 .dbListItem:hover .dbNumber {
@@ -95,7 +95,7 @@
 
 .dbListItemActive {
   padding-left: var(--_space-block);
-  border-bottom-color: var(--color-accent-alpha-30);
+  border-bottom-color: var(--border-accent);
 }
 
 .dbListItem:last-child,
@@ -272,12 +272,12 @@
 }
 
 .dbKindApi {
-  border: var(--border-accent-alpha-30);
+  border: var(--border-accent);
   color: var(--text-accent);
 }
 
 .dbKindTable {
-  border: 1px solid var(--border-default);
+  border: var(--border-default);
   color: var(--text-tertiary);
 }
 
@@ -313,24 +313,18 @@
   color: var(--text-secondary);
 }
 
-.dbMethodGET {
-  color: #16a34a;
-  background: color-mix(in srgb, #16a34a 12%, transparent);
-}
+.dbMethodGET { --_method: #16a34a; }
+.dbMethodPOST { --_method: #3b82f6; }
+.dbMethodPATCH { --_method: #f59e0b; }
+.dbMethodDELETE { --_method: var(--color-error); }
 
-.dbMethodPOST {
-  color: #3b82f6;
-  background: color-mix(in srgb, #3b82f6 12%, transparent);
-}
-
-.dbMethodPATCH {
-  color: #f59e0b;
-  background: color-mix(in srgb, #f59e0b 12%, transparent);
-}
-
+.dbMethodGET,
+.dbMethodPOST,
+.dbMethodPATCH,
 .dbMethodDELETE {
-  color: #ef4444;
-  background: color-mix(in srgb, #ef4444 12%, transparent);
+  --_method-bg: color-mix(in srgb, var(--_method) 12%, transparent);
+  color: var(--_method);
+  background: var(--_method-bg);
 }
 
 .dbEndpointPath {

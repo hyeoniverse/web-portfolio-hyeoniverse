@@ -10,7 +10,7 @@
   display: inline-block;
   margin-bottom: var(--_space-block);
   padding: var(--box-xs-xl);
-  border: var(--border-accent-alpha-30);
+  border: var(--border-accent);
   width: fit-content;
   font-size: var(--_fs-label);
   font-weight: var(--font-weight-regular);
@@ -67,7 +67,7 @@
     transparent 70%
   );
   pointer-events: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   filter: blur(60px);
   animation: heroGlow 8s ease-in-out infinite alternate;
 }
@@ -88,8 +88,8 @@
   width: 0;
   height: 2px;
   margin-top: var(--spacing-lg);
-  background: var(--color-accent);
-  border-radius: 1px;
+  background: var(--bg-accent-solid);
+  border-radius: var(--spacing-4xs);
   opacity: 0;
 }
 

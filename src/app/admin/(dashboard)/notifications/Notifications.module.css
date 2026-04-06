@@ -36,11 +36,11 @@
   height: 22px;
   padding: 0 6px;
   border-radius: var(--radius-capsule);
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
-  color: white;
+  color: var(--text-white);
 }
 
 .headerActions {
@@ -60,8 +60,8 @@
 
 .actionBtnDanger {
   composes: actionBtn;
-  color: var(--color-accent);
-  border-color: var(--color-accent-alpha-20);
+  color: var(--text-accent);
+  border-color: var(--border-accent-light);
 }
 
 .empty {
@@ -92,17 +92,17 @@
 }
 
 .itemUnread {
-  background: var(--color-accent-alpha-20);
+  background: var(--bg-accent);
 }
 
 .itemUnread:hover {
-  background: var(--color-accent-alpha-20);
+  background: var(--bg-accent);
 }
 
 .icon {
   font-size: var(--font-size-md);
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: var(--spacing-3xs);
 }
 
 .body {
@@ -121,7 +121,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  margin-top: 2px;
+  margin-top: var(--spacing-3xs);
   white-space: pre-wrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -139,22 +139,22 @@
 
 .itemDate {
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
 }
 
 .itemLink {
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
-  color: var(--color-accent);
+  font-size: var(--font-size-xs);
+  color: var(--text-accent);
   text-decoration: none;
 }
 
 .dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
-  background: var(--color-accent);
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
   flex-shrink: 0;
-  margin-top: 6px;
+  margin-top: var(--spacing-xs);
 }

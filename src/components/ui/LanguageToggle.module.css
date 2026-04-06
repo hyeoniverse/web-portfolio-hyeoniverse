@@ -2,10 +2,10 @@
 .toggle {
   display: flex;
   align-items: center;
-  padding: 2px;
+  padding: var(--spacing-3xs);
   border: var(--border-strong);
   position: relative;
-  background: var(--color-white-alpha-1);
+  background: var(--bg-glass-subtle);
   border-radius: var(--radius-capsule);
   user-select: none;
 }
@@ -29,7 +29,7 @@
 
 /* Button-like spans */
 .btn {
-  padding: 6px 14px;
+  padding: var(--box-xs-sm);
   position: relative;
   z-index: 2;
   font-family: var(--font-space-grotesk), sans-serif;

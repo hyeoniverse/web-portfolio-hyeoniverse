@@ -115,7 +115,7 @@
 }
 
 .nav .card:hover .title {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 @media (max-width: 768px) {

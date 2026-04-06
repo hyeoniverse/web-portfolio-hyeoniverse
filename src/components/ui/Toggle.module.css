@@ -18,7 +18,7 @@
   width: 44px;
   height: 24px;
   border: var(--border-light);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--bg-tertiary);
   padding: 0;
   flex-shrink: 0;
@@ -30,7 +30,7 @@
   left: 2px;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--text-primary);
   transition: transform var(--duration-base) var(--ease-material),
               background-color var(--duration-base) var(--ease-material);

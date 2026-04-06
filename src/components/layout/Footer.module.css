@@ -61,7 +61,7 @@
   right: calc(100% + 5px);
   top: 50%;
   transform: translateY(-50%) translateX(-3px);
-  font-size: 5px;
+  font-size: var(--font-size-dot);
   color: var(--text-primary);
   transition: transform var(--duration-base) ease !important;
 }
@@ -72,7 +72,7 @@
   left: calc(100% + 5px);
   top: 50%;
   transform: translateY(-50%) translateX(3px);
-  font-size: 5px;
+  font-size: var(--font-size-dot);
   color: var(--text-primary);
   transition: transform var(--duration-base) ease !important;
 }
@@ -121,7 +121,7 @@
 .email::after {
   position: absolute;
   top: 50%;
-  font-size: 5px;
+  font-size: var(--font-size-dot);
   color: currentColor;
   opacity: 0;
   /* !important: 전역 theme transition 오버라이드 */
@@ -188,7 +188,7 @@
 .visitDot {
   width: 3px;
   height: 3px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--text-muted);
 }
 

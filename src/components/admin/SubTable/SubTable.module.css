@@ -117,7 +117,7 @@
 .tableHeader {
   display: grid;
   gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) var(--spacing-2xs);
+  padding: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -143,7 +143,7 @@
 .row {
   display: grid;
   gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-2xs);
+  padding: var(--box-sm-xs);
   border-bottom: var(--border-light);
   align-items: center;
 }
@@ -193,7 +193,7 @@
   justify-content: center;
   background: var(--bg-tertiary);
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
 }
 
 .colTitle {
@@ -221,7 +221,7 @@
 .actionBtn {
   flex-shrink: 0;
   padding: var(--box-2xs-md);
-  border: var(--border-primary);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -239,22 +239,22 @@
 .dangerBtn {
   flex-shrink: 0;
   padding: var(--box-2xs-md);
-  border: var(--border-accent-solid);
+  border: var(--border-accent-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .section .dangerBtn:hover {
-  background: var(--color-accent-alpha-10);
+  background: var(--bg-accent-light);
 }
 
 /* ── Status badge ── */
 .statusBadge {
   display: inline-block;
-  padding: 2px var(--spacing-xs);
+  padding: var(--box-3xs-xs);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -262,12 +262,12 @@
 }
 
 .published {
-  background: var(--color-success-alpha);
-  color: var(--color-success);
+  background: var(--bg-success);
+  color: var(--text-success);
 }
 
 .draft {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
 }
 
@@ -285,7 +285,7 @@
 
 /* ── Accent text ── */
 .accentText {
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: 500;
 }
 

@@ -134,7 +134,7 @@
   font-family: var(--font-instrument), serif;
   font-size: clamp(11px, 1.1vw, var(--font-size-md));
   font-weight: var(--font-weight-regular);
-  color: var(--color-neutral-0);
+  color: var(--text-inverse);
   line-height: var(--line-height-tight);
   letter-spacing: -0.01em;
 }
@@ -143,7 +143,7 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: clamp(8px, 0.7vw, var(--font-size-3xs));
   font-weight: var(--font-weight-medium);
-  color: var(--color-neutral-0);
+  color: var(--text-inverse);
   opacity: 0.7;
   text-transform: uppercase;
   letter-spacing: 0.08em;

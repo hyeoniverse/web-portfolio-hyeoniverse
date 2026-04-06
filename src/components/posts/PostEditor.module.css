@@ -194,7 +194,7 @@
 }
 
 .seriesOrderItemCurrent {
-  background: var(--color-accent-alpha-5);
+  background: var(--bg-accent-subtle);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
 }
@@ -209,7 +209,7 @@
 }
 
 .seriesOrderItemCurrent .seriesOrderNum {
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: var(--font-weight-bold);
 }
 
@@ -288,7 +288,7 @@
   height: 36px;
   flex-shrink: 0;
   border: var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-md);
@@ -334,7 +334,7 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .coverActions {
@@ -392,7 +392,7 @@
 .slugHint {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 
@@ -448,12 +448,12 @@
 }
 
 .editorLabelError {
-  color: var(--color-accent) !important;
+  color: var(--text-accent) !important;
 }
 
 .editorLabelError::after {
   content: "•";
-  margin-left: 4px;
+  margin-left: var(--spacing-2xs);
 }
 
 .templateBtn {
@@ -476,11 +476,11 @@
   width: 22px;
   height: 22px;
   flex-shrink: 0;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: var(--border-light);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
   color: var(--text-primary);
   display: flex;
@@ -512,7 +512,7 @@
 
 .helpSectionTitle {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -523,7 +523,7 @@
 .helpRows {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--spacing-xs);
 }
 
 .helpRow {
@@ -537,16 +537,16 @@
 
 .helpKbd {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-primary);
   background: var(--bg-tertiary);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
-  padding: 1px 5px;
+  padding: var(--spacing-4xs) var(--spacing-2xs);
   white-space: nowrap;
 }
 
 .helpDesc {
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
 }

@@ -54,7 +54,7 @@
 .decorLine {
   position: absolute;
   height: 1px;
-  background: var(--border-tertiary);
+  background: var(--border-light-color);
   transform-origin: left center;
 }
 
@@ -167,7 +167,7 @@
   position: absolute;
   inset: -6px;
   border-radius: inherit;
-  background: var(--color-accent-light-alpha-60);
+  background: var(--bg-accent-solid-light);
   animation: pulse 2s infinite;
   will-change: transform, opacity;
 }
@@ -245,7 +245,7 @@
   }
 
   .content {
-    padding-bottom: 100px;
+    padding-bottom: var(--spacing-6xl);
   }
 
   .meta {
@@ -305,7 +305,7 @@
   .scrollLineWrapper {
     flex-shrink: 0;
     transform: rotate(90deg);
-    margin-left: 20px;
+    margin-left: var(--spacing-lg);
   }
 }
 

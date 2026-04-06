@@ -18,7 +18,7 @@
   );
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 @keyframes shimmer {

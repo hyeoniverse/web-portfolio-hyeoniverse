@@ -75,8 +75,8 @@
 }
 
 .topBarRow .deleteBtn:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 /* ── Action Group (icon buttons grouped together) ── */
@@ -117,11 +117,11 @@
 }
 
 .errorBanner {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .successBanner {
-  color: var(--color-success);
+  color: var(--text-success);
 }
 
 .statusTime {
@@ -143,7 +143,7 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
 }
 
 .revisionEmpty {
@@ -310,7 +310,7 @@
   border: none;
   background: transparent;
   color: var(--text-tertiary);
-  padding: 2px;
+  padding: var(--spacing-3xs);
 }
 
 .revisionDetailActions .revisionDeleteBtn:hover {
@@ -324,7 +324,7 @@
   border: none;
   background: transparent;
   color: var(--text-tertiary);
-  padding: 2px;
+  padding: var(--spacing-3xs);
 }
 
 .revisionItem .revisionItemDelete {
@@ -341,12 +341,12 @@
 }
 
 .revisionRestoreBtn {
-  padding: 2px var(--spacing-xs);
+  padding: var(--box-3xs-xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   flex-shrink: 0;
 }
@@ -392,7 +392,7 @@
 .revisionBackBtn {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -411,7 +411,7 @@
 .revisionDetailMeta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-xs);
 }
 
@@ -435,7 +435,7 @@
   padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-sm);
   border-top: var(--border-light);
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   line-height: 1.6;
   white-space: pre-wrap;
@@ -448,7 +448,7 @@
   border-top: var(--border-light);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .revisionMetaRow {
@@ -456,7 +456,7 @@
   align-items: baseline;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   line-height: 1.4;
 }
 
@@ -473,17 +473,17 @@
 
 /* ── Diff ── */
 .diffDel {
-  background: var(--color-accent-alpha-10);
-  color: var(--color-accent);
-  border-radius: 2px;
-  padding-inline: 2px;
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  border-radius: var(--radius-2xs);
+  padding-inline: var(--spacing-3xs);
 }
 
 .diffAdd {
-  background: var(--color-success-alpha-10, rgba(34, 197, 94, 0.1));
-  color: var(--color-success);
-  border-radius: 2px;
-  padding-inline: 2px;
+  background: var(--bg-success);
+  color: var(--text-success);
+  border-radius: var(--radius-2xs);
+  padding-inline: var(--spacing-3xs);
 }
 
 .diffPrefix {
@@ -514,20 +514,20 @@
 }
 
 .titleInputError {
-  border-color: var(--color-accent) !important;
+  border-color: var(--text-accent) !important;
 }
 
 .fieldInputError {
-  border-color: var(--color-accent) !important;
+  border-color: var(--text-accent) !important;
 }
 
 .fieldLabelError {
-  color: var(--color-accent) !important;
+  color: var(--text-accent) !important;
 }
 
 .fieldLabelError::after {
   content: "•";
-  margin-left: 4px;
+  margin-left: var(--spacing-2xs);
 }
 
 .titleInput::placeholder {
@@ -596,7 +596,7 @@
 .tagMore {
   display: inline-flex;
   align-items: center;
-  padding: 2px var(--spacing-xs);
+  padding: var(--box-3xs-xs);
   background: var(--bg-secondary);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -642,8 +642,8 @@
 .tag {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px var(--spacing-xs);
+  gap: var(--spacing-2xs);
+  padding: var(--box-3xs-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
@@ -661,7 +661,7 @@
 }
 
 .tags .tagRemove:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 /* ── Upload Button ── */

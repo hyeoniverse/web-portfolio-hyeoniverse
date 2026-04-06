@@ -93,7 +93,7 @@
 
 .textarea::-webkit-scrollbar-thumb {
   background: var(--border-strong-color);
-  border-radius: 3px;
+  border-radius: var(--radius-2xs);
 }
 
 .textarea::-webkit-scrollbar-thumb:hover {
@@ -137,7 +137,7 @@
 
 .preview::-webkit-scrollbar-thumb {
   background: var(--border-strong-color);
-  border-radius: 3px;
+  border-radius: var(--radius-2xs);
 }
 
 .preview::-webkit-scrollbar-thumb:hover {
@@ -191,7 +191,7 @@
 .preview code {
   font-family: var(--font-mono);
   font-size: 0.9em;
-  padding: 2px 6px;
+  padding: var(--box-3xs-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
 }
@@ -285,8 +285,8 @@
   margin-bottom: 0;
 }
 
-.preview :global(.markdown-alert-title) { color: var(--color-accent); }
-.preview :global(.markdown-alert-title) svg { color: var(--color-accent); }
+.preview :global(.markdown-alert-title) { color: var(--text-accent); }
+.preview :global(.markdown-alert-title) svg { color: var(--text-accent); }
 
 /* Footnote ref */
 .preview sup:has(:global([data-footnote-ref])) {
@@ -298,7 +298,7 @@
 }
 
 .preview :global([data-footnote-ref]) {
-  color: var(--color-accent);
+  color: var(--text-accent);
   text-decoration: none;
   font: inherit;
 }
@@ -350,7 +350,7 @@
 
 .preview :global(.footnotes) li::before {
   content: attr(data-label) ".";
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -361,7 +361,7 @@
 
 .preview :global([data-footnote-backref]) {
   text-decoration: none;
-  color: var(--color-accent);
+  color: var(--text-accent);
   margin-left: var(--spacing-2xs);
 }
 
@@ -395,15 +395,15 @@
 
 .editorActions {
   display: flex;
-  gap: 4px;
+  gap: var(--spacing-2xs);
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 2px;
-  padding: 4px 6px;
+  gap: var(--spacing-3xs);
+  padding: var(--box-xs);
   border: none;
   border-bottom: var(--border-light);
   border-radius: 0;
@@ -422,13 +422,13 @@
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   line-height: 1;
 }
 
 .tbBtn:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
   border-radius: var(--radius-circle);
 }
@@ -451,33 +451,33 @@
   padding: var(--spacing-xs);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .tbTableRow {
   display: flex;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .tbTableCell {
   width: 16px;
   height: 16px;
   border: var(--border-light);
-  border-radius: 2px;
+  border-radius: var(--radius-2xs);
   background: transparent;
   padding: 0;
 }
 
 .tbTableCell:hover,
 .tbTableCellActive {
-  background: var(--color-accent-alpha-20);
-  border-color: var(--color-accent);
+  background: var(--bg-accent);
+  border-color: var(--text-accent);
 }
 
 .tbTableLabel {
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
   margin-top: var(--spacing-3xs);
 }
@@ -497,11 +497,11 @@
   width: 24px;
   height: 24px;
   border: var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-muted);
   font-family: var(--font-space-grotesk);
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   transition: color 0.15s, border-color 0.15s;
 }
@@ -541,7 +541,7 @@
 .helpGrid {
   display: grid;
   grid-template-columns: auto 1fr auto 1fr;
-  gap: 2px var(--spacing-sm);
+  gap: var(--spacing-3xs) var(--spacing-sm);
 }
 
 .helpRow {
@@ -549,12 +549,12 @@
   grid-template-columns: subgrid;
   grid-column: span 2;
   align-items: baseline;
-  padding: 2px 0;
+  padding: var(--box-y-xs);
 }
 
 .helpSyntax {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-accent);
   white-space: pre;
   flex-shrink: 0;
@@ -562,7 +562,7 @@
 
 .helpDesc {
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
 }
 

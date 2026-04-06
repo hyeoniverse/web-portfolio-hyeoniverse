@@ -37,9 +37,9 @@
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  padding: 4px 12px;
+  padding: var(--box-sm);
   background: var(--bg-surface);
-  border: 1px solid var(--border-default);
+  border: var(--border-default);
   border-radius: var(--radius-sm);
 }
 

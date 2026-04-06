@@ -75,7 +75,7 @@
 }
 
 .tag {
-  padding: 2px var(--spacing-sm);
+  padding: var(--box-3xs-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
@@ -128,7 +128,7 @@
 }
 
 .prose a {
-  color: var(--color-accent);
+  color: var(--text-accent);
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
@@ -182,14 +182,14 @@
   color: var(--text-secondary);
   margin: var(--spacing-xl) 0;
   font-style: italic;
-  background: var(--color-accent-alpha-5);
+  background: var(--bg-accent-subtle);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
 .prose code {
   font-family: var(--font-mono);
   font-size: 0.88em;
-  padding: 2px 6px;
+  padding: var(--box-3xs-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
 }
@@ -276,7 +276,7 @@
 
 /* ── Footnote (RichText) ── */
 .prose sup[data-footnote-ref] {
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-xs);
   font-family: var(--font-mono);
@@ -346,8 +346,8 @@
 
 .prose :global(.footnotes) li::before {
   content: counter(footnote) ".";
-  color: var(--color-accent);
-  font-weight: 600;
+  color: var(--text-accent);
+  font-weight: var(--font-weight-semibold);
   flex-shrink: 0;
 }
 
@@ -357,13 +357,13 @@
 
 .prose :global([data-footnote-backref]) {
   text-decoration: none;
-  color: var(--color-accent);
+  color: var(--text-accent);
   margin-left: var(--spacing-2xs);
 }
 
 .prose :global([data-footnote-ref]) {
-  color: var(--color-accent);
-  font-weight: 600;
+  color: var(--text-accent);
+  font-weight: var(--font-weight-semibold);
   text-decoration: none;
 }
 
@@ -401,8 +401,8 @@
   margin-bottom: 0;
 }
 
-.prose :global(.markdown-alert-title) { color: var(--color-accent); }
-.prose :global(.markdown-alert-title) svg { color: var(--color-accent); }
+.prose :global(.markdown-alert-title) { color: var(--text-accent); }
+.prose :global(.markdown-alert-title) svg { color: var(--text-accent); }
 
 /* ── Series navigation ── */
 .seriesBox {
@@ -424,14 +424,14 @@
 }
 
 .seriesBox .seriesHeader:hover .seriesTitle {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .seriesLabel {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-accent);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   flex-shrink: 0;
@@ -510,7 +510,7 @@
 }
 
 .seriesItem a:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .seriesItemCurrent {
@@ -523,7 +523,7 @@
 
 .seriesIndicator {
   display: flex;
-  color: var(--color-accent);
+  color: var(--text-accent);
   flex-shrink: 0;
   line-height: 1;
   width: 0;
@@ -595,7 +595,7 @@
 .seriesNavBadge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -617,7 +617,7 @@
 }
 
 .seriesNav .seriesNavLink:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .seriesNav .seriesNavLink:hover .seriesNavArrow {
@@ -629,7 +629,7 @@
 }
 
 .seriesNav .seriesNavLink:hover .seriesNavBadge {
-  border-color: var(--color-accent);
+  border-color: var(--border-accent-color);
 }
 
 .seriesNavRight {
@@ -679,7 +679,7 @@
 .seriesPreviewTitle {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -703,22 +703,22 @@
 .seriesPreviewTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   margin-bottom: var(--spacing-xs);
 }
 
 .seriesPreviewTag {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
 }
 
 .seriesPreviewDate {
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
 }
 
@@ -826,7 +826,7 @@
 .relatedCardCategory {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-3xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .relatedCardTitle {
@@ -858,7 +858,7 @@
 }
 
 .relatedSection .relatedCard:hover .relatedCardTitle {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 /* ── Recommended posts ── */
@@ -941,7 +941,7 @@
 }
 
 .recommendedSection .recommendedItem:hover .recommendedItemTitle {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .recommendedItemCategory {
@@ -1003,7 +1003,7 @@
 
 .trashBarRestore {
   padding: var(--box-3xs-sm);
-  border: var(--border-primary);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1018,16 +1018,16 @@
 
 .trashBarPurge {
   padding: var(--box-3xs-sm);
-  border: var(--border-accent-solid);
+  border: var(--border-accent-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .trashBarPurge:hover {
-  background: var(--color-accent-alpha-10);
+  background: var(--bg-accent-light);
 }
 
 /* ── Translation banner ── */
@@ -1062,7 +1062,7 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   letter-spacing: 0.02em;
 }
@@ -1078,8 +1078,8 @@
 
 .translateErrorMsg {
   flex-shrink: 0;
-  font-size: var(--text-xs);
-  color: var(--color-error, #e53935);
+  font-size: var(--font-size-xs);
+  color: var(--text-error);
   margin: 0;
 }
 
@@ -1119,7 +1119,7 @@
 }
 
 .footerNav .footerLink:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .footerNav .footerLink:hover .footerArrow {
@@ -1188,7 +1188,7 @@
   width: 12px;
   height: 1.5px;
   background: var(--text-tertiary);
-  border-radius: 2px;
+  border-radius: var(--radius-2xs);
 }
 
 .toastClose .toastCloseLine {
@@ -1254,7 +1254,7 @@
 }
 
 .toast .toastItem:hover .toastTitle {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 @media (max-width: 768px) {

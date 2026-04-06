@@ -35,5 +35,5 @@
 }
 
 .remove:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }

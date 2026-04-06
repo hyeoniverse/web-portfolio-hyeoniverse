@@ -24,7 +24,7 @@
 
 /* Shapes */
 .box.circle {
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 .box.square {
@@ -38,8 +38,8 @@
 
 /* Checked — circle */
 .box.circle.checked {
-  background: var(--color-success);
-  border-color: var(--color-success);
+  background: var(--bg-success-solid);
+  border-color: var(--text-success);
 }
 
 /* Checked — square */

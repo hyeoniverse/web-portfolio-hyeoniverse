@@ -52,12 +52,12 @@
 }
 
 .adminBadge {
-  padding: 1px var(--spacing-2xs);
+  padding: var(--spacing-4xs) var(--spacing-2xs);
   border-radius: var(--radius-sm);
-  background: var(--color-accent-alpha-10);
-  font-size: 10px;
+  background: var(--bg-accent-light);
+  font-size: var(--font-size-2xs);
   font-weight: 500;
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .time {

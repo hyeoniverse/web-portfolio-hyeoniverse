@@ -9,6 +9,12 @@ body,
   box-sizing: border-box;
 }
 
+/* 커스텀 커서 활성 시 시스템 커서 숨김 (데스크탑 only) */
+html.custom-cursor,
+html.custom-cursor * {
+  cursor: none !important;
+}
+
 html,
 body {
   height: 100%;

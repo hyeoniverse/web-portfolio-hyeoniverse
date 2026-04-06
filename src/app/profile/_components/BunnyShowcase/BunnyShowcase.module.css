@@ -29,7 +29,7 @@
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 500;
-  color: var(--color-accent);
+  color: var(--text-accent);
   text-transform: uppercase;
   letter-spacing: 0.15em;
 }
@@ -83,7 +83,7 @@
   gap: var(--spacing-xs);
   flex: 1;
   padding: var(--box-md-sm);
-  border: 1px solid var(--border-default);
+  border: var(--border-default);
   border-radius: var(--radius-lg);
   background: transparent;
   text-align: center;
@@ -91,7 +91,7 @@
 
 /* Active card — accent outline */
 .exprBar .exprCard[data-active] {
-  border-color: var(--color-accent);
+  border-color: var(--text-accent);
 }
 
 /* Face SVG area — bunny silhouette */
@@ -103,10 +103,10 @@
   justify-content: center;
   width: 56px;
   height: 40px;
-  margin-top: 28px;
+  margin-top: var(--spacing-2xl);
   color: var(--text-primary);
   background: var(--_bunny-bg);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   z-index: 0;
 }
 
@@ -140,12 +140,12 @@
 }
 
 .exprCardActive .exprFace {
-  --_bunny-bg: color-mix(in srgb, var(--color-accent) 10%, var(--color-neutral-100));
-  color: var(--color-accent);
+  --_bunny-bg: color-mix(in srgb, var(--bg-accent-solid) 10%, var(--bg-secondary));
+  color: var(--text-accent);
 }
 
 .exprCardActive .exprLabel {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 /* Description */

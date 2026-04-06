@@ -13,9 +13,9 @@
 .busySpinner {
   width: 24px;
   height: 24px;
-  border: 2px solid var(--border-light-color);
+  border: var(--border-light-2);
   border-top-color: var(--text-primary);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   animation: busySpin 0.6s linear infinite;
 }
 
@@ -52,10 +52,10 @@
 }
 
 .seriesRowCat {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
 }
 
 .seriesNewBtn {
@@ -161,7 +161,7 @@
 
 .uploadGuide th,
 .uploadGuide td {
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--box-3xs-xs);
   border-bottom: var(--border-light);
   text-align: left;
 }

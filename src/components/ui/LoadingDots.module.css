@@ -1,13 +1,13 @@
 .dots {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-3xs);
 }
 
 .loadingDot {
   width: 4px;
   height: 4px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: currentColor;
   animation: bounce 1.2s ease-in-out infinite;
 }

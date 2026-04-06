@@ -25,14 +25,14 @@
    ========================================================================== */
 
 .toast {
-  padding: 16px 28px;
-  border: var(--border-white-alpha-10);
+  padding: var(--spacing-md) var(--spacing-2xl);
+  border: var(--border-ghost-light);
   box-shadow: 0 10px 40px var(--color-gray-alpha-30);
   position: fixed;
   bottom: 40px;
   left: 50%;
   z-index: var(--z-top);
-  background: var(--color-neutral-alpha-95);
+  background: var(--bg-primary-alt);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   color: var(--text-white);

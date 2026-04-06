@@ -190,7 +190,7 @@
   align-self: flex-start;
   background: transparent;
   border-radius: var(--radius-capsule);
-  padding: 2px;
+  padding: var(--spacing-3xs);
   padding-top: calc(var(--header-height) + var(--spacing-2xl) - var(--_panel-py));
   mix-blend-mode: difference;
 }
@@ -512,7 +512,7 @@
   font-family: var(--font-mono);
   font-size: var(--_fs-small, 0.8rem);
   font-weight: var(--font-weight-medium);
-  color: var(--color-white-alpha-40);
+  color: var(--text-white-tertiary);
   white-space: nowrap;
 }
 
@@ -538,7 +538,7 @@
   width: 100%;
   height: 2px;
   background: var(--bg-white);
-  border-radius: 1px;
+  border-radius: var(--spacing-4xs);
 }
 
 .mobileTabActions {
@@ -553,7 +553,7 @@
 
 @media (max-width: 1024px), (max-height: 700px) {
   .section {
-    padding-top: 80px;
+    padding-top: var(--spacing-5xl);
     overflow: visible;
     height: auto;
     min-height: 100vh;
@@ -598,7 +598,7 @@
     pointer-events: auto;
     font-family: var(--font-mono);
     font-size: var(--_fs-small, 0.8rem);
-    color: var(--color-white-alpha-40);
+    color: var(--text-white-tertiary);
   }
 
   .mobileTabActions:empty {
@@ -696,7 +696,7 @@
 
   /* nav(80) + tab(40) + 여백 = 160px — pin 콘텐츠를 헤더+탭 아래로 밀기 */
   .pinnedContent > .pinnedTitleRow {
-    padding-top: 160px;
+    padding-top: 10rem;
   }
 }
 

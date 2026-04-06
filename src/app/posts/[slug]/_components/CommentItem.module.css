@@ -18,13 +18,13 @@
 }
 
 .adminBadge {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
-  background: var(--color-accent-alpha-20);
+  background: var(--bg-accent);
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: 500;
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .date {
@@ -76,7 +76,7 @@
 }
 
 .comment .deleteBtn:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 /* Nested replies */
@@ -116,12 +116,12 @@
 
 .deleteConfirm {
   padding: var(--box-sm);
-  border: var(--border-accent-alpha-20);
+  border: var(--border-accent-light);
   border-radius: var(--radius-sm);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .deleteCancel {
@@ -136,5 +136,5 @@
 .deleteError {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }

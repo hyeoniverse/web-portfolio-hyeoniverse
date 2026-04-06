@@ -49,14 +49,14 @@
   margin: 0;
   font-size: var(--_fs-small);
   line-height: var(--_lh-reading);
-  color: var(--color-white-alpha-90);
+  color: var(--text-white);
   text-shadow: 0 1px 3px var(--color-gray-alpha-40);
 }
 
 .featureDfTech {
   margin: 0;
   font-size: var(--_fs-label);
-  color: var(--color-white-alpha-70);
+  color: var(--text-white-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-shadow: 0 1px 3px var(--color-gray-alpha-40);
@@ -104,7 +104,7 @@
   transition:
     color var(--duration-moderate) ease,
     border-color var(--duration-moderate) ease;
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
 .featureFolderTab::after {
@@ -124,7 +124,7 @@
 }
 
 .featureFolder:hover .featureFolderTab {
-  border-color: var(--color-accent-alpha-30);
+  border-color: var(--border-accent);
   color: var(--text-accent);
 }
 
@@ -146,7 +146,7 @@
 }
 
 .featureFolder:hover .featureFolderCard {
-  border-color: var(--color-accent-alpha-30);
+  border-color: var(--border-accent);
 }
 
 .featureFolderDesc {
@@ -182,7 +182,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    margin-top: 120px; /* nav(80) + tab(40) — 헤더+탭 아래로 밀기 */
+    margin-top: var(--spacing-5xl); /* nav(80) + tab(40) — 헤더+탭 아래로 밀기 */
     /* padding-top is set dynamically by JS so the last card's
        tab aligns with the viewport bottom */
   }
@@ -204,7 +204,7 @@
     position: relative;
     z-index: 1;
     font-size: var(--_fs-subhead);
-    border-radius: 18px 18px 0 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
 
   .featureFolderWrap .featureFolderTab::after {

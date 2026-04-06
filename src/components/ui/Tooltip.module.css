@@ -5,8 +5,8 @@
 /* compound selector (0,2,0) — 글로벌 theme transition 우회 */
 .bubble {
   max-width: 280px;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: var(--box-xs);
+  border-radius: var(--radius-sm);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk);
@@ -51,5 +51,5 @@
 .langLabel {
   font-size: 0.85em;
   font-weight: var(--font-weight-medium);
-  margin-right: 4px;
+  margin-right: var(--spacing-2xs);
 }

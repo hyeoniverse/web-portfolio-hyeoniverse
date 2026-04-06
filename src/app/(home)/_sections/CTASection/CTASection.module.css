@@ -101,7 +101,7 @@
   position: absolute;
   inset: -6px;
   border-radius: inherit;
-  background: var(--color-accent-light-alpha-60);
+  background: var(--bg-accent-solid-light);
   animation: pulse 2s infinite;
   will-change: transform, opacity;
 }

@@ -58,7 +58,7 @@
 .sheetHandleBar {
   width: 40px;
   height: 5px;
-  border-radius: 99px;
+  border-radius: var(--radius-capsule);
   background: var(--text-muted);
 }
 

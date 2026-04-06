@@ -33,13 +33,13 @@
 }
 
 .adminBadge {
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
-  background: var(--color-accent-alpha-20);
+  background: var(--bg-accent);
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: 500;
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .date {
@@ -108,7 +108,7 @@
   padding: 0;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-3xs);
 }
 
 .comment .translateBtn:hover {
@@ -129,16 +129,16 @@
   padding: 0;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-3xs);
   margin-left: auto;
 }
 
 .comment .likeBtn:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .likeBtnLiked {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .likeCount {
@@ -150,7 +150,7 @@
 }
 
 .comment .deleteBtn:hover {
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 /* Nested replies */
@@ -198,12 +198,12 @@
 
 .deleteConfirm {
   padding: var(--box-2xs-md);
-  border: var(--border-accent-alpha-20);
+  border: var(--border-accent-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 .deleteCancel {
@@ -219,7 +219,7 @@
 .deleteError {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 /* Edit mode */
@@ -256,7 +256,7 @@
 
 .editSubmitBtn {
   padding: var(--box-2xs-md);
-  border: var(--border-primary);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -287,5 +287,5 @@
 .editError {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--color-accent);
+  color: var(--text-accent);
 }
