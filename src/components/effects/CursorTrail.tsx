@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./CursorTrail.module.css";
 
-type CursorType = "big" | "text" | "grab" | "disabled" | "stop" | "";
+type CursorType = "big" | "text" | "grab" | "resize" | "resizeH" | "resizeV" | "resizeDiag" | "disabled" | "stop" | "";
 
 /* ---------------- 헬퍼 함수 ---------------- */
 
@@ -48,6 +48,7 @@ export default function CursorTrail() {
   const [isClicking, setIsClicking] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [cursorType, setCursorType] = useState<CursorType>("");
+  const cursorTypeRef = useRef<CursorType>("");
   const [isMore, setMore] = useState(false);
 
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -56,6 +57,13 @@ export default function CursorTrail() {
   const scaleRef = useRef(0);
   const angleRef = useRef(0);
   const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (isTouch) return;
+
+    document.documentElement.classList.add("custom-cursor");
+    return () => { document.documentElement.classList.remove("custom-cursor"); };
+  }, [isTouch]);
 
   useEffect(() => {
     if (isTouch) return;
@@ -120,12 +128,19 @@ export default function CursorTrail() {
 
       const dataCursor = target?.closest("[data-cursor]")?.getAttribute("data-cursor") as CursorType | null;
 
-      if (isDraggable) setCursorType("grab");
-      else if (isDisabled) setCursorType("disabled");
-      else if (isClickable) setCursorType("big");
-      else if (dataCursor) setCursorType(dataCursor);
-      else if (isText) setCursorType("text");
-      else setCursorType("");
+      const next: CursorType = isDraggable ? "grab"
+        : isDisabled ? "disabled"
+        : isClickable ? "big"
+        : dataCursor ? dataCursor
+        : isText ? "text"
+        : "";
+
+      cursorTypeRef.current = next;
+      if (next === "resize" || next === "resizeH" || next === "resizeV" || next === "resizeDiag") {
+        angleRef.current = 0;
+        scaleRef.current = 0;
+      }
+      setCursorType(next);
     };
 
     const handleMouseMove = (e: PointerEvent) => {
@@ -178,18 +193,22 @@ export default function CursorTrail() {
 
       const velocity = Math.min(Math.sqrt(dx * dx + dy * dy) * 4, 150);
 
-      /* 스케일 */
-      const targetScale = (velocity / 150) * 0.5;
-      scaleRef.current += (targetScale - scaleRef.current) * speed;
-      const scale = `scale(${1 + scaleRef.current}, ${1 - scaleRef.current})`;
+      /* resize 모드에서는 회전/스케일 비활성화 */
+      const ct = cursorTypeRef.current;
+      const isResize = ct === "resize" || ct === "resizeH" || ct === "resizeV" || ct === "resizeDiag";
 
-      /* 회전 */
-      if (velocity > 20) {
-        angleRef.current = (Math.atan2(dy, dx) * 180) / Math.PI;
+      if (isResize) {
+        angleRef.current = 0;
+        scaleRef.current = 0;
+        el.style.transform = translate;
+      } else {
+        const targetScale = (velocity / 150) * 0.5;
+        scaleRef.current += (targetScale - scaleRef.current) * speed;
+        if (velocity > 20) {
+          angleRef.current = (Math.atan2(dy, dx) * 180) / Math.PI;
+        }
+        el.style.transform = `${translate} rotate(${angleRef.current}deg) scale(${1 + scaleRef.current}, ${1 - scaleRef.current})`;
       }
-      const rotate = `rotate(${angleRef.current}deg)`;
-
-      el.style.transform = `${translate} ${rotate} ${scale}`;
 
       rafRef.current = requestAnimationFrame(animate);
     };
