@@ -1,0 +1,91 @@
+/* ==========================================================================
+   TOC (Table of Contents) — 공통 사이드바 컴포넌트
+   ========================================================================== */
+
+.toc {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-space-grotesk), sans-serif;
+  max-height: 60vh;
+  overflow-y: auto;
+  z-index: var(--z-float);
+}
+
+/* 위치 variant */
+.left {
+  left: 2vw;
+}
+
+.right {
+  right: max(20px, calc(50% - 770px));
+  width: 180px;
+}
+
+.title {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--spacing-md);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: var(--border-light);
+}
+
+.link {
+  display: block;
+  padding: var(--box-2xs-md);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  line-height: var(--line-height-normal);
+  border-left: 2px solid transparent;
+  margin-left: -1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    opacity var(--duration-fast) ease;
+}
+
+.toc .link:hover {
+  color: var(--text-primary);
+}
+
+.active {
+  color: var(--text-accent);
+  border-left-color: var(--border-accent-strong-color);
+}
+
+/* heading level indent */
+.level2 {
+  padding-left: var(--spacing-xl);
+}
+
+.level3 {
+  padding-left: var(--spacing-2xl);
+  font-size: var(--font-size-xs);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1540px) {
+  .right {
+    display: none;
+  }
+}
+
+@media (max-width: 1200px) {
+  .left {
+    display: none;
+  }
+}
