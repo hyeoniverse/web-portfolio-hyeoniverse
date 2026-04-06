@@ -52,7 +52,21 @@ export default function Tooltip({
 
     const cx = rect.left + rect.width / 2;
     let side: "top" | "bottom" = placement === "auto" ? "top" : placement;
-    if (placement === "auto" && rect.top < 60) side = "bottom";
+    if (placement === "auto") {
+      // 가장 가까운 scroll container의 상단을 기준으로 판단
+      let scrollTop = 0;
+      let parent = el.parentElement;
+      while (parent) {
+        const ov = getComputedStyle(parent).overflowY;
+        if (ov === "auto" || ov === "scroll" || ov === "hidden") {
+          scrollTop = parent.getBoundingClientRect().top;
+          break;
+        }
+        parent = parent.parentElement;
+      }
+      // tooltip이 위에 뜰 공간이 부족하면 아래로
+      if (rect.top - scrollTop < 40 || rect.top < 60) side = "bottom";
+    }
     setPos({
       x: cx,
       y: side === "top" ? rect.top - GAP : rect.bottom + GAP,

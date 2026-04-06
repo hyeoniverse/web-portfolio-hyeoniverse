@@ -262,11 +262,11 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
           </table>
           {/* 열 추가 (오른쪽) — 표 바로 옆 */}
           <AddColumnBtn editor={editor} tableElement={element} />
+          {/* 행 추가 — 표 너비 기준 */}
+          <div contentEditable={false} style={{ position: "relative", height: 0, marginTop: "var(--spacing-2xs)" }}>
+            <AddRowBtn editor={editor} tableElement={element} disabled={captionEditing} hovered={rowBtnHovered} onHoverChange={setRowBtnHovered} />
+          </div>
         </div>
-      </div>
-      {/* 행 추가 + 캡션 — overflow 영역 바깥 */}
-      <div contentEditable={false} style={{ position: "relative", height: 0 }}>
-        <AddRowBtn editor={editor} tableElement={element} disabled={captionEditing} hovered={rowBtnHovered} onHoverChange={setRowBtnHovered} />
       </div>
       {caption !== undefined && caption !== "" && (
         <div contentEditable={false}>
