@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useLenis } from "@/providers/LenisProvider";
+import TOC from "@/components/ui/TOC/TOC";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import Button from "@/components/ui/Button";
 import { Typography } from "@/components/ui/Typography";
@@ -14,7 +15,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
 import { snapshotVars, restoreVars, applyPresetColors } from "./_data/presetHelpers";
 import {
-  ease, staggerContainer, staggerItem, staggerItemX,
+  staggerContainer, staggerItem, staggerItemX,
   innerStagger, innerStaggerFast,
   createSequence, makeVp, makeVpGroup, makeScrollChildX, makeScrollChildY,
 } from "./_data/animations";
@@ -34,9 +35,8 @@ export default function DesignSystemPage() {
   const router = useRouter();
   const { theme } = useTheme();
   const { language } = useLanguage();
-  const { setInfinite, scrollTo, lenis, stop, start } = useLenis();
+  const { setInfinite, lenis, stop, start } = useLenis();
   const { isLoading: isScreenLoading } = useLoadingScreen();
-  const [activeSection, setActiveSection] = useState("");
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const [activePreset, setActivePreset] = useState<number | null>(null);
   const snapRef = useRef<Map<string, string> | null>(null);
@@ -98,55 +98,9 @@ export default function DesignSystemPage() {
     }
   }, [theme, activePreset]);
 
-  const observersRef = useRef<Map<string, IntersectionObserver>>(new Map());
-  const entriesRef = useRef<Map<string, boolean>>(new Map());
-  const tocLockRef = useRef(false);
-
-  const observeSection = useCallback((id: string, el: HTMLElement) => {
-    if (observersRef.current.has(id)) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        entriesRef.current.set(id, entry.isIntersecting);
-        if (tocLockRef.current) return;
-        for (const section of tocSections) {
-          if (entriesRef.current.get(section.id)) {
-            setActiveSection(section.id);
-            break;
-          }
-        }
-      },
-      { rootMargin: "-20% 0px -60% 0px" }
-    );
-    observer.observe(el);
-    observersRef.current.set(id, observer);
-  }, []);
-
-  // 초기 마운트 시 이미 등록된 ref observe
-  useEffect(() => {
-    sectionRefs.current.forEach((el, id) => observeSection(id, el));
-    return () => {
-      observersRef.current.forEach((o) => o.disconnect());
-      observersRef.current.clear();
-    };
-  }, [observeSection]);
-
-  const handleTocClick = (id: string) => {
-    setActiveSection(id);
-    // 스크롤 완료까지 observer가 activeSection을 덮어쓰지 않도록 잠금
-    tocLockRef.current = true;
-    const el = sectionRefs.current.get(id);
-    if (el) {
-      scrollTo(el, { offset: -100, duration: 0.8 });
-    }
-    setTimeout(() => { tocLockRef.current = false; }, 1000);
-  };
-
   const setSectionRef = useCallback((id: string) => (el: HTMLElement | null) => {
-    if (el) {
-      sectionRefs.current.set(id, el);
-      observeSection(id, el);
-    }
-  }, [observeSection]);
+    if (el) sectionRefs.current.set(id, el);
+  }, []);
 
   const handleBack = useCallback(() => {
     setIsExiting(true);
@@ -169,20 +123,7 @@ export default function DesignSystemPage() {
   return (
     <div className={styles.page}>
       {/* ─── TOC Sidebar ─── */}
-      <nav className={styles.toc}>
-        <ul className={styles.tocList}>
-          {tocSections.map((s, i) => (
-            <motion.li key={s.id} initial={{ opacity: 0, y: -12 }} animate={ready ? { opacity: 1, y: 0 } : undefined} transition={{ duration: 0.3, delay: i * 0.06, ease }}>
-              <button
-                className={`${styles.tocItem} ${activeSection === s.id ? styles.tocItemActive : ""}`}
-                onClick={() => handleTocClick(s.id)}
-              >
-                {s.label}
-              </button>
-            </motion.li>
-          ))}
-        </ul>
-      </nav>
+      <TOC items={tocSections.map((s) => ({ id: s.id, text: s.label }))} position="left" />
 
       {/* ─── Main Content ─── */}
       <div className={`${styles.main} ${ready ? "" : styles.notReady}`}>
