@@ -173,6 +173,101 @@
   filter: none;
 }
 
+/* ── 리사이즈 커서 공통 ── */
+.resize .cursorInner,
+.resizeH .cursorInner,
+.resizeV .cursorInner,
+.resizeDiag .cursorInner {
+  width: var(--cursor-text-height);
+  height: var(--cursor-text-height);
+  border-radius: 0;
+  backdrop-filter: none;
+  background: transparent;
+}
+
+.resize .cursorText,
+.resizeH .cursorText,
+.resizeV .cursorText,
+.resizeDiag .cursorText {
+  display: none;
+}
+
+/* 공통 ::before — 막대 */
+.resize .cursorInner::before,
+.resizeH .cursorInner::before,
+.resizeV .cursorInner::before,
+.resizeDiag .cursorInner::before {
+  content: "";
+  position: absolute;
+  inset: unset;
+  background: var(--_color);
+  border-radius: var(--radius-2xs);
+  opacity: 1;
+  filter: none;
+}
+
+/* 공통 ::after — 삼각형 SVG */
+.resize .cursorInner::after,
+.resizeH .cursorInner::after,
+.resizeV .cursorInner::after,
+.resizeDiag .cursorInner::after {
+  content: "";
+  position: absolute;
+  inset: unset;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--cursor-text-height);
+  height: var(--cursor-text-height);
+  filter: none;
+}
+
+/* ── 세로 막대 + ◀▶ (열 리사이즈, 오른쪽 핸들) ── */
+.resize .cursorInner::before,
+.resizeH .cursorInner::before {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--cursor-text-width);
+  height: 100%;
+}
+
+.resize .cursorInner::after,
+.resizeH .cursorInner::after {
+  /* ◀ 꼭짓점 왼쪽 + ▶ 꼭짓점 오른쪽 */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 12l5-4v8z' fill='%233b82f6'/%3E%3Cpath d='M22 12l-5-4v8z' fill='%233b82f6'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+/* ── 가로 막대 + ▲▼ (아래쪽 핸들) ── */
+.resizeV .cursorInner::before {
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: var(--cursor-text-width);
+}
+
+.resizeV .cursorInner::after {
+  /* ▲ 꼭짓점 위 + ▼ 꼭짓점 아래 */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l4 5H8z' fill='%233b82f6'/%3E%3Cpath d='M12 22l-4-5h8z' fill='%233b82f6'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+/* ── 대각선 막대 + ◤◢ (대각선 핸들) ── */
+.resizeDiag .cursorInner::before {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: var(--cursor-text-width);
+  height: 100%;
+}
+
+.resizeDiag .cursorInner::after {
+  /* ◤ 좌상 + ◢ 우하 */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 3h6L3 9z' fill='%233b82f6'/%3E%3Cpath d='M21 21h-6l6-6z' fill='%233b82f6'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
 /* 애니메이션 효과 */
 .big:not(.clicking) .cursorInner,
 .grab:not(.dragging) .cursorInner {
