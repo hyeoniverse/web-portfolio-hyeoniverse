@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
+import TOC from "@/components/ui/TOC/TOC";
 import { useLanguage } from "@/providers/LanguageProvider";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import styles from "./DetailLayout.module.css";
@@ -61,7 +62,6 @@ export default function DetailLayout({
 }: DetailLayoutProps) {
   const { t } = useLanguage();
   const { setInfinite, lenis, stop, start } = useLenis();
-  const [activeHeadingId, setActiveHeadingId] = useState("");
   const pageRef = useRef<HTMLDivElement>(null);
 
   // Lenis setup
@@ -101,52 +101,6 @@ export default function DetailLayout({
     };
   }, []);
 
-  // Scroll spy
-  useEffect(() => {
-    if (headings.length === 0) return;
-
-    let rafId: number;
-    const OFFSET = 120;
-
-    const handleScroll = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        let current = "";
-        for (const { id } of headings) {
-          const el = document.getElementById(id);
-          if (el && el.getBoundingClientRect().top <= OFFSET) {
-            current = id;
-          }
-        }
-        if (current) setActiveHeadingId(current);
-      });
-    };
-
-    const timer = setTimeout(() => {
-      handleScroll();
-      window.addEventListener("scroll", handleScroll, { passive: true });
-    }, 500);
-
-    return () => {
-      clearTimeout(timer);
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [headings]);
-
-  const handleTocClick = useCallback(
-    (e: React.MouseEvent, id: string) => {
-      e.preventDefault();
-      const el = document.getElementById(id);
-      if (!el) return;
-      if (lenis) {
-        lenis.scrollTo(el, { offset: -100 });
-      } else {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
-    },
-    [lenis],
-  );
 
   return (
     <div ref={pageRef} className={styles.page}>
@@ -218,24 +172,7 @@ export default function DetailLayout({
       )}
 
       {/* TOC */}
-      {headings.length > 0 && (
-        <nav className={styles.toc}>
-          <p className={styles.tocTitle}>Contents</p>
-          <ul className={styles.tocList}>
-            {headings.map(({ id, text, level }, idx) => (
-              <li key={`${id}-${idx}`}>
-                <a
-                  href={`#${id}`}
-                  className={`${styles.tocLink} ${styles[`tocLevel${level}` as keyof typeof styles] ?? ""} ${activeHeadingId === id ? styles.tocActive : ""}`}
-                  onClick={(e) => handleTocClick(e, id)}
-                >
-                  {text}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
+      <TOC items={headings} title="Contents" position="right" />
 
       {/* Content */}
       <div className={`${styles.content} ${!heroImage ? styles.contentNoHero : ""}${contentClassName ? ` ${contentClassName}` : ""}`}>
