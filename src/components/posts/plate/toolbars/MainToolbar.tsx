@@ -284,10 +284,10 @@ export default React.memo(function MainToolbar({
   return (
     <div className={styles.toolbar}>
       {/* Undo / Redo */}
-      <TBtn onClick={() => editor.undo()} disabled={!canUndo} tooltip={`${t("editor.undo")}\n${kb("⌘Z")}`}>
+      <TBtn square onClick={() => editor.undo()} disabled={!canUndo} tooltip={`${t("editor.undo")}\n${kb("⌘Z")}`}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 105.64-11.36L1 10" /></svg>
       </TBtn>
-      <TBtn onClick={() => editor.redo()} disabled={!canRedo} tooltip={`${t("editor.redo")}\n${kb("⌘⇧Z")}`}>
+      <TBtn square onClick={() => editor.redo()} disabled={!canRedo} tooltip={`${t("editor.redo")}\n${kb("⌘⇧Z")}`}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-5.64-11.36L23 10" /></svg>
       </TBtn>
       <TBtn
@@ -391,7 +391,7 @@ export default React.memo(function MainToolbar({
       {(["left", "center", "right", "justify"] as const).map((align) => {
         const alignLabels = { left: `${t("editor.alignLeft")}\n${kb("⌘⇧L")}`, center: `${t("editor.alignCenter")}\n${kb("⌘⇧E")}`, right: `${t("editor.alignRight")}\n${kb("⌘⇧R")}`, justify: `${t("editor.alignJustify")}\n${kb("⌘⇧J")}` };
         return (
-          <TBtn key={align} active={currentAlign === align} onClick={() => setAlign(editor, align)} tooltip={alignLabels[align]}>
+          <TBtn square key={align} active={currentAlign === align} onClick={() => setAlign(editor, align)} tooltip={alignLabels[align]}>
             <AlignIcon align={align} />
           </TBtn>
         );
@@ -512,7 +512,7 @@ export default React.memo(function MainToolbar({
           <option value="cjk-ideographic">一, 二, 三</option>
         </select>
       </div>
-      <TBtn active={isTodo} onClick={() => {
+      <TBtn square active={isTodo} onClick={() => {
         const entry = editor.api.block();
         if (!entry) return;
         const [node, path] = entry;
@@ -533,6 +533,7 @@ export default React.memo(function MainToolbar({
           <polyline points="4.5 8.5 7 11 11.5 5.5" />
         </svg>
       </TBtn>
+
       <TBtn active={blockType === "blockquote"} onClick={() => editor.tf.toggleBlock("blockquote")} tooltip={`${t("editor.blockquote")}\n${kb("⌘⇧B")}`}>Quote</TBtn>
       <TBtn active={blockType === "code_block"} onClick={() => toggleCodeBlock(editor)} tooltip={`${t("editor.codeBlock")}\n${kb("⌘⌥C")}`}>Code</TBtn>
       <div className={styles.divider} />
@@ -553,9 +554,10 @@ export default React.memo(function MainToolbar({
       <TBtn onClick={onAddImage} tooltip={t("editor.insertImage")}>Image</TBtn>
       <TBtn onClick={onAddFile} tooltip={t("editor.insertFile")}>File</TBtn>
       <TBtn onClick={onAddAudio} tooltip={t("editor.insertAudio")}>Audio</TBtn>
-      <TBtn onClick={() => { editor.tf.withMerging(() => { insertTable(editor, { colCount: 3, rowCount: 3, header: true }); }); }} tooltip={t("editor.insertTable")}>Table</TBtn>
+      <TBtn active={blockType === "table"} onClick={() => { editor.tf.withMerging(() => { insertTable(editor, { colCount: 3, rowCount: 3, header: true }); }); }} tooltip={t("editor.insertTable")}>Table</TBtn>
       {([2, 3, 4] as const).map((cols) => (
         <TBtn
+          square
           key={cols}
           tooltip={`${cols}${t("editor.columns")}`}
           onClick={() => {
@@ -612,6 +614,7 @@ export default React.memo(function MainToolbar({
       ))}
       <TBtn onClick={() => editor.tf.insertNodes({ type: "hr", children: [{ text: "" }] })} tooltip={t("editor.insertHr")}>HR</TBtn>
       <TBtn
+        square
         onClick={() => {
           const node = { type: "callout", bg: "var(--bg-tertiary)", icon: "💡", children: [{ type: "p", children: [{ text: "" }] }] };
           const sel = editor.selection;
@@ -624,6 +627,7 @@ export default React.memo(function MainToolbar({
         <MessageSquareQuote size={14} />
       </TBtn>
       <TBtn
+        square
         onClick={() => {
           const node = {
             type: "toggle", open: true,
@@ -652,7 +656,7 @@ export default React.memo(function MainToolbar({
         Embed
       </TBtn>
       <TBtn tooltip={t("editor.insertMath")} onClick={onInsertMath}>∑</TBtn>
-      <TBtn tooltip={language === "ko" ? "각주" : "Footnote"} onClick={() => {
+      <TBtn square tooltip={language === "ko" ? "각주" : "Footnote"} onClick={() => {
         // 현재 각주 번호 계산
         const existing = Array.from(editor.api.nodes({
           at: [],

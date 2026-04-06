@@ -12,10 +12,10 @@
 .colResizeIndicator {
   position: absolute;
   width: 3px;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   pointer-events: none;
   z-index: 20;
-  border-radius: 2px;
+  border-radius: var(--radius-2xs);
 }
 
 /* 컬럼 드래그 중 rowResizeHandle hover 방지 */
@@ -47,13 +47,13 @@
   content: "";
   width: 100%;
   height: 2px;
-  border-radius: 1px;
+  border-radius: var(--spacing-4xs);
   background: transparent;
   transition: background-color 0.15s;
 }
 
 .rowResizeHandle:hover::after {
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
 }
 
 /* Table-level resize handles */
@@ -70,13 +70,13 @@
   content: "";
   width: 4px;
   height: 100%;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--color-accent) 0%, transparent);
+  border-radius: var(--radius-2xs);
+  background: transparent;
   transition: background-color 0.15s;
 }
 
 .tableResizeRight:hover::after {
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
 }
 
 .tableResizeBottom {
@@ -92,20 +92,20 @@
   content: "";
   width: 100%;
   height: 4px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--color-accent) 0%, transparent);
+  border-radius: var(--radius-2xs);
+  background: transparent;
   transition: background-color 0.15s;
 }
 
 .tableResizeBottom:hover::after {
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
 }
 
 /* Toolbar */
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: var(--spacing-xs);
   border: none;
   border-radius: 0;
@@ -122,7 +122,7 @@
   justify-content: center;
   height: 24px;
   min-width: 24px;
-  padding: 0 var(--spacing-2xs);
+  padding: var(--box-x-sm);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -133,10 +133,16 @@
   line-height: 1;
 }
 
+.toolbarBtn.toolbarBtnSquare {
+  width: 24px;
+  padding: 0;
+  aspect-ratio: 1;
+}
+
 
 .toolbar .toolbarBtn:hover,
 .tableToolbar .toolbarBtn:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 
@@ -155,7 +161,7 @@
   width: 1px;
   align-self: stretch;
   min-height: 14px;
-  margin: 2px var(--spacing-2xs);
+  margin: var(--spacing-3xs) var(--spacing-2xs);
   background: var(--border-light-color);
 }
 
@@ -192,7 +198,7 @@
   -webkit-appearance: none;
   appearance: none;
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   outline: none;
   max-width: 140px;
@@ -219,7 +225,7 @@
 .fontPickerSelect button {
   height: 24px;
   padding: 0 var(--spacing-xs) 0 var(--spacing-sm);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   width: 120px;
 }
@@ -237,11 +243,11 @@
 /* dropdown (portal) */
 .fontPickerDropdown {
   width: 280px !important;
-  padding: 2px 0;
+  padding: var(--box-y-xs);
   gap: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   max-height: none;
   overflow: visible;
 }
@@ -252,20 +258,20 @@
   left: 0;
   z-index: var(--z-nav);
   width: 280px;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--bg-glass-strong);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   border: var(--border-light);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  padding: 2px 0;
+  padding: var(--box-y-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
 }
 
 .fontDropSearch {
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--box-xs);
   border-bottom: var(--border-light);
 }
 
@@ -277,7 +283,7 @@
   font-family: inherit;
   background: transparent;
   color: var(--text-primary);
-  padding: 2px 0;
+  padding: var(--box-y-xs);
 }
 
 .fontDropList {
@@ -288,41 +294,41 @@
 
 .fontDropGroup {
   padding: var(--spacing-3xs) var(--spacing-xs) 2px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--text-muted);
 }
 
 .fontDropItem {
-  padding: 2px var(--spacing-xs);
+  padding: var(--box-xs);
   border-radius: var(--radius-sm);
-  margin: 1px var(--spacing-3xs);
-  font-size: 12px;
+  margin: var(--spacing-4xs) var(--spacing-3xs);
+  font-size: var(--font-size-xs);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .fontDropItem:hover {
-  background: #1E90FF;
-  color: #fff;
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
 }
 
 .fontDropItemActive {
-  background: #1E90FF;
-  color: #fff;
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
 }
 
 .fontDropFooter {
   border-top: var(--border-light);
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--box-xs);
 }
 
 .fontDropFooterLink {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
   text-decoration: none;
 }
@@ -333,7 +339,7 @@
 
 .fontDropHint {
   padding: var(--box-3xs-sm);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
 }
 
@@ -367,7 +373,7 @@
 }
 
 .ratioWrap:last-child {
-  margin-right: 4px;
+  margin-right: var(--spacing-2xs);
 }
 
 .ratioInput {
@@ -375,7 +381,7 @@
   height: 20px;
   border: none;
   text-align: center;
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-family: var(--font-mono);
   background: transparent;
   color: var(--text-primary);
@@ -393,7 +399,7 @@
   display: flex;
   flex-direction: column;
   height: 20px;
-  background: var(--color-neutral-alpha-6);
+  background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   overflow: hidden;
   flex-shrink: 0;
@@ -413,8 +419,50 @@
 }
 
 .ratioSpinBtn:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
+}
+
+/* Embed start time */
+.embedStartLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  padding: var(--box-x-sm);
+  border-right: var(--border-light);
+  line-height: 1;
+  user-select: none;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+.embedTimeInput {
+  width: 24px;
+  height: 20px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: inherit;
+  text-align: center;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.embedTimeInput::-webkit-inner-spin-button,
+.embedTimeInput::-webkit-outer-spin-button {
+  display: none;
+}
+
+.embedTimeSep {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0 3px;
+  line-height: 1;
 }
 
 /* Table controls group */
@@ -432,7 +480,7 @@
   display: flex;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   color: var(--text-primary);
   padding: 0 3px 0 6px;
   user-select: none;
@@ -442,12 +490,18 @@
 .tableGroup .toolbarBtn {
   border-radius: 0;
   border-left: var(--border-light);
-  padding: 3px 6px;
+  padding: var(--box-2xs-md);
 }
 
 .tableGroup > :first-child .toolbarBtn,
 .tableGroup > .toolbarBtn:first-child {
   border-left: none;
+}
+
+.tableGroup .toolbarBtn.toolbarBtnSquare {
+  width: 24px;
+  padding: 0;
+  aspect-ratio: 1;
 }
 
 .tableGroup .fontSelect {
@@ -470,13 +524,13 @@
 }
 
 .tableDangerBtn {
-  color: var(--color-error);
+  color: var(--text-error);
 }
 
 .toolbar .tableDangerBtn:hover,
 .tableToolbar .tableDangerBtn:hover {
-  background: color-mix(in srgb, var(--color-error) 10%, transparent);
-  color: var(--color-error);
+  background: var(--bg-error);
+  color: var(--text-error);
 }
 
 /* Table toolbar — absolutely positioned over editor top, no layout impact */
@@ -508,9 +562,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
-  padding: 4px var(--spacing-xs);
-  padding-right: 80px;
+  gap: var(--spacing-2xs);
+  padding: var(--box-xs);
+  padding-right: var(--spacing-5xl);
   position: relative;
   width: 100%;
 }
@@ -524,14 +578,14 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  gap: var(--spacing-2xs);
+  padding: var(--box-xs);
   position: relative;
 }
 
 .mathToolbarLabel {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -550,7 +604,7 @@
 .tableToolbarActions {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   position: absolute;
   top: 4px;
   right: var(--spacing-xs);
@@ -581,7 +635,7 @@
 
 .tableToolbarLabel {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -644,7 +698,7 @@
   border-right: var(--border-light);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   padding: 0 4px;
   outline: none;
@@ -673,7 +727,7 @@
 .linkActions {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   margin-left: auto;
   flex-shrink: 0;
 }
@@ -683,7 +737,7 @@
   border: none;
   border-left: var(--border-light);
   border-radius: 0;
-  padding: 3px 6px;
+  padding: var(--box-xs);
 }
 
 /* Color picker inline cell */
@@ -691,7 +745,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-3xs);
   padding: 0 4px;
   border-left: var(--border-light);
 }
@@ -699,7 +753,7 @@
 .colorDot {
   width: 12px;
   height: 12px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: var(--border-light);
   flex-shrink: 0;
   align-self: center;
@@ -709,7 +763,7 @@
 .presetDotInline {
   width: 12px;
   height: 12px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: var(--border-light);
   padding: 0;
   align-self: center;
@@ -718,7 +772,7 @@
 }
 
 .presetDotInline:last-child {
-  margin-right: 4px;
+  margin-right: var(--spacing-2xs);
 }
 
 .tableToolbar .presetDotInline:hover {
@@ -734,7 +788,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
-  padding: 2px 6px;
+  padding: var(--box-xs);
   width: 120px;
   outline: none;
 }
@@ -764,12 +818,12 @@
 .borderPopSection {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--spacing-2xs);
 }
 
 .borderPopLabel {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -779,7 +833,7 @@
 .borderGrid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .borderGridBtn {
@@ -796,7 +850,7 @@
 }
 
 .borderGridBtn:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
 }
 
 .borderGridBtnActive {
@@ -818,7 +872,7 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-primary);
   outline: none;
 }
@@ -839,7 +893,7 @@
   border-left: var(--border-light);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   transition: background 0.1s;
 }
@@ -849,7 +903,7 @@
 }
 
 .borderWidthBtn:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
 }
 
 .borderWidthBtnActive {
@@ -920,13 +974,13 @@
 .borderPresetGrid {
   display: grid;
   grid-template-columns: repeat(3, 26px);
-  gap: 2px;
+  gap: var(--spacing-3xs);
   flex-shrink: 0;
 }
 
 .borderPresetBtn {
   border-radius: var(--radius-xs) !important;
-  padding: 4px !important;
+  padding: var(--spacing-2xs) !important;
   display: flex !important;
   align-items: center;
   justify-content: center;
@@ -941,35 +995,35 @@
 
 .borderControlLabel {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0;
-  padding-top: 4px;
+  padding-top: var(--spacing-2xs);
 }
 
 .borderStyleRow {
   display: flex;
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 
 .borderWidthRow {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .borderColorRow {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
 }
 
 .borderColorValue {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
 }
 
@@ -978,19 +1032,19 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: var(--box-xs);
   border-radius: var(--radius-capsule);
 }
 
 .toolbar .colorGroup:hover,
 .tableToolbar .colorGroup:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
 }
 
 .colorLabel {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   color: var(--text-tertiary);
   line-height: 1;
@@ -999,7 +1053,7 @@
 .colorIndicator {
   width: 12px;
   height: 3px;
-  border-radius: 1px;
+  border-radius: var(--spacing-4xs);
 }
 
 .colorInput {
@@ -1014,14 +1068,14 @@
 .presetColors {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   padding: 0 var(--spacing-2xs);
 }
 
 .presetDot {
   width: 14px;
   height: 14px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: var(--border-light);
   padding: 0;
 }
@@ -1038,18 +1092,18 @@
 .colorSection {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-3xs);
   padding: 0 var(--spacing-3xs);
 }
 
 .presetDotClear {
   width: 14px;
   height: 14px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: var(--border-light);
   background: transparent;
   padding: 0;
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   line-height: 1;
   color: var(--text-tertiary);
   display: flex;
@@ -1058,7 +1112,7 @@
 }
 
 .toolbar .presetDotClear:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 
@@ -1101,7 +1155,7 @@
 
 .editor::-webkit-scrollbar-thumb {
   background: var(--border-strong-color);
-  border-radius: 3px;
+  border-radius: var(--radius-2xs);
 }
 
 .editor::-webkit-scrollbar-thumb:hover {
@@ -1144,7 +1198,7 @@
 .editor :global(.tiptap) code {
   font-family: var(--font-mono);
   font-size: 0.9em;
-  padding: 2px 6px;
+  padding: var(--box-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-xs);
 }
@@ -1253,13 +1307,13 @@
 
 .editor :global(.tiptap) ul[data-type="taskList"] li > label {
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: var(--spacing-3xs);
 }
 
 .editor :global(.tiptap) ul[data-type="taskList"] li > label input[type="checkbox"] {
   width: 14px;
   height: 14px;
-  accent-color: var(--color-accent);
+  accent-color: var(--text-accent);
 }
 
 .editor :global(.tiptap) ul[data-type="taskList"] li > div {
@@ -1328,7 +1382,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  border: 2px solid var(--color-accent);
+  border: var(--border-accent-strong-2);
   pointer-events: none;
   z-index: 3;
 }
@@ -1371,7 +1425,7 @@
 }
 
 .editor :global(.tiptap) mark {
-  border-radius: 2px;
+  border-radius: var(--radius-2xs);
   padding: 0 2px;
 }
 
@@ -1435,7 +1489,7 @@
 .imageBubble {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: var(--spacing-2xs);
   background: var(--bg-primary);
   border: var(--border-light);
@@ -1456,7 +1510,7 @@
 }
 
 .imageBubble .imageBubbleBtn:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 
@@ -1482,7 +1536,7 @@
   border-radius: 0;
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
 }
 
@@ -1497,8 +1551,8 @@
 }
 
 .imagePanelDragOver {
-  border-color: var(--color-accent);
-  background: var(--color-accent-alpha-5);
+  border-color: var(--text-accent);
+  background: var(--bg-accent-subtle);
 }
 
 .imagePanelHeader {
@@ -1512,7 +1566,7 @@
 
 .imagePanelLabel {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -1528,31 +1582,15 @@
   margin-left: auto;
 }
 
-.imagePanelActionBtn {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  padding: 2px 6px;
-  border: var(--border-light);
-  border-radius: 999px;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  white-space: nowrap;
-  transition: background-color 0.15s, border-color 0.15s;
-}
-
-.imagePanelActionBtn:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--border-strong-color);
-}
 
 .imagePanelActionDanger {
-  color: var(--color-error);
-  border-color: var(--color-error);
+  color: var(--text-error);
+  border-color: var(--text-error);
 }
 
 .imagePanelActionDanger:hover {
-  background: color-mix(in srgb, var(--color-error) 8%, transparent);
-  border-color: var(--color-error);
+  background: var(--bg-error);
+  border-color: var(--text-error);
 }
 
 .imagePanelList {
@@ -1573,14 +1611,14 @@
   overflow: visible;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   border-radius: var(--radius-sm);
-  padding: 3px;
+  padding: var(--spacing-3xs);
   transition: background-color 0.15s;
 }
 
 .imagePanelItem:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
 }
 
 .imagePanelRemove {
@@ -1591,15 +1629,15 @@
   right: -4px;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: none;
-  background: var(--color-neutral-alpha-50);
-  color: var(--color-neutral-0);
+  background: var(--bg-overlay);
+  color: var(--text-inverse);
   padding: 0;
 }
 
 .imagePanelEmpty {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
   padding: var(--spacing-xs) 0;
 }
@@ -1610,13 +1648,13 @@
 .imagePanelDivider {
   display: flex;
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border-bottom: var(--border-light);
 }
 
 .imagePanelDividerLabel {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -1625,7 +1663,7 @@
 }
 
 .imagePanelItem .imagePanelRemove:hover {
-  background: var(--color-neutral-alpha-70);
+  background: var(--bg-overlay);
 }
 
 .imagePanelItem img,
@@ -1647,7 +1685,7 @@
   top: -2px;
   left: -2px;
   z-index: 2;
-  padding: 2px;
+  padding: var(--spacing-3xs);
 }
 
 .imagePanelCheckbox {
@@ -1656,7 +1694,7 @@
   justify-content: center;
   width: 14px;
   height: 14px;
-  border-radius: 3px;
+  border-radius: var(--radius-2xs);
   border: 1.5px solid var(--text-tertiary);
   background: var(--bg-primary);
   color: var(--bg-primary);
@@ -1671,7 +1709,7 @@
 
 .imagePanelName {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   width: 100%;
   text-align: center;
@@ -1689,30 +1727,9 @@
   background: var(--bg-secondary);
 }
 
-.imagePanelAttachBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  padding: 3px 8px;
-  border: var(--border-light);
-  border-radius: 999px;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: background-color 0.15s, border-color 0.15s;
-}
-
-.imagePanelAttachBtn:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--border-strong-color);
-}
 
 .imagePanelInfoText {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   line-height: 1.3;
 }
@@ -1738,7 +1755,7 @@
 
 .blockDragHandle:hover {
   color: var(--text-secondary);
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
 }
 
 .blockDragHandle:active {
@@ -1753,8 +1770,8 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--color-accent);
-  border-radius: 1px;
+  background: var(--bg-accent-solid);
+  border-radius: var(--spacing-4xs);
   z-index: 10;
   pointer-events: none;
 }
@@ -1820,7 +1837,7 @@
 
 .embedModalConfirm {
   padding: var(--box-xs-sm);
-  border: var(--border-primary);
+  border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
@@ -1846,7 +1863,7 @@
 }
 
 .mathInline:hover {
-  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  background-color: var(--bg-accent-light);
 }
 
 .mathBlock {
@@ -1859,7 +1876,7 @@
 }
 
 .mathBlock:hover {
-  background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  background-color: var(--bg-accent-subtle);
 }
 
 /* ── Math floating edit panel ── */
@@ -1867,7 +1884,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: var(--spacing-2xs);
   background: var(--bg-primary);
   border: var(--border-light);
@@ -1878,7 +1895,7 @@
 .mathSymbolGroup {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .mathSymbolLabel {
@@ -1908,7 +1925,7 @@
 .mathFloatingTools {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px 4px;
+  gap: var(--spacing-3xs) var(--spacing-2xs);
   padding-bottom: var(--spacing-xs);
   border-bottom: var(--border-light);
 }
@@ -1916,7 +1933,7 @@
 .mathFloatingToolGroup {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .mathFloatingToolGroup::after {
@@ -1933,7 +1950,7 @@
 
 .mathFloatingInput {
   width: 100%;
-  padding: 6px 8px;
+  padding: var(--box-xs);
   border: var(--border-light);
   border-radius: var(--radius-sm);
   background: var(--bg-primary);
@@ -1971,7 +1988,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   font-weight: 500;
-  padding: 3px 10px;
+  padding: var(--box-xs);
   line-height: 1;
 }
 
@@ -2009,7 +2026,7 @@
 .mathPanelInput {
   flex: 1;
   min-width: 0;
-  padding: 4px 8px;
+  padding: var(--box-xs);
   border: var(--border-light);
   border-radius: var(--radius-sm);
   background: transparent;
@@ -2036,24 +2053,24 @@
   background: var(--bg-tertiary);
   border: var(--border-light);
   border-radius: var(--radius-sm);
-  padding: 2px 8px;
+  padding: var(--box-xs);
   overflow-x: auto;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
 }
 
 .mathPanelModes {
   display: flex;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .mathPanelModeBtn {
-  padding: 2px 8px;
+  padding: var(--box-xs);
   border: var(--border-light);
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
@@ -2075,13 +2092,13 @@
 }
 
 .mathPanelInsert {
-  padding: 4px 12px;
+  padding: var(--box-sm);
   border: none;
   border-radius: var(--radius-sm);
   background: var(--text-primary);
   color: var(--bg-primary);
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   white-space: nowrap;
   transition: opacity 0.15s;
@@ -2116,20 +2133,20 @@
 
 .mathToolCatLabel {
   font-family: var(--font-space-grotesk);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;
-  padding-top: 4px;
+  padding-top: var(--spacing-2xs);
   min-width: 36px;
 }
 
 .mathToolItems {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .mathToolBtn {
@@ -2145,7 +2162,7 @@
 }
 
 .mathSymbolBar .mathToolBtn:hover {
-  background: var(--color-neutral-alpha-10);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 
@@ -2218,14 +2235,14 @@
   right: 6px;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 4px 12px;
+  gap: var(--spacing-3xs);
+  padding: var(--box-sm);
   border: none;
   border-radius: var(--radius-capsule);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -2238,14 +2255,14 @@
   }
 
   .toolbar {
-    gap: 1px;
+    gap: var(--spacing-4xs);
     padding: var(--spacing-2xs);
   }
 }
 
 /* ── Plate editor content styles ── */
 .editorContent ::selection {
-  background: var(--color-accent-alpha-20);
+  background: var(--bg-accent);
   color: inherit;
 }
 
@@ -2269,7 +2286,7 @@
 
 .editorContent::-webkit-scrollbar { display: block; width: 6px; }
 .editorContent::-webkit-scrollbar-track { background: transparent; }
-.editorContent::-webkit-scrollbar-thumb { background: var(--border-strong-color); border-radius: 3px; }
+.editorContent::-webkit-scrollbar-thumb { background: var(--border-strong-color); border-radius: var(--radius-2xs); }
 .editorContent::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 .editorContent h1,
@@ -2296,7 +2313,7 @@
 .editorContent code {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  padding: 2px 6px;
+  padding: var(--box-xs);
   color: var(--text-secondary);
   background: var(--bg-tertiary);
   border: var(--border-light);
@@ -2415,7 +2432,7 @@
 }
 
 .editorContent a { color: var(--text-accent); }
-.editorContent mark { border-radius: 2px; padding: 0 2px; }
+.editorContent mark { border-radius: var(--radius-2xs); padding: 0 2px; }
 .editorContent u { text-decoration: underline; }
 .editorContent sup { font-size: 0.75em; vertical-align: super; }
 .editorContent sub { font-size: 0.75em; vertical-align: sub; }
@@ -2478,18 +2495,18 @@
   min-width: 100px;
   height: 20px;
   padding: 0 6px 0 6px;
-  margin-left: 4px;
+  margin-left: var(--spacing-2xs);
   border: none;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-primary);
   outline: none;
 }
 
 .findCount {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
   padding: 0 6px;
   flex-shrink: 0;
@@ -2533,7 +2550,7 @@
 
 /* 참조: accent 위첨자 */
 .footnoteRef {
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-xs);
   font-family: var(--font-mono);
@@ -2546,9 +2563,9 @@
 }
 
 .footnoteRefSelected {
-  background: var(--color-accent-alpha-20);
+  background: var(--bg-accent);
   border-radius: var(--radius-xs);
-  padding: 1px 3px;
+  padding: var(--spacing-4xs) var(--spacing-3xs);
 }
 
 .footnoteEditInput {
@@ -2600,7 +2617,7 @@
 }
 
 .footnoteContentId {
-  color: var(--color-accent);
+  color: var(--text-accent);
   font-weight: 600;
   flex-shrink: 0;
   user-select: none;

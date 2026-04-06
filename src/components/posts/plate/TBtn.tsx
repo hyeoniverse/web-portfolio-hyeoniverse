@@ -6,11 +6,12 @@ import styles from "../RichTextEditor.module.css";
 function TBtn({
   tooltip,
   active,
+  square,
   className,
   children,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { tooltip?: ReactNode; active?: boolean }) {
-  const cls = [styles.toolbarBtn, active && styles.toolbarBtnActive, className]
+}: ButtonHTMLAttributes<HTMLButtonElement> & { tooltip?: ReactNode; active?: boolean; square?: boolean }) {
+  const cls = [styles.toolbarBtn, active && styles.toolbarBtnActive, square && styles.toolbarBtnSquare, className]
     .filter(Boolean).join(" ");
   const btn = (
     <button

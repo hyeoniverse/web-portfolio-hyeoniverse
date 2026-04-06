@@ -25,8 +25,10 @@ export default React.memo(function MathToolbar({ visible }: MathToolbarProps) {
             {cat.items.map((item) => (
               <TBtn
                 key={item.latex}
+                square={item.label.length <= 2}
                 tooltip={`${item.tipKey ? t(item.tipKey) : item.label}\n${item.latex.trim()}`}
                 onMouseDown={(e: React.MouseEvent) => { e.preventDefault(); _mathSymbolInsert.current?.(item.latex); }}
+                style={item.label.length > 2 ? { padding: "0 6px" } : undefined}
               >
                 {item.label}
               </TBtn>
@@ -36,6 +38,7 @@ export default React.memo(function MathToolbar({ visible }: MathToolbarProps) {
       </div>
       <div className={styles.mathToolbarDelete}>
         <TBtn
+          square
           className={styles.tableDangerBtn}
           tooltip={t("editor.deleteMath")}
           onMouseDown={(e: React.MouseEvent) => { e.preventDefault(); _mathDeleteNode.current?.(); }}

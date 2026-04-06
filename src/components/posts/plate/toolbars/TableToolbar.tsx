@@ -83,30 +83,30 @@ export default React.memo(function TableToolbar({
         <span className={styles.tableToolbarLabel}>TABLE</span>
         <div className={styles.tableGroup}>
           <span className={styles.tableGroupLabel}>{t("editor.row")}</span>
-          <TBtn onClick={() => { recomputeTableIndices(editor); insertTableMergeRow(editor, { before: true }); setTimeout(reapplyZebraIfActive, 0); }} tooltip={t("editor.addRowAbove")}><TblRowBefore /></TBtn>
-          <TBtn onClick={() => { recomputeTableIndices(editor); insertTableMergeRow(editor); setTimeout(reapplyZebraIfActive, 0); }} tooltip={t("editor.addRowBelow")}><TblRowAfter /></TBtn>
-          <TBtn onClick={() => { recomputeTableIndices(editor); deleteTableMergeRow(editor); setTimeout(reapplyZebraIfActive, 0); }} tooltip={t("editor.deleteRow")}><TblRowRemove /></TBtn>
+          <TBtn square onClick={() => { recomputeTableIndices(editor); insertTableMergeRow(editor, { before: true }); setTimeout(reapplyZebraIfActive, 0); }} tooltip={t("editor.addRowAbove")}><TblRowBefore /></TBtn>
+          <TBtn square onClick={() => { recomputeTableIndices(editor); insertTableMergeRow(editor); setTimeout(reapplyZebraIfActive, 0); }} tooltip={t("editor.addRowBelow")}><TblRowAfter /></TBtn>
+          <TBtn square onClick={() => { recomputeTableIndices(editor); deleteTableMergeRow(editor); setTimeout(reapplyZebraIfActive, 0); }} tooltip={t("editor.deleteRow")}><TblRowRemove /></TBtn>
         </div>
         <div className={styles.tableGroup}>
           <span className={styles.tableGroupLabel}>{t("editor.column")}</span>
-          <TBtn onClick={() => { recomputeTableIndices(editor); insertTableMergeColumn(editor, { before: true }); fixZeroColSizes(editor); }} tooltip={t("editor.addColLeft")}><TblColBefore /></TBtn>
-          <TBtn onClick={() => { recomputeTableIndices(editor); insertTableMergeColumn(editor); fixZeroColSizes(editor); }} tooltip={t("editor.addColRight")}><TblColAfter /></TBtn>
-          <TBtn onClick={() => { recomputeTableIndices(editor); deleteTableMergeColumn(editor); }} tooltip={t("editor.deleteCol")}><TblColRemove /></TBtn>
+          <TBtn square onClick={() => { recomputeTableIndices(editor); insertTableMergeColumn(editor, { before: true }); fixZeroColSizes(editor); }} tooltip={t("editor.addColLeft")}><TblColBefore /></TBtn>
+          <TBtn square onClick={() => { recomputeTableIndices(editor); insertTableMergeColumn(editor); fixZeroColSizes(editor); }} tooltip={t("editor.addColRight")}><TblColAfter /></TBtn>
+          <TBtn square onClick={() => { recomputeTableIndices(editor); deleteTableMergeColumn(editor); }} tooltip={t("editor.deleteCol")}><TblColRemove /></TBtn>
         </div>
         <div className={styles.tableGroup}>
           <span className={styles.tableGroupLabel}>{t("editor.cell")}</span>
-          <TBtn onClick={() => { recomputeTableIndices(editor); mergeTableCells(editor); }} tooltip={`${t("editor.mergeCells")}\n${t("editor.mergeCellsHint")}`}><TblMergeCells /></TBtn>
-          <TBtn onClick={() => { recomputeTableIndices(editor); splitTableCell(editor); }} tooltip={t("editor.splitCell")}><TblSplitCell /></TBtn>
+          <TBtn square onClick={() => { recomputeTableIndices(editor); mergeTableCells(editor); }} tooltip={`${t("editor.mergeCells")}\n${t("editor.mergeCellsHint")}`}><TblMergeCells /></TBtn>
+          <TBtn square onClick={() => { recomputeTableIndices(editor); splitTableCell(editor); }} tooltip={t("editor.splitCell")}><TblSplitCell /></TBtn>
         </div>
         <div className={styles.tableGroup}>
           <span className={styles.tableGroupLabel}>{t("editor.verticalAlign")}</span>
-          <TBtn active={!cellVAlign || cellVAlign === "top"} onClick={() => setCellAttr("verticalAlign", "top")} tooltip={t("editor.alignTop")}><TblVAlignTop /></TBtn>
-          <TBtn active={cellVAlign === "middle"} onClick={() => setCellAttr("verticalAlign", "middle")} tooltip={t("editor.alignMiddle")}><TblVAlignMiddle /></TBtn>
-          <TBtn active={cellVAlign === "bottom"} onClick={() => setCellAttr("verticalAlign", "bottom")} tooltip={t("editor.alignBottom")}><TblVAlignBottom /></TBtn>
+          <TBtn square active={!cellVAlign || cellVAlign === "top"} onClick={() => setCellAttr("verticalAlign", "top")} tooltip={t("editor.alignTop")}><TblVAlignTop /></TBtn>
+          <TBtn square active={cellVAlign === "middle"} onClick={() => setCellAttr("verticalAlign", "middle")} tooltip={t("editor.alignMiddle")}><TblVAlignMiddle /></TBtn>
+          <TBtn square active={cellVAlign === "bottom"} onClick={() => setCellAttr("verticalAlign", "bottom")} tooltip={t("editor.alignBottom")}><TblVAlignBottom /></TBtn>
         </div>
         <div className={styles.tableToolbarActions}>
-          <TBtn onClick={resetTableFormat} tooltip={`${t("editor.resetTableFormat")}\n${t("editor.resetTableFormatHint")}`}><TblResetFormat /></TBtn>
-          <TBtn className={styles.tableDangerBtn} onClick={() => deleteTable(editor)} tooltip={t("editor.deleteTable")}><TblTrash /></TBtn>
+          <TBtn square onClick={resetTableFormat} tooltip={`${t("editor.resetTableFormat")}\n${t("editor.resetTableFormatHint")}`}><TblResetFormat /></TBtn>
+          <TBtn square className={styles.tableDangerBtn} onClick={() => deleteTable(editor)} tooltip={t("editor.deleteTable")}><TblTrash /></TBtn>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ export default React.memo(function TableToolbar({
         {/* 줄무늬 */}
         <div className={styles.tableGroup}>
           <span className={styles.tableGroupLabel}>{t("editor.zebra")}</span>
-          <TBtn active={isZebraActive} onClick={() => toggleZebraStripe()} tooltip={t("editor.zebraHint")}><TblZebra /></TBtn>
+          <TBtn square active={isZebraActive} onClick={() => toggleZebraStripe()} tooltip={t("editor.zebraHint")}><TblZebra /></TBtn>
           <div className={styles.colorPickerCell}>
             <div className={styles.colorDot} style={{ background: currentZebraColor || "var(--bg-tertiary)" }} />
             <input type="color" className={styles.colorInput} value="#888888" onChange={(e) => toggleZebraStripe(e.target.value)} title={t("editor.zebraColor")} />
@@ -151,6 +151,7 @@ export default React.memo(function TableToolbar({
         <div className={styles.tableGroup} style={{ position: "relative", overflow: "visible" }}>
           <span className={styles.tableGroupLabel}>{t("editor.border")}</span>
           <TBtn
+            square
             active={bp.open}
             onClick={() => {
               if (!bp.open) { saveSelection(); bp.captureCells(); }

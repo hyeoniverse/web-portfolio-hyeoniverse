@@ -1,6 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/ui/CloseIcon";
+import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { EditorImageInfo } from "./types";
@@ -249,28 +250,28 @@ export function ImagePanel({
         {images.length > 0 && (
           <div className={styles.imagePanelActions}>
             {!hasSelection && (
-              <button type="button" className={styles.imagePanelActionBtn} onClick={selectAll}>
+              <Button variant="outline" size="2xs" onClick={selectAll} soundDisabled>
                 {t("editor.imageSelectAll")}
-              </button>
+              </Button>
             )}
             {hasSelection && (
               <>
                 {selectedDetachedCount > 0 && (
-                  <button type="button" className={styles.imagePanelActionBtn} onClick={handleBulkReinsert}>
+                  <Button variant="outline" size="2xs" onClick={handleBulkReinsert} soundDisabled>
                     {t("editor.mediaReinsert")} ({selectedDetachedCount})
-                  </button>
+                  </Button>
                 )}
                 {selectedContentCount > 0 && onBulkInsert && (
-                  <button type="button" className={styles.imagePanelActionBtn} onClick={handleBulkInsert}>
+                  <Button variant="outline" size="2xs" onClick={handleBulkInsert} soundDisabled>
                     {t("editor.imageInsertSelected")} ({selectedContentCount})
-                  </button>
+                  </Button>
                 )}
-                <button type="button" className={styles.imagePanelActionBtn} onClick={deselectAll}>
+                <Button variant="outline" size="2xs" onClick={deselectAll} soundDisabled>
                   {t("editor.imageDeselectAll")}
-                </button>
-                <button type="button" className={`${styles.imagePanelActionBtn} ${styles.imagePanelActionDanger}`} onClick={handleBulkDelete}>
+                </Button>
+                <Button variant="outline" size="2xs" className={styles.imagePanelActionDanger} onClick={handleBulkDelete} soundDisabled>
                   {t("editor.imageDeleteSelected")} ({selected.size})
-                </button>
+                </Button>
               </>
             )}
           </div>
@@ -377,12 +378,19 @@ export function ImagePanel({
           placement="top"
           delay={200}
         >
-          <button type="button" className={styles.imagePanelAttachBtn} onClick={handleAttachClick}>
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 8.5l-5.5 5.5a4 4 0 01-5.66-5.66l5.5-5.5a2.67 2.67 0 013.77 3.77l-5.5 5.5a1.33 1.33 0 01-1.88-1.88l5-5" />
-            </svg>
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={handleAttachClick}
+            soundDisabled
+            icon={
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 8.5l-5.5 5.5a4 4 0 01-5.66-5.66l5.5-5.5a2.67 2.67 0 013.77 3.77l-5.5 5.5a1.33 1.33 0 01-1.88-1.88l5-5" />
+              </svg>
+            }
+          >
             {t("editor.imageAttach")}
-          </button>
+          </Button>
         </Tooltip>
         <span className={styles.imagePanelInfoText}>
           {t("editor.imageAttachInfo")}

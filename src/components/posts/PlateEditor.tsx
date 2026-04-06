@@ -38,6 +38,7 @@ import MathToolbar from "./plate/toolbars/MathToolbar";
 import InlineInputToolbar from "./plate/toolbars/InlineInputToolbar";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
+import { RxReset } from "react-icons/rx";
 import { Pipette, ListTodo } from "lucide-react";
 import Tooltip from "@/components/ui/Tooltip";
 
@@ -149,7 +150,7 @@ function ColumnRatioInputs({ colChildren, colCount, activePath, editor }: {
         </React.Fragment>
       ))}
       <div className={styles.divider} />
-      <TBtn tooltip="Apply" disabled={!isDirty} onClick={applyAll}>
+      <TBtn square tooltip="Apply" disabled={!isDirty} onClick={applyAll}>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12" />
         </svg>
@@ -436,6 +437,11 @@ export default function PlateEditor({
   }, [editor]);
 
   // ── Hooks for derived state ──
+  const isInLink = (() => {
+    try {
+      return !!editor.selection && !!editor.api.above({ match: { type: "a" } });
+    } catch { return false; }
+  })();
   const isInTable = isInAncestor(editor, "table");
   const isInColumnRaw = isInAncestor(editor, "column_group");
   const columnGroupNode = (() => {
@@ -499,14 +505,18 @@ export default function PlateEditor({
   const borderPopover = useBorderPopover(editor, savedSelectionRef);
 
   // ── Image state ──
-  const selectedImage = (() => {
+  const selectedImageRaw = (() => {
     if (!editor.selection) return null;
     try {
       const entry = editor.api.above({ match: { type: "img" } });
       return entry ? (entry[0] as Record<string, unknown>) : null;
     } catch { return null; }
   })();
-  const isInImage = !!selectedImage;
+  const cachedImageRef = useRef(selectedImageRaw);
+  if (selectedImageRaw) cachedImageRef.current = selectedImageRaw;
+  const [imgToolbarFocused, setImgToolbarFocused] = useState(false);
+  const selectedImage = selectedImageRaw || (imgToolbarFocused ? cachedImageRef.current : null);
+  const isInImage = !!selectedImageRaw || imgToolbarFocused;
 
   // ── Media embed state ──
   const selectedMediaEmbed = (() => {
@@ -797,11 +807,24 @@ export default function PlateEditor({
     input.click();
   }, [editor, onImageUpload, insertBlockNode]);
 
-  const setImageAttr = useCallback((attr: string, val: unknown) => {
-    if (!editor?.selection) return;
+  const imgPathRef = useRef<number[] | null>(null);
+  // 이미지 선택 시 path 캐시
+  if (selectedImageRaw) {
     try {
       const entry = editor.api.above({ match: { type: "img" } });
-      if (entry) editor.tf.setNodes({ [attr]: val }, { at: entry[1] });
+      if (entry) imgPathRef.current = Array.from(entry[1]);
+    } catch { /* ignore */ }
+  }
+  const setImageAttr = useCallback((attr: string, val: unknown) => {
+    // 에디터에 selection이 있으면 직접 탐색, 없으면 캐시된 path 사용
+    try {
+      if (editor?.selection) {
+        const entry = editor.api.above({ match: { type: "img" } });
+        if (entry) { editor.tf.setNodes({ [attr]: val }, { at: entry[1] }); return; }
+      }
+      if (imgPathRef.current) {
+        editor.tf.setNodes({ [attr]: val }, { at: imgPathRef.current });
+      }
     } catch { /* ignore */ }
   }, [editor]);
 
@@ -1218,7 +1241,7 @@ export default function PlateEditor({
     saveSelection();
     // 선택된 텍스트가 있으면 표시 텍스트에 자동 입력
     const sel = editor.selection;
-    const selectedText = sel && !editor.api.isCollapsed() ? editor.api.string(sel) : "";
+    let selectedText = sel && !editor.api.isCollapsed() ? editor.api.string(sel) : "";
     // 이미 링크 안에 있으면 기존 정보 로드
     let existingUrl = "";
     let existingTarget = "_blank";
@@ -1228,6 +1251,10 @@ export default function PlateEditor({
         const linkNode = linkEntry[0] as Record<string, unknown>;
         existingUrl = (linkNode.url as string) || "";
         existingTarget = (linkNode.target as string) || "_blank";
+        // collapsed selection이면 링크 전체 텍스트를 가져옴
+        if (!selectedText) {
+          selectedText = editor.api.string(linkEntry[1]) || "";
+        }
       }
     } catch { /* ignore */ }
     const protocol = existingUrl.startsWith("mailto:") ? "mailto:" : existingUrl.startsWith("tel:") ? "tel:" : "https://";
@@ -1237,6 +1264,17 @@ export default function PlateEditor({
     setLinkForm({ url: urlWithoutProtocol, text: selectedText, protocol, target: existingTarget });
     setTimeout(() => linkUrlRef.current?.focus(), 30);
   }, [showLinkInput, saveSelection, closeLinkInput, editor]);
+
+  // 링크 안에 커서가 놓이면 자동으로 링크 툴바 표시
+  const prevIsInLinkRef = useRef(false);
+  useEffect(() => {
+    if (isInLink && !prevIsInLinkRef.current && !showLinkInput) {
+      toggleLinkInput();
+    } else if (!isInLink && prevIsInLinkRef.current && showLinkInput) {
+      closeLinkInput();
+    }
+    prevIsInLinkRef.current = isInLink;
+  }, [isInLink, showLinkInput, toggleLinkInput, closeLinkInput]);
 
   const toggleEmbedInput = useCallback(() => {
     if (showEmbedInput) { setShowEmbedInput(false); setEmbedInputValue(""); return; }
@@ -1363,6 +1401,8 @@ export default function PlateEditor({
           <ImageToolbar
             editor={editor}
             visible={isInImage && noOverlay}
+            onFocusCapture={() => setImgToolbarFocused(true)}
+            onBlurCapture={() => setImgToolbarFocused(false)}
             selectedImage={selectedImage}
             setImageAttr={setImageAttr}
             moveImage={moveImage}
@@ -1386,41 +1426,78 @@ export default function PlateEditor({
                 try { editor.tf.setNodes(attrs, { at: selectedMediaEmbed.path }); } catch {}
               };
               const SIZES = [{ label: "S", w: 400 }, { label: "M", w: 560 }, { label: "L", w: 720 }, { label: "Full", w: 0 }];
+              const hh = Math.floor(mStart / 3600);
+              const mm = Math.floor((mStart % 3600) / 60);
+              const ss = mStart % 60;
+              const handleTimeChange = (type: "h" | "m" | "s", val: string) => {
+                const n = Math.max(0, Number(val) || 0);
+                const next = type === "h" ? n * 3600 + mm * 60 + ss
+                  : type === "m" ? hh * 3600 + Math.min(59, n) * 60 + ss
+                  : hh * 3600 + mm * 60 + Math.min(59, n);
+                setAttr({ ytStart: next });
+              };
               return (
                 <div className={styles.tableToolbarRow}>
                   <span className={styles.tableToolbarLabel}>EMBED</span>
                   <div className={styles.tableGroup}>
                     {(["left", "center", "right"] as const).map((a) => (
-                      <TBtn key={a} active={mAlign === a} onClick={() => setAttr({ align: a })}>{a === "left" ? "◧" : a === "center" ? "◻" : "◨"}</TBtn>
+                      <TBtn key={a} square active={mAlign === a} onClick={() => setAttr({ align: a })}>{a === "left" ? "◧" : a === "center" ? "◻" : "◨"}</TBtn>
                     ))}
                   </div>
                   <div className={styles.tableGroup}>
                     {SIZES.map((s) => (
-                      <TBtn key={s.label} active={mWidth === s.w} onClick={() => setAttr({ width: s.w })}>{s.label}</TBtn>
+                      <TBtn key={s.label} active={mWidth === s.w} onClick={() => setAttr({ width: s.w })} style={{ padding: "0 6px" }}>{s.label}</TBtn>
                     ))}
                   </div>
-                  <TBtn onClick={() => setAttr({ width: 0, align: "center", ytStart: 0, ytAutoplay: false, ytLoop: false, ytMute: false, ytControls: true })}>↺</TBtn>
                   {isYT && (
                     <>
                       <div className={styles.tableGroup}>
-                        <span style={{ fontSize: 10, padding: "0 4px", color: "var(--text-tertiary)" }}>Start</span>
-                        <input
-                          type="number"
-                          min={0}
-                          value={mStart}
-                          onChange={(e) => setAttr({ ytStart: Math.max(0, Number(e.target.value) || 0) })}
-                          onMouseDown={(e) => e.stopPropagation()}
-                          style={{ width: 44, padding: "1px 4px", fontSize: 11, border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-xs)", background: "transparent", color: "inherit", textAlign: "center" }}
-                        />
-                        <span style={{ fontSize: 9, color: "var(--text-muted)" }}>s</span>
+                        <span className={styles.embedStartLabel}>Start</span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 2, padding: "0 4px" }}>
+                          <span className={styles.embedTimeSep}>h</span>
+                          <input
+                            type="number"
+                            min={0}
+                            value={hh}
+                            onChange={(e) => handleTimeChange("h", e.target.value)}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            className={styles.embedTimeInput}
+                          />
+                          <span className={styles.embedTimeSep}>:</span>
+                          <span className={styles.embedTimeSep}>m</span>
+                          <input
+                            type="number"
+                            min={0}
+                            max={59}
+                            value={mm}
+                            onChange={(e) => handleTimeChange("m", e.target.value)}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            className={styles.embedTimeInput}
+                          />
+                          <span className={styles.embedTimeSep}>:</span>
+                          <span className={styles.embedTimeSep}>s</span>
+                          <input
+                            type="number"
+                            min={0}
+                            max={59}
+                            value={ss}
+                            onChange={(e) => handleTimeChange("s", e.target.value)}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            className={styles.embedTimeInput}
+                          />
+                        </span>
                       </div>
                       <div className={styles.tableGroup}>
-                        <TBtn active={mAutoplay} onClick={() => setAttr({ ytAutoplay: !mAutoplay })}>Autoplay</TBtn>
-                        <TBtn active={mLoop} onClick={() => setAttr({ ytLoop: !mLoop })}>Loop</TBtn>
-                        <TBtn active={mMute} onClick={() => setAttr({ ytMute: !mMute })}>Mute</TBtn>
+                        <span className={styles.tableGroupLabel}>Options</span>
+                        <TBtn active={mAutoplay} onClick={() => setAttr({ ytAutoplay: !mAutoplay })} style={{ padding: "0 6px" }}>Autoplay</TBtn>
+                        <TBtn active={mLoop} onClick={() => setAttr({ ytLoop: !mLoop })} style={{ padding: "0 6px" }}>Loop</TBtn>
+                        <TBtn active={mMute} onClick={() => setAttr({ ytMute: !mMute })} style={{ padding: "0 6px" }}>Mute</TBtn>
                       </div>
                     </>
                   )}
+                  <div className={styles.tableToolbarActions}>
+                    <TBtn square onClick={() => setAttr({ width: 0, align: "center", ytStart: 0, ytAutoplay: false, ytLoop: false, ytMute: false, ytControls: true })}><RxReset size={13} /></TBtn>
+                  </div>
                 </div>
               );
             })()}
@@ -1453,18 +1530,18 @@ export default function PlateEditor({
                 <TBtn active={findRegex} onClick={() => setFindRegex(!findRegex)} tooltip="Use Regular Expression">.*</TBtn>
               </div>
               <div className={styles.tableGroup}>
-                <TBtn onClick={doFindPrev} tooltip={t("editor.findPrev")}>
+                <TBtn square onClick={doFindPrev} tooltip={t("editor.findPrev")}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="18 15 12 9 6 15"/></svg>
                 </TBtn>
-                <TBtn onClick={doFindNext} tooltip={t("editor.findNext")}>
+                <TBtn square onClick={doFindNext} tooltip={t("editor.findNext")}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                 </TBtn>
-                <TBtn active={findReplace} onClick={() => setFindReplace(!findReplace)} tooltip={t("editor.replace")}>
+                <TBtn square active={findReplace} onClick={() => setFindReplace(!findReplace)} tooltip={t("editor.replace")}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
                 </TBtn>
               </div>
               <div className={styles.tableToolbarActions}>
-                <TBtn onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); editor.tf.focus(); }} tooltip="Close (Esc)">
+                <TBtn square onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); editor.tf.focus(); }} tooltip="Close (Esc)">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </TBtn>
               </div>
@@ -1605,28 +1682,28 @@ export default function PlateEditor({
                       />
                     </div>
                   )}
-                  {/* 액션 캡슐 */}
+                  {/* 액션 */}
                   <div className={styles.tableToolbarActions}>
-                    <div className={styles.tableGroup}>
-                      <TBtn
-                        onClick={() => {
-                          editor.tf.setNodes({ columnBg: undefined, columnDivider: undefined }, { at: activePath });
-                          colChildren.forEach((_, i) => {
-                            editor.tf.setNodes({ width: `${Math.round(100 / colCount)}%` }, { at: [...activePath, i] });
-                          });
-                        }}
-                        tooltip={t("editor.clearFormat")}
-                      >
-                        Clear
-                      </TBtn>
-                      <TBtn
-                        className={styles.tableDangerBtn}
-                        onClick={() => { if (activePath) editor.tf.removeNodes({ at: activePath }); }}
-                        tooltip={t("editor.deleteColumnLayout")}
-                      >
-                        <TblTrash />
-                      </TBtn>
-                    </div>
+                    <TBtn
+                      onClick={() => {
+                        editor.tf.setNodes({ columnBg: undefined, columnDivider: undefined }, { at: activePath });
+                        colChildren.forEach((_, i) => {
+                          editor.tf.setNodes({ width: `${Math.round(100 / colCount)}%` }, { at: [...activePath, i] });
+                        });
+                      }}
+                      tooltip={t("editor.clearFormat")}
+                      style={{ padding: "0 6px" }}
+                    >
+                      Clear
+                    </TBtn>
+                    <TBtn
+                      square
+                      className={styles.tableDangerBtn}
+                      onClick={() => { if (activePath) editor.tf.removeNodes({ at: activePath }); }}
+                      tooltip={t("editor.deleteColumnLayout")}
+                    >
+                      <TblTrash />
+                    </TBtn>
                   </div>
                 </div>
               );
@@ -1652,6 +1729,7 @@ export default function PlateEditor({
                       return (
                         <TBtn
                           key={type}
+                          square
                           active={headingType === type}
                           onClick={() => {
                             const firstPath = [...toggleNode.path, 0];
@@ -1734,7 +1812,7 @@ export default function PlateEditor({
                             <option value="upper-roman">I, II, III</option>
                           </select>
                         </div>
-                        <TBtn onClick={() => insertListInToggle("todo", true)} tooltip={t("editor.todoList")}>
+                        <TBtn square onClick={() => insertListInToggle("todo", true)} tooltip={t("editor.todoList")}>
                           <ListTodo size={14} />
                         </TBtn>
                       </div>
@@ -1744,6 +1822,7 @@ export default function PlateEditor({
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>{t("editor.defaultState") || "State"}</span>
                     <TBtn
+                      square
                       active={(toggleNode.node.open as boolean) !== false}
                       onClick={() => editor.tf.setNodes({ open: true }, { at: toggleNode.path })}
                       tooltip={t("editor.expanded") || "Expanded"}
@@ -1751,6 +1830,7 @@ export default function PlateEditor({
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
                     </TBtn>
                     <TBtn
+                      square
                       active={(toggleNode.node.open as boolean) === false}
                       onClick={() => editor.tf.setNodes({ open: false }, { at: toggleNode.path })}
                       tooltip={t("editor.collapsed") || "Collapsed"}
@@ -1760,21 +1840,21 @@ export default function PlateEditor({
                   </div>
                   {/* 삭제 */}
                   <div className={styles.tableToolbarActions}>
-                    <div className={styles.tableGroup}>
-                      <TBtn
-                        onClick={() => editor.tf.setNodes({ open: true }, { at: toggleNode.path })}
-                        tooltip={t("editor.clearFormat")}
-                      >
-                        Clear
-                      </TBtn>
-                      <TBtn
-                        className={styles.tableDangerBtn}
-                        onClick={() => { if (toggleNode.path) editor.tf.removeNodes({ at: toggleNode.path }); }}
-                        tooltip={t("editor.deleteToggle") || "Delete toggle"}
-                      >
-                        <TblTrash />
-                      </TBtn>
-                    </div>
+                    <TBtn
+                      onClick={() => editor.tf.setNodes({ open: true }, { at: toggleNode.path })}
+                      tooltip={t("editor.clearFormat")}
+                      style={{ padding: "0 6px" }}
+                    >
+                      Clear
+                    </TBtn>
+                    <TBtn
+                      square
+                      className={styles.tableDangerBtn}
+                      onClick={() => { if (toggleNode.path) editor.tf.removeNodes({ at: toggleNode.path }); }}
+                      tooltip={t("editor.deleteToggle") || "Delete toggle"}
+                    >
+                      <TblTrash />
+                    </TBtn>
                   </div>
                 </div>
               );
@@ -1856,26 +1936,32 @@ export default function PlateEditor({
                     <TBtn
                       onClick={() => editor.tf.setNodes({ bg: "var(--bg-tertiary)", icon: "💡" }, { at: calloutNode.path })}
                       tooltip="Tip"
+                      style={{ padding: 0, width: 24, aspectRatio: "1" }}
                     >💡</TBtn>
                     <TBtn
                       onClick={() => editor.tf.setNodes({ bg: "#fee2e2", icon: "⚠️" }, { at: calloutNode.path })}
                       tooltip="Warning"
+                      style={{ padding: 0, width: 24, aspectRatio: "1" }}
                     >⚠️</TBtn>
                     <TBtn
                       onClick={() => editor.tf.setNodes({ bg: "#dcfce7", icon: "✅" }, { at: calloutNode.path })}
                       tooltip="Success"
+                      style={{ padding: 0, width: 24, aspectRatio: "1" }}
                     >✅</TBtn>
                     <TBtn
                       onClick={() => editor.tf.setNodes({ bg: "#dbeafe", icon: "ℹ️" }, { at: calloutNode.path })}
                       tooltip="Info"
+                      style={{ padding: 0, width: 24, aspectRatio: "1" }}
                     >ℹ️</TBtn>
                     <TBtn
                       onClick={() => editor.tf.setNodes({ bg: "#fef3c7", icon: "📌" }, { at: calloutNode.path })}
                       tooltip="Note"
+                      style={{ padding: 0, width: 24, aspectRatio: "1" }}
                     >📌</TBtn>
                     <TBtn
                       onClick={() => editor.tf.setNodes({ bg: "#e8d0f0", icon: "🔮" }, { at: calloutNode.path })}
                       tooltip="Insight"
+                      style={{ padding: 0, width: 24, aspectRatio: "1" }}
                     >🔮</TBtn>
                   </div>
                   {/* 우측 — 이모지 제거/추가, 서식 초기화, 콜아웃 삭제 */}
@@ -1883,6 +1969,7 @@ export default function PlateEditor({
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
                       {calloutNode.node.icon ? (
                         <TBtn
+                          square
                           onClick={() => editor.tf.setNodes({ icon: undefined }, { at: calloutNode.path })}
                           tooltip={t("editor.removeEmoji")}
                         >
@@ -1903,6 +1990,7 @@ export default function PlateEditor({
                         Clear
                       </TBtn>
                       <TBtn
+                        square
                         className={styles.tableDangerBtn}
                         onClick={() => {
                           if (calloutNode.path) editor.tf.removeNodes({ at: calloutNode.path });
@@ -1979,15 +2067,17 @@ export default function PlateEditor({
               {/* 타겟 그룹 */}
               <div className={styles.tableGroup}>
                 <span className={styles.tableGroupLabel}>{t("editor.linkTarget")}</span>
-                <select
-                  className={styles.fontSelect}
-                  style={{ width: 80, height: 24, fontSize: 11, border: "none", borderLeft: "var(--border-light)", borderRadius: 0 }}
-                  value={linkForm.target}
-                  onChange={(e) => setLinkForm((f) => ({ ...f, target: e.target.value }))}
-                >
-                  <option value="_blank">{t("editor.linkNewTab")}</option>
-                  <option value="_self">{t("editor.linkSameTab")}</option>
-                </select>
+                <div className={styles.selectWrap}>
+                  <select
+                    className={styles.fontSelect}
+                    style={{ width: 80 }}
+                    value={linkForm.target}
+                    onChange={(e) => setLinkForm((f) => ({ ...f, target: e.target.value }))}
+                  >
+                    <option value="_blank">{t("editor.linkNewTab")}</option>
+                    <option value="_self">{t("editor.linkSameTab")}</option>
+                  </select>
+                </div>
               </div>
               {/* 삽입/제거/닫기 그룹 — 오른쪽 끝 */}
               <div className={styles.linkActions}>
@@ -1996,6 +2086,7 @@ export default function PlateEditor({
                   tooltip={t("editor.insertLink")}
                 >✓</TBtn>
                 <TBtn
+                  square
                   onClick={() => {
                     restoreSelection();
                     try { unwrapLink(editor); } catch { /* ignore */ }
