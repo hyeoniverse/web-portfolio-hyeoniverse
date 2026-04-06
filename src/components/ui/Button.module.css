@@ -51,6 +51,12 @@
 /* ---------------------------------------------------------------------------
    Sizes — capsule (기본)
    --------------------------------------------------------------------------- */
+.size-2xs {
+  height: 22px;
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-2xs);
+}
+
 .size-xs {
   height: 28px;
   padding: 0 var(--spacing-md);
@@ -100,6 +106,12 @@
 }
 
 /* circle / square — size는 고정 width/height */
+.shape-circle.size-2xs,
+.shape-square.size-2xs {
+  width: 22px;
+  height: 22px;
+}
+
 .shape-circle.size-xs,
 .shape-square.size-xs {
   width: 28px;
