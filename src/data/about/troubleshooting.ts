@@ -997,4 +997,44 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "In Slate editors, **`api.block()` returns leaf-level blocks**, so nested structures require separate `api.above()` traversal for wrapper detection.",
     },
   },
+  {
+    section: { ko: "에디터 / 각주", en: "Editor / Footnote" },
+    problem: { ko: "각주 참조/내용 정합성 — 한쪽 삭제 시 고아 노드 잔존", en: "Footnote Ref/Content Integrity — Orphan Nodes After Partial Deletion" },
+    definition: {
+      ko: "각주 참조(`footnote_ref`)를 삭제해도 하단 각주 내용이 남아있고, 반대의 경우도 마찬가지였습니다.",
+      en: "Deleting a footnote reference left the content block at the bottom, and vice versa.",
+    },
+    cause: {
+      ko: "Plate의 `normalizeNode`는 `footnoteId` 기반 연결 관계를 인식하지 못하여 한쪽 삭제 시 다른 쪽이 유지되었습니다.",
+      en: "Plate's `normalizeNode` doesn't recognize `footnoteId`-based relationships, so deleting one side left the other intact.",
+    },
+    solution: {
+      ko: "별도 `useEffect` + 300ms debounce로 고아 노드를 역순 삭제. `normalizeNode` 내부에서 직접 삭제 시 path 에러가 발생하여 effect로 분리했습니다.",
+      en: "Separate `useEffect` with 300ms debounce deletes orphan nodes in reverse order. Direct deletion inside `normalizeNode` caused path errors, requiring the effect-based approach.",
+    },
+    keyInsight: {
+      ko: "`normalizeNode` 안에서 다른 노드를 삭제하면 **path shift로 인해 `Cannot find a descendant` 에러**가 발생합니다. 비동기 effect로 분리하면 안전합니다.",
+      en: "Deleting other nodes inside `normalizeNode` causes **`Cannot find a descendant` errors due to path shifts**. Separating into an async effect is safer.",
+    },
+  },
+  {
+    section: { ko: "에디터 / 링크", en: "Editor / Link" },
+    problem: { ko: "링크 클릭 시 즉시 이동 — 에디터에서 링크 편집 불가", en: "Link Click Immediately Navigates — Cannot Edit Links in Editor" },
+    definition: {
+      ko: "에디터 안의 링크를 클릭하면 즉시 새 탭으로 이동하여 **URL 수정이나 텍스트 편집이 불가능**했습니다.",
+      en: "Clicking a link in the editor immediately opened a new tab, making **URL editing or text changes impossible**.",
+    },
+    cause: {
+      ko: "`LinkElement`의 `onClick`이 `window.open()`을 바로 호출하여 에디터 내 커서 배치가 불가능했습니다.",
+      en: "`LinkElement`'s `onClick` directly called `window.open()`, preventing cursor placement inside the link.",
+    },
+    solution: {
+      ko: "클릭 → 링크 편집 툴바 자동 표시, 더블클릭 → 새 탭 이동. `currentLinkKey`(path 기반)로 링크→링크 이동 시 깜빡임 방지 + 에디터 본문 클릭을 무시하는 커스텀 outside-click 핸들러 적용.",
+      en: "Single click shows link edit toolbar, double click navigates. `currentLinkKey` (path-based) prevents flickering on link-to-link navigation + custom outside-click handler ignores editor content clicks.",
+    },
+    keyInsight: {
+      ko: "에디터 내 인터랙티브 요소는 **클릭=편집, 더블클릭=실행** 패턴이 자연스럽습니다. `useOutsideClick`은 에디터 본문 클릭도 '바깥'으로 감지하므로 커스텀 핸들러가 필요합니다.",
+      en: "For interactive elements in editors, **click=edit, double-click=execute** is the natural pattern. `useOutsideClick` detects editor content clicks as 'outside', requiring a custom handler.",
+    },
+  },
 ];

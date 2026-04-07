@@ -1917,6 +1917,44 @@ Tooltip의 `auto` placement 판정이 뷰포트 상단(`rect.top < 60`)만 기�
 
 </details>
 
+<details>
+<summary><strong>29. 각주 참조/내용 정합성 — 한쪽 삭제 시 고아 노드 잔존</strong></summary>
+
+#### 문제
+
+에디터에서 각주 참조(`footnote_ref`)를 삭제해도 하단의 각주 내용(`footnote_content`)이 남아있고, 반대의 경우도 동일. 고아 노드가 직렬화되어 DB에 저장됨
+
+#### 원인
+
+각주 참조와 내용은 `footnoteId`로 연결되어 있지만, Plate의 normalizeNode는 이 관계를 인식하지 못하여 한쪽이 삭제되어도 다른 쪽이 유지됨
+
+#### 해결
+
+별도 `useEffect` + 300ms debounce로 에디터 변경 시 전체 각주를 스캔. `footnoteId`가 매칭되지 않는 고아 노드를 역순으로 삭제하여 path shift 문제 방지. `normalizeNode` 내부에서 직접 삭제 시 `Cannot find a descendant at path` 에러가 발생하여 effect로 분리
+
+---
+
+</details>
+
+<details>
+<summary><strong>30. 링크 클릭 시 즉시 이동 → 에디터에서 링크 편집 불가</strong></summary>
+
+#### 문제
+
+에디터 안의 링크를 클릭하면 즉시 새 탭으로 이동하여, 링크 URL을 수정하거나 텍스트를 편집할 수 없음
+
+#### 원인
+
+`LinkElement`의 `onClick`이 `window.open()`을 바로 호출하여 에디터 내 커서 배치가 불가능했음
+
+#### 해결
+
+클릭 → `e.preventDefault()`만 수행하여 커서를 링크 안에 배치하고 링크 편집 툴바를 자동 표시. 더블클릭 → 새 탭으로 이동. 링크→링크 이동 시 깜빡임 방지를 위해 `currentLinkKey`(링크 path 기반)로 동일 링크 여부를 판단하고, `useOutsideClick` 대신 에디터 본문 클릭을 무시하는 커스텀 핸들러 적용
+
+---
+
+</details>
+
 ---
 
 ## 배포
