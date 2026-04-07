@@ -27,7 +27,6 @@ import {
   useTableInfo,
   useBorderPopover,
   useTableActions,
-  useOutsideClick,
 } from "./plate/hooks";
 
 // ── toolbar components ──
@@ -111,8 +110,8 @@ function ColumnRatioInputs({ colChildren, colCount, activePath, editor }: {
     <>
       {colChildren.map((_, i) => (
         <React.Fragment key={i}>
-          {i > 0 && <span style={{ color: "var(--text-muted)", fontSize: 10, lineHeight: 1, padding: "0 1px" }}>:</span>}
-          <div className={styles.ratioWrap}>
+          {i > 0 && <span style={{ color: "var(--text-muted)", fontSize: 10, lineHeight: 1, padding: "0 0 0 6px" }}>:</span>}
+          <div className={styles.ratioWrap} style={i === colChildren.length - 1 ? { marginRight: 4 } : undefined}>
             <input
               type="text" inputMode="numeric"
               value={drafts[i] ?? ""}
@@ -149,8 +148,7 @@ function ColumnRatioInputs({ colChildren, colCount, activePath, editor }: {
           </div>
         </React.Fragment>
       ))}
-      <div className={styles.divider} />
-      <TBtn square tooltip="Apply" disabled={!isDirty} onClick={applyAll}>
+      <TBtn square tooltip="Apply" disabled={!isDirty} onClick={applyAll} style={{ marginLeft: 4 }}>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12" />
         </svg>
@@ -437,10 +435,14 @@ export default function PlateEditor({
   }, [editor]);
 
   // ── Hooks for derived state ──
-  const isInLink = (() => {
+  const currentLinkKey = (() => {
     try {
-      return !!editor.selection && !!editor.api.above({ match: { type: "a" } });
-    } catch { return false; }
+      if (!editor.selection) return "";
+      const entry = editor.api.above({ match: { type: "a" } });
+      if (!entry) return "";
+      // path를 key로 사용하여 링크마다 구분
+      return entry[1].join(",");
+    } catch { return ""; }
   })();
   const isInTable = isInAncestor(editor, "table");
   const isInColumnRaw = isInAncestor(editor, "column_group");
@@ -591,6 +593,40 @@ export default function PlateEditor({
       orig(entry, options);
     };
   }, [editor]);
+
+  // ── 각주 정합성: ref/content 하나 삭제 시 연결된 쪽도 제거 ──
+  useEffect(() => {
+    if (!editor) return;
+    const timer = setTimeout(() => {
+      try {
+        const refIds = new Set<string>();
+        const contentIds = new Set<string>();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const [n] of editor.api.nodes({ at: [], match: (n: any) => n.type === "footnote_ref" })) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          refIds.add((n as any).footnoteId);
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const [n] of editor.api.nodes({ at: [], match: (n: any) => n.type === "footnote_content" })) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          contentIds.add((n as any).footnoteId);
+        }
+        // content가 있는데 ref가 없는 경우 → content 삭제 (역순)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const orphanContents = [...editor.api.nodes({ at: [], match: (n: any) => n.type === "footnote_content" && !refIds.has(n.footnoteId) })];
+        for (let i = orphanContents.length - 1; i >= 0; i--) {
+          editor.tf.removeNodes({ at: orphanContents[i][1] });
+        }
+        // ref가 있는데 content가 없는 경우 → ref 삭제 (역순)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const orphanRefs = [...editor.api.nodes({ at: [], match: (n: any) => n.type === "footnote_ref" && !contentIds.has(n.footnoteId) })];
+        for (let i = orphanRefs.length - 1; i >= 0; i--) {
+          editor.tf.removeNodes({ at: orphanRefs[i][1] });
+        }
+      } catch { /* ignore */ }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [editor, tick]);
 
   // ── 외부 value 동기화 ──
   useEffect(() => {
@@ -929,7 +965,23 @@ export default function PlateEditor({
 
   // ── Inline input close handlers (moved from JSX to avoid hook-in-render) ──
   const closeLinkInput = useCallback(() => { setShowLinkInput(false); setLinkForm({ url: "", text: "", protocol: "https://", target: "_blank" }); }, []);
-  useOutsideClick(linkToolbarRef, showLinkInput, closeLinkInput);
+  // 링크 툴바 바깥 클릭 시 닫기 — 에디터 본문 클릭은 무시 (자동 열기/닫기가 처리)
+  const closeLinkOnOutside = useCallback((e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    // 에디터 content 안 클릭이면 무시 (링크 자동 감지가 처리)
+    if (target.closest("[data-slate-editor]")) return;
+    closeLinkInput();
+  }, [closeLinkInput]);
+  useEffect(() => {
+    if (!showLinkInput) return;
+    const handler = (e: MouseEvent) => {
+      if (linkToolbarRef.current && !linkToolbarRef.current.contains(e.target as Node)) {
+        closeLinkOnOutside(e);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showLinkInput, closeLinkOnOutside]);
   const closeEmbedInput = useCallback(() => { setShowEmbedInput(false); setEmbedInputValue(""); }, []);
 
   // ── Link unwrap on Backspace at link boundary ──
@@ -1267,14 +1319,40 @@ export default function PlateEditor({
 
   // 링크 안에 커서가 놓이면 자동으로 링크 툴바 표시
   const prevIsInLinkRef = useRef(false);
+  const linkCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (isInLink && !prevIsInLinkRef.current && !showLinkInput) {
-      toggleLinkInput();
-    } else if (!isInLink && prevIsInLinkRef.current && showLinkInput) {
-      closeLinkInput();
+    if (currentLinkKey) {
+      // 링크 진입/이동 — 닫기 타이머 취소
+      if (linkCloseTimerRef.current) {
+        clearTimeout(linkCloseTimerRef.current);
+        linkCloseTimerRef.current = null;
+      }
+      // 정보 로드 + form 갱신 (이미 열려있으면 form만 갱신)
+      try {
+        const linkEntry = editor.api.above({ match: { type: "a" } });
+        if (linkEntry) {
+          const linkNode = linkEntry[0] as Record<string, unknown>;
+          const url = (linkNode.url as string) || "";
+          const target = (linkNode.target as string) || "_blank";
+          const text = editor.api.string(linkEntry[1]) || "";
+          const protocol = url.startsWith("mailto:") ? "mailto:" : url.startsWith("tel:") ? "tel:" : "https://";
+          const urlWithoutProtocol = url.replace(/^(https?:\/\/|mailto:|tel:)/, "");
+          saveSelection();
+          setShowEmbedInput(false);
+          if (!showLinkInput) setShowLinkInput(true);
+          setLinkForm({ url: urlWithoutProtocol, text, protocol, target });
+        }
+      } catch { /* ignore */ }
+    } else if (prevIsInLinkRef.current && !linkCloseTimerRef.current) {
+      // 링크 이탈 — 지연 후 닫기 (링크→링크 이동 시 깜빡임 방지)
+      linkCloseTimerRef.current = setTimeout(() => {
+        linkCloseTimerRef.current = null;
+        closeLinkInput();
+      }, 50);
     }
-    prevIsInLinkRef.current = isInLink;
-  }, [isInLink, showLinkInput, toggleLinkInput, closeLinkInput]);
+    prevIsInLinkRef.current = !!currentLinkKey;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLinkKey]);
 
   const toggleEmbedInput = useCallback(() => {
     if (showEmbedInput) { setShowEmbedInput(false); setEmbedInputValue(""); return; }
@@ -1377,6 +1455,7 @@ export default function PlateEditor({
           onAddFile={addFile}
           onAddAudio={addAudio}
           onInsertMath={insertMathBlock}
+          mathEditing={mathEditing}
         />
 
         {/* ── Contextual Toolbars ── */}
@@ -1586,7 +1665,7 @@ export default function PlateEditor({
                     <span className={styles.tableGroupLabel}>BG</span>
                     <div className={styles.divider} />
                     <Tooltip content="current" placement="top" delay={200}>
-                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
+                      <div className={styles.presetDotInline} style={{ background: colBg || CHECKER_BG, margin: "0 2px" }} />
                     </Tooltip>
                     <div className={styles.divider} />
                     {/* default(배경색) */}
@@ -1604,9 +1683,10 @@ export default function PlateEditor({
                       </Tooltip>
                     ))}
                     <div className={styles.divider} />
-                    <div className={styles.colorGroup} style={{ gap: 3 }}>
+                    <div className={styles.colorGroup} style={{ gap: 2 }}>
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
-                      <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colBg || CHECKER_BG, border: "1px solid var(--border-light-color)" }} />
+                      <div className={styles.presetDotInline} style={{ background: colBg || CHECKER_BG, margin: "0 2px" }} />
+                      <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
                       <input type="color" className={styles.colorInput} value={colBg || "#ffffff"}
                         onChange={(e) => editor.tf.setNodes({ columnBg: e.target.value }, { at: activePath })}
                         ref={(el) => {
@@ -1630,7 +1710,7 @@ export default function PlateEditor({
                     <span className={styles.tableGroupLabel}>Line</span>
                     <div className={styles.divider} />
                     <Tooltip content="current" placement="top" delay={200}>
-                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", border: "1px solid var(--border-light-color)", flexShrink: 0 }} />
+                      <div className={styles.presetDotInline} style={{ background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", margin: "0 2px" }} />
                     </Tooltip>
                     <div className={styles.divider} />
                     {/* 기본색(default) */}
@@ -1648,9 +1728,10 @@ export default function PlateEditor({
                       </Tooltip>
                     ))}
                     <div className={styles.divider} />
-                    <div className={styles.colorGroup} style={{ gap: 3 }}>
+                    <div className={styles.colorGroup} style={{ gap: 2 }}>
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
-                      <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", border: "1px solid var(--border-light-color)" }} />
+                      <div className={styles.presetDotInline} style={{ background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", margin: "0 2px" }} />
+                      <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
                       <input type="color" className={styles.colorInput} value={colDiv && colDiv !== "transparent" ? colDiv : "#d1d5db"}
                         onChange={(e) => editor.tf.setNodes({ columnDivider: e.target.value }, { at: activePath })}
                         ref={(el) => {
@@ -1766,16 +1847,36 @@ export default function PlateEditor({
                         editor.tf.select({ anchor: { path: [...toggleNode.path, 1, 0], offset: 0 }, focus: { path: [...toggleNode.path, 1, 0], offset: 0 } });
                       }
                       if (isTodo) {
-                        const entry = editor.api.block();
-                        if (entry) {
-                          const [node, path] = entry;
-                          const nd = node as Record<string, unknown>;
-                          if (Object.hasOwn(nd, "checked")) {
-                            editor.tf.unsetNodes(["checked", "listStyleType"], { at: path });
+                        try {
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          const toggleChildren = (toggleNode.node as any).children || [];
+                          // 본문이 없으면 todo paragraph 삽입
+                          if (toggleChildren.length < 2) {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            editor.tf.insertNodes({ type: "p", checked: false, listStyleType: "todo", children: [{ text: "" }] } as any, { at: [...toggleNode.path, 1] });
                           } else {
-                            editor.tf.setNodes({ checked: false, listStyleType: "todo" }, { at: path });
+                            // 첫 번째 본문 자식으로 토글/해제 판단
+                            const isAlreadyTodo = Object.hasOwn(toggleChildren[1], "checked");
+                            // indent 없는 본문 자식만 체크박스 적용
+                            editor.tf.withoutNormalizing(() => {
+                              for (let ci = 1; ci < toggleChildren.length; ci++) {
+                                const child = toggleChildren[ci] as Record<string, unknown>;
+                                if (child.type && child.type !== "p") continue;
+                                // indent가 있는 하위 항목은 건너뜀
+                                if (child.indent && (child.indent as number) > 1) continue;
+                                const childPath = [...toggleNode.path, ci];
+                                if (isAlreadyTodo) {
+                                  editor.tf.unsetNodes(["checked", "listStyleType"], { at: childPath });
+                                } else {
+                                  if (child.listStyleType && child.listStyleType !== "todo") {
+                                    editor.tf.unsetNodes(["listStyleType", "indent"], { at: childPath });
+                                  }
+                                  editor.tf.setNodes({ checked: false, listStyleType: "todo" }, { at: childPath });
+                                }
+                              }
+                            });
                           }
-                        }
+                        } catch { /* ignore */ }
                       } else {
                         toggleList(editor, { listStyleType });
                       }
@@ -1885,9 +1986,10 @@ export default function PlateEditor({
                     ))}
                     <div className={styles.divider} />
                     {/* 컬러피커 + 현재색 + 최근 피커색 */}
-                    <div className={styles.colorGroup} style={{ gap: 3 }}>
+                    <div className={styles.colorGroup} style={{ gap: 2 }}>
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
-                      <div className={styles.colorIndicator} style={{ width: 12, height: 12, borderRadius: "50%", background: cBg.startsWith("#") ? cBg : CHECKER_BG, border: "1px solid var(--border-light-color)" }} />
+                      <div className={styles.presetDotInline} style={{ background: cBg.startsWith("#") ? cBg : CHECKER_BG, margin: "0 2px" }} />
+                      <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
                       <input
                         type="color"
                         className={styles.colorInput}

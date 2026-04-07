@@ -53,6 +53,7 @@ export interface MainToolbarProps {
   onAddFile: () => void;
   onAddAudio: () => void;
   onInsertMath: () => void;
+  mathEditing?: boolean;
 }
 
 // ── Font Picker (검색 + Google Fonts) ──
@@ -236,7 +237,7 @@ export default React.memo(function MainToolbar({
   showLinkInput, onToggleLinkInput,
   showEmbedInput, onToggleEmbedInput,
   htmlMode, onToggleHtmlMode,
-  onAddImage, onAddFile, onAddAudio, onInsertMath,
+  onAddImage, onAddFile, onAddAudio, onInsertMath, mathEditing,
 }: MainToolbarProps) {
   const { t, language } = useLanguage();
   const preferEn = language === "en" || postLang === "en";
@@ -655,7 +656,7 @@ export default React.memo(function MainToolbar({
       >
         Embed
       </TBtn>
-      <TBtn tooltip={t("editor.insertMath")} onClick={onInsertMath}>∑</TBtn>
+      <TBtn active={mathEditing} tooltip={t("editor.insertMath")} onClick={onInsertMath}>∑</TBtn>
       <TBtn square tooltip={language === "ko" ? "각주" : "Footnote"} onClick={() => {
         // 현재 각주 번호 계산
         const existing = Array.from(editor.api.nodes({
