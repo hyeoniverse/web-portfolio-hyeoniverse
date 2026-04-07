@@ -1917,6 +1917,44 @@ When `blockType` is `"p"` or `"code_line"`, use `editor.api.above()` to search f
 
 </details>
 
+<details>
+<summary><strong>29. Footnote Ref/Content Integrity — Orphan Nodes Remain After Partial Deletion</strong></summary>
+
+#### Problem
+
+Deleting a footnote reference (`footnote_ref`) leaves the footnote content (`footnote_content`) at the bottom, and vice versa. Orphan nodes are serialized and saved to the database
+
+#### Cause
+
+Footnote references and content are linked by `footnoteId`, but Plate's normalizeNode doesn't recognize this relationship, so deleting one side leaves the other intact
+
+#### Solution
+
+Separate `useEffect` with 300ms debounce scans all footnotes on editor change. Orphan nodes with unmatched `footnoteId` are deleted in reverse order to prevent path shift issues. Direct deletion inside `normalizeNode` caused `Cannot find a descendant at path` errors, hence the effect-based approach
+
+---
+
+</details>
+
+<details>
+<summary><strong>30. Link Click Immediately Navigates — Cannot Edit Links in Editor</strong></summary>
+
+#### Problem
+
+Clicking a link in the editor immediately opens a new tab, making it impossible to edit the link URL or text
+
+#### Cause
+
+`LinkElement`'s `onClick` directly called `window.open()`, preventing cursor placement inside the link
+
+#### Solution
+
+Single click → `e.preventDefault()` only, placing cursor inside the link and auto-showing the link edit toolbar. Double click → opens in new tab. To prevent flickering on link-to-link navigation, `currentLinkKey` (based on link path) distinguishes links, and a custom outside-click handler ignores editor content clicks instead of `useOutsideClick`
+
+---
+
+</details>
+
 ---
 
 ## Deployment
