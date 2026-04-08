@@ -260,7 +260,7 @@
 .project::after {
   position: absolute;
   top: 50%;
-  right: -200px;
+  right: calc(-0.5 * var(--_gallery-gap));
   width: 1px;
   height: 300vh;
   background: var(--border-strong-color);
@@ -271,10 +271,11 @@
 /* Project Size Variants */
 .sizeLarge {
   --_card-w: 850px;
-  --_card-h: 530px;
+  --_card-h: 480px;
 
   align-self: flex-start;
-  margin-top: 6vh;
+  margin-top: 10vh;
+  gap: var(--spacing-xl);
 }
 
 .sizeSmall {
@@ -297,7 +298,7 @@
   --_card-h: 500px;
 
   align-self: flex-start;
-  margin-top: 4vh;
+  margin-top: 12vh;
 }
 
 .sizeWide {
@@ -372,6 +373,19 @@
   position: absolute;
   z-index: var(--_meta-z);
   pointer-events: auto;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.metaNumber {
+  opacity: 1 !important;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.metaDesc {
+  opacity: 0;
+  will-change: transform, opacity;
 }
 
 /* Shared: accent-colored labels */
@@ -384,9 +398,7 @@
 }
 
 .metaNumber {
-  margin-bottom: -80px;
-  margin-left: -30px;
-  position: relative;
+  position: absolute;
   z-index: var(--_meta-z);
   font-family: var(--font-instrument), serif;
   font-size: var(--_number-size);
@@ -395,20 +407,25 @@
   color: transparent;
   letter-spacing: -0.06em;
   transition: all 0.4s ease;
-  -webkit-text-stroke: 1px var(--border-black);
-  pointer-events: auto;
+  -webkit-text-stroke: 1px var(--text-primary);
+  mix-blend-mode: difference;
+  pointer-events: none;
 }
 
 .metaCategory {
   top: 40px;
-  right: -20px;
+  right: 0;
   font-size: var(--font-size-xs);
   letter-spacing: 0.3em;
   writing-mode: vertical-rl;
 }
 
+.metaYearDesktop {
+  display: block;
+}
+
 .metaYear {
-  right: -30px;
+  right: 0;
   bottom: 100px;
   font-size: var(--fluid-font-size-6xl);
   font-weight: 200;
@@ -422,6 +439,7 @@
   display: flex;
   gap: var(--spacing-sm);
   flex-direction: column;
+  margin-left: calc(-1 * var(--spacing-md));
 }
 
 .metaTech span {
@@ -434,7 +452,7 @@
 
 .metaRole {
   top: 50%;
-  left: -10px;
+  left: 0;
   font-size: var(--font-size-xs);
   letter-spacing: 0.25em;
   white-space: nowrap;
@@ -443,6 +461,10 @@
 
 .cardOverlay {
   display: none;
+}
+
+.metaGroup {
+  display: contents;
 }
 
 .metaDesc {
@@ -466,240 +488,232 @@
    ========================================================================== */
 
 /* Shared: layout desc max-width override (all except layout 2) */
-.layout1,
-.layout3,
-.layout4,
-.layout5,
-.layout6 {
+.project[data-layout="1"],
+.project[data-layout="3"],
+.project[data-layout="4"],
+.project[data-layout="5"],
+.project[data-layout="6"] {
   --_desc-max-width: 400px;
 }
 
-.layout1 .metaDesc,
-.layout3 .metaDesc,
-.layout4 .metaDesc,
-.layout5 .metaDesc,
-.layout6 .metaDesc {
+.project[data-layout="1"] .metaDesc,
+.project[data-layout="3"] .metaDesc,
+.project[data-layout="4"] .metaDesc,
+.project[data-layout="5"] .metaDesc,
+.project[data-layout="6"] .metaDesc {
   margin-top: var(--spacing-md);
 }
 
 /* Layout 1 */
-.layout1 .metaNumber {
-  position: absolute;
-  top: -50px;
-  left: -30px;
+.project[data-layout="1"] .metaNumber {
+  top: 20px;
+  left: 20px;
 }
 
-.layout1 .metaYear {
+.project[data-layout="1"] .metaYear {
   top: 20px;
-  right: -40px;
+  right: 0;
   bottom: auto;
 }
 
-.layout1 .metaCategory {
-  top: auto;
-  right: -24px;
-  bottom: 60px;
+.project[data-layout="1"] .metaCategory {
+  top: 180px;
+  right: 0;
+  bottom: auto;
 }
 
-.layout1 .metaTech {
+.project[data-layout="1"] .metaTech {
   gap: var(--spacing-xs);
   flex-direction: row;
-  top: 60%;
-  left: -40px;
+  top: 40%;
+  left: -120px;
   transform: rotate(-90deg);
 }
 
-.layout1 .metaTech span {
+.project[data-layout="1"] .metaTech span {
   padding: var(--box-sm);
 }
 
+.project[data-layout="1"] .metaRole {
+  left: -30px;
+}
+
 /* Layout 2 */
-.layout2 .metaNumber {
-  margin: 0;
-  position: absolute;
+.project[data-layout="2"] .metaNumber {
   top: auto;
-  right: -20px;
-  bottom: 0;
+  right: 20px;
+  bottom: 20px;
   left: auto;
 }
 
-.layout2 .metaYear {
-  top: -120px;
-  left: -120px;
+.project[data-layout="2"] .metaYear {
+  top: -20px;
+  left: auto;
+  right: 0;
 }
 
-.layout2 .metaCategory {
+.project[data-layout="2"] .metaCategory {
   top: 50%;
-  right: -50px;
+  right: 0;
   transform: translateY(-50%);
 }
 
-.layout2 .metaTech {
+.project[data-layout="2"] .metaTech {
   gap: var(--spacing-xs);
   top: 80px;
   right: auto;
   bottom: auto;
-  left: -80px;
+  left: 0;
 }
 
-.layout2 .metaRole {
+.project[data-layout="2"] .metaRole {
   display: none;
 }
 
 /* Layout 3 */
-.layout3 {
+.project[data-layout="3"] {
   --_number-size: var(--fluid-font-size-9xl);
 }
 
-.layout3 .metaNumber {
-  margin: 0;
-  position: absolute;
-  top: -100px;
-  left: -60px;
-  z-index: 1;
-  opacity: 0.15;
-  transform: none;
+.project[data-layout="3"] .metaNumber {
+  top: 20px;
+  left: 20px;
+  opacity: 0.2;
 }
 
-.layout3 .metaYear {
+.project[data-layout="3"] .metaYear {
   top: auto;
   right: auto;
-  bottom: 40px;
-  left: -80px;
+  bottom: 160px;
+  left: 0;
   font-size: var(--fluid-font-size-6xl);
 }
 
-.layout3 .metaCategory {
+.project[data-layout="3"] .metaCategory {
   top: auto;
-  right: -30px;
+  right: 0;
   bottom: 20px;
   writing-mode: horizontal-tb;
 }
 
-.layout3 .metaTech {
+.project[data-layout="3"] .metaTech {
   gap: var(--spacing-xs);
   top: 40px;
-  right: -30px;
+  right: 0;
   bottom: auto;
   left: auto;
 }
 
 /* Layout 4 */
-.layout4 {
+.project[data-layout="4"] {
   --_number-size: var(--fluid-font-size-7xl);
 }
 
-.layout4 .metaNumber {
-  margin: 0;
-  position: absolute;
-  top: -80px;
-  right: -60px;
+.project[data-layout="4"] .metaNumber {
+  top: 20px;
+  right: 20px;
   left: auto;
 }
 
-.layout4 .metaYear {
+.project[data-layout="4"] .metaYear {
   top: 50%;
   right: auto;
   bottom: auto;
-  left: -100px;
+  left: 0;
   transform: translateY(-50%) rotate(-90deg);
 }
 
-.layout4 .metaCategory {
+.project[data-layout="4"] .metaCategory {
   top: 40px;
   right: auto;
-  left: -30px;
+  left: 0;
   writing-mode: vertical-rl;
 }
 
-.layout4 .metaTech {
-  right: -60px;
-  bottom: 180px;
+.project[data-layout="4"] .metaTech {
+  right: 0;
+  top: 40px;
+  bottom: auto;
 }
 
 /* Layout 5 */
-.layout5 {
+.project[data-layout="5"] {
   --_number-size: var(--fluid-font-size-6xl);
 }
 
-.layout5 .metaNumber {
-  margin: 0;
-  position: absolute;
+.project[data-layout="5"] .metaNumber {
+  bottom: 20px;
+  left: 20px;
   top: auto;
-  bottom: -60px;
-  left: 20%;
-  transform: none;
 }
 
-.layout5 .metaYear {
+.project[data-layout="5"] .metaYear {
   top: 30%;
   right: auto;
   bottom: auto;
-  left: -120px;
+  left: 0;
   font-size: var(--fluid-font-size-4xl);
 }
 
-.layout5 .metaCategory {
+.project[data-layout="5"] .metaCategory {
   top: auto;
   right: auto;
   bottom: 30%;
-  left: -60px;
+  left: 0;
   writing-mode: horizontal-tb;
   transform: rotate(-90deg);
 }
 
-.layout5 .metaRole {
-  right: -60px;
+.project[data-layout="5"] .metaRole {
+  right: 0;
   left: auto;
   transform: translateY(-50%) rotate(90deg);
 }
 
-.layout5 .metaTech {
+.project[data-layout="5"] .metaTech {
   gap: var(--spacing-xs);
-  top: 40px;
-  right: -120px;
-  bottom: auto;
+  top: auto;
+  right: 0;
+  bottom: 60px;
   left: auto;
 }
 
-.layout5 .metaDesc {
+.project[data-layout="5"] .metaDesc {
   writing-mode: horizontal-tb;
 }
 
 /* Layout 6 */
-.layout6 {
+.project[data-layout="6"] {
   --_number-size: var(--fluid-font-size-8xl);
 }
 
-.layout6 .metaNumber {
-  margin: 0;
-  position: absolute;
-  top: -40px;
-  left: 60%;
-  opacity: 0.15;
+.project[data-layout="6"] .metaNumber {
+  top: 20px;
+  left: 50%;
+  opacity: 0.2;
 }
 
-.layout6 .metaYear {
-  top: -40px;
+.project[data-layout="6"] .metaYear {
+  top: -10px;
   right: auto;
   bottom: auto;
-  left: -60px;
+  left: 0;
   font-size: var(--fluid-font-size-5xl);
 }
 
-.layout6 .metaCategory {
+.project[data-layout="6"] .metaCategory {
   top: 60%;
-  right: -40px;
+  right: 0;
 }
 
-.layout6 .metaTech {
+.project[data-layout="6"] .metaTech {
   gap: var(--spacing-xs);
   bottom: 280px;
-  left: -120px;
+  left: 0;
   transform: none;
 }
 
-.layout6 .metaRole {
+.project[data-layout="6"] .metaRole {
   display: none;
 }
 
@@ -730,123 +744,11 @@
    Responsive - Tablet (Horizontal Scroll, Smaller Sizes)
    ========================================================================== */
 
-@media (max-width: 1024px) {
-  .intro {
-    --_intro-pad: 36px;
-    --_intro-text-max: 280px;
-
-    gap: var(--spacing-sm);
-    align-self: flex-start;
-    max-width: 380px;
-    width: auto;
-    height: 100vh;
-  }
-
-  .introTitle {
-    font-size: var(--font-size-4xl);
-  }
-
-  .introTagline {
-    font-size: var(--font-size-lg);
-  }
-
-  .introDesc {
-    font-size: var(--font-size-sm);
-    min-height: 4.5em;
-  }
-
-  .introDetail {
-    font-size: var(--font-size-xs);
-    min-height: 6em;
-  }
-
-  .introStatNumber {
-    font-size: var(--font-size-2xl);
-  }
-
-  .introQuote {
-    font-size: var(--font-size-sm);
-    min-height: 3em;
-  }
-
-  .activeInfo {
-    bottom: 50px;
-    left: 32px;
-  }
-
-  .activeTitle {
-    font-size: var(--font-size-4xl);
-  }
-
-  .activeSubtitle {
-    font-size: var(--font-size-base);
-  }
-
-  .gallerySlider {
-    --_gallery-gap: 200px;
-
-    padding: 0 3vw;
-    padding-bottom: 16vh;
-  }
-
-  /* Scale down — same layout structure as desktop */
-  .project {
-    --_card-w: 380px;
-    --_card-h: 260px;
-    --_desc-max-width: 340px;
-
-    padding: var(--spacing-2xl-plus) var(--spacing-2xl);
-  }
-
-  .sizeLarge {
-    --_card-w: 460px;
-    --_card-h: 300px;
-  }
-
-  .sizeSmall {
-    --_card-w: 330px;
-    --_card-h: 220px;
-  }
-
-  .sizeMedium {
-    --_card-w: 420px;
-    --_card-h: 280px;
-  }
-
-  .sizeTall {
-    --_card-w: 400px;
-    --_card-h: 310px;
-  }
-
-  .sizeWide {
-    --_card-w: 480px;
-    --_card-h: 280px;
-  }
-
-  .metaNumber {
-    margin-bottom: -60px;
-    margin-left: -16px;
-  }
-
-  .metaYear {
-    font-size: var(--font-size-4xl);
-  }
-
-  .metaTech span {
-    padding: var(--box-sm);
-    font-size: var(--font-size-xs);
-  }
-
-  .metaDesc {
-    font-size: var(--font-size-sm);
-  }
-}
-
 /* ==========================================================================
-   Responsive - Mobile & Short viewport (Vertical Scroll)
+   Responsive - Tablet / Mobile & Short viewport (Vertical Scroll)
    ========================================================================== */
 
-@media (max-width: 768px), (max-height: 700px) {
+@media (max-width: 1024px), (max-height: 700px) {
   .intro {
     --_intro-pad: 1.5rem;
     --_intro-text-max: none;
@@ -933,7 +835,8 @@
     will-change: auto;
   }
 
-  .project {
+  .project,
+  .project[data-layout] {
     --_card-w: 100vw;
     --_card-h: auto;
     --_card-radius: 0;
@@ -949,16 +852,17 @@
   .sizeWide {
     --_mobile-px: 1.5rem;
 
-    gap: var(--spacing-md);
+    gap: var(--spacing-xl);
     align-self: stretch;
     margin: 0;
-    padding: 3rem var(--_mobile-px);
+    padding: var(--spacing-lg) var(--_mobile-px) 3rem;
     pointer-events: auto;
   }
 
   .card {
     margin-left: calc(-1 * var(--_mobile-px));
     margin-right: calc(-1 * var(--_mobile-px));
+    margin-top: calc(-1 * var(--spacing-lg));
     aspect-ratio: 16 / 10;
   }
 
@@ -985,54 +889,95 @@
     display: none;
   }
 
-  /* Reset all layout variant metadata positions — unified mobile layout */
-  .project .metaNumber,
-  .project .metaCategory,
-  .project .metaYear,
-  .project .metaTech,
-  .project .metaRole,
-  .project .metaDesc {
+  .metaYearDesktop {
+    display: none;
+  }
+
+  /* Reset all layout variant metadata positions — unified mobile layout
+     specificity (0,2,1) to override .project[data-layout] .meta* rules */
+  .project[data-layout] .metaNumber,
+  .project[data-layout] .metaCategory,
+  .project[data-layout] .metaYear,
+  .project[data-layout] .metaTech,
+  .project[data-layout] .metaRole,
+  .project[data-layout] .metaDesc {
     position: relative;
     top: auto;
     right: auto;
     bottom: auto;
     left: auto;
     margin: 0;
-    transform: none;
+    transform: none !important;
     writing-mode: horizontal-tb;
     mix-blend-mode: normal;
     -webkit-text-stroke: 0;
     pointer-events: auto;
+    opacity: 1 !important;
+    will-change: auto;
   }
 
-  .project .metaNumber {
-    margin-bottom: -20px;
-    opacity: 0.6;
+  .project[data-layout] .metaNumber {
+    position: absolute !important;
+    top: var(--spacing-md);
+    left: var(--_mobile-px) !important;
+    right: auto !important;
+    margin: 0;
+    z-index: 3;
+    opacity: 1 !important;
+    color: var(--text-white) !important;
+    mix-blend-mode: normal;
+    will-change: auto;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    font-size: var(--font-size-5xl) !important;
+    line-height: 1;
   }
 
-  .project .metaCategory {
-    margin-bottom: var(--spacing-sm);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
+  .metaGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0 0;
+  }
+
+  .project[data-layout] .metaCategory {
+    margin-bottom: 0;
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-accent);
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
   }
 
   .cardOverlay {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-2xs);
+    gap: var(--spacing-3xs);
     position: absolute;
-    top: 20px;
-    left: var(--_mobile-px);
+    top: var(--spacing-md);
+    left: calc(var(--_mobile-px) + 4.5rem);
     right: var(--_mobile-px);
     z-index: 2;
     color: var(--text-white);
-    mix-blend-mode: difference;
     pointer-events: none;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
   }
 
   .project .metaTitle {
     font-family: var(--font-instrument), serif;
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-medium);
     letter-spacing: -0.02em;
     line-height: var(--line-height-tight);
@@ -1046,44 +991,54 @@
     opacity: 0.7;
   }
 
-  .project .metaYear {
+  .project[data-layout] .metaYear {
     position: absolute;
-    top: 0;
+    top: auto;
     right: 0;
-    font-size: var(--font-size-lg);
+    left: auto;
+    font-size: var(--font-size-sm);
     font-weight: var(--font-weight-light);
     letter-spacing: 0.05em;
-    color: inherit;
+    color: var(--text-white) !important;
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    mix-blend-mode: normal;
+    opacity: 0.8 !important;
   }
 
-  .project .metaTech {
-    gap: var(--spacing-sm);
+  .project[data-layout] .metaTech {
+    gap: var(--spacing-xs);
     flex-wrap: wrap;
     flex-direction: row;
-    margin-top: var(--spacing-xs);
+    margin-top: 0;
   }
 
-  .project .metaTech span {
-    padding: var(--box-lg);
-    font-size: var(--font-size-sm);
+  .project[data-layout] .metaTech span {
+    padding: var(--spacing-3xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
+    border-color: var(--border-default-color);
+    color: var(--text-secondary);
   }
 
-  .project .metaRole {
+  .project[data-layout] .metaRole {
     display: block;
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
-    letter-spacing: 0.15em;
+    letter-spacing: 0.12em;
     white-space: normal;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
   }
 
-  .project .metaDesc {
-    margin-top: var(--spacing-lg);
+  .project[data-layout] .metaDesc {
+    margin-top: var(--spacing-xs);
     max-width: none;
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-relaxed);
     text-align: left;
+    color: var(--text-secondary);
   }
 }
 
@@ -1155,28 +1110,28 @@
     font-size: var(--font-size-sm);
   }
 
-  .project .metaYear {
+  .project[data-layout] .metaYear {
     font-size: var(--font-size-base);
   }
 
-  .project .metaNumber {
+  .project[data-layout] .metaNumber {
     margin-bottom: -3.3vw;
   }
 
-  .project .metaCategory {
+  .project[data-layout] .metaCategory {
     font-size: var(--font-size-xs);
   }
 
-  .project .metaDesc {
+  .project[data-layout] .metaDesc {
     font-size: var(--font-size-lg);
   }
 
-  .project .metaTech span {
+  .project[data-layout] .metaTech span {
     padding: var(--box-md);
     font-size: var(--font-size-xs);
   }
 
-  .project .metaRole {
+  .project[data-layout] .metaRole {
     font-size: var(--font-size-xs);
   }
 }
@@ -1185,22 +1140,36 @@
    Wide + Short Viewport — Side-by-side (Image | Description)
    ========================================================================== */
 
-@media (min-width: 769px) and (max-height: 700px) {
+@media (min-width: 1025px) and (max-height: 700px) {
   .gallery {
     padding-top: var(--spacing-5xl);
+    overflow: auto;
+    height: auto;
+    min-height: 100vh;
   }
 
+  .gallerySlider {
+    flex-direction: column !important;
+    transform: none !important;
+    height: auto !important;
+    will-change: auto !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  /* 이미지 왼쪽 + 메타 오른쪽 flex row */
   .project {
-    --_card-w: 100%;
+    --_card-w: 45%;
     --_card-h: auto;
     --_card-radius: var(--radius-xl);
 
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    grid-template-rows: auto auto auto auto 1fr;
-    column-gap: var(--spacing-2xl);
-    row-gap: var(--spacing-xs);
-    align-items: start;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    gap: var(--spacing-2xl) !important;
+    width: 100%;
+    border-bottom: var(--border-light);
   }
 
   .project,
@@ -1209,51 +1178,91 @@
   .sizeMedium,
   .sizeTall,
   .sizeWide {
-    padding: var(--spacing-2xl) var(--spacing-2xl-plus);
+    align-self: stretch !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: var(--spacing-2xl) var(--spacing-2xl-plus) !important;
   }
 
   .project .card {
-    grid-column: 1;
-    grid-row: 1 / -1;
-    margin-left: 0;
-    width: 100%;
+    flex-shrink: 0 !important;
+    width: 45vw !important;
+    height: calc(45vw * 9 / 16) !important;
+    margin: 0 !important;
   }
 
-  .project .metaNumber {
-    grid-column: 2;
-    grid-row: 1;
-    margin: 0;
+  .cardOverlay {
+    display: none !important;
+  }
+
+  /* metaGroup: 카드 오른쪽에 세로로 메타 정보 배치 */
+  .metaGroup {
+    display: flex !important;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .project[data-layout] .metaNumber {
+    position: relative !important;
+    margin: 0 !important;
     font-size: var(--font-size-4xl);
-    opacity: 0.4;
+    opacity: 0.4 !important;
   }
 
-  .project .metaCategory {
-    grid-column: 2;
-    grid-row: 2;
-    margin: 0;
+  .metaYearDesktop {
+    display: block !important;
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    font-size: var(--font-size-xl);
+    -webkit-text-stroke: 1px var(--text-primary);
+    color: transparent;
+    opacity: 0.5 !important;
   }
 
-  .project .metaTech {
-    grid-column: 2;
-    grid-row: 3;
-    margin-top: var(--spacing-sm);
+  .project[data-layout] .metaCategory {
+    position: relative !important;
+    margin: 0 !important;
+    writing-mode: horizontal-tb !important;
   }
 
-  .project .metaRole {
-    grid-column: 2;
-    grid-row: 4;
+  .project[data-layout] .metaTech {
+    position: relative !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    margin: 0 !important;
+    transform: none !important;
   }
 
-  .project .metaDesc {
-    grid-column: 2;
-    grid-row: 5;
-    margin: var(--spacing-sm) 0 0;
-    font-size: var(--font-size-lg);
+  .project[data-layout] .metaTech span {
+    padding: var(--box-xs) !important;
+    font-size: var(--font-size-xs);
+  }
+
+  .project[data-layout] .metaRole {
+    position: relative !important;
+    display: block !important;
+    transform: none !important;
+  }
+
+  .project[data-layout] .metaDesc {
+    position: relative !important;
+    margin: var(--spacing-xs) 0 0 !important;
+    max-width: none;
+    font-size: var(--font-size-base);
     text-align: left;
   }
 
+  .project::after {
+    display: none !important;
+  }
+
   .project:nth-child(n + 7) {
-    display: grid;
+    display: flex !important;
   }
 }
 
@@ -1300,7 +1309,7 @@
   right: 0;
 }
 
-@media (max-width: 768px), (max-height: 700px) {
+@media (max-width: 1024px), (max-height: 700px) {
   .creditsPanel {
     width: 100%;
     height: auto;
