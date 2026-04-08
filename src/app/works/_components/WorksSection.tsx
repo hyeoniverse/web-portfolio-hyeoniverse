@@ -35,6 +35,7 @@ import {
   MAX_CARD_OFFSET,
   MOUSE_SENSITIVITY,
   IMAGE_PARALLAX_MULTIPLIER,
+  META_REVEAL_THRESHOLD,
 } from "../_constants";
 import styles from "./WorksSection.module.css";
 
@@ -81,7 +82,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   // 훅
   const router = useRouter();
   const { setInfinite } = useLenis();
-  const { isMobile: isVerticalLayout } = useIsMobile(768, 700);
+  const { isMobile: isVerticalLayout } = useIsMobile(1024, 700);
 
   // 마운트 시 Lenis 무한 스크롤 비활성화
   // useLayoutEffect 사용: cleanup이 다음 페이지의 useLayoutEffect 전에 실행되어
@@ -310,6 +311,20 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
               scale: 1.2,
             });
           }
+
+          // 메타데이터 reveal — 카드가 뷰포트에 들어오면 fade in
+          const project = card.closest(`.${styles.project}`) as HTMLElement | null;
+          if (project) {
+            const rect = card.getBoundingClientRect();
+            const viewportCenter = window.innerWidth * META_REVEAL_THRESHOLD;
+            const progress = gsap.utils.clamp(0, 1, 1 - (rect.left - viewportCenter * 0.3) / viewportCenter);
+            const metas = project.querySelectorAll(`.${styles.metaCategory}, .${styles.metaYear}, .${styles.metaTech}, .${styles.metaRole}, .${styles.metaDesc}`);
+            metas.forEach((meta, mi) => {
+              const delay = mi * 0.06;
+              const p = gsap.utils.clamp(0, 1, (progress - delay) / (1 - delay));
+              gsap.set(meta, { opacity: p, y: (1 - p) * 20 });
+            });
+          }
         });
 
         rafId = requestAnimationFrame(animate);
@@ -329,6 +344,40 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
       ScrollTrigger.refresh();
     };
   }, [isVerticalLayout, infiniteScroll, PROJECT_COUNT]);
+
+  // 모바일 세로 스크롤 — 이미지 velocity 패럴랙스
+  useLayoutEffect(() => {
+    if (!isVerticalLayout) return;
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const cards = gsap.utils.toArray<HTMLElement>(`.${styles.card}`, slider);
+    const cardImages = cards.map((c) => c.querySelector(`.${styles.cardImageWrap}`) as HTMLElement | null);
+
+    let lastScrollY = window.scrollY;
+    let velocity = 0;
+    let imageOffset = 0;
+    let targetImageOffset = 0;
+    let rafId: number;
+
+    const animate = () => {
+      const scrollY = window.scrollY;
+      velocity = scrollY - lastScrollY;
+      lastScrollY = scrollY;
+
+      targetImageOffset = gsap.utils.clamp(-40, 40, -velocity * 1.5);
+      imageOffset += (targetImageOffset - imageOffset) * 0.08;
+
+      cardImages.forEach((img) => {
+        if (img) gsap.set(img, { y: imageOffset, scale: 1.05 });
+      });
+
+      rafId = requestAnimationFrame(animate);
+    };
+
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, [isVerticalLayout]);
 
   // 네비게이션 핸들러
   const triggerTransition = useCallback(
@@ -423,10 +472,9 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   }, [pressedCard]);
 
   // 프로젝트 클래스명 가져오기 헬퍼
-  const getProjectClassName = (project: Project, index: number) => {
+  const getProjectClassName = (project: Project) => {
     const sizeClass = `size${project.size.charAt(0).toUpperCase()}${project.size.slice(1)}`;
-    const layoutClass = `layout${(index % 6) + 1}`;
-    return `${styles.project} ${styles[sizeClass]} ${styles[layoutClass]}`;
+    return `${styles.project} ${styles[sizeClass]}`;
   };
 
   const w = siteConfig.works;
@@ -474,12 +522,9 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
               {/* 인트로: 각 프로젝트 세트 시작 부분에 표시 */}
               {index % PROJECT_COUNT === 0 && introBlock}
               <div
-                className={getProjectClassName(project, index)}
+                className={getProjectClassName(project)}
+                data-layout={(index % 6) + 1}
               >
-              {/* 메타데이터 */}
-              <span className={styles.metaNumber}>{project.number}</span>
-              <span className={styles.metaCategory}><T ko={project.category.ko} en={project.category.en} /></span>
-
               {/* 카드 */}
               <Tooltip content={`${project.title} · ${t("tooltip.viewProject")}`}>
               <article
@@ -507,6 +552,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
                   />
                 </div>
                 <div className={styles.cardBorder} />
+                <span className={styles.metaNumber}>{project.number}</span>
                 <div className={styles.cardOverlay}>
                   <h3 className={styles.metaTitle}>{project.title}</h3>
                   <span className={styles.metaSubtitle}>
@@ -517,14 +563,18 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
               </article>
               </Tooltip>
 
-              {/* 추가 메타데이터 */}
-              <div className={styles.metaTech}>
-                {project.tech.slice(0, 2).map((tech: string, i: number) => (
-                  <span key={i}>#{tech}</span>
-                ))}
+              {/* 메타 그룹 (카드 옆 세로 배치용) */}
+              <div className={styles.metaGroup}>
+                <span className={styles.metaCategory}><T ko={project.category.ko} en={project.category.en} /></span>
+                <span className={`${styles.metaYear} ${styles.metaYearDesktop}`}>{project.year}</span>
+                <div className={styles.metaTech}>
+                  {project.tech.slice(0, 2).map((tech: string, i: number) => (
+                    <span key={i}>#{tech}</span>
+                  ))}
+                </div>
+                <span className={styles.metaRole}><T ko={project.role.ko} en={project.role.en} /></span>
+                <p className={styles.metaDesc}><T ko={project.description.ko} en={project.description.en} /></p>
               </div>
-              <span className={styles.metaRole}><T ko={project.role.ko} en={project.role.en} /></span>
-              <p className={styles.metaDesc}><T ko={project.description.ko} en={project.description.en} /></p>
             </div>
             {/* 크레딧 패널: 각 세트의 마지막 프로젝트 뒤에 배치 */}
             {(index + 1) % PROJECT_COUNT === 0 && (
