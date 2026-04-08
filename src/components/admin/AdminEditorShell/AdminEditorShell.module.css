@@ -341,7 +341,7 @@
 }
 
 .revisionRestoreBtn {
-  padding: var(--box-3xs-xs);
+  padding: var(--box-xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -596,7 +596,7 @@
 .tagMore {
   display: inline-flex;
   align-items: center;
-  padding: var(--box-3xs-xs);
+  padding: var(--box-xs);
   background: var(--bg-secondary);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -643,7 +643,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--box-3xs-xs);
+  padding: var(--box-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
