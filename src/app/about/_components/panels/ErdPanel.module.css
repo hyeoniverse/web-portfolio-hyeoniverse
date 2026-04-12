@@ -173,22 +173,26 @@
   text-align: center;
 }
 
-/* ── Note panel (bottom bar when table selected) ── */
-.erdNotePanel {
+/* ── Note overlay (on canvas, next to active table) ── */
+.erdNoteOverlay {
+  position: absolute;
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
   align-items: flex-start;
-  padding: var(--spacing-md) var(--spacing-lg);
-  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: var(--border-default);
   border-radius: var(--radius-lg);
-  background: var(--bg-tertiary);
-  animation: erdNoteSlideUp 0.3s ease both;
+  background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+  backdrop-filter: blur(8px);
+  transform-origin: top left;
+  pointer-events: none;
+  z-index: 3;
+  animation: erdNoteFadeIn 0.25s ease both;
 }
 
-@keyframes erdNoteSlideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes erdNoteFadeIn {
+  from { opacity: 0; transform: translate(var(--_tx, 0), var(--_ty, 0)) scale(var(--_s, 1)) translateY(8px); }
+  to { opacity: 1; }
 }
 
 .erdNoteNum {
