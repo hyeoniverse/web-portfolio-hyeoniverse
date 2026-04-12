@@ -482,6 +482,28 @@ export default function AdminPostsPage() {
         onSelectChange={setSeriesSelected}
         bulkActions={[
           {
+            label: t("admin.posts.exportMd"),
+            disabled: busy,
+            onClick: async () => {
+              const ids = [...seriesSelected];
+              for (const sid of ids) {
+                const res = await fetch(`/api/posts/export?series_id=${sid}`);
+                if (!res.ok) continue;
+                const { files } = await res.json() as { files: { fileName: string; content: string }[] };
+                for (const file of files) {
+                  const blob = new Blob([file.content], { type: "text/markdown" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = file.fileName;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  await new Promise((r) => setTimeout(r, 100));
+                }
+              }
+            },
+          },
+          {
             label: t("admin.posts.delete"),
             disabled: busy,
             onClick: () => {

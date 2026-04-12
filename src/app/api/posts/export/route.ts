@@ -17,8 +17,9 @@ function toFrontmatter(post: Record<string, unknown>): string {
   return lines.join("\n");
 }
 
-// GET /api/posts/export?id=xxx — 단일 포스트 .md 다운로드
-// GET /api/posts/export?all=true — 전체 포스트 JSON(frontmatter+content) 반환
+// GET /api/posts/export?id=xxx          — 단일 포스트 .md 다운로드
+// GET /api/posts/export?all=true        — 전체 포스트 JSON 반환
+// GET /api/posts/export?series_id=xxx   — 시리즈 내 포스트 JSON 반환
 export async function GET(request: Request) {
   const { error: authError } = await requireAuth();
   if (authError) return authError;
@@ -26,6 +27,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   const all = searchParams.get("all") === "true";
+  const seriesId = searchParams.get("series_id");
   const admin = createAdminClient();
 
   if (id) {
@@ -50,12 +52,16 @@ export async function GET(request: Request) {
     });
   }
 
-  if (all) {
-    const { data: posts, error } = await admin
+  if (all || seriesId) {
+    let query = admin
       .from("posts")
       .select("*")
-      .is("deleted_at", null)
-      .order("created_at", { ascending: true });
+      .is("deleted_at", null);
+
+    if (seriesId) query = query.eq("series_id", seriesId).order("series_order", { ascending: true });
+    else query = query.order("created_at", { ascending: true });
+
+    const { data: posts, error } = await query;
 
     if (error)
       return NextResponse.json({ error: error.message }, { status: 500 });
@@ -69,7 +75,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(
-    { error: "id 또는 all=true 파라미터 필요" },
+    { error: "id, all=true, 또는 series_id 파라미터 필요" },
     { status: 400 },
   );
 }
