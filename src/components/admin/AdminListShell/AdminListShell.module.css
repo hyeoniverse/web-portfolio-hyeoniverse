@@ -64,11 +64,11 @@
   padding: var(--box-xs-xl);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
-  background: var(--text-primary);
+  background: var(--bg-inverse);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: var(--bg-primary);
+  color: var(--text-inverse);
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.02em;
