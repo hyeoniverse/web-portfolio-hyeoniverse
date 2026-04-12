@@ -504,10 +504,10 @@ export default function AdminWorksPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
+          <button className={shell.exportBtn} onClick={handleExportAll} disabled={exporting} style={exporting ? { opacity: 0.5 } : undefined}>
+            {exporting ? "..." : t("admin.works.exportMdAll")}
+          </button>
           <div className={shell.btnGroup}>
-            <button className={shell.newBtn} onClick={handleExportAll} disabled={exporting} style={exporting ? { opacity: 0.5 } : undefined}>
-              {exporting ? "..." : t("admin.works.exportMdAll")}
-            </button>
             <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
               {uploading ? "..." : t("admin.works.uploadMd")}
             </button>
