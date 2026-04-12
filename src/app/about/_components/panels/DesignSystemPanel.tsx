@@ -11,6 +11,7 @@ import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import T from "@/components/ui/T";
+import Button from "@/components/ui/Button";
 import TypographyDemo from "./demos/TypographyDemo";
 import ColorSystemDemo from "./demos/ColorSystemDemo";
 import MotionScrollDemo from "./demos/MotionScrollDemo";
@@ -245,9 +246,9 @@ function DesignSystemPanel({
           className={isMobile ? styles.dcTitleRow : undefined}
           title={<T k="aboutPage.panels.designSystem" />}
           rightContent={
-            <a href="/design-system" target="_blank" rel="noopener noreferrer" data-clickable="true" className={styles.externalLink}>
-              Open ↗
-            </a>
+            <Button variant="link" href="/design-system" external className={styles.externalLink} icon={<span>↗</span>} iconPosition="right" soundDisabled>
+              Open
+            </Button>
           }
           dotNav={isMobile ? undefined : {
             count: concepts.length,
