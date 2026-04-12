@@ -6,6 +6,7 @@
   align-items: center;
   justify-content: center;
   min-height: 0;
+  padding-right: var(--spacing-4xl);
 }
 
 .erdDiagramWrap {
@@ -150,21 +151,21 @@
   --_bg-panel: color-mix(in srgb, var(--bg-primary) 92%, transparent);
   background: var(--_bg-panel);
   backdrop-filter: blur(8px);
-  clip-path: inset(0 100% 0 0 round var(--radius-lg));
   opacity: 0;
+  transform: translateY(12px);
   pointer-events: none;
   z-index: 2;
 }
 
 .erdPinnedLayout .erdNoteOverlay {
   transition:
-    clip-path 0.4s var(--ease-out),
-    opacity 0.3s var(--ease-out);
+    opacity 0.35s var(--ease-out),
+    transform 0.35s var(--ease-out);
 }
 
 .erdNoteOverlayActive {
-  clip-path: inset(0 0 0 0 round var(--radius-lg));
   opacity: 1;
+  transform: translateY(0);
   pointer-events: auto;
 }
 
