@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import LoadingScreen from "@/components/layout/LoadingScreen";
 
-const LoadingScreen = dynamic(() => import("@/components/layout/LoadingScreen"), { ssr: false });
 const PageTransitionOverlay = dynamic(() => import("@/components/layout/PageTransitionOverlay"), { ssr: false });
 const Modal = dynamic(() => import("@/components/ui/Modal"), { ssr: false });
 const ContactDrawerWrapper = dynamic(() => import("@/components/layout/ContactDrawer/ContactDrawerWrapper"), { ssr: false });
