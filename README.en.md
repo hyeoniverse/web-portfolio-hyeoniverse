@@ -59,7 +59,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 | Area | Highlights |
 |:---|:---|
 | **Interaction** | Infinite scroll loop, mouse parallax, scroll velocity parallax, per-character StaggerText |
-| **Works** | GSAP bidirectional infinite horizontal scroll gallery + Three.js 3D torus (Lissajous curve path) |
+| **Works** | 6 layout options (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) — Admin config + `?layout=` param, Three.js 3D cylinder |
 | **Blog** | SSR + ISR caching, series, banner slider (4 layouts x 4 overlays), guest comments (dual auth) |
 | **Admin** | 5-tab Settings, modular Plate.js editor (React.memo optimized, custom footnotes, 5 templates), MD↔richtext bidirectional conversion, client-side image compression, AI fallback chain, revision history (diff comparison + dismissed tracking), auto translation |
 | **Performance** | Lighthouse 98 — unused font removal + reCAPTCHA lazy loading + CSS animation transition for LCP 1.9s, page 449KB |
@@ -103,7 +103,9 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 ### Works Gallery
 
-- **Works Horizontal Gallery**: GSAP-based horizontal scroll gallery — bidirectional infinite wrapping, intro inflow placement, layout stabilization on language switch
+- **6 Layout Options**: Switchable via Admin settings or `?layout=` query parameter — Flow (default horizontal scroll) · Fullscreen (background crossfade) · Cinematic (parallax cinema) · Grid (bento grid) · Split (left meta + right scroll) · Cylinder (Three.js 3D cylinder)
+- **Flow Layout**: GSAP-based horizontal scroll gallery — bidirectional infinite wrapping, mouse 3D tilt, image hover zoom, staggered metadata reveal
+- **Cylinder Layout**: Three.js vertical cylinder rotation + HTML overlay, cosmic-themed intro + bouncing bunny character
 - **Breakpoint Guard**: Automatic page remount on viewport breakpoint (768/1024px) transitions to reinitialize GSAP/ScrollTrigger
 
 <p align="center">
@@ -1950,6 +1952,25 @@ Clicking a link in the editor immediately opens a new tab, making it impossible 
 #### Solution
 
 Single click → `e.preventDefault()` only, placing cursor inside the link and auto-showing the link edit toolbar. Double click → opens in new tab. To prevent flickering on link-to-link navigation, `currentLinkKey` (based on link path) distinguishes links, and a custom outside-click handler ignores editor content clicks instead of `useOutsideClick`
+
+---
+
+</details>
+
+<details>
+<summary><strong>31. Undefined CSS Token — Referenced in 11 Files but Never Declared</strong></summary>
+
+#### Problem
+
+The `--box-3xs-xs` token was used as `padding: var(--box-3xs-xs)` across 11 CSS files, but was never defined in `_spacing.css`, causing all those paddings to silently fail
+
+#### Cause
+
+During a CSS token audit, `padding: var(--spacing-3xs) var(--spacing-xs)` (2px 8px) was batch-replaced with the box shorthand `var(--box-3xs-xs)`, but the token definition was never added to the Compound block in `_spacing.css`. CSS `var()` silently invalidates declarations when undefined — **undetectable by build or typecheck**
+
+#### Solution
+
+Added `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` definition to `_spacing.css`. Future token replacements should follow a two-step verification: **grep for usage → confirm definition exists**
 
 ---
 

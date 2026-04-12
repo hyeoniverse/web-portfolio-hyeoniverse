@@ -59,7 +59,7 @@
 | 영역 | 핵심 |
 |:---|:---|
 | **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, 스크롤 속도 기반 패럴랙스, 글자별 StaggerText |
-| **Works** | GSAP 양방향 무한 가로 스크롤 갤러리 + Three.js 3D 토러스 (리사주 곡선 경로) |
+| **Works** | 6종 레이아웃 (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) — Admin 설정 + `?layout=` 파라미터, Three.js 3D 실린더 |
 | **Blog** | SSR + ISR 캐싱, 시리즈, 배너 슬라이더 (4 레이아웃 x 4 오버레이), 게스트 댓글 (이중 인증) |
 | **Admin** | 5탭 Settings, Plate.js 모듈형 에디터 (React.memo 최적화, 커스텀 각주, 5종 템플릿), MD↔리치텍스트 양방향 변환, 클라이언트 이미지 압축, AI fallback chain, 리비전 히스토리 (diff 비교 + dismissed 추적), 자동 번역 |
 | **성능** | Lighthouse 98점 — 미사용 폰트 제거 + reCAPTCHA 지연 로딩 + CSS animation 전환으로 LCP 1.9s, 페이지 449KB |
@@ -103,7 +103,9 @@
 
 ### Works Gallery
 
-- **Works Horizontal Gallery**: GSAP 기반 가로 스크롤 갤러리 — 양방향 무한 래핑, 인트로 인플로우 배치, 언어 전환 레이아웃 안정화
+- **6종 레이아웃**: Admin 설정 또는 `?layout=` 쿼리 파라미터로 전환 — Flow(기본 가로 스크롤) · Fullscreen(배경 크로스페이드) · Cinematic(패럴랙스 시네마) · Grid(벤토 그리드) · Split(좌 메타 + 우 스크롤) · Cylinder(Three.js 3D 실린더)
+- **Flow 레이아웃**: GSAP 기반 가로 스크롤 갤러리 — 양방향 무한 래핑, 마우스 3D tilt, 이미지 hover 확대, 메타데이터 reveal 시차
+- **Cylinder 레이아웃**: Three.js 세로 원통 회전 + HTML 오버레이, 우주 테마 인트로 + 바운싱 버니 캐릭터
 - **Breakpoint Guard**: 뷰포트 breakpoint(768/1024px) 전환 시 페이지 자동 remount로 GSAP/ScrollTrigger 재초기화
 
 <p align="center">
@@ -1950,6 +1952,25 @@ Tooltip의 `auto` placement 판정이 뷰포트 상단(`rect.top < 60`)만 기�
 #### 해결
 
 클릭 → `e.preventDefault()`만 수행하여 커서를 링크 안에 배치하고 링크 편집 툴바를 자동 표시. 더블클릭 → 새 탭으로 이동. 링크→링크 이동 시 깜빡임 방지를 위해 `currentLinkKey`(링크 path 기반)로 동일 링크 여부를 판단하고, `useOutsideClick` 대신 에디터 본문 클릭을 무시하는 커스텀 핸들러 적용
+
+---
+
+</details>
+
+<details>
+<summary><strong>31. CSS 토큰 미정의 — 11개 파일에서 참조하지만 선언 없음</strong></summary>
+
+#### 문제
+
+`--box-3xs-xs` 토큰을 11개 CSS 파일에서 `padding: var(--box-3xs-xs)`로 사용하고 있었지만, `_spacing.css`에 실제 정의가 없어 해당 padding이 모두 무시됨
+
+#### 원인
+
+CSS 토큰 감사 과정에서 `padding: var(--spacing-3xs) var(--spacing-xs)` (2px 8px)를 box shorthand `var(--box-3xs-xs)`로 일괄 치환했으나, `_spacing.css`의 Compound 블록에 해당 토큰 정의를 추가하지 않았음. CSS `var()`는 미정의 시 오류 없이 해당 선언을 무효화하므로 **빌드·타입체크에서 감지되지 않음**
+
+#### 해결
+
+`_spacing.css`에 `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` 정의 추가. 향후 토큰 치환 시 **사용 파일 grep → 정의 파일 확인** 2단계 검증을 수행
 
 ---
 

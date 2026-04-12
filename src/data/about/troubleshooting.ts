@@ -1037,4 +1037,24 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "For interactive elements in editors, **click=edit, double-click=execute** is the natural pattern. `useOutsideClick` detects editor content clicks as 'outside', requiring a custom handler.",
     },
   },
+  {
+    section: { ko: "CSS / 디자인 토큰", en: "CSS / Design Tokens" },
+    problem: { ko: "CSS 토큰 미정의 — 11개 파일에서 참조하지만 선언 없음", en: "Undefined CSS Token — Referenced in 11 Files but Never Declared" },
+    definition: {
+      ko: "`--box-3xs-xs` 토큰을 11개 CSS 파일에서 `padding: var(--box-3xs-xs)`로 사용하고 있었지만, `_spacing.css`에 실제 정의가 없어 **해당 padding이 모두 무시**되고 있었습니다.",
+      en: "The `--box-3xs-xs` token was used as `padding: var(--box-3xs-xs)` across 11 CSS files, but was **never defined** in `_spacing.css` — causing all those paddings to silently fail.",
+    },
+    cause: {
+      ko: "CSS 토큰 감사 과정에서 `padding: var(--spacing-3xs) var(--spacing-xs)` (2px 8px)를 box shorthand `var(--box-3xs-xs)`로 일괄 치환했으나, `_spacing.css`의 Compound 블록에 해당 토큰 정의를 추가하지 않았습니다. CSS `var()`는 미정의 시 오류 없이 해당 선언을 무효화하므로 **빌드·타입체크에서 감지되지 않았습니다**.",
+      en: "During a CSS token audit, `padding: var(--spacing-3xs) var(--spacing-xs)` (2px 8px) was batch-replaced with the box shorthand `var(--box-3xs-xs)`, but the token definition was never added to the Compound block in `_spacing.css`. CSS `var()` silently invalidates declarations when undefined — **undetectable by build or typecheck**.",
+    },
+    solution: {
+      ko: "`_spacing.css`에 `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` 정의를 추가했습니다. 향후 토큰 치환 시 **사용 파일 grep → 정의 파일 확인** 2단계 검증을 수행합니다.",
+      en: "Added `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` to `_spacing.css`. Future token replacements follow a two-step verification: **grep for usage → confirm definition exists**.",
+    },
+    keyInsight: {
+      ko: "CSS custom property는 **미정의 시 silent fail** — 해당 선언만 무효화되고 에러가 발생하지 않습니다. 토큰 일괄 치환 후 반드시 **정의 존재 여부를 역검증**해야 합니다. stylelint의 `custom-property-no-missing-var-declare` 규칙을 도입하면 CI에서 자동 감지할 수 있습니다.",
+      en: "CSS custom properties **silently fail when undefined** — declarations are invalidated without errors. After batch token replacement, always **reverse-verify that definitions exist**. stylelint's `custom-property-no-missing-var-declare` rule can catch this in CI.",
+    },
+  },
 ];
