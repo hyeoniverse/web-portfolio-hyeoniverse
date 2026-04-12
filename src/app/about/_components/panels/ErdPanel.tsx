@@ -62,6 +62,7 @@ function ErdPanel({ language }: ErdPanelProps) {
   const animating = useRef(false);
   const isPanning = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
+  const dragDist = useRef(0);
 
   const zoom = SVG_W / vb.w;
 
@@ -135,14 +136,15 @@ function ErdPanel({ language }: ErdPanelProps) {
 
   // Pan handlers
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if ((e.target as HTMLElement).closest("[data-clickable]")) return;
     isPanning.current = true;
+    dragDist.current = 0;
     lastMouse.current = { x: e.clientX, y: e.clientY };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isPanning.current) return;
+    dragDist.current += Math.abs(e.clientX - lastMouse.current.x) + Math.abs(e.clientY - lastMouse.current.y);
     const el = viewportRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
@@ -161,6 +163,7 @@ function ErdPanel({ language }: ErdPanelProps) {
   }, []);
 
   const handleTableClick = useCallback((name: string) => {
+    if (dragDist.current > 5) return;
     setActiveTable((prev) => {
       if (prev === name) {
         setVbAnimated({ ox: 0, oy: 0, w: SVG_W, h: SVG_H });
@@ -338,7 +341,7 @@ function ErdPanel({ language }: ErdPanelProps) {
               const noteY = layout.y;
               const noteIdx = erdDesignNotes.indexOf(activeNote);
               return (
-                <foreignObject x={noteX} y={noteY} width="280" height="400" overflow="visible">
+                <foreignObject x={noteX} y={noteY} width="280" height="400" overflow="visible" style={{ pointerEvents: "none" }}>
                   <div className={styles.erdNoteOverlay}>
                     <span className={styles.erdNoteNum}>{String(noteIdx + 1).padStart(2, "0")}</span>
                     <div>
