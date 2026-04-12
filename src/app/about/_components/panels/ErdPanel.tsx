@@ -135,10 +135,13 @@ function ErdPanel({ language }: ErdPanelProps) {
   }, []);
 
   // Pan handlers
+  const pointerIdRef = useRef<number | null>(null);
+
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     isPanning.current = true;
     dragDist.current = 0;
     lastMouse.current = { x: e.clientX, y: e.clientY };
+    pointerIdRef.current = e.pointerId;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
@@ -158,8 +161,12 @@ function ErdPanel({ language }: ErdPanelProps) {
     });
   }, []);
 
-  const handlePointerUp = useCallback(() => {
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
     isPanning.current = false;
+    if (pointerIdRef.current !== null) {
+      (e.currentTarget as HTMLElement).releasePointerCapture(pointerIdRef.current);
+      pointerIdRef.current = null;
+    }
   }, []);
 
   const handleTableClick = useCallback((name: string) => {
@@ -190,7 +197,8 @@ function ErdPanel({ language }: ErdPanelProps) {
       }
       return name;
     });
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setVbAnimated]);
 
   // Highlight relations
   const highlightTarget = activeTable || hoveredTable;
