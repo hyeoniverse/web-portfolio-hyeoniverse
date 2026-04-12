@@ -172,6 +172,27 @@
 }
 
 /* ==========================================================================
+   Alt Layout Intro (full-screen wrapper)
+   ========================================================================== */
+
+.altIntro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.altIntro .intro {
+  height: auto;
+  max-width: 520px;
+  border-right: none;
+  text-align: center;
+  align-items: center;
+}
+
+/* ==========================================================================
    Active Project Info (Bottom Left)
    ========================================================================== */
 
@@ -191,11 +212,20 @@
   flex-direction: column;
 }
 
+.activeNumber {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0.2em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
 .activeTitle {
   margin: 0;
   font-family: var(--font-instrument), serif;
   font-size: var(--fluid-font-size-5xl);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-light);
   line-height: var(--line-height-dense);
   color: inherit;
   letter-spacing: -0.03em;
@@ -243,15 +273,20 @@
   --_card-radius: var(--radius-4xl);
   --_card-w: 520px;
   --_card-h: 340px;
-  --_number-size: var(--fluid-font-size-6xl);
+  --_number-size: var(--fluid-font-size-5xl);
   --_desc-max-width: 500px;
+  --_safe-top: calc(var(--header-height) + var(--spacing-xl));
+  --_safe-bottom: 200px;
 
   display: flex;
   gap: var(--spacing-xl);
   align-items: flex-start;
   flex-shrink: 0;
   flex-direction: column;
-  padding: var(--spacing-5xl) var(--spacing-5xl) 11.25rem;
+  height: calc(100vh - var(--_safe-top) - var(--_safe-bottom));
+  margin-top: var(--_safe-top);
+  margin-bottom: var(--_safe-bottom);
+  padding: 0 var(--spacing-5xl);
   position: relative;
   font-family: var(--font-space-grotesk), sans-serif;
   pointer-events: none;
@@ -274,7 +309,6 @@
   --_card-h: 480px;
 
   align-self: flex-start;
-  margin-top: 10vh;
   gap: var(--spacing-xl);
 }
 
@@ -283,7 +317,6 @@
   --_card-h: 380px;
 
   align-self: flex-end;
-  margin-bottom: 6vh;
 }
 
 .sizeMedium {
@@ -298,7 +331,6 @@
   --_card-h: 500px;
 
   align-self: flex-start;
-  margin-top: 12vh;
 }
 
 .sizeWide {
@@ -306,7 +338,6 @@
   --_card-h: 500px;
 
   align-self: flex-end;
-  margin-bottom: 4vh;
 }
 
 /* ==========================================================================
@@ -315,7 +346,7 @@
 
 .card {
   flex-shrink: 0;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   z-index: 1;
   width: var(--_card-w);
@@ -324,10 +355,16 @@
   border-radius: var(--_card-radius);
   transform-style: preserve-3d;
   will-change: transform;
+  perspective: 800px;
 }
 
 .card:hover {
   z-index: 5;
+}
+
+.card:hover .cardBorder {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.05), inset 0 0 30px rgba(255, 255, 255, 0.02);
 }
 
 .cardActive {
@@ -398,25 +435,15 @@
 }
 
 .metaNumber {
-  position: absolute;
-  z-index: var(--_meta-z);
-  font-family: var(--font-instrument), serif;
-  font-size: var(--_number-size);
-  font-weight: var(--font-weight-regular);
-  line-height: 0.7;
-  color: transparent;
-  letter-spacing: -0.06em;
-  transition: all 0.4s ease;
-  -webkit-text-stroke: 1px var(--text-primary);
-  mix-blend-mode: difference;
-  pointer-events: none;
+  display: none;
 }
 
 .metaCategory {
   top: 40px;
   right: 0;
-  font-size: var(--font-size-xs);
-  letter-spacing: 0.3em;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.35em;
   writing-mode: vertical-rl;
 }
 
@@ -426,13 +453,13 @@
 
 .metaYear {
   right: 0;
-  bottom: 100px;
-  font-size: var(--fluid-font-size-6xl);
+  bottom: 0;
+  font-size: var(--fluid-font-size-5xl);
   font-weight: 200;
   color: transparent;
   letter-spacing: -0.02em;
-  mix-blend-mode: difference;
   -webkit-text-stroke: 1px var(--text-primary);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
 }
 
 .metaTech {
@@ -443,18 +470,20 @@
 }
 
 .metaTech span {
-  padding: var(--box-md);
-  border: var(--border-accent);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--text-accent-alt);
+  font-family: var(--font-mono);
   font-size: var(--font-size-sm);
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   border-radius: var(--radius-capsule);
 }
 
 .metaRole {
   top: 50%;
   left: 0;
-  font-size: var(--font-size-xs);
-  letter-spacing: 0.25em;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.3em;
   white-space: nowrap;
   transform: translateY(-50%) rotate(-90deg);
 }
@@ -468,7 +497,7 @@
 }
 
 .metaDesc {
-  margin: var(--spacing-lg) 0 0;
+  margin: var(--spacing-md) 0 0;
   margin-left: auto;
   position: relative;
   z-index: var(--_meta-z);
@@ -504,30 +533,36 @@
   margin-top: var(--spacing-md);
 }
 
-/* Layout 1 */
+/*
+  메타 배치 원칙: 각 요소가 고유 영역(코너/사이드) 점유, 겹침 없음
+  TL=좌상, TR=우상, BL=좌하, BR=우하, ML=중좌, MR=중우
+*/
+
+/* Layout 1: number TL · year TR · category MR · tech BL · role ML · desc 하단 flow */
 .project[data-layout="1"] .metaNumber {
-  top: 20px;
+  top: 0;
   left: 20px;
 }
 
 .project[data-layout="1"] .metaYear {
-  top: 20px;
+  top: 0;
   right: 0;
   bottom: auto;
 }
 
 .project[data-layout="1"] .metaCategory {
-  top: 180px;
+  top: 50%;
   right: 0;
   bottom: auto;
+  transform: translateY(-50%);
 }
 
 .project[data-layout="1"] .metaTech {
   gap: var(--spacing-xs);
-  flex-direction: row;
-  top: 40%;
-  left: -120px;
-  transform: rotate(-90deg);
+  flex-direction: column;
+  top: auto;
+  bottom: 0;
+  left: 0;
 }
 
 .project[data-layout="1"] .metaTech span {
@@ -535,21 +570,26 @@
 }
 
 .project[data-layout="1"] .metaRole {
-  left: -30px;
+  left: 0;
 }
 
-/* Layout 2 */
+.project[data-layout="1"] .metaDesc {
+  max-width: min(var(--_desc-max-width), calc(100vw - 120px));
+}
+
+/* Layout 2: number BR · year TR · category MR · tech TL · role hidden */
 .project[data-layout="2"] .metaNumber {
   top: auto;
   right: 20px;
-  bottom: 20px;
+  bottom: 0;
   left: auto;
 }
 
 .project[data-layout="2"] .metaYear {
-  top: -20px;
+  top: 0;
   left: auto;
   right: 0;
+  bottom: auto;
 }
 
 .project[data-layout="2"] .metaCategory {
@@ -560,7 +600,7 @@
 
 .project[data-layout="2"] .metaTech {
   gap: var(--spacing-xs);
-  top: 80px;
+  top: 0;
   right: auto;
   bottom: auto;
   left: 0;
@@ -570,13 +610,13 @@
   display: none;
 }
 
-/* Layout 3 */
+/* Layout 3: number TL · tech TR · role ML · year BL · category BR */
 .project[data-layout="3"] {
-  --_number-size: var(--fluid-font-size-9xl);
+  --_number-size: var(--fluid-font-size-7xl);
 }
 
 .project[data-layout="3"] .metaNumber {
-  top: 20px;
+  top: 0;
   left: 20px;
   opacity: 0.2;
 }
@@ -584,71 +624,80 @@
 .project[data-layout="3"] .metaYear {
   top: auto;
   right: auto;
-  bottom: 160px;
+  bottom: 0;
   left: 0;
-  font-size: var(--fluid-font-size-6xl);
+  font-size: var(--fluid-font-size-4xl);
 }
 
 .project[data-layout="3"] .metaCategory {
-  top: auto;
+  top: 50%;
   right: 0;
-  bottom: 20px;
-  writing-mode: horizontal-tb;
+  bottom: auto;
+  writing-mode: vertical-rl;
+  transform: translateY(-50%);
 }
 
 .project[data-layout="3"] .metaTech {
   gap: var(--spacing-xs);
-  top: 40px;
-  right: 0;
+  top: 0;
+  right: var(--spacing-md);
   bottom: auto;
   left: auto;
 }
 
-/* Layout 4 */
+/* Layout 4: category TL · number TR · year ML(rotate) · tech BR · desc 하단 flow */
 .project[data-layout="4"] {
-  --_number-size: var(--fluid-font-size-7xl);
+  --_number-size: var(--fluid-font-size-5xl);
 }
 
 .project[data-layout="4"] .metaNumber {
-  top: 20px;
-  right: 20px;
-  left: auto;
+  top: 0;
+  left: 20px;
+  right: auto;
+  -webkit-text-stroke: 1px var(--color-white-alpha-30);
+  mix-blend-mode: normal;
 }
 
 .project[data-layout="4"] .metaYear {
   top: 50%;
-  right: auto;
+  right: calc(-1 * var(--spacing-3xl));
   bottom: auto;
-  left: 0;
-  transform: translateY(-50%) rotate(-90deg);
+  left: auto;
+  transform: translateY(-50%);
 }
 
 .project[data-layout="4"] .metaCategory {
-  top: 40px;
+  top: auto;
+  bottom: 0;
   right: auto;
   left: 0;
   writing-mode: vertical-rl;
 }
 
 .project[data-layout="4"] .metaTech {
-  right: 0;
-  top: 40px;
+  right: var(--spacing-md);
+  top: 0;
   bottom: auto;
+  left: auto;
 }
 
-/* Layout 5 */
+.project[data-layout="4"] .metaDesc {
+  max-width: min(var(--_desc-max-width), calc(100vw - 120px));
+}
+
+/* Layout 5: year TL · number BL · role MR(rotate) · tech TR · category BR */
 .project[data-layout="5"] {
   --_number-size: var(--fluid-font-size-6xl);
 }
 
 .project[data-layout="5"] .metaNumber {
-  bottom: 20px;
+  bottom: 0;
   left: 20px;
   top: auto;
 }
 
 .project[data-layout="5"] .metaYear {
-  top: 30%;
+  top: 0;
   right: auto;
   bottom: auto;
   left: 0;
@@ -656,12 +705,12 @@
 }
 
 .project[data-layout="5"] .metaCategory {
-  top: auto;
+  top: 50%;
   right: auto;
-  bottom: 30%;
+  bottom: auto;
   left: 0;
-  writing-mode: horizontal-tb;
-  transform: rotate(-90deg);
+  writing-mode: vertical-rl;
+  transform: translateY(-50%);
 }
 
 .project[data-layout="5"] .metaRole {
@@ -672,9 +721,9 @@
 
 .project[data-layout="5"] .metaTech {
   gap: var(--spacing-xs);
-  top: auto;
+  top: 0;
   right: 0;
-  bottom: 60px;
+  bottom: auto;
   left: auto;
 }
 
@@ -682,33 +731,34 @@
   writing-mode: horizontal-tb;
 }
 
-/* Layout 6 */
+/* Layout 6: year TL · number TC · category MR · tech BL · role hidden */
 .project[data-layout="6"] {
-  --_number-size: var(--fluid-font-size-8xl);
+  --_number-size: var(--fluid-font-size-6xl);
 }
 
 .project[data-layout="6"] .metaNumber {
-  top: 20px;
+  top: 0;
   left: 50%;
   opacity: 0.2;
 }
 
 .project[data-layout="6"] .metaYear {
-  top: -10px;
+  top: auto;
   right: auto;
-  bottom: auto;
+  bottom: 0;
   left: 0;
-  font-size: var(--fluid-font-size-5xl);
+  font-size: var(--fluid-font-size-4xl);
 }
 
 .project[data-layout="6"] .metaCategory {
-  top: 60%;
+  top: 50%;
   right: 0;
 }
 
 .project[data-layout="6"] .metaTech {
   gap: var(--spacing-xs);
-  bottom: 280px;
+  top: 0;
+  bottom: auto;
   left: 0;
   transform: none;
 }

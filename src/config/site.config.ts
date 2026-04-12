@@ -290,6 +290,7 @@ export const siteConfig = {
   // Works 페이지
   // ---------------------------------------------------------------------------
   works: {
+    layout: "flow" as "flow" | "fullscreen" | "cinematic" | "grid" | "split" | "cylinder",
     adminPerPage: 20,
     categories: [
       { ko: "웹", en: "Web" },

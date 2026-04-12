@@ -452,6 +452,28 @@ export default function ContentTab({
 
       {contentSubTab === "works" && (
         <>
+          {/* Works Layout */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.worksLayout" /></h2>
+            <div className={styles.fields}>
+              <div className={styles.fieldRow}>
+                <label className={styles.fieldLabel}><T k="admin.settings.worksLayout" /></label>
+                <Select
+                  value={config.works.layout ?? "flow"}
+                  options={[
+                    { value: "flow", label: "Flow" },
+                    { value: "fullscreen", label: "Fullscreen" },
+                    { value: "cinematic", label: "Cinematic" },
+                    { value: "grid", label: "Grid" },
+                    { value: "split", label: "Split" },
+                    { value: "cylinder", label: "Cylinder" },
+                  ]}
+                  onChange={(v) => update("works", "layout", v)}
+                />
+              </div>
+            </div>
+          </section>
+
           {/* Works Pagination */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}><T k="admin.settings.pagination" /></h2>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#1b1a18"/>
+  <line x1="312" y1="160" x2="312" y2="864" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  <line x1="412" y1="160" x2="412" y2="864" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  <line x1="512" y1="160" x2="512" y2="864" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  <line x1="612" y1="160" x2="612" y2="864" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  <line x1="712" y1="160" x2="712" y2="864" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  <circle cx="512" cy="512" r="300" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+  <circle cx="512" cy="512" r="200" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  <text x="512" y="290" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-family="monospace" font-size="22" font-weight="600" letter-spacing="6">JUNIOR FRONTEND DEVELOPER</text>
+  <text x="512" y="440" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="serif" font-size="80" font-weight="300">My Projects</text>
+  <line x1="312" y1="520" x2="712" y2="520" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="512" y="600" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-family="sans-serif" font-size="26">성장하는 개발자의 기록</text>
+  <text x="512" y="780" text-anchor="middle" fill="rgba(255,255,255,0.2)" font-family="monospace" font-size="18">scroll to explore ↓</text>
+</svg>
