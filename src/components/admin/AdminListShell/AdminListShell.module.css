@@ -106,6 +106,27 @@
   color: var(--text-inverse);
 }
 
+/* ── Export button ── */
+.exportBtn {
+  flex-shrink: 0;
+  border-radius: var(--radius-capsule);
+  border: var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.header .exportBtn:hover {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
 /* ── Button Group (capsule) ── */
 .btnGroup {
   display: flex;

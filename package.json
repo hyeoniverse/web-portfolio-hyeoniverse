@@ -10,6 +10,9 @@
     "lint": "next lint",
     "sync-posts": "tsx scripts/sync-posts.ts",
     "sync-posts:dry": "tsx scripts/sync-posts.ts --dry",
+    "sync-works": "tsx scripts/sync-works.ts",
+    "sync-works:dry": "tsx scripts/sync-works.ts --dry",
+    "sync-all": "tsx scripts/sync-posts.ts && tsx scripts/sync-works.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare": "husky"
