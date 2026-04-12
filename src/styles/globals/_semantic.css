@@ -91,7 +91,10 @@
 
   /* Gradients - Accent Fade */
   --bg-gradient-accent-fade: linear-gradient(
-    to right, transparent, var(--border-accent-strong-color), transparent
+    to right,
+    transparent,
+    var(--border-accent-strong-color),
+    transparent
   );
 
   /* Gradients - Accent Secondary */
@@ -117,9 +120,9 @@
    -------------------------------------------------------------------------- */
 :root {
   /* Border colors */
-  --border-strong-color: var(--color-neutral-alpha-80);
-  --border-default-color: var(--color-neutral-alpha-30);
-  --border-light-color: var(--color-neutral-alpha-10);
+  --border-strong-color: var(--color-neutral-alpha-100);
+  --border-default-color: var(--color-neutral-alpha-50);
+  --border-light-color: var(--color-neutral-alpha-30);
   --border-white-color: var(--color-white-alpha-100);
   --border-black-color: var(--color-gray-alpha-100);
   --border-accent-light-color: var(--color-accent-alpha-20);
