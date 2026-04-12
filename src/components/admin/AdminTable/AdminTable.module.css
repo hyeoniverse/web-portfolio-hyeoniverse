@@ -351,12 +351,12 @@
 .footerExtra {
   display: flex;
   justify-content: flex-end;
-  margin-top: var(--spacing-lg);
+  margin-top: var(--spacing-sm);
 }
 
 /* ── Pagination ── */
 .pagination {
-  margin-top: var(--spacing-2xl);
+  margin-top: var(--spacing-sm);
 }
 
 /* ── Responsive ── */
