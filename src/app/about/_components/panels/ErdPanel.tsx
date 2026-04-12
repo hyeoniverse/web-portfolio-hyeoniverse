@@ -65,7 +65,7 @@ function ErdPanel({ language }: ErdPanelProps) {
 
   const zoom = SVG_W / vb.w;
 
-  const LERP = 0.12;
+  const LERP = 0.06;
 
   const animateVb = useCallback(() => {
     setVb((prev) => {
@@ -309,7 +309,7 @@ function ErdPanel({ language }: ErdPanelProps) {
                   style={{ cursor: "pointer" }}
                 >
                   <rect
-                    width={layout.w} height={h} rx="6"
+                    width={layout.w} height={h} rx="12"
                     className={`${styles.erdTableBg} ${isActive ? styles.erdTableBgActive : ""}`}
                   />
                   <line x1={0} y1={HEADER_HEIGHT} x2={layout.w} y2={HEADER_HEIGHT} className={styles.erdHeaderLine} />
