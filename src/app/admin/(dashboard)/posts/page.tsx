@@ -631,7 +631,7 @@ tags: React`}</code></pre>
             {exporting ? "..." : t("admin.posts.exportMdAll")}
           </Button>
           <ButtonGroup>
-            <Button variant="outline" size="sm" onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21V9m0 0l-4 4m4-4l4 4"/><path d="M4 7V5a2 2 0 012-2h12a2 2 0 012 2v2"/></svg>}>
+            <Button variant="outline" size="sm" onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>}>
               {uploading ? "..." : t("admin.posts.uploadMd")}
             </Button>
             <Button variant="primary" size="sm" href="/admin/posts/new" soundDisabled icon={<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v10M3 8h10"/></svg>}>
