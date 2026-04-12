@@ -159,9 +159,6 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
         disabled={isDisabled}
         onMouseEnter={handleMouseEnter}
         onClick={handleClick}
-        whileHover={
-          !isDisabled && variant !== "link" ? { y: -1, transition: { duration: 0.2 } } : undefined
-        }
         whileTap={!isDisabled ? { scale: 0.97 } : undefined}
       >
         {content}
