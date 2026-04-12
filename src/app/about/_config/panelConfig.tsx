@@ -3,7 +3,6 @@ import type { Language } from "@/providers/LanguageProvider";
 import { projectOverview } from "@/data/about/architecture";
 import { designConcepts } from "@/data/about/concepts";
 import { designFeatures } from "@/data/about/features";
-import { designPhilosophy } from "@/data/about/philosophy";
 import { designProcess } from "@/data/about/process";
 import { securityItems } from "@/data/about/security";
 import { techStack } from "@/data/about/stack";
@@ -11,7 +10,6 @@ import {
   HeroPanel,
   OverviewPanel,
   FeaturesPanel,
-  DesignConceptPanel,
   DesignSystemPanel,
   ProcessPanel,
   VisualBreakPanel,
@@ -104,15 +102,6 @@ export const desktopPanels: PanelConfig[] = [
     props: (ctx) => ({ language: ctx.language, features: designFeatures }),
   },
   {
-    key: "designConcept",
-    Component: DesignConceptPanel,
-    props: (ctx) => ({
-      language: ctx.language,
-      philosophy: designPhilosophy,
-      scrollBy: ctx.scrollBy,
-    }),
-  },
-  {
     key: "designSystem",
     Component: DesignSystemPanel,
     props: (ctx) => ({
@@ -194,15 +183,6 @@ export const mobileTabPanels: Record<string, PanelConfig[]> = {
     },
   ],
   design: [
-    {
-      key: "designConcept",
-      Component: DesignConceptPanel,
-      props: (ctx) => ({
-        language: ctx.language,
-        philosophy: designPhilosophy,
-        scrollBy: ctx.scrollBy,
-      }),
-    },
     {
       key: "designSystem",
       Component: DesignSystemPanel,
