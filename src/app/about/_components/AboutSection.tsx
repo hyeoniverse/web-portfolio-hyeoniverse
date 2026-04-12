@@ -7,7 +7,7 @@ import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
-import { useNavIndicator, navToPanelIndex } from "../_hooks/useNavIndicator";
+import { useNavIndicator } from "../_hooks/useNavIndicator";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useMobileTabNavigation } from "../_hooks/useMobileTabNavigation";
 import {
@@ -132,7 +132,7 @@ export default function AboutSection() {
             springX={springX}
             springWidth={springWidth}
             onHover={setHoveredSection}
-            onNavigate={(navIdx) => goToSection(navToPanelIndex(navIdx))}
+            onNavigate={goToSection}
           />
           {!isMobile && (
             <>
@@ -140,8 +140,8 @@ export default function AboutSection() {
                 data-clickable="true"
                 className={styles.slideArrow}
                 onClick={() => {
-                  const totalPanels = navSections.length + 1;
-                  const prev = (activeSection - 1 + totalPanels) % totalPanels;
+                  const navIdx = highlightedSection;
+                  const prev = (navIdx - 1 + navSections.length) % navSections.length;
                   goToSection(prev);
                 }}
                 aria-label="Previous section"
@@ -152,8 +152,8 @@ export default function AboutSection() {
                 data-clickable="true"
                 className={`${styles.slideArrow} ${styles.slideArrowRight}`}
                 onClick={() => {
-                  const totalPanels = navSections.length + 1;
-                  const next = (activeSection + 1) % totalPanels;
+                  const navIdx = highlightedSection;
+                  const next = (navIdx + 1) % navSections.length;
                   goToSection(next);
                 }}
                 aria-label="Next section"
