@@ -165,7 +165,7 @@
   background: transparent;
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.15vw, 1.3rem);
-  color: var(--text-white-tertiary);
+  color: var(--color-white-alpha-50);
   border-radius: var(--radius-capsule);
   letter-spacing: 0.05em;
 }
@@ -179,7 +179,7 @@
 }
 
 .dcToggleBtnActive {
-  border-color: var(--text-white-tertiary);
+  border-color: var(--color-white-alpha-50);
   background: var(--bg-glass-subtle);
   color: var(--text-white);
 }
@@ -253,7 +253,7 @@
   gap: clamp(12px, 1.2vw, 24px);
   margin-top: clamp(12px, min(1.5vh, 0.8vw), 22px);
   font-size: clamp(0.9rem, 1.15vw, 1.4rem);
-  color: var(--text-white-tertiary);
+  color: var(--color-white-alpha-50);
 }
 
 /* ── Layout & Spacing demo ── */
@@ -274,7 +274,7 @@
   width: clamp(44px, 4.5vw, 70px);
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.05vw, 1.25rem);
-  color: var(--text-white-tertiary);
+  color: var(--color-white-alpha-50);
   text-align: right;
 }
 
@@ -297,7 +297,7 @@
   flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.05vw, 1.25rem);
-  color: var(--text-white-tertiary);
+  color: var(--color-white-alpha-50);
 }
 
 /* ── Grid System demo (breakpoint bar) ── */
@@ -335,7 +335,7 @@
   left: 50%;
   font-family: var(--font-mono);
   font-size: clamp(0.75rem, 0.95vw, 1.1rem);
-  color: var(--text-white-tertiary);
+  color: var(--color-white-alpha-50);
   white-space: nowrap;
   transform: translateX(-50%);
   opacity: 0;
@@ -373,8 +373,8 @@
   gap: clamp(10px, 0.9vw, 18px);
   align-items: center;
   padding: clamp(10px, min(1.1vh, 0.6vw), 18px) clamp(16px, 1.3vw, 26px);
-  border: var(--border-ghost-light);
-  border-radius: var(--radius-sm);
+  border: var(--border-ghost);
+  border-radius: var(--radius-capsule);
 }
 
 /* Compound selector (0,2,0) */
@@ -398,7 +398,8 @@
 .dcIconCellLabel {
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.05vw, 1.25rem);
-  color: var(--text-white-tertiary);
+  color: var(--text-white);
+  opacity: 0.6;
 }
 
 /* ── Tab bar portal controls ── */
@@ -686,7 +687,7 @@
 
 .externalLink:hover {
   color: var(--text-white);
-  border-color: var(--text-white-tertiary);
+  border-color: var(--color-white-alpha-50);
   background: var(--bg-glass-subtle);
 }
 
