@@ -460,8 +460,24 @@ export default function AdminPostsPage() {
   );
 
   /* ── Series Section ── */
+  const handleExportSeries = useCallback(async (seriesId: string) => {
+    const res = await fetch(`/api/posts/export?series_id=${seriesId}`);
+    if (!res.ok) return;
+    const { files } = await res.json() as { files: { fileName: string; content: string }[] };
+    for (const file of files) {
+      const blob = new Blob([file.content], { type: "text/markdown" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }, []);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const seriesColumns = useMemo(() => createSeriesColumns(t, handleDeleteSeries), [t]);
+  const seriesColumns = useMemo(() => createSeriesColumns(t, handleDeleteSeries, handleExportSeries), [t]);
 
   const seriesSection = (
     <div className={styles.seriesSection}>
