@@ -14,7 +14,6 @@ import {
   PADDING_Y,
   ZOOM_MIN,
   ZOOM_MAX,
-  ZOOM_STEP,
 } from "./erdConfig";
 import shared from "../AboutSection.module.css";
 import local from "./ErdPanel.module.css";
@@ -57,11 +56,12 @@ function ErdPanel({ language }: ErdPanelProps) {
   const isMobile = useMobileLayout();
   const viewportRef = useRef<HTMLDivElement>(null);
 
-  // Zoom & Pan state
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
+  // viewBox state: origin (top-left of visible area in SVG coords) + size (visible area)
+  const [vb, setVb] = useState({ ox: 0, oy: 0, w: SVG_W, h: SVG_H });
   const isPanning = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
+
+  const zoom = SVG_W / vb.w;
 
   // Active table (click to select, click again to deselect)
   const [activeTable, setActiveTable] = useState<string | null>(null);
@@ -79,24 +79,18 @@ function ErdPanel({ language }: ErdPanelProps) {
       e.stopPropagation();
 
       const rect = el.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+      const mx = (e.clientX - rect.left) / rect.width;
+      const my = (e.clientY - rect.top) / rect.height;
 
-      setZoom((prevZoom) => {
-        const newZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, prevZoom - Math.sign(e.deltaY) * ZOOM_STEP));
-        if (newZoom === prevZoom) return prevZoom;
+      setVb((prev) => {
+        const factor = e.deltaY > 0 ? 1.1 : 1 / 1.1;
+        const newW = Math.min(SVG_W / ZOOM_MIN, Math.max(SVG_W / ZOOM_MAX, prev.w * factor));
+        const newH = Math.min(SVG_H / ZOOM_MIN, Math.max(SVG_H / ZOOM_MAX, prev.h * factor));
 
-        setPan((prevPan) => {
-          const svgX = -prevPan.x / prevZoom + (mouseX / rect.width) * (SVG_W / prevZoom);
-          const svgY = -prevPan.y / prevZoom + (mouseY / rect.height) * (SVG_H / prevZoom);
+        const newOx = prev.ox + (prev.w - newW) * mx;
+        const newOy = prev.oy + (prev.h - newH) * my;
 
-          const newPanX = -(svgX - (mouseX / rect.width) * (SVG_W / newZoom)) * newZoom;
-          const newPanY = -(svgY - (mouseY / rect.height) * (SVG_H / newZoom)) * newZoom;
-
-          return { x: newPanX, y: newPanY };
-        });
-
-        return newZoom;
+        return { ox: newOx, oy: newOy, w: newW, h: newH };
       });
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
@@ -113,10 +107,13 @@ function ErdPanel({ language }: ErdPanelProps) {
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isPanning.current) return;
-    const dx = e.clientX - lastMouse.current.x;
-    const dy = e.clientY - lastMouse.current.y;
+    const el = viewportRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const dx = (e.clientX - lastMouse.current.x) / rect.width;
+    const dy = (e.clientY - lastMouse.current.y) / rect.height;
     lastMouse.current = { x: e.clientX, y: e.clientY };
-    setPan((p) => ({ x: p.x + dx, y: p.y + dy }));
+    setVb((prev) => ({ ...prev, ox: prev.ox - dx * prev.w, oy: prev.oy - dy * prev.h }));
   }, []);
 
   const handlePointerUp = useCallback(() => {
@@ -139,9 +136,19 @@ function ErdPanel({ language }: ErdPanelProps) {
   }
 
   // Zoom controls
-  const handleZoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP));
-  const handleZoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP));
-  const handleReset = () => { setZoom(1); setPan({ x: 0, y: 0 }); setActiveTable(null); };
+  const handleZoomIn = () => setVb((prev) => {
+    const f = 1 / 1.2;
+    const nw = Math.max(SVG_W / ZOOM_MAX, prev.w * f);
+    const nh = Math.max(SVG_H / ZOOM_MAX, prev.h * f);
+    return { ox: prev.ox + (prev.w - nw) / 2, oy: prev.oy + (prev.h - nh) / 2, w: nw, h: nh };
+  });
+  const handleZoomOut = () => setVb((prev) => {
+    const f = 1.2;
+    const nw = Math.min(SVG_W / ZOOM_MIN, prev.w * f);
+    const nh = Math.min(SVG_H / ZOOM_MIN, prev.h * f);
+    return { ox: prev.ox + (prev.w - nw) / 2, oy: prev.oy + (prev.h - nh) / 2, w: nw, h: nh };
+  });
+  const handleReset = () => { setVb({ ox: 0, oy: 0, w: SVG_W, h: SVG_H }); setActiveTable(null); };
 
   return (
     <div className={`${styles.panel} ${styles.panelExtraWide}`}>
@@ -157,7 +164,7 @@ function ErdPanel({ language }: ErdPanelProps) {
           onPointerCancel={handlePointerUp}
         >
           <svg
-            viewBox={`${-pan.x / zoom} ${-pan.y / zoom} ${SVG_W / zoom} ${SVG_H / zoom}`}
+            viewBox={`${vb.ox} ${vb.oy} ${vb.w} ${vb.h}`}
             preserveAspectRatio="xMidYMid meet"
             className={styles.erdSvg}
           >
