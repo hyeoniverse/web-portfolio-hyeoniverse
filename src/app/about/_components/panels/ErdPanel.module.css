@@ -140,10 +140,11 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: flex-start;
-  width: min(500px, 52%);
+  width: min(500px, 48%);
   max-height: 45%;
   overflow-y: auto;
   padding: var(--spacing-xl);
+  margin-left: var(--spacing-xl);
   border: var(--border-default);
   border-radius: var(--radius-lg);
   --_bg-panel: color-mix(in srgb, var(--bg-primary) 92%, transparent);
