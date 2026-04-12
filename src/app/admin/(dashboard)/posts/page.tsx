@@ -713,6 +713,24 @@ tags: React`}</code></pre>
         editBasePath="/admin/posts"
         getTitle={(p) => formatPostTitle(p) || t("admin.posts.untitled")}
         onDelete={handleDelete}
+        onBulkExport={async (ids) => {
+          for (const id of ids) {
+            const res = await fetch(`/api/posts/export?id=${id}`);
+            if (!res.ok) continue;
+            const text = await res.text();
+            const disposition = res.headers.get("Content-Disposition") ?? "";
+            const match = disposition.match(/filename="(.+)"/);
+            const fileName = match?.[1] ?? `${id}.md`;
+            const blob = new Blob([text], { type: "text/markdown" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+            await new Promise((r) => setTimeout(r, 100));
+          }
+        }}
         onBulkDelete={async (ids) => {
           setBusy(true);
           for (const id of ids) await fetch(`/api/posts/${id}`, { method: "DELETE" });

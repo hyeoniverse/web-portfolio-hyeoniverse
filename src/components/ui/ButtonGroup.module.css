@@ -9,10 +9,11 @@
   border: var(--border-strong);
 }
 
-/* 자식 Button 개별 border/radius 제거 */
+/* 자식 Button 개별 border/radius/hover 이동 제거 */
 .group > * {
   border: none !important;
   border-radius: 0 !important;
+  transform: none !important;
 }
 
 /* 인접 버튼 사이 구분선 */
