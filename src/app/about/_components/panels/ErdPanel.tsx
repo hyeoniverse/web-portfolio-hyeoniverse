@@ -222,7 +222,7 @@ function ErdPanel({ language }: ErdPanelProps) {
 
   return (
     <div className={`${styles.panel} ${styles.panelExtraWide}`}>
-      <div className={`${styles.pinnedContent} ${styles.erdViewport}`}>
+      <div className={styles.erdViewport}>
         <PinnedTitleRow className={isMobile ? styles.erdTitleRow : undefined} title="Database Design." />
 
         <div
