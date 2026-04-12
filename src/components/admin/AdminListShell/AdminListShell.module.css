@@ -106,29 +106,6 @@
   color: var(--text-inverse);
 }
 
-/* ── Export button (1:1, height = newBtn) ── */
-.exportBtn {
-  width: calc(var(--font-size-sm) + var(--spacing-xs) * 2 + 2px);
-  aspect-ratio: 1;
-  flex-shrink: 0;
-  border-radius: var(--radius-circle);
-  border: var(--border-default);
-  background: transparent;
-  color: var(--text-secondary);
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.header .exportBtn:hover {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
 /* ── Button Group (capsule) ── */
 .btnGroup {
   display: flex;
@@ -142,12 +119,12 @@
   border-radius: 0;
 }
 
-.btnGroup .newBtn:first-child {
+.btnGroup .newBtn:not(:last-child) {
   background: transparent;
   color: var(--text-primary);
 }
 
-.header .btnGroup .newBtn:first-child:hover {
+.header .btnGroup .newBtn:not(:last-child):hover {
   background: var(--bg-inverse);
   color: var(--text-inverse);
 }
