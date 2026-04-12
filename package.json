@@ -8,6 +8,8 @@
     "analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
+    "sync-posts": "tsx scripts/sync-posts.ts",
+    "sync-posts:dry": "tsx scripts/sync-posts.ts --dry",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare": "husky"

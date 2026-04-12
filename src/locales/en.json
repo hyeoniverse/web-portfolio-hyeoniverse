@@ -427,6 +427,8 @@
       "searchContent": "Content",
       "newPost": "New Post",
       "uploadMd": "Upload .md",
+      "exportMd": "Export .md",
+      "exportMdAll": "Export All .md",
       "uploadGuide": "Upload Guide",
       "newCategories": "New Categories Found",
       "newCategoriesFound": "The uploaded files contain unregistered categories.",
