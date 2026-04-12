@@ -7,7 +7,7 @@ import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { useInViewMobile } from "../_hooks/useInViewMobile";
-import { useNavIndicator } from "../_hooks/useNavIndicator";
+import { useNavIndicator, navToPanelIndex } from "../_hooks/useNavIndicator";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useMobileTabNavigation } from "../_hooks/useMobileTabNavigation";
 import {
@@ -28,8 +28,8 @@ export default function AboutSection() {
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
     useHorizontalScroll(styles, {
       infinite: infiniteScroll,
-      panelSetSize: 16,
-      navSectionCount: 15,
+      panelSetSize: 15,
+      navSectionCount: 14,
     });
   useInViewMobile(trackRef, styles.animate, styles.animateVisible);
   const { isLoading } = useLoadingScreen();
@@ -132,7 +132,7 @@ export default function AboutSection() {
             springX={springX}
             springWidth={springWidth}
             onHover={setHoveredSection}
-            onNavigate={goToSection}
+            onNavigate={(navIdx) => goToSection(navToPanelIndex(navIdx))}
           />
           {!isMobile && (
             <>
@@ -140,7 +140,8 @@ export default function AboutSection() {
                 data-clickable="true"
                 className={styles.slideArrow}
                 onClick={() => {
-                  const prev = (activeSection - 1 + navSections.length) % navSections.length;
+                  const totalPanels = navSections.length + 1;
+                  const prev = (activeSection - 1 + totalPanels) % totalPanels;
                   goToSection(prev);
                 }}
                 aria-label="Previous section"
@@ -151,7 +152,8 @@ export default function AboutSection() {
                 data-clickable="true"
                 className={`${styles.slideArrow} ${styles.slideArrowRight}`}
                 onClick={() => {
-                  const next = (activeSection + 1) % navSections.length;
+                  const totalPanels = navSections.length + 1;
+                  const next = (activeSection + 1) % totalPanels;
                   goToSection(next);
                 }}
                 aria-label="Next section"
