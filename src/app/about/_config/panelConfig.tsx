@@ -136,7 +136,7 @@ export const desktopPanels: PanelConfig[] = [
   {
     key: "erd",
     Component: ErdPanel,
-    props: (ctx) => ({ language: ctx.language, scrollBy: ctx.scrollBy }),
+    props: (ctx) => ({ language: ctx.language }),
   },
   {
     key: "codeHighlights",
