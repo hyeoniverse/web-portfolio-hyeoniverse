@@ -61,7 +61,7 @@
 | **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, 스크롤 속도 기반 패럴랙스, 글자별 StaggerText |
 | **Works** | 6종 레이아웃 (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) — Admin 설정 + `?layout=` 파라미터, Three.js 3D 실린더 |
 | **Blog** | SSR + ISR 캐싱, 시리즈, 배너 슬라이더 (4 레이아웃 x 4 오버레이), 게스트 댓글 (이중 인증) |
-| **Admin** | 5탭 Settings, Plate.js 모듈형 에디터 (React.memo 최적화, 커스텀 각주, 5종 템플릿), MD↔리치텍스트 양방향 변환, 클라이언트 이미지 압축, AI fallback chain, 리비전 히스토리 (diff 비교 + dismissed 추적), 자동 번역 |
+| **Admin** | 5탭 Settings, Plate.js 모듈형 에디터, MD↔리치텍스트 양방향 변환, AI fallback chain, 리비전 히스토리, `.md` 파일 동기화 (`content/posts/`, `content/works/` → DB), 전체/선택/개별/시리즈 내보내기 |
 | **성능** | Lighthouse 98점 — 미사용 폰트 제거 + reCAPTCHA 지연 로딩 + CSS animation 전환으로 LCP 1.9s, 페이지 449KB |
 | **반응형** | PC/Tablet/Mobile 3단 breakpoint + BreakpointGuard (GSAP 자동 재초기화) |
 | **다국어** | 한/영 전체 i18n + 번역 Tooltip + 자동 번역 (DeepL/Google/Gemini/Claude) |
@@ -155,7 +155,7 @@
 
 **대시보드 & CRUD**
 
-- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 일괄 선택(드래그) + 발행/삭제(개수 입력 확인), .md 파일 업로드(frontmatter 메타데이터 + 새 카테고리 자동 감지 + 프리셋 랜덤 커버 자동 생성, Posts/Works 공용), 시리즈 관리(커버 배경 + 접기/펼치기 애니메이션 + 게시물 추가 모달(다중선택/드래그) + 순서 더블클릭 삽입 이동 + 삭제 모달(하위 게시물 옵션)), 휴지통 프리뷰(호버 툴팁 + 클릭 시 전체 미리보기 + 복구/영구삭제), 공통 SubTable · SearchCapsule · DraggableTag 컴포넌트
+- **Admin Dashboard**: Supabase Auth 기반 어드민 — Layout 레벨 `/admin` 경로 보호, 포스트/작업물 CRUD, 일괄 선택(드래그) + 발행/삭제(개수 입력 확인), .md 파일 업로드(frontmatter 메타데이터 + 새 카테고리 자동 감지 + 프리셋 랜덤 커버 자동 생성, Posts/Works 공용), `.md` 내보내기(전체/선택/개별/시리즈), `content/posts/` · `content/works/` 폴더 동기화(Jekyll-style, slug/title 기준 upsert), 시리즈 관리(커버 배경 + 접기/펼치기 애니메이션 + 게시물 추가 모달(다중선택/드래그) + 순서 더블클릭 삽입 이동 + 삭제 모달(하위 게시물 옵션)), 휴지통 프리뷰(호버 툴팁 + 클릭 시 전체 미리보기 + 복구/영구삭제), 공통 SubTable · SearchCapsule · ButtonGroup · DraggableTag 컴포넌트
 - **사이트 콘텐츠 관리**: Settings 5개 탭(General/Content/Appearance/Services/Account) — 브랜드, SEO, Hero/About/Services 이중언어 편집, BroadcastChannel 동기화
 - **Profile Admin**: 프로필 데이터(경력/스킬/철학/자격증/수상) Admin 편집 — JSONB 저장, `PeriodPicker` 구조화 기간 입력
 
@@ -198,7 +198,7 @@
 
 ### Design System
 
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown), Pagination(smart ellipsis), PeriodPicker, Gradient Tokens, 3-phase scroll 애니메이션
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown), Pagination(smart ellipsis), PeriodPicker, ButtonGroup(캡슐형 합체 버튼), Gradient Tokens, 3-phase scroll 애니메이션
 
 <p align="center">
   <img src="public/docs/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
@@ -434,11 +434,11 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 
 **주요 API 엔드포인트:**
 
-> **Posts API**: `GET/POST /api/posts`, `GET/PATCH/DELETE /api/posts/[id]`, `POST /api/posts/[id]/view`, `GET/POST /api/posts/[id]/like`
+> **Posts API**: `GET/POST /api/posts`, `GET/PATCH/DELETE /api/posts/[id]`, `POST /api/posts/[id]/view`, `GET/POST /api/posts/[id]/like`, `GET /api/posts/export` (단일/전체/시리즈 .md 내보내기)
 >
 > **Series API**: `GET/POST /api/series`, `GET/PATCH/DELETE /api/series/[id]`
 >
-> **Works API**: `GET/POST /api/works`, `GET/PATCH/DELETE /api/works/[id]`, `GET/POST /api/works/[id]/like`
+> **Works API**: `GET/POST /api/works`, `GET/PATCH/DELETE /api/works/[id]`, `GET/POST /api/works/[id]/like`, `GET /api/works/export` (단일/전체 .md 내보내기)
 >
 > **Comments API**: `GET /api/comments?post_id=`, `POST /api/comments`, `PATCH /api/comments` (수정), `DELETE /api/comments/[id]`
 >
@@ -1971,6 +1971,25 @@ CSS 토큰 감사 과정에서 `padding: var(--spacing-3xs) var(--spacing-xs)` (
 #### 해결
 
 `_spacing.css`에 `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` 정의 추가. 향후 토큰 치환 시 **사용 파일 grep → 정의 파일 확인** 2단계 검증을 수행
+
+---
+
+</details>
+
+<details>
+<summary><strong>32. LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생</strong></summary>
+
+#### 문제
+
+페이지 로드 시 콘텐츠가 잠깐 보인 후에 로딩 화면(검은 배경)이 나타남
+
+#### 원인
+
+`LoadingScreen`이 `ClientOverlays` 안에서 `dynamic(() => import(...), { ssr: false })`로 불러와져 서버 HTML에 포함되지 않았음. 브라우저가 JS 번들을 로드하고 React가 하이드레이션을 완료한 후에야 `LoadingScreen`이 마운트되어, 그 사이 콘텐츠가 노출됨
+
+#### 해결
+
+`LoadingScreen`만 일반 `import`로 변경하여 서버 HTML에 포함되도록 수정. `useLoadingScreen()` 훅의 초기값이 `isLoading: true`이므로 SSR 시점에 `opacity: 1` 검은 배경이 HTML에 포함됨. 나머지 오버레이(Modal, CursorTrail 등)는 서버에서 렌더할 필요가 없어 `ssr: false` 유지
 
 ---
 

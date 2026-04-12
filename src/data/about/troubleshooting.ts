@@ -1057,4 +1057,24 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "CSS custom properties **silently fail when undefined** — declarations are invalidated without errors. After batch token replacement, always **reverse-verify that definitions exist**. stylelint's `custom-property-no-missing-var-declare` rule can catch this in CI.",
     },
   },
+  {
+    section: { ko: "Frontend / Performance", en: "Frontend / Performance" },
+    problem: { ko: "LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생", en: "LoadingScreen Not Included in SSR — Content Flash Before Loading" },
+    definition: {
+      ko: "페이지 로드 시 콘텐츠가 잠깐 보인 후에 로딩 화면(검은 배경)이 나타났습니다. design-system 등 클라이언트 렌더링 비중이 큰 페이지에서 특히 눈에 띄었습니다.",
+      en: "Page content briefly flashed before the loading screen (black backdrop) appeared. Especially noticeable on client-heavy pages like design-system.",
+    },
+    cause: {
+      ko: "`LoadingScreen`이 `ClientOverlays` 안에서 `dynamic(() => import(...), { ssr: false })`로 불러와져 **서버 HTML에 포함되지 않았습니다**. 브라우저가 JS 번들을 로드하고 React 하이드레이션이 완료된 후에야 `LoadingScreen`이 마운트되어, 그 사이 콘텐츠가 노출되었습니다.",
+      en: "`LoadingScreen` was loaded inside `ClientOverlays` using `dynamic(() => import(...), { ssr: false })`, **excluding it from server HTML**. The browser displayed page content immediately, and `LoadingScreen` only mounted after JS bundle load + React hydration.",
+    },
+    solution: {
+      ko: "`LoadingScreen`만 일반 `import`로 변경하여 서버 HTML에 포함되도록 수정했습니다. `useLoadingScreen()` 훅의 초기값이 `isLoading: true`이므로 SSR 시점에 `opacity: 1` 검은 배경이 HTML에 포함됩니다. 나머지 오버레이(Modal, CursorTrail 등)는 서버 렌더가 불필요하므로 `ssr: false` 유지.",
+      en: "Changed `LoadingScreen` to a regular `import` so it's included in server HTML. Since `useLoadingScreen()` initializes with `isLoading: true`, the black backdrop renders at `opacity: 1` in SSR output. Other overlays (Modal, CursorTrail) remain `ssr: false`.",
+    },
+    keyInsight: {
+      ko: "`dynamic({ ssr: false })`는 서버 HTML에서 **완전히 제외**됩니다. 로딩 화면처럼 **초기 렌더 시 반드시 보여야 하는 컴포넌트**는 SSR에 포함시키고, 초기값으로 올바른 상태를 렌더해야 합니다. `useState` 초기값이 서버와 클라이언트에서 동일하면 하이드레이션 불일치 없이 안전합니다.",
+      en: "`dynamic({ ssr: false })` **completely excludes** the component from server HTML. Components that **must be visible on initial render** (like loading screens) should be included in SSR, with correct initial state. If `useState` initializer returns the same value on server and client, there's no hydration mismatch.",
+    },
+  },
 ];

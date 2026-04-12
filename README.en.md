@@ -61,7 +61,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 | **Interaction** | Infinite scroll loop, mouse parallax, scroll velocity parallax, per-character StaggerText |
 | **Works** | 6 layout options (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) — Admin config + `?layout=` param, Three.js 3D cylinder |
 | **Blog** | SSR + ISR caching, series, banner slider (4 layouts x 4 overlays), guest comments (dual auth) |
-| **Admin** | 5-tab Settings, modular Plate.js editor (React.memo optimized, custom footnotes, 5 templates), MD↔richtext bidirectional conversion, client-side image compression, AI fallback chain, revision history (diff comparison + dismissed tracking), auto translation |
+| **Admin** | 5-tab Settings, modular Plate.js editor, MD↔richtext bidirectional conversion, AI fallback chain, revision history, `.md` file sync (`content/posts/`, `content/works/` → DB), bulk/individual/series export |
 | **Performance** | Lighthouse 98 — unused font removal + reCAPTCHA lazy loading + CSS animation transition for LCP 1.9s, page 449KB |
 | **Responsive** | PC/Tablet/Mobile 3-tier breakpoints + BreakpointGuard (automatic GSAP reinitialization) |
 | **i18n** | Full Korean/English i18n + translation Tooltip + auto translation (DeepL/Google/Gemini/Claude) |
@@ -155,7 +155,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 **Dashboard & CRUD**
 
-- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, bulk select (drag) + publish/delete (count input confirmation), .md file upload (frontmatter metadata + auto category detection + random preset cover generation, shared for Posts/Works), series management (cover background + collapse animation + add post modal (multi-select/drag) + double-click order insert + delete modal with child post option), trash preview (hover tooltip + full preview + restore/purge), shared SubTable · SearchCapsule · DraggableTag components
+- **Admin Dashboard**: Supabase Auth-based admin — Layout-level `/admin` route protection, post/work CRUD, bulk select (drag) + publish/delete (count input confirmation), .md file upload (frontmatter metadata + auto category detection + random preset cover generation, shared for Posts/Works), `.md` export (bulk/individual/series), `content/posts/` · `content/works/` folder sync (Jekyll-style, slug/title-based upsert), series management (cover background + collapse animation + add post modal (multi-select/drag) + double-click order insert + delete modal with child post option), trash preview (hover tooltip + full preview + restore/purge), shared SubTable · SearchCapsule · ButtonGroup · DraggableTag components
 - **Site Content Management**: Settings with 5 tabs (General/Content/Appearance/Services/Account) — brand, SEO, Hero/About/Services bilingual editing, BroadcastChannel sync
 - **Profile Admin**: Profile data (career/skills/philosophy/certifications/awards) admin editing — JSONB storage, `PeriodPicker` structured period input
 
@@ -198,7 +198,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 ### Design System
 
-- **Design System Preview**: View tokens/components/banner layouts at `/design-system` route — Tooltip, Select (portal-based dropdown), Pagination (smart ellipsis), PeriodPicker, Gradient Tokens, 3-phase scroll animation
+- **Design System Preview**: View tokens/components/banner layouts at `/design-system` route — Tooltip, Select (portal-based dropdown), Pagination (smart ellipsis), PeriodPicker, ButtonGroup (capsule-merged buttons), Gradient Tokens, 3-phase scroll animation
 
 <p align="center">
   <img src="public/docs/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
@@ -434,11 +434,11 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 
 **Key API endpoints:**
 
-> **Posts API**: `GET/POST /api/posts`, `GET/PATCH/DELETE /api/posts/[id]`, `POST /api/posts/[id]/view`, `GET/POST /api/posts/[id]/like`
+> **Posts API**: `GET/POST /api/posts`, `GET/PATCH/DELETE /api/posts/[id]`, `POST /api/posts/[id]/view`, `GET/POST /api/posts/[id]/like`, `GET /api/posts/export` (single/all/series .md export)
 >
 > **Series API**: `GET/POST /api/series`, `GET/PATCH/DELETE /api/series/[id]`
 >
-> **Works API**: `GET/POST /api/works`, `GET/PATCH/DELETE /api/works/[id]`, `GET/POST /api/works/[id]/like`
+> **Works API**: `GET/POST /api/works`, `GET/PATCH/DELETE /api/works/[id]`, `GET/POST /api/works/[id]/like`, `GET /api/works/export` (single/all .md export)
 >
 > **Comments API**: `GET /api/comments?post_id=`, `POST /api/comments`, `PATCH /api/comments` (edit), `DELETE /api/comments/[id]`
 >
@@ -1971,6 +1971,25 @@ During a CSS token audit, `padding: var(--spacing-3xs) var(--spacing-xs)` (2px 8
 #### Solution
 
 Added `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` definition to `_spacing.css`. Future token replacements should follow a two-step verification: **grep for usage → confirm definition exists**
+
+---
+
+</details>
+
+<details>
+<summary><strong>32. LoadingScreen Not Included in SSR — Content Flash Before Loading</strong></summary>
+
+#### Problem
+
+Page content briefly appears before the loading screen (black backdrop) shows up
+
+#### Cause
+
+`LoadingScreen` was loaded inside `ClientOverlays` using `dynamic(() => import(...), { ssr: false })`, excluding it from the server HTML. The browser displayed page content immediately, and `LoadingScreen` only mounted after JS bundle load + React hydration
+
+#### Solution
+
+Changed `LoadingScreen` to a regular `import` so it's included in server HTML. Since `useLoadingScreen()` initializes with `isLoading: true`, the black backdrop renders at `opacity: 1` in the SSR output. Other overlays (Modal, CursorTrail, etc.) remain `ssr: false` as they don't need server rendering
 
 ---
 
