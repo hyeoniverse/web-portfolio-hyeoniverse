@@ -1,0 +1,415 @@
+/* ==========================================================================
+   E. Cylinder — Three.js 세로 원통 회전 + HTML 메타 오버레이
+   ========================================================================== */
+
+.wrap {
+  --_border-accent-mid: 1px solid var(--color-accent-alpha-50);
+
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--_bg);
+}
+
+/* ── Canvas (fixed, full-screen) ── */
+.canvas {
+  position: fixed !important;
+  inset: 0;
+  z-index: 1;
+}
+
+/* ── Meta items ── */
+.metaItem {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-sm);
+  pointer-events: auto;
+  mix-blend-mode: difference;
+  will-change: transform, opacity;
+}
+
+.metaItemEnter .metaCategory {
+  animation: metaFadeIn 0.35s ease both;
+  animation-delay: 0.1s;
+}
+
+.metaItemEnter .metaTitle {
+  /* 단어별 animation은 metaWord에서 처리 */
+}
+
+.metaWord {
+  display: inline-block;
+  animation: metaWordUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.metaWord + .metaWord {
+  margin-left: 0.25em;
+}
+
+.metaItemEnter .metaDesc {
+  animation: metaFadeIn 0.35s ease both;
+  animation-delay: 0.2s;
+}
+
+@keyframes metaFadeIn {
+  from { opacity: 0; filter: blur(4px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+
+@keyframes metaWordUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.metaCategory {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-white);
+  opacity: 0.5;
+}
+
+.metaTitle {
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(3rem, 9vw, 9rem);
+  font-weight: var(--font-weight-light);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--text-white);
+  margin: 0;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.metaDesc {
+  max-width: 480px;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-white);
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.metaDescWord {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.metaItem:hover .metaDescWord {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ctaInline {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-circle);
+  border: var(--border-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  pointer-events: auto;
+  margin-top: var(--spacing-xs);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s ease;
+}
+
+.metaItem:hover .ctaInline {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.ctaInline .ctaBg {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-circle);
+  background: var(--text-white);
+  transform: scale(0);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ctaInline:hover .ctaBg {
+  transform: scale(1);
+}
+
+.ctaInline .ctaArrow {
+  position: relative;
+  z-index: 1;
+  font-size: 18px;
+  color: var(--text-white);
+  transition: color 0.3s ease;
+}
+
+.ctaInline:hover .ctaArrow {
+  color: var(--text-black);
+}
+
+/* ── Meta details (year · role · tech) ── */
+.metaDetails {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.08em;
+  color: var(--text-white);
+  margin-top: var(--spacing-xs);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.metaItem:hover .metaDetails {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.metaDot {
+  width: 3px;
+  height: 3px;
+  border-radius: var(--radius-circle);
+  background: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Intro item (metaItem과 동일한 위치 시스템) ── */
+.introItem {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-md);
+  max-width: 520px;
+  padding: 0 var(--spacing-xl);
+  transition: opacity 0.3s ease;
+}
+
+/* Intro decorations — stars */
+.introStars {
+  position: absolute;
+  inset: -60px;
+  pointer-events: none;
+}
+
+.introStar {
+  position: absolute;
+  border-radius: var(--radius-circle);
+  background: var(--text-white);
+  opacity: 0;
+  animation: introStarTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes introStarTwinkle {
+  0%, 100% { opacity: 0.1; transform: scale(0.8); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+/* Intro decorations — ovals */
+.introOvalOuter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 420px;
+  height: 260px;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  border-radius: 50%;
+  border: var(--_border-accent-mid);
+  pointer-events: none;
+  animation: introOvalSpin 25s linear infinite;
+}
+
+.introOvalInner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 180px;
+  transform: translate(-50%, -50%) rotate(8deg);
+  border-radius: 50%;
+  border: var(--border-accent);
+  pointer-events: none;
+  animation: introOvalSpin 20s linear infinite reverse;
+}
+
+.introOvalInner::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translateX(-50%);
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  opacity: 0.7;
+  box-shadow: 0 0 6px var(--color-accent-alpha-50);
+}
+
+@keyframes introOvalSpin {
+  to { transform: translate(-50%, -50%) rotate(348deg); }
+}
+
+.introRule {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.introRuleLine {
+  width: 32px;
+  height: 1px;
+  background: var(--bg-accent-solid);
+  opacity: 0.4;
+}
+
+.introRuleDot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  opacity: 0.6;
+}
+
+.introLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--text-white);
+  opacity: 0.5;
+}
+
+.introTitle {
+  margin: 0;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(2.5rem, 7vw, 6rem);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.03em;
+  color: var(--text-white);
+}
+
+.introTagline {
+  font-size: var(--font-size-lg);
+  color: var(--text-white);
+  max-width: 480px;
+  line-height: var(--line-height-relaxed);
+  opacity: 0.7;
+}
+
+.introDesc {
+  font-size: var(--font-size-sm);
+  color: var(--text-white);
+  opacity: 0.4;
+  max-width: 400px;
+  line-height: var(--line-height-loose);
+}
+
+.introScroll {
+  margin-top: var(--spacing-xl);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.2em;
+  color: var(--text-white);
+  animation: introScrollBounce 2.5s ease-in-out infinite;
+}
+
+@keyframes introScrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
+
+/* ── 좌하단 고정 정보 ── */
+.fixedInfo {
+  position: fixed;
+  left: var(--spacing-2xl);
+  bottom: var(--spacing-2xl);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  pointer-events: none;
+}
+
+.fixedAvailable {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.fixedDate {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+/* ── 인디케이터 (우측 세로) ── */
+.indicator {
+  position: fixed;
+  right: var(--spacing-2xl);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  pointer-events: none;
+}
+
+.indicatorDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-tertiary-alt);
+  transition: all 0.4s ease;
+}
+
+.indicatorDotActive {
+  background: var(--bg-inverse);
+  height: 24px;
+  border-radius: 3px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .metaTitle {
+    font-size: clamp(2.5rem, 6vw, 6rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .indicator {
+    display: none;
+  }
+}

@@ -248,6 +248,7 @@
       "servicesLabel": "Skills",
       "servicesItems": "Skill Items",
       "marqueeWords": "Scrolling Text",
+      "worksLayout": "Layout",
       "worksIntro": "Intro",
       "worksIntroLabel": "Badge",
       "worksIntroTitle": "Title",

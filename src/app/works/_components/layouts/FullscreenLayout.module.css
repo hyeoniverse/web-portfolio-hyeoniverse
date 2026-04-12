@@ -1,0 +1,286 @@
+/* ==========================================================================
+   A. Fullscreen — Typography + Rotating Image Cylinder
+   ========================================================================== */
+
+.wrap {
+  position: relative;
+  width: 100%;
+  background: var(--bg-black);
+  overflow: hidden;
+}
+
+/* ── Background image layer (fixed, crossfade) ── */
+.bgLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bgImage {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.bgImage img {
+  object-fit: cover;
+}
+
+.bgImageActive {
+  opacity: 1;
+}
+
+/* ── Vignette overlay ── */
+.bgLayer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, transparent 20%, var(--color-gray-alpha-50) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Section (one per project) ── */
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+}
+
+/* ── Inner content ── */
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-lg);
+  padding: 0 var(--spacing-2xl);
+  max-width: 900px;
+}
+
+/* ── Stagger reveal ── */
+.category,
+.title,
+.subtitle,
+.cta,
+.number,
+.year,
+.tech {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.category { transition-delay: 0.1s; }
+.title { transition-delay: 0.2s; transform: translateY(40px); transition-duration: 0.8s; }
+.subtitle { transition-delay: 0.4s; }
+.cta { transition-delay: 0.55s; transform: translateY(15px) scale(0.9); }
+.number { transition-delay: 0.15s; transform: translateY(40px); transition-duration: 0.9s; }
+.year { transition-delay: 0.45s; }
+.tech { transition-delay: 0.6s; }
+
+.visible .category,
+.visible .title,
+.visible .subtitle,
+.visible .cta,
+.visible .number,
+.visible .year,
+.visible .tech {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.visible .cta { transform: translateY(0) scale(1); }
+.visible .tech { transform: translateX(-50%) translateY(0); }
+
+/* ── Category ── */
+.category {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--text-white);
+  opacity: 0.4;
+}
+
+/* ── Title ── */
+.title {
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(2.5rem, 8vw, 8rem);
+  font-weight: var(--font-weight-light);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--text-white);
+  margin: 0;
+  transition: opacity 0.8s ease, transform 0.8s ease, color 0.4s ease, text-shadow 0.4s ease;
+}
+
+.section:hover .title {
+  text-shadow: 0 0 60px var(--color-white-alpha-20);
+}
+
+/* ── Subtitle ── */
+.subtitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-white);
+  opacity: 0.45;
+  max-width: 450px;
+  line-height: var(--line-height-relaxed);
+}
+
+/* ── CTA circle ── */
+.cta {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-circle);
+  border: var(--border-ghost);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ctaBg {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-circle);
+  background: var(--bg-white);
+  transform: scale(0);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.section:hover .ctaBg {
+  transform: scale(1);
+}
+
+.ctaArrow {
+  position: relative;
+  z-index: 1;
+  font-size: var(--font-size-md);
+  color: var(--text-white);
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.section:hover .ctaArrow {
+  color: var(--text-black);
+  transform: translateX(2px) translateY(-2px);
+}
+
+/* ── Number watermark ── */
+.number {
+  position: absolute;
+  right: 5vw;
+  bottom: 8vh;
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(5rem, 15vw, 18rem);
+  font-weight: 200;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-white-alpha-5);
+  pointer-events: none;
+}
+
+/* ── Year ── */
+.year {
+  position: absolute;
+  left: 5vw;
+  bottom: 8vh;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.2em;
+  color: var(--text-white);
+  opacity: 0.2;
+}
+
+/* ── Tech (bottom center) ── */
+.tech {
+  position: absolute;
+  bottom: 8vh;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.tech span {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.06em;
+  color: var(--text-white);
+  opacity: 0.2;
+}
+
+/* ── Fixed counter ── */
+.counter {
+  position: fixed;
+  right: 5vw;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-white);
+  opacity: 0.2;
+  letter-spacing: 0.15em;
+  writing-mode: vertical-rl;
+  pointer-events: none;
+}
+
+/* ── Scroll hint ── */
+.scrollHint {
+  position: fixed;
+  bottom: var(--spacing-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  color: var(--text-white);
+  opacity: 0.15;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.2em;
+  pointer-events: none;
+  animation: scrollBounce 2.5s ease-in-out infinite;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
+  50% { transform: translateX(-50%) translateY(8px); opacity: 1; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .number {
+    font-size: clamp(3rem, 12vw, 8rem);
+  }
+
+  .counter { right: var(--spacing-lg); }
+}
+
+@media (max-width: 480px) {
+  .section { height: 80vh; }
+
+  .bgImage { opacity: 0; }
+  .bgImageActive { opacity: 0.5; }
+
+  .inner { padding: 0 var(--spacing-lg); gap: var(--spacing-md); }
+  .subtitle { font-size: var(--font-size-sm); }
+  .number { display: none; }
+  .tech { display: none; }
+  .counter { display: none; }
+  .scrollHint { display: none; }
+}

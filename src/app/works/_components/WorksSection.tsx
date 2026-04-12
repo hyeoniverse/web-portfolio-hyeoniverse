@@ -8,7 +8,8 @@ import {
   useCallback,
   Fragment,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,6 +38,11 @@ import {
   IMAGE_PARALLAX_MULTIPLIER,
   META_REVEAL_THRESHOLD,
 } from "../_constants";
+import FullscreenLayout from "./layouts/FullscreenLayout";
+import CinematicLayout from "./layouts/CinematicLayout";
+import GridLayout from "./layouts/GridLayout";
+import SplitLayout from "./layouts/SplitLayout";
+const CylinderLayout = dynamic(() => import("./layouts/CylinderLayout"), { ssr: false });
 import styles from "./WorksSection.module.css";
 
 // 타입
@@ -55,6 +61,8 @@ interface WorksSectionProps {
   projects?: Project[];
 }
 
+type LayoutType = "flow" | "fullscreen" | "cinematic" | "grid" | "split" | "cylinder";
+
 export default function WorksSection({ projects: projectsProp }: WorksSectionProps) {
   const projects = projectsProp ?? staticProjects;
   const PROJECT_COUNT = projects.length;
@@ -63,6 +71,9 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   const { t } = useLanguage();
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.works.infiniteScroll;
+  const searchParams = useSearchParams();
+  const configLayout = (siteConfig.works as Record<string, unknown>).layout as LayoutType | undefined;
+  const layout = (searchParams.get("layout") as LayoutType) || configLayout || "flow";
 
   // 레퍼런스
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -174,10 +185,17 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
         y: 0,
         targetX: 0,
         targetY: 0,
+        rotateX: 0,
+        rotateY: 0,
+        targetRotateX: 0,
+        targetRotateY: 0,
+        hoverScale: 1,
+        targetHoverScale: 1,
       }));
       const imageOffsets = cardImages.map(() => ({
         x: 0,
         y: 0,
+        scale: 1.2,
         targetX: 0,
         targetY: 0,
       }));
@@ -291,8 +309,31 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
           cardOffsets[i].y +=
             (cardOffsets[i].targetY - cardOffsets[i].y) * 0.04;
 
-          const scale = parseFloat(card.dataset.hoverScale || "1");
-          gsap.set(card, { x: cardOffsets[i].x, y: cardOffsets[i].y, scale });
+          // 3D tilt — 마우스가 카드 위에 있을 때
+          const isHovering = mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom;
+          if (isHovering) {
+            const relX = (mouseX - rect.left) / rect.width - 0.5; // -0.5 ~ 0.5
+            const relY = (mouseY - rect.top) / rect.height - 0.5;
+            cardOffsets[i].targetRotateY = relX * 8; // max ±4deg
+            cardOffsets[i].targetRotateX = -relY * 6; // max ±3deg
+            cardOffsets[i].targetHoverScale = 1.02;
+          } else {
+            cardOffsets[i].targetRotateX = 0;
+            cardOffsets[i].targetRotateY = 0;
+            cardOffsets[i].targetHoverScale = 1;
+          }
+          cardOffsets[i].rotateX += (cardOffsets[i].targetRotateX - cardOffsets[i].rotateX) * 0.08;
+          cardOffsets[i].rotateY += (cardOffsets[i].targetRotateY - cardOffsets[i].rotateY) * 0.08;
+          cardOffsets[i].hoverScale += (cardOffsets[i].targetHoverScale - cardOffsets[i].hoverScale) * 0.08;
+
+          const scale = parseFloat(card.dataset.hoverScale || "1") * cardOffsets[i].hoverScale;
+          gsap.set(card, {
+            x: cardOffsets[i].x,
+            y: cardOffsets[i].y,
+            scale,
+            rotateX: cardOffsets[i].rotateX,
+            rotateY: cardOffsets[i].rotateY,
+          });
 
           // 이미지 오프셋 (패럴랙스)
           if (cardImages[i]) {
@@ -305,10 +346,12 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
             imageOffsets[i].y +=
               (imageOffsets[i].targetY - imageOffsets[i].y) * 0.035;
 
+            const imgScale = isHovering ? 1.3 : 1.2;
+            imageOffsets[i].scale = (imageOffsets[i].scale || 1.2) + (imgScale - (imageOffsets[i].scale || 1.2)) * 0.06;
             gsap.set(cardImages[i], {
               x: imageOffset + imageOffsets[i].x,
               y: imageOffsets[i].y,
-              scale: 1.2,
+              scale: imageOffsets[i].scale,
             });
           }
 
@@ -471,11 +514,11 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
     setPressedCard(null);
   }, [pressedCard]);
 
-  // 프로젝트 클래스명 가져오기 헬퍼
-  const getProjectClassName = (project: Project) => {
-    const sizeClass = `size${project.size.charAt(0).toUpperCase()}${project.size.slice(1)}`;
-    return `${styles.project} ${styles[sizeClass]}`;
-  };
+  // 대체 레이아웃 공통 클릭 핸들러
+  const handleLayoutProjectClick = useCallback((id: string, rect: DOMRect, image: string) => {
+    setTransitionData({ id, image, rect });
+    setTimeout(() => router.push(`/works/${id}`), 800);
+  }, [router]);
 
   const w = siteConfig.works;
 
@@ -510,6 +553,46 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
       </blockquote>
     </div>
   );
+
+  // 대체 레이아웃 렌더
+  if (layout !== "flow") {
+    const layoutProps = { projects, onProjectClick: handleLayoutProjectClick };
+    let LayoutComponent: React.ReactNode = null;
+
+    if (layout === "fullscreen") LayoutComponent = <FullscreenLayout {...layoutProps} />;
+    else if (layout === "cinematic") LayoutComponent = <CinematicLayout {...layoutProps} />;
+    else if (layout === "grid") LayoutComponent = <GridLayout {...layoutProps} />;
+    else if (layout === "split") LayoutComponent = <SplitLayout {...layoutProps} />;
+    else if (layout === "cylinder") LayoutComponent = <CylinderLayout {...layoutProps} />;
+
+    return (
+      <>
+        {layout !== "split" && layout !== "cylinder" && (
+          <div className={styles.altIntro}>
+            {introBlock}
+          </div>
+        )}
+        {LayoutComponent}
+        {/* 페이지 전환 */}
+        <AnimatePresence>
+          {transitionData && (
+            <motion.div
+              style={{ position: "fixed", inset: 0, zIndex: 9999, background: "var(--bg-primary)", pointerEvents: "none" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            />
+          )}
+        </AnimatePresence>
+      </>
+    );
+  }
+
+  // 프로젝트 클래스명 가져오기 헬퍼
+  const getProjectClassName = (project: Project) => {
+    const sizeClass = `size${project.size.charAt(0).toUpperCase()}${project.size.slice(1)}`;
+    return `${styles.project} ${styles[sizeClass]}`;
+  };
 
   return (
     <>
@@ -596,6 +679,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
             transition={{ duration: 0.3, ease: "easeOut" }}
             className={styles.activeInfoInner}
           >
+            <span className={styles.activeNumber}>{projects[activeIndex]?.number}</span>
             <h2 className={styles.activeTitle}>
               {projects[activeIndex]?.title}
             </h2>
