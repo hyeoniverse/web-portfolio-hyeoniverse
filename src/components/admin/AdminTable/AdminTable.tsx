@@ -39,6 +39,7 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onDelete: (id: string, title: string) => Promise<void>;
   onBulkDelete?: (ids: string[]) => Promise<void>;
   onBulkPublish?: (ids: string[], published: boolean) => Promise<void>;
+  onBulkExport?: (ids: string[]) => Promise<void>;
   gridTemplate: string;
   loading?: boolean;
   emptyMessage?: string;
@@ -65,6 +66,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onDelete,
   onBulkDelete,
   onBulkPublish,
+  onBulkExport,
   gridTemplate,
   loading = false,
   emptyMessage = "No items yet",
@@ -261,6 +263,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</button>
               <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</button>
             </>
+          )}
+          {onBulkExport && (
+            <button className={styles.bulkActionBtn} onClick={() => onBulkExport([...selected])}>내보내기</button>
           )}
           {onBulkDelete && (
             <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
