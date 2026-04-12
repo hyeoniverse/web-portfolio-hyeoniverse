@@ -141,6 +141,8 @@
   gap: var(--spacing-sm);
   align-items: flex-start;
   width: min(500px, 52%);
+  max-height: 45%;
+  overflow-y: auto;
   padding: var(--spacing-xl);
   border: var(--border-default);
   border-radius: var(--radius-lg);

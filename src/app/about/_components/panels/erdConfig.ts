@@ -10,13 +10,13 @@ export const TABLE_LAYOUT: Record<string, { x: number; y: number; w: number }> =
 
 /* Note overlay positions — percentages of SVG viewBox area */
 export const NOTE_POSITIONS: ({ left: string; top: string } | null)[] = [
-  { left: "60%", top: "69%" }, // likes (#1)
-  { left: "60%", top: "69%" }, // likes (#2)
-  { left: "29%", top: "69%" }, // site_settings (#3)
-  { left: "60%", top: "31%" }, // posts (#4)
-  { left: "66%", top: "58%" }, // comments (#5)
-  { left: "66%", top: "58%" }, // comments (#6)
+  { left: "60%", top: "55%" }, // likes (#1)
+  { left: "60%", top: "55%" }, // likes (#2)
+  { left: "29%", top: "55%" }, // site_settings (#3)
+  { left: "60%", top: "28%" }, // posts (#4)
+  { left: "66%", top: "45%" }, // comments (#5)
+  { left: "66%", top: "45%" }, // comments (#6)
   null, // revisions (#7) — table not in SVG layout
-  { left: "2%", top: "58%" }, // works (#8)
+  { left: "2%", top: "45%" }, // works (#8)
   { left: "60%", top: "5%" }, // series (#9)
 ];
