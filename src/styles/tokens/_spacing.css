@@ -172,6 +172,7 @@
   --box-lg-2xl: var(--spacing-lg) var(--spacing-2xl);
   --box-xl-lg: var(--spacing-xl) var(--spacing-lg);
   --box-xl-2xl: var(--spacing-xl) var(--spacing-2xl);
+  --box-3xs-xs: var(--spacing-3xs) var(--spacing-xs);
   --box-3xs-sm: var(--spacing-3xs) var(--spacing-sm);
   --box-3xl-xl: var(--spacing-3xl) var(--spacing-xl);
   --box-4xl-2xl: var(--spacing-4xl) var(--spacing-2xl);
