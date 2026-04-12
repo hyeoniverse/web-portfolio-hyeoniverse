@@ -10,7 +10,7 @@ Home -> Works Gallery (horizontal scroll) -> Work Detail (likes)
 
 - **Works**: Browse projects in the horizontal scroll gallery, and leave IP-based likes on the detail page
 - **Posts**: Filter blog posts by tags/search. Selecting a category displays that category's series as book-shaped cards, and clicking a series filters to its posts only. On the detail page, you can leave likes and guest comments (dual auth: browser UUID + password), and series posts show previous/next navigation
-- **About**: Traverse 15 panels via horizontal scroll (project overview, user flow, architecture, features, design concept, development process, tech stack, backend, ERD, code highlights, troubleshooting, security). The UserFlow panel visualizes 9 flows (Visitor, Posts, Works, Profile, Contact, Comment, Admin/Settings, Admin/Settings/Appearance, Admin/Posts/Works) with tabs + SVG diagrams. The ERD panel displays interactive DB table relationships. The Security panel visualizes 8 security layers (SQL Injection, XSS, Input Validation, Dual Auth, RLS, Route Protection, Duplicate Prevention, Secret Management)
+- **About**: Traverse 14 panels via horizontal scroll (project overview, user flow, architecture, features, design system, development process, tech stack, backend, ERD, code highlights, troubleshooting, security). The UserFlow panel visualizes 9 flows (Visitor, Posts, Works, Profile, Contact, Comment, Admin/Settings, Admin/Settings/Appearance, Admin/Posts/Works) with tabs + SVG diagrams. The ERD panel displays interactive DB table relationships. The Security panel visualizes 8 security layers (SQL Injection, XSS, Input Validation, Dual Auth, RLS, Route Protection, Duplicate Prevention, Secret Management)
 
 ### Admin Flow
 
