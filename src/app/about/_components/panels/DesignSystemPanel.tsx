@@ -211,6 +211,9 @@ function DesignSystemPanel({
           <p className={styles.dcCardDesc}>
             {concept.description[language]}
           </p>
+          <a href="/design-system" target="_blank" rel="noopener noreferrer" data-clickable="true" className={styles.externalLink}>
+            Open ↗
+          </a>
           {Demo && <Demo />}
         </div>
       </div>
@@ -244,17 +247,6 @@ function DesignSystemPanel({
         <PinnedTitleRow
           className={isMobile ? styles.dcTitleRow : undefined}
           title={<T k="aboutPage.panels.designSystem" />}
-          rightContent={
-            <a
-              href="/design-system"
-              target="_blank"
-              rel="noopener noreferrer"
-              data-clickable="true"
-              className={styles.externalLink}
-            >
-              Open ↗
-            </a>
-          }
           dotNav={isMobile ? undefined : {
             count: concepts.length,
             activeIndex,

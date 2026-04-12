@@ -667,11 +667,11 @@
 /* ── External link button ── */
 .externalLink {
   padding: var(--box-md);
-  border: var(--border-ghost-light);
+  border: var(--border-ghost);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-white-secondary);
+  color: var(--text-white);
   text-decoration: none;
   letter-spacing: 0.04em;
   white-space: nowrap;
