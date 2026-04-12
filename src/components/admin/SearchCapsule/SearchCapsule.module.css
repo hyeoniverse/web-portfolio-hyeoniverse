@@ -28,6 +28,12 @@
   background: transparent !important;
 }
 
+.icon {
+  flex-shrink: 0;
+  margin-left: var(--spacing-sm);
+  color: var(--text-muted);
+}
+
 .input {
   flex: 1;
   min-width: 80px;
