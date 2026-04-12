@@ -3,19 +3,6 @@
 import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
 import { useSpring, useMotionValue, type MotionValue } from "framer-motion";
 
-const VISUAL_BREAK_INDEX = 7;
-
-function panelToNavIndex(panelIndex: number): number {
-  if (panelIndex < VISUAL_BREAK_INDEX) return panelIndex;
-  if (panelIndex === VISUAL_BREAK_INDEX) return VISUAL_BREAK_INDEX - 1;
-  return panelIndex - 1;
-}
-
-export function navToPanelIndex(navIndex: number): number {
-  if (navIndex < VISUAL_BREAK_INDEX) return navIndex;
-  return navIndex + 1;
-}
-
 export function useNavIndicator(activeSection: number, navMounted = false): {
   navRef: React.RefObject<HTMLElement | null>;
   navItemRefs: React.MutableRefObject<(HTMLButtonElement | null)[]>;
@@ -48,7 +35,7 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
     [indicatorX, indicatorWidth],
   );
 
-  const highlightedSection = hoveredSection ?? panelToNavIndex(activeSection);
+  const highlightedSection = hoveredSection ?? activeSection;
 
   // Mount/remount: 인디케이터 위치 즉시 설정 (spring 애니메이션 없이).
   // BreakpointGuard 리마운트 시 spring이 0에서 시작하여
