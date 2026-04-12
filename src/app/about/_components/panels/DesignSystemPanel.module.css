@@ -664,30 +664,13 @@
   }
 }
 
-/* ── External link button ── */
+/* ── External link (Button variant=link override for dark bg) ── */
 .externalLink {
-  padding: var(--box-md);
-  border: var(--border-ghost);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-white);
-  text-decoration: none;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-
-/* Compound selector (0,2,0) */
-.dcViewport .externalLink {
-  transition:
-    color var(--duration-base) ease,
-    border-color var(--duration-base) ease,
-    background-color var(--duration-base) ease;
+  color: var(--text-white) !important;
 }
 
 .externalLink:hover {
-  color: var(--text-white);
-  border-color: var(--color-white-alpha-50);
-  background: var(--bg-glass-subtle);
+  color: var(--text-white) !important;
+  opacity: 0.7;
 }
 
