@@ -15,7 +15,6 @@ import {
   mobileTabPanels,
   type PanelContext,
 } from "../_config/panelConfig";
-import type { DcTransitionMode } from "@/data/about";
 import SectionNav from "./SectionNav";
 import styles from "./AboutSection.module.css";
 
@@ -58,7 +57,6 @@ export default function AboutSection() {
   const ctx: PanelContext = {
     language,
     scrollBy,
-    designConceptTransition: siteConfig.about.designConceptTransition as DcTransitionMode,
   };
 
   /* ── Render panels from config ── */
