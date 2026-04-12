@@ -35,3 +35,22 @@
   padding: var(--box-sm);
   font-size: var(--font-size-xs);
 }
+
+/* ── Upload Guide Modal ── */
+.uploadGuide {
+  padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.uploadGuide ul { margin: 0 0 var(--spacing-xs); padding-left: var(--spacing-lg); list-style: disc; }
+.uploadGuide li { margin-bottom: var(--spacing-3xs); }
+.uploadGuide h4 { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); margin: var(--spacing-md) 0 var(--spacing-xs); }
+.uploadGuide p { margin: 0 0 var(--spacing-xs); }
+.uploadGuide table { width: 100%; border-collapse: collapse; font-size: var(--font-size-xs); margin: var(--spacing-xs) 0; }
+.uploadGuide th, .uploadGuide td { padding: var(--box-3xs-xs); border-bottom: var(--border-light); text-align: left; }
+.uploadGuide th { color: var(--text-primary); font-weight: 600; }
+.uploadGuide pre { background: var(--bg-tertiary); border-radius: var(--radius-md); padding: var(--spacing-sm); overflow-x: auto; margin: var(--spacing-xs) 0; }
+.uploadGuide code { font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-primary); }
