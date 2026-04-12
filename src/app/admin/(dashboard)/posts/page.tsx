@@ -625,10 +625,10 @@ tags: React`}</code></pre>
           >
             ?
           </button>
+          <button className={shell.exportBtn} onClick={handleExportAll} disabled={exporting} style={exporting ? { opacity: 0.5 } : undefined}>
+            {exporting ? "..." : t("admin.posts.exportMdAll")}
+          </button>
           <div className={shell.btnGroup}>
-            <button className={shell.newBtn} onClick={handleExportAll} disabled={exporting} style={exporting ? { opacity: 0.5 } : undefined}>
-              {exporting ? "..." : t("admin.posts.exportMdAll")}
-            </button>
             <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
               {uploading ? "..." : t("admin.posts.uploadMd")}
             </button>
