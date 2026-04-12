@@ -70,14 +70,34 @@ function ErdPanel({ language }: ErdPanelProps) {
   // Active note
   const activeNote = erdDesignNotes.find((n) => n.relatedTable === activeTable);
 
-  // Wheel zoom
+  // Wheel zoom — centered on cursor
   useEffect(() => {
     const el = viewportRef.current;
     if (!el) return;
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      setZoom((z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z - Math.sign(e.deltaY) * ZOOM_STEP)));
+
+      const rect = el.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      setZoom((prevZoom) => {
+        const newZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, prevZoom - Math.sign(e.deltaY) * ZOOM_STEP));
+        if (newZoom === prevZoom) return prevZoom;
+
+        setPan((prevPan) => {
+          const svgX = -prevPan.x / prevZoom + (mouseX / rect.width) * (SVG_W / prevZoom);
+          const svgY = -prevPan.y / prevZoom + (mouseY / rect.height) * (SVG_H / prevZoom);
+
+          const newPanX = -(svgX - (mouseX / rect.width) * (SVG_W / newZoom)) * newZoom;
+          const newPanY = -(svgY - (mouseY / rect.height) * (SVG_H / newZoom)) * newZoom;
+
+          return { x: newPanX, y: newPanY };
+        });
+
+        return newZoom;
+      });
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => el.removeEventListener("wheel", handleWheel);
