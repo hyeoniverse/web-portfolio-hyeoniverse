@@ -221,8 +221,8 @@ function ErdPanel({ language }: ErdPanelProps) {
   const handleReset = () => { setVbAnimated({ ox: 0, oy: 0, w: SVG_W, h: SVG_H }); setActiveTable(null); };
 
   return (
-    <div className={`${styles.panel} ${styles.panelExtraWide}`}>
-      <div className={`${styles.pinnedContent} ${styles.erdViewport}`}>
+    <div className={styles.panel}>
+      <div className={styles.erdViewport}>
         <PinnedTitleRow className={isMobile ? styles.erdTitleRow : undefined} title="Database Design." />
 
         <div
