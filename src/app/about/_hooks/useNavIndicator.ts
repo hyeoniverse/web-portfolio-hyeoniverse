@@ -3,6 +3,18 @@
 import { useRef, useEffect, useLayoutEffect, useState, useCallback, useMemo } from "react";
 import { useSpring, useMotionValue, type MotionValue } from "framer-motion";
 
+const VISUAL_BREAK_INDEX = 7;
+
+function panelToNavIndex(panelIndex: number): number {
+  if (panelIndex <= VISUAL_BREAK_INDEX) return panelIndex;
+  return panelIndex - 1;
+}
+
+export function navToPanelIndex(navIndex: number): number {
+  if (navIndex < VISUAL_BREAK_INDEX) return navIndex;
+  return navIndex + 1;
+}
+
 export function useNavIndicator(activeSection: number, navMounted = false): {
   navRef: React.RefObject<HTMLElement | null>;
   navItemRefs: React.MutableRefObject<(HTMLButtonElement | null)[]>;
@@ -35,7 +47,7 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
     [indicatorX, indicatorWidth],
   );
 
-  const highlightedSection = hoveredSection ?? activeSection;
+  const highlightedSection = hoveredSection ?? panelToNavIndex(activeSection);
 
   // Mount/remount: 인디케이터 위치 즉시 설정 (spring 애니메이션 없이).
   // BreakpointGuard 리마운트 시 spring이 0에서 시작하여
@@ -65,21 +77,20 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
 
   const navSections = useMemo(
     () => [
-      { id: 0, label: "Hello" },          // hero
-      { id: 1, label: "Overview" },       // overview
-      { id: 2, label: "Architecture" },   // architecture
-      { id: 3, label: "User Flow" },      // userflow
-      { id: 4, label: "Features" },       // features
-      { id: 5, label: "System" },         // designSystem
-      { id: 6, label: "Process" },        // process
-      // visualBreak (7) — indicator 없음
-      { id: 8, label: "Tech" },           // techStack
-      { id: 9, label: "Backend" },        // backend
-      { id: 10, label: "ERD" },           // erd
-      { id: 11, label: "Code" },          // codeHighlights
-      { id: 12, label: "Troubleshoot" },  // troubleshooting
-      { id: 13, label: "Security" },      // security
-      { id: 14, label: "Credits" },       // credits
+      { id: 0, label: "Hello" },
+      { id: 1, label: "Overview" },
+      { id: 2, label: "Architecture" },
+      { id: 3, label: "User Flow" },
+      { id: 4, label: "Features" },
+      { id: 5, label: "System" },
+      { id: 6, label: "Process" },
+      { id: 7, label: "Tech" },
+      { id: 8, label: "Backend" },
+      { id: 9, label: "ERD" },
+      { id: 10, label: "Code" },
+      { id: 11, label: "Troubleshoot" },
+      { id: 12, label: "Security" },
+      { id: 13, label: "Credits" },
     ],
     [],
   );
