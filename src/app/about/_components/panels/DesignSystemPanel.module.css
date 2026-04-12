@@ -86,8 +86,8 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: calc(var(--_panel-py) + var(--header-height) + 25vh) var(--_panel-px)
-    calc(var(--_space-section) + 28vh);
+  padding: calc(var(--_panel-py) + var(--header-height) + 15vh) var(--_panel-px)
+    calc(var(--_space-section) + 10vh);
   overflow: visible;
   position: relative;
   z-index: 1;
