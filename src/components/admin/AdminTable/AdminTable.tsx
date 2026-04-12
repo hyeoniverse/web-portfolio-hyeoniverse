@@ -416,15 +416,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 className={styles.colActions}
                 onClick={(e) => e.stopPropagation()}
               >
-                {onBulkExport && (
-                  <button
-                    className={styles.exportIconBtn}
-                    title=".md 내보내기"
-                    onClick={(e) => { e.stopPropagation(); onBulkExport([item.id]); }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
-                  </button>
-                )}
                 <Link
                   href={`${editBasePath}/${item.id}/edit`}
                   className={styles.actionBtn}
@@ -437,6 +428,15 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 >
                   {labels.delete}
                 </button>
+                {onBulkExport && (
+                  <button
+                    className={styles.exportIconBtn}
+                    title=".md 내보내기"
+                    onClick={(e) => { e.stopPropagation(); onBulkExport([item.id]); }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+                  </button>
+                )}
               </span>
             </div>
           );
