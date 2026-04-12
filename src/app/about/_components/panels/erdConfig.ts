@@ -22,5 +22,5 @@ export const TABLE_LAYOUT: Record<string, { x: number; y: number; w: number }> =
 };
 
 export const ZOOM_MIN = 1;
-export const ZOOM_MAX = 3;
+export const ZOOM_MAX = 6;
 export const ZOOM_STEP = 0.1;

@@ -121,7 +121,32 @@ function ErdPanel({ language }: ErdPanelProps) {
   }, []);
 
   const handleTableClick = useCallback((name: string) => {
-    setActiveTable((prev) => (prev === name ? null : name));
+    setActiveTable((prev) => {
+      if (prev === name) {
+        setVb({ ox: 0, oy: 0, w: SVG_W, h: SVG_H });
+        return null;
+      }
+      const layout = TABLE_LAYOUT[name];
+      if (layout) {
+        const cols = tableColCount[name] ?? 4;
+        const h = tableHeight(cols);
+        const pad = 80;
+        const focusW = layout.w + 320 + pad * 2;
+        const focusH = h + pad * 2;
+        const aspect = SVG_W / SVG_H;
+        let vw = focusW;
+        let vh = focusH;
+        if (vw / vh > aspect) {
+          vh = vw / aspect;
+        } else {
+          vw = vh * aspect;
+        }
+        const cx = layout.x + layout.w / 2;
+        const cy = layout.y + h / 2;
+        setVb({ ox: cx - vw / 2, oy: cy - vh / 2, w: vw, h: vh });
+      }
+      return name;
+    });
   }, []);
 
   // Highlight relations
