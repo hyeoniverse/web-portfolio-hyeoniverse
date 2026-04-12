@@ -29,12 +29,20 @@
   width: 100%;
   height: 100%;
   transform-origin: center center;
-  will-change: transform;
+  opacity: 1;
+  image-rendering: auto;
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
 }
 
 /* ── Table cards ── */
 .erdTableGroup {
-  transition: opacity 0.3s ease;
+  opacity: 1;
+}
+
+/* Compound selector (0,2,0) — 글로벌 theme transition 무효화 */
+.erdSvg .erdTableGroup {
+  transition: opacity 0.3s ease !important;
 }
 
 .erdTableDimmed {
@@ -173,9 +181,8 @@
   text-align: center;
 }
 
-/* ── Note overlay (on canvas, next to active table) ── */
+/* ── Note overlay (inside SVG foreignObject) ── */
 .erdNoteOverlay {
-  position: absolute;
   display: flex;
   gap: var(--spacing-xs);
   align-items: flex-start;
@@ -184,15 +191,9 @@
   border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
   backdrop-filter: blur(8px);
-  transform-origin: top left;
   pointer-events: none;
-  z-index: 3;
-  animation: erdNoteFadeIn 0.25s ease both;
-}
-
-@keyframes erdNoteFadeIn {
-  from { opacity: 0; transform: translate(var(--_tx, 0), var(--_ty, 0)) scale(var(--_s, 1)) translateY(8px); }
-  to { opacity: 1; }
+  width: max-content;
+  max-width: 280px;
 }
 
 .erdNoteNum {
