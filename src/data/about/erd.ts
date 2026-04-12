@@ -245,4 +245,31 @@ export const erdDesignNotes: ErdDesignNote[] = [
     },
     relatedTable: "series",
   },
+  {
+    title: { ko: "댓글 구조 재사용", en: "Reused Comment Schema" },
+    tag: "work_comments ≈ comments (separate FK)",
+    description: {
+      ko: "work_comments는 comments와 동일한 스키마(닉네임, 이중 인증, 대댓글, 좋아요, 알림 이메일)를 별도 테이블로 분리합니다. FK만 works.id를 참조하여 RLS 정책을 독립적으로 적용합니다.",
+      en: "work_comments mirrors the comments schema (nickname, dual auth, threading, likes, notification email) in a separate table. Only the FK references works.id, allowing independent RLS policies.",
+    },
+    relatedTable: "work_comments",
+  },
+  {
+    title: { ko: "IP + 날짜 일간 방문자", en: "Daily Visitors by IP + Date" },
+    tag: "UNIQUE (ip, date)",
+    description: {
+      ko: "같은 IP에서 같은 날 중복 방문을 DB 레벨에서 차단합니다. 일간/누적 카운트를 Footer에 실시간 표시합니다.",
+      en: "Prevents duplicate visits from the same IP on the same day at the DB level. Daily/total counts are displayed in real-time in the Footer.",
+    },
+    relatedTable: "site_visits",
+  },
+  {
+    title: { ko: "관리자 알림 로그", en: "Admin Notification Log" },
+    tag: "type + metadata JSONB",
+    description: {
+      ko: "댓글 알림 등 관리자 이벤트를 type으로 분류하고, 추가 정보를 metadata JSONB에 저장합니다. read 플래그로 읽음 상태를 관리합니다.",
+      en: "Admin events like comment notifications are classified by type, with extra info in metadata JSONB. The read flag tracks read status.",
+    },
+    relatedTable: "admin_notifications",
+  },
 ];

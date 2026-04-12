@@ -138,6 +138,27 @@
   fill: var(--text-accent);
 }
 
+/* ── Hint ── */
+.erdHint {
+  position: absolute;
+  bottom: var(--spacing-md);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.erdHint span {
+  padding: var(--box-xs-sm);
+  border-radius: var(--radius-capsule);
+  background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
+  backdrop-filter: blur(4px);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
 /* ── Zoom controls ── */
 .erdZoomControls {
   position: absolute;

@@ -235,6 +235,11 @@ function ErdPanel({ language }: ErdPanelProps) {
           className={styles.erdZoomViewport}
           onMouseDown={handleMouseDown}
         >
+          {!activeTable && (
+            <div className={styles.erdHint}>
+              <span>scroll to zoom · drag to pan · click table to inspect</span>
+            </div>
+          )}
           <svg
             viewBox={`${vb.ox} ${vb.oy} ${vb.w} ${vb.h}`}
             preserveAspectRatio="xMidYMid meet"
