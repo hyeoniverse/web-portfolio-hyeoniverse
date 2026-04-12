@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
+import Button from "@/components/ui/Button";
+import ButtonGroup from "@/components/ui/ButtonGroup";
 import type { Post, Series } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
 import { useCategories, translateCategory } from "@/hooks/useCategories";
@@ -625,17 +627,17 @@ tags: React`}</code></pre>
           >
             ?
           </button>
-          <button className={shell.exportBtn} onClick={handleExportAll} disabled={exporting} style={exporting ? { opacity: 0.5 } : undefined}>
+          <Button variant="outline" size="sm" onClick={handleExportAll} disabled={exporting} soundDisabled>
             {exporting ? "..." : t("admin.posts.exportMdAll")}
-          </button>
-          <div className={shell.btnGroup}>
-            <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
+          </Button>
+          <ButtonGroup>
+            <Button variant="outline" size="sm" onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled>
               {uploading ? "..." : t("admin.posts.uploadMd")}
-            </button>
-            <a href="/admin/posts/new" className={shell.newBtn}>
+            </Button>
+            <Button variant="primary" size="sm" href="/admin/posts/new" soundDisabled>
               {t("admin.posts.newPost")}
-            </a>
-          </div>
+            </Button>
+          </ButtonGroup>
         </>
       }
       beforeTable={!loading ? seriesSection : undefined}

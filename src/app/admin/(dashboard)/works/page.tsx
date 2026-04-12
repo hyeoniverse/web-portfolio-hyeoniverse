@@ -8,6 +8,8 @@ import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Work } from "@/types/work";
 import Select from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
+import ButtonGroup from "@/components/ui/ButtonGroup";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -504,17 +506,17 @@ export default function AdminWorksPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <button className={shell.exportBtn} onClick={handleExportAll} disabled={exporting} style={exporting ? { opacity: 0.5 } : undefined}>
+          <Button variant="outline" size="sm" onClick={handleExportAll} disabled={exporting} soundDisabled>
             {exporting ? "..." : t("admin.works.exportMdAll")}
-          </button>
-          <div className={shell.btnGroup}>
-            <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
+          </Button>
+          <ButtonGroup>
+            <Button variant="outline" size="sm" onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled>
               {uploading ? "..." : t("admin.works.uploadMd")}
-            </button>
-            <a href="/admin/works/new" className={shell.newBtn}>
+            </Button>
+            <Button variant="primary" size="sm" href="/admin/works/new" soundDisabled>
               {t("admin.works.newWork")}
-            </a>
-          </div>
+            </Button>
+          </ButtonGroup>
         </>
       }
     >

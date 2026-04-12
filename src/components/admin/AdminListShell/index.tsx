@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import Link from "next/link";
 import { useLenis } from "@/providers/LenisProvider";
+import Button from "@/components/ui/Button";
 import styles from "./AdminListShell.module.css";
 
 export { default as adminShellStyles } from "./AdminListShell.module.css";
@@ -68,9 +68,9 @@ export default function AdminListShell({
           )}
           {headerExtra}
           {!headerExtra && (
-            <Link href={newHref} className={styles.newBtn}>
+            <Button variant="primary" size="sm" href={newHref} soundDisabled>
               {newLabel}
-            </Link>
+            </Button>
           )}
         </div>
       </div>

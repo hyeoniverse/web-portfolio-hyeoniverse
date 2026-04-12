@@ -1,0 +1,38 @@
+/* ==========================================================================
+   ButtonGroup — 캡슐형 버튼 그룹 (마지막 filled, 나머지 outline)
+   ========================================================================== */
+
+.group {
+  display: inline-flex;
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  border: var(--border-strong);
+}
+
+/* 자식 Button 개별 border/radius 제거 */
+.group > * {
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* 인접 버튼 사이 구분선 */
+.group > * + * {
+  border-left: var(--border-strong) !important;
+}
+
+/* 마지막 제외: ghost 스타일 (투명 bg) */
+.group > *:not(:last-child) {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+.group > *:not(:last-child):hover:not(:disabled) {
+  background: var(--bg-inverse) !important;
+  color: var(--text-inverse) !important;
+}
+
+/* 마지막: primary filled → hover 시 invert */
+.group > *:last-child:hover:not(:disabled) {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}

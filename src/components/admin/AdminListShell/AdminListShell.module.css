@@ -60,29 +60,6 @@
   opacity: 0.65;
 }
 
-.newBtn {
-  padding: var(--box-xs-xl);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-inverse);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--text-inverse);
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.header .newBtn {
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-
-.header .newBtn:hover {
-  background: transparent;
-  color: var(--text-primary);
-}
-
 /* ── Help button ── */
 .helpBtn {
   width: 24px;
@@ -104,60 +81,6 @@
   background: var(--bg-inverse);
   border-color: var(--bg-inverse);
   color: var(--text-inverse);
-}
-
-/* ── Export button (separate, text label) ── */
-.exportBtn {
-  padding: var(--box-xs-xl);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.header .exportBtn:hover {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
-/* ── Button Group (capsule) ── */
-.btnGroup {
-  display: flex;
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-  border: var(--border-strong);
-}
-
-.btnGroup .newBtn {
-  border: none;
-  border-radius: 0;
-}
-
-.btnGroup .newBtn:first-child {
-  background: transparent;
-  color: var(--text-primary);
-}
-
-.header .btnGroup .newBtn:first-child:hover {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
-.btnGroup .newBtn + .newBtn {
-  border-left: var(--border-strong);
-}
-
-.header .btnGroup .newBtn:last-child:hover {
-  background: transparent;
-  color: var(--text-primary);
 }
 
 /* ── Filter Bar ── */
@@ -313,8 +236,7 @@
     gap: var(--spacing-xs);
   }
 
-  .saveBtn,
-  .newBtn {
+  .saveBtn {
     font-size: var(--font-size-xs);
     padding: var(--box-md);
   }
