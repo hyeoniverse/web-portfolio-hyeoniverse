@@ -627,14 +627,14 @@ tags: React`}</code></pre>
           >
             ?
           </button>
-          <Button variant="outline" size="sm" onClick={handleExportAll} disabled={exporting} soundDisabled>
+          <Button variant="outline" size="sm" onClick={handleExportAll} disabled={exporting} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/></svg>}>
             {exporting ? "..." : t("admin.posts.exportMdAll")}
           </Button>
           <ButtonGroup>
-            <Button variant="outline" size="sm" onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled>
+            <Button variant="outline" size="sm" onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 14V5m0 0l-3 3m3-3l3 3M3 3h10"/></svg>}>
               {uploading ? "..." : t("admin.posts.uploadMd")}
             </Button>
-            <Button variant="primary" size="sm" href="/admin/posts/new" soundDisabled>
+            <Button variant="primary" size="sm" href="/admin/posts/new" soundDisabled icon={<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v10M3 8h10"/></svg>}>
               {t("admin.posts.newPost")}
             </Button>
           </ButtonGroup>
