@@ -18,7 +18,7 @@
   overflow: hidden;
   cursor: grab;
   touch-action: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   border: var(--border-light);
 }
 
@@ -190,7 +190,7 @@
   align-items: flex-start;
   padding: var(--spacing-sm) var(--spacing-md);
   border: var(--border-default);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
   backdrop-filter: blur(8px);
   pointer-events: none;
