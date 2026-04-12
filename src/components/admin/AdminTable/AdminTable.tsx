@@ -445,13 +445,12 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
       {children}
 
-      {(page && onPageChange || footerExtra) && (
-        <div className={styles.footer}>
-          {footerExtra}
-          {page && onPageChange && (
-            <Pagination page={page} totalPages={totalPages} onChange={onPageChange} />
-          )}
-        </div>
+      {footerExtra && (
+        <div className={styles.footerExtra}>{footerExtra}</div>
+      )}
+
+      {page && onPageChange && (
+        <Pagination page={page} totalPages={totalPages} onChange={onPageChange} className={styles.pagination} />
       )}
 
     </>
