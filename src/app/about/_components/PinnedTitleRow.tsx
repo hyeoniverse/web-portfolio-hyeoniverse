@@ -80,14 +80,10 @@ export default function PinnedTitleRow({
 
   return (
     <div className={`${styles.pinnedTitleRow}${className ? ` ${className}` : ""}`}>
-      <div>
+      <div className={styles.titleRowLeft}>
         <h3 className={titleClasses}>{title}</h3>
+        {rightContent}
       </div>
-      {rightContent && (
-        <div className={styles.titleRowRight}>
-          {rightContent}
-        </div>
-      )}
       {dotNav && (
         <div className={`${styles.dotNavWrap}${dotNav.className ? ` ${dotNav.className}` : ""}${animateClass}`}>
           <button
