@@ -351,8 +351,7 @@
 .footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-md);
+  justify-content: space-between;
   margin-top: var(--spacing-3xl);
 }
 
