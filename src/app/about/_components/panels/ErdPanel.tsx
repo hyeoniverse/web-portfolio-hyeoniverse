@@ -137,11 +137,8 @@ function ErdPanel({ language }: ErdPanelProps) {
           onPointerCancel={handlePointerUp}
         >
           <svg
-            viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+            viewBox={`${-pan.x / zoom} ${-pan.y / zoom} ${SVG_W / zoom} ${SVG_H / zoom}`}
             className={styles.erdSvg}
-            style={{
-              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-            }}
           >
             <defs>
               <marker id="erdArrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -238,34 +235,27 @@ function ErdPanel({ language }: ErdPanelProps) {
                 </g>
               );
             })}
+            {/* Note inside SVG — foreignObject for HTML content */}
+            {activeTable && activeNote && (() => {
+              const layout = TABLE_LAYOUT[activeTable];
+              if (!layout) return null;
+              const noteX = layout.x + layout.w + 16;
+              const noteY = layout.y;
+              const noteIdx = erdDesignNotes.indexOf(activeNote);
+              return (
+                <foreignObject x={noteX} y={noteY} width="280" height="400" overflow="visible">
+                  <div className={styles.erdNoteOverlay}>
+                    <span className={styles.erdNoteNum}>{String(noteIdx + 1).padStart(2, "0")}</span>
+                    <div>
+                      <strong className={styles.erdNoteTitle}>{activeNote.title[language]}</strong>
+                      <code className={styles.erdNoteTag}>{activeNote.tag}</code>
+                      <p className={styles.erdNoteDesc}>{activeNote.description[language]}</p>
+                    </div>
+                  </div>
+                </foreignObject>
+              );
+            })()}
           </svg>
-
-          {/* Note overlay — positioned relative to active table, inside zoom/pan transform */}
-          {activeTable && activeNote && (() => {
-            const layout = TABLE_LAYOUT[activeTable];
-            if (!layout) return null;
-            const noteX = layout.x + layout.w + 16;
-            const noteY = layout.y;
-            const noteIdx = erdDesignNotes.indexOf(activeNote);
-            return (
-              <div
-                className={styles.erdNoteOverlay}
-                style={{
-                  transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-                  left: `${(noteX / SVG_W) * 100}%`,
-                  top: `${(noteY / SVG_H) * 100}%`,
-                  maxWidth: `${(280 / SVG_W) * 100}%`,
-                }}
-              >
-                <span className={styles.erdNoteNum}>{String(noteIdx + 1).padStart(2, "0")}</span>
-                <div>
-                  <strong className={styles.erdNoteTitle}>{activeNote.title[language]}</strong>
-                  <code className={styles.erdNoteTag}>{activeNote.tag}</code>
-                  <p className={styles.erdNoteDesc}>{activeNote.description[language]}</p>
-                </div>
-              </div>
-            );
-          })()}
 
           {/* Zoom controls */}
           <div className={styles.erdZoomControls}>
