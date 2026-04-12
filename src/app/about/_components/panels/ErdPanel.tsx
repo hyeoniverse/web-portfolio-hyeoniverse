@@ -76,6 +76,7 @@ function ErdPanel({ language }: ErdPanelProps) {
     if (!el) return;
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       setZoom((z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z - Math.sign(e.deltaY) * ZOOM_STEP)));
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
