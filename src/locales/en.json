@@ -640,6 +640,7 @@
       "searchContent": "Content",
       "newWork": "New Work",
       "uploadMd": ".md Upload",
+      "exportMdAll": "Export All .md",
       "untitled": "Untitled",
       "noWorksYet": "No works yet",
       "noDescription": "No description",

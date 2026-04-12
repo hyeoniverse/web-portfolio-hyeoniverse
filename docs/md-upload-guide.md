@@ -42,11 +42,38 @@ pnpm sync-posts
 
 ```
 content/
-  posts/
+  posts/          ← 블로그 포스트 (.md)
     my-first-post.md
     nextjs-migration.md
-    react-server-components.md
+  works/          ← 작업물 (.md)
+    portfolio-site.md
+    mobile-app.md
 ```
+
+### Works 동기화
+
+Works도 동일한 방식으로 동기화됩니다. 단, Posts와 필드가 다릅니다.
+
+```bash
+pnpm sync-works:dry    # 미리보기
+pnpm sync-works        # 실행
+pnpm sync-all          # Posts + Works 한번에
+```
+
+Works frontmatter 필드:
+
+| 필드 | 설명 |
+|------|------|
+| `title` | 프로젝트명 |
+| `subtitle` | 부제목 |
+| `category` | 카테고리 |
+| `year` | 연도 |
+| `tech` | 기술 스택 (예: `[React, TypeScript]`) |
+| `description` | 프로젝트 설명 |
+| `role` | 역할 |
+| `image` | 대표 이미지 URL |
+| `live_url` | 라이브 URL |
+| `github_url` | GitHub URL |
 
 ### CI/CD 연동
 
@@ -55,7 +82,7 @@ Vercel 등에서 빌드 전 자동 동기화하려면 `package.json`의 build �
 ```json
 {
   "scripts": {
-    "build": "tsx scripts/sync-posts.ts && next build"
+    "build": "tsx scripts/sync-posts.ts && tsx scripts/sync-works.ts && next build"
   }
 }
 ```
@@ -75,16 +102,21 @@ Vercel 등에서 빌드 전 자동 동기화하려면 `package.json`의 build �
 
 ## 3. DB → .md 내보내기
 
-Admin > Posts 목록에서 `전체 .md 내보내기` 버튼으로 모든 포스트를 frontmatter 포함 `.md` 파일로 다운로드할 수 있습니다.
+Admin > Posts/Works 목록에서 내보내기 버튼(↓)으로 전체 콘텐츠를 frontmatter 포함 `.md` 파일로 다운로드할 수 있습니다.
 
 ### API
 
 ```
+# Posts
 GET /api/posts/export?id=<post-id>    # 단일 포스트 .md 다운로드
 GET /api/posts/export?all=true        # 전체 포스트 JSON 목록 반환
+
+# Works
+GET /api/works/export?id=<work-id>    # 단일 작업물 .md 다운로드
+GET /api/works/export?all=true        # 전체 작업물 JSON 목록 반환
 ```
 
-내보낸 파일은 `content/posts/`에 그대로 넣으면 동기화 대상이 됩니다.
+내보낸 파일은 `content/posts/` 또는 `content/works/`에 그대로 넣으면 동기화 대상이 됩니다.
 
 ---
 

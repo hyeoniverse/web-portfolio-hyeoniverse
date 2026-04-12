@@ -182,6 +182,7 @@ export default function AdminWorksPage() {
   /* ── MD Upload ── */
   const mdInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const createWorks = useCallback(async (items: Record<string, unknown>[]) => {
     setUploading(true);
@@ -215,6 +216,27 @@ export default function AdminWorksPage() {
     if (parsed.length === 0) return;
     await createWorks(parsed);
   }, [createWorks]);
+
+  const handleExportAll = useCallback(async () => {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/works/export?all=true");
+      if (!res.ok) return;
+      const { files } = await res.json() as { files: { fileName: string; content: string }[] };
+      for (const file of files) {
+        const blob = new Blob([file.content], { type: "text/markdown" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+        await new Promise((r) => setTimeout(r, 100));
+      }
+    } finally {
+      setExporting(false);
+    }
+  }, []);
 
   /* ── Filtered trash ── */
   const filteredTrash = useMemo(() => {
@@ -482,6 +504,9 @@ export default function AdminWorksPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
+          <button className={shell.exportBtn} onClick={handleExportAll} disabled={exporting} title={t("admin.works.exportMdAll")} style={exporting ? { opacity: 0.5 } : undefined}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/></svg>
+          </button>
           <div className={shell.btnGroup}>
             <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
               {uploading ? "..." : t("admin.works.uploadMd")}
