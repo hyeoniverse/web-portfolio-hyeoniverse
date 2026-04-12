@@ -427,6 +427,8 @@
       "searchContent": "내용",
       "newPost": "새 글",
       "uploadMd": ".md 업로드",
+      "exportMd": ".md 내보내기",
+      "exportMdAll": "전체 .md 내보내기",
       "uploadGuide": ".md 업로드 가이드",
       "newCategories": "새 카테고리 발견",
       "newCategoriesFound": "업로드 파일에 등록되지 않은 카테고리가 포함되어 있습니다.",

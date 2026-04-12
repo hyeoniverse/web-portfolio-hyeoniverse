@@ -122,6 +122,7 @@ export default function AdminPostsPage() {
 
   const mdInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const { openModal, closeAll } = useModalStore();
 
@@ -199,6 +200,27 @@ export default function AdminPostsPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categories, fetchPosts, openModal, closeAll, addNewCategories, createPosts, t]);
+
+  const handleExportAll = useCallback(async () => {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/posts/export?all=true");
+      if (!res.ok) return;
+      const { files } = await res.json() as { files: { fileName: string; content: string }[] };
+      for (const file of files) {
+        const blob = new Blob([file.content], { type: "text/markdown" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+        await new Promise((r) => setTimeout(r, 100));
+      }
+    } finally {
+      setExporting(false);
+    }
+  }, []);
 
   const fetchTrash = useCallback(async () => {
     setTrashLoading(true);
@@ -604,6 +626,9 @@ tags: React`}</code></pre>
             ?
           </button>
           <div className={shell.btnGroup}>
+            <button className={shell.newBtn} onClick={handleExportAll} disabled={exporting} style={exporting ? { opacity: 0.5 } : undefined}>
+              {exporting ? "..." : t("admin.posts.exportMdAll")}
+            </button>
             <button className={shell.newBtn} onClick={() => mdInputRef.current?.click()} disabled={uploading} style={uploading ? { opacity: 0.5 } : undefined}>
               {uploading ? "..." : t("admin.posts.uploadMd")}
             </button>
