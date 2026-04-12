@@ -347,12 +347,16 @@
   z-index: 1;
 }
 
-/* ── Footer (pagination + extra) ── */
-.footer {
+/* ── Footer extra (export etc.) ── */
+.footerExtra {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: var(--spacing-3xl);
+  justify-content: flex-end;
+  margin-top: var(--spacing-lg);
+}
+
+/* ── Pagination ── */
+.pagination {
+  margin-top: var(--spacing-2xl);
 }
 
 /* ── Responsive ── */
