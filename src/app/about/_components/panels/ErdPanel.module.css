@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   min-height: 0;
-  padding-right: var(--spacing-4xl);
+  padding-bottom: var(--spacing-5xl);
 }
 
 .erdDiagramWrap {
@@ -159,8 +159,8 @@
 
 .erdPinnedLayout .erdNoteOverlay {
   transition:
-    opacity 0.35s var(--ease-out),
-    transform 0.35s var(--ease-out);
+    opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .erdNoteOverlayActive {
