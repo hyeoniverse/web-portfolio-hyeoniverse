@@ -56,12 +56,46 @@ function ErdPanel({ language }: ErdPanelProps) {
   const isMobile = useMobileLayout();
   const viewportRef = useRef<HTMLDivElement>(null);
 
-  // viewBox state: origin (top-left of visible area in SVG coords) + size (visible area)
+  // viewBox: current (rendered) + target (animated towards)
   const [vb, setVb] = useState({ ox: 0, oy: 0, w: SVG_W, h: SVG_H });
+  const targetVb = useRef({ ox: 0, oy: 0, w: SVG_W, h: SVG_H });
+  const animating = useRef(false);
   const isPanning = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
 
   const zoom = SVG_W / vb.w;
+
+  const LERP = 0.12;
+
+  const animateVb = useCallback(() => {
+    setVb((prev) => {
+      const t = targetVb.current;
+      const dx = t.ox - prev.ox;
+      const dy = t.oy - prev.oy;
+      const dw = t.w - prev.w;
+      const dh = t.h - prev.h;
+      if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5 && Math.abs(dw) < 0.5 && Math.abs(dh) < 0.5) {
+        animating.current = false;
+        return t;
+      }
+      requestAnimationFrame(animateVb);
+      return {
+        ox: prev.ox + dx * LERP,
+        oy: prev.oy + dy * LERP,
+        w: prev.w + dw * LERP,
+        h: prev.h + dh * LERP,
+      };
+    });
+  }, []);
+
+  const setVbAnimated = useCallback((next: { ox: number; oy: number; w: number; h: number }) => {
+    targetVb.current = next;
+    if (!animating.current) {
+      animating.current = true;
+      requestAnimationFrame(animateVb);
+    }
+  }, [animateVb]);
+
 
   // Active table (click to select, click again to deselect)
   const [activeTable, setActiveTable] = useState<string | null>(null);
@@ -90,7 +124,9 @@ function ErdPanel({ language }: ErdPanelProps) {
         const newOx = prev.ox + (prev.w - newW) * mx;
         const newOy = prev.oy + (prev.h - newH) * my;
 
-        return { ox: newOx, oy: newOy, w: newW, h: newH };
+        const next = { ox: newOx, oy: newOy, w: newW, h: newH };
+        targetVb.current = next;
+        return next;
       });
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
@@ -113,7 +149,11 @@ function ErdPanel({ language }: ErdPanelProps) {
     const dx = (e.clientX - lastMouse.current.x) / rect.width;
     const dy = (e.clientY - lastMouse.current.y) / rect.height;
     lastMouse.current = { x: e.clientX, y: e.clientY };
-    setVb((prev) => ({ ...prev, ox: prev.ox - dx * prev.w, oy: prev.oy - dy * prev.h }));
+    setVb((prev) => {
+      const next = { ...prev, ox: prev.ox - dx * prev.w, oy: prev.oy - dy * prev.h };
+      targetVb.current = next;
+      return next;
+    });
   }, []);
 
   const handlePointerUp = useCallback(() => {
@@ -123,7 +163,7 @@ function ErdPanel({ language }: ErdPanelProps) {
   const handleTableClick = useCallback((name: string) => {
     setActiveTable((prev) => {
       if (prev === name) {
-        setVb({ ox: 0, oy: 0, w: SVG_W, h: SVG_H });
+        setVbAnimated({ ox: 0, oy: 0, w: SVG_W, h: SVG_H });
         return null;
       }
       const layout = TABLE_LAYOUT[name];
@@ -143,7 +183,7 @@ function ErdPanel({ language }: ErdPanelProps) {
         }
         const cx = layout.x + layout.w / 2;
         const cy = layout.y + h / 2;
-        setVb({ ox: cx - vw / 2, oy: cy - vh / 2, w: vw, h: vh });
+        setVbAnimated({ ox: cx - vw / 2, oy: cy - vh / 2, w: vw, h: vh });
       }
       return name;
     });
@@ -160,20 +200,22 @@ function ErdPanel({ language }: ErdPanelProps) {
     });
   }
 
-  // Zoom controls
-  const handleZoomIn = () => setVb((prev) => {
-    const f = 1 / 1.2;
+  // Zoom controls (animated)
+  const handleZoomIn = () => {
+    const prev = targetVb.current;
+    const f = 1 / 1.3;
     const nw = Math.max(SVG_W / ZOOM_MAX, prev.w * f);
     const nh = Math.max(SVG_H / ZOOM_MAX, prev.h * f);
-    return { ox: prev.ox + (prev.w - nw) / 2, oy: prev.oy + (prev.h - nh) / 2, w: nw, h: nh };
-  });
-  const handleZoomOut = () => setVb((prev) => {
-    const f = 1.2;
+    setVbAnimated({ ox: prev.ox + (prev.w - nw) / 2, oy: prev.oy + (prev.h - nh) / 2, w: nw, h: nh });
+  };
+  const handleZoomOut = () => {
+    const prev = targetVb.current;
+    const f = 1.3;
     const nw = Math.min(SVG_W / ZOOM_MIN, prev.w * f);
     const nh = Math.min(SVG_H / ZOOM_MIN, prev.h * f);
-    return { ox: prev.ox + (prev.w - nw) / 2, oy: prev.oy + (prev.h - nh) / 2, w: nw, h: nh };
-  });
-  const handleReset = () => { setVb({ ox: 0, oy: 0, w: SVG_W, h: SVG_H }); setActiveTable(null); };
+    setVbAnimated({ ox: prev.ox + (prev.w - nw) / 2, oy: prev.oy + (prev.h - nh) / 2, w: nw, h: nh });
+  };
+  const handleReset = () => { setVbAnimated({ ox: 0, oy: 0, w: SVG_W, h: SVG_H }); setActiveTable(null); };
 
   return (
     <div className={`${styles.panel} ${styles.panelExtraWide}`}>
