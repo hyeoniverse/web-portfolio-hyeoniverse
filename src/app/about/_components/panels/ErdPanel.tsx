@@ -158,6 +158,7 @@ function ErdPanel({ language }: ErdPanelProps) {
         >
           <svg
             viewBox={`${-pan.x / zoom} ${-pan.y / zoom} ${SVG_W / zoom} ${SVG_H / zoom}`}
+            preserveAspectRatio="xMidYMid meet"
             className={styles.erdSvg}
           >
             <defs>

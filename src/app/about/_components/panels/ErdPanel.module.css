@@ -8,6 +8,8 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  padding-top: var(--spacing-xs);
+  padding-bottom: var(--spacing-4xl);
 }
 
 .erdZoomViewport {
