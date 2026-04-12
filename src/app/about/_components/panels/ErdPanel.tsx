@@ -134,39 +134,36 @@ function ErdPanel({ language }: ErdPanelProps) {
     return () => el.removeEventListener("wheel", handleWheel);
   }, []);
 
-  // Pan handlers
-  const pointerIdRef = useRef<number | null>(null);
-
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+  // Pan via window-level mousemove/mouseup (no pointer capture — allows SVG onClick)
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     isPanning.current = true;
     dragDist.current = 0;
     lastMouse.current = { x: e.clientX, y: e.clientY };
-    pointerIdRef.current = e.pointerId;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isPanning.current) return;
-    dragDist.current += Math.abs(e.clientX - lastMouse.current.x) + Math.abs(e.clientY - lastMouse.current.y);
-    const el = viewportRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const dx = (e.clientX - lastMouse.current.x) / rect.width;
-    const dy = (e.clientY - lastMouse.current.y) / rect.height;
-    lastMouse.current = { x: e.clientX, y: e.clientY };
-    setVb((prev) => {
-      const next = { ...prev, ox: prev.ox - dx * prev.w, oy: prev.oy - dy * prev.h };
-      targetVb.current = next;
-      return next;
-    });
-  }, []);
-
-  const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    isPanning.current = false;
-    if (pointerIdRef.current !== null) {
-      (e.currentTarget as HTMLElement).releasePointerCapture(pointerIdRef.current);
-      pointerIdRef.current = null;
-    }
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isPanning.current) return;
+      dragDist.current += Math.abs(e.clientX - lastMouse.current.x) + Math.abs(e.clientY - lastMouse.current.y);
+      const el = viewportRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const dx = (e.clientX - lastMouse.current.x) / rect.width;
+      const dy = (e.clientY - lastMouse.current.y) / rect.height;
+      lastMouse.current = { x: e.clientX, y: e.clientY };
+      setVb((prev) => {
+        const next = { ...prev, ox: prev.ox - dx * prev.w, oy: prev.oy - dy * prev.h };
+        targetVb.current = next;
+        return next;
+      });
+    };
+    const handleMouseUp = () => { isPanning.current = false; };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
   }, []);
 
   const handleTableClick = useCallback((name: string) => {
@@ -236,10 +233,7 @@ function ErdPanel({ language }: ErdPanelProps) {
         <div
           ref={viewportRef}
           className={styles.erdZoomViewport}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
+          onMouseDown={handleMouseDown}
         >
           <svg
             viewBox={`${vb.ox} ${vb.oy} ${vb.w} ${vb.h}`}
