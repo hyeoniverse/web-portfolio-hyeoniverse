@@ -258,7 +258,7 @@
   width: 28px;
   height: 28px;
   flex-shrink: 0;
-  border: var(--border-default);
+  border: var(--border-strong);
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-muted);
