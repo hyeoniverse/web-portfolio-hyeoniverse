@@ -17,6 +17,6 @@ export const NOTE_POSITIONS: ({ left: string; top: string } | null)[] = [
   { left: "66%", top: "45%" }, // comments (#5)
   { left: "66%", top: "45%" }, // comments (#6)
   null, // revisions (#7) — table not in SVG layout
-  { left: "2%", top: "45%" }, // works (#8)
+  { left: "30%", top: "10%" }, // works (#8)
   { left: "60%", top: "5%" }, // series (#9)
 ];
