@@ -21,6 +21,6 @@ export const TABLE_LAYOUT: Record<string, { x: number; y: number; w: number }> =
   revisions:           { x: 1120, y: 780, w: COL_W },
 };
 
-export const ZOOM_MIN = 0.2;
+export const ZOOM_MIN = 1;
 export const ZOOM_MAX = 3;
 export const ZOOM_STEP = 0.1;

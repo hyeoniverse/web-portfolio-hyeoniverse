@@ -58,7 +58,7 @@ function ErdPanel({ language }: ErdPanelProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
 
   // Zoom & Pan state
-  const [zoom, setZoom] = useState(0.55);
+  const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const isPanning = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
@@ -121,7 +121,7 @@ function ErdPanel({ language }: ErdPanelProps) {
   // Zoom controls
   const handleZoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP));
   const handleZoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP));
-  const handleReset = () => { setZoom(0.55); setPan({ x: 0, y: 0 }); setActiveTable(null); };
+  const handleReset = () => { setZoom(1); setPan({ x: 0, y: 0 }); setActiveTable(null); };
 
   return (
     <div className={`${styles.panel} ${styles.panelExtraWide}`}>
@@ -240,6 +240,33 @@ function ErdPanel({ language }: ErdPanelProps) {
             })}
           </svg>
 
+          {/* Note overlay — positioned relative to active table, inside zoom/pan transform */}
+          {activeTable && activeNote && (() => {
+            const layout = TABLE_LAYOUT[activeTable];
+            if (!layout) return null;
+            const noteX = layout.x + layout.w + 16;
+            const noteY = layout.y;
+            const noteIdx = erdDesignNotes.indexOf(activeNote);
+            return (
+              <div
+                className={styles.erdNoteOverlay}
+                style={{
+                  transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                  left: `${(noteX / SVG_W) * 100}%`,
+                  top: `${(noteY / SVG_H) * 100}%`,
+                  maxWidth: `${(280 / SVG_W) * 100}%`,
+                }}
+              >
+                <span className={styles.erdNoteNum}>{String(noteIdx + 1).padStart(2, "0")}</span>
+                <div>
+                  <strong className={styles.erdNoteTitle}>{activeNote.title[language]}</strong>
+                  <code className={styles.erdNoteTag}>{activeNote.tag}</code>
+                  <p className={styles.erdNoteDesc}>{activeNote.description[language]}</p>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Zoom controls */}
           <div className={styles.erdZoomControls}>
             <button data-clickable="true" onClick={handleZoomIn} className={styles.erdZoomBtn}>+</button>
@@ -248,20 +275,6 @@ function ErdPanel({ language }: ErdPanelProps) {
             <button data-clickable="true" onClick={handleReset} className={styles.erdZoomBtn}>⟲</button>
           </div>
         </div>
-
-        {/* Note panel — shown when a table is selected */}
-        {activeNote && (
-          <div className={styles.erdNotePanel}>
-            <span className={styles.erdNoteNum}>
-              {String(erdDesignNotes.indexOf(activeNote) + 1).padStart(2, "0")}
-            </span>
-            <div>
-              <strong className={styles.erdNoteTitle}>{activeNote.title[language]}</strong>
-              <code className={styles.erdNoteTag}>{activeNote.tag}</code>
-              <p className={styles.erdNoteDesc}>{activeNote.description[language]}</p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
