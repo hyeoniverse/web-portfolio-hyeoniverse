@@ -242,6 +242,26 @@
   color: var(--text-white);
 }
 
+.exportIconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.colActions .exportIconBtn:hover {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
 /* ── Drag & Drop ── */
 .dragHandle {
   display: flex;
@@ -326,8 +346,12 @@
   z-index: 1;
 }
 
-/* ── Pagination ── */
-.pagination {
+/* ── Footer (pagination + extra) ── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
   margin-top: var(--spacing-3xl);
 }
 
