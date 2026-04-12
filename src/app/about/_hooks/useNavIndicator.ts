@@ -65,20 +65,21 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
 
   const navSections = useMemo(
     () => [
-      { id: 0, label: "Hello" },
-      { id: 1, label: "Overview" },
-      { id: 2, label: "Architecture" },
-      { id: 3, label: "User Flow" },
-      { id: 4, label: "Features" },
-      { id: 5, label: "System" },
-      { id: 6, label: "Process" },
-      { id: 7, label: "Tech" },
-      { id: 8, label: "Backend" },
-      { id: 9, label: "ERD" },
-      { id: 10, label: "Code" },
-      { id: 11, label: "Troubleshoot" },
-      { id: 12, label: "Security" },
-      { id: 13, label: "Credits" },
+      { id: 0, label: "Hello" },          // hero
+      { id: 1, label: "Overview" },       // overview
+      { id: 2, label: "Architecture" },   // architecture
+      { id: 3, label: "User Flow" },      // userflow
+      { id: 4, label: "Features" },       // features
+      { id: 5, label: "System" },         // designSystem
+      { id: 6, label: "Process" },        // process
+      // visualBreak (7) — indicator 없음
+      { id: 8, label: "Tech" },           // techStack
+      { id: 9, label: "Backend" },        // backend
+      { id: 10, label: "ERD" },           // erd
+      { id: 11, label: "Code" },          // codeHighlights
+      { id: 12, label: "Troubleshoot" },  // troubleshooting
+      { id: 13, label: "Security" },      // security
+      { id: 14, label: "Credits" },       // credits
     ],
     [],
   );
