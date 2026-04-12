@@ -649,9 +649,6 @@ tags: React`}</code></pre>
           >
             ?
           </button>
-          <Button variant="outline" size="sm" onClick={handleExportAll} disabled={exporting} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>}>
-            {exporting ? "..." : t("admin.posts.exportMdAll")}
-          </Button>
           <ButtonGroup>
             <Button variant="outline" size="sm" onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>}>
               {uploading ? "..." : t("admin.posts.uploadMd")}
@@ -785,6 +782,11 @@ tags: React`}</code></pre>
         onRowLeave={handleRowLeave}
         onRowClick={handleRowClick}
         highlightId={restoredId}
+        footerExtra={
+          <Button variant="ghost" size="xs" onClick={handleExportAll} disabled={exporting} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>}>
+            {exporting ? "..." : t("admin.posts.exportMdAll")}
+          </Button>
+        }
       />
 
       {/* Hover / Tap preview tooltip — reads from refs, keyed by tooltipKey */}
