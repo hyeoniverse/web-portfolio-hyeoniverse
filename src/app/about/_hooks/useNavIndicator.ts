@@ -6,7 +6,8 @@ import { useSpring, useMotionValue, type MotionValue } from "framer-motion";
 const VISUAL_BREAK_INDEX = 7;
 
 function panelToNavIndex(panelIndex: number): number {
-  if (panelIndex <= VISUAL_BREAK_INDEX) return panelIndex;
+  if (panelIndex < VISUAL_BREAK_INDEX) return panelIndex;
+  if (panelIndex === VISUAL_BREAK_INDEX) return VISUAL_BREAK_INDEX - 1;
   return panelIndex - 1;
 }
 
