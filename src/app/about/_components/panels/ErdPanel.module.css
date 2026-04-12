@@ -38,12 +38,12 @@
 }
 
 .erdTableDimmed {
-  opacity: 0.2;
+  opacity: 0.4;
 }
 
 .erdTableBg {
   fill: var(--bg-primary);
-  stroke: var(--border-default-color);
+  stroke: var(--border-strong-color);
   stroke-width: 1;
   transition: stroke 0.3s ease, stroke-width 0.3s ease;
 }
@@ -99,7 +99,7 @@
 
 /* ── Relation lines ── */
 .erdRelLine {
-  stroke: var(--border-default-color);
+  stroke: var(--border-strong-color);
   stroke-width: 1;
   transition: stroke 0.3s ease, stroke-width 0.3s ease;
 }
@@ -122,7 +122,7 @@
 }
 
 .erdArrowFill {
-  fill: var(--border-default-color);
+  fill: var(--border-strong-color);
 }
 
 .erdArrowHighlight {
