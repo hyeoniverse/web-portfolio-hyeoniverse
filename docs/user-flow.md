@@ -10,7 +10,7 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 
 - **Works**: 가로 스크롤 갤러리에서 프로젝트를 탐색하고, 상세 페이지에서 IP 기반 좋아요를 남길 수 있습니다
 - **Posts**: 태그/검색으로 블로그 글을 필터링할 수 있습니다. 카테고리를 선택하면 해당 카테고리의 시리즈가 책 모양 카드로 표시되며, 시리즈를 클릭하면 소속 포스트만 필터링됩니다. 상세 페이지에서 좋아요와 게스트 댓글(이중 인증: 브라우저 UUID + 비밀번호)을 남길 수 있으며, 시리즈 소속 글에서는 이전/다음 글 네비게이션이 표시됩니다
-- **About**: 가로 스크롤로 14개 패널(프로젝트 개요, 유저 플로우, 아키텍처, 기능, 디자인 시스템, 개발 프로세스, 기술 스택, 백엔드, ERD, 코드 하이라이트, 트러블슈팅, 보안)을 순회합니다. UserFlow 패널은 9개 플로우(Visitor, Posts, Works, Profile, Contact, Comment, Admin/Settings, Admin/Settings/Appearance, Admin/Posts·Works)를 탭+SVG 다이어그램으로 시각화, ERD 패널은 DB 테이블 관계도를 인터랙티브하게 표시, Security 패널은 8개 보안 레이어(SQL Injection, XSS, 입력 검증, 이중 인증, RLS, 경로 보호, 중복 방지, 시크릿 관리)를 시각화
+- **About**: 가로 스크롤로 14개 패널(프로젝트 개요, 유저 플로우, 아키텍처, 기능, 디자인 시스템, 개발 프로세스, 기술 스택, 백엔드, ERD, 코드 하이라이트, 트러블슈팅, 보안)을 순회합니다. UserFlow 패널은 9개 플로우(Visitor, Posts, Works, Profile, Contact, Comment, Admin/Settings, Admin/Settings/Appearance, Admin/Posts·Works)를 탭+SVG 다이어그램으로 시각화, ERD 패널은 10개 테이블 풀 스키마를 줌/팬 인터랙티브 다이어그램으로 표시(테이블 클릭 시 자동 줌인 + 관계선 하이라이트 + 설계 노트), Security 패널은 8개 보안 레이어(SQL Injection, XSS, 입력 검증, 이중 인증, RLS, 경로 보호, 중복 방지, 시크릿 관리)를 시각화
 
 ### 관리자 플로우
 
