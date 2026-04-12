@@ -17,7 +17,6 @@ import {
   SecurityPanel,
   CreditsPanel,
 } from "../_components/panels";
-import type { DcTransitionMode } from "@/data/about";
 import styles from "../_components/AboutSection.module.css";
 
 /* ── Context passed to each panel's props factory ── */
@@ -25,7 +24,6 @@ import styles from "../_components/AboutSection.module.css";
 export interface PanelContext {
   language: Language;
   scrollBy?: (deltaX: number) => void;
-  designConceptTransition?: DcTransitionMode;
 }
 
 /* ── Config shape ── */
@@ -107,7 +105,7 @@ export const desktopPanels: PanelConfig[] = [
     props: (ctx) => ({
       language: ctx.language,
       concepts: designConcepts,
-      mode: ctx.designConceptTransition,
+      mode: "strip",
       scrollBy: ctx.scrollBy,
     }),
   },
@@ -189,7 +187,7 @@ export const mobileTabPanels: Record<string, PanelConfig[]> = {
       props: (ctx) => ({
         language: ctx.language,
         concepts: designConcepts,
-        mode: ctx.designConceptTransition,
+        mode: "strip",
         scrollBy: ctx.scrollBy,
       }),
     },

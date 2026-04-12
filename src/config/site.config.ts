@@ -439,8 +439,6 @@ export const siteConfig = {
   // About 페이지
   // ---------------------------------------------------------------------------
   about: {
-    // 디자인 컨셉 패널 전환 모드: "strip" (수평 마키) | "stack" (레이어 슬라이드 아웃)
-    designConceptTransition: "strip" as "strip" | "stack",
     // 무한 스크롤 활성화 여부 (false: 끝에서 멈춤)
     infiniteScroll: true,
   },
