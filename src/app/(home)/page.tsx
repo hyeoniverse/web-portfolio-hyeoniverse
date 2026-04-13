@@ -186,12 +186,7 @@ export default function HomePage() {
           delay: 0.1,
         });
 
-        gsap.from(".hero-line-decoration", {
-          scaleX: 0,
-          duration: 0.7,
-          ease: "power3.inOut",
-          delay: 0.6,
-        });
+
 
         // Profile 섹션 등장
         gsap.from(".profile-text", {
