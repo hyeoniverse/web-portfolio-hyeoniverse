@@ -77,12 +77,6 @@ export default function BridgeSection({
         style={{ x: oval2X, y: oval2Y }}
       />
 
-      {/* Decorative Lines - identical to Hero */}
-      <div className={`${heroStyles.decorLine} ${heroStyles.decorLineTop}`} />
-      <div
-        className={`${heroStyles.decorLine} ${heroStyles.decorLineBottom}`}
-      />
-
       {/* Content - identical to Hero */}
       <div className={styles.content}>
         <h2 className={heroStyles.title}>
