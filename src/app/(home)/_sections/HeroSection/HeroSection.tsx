@@ -75,16 +75,6 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
           style={{ x: oval2X, y: oval2Y }}
         />
 
-        {/* Decorative Lines */}
-        <div
-          className={`${styles.decorLine} ${styles.decorLineTop} hero-line-decoration`}
-          aria-hidden="true"
-        />
-        <div
-          className={`${styles.decorLine} ${styles.decorLineBottom} hero-line-decoration`}
-          aria-hidden="true"
-        />
-
         {/* Hero Content */}
         <div className={`${styles.content} hero-content`}>
           <h1 className={styles.title}>
