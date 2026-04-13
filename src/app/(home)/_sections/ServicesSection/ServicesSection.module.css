@@ -15,7 +15,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xl);
-  margin-bottom: var(--spacing-5xl);
 }
 
 .label {
@@ -48,6 +47,10 @@
   height: 1px;
   background: var(--border-strong-color);
   transform-origin: left center;
+}
+
+.item:first-child .itemLine {
+  display: none;
 }
 
 /* ---------------------------------------------------------------------------
@@ -116,10 +119,6 @@
 }
 
 @media (max-width: 768px) {
-  .header {
-    margin-bottom: var(--spacing-3xl);
-  }
-
   .itemContent {
     gap: var(--spacing-md);
     padding: var(--spacing-xl) 0;
