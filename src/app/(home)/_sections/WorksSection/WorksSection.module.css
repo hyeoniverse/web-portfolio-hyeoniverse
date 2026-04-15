@@ -132,7 +132,7 @@
 
 .overlayTitle {
   font-family: var(--font-instrument), serif;
-  font-size: clamp(11px, 1.1vw, var(--font-size-md));
+  font-size: clamp(15px, 1.6vw, var(--font-size-xl));
   font-weight: var(--font-weight-regular);
   color: var(--text-inverse);
   line-height: var(--line-height-tight);
@@ -141,10 +141,10 @@
 
 .overlayCategory {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: clamp(8px, 0.7vw, var(--font-size-3xs));
+  font-size: clamp(11px, 1vw, var(--font-size-sm));
   font-weight: var(--font-weight-medium);
   color: var(--text-inverse);
-  opacity: 0.7;
+  opacity: 0.75;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
