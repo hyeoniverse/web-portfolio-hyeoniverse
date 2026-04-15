@@ -4,8 +4,8 @@
 
 .marquee {
   padding: var(--box-y-6xl);
-  border-top: var(--border-default);
-  border-bottom: var(--border-default);
+  border-top: var(--border-strong);
+  border-bottom: var(--border-strong);
   overflow: hidden;
   contain: layout style paint;
 }
