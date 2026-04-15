@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import styles from "./StaggerText.module.css";
 
 export interface StaggerTextProps {
@@ -41,14 +41,30 @@ export default function StaggerText({
 }: StaggerTextProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const containerRef = useRef<HTMLSpanElement>(null);
   const chars = children.split("");
   const totalChars = chars.length;
 
+  // hover 시점의 실제 글자 색을 읽어 stroke 색으로 저장 (color:transparent 되기 전)
+  // strokeColor prop이 명시돼도 실제 글자 색을 우선해 동적으로 따라감
+  const captureStrokeColor = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    // 글자 색이 적용된 첫 번째 char 엘리먼트에서 읽기 (container는 inherit)
+    const charEl = el.querySelector(`.${styles.char}`) as HTMLElement | null;
+    const source = charEl ?? el;
+    const computed = getComputedStyle(source).color;
+    if (computed) {
+      el.style.setProperty("--stagger-text-stroke-color", computed);
+    }
+  }, []);
+
   const handleMouseEnter = useCallback(() => {
     if (!hoverEffect) return;
+    captureStrokeColor();
     setIsExiting(false);
     setIsHovered(true);
-  }, [hoverEffect]);
+  }, [hoverEffect, captureStrokeColor]);
 
   const handleMouseLeave = useCallback(() => {
     if (!hoverEffect) return;
@@ -61,16 +77,15 @@ export default function StaggerText({
     }, totalDuration);
   }, [hoverEffect, totalChars, delayPerChar]);
 
-  // 스트로크 색상 및 너비 커스텀 스타일
-  const customStrokeStyle = strokeColor
-    ? ({
-        "--stagger-text-stroke-color": strokeColor,
-        "--stagger-text-stroke-width": `${strokeWidth}px`,
-      } as React.CSSProperties)
-    : undefined;
+  // strokeColor prop은 초기 값(hover 전)으로 사용, hover 시 동적으로 덮어씀
+  const customStrokeStyle = {
+    ...(strokeColor && { "--stagger-text-stroke-color": strokeColor }),
+    "--stagger-text-stroke-width": `${strokeWidth}px`,
+  } as React.CSSProperties;
 
   return (
     <span
+      ref={containerRef}
       className={`${styles.container} ${className || ""}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
