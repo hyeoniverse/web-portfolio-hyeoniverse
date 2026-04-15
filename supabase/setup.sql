@@ -96,6 +96,12 @@ CREATE TABLE IF NOT EXISTS posts (
   published    boolean NOT NULL DEFAULT false,
   view_count   int NOT NULL DEFAULT 0,
   like_count   int NOT NULL DEFAULT 0,
+  github_url   text DEFAULT '',
+  -- 휴지통(소프트 삭제)
+  deleted_at   timestamptz DEFAULT NULL,
+  -- AI 요약
+  summary_ko   text NOT NULL DEFAULT '',
+  summary_en   text NOT NULL DEFAULT '',
   created_at   timestamptz DEFAULT now(),
   updated_at   timestamptz DEFAULT now(),
   -- 영문 필드
@@ -108,12 +114,6 @@ CREATE TABLE IF NOT EXISTS posts (
   series_id    uuid REFERENCES series(id) ON DELETE SET NULL,
   series_order int NOT NULL DEFAULT 0
 );
-
--- GitHub 링크
-ALTER TABLE posts ADD COLUMN IF NOT EXISTS github_url text DEFAULT '';
-
--- 휴지통(소프트 삭제)
-ALTER TABLE posts ADD COLUMN IF NOT EXISTS deleted_at timestamptz DEFAULT NULL;
 
 -- slug 검색용 인덱스
 CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts (slug);
@@ -254,13 +254,13 @@ CREATE TABLE IF NOT EXISTS works (
   github_url     text DEFAULT '',
   published      boolean NOT NULL DEFAULT false,
   sort_order     int NOT NULL DEFAULT 0,
+  -- AI 요약
+  summary_ko     text NOT NULL DEFAULT '',
+  summary_en     text NOT NULL DEFAULT '',
   created_at     timestamptz DEFAULT now(),
   updated_at     timestamptz DEFAULT now(),
   deleted_at     timestamptz DEFAULT NULL
 );
-
--- 기존 테이블에 deleted_at 컬럼이 없으면 추가
-ALTER TABLE works ADD COLUMN IF NOT EXISTS deleted_at timestamptz DEFAULT NULL;
 
 ALTER TABLE works ENABLE ROW LEVEL SECURITY;
 
@@ -368,56 +368,6 @@ CREATE POLICY "admin_notifications_service_all"
   ON admin_notifications FOR ALL
   USING (true)
   WITH CHECK (true);
-
-
--- ────────────────────────────────────────────────────────────
--- 마이그레이션: 기존 배포 DB에 누락된 컬럼/테이블 안전 추가
--- (신규 설치 시에도 무해 — IF NOT EXISTS 사용)
--- ────────────────────────────────────────────────────────────
-
--- comments 테이블 — 이후 추가된 컬럼
-ALTER TABLE comments ADD COLUMN IF NOT EXISTS commenter_hash text NOT NULL DEFAULT '';
-ALTER TABLE comments ADD COLUMN IF NOT EXISTS updated_at timestamptz;
-ALTER TABLE comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAULT 0;
-
--- notify_email — 답글 알림용 이메일 (옵션)
-ALTER TABLE comments ADD COLUMN IF NOT EXISTS notify_email text;
-
--- is_deleted — soft delete (답글 있는 댓글 또는 관리자 삭제 시 tombstone 표시)
-ALTER TABLE comments ADD COLUMN IF NOT EXISTS is_deleted boolean NOT NULL DEFAULT false;
-
--- work_comments 테이블 — 이후 추가된 컬럼
-ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAULT 0;
-ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS notify_email text;
-ALTER TABLE work_comments ADD COLUMN IF NOT EXISTS is_deleted boolean NOT NULL DEFAULT false;
-
--- AI 요약 컬럼
-ALTER TABLE posts ADD COLUMN IF NOT EXISTS summary_ko text NOT NULL DEFAULT '';
-ALTER TABLE posts ADD COLUMN IF NOT EXISTS summary_en text NOT NULL DEFAULT '';
-ALTER TABLE works ADD COLUMN IF NOT EXISTS summary_ko text NOT NULL DEFAULT '';
-ALTER TABLE works ADD COLUMN IF NOT EXISTS summary_en text NOT NULL DEFAULT '';
-
--- work_comments RLS 정책 — 이미 존재하면 무시
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'work_comments' AND policyname = 'work_comments_public_read'
-  ) THEN
-    CREATE POLICY "work_comments_public_read" ON work_comments FOR SELECT USING (true);
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'work_comments' AND policyname = 'work_comments_public_insert'
-  ) THEN
-    CREATE POLICY "work_comments_public_insert" ON work_comments FOR INSERT WITH CHECK (true);
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'work_comments' AND policyname = 'work_comments_service_all'
-  ) THEN
-    CREATE POLICY "work_comments_service_all" ON work_comments FOR ALL USING (true) WITH CHECK (true);
-  END IF;
-END $$;
 
 
 -- ────────────────────────────────────────────────────────────
