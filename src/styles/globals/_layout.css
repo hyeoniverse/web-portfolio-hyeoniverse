@@ -43,7 +43,7 @@ nav#side-navigation::after {
   background: var(--bg-surface);
   content: "";
   pointer-events: none;
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--blur-lg);
   mask-image: linear-gradient(
     to right,
     var(--color-neutral-alpha-95) 0%,
