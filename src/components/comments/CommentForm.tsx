@@ -12,15 +12,14 @@ const Fireworks = dynamic(() => import("@/components/effects/Fireworks"), {
   ssr: false,
 });
 
-// localStorage 플래그 — 사용자별 최초 댓글 여부
-const FIRST_COMMENT_KEY = "commented_once";
-
 interface CommentFormProps {
   commentType: "post" | "work";
   targetId: string;
   parentId?: string;
   onSubmit: () => void;
   onCancel?: () => void;
+  /** 해당 게시물/작품의 첫 댓글 여부 — true면 제출 성공 시 폭죽 터뜨림 */
+  isFirstOnTarget?: boolean;
 }
 
 export default function CommentForm({
@@ -29,6 +28,7 @@ export default function CommentForm({
   parentId,
   onSubmit,
   onCancel,
+  isFirstOnTarget = false,
 }: CommentFormProps) {
   const { t } = useLanguage();
   const [content, setContent] = useState("");
@@ -132,15 +132,8 @@ export default function CommentForm({
         setPassword("");
         setFormHint("");
 
-        // 이 브라우저에서 첫 댓글이면 폭죽 터뜨리고 플래그 저장
-        try {
-          if (!localStorage.getItem(FIRST_COMMENT_KEY)) {
-            localStorage.setItem(FIRST_COMMENT_KEY, String(Date.now()));
-            setFireworks(true);
-          }
-        } catch {
-          /* storage 접근 불가 시 무시 */
-        }
+        // 해당 게시물의 첫 댓글이면 폭죽 + 축하 메시지
+        if (isFirstOnTarget) setFireworks(true);
 
         onSubmit();
       } catch {
@@ -149,12 +142,18 @@ export default function CommentForm({
         setSubmitting(false);
       }
     },
-    [apiBase, commentType, targetId, parentId, commenterId, content, password, identity, isAdmin, emailNotify, notifyEmail, onSubmit, t],
+    [apiBase, commentType, targetId, parentId, commenterId, content, password, identity, isAdmin, emailNotify, notifyEmail, onSubmit, t, isFirstOnTarget],
   );
 
   return (
     <>
-    {fireworks && <Fireworks trigger onDone={() => setFireworks(false)} />}
+    {fireworks && (
+      <Fireworks
+        trigger
+        message={t("comments.firstCommentCelebration")}
+        onDone={() => setFireworks(false)}
+      />
+    )}
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       {isAdmin ? (
         <div className={styles.adminIdentity}>

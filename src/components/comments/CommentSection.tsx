@@ -150,6 +150,7 @@ export default function CommentSection({ commentType, targetId, translationEnabl
         commentType={commentType}
         targetId={targetId}
         onSubmit={fetchComments}
+        isFirstOnTarget={comments.length === 0}
       />
 
     </div>
