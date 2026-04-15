@@ -222,12 +222,16 @@ function CommentItem({
     }
   }, [apiBase, comment.id, commenterId, targetId, editContent, editPassword, onRefresh, t, isAdmin]);
 
-  // soft-deleted 댓글 — placeholder만 표시
+  // soft-deleted 댓글 — placeholder만 표시 (삭제 주체에 따라 문구 분기)
   if (comment.is_deleted) {
+    const tombstoneKey =
+      comment.deleted_by === "admin"
+        ? "comments.deletedCommentByAdmin"
+        : "comments.deletedComment";
     return (
       <div className={styles.comment}>
         <p className={styles.deletedPlaceholder}>
-          <T k="comments.deletedComment" />
+          <T k={tombstoneKey} />
         </p>
         {comment.replies && comment.replies.length > 0 && (
           <div className={styles.replies}>

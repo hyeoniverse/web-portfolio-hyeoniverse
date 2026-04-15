@@ -83,6 +83,8 @@ export interface Comment {
   content: string;
   is_admin: boolean;
   is_deleted?: boolean;
+  /** 'self' | 'admin' — tombstone 표시 주체 */
+  deleted_by?: "self" | "admin" | null;
   like_count: number;
   created_at: string;
   updated_at?: string | null;

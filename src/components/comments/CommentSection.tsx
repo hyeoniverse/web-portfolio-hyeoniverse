@@ -36,11 +36,14 @@ function buildTree(comments: Comment[]): Comment[] {
     }
   }
 
-  // soft-deleted이면서 답글도 없는 노드 제거
+  // soft-deleted + 답글 없음 + self 삭제 → 완전 숨김
+  // (admin 삭제 tombstone은 답글 없어도 유지 — 모더레이션 투명성)
   function prune(nodes: Comment[]): Comment[] {
     return nodes.filter((n) => {
       n.replies = prune(n.replies ?? []);
-      return !(n.is_deleted && n.replies.length === 0);
+      if (!n.is_deleted) return true;
+      if (n.deleted_by === "admin") return true;
+      return n.replies.length > 0;
     });
   }
 
