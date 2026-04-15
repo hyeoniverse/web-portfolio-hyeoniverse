@@ -27,6 +27,10 @@ import {
 import dynamic from "next/dynamic";
 import ComponentsSection from "./_sections/ComponentsSection";
 const EditorSection = dynamic(() => import("./_sections/EditorSection"), { ssr: false });
+const CoffeeCanvas = dynamic(
+  () => import("@/app/(home)/_sections/CTASection/CoffeeCanvas"),
+  { ssr: false }
+);
 import BannerSection from "./_sections/BannerSection";
 import styles from "./DesignSystem.module.css";
 
@@ -497,6 +501,81 @@ export default function DesignSystemPage() {
                   </motion.div>
                 ))}
               </div>
+            </motion.div>
+          </section>
+
+          {/* ─── 3D (Three.js Coffee Preview) ─── */}
+          <section id="threejs" ref={setSectionRef("threejs")} className={styles.section}>
+            <h2 className={styles.sectionTitle}>3D (Three.js)</h2>
+            <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem} style={{ marginTop: 0 }}>
+              {language === "ko"
+                ? "CTA 섹션의 커피잔 오브젝트 — R3F + LatheGeometry + Canvas 2D 라떼아트. 마우스에 따라 회전."
+                : "CTA section coffee cup — R3F + LatheGeometry + Canvas 2D latte art. Rotates with the mouse."}
+            </motion.p>
+            <motion.div
+              initial="hidden"
+              {...vp(nd())}
+              variants={staggerItem}
+              style={{
+                width: "100%",
+                aspectRatio: "16 / 9",
+                maxHeight: 520,
+                borderRadius: "var(--radius-lg)",
+                overflow: "hidden",
+                background: "var(--bg-tertiary)",
+                border: "var(--border-light)",
+              }}
+            >
+              <CoffeeCanvas />
+            </motion.div>
+            <motion.div
+              initial="hidden"
+              {...vpGroup(nd())}
+              variants={staggerContainer}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                gap: 16,
+                marginTop: 24,
+              }}
+            >
+              {[
+                {
+                  title: language === "ko" ? "Geometry" : "Geometry",
+                  desc: "LatheGeometry(cup+saucer), TorusGeometry(handle), CylinderGeometry(liquid surface), PlaneGeometry(shadow disc)",
+                },
+                {
+                  title: language === "ko" ? "라떼아트" : "Latte Art",
+                  desc: language === "ko"
+                    ? "Canvas 2D 로 parametric heart curve(x=16sin³t, y=13cos t−5cos 2t−2cos 3t−cos 4t) + 80-band cream↔coffee cosine wave + 2px blur 엽맥"
+                    : "Canvas 2D parametric heart curve + 80-band cream↔coffee cosine wave + 2px blur veins",
+                },
+                {
+                  title: language === "ko" ? "인터랙션" : "Interaction",
+                  desc: language === "ko"
+                    ? "윈도우 전체 pointermove 추적 → useFrame lerp 회전 (기본 rotateX 0.65rad, 마우스 따라 ±0.15rad)"
+                    : "Window-level pointermove → useFrame lerp rotation (rest rotateX 0.65rad, mouse range ±0.15rad)",
+                },
+                {
+                  title: language === "ko" ? "Material" : "Material",
+                  desc: "MeshPhysicalMaterial (clearcoat, reflectivity) + drei Environment 'apartment' IBL",
+                },
+              ].map((c, i) => (
+                <motion.div
+                  key={c.title}
+                  variants={staggerItemX}
+                  {...scrollChildX(i, 4)}
+                  style={{
+                    padding: "var(--spacing-lg)",
+                    background: "var(--bg-surface)",
+                    borderRadius: "var(--radius-md)",
+                    border: "var(--border-light)",
+                  }}
+                >
+                  <strong style={{ display: "block", marginBottom: 6, fontSize: 14 }}>{c.title}</strong>
+                  <span style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>{c.desc}</span>
+                </motion.div>
+              ))}
             </motion.div>
           </section>
 
