@@ -74,8 +74,8 @@
     var(--color-gray-alpha-10) 100% /* 우하단 약간 어두움 */
   );
   transition: all var(--duration-base) ease;
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: var(--blur-xl) saturate(150%);
+  -webkit-backdrop-filter: var(--blur-xl) saturate(150%);
 }
 
 .glass:hover,
