@@ -1,11 +1,19 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { getCommenterId, getIdentity, getRandomIdentity } from "@/utils/commenterIdentity";
 import { createClient } from "@/lib/supabase/client";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import styles from "./CommentForm.module.css";
+
+const Fireworks = dynamic(() => import("@/components/effects/Fireworks"), {
+  ssr: false,
+});
+
+// localStorage 플래그 — 사용자별 최초 댓글 여부
+const FIRST_COMMENT_KEY = "commented_once";
 
 interface CommentFormProps {
   commentType: "post" | "work";
@@ -36,6 +44,7 @@ export default function CommentForm({
   const [submitting, setSubmitting] = useState(false);
   const [formHint, setFormHint] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [fireworks, setFireworks] = useState(false);
 
   useEffect(() => {
     if (emailNotify && emailJustOpened.current) {
@@ -122,6 +131,17 @@ export default function CommentForm({
         setContent("");
         setPassword("");
         setFormHint("");
+
+        // 이 브라우저에서 첫 댓글이면 폭죽 터뜨리고 플래그 저장
+        try {
+          if (!localStorage.getItem(FIRST_COMMENT_KEY)) {
+            localStorage.setItem(FIRST_COMMENT_KEY, String(Date.now()));
+            setFireworks(true);
+          }
+        } catch {
+          /* storage 접근 불가 시 무시 */
+        }
+
         onSubmit();
       } catch {
         setFormHint(t("comments.hintNetwork"));
@@ -133,6 +153,8 @@ export default function CommentForm({
   );
 
   return (
+    <>
+    {fireworks && <Fireworks trigger onDone={() => setFireworks(false)} />}
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       {isAdmin ? (
         <div className={styles.adminIdentity}>
@@ -288,5 +310,6 @@ export default function CommentForm({
         )}
       </div>
     </form>
+    </>
   );
 }
