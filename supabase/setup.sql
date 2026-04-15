@@ -151,6 +151,11 @@ CREATE TABLE IF NOT EXISTS comments (
   content         text NOT NULL DEFAULT '',
   is_admin        boolean NOT NULL DEFAULT false,
   like_count      int NOT NULL DEFAULT 0,
+  notify_email    text,
+  -- soft delete — 답글 있는 댓글 또는 관리자 삭제 시 tombstone 표시
+  is_deleted      boolean NOT NULL DEFAULT false,
+  -- tombstone 표시 주체 ('self' | 'admin')
+  deleted_by      text CHECK (deleted_by IS NULL OR deleted_by IN ('self', 'admin')),
   created_at      timestamptz DEFAULT now(),
   updated_at      timestamptz
 );
@@ -313,6 +318,11 @@ CREATE TABLE IF NOT EXISTS work_comments (
   content         text NOT NULL DEFAULT '',
   is_admin        boolean NOT NULL DEFAULT false,
   like_count      int NOT NULL DEFAULT 0,
+  notify_email    text,
+  -- soft delete — 답글 있는 댓글 또는 관리자 삭제 시 tombstone 표시
+  is_deleted      boolean NOT NULL DEFAULT false,
+  -- tombstone 표시 주체 ('self' | 'admin')
+  deleted_by      text CHECK (deleted_by IS NULL OR deleted_by IN ('self', 'admin')),
   created_at      timestamptz DEFAULT now(),
   updated_at      timestamptz
 );
@@ -373,7 +383,7 @@ ALTER TABLE comments ADD COLUMN IF NOT EXISTS like_count int NOT NULL DEFAULT 0;
 -- notify_email — 답글 알림용 이메일 (옵션)
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS notify_email text;
 
--- is_deleted — soft delete (답글 있는 댓글 삭제 시)
+-- is_deleted — soft delete (답글 있는 댓글 또는 관리자 삭제 시 tombstone 표시)
 ALTER TABLE comments ADD COLUMN IF NOT EXISTS is_deleted boolean NOT NULL DEFAULT false;
 
 -- work_comments 테이블 — 이후 추가된 컬럼

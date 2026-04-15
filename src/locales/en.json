@@ -832,6 +832,7 @@
     "hintSubmitFailed": "Failed to post comment",
     "hintNetwork": "Network error",
     "deletedComment": "This comment has been deleted.",
+    "deletedCommentByAdmin": "This comment was removed by the admin.",
     "disclaimer": "Inappropriate comments may be removed without notice."
   },
   "postDetail": {

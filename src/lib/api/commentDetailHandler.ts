@@ -14,13 +14,18 @@ interface RouteContext {
 }
 
 /**
- * 답글이 있으면 soft delete, 없으면 hard delete.
+ * 댓글 삭제 전략:
+ * - 답글 있음 → 항상 tombstone (deleted_by로 주체 구분)
+ * - 답글 없음 + self 삭제 → hard delete (완전 숨김)
+ * - 답글 없음 + admin 삭제 → tombstone (모더레이션 투명성)
+ *
  * hard delete 후 부모가 soft-deleted이고 다른 답글이 없으면 부모도 hard delete.
  */
 async function softOrHardDelete(
   admin: ReturnType<typeof createAdminClient>,
   table: string,
   id: string,
+  deletedBy: "self" | "admin",
 ) {
   // 답글 존재 여부 확인
   const { count } = await admin
@@ -28,12 +33,15 @@ async function softOrHardDelete(
     .select("id", { count: "exact", head: true })
     .eq("parent_id", id);
 
-  if (count && count > 0) {
-    // soft delete — 내용만 비우고 is_deleted 표시
+  const hasReplies = !!(count && count > 0);
+
+  // tombstone: 답글 있거나 admin 삭제
+  if (hasReplies || deletedBy === "admin") {
     const { error } = await admin
       .from(table)
       .update({
         is_deleted: true,
+        deleted_by: deletedBy,
         content: "",
         nickname: "",
         password_hash: "",
@@ -43,7 +51,7 @@ async function softOrHardDelete(
     return { error };
   }
 
-  // hard delete — 답글 없는 댓글
+  // hard delete — 답글 없는 self 삭제만
   // 먼저 parent_id 확인 (삭제 후 부모 정리용)
   const { data: self } = await admin
     .from(table)
@@ -56,15 +64,16 @@ async function softOrHardDelete(
   const { error } = await admin.from(table).delete().eq("id", id);
   if (error) return { error };
 
-  // 부모가 soft-deleted이고 다른 답글이 없으면 부모도 hard delete
+  // 부모가 soft-deleted이고 self 작성자에 의한 것이며 다른 답글이 없으면 부모도 hard delete
+  // (admin tombstone은 모더레이션 기록으로 유지)
   if (parentId) {
     const { data: parent } = await admin
       .from(table)
-      .select("id, is_deleted")
+      .select("id, is_deleted, deleted_by")
       .eq("id", parentId)
       .single();
 
-    if (parent?.is_deleted) {
+    if (parent?.is_deleted && parent?.deleted_by !== "admin") {
       const { count: siblingCount } = await admin
         .from(table)
         .select("id", { count: "exact", head: true })
@@ -96,7 +105,7 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
     } = await supabase.auth.getUser();
 
     if (user) {
-      const { error } = await softOrHardDelete(admin, table, id);
+      const { error } = await softOrHardDelete(admin, table, id, "admin");
       if (error) return jsonServerError(error);
       return jsonOk({ success: true });
     }
@@ -122,7 +131,7 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
     }
     if (!authorized) return jsonError("Not authorized", 403);
 
-    const { error } = await softOrHardDelete(admin, table, id);
+    const { error } = await softOrHardDelete(admin, table, id, "self");
     if (error) return jsonServerError(error);
     return jsonOk({ success: true });
   }

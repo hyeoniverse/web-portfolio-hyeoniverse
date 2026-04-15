@@ -1,7 +1,7 @@
 import { createCommentHandlers } from "@/lib/api/commentHandler";
 
-const SELECT = "id, post_id, parent_id, nickname, commenter_hash, content, is_admin, is_deleted, like_count, created_at, updated_at";
-const SELECT_SAFE = "id, post_id, parent_id, nickname, commenter_hash, content, is_admin, is_deleted, created_at, updated_at";
+const SELECT = "id, post_id, parent_id, nickname, commenter_hash, content, is_admin, is_deleted, deleted_by, like_count, created_at, updated_at";
+const SELECT_SAFE = "id, post_id, parent_id, nickname, commenter_hash, content, is_admin, is_deleted, deleted_by, created_at, updated_at";
 
 export const { GET, POST, PATCH } = createCommentHandlers({
   table: "comments",
