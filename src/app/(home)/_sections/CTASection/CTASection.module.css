@@ -3,9 +3,37 @@
    ========================================================================== */
 
 .cta {
+  position: relative;
   padding-top: var(--spacing-6xl);
   padding-bottom: var(--spacing-6xl);
-  contain: layout style;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   배경 이미지 — 버튼 backdrop-blur가 드러나도록 선명한 이미지를 자연스럽게 깔아둠
+   --------------------------------------------------------------------------- */
+.decor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.decorStage {
+  --_size: min(480px, 55vw);
+  position: absolute;
+  top: calc(55% - var(--_size) / 2);
+  left: calc(68% - var(--_size) / 2);
+  width: var(--_size);
+  height: var(--_size);
+}
+
+@media (max-width: 768px) {
+  .decorStage {
+    --_size: min(260px, 55vw);
+    top: calc(58% - var(--_size) / 2);
+    left: calc(60% - var(--_size) / 2);
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -13,7 +41,6 @@
    --------------------------------------------------------------------------- */
 .content {
   position: relative;
-  z-index: var(--z-content);
   text-align: center;
 }
 
@@ -59,31 +86,41 @@
   display: inline-block;
 }
 
-/* outline hover 대신 backdrop-filter blur만 사용 */
+.magneticInner {
+  display: inline-block;
+  position: relative;
+  border-radius: var(--radius-capsule);
+  transition:
+    backdrop-filter var(--duration-base) ease,
+    background-color var(--duration-base) ease;
+}
+
+/* 버튼 hover 시 유리창 효과: 뒷 커피 canvas가 blur로 보임 */
+.cta .magneticInner:hover {
+  backdrop-filter: var(--blur-sm) saturate(120%);
+}
+
 .ctaBtn.ctaBtn {
   gap: var(--spacing-md);
   overflow: hidden;
 }
 
-/* (0,5,0) — outline hover (0,4,0) 이상 필요 */
 .cta .ctaBtn.ctaBtn:hover {
-  background: transparent;
   color: var(--text-primary);
   border-color: var(--border-strong-color);
-  backdrop-filter: blur(2px);
+  background: transparent;
 }
 
-/* Resume Button */
 .resumeBtn.resumeBtn {
   gap: var(--spacing-md);
   overflow: hidden;
+  border-color: var(--border-strong-color);
 }
 
 .cta .resumeBtn.resumeBtn:hover {
-  background: transparent;
   color: var(--text-primary);
   border-color: var(--border-strong-color);
-  backdrop-filter: blur(2px);
+  background: transparent;
 }
 
 /* Button Indicator Dot */
@@ -134,14 +171,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: var(--border-light);
+  border: var(--border-strong);
   border-radius: var(--radius-circle);
-  color: var(--text-tertiary);
+  color: var(--text-primary);
+  transition:
+    background-color var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 .cta .socialLink:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  border-color: var(--bg-inverse);
 }
 
 .socialLink svg {
@@ -170,7 +211,6 @@
    Responsive
    --------------------------------------------------------------------------- */
 @media (max-width: 768px) {
-
   .footer {
     bottom: var(--spacing-2xl);
   }
