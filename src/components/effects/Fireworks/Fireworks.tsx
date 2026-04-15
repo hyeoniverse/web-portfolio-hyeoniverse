@@ -10,6 +10,8 @@ interface FireworksProps {
   onDone?: () => void;
   /** 터뜨리기 지속 시간 (ms) */
   duration?: number;
+  /** 폭죽과 함께 화면 중앙에 표시할 축하 메시지 */
+  message?: string;
 }
 
 interface Particle {
@@ -49,7 +51,7 @@ function launchBurst(cx: number, cy: number, color: string, count = 40): Particl
   return ps;
 }
 
-export default function Fireworks({ trigger, onDone, duration = 2400 }: FireworksProps) {
+export default function Fireworks({ trigger, onDone, duration = 2400, message }: FireworksProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const firedRef = useRef(false);
@@ -133,5 +135,14 @@ export default function Fireworks({ trigger, onDone, duration = 2400 }: Firework
     };
   }, [trigger, duration, onDone]);
 
-  return <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />;
+  return (
+    <>
+      <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
+      {message && trigger && (
+        <div className={styles.message} role="status" aria-live="polite">
+          {message}
+        </div>
+      )}
+    </>
+  );
 }

@@ -833,6 +833,7 @@
     "hintNetwork": "Network error",
     "deletedComment": "This comment has been deleted.",
     "deletedCommentByAdmin": "This comment was removed by the admin.",
+    "firstCommentCelebration": "🎉 You left the first comment on this post!",
     "disclaimer": "Inappropriate comments may be removed without notice."
   },
   "postDetail": {
