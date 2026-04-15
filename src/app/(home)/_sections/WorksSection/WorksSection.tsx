@@ -104,7 +104,7 @@ const WorkCircle = memo(function WorkCircle({
               src={work.main}
               alt={`Work ${work.id}`}
               fill
-              sizes="120px"
+              sizes="(max-width: 768px) 40vw, (max-width: 1024px) 30vw, 25vw"
               className={styles.image}
             />
           </motion.div>
@@ -145,7 +145,7 @@ const WorkCircle = memo(function WorkCircle({
                 src={work.hover}
                 alt={`Work ${work.id}`}
                 fill
-                sizes="120px"
+                sizes="(max-width: 768px) 40vw, (max-width: 1024px) 30vw, 25vw"
                 className={styles.image}
               />
             </motion.div>
