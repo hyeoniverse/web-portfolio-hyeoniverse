@@ -116,6 +116,7 @@ export const tocSections = [
   { id: "shadows", label: "Shadows" },
   { id: "motion", label: "Motion" },
   { id: "z-index", label: "Z-Index" },
+  { id: "threejs", label: "3D (Three.js)" },
   { id: "components", label: "Components" },
   { id: "tooltip", label: "Tooltip" },
   { id: "editor", label: "Editor" },
