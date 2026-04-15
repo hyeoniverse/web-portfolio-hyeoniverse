@@ -1,7 +1,10 @@
 "use client";
 
 import { forwardRef } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
+
+const CoffeeCanvas = dynamic(() => import("./CoffeeCanvas"), { ssr: false });
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import Button from "@/components/ui/Button";
@@ -37,6 +40,11 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
 
     return (
       <Section fullHeight center className={styles.cta} ref={ref}>
+        <div className={styles.decor} aria-hidden="true">
+          <div className={styles.decorStage}>
+            <CoffeeCanvas />
+          </div>
+        </div>
         <div className={styles.content}>
           <p className={`${styles.label} reveal-text`}>
             <T ko={cfg.cta.label_ko} en={cfg.cta.label} />
@@ -51,10 +59,11 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
           </h2>
 
           <div className={styles.buttonGroup}>
+            <div className={styles.buttonWrapper}>
             <motion.div
               ref={magnetic.ref}
-              className={styles.buttonWrapper}
-              style={{ x: magnetic.x, y: magnetic.y }}
+              className={styles.magneticInner}
+              style={{ left: magnetic.x, top: magnetic.y }}
               onMouseMove={magnetic.handleMouseMove}
               onMouseLeave={magnetic.handleMouseLeave}
             >
@@ -77,12 +86,14 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                 </Button>
               </Tooltip>
             </motion.div>
+            </div>
 
             {resumeUrl && (
+              <div className={styles.buttonWrapper}>
               <motion.div
                 ref={resumeMagnetic.ref}
-                className={styles.buttonWrapper}
-                style={{ x: resumeMagnetic.x, y: resumeMagnetic.y }}
+                className={styles.magneticInner}
+                style={{ left: resumeMagnetic.x, top: resumeMagnetic.y }}
                 onMouseMove={resumeMagnetic.handleMouseMove}
                 onMouseLeave={resumeMagnetic.handleMouseLeave}
               >
@@ -108,6 +119,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                   </Button>
                 </Tooltip>
               </motion.div>
+              </div>
             )}
           </div>
 

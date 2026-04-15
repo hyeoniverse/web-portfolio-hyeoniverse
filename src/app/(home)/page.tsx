@@ -258,20 +258,6 @@ export default function HomePage() {
           },
         });
 
-        // CTA 오벌 스크롤 시 스케일
-        gsap.from(".cta-oval", {
-          scale: 0.8,
-          opacity: 0,
-          duration: 1,
-          ease: "power3.out",
-          immediateRender: false,
-          scrollTrigger: {
-            trigger: ctaRef.current,
-            start: "top 70%",
-            once: true,
-          },
-        });
-
         // 텍스트 등장 애니메이션
         gsap.from(".reveal-text", {
           clipPath: "inset(100% 0 0 0)",
@@ -310,17 +296,17 @@ export default function HomePage() {
         className={styles.home}
         ref={containerRef}
         initial={{
-          y: "100vh",
+          marginTop: "100vh",
           width: "90%",
           borderRadius: "var(--radius-2xl)",
         }}
         animate={{
-          y: contentReady ? 0 : "100vh",
+          marginTop: contentReady ? 0 : "100vh",
           width: contentReady ? "100%" : "90%",
           borderRadius: contentReady ? "0px" : "var(--radius-2xl)",
         }}
         transition={{
-          y: {
+          marginTop: {
             duration: 1.0,
             ease: [0.25, 0.46, 0.45, 0.94],
           },

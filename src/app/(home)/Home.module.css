@@ -12,10 +12,8 @@
 }
 
 .home {
-  overflow-x: clip;
   background: var(--bg-primary);
   color: var(--text-primary);
-  border-radius: var(--radius-2xl);
   justify-content: center;
   align-items: center;
 }
@@ -39,7 +37,7 @@
   transition: all var(--duration-slow) var(--ease-bounce);
   pointer-events: none;
   border-radius: var(--radius-capsule);
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--blur-lg);
   opacity: 0;
   transform: translateX(-50%) translateY(100px);
 }
