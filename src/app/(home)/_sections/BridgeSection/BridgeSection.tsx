@@ -109,8 +109,8 @@ export default function BridgeSection({
         <div className={heroStyles.scrollLineWrapper}>
           <motion.div
             className={heroStyles.scrollLine}
-            animate={{ scaleY: [0, 1, 0], y: [0, 0, 20] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            animate={{ y: ["-100%", "350%"] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
         </div>
         <span className={heroStyles.scrollText}>

@@ -29,7 +29,7 @@
 .ovalPrimary {
   width: 100%;
   height: 100%;
-  transform: translateY(calc(var(--offset, 0) * var(--spread, 0) * 200px));
+  transform: translateY(calc(var(--offset, 0) * var(--spread, 0) * 110px));
   opacity: calc(0.15 + 0.85 * var(--spread, 0));
   /* transition 제거: lenis scroll 이벤트에서 매 프레임 --spread 업데이트 */
 }
@@ -120,7 +120,7 @@
 
 .titleAccent:hover {
   color: transparent;
-  -webkit-text-stroke: 1px var(--text-primary);
+  -webkit-text-stroke: 1px var(--text-accent-alt);
 }
 
 
@@ -219,9 +219,8 @@
 
 .scrollLine {
   width: 100%;
-  height: 100%;
+  height: 90%;
   background: var(--bg-gradient-accent-vertical);
-  transform-origin: top center;
 }
 
 /* ---------------------------------------------------------------------------

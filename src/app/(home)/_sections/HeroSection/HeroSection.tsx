@@ -130,9 +130,9 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
           <div className={styles.scrollLineWrapper}>
             <motion.div
               className={styles.scrollLine}
-              animate={{ scaleY: [0, 1, 0], y: [0, 0, 20] }}
+              animate={{ y: ["-100%", "350%"] }}
               transition={{
-                duration: 1.5,
+                duration: 3,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
