@@ -58,7 +58,7 @@
 
 | 영역 | 핵심 |
 |:---|:---|
-| **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, 글자별 StaggerText, Three.js 3D |
+| **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, StaggerText, Three.js 3D 커피잔 + 라떼아트, 방향별 Scroll Cascade |
 | **Works** | 6종 레이아웃 (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
 | **Blog** | SSR + ISR, 시리즈, 배너 슬라이더, 게스트 댓글 (이중 인증) |
 | **Admin** | Plate.js 에디터, `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리 |
@@ -90,8 +90,12 @@
 - **Infinite Scroll Loop**: Lenis smooth scroll + Bridge Section 기반 무한 순환 스크롤
 - **Mouse Parallax**: Framer Motion useSpring/useTransform 기반 마우스 반응형 패럴랙스
 - **Scroll-Triggered Animations**: GSAP ScrollTrigger를 활용한 스크롤 기반 등장 애니메이션
-- **Scroll Velocity Parallax**: Lenis velocity 기반 스크롤 속도 연동 이미지 패럴랙스
-- **StaggerText**: 호버 시 글자별 순차 외곽선 애니메이션 효과 컴포넌트
+- **Scroll Velocity Parallax**: Lenis velocity 기반 스크롤 속도 연동 이미지 패럴랙스 (Works 이미지 160% buffer로 원 밖으로 새지 않도록 보정)
+- **Directional Scroll Cascade**: Services 항목이 스크롤 방향별로 cascade — 위로 스크롤 시 item0, 아래로 스크롤 시 item3가 leader, velocity 기반 overlap 축소 + 상·하단 border hard stop
+- **Hero Oval Spread**: 위쪽 원 그룹은 위로 누적 스크롤 거리, 아래쪽 원 그룹은 아래로 누적 스크롤에 비례해 벌어짐 (방향별 독립 spread)
+- **StaggerText**: 호버 시 글자별 순차 외곽선 애니메이션, mouseEnter 시점의 실제 글자 색을 JS로 캡처해 stroke 색을 동적으로 동기화
+- **CTA 3D Coffee**: Three.js(R3F) 기반 세라믹 커피잔 — LatheGeometry 둥근 프로파일, 마우스 추적 회전, Canvas 2D로 그린 parametric heart 라떼아트(cream↔coffee wave + 엽맥 blur) + 갈색 halo + contact shadow disc
+- **Glass Hover Buttons**: CTA 컨택트/이력서 버튼 hover 시 backdrop-filter blur로 뒷 커피 canvas가 유리창 너머처럼 흐려짐 (transform 기반 compositing 이슈를 marginTop 엔트런스로 해결)
 - **3D Scroll Torus**: Three.js(R3F) 기반 3D 메탈릭 토러스 — 리사주 곡선 경로 회전, 테마별 머티리얼, 모바일 터치 반발 인터랙션
 
 <p align="center">
@@ -490,7 +494,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 32건의 이슈 해결 과정입니다. 주요 5건을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 33건의 이슈 해결 과정입니다. 주요 6건을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
 > About 페이지에서도 인터랙티브하게 확인 가능합니다.
 
 | # | 이슈 | 핵심 |
@@ -500,6 +504,7 @@ npm run test:watch
 | 12 | 전체 성능 최적화 (Lighthouse 60→98) | react-icons→SVG, Three.js dynamic import, About 패널 코드 스플리팅 — 페이지 1,489KB→449KB |
 | 19 | 글로벌 theme transition이 컴포넌트 애니메이션 덮어쓰기 | compound selector (0,2,0)로 specificity 역전 — max-height, transform 등 개별 transition 복원 |
 | 32 | LoadingScreen SSR 미포함 → 콘텐츠 flash | dynamic({ ssr: false }) → 일반 import으로 서버 HTML에 로딩 배경 포함 |
+| 33 | CTA 버튼 backdrop-filter가 Chrome에서 동작 안 함 | `.home` entrance 애니메이션을 `y: transform` → `marginTop: layout` 으로 교체 — 상위 transform이 만든 compositing layer 때문에 backdrop 샘플링이 차단되던 이슈. `-webkit-backdrop-filter` 접두사도 Chrome에서 역으로 파싱을 꼬이게 해서 제거 |
 
 
 ## 배포

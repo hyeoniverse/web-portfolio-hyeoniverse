@@ -58,7 +58,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 | Area | Highlights |
 |:---|:---|
-| **Interaction** | Infinite scroll loop, mouse parallax, per-character StaggerText, Three.js 3D |
+| **Interaction** | Infinite scroll loop, mouse parallax, StaggerText, Three.js 3D coffee cup + latte art, directional scroll cascade |
 | **Works** | 6 layouts (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
 | **Blog** | SSR + ISR, series, banner slider, guest comments (dual auth) |
 | **Admin** | Plate.js editor, `.md` sync + export, AI translation/summary, revision history |
@@ -90,8 +90,12 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Infinite Scroll Loop**: Lenis smooth scroll + Bridge Section-based infinite circular scrolling
 - **Mouse Parallax**: Mouse-responsive parallax based on Framer Motion useSpring/useTransform
 - **Scroll-Triggered Animations**: Scroll-based entrance animations using GSAP ScrollTrigger
-- **Scroll Velocity Parallax**: Image parallax linked to scroll speed via Lenis velocity
-- **StaggerText**: Component with sequential per-character outline animation on hover
+- **Scroll Velocity Parallax**: Image parallax linked to scroll speed via Lenis velocity (Works image scaled to 160% to prevent gaps when translating inside the circular mask)
+- **Directional Scroll Cascade**: Services items cascade by scroll direction — item0 leads on up-scroll, item3 leads on down-scroll, velocity-based overlap with hard stop at top/bottom borders
+- **Hero Oval Spread**: Top oval group spreads as you accumulate upward scroll distance, bottom oval group spreads based on downward scroll (independent per-direction spread)
+- **StaggerText**: Sequential per-character outline animation on hover; the actual rendered text color is captured via JS at mouse-enter so the stroke dynamically matches color changes (theme, hover, etc.)
+- **CTA 3D Coffee**: Three.js (R3F) ceramic coffee cup — LatheGeometry curved profile, mouse-tracked rotation, Canvas 2D parametric heart latte art (cream↔coffee wave + blur veins) + brown halo + contact shadow disc
+- **Glass Hover Buttons**: CTA contact/resume buttons reveal the coffee canvas through a backdrop-filter blur on hover (resolved a Chrome compositing limitation by swapping the entrance transform to a layout-based `marginTop`)
 - **3D Scroll Torus**: Three.js (R3F) 3D metallic torus — Lissajous curve path rotation, theme-specific materials, mobile touch repulsion interaction
 
 <p align="center">
@@ -489,7 +493,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 32 issues encountered during development. Top 5 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
+> 33 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
 > Also available interactively on the About page.
 
 | # | Issue | Key takeaway |
@@ -499,6 +503,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 12 | Full performance optimization (Lighthouse 60→98) | react-icons→SVG, Three.js dynamic import, About panel code splitting — 1,489KB→449KB |
 | 19 | Global theme transition overriding component animations | Compound selector (0,2,0) specificity reversal — restored max-height, transform transitions |
 | 32 | LoadingScreen not in SSR → content flash | dynamic({ ssr: false }) → regular import to include loading backdrop in server HTML |
+| 33 | CTA button `backdrop-filter` not working in Chrome | Swapped `.home` entrance from `y: transform` to `marginTop: layout` — an ancestor with `transform` promoted a compositing layer that blocked backdrop sampling. Also removed `-webkit-backdrop-filter` prefix since it caused Chrome to mis-parse the declaration |
 
 ## Deployment
 

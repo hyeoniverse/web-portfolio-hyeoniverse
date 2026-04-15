@@ -1077,4 +1077,27 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "`dynamic({ ssr: false })` **completely excludes** the component from server HTML. Components that **must be visible on initial render** (like loading screens) should be included in SSR, with correct initial state. If `useState` initializer returns the same value on server and client, there's no hydration mismatch.",
     },
   },
+  {
+    section: { ko: "Frontend / CSS", en: "Frontend / CSS" },
+    problem: {
+      ko: "CTA 버튼 `backdrop-filter`가 Chrome에서 동작하지 않음",
+      en: "CTA Button `backdrop-filter` Not Working in Chrome",
+    },
+    definition: {
+      ko: "CTA 섹션의 컨택트/이력서 버튼에 `backdrop-filter: blur()`를 적용했는데, Chrome에서 **호버 시 blur 효과가 전혀 보이지 않고** 배경 tint만 약하게 표시됐습니다. DevTools 컴퓨티드에서 속성은 분명히 적용돼 있는데 실제 샘플링이 안 됐습니다.",
+      en: "Applied `backdrop-filter: blur()` to the CTA contact/resume buttons, but in Chrome the **blur effect wasn't visible on hover** — only the faint background tint showed. DevTools Computed showed the property applied, yet the backdrop wasn't being sampled.",
+    },
+    cause: {
+      ko: "홈 페이지 진입 애니메이션이 `.home` 래퍼에 `y: '100vh' → 0` 형태의 **transform 기반**이었습니다. 애니메이션이 끝나도 framer-motion이 `transform: translate3d(0,0,0)`와 `will-change`를 유지하는 바람에 `.home`이 자체 **compositing layer**로 승격되었고, 하위 요소의 `backdrop-filter`가 그 layer 경계 너머의 배경(커피 canvas)을 샘플링할 수 없게 됐습니다. 추가로 `-webkit-backdrop-filter` 접두사가 Chrome의 파싱을 꼬이게 만들어 더욱 동작을 저해했습니다.",
+      en: "The homepage entrance animation used a `transform`-based `y: '100vh' → 0` on the `.home` wrapper. Even after the animation finished, framer-motion kept the `transform: translate3d(0,0,0)` and `will-change` hint, which promoted `.home` into its own **compositing layer**. Any child's `backdrop-filter` could no longer sample the backdrop beyond that layer (the coffee canvas below). Additionally, the `-webkit-backdrop-filter` prefix disrupted Chrome's parsing and aggravated the failure.",
+    },
+    solution: {
+      ko: "진입 애니메이션을 `y(transform)` → `marginTop(layout)`으로 교체했습니다. layout 기반 속성은 compositing layer를 만들지 않기 때문에 하위 요소의 `backdrop-filter`가 정상적으로 배경을 샘플링합니다. 또한 `.home`의 `border-radius` + `overflow-x: clip` 조합도 제거해 불필요한 layer 승격 요인을 줄이고, `-webkit-backdrop-filter` 접두사는 삭제했습니다 (Chrome은 표준 `backdrop-filter`만 사용).",
+      en: "Swapped the entrance animation from `y` (transform) to `marginTop` (layout). Layout-based properties don't promote a compositing layer, so descendants' `backdrop-filter` can sample the backdrop normally. Also removed `.home`'s `border-radius` + `overflow-x: clip` combination to eliminate another promotion trigger, and dropped the `-webkit-backdrop-filter` prefix entirely (Chrome uses the standard property only).",
+    },
+    keyInsight: {
+      ko: "`backdrop-filter`는 요소와 **동일한 compositing layer 내의 backdrop만** 샘플링할 수 있습니다. 상위 조상 중 하나라도 `transform`, `will-change: transform`, `filter`, `mask`, `isolation: isolate` 등으로 layer를 승격시키면 그 layer 경계 이전의 배경은 보이지 않게 됩니다. 버튼 hover처럼 국소적인 blur가 필요할 때는 **조상 경로에 layer 승격 속성이 없는지** 먼저 검증해야 하고, transform 기반 애니메이션은 훑고 지나간 뒤에도 compositing 힌트를 남기는 경우가 많으므로 **layout 속성으로 대체할 수 있는지 고민**해야 합니다.",
+      en: "`backdrop-filter` can only sample the backdrop **within the same compositing layer** as the element. If any ancestor promotes itself via `transform`, `will-change: transform`, `filter`, `mask`, `isolation: isolate`, etc., the backdrop beyond that boundary disappears. For localized effects like hover blur, first verify **no ancestor in the chain has a layer-promoting property**. Transform-based animations often leave compositing hints behind, so consider whether **layout-based properties (margin, padding, width)** can replace them.",
+    },
+  },
 ];
