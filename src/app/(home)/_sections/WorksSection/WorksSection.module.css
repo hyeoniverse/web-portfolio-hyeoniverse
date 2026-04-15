@@ -81,10 +81,10 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 140%;
-  height: 140%;
-  margin-top: -70%;
-  margin-left: -70%;
+  width: 160%;
+  height: 160%;
+  margin-top: -80%;
+  margin-left: -80%;
   will-change: transform;
 }
 
