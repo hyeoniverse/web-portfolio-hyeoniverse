@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { PlaceholderIcon } from "./PlaceholderIcon";
@@ -19,6 +19,7 @@ interface SplitBannerProps {
 
 export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBannerProps) {
   const { language } = useLanguage();
+  const { navigateWithTransition } = usePageTransition();
   const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 5000);
   const len = posts.length;
 
@@ -53,7 +54,14 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
     return (
       <div key={key} className={styles.split}>
         <div className={styles.splitImage}>
-          <Link href={`/posts/${post.slug}`} className={styles.splitImageLink}>
+          <div
+            className={styles.splitImageLink}
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect);
+            }}
+          >
             {post.cover_image && !imgErrors.has(post.id) ? (
               <ProgressiveImage
                 src={post.cover_image}
@@ -67,13 +75,20 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
             ) : (
               <div className={styles.splitFallback}><PlaceholderIcon /></div>
             )}
-          </Link>
+          </div>
         </div>
         <div className={styles.splitContent}>
           {post.category && <span className={styles.splitCategory}><CategoryLabel category={post.category} /></span>}
-          <Link href={`/posts/${post.slug}`} className={styles.splitTitleLink}>
+          <div
+            className={styles.splitTitleLink}
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect);
+            }}
+          >
             <h2 className={styles.splitTitle}>{title}</h2>
-          </Link>
+          </div>
           {excerpt && <p className={styles.splitExcerpt}>{excerpt}</p>}
         </div>
       </div>

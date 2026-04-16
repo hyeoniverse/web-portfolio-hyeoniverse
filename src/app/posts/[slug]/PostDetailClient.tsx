@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Post, Series } from "@/types/post";
@@ -42,6 +43,7 @@ interface PostDetailClientProps {
 
 export default function PostDetailClient({ post: initialPost, translationEnabled = true }: PostDetailClientProps) {
   const { t, language } = useLanguage();
+  const { navigateWithTransition } = usePageTransition();
 
   const [post, setPost] = useState<Post>(initialPost);
   const [heroImgError, setHeroImgError] = useState(false);
@@ -206,6 +208,8 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
         `<button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${wrapLabel}</span><span class="code-wrap-label-hover">${hoverLabel}</span></button>`
       );
     } catch { /* hljs 로드 실패 시 무시 */ }
+    // img에 data-cursor="zoom" 주입 → CursorTrail 이미지 뷰어 힌트
+    html = html.replace(/<img\s/g, '<img data-cursor="zoom" ');
     return html;
   }, [post.content_type, displayContent, t]);
 
@@ -316,7 +320,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
               </div>
               <div className={styles.relatedGrid}>
                 {relatedSeriesPosts.map((sp, idx) => (
-                  <Link key={sp.id} href={`/posts/${sp.slug}`} className={styles.relatedCard}>
+                  <div key={sp.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${sp.slug}`, sp.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.relatedCard}>
                     <div className={styles.relatedCardImage}>
                       {sp.cover_image ? (
                         <Image
@@ -347,7 +351,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
                         {new Date(sp.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric" })}
                       </span>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             </section>
@@ -485,21 +489,21 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
 
           <div className={styles.seriesNav}>
             {prevSeriesPost ? (
-              <Link href={`/posts/${prevSeriesPost.slug}`} className={styles.seriesNavLink}>
+              <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${prevSeriesPost.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={styles.seriesNavLink}>
                 <span className={styles.seriesNavBadge}><svg className={styles.seriesNavArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg> <T k="postDetail.previous" /></span>
                 <span className={styles.seriesNavSep}>|</span>
                 <span className={styles.seriesNavTitle}>{viewLang === "en" && prevSeriesPost.title_en ? prevSeriesPost.title_en : prevSeriesPost.title}</span>
-              </Link>
+              </div>
             ) : (
               <span />
             )}
             {prevSeriesPost && nextSeriesPost && <span className={styles.seriesNavDivider} />}
             {nextSeriesPost ? (
-              <Link href={`/posts/${nextSeriesPost.slug}`} className={`${styles.seriesNavLink} ${styles.seriesNavRight}`}>
+              <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${nextSeriesPost.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={`${styles.seriesNavLink} ${styles.seriesNavRight}`}>
                 <span className={styles.seriesNavTitle}>{viewLang === "en" && nextSeriesPost.title_en ? nextSeriesPost.title_en : nextSeriesPost.title}</span>
                 <span className={styles.seriesNavSep}>|</span>
                 <span className={styles.seriesNavBadge}><T k="postDetail.next" /> <svg className={styles.seriesNavArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg></span>
-              </Link>
+              </div>
             ) : (
               <span />
             )}

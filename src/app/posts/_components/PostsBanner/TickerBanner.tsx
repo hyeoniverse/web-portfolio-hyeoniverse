@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { formatPostTitle } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { PlaceholderIcon } from "./PlaceholderIcon";
@@ -19,6 +19,7 @@ interface TickerBannerProps {
 
 export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBannerProps) {
   const { language } = useLanguage();
+  const { navigateWithTransition } = usePageTransition();
   const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 3000);
   const len = posts.length;
 
@@ -48,7 +49,14 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
     const title = formatPostTitle(post, language);
     return (
       <div key={key} className={styles.tickerInner}>
-        <Link href={`/posts/${post.slug}`} className={styles.tickerLink}>
+        <div
+          className={styles.tickerLink}
+          style={{ cursor: "pointer" }}
+          onClick={(e) => {
+            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+            navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect);
+          }}
+        >
           <div className={styles.tickerThumb}>
             {post.cover_image && !imgErrors.has(post.id) ? (
               <Image
@@ -65,7 +73,7 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
           </div>
           {post.category && <span className={styles.tickerCategory}><CategoryLabel category={post.category} /></span>}
           <span className={styles.tickerTitle}>{title}</span>
-        </Link>
+        </div>
       </div>
     );
   };
