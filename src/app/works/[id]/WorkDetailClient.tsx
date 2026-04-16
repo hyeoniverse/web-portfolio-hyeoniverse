@@ -90,7 +90,11 @@ export default function WorkDetailClient({
     }
   }, [project.id, liked]);
 
-  const content = project.content[viewLang] || project.content.ko;
+  const contentRaw = project.content[viewLang] || project.content.ko;
+  // richtext img에 data-cursor="zoom" 주입 (CursorTrail 이미지 뷰어 힌트)
+  const content = isRichtext
+    ? contentRaw.replace(/<img\s/g, '<img data-cursor="zoom" ')
+    : contentRaw;
   const needsTranslation = viewLang === "en" && !project.content[viewLang];
 
   useRichtextEnhance(richtextRef, content);
@@ -133,6 +137,7 @@ export default function WorkDetailClient({
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => { if (e.key === "Enter") setGalleryViewer({ open: true, index: i }); }}
+                  data-cursor="zoom"
                 >
                   <ProgressiveImage
                     src={src}

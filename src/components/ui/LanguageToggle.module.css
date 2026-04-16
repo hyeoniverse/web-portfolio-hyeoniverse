@@ -2,7 +2,8 @@
 .toggle {
   display: flex;
   align-items: center;
-  padding: var(--spacing-3xs);
+  height: 28px;
+  padding: 0;
   border: var(--border-strong);
   position: relative;
   background: var(--bg-glass-subtle);

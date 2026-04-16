@@ -21,7 +21,10 @@
 }
 
 .category {
-  padding: var(--box-xs-lg);
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 var(--spacing-md);
   border: var(--border-default);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-2xs);
