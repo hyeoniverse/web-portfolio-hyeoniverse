@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import type { Post } from "@/types/post";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import T from "@/components/ui/T";
 import styles from "./PopularPosts.module.css";
 
 export default function PopularPosts() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const { navigateWithTransition } = usePageTransition();
 
   useEffect(() => {
     fetch("/api/posts?sort=popular&limit=5&pinned=false")
@@ -28,7 +29,7 @@ export default function PopularPosts() {
       </div>
       <div className={styles.list}>
         {posts.map((post, idx) => (
-          <Link key={post.id} href={`/posts/${post.slug}`} className={styles.item}>
+          <div key={post.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={styles.item}>
             <span className={`${styles.rank} ${idx === 0 ? styles.rankTop : idx <= 2 ? styles.rankHigh : ""}`}>
               {String(idx + 1).padStart(2, "0")}
             </span>
@@ -41,7 +42,7 @@ export default function PopularPosts() {
                 {post.like_count > 0 && <> &middot; {post.like_count} <T k="postsPage.likes" /></>}
               </span>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
     </section>

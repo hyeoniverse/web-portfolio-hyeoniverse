@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, type ReactNode } from "react";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import TOC from "@/components/ui/TOC/TOC";
 import { useLanguage } from "@/providers/LanguageProvider";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
@@ -62,7 +63,14 @@ export default function DetailLayout({
 }: DetailLayoutProps) {
   const { t } = useLanguage();
   const { setInfinite, lenis, stop, start } = useLenis();
+  const { endTransition, isTransitioning } = usePageTransition();
   const pageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isTransitioning && !heroImage) {
+      endTransition();
+    }
+  }, [isTransitioning, heroImage, endTransition]);
 
   // Lenis setup
   useEffect(() => {
@@ -150,9 +158,12 @@ export default function DetailLayout({
       {heroImage ? (
         <motion.div
           className={styles.hero}
-          initial={{ opacity: 0 }}
+          initial={{ opacity: isTransitioning ? 1 : 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
+          onAnimationStart={() => {
+            if (isTransitioning) endTransition();
+          }}
         >
           <ProgressiveImage
             src={heroImage}

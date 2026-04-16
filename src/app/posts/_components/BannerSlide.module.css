@@ -21,8 +21,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-surface);
-  color: var(--text-quaternary);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 /* ── Shared typography ── */
@@ -30,7 +30,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
-  color: var(--text-white-secondary);
+  color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
@@ -49,7 +49,7 @@
   margin-top: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-white-tertiary);
+  color: var(--text-white);
   max-width: 480px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -71,7 +71,7 @@
   font-size: clamp(4rem, 8vw, 8rem);
   font-weight: var(--font-weight-light);
   font-style: italic;
-  color: var(--text-white-muted);
+  color: var(--text-white);
   line-height: 0.85;
   letter-spacing: -0.04em;
   flex-shrink: 0;
@@ -86,8 +86,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, transparent 50%),
-    linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 50%);
+    linear-gradient(135deg, rgba(0, 0, 0, 0.65) 0%, transparent 50%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, transparent 55%);
   pointer-events: none;
 }
 
@@ -110,7 +110,7 @@
 .overlayMinimal {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, transparent 45%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -187,7 +187,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  color: var(--text-white-tertiary);
+  color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.2em;
 }
@@ -207,7 +207,7 @@
   margin-top: var(--spacing-lg);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  color: var(--text-white-tertiary);
+  color: var(--text-white);
   max-width: 500px;
   line-height: var(--line-height-relaxed);
 }
@@ -254,7 +254,7 @@
 }
 
 .badgeSep {
-  color: var(--text-white-muted);
+  color: var(--text-white);
   font-size: var(--font-size-2xs);
 }
 
@@ -263,7 +263,7 @@
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
   font-style: italic;
-  color: var(--text-white-secondary);
+  color: var(--text-white);
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
@@ -273,7 +273,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  color: var(--text-white-secondary);
+  color: var(--text-white);
   letter-spacing: 0.04em;
 }
 

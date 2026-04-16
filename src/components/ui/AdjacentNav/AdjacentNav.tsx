@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import T from "@/components/ui/T";
 import styles from "./AdjacentNav.module.css";
 
@@ -26,10 +26,17 @@ export default function AdjacentNav({
   nextLabelKey = "common.next",
   className,
 }: AdjacentNavProps) {
+  const { navigateWithTransition } = usePageTransition();
+
+  const handleClick = (item: AdjacentItem, e: React.MouseEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    navigateWithTransition(item.href, item.image || "", rect);
+  };
+
   return (
     <nav className={`${styles.nav}${className ? ` ${className}` : ""}`}>
       {prev ? (
-        <Link href={prev.href} className={styles.card} data-clickable="true">
+        <div className={styles.card} data-clickable="true" onClick={(e) => handleClick(prev, e)} role="link" style={{ cursor: "pointer" }}>
           <div className={styles.thumb}>
             {prev.image ? (
               <Image src={prev.image} alt={prev.title} fill sizes="64px" className={styles.thumbImg} />
@@ -48,12 +55,12 @@ export default function AdjacentNav({
             </span>
             <span className={styles.title}>{prev.title}</span>
           </div>
-        </Link>
+        </div>
       ) : (
         <span className={styles.card} />
       )}
       {next ? (
-        <Link href={next.href} className={`${styles.card} ${styles.cardNext}`} data-clickable="true">
+        <div className={`${styles.card} ${styles.cardNext}`} data-clickable="true" onClick={(e) => handleClick(next, e)} role="link" style={{ cursor: "pointer" }}>
           <div className={styles.thumb}>
             {next.image ? (
               <Image src={next.image} alt={next.title} fill sizes="64px" className={styles.thumbImg} />
@@ -72,7 +79,7 @@ export default function AdjacentNav({
             </span>
             <span className={styles.title}>{next.title}</span>
           </div>
-        </Link>
+        </div>
       ) : (
         <span className={styles.cardNext} />
       )}

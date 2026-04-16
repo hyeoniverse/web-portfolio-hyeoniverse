@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { useRef } from "react";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import type { Post } from "@/types/post";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
@@ -35,6 +36,8 @@ export default function PostCard({
   const isHero = variant === "hero";
   const showImage = post.cover_image && !imgError;
   const { language } = useLanguage();
+  const { navigateWithTransition } = usePageTransition();
+  const cardRef = useRef<HTMLDivElement>(null);
   const category = post.category || null;
 
   // 언어 단독 여부 판단 — 없는 언어는 있는 쪽으로 강제
@@ -50,10 +53,18 @@ export default function PostCard({
 
   const cardClass = `${styles.card} ${isFeatured ? styles.featured : ""} ${isHero ? styles.hero : ""}`;
 
+  const handleClick = () => {
+    const el = cardRef.current;
+    if (!el) return;
+    const img = post.cover_image || "";
+    const rect = el.getBoundingClientRect();
+    navigateWithTransition(`/posts/${post.slug}`, img, rect);
+  };
+
   /* ── Hero variant: 풀 블리드 이미지 + 하단 오버레이 ── */
   if (isHero) {
     return (
-      <Link href={`/posts/${post.slug}`} className={cardClass}>
+      <div ref={cardRef} className={cardClass} onClick={handleClick} role="link" style={{ cursor: "pointer" }}>
         {/* 풀 배경 이미지 */}
         {showImage ? (
           <ProgressiveImage
@@ -106,15 +117,18 @@ export default function PostCard({
             )}
           </div>
         </div>
-      </Link>
+      </div>
     );
   }
 
   /* ── Standard / Featured ── */
   return (
-    <Link
-      href={`/posts/${post.slug}`}
+    <div
+      ref={cardRef}
       className={cardClass}
+      onClick={handleClick}
+      role="link"
+      style={{ cursor: "pointer" }}
     >
       <div className={styles.imageWrap}>
         {showImage ? (
@@ -181,6 +195,6 @@ export default function PostCard({
           )}
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

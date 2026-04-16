@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import type { Post } from "@/types/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
@@ -27,6 +27,7 @@ export default function BannerSlide({
   onImgError,
 }: BannerSlideProps) {
   const { language } = useLanguage();
+  const { navigateWithTransition } = usePageTransition();
   const title = formatPostTitle(post, language);
   const excerpt = getPostExcerpt(post, language);
   const showLangHint = language === "en" && !post.content_en;
@@ -55,7 +56,7 @@ export default function BannerSlide({
   /* ── Editorial ── */
   if (style === "editorial") {
     return (
-      <Link href={`/posts/${post.slug}`} className={styles.slideLink}>
+      <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.slideLink}>
         {image}
         <div className={styles.overlayEditorial} />
         <div className={styles.contentEditorial}>
@@ -80,14 +81,14 @@ export default function BannerSlide({
             )}
           </div>
         </div>
-      </Link>
+      </div>
     );
   }
 
   /* ── Minimal ── */
   if (style === "minimal") {
     return (
-      <Link href={`/posts/${post.slug}`} className={styles.slideLink}>
+      <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.slideLink}>
         {image}
         <div className={styles.overlayMinimal} />
         <div className={styles.contentMinimal}>
@@ -105,14 +106,14 @@ export default function BannerSlide({
           <h2 className={styles.titleMinimal}>{title}</h2>
           <div className={styles.divider} />
         </div>
-      </Link>
+      </div>
     );
   }
 
   /* ── Cinematic ── */
   if (style === "cinematic") {
     return (
-      <Link href={`/posts/${post.slug}`} className={styles.slideLink}>
+      <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.slideLink}>
         {image}
         <div className={styles.overlayCinematic} />
         <div className={styles.contentCinematic}>
@@ -132,13 +133,13 @@ export default function BannerSlide({
             <p className={styles.excerptCinematic}>{post.excerpt}</p>
           )}
         </div>
-      </Link>
+      </div>
     );
   }
 
   /* ── Magazine ── */
   return (
-    <Link href={`/posts/${post.slug}`} className={styles.slideLink}>
+    <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.slideLink}>
       {image}
       <div className={styles.overlayMagazine} />
       <div className={styles.contentMagazine}>
@@ -161,6 +162,6 @@ export default function BannerSlide({
           <span className={styles.readMore}>Read →</span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

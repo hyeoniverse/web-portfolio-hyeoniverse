@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import T from "@/components/ui/T";
 import CategoryLabel from "@/components/ui/CategoryLabel";
@@ -16,6 +16,7 @@ interface RecommendedSectionProps {
 
 export default function RecommendedSection({ posts, viewLang }: RecommendedSectionProps) {
   const [expanded, setExpanded] = useState(false);
+  const { navigateWithTransition } = usePageTransition();
   const first = posts[0];
   const rest = posts.slice(1);
 
@@ -26,7 +27,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
   };
 
   const renderItem = (rp: RecommendedPost) => (
-    <Link key={rp.id} href={`/posts/${rp.slug}`} className={styles.recommendedItem}>
+    <div key={rp.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${rp.slug}`, rp.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.recommendedItem}>
       <div className={styles.recommendedItemThumb}>
         {rp.cover_image ? (
           <Image src={rp.cover_image} alt="" fill sizes="64px" className={styles.recommendedItemImg} />
@@ -44,7 +45,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
         </span>
         {rp.category && <span className={styles.recommendedItemCategory}><CategoryLabel category={rp.category} /></span>}
       </div>
-    </Link>
+    </div>
   );
 
   return (

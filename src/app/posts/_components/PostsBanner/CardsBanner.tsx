@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { PlaceholderIcon } from "./PlaceholderIcon";
@@ -19,6 +19,7 @@ interface CardsBannerProps {
 
 export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBannerProps) {
   const { language } = useLanguage();
+  const { navigateWithTransition } = usePageTransition();
   const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 4000);
 
   const getOffset = (i: number) => {
@@ -55,10 +56,14 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
               onClick={() => !isCenter && go(i)}
               style={{ cursor: isCenter ? "default" : "pointer" }}
             >
-              <Link
-                href={`/posts/${post.slug}`}
+              <div
                 className={styles.cardLink}
-                onClick={(e) => !isCenter && e.preventDefault()}
+                style={{ cursor: isCenter ? "pointer" : "default" }}
+                onClick={(e) => {
+                  if (!isCenter) return;
+                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                  navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect);
+                }}
               >
                 {post.cover_image && !imgErrors.has(post.id) ? (
                   <ProgressiveImage
@@ -79,7 +84,7 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
                   <h2 className={styles.cardTitle}>{title}</h2>
                   {isCenter && excerpt && <p className={styles.cardExcerpt}>{excerpt}</p>}
                 </div>
-              </Link>
+              </div>
             </motion.div>
           );
         })}

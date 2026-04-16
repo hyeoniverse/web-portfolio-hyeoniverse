@@ -23,6 +23,7 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getPublicKeys } from "@/lib/getSecret";
 
 import ScrollRestoration from "@/components/common/ScrollRestoration";
+import { PageTransitionProvider } from "@/providers/PageTransitionProvider";
 
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig();
@@ -122,9 +123,11 @@ export default async function RootLayout({
             <LanguageProvider>
               <RecaptchaProvider>
                 <LenisProvider>
+                <PageTransitionProvider>
                 <Navigation />
                 <main>{children}</main>
                 <Footer />
+                </PageTransitionProvider>
 
                 <ScrollRestoration />
                 <ClientOverlays />
