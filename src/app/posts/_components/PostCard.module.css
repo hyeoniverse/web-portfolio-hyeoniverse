@@ -135,7 +135,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
-  color: var(--text-muted);
+  color: var(--text-primary);
   font-style: italic;
 }
 
