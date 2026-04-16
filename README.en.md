@@ -108,7 +108,10 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **6 Layout Options**: Switchable via Admin settings or `?layout=` query parameter — Flow (default horizontal scroll) · Fullscreen (background crossfade) · Cinematic (parallax cinema) · Grid (bento grid) · Split (left meta + right scroll) · Cylinder (Three.js 3D cylinder)
 - **Flow Layout**: GSAP-based horizontal scroll gallery — bidirectional infinite wrapping, mouse 3D tilt, image hover zoom, staggered metadata reveal
 - **Cylinder Layout**: Three.js vertical cylinder rotation + HTML overlay, cosmic-themed intro + bouncing bunny character
-- **Breakpoint Guard**: Automatic page remount on viewport breakpoint (768/1024px) transitions to reinitialize GSAP/ScrollTrigger
+- **Cylinder Responsive**: Camera auto-retreats based on viewport size, tilt disabled on tablet/mobile, scroll-driven title slide-in reveal (CSS variable `--reveal` + clip-path mask)
+- **Cylinder Meta Separation**: mix-blend-mode: difference applied only to title/category; description, details (year/role/tech marquee), and CTA are separated into a sibling overlay for consistent white text
+- **Floating Comments**: Recent work comments float in the intro slot with RAF-based physics, clicking navigates to the work with transition effect
+- **Breakpoint Guard**: Cylinder layout responds to resize in real-time without reload; other layouts auto-remount on breakpoint transitions
 
 <p align="center">
   <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
@@ -124,6 +127,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Posts i18n & Sort Capsule**: All text moved to locale files, sort UI changed to capsule-style segment control (Framer Motion layoutId)
 - **IP-based Likes**: Single `likes` table with `target_type` discrimination for Posts/Works/comments, IP-based UNIQUE constraint to prevent duplicates, rapid-click prevention (ref lock + busy disabled), formatCount (1k/1.2m) number abbreviation
 - **Comment System**: Guest threaded replies — dual authentication (commenter_hash + bcrypt), nickname shuffle, email reply notifications, admin comments
+- **First Comment Celebration**: Canvas fireworks + editorial message overlay when the first comment is posted on a given post
 
 <p align="center">
   <img src="public/docs/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
@@ -147,6 +151,10 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Footer Sliding Indicator**: Same sliding indicator as Navigation — arrow movement on hover, ResizeObserver + fonts.ready accuracy
 - **Carousel (default / cylinder)**: Shared Carousel — default (CSS opacity) / cylinder (3D perspective) modes, autoPlay/loop/dots/arrows
 - **About Horizontal Scroll**: GSAP-based horizontal scroll via `useHorizontalScroll` hook (desktop), automatic vertical stack on mobile
+- **Page Transition**: Shared image-to-hero morphing transition for all detail page navigation (PageTransitionProvider at root layout level, persists across pages)
+- **ImageViewer Directional Slide**: Previous/next slides in from opposite direction, zone-based arrow reveal on hover, transparent+blur background → solid on hover
+- **Select Dropdown Animation**: Portal-based dropdown uses rAF×2 delay after mount for CSS transition guarantee (compound selector to bypass global theme transition)
+- **LanguageToggle Dynamic Measurement**: EN button position measured via useLayoutEffect for accurate indicator alignment
 
 <p align="center">
   <img src="public/docs/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
@@ -493,7 +501,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 33 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
+> 35 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
 > Also available interactively on the About page.
 
 | # | Issue | Key takeaway |
@@ -504,6 +512,8 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 19 | Global theme transition overriding component animations | Compound selector (0,2,0) specificity reversal — restored max-height, transform transitions |
 | 32 | LoadingScreen not in SSR → content flash | dynamic({ ssr: false }) → regular import to include loading backdrop in server HTML |
 | 33 | CTA button `backdrop-filter` not working in Chrome | Swapped `.home` entrance from `y: transform` to `marginTop: layout` — an ancestor with `transform` promoted a compositing layer that blocked backdrop sampling. Also removed `-webkit-backdrop-filter` prefix since it caused Chrome to mis-parse the declaration |
+| 34 | Portal dropdown CSS transition not firing | Mount renders with open class already applied (initial=final) — `animateOpen` state + rAF×2 delay ensures mount→close→open sequence, compound selector (0,2,0) bypasses global theme transition |
+| 35 | mix-blend-mode: difference forcing child colors | Parent difference blends entire content — isolated title/category in difference div, moved description/details to sibling overlay element, synced position via JS rAF |
 
 ## Deployment
 
