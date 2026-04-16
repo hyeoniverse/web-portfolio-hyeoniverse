@@ -8,8 +8,9 @@ import {
   useCallback,
   Fragment,
 } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import Image from "next/image";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion, AnimatePresence } from "framer-motion";
@@ -91,9 +92,9 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   const [introVisible, setIntroVisible] = useState(true);
 
   // 훅
-  const router = useRouter();
   const { setInfinite } = useLenis();
   const { isMobile: isVerticalLayout } = useIsMobile(1024, 700);
+  const { navigateWithTransition, isTransitioning } = usePageTransition();
 
   // 마운트 시 Lenis 무한 스크롤 비활성화
   // useLayoutEffect 사용: cleanup이 다음 페이지의 useLayoutEffect 전에 실행되어
@@ -109,7 +110,9 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   }, [setInfinite]);
 
   // 브라우저 리사이즈 시 페이지 리로드 (수평 스크롤 레이아웃 재계산)
+  // cylinder 등 동적 대응 레이아웃은 리로드 불필요
   useEffect(() => {
+    if (layout === "cylinder") return;
     let resizeTimer: ReturnType<typeof setTimeout>;
     const handleResize = () => {
       clearTimeout(resizeTimer);
@@ -120,7 +123,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
       clearTimeout(resizeTimer);
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [layout]);
 
   // 수평 스크롤 애니메이션 (데스크탑 전용)
   useLayoutEffect(() => {
@@ -428,20 +431,16 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
       const card = cardRefs.current.get(index);
       if (!card) return;
 
-      setTransitionData({
-        id: project.id,
-        image: project.image,
-        rect: card.getBoundingClientRect(),
-      });
-
-      setTimeout(() => router.push(`/works/${project.id}`), 800);
+      const rect = card.getBoundingClientRect();
+      setTransitionData({ id: project.id, image: project.image, rect });
+      navigateWithTransition(`/works/${project.id}`, project.image, rect);
     },
-    [router],
+    [navigateWithTransition],
   );
 
   const handleCardClick = useCallback(
     (index: number, project: Project) => {
-      if (transitionData) return;
+      if (transitionData || isTransitioning) return;
 
       // 진행 중인 프레스 애니메이션 취소
       if (pressRafRef.current) cancelAnimationFrame(pressRafRef.current);
@@ -459,7 +458,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
 
       triggerTransition(index, project);
     },
-    [transitionData, pressedCard, triggerTransition],
+    [transitionData, pressedCard, triggerTransition, isTransitioning],
   );
 
   const handlePressStart = useCallback(
@@ -517,8 +516,8 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   // 대체 레이아웃 공통 클릭 핸들러
   const handleLayoutProjectClick = useCallback((id: string, rect: DOMRect, image: string) => {
     setTransitionData({ id, image, rect });
-    setTimeout(() => router.push(`/works/${id}`), 800);
-  }, [router]);
+    navigateWithTransition(`/works/${id}`, image, rect);
+  }, [navigateWithTransition]);
 
   const w = siteConfig.works;
 
