@@ -124,7 +124,8 @@
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행 — 카테고리 하위 요소, 시리즈/포스트 뷰 토글, 상세 페이지 이전/다음 네비게이션
 - **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시 — 4가지 레이아웃 x 4가지 오버레이 x 2가지 전환 모드, Admin에서 선택
 - **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator(layoutId), sticky + 스크롤 방향 감지, 콘텐츠 blur 효과
-- **Posts i18n & Sort Capsule**: 모든 텍스트 locale 파일 이동, 정렬 UI를 캡슐형 세그먼트 컨트롤(Framer Motion layoutId)로 변경
+- **Posts Bento Grid**: 3열 bento 레이아웃 — 10개 사이클당 wide(2col)+tall(2row)+standard 조합, 사이클마다 위치 교차로 시각적 변화, 태블릿 2열/모바일 1열 반응형
+- **Posts i18n & Sort Capsule**: 모든 텍스트 locale 파일 이동, 정렬 UI를 캡슐형 세그먼트 컨트롤(Framer Motion layoutId) + hover indicator 이동
 - **IP 기반 좋아요**: Posts/Works/댓글에서 단일 `likes` 테이블 + `target_type` 구분, IP 기반 UNIQUE 제약으로 중복 방지, 연타 방지(ref lock + busy disabled), formatCount(1k/1.2m) 숫자 축약
 - **댓글 시스템**: 게스트 대댓글(threaded) 지원 — 이중 인증(commenter_hash + bcrypt), 닉네임 셔플, 이메일 답글 알림, 관리자 댓글
 - **첫 댓글 축하**: 해당 게시물의 첫 번째 댓글 등록 시 캔버스 폭죽 + 에디토리얼 메시지 오버레이
