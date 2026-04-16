@@ -124,7 +124,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Series**: Group posts into series for sequential publishing — subcategory element, series/post view toggle, previous/next navigation on detail pages
 - **Posts Banner Slider**: Display pinned posts as banners — 4 layouts x 4 overlays x 2 transition modes, selectable from Admin
 - **Posts Filter Bar**: Category collapse/expand (+N more), hover indicator (layoutId), sticky + scroll direction detection, content blur effect
-- **Posts i18n & Sort Capsule**: All text moved to locale files, sort UI changed to capsule-style segment control (Framer Motion layoutId)
+- **Posts Bento Grid**: 3-column bento layout — wide(2col)+tall(2row)+standard per 10-item cycle, position alternates per cycle for visual variety, responsive 2-column tablet / 1-column mobile
+- **Posts i18n & Sort Capsule**: All text moved to locale files, sort UI changed to capsule-style segment control (Framer Motion layoutId) + hover indicator movement
 - **IP-based Likes**: Single `likes` table with `target_type` discrimination for Posts/Works/comments, IP-based UNIQUE constraint to prevent duplicates, rapid-click prevention (ref lock + busy disabled), formatCount (1k/1.2m) number abbreviation
 - **Comment System**: Guest threaded replies — dual authentication (commenter_hash + bcrypt), nickname shuffle, email reply notifications, admin comments
 - **First Comment Celebration**: Canvas fireworks + editorial message overlay when the first comment is posted on a given post
