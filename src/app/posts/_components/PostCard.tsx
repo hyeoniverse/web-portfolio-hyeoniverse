@@ -64,7 +64,7 @@ export default function PostCard({
   /* ── Hero variant: 풀 블리드 이미지 + 하단 오버레이 ── */
   if (isHero) {
     return (
-      <div ref={cardRef} className={cardClass} onClick={handleClick} role="link" style={{ cursor: "pointer" }}>
+      <div ref={cardRef} className={cardClass} onClick={handleClick} role="link" data-more="true" data-clickable="true">
         {/* 풀 배경 이미지 */}
         {showImage ? (
           <ProgressiveImage
@@ -128,7 +128,8 @@ export default function PostCard({
       className={cardClass}
       onClick={handleClick}
       role="link"
-      style={{ cursor: "pointer" }}
+      data-more="true"
+      data-clickable="true"
     >
       <div className={styles.imageWrap}>
         {showImage ? (

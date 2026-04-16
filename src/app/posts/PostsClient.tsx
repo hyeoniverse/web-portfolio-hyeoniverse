@@ -69,6 +69,22 @@ const PAGE_SIZE_OPTIONS = [
   { value: "50", label: "50" },
 ];
 
+// 3열 bento: 10개 사이클마다 wide(2col)+tall(2row)+standard 조합
+// 사이클당 1W(2셀)+1T(2셀)+8S(8셀)=12셀=4행×3열
+type CardType = "wide" | "tall" | "standard";
+function getCardType(idx: number): CardType {
+  const cycle = Math.floor(idx / 10);
+  const pos = idx % 10;
+  if (cycle % 2 === 0) {
+    if (pos === 0) return "wide";
+    if (pos === 3) return "tall";
+  } else {
+    if (pos === 4) return "wide";
+    if (pos === 1) return "tall";
+  }
+  return "standard";
+}
+
 interface PostsClientProps {
   initialData: InitialPostsData;
 }
@@ -413,7 +429,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               ] as const).map((opt) => {
                 const indicatorTarget = hoveredSort ?? sort;
                 const showIndicator = opt.value === indicatorTarget;
-                const isActive = opt.value === sort && !hoveredSort;
+                const isActive = opt.value === sort;
                 return (
                   <button
                     key={opt.value}
@@ -569,17 +585,21 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 />
               </div>
               <div className={styles.grid}>
-                {posts.map((post) => (
-                  <div key={post.id}>
+                {posts.map((post, idx) => {
+                  const type = getCardType(idx);
+                  const cls = type === "wide" ? styles.gridWide : type === "tall" ? styles.gridTall : "";
+                  return (
+                  <div key={post.id} className={`${styles.gridItem} ${cls}`}>
                     <PostCard
                       post={post}
-                      variant="standard"
+                      variant={type === "wide" ? "featured" : "standard"}
                       isHot={popularIds.has(post.id)}
                       onImgError={handleImgError}
                       imgError={imgErrors.has(post.id)}
                     />
                   </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Pagination */}
