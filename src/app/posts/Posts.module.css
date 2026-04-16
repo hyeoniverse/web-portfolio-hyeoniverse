@@ -688,15 +688,11 @@
   }
 
   .sidebar {
-    overflow: visible;
-    overscroll-behavior: auto;
-  }
-
-  .sidebar {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-2xl);
     overflow: visible;
+    overscroll-behavior: auto;
   }
 
   .sidebarFadeTop,

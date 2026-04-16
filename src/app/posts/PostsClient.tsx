@@ -14,11 +14,13 @@ import RecentComments from "./_components/RecentComments";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import T from "@/components/ui/T";
 import Select from "@/components/ui/Select";
 import styles from "./Posts.module.css";
 
 function SidebarWrap({ barHidden, children }: { barHidden: boolean; children: React.ReactNode }) {
+  const { isMobile: isCollapsed } = useIsMobile(1024);
   const ref = useRef<HTMLElement>(null);
   const [canUp, setCanUp] = useState(false);
   const [canDown, setCanDown] = useState(false);
@@ -49,7 +51,7 @@ function SidebarWrap({ barHidden, children }: { barHidden: boolean; children: Re
           </svg>
         </div>
       )}
-      <aside ref={ref} className={styles.sidebar} data-lenis-prevent>
+      <aside ref={ref} className={styles.sidebar} {...(!isCollapsed && { "data-lenis-prevent": true })}>
         {children}
       </aside>
       {canDown && (
