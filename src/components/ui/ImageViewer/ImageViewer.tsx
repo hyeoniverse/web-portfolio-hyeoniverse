@@ -63,7 +63,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoSettingsRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
-  const directionRef = useRef(1); // 1 = next, -1 = prev
+  const [direction, setDirection] = useState(1);
 
   const handleClose = useCallback(() => {
     if (closing) return;
@@ -130,8 +130,8 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
           if (isFullscreen) document.exitFullscreen?.();
           else handleClose();
           break;
-        case "ArrowLeft": goTo(current > 0 ? current - 1 : images.length - 1); break;
-        case "ArrowRight": goTo(current < images.length - 1 ? current + 1 : 0); break;
+        case "ArrowLeft": handlePrev(); break;
+        case "ArrowRight": handleNext(); break;
         case "+": case "=": zoomIn(); break;
         case "-": zoomOut(); break;
         case "0": resetZoom(); break;
@@ -143,7 +143,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, current, images.length, isFullscreen, zoom]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, current, images.length, isFullscreen, zoom, handlePrev, handleNext]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Preload adjacent
   useEffect(() => {
@@ -178,7 +178,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
           setAutoPlay(false);
           return c;
         }
-        directionRef.current = 1;
+        setDirection(1);
         return isLast ? 0 : c + 1;
       });
       setZoom(1);
@@ -213,13 +213,13 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   }, [stopAutoPlay]);
 
   const handlePrev = useCallback(() => {
-    directionRef.current = -1;
-    goTo(current > 0 ? current - 1 : images.length - 1);
+    setDirection(-1);
+    requestAnimationFrame(() => goTo(current > 0 ? current - 1 : images.length - 1));
   }, [current, images.length, goTo]);
 
   const handleNext = useCallback(() => {
-    directionRef.current = 1;
-    goTo(current < images.length - 1 ? current + 1 : 0);
+    setDirection(1);
+    requestAnimationFrame(() => goTo(current < images.length - 1 ? current + 1 : 0));
   }, [current, images.length, goTo]);
 
   /* ── Zoom ── */
@@ -702,16 +702,20 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 animate={{ opacity: closing ? 0 : 1 }}
                 transition={closing ? { duration: 0.12, delay: 0 } : { duration: 0.2, delay: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
               >
-                <Tooltip content="Previous  ←" placement="right">
-                  <button type="button" className={`${styles.navBtn} ${styles.navBtnPrev}`} onClick={(e) => { e.stopPropagation(); handlePrev(); }} aria-label="Previous">
-                    <ChevronLeftIcon />
-                  </button>
-                </Tooltip>
-                <Tooltip content="Next  →" placement="left">
-                  <button type="button" className={`${styles.navBtn} ${styles.navBtnNext}`} onClick={(e) => { e.stopPropagation(); handleNext(); }} aria-label="Next">
-                    <ChevronRightIcon />
-                  </button>
-                </Tooltip>
+                <div className={`${styles.navZone} ${styles.navZonePrev}`}>
+                  <Tooltip content="Previous  ←" placement="right">
+                    <button type="button" className={`${styles.navBtn} ${styles.navBtnPrev}`} onClick={(e) => { e.stopPropagation(); handlePrev(); }} aria-label="Previous">
+                      <ChevronLeftIcon />
+                    </button>
+                  </Tooltip>
+                </div>
+                <div className={`${styles.navZone} ${styles.navZoneNext}`}>
+                  <Tooltip content="Next  →" placement="left">
+                    <button type="button" className={`${styles.navBtn} ${styles.navBtnNext}`} onClick={(e) => { e.stopPropagation(); handleNext(); }} aria-label="Next">
+                      <ChevronRightIcon />
+                    </button>
+                  </Tooltip>
+                </div>
               </motion.div>
             )}
             <motion.div
@@ -720,21 +724,21 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
               animate={closing ? { opacity: 0, scale: 0.96 } : { opacity: 1, scale: 1 }}
               transition={closing ? { duration: 0.28, delay: 0.94 } : { duration: 0.3, delay: 0.72, ease: [0.25, 0.1, 0.25, 1] }}
             >
-            <AnimatePresence mode="wait" custom={directionRef.current}>
+            <AnimatePresence initial={false} custom={direction}>
               <motion.div
                 key={current}
                 ref={wrapRef}
                 className={`${styles.imageWrap} ${isZoomed ? styles.imageWrapZoomed : ""}`}
-                custom={directionRef.current}
+                custom={direction}
                 initial="enter"
                 animate="center"
                 exit="exit"
                 variants={{
-                  enter: (dir: number) => ({ opacity: 0, x: dir * SLIDE_OFFSET }),
-                  center: { opacity: 1, x: 0 },
-                  exit: (dir: number) => ({ opacity: 0, x: -dir * SLIDE_OFFSET }),
+                  enter: (dir: number) => ({ opacity: 0, x: -dir * SLIDE_OFFSET, position: "absolute" as const }),
+                  center: { opacity: 1, x: 0, position: "relative" as const },
+                  exit: (dir: number) => ({ opacity: 0, x: dir * SLIDE_OFFSET, position: "absolute" as const }),
                 }}
-                transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+                transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
                 style={isDragging ? { transform: `translateY(${dragY}px)` } : undefined}
                 onWheel={handleWheel}
               >

@@ -234,6 +234,25 @@ export default function CommentForm({
               onClick={(e) => e.stopPropagation()}
               onBlur={() => { if (!emailConfirmed && !emailChanged && confirmedEmail && isValidEmail) setEmailConfirmed(true); }}
             />
+            {/* 입력값 비우기(삭제) 버튼 — 편집 모드에서 텍스트가 있을 때만 */}
+            {emailNotify && !emailConfirmed && notifyEmail.length > 0 && (
+              <button
+                type="button"
+                className={styles.notifyClear}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNotifyEmail("");
+                  requestAnimationFrame(() => emailInputRef.current?.focus());
+                }}
+                tabIndex={0}
+                aria-label={t("comments.emailClear")}
+                title={t("comments.emailClear")}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.2 13.8-1.4 1.4L12 14.4l-2.8 2.8-1.4-1.4L10.6 13 7.8 10.2l1.4-1.4L12 11.6l2.8-2.8 1.4 1.4L13.4 13l2.8 2.8Z" />
+                </svg>
+              </button>
+            )}
             {emailNotify && isValidEmail && !emailConfirmed && emailChanged && (
               <>
                 <span className={styles.notifyDivider} />
@@ -272,12 +291,21 @@ export default function CommentForm({
                   className={styles.notifyAction}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setEmailNotify(false); setEmailConfirmed(false); setConfirmedEmail(""); setNotifyEmail("");
+                    if (confirmedEmail) {
+                      // 이미 확정된 이메일이 있었고 지금은 수정 중 → 원래 확정 상태로 복귀
+                      setNotifyEmail(confirmedEmail);
+                      setEmailConfirmed(true);
+                    } else {
+                      // 확정된 이메일 없음 → 완전 닫기
+                      setEmailNotify(false);
+                      setNotifyEmail("");
+                    }
                   }}
                   tabIndex={emailNotify ? 0 : -1}
                 >
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M18 6L6 18" /><path d="M6 6l12 12" />
+                  {/* 캡슐이 오른쪽으로 접히는 방향을 암시하는 chevron */}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </button>
               </>

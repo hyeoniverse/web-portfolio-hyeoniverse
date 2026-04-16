@@ -54,11 +54,14 @@ function launchBurst(cx: number, cy: number, color: string, count = 40): Particl
 export default function Fireworks({ trigger, onDone, duration = 2400, message }: FireworksProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
-  const firedRef = useRef(false);
+  // onDone이 매 렌더마다 새 참조가 되더라도 effect가 재실행되지 않도록 ref로 고정
+  const onDoneRef = useRef(onDone);
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  }, [onDone]);
 
   useEffect(() => {
-    if (!trigger || firedRef.current) return;
-    firedRef.current = true;
+    if (!trigger) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -122,8 +125,7 @@ export default function Fireworks({ trigger, onDone, duration = 2400, message }:
       if (elapsed < duration || particles.length > 0) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
-        firedRef.current = false;
-        onDone?.();
+        onDoneRef.current?.();
       }
     };
     rafRef.current = requestAnimationFrame(tick);
@@ -131,16 +133,29 @@ export default function Fireworks({ trigger, onDone, duration = 2400, message }:
     return () => {
       burstTimers.forEach(clearTimeout);
       cancelAnimationFrame(rafRef.current);
-      firedRef.current = false;
     };
-  }, [trigger, duration, onDone]);
+  }, [trigger, duration]);
+
+  const words = message ? message.split(" ") : [];
 
   return (
     <>
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
       {message && trigger && (
-        <div className={styles.message} role="status" aria-live="polite">
-          {message}
+        <div className={styles.messageWrap} role="status" aria-live="polite">
+          <p className={styles.message}>
+            {words.map((w, i) => (
+              <span
+                key={i}
+                className={styles.word}
+                style={{ ["--i" as string]: i } as React.CSSProperties}
+              >
+                {w}
+                {i < words.length - 1 ? "\u00A0" : ""}
+              </span>
+            ))}
+          </p>
+          <span className={styles.accentLine} aria-hidden="true" />
         </div>
       )}
     </>

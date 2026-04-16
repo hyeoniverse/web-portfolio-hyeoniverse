@@ -40,13 +40,23 @@ export default function Select({
 }: SelectProps) {
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [animateOpen, setAnimateOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [dropPos, setDropPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
   const [dropOffset, setDropOffset] = useState(0);
 
   useEffect(() => {
-    if (open) setVisible(true);
+    if (open) {
+      setVisible(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setAnimateOpen(true);
+        });
+      });
+    } else {
+      setAnimateOpen(false);
+    }
   }, [open]);
 
   // trigger 위치 기반으로 dropdown 좌표 계산
@@ -150,7 +160,7 @@ export default function Select({
       {visible && createPortal(
         <div
           ref={dropdownRef}
-          className={`${styles.dropdown} ${isCompact ? styles.dropdownCompact : ""} ${open ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
+          className={`${styles.dropdown} ${isCompact ? styles.dropdownCompact : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
           style={portalStyle}
           onTransitionEnd={handleTransitionEnd}
           data-lenis-prevent
