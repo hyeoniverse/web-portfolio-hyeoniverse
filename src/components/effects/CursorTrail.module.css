@@ -124,6 +124,30 @@
   filter: none;
 }
 
+/* zoom 커서 — 이미지 뷰어 오픈 힌트 (배경은 big/grab과 동일) */
+.zoom .cursorInner {
+  width: var(--cursor-big-width);
+  height: var(--cursor-big-width);
+  backdrop-filter: var(--blur-sm);
+}
+.zoom .cursorText {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  opacity: 1;
+}
+.zoom .cursorInner::before {
+  inset: 0px;
+  opacity: 0;
+  filter: none;
+}
+/* zoom 아이콘 — inline SVG로 currentColor 상속 */
+.zoomIcon {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  pointer-events: none;
+}
+
 /* stop 커서 (배너 hover 등) */
 .stop .cursorInner {
   width: var(--cursor-big-width);
@@ -270,7 +294,8 @@
 
 /* 애니메이션 효과 */
 .big:not(.clicking) .cursorInner,
-.grab:not(.dragging) .cursorInner {
+.grab:not(.dragging) .cursorInner,
+.zoom:not(.clicking) .cursorInner {
   animation: pulse 2s ease-in-out infinite;
 }
 .clicking .cursorInner {

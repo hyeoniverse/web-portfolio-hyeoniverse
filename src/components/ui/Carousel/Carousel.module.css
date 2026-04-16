@@ -102,12 +102,14 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border: var(--border-ghost-light);
+  border: var(--border-white);
   border-radius: var(--radius-circle);
-  background: var(--bg-overlay);
+  background: var(--color-white-alpha-10);
   backdrop-filter: blur(8px);
   color: var(--text-white);
   opacity: 0;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, backdrop-filter 0.25s ease;
 }
 
 .viewportWrap:hover .arrow {
@@ -115,9 +117,9 @@
 }
 
 .carousel .arrow:hover {
-  background: var(--bg-overlay);
-  border-color: var(--border-ghost);
-  color: var(--text-white);
+  background: var(--text-white);
+  color: var(--text-black);
+  backdrop-filter: none;
 }
 
 .arrowPrev {

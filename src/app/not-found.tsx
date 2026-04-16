@@ -34,7 +34,7 @@ export default function NotFound() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          Page Not Found
+          <T k="errorPage.notFoundTitle" />
         </motion.h1>
 
         <motion.p
@@ -54,10 +54,10 @@ export default function NotFound() {
           transition={{ delay: 0.5, duration: 0.5 }}
         >
           <Link href="/" className={styles.primaryButton}>
-            Go Home
+            <T k="errorPage.goHome" />
           </Link>
           <Link href="/works" className={styles.secondaryButton}>
-            View Works
+            <T k="errorPage.viewWorks" />
           </Link>
         </motion.div>
       </motion.div>

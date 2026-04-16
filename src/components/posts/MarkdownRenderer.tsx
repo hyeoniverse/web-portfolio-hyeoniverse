@@ -76,7 +76,9 @@ export default function MarkdownRenderer({
   const html = useMemo(() => {
     _wrapLabel = `↩ ${t("common.codeWrap")}`;
     _scrollLabel = `↔ ${t("common.codeScroll")}`;
-    return marked.parse(content, { async: false }) as string;
+    const raw = marked.parse(content, { async: false }) as string;
+    // img에 data-cursor="zoom" 주입 → CursorTrail이 이미지 뷰어 힌트 표시
+    return raw.replace(/<img\s/g, '<img data-cursor="zoom" ');
   }, [content, t]);
 
   return (

@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./CursorTrail.module.css";
 
-type CursorType = "big" | "text" | "grab" | "resize" | "resizeH" | "resizeV" | "resizeDiag" | "disabled" | "stop" | "";
+type CursorType = "big" | "text" | "grab" | "resize" | "resizeH" | "resizeV" | "resizeDiag" | "disabled" | "stop" | "zoom" | "";
 
 /* ---------------- 헬퍼 함수 ---------------- */
 
@@ -85,6 +85,14 @@ export default function CursorTrail() {
 
     let hasMoved = false;
     let hitTestTimer = 0;
+    // mouseover 이벤트로 data-cursor 감지 (elementsFromPoint보다 확실)
+    let activeDateCursor: CursorType | null = null;
+    const handleOverForCursor = (e: Event) => {
+      const t = e.target as HTMLElement | null;
+      const dc = t?.closest("[data-cursor]");
+      activeDateCursor = dc ? (dc.getAttribute("data-cursor") as CursorType) : null;
+    };
+    document.addEventListener("mouseover", handleOverForCursor, true);
 
     const runHitTest = (mx: number, my: number) => {
       const target = checkElementAt(mx, my);
@@ -126,12 +134,14 @@ export default function CursorTrail() {
         !!target.closest('[contenteditable="true"]')
       );
 
-      const dataCursor = target?.closest("[data-cursor]")?.getAttribute("data-cursor") as CursorType | null;
+      // data-cursor: mouseover 이벤트 결과 + elementsFromPoint 폴백 둘 다 체크
+      const dataCursor = activeDateCursor
+        || target?.closest("[data-cursor]")?.getAttribute("data-cursor") as CursorType | null;
 
       const next: CursorType = isDraggable ? "grab"
         : isDisabled ? "disabled"
-        : isClickable ? "big"
         : dataCursor ? dataCursor
+        : isClickable ? "big"
         : isText ? "text"
         : "";
 
@@ -229,6 +239,7 @@ export default function CursorTrail() {
       document.removeEventListener("pointerleave", handleLeave);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (hitTestTimer) clearTimeout(hitTestTimer);
+      document.removeEventListener("mouseover", handleOverForCursor, true);
     };
   }, [isTouch]);
 
@@ -247,8 +258,16 @@ export default function CursorTrail() {
     >
       <div className={styles.cursorInner}>
         <span className={styles.cursorText}>
-          {cursorType === "grab" ? "Drag" : cursorType === "stop" ? "Stop" : isMore ? "More" : "Click"}
+          {cursorType === "grab" ? "Drag" : cursorType === "stop" ? "Stop" : cursorType === "zoom" ? "View" : isMore ? "More" : "Click"}
         </span>
+        {cursorType === "zoom" && (
+          <svg className={styles.zoomIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.6" y2="16.6" />
+            <line x1="11" y1="8" x2="11" y2="14" />
+            <line x1="8" y1="11" x2="14" y2="11" />
+          </svg>
+        )}
       </div>
     </div>
   );

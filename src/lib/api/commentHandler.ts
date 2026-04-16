@@ -249,12 +249,12 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
       if (!comment) return jsonError("Comment not found", 404);
 
       let authorized = false;
-      if (commenter_id && target_id && comment.commenter_hash) {
+      // 비밀번호가 제출된 경우 반드시 검증 (hash 인증만으로 우회 불가)
+      if (password && comment.password_hash) {
+        authorized = await bcrypt.compare(password, comment.password_hash);
+      } else if (commenter_id && target_id && comment.commenter_hash) {
         const identity = getIdentity(commenter_id, target_id);
         authorized = comment.commenter_hash === identity.hash;
-      }
-      if (!authorized && password && comment.password_hash) {
-        authorized = await bcrypt.compare(password, comment.password_hash);
       }
       if (!authorized) return jsonError("Not authorized", 403);
 

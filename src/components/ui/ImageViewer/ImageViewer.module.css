@@ -183,60 +183,68 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--spacing-base);
   pointer-events: none;
-  transition: opacity 0.35s ease;
+}
+
+.navZone {
+  display: flex;
+  align-items: center;
+  width: 25%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.navZonePrev {
+  justify-content: flex-start;
+  padding-left: var(--spacing-2xl);
+}
+
+.navZoneNext {
+  justify-content: flex-end;
+  padding-right: var(--spacing-2xl);
 }
 
 .navBtn {
-  pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
   padding: 0;
-  border: none;
+  border: var(--border-white);
   border-radius: var(--radius-circle);
-  background: var(--bg-overlay);
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
-  backdrop-filter: blur(12px) saturate(1.4);
-  color: var(--text-secondary);
-  transition: color 0.25s, background 0.25s, transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+  background: var(--color-white-alpha-10);
+  backdrop-filter: blur(8px);
+  color: var(--text-white);
+  opacity: 0;
+  cursor: pointer;
+}
+
+.navBtn.navBtn {
+  transition: opacity 0.25s ease, background 0.25s ease, color 0.25s ease, transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.navZone:hover .navBtn {
+  opacity: 1;
 }
 
 .navBtn:hover {
-  color: var(--text-primary);
-  transform: scale(1.12);
-}
-
-.navBtnPrev {
-  margin-left: var(--spacing-sm);
+  background: var(--text-white);
+  color: var(--text-black);
+  backdrop-filter: none;
 }
 
 .navBtnPrev:hover {
-  transform: scale(1.12) translateX(-2px);
-}
-
-.navBtnNext {
-  margin-right: var(--spacing-sm);
+  transform: translateX(-2px);
 }
 
 .navBtnNext:hover {
-  transform: scale(1.12) translateX(2px);
+  transform: translateX(2px);
 }
 
 .navBtn:active {
   transform: scale(0.9);
   transition-duration: 0.08s;
-}
-
-.navBtnPrev:active {
-  transform: scale(0.9) translateX(-4px);
-}
-
-.navBtnNext:active {
-  transform: scale(0.9) translateX(4px);
 }
 
 /* ==========================================================================
@@ -505,8 +513,8 @@
 .fullscreen .viewerTitleSep { color: var(--text-white-muted); }
 .fullscreen .viewerTitleFile { color: var(--text-white-tertiary); }
 .fullscreen .counter { color: var(--text-white-secondary); }
-.fullscreen .navBtn { color: var(--text-white-tertiary); }
-.fullscreen .navBtn:hover { color: var(--text-white); }
+.fullscreen .navBtn { color: var(--text-white); }
+.fullscreen .navBtn:hover { color: var(--text-black); }
 .fullscreen .loaderSpinner { border-color: var(--border-ghost-light); border-top-color: var(--text-white-tertiary); }
 .fullscreen .shortcutsPanel { --_panel-bg: rgba(30, 30, 30, 0.95); background: var(--_panel-bg); border-color: var(--border-ghost-light); }
 .fullscreen .shortcutsTitle { color: var(--text-white); }

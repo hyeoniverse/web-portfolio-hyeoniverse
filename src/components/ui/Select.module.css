@@ -72,6 +72,10 @@
   opacity: 0;
   transform: scaleY(0.9) translateY(-4px);
   pointer-events: none;
+}
+
+/* compound (0,2,0) — global theme transition override */
+.dropdown.dropdown {
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
