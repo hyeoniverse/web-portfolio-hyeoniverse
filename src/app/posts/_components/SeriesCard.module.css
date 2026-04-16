@@ -26,14 +26,14 @@
 }
 
 .book:hover {
-  transform: perspective(600px) rotateY(0deg) translateY(-6px) scale(1.04);
+  transform: perspective(600px) rotateY(0deg) translateY(-6px);
   box-shadow:
     4px 8px 20px rgba(0, 0, 0, 0.12),
     2px 4px 8px rgba(0, 0, 0, 0.06);
 }
 
 .book.active {
-  transform: perspective(600px) rotateY(0deg) translateY(-6px) scale(1.04);
+  transform: perspective(600px) rotateY(0deg) translateY(-6px);
   box-shadow:
     0 0 0 2px var(--color-accent),
     4px 8px 20px rgba(0, 0, 0, 0.12);
@@ -161,4 +161,18 @@
 
 .countLabel {
   font-weight: var(--font-weight-regular);
+}
+
+/* ── Deselect hint ── */
+.deselectHint {
+  margin-top: var(--spacing-3xs);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.05em;
+  color: var(--text-accent);
+  opacity: 0.7;
+}
+
+.book:has(.coverImage) .deselectHint {
+  color: var(--text-white);
 }

@@ -436,6 +436,7 @@
       "cancel": "Cancel",
       "bulkDelete": "Delete Selected",
       "series": "Series",
+      "deselectSeries": "click to deselect",
       "untitled": "Untitled",
       "postsCount": "posts",
       "edit": "Edit",
@@ -834,6 +835,7 @@
     "deletedComment": "This comment has been deleted.",
     "deletedCommentByAdmin": "This comment was removed by the admin.",
     "firstCommentCelebration": "🎉 You left the first comment on this post!",
+    "emailClear": "Clear input",
     "disclaimer": "Inappropriate comments may be removed without notice."
   },
   "postDetail": {

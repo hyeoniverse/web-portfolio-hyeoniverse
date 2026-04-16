@@ -181,7 +181,7 @@
 }
 
 .sortBtnActive {
-  color: var(--text-primary);
+  color: var(--text-inverse);
 }
 
 .sortIndicator {
@@ -189,6 +189,10 @@
   inset: 2px;
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary-alt);
+}
+
+.sortIndicatorActive {
+  background: var(--bg-inverse);
 }
 
 .sortBtnText {
@@ -203,6 +207,7 @@
   gap: var(--spacing-2xs);
   padding: var(--box-sm);
   border: var(--border-default);
+  cursor: pointer;
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -210,14 +215,20 @@
   color: var(--text-primary);
 }
 
+.tagToggleBtn.tagToggleBtn {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
 .filterBar .tagToggleBtn:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  background: transparent;
+  color: var(--text-primary);
+  border: var(--border-strong);
 }
 
 .tagToggleBtnOpen {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 .tagToggleBtnOpen svg {
@@ -276,20 +287,22 @@
   opacity: 0.7;
 }
 
-.tagRow .tagBtn:hover {
-  border-color: var(--text-primary);
+.tagRow .tagBtn.tagBtn:hover {
+  background: transparent;
   color: var(--text-primary);
+  border-color: var(--border-strong-color);
 }
 
-.tagBtnActive {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
+.tagBtn.tagBtnActive {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
-.tagRow .tagBtnActive:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+.tagRow .tagBtn.tagBtnActive:hover {
+  background: var(--bg-inverse);
+  border-color: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 /* ── Content Area (2-column) ── */
@@ -625,6 +638,7 @@
   flex: 0 0 auto;
   min-width: 50px;
   max-width: 65px;
+  margin-left: auto;
 }
 
 .pageSizeSelect button {

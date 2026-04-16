@@ -87,6 +87,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
   const [sort, setSort] = useState<"newest" | "oldest" | "popular">("newest");
+  const [hoveredSort, setHoveredSort] = useState<string | null>(null);
   const [perPage, setPerPage] = useState(siteConf.posts.perPage ?? 10);
   const [activeSeries, setActiveSeries] = useState<string | null>(null);
   const [seriesList, setSeriesList] = useState<Series[]>(initialData.seriesList);
@@ -267,9 +268,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     setActiveSeries((prev) => (prev === seriesId ? null : seriesId));
   }, []);
 
-  const clearSeriesFilter = useCallback(() => {
-    setActiveSeries(null);
-  }, []);
 
   const activeSeriesTitle = useMemo(() => {
     if (!activeSeries) return null;
@@ -280,8 +278,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const visibleSeries = showAllSeries ? seriesList : seriesList.slice(0, SERIES_LIMIT);
   const hasMoreSeries = seriesList.length > SERIES_LIMIT;
 
-  const hasFilter = !!search || !!activeTag || !!activeSeries;
-  const showBanner = pinnedPosts.length >= 1 && page === 1 && !hasFilter;
+  const showBanner = pinnedPosts.length >= 1 && page === 1;
 
   const pageNumbers = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -408,36 +405,36 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               </button>
             )}
 
-            <div className={styles.sortGroup}>
+            <div className={styles.sortGroup} onMouseLeave={() => setHoveredSort(null)}>
               {([
                 { value: "newest", label: t("postsPage.sortNewest") },
                 { value: "oldest", label: t("postsPage.sortOldest") },
                 { value: "popular", label: t("postsPage.sortPopular") },
-              ] as const).map((opt) => (
-                <button
-                  key={opt.value}
-                  className={`${styles.sortBtn} ${sort === opt.value ? styles.sortBtnActive : ""}`}
-                  onClick={() => setSort(opt.value as typeof sort)}
-                  data-clickable="true"
-                >
-                  {sort === opt.value && (
-                    <motion.span
-                      className={styles.sortIndicator}
-                      layoutId="sortIndicator"
-                      transition={{ type: "spring", stiffness: 500, damping: 32 }}
-                    />
-                  )}
-                  <span className={styles.sortBtnText}>{opt.label}</span>
-                </button>
-              ))}
+              ] as const).map((opt) => {
+                const indicatorTarget = hoveredSort ?? sort;
+                const showIndicator = opt.value === indicatorTarget;
+                const isActive = opt.value === sort && !hoveredSort;
+                return (
+                  <button
+                    key={opt.value}
+                    className={`${styles.sortBtn} ${isActive ? styles.sortBtnActive : ""}`}
+                    onClick={() => setSort(opt.value as typeof sort)}
+                    onMouseEnter={() => setHoveredSort(opt.value)}
+                    data-clickable="true"
+                  >
+                    {showIndicator && (
+                      <motion.span
+                        className={`${styles.sortIndicator} ${isActive ? styles.sortIndicatorActive : ""}`}
+                        layoutId="sortIndicator"
+                        transition={{ type: "spring", stiffness: 500, damping: 32 }}
+                      />
+                    )}
+                    <span className={styles.sortBtnText}>{opt.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
-            <Select
-              value={String(perPage)}
-              options={PAGE_SIZE_OPTIONS}
-              onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-              className={styles.pageSizeSelect}
-            />
           </motion.div>
           )}
           </AnimatePresence>
@@ -522,19 +519,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             </div>
           )}
 
-          {/* Series filter chip */}
-          {activeSeries && activeSeriesTitle && (
-            <div className={styles.seriesChip}>
-              <span>Series: {activeSeriesTitle}</span>
-              <button
-                className={styles.seriesChipClose}
-                onClick={clearSeriesFilter}
-                data-clickable="true"
-              >
-                &times;
-              </button>
-            </div>
-          )}
 
           {/* Posts */}
           {loading ? (
@@ -577,21 +561,19 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   <rect x="14" y="14" width="7" height="7" />
                 </svg>
                 <T k="postsPage.posts" />
-                <span className={styles.postsCount}>{posts.length}</span>
+                <Select
+                  value={String(perPage)}
+                  options={PAGE_SIZE_OPTIONS}
+                  onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+                  className={styles.pageSizeSelect}
+                />
               </div>
               <div className={styles.grid}>
-                {posts.map((post, i) => (
-                  <div
-                    key={post.id}
-                    style={
-                      i === 0 || (i === posts.length - 1 && (posts.length - 1) % 2 === 1)
-                        ? { gridColumn: "1 / -1" }
-                        : undefined
-                    }
-                  >
+                {posts.map((post) => (
+                  <div key={post.id}>
                     <PostCard
                       post={post}
-                      variant={i === 0 ? "featured" : "standard"}
+                      variant="standard"
                       isHot={popularIds.has(post.id)}
                       onImgError={handleImgError}
                       imgError={imgErrors.has(post.id)}

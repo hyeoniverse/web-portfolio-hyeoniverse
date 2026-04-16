@@ -1,4 +1,5 @@
 import Image from "next/image";
+import T from "@/components/ui/T";
 import type { Series } from "@/types/post";
 import styles from "./SeriesCard.module.css";
 
@@ -41,6 +42,7 @@ export default function SeriesCard({ series, onClick, active }: SeriesCardProps)
             {series.post_count ?? 0}
             <span className={styles.countLabel}> posts</span>
           </span>
+          {active && <span className={styles.deselectHint}><T k="posts.deselectSeries" /></span>}
         </div>
       </div>
     </button>
