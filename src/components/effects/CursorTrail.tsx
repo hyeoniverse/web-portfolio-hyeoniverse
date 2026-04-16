@@ -97,7 +97,8 @@ export default function CursorTrail() {
     const runHitTest = (mx: number, my: number) => {
       const target = checkElementAt(mx, my);
 
-      setMore(!!target?.closest("[data-more]"));
+      const hasMore = !!target?.closest("[data-more]");
+      setMore(hasMore);
 
       const isDisabled = !!target && (
         (target as HTMLButtonElement).disabled === true ||
@@ -141,7 +142,7 @@ export default function CursorTrail() {
       const next: CursorType = isDraggable ? "grab"
         : isDisabled ? "disabled"
         : dataCursor ? dataCursor
-        : isClickable ? "big"
+        : (isClickable || hasMore) ? "big"
         : isText ? "text"
         : "";
 

@@ -27,9 +27,9 @@ export default function PopularPosts() {
         </svg>
         <T k="postsPage.popular" />
       </div>
-      <div className={styles.list}>
+      <div className={styles.list} data-more="true" data-clickable="true">
         {posts.map((post, idx) => (
-          <div key={post.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={styles.item}>
+          <div key={post.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, "", rect); }} className={styles.item}>
             <span className={`${styles.rank} ${idx === 0 ? styles.rankTop : idx <= 2 ? styles.rankHigh : ""}`}>
               {String(idx + 1).padStart(2, "0")}
             </span>
