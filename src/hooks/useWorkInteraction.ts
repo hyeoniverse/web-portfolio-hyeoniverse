@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { WorkItem } from "@/data/works";
+import type { WorkItem } from "@/data/works";
 import { ExpandingWork, PressingWork, HoveringWork } from "@/types";
 import {
   LONG_PRESS_THRESHOLD,
@@ -10,7 +9,7 @@ import {
   MAX_SCALE,
   MIN_SCALE,
 } from "@/constants/animation";
-import { usePageTransition } from "@/stores/pageTransition";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 
 interface UseWorkInteractionReturn {
   expandingWork: ExpandingWork | null;
@@ -29,8 +28,7 @@ interface UseWorkInteractionReturn {
 }
 
 export function useWorkInteraction(): UseWorkInteractionReturn {
-  const router = useRouter();
-  const startTransition = usePageTransition((state) => state.startTransition);
+  const { navigateWithTransition } = usePageTransition();
 
   const [expandingWork, setExpandingWork] = useState<ExpandingWork | null>(null);
   const [pressingWork, setPressingWork] = useState<PressingWork | null>(null);
@@ -69,17 +67,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           const rect = target.getBoundingClientRect();
           setExpandingWork({ id: work.id, rect, image: work.main });
 
-          // 전역 페이지 전환 시작
-          startTransition({
-            centerX: rect.left + rect.width / 2,
-            centerY: rect.top + rect.height / 2,
-            size: rect.width,
-            image: work.main,
-          });
-
-          setTimeout(() => {
-            router.push(`/works/${work.projectId}`);
-          }, 1200);
+          navigateWithTransition(`/works/${work.projectId}`, work.main, rect);
           return;
         }
 
@@ -88,7 +76,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
 
       pressAnimationRef.current = requestAnimationFrame(animate);
     },
-    [router, startTransition]
+    [navigateWithTransition]
   );
 
   const handlePressEnd = useCallback(() => {
@@ -106,19 +94,9 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
       hasNavigatedRef.current = true;
       setExpandingWork({ id: work.id, rect, image: work.main });
 
-      // 전역 페이지 전환 시작
-      startTransition({
-        centerX: rect.left + rect.width / 2,
-        centerY: rect.top + rect.height / 2,
-        size: rect.width,
-        image: work.main,
-      });
-
-      setTimeout(() => {
-        router.push(`/works/${work.projectId}`);
-      }, 1200);
+      navigateWithTransition(`/works/${work.projectId}`, work.main, rect);
     },
-    [router, startTransition]
+    [navigateWithTransition]
   );
 
   const handleHoverStart = useCallback(
@@ -153,16 +131,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           setExpandingWork({ id: work.id, rect, image: work.main });
 
           // 전역 페이지 전환 시작
-          startTransition({
-            centerX: rect.left + rect.width / 2,
-            centerY: rect.top + rect.height / 2,
-            size: rect.width,
-            image: work.main,
-          });
-
-          setTimeout(() => {
-            router.push(`/works/${work.projectId}`);
-          }, 1200);
+          navigateWithTransition(`/works/${work.projectId}`, work.main, rect);
           return;
         }
 
@@ -171,7 +140,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
 
       hoverAnimationRef.current = requestAnimationFrame(animate);
     },
-    [router, pressingWork, startTransition]
+    [pressingWork, navigateWithTransition]
   );
 
   const handleHoverEnd = useCallback(() => {

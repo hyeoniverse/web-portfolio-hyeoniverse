@@ -2,7 +2,7 @@
 
 import { useRef, useMemo, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
+import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import {
   TORUS_GEOMETRY,
@@ -179,10 +179,11 @@ export default function TorusScene({
     if (repSettling) invalidate();
   });
 
+  const envTex = useTexture("/images/profile_pic.webp");
+  envTex.mapping = THREE.EquirectangularReflectionMapping;
+
   return (
     <>
-      <Environment preset="city" />
-
       <ambientLight intensity={0.3} />
       <directionalLight position={[5, 5, 5]} intensity={1.0} />
       <directionalLight position={[-3, -2, 4]} intensity={0.5} />
@@ -194,6 +195,7 @@ export default function TorusScene({
           emissiveIntensity={matConfig.emissiveIntensity}
           metalness={matConfig.metalness}
           roughness={matConfig.roughness}
+          envMap={envTex}
           envMapIntensity={matConfig.envMapIntensity}
           side={THREE.FrontSide}
         />
