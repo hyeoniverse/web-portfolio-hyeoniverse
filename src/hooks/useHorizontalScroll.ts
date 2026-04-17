@@ -52,6 +52,10 @@ export function useHorizontalScroll(
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const scrollStateRef = useRef({ scrollX: 0, targetScrollX: 0 });
+  const initializedRef = useRef(false);
+  const rafIdRef = useRef(0);
+  const wheelHandlerRef = useRef<((e: WheelEvent) => void) | null>(null);
+  const resizeHandlerRef = useRef<(() => void) | null>(null);
   const [activeSection, setActiveSection] = useState(0);
   const mobile = useMobileLayout();
   const { setInfinite, scrollTo: lenisScrollTo } = useLenis();
@@ -136,6 +140,11 @@ export function useHorizontalScroll(
 
   // ── 데스크탑: wheel + RAF + lerp ──
   useLayoutEffect(() => {
+    // 이전 실행분 정리 (strict mode 재실행 시)
+    cancelAnimationFrame(rafIdRef.current);
+    if (wheelHandlerRef.current) sectionRef.current?.removeEventListener("wheel", wheelHandlerRef.current);
+    if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
+
     const section = sectionRef.current;
     const track = trackRef.current;
     if (!section || !track || mobile) {
@@ -148,10 +157,8 @@ export function useHorizontalScroll(
 
     const state = scrollStateRef.current;
 
-    // DOM 측정 (dynamic import 교체 시 재쿼리 가능하도록 let 사용)
     let allPanels = gsap.utils.toArray<HTMLElement>(panelSelector, track);
 
-    // 최소 패널 수 확인
     if (infinite && allPanels.length < panelSetSize) return;
     if (!infinite && allPanels.length === 0) return;
 
@@ -201,13 +208,16 @@ export function useHorizontalScroll(
     state.targetScrollX = 0;
     gsap.set(track, { x: initialX });
 
-    // Hero 패널 제외 .animate 요소 초기 숨김
-    allPanels.forEach((panel, i) => {
-      const isHero = infinite ? i % panelSetSize === 0 : i === 0;
-      if (isHero) return;
-      const items = panel.querySelectorAll(`.${styles.animate}`);
+    // Hero 패널 제외 .animate 요소 초기 숨김 — 1회만
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      allPanels.forEach((panel, i) => {
+        const isHero = infinite ? i % panelSetSize === 0 : i === 0;
+        if (isHero) return;
+        const items = panel.querySelectorAll(`.${styles.animate}`);
       if (items.length > 0) gsap.set(items, { opacity: 0, y: 40 });
-    });
+      });
+    }
 
     // wheel 이벤트 핸들러
     const handleWheel = (e: WheelEvent) => {
@@ -359,10 +369,11 @@ export function useHorizontalScroll(
       }
 
       setActiveSection(closestNavIdx);
-      rafId = requestAnimationFrame(animate);
+      rafIdRef.current = requestAnimationFrame(animate);
     };
 
-    let rafId = requestAnimationFrame(animate);
+    rafIdRef.current = requestAnimationFrame(animate);
+    wheelHandlerRef.current = handleWheel;
 
     // 리사이즈 핸들러
     const handleResize = () => {
@@ -379,18 +390,14 @@ export function useHorizontalScroll(
         }
       }
     };
+    resizeHandlerRef.current = handleResize;
     window.addEventListener("resize", handleResize);
 
+    // cleanup: 실제 unmount 시에만 실행. strict mode 재실행 시에는 effect 상단에서 정리.
     return () => {
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(rafIdRef.current);
       section.removeEventListener("wheel", handleWheel);
       window.removeEventListener("resize", handleResize);
-      gsap.set(track, { clearProps: "transform" });
-      allPanels.forEach((panel) => {
-        const items = panel.querySelectorAll(`.${styles.animate}`);
-        if (items.length > 0)
-          gsap.set(items, { clearProps: "opacity,y,rotateX" });
-      });
     };
   }, [
     styles,
