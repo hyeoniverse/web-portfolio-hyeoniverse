@@ -60,7 +60,7 @@ const BackendPanel = dynamic(
 );
 const ErdPanel = dynamic(
   () => import("../_components/panels/ErdPanel"),
-  { loading: () => <PanelSkeleton />, ssr: false },
+  { loading: () => <PanelSkeleton className={styles.panel} />, ssr: false },
 );
 const CodeHighlightsPanel = dynamic(
   () => import("../_components/panels/CodeHighlightsPanel"),
