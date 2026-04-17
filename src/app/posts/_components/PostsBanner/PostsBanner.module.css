@@ -27,44 +27,35 @@
 }
 
 /* ==========================================================================
-   2. Split — 가로 슬라이드 카드
+   2. Split — 이미지 세로 슬라이드 + 텍스트 fade (무한 루프)
    ========================================================================== */
 .splitWrap {
+  --_split-h: clamp(280px, 44vh, 480px);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
 }
 
-.splitTrack {
-  overflow: hidden;
-}
-
-.splitReel {
-  display: flex;
-  will-change: transform;
-}
-
-/* 애니메이션 활성 시만 전환 — 무한루프 점프 시 제거 */
-/* Compound selector (0,2,0) — global theme transition 우회 */
-.splitTrack .splitReelAnimated {
-  transition: transform 0.6s var(--ease-material);
-}
-
-.split {
+.splitSlide {
   display: flex;
   gap: 0;
-  height: clamp(280px, 44vh, 480px);
-  flex-shrink: 0;
+  height: var(--_split-h);
   width: 100%;
   border: var(--border-light);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
 }
 
-.splitImage {
+.splitImageTrack {
   position: relative;
   flex: 1;
   overflow: hidden;
+}
+
+.splitImageSlide {
+  width: 100%;
+  height: 100%;
+  inset: 0;
 }
 
 .splitImageLink {
@@ -76,6 +67,14 @@
 
 .splitImg {
   object-fit: cover;
+}
+
+.splitImageSlide .splitImg {
+  transition: transform 0.6s var(--ease-material);
+}
+
+.splitSlide:hover .splitImg {
+  transform: scale(1.04);
 }
 
 .splitFallback {
@@ -93,9 +92,14 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--spacing-md);
   padding: var(--box-2xl-3xl);
   background: var(--bg-primary);
+}
+
+.splitContentInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .splitCategory {
@@ -206,7 +210,7 @@
   width: 70%;
   height: 100%;
   margin-left: -35%;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
 }
 
@@ -220,6 +224,14 @@
 
 .cardImg {
   object-fit: cover;
+}
+
+.cardLink.cardLink {
+  transition: transform 0.6s var(--ease-material);
+}
+
+.cardCenter:hover .cardLink {
+  transform: scale(1.04);
 }
 
 .cardFallback {
@@ -340,11 +352,20 @@
   width: 120px;
   height: 72px;
   overflow: hidden;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
 .tickerThumbImg {
   object-fit: cover;
+}
+
+.tickerThumb.tickerThumb .tickerThumbImg {
+  transition: transform 0.4s var(--ease-material);
+}
+
+.tickerLink:hover .tickerThumbImg {
+  transform: scale(1.06);
 }
 
 .tickerThumbFallback {
@@ -390,13 +411,13 @@
    ========================================================================== */
 @media (max-width: 768px) {
   /* Split → stack vertically */
-  .split {
+  .splitSlide {
     flex-direction: column;
     height: auto;
     min-height: 320px;
   }
 
-  .splitImage {
+  .splitImageTrack {
     height: 200px;
     flex: none;
   }

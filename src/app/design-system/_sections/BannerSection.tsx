@@ -26,7 +26,13 @@ function BannerSection({ language, setSectionRef }: BannerSectionProps) {
         {BANNER_LAYOUTS.map((layout) => (
           <motion.div key={layout} className={styles.bannerLayoutItem} initial="hidden" whileInView="visible" viewport={viewportOpts} variants={staggerItem}>
             <span className={styles.bannerPreviewLabel}>{BANNER_LAYOUT_LABELS[layout][language as "ko" | "en"]}</span>
-            <div className={styles.bannerPreviewBox}>
+            <div className={styles.bannerPreviewBox} onClickCapture={(e) => {
+              const t = e.target as HTMLElement;
+              if (!t.closest("button") && !t.closest("[class*=Dot]") && !t.closest("[class*=Arrow]")) {
+                e.stopPropagation();
+                e.preventDefault();
+              }
+            }}>
               <PostsBanner
                 posts={MOCK_POSTS}
                 imgErrors={new Set()}

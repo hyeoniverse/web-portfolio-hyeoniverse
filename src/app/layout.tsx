@@ -125,7 +125,7 @@ export default async function RootLayout({
                 <LenisProvider>
                 <PageTransitionProvider>
                 <Navigation />
-                <main>{children}</main>
+                <main suppressHydrationWarning>{children}</main>
                 <Footer />
                 </PageTransitionProvider>
 

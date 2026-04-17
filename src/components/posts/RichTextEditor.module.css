@@ -1133,6 +1133,10 @@
   border-right: none !important;
 }
 
+.editorContainer > *:last-child {
+  border-bottom: none !important;
+}
+
 /* Editor content */
 .editor {
   height: 100%;

@@ -15,6 +15,14 @@
   object-fit: cover;
 }
 
+.slideLink.slideLink .slideImg {
+  transition: transform 0.6s var(--ease-material);
+}
+
+.slideLink:hover .slideImg {
+  transform: scale(1.04);
+}
+
 .slideFallback {
   position: absolute;
   inset: 0;
@@ -239,7 +247,7 @@
   background: var(--bg-overlay);
   backdrop-filter: blur(16px);
   border: var(--border-ghost-light);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
 }
 
 /* Compound selector (0,2,0) — backdrop-filter transition */

@@ -127,7 +127,7 @@ export const tocSections = [
 export const BANNER_LAYOUTS: BannerLayout[] = ["fullwidth", "split", "cards", "ticker"];
 export const BANNER_LAYOUT_LABELS: Record<BannerLayout, { ko: string; en: string }> = {
   fullwidth: { ko: "Fullwidth — 풀 와이드 캐러셀 (Default / Cylinder)", en: "Fullwidth — Full-width Carousel (Default / Cylinder)" },
-  split: { ko: "Split — 가로 슬라이드 릴 (무한 루프)", en: "Split — Horizontal Sliding Reel (Infinite Loop)" },
+  split: { ko: "Split — 이미지 세로 슬라이드 + 텍스트 fade (무한 루프)", en: "Split — Vertical Image Slide + Text Fade (Infinite Loop)" },
   cards: { ko: "Cards — 중앙 포커스 카드", en: "Cards — Center-focus Card Stack" },
   ticker: { ko: "Ticker — 세로 슬라이드 바 (무한 루프)", en: "Ticker — Vertical Sliding Bar (Infinite Loop)" },
 };

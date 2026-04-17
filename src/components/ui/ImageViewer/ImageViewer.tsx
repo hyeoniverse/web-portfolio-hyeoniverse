@@ -101,9 +101,13 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = "100%";
+    document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
     return () => {
+      document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
+      document.documentElement.style.overscrollBehavior = "";
       const top = document.body.style.top;
       document.body.style.position = "";
       document.body.style.top = "";
@@ -120,7 +124,10 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     return () => document.removeEventListener("fullscreenchange", handler);
   }, []);
 
-  // Keyboard
+  // Keyboard — handlePrev/handleNext는 아래에서 정의되므로 ref로 참조
+  const prevRef = useRef(() => {});
+  const nextRef = useRef(() => {});
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -130,8 +137,8 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
           if (isFullscreen) document.exitFullscreen?.();
           else handleClose();
           break;
-        case "ArrowLeft": handlePrev(); break;
-        case "ArrowRight": handleNext(); break;
+        case "ArrowLeft": prevRef.current(); break;
+        case "ArrowRight": nextRef.current(); break;
         case "+": case "=": zoomIn(); break;
         case "-": zoomOut(); break;
         case "0": resetZoom(); break;
@@ -143,7 +150,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, current, images.length, isFullscreen, zoom, handlePrev, handleNext]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, current, images.length, isFullscreen, zoom]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Preload adjacent
   useEffect(() => {
@@ -216,11 +223,13 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     setDirection(-1);
     requestAnimationFrame(() => goTo(current > 0 ? current - 1 : images.length - 1));
   }, [current, images.length, goTo]);
+  prevRef.current = handlePrev;
 
   const handleNext = useCallback(() => {
     setDirection(1);
     requestAnimationFrame(() => goTo(current < images.length - 1 ? current + 1 : 0));
   }, [current, images.length, goTo]);
+  nextRef.current = handleNext;
 
   /* ── Zoom ── */
   const zoomIn = useCallback(() => {

@@ -19,6 +19,7 @@
   aspect-ratio: 16 / 10;
   overflow: hidden;
   flex-shrink: 0;
+  border-radius: var(--radius-2xl);
 }
 
 .card .image {
@@ -27,18 +28,12 @@
   object-fit: cover;
 }
 
-.card.card .image,
-.card.card .placeholder {
+.card.card .imageWrap > * {
   transition: transform var(--duration-slow) var(--ease-material);
 }
 
-.card:hover {
-  border-bottom-color: var(--text-muted);
-}
-
-.card:hover .image,
-.card:hover .placeholder {
-  transform: scale(1.03);
+.card:hover .imageWrap > * {
+  transform: scale(1.06);
 }
 
 .placeholder {
