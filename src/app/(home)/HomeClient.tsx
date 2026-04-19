@@ -44,6 +44,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function HomeClient() {
   const hasMounted = useHasMounted();
   const { isLoading } = useLoadingScreen();
+  const gsapInitRef = useRef(false);
 
   // 콘텐츠 등장 지연: 로고→nav→hero 순차 등장을 위해 isLoading false 후 딜레이
   const [contentReady, setContentReady] = useState(false);
@@ -123,12 +124,12 @@ export default function HomeClient() {
 
   const floatX = useTransform(
     smoothMouseX,
-    [0, window.innerWidth],
+    [0, typeof window !== "undefined" ? window.innerWidth : 1920],
     [-30, 30],
   );
   const floatY = useTransform(
     smoothMouseY,
-    [0, window.innerHeight],
+    [0, typeof window !== "undefined" ? window.innerHeight : 1080],
     [-30, 30],
   );
 
@@ -164,16 +165,16 @@ export default function HomeClient() {
 
   // GSAP 스크롤 애니메이션 — 로딩 완료 후 초기화
   useEffect(() => {
-    if (!hasMounted || isLoading) return;
+    if (!hasMounted || isLoading || gsapInitRef.current) return;
+    gsapInitRef.current = true;
 
-    let ctx: gsap.Context;
     let refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
     const initTimeout = requestAnimationFrame(() => {
       // 레이아웃 재계산 강제 실행
       void document.body.offsetHeight;
 
-      ctx = gsap.context(() => {
+      gsap.context(() => {
         // 히어로 섹션 애니메이션
         gsap.from(".hero-line", {
           y: 120,
@@ -281,7 +282,6 @@ export default function HomeClient() {
     return () => {
       cancelAnimationFrame(initTimeout);
       if (refreshTimer) clearTimeout(refreshTimer);
-      ctx?.revert();
     };
   }, [hasMounted, isLoading]);
 

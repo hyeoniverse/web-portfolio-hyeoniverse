@@ -1586,6 +1586,18 @@
   z-index: 2;
 }
 
+.seriesCardDeleteBtn.seriesCardDeleteBtn {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: var(--border-default);
+  transition: background 0.25s ease, backdrop-filter 0.25s ease;
+}
+
+.seriesCardDeleteBtn.seriesCardDeleteBtn:hover {
+  background: transparent;
+  backdrop-filter: blur(8px);
+}
+
 .seriesCardHeadCover {
   background-size: 100%;
   background-position: center;
