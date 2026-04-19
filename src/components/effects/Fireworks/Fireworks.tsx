@@ -4,61 +4,64 @@ import { useEffect, useRef } from "react";
 import styles from "./Fireworks.module.css";
 
 interface FireworksProps {
-  /** true로 바뀌는 순간 한 번 터뜨림 */
   trigger: boolean;
-  /** 종료 후 호출 — 부모가 trigger를 false로 리셋하는 용도 */
   onDone?: () => void;
-  /** 터뜨리기 지속 시간 (ms) */
   duration?: number;
-  /** 폭죽과 함께 화면 중앙에 표시할 축하 메시지 */
   message?: string;
 }
 
-interface Particle {
+interface Confetti {
   x: number;
   y: number;
   vx: number;
   vy: number;
+  w: number;
+  h: number;
   color: string;
-  size: number;
+  rotation: number;
+  rotSpeed: number;
   life: number;
   maxLife: number;
   gravity: number;
+  wobble: number;
+  wobbleSpeed: number;
 }
 
 const COLORS = [
   "#ff4f6d", "#ff9f43", "#feca57", "#1dd1a1",
-  "#48dbfb", "#5f27cd", "#ff6b9d", "#c44569",
+  "#48dbfb", "#5f27cd", "#ff6b9d", "#54a0ff",
+  "#ee5a24", "#0abde3", "#10ac84", "#f368e0",
 ];
 
-function launchBurst(cx: number, cy: number, color: string, count = 40): Particle[] {
-  const ps: Particle[] = [];
+function spawnConfetti(cx: number, cy: number, count: number): Confetti[] {
+  const ps: Confetti[] = [];
   for (let i = 0; i < count; i++) {
-    const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
-    const speed = 3 + Math.random() * 4;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 5;
     ps.push({
-      x: cx,
-      y: cy,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      color,
-      size: 2 + Math.random() * 3,
+      x: cx, y: cy,
+      vx: Math.cos(angle) * speed * (0.6 + Math.random()),
+      vy: Math.sin(angle) * speed - 3 - Math.random() * 3,
+      w: 4 + Math.random() * 6,
+      h: 3 + Math.random() * 4,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 12,
       life: 0,
-      maxLife: 60 + Math.random() * 30,
-      gravity: 0.08 + Math.random() * 0.04,
+      maxLife: 80 + Math.random() * 50,
+      gravity: 0.12 + Math.random() * 0.06,
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: 0.05 + Math.random() * 0.08,
     });
   }
   return ps;
 }
 
-export default function Fireworks({ trigger, onDone, duration = 2400, message }: FireworksProps) {
+export default function Fireworks({ trigger, onDone, duration = 2800 }: FireworksProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
-  // onDone이 매 렌더마다 새 참조가 되더라도 effect가 재실행되지 않도록 ref로 고정
   const onDoneRef = useRef(onDone);
-  useEffect(() => {
-    onDoneRef.current = onDone;
-  }, [onDone]);
+  useEffect(() => { onDoneRef.current = onDone; }, [onDone]);
 
   useEffect(() => {
     if (!trigger) return;
@@ -68,7 +71,6 @@ export default function Fireworks({ trigger, onDone, duration = 2400, message }:
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // DPR 대응
     const dpr = window.devicePixelRatio || 1;
     const w = window.innerWidth;
     const h = window.innerHeight;
@@ -78,24 +80,17 @@ export default function Fireworks({ trigger, onDone, duration = 2400, message }:
     canvas.style.height = `${h}px`;
     ctx.scale(dpr, dpr);
 
-    const particles: Particle[] = [];
+    const particles: Confetti[] = [];
     const startedAt = performance.now();
 
-    // 3번의 터짐 (시차)
     const bursts = [
-      { delay: 0, x: w * 0.5, y: h * 0.5 },
-      { delay: 250, x: w * 0.3, y: h * 0.45 },
-      { delay: 500, x: w * 0.7, y: h * 0.45 },
+      { delay: 0, x: w * 0.5, y: h * 0.35 },
+      { delay: 200, x: w * 0.35, y: h * 0.3 },
+      { delay: 400, x: w * 0.65, y: h * 0.3 },
     ];
 
-    const burstTimers = bursts.map((b, i) =>
-      setTimeout(() => {
-        const color = COLORS[i % COLORS.length];
-        particles.push(...launchBurst(b.x, b.y, color, 50));
-        // 두 번째 색상 섞기
-        const color2 = COLORS[(i + 3) % COLORS.length];
-        particles.push(...launchBurst(b.x, b.y, color2, 30));
-      }, b.delay),
+    const burstTimers = bursts.map((b) =>
+      setTimeout(() => particles.push(...spawnConfetti(b.x, b.y, 60)), b.delay),
     );
 
     const tick = () => {
@@ -107,16 +102,19 @@ export default function Fireworks({ trigger, onDone, duration = 2400, message }:
         p.life += 1;
         p.vy += p.gravity;
         p.vx *= 0.99;
-        p.vy *= 0.99;
-        p.x += p.vx;
+        p.x += p.vx + Math.sin(p.wobble) * 0.8;
         p.y += p.vy;
+        p.rotation += p.rotSpeed;
+        p.wobble += p.wobbleSpeed;
 
         const alpha = Math.max(0, 1 - p.life / p.maxLife);
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
         ctx.globalAlpha = alpha;
         ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
 
         if (p.life >= p.maxLife) particles.splice(i, 1);
       }
@@ -136,28 +134,7 @@ export default function Fireworks({ trigger, onDone, duration = 2400, message }:
     };
   }, [trigger, duration]);
 
-  const words = message ? message.split(" ") : [];
-
   return (
-    <>
-      <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
-      {message && trigger && (
-        <div className={styles.messageWrap} role="status" aria-live="polite">
-          <p className={styles.message}>
-            {words.map((w, i) => (
-              <span
-                key={i}
-                className={styles.word}
-                style={{ ["--i" as string]: i } as React.CSSProperties}
-              >
-                {w}
-                {i < words.length - 1 ? "\u00A0" : ""}
-              </span>
-            ))}
-          </p>
-          <span className={styles.accentLine} aria-hidden="true" />
-        </div>
-      )}
-    </>
+    <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
   );
 }

@@ -26,6 +26,7 @@ async function softOrHardDelete(
   table: string,
   id: string,
   deletedBy: "self" | "admin",
+  forceHard = false,
 ) {
   // 답글 존재 여부 확인
   const { count } = await admin
@@ -35,15 +36,17 @@ async function softOrHardDelete(
 
   const hasReplies = !!(count && count > 0);
 
-  // tombstone: 답글 있거나 admin 삭제
-  if (hasReplies || deletedBy === "admin") {
+  // 관리자 강제 삭제 — 답글 없으면 hard delete
+  if (forceHard && deletedBy === "admin" && !hasReplies) {
+    // hard delete 후 부모 정리 로직으로 진행
+  } else if (hasReplies || deletedBy === "admin") {
+    // tombstone: 답글 있거나 admin 삭제 — 닉네임 유지
     const { error } = await admin
       .from(table)
       .update({
         is_deleted: true,
         deleted_by: deletedBy,
         content: "",
-        nickname: "",
         password_hash: "",
         commenter_hash: "",
       })
@@ -105,6 +108,19 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
     } = await supabase.auth.getUser();
 
     if (user) {
+      // 이미 admin 삭제된 tombstone이면 완전 삭제
+      const { data: existing } = await admin
+        .from(table)
+        .select("is_deleted, deleted_by")
+        .eq("id", id)
+        .single();
+
+      if (existing?.is_deleted && existing?.deleted_by === "admin") {
+        const { error } = await admin.from(table).delete().eq("id", id);
+        if (error) return jsonServerError(error);
+        return jsonOk({ success: true, hardDeleted: true });
+      }
+
       const { error } = await softOrHardDelete(admin, table, id, "admin");
       if (error) return jsonServerError(error);
       return jsonOk({ success: true });

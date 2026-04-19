@@ -16,7 +16,7 @@ interface CommentFormProps {
   commentType: "post" | "work";
   targetId: string;
   parentId?: string;
-  onSubmit: () => void;
+  onSubmit: (newId?: string) => void;
   onCancel?: () => void;
   /** 해당 게시물/작품의 첫 댓글 여부 — true면 제출 성공 시 폭죽 터뜨림 */
   isFirstOnTarget?: boolean;
@@ -128,14 +128,14 @@ export default function CommentForm({
           return;
         }
 
+        const resData = await res.json().catch(() => ({}));
         setContent("");
         setPassword("");
         setFormHint("");
 
-        // 해당 게시물의 첫 댓글이면 폭죽 + 축하 메시지
         if (isFirstOnTarget) setFireworks(true);
 
-        onSubmit();
+        onSubmit(resData?.id);
       } catch {
         setFormHint(t("comments.hintNetwork"));
       } finally {
@@ -150,7 +150,6 @@ export default function CommentForm({
     {fireworks && (
       <Fireworks
         trigger
-        message={t("comments.firstCommentCelebration")}
         onDone={() => setFireworks(false)}
       />
     )}
