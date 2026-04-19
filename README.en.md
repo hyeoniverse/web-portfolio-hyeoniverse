@@ -127,8 +127,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Posts Bento Grid**: 3-column bento layout — wide(2col)+tall(2row)+standard per 10-item cycle, position alternates per cycle for visual variety, responsive 2-column tablet / 1-column mobile
 - **Posts i18n & Sort Capsule**: All text moved to locale files, sort UI changed to capsule-style segment control (Framer Motion layoutId) + hover indicator movement
 - **IP-based Likes**: Single `likes` table with `target_type` discrimination for Posts/Works/comments, IP-based UNIQUE constraint to prevent duplicates, rapid-click prevention (ref lock + busy disabled), formatCount (1k/1.2m) number abbreviation
-- **Comment System**: Guest threaded replies — dual authentication (commenter_hash + bcrypt), nickname shuffle, email reply notifications, admin comments
-- **First Comment Celebration**: Canvas fireworks + editorial message overlay when the first comment is posted on a given post
+- **Comment System**: Guest threaded replies — dual authentication (commenter_hash + bcrypt), nickname shuffle, email reply notifications, admin comments, admin tombstone double-delete for permanent removal, nickname-preserved tombstone
+- **First Comment Celebration**: Confetti effect + card flip celebration message (sparkle stars + accent lines) on first comment, admin bulk comment deletion
 
 <p align="center">
   <img src="public/docs/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
@@ -153,7 +153,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Carousel (default / cylinder)**: Shared Carousel — default (CSS opacity) / cylinder (3D perspective) modes, autoPlay/loop/dots/arrows
 - **About Horizontal Scroll**: GSAP-based horizontal scroll via `useHorizontalScroll` hook (desktop), automatic vertical stack on mobile
 - **Page Transition**: Shared image-to-hero morphing transition for all detail page navigation (PageTransitionProvider at root layout level, persists across pages)
-- **ImageViewer Directional Slide**: Previous/next slides in from opposite direction, zone-based arrow reveal on hover, transparent+blur background → solid on hover
+- **ImageViewer Directional Slide**: Previous/next slides in from opposite direction (mode wait), zone-based arrow reveal on hover
 - **Select Dropdown Animation**: Portal-based dropdown uses rAF×2 delay after mount for CSS transition guarantee (compound selector to bypass global theme transition)
 - **LanguageToggle Dynamic Measurement**: EN button position measured via useLayoutEffect for accurate indicator alignment
 
@@ -502,7 +502,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 35 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
+> 36 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
 > Also available interactively on the About page.
 
 | # | Issue | Key takeaway |
@@ -515,6 +515,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 33 | CTA button `backdrop-filter` not working in Chrome | Swapped `.home` entrance from `y: transform` to `marginTop: layout` — an ancestor with `transform` promoted a compositing layer that blocked backdrop sampling. Also removed `-webkit-backdrop-filter` prefix since it caused Chrome to mis-parse the declaration |
 | 34 | Portal dropdown CSS transition not firing | Mount renders with open class already applied (initial=final) — `animateOpen` state + rAF×2 delay ensures mount→close→open sequence, compound selector (0,2,0) bypasses global theme transition |
 | 35 | mix-blend-mode: difference forcing child colors | Parent difference blends entire content — isolated title/category in difference div, moved description/details to sibling overlay element, synced position via JS rAF |
+| 36 | About page first panel start position error | Dynamic import panel skeleton width mismatch (ErdPanel: 350vw→100vw) + removed GSAP transform/animate reset in strict mode cleanup + initializedRef guard |
 
 ## Deployment
 
