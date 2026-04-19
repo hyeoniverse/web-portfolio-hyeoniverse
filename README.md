@@ -127,8 +127,8 @@
 - **Posts Bento Grid**: 3열 bento 레이아웃 — 10개 사이클당 wide(2col)+tall(2row)+standard 조합, 사이클마다 위치 교차로 시각적 변화, 태블릿 2열/모바일 1열 반응형
 - **Posts i18n & Sort Capsule**: 모든 텍스트 locale 파일 이동, 정렬 UI를 캡슐형 세그먼트 컨트롤(Framer Motion layoutId) + hover indicator 이동
 - **IP 기반 좋아요**: Posts/Works/댓글에서 단일 `likes` 테이블 + `target_type` 구분, IP 기반 UNIQUE 제약으로 중복 방지, 연타 방지(ref lock + busy disabled), formatCount(1k/1.2m) 숫자 축약
-- **댓글 시스템**: 게스트 대댓글(threaded) 지원 — 이중 인증(commenter_hash + bcrypt), 닉네임 셔플, 이메일 답글 알림, 관리자 댓글
-- **첫 댓글 축하**: 해당 게시물의 첫 번째 댓글 등록 시 캔버스 폭죽 + 에디토리얼 메시지 오버레이
+- **댓글 시스템**: 게스트 대댓글(threaded) 지원 — 이중 인증(commenter_hash + bcrypt), 닉네임 셔플, 이메일 답글 알림, 관리자 댓글, 관리자 tombstone 2회 삭제로 완전 제거, 닉네임 보존 tombstone
+- **첫 댓글 축하**: 첫 댓글 등록 시 confetti 효과 + 카드 플립 축하 메시지 (sparkle 별 장식 + accent 라인), 관리자 댓글 일괄 선택 삭제
 
 <p align="center">
   <img src="public/docs/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
@@ -153,7 +153,7 @@
 - **Carousel (default / cylinder)**: 공통 Carousel — default(CSS opacity) / cylinder(3D perspective) 모드, autoPlay/loop/dots/arrows
 - **About 가로 스크롤**: `useHorizontalScroll` 훅으로 GSAP 기반 가로 스크롤(데스크톱), 모바일 자동 세로 스택
 - **Page Transition**: 모든 detail 페이지 이동 시 이미지 확대→hero 위치 모핑→그라데이션 페이드 전환 효과 (PageTransitionProvider, root layout 레벨에서 페이지 간 유지)
-- **ImageViewer 방향 슬라이드**: 이전/다음 이동 시 반대 방향에서 slide-in, 좌/우 영역 hover로 화살표 노출, 투명+blur 배경 → hover 시 단색 반전
+- **ImageViewer 방향 슬라이드**: 이전/다음 이동 시 반대 방향에서 slide-in (mode wait), 좌/우 영역 hover로 화살표 노출
 - **Select 드롭다운 애니메이션**: portal 기반 드롭다운에서 mount 후 rAF 2회 대기로 CSS transition 보장 (compound selector로 글로벌 theme transition 우회)
 - **LanguageToggle 동적 측정**: EN 버튼 위치를 useLayoutEffect로 실측해 indicator 정확한 정렬
 
@@ -503,7 +503,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 35건의 이슈 해결 과정입니다. 주요 6건을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 36건의 이슈 해결 과정입니다. 주요 6건을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
 > About 페이지에서도 인터랙티브하게 확인 가능합니다.
 
 | # | 이슈 | 핵심 |
@@ -516,6 +516,7 @@ npm run test:watch
 | 33 | CTA 버튼 backdrop-filter가 Chrome에서 동작 안 함 | `.home` entrance 애니메이션을 `y: transform` → `marginTop: layout` 으로 교체 — 상위 transform이 만든 compositing layer 때문에 backdrop 샘플링이 차단되던 이슈. `-webkit-backdrop-filter` 접두사도 Chrome에서 역으로 파싱을 꼬이게 해서 제거 |
 | 34 | Portal 기반 드롭다운에서 CSS transition 미작동 | mount 시 이미 open 상태 클래스가 적용되어 초기값=최종값이 됨 — `animateOpen` state + rAF×2 지연으로 mount→close→open 순서 보장, compound selector(0,2,0)로 글로벌 theme transition 우회 |
 | 35 | mix-blend-mode: difference 자식 요소 색상 강제 | parent에 difference를 걸면 자식 전체가 blending되어 개별 override 불가 — 제목/카테고리만 difference 적용 div에 두고 설명/상세는 별도 형제 요소(overlay)로 분리, JS rAF에서 동일 위치 동기화 |
+| 36 | About 페이지 첫 패널 시작 위치 오류 | dynamic import 패널의 skeleton 너비와 실제 너비 불일치(ErdPanel: 350vw→100vw) + strict mode cleanup에서 GSAP transform/animate 리셋 제거 + initializedRef guard |
 
 
 ## 배포
