@@ -7,6 +7,7 @@ interface LoadingScreenResult {
   isTransitioning: boolean;
 }
 
+const MIN_DISPLAY_MS = 1200;
 const TRANSITION_MS = 400;
 
 let hasCompletedInitialLoad = false;
@@ -45,20 +46,25 @@ export function useLoadingScreen(): LoadingScreenResult {
       }, TRANSITION_MS);
     };
 
+    const start = Date.now();
+
     const checks = Promise.all([
       document.fonts?.ready ?? Promise.resolve(),
       new Promise<void>((resolve) => {
         if (document.readyState === "complete") return resolve();
         window.addEventListener("load", () => resolve(), { once: true });
       }),
-      // above-the-fold 이미지 프리로드
       ...Array.from(document.querySelectorAll<HTMLImageElement>("img[loading='eager'], img[fetchpriority='high']"))
         .filter((img) => !img.complete)
         .slice(0, 3)
         .map((img) => preloadImage(img.src)),
     ]);
 
-    checks.then(complete);
+    checks.then(() => {
+      const elapsed = Date.now() - start;
+      const remaining = Math.max(0, MIN_DISPLAY_MS - elapsed);
+      setTimeout(complete, remaining);
+    });
 
     // 안전장치: 3초 후 강제 완료
     const fallback = setTimeout(complete, 3000);

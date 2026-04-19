@@ -13,6 +13,8 @@
 
 .char {
   display: inline-block;
+  opacity: 0;
+  transform: translateY(30px) rotateX(-60deg);
   will-change: transform, opacity;
 }
 

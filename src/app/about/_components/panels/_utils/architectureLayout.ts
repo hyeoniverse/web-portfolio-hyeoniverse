@@ -161,8 +161,8 @@ function binarySplit(
 
 export function computeTreemap(nodes: TreeNode[]): TmRect[] {
   const rects: TmRect[] = nodes.map(() => ({ x: 0, y: 0, w: 0, h: 0 }));
-  const TREEMAP_GAP = 6;
-  const TREEMAP_PADDING = 5;
+  const TREEMAP_GAP = 0;
+  const TREEMAP_PADDING = 0;
   const HEADER_HEIGHT = 24;
 
   const bounds = { x: 0, y: 30, w: VIEWBOX_WIDTH, h: VIEWBOX_HEIGHT - 30 };

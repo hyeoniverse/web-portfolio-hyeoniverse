@@ -13,18 +13,20 @@ import {
   CENTER_Y,
 } from "./_utils/architectureLayout";
 import { useForceGraph } from "./_utils/useForceGraph";
+import ArchDiagram from "./ArchDiagram";
 import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./ArchitecturePanel.module.css";
 const styles = { ...shared, ...local };
 
-type ViewMode = "tree" | "treemap" | "force";
+type ViewMode = "diagram" | "tree" | "treemap" | "force";
 
 interface ArchitecturePanelProps {
   language: Language;
 }
 
 const VIEW_MODES: { key: ViewMode; label: string }[] = [
+  { key: "diagram", label: "Diagram" },
   { key: "tree", label: "Tree" },
   { key: "treemap", label: "Treemap" },
   { key: "force", label: "Force" },
@@ -32,7 +34,7 @@ const VIEW_MODES: { key: ViewMode; label: string }[] = [
 
 function ArchitecturePanel({ language }: ArchitecturePanelProps) {
   const structure = projectStructure;
-  const [viewMode, setViewMode] = useState<ViewMode>("tree");
+  const [viewMode, setViewMode] = useState<ViewMode>("diagram");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
@@ -231,6 +233,8 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
           ))}
         </div>
 
+        {viewMode === "diagram" && <ArchDiagram />}
+
         {viewMode === "tree" && (
           <>
             <svg
@@ -278,7 +282,7 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
         )}
 
         {viewMode === "treemap" && (
-          <>
+          <div className={styles.archTmWrap}>
             {nodes.map((node) => {
               if (node.row === 0) return null;
               const r = tmRects[node.index];
@@ -305,7 +309,7 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
                 </div>
               );
             })}
-          </>
+          </div>
         )}
 
         {viewMode === "force" && (

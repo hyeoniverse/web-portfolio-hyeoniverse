@@ -133,6 +133,8 @@
 }
 
 .animate {
+  opacity: 0;
+  transform: translateY(40px);
   will-change: transform, opacity;
 }
 
@@ -377,9 +379,10 @@
   color: var(--text-white);
   font-size: 0;
   line-height: 1;
-  opacity: 0;
+  opacity: 0.3;
   transform: translateY(-50%);
   mix-blend-mode: difference;
+  transition: opacity var(--duration-base) ease;
 }
 
 .slideArrow::before {
@@ -402,11 +405,6 @@
   transform: rotate(-135deg);
 }
 
-.section ~ .slideArrow {
-  transition: opacity var(--duration-slow) ease;
-}
-
-.section:hover ~ .slideArrow,
 .slideArrow:hover {
   opacity: 1;
 }

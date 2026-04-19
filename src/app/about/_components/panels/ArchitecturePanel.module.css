@@ -208,47 +208,52 @@
 .archMap .archNodeDraggable:active {
 }
 
-/* ── Treemap mode ── */
+/* ── Treemap mode — line-based, no gaps, no radius ── */
+
+.archTmWrap {
+  position: absolute;
+  inset: 0;
+}
+
 .archMap .archTmCell {
   display: flex;
   align-items: flex-start;
-  padding: clamp(0.2rem, 0.35vh, 0.4rem) clamp(0.3rem, 0.4vw, 0.55rem);
-  border: var(--border-default);
-
+  padding: clamp(0.15rem, 0.25vh, 0.25rem) clamp(0.25rem, 0.35vw, 0.4rem);
+  border: none;
+  border-radius: 0;
+  outline: 1px solid var(--border-default-color);
+  outline-offset: -1px;
   overflow: hidden;
   position: absolute;
+  background: transparent;
   transition:
-    border-color var(--duration-base) ease,
-    box-shadow var(--duration-base) ease,
+    background var(--duration-base) ease,
+    outline-color var(--duration-base) ease,
     opacity var(--duration-base) ease;
-  border-radius: var(--radius-sm);
 }
 
 .archMap .archTmCell:hover {
-  border-color: var(--border-accent);
+  background: var(--color-accent-alpha-5);
 }
 
 .archMap .archTmParent {
-  border-color: var(--border-accent-light);
+  outline-color: var(--border-strong-color);
   z-index: 0;
-  background: var(--bg-accent-subtle);
 }
 
 .archMap .archTmChild {
-  border-color: var(--border-accent-light);
   z-index: 1;
-  background: var(--bg-accent-light);
 }
 
 .archMap .archTmLeaf {
-  border-color: var(--border-default);
+  outline-color: var(--border-light-color);
   z-index: 0;
-  background: var(--bg-tertiary, var(--bg-secondary));
 }
 
 .archMap .archTmCellActive {
-  border-color: var(--text-accent);
-  box-shadow: 0 0 12px var(--color-accent-alpha-15);
+  background: var(--color-accent-alpha-5);
+  outline-color: var(--text-accent);
+  outline-width: 2px;
   z-index: 2;
 }
 

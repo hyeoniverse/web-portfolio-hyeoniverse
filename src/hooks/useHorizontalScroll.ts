@@ -116,7 +116,9 @@ export function useHorizontalScroll(
 
       if (bestTarget) {
         const rect = bestTarget.getBoundingClientRect();
-        scrollStateRef.current.targetScrollX += rect.left;
+        const vw = window.innerWidth;
+        const offset = rect.width < vw ? rect.left - (vw - rect.width) / 2 : rect.left;
+        scrollStateRef.current.targetScrollX += offset;
       }
     },
     [panelSelector, breakClass, infinite, navSectionCount],
@@ -208,14 +210,14 @@ export function useHorizontalScroll(
     state.targetScrollX = 0;
     gsap.set(track, { x: initialX });
 
-    // Hero 패널 제외 .animate 요소 초기 숨김 — 1회만
+    // .animate 요소 초기화 — 1회만
     if (!initializedRef.current) {
       initializedRef.current = true;
       allPanels.forEach((panel, i) => {
         const isHero = infinite ? i % panelSetSize === 0 : i === 0;
         if (isHero) return;
         const items = panel.querySelectorAll(`.${styles.animate}`);
-      if (items.length > 0) gsap.set(items, { opacity: 0, y: 40 });
+        if (items.length > 0) gsap.set(items, { opacity: 0, y: 40 });
       });
     }
 
