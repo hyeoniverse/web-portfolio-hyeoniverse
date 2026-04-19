@@ -45,6 +45,9 @@ interface CommentItemProps {
   selectMode?: boolean;
   selected?: Set<string>;
   onToggleSelect?: (id: string) => void;
+  onDragStart?: (id: string) => void;
+  onDragEnter?: (id: string) => void;
+  onDragEnd?: () => void;
   onRefresh: () => void;
 }
 
@@ -60,6 +63,9 @@ function CommentItem({
   selectMode = false,
   selected,
   onToggleSelect,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
   onRefresh,
 }: CommentItemProps) {
   const { t } = useLanguage();
@@ -246,10 +252,30 @@ function CommentItem({
         ? "comments.deletedCommentByAdmin"
         : "comments.deletedComment";
     return (
-      <div className={styles.comment}>
+      <div
+        className={`${styles.comment} ${selectMode ? styles.commentSelectable : ""}`}
+        onPointerDown={selectMode && onDragStart && comment.deleted_by === "admin" ? (e) => {
+          if ((e.target as HTMLElement).tagName === "INPUT") return;
+          e.preventDefault();
+          e.stopPropagation();
+          onDragStart(comment.id);
+        } : undefined}
+        onPointerEnter={selectMode && onDragEnter && comment.deleted_by === "admin" ? (e) => { e.stopPropagation(); onDragEnter(comment.id); } : undefined}
+        onPointerUp={selectMode && onDragEnd ? (e) => { e.stopPropagation(); onDragEnd(); } : undefined}
+      >
         <div className={styles.deletedPlaceholder} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-          <span><T k={tombstoneKey} /></span>
-          {isAdmin && comment.deleted_by === "admin" && (
+          <span style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+            {selectMode && onToggleSelect && comment.deleted_by === "admin" && (
+              <input
+                type="checkbox"
+                checked={selected?.has(comment.id) ?? false}
+                onChange={() => onToggleSelect(comment.id)}
+                style={{ accentColor: "var(--bg-accent-solid)", cursor: "pointer" }}
+              />
+            )}
+            <T k={tombstoneKey} />
+          </span>
+          {isAdmin && comment.deleted_by === "admin" && !selectMode && (
             <button
               type="button"
               className={styles.deleteBtn}
@@ -304,6 +330,9 @@ function CommentItem({
                 selectMode={selectMode}
                 selected={selected}
                 onToggleSelect={onToggleSelect}
+                onDragStart={onDragStart}
+                onDragEnter={onDragEnter}
+                onDragEnd={onDragEnd}
                 onRefresh={onRefresh}
               />
             ))}
@@ -328,7 +357,17 @@ function CommentItem({
   }
 
   return (
-    <div className={`${styles.comment} ${isFirstComment ? styles.commentFlipIn : ""}`}>
+    <div
+      className={`${styles.comment} ${isFirstComment ? styles.commentFlipIn : ""} ${selectMode ? styles.commentSelectable : ""}`}
+      onPointerDown={selectMode && onDragStart ? (e) => {
+        if ((e.target as HTMLElement).tagName === "INPUT") return;
+        e.preventDefault();
+        e.stopPropagation();
+        onDragStart(comment.id);
+      } : undefined}
+      onPointerEnter={selectMode && onDragEnter ? (e) => { e.stopPropagation(); onDragEnter(comment.id); } : undefined}
+      onPointerUp={selectMode && onDragEnd ? (e) => { e.stopPropagation(); onDragEnd(); } : undefined}
+    >
       <div className={styles.commentHeader}>
         {selectMode && onToggleSelect && (
           <input
@@ -601,6 +640,9 @@ function CommentItem({
               selectMode={selectMode}
               selected={selected}
               onToggleSelect={onToggleSelect}
+              onDragStart={onDragStart}
+              onDragEnter={onDragEnter}
+              onDragEnd={onDragEnd}
               onRefresh={onRefresh}
             />
           ))}
