@@ -221,13 +221,13 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
 
   const handlePrev = useCallback(() => {
     setDirection(-1);
-    requestAnimationFrame(() => goTo(current > 0 ? current - 1 : images.length - 1));
+    goTo(current > 0 ? current - 1 : images.length - 1);
   }, [current, images.length, goTo]);
   prevRef.current = handlePrev;
 
   const handleNext = useCallback(() => {
     setDirection(1);
-    requestAnimationFrame(() => goTo(current < images.length - 1 ? current + 1 : 0));
+    goTo(current < images.length - 1 ? current + 1 : 0);
   }, [current, images.length, goTo]);
   nextRef.current = handleNext;
 
@@ -733,7 +733,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
               animate={closing ? { opacity: 0, scale: 0.96 } : { opacity: 1, scale: 1 }}
               transition={closing ? { duration: 0.28, delay: 0.94 } : { duration: 0.3, delay: 0.72, ease: [0.25, 0.1, 0.25, 1] }}
             >
-            <AnimatePresence initial={false} custom={direction}>
+            <AnimatePresence mode="wait" initial={false} custom={direction}>
               <motion.div
                 key={current}
                 ref={wrapRef}
@@ -743,11 +743,11 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 animate="center"
                 exit="exit"
                 variants={{
-                  enter: (dir: number) => ({ opacity: 0, x: -dir * SLIDE_OFFSET, position: "absolute" as const }),
-                  center: { opacity: 1, x: 0, position: "relative" as const },
-                  exit: (dir: number) => ({ opacity: 0, x: dir * SLIDE_OFFSET, position: "absolute" as const }),
+                  enter: (dir: number) => ({ opacity: 0, x: -dir * SLIDE_OFFSET }),
+                  center: { opacity: 1, x: 0 },
+                  exit: (dir: number) => ({ opacity: 0, x: dir * SLIDE_OFFSET }),
                 }}
-                transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+                transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
                 style={isDragging ? { transform: `translateY(${dragY}px)` } : undefined}
                 onWheel={handleWheel}
               >
