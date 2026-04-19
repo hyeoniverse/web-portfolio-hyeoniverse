@@ -74,7 +74,7 @@ interface SecurityPanelProps {
 
 function SecurityPanel({ language, items }: SecurityPanelProps) {
   return (
-    <div className={`${styles.panel} ${styles.panelWide}`}>
+    <div className={styles.panel}>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>
         Security.
       </h3>

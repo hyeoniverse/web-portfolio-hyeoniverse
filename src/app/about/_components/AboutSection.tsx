@@ -72,7 +72,7 @@ export default function AboutSection() {
   return (
     <>
       {isMobile && <div className={styles.navBlur} />}
-      <section className={styles.section} ref={sectionRef}>
+      <section className={styles.section} ref={sectionRef} suppressHydrationWarning>
         {isMobile && (
           <nav
             className={`${styles.mobileTabBar} ${
@@ -122,8 +122,7 @@ export default function AboutSection() {
           )}
         </div>
       </section>
-      {!isLoading && (
-        <>
+      <div style={isLoading ? { visibility: "hidden" } : undefined} suppressHydrationWarning>
           <SectionNav
             navRef={navRef}
             navItemRefs={navItemRefs}
@@ -162,8 +161,7 @@ export default function AboutSection() {
               </button>
             </>
           )}
-        </>
-      )}
+      </div>
     </>
   );
 }

@@ -11,7 +11,7 @@ export default function HeroPanel() {
   const { isLoading } = useLoadingScreen();
 
   return (
-    <div className={`${styles.panel} ${styles.heroPanelBg} ${!isLoading ? styles.heroReady : ""}`}>
+    <div className={[styles.panel, styles.heroPanelBg, !isLoading && styles.heroReady].filter(Boolean).join(" ")} suppressHydrationWarning>
       <div className={styles.heroContent}>
         <span className={`${styles.label} ${styles.animate} ${styles.heroFadeIn1}`}>
           <T k="aboutPage.title" />
