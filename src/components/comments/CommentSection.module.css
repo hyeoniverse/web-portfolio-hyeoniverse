@@ -39,6 +39,36 @@
   gap: var(--spacing-md);
 }
 
+.selectModeBtn {
+  padding: var(--box-2xs-md);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.bulkDeleteBtn {
+  padding: var(--box-2xs-md);
+  border: 1px solid var(--text-accent);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-accent);
+  cursor: pointer;
+}
+
+.bulkDeleteBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
 .disclaimer {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);

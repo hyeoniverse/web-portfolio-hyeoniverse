@@ -41,6 +41,10 @@ interface CommentItemProps {
   likeCountMap?: Record<string, number>;
   isAdmin?: boolean;
   translationEnabled?: boolean;
+  isFirstComment?: boolean;
+  selectMode?: boolean;
+  selected?: Set<string>;
+  onToggleSelect?: (id: string) => void;
   onRefresh: () => void;
 }
 
@@ -52,11 +56,24 @@ function CommentItem({
   likeCountMap,
   isAdmin = false,
   translationEnabled = true,
+  isFirstComment = false,
+  selectMode = false,
+  selected,
+  onToggleSelect,
   onRefresh,
 }: CommentItemProps) {
   const { t } = useLanguage();
   const [showReply, setShowReply] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [flipped, setFlipped] = useState(isFirstComment);
+  const [slotOpen, setSlotOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isFirstComment) return;
+    requestAnimationFrame(() => requestAnimationFrame(() => setSlotOpen(true)));
+    const timer = setTimeout(() => setFlipped(false), 2000);
+    return () => clearTimeout(timer);
+  }, [isFirstComment]);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -230,9 +247,49 @@ function CommentItem({
         : "comments.deletedComment";
     return (
       <div className={styles.comment}>
-        <p className={styles.deletedPlaceholder}>
-          <T k={tombstoneKey} />
-        </p>
+        <div className={styles.deletedPlaceholder} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+          <span><T k={tombstoneKey} /></span>
+          {isAdmin && comment.deleted_by === "admin" && (
+            <button
+              type="button"
+              className={styles.deleteBtn}
+              onClick={() => setShowDelete(!showDelete)}
+            >
+              <T k="comments.hardDelete" />
+            </button>
+          )}
+        </div>
+        <AnimatePresence>
+          {isAdmin && showDelete && comment.deleted_by === "admin" && (
+            <motion.div
+              className={styles.deleteModal}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className={styles.deleteRow}>
+                <button
+                  type="button"
+                  className={styles.deleteConfirm}
+                  onClick={async () => {
+                    const res = await fetch(`/api/${commentType === "work" ? "work-comments" : "comments"}/${comment.id}`, { method: "DELETE" });
+                    if (res.ok) onRefresh();
+                  }}
+                >
+                  <T k="comments.confirmDelete" />
+                </button>
+                <button
+                  type="button"
+                  className={styles.deleteCancel}
+                  onClick={() => setShowDelete(false)}
+                >
+                  <T k="comments.cancel" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {comment.replies && comment.replies.length > 0 && (
           <div className={styles.replies}>
             {comment.replies.map((reply) => (
@@ -244,6 +301,9 @@ function CommentItem({
                 likedMap={likedMap}
                 likeCountMap={likeCountMap}
                 isAdmin={isAdmin}
+                selectMode={selectMode}
+                selected={selected}
+                onToggleSelect={onToggleSelect}
                 onRefresh={onRefresh}
               />
             ))}
@@ -253,9 +313,31 @@ function CommentItem({
     );
   }
 
+  if (isFirstComment && flipped) {
+    return (
+      <div className={`${styles.flipSlot} ${slotOpen ? styles.flipSlotOpen : ""}`}>
+        <div className={styles.flipContainer}>
+          <div className={styles.flipCard}>
+            <span className={styles.flipLine} />
+            <p className={styles.flipText}><span className={styles.flipStar}>✦</span> {t("comments.firstCommentCelebration")} <span className={styles.flipStar}>✦</span></p>
+            <span className={styles.flipLine} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.comment}>
+    <div className={`${styles.comment} ${isFirstComment ? styles.commentFlipIn : ""}`}>
       <div className={styles.commentHeader}>
+        {selectMode && onToggleSelect && (
+          <input
+            type="checkbox"
+            checked={selected?.has(comment.id) ?? false}
+            onChange={() => onToggleSelect(comment.id)}
+            style={{ accentColor: "var(--bg-accent-solid)", cursor: "pointer" }}
+          />
+        )}
         {comment.is_admin ? (
           <span className={styles.adminBadge}>Admin</span>
         ) : (
@@ -516,6 +598,9 @@ function CommentItem({
               likedMap={likedMap}
               likeCountMap={likeCountMap}
               isAdmin={isAdmin}
+              selectMode={selectMode}
+              selected={selected}
+              onToggleSelect={onToggleSelect}
               onRefresh={onRefresh}
             />
           ))}

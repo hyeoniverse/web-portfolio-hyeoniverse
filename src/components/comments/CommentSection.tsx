@@ -54,7 +54,11 @@ export default function CommentSection({ commentType, targetId, translationEnabl
   const { language } = useLanguage();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [firstCommentId, setFirstCommentId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const apiBase = commentType === "work" ? "/api/work-comments" : "/api/comments";
   const paramKey = commentType === "work" ? "work_id" : "post_id";
 
@@ -98,6 +102,28 @@ export default function CommentSection({ commentType, targetId, translationEnabl
     fetchComments();
   }, [fetchComments]);
 
+  const toggleSelect = useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (selected.size === 0) return;
+    setBulkDeleting(true);
+    await Promise.all(
+      Array.from(selected).map((id) =>
+        fetch(`${apiBase}/${id}`, { method: "DELETE" })
+      )
+    );
+    setSelected(new Set());
+    setSelectMode(false);
+    setBulkDeleting(false);
+    fetchComments();
+  }, [selected, apiBase, fetchComments]);
+
   const tree = buildTree(comments);
   const visibleTree = tree.slice(0, visibleCount);
   const remaining = tree.length - visibleCount;
@@ -111,7 +137,32 @@ export default function CommentSection({ commentType, targetId, translationEnabl
             <span className={styles.count}>({comments.length})</span>
           )}
         </h2>
-        <p className={styles.disclaimer}><T k="comments.disclaimer" noTooltip /></p>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)", marginLeft: "auto" }}>
+          {isAdmin && comments.length > 0 && (
+            <>
+              {selectMode && selected.size > 0 && (
+                <button
+                  type="button"
+                  className={styles.bulkDeleteBtn}
+                  onClick={handleBulkDelete}
+                  disabled={bulkDeleting}
+                >
+                  {bulkDeleting
+                    ? (language === "ko" ? "삭제 중..." : "Deleting...")
+                    : (language === "ko" ? `${selected.size}개 삭제` : `Delete ${selected.size}`)}
+                </button>
+              )}
+              <button
+                type="button"
+                className={styles.selectModeBtn}
+                onClick={() => { setSelectMode(!selectMode); setSelected(new Set()); }}
+              >
+                {selectMode ? (language === "ko" ? "취소" : "Cancel") : (language === "ko" ? "선택" : "Select")}
+              </button>
+            </>
+          )}
+          <p className={styles.disclaimer}><T k="comments.disclaimer" noTooltip /></p>
+        </div>
       </div>
 
       {tree.length > 0 ? (
@@ -126,6 +177,10 @@ export default function CommentSection({ commentType, targetId, translationEnabl
               likeCountMap={likeCountMap}
               isAdmin={isAdmin}
               translationEnabled={translationEnabled}
+              isFirstComment={comment.id === firstCommentId}
+              selectMode={selectMode}
+              selected={selected}
+              onToggleSelect={toggleSelect}
               onRefresh={fetchComments}
             />
           ))}
@@ -149,7 +204,10 @@ export default function CommentSection({ commentType, targetId, translationEnabl
       <CommentForm
         commentType={commentType}
         targetId={targetId}
-        onSubmit={fetchComments}
+        onSubmit={(newId?: string) => {
+          if (comments.length === 0 && newId) setFirstCommentId(newId);
+          fetchComments();
+        }}
         isFirstOnTarget={comments.length === 0}
       />
 

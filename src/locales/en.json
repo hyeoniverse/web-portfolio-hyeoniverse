@@ -834,6 +834,8 @@
     "hintNetwork": "Network error",
     "deletedComment": "This comment has been deleted.",
     "deletedCommentByAdmin": "This comment was removed by the admin.",
+    "hardDelete": "Remove permanently",
+    "confirmDelete": "Confirm",
     "firstCommentCelebration": "🎉 You left the first comment on this post!",
     "emailClear": "Clear input",
     "disclaimer": "Inappropriate comments may be removed without notice."
