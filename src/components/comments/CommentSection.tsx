@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { Comment } from "@/types/post";
 import { createClient } from "@/lib/supabase/client";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -48,6 +48,15 @@ function buildTree(comments: Comment[]): Comment[] {
   }
 
   return prune(roots);
+}
+
+function collectIds(nodes: Comment[]): string[] {
+  const ids: string[] = [];
+  for (const n of nodes) {
+    if (!n.is_deleted || n.deleted_by === "admin") ids.push(n.id);
+    if (n.replies) ids.push(...collectIds(n.replies));
+  }
+  return ids;
 }
 
 export default function CommentSection({ commentType, targetId, translationEnabled = true }: CommentSectionProps) {
@@ -102,6 +111,9 @@ export default function CommentSection({ commentType, targetId, translationEnabl
     fetchComments();
   }, [fetchComments]);
 
+  const draggingRef = useRef(false);
+  const dragModeRef = useRef<"add" | "remove">("add");
+
   const toggleSelect = useCallback((id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -109,6 +121,42 @@ export default function CommentSection({ commentType, targetId, translationEnabl
       return next;
     });
   }, []);
+
+  const handleDragStart = useCallback((id: string) => {
+    draggingRef.current = true;
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        dragModeRef.current = "remove";
+        next.delete(id);
+      } else {
+        dragModeRef.current = "add";
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleDragEnter = useCallback((id: string) => {
+    if (!draggingRef.current) return;
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (dragModeRef.current === "add") next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    draggingRef.current = false;
+  }, []);
+
+  useEffect(() => {
+    if (!selectMode) return;
+    const up = () => { draggingRef.current = false; };
+    window.addEventListener("pointerup", up);
+    return () => window.removeEventListener("pointerup", up);
+  }, [selectMode]);
 
   const handleBulkDelete = useCallback(async () => {
     if (selected.size === 0) return;
@@ -127,6 +175,8 @@ export default function CommentSection({ commentType, targetId, translationEnabl
   const tree = buildTree(comments);
   const visibleTree = tree.slice(0, visibleCount);
   const remaining = tree.length - visibleCount;
+  const allVisibleIds = selectMode ? collectIds(visibleTree) : [];
+  const allSelected = allVisibleIds.length > 0 && allVisibleIds.every((id) => selected.has(id));
 
   return (
     <div className={styles.section}>
@@ -140,17 +190,33 @@ export default function CommentSection({ commentType, targetId, translationEnabl
         <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)", marginLeft: "auto" }}>
           {isAdmin && comments.length > 0 && (
             <>
-              {selectMode && selected.size > 0 && (
-                <button
-                  type="button"
-                  className={styles.bulkDeleteBtn}
-                  onClick={handleBulkDelete}
-                  disabled={bulkDeleting}
-                >
-                  {bulkDeleting
-                    ? (language === "ko" ? "삭제 중..." : "Deleting...")
-                    : (language === "ko" ? `${selected.size}개 삭제` : `Delete ${selected.size}`)}
-                </button>
+              {selectMode && (
+                <>
+                  <label className={styles.selectAllLabel}>
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={() => {
+                        if (allSelected) setSelected(new Set());
+                        else setSelected(new Set(allVisibleIds));
+                      }}
+                      style={{ accentColor: "var(--bg-accent-solid)", cursor: "pointer" }}
+                    />
+                    <span>{language === "ko" ? "전체" : "All"}</span>
+                  </label>
+                  {selected.size > 0 && (
+                    <button
+                      type="button"
+                      className={styles.bulkDeleteBtn}
+                      onClick={handleBulkDelete}
+                      disabled={bulkDeleting}
+                    >
+                      {bulkDeleting
+                        ? (language === "ko" ? "삭제 중..." : "Deleting...")
+                        : (language === "ko" ? `${selected.size}개 삭제` : `Delete ${selected.size}`)}
+                    </button>
+                  )}
+                </>
               )}
               <button
                 type="button"
@@ -181,6 +247,9 @@ export default function CommentSection({ commentType, targetId, translationEnabl
               selectMode={selectMode}
               selected={selected}
               onToggleSelect={toggleSelect}
+              onDragStart={handleDragStart}
+              onDragEnter={handleDragEnter}
+              onDragEnd={handleDragEnd}
               onRefresh={fetchComments}
             />
           ))}

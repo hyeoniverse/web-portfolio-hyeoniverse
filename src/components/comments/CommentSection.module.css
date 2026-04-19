@@ -61,6 +61,9 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
   cursor: pointer;
+  min-width: 5.5em;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 .bulkDeleteBtn:disabled {
@@ -68,6 +71,17 @@
   cursor: not-allowed;
 }
 
+.selectAllLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
 
 .disclaimer {
   font-family: var(--font-space-grotesk);

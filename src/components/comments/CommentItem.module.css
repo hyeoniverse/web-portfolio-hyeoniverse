@@ -100,6 +100,12 @@
   padding: var(--spacing-lg) 0;
 }
 
+.commentSelectable {
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+}
+
 .deletedPlaceholder {
   margin: 0;
   font-family: var(--font-space-grotesk);
