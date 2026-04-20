@@ -448,6 +448,27 @@ export default function PostEditor({ post }: PostEditorProps) {
             },
           });
 
+          // 파일 첨부: <div data-file-embed ...> → [📎 filename](url)
+          td.addRule("fileEmbed", {
+            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-file-embed"),
+            replacement: (_content, node) => {
+              const el = node as HTMLElement;
+              const url = el.getAttribute("data-url") || "";
+              const name = el.getAttribute("data-filename") || url.split("/").pop() || "file";
+              return `\n[📎 ${name}](${url})\n`;
+            },
+          });
+          // 오디오 첨부: <div data-audio-embed ...> → [🔊 title](url)
+          td.addRule("audioEmbed", {
+            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-audio-embed"),
+            replacement: (_content, node) => {
+              const el = node as HTMLElement;
+              const url = el.getAttribute("data-url") || "";
+              const title = el.getAttribute("data-title") || url.split("/").pop() || "audio";
+              return `\n[🔊 ${title}](${url})\n`;
+            },
+          });
+
           return td.turndown(content);
         }
       };

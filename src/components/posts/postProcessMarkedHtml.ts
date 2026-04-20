@@ -82,6 +82,16 @@ export function postProcessMarkedHtml(html: string): string {
       return `<div ${groupAttrs}>${columns}</div>`;
     }
   );
+  // 파일 첨부 링크 → file_embed 복원: [📎 name](url) → <div data-file-embed ...>
+  html = html.replace(
+    /<a href="([^"]+)">📎\s*([^<]+)<\/a>/g,
+    (_, url, name) => `<div data-file-embed data-url="${url}" data-filename="${name.trim()}"></div>`
+  );
+  // 오디오 첨부 링크 → audio_embed 복원: [🔊 title](url) → <div data-audio-embed ...>
+  html = html.replace(
+    /<a href="([^"]+)">🔊\s*([^<]+)<\/a>/g,
+    (_, url, title) => `<div data-audio-embed data-url="${url}" data-title="${title.trim()}"></div>`
+  );
   // 코드블록 wrap toggle 버튼 제거
   html = html.replace(/<button[^>]*class="code-wrap-toggle"[^>]*>[\s\S]*?<\/button>/g, "");
   // callout 아이콘 visual span 제거 (deserialize 시 중복 방지)
