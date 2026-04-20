@@ -68,7 +68,8 @@ export function ImagePanel({
       await Promise.all(
         images.map(async (img) => {
           try {
-            const res = await fetch(img.url, { method: "HEAD" });
+            const imgUrl = img.url.startsWith("http") || img.url.startsWith("/") || img.url.startsWith("data:") ? img.url : `/${img.url}`;
+            const res = await fetch(imgUrl, { method: "HEAD" });
             const cl = res.headers.get("content-length");
             if (cl) sum += parseInt(cl, 10);
           } catch {
@@ -384,8 +385,8 @@ export function ImagePanel({
             onClick={handleAttachClick}
             soundDisabled
             icon={
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 8.5l-5.5 5.5a4 4 0 01-5.66-5.66l5.5-5.5a2.67 2.67 0 013.77 3.77l-5.5 5.5a1.33 1.33 0 01-1.88-1.88l5-5" />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
               </svg>
             }
           >
