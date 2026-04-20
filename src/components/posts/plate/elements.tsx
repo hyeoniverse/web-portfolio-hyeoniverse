@@ -1064,6 +1064,60 @@ export function LinkElement(props: PlateElementProps) {
 /** 파일 첨부 — PDF/오디오 등 다운로드 가능한 파일 카드 */
 const AUDIO_EXT = /\.(mp3|wav|ogg|m4a|flac|aac|wma)(\?|$)/i;
 
+const OFFICE_EXT = /\.(docx?|xlsx?|pptx?)(\?|$)/i;
+const TEXT_EXT = /\.(txt|csv|json|xml|ya?ml|toml|ini|log|md)(\?|$)/i;
+
+function FilePreviewContent({ url, fileName, isPdf, isOffice, isText }: {
+  url: string; fileName: string; isPdf: boolean; isOffice: boolean; isText: boolean;
+}) {
+  const [textContent, setTextContent] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isText) return;
+    let cancelled = false;
+    fetch(url).then((r) => r.text()).then((t) => {
+      if (!cancelled) setTextContent(t.slice(0, 10000));
+    }).catch(() => {
+      if (!cancelled) setTextContent("Failed to load file.");
+    });
+    return () => { cancelled = true; };
+  }, [url, isText]);
+
+  if (isPdf) {
+    return (
+      <iframe
+        src={url}
+        title={fileName}
+        style={{ width: "100%", height: 500, border: "none", borderRadius: 0, display: "block", margin: 0 }}
+      />
+    );
+  }
+  if (isOffice) {
+    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+    return (
+      <iframe
+        src={viewerUrl}
+        title={fileName}
+        style={{ width: "100%", height: 500, border: "none", borderRadius: 0, display: "block", margin: 0 }}
+      />
+    );
+  }
+  if (isText) {
+    return (
+      <pre style={{
+        margin: 0, padding: "12px 16px",
+        borderRadius: "var(--radius-md)", background: "var(--bg-primary)",
+        fontSize: 12, color: "var(--text-secondary)", overflow: "auto",
+        maxHeight: 400, whiteSpace: "pre-wrap", wordBreak: "break-all",
+        fontFamily: "var(--font-mono)",
+      }}>
+        {textContent === null ? "Loading..." : textContent}
+      </pre>
+    );
+  }
+  return null;
+}
+
 export function FileElement(props: PlateElementProps) {
   const editor = useEditorRef();
   const el = props.element as Record<string, unknown>;
@@ -1075,6 +1129,10 @@ export function FileElement(props: PlateElementProps) {
 
   const isAudio = AUDIO_EXT.test(url);
   const isPdf = /\.pdf(\?|$)/i.test(url);
+  const isOffice = OFFICE_EXT.test(url);
+  const isText = TEXT_EXT.test(url);
+  const hasPreview = isPdf || isOffice || isText;
+  const [previewOpen, setPreviewOpen] = useState(false);
   const sizeLabel = fileSize ? (fileSize < 1024 * 1024 ? `${(fileSize / 1024).toFixed(1)} KB` : `${(fileSize / (1024 * 1024)).toFixed(1)} MB`) : "";
 
   const FileIcon = () => {
@@ -1088,6 +1146,16 @@ export function FileElement(props: PlateElementProps) {
         <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
       </svg>
     );
+    if (isText) return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
+      </svg>
+    );
+    if (isOffice) return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      </svg>
+    );
     return (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
@@ -1098,12 +1166,19 @@ export function FileElement(props: PlateElementProps) {
   return (
     <PlateElement {...props} style={{ margin: "var(--spacing-sm) 0", ...props.style }}>
       <BlockDropZone path={elPath}>
-        <div {...blockDragProps} contentEditable={false} style={{ maxWidth: 480, cursor: "default" }}>
+        <div {...blockDragProps} contentEditable={false} style={{
+          maxWidth: hasPreview ? 640 : 480, cursor: "default",
+          border: "1px solid var(--border-light-color)",
+          borderRadius: previewOpen ? "var(--radius-2xl)" : "var(--radius-capsule, 999px)",
+          background: "var(--bg-secondary)", overflow: "hidden",
+          display: "flex", flexDirection: "column" as const, gap: 8,
+          transition: previewOpen
+            ? "border-radius 0.2s ease"
+            : "border-radius 0.2s ease 0.3s",
+        }}>
           <div style={{
             display: "flex", alignItems: "center", gap: 10,
-            padding: "8px 12px", borderRadius: "var(--radius-capsule, 999px)",
-            border: "1px solid var(--border-light-color)",
-            background: "var(--bg-secondary)",
+            padding: "8px 12px",
           }}>
             <div style={{
               width: 32, height: 32, borderRadius: "50%",
@@ -1117,7 +1192,26 @@ export function FileElement(props: PlateElementProps) {
               <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fileName}</div>
               {sizeLabel && <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{sizeLabel}</div>}
             </div>
-            <a href={url} target="_blank" rel="noopener noreferrer" download style={{
+            {hasPreview && (
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(!previewOpen)}
+                style={{
+                  width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  border: "1px solid var(--border-light-color)",
+                  background: previewOpen ? "var(--bg-inverse)" : "var(--bg-primary)",
+                  color: previewOpen ? "var(--text-inverse)" : "var(--text-primary)", cursor: "pointer",
+                  transition: "background 0.2s, color 0.2s",
+                }}
+                title={previewOpen ? "Close preview" : "Preview"}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            )}
+            <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} style={{
               width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
               display: "flex", alignItems: "center", justifyContent: "center",
               border: "1px solid var(--border-light-color)", background: "var(--bg-primary)",
@@ -1129,7 +1223,22 @@ export function FileElement(props: PlateElementProps) {
             </a>
           </div>
           {isAudio && (
-            <audio src={url} controls preload="metadata" style={{ width: "100%", marginTop: 6, borderRadius: "var(--radius-sm)" }} />
+            <audio src={url} controls preload="metadata" style={{ width: "100%", padding: "0 12px 8px", borderRadius: "var(--radius-sm)" }} />
+          )}
+          {hasPreview && (
+            <div style={{
+              display: "grid",
+              gridTemplateRows: previewOpen ? "1fr" : "0fr",
+              transition: previewOpen
+                ? "grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.15s"
+                : "grid-template-rows 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}>
+              <div style={{ overflow: "hidden" }}>
+                <div>
+                  <FilePreviewContent url={url} fileName={fileName} isPdf={isPdf} isOffice={isOffice} isText={isText} />
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </BlockDropZone>

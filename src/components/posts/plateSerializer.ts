@@ -349,16 +349,20 @@ function serializeNode(node: SlateNode): string {
       return `<div style="display:flex;justify-content:${justify}"><iframe src="${esc(embedSrc)}" data-original-url="${esc(rawUrl)}" style="width:${w};max-width:100%;aspect-ratio:16/9" frameborder="0" loading="lazy" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`;
     }
 
-    // ── File embed (PDF, audio, etc.) ──
+    // ── File embed (PDF, audio, office, text, etc.) ──
     case "file_embed": {
       const fileUrl = esc(String(el.url ?? ""));
       const fName = esc(String(el.fileName ?? ""));
       const fSize = el.fileSize as number | undefined;
       const isAudio = /\.(mp3|wav|ogg|m4a|flac|aac|wma)(\?|$)/i.test(fileUrl);
+      const isPdf = /\.pdf(\?|$)/i.test(fileUrl);
+      const isOffice = /\.(docx?|xlsx?|pptx?)(\?|$)/i.test(fileUrl);
+      const isText = /\.(txt|csv|json|xml|ya?ml|toml|ini|log|md)(\?|$)/i.test(fileUrl);
+      const hasPreview = isPdf || isOffice || isText;
       const iconSvg = isAudio
         ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
           + '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>'
-        : /\.pdf/i.test(fileUrl)
+        : isPdf || isText
           ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
             + '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>'
             + '<path d="M10 13h4"/><path d="M10 17h4"/><path d="M10 9h1"/></svg>'
@@ -373,9 +377,22 @@ function serializeNode(node: SlateNode): string {
       const audioHtml = isAudio
         ? `<audio src="${fileUrl}" controls preload="metadata" style="width:100%;margin-top:6px;border-radius:var(--radius-sm)"></audio>`
         : "";
+      let previewHtml = "";
+      if (isPdf) {
+        previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
+          + `<iframe src="${fileUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-light-color);border-radius:var(--radius-md)"></iframe></details>`;
+      } else if (isOffice) {
+        const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+        previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
+          + `<iframe src="${viewerUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-light-color);border-radius:var(--radius-md)"></iframe></details>`;
+      } else if (isText) {
+        previewHtml = `<details style="margin-top:6px" data-text-preview="${fileUrl}"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
+          + `<pre style="padding:12px 16px;border:1px solid var(--border-light-color);border-radius:var(--radius-md);background:var(--bg-secondary);font-size:12px;color:var(--text-secondary);overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;font-family:var(--font-mono)">Loading...</pre></details>`;
+      }
+      const maxW = hasPreview ? "640px" : "480px";
       return [
         `<div data-file-embed data-url="${fileUrl}" data-filename="${fName}"${fSize ? ` data-filesize="${fSize}"` : ""}`,
-        ` style="max-width:480px;margin:var(--spacing-sm) 0">`,
+        ` style="max-width:${maxW};margin:var(--spacing-sm) 0">`,
         `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;`,
         `border-radius:var(--radius-capsule,999px);border:1px solid var(--border-light-color);background:var(--bg-secondary)">`,
         `<div style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-alpha-6);`,
@@ -383,10 +400,10 @@ function serializeNode(node: SlateNode): string {
         `<div style="flex:1;min-width:0">`,
         `<div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fName}</div>`,
         `${sizeHtml}</div>`,
-        `<a href="${fileUrl}" download style="width:34px;height:34px;border-radius:50%;flex-shrink:0;`,
+        `<a href="${fileUrl}" download="${fName}" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;`,
         `display:flex;align-items:center;justify-content:center;border:1px solid var(--border-light-color);`,
         `background:var(--bg-primary);color:var(--text-primary);text-decoration:none">${dlSvg}</a>`,
-        `</div>${audioHtml}</div>`,
+        `</div>${audioHtml}${previewHtml}</div>`,
       ].join("");
     }
 
