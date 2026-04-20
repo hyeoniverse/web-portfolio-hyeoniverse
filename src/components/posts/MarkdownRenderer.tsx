@@ -76,7 +76,9 @@ export default function MarkdownRenderer({
   const html = useMemo(() => {
     _wrapLabel = `↩ ${t("common.codeWrap")}`;
     _scrollLabel = `↔ ${t("common.codeScroll")}`;
-    const raw = marked.parse(content, { async: false }) as string;
+    let raw = marked.parse(content, { async: false }) as string;
+    // 상대 경로 이미지를 절대 경로로 변환 (admin 페이지에서 404 방지)
+    raw = raw.replace(/(<img\s[^>]*src=")(?!https?:\/\/|\/|data:)([^"]+)(")/g, '$1/$2$3');
     // img에 data-cursor="zoom" 주입 → CursorTrail이 이미지 뷰어 힌트 표시
     return raw.replace(/<img\s/g, '<img data-cursor="zoom" ');
   }, [content, t]);

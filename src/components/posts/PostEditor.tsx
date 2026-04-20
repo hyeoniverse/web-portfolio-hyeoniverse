@@ -37,12 +37,20 @@ import styles from "./PostEditor.module.css";
 const Editor = dynamic(() => import("./PlateEditor"), {
   ssr: false,
   loading: () => (
-    <div className={styles.editorSkeleton}>
-      <div className={styles.editorSkeletonBar} style={{ width: "60%" }} />
-      <div className={styles.editorSkeletonBar} style={{ width: "90%" }} />
-      <div className={styles.editorSkeletonBar} style={{ width: "75%" }} />
-      <div className={styles.editorSkeletonBar} style={{ width: "85%" }} />
-      <div className={styles.editorSkeletonBar} style={{ width: "40%" }} />
+    <div className={styles.editorSkeletonFrame}>
+      <div className={styles.editorSkeletonToolbar}>
+        <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
+        <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
+        <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
+        <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
+      </div>
+      <div className={styles.editorSkeleton}>
+        <div className={styles.editorSkeletonBar} style={{ width: "60%" }} />
+        <div className={styles.editorSkeletonBar} style={{ width: "90%" }} />
+        <div className={styles.editorSkeletonBar} style={{ width: "75%" }} />
+        <div className={styles.editorSkeletonBar} style={{ width: "85%" }} />
+        <div className={styles.editorSkeletonBar} style={{ width: "40%" }} />
+      </div>
     </div>
   ),
 });
@@ -1212,6 +1220,23 @@ export default function PostEditor({ post }: PostEditorProps) {
         </div>
 
         <div className={`${styles.editorWrap} ${converting ? styles.editorWrapConverting : ""}`}>
+        {converting && (
+          <div className={styles.editorSkeletonOverlay}>
+            <div className={styles.editorSkeletonToolbar}>
+              <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
+              <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
+              <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
+              <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
+            </div>
+            <div className={styles.editorSkeleton}>
+              <div className={styles.editorSkeletonBar} style={{ width: "60%" }} />
+              <div className={styles.editorSkeletonBar} style={{ width: "90%" }} />
+              <div className={styles.editorSkeletonBar} style={{ width: "75%" }} />
+              <div className={styles.editorSkeletonBar} style={{ width: "85%" }} />
+              <div className={styles.editorSkeletonBar} style={{ width: "40%" }} />
+            </div>
+          </div>
+        )}
         {form.content_type === "markdown" ? (
           <MarkdownEditor
             key={editorLang}

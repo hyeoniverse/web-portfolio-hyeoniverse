@@ -419,7 +419,63 @@
 }
 
 .editorWrapConverting {
+  opacity: 1;
+}
+
+.editorWrapConverting > *:not(.editorSkeletonOverlay) {
   opacity: 0;
+}
+
+.editorSkeletonOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+
+.editorSkeletonFrame {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+
+.editorSkeletonToolbar {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--bg-tertiary);
+}
+
+.editorSkeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+}
+
+.editorSkeletonBar {
+  height: 14px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  animation: editorBarPulse 1.2s ease-in-out infinite;
+}
+
+.editorSkeletonToolbar .editorSkeletonBar {
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+@keyframes editorBarPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 
 .editorWrap > * {

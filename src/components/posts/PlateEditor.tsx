@@ -565,6 +565,7 @@ export default function PlateEditor({
           }
         }
       }
+
       if (path.length === 1) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const type = (node as any).type;
