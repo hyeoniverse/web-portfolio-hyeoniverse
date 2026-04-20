@@ -123,7 +123,7 @@ export default function FontSelect({ label, value, options, onChange }: FontSele
         <div className={styles.fontCustomWrap}>
           <input
             type="text"
-            className={`${styles.fontCustomInput} ${validationError ? styles.fontCustomInputError : ""}`}
+            className={`${styles.fontCustomInput} ${validationError ? styles.fieldInputError : ""}`}
             placeholder="직접 입력"
             value={customInput}
             onChange={(e) => { setCustomInput(e.target.value); setValidationError(""); }}

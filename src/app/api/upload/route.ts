@@ -65,16 +65,52 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
-  // ── 1. 확장자 검증 ──
+  // ── 설정 로드 (허용 MIME + 차단 확장자 + 크기 제한) ──
+  let blockedExt = DEFAULT_BLOCKED_EXT;
+  let limits: Record<string, number> = {};
+  try {
+    const admin = createAdminClient();
+    const { data: settingsRow } = await admin
+      .from("site_settings")
+      .select("config")
+      .eq("id", "default")
+      .single();
+    if (settingsRow?.config) {
+      const raw = settingsRow.config as Record<string, unknown>;
+      const delta = (raw.delta as Record<string, unknown>) ?? raw;
+      const media = delta.media as Record<string, unknown> | undefined;
+      if (media) {
+        const customBlocked = media.blockedExtensions as string[] | undefined;
+        if (customBlocked && customBlocked.length > 0) {
+          blockedExt = new Set(customBlocked);
+        }
+        const dbLimits = media.limits as Record<string, number> | undefined;
+        if (dbLimits) limits = dbLimits;
+      }
+    }
+  } catch {
+    // DB 설정 로드 실패 시 기본값 사용
+  }
+
+  // ── 1. 확장자 검증 (블랙리스트) ──
   const ext = (file.name.split(".").pop() || "").toLowerCase();
   if (!ext) {
     return NextResponse.json({ error: "File must have an extension" }, { status: 400 });
   }
-  if (DEFAULT_BLOCKED_EXT.has(ext)) {
+  if (blockedExt.has(ext)) {
     return NextResponse.json({ error: `Blocked file type: .${ext}` }, { status: 400 });
   }
 
-  // ── 2. MIME 타입 ↔ 확장자 일치 검증 (스푸핑 방지) ──
+  // ── 2. MIME 타입 화이트리스트 (limits에 있는 타입만 허용) ──
+  const hasLimits = Object.keys(limits).length > 0;
+  if (hasLimits && !(file.type in limits) && !("_default" in limits)) {
+    return NextResponse.json(
+      { error: `File type not allowed: ${file.type}` },
+      { status: 400 },
+    );
+  }
+
+  // ── 3. MIME 타입 ↔ 확장자 일치 검증 (스푸핑 방지) ──
   const allowedExts = MIME_EXT_MAP[file.type];
   if (allowedExts && !allowedExts.includes(ext)) {
     return NextResponse.json(
@@ -83,28 +119,10 @@ export async function POST(request: Request) {
     );
   }
 
-  // ── 3. 파일 크기 검증 ──
-  // 설정에서 limits 로드 시도
-  let limitMB = DEFAULT_LIMIT_MB;
-  try {
-    const admin = createAdminClient();
-    const { data: configRow } = await admin
-      .from("site_config")
-      .select("value")
-      .eq("key", "media")
-      .single();
-    if (configRow?.value) {
-      const mediaConfig = configRow.value as Record<string, unknown>;
-      const limits = mediaConfig.limits as Record<string, number> | undefined;
-      if (limits) {
-        limitMB = limits[file.type] ?? limits._default ?? DEFAULT_LIMIT_MB;
-      }
-    }
-  } catch {
-    // DB 설정 로드 실패 시 기본값 사용
-  }
-
-  // 절대 상한 적용
+  // ── 4. 파일 크기 검증 ──
+  let limitMB = hasLimits
+    ? (limits[file.type] ?? limits._default ?? DEFAULT_LIMIT_MB)
+    : DEFAULT_LIMIT_MB;
   limitMB = Math.min(limitMB, MAX_ABSOLUTE_MB);
   const limitBytes = limitMB * 1024 * 1024;
 
@@ -116,7 +134,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // ── 4. 업로드 ──
+  // ── 5. 업로드 ──
   const safeExt = ext.replace(/[^a-z0-9]/g, ""); // 확장자 sanitize
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${safeExt}`;
   const filePath = `posts/${fileName}`;
@@ -137,5 +155,5 @@ export async function POST(request: Request) {
     data: { publicUrl },
   } = admin.storage.from("posts").getPublicUrl(filePath);
 
-  return NextResponse.json({ url: publicUrl });
+  return NextResponse.json({ url: publicUrl, originalName: file.name });
 }

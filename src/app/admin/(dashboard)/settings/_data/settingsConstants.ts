@@ -30,7 +30,7 @@ export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
   general: ["personal", "brand", "contact", "metadata", "footer", "bgm"],
   content: ["brand", "hero", "homeAbout", "services", "marquee", "cta", "loading", "posts", "works", "profile", "about", "social", "socialLinks"],
   appearance: ["theme", "typography", "datePickerStyle"],
-  services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "commentEmailNotify"],
+  services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "commentEmailNotify", "media"],
 };
 
 export type TabId = (typeof TAB_IDS)[number];

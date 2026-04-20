@@ -33,7 +33,7 @@ export default function EnvVarFields({
 }: EnvVarFieldsProps) {
   const { t } = useLanguage();
   const { openModal, closeModal } = useModalStore();
-  const [secrets, setSecrets] = useState<Record<string, { value: string; source: "db" | "env" | "none" }>>({});
+  const [secrets, setSecrets] = useState<Record<string, { value: string; source: "db" | "env" | "none"; readOnly?: boolean }>>({});
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -85,7 +85,14 @@ export default function EnvVarFields({
     ] : []),
   ].filter(Boolean) as FieldRow[];
 
+  const infraRows: FieldRow[] = [
+    { key: "NEXT_PUBLIC_SUPABASE_URL", label: "Supabase URL" },
+    { key: "NEXT_PUBLIC_SUPABASE_ANON_KEY", label: "Supabase Anon Key" },
+    { key: "SUPABASE_SERVICE_ROLE_KEY", label: "Supabase Service Role Key" },
+  ];
+
   const groups: { label: string; rows: FieldRow[] }[] = [
+    { label: "인프라", rows: infraRows },
     { label: "이메일 서비스", rows: emailRows },
     { label: "보안", rows: recaptchaEnabled ? [{ key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" }] : [] },
     { label: "커버 이미지", rows: [...toRows(coverProviders), { key: "UNSPLASH_ACCESS_KEY", label: "Unsplash Access Key" }] },
@@ -241,7 +248,8 @@ export default function EnvVarFields({
 
   const renderField = (key: string, label: string) => {
     const info = secrets[key];
-    const isEditing = key in edits;
+    const isReadOnly = info?.readOnly === true;
+    const isEditing = !isReadOnly && key in edits;
     const source = info?.source ?? "none";
     const isRevealed = key in revealed;
     const displayValue = isEditing ? edits[key] : isRevealed ? revealed[key] : "";
@@ -257,16 +265,21 @@ export default function EnvVarFields({
           {source === "db" && !isEditing && (
             <span className={styles.envSourceBadge}>DB</span>
           )}
+          {isReadOnly && (
+            <span className={styles.envSourceBadge}>Read-only</span>
+          )}
         </label>
         <div className={styles.envFieldRight}>
         <div className={styles.envInputRow}>
           <input
             className={styles.fieldInput}
             type="text"
-            value={displayValue}
+            value={isReadOnly ? "" : displayValue}
             placeholder={placeholder}
-            onChange={(e) => setEdits((prev) => ({ ...prev, [key]: e.target.value }))}
-            onBlur={() => {
+            onChange={isReadOnly ? undefined : (e) => setEdits((prev) => ({ ...prev, [key]: e.target.value }))}
+            readOnly={isReadOnly}
+            disabled={isReadOnly}
+            onBlur={isReadOnly ? undefined : () => {
               if (isEditing && edits[key] === "") {
                 setEdits((prev) => {
                   const next = { ...prev };
@@ -276,7 +289,7 @@ export default function EnvVarFields({
               }
             }}
           />
-          {(source === "db" || source === "env") && !isEditing && (
+          {!isReadOnly && (source === "db" || source === "env") && !isEditing && (
             <Tooltip
               content={source === "env" ? t("admin.settings.envVarEnvHint") : undefined}
               disabled={source !== "env"}
