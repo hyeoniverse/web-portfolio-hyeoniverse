@@ -168,6 +168,144 @@ function PriorityList<T extends string>({ primary, priority, excluded, options, 
   );
 }
 
+const DEFAULT_LIMIT_GROUPS: { label: string; key: string; keys?: string[] }[] = [
+  { label: "JPEG / PNG / WebP", key: "image/jpeg", keys: ["image/jpeg", "image/png", "image/webp"] },
+  { label: "SVG", key: "image/svg+xml" },
+  { label: "GIF", key: "image/gif" },
+  { label: "MP4 / WebM", key: "video/mp4", keys: ["video/mp4", "video/webm"] },
+  { label: "Audio (MP3/WAV/OGG)", key: "audio/mpeg", keys: ["audio/mpeg", "audio/wav", "audio/ogg"] },
+  { label: "PDF", key: "application/pdf" },
+  { label: "ZIP / RAR", key: "application/zip", keys: ["application/zip"] },
+];
+
+const ALL_DEFAULT_KEYS = new Set(
+  DEFAULT_LIMIT_GROUPS.flatMap((g) => g.keys ?? [g.key])
+);
+
+const SIZE_OPTIONS = [
+  { value: "1", label: "1 MB" },
+  { value: "2", label: "2 MB" },
+  { value: "5", label: "5 MB" },
+  { value: "10", label: "10 MB" },
+  { value: "20", label: "20 MB" },
+  { value: "50", label: "50 MB" },
+  { value: "100", label: "100 MB" },
+];
+
+const ADDABLE_MIMES: { value: string; label: string }[] = [
+  { value: "image/avif", label: "AVIF (image/avif)" },
+  { value: "image/heic", label: "HEIC (image/heic)" },
+  { value: "image/tiff", label: "TIFF (image/tiff)" },
+  { value: "image/bmp", label: "BMP (image/bmp)" },
+  { value: "video/quicktime", label: "MOV (video/quicktime)" },
+  { value: "audio/flac", label: "FLAC (audio/flac)" },
+  { value: "audio/x-m4a", label: "M4A (audio/x-m4a)" },
+  { value: "application/x-rar-compressed", label: "RAR (application/x-rar)" },
+  { value: "application/x-7z-compressed", label: "7Z (application/x-7z)" },
+  { value: "application/gzip", label: "GZ (application/gzip)" },
+  { value: "application/msword", label: "DOC (application/msword)" },
+  { value: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", label: "DOCX" },
+  { value: "application/vnd.ms-excel", label: "XLS (application/vnd.ms-excel)" },
+  { value: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", label: "XLSX" },
+  { value: "application/vnd.ms-powerpoint", label: "PPT (application/vnd.ms-powerpoint)" },
+  { value: "application/vnd.openxmlformats-officedocument.presentationml.presentation", label: "PPTX" },
+  { value: "text/plain", label: "TXT (text/plain)" },
+  { value: "text/csv", label: "CSV (text/csv)" },
+  { value: "application/json", label: "JSON (application/json)" },
+];
+
+function MediaLimitsEditor({ config, setConfig, t }: {
+  config: SiteConfigData;
+  setConfig: Dispatch<SetStateAction<SiteConfigData>>;
+  t: (k: string) => string;
+}) {
+  const limits = ((config.media as Record<string, unknown>)?.limits ?? {}) as Record<string, number>;
+  const customKeys = Object.keys(limits).filter((k) => k !== "_default" && !ALL_DEFAULT_KEYS.has(k));
+  const available = ADDABLE_MIMES.filter((m) => !(m.value in limits));
+
+  const updateLimits = (newLimits: Record<string, number>) => {
+    setConfig((prev) => ({
+      ...prev,
+      media: { ...prev.media, limits: { ...prev.media.limits, ...newLimits } },
+    }));
+  };
+
+  const removeMime = (key: string) => {
+    setConfig((prev) => {
+      const next = { ...prev.media.limits };
+      delete (next as Record<string, number>)[key];
+      return { ...prev, media: { ...prev.media, limits: next } };
+    });
+  };
+
+  return (
+    <div className={styles.fields}>
+      {DEFAULT_LIMIT_GROUPS.map(({ label, key, keys }) => {
+        const val = limits[key] ?? 20;
+        return (
+          <div className={styles.fieldRow} key={key}>
+            <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{label}</label>
+            <Select
+              value={String(val)}
+              options={SIZE_OPTIONS}
+              onChange={(v) => {
+                const newLimits = { ...limits };
+                for (const k of (keys ?? [key])) newLimits[k] = Number(v);
+                updateLimits(newLimits);
+              }}
+            />
+          </div>
+        );
+      })}
+      <div className={styles.fieldRow} key="_default">
+        <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{t("admin.settings.mediaOther")}</label>
+        <Select
+          value={String(limits._default ?? 20)}
+          options={SIZE_OPTIONS}
+          onChange={(v) => updateLimits({ ...limits, _default: Number(v) })}
+        />
+      </div>
+      {customKeys.map((key) => {
+        const label = ADDABLE_MIMES.find((m) => m.value === key)?.label ?? key;
+        return (
+          <div className={styles.fieldRow} key={key}>
+            <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{label}</label>
+            <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center" }}>
+              <Select
+                value={String(limits[key])}
+                options={SIZE_OPTIONS}
+                onChange={(v) => updateLimits({ ...limits, [key]: Number(v) })}
+              />
+              <button
+                type="button"
+                className={styles.tagRemoveBtn}
+                onClick={() => removeMime(key)}
+                title={t("admin.settings.remove")}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        );
+      })}
+      {available.length > 0 && (
+        <div className={styles.fieldRow}>
+          <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{t("admin.settings.addMimeType")}</label>
+          <Select
+            value=""
+            options={[{ value: "", label: t("admin.settings.selectMimeType") }, ...available]}
+            onChange={(v) => {
+              if (v) updateLimits({ ...limits, [v]: 20 });
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface ServicesTabProps extends SettingsTabProps {
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
 }
@@ -499,6 +637,12 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
             />
           </div>
         </div>
+      </section>
+
+      {/* Media Upload */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t("admin.settings.mediaUpload")}</h2>
+        <MediaLimitsEditor config={config} setConfig={setConfig} t={t} />
       </section>
 
       {/* Environment Variables */}

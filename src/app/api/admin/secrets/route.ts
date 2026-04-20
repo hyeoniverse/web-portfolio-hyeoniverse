@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { invalidateSecretsCache } from "@/lib/getSecret";
 
 /** 편집 가능한 키 목록 */
-const ALLOWED_KEYS = [
+const EDITABLE_KEYS = [
   "NEXT_PUBLIC_WEB3FORMS_KEY",
   "NEXT_PUBLIC_FORMSPREE_ID",
   "NEXT_PUBLIC_EMAILJS_SERVICE_ID",
@@ -21,6 +21,14 @@ const ALLOWED_KEYS = [
   "ANTHROPIC_API_KEY",
   "RESEND_API_KEY",
 ] as const;
+
+const READ_ONLY_KEYS = [
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+] as const;
+
+const ALLOWED_KEYS = EDITABLE_KEYS;
 
 // GET /api/admin/secrets — 저장된 값 조회 (마스킹)
 export async function GET() {
@@ -43,8 +51,8 @@ export async function GET() {
   const secrets = (data?.config as Record<string, string>) ?? {};
 
   // 각 키의 상태: DB 값 → process.env fallback
-  const result: Record<string, { value: string; source: "db" | "env" | "none" }> = {};
-  for (const key of ALLOWED_KEYS) {
+  const result: Record<string, { value: string; source: "db" | "env" | "none"; readOnly?: boolean }> = {};
+  for (const key of EDITABLE_KEYS) {
     const dbVal = secrets[key] || "";
     const envVal = process.env[key] || "";
     if (dbVal) {
@@ -54,6 +62,15 @@ export async function GET() {
     } else {
       result[key] = { value: "", source: "none" };
     }
+  }
+
+  for (const key of READ_ONLY_KEYS) {
+    const envVal = process.env[key] || "";
+    result[key] = {
+      value: envVal ? mask(envVal) : "",
+      source: envVal ? "env" : "none",
+      readOnly: true,
+    };
   }
 
   return NextResponse.json({ secrets: result });
