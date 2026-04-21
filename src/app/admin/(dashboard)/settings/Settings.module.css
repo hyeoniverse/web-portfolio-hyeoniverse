@@ -487,11 +487,28 @@
   display: none;
 }
 
+/* ── Tab grid — sections 2열 배치 ── */
+.tabGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 var(--spacing-3xl);
+}
+
+@media (max-width: 1024px) {
+  .tabGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Section ── */
 .section {
   padding-bottom: var(--spacing-2xl);
   margin-bottom: var(--spacing-2xl);
   border-bottom: var(--border-light);
+}
+
+.sectionWide {
+  grid-column: 1 / -1;
 }
 
 .section:last-child {
@@ -531,7 +548,6 @@
 .fields {
   display: flex;
   flex-direction: column;
-  max-width: 640px;
 }
 
 .fields > * {

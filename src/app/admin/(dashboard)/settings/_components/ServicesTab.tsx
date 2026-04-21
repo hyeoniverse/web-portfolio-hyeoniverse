@@ -640,13 +640,13 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       </section>
 
       {/* Media Upload */}
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}>{t("admin.settings.mediaUpload")}</h2>
         <MediaLimitsEditor config={config} setConfig={setConfig} t={t} />
       </section>
 
       {/* Environment Variables */}
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.envVars" /></h2>
         <EnvVarFields
           provider={config.emailService.provider}

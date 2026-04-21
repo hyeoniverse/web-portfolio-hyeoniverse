@@ -37,7 +37,7 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
       </section>
 
       {/* Brand */}
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.brand" /></h2>
         <div className={styles.fields}>
           <div className={styles.fieldPair}>
