@@ -123,6 +123,20 @@
       "loginFailed": "Login failed",
       "errorOccurred": "An error occurred"
     },
+    "common": {
+      "noContent": "No content",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "select": "Select",
+      "selectAll": "Select all",
+      "selectedCount": "{{count}} selected",
+      "selectedItems": "{{count}} selected",
+      "noRevisions": "No saved revisions.",
+      "deleteLog": "Delete log",
+      "deleteLogPrompt": "Type \"delete\" to confirm deletion.",
+      "deleteLogConfirm": "delete",
+      "bulkDeletePrompt": "Type \"{{count}}\" to delete {{count}} logs."
+    },
     "settings": {
       "title": "Settings",
       "save": "Save All",
@@ -496,6 +510,9 @@
       "filterAll": "All",
       "filterPublished": "Published",
       "filterDraft": "Draft",
+      "trashPurgeConfirmBulk": "Permanently delete {{count}} items. This cannot be undone.",
+      "seriesBulkDeleteConfirm": "Delete {{count}} series.",
+      "bulkDeleteConfirm": "Type \"{{count}}\" to delete {{count}} items.",
       "editor": {
         "backToPosts": "← Back to Posts",
         "delete": "Delete",
