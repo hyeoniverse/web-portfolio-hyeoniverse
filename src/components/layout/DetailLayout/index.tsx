@@ -182,44 +182,50 @@ export default function DetailLayout({
         <div className={styles.heroSpacer} />
       )}
 
-      {/* TOC */}
-      <TOC items={headings} title="Contents" position="right" />
+      {/* Content + TOC row */}
+      <div className={`${styles.contentRow} ${!heroImage ? styles.contentNoHero : ""}`}>
+        <div className={`${styles.content}${contentClassName ? ` ${contentClassName}` : ""}`}>
+          {children}
 
-      {/* Content */}
-      <div data-toc-boundary className={`${styles.content} ${!heroImage ? styles.contentNoHero : ""}${contentClassName ? ` ${contentClassName}` : ""}`}>
-        {children}
-
-        {/* Like button (content position) */}
-        {likeConfig && likePosition === "content" && (
-          <motion.div
-            className={styles.likeWrapper}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-          >
-            <button
-              type="button"
-              className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${likeConfig.busy ? styles.likeBtnBusy : ""}`}
-              onClick={likeConfig.onToggle}
-              disabled={likeConfig.busy}
-              title={t("common.like")}
-              data-clickable="true"
+          {/* Like button (content position) */}
+          {likeConfig && likePosition === "content" && (
+            <motion.div
+              className={styles.likeWrapper}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill={likeConfig.liked ? "currentColor" : "none"}
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              <button
+                type="button"
+                className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${likeConfig.busy ? styles.likeBtnBusy : ""}`}
+                onClick={likeConfig.onToggle}
+                disabled={likeConfig.busy}
+                title={t("common.like")}
+                data-clickable="true"
               >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-              <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
-            </button>
-          </motion.div>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill={likeConfig.liked ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
+              </button>
+            </motion.div>
+          )}
+        </div>
+
+        {/* TOC — sticky sidebar */}
+        {headings.length > 0 && (
+          <aside className={styles.tocSidebar}>
+            <TOC items={headings} title="Contents" position="right" />
+          </aside>
         )}
       </div>
 

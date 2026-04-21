@@ -3,13 +3,7 @@
    ========================================================================== */
 
 .toc {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
   font-family: var(--font-space-grotesk), sans-serif;
-  max-height: 60vh;
-  overflow-y: auto;
-  z-index: var(--z-float);
   transition: opacity var(--duration-base) ease;
 }
 
@@ -19,8 +13,7 @@
 }
 
 .right {
-  right: max(20px, calc(50% - 770px));
-  width: 180px;
+  width: 100%;
 }
 
 .title {
@@ -64,10 +57,6 @@
   border-left-color: var(--text-primary);
 }
 
-.tocHidden {
-  opacity: 0;
-  pointer-events: none;
-}
 
 .active {
   color: var(--text-accent);
@@ -85,12 +74,6 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 1540px) {
-  .right {
-    display: none;
-  }
-}
-
 @media (max-width: 1200px) {
   .left {
     display: none;
