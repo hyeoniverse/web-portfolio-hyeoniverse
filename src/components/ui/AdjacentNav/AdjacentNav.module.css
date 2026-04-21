@@ -4,7 +4,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 0;
   border-top: var(--border-light);
-  border-bottom: var(--border-light);
 }
 
 .card {

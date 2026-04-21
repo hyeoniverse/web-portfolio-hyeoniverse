@@ -368,7 +368,7 @@ export default function AdminPostsPage() {
         onToggle={() => { if (!trashOpen) fetchTrash(); setTrashOpen((v) => !v); }}
         allItems={filteredTrash}
         columns={trashColumns}
-        gridTemplate="28px 64px 1fr 200px 160px"
+        gridTemplate="28px 64px 1fr 200px auto"
         selected={trashSelected}
         onSelectChange={setTrashSelected}
         bulkActions={[
@@ -493,7 +493,7 @@ export default function AdminPostsPage() {
         }
         allItems={filteredSeries}
         columns={seriesColumns}
-        gridTemplate="28px 64px 1fr 80px 60px 60px 160px"
+        gridTemplate="28px 64px 1fr 80px 60px 60px auto"
         selected={seriesSelected}
         onSelectChange={setSeriesSelected}
         bulkActions={[
@@ -785,7 +785,7 @@ tags: React`}</code></pre>
           await fetchPosts();
           setBusy(false);
         }}
-        gridTemplate="64px 1fr 100px 100px 160px"
+        gridTemplate="64px 1fr 100px 100px auto"
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}
         loading={loading}
