@@ -1171,7 +1171,7 @@ export function FileElement(props: PlateElementProps) {
           border: "1px solid var(--border-light-color)",
           borderRadius: previewOpen ? "var(--radius-2xl)" : "var(--radius-capsule, 999px)",
           background: "var(--bg-secondary)", overflow: "hidden",
-          display: "flex", flexDirection: "column" as const, gap: 8,
+          display: "flex", flexDirection: "column" as const,
           transition: previewOpen
             ? "border-radius 0.2s ease"
             : "border-radius 0.2s ease 0.3s",

@@ -777,7 +777,8 @@
     "codeWrap": "줄바꿈",
     "codeScroll": "스크롤",
     "codeWrapTitle": "줄바꿈으로 전환",
-    "codeScrollTitle": "가로 스크롤로 전환"
+    "codeScrollTitle": "가로 스크롤로 전환",
+    "cancel": "취소"
   },
   "workDetail": {
     "back": "Works",
@@ -971,6 +972,9 @@
     "fontSize": "크기",
     "lineHeight": "행간",
     "letterSpacing": "자간",
+    "customInput": "직접 입력",
+    "customFontSize": "글자 크기 (px)",
+    "customLineHeight": "행간 (예: 1.6)",
     "alignLeft": "왼쪽 정렬",
     "alignCenter": "가운데 정렬",
     "alignRight": "오른쪽 정렬",

@@ -191,7 +191,7 @@
 .preview code {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  padding: var(--box-xs);
+  padding: var(--box-3xs-xs);
   color: var(--text-secondary);
   background: var(--bg-tertiary);
   border: var(--border-light);
@@ -212,6 +212,9 @@
 .preview pre code {
   padding: 0;
   background: transparent;
+  border: none;
+  color: inherit;
+  border-radius: 0;
 }
 
 .preview img {

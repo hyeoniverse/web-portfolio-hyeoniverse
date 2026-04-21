@@ -127,7 +127,7 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-2xs);
   font-weight: 500;
   color: var(--text-primary);
   line-height: 1;
@@ -352,6 +352,32 @@
   width: 56px;
 }
 
+.toolbarInlineInput.toolbarInlineInput {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: text;
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  padding: 0 var(--spacing-xs);
+  background-image: none;
+  user-select: none;
+}
+
+.inlineCursor {
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  background: var(--text-primary);
+  animation: cursorBlink 1s step-end infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .lsSelect {
   width: 80px;
 }
@@ -544,6 +570,7 @@
   flex-direction: column;
   width: 100%;
   border: none;
+  border-top: var(--border-light);
   border-bottom: var(--border-light);
   background: var(--bg-primary);
   opacity: 1;
@@ -2317,7 +2344,7 @@
 .editorContent code {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  padding: var(--box-xs);
+  padding: var(--box-3xs-xs);
   color: var(--text-secondary);
   background: var(--bg-tertiary);
   border: var(--border-light);

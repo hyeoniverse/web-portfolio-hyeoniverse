@@ -189,7 +189,7 @@
 .prose code {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  padding: var(--box-xs);
+  padding: var(--box-3xs-xs);
   color: var(--text-secondary);
   background: var(--bg-tertiary);
   border: var(--border-light);
@@ -211,6 +211,9 @@
 .prose pre code {
   padding: 0;
   background: transparent;
+  border: none;
+  color: inherit;
+  border-radius: 0;
   font-size: var(--font-size-sm);
   line-height: 1.6;
 }
