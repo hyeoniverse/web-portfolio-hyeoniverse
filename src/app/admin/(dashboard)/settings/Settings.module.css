@@ -531,6 +531,7 @@
 .fields {
   display: flex;
   flex-direction: column;
+  max-width: 640px;
 }
 
 .fields > * {
