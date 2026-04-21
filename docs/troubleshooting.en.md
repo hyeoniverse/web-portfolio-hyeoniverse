@@ -1215,3 +1215,22 @@ Changed `LoadingScreen` to a regular `import` so it's included in server HTML. S
 </details>
 
 ---
+
+<details>
+<summary><strong>37. Plate Inline Code Arrow Key Cursor Jump</strong></summary>
+
+**Problem**: When pressing ArrowLeft to move from the second to the first character inside an inline code (`<code>` mark), the cursor jumped to the previous text node
+
+**Cause**: `CodePlugin.configure({ rules: { selection: { affinity: "directional" } } })` overrode Plate's default `"hard"`. `"hard"` affinity keeps the cursor inside mark boundaries, while `"directional"` delegates to browser default behavior, causing the cursor to jump outside the `<code>` element boundary
+
+**Solution**: Removed the affinity override, using Plate's default (`"hard"`)
+
+```ts
+// Before
+CodePlugin.configure({ rules: { selection: { affinity: "directional" } } }),
+
+// After
+CodePlugin,
+```
+
+</details>
