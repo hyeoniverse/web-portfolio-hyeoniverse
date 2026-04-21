@@ -108,7 +108,7 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
       </section>
 
       {/* SEO / Metadata */}
-      <section className={styles.section}>
+      <section className={styles.section} style={{ gridRow: "span 2" }}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.seoMetadata" /></h2>
         <div className={styles.fields}>
           <Field label={t("admin.settings.siteTitle")} hint={t("admin.settings.siteTitleHint")} value={config.metadata.title} onChange={(v) => update("metadata", "title", v)} />
