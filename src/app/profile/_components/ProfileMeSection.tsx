@@ -64,7 +64,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
       <div className={styles.panel}>
         <div className={styles.heroContent}>
           <span className={`${styles.label} ${styles.animate}`}>
-            {ko ? p.title_ko : p.title}
+            <T ko={p.title_ko} en={p.title} />
           </span>
           <KineticHeroTitle
             lines={[
@@ -73,7 +73,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
             ]}
           />
           <p className={`${styles.heroSubtitle} ${styles.animate}`}>
-            {ko ? p.intro_ko : p.intro}
+            <T ko={p.intro_ko} en={p.intro} />
           </p>
           <span className={styles.heroWatermark}>about me</span>
         </div>
@@ -96,31 +96,31 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         <div className={`${styles.profileContent} ${styles.animate}`}>
           <h3 className={styles.sectionSubtitle}><T k="profilePage.profile" /></h3>
           <p className={styles.bioHighlight}>
-            {ko ? p.bioHighlight_ko : p.bioHighlight}
+            <T ko={p.bioHighlight_ko} en={p.bioHighlight} />
           </p>
-          <p className={styles.bioText}>{ko ? p.bioText1_ko : p.bioText1}</p>
-          <p className={styles.bioText}>{ko ? p.bioText2_ko : p.bioText2}</p>
+          <p className={styles.bioText}><T ko={p.bioText1_ko} en={p.bioText1} /></p>
+          <p className={styles.bioText}><T ko={p.bioText2_ko} en={p.bioText2} /></p>
           {(ko ? p.bioText3_ko : p.bioText3) && (
-            <p className={styles.bioText}>{ko ? p.bioText3_ko : p.bioText3}</p>
+            <p className={styles.bioText}><T ko={p.bioText3_ko} en={p.bioText3} /></p>
           )}
 
           <div className={styles.stats}>
             <div className={styles.stat}>
               <span className={styles.statNumber}>{p.statsYearsValue}</span>
               <span className={styles.statLabel}>
-                {ko ? p.statsYears_ko : p.statsYears}
+                <T ko={p.statsYears_ko} en={p.statsYears} />
               </span>
             </div>
             <div className={styles.stat}>
               <span className={styles.statNumber}>{p.statsProjectsValue}</span>
               <span className={styles.statLabel}>
-                {ko ? p.statsProjects_ko : p.statsProjects}
+                <T ko={p.statsProjects_ko} en={p.statsProjects} />
               </span>
             </div>
             <div className={styles.stat}>
               <span className={styles.statNumber}>{p.statsClientsValue}</span>
               <span className={styles.statLabel}>
-                {ko ? p.statsClients_ko : p.statsClients}
+                <T ko={p.statsClients_ko} en={p.statsClients} />
               </span>
             </div>
           </div>

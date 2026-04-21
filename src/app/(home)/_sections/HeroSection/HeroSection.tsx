@@ -7,6 +7,7 @@ const OVAL_COUNT = 5;
 import StaggerText from "@/components/effects/StaggerText";
 import Section from "@/components/ui/Section";
 import T from "@/components/ui/T";
+import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -26,6 +27,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
     const { lenis } = useLenis();
     const cfg = useSiteConfig();
     const headline = language === "ko" ? cfg.hero.headline_ko : cfg.hero.headline;
+    const headlineAlt = language === "ko" ? cfg.hero.headline : cfg.hero.headline_ko;
 
     const groupRef = useRef<HTMLDivElement>(null);
 
@@ -77,33 +79,35 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
 
         {/* Hero Content */}
         <div className={`${styles.content} hero-content`}>
-          <h1 className={styles.title}>
-            <span className={`${styles.titleRow} hero-line`}>
-              <StaggerText
-                className={styles.titleText}
-                strokeColor="var(--text-primary)"
-              >
-                {headline[0]}
-              </StaggerText>
-            </span>
-            <span className={`${styles.titleRow} hero-line`}>
-              <StaggerText
-                className={styles.titleText}
-                strokeColor="var(--text-primary)"
-              >
-                {headline[1]}
-              </StaggerText>
-            </span>
-            <span className={`${styles.titleRow} hero-line`}>
-              <span className={styles.titleAccent}>&</span>
-              <StaggerText
-                className={styles.titleText}
-                strokeColor="var(--text-primary)"
-              >
-                {headline[2]}
-              </StaggerText>
-            </span>
-          </h1>
+          <Tooltip content={headlineAlt.join(" & ")} delay={600} placement="bottom">
+            <h1 className={styles.title}>
+              <span className={`${styles.titleRow} hero-line`}>
+                <StaggerText
+                  className={styles.titleText}
+                  strokeColor="var(--text-primary)"
+                >
+                  {headline[0]}
+                </StaggerText>
+              </span>
+              <span className={`${styles.titleRow} hero-line`}>
+                <StaggerText
+                  className={styles.titleText}
+                  strokeColor="var(--text-primary)"
+                >
+                  {headline[1]}
+                </StaggerText>
+              </span>
+              <span className={`${styles.titleRow} hero-line`}>
+                <span className={styles.titleAccent}>&</span>
+                <StaggerText
+                  className={styles.titleText}
+                  strokeColor="var(--text-primary)"
+                >
+                  {headline[2]}
+                </StaggerText>
+              </span>
+            </h1>
+          </Tooltip>
 
           <div className={styles.meta}>
             <span className="hero-line">
