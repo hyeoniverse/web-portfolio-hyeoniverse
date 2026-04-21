@@ -785,7 +785,7 @@ tags: React`}</code></pre>
           await fetchPosts();
           setBusy(false);
         }}
-        gridTemplate="64px 1fr 100px 60px 80px auto"
+        gridTemplate="64px 1fr 100px 60px 80px"
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}
         loading={loading}
