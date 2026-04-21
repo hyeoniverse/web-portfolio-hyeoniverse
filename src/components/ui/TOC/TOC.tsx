@@ -27,9 +27,7 @@ export default function TOC({
 }: TOCProps) {
   const { lenis } = useLenis();
   const [activeId, setActiveId] = useState("");
-  const [visible, setVisible] = useState(true);
   const lockRef = useRef(false);
-  const contentRef = useRef<Element | null>(null);
 
   /* ── IntersectionObserver 기반 스크롤 감지 ── */
   useEffect(() => {
@@ -71,18 +69,6 @@ export default function TOC({
       { rootMargin: "-10% 0px -50% 0px" },
     );
 
-    // 본문 영역 가시성 감지 — 댓글 영역에서 TOC 숨김
-    const contentEl = document.querySelector("[data-toc-boundary]");
-    contentRef.current = contentEl;
-    let contentObserver: IntersectionObserver | undefined;
-    if (contentEl) {
-      contentObserver = new IntersectionObserver(
-        ([entry]) => setVisible(entry.isIntersecting),
-        { rootMargin: "0px 0px -10% 0px" },
-      );
-      contentObserver.observe(contentEl);
-    }
-
     const timer = setTimeout(() => {
       for (const { id } of items) {
         const el = document.getElementById(id);
@@ -93,7 +79,6 @@ export default function TOC({
     return () => {
       clearTimeout(timer);
       headingObserver.disconnect();
-      contentObserver?.disconnect();
     };
   }, [items]);
 
@@ -121,7 +106,7 @@ export default function TOC({
   if (items.length === 0) return null;
 
   return (
-    <nav className={`${styles.toc} ${styles[position]} ${!visible ? styles.tocHidden : ""} ${className ?? ""}`}>
+    <nav className={`${styles.toc} ${styles[position]} ${className ?? ""}`}>
       {title && <p className={styles.title}>{title}</p>}
       <ul className={styles.list}>
         {items.map(({ id, text, level = 1 }, idx) => (
