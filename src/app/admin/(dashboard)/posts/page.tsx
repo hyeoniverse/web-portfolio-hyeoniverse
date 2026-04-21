@@ -493,7 +493,7 @@ export default function AdminPostsPage() {
         }
         allItems={filteredSeries}
         columns={seriesColumns}
-        gridTemplate="28px 64px 1fr auto auto auto auto"
+        gridTemplate="28px 64px 1fr 80px 60px 80px 200px"
         selected={seriesSelected}
         onSelectChange={setSeriesSelected}
         bulkActions={[
