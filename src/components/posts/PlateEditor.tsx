@@ -178,6 +178,8 @@ export default function PlateEditor({
   const [isMac, setIsMac] = useState(false);
   useEffect(() => { setIsMac(/Mac|iPhone|iPad/.test(navigator.platform)); }, []);
 
+
+
   // ── Labels (language 변경 시에만 재설정) ──
   useEffect(() => {
     setWrapLabel(`↩ ${t("common.codeWrap")}`);
@@ -217,6 +219,7 @@ export default function PlateEditor({
     plugins,
     value: value || "<p></p>",
   });
+
 
   // ── Find & Replace helpers (editor 필요) ──
   const findMatches = useCallback(() => {

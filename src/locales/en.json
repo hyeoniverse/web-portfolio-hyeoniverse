@@ -778,7 +778,8 @@
     "codeWrap": "Wrap",
     "codeScroll": "Scroll",
     "codeWrapTitle": "Switch to line wrap",
-    "codeScrollTitle": "Switch to horizontal scroll"
+    "codeScrollTitle": "Switch to horizontal scroll",
+    "cancel": "Cancel"
   },
   "workDetail": {
     "back": "Works",
@@ -972,6 +973,9 @@
     "fontSize": "Size",
     "lineHeight": "Line Height",
     "letterSpacing": "Spacing",
+    "customInput": "Custom",
+    "customFontSize": "Font size (px)",
+    "customLineHeight": "Line height (e.g. 1.6)",
     "alignLeft": "Align Left",
     "alignCenter": "Align Center",
     "alignRight": "Align Right",

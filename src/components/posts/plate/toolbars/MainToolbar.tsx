@@ -56,6 +56,7 @@ export interface MainToolbarProps {
   mathEditing?: boolean;
 }
 
+
 // ── Font Picker (검색 + Google Fonts) ──
 function FontPicker({ value, onChange, preferEn }: { value: string; onChange: (val: string, googleName?: string) => void; preferEn?: boolean }) {
   const { t } = useLanguage();
@@ -272,6 +273,56 @@ export default React.memo(function MainToolbar({
   const currentFontSizeNum = currentFontSize.replace("px", "");
   const currentLineHeight = resolvedLineHeight(blockLineHeight, computed);
 
+  const [fontSizeInput, setFontSizeInput] = useState(false);
+  const [fontSizeVal, setFontSizeVal] = useState("");
+  const [lhInput, setLhInput] = useState(false);
+  const [lhVal, setLhVal] = useState("");
+
+  // document keydown으로 값 입력 (에디터 focus 유지 → selection 보존)
+  useEffect(() => {
+    if (!fontSizeInput && !lhInput) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (fontSizeInput) {
+          const n = Number(fontSizeVal);
+          if (fontSizeVal && !isNaN(n) && n >= 1 && n <= 200) editor.tf.addMarks({ fontSize: `${n}px` });
+          setFontSizeInput(false);
+        }
+        if (lhInput) {
+          const n = Number(lhVal);
+          if (lhVal && !isNaN(n) && n >= 0.5 && n <= 5) setLineHeight(editor, n);
+          setLhInput(false);
+        }
+        return;
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        setFontSizeInput(false);
+        setLhInput(false);
+        return;
+      }
+      if (e.key === "Backspace") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (fontSizeInput) setFontSizeVal((p) => p.slice(0, -1));
+        if (lhInput) setLhVal((p) => p.slice(0, -1));
+        return;
+      }
+      if (/^[0-9.]$/.test(e.key)) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (fontSizeInput) setFontSizeVal((p) => p + e.key);
+        if (lhInput) setLhVal((p) => p + e.key);
+        return;
+      }
+    };
+    document.addEventListener("keydown", handler, true);
+    return () => document.removeEventListener("keydown", handler, true);
+  }, [fontSizeInput, lhInput, fontSizeVal, lhVal, editor]);
+
   // ── List active state ──
   let isUL = false, isOL = false, isTodo = false;
   try { isUL = someList(editor, "disc"); } catch { /* ignore */ }
@@ -339,35 +390,71 @@ export default React.memo(function MainToolbar({
 
       {/* Font size */}
       <div className={styles.selectWrap}>
-        <select
-          className={`${styles.fontSelect} ${styles.fontSizeSelect}`}
-          value={currentFontSizeNum}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val) editor.tf.addMarks({ fontSize: `${val}px` });
-            else editor.tf.removeMarks(["fontSize"]);
-            setTimeout(() => editor.tf.focus(), 0);
-          }}
-        >
-          {!currentFontSizeNum && <option value="">{t("editor.fontSize")}</option>}
-          {FONT_SIZE_PRESETS.map((s) => <option key={s} value={String(s)}>{s}px</option>)}
-        </select>
+        {fontSizeInput ? (
+          <div
+            className={`${styles.fontSelect} ${styles.fontSizeSelect} ${styles.toolbarInlineInput}`}
+          >
+            {fontSizeVal || <span style={{ opacity: 0.4 }}>px</span>}
+            <span className={styles.inlineCursor} />
+          </div>
+        ) : (
+          <select
+            className={`${styles.fontSelect} ${styles.fontSizeSelect}`}
+            value={currentFontSizeNum}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "__custom__") {
+                setFontSizeVal(currentFontSizeNum || "");
+                setFontSizeInput(true);
+                return;
+              }
+              if (val) editor.tf.addMarks({ fontSize: `${val}px` });
+              else editor.tf.removeMarks(["fontSize"]);
+              setTimeout(() => editor.tf.focus(), 0);
+            }}
+          >
+            {!currentFontSizeNum && <option value="">{t("editor.fontSize")}</option>}
+            {currentFontSizeNum && !FONT_SIZE_PRESETS.includes(Number(currentFontSizeNum)) && (
+              <option value={currentFontSizeNum}>{currentFontSizeNum}px</option>
+            )}
+            {FONT_SIZE_PRESETS.map((s) => <option key={s} value={String(s)}>{s}px</option>)}
+            <option value="__custom__">{t("editor.customInput")}</option>
+          </select>
+        )}
       </div>
 
       {/* Line height */}
       <div className={styles.selectWrap}>
-        <select
-          className={`${styles.fontSelect} ${styles.lhSelect}`}
-          value={currentLineHeight}
-          onChange={(e) => {
-            const val = e.target.value || undefined;
-            setLineHeight(editor, val ? Number(val) : 0);
-            setTimeout(() => editor.tf.focus(), 0);
-          }}
-        >
-          {!currentLineHeight && <option value="">{t("editor.lineHeight")}</option>}
-          {LINE_HEIGHT_PRESETS.map((v) => <option key={v} value={v}>{v}</option>)}
-        </select>
+        {lhInput ? (
+          <div
+            className={`${styles.fontSelect} ${styles.lhSelect} ${styles.toolbarInlineInput}`}
+          >
+            {lhVal || <span style={{ opacity: 0.4 }}>1.6</span>}
+            <span className={styles.inlineCursor} />
+          </div>
+        ) : (
+          <select
+            className={`${styles.fontSelect} ${styles.lhSelect}`}
+            value={currentLineHeight}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "__custom__") {
+                setLhVal(currentLineHeight || "");
+                setLhInput(true);
+                return;
+              }
+              setLineHeight(editor, val ? Number(val) : 0);
+              setTimeout(() => editor.tf.focus(), 0);
+            }}
+          >
+            {!currentLineHeight && <option value="">{t("editor.lineHeight")}</option>}
+            {currentLineHeight && !LINE_HEIGHT_PRESETS.includes(currentLineHeight) && (
+              <option value={currentLineHeight}>{currentLineHeight}</option>
+            )}
+            {LINE_HEIGHT_PRESETS.map((v) => <option key={v} value={v}>{v}</option>)}
+            <option value="__custom__">{t("editor.customInput")}</option>
+          </select>
+        )}
       </div>
 
       {/* Letter spacing */}
