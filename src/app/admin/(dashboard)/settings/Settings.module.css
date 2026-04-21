@@ -545,6 +545,18 @@
 }
 
 /* ── Fields List ── */
+.fieldsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 var(--spacing-2xl);
+}
+
+@media (max-width: 768px) {
+  .fieldsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .fields {
   display: flex;
   flex-direction: column;
