@@ -7,6 +7,7 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
+import Tooltip from "@/components/ui/Tooltip";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import IntroBunny from "./CylinderIntroBunny";
 import type { WorksLayoutProps } from "./shared";
@@ -663,6 +664,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
       {projects.map((proj, i) => {
         const slotIndex = i + 1;
         const descText = language === "en" && proj.description.en ? proj.description.en : proj.description.ko;
+        const descAlt = language === "en" ? proj.description.ko : (proj.description.en || proj.description.ko);
         const words = descText.split(" ");
         const descEnd = words.length * 0.04 + 0.35;
         const detailsDelay = `${descEnd.toFixed(2)}s`;
@@ -674,17 +676,19 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
             className={styles.metaOverlay}
             style={{ visibility: "hidden", opacity: 0 }}
           >
-            <p className={styles.metaDesc}>
-              {words.map((word, wi) => (
-                <span
-                  key={wi}
-                  className={styles.metaDescWord}
-                  style={{ transitionDelay: `${wi * 0.04}s` }}
-                >
-                  {word}&nbsp;
-                </span>
-              ))}
-            </p>
+            <Tooltip content={descAlt} delay={600} placement="bottom">
+              <p className={styles.metaDesc}>
+                {words.map((word, wi) => (
+                  <span
+                    key={wi}
+                    className={styles.metaDescWord}
+                    style={{ transitionDelay: `${wi * 0.04}s` }}
+                  >
+                    {word}&nbsp;
+                  </span>
+                ))}
+              </p>
+            </Tooltip>
             <div
               className={styles.metaDetails}
               style={{ transitionDelay: detailsDelay }}

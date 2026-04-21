@@ -489,7 +489,8 @@
 
 /* ── Section ── */
 .section {
-  margin-bottom: var(--spacing-4xl);
+  padding-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
   border-bottom: var(--border-light);
 }
 
@@ -504,6 +505,7 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -518,7 +520,7 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .sectionTitleRow .sectionTitle {
@@ -532,7 +534,7 @@
 }
 
 .fields > * {
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-md) 0;
   border-bottom: var(--border-light);
 }
 
