@@ -25,20 +25,28 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
   return (
     <>
       {/* Personal */}
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.personal" /></h2>
-        <div className={styles.fields}>
-          <Field label={t("admin.settings.name")} value={config.personal.name} onChange={(v) => update("personal", "name", v)} />
-          <Field label={t("admin.settings.nickname")} value={config.personal.nickname} onChange={(v) => update("personal", "nickname", v)} />
-          <Field label={t("admin.settings.role")} value={config.personal.role} onChange={(v) => update("personal", "role", v)} />
-          <Field label={t("admin.settings.location")} value={config.personal.location} onChange={(v) => update("personal", "location", v)} />
-          <Field label={t("admin.settings.status")} value={config.personal.status} onChange={(v) => update("personal", "status", v)} />
+        <div className={styles.fieldsGrid}>
+          <div className={styles.fields}>
+            <Field label={t("admin.settings.name")} value={config.personal.name} onChange={(v) => update("personal", "name", v)} />
+            <Field label={t("admin.settings.role")} value={config.personal.role} onChange={(v) => update("personal", "role", v)} />
+          </div>
+          <div className={styles.fields}>
+            <Field label={t("admin.settings.nickname")} value={config.personal.nickname} onChange={(v) => update("personal", "nickname", v)} />
+            <Field label={t("admin.settings.location")} value={config.personal.location} onChange={(v) => update("personal", "location", v)} />
+          </div>
+          <div className={styles.fields}>
+            <Field label={t("admin.settings.status")} value={config.personal.status} onChange={(v) => update("personal", "status", v)} />
+            <Field label={t("admin.settings.email")} value={config.contact.email} onChange={(v) => update("contact", "email", v)} />
+          </div>
         </div>
       </section>
 
       {/* Brand */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.brand" /></h2>
+        {/* 글리치까지 1열 */}
         <div className={styles.fields}>
           <div className={styles.fieldPair}>
             <Field label={t("admin.settings.logoText")} hint={t("admin.settings.logoTextHint")} value={config.brand.logoText} onChange={(v) => update("brand", "logoText", v)} />
@@ -71,104 +79,35 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}>{t("admin.settings.logoColor")}</label>
               <div className={styles.colorField}>
-                <input
-                  type="color"
-                  className={styles.colorPicker}
-                  value={config.brand.logoColor || "#000000"}
-                  onChange={(e) => update("brand", "logoColor", e.target.value)}
-                />
-                <input
-                  type="text"
-                  className={styles.colorText}
-                  value={config.brand.logoColor}
-                  onChange={(e) => update("brand", "logoColor", e.target.value)}
-                  placeholder={t("admin.settings.logoColorPlaceholder")}
-                  maxLength={7}
-                />
-                {config.brand.logoColor && (
-                  <button type="button" className={styles.envCancelBtn} onClick={() => update("brand", "logoColor", "")}>
-                    &times;
-                  </button>
-                )}
+                <input type="color" className={styles.colorPicker} value={config.brand.logoColor || "#000000"} onChange={(e) => update("brand", "logoColor", e.target.value)} />
+                <input type="text" className={styles.colorText} value={config.brand.logoColor} onChange={(e) => update("brand", "logoColor", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
+                {config.brand.logoColor && <button type="button" className={styles.envCancelBtn} onClick={() => update("brand", "logoColor", "")}>&times;</button>}
               </div>
             </div>
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}>{t("admin.settings.logoColorDark")}</label>
               <div className={styles.colorField}>
-                <input
-                  type="color"
-                  className={styles.colorPicker}
-                  value={config.brand.logoColorDark || "#ffffff"}
-                  onChange={(e) => update("brand", "logoColorDark", e.target.value)}
-                />
-                <input
-                  type="text"
-                  className={styles.colorText}
-                  value={config.brand.logoColorDark}
-                  onChange={(e) => update("brand", "logoColorDark", e.target.value)}
-                  placeholder={t("admin.settings.logoColorPlaceholder")}
-                  maxLength={7}
-                />
-                {config.brand.logoColorDark && (
-                  <button type="button" className={styles.envCancelBtn} onClick={() => update("brand", "logoColorDark", "")}>
-                    &times;
-                  </button>
-                )}
+                <input type="color" className={styles.colorPicker} value={config.brand.logoColorDark || "#ffffff"} onChange={(e) => update("brand", "logoColorDark", e.target.value)} />
+                <input type="text" className={styles.colorText} value={config.brand.logoColorDark} onChange={(e) => update("brand", "logoColorDark", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
+                {config.brand.logoColorDark && <button type="button" className={styles.envCancelBtn} onClick={() => update("brand", "logoColorDark", "")}>&times;</button>}
               </div>
             </div>
           </div>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}>{t("admin.settings.logoGlitch")}</label>
-            <Checkbox
-              checked={config.brand.logoGlitch}
-              onChange={(v) => update("brand", "logoGlitch", v)}
-              shape="square"
-            />
+            <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
           </div>
-          <LogoUpload
-            label={t("admin.settings.logoShort")}
-            hint={t("admin.settings.logoUploadHint")}
-            url={config.brand.logoShortUrl}
-            uploadLabel={t("admin.settings.uploadLogo")}
-            removeLabel={t("admin.settings.removeLogo")}
-            onUploaded={(url) => update("brand", "logoShortUrl", url)}
-            onRemove={() => update("brand", "logoShortUrl", "")}
-          />
-          <LogoUpload
-            label={t("admin.settings.logoShortDark")}
-            hint={t("admin.settings.logoDarkHint")}
-            url={config.brand.logoShortDarkUrl}
-            uploadLabel={t("admin.settings.uploadLogo")}
-            removeLabel={t("admin.settings.removeLogo")}
-            onUploaded={(url) => update("brand", "logoShortDarkUrl", url)}
-            onRemove={() => update("brand", "logoShortDarkUrl", "")}
-          />
-          <LogoUpload
-            label={t("admin.settings.logoFull")}
-            hint={t("admin.settings.logoUploadHint")}
-            url={config.brand.logoFullUrl}
-            uploadLabel={t("admin.settings.uploadLogo")}
-            removeLabel={t("admin.settings.removeLogo")}
-            onUploaded={(url) => update("brand", "logoFullUrl", url)}
-            onRemove={() => update("brand", "logoFullUrl", "")}
-          />
-          <LogoUpload
-            label={t("admin.settings.logoFullDark")}
-            hint={t("admin.settings.logoDarkHint")}
-            url={config.brand.logoFullDarkUrl}
-            uploadLabel={t("admin.settings.uploadLogo")}
-            removeLabel={t("admin.settings.removeLogo")}
-            onUploaded={(url) => update("brand", "logoFullDarkUrl", url)}
-            onRemove={() => update("brand", "logoFullDarkUrl", "")}
-          />
         </div>
-      </section>
-
-      {/* Contact */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.contact" /></h2>
-        <div className={styles.fields}>
-          <Field label={t("admin.settings.email")} value={config.contact.email} onChange={(v) => update("contact", "email", v)} />
+        {/* 로고 업로드 2열 */}
+        <div className={styles.fieldsGrid} style={{ marginTop: "var(--spacing-md)" }}>
+          <div className={styles.fields}>
+            <LogoUpload label={t("admin.settings.logoShort")} hint={t("admin.settings.logoUploadHint")} url={config.brand.logoShortUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortUrl", url)} onRemove={() => update("brand", "logoShortUrl", "")} />
+            <LogoUpload label={t("admin.settings.logoFull")} hint={t("admin.settings.logoUploadHint")} url={config.brand.logoFullUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullUrl", url)} onRemove={() => update("brand", "logoFullUrl", "")} />
+          </div>
+          <div className={styles.fields}>
+            <LogoUpload label={t("admin.settings.logoShortDark")} hint={t("admin.settings.logoDarkHint")} url={config.brand.logoShortDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortDarkUrl", url)} onRemove={() => update("brand", "logoShortDarkUrl", "")} />
+            <LogoUpload label={t("admin.settings.logoFullDark")} hint={t("admin.settings.logoDarkHint")} url={config.brand.logoFullDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullDarkUrl", url)} onRemove={() => update("brand", "logoFullDarkUrl", "")} />
+          </div>
         </div>
       </section>
 
