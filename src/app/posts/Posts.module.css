@@ -20,7 +20,7 @@
 }
 
 .header {
-  max-width: 1280px;
+  max-width: var(--page-max-width);
   margin: 0 auto var(--spacing-2xl);
   display: flex;
   flex-direction: column;
@@ -63,7 +63,7 @@
 
 /* ── Filter Bar (sticky, below fixed Nav) ── */
 .filterBar {
-  max-width: 1280px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
   position: sticky;
   top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
@@ -307,7 +307,7 @@
 
 /* ── Content Area (2-column) ── */
 .contentArea {
-  max-width: 1280px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 280px;

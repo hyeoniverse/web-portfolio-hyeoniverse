@@ -87,7 +87,7 @@
 
 /* ── Content wrapper ── */
 .content {
-  max-width: 1280px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
   padding: var(--spacing-2xl) var(--page-px) var(--spacing-3xl);
 }
@@ -196,7 +196,7 @@
 
 /* ── After-content wrapper (adjacent nav, comments, etc.) ── */
 .afterContent {
-  max-width: 1280px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
   padding: 0 var(--page-px);
 }

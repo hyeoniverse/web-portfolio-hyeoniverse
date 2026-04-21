@@ -170,10 +170,11 @@
 }
 
 /* --------------------------------------------------------------------------
-   Page Layout — shared horizontal padding
+   Page Layout — shared horizontal padding + max-width
    -------------------------------------------------------------------------- */
 :root {
   --page-px: 8vw;
+  --page-max-width: 100%;
 }
 @media (max-width: 768px) {
   :root {
