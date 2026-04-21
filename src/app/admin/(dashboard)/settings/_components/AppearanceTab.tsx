@@ -34,7 +34,7 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
       </section>
 
       {/* Theme Presets */}
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.presets" /></h2>
         <div className={styles.presetGrid}>
           {THEME_PRESETS.map((preset) => (

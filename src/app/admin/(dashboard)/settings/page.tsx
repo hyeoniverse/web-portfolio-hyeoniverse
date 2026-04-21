@@ -635,7 +635,9 @@ export default function SettingsPage() {
           ) : (
             <>
               {activeTab === "general" && (
-                <GeneralTab config={config} update={update} styles={styles} />
+                <div className={styles.tabGrid}>
+                  <GeneralTab config={config} update={update} styles={styles} />
+                </div>
               )}
               {activeTab === "content" && (
                 <>
@@ -671,10 +673,14 @@ export default function SettingsPage() {
                 </>
               )}
               {activeTab === "appearance" && (
-                <AppearanceTab config={config} update={update} setConfig={setConfig} styles={styles} />
+                <div className={styles.tabGrid}>
+                  <AppearanceTab config={config} update={update} setConfig={setConfig} styles={styles} />
+                </div>
               )}
               {activeTab === "services" && (
-                <ServicesTab config={config} update={update} setConfig={setConfig} styles={styles} />
+                <div className={styles.tabGrid}>
+                  <ServicesTab config={config} update={update} setConfig={setConfig} styles={styles} />
+                </div>
               )}
               {activeTab === "account" && (
                 <AccountTab
