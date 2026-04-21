@@ -66,8 +66,7 @@
 }
 
 .toc .link:hover {
-  color: var(--text-primary);
-  border-left-color: var(--text-primary);
+  color: var(--text-accent);
 }
 
 
