@@ -118,33 +118,35 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
         </div>
       </section>
 
-      {/* Footer + BGM */}
-      <section className={`${styles.section} ${styles.sectionWide}`}>
+      {/* Footer */}
+      <section className={styles.section}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.ctaFooter" /></h2>
-        <div className={styles.fieldsGrid}>
-          <div className={styles.fields}>
-            <div className={styles.fieldPair}>
-              <Field label={`${t("admin.settings.footerCopyright")} (EN)`} value={config.footer.copyright} onChange={(v) => update("footer", "copyright", v)} />
-              <Field label={`${t("admin.settings.footerCopyright")} (KO)`} value={config.footer.copyright_ko} onChange={(v) => update("footer", "copyright_ko", v)} />
-            </div>
-            <div className={styles.fieldPair}>
-              <Field label={t("admin.settings.musicCreditTitle")} value={config.footer.musicCreditTitle} onChange={(v) => update("footer", "musicCreditTitle", v)} placeholder="Ghost Duet" />
-              <Field label={t("admin.settings.musicCreditArtist")} value={config.footer.musicCreditArtist} onChange={(v) => update("footer", "musicCreditArtist", v)} placeholder="Louie Zong" />
-            </div>
-            <Field label={t("admin.settings.musicCreditUrl")} value={config.footer.musicCreditUrl} onChange={(v) => update("footer", "musicCreditUrl", v)} placeholder="https://youtube.com/..." />
+        <div className={styles.fields}>
+          <div className={styles.fieldPair}>
+            <Field label={`${t("admin.settings.footerCopyright")} (EN)`} value={config.footer.copyright} onChange={(v) => update("footer", "copyright", v)} />
+            <Field label={`${t("admin.settings.footerCopyright")} (KO)`} value={config.footer.copyright_ko} onChange={(v) => update("footer", "copyright_ko", v)} />
           </div>
-          <div className={styles.fields}>
-            <h3 className={styles.sectionTitle} style={{ marginTop: 0 }}><T k="admin.settings.bgm" /></h3>
-            <AudioUpload
-              label={t("admin.settings.bgmFile")}
-              hint={t("admin.settings.bgmUploadHint")}
-              url={config.bgm.url}
-              uploadLabel={t("admin.settings.uploadBgm")}
-              removeLabel={t("admin.settings.removeLogo")}
-              onUploaded={(url) => update("bgm", "url", url)}
-              onRemove={() => update("bgm", "url", "")}
-            />
+          <div className={styles.fieldPair}>
+            <Field label={t("admin.settings.musicCreditTitle")} value={config.footer.musicCreditTitle} onChange={(v) => update("footer", "musicCreditTitle", v)} placeholder="Ghost Duet" />
+            <Field label={t("admin.settings.musicCreditArtist")} value={config.footer.musicCreditArtist} onChange={(v) => update("footer", "musicCreditArtist", v)} placeholder="Louie Zong" />
           </div>
+          <Field label={t("admin.settings.musicCreditUrl")} value={config.footer.musicCreditUrl} onChange={(v) => update("footer", "musicCreditUrl", v)} placeholder="https://youtube.com/..." />
+        </div>
+      </section>
+
+      {/* BGM */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.bgm" /></h2>
+        <div className={styles.fields}>
+          <AudioUpload
+            label={t("admin.settings.bgmFile")}
+            hint={t("admin.settings.bgmUploadHint")}
+            url={config.bgm.url}
+            uploadLabel={t("admin.settings.uploadBgm")}
+            removeLabel={t("admin.settings.removeLogo")}
+            onUploaded={(url) => update("bgm", "url", url)}
+            onRemove={() => update("bgm", "url", "")}
+          />
         </div>
       </section>
 
