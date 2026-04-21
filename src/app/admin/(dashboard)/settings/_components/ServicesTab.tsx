@@ -340,7 +340,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       </section>
 
       {/* AI Cover */}
-      <section className={styles.section}>
+      <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.aiSettings" /></h2>
         <div className={styles.fields}>
           <Toggle
@@ -516,7 +516,7 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       </section>
 
       {/* Translation */}
-      <section className={styles.section}>
+      <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.translationSettings" /></h2>
         <div className={styles.fields}>
           <Toggle
