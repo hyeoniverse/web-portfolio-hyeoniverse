@@ -661,15 +661,17 @@ export default function SettingsPage() {
                       );
                     })}
                   </div>
-                <ContentTab
-                  config={config}
-                  update={update}
-                  setConfig={setConfig}
-                  profileData={profileData}
-                  setProfileData={setProfileData}
-                  contentSubTab={contentSubTab}
-                  styles={styles}
-                />
+                <div className={styles.tabGrid}>
+                  <ContentTab
+                    config={config}
+                    update={update}
+                    setConfig={setConfig}
+                    profileData={profileData}
+                    setProfileData={setProfileData}
+                    contentSubTab={contentSubTab}
+                    styles={styles}
+                  />
+                </div>
                 </>
               )}
               {activeTab === "appearance" && (
@@ -683,6 +685,7 @@ export default function SettingsPage() {
                 </div>
               )}
               {activeTab === "account" && (
+                <div className={styles.tabGrid}>
                 <AccountTab
                   accountEmail={account.accountEmail}
                   accountNewEmail={account.accountNewEmail}
@@ -712,6 +715,7 @@ export default function SettingsPage() {
                   }}
                   styles={styles}
                 />
+                </div>
               )}
             </>
           )}
