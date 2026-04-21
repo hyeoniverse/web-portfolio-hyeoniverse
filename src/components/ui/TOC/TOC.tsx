@@ -27,7 +27,9 @@ export default function TOC({
 }: TOCProps) {
   const { lenis } = useLenis();
   const [activeId, setActiveId] = useState("");
+  const [visible, setVisible] = useState(true);
   const lockRef = useRef(false);
+  const contentRef = useRef<Element | null>(null);
 
   /* ── IntersectionObserver 기반 스크롤 감지 ── */
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function TOC({
 
     const entriesMap = new Map<string, boolean>();
 
-    const observer = new IntersectionObserver(
+    const headingObserver = new IntersectionObserver(
       (entries) => {
         if (lockRef.current) return;
 
@@ -43,26 +45,55 @@ export default function TOC({
           entriesMap.set(entry.target.id, entry.isIntersecting);
         }
 
+        // 가장 위에 보이는 heading을 active로
         for (const { id } of items) {
           if (entriesMap.get(id)) {
             setActiveId(id);
             break;
           }
         }
+
+        // 아무 heading도 안 보이면 스크롤 위치로 가장 가까운 heading 선택
+        const anyVisible = items.some(({ id }) => entriesMap.get(id));
+        if (!anyVisible) {
+          let closest = "";
+          let closestDist = Infinity;
+          for (const { id } of items) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+            const rect = el.getBoundingClientRect();
+            const dist = Math.abs(rect.top);
+            if (dist < closestDist) { closestDist = dist; closest = id; }
+          }
+          if (closest) setActiveId(closest);
+        }
       },
-      { rootMargin: "-20% 0px -60% 0px" },
+      { rootMargin: "-10% 0px -50% 0px" },
     );
+
+    // 본문 영역 가시성 감지 — 댓글 영역에서 TOC 숨김
+    const contentEl = document.querySelector("[data-toc-boundary]");
+    contentRef.current = contentEl;
+    let contentObserver: IntersectionObserver | undefined;
+    if (contentEl) {
+      contentObserver = new IntersectionObserver(
+        ([entry]) => setVisible(entry.isIntersecting),
+        { rootMargin: "0px 0px -10% 0px" },
+      );
+      contentObserver.observe(contentEl);
+    }
 
     const timer = setTimeout(() => {
       for (const { id } of items) {
         const el = document.getElementById(id);
-        if (el) observer.observe(el);
+        if (el) headingObserver.observe(el);
       }
     }, 300);
 
     return () => {
       clearTimeout(timer);
-      observer.disconnect();
+      headingObserver.disconnect();
+      contentObserver?.disconnect();
     };
   }, [items]);
 
@@ -90,7 +121,7 @@ export default function TOC({
   if (items.length === 0) return null;
 
   return (
-    <nav className={`${styles.toc} ${styles[position]} ${className ?? ""}`}>
+    <nav className={`${styles.toc} ${styles[position]} ${!visible ? styles.tocHidden : ""} ${className ?? ""}`}>
       {title && <p className={styles.title}>{title}</p>}
       <ul className={styles.list}>
         {items.map(({ id, text, level = 1 }, idx) => (

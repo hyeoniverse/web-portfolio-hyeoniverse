@@ -10,6 +10,7 @@
   max-height: 60vh;
   overflow-y: auto;
   z-index: var(--z-float);
+  transition: opacity var(--duration-base) ease;
 }
 
 /* 위치 variant */
@@ -60,6 +61,12 @@
 
 .toc .link:hover {
   color: var(--text-primary);
+  border-left-color: var(--text-primary);
+}
+
+.tocHidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .active {
