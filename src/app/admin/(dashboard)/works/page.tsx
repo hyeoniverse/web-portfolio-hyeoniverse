@@ -457,7 +457,7 @@ export default function AdminWorksPage() {
         onToggle={() => { if (!trashOpen) fetchTrash(); setTrashOpen((v) => !v); }}
         allItems={filteredTrash}
         columns={trashColumns}
-        gridTemplate="28px 64px 1fr 100px 160px"
+        gridTemplate="28px 64px 1fr 100px auto"
         selected={new Set<string>()}
         onSelectChange={() => {}}
         page={trashPage}
@@ -674,7 +674,7 @@ role: 풀스택 개발
           fetchWorks();
         }}
         onReorder={sort === "order" && !filterYear && !filterCategory ? handleDragReorder : undefined}
-        gridTemplate="64px 1fr 100px 160px"
+        gridTemplate="64px 1fr 100px auto"
         showRowNumbers
         getRowLabel={(w) => w.number || "—"}
         loading={loading}
