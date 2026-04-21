@@ -62,6 +62,17 @@ export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
       render: (post) => String(post.view_count),
       skeletonWidth: "30px",
     },
+    {
+      key: "status",
+      label: t("admin.posts.tableStatus"),
+      className: ts.colMeta,
+      render: (post) => (
+        <span className={`${ts.statusBadge} ${post.published ? ts.published : ts.draft}`}>
+          {post.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
+        </span>
+      ),
+      skeletonWidth: "50px",
+    },
   ];
 }
 
