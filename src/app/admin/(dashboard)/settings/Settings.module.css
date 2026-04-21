@@ -1,5 +1,5 @@
 .container {
-  max-width: 1280px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
   padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
 }
@@ -784,6 +784,9 @@
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* ── Logo Color Presets ── */
