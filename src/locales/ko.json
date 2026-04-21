@@ -123,6 +123,20 @@
       "loginFailed": "로그인에 실패했습니다",
       "errorOccurred": "오류가 발생했습니다"
     },
+    "common": {
+      "noContent": "내용 없음",
+      "delete": "삭제",
+      "cancel": "취소",
+      "select": "선택",
+      "selectAll": "전체 선택",
+      "selectedCount": "{{count}}개 선택",
+      "selectedItems": "{{count}}개 선택됨",
+      "noRevisions": "저장된 기록이 없습니다.",
+      "deleteLog": "로그 삭제",
+      "deleteLogPrompt": "이 로그를 삭제하려면 \"삭제\"를 입력하세요.",
+      "deleteLogConfirm": "삭제",
+      "bulkDeletePrompt": "{{count}}개 로그를 삭제하려면 \"{{count}}\"을(를) 입력하세요."
+    },
     "settings": {
       "title": "설정",
       "save": "전체 저장",
@@ -496,6 +510,9 @@
       "filterAll": "전체",
       "filterPublished": "공개",
       "filterDraft": "비공개",
+      "trashPurgeConfirmBulk": "{{count}}개 항목을 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다.",
+      "seriesBulkDeleteConfirm": "{{count}}개 시리즈를 삭제합니다.",
+      "bulkDeleteConfirm": "{{count}}개 항목을 삭제하려면 \"{{count}}\"을(를) 입력하세요.",
       "editor": {
         "backToPosts": "← 포스트 목록",
         "delete": "삭제",

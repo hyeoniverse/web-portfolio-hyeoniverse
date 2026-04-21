@@ -4,6 +4,7 @@
 
 .group {
   display: inline-flex;
+  flex-shrink: 0;
   border-radius: var(--radius-capsule);
   overflow: hidden;
   border: var(--border-strong);
