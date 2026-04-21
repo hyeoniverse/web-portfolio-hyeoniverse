@@ -108,6 +108,13 @@ export default function TOC({
   return (
     <nav className={`${styles.toc} ${styles[position]} ${className ?? ""}`}>
       {title && <p className={styles.title}>{title}</p>}
+      <a
+        href={`#${items[0]?.id}`}
+        className={styles.skipLink}
+        onClick={(e) => handleClick(e, items[0]?.id)}
+      >
+        ↓ Skip to content
+      </a>
       <ul className={styles.list}>
         {items.map(({ id, text, level = 1 }, idx) => (
           <li key={`${id}-${idx}`}>
