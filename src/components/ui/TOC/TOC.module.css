@@ -25,6 +25,19 @@
   margin-bottom: var(--spacing-md);
 }
 
+.skipLink {
+  display: block;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-3xs) 0;
+}
+
+.toc .skipLink:hover {
+  color: var(--text-accent);
+}
+
 .list {
   display: flex;
   flex-direction: column;
