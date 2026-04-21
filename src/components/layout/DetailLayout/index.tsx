@@ -186,7 +186,7 @@ export default function DetailLayout({
       <TOC items={headings} title="Contents" position="right" />
 
       {/* Content */}
-      <div className={`${styles.content} ${!heroImage ? styles.contentNoHero : ""}${contentClassName ? ` ${contentClassName}` : ""}`}>
+      <div data-toc-boundary className={`${styles.content} ${!heroImage ? styles.contentNoHero : ""}${contentClassName ? ` ${contentClassName}` : ""}`}>
         {children}
 
         {/* Like button (content position) */}

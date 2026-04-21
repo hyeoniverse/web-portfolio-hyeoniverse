@@ -284,7 +284,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
       heroAlt={displayTitle}
       onHeroError={() => setHeroImgError(true)}
       heroFallback={heroErrorFallback}
-      headings={headings}
+      headings={[...headings, { id: "comments", text: t("comments.heading"), level: 1 }]}
       likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
       afterContent={
         <>
