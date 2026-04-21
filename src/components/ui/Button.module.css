@@ -20,6 +20,8 @@
   white-space: nowrap;
   user-select: none;
   outline: none;
+  width: fit-content;
+  flex-shrink: 0;
   letter-spacing: 0.03em;
 }
 
