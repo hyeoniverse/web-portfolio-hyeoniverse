@@ -62,8 +62,8 @@
 
 /* ── Help button ── */
 .helpBtn {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   border-radius: var(--radius-circle);
   border: var(--border-default);

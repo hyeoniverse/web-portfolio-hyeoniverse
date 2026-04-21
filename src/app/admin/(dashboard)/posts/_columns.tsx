@@ -144,6 +144,12 @@ export function createSeriesColumns(
 ): SubTableColumn<Series>[] {
   return [
     {
+      key: "num",
+      label: "#",
+      render: (_s, index) => <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>{index + 1}</span>,
+      skeletonWidth: "20px",
+    },
+    {
       key: "thumb",
       label: t("admin.posts.tableThumb"),
       className: st.colThumbWrap,

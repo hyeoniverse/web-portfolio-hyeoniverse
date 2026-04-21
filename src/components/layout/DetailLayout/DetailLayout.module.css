@@ -90,6 +90,7 @@
   max-width: var(--page-max-width);
   margin: 0 auto;
   padding: var(--spacing-2xl) var(--page-px) var(--spacing-3xl);
+  padding-right: calc(var(--page-px) + 200px);
 }
 
 .contentNoHero {
@@ -101,7 +102,7 @@
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  right: max(20px, calc(50% - 770px));
+  right: var(--page-px);
   width: 180px;
   font-family: var(--font-space-grotesk), sans-serif;
   max-height: 60vh;
@@ -205,6 +206,9 @@
 @media (max-width: 1540px) {
   .toc {
     display: none;
+  }
+  .content {
+    padding-right: var(--page-px);
   }
 }
 
