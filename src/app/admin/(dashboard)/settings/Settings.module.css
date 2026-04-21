@@ -489,8 +489,7 @@
 
 /* ── Section ── */
 .section {
-  padding-bottom: var(--spacing-2xl);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-4xl);
   border-bottom: var(--border-light);
 }
 
@@ -505,7 +504,6 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-lg);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }

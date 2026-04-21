@@ -4,7 +4,7 @@
 
 .footer {
   margin-top: var(--spacing-6xl);
-  padding: var(--spacing-6xl) 4rem var(--spacing-3xl);
+  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
   background: transparent;
 }
 
@@ -13,7 +13,7 @@
   gap: var(--spacing-3xl);
   flex-direction: column;
   margin: 0 auto;
-  max-width: var(--width-6xl);
+  max-width: var(--page-max-width);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
 }
