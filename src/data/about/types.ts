@@ -52,6 +52,7 @@ export interface TroubleShootingItem {
   keyInsight: LocalizedText;
   comparisons?: ComparisonTable[];
   diagrams?: TroubleshootingDiagram[];
+  tags?: string[];
 }
 
 export interface TechStackItem {

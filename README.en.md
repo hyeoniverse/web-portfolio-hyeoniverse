@@ -128,7 +128,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Posts i18n & Sort Capsule**: All text moved to locale files, sort UI changed to capsule-style segment control (Framer Motion layoutId) + hover indicator movement
 - **IP-based Likes**: Single `likes` table with `target_type` discrimination for Posts/Works/comments, IP-based UNIQUE constraint to prevent duplicates, rapid-click prevention (ref lock + busy disabled), formatCount (1k/1.2m) number abbreviation
 - **Comment System**: Guest threaded replies — dual authentication (commenter_hash + bcrypt), nickname shuffle, email reply notifications, admin comments, admin tombstone double-delete for permanent removal, nickname-preserved tombstone
-- **First Comment Celebration**: Confetti effect + card flip celebration message (sparkle stars + accent lines) on first comment, admin bulk comment deletion
+- **First Comment Celebration**: Confetti effect + card flip celebration message (sparkle stars + accent lines) on first comment, admin select-all / drag selection / tombstone bulk permanent deletion
 
 <p align="center">
   <img src="public/docs/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
@@ -169,11 +169,13 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **CRUD & Bulk Management**: Posts/Works CRUD, drag bulk select + publish/delete, series management, trash (soft delete + restore)
 - **`.md` Sync**: `content/posts/` · `content/works/` folder → DB unidirectional sync (Jekyll-style, `pnpm sync-all`)
 - **`.md` Export**: Bulk/individual/series frontmatter-included `.md` download
-- **Plate.js Editor**: Markdown ↔ Rich Text bidirectional conversion, custom footnotes, 5 templates, React.memo optimization
+- **Plate.js Editor**: Markdown ↔ Rich Text bidirectional conversion (including file/audio attachments), custom footnotes, 5 templates, editor switch skeleton, custom input font size/line height
 - **Revision History**: JSONB snapshot auto-save, LCS diff comparison, cross-device sharing, auto-cleanup at 50+
 - **AI Translation/Summary**: DeepL/Google/Gemini/Claude fallback chain, auto-summary on publish
 - **Settings 5 Tabs**: General/Content/Appearance/Services/Account — brand, SEO, bilingual editing
 - **Cover Image Picker**: 16 presets + Unsplash search + AI generation, client-side WebP compression
+- **Media Upload Management**: Allowed file types whitelist (per-MIME size limits), blocked extensions blacklist, infrastructure keys read-only display
+- **Document Viewer**: File attachments with inline preview — PDF (iframe) · Office (MS Viewer) · text (fetch+pre), original filename preserved on download
 
 <p align="center">
   <img src="public/docs/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
@@ -502,7 +504,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 36 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
+> 37 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
 > Also available interactively on the About page.
 
 | # | Issue | Key takeaway |
@@ -516,6 +518,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 34 | Portal dropdown CSS transition not firing | Mount renders with open class already applied (initial=final) — `animateOpen` state + rAF×2 delay ensures mount→close→open sequence, compound selector (0,2,0) bypasses global theme transition |
 | 35 | mix-blend-mode: difference forcing child colors | Parent difference blends entire content — isolated title/category in difference div, moved description/details to sibling overlay element, synced position via JS rAF |
 | 36 | About page first panel start position error | Dynamic import panel skeleton width mismatch (ErdPanel: 350vw→100vw) + removed GSAP transform/animate reset in strict mode cleanup + initializedRef guard |
+| 37 | Plate inline code cursor jump | CodePlugin affinity override ("directional") defeated default ("hard") mark boundary handling — removed override to fix |
 
 ## Deployment
 

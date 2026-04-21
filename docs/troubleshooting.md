@@ -1215,3 +1215,22 @@ CSS 토큰 감사 과정에서 `padding: var(--spacing-3xs) var(--spacing-xs)` (
 </details>
 
 ---
+
+<details>
+<summary><strong>37. Plate 인라인 코드에서 방향키 커서 점프</strong></summary>
+
+**문제**: 인라인 코드(`<code>` mark) 안에서 ArrowLeft로 두 번째 글자에서 첫 번째 글자로 이동할 때 커서가 이전 텍스트 노드로 점프
+
+**원인**: `CodePlugin.configure({ rules: { selection: { affinity: "directional" } } })`로 Plate 기본값 `"hard"`를 덮어씀. `"hard"` affinity는 mark 경계에서 커서를 mark 안쪽에 유지하는데, `"directional"`은 브라우저 기본 동작에 위임하여 `<code>` 요소 경계에서 커서가 밖으로 점프
+
+**해결**: affinity 오버라이드를 제거하고 Plate 기본값(`"hard"`)을 사용
+
+```ts
+// Before
+CodePlugin.configure({ rules: { selection: { affinity: "directional" } } }),
+
+// After
+CodePlugin,
+```
+
+</details>

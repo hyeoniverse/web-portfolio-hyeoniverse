@@ -1100,4 +1100,28 @@ export const troubleShootingItems: TroubleShootingItem[] = [
       en: "`backdrop-filter` can only sample the backdrop **within the same compositing layer** as the element. If any ancestor promotes itself via `transform`, `will-change: transform`, `filter`, `mask`, `isolation: isolate`, etc., the backdrop beyond that boundary disappears. For localized effects like hover blur, first verify **no ancestor in the chain has a layer-promoting property**. Transform-based animations often leave compositing hints behind, so consider whether **layout-based properties (margin, padding, width)** can replace them.",
     },
   },
+  {
+    section: { ko: "Frontend / Editor", en: "Frontend / Editor" },
+    problem: {
+      ko: "Plate 인라인 코드에서 방향키 커서 점프",
+      en: "Plate Inline Code Arrow Key Cursor Jump",
+    },
+    definition: {
+      ko: "인라인 코드(`<code>` mark) 안에서 ArrowLeft로 두 번째 글자에서 첫 번째 글자로 이동할 때 커서가 이전 텍스트 노드로 점프함",
+      en: "When pressing ArrowLeft to move from the second to the first character inside an inline code (`<code>` mark), the cursor jumped to the previous text node",
+    },
+    cause: {
+      ko: "CodePlugin.configure({ rules: { selection: { affinity: \"directional\" } } })로 Plate 기본값 \"hard\"를 덮어씀. \"hard\" affinity는 mark 경계에서 커서를 mark 안쪽에 유지하는데, \"directional\"은 브라우저 기본 동작에 위임하여 `<code>` 요소의 padding/border 경계에서 커서가 요소 밖으로 점프",
+      en: "CodePlugin was configured with { rules: { selection: { affinity: \"directional\" } } }, overriding Plate's default \"hard\". \"hard\" affinity keeps the cursor inside mark boundaries, while \"directional\" delegates to browser default behavior, causing the cursor to jump outside the `<code>` element at padding/border boundaries",
+    },
+    solution: {
+      ko: "affinity 오버라이드를 제거하고 Plate 기본값(\"hard\")을 사용. 디버깅 과정에서 DOM selection API, normalizer merge, CSS padding 제거 등 여러 접근을 시도했으나 근본 원인은 affinity 설정",
+      en: "Removed the affinity override, using Plate's default (\"hard\"). During debugging, tried DOM selection API, normalizer merge, CSS padding removal, but the root cause was the affinity configuration",
+    },
+    keyInsight: {
+      ko: "Plate/Slate에서 inline mark의 커서 동작은 **affinity 설정**이 결정합니다. \"hard\"는 mark 경계에서 커서를 안쪽에 유지하고, \"directional\"은 브라우저에 위임하여 padding/border가 있는 요소에서 예기치 않은 점프가 발생할 수 있습니다. 플러그인 설정을 오버라이드할 때는 **기본값이 왜 그렇게 설정되었는지** 먼저 이해해야 합니다.",
+      en: "In Plate/Slate, cursor behavior at inline mark boundaries is controlled by the **affinity setting**. \"hard\" keeps the cursor inside the mark, while \"directional\" delegates to the browser, which can cause unexpected jumps at elements with padding/border. Before overriding plugin defaults, **understand why the default was chosen**.",
+    },
+    tags: ["Plate", "Slate", "code mark", "cursor", "affinity"],
+  },
 ];
