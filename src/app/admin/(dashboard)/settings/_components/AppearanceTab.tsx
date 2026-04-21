@@ -20,19 +20,6 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
 
   return (
     <>
-      {/* Design System Preview Link */}
-      <section className={styles.section}>
-        <div className={styles.sectionTitleRow}>
-          <h2 className={styles.sectionTitle}><T k="admin.settings.designSystem" /></h2>
-          <TextLink href="/design-system" external>
-            <T k="admin.settings.openDesignSystem" /> ↗
-          </TextLink>
-        </div>
-        <p className={styles.sectionHint}>
-          <T k="admin.settings.designSystemPreview" />
-        </p>
-      </section>
-
       {/* Theme Presets */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.presets" /></h2>
@@ -81,7 +68,7 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
       </section>
 
       {/* Theme Colors */}
-      <section className={styles.section}>
+      <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.themeColors" /></h2>
         <div className={styles.fields}>
           <ColorField label={t("admin.settings.accentColor")} value={config.theme.accentColor} onChange={(v) => update("theme", "accentColor", v)} />
@@ -140,6 +127,19 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
             onChange={(v) => update("typography", "monoFont", v)}
           />
         </div>
+      </section>
+
+      {/* Design System Preview Link */}
+      <section className={`${styles.section} ${styles.sectionWide}`}>
+        <div className={styles.sectionTitleRow}>
+          <h2 className={styles.sectionTitle}><T k="admin.settings.designSystem" /></h2>
+          <TextLink href="/design-system" external>
+            <T k="admin.settings.openDesignSystem" /> ↗
+          </TextLink>
+        </div>
+        <p className={styles.sectionHint}>
+          <T k="admin.settings.designSystemPreview" />
+        </p>
       </section>
     </>
   );

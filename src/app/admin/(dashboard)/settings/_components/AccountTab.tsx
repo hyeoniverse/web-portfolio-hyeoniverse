@@ -173,7 +173,7 @@ export default function AccountTab({
         </div>
       </section>
 
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.password" /></h2>
         <ul className={styles.sectionHintList}>
           <li><T k="admin.settings.securePasswordChangeHint" /></li>
