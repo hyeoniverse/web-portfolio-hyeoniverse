@@ -234,9 +234,9 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* CTA & Footer */}
+          {/* CTA */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.homeCtaFooter" /></h2>
+            <h2 className={styles.sectionTitle}>CTA</h2>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.ctaLabel")} (EN)`} value={config.cta.label} onChange={(v) => update("cta", "label", v)} />
