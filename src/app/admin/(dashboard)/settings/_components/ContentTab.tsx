@@ -134,7 +134,7 @@ export default function ContentTab({
       {contentSubTab === "home" && (
         <>
           {/* Hero */}
-          <section className={`${styles.section} ${styles.sectionWide}`}>
+          <section className={styles.section}>
             <h2 className={styles.sectionTitle}><T k="admin.settings.hero" /></h2>
             <div className={styles.fields}>
               <Field
@@ -183,7 +183,7 @@ export default function ContentTab({
           </section>
 
           {/* Home About */}
-          <section className={`${styles.section} ${styles.sectionWide}`}>
+          <section className={styles.section}>
             <h2 className={styles.sectionTitle}><T k="admin.settings.homeAboutIntro" /></h2>
             <p className={styles.sectionHint}><T k="admin.settings.highlightHint" /></p>
             <div className={styles.fields}>
@@ -235,7 +235,7 @@ export default function ContentTab({
           </section>
 
           {/* CTA & Footer */}
-          <section className={`${styles.section} ${styles.sectionWide}`}>
+          <section className={styles.section}>
             <h2 className={styles.sectionTitle}><T k="admin.settings.homeCtaFooter" /></h2>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
@@ -279,7 +279,7 @@ export default function ContentTab({
           </section>
 
           {/* Social Links */}
-          <section className={`${styles.section} ${styles.sectionWide}`}>
+          <section className={styles.section}>
             <h2 className={styles.sectionTitle}><T k="admin.settings.socialLinks" /></h2>
             <p className={styles.sectionHint}><T k="admin.settings.socialHint" /></p>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSocialDragEnd}>
