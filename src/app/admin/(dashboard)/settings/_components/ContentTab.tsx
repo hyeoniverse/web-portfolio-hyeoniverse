@@ -199,7 +199,7 @@ export default function ContentTab({
           </section>
 
           {/* Services */}
-          <section className={styles.section}>
+          <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
             <h2 className={styles.sectionTitle}><T k="admin.settings.servicesLabel" /></h2>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
@@ -274,6 +274,13 @@ export default function ContentTab({
                 <Field label={`${t("admin.settings.resumeButtonText")} (EN)`} value={config.cta.resumeButtonText} onChange={(v) => update("cta", "resumeButtonText", v)} />
                 <Field label={`${t("admin.settings.resumeButtonText")} (KO)`} value={config.cta.resumeButtonText_ko} onChange={(v) => update("cta", "resumeButtonText_ko", v)} />
               </div>
+            </div>
+          </section>
+
+          {/* Footer / Loading */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Footer</h2>
+            <div className={styles.fields}>
               <Field label={t("admin.settings.loadingDisplayName")} hint={t("admin.settings.loadingDisplayNameHint")} value={config.loading.displayName} onChange={(v) => update("loading", "displayName", v)} />
             </div>
           </section>
