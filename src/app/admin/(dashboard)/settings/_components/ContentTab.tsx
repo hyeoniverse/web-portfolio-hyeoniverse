@@ -179,6 +179,7 @@ export default function ContentTab({
                 <Field label={`${t("admin.settings.scrollLabel")} (EN)`} value={config.hero.scrollLabel} onChange={(v) => update("hero", "scrollLabel", v)} />
                 <Field label={`${t("admin.settings.scrollLabel")} (KO)`} value={config.hero.scrollLabel_ko} onChange={(v) => update("hero", "scrollLabel_ko", v)} />
               </div>
+              <Field label={t("admin.settings.loadingDisplayName")} hint={t("admin.settings.loadingDisplayNameHint")} value={config.loading.displayName} onChange={(v) => update("loading", "displayName", v)} />
             </div>
           </section>
 
@@ -277,11 +278,19 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* Footer / Loading */}
+          {/* Footer */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Footer</h2>
             <div className={styles.fields}>
-              <Field label={t("admin.settings.loadingDisplayName")} hint={t("admin.settings.loadingDisplayNameHint")} value={config.loading.displayName} onChange={(v) => update("loading", "displayName", v)} />
+              <div className={styles.fieldPair}>
+                <Field label={`${t("admin.settings.footerCopyright")} (EN)`} value={config.footer.copyright} onChange={(v) => update("footer", "copyright", v)} />
+                <Field label={`${t("admin.settings.footerCopyright")} (KO)`} value={config.footer.copyright_ko} onChange={(v) => update("footer", "copyright_ko", v)} />
+              </div>
+              <div className={styles.fieldPair}>
+                <Field label={t("admin.settings.musicCreditTitle")} value={config.footer.musicCreditTitle} onChange={(v) => update("footer", "musicCreditTitle", v)} placeholder="Ghost Duet" />
+                <Field label={t("admin.settings.musicCreditArtist")} value={config.footer.musicCreditArtist} onChange={(v) => update("footer", "musicCreditArtist", v)} placeholder="Louie Zong" />
+              </div>
+              <Field label={t("admin.settings.musicCreditUrl")} value={config.footer.musicCreditUrl} onChange={(v) => update("footer", "musicCreditUrl", v)} placeholder="https://youtube.com/..." />
             </div>
           </section>
 
