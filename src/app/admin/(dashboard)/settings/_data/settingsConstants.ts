@@ -27,8 +27,8 @@ export type DeepPartial<T> = {
 export const TAB_IDS = ["general", "content", "appearance", "services", "account"] as const;
 
 export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
-  general: ["personal", "brand", "contact", "metadata", "footer", "bgm"],
-  content: ["brand", "hero", "homeAbout", "services", "marquee", "cta", "loading", "posts", "works", "profile", "about", "social", "socialLinks"],
+  general: ["personal", "brand", "contact", "metadata", "bgm"],
+  content: ["brand", "hero", "homeAbout", "services", "marquee", "cta", "loading", "footer", "posts", "works", "profile", "about", "social", "socialLinks"],
   appearance: ["theme", "typography", "datePickerStyle"],
   services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "commentEmailNotify", "media"],
 };
@@ -250,7 +250,7 @@ export type ContentSubTab = "home" | "profile" | "works" | "posts";
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
 export const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
-  home: ["brand", "hero", "homeAbout", "services", "marquee", "cta", "loading", "social", "socialLinks"],
+  home: ["brand", "hero", "homeAbout", "services", "marquee", "cta", "loading", "footer", "social", "socialLinks"],
   profile: ["profile", "about"],
   works: ["works"],
   posts: ["posts"],
