@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { needsConversion, convertToWebp } from "@/lib/convertImage";
 
 // ── 보안: 차단 확장자 (기본값, 설정에서 오버라이드 가능) ──
 const DEFAULT_BLOCKED_EXT = new Set([
@@ -16,6 +17,11 @@ const MIME_EXT_MAP: Record<string, string[]> = {
   "image/png": ["png"],
   "image/gif": ["gif"],
   "image/webp": ["webp"],
+  "image/avif": ["avif"],
+  "image/bmp": ["bmp"],
+  "image/heic": ["heic", "heif"],
+  "image/heif": ["heic", "heif"],
+  "image/tiff": ["tif", "tiff"],
   "image/svg+xml": ["svg"],
   "video/mp4": ["mp4"],
   "video/webm": ["webm"],
@@ -134,16 +140,35 @@ export async function POST(request: Request) {
     );
   }
 
-  // ── 5. 업로드 ──
-  const safeExt = ext.replace(/[^a-z0-9]/g, ""); // 확장자 sanitize
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${safeExt}`;
+  // ── 5. HEIC/HEIF/TIFF 변환 → WebP (브라우저 호환성 확보) ──
+  let uploadBody: Blob | Buffer = file;
+  let uploadContentType = file.type;
+  let uploadExt = ext.replace(/[^a-z0-9]/g, "");
+
+  if (needsConversion(file.type)) {
+    try {
+      const inputBuf = Buffer.from(await file.arrayBuffer());
+      const converted = await convertToWebp(inputBuf, file.type);
+      uploadBody = converted.buffer;
+      uploadContentType = converted.contentType;
+      uploadExt = converted.extension;
+    } catch (err) {
+      return NextResponse.json(
+        { error: `Image conversion failed: ${err instanceof Error ? err.message : "unknown"}` },
+        { status: 500 },
+      );
+    }
+  }
+
+  // ── 6. 업로드 ──
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${uploadExt}`;
   const filePath = `posts/${fileName}`;
 
   const admin = createAdminClient();
   const { error } = await admin.storage
     .from("posts")
-    .upload(filePath, file, {
-      contentType: file.type,
+    .upload(filePath, uploadBody, {
+      contentType: uploadContentType,
       upsert: false,
     });
 
