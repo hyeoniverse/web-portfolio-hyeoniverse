@@ -338,13 +338,15 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                           </div>
                           <div className={styles.fieldGroup}>
                             <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
-                            <div>
-                              <label className={styles.profileFieldLabel}>KO</label>
-                              <textarea className={styles.profileFieldTextarea} value={exp.description.ko} onChange={(e) => updateExperience(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-                            </div>
-                            <div>
-                              <label className={styles.profileFieldLabel}>EN</label>
-                              <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                            <div className={styles.profileGrid}>
+                              <div>
+                                <label className={styles.profileFieldLabel}>KO</label>
+                                <textarea className={styles.profileFieldTextarea} value={exp.description.ko} onChange={(e) => updateExperience(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                              </div>
+                              <div>
+                                <label className={styles.profileFieldLabel}>EN</label>
+                                <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -396,13 +398,15 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                         <div>
                           <div className={styles.fieldGroup}>
                             <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
-                            <div>
-                              <label className={styles.profileFieldLabel}>KO</label>
-                              <textarea className={styles.profileFieldTextarea} value={group.description.ko} onChange={(e) => updateSkillGroup(gi, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-                            </div>
-                            <div>
-                              <label className={styles.profileFieldLabel}>EN</label>
-                              <textarea className={styles.profileFieldTextarea} value={group.description.en} onChange={(e) => updateSkillGroup(gi, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                            <div className={styles.profileGrid}>
+                              <div>
+                                <label className={styles.profileFieldLabel}>KO</label>
+                                <textarea className={styles.profileFieldTextarea} value={group.description.ko} onChange={(e) => updateSkillGroup(gi, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                              </div>
+                              <div>
+                                <label className={styles.profileFieldLabel}>EN</label>
+                                <textarea className={styles.profileFieldTextarea} value={group.description.en} onChange={(e) => updateSkillGroup(gi, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                              </div>
                             </div>
                           </div>
                           <SkillList
@@ -465,13 +469,15 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                         <div>
                           <div className={styles.fieldGroup}>
                             <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
-                            <div>
-                              <label className={styles.profileFieldLabel}>KO</label>
-                              <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-                            </div>
-                            <div>
-                              <label className={styles.profileFieldLabel}>EN</label>
-                              <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                            <div className={styles.profileGrid}>
+                              <div>
+                                <label className={styles.profileFieldLabel}>KO</label>
+                                <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                              </div>
+                              <div>
+                                <label className={styles.profileFieldLabel}>EN</label>
+                                <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -519,13 +525,15 @@ export default function ProfileSections({ data, setData, styles }: ProfileSectio
                         <div>
                           <div className={styles.fieldGroup}>
                             <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
-                            <div>
-                              <label className={styles.profileFieldLabel}>KO</label>
-                              <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
-                            </div>
-                            <div>
-                              <label className={styles.profileFieldLabel}>EN</label>
-                              <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                            <div className={styles.profileGrid}>
+                              <div>
+                                <label className={styles.profileFieldLabel}>KO</label>
+                                <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                              </div>
+                              <div>
+                                <label className={styles.profileFieldLabel}>EN</label>
+                                <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                              </div>
                             </div>
                           </div>
                         </div>

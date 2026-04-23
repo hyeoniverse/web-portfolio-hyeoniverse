@@ -491,7 +491,7 @@
 .tabGrid {
   display: grid;
   grid-template-columns: 1fr;
-  max-width: 720px;
+  max-width: 1040px;
   margin: 0 auto;
 }
 
@@ -517,6 +517,7 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -550,7 +551,7 @@
 }
 
 .fields > * {
-  padding: var(--spacing-md) 0;
+  padding: var(--spacing-xs) 0;
   border-bottom: var(--border-light);
 }
 
@@ -567,11 +568,21 @@
   padding: var(--spacing-xs) 0;
 }
 
-/* ── Field Pair (EN/KO group) ── */
+/* ── Field Pair (EN/KO group — 2열 나란히) ── */
 .fieldPair {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-xs) var(--spacing-md);
+}
+
+.fieldPair > .fieldHint {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .fieldPair {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ── Field Row (label | input) ── */
@@ -627,7 +638,6 @@
 .fieldSelect {
   flex: 1;
   min-width: 0;
-  max-width: 400px;
   padding: var(--box-xs-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -643,7 +653,7 @@
   min-width: 0;
   padding: var(--box-xs-sm);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -1382,7 +1392,7 @@
   width: 100%;
   padding: var(--box-xs-sm);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -3274,12 +3284,16 @@
   color: var(--text-accent);
 }
 
-/* ── MIME group row (shared-size custom group) ── */
-.mimeGroupRow {
+/* ── MIME row (default row + optional chips below) ── */
+.mimeRow {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.mimeRow .fieldRow {
+  padding: 0;
+  border-bottom: none;
 }
 
 .mimeAddedChip {
