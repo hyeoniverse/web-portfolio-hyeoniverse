@@ -174,7 +174,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **AI Translation/Summary**: DeepL/Google/Gemini/Claude fallback chain, auto-summary on publish
 - **Settings 5 Tabs**: General/Content/Appearance/Services/Account — brand, SEO, bilingual editing
 - **Cover Image Picker**: 16 presets + Unsplash search + AI generation, client-side WebP compression
-- **Media Upload Management**: Allowed file types whitelist (per-MIME size limits), blocked extensions blacklist, infrastructure keys read-only display
+- **Media Upload Management**: Allowed file types whitelist (per-MIME size limits), blocked extensions blacklist, infrastructure keys read-only display — addable MIMEs displayed as group-based chips (image/video/audio/document/archive) for one-click allowlist, same-group types (e.g., JPEG/PNG/WebP) share a size limit
+- **HEIC / TIFF Auto-Conversion**: On upload, HEIC/HEIF/TIFF are server-converted to WebP (quality 85) via sharp, making browser-unsupported formats viewable everywhere
 - **Document Viewer**: File attachments with inline preview — PDF (iframe) · Office (MS Viewer) · text (fetch+pre), original filename preserved on download
 
 <p align="center">
