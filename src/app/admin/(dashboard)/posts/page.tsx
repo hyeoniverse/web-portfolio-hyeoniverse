@@ -452,6 +452,7 @@ export default function AdminPostsPage() {
               search={trashSearch}
               onSearchChange={setTrashSearch}
               placeholder={t("admin.posts.trashSearch")}
+              className={styles.subFilterSearch}
             />
           </div>
         }
@@ -586,6 +587,7 @@ export default function AdminPostsPage() {
               search={seriesSearch}
               onSearchChange={setSeriesSearch}
               placeholder={t("admin.posts.seriesSearch")}
+              className={styles.subFilterSearch}
             />
           </div>
         }
@@ -739,6 +741,7 @@ tags: React`}</code></pre>
           search={search}
           onSearchChange={(v) => { setSearch(v); setPage(1); }}
           placeholder={t("admin.posts.search")}
+          className={shell.filterSearch}
         />
       </div>
 

@@ -492,6 +492,7 @@ export default function AdminWorksPage() {
               search={trashSearch}
               onSearchChange={setTrashSearch}
               placeholder={t("admin.works.trashSearch")}
+              className={styles.subFilterSearch}
             />
           </div>
         }
@@ -586,6 +587,7 @@ role: 풀스택 개발
           onSearchChange={(v) => { setSearch(v); setPage(1); }}
           placeholder={t("admin.works.search")}
           align="left"
+          className={shell.filterSearch}
         />
         <Select
           value={sort}
