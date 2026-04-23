@@ -7,6 +7,8 @@ import {
 } from "@/components/admin/AdminTable/AdminTable";
 import { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
 import type { Post, Series } from "@/types/post";
+import type { BilingualCategory } from "@/hooks/useCategories";
+import { translateCategory } from "@/hooks/useCategories";
 import styles from "./AdminPosts.module.css";
 
 type TFn = (key: string) => string;
@@ -152,6 +154,8 @@ export function createSeriesColumns(
   t: TFn,
   handleDeleteSeries: (s: Series) => void,
   handleExportSeries?: (seriesId: string) => void,
+  language: "ko" | "en" = "ko",
+  categories: BilingualCategory[] = [],
 ): SubTableColumn<Series>[] {
   return [
     {
@@ -199,7 +203,7 @@ export function createSeriesColumns(
       key: "category",
       label: t("admin.posts.tableCategory"),
       className: st.colMeta,
-      render: (s) => s.category ? <span className={styles.seriesRowCat}>{s.category}</span> : <span>—</span>,
+      render: (s) => s.category ? <span className={styles.seriesRowCat}>{translateCategory(s.category, language, categories)}</span> : <span>—</span>,
     },
     {
       key: "count",
