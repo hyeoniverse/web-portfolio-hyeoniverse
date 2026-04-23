@@ -43,13 +43,13 @@
 }
 
 .bulkActionBtn:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 .bulkActionDanger:hover {
   background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
+  border-color: var(--border-strong-color);
 }
 
 .bulkCancelBtn {
@@ -225,8 +225,8 @@
 }
 
 .colActions .actionBtn:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 .deleteBtn {
@@ -265,7 +265,7 @@
 
 .colActions .exportIconBtn:hover {
   background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
+  border-color: var(--border-strong-color);
   color: var(--text-inverse);
 }
 
