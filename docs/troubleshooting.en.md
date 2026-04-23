@@ -1234,3 +1234,32 @@ CodePlugin,
 ```
 
 </details>
+
+---
+
+<details>
+<summary><strong>38. Admin Table Row Borders Cut Off Mid-Scroll on Mobile</strong></summary>
+
+**Problem**: On mobile, horizontally scrolling admin/posts and admin/works tables caused row border-bottoms to stop mid-scroll instead of extending across the full scrollable width
+
+**Cause**: `.colTitle { min-width: 280px }` was applied to guarantee a readable title column, but `.row` / `.tableHeader` / `.bulkBar` are each **independent CSS Grid containers**, so track expansion is computed per-row. Data rows had `col.className` applied, expanding the title track to 280px — but the header's title `<span>` had no className, leaving the 1fr track at its natural size. This created a **width mismatch: rows grew to 868px while header/bulkBar stayed at 720px**. On scroll, row borders drew out to 868px but header/bulkBar borders cut off at 720px
+
+**Solution**: Two simultaneous fixes
+
+1. **Apply `col.className` to header `<span>`** — so `.colTitle` applies to the header's title cell too, expanding the header title track to 280px
+2. **Add `.tableInner` wrapper** inside the scroll container (`.table`, `.tableScroll`):
+
+```css
+.tableInner {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  width: max-content;
+}
+```
+
+In a flex column, items auto-stretch on the cross-axis (horizontal), and `width: max-content` sizes the wrapper to the widest child's max-content (868px). **All rows/header/bulkBar align to the same 868px width**, so border-bottom extends continuously across the full scrollable area
+
+**Key insight**: When each row is an independent grid container, **track expansion is computed per-row** — a `min-width` on one row's cell doesn't propagate to siblings. For continuous borders during horizontal scroll, every row must share the same total width. The `width: max-content + min-width: 100%` wrapper pattern enforces this by sizing to the widest child. Additionally, **className mismatches between row and header** (where `col.className` is applied to rows but omitted in headers) are a common source of width divergence
+
+</details>
