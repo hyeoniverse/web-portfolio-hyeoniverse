@@ -178,10 +178,6 @@ const DEFAULT_LIMIT_GROUPS: { label: string; key: string; keys?: string[] }[] = 
   { label: "ZIP / RAR", key: "application/zip", keys: ["application/zip"] },
 ];
 
-const ALL_DEFAULT_KEYS = new Set(
-  DEFAULT_LIMIT_GROUPS.flatMap((g) => g.keys ?? [g.key])
-);
-
 const SIZE_OPTIONS = [
   { value: "1", label: "1 MB" },
   { value: "2", label: "2 MB" },
@@ -192,27 +188,57 @@ const SIZE_OPTIONS = [
   { value: "100", label: "100 MB" },
 ];
 
-const ADDABLE_MIMES: { value: string; label: string }[] = [
-  { value: "image/avif", label: "AVIF (image/avif)" },
-  { value: "image/heic", label: "HEIC (image/heic)" },
-  { value: "image/tiff", label: "TIFF (image/tiff)" },
-  { value: "image/bmp", label: "BMP (image/bmp)" },
-  { value: "video/quicktime", label: "MOV (video/quicktime)" },
-  { value: "audio/flac", label: "FLAC (audio/flac)" },
-  { value: "audio/x-m4a", label: "M4A (audio/x-m4a)" },
-  { value: "application/x-rar-compressed", label: "RAR (application/x-rar)" },
-  { value: "application/x-7z-compressed", label: "7Z (application/x-7z)" },
-  { value: "application/gzip", label: "GZ (application/gzip)" },
-  { value: "application/msword", label: "DOC (application/msword)" },
-  { value: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", label: "DOCX" },
-  { value: "application/vnd.ms-excel", label: "XLS (application/vnd.ms-excel)" },
-  { value: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", label: "XLSX" },
-  { value: "application/vnd.ms-powerpoint", label: "PPT (application/vnd.ms-powerpoint)" },
-  { value: "application/vnd.openxmlformats-officedocument.presentationml.presentation", label: "PPTX" },
-  { value: "text/plain", label: "TXT (text/plain)" },
-  { value: "text/csv", label: "CSV (text/csv)" },
-  { value: "application/json", label: "JSON (application/json)" },
+const ADDABLE_MIME_GROUPS: { labelKey: string; targetKey: string; mimes: { value: string; label: string }[] }[] = [
+  {
+    labelKey: "admin.settings.mimeGroupImage",
+    targetKey: "image/jpeg",
+    mimes: [
+      { value: "image/avif", label: "AVIF" },
+      { value: "image/bmp", label: "BMP" },
+    ],
+  },
+  {
+    labelKey: "admin.settings.mimeGroupVideo",
+    targetKey: "video/mp4",
+    mimes: [
+      { value: "video/quicktime", label: "MOV" },
+    ],
+  },
+  {
+    labelKey: "admin.settings.mimeGroupAudio",
+    targetKey: "audio/mpeg",
+    mimes: [
+      { value: "audio/flac", label: "FLAC" },
+      { value: "audio/x-m4a", label: "M4A" },
+    ],
+  },
+  {
+    labelKey: "admin.settings.mimeGroupDocument",
+    targetKey: "application/pdf",
+    mimes: [
+      { value: "application/msword", label: "DOC" },
+      { value: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", label: "DOCX" },
+      { value: "application/vnd.ms-excel", label: "XLS" },
+      { value: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", label: "XLSX" },
+      { value: "application/vnd.ms-powerpoint", label: "PPT" },
+      { value: "application/vnd.openxmlformats-officedocument.presentationml.presentation", label: "PPTX" },
+      { value: "text/plain", label: "TXT" },
+      { value: "text/csv", label: "CSV" },
+      { value: "application/json", label: "JSON" },
+    ],
+  },
+  {
+    labelKey: "admin.settings.mimeGroupArchive",
+    targetKey: "application/zip",
+    mimes: [
+      { value: "application/x-rar-compressed", label: "RAR" },
+      { value: "application/x-7z-compressed", label: "7Z" },
+      { value: "application/gzip", label: "GZ" },
+    ],
+  },
 ];
+
+const ADDABLE_MIMES: { value: string; label: string }[] = ADDABLE_MIME_GROUPS.flatMap((g) => g.mimes);
 
 function MediaLimitsEditor({ config, setConfig, t }: {
   config: SiteConfigData;
@@ -220,7 +246,6 @@ function MediaLimitsEditor({ config, setConfig, t }: {
   t: (k: string) => string;
 }) {
   const limits = ((config.media as Record<string, unknown>)?.limits ?? {}) as Record<string, number>;
-  const customKeys = Object.keys(limits).filter((k) => k !== "_default" && !ALL_DEFAULT_KEYS.has(k));
   const available = ADDABLE_MIMES.filter((m) => !(m.value in limits));
 
   const updateLimits = (newLimits: Record<string, number>) => {
@@ -242,18 +267,45 @@ function MediaLimitsEditor({ config, setConfig, t }: {
     <div className={styles.fields}>
       {DEFAULT_LIMIT_GROUPS.map(({ label, key, keys }) => {
         const val = limits[key] ?? 20;
+        // Addable MIMEs that target this default row and are currently in limits
+        const addedForRow = ADDABLE_MIME_GROUPS
+          .filter((g) => g.targetKey === key)
+          .flatMap((g) => g.mimes.filter((m) => m.value in limits));
+        const allKeys = [...(keys ?? [key]), ...addedForRow.map((m) => m.value)];
         return (
           <div className={styles.fieldRow} key={key}>
             <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{label}</label>
-            <Select
-              value={String(val)}
-              options={SIZE_OPTIONS}
-              onChange={(v) => {
-                const newLimits = { ...limits };
-                for (const k of (keys ?? [key])) newLimits[k] = Number(v);
-                updateLimits(newLimits);
-              }}
-            />
+            <div className={styles.mimeGroupRow}>
+              <Select
+                value={String(val)}
+                options={SIZE_OPTIONS}
+                onChange={(v) => {
+                  const newLimits = { ...limits };
+                  for (const k of allKeys) newLimits[k] = Number(v);
+                  updateLimits(newLimits);
+                }}
+              />
+              {addedForRow.length > 0 && (
+                <div className={styles.mimeChipGrid}>
+                  {addedForRow.map((m) => (
+                    <span key={m.value} className={styles.mimeAddedChip} title={m.value}>
+                      {m.label}
+                      <button
+                        type="button"
+                        className={styles.mimeAddedChipRemove}
+                        onClick={() => removeMime(m.value)}
+                        title={t("admin.settings.remove")}
+                        aria-label={t("admin.settings.remove")}
+                      >
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         );
       })}
@@ -265,41 +317,33 @@ function MediaLimitsEditor({ config, setConfig, t }: {
           onChange={(v) => updateLimits({ ...limits, _default: Number(v) })}
         />
       </div>
-      {customKeys.map((key) => {
-        const label = ADDABLE_MIMES.find((m) => m.value === key)?.label ?? key;
-        return (
-          <div className={styles.fieldRow} key={key}>
-            <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{label}</label>
-            <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center" }}>
-              <Select
-                value={String(limits[key])}
-                options={SIZE_OPTIONS}
-                onChange={(v) => updateLimits({ ...limits, [key]: Number(v) })}
-              />
-              <button
-                type="button"
-                className={styles.tagRemoveBtn}
-                onClick={() => removeMime(key)}
-                title={t("admin.settings.remove")}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        );
-      })}
       {available.length > 0 && (
-        <div className={styles.fieldRow}>
-          <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{t("admin.settings.addMimeType")}</label>
-          <Select
-            value=""
-            options={[{ value: "", label: t("admin.settings.selectMimeType") }, ...available]}
-            onChange={(v) => {
-              if (v) updateLimits({ ...limits, [v]: 20 });
-            }}
-          />
+        <div className={styles.mimeAddBlock}>
+          <label className={styles.fieldLabel}>{t("admin.settings.addMimeType")}</label>
+          {ADDABLE_MIME_GROUPS.map((group) => {
+            const groupAvailable = group.mimes.filter((m) => !(m.value in limits));
+            if (groupAvailable.length === 0) return null;
+            const targetSize = limits[group.targetKey] ?? 20;
+            return (
+              <div key={group.labelKey} className={styles.mimeChipGroup}>
+                <span className={styles.mimeChipGroupLabel}>{t(group.labelKey)}</span>
+                <div className={styles.mimeChipGrid}>
+                  {groupAvailable.map((m) => (
+                    <button
+                      key={m.value}
+                      type="button"
+                      className={styles.mimeChipBtn}
+                      onClick={() => updateLimits({ ...limits, [m.value]: targetSize })}
+                      title={m.value}
+                    >
+                      <span className={styles.mimeChipPlus}>+</span>
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
