@@ -487,17 +487,12 @@
   display: none;
 }
 
-/* ── Tab grid — sections 2열 배치 ── */
+/* ── Tab grid — 1열 고정 + max-width 제한 ── */
 .tabGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0 var(--spacing-3xl);
-}
-
-@media (max-width: 1024px) {
-  .tabGrid {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: 1fr;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 /* ── Section ── */
@@ -522,7 +517,6 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-md);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -544,17 +538,10 @@
   margin-bottom: 0;
 }
 
-/* ── Fields List ── */
+/* ── Fields List — 1열 고정 ── */
 .fieldsGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0 var(--spacing-2xl);
-}
-
-@media (max-width: 768px) {
-  .fieldsGrid {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: 1fr;
 }
 
 .fields {
@@ -3285,6 +3272,96 @@
 
 .section .tagRemoveBtn:hover {
   color: var(--text-accent);
+}
+
+/* ── MIME group row (shared-size custom group) ── */
+.mimeGroupRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.mimeAddedChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+}
+
+.mimeAddedChipRemove {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.section .mimeAddedChipRemove:hover {
+  color: var(--text-accent);
+}
+
+/* ── MIME add chip grid ── */
+.mimeAddBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.mimeChipGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.mimeChipGroupLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mimeChipGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
+.mimeChipBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.section .mimeChipBtn:hover {
+  background: var(--bg-inverse);
+  border-color: var(--border-strong-color);
+  color: var(--text-inverse);
+}
+
+.mimeChipPlus {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  line-height: 1;
 }
 
 .tagError {
