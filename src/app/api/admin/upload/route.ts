@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { needsConversion, convertToWebp } from "@/lib/convertImage";
 
 // POST /api/admin/upload — 파일 업로드 (인증 필수)
 export async function POST(request: Request) {
@@ -49,14 +50,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: mimeError }, { status: 400 });
   }
 
+  // HEIC/HEIF/TIFF → WebP 변환 (브라우저 호환성)
+  let uploadBody: Blob | Buffer = file;
+  let uploadContentType = file.type;
+  let ext = file.name.split(".").pop() || "png";
+
+  if (needsConversion(file.type)) {
+    try {
+      const inputBuf = Buffer.from(await file.arrayBuffer());
+      const converted = await convertToWebp(inputBuf, file.type);
+      uploadBody = converted.buffer;
+      uploadContentType = converted.contentType;
+      ext = converted.extension;
+    } catch (err) {
+      return NextResponse.json(
+        { error: `Image conversion failed: ${err instanceof Error ? err.message : "unknown"}` },
+        { status: 500 },
+      );
+    }
+  }
+
   const admin = createAdminClient();
-  const ext = file.name.split(".").pop() || "png";
   const fileName = `${folder}/${Date.now()}.${ext}`;
 
   const { error } = await admin.storage
     .from("uploads")
-    .upload(fileName, file, {
-      contentType: file.type,
+    .upload(fileName, uploadBody, {
+      contentType: uploadContentType,
       upsert: true,
     });
 

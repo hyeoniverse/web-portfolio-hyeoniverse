@@ -195,6 +195,8 @@ const ADDABLE_MIME_GROUPS: { labelKey: string; targetKey: string; mimes: { value
     mimes: [
       { value: "image/avif", label: "AVIF" },
       { value: "image/bmp", label: "BMP" },
+      { value: "image/heic", label: "HEIC" },
+      { value: "image/tiff", label: "TIFF" },
     ],
   },
   {
