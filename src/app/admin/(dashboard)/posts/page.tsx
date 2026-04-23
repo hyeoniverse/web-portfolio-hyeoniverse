@@ -388,7 +388,7 @@ export default function AdminPostsPage() {
             onClick: () => {
               openModal(
                 <ModalConfirm
-                  desc={`${trashSelected.size}개 항목을 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다.`}
+                  desc={t("admin.posts.trashPurgeConfirmBulk").replace("{{count}}", String(trashSelected.size))}
                   cancelText={t("admin.posts.cancel")}
                   confirmText={t("admin.posts.trashPurge")}
                   onConfirm={async () => {
@@ -526,7 +526,7 @@ export default function AdminPostsPage() {
               const ids = [...seriesSelected];
               openModal(
                 <ModalConfirm
-                  desc={`${ids.length}개 시리즈를 삭제합니다.`}
+                  desc={t("admin.posts.seriesBulkDeleteConfirm").replace("{{count}}", String(ids.length))}
                   cancelText={t("admin.posts.cancel")}
                   confirmText={t("admin.posts.delete")}
                   onConfirm={async () => {
