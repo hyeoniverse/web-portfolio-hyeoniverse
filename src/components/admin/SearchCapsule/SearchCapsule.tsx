@@ -11,6 +11,7 @@ export interface SearchCapsuleProps {
   onSearchChange: (value: string) => void;
   placeholder?: string;
   align?: "left" | "right";
+  className?: string;
 }
 
 export default function SearchCapsule({
@@ -21,9 +22,10 @@ export default function SearchCapsule({
   onSearchChange,
   placeholder = "Search...",
   align = "right",
+  className,
 }: SearchCapsuleProps) {
   return (
-    <div className={`${styles.capsule} ${align === "right" ? styles.right : ""}`}>
+    <div className={`${styles.capsule} ${align === "right" ? styles.right : ""} ${className ?? ""}`}>
       <Select
         value={searchType}
         options={searchTypeOptions}

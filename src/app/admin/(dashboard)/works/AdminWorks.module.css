@@ -28,12 +28,23 @@
 .subFilterSelect {
   flex: 0 1 auto;
   min-width: 100px;
-  max-width: 180px;
+  max-width: 160px;
 }
 
 .subFilterSelect button {
   padding: var(--box-sm);
   font-size: var(--font-size-xs);
+}
+
+.subFilterSearch {
+  flex: 0 1 auto;
+}
+
+@media (max-width: 768px) {
+  .subFilterBar .subFilterSearch {
+    flex-basis: 100%;
+    margin-top: var(--spacing-xs);
+  }
 }
 
 /* ── Upload Guide Modal ── */

@@ -99,8 +99,8 @@
 
 .filterItem {
   flex: 0 1 auto;
-  min-width: 80px;
-  max-width: 140px;
+  min-width: 100px;
+  max-width: 160px;
 }
 
 .filterItem button {
@@ -110,8 +110,8 @@
 
 .filterPageSize {
   flex: 0 0 auto;
-  min-width: 50px;
-  max-width: 70px;
+  min-width: 60px;
+  max-width: 80px;
   margin-left: auto;
 }
 
@@ -132,6 +132,10 @@
 
 .filterBar .filterReset:hover {
   color: var(--text-primary);
+}
+
+.filterSearch {
+  flex: 0 1 auto;
 }
 
 /* ── Preview Backdrop (mobile dismiss) ── */
@@ -240,6 +244,15 @@
   .saveBtn {
     font-size: var(--font-size-xs);
     padding: var(--box-md);
+  }
+
+  .filterBar {
+    flex-wrap: wrap;
+  }
+
+  .filterBar .filterSearch {
+    flex-basis: 100%;
+    margin-top: var(--spacing-xs);
   }
 
   .previewTooltip {
