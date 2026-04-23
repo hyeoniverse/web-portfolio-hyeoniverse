@@ -361,18 +361,42 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .table {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  .tableHeader {
+    display: none;
   }
-
-  .tableHeader,
   .row {
-    min-width: 600px;
+    grid-template-columns: 40px 40px 80px 1fr !important;
+    grid-template-areas:
+      "check num thumb title"
+      "check num thumb meta"
+      "actions actions actions actions";
+    gap: var(--spacing-2xs) var(--spacing-sm);
+    padding: var(--spacing-md) 0;
   }
-
-  .colActions {
-    gap: var(--spacing-2xs);
+  .row > .colCheck { grid-area: check; }
+  .row > .rowNum,
+  .row > .dragHandle { grid-area: num; }
+  .row > .colThumbWrap { grid-area: thumb; margin: 0; }
+  .row > .colTitle { grid-area: title; font-weight: 500; }
+  .row > .colMeta,
+  .row > .colMono {
+    grid-area: meta;
+    display: inline-flex;
+    font-size: var(--font-size-2xs);
+    color: var(--text-tertiary);
+  }
+  .row > .colMeta + .colMeta::before,
+  .row > .colMeta + .colMono::before,
+  .row > .colMono + .colMeta::before,
+  .row > .colMono + .colMono::before {
+    content: "·";
+    margin: 0 var(--spacing-3xs);
+    opacity: 0.5;
+  }
+  .row > .colActions {
+    grid-area: actions;
+    gap: var(--spacing-xs);
+    padding-top: var(--spacing-xs);
   }
 
   .actionBtn,
