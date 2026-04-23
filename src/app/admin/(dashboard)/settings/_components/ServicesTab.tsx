@@ -275,9 +275,9 @@ function MediaLimitsEditor({ config, setConfig, t }: {
           .flatMap((g) => g.mimes.filter((m) => m.value in limits));
         const allKeys = [...(keys ?? [key]), ...addedForRow.map((m) => m.value)];
         return (
-          <div className={styles.fieldRow} key={key}>
-            <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{label}</label>
-            <div className={styles.mimeGroupRow}>
+          <div className={styles.mimeRow} key={key}>
+            <div className={styles.fieldRow}>
+              <label className={styles.fieldLabel} style={{ minWidth: 180 }}>{label}</label>
               <Select
                 value={String(val)}
                 options={SIZE_OPTIONS}
@@ -287,27 +287,27 @@ function MediaLimitsEditor({ config, setConfig, t }: {
                   updateLimits(newLimits);
                 }}
               />
-              {addedForRow.length > 0 && (
-                <div className={styles.mimeChipGrid}>
-                  {addedForRow.map((m) => (
-                    <span key={m.value} className={styles.mimeAddedChip} title={m.value}>
-                      {m.label}
-                      <button
-                        type="button"
-                        className={styles.mimeAddedChipRemove}
-                        onClick={() => removeMime(m.value)}
-                        title={t("admin.settings.remove")}
-                        aria-label={t("admin.settings.remove")}
-                      >
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
+            {addedForRow.length > 0 && (
+              <div className={styles.mimeChipGrid}>
+                {addedForRow.map((m) => (
+                  <span key={m.value} className={styles.mimeAddedChip} title={m.value}>
+                    {m.label}
+                    <button
+                      type="button"
+                      className={styles.mimeAddedChipRemove}
+                      onClick={() => removeMime(m.value)}
+                      title={t("admin.settings.remove")}
+                      aria-label={t("admin.settings.remove")}
+                    >
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         );
       })}
