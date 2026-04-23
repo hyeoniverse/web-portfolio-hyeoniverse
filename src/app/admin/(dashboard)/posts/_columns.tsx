@@ -239,7 +239,7 @@ export function createSeriesColumns(
             <T k="admin.posts.delete" />
           </button>
           {handleExportSeries && (
-            <button type="button" className={st.exportIconBtn} title=".md 내보내기" onClick={() => handleExportSeries(s.id)}>
+            <button type="button" className={st.exportIconBtn} title={t("admin.posts.exportMd")} onClick={() => handleExportSeries(s.id)}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
             </button>
           )}
