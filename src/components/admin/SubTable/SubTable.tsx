@@ -174,22 +174,27 @@ export default function SubTable<T extends { id: string }>({
 
           {/* Loading skeleton */}
           {loading ? (
-            <ul className={styles.list}>
-              {Array.from({ length: skeletonRows }, (_, i) => (
-                <li key={i} className={styles.row} style={{ ...gridStyle, opacity: 0.4 }}>
-                  <span />
-                  {columns.map((col) => (
-                    <span key={col.key}>
-                      <SkeletonLine width={col.skeletonWidth ?? "60%"} />
-                    </span>
+            <div className={styles.tableScroll}>
+              <div className={styles.tableInner}>
+                <ul className={styles.list}>
+                  {Array.from({ length: skeletonRows }, (_, i) => (
+                    <li key={i} className={styles.row} style={{ ...gridStyle, opacity: 0.4 }}>
+                      <span />
+                      {columns.map((col) => (
+                        <span key={col.key}>
+                          <SkeletonLine width={col.skeletonWidth ?? "60%"} />
+                        </span>
+                      ))}
+                    </li>
                   ))}
-                </li>
-              ))}
-            </ul>
+                </ul>
+              </div>
+            </div>
           ) : allItems.length === 0 ? (
             <p className={styles.empty}>{emptyMessage}</p>
           ) : (
-            <>
+            <div className={styles.tableScroll}>
+              <div className={styles.tableInner}>
               {/* Bulk bar */}
               <div className={`${styles.bulkBar} ${selected.size > 0 ? styles.bulkBarOpen : ""}`}>
                 <span>{selected.size}개 선택</span>
@@ -223,7 +228,11 @@ export default function SubTable<T extends { id: string }>({
                     if (skip > 0) { skip--; continue; }
                     const span = col.headerSpan ?? 1;
                     els.push(
-                      <span key={col.key} style={span > 1 ? { gridColumn: `span ${span}` } : undefined}>
+                      <span
+                        key={col.key}
+                        className={col.className}
+                        style={span > 1 ? { gridColumn: `span ${span}` } : undefined}
+                      >
                         {col.label}
                       </span>
                     );
@@ -265,7 +274,8 @@ export default function SubTable<T extends { id: string }>({
                   </li>
                 ))}
               </ul>
-            </>
+              </div>
+            </div>
           )}
 
           <Pagination page={page} totalPages={totalPages} onChange={onPageChange} />

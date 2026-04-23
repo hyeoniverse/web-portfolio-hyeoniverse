@@ -144,6 +144,12 @@
   margin: calc(-1 * var(--spacing-md)) 0;
 }
 
+/* 헤더에서 thumb 셀은 stretch/음수마진 무효화 */
+.tableHeader .colThumbWrap {
+  align-self: center;
+  margin: 0;
+}
+
 .colThumb {
   width: 100%;
   height: 100%;
@@ -366,9 +372,21 @@
     -webkit-overflow-scrolling: touch;
   }
 
+  .tableInner {
+    display: flex;
+    flex-direction: column;
+    min-width: 100%;
+    width: max-content;
+  }
+
   .tableHeader,
-  .row {
+  .row,
+  .bulkBar {
     min-width: 720px;
+  }
+
+  .colTitle {
+    min-width: 280px;
   }
 
   .colActions {
