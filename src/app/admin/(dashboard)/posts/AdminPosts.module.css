@@ -3,7 +3,7 @@
   position: absolute;
   inset: 0;
   z-index: var(--z-nav);
-  background: var(--bg-primary-alpha-60, rgba(255, 255, 255, 0.6));
+  background: var(--bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -238,7 +238,7 @@
 }
 
 .seriesDeleteInput:focus {
-  border-color: var(--text-primary);
+  border-color: var(--border-strong-color);
 }
 
 .seriesDeleteActions {
@@ -259,7 +259,7 @@
 
 .seriesDeleteConfirm {
   background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
+  border-color: var(--border-strong-color);
   color: var(--text-inverse);
 }
 

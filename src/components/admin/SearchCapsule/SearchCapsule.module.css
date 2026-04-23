@@ -9,7 +9,7 @@
 }
 
 .capsule:focus-within {
-  border-color: var(--text-primary);
+  border-color: var(--border-strong-color);
 }
 
 /* Override Select button inside capsule */
