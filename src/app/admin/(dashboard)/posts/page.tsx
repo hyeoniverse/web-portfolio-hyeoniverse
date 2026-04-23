@@ -368,7 +368,7 @@ export default function AdminPostsPage() {
         onToggle={() => { if (!trashOpen) fetchTrash(); setTrashOpen((v) => !v); }}
         allItems={filteredTrash}
         columns={trashColumns}
-        gridTemplate="28px 64px 1fr 200px auto"
+        gridTemplate="28px 64px 1fr 200px 200px"
         selected={trashSelected}
         onSelectChange={setTrashSelected}
         bulkActions={[
