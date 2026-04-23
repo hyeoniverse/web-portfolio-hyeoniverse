@@ -477,7 +477,7 @@ export default function AdminPostsPage() {
   }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const seriesColumns = useMemo(() => createSeriesColumns(t, handleDeleteSeries, handleExportSeries), [t]);
+  const seriesColumns = useMemo(() => createSeriesColumns(t, handleDeleteSeries, handleExportSeries, language, categories), [t, language, categories]);
 
   const seriesSection = (
     <div className={styles.seriesSection}>
