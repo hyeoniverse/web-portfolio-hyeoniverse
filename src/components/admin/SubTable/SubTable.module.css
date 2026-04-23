@@ -318,3 +318,15 @@
   font-size: var(--font-size-xs);
   color: var(--text-muted);
 }
+
+/* ── Mobile: horizontal scroll ── */
+@media (max-width: 768px) {
+  .body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tableHeader,
+  .row {
+    min-width: 720px;
+  }
+}
