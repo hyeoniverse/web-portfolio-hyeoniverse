@@ -58,6 +58,7 @@
 
 .body > * {
   min-height: 0;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -319,14 +320,25 @@
   color: var(--text-muted);
 }
 
-/* ── Mobile: horizontal scroll ── */
+/* ── Mobile: horizontal scroll (only the table area, not the filters) ── */
 @media (max-width: 768px) {
-  .body {
+  .tableScroll {
+    max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+  .tableInner {
+    display: flex;
+    flex-direction: column;
+    min-width: 100%;
+    width: max-content;
+  }
   .tableHeader,
-  .row {
+  .row,
+  .bulkBar {
     min-width: 720px;
+  }
+  .colTitle {
+    min-width: 280px;
   }
 }

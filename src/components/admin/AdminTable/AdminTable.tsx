@@ -220,32 +220,34 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   if (loading) {
     return (
       <div className={styles.table} style={gridStyle}>
-        <div className={styles.tableHeader}>
-          <span />
-          {hasNumCol && <span>#</span>}
-          {columns.map((col) => (
-            <span key={col.key}>{col.label}</span>
-          ))}
-          <span>{labels.actions}</span>
-        </div>
-        {Array.from({ length: skeletonRows }, (_, i) => (
-          <div
-            key={i}
-            className={styles.row}
-            style={{ pointerEvents: "none" }}
-          >
-            <span><SkeletonLine width="16px" /></span>
-            {hasNumCol && <span><SkeletonLine width="16px" /></span>}
+        <div className={styles.tableInner}>
+          <div className={styles.tableHeader}>
+            <span />
+            {hasNumCol && <span>#</span>}
             {columns.map((col) => (
-              <span key={col.key}>
-                <SkeletonLine width={col.skeletonWidth ?? "60%"} />
-              </span>
+              <span key={col.key} className={col.className}>{col.label}</span>
             ))}
-            <span>
-              <SkeletonLine width="90px" />
-            </span>
+            <span className={styles.colActions}>{labels.actions}</span>
           </div>
-        ))}
+          {Array.from({ length: skeletonRows }, (_, i) => (
+            <div
+              key={i}
+              className={styles.row}
+              style={{ pointerEvents: "none" }}
+            >
+              <span><SkeletonLine width="16px" /></span>
+              {hasNumCol && <span><SkeletonLine width="16px" /></span>}
+              {columns.map((col) => (
+                <span key={col.key}>
+                  <SkeletonLine width={col.skeletonWidth ?? "60%"} />
+                </span>
+              ))}
+              <span>
+                <SkeletonLine width="90px" />
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -258,6 +260,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   return (
     <>
       <div className={styles.table} style={gridStyle}>
+        <div className={styles.tableInner}>
         <div className={`${styles.bulkBar} ${selected.size > 0 ? styles.bulkBarOpen : ""}`}>
           <span>{selected.size}개 선택</span>
           {onBulkPublish && (
@@ -280,9 +283,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           </span>
           {hasNumCol && <span>#</span>}
           {columns.map((col) => (
-            <span key={col.key}>{col.label}</span>
+            <span key={col.key} className={col.className}>{col.label}</span>
           ))}
-          <span>{labels.actions}</span>
+          <span className={styles.colActions}>{labels.actions}</span>
         </div>
 
         {items.map((item, i) => {
@@ -441,6 +444,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
             </div>
           );
         })}
+        </div>
       </div>
 
       {children}
