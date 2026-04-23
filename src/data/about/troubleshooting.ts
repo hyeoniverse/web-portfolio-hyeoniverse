@@ -1124,4 +1124,28 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     },
     tags: ["Plate", "Slate", "code mark", "cursor", "affinity"],
   },
+  {
+    section: { ko: "Frontend / Admin", en: "Frontend / Admin" },
+    problem: {
+      ko: "Admin 테이블 모바일 가로 스크롤 시 row border가 중간에서 끊김",
+      en: "Admin Table Row Border Cuts Off Mid-Scroll on Mobile",
+    },
+    definition: {
+      ko: "모바일에서 admin 테이블을 가로 스크롤할 때, 행과 행 사이 구분선(border-bottom)이 **스크롤 끝까지 그려지지 않고 중간에서 끊기는** 현상이 발생했습니다.",
+      en: "When horizontally scrolling admin tables on mobile, the row separator lines (border-bottom) **stopped mid-scroll instead of extending across the full scroll area**.",
+    },
+    cause: {
+      ko: "모바일 표시를 위해 `.colTitle { min-width: 280px }`으로 제목 열 너비를 확보했는데, 각 row(`.row`, `.tableHeader`, `.bulkBar`)는 **독립된 grid 컨테이너**이므로 trac 확장이 행마다 따로 계산됐습니다. 데이터 row에는 `col.className`이 적용되어 있어 title track이 280px로 확장되었지만, header의 title `<span>`에는 className이 없어 1fr만 계산됨 → **row는 868px로 늘어나고 header는 720px에서 끝나는 너비 불일치**. 스크롤 시 row의 border는 868px까지 그려지지만 header와 bulkBar의 border는 720px에서 끊겨 보였습니다.",
+      en: "To guarantee a readable title column on mobile, `.colTitle { min-width: 280px }` was applied. But each row (`.row`, `.tableHeader`, `.bulkBar`) is an **independent grid container**, so track expansion is computed per-row. Data rows had `col.className` applied, so the title track expanded to 280px — but the header's title `<span>` had no className, leaving the 1fr track at its natural size. **Rows grew to 868px while the header stayed at 720px**. On scroll, row borders extended to 868px but the header/bulkBar borders stopped at 720px, making the separator lines look truncated.",
+    },
+    solution: {
+      ko: "두 가지 동시 수정. ① 헤더 `<span>`에도 `col.className`을 적용해 `.colTitle`이 header title에도 적용되게 하여 **header title track도 280px로 확장**. ② 스크롤 컨테이너 내부에 `.tableInner` wrapper(`display: flex; flex-direction: column; min-width: 100%; width: max-content;`)를 추가. flex column에서 items는 cross-axis(가로)로 자동 stretch되고, `width: max-content`가 가장 넓은 자식의 max-content 너비(868px)로 wrapper를 사이징하므로 **모든 row/header/bulkBar가 동일한 868px로 정렬**됩니다. 결과적으로 border-bottom이 스크롤 전 영역에 걸쳐 연결되어 그려집니다.",
+      en: "Two simultaneous fixes. ① Apply `col.className` to the header `<span>` too so `.colTitle` applies in the header, **expanding the header's title track to 280px**. ② Add a `.tableInner` wrapper (`display: flex; flex-direction: column; min-width: 100%; width: max-content;`) inside the scroll container. In a flex column, items auto-stretch on the cross-axis (horizontal), and `width: max-content` sizes the wrapper to the widest child's max-content (868px), **aligning all rows/header/bulkBar to the same 868px width**. Border-bottom now extends continuously across the full scroll area.",
+    },
+    keyInsight: {
+      ko: "CSS Grid에서 각 row가 독립된 grid 컨테이너이면 **track 확장은 row별로 계산**되어 하나의 row에서 min-width가 걸려도 다른 row에는 반영되지 않습니다. 가로 스크롤 시 border 연속성을 유지하려면 모든 row가 **동일한 전체 너비**를 가져야 하고, 이를 위해 `width: max-content + min-width: 100%` 패턴의 wrapper로 가장 넓은 자식에 맞춰 통일된 너비를 강제해야 합니다. 또한 `col.className`처럼 **row에만 적용되고 header에는 빠진 className 불일치**가 너비 차이의 가장 흔한 원인이므로, header 렌더링 경로도 동일 className을 받도록 해야 합니다.",
+      en: "When each row is an independent CSS Grid container, **track expansion is computed per-row** — a `min-width` on one row's cell doesn't propagate to siblings. For horizontal scroll with continuous borders, all rows must share the **same overall width**. The `width: max-content + min-width: 100%` wrapper pattern enforces this by sizing the wrapper to the widest child. Additionally, **className mismatches between row and header** (where `col.className` is applied in rows but omitted in headers) are a common source of width divergence — ensure the header render path receives the same className.",
+    },
+    tags: ["CSS Grid", "flex", "overflow-x", "max-content", "mobile", "admin"],
+  },
 ];

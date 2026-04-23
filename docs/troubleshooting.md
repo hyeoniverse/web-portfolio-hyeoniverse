@@ -1234,3 +1234,32 @@ CodePlugin,
 ```
 
 </details>
+
+---
+
+<details>
+<summary><strong>38. Admin 테이블 모바일 가로 스크롤 시 row border 중간 끊김</strong></summary>
+
+**문제**: 모바일에서 admin/posts·admin/works 테이블을 가로 스크롤하면 row border-bottom이 스크롤 끝까지 이어지지 않고 중간에서 끊김
+
+**원인**: `.colTitle { min-width: 280px }`로 제목 열 너비를 확보했는데, `.row` / `.tableHeader` / `.bulkBar`는 각각 독립된 CSS Grid 컨테이너이므로 track 확장이 row별로 계산됨. 데이터 row에는 `col.className`이 적용돼 title track이 280px로 확장되었지만, header의 title `<span>`에는 className이 없어 1fr만 계산 → **row는 868px, header/bulkBar는 720px**의 너비 불일치가 발생. 스크롤 시 row border는 868px까지 그려지지만 header/bulkBar는 720px에서 끊김
+
+**해결**: 두 가지 동시 수정
+
+1. **헤더 `<span>`에도 `col.className` 적용** — `.colTitle`이 header title에 적용되도록 하여 header title track도 280px로 확장
+2. **`.tableInner` wrapper 추가** — 스크롤 컨테이너(`.table`, `.tableScroll`) 내부에 wrapper를 추가하고 아래 CSS 적용:
+
+```css
+.tableInner {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  width: max-content;
+}
+```
+
+flex column에서 items는 cross-axis(가로)로 자동 stretch되고, `width: max-content`가 wrapper를 가장 넓은 자식의 max-content 너비(868px)로 사이징 → **모든 row/header/bulkBar가 동일한 868px로 정렬**됨. border-bottom이 스크롤 전 영역에 걸쳐 연속으로 그려짐
+
+**핵심 인사이트**: 각 row가 독립된 grid 컨테이너이면 **track 확장이 row별로 따로 계산**되므로 하나의 row에 건 min-width가 다른 row에 전파되지 않는다. 가로 스크롤에서 border 연속성을 유지하려면 모든 row가 동일한 전체 너비를 가져야 하고, `width: max-content + min-width: 100%` 패턴의 wrapper로 가장 넓은 자식에 맞춰 통일된 너비를 강제해야 한다. 또한 `col.className`이 row에만 적용되고 header에는 빠진 **className 불일치**가 너비 차이의 가장 흔한 원인
+
+</details>
