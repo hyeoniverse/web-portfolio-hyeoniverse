@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef, useEffect, useLayoutEffect, useState } from "react";
+import { useMotionValue, useSpring, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -15,13 +15,14 @@ import { useScrollVelocity } from "@/hooks/useScrollVelocity";
 import { useToast } from "@/hooks/useToast";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useContactStore } from "@/stores/contactStore";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 
 
 // 섹션 — HeroSection만 즉시 로드, below-the-fold 섹션은 지연 로드
 import HeroSection from "./_sections/HeroSection";
 import dynamic from "next/dynamic";
 
-const ProfileSection = dynamic(() => import("./_sections/ProfileSection"));
+const IntroSection = dynamic(() => import("./_sections/IntroSection"));
 const ServicesSection = dynamic(() => import("./_sections/ServicesSection"));
 const MarqueeSection = dynamic(() => import("./_sections/MarqueeSection"));
 const WorksSection = dynamic(() => import("./_sections/WorksSection"));
@@ -44,19 +45,21 @@ gsap.registerPlugin(ScrollTrigger);
 export default function HomeClient() {
   const hasMounted = useHasMounted();
   const { isLoading } = useLoadingScreen();
+  const cfg = useSiteConfig();
   const gsapInitRef = useRef(false);
 
-  // 콘텐츠 등장 지연: 로고→nav→hero 순차 등장을 위해 isLoading false 후 딜레이
-  const [contentReady, setContentReady] = useState(false);
-  useEffect(() => {
-    if (!isLoading) {
-      // nav 아이템이 페이드인(0.4s)된 후 콘텐츠 슬라이드업 시작
-      const timer = setTimeout(() => setContentReady(true), 300);
-      return () => clearTimeout(timer);
-    }
-    setContentReady(false);
-  }, [isLoading]);
   const { setInfinite, stop: lenisStop, start: lenisStart, lenis } = useLenis();
+
+  // 브라우저 스크롤 복원 비활성 + 페인트 전 스크롤 0 확정.
+  // Bridge 섹션(페이지 하단, Hero와 동일 레이아웃)이 스크롤 복원으로 노출되어
+  // "최종 상태가 먼저 보이는" 플래시를 만드는 문제를 차단.
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+  }, []);
 
   // 로딩 중 Lenis 정지 — 스크롤 위치 밀림 방지
   useEffect(() => {
@@ -82,7 +85,7 @@ export default function HomeClient() {
   // ScrollTorus 지연 마운트: 사용자 인터랙션 후 로드 (Three.js ~300KB 지연)
   const [showTorus, setShowTorus] = useState(false);
   useEffect(() => {
-    if (isLoading || showTorus) return;
+    if (isLoading || showTorus || !cfg.home3d.scrollTorus) return;
     const load = () => { setShowTorus(true); };
     window.addEventListener("scroll", load, { once: true, passive: true });
     window.addEventListener("mousemove", load, { once: true, passive: true });
@@ -95,12 +98,12 @@ export default function HomeClient() {
       if ("requestIdleCallback" in window) cancelIdleCallback(idleId as number);
       else clearTimeout(idleId as ReturnType<typeof setTimeout>);
     };
-  }, [isLoading, showTorus]);
+  }, [isLoading, showTorus, cfg.home3d.scrollTorus]);
 
   // 레퍼런스
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const profileRef = useRef<HTMLElement>(null);
+  const introRef = useRef<HTMLElement>(null);
   const servicesRef = useRef<HTMLElement>(null);
   const marqueeRef = useRef<HTMLElement>(null);
   const worksRef = useRef<HTMLElement>(null);
@@ -175,39 +178,31 @@ export default function HomeClient() {
       void document.body.offsetHeight;
 
       gsap.context(() => {
-        // 히어로 섹션 애니메이션
-        gsap.from(".hero-line", {
-          y: 120,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "power4.out",
-          delay: 0.1,
-        });
-
-
+        // Hero 진입 애니메이션 제거 — .home 컨테이너의 CSS transition(슬라이드 업)만
+        // 단일 진입 애니메이션으로 사용하여 여러 애니메이션 겹침으로 인한 플래시 방지
 
         // Profile 섹션 등장
-        gsap.from(".profile-text", {
+        gsap.from(".intro-text", {
           y: 100,
           opacity: 0,
           duration: 1,
           ease: "power3.out",
-          immediateRender: false,
           scrollTrigger: {
-            trigger: profileRef.current,
+            trigger: introRef.current,
             start: "top 70%",
             once: true,
           },
         });
 
-        gsap.from(".profile-line", {
+        gsap.from(".intro-line", {
           scaleX: 0,
           duration: 1.2,
           ease: "power3.inOut",
-          immediateRender: false,
+          // 애니메이션 완료 후 inline transform 제거 — sub-pixel 렌더링으로
+          // 1px 라인이 두껍게 보이는 현상 방지
+          clearProps: "transform",
           scrollTrigger: {
-            trigger: profileRef.current,
+            trigger: introRef.current,
             start: "top 60%",
             once: true,
           },
@@ -220,7 +215,6 @@ export default function HomeClient() {
           duration: 0.8,
           stagger: 0.15,
           ease: "power3.out",
-          immediateRender: false,
           scrollTrigger: {
             trigger: servicesRef.current,
             start: "top 65%",
@@ -234,7 +228,7 @@ export default function HomeClient() {
           duration: 1,
           stagger: 0.1,
           ease: "power2.inOut",
-          immediateRender: false,
+          clearProps: "transform",
           scrollTrigger: {
             trigger: servicesRef.current,
             start: "top 70%",
@@ -249,7 +243,6 @@ export default function HomeClient() {
           duration: 0.8,
           stagger: 0.1,
           ease: "back.out(1.7)",
-          immediateRender: false,
           scrollTrigger: {
             trigger: worksRef.current,
             start: "top 70%",
@@ -264,7 +257,6 @@ export default function HomeClient() {
           duration: 1,
           stagger: 0.1,
           ease: "power4.out",
-          immediateRender: false,
           scrollTrigger: {
             trigger: ctaRef.current,
             start: "top 60%",
@@ -289,37 +281,8 @@ export default function HomeClient() {
 
   return (
     <div className={styles.pageWrapper}>
-      {showTorus && <ScrollTorus />}
-      <motion.div
-        className={styles.home}
-        ref={containerRef}
-        initial={{
-          marginTop: "100vh",
-          width: "90%",
-          borderRadius: "var(--radius-2xl)",
-        }}
-        animate={{
-          marginTop: contentReady ? 0 : "100vh",
-          width: contentReady ? "100%" : "90%",
-          borderRadius: contentReady ? "0px" : "var(--radius-2xl)",
-        }}
-        transition={{
-          marginTop: {
-            duration: 1.0,
-            ease: [0.25, 0.46, 0.45, 0.94],
-          },
-          width: {
-            duration: 0.6,
-            delay: 0.8,
-            ease: [0.25, 0.46, 0.45, 0.94],
-          },
-          borderRadius: {
-            duration: 0.6,
-            delay: 0.8,
-            ease: [0.25, 0.46, 0.45, 0.94],
-          },
-        }}
-      >
+      {showTorus && cfg.home3d.scrollTorus && <ScrollTorus />}
+      <div className={styles.home} ref={containerRef}>
         <HeroSection
           ref={heroRef}
           floatX={floatX}
@@ -327,11 +290,11 @@ export default function HomeClient() {
           oval2X={oval2X}
           oval2Y={oval2Y}
           onScrollDown={() => {
-            profileRef.current?.scrollIntoView({ behavior: "smooth" });
+            introRef.current?.scrollIntoView({ behavior: "smooth" });
           }}
         />
 
-        <ProfileSection ref={profileRef} />
+        <IntroSection ref={introRef} />
 
         <ServicesSection
           ref={servicesRef}
@@ -383,7 +346,7 @@ export default function HomeClient() {
         >
           {toast?.message}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

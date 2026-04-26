@@ -1,4 +1,4 @@
-import styles from "./ProfileSection.module.css";
+import styles from "./IntroSection.module.css";
 
 /** {중괄호} 안의 텍스트를 하이라이트 span으로 변환 */
 export default function HighlightedText({

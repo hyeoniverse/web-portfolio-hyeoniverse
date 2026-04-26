@@ -4,43 +4,43 @@ import { forwardRef } from "react";
 import Section from "@/components/ui/Section";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import HighlightedText from "./HighlightedText";
-import styles from "./ProfileSection.module.css";
+import styles from "./IntroSection.module.css";
 
-const ProfileSection = forwardRef<HTMLElement>((_, ref) => {
+const IntroSection = forwardRef<HTMLElement>((_, ref) => {
   const cfg = useSiteConfig();
 
   return (
-    <Section className={styles.about} ref={ref}>
-      <div className={`${styles.decorLine} profile-line`} />
+    <Section className={styles.intro} ref={ref}>
+      <div className={`${styles.decorLine} intro-line`} />
       <div className={styles.content}>
-        <div className={`${styles.textBlock} profile-text`}>
+        <div className={`${styles.textBlock} intro-text`}>
           <p className={styles.text}>
             <HighlightedText
-              text={cfg.homeAbout.intro}
+              text={cfg.homeIntro.tagline}
               highlightClass={styles.bold}
             />
           </p>
           <p className={styles.caption}>
-            <HighlightedText text={cfg.homeAbout.intro_ko} />
+            <HighlightedText text={cfg.homeIntro.tagline_ko} />
           </p>
         </div>
-        <div className={`${styles.textBlock} profile-text`}>
+        <div className={`${styles.textBlock} intro-text`}>
           <p className={styles.text}>
             <HighlightedText
-              text={cfg.homeAbout.description}
+              text={cfg.homeIntro.description}
               highlightClass={styles.bold}
             />
           </p>
           <p className={styles.caption}>
-            <HighlightedText text={cfg.homeAbout.description_ko} />
+            <HighlightedText text={cfg.homeIntro.description_ko} />
           </p>
         </div>
       </div>
-      <div className={`${styles.decorLine} profile-line`} />
+      <div className={`${styles.decorLine} intro-line`} />
     </Section>
   );
 });
 
-ProfileSection.displayName = "ProfileSection";
+IntroSection.displayName = "IntroSection";
 
-export default ProfileSection;
+export default IntroSection;

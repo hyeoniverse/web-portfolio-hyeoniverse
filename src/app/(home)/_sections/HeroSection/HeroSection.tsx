@@ -123,13 +123,11 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
         </div>
 
         {/* Scroll Indicator */}
-        <motion.button
+        <button
           className={styles.scrollIndicator}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
           onClick={onScrollDown}
           aria-label="Scroll down"
+          type="button"
         >
           <div className={styles.scrollLineWrapper}>
             <motion.div
@@ -145,7 +143,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
           <span className={styles.scrollText}>
             <T ko={cfg.hero.scrollLabel_ko} en={cfg.hero.scrollLabel} />
           </span>
-        </motion.button>
+        </button>
       </Section>
     );
   },
