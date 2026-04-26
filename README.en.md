@@ -516,7 +516,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 38 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
+> 39 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
 > Also available interactively on the About page.
 
 | # | Issue | Key takeaway |
@@ -532,6 +532,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 36 | About page first panel start position error | Dynamic import panel skeleton width mismatch (ErdPanel: 350vw→100vw) + removed GSAP transform/animate reset in strict mode cleanup + initializedRef guard |
 | 37 | Plate inline code cursor jump | CodePlugin affinity override ("directional") defeated default ("hard") mark boundary handling — removed override to fix |
 | 38 | Admin table row borders cut off mid-scroll on mobile | Each of `.row`/`.tableHeader`/`.bulkBar` is an independent grid container, so track expansion is computed per-row — headers missing `col.className` left their 1fr title track unexpanded while rows grew to 280px min-width, creating a width mismatch. Applied `col.className` to header + added `.tableInner` wrapper (`display: flex; width: max-content; min-width: 100%`) to stretch all children to the widest row's width, restoring border continuity |
+| 39 | Page transition stuck at hold + skeleton exposed after morph | DetailLayout's hero motion called `endTransition` from `onAnimationStart`, but with `initial===animate` (opacity:1) framer-motion treats it as a no-op and never fires the callback → hold phase persists forever. Morph also finished before the new page mounted, exposing the Suspense fallback. Fix: replaced `onAnimationStart` trigger with a `useEffect`-based call, kept the backdrop fullscreen during hold (hides the skeleton), added `SAFETY_MS=5000` backstop + `endRequestedRef` short-circuit for fast cached mounts |
 
 ## Deployment
 

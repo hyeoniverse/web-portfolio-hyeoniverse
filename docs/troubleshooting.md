@@ -1263,3 +1263,26 @@ flex column에서 items는 cross-axis(가로)로 자동 stretch되고, `width: m
 **핵심 인사이트**: 각 row가 독립된 grid 컨테이너이면 **track 확장이 row별로 따로 계산**되므로 하나의 row에 건 min-width가 다른 row에 전파되지 않는다. 가로 스크롤에서 border 연속성을 유지하려면 모든 row가 동일한 전체 너비를 가져야 하고, `width: max-content + min-width: 100%` 패턴의 wrapper로 가장 넓은 자식에 맞춰 통일된 너비를 강제해야 한다. 또한 `col.className`이 row에만 적용되고 header에는 빠진 **className 불일치**가 너비 차이의 가장 흔한 원인
 
 </details>
+
+---
+
+<details>
+<summary><strong>39. Page transition 이 hold 단계에서 멈추고 morph 후 skeleton 노출</strong></summary>
+
+**문제**: PostCard → 포스트 상세로 이동할 때, **이미지가 hero 크기로 축소된 뒤 오버레이가 사라지지 않고 영원히 hold 상태로 남는** 현상. 추가로 축소 직후 그 아래로 `loading.tsx` 의 스켈레톤이 그대로 보여 "이미지가 작아지고 → 스켈레톤이 한참 동안 보이는" 어색한 시퀀스 발생
+
+**원인**: 두 가지가 겹침
+
+1. 원래 설계는 `expand → morph(히어로) → hold` 자동 진행 후, DetailLayout 의 hero `motion.div` 에 걸린 `onAnimationStart` 콜백이 `endTransition()` 을 호출해 dismissal 트리거. 그런데 `initial={{ opacity: isTransitioning ? 1 : 0 }}` + `animate={{ opacity: 1 }}` 가 isTransitioning=true 일 때 둘 다 `1` → framer-motion 이 "값 변화 없음" 으로 판정해 **콜백이 발화되지 않고** phase 가 "hold" 에 영원히 머무름
+2. morph 가 클릭 후 ~1s 시점 고정 타이밍 → **새 페이지가 준비되기 전에 오버레이가 작아져버림**. Suspense fallback (`loading.tsx`) 이 morph 직후 노출됨
+
+**해결**: 전환 상태 머신 재설계
+
+1. **dismissal 트리거 변경** — `onAnimationStart` 의존 제거, DetailLayout 의 `useEffect` 에서 mount 시 `endTransition()` 호출
+2. **backdrop fullscreen 유지** — hold 단계에서 backdrop 이 화면 전체를 덮어 morph 후에도 스켈레톤을 가림 (이전엔 backdrop 도 hero 영역만 채웠음)
+3. **`SAFETY_MS = 5000` 안전망** — 어떤 이유로든 endTransition 이 호출되지 않으면 PageTransitionProvider 가 강제 dismiss
+4. **`endRequestedRef` short-circuit** — 빠른 mount(데이터 캐시 hit) 시 expand/morph 진행 중에 endTransition 이 호출되면 hold 를 건너뛰고 완료 시점에 곧장 done 으로 진입
+
+**핵심 인사이트**: ① **애니메이션 라이프사이클 콜백(onAnimationStart, onAnimationComplete) 을 critical state transition 의 단독 트리거로 사용하면 안 됨** — initial===animate 같은 "값 변화 없음" 케이스에서 silent 실패 가능. 항상 useEffect 기반 fallback 이나 setTimeout 안전망과 함께 설계해야 함. ② Suspense fallback 환경에서 "morph-into-hero" 같은 모핑 전환을 설계할 때는 **오버레이가 축소되면 그 아래가 노출된다는 시각 계약을 항상 의식**해야 함. 해결책은 (a) **backdrop 으로 morph 후에도 화면 전체를 덮어두기**, 또는 (b) **새 페이지 mount 시점까지 morph 를 지연** 두 가지뿐
+
+</details>

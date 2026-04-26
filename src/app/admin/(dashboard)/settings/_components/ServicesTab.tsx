@@ -386,13 +386,15 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* AI Cover */}
       <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.aiSettings" /></h2>
-        <div className={styles.fields}>
+        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
+          <h2 className={styles.sectionTitle}><T k="admin.settings.aiSettings" /></h2>
           <Toggle
-            label={t("admin.settings.aiCoverEnabled")}
+            label={t("admin.settings.aiCoverHint")}
             checked={config.aiCover?.enabled !== false}
             onChange={(v) => setConfig((prev) => ({ ...prev, aiCover: { ...prev.aiCover, enabled: v } }))}
           />
+        </div>
+        <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.aiCoverProvider" /></label>
             <Select
@@ -474,13 +476,15 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* AI Summary */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.aiSummarySettings" /></h2>
-        <div className={styles.fields}>
+        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
+          <h2 className={styles.sectionTitle}><T k="admin.settings.aiSummarySettings" /></h2>
           <Toggle
-            label={t("admin.settings.aiSummaryEnabled")}
+            label={t("admin.settings.aiSummaryHint")}
             checked={config.aiSummary?.enabled !== false}
             onChange={(v) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, enabled: v } }))}
           />
+        </div>
+        <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.aiSummaryProvider" /></label>
             <Select
@@ -562,13 +566,15 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* Translation */}
       <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.translationSettings" /></h2>
-        <div className={styles.fields}>
+        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
+          <h2 className={styles.sectionTitle}><T k="admin.settings.translationSettings" /></h2>
           <Toggle
-            label={t("admin.settings.translationEnabled")}
+            label={t("admin.settings.translationHint")}
             checked={config.translation?.enabled !== false}
             onChange={(v) => setConfig((prev) => ({ ...prev, translation: { ...prev.translation, enabled: v } }))}
           />
+        </div>
+        <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.translationProvider" /></label>
             <Select
@@ -650,26 +656,30 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* Comment Notifications */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.commentNotifications" /></h2>
-        <div className={styles.fields}>
+        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
+          <h2 className={styles.sectionTitle}><T k="admin.settings.commentNotifications" /></h2>
           <Toggle
-            label={t("admin.settings.commentEmailNotify")}
+            label={t("admin.settings.commentNotifyHintShort")}
             checked={config.commentEmailNotify ?? false}
             onChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
           />
+        </div>
+        <div className={styles.fields}>
           <p className={styles.fieldHint}><T k="admin.settings.commentEmailNotifyDesc" /></p>
         </div>
       </section>
 
       {/* Security */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.securitySettings" /></h2>
-        <div className={styles.fields}>
+        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
+          <h2 className={styles.sectionTitle}><T k="admin.settings.securitySettings" /></h2>
           <Toggle
-            label={t("admin.settings.recaptchaEnabled")}
+            label={t("admin.settings.recaptchaHint")}
             checked={config.recaptcha.enabled}
             onChange={(v) => update("recaptcha", "enabled", v)}
           />
+        </div>
+        <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.recaptchaVersion" /></label>
             <Select

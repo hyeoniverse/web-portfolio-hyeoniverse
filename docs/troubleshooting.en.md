@@ -1263,3 +1263,26 @@ In a flex column, items auto-stretch on the cross-axis (horizontal), and `width:
 **Key insight**: When each row is an independent grid container, **track expansion is computed per-row** — a `min-width` on one row's cell doesn't propagate to siblings. For continuous borders during horizontal scroll, every row must share the same total width. The `width: max-content + min-width: 100%` wrapper pattern enforces this by sizing to the widest child. Additionally, **className mismatches between row and header** (where `col.className` is applied to rows but omitted in headers) are a common source of width divergence
 
 </details>
+
+---
+
+<details>
+<summary><strong>39. Page transition stuck at hold + skeleton exposed after morph</strong></summary>
+
+**Problem**: Navigating from a PostCard to a post detail, **the overlay morphed down to hero size and then never dismissed — it stayed in the hold phase forever**. Worse, immediately after the morph the `loading.tsx` skeleton was visible beneath the now-smaller overlay, producing the awkward sequence "image shrinks → skeleton lingers for a long time"
+
+**Cause**: Two issues compounded
+
+1. The original design auto-progressed `expand → morph (hero) → hold` and triggered dismissal via an `onAnimationStart` callback on the DetailLayout's hero `motion.div`. But with `initial={{ opacity: isTransitioning ? 1 : 0 }}` + `animate={{ opacity: 1 }}`, when `isTransitioning` was true both equaled `1` — framer-motion treats this as a no-op and **never fires onAnimationStart**, so the phase stayed at "hold" forever
+2. The morph ran on a fixed timer (~1s after click), shrinking the overlay **before the new page was ready**. With the Suspense fallback (`loading.tsx`) underneath, the skeleton was exposed the moment the morph completed
+
+**Solution**: Restructured the transition state machine
+
+1. **Replaced the dismissal trigger** — removed the `onAnimationStart` dependency, added a `useEffect` in DetailLayout that calls `endTransition()` on mount
+2. **Backdrop now stays fullscreen** — during the hold phase the backdrop covers the entire viewport, hiding the skeleton even after the overlay has morphed (previously the backdrop only filled the hero area)
+3. **`SAFETY_MS = 5000` backstop** — PageTransitionProvider force-dismisses if `endTransition` isn't called for any reason
+4. **`endRequestedRef` short-circuit** — for fast cached mounts, `endTransition` calls during expand/morph let the current phase finish and then jump straight to done, skipping hold
+
+**Key insight**: ① **Animation lifecycle callbacks (`onAnimationStart`, `onAnimationComplete`) should not be the sole trigger for critical state transitions** — they can fail silently when initial equals animate (no-op cases), and behavior varies by library version and render timing. Always pair them with a useEffect-based fallback or a setTimeout safety net. ② When designing "morph-into-hero" transitions in a Suspense-aware environment, **always remember the visual contract: shrinking the overlay reveals what's beneath**. The only fixes are (a) **keep the backdrop covering the full viewport even after morph**, or (b) **defer morph until the new page mounts**
+
+</details>

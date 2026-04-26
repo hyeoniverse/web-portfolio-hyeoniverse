@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, ArrowLeft, ArrowRight } from "lucide-react";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import T from "@/components/ui/T";
 import styles from "./AdjacentNav.module.css";
@@ -47,7 +47,7 @@ export default function AdjacentNav({
           </div>
           <div className={styles.body}>
             <span className={styles.label}>
-              <span className={styles.arrow}>&larr;</span>
+              <ArrowLeft className={styles.arrow} size={14} />
               <T k={prevLabelKey} />
             </span>
             <span className={styles.title}>{prev.title}</span>
@@ -68,7 +68,7 @@ export default function AdjacentNav({
           <div className={styles.body}>
             <span className={styles.label}>
               <T k={nextLabelKey} />
-              <span className={styles.arrow}>&rarr;</span>
+              <ArrowRight className={styles.arrow} size={14} />
             </span>
             <span className={styles.title}>{next.title}</span>
           </div>

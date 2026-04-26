@@ -285,14 +285,33 @@ CREATE POLICY "works_service_all"
 --    IP + 날짜 조합으로 하루 1회만 기록
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS site_visits (
-  id   uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  ip   text NOT NULL DEFAULT '',
-  date date NOT NULL DEFAULT CURRENT_DATE
+  id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  ip           text NOT NULL DEFAULT '',
+  date         date NOT NULL DEFAULT CURRENT_DATE,
+  -- 트래픽 분석용 메타 (parseUserAgent 결과를 insert 시점에 저장 — admin dashboard 집계 효율화)
+  referrer     text DEFAULT NULL,
+  user_agent   text DEFAULT NULL,
+  device_kind  text DEFAULT NULL,  -- desktop / mobile / tablet
+  os           text DEFAULT NULL,  -- macOS / Windows / iOS / iPadOS / Android / Linux / ChromeOS / Other
+  browser      text DEFAULT NULL,  -- Chrome / Safari / Firefox / Edge / Samsung Internet / Opera / Other
+  device_model text DEFAULT NULL   -- "iPhone" / "iPad" / "Pixel 8" / "SM-S921N" / "Mac" / "PC" 등
 );
+
+-- 기존 site_visits 테이블에 위 컬럼이 없는 경우 (마이그레이션)
+ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS referrer     text DEFAULT NULL;
+ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS user_agent   text DEFAULT NULL;
+ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS device_kind  text DEFAULT NULL;
+ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS os           text DEFAULT NULL;
+ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS browser      text DEFAULT NULL;
+ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS device_model text DEFAULT NULL;
 
 -- 같은 IP는 하루에 한 번만
 CREATE UNIQUE INDEX IF NOT EXISTS idx_site_visits_ip_date
   ON site_visits (ip, date);
+
+-- 집계용 인덱스
+CREATE INDEX IF NOT EXISTS idx_site_visits_device_kind ON site_visits (device_kind) WHERE device_kind IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_site_visits_referrer    ON site_visits (referrer)    WHERE referrer IS NOT NULL;
 
 ALTER TABLE site_visits ENABLE ROW LEVEL SECURITY;
 
