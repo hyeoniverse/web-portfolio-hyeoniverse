@@ -41,6 +41,7 @@ const ALLOWED_FIELDS = new Set([
   "team_members", "gallery",
   "live_url", "github_url",
   "published", "sort_order",
+  "scheduled_at",
 ]);
 
 export async function PATCH(request: Request, context: RouteContext) {

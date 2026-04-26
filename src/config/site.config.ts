@@ -26,7 +26,6 @@ export const siteConfig = {
   // 브랜드 / 사이트 아이덴티티
   // ---------------------------------------------------------------------------
   brand: {
-    splitName: ["HYEONI", "VERSE"], // 히어로 화면 표시용 분리된 브랜드명
     logoText: "H", // 숏 로고 텍스트 (이미지 미사용 시)
     logoFullText: "HYEONIVERSE", // 풀 로고 텍스트 (이미지 미사용 시, 로딩 화면)
     logoColor: "", // 라이트 모드 로고 색상 (빈 문자열 = 기본 텍스트 색상)
@@ -83,19 +82,13 @@ export const siteConfig = {
     version: "v3" as "v2" | "v3",
   },
 
-  social: {
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
-    blog: "https://velog.io",
-  },
-
   // 소셜 링크 (순서 변경·추가 가능, 최대 6개 표시)
   // platform: github | linkedin | blog | twitter | instagram | youtube | behance | dribbble | custom
   socialLinks: [
     { platform: "github", url: "https://github.com" },
     { platform: "linkedin", url: "https://linkedin.com" },
     { platform: "blog", url: "https://velog.io" },
-  ] as { platform: string; url: string; label?: string }[],
+  ] as { platform: string; url: string; label?: string; icon?: string }[],
 
   // ---------------------------------------------------------------------------
   // SEO 및 메타데이터
@@ -122,11 +115,17 @@ export const siteConfig = {
     scrollLabel_ko: "Scroll down",
   },
 
-  // 홈 About 섹션 — {중괄호} 안의 텍스트가 하이라이트 처리됨
-  homeAbout: {
-    intro:
+  // 홈 페이지 3D 오브젝트 활성화 토글 (Three.js 번들 약 300KB)
+  home3d: {
+    scrollTorus: true, // 스크롤 따라다니는 메탈릭 토러스
+    coffeeCup: true,   // CTA 섹션의 3D 커피잔 + 라떼아트
+  },
+
+  // 홈 Intro 섹션 — {중괄호} 안의 텍스트가 하이라이트 처리됨
+  homeIntro: {
+    tagline:
       "I craft digital experiences where {aesthetics} meet {functionality}.",
-    intro_ko: "{미학}과 {기능}이 만나는 디지털 경험을 만듭니다.",
+    tagline_ko: "{미학}과 {기능}이 만나는 디지털 경험을 만듭니다.",
     description:
       "Focused on creating memorable interactions through thoughtful {design} and clean {code}.",
     description_ko:
@@ -206,7 +205,6 @@ export const siteConfig = {
   // 미디어 업로드
   // ---------------------------------------------------------------------------
   media: {
-    maxImageSizeMB: 10, // 이미지 1개당 최대 업로드 용량 (MB) — 레거시, 아래 limits 사용
     // 파일 형식별 최대 업로드 크기 (MB)
     limits: {
       "image/jpeg": 5,
@@ -223,8 +221,6 @@ export const siteConfig = {
       "application/zip": 50,
       _default: 20, // 기타 파일
     } as Record<string, number>,
-    // 허용 MIME 타입 (빈 배열 = 모두 허용)
-    allowedTypes: [] as string[],
     // 차단 확장자
     blockedExtensions: [
       "exe", "bat", "cmd", "com", "msi", "scr", "pif",

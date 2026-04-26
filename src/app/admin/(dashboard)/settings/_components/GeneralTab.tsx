@@ -48,34 +48,52 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
       {/* Brand */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.brand" /></h2>
-        <div className={styles.fieldsGrid}>
-          {/* 왼쪽 열: 텍스트 + 색상 + 글리치 */}
+
+        {/* Sub: 로고 텍스트 */}
+        <div className={styles.subSection}>
+          <div className={styles.sectionTitleRow}>
+            <h3 className={styles.sectionSubTitle}>{t("admin.settings.logoTextSection")}</h3>
+            <label className={styles.inlineToggle}>
+              {t("admin.settings.logoGlitch")}
+              <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
+            </label>
+          </div>
           <div className={styles.fields}>
-            <Field label={t("admin.settings.logoText")} hint={t("admin.settings.logoTextHint")} value={config.brand.logoText} onChange={(v) => update("brand", "logoText", v)} />
-            <Field label={t("admin.settings.logoFullText")} hint={t("admin.settings.logoFullTextHint")} value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} />
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}>{t("admin.settings.logoColorPresets")}</label>
-              <div className={styles.logoColorPresets}>
-                {LOGO_COLOR_PRESETS.map((p) => (
-                  <button
-                    key={p.name}
-                    type="button"
-                    title={p.name}
-                    className={`${styles.logoColorPresetBtn} ${
-                      config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
-                        ? styles.logoColorPresetBtnActive : ""
-                    }`}
-                    onClick={() => {
-                      update("brand", "logoColor", p.light);
-                      update("brand", "logoColorDark", p.dark);
-                    }}
-                  >
-                    <span className={styles.logoColorPresetHalf} style={{ background: p.light || "#1a1a1a" }} />
-                    <span className={styles.logoColorPresetHalf} style={{ background: p.dark || "#f5f5f0" }} />
-                  </button>
-                ))}
-              </div>
+            <div className={styles.fieldPair}>
+              <Field label={t("admin.settings.logoText")} hint={t("admin.settings.logoTextHint")} value={config.brand.logoText} onChange={(v) => update("brand", "logoText", v)} />
+              <Field label={t("admin.settings.logoFullText")} hint={t("admin.settings.logoFullTextHint")} value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} />
             </div>
+          </div>
+        </div>
+
+        {/* Sub: 로고 색상 */}
+        <div className={styles.subSection}>
+          <h3 className={styles.sectionSubTitle}>{t("admin.settings.logoColorSection")}</h3>
+          <div className={styles.fields}>
+          <div className={styles.fieldRow}>
+            <label className={styles.fieldLabel}>{t("admin.settings.logoColorPresets")}</label>
+            <div className={styles.logoColorPresets}>
+              {LOGO_COLOR_PRESETS.map((p) => (
+                <button
+                  key={p.name}
+                  type="button"
+                  title={p.name}
+                  className={`${styles.logoColorPresetBtn} ${
+                    config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
+                      ? styles.logoColorPresetBtnActive : ""
+                  }`}
+                  onClick={() => {
+                    update("brand", "logoColor", p.light);
+                    update("brand", "logoColorDark", p.dark);
+                  }}
+                >
+                  <span className={styles.logoColorPresetHalf} style={{ background: p.light || "#1a1a1a" }} />
+                  <span className={styles.logoColorPresetHalf} style={{ background: p.dark || "#f5f5f0" }} />
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className={styles.fieldPair}>
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}>{t("admin.settings.logoColor")}</label>
               <div className={styles.colorField}>
@@ -92,17 +110,34 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
                 {config.brand.logoColorDark && <button type="button" className={styles.envCancelBtn} onClick={() => update("brand", "logoColorDark", "")}>&times;</button>}
               </div>
             </div>
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}>{t("admin.settings.logoGlitch")}</label>
-              <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
-            </div>
           </div>
-          {/* 오른쪽 열: 로고 업로드 */}
+          </div>
+        </div>
+
+        {/* Sub: 로고 파일 — Light / Dark 그룹 */}
+        <div className={styles.subSection}>
+          <h3 className={styles.sectionSubTitle}>
+            {t("admin.settings.logoFilesSection")}
+            <span className={styles.fieldGroupTitleHint}>{t("admin.settings.logoUploadHint")}</span>
+          </h3>
           <div className={styles.fields}>
-            <LogoUpload label={t("admin.settings.logoShort")} hint={t("admin.settings.logoUploadHint")} url={config.brand.logoShortUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortUrl", url)} onRemove={() => update("brand", "logoShortUrl", "")} />
-            <LogoUpload label={t("admin.settings.logoShortDark")} hint={t("admin.settings.logoDarkHint")} url={config.brand.logoShortDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortDarkUrl", url)} onRemove={() => update("brand", "logoShortDarkUrl", "")} />
-            <LogoUpload label={t("admin.settings.logoFull")} hint={t("admin.settings.logoUploadHint")} url={config.brand.logoFullUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullUrl", url)} onRemove={() => update("brand", "logoFullUrl", "")} />
-            <LogoUpload label={t("admin.settings.logoFullDark")} hint={t("admin.settings.logoDarkHint")} url={config.brand.logoFullDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullDarkUrl", url)} onRemove={() => update("brand", "logoFullDarkUrl", "")} />
+            <div>
+              <h4 className={styles.fieldGroupTitle}>{t("admin.settings.logoLightMode")}</h4>
+              <div className={styles.fieldPair}>
+                <LogoUpload label={t("admin.settings.logoShort")} url={config.brand.logoShortUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortUrl", url)} onRemove={() => update("brand", "logoShortUrl", "")} />
+                <LogoUpload label={t("admin.settings.logoFull")} url={config.brand.logoFullUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullUrl", url)} onRemove={() => update("brand", "logoFullUrl", "")} />
+              </div>
+            </div>
+            <div>
+              <h4 className={styles.fieldGroupTitle}>
+                {t("admin.settings.logoDarkMode")}
+                <span className={styles.fieldGroupTitleHint}>{t("admin.settings.logoDarkHint")}</span>
+              </h4>
+              <div className={styles.fieldPair}>
+                <LogoUpload label={t("admin.settings.logoShort")} url={config.brand.logoShortDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortDarkUrl", url)} onRemove={() => update("brand", "logoShortDarkUrl", "")} />
+                <LogoUpload label={t("admin.settings.logoFull")} url={config.brand.logoFullDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullDarkUrl", url)} onRemove={() => update("brand", "logoFullDarkUrl", "")} />
+              </div>
+            </div>
           </div>
         </div>
       </section>

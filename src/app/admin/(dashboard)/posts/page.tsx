@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Trash2, Upload, Plus, Download } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
@@ -18,6 +19,7 @@ import AdminListShell, {
 import AdminTable from "@/components/admin/AdminTable/AdminTable";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import SubTable from "@/components/admin/SubTable/SubTable";
 import SearchCapsule from "@/components/admin/SearchCapsule/SearchCapsule";
 import { parseMdPost } from "@/utils/mdParser";
@@ -348,11 +350,7 @@ export default function AdminPostsPage() {
     return Math.max(0, Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
   };
 
-  const trashIcon = (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
-    </svg>
-  );
+  const trashIcon = <Trash2 size={13} />;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const trashColumns = useMemo(() => createTrashColumns(t, getDaysLeft, handleRestore, handlePurge), [t]);
@@ -668,10 +666,10 @@ tags: React`}</code></pre>
             ?
           </button>
           <ButtonGroup>
-            <Button variant="outline" size="xs" title={t("admin.posts.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>}>
+            <Button variant="outline" size="xs" title={t("admin.posts.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
               {uploading ? "..." : t("admin.posts.uploadMd")}
             </Button>
-            <Button variant="primary" size="xs" title={t("admin.posts.newPost")} href="/admin/posts/new" soundDisabled icon={<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v10M3 8h10"/></svg>}>
+            <Button variant="primary" size="xs" title={t("admin.posts.newPost")} href="/admin/posts/new" soundDisabled icon={<Plus size={14} strokeWidth={1.5} />}>
               {t("admin.posts.newPost")}
             </Button>
           </ButtonGroup>
@@ -704,7 +702,7 @@ tags: React`}</code></pre>
             { value: "", label: t("admin.posts.allCategories") },
             ...categories.map((c) => ({
               value: c.ko,
-              label: translateCategory(c.ko, language),
+              label: translateCategory(c.ko, language, categories),
             })),
           ]}
           onChange={(v) => { setFilterCategory(v); setPage(1); }}
@@ -788,6 +786,33 @@ tags: React`}</code></pre>
           await fetchPosts();
           setBusy(false);
         }}
+        extraBulkActions={[
+          {
+            label: t("admin.common.changeCategory"),
+            disabled: busy,
+            onClick: (ids) => {
+              openModal(
+                <BulkCategoryModal
+                  count={ids.length}
+                  categories={categories}
+                  onConfirm={async (cat) => {
+                    setBusy(true);
+                    await Promise.all(ids.map((id) =>
+                      fetch(`/api/posts/${id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ category: cat?.ko ?? null }),
+                      })
+                    ));
+                    await fetchPosts();
+                    setBusy(false);
+                  }}
+                />,
+                { id: "bulk-category", header: { title: t("admin.common.changeCategory") }, closeButton: true, width: "400px" },
+              );
+            },
+          },
+        ]}
         gridTemplate="64px 1fr 100px 60px 80px 200px"
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}
@@ -802,7 +827,7 @@ tags: React`}</code></pre>
         onRowClick={handleRowClick}
         highlightId={restoredId}
         footerExtra={
-          <Button variant="ghost" size="xs" title={t("admin.posts.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>}>
+          <Button variant="ghost" size="xs" title={t("admin.posts.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<Download size={14} />}>
             {exporting ? "..." : t("admin.posts.exportMdAll")}
           </Button>
         }

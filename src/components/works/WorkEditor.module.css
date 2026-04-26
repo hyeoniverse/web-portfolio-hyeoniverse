@@ -1,6 +1,13 @@
 /* ── WorkEditor-specific styles ── */
 /* Shared shell styles (container, topBar, buttons, field, tags, etc.) are in AdminEditorShell */
 
+/* ── Inline hint (label 옆에 표시) ── */
+.slugHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-accent);
+}
+
 /* ── Sections ── */
 .section {
   display: flex;

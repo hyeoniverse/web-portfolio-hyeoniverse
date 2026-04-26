@@ -16,7 +16,7 @@ export default async function AuthLayout({
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect("/admin/settings");
+    redirect("/admin");
   }
 
   return <div style={{ paddingTop: "var(--spacing-6xl)" }}>{children}</div>;

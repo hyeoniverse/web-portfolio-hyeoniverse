@@ -27,22 +27,30 @@ const WEEKDAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const WEEKDAYS_EN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 /* ── Spinner Column ── */
-const ITEM_H = 40;
-const VISIBLE = 5;
+export const SPINNER_ITEM_H = 40;
+export const SPINNER_VISIBLE = 5;
+const ITEM_H = SPINNER_ITEM_H;
+const VISIBLE = SPINNER_VISIBLE;
 
-function SpinnerColumn({
+export function SpinnerColumn({
   items,
   value,
   onChange,
+  label,
 }: {
   items: { value: string; label: string }[];
   value: string;
   onChange: (v: string) => void;
+  /** 컬럼 하단에 표시할 라벨 (예: "년", "시", "오전/오후") — optional */
+  label?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const scrollTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const idleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const isUserScroll = useRef(false);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [scrollIdx, setScrollIdx] = useState<number | null>(null);
 
   useEffect(() => {
     const idx = items.findIndex((i) => i.value === value);
@@ -52,7 +60,24 @@ function SpinnerColumn({
     isUserScroll.current = false;
   }, [value, items]);
 
+  useEffect(() => () => {
+    clearTimeout(scrollTimer.current);
+    clearTimeout(idleTimer.current);
+  }, []);
+
   const handleScroll = useCallback(() => {
+    if (!ref.current) return;
+    // 즉각 시각 피드백 — 현재 가운데 가까운 인덱스 추적
+    const liveIdx = Math.round(ref.current.scrollTop / ITEM_H);
+    const liveClamped = Math.max(0, Math.min(liveIdx, items.length - 1));
+    setScrollIdx(liveClamped);
+    setIsScrolling(true);
+
+    // idle 감지 — 스크롤 멈춘 뒤 잠깐 효과 유지
+    clearTimeout(idleTimer.current);
+    idleTimer.current = setTimeout(() => setIsScrolling(false), 220);
+
+    // snap + onChange (디바운스)
     clearTimeout(scrollTimer.current);
     scrollTimer.current = setTimeout(() => {
       if (!ref.current) return;
@@ -68,6 +93,7 @@ function SpinnerColumn({
         isUserScroll.current = true;
         onChange(items[clamped].value);
       }
+      setScrollIdx(null);
     }, 120);
   }, [items, value, onChange]);
 
@@ -80,29 +106,38 @@ function SpinnerColumn({
     }
   };
 
+  const activeIdx = scrollIdx ?? items.findIndex((i) => i.value === value);
+
   return (
-    <div className={styles.spinnerCol}>
-      <div
-        ref={ref}
-        className={styles.spinnerScroll}
-        onScroll={handleScroll}
-        data-lenis-prevent
-        style={{ height: ITEM_H * VISIBLE }}
-      >
-        <div style={{ height: ITEM_H * 2 }} />
-        {items.map((item) => (
-          <div
-            key={item.value}
-            className={`${styles.spinnerItem} ${item.value === value ? styles.spinnerItemActive : ""}`}
-            style={{ height: ITEM_H }}
-            onClick={() => clickItem(item.value)}
-          >
-            {item.label}
-          </div>
-        ))}
-        <div style={{ height: ITEM_H * 2 }} />
+    <div className={styles.spinnerColWrap}>
+      {label && <span className={styles.spinnerLabel}>{label}</span>}
+      <div className={`${styles.spinnerCol} ${isScrolling ? styles.spinnerColActive : ""}`}>
+        <div
+          ref={ref}
+          className={styles.spinnerScroll}
+          onScroll={handleScroll}
+          data-lenis-prevent
+          style={{ height: ITEM_H * VISIBLE }}
+        >
+          <div style={{ height: ITEM_H * 2 }} />
+          {items.map((item, i) => {
+            const dist = activeIdx >= 0 ? Math.abs(i - activeIdx) : 0;
+            return (
+              <div
+                key={item.value}
+                className={`${styles.spinnerItem} ${item.value === value ? styles.spinnerItemActive : ""}`}
+                data-dist={Math.min(dist, 3)}
+                style={{ height: ITEM_H }}
+                onClick={() => clickItem(item.value)}
+              >
+                {item.label}
+              </div>
+            );
+          })}
+          <div style={{ height: ITEM_H * 2 }} />
+        </div>
+        <div className={`${styles.spinnerHighlight} ${isScrolling ? styles.spinnerHighlightScrolling : ""}`} style={{ top: ITEM_H * 2, height: ITEM_H }} />
       </div>
-      <div className={styles.spinnerHighlight} style={{ top: ITEM_H * 2, height: ITEM_H }} />
     </div>
   );
 }
@@ -140,14 +175,18 @@ function SpinnerView({
   const em = month || "01";
   const ed = day || "01";
 
+  const yLabel = language === "ko" ? "년" : "Y";
+  const mLabel = language === "ko" ? "월" : "M";
+  const dLabel = language === "ko" ? "일" : "D";
+
   return (
     <div className={styles.spinnerView}>
-      <SpinnerColumn items={yearItems} value={ey} onChange={(v) => onSelect(v, em, ed)} />
+      <SpinnerColumn items={yearItems} value={ey} onChange={(v) => onSelect(v, em, ed)} label={yLabel} />
       {(format === "yearMonth" || format === "date") && (
-        <SpinnerColumn items={monthItems} value={em} onChange={(v) => onSelect(ey, v, ed)} />
+        <SpinnerColumn items={monthItems} value={em} onChange={(v) => onSelect(ey, v, ed)} label={mLabel} />
       )}
       {format === "date" && (
-        <SpinnerColumn items={dayItems} value={ed} onChange={(v) => onSelect(ey, em, v)} />
+        <SpinnerColumn items={dayItems} value={ed} onChange={(v) => onSelect(ey, em, v)} label={dLabel} />
       )}
     </div>
   );

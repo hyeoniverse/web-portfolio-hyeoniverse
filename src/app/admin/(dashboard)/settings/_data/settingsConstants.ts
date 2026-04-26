@@ -28,7 +28,7 @@ export const TAB_IDS = ["general", "content", "appearance", "services", "account
 
 export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
   general: ["personal", "brand", "contact", "metadata", "bgm"],
-  content: ["brand", "hero", "homeAbout", "services", "marquee", "cta", "loading", "footer", "posts", "works", "profile", "about", "social", "socialLinks"],
+  content: ["brand", "hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "posts", "works", "profile", "about", "socialLinks"],
   appearance: ["theme", "typography", "datePickerStyle"],
   services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "commentEmailNotify", "media"],
 };
@@ -250,7 +250,7 @@ export type ContentSubTab = "home" | "profile" | "works" | "posts";
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
 export const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
-  home: ["brand", "hero", "homeAbout", "services", "marquee", "cta", "loading", "footer", "social", "socialLinks"],
+  home: ["brand", "hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "socialLinks"],
   profile: ["profile", "about"],
   works: ["works"],
   posts: ["posts"],

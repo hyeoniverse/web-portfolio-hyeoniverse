@@ -37,9 +37,20 @@
   --color-success-alpha: rgba(34, 197, 94, 0.6);
   --color-success-alpha-40: rgba(22, 163, 74, 0.4);
   --color-success-alpha-60: rgba(22, 163, 74, 0.6);
+  --color-success-soft: rgba(22, 163, 74, 0.12);
+
+  --color-warning: #d97706;
+  --color-warning-alpha: rgba(217, 119, 6, 0.6);
+  --color-warning-alpha-40: rgba(217, 119, 6, 0.4);
+  --color-warning-soft: rgba(217, 119, 6, 0.12);
+
+  --color-info: #2563eb;
+  --color-info-alpha: rgba(37, 99, 235, 0.6);
+  --color-info-soft: rgba(37, 99, 235, 0.12);
 
   --color-error: #dc2626;
   --color-error-alpha: rgba(220, 38, 38, 0.15);
+  --color-error-soft: rgba(220, 38, 38, 0.12);
 }
 
 /* ==========================================================================
@@ -164,6 +175,20 @@
   --color-success-alpha: rgba(34, 197, 94, 0.3);
   --color-success-alpha-40: rgba(74, 222, 128, 0.4);
   --color-success-alpha-60: rgba(74, 222, 128, 0.6);
+  --color-success-soft: rgba(74, 222, 128, 0.18);
+
+  --color-warning: #fbbf24;
+  --color-warning-alpha: rgba(251, 191, 36, 0.5);
+  --color-warning-alpha-40: rgba(251, 191, 36, 0.4);
+  --color-warning-soft: rgba(251, 191, 36, 0.18);
+
+  --color-info: #60a5fa;
+  --color-info-alpha: rgba(96, 165, 250, 0.5);
+  --color-info-soft: rgba(96, 165, 250, 0.18);
+
+  --color-error: #f87171;
+  --color-error-alpha: rgba(248, 113, 113, 0.2);
+  --color-error-soft: rgba(248, 113, 113, 0.18);
 
   /* Accent Alpha */
   --color-accent-alpha-1: rgba(255, 77, 166, 0.015);

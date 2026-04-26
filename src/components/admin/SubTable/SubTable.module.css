@@ -276,22 +276,41 @@
 
 /* ── Status badge ── */
 .statusBadge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: var(--box-3xs-xs);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.statusBadge::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .published {
-  background: var(--bg-success);
+  background: var(--bg-success-soft);
   color: var(--text-success);
 }
 
+.published::before {
+  background: var(--text-success);
+}
+
 .draft {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-tertiary);
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+}
+
+.draft::before {
+  background: var(--text-warning);
 }
 
 /* ── Days left (two-line) ── */

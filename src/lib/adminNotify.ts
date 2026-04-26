@@ -4,6 +4,7 @@
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 
 interface NotifyOptions {
   type: "comment" | "reply" | "like";
@@ -28,18 +29,12 @@ async function sendEmail(opts: NotifyOptions) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return;
 
-  // settings에서 이메일 알림 수신 여부 확인
-  const admin = createAdminClient();
-  const { data: settings } = await admin
-    .from("site_settings")
-    .select("config")
-    .eq("id", "default")
-    .single();
+  // delta 구조를 자동 병합해서 정확한 값 조회 — 이전엔 raw config.commentEmailNotify
+  // 직접 접근해서 admin에서 토글 켜도 false 로 읽혀 메일이 안 가던 버그가 있었음
+  const cfg = await getSiteConfig();
+  if (!cfg.commentEmailNotify) return;
 
-  const emailNotify = settings?.config?.commentEmailNotify;
-  if (!emailNotify) return;
-
-  const toEmail = settings?.config?.contact?.email || process.env.ADMIN_EMAIL;
+  const toEmail = cfg.contact?.email || process.env.ADMIN_EMAIL;
   if (!toEmail) return;
 
   try {

@@ -62,6 +62,8 @@ export function workToFormData(work: Work): WorkFormData {
     github_url: work.github_url,
     published: work.published,
     sort_order: work.sort_order || 1,
+    scheduled_at: work.scheduled_at ?? null,
+    related_post_ids: [],
   };
 }
 
@@ -89,4 +91,6 @@ export const defaultForm: WorkFormData = {
   github_url: "",
   published: false,
   sort_order: 1,
+  scheduled_at: null,
+  related_post_ids: [],
 };

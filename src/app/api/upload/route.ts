@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { needsConversion, convertToWebp } from "@/lib/convertImage";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 
 // ── 보안: 차단 확장자 (기본값, 설정에서 오버라이드 가능) ──
 const DEFAULT_BLOCKED_EXT = new Set([
@@ -72,28 +73,19 @@ export async function POST(request: Request) {
   }
 
   // ── 설정 로드 (허용 MIME + 차단 확장자 + 크기 제한) ──
+  // getSiteConfig() 가 site.config defaults + DB delta 를 자동 머지해서 반환.
+  // 이전엔 DB 만 직접 읽어서 admin 이 한 번도 안 건드린 경우 site.config 의
+  // 기본 limits/차단 확장자가 무시되던 버그가 있었음.
   let blockedExt = DEFAULT_BLOCKED_EXT;
   let limits: Record<string, number> = {};
   try {
-    const admin = createAdminClient();
-    const { data: settingsRow } = await admin
-      .from("site_settings")
-      .select("config")
-      .eq("id", "default")
-      .single();
-    if (settingsRow?.config) {
-      const raw = settingsRow.config as Record<string, unknown>;
-      const delta = (raw.delta as Record<string, unknown>) ?? raw;
-      const media = delta.media as Record<string, unknown> | undefined;
-      if (media) {
-        const customBlocked = media.blockedExtensions as string[] | undefined;
-        if (customBlocked && customBlocked.length > 0) {
-          blockedExt = new Set(customBlocked);
-        }
-        const dbLimits = media.limits as Record<string, number> | undefined;
-        if (dbLimits) limits = dbLimits;
-      }
+    const cfg = await getSiteConfig();
+    const customBlocked = cfg.media?.blockedExtensions;
+    if (customBlocked && customBlocked.length > 0) {
+      blockedExt = new Set(customBlocked);
     }
+    const dbLimits = cfg.media?.limits as Record<string, number> | undefined;
+    if (dbLimits) limits = dbLimits;
   } catch {
     // DB 설정 로드 실패 시 기본값 사용
   }

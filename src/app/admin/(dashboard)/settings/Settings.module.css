@@ -512,14 +512,23 @@
   padding-bottom: 0;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Settings Hierarchy (3 levels)
+   ─────────────────────────────────────────────────────────────────────────
+   L1 — .sectionTitle (h2): UPPERCASE, primary, large bottom margin
+   L2 — .sectionSubTitle (h3): no-caps, primary, medium weight
+   L3 — .fieldGroupTitle (h4): UPPERCASE small caption — sub-sub group
+   L4 — .fieldGroupLabel: tiny field group label inside list items
+   ───────────────────────────────────────────────────────────────────────── */
+
 .sectionTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-size: var(--font-size-md);
+  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .sectionDivider {
@@ -532,10 +541,12 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
 }
 
-.sectionTitleRow .sectionTitle {
+.sectionTitleRow .sectionTitle,
+.sectionTitleRow .sectionSubTitle {
   margin-bottom: 0;
 }
 
@@ -543,20 +554,13 @@
 .fieldsGrid {
   display: grid;
   grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
 }
 
 .fields {
   display: flex;
   flex-direction: column;
-}
-
-.fields > * {
-  padding: var(--spacing-xs) 0;
-  border-bottom: var(--border-light);
-}
-
-.fields > *:last-child {
-  border-bottom: none;
+  gap: var(--spacing-sm);
 }
 
 .fieldGroup {
@@ -585,12 +589,12 @@
   }
 }
 
-/* ── Field Row (label | input) ── */
+/* ── Field Row (label / input — label 위, input 아래) ── */
 .fieldRow {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-2xs);
 }
 
 .fieldRowInline {
@@ -612,18 +616,8 @@
   padding-left: calc(var(--spacing-sm) + 60px);
 }
 
-.fieldRow:has(.fieldTextarea),
-.fieldRow:has(.logoUpload) {
-  align-items: flex-start;
-}
-
-.fieldRow:has(.fieldTextarea) .fieldLabel {
-  padding-top: var(--spacing-xs);
-}
-
 .fieldLabel {
-  width: 130px;
-  flex-shrink: 0;
+  width: auto;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 500;
@@ -972,6 +966,42 @@
   margin: 0;
 }
 
+.sectionSubTitle {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0;
+  margin: 0 0 var(--spacing-sm);
+}
+
+.fieldGroupTitle {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 var(--spacing-xs);
+}
+
+.fieldGroupTitleHint {
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+
 .fieldLabelHint {
   font-weight: 400;
   font-size: var(--font-size-2xs);
@@ -981,15 +1011,6 @@
 
 
 /* ── Fallback Priority List ── */
-.fields .fallbackSection {
-  padding: 0;
-  border-bottom: none;
-}
-
-.fields > *:has(+ .fallbackSection) {
-  border-bottom: none;
-}
-
 .fallbackLabel {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -1185,12 +1206,6 @@
   gap: var(--spacing-xs);
 }
 
-/* service item 내부 필드는 라벨 폭 축소 — 바깥 input 시작선과 정렬 */
-.serviceItemFields .fieldLabel {
-  /* 바깥 fieldLabel(130px) - 핸들(16) - gap(sm) - 숫자(24) - gap(sm) */
-  width: calc(130px - 16px - var(--spacing-sm) - 24px - var(--spacing-sm));
-}
-
 /* ── Categories Editor ── */
 .catList {
   display: flex;
@@ -1302,14 +1317,15 @@
   background: var(--border-light-color);
 }
 
-.profileSubTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: var(--spacing-md);
+/* sub-section 시각적 중첩 — section h2 아래 h3 그룹을 들여쓰기 + 좌측 라인 */
+.subSection {
+  padding-left: var(--spacing-md);
+  border-left: 2px solid var(--border-light-color);
+  margin-bottom: var(--spacing-xl);
+}
+
+.subSection:last-child {
+  margin-bottom: 0;
 }
 
 .profileCard {
@@ -1410,6 +1426,7 @@
 }
 
 .profileAddBtn {
+  margin-top: var(--spacing-md);
   padding: var(--box-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -1418,6 +1435,37 @@
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   width: 100%;
+}
+
+.expandAllBtn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.expandAllBtn:hover {
+  color: var(--text-primary);
+}
+
+.inlineToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.profileToolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--spacing-md);
 }
 
 .section .profileAddBtn:hover {
@@ -2450,34 +2498,30 @@
   transform: rotate(-45deg);
 }
 
-/* ── Skills Editor (table / line layout) ── */
+/* ── Skills Editor (table / line layout) ──
+   섹션 내부 간격 일관성: sortableList gap + profileAddBtn margin-top
+   = 모두 spacing-md(16px). title row → first item, item ↔ item, last item →
+   add button 모두 동일하게 적용. */
 .sortableList {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-md);
 }
 
-/* ── Expand/collapse animation (grid-template-rows) ── */
-.skillExpandable {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* ── Expand/collapse animation ──
+   ExpandablePanel(JS)이 height 를 직접 측정·설정해 transition.
+   여기서는 transition 속성과 기본 height/overflow 만 정의. */
+.sortableList .skillExpandable {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-left: calc(16px + var(--spacing-xs));
 }
 
-.skillExpandableOpen {
-  grid-template-rows: 1fr;
-}
-
-.skillExpandable > * {
-  min-height: 0;
-  overflow: hidden;
+.sortableList .skillExpandable > * {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-}
-
-.skillExpandableOpen > * {
-  overflow: visible;
 }
 
 /* ── Field group (label + inputs) ── */
@@ -2501,14 +2545,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--spacing-sm) 0;
   transition: background-color 0.2s ease;
-}
-
-.sortableItem + .sortableItem {
-  border-top: var(--border-light);
-  margin-top: var(--spacing-xs);
-  padding-top: var(--spacing-md);
 }
 
 .sortableItemDragging {
@@ -2774,28 +2811,6 @@
     border-bottom-color: var(--text-accent);
   }
 
-  .fieldRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-2xs);
-  }
-
-  .fieldRow:has(.fieldTextarea) {
-    align-items: stretch;
-  }
-
-  .fieldRow:has(.fieldTextarea) .fieldLabel {
-    padding-top: 0;
-  }
-
-  .fieldLabel {
-    width: auto;
-  }
-
-  .serviceItemFields .fieldLabel {
-    width: auto;
-  }
-
   .profileGrid {
     grid-template-columns: 1fr;
   }
@@ -2935,14 +2950,6 @@
   border: none;
   border-top: 1px dashed var(--border-light-color);
   margin: 0;
-}
-
-.envFieldRow {
-  align-items: flex-start;
-}
-
-.envFieldRow .fieldLabel {
-  padding-top: 0;
 }
 
 .envLabelMissing {

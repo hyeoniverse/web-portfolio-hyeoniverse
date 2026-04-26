@@ -1,10 +1,27 @@
 /* ── Shared Admin Table ── */
+/* 빈 상태: 큰 일러스트 영역 + 메시지 + (선택) CTA. 단순 텍스트보다 시각적 풍성. */
 .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   text-align: center;
-  padding: var(--spacing-3xl) 0;
+  padding: var(--spacing-4xl) var(--spacing-md);
+}
+
+.empty::before {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: var(--border-light);
+  background-image: linear-gradient(135deg, transparent 50%, var(--bg-accent-subtle) 50%);
 }
 
 /* ── Bulk action bar ── */
@@ -182,24 +199,60 @@
   font-size: var(--font-size-2xs);
 }
 
-/* ── Status badge (read-only label) ── */
+/* ── Status badge (read-only label) ──
+   상태별 색상 시스템: 발행=success(녹색), 초안=warning(앰버)
+   배경 + 글자색 + 좌측 dot 으로 한눈에 상태 인식 */
 .statusBadge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: var(--box-3xs-xs);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.statusBadge::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .published {
-  background: var(--bg-success);
+  background: var(--bg-success-soft);
   color: var(--text-success);
 }
 
+.published::before {
+  background: var(--text-success);
+}
+
 .draft {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-tertiary);
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+}
+
+.draft::before {
+  background: var(--text-warning);
+}
+
+.scheduled {
+  background: var(--bg-info-soft);
+  color: var(--text-info);
+}
+
+.scheduled::before {
+  background: var(--text-info);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 /* ── Actions column ── */

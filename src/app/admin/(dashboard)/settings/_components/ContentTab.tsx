@@ -8,15 +8,16 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
-import ProfileSections from "@/components/admin/ProfileSections";
+import ProfileSections, { type ProfileExpandState } from "@/components/admin/ProfileSections";
 import type { SettingsTabProps } from "../_types";
 import Select from "@/components/ui/Select";
+import Toggle from "@/components/ui/Toggle";
 import Field, { ResumeUpload, ServiceItemsEditor } from "./SettingsFormFields";
 import CategoriesEditor from "./CategoriesEditor";
 import WorksCategoriesEditor from "./WorksCategoriesEditor";
 import SeriesManager from "./SeriesManager";
 import DraggableTag from "@/components/ui/DraggableTag";
-import { SOCIAL_ICONS, SOCIAL_PLATFORM_OPTIONS } from "../_data/socialIcons";
+import { SOCIAL_ICONS, SOCIAL_PLATFORM_OPTIONS } from "@/data/socialIcons";
 import styles from "../Settings.module.css";
 
 type SocialLink = { platform: string; url: string; label?: string; icon?: string };
@@ -26,6 +27,8 @@ const MAX_SOCIAL_LINKS = 6;
 interface ContentTabProps extends SettingsTabProps {
   profileData: ProfileData;
   setProfileData: Dispatch<SetStateAction<ProfileData>>;
+  profileExpanded: ProfileExpandState;
+  setProfileExpanded: Dispatch<SetStateAction<ProfileExpandState>>;
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
   contentSubTab: "home" | "profile" | "works" | "posts";
 }
@@ -35,39 +38,18 @@ export default function ContentTab({
   update,
   profileData,
   setProfileData,
+  profileExpanded,
+  setProfileExpanded,
   setConfig,
   contentSubTab,
 }: ContentTabProps) {
   const { t } = useLanguage();
 
-  // Normalize: support old social object → socialLinks array
-  const socialLinks: SocialLink[] = useMemo(() => {
-    if (config.socialLinks && config.socialLinks.length > 0) return config.socialLinks;
-    // Fallback: convert old social object
-    const social = config.social as Record<string, string> | undefined;
-    if (!social) return [];
-    return Object.entries(social)
-      .filter(([, url]) => !!url)
-      .map(([platform, url]) => ({ platform, url }));
-  }, [config.socialLinks, config.social]);
+  const socialLinks: SocialLink[] = config.socialLinks ?? [];
 
   const updateSocialLinks = useCallback(
     (fn: (prev: SocialLink[]) => SocialLink[]) => {
-      setConfig((prev) => {
-        const current: SocialLink[] =
-          prev.socialLinks && prev.socialLinks.length > 0
-            ? prev.socialLinks
-            : Object.entries((prev.social as Record<string, string>) ?? {})
-                .filter(([, url]) => !!url)
-                .map(([platform, url]) => ({ platform, url }));
-        const next = fn(current);
-        // Also sync the social object for backward compat
-        const socialObj: Record<string, string> = {};
-        for (const link of next) {
-          if (link.platform !== "custom") socialObj[link.platform] = link.url;
-        }
-        return { ...prev, socialLinks: next, social: socialObj as SiteConfigData["social"] };
-      });
+      setConfig((prev) => ({ ...prev, socialLinks: fn(prev.socialLinks ?? []) }));
     },
     [setConfig],
   );
@@ -137,14 +119,6 @@ export default function ContentTab({
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}><T k="admin.settings.hero" /></h2>
             <div className={styles.fields}>
-              <Field
-                label={t("admin.settings.splitName")}
-                hint={t("admin.settings.splitNameHint")}
-                value={config.brand.splitName.join(", ")}
-                onChange={(v) =>
-                  update("brand", "splitName", v.split(",").map((s) => s.trim()))
-                }
-              />
               <div className={styles.fieldPair}>
                 <p className={styles.fieldHint}><T k="admin.settings.multilineHint" /></p>
                 <Field
@@ -183,18 +157,38 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* Home About */}
+          {/* 3D Objects */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.homeAboutIntro" /></h2>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.home3dLabel" /></h2>
+            <p className={styles.sectionHint}><T k="admin.settings.home3dHint" /></p>
+            <div className={styles.fields}>
+              <div className={styles.fieldPair}>
+                <Toggle
+                  label={t("admin.settings.home3dScrollTorus")}
+                  checked={config.home3d?.scrollTorus !== false}
+                  onChange={(v) => update("home3d", "scrollTorus", v)}
+                />
+                <Toggle
+                  label={t("admin.settings.home3dCoffeeCup")}
+                  checked={config.home3d?.coffeeCup !== false}
+                  onChange={(v) => update("home3d", "coffeeCup", v)}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Home Intro */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}><T k="admin.settings.homeIntroLabel" /></h2>
             <p className={styles.sectionHint}><T k="admin.settings.highlightHint" /></p>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
-                <Field label="Intro (EN)" value={config.homeAbout.intro} onChange={(v) => update("homeAbout", "intro", v)} multiline />
-                <Field label="Intro (KO)" value={config.homeAbout.intro_ko} onChange={(v) => update("homeAbout", "intro_ko", v)} multiline />
+                <Field label="Tagline (EN)" value={config.homeIntro.tagline} onChange={(v) => update("homeIntro", "tagline", v)} multiline />
+                <Field label="Tagline (KO)" value={config.homeIntro.tagline_ko} onChange={(v) => update("homeIntro", "tagline_ko", v)} multiline />
               </div>
               <div className={styles.fieldPair}>
-                <Field label="Description (EN)" value={config.homeAbout.description} onChange={(v) => update("homeAbout", "description", v)} multiline />
-                <Field label="Description (KO)" value={config.homeAbout.description_ko} onChange={(v) => update("homeAbout", "description_ko", v)} multiline />
+                <Field label="Description (EN)" value={config.homeIntro.description} onChange={(v) => update("homeIntro", "description", v)} multiline />
+                <Field label="Description (KO)" value={config.homeIntro.description_ko} onChange={(v) => update("homeIntro", "description_ko", v)} multiline />
               </div>
             </div>
           </section>
@@ -364,7 +358,7 @@ export default function ContentTab({
       )}
 
       {contentSubTab === "profile" && (
-        <ProfileSections data={profileData} setData={setProfileData} styles={styles} />
+        <ProfileSections data={profileData} setData={setProfileData} expanded={profileExpanded} setExpanded={setProfileExpanded} styles={styles} />
       )}
 
       {contentSubTab === "posts" && (

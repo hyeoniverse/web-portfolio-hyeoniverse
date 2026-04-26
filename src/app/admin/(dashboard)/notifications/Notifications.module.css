@@ -1,7 +1,8 @@
+/* admin/settings, admin posts/works (AdminListShell) 와 동일 베이스 */
 .container {
-  max-width: 720px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
-  padding: var(--spacing-6xl) var(--spacing-xl) var(--spacing-xl);
+  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
 }
 
 .loading {
@@ -15,18 +16,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .title {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
+  margin: 0;
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
 }
+
 
 .badge {
   display: inline-flex;
@@ -65,11 +69,27 @@
 }
 
 .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
   text-align: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  padding: var(--spacing-4xl) 0;
+  padding: var(--spacing-4xl) var(--spacing-md);
+}
+
+.empty::before {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: var(--border-light);
+  background-image: linear-gradient(135deg, transparent 50%, var(--bg-accent-subtle) 50%);
 }
 
 .list {
@@ -87,22 +107,50 @@
   position: relative;
 }
 
+.itemClickable {
+  cursor: pointer;
+}
+
 .item:hover {
   background: var(--bg-secondary);
 }
 
-.itemUnread {
-  background: var(--bg-accent);
-}
-
-.itemUnread:hover {
-  background: var(--bg-accent);
+/* 미읽음은 우측 dot 으로만 구분 — 배경색은 사용 안 함.
+   강조가 필요하면 .itemUnread .itemTitle 의 weight/color 만 조정 */
+.itemUnread .itemTitle {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold, 600);
 }
 
 .icon {
-  font-size: var(--font-size-md);
   flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-top: var(--spacing-3xs);
+}
+
+.iconComment {
+  background: var(--bg-info-soft);
+  color: var(--text-info);
+}
+
+.iconReply {
+  background: var(--bg-info-soft);
+  color: var(--text-info);
+}
+
+.iconLike {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+.iconSystem {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
 }
 
 .body {
