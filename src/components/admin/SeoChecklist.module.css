@@ -1,0 +1,192 @@
+/* ── Container ── */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+}
+
+/* ── Head: title + score ── */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.heading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  color: var(--text-secondary);
+}
+
+.headIcon {
+  color: var(--text-tertiary);
+}
+
+.headLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.score {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+.scoreCount {
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.scoreSep {
+  color: var(--text-muted);
+  margin: 0 1px;
+  font-weight: 400;
+}
+
+/* ── Progress bar ── */
+.bar {
+  width: 100%;
+  height: 3px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: var(--radius-capsule);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+}
+
+/* tone 색상 — 진행률에 따라 progress bar 색만 변경
+   강조색은 accent 기반 (warning 톤은 사용 안 함) */
+.tone-full .barFill { background: var(--text-success); }
+.tone-ok .barFill { background: var(--color-accent); }
+.tone-low .barFill { background: var(--color-accent); }
+
+/* ── List ── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ── Item ── */
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding: 6px var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.itemInteractive {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.itemInteractive:hover {
+  background: var(--bg-tertiary);
+}
+
+.itemInteractive:focus-visible {
+  outline: none;
+  background: var(--bg-tertiary);
+  box-shadow: inset 0 0 0 1.5px var(--color-accent-alpha-30);
+}
+
+/* ── Icon (status) ── */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.item-ok .icon {
+  background: var(--bg-success-soft);
+  color: var(--text-success);
+}
+
+.item-warn .icon {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+.item-fail .icon {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-muted);
+}
+
+/* fail 아이콘은 비어있는 점으로 — Circle 아이콘보다 깔끔 */
+.iconDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* ── Label / hint ── */
+.label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-fail .label {
+  color: var(--text-tertiary);
+}
+
+.hint {
+  font-size: var(--font-size-2xs);
+  color: var(--text-accent);
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Right chevron — 호버 시에만 살짝 표시 ── */
+.arrow {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.itemInteractive:hover .arrow,
+.itemInteractive:focus-visible .arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
