@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Check } from "lucide-react";
 import type { ConfigConflict } from "../_data/settingsConstants";
 import { buildDiffOps, groupIntoBlocks } from "../_data/diffUtils";
 import Button from "@/components/ui/Button";
@@ -70,7 +71,7 @@ export default function DiffResolver({
             size="xs"
             onClick={handleApply}
             title="적용"
-            icon={<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+            icon={<Check size={14} strokeWidth={1.8} />}
           />
           <button type="button" className={styles.conflictCloseBtn} onClick={onDismiss} title="닫기">
             <span className={styles.conflictCloseIcon}>

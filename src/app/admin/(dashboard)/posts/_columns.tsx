@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ImageIcon, Download } from "lucide-react";
 import T from "@/components/ui/T";
 import { formatPostTitle } from "@/utils/post";
 import {
@@ -32,11 +33,7 @@ export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
             />
           ) : (
             <div className={ts.thumbPlaceholder}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
+              <ImageIcon size={16} strokeWidth={1.5} />
             </div>
           )}
         </div>
@@ -68,11 +65,21 @@ export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
       key: "status",
       label: t("admin.posts.tableStatus"),
       className: ts.colMeta,
-      render: (post) => (
-        <span className={`${ts.statusBadge} ${post.published ? ts.published : ts.draft}`}>
-          {post.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
-        </span>
-      ),
+      render: (post) => {
+        const isScheduled = !post.published && post.scheduled_at && new Date(post.scheduled_at).getTime() > Date.now();
+        if (isScheduled) {
+          return (
+            <span className={`${ts.statusBadge} ${ts.scheduled}`} title={post.scheduled_at ?? ""}>
+              {t("admin.posts.scheduled") || "Scheduled"}
+            </span>
+          );
+        }
+        return (
+          <span className={`${ts.statusBadge} ${post.published ? ts.published : ts.draft}`}>
+            {post.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
+          </span>
+        );
+      },
       skeletonWidth: "50px",
     },
   ];
@@ -102,9 +109,7 @@ export function createTrashColumns(
             <Image src={post.cover_image} alt="" fill sizes="48px" className={st.thumbImg} unoptimized />
           ) : (
             <div className={st.thumbPlaceholder}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
-              </svg>
+              <ImageIcon size={16} strokeWidth={1.5} />
             </div>
           )}
         </div>
@@ -174,9 +179,7 @@ export function createSeriesColumns(
             <Image src={s.cover_image} alt="" fill sizes="48px" unoptimized className={st.thumbImg} />
           ) : (
             <div className={st.thumbPlaceholder}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
-              </svg>
+              <ImageIcon size={16} strokeWidth={1.5} />
             </div>
           )}
         </div>
@@ -240,7 +243,7 @@ export function createSeriesColumns(
           </button>
           {handleExportSeries && (
             <button type="button" className={st.exportIconBtn} title={t("admin.posts.exportMd")} onClick={() => handleExportSeries(s.id)}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+              <Download size={14} />
             </button>
           )}
         </>

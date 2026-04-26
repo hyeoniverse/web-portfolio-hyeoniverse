@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Heart, Globe } from "lucide-react";
 import type { Comment } from "@/types/post";
 import { getCommenterId, identityFromHash } from "@/utils/commenterIdentity";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -398,9 +399,7 @@ function CommentItem({
           onClick={handleLike}
         >
           {likeCount > 0 && <span className={styles.likeCount}>{formatCount(likeCount)}</span>}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
+          <Heart size={12} fill={liked ? "currentColor" : "none"} />
         </button>
       </div>
 
@@ -495,11 +494,7 @@ function CommentItem({
             <LoadingDots />
           ) : (
             <>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M2 12h20" />
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-              </svg>
+              <Globe size={13} />
               {translatedText ? <T k="comments.original" /> : isKorean ? <T k="comments.translateToEN" /> : <T k="comments.translateToKO" />}
             </>
           )}

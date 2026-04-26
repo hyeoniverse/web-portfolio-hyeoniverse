@@ -26,6 +26,8 @@ import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import ShareButton from "@/components/ui/ShareButton";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
+import { ImageIcon, SquarePen, Monitor, BookOpen, ChevronDown, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
+import { GithubIcon } from "@/components/icons";
 import styles from "./PostDetail.module.css";
 
 interface AdjacentPost {
@@ -57,6 +59,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
   const [seriesPreview, setSeriesPreview] = useState<{ post: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at" | "excerpt" | "excerpt_en" | "tags">; top: number; left: number } | null>(null);
   const [adjacentPosts, setAdjacentPosts] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
   const [recommendedPosts, setRecommendedPosts] = useState<{ id: string; title: string; slug: string; cover_image: string; title_en: string; excerpt: string; excerpt_en: string; category: string; tags: string[] }[]>([]);
+  const [relatedWorks, setRelatedWorks] = useState<{ id: string; title: string; subtitle_ko: string; subtitle_en: string; image: string; year: string; category_ko: string; category_en: string }[]>([]);
   const richtextRef = useRef<HTMLDivElement>(null);
   const { containerRef: proseViewerRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -86,6 +89,11 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
     fetch(`/api/posts/${post.id}/related`)
       .then((r) => r.json())
       .then((d) => setRecommendedPosts(d))
+      .catch(() => {});
+
+    fetch(`/api/posts/${post.id}/related-works`)
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d?.items)) setRelatedWorks(d.items); })
       .catch(() => {});
 
     // Scroll progress → toast trigger
@@ -267,11 +275,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
   const showHero = post.cover_image && !heroImgError;
   const heroErrorFallback = post.cover_image && heroImgError ? (
     <div className={styles.heroPlaceholder}>
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <circle cx="8.5" cy="8.5" r="1.5" />
-        <polyline points="21 15 16 10 5 21" />
-      </svg>
+      <ImageIcon size={48} strokeWidth={1} />
     </div>
   ) : undefined;
 
@@ -308,10 +312,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
                     rel="noopener noreferrer"
                     style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
                   >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
+                    <SquarePen size={13} />
                   </a>
                 </Tooltip>
               )}
@@ -319,7 +320,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {post.github_url && (
                 <Button variant="outline" size="xs" href={post.github_url} external>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                  <GithubIcon size={14} />
                   GitHub
                 </Button>
               )}
@@ -362,12 +363,50 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
             nextLabelKey="postDetail.next"
           />
 
+          {relatedWorks.length > 0 && (
+            <section className={styles.relatedSection}>
+              <div className={styles.relatedHeader}>
+                <Monitor size={16} />
+                <span className={styles.relatedLabel}>{viewLang === "en" ? "Related Works" : "관련 프로젝트"}</span>
+              </div>
+              <div className={styles.relatedGrid}>
+                {relatedWorks.map((w) => {
+                  const subtitle = viewLang === "en" ? (w.subtitle_en || w.subtitle_ko) : (w.subtitle_ko || w.subtitle_en);
+                  const category = viewLang === "en" ? (w.category_en || w.category_ko) : (w.category_ko || w.category_en);
+                  return (
+                    <div key={w.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/works/${w.id}`, w.image || "", rect); }} style={{ cursor: "pointer" }} className={styles.relatedCard}>
+                      <div className={styles.relatedCardImage}>
+                        {w.image ? (
+                          <Image
+                            src={w.image}
+                            alt={w.title}
+                            fill
+                            sizes="(max-width: 768px) 50vw, 220px"
+                            className={styles.relatedCardImg}
+                          />
+                        ) : (
+                          <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
+                        )}
+                      </div>
+                      <div className={styles.relatedCardBody}>
+                        <div className={styles.relatedCardMeta}>
+                          {w.year && <span className={styles.relatedCardOrder}>{w.year}</span>}
+                          {category && <span className={styles.relatedCardCategory}>{category}</span>}
+                        </div>
+                        <span className={styles.relatedCardTitle}>{w.title}</span>
+                        {subtitle && <span className={styles.relatedCardExcerpt}>{subtitle}</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
           {relatedSeriesPosts.length > 0 && seriesData && (
             <section className={styles.relatedSection}>
               <div className={styles.relatedHeader}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
-                </svg>
+                <BookOpen size={16} />
                 <span className={styles.relatedLabel}><T k="postDetail.series" /></span>
                 <span className={styles.relatedSeriesName}>
                   &mdash; {viewLang === "en" && seriesData.title_en ? seriesData.title_en : seriesData.title}
@@ -386,7 +425,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
                           className={styles.relatedCardImg}
                         />
                       ) : (
-                        <svg className={styles.relatedCardPlaceholder} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
+                        <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
                       )}
                     </div>
                     <div className={styles.relatedCardBody}>
@@ -452,7 +491,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
               {currentSeriesIdx + 1} / {seriesPosts.length}
             </span>
             <span className={`${styles.seriesChevron} ${seriesOpen ? styles.seriesChevronOpen : ""}`}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+              <ChevronDown size={14} strokeWidth={1.5} />
             </span>
           </button>
 
@@ -466,7 +505,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
                     onMouseEnter={(e) => handleSeriesHover(sp, e)}
                     onMouseLeave={handleSeriesLeave}
                   >
-                    <span className={`${styles.seriesIndicator} ${sp.id === post.id ? styles.seriesIndicatorActive : ""}`}><svg width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg></span>
+                    <span className={`${styles.seriesIndicator} ${sp.id === post.id ? styles.seriesIndicatorActive : ""}`}><ChevronRight size={16} strokeWidth={2.5} /></span>
                     <span className={styles.seriesNum}>#{(sp.series_order ?? idx) + 1}</span>
                     {sp.id === post.id ? (
                       <span>{viewLang === "en" && sp.title_en ? sp.title_en : sp.title}</span>
@@ -484,7 +523,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
           <div className={styles.seriesNav}>
             {prevSeriesPost ? (
               <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${prevSeriesPost.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={styles.seriesNavLink}>
-                <span className={styles.seriesNavBadge}><svg className={styles.seriesNavArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg> <T k="postDetail.previous" /></span>
+                <span className={styles.seriesNavBadge}><ArrowLeft className={styles.seriesNavArrow} size={14} /> <T k="postDetail.previous" /></span>
                 <span className={styles.seriesNavSep}>|</span>
                 <span className={styles.seriesNavTitle}>{viewLang === "en" && prevSeriesPost.title_en ? prevSeriesPost.title_en : prevSeriesPost.title}</span>
               </div>
@@ -496,7 +535,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
               <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${nextSeriesPost.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={`${styles.seriesNavLink} ${styles.seriesNavRight}`}>
                 <span className={styles.seriesNavTitle}>{viewLang === "en" && nextSeriesPost.title_en ? nextSeriesPost.title_en : nextSeriesPost.title}</span>
                 <span className={styles.seriesNavSep}>|</span>
-                <span className={styles.seriesNavBadge}><T k="postDetail.next" /> <svg className={styles.seriesNavArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg></span>
+                <span className={styles.seriesNavBadge}><T k="postDetail.next" /> <ArrowRight className={styles.seriesNavArrow} size={14} /></span>
               </div>
             ) : (
               <span />
@@ -507,14 +546,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
 
       {needsTranslation && translationEnabled && (
         <div className={styles.translateBanner}>
-          <svg className={styles.translateIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m5 8 6 6" />
-            <path d="m4 14 6-6 2-3" />
-            <path d="M2 5h12" />
-            <path d="M7 2h1" />
-            <path d="m22 22-5-10-5 10" />
-            <path d="M14 18h6" />
-          </svg>
+          <Languages className={styles.translateIcon} size={16} />
           <p className={styles.translateMessage}>
             <T k={viewLang === "en" ? "postDetail.noTranslationEn" : "postDetail.noTranslationKo"} />
           </p>
@@ -596,9 +628,7 @@ export default function PostDetailClient({ post: initialPost, translationEnabled
             />
           ) : (
             <div className={styles.seriesPreviewPlaceholder}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
-              </svg>
+              <ImageIcon size={32} strokeWidth={1} />
             </div>
           )}
         </div>

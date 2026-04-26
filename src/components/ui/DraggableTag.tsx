@@ -1,5 +1,6 @@
 "use client";
 
+import { GripVertical } from "lucide-react";
 import styles from "./DraggableTag.module.css";
 
 interface DraggableTagProps {
@@ -33,11 +34,7 @@ export default function DraggableTag({
       onDrop={onDrop}
       onDragEnd={onDragEnd}
     >
-      <svg className={styles.grip} width="6" height="10" viewBox="0 0 6 10" fill="currentColor">
-        <circle cx="1.5" cy="1.5" r="1" /><circle cx="4.5" cy="1.5" r="1" />
-        <circle cx="1.5" cy="5" r="1" /><circle cx="4.5" cy="5" r="1" />
-        <circle cx="1.5" cy="8.5" r="1" /><circle cx="4.5" cy="8.5" r="1" />
-      </svg>
+      <GripVertical className={styles.grip} size={10} strokeWidth={2.5} />
       {label}
       <button type="button" className={styles.remove} onClick={onRemove}>
         &times;

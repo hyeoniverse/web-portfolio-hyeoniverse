@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { ChevronUp, ChevronDown, ExternalLink, X, Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
 import Select from "@/components/ui/Select";
@@ -514,9 +515,7 @@ export default function SeriesInlineEditor({
                       onMouseDown={(e) => e.stopPropagation()}
                       onDragStart={(e) => e.preventDefault()}
                     >
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M2 6.5 L5 3.5 L8 6.5" />
-                      </svg>
+                      <ChevronUp size={10} strokeWidth={1.5} />
                     </button>
                     {editingOrderIdx === idx ? (
                       <input
@@ -560,9 +559,7 @@ export default function SeriesInlineEditor({
                       onMouseDown={(e) => e.stopPropagation()}
                       onDragStart={(e) => e.preventDefault()}
                     >
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M2 3.5 L5 6.5 L8 3.5" />
-                      </svg>
+                      <ChevronDown size={10} strokeWidth={1.5} />
                     </button>
                   </div>
                   <a
@@ -580,11 +577,7 @@ export default function SeriesInlineEditor({
                     className={styles.seriesPostViewBtn}
                     title={t("admin.posts.seriesModal.viewPost")}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-                      <polyline points="15 3 21 3 21 9" />
-                      <line x1="10" y1="14" x2="21" y2="3" />
-                    </svg>
+                    <ExternalLink size={12} />
                   </a>
                   <span className={`${styles.seriesPostStatus} ${post.published ? styles.seriesPostPublished : styles.seriesPostDraft}`}>
                     {post.published ? "P" : "D"}
@@ -601,9 +594,7 @@ export default function SeriesInlineEditor({
                       onMouseDown={(e) => e.stopPropagation()}
                       title={t("admin.posts.seriesModal.removeFromSeries")}
                     >
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
+                      <X size={10} />
                     </button>
                     <button
                       type="button"
@@ -617,9 +608,7 @@ export default function SeriesInlineEditor({
                       onMouseDown={(e) => e.stopPropagation()}
                       title={t("admin.posts.delete")}
                     >
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
-                      </svg>
+                      <Trash2 size={10} />
                     </button>
                   </div>
                 </div>

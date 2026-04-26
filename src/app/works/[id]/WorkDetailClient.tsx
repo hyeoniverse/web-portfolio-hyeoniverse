@@ -4,8 +4,12 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import "katex/dist/katex.min.css";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
+import Image from "next/image";
 import Link from "next/link";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion } from "framer-motion";
+import { Heart, FileText, ImageIcon, Pencil } from "lucide-react";
+import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { Project } from "@/data/projects";
@@ -44,6 +48,7 @@ export default function WorkDetailClient({
   translationEnabled = true,
 }: WorkDetailClientProps) {
   const { t, language } = useLanguage();
+  const { navigateWithTransition } = usePageTransition();
   const isRichtext = project.contentType === "richtext";
   const [viewLang, setViewLang] = useState<"ko" | "en">(
     !project.content.en ? "ko" : !project.content.ko ? "en" : language === "en" ? "en" : "ko"
@@ -52,6 +57,7 @@ export default function WorkDetailClient({
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
+  const [relatedPosts, setRelatedPosts] = useState<{ id: string; title: string; title_en?: string; slug: string; cover_image: string; excerpt: string; category: string; created_at: string }[]>([]);
   const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const richtextRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +72,11 @@ export default function WorkDetailClient({
         setLikeCount(d.count ?? 0);
         setLiked(d.liked ?? false);
       })
+      .catch(() => {});
+
+    fetch(`/api/works/${project.id}/related-posts`)
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d?.items)) setRelatedPosts(d.items); })
       .catch(() => {});
   }, [project.id]);
 
@@ -166,9 +177,7 @@ export default function WorkDetailClient({
               title={t("common.like")}
               data-clickable="true"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
+              <Heart size={20} fill={liked ? "currentColor" : "none"} />
               <span className={styles.likeCount}>{formatCount(likeCount)}</span>
             </button>
           </motion.div>
@@ -186,11 +195,55 @@ export default function WorkDetailClient({
             )}
             {project.githubUrl && (
               <Button variant="outline" size="sm" href={project.githubUrl} external>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                <GithubIcon size={14} />
                 <T ko="GitHub" en="GitHub" tooltip={t("tooltip.github")} />
               </Button>
             )}
           </motion.div>
+
+          {/* 관련 글 */}
+          {relatedPosts.length > 0 && (
+            <section className={styles.relatedSection}>
+              <div className={styles.relatedHeader}>
+                <FileText size={16} />
+                <span className={styles.relatedLabel}>{viewLang === "en" ? "Related Posts" : "관련 글"}</span>
+              </div>
+              <div className={styles.relatedGrid}>
+                {relatedPosts.map((p) => {
+                  const title = viewLang === "en" && p.title_en ? p.title_en : p.title;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${p.slug}`, p.cover_image || "", rect); }}
+                      style={{ cursor: "pointer" }}
+                      className={styles.relatedCard}
+                    >
+                      <div className={styles.relatedCardImage}>
+                        {p.cover_image ? (
+                          <Image
+                            src={p.cover_image}
+                            alt={title}
+                            fill
+                            sizes="(max-width: 768px) 50vw, 220px"
+                            className={styles.relatedCardImg}
+                          />
+                        ) : (
+                          <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
+                        )}
+                      </div>
+                      <div className={styles.relatedCardBody}>
+                        <div className={styles.relatedCardMeta}>
+                          {p.category && <span className={styles.relatedCardCategory}>{p.category}</span>}
+                        </div>
+                        <span className={styles.relatedCardTitle}>{title}</span>
+                        {p.excerpt && <span className={styles.relatedCardExcerpt}>{p.excerpt}</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
           {/* 이전/다음 프로젝트 */}
           <AdjacentNav
@@ -244,10 +297,7 @@ export default function WorkDetailClient({
                 rel="noopener noreferrer"
                 style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
+                <Pencil size={13} />
               </a>
             </Tooltip>
           )}
@@ -255,7 +305,7 @@ export default function WorkDetailClient({
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {project.githubUrl && (
             <Button variant="outline" size="xs" href={project.githubUrl} external>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              <GithubIcon size={14} />
               GitHub
             </Button>
           )}

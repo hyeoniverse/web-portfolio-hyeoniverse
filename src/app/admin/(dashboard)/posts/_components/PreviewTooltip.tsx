@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { ImageIcon } from "lucide-react";
 import { adminShellStyles as shell } from "@/components/admin/AdminListShell";
 import { formatPostTitle } from "@/utils/post";
 import type { Post } from "@/types/post";
@@ -43,11 +44,7 @@ export default function PreviewTooltip({
             />
           ) : (
             <div className={shell.previewPlaceholder}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
+              <ImageIcon size={32} strokeWidth={1.5} />
             </div>
           )}
         </div>

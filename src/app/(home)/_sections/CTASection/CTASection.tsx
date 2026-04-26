@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
+import { Download } from "lucide-react";
 
 const CoffeeCanvas = dynamic(() => import("./CoffeeCanvas"), { ssr: false });
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -12,7 +13,7 @@ import Section from "@/components/ui/Section";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import type { UseMagneticReturn } from "@/hooks/useMagnetic";
-import { SOCIAL_ICONS } from "./socialIcons";
+import { SOCIAL_ICONS } from "@/data/socialIcons";
 import styles from "./CTASection.module.css";
 
 interface CTASectionProps {
@@ -40,11 +41,13 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
 
     return (
       <Section fullHeight center className={styles.cta} ref={ref}>
-        <div className={styles.decor} aria-hidden="true">
-          <div className={styles.decorStage}>
-            <CoffeeCanvas />
+        {cfg.home3d.coffeeCup && (
+          <div className={styles.decor} aria-hidden="true">
+            <div className={styles.decorStage}>
+              <CoffeeCanvas />
+            </div>
           </div>
-        </div>
+        )}
         <div className={styles.content}>
           <p className={`${styles.label} reveal-text`}>
             <T ko={cfg.cta.label_ko} en={cfg.cta.label} />
@@ -106,13 +109,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                     external
                     download
                     soundDisabled
-                    icon={
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7 10 12 15 17 10" />
-                        <line x1="12" y1="15" x2="12" y2="3" />
-                      </svg>
-                    }
+                    icon={<Download size={16} />}
                     iconPosition="right"
                   >
                     <T ko={cfg.cta.resumeButtonText_ko} en={cfg.cta.resumeButtonText} noTooltip />
@@ -124,45 +121,34 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
           </div>
 
           {/* Social Links — driven by cfg.socialLinks (admin settings) */}
-          {(() => {
-            // Prefer socialLinks array; fallback to old social object
-            type SocialLink = { platform: string; url: string; label?: string };
-            const links: SocialLink[] =
-              cfg.socialLinks && cfg.socialLinks.length > 0
-                ? (cfg.socialLinks as SocialLink[]).filter((l) => l.url)
-                : Object.entries((cfg.social ?? {}) as Record<string, string>)
-                    .filter(([, url]) => url)
-                    .map(([platform, url]) => ({ platform, url }));
-            if (links.length === 0) return null;
-            // Generic link icon for unknown platforms
-            const GENERIC_PATH =
-              "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71";
-            return (
-              <div className={styles.socialRow}>
-                {links.map((link, i) => {
-                  const icon = SOCIAL_ICONS[link.platform];
-                  const label = icon?.label ?? link.label ?? link.platform;
-                  return (
-                    <Tooltip key={`${link.platform}-${i}`} content={label} placement="bottom">
-                      <a
-                        className={styles.socialLink}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={label}
-                      >
-                        {icon ? (
-                          <svg viewBox="0 0 24 24"><path d={icon.path} /></svg>
-                        ) : (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={GENERIC_PATH} /></svg>
-                        )}
-                      </a>
-                    </Tooltip>
-                  );
-                })}
-              </div>
-            );
-          })()}
+          {cfg.socialLinks && cfg.socialLinks.filter((l) => l.url).length > 0 && (
+            <div className={styles.socialRow}>
+              {cfg.socialLinks.filter((l) => l.url).map((link, i) => {
+                const icon = SOCIAL_ICONS[link.platform];
+                const label = icon?.label ?? link.label ?? link.platform;
+                return (
+                  <Tooltip key={`${link.platform}-${i}`} content={label} placement="bottom">
+                    <a
+                      className={styles.socialLink}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                    >
+                      {link.icon ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={link.icon} alt="" />
+                      ) : icon?.stroke ? (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
+                      ) : icon ? (
+                        <svg viewBox="0 0 24 24"><path d={icon.path} /></svg>
+                      ) : null}
+                    </a>
+                  </Tooltip>
+                );
+              })}
+            </div>
+          )}
         </div>
 
       </Section>

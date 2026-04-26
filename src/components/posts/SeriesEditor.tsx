@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Series } from "@/types/post";
@@ -370,9 +371,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
                           onClick={() => handleReorder(idx, -1)}
                           aria-label="Move up"
                         >
-                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
-                            <path d="M2 6.5 L5 3.5 L8 6.5" />
-                          </svg>
+                          <ChevronUp size={10} strokeWidth={1.5} />
                         </button>
                         <span className={styles.orderNum}>{idx + 1}</span>
                         <button
@@ -382,9 +381,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
                           onClick={() => handleReorder(idx, 1)}
                           aria-label="Move down"
                         >
-                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
-                            <path d="M2 3.5 L5 6.5 L8 3.5" />
-                          </svg>
+                          <ChevronDown size={10} strokeWidth={1.5} />
                         </button>
                       </div>
                       <span className={styles.postTitle}>

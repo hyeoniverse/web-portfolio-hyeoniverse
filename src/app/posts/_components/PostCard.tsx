@@ -8,6 +8,7 @@ import type { Post } from "@/types/post";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import T from "@/components/ui/T";
+import { ImageIcon, Flame, Pin } from "lucide-react";
 import styles from "./PostCard.module.css";
 
 interface PostCardProps {
@@ -86,9 +87,7 @@ export default function PostCard({
         {/* HOT 뱃지 */}
         {isHot && (
           <span className={styles.hotBadge}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-              <path d="M12 23c-3.866 0-7-3.134-7-7 0-2.2 1.1-4.1 2.5-5.5L9 9l1.5 3 3-5.5C14.5 4.5 16 2 16 2s1.5 2.5 2.5 5c.7 1.7 1.5 3.8 1.5 6 0 3.866-4.134 10-8 10z" />
-            </svg>
+            <Flame size={10} fill="currentColor" stroke="none" />
             HOT
           </span>
         )}
@@ -144,27 +143,18 @@ export default function PostCard({
           />
         ) : (
           <div className={styles.placeholder}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <polyline points="21 15 16 10 5 21" />
-            </svg>
+            <ImageIcon size={32} strokeWidth={1} />
           </div>
         )}
         {isHot && (
           <span className={styles.hotBadge}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-              <path d="M12 23c-3.866 0-7-3.134-7-7 0-2.2 1.1-4.1 2.5-5.5L9 9l1.5 3 3-5.5C14.5 4.5 16 2 16 2s1.5 2.5 2.5 5c.7 1.7 1.5 3.8 1.5 6 0 3.866-4.134 10-8 10z" />
-            </svg>
+            <Flame size={10} fill="currentColor" stroke="none" />
             HOT
           </span>
         )}
         {post.is_pinned && (
           <span className={styles.pinnedOverlay}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 17v5" />
-              <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16h14v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1h.5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5H8a1 1 0 0 1 1 1z" />
-            </svg>
+            <Pin size={10} />
             Pinned
           </span>
         )}

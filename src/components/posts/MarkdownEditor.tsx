@@ -1,6 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Undo2,
+  Redo2,
+  Code,
+  Quote,
+  List,
+  ListOrdered,
+  SquareCheck,
+  Link,
+  ImageIcon,
+  Table,
+  Info,
+} from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import MarkdownRenderer from "./MarkdownRenderer";
 import Tooltip from "@/components/ui/Tooltip";
@@ -243,10 +256,10 @@ export default function MarkdownEditor({
       </div>
       <div className={styles.toolbar}>
         <Tooltip content={language === "ko" ? "실행 취소" : "Undo"}><button type="button" className={styles.tbBtn} onClick={undo}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
+          <Undo2 size={14} />
         </button></Tooltip>
         <Tooltip content={language === "ko" ? "다시 실행" : "Redo"}><button type="button" className={styles.tbBtn} onClick={redo}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" /></svg>
+          <Redo2 size={14} />
         </button></Tooltip>
         <div className={styles.tbDivider} />
         <Tooltip content={language === "ko" ? "제목 1" : "Heading 1"}><button type="button" className={styles.tbBtn} onClick={() => insertLinePrefix("# ")}>H1</button></Tooltip>
@@ -257,35 +270,35 @@ export default function MarkdownEditor({
         <Tooltip content={language === "ko" ? "기울임" : "Italic"}><button type="button" className={styles.tbBtn} onClick={() => wrapSelection("*", "*", "italic")}><em>I</em></button></Tooltip>
         <Tooltip content={language === "ko" ? "취소선" : "Strikethrough"}><button type="button" className={styles.tbBtn} onClick={() => wrapSelection("~~", "~~", "text")}><s>S</s></button></Tooltip>
         <Tooltip content={language === "ko" ? "인라인 코드" : "Inline Code"}><button type="button" className={styles.tbBtn} onClick={() => wrapSelection("`", "`", "code")}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <Code size={14} />
         </button></Tooltip>
         <Tooltip content={language === "ko" ? "코드 블록" : "Code Block"}><button type="button" className={styles.tbBtn} onClick={() => insertAtCursor("\n```\ncode\n```\n")}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
         </button></Tooltip>
         <div className={styles.tbDivider} />
         <Tooltip content={language === "ko" ? "인용문" : "Blockquote"}><button type="button" className={styles.tbBtn} onClick={() => insertLinePrefix("> ")}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"/></svg>
+          <Quote size={14} />
         </button></Tooltip>
         <Tooltip content={language === "ko" ? "순서 없는 목록" : "Unordered List"}><button type="button" className={styles.tbBtn} onClick={() => insertLinePrefix("- ")}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>
+          <List size={14} />
         </button></Tooltip>
         <Tooltip content={language === "ko" ? "순서 있는 목록" : "Ordered List"}><button type="button" className={styles.tbBtn} onClick={() => insertLinePrefix("1. ")}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="2" y="8" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">1</text><text x="2" y="14" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">2</text><text x="2" y="20" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">3</text></svg>
+          <ListOrdered size={14} />
         </button></Tooltip>
         <Tooltip content={language === "ko" ? "체크리스트" : "Checklist"}><button type="button" className={styles.tbBtn} onClick={() => insertLinePrefix("- [ ] ")}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+          <SquareCheck size={14} />
         </button></Tooltip>
         <div className={styles.tbDivider} />
         <Tooltip content={language === "ko" ? "링크" : "Link"}><button type="button" className={styles.tbBtn} onClick={() => wrapSelection("[", "](url)", "link text")}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          <Link size={14} />
         </button></Tooltip>
         <Tooltip content={language === "ko" ? "이미지" : "Image"}><button type="button" className={styles.tbBtn} onClick={() => insertAtCursor("\n![image](url)\n")}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <ImageIcon size={14} />
         </button></Tooltip>
         <Tooltip content={language === "ko" ? "구분선" : "Horizontal Rule"}><button type="button" className={styles.tbBtn} onClick={() => insertAtCursor("\n---\n")}>HR</button></Tooltip>
         <div className={styles.tbTableWrap} ref={tableRef}>
           <Tooltip content={language === "ko" ? "표" : "Table"}><button type="button" className={styles.tbBtn} onClick={() => setTableGrid(!tableGrid)}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            <Table size={14} />
           </button></Tooltip>
           {tableGrid && (
             <div className={styles.tbTableGrid}>
@@ -334,7 +347,7 @@ export default function MarkdownEditor({
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 016.5 2H20v20H6.5a2.5 2.5 0 010-5H20"/><text x="9" y="15" fontSize="10" fill="currentColor" stroke="none" fontFamily="serif">1</text></svg>
         </button></Tooltip>
         <Tooltip content={language === "ko" ? "알림 블록" : "Alert Block"}><button type="button" className={styles.tbBtn} onClick={() => insertAtCursor("\n> [!NOTE]\n> ")}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <Info size={14} />
         </button></Tooltip>
       </div>
       <div className={styles.panelTabs}>

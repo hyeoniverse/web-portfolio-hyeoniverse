@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./Carousel.module.css";
 
 export interface CarouselProps {
@@ -179,18 +180,7 @@ export default function Carousel({
               aria-label="Previous slide"
               data-clickable="true"
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
+              <ChevronLeft size={16} />
             </button>
             <button
               className={`${styles.arrow} ${styles.arrowNext}`}
@@ -198,18 +188,7 @@ export default function Carousel({
               aria-label="Next slide"
               data-clickable="true"
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
+              <ChevronRight size={16} />
             </button>
           </>
         )}
