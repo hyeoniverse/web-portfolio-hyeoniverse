@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, type ReactNode } from "react";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion } from "framer-motion";
+import { ArrowLeft, Heart } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import TOC from "@/components/ui/TOC/TOC";
@@ -69,10 +70,14 @@ export default function DetailLayout({
   const { endTransition, isTransitioning } = usePageTransition();
   const pageRef = useRef<HTMLDivElement>(null);
 
+  // 새 페이지가 마운트되면 곧장 오버레이를 닫음. heroImage 가 있으면 hero 가
+  // 그려질 시간을 잠깐 주고 닫는다. (이전엔 onAnimationStart 에 endTransition 을
+  // 묶어 두었는데, framer-motion 은 initial===animate 인 경우 콜백을 안 부르는
+  // 일이 있어 hold phase 에서 멈추는 버그가 있었음.)
   useEffect(() => {
-    if (isTransitioning && !heroImage) {
-      endTransition();
-    }
+    if (!isTransitioning) return;
+    const t = setTimeout(() => endTransition(), heroImage ? 80 : 0);
+    return () => clearTimeout(t);
   }, [isTransitioning, heroImage, endTransition]);
 
   // Lenis setup
@@ -127,15 +132,7 @@ export default function DetailLayout({
             onClick={onBack}
             className={`${styles.backBtn} ${backHidden ? styles.backBtnHidden : ""}`}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M19 12H5M5 12L12 19M5 12L12 5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <ArrowLeft size={24} />
             <span className={styles.backBtnLabel}>{backLabel}</span>
           </button>
         ) : (
@@ -143,15 +140,7 @@ export default function DetailLayout({
             href={backHref}
             className={`${styles.backBtn} ${backHidden ? styles.backBtnHidden : ""}`}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M19 12H5M5 12L12 19M5 12L12 5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <ArrowLeft size={24} />
             <span className={styles.backBtnLabel}>{backLabel}</span>
           </a>
         )}
@@ -164,9 +153,6 @@ export default function DetailLayout({
           initial={{ opacity: isTransitioning ? 1 : 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          onAnimationStart={() => {
-            if (isTransitioning) endTransition();
-          }}
         >
           <ProgressiveImage
             src={heroImage}
@@ -222,18 +208,7 @@ export default function DetailLayout({
             title={t("common.like")}
             data-clickable="true"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill={likeConfig.liked ? "currentColor" : "none"}
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
+            <Heart size={20} fill={likeConfig.liked ? "currentColor" : "none"} />
             <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
           </button>
         </motion.div>
@@ -259,18 +234,7 @@ export default function DetailLayout({
             disabled={likeConfig.busy}
             data-clickable="true"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill={likeConfig.liked ? "currentColor" : "none"}
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
+            <Heart size={20} fill={likeConfig.liked ? "currentColor" : "none"} />
             <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
           </button>
         </motion.div>
