@@ -37,18 +37,25 @@ export function usePageTransition() {
   return useContext(PageTransitionContext);
 }
 
-/* ── Timing ── */
+/* ── Timing ──
+ * 흐름: init → expand → morph → hold → done
+ *  - expand (600ms, auto): rect → fullscreen
+ *  - morph  (400ms, auto): fullscreen → hero 크기 (예측 가능한 시점에 축소)
+ *  - hold   (가변): backdrop 으로 화면 전체 덮은 채 새 페이지가 준비되길 기다림
+ *  - done   (350ms): backdrop + image 함께 fade out
+ *  - SAFETY_MS: endTransition 이 호출되지 않을 때 안전망 */
 const EXPAND_MS = 600;
 const MORPH_MS = 400;
 const FADE_MS = 350;
-
-/* ── Provider ── */
-const NAV_DELAY = EXPAND_MS + MORPH_MS;
+const SAFETY_MS = 5000;
+const NAV_DELAY = EXPAND_MS;
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<TransitionState | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  /* 새 페이지가 morph 보다 먼저 준비되면 morph 끝나는 즉시 done 으로 직행 */
+  const endRequestedRef = useRef(false);
   const router = useRouter();
 
   const clearTimers = () => {
@@ -56,24 +63,44 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     timerRef.current = [];
   };
 
+  const endTransition = useCallback(() => {
+    endRequestedRef.current = true;
+    setState((prev) => {
+      if (!prev) return null;
+      if (prev.phase === "done") return prev;
+      /* hold 상태면 곧장 done; 아니면 자동 진행 중이므로 hold 도달 후 처리 */
+      if (prev.phase === "hold") {
+        clearTimers();
+        return { ...prev, phase: "done" };
+      }
+      return prev;
+    });
+  }, []);
+
   const startTransition = useCallback((image: string, rect: DOMRect, targetId: string) => {
     clearTimers();
+    endRequestedRef.current = false;
     setState({ image: image || PLACEHOLDER_IMAGE, rect, targetId, phase: "init" });
-  }, []);
+    const safety = setTimeout(() => endTransition(), SAFETY_MS);
+    timerRef.current.push(safety);
+  }, [endTransition]);
 
   const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect) => {
     clearTimers();
+    endRequestedRef.current = false;
     setState({ image: image || PLACEHOLDER_IMAGE, rect, targetId: href, phase: "init" });
     const t = setTimeout(() => router.push(href), NAV_DELAY);
     timerRef.current.push(t);
-  }, [router]);
+    const safety = setTimeout(() => endTransition(), NAV_DELAY + SAFETY_MS);
+    timerRef.current.push(safety);
+  }, [router, endTransition]);
 
-  const endTransition = useCallback(() => {
-    clearTimers();
-    setState((prev) => prev ? { ...prev, phase: "done" } : null);
+  /* done 진입 시 fade-out 끝나면 overlay unmount */
+  useEffect(() => {
+    if (state?.phase !== "done") return;
     const t = setTimeout(() => setState(null), FADE_MS);
-    timerRef.current.push(t);
-  }, []);
+    return () => clearTimeout(t);
+  }, [state?.phase]);
 
   useEffect(() => () => clearTimers(), []);
 
@@ -91,6 +118,7 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
         <TransitionOverlay
           state={state}
           onPhase={(phase) => setState((prev) => prev ? { ...prev, phase } : null)}
+          endRequestedRef={endRequestedRef}
         />
       )}
     </PageTransitionContext.Provider>
@@ -101,9 +129,11 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
 function TransitionOverlay({
   state,
   onPhase,
+  endRequestedRef,
 }: {
   state: TransitionState;
   onPhase: (phase: TransitionState["phase"]) => void;
+  endRequestedRef: React.MutableRefObject<boolean>;
 }) {
   const elRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -146,6 +176,10 @@ function TransitionOverlay({
       backdropRef.current.style.transition = `opacity ${EXPAND_MS * 0.3}ms ease`;
       backdropRef.current.style.opacity = "1";
     }
+    if (overlayRef.current) {
+      overlayRef.current.style.transition = `opacity ${EXPAND_MS}ms ease`;
+      overlayRef.current.style.opacity = "1";
+    }
 
     const t = setTimeout(() => onPhase("morph"), EXPAND_MS);
     return () => clearTimeout(t);
@@ -160,14 +194,17 @@ function TransitionOverlay({
     el.style.transition = `height ${MORPH_MS}ms cubic-bezier(0.4,0,0.2,1)`;
     el.style.height = `${heroH}px`;
 
-    if (overlayRef.current) {
-      overlayRef.current.style.transition = `opacity ${MORPH_MS}ms ease`;
-      overlayRef.current.style.opacity = "1";
-    }
-
-    const t = setTimeout(() => onPhase("hold"), MORPH_MS);
+    /* morph 끝났을 때 endTransition 이 이미 호출됐다면 hold 건너뛰고 즉시 done */
+    const t = setTimeout(() => {
+      if (endRequestedRef.current) {
+        endRequestedRef.current = false;
+        onPhase("done");
+      } else {
+        onPhase("hold");
+      }
+    }, MORPH_MS);
     return () => clearTimeout(t);
-  }, [phase, onPhase]);
+  }, [phase, onPhase, endRequestedRef]);
 
   useEffect(() => {
     if (phase !== "done") return;
