@@ -166,17 +166,24 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 **Dashboard & CRUD**
 
+- **Admin Dashboard**: `/admin` home — cumulative post views, likes, visitors, comments + daily view trend chart (Recharts), recent activity feed, scheduled-publish queue
 - **CRUD & Bulk Management**: Posts/Works CRUD, drag bulk select + publish/delete, series management, trash (soft delete + restore)
+- **Scheduled Publishing**: `scheduled_at` column + Vercel cron (`/api/cron/publish-scheduled`, every 5 min) — auto flips `published=true` when the scheduled time arrives, DateTimePicker UI (date + time split, 12h/24h toggle)
+- **Posts ↔ Works Bidirectional Linking**: Notion Relation–style — `post_work_relations` many-to-many table, additions on either side surface on detail pages automatically, `RelationPicker` with search · thumbnails · publish status
+- **SEO Checklist**: Editor footer widget — 6-item check (title/slug/excerpt 30+/cover/category/tags), score progress bar, click an item to scroll to the field + label accent highlight (persists until next interaction)
 - **`.md` Sync**: `content/posts/` · `content/works/` folder → DB unidirectional sync (Jekyll-style, `pnpm sync-all`)
 - **`.md` Export**: Bulk/individual/series frontmatter-included `.md` download
 - **Plate.js Editor**: Markdown ↔ Rich Text bidirectional conversion (including file/audio attachments), custom footnotes, 5 templates, editor switch skeleton, custom input font size/line height
 - **Revision History**: JSONB snapshot auto-save, LCS diff comparison, cross-device sharing, auto-cleanup at 50+
 - **AI Translation/Summary**: DeepL/Google/Gemini/Claude fallback chain, auto-summary on publish
+- **Bulk Category Reassignment**: `BulkCategoryModal` — change categories for selected posts in one shot, preserves series mapping
+- **Comment Management**: `/admin/comments` unified panel — Posts/Works comments together, bulk tombstone/permanent delete, report filter
 - **Settings 5 Tabs**: General/Content/Appearance/Services/Account — brand, SEO, bilingual editing
 - **Cover Image Picker**: 16 presets + Unsplash search + AI generation, client-side WebP compression
 - **Media Upload Management**: Allowed file types whitelist (per-MIME size limits), blocked extensions blacklist, infrastructure keys read-only display — addable MIMEs displayed as group-based chips (image/video/audio/document/archive) for one-click allowlist, same-group types (e.g., JPEG/PNG/WebP) share a size limit
 - **HEIC / TIFF Auto-Conversion**: On upload, HEIC/HEIF/TIFF are server-converted to WebP (quality 85) via sharp, making browser-unsupported formats viewable everywhere
 - **Document Viewer**: File attachments with inline preview — PDF (iframe) · Office (MS Viewer) · text (fetch+pre), original filename preserved on download
+- **Icon Consistency**: All inline SVGs unified to `lucide-react` (~200 replacements); brand marks (GitHub) extracted as custom components in `src/components/icons/` — tree-shakable + consistent strokeWidth/size API
 
 <p align="center">
   <img src="public/docs/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
@@ -268,20 +275,24 @@ The [`supabase/setup.sql`](supabase/setup.sql) file contains all table creation 
 
 Copy the file contents and run them at once in Supabase Dashboard -> **SQL Editor**.
 
-**Tables created (10):**
+**Tables created (12) + RPC functions (3):**
 
 | Table | Purpose |
 |--------|------|
 | `site_settings` | Site settings + profile data + secrets/API keys (JSONB) |
 | `series` | Blog series |
-| `posts` | Blog posts (post_number sequence column for unique numbering) |
+| `posts` | Blog posts (post_number sequence + `scheduled_at` for scheduled publishing) |
 | `comments` | Post comments (threaded replies, dual auth: commenter_hash + password) |
 | `likes` | Likes (unified for posts/works/comments, distinguished by target_type, IP duplicate prevention) |
-| `works` | Portfolio works (includes team_members jsonb) |
+| `works` | Portfolio works (team_members jsonb + `scheduled_at` for scheduled publishing) |
 | `site_visits` | Visitor statistics (1 per IP+date) |
+| `post_views` | Per-post time-series view records (daily trend chart on dashboard) |
 | `work_comments` | Works comments (threaded replies, dual auth) |
 | `admin_notifications` | Admin notification logs |
 | `revisions` | Editor revision history (shared for posts/works, JSONB snapshot) |
+| `post_work_relations` | Posts ↔ works many-to-many bidirectional (Notion Relation–style) |
+
+**RPC functions**: `sum_post_views()` (cumulative view total), `daily_post_views(start, end)` (daily time series), `publish_scheduled()` (cron flips posts/works whose scheduled time has arrived)
 
 > Uses `IF NOT EXISTS` so existing tables are skipped. Missing columns (commenter_hash, updated_at, etc.) in existing deployed DBs are safely added via `ALTER TABLE ADD COLUMN IF NOT EXISTS` in the migration section at the bottom of the file.
 

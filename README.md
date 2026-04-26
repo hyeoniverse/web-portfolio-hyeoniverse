@@ -164,17 +164,24 @@
 
 ### Admin & CMS
 
+- **Admin Dashboard**: `/admin` 홈 — 누적 게시물 조회수, 좋아요, 방문자, 댓글 카운트 + 일별 조회 추세 차트(Recharts), 최근 활동 피드, 예약 발행 대기 목록
 - **CRUD & 일괄 관리**: Posts/Works CRUD, 드래그 일괄 선택 + 발행/삭제, 시리즈 관리, 휴지통(soft delete + 복원)
+- **예약 발행**: `scheduled_at` 컬럼 + Vercel cron(`/api/cron/publish-scheduled`, 5분 주기) — 미래 시간 설정 시 자동 `published=true` flip, DateTimePicker UI(날짜 + 시간 분리, 12h/24h 토글)
+- **Posts ↔ Works 양방향 연결**: Notion Relation 스타일 — `post_work_relations` 다대다 테이블, 양쪽 어디서 추가하든 detail 페이지에 자동 노출, `RelationPicker` 검색·썸네일·발행 상태 표시
+- **SEO 체크리스트**: 에디터 하단 위젯 — title/slug/excerpt(30자+)/cover/category/tags 6항목 점검, score 진행 바, 항목 클릭 시 해당 필드로 스크롤 + label accent 강조 (다음 인터랙션 전까지 유지)
 - **`.md` 동기화**: `content/posts/` · `content/works/` 폴더 → DB 단방향 싱크 (Jekyll-style, `pnpm sync-all`)
 - **`.md` 내보내기**: 전체/선택/개별/시리즈 단위로 frontmatter 포함 `.md` 다운로드
 - **Plate.js 에디터**: Markdown ↔ Rich Text 양방향 변환 (파일/오디오 첨부 포함), 커스텀 각주, 5종 템플릿, 에디터 전환 skeleton, 직접입력 font size/line height
 - **리비전 히스토리**: JSONB snapshot 자동저장, LCS diff 비교, 기기 간 공유, 50개 초과 자동 정리
 - **AI 번역/요약**: DeepL/Google/Gemini/Claude fallback chain, 발행 시 자동 요약 생성
+- **카테고리 일괄 재할당**: `BulkCategoryModal` — 선택한 게시물들의 카테고리를 한 번에 변경, 시리즈 매핑 보존
+- **댓글 관리**: `/admin/comments` 통합 패널 — Posts/Works 댓글 동시 표시, 일괄 tombstone/완전 삭제, 신고 필터
 - **Settings 5탭**: General/Content/Appearance/Services/Account — 브랜드, SEO, 이중언어 편집
 - **Cover Image Picker**: 16종 프리셋 + Unsplash 검색 + AI 생성, 클라이언트 이미지 WebP 압축
 - **미디어 업로드 관리**: 허용 파일 형식 화이트리스트 (MIME 타입별 크기 제한), 차단 확장자 블랙리스트, 인프라 키 읽기 전용 표시 — 추가 가능한 MIME은 그룹별 chip UI(이미지/비디오/오디오/문서/압축)로 클릭 한 번에 허용 목록에 추가되며, 같은 그룹(예: JPEG/PNG/WebP)의 크기 제한을 공유
 - **HEIC / TIFF 자동 변환**: 업로드 시점에 sharp로 HEIC/HEIF/TIFF → WebP(quality 85) 서버 변환, 브라우저 네이티브 미지원 포맷도 모든 브라우저에서 표시 가능
 - **문서 뷰어**: 파일 첨부 시 PDF(iframe) · 오피스(MS Viewer) · 텍스트(fetch+pre) 인라인 미리보기, 다운로드 원본 파일명 유지
+- **아이콘 일관화**: 모든 인라인 SVG를 `lucide-react`로 통일 (~200개 교체), 브랜드 마크(GitHub)는 `src/components/icons/` 커스텀 컴포넌트로 분리 — 트리 셰이킹 + 일관된 strokeWidth/size API
 
 <p align="center">
   <img src="public/docs/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
@@ -269,20 +276,24 @@ ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + A
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
-**생성되는 테이블 (10개):**
+**생성되는 테이블 (12개) + RPC 함수 (3개):**
 
 | 테이블 | 용도 |
 |--------|------|
 | `site_settings` | 사이트 설정 + 프로필 데이터 + secrets/API 키 (JSONB) |
 | `series` | 블로그 시리즈 |
-| `posts` | 블로그 포스트 (post_number 시퀀스 컬럼으로 고유 번호 부여) |
+| `posts` | 블로그 포스트 (post_number 시퀀스 + `scheduled_at` 예약 발행) |
 | `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
 | `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
-| `works` | 포트폴리오 작업물 (team_members jsonb 포함) |
+| `works` | 포트폴리오 작업물 (team_members jsonb + `scheduled_at` 예약 발행) |
 | `site_visits` | 방문자 통계 (IP+날짜 1회) |
+| `post_views` | 게시물별 시계열 조회 기록 (대시보드 일별 추세 차트) |
 | `work_comments` | Works 댓글 (대댓글, 이중 인증) |
 | `admin_notifications` | 관리자 알림 로그 |
 | `revisions` | 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot) |
+| `post_work_relations` | posts ↔ works 양방향 다대다 (Notion Relation 스타일) |
+
+**RPC 함수**: `sum_post_views()` (누적 조회수 합계), `daily_post_views(start, end)` (일별 시계열), `publish_scheduled()` (예약 시간 도달한 게시물/작품을 cron이 호출해서 발행)
 
 > `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다. 기존 배포 DB에 누락된 컬럼(commenter_hash, updated_at 등)은 파일 하단의 마이그레이션 섹션에서 `ALTER TABLE ADD COLUMN IF NOT EXISTS`로 안전하게 추가됩니다.
 
