@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Check, Share } from "lucide-react";
 import styles from "./ShareButton.module.css";
 
 export default function ShareButton({ className }: { className?: string }) {
@@ -38,9 +39,7 @@ export default function ShareButton({ className }: { className?: string }) {
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+            <Check size={12} strokeWidth={2.5} />
             Copied
           </motion.span>
         ) : (
@@ -52,11 +51,7 @@ export default function ShareButton({ className }: { className?: string }) {
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-              <polyline points="16 6 12 2 8 6" />
-              <line x1="12" y1="2" x2="12" y2="15" />
-            </svg>
+            <Share size={12} />
             Share
           </motion.span>
         )}

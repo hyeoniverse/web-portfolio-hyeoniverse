@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronRight } from "lucide-react";
 import T from "@/components/ui/T";
+import { ExpandablePanel } from "./ProfileSections";
 
 export default function SkillItemContent({ skill, gi, si, updateSkill, removeSkill, styles }: {
   skill: { name: string; description: { ko: string; en: string } };
@@ -18,9 +20,7 @@ export default function SkillItemContent({ skill, gi, si, updateSkill, removeSki
       <div className={styles.skillFields}>
         <div className={styles.skillGroupHeader}>
           <button type="button" className={styles.skillExpandBtn} onClick={() => setExpanded(!expanded)} aria-label={expanded ? "Collapse" : "Expand"}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
+            <ChevronRight style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }} />
           </button>
           <input
             className={styles.skillFieldInline}
@@ -29,7 +29,7 @@ export default function SkillItemContent({ skill, gi, si, updateSkill, removeSki
             placeholder="Skill name"
           />
         </div>
-        <div className={`${styles.skillExpandable} ${expanded ? styles.skillExpandableOpen : ""}`}>
+        <ExpandablePanel open={expanded} className={styles.skillExpandable}>
           <div>
             <div>
               <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
@@ -40,7 +40,7 @@ export default function SkillItemContent({ skill, gi, si, updateSkill, removeSki
               <textarea className={styles.profileFieldTextarea} value={skill.description.en} onChange={(e) => updateSkill(gi, si, "description.en", e.target.value)} rows={1} data-lenis-prevent />
             </div>
           </div>
-        </div>
+        </ExpandablePanel>
       </div>
       <button
         type="button"

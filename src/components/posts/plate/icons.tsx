@@ -1,47 +1,20 @@
 import React from "react";
+import { Lock, Unlock, AlignLeft, AlignCenter, AlignRight, AlignJustify, Trash2 } from "lucide-react";
 
 // ── SVG Icons ──
 export function LockIcon() {
-  return (
-    <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" aria-hidden="true">
-      <path d="M2 5V3.5a3 3 0 1 1 6 0V5h.5A1.5 1.5 0 0 1 10 6.5v4A1.5 1.5 0 0 1 8.5 12h-7A1.5 1.5 0 0 1 0 10.5v-4A1.5 1.5 0 0 1 1.5 5H2Zm1.25 0h3.5V3.5a1.75 1.75 0 1 0-3.5 0V5Z" />
-    </svg>
-  );
+  return <Lock size={12} />;
 }
 
 export function UnlockIcon() {
-  return (
-    <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" aria-hidden="true">
-      <path d="M2 5V3.5a3 3 0 0 1 5.83-1h-1.4A1.75 1.75 0 0 0 3.25 3.5V5H8.5A1.5 1.5 0 0 1 10 6.5v4A1.5 1.5 0 0 1 8.5 12h-7A1.5 1.5 0 0 1 0 10.5v-4A1.5 1.5 0 0 1 1.5 5H2Z" />
-    </svg>
-  );
+  return <Unlock size={12} />;
 }
 
 export function AlignIcon({ align }: { align: "left" | "center" | "right" | "justify" }) {
-  return (
-    <svg width="13" height="10" viewBox="0 0 13 10" fill="currentColor" aria-hidden="true">
-      {align === "left" && <>
-        <rect x="0" y="0" width="13" height="1.5" rx="0.75" />
-        <rect x="0" y="4" width="8" height="1.5" rx="0.75" />
-        <rect x="0" y="8" width="10" height="1.5" rx="0.75" />
-      </>}
-      {align === "center" && <>
-        <rect x="0" y="0" width="13" height="1.5" rx="0.75" />
-        <rect x="2.5" y="4" width="8" height="1.5" rx="0.75" />
-        <rect x="1.5" y="8" width="10" height="1.5" rx="0.75" />
-      </>}
-      {align === "right" && <>
-        <rect x="0" y="0" width="13" height="1.5" rx="0.75" />
-        <rect x="5" y="4" width="8" height="1.5" rx="0.75" />
-        <rect x="3" y="8" width="10" height="1.5" rx="0.75" />
-      </>}
-      {align === "justify" && <>
-        <rect x="0" y="0" width="13" height="1.5" rx="0.75" />
-        <rect x="0" y="4" width="13" height="1.5" rx="0.75" />
-        <rect x="0" y="8" width="13" height="1.5" rx="0.75" />
-      </>}
-    </svg>
-  );
+  if (align === "left") return <AlignLeft size={13} />;
+  if (align === "center") return <AlignCenter size={13} />;
+  if (align === "right") return <AlignRight size={13} />;
+  return <AlignJustify size={13} />;
 }
 
 // ── Table toolbar icons ──
@@ -118,14 +91,7 @@ export function TblSplitCell() {
   );
 }
 export function TblTrash() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polyline points="2,4 14,4"/>
-      <path d="M5.5,4V3C5.5,2.7 5.7,2.5 6,2.5h4C10.3,2.5 10.5,2.7 10.5,3V4"/>
-      <path d="M3.5,4L4.5,13.5C4.5,13.8 4.7,14 5,14h6C11.3,14 11.5,13.8 11.5,13.5L12.5,4"/>
-      <line x1="6.5" y1="7" x2="6.5" y2="11"/><line x1="9.5" y1="7" x2="9.5" y2="11"/>
-    </svg>
-  );
+  return <Trash2 size={12} strokeWidth={1.5} />;
 }
 
 export function TblCellColorIcon() {

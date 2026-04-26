@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef, type ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import Pagination from "@/components/ui/Pagination";
@@ -65,9 +66,7 @@ export interface SubTableProps<T extends { id: string }> {
 export { styles as subTableStyles };
 
 const ChevronIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
+  <ChevronDown size={14} />
 );
 
 export default function SubTable<T extends { id: string }>({

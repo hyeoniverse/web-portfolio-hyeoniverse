@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { X, Check, RotateCcw } from "lucide-react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -359,18 +360,7 @@ export default function ContactDrawer({
                               }}
                               aria-label="Remove file"
                             >
-                              <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                              >
-                                <path
-                                  d="M18 6L6 18M6 6l12 12"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
+                              <X />
                             </button>
                           )}
                         </div>
@@ -464,40 +454,11 @@ export default function ContactDrawer({
                           <>
                             <span className={styles.submitTextDefault}>
                               Sent
-                              <svg
-                                className={styles.submitIcon}
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                              >
-                                <path
-                                  d="M20 6L9 17l-5-5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
+                              <Check className={styles.submitIcon} strokeWidth={2.5} />
                             </span>
                             <span className={styles.submitTextHover}>
                               Reset
-                              <svg
-                                className={styles.submitIcon}
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                              >
-                                <path
-                                  d="M1 4v6h6M23 20v-6h-6"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                                <path
-                                  d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
+                              <RotateCcw className={styles.submitIcon} strokeWidth={2.5} />
                             </span>
                           </>
                         ) : (

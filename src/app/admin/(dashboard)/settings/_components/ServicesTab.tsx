@@ -1,6 +1,7 @@
 "use client";
 
 import { type Dispatch, type SetStateAction, useRef, useState } from "react";
+import { ChevronUp, ChevronDown, X } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
@@ -152,14 +153,14 @@ function PriorityList<T extends string>({ primary, priority, excluded, options, 
                 disabled={idx === 0}
                 onClick={() => move(idx, -1)}
                 aria-label="Move up"
-              ><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 15l-6-6-6 6" /></svg></button>
+              ><ChevronUp size={12} strokeWidth={2.5} /></button>
               <button
                 type="button"
                 className={styles.priorityBtn}
                 disabled={idx === ordered.length - 1}
                 onClick={() => move(idx, 1)}
                 aria-label="Move down"
-              ><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg></button>
+              ><ChevronDown size={12} strokeWidth={2.5} /></button>
             </div>
           </div>
         );
@@ -300,9 +301,7 @@ function MediaLimitsEditor({ config, setConfig, t }: {
                       title={t("admin.settings.remove")}
                       aria-label={t("admin.settings.remove")}
                     >
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
+                      <X size={10} strokeWidth={2.5} />
                     </button>
                   </span>
                 ))}

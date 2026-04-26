@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
+import { Shuffle, Bell, CircleX, Check, Pencil, ChevronRight } from "lucide-react";
 import { getCommenterId, getIdentity, getRandomIdentity } from "@/utils/commenterIdentity";
 import { createClient } from "@/lib/supabase/client";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -171,13 +172,7 @@ export default function CommentForm({
               data-clickable="true"
               title={t("comments.shuffle")}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
-                <path d="m18 2 4 4-4 4" />
-                <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
-                <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
-                <path d="m18 14 4 4-4 4" />
-              </svg>
+              <Shuffle size={12} strokeWidth={2.5} />
             </button>
           </div>
           <input
@@ -208,15 +203,9 @@ export default function CommentForm({
             data-clickable="true"
             title={!emailNotify ? t("comments.emailNotifyTip") : undefined}
           >
-            <svg className={styles.notifyIcon} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-            </svg>
+            <Bell className={styles.notifyIcon} size={12} />
             <span className={styles.notifyConfirmedLabel}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-              </svg>
+              <Bell size={12} />
               {notifyEmail}
             </span>
             <input
@@ -247,9 +236,7 @@ export default function CommentForm({
                 aria-label={t("comments.emailClear")}
                 title={t("comments.emailClear")}
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.2 13.8-1.4 1.4L12 14.4l-2.8 2.8-1.4-1.4L10.6 13 7.8 10.2l1.4-1.4L12 11.6l2.8-2.8 1.4 1.4L13.4 13l2.8 2.8Z" />
-                </svg>
+                <CircleX size={12} fill="currentColor" stroke="none" />
               </button>
             )}
             {emailNotify && isValidEmail && !emailConfirmed && emailChanged && (
@@ -261,9 +248,7 @@ export default function CommentForm({
                   onClick={(e) => { e.stopPropagation(); setEmailConfirmed(true); setConfirmedEmail(notifyEmail); }}
                   tabIndex={0}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <Check size={12} strokeWidth={3} />
                 </button>
               </>
             )}
@@ -278,9 +263,7 @@ export default function CommentForm({
                 }}
                 tabIndex={0}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                </svg>
+                <Pencil size={14} />
               </button>
             ) : (
               <>
@@ -303,9 +286,7 @@ export default function CommentForm({
                   tabIndex={emailNotify ? 0 : -1}
                 >
                   {/* 캡슐이 오른쪽으로 접히는 방향을 암시하는 chevron */}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
+                  <ChevronRight size={12} strokeWidth={2.5} />
                 </button>
               </>
             )}

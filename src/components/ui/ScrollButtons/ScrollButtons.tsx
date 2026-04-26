@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./ScrollButtons.module.css";
 
@@ -43,14 +44,10 @@ export default function ScrollButtons({ threshold = 300 }: ScrollButtonsProps) {
   return (
     <>
       <button type="button" className={`${styles.btn} ${styles.btnTop} ${visCls}`} onClick={scrollToTop} aria-label="Scroll to top" data-clickable="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="18 15 12 9 6 15" />
-        </svg>
+        <ChevronUp size={16} />
       </button>
       <button type="button" className={`${styles.btn} ${styles.btnBottom} ${visCls}`} onClick={scrollToBottom} aria-label="Scroll to bottom" data-clickable="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <ChevronDown size={16} />
       </button>
     </>
   );

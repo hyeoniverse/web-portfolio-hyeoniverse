@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { Search, Shuffle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import { EMOJI_CATEGORIES, ICON_CATEGORIES, EMOJI_KEYWORDS } from "../emojiData";
@@ -285,7 +286,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
               border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-capsule)",
               padding: "5px 10px",
             }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <Search size={14} stroke="var(--text-muted)" />
               <input
                 type="text"
                 value={query}
@@ -313,14 +314,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
               onClick={doShuffle}
               title={t("랜덤", "Random")}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="3" />
-                <circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none" />
-                <circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none" />
-                <circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none" />
-                <circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none" />
-                <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
-              </svg>
+              <Shuffle size={14} />
             </button>
           </div>
 
@@ -448,7 +442,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
                   onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
                   onClick={() => scroll(-1)}
-                ><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+                ><ChevronLeft size={12} /></button>
                 <div
                   ref={iconBarRef}
                   style={{
@@ -488,7 +482,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
                   onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
                   onClick={() => scroll(1)}
-                ><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                ><ChevronRight size={12} /></button>
               </div>
             );
           })()}

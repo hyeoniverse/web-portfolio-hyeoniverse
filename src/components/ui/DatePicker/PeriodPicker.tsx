@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useRef, useEffect } from "react";
+import { ChevronDown, Calendar } from "lucide-react";
 import type { DatePeriod } from "@/data/profile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { formatPeriod } from "@/utils/formatPeriod";
@@ -64,9 +65,7 @@ function Dropdown({
         disabled={disabled}
       >
         {selected?.label || "--"}
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <path d="M2.5 4L5 6.5L7.5 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <ChevronDown size={10} strokeWidth={2} />
       </button>
       {open && (
         <div className={styles.dropdownList} data-lenis-prevent>
@@ -189,11 +188,7 @@ function DateInputRow({
             disabled={disabled}
             aria-label="Open date picker"
           >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-              <path d="M2 6h12" stroke="currentColor" strokeWidth="1.2" />
-              <path d="M5 1.5v3M11 1.5v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-            </svg>
+            <Calendar size={14} strokeWidth={1.5} />
           </button>
           {pickerOpen && (
             <DatePickerPopover
@@ -307,24 +302,24 @@ export default function PeriodPicker({
         </div>
       )}
 
-      {/* Start date */}
-      <DateInputRow
-        label={t("admin.settings.profile.startDate")}
-        dateStr={safeValue.start}
-        format={safeValue.format}
-        onChange={(v) => onChange({ ...safeValue, start: v })}
-      />
-
-      {/* End date */}
-      {hasRange && (
+      {/* Start + End date — 기본 2열, 공간 부족 시 wrap */}
+      <div className={styles.dateRows}>
         <DateInputRow
-          label={t("admin.settings.profile.endDate")}
-          dateStr={safeValue.end || ""}
+          label={t("admin.settings.profile.startDate")}
+          dateStr={safeValue.start}
           format={safeValue.format}
-          onChange={(v) => onChange({ ...safeValue, end: v })}
-          disabled={safeValue.ongoing}
+          onChange={(v) => onChange({ ...safeValue, start: v })}
         />
-      )}
+        {hasRange && (
+          <DateInputRow
+            label={t("admin.settings.profile.endDate")}
+            dateStr={safeValue.end || ""}
+            format={safeValue.format}
+            onChange={(v) => onChange({ ...safeValue, end: v })}
+            disabled={safeValue.ongoing}
+          />
+        )}
+      </div>
     </div>
   );
 }

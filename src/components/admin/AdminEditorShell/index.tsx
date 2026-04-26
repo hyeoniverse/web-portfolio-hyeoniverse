@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2, X } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
@@ -191,16 +192,7 @@ export default function AdminEditorShell({
                   onClick={retranslateDisabled ? undefined : () => setShowRetranslate((v) => !v)}
                   disabled={saving || retranslateDisabled}
                   soundDisabled
-                  icon={
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 8l6 6" />
-                      <path d="M4 14l6-6 2-3" />
-                      <path d="M2 5h12" />
-                      <path d="M7 2h1" />
-                      <path d="M22 22l-5-10-5 10" />
-                      <path d="M14 18h6" />
-                    </svg>
-                  }
+                  icon={<Languages size={14} />}
                 />
               </Tooltip>
               {showRetranslate && (
@@ -241,11 +233,7 @@ export default function AdminEditorShell({
                 onClick={aiSummaryDisabled ? undefined : onGenerateSummary}
                 disabled={saving || generatingSummary || aiSummaryDisabled}
                 soundDisabled
-                icon={
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z" />
-                  </svg>
-                }
+                icon={<MessageSquareMore size={14} />}
               />
             </Tooltip>
           )}
@@ -269,12 +257,7 @@ export default function AdminEditorShell({
                   onClick={onRevert}
                   disabled={saving || !isDirty}
                   soundDisabled
-                  icon={
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="1 4 1 10 7 10" />
-                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-                    </svg>
-                  }
+                  icon={<RotateCcw size={14} />}
                 />
               </Tooltip>
             )}
@@ -293,10 +276,7 @@ export default function AdminEditorShell({
                     }}
                     soundDisabled
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10" />
-                      <polyline points="12 6 12 12 16 14" />
-                    </svg>
+                    <Clock size={14} />
                     <span className={styles.revisionBadge}>{revisions.length}</span>
                   </Button>
                 </Tooltip>
@@ -313,9 +293,7 @@ export default function AdminEditorShell({
                             className={styles.revisionBackBtn}
                             onClick={() => setViewingRevision(null)}
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="15 18 9 12 15 6" />
-                            </svg>
+                            <ChevronLeft size={14} />
                             {labels.revisionHistory ?? "History"}
                           </button>
                           <div className={styles.revisionDetailActions}>
@@ -356,12 +334,7 @@ export default function AdminEditorShell({
                                     );
                                   }}
                                 >
-                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="3 6 5 6 21 6" />
-                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                                    <path d="M10 11v6" />
-                                    <path d="M14 11v6" />
-                                  </svg>
+                                  <Trash2 size={12} />
                                 </button>
                               </Tooltip>
                             )}
@@ -617,17 +590,12 @@ export default function AdminEditorShell({
                                     );
                                   }}
                                 >
-                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18" />
-                                    <line x1="6" y1="6" x2="18" y2="18" />
-                                  </svg>
+                                  <X size={10} />
                                 </button>
                               </Tooltip>
                             )}
                             {!isSelectMode && (
-                              <svg className={styles.revisionChevron} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="9 18 15 12 9 6" />
-                              </svg>
+                              <ChevronRight className={styles.revisionChevron} size={12} />
                             )}
                           </div>
                         ))}
@@ -673,12 +641,7 @@ export default function AdminEditorShell({
                   disabled={deleting}
                   aria-label={labels.delete}
                   soundDisabled
-                  icon={
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                    </svg>
-                  }
+                  icon={<Trash2 size={14} />}
                 />
               </Tooltip>
             </>

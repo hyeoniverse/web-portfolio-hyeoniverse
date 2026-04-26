@@ -6,6 +6,7 @@ import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import T from "@/components/ui/T";
 import CategoryLabel from "@/components/ui/CategoryLabel";
+import { BookOpen, ImageIcon, ChevronDown } from "lucide-react";
 import type { RecommendedPost } from "./types";
 import styles from "../PostDetail.module.css";
 
@@ -32,11 +33,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
         {rp.cover_image ? (
           <Image src={rp.cover_image} alt="" fill sizes="64px" className={styles.recommendedItemImg} />
         ) : (
-          <svg className={styles.recommendedItemPlaceholder} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <circle cx="8.5" cy="8.5" r="1.5" />
-            <polyline points="21 15 16 10 5 21" />
-          </svg>
+          <ImageIcon className={styles.recommendedItemPlaceholder} size={20} strokeWidth={1} />
         )}
       </div>
       <div className={styles.recommendedItemBody}>
@@ -51,10 +48,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
   return (
     <section className={styles.recommendedSection}>
       <div className={styles.recommendedHeader}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-        </svg>
+        <BookOpen size={16} />
         <span className={styles.recommendedLabel}><T k="postDetail.recommended" /></span>
         {rest.length > 0 && (
           <button
@@ -63,12 +57,12 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
             data-clickable="true"
           >
             {expanded ? <T k="common.close" /> : <>+{rest.length} <T k="postDetail.more" /></>}
-            <svg
+            <ChevronDown
               className={`${styles.recommendedMoreChevron} ${expanded ? styles.recommendedMoreChevronOpen : ""}`}
-              width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"
-            >
-              <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+              size={12}
+              strokeWidth={1.5}
+              aria-hidden="true"
+            />
           </button>
         )}
       </div>

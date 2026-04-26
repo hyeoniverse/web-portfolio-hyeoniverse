@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Check, Minus } from "lucide-react";
 import styles from "./Checkbox.module.css";
 
 type CheckboxShape = "circle" | "square";
@@ -42,27 +43,9 @@ export default function Checkbox({
         {(checked || indeterminate) && (
           <span className={styles.icon}>
             {indeterminate ? (
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <line
-                  x1="2"
-                  y1="5"
-                  x2="8"
-                  y2="5"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <Minus size={10} strokeWidth={2.5} />
             ) : (
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path
-                  d="M2 5.2 L4 7.2 L8 3"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Check size={10} strokeWidth={2.5} />
             )}
           </span>
         )}

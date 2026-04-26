@@ -1,4 +1,5 @@
 import React from "react";
+import { GripVertical } from "lucide-react";
 import { useEditorRef } from "platejs/react";
 import { _blockDragPath } from "./utils";
 import styles from "../RichTextEditor.module.css";
@@ -90,14 +91,7 @@ export function BlockDragHandle({ path }: { path: number[] | null }) {
       }}
       title="Drag to reorder"
     >
-      <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
-        <circle cx="3" cy="2" r="1.2" />
-        <circle cx="7" cy="2" r="1.2" />
-        <circle cx="3" cy="7" r="1.2" />
-        <circle cx="7" cy="7" r="1.2" />
-        <circle cx="3" cy="12" r="1.2" />
-        <circle cx="7" cy="12" r="1.2" />
-      </svg>
+      <GripVertical size={14} fill="currentColor" />
     </div>
   );
 }

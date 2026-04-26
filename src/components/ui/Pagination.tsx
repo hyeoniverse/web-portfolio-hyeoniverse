@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
 import styles from "./Pagination.module.css";
 
 interface PaginationProps {
@@ -26,10 +27,10 @@ export default function Pagination({ page, totalPages, onChange, className }: Pa
   return (
     <div className={`${styles.pagination} ${className ?? ""}`}>
       <button type="button" disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} title="First">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" /></svg>
+        <ChevronsLeft size={14} />
       </button>
       <button type="button" disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+        <ChevronLeft size={14} />
       </button>
       {singlePage ? (
         <button type="button" className={`${styles.pageBtn} ${styles.pageBtnActive}`}>1</button>
@@ -48,10 +49,10 @@ export default function Pagination({ page, totalPages, onChange, className }: Pa
         ),
       )}
       <button type="button" disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+        <ChevronRight size={14} />
       </button>
       <button type="button" disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} title="Last">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></svg>
+        <ChevronsRight size={14} />
       </button>
     </div>
   );

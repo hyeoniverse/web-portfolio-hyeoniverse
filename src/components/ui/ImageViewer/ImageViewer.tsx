@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { HelpCircle, MoreVertical, RotateCcw } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import CloseIcon from "@/components/ui/CloseIcon";
 import Tooltip from "@/components/ui/Tooltip";
@@ -464,9 +465,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
               )}
               <span className={styles.toolbarCollapsible}>
                 <ActionBtn onClick={() => setShowShortcuts((v) => !v)} label="Shortcuts  ?">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
-                  </svg>
+                  <HelpCircle size={16} />
                 </ActionBtn>
               </span>
               {(title || fileName) && (
@@ -625,9 +624,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                     onClick={(e) => { e.stopPropagation(); setShowMoreMenu((v) => !v); }}
                     aria-label="More options"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
-                    </svg>
+                    <MoreVertical size={16} />
                   </button>
                   <AnimatePresence>
                     {showMoreMenu && (
@@ -647,7 +644,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                           <ZoomInIcon /><span>Zoom in</span>
                         </button>
                         <button type="button" className={styles.moreMenuItem} onClick={() => { setZoom(1); setPanOffset({ x: 0, y: 0 }); }}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 3 3 7.5 7.5 7.5"/></svg>
+                          <RotateCcw size={16} />
                           <span>Reset zoom</span>
                         </button>
                         {hasMultiple && (

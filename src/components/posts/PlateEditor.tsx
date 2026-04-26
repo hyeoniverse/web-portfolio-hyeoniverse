@@ -38,7 +38,7 @@ import InlineInputToolbar from "./plate/toolbars/InlineInputToolbar";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
 import { RxReset } from "react-icons/rx";
-import { Pipette, ListTodo } from "lucide-react";
+import { Pipette, ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink } from "lucide-react";
 import Tooltip from "@/components/ui/Tooltip";
 
 // Re-export ImagePanel for backward compatibility
@@ -149,9 +149,7 @@ function ColumnRatioInputs({ colChildren, colCount, activePath, editor }: {
         </React.Fragment>
       ))}
       <TBtn square tooltip="Apply" disabled={!isDirty} onClick={applyAll} style={{ marginLeft: 4 }}>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
+        <Check size={12} strokeWidth={2.5} />
       </TBtn>
     </>
   );
@@ -1614,18 +1612,18 @@ export default function PlateEditor({
               </div>
               <div className={styles.tableGroup}>
                 <TBtn square onClick={doFindPrev} tooltip={t("editor.findPrev")}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                  <ChevronUp size={12} strokeWidth={2.5} />
                 </TBtn>
                 <TBtn square onClick={doFindNext} tooltip={t("editor.findNext")}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                  <ChevronDown size={12} strokeWidth={2.5} />
                 </TBtn>
                 <TBtn square active={findReplace} onClick={() => setFindReplace(!findReplace)} tooltip={t("editor.replace")}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+                  <Replace size={12} />
                 </TBtn>
               </div>
               <div className={styles.tableToolbarActions}>
                 <TBtn square onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); editor.tf.focus(); }} tooltip="Close (Esc)">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <X size={12} strokeWidth={2.5} />
                 </TBtn>
               </div>
             </div>
@@ -1932,7 +1930,7 @@ export default function PlateEditor({
                       onClick={() => editor.tf.setNodes({ open: true }, { at: toggleNode.path })}
                       tooltip={t("editor.expanded") || "Expanded"}
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+                      <ChevronDown size={14} />
                     </TBtn>
                     <TBtn
                       square
@@ -1940,7 +1938,7 @@ export default function PlateEditor({
                       onClick={() => editor.tf.setNodes({ open: false }, { at: toggleNode.path })}
                       tooltip={t("editor.collapsed") || "Collapsed"}
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                      <ChevronRight size={14} />
                     </TBtn>
                   </div>
                   {/* 삭제 */}
@@ -2200,11 +2198,7 @@ export default function PlateEditor({
                   }}
                   tooltip={t("editor.removeLink")}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18.84 12.25l1.72-1.71h-.02a5.004 5.004 0 00-7.07-7.07l-1.72 1.71" />
-                    <path d="M5.17 11.75l-1.71 1.71a5 5 0 007.07 7.07l1.71-1.71" />
-                    <line x1="8" y1="2" x2="8" y2="5" /><line x1="2" y1="8" x2="5" y2="8" /><line x1="16" y1="19" x2="16" y2="22" /><line x1="19" y1="16" x2="22" y2="16" />
-                  </svg>
+                  <Unlink size={12} />
                 </TBtn>
                 <TBtn onClick={closeLinkInput} tooltip={t("common.cancel")}>×</TBtn>
               </div>

@@ -11,7 +11,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
 import { loadGoogleFont, validateGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
-import { MessageSquareQuote, ChevronRight } from "lucide-react";
+import { MessageSquareQuote, ChevronRight, ExternalLink, Undo2, Redo2, SquareCheck } from "lucide-react";
 import { AlignIcon } from "../icons";
 import {
   FONT_GROUPS,
@@ -220,7 +220,7 @@ function FontPicker({ value, onChange, preferEn }: { value: string; onChange: (v
               onMouseDown={(e) => e.stopPropagation()}
               className={styles.fontDropFooterLink}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              <ExternalLink size={12} />
               Google Fonts
             </a>
           </div>
@@ -337,10 +337,10 @@ export default React.memo(function MainToolbar({
     <div className={styles.toolbar}>
       {/* Undo / Redo */}
       <TBtn square onClick={() => editor.undo()} disabled={!canUndo} tooltip={`${t("editor.undo")}\n${kb("⌘Z")}`}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 105.64-11.36L1 10" /></svg>
+        <Undo2 size={14} />
       </TBtn>
       <TBtn square onClick={() => editor.redo()} disabled={!canRedo} tooltip={`${t("editor.redo")}\n${kb("⌘⇧Z")}`}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-5.64-11.36L23 10" /></svg>
+        <Redo2 size={14} />
       </TBtn>
       <TBtn
         onClick={() => {
@@ -616,10 +616,7 @@ export default React.memo(function MainToolbar({
           editor.tf.setNodes({ checked: false, listStyleType: "todo" }, { at: path });
         }
       }} tooltip={t("editor.todoList")}>
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="1.5" y="1.5" width="13" height="13" rx="2" />
-          <polyline points="4.5 8.5 7 11 11.5 5.5" />
-        </svg>
+        <SquareCheck size={14} strokeWidth={1.5} />
       </TBtn>
 
       <TBtn active={blockType === "blockquote"} onClick={() => editor.tf.toggleBlock("blockquote")} tooltip={`${t("editor.blockquote")}\n${kb("⌘⇧B")}`}>Quote</TBtn>

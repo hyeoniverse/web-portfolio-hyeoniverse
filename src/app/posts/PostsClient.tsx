@@ -12,6 +12,7 @@ import PostsBanner from "./_components/PostsBanner/PostsBanner";
 import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import { ChevronDown, ChevronUp, Search, BookOpen, LayoutGrid } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -46,9 +47,7 @@ function SidebarWrap({ barHidden, children }: { barHidden: boolean; children: Re
     <div className={`${styles.sidebarWrap} ${barHidden ? styles.sidebarUp : ""}`}>
       {canUp && (
         <div className={styles.sidebarFadeTop}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 15l-6-6-6 6" />
-          </svg>
+          <ChevronUp size={14} />
         </div>
       )}
       <aside ref={ref} className={styles.sidebar} {...(!isCollapsed && { "data-lenis-prevent": true })}>
@@ -56,9 +55,7 @@ function SidebarWrap({ barHidden, children }: { barHidden: boolean; children: Re
       </aside>
       {canDown && (
         <div className={styles.sidebarFadeBottom}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 9l6 6 6-6" />
-          </svg>
+          <ChevronDown size={14} />
         </div>
       )}
     </div>
@@ -378,20 +375,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 onChange={(v) => setSearchType(v as "all" | "title" | "content")}
                 className={styles.searchTypeSelect}
               />
-              <svg
-                className={styles.searchIcon}
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+              <Search className={styles.searchIcon} size={14} />
               <input
                 className={styles.searchInput}
                 type="text"
@@ -408,18 +392,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 data-clickable="true"
               >
                 <T k="postsPage.tags" />
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                <ChevronDown size={10} />
               </button>
             )}
 
@@ -499,9 +472,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           {!loading && (
             <div className={styles.seriesSection}>
               <div className={styles.seriesLabel}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
-                </svg>
+                <BookOpen size={14} />
                 <T k="postsPage.series" />
                 {activeCategory && (
                   <span className={styles.seriesCategoryTag}>{activeCategory}</span>
@@ -572,12 +543,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           ) : posts.length > 0 ? (
             <>
               <div className={styles.postsLabel}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7" />
-                  <rect x="14" y="3" width="7" height="7" />
-                  <rect x="3" y="14" width="7" height="7" />
-                  <rect x="14" y="14" width="7" height="7" />
-                </svg>
+                <LayoutGrid size={14} />
                 <T k="postsPage.posts" />
                 <Select
                   value={String(perPage)}

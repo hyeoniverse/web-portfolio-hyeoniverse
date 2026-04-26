@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Sparkles, ChevronDown } from "lucide-react";
 import T from "@/components/ui/T";
 import LoadingDots from "@/components/ui/LoadingDots";
 import styles from "./AISummary.module.css";
@@ -31,26 +32,14 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
         aria-expanded={open}
       >
         <span className={styles.headerLeft}>
-          {/* Sparkle icon */}
-          <svg className={styles.icon} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path
-              d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-            <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-          </svg>
+          <Sparkles className={styles.icon} size={16} strokeWidth={1.5} />
           <span className={styles.label}><T k="aiSummary.label" /></span>
         </span>
-        <svg
+        <ChevronDown
           className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`}
-          viewBox="0 0 16 16"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+          size={16}
+          strokeWidth={1.5}
+        />
       </button>
 
       <AnimatePresence initial={false}>

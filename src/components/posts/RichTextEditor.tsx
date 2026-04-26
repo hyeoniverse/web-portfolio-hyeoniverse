@@ -33,6 +33,7 @@ import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import CharacterCount from "@tiptap/extension-character-count";
 import { common, createLowlight } from "lowlight";
+import { AlignLeft, AlignCenter, AlignRight, AlignJustify, SquareCheck } from "lucide-react";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -553,39 +554,14 @@ const MathBlock = Node.create({
 
 // ── SVG icons ──
 function AlignIcon({ align }: { align: "left" | "center" | "right" | "justify" }) {
-  return (
-    <svg width="13" height="10" viewBox="0 0 13 10" fill="currentColor" aria-hidden="true">
-      {align === "left" && <>
-        <rect x="0" y="0" width="13" height="1.5" rx="0.75" />
-        <rect x="0" y="4" width="8" height="1.5" rx="0.75" />
-        <rect x="0" y="8" width="10" height="1.5" rx="0.75" />
-      </>}
-      {align === "center" && <>
-        <rect x="0" y="0" width="13" height="1.5" rx="0.75" />
-        <rect x="2.5" y="4" width="8" height="1.5" rx="0.75" />
-        <rect x="1.5" y="8" width="10" height="1.5" rx="0.75" />
-      </>}
-      {align === "right" && <>
-        <rect x="0" y="0" width="13" height="1.5" rx="0.75" />
-        <rect x="5" y="4" width="8" height="1.5" rx="0.75" />
-        <rect x="3" y="8" width="10" height="1.5" rx="0.75" />
-      </>}
-      {align === "justify" && <>
-        <rect x="0" y="0" width="13" height="1.5" rx="0.75" />
-        <rect x="0" y="4" width="13" height="1.5" rx="0.75" />
-        <rect x="0" y="8" width="13" height="1.5" rx="0.75" />
-      </>}
-    </svg>
-  );
+  if (align === "left") return <AlignLeft size={13} />;
+  if (align === "center") return <AlignCenter size={13} />;
+  if (align === "right") return <AlignRight size={13} />;
+  return <AlignJustify size={13} />;
 }
 
 function ChecklistIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <polyline points="9 12 12 15 20 7" />
-    </svg>
-  );
+  return <SquareCheck size={13} strokeWidth={2.5} />;
 }
 
 // ── Table toolbar icons ──

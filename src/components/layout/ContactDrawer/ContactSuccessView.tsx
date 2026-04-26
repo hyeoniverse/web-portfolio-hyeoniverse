@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Paperclip } from "lucide-react";
 import T from "@/components/ui/T";
 import styles from "./ContactDrawer.module.css";
 
@@ -105,18 +106,7 @@ export default function ContactSuccessView({
           }}
           transition={{ duration: 0.4, delay: 0.35, ease: clipEase }}
         >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          >
-            <path
-              d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Paperclip strokeWidth={1.5} />
           {submittedData.fileName}
         </motion.div>
       )}

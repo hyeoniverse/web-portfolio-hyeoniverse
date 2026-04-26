@@ -13,6 +13,7 @@ import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { _blockDragPath, _inlineDragPath, _imageUploadFn } from "./utils";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import { RxReset } from "react-icons/rx";
+import { Check, FileText, File, Music, Paperclip, Eye, Download } from "lucide-react";
 import styles from "../RichTextEditor.module.css";
 
 /** 블록 void 요소 아래 클릭 가능 영역 — 클릭 시 다음 줄에 커서 배치 */
@@ -675,9 +676,7 @@ export function ParagraphElement(props: PlateElementProps) {
           }}
         >
           {checked && (
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="var(--bg-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="2.5 6.5 5 9 9.5 3.5" />
-            </svg>
+            <Check size={10} stroke="var(--bg-primary)" strokeWidth={2} />
           )}
         </span>
         <span style={{ flex: 1, textDecoration: checked ? "line-through" : undefined, color: checked ? "var(--text-muted)" : undefined }}>
@@ -1136,31 +1135,11 @@ export function FileElement(props: PlateElementProps) {
   const sizeLabel = fileSize ? (fileSize < 1024 * 1024 ? `${(fileSize / 1024).toFixed(1)} KB` : `${(fileSize / (1024 * 1024)).toFixed(1)} MB`) : "";
 
   const FileIcon = () => {
-    if (isPdf) return (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10 13h4"/><path d="M10 17h4"/><path d="M10 9h1"/>
-      </svg>
-    );
-    if (isAudio) return (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
-      </svg>
-    );
-    if (isText) return (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
-      </svg>
-    );
-    if (isOffice) return (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
-      </svg>
-    );
-    return (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
-      </svg>
-    );
+    if (isPdf) return <FileText size={20} strokeWidth={1.5} />;
+    if (isAudio) return <Music size={20} strokeWidth={1.5} />;
+    if (isText) return <FileText size={20} strokeWidth={1.5} />;
+    if (isOffice) return <File size={20} strokeWidth={1.5} />;
+    return <Paperclip size={20} strokeWidth={1.5} />;
   };
 
   return (
@@ -1206,9 +1185,7 @@ export function FileElement(props: PlateElementProps) {
                 }}
                 title={previewOpen ? "Close preview" : "Preview"}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-                </svg>
+                <Eye size={16} />
               </button>
             )}
             <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} style={{
@@ -1217,9 +1194,7 @@ export function FileElement(props: PlateElementProps) {
               border: "1px solid var(--border-light-color)", background: "var(--bg-primary)",
               color: "var(--text-primary)", textDecoration: "none", cursor: "pointer",
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
-              </svg>
+              <Download size={16} />
             </a>
           </div>
           {isAudio && (
@@ -1287,9 +1262,7 @@ export function AudioElement(props: PlateElementProps) {
         }}>
           {title && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, paddingLeft: 18, color: "var(--text-secondary)" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
-              </svg>
+              <Music size={16} />
               <span style={{ fontSize: 13, fontWeight: 500 }}>{title}</span>
             </div>
           )}

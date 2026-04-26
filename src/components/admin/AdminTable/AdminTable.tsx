@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { GripVertical, Download } from "lucide-react";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
@@ -40,6 +41,13 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onBulkDelete?: (ids: string[]) => Promise<void>;
   onBulkPublish?: (ids: string[], published: boolean) => Promise<void>;
   onBulkExport?: (ids: string[]) => Promise<void>;
+  /** 추가 일괄 작업 — 라벨/핸들러만 전달하면 표준 버튼으로 렌더 */
+  extraBulkActions?: Array<{
+    label: ReactNode;
+    onClick: (ids: string[]) => void | Promise<void>;
+    danger?: boolean;
+    disabled?: boolean;
+  }>;
   footerExtra?: ReactNode;
   gridTemplate: string;
   loading?: boolean;
@@ -68,6 +76,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onBulkDelete,
   onBulkPublish,
   onBulkExport,
+  extraBulkActions,
   footerExtra,
   gridTemplate,
   loading = false,
@@ -272,6 +281,19 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           {onBulkExport && (
             <button className={styles.bulkActionBtn} onClick={() => onBulkExport([...selected])}>.md 내보내기</button>
           )}
+          {extraBulkActions?.map((a, i) => (
+            <button
+              key={i}
+              className={`${styles.bulkActionBtn} ${a.danger ? styles.bulkActionDanger : ""}`}
+              disabled={a.disabled}
+              onClick={async () => {
+                await a.onClick([...selected]);
+                setSelected(new Set());
+              }}
+            >
+              {a.label}
+            </button>
+          ))}
           {onBulkDelete && (
             <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
           )}
@@ -389,20 +411,11 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                     });
                   }}
                 >
-                  <svg
+                  <GripVertical
                     className={styles.dragGrip}
-                    width="8"
-                    height="12"
-                    viewBox="0 0 8 12"
+                    size={12}
                     fill="currentColor"
-                  >
-                    <circle cx="2" cy="2" r="1" />
-                    <circle cx="6" cy="2" r="1" />
-                    <circle cx="2" cy="6" r="1" />
-                    <circle cx="6" cy="6" r="1" />
-                    <circle cx="2" cy="10" r="1" />
-                    <circle cx="6" cy="10" r="1" />
-                  </svg>
+                  />
                   <span className={styles.dragNum}>{i + 1}</span>
                 </span>
               ) : showRowNumbers ? (
@@ -437,7 +450,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                     title=".md 내보내기"
                     onClick={(e) => { e.stopPropagation(); onBulkExport([item.id]); }}
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+                    <Download size={14} />
                   </button>
                 )}
               </span>

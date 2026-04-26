@@ -8,6 +8,7 @@ import { formatPostTitle } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { PlaceholderIcon } from "./PlaceholderIcon";
 import { useAutoSlide } from "./useAutoSlide";
+import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
 import type { Post } from "@/types/post";
 import styles from "./PostsBanner.module.css";
 
@@ -92,7 +93,7 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
 
       <div className={styles.splitControls}>
         <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+          <ChevronLeft size={14} />
         </button>
         <div className={styles.splitDots}>
           {posts.map((p, i) => (
@@ -105,13 +106,13 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
           ))}
         </div>
         <button className={styles.splitArrowBtn} onClick={next} aria-label="Next slide">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+          <ChevronRight size={14} />
         </button>
         <button className={styles.splitPlayBtn} onClick={togglePause} aria-label={isPaused ? "Play" : "Pause"}>
           {isPaused ? (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21" /></svg>
+            <Play size={12} fill="currentColor" />
           ) : (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+            <Pause size={12} fill="currentColor" />
           )}
         </button>
       </div>

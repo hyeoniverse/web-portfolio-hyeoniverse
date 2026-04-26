@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
+import { MessageSquare } from "lucide-react";
 import T from "@/components/ui/T";
 import styles from "./RecentComments.module.css";
 
@@ -45,9 +46,7 @@ export default function RecentComments() {
   return (
     <section className={styles.section}>
       <div className={styles.label}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
+        <MessageSquare size={14} />
         <T k="postsPage.recentComments" />
       </div>
       {comments.length === 0 ? (

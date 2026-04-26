@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { ImageIcon } from "lucide-react";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import T from "@/components/ui/T";
 import styles from "./AdjacentNav.module.css";
@@ -41,11 +42,7 @@ export default function AdjacentNav({
             {prev.image ? (
               <Image src={prev.image} alt={prev.title} fill sizes="64px" className={styles.thumbImg} />
             ) : (
-              <svg className={styles.placeholder} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
+              <ImageIcon className={styles.placeholder} size={20} strokeWidth={1} />
             )}
           </div>
           <div className={styles.body}>
@@ -65,11 +62,7 @@ export default function AdjacentNav({
             {next.image ? (
               <Image src={next.image} alt={next.title} fill sizes="64px" className={styles.thumbImg} />
             ) : (
-              <svg className={styles.placeholder} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
+              <ImageIcon className={styles.placeholder} size={20} strokeWidth={1} />
             )}
           </div>
           <div className={styles.body}>
