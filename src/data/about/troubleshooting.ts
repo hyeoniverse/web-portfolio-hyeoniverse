@@ -1148,4 +1148,28 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     },
     tags: ["CSS Grid", "flex", "overflow-x", "max-content", "mobile", "admin"],
   },
+  {
+    section: { ko: "Frontend / Transition", en: "Frontend / Transition" },
+    problem: {
+      ko: "Page transition 이 hold 단계에서 멈추고 morph 후 skeleton 이 노출",
+      en: "Page transition stuck at hold + skeleton exposed after morph",
+    },
+    definition: {
+      ko: "PostCard → 포스트 상세로 이동할 때, **이미지가 hero 크기로 축소된 뒤 오버레이가 사라지지 않고 영원히 hold 상태로 남았습니다**. 추가로 축소 직후 그 아래로 `loading.tsx` 의 스켈레톤이 잠깐 그대로 보여 \"이미지가 작아지는 애니메이션 동작하고 또 skeleton ui 가 오래 동작\" 하는 어색한 시퀀스가 발생했습니다.",
+      en: "Navigating from a PostCard to a post detail, **the overlay morphed down to hero size and then never dismissed — it stayed in the hold phase forever**. Worse, immediately after the morph the `loading.tsx` skeleton was visible beneath the now-smaller overlay, producing an awkward sequence: \"image shrinks, then the skeleton lingers for a long time.\"",
+    },
+    cause: {
+      ko: "두 가지가 겹쳐 있었습니다. ① 원래 설계는 expand → morph(히어로 크기) → hold 로 자동 진행하고, DetailLayout 의 hero `motion.div` 에 걸린 `onAnimationStart` 콜백에서 `endTransition()` 을 호출해 dismissal 을 트리거하는 구조였습니다. 그런데 `initial={{ opacity: isTransitioning ? 1 : 0 }}` 와 `animate={{ opacity: 1 }}` 가 isTransitioning=true 일 때 둘 다 1 → framer-motion 이 \"값 변화 없음\" 으로 판정해 **onAnimationStart 콜백이 발화되지 않음**. 그래서 phase 가 영원히 \"hold\" 에 머물렀습니다. ② morph 가 클릭 후 약 1초 시점에 고정 타이밍으로 수행되어, **새 페이지가 준비되기 전에 오버레이가 작아져버렸습니다**. Suspense fallback 인 `loading.tsx` 가 morph 직후 그 자리를 차지해 노출됐습니다.",
+      en: "Two issues compounded. ① The original design auto-progressed expand → morph (hero size) → hold and triggered dismissal via an `onAnimationStart` callback on the DetailLayout's hero `motion.div`. But with `initial={{ opacity: isTransitioning ? 1 : 0 }}` and `animate={{ opacity: 1 }}`, when isTransitioning was true both equaled `1` — framer-motion treats this as a no-op and **never fires onAnimationStart**, so the phase stayed at \"hold\" forever. ② The morph ran on a fixed timer (~1s after click), shrinking the overlay **before the new page was ready**. With the Suspense fallback (`loading.tsx`) underneath, the skeleton was exposed the moment the morph completed.",
+    },
+    solution: {
+      ko: "전환 상태 머신을 재설계했습니다. 자동 진행은 expand → morph → hold 까지 그대로 두되, **hold 단계에서 backdrop 을 fullscreen 으로 유지**해 morph 후에도 화면 전체를 덮어 스켈레톤을 가립니다 (이전엔 backdrop 도 hero 영역만 채웠음). dismissal 트리거는 `onAnimationStart` 의존을 제거하고 **DetailLayout 의 `useEffect` 에서 mount 시 `endTransition()` 을 호출**하도록 변경. 추가로 `SAFETY_MS=5000` 안전망 타이머를 PageTransitionProvider 에 두어 어떤 이유로든 endTransition 이 호출되지 않으면 강제 dismiss. 빠른 mount(데이터 캐시 hit) 케이스를 위해 `endRequestedRef` 를 두어 expand/morph 진행 중에 endTransition 이 호출되면 hold 를 건너뛰고 완료 시점에 곧장 done 으로 진입.",
+      en: "Restructured the transition state machine. Auto-progression of expand → morph → hold stays, but **the backdrop now remains fullscreen during hold**, covering everything beneath the morphed overlay so the skeleton can't surface (previously the backdrop only filled the hero area). The dismissal trigger no longer depends on `onAnimationStart` — instead, **a `useEffect` in DetailLayout calls `endTransition()` on mount**. A `SAFETY_MS=5000` backstop timer in PageTransitionProvider force-dismisses if `endTransition` isn't called for any reason. For fast cached mounts, an `endRequestedRef` lets `endTransition` calls during expand/morph short-circuit hold and proceed straight to done when the current phase completes.",
+    },
+    keyInsight: {
+      ko: "두 가지 교훈. ① **애니메이션 라이프사이클 콜백(onAnimationStart, onAnimationComplete) 을 critical state transition 의 단독 트리거로 사용하면 안 됩니다.** initial===animate 와 같은 \"값 변화 없음\" 케이스에서 발화하지 않을 수 있고, 라이브러리 버전·렌더링 타이밍에 따라 silent failure 가 가능합니다. 항상 useEffect 기반 fallback 이나 setTimeout 안전망과 함께 설계해야 합니다. ② Suspense fallback 이 있는 환경에서 \"morph-into-hero\" 같은 모핑 전환을 설계할 때는 **오버레이가 축소되면 그 아래가 노출된다는 시각 계약을 항상 의식**해야 합니다. 새 페이지가 준비되기 전에 morph 가 끝나면 스켈레톤이 노출되어 디자인이 깨지므로, 해결책은 (a) **backdrop 으로 morph 후에도 화면 전체를 덮어두기**, 또는 (b) **새 페이지 mount 시점까지 morph 를 지연** 하는 두 가지뿐입니다. 두 패턴 모두 \"오버레이 시각이 실제 페이지 상태와 동기화되도록\" 보장하는 게 핵심입니다.",
+      en: "Two lessons. ① **Animation lifecycle callbacks (onAnimationStart, onAnimationComplete) should not be the sole trigger for critical state transitions.** They can silently fail when initial equals animate (no-op cases), and behavior varies by library version and render timing. Always pair them with a useEffect-based fallback or a setTimeout safety net. ② When designing \"morph-into-hero\" transitions in a Suspense-aware environment, **always remember the visual contract: shrinking the overlay reveals what's beneath**. If morph completes before the new page is ready, the skeleton is exposed and the design breaks. The only fixes are (a) **keep the backdrop covering the full viewport even after morph**, or (b) **defer morph until the new page mounts**. Both patterns enforce \"overlay visuals stay synchronized with actual page state.\"",
+    },
+    tags: ["framer-motion", "transition", "suspense", "skeleton", "lifecycle"],
+  },
 ];

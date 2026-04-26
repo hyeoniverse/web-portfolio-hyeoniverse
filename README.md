@@ -517,7 +517,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 38건의 이슈 해결 과정입니다. 주요 6건을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 39건의 이슈 해결 과정입니다. 주요 6건을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
 > About 페이지에서도 인터랙티브하게 확인 가능합니다.
 
 | # | 이슈 | 핵심 |
@@ -533,6 +533,7 @@ npm run test:watch
 | 36 | About 페이지 첫 패널 시작 위치 오류 | dynamic import 패널의 skeleton 너비와 실제 너비 불일치(ErdPanel: 350vw→100vw) + strict mode cleanup에서 GSAP transform/animate 리셋 제거 + initializedRef guard |
 | 37 | Plate 인라인 코드 커서 점프 | CodePlugin의 affinity 오버라이드("directional")가 기본값("hard")의 mark 경계 처리를 무력화 — 설정 제거로 해결 |
 | 38 | Admin 테이블 모바일 가로 스크롤 시 row border 중간 끊김 | `.row`/`.tableHeader`/`.bulkBar`가 독립된 grid 컨테이너라 track 확장이 row별로 따로 계산 — header에는 `col.className` 누락으로 title track 미확장, row만 확장되어 너비 불일치 발생. 헤더에도 `col.className` 적용 + `.tableInner` wrapper(`display: flex; width: max-content; min-width: 100%`)로 모든 자식을 가장 넓은 row 너비로 stretch하여 border 연속성 확보 |
+| 39 | Page transition hold 멈춤 + morph 후 skeleton 노출 | DetailLayout hero motion 의 `onAnimationStart` 에 endTransition 을 묶었는데 `initial===animate`(opacity:1) 일 때 framer-motion 이 콜백을 안 부름 → hold 영구 정체. morph 가 새 페이지 mount 전에 끝나 Suspense fallback 노출. 해결: `onAnimationStart` → `useEffect` 기반 endTransition 으로 교체, hold 단계에서 backdrop fullscreen 유지로 스켈레톤 가림, `SAFETY_MS=5000` 안전망 + `endRequestedRef` short-circuit |
 
 
 ## 배포
