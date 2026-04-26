@@ -1,0 +1,184 @@
+/* ── Notion-style relation multi-select ── */
+.wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.inputArea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: text;
+  min-height: 40px;
+}
+
+.inputArea:focus-within {
+  border-color: var(--text-primary);
+}
+
+.input {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  padding: 4px 0;
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* ── Selected chips ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 4px 4px 4px 8px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  border: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  max-width: 240px;
+}
+
+.chipDraft {
+  border-color: var(--bg-warning-soft);
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+}
+
+.chipThumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.chipLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.chipRemove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: var(--font-size-2xs);
+  flex-shrink: 0;
+}
+
+.chipRemove:hover {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-primary);
+}
+
+/* ── Empty state when no selection ── */
+.empty {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  margin: 0;
+  padding-left: var(--spacing-xs);
+}
+
+/* ── Dropdown ── */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+  overflow-y: auto;
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: var(--spacing-2xs);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  text-align: left;
+}
+
+.optionActive {
+  background: var(--bg-secondary);
+}
+
+.optionThumb {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.optionTitle {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.optionMeta {
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.statusDraft {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.noResults {
+  padding: var(--spacing-md);
+  text-align: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
