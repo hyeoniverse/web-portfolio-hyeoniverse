@@ -20,6 +20,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import TextLink from "@/components/ui/TextLink";
 import Pagination from "@/components/ui/Pagination";
 import DraggableTag from "@/components/ui/DraggableTag";
+import SeoChecklist from "@/components/admin/SeoChecklist";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -406,7 +407,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* Pagination */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Pagination</div>
-        <motion.div variants={staggerItemX} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
           <Pagination page={paginationPage} totalPages={12} onChange={setPaginationPage} />
           <Pagination page={1} totalPages={1} onChange={() => {}} />
         </motion.div>
@@ -415,7 +416,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* DraggableTag */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>DraggableTag</div>
-        <motion.div variants={staggerItemX} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
           {dragTags.map((tag, i) => (
             <DraggableTag
               key={`${tag}-${i}`}
@@ -449,7 +450,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
             <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>Format</span>
-            <div style={{ display: "flex", border: "var(--border-tertiary)", borderRadius: "var(--radius-capsule)", overflow: "hidden" }}>
+            <div style={{ display: "flex", border: "var(--border-light)", borderRadius: "var(--radius-capsule)", overflow: "hidden" }}>
               {(["year", "yearMonth", "date"] as const).map((f, i, arr) => (
                 <button
                   key={f}
@@ -458,7 +459,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                   style={{
                     padding: "var(--spacing-2xs) var(--spacing-sm)",
                     border: "none",
-                    borderRight: i < arr.length - 1 ? "var(--border-tertiary)" : "none",
+                    borderRight: i < arr.length - 1 ? "var(--border-light)" : "none",
                     borderRadius: 0,
                     background: dpFormat === f ? "var(--text-primary)" : "transparent",
                     color: dpFormat === f ? "var(--bg-primary)" : "var(--text-secondary)",
@@ -477,8 +478,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           </div>
           <div style={{ display: "flex", gap: "var(--spacing-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ minWidth: 230 }}>
-              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-tertiary)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
-              <div style={{ border: "var(--border-tertiary)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
+              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
                 <DatePicker
                   year={dpDate.year}
                   month={dpDate.month}
@@ -491,8 +492,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               </div>
             </div>
             <div style={{ minWidth: 230 }}>
-              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-tertiary)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
-              <div style={{ border: "var(--border-tertiary)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
+              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
                 <DatePicker
                   year={dpDate.year}
                   month={dpDate.month}
@@ -508,14 +509,31 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </motion.div>
       </motion.div>
 
+      {/* SeoChecklist — admin editor SEO 점검 위젯 */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>SeoChecklist</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", gap: "var(--spacing-lg)", flexWrap: "wrap" }}>
+          <div style={{ width: 320, maxWidth: "100%" }}>
+            <SeoChecklist
+              data={{ title: "Sample post", slug: "sample-post", excerpt: "A short excerpt that's plenty long enough.", cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb", category: "Tech", tagsCount: 3 }}
+            />
+          </div>
+          <div style={{ width: 320, maxWidth: "100%" }}>
+            <SeoChecklist
+              data={{ title: "Half-filled", slug: "Bad Slug!", excerpt: "Too short", cover: "", category: "", tagsCount: 0 }}
+            />
+          </div>
+        </motion.div>
+      </motion.div>
+
       {/* ImageViewer */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>ImageViewer</div>
         <div
           style={{
             display: "inline-flex",
-            borderTop: "var(--border-tertiary)",
-            borderBottom: "var(--border-tertiary)",
+            borderTop: "var(--border-light)",
+            borderBottom: "var(--border-light)",
             lineHeight: 0,
           }}
         >

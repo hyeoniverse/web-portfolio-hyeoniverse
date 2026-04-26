@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { ChevronDown, ChevronUp, ExternalLink, GripVertical } from "lucide-react";
 import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -23,6 +24,9 @@ import { useEditorTranslation } from "@/hooks/useEditorTranslation";
 import EditorToggle from "./EditorToggle";
 import MarkdownEditor, { extractMarkdownImages } from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
+import SeoChecklist from "@/components/admin/SeoChecklist";
+import RelationPicker from "@/components/admin/RelationPicker";
+import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import { useModalStore } from "@/stores/modalStore";
@@ -69,7 +73,6 @@ interface PostEditorProps {
 import { POST_TEMPLATES } from "@/data/postTemplates";
 import type { PostTemplate } from "@/data/postTemplates";
 
-
 export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
   const { tLang, language } = useLanguage();
@@ -115,7 +118,33 @@ export default function PostEditor({ post }: PostEditorProps) {
     series_id: post?.series_id ?? null,
     series_order: post?.series_order ?? 0,
     github_url: post?.github_url ?? "",
+    scheduled_at: post?.scheduled_at ?? null,
+    related_work_ids: [],
   });
+
+  /** 연결된 works 목록 — 편집기 진입 시 한 번 fetch */
+  const [allWorks, setAllWorks] = useState<Array<{ id: string; title: string; year: string; image: string; published: boolean; category_ko?: string }>>([]);
+  useEffect(() => {
+    fetch("/api/works?all=true&limit=200")
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d?.works)) setAllWorks(d.works);
+      })
+      .catch(() => {});
+  }, []);
+
+  // 편집 모드일 때 기존 관계 불러오기
+  useEffect(() => {
+    if (!post?.id) return;
+    fetch(`/api/admin/posts/${post.id}/related-works`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d?.items)) {
+          setForm((prev) => ({ ...prev, related_work_ids: d.items.map((w: { id: string }) => w.id) }));
+        }
+      })
+      .catch(() => {});
+  }, [post?.id]);
 
   // Auto-correct invalid category when categories load
   useEffect(() => {
@@ -160,6 +189,74 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [optionalOpen, setOptionalOpen] = useState(false);
   const optionalInnerRef = useRef<HTMLDivElement>(null);
   const optionalContentRef = useRef<HTMLDivElement>(null);
+
+  /** SEO 체크리스트 항목 클릭 → 해당 필드로 스크롤 + 포커스 + label 색을 accent 로 + dot 표시.
+   *  강조된 필드 외부에서 다음 인터랙션(클릭/포커스)이 일어나면 강조 해제. */
+  const activeSeoLabelRef = useRef<HTMLElement | null>(null);
+  const activeSeoFieldRef = useRef<HTMLElement | null>(null);
+  const seoCleanupRef = useRef<(() => void) | null>(null);
+
+  const clearSeoHighlight = useCallback(() => {
+    if (activeSeoLabelRef.current) {
+      activeSeoLabelRef.current.classList.remove(styles.seoFlash);
+      activeSeoLabelRef.current = null;
+    }
+    activeSeoFieldRef.current = null;
+    if (seoCleanupRef.current) {
+      seoCleanupRef.current();
+      seoCleanupRef.current = null;
+    }
+  }, []);
+
+  // 컴포넌트 unmount 시 document 리스너 정리
+  useEffect(() => () => {
+    if (seoCleanupRef.current) seoCleanupRef.current();
+  }, []);
+
+  const handleSeoItemClick = useCallback((id: "title" | "slug" | "excerpt" | "cover" | "category" | "tags") => {
+    const inOptional = id === "excerpt" || id === "cover" || id === "category" || id === "tags";
+    if (inOptional) setOptionalOpen(true);
+    const scrollAndHighlight = () => {
+      const el = document.querySelector<HTMLElement>(`[data-seo="${id}"]`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      const input = el.querySelector<HTMLElement>("input, textarea, select, button");
+      input?.focus({ preventScroll: true });
+      const label = el.querySelector<HTMLElement>("label");
+      if (!label) return;
+
+      // 이전 활성 label 의 강조 제거 + 기존 리스너 정리 → transition 으로 자연스럽게 페이드 아웃
+      if (activeSeoLabelRef.current && activeSeoLabelRef.current !== label) {
+        activeSeoLabelRef.current.classList.remove(styles.seoFlash);
+      }
+      if (seoCleanupRef.current) {
+        seoCleanupRef.current();
+        seoCleanupRef.current = null;
+      }
+
+      // 새 highlight 적용
+      label.classList.add(styles.seoFlash);
+      activeSeoLabelRef.current = label;
+      activeSeoFieldRef.current = el;
+
+      // 강조된 필드 외부에서 인터랙션 발생 시 해제 — 현재 클릭 이벤트가 잡히지 않도록 한 프레임 지연
+      requestAnimationFrame(() => {
+        const onOutside = (e: Event) => {
+          const target = e.target as Node | null;
+          if (activeSeoFieldRef.current && target && activeSeoFieldRef.current.contains(target)) return;
+          clearSeoHighlight();
+        };
+        document.addEventListener("pointerdown", onOutside, true);
+        document.addEventListener("focusin", onOutside, true);
+        seoCleanupRef.current = () => {
+          document.removeEventListener("pointerdown", onOutside, true);
+          document.removeEventListener("focusin", onOutside, true);
+        };
+      });
+    };
+    if (inOptional) requestAnimationFrame(() => requestAnimationFrame(scrollAndHighlight));
+    else scrollAndHighlight();
+  }, [clearSeoHighlight]);
 
   useEffect(() => {
     const inner = optionalInnerRef.current;
@@ -578,8 +675,10 @@ export default function PostEditor({ post }: PostEditorProps) {
       setError("");
       setStatus("");
 
+      // posts 테이블에는 related_work_ids 컬럼이 없음 — 분리해서 별도 endpoint로 sync.
+      const { related_work_ids, ...postBody } = form;
       const body = {
-        ...form,
+        ...postBody,
         published: willPublish,
       };
 
@@ -603,6 +702,15 @@ export default function PostEditor({ post }: PostEditorProps) {
         }
 
         if (!savedId.current) savedId.current = data.id;
+
+        // 관계 동기화 — 별도 endpoint
+        if (savedId.current && related_work_ids) {
+          await fetch(`/api/admin/posts/${savedId.current}/related-works`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ workIds: related_work_ids }),
+          }).catch(() => {});
+        }
 
         // 발행 시 AI 요약 자동 생성 (fire-and-forget)
         if (willPublish && savedId.current) {
@@ -908,7 +1016,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     >
       <div className={styles.meta}>
         {/* ── 필수 입력 ── */}
-        <div className={es.field}>
+        <div className={es.field} data-seo="title">
           <label className={`${es.fieldLabel}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
           <input
             className={`${es.titleInput}${titleFieldError ? ` ${es.titleInputError}` : ""}`}
@@ -920,7 +1028,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         </div>
 
         <div className={es.row}>
-          <div className={es.field} style={{ gridColumn: "1 / -1" }}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug">
             <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
               <label className={`${es.fieldLabel}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
               {form.slug.trim() && validateSlug(form.slug) && (
@@ -949,14 +1057,39 @@ export default function PostEditor({ post }: PostEditorProps) {
             onClick={() => setOptionalOpen((v) => !v)}
           >
             <span>{te("optionalFields")}</span>
-            <svg
-              width="12" height="12" viewBox="0 0 12 12" fill="none"
-              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+            <ChevronDown
+              size={12}
+              strokeWidth={1.5}
               style={{ transform: optionalOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
-            >
-              <polyline points="2.5 4.5 6 8 9.5 4.5" />
-            </svg>
+            />
           </button>
+
+          {/* 예약 발행 — 항상 표시 */}
+          <div className={es.field}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
+              <label className={es.fieldLabel}>{te("scheduledAt")}</label>
+              {form.scheduled_at && !form.published && (
+                <span className={styles.slugHint}>{te("scheduledHint")}</span>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center" }}>
+              <DateTimePicker
+                value={form.scheduled_at ?? null}
+                onChange={(iso) => updateField("scheduled_at", iso)}
+                disabled={form.published}
+              />
+              {form.scheduled_at && (
+                <button
+                  type="button"
+                  className={es.envCancelBtn ?? styles.manageLink}
+                  onClick={() => updateField("scheduled_at", null)}
+                  title={te("scheduledClear")}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
 
           {/* 시리즈 — 항상 표시 */}
           <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
@@ -964,7 +1097,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               <label className={es.fieldLabel}>{te("series")}</label>
               <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
                 {te("seriesManage")}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                <ExternalLink size={12} />
               </a>
             </div>
             <Select
@@ -1064,20 +1197,16 @@ export default function PostEditor({ post }: PostEditorProps) {
                           >
                             <span className={styles.seriesOrderNum}>{idx + 1}</span>
                             <span className={styles.seriesOrderGrip}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                <circle cx="9" cy="6" r="1" fill="currentColor" /><circle cx="15" cy="6" r="1" fill="currentColor" />
-                                <circle cx="9" cy="12" r="1" fill="currentColor" /><circle cx="15" cy="12" r="1" fill="currentColor" />
-                                <circle cx="9" cy="18" r="1" fill="currentColor" /><circle cx="15" cy="18" r="1" fill="currentColor" />
-                              </svg>
+                              <GripVertical size={12} />
                             </span>
                             <span className={styles.seriesOrderTitle}>{item.title || "Untitled"}</span>
                             {isCurrent && (
                               <div className={styles.seriesOrderBtns}>
                                 <button type="button" className={styles.numberBtn} disabled={idx === 0} onClick={() => reorder(idx, idx - 1)}>
-                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 15l-6-6-6 6" /></svg>
+                                  <ChevronUp size={10} strokeWidth={2.5} />
                                 </button>
                                 <button type="button" className={styles.numberBtn} disabled={idx === allItems.length - 1} onClick={() => reorder(idx, idx + 1)}>
-                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                                  <ChevronDown size={10} strokeWidth={2.5} />
                                 </button>
                               </div>
                             )}
@@ -1090,7 +1219,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               })()}
               {/* 줄2: [카테고리 + 태그] */}
               <div className={es.row}>
-                <div className={es.field}>
+                <div className={es.field} data-seo="category">
                   <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                     <label className={`${es.fieldLabel}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
                     {form.series_id && (
@@ -1104,7 +1233,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                     disabled={!!form.series_id}
                   />
                 </div>
-                <div className={es.field} style={{ flex: 1 }}>
+                <div className={es.field} style={{ flex: 1 }} data-seo="tags">
                   <label className={es.fieldLabel}>{te("tags")}</label>
                   <div>
                     <div className={styles.tagInputRow}>
@@ -1117,7 +1246,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               </div>
               {/* 줄3: [요약 + 커버이미지] */}
               <div className={es.row}>
-                <div className={es.field}>
+                <div className={es.field} data-seo="excerpt">
                   <label className={es.fieldLabel}>{te("excerpt")}</label>
                   <textarea
                     className={styles.excerptInput}
@@ -1128,7 +1257,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                   />
                 </div>
 
-                <div className={es.field}>
+                <div className={es.field} data-seo="cover">
                   <div className={styles.coverLabelRow}>
                     <label className={es.fieldLabel}>{te("coverImage")}</label>
                     {form.cover_image && (
@@ -1197,6 +1326,23 @@ export default function PostEditor({ post }: PostEditorProps) {
                   value={form.github_url}
                   onChange={(e) => updateField("github_url", e.target.value)}
                   placeholder="https://github.com/..."
+                />
+              </div>
+              {/* 줄5: [관련 프로젝트] */}
+              <div className={es.field}>
+                <label className={es.fieldLabel}>{te("relatedWorks")}</label>
+                <RelationPicker
+                  items={allWorks}
+                  selectedIds={form.related_work_ids ?? []}
+                  onChange={(ids) => updateField("related_work_ids", ids)}
+                  getId={(w) => w.id}
+                  getTitle={(w) => w.title}
+                  getMeta={(w) => w.year}
+                  getThumb={(w) => w.image}
+                  getStatus={(w) => (w.published ? "published" : "draft")}
+                  searchPlaceholder={te("relatedWorksSearch")}
+                  emptyText={te("relatedWorksEmpty")}
+                  noResultsText={te("relatedWorksNoResults")}
                 />
               </div>
             </div>
@@ -1352,6 +1498,21 @@ export default function PostEditor({ post }: PostEditorProps) {
           />
         </div>
       )}
+
+      {/* ── SEO 체크리스트 — 에디터 + 이미지 패널 다음에 배치, 항목 클릭 시 해당 필드로 스크롤 ── */}
+      <div className={styles.seoChecklistSection}>
+        <SeoChecklist
+          data={{
+            title: form[titleKey] || form.title,
+            slug: form.slug,
+            excerpt: form[excerptKey] || form.excerpt,
+            cover: form.cover_image,
+            category: form.category,
+            tagsCount: form.tags?.length ?? 0,
+          }}
+          onItemClick={handleSeoItemClick}
+        />
+      </div>
 
     </AdminEditorShell>
 

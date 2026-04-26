@@ -1758,6 +1758,12 @@
   background: var(--bg-secondary);
 }
 
+/* 첨부 버튼: outline variant 의 border-strong 보다 가벼운 border-default 사용
+   복합 선택자(0,2,0)로 button.module.css 의 .variant-outline (0,1,0) 를 덮음 */
+.imagePanelFooter button {
+  border: var(--border-default);
+}
+
 
 .imagePanelInfoText {
   font-size: var(--font-size-xs);

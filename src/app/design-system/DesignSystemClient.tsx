@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLenis } from "@/providers/LenisProvider";
 import TOC from "@/components/ui/TOC/TOC";
@@ -149,11 +150,7 @@ export default function DesignSystemClient() {
               size="sm"
               className={styles.backLink}
               onClick={handleBack}
-              icon={
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
-                  <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              }
+              icon={<ArrowLeft size={20} />}
             >
               Back
             </Button>
