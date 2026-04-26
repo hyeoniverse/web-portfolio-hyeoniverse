@@ -12,10 +12,13 @@
 }
 
 .home {
+  /* 진입 애니메이션 제거 — 처음부터 최종 상태로 렌더.
+     이전에는 margin-top:100vh → 0 슬라이드, width:90% → 100% 확장,
+     radius:2xl → 0 애니메이션이 있었으나 LoadingScreen/Framer/GSAP과
+     타이밍이 겹쳐 플래시 유발. */
+  width: 100%;
   background: var(--bg-primary);
   color: var(--text-primary);
-  justify-content: center;
-  align-items: center;
 }
 
 /* ==========================================================================
