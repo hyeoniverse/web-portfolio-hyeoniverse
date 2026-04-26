@@ -112,7 +112,9 @@ CREATE TABLE IF NOT EXISTS posts (
   post_number  int NOT NULL DEFAULT nextval('posts_post_number_seq'),
   -- 시리즈 연결
   series_id    uuid REFERENCES series(id) ON DELETE SET NULL,
-  series_order int NOT NULL DEFAULT 0
+  series_order int NOT NULL DEFAULT 0,
+  -- 예약 발행: NULL=즉시, 미래 시간 설정 시 cron이 published=true 로 flip
+  scheduled_at timestamptz DEFAULT NULL
 );
 
 -- slug 검색용 인덱스
@@ -259,7 +261,9 @@ CREATE TABLE IF NOT EXISTS works (
   summary_en     text NOT NULL DEFAULT '',
   created_at     timestamptz DEFAULT now(),
   updated_at     timestamptz DEFAULT now(),
-  deleted_at     timestamptz DEFAULT NULL
+  deleted_at     timestamptz DEFAULT NULL,
+  -- 예약 발행: NULL=즉시, 미래 시간 설정 시 cron이 published=true 로 flip
+  scheduled_at   timestamptz DEFAULT NULL
 );
 
 ALTER TABLE works ENABLE ROW LEVEL SECURITY;
@@ -300,6 +304,36 @@ CREATE POLICY "site_visits_public_read"
 -- service_role 전체 접근
 CREATE POLICY "site_visits_service_all"
   ON site_visits FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
+-- 7-1. post_views — 게시물별 일별 조회수 (시계열)
+--      관리자 대시보드의 일별 추세 차트용
+--      posts.view_count 는 누적 카운터로 유지, 시계열 분석은 이 테이블에서
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS post_views (
+  id        uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  post_id   uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  viewed_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- 시간 범위 + post 별 조회용
+CREATE INDEX IF NOT EXISTS idx_post_views_post_id_viewed_at
+  ON post_views (post_id, viewed_at DESC);
+-- 전체 시계열 (대시보드 일별 추세)
+CREATE INDEX IF NOT EXISTS idx_post_views_viewed_at
+  ON post_views (viewed_at DESC);
+
+ALTER TABLE post_views ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "post_views_public_insert"
+  ON post_views FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "post_views_service_all"
+  ON post_views FOR ALL
   USING (true)
   WITH CHECK (true);
 
@@ -402,6 +436,102 @@ END $$;
 
 
 -- ────────────────────────────────────────────────────────────
+-- post_work_relations — posts ↔ works 다대다 양방향 연결
+-- Notion의 Relation 속성과 동일 — 한 글이 여러 프로젝트와, 한 프로젝트가
+-- 여러 글과 연결될 수 있음. 양쪽 어디서 추가하든 자동 반영.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS post_work_relations (
+  post_id    uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  work_id    uuid NOT NULL REFERENCES works(id) ON DELETE CASCADE,
+  created_at timestamptz DEFAULT now(),
+  PRIMARY KEY (post_id, work_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_post_work_relations_post ON post_work_relations (post_id);
+CREATE INDEX IF NOT EXISTS idx_post_work_relations_work ON post_work_relations (work_id);
+
+ALTER TABLE post_work_relations ENABLE ROW LEVEL SECURITY;
+
+-- 누구나 읽기 가능 (공개 detail 페이지에서 사용)
+CREATE POLICY "post_work_relations_public_read"
+  ON post_work_relations FOR SELECT
+  USING (true);
+
+CREATE POLICY "post_work_relations_service_all"
+  ON post_work_relations FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
+-- RPC 함수
+-- ────────────────────────────────────────────────────────────
+
+-- 모든 게시물 누적 view_count 합계 — 대시보드의 totalPostViews 용
+-- (없으면 라우트가 클라이언트 측 fallback으로 합산하지만, RPC 가 더 효율적)
+CREATE OR REPLACE FUNCTION sum_post_views()
+RETURNS TABLE(sum bigint)
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT COALESCE(SUM(view_count), 0)::bigint AS sum
+  FROM posts
+  WHERE deleted_at IS NULL;
+$$;
+
+-- 일별 게시물 조회수 시계열 — 대시보드 차트용
+-- 사용: SELECT * FROM daily_post_views('2026-01-01'::date, '2026-01-31'::date);
+CREATE OR REPLACE FUNCTION daily_post_views(p_start date, p_end date)
+RETURNS TABLE(day date, views bigint)
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT
+    date_trunc('day', viewed_at)::date AS day,
+    COUNT(*)::bigint AS views
+  FROM post_views
+  WHERE viewed_at >= p_start
+    AND viewed_at < (p_end + INTERVAL '1 day')
+  GROUP BY day
+  ORDER BY day ASC;
+$$;
+
+-- 예약 발행 cron 용 — 시간이 도달한 예약 게시물/작품을 발행 처리
+-- Vercel cron 이나 Supabase scheduled task 가 정기적으로 호출
+-- UPDATE...RETURNING 은 CTE(WITH) 안에서만 가능하므로 두 UPDATE 를 모두 CTE 로 묶음
+CREATE OR REPLACE FUNCTION publish_scheduled()
+RETURNS TABLE(table_name text, id uuid, was_scheduled_at timestamptz)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN QUERY
+  WITH
+    posts_pub AS (
+      UPDATE posts
+      SET published = true, scheduled_at = NULL, updated_at = now()
+      WHERE published = false
+        AND deleted_at IS NULL
+        AND scheduled_at IS NOT NULL
+        AND scheduled_at <= now()
+      RETURNING posts.id AS pid, posts.scheduled_at AS pat
+    ),
+    works_pub AS (
+      UPDATE works
+      SET published = true, scheduled_at = NULL, updated_at = now()
+      WHERE published = false
+        AND deleted_at IS NULL
+        AND scheduled_at IS NOT NULL
+        AND scheduled_at <= now()
+      RETURNING works.id AS wid, works.scheduled_at AS wat
+    )
+  SELECT 'posts'::text, pid, pat FROM posts_pub
+  UNION ALL
+  SELECT 'works'::text, wid, wat FROM works_pub;
+END;
+$$;
+
+
+-- ────────────────────────────────────────────────────────────
 -- Storage: uploads 버킷 정책
 --   폴더: logos/, resume/, bgm/, covers/, images/ 등
 --   Admin API(service_role)로 업로드, 공개 읽기
@@ -434,17 +564,24 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 10개 테이블이 생성되었습니다.
+-- 완료! 총 12개 테이블 + 3개 RPC 함수가 생성되었습니다.
 --
 -- site_settings        : 사이트 설정 + 프로필 데이터
 -- series               : 블로그 시리즈
--- posts                : 블로그 포스트
+-- posts                : 블로그 포스트 (scheduled_at 포함)
 -- comments             : 포스트 댓글 (대댓글, 이중 인증)
 -- likes                : 좋아요 (포스트/작업물 공용)
--- works                : 포트폴리오 작업물
+-- works                : 포트폴리오 작업물 (scheduled_at 포함)
 -- site_visits          : 방문자 통계
+-- post_views           : 게시물별 시계열 조회 기록 (일별 추세 차트)
 -- work_comments        : Works 댓글 (대댓글, 이중 인증)
 -- (댓글 좋아요는 likes 테이블에서 target_type='post_comment'/'work_comment'로 통합 관리)
 -- admin_notifications  : 관리자 알림 로그
 -- revisions            : 에디터 리비전 히스토리 (posts/works 공용)
+-- post_work_relations  : posts ↔ works 양방향 연결 (Notion Relation)
+--
+-- RPC:
+--   sum_post_views()                              : 누적 조회수 합계
+--   daily_post_views(p_start date, p_end date)    : 일별 조회수 시계열
+--   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 (cron 호출)
 -- ============================================================
