@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useForm } from "@formspree/react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { EMAIL_RE } from "@/utils/commentValidation";
 
 interface SubmittedData {
@@ -60,8 +60,10 @@ export function useContactForm(): UseContactFormReturn {
   const showFormToastRef = useRef<(message: string, type?: "error" | "success") => void>(() => {});
   const showToastRef = useRef<(message: string, type: "error" | "success") => void>(() => {});
 
-  // reCAPTCHA 설정
-  const { enabled: recaptchaEnabled, version: recaptchaVersion } = siteConfig.recaptcha;
+  // reCAPTCHA 설정 — admin 토글 반영을 위해 useSiteConfig 사용
+  const cfg = useSiteConfig();
+  const recaptchaEnabled = cfg.recaptcha.enabled;
+  const recaptchaVersion = cfg.recaptcha.version as "v2" | "v3";
   const { executeRecaptcha } = useRecaptcha();
 
   // 이전 상태 추적

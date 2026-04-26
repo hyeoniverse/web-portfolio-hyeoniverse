@@ -9,7 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import DiffResolver from "./_components/DiffResolver";
 import SettingsSkeleton from "./_components/SettingsSkeleton";
-import { profileDefaults } from "@/components/admin/ProfileSections";
+import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
 import type { ProfileData } from "@/types/profile";
 import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, type ConfigConflict } from "./_data/settingsConstants";
 import GeneralTab from "./_components/GeneralTab";
@@ -43,6 +43,16 @@ export default function SettingsPage() {
   const [profileData, setProfileData] = useState<ProfileData>(
     structuredClone(profileDefaults)
   );
+  // Profile sub-tab — expanded state lifted up so the header can render
+  // the global "전체 펼치기/접기" button.
+  const [profileExpanded, setProfileExpanded] = useState<ProfileExpandState>({
+    experiences: { 0: true },
+    skillGroups: {},
+    philosophy: {},
+    approach: {},
+    certifications: {},
+    awards: {},
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -459,6 +469,15 @@ export default function SettingsPage() {
                   {message || validationError}
                 </span>
               )}
+              {activeTab === "content" && contentSubTab === "profile" && (
+                <button
+                  type="button"
+                  className={styles.expandAllBtn}
+                  onClick={() => setProfileExpanded(toggleProfileAll(profileData, !isProfileAllOpen(profileData, profileExpanded)))}
+                >
+                  <T k={isProfileAllOpen(profileData, profileExpanded) ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
+                </button>
+              )}
               <button
                 type="button"
                 className={styles.resetBtn}
@@ -668,6 +687,8 @@ export default function SettingsPage() {
                     setConfig={setConfig}
                     profileData={profileData}
                     setProfileData={setProfileData}
+                    profileExpanded={profileExpanded}
+                    setProfileExpanded={setProfileExpanded}
                     contentSubTab={contentSubTab}
                     styles={styles}
                   />

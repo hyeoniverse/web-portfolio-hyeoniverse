@@ -43,11 +43,13 @@ export default function DatePickerPopover({
 
   return (
     <div ref={popoverRef} className={styles.popover}>
-      <DatePicker
-        year={year} month={month} day={day}
-        format={format} mode={mode} language={language}
-        onSelect={onSelect}
-      />
+      <div className={styles.popoverChrome}>
+        <DatePicker
+          year={year} month={month} day={day}
+          format={format} mode={mode} language={language}
+          onSelect={onSelect}
+        />
+      </div>
     </div>
   );
 }

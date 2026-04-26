@@ -9,7 +9,11 @@
 
 /* 위치 variant */
 .left {
+  position: fixed;
+  top: 50%;
   left: 2vw;
+  transform: translateY(-50%);
+  z-index: var(--z-float);
 }
 
 .right {

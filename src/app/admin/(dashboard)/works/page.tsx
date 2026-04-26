@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { ImageIcon, Trash2, Upload, Plus, Download } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -21,6 +22,8 @@ import AdminTable, {
 import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
 import SearchCapsule from "@/components/admin/SearchCapsule/SearchCapsule";
 import { useModalStore } from "@/stores/modalStore";
+import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
+import type { BilingualCategory } from "@/types/common";
 import { parseMdWork } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
 import styles from "./AdminWorks.module.css";
@@ -71,11 +74,7 @@ function PreviewTooltip({
             />
           ) : (
             <div className={shell.previewPlaceholder}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
+              <ImageIcon size={32} strokeWidth={1.5} />
             </div>
           )}
         </div>
@@ -149,6 +148,15 @@ export default function AdminWorksPage() {
     }
     return [...cats.entries()];
   }, [works]);
+
+  // 일괄 카테고리 변경 모달용 — site.config + DB delta 머지된 전체 카테고리 목록
+  const [worksCategories, setWorksCategories] = useState<BilingualCategory[]>([]);
+  useEffect(() => {
+    fetch("/api/works-categories")
+      .then((res) => res.json())
+      .then((data) => Array.isArray(data) && setWorksCategories(data))
+      .catch(() => {});
+  }, []);
 
   const fetchWorks = useCallback(async () => {
     setLoading(true);
@@ -378,11 +386,7 @@ export default function AdminWorksPage() {
     return Math.max(0, Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
   };
 
-  const trashIcon = (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
-    </svg>
-  );
+  const trashIcon = <Trash2 size={13} />;
 
   const trashColumns: SubTableColumn<Work>[] = useMemo(() => [
     {
@@ -563,10 +567,10 @@ role: 풀스택 개발
             ?
           </button>
           <ButtonGroup>
-            <Button variant="outline" size="xs" title={t("admin.works.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>}>
+            <Button variant="outline" size="xs" title={t("admin.works.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
               {uploading ? "..." : t("admin.works.uploadMd")}
             </Button>
-            <Button variant="primary" size="xs" title={t("admin.works.newWork")} href="/admin/works/new" soundDisabled icon={<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v10M3 8h10"/></svg>}>
+            <Button variant="primary" size="xs" title={t("admin.works.newWork")} href="/admin/works/new" soundDisabled icon={<Plus size={14} strokeWidth={1.5} />}>
               {t("admin.works.newWork")}
             </Button>
           </ButtonGroup>
@@ -675,6 +679,33 @@ role: 풀스택 개발
           ));
           fetchWorks();
         }}
+        extraBulkActions={[
+          {
+            label: t("admin.common.changeCategory"),
+            onClick: (ids) => {
+              openModal(
+                <BulkCategoryModal
+                  count={ids.length}
+                  categories={worksCategories}
+                  onConfirm={async (cat) => {
+                    await Promise.all(ids.map((id) =>
+                      fetch(`/api/works/${id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          category_ko: cat?.ko ?? null,
+                          category_en: cat?.en ?? null,
+                        }),
+                      })
+                    ));
+                    fetchWorks();
+                  }}
+                />,
+                { id: "bulk-category-works", header: { title: t("admin.common.changeCategory") }, closeButton: true, width: "400px" },
+              );
+            },
+          },
+        ]}
         onReorder={sort === "order" && !filterYear && !filterCategory ? handleDragReorder : undefined}
         gridTemplate="64px 1fr 100px 200px"
         showRowNumbers
@@ -690,7 +721,7 @@ role: 풀스택 개발
         onRowLeave={handleRowLeave}
         onRowClick={handleRowClick}
         footerExtra={
-          <Button variant="ghost" size="xs" title={t("admin.works.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>}>
+          <Button variant="ghost" size="xs" title={t("admin.works.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<Download size={14} />}>
             {exporting ? "..." : t("admin.works.exportMdAll")}
           </Button>
         }

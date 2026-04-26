@@ -15,6 +15,8 @@
   --text-muted: var(--color-neutral-500);
   --text-inverse: var(--color-neutral-0);
   --text-success: var(--color-success);
+  --text-warning: var(--color-warning);
+  --text-info: var(--color-info);
   --text-error: var(--color-error);
   --text-accent: var(--color-accent);
   --text-accent-alt: var(--color-accent);
@@ -44,8 +46,16 @@
   --bg-accent-solid-light: var(--color-accent-light);
   --bg-accent-solid-dark: var(--color-accent-dark);
   --bg-success: var(--color-success-alpha);
+  --bg-success-soft: var(--color-success-soft);
   --bg-success-solid: var(--color-success);
+  --bg-warning: var(--color-warning-alpha);
+  --bg-warning-soft: var(--color-warning-soft);
+  --bg-warning-solid: var(--color-warning);
+  --bg-info: var(--color-info-alpha);
+  --bg-info-soft: var(--color-info-soft);
+  --bg-info-solid: var(--color-info);
   --bg-error: var(--color-error-alpha);
+  --bg-error-soft: var(--color-error-soft);
   --bg-error-solid: var(--color-error);
 
   --bg-accent-strong: var(--color-accent-alpha-30);

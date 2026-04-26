@@ -49,6 +49,9 @@ export interface Work {
   deleted_at?: string | null;
   summary_ko: string;
   summary_en: string;
+  /** ISO timestamp — null/없음=즉시 발행, 미래=cron 이 도달 시 published=true */
+  scheduled_at?: string | null;
+  related_post_ids?: string[];
 }
 
 /** Editor form — uses content_ko/en only (no legacy fields) */
@@ -76,6 +79,9 @@ export interface WorkFormData {
   github_url: string;
   published: boolean;
   sort_order: number;
+  scheduled_at?: string | null;
+  /** 양방향 연결: 이 작품이 참조하는 글 ID 목록 */
+  related_post_ids?: string[];
 }
 
 /**

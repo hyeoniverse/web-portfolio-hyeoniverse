@@ -3,7 +3,7 @@
 import { useRef, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { siteConfig } from "@/config/site.config";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useSoundStore } from "@/stores/soundStore";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import {
@@ -57,6 +57,7 @@ export default function FloatingScene({
   const blinkPhase = useRef(-1); // -1 = idle, 0~1 = blinking
   const hitTime = useRef(-1); // 충돌 시점 (초)
   const { camera, size } = useThree();
+  const cfg = useSiteConfig();
 
   const vel = useRef<THREE.Vector2 | null>(null);
   const pos = useRef(new THREE.Vector2(0, 0));
@@ -71,7 +72,7 @@ export default function FloatingScene({
   const audioBuffer = useRef<AudioBuffer | null>(null);
 
   const playBoing = () => {
-    if (!siteConfig.profile.bunnyCollisionSound) return;
+    if (!cfg.profile.bunnyCollisionSound) return;
     if (useSoundStore.getState().isMuted) return;
     // AudioContext는 사용자 제스처(클릭/터치) 이후에만 생성 가능
     if (!navigator.userActivation?.hasBeenActive) return;

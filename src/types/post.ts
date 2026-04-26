@@ -26,6 +26,9 @@ export interface Post {
   summary_en: string;
   github_url: string;
   deleted_at?: string | null;
+  /** ISO timestamp — null/없음=즉시 발행, 미래=cron 이 도달 시 published=true */
+  scheduled_at?: string | null;
+  related_work_ids?: string[];
 }
 
 export interface PostFormData {
@@ -46,6 +49,9 @@ export interface PostFormData {
   series_id: string | null;
   series_order: number;
   github_url: string;
+  scheduled_at?: string | null;
+  /** 양방향 연결: 이 글이 참조하는 작품 ID 목록 (저장 시 post_work_relations 동기화) */
+  related_work_ids?: string[];
 }
 
 export interface Series {

@@ -23,6 +23,8 @@ import { SIZES, TEMPLATE_KO, TEMPLATE_EN } from "@/data/workTemplates";
 import { workToFormData, defaultForm } from "@/utils/workFormUtils";
 import { stripHtml } from "@/utils/htmlUtils";
 import Select from "@/components/ui/Select";
+import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
+import RelationPicker from "@/components/admin/RelationPicker";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
@@ -44,7 +46,7 @@ interface WorksCategory {
 
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
-  const { tLang } = useLanguage();
+  const { tLang, language } = useLanguage();
   const { openModal } = useModalStore();
   const isEdit = !!work;
   const serviceStatus = useServiceStatus();
@@ -131,6 +133,30 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       })
       .catch(() => {});
   }, []);
+
+  /* ── 관련 글 multi-select ── */
+  const [allPosts, setAllPosts] = useState<Array<{ id: string; title: string; title_en?: string; cover_image: string; category: string; published: boolean; created_at: string }>>([]);
+
+  useEffect(() => {
+    fetch("/api/posts?all=true&limit=200")
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d?.posts)) setAllPosts(d.posts);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!work?.id) return;
+    fetch(`/api/admin/works/${work.id}/related-posts`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d?.items)) {
+          setForm((prev) => ({ ...prev, related_post_ids: d.items.map((p: { id: string }) => p.id) }));
+        }
+      })
+      .catch(() => {});
+  }, [work?.id]);
 
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -380,8 +406,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       setError("");
       setStatus("");
 
+      // works 테이블에는 related_post_ids 컬럼이 없음 — 분리해서 별도 endpoint로 sync.
+      const { related_post_ids, ...workBody } = form;
       const body = {
-        ...form,
+        ...workBody,
         published: willPublish,
       };
 
@@ -405,6 +433,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         }
 
         if (!savedId.current) savedId.current = data.id;
+
+        // 관계 동기화 — 별도 endpoint
+        if (savedId.current && related_post_ids) {
+          await fetch(`/api/admin/works/${savedId.current}/related-posts`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ postIds: related_post_ids }),
+          }).catch(() => {});
+        }
 
         // 발행 시 AI 요약 자동 생성 (fire-and-forget)
         if (willPublish && savedId.current) {
@@ -615,6 +652,33 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             onChange={(e) => updateField("title", e.target.value)}
             placeholder={tw("titlePlaceholder")}
           />
+        </div>
+
+        {/* 예약 발행 */}
+        <div className={es.field}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
+            <label className={es.fieldLabel}>{tw("scheduledAt")}</label>
+            {form.scheduled_at && !form.published && (
+              <span className={styles.slugHint}>{tw("scheduledHint")}</span>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center" }}>
+            <DateTimePicker
+              value={form.scheduled_at ?? null}
+              onChange={(iso) => updateField("scheduled_at", iso)}
+              disabled={form.published}
+            />
+            {form.scheduled_at && (
+              <button
+                type="button"
+                className={es.envCancelBtn}
+                onClick={() => updateField("scheduled_at", null)}
+                title={tw("scheduledClear")}
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
 
         <div className={styles.row3}>
@@ -1011,6 +1075,24 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             />
           </div>
         </div>
+      </div>
+
+      {/* 관련 글 */}
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>{tw("relatedPosts")}</h2>
+        <RelationPicker
+          items={allPosts}
+          selectedIds={form.related_post_ids ?? []}
+          onChange={(ids) => updateField("related_post_ids", ids)}
+          getId={(p) => p.id}
+          getTitle={(p) => (language === "en" && p.title_en ? p.title_en : p.title)}
+          getMeta={(p) => p.category}
+          getThumb={(p) => p.cover_image}
+          getStatus={(p) => (p.published ? "published" : "draft")}
+          searchPlaceholder={tw("relatedPostsSearch")}
+          emptyText={tw("relatedPostsEmpty")}
+          noResultsText={tw("relatedPostsNoResults")}
+        />
       </div>
     </AdminEditorShell>
   );
