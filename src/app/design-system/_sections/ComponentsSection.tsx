@@ -20,7 +20,6 @@ import Tooltip from "@/components/ui/Tooltip";
 import TextLink from "@/components/ui/TextLink";
 import Pagination from "@/components/ui/Pagination";
 import DraggableTag from "@/components/ui/DraggableTag";
-import SeoChecklist from "@/components/admin/SeoChecklist";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -505,23 +504,6 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                 />
               </div>
             </div>
-          </div>
-        </motion.div>
-      </motion.div>
-
-      {/* SeoChecklist — admin editor SEO 점검 위젯 */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>SeoChecklist</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", gap: "var(--spacing-lg)", flexWrap: "wrap" }}>
-          <div style={{ width: 320, maxWidth: "100%" }}>
-            <SeoChecklist
-              data={{ title: "Sample post", slug: "sample-post", excerpt: "A short excerpt that's plenty long enough.", cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb", category: "Tech", tagsCount: 3 }}
-            />
-          </div>
-          <div style={{ width: 320, maxWidth: "100%" }}>
-            <SeoChecklist
-              data={{ title: "Half-filled", slug: "Bad Slug!", excerpt: "Too short", cover: "", category: "", tagsCount: 0 }}
-            />
           </div>
         </motion.div>
       </motion.div>

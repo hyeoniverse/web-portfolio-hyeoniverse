@@ -1,174 +1,288 @@
-/* ── Container ── */
+/* ── Floating wrap (fixed at viewport bottom-right) ──
+   페이지 어디에 배치되어도 viewport 우하단에 고정됨 (B 패턴).
+   backdrop-filter 가 부모 페이지 콘텐츠를 blur 할 수 있도록 isolation 제거 */
 .wrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
+  position: fixed;
+  bottom: var(--spacing-xl);
+  right: var(--spacing-xl);
+  z-index: var(--z-dropdown);
+}
+
+@media (max-width: 768px) {
+  .wrap {
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+  }
+}
+
+/* ── Shell (morphing container) ──
+   pill ↔ panel 변형의 외곽 컨테이너. width/height/borderRadius 가 framer-motion layout 으로 부드럽게 morph.
+   bottom-right 앵커라 자연스럽게 좌상으로 확장. */
+.shell {
+  position: absolute;
+  bottom: 0;
+  right: 0;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-primary);
+  background: transparent;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  color: var(--text-white);
+  font-family: var(--font-space-grotesk);
 }
 
-/* ── Head: title + score ── */
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
+.shellOpen {
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: transparent;
+  backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 }
 
-.heading {
+/* ── Pill (collapsed) — shell 안의 trigger button ── */
+.pill {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
+  width: 100%;
+  padding: 6px 10px 6px 12px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+/* hover 시 pill text/icon 톤 변경 — shell 의 backdrop hover 는 shell.shellHover 에서 처리 */
+.shell:not(.shellOpen):hover {
+  background: var(--bg-primary);
+  backdrop-filter: none;
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+}
+
+.pillIcon {
+  color: var(--text-tertiary);
+}
+
+.pillLabel {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10px;
   color: var(--text-secondary);
 }
 
-.headIcon {
-  color: var(--text-tertiary);
-}
-
-.headLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.score {
+.pillScore {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-2xs);
+  gap: 1px;
   font-family: var(--font-jetbrains);
   font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-left: 4px;
+  margin-right: 6px;
+}
+
+.pillScoreCount {
+  color: var(--text-primary);
+}
+
+.pillScoreSep {
+  color: var(--text-muted);
+}
+
+.pillScoreTotal {
   color: var(--text-tertiary);
 }
 
-.scoreCount {
-  color: var(--text-primary);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
+/* CSS-only conic-gradient progress ring — pill 우측에 작은 도넛 */
+.pillRing {
+  --p: 0;
+  --size: 16px;
+  --thick: 2.5px;
+  flex: 0 0 var(--size);
+  width: var(--size);
+  height: var(--size);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    currentColor calc(var(--p) * 1%),
+    var(--bg-tertiary) 0
+  );
+  mask: radial-gradient(
+    circle,
+    transparent calc(50% - var(--thick)),
+    black calc(50% - var(--thick) + 0.5px)
+  );
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent calc(50% - var(--thick)),
+    black calc(50% - var(--thick) + 0.5px)
+  );
 }
 
-.scoreSep {
-  color: var(--text-muted);
-  margin: 0 1px;
-  font-weight: 400;
+/* tone 색상 — pill ring 색만 변경 */
+.tone-full .pillRing {
+  color: var(--text-success);
+}
+.tone-ok .pillRing,
+.tone-low .pillRing {
+  color: var(--color-accent);
 }
 
-/* ── Progress bar ── */
-.bar {
+/* ── Expanded panel content — shell 내부 콘텐츠 ── */
+.panel {
   width: 100%;
-  height: 3px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
 }
 
-.barFill {
-  height: 100%;
-  border-radius: var(--radius-capsule);
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+/* ── Panel header — 큰 점수 강조 (E 패턴) ── */
+.panelHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-md);
+  border-bottom: var(--border-light);
 }
 
-/* tone 색상 — 진행률에 따라 progress bar 색만 변경
-   강조색은 accent 기반 (warning 톤은 사용 안 함) */
-.tone-full .barFill { background: var(--text-success); }
-.tone-ok .barFill { background: var(--color-accent); }
-.tone-low .barFill { background: var(--color-accent); }
+/* tone 별 좌측 stripe — 투명 panel 위에서 부담 없는 흐릿한 그라데이션 */
+.panelHeader.tone-full {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--text-success) 8%, transparent) 0%,
+    transparent 70%
+  );
+}
 
-/* ── List ── */
-.list {
+.panelHeader.tone-ok,
+.panelHeader.tone-low {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-accent) 8%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+.panelScoreBig {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-instrument);
+  letter-spacing: -0.02em;
+}
+
+.panelScoreNum {
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.panelScoreSepBig {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  margin: 0 2px;
+}
+
+.panelScoreTotalBig {
+  font-size: 1.25rem;
+  color: var(--text-tertiary);
+}
+
+.panelHeaderRight {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
 }
 
-/* ── Item ── */
-.item {
+.panelHeaderLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+.panelHeaderStatus {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Panel list (issues — prominent) ── */
+.panelList {
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-2xs) 0;
+}
+
+.panelItem {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
   width: 100%;
-  padding: 6px var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: none;
-  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   text-align: left;
   color: var(--text-primary);
-}
-
-.itemInteractive {
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
 
-.itemInteractive:hover {
-  background: var(--bg-tertiary);
+.panelItemActive:hover {
+  background: var(--bg-secondary);
 }
 
-.itemInteractive:focus-visible {
-  outline: none;
-  background: var(--bg-tertiary);
-  box-shadow: inset 0 0 0 1.5px var(--color-accent-alpha-30);
-}
-
-/* ── Icon (status) ── */
-.icon {
+.panelIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.item-ok .icon {
-  background: var(--bg-success-soft);
-  color: var(--text-success);
-}
-
-.item-warn .icon {
+.item-warn {
   background: var(--bg-accent-light);
   color: var(--text-accent);
 }
 
-.item-fail .icon {
-  background: var(--bg-tertiary-alt);
+.item-fail {
+  background: var(--bg-tertiary);
   color: var(--text-muted);
 }
 
-/* fail 아이콘은 비어있는 점으로 — Circle 아이콘보다 깔끔 */
 .iconDot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: currentColor;
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
-/* ── Label / hint ── */
-.label {
+.panelLabel {
   flex: 1;
   min-width: 0;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.item-fail .label {
-  color: var(--text-tertiary);
-}
-
-.hint {
+.panelHint {
   font-size: var(--font-size-2xs);
   color: var(--text-accent);
   font-weight: 500;
@@ -176,17 +290,66 @@
   flex-shrink: 0;
 }
 
-/* ── Right chevron — 호버 시에만 살짝 표시 ── */
-.arrow {
-  flex-shrink: 0;
+.panelArrow {
   color: var(--text-muted);
+  flex-shrink: 0;
   opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: translateX(-3px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
-.itemInteractive:hover .arrow,
-.itemInteractive:focus-visible .arrow {
+.panelItemActive:hover .panelArrow {
   opacity: 1;
   transform: translateX(0);
+  color: var(--text-primary);
+}
+
+/* ── Passed items — subtle 영역 (투명 유지) ── */
+.panelPassed {
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  border-top: var(--border-light);
+}
+
+/* 모두 완료 — issues(panelList) 가 없으면 panelPassed 가 panelHeader 바로 뒤,
+   이 때 panelHeader 의 border-bottom 과 중복되므로 border-top 제거 */
+.panelHeader + .panelPassed {
+  border-top: none;
+}
+
+.panelPassedLabel {
+  display: block;
+  font-family: var(--font-space-grotesk);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+
+.panelPassedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panelPassedItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-capsule);
+  border: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
+
+.panelPassedCheck {
+  color: var(--text-success);
 }

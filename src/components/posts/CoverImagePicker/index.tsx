@@ -6,6 +6,7 @@ import { useServiceStatus } from "@/hooks/useServiceStatus";
 import PresetTab from "./PresetTab";
 import UnsplashTab from "./UnsplashTab";
 import AIGenerateTab from "./AIGenerateTab";
+import CloseIcon from "@/components/ui/CloseIcon";
 import styles from "./CoverImagePicker.module.css";
 
 type Tab = "presets" | "unsplash" | "ai";
@@ -20,12 +21,15 @@ interface CoverImagePickerProps {
   onSelect: (url: string) => void;
   onClose: () => void;
   postContext?: PostContext;
+  /** 닫는 중 — 역방향 애니메이션 적용. 외부에서 언마운트 타이밍을 제어할 때 사용 */
+  closing?: boolean;
 }
 
 export default function CoverImagePicker({
   onSelect,
   onClose,
   postContext,
+  closing = false,
 }: CoverImagePickerProps) {
   const { t } = useLanguage();
   const { aiCover } = useServiceStatus();
@@ -42,7 +46,7 @@ export default function CoverImagePicker({
   );
 
   return (
-    <div className={styles.picker}>
+    <div className={`${styles.picker}${closing ? ` ${styles.pickerClosing}` : ""}`}>
       <div className={styles.header}>
         <div className={styles.tabs}>
           {tabs.map((tab) => (
@@ -56,8 +60,8 @@ export default function CoverImagePicker({
             </button>
           ))}
         </div>
-        <button type="button" className={styles.closeBtn} onClick={onClose}>
-          &times;
+        <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close" data-close-trigger>
+          <CloseIcon />
         </button>
       </div>
 

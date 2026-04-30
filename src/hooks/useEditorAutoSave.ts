@@ -13,6 +13,8 @@ interface UseEditorAutoSaveOptions {
   busyFlags: { saving: boolean; translating: boolean };
   debounceMs?: number;
   onSaved?: () => void;
+  /** Top-level field names whose changes should NOT trigger autosave (still saved in snapshot). */
+  ignoredFields?: string[];
 }
 
 /**
@@ -36,12 +38,28 @@ export function useEditorAutoSave({
   busyFlags,
   debounceMs = 30000,
   onSaved,
+  ignoredFields,
 }: UseEditorAutoSaveOptions) {
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const autoSaveSkip = useRef(true);
   const autoSaveBusy = useRef(false);
   const savedId = useRef<string | undefined>(entityId);
-  const lastAutoSaveJson = useRef<string>(JSON.stringify(formRef.current));
+
+  /** Stable JSON of the snapshot with ignored fields stripped — used for dirty comparison only.
+      Full snapshot (including ignored fields) is still what gets persisted. */
+  const comparableJson = useCallback(
+    (snapshot: unknown) => {
+      if (!ignoredFields?.length || typeof snapshot !== "object" || snapshot === null) {
+        return JSON.stringify(snapshot);
+      }
+      const copy: Record<string, unknown> = { ...(snapshot as Record<string, unknown>) };
+      for (const f of ignoredFields) delete copy[f];
+      return JSON.stringify(copy);
+    },
+    [ignoredFields],
+  );
+
+  const lastAutoSaveJson = useRef<string>(comparableJson(formRef.current));
 
   // Keep busy flag in sync
   autoSaveBusy.current = busyFlags.saving || busyFlags.translating;
@@ -52,7 +70,7 @@ export function useEditorAutoSave({
   }, [entityId]);
 
   const flushSave = useCallback(async () => {
-    const current = JSON.stringify(formRef.current);
+    const current = comparableJson(formRef.current);
     if (!current || current === lastAutoSaveJson.current) return;
     if (autoSaveBusy.current) return;
     lastAutoSaveJson.current = current;
@@ -62,7 +80,7 @@ export function useEditorAutoSave({
       onSaved?.();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [saveRevision, getTitle, onSaved]);
+  }, [saveRevision, getTitle, onSaved, comparableJson]);
 
   /** Debounce effect — must be triggered by passing `form` as a dep from the caller via a wrapper useEffect */
   const scheduleAutoSave = useCallback(() => {
@@ -83,7 +101,7 @@ export function useEditorAutoSave({
     const onBeforeUnload = () => {
       const id = savedId.current || draftEntityId;
       if (!id) return;
-      const current = JSON.stringify(formRef.current);
+      const current = comparableJson(formRef.current);
       if (!current || current === lastAutoSaveJson.current) return;
       const body = JSON.stringify({
         entity_type: entityType,
@@ -105,11 +123,11 @@ export function useEditorAutoSave({
       document.removeEventListener("visibilitychange", onVisChange);
       window.removeEventListener("beforeunload", onBeforeUnload);
 
-      // SPA navigation — keepalive fetch
+      // SPA navigation — keepalive fetch (best-effort; ignore errors)
       const id = savedId.current || draftEntityId;
       if (!id) return;
       const snapshot = currentFormRef.current;
-      const current = JSON.stringify(snapshot);
+      const current = comparableJson(snapshot);
       if (!current || current === lastAutoSaveJson.current) return;
       fetch("/api/revisions", {
         method: "POST",
@@ -121,7 +139,7 @@ export function useEditorAutoSave({
           title: getTitle() || "(untitled)",
         }),
         keepalive: true,
-      });
+      }).catch(() => {});
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flushSave]);

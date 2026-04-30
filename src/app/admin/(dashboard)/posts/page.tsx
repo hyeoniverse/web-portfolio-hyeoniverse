@@ -21,7 +21,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import SubTable from "@/components/admin/SubTable/SubTable";
-import SearchCapsule from "@/components/admin/SearchCapsule/SearchCapsule";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { parseMdPost } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
 import { PurgeModal, SeriesDeleteModal } from "./_components/PostModals";
@@ -366,7 +366,7 @@ export default function AdminPostsPage() {
         onToggle={() => { if (!trashOpen) fetchTrash(); setTrashOpen((v) => !v); }}
         allItems={filteredTrash}
         columns={trashColumns}
-        gridTemplate="28px 64px 1fr 200px 200px"
+        gridTemplate="28px 64px 1fr 200px 180px"
         selected={trashSelected}
         onSelectChange={setTrashSelected}
         bulkActions={[
@@ -492,7 +492,7 @@ export default function AdminPostsPage() {
         }
         allItems={filteredSeries}
         columns={seriesColumns}
-        gridTemplate="28px 64px 1fr 80px 60px 80px 200px"
+        gridTemplate="28px 64px 1fr 80px 60px 80px 180px"
         selected={seriesSelected}
         onSelectChange={setSeriesSelected}
         bulkActions={[
@@ -813,7 +813,7 @@ tags: React`}</code></pre>
             },
           },
         ]}
-        gridTemplate="64px 1fr 100px 60px 80px 200px"
+        gridTemplate="64px 1fr 100px 60px 80px 180px"
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}
         loading={loading}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import Image from "next/image";
 import { ChevronUp, ChevronDown, ExternalLink, X, Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -21,24 +21,47 @@ import styles from "../Settings.module.css";
 interface SeriesInlineEditorProps {
   series: Series | null;
   categories: BilingualCategory[];
-  onSave: () => void;
+  /** 저장 완료 — 새로 만든 경우 새 series 객체 전달 */
+  onSave: (saved?: Series) => void;
   onCancel: () => void;
   onDelete?: () => void;
   onCoverChange?: (url: string) => void;
+  /** 외부 shell 안에서 렌더 — 자체 border / radius 생략 */
+  bare?: boolean;
+  /** standalone 모드에서 자체 제목 헤더 숨김 — 외부에서 제목 렌더 */
+  hideStandaloneHeader?: boolean;
+  /** 외부에서 하단 actions(취소/저장) 도 함께 숨길 때 사용 */
+  hideBottomActions?: boolean;
+  /** form 의 인라인 발행 토글 fieldRow 숨김 — 외부 헤더에서 토글 렌더할 때 */
+  hideInlinePublishToggle?: boolean;
+  /** form 상태 변경 알림 (외부 헤더의 토글/저장 버튼 동기화 용) */
+  onFormStateChange?: (state: { published: boolean; saving: boolean }) => void;
 }
 
-export default function SeriesInlineEditor({
+/** 외부에서 호출 가능한 명령 — save / setPublished */
+export interface SeriesInlineEditorHandle {
+  save: () => void;
+  setPublished: (v: boolean) => void;
+}
+
+const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEditorProps>(function SeriesInlineEditor({
   series,
   categories,
   onSave,
   onCancel,
   onCoverChange,
-}: SeriesInlineEditorProps) {
+  bare = false,
+  hideStandaloneHeader = false,
+  hideBottomActions = false,
+  hideInlinePublishToggle = false,
+  onFormStateChange,
+}, ref) {
   const { t, language } = useLanguage();
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
   const isEdit = !!series;
 
-  const defaultCatKo = categories[0]?.ko || "";
+  /* 새 시리즈 기본 카테고리 — '기타' 우선, 없으면 첫 카테고리 */
+  const defaultCatKo = categories.find((c) => c.ko === "기타")?.ko || categories[0]?.ko || "";
 
   const [form, setForm] = useState({
     title: series?.title ?? "",
@@ -53,6 +76,17 @@ export default function SeriesInlineEditor({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
+  const [coverPickerClosing, setCoverPickerClosing] = useState(false);
+  const coverPickerCloseTimer = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const closeCoverPicker = () => {
+    if (coverPickerCloseTimer.current) clearTimeout(coverPickerCloseTimer.current);
+    setCoverPickerClosing(true);
+    coverPickerCloseTimer.current = setTimeout(() => {
+      setShowCoverPicker(false);
+      setCoverPickerClosing(false);
+    }, 450);
+  };
   const [error, setError] = useState("");
   const [posts, setPosts] = useState<SeriesPostItem[]>([]);
   const [originalPosts, setOriginalPosts] = useState<SeriesPostItem[]>([]);
@@ -274,6 +308,7 @@ export default function SeriesInlineEditor({
         body: JSON.stringify(form),
       });
       if (!res.ok) throw new Error(ts("saveFailed"));
+      const savedSeries = (await res.json()) as Series;
 
       /* 포스트 변경사항 일괄 반영 */
       if (isEdit) {
@@ -306,7 +341,7 @@ export default function SeriesInlineEditor({
         }
       }
 
-      onSave();
+      onSave(savedSeries);
     } catch (err) {
       setError(err instanceof Error ? err.message : ts("saveFailed"));
     } finally {
@@ -314,10 +349,49 @@ export default function SeriesInlineEditor({
     }
   };
 
+  // standalone (새 시리즈 생성 시 — series === null) 면 head 없이 단독 렌더되므로
+  // 상단 border + 풀 radius 필요. 기존 시리즈 펼친 상태는 head 가 위에 있어 hairline + 하단 radius 만으로 OK
+  const isStandalone = !series;
+
+  /* 외부 헤더(예: SeriesManager 의 shell) 가 제어할 수 있도록 핸들 노출 */
+  useImperativeHandle(ref, () => ({
+    save: () => { void handleSave(); },
+    setPublished: (v: boolean) => updateField("published", v),
+  }), [handleSave, updateField]);
+
+  /* form 상태 변경을 외부에 알림 (토글/저장 버튼 동기화) */
+  useEffect(() => {
+    onFormStateChange?.({ published: form.published, saving });
+  }, [form.published, saving, onFormStateChange]);
+
   return (
-    <div className={styles.seriesCardBody}>
+    <div className={
+      bare
+        ? styles.seriesCardBodyBare
+        : `${styles.seriesCardBody}${isStandalone ? ` ${styles.seriesCardBodyStandalone}` : ""}`
+    }>
+      {isStandalone && !hideStandaloneHeader && (
+        <div className={styles.seriesStandaloneHeader}>
+          <h3 className={styles.seriesStandaloneTitle}><T k="admin.posts.seriesModal.newTitle" /></h3>
+          <div className={styles.seriesStandaloneActions}>
+            <div className={styles.publishToggle}>
+              <Toggle
+                checked={form.published}
+                onChange={(v) => updateField("published", v)}
+              />
+              <span key={form.published ? "pub" : "draft"} className={styles.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
+            </div>
+            <Button variant="outline" size="xs" onClick={onCancel} soundDisabled>
+              <T k="admin.posts.seriesModal.cancel" />
+            </Button>
+            <Button variant="primary" size="xs" onClick={handleSave} disabled={saving} loading={saving} soundDisabled>
+              <T k="admin.posts.seriesModal.create" />
+            </Button>
+          </div>
+        </div>
+      )}
       <div className={styles.fieldPair}>
-        <Field label={ts("titleKO")} value={form.title} onChange={(v) => updateField("title", v)} />
+        <Field label={ts("titleKO")} value={form.title} onChange={(v) => updateField("title", v)} required />
         <Field label={ts("titleEN")} value={form.title_en} onChange={(v) => updateField("title_en", v)} />
       </div>
       <div className={styles.fieldPair}>
@@ -325,7 +399,12 @@ export default function SeriesInlineEditor({
         <Field label={ts("descriptionEN")} value={form.description_en} onChange={(v) => updateField("description_en", v)} multiline />
       </div>
       <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.category" /></label>
+        <label className={styles.fieldLabel}>
+          <span className={styles.fieldLabelText}>
+            <T k="admin.posts.seriesModal.category" />
+            <span className={styles.fieldRequiredDot} aria-label="필수">•</span>
+          </span>
+        </label>
         <Select
           value={form.category}
           options={categories.map((cat) => ({
@@ -335,16 +414,18 @@ export default function SeriesInlineEditor({
           onChange={(v) => updateField("category", v)}
         />
       </div>
-      <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.published" /></label>
-        <div className={styles.publishToggle}>
-          <Toggle
-            checked={form.published}
-            onChange={(v) => updateField("published", v)}
-          />
-          <span key={form.published ? "pub" : "draft"} className={styles.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
+      {!hideInlinePublishToggle && (!isStandalone || (hideStandaloneHeader && !hideBottomActions)) && (
+        <div className={styles.fieldRow}>
+          <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.published" /></label>
+          <div className={styles.publishToggle}>
+            <Toggle
+              checked={form.published}
+              onChange={(v) => updateField("published", v)}
+            />
+            <span key={form.published ? "pub" : "draft"} className={styles.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
+          </div>
         </div>
-      </div>
+      )}
       <div className={styles.fieldRow}>
         <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.coverImage" /></label>
         {form.cover_image ? (
@@ -362,14 +443,22 @@ export default function SeriesInlineEditor({
               <button type="button" className={styles.logoBtn} onClick={handleImageUpload} disabled={uploading}>
                 {uploading ? <T k="admin.posts.seriesModal.uploading" /> : <T k="admin.posts.seriesModal.uploadCover" />}
               </button>
-              <button type="button" className={styles.logoBtn} onClick={() => setShowCoverPicker((v) => !v)}>
-                {showCoverPicker ? <T k="admin.posts.seriesModal.closePicker" /> : <T k="admin.posts.seriesModal.chooseCover" />}
+              <button
+                type="button"
+                className={styles.logoBtn}
+                onClick={() => {
+                  if (showCoverPicker && !coverPickerClosing) closeCoverPicker();
+                  else if (!showCoverPicker) setShowCoverPicker(true);
+                }}
+              >
+                {showCoverPicker && !coverPickerClosing ? <T k="admin.posts.seriesModal.closePicker" /> : <T k="admin.posts.seriesModal.chooseCover" />}
               </button>
             </div>
             {showCoverPicker && (
               <CoverImagePicker
-                onSelect={(url) => { updateField("cover_image", url); setShowCoverPicker(false); }}
-                onClose={() => setShowCoverPicker(false)}
+                onSelect={(url) => { updateField("cover_image", url); closeCoverPicker(); }}
+                onClose={closeCoverPicker}
+                closing={coverPickerClosing}
                 postContext={{ title: form.title, tags: form.category ? [form.category] : [], excerpt: form.description }}
               />
             )}
@@ -635,15 +724,22 @@ export default function SeriesInlineEditor({
 
       {error && <p className={styles.sectionHint} style={{ color: "var(--color-accent)" }}>{error}</p>}
 
-      <div className={styles.seriesCardActions}>
-        <div style={{ flex: 1 }} />
-        <Button variant="outline" size="xs" onClick={onCancel}>
-          <T k="admin.posts.seriesModal.cancel" />
-        </Button>
-        <Button variant="primary" size="xs" onClick={handleSave} disabled={saving} loading={saving}>
-          {isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
-        </Button>
-      </div>
+      {/* standalone 모드는 상단 header 에 cancel/create 가 있어 하단 버튼 중복 방지로 숨김
+         단, 외부 shell 이 헤더를 대체할 때(hideStandaloneHeader)는 하단 버튼을 다시 표시
+         외부에서 actions 를 직접 렌더할 때(hideBottomActions)는 양쪽 모두 숨김 */}
+      {(!isStandalone || hideStandaloneHeader) && !hideBottomActions && (
+        <div className={styles.seriesCardActions}>
+          <div style={{ flex: 1 }} />
+          <Button variant="outline" size="xs" onClick={onCancel}>
+            <T k="admin.posts.seriesModal.cancel" />
+          </Button>
+          <Button variant="primary" size="xs" onClick={handleSave} disabled={saving} loading={saving}>
+            {isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
+          </Button>
+        </div>
+      )}
     </div>
   );
-}
+});
+
+export default SeriesInlineEditor;

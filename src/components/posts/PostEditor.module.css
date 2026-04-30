@@ -91,15 +91,8 @@
 .optionalSection {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
-}
-
-/* optionalContent가 접혀있으면 gap 차지 안 하게 */
-.optionalContent:not(.optionalContentOpen) {
-  margin-top: calc(var(--spacing-md) * -1);
 }
 
 .optionalToggle {
@@ -107,7 +100,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0;
+  padding: var(--spacing-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -116,6 +109,7 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  cursor: pointer;
 }
 
 .optionalSection .optionalToggle:hover {
@@ -254,6 +248,7 @@
   overflow: hidden;
   max-height: 0;
   clip-path: inset(0 0 100% 0);
+  padding: 0 var(--spacing-md);
   transition: max-height 0.3s ease, clip-path 0.3s ease;
 }
 
@@ -261,6 +256,7 @@
   max-height: var(--_content-height, 500px);
   clip-path: inset(0);
   gap: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
 }
 
 .optionalSection .optionalContentOpen {
@@ -485,11 +481,6 @@
 
 /* 첨부 이미지 패널 — 에디터 섹션 아래 별개 영역 */
 .attachedImagesSection {
-  padding-top: var(--spacing-lg);
-}
-
-/* SEO 체크리스트 — 에디터 + 이미지 패널 다음에 배치 */
-.seoChecklistSection {
   padding-top: var(--spacing-lg);
 }
 

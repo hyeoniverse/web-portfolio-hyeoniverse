@@ -79,6 +79,18 @@
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   padding: var(--spacing-4xl) var(--spacing-md);
+  margin: 0;
+}
+
+.emptyTitle {
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.emptyHint {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
 }
 
 .empty::before {
@@ -194,8 +206,13 @@
 .itemLink {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-accent);
+  color: var(--text-primary);
   text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.item:hover .itemLink {
+  color: var(--text-accent);
 }
 
 .dot {

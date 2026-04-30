@@ -10,6 +10,7 @@ import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import T from "@/components/ui/T";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import Checkbox from "@/components/ui/Checkbox";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./Comments.module.css";
@@ -197,11 +198,9 @@ export default function CommentsModerationPage() {
           onChange={(v) => { setStatus(v as StatusFilter); setPage(1); }}
         />
         <form className={styles.searchForm} onSubmit={handleSearch}>
-          <input
-            className={styles.searchInput}
-            type="search"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+          <SearchCapsule
+            search={searchInput}
+            onSearchChange={setSearchInput}
             placeholder={t("admin.comments.searchPlaceholder")}
           />
           <Button type="submit" variant="ghost" size="sm">

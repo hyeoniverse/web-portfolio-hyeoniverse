@@ -117,18 +117,28 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
 
   return (
     <div className={styles.aiForm}>
-      <div className={styles.inputWrapper}>
-        <input
-          type="text"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder={tc("aiPlaceholder")}
-        />
-        {prompt && (
-          <button type="button" className={styles.clearBtn} onClick={handleClear}>
-            &times;
-          </button>
-        )}
+      <div className={styles.inputRow}>
+        <div className={styles.inputWrapper}>
+          <input
+            type="text"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder={tc("aiPlaceholder")}
+          />
+          {prompt && (
+            <button type="button" className={styles.clearBtn} onClick={handleClear}>
+              &times;
+            </button>
+          )}
+        </div>
+        <button
+          type="button"
+          className={styles.generateBtn}
+          onClick={handleGenerate}
+          disabled={generating || !prompt.trim()}
+        >
+          {generating ? tc("generating") : tc("generate")}
+        </button>
       </div>
 
       {!prompt && !previewUrl && (
@@ -158,15 +168,6 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
           </button>
         ))}
       </div>
-
-      <button
-        type="button"
-        className={styles.generateBtn}
-        onClick={handleGenerate}
-        disabled={generating || !prompt.trim()}
-      >
-        {generating ? tc("generating") : tc("generate")}
-      </button>
 
       {error && <p className={styles.errorMsg}>{error}</p>}
 

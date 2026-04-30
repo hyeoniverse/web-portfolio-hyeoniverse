@@ -60,10 +60,12 @@
   background: var(--border-light-color);
 }
 
-/* ── Action Buttons ── */
-.saveBtn,
-.publishBtn {
-  padding: var(--box-xs-xl);
+/* ── Action Buttons — 다른 form control 들과 동일한 height (--size-sm = 32px) 로 통일.
+   Button 컴포넌트의 size-sm(36px) override 위해 specificity 높임. */
+.saveBtn.saveBtn,
+.publishBtn.publishBtn {
+  height: var(--size-sm);
+  padding: 0 var(--spacing-md);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -95,14 +97,14 @@
   color: var(--text-primary);
 }
 
-/* ── Status / Error / Success Banner (inline in actions) ── */
+/* ── Status / Error / Success Banner (inline in actions) — top bar 위쪽으로 띄움 ── */
 .statusBanner,
 .errorBanner,
 .successBanner {
   position: absolute;
   top: 0;
   right: 0;
-  transform: translateY(-100%);
+  transform: translateY(calc(-100% - 2px));
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   line-height: 1.4;
@@ -151,7 +153,7 @@
   text-align: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-accent);
+  color: var(--text-primary);
 }
 
 .revisionDropdown {
@@ -159,7 +161,7 @@
   top: calc(100% + var(--spacing-xs));
   right: 0;
   width: 360px;
-  max-height: 280px;
+  max-height: 360px;
   overflow: hidden;
   background: var(--bg-primary);
   border: var(--border-light);
@@ -172,7 +174,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--box-xs-sm);
+  padding: var(--box-sm-md);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 600;
@@ -249,7 +251,7 @@
 .revisionListView {
   animation: revealDown 0.2s ease both;
   overflow-y: auto;
-  max-height: 260px;
+  max-height: 320px;
 }
 
 .revisionDropdownWide {
@@ -261,7 +263,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--box-xs-sm);
+  padding: var(--box-sm-md);
   border-bottom: var(--border-light);
 }
 
@@ -559,7 +561,8 @@
 
 .fieldInput {
   width: 100%;
-  padding: var(--box-xs-sm);
+  min-height: var(--size-sm);
+  padding: 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -576,6 +579,30 @@
 
 .fieldInput::placeholder {
   color: var(--text-tertiary);
+}
+
+/* ── Scheduled clear button — top bar 의 예약 발행 picker 옆 X 버튼.
+   공통 CloseIcon 컴포넌트를 host (data-close-trigger 로 minus→X morph 활성). */
+.scheduledClearBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  --close-size: 10px;
+}
+
+.scheduledClearBtn:hover {
+  border-color: var(--border-strong-color);
+  color: var(--text-primary);
 }
 
 /* ── Tags ── */
@@ -666,13 +693,18 @@
 
 /* ── Upload Button ── */
 .uploadBtn {
-  padding: var(--box-xs-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--size-sm);
+  padding: 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .field .uploadBtn:hover {

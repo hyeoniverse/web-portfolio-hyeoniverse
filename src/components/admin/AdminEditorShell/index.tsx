@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
@@ -51,6 +52,7 @@ export default function AdminEditorShell({
   aiSummaryDisabled = false,
   currentSnapshot,
   topBarSecondRowLeft,
+  topBarFirstRowExtra,
   children,
 }: AdminEditorShellProps) {
   const { setInfinite, lenis } = useLenis();
@@ -77,18 +79,18 @@ export default function AdminEditorShell({
   useEffect(() => {
     const el = dropdownRef.current;
     if (!el) return;
-    // 로딩 중에는 이전 높이 고정
+    // 로딩 중: 이전 높이를 그대로 유지 (skeleton 으로의 중간 전환 없이 시각적 정지)
     if (detailLoading) {
-      const h = el.offsetHeight;
-      if (h) {
-        el.style.height = `${h}px`;
+      const prev = prevHeightRef.current;
+      if (prev) {
+        el.style.height = `${prev}px`;
         el.style.overflow = "hidden";
         el.style.transition = "none";
-        prevHeightRef.current = h;
       }
       return;
     }
-    // 높이 계산을 위해 일시적으로 auto
+    // 로딩 종료 (또는 viewingRevision 변경 후 즉시 데이터가 있는 경우):
+    // 자연 높이로 한 번만 애니메이션
     el.style.height = "auto";
     el.style.overflow = "";
     const newHeight = el.scrollHeight;
@@ -133,7 +135,9 @@ export default function AdminEditorShell({
   }, [setInfinite, lenis]);
 
   // 리비전 상세 비동기 로딩
-  useEffect(() => {
+  // useLayoutEffect 로 detailLoading=true 를 paint 전에 set 해서
+  // 빈 detail panel 이 잠깐 렌더되어 height effect 가 잘못된 높이로 애니메이션 트리거하는 flash 방지
+  useLayoutEffect(() => {
     if (viewingRevision === null) {
       setRevisionDetail(null);
       return;
@@ -179,6 +183,12 @@ export default function AdminEditorShell({
           <Link href={backHref} className={styles.backLink}>
             {backLabel}
           </Link>
+          {topBarFirstRowExtra && (
+            <>
+              <div className={styles.actionsDivider} />
+              {topBarFirstRowExtra}
+            </>
+          )}
           <div className={styles.actionsDivider} />
           <LanguageToggle lang={editorLang} onLangChange={onEditorLangChange} />
           {(onRetranslate || retranslateDisabled) && retranslateOptions && (
@@ -280,8 +290,36 @@ export default function AdminEditorShell({
                     <span className={styles.revisionBadge}>{revisions.length}</span>
                   </Button>
                 </Tooltip>
+                <AnimatePresence>
                 {showRevisions && (
-                  <div ref={dropdownRef} className={`${styles.revisionDropdown} ${viewingRevision !== null ? styles.revisionDropdownWide : ""}`} data-lenis-prevent>
+                  <motion.div
+                    ref={dropdownRef}
+                    className={`${styles.revisionDropdown} ${viewingRevision !== null ? styles.revisionDropdownWide : ""}`}
+                    data-lenis-prevent
+                    initial={{ opacity: 0, scale: 0.7, y: -8 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      y: 0,
+                      transition: {
+                        scale: { duration: 0.22, ease: [0.4, 0, 0.2, 1] },
+                        y: { duration: 0.22, ease: [0.4, 0, 0.2, 1] },
+                        opacity: { duration: 0.14, ease: "easeOut" },
+                      },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.7,
+                      y: -8,
+                      // 종료 시 scale 축소가 충분히 보이도록 opacity 는 마지막에 페이드아웃
+                      transition: {
+                        scale: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+                        y: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+                        opacity: { duration: 0.14, delay: 0.18, ease: "easeIn" },
+                      },
+                    }}
+                    style={{ transformOrigin: "top right" }}
+                  >
                     {revisions.length === 0 ? (
                       <div className={styles.revisionEmpty}>저장된 기록이 없습니다.</div>
                     ) : viewingRevision !== null && revisions[viewingRevision] ? (
@@ -566,34 +604,6 @@ export default function AdminEditorShell({
                             <span className={styles.revisionTitle}>
                               {rev.title || "(untitled)"}
                             </span>
-                            {!isSelectMode && onDeleteRevision && (
-                              <Tooltip content={labels.delete} placement="left">
-                                <button
-                                  type="button"
-                                  className={styles.revisionItemDelete}
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    openModal(
-                                      <ModalPrompt
-                                        hint="이 로그를 삭제하려면 &quot;삭제&quot;를 입력하세요."
-                                        placeholder="삭제"
-                                        validate={(v) => v === "삭제"}
-                                        cancelText="취소"
-                                        confirmText="삭제"
-                                        danger
-                                        onConfirm={async () => {
-                                          const ok = await onDeleteRevision(i);
-                                          if (ok && revisions.length <= 1) setShowRevisions(false);
-                                        }}
-                                      />,
-                                      { id: "rev-delete-item", header: { title: "로그 삭제" }, closeButton: true, width: "400px" },
-                                    );
-                                  }}
-                                >
-                                  <X size={10} />
-                                </button>
-                              </Tooltip>
-                            )}
                             {!isSelectMode && (
                               <ChevronRight className={styles.revisionChevron} size={12} />
                             )}
@@ -601,8 +611,9 @@ export default function AdminEditorShell({
                         ))}
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
               </div>
             )}
           </div>

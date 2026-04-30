@@ -1,10 +1,11 @@
-/* ── Adjacent navigation (prev / next) ── */
+/* ── Adjacent navigation (prev / next) ──
+   border-bottom 제거: 뒤따르는 section(comments/related/footer)이 border-top 으로 분리선 제공 →
+   double border 방지. 만약 뒤에 그런 section 이 없다면 호출 측에서 next section 에 border-top 추가. */
 .nav {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
   border-top: var(--border-light);
-  border-bottom: var(--border-light);
 }
 
 .card {

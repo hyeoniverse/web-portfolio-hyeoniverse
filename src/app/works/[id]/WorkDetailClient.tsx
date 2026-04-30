@@ -126,6 +126,118 @@ export default function WorkDetailClient({
       heroImage={project.image}
       heroAlt={project.title}
       headings={headings}
+      header={
+        <>
+          {/* ── Meta header ── */}
+          <motion.div
+            className={styles.meta}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            <div className={styles.metaLeft}>
+              <span className={styles.projectNumber}>#{project.number}</span>
+              <span className={styles.category}><T ko={project.category.ko} en={project.category.en} /></span>
+              {isAdmin && (
+                <Tooltip content={t("workDetail.editWork")} placement="top" delay={200}>
+                  <a
+                    href={`/admin/works/${project.id}/edit`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
+                  >
+                    <Pencil size={13} />
+                  </a>
+                </Tooltip>
+              )}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {project.githubUrl && (
+                <Button variant="outline" size="xs" href={project.githubUrl} external>
+                  <GithubIcon size={14} />
+                  GitHub
+                </Button>
+              )}
+              <ShareButton />
+              <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
+            </div>
+          </motion.div>
+
+          {/* ── Title ── */}
+          <motion.h1
+            className={styles.title}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
+            {project.title}
+          </motion.h1>
+
+          {/* ── Description ── */}
+          <motion.p
+            className={styles.description}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          >
+            <T ko={project.description.ko} en={project.description.en} />
+          </motion.p>
+
+          {/* ── Info grid ── */}
+          <motion.div
+            className={styles.infoGrid}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.6 }}
+          >
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}>Year</span>
+              <span className={styles.infoValue}>{project.year}</span>
+            </div>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}><T k="workDetail.role" /></span>
+              <span className={styles.infoValue}><T ko={project.role.ko} en={project.role.en} /></span>
+            </div>
+            <div className={styles.infoBlock}>
+              <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
+              <span className={styles.infoValue}>{project.tech.join(", ")}</span>
+            </div>
+            {project.teamMembers && project.teamMembers.length > 0 && (
+              <div className={styles.infoBlock}>
+                <span className={styles.infoLabel}><T k="workDetail.team" /></span>
+                <div className={styles.teamList}>
+                  {project.teamMembers.map((member, i) => (
+                    <span key={i} className={styles.teamMember}>
+                      {member.url ? (
+                        <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
+                          {member.name}
+                        </a>
+                      ) : (
+                        member.name
+                      )}
+                      <span className={styles.teamRole}> — <T ko={member.role.ko} en={member.role.en} /></span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
+
+          {needsTranslation && translationEnabled && (
+            <div className={styles.translateBanner}>
+              <p className={styles.translateMessage}>
+                <T k="workDetail.noTranslationEn" />
+              </p>
+            </div>
+          )}
+
+          <AISummary
+            summaryKo={project.summary?.ko ?? ""}
+            summaryEn={project.summary?.en ?? ""}
+            lang={viewLang}
+          />
+        </>
+      }
       afterContent={
         <>
           {/* Gallery */}
@@ -279,115 +391,6 @@ export default function WorkDetailClient({
         </>
       }
     >
-      {/* ── Meta header ── */}
-      <motion.div
-        className={styles.meta}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
-      >
-        <div className={styles.metaLeft}>
-          <span className={styles.projectNumber}>#{project.number}</span>
-          <span className={styles.category}><T ko={project.category.ko} en={project.category.en} /></span>
-          {isAdmin && (
-            <Tooltip content={t("workDetail.editWork")} placement="top" delay={200}>
-              <a
-                href={`/admin/works/${project.id}/edit`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
-              >
-                <Pencil size={13} />
-              </a>
-            </Tooltip>
-          )}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {project.githubUrl && (
-            <Button variant="outline" size="xs" href={project.githubUrl} external>
-              <GithubIcon size={14} />
-              GitHub
-            </Button>
-          )}
-          <ShareButton />
-          <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
-        </div>
-      </motion.div>
-
-      {/* ── Title ── */}
-      <motion.h1
-        className={styles.title}
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-      >
-        {project.title}
-      </motion.h1>
-
-      {/* ── Description ── */}
-      <motion.p
-        className={styles.description}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-      >
-        <T ko={project.description.ko} en={project.description.en} />
-      </motion.p>
-
-      {/* ── Info grid ── */}
-      <motion.div
-        className={styles.infoGrid}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.45, duration: 0.6 }}
-      >
-        <div className={styles.infoBlock}>
-          <span className={styles.infoLabel}>Year</span>
-          <span className={styles.infoValue}>{project.year}</span>
-        </div>
-        <div className={styles.infoBlock}>
-          <span className={styles.infoLabel}><T k="workDetail.role" /></span>
-          <span className={styles.infoValue}><T ko={project.role.ko} en={project.role.en} /></span>
-        </div>
-        <div className={styles.infoBlock}>
-          <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-          <span className={styles.infoValue}>{project.tech.join(", ")}</span>
-        </div>
-        {project.teamMembers && project.teamMembers.length > 0 && (
-          <div className={styles.infoBlock}>
-            <span className={styles.infoLabel}><T k="workDetail.team" /></span>
-            <div className={styles.teamList}>
-              {project.teamMembers.map((member, i) => (
-                <span key={i} className={styles.teamMember}>
-                  {member.url ? (
-                    <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
-                      {member.name}
-                    </a>
-                  ) : (
-                    member.name
-                  )}
-                  <span className={styles.teamRole}> — <T ko={member.role.ko} en={member.role.en} /></span>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </motion.div>
-
-      {needsTranslation && translationEnabled && (
-        <div className={styles.translateBanner}>
-          <p className={styles.translateMessage}>
-            <T k="workDetail.noTranslationEn" />
-          </p>
-        </div>
-      )}
-
-      <AISummary
-        summaryKo={project.summary?.ko ?? ""}
-        summaryEn={project.summary?.en ?? ""}
-        lang={viewLang}
-      />
-
       {/* Content */}
       {content && (
         <motion.div

@@ -10,7 +10,8 @@ import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
-import type { Post, PostFormData } from "@/types/post";
+import type { Post, PostFormData, Series } from "@/types/post";
+import SeriesInlineEditor from "@/app/admin/(dashboard)/settings/_components/SeriesInlineEditor";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
@@ -27,6 +28,8 @@ import CoverImagePicker from "./CoverImagePicker";
 import SeoChecklist from "@/components/admin/SeoChecklist";
 import RelationPicker from "@/components/admin/RelationPicker";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
+import CloseIcon from "@/components/ui/CloseIcon";
+import { motion, AnimatePresence } from "framer-motion";
 import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import { useModalStore } from "@/stores/modalStore";
@@ -146,10 +149,10 @@ export default function PostEditor({ post }: PostEditorProps) {
       .catch(() => {});
   }, [post?.id]);
 
-  // Auto-correct invalid category when categories load
+  // Auto-correct ONLY when category is empty — 직접 입력한 커스텀 카테고리는 유지
   useEffect(() => {
     if (categories.length === 0) return;
-    if (!isManagedCat(form.category)) {
+    if (!form.category) {
       const fallback = categories.find((c) => c.ko === "기타")?.ko ?? categories[0]?.ko ?? "";
       setForm((prev) => ({ ...prev, category: fallback }));
     }
@@ -378,6 +381,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       getTitle: getPostTitle,
       busyFlags: { saving, translating },
       onSaved: onAutoSaved,
+      ignoredFields: ["scheduled_at"],
     });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -395,12 +399,23 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   const tag = useTagInput(form.tags, (tags) => updateField("tags", tags));
 
-  const { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading } = usePostSeries(
+  const { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading, refetchSeries } = usePostSeries(
     form.series_id,
     isEdit,
     post?.id,
     (order) => updateField("series_order", order),
   );
+
+  const [seriesSelectMode, setSeriesSelectMode] = useState<"existing" | "custom">("existing");
+
+  const handleSeriesCreated = useCallback(async (saved?: Series) => {
+    await refetchSeries();
+    if (saved?.id) {
+      updateField("series_id", saved.id);
+      if (saved.category) updateField("category", saved.category);
+    }
+    setSeriesSelectMode("existing");
+  }, [refetchSeries, updateField]);
 
 
   const [converting, setConverting] = useState(false);
@@ -1005,13 +1020,47 @@ export default function PostEditor({ post }: PostEditorProps) {
           },
         };
       })()}
-      topBarSecondRowLeft={
+      topBarFirstRowExtra={
         <Checkbox
           checked={form.is_pinned}
           onChange={(v) => updateField("is_pinned", v)}
           shape="square"
           label={te("pinLabel")}
         />
+      }
+      topBarSecondRowLeft={
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)", flexWrap: "nowrap" }}>
+          {/* 예약 발행 — Works editor 와 동일 스타일 */}
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)", flexWrap: "nowrap" }}>
+            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", whiteSpace: "nowrap", flexShrink: 0, marginRight: "var(--spacing-2xs)" }}>{te("scheduledAt")}</span>
+            <DateTimePicker
+              value={form.scheduled_at ?? null}
+              onChange={(iso) => updateField("scheduled_at", iso)}
+            />
+            <AnimatePresence>
+              {form.scheduled_at && (
+                <motion.button
+                  key="clear"
+                  type="button"
+                  className={es.scheduledClearBtn}
+                  onClick={() => updateField("scheduled_at", null)}
+                  title={te("scheduledClear")}
+                  aria-label={te("scheduledClear")}
+                  data-close-trigger
+                  initial={{ opacity: 0, scale: 0.5, width: 0 }}
+                  animate={{ opacity: 1, scale: 1, width: 24 }}
+                  exit={{ opacity: 0, scale: 0.5, width: 0 }}
+                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  <CloseIcon />
+                </motion.button>
+              )}
+            </AnimatePresence>
+            {form.scheduled_at && !form.published && (
+              <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>{te("scheduledHint")}</span>
+            )}
+          </div>
+        </div>
       }
     >
       <div className={styles.meta}>
@@ -1059,61 +1108,72 @@ export default function PostEditor({ post }: PostEditorProps) {
             <span>{te("optionalFields")}</span>
             <ChevronDown
               size={12}
-              strokeWidth={1.5}
+              strokeWidth={2.5}
               style={{ transform: optionalOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
             />
           </button>
 
-          {/* 예약 발행 — 항상 표시 */}
-          <div className={es.field}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
-              <label className={es.fieldLabel}>{te("scheduledAt")}</label>
-              {form.scheduled_at && !form.published && (
-                <span className={styles.slugHint}>{te("scheduledHint")}</span>
-              )}
+          {/* 시리즈 — 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
+          <div style={{ padding: "0 var(--spacing-md) var(--spacing-md)" }}>
+            <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                <label className={es.fieldLabel}>{te("series")}</label>
+                <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
+                  {te("seriesManage")}
+                  <ExternalLink size={12} />
+                </a>
+              </div>
+              <AnimatePresence mode="wait" initial={false}>
+                {seriesSelectMode === "custom" ? (
+                  <motion.div
+                    key="custom"
+                    initial={{ height: 0 }}
+                    animate={{ height: "auto" }}
+                    exit={{ height: 0 }}
+                    transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <SeriesInlineEditor
+                      series={null}
+                      categories={categories}
+                      onSave={handleSeriesCreated}
+                      onCancel={() => setSeriesSelectMode("existing")}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="existing"
+                    initial={{ height: 0 }}
+                    animate={{ height: "auto" }}
+                    exit={{ height: 0 }}
+                    transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <Select
+                      value={form.series_id ?? ""}
+                      options={[
+                        { value: "", label: te("seriesNone") },
+                        { value: "__custom__", label: te("customSeries") },
+                        ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}` })),
+                      ]}
+                      onChange={(v) => {
+                        if (v === "__custom__") {
+                          setSeriesSelectMode("custom");
+                          updateField("series_id", null);
+                          return;
+                        }
+                        setSeriesSelectMode("existing");
+                        updateField("series_id", v || null);
+                        if (v) {
+                          const selected = seriesList.find((s) => s.id === v);
+                          if (selected?.category) updateField("category", selected.category);
+                        }
+                      }}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center" }}>
-              <DateTimePicker
-                value={form.scheduled_at ?? null}
-                onChange={(iso) => updateField("scheduled_at", iso)}
-                disabled={form.published}
-              />
-              {form.scheduled_at && (
-                <button
-                  type="button"
-                  className={es.envCancelBtn ?? styles.manageLink}
-                  onClick={() => updateField("scheduled_at", null)}
-                  title={te("scheduledClear")}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* 시리즈 — 항상 표시 */}
-          <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-              <label className={es.fieldLabel}>{te("series")}</label>
-              <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
-                {te("seriesManage")}
-                <ExternalLink size={12} />
-              </a>
-            </div>
-            <Select
-              value={form.series_id ?? ""}
-              options={[
-                { value: "", label: te("seriesNone") },
-                ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}` })),
-              ]}
-              onChange={(v) => {
-                updateField("series_id", v || null);
-                if (v) {
-                  const selected = seriesList.find((s) => s.id === v);
-                  if (selected?.category) updateField("category", selected.category);
-                }
-              }}
-            />
           </div>
           <div ref={optionalContentRef} className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
             <div ref={optionalInnerRef} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
@@ -1226,12 +1286,41 @@ export default function PostEditor({ post }: PostEditorProps) {
                       <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>{te("categoryFromSeries")}</span>
                     )}
                   </div>
-                  <Select
-                    value={isManagedCat(form.category) ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? "")}
-                    options={categories.map((cat) => ({ value: cat.ko, label: language === "ko" ? cat.ko : cat.en }))}
-                    onChange={(v) => updateField("category", v)}
-                    disabled={!!form.series_id}
-                  />
+                  {(() => {
+                    const matched = isManagedCat(form.category);
+                    const isCustom = !!form.category && !matched;
+                    const selectValue = isCustom ? "__custom__" : (matched ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? ""));
+                    return (
+                      <>
+                        <Select
+                          value={selectValue}
+                          options={[
+                            { value: "__custom__", label: te("customCategory") },
+                            ...categories.map((cat) => ({ value: cat.ko, label: language === "ko" ? cat.ko : cat.en })),
+                          ]}
+                          onChange={(v) => {
+                            if (v === "__custom__") {
+                              updateField("category", "");
+                            } else {
+                              updateField("category", v);
+                            }
+                          }}
+                          disabled={!!form.series_id}
+                        />
+                        {(isCustom || selectValue === "__custom__") && !form.series_id && (
+                          <input
+                            className={es.fieldInput}
+                            type="text"
+                            value={form.category}
+                            onChange={(e) => updateField("category", e.target.value)}
+                            placeholder={te("category")}
+                            style={{ marginTop: "var(--spacing-xs)" }}
+                            autoFocus
+                          />
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className={es.field} style={{ flex: 1 }} data-seo="tags">
                   <label className={es.fieldLabel}>{te("tags")}</label>
@@ -1341,6 +1430,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                   getThumb={(w) => w.image}
                   getStatus={(w) => (w.published ? "published" : "draft")}
                   searchPlaceholder={te("relatedWorksSearch")}
+                  searchInputPlaceholder={te("relatedWorksSearchInput")}
                   emptyText={te("relatedWorksEmpty")}
                   noResultsText={te("relatedWorksNoResults")}
                 />
@@ -1499,20 +1589,18 @@ export default function PostEditor({ post }: PostEditorProps) {
         </div>
       )}
 
-      {/* ── SEO 체크리스트 — 에디터 + 이미지 패널 다음에 배치, 항목 클릭 시 해당 필드로 스크롤 ── */}
-      <div className={styles.seoChecklistSection}>
-        <SeoChecklist
-          data={{
-            title: form[titleKey] || form.title,
-            slug: form.slug,
-            excerpt: form[excerptKey] || form.excerpt,
-            cover: form.cover_image,
-            category: form.category,
-            tagsCount: form.tags?.length ?? 0,
-          }}
-          onItemClick={handleSeoItemClick}
-        />
-      </div>
+      {/* SEO 체크리스트 — portal 로 floating pill 렌더 (wrapper 불필요) */}
+      <SeoChecklist
+        data={{
+          title: form[titleKey] || form.title,
+          slug: form.slug,
+          excerpt: form[excerptKey] || form.excerpt,
+          cover: form.cover_image,
+          category: form.category,
+          tagsCount: form.tags?.length ?? 0,
+        }}
+        onItemClick={handleSeoItemClick}
+      />
 
     </AdminEditorShell>
 

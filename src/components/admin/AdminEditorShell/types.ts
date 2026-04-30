@@ -67,5 +67,6 @@ export interface AdminEditorShellProps {
   aiSummaryDisabled?: boolean;
   currentSnapshot?: { title: string; excerpt?: string; content?: string; meta?: Record<string, string> };
   topBarSecondRowLeft?: ReactNode;
+  topBarFirstRowExtra?: ReactNode;
   children: ReactNode;
 }

@@ -2,13 +2,13 @@
 
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Plus, Settings, Bell, TrendingUp, TrendingDown, MessageSquare, Eye, Heart, Globe, Smartphone, Monitor, Tablet, ChevronRight } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import CloseIcon from "@/components/ui/CloseIcon";
+import Tooltip from "@/components/ui/Tooltip";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
@@ -72,8 +72,6 @@ interface DashboardData {
 export default function AdminDashboard() {
   const { t, language } = useLanguage();
   const { setInfinite, lenis, stop, start } = useLenis();
-  const searchParams = useSearchParams();
-  const mockMode = searchParams.get("mock") === "true";
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -106,12 +104,6 @@ export default function AdminDashboard() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      // Mock mode: ?mock=true 로 접속 시 더미 데이터로 UI 미리보기 (DB 무관)
-      if (mockMode) {
-        setData(buildMockDashboard());
-        setError(null);
-        return;
-      }
       const res = await fetch("/api/admin/dashboard");
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -125,7 +117,7 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [mockMode]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -179,33 +171,68 @@ export default function AdminDashboard() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}><T k="admin.dashboard.title" /></h1>
-        <button type="button" className={styles.refreshBtn} onClick={fetchData} disabled={loading}>
-          {loading ? <T k="admin.dashboard.loading" /> : <T k="admin.dashboard.refresh" />}
-        </button>
+        <Tooltip
+          content={language === "ko" ? "최신 데이터 다시 불러오기" : "Reload latest data"}
+          placement="bottom"
+          delay={200}
+        >
+          <button type="button" className={styles.refreshBtn} onClick={fetchData} disabled={loading}>
+            {loading ? <T k="admin.dashboard.loading" /> : <T k="admin.dashboard.refresh" />}
+          </button>
+        </Tooltip>
       </header>
 
-      {/* ── Quick Actions — 공통 Button 컴포넌트 사용, .actionBtn 은 표 셀 스타일 override ── */}
+      {/* ── Quick Actions — 공통 Button 컴포넌트 사용, .actionBtn 은 표 셀 스타일 override.
+           각 버튼은 Tooltip 으로 감싸 hover 영역이 셀 전체로 확장됨 (wrapperStyle block + 100%) ── */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}><T k="admin.dashboard.quickActions" /></h2>
         <div className={styles.quickActions}>
-          <Button href="/admin/posts/new" variant="ghost" size="md" fullWidth icon={<Plus size={18} strokeWidth={1.6} />} className={styles.actionBtn}>
-            <T k="admin.dashboard.newPost" />
-          </Button>
-          <Button href="/admin/works/new" variant="ghost" size="md" fullWidth icon={<Plus size={18} strokeWidth={1.6} />} className={styles.actionBtn}>
-            <T k="admin.dashboard.newWork" />
-          </Button>
-          <Button href="/admin/settings" variant="ghost" size="md" fullWidth icon={<Settings size={18} strokeWidth={1.6} />} className={styles.actionBtn}>
-            <T k="admin.dashboard.openSettings" />
-          </Button>
-          <Button href="/admin/notifications" variant="ghost" size="md" fullWidth icon={<Bell size={18} strokeWidth={1.6} />} className={styles.actionBtn}>
-            <T k="admin.dashboard.viewNotifications" />
-            {data.notifications.unreadCount > 0 && (
-              <span className={styles.badgeWrap} aria-label={`${data.notifications.unreadCount} unread`}>
-                <span className={styles.badgePulse} aria-hidden />
-                <span className={styles.badge}>{data.notifications.unreadCount}</span>
-              </span>
-            )}
-          </Button>
+          <Tooltip
+            content={language === "ko" ? "새 게시물 작성 페이지로 이동" : "Open new post editor"}
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Button href="/admin/posts/new" variant="ghost" size="md" fullWidth icon={<Plus size={18} strokeWidth={1.6} />} className={styles.actionBtn}>
+              <T k="admin.dashboard.newPost" />
+            </Button>
+          </Tooltip>
+          <Tooltip
+            content={language === "ko" ? "새 프로젝트 작성 페이지로 이동" : "Open new project editor"}
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Button href="/admin/works/new" variant="ghost" size="md" fullWidth icon={<Plus size={18} strokeWidth={1.6} />} className={styles.actionBtn}>
+              <T k="admin.dashboard.newWork" />
+            </Button>
+          </Tooltip>
+          <Tooltip
+            content={language === "ko" ? "사이트 환경 설정 (브랜드/카테고리/시리즈/계정)" : "Site settings (brand, categories, series, account)"}
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Button href="/admin/settings" variant="ghost" size="md" fullWidth icon={<Settings size={18} strokeWidth={1.6} />} className={styles.actionBtn}>
+              <T k="admin.dashboard.openSettings" />
+            </Button>
+          </Tooltip>
+          <Tooltip
+            content={language === "ko" ? "댓글/시스템 알림 보기" : "View comments and system notifications"}
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Button href="/admin/notifications" variant="ghost" size="md" fullWidth icon={<Bell size={18} strokeWidth={1.6} />} className={styles.actionBtn}>
+              <T k="admin.dashboard.viewNotifications" />
+              {data.notifications.unreadCount > 0 && (
+                <span className={styles.badgeWrap} aria-label={`${data.notifications.unreadCount} unread`}>
+                  <span className={styles.badgePulse} aria-hidden />
+                  <span className={styles.badge}>{data.notifications.unreadCount}</span>
+                </span>
+              )}
+            </Button>
+          </Tooltip>
         </div>
       </section>
 
@@ -216,17 +243,28 @@ export default function AdminDashboard() {
         {/* Hero — Total Views: 큰 숫자 + sparkline + WoW. accent 그라데이션 배경 */}
         <div className={styles.heroStat}>
           <div className={styles.heroLeft}>
-            <span className={styles.heroLabel}><T k="admin.dashboard.totalViews" /></span>
+            <Tooltip
+              content={language === "ko" ? "발행된 모든 게시물의 누적 조회수 합계" : "Cumulative view count across all published posts"}
+              placement="top"
+              delay={300}
+            >
+              <span className={styles.heroLabel}><T k="admin.dashboard.totalViews" /></span>
+            </Tooltip>
             <div className={styles.heroValueRow}>
               <span className={styles.heroValue}><CountUp value={data.stats.totalPostViews} duration={1400} /></span>
               {wow && (
-                <span
-                  className={`${styles.trendBadge} ${styles.trendBadgeLg} ${wow.direction === "up" ? styles.trendUp : styles.trendDown}`}
-                  title={t("admin.dashboard.trendVsPrev7")}
+                <Tooltip
+                  content={language === "ko" ? "최근 7일 vs 직전 7일 변화율" : "Last 7 days vs previous 7 days"}
+                  placement="top"
+                  delay={200}
                 >
-                  {wow.direction === "up" ? <TrendingUp size={13} strokeWidth={2.5} /> : <TrendingDown size={13} strokeWidth={2.5} />}
-                  {Math.abs(wow.pct)}%
-                </span>
+                  <span
+                    className={`${styles.trendBadge} ${styles.trendBadgeLg} ${wow.direction === "up" ? styles.trendUp : styles.trendDown}`}
+                  >
+                    {wow.direction === "up" ? <TrendingUp size={13} strokeWidth={2.5} /> : <TrendingDown size={13} strokeWidth={2.5} />}
+                    {Math.abs(wow.pct)}%
+                  </span>
+                </Tooltip>
               )}
             </div>
             <span className={styles.heroMeta}>
@@ -236,44 +274,71 @@ export default function AdminDashboard() {
               })()}
             </span>
           </div>
-          <div className={styles.heroSparkWrap} aria-hidden>
-            <Sparkline values={data.stats.dailyViews.slice(-14).map((d) => d.views)} />
-          </div>
+          <Tooltip
+            content={language === "ko" ? "최근 14일 일별 조회수 추세" : "Daily view trend over the last 14 days"}
+            placement="left"
+            delay={300}
+          >
+            <div className={styles.heroSparkWrap} aria-hidden>
+              <Sparkline values={data.stats.dailyViews.slice(-14).map((d) => d.views)} />
+            </div>
+          </Tooltip>
         </div>
 
         <div className={styles.statsGrid}>
-          <Link href="/admin/posts" className={styles.statCard}>
-            <span className={styles.statLabel}><T k="admin.dashboard.posts" /></span>
-            <span className={styles.statValue}><CountUp value={data.posts.total} /></span>
-            <span className={styles.statMeta}>
-              {data.posts.published} <T k="admin.dashboard.published" /> · {data.posts.drafts} <T k="admin.dashboard.drafts" />
-            </span>
-            <RatioBar published={data.posts.published} total={data.posts.total} />
-          </Link>
-          <Link href="/admin/works" className={styles.statCard}>
-            <span className={styles.statLabel}><T k="admin.dashboard.works" /></span>
-            <span className={styles.statValue}><CountUp value={data.works.total} /></span>
-            <span className={styles.statMeta}>
-              {data.works.published} <T k="admin.dashboard.published" /> · {data.works.drafts} <T k="admin.dashboard.drafts" />
-            </span>
-            <RatioBar published={data.works.published} total={data.works.total} />
-          </Link>
-          <Link href="/admin/comments" className={styles.statCard}>
-            <span className={styles.statLabel}><T k="admin.dashboard.comments" /></span>
-            <span className={styles.statValue}><CountUp value={data.comments.total} /></span>
-            <span className={styles.statMeta}>
-              {data.posts.published > 0
+          <Tooltip
+            content={language === "ko" ? "전체 게시물 수 — 발행/초안 비율 표시" : "Total posts — published / drafts ratio"}
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Link href="/admin/posts" className={styles.statCard}>
+              <span className={styles.statLabel}><T k="admin.dashboard.posts" /></span>
+              <span className={styles.statValue}><CountUp value={data.posts.total} /></span>
+              <span className={styles.statMeta}>
+                {data.posts.published} <T k="admin.dashboard.published" /> · {data.posts.drafts} <T k="admin.dashboard.drafts" />
+              </span>
+              <RatioBar published={data.posts.published} total={data.posts.total} />
+            </Link>
+          </Tooltip>
+          <Tooltip
+            content={language === "ko" ? "전체 프로젝트 수 — 발행/초안 비율 표시" : "Total projects — published / drafts ratio"}
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Link href="/admin/works" className={styles.statCard}>
+              <span className={styles.statLabel}><T k="admin.dashboard.works" /></span>
+              <span className={styles.statValue}><CountUp value={data.works.total} /></span>
+              <span className={styles.statMeta}>
+                {data.works.published} <T k="admin.dashboard.published" /> · {data.works.drafts} <T k="admin.dashboard.drafts" />
+              </span>
+              <RatioBar published={data.works.published} total={data.works.total} />
+            </Link>
+          </Tooltip>
+          <Tooltip
+            content={language === "ko" ? "전체 댓글 수 — 게시물당 평균 + 최근 활동" : "Total comments — avg per post + recent activity"}
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Link href="/admin/comments" className={styles.statCard}>
+              <span className={styles.statLabel}><T k="admin.dashboard.comments" /></span>
+              <span className={styles.statValue}><CountUp value={data.comments.total} /></span>
+              <span className={styles.statMeta}>
+                {data.posts.published > 0
                 ? `${(data.comments.total / data.posts.published).toFixed(1)} ${language === "ko" ? "/ 게시물" : "/ post"}`
                 : " "}
-            </span>
-            <CommentDots count={data.comments.recent.length} />
-          </Link>
+              </span>
+              <CommentDots count={data.comments.recent.length} />
+            </Link>
+          </Tooltip>
         </div>
       </section>
 
       {/* ── Daily Views Chart (full-width) ── */}
       <section className={styles.section}>
-        <DailyViewsChart data={data.stats.dailyViews} language={language} t={t} mockMode={mockMode} />
+        <DailyViewsChart data={data.stats.dailyViews} language={language} t={t} />
       </section>
 
       {/* ── Popular Posts + Recent Comments — 2-col ── */}
@@ -493,162 +558,6 @@ export default function AdminDashboard() {
   );
 }
 
-/* ── 더미 데이터 생성기 — ?mock=true 모드에서 차트 UI 미리보기용 (DB 무관) ── */
-function buildMockDashboard(): DashboardData {
-  // 90일치 일별 조회수 — 점진적 증가 + 주말 dip + 약간의 잡음 (클라이언트에서 7/14/30/90 슬라이스)
-  const dailyViews = Array.from({ length: 90 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (89 - i));
-    const dow = date.getDay(); // 0=일, 6=토
-    const trend = 30 + i * 1.2; // 점진적 증가
-    const weekendDip = (dow === 0 || dow === 6) ? -15 : 0;
-    const noise = Math.round((Math.random() - 0.5) * 25);
-    const views = Math.max(0, Math.round(trend + weekendDip + noise));
-    return { day: date.toISOString().slice(0, 10), views };
-  });
-
-  const totalPostViews = dailyViews.reduce((s, d) => s + d.views, 0) + 4823;
-
-  return {
-    posts: {
-      total: 24,
-      drafts: 5,
-      published: 19,
-      recent: [
-        { id: "p1", title: "Mock — 디자인 시스템 토큰 3-layer 구조 정리", slug: "design-tokens", published: true,  view_count: 412, created_at: iso(-2),  updated_at: iso(-2) },
-        { id: "p2", title: "Mock — Lenis + GSAP ScrollTrigger 무한 가로 스크롤", slug: "infinite-h-scroll", published: true,  view_count: 318, created_at: iso(-5),  updated_at: iso(-5) },
-        { id: "p3", title: "Mock — Plate.js 에디터 커스텀 각주 만들기",         slug: "plate-footnote",     published: false, view_count: 0,   created_at: iso(-7),  updated_at: iso(-1) },
-        { id: "p4", title: "Mock — Supabase RLS 패턴 (single-admin)",            slug: "supabase-rls",       published: true,  view_count: 256, created_at: iso(-9),  updated_at: iso(-9) },
-        { id: "p5", title: "Mock — Three.js R3F 코피잔 + 라떼아트 만들기",      slug: "r3f-coffee",         published: true,  view_count: 198, created_at: iso(-11), updated_at: iso(-10) },
-      ],
-    },
-    works: {
-      total: 12,
-      drafts: 2,
-      published: 10,
-      recent: [
-        { id: "w1", title: "Arc Portfolio v3", slug: "arc-portfolio", published: true,  created_at: iso(-3), updated_at: iso(-1) },
-        { id: "w2", title: "Plate Editor Suite", slug: "plate-editor",  published: true,  created_at: iso(-6), updated_at: iso(-6) },
-        { id: "w3", title: "Cylinder Gallery (WIP)", slug: "cylinder",       published: false, created_at: iso(-8), updated_at: iso(-2) },
-        { id: "w4", title: "Latte Art Generator",  slug: "latte-art",      published: true,  created_at: iso(-12), updated_at: iso(-12) },
-      ],
-    },
-    comments: {
-      total: 87,
-      recent: [
-        { id: "c1", nickname: "guest_42",    content: "이 디자인 시스템 정리 정말 깔끔하네요. 토큰 3-layer 구조가 너무 인상적이에요.", is_admin: false, created_at: iso(0, 12),  post_title: "Mock — 디자인 시스템 토큰 3-layer 구조 정리", post_slug: "design-tokens" },
-        { id: "c2", nickname: "Admin",       content: "감사합니다! 다음 글에서 context layer 패턴을 더 자세히 풀어보겠습니다.",       is_admin: true,  created_at: iso(0, 8),   post_title: "Mock — 디자인 시스템 토큰 3-layer 구조 정리", post_slug: "design-tokens" },
-        { id: "c3", nickname: "dev_reader",  content: "Lenis + GSAP 조합 진짜 매끈하게 동작하네요. velocity 활용 팁 더 부탁드려요!",   is_admin: false, created_at: iso(-1, 6),  post_title: "Mock — Lenis + GSAP ScrollTrigger 무한 가로 스크롤", post_slug: "infinite-h-scroll" },
-        { id: "c4", nickname: "user_anon",   content: "RLS 정책 예시 코드가 큰 도움이 됐습니다.",                                      is_admin: false, created_at: iso(-2, 14), post_title: "Mock — Supabase RLS 패턴 (single-admin)",       post_slug: "supabase-rls" },
-        { id: "c5", nickname: "designer_yj", content: "라떼아트 커스텀 가능한가요?",                                                  is_admin: false, created_at: iso(-3, 10), post_title: "Mock — Three.js R3F 코피잔 + 라떼아트 만들기", post_slug: "r3f-coffee" },
-      ],
-    },
-    notifications: { unreadCount: 3, recent: [] },
-    stats: {
-      totalPostViews,
-      popularPosts: [
-        { id: "p1", title: "Mock — 디자인 시스템 토큰 3-layer 구조 정리",         slug: "design-tokens",      view_count: 412, like_count: 38, category: "Design",      created_at: iso(-30), comment_count: 12 },
-        { id: "p2", title: "Mock — Lenis + GSAP ScrollTrigger 무한 가로 스크롤",  slug: "infinite-h-scroll",  view_count: 318, like_count: 24, category: "Tech",        created_at: iso(-45), comment_count: 8 },
-        { id: "p4", title: "Mock — Supabase RLS 패턴 (single-admin)",             slug: "supabase-rls",       view_count: 256, like_count: 19, category: "Engineering", created_at: iso(-60), comment_count: 5 },
-        { id: "p5", title: "Mock — Three.js R3F 코피잔 + 라떼아트 만들기",        slug: "r3f-coffee",         view_count: 198, like_count: 31, category: "Tech",        created_at: iso(-22), comment_count: 14 },
-        { id: "p6", title: "Mock — PageTransitionProvider 모핑 효과 분해",         slug: "page-transition",    view_count: 143, like_count: 12, category: "Tech",        created_at: iso(-15), comment_count: 3 },
-      ],
-      dailyViews,
-      categories: [
-        { name: "Tech",        postCount: 12, views: 1842 },
-        { name: "Design",      postCount: 7,  views: 1356 },
-        { name: "Engineering", postCount: 5,  views: 982 },
-        { name: "Process",     postCount: 3,  views: 542 },
-        { name: "Performance", postCount: 2,  views: 318 },
-        { name: "DevOps",      postCount: 1,  views: 142 },
-      ],
-      tags: [
-        { tag: "React",         count: 18 },
-        { tag: "Next.js",       count: 14 },
-        { tag: "TypeScript",    count: 12 },
-        { tag: "CSS",           count: 9 },
-        { tag: "GSAP",          count: 7 },
-        { tag: "Three.js",      count: 5 },
-        { tag: "Framer Motion", count: 4 },
-        { tag: "Plate.js",      count: 4 },
-        { tag: "Supabase",      count: 3 },
-        { tag: "Performance",   count: 3 },
-        { tag: "RLS",           count: 2 },
-        { tag: "Lenis",         count: 2 },
-      ],
-      referrers: [
-        { source: "google.com",          count: 1248, pct: 47 },
-        { source: "github.com",          count: 524,  pct: 20 },
-        { source: "twitter.com",         count: 312,  pct: 12 },
-        { source: "Direct",              count: 268,  pct: 10 },
-        { source: "linkedin.com",        count: 156,  pct: 6 },
-        { source: "Other",               count: 132,  pct: 5 },
-      ],
-      devices: [
-        { kind: "desktop", count: 1834, pct: 69 },
-        { kind: "mobile",  count: 658,  pct: 25 },
-        { kind: "tablet",  count: 148,  pct: 6 },
-      ],
-      operatingSystems: [
-        { name: "macOS",   count: 1042, pct: 39 },
-        { name: "Windows", count: 712,  pct: 27 },
-        { name: "iOS",     count: 524,  pct: 20 },
-        { name: "Android", count: 282,  pct: 11 },
-        { name: "Linux",   count: 80,   pct: 3 },
-      ],
-      browsers: [
-        { name: "Chrome",           count: 1418, pct: 53 },
-        { name: "Safari",           count: 692,  pct: 26 },
-        { name: "Edge",             count: 264,  pct: 10 },
-        { name: "Firefox",          count: 158,  pct: 6 },
-        { name: "Samsung Internet", count: 86,   pct: 3 },
-        { name: "Other",            count: 22,   pct: 2 },
-      ],
-      deviceModels: {
-        desktop: [
-          { model: "Mac",          count: 1042, pct: 57 },
-          { model: "PC",           count: 712,  pct: 39 },
-          { model: "Linux PC",     count: 60,   pct: 3 },
-          { model: "Chromebook",   count: 20,   pct: 1 },
-        ],
-        mobile: [
-          { model: "iPhone",       count: 286, pct: 43 },
-          { model: "Pixel 8",      count: 96,  pct: 15 },
-          { model: "SM-S921N",     count: 78,  pct: 12 },
-          { model: "SM-G998N",     count: 64,  pct: 10 },
-          { model: "OnePlus 11",   count: 48,  pct: 7 },
-          { model: "Pixel 7a",     count: 42,  pct: 6 },
-          { model: "Android Phone",count: 44,  pct: 7 },
-        ],
-        tablet: [
-          { model: "iPad",         count: 92, pct: 62 },
-          { model: "Galaxy Tab S9",count: 32, pct: 22 },
-          { model: "SM-T970",      count: 14, pct: 9 },
-          { model: "Android Tablet",count: 10, pct: 7 },
-        ],
-      },
-    },
-    services: {
-      NANOBANANA_API_KEY:        "configured",
-      HUGGINGFACE_API_KEY:       "configured",
-      GEMINI_API_KEY:            "configured",
-      OPENAI_API_KEY:            "missing",
-      ANTHROPIC_API_KEY:         "configured",
-      DEEPL_API_KEY:             "configured",
-      GOOGLE_TRANSLATE_API_KEY:  "missing",
-      RESEND_API_KEY:            "configured",
-    },
-  };
-}
-
-/** N 일 전 (option: hour offset) → ISO string */
-function iso(daysAgo: number, hourOffset = 0): string {
-  const d = new Date();
-  d.setDate(d.getDate() + daysAgo);
-  d.setHours(d.getHours() - hourOffset);
-  return d.toISOString();
-}
-
 /* ── Animated count-up — RAF 로 0 에서 target 까지 easeOutCubic 트윈 (1.2s) ── */
 function CountUp({ value, duration = 1200 }: { value: number; duration?: number }) {
   const [display, setDisplay] = useState(0);
@@ -750,20 +659,32 @@ function DevicesBreakdown({
 
   return (
     <>
-      {/* 탭 — capsule 형태, hover indicator */}
+      {/* 탭 — capsule 형태, hover indicator. 각 탭에 분류 기준 툴팁 */}
       <div className={styles.deviceTabs} role="tablist">
-        {tabs.filter((t) => t.available).map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={activeTab === t.id}
-            className={`${styles.deviceTab} ${activeTab === t.id ? styles.deviceTabActive : ""}`}
-            onClick={() => setActiveTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
+        {tabs.filter((t) => t.available).map((tab) => {
+          const tipMap: Record<DeviceTab, string> = language === "ko" ? {
+            type: "기기 종류 (데스크탑 / 모바일 / 태블릿) — 클릭 시 모델 분포",
+            os: "운영체제 (macOS / Windows / iOS / Android ...)",
+            browser: "브라우저 (Chrome / Safari / Firefox ...)",
+          } : {
+            type: "Device kind — click to see specific models",
+            os: "Operating system breakdown",
+            browser: "Browser breakdown",
+          };
+          return (
+            <Tooltip key={tab.id} content={tipMap[tab.id]} placement="top" delay={300}>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                className={`${styles.deviceTab} ${activeTab === tab.id ? styles.deviceTabActive : ""}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            </Tooltip>
+          );
+        })}
       </div>
 
       <div className={styles.devicesWrap} key={activeTab /* 탭 변경 시 fade-in 재실행 */}>
@@ -936,12 +857,10 @@ function DailyViewsChart({
   data: rawData,
   language,
   t,
-  mockMode,
 }: {
   data: { day: string; views: number }[];
   language: "ko" | "en";
   t: (key: string) => string;
-  mockMode: boolean;
 }) {
   // 기본 범위: 최근 14일 (rawData 의 마지막 14개)
   const defaultRange = useMemo(() => {
@@ -1005,11 +924,11 @@ function DailyViewsChart({
   const notifyClamp = (reason: "future" | "range") => {
     const desc = language === "ko"
       ? reason === "future"
-        ? "미래 날짜는 선택할 수 없어 오늘로 자동 보정됐어요."
-        : "최대 2주(14일)까지만 선택 가능해 자동으로 보정됐어요."
+        ? "오늘 이후 날짜는 선택할 수 없습니다. 오늘 날짜로 변경했습니다."
+        : "최대 14일까지만 선택 가능합니다. 14일 범위로 변경했습니다."
       : reason === "future"
-        ? "Future dates aren't allowed — adjusted to today."
-        : "Max range is 2 weeks (14 days) — auto-adjusted.";
+        ? "Future dates aren't selectable. Adjusted to today."
+        : "Up to 14 days can be selected. Adjusted to a 14-day range.";
     openModal(<ModalAlert desc={desc} confirmText={language === "ko" ? "확인" : "OK"} />, {
       header: { title: language === "ko" ? "날짜 범위 안내" : "Date range notice" },
     });
@@ -1093,6 +1012,8 @@ function DailyViewsChart({
               onClose={() => setOpenPicker(null)}
               onSelect={handleStartChange}
               language={language}
+              minDate={minDate}
+              maxDate={maxDate}
             />
             <span className={styles.periodRangeSep} aria-hidden>—</span>
             <DateRangeTrigger
@@ -1103,6 +1024,8 @@ function DailyViewsChart({
               onClose={() => setOpenPicker(null)}
               onSelect={handleEndChange}
               language={language}
+              minDate={minDate}
+              maxDate={maxDate}
             />
           </div>
         </div>
@@ -1260,7 +1183,7 @@ function DailyViewsChart({
           selectedIdx={selectedIdx}
           onClose={() => setSelectedIdx(null)}
           language={language}
-          mockMode={mockMode}
+          t={t}
         />
       )}
     </div>
@@ -1284,6 +1207,8 @@ function DateRangeTrigger({
   onClose: () => void;
   onSelect: (iso: string) => void;
   language: "ko" | "en";
+  minDate: string;
+  maxDate: string;
 }) {
   const [y, m, d] = date.split("-");
   const formatted = (() => {
@@ -1296,17 +1221,23 @@ function DateRangeTrigger({
     });
   })();
 
+  const tooltipText = language === "ko"
+    ? "최대 14일 범위, 미래 날짜는 선택 불가"
+    : "Up to 14-day range, future dates not allowed";
+
   return (
     <div className={styles.periodTrigger}>
-      <button
-        type="button"
-        className={`${styles.periodTriggerBtn} ${isOpen ? styles.periodTriggerBtnActive : ""}`}
-        onClick={onOpen}
-        aria-label={`${label}: ${formatted}`}
-      >
-        <span className={styles.periodTriggerLabel}>{label}</span>
-        <span className={styles.periodTriggerDate}>{formatted}</span>
-      </button>
+      <Tooltip content={tooltipText} placement="bottom" delay={300}>
+        <button
+          type="button"
+          className={`${styles.periodTriggerBtn} ${isOpen ? styles.periodTriggerBtnActive : ""}`}
+          onClick={onOpen}
+          aria-label={`${label}: ${formatted}`}
+        >
+          <span className={styles.periodTriggerLabel}>{label}</span>
+          <span className={styles.periodTriggerDate}>{formatted}</span>
+        </button>
+      </Tooltip>
       {isOpen && (
         <DatePickerPopover
           year={y}
@@ -1333,27 +1264,21 @@ function DayDetailPanel({
   selectedIdx,
   onClose,
   language,
-  mockMode,
 }: {
   data: { day: string; views: number }[];
   selectedIdx: number;
   onClose: () => void;
   language: "ko" | "en";
-  mockMode: boolean;
+  t: (key: string) => string;
 }) {
   const [topPosts, setTopPosts] = useState<DayTopPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
 
   const sel = data[selectedIdx];
 
-  // 선택 날짜 변경 시 인기 게시물 fetch (mock mode 면 결정적 mock 데이터)
+  // 선택 날짜 변경 시 인기 게시물 fetch
   useEffect(() => {
     let cancelled = false;
-    if (mockMode) {
-      setTopPosts(buildMockDayTopPosts(sel.day, sel.views));
-      setLoadingPosts(false);
-      return;
-    }
     setLoadingPosts(true);
     fetch(`/api/admin/dashboard/day?date=${sel.day}`)
       .then((r) => r.json())
@@ -1370,7 +1295,7 @@ function DayDetailPanel({
         }
       });
     return () => { cancelled = true; };
-  }, [sel.day, sel.views, mockMode]);
+  }, [sel.day]);
 
   const selDate = new Date(sel.day);
   const allViews = data.map((d) => d.views);
@@ -1529,34 +1454,6 @@ function DayDetailPanel({
       </div>
     </div>
   );
-}
-
-/** mock 모드용 — 날짜를 시드로 결정적인(매번 같은) 가짜 인기 게시물 생성 */
-function buildMockDayTopPosts(date: string, totalViews: number): DayTopPost[] {
-  // date 문자열을 간단한 해시로 시드 사용
-  let seed = 0;
-  for (let i = 0; i < date.length; i++) seed = (seed * 31 + date.charCodeAt(i)) >>> 0;
-  const rand = () => {
-    seed = (seed * 9301 + 49297) % 233280;
-    return seed / 233280;
-  };
-  const pool = [
-    { id: "p1", title: "디자인 시스템 토큰 3-layer 구조 정리",      slug: "design-tokens" },
-    { id: "p2", title: "Lenis + GSAP ScrollTrigger 무한 가로 스크롤", slug: "infinite-h-scroll" },
-    { id: "p3", title: "Plate.js 에디터 커스텀 각주 만들기",          slug: "plate-footnote" },
-    { id: "p4", title: "Supabase RLS 패턴 (single-admin)",            slug: "supabase-rls" },
-    { id: "p5", title: "Three.js R3F 코피잔 + 라떼아트 만들기",        slug: "r3f-coffee" },
-    { id: "p6", title: "PageTransitionProvider 모핑 효과 분해",         slug: "page-transition" },
-    { id: "p7", title: "Lighthouse 60→98 — 번들/이미지 최적화 케이스 스터디", slug: "lighthouse-perf" },
-  ];
-  // 5개 랜덤 선택 + 가중치 분포
-  const shuffled = [...pool].sort(() => rand() - 0.5).slice(0, 5);
-  let remaining = totalViews;
-  return shuffled.map((p, i) => {
-    const portion = i === shuffled.length - 1 ? remaining : Math.round(remaining * (0.35 + rand() * 0.2));
-    remaining = Math.max(0, remaining - portion);
-    return { ...p, views: Math.max(1, portion) };
-  }).sort((a, b) => b.views - a.views);
 }
 
 function DiffBadge({ diff }: { diff: { pct: number; dir: "up" | "down" | "flat" } }) {
@@ -1754,15 +1651,17 @@ function Sparkline({ values }: { values: number[] }) {
   );
 }
 
-/* ── Skeleton state — 실제 레이아웃을 그대로 미러링 ── */
+/* ── Skeleton state — 실제 dashboard 레이아웃을 그대로 미러링 ── */
 function DashboardSkeleton() {
   return (
     <div className={styles.container} aria-busy="true" aria-live="polite">
+      {/* Header */}
       <header className={styles.header}>
         <SkeletonLine width={180} height={32} />
         <Skeleton width={84} height={32} borderRadius="var(--radius-capsule)" />
       </header>
 
+      {/* Quick Actions */}
       <section className={styles.section}>
         <SkeletonLine width={100} height={14} />
         <div className={styles.quickActions}>
@@ -1772,42 +1671,166 @@ function DashboardSkeleton() {
         </div>
       </section>
 
+      {/* Stats — Hero (totalViews + sparkline) + 3 stat cards */}
       <section className={styles.section}>
         <SkeletonLine width={60} height={14} />
+        {/* Hero block */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", padding: "var(--spacing-xl) 0", borderBottom: "var(--border-light)", gap: "var(--spacing-xl)" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", flex: 1, minWidth: 0 }}>
+            <SkeletonLine width={80} height={11} />
+            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-md)" }}>
+              <SkeletonLine width={140} height={48} />
+              <Skeleton width={56} height={20} borderRadius="var(--radius-capsule)" />
+            </div>
+            <SkeletonLine width={120} height={12} />
+          </div>
+          <Skeleton width={180} height={56} borderRadius="var(--radius-md)" />
+        </div>
+        {/* 3 stat cards */}
         <div className={styles.statsGrid}>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} height={92} borderRadius="var(--radius-2xl)" />
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-md) var(--spacing-xs)" }}>
+              <SkeletonLine width={60} height={11} />
+              <SkeletonLine width={80} height={28} />
+              <SkeletonLine width={100} height={11} />
+              <Skeleton height={4} borderRadius="var(--radius-capsule)" />
+            </div>
           ))}
         </div>
       </section>
 
+      {/* Daily Views Chart (full-width) */}
+      <section className={styles.section}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <SkeletonLine width={120} height={14} />
+          <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
+            <Skeleton width={120} height={28} borderRadius="var(--radius-capsule)" />
+            <Skeleton width={120} height={28} borderRadius="var(--radius-capsule)" />
+          </div>
+        </div>
+        <Skeleton height={220} borderRadius="var(--radius-md)" />
+      </section>
+
+      {/* Popular Posts + Recent Comments */}
+      <section className={styles.twoCol}>
+        {/* Popular Posts */}
+        <div className={styles.panel}>
+          <SkeletonLine width={120} height={14} />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-sm) 0", borderBottom: "var(--border-light)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <SkeletonLine width={28} height={11} />
+                <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
+                  <SkeletonLine width={32} height={11} />
+                  <SkeletonLine width={28} height={11} />
+                </div>
+              </div>
+              <SkeletonLine width={`${85 - (i % 3) * 10}%`} height={14} />
+              <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
+                <SkeletonLine width={50} height={10} />
+                <SkeletonLine width={70} height={10} />
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Recent Comments */}
+        <div className={styles.panel}>
+          <SkeletonLine width={120} height={14} />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-sm) 0", borderBottom: "var(--border-light)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <SkeletonLine width={70} height={11} />
+                <SkeletonLine width={50} height={10} />
+              </div>
+              <SkeletonLine width={i % 2 === 0 ? "92%" : "70%"} height={13} />
+              <SkeletonLine width={120} height={10} />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Categories Donut + Tag Cloud */}
+      <section className={styles.twoCol}>
+        <div className={styles.panel}>
+          <SkeletonLine width={100} height={14} />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--spacing-xl) 0", gap: "var(--spacing-xl)" }}>
+            <Skeleton width={140} height={140} borderRadius="50%" />
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", flex: 1 }}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+                  <Skeleton width={10} height={10} borderRadius="50%" />
+                  <SkeletonLine width={`${70 - i * 8}%`} height={11} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className={styles.panel}>
+          <SkeletonLine width={80} height={14} />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)", padding: "var(--spacing-md) 0" }}>
+            {[68, 84, 56, 100, 72, 92, 60, 76, 88, 64, 96, 70].map((w, i) => (
+              <Skeleton key={i} width={w} height={28} borderRadius="var(--radius-capsule)" />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Posts + Recent Works */}
       <section className={styles.twoCol}>
         {Array.from({ length: 2 }).map((_, p) => (
           <div key={p} className={styles.panel}>
-            <SkeletonLine width={120} height={14} />
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonLine key={i} width={i % 2 === 0 ? "85%" : "65%"} />
+            <SkeletonLine width={100} height={14} />
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)", padding: "var(--spacing-xs) 0", borderBottom: "var(--border-light)" }}>
+                <Skeleton width={48} height={18} borderRadius="var(--radius-capsule)" />
+                <SkeletonLine width={`${60 - (i % 3) * 8}%`} height={12} />
+                <div style={{ marginLeft: "auto" }}>
+                  <SkeletonLine width={56} height={10} />
+                </div>
+              </div>
             ))}
           </div>
         ))}
       </section>
 
+      {/* Traffic Sources + Devices */}
       <section className={styles.twoCol}>
-        {Array.from({ length: 2 }).map((_, p) => (
-          <div key={p} className={styles.panel}>
-            <SkeletonLine width={120} height={14} />
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonLine key={i} width={i % 2 === 0 ? "75%" : "55%"} />
+        {/* Traffic Sources — bar list */}
+        <div className={styles.panel}>
+          <SkeletonLine width={120} height={14} />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", alignItems: "center", gap: "var(--spacing-sm)", padding: "var(--spacing-xs) 0" }}>
+              <SkeletonLine width={70} height={11} />
+              <Skeleton height={6} borderRadius="var(--radius-capsule)" />
+              <SkeletonLine width={50} height={11} />
+            </div>
+          ))}
+        </div>
+        {/* Devices */}
+        <div className={styles.panel}>
+          <SkeletonLine width={80} height={14} />
+          <div style={{ display: "flex", gap: "var(--spacing-md)", padding: "var(--spacing-md) 0" }}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} style={{ flex: 1 }}>
+                <Skeleton height={80} borderRadius="var(--radius-md)" />
+              </div>
             ))}
           </div>
-        ))}
+        </div>
       </section>
 
+      {/* Service Status */}
       <section className={styles.section}>
         <SkeletonLine width={100} height={14} />
         <div className={styles.serviceGrid}>
           {Array.from({ length: 8 }).map((_, i) => (
-            <SkeletonLine key={i} width="80%" />
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) 0" }}>
+              <Skeleton width={8} height={8} borderRadius="50%" />
+              <SkeletonLine width="60%" height={11} />
+              <div style={{ marginLeft: "auto" }}>
+                <SkeletonLine width={40} height={10} />
+              </div>
+            </div>
           ))}
         </div>
       </section>

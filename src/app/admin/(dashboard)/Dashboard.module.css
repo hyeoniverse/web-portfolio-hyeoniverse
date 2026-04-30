@@ -149,18 +149,29 @@
   color: var(--text-primary);
 }
 
-.quickActions > .actionBtn + .actionBtn {
+/* hover 시 아이콘 살짝 우측 이동 + accent 색 변환 (compound 0,2,1 — Button 의 transition 보다 우선) */
+.quickActions .actionBtn :global(svg) {
+  transition: transform 0.25s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1)), color 0.2s ease;
+}
+
+.quickActions .actionBtn:hover:not(:disabled) :global(svg) {
+  transform: translateX(2px);
+  color: var(--text-accent);
+}
+
+/* Tooltip wrapper span 으로 감싸도 동작하도록 universal selector */
+.quickActions > * + * {
   border-left: var(--border-light);
 }
 
 @media (max-width: 768px) {
-  .quickActions > .actionBtn + .actionBtn {
+  .quickActions > * + * {
     border-left: none;
   }
-  .quickActions > .actionBtn:nth-child(2n) {
+  .quickActions > *:nth-child(2n) {
     border-left: var(--border-light);
   }
-  .quickActions > .actionBtn:nth-child(n+3) {
+  .quickActions > *:nth-child(n+3) {
     border-top: var(--border-light);
   }
 }
@@ -229,6 +240,16 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
+  animation: heroValuePop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes heroValuePop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroValue { animation: none; }
 }
 
 .heroMeta {
@@ -282,22 +303,28 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-md) var(--spacing-xl);
   border: none;
   border-radius: 0;
   background: transparent;
   text-decoration: none;
   color: inherit;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.2s ease, transform 0.25s var(--ease-out, cubic-bezier(0.4, 0, 0.2, 1));
+  position: relative;
 }
 
-.statsGrid > .statCard + .statCard {
+a.statCard {
+  cursor: pointer;
+}
+
+/* Tooltip 으로 감싸도 동작하도록 universal child selector 사용 */
+.statsGrid > * + * {
   border-left: var(--border-light);
 }
 
 @media (max-width: 768px) {
   /* 모바일 1-col: vertical divider 제거, 행 간 horizontal divider 만 유지 */
-  .statsGrid > .statCard + .statCard {
+  .statsGrid > * + * {
     border-left: none;
     border-top: var(--border-light);
   }
@@ -305,6 +332,10 @@
 
 a.statCard:hover {
   background: var(--bg-secondary);
+}
+
+a.statCard:hover .statValue {
+  color: var(--text-accent);
 }
 
 .statLabel {
@@ -321,6 +352,7 @@ a.statCard:hover {
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1;
+  transition: color 0.2s ease;
 }
 
 .statMeta {
@@ -379,14 +411,32 @@ a.statCard:hover {
   display: block;
 }
 
+/* sparkLine 라인 — stroke-dasharray 로 드로잉 애니메이션 (0 → 100% 길이) */
 .sparkLine {
   stroke: var(--text-info);
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: sparkDraw 1.4s cubic-bezier(0.65, 0, 0.35, 1) 0.2s both;
 }
 
 .sparkArea {
   fill: var(--bg-info-soft);
+  opacity: 0;
+  animation: sparkAreaFade 0.6s ease 1.0s both;
+}
+
+@keyframes sparkDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes sparkAreaFade {
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkLine, .sparkArea { animation: none; stroke-dashoffset: 0; opacity: 1; }
 }
 
 /* ── 시각화: 댓글 활동 도트 (작성자 분포) ── */
@@ -720,11 +770,21 @@ a.statCard:hover {
   color: var(--text-accent);
 }
 
-/* Hero 옆에 붙는 큰 사이즈 변형 — padding/font-size up */
+/* Hero 옆에 붙는 큰 사이즈 변형 — padding/font-size up + 지연 등장 */
 .trendBadgeLg {
   padding: 4px var(--spacing-xs);
   font-size: var(--font-size-xs);
   gap: 4px;
+  animation: trendBadgeIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+}
+
+@keyframes trendBadgeIn {
+  0%   { opacity: 0; transform: translateX(-6px) scale(0.92); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trendBadgeLg { animation: none; }
 }
 
 /* ── Daily Views Chart — 카드 chrome 없이 edge-to-edge ── */

@@ -20,13 +20,17 @@ interface FieldProps {
   placeholder?: string;
   hint?: string;
   labelInline?: boolean;
+  required?: boolean;
 }
 
-export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline }: FieldProps) {
+export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required }: FieldProps) {
   return (
     <div className={`${styles.fieldRow} ${labelInline ? styles.fieldRowInline : ""}`}>
       <label className={styles.fieldLabel}>
-        {label}
+        <span className={styles.fieldLabelText}>
+          {label}
+          {required && <span className={styles.fieldRequiredDot} aria-label="필수">•</span>}
+        </span>
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
       </label>
       {multiline ? (

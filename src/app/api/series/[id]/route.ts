@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isValidPostCategory } from "@/lib/api/validateCategory";
+import { ensurePostCategory } from "@/lib/api/validateCategory";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -32,6 +32,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 // PATCH /api/series/[id] — 시리즈 수정 (admin only)
+// ?skipShift=true → drag 의 batch 호출이 자체 정렬을 관리하므로 auto-shift 건너뜀
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const supabase = await createClient();
@@ -44,12 +45,46 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const body = await request.json();
+  const url = new URL(request.url);
+  const skipShift = url.searchParams.get("skipShift") === "true";
 
-  if (body.category && !(await isValidPostCategory(body.category))) {
-    return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+  // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
+  if (body.category) {
+    await ensurePostCategory(body.category as string);
   }
 
   const admin = createAdminClient();
+
+  // sort_order 변경 시 — 다른 시리즈들과 충돌 방지로 shift (skipShift 모드 제외)
+  if (!skipShift && body.sort_order !== undefined && body.sort_order !== null) {
+    const { data: cur } = await admin
+      .from("series")
+      .select("sort_order")
+      .eq("id", id)
+      .maybeSingle();
+    const oldOrder = cur?.sort_order;
+    const newOrder = body.sort_order as number;
+    if (oldOrder !== undefined && oldOrder !== newOrder) {
+      // 이동 범위에 있는 다른 시리즈들 +1 / -1
+      const lo = Math.min(oldOrder, newOrder);
+      const hi = Math.max(oldOrder, newOrder);
+      const direction = oldOrder < newOrder ? -1 : 1;
+      const { data: affected } = await admin
+        .from("series")
+        .select("id, sort_order")
+        .neq("id", id)
+        .gte("sort_order", lo)
+        .lte("sort_order", hi);
+      if (affected) {
+        for (const row of affected) {
+          await admin
+            .from("series")
+            .update({ sort_order: row.sort_order + direction })
+            .eq("id", row.id);
+        }
+      }
+    }
+  }
 
   const { data, error } = await admin
     .from("series")

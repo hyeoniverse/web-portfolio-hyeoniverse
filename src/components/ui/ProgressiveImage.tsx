@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { ImageOff } from "lucide-react";
 import { getLqipUrl } from "@/utils/image";
 import styles from "./ProgressiveImage.module.css";
 
@@ -33,7 +34,23 @@ export default function ProgressiveImage({
   onError,
 }: ProgressiveImageProps) {
   const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
   const lqipUrl = useMemo(() => getLqipUrl(src), [src]);
+
+  // src 변경 시 에러/로딩 상태 리셋
+  useEffect(() => {
+    setLoaded(false);
+    setErrored(false);
+  }, [src]);
+
+  // 이미지 로드 실패 시 placeholder 렌더 (broken image icon 대신)
+  if (errored) {
+    return (
+      <div className={`${styles.wrapper} ${styles.fallback}`} aria-label={alt} role="img">
+        <ImageOff className={styles.fallbackIcon} size={28} strokeWidth={1.5} aria-hidden />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -65,7 +82,10 @@ export default function ProgressiveImage({
         className={`${className ?? ""} ${styles.full} ${loaded ? styles.fullLoaded : ""}`}
         style={style}
         onLoad={() => setLoaded(true)}
-        onError={onError}
+        onError={() => {
+          setErrored(true);
+          onError?.();
+        }}
       />
     </div>
   );

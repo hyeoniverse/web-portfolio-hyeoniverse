@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
+  margin-top: var(--spacing-lg);
 }
 
 .sectionTitle {
@@ -43,17 +43,50 @@
   align-items: start;
 }
 
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+.sortOrderSelect {
+  flex: 1;
+  min-width: 0;
+}
+
+.sortQuickBtn {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-md);
+  height: var(--size-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.sortQuickBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
 .fieldTextarea {
   padding: var(--spacing-sm);
   border: var(--border-default);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
   resize: vertical;
-  min-height: 80px;
+  min-height: 100px;
 }
 
 .section .fieldTextarea:focus {
@@ -65,7 +98,8 @@
 }
 
 .fieldSelect {
-  padding: var(--box-xs-sm);
+  min-height: var(--size-sm);
+  padding: 0 var(--spacing-md);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -92,8 +126,8 @@
 }
 
 .techAddBtn {
-  width: 36px;
-  height: 36px;
+  width: var(--size-sm);
+  height: var(--size-sm);
   flex-shrink: 0;
   border: var(--border-default);
   border-radius: var(--radius-circle);
@@ -148,12 +182,95 @@
   color: var(--text-primary);
 }
 
-/* ── Editor block ── */
+
+/* ── Optional fields (collapsible) — Posts editor 와 동일 패턴 ── */
+.optionalSection {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+
+.optionalToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+
+.optionalSection .optionalToggle:hover {
+  color: var(--text-primary);
+}
+
+.optionalContent {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 0;
+  clip-path: inset(0 0 100% 0);
+  padding: 0 var(--spacing-sm);
+  transition: max-height 0.3s ease, clip-path 0.3s ease;
+}
+
+.optionalContentOpen {
+  max-height: var(--_content-height, 1200px);
+  clip-path: inset(0);
+  gap: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+}
+
+/* 추가 섹션 collapsible (Tech/Team/Gallery/Links/Related 묶음) */
+.extraSections {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.extraSectionsContent {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 0;
+  clip-path: inset(0 0 100% 0);
+  padding: 0 var(--spacing-md);
+  transition: max-height 0.4s ease, clip-path 0.4s ease;
+}
+
+.extraSectionsContentOpen {
+  max-height: var(--_extra-height, 3000px);
+  clip-path: inset(0);
+  padding-bottom: var(--spacing-md);
+}
+
+/* Posts 의 .editorWrap 과 동일 — vertical resizable, 60vh 시작 높이 */
 .editorBlock {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+  height: 60vh;
+  min-height: 200px;
+  resize: vertical;
+  overflow: hidden;
   margin-bottom: var(--spacing-xl);
+}
+
+.editorBlock > * {
+  flex: 1;
+  min-height: 0;
 }
 
 /* ── Image ── */
@@ -180,46 +297,223 @@
 }
 
 /* ── Gallery ── */
-.galleryGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+.galleryLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.galleryAddInline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.galleryAddInline:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.galleryCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: var(--spacing-xs);
+  padding: 0 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* 가로 스크롤 strip — gap 없이 양옆이 트인 filmstrip 디자인.
+   상하 hairline 만 두어 한 줄로 이어지는 리스트로 보임. */
+.galleryGrid {
+  display: flex;
+  gap: 0;
   margin-top: var(--spacing-xs);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong-color) transparent;
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+.galleryGrid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.galleryGrid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.galleryGrid::-webkit-scrollbar-thumb {
+  background: var(--border-strong-color);
+  border-radius: var(--radius-capsule);
 }
 
 .galleryItem {
   position: relative;
+  flex: 0 0 180px;
+  width: 180px;
   aspect-ratio: 3 / 2;
-  border-radius: var(--radius-sm);
   overflow: hidden;
-  border: var(--border-light);
+  background: var(--bg-secondary);
+  scroll-snap-align: start;
+  /* 인접 item 사이의 세로 divider (마지막 제외) */
+  border-right: var(--border-light);
+  transition: background-color 0.15s ease;
+}
+
+.galleryItem:last-child,
+.galleryItem:has(+ .galleryAddTile) {
+  border-right: none;
+}
+
+.galleryItem:hover {
+  background: var(--bg-tertiary);
+}
+
+/* 메인 이미지로 사용 중인 thumbnail — accent 위/아래 stripe 로 강조 (border-radius 없는 strip 에 어울리게) */
+.galleryItemMain {
+  box-shadow: inset 0 2px 0 var(--text-accent), inset 0 -2px 0 var(--text-accent);
+}
+
+.galleryThumb {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
 }
 
 .galleryImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.galleryRemove {
+.galleryItem:hover .galleryImg {
+  transform: scale(1.04);
+}
+
+/* "현재 메인" 배지 — 좌상단 */
+.galleryMainBadge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--radius-circle);
-  border: none;
-  background: var(--bg-accent-solid);
+  top: 6px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-capsule);
+  background: var(--text-accent);
   color: var(--text-inverse);
-  font-size: var(--font-size-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* hover 시 우상단에 액션 버튼 그룹 노출 */
+.galleryActions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
   display: flex;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 2;
+}
+
+.galleryItem:hover .galleryActions,
+.galleryItem:focus-within .galleryActions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.galleryActionBtn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transition: background-color 0.15s ease, color 0.15s ease;
+  --close-size: 9px;
 }
 
-.galleryItem:hover .galleryRemove {
-  opacity: 1;
+.galleryActionBtn:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.galleryActions .galleryActionDanger:hover {
+  background: var(--text-accent);
+  color: var(--text-inverse);
+}
+
+/* "추가" 빈 칸 — strip 디자인에 맞춰 좌측만 hairline divider (다른 item 과 동일한 실선), 둥근 모서리 없음 */
+.galleryAddTile {
+  display: flex;
+  flex: 0 0 180px;
+  width: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  aspect-ratio: 3 / 2;
+  border: none;
+  border-left: var(--border-light);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+/* 갤러리가 비어있을 때만 add tile 의 좌측 divider 제거 — 첫 번째 위치라서 */
+.galleryGrid > .galleryAddTile:first-child {
+  border-left: none;
+}
+
+.galleryAddTile:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 /* ── Team Members ── */

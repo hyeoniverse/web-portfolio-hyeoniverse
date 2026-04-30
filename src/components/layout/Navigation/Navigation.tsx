@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Bell, ArrowRight } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
@@ -24,6 +25,35 @@ import {
   adminNavItems, adminMenuItems, SKIP_LOADING_PAGES,
 } from "./navigationData";
 import styles from "./Navigation.module.css";
+
+/* notification dropdown 항목 — 5개 + 추가 5개에서 동일하게 사용되도록 helper 로 추출 */
+type NotifItemData = { id: string; type: string; title: string; message: string; metadata: Record<string, string>; read: boolean; created_at: string };
+function renderNotifItem(n: NotifItemData, language: "ko" | "en", onClick: () => void) {
+  const formatTime = (iso: string) => {
+    const d = new Date(iso);
+    const mins = Math.floor((Date.now() - d.getTime()) / 60_000);
+    if (mins < 1) return language === "ko" ? "방금 전" : "just now";
+    if (mins < 60) return language === "ko" ? `${mins}분 전` : `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return language === "ko" ? `${hours}시간 전` : `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return language === "ko" ? `${days}일 전` : `${days}d ago`;
+    return d.toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
+  };
+  return (
+    <Link
+      href={n.metadata?.url || "/admin/notifications"}
+      className={styles.notifDropdownItemLink}
+      onClick={onClick}
+    >
+      <div className={styles.notifDropdownItemTop}>
+        <span className={styles.notifDropdownItemTitle}>{n.title}</span>
+        <span className={styles.notifDropdownItemTime}>{formatTime(n.created_at)}</span>
+      </div>
+      <span className={styles.notifDropdownItemMessage}>{n.message}</span>
+    </Link>
+  );
+}
 
 export default function Navigation() {
   const siteConfig = useSiteConfig();
@@ -66,6 +96,87 @@ export default function Navigation() {
     });
     return () => subscription?.unsubscribe();
   }, []);
+
+  // Notification 상태 — admin 로그인 시 60s 폴링. 드롭다운에서 미리보기 표시.
+  type NavNotif = { id: string; type: string; title: string; message: string; metadata: Record<string, string>; read: boolean; created_at: string };
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifs, setNotifs] = useState<NavNotif[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  // 한 번 +5 펼치고 접을 수 있는 toggle (option B) — 5 ↔ 10
+  const [notifExpanded, setNotifExpanded] = useState(false);
+  const notifWrapRef = useRef<HTMLButtonElement | null>(null);
+
+  // 드롭다운 닫힐 때 expanded 리셋
+  useEffect(() => { if (!notifOpen) setNotifExpanded(false); }, [notifOpen]);
+
+  const fetchNotifs = useCallback(() => {
+    fetch("/api/admin/notifications")
+      .then(async (r) => {
+        if (!r.ok) { setNotifs([]); setUnreadCount(0); return; }
+        const d = await r.json() as { unreadCount?: number; notifications?: NavNotif[] };
+        setNotifs(d.notifications ?? []);
+        setUnreadCount(d.unreadCount ?? 0);
+      })
+      .catch(() => { setNotifs([]); setUnreadCount(0); });
+  }, []);
+
+  useEffect(() => {
+    if (!adminEmail) { setUnreadCount(0); setNotifs([]); return; }
+    fetchNotifs();
+    const id = window.setInterval(fetchNotifs, 60_000);
+    return () => { window.clearInterval(id); };
+  }, [adminEmail, pathname, fetchNotifs]);
+
+  // 포털 dropdown 위치 — trigger 의 viewport 좌표를 기준으로 계산
+  const notifDropdownRef = useRef<HTMLDivElement | null>(null);
+  const [notifPos, setNotifPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
+
+  const updateNotifPos = useCallback(() => {
+    const el = notifWrapRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    // 트리거 우측 정렬 — top: trigger bottom + 8gap, right: viewport - trigger right
+    setNotifPos({ top: rect.bottom + 8, right: Math.max(8, window.innerWidth - rect.right) });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!notifOpen) return;
+    updateNotifPos();
+  }, [notifOpen, updateNotifPos]);
+
+  useEffect(() => {
+    if (!notifOpen) return;
+    const onUpdate = () => updateNotifPos();
+    window.addEventListener("scroll", onUpdate, true);
+    window.addEventListener("resize", onUpdate);
+    return () => {
+      window.removeEventListener("scroll", onUpdate, true);
+      window.removeEventListener("resize", onUpdate);
+    };
+  }, [notifOpen, updateNotifPos]);
+
+  // 드롭다운 외부 클릭 / Escape 시 닫기 — trigger + portal dropdown 둘 다 확인
+  useEffect(() => {
+    if (!notifOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const trigger = notifWrapRef.current;
+      const dropdown = notifDropdownRef.current;
+      const target = e.target as Node;
+      if (trigger?.contains(target)) return;
+      if (dropdown?.contains(target)) return;
+      setNotifOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setNotifOpen(false); };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [notifOpen]);
+
+  // pathname 변경 시 드롭다운 닫기 + refetch (알림 페이지에서 읽음 처리됐을 수 있음)
+  useEffect(() => { setNotifOpen(false); }, [pathname]);
 
   const shouldSkipLoading = SKIP_LOADING_PAGES.includes(pathname) || isAdminPage;
   const showLoadingLogo = isLoading && !shouldSkipLoading;
@@ -141,10 +252,12 @@ export default function Navigation() {
 
   // active key from pathname (detail 페이지도 부모 경로로 매칭)
   const currentNavItems = isAdminPage ? adminNavItems : navItems;
+  // 가장 구체적인(긴 href) 항목 우선 매칭 — admin/posts 같은 하위 경로가 admin 보다 우선
   const activeNavKey =
-    currentNavItems.find(
-      (item) => pathname === item.href || pathname.startsWith(item.href + "/")
-    )?.key ?? null;
+    [...currentNavItems]
+      .sort((a, b) => b.href.length - a.href.length)
+      .find((item) => pathname === item.href || pathname.startsWith(item.href + "/"))
+      ?.key ?? null;
   const targetKey = hoveredNav ?? activeNavKey;
 
   const updateIndicator = useCallback(() => {
@@ -318,7 +431,7 @@ export default function Navigation() {
 
   return (
     <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
-      <div className={styles.logoGroup}>
+      <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
         <motion.div
           ref={logoRef}
           className={styles.logoWrapper}
@@ -337,7 +450,7 @@ export default function Navigation() {
             visibility: showLoadingLogo && !logoMeasured ? "hidden" : "visible",
           }}
         >
-          <Link href={isAdminPage ? "/admin" : "/"} className={styles.logo}>
+          <span className={styles.logo}>
           {hasImageLogo ? (
             <>
               {/* 로딩 중 풀 로고 이미지 (숏과 다를 때만) */}
@@ -428,10 +541,10 @@ export default function Navigation() {
                 ))}
             </>
           )}
-        </Link>
+        </span>
         </motion.div>
         {isAdminPage && <span className={styles.adminBadge}>Admin</span>}
-      </div>
+      </Link>
 
       <div
         ref={navCenterRef}
@@ -474,54 +587,6 @@ export default function Navigation() {
       </div>
 
       <div className={styles.navActions}>
-        <AnimatePresence mode="wait">
-          {isAdminPage && adminEmail ? (
-            <motion.div
-              key="admin-actions"
-              className={styles.adminActions}
-              initial={{ opacity: 0, x: 8 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 8 }}
-              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            >
-              <span className={styles.adminEmail}>{adminEmail}</span>
-              <Button
-                variant="outline"
-                size="xs"
-                className={styles.logoutBtn}
-                onClick={handleLogout}
-                soundDisabled
-              >
-                Logout
-              </Button>
-            </motion.div>
-          ) : !isAdminPage ? (
-            adminEmail ? (
-              /* Admin logged in on public page — show logout */
-              <Button
-                variant="outline"
-                size="xs"
-                className={styles.logoutBtn}
-                onClick={handleLogout}
-                soundDisabled
-              >
-                Logout
-              </Button>
-            ) : (
-              /* Get in Touch */
-              <Button
-                variant="outline"
-                size="xs"
-                className={styles.contactBtn}
-                onClick={openForm}
-                soundDisabled
-              >
-                Get in Touch
-              </Button>
-            )
-        ) : null}
-        </AnimatePresence>
-
         {/* 언어 토글 — admin에서도 표시 */}
         <Tooltip content={language === "ko" ? "언어 전환" : "Switch language"} delay={600} placement="bottom">
           <button
@@ -624,6 +689,141 @@ export default function Navigation() {
             </span>
           </button>
         </Tooltip>
+
+        {/* 액션 항목들 (email + Bell + Logout/GetInTouch) — navActions 직속 자식 */}
+        {isAdminPage && adminEmail && (
+          <span className={styles.adminEmail}>{adminEmail}</span>
+        )}
+        {adminEmail && (
+          <Tooltip
+            content={unreadCount > 0
+              ? (language === "ko" ? `읽지 않은 알림 ${unreadCount}개` : `${unreadCount} unread`)
+              : (language === "ko" ? "알림" : "Notifications")}
+            placement="bottom"
+            delay={200}
+            disabled={notifOpen}
+          >
+            <button
+              ref={notifWrapRef}
+              type="button"
+              className={`${styles.actionBtn} ${styles.notifBtn}`}
+              aria-label="Notifications"
+              aria-expanded={notifOpen}
+              aria-haspopup="dialog"
+              onClick={() => { setNotifOpen((v) => !v); if (!notifOpen) fetchNotifs(); }}
+            >
+              <Bell size={16} strokeWidth={1.8} />
+              {unreadCount > 0 && <span className={styles.notifDot} aria-hidden />}
+            </button>
+          </Tooltip>
+        )}
+
+        {/* Notification dropdown — createPortal 로 body 에 렌더 (nav 의 mix-blend-mode + z-index 격리) */}
+        {adminEmail && typeof window !== "undefined" && createPortal(
+          <AnimatePresence>
+            {notifOpen && (
+              <motion.div
+                ref={notifDropdownRef}
+                key="notif-dropdown"
+                className={styles.notifDropdown}
+                role="dialog"
+                aria-label="Notifications"
+                style={{ top: notifPos.top, right: notifPos.right - 24, transformOrigin: "top right" }}
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+              >
+                <div className={styles.notifDropdownInner}>
+                  <div className={styles.notifDropdownHeader}>
+                    <span className={styles.notifDropdownTitle}>
+                      {language === "ko" ? "알림" : "Notifications"}
+                    </span>
+                    {unreadCount > 0 && (
+                      <span className={styles.notifDropdownBadge}>
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
+                    <Link
+                      href="/admin/notifications"
+                      className={styles.notifDropdownViewAll}
+                      onClick={() => setNotifOpen(false)}
+                    >
+                      <span>{language === "ko" ? "모두 보기" : "View all"}</span>
+                      <ArrowRight size={12} strokeWidth={2} className={styles.notifDropdownViewAllArrow} aria-hidden />
+                    </Link>
+                  </div>
+                  {notifs.length === 0 ? (
+                    <div className={styles.notifDropdownEmpty}>
+                      {language === "ko" ? "알림이 없습니다" : "No notifications"}
+                    </div>
+                  ) : (
+                    <ul className={styles.notifDropdownList} data-lenis-prevent>
+                      {notifs.slice(0, 5).map((n) => (
+                        <li key={n.id} className={`${styles.notifDropdownItem} ${!n.read ? styles.notifDropdownItemUnread : ""}`}>
+                          {renderNotifItem(n, language, () => setNotifOpen(false))}
+                        </li>
+                      ))}
+                      {/* 펼친 추가 5개 — clip-path 위에서 아래로 reveal + height 자연 확장 */}
+                      <AnimatePresence initial={false}>
+                        {notifExpanded && notifs.slice(5, 10).map((n, i) => (
+                          <motion.li
+                            key={n.id}
+                            className={`${styles.notifDropdownItem} ${!n.read ? styles.notifDropdownItemUnread : ""}`}
+                            initial={{ opacity: 0, height: 0, clipPath: "inset(0 0 100% 0)" }}
+                            animate={{ opacity: 1, height: "auto", clipPath: "inset(0 0 0% 0)" }}
+                            exit={{ opacity: 0, height: 0, clipPath: "inset(0 0 100% 0)" }}
+                            transition={{
+                              duration: 0.32,
+                              delay: i * 0.04,
+                              ease: [0.4, 0, 0.2, 1],
+                            }}
+                            style={{ overflow: "hidden" }}
+                          >
+                            {renderNotifItem(n, language, () => setNotifOpen(false))}
+                          </motion.li>
+                        ))}
+                      </AnimatePresence>
+                    </ul>
+                  )}
+                  {notifs.length > 5 && (
+                    <button
+                      type="button"
+                      className={styles.notifDropdownMore}
+                      onClick={() => setNotifExpanded((v) => !v)}
+                    >
+                      {notifExpanded
+                        ? (language === "ko" ? "접기" : "Collapse")
+                        : (language === "ko" ? "더 보기 +5" : "Load more +5")}
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
+        {adminEmail ? (
+          <Button
+            variant="outline"
+            size="xs"
+            className={styles.logoutBtn}
+            onClick={handleLogout}
+            soundDisabled
+          >
+            Logout
+          </Button>
+        ) : !isAdminPage ? (
+          <Button
+            variant="outline"
+            size="xs"
+            className={styles.contactBtn}
+            onClick={openForm}
+            soundDisabled
+          >
+            Get in Touch
+          </Button>
+        ) : null}
 
         {/* 메뉴 버튼 (≤1024px) — 2×2 dot grid + magnetic */}
         <MagneticWrapper strength={0.5} radius={50} className={styles.menuBtnWrapper}>

@@ -91,22 +91,29 @@
 
 
 
-/* ── Sub-filter bar (series / trash) ── */
+/* ── Sub-filter bar (series / trash) — main filterBar 와 동일한 spacing 으로 통일 ── */
 .subFilterBar {
   display: flex;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-xs);
   align-items: center;
   flex-wrap: wrap;
-  padding: var(--spacing-xs) 0;
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
 }
 
 .subFilterSearch {
   flex: 0 1 auto;
+  min-width: 240px;
+  max-width: 320px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .subFilterBar {
+    flex-wrap: wrap;
+  }
   .subFilterBar .subFilterSearch {
     flex-basis: 100%;
+    max-width: none;
     margin-top: var(--spacing-xs);
   }
 }

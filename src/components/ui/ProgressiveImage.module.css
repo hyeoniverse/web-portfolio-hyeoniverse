@@ -57,3 +57,16 @@
     background-position: 200% 0;
   }
 }
+
+/* 이미지 로드 실패 시 placeholder — 중앙 아이콘 + 미세한 배경 */
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary, var(--bg-secondary));
+}
+
+.fallbackIcon {
+  color: var(--text-muted);
+  opacity: 0.6;
+}

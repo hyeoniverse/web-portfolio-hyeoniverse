@@ -6,37 +6,94 @@
   gap: var(--spacing-2xs);
 }
 
+/* 닫힌 상태: capsule pill. 열린 상태: 같은 컨테이너가 세로로 펼쳐지며 round 2xl 사각형.
+   닫힘: expand 가 먼저 collapse → 그 후 radius 가 capsule 로 (delay).
+   열림: radius 가 먼저 2xl → 그 후 expand reveal (delay). */
 .inputArea {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  overflow: hidden;
+  /* 닫힐 때: expand collapse 0.22s 끝나고 radius 변경 → delay 0.22s */
+  transition: border-radius 0.2s ease 0.22s, border-color 0.15s ease;
+}
+
+.inputAreaOpen {
+  border-radius: var(--radius-2xl);
+  border-color: var(--text-primary);
+  /* 열릴 때: radius 즉시 변경 (no delay) */
+  transition: border-radius 0.2s ease 0s, border-color 0.15s ease;
+}
+
+/* 상단 row — 칩 + 트리거 (항상 보임). 다른 form control 들과 같은 높이 (--size-sm 32px) */
+.inputAreaTop {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: transparent;
+  padding: 0 var(--spacing-md);
+  min-height: var(--size-sm);
   cursor: text;
-  min-height: 40px;
 }
 
-.inputArea:focus-within {
-  border-color: var(--text-primary);
+/* 펼친 영역 — 항상 렌더, max-height 로 toggle.
+   닫힘: 즉시 collapse (no delay).
+   열림: radius 가 끝난 뒤 reveal (delay). */
+.inputAreaExpand {
+  display: flex;
+  flex-direction: column;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  border-top: 1px solid transparent;
+  transition: max-height 0.22s ease 0s, opacity 0.16s ease 0s, border-top-color 0.15s ease 0s;
 }
 
-.input {
+.inputAreaOpen .inputAreaExpand {
+  max-height: 320px;
+  opacity: 1;
+  pointer-events: auto;
+  border-top-color: var(--border-light-color);
+  /* 열림 시: radius transition (0.2s) 끝난 뒤 reveal */
+  transition: max-height 0.28s ease 0.2s, opacity 0.2s ease 0.22s, border-top-color 0.15s ease 0.2s;
+}
+
+/* dropdown 트리거 = 검색창. 닫힘 시 placeholder 안내 + chevron, 열림 시 input + Search 아이콘 */
+.trigger {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   min-width: 120px;
+  cursor: text;
+}
+
+.triggerIcon {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.triggerInput {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
   border: none;
-  outline: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
-  padding: 4px 0;
+  outline: none;
 }
 
-.input::placeholder {
+.triggerInput::placeholder {
   color: var(--text-tertiary);
+}
+
+.triggerArrow {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
 }
 
 /* ── Selected chips ── */
@@ -104,21 +161,12 @@
   padding-left: var(--spacing-xs);
 }
 
-/* ── Dropdown ── */
-.dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 10;
+/* ── Expanded dropdown contents (inside inputArea) ── */
+.dropdownList {
   display: flex;
   flex-direction: column;
-  max-height: 280px;
+  max-height: 240px;
   overflow-y: auto;
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: var(--bg-primary);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   padding: var(--spacing-2xs);
 }
 
