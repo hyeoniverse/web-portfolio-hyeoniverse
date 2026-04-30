@@ -1,0 +1,61 @@
+/* ── 공통 SearchCapsule — Select(옵션) + 아이콘 + input ──
+   tag / sort capsule(--box-sm 패딩) 과 동일한 높이를 갖도록 슬림 padding 사용 */
+.capsule {
+  display: flex;
+  align-items: center;
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  background: transparent;
+}
+
+.capsule:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* Select 영역 — Select 컴포넌트의 기본 trigger 스타일을 capsule 에 맞게 override */
+.selectWrap {
+  flex-shrink: 0;
+  min-width: 70px;
+  max-width: 110px;
+}
+
+.selectWrap button {
+  border: none !important;
+  border-radius: 0 !important;
+  border-right: var(--border-default) !important;
+  padding: var(--spacing-2xs) var(--spacing-sm) !important;
+  /* Select 의 기본 min-height 무시 — capsule 높이와 일치 */
+  min-height: 0 !important;
+  font-size: var(--font-size-2xs);
+  background: transparent !important;
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-left: var(--spacing-xs);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.input {
+  flex: 1;
+  min-width: 80px;
+  max-width: 180px;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* 우측 정렬 변형 */
+.right {
+  margin-left: auto;
+}
