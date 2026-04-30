@@ -1286,3 +1286,133 @@ flex column에서 items는 cross-axis(가로)로 자동 stretch되고, `width: m
 **핵심 인사이트**: ① **애니메이션 라이프사이클 콜백(onAnimationStart, onAnimationComplete) 을 critical state transition 의 단독 트리거로 사용하면 안 됨** — initial===animate 같은 "값 변화 없음" 케이스에서 silent 실패 가능. 항상 useEffect 기반 fallback 이나 setTimeout 안전망과 함께 설계해야 함. ② Suspense fallback 환경에서 "morph-into-hero" 같은 모핑 전환을 설계할 때는 **오버레이가 축소되면 그 아래가 노출된다는 시각 계약을 항상 의식**해야 함. 해결책은 (a) **backdrop 으로 morph 후에도 화면 전체를 덮어두기**, 또는 (b) **새 페이지 mount 시점까지 morph 를 지연** 두 가지뿐
 
 </details>
+
+<details>
+<summary><strong>40. Posts Bento — `grid-template-rows` 만으로는 카드별 높이 차이가 빈칸을 만듦</strong></summary>
+
+**문제**: `/posts` bento 레이아웃이 wide / banner(21:9) / square(1:1) / portrait(3:4) / standard 5종 variant 를 섞어 쓰는데, 일반 CSS Grid 로는 row track 이 가장 큰 카드 기준으로 잡혀 작은 카드 옆에 **빈 셀**이 생김. `grid-auto-flow: dense` 만으로는 high-aspect 카드의 잔여 공간을 메우지 못함
+
+**원인**: `grid-template-rows: auto` 또는 고정 비율로 row 를 정의하면 한 row 안의 모든 셀이 가장 큰 자식 높이로 정렬됨. 작은 카드(square)와 큰 카드(portrait) 가 같은 row 에 들어가면 square 아래에 portrait 와의 높이 차만큼 dead space 가 발생
+
+**해결**: 진짜 masonry 를 JS + CSS Grid hybrid 로 구현
+
+1. CSS — `grid-auto-rows: 1px` 로 row track 을 픽셀 단위까지 잘게 쪼개고 `grid-auto-flow: dense` + `gap: var(--bento-gap)` 만 지정
+2. JS — `useEffect` 에서 모든 카드의 `firstElementChild.scrollHeight` 측정 → `span = ceil((h + gap) / (rowUnit + gap))` 계산해 각 카드에 `style.gridRow = span ${span}` 부여
+3. ResizeObserver(grid) + 이미지 onLoad 마다 재계산 → 폰트/이미지 로드 후에도 정확
+4. 모바일(`<= 640px`)에서는 모든 variant 비활성화 + 단일 16:10 비율로 통일해 JS 측정 비활성
+
+```css
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1px;
+  grid-auto-flow: dense;
+  gap: var(--bento-gap);
+}
+```
+
+```ts
+const recomputeRowSpans = () => {
+  const grid = gridRef.current;
+  if (!grid) return;
+  const rowUnit = parseFloat(getComputedStyle(grid).gridAutoRows) || 1;
+  const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
+  itemRefs.current.forEach((el) => {
+    const h = (el.firstElementChild as HTMLElement | null)?.scrollHeight ?? el.scrollHeight;
+    const span = Math.max(1, Math.ceil((h + gap) / (rowUnit + gap)));
+    el.style.gridRow = `span ${span}`;
+  });
+};
+```
+
+**핵심 인사이트**: CSS-only masonry 는 still 실험적(`grid-template-rows: masonry` 는 Chrome 미지원). 안정적으로 빈틈 없이 packing 하려면 **row track 을 픽셀 단위로 쪼갠 뒤 JS 가 측정한 높이로 span 을 부여**하는 패턴이 사실상 표준. 측정은 `firstElementChild.scrollHeight` 가 가장 정확하고(컨테이너 자체의 padding 영향 없음), 이미지 onLoad / ResizeObserver 두 시점에 모두 재계산해야 폰트/이미지 로드 이전 잘못 잡힌 높이를 보정 가능
+
+</details>
+
+<details>
+<summary><strong>41. sticky filterBar IntersectionObserver — 인기글 사이드바와 1px 어긋남</strong></summary>
+
+**문제**: `/posts` 의 filterBar 가 `position: sticky; top: var(--nav-height)` 로 붙는데, sentinel 의 IntersectionObserver `rootMargin` 을 고정값(`-44px 0px 0px 0px`)으로 두면 PC ↔ 모바일에서 nav 높이가 바뀌거나 filterBar 가 1행 → 2행으로 늘어나는 순간 anchor 시점이 어긋남. 결과적으로 인기글 위젯과 filterBar 가 1px 정도 겹치거나 떨어져 보임
+
+**원인**: sticky `top` 은 CSS variable 로 동적이지만 IntersectionObserver `rootMargin` 은 객체 생성 시점의 정적 값. filterBar 의 height 가 search row 추가로 44px → 80px 로 변하면 sentinel 이 가리는 영역도 같이 변해야 하는데 observer 가 stale 인 상태
+
+**해결**: `rootMargin` 을 컴포넌트의 실제 sticky `top` 값으로 동기화
+
+1. `getComputedStyle(filterBar).top` 으로 실측한 값을 `rootMargin: -${stickyTop+1}px 0px 0px 0px` 로 계산 (1px 은 cross 시점 안전 마진)
+2. `resize` 이벤트마다 observer 를 disconnect → 재생성해 nav-height 변화에도 정확히 anchor
+3. filterBar 의 sibling 인 사이드바 `top` 도 같은 식 (`calc(var(--nav-height) + 80px + ...)`) 으로 통일해서 두 컴포넌트가 항상 같은 anchor 라인을 공유
+
+```ts
+useEffect(() => {
+  const setup = () => {
+    const top = parseFloat(getComputedStyle(filterBarRef.current!).top) || 0;
+    const observer = new IntersectionObserver((entries) => {
+      setStuck(!entries[0].isIntersecting);
+    }, { rootMargin: `-${top + 1}px 0px 0px 0px`, threshold: 0 });
+    observer.observe(sentinelRef.current!);
+    return () => observer.disconnect();
+  };
+  let cleanup = setup();
+  const onResize = () => { cleanup(); cleanup = setup(); };
+  window.addEventListener("resize", onResize);
+  return () => { cleanup(); window.removeEventListener("resize", onResize); };
+}, []);
+```
+
+**핵심 인사이트**: sticky element 의 anchor 시점을 알아내는 IntersectionObserver 는 **rootMargin 이 실제 sticky top 과 정확히 일치해야** 한다. CSS variable / 미디어 쿼리로 sticky top 이 동적으로 변하는 환경에서는 observer 도 같이 재생성하는 게 유일한 정답. 정적 값으로 두면 한 viewport 에서는 맞는데 resize 직후 어긋나는 미묘한 버그가 됨
+
+</details>
+
+<details>
+<summary><strong>42. Series Deck — hover 펼침이 "사라졌다 나타나는" 듯한 느낌</strong></summary>
+
+**문제**: `/posts` 의 Series row 카드를 hover 하면 deck 형태로 펼쳐지면서 소속 글 4개가 layer 로 등장해야 하는데, 초기 구현은 (1) 펼쳐지는 순간 deck 이 한 번 사라졌다 나타나는 듯한 깜빡임 (2) hover 직후 너무 빨리 펼쳐져 의도된 deck 멈춤이 안 보임 (3) 펼친 상태에서 layer 가 한 장씩 순차 등장하지 않고 동시에 등장하는 문제 다발
+
+**원인**:
+
+1. layer 등장에 CSS `transition-delay` 로 stagger 를 줬는데, **hover-out 시 모든 delay 가 동시에 cancel** 되어 layer 들이 한꺼번에 사라짐 → "사라졌다 나타나는" 듯한 시각 효과
+2. transform 의 ease 가 overshoot 계열 `cubic-bezier(0.34, 1.45, ...)` 이라 펼치기 시작 직전부터 미리 약간 벌어진 상태로 보임 → "이미 펼쳐진 것처럼 보임"
+3. CSS `transition-delay: 0s` 라 마우스 진입 즉시 펼쳐짐 → "deck 이 멈춰있다가 펼쳐지는" 의도된 시퀀스 부재
+
+**해결**: stagger / delay / easing 셋을 모두 JS state 기반으로 재설계
+
+1. **펼침 트리거를 JS state 로** — `setTimeout(() => setOpen(true), 800)` 으로 800ms 의도된 hold 후 `data-deck-open` flip. CSS `transition-delay` 가 아닌 state 변경 시점이 분명하므로 hover-out 시 timer 만 clear 하면 깔끔히 취소됨
+2. **layer 별 stagger 도 CSS 변수로** — `--deck-i` 를 layer index 로 부여하고 `transition-delay: calc(1s + (var(--deck-i, 1) - 1) * 0.4s)` 로 각 layer 가 직전 layer 펼침이 끝난 뒤 시작되도록 명시 (총 4 layer × 0.4s = 1.6s 의 시각적 명확성)
+3. **easing 을 standard ease 로** — `cubic-bezier(0.4, 0, 0.2, 1)` 로 교체해 미리 펼친 듯한 overshoot 제거
+4. **opacity fade** — layer label / title 도 같은 stagger 로 fade-in 시켜 "한 장씩 들춰지는" 느낌 강화
+
+**핵심 인사이트**: ① **CSS `transition-delay` 는 enter 만 stagger 하고 leave 도 같이 stagger 됨** — leave 도 staggered 면 OK 지만, "동시 사라짐 + 순차 등장" 같은 비대칭 시퀀스는 CSS 만으론 어렵다. JS state + 명시적 timer 로 enter/leave 타이밍을 분리해야 의도대로 동작. ② Hover 펼침처럼 "잠깐 hold 후 등장" 시퀀스는 `transition-delay` 보다 `setTimeout + state flip` 이 의미가 명확하고 cancel 도 깔끔. ③ Overshoot easing 은 마이크로 모션에서 "이미 시작된 것처럼" 보이게 만드므로, **stop → animate 가 분명해야 하는 시퀀스에는 standard ease 가 더 적합**
+
+</details>
+
+<details>
+<summary><strong>43. Series Deck spread — `setPointerCapture` 가 자식 click 차단 + hit-area 공백으로 flicker</strong></summary>
+
+**문제**: deck 이 펼쳐진 상태에서 (1) layer 카드를 클릭하면 SeriesCard 의 click 이 전혀 발화되지 않음 (2) layer 와 layer 사이 마진을 마우스가 지나갈 때 hover 가 종료되어 deck 이 닫히고, 다시 layer 위에 들어가면 펼침이 재시작되는 flicker 발생
+
+**원인**:
+
+1. 부모 row 가 가로 스크롤 + 드래그 지원 때문에 `setPointerCapture(e.pointerId)` 를 사용했는데, **pointer 가 캡처된 동안에는 자식의 click 이 부모로 흡수**되어 layer 의 onClick 이 발화되지 않음
+2. 펼침 시 next 카드를 밀어내려고 `margin-right: 660px` 같은 식으로 visual 만 확장했는데, `box-sizing: border-box` 와 무관하게 margin 은 element 의 hit-area 를 늘리지 않음. 따라서 layer 와 layer 사이의 gap(16px) 위에 마우스가 올라가면 카드 밖으로 인식되어 hover 종료
+
+**해결**:
+
+1. `setPointerCapture` 자체를 제거하고 **document-level `pointermove` / `pointerup` 리스너** 로 드래그 추적. click suppression 은 별도 flag(`draggedRef.current = movement > 5px`)로 구현
+2. 펼침 상태일 때만 `::after { position: absolute; left: 0; top: 0; bottom: 0; width: <펼쳐진 너비>; }` pseudo 를 부여해 layer 끝까지 hit-area 확장. pseudo 는 layer 의 자손이 아니므로 click 을 가로채지 않으면서 hover 만 잡아둠
+
+```css
+.card.deckOpen {
+  margin-right: 660px;  /* visual 영역 확장 — next 카드 밀어내기 */
+}
+.card.deckOpen::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: calc(100% + 660px); /* hit-area 확장 — flicker 방지 */
+  pointer-events: auto;
+}
+```
+
+**핵심 인사이트**: ① `setPointerCapture` 는 **드래그 추적 시 편리하지만 자식 click 을 모두 흡수**한다. 자식 클릭이 필요한 컴포넌트라면 document-level pointer 리스너 + 거리 기반 click suppression 이 더 안전. ② **margin 은 visual 위치만 바꾸고 hit-area 는 안 늘린다.** Hover 영역을 확장하려면 `padding-right`(box-sizing: content-box) 또는 `::after` pseudo 가 표준 패턴. content-box 는 다른 layout 부수효과가 크므로 pseudo 가 더 깔끔. ③ Hover 기반 멀티 스텝 인터랙션(deck 펼침 등)은 마우스가 layer 사이를 지나가는 micro-second 라도 hover 가 끊기면 즉시 flicker — **hover area 는 시각적 boundary 보다 한 단계 더 넓게** 잡아야 안정적
+
+</details>

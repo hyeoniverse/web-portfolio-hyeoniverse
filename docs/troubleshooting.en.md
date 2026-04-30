@@ -1286,3 +1286,132 @@ In a flex column, items auto-stretch on the cross-axis (horizontal), and `width:
 **Key insight**: ① **Animation lifecycle callbacks (`onAnimationStart`, `onAnimationComplete`) should not be the sole trigger for critical state transitions** — they can fail silently when initial equals animate (no-op cases), and behavior varies by library version and render timing. Always pair them with a useEffect-based fallback or a setTimeout safety net. ② When designing "morph-into-hero" transitions in a Suspense-aware environment, **always remember the visual contract: shrinking the overlay reveals what's beneath**. The only fixes are (a) **keep the backdrop covering the full viewport even after morph**, or (b) **defer morph until the new page mounts**
 
 </details>
+
+<details>
+<summary><strong>40. Posts Bento — `grid-template-rows` alone leaves gaps when card heights vary</strong></summary>
+
+**Problem**: The `/posts` bento mixes five variants — wide / banner (21:9) / square (1:1) / portrait (3:4) / standard. With plain CSS Grid, row tracks stretch to the tallest card in that row, leaving **empty cells** beside smaller cards. `grid-auto-flow: dense` alone can't backfill the leftover vertical space when card aspect ratios differ widely
+
+**Cause**: `grid-template-rows: auto` (or any fixed ratio) sizes a row to the tallest child, so a square next to a portrait leaves dead space below the square equal to the height delta
+
+**Solution**: Implement true masonry as a JS + CSS Grid hybrid
+
+1. CSS — `grid-auto-rows: 1px` shreds row tracks to the pixel, plus `grid-auto-flow: dense` and `gap: var(--bento-gap)` only
+2. JS — a `useEffect` measures every card's `firstElementChild.scrollHeight` → computes `span = ceil((h + gap) / (rowUnit + gap))` → assigns `style.gridRow = span ${span}`
+3. Recalculate on `ResizeObserver(grid)` and image `onLoad` so font/image loads can't leave stale spans
+4. On mobile (`<= 640px`), all variants flatten to a uniform 16:10 ratio and JS measurement is disabled
+
+```css
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1px;
+  grid-auto-flow: dense;
+  gap: var(--bento-gap);
+}
+```
+
+```ts
+const recomputeRowSpans = () => {
+  const grid = gridRef.current;
+  if (!grid) return;
+  const rowUnit = parseFloat(getComputedStyle(grid).gridAutoRows) || 1;
+  const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
+  itemRefs.current.forEach((el) => {
+    const h = (el.firstElementChild as HTMLElement | null)?.scrollHeight ?? el.scrollHeight;
+    const span = Math.max(1, Math.ceil((h + gap) / (rowUnit + gap)));
+    el.style.gridRow = `span ${span}`;
+  });
+};
+```
+
+**Key insight**: CSS-only masonry is still experimental (`grid-template-rows: masonry` isn't shipped in Chrome). The de facto standard for gap-free packing is **shred row tracks to a fine pixel unit, then have JS assign spans from measured heights**. `firstElementChild.scrollHeight` is the most accurate source (immune to wrapper padding), and you must recompute on both image `onLoad` and `ResizeObserver` to correct heights captured before fonts/images settled
+
+</details>
+
+<details>
+<summary><strong>41. Sticky filterBar IntersectionObserver — 1px drift against sidebar widgets</strong></summary>
+
+**Problem**: `/posts` filterBar uses `position: sticky; top: var(--nav-height)`, but the sentinel's `rootMargin` was hard-coded (`-44px 0px 0px 0px`). When PC ↔ mobile nav heights differ or the filterBar grows from one row to two, the anchor moment falls out of sync — the bar visually overlaps Popular Posts by ~1px or leaves a hairline gap
+
+**Cause**: `top` is dynamic (driven by a CSS variable), but `IntersectionObserver`'s `rootMargin` is set once at construction. When the filterBar height changed from 44px to 80px (added search row), the sentinel kept gating on the old offset
+
+**Solution**: Sync `rootMargin` with the component's actual sticky `top`
+
+1. Read `getComputedStyle(filterBar).top`, then set `rootMargin: -${stickyTop + 1}px 0px 0px 0px` (the +1px is a cross-frame safety margin)
+2. On every `resize`, disconnect and rebuild the observer so nav-height changes are picked up
+3. Updated the sibling sidebar's `top` to use the same arithmetic (`calc(var(--nav-height) + 80px + ...)`) so both elements share one anchor line
+
+```ts
+useEffect(() => {
+  const setup = () => {
+    const top = parseFloat(getComputedStyle(filterBarRef.current!).top) || 0;
+    const observer = new IntersectionObserver(([e]) => setStuck(!e.isIntersecting),
+      { rootMargin: `-${top + 1}px 0px 0px 0px`, threshold: 0 });
+    observer.observe(sentinelRef.current!);
+    return () => observer.disconnect();
+  };
+  let cleanup = setup();
+  const onResize = () => { cleanup(); cleanup = setup(); };
+  window.addEventListener("resize", onResize);
+  return () => { cleanup(); window.removeEventListener("resize", onResize); };
+}, []);
+```
+
+**Key insight**: For a sticky element, the `IntersectionObserver` that detects "now stuck" must use a `rootMargin` that **matches the actual sticky top to the pixel**. When that top is dynamic (CSS variable / media query), the observer must rebuild alongside it — otherwise you get a viewport that looks correct but a 1px drift after `resize`
+
+</details>
+
+<details>
+<summary><strong>42. Series Deck — hover unfold "disappears then reappears"</strong></summary>
+
+**Problem**: Hovering a Series row card on `/posts` should fan it out into a deck of preview layers. Initial implementation suffered from (1) the deck appearing to "vanish then reappear" when unfolding, (2) cards spreading immediately on enter — the deliberate hold beat was invisible, (3) all four layers reaching their final position simultaneously instead of staggering
+
+**Cause**:
+
+1. Layer entrance used CSS `transition-delay` for stagger, but **on hover-out every delay cancels at the same moment**, collapsing all layers in unison — the eye reads this as "vanishing" rather than "folding back"
+2. The transform easing was `cubic-bezier(0.34, 1.45, ...)` (overshoot), so the cards looked partially spread *before* animation start — the "stop → animate" beat was invisible
+3. With `transition-delay: 0s`, hover entry started the spread immediately — no perceptible hold
+
+**Solution**: Move stagger / delay / easing all into JS state
+
+1. **Trigger via JS state** — `setTimeout(() => setOpen(true), 800)` after enter, with `clearTimeout` on leave. Distinct, cancellable, no CSS-delay weirdness
+2. **Per-layer stagger via CSS variable** — assign `--deck-i` per layer and use `transition-delay: calc(1s + (var(--deck-i, 1) - 1) * 0.4s)`, so each layer waits for the previous to fully unfold (4 layers × 0.4s = 1.6s of clear progression)
+3. **Standard ease** — `cubic-bezier(0.4, 0, 0.2, 1)` removes the overshoot tell that made the deck look pre-spread
+4. **Opacity fade** — layer label/title fade in on the same stagger so each layer feels "lifted" one at a time
+
+**Key insight**: ① **CSS `transition-delay` staggers both enter AND leave.** Symmetric stagger is fine, but asymmetric "all leave at once + sequential enter" is hard to achieve in pure CSS — pair JS state with explicit timers when enter/leave timing must differ. ② "Hold then unfold" microinteractions read better when triggered by `setTimeout + state flip` than `transition-delay`, since cancellation is clean and the intent is explicit. ③ Overshoot easing makes microinteractions look "already started" — when the **stop → animate** moment must read clearly, standard ease is more appropriate
+
+</details>
+
+<details>
+<summary><strong>43. Series Deck spread — `setPointerCapture` blocks child clicks + hit-area gaps cause flicker</strong></summary>
+
+**Problem**: With the deck unfolded, (1) clicking any layer card never dispatched its `onClick` — SeriesCard navigation was dead, and (2) when the cursor crossed the gap between layers (16px), hover ended and the deck collapsed; re-entering a layer triggered the unfold again, producing visible flicker
+
+**Cause**:
+
+1. The parent row uses `setPointerCapture(e.pointerId)` to support horizontal drag-scroll. While the parent has captured the pointer, **child clicks are absorbed by the parent** and `onClick` on layers never fires
+2. To push the next sibling card aside while unfolding, `margin-right: 660px` was added — but margins move visual position only, they don't extend the element's hit area (regardless of `box-sizing`). When the cursor crossed a gap between layers, it landed outside the card's hit area, ending hover
+
+**Solution**:
+
+1. Drop `setPointerCapture` entirely. Track drag with **document-level `pointermove` / `pointerup` listeners** and a click-suppression flag (`draggedRef.current = movement > 5px`)
+2. While unfolded, attach an `::after` pseudo: `position: absolute; left: 0; top: 0; bottom: 0; width: calc(100% + 660px);` — this extends the hit area to the last layer without intercepting clicks, since pseudo-elements aren't event targets for descendants
+
+```css
+.card.deckOpen {
+  margin-right: 660px;  /* visual push — moves the next card aside */
+}
+.card.deckOpen::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: calc(100% + 660px); /* hit-area extension — prevents flicker */
+  pointer-events: auto;
+}
+```
+
+**Key insight**: ① `setPointerCapture` **is convenient for drag tracking but absorbs all child clicks**. If your component needs child-level clicks, prefer document-level pointer listeners + a distance-based click-suppression flag. ② **Margin moves visual position only — it doesn't extend the hit area.** To enlarge a hover region, use `padding-right` (with `box-sizing: content-box`) or an `::after` pseudo. content-box has too many layout side effects; pseudo is cleaner. ③ Multi-step hover interactions (deck unfold) are exquisitely sensitive — even a microsecond of hover loss between two layers causes flicker, so **define the hover region one step wider than the visual boundary**
+
+</details>
