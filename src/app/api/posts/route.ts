@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isValidPostCategory } from "@/lib/api/validateCategory";
+import { ensurePostCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
 import type { PostFormData } from "@/types/post";
 
@@ -21,6 +21,8 @@ export async function GET(request: Request) {
   const supabase = showAll || showTrash ? createAdminClient() : await createClient();
 
   const sort = searchParams.get("sort") ?? "newest";
+  // popular 정렬의 역방향 지원 — sortDir=asc 면 score 작은 순(비인기순)
+  const sortDir = searchParams.get("sortDir") === "asc" ? "asc" : "desc";
 
   let query = supabase
     .from("posts")
@@ -73,14 +75,26 @@ export async function GET(request: Request) {
     }
   }
 
+  // 시리즈 필터링 시에는 series_order ASC 우선 (시리즈 안의 순서대로 보이도록)
+  // — 동률은 사용자가 선택한 sort 로 폴백
+  if (seriesId) {
+    query = query.order("series_order", { ascending: true, nullsFirst: false });
+  }
+
   if (sort === "oldest") {
     query = query.order("created_at", { ascending: true });
+  } else if (sort === "title") {
+    query = query.order("title", { ascending: sortDir !== "desc" });
+  } else if (sort === "random") {
+    // random — 서버에서 정렬은 created_at desc 로 뽑고 JS 가 시드 기반으로 셔플
+    query = query.order("created_at", { ascending: false });
   } else if (sort !== "popular") {
     query = query.order("created_at", { ascending: false });
   }
 
   // popular: 복합 점수 (views + likes*3 + comments*5) → JS 정렬
-  if (sort === "popular") {
+  // — 단, 시리즈 필터링 중에는 series_order 가 이미 우선 적용되어 위에서 처리됨
+  if (sort === "popular" && !seriesId) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const selectWithComments = (query as any).select("*, series:series_id(title, title_en), comments(count)", { count: "exact" });
     const { data: rawData, count: totalCount, error: popError } = await selectWithComments;
@@ -94,7 +108,7 @@ export async function GET(request: Request) {
       const commentCount = Array.isArray(p.comments) ? (p.comments[0]?.count ?? 0) : 0;
       return { ...p, _score: p.view_count + p.like_count * 3 + commentCount * 5, comments: undefined };
     });
-    scored.sort((a, b) => b._score - a._score);
+    scored.sort((a, b) => sortDir === "asc" ? a._score - b._score : b._score - a._score);
 
     const from = (page - 1) * limit;
     const paged = scored.slice(from, from + limit).map(({ _score, ...rest }) => rest);
@@ -104,6 +118,37 @@ export async function GET(request: Request) {
       total: totalCount ?? 0,
       page,
       totalPages: Math.ceil((totalCount ?? 0) / limit),
+    });
+  }
+
+  // random 정렬 — 전체 fetch 후 seed 기반 셔플 + 페이지 슬라이스
+  if (sort === "random") {
+    const { data: rawData, count: totalCount, error: rndError } = await query;
+    if (rndError) {
+      return NextResponse.json({ error: rndError.message }, { status: 500 });
+    }
+    const seedStr = searchParams.get("seed") ?? "0";
+    let seed = parseInt(seedStr, 10) || 1;
+    const all = (rawData ?? []) as unknown[];
+    // mulberry32 seeded shuffle
+    const rand = () => {
+      seed = (seed + 0x6D2B79F5) | 0;
+      let t = seed;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const shuffled = [...all];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const fromR = (page - 1) * limit;
+    return NextResponse.json({
+      posts: shuffled.slice(fromR, fromR + limit),
+      total: totalCount ?? all.length,
+      page,
+      totalPages: Math.ceil((totalCount ?? all.length) / limit),
     });
   }
 
@@ -144,9 +189,9 @@ export async function POST(request: Request) {
       .replace(/^-|-$/g, "");
   }
 
-  // Validate category
-  if (body.category && !(await isValidPostCategory(body.category))) {
-    return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+  // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
+  if (body.category) {
+    await ensurePostCategory(body.category as string);
   }
 
   const admin = createAdminClient();

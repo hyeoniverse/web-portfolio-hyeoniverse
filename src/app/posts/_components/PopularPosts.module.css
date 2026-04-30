@@ -17,6 +17,12 @@
   border-bottom: var(--border-light);
 }
 
+/* 불 아이콘 — accent 색 */
+.flameIcon {
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
 .list {
   display: flex;
   flex-direction: column;
@@ -44,7 +50,7 @@
 }
 
 .rankTop {
-  color: var(--text-accent);
+  color: var(--text-primary);
   font-weight: var(--font-weight-bold);
 }
 

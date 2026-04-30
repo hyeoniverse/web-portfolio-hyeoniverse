@@ -23,7 +23,7 @@ export default function PopularPosts() {
   return (
     <section className={styles.section}>
       <div className={styles.label}>
-        <Flame size={14} />
+        <Flame size={14} className={styles.flameIcon} fill="currentColor" />
         <T k="postsPage.popular" />
       </div>
       <div className={styles.list} data-more="true" data-clickable="true">
