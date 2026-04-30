@@ -55,12 +55,24 @@ CREATE TABLE IF NOT EXISTS series (
   cover_image    text NOT NULL DEFAULT '',
   category       text NOT NULL DEFAULT '',
   published      boolean NOT NULL DEFAULT false,
+  -- admin/settings 에서 드래그로 조정하는 노출 순서 (기본순 정렬의 1차 키)
+  sort_order     int NOT NULL DEFAULT 0,
+  -- cover_image 도 없고 소속 글의 cover 도 전혀 없을 때 SSR 시점에
+  -- Unsplash 에서 1회만 fetch 해 캐시 (다음 요청부터 외부 호출 0회)
+  auto_cover_url text DEFAULT NULL,
   created_at     timestamptz DEFAULT now(),
   updated_at     timestamptz DEFAULT now(),
   -- 영문 필드
   title_en       text NOT NULL DEFAULT '',
   description_en text NOT NULL DEFAULT ''
 );
+
+-- 기존 배포 DB 에 위 컬럼이 없으면 추가 (마이그레이션)
+ALTER TABLE series ADD COLUMN IF NOT EXISTS sort_order     int  NOT NULL DEFAULT 0;
+ALTER TABLE series ADD COLUMN IF NOT EXISTS auto_cover_url text DEFAULT NULL;
+
+-- 정렬용 인덱스 — 기본 정렬(sort_order ASC, created_at DESC)
+CREATE INDEX IF NOT EXISTS idx_series_sort_order ON series (sort_order);
 
 ALTER TABLE series ENABLE ROW LEVEL SECURITY;
 
