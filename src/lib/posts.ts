@@ -1,7 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Post, Series } from "@/types/post";
+import { fetchUnsplashCover } from "@/lib/unsplash";
 
 const POSTS_PER_PAGE = 12;
+const SERIES_PER_PAGE = 12;
 
 export async function getInitialPostsData() {
   const admin = createAdminClient();
@@ -24,12 +26,15 @@ export async function getInitialPostsData() {
       .order("created_at", { ascending: false })
       .limit(10),
 
-    // 3. Series list
+    // 3. Series list — sort_order ASC (admin/settings 에서 설정한 순서)
+    //    첫 페이지만 불러오고 클라이언트에서 가로 스크롤 끝에 다다르면 추가 로드
     admin
       .from("series")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("published", true)
-      .order("created_at", { ascending: false }),
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false })
+      .range(0, SERIES_PER_PAGE - 1),
 
     // 4. All posts for tags/categories derivation
     admin
@@ -42,7 +47,78 @@ export async function getInitialPostsData() {
   const posts = (postsResult.data ?? []) as Post[];
   const totalPages = Math.ceil((postsResult.count ?? 0) / POSTS_PER_PAGE);
   const pinnedPosts = (pinnedResult.data ?? []) as Post[];
-  const seriesList = (seriesResult.data ?? []) as Series[];
+  const seriesListRaw = (seriesResult.data ?? []) as Series[];
+  const seriesTotal = seriesResult.count ?? seriesListRaw.length;
+
+  // 시리즈별 thumb + previews (소속 글, series_order ASC, 최대 4개)
+  // — thumbs: 모자이크 cover 용 (cover_image 있는 것만), previews: deck hover 용 (title 포함)
+  const seriesIds = seriesListRaw.map((s) => s.id);
+  const thumbsBySeriesId = new Map<string, string[]>();
+  type PreviewRow = {
+    id: string;
+    title: string;
+    title_en: string | null;
+    cover_image: string | null;
+    created_at: string;
+    excerpt: string | null;
+    excerpt_en: string | null;
+  };
+  const previewsBySeriesId = new Map<string, PreviewRow[]>();
+  if (seriesIds.length > 0) {
+    const { data: previewPosts } = await admin
+      .from("posts")
+      .select("id, series_id, title, title_en, cover_image, series_order, created_at, excerpt, excerpt_en")
+      .eq("published", true)
+      .in("series_id", seriesIds)
+      .order("series_order", { ascending: true });
+    for (const row of (previewPosts ?? []) as (PreviewRow & { series_id: string })[]) {
+      const arr = previewsBySeriesId.get(row.series_id) ?? [];
+      if (arr.length < 4) arr.push({
+        id: row.id,
+        title: row.title,
+        title_en: row.title_en,
+        cover_image: row.cover_image,
+        created_at: row.created_at,
+        excerpt: row.excerpt,
+        excerpt_en: row.excerpt_en,
+      });
+      previewsBySeriesId.set(row.series_id, arr);
+
+      if (row.cover_image) {
+        const tarr = thumbsBySeriesId.get(row.series_id) ?? [];
+        if (tarr.length < 4) tarr.push(row.cover_image);
+        thumbsBySeriesId.set(row.series_id, tarr);
+      }
+    }
+  }
+  // 시리즈별로 cover 도 thumbs 도 없으면 Unsplash 에서 자동 fetch
+  // DB 의 series.auto_cover_url 캐시 우선 사용 — 한번 fetch 한 URL 은 영구 저장
+  const seriesList: Series[] = await Promise.all(
+    seriesListRaw.map(async (s) => {
+      const thumbs = thumbsBySeriesId.get(s.id) ?? [];
+      const needAuto = !s.cover_image && thumbs.length === 0;
+      // DB 에 캐시된 URL 이 있으면 그대로 사용
+      const cached = (s as Series & { auto_cover_url?: string }).auto_cover_url;
+      let auto_cover_url: string | undefined = cached || undefined;
+
+      if (needAuto && !auto_cover_url) {
+        const query = (s.title_en || s.title || s.category || "").trim();
+        const url = await fetchUnsplashCover(query);
+        if (url) {
+          auto_cover_url = url;
+          // DB 에 저장 — 다음 요청부터 Unsplash 안 부름
+          admin
+            .from("series")
+            .update({ auto_cover_url: url })
+            .eq("id", s.id)
+            .then(({ error }) => {
+              if (error) console.warn(`[posts] failed to cache auto_cover_url for ${s.id}:`, error.message);
+            });
+        }
+      }
+      return { ...s, thumbs, previews: previewsBySeriesId.get(s.id) ?? [], auto_cover_url };
+    }),
+  );
 
   // Derive tags, categories, popular IDs from all posts
   const tagCounts = new Map<string, number>();
@@ -83,6 +159,8 @@ export async function getInitialPostsData() {
     totalPages,
     pinnedPosts: bannerPosts,
     seriesList,
+    seriesTotal,
+    seriesPerPage: SERIES_PER_PAGE,
     allTags,
     extraCategories,
     popularIds,

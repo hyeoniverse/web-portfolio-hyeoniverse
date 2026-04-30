@@ -19,7 +19,7 @@
   aspect-ratio: 16 / 10;
   overflow: hidden;
   flex-shrink: 0;
-  border-radius: var(--radius-2xl);
+  border-radius: 0;
 }
 
 .card .image {
@@ -84,11 +84,11 @@
 /* ── Title ── */
 .title {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-2xl-plus);
+  font-weight: var(--font-weight-normal);
   color: var(--text-primary);
   line-height: var(--line-height-tight);
-  min-height: calc(var(--font-size-lg) * var(--line-height-tight) * 2);
+  min-height: calc(var(--font-size-2xl-plus) * var(--line-height-tight) * 2);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -102,10 +102,11 @@
 /* ── Excerpt ── */
 .excerpt {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  /* meta 와 동일한 크기로 통일 */
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
-  min-height: calc(var(--font-size-sm) * var(--line-height-relaxed) * 2);
+  min-height: calc(var(--font-size-xs) * var(--line-height-relaxed) * 2);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -115,6 +116,7 @@
 /* ── Meta ── */
 .meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
@@ -122,6 +124,21 @@
   color: var(--text-tertiary);
   margin-top: auto;
   padding-top: var(--spacing-xs);
+}
+
+/* meta 그룹 — 날짜+min read 한 묶음, 조회+좋아요 한 묶음. 줄바꿈은 그룹 단위로만 발생 */
+.metaGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  white-space: nowrap;
+}
+
+/* 아이콘 + 숫자 inline 묶음 */
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
 }
 
 .dot {
@@ -173,6 +190,55 @@
 
 .featured .meta {
   padding-top: var(--spacing-sm);
+}
+
+/* ═══════════════════════════════════════════
+   Compact variant — 시리즈 필터링 등 카드 높이 축소
+   ═══════════════════════════════════════════ */
+.compact .imageWrap {
+  aspect-ratio: 16 / 9;
+}
+
+.compact .body {
+  gap: var(--spacing-2xs);
+  /* 이미지와 본문 사이 여백은 유지하되 전체 본문 padding 만 축소 */
+  padding: var(--spacing-sm) 0 0;
+}
+
+.compact .title {
+  font-size: var(--font-size-md);
+  min-height: 0;
+  -webkit-line-clamp: 1;
+}
+
+.compact .excerpt {
+  display: none;
+}
+
+.compact .meta {
+  padding-top: 0;
+}
+
+.compact.card {
+  padding-bottom: var(--spacing-sm);
+}
+
+/* ═══════════════════════════════════════════
+   Banner variant — 2-col span 슬롯의 ultra-wide 이미지
+   ═══════════════════════════════════════════ */
+.banner .imageWrap {
+  aspect-ratio: 21 / 9;
+}
+
+/* ═══════════════════════════════════════════
+   Square / Portrait variants — 1-col 카드의 이미지 비율만 변경
+   ═══════════════════════════════════════════ */
+.square .imageWrap {
+  aspect-ratio: 1 / 1;
+}
+
+.portrait .imageWrap {
+  aspect-ratio: 3 / 4;
 }
 
 /* ═══════════════════════════════════════════
@@ -303,12 +369,14 @@
 /* 메타 */
 .heroMeta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-white-tertiary);
 }
+
 
 .heroDot {
   color: var(--text-white-muted);
@@ -426,7 +494,47 @@
     padding: var(--spacing-sm) 0 0;
   }
 
+  /* 모바일 — title 축소, excerpt 는 meta(xs) 와 동일 크기 */
   .title {
     font-size: var(--font-size-md);
+    min-height: calc(var(--font-size-md) * var(--line-height-tight) * 2);
+  }
+
+  .excerpt {
+    font-size: var(--font-size-xs);
+    min-height: calc(var(--font-size-xs) * var(--line-height-relaxed) * 2);
+  }
+
+  /* 모바일 — 모든 bento variant(banner/square/portrait/compact) 의 이미지 비율 통일 (16:10) */
+  .banner .imageWrap,
+  .square .imageWrap,
+  .portrait .imageWrap,
+  .compact .imageWrap {
+    aspect-ratio: 16 / 10;
+  }
+
+  /* featured — 모바일에서 horizontal layout 해제, 표준 vertical 로 통일 */
+  .featured {
+    flex-direction: column;
+    gap: 0;
+    padding-bottom: var(--spacing-lg);
+  }
+
+  .featured .imageWrap {
+    width: 100%;
+  }
+
+  .featured .body {
+    padding: var(--spacing-sm) 0 0;
+    gap: var(--spacing-xs);
+  }
+
+  .featured .title {
+    font-size: var(--font-size-md);
+    -webkit-line-clamp: 2;
+  }
+
+  .featured .excerpt {
+    -webkit-line-clamp: 2;
   }
 }

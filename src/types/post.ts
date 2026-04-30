@@ -66,7 +66,22 @@ export interface Series {
   updated_at: string;
   title_en: string;
   description_en: string;
+  sort_order: number;
   post_count?: number;
+  /** 소속 글들의 cover 이미지 (모자이크 미리보기 용, 최대 4개) */
+  thumbs?: string[];
+  /** 소속 글들의 미리보기 (deck hover 용, 최대 4개) — title + cover + 메타 */
+  previews?: {
+    id: string;
+    title: string;
+    title_en: string | null;
+    cover_image: string | null;
+    created_at: string;
+    excerpt: string | null;
+    excerpt_en: string | null;
+  }[];
+  /** cover/thumbs 둘 다 없을 때 Unsplash 에서 자동 가져온 cover URL */
+  auto_cover_url?: string;
 }
 
 /** 시리즈 내 포스트 항목 (순서 관리용) */

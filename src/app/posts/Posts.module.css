@@ -110,56 +110,10 @@
   white-space: nowrap;
 }
 
-/* ── Search Capsule ── */
-.searchCapsule {
+/* 검색 전용 윗줄 — 우상단 정렬 */
+.filterBarSearchRow {
   display: flex;
-  align-items: center;
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-}
-
-.searchCapsule:focus-within {
-  border-color: var(--text-primary);
-}
-
-.searchTypeSelect {
-  flex-shrink: 0;
-  min-width: 70px;
-  max-width: 100px;
-}
-
-.searchTypeSelect button {
-  border: none !important;
-  border-radius: 0 !important;
-  border-right: var(--border-default) !important;
-  padding: var(--box-sm);
-  font-size: var(--font-size-2xs);
-  background: transparent !important;
-}
-
-.searchIcon {
-  flex-shrink: 0;
-  margin-left: var(--spacing-xs);
-  color: var(--text-tertiary);
-  pointer-events: none;
-}
-
-.searchInput {
-  flex: 1;
-  min-width: 80px;
-  max-width: 180px;
-  padding: var(--box-sm);
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.searchInput::placeholder {
-  color: var(--text-tertiary);
+  justify-content: flex-end;
 }
 
 /* Sort capsule group */
@@ -171,6 +125,9 @@
 
 .sortBtn {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
   padding: var(--box-sm);
   border: none;
   background: transparent;
@@ -198,6 +155,39 @@
 .sortBtnText {
   position: relative;
   z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  white-space: nowrap;
+}
+
+/* 별도 셔플(랜덤) 버튼 — sortGroup 옆에 위치 */
+.shuffleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--box-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.3s ease;
+}
+
+.shuffleBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.shuffleBtnActive {
+  color: var(--text-inverse);
+  border-color: var(--text-inverse);
+  background: var(--bg-inverse);
+}
+
+.shuffleBtn:active {
+  transform: rotate(180deg);
 }
 
 /* Tag toggle button */
@@ -321,10 +311,11 @@
 
 .sidebarWrap {
   position: sticky;
-  top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl) + var(--spacing-sm) * 2 + 44px + 1px + var(--spacing-xl));
+  /* filterBar 가 검색줄(filterBarSearchRow) + 메인줄로 2줄이라 콘텐츠 높이 ≈ 80px */
+  top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl) + var(--spacing-sm) * 2 + 80px + 1px + var(--spacing-xl));
   align-self: start;
   z-index: 1;
-  max-height: calc(100vh - var(--spacing-2xl) * 2 - var(--font-size-3xl) - var(--spacing-sm) * 2 - 44px - 1px - var(--spacing-xl) - var(--spacing-xl));
+  max-height: calc(100vh - var(--spacing-2xl) * 2 - var(--font-size-3xl) - var(--spacing-sm) * 2 - 80px - 1px - var(--spacing-xl) - var(--spacing-xl));
   display: flex;
   flex-direction: column;
 }
@@ -454,17 +445,113 @@
   margin-bottom: var(--spacing-md);
 }
 
+/* 시리즈 라벨 — BookOpen 아이콘 + "Series" 텍스트 (정적) */
+.seriesLabelLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--text-secondary);
+}
+
+/* 시리즈 정렬 버튼 그룹 — `.sortGroup` 과 동일한 pill 스타일, label 우측 */
+.seriesSortGroup {
+  display: inline-flex;
+  border-radius: var(--radius-capsule);
+  border: var(--border-default);
+  margin-left: auto;
+}
+
+.seriesSortBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--box-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.seriesSortBtnActive {
+  color: var(--text-inverse);
+}
+
+.seriesSortIndicator {
+  position: absolute;
+  inset: 2px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary-alt);
+}
+
+.seriesSortIndicatorActive {
+  background: var(--bg-inverse);
+}
+
+.seriesSortBtnText {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+}
+
+.seriesSortDirIcon,
+.sortDirIcon {
+  flex-shrink: 0;
+  /* 방향 전환 시 부드러운 회전 애니메이션 */
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 책 표지를 가로로 나열 — 좌우 끝에 mask gradient 로 스크롤 가능 표시.
+   --_mask-l / --_mask-r 컨텍스트 토큰으로 좌/우 fade 너비를 제어 (atStart/atEnd 시 0 으로) */
 .seriesRow {
+  --_mask-l: 28px;
+  --_mask-r: 28px;
   display: flex;
-  gap: var(--spacing-lg);
+  align-items: flex-start;
+  gap: var(--spacing-md);
   overflow-x: auto;
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-2xl);
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-2xl);
   margin: 0 calc(var(--spacing-md) * -1);
   scrollbar-width: none;
+  /* 데스크톱 드래그 swipe — 기본 cursor + active 시 grabbing */
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 var(--_mask-l),
+    #000 calc(100% - var(--_mask-r)),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 var(--_mask-l),
+    #000 calc(100% - var(--_mask-r)),
+    transparent 100%
+  );
+}
+
+.seriesRow.atStart {
+  --_mask-l: 0px;
+}
+
+.seriesRow.atEnd {
+  --_mask-r: 0px;
 }
 
 .seriesRow::-webkit-scrollbar {
   display: none;
+}
+
+.seriesRow:active {
+  cursor: grabbing;
 }
 
 .seriesCategoryTag {
@@ -478,25 +565,40 @@
   letter-spacing: 0;
 }
 
+/* + N more → /series 로 이동 */
 .seriesMoreBtn {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 148px;
+  gap: var(--spacing-2xs);
+  width: 80px;
+  height: 192px;
   flex-shrink: 0;
-  border: 1px dashed var(--border-default-color);
-  border-radius: var(--radius-lg);
-  background: transparent;
+  border: 1px dashed color-mix(in srgb, var(--text-primary) 25%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-primary) 3%, transparent);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s;
 }
 
 .seriesRow .seriesMoreBtn:hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  transform: translateY(-4px);
+}
+
+.seriesMoreCount {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
 }
 
 .seriesEmpty {
@@ -561,24 +663,116 @@
   color: var(--text-primary);
 }
 
-/* ── Grid ── */
+/* ── Grid masonry ── grid-auto-rows: 1px + JS 가 각 아이템의 height 를 측정해
+   grid-row: span N 을 inline style 로 부여. 너비 변주(wide span 2) + 세로 packing 둘 다 된다.
+   GAP 은 --bento-gap 변수로 통일 (JS 도 동일 값 참조). */
 .grid {
+  --bento-gap: var(--spacing-lg);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1px;
   grid-auto-flow: dense;
-  gap: var(--spacing-lg);
+  gap: var(--bento-gap);
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1680px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* 시리즈 필터링 중 — 단일 컬럼 timeline 레이아웃. 큰 step 번호 + 연결선 + 좌측 작은 썸네일 */
+.gridSeries {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--spacing-xl) !important;
+  grid-template-columns: none !important;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 각 step — 좌측 큰 번호 + 우측 카드 콘텐츠. 다음 step 까지 세로 연결선 */
+.seriesStep {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--spacing-md);
+  align-items: stretch;
+  /* PostCard 의 .card { height: 100% } 가 자연스럽게 작동하도록 */
+}
+
+/* 마지막을 제외한 모든 step 의 번호 영역 아래에 세로 연결선 */
+.seriesStep:not(:last-child) .seriesStepNumber::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(var(--spacing-md) + 1.6em);
+  height: calc(100% - var(--spacing-md) - 1.6em + var(--spacing-xl));
+  width: 1px;
+  background: var(--border-light-color);
+  transform: translateX(-50%);
+}
+
+.seriesStepNumber {
+  position: relative;
+  align-self: start;
+  padding-top: var(--spacing-xs);
+  font-family: var(--font-instrument);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: var(--font-weight-light);
+  font-style: italic;
+  color: var(--text-tertiary);
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.seriesStepBody {
+  min-width: 0;
+}
+
+/* PostCard 를 좌-우 horizontal 로 — 시리즈 timeline 안에서만. 이미지 좌측 작게 */
+.seriesStepBody > * {
+  display: grid !important;
+  grid-template-columns: 140px 1fr !important;
+  gap: var(--spacing-md);
+  align-items: start;
+  border-bottom: var(--border-light);
+  padding-bottom: var(--spacing-md);
+}
+
+/* PostCard 안의 imageWrap 는 첫 column. 정사각에 가깝게 (140 × 100) */
+.seriesStepBody [class*="imageWrap"] {
+  aspect-ratio: 7 / 5 !important;
+  width: 140px !important;
+}
+
+.seriesStepBody [class*="body"] {
+  padding-top: 0 !important;
+}
+
+/* gridSeries 안의 .gridItem 은 flex 자식이라 기존 grid-column/row 룰 무시 */
+.gridSeries .gridWide,
+.gridSeries .gridTall {
+  grid-column: auto !important;
+  grid-row: auto !important;
 }
 
 .gridItem {
   animation: cardFadeIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  /* grid-row: span N 은 JS 에서 inline style 로 동적 부여 */
 }
 
+/* wide — 가로 2칸 span. 세로 height 는 JS 측정값으로 자동 packing */
 .gridWide {
   grid-column: span 2;
-}
-
-.gridTall {
-  grid-row: span 2;
 }
 
 .gridItem:nth-child(1) { animation-delay: 0s; }
@@ -700,16 +894,9 @@
     display: none;
   }
 
+  /* 태블릿 — 2 col (12 셀 / 2 = 6행 정확히 떨어짐) */
   .grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .gridWide {
-    grid-column: span 1;
-  }
-
-  .gridTall {
-    grid-row: span 1;
   }
 }
 
@@ -733,14 +920,6 @@
     gap: var(--spacing-sm);
   }
 
-  .searchCapsule {
-    flex: 1 1 100%;
-  }
-
-  .searchInput {
-    max-width: none;
-  }
-
   .sortGroup {
     margin-left: auto;
   }
@@ -757,19 +936,38 @@
 }
 
 @media (max-width: 640px) {
+  /* 모바일 — 2 col, 좁은 gap. wide/banner 모두 1셀 → 모양 통일 */
   .grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
   }
 
   .gridWide {
     grid-column: span 1;
   }
 
-  .gridTall {
-    grid-row: span 1;
+  .gridWide [class*="imageWrap"] {
+    aspect-ratio: 16 / 10 !important;
   }
 
+  /* 시리즈 timeline — 모바일에선 번호 영역 좁게 + 썸네일도 더 작게 */
+  .seriesStep {
+    grid-template-columns: 40px 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .seriesStepNumber {
+    font-size: 1.5rem;
+  }
+
+  .seriesStepBody > * {
+    grid-template-columns: 100px 1fr !important;
+    gap: var(--spacing-sm);
+  }
+
+  .seriesStepBody [class*="imageWrap"] {
+    width: 100px !important;
+  }
 }
 
 @media (max-width: 480px) {
