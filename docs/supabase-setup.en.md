@@ -48,7 +48,7 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | Table | Purpose |
 |--------|------|
 | `site_settings` | Site settings + profile data + secrets/API keys (JSONB) |
-| `series` | Blog series |
+| `series` | Blog series (`sort_order` for admin ordering, `auto_cover_url` for Unsplash cache) |
 | `posts` | Blog posts (post_number sequence column for unique numbering) |
 | `comments` | Post comments (threaded replies, dual auth: commenter_hash + password) |
 | `likes` | Likes (unified for posts/works/comments, distinguished by target_type, IP duplicate prevention) |

@@ -121,11 +121,17 @@
 ### Blog System
 
 - **Posts (Blog)**: Supabase 기반 블로그 시스템 — SSR + ISR 캐싱, Markdown/Rich Text 전환 에디터, 검색/태그 필터, 조회수 추적, GitHub 링크
-- **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행 — 카테고리 하위 요소, 시리즈/포스트 뷰 토글, 상세 페이지 이전/다음 네비게이션
+- **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행 — `/series` 별도 페이지 폐지 후 `/posts` 안으로 통합, 카테고리 필터 후 타임라인(스텝 번호 + 세로 connector) 형태로 노출, 상세 페이지 이전/다음 네비게이션
+- **Series Deck Cards**: 가로 스크롤 row — 카드를 hover 하면 0.8s 후 deck 형태로 펼쳐지며 소속 글 4개의 미리보기 layer가 0.4s 간격 stagger로 순차 등장 (transform 기반 stack offset, JS state 기반 timer 로 CSS transition-delay snap 회피), 펼침 상태에서 우측으로 next 카드를 밀어내고 `::after` pseudo 로 hit-area 확장해 flicker 없이 hover 유지
+- **Series Auto Cover**: cover/소속 글 cover 둘 다 없는 시리즈는 SSR 시점에 Unsplash 에서 자동으로 cover 1장 fetch → `series.auto_cover_url` 컬럼에 영구 캐시 (다음 요청부터 외부 호출 0회)
 - **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시 — 4가지 레이아웃 x 4가지 오버레이 x 2가지 전환 모드, Admin에서 선택
-- **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator(layoutId), sticky + 스크롤 방향 감지, 콘텐츠 blur 효과
-- **Posts Bento Grid**: 3열 bento 레이아웃 — 10개 사이클당 wide(2col)+tall(2row)+standard 조합, 사이클마다 위치 교차로 시각적 변화, 태블릿 2열/모바일 1열 반응형
-- **Posts i18n & Sort Capsule**: 모든 텍스트 locale 파일 이동, 정렬 UI를 캡슐형 세그먼트 컨트롤(Framer Motion layoutId) + hover indicator 이동
+- **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator(layoutId), sticky + 스크롤 방향 감지, 콘텐츠 blur 효과 — sticky 진입 anchor 시점은 IntersectionObserver `rootMargin` 을 컴포넌트의 실제 sticky `top` 값으로 동기화해 인기글 등 사이드 위젯과 1px 도 안 어긋나게 보정
+- **Posts Bento Masonry**: 3/4/6 column CSS Grid + `grid-auto-rows: 1px` + JS 가 각 카드 `scrollHeight` 측정 후 `grid-row: span N` 적용 → 진정한 masonry. wide / banner(21:9) / square(1:1) / portrait(3:4) / standard 5종 variant 가 `grid-auto-flow: dense` 로 빈틈 없이 packing. 모바일은 변형 비활성화 + 16:10 통일
+- **Posts Sort Capsule**: 최신순(↑/↓) · 인기순(↑/↓) · 제목순(↑/↓) 3-way capsule + 별도 Shuffle(랜덤) 버튼. 방향 화살표는 transform: rotate 로 트위닝, hover indicator(Framer Motion `layoutId`) + 화살표 줄바꿈 방지(`white-space: nowrap`). 랜덤 정렬은 mulberry32 시드 셔플로 페이지네이션 일관성 유지
+- **Posts Tooltip-everywhere**: 모든 필터·정렬·태그·카테고리·SearchCapsule 트리거에 `<T>` 컴포넌트 + Tooltip(번역 + 설명) 적용 — long hover(600ms) 로 반대 언어 + 짧은 설명 동시 노출, 모바일은 터치 토글
+- **SearchCapsule 공통 컴포넌트**: `components/admin/SearchCapsule` → `components/ui/SearchCapsule` 이동. `searchType` prop optional, padding 을 태그/정렬 캡슐 톤에 맞춰 슬림화 (`var(--spacing-2xs) var(--spacing-sm)`). PostsClient · `/admin/comments` 등 모든 인라인 검색 input 을 일괄 교체
+- **Seeded Color Generator**: `src/utils/seededColor.ts` — FNV-1a 해시 + 8 hue 앵커(주황/앰버/라임/그린/시안/블루/퍼플/마젠타) × 3 톤 스타일(vivid / pastel / muted) = 24가지 결정적 HSL 조합. 같은 seed 는 항상 같은 색, 인접 카드는 anchor + tone 둘 다 cycle 되어 시각적 분리 보장. OKLCH 의 sRGB gamut 클리핑 회피용으로 HSL 채택
+- **PostCard 메타 i18n**: 날짜는 `language === "ko" ? ko-KR : en-US` 로 locale-aware 포맷, min read / views / likes 는 번역 키 사용, Eye/Heart 아이콘 + 0 도 항상 표시, `metaGroup` span 으로 그룹별 줄바꿈 단위 통일
 - **IP 기반 좋아요**: Posts/Works/댓글에서 단일 `likes` 테이블 + `target_type` 구분, IP 기반 UNIQUE 제약으로 중복 방지, 연타 방지(ref lock + busy disabled), formatCount(1k/1.2m) 숫자 축약
 - **댓글 시스템**: 게스트 대댓글(threaded) 지원 — 이중 인증(commenter_hash + bcrypt), 닉네임 셔플, 이메일 답글 알림, 관리자 댓글, 관리자 tombstone 2회 삭제로 완전 제거, 닉네임 보존 tombstone
 - **첫 댓글 축하**: 첫 댓글 등록 시 confetti 효과 + 카드 플립 축하 메시지 (sparkle 별 장식 + accent 라인), 관리자 댓글 전체 선택 / 드래그 선택 / tombstone 일괄 완전 삭제
@@ -281,7 +287,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | 테이블 | 용도 |
 |--------|------|
 | `site_settings` | 사이트 설정 + 프로필 데이터 + secrets/API 키 (JSONB) |
-| `series` | 블로그 시리즈 |
+| `series` | 블로그 시리즈 (sort_order — admin 정렬, auto_cover_url — Unsplash 캐시) |
 | `posts` | 블로그 포스트 (post_number 시퀀스 + `scheduled_at` 예약 발행) |
 | `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
 | `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
@@ -517,7 +523,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 39건의 이슈 해결 과정입니다. 주요 6건을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 43건의 이슈 해결 과정입니다. 주요 항목을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
 > About 페이지에서도 인터랙티브하게 확인 가능합니다.
 
 | # | 이슈 | 핵심 |
@@ -534,6 +540,10 @@ npm run test:watch
 | 37 | Plate 인라인 코드 커서 점프 | CodePlugin의 affinity 오버라이드("directional")가 기본값("hard")의 mark 경계 처리를 무력화 — 설정 제거로 해결 |
 | 38 | Admin 테이블 모바일 가로 스크롤 시 row border 중간 끊김 | `.row`/`.tableHeader`/`.bulkBar`가 독립된 grid 컨테이너라 track 확장이 row별로 따로 계산 — header에는 `col.className` 누락으로 title track 미확장, row만 확장되어 너비 불일치 발생. 헤더에도 `col.className` 적용 + `.tableInner` wrapper(`display: flex; width: max-content; min-width: 100%`)로 모든 자식을 가장 넓은 row 너비로 stretch하여 border 연속성 확보 |
 | 39 | Page transition hold 멈춤 + morph 후 skeleton 노출 | DetailLayout hero motion 의 `onAnimationStart` 에 endTransition 을 묶었는데 `initial===animate`(opacity:1) 일 때 framer-motion 이 콜백을 안 부름 → hold 영구 정체. morph 가 새 페이지 mount 전에 끝나 Suspense fallback 노출. 해결: `onAnimationStart` → `useEffect` 기반 endTransition 으로 교체, hold 단계에서 backdrop fullscreen 유지로 스켈레톤 가림, `SAFETY_MS=5000` 안전망 + `endRequestedRef` short-circuit |
+| 40 | CSS Grid masonry — `grid-template-rows` 만으로는 카드별 높이 차이가 빈칸을 만듦 | bento 의 wide / banner / square / portrait variant 가 섞이면 row track 이 가장 큰 카드 기준으로 잡혀 빈 셀 발생. 해결: `grid-auto-rows: 1px` 로 잘게 쪼개고 JS 가 각 카드 `firstElementChild.scrollHeight` 측정 → `grid-row: span N` (N=ceil(h/rowUnit))을 동적으로 부여. `grid-auto-flow: dense` 로 작은 카드가 빈 자리에 backfill. ResizeObserver + 이미지 onLoad 로 재계산 |
+| 41 | sticky filterBar IntersectionObserver — 인기글 위젯과 1px 어긋남 | sentinel 의 `rootMargin` 을 고정값으로 두면 filterBar 의 `top: var(--nav-height)` 같은 동적 sticky 오프셋과 불일치. `getComputedStyle(filterBar).top` 으로 실측한 값을 `rootMargin: -${stickyTop+1}px 0px 0px 0px` 로 동기화하고, `resize` 이벤트마다 observer 를 재등록해 PC ↔ 모바일 nav-height 변화에도 정확히 anchor |
+| 42 | Series Deck — hover 펼침이 "사라졌다 나타나는" 느낌 | CSS `transition-delay` 로 stagger 를 주면 hover out 시 delay 가 같이 cancel 되어 layer 가 동시 사라짐 + transform overshoot 이징(0.34, 1.45)에서 미리 펼쳐 보임. 해결: `setTimeout(setOpen, 800)` JS state 기반 트리거 + `cubic-bezier(0.4, 0, 0.2, 1)` standard ease + `calc(1s + (var(--deck-i) - 1) * 0.4s)` 명시적 stagger 로 layer 가 한 장씩 완전히 펼쳐진 뒤 다음 layer 시작 |
+| 43 | Deck spread 시 setPointerCapture 가 자식 click 차단 + flicker | 부모가 `setPointerCapture` 를 잡으면 펼쳐진 deck layer 의 click 이 부모로 흡수되어 SeriesCard 클릭이 안 됨. margin-right 만으로 next 카드를 밀면 visual 만 이동, 실제 hit-area 는 안 늘어나 마우스가 layer 사이로 빠지면 hover 종료 → flicker. 해결: `setPointerCapture` 제거 + document-level `pointermove`/`pointerup` 로 이동 (click suppression flag), `::after { width: <펼쳐진 너비> }` pseudo 로 hit-area 를 layer 끝까지 확장 |
 
 
 ## 배포

@@ -298,7 +298,69 @@ z-index: 9999;
 
 ---
 
-## 10. 파일 위치 참조
+## 10. 공용 UI 컴포넌트
+
+### SearchCapsule (`src/components/ui/SearchCapsule/`)
+
+캡슐형 검색 입력. 정렬·태그 캡슐 버튼과 톤 / padding 을 통일해 한 줄에 같이 놓을 수 있음.
+
+- **`searchType` prop optional** — 지정 시 좌측에 type select(예: 제목 / 본문) 노출, 미지정 시 단순 입력 캡슐
+- **padding `var(--spacing-2xs) var(--spacing-sm)`** — 태그 / sort 캡슐과 동일한 슬림 사이즈
+- **`compact` prop** — 더 작은 height 가 필요한 자리에서 사용
+- 내부 Select trigger 의 `min-height: var(--size-sm)` 을 `0 !important` 로 override 해서 캡슐 높이에 정렬
+
+```tsx
+<SearchCapsule
+  value={query}
+  onChange={setQuery}
+  placeholder={t("posts.searchPlaceholder")}
+  // 옵션 — 검색 타입 셀렉트 동시 노출
+  searchType={searchType}
+  onSearchTypeChange={setSearchType}
+  searchTypes={[{ value: "all", label: t("posts.searchAll") }, { value: "title", label: t("posts.searchTitle") }]}
+/>
+```
+
+> **이전 위치**: `src/components/admin/SearchCapsule/` (admin 전용으로 시작) → 일반 UI 로 승격하면서 `components/ui/` 로 이동. PostsClient · `/admin/comments` 등 모든 인라인 검색 input 이 이 컴포넌트로 통일됨.
+
+### Tooltip + `<T>` 합성
+
+번역 가능한 텍스트 + 짧은 설명을 같은 hover 에 노출하기 위해 두 컴포넌트를 합성하는 표준 패턴:
+
+```tsx
+import T from "@/components/ui/T";
+import Tooltip from "@/components/ui/Tooltip";
+
+<Tooltip content={t("posts.sortDateTooltip")}>
+  <T ko="최신순" en="Latest" />
+</Tooltip>
+```
+
+- `<T>` — short hover(< 600ms) 시 현재 언어, long hover(>= 600ms) 시 반대 언어 노출
+- `<Tooltip>` — 같은 hover 에 짧은 설명(rule of thumb: 한 문장) 노출
+- 두 트리거가 같은 hover 영역을 공유하므로 사용자에게는 "한 번 hover → 번역 + 설명 동시 표시" 로 보임. 모바일은 터치 토글로 동일 결과
+- **언제 쓰나** — capsule 버튼·아이콘 only 트리거·축약된 라벨 등 시각만으로 의미가 즉시 전달되지 않는 자리에 의무화
+
+### 캡슐형 정렬 버튼 패턴 (sortBtn)
+
+`/posts` 의 정렬 컨트롤 — 같은 정렬 키를 다시 누르면 방향(asc / desc) toggle.
+
+- 활성 상태에서만 `sortDirIcon` 화살표(▲ / ▼) 노출, `transform: rotate(180deg)` + transition 으로 부드러운 회전
+- `display: inline-flex; white-space: nowrap` 으로 화살표가 줄바꿈으로 떨어지는 사고 방지
+- hover indicator 는 Framer Motion `layoutId` 로 캡슐 사이를 슬라이드
+- "랜덤" 처럼 방향 개념이 없는 정렬은 **별도 Shuffle 아이콘 버튼** 으로 분리(같은 컨트롤 row 의 마지막에 배치)
+
+### Shuffle 버튼 패턴
+
+랜덤 정렬은 누를 때마다 새 시드로 셔플되는 동작이 본질이므로 `sortBtn` 의 toggle 의미와 충돌. 별도 캡슐 아이콘 버튼으로 분리:
+
+- `<Shuffle />` 아이콘 + 활성 시 accent border + 가벼운 회전 hint
+- `Tooltip` 로 "임의 순서로 섞기, 누를 때마다 새로 셔플" 설명 명시
+- 시드는 `Date.now()` 또는 페이지 키로 — mulberry32 셔플로 같은 시드 / 같은 페이지 = 같은 결과(페이지 이동 시 안정성)
+
+---
+
+## 11. 파일 위치 참조
 
 ```
 src/styles/

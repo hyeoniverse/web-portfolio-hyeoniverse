@@ -121,11 +121,17 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 ### Blog System
 
 - **Posts (Blog)**: Supabase-based blog system — SSR + ISR caching, Markdown/Rich Text toggle editor, search/tag filters, view count tracking, GitHub link
-- **Series**: Group posts into series for sequential publishing — subcategory element, series/post view toggle, previous/next navigation on detail pages
+- **Series**: Group posts into series for sequential publishing — `/series` page removed; series now live inside `/posts` as a timeline (numbered step + vertical connector) revealed after a category filter, with previous/next navigation on detail pages
+- **Series Deck Cards**: Horizontal-scroll row — hovering a card waits 800ms then unfolds a deck of up to 4 preview layers in 0.4s staggered sequence (transform-based stack offset, JS-state timer instead of CSS `transition-delay` to avoid snap perception). The unfolded deck pushes the next card right and uses an `::after` pseudo to extend the hit area, eliminating flicker between layers
+- **Series Auto Cover**: Series with neither a cover nor any post cover get a single Unsplash image fetched at SSR time and persisted permanently in `series.auto_cover_url` — zero external calls on subsequent loads
 - **Posts Banner Slider**: Display pinned posts as banners — 4 layouts x 4 overlays x 2 transition modes, selectable from Admin
-- **Posts Filter Bar**: Category collapse/expand (+N more), hover indicator (layoutId), sticky + scroll direction detection, content blur effect
-- **Posts Bento Grid**: 3-column bento layout — wide(2col)+tall(2row)+standard per 10-item cycle, position alternates per cycle for visual variety, responsive 2-column tablet / 1-column mobile
-- **Posts i18n & Sort Capsule**: All text moved to locale files, sort UI changed to capsule-style segment control (Framer Motion layoutId) + hover indicator movement
+- **Posts Filter Bar**: Category collapse/expand (+N more), hover indicator (layoutId), sticky + scroll direction detection, content blur effect — sticky-anchor timing is synced to the component's actual `top` value via `getComputedStyle`, so the IntersectionObserver `rootMargin` matches to the pixel and never drifts past sidebar widgets like Popular Posts
+- **Posts Bento Masonry**: 3/4/6-column CSS Grid + `grid-auto-rows: 1px` + JS-measured `grid-row: span N` per card (computed from `firstElementChild.scrollHeight`) for true masonry. Five variants — wide / banner (21:9) / square (1:1) / portrait (3:4) / standard — pack with `grid-auto-flow: dense`. Mobile flattens to a uniform 16:10
+- **Posts Sort Capsule**: 3-way capsule (Latest · Popular · Title) each with a direction toggle (↑/↓), plus a separate Shuffle button for randomization. Direction arrow tweens via `transform: rotate`, hover indicator uses Framer Motion `layoutId`, `white-space: nowrap` keeps the arrow from line-wrapping. Random sort uses a mulberry32 seeded shuffle so pagination stays consistent across page hops
+- **Posts Tooltip-everywhere**: Every filter / sort / tag / category trigger and SearchCapsule wears a `<T>` component + Tooltip combining translation + description (long-hover 600ms reveals the opposite-language label and a short hint, mobile via touch toggle)
+- **SearchCapsule shared component**: Moved from `components/admin/SearchCapsule` to `components/ui/SearchCapsule`, with `searchType` made optional and padding slimmed (`var(--spacing-2xs) var(--spacing-sm)`) to match the tag/sort capsules. PostsClient and `/admin/comments` inline search inputs were swapped over
+- **Seeded Color Generator**: `src/utils/seededColor.ts` — FNV-1a hash + 8 hue anchors (orange / amber / lime / green / cyan / blue / purple / magenta) × 3 tone styles (vivid / pastel / muted) = 24 deterministic HSL combinations. Same seed always returns the same color; adjacent cards cycle both anchor and tone for guaranteed visual separation. HSL chosen over OKLCH to avoid sRGB gamut clipping at high chroma+lightness
+- **PostCard meta i18n**: Date uses `language === "ko" ? ko-KR : en-US` formatting, min read / views / likes use translation keys, Eye/Heart icons display with always-visible counts (zero included), `metaGroup` spans group meta items so wrapping happens in coherent units
 - **IP-based Likes**: Single `likes` table with `target_type` discrimination for Posts/Works/comments, IP-based UNIQUE constraint to prevent duplicates, rapid-click prevention (ref lock + busy disabled), formatCount (1k/1.2m) number abbreviation
 - **Comment System**: Guest threaded replies — dual authentication (commenter_hash + bcrypt), nickname shuffle, email reply notifications, admin comments, admin tombstone double-delete for permanent removal, nickname-preserved tombstone
 - **First Comment Celebration**: Confetti effect + card flip celebration message (sparkle stars + accent lines) on first comment, admin select-all / drag selection / tombstone bulk permanent deletion
@@ -280,7 +286,7 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | Table | Purpose |
 |--------|------|
 | `site_settings` | Site settings + profile data + secrets/API keys (JSONB) |
-| `series` | Blog series |
+| `series` | Blog series (`sort_order` for admin ordering, `auto_cover_url` for Unsplash cache) |
 | `posts` | Blog posts (post_number sequence + `scheduled_at` for scheduled publishing) |
 | `comments` | Post comments (threaded replies, dual auth: commenter_hash + password) |
 | `likes` | Likes (unified for posts/works/comments, distinguished by target_type, IP duplicate prevention) |
@@ -516,7 +522,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 39 issues encountered during development. Top 6 below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
+> 43 issues encountered during development. Highlights below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
 > Also available interactively on the About page.
 
 | # | Issue | Key takeaway |
@@ -533,6 +539,10 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 37 | Plate inline code cursor jump | CodePlugin affinity override ("directional") defeated default ("hard") mark boundary handling — removed override to fix |
 | 38 | Admin table row borders cut off mid-scroll on mobile | Each of `.row`/`.tableHeader`/`.bulkBar` is an independent grid container, so track expansion is computed per-row — headers missing `col.className` left their 1fr title track unexpanded while rows grew to 280px min-width, creating a width mismatch. Applied `col.className` to header + added `.tableInner` wrapper (`display: flex; width: max-content; min-width: 100%`) to stretch all children to the widest row's width, restoring border continuity |
 | 39 | Page transition stuck at hold + skeleton exposed after morph | DetailLayout's hero motion called `endTransition` from `onAnimationStart`, but with `initial===animate` (opacity:1) framer-motion treats it as a no-op and never fires the callback → hold phase persists forever. Morph also finished before the new page mounted, exposing the Suspense fallback. Fix: replaced `onAnimationStart` trigger with a `useEffect`-based call, kept the backdrop fullscreen during hold (hides the skeleton), added `SAFETY_MS=5000` backstop + `endRequestedRef` short-circuit for fast cached mounts |
+| 40 | CSS Grid masonry — `grid-template-rows` alone leaves gaps when card heights vary | A bento mixing wide / banner / square / portrait variants forces row tracks to the tallest card, leaving empty cells. Fix: `grid-auto-rows: 1px` shreds tracks to a fine unit, JS measures each card's `firstElementChild.scrollHeight` and assigns `grid-row: span N` (N=ceil(h/rowUnit)). `grid-auto-flow: dense` backfills small cards into gaps. ResizeObserver + image `onLoad` recalculates |
+| 41 | Sticky filterBar IntersectionObserver — 1px drift against sidebar widgets | A static `rootMargin` desyncs from the component's dynamic sticky `top` (`top: var(--nav-height)`), causing the filter bar to anchor a frame off from sidebar widgets like Popular Posts. Fix: read `getComputedStyle(filterBar).top` and feed it back as `rootMargin: -${stickyTop+1}px 0px 0px 0px`, re-registering the observer on `resize` so PC ↔ mobile nav-height changes stay aligned |
+| 42 | Series Deck — hover unfold "disappears then reappears" | Using CSS `transition-delay` for stagger means hover-out cancels every layer's delay simultaneously, collapsing them in unison. Combined with an overshoot ease (0.34, 1.45) the deck looked pre-spread. Fix: `setTimeout(setOpen, 800)` JS-state trigger + `cubic-bezier(0.4, 0, 0.2, 1)` standard ease + explicit per-layer `calc(1s + (var(--deck-i) - 1) * 0.4s)` stagger so each layer fully unfolds before the next begins |
+| 43 | Deck spread — `setPointerCapture` blocks child clicks + flicker on hit-area gap | When the parent captures the pointer, clicks on unfolded deck layers get absorbed by the parent and never reach SeriesCard. Pushing the next card via `margin-right` only moves visuals — the actual hit area stays the same, so the cursor passing between layers ends hover and triggers flicker. Fix: drop `setPointerCapture` entirely and listen on document-level `pointermove`/`pointerup` with a click-suppression flag; add an `::after { width: <unfolded width> }` pseudo to extend the hit area to the last layer |
 
 ## Deployment
 

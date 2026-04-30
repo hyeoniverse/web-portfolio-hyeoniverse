@@ -48,7 +48,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | 테이블 | 용도 |
 |--------|------|
 | `site_settings` | 사이트 설정 + 프로필 데이터 + secrets/API 키 (JSONB) |
-| `series` | 블로그 시리즈 |
+| `series` | 블로그 시리즈 (sort_order — admin 정렬, auto_cover_url — Unsplash 캐시) |
 | `posts` | 블로그 포스트 (post_number 시퀀스 컬럼으로 고유 번호 부여) |
 | `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
 | `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
