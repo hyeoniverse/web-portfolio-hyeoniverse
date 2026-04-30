@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { GripVertical, Download } from "lucide-react";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { GripVertical, Download, ArrowUpDown } from "lucide-react";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
@@ -30,6 +31,7 @@ export interface AdminTableLabels {
   publishLabel: string;
   publishedTooltip: string;
   unpublishedTooltip: string;
+  move?: string;
 }
 
 export interface AdminTableProps<T extends { id: string; published: boolean }> {
@@ -61,6 +63,8 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onRowLeave?: () => void;
   onRowClick?: (item: T, e: React.MouseEvent) => void;
   onReorder?: (fromIdx: number, toIdx: number) => void;
+  /** 항목 위치 이동 — 클릭 시 부모가 dialog 등으로 위치 선택 처리 */
+  onMove?: (item: T) => void;
   showRowNumbers?: boolean;
   getRowLabel?: (item: T, index: number) => string | number;
   highlightId?: string | null;
@@ -90,6 +94,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onRowLeave,
   onRowClick,
   onReorder,
+  onMove,
   showRowNumbers = false,
   getRowLabel,
   highlightId,
@@ -103,7 +108,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<"above" | "below">("below");
-  const dragAllowedRef = useRef(false);
   const highlightRef = useRef<HTMLDivElement>(null);
   const didHighlightScroll = useRef(false);
 
@@ -310,13 +314,17 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           <span className={styles.colActions}>{labels.actions}</span>
         </div>
 
+        <LayoutGroup>
+        <AnimatePresence initial={false}>
         {items.map((item, i) => {
           const isDragging = dragIdx === i;
           const isOver =
             overIdx === i && dragIdx !== null && dragIdx !== i;
           return (
-            <div
+            <motion.div
               key={item.id}
+              layout
+              transition={{ type: "spring", damping: 28, stiffness: 320, mass: 0.8 }}
               ref={highlightId === item.id ? highlightRef : undefined}
               className={`${styles.row} ${selected.has(item.id) ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""} ${highlightId === item.id ? styles.rowHighlight : ""}`}
               data-clickable="true"
@@ -326,12 +334,10 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               onDragStart={
                 onReorder
                   ? (e) => {
-                      if (!dragAllowedRef.current) {
-                        e.preventDefault();
-                        return;
-                      }
+                      // 행 전체 어디서든 drag 시작 가능 (handle 없어도 OK)
+                      // motion.div 은 onDragStart 가 더 넓은 이벤트 union 이라 cast 필요
                       setDragIdx(i);
-                      e.dataTransfer.effectAllowed = "move";
+                      (e as unknown as React.DragEvent).dataTransfer.effectAllowed = "move";
                     }
                   : undefined
               }
@@ -384,7 +390,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   ? () => {
                       setDragIdx(null);
                       setOverIdx(null);
-                      dragAllowedRef.current = false;
                     }
                   : undefined
               }
@@ -394,35 +399,27 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               }}
               onMouseLeave={onRowLeave}
             >
-              <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}>
-                <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
-              </span>
-              {onReorder ? (
+              {onReorder && (
                 <span
                   className={styles.dragHandle}
                   onClick={(e) => e.stopPropagation()}
-                  onPointerDown={() => {
-                    dragAllowedRef.current = true;
-                    const cleanup = () => {
-                      dragAllowedRef.current = false;
-                    };
-                    window.addEventListener("pointerup", cleanup, {
-                      once: true,
-                    });
-                  }}
+                  aria-hidden
                 >
                   <GripVertical
                     className={styles.dragGrip}
                     size={12}
                     fill="currentColor"
                   />
-                  <span className={styles.dragNum}>{i + 1}</span>
                 </span>
-              ) : showRowNumbers ? (
+              )}
+              <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}>
+                <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
+              </span>
+              {hasNumCol && (
                 <span className={styles.rowNum}>
                   <span className={styles.rowNumText}>{getRowLabel ? getRowLabel(item, i) : i + 1}</span>
                 </span>
-              ) : null}
+              )}
               {columns.map((col) => (
                 <span key={col.key} className={col.className}>
                   {col.render(item, item.published)}
@@ -432,6 +429,16 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 className={styles.colActions}
                 onClick={(e) => e.stopPropagation()}
               >
+                {onMove && (
+                  <button
+                    className={styles.moveBtn}
+                    onClick={(e) => { e.stopPropagation(); onMove(item); }}
+                    title={labels.move ?? "이동"}
+                    aria-label={labels.move ?? "이동"}
+                  >
+                    <ArrowUpDown size={14} />
+                  </button>
+                )}
                 <Link
                   href={`${editBasePath}/${item.id}/edit`}
                   className={styles.actionBtn}
@@ -454,9 +461,11 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   </button>
                 )}
               </span>
-            </div>
+            </motion.div>
           );
         })}
+        </AnimatePresence>
+        </LayoutGroup>
         </div>
       </div>
 

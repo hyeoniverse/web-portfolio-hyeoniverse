@@ -114,11 +114,12 @@
   font-size: var(--font-size-xs);
 }
 
-/* ── Table header ── */
+/* ── Table header — AdminTable 과 동일한 padding/border 패턴으로 통일 ── */
 .tableHeader {
   display: grid;
   gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-sm) 0;
+  border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -126,6 +127,17 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   align-items: center;
+  white-space: nowrap;
+}
+
+/* 헤더 셀 통일 — 컬럼별 className(colTitle/colMeta 등)을 무효화 위해 specificity 높임 (0,2,0) */
+.tableHeader.tableHeader > * {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 /* 헤더에서 colThumbWrap의 stretch/음수마진 무효화 */
@@ -134,23 +146,19 @@
   margin: 0;
 }
 
-/* ── Rows ── */
+/* ── Rows — AdminTable 과 동일한 padding (spacing-md) ── */
 .list {
   list-style: none;
-  margin: var(--spacing-xs) 0 0;
+  margin: 0;
   padding: 0;
 }
 
 .row {
   display: grid;
   gap: var(--spacing-xs);
-  padding: var(--box-y-lg);
+  padding: var(--spacing-md) 0;
   border-bottom: var(--border-light);
   align-items: center;
-}
-
-.row:first-child {
-  border-top: var(--border-light);
 }
 
 /* ── Column styles (shared) ── */
@@ -161,7 +169,7 @@
 
 .colThumbWrap {
   align-self: stretch;
-  margin: calc(-1 * var(--spacing-sm)) 0;
+  margin: calc(-1 * var(--spacing-md)) 0;
 }
 
 .colThumb {
@@ -339,12 +347,73 @@
   color: var(--text-muted);
 }
 
-/* ── Mobile: horizontal scroll (only the table area, not the filters) ── */
-@media (max-width: 768px) {
+/* ── Tablet/Mobile: horizontal scroll (only the table area, not the filters) ── */
+@media (max-width: 1024px) {
   .tableScroll {
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* B + D 조합: actions 열 sticky 로 항상 우측 고정 + 좌측에 fade gradient pseudo.
+     align-self: stretch + 음수 margin (.colThumbWrap 와 동일한 -spacing-md) 로 row 의
+     실제 row padding + image 음수 margin 영역까지 모두 덮음 → 이미지가 sticky 아래로
+     스크롤될 때 위/아래 잘림 없이 매끄럽게 가려짐 */
+  .tableHeader .colActions,
+  .row .colActions {
+    position: sticky;
+    right: 0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    background: var(--bg-primary);
+    z-index: 1;
+  }
+
+  .row .colActions {
+    margin: calc(-1 * var(--spacing-md)) 0;
+  }
+
+  .tableHeader .colActions::before,
+  .row .colActions::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -56px;
+    width: 56px;
+    background: linear-gradient(to right, transparent, var(--bg-primary) 55%);
+    pointer-events: none;
+  }
+
+  /* 체크박스 열도 sticky 로 좌측 고정 — 가로 스크롤 중에도 일괄 선택 가능.
+     align-self: stretch + 음수 margin 동일 적용 → 이미지 풀 높이 cover */
+  .tableHeader .colCheck,
+  .row .colCheck {
+    position: sticky;
+    left: 0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    z-index: 1;
+  }
+
+  .row .colCheck {
+    margin: calc(-1 * var(--spacing-md)) 0;
+  }
+
+  .tableHeader .colCheck::after,
+  .row .colCheck::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -16px;
+    width: 16px;
+    background: linear-gradient(to right, var(--bg-primary), transparent);
+    pointer-events: none;
   }
   .tableInner {
     display: flex;
@@ -355,9 +424,9 @@
   .tableHeader,
   .row,
   .bulkBar {
-    min-width: 720px;
+    min-width: 800px;
   }
   .colTitle {
-    min-width: 280px;
+    min-width: 320px;
   }
 }

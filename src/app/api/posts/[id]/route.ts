@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isValidPostCategory } from "@/lib/api/validateCategory";
+import { ensurePostCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
 
 interface RouteContext {
@@ -33,8 +33,9 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const body = await request.json();
 
-  if (body.category && !(await isValidPostCategory(body.category))) {
-    return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+  // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
+  if (body.category) {
+    await ensurePostCategory(body.category as string);
   }
 
   const admin = createAdminClient();

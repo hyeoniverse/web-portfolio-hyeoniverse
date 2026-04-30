@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Series } from "@/types/post";
 
 interface SeriesPost {
@@ -17,12 +17,16 @@ export function usePostSeries(
   const [seriesPosts, setSeriesPosts] = useState<SeriesPost[]>([]);
   const [seriesPostsLoading, setSeriesPostsLoading] = useState(false);
 
+  const refetchSeries = useCallback(async () => {
+    const res = await fetch("/api/series?all=true");
+    const data = await res.json();
+    setSeriesList(Array.isArray(data) ? data : []);
+  }, []);
+
   // Fetch all series on mount
   useEffect(() => {
-    fetch("/api/series?all=true")
-      .then((res) => res.json())
-      .then((data) => setSeriesList(Array.isArray(data) ? data : []));
-  }, []);
+    refetchSeries();
+  }, [refetchSeries]);
 
   // Fetch posts for selected series + auto-set order
   useEffect(() => {
@@ -47,5 +51,5 @@ export function usePostSeries(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seriesId]);
 
-  return { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading };
+  return { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading, refetchSeries };
 }

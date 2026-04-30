@@ -27,6 +27,9 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .adminBadge {
@@ -139,7 +142,7 @@
 .navActions {
   position: relative;
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 0;
   align-items: center;
   transition:
     gap var(--duration-moderate) var(--ease-material),
@@ -833,11 +836,272 @@
   /* mix-blend-mode: difference 유지 */
 }
 
-.adminActions {
+/* Notification bell — .actionBtn 위에 덧씌우는 bell 전용 보강
+   (position relative 는 .notifDot 절대배치용, hover 시 svg shake) */
+.notifBtn {
+  position: relative;
+}
+
+.notifBtn :global(svg) {
+  transition: transform var(--duration-base) var(--ease-material);
+  transform-origin: 50% 25%;
+}
+
+.notifBtn:hover :global(svg) {
+  animation: bellShake 0.6s var(--ease-material);
+}
+
+@keyframes bellShake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-12deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-6deg); }
+  80% { transform: rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notifBtn:hover :global(svg) { animation: none; }
+}
+
+/* 작은 accent dot — 새 알림 있을 때 bell 우상단에 표시 (숫자 없이 미니멀)
+   actionBtn 40px + Bell 16px 기준 — bell 아이콘 우상단 코너 (≈28px,12px)에 정렬 */
+.notifDot {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-accent);
+  /* 미세한 pulse — 시선 끌되 과하지 않게 */
+  animation: notifDotPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes notifDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notifDot { animation: none; }
+}
+
+/* ── Notification dropdown — 말풍선 모양 (외부 wrapper 는 overflow visible 로 pointer 노출,
+   내부 content 가 overflow hidden 으로 둥근 모서리 처리) ── */
+.notifDropdown {
+  position: fixed;
+  /* top/right 은 inline style 로 trigger getBoundingClientRect 결과 적용 */
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: var(--bg-primary);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  z-index: var(--z-dropdown);
+  /* overflow visible 로 ::before pointer 가 box 밖으로 나갈 수 있게 */
+  overflow: visible;
+}
+
+/* 내부 컨텐츠 — 둥근 모서리 안쪽으로 자식들이 clip 되도록 */
+.notifDropdownInner {
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+/* 말풍선 화살표 — Bell 방향(우상단) 으로 향하는 작은 삼각형, dropdown 위로 노출 */
+/* 말풍선 화살표 — V edges 의 좌/우 tip 이 dropdown top border 와 정확히 만나도록 정렬.
+   pointer 의 body 가 두 tip 사이의 dropdown border 를 자연스럽게 가려서 연속된 윤곽 형성. */
+.notifDropdown::before {
+  content: "";
+  position: absolute;
+  /* tip 이 dropdown top edge(y=0) 에 닿도록 — 12*sqrt(2)/2 ≈ 8.5, 그래서 top: -8 + 1.5 보정 = -6 근처 */
+  top: -6px;
+  right: 32px;
+  width: 12px;
+  height: 12px;
+  background: var(--bg-primary);
+  border-top: var(--border-light);
+  border-left: var(--border-light);
+  transform: rotate(45deg);
+  z-index: 1;
+  box-shadow: -1px -1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.notifDropdownHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-bottom: var(--border-light);
 }
+
+/* "모두 보기 →" — header 우측 정렬, hover 시 arrow translate-x */
+.notifDropdownViewAll {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.notifDropdownViewAll:hover {
+  color: var(--text-accent);
+}
+
+.notifDropdownViewAllArrow {
+  transition: transform 0.2s var(--ease-material);
+}
+
+.notifDropdownViewAll:hover .notifDropdownViewAllArrow {
+  transform: translateX(3px);
+}
+
+.notifDropdownTitle {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.notifDropdownBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-capsule);
+  background: var(--text-accent);
+  color: var(--bg-primary);
+  font-family: var(--font-jetbrains);
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.notifDropdownEmpty {
+  padding: var(--spacing-xl) var(--spacing-md);
+  text-align: center;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* 리스트 — 자연스럽게 dropdown 이 커지다가 viewport 70% 에서 scroll
+   data-lenis-prevent 는 JSX 에서 부여 (Lenis smooth scroll 의 휠 가로채기 방지) */
+.notifDropdownList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+}
+
+/* 더 보기 버튼 — 리스트 아래, 풀폭 */
+.notifDropdownMore {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: none;
+  border-top: var(--border-light);
+  background: transparent;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.notifDropdownMore:hover {
+  background: var(--bg-secondary);
+  color: var(--text-accent);
+}
+
+.notifDropdownItem {
+  border-bottom: var(--border-light);
+}
+
+.notifDropdownItem:last-child {
+  border-bottom: none;
+}
+
+.notifDropdownItemLink {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease;
+  position: relative;
+}
+
+.notifDropdownItemLink:hover {
+  background: var(--bg-secondary);
+}
+
+/* unread 표시 — 타입 라벨 우측 중앙에 작은 accent dot */
+.notifDropdownItemUnread .notifDropdownItemTitle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--text-accent);
+}
+
+/* L1: time(좌) + title(우 끝, 작게) — flex space-between */
+.notifDropdownItemTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+}
+
+.notifDropdownItemTime {
+  font-family: var(--font-jetbrains);
+  font-size: 9px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.notifDropdownItemTitle {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.notifDropdownItemMessage {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 
 /* Admin email */
 .adminEmail {
@@ -894,7 +1158,6 @@
 .navMenuOpen .navCenter,
 .navMenuOpen .contactBtn,
 .navMenuOpen .soundBtnWrap,
-.navMenuOpen .adminActions,
 .navMenuOpen .navActions {
   visibility: hidden;
 }

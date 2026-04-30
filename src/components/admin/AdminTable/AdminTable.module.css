@@ -94,6 +94,16 @@
   white-space: nowrap;
 }
 
+/* 헤더 셀 통일 — 컬럼별 className(colTitle/colMeta 등)을 무효화 위해 specificity 높임 (0,2,0) */
+.tableHeader.tableHeader > * {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 .row {
   display: grid;
   grid-template-columns: var(--_grid);
@@ -322,41 +332,55 @@
   color: var(--text-inverse);
 }
 
-/* ── Drag & Drop ── */
-.dragHandle {
+/* 위치 이동 — icon-only round button (exportIconBtn 와 동일 스타일) */
+.moveBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  width: 28px;
+  height: 28px;
+  border: var(--border-strong);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.colActions .moveBtn:hover {
+  background: var(--bg-inverse);
+  border-color: var(--border-strong-color);
+  color: var(--text-inverse);
+}
+
+/* ── Drag & Drop — 표 바깥(왼쪽)에 absolute 로 배치, 체크박스 더 왼쪽 ── */
+.dragHandle {
+  position: absolute;
+  left: -24px;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   user-select: none;
   color: var(--text-muted);
-}
-
-.dragGrip {
-  position: absolute;
+  cursor: grab;
   opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.dragNum {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
-
-.row .dragGrip {
-  transition: opacity 0.15s;
-}
-
-.row .dragNum {
-  transition: opacity 0.15s;
-}
-
-.row:hover .dragGrip {
+.row:hover .dragHandle,
+.row:focus-within .dragHandle {
   opacity: 1;
 }
 
-.row:hover .dragNum {
-  opacity: 0;
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragGrip {
+  pointer-events: none;
 }
 
 /* Row number (no drag) — always visible */
@@ -418,11 +442,78 @@
   margin-top: var(--spacing-sm);
 }
 
-/* ── Responsive ── */
-@media (max-width: 768px) {
+/* ── Responsive — 태블릿 이하: 가로 스크롤 + 제목 열 충분한 너비 확보 ── */
+@media (max-width: 1024px) {
   .table {
+    position: relative;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* 모바일/태블릿에서는 가로 스크롤 충돌 방지 위해 drag handle 숨김 (drag 자체는 동작 가능) */
+  .dragHandle {
+    display: none;
+  }
+
+  /* B + D 조합: actions 열 sticky 로 항상 우측 고정 + 좌측에 fade gradient pseudo.
+     align-self: stretch + 음수 margin (.colThumbWrap 와 동일한 -spacing-md) 로 row 의
+     실제 row padding + image 음수 margin 영역까지 모두 덮음 → 이미지가 sticky 아래로
+     스크롤될 때 위/아래 잘림 없이 매끄럽게 가려짐 */
+  .tableHeader .colActions,
+  .row .colActions {
+    position: sticky;
+    right: 0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    background: var(--bg-primary);
+    z-index: 1;
+  }
+
+  .row .colActions {
+    margin: calc(-1 * var(--spacing-md)) 0;
+  }
+
+  .tableHeader .colActions::before,
+  .row .colActions::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -56px;
+    width: 56px;
+    background: linear-gradient(to right, transparent, var(--bg-primary) 55%);
+    pointer-events: none;
+  }
+
+  /* 체크박스 열도 sticky 로 좌측 고정 — 가로 스크롤 중에도 일괄 선택 가능.
+     align-self: stretch + 음수 margin 동일 적용 → 이미지 풀 높이 cover */
+  .tableHeader .colCheck,
+  .row .colCheck {
+    position: sticky;
+    left: 0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    z-index: 1;
+  }
+
+  .row .colCheck {
+    margin: calc(-1 * var(--spacing-md)) 0;
+  }
+
+  .tableHeader .colCheck::after,
+  .row .colCheck::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -16px;
+    width: 16px;
+    background: linear-gradient(to right, var(--bg-primary), transparent);
+    pointer-events: none;
   }
 
   .tableInner {
@@ -435,11 +526,11 @@
   .tableHeader,
   .row,
   .bulkBar {
-    min-width: 720px;
+    min-width: 800px;
   }
 
   .colTitle {
-    min-width: 280px;
+    min-width: 320px;
   }
 
   .colActions {

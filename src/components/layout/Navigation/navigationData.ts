@@ -21,6 +21,7 @@ export const menuItems = [
 ];
 
 export const adminNavItems = [
+  { key: "admin-dashboard", href: "/admin", label: "Dashboard" },
   { key: "admin-settings", href: "/admin/settings", label: "Settings" },
   { key: "admin-works", href: "/admin/works", label: "Works" },
   { key: "admin-posts", href: "/admin/posts", label: "Posts" },

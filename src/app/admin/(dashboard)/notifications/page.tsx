@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Reply, Heart, Bell } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { useModalStore } from "@/stores/modalStore";
+import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import Tooltip from "@/components/ui/Tooltip";
+import T from "@/components/ui/T";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import styles from "./Notifications.module.css";
 
 interface Notification {
@@ -14,88 +21,35 @@ interface Notification {
   created_at: string;
 }
 
-/* TODO(remove): UI 미리보기용 더미 데이터. 실제 알림이 들어오면 자연스럽게
-   대체됨. UI 확정 후 이 블록 + 아래 fallback 로직 제거할 것. */
-const DUMMY_NOTIFICATIONS: Notification[] = [
-  {
-    id: "demo-1",
-    type: "comment",
-    title: "새 댓글",
-    message: "홍길동: 잘 읽었습니다. Next.js 정말 좋네요!",
-    metadata: { url: "/posts/sample-post" },
-    read: false,
-    created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "demo-2",
-    type: "reply",
-    title: "답글 알림",
-    message: "민수: @관리자 답변 감사합니다. 추가 질문이 있는데...",
-    metadata: { url: "/posts/sample-post" },
-    read: false,
-    created_at: new Date(Date.now() - 42 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "demo-3",
-    type: "like",
-    title: "좋아요 +5",
-    message: "최근 게시물 'GSAP ScrollTrigger 정리'에 좋아요가 늘었습니다.",
-    metadata: { url: "/posts/gsap-scrolltrigger" },
-    read: false,
-    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "demo-4",
-    type: "comment",
-    title: "새 댓글",
-    message: "익명: 이 부분 더 자세히 설명해주실 수 있나요?",
-    metadata: { url: "/posts/another-post" },
-    read: true,
-    created_at: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "demo-5",
-    type: "system",
-    title: "시스템 알림",
-    message: "주간 백업이 정상적으로 완료되었습니다.",
-    metadata: {},
-    read: true,
-    created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
+/* type 별 i18n 매핑 — type 가 i18n 키 prefix와 다를 수 있으므로 화이트리스트 */
+const TYPE_KEYS: Record<string, string> = {
+  comment: "admin.notifications.typeComment",
+  reply: "admin.notifications.typeReply",
+  like: "admin.notifications.typeLike",
+  system: "admin.notifications.typeSystem",
+};
 
 export default function NotificationsPage() {
+  const { language, t } = useLanguage();
+  const { openModal } = useModalStore();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  // TODO(remove): 더미가 표시 중이면 로컬 상태로만 인터랙션 처리 — UI 미리보기용
-  const [demoMode, setDemoMode] = useState(false);
 
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/notifications");
       if (res.ok) {
         const data = await res.json();
-        const list: Notification[] = data.notifications ?? [];
-        if (list.length === 0) {
-          setDemoMode(true);
-          setNotifications(DUMMY_NOTIFICATIONS);
-          setUnreadCount(DUMMY_NOTIFICATIONS.filter((n) => !n.read).length);
-        } else {
-          setDemoMode(false);
-          setNotifications(list);
-          setUnreadCount(data.unreadCount ?? 0);
-        }
+        setNotifications(data.notifications ?? []);
+        setUnreadCount(data.unreadCount ?? 0);
       } else {
-        // TODO(remove): API 실패 시에도 UI 미리보기 위해 더미 표시
-        setDemoMode(true);
-        setNotifications(DUMMY_NOTIFICATIONS);
-        setUnreadCount(DUMMY_NOTIFICATIONS.filter((n) => !n.read).length);
+        setNotifications([]);
+        setUnreadCount(0);
       }
     } catch {
-      setDemoMode(true);
-      setNotifications(DUMMY_NOTIFICATIONS);
-      setUnreadCount(DUMMY_NOTIFICATIONS.filter((n) => !n.read).length);
+      setNotifications([]);
+      setUnreadCount(0);
     }
     setLoading(false);
   }, []);
@@ -105,11 +59,6 @@ export default function NotificationsPage() {
   }, [fetchNotifications]);
 
   const handleMarkAllRead = async () => {
-    if (demoMode) {
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-      setUnreadCount(0);
-      return;
-    }
     await fetch("/api/admin/notifications", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -118,27 +67,28 @@ export default function NotificationsPage() {
     fetchNotifications();
   };
 
-  const handleDeleteAll = async () => {
-    if (!confirm("Delete all notifications?")) return;
-    if (demoMode) {
-      setNotifications([]);
-      setUnreadCount(0);
-      return;
-    }
-    await fetch("/api/admin/notifications", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ deleteAll: true }),
-    });
-    fetchNotifications();
+  // alert/confirm 대신 공통 ModalConfirm
+  const handleDeleteAll = () => {
+    openModal(
+      <ModalConfirm
+        desc={t("admin.notifications.deleteConfirmDesc")}
+        cancelText={t("admin.notifications.cancel")}
+        confirmText={t("admin.notifications.deleteConfirm")}
+        danger
+        onConfirm={async () => {
+          await fetch("/api/admin/notifications", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ deleteAll: true }),
+          });
+          fetchNotifications();
+        }}
+      />,
+      { id: "notif-delete-all", header: { title: t("admin.notifications.deleteConfirmTitle") }, closeButton: true, width: "400px" },
+    );
   };
 
   const handleMarkRead = async (id: string) => {
-    if (demoMode) {
-      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-      return;
-    }
     await fetch("/api/admin/notifications", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -147,33 +97,38 @@ export default function NotificationsPage() {
     fetchNotifications();
   };
 
+  // 다국어 상대시간 포맷터 — "방금 전 / N분 전 / N시간 전 / N일 전 / 절대 날짜"
   const formatDate = (iso: string) => {
     const d = new Date(iso);
-    return d.toLocaleDateString("en-US", {
+    const diffMs = Date.now() - d.getTime();
+    const mins = Math.floor(diffMs / 60_000);
+    if (mins < 1) return language === "ko" ? "방금 전" : "just now";
+    if (mins < 60) return language === "ko" ? `${mins}분 전` : `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return language === "ko" ? `${hours}시간 전` : `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return language === "ko" ? `${days}일 전` : `${days}d ago`;
+    return d.toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", {
+      year: "numeric",
       month: "short",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
     });
   };
 
   const typeIcon = (type: string) => {
-    const common = {
-      size: 18,
-      strokeWidth: 1.6,
-      "aria-hidden": true,
-    };
+    const common = { size: 18, strokeWidth: 1.6, "aria-hidden": true } as const;
     switch (type) {
-      case "comment":
-        return <MessageCircle {...common} />;
-      case "reply":
-        return <Reply {...common} />;
-      case "like":
-        return <Heart {...common} />;
-      default:
-        return <Bell {...common} />;
+      case "comment": return <MessageCircle {...common} />;
+      case "reply": return <Reply {...common} />;
+      case "like": return <Heart {...common} />;
+      default: return <Bell {...common} />;
     }
+  };
+
+  // 타입 라벨 — DB가 한국어 title 을 저장 중일 수 있으므로 i18n 키가 있는 type 만 번역, 그 외는 원본
+  const typeLabel = (type: string, fallback: string) => {
+    const key = TYPE_KEYS[type];
+    return key ? t(key) : fallback;
   };
 
   /** 아이템 클릭 → 읽음 처리 + 관련 컨텐츠로 이동 */
@@ -184,65 +139,135 @@ export default function NotificationsPage() {
     }
   };
 
-  if (loading) return <div className={styles.loading}>Loading...</div>;
-
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
+      <motion.div
+        className={styles.header}
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         <h1 className={styles.title}>
-          Notifications
-          {unreadCount > 0 && (
-            <span className={styles.badge}>{unreadCount}</span>
+          <T k="admin.notifications.title" />
+          {!loading && unreadCount > 0 && (
+            <Tooltip content={t("admin.notifications.tipUnread")} placement="bottom" delay={250}>
+              <motion.span
+                key={unreadCount}
+                className={styles.badge}
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
+              >
+                {unreadCount}
+              </motion.span>
+            </Tooltip>
           )}
         </h1>
         <div className={styles.headerActions}>
-          {unreadCount > 0 && (
-            <button className={styles.actionBtn} onClick={handleMarkAllRead}>
-              Mark all read
-            </button>
+          {!loading && unreadCount > 0 && (
+            <Tooltip content={t("admin.notifications.tipMarkAllRead")} placement="bottom" delay={250}>
+              <button className={styles.actionBtn} onClick={handleMarkAllRead}>
+                <T k="admin.notifications.markAllRead" />
+              </button>
+            </Tooltip>
           )}
-          {notifications.length > 0 && (
-            <button className={styles.actionBtnDanger} onClick={handleDeleteAll}>
-              Delete all
-            </button>
+          {!loading && notifications.length > 0 && (
+            <Tooltip content={t("admin.notifications.tipDeleteAll")} placement="bottom" delay={250}>
+              <button className={styles.actionBtnDanger} onClick={handleDeleteAll}>
+                <T k="admin.notifications.deleteAll" />
+              </button>
+            </Tooltip>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      {notifications.length === 0 ? (
-        <p className={styles.empty}>No notifications</p>
-      ) : (
-        <div className={styles.list}>
-          {notifications.map((n) => {
-            const hasLink = !!n.metadata?.url;
-            return (
-              <div
-                key={n.id}
-                className={`${styles.item} ${!n.read ? styles.itemUnread : ""} ${hasLink ? styles.itemClickable : ""}`}
-                onClick={() => handleItemClick(n)}
-                role={hasLink ? "link" : undefined}
-                tabIndex={hasLink ? 0 : undefined}
-                onKeyDown={(e) => {
-                  if (hasLink && (e.key === "Enter" || e.key === " ")) {
-                    e.preventDefault();
-                    handleItemClick(n);
-                  }
-                }}
-              >
-                <span className={`${styles.icon} ${styles[`icon${n.type.charAt(0).toUpperCase() + n.type.slice(1)}`] ?? styles.iconSystem}`}>{typeIcon(n.type)}</span>
-                <div className={styles.body}>
-                  <div className={styles.itemTitle}>{n.title}</div>
-                  <div className={styles.itemMessage}>{n.message}</div>
-                  <div className={styles.itemMeta}>
-                    <span className={styles.itemDate}>{formatDate(n.created_at)}</span>
-                    {hasLink && <span className={styles.itemLink}>↗ View</span>}
-                  </div>
-                </div>
-                {!n.read && <span className={styles.dot} />}
+      {loading ? (
+        /* Skeleton: 헤더 + 5개 행 placeholder */
+        <div className={styles.list} aria-busy="true">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className={styles.item}>
+              <Skeleton className={styles.icon} width={36} height={36} borderRadius="50%" />
+              <div className={styles.body} style={{ flex: 1 }}>
+                <SkeletonLine width="40%" height={16} />
+                <div style={{ height: 6 }} />
+                <SkeletonLine width="85%" height={14} />
+                <div style={{ height: 6 }} />
+                <SkeletonLine width="20%" height={12} />
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
+      ) : notifications.length === 0 ? (
+        <motion.p
+          className={styles.empty}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <span className={styles.emptyTitle}><T k="admin.notifications.empty" /></span>
+          <span className={styles.emptyHint}><T k="admin.notifications.emptyHint" /></span>
+        </motion.p>
+      ) : (
+        <motion.div
+          className={styles.list}
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.04 } },
+          }}
+        >
+          <AnimatePresence initial={false}>
+            {notifications.map((n) => {
+              const hasLink = !!n.metadata?.url;
+              const tipContent = hasLink
+                ? t("admin.notifications.tipItemClick")
+                : typeLabel(n.type, n.title);
+              return (
+                <Tooltip
+                  key={n.id}
+                  content={tipContent}
+                  placement="left"
+                  delay={400}
+                  wrapperStyle={{ display: "block", width: "100%" }}
+                >
+                  <motion.div
+                    layout
+                    variants={{
+                      hidden: { opacity: 0, y: 8 },
+                      show: { opacity: 1, y: 0 },
+                    }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                    className={`${styles.item} ${!n.read ? styles.itemUnread : ""} ${hasLink ? styles.itemClickable : ""}`}
+                    onClick={() => handleItemClick(n)}
+                    role={hasLink ? "link" : undefined}
+                    tabIndex={hasLink ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (hasLink && (e.key === "Enter" || e.key === " ")) {
+                        e.preventDefault();
+                        handleItemClick(n);
+                      }
+                    }}
+                  >
+                    <span className={`${styles.icon} ${styles[`icon${n.type.charAt(0).toUpperCase() + n.type.slice(1)}`] ?? styles.iconSystem}`}>
+                      {typeIcon(n.type)}
+                    </span>
+                    <div className={styles.body}>
+                      <div className={styles.itemTitle}>{typeLabel(n.type, n.title)}</div>
+                      <div className={styles.itemMessage}>{n.message}</div>
+                      <div className={styles.itemMeta}>
+                        <span className={styles.itemDate}>{formatDate(n.created_at)}</span>
+                        {hasLink && <span className={styles.itemLink}>↗ <T k="admin.notifications.view" /></span>}
+                      </div>
+                    </div>
+                    {!n.read && <span className={styles.dot} />}
+                  </motion.div>
+                </Tooltip>
+              );
+            })}
+          </AnimatePresence>
+        </motion.div>
       )}
     </div>
   );

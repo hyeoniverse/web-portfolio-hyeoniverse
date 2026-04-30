@@ -1008,6 +1008,26 @@
   color: var(--text-tertiary);
 }
 
+/* 라벨 텍스트와 dot 을 가로 한 줄로 묶는 컨테이너 (.fieldLabel 이 column 이라 필요) */
+.fieldLabelText {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* 필수 입력 표시 dot — 텍스트 글리프 대신 실제 원형 element 로 그려서
+   라벨 텍스트의 수직 중앙선과 정확히 정렬됨 */
+.fieldRequiredDot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  flex-shrink: 0;
+  font-size: 0;
+  line-height: 0;
+}
+
 
 
 /* ── Fallback Priority List ── */
@@ -1640,7 +1660,7 @@
   gap: var(--spacing-md);
   padding: var(--box-sm-md);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: transparent;
   width: 100%;
   text-align: left;
@@ -1653,15 +1673,54 @@
 }
 
 .seriesCard {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   position: relative;
 }
 
-.seriesCardDeleteBtn {
+.seriesCard[draggable="true"] {
+  cursor: grab;
+}
+
+.seriesCard[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.seriesCardDragging {
+  opacity: 0.5;
+}
+
+/* drop indicator — 드래그 대상 카드 위쪽/아래쪽에 가는 라인 */
+.seriesCardDropAbove::before,
+.seriesCardDropBelow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 1px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.seriesCardDropAbove::before {
+  top: -1px;
+}
+
+.seriesCardDropBelow::after {
+  bottom: -1px;
+}
+
+/* 펼친 시리즈 카드 헤더 우측 액션 — 삭제 버튼 + 발행 토글
+   chevron(우측 끝)을 침범하지 않도록 right offset 을 chevron 너비만큼 확보 */
+.seriesCardHeadActions {
   position: absolute;
   top: var(--spacing-xs);
-  right: var(--spacing-xs);
+  right: calc(var(--spacing-md) + 14px + var(--spacing-sm));
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .seriesCardDeleteBtn.seriesCardDeleteBtn.seriesCardDeleteBtn {
@@ -1788,8 +1847,7 @@
 
 
 .seriesCardHeadExpanded {
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  border-bottom-color: transparent;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   /* 펼칠 때: 모서리 먼저 각지게(0.25s), delay 없음 */
   transition: border-radius 0.25s ease, border-color 0.2s ease, background-size 0.3s ease;
 }
@@ -1867,11 +1925,15 @@
 
 .seriesChevron {
   flex-shrink: 0;
+  align-self: flex-start;
+  /* 제목(첫 줄) + 우측 actions 와 같은 수직선에 맞추기 위해 위쪽으로 정렬 */
+  margin-top: var(--spacing-3xs);
   color: var(--text-tertiary);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .seriesChevronOpen {
-  transform: rotate(180deg);
+  transform: rotate(90deg);
 }
 
 .seriesCardCollapse {
@@ -1900,11 +1962,214 @@
 .seriesCardBody {
   border: var(--border-light);
   border-top: none;
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
   padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+}
+
+/* 새 시리즈 생성 시 — head 가 없어 단독으로 렌더, 상단 border + 풀 radius 필요 */
+.seriesCardBodyStandalone {
+  border-top: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+
+/* shell 내부에서 사용될 때 — 자체 border / radius 없이 padding+layout 만 */
+.seriesCardBodyBare {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 새 시리즈 추가 — 버튼이 카드로 morph 되는 단일 shell
+   grid-template-rows 로 두 행(버튼/에디터)을 0fr↔1fr 로 swap 하면서
+   border-radius 도 capsule↔2xl 로 transition */
+.newSeriesShell {
+  margin-top: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  display: grid;
+  /* row1: 제목(항상 auto), row2: 에디터(0fr↔1fr) */
+  grid-template-rows: auto 0fr;
+  overflow: hidden;
+  /* 닫힘 방향 기본: height 먼저(0~0.35s) → radius (0.35s~0.60s) */
+  transition:
+    grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+    border-color 0.2s;
+}
+
+.newSeriesShellOpen {
+  grid-template-rows: auto 1fr;
+  border-radius: var(--radius-2xl);
+  /* 열림 방향: radius 먼저(0~0.25s) → height (0.25s~0.60s) */
+  transition:
+    grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
+    border-radius 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.2s;
+}
+
+/* 에디터 행만 overflow hidden + min-height 0 (grid trick) — 헤더 행은 그대로 */
+.newSeriesShell > div:nth-child(2) {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.newSeriesShellOpen > div:nth-child(2) {
+  overflow: visible;
+}
+
+/* 헤더 라인 — 제목 + actions
+   닫힘: title 만 (열 1개), 열림: title 좌측 + actions 우측 (2 columns) */
+.newSeriesShellHead {
+  display: grid;
+  grid-template-columns: 1fr 0fr;
+  align-items: center;
+  border-bottom: 1px solid transparent;
+  /* 닫힘 방향 — body 가 먼저 닫히고(0.35s) 그 뒤에 column 축소 */
+  transition:
+    grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+    border-bottom-color 0.2s 0.35s;
+}
+
+.newSeriesShellOpen .newSeriesShellHead {
+  grid-template-columns: 1fr auto;
+  border-bottom-color: var(--border-light-color);
+  /* 열림 방향 — radius(0~0.25s) 끝난 뒤 column 확장 시작 */
+  transition:
+    grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
+    border-bottom-color 0.2s 0.45s;
+}
+
+/* 제목 — 버튼 ↔ 헤더 사이에서 styling 만 변하면서 morph */
+.newSeriesShellTitle {
+  width: 100%;
+  padding: var(--box-md);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-normal);
+  color: var(--text-tertiary);
+  text-align: center;
+  cursor: pointer;
+  /* 닫힘 방향 — body 가 닫히고(0.35s) 난 뒤에 텍스트 reset */
+  transition:
+    font-size 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+    font-weight 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+    color 0.3s 0.35s,
+    padding 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.35s;
+}
+
+.newSeriesShellOpen .newSeriesShellTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  text-align: left;
+  padding: var(--spacing-md);
+  cursor: default;
+  /* 열림 방향 — 즉시 transition (delay 0) */
+  transition:
+    font-size 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    font-weight 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s,
+    padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.newSeriesShellTitle:disabled {
+  cursor: default;
+}
+
+/* "+ " prefix — 열릴 때 사라짐, 닫힐 때 body 닫힌 뒤 다시 등장 */
+.newSeriesShellPlus {
+  display: inline-block;
+  max-width: 1em;
+  opacity: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: bottom;
+  /* 닫힘 방향 — delay 0.35s */
+  transition:
+    max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+    opacity 0.18s 0.35s;
+}
+
+.newSeriesShellOpen .newSeriesShellPlus {
+  max-width: 0;
+  opacity: 0;
+  /* 열림 방향 — 즉시 */
+  transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s;
+}
+
+/* actions(토글/취소/만들기) — 닫힘 상태에서는 column 0fr 로 안 보임,
+   열림 상태에서 fade in */
+.newSeriesShellActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding-right: var(--spacing-md);
+  white-space: nowrap;
+  overflow: hidden;
+  min-width: 0;
+  opacity: 0;
+  /* 닫힘 방향 — body 닫힌 뒤 페이드 아웃 */
+  transition: opacity 0.2s 0.35s;
+}
+
+/* 취소·만들기와 발행 토글 사이의 세로 구분선 */
+.newSeriesShellDivider {
+  display: inline-block;
+  width: 1px;
+  height: 1.25em;
+  background: var(--border-light-color);
+  margin: 0 var(--spacing-2xs);
+}
+
+/* shell actions 안의 발행 토글 — 라벨↔토글 간격 좁게 */
+.newSeriesShellActions .publishToggle,
+.seriesCardHeadActions .publishToggle {
+  gap: var(--spacing-2xs);
+}
+
+.newSeriesShellOpen .newSeriesShellActions {
+  opacity: 1;
+  transition: opacity 0.2s 0.45s;
+}
+
+.newSeriesShell:not(.newSeriesShellOpen):hover {
+  border-color: var(--text-primary);
+}
+
+.newSeriesShell:not(.newSeriesShellOpen):hover .newSeriesShellTitle {
+  color: var(--text-primary);
+}
+
+/* standalone 모드 — 새 시리즈 생성 시 상단 제목 + 버튼 라인
+   border-bottom 을 카드 좌우 끝까지 붙이기 위해 negative margin + padding 사용 */
+.seriesStandaloneHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin: 0 calc(-1 * var(--spacing-md));
+  padding: 0 var(--spacing-md) var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+
+.seriesStandaloneTitle {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.seriesStandaloneActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .seriesCardActions {

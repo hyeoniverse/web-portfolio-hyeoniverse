@@ -365,6 +365,7 @@
 
 .commentWrap {
   padding: var(--spacing-2xl) 0;
+  border-top: var(--border-light);
 }
 
 /* ── Related posts (포스트와 동일 스타일 재사용용) ── */

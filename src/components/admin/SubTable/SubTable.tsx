@@ -214,12 +214,14 @@ export default function SubTable<T extends { id: string }>({
 
               {/* Table header */}
               <div className={styles.tableHeader} style={gridStyle}>
-                <Checkbox
-                  checked={allSelected}
-                  indeterminate={someSelected}
-                  onChange={toggleSelectAll}
-                  shape="square"
-                />
+                <span className={styles.colCheck}>
+                  <Checkbox
+                    checked={allSelected}
+                    indeterminate={someSelected}
+                    onChange={toggleSelectAll}
+                    shape="square"
+                  />
+                </span>
                 {(() => {
                   const els: ReactNode[] = [];
                   let skip = 0;
@@ -260,11 +262,13 @@ export default function SubTable<T extends { id: string }>({
                     onMouseLeave={() => onRowLeave?.()}
                     onClick={(e) => onRowClick?.(item, e)}
                   >
-                    <Checkbox
-                      checked={selected.has(item.id)}
-                      onChange={() => toggleSelect(item.id)}
-                      shape="square"
-                    />
+                    <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selected.has(item.id)}
+                        onChange={() => toggleSelect(item.id)}
+                        shape="square"
+                      />
+                    </span>
                     {columns.map((col) => (
                       <span key={col.key} className={col.className}>
                         {col.render(item, (page - 1) * perPage + idx)}

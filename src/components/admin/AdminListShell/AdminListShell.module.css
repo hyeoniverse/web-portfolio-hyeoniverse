@@ -136,6 +136,8 @@
 
 .filterSearch {
   flex: 0 1 auto;
+  min-width: 240px;
+  max-width: 320px;
 }
 
 /* ── Preview Backdrop (mobile dismiss) ── */
@@ -227,6 +229,19 @@
   color: var(--text-tertiary);
 }
 
+/* 태블릿 이하: 검색창이 한 줄에 들어갈 너비가 부족하면 다음 행으로 wrap, 100% 너비 */
+@media (max-width: 1024px) {
+  .filterBar {
+    flex-wrap: wrap;
+  }
+
+  .filterBar .filterSearch {
+    flex-basis: 100%;
+    max-width: none;
+    margin-top: var(--spacing-xs);
+  }
+}
+
 @media (max-width: 768px) {
   .header {
     flex-wrap: wrap;
@@ -244,15 +259,6 @@
   .saveBtn {
     font-size: var(--font-size-xs);
     padding: var(--box-md);
-  }
-
-  .filterBar {
-    flex-wrap: wrap;
-  }
-
-  .filterBar .filterSearch {
-    flex-basis: 100%;
-    margin-top: var(--spacing-xs);
   }
 
   .previewTooltip {

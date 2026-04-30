@@ -2,8 +2,62 @@
 .picker {
   margin-top: var(--spacing-sm);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
+  /* 펼칠 때 — height + opacity + 살짝 위에서 내려오는 미세한 translate
+     ease-out-expo 곡선으로 자연스럽게 settle */
+  animation: coverPickerExpand 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top;
+  will-change: max-height, opacity, transform;
+}
+
+@keyframes coverPickerExpand {
+  0% {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    transform: translateY(-6px);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    max-height: 1200px;
+    opacity: 1;
+    margin-top: var(--spacing-sm);
+    transform: translateY(0);
+  }
+}
+
+/* 닫힐 때 — 역방향 애니메이션. consumer 가 closing 상태를 관리하고
+   언마운트를 지연시키는 동안 이 클래스가 적용됨 */
+.pickerClosing {
+  animation: coverPickerCollapse 0.45s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+@keyframes coverPickerCollapse {
+  0% {
+    max-height: 1200px;
+    opacity: 1;
+    margin-top: var(--spacing-sm);
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 0;
+  }
+  100% {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .picker,
+  .pickerClosing {
+    animation: none;
+  }
 }
 
 /* ── Header (tabs + close) ── */
@@ -49,14 +103,17 @@
 }
 
 .closeBtn {
-  padding: var(--box-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   border: none;
   background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
   color: var(--text-muted);
-
-  line-height: 1;
+  cursor: pointer;
+  --close-size: 12px;
 }
 
 .header .closeBtn:hover {
@@ -137,6 +194,24 @@
   display: flex;
   align-items: center;
   margin-bottom: var(--spacing-sm);
+}
+
+/* AI 탭 — input + 생성 버튼을 한 줄로 */
+.inputRow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.inputRow .inputWrapper {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.inputRow .generateBtn {
+  align-self: stretch;
+  flex-shrink: 0;
 }
 
 .inputWrapper input,

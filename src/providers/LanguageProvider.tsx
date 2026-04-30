@@ -28,10 +28,6 @@ interface LanguageContextType {
   tLang: (key: string, lang: Language) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(
-  undefined
-);
-
 function getNestedValue(obj: Translations, path: string): string {
   const keys = path.split(".");
   let value: TranslationValue = obj;
@@ -51,6 +47,19 @@ function applyLangToDom(lang: Language) {
   localStorage.setItem("language", lang);
   document.documentElement.setAttribute("lang", lang);
 }
+
+/* SSR / 프로바이더 누락(레이아웃 revalidate 도중 등) 상황에서도 안전하게 동작하도록
+   ko 기준 기본값 제공 — SiteConfigProvider 와 동일한 방어적 패턴 */
+const defaultContextValue: LanguageContextType = {
+  language: "ko",
+  toggleLanguage: () => {},
+  setLanguage: () => {},
+  t: (key) => getNestedValue(translations.ko, key),
+  tAlt: (key) => getNestedValue(translations.en, key),
+  tLang: (key, lang) => getNestedValue(translations[lang], key),
+};
+
+const LanguageContext = createContext<LanguageContextType>(defaultContextValue);
 
 /* ── Provider ── */
 
@@ -125,9 +134,5 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useLanguage() {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
-  }
-  return context;
+  return useContext(LanguageContext);
 }

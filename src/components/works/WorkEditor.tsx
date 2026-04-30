@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
+import { ChevronDown, Plus, Star, Eye } from "lucide-react";
+import CloseIcon from "@/components/ui/CloseIcon";
+import { ImageViewer } from "@/components/ui/ImageViewer";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
 import AdminEditorShell, {
@@ -12,6 +16,7 @@ import AdminEditorShell, {
 } from "@/components/admin/AdminEditorShell";
 import EditorToggle from "@/components/posts/EditorToggle";
 import MarkdownEditor from "@/components/posts/MarkdownEditor";
+import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
 import type { Work, WorkFormData } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
@@ -52,6 +57,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const serviceStatus = useServiceStatus();
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
+  // 필수/선택 그룹 토글 — Posts editor 와 동일 패턴
+  const [optionalOpen, setOptionalOpen] = useState(false);
+  const [extraOpen, setExtraOpen] = useState(false);
 
   const tw = useCallback(
     (key: string) => tLang(`admin.works.editor.${key}`, editorLang),
@@ -72,41 +80,45 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [form],
   );
 
-  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions({
+  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions({
     entityType: "work",
     entityId: work?.id,
   });
 
-  // 편집기 진입 시 자동저장 초안 복원 확인
-  const draftRestored = useRef(false);
-  const applyDraft = useCallback((data: WorkFormData) => {
-    autoSaveSkip.current = true;
-    setForm(data);
-    setStatus(tw("draftRestored"));
-    setStatusType("info");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tw]);
-
-  const askRestore = useCallback((data: WorkFormData) => {
-    const modalId = "draft-restore";
-    openModal(
-      <ModalConfirm
-        desc={tw("draftFoundDesc")}
-        cancelText={tw("draftFoundDiscard")}
-        confirmText={tw("draftFoundLoad")}
-        onConfirm={() => applyDraft(data)}
-        onCancel={() => {}}
-      />,
-      { id: modalId, header: { title: tw("draftFoundTitle") }, width: "360px", closeButton: false },
-    );
-  }, [tw, openModal, applyDraft]);
+  // 편집기 진입 시 DB revision 복원 확인
+  // 최신 non-dismissed revision(B)이 저장된 데이터(A)와 다르면 한 번만 물어봄
+  // 무시 → B dismissed, A 유지 / 불러오기 → B dismissed, B 적용
+  const draftAsked = useRef(false);
 
   useEffect(() => {
-    if (draftRestored.current || dbRevisions.length === 0) return;
-    draftRestored.current = true;
-    loadRevisionSnapshot(dbRevisions[0].id).then((snapshot) => {
+    if (draftAsked.current) return;
+    if (dbRevisions.length === 0) return;
+    const latest = dbRevisions.find((r) => !r.dismissed);
+    if (!latest) return;
+    const initialJson = JSON.stringify(initialFormRef.current);
+    draftAsked.current = true;
+    loadRevisionSnapshot(latest.id).then((snapshot) => {
       if (!snapshot) return;
-      askRestore(snapshot as WorkFormData);
+      if (JSON.stringify(snapshot) === initialJson) return;
+
+      openModal(
+        <ModalConfirm
+          desc={tw("draftFoundDesc")}
+          cancelText={tw("draftFoundDiscard")}
+          confirmText={tw("draftFoundLoad")}
+          onConfirm={() => {
+            autoSaveSkip.current = true;
+            setForm(snapshot as WorkFormData);
+            setStatus(tw("draftRestored"));
+            setStatusType("info");
+            dismissRevision(latest.id);
+          }}
+          onCancel={() => {
+            dismissRevision(latest.id);
+          }}
+        />,
+        { id: "draft-restore", header: { title: tw("draftFoundTitle") }, width: "360px", closeButton: false },
+      );
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbRevisions]);
@@ -159,6 +171,27 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [work?.id]);
 
   const [showCoverPicker, setShowCoverPicker] = useState(false);
+  const [galleryViewerIdx, setGalleryViewerIdx] = useState<number | null>(null);
+  const galleryGridRef = useRef<HTMLDivElement | null>(null);
+
+  // 세로 wheel → 가로 스크롤 변환 (가로 strip UX). passive: false 로 등록해야 preventDefault 가능
+  useEffect(() => {
+    const el = galleryGridRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      // shift 누르면 native 가로 스크롤 그대로 사용
+      if (e.shiftKey) return;
+      const dy = e.deltaY;
+      const dx = e.deltaX;
+      // 세로 우세할 때만 가로로 변환 (trackpad 가로 스와이프는 그대로)
+      if (Math.abs(dy) > Math.abs(dx)) {
+        e.preventDefault();
+        el.scrollLeft += dy;
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [status, setStatus] = useState("");
@@ -185,6 +218,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       getTitle: getWorkTitle,
       busyFlags: { saving, translating },
       onSaved: onAutoSaved,
+      ignoredFields: ["scheduled_at"],
     });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -639,10 +673,43 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           },
         };
       })()}
+      topBarSecondRowLeft={
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)", flexWrap: "nowrap" }}>
+          <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", whiteSpace: "nowrap", flexShrink: 0, marginRight: "var(--spacing-2xs)" }}>{tw("scheduledAt")}</span>
+          <DateTimePicker
+            value={form.scheduled_at ?? null}
+            onChange={(iso) => updateField("scheduled_at", iso)}
+          />
+          <AnimatePresence>
+            {form.scheduled_at && (
+              <motion.button
+                key="clear"
+                type="button"
+                className={es.scheduledClearBtn}
+                onClick={() => updateField("scheduled_at", null)}
+                title={tw("scheduledClear")}
+                aria-label={tw("scheduledClear")}
+                data-close-trigger
+                initial={{ opacity: 0, scale: 0.5, width: 0 }}
+                animate={{ opacity: 1, scale: 1, width: 24 }}
+                exit={{ opacity: 0, scale: 0.5, width: 0 }}
+                transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+              >
+                <CloseIcon />
+              </motion.button>
+            )}
+          </AnimatePresence>
+          {form.scheduled_at && !form.published && (
+            <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>{tw("scheduledHint")}</span>
+          )}
+        </div>
+      }
     >
-      {/* Basic Info */}
+      {/* Basic Info — 필수 (title, year, category) + 선택 (collapsible) */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>{tw("basicInfo")}</h2>
+
+        {/* ── 필수 ── */}
         <div className={es.field}>
           <label className={`${es.fieldLabel}${showErrors && !form.title.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
           <input
@@ -654,44 +721,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           />
         </div>
 
-        {/* 예약 발행 */}
-        <div className={es.field}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
-            <label className={es.fieldLabel}>{tw("scheduledAt")}</label>
-            {form.scheduled_at && !form.published && (
-              <span className={styles.slugHint}>{tw("scheduledHint")}</span>
-            )}
-          </div>
-          <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center" }}>
-            <DateTimePicker
-              value={form.scheduled_at ?? null}
-              onChange={(iso) => updateField("scheduled_at", iso)}
-              disabled={form.published}
-            />
-            {form.scheduled_at && (
-              <button
-                type="button"
-                className={es.envCancelBtn}
-                onClick={() => updateField("scheduled_at", null)}
-                title={tw("scheduledClear")}
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className={styles.row3}>
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{tw("number")}</label>
-            <input
-              className={es.fieldInput}
-              type="text"
-              value={form.number}
-              onChange={(e) => updateField("number", e.target.value)}
-              placeholder={tw("numberPlaceholder")}
-            />
-          </div>
+        <div className={es.row}>
           <div className={es.field}>
             <label className={`${es.fieldLabel}${showErrors && !form.year.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("year")}</label>
             <input
@@ -703,86 +733,146 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             />
           </div>
           <div className={es.field}>
-            <label className={es.fieldLabel}>{tw("sortOrder")}</label>
-            <Select
-              value={String(form.sort_order)}
-              options={
-                totalWorks > 0
-                  ? Array.from({ length: totalWorks }, (_, i) => ({
-                      value: String(i + 1),
-                      label: String(i + 1),
-                    }))
-                  : [{ value: String(form.sort_order), label: String(form.sort_order) }]
-              }
-              onChange={(v) => updateField("sort_order", parseInt(v) || 1)}
-            />
-          </div>
-        </div>
-
-        <div className={es.row}>
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{tw("subtitle")}</label>
-            <input
-              className={es.fieldInput}
-              type="text"
-              value={form[`subtitle${suf}`]}
-              onChange={(e) => updateField(`subtitle${suf}`, e.target.value)}
-              placeholder={tw("subtitlePlaceholder")}
-            />
-          </div>
-          <div className={es.field}>
             <label className={`${es.fieldLabel}${showErrors && !form.category_ko.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
-            {worksCategories.length > 0 ? (
-              <Select
-                value={String(
-                  worksCategories.findIndex(
-                    (c) => c.ko === form.category_ko && c.en === form.category_en,
-                  ),
-                )}
-                options={worksCategories.map((cat, i) => ({
-                  value: String(i),
-                  label: editorLang === "ko" ? cat.ko : cat.en,
-                }))}
-                onChange={(v) => {
-                  const idx = parseInt(v);
-                  const cat = worksCategories[idx];
-                  if (cat) {
-                    setForm((prev) => ({ ...prev, category_ko: cat.ko, category_en: cat.en }));
-                    setStatus("");
-                    setError("");
-                  }
-                }}
-              />
-            ) : (
-              <input
-                className={es.fieldInput}
-                type="text"
-                value={form[`category${suf}`]}
-                onChange={(e) => updateField(`category${suf}`, e.target.value)}
-                placeholder={tw("categoryPlaceholder")}
-              />
-            )}
+            {(() => {
+              // 현재 form 값이 카테고리 목록 안에 있는지 확인 → 없거나 직접 입력 모드면 input 표시
+              const matchedIdx = worksCategories.findIndex(
+                (c) => c.ko === form.category_ko && c.en === form.category_en,
+              );
+              const isCustom = form.category_ko.trim() !== "" && matchedIdx === -1;
+              const selectValue = isCustom ? "__custom__" : String(matchedIdx);
+              return (
+                <>
+                  <Select
+                    value={selectValue}
+                    options={[
+                      { value: "__custom__", label: tw("customCategory") },
+                      ...worksCategories.map((cat, i) => ({
+                        value: String(i),
+                        label: editorLang === "ko" ? cat.ko : cat.en,
+                      })),
+                    ]}
+                    onChange={(v) => {
+                      if (v === "__custom__") {
+                        setForm((prev) => ({ ...prev, category_ko: "", category_en: "" }));
+                      } else {
+                        const idx = parseInt(v);
+                        const cat = worksCategories[idx];
+                        if (cat) {
+                          setForm((prev) => ({ ...prev, category_ko: cat.ko, category_en: cat.en }));
+                        }
+                      }
+                      setStatus("");
+                      setError("");
+                    }}
+                  />
+                  {(isCustom || selectValue === "__custom__") && (
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-xs)", marginTop: "var(--spacing-xs)" }}>
+                      <input
+                        className={es.fieldInput}
+                        type="text"
+                        value={form.category_ko}
+                        onChange={(e) => updateField("category_ko", e.target.value)}
+                        placeholder={`${tw("categoryPlaceholder")} (KO)`}
+                      />
+                      <input
+                        className={es.fieldInput}
+                        type="text"
+                        value={form.category_en}
+                        onChange={(e) => updateField("category_en", e.target.value)}
+                        placeholder={`${tw("categoryPlaceholder")} (EN)`}
+                      />
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
 
-        <div className={es.row}>
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{tw("role")}</label>
-            <input
-              className={es.fieldInput}
-              type="text"
-              value={form[`role${suf}`]}
-              onChange={(e) => updateField(`role${suf}`, e.target.value)}
-              placeholder={tw("rolePlaceholder")}
+        {/* ── 선택 (collapsible) ── */}
+        <div className={styles.optionalSection}>
+          <button
+            type="button"
+            className={styles.optionalToggle}
+            onClick={() => setOptionalOpen((v) => !v)}
+          >
+            <span>{tw("optionalFields") || "선택 입력"}</span>
+            <ChevronDown
+              size={12}
+              strokeWidth={2.5}
+              style={{ transform: optionalOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
             />
-          </div>
-          <div className={es.field}>
-            <label className={es.fieldLabel}>{tw("cardSize")}</label>
-            <Select
-              value={form.size}
-              options={SIZES.map((s) => ({ value: s, label: s }))}
-              onChange={(v) => updateField("size", v as WorkFormData["size"])}
-            />
+          </button>
+
+          <div className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
+            <div className={styles.row2}>
+              <div className={es.field}>
+                <label className={es.fieldLabel}>{tw("sortOrder")}</label>
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+                  <Select
+                    value={String(form.sort_order)}
+                    options={
+                      totalWorks > 0
+                        ? Array.from({ length: totalWorks }, (_, i) => ({
+                            value: String(i + 1),
+                            label: `${i + 1} / ${totalWorks}`,
+                          }))
+                        : [{ value: String(form.sort_order), label: String(form.sort_order) }]
+                    }
+                    onChange={(v) => updateField("sort_order", parseInt(v) || 1)}
+                    className={styles.sortOrderSelect}
+                  />
+                  <button
+                    type="button"
+                    className={styles.sortQuickBtn}
+                    onClick={() => updateField("sort_order", 1)}
+                    title={tw("moveToTop")}
+                  >
+                    {tw("moveToTop")}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.sortQuickBtn}
+                    onClick={() => updateField("sort_order", totalWorks || form.sort_order)}
+                    title={tw("moveToBottom")}
+                  >
+                    {tw("moveToBottom")}
+                  </button>
+                </div>
+              </div>
+              <div className={es.field}>
+                <label className={es.fieldLabel}>{tw("cardSize")}</label>
+                <Select
+                  value={form.size}
+                  options={SIZES.map((s) => ({ value: s, label: s }))}
+                  onChange={(v) => updateField("size", v as WorkFormData["size"])}
+                />
+              </div>
+            </div>
+
+            <div className={es.row}>
+              <div className={es.field}>
+                <label className={es.fieldLabel}>{tw("subtitle")}</label>
+                <input
+                  className={es.fieldInput}
+                  type="text"
+                  value={form[`subtitle${suf}`]}
+                  onChange={(e) => updateField(`subtitle${suf}`, e.target.value)}
+                  placeholder={tw("subtitlePlaceholder")}
+                />
+              </div>
+              <div className={es.field}>
+                <label className={es.fieldLabel}>{tw("role")}</label>
+                <input
+                  className={es.fieldInput}
+                  type="text"
+                  value={form[`role${suf}`]}
+                  onChange={(e) => updateField(`role${suf}`, e.target.value)}
+                  placeholder={tw("rolePlaceholder")}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -844,6 +934,185 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         </div>
       </div>
 
+      {/* Images */}
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>{tw("images")}</h2>
+
+        <div className={es.field} style={{ marginBottom: "var(--spacing-lg)" }}>
+          <label className={`${es.fieldLabel}${showErrors && !form.image.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("mainImage")}</label>
+          {form.image ? (
+            <div className={styles.imagePreview}>
+              <Image
+                src={form.image}
+                alt="Main"
+                width={120}
+                height={70}
+                className={styles.imageThumb}
+                unoptimized
+              />
+              <button
+                type="button"
+                className={styles.imageRemove}
+                onClick={() => updateField("image", "")}
+              >
+                {tw("remove")}
+              </button>
+            </div>
+          ) : (
+            <div>
+              <div style={{ display: "flex", gap: "var(--spacing-xs)", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  className={es.uploadBtn}
+                  onClick={() => handleImageUpload("image")}
+                >
+                  {tw("uploadImage")}
+                </button>
+                <button
+                  type="button"
+                  className={es.uploadBtn}
+                  onClick={() => setShowCoverPicker((v) => !v)}
+                >
+                  {showCoverPicker ? tw("closePicker") : tw("chooseCover")}
+                </button>
+              </div>
+              <input
+                className={es.fieldInput}
+                type="text"
+                value={form.image}
+                onChange={(e) => updateField("image", e.target.value)}
+                placeholder={tw("pasteUrl")}
+                style={{ marginTop: "var(--spacing-xs)", width: "100%" }}
+              />
+              {form.gallery.length > 0 && (
+                <p style={{ marginTop: "var(--spacing-xs)", fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)" }}>
+                  {tw("galleryPickHint")}
+                </p>
+              )}
+              {showCoverPicker && (
+                <CoverImagePicker
+                  onSelect={(url) => { updateField("image", url); setShowCoverPicker(false); }}
+                  onClose={() => setShowCoverPicker(false)}
+                  postContext={{ title: form.title, tags: form.tech, excerpt: form.description_ko || form.description_en }}
+                />
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className={es.field}>
+          <div className={styles.galleryLabelRow}>
+            <label className={es.fieldLabel} style={{ marginBottom: 0 }}>
+              {tw("gallery")}
+              {form.gallery.length > 0 && (
+                <span className={styles.galleryCount}>{form.gallery.length}</span>
+              )}
+            </label>
+            <button
+              type="button"
+              className={styles.galleryAddInline}
+              onClick={() => handleImageUpload("gallery")}
+            >
+              <Plus size={12} strokeWidth={2} />
+              <span>{tw("addMore")}</span>
+            </button>
+          </div>
+          <div
+            ref={galleryGridRef}
+            className={styles.galleryGrid}
+            data-lenis-prevent
+          >
+            {form.gallery.map((src, i) => {
+              const isMain = src === form.image && !!src;
+              return (
+                <div
+                  key={i}
+                  className={`${styles.galleryItem} ${isMain ? styles.galleryItemMain : ""}`}
+                >
+                  <button
+                    type="button"
+                    className={styles.galleryThumb}
+                    onClick={() => setGalleryViewerIdx(i)}
+                    aria-label={tw("viewImage")}
+                  >
+                    <Image
+                      src={src}
+                      alt={`Gallery ${i + 1}`}
+                      fill
+                      sizes="160px"
+                      className={styles.galleryImg}
+                      unoptimized
+                    />
+                  </button>
+                  {isMain && (
+                    <span className={styles.galleryMainBadge}>
+                      <Star size={10} strokeWidth={2.5} fill="currentColor" />
+                      {tw("currentMain")}
+                    </span>
+                  )}
+                  <div className={styles.galleryActions}>
+                    {!isMain && (
+                      <button
+                        type="button"
+                        className={styles.galleryActionBtn}
+                        onClick={() => updateField("image", src)}
+                        title={tw("setAsMain")}
+                        aria-label={tw("setAsMain")}
+                      >
+                        <Star size={12} strokeWidth={2} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className={styles.galleryActionBtn}
+                      onClick={() => setGalleryViewerIdx(i)}
+                      title={tw("viewImage")}
+                      aria-label={tw("viewImage")}
+                    >
+                      <Eye size={12} strokeWidth={2} />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.galleryActionBtn} ${styles.galleryActionDanger}`}
+                      onClick={() => removeGalleryItem(i)}
+                      title={tw("remove")}
+                      aria-label={tw("remove")}
+                      data-close-trigger
+                    >
+                      <CloseIcon />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            <button
+              type="button"
+              className={styles.galleryAddTile}
+              onClick={() => handleImageUpload("gallery")}
+            >
+              <Plus size={20} strokeWidth={1.5} />
+              <span>{form.gallery.length === 0 ? tw("addGallery") : tw("addMore")}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 추가 정보 (Tech + Team + Links + RelatedPosts) — 선택 입력 통합 collapsible ── */}
+      <div className={styles.extraSections}>
+        <button
+          type="button"
+          className={styles.optionalToggle}
+          onClick={() => setExtraOpen((v) => !v)}
+        >
+          <span>{tw("additionalInfo") || "추가 정보 (선택)"}</span>
+          <ChevronDown
+            size={12}
+            strokeWidth={2.5}
+            style={{ transform: extraOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+          />
+        </button>
+        <div className={`${styles.extraSectionsContent}${extraOpen ? ` ${styles.extraSectionsContentOpen}` : ""}`}>
+
       {/* Tech Stack */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>{tw("techStack")}</h2>
@@ -893,20 +1162,23 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               onChange={(e) => team.setMemberName(e.target.value)}
               placeholder={tw("memberName")}
             />
-            <input
-              className={es.fieldInput}
-              type="text"
-              value={team.memberRoleKo}
-              onChange={(e) => team.setMemberRoleKo(e.target.value)}
-              placeholder={tw("memberRole")}
-            />
-            <input
-              className={es.fieldInput}
-              type="text"
-              value={team.memberRoleEn}
-              onChange={(e) => team.setMemberRoleEn(e.target.value)}
-              placeholder={tw("memberRoleEN")}
-            />
+            {editorLang === "ko" ? (
+              <input
+                className={es.fieldInput}
+                type="text"
+                value={team.memberRoleKo}
+                onChange={(e) => team.setMemberRoleKo(e.target.value)}
+                placeholder={tw("memberRole")}
+              />
+            ) : (
+              <input
+                className={es.fieldInput}
+                type="text"
+                value={team.memberRoleEn}
+                onChange={(e) => team.setMemberRoleEn(e.target.value)}
+                placeholder={tw("memberRole")}
+              />
+            )}
           </div>
           <div className={styles.memberFormRow}>
             <input
@@ -933,7 +1205,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 <div className={styles.memberInfo}>
                   <span className={styles.memberItemName}>{m.name}</span>
                   <span className={styles.memberItemRole}>
-                    {m.role_ko}{m.role_en ? ` / ${m.role_en}` : ""}
+                    {[m.role_ko, m.role_en].filter(Boolean).join(" / ")}
                   </span>
                   {m.url && (
                     <a href={m.url} target="_blank" rel="noopener noreferrer" className={styles.memberItemUrl}>
@@ -952,102 +1224,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             ))}
           </div>
         )}
-      </div>
-
-      {/* Images */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tw("images")}</h2>
-
-        <div className={es.field} style={{ marginBottom: "var(--spacing-lg)" }}>
-          <label className={`${es.fieldLabel}${showErrors && !form.image.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("mainImage")}</label>
-          {form.image ? (
-            <div className={styles.imagePreview}>
-              <Image
-                src={form.image}
-                alt="Main"
-                width={120}
-                height={70}
-                className={styles.imageThumb}
-                unoptimized
-              />
-              <button
-                type="button"
-                className={styles.imageRemove}
-                onClick={() => updateField("image", "")}
-              >
-                {tw("remove")}
-              </button>
-            </div>
-          ) : (
-            <div>
-              <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
-                <button
-                  type="button"
-                  className={es.uploadBtn}
-                  onClick={() => handleImageUpload("image")}
-                >
-                  {tw("uploadImage")}
-                </button>
-                <button
-                  type="button"
-                  className={es.uploadBtn}
-                  onClick={() => setShowCoverPicker((v) => !v)}
-                >
-                  {showCoverPicker ? tw("closePicker") : tw("chooseCover")}
-                </button>
-              </div>
-              <input
-                className={es.fieldInput}
-                type="text"
-                value={form.image}
-                onChange={(e) => updateField("image", e.target.value)}
-                placeholder={tw("pasteUrl")}
-                style={{ marginTop: "var(--spacing-xs)", width: "100%" }}
-              />
-              {showCoverPicker && (
-                <CoverImagePicker
-                  onSelect={(url) => { updateField("image", url); setShowCoverPicker(false); }}
-                  onClose={() => setShowCoverPicker(false)}
-                  postContext={{ title: form.title, tags: form.tech, excerpt: form.description_ko || form.description_en }}
-                />
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className={es.field}>
-          <label className={es.fieldLabel}>{tw("gallery")}</label>
-          <button
-            type="button"
-            className={es.uploadBtn}
-            onClick={() => handleImageUpload("gallery")}
-          >
-            {tw("addGallery")}
-          </button>
-          {form.gallery.length > 0 && (
-            <div className={styles.galleryGrid}>
-              {form.gallery.map((src, i) => (
-                <div key={i} className={styles.galleryItem}>
-                  <Image
-                    src={src}
-                    alt={`Gallery ${i + 1}`}
-                    fill
-                    sizes="140px"
-                    className={styles.galleryImg}
-                    unoptimized
-                  />
-                  <button
-                    type="button"
-                    className={styles.galleryRemove}
-                    onClick={() => removeGalleryItem(i)}
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Links */}
@@ -1090,10 +1266,37 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           getThumb={(p) => p.cover_image}
           getStatus={(p) => (p.published ? "published" : "draft")}
           searchPlaceholder={tw("relatedPostsSearch")}
+          searchInputPlaceholder={tw("relatedPostsSearchInput")}
           emptyText={tw("relatedPostsEmpty")}
           noResultsText={tw("relatedPostsNoResults")}
         />
       </div>
+
+        </div>{/* /extraSectionsContent */}
+      </div>{/* /extraSections (Tech+Team+Links+Related) */}
+
+      {/* SEO 체크리스트 — portal 로 floating pill 렌더 (works 는 number/slug 없음) */}
+      <SeoChecklist
+        data={{
+          title: form.title,
+          excerpt: editorLang === "ko" ? form.description_ko : form.description_en,
+          cover: form.image,
+          category: editorLang === "ko" ? form.category_ko : form.category_en,
+          tagsCount: form.tech?.length ?? 0,
+        }}
+        onItemClick={(id: SeoCheckId) => {
+          const fieldId = id === "excerpt" ? "work-description" : id === "cover" ? "work-image" : id === "tags" ? "work-tech" : `work-${id}`;
+          const el = document.getElementById(fieldId);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }}
+      />
+      <ImageViewer
+        images={form.gallery}
+        index={galleryViewerIdx ?? 0}
+        open={galleryViewerIdx !== null}
+        onClose={() => setGalleryViewerIdx(null)}
+        title={form.title}
+      />
     </AdminEditorShell>
   );
 }

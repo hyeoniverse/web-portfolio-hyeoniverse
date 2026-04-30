@@ -20,7 +20,8 @@ import AdminTable, {
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
 import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
-import SearchCapsule from "@/components/admin/SearchCapsule/SearchCapsule";
+import MoveDialog from "@/components/admin/MoveDialog";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { useModalStore } from "@/stores/modalStore";
 import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
 import type { BilingualCategory } from "@/types/common";
@@ -102,6 +103,7 @@ export default function AdminWorksPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   /* Filters & sort */
   const [search, setSearch] = useState("");
@@ -176,6 +178,7 @@ export default function AdminWorksPage() {
     const data = await res.json();
     setWorks(data.works ?? []);
     setTotalPages(data.totalPages ?? 1);
+    setTotalCount(data.total ?? data.works?.length ?? 0);
     setLoading(false);
   }, [page, perPage, sort, filterCategory, filterYear, search, searchType]);
 
@@ -294,12 +297,7 @@ export default function AdminWorksPage() {
   const handleDragReorder = async (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx) return;
 
-    const next = [...works];
-    const [moved] = next.splice(fromIdx, 1);
-    next.splice(toIdx, 0, moved);
-    setWorks(next);
-
-    // Redistribute sort_order values in the affected range
+    // 영향 범위 내 sort_order 값들을 정렬해서 새 슬롯에 재배치
     const lo = Math.min(fromIdx, toIdx);
     const hi = Math.max(fromIdx, toIdx);
     const sortOrders = works
@@ -307,18 +305,56 @@ export default function AdminWorksPage() {
       .map((w) => w.sort_order)
       .sort((a, b) => a - b);
 
-    await Promise.all(
-      next.slice(lo, hi + 1).map((w, i) =>
-        fetch(`/api/works/${w.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sort_order: sortOrders[i] }),
-        }),
-      ),
-    );
+    // 1) 순서 재배치
+    const reordered = [...works];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
 
-    fetchWorks();
+    // 2) immutable 하게 sort_order 재할당 (객체 새로 복제) → React 가 정상 reconcile
+    const next = reordered.map((w, idx) => {
+      if (idx >= lo && idx <= hi) {
+        return { ...w, sort_order: sortOrders[idx - lo] };
+      }
+      return w;
+    });
+    setWorks(next);
+
+    // 서버 동기화 — 실패 시에만 reload. skipShift=true 로 client-batch 모드 알림 (서버 자동 shift 비활성)
+    try {
+      await Promise.all(
+        next.slice(lo, hi + 1).map((w) =>
+          fetch(`/api/works/${w.id}?skipShift=true`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sort_order: w.sort_order }),
+          }),
+        ),
+      );
+    } catch {
+      fetchWorks();
+    }
   };
+
+  /** 위치 이동 dialog 핸들러 — 맨 앞 / 맨 뒤 / 특정 위치로 이동.
+      서버 PATCH 가 자동으로 다른 work 들 shift 처리 (skipShift=false) */
+  const handleMove = useCallback((target: Work) => {
+    openModal(
+      <MoveDialog
+        currentOrder={target.sort_order}
+        totalCount={totalCount || works.length}
+        onMove={async (newOrder) => {
+          if (newOrder === target.sort_order) return;
+          await fetch(`/api/works/${target.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sort_order: newOrder }),
+          });
+          fetchWorks();
+        }}
+      />,
+      { id: "work-move", header: { title: t("admin.works.moveTitle") }, closeButton: true, width: "360px" },
+    );
+  }, [openModal, totalCount, works.length, fetchWorks, t]);
 
 
   const columns: AdminTableColumn<Work>[] = useMemo(
@@ -374,6 +410,7 @@ export default function AdminWorksPage() {
       publishLabel: t("admin.works.publishLabel"),
       publishedTooltip: t("admin.works.publishedTooltip"),
       unpublishedTooltip: t("admin.works.unpublishedTooltip"),
+      move: t("admin.common.moveToPosition"),
     }),
     [t],
   );
@@ -461,7 +498,7 @@ export default function AdminWorksPage() {
         onToggle={() => { if (!trashOpen) fetchTrash(); setTrashOpen((v) => !v); }}
         allItems={filteredTrash}
         columns={trashColumns}
-        gridTemplate="28px 64px 1fr 100px 200px"
+        gridTemplate="28px 64px 1fr 100px 180px"
         selected={new Set<string>()}
         onSelectChange={() => {}}
         page={trashPage}
@@ -707,9 +744,10 @@ role: 풀스택 개발
           },
         ]}
         onReorder={sort === "order" && !filterYear && !filterCategory ? handleDragReorder : undefined}
-        gridTemplate="64px 1fr 100px 200px"
+        onMove={sort === "order" && !filterYear && !filterCategory ? handleMove : undefined}
+        gridTemplate="64px 1fr 100px 180px"
         showRowNumbers
-        getRowLabel={(w) => w.number || "—"}
+        getRowLabel={(w) => String(w.sort_order)}
         loading={loading}
         emptyMessage={t("admin.works.noWorksYet")}
         skeletonRows={4}

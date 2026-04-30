@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isValidWorksCategory } from "@/lib/api/validateCategory";
+import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
 // GET /api/works — 목록 조회
 export async function GET(request: Request) {
@@ -133,12 +133,26 @@ export async function POST(request: Request) {
     if (ALLOWED_FIELDS.has(key)) filtered[key] = body[key];
   }
 
-  if (filtered.category_ko && filtered.category_en &&
-      !(await isValidWorksCategory(filtered.category_ko as string, filtered.category_en as string))) {
-    return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+  // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
+  if (filtered.category_ko || filtered.category_en) {
+    await ensureWorksCategory(
+      (filtered.category_ko as string) ?? "",
+      (filtered.category_en as string) ?? "",
+    );
   }
 
   const admin = createAdminClient();
+
+  // 새 work 의 sort_order 가 명시되지 않았거나 기본값(1) 이면, 현재 max + 1 로 자동 설정 (맨 뒤)
+  if (filtered.sort_order === undefined || filtered.sort_order === 1) {
+    const { data: maxRow } = await admin
+      .from("works")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    filtered.sort_order = (maxRow?.sort_order ?? 0) + 1;
+  }
 
   const { data, error } = await admin
     .from("works")
