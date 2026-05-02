@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { marked } from "marked";
 import markedFootnote from "marked-footnote";
 import markedAlert from "marked-alert";
@@ -67,11 +67,14 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
+const PLACEHOLDER_SRC = "/images/placeholder.svg";
+
 export default function MarkdownRenderer({
   content,
   className,
 }: MarkdownRendererProps) {
   const { t } = useLanguage();
+  const ref = useRef<HTMLDivElement>(null);
 
   const html = useMemo(() => {
     _wrapLabel = `↩ ${t("common.codeWrap")}`;
@@ -98,8 +101,39 @@ export default function MarkdownRenderer({
     return raw.replace(/<img\s/g, '<img data-cursor="zoom" ');
   }, [content, t]);
 
+  // 깨진 이미지 → /images/placeholder.svg 로 swap. MutationObserver 로 동적 추가 img 도 추적
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const swap = (img: HTMLImageElement) => {
+      if (img.src.endsWith(PLACEHOLDER_SRC)) return;
+      img.src = PLACEHOLDER_SRC;
+      img.removeAttribute("srcset");
+    };
+    const handle = (img: HTMLImageElement) => {
+      if (img.dataset.fallbackBound === "1") return;
+      img.dataset.fallbackBound = "1";
+      img.addEventListener("error", () => swap(img));
+      if (img.complete && img.naturalWidth === 0) swap(img);
+    };
+    root.querySelectorAll("img").forEach((el) => handle(el as HTMLImageElement));
+    const mo = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        m.addedNodes.forEach((node) => {
+          if (node.nodeType !== 1) return;
+          const el = node as Element;
+          if (el.tagName === "IMG") handle(el as HTMLImageElement);
+          el.querySelectorAll?.("img").forEach((img) => handle(img as HTMLImageElement));
+        });
+      }
+    });
+    mo.observe(root, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, [html]);
+
   return (
     <div
+      ref={ref}
       className={className}
       dangerouslySetInnerHTML={{ __html: html }}
     />

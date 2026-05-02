@@ -322,7 +322,20 @@ export function ImagePanel({
               </span>
               {isVideo
                 ? <video src={img.url} draggable={false} muted preload="metadata" style={isDetached ? { opacity: 0.7 } : undefined} />
-                : <img src={img.url} alt={fileName} draggable={false} style={isDetached ? { opacity: 0.7 } : undefined} /> // eslint-disable-line @next/next/no-img-element
+                  // eslint-disable-next-line @next/next/no-img-element
+                : <img
+                    src={img.url}
+                    alt={fileName}
+                    draggable={false}
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      if (!el.src.endsWith("/images/placeholder.svg")) {
+                        el.src = "/images/placeholder.svg";
+                        el.removeAttribute("srcset");
+                      }
+                    }}
+                    style={isDetached ? { opacity: 0.7 } : undefined}
+                  />
               }
               <span className={styles.imagePanelName}>{fileName}</span>
               <button
