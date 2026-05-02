@@ -27,6 +27,31 @@
   border-bottom: var(--border-light);
 }
 
+/* 섹션 타이틀 + 보조 hint 가 같은 라인. 타이틀은 좌측, hint 는 우측 부드러운 톤 */
+.sectionTitleRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: var(--border-light);
+}
+
+.sectionTitleRow .sectionTitle {
+  padding-bottom: 0;
+  border-bottom: none;
+  flex-shrink: 0;
+}
+
+.sectionTitleHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+}
+
 .sectionTitleError {
   color: var(--text-accent) !important;
 }
@@ -50,17 +75,85 @@
   align-items: start;
 }
 
-.sortOrderSelect {
-  flex: 1;
-  min-width: 0;
+/* ── Sort order drag list — header(라벨+컨트롤) + list + 페이지네이션 ── */
+.sortDragWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
-.sortQuickBtn {
-  flex-shrink: 0;
-  padding: 0 var(--spacing-md);
-  height: var(--size-sm);
+/* 헤더 — fieldLabel 과 위치/Jump 컨트롤이 같은 라인 */
+.sortDragHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+/* 컨트롤 그룹 — 위치 input + 맨 앞/맨 뒤 jump */
+.sortDragControls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.sortDragPos {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sortDragPosInput {
+  width: 44px;
+  /* 맨앞/맨뒤 button group(.sortDragJumps) 과 같은 높이 — 컴팩트 (--size-2xs = 20px) */
+  height: var(--size-2xs);
+  box-sizing: border-box;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
+  padding: 0 8px;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.sortDragPosInput::-webkit-outer-spin-button,
+.sortDragPosInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.sortDragPosInput:focus {
+  border-color: var(--text-primary);
+}
+
+.sortDragPosSep,
+.sortDragPosTotal {
+  color: var(--text-tertiary);
+}
+
+/* 맨앞/맨뒤 buttons — 단일 capsule group (border 공유, divider 로 분리). 높이 컴팩트 */
+.sortDragJumps {
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--size-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.sortDragJumpBtn {
+  padding: 0 var(--spacing-sm);
+  border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
@@ -68,12 +161,153 @@
   color: var(--text-secondary);
   white-space: nowrap;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.sortQuickBtn:hover {
-  border-color: var(--text-primary);
+.sortDragJumps .sortDragJumpBtn + .sortDragJumpBtn {
+  border-left: var(--border-light);
+}
+
+.sortDragJumps .sortDragJumpBtn:hover:not(:disabled) {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.sortDragJumpBtn:disabled {
+  color: var(--text-muted);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sortDragList {
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+  overflow-y: auto;
+  background: transparent;
+}
+
+.sortDragItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 2px;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* 핸들 + 숫자 묶음 — gap 0 (붙음) */
+.sortDragLead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.sortDragItem + .sortDragItem {
+  border-top: var(--border-light);
+}
+
+.sortDragItemCurrent {
+  background: var(--bg-accent-subtle);
   color: var(--text-primary);
+}
+
+.sortDragItemDragging {
+  opacity: 0.4;
+}
+
+.sortDragItemDropAbove::before,
+.sortDragItemDropBelow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text-accent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.sortDragItemDropAbove::before { top: -1px; }
+.sortDragItemDropBelow::after { bottom: -1px; }
+
+.sortDragNum {
+  min-width: 18px;
+  flex-shrink: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.sortDragItemCurrent .sortDragNum {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+.sortDragHandle {
+  display: inline-flex;
+  align-items: center;
+  /* 아이콘을 오른쪽 끝에 붙여 다음 숫자와 공간 차이 최소화 */
+  justify-content: flex-end;
+  width: 12px;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  cursor: move;
+  user-select: none;
+}
+
+.sortDragHandle:hover {
+  color: var(--text-primary);
+}
+
+.sortDragHandlePlaceholder {
+  display: inline-block;
+  width: 12px;
+  flex-shrink: 0;
+}
+
+.sortDragTitle {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sortDragCurrentTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--text-accent);
+  color: var(--bg-primary);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* 공통 Pagination 컴포넌트 wrapper — 위쪽 여백 + 버튼 사이즈 축소 (정렬 list 컴팩트 버전) */
+.sortDragPagination {
+  padding-top: var(--spacing-xs);
+  margin-top: 0 !important;
+}
+
+/* Pagination 의 button 클래스가 hashed 라 attribute selector 로 매칭. width/height 만 override */
+.sortDragPagination [class*="pageBtn"] {
+  width: 22px;
+  height: 22px;
+  font-size: var(--font-size-2xs);
+}
+
+.sortDragPagination [class*="ellipsis"] {
+  font-size: var(--font-size-2xs);
 }
 
 .fieldTextarea {
@@ -288,6 +522,19 @@
   border: var(--border-light);
 }
 
+/* 이미지 로드 실패 시 동일 사이즈의 placeholder */
+.imageThumbPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 70px;
+  border-radius: var(--radius-sm);
+  border: var(--border-light);
+  background: var(--bg-tertiary-alt);
+  color: var(--text-tertiary);
+}
+
 .imageRemove {
   border: none;
   background: transparent;
@@ -325,6 +572,264 @@
 .galleryAddInline:hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
+}
+
+/* 직접 입력 카테고리 — KO/EN 두 input 을 캡슐 안에 lang tag 와 함께 inline */
+.customCategoryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.customCategoryField {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 0 0 0 var(--spacing-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  transition: border-color 0.15s ease;
+}
+
+.customCategoryField:focus-within {
+  border-color: var(--text-primary);
+}
+
+.customCategoryLangTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.customCategoryInput {
+  flex: 1;
+  border: none !important;
+  background: transparent;
+  padding-left: 0 !important;
+}
+
+/* Optional 섹션 split — 좌: 정렬순서 (세로 1열 전체), 우: 다른 필드들 stack */
+.optionalSplit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+  align-items: start;
+  min-width: 0;
+}
+
+.optionalSplitLeft {
+  min-width: 0;
+}
+
+.optionalSplitRight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+
+/* subtitle + role 같은 row — role 의 chip 이 늘어남에 따라 subtitle input 도 같이 stretch */
+.subtitleRoleRow {
+  align-items: stretch !important;
+}
+
+.subtitleRoleRow > * {
+  display: flex;
+  flex-direction: column;
+}
+
+.subtitleInput {
+  flex: 1;
+  min-height: var(--size-sm);
+  transition: border-radius 0.2s ease;
+}
+
+/* 2줄 이상 높이 — role 의 chip 들로 row 가 늘어나면 자동으로 morph */
+.subtitleInputMultiLine {
+  border-radius: var(--radius-2xl);
+}
+
+/* ── Role multi-select — chip row 와 input 을 별도 배치, dropdown 은 portal ── */
+.roleMS {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+/* 선택된 chip row — input 과 별개 row, 자유롭게 wrap */
+.roleMSChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
+/* chip 자체가 button — 어디 눌러도 제거. hover 시 accent 톤으로 명확한 피드백 */
+.roleMSChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 5px 8px 5px 12px;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  border: var(--border-default);
+  color: var(--text-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+/* hover — "이 chip 을 누르면 제거됨" 을 시각적으로: accent 톤 + ×아이콘 강조 */
+.roleMS .roleMSChip:hover {
+  border-color: var(--text-accent);
+  background: var(--bg-accent-soft);
+  color: var(--text-accent);
+}
+
+.roleMSChipLabel {
+  text-decoration: none;
+}
+
+.roleMS .roleMSChip:hover .roleMSChipLabel {
+  text-decoration: line-through;
+}
+
+.roleMSChipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.roleMS .roleMSChip:hover .roleMSChipRemove {
+  color: var(--text-accent);
+}
+
+/* input wrap — 단순한 capsule, hover/focus 시 border 강조 */
+.roleMSInputWrap {
+  width: 100%;
+  min-height: var(--size-sm);
+  display: flex;
+  align-items: center;
+  padding: 3px var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  cursor: text;
+  transition: border-color 0.15s ease;
+}
+
+.roleMS .roleMSInputWrap:hover {
+  border-color: var(--text-primary);
+}
+
+.roleMSInputWrapOpen {
+  border-color: var(--text-primary);
+}
+
+.roleMSInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+  padding: 2px 0;
+}
+
+.roleMSInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* dropdown — capsule 아래 popover. capsule 너비 + min-width 으로 좁아도 충분히 펼쳐짐 */
+.roleMSPopover {
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  background: var(--bg-primary);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  animation: roleMSPopoverIn 0.16s ease-out;
+}
+
+@keyframes roleMSPopoverIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.roleMSList {
+  display: flex;
+  flex-direction: column;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--spacing-2xs);
+}
+
+.roleMSItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding: 6px var(--spacing-sm);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.roleMSList .roleMSItem:hover {
+  background: var(--bg-secondary);
+}
+
+.roleMSItemIcon {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.roleMSItemAdd {
+  border-top: var(--border-light);
+  margin-top: var(--spacing-2xs);
+  padding-top: var(--spacing-xs);
+  border-radius: 0;
+  color: var(--text-secondary);
+}
+
+.roleMSItemAdd .roleMSItemIcon {
+  color: var(--text-secondary);
+}
+
+.roleMSItemLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .galleryCount {
@@ -417,6 +922,17 @@
 
 .galleryItem:hover .galleryImg {
   transform: scale(1.04);
+}
+
+/* 갤러리 썸네일 로드 실패 — 동일 사이즈 placeholder */
+.galleryImgPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-tertiary-alt);
+  color: var(--text-tertiary);
 }
 
 /* "현재 메인" 배지 — 좌상단 */
