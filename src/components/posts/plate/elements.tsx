@@ -132,6 +132,10 @@ export function ImageElement(props: PlateElementProps) {
   const [, setHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [resizeSize, setResizeSize] = useState<{ w: number; h: number } | null>(null);
+  // 이미지 로드 실패 시 placeholder.svg 로 swap
+  const [imgErrored, setImgErrored] = useState(false);
+  useEffect(() => { setImgErrored(false); }, [url]);
+  const displayUrl = imgErrored ? "/images/placeholder.svg" : url;
   const draggingRef = useRef<{
     handle: "right" | "bottom" | "corner";
     startX: number; startY: number;
@@ -359,9 +363,10 @@ export function ImageElement(props: PlateElementProps) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 ref={imgRef}
-                src={url}
+                src={displayUrl}
                 alt={alt}
                 onLoad={onImgLoad}
+                onError={() => setImgErrored(true)}
                 onClick={() => setClicked(true)}
                 style={{
                   width: imgWidth > 0 ? imgWidth : undefined,
@@ -450,9 +455,10 @@ export function ImageElement(props: PlateElementProps) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 ref={imgRef}
-                src={url}
+                src={displayUrl}
                 alt={alt}
                 onLoad={onImgLoad}
+                onError={() => setImgErrored(true)}
                 onClick={() => setClicked(true)}
                 style={{
                   width: imgWidth > 0 ? imgWidth : undefined,
