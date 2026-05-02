@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
+import Pagination from "@/components/ui/Pagination";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
-import { ChevronDown, Plus, Star, Eye } from "lucide-react";
+import { ChevronRight, GripVertical, Plus, Star, Eye } from "lucide-react";
 import CloseIcon from "@/components/ui/CloseIcon";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,6 +30,8 @@ import { workToFormData, defaultForm } from "@/utils/workFormUtils";
 import { stripHtml } from "@/utils/htmlUtils";
 import Select from "@/components/ui/Select";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
+import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
+import type { DatePeriod } from "@/data/profile";
 import RelationPicker from "@/components/admin/RelationPicker";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { useModalStore } from "@/stores/modalStore";
@@ -38,6 +41,510 @@ import styles from "./WorkEditor.module.css";
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
 });
+
+// ── year ↔ DatePeriod 변환 ──
+// 기존 work.year 는 "2024" 같은 단순 문자열. 이제 "기간" 도 지원하기 위해 JSON 직렬화로 저장.
+// 구버전 데이터와의 back-compat — JSON 이 아니면 단순 year 로 fallback.
+function parseYearAsPeriod(year: string): DatePeriod {
+  if (!year || !year.trim()) return { start: "", format: "year" };
+  const trimmed = year.trim();
+  // JSON 시도
+  if (trimmed.startsWith("{")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (parsed && typeof parsed.start === "string" && parsed.format) {
+        return parsed as DatePeriod;
+      }
+    } catch { /* fallthrough */ }
+  }
+  // 구버전: "2024" / "2024-2025" / "2024.01" 등 — start 만 채움
+  return { start: trimmed, format: "year" };
+}
+
+function serializePeriodAsYear(p: DatePeriod): string {
+  if (!p.start) return "";
+  // 기간 / 진행중 정보가 없으면 단순 string 으로 저장 (back-compat 유지)
+  if (!p.end && !p.ongoing && p.format === "year") return p.start;
+  return JSON.stringify(p);
+}
+
+// 역할 프리셋 — RoleMultiSelect 가 popover 안에서 사용
+const ROLE_PRESETS_KO = ["기획", "디자인", "프론트엔드", "백엔드", "풀스택", "데이터", "PM", "QA", "DevOps", "모바일"];
+const ROLE_PRESETS_EN = ["Planning", "Design", "Frontend", "Backend", "Full-stack", "Data", "PM", "QA", "DevOps", "Mobile"];
+
+/** comma-separated 문자열 → trim 된 token 배열 */
+function parseRoles(value: string): string[] {
+  return value.split(",").map((s) => s.trim()).filter(Boolean);
+}
+/** token 배열 → ", " join */
+function joinRoles(tokens: string[]): string {
+  return tokens.join(", ");
+}
+
+/**
+ * Combobox-style multi-select.
+ * - 한 줄 capsule 안에 선택된 chip + 검색 input 이 inline 으로 들어감
+ * - 입력 / 포커스 시 아래 dropdown 펼쳐짐 — 미선택 preset 들 + "추가: <query>" 후보
+ * - chip ×, Backspace, Enter 모두 지원
+ */
+function RoleMultiSelect({
+  value,
+  onChange,
+  presets,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  presets: string[];
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const comboRef = useRef<HTMLDivElement>(null);
+  // dropdown 을 body 로 portal — 부모 (optionalContent) 의 overflow: hidden 으로 잘리지 않게
+  const [popPos, setPopPos] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  const measurePop = useCallback(() => {
+    const el = comboRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    setPopPos({ top: r.bottom + 4, left: r.left, width: r.width });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    measurePop();
+    const onScroll = () => measurePop();
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [open, measurePop]);
+
+  const current = parseRoles(value);
+  // 미선택 preset + (query 검색 포함) custom 으로 추가한 후보 표시
+  const candidates = presets.filter((p) => !current.includes(p));
+  const q = query.trim().toLowerCase();
+  const filtered = q ? candidates.filter((o) => o.toLowerCase().includes(q)) : candidates;
+  const trimmedQuery = query.trim();
+  // "추가: <query>" — query 있고, 기존(선택+preset) 어디에도 정확히 일치 없을 때만
+  const canAddCustom = trimmedQuery !== "" &&
+    !current.some((c) => c.toLowerCase() === trimmedQuery.toLowerCase()) &&
+    !presets.some((p) => p.toLowerCase() === trimmedQuery.toLowerCase());
+
+  const remove = (role: string) => onChange(joinRoles(current.filter((r) => r !== role)));
+  const add = (role: string) => {
+    const trimmed = role.trim();
+    if (!trimmed || current.includes(trimmed)) return;
+    onChange(joinRoles([...current, trimmed]));
+  };
+
+  // 외부 클릭 / Escape 시 닫기 — capsule 과 portal'd dropdown 둘 다 "안" 으로 인정
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      const insideCombo = comboRef.current?.contains(t);
+      const insidePop = wrapRef.current?.contains(t);
+      if (!insideCombo && !insidePop) {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setOpen(false); setQuery(""); }
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const showDropdown = open && (filtered.length > 0 || canAddCustom);
+  const dropdown = showDropdown && popPos && typeof window !== "undefined" ? createPortal(
+    <div
+      ref={wrapRef}
+      className={styles.roleMSPopover}
+      // capsule 폭을 minWidth 로 — capsule 이 좁아도 dropdown 은 자연스럽게 펼쳐짐 (CSS min-width 280px)
+      style={{ position: "fixed", top: popPos.top, left: popPos.left, minWidth: popPos.width }}
+    >
+      <div className={styles.roleMSList}>
+        {filtered.map((role) => (
+          <button
+            key={role}
+            type="button"
+            className={styles.roleMSItem}
+            onClick={() => { add(role); setQuery(""); inputRef.current?.focus(); }}
+          >
+            <Plus size={11} strokeWidth={2.5} className={styles.roleMSItemIcon} aria-hidden />
+            <span className={styles.roleMSItemLabel}>{role}</span>
+          </button>
+        ))}
+        {canAddCustom && (
+          <button
+            type="button"
+            className={`${styles.roleMSItem} ${styles.roleMSItemAdd}`}
+            onClick={() => { add(trimmedQuery); setQuery(""); inputRef.current?.focus(); }}
+          >
+            <Plus size={11} strokeWidth={2.5} className={styles.roleMSItemIcon} aria-hidden />
+            <span className={styles.roleMSItemLabel}>
+              추가: <strong>{trimmedQuery}</strong>
+            </span>
+          </button>
+        )}
+      </div>
+    </div>,
+    document.body,
+  ) : null;
+
+  return (
+    <div className={styles.roleMS}>
+      {/* 선택된 chip row — chip 전체를 클릭 가능한 버튼으로 → 어디 눌러도 제거 */}
+      {current.length > 0 && (
+        <div className={styles.roleMSChips}>
+          {current.map((role) => (
+            <button
+              key={role}
+              type="button"
+              className={styles.roleMSChip}
+              onClick={() => remove(role)}
+              aria-label={`Remove ${role}`}
+              title="클릭하여 제거"
+            >
+              <span className={styles.roleMSChipLabel}>{role}</span>
+              <span className={styles.roleMSChipRemove} aria-hidden>×</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {/* input — 검색 / 직접 입력 */}
+      <div
+        ref={comboRef}
+        className={`${styles.roleMSInputWrap} ${open ? styles.roleMSInputWrapOpen : ""}`}
+        onClick={() => { setOpen(true); inputRef.current?.focus(); }}
+      >
+        <input
+          ref={inputRef}
+          type="text"
+          className={styles.roleMSInput}
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={(e) => {
+            // 한글 IME 조합 중 Enter — 마지막 글자가 중복 추가되는 현상 방지
+            if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (canAddCustom) {
+                add(trimmedQuery);
+                setQuery("");
+              } else if (filtered.length > 0) {
+                add(filtered[0]);
+                setQuery("");
+              }
+            } else if (e.key === "Backspace" && query === "" && current.length > 0) {
+              remove(current[current.length - 1]);
+            }
+          }}
+          placeholder={placeholder}
+        />
+      </div>
+      {dropdown}
+    </div>
+  );
+}
+
+/**
+ * 정렬 순서 — 다른 작품들과 함께 list 로 보여주고, 현재 작품을 drag 해서 위치 잡음.
+ * drop 시 onChange(newOrder, otherUpdates) — 다른 작품들의 sort_order 갱신 정보도 함께 반환.
+ */
+function SortOrderDragList({
+  label,
+  currentTitle,
+  currentOrder,
+  otherWorks,
+  onChange,
+}: {
+  label: string;
+  currentTitle: string;
+  currentOrder: number;
+  otherWorks: Array<{ id: string; title: string; sort_order: number }>;
+  onChange: (newOrder: number, otherUpdates: Array<{ id: string; sort_order: number }>) => void;
+}) {
+  const CURRENT_KEY = "__current__";
+  const merged: Array<{ id: string; title: string; isCurrent: boolean }> = [];
+  const targetIdx = Math.max(1, Math.min(currentOrder, otherWorks.length + 1)) - 1;
+  otherWorks.forEach((w, i) => {
+    if (i === targetIdx) merged.push({ id: CURRENT_KEY, title: currentTitle, isCurrent: true });
+    merged.push({ id: w.id, title: w.title || "(untitled)", isCurrent: false });
+  });
+  if (merged.length === otherWorks.length) {
+    merged.push({ id: CURRENT_KEY, title: currentTitle, isCurrent: true });
+  }
+
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // edge 에 hover 시 current 를 자동으로 인접 페이지의 첫/끝 위치로 이동 → cur 변경되면 useEffect 가 page 도 자동 갱신
+  // 단순히 setPage 만 하면 current chip 이 새 페이지에 없어 unmount 되며 drag 가 cancel 됨 — 그래서 reorder 도 같이 수행
+  const edgeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const edgeDirectionRef = useRef<-1 | 1 | null>(null);
+  const edgeJumpCountRef = useRef(0);
+
+  const stopEdgeJump = () => {
+    if (edgeTimerRef.current) { clearTimeout(edgeTimerRef.current); edgeTimerRef.current = null; }
+    edgeDirectionRef.current = null;
+    edgeJumpCountRef.current = 0;
+  };
+  useEffect(() => () => stopEdgeJump(), []);
+
+  const total = otherWorks.length + 1;
+  const cur = Math.max(1, Math.min(total, currentOrder));
+
+  // ── 페이지네이션 — projects 많을 때 한 페이지씩. page 는 1-based (공통 Pagination 컴포넌트와 매핑) ──
+  const PAGE_SIZE = 5;
+  const totalPages = Math.max(1, Math.ceil(merged.length / PAGE_SIZE));
+  const pageOfCurrent = Math.floor((cur - 1) / PAGE_SIZE) + 1;
+  const [page, setPage] = useState(pageOfCurrent);
+  useEffect(() => { setPage(Math.floor((cur - 1) / PAGE_SIZE) + 1); }, [cur]);
+  const pageStart = (page - 1) * PAGE_SIZE;
+  const pageEnd = Math.min(pageStart + PAGE_SIZE, merged.length);
+  const visible = merged.slice(pageStart, pageEnd);
+  const visibleStart = pageStart;
+
+  const moveTo = (newPos: number) => {
+    const target = Math.max(1, Math.min(total, newPos));
+    if (target === cur) return;
+    const fromIdx = merged.findIndex((m) => m.id === CURRENT_KEY);
+    const toIdx = target - 1;
+    apply(fromIdx, toIdx);
+  };
+
+  // 드래그 중 edge 감지 — list 위/아래 60px 영역 hover 시 current 를 인접 페이지의 첫/끝 위치로 이동.
+  // cur 가 변하면 useEffect([cur]) 가 page 를 자동 갱신해 새 페이지가 보이고, current chip 도 거기 있으므로 drag 유지됨.
+  useEffect(() => {
+    if (dragIdx === null) return;
+    const onDocDrag = (e: DragEvent) => {
+      const rect = listRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const EDGE = 60;
+      const y = e.clientY;
+      let direction: -1 | 1 | null = null;
+      if (y < rect.top + EDGE && page > 1) direction = -1;
+      else if (y > rect.bottom - EDGE && page < totalPages) direction = 1;
+
+      if (direction === null) {
+        stopEdgeJump();
+        return;
+      }
+      if (edgeDirectionRef.current === direction) return; // 이미 그 방향으로 진행 중
+
+      stopEdgeJump();
+      edgeDirectionRef.current = direction;
+      const fire = () => {
+        // 새 위치 = 인접 페이지의 시작(prev) 또는 끝(next)
+        // direction = +1 → 다음 페이지 끝
+        // direction = -1 → 이전 페이지 시작
+        const targetPage = direction === 1
+          ? Math.min(totalPages, (edgeJumpCountRef.current === 0 ? page : Math.floor((cur - 1) / PAGE_SIZE) + 1) + 1)
+          : Math.max(1, (edgeJumpCountRef.current === 0 ? page : Math.floor((cur - 1) / PAGE_SIZE) + 1) - 1);
+        const newCur = direction === 1
+          ? Math.min(merged.length, targetPage * PAGE_SIZE)
+          : (targetPage - 1) * PAGE_SIZE + 1;
+        const fromIdx = merged.findIndex((m) => m.id === CURRENT_KEY);
+        if (fromIdx >= 0 && newCur - 1 !== fromIdx) {
+          apply(fromIdx, newCur - 1);
+        }
+        edgeJumpCountRef.current += 1;
+        const next = edgeJumpCountRef.current === 1 ? 500 : edgeJumpCountRef.current === 2 ? 350 : 250;
+        edgeTimerRef.current = setTimeout(fire, next);
+      };
+      edgeTimerRef.current = setTimeout(fire, 500);
+    };
+    document.addEventListener("dragover", onDocDrag);
+    return () => {
+      document.removeEventListener("dragover", onDocDrag);
+      stopEdgeJump();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dragIdx, page, totalPages, cur, merged.length]);
+
+  const apply = (fromIdx: number, toIdx: number) => {
+    if (fromIdx === toIdx) return;
+    const reordered = [...merged];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+    let newCurrent = currentOrder;
+    const otherUpdates: Array<{ id: string; sort_order: number }> = [];
+    reordered.forEach((it, i) => {
+      const newOrder = i + 1;
+      if (it.id === CURRENT_KEY) {
+        newCurrent = newOrder;
+      } else {
+        const orig = otherWorks.find((w) => w.id === it.id);
+        if (orig && orig.sort_order !== newOrder) {
+          otherUpdates.push({ id: it.id, sort_order: newOrder });
+        }
+      }
+    });
+    onChange(newCurrent, otherUpdates);
+  };
+
+  return (
+    <div className={styles.sortDragWrap}>
+      {/* 헤더 — label + 위치 input + Top/Bottom jump (한 라인) */}
+      <div className={styles.sortDragHeader}>
+        <label className={es.fieldLabel}>{label}</label>
+        <div className={styles.sortDragControls}>
+          <span className={styles.sortDragPos}>
+            <input
+              type="number"
+              min={1}
+              max={total}
+              value={cur}
+              onChange={(e) => {
+                const n = parseInt(e.target.value, 10);
+                if (!isNaN(n)) moveTo(n);
+              }}
+              className={styles.sortDragPosInput}
+              aria-label="Position"
+            />
+            <span className={styles.sortDragPosSep}>/</span>
+            <span className={styles.sortDragPosTotal}>{total}</span>
+          </span>
+          <div className={styles.sortDragJumps}>
+            <button
+              type="button"
+              className={styles.sortDragJumpBtn}
+              onClick={() => moveTo(1)}
+              disabled={cur <= 1}
+            >
+              ↑ 맨 앞
+            </button>
+            <button
+              type="button"
+              className={styles.sortDragJumpBtn}
+              onClick={() => moveTo(total)}
+              disabled={cur >= total}
+            >
+              ↓ 맨 뒤
+            </button>
+          </div>
+        </div>
+      </div>
+      {/* 리스트 — drag 로 부분 정렬 (큰 리스트는 페이지 단위).
+          edge 감지는 document-level dragover (아래 useEffect) 로 처리 — list 밖으로 나가도 감지됨 */}
+      <div ref={listRef} className={styles.sortDragList}>
+      {visible.map((item, vIdx) => {
+        const idx = visibleStart + vIdx; // merged 의 절대 인덱스
+        const isDragging = dragIdx === idx;
+        const showAbove = overIdx === idx && dragIdx !== null && dragIdx !== idx && dragIdx > idx;
+        const showBelow = overIdx === idx && dragIdx !== null && dragIdx !== idx && dragIdx < idx;
+        return (
+          <div
+            key={item.id}
+            className={`${styles.sortDragItem} ${item.isCurrent ? styles.sortDragItemCurrent : ""} ${isDragging ? styles.sortDragItemDragging : ""} ${showAbove ? styles.sortDragItemDropAbove : ""} ${showBelow ? styles.sortDragItemDropBelow : ""}`}
+            draggable={item.isCurrent}
+            onDragStart={(e) => {
+              if (!item.isCurrent) { e.preventDefault(); return; }
+              setDragIdx(idx);
+              e.dataTransfer.effectAllowed = "move";
+            }}
+            onDragOver={(e) => {
+              if (dragIdx === null) return;
+              e.preventDefault();
+              if (overIdx !== idx) setOverIdx(idx);
+            }}
+            onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (dragIdx !== null) apply(dragIdx, idx);
+              setDragIdx(null);
+              setOverIdx(null);
+            }}
+          >
+            {/* 핸들 + 숫자를 한 그룹으로 묶어 좁은 gap 으로 */}
+            <span className={styles.sortDragLead}>
+              {item.isCurrent ? (
+                <span
+                  className={styles.sortDragHandle}
+                  aria-label="Drag to reorder"
+                  title="드래그하여 순서 변경"
+                  data-cursor="grab"
+                >
+                  <GripVertical size={14} strokeWidth={1.8} />
+                </span>
+              ) : (
+                <span className={styles.sortDragHandlePlaceholder} aria-hidden />
+              )}
+              <span className={styles.sortDragNum}>{idx + 1}</span>
+            </span>
+            <span className={styles.sortDragTitle}>
+              {item.isCurrent ? <strong>{item.title}</strong> : item.title}
+              {item.isCurrent && <span className={styles.sortDragCurrentTag}>현재</span>}
+            </span>
+          </div>
+        );
+      })}
+      </div>
+      {/* 페이지네이션 — 공통 Pagination 컴포넌트 사용 (페이지 1개여도 항상 노출) */}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onChange={setPage}
+        className={styles.sortDragPagination}
+      />
+
+    </div>
+  );
+}
+
+/**
+ * 부제목 input — role 영역 높이에 맞춰 stretch 되며,
+ * 2줄 이상 (높이 > 1줄 임계) 이 되면 radius 를 capsule → 2xl 로 자동 morph.
+ */
+function SubtitleInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [multiLine, setMultiLine] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    // 1줄 baseline 기준 — 1줄 size-sm(=32px) 의 1.5배 정도 넘어가면 multi-line 으로 간주
+    const SINGLE_LINE_MAX = 50;
+    const update = () => setMultiLine(el.offsetHeight > SINGLE_LINE_MAX);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <input
+      ref={ref}
+      type="text"
+      className={`${es.fieldInput} ${styles.subtitleInput} ${multiLine ? styles.subtitleInputMultiLine : ""}`}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+    />
+  );
+}
 
 interface WorkEditorProps {
   work?: Work;
@@ -123,17 +630,19 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbRevisions]);
 
-  const [totalWorks, setTotalWorks] = useState(0);
+  // 정렬 list — 다른 작품들 (현재 편집중인 작품 제외)
+  const [otherWorks, setOtherWorks] = useState<Array<{ id: string; title: string; sort_order: number }>>([]);
 
   useEffect(() => {
     fetch("/api/works?all=true")
       .then((r) => r.json())
       .then((d) => {
-        const count = d.total ?? (d.works?.length ?? 0);
-        setTotalWorks(isEdit ? count : count + 1);
+        const list = (d.works ?? []) as Array<{ id: string; title: string; sort_order: number }>;
+        const others = list.filter((w) => w.id !== work?.id);
+        setOtherWorks(others.sort((a, b) => a.sort_order - b.sort_order));
       })
       .catch(() => {});
-  }, [isEdit]);
+  }, [work?.id]);
 
   const [worksCategories, setWorksCategories] = useState<WorksCategory[]>([]);
 
@@ -198,6 +707,23 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [error, setError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
+  const [mainImgError, setMainImgError] = useState(false);
+  const [galleryImgErrors, setGalleryImgErrors] = useState<Set<string>>(new Set());
+  // form.image 가 바뀔 때마다 main 에러 리셋
+  useEffect(() => { setMainImgError(false); }, [form.image]);
+  // gallery 항목이 바뀔 때 제거된 src 의 에러 상태 정리
+  useEffect(() => {
+    const valid = new Set(form.gallery);
+    setGalleryImgErrors((prev) => {
+      let changed = false;
+      const next = new Set<string>();
+      for (const s of prev) {
+        if (valid.has(s)) next.add(s);
+        else changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [form.gallery]);
 
   /* ── Auto-save ── */
   const getWorkTitle = useCallback(
@@ -724,12 +1250,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <div className={es.row}>
           <div className={es.field}>
             <label className={`${es.fieldLabel}${showErrors && !form.year.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("year")}</label>
-            <input
-              className={`${es.fieldInput}${showErrors && !form.year.trim() ? ` ${es.fieldInputError}` : ""}`}
-              type="text"
-              value={form.year}
-              onChange={(e) => updateField("year", e.target.value)}
-              placeholder={tw("yearPlaceholder")}
+            <PeriodPicker
+              value={parseYearAsPeriod(form.year)}
+              onChange={(p) => updateField("year", serializePeriodAsYear(p))}
             />
           </div>
           <div className={es.field}>
@@ -767,27 +1290,46 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     }}
                   />
                   {(isCustom || selectValue === "__custom__") && (
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-xs)", marginTop: "var(--spacing-xs)" }}>
-                      <input
-                        className={es.fieldInput}
-                        type="text"
-                        value={form.category_ko}
-                        onChange={(e) => updateField("category_ko", e.target.value)}
-                        placeholder={`${tw("categoryPlaceholder")} (KO)`}
-                      />
-                      <input
-                        className={es.fieldInput}
-                        type="text"
-                        value={form.category_en}
-                        onChange={(e) => updateField("category_en", e.target.value)}
-                        placeholder={`${tw("categoryPlaceholder")} (EN)`}
-                      />
+                    <div className={styles.customCategoryGrid}>
+                      <div className={styles.customCategoryField}>
+                        <span className={styles.customCategoryLangTag}>KO</span>
+                        <input
+                          className={`${es.fieldInput} ${styles.customCategoryInput}`}
+                          type="text"
+                          value={form.category_ko}
+                          onChange={(e) => updateField("category_ko", e.target.value)}
+                          placeholder={tw("categoryPlaceholder")}
+                          autoFocus
+                        />
+                      </div>
+                      <div className={styles.customCategoryField}>
+                        <span className={styles.customCategoryLangTag}>EN</span>
+                        <input
+                          className={`${es.fieldInput} ${styles.customCategoryInput}`}
+                          type="text"
+                          value={form.category_en}
+                          onChange={(e) => updateField("category_en", e.target.value)}
+                          placeholder={tw("categoryPlaceholder")}
+                        />
+                      </div>
                     </div>
                   )}
                 </>
               );
             })()}
           </div>
+        </div>
+
+        {/* 설명 — 기본 정보의 하위 항목, 선택 입력보다 위 */}
+        <div className={es.field}>
+          <label className={es.fieldLabel}>{tw("description")}</label>
+          <textarea
+            className={styles.fieldTextarea}
+            value={form[`description${suf}`]}
+            onChange={(e) => updateField(`description${suf}`, e.target.value)}
+            placeholder={tw("descPlaceholder")}
+            rows={3}
+          />
         </div>
 
         {/* ── 선택 (collapsible) ── */}
@@ -798,96 +1340,67 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             onClick={() => setOptionalOpen((v) => !v)}
           >
             <span>{tw("optionalFields") || "선택 입력"}</span>
-            <ChevronDown
+            <ChevronRight
               size={12}
               strokeWidth={2.5}
-              style={{ transform: optionalOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+              style={{ transform: optionalOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
             />
           </button>
 
           <div className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
-            <div className={styles.row2}>
-              <div className={es.field}>
-                <label className={es.fieldLabel}>{tw("sortOrder")}</label>
-                <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
-                  <Select
-                    value={String(form.sort_order)}
-                    options={
-                      totalWorks > 0
-                        ? Array.from({ length: totalWorks }, (_, i) => ({
-                            value: String(i + 1),
-                            label: `${i + 1} / ${totalWorks}`,
-                          }))
-                        : [{ value: String(form.sort_order), label: String(form.sort_order) }]
-                    }
-                    onChange={(v) => updateField("sort_order", parseInt(v) || 1)}
-                    className={styles.sortOrderSelect}
+            {/* 좌: 정렬순서 (세로 1열 전체)  |  우: subtitle / role / cardSize (세로 stack) */}
+            <div className={styles.optionalSplit}>
+              <div className={`${es.field} ${styles.optionalSplitLeft}`}>
+                <SortOrderDragList
+                  label={tw("sortOrder")}
+                  currentTitle={form.title || tw("subtitle") || "—"}
+                  currentOrder={form.sort_order || 1}
+                  otherWorks={otherWorks}
+                  onChange={(newOrder, otherUpdates) => {
+                    updateField("sort_order", newOrder);
+                    otherUpdates.forEach((u) => {
+                      fetch(`/api/works/${u.id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sort_order: u.sort_order }),
+                      });
+                    });
+                    setOtherWorks((prev) => prev.map((w) => {
+                      const u = otherUpdates.find((x) => x.id === w.id);
+                      return u ? { ...w, sort_order: u.sort_order } : w;
+                    }).sort((a, b) => a.sort_order - b.sort_order));
+                  }}
+                />
+              </div>
+              <div className={styles.optionalSplitRight}>
+                <div className={es.field}>
+                  <label className={es.fieldLabel}>{tw("subtitle")}</label>
+                  <SubtitleInput
+                    value={form[`subtitle${suf}`]}
+                    onChange={(v) => updateField(`subtitle${suf}`, v)}
+                    placeholder={tw("subtitlePlaceholder")}
                   />
-                  <button
-                    type="button"
-                    className={styles.sortQuickBtn}
-                    onClick={() => updateField("sort_order", 1)}
-                    title={tw("moveToTop")}
-                  >
-                    {tw("moveToTop")}
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.sortQuickBtn}
-                    onClick={() => updateField("sort_order", totalWorks || form.sort_order)}
-                    title={tw("moveToBottom")}
-                  >
-                    {tw("moveToBottom")}
-                  </button>
                 </div>
-              </div>
-              <div className={es.field}>
-                <label className={es.fieldLabel}>{tw("cardSize")}</label>
-                <Select
-                  value={form.size}
-                  options={SIZES.map((s) => ({ value: s, label: s }))}
-                  onChange={(v) => updateField("size", v as WorkFormData["size"])}
-                />
-              </div>
-            </div>
-
-            <div className={es.row}>
-              <div className={es.field}>
-                <label className={es.fieldLabel}>{tw("subtitle")}</label>
-                <input
-                  className={es.fieldInput}
-                  type="text"
-                  value={form[`subtitle${suf}`]}
-                  onChange={(e) => updateField(`subtitle${suf}`, e.target.value)}
-                  placeholder={tw("subtitlePlaceholder")}
-                />
-              </div>
-              <div className={es.field}>
-                <label className={es.fieldLabel}>{tw("role")}</label>
-                <input
-                  className={es.fieldInput}
-                  type="text"
-                  value={form[`role${suf}`]}
-                  onChange={(e) => updateField(`role${suf}`, e.target.value)}
-                  placeholder={tw("rolePlaceholder")}
-                />
+                <div className={es.field}>
+                  <label className={es.fieldLabel}>{tw("role")}</label>
+                  <RoleMultiSelect
+                    value={form[`role${suf}`] || ""}
+                    onChange={(v) => updateField(`role${suf}`, v)}
+                    presets={editorLang === "ko" ? ROLE_PRESETS_KO : ROLE_PRESETS_EN}
+                    placeholder={tw("rolePlaceholder")}
+                  />
+                </div>
+                <div className={es.field}>
+                  <label className={es.fieldLabel}>{tw("cardSize")}</label>
+                  <Select
+                    value={form.size}
+                    options={SIZES.map((s) => ({ value: s, label: s }))}
+                    onChange={(v) => updateField("size", v as WorkFormData["size"])}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Description */}
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tw("description")}</h2>
-        <div className={es.field}>
-          <textarea
-            className={styles.fieldTextarea}
-            value={form[`description${suf}`]}
-            onChange={(e) => updateField(`description${suf}`, e.target.value)}
-            placeholder={tw("descPlaceholder")}
-            rows={3}
-          />
         </div>
       </div>
 
@@ -942,14 +1455,17 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           <label className={`${es.fieldLabel}${showErrors && !form.image.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("mainImage")}</label>
           {form.image ? (
             <div className={styles.imagePreview}>
-              <Image
-                src={form.image}
+              {/* 깨진 이미지면 public/images/placeholder.svg 로 대체 */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={mainImgError ? "/images/placeholder.svg" : form.image}
                 alt="Main"
                 width={120}
                 height={70}
                 className={styles.imageThumb}
-                unoptimized
+                onError={() => setMainImgError(true)}
               />
+
               <button
                 type="button"
                 className={styles.imageRemove}
@@ -1035,13 +1551,18 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     onClick={() => setGalleryViewerIdx(i)}
                     aria-label={tw("viewImage")}
                   >
-                    <Image
-                      src={src}
+                    {/* 깨진 이미지면 public/images/placeholder.svg 로 대체 */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={galleryImgErrors.has(src) ? "/images/placeholder.svg" : src}
                       alt={`Gallery ${i + 1}`}
-                      fill
-                      sizes="160px"
                       className={styles.galleryImg}
-                      unoptimized
+                      onError={() => setGalleryImgErrors((prev) => {
+                        if (prev.has(src)) return prev;
+                        const next = new Set(prev);
+                        next.add(src);
+                        return next;
+                      })}
                     />
                   </button>
                   {isMain && (
@@ -1105,10 +1626,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           onClick={() => setExtraOpen((v) => !v)}
         >
           <span>{tw("additionalInfo") || "추가 정보 (선택)"}</span>
-          <ChevronDown
+          <ChevronRight
             size={12}
             strokeWidth={2.5}
-            style={{ transform: extraOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+            style={{ transform: extraOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
           />
         </button>
         <div className={`${styles.extraSectionsContent}${extraOpen ? ` ${styles.extraSectionsContentOpen}` : ""}`}>
@@ -1255,7 +1776,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* 관련 글 */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>{tw("relatedPosts")}</h2>
+        <div className={styles.sectionTitleRow}>
+          <h2 className={styles.sectionTitle}>{tw("relatedPosts")}</h2>
+          {(form.related_post_ids ?? []).length === 0 && (
+            <span className={styles.sectionTitleHint}>{tw("relatedPostsEmpty")}</span>
+          )}
+        </div>
         <RelationPicker
           items={allPosts}
           selectedIds={form.related_post_ids ?? []}
@@ -1267,7 +1793,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           getStatus={(p) => (p.published ? "published" : "draft")}
           searchPlaceholder={tw("relatedPostsSearch")}
           searchInputPlaceholder={tw("relatedPostsSearchInput")}
-          emptyText={tw("relatedPostsEmpty")}
           noResultsText={tw("relatedPostsNoResults")}
         />
       </div>
