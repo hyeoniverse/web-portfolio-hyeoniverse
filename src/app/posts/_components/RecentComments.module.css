@@ -28,6 +28,16 @@
   padding: var(--spacing-sm) 0;
   border-bottom: var(--border-light);
   text-decoration: none;
+  cursor: pointer;
+}
+
+/* compound selector (0,2,0) — 글로벌 theme transition (0,1,1) 을 이김. transform 은 글로벌 규칙에 없어서 일반 선택자로는 덮어쓸 수 없음 */
+.section .item {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.section .item:hover {
+  transform: translateX(var(--spacing-2xs));
 }
 
 .section .item:hover .content {

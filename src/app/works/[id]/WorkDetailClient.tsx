@@ -240,41 +240,6 @@ export default function WorkDetailClient({
       }
       afterContent={
         <>
-          {/* Gallery */}
-          {project.gallery.length > 0 && (
-            <motion.div
-              id="gallery"
-              className={styles.gallery}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.65, duration: 0.6 }}
-            >
-              {project.gallery.map((src, i) => {
-                const count = project.gallery.length;
-                const bentoClass = getBentoClass(i, count, styles);
-                return (
-                <div
-                  key={i}
-                  className={`${styles.galleryItem} ${bentoClass ?? ""}`}
-                  onClick={() => setGalleryViewer({ open: true, index: i })}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === "Enter") setGalleryViewer({ open: true, index: i }); }}
-                  data-cursor="zoom"
-                >
-                  <ProgressiveImage
-                    src={src}
-                    alt={`${project.title} ${i + 1}`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 800px"
-                    className={styles.galleryImage}
-                  />
-                </div>
-                );
-              })}
-            </motion.div>
-          )}
-
           <motion.div
             className={styles.likeWrapper}
             initial={{ opacity: 0, y: 20 }}
@@ -406,6 +371,41 @@ export default function WorkDetailClient({
               <MarkdownRenderer content={content} className={styles.sectionProse} />
             )}
           </div>
+        </motion.div>
+      )}
+
+      {/* Gallery — TOC anchor 와 동일한 본문 영역 안 */}
+      {project.gallery.length > 0 && (
+        <motion.div
+          id="gallery"
+          className={styles.gallery}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.65, duration: 0.6 }}
+        >
+          {project.gallery.map((src, i) => {
+            const count = project.gallery.length;
+            const bentoClass = getBentoClass(i, count, styles);
+            return (
+              <div
+                key={i}
+                className={`${styles.galleryItem} ${bentoClass ?? ""}`}
+                onClick={() => setGalleryViewer({ open: true, index: i })}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter") setGalleryViewer({ open: true, index: i }); }}
+                data-cursor="zoom"
+              >
+                <ProgressiveImage
+                  src={src}
+                  alt={`${project.title} ${i + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  className={styles.galleryImage}
+                />
+              </div>
+            );
+          })}
         </motion.div>
       )}
 

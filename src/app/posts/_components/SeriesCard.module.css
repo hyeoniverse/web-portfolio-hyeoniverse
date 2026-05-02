@@ -193,9 +193,12 @@
   transition: margin-right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* hit-area 는 보이지 않으므로 펼침 시 즉시 full width 로 snap.
+   auto-scroll 이 카드를 좌측으로 이동시킬 때 cursor 가 hit area 밖으로 떨어져 mouseleave 가
+   조기 발화되는 걸 방지 (닫힘 transition 은 base rule 의 0.32s 가 그대로 적용). */
 .card.deckOpen::after {
   width: calc(var(--deck-count, 0) * 176px);
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0s;
 }
 
 /* 정사각 thumbnail — 모서리 각짐 */
