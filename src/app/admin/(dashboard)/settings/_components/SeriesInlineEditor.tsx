@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import Image from "next/image";
-import { ChevronUp, ChevronDown, ExternalLink, X, Trash2 } from "lucide-react";
+import { ChevronUp, ChevronDown, ExternalLink, GripVertical, X, Trash2 } from "lucide-react";
+import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
 import Select from "@/components/ui/Select";
@@ -153,6 +154,8 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   }, []);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
+  // grip handle 을 mousedown 했을 때만 카드의 draggable 이 켜짐 — 핸들 외 영역으로는 드래그 시작 X
+  const [dragArmedId, setDragArmedId] = useState<string | null>(null);
   const [postsPage, setPostsPage] = useState(0);
   const [editingOrderIdx, setEditingOrderIdx] = useState<number | null>(null);
   const [editingOrderValue, setEditingOrderValue] = useState("");
@@ -573,24 +576,39 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           ) : posts.length === 0 ? (
             <p className={styles.seriesPostsEmpty}><T k="admin.posts.seriesModal.postsEmpty" /></p>
           ) : (
+            <LayoutGroup>
             <div className={styles.seriesPostsList}>
               {posts.slice(postsPage * POSTS_PAGE_SIZE, (postsPage + 1) * POSTS_PAGE_SIZE).map((post) => {
                 const idx = posts.indexOf(post);
                 return (
-                <div
+                <motion.div
                   key={post.id}
+                  layout
+                  transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.6 }}
                   className={`${styles.seriesPostItem} ${dragIdx === idx ? styles.seriesPostDragging : ""} ${overIdx === idx && dragIdx !== idx ? (dragIdx !== null && dragIdx < idx ? styles.seriesPostDropBelow : styles.seriesPostDropAbove) : ""}`}
-                  draggable
+                  // grip handle 이 mousedown 으로 armed 했을 때만 draggable 활성화
+                  draggable={dragArmedId === post.id}
                   onDragStart={() => setDragIdx(idx)}
                   onDragOver={(e) => { e.preventDefault(); setOverIdx(idx); }}
                   onDragLeave={() => setOverIdx(null)}
-                  onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+                  onDragEnd={() => { setDragIdx(null); setOverIdx(null); setDragArmedId(null); }}
                   onDrop={() => {
                     if (dragIdx !== null) handleDragDrop(dragIdx, idx);
                     setDragIdx(null);
                     setOverIdx(null);
+                    setDragArmedId(null);
                   }}
                 >
+                  <span
+                    className={styles.seriesPostHandle}
+                    onMouseDown={(e) => { e.stopPropagation(); setDragArmedId(post.id); }}
+                    onMouseUp={() => { if (dragArmedId === post.id) setDragArmedId(null); }}
+                    aria-label="Drag to reorder"
+                    title="Drag to reorder"
+                    data-cursor="grab"
+                  >
+                    <GripVertical size={14} strokeWidth={1.8} />
+                  </span>
                   <div
                     className={styles.seriesPostOrder}
                     draggable={false}
@@ -700,7 +718,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                       <Trash2 size={10} />
                     </button>
                   </div>
-                </div>
+                </motion.div>
                 );
               })}
               {Math.ceil(posts.length / POSTS_PAGE_SIZE) > 1 && (
@@ -718,6 +736,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                 </div>
               )}
             </div>
+            </LayoutGroup>
           )}
         </div>
       )}

@@ -3,7 +3,17 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-sm);
+  /* picker 자체와 다음 섹션(예: optionalSection) 사이 최소 여백 보장.
+     내부 상태(chipRow / inputAreaOpen) 와 무관하게 항상 적용 */
+  margin-bottom: var(--spacing-md);
+  transition: margin-bottom 0.2s ease;
+}
+
+/* 펼침 상태에서는 picker 아래(다음 섹션과의 거리)를 더 띄움.
+   inner gap (input ↔ chipRow) 은 wrap.gap 으로 sm 으로 일관 유지 */
+.wrap:has(.inputAreaOpen) {
+  margin-bottom: var(--spacing-xl);
 }
 
 /* 닫힌 상태: capsule pill. 열린 상태: 같은 컨테이너가 세로로 펼쳐지며 round 2xl 사각형.
@@ -23,7 +33,8 @@
 .inputAreaOpen {
   border-radius: var(--radius-2xl);
   border-color: var(--text-primary);
-  /* 열릴 때: radius 즉시 변경 (no delay) */
+  /* 열릴 때: radius 즉시 변경 (no delay).
+     아래 spacing 은 .wrap:has(.inputAreaOpen) margin-bottom 이 담당 — 여기서 별도 추가 X */
   transition: border-radius 0.2s ease 0s, border-color 0.15s ease;
 }
 
@@ -55,6 +66,9 @@
   max-height: 320px;
   opacity: 1;
   pointer-events: auto;
+  /* 펼친 영역 자체에서 세로 스크롤 — 내부 list 가 아니라 wrapper 가 스크롤 컨테이너 */
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-top-color: var(--border-light-color);
   /* 열림 시: radius transition (0.2s) 끝난 뒤 reveal */
   transition: max-height 0.28s ease 0.2s, opacity 0.2s ease 0.22s, border-top-color 0.15s ease 0.2s;
@@ -94,14 +108,29 @@
 .triggerArrow {
   color: var(--text-tertiary);
   flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
-/* ── Selected chips ── */
+/* 열림 시 화살표를 시계 방향 90° 회전 → 아래쪽 가리킴 */
+.triggerArrowOpen {
+  transform: rotate(90deg);
+}
+
+/* ── Selected chips — input 과 별개 row ── */
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  padding: 0;
+  /* margin-top 은 .wrap 의 gap 이 자연스럽게 spacing 제공 — 별도 상쇄/추가 안 함 */
+}
+
 .chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: 4px 4px 4px 8px;
+  padding: 4px 4px 4px 4px;
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   border: var(--border-light);
@@ -109,6 +138,51 @@
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   max-width: 240px;
+  user-select: none;
+  transition: opacity 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+/* 드래그 중 — 본인은 살짝 흐릿하게 */
+.chipDragging {
+  opacity: 0.4;
+}
+
+/* 삽입 위치 indicator — chip 자체가 아니라 chip 옆 (앞/뒤) 에 세로 라인 */
+.chipInsertBefore::before,
+.chipInsertAfter::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--text-accent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* 좌측에 라인 — chip gap(2xs) 의 절반쯤 외부에 위치해 두 chip 사이 정확히 중앙 */
+.chipInsertBefore::before {
+  left: calc(var(--spacing-2xs) * -0.5 - 1px);
+}
+
+.chipInsertAfter::after {
+  right: calc(var(--spacing-2xs) * -0.5 - 1px);
+}
+
+/* 좌측 grip 핸들 — mousedown 시점에만 chip 의 draggable 이 켜져서, 핸들 외 영역으로 드래그 안 시작됨 */
+.chipHandle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 18px;
+  color: var(--text-tertiary);
+  cursor: move;
+  flex-shrink: 0;
+}
+
+.chipHandle:hover {
+  color: var(--text-primary);
 }
 
 .chipDraft {
@@ -122,6 +196,19 @@
   height: 18px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* 썸네일 로드 실패 시 동일 사이즈의 placeholder */
+.chipThumbPlaceholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-tertiary-alt);
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 
@@ -152,21 +239,10 @@
   color: var(--text-primary);
 }
 
-/* ── Empty state when no selection ── */
-.empty {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  margin: 0;
-  padding-left: var(--spacing-xs);
-}
-
-/* ── Expanded dropdown contents (inside inputArea) ── */
+/* ── Expanded dropdown contents (inside inputArea) — 스크롤은 부모 .inputAreaExpand 에서 ── */
 .dropdownList {
   display: flex;
   flex-direction: column;
-  max-height: 240px;
-  overflow-y: auto;
   padding: var(--spacing-2xs);
 }
 
@@ -193,6 +269,19 @@
   height: 28px;
   border-radius: var(--radius-md);
   object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* dropdown option 썸네일 placeholder */
+.optionThumbPlaceholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary-alt);
+  color: var(--text-tertiary);
   flex-shrink: 0;
 }
 

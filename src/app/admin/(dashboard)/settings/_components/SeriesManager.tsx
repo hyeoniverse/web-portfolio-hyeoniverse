@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight, Trash2 } from "lucide-react";
+import { ChevronRight, GripVertical, Trash2 } from "lucide-react";
+import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
 import type { Series } from "@/types/post";
@@ -51,6 +52,8 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
   const [expandedPublished, setExpandedPublished] = useState(true);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
+  // grip handle 을 mousedown 했을 때만 카드의 draggable 이 켜짐 — 다른 영역 클릭으로는 드래그 시작 X
+  const [armedId, setArmedId] = useState<string | null>(null);
 
   const handleReorder = async (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx) return;
@@ -168,7 +171,8 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
             : t("admin.posts.seriesEmpty")}
         </p>
       ) : (
-        seriesList.map((s, idx) => {
+        <LayoutGroup>
+        {seriesList.map((s, idx) => {
           const expanded = expandedId === s.id;
           const isDragging = dragIdx === idx;
           const dropClass =
@@ -176,30 +180,45 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
               ? dragIdx < idx ? styles.seriesCardDropBelow : styles.seriesCardDropAbove
               : "";
           return (
-            <div
+            <motion.div
               key={s.id}
+              layout
+              transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.6 }}
               ref={(el) => { if (el) seriesRefs.current.set(s.id, el); else seriesRefs.current.delete(s.id); }}
               className={`${styles.seriesCard} ${isDragging ? styles.seriesCardDragging : ""} ${dropClass}`}
-              draggable={!expanded}
-              onDragStart={(e) => {
+              // grip handle 이 mousedown 으로 armed 했을 때만 카드 draggable 활성화 → 핸들 외 영역은 드래그 시작 X
+              draggable={!expanded && armedId === s.id}
+              // motion.div 의 onDragStart 등은 framer drag 시스템 타입이라 HTML5 drag prop 과 충돌 → cast 로 우회
+              onDragStart={((e: React.DragEvent<HTMLDivElement>) => {
                 if (expanded) { e.preventDefault(); return; }
                 setDragIdx(idx);
                 e.dataTransfer.effectAllowed = "move";
-              }}
+              }) as unknown as React.ComponentProps<typeof motion.div>["onDragStart"]}
               onDragOver={(e) => {
                 if (dragIdx === null) return;
                 e.preventDefault();
                 setOverIdx(idx);
               }}
               onDragLeave={() => { /* handled by next over */ }}
-              onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+              onDragEnd={() => { setDragIdx(null); setOverIdx(null); setArmedId(null); }}
               onDrop={(e) => {
                 e.preventDefault();
                 if (dragIdx !== null) handleReorder(dragIdx, idx);
                 setDragIdx(null);
                 setOverIdx(null);
+                setArmedId(null);
               }}
             >
+              <span
+                className={styles.seriesCardHandle}
+                onMouseDown={(e) => { e.stopPropagation(); if (!expanded) setArmedId(s.id); }}
+                onMouseUp={() => { if (armedId === s.id) setArmedId(null); }}
+                aria-label="Drag to reorder"
+                title="Drag to reorder"
+                data-cursor="grab"
+              >
+                <GripVertical size={16} strokeWidth={1.8} />
+              </span>
               <button
                 type="button"
                 className={`${styles.seriesCardHead} ${expanded ? styles.seriesCardHeadExpanded : ""} ${s.cover_image ? styles.seriesCardHeadCover : ""}`}
@@ -279,9 +298,10 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
-        })
+        })}
+        </LayoutGroup>
       )}
 
       <div
