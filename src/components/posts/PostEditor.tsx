@@ -3,9 +3,8 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import dynamic from "next/dynamic";
-import { ChevronDown, ChevronUp, ExternalLink, GripVertical } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, ExternalLink, GripVertical } from "lucide-react";
 import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -29,7 +28,7 @@ import SeoChecklist from "@/components/admin/SeoChecklist";
 import RelationPicker from "@/components/admin/RelationPicker";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import CloseIcon from "@/components/ui/CloseIcon";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import { useModalStore } from "@/stores/modalStore";
@@ -168,6 +167,9 @@ export default function PostEditor({ post }: PostEditorProps) {
   const setStatus = useCallback((s: string) => { setStatusRaw(s); setStatusTimestamp(undefined); }, []);
   const [error, setError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
+  const [coverImgError, setCoverImgError] = useState(false);
+  // cover_image 가 바뀔 때마다 에러 상태 리셋 (새 src 는 다시 시도)
+  useEffect(() => { setCoverImgError(false); }, [form.cover_image]);
 
   const {
     editorLang,
@@ -192,6 +194,9 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [optionalOpen, setOptionalOpen] = useState(false);
   const optionalInnerRef = useRef<HTMLDivElement>(null);
   const optionalContentRef = useRef<HTMLDivElement>(null);
+  // 시리즈 순서 — drag/over index 를 state 로 유지해 drop indicator 가 매 hover 마다 re-render 되도록
+  const [seriesDragIdx, setSeriesDragIdx] = useState<number | null>(null);
+  const [seriesOverIdx, setSeriesOverIdx] = useState<number | null>(null);
 
   /** SEO 체크리스트 항목 클릭 → 해당 필드로 스크롤 + 포커스 + label 색을 accent 로 + dot 표시.
    *  강조된 필드 외부에서 다음 인터랙션(클릭/포커스)이 일어나면 강조 해제. */
@@ -296,6 +301,22 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [editorLang, form.content_type]);
   const [slugManual, setSlugManual] = useState(isEdit);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
+  // 닫는 중 — coverPickerCollapse 애니메이션 (~0.45s) 끝난 뒤 unmount.
+  // showCoverPicker 만 false 로 즉시 두면 컴포넌트가 사라져 닫는 애니메이션이 보이지 않음
+  const [closingCoverPicker, setClosingCoverPicker] = useState(false);
+  const closeCoverPickerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestCloseCoverPicker = useCallback(() => {
+    if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
+    setClosingCoverPicker(true);
+    closeCoverPickerTimer.current = setTimeout(() => {
+      setShowCoverPicker(false);
+      setClosingCoverPicker(false);
+      closeCoverPickerTimer.current = null;
+    }, 450);
+  }, []);
+  useEffect(() => () => {
+    if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
+  }, []);
   const [showMdHelp, setShowMdHelp] = useState(false);
   const initialFormRef = useRef(form);
   const formRef = useRef(form);
@@ -1106,10 +1127,10 @@ export default function PostEditor({ post }: PostEditorProps) {
             onClick={() => setOptionalOpen((v) => !v)}
           >
             <span>{te("optionalFields")}</span>
-            <ChevronDown
+            <ChevronRight
               size={12}
               strokeWidth={2.5}
-              style={{ transform: optionalOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+              style={{ transform: optionalOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
             />
           </button>
 
@@ -1183,6 +1204,9 @@ export default function PostEditor({ post }: PostEditorProps) {
                   <div className={styles.seriesOrderList}>
                     {[1, 2].map((i) => (
                       <div key={i} className={styles.seriesOrderItem} style={{ opacity: 0.4 }}>
+                        <span className={styles.seriesOrderGrip}>
+                          <GripVertical size={12} />
+                        </span>
                         <span className={styles.seriesOrderNum}>{i}</span>
                         <span className={styles.seriesOrderTitle} style={{ background: "var(--bg-tertiary)", borderRadius: "var(--radius-sm)", height: "1em", width: `${60 + i * 20}px` }} />
                       </div>
@@ -1228,37 +1252,50 @@ export default function PostEditor({ post }: PostEditorProps) {
                   }
                 };
 
-                const dragIdxRef = { current: -1 };
                 const handleDragStart = (e: React.DragEvent, idx: number) => {
-                  dragIdxRef.current = idx;
+                  setSeriesDragIdx(idx);
                   e.dataTransfer.effectAllowed = "move";
                 };
-                const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; };
+                const handleDragOver = (e: React.DragEvent, idx: number) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                  if (seriesOverIdx !== idx) setSeriesOverIdx(idx);
+                };
+                const handleDragEnd = () => { setSeriesDragIdx(null); setSeriesOverIdx(null); };
                 const handleDrop = (e: React.DragEvent, targetIdx: number) => {
                   e.preventDefault();
-                  reorder(dragIdxRef.current, targetIdx);
-                  dragIdxRef.current = -1;
+                  if (seriesDragIdx !== null) reorder(seriesDragIdx, targetIdx);
+                  setSeriesDragIdx(null);
+                  setSeriesOverIdx(null);
                 };
 
                 return (
                   <div className={es.field}>
                     <label className={es.fieldLabel}>{te("seriesOrder")}</label>
+                    <LayoutGroup>
                     <div className={styles.seriesOrderList}>
                       {allItems.map((item, idx) => {
                         const isCurrent = item.id === currentPostId;
+                        const isDragging = seriesDragIdx === idx;
+                        const showDropAbove = seriesOverIdx === idx && seriesDragIdx !== null && seriesDragIdx !== idx && seriesDragIdx > idx;
+                        const showDropBelow = seriesOverIdx === idx && seriesDragIdx !== null && seriesDragIdx !== idx && seriesDragIdx < idx;
                         return (
-                          <div
+                          <motion.div
                             key={item.id}
-                            className={`${styles.seriesOrderItem} ${isCurrent ? styles.seriesOrderItemCurrent : ""}`}
+                            layout
+                            transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.6 }}
+                            className={`${styles.seriesOrderItem} ${isCurrent ? styles.seriesOrderItemCurrent : ""} ${isDragging ? styles.seriesOrderItemDragging : ""} ${showDropAbove ? styles.seriesOrderItemDropAbove : ""} ${showDropBelow ? styles.seriesOrderItemDropBelow : ""}`}
                             draggable
-                            onDragStart={(e) => handleDragStart(e, idx)}
-                            onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, idx)}
+                            // motion.div 의 onDragStart 등은 framer drag 시스템 타입과 충돌 → cast 로 우회
+                            onDragStart={((e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, idx)) as unknown as React.ComponentProps<typeof motion.div>["onDragStart"]}
+                            onDragOver={((e: React.DragEvent<HTMLDivElement>) => handleDragOver(e, idx)) as unknown as React.ComponentProps<typeof motion.div>["onDragOver"]}
+                            onDragEnd={handleDragEnd}
+                            onDrop={((e: React.DragEvent<HTMLDivElement>) => handleDrop(e, idx)) as unknown as React.ComponentProps<typeof motion.div>["onDrop"]}
                           >
-                            <span className={styles.seriesOrderNum}>{idx + 1}</span>
-                            <span className={styles.seriesOrderGrip}>
+                            <span className={styles.seriesOrderGrip} data-cursor="grab">
                               <GripVertical size={12} />
                             </span>
+                            <span className={styles.seriesOrderNum}>{idx + 1}</span>
                             <span className={styles.seriesOrderTitle}>{item.title || "Untitled"}</span>
                             {isCurrent && (
                               <div className={styles.seriesOrderBtns}>
@@ -1270,10 +1307,11 @@ export default function PostEditor({ post }: PostEditorProps) {
                                 </button>
                               </div>
                             )}
-                          </div>
+                          </motion.div>
                         );
                       })}
                     </div>
+                    </LayoutGroup>
                   </div>
                 );
               })()}
@@ -1333,8 +1371,8 @@ export default function PostEditor({ post }: PostEditorProps) {
                   </div>
                 </div>
               </div>
-              {/* 줄3: [요약 + 커버이미지] */}
-              <div className={es.row}>
+              {/* 줄3: [요약 + 커버이미지] — picker 열림 시 row stretch 로 excerpt 도 같이 늘어남 */}
+              <div className={`${es.row} ${(showCoverPicker || closingCoverPicker) && !form.cover_image ? styles.coverPickerOpenRow : ""}`}>
                 <div className={es.field} data-seo="excerpt">
                   <label className={es.fieldLabel}>{te("excerpt")}</label>
                   <textarea
@@ -1364,12 +1402,15 @@ export default function PostEditor({ post }: PostEditorProps) {
                   </div>
                   {form.cover_image ? (
                     <div className={styles.coverPreview}>
-                      <Image
-                        src={form.cover_image}
+                      {/* 깨진 이미지면 public/images/placeholder.svg 로 대체 */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={coverImgError ? "/images/placeholder.svg" : form.cover_image}
                         alt="Cover"
                         width={160}
                         height={90}
                         className={styles.coverThumb}
+                        onError={() => setCoverImgError(true)}
                       />
                     </div>
                   ) : (
@@ -1383,10 +1424,27 @@ export default function PostEditor({ post }: PostEditorProps) {
                       </button>
                       <button
                         type="button"
-                        className={es.uploadBtn}
-                        onClick={() => setShowCoverPicker((v) => !v)}
+                        className={`${es.uploadBtn} ${styles.coverToggleBtn}`}
+                        onClick={() => {
+                          if (showCoverPicker && !closingCoverPicker) {
+                            requestCloseCoverPicker();
+                          } else if (!showCoverPicker) {
+                            setShowCoverPicker(true);
+                          }
+                        }}
                       >
-                        {showCoverPicker ? te("closePicker") : te("chooseCover")}
+                        <AnimatePresence mode="wait" initial={false}>
+                          <motion.span
+                            key={showCoverPicker && !closingCoverPicker ? "close" : "open"}
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -4 }}
+                            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+                            style={{ display: "inline-block" }}
+                          >
+                            {showCoverPicker && !closingCoverPicker ? te("closePicker") : te("chooseCover")}
+                          </motion.span>
+                        </AnimatePresence>
                       </button>
                     </div>
                   )}
@@ -1394,9 +1452,12 @@ export default function PostEditor({ post }: PostEditorProps) {
                     <CoverImagePicker
                       onSelect={(url) => {
                         updateField("cover_image", url);
+                        // 선택 직후엔 닫는 애니메이션 없이 즉시 unmount (커버 이미지 미리보기로 전환)
                         setShowCoverPicker(false);
+                        setClosingCoverPicker(false);
                       }}
-                      onClose={() => setShowCoverPicker(false)}
+                      onClose={requestCloseCoverPicker}
+                      closing={closingCoverPicker}
                       postContext={{
                         title: form.title,
                         tags: form.tags,
@@ -1419,7 +1480,12 @@ export default function PostEditor({ post }: PostEditorProps) {
               </div>
               {/* 줄5: [관련 프로젝트] */}
               <div className={es.field}>
-                <label className={es.fieldLabel}>{te("relatedWorks")}</label>
+                <div className={es.fieldLabelRow}>
+                  <label className={es.fieldLabel}>{te("relatedWorks")}</label>
+                  {(form.related_work_ids ?? []).length === 0 && (
+                    <span className={es.fieldHint}>{te("relatedWorksEmpty")}</span>
+                  )}
+                </div>
                 <RelationPicker
                   items={allWorks}
                   selectedIds={form.related_work_ids ?? []}
@@ -1431,7 +1497,6 @@ export default function PostEditor({ post }: PostEditorProps) {
                   getStatus={(w) => (w.published ? "published" : "draft")}
                   searchPlaceholder={te("relatedWorksSearch")}
                   searchInputPlaceholder={te("relatedWorksSearchInput")}
-                  emptyText={te("relatedWorksEmpty")}
                   noResultsText={te("relatedWorksNoResults")}
                 />
               </div>

@@ -559,6 +559,27 @@
   letter-spacing: 0.05em;
 }
 
+/* 라벨 + 보조 hint 가 같은 라인에 위치할 때 사용. 라벨은 좌측, hint 는 우측 부드러운 톤 */
+.fieldLabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.fieldLabelRow .fieldLabel {
+  flex-shrink: 0;
+}
+
+.fieldHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+}
+
 .fieldInput {
   width: 100%;
   min-height: var(--size-sm);
