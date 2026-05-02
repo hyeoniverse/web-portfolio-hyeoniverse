@@ -1415,3 +1415,177 @@ useEffect(() => {
 **Key insight**: ① `setPointerCapture` **is convenient for drag tracking but absorbs all child clicks**. If your component needs child-level clicks, prefer document-level pointer listeners + a distance-based click-suppression flag. ② **Margin moves visual position only — it doesn't extend the hit area.** To enlarge a hover region, use `padding-right` (with `box-sizing: content-box`) or an `::after` pseudo. content-box has too many layout side effects; pseudo is cleaner. ③ Multi-step hover interactions (deck unfold) are exquisitely sensitive — even a microsecond of hover loss between two layers causes flicker, so **define the hover region one step wider than the visual boundary**
 
 </details>
+
+<details>
+<summary><strong>44. HTML5 drag suppresses `pointermove` — custom cursor freezes and its type keeps flickering mid-drag</strong></summary>
+
+**Problem**: Once an HTML5 drag begins (RelationPicker / SortOrderDragList / series reorder), (1) `CursorTrail` stops following the cursor and freezes in place, and (2) as the mouse passes over other elements during the drag, cursor type flickers between "text" / "big" / "" etc., breaking the visual continuity of "I'm holding something"
+
+**Cause**: Browsers **deliberately suppress `pointermove` / `mousemove` while an HTML5 drag is active**, surfacing `dragover` instead. `CursorTrail` only listens for `pointermove`, so its tracked position freezes the moment the drag starts. Separately, `runHitTest` recomputes cursor type on a 60ms throttle from `elementFromPoint` — keep that running during a drag, and the cursor type ping-pongs between every element the user passes over, instead of staying locked to "grab"
+
+**Solution**: Two patches together
+
+1. **Forward `dragover` into `handleMouseMove`** — `DragEvent` and `PointerEvent` share `clientX/Y`, so a cast is enough to restore the coordinate stream
+2. **Lock cursor type at drag-start** — on `dragstart`, set `isHtml5Dragging = true` + `cursorTypeRef.current = "grab"` + `setCursorType("grab")`. Have `runHitTest` early-return whenever dragging is active. Clear the flag on `dragend` / `drop`
+
+```ts
+let isHtml5Dragging = false;
+const onDragStart = () => {
+  isHtml5Dragging = true;
+  cursorTypeRef.current = "grab";
+  setCursorType("grab");
+};
+document.addEventListener("dragstart", onDragStart, true);
+window.addEventListener("dragover", (e) => handleMouseMove(e as unknown as PointerEvent));
+
+const runHitTest = (mx: number, my: number) => {
+  if (isHtml5Dragging) return; // grab is locked — never reflect hovered elements
+  // ...
+};
+```
+
+**Key insight**: While native HTML5 drag is active, pointer events are **suspended at the system level**. `dragover` can keep coordinates flowing, but unless you separately track drag-start and drag-end, your hit-test has no idea the user is mid-drag. For any cursor-state component that flips modes per hover, **freeze the mode on drag-start and release on drag-end via a ref-based lock** — otherwise the cursor's identity collapses into whatever the mouse passes over
+
+</details>
+
+<details>
+<summary><strong>45. Working around HTML5 D&D quirks — replacing chip-reorder drag with pointer events</strong></summary>
+
+**Problem**: Two reorder UIs (RelationPicker chips, SortOrderDragList paged items) were hit by three HTML5 D&D quirks simultaneously
+
+1. Toggling `draggable={dragId === id}` from state — the DOM attribute update lagged React batching, so drags wouldn't start
+2. Asymmetric behavior — "back-to-front" reorder worked but "front-to-back" didn't, despite identical code
+3. When the source chip lived on a paginated list and a page change unmounted it mid-drag, the browser immediately cancelled the drag
+
+**Cause**: HTML5 D&D **reads the DOM `draggable` attribute once at drag-start** and never reacts to later changes. It also cancels the session when the source node unmounts. The "front-to-back" asymmetry is the same mechanism — when sibling chips reorder, React's key-based reconciliation can move the source DOM into a new slot, breaking the drag tracker. Combine these and small reorder UIs end up with more quirks than features
+
+**Solution**: Replace both with **pointer-based drag**
+
+1. **`pointerdown` on the handle → document-level tracking** — per `pointermove`, do `elementFromPoint(ev.clientX, ev.clientY)` → `closest("[data-chip-id]")` to track the hovered target id. On `pointerup`, splice `selectedIds` and call `onChange`
+2. **Edge handling for paginated lists** — when the source nears a list edge (60px), call `apply()` to **actually reorder** the source into the first/last slot of the adjacent page. A bare `setPage` would unmount the source and cancel the drag, so the position change itself keeps it mounted
+3. **Avoid `setPointerCapture`** — it would absorb child clicks and kill the chip's × button
+
+```tsx
+onPointerDown={(e) => {
+  if (e.button !== 0) return;
+  e.preventDefault();
+  const sourceId = id;
+  setDragId(sourceId);
+  let lastTargetId: string | null = null;
+  const onMove = (ev: PointerEvent) => {
+    const elem = document.elementFromPoint(ev.clientX, ev.clientY);
+    const tId = elem?.closest("[data-chip-id]")?.getAttribute("data-chip-id") ?? null;
+    if (tId && tId !== sourceId && tId !== lastTargetId) {
+      lastTargetId = tId;
+      setDragOverId(tId);
+    }
+  };
+  const onUp = (ev: PointerEvent) => { /* splice + onChange */ };
+  document.addEventListener("pointermove", onMove);
+  document.addEventListener("pointerup", onUp);
+}}
+```
+
+**Key insight**: Native HTML5 D&D is optimized for "drag an image/file to another OS app" — **for in-page micro-reorder of chips or list items, the sum of its quirks is bigger than its convenience.** State-driven `draggable` toggling, source-unmount cancellation, child-click absorption (with `setPointerCapture`), front-to-back asymmetry — all fall out of the spec. **For micro-reorder UIs, write pointer-event drag from the start** — it ends up shorter and behaves consistently
+
+</details>
+
+<details>
+<summary><strong>46. Navigation menu overlaps the right actions on narrow viewports + indicator drifts behind the menu while resizing</strong></summary>
+
+**Problem**: On PC, the nav menu was pinned to viewport center with `position: absolute; left: 50%; transform: translateX(-50%)`. As `navActions` (lang / sound / theme / email / Bell / Logout) grew, there was a viewport range where the menu overlapped the right cluster. Switching to flex ("center between logo and actions") fixed the collision but introduced a new bug: the sliding indicator that highlights the active link lagged the menu by ~300ms during continuous resize because of its CSS transition, leaving a visible drift the whole time the user dragged the window edge
+
+**Cause**:
+
+1. Viewport-center pinning ignores left/right cluster widths — when one side grows or `--page-px` shrinks, collision is inevitable
+2. After moving to flex, the lag came from `.navIndicator { transition: left var(--duration-moderate) ease, width ... }` being always-on. Every resize event pushes new left/width values, but the indicator eases from the previous value toward the new one — to the user, "the menu jumps to its new position, but the indicator drags ~300ms behind"
+
+**Solution**:
+
+1. **Layout** — `.navCenter` → `position: relative; flex: 1; justify-content: center`. Logo and actions occupy their natural widths, and the menu sits in the middle of the remaining space, with no overlap risk
+2. **Make the indicator transition instant during resize** — listen on both `window resize` and `ResizeObserver(navCenter + nav)`. On every fire, `setIndicatorInstant(true)` + `updateIndicator()`, then a 120ms debounce sets it back to false. While instant, the indicator is rendered with `style={{ ...indicatorStyle, transition: "none" }}` so it snaps frame-by-frame to the new position; once resize ends, the normal hover/navigation transition is restored
+
+```tsx
+const [indicatorInstant, setIndicatorInstant] = useState(false);
+useEffect(() => {
+  let endTimer: ReturnType<typeof setTimeout> | null = null;
+  const tick = () => {
+    setIndicatorInstant(true);
+    updateIndicator();
+    if (endTimer) clearTimeout(endTimer);
+    endTimer = setTimeout(() => setIndicatorInstant(false), 120);
+  };
+  const ro = new ResizeObserver(tick);
+  ro.observe(navCenterRef.current!);
+  if (navEl) ro.observe(navEl);
+  window.addEventListener("resize", tick);
+  // ...
+}, [updateIndicator]);
+
+// JSX
+<span style={indicatorInstant ? { ...indicatorStyle, transition: "none" } : indicatorStyle} />
+```
+
+**Key insight**:
+
+① **Absolute viewport-center has no idea what's to the left or right** — for asymmetric/dynamic clusters, `flex: 1; justify-content: center` expresses "between" precisely
+② **CSS transitions fit single user intents, not continuous input streams** — during resize / scroll, disable the transition so the element snaps every frame, then re-enable it after the stream ends. An inline `transition: "none"` toggled by a debounced state is the lightest pattern that preserves "smooth" semantics for hover-driven changes
+
+</details>
+
+<details>
+<summary><strong>47. Image fallback — React `onError` doesn't bind to `<img>` rendered via `dangerouslySetInnerHTML`</strong></summary>
+
+**Problem**: We wanted a single fallback rule across **every image surface** — editor / posts / works / Plate panels — so that load failures swap to `/images/placeholder.svg`. React's `<img onError>` worked everywhere it was JSX. But in MarkdownRenderer (marked → HTML → `dangerouslySetInnerHTML`) and `useRichtextEnhance`-styled richtext regions, `onError` never fired and broken images stayed visible
+
+**Cause**:
+
+1. DOM injected via `dangerouslySetInnerHTML` is outside React's reconciler — synthetic event props like `onError` never bind
+2. Even native `addEventListener("error")` has a sub-trap: an image whose fetch already completed (`complete && naturalWidth === 0`) won't re-fire `error` when a listener is attached late, leaving it stuck
+3. When richtext content mutates (editor mode toggle, lazy load), a one-shot `querySelectorAll` misses the newly added images
+
+**Solution**: Apply the `attachImageFallback(root)` pattern in both `useRichtextEnhance` and MarkdownRenderer
+
+1. **Walk every `<img>` in the container** — gate with `data-fallback-bound` to prevent double binding, attach an `error` listener, **and immediately swap if the image is already failed (`complete && naturalWidth === 0`)**
+2. **`MutationObserver(root, { childList: true, subtree: true })`** — so images added later get the same treatment
+3. **`removeAttribute("srcset")` together with the swap** — otherwise the browser keeps retrying the broken candidates
+4. **React-rendered surfaces use `onError` + state swap** — PostEditor cover / WorkEditor main·gallery / RelationPicker chip·option / Plate ImagePanel·ImageElement all share the pattern via a `displayUrl`
+
+```ts
+function attachImageFallback(root: HTMLElement): () => void {
+  const handle = (img: HTMLImageElement) => {
+    if (img.dataset.fallbackBound === "1") return;
+    img.dataset.fallbackBound = "1";
+    img.addEventListener("error", () => swapToPlaceholder(img));
+    if (img.complete && img.naturalWidth === 0) swapToPlaceholder(img);
+  };
+  root.querySelectorAll("img").forEach((el) => handle(el as HTMLImageElement));
+  const mo = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      m.addedNodes.forEach((node) => {
+        if (node.nodeType !== 1) return;
+        const el = node as Element;
+        if (el.tagName === "IMG") handle(el as HTMLImageElement);
+        el.querySelectorAll?.("img").forEach((img) => handle(img as HTMLImageElement));
+      });
+    }
+  });
+  mo.observe(root, { childList: true, subtree: true });
+  return () => mo.disconnect();
+}
+
+function swapToPlaceholder(img: HTMLImageElement) {
+  if (img.src.endsWith("/images/placeholder.svg")) return;
+  img.src = "/images/placeholder.svg";
+  img.removeAttribute("srcset");
+}
+```
+
+**Key insight**:
+
+① **DOM from `dangerouslySetInnerHTML` is React's synthetic-event blind spot** — without delegation, `addEventListener` is the only path
+② Images that already finished loading (or failing) won't re-fire `error` retroactively — pair the listener attach with a synchronous `complete && naturalWidth === 0` check
+③ Leaving `srcset` after a `src` swap lets the browser keep retrying the broken candidates — `removeAttribute("srcset")` together with the swap
+④ For dynamic regions like richtext, a one-shot `querySelectorAll` won't catch images added later — pair it with a `MutationObserver` for incremental coverage
+
+</details>
