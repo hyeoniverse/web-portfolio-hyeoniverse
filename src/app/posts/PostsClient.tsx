@@ -73,24 +73,29 @@ const PAGE_SIZE_OPTIONS = [
 // Bento variants — masonry row-span 으로 height 변동 packing → aspect 변주 자유
 type CardType = "wide" | "banner" | "square" | "portrait" | "standard";
 
-// 손수 디자인한 3개 템플릿 — 너비(wide/banner span 2) + 높이(square/portrait/standard) 변주 모두 활용
+// 손수 디자인한 3개 템플릿 — 10 items / 12 cells (3·4·6 컬럼 모두 정수 row).
+// PC(4·6col) 빈공간 최소화 원칙:
+//  · banner(21:9) 는 height 가 가장 짧아 인접 1-col 아이템과 큰 격차 → 사이클 앞쪽에 배치해
+//    이후 standard 들이 dense packing 으로 backfill 할 수 있게 함
+//  · wide(2col 16:10) 와 portrait(1col 3:4) 는 height 가 비슷 → 같은 row 에 배치
+//  · standard 비중 확대(5 per cycle), square 1개로 축소 → 평균 height 변주 줄여 packing 안정
 const TEMPLATE_A: CardType[] = [
-  "wide",     "standard",
-  "portrait", "square",   "standard",
-  "banner",   "standard",
-  "standard", "square",   "portrait",
+  "banner",   "standard",                 // 2+1
+  "portrait", "wide",                     // 1+2 (wide·portrait height 매치)
+  "standard", "square",   "standard",     // 1+1+1
+  "standard", "portrait", "standard",     // 1+1+1
 ];
 const TEMPLATE_B: CardType[] = [
-  "standard", "banner",
-  "portrait", "standard", "square",
-  "wide",     "standard",
-  "square",   "standard", "portrait",
+  "wide",     "portrait",                 // 2+1 (height 매치)
+  "standard", "standard", "square",       // 1+1+1
+  "banner",   "standard",                 // 2+1 (banner mid, 이후 4 items 가 backfill)
+  "portrait", "standard", "standard",     // 1+1+1
 ];
 const TEMPLATE_C: CardType[] = [
-  "square",   "standard", "portrait",
-  "wide",     "standard",
-  "standard", "portrait", "square",
-  "standard", "banner",
+  "standard", "square",   "portrait",     // 1+1+1
+  "wide",     "standard",                 // 2+1
+  "banner",   "standard",                 // 2+1
+  "portrait", "standard", "standard",     // 1+1+1
 ];
 const TEMPLATES = [TEMPLATE_A, TEMPLATE_B, TEMPLATE_C];
 
@@ -866,6 +871,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                       onClick={handleSeriesClick}
                       active={activeSeries === series.id}
                       index={idx}
+                      scrollContainerRef={seriesRowRef}
                     />
                   ))}
                 </div>
