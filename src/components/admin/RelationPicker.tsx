@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useRef, useState, useEffect } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronRight, GripVertical, ImageIcon, Search } from "lucide-react";
+import { motion, LayoutGroup } from "framer-motion";
 import styles from "./RelationPicker.module.css";
 
 interface RelationPickerProps<T> {
@@ -20,11 +21,10 @@ interface RelationPickerProps<T> {
   getThumb?: (item: T) => string | undefined;
   /** 항목별 상태 라벨 (예: 초안) — 칩에 표시 */
   getStatus?: (item: T) => "draft" | "published" | undefined;
-  /** 트리거 placeholder (검색 X, 단순 안내 텍스트) */
+  /** 입력창 닫힘 시 안내 placeholder (예: "관련글 연결") */
   searchPlaceholder?: string;
-  /** 검색 input placeholder (dropdown 안에서) */
+  /** 검색 input placeholder (열림 시) */
   searchInputPlaceholder?: string;
-  emptyText?: string;
   noResultsText?: string;
 }
 
@@ -44,13 +44,26 @@ export default function RelationPicker<T>({
   getStatus,
   searchPlaceholder,
   searchInputPlaceholder,
-  emptyText,
   noResultsText,
 }: RelationPickerProps<T>) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [thumbErrors, setThumbErrors] = useState<Set<string>>(new Set());
+  // 드래그 정렬 — drag 중인 chip 의 id 와 hover 중인 chip 의 id.
+  // ref 는 closure 우회용 (drop handler 에서 stale state 회피)
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const dragIdRef = useRef<string | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  const markThumbError = (id: string) =>
+    setThumbErrors((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
 
   /** id로 빠르게 lookup */
   const itemMap = useMemo(() => {
@@ -106,32 +119,16 @@ export default function RelationPicker<T>({
     onChange(selectedIds.filter((x) => x !== id));
   };
 
+  // 닫힘 시 안내 — 후보 0 일 때만 noResultsText (선택 가능 없음을 명시), 그 외엔 단순 "+" 안내
+  const closedPlaceholder = candidates.length === 0 && selected.length > 0
+    ? (noResultsText || "No more items")
+    : (searchPlaceholder || "+ Add");
+
   return (
     <div ref={wrapRef} className={styles.wrap}>
+      {/* 입력 영역 — chip 없이 검색 input 만 (selected 는 아래 chipRow 에 별도 표시) */}
       <div className={`${styles.inputArea} ${open ? styles.inputAreaOpen : ""}`}>
         <div className={styles.inputAreaTop}>
-          {selected.map((it) => {
-            const id = getId(it);
-            const status = getStatus?.(it);
-            return (
-              <span key={id} className={`${styles.chip} ${status === "draft" ? styles.chipDraft : ""}`}>
-                {getThumb?.(it) && (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={getThumb(it)} alt="" className={styles.chipThumb} />
-                )}
-                <span className={styles.chipLabel}>{getTitle(it)}</span>
-                <button
-                  type="button"
-                  className={styles.chipRemove}
-                  onClick={(e) => { e.stopPropagation(); remove(id); }}
-                  aria-label="Remove"
-                >
-                  ✕
-                </button>
-              </span>
-            );
-          })}
-          {/* 트리거 = 검색창. 닫힘: placeholder "관련글 연결" 표시 + chevron / 열림: 검색 input 으로 동작 + Search 아이콘 */}
           <div className={styles.trigger} onClick={() => { setOpen(true); searchRef.current?.focus(); }}>
             {open && (
               <Search size={14} strokeWidth={1.8} className={styles.triggerIcon} aria-hidden />
@@ -144,18 +141,15 @@ export default function RelationPicker<T>({
               onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
               onFocus={() => setOpen(true)}
               onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}
-              placeholder={open
-                ? (searchInputPlaceholder || "Search...")
-                : (selected.length === 0
-                    ? (searchPlaceholder || "Select...")
-                    : (candidates.length === 0 ? (noResultsText || "No more items") : (searchPlaceholder || "+ Add")))}
-              aria-expanded={open}
+              placeholder={open ? (searchInputPlaceholder || "Search...") : closedPlaceholder}
               aria-haspopup="listbox"
               readOnly={!open && candidates.length === 0 && selected.length > 0}
             />
-            {!open && (
-              <ChevronDown size={14} strokeWidth={2} className={styles.triggerArrow} />
-            )}
+            <ChevronRight
+              size={14}
+              strokeWidth={2}
+              className={`${styles.triggerArrow} ${open ? styles.triggerArrowOpen : ""}`}
+            />
           </div>
         </div>
 
@@ -168,6 +162,8 @@ export default function RelationPicker<T>({
               candidates.map((it) => {
                 const id = getId(it);
                 const status = getStatus?.(it);
+                const thumb = getThumb?.(it);
+                const thumbBroken = !!thumb && thumbErrors.has(`opt:${id}`);
                 return (
                   <button
                     key={id}
@@ -178,10 +174,19 @@ export default function RelationPicker<T>({
                     onClick={() => add(id)}
                     tabIndex={open ? 0 : -1}
                   >
-                    {getThumb?.(it) && (
+                    {thumb && !thumbBroken ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={getThumb(it)} alt="" className={styles.optionThumb} />
-                    )}
+                      <img
+                        src={thumb}
+                        alt=""
+                        className={styles.optionThumb}
+                        onError={() => markThumbError(`opt:${id}`)}
+                      />
+                    ) : thumb ? (
+                      <span className={styles.optionThumbPlaceholder} aria-hidden>
+                        <ImageIcon size={14} strokeWidth={1.5} />
+                      </span>
+                    ) : null}
                     <span className={styles.optionTitle}>{getTitle(it)}</span>
                     {getMeta && (
                       <span className={styles.optionMeta}>{getMeta(it)}</span>
@@ -197,9 +202,116 @@ export default function RelationPicker<T>({
         </div>
       </div>
 
-      {selected.length === 0 && !open && emptyText && (
-        <p className={styles.empty}>{emptyText}</p>
+      {/* 선택된 항목 — input 과 별도 row 로 표시. 좌측 grip 핸들로 드래그 정렬 가능.
+          motion.span + layout prop 으로 순서 변경 시 FLIP 애니메이션 자동 적용 */}
+      {selected.length > 0 && (
+        <LayoutGroup>
+          <div className={styles.chipRow}>
+            {selected.map((it) => {
+              const id = getId(it);
+              const status = getStatus?.(it);
+              const thumb = getThumb?.(it);
+              const thumbBroken = !!thumb && thumbErrors.has(`chip:${id}`);
+              const isDragging = dragId === id;
+              // 삽입 위치 = drag 방향에 따라 target chip 의 왼쪽 / 오른쪽
+              // dragIdx > targetIdx → 우→좌 이동, target 앞에 삽입 → 왼쪽 indicator
+              // dragIdx < targetIdx → 좌→우 이동, target 뒤에 삽입 → 오른쪽 indicator
+              const dragIdx = dragId ? selectedIds.indexOf(dragId) : -1;
+              const targetIdx = selectedIds.indexOf(id);
+              const showInsertBefore = dragOverId === id && dragId !== null && dragId !== id && dragIdx > targetIdx;
+              const showInsertAfter = dragOverId === id && dragId !== null && dragId !== id && dragIdx < targetIdx;
+              return (
+                <motion.span
+                  key={id}
+                  layout
+                  transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.6 }}
+                  className={`${styles.chip} ${status === "draft" ? styles.chipDraft : ""} ${isDragging ? styles.chipDragging : ""} ${showInsertBefore ? styles.chipInsertBefore : ""} ${showInsertAfter ? styles.chipInsertAfter : ""}`}
+                  // pointer-based drag 가 좌표에서 chip 찾을 때 사용
+                  data-chip-id={id}
+                >
+                  <span
+                    className={styles.chipHandle}
+                    // pointer 기반 드래그 — HTML5 drag-and-drop 의 long-press 요구 / 양방향 비대칭 등 회피.
+                    // pointerdown 시점부터 document 레벨로 move/up 추적해 즉시 드래그 시작
+                    onPointerDown={(e) => {
+                      if (e.button !== 0) return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const sourceId = id;
+                      dragIdRef.current = sourceId;
+                      setDragId(sourceId);
+                      let lastTargetId: string | null = null;
+
+                      const onMove = (ev: PointerEvent) => {
+                        const elem = document.elementFromPoint(ev.clientX, ev.clientY);
+                        const chipEl = elem?.closest("[data-chip-id]") as HTMLElement | null;
+                        const tId = chipEl?.getAttribute("data-chip-id") ?? null;
+                        if (tId && tId !== sourceId && tId !== lastTargetId) {
+                          lastTargetId = tId;
+                          setDragOverId(tId);
+                        }
+                      };
+
+                      const onUp = (ev: PointerEvent) => {
+                        document.removeEventListener("pointermove", onMove);
+                        document.removeEventListener("pointerup", onUp);
+                        document.removeEventListener("pointercancel", onUp);
+                        dragIdRef.current = null;
+                        setDragId(null);
+                        setDragOverId(null);
+                        // pointerup 좌표에서 target 찾기 — lastTargetId fallback
+                        const elem = document.elementFromPoint(ev.clientX, ev.clientY);
+                        const chipEl = elem?.closest("[data-chip-id]") as HTMLElement | null;
+                        const to = chipEl?.getAttribute("data-chip-id") ?? lastTargetId;
+                        if (!to || to === sourceId) return;
+                        const next = [...selectedIds];
+                        const fromIdx = next.indexOf(sourceId);
+                        const toIdx = next.indexOf(to);
+                        if (fromIdx < 0 || toIdx < 0) return;
+                        next.splice(fromIdx, 1);
+                        next.splice(toIdx, 0, sourceId);
+                        onChange(next);
+                      };
+
+                      document.addEventListener("pointermove", onMove);
+                      document.addEventListener("pointerup", onUp);
+                      document.addEventListener("pointercancel", onUp);
+                    }}
+                    aria-label="Drag to reorder"
+                    title="Drag to reorder"
+                    data-cursor="grab"
+                  >
+                    <GripVertical size={12} strokeWidth={1.8} />
+                  </span>
+                  {thumb && !thumbBroken ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={thumb}
+                      alt=""
+                      className={styles.chipThumb}
+                      onError={() => markThumbError(`chip:${id}`)}
+                    />
+                  ) : thumb ? (
+                    <span className={styles.chipThumbPlaceholder} aria-hidden>
+                      <ImageIcon size={10} strokeWidth={1.6} />
+                    </span>
+                  ) : null}
+                  <span className={styles.chipLabel}>{getTitle(it)}</span>
+                  <button
+                    type="button"
+                    className={styles.chipRemove}
+                    onClick={(e) => { e.stopPropagation(); remove(id); }}
+                    aria-label="Remove"
+                  >
+                    ✕
+                  </button>
+                </motion.span>
+              );
+            })}
+          </div>
+        </LayoutGroup>
       )}
+
     </div>
   );
 }
