@@ -122,11 +122,12 @@
 
 - **Posts (Blog)**: Supabase 기반 블로그 시스템 — SSR + ISR 캐싱, Markdown/Rich Text 전환 에디터, 검색/태그 필터, 조회수 추적, GitHub 링크
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행 — `/series` 별도 페이지 폐지 후 `/posts` 안으로 통합, 카테고리 필터 후 타임라인(스텝 번호 + 세로 connector) 형태로 노출, 상세 페이지 이전/다음 네비게이션
-- **Series Deck Cards**: 가로 스크롤 row — 카드를 hover 하면 0.8s 후 deck 형태로 펼쳐지며 소속 글 4개의 미리보기 layer가 0.4s 간격 stagger로 순차 등장 (transform 기반 stack offset, JS state 기반 timer 로 CSS transition-delay snap 회피), 펼침 상태에서 우측으로 next 카드를 밀어내고 `::after` pseudo 로 hit-area 확장해 flicker 없이 hover 유지
+- **Series Deck Cards**: 가로 스크롤 row — 카드를 hover 하면 0.8s 후 deck 형태로 펼쳐지며 소속 글 4개의 미리보기 layer가 0.4s 간격 stagger로 순차 등장 (transform 기반 stack offset, JS state 기반 timer 로 CSS transition-delay snap 회피), 펼침 상태에서 우측으로 next 카드를 밀어내고 `::after` pseudo 로 hit-area 확장해 flicker 없이 hover 유지. **deck 가 가로 스크롤 컨테이너 우측 밖으로 넘치면 rAF 루프로 매 프레임 `scrollLeft` 직접 증가** — 카드 `margin-right` 가 transition 으로 점차 늘어나면서 `scrollWidth` 도 함께 커지므로 단발 `scrollBy` 는 시작 시점 `maxScrollLeft` 에 즉시 clamp 되어 부족함. auto-scroll 종료 후 `card.matches(":hover")` 한번 더 확인해 cursor 가 떠나 있으면 deck 닫음(스크롤로 카드가 cursor 밑에서 빠져나간 false-positive mouseleave 방지)
 - **Series Auto Cover**: cover/소속 글 cover 둘 다 없는 시리즈는 SSR 시점에 Unsplash 에서 자동으로 cover 1장 fetch → `series.auto_cover_url` 컬럼에 영구 캐시 (다음 요청부터 외부 호출 0회)
 - **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시 — 4가지 레이아웃 x 4가지 오버레이 x 2가지 전환 모드, Admin에서 선택
 - **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator(layoutId), sticky + 스크롤 방향 감지, 콘텐츠 blur 효과 — sticky 진입 anchor 시점은 IntersectionObserver `rootMargin` 을 컴포넌트의 실제 sticky `top` 값으로 동기화해 인기글 등 사이드 위젯과 1px 도 안 어긋나게 보정
-- **Posts Bento Masonry**: 3/4/6 column CSS Grid + `grid-auto-rows: 1px` + JS 가 각 카드 `scrollHeight` 측정 후 `grid-row: span N` 적용 → 진정한 masonry. wide / banner(21:9) / square(1:1) / portrait(3:4) / standard 5종 variant 가 `grid-auto-flow: dense` 로 빈틈 없이 packing. 모바일은 변형 비활성화 + 16:10 통일
+- **Posts Bento Masonry**: 3/4/6 column CSS Grid + `grid-auto-rows: 1px` + JS 가 각 카드 `scrollHeight` 측정 후 `grid-row: span N` 적용 → 진정한 masonry. wide / banner(21:9) / square(1:1) / portrait(3:4) / standard 5종 variant 가 `grid-auto-flow: dense` 로 빈틈 없이 packing. 모바일은 변형 비활성화 + 16:10 통일. **PC(4·6col) 빈공간 최소화 템플릿 재배열** — banner(21:9, 가장 짧음)는 사이클 앞쪽에 두어 이후 standard 들이 dense backfill 가능, wide(2col 16:10)와 portrait(1col 3:4)는 height 가 비슷해 같은 row 매칭, standard 비중 확대(5/cycle) + square 1개로 축소해 평균 height 변주 줄여 packing 안정화
+- **PopularPosts/RecentComments hover 효과**: 사이드 위젯 항목 hover 시 `translateX(var(--spacing-2xs))` 로 부드럽게 들여쓰기 — compound selector `(0,2,0)` 로 글로벌 theme transition `(0,1,1)` 우회 (transform 은 글로벌 규칙에 없어 일반 선택자로는 덮어쓸 수 없음)
 - **Posts Sort Capsule**: 최신순(↑/↓) · 인기순(↑/↓) · 제목순(↑/↓) 3-way capsule + 별도 Shuffle(랜덤) 버튼. 방향 화살표는 transform: rotate 로 트위닝, hover indicator(Framer Motion `layoutId`) + 화살표 줄바꿈 방지(`white-space: nowrap`). 랜덤 정렬은 mulberry32 시드 셔플로 페이지네이션 일관성 유지
 - **Posts Tooltip-everywhere**: 모든 필터·정렬·태그·카테고리·SearchCapsule 트리거에 `<T>` 컴포넌트 + Tooltip(번역 + 설명) 적용 — long hover(600ms) 로 반대 언어 + 짧은 설명 동시 노출, 모바일은 터치 토글
 - **SearchCapsule 공통 컴포넌트**: `components/admin/SearchCapsule` → `components/ui/SearchCapsule` 이동. `searchType` prop optional, padding 을 태그/정렬 캡슐 톤에 맞춰 슬림화 (`var(--spacing-2xs) var(--spacing-sm)`). PostsClient · `/admin/comments` 등 모든 인라인 검색 input 을 일괄 교체
@@ -153,14 +154,14 @@
 
 ### Navigation & UX
 
-- **Mix-Blend Navigation**: mix-blend-mode: difference 자동 반전 네비게이션 — 이미지 로고(숏/풀/다크 전용), 글리치 효과 Admin 제어
+- **Mix-Blend Navigation**: mix-blend-mode: difference 자동 반전 네비게이션 — 이미지 로고(숏/풀/다크 전용), 글리치 효과 Admin 제어. **메뉴는 좌측 로고와 우측 actions 사이 남는 공간의 가운데로 자동 정렬**(`flex: 1; justify-content: center`)되어 어떤 viewport 너비에서도 actions 와 겹치지 않음. **active link 의 sliding indicator** 는 일반 hover/이동 시 부드러운 transition, **창 너비 resize 중에는 `transition: none` 인라인으로 즉시 snap** 되어 메뉴 위치를 1프레임 단위로 따라감(120ms 디바운스 후 transition 복원)
 - **Tooltip & Translation Tooltip**: 범용 Tooltip + 번역 `<T>` 컴포넌트 — long hover(600ms)로 반대 언어 표시, createPortal 기반, 모바일 터치 토글
 - **Footer Sliding Indicator**: Navigation과 동일한 슬라이딩 인디케이터 — hover 시 화살표 이동, ResizeObserver + fonts.ready 정확도
 - **Carousel (default / cylinder)**: 공통 Carousel — default(CSS opacity) / cylinder(3D perspective) 모드, autoPlay/loop/dots/arrows
 - **About 가로 스크롤**: `useHorizontalScroll` 훅으로 GSAP 기반 가로 스크롤(데스크톱), 모바일 자동 세로 스택
 - **Page Transition**: 모든 detail 페이지 이동 시 이미지 확대→hero 위치 모핑→그라데이션 페이드 전환 효과 (PageTransitionProvider, root layout 레벨에서 페이지 간 유지)
 - **ImageViewer 방향 슬라이드**: 이전/다음 이동 시 반대 방향에서 slide-in (mode wait), 좌/우 영역 hover로 화살표 노출
-- **Select 드롭다운 애니메이션**: portal 기반 드롭다운에서 mount 후 rAF 2회 대기로 CSS transition 보장 (compound selector로 글로벌 theme transition 우회)
+- **Select 드롭다운 애니메이션**: portal 기반 드롭다운에서 mount 후 rAF 2회 대기로 CSS transition 보장 (compound selector로 글로벌 theme transition 우회). **외부 스크롤 시 dropdown 위치 재계산이 아니라 dropdown 자체를 닫음** — trigger 따라 이동해 산만해지는 걸 방지(내부 옵션 list overflow 스크롤은 유지)
 - **LanguageToggle 동적 측정**: EN 버튼 위치를 useLayoutEffect로 실측해 indicator 정확한 정렬
 
 <p align="center">
@@ -178,6 +179,11 @@
 - **`.md` 동기화**: `content/posts/` · `content/works/` 폴더 → DB 단방향 싱크 (Jekyll-style, `pnpm sync-all`)
 - **`.md` 내보내기**: 전체/선택/개별/시리즈 단위로 frontmatter 포함 `.md` 다운로드
 - **Plate.js 에디터**: Markdown ↔ Rich Text 양방향 변환 (파일/오디오 첨부 포함), 커스텀 각주, 5종 템플릿, 에디터 전환 skeleton, 직접입력 font size/line height
+- **WorkEditor 정비**: ① **연도 → PeriodPicker** — 단순 연도가 아닌 시작/종료/진행중 까지 표현, JSON 직렬화로 기존 단순 year 문자열과 back-compat. ② **역할 multi-select** — combobox 캡슐 안에서 chip + 검색 input + portal'd dropdown(`position: fixed`), preset 10종 + 커스텀 직접입력, 한글 IME composition Enter 시 마지막 글자 중복 방지(`isComposing`/keyCode 229 가드). ③ **정렬 순서 drag list** — 다른 작품들과 같은 list 에서 grip handle 로 drag, 페이지네이션(5개씩) + 위치 input + 맨앞/맨뒤 jump 버튼, 드래그 중 list edge(60px) hover 시 `apply()` 로 인접 페이지 첫/끝 위치로 reorder 자체 수행해 source 가 unmount 되지 않게 보존. ④ **카테고리 직접입력** — KO/EN inline 캡슐(언어 태그 + input), 자동완성/생성. ⑤ subtitle 은 chip row 의 높이에 맞춰 textarea-like 로 stretch, 2줄 이상이면 radius 자동 morph
+- **RelationPicker 강화**: chip 좌측 grip handle 로 **pointer-based drag-reorder**(HTML5 D&D 의 source-unmount cancel / 자식 click 흡수 / state-driven `draggable` 토글 등 quirks 회피), `framer-motion` `layout` prop 으로 재정렬 시 FLIP spring 자동 애니메이션, drag 위치에 따라 chip 좌/우 가장자리에 `::before/::after` 삽입 indicator. 입력 영역 닫힘 시 안내 placeholder("+ Add" / "No more items"), 화살표는 `ChevronRight` + 열림 시 90° 회전. 썸네일 로드 실패 시 동일 사이즈 ImageIcon placeholder 로 fallback
+- **PostEditor 커버 picker 애니메이션**: ① 닫기 버튼 텍스트 "선택 ↔ 닫기" 가 `AnimatePresence mode="wait"` 로 부드럽게 swap. ② picker 펼친 상태에선 같은 row 의 excerpt textarea 가 picker 높이만큼 함께 stretch(`align-items: stretch` + `flex-direction: column`). ③ 닫기 시 `closingCoverPicker` state 로 ~450ms collapse 애니메이션 끝난 뒤 unmount(즉시 unmount 면 닫는 모션이 안 보임). 시리즈 순서 list 는 grip 핸들 가장 앞 + framer `layout` 으로 drop indicator + spring reorder
+- **CursorTrail HTML5 drag 지원**: HTML5 native drag 가 활성이면 브라우저가 `pointermove` 를 시스템 차원에서 억제 → CursorTrail 이 freeze + 다른 요소 hover 마다 cursor type 흔들림. `dragover` 를 `handleMouseMove` 로 forward 해 좌표 stream 복원 + `dragstart` 시점에 `cursorType="grab"` lock + `runHitTest` 진입부 early-return 으로 "내가 잡고 있는 것" 의 cursor 를 끝까지 유지
+- **이미지 깨짐 placeholder 시스템**: 모든 이미지 surface(에디터 cover, Plate inline, MarkdownRenderer, RelationPicker chip/option, ImagePanel 썸네일, WorkEditor main/gallery)에서 로드 실패 시 `/images/placeholder.svg` 로 통일 swap. React 컴포넌트는 `onError` + state, `dangerouslySetInnerHTML` 영역(MarkdownRenderer / useRichtextEnhance)은 `attachImageFallback(root)` — `addEventListener("error")` + 즉시 `complete && naturalWidth===0` 체크 + MutationObserver 로 dynamic 추가 img 자동 추적, swap 시 `removeAttribute("srcset")` 로 srcset 재시도 차단
 - **리비전 히스토리**: JSONB snapshot 자동저장, LCS diff 비교, 기기 간 공유, 50개 초과 자동 정리
 - **AI 번역/요약**: DeepL/Google/Gemini/Claude fallback chain, 발행 시 자동 요약 생성
 - **카테고리 일괄 재할당**: `BulkCategoryModal` — 선택한 게시물들의 카테고리를 한 번에 변경, 시리즈 매핑 보존
@@ -523,7 +529,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 43건의 이슈 해결 과정입니다. 주요 항목을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 47건의 이슈 해결 과정입니다. 주요 항목을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
 > About 페이지에서도 인터랙티브하게 확인 가능합니다.
 
 | # | 이슈 | 핵심 |
@@ -544,6 +550,10 @@ npm run test:watch
 | 41 | sticky filterBar IntersectionObserver — 인기글 위젯과 1px 어긋남 | sentinel 의 `rootMargin` 을 고정값으로 두면 filterBar 의 `top: var(--nav-height)` 같은 동적 sticky 오프셋과 불일치. `getComputedStyle(filterBar).top` 으로 실측한 값을 `rootMargin: -${stickyTop+1}px 0px 0px 0px` 로 동기화하고, `resize` 이벤트마다 observer 를 재등록해 PC ↔ 모바일 nav-height 변화에도 정확히 anchor |
 | 42 | Series Deck — hover 펼침이 "사라졌다 나타나는" 느낌 | CSS `transition-delay` 로 stagger 를 주면 hover out 시 delay 가 같이 cancel 되어 layer 가 동시 사라짐 + transform overshoot 이징(0.34, 1.45)에서 미리 펼쳐 보임. 해결: `setTimeout(setOpen, 800)` JS state 기반 트리거 + `cubic-bezier(0.4, 0, 0.2, 1)` standard ease + `calc(1s + (var(--deck-i) - 1) * 0.4s)` 명시적 stagger 로 layer 가 한 장씩 완전히 펼쳐진 뒤 다음 layer 시작 |
 | 43 | Deck spread 시 setPointerCapture 가 자식 click 차단 + flicker | 부모가 `setPointerCapture` 를 잡으면 펼쳐진 deck layer 의 click 이 부모로 흡수되어 SeriesCard 클릭이 안 됨. margin-right 만으로 next 카드를 밀면 visual 만 이동, 실제 hit-area 는 안 늘어나 마우스가 layer 사이로 빠지면 hover 종료 → flicker. 해결: `setPointerCapture` 제거 + document-level `pointermove`/`pointerup` 로 이동 (click suppression flag), `::after { width: <펼쳐진 너비> }` pseudo 로 hit-area 를 layer 끝까지 확장 |
+| 44 | HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜 | 브라우저는 HTML5 drag 동안 `pointermove` 발화를 시스템 차원에서 억제하고 그 자리를 `dragover` 가 채움 — CursorTrail 이 freeze 되고, hit-test 도 hover 한 요소에 따라 cursor type 이 흔들림. 해결: `dragover` 를 `handleMouseMove` 로 forward 해 좌표 stream 복원 + `dragstart` 시점에 `cursorType="grab"` lock + `runHitTest` 진입부 early-return |
+| 45 | HTML5 D&D quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환 | `draggable={dragId === id}` state 토글이 React batching 과 안 맞아 드래그 시작 안 되고, "앞→뒤" 만 비대칭 실패, 페이지네이션된 list 에서 source unmount 시 drag cancel 등 quirks 누적. 해결: handle `pointerdown` → document `pointermove`/`pointerup` 추적 + `elementFromPoint` hit-test, 페이지 edge hover 시 `apply()` 로 reorder 자체 수행해 source 가 살아남도록 함, `setPointerCapture` 미사용 (자식 click 보존) |
+| 46 | Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치 못 따라감 | viewport 정중앙 absolute 고정은 좌·우 cluster 폭을 모름 → 겹침. flex 로 옮긴 뒤엔 indicator 의 `transition: left ... var(--duration-moderate)` lag 으로 메뉴 위치보다 ~300ms 뒤처짐. 해결: `.navCenter { flex: 1; justify-content: center }` 로 좌·우 사이 가운데 배치, resize event + `ResizeObserver(navCenter+nav)` 발화 시 `transition: "none"` inline 으로 즉시 snap, 120ms 디바운스 후 transition 복원 |
+| 47 | 이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음 | React 합성 이벤트는 `dangerouslySetInnerHTML` 영역 밖이고, 이미 fetch 가 끝난 img 는 `error` 가 retroactive 발화 안 됨, dynamic 추가 img 도 querySelectorAll 단발로 못 잡음. 해결: `attachImageFallback(root)` — 컨테이너 내 모든 img 에 `data-fallback-bound` gate + `addEventListener("error")` + 즉시 `complete && naturalWidth===0` 체크 + MutationObserver 로 새 img 자동 추적, swap 시 `removeAttribute("srcset")` 로 srcset 재시도 차단 |
 
 
 ## 배포

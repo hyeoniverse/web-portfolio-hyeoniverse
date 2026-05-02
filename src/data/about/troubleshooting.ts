@@ -1268,4 +1268,100 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     },
     tags: ["pointer events", "setPointerCapture", "hit-area", "::after", "Series", "deck"],
   },
+  {
+    section: { ko: "Frontend / Interaction", en: "Frontend / Interaction" },
+    problem: {
+      ko: "HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜",
+      en: "HTML5 drag suppresses `pointermove` — custom cursor freezes and its type keeps flickering mid-drag",
+    },
+    definition: {
+      ko: "RelationPicker / SortOrderDragList / 시리즈 정렬 등에서 HTML5 드래그를 시작하면 (1) `CursorTrail` 이 마우스 위치를 따라가지 않고 그 자리에 멈추고, (2) drag 중 마우스가 다른 요소 위를 지나갈 때마다 cursor type 이 \"text\" / \"big\" / \"\" 등으로 바뀌어 시각적으로 산만해집니다.",
+      en: "Once an HTML5 drag begins (RelationPicker / SortOrderDragList / series reorder), (1) `CursorTrail` stops following the cursor and freezes in place, and (2) as the mouse passes over other elements during the drag, cursor type flickers between \"text\" / \"big\" / \"\" etc., breaking the visual continuity of \"I'm holding something\".",
+    },
+    cause: {
+      ko: "브라우저는 HTML5 drag 진행 중에는 **`pointermove` / `mousemove` 발화를 의도적으로 억제**하고 그 자리를 `dragover` 가 대신 채웁니다. CursorTrail 의 위치 추적은 `pointermove` 만 listen 했으므로 좌표가 업데이트되지 않습니다. 또 `runHitTest` 가 60ms throttle 로 elementFromPoint 결과를 기반으로 cursor type 을 갱신하는데, drag 중에도 그대로 동작하면 \"내가 지금 잡고 있는 것\" 의 cursor 가 hover 한 요소에 따라 매번 바뀌어 일관성이 깨집니다.",
+      en: "Browsers **deliberately suppress `pointermove` / `mousemove` while an HTML5 drag is active**, surfacing `dragover` instead. `CursorTrail` only listens for `pointermove`, so its tracked position freezes the moment the drag starts. Separately, `runHitTest` recomputes cursor type on a 60ms throttle from `elementFromPoint` — keep that running during a drag, and the cursor type ping-pongs between every element the user passes over, instead of staying locked to \"grab\".",
+    },
+    solution: {
+      ko: "두 가지 패치를 함께. ① `dragover` 를 동일 핸들러(`handleMouseMove`)로 forward — DragEvent 와 PointerEvent 가 `clientX/Y` 만 공유한다는 점만 활용해 캐스팅 후 호출. ② `dragstart` 시점에 `isHtml5Dragging = true` + `cursorTypeRef.current = \"grab\"` + `setCursorType(\"grab\")` 으로 type 을 lock 하고, `runHitTest` 진입부에서 dragging 중이면 즉시 return. `dragend` / `drop` 에서 flag 해제.",
+      en: "Two patches together. ① Forward `dragover` into the same `handleMouseMove` handler — `DragEvent` and `PointerEvent` share `clientX/Y`, so a cast is enough. ② On `dragstart`, set `isHtml5Dragging = true`, lock `cursorTypeRef.current = \"grab\"` and `setCursorType(\"grab\")`. Have `runHitTest` early-return whenever dragging is active. Clear the flag on `dragend` / `drop`.",
+    },
+    keyInsight: {
+      ko: "HTML5 native drag 가 활성이면 pointer 이벤트는 **시스템 차원에서 정지**합니다. `dragover` 로 좌표는 받을 수 있지만, drag 시작 자체와 끝을 따로 추적하지 않으면 hit-test 가 \"이 사람이 뭔가 잡고 있다\" 는 의미를 모릅니다. 커스텀 커서처럼 hover 마다 모드를 바꾸는 컴포넌트는 **drag 시작점에 modes 를 동결, drag 끝점에 해제** 하는 ref 기반 lock 이 필수.",
+      en: "While native HTML5 drag is active, pointer events are **suspended at the system level**. `dragover` can keep coordinates flowing, but unless you separately track drag-start and drag-end, your hit-test has no idea the user is mid-drag. For any cursor-state component that flips modes per hover, **freeze the mode on drag-start and release on drag-end via a ref-based lock** — otherwise the cursor's identity collapses into whatever the mouse passes over.",
+    },
+    tags: ["HTML5 drag", "pointermove", "custom cursor", "dragover", "CursorTrail"],
+  },
+  {
+    section: { ko: "Frontend / Interaction", en: "Frontend / Interaction" },
+    problem: {
+      ko: "HTML5 D&D 의 quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환",
+      en: "Working around HTML5 D&D quirks — replacing chip-reorder drag with pointer events",
+    },
+    definition: {
+      ko: "RelationPicker 의 chip 순서 변경 / SortOrderDragList 의 페이지네이션 항목 정렬에서 HTML5 D&D 가 다음 세 가지 문제를 동시에 일으켰습니다: (1) `draggable={dragId === id}` 같은 state 토글 패턴이 React batching 때문에 DOM `draggable` 속성 갱신 시점이 늦어 드래그가 시작 안 됨, (2) 같은 코드인데도 \"뒤→앞\" 은 잘 되고 \"앞→뒤\" 만 작동 안 하는 비대칭, (3) 페이지네이션된 리스트에서 source chip 이 페이지 전환으로 unmount 되면 브라우저가 즉시 drag cancel.",
+      en: "Two reorder UIs (RelationPicker chips, SortOrderDragList paged items) were hit by three HTML5 D&D quirks simultaneously: (1) toggling `draggable={dragId === id}` from state — the DOM attribute update lagged React batching, so drags wouldn't start; (2) asymmetric behavior — \"back-to-front\" reorder worked but \"front-to-back\" didn't, despite identical code; (3) when the source chip lived on a paginated list and a page change unmounted it mid-drag, the browser immediately cancelled the drag.",
+    },
+    cause: {
+      ko: "HTML5 D&D 는 DOM `draggable` 속성을 **drag 시작 시점에 한 번 읽고**, 이후 변경에 반응하지 않습니다. 또 source 노드가 unmount 되면 drag session 자체가 취소됩니다. \"앞→뒤\" 비대칭은 같은 row 안에서 chip 순서가 바뀌면 React 가 key 기반으로 reconcile 할 때 source DOM 이 다른 위치로 옮겨지면서 drag tracking 이 끊기는 동일 메커니즘입니다. 결국 작은 컴포넌트(chip / list item)에서 D&D 를 쓰면 quirks 의 합산이 너무 큽니다.",
+      en: "HTML5 D&D **reads the DOM `draggable` attribute once at drag-start** and never reacts to later changes. It also cancels the session when the source node unmounts. The \"front-to-back\" asymmetry is the same mechanism — when sibling chips reorder, React's key-based reconciliation can move the source DOM into a new slot, breaking the drag tracker. Combine these and small reorder UIs end up with more quirks than features.",
+    },
+    solution: {
+      ko: "두 컴포넌트 모두 **pointer-based drag** 로 교체. ① grip handle 의 `pointerdown` 시점에 document-level `pointermove` / `pointerup` 리스너를 부착하고, 매 frame `elementFromPoint(ev.clientX, ev.clientY)` → `closest(\"[data-chip-id]\")` 로 hover 중인 target id 추적. ② drop 시점은 `pointerup` — 이 시점에서 `selectedIds` 를 splice 해 onChange. ③ 페이지네이션 리스트에서는 list edge(상하 60px) hover 시 `apply()` 로 source 를 인접 페이지의 첫/끝 위치로 **실제로 reorder** — 단순히 setPage 만 하면 source 가 unmount 되어 cancel 되므로, source 가 새 페이지에 자연스럽게 살아남도록 위치 자체를 옮김. ④ `setPointerCapture` 는 **사용 안 함** — 자식 click 을 흡수해 chip 의 onClick(× 제거) 이 죽음.",
+      en: "Replace both with **pointer-based drag**. ① On the grip handle's `pointerdown`, attach document-level `pointermove` / `pointerup` listeners. Per move, do `elementFromPoint(ev.clientX, ev.clientY)` → `closest(\"[data-chip-id]\")` to track the hovered target id. ② Drop = `pointerup` — splice `selectedIds` and call `onChange`. ③ For the paginated list, when the source nears a list edge (60px), call `apply()` to **actually reorder** the source into the first/last slot of the adjacent page — a bare `setPage` would unmount the source and cancel the drag, so the position change itself keeps it mounted. ④ Avoid `setPointerCapture` — it would absorb child clicks and kill the chip's × button.",
+    },
+    keyInsight: {
+      ko: "HTML5 native D&D 는 \"이미지 / 파일을 OS 수준에서 다른 앱으로 끌어 가는\" 케이스에 최적화되어 있고, **같은 페이지 안에서 작은 항목 순서를 바꾸는 용도로는 quirks 의 합이 너무 큽니다.** state-driven `draggable` 토글, source unmount 시 cancel, 자식 click 차단 (`setPointerCapture` 시), \"앞→뒤\" 비대칭 등은 전부 D&D 표준의 부산물입니다. **chip / list item 같은 micro-reorder 는 처음부터 pointer events 로 짜는 게** 결과적으로 코드 양도 적고 동작도 일관됩니다.",
+      en: "Native HTML5 D&D is optimized for \"drag an image/file to another OS app\" — **for in-page micro-reorder of chips or list items, the sum of its quirks is bigger than its convenience.** State-driven `draggable` toggling, source-unmount cancellation, child-click absorption (with `setPointerCapture`), front-to-back asymmetry — all fall out of the spec. **For micro-reorder UIs, write pointer-event drag from the start** — it ends up shorter and behaves consistently.",
+    },
+    tags: ["HTML5 drag", "pointer events", "drag-and-drop", "chip", "pagination", "elementFromPoint"],
+  },
+  {
+    section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
+    problem: {
+      ko: "Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감",
+      en: "Navigation menu overlaps the right actions on narrow viewports + indicator drifts behind the menu while resizing",
+    },
+    definition: {
+      ko: "PC 레이아웃에서 navigation 메뉴는 `position: absolute; left: 50%; transform: translateX(-50%)` 로 viewport 정중앙에 고정되어 있었는데, 우측 navActions(언어/사운드/테마/email/Bell/Logout) 가 길어지면 메뉴와 겹치는 너비 구간이 발생. flex 로 바꿔 좌·우 사이 가운데로 옮겼더니 이번엔 active link 를 가리키는 sliding indicator 가 창 너비 변경 중 ~300ms 의 transition lag 으로 메뉴 위치를 따라가지 못해 계속 어긋난 채로 끌려옴.",
+      en: "On PC, the nav menu was pinned to viewport center with `position: absolute; left: 50%; transform: translateX(-50%)`. As `navActions` (lang / sound / theme / email / Bell / Logout) grew, there was a viewport range where the menu overlapped the right cluster. Switching to flex (\"center between logo and actions\") fixed the collision but introduced a new bug: the sliding indicator that highlights the active link lagged the menu by ~300ms during continuous resize because of its CSS transition, leaving a visible drift the whole time the user dragged the window edge.",
+    },
+    cause: {
+      ko: "정중앙 고정 방식은 좌측 로고 폭과 우측 actions 폭이 서로 다르거나 `--page-px` 가 작아질 때 절대 위치가 고려되지 못해 자연스럽게 겹침. flex 전환 후 lag 은 `.navIndicator { transition: left var(--duration-moderate) ease, width ... }` 가 항상 활성이라, 매 resize event 가 새 left/width 를 전달해도 indicator 는 이전 값에서 새 값으로 천천히 이동 → 사용자에겐 \"메뉴는 즉시 옮겨가는데 indicator 만 뒤따라옴\".",
+      en: "Viewport-center pinning ignores left/right cluster widths — when one side grows or `--page-px` shrinks, collision is inevitable. After moving to flex, the lag came from `.navIndicator { transition: left var(--duration-moderate) ease, width ... }` being always-on. Every resize event pushes new left/width values, but the indicator eases from the previous value toward the new one — to the user, \"the menu jumps to its new position, but the indicator drags ~300ms behind.\"",
+    },
+    solution: {
+      ko: "두 단계. ① 레이아웃: `.navCenter` 를 `position: relative; flex: 1; justify-content: center` 로 전환 — 좌측 로고와 우측 actions 가 각자 자기 폭을 점유하고, 그 사이 남는 공간의 가운데에 메뉴가 자연스럽게 자리잡음. ② indicator 트랜지션: window `resize` + `ResizeObserver(navCenter + nav)` 양쪽 모두 listen. 발화 시 `setIndicatorInstant(true)` + `updateIndicator()` 호출 후 120ms 디바운스로 다시 false. resize 중엔 `style={{ ...indicatorStyle, transition: \"none\" }}` 가 inline 으로 들어가 즉시 snap, resize 끝나면 hover/네비게이션용 transition 복원.",
+      en: "Two steps. ① Layout: `.navCenter` → `position: relative; flex: 1; justify-content: center` — logo and actions occupy their natural widths, and the menu sits in the middle of the remaining space, with no overlap risk. ② Indicator transition: listen on both `window resize` and `ResizeObserver(navCenter + nav)`. On every fire, `setIndicatorInstant(true)` + `updateIndicator()`, then a 120ms debounce sets it back to false. While instant, the indicator is rendered with `style={{ ...indicatorStyle, transition: \"none\" }}` so it snaps frame-by-frame to the new position; once resize ends, the normal hover/navigation transition is restored.",
+    },
+    keyInsight: {
+      ko: "① **viewport 절대중앙은 양쪽 영역의 폭을 모름** — 좌·우가 비대칭이거나 동적이면 flex `flex: 1; justify-content: center` 가 \"가운데\" 의 의미를 정확히 표현. ② **CSS transition 은 \"한 번의 사용자 의도\" 에 적합하지, 연속 입력에는 부적합** — resize / scroll 같은 연속 stream 동안엔 transition 을 꺼서 매 frame snap 시키고, stream 종료 후 transition 을 복원해야 \"부드러운 이동\" 의 의미가 유지됨. 인라인 `transition: \"none\"` 으로 짧게 끄는 패턴이 가장 가벼운 해법.",
+      en: "① **Absolute viewport-center has no idea what's to the left or right** — for asymmetric/dynamic clusters, `flex: 1; justify-content: center` expresses \"between\" precisely. ② **CSS transitions fit single user intents, not continuous input streams** — during resize / scroll, disable the transition so the element snaps every frame, then re-enable it after the stream ends. An inline `transition: \"none\"` toggled by a debounced state is the lightest pattern that preserves \"smooth\" semantics for hover-driven changes.",
+    },
+    tags: ["flex", "absolute positioning", "transition", "resize", "Navigation", "indicator"],
+  },
+  {
+    section: { ko: "Frontend / Image", en: "Frontend / Image" },
+    problem: {
+      ko: "이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음",
+      en: "Image fallback — React `onError` doesn't bind to `<img>` rendered via `dangerouslySetInnerHTML`",
+    },
+    definition: {
+      ko: "에디터/포스트/Works/Plate 패널 등 **모든 이미지에서** 로드 실패 시 `/images/placeholder.svg` 로 swap 하도록 통일하려 했는데, React 컴포넌트의 `<img onError>` 는 잘 작동하지만, MarkdownRenderer 처럼 marked → HTML → `dangerouslySetInnerHTML` 로 렌더된 img 와 useRichtextEnhance 가 적용되는 richtext 영역에서는 onError 가 전혀 발화되지 않아 깨진 이미지가 그대로 노출됩니다.",
+      en: "We wanted a single fallback rule across **every image surface** — editor / posts / works / Plate panels — so that load failures swap to `/images/placeholder.svg`. React's `<img onError>` worked everywhere it was JSX. But in MarkdownRenderer (marked → HTML → `dangerouslySetInnerHTML`) and `useRichtextEnhance`-styled richtext regions, `onError` never fired and broken images stayed visible.",
+    },
+    cause: {
+      ko: "`dangerouslySetInnerHTML` 로 삽입된 DOM 은 React 가 관리하지 않으므로 `onError` 같은 합성 이벤트 prop 이 attached 되지 않습니다. 또 이미 fetch 가 끝난 이미지(`complete && naturalWidth === 0`) 는 listener 를 늦게 부착하면 `error` 가 다시 발화되지 않아 영원히 깨진 상태로 남고, MarkdownRenderer 가 dynamic 하게 새 img 를 추가하는 경우(에디터 토글 / lazy 로드) 는 초기 querySelectorAll 만으로는 못 잡습니다.",
+      en: "DOM injected via `dangerouslySetInnerHTML` is outside React's reconciler — synthetic event props like `onError` never bind. Even native `addEventListener(\"error\")` has a sub-trap: an image whose fetch already completed (`complete && naturalWidth === 0`) won't re-fire `error` when a listener is attached late, leaving it stuck. And when richtext content mutates (editor mode toggle, lazy load), a one-shot `querySelectorAll` misses the newly added images.",
+    },
+    solution: {
+      ko: "`useRichtextEnhance` 훅과 MarkdownRenderer 양쪽에 `attachImageFallback(root)` 패턴을 도입. ① 컨테이너 내 모든 `<img>` 에 대해 `data-fallback-bound` 로 중복 부착 방지하면서 `error` listener 부착 + **이미 실패 상태(`complete && naturalWidth === 0`) 면 즉시 swap**. ② `MutationObserver(root, { childList: true, subtree: true })` 로 이후 추가되는 img 도 동일 처리 — 로드 후 swap 시 `srcset` 도 함께 제거해 브라우저가 깨진 srcset 으로 다시 시도하지 않도록 보정. ③ React 컴포넌트(PostEditor cover / WorkEditor main·gallery / RelationPicker chip·option / Plate ImagePanel·ImageElement) 는 `onError` + state swap 으로 동일 효과.",
+      en: "Apply the `attachImageFallback(root)` pattern in both `useRichtextEnhance` and MarkdownRenderer. ① Walk every `<img>` in the container, gate with `data-fallback-bound` to prevent double binding, attach an `error` listener, **and immediately swap if the image is already failed (`complete && naturalWidth === 0`)**. ② Run a `MutationObserver(root, { childList: true, subtree: true })` so images added later get the same treatment — when swapping, also `removeAttribute(\"srcset\")` so the browser doesn't keep retrying broken candidates. ③ React-rendered surfaces (PostEditor cover, WorkEditor main/gallery, RelationPicker chip/option, Plate ImagePanel/ImageElement) achieve the same result with `onError` + state swap to a `displayUrl`.",
+    },
+    keyInsight: {
+      ko: "① **`dangerouslySetInnerHTML` 로 들어온 DOM 은 React 합성 이벤트의 사각지대** — 이벤트 위임이 없으니 native `addEventListener` 가 유일한 선택. ② 이미 로드(or 실패) 가 끝난 이미지는 `error` 가 retroactive 하게 발화되지 않으므로, listener 부착 직후 **`complete && naturalWidth === 0` 동기 체크가 필수**. ③ `srcset` 을 두면 src 만 바꿔도 브라우저가 srcset 후보를 우선 시도해 다시 깨질 수 있으므로 swap 시 함께 제거. ④ richtext 처럼 콘텐츠가 동적인 영역은 querySelectorAll 단발이 아니라 **MutationObserver 로 incremental** 처리해야 새로 들어온 img 도 안전.",
+      en: "① **DOM from `dangerouslySetInnerHTML` is React's synthetic-event blind spot** — without delegation, `addEventListener` is the only path. ② Images that already finished loading (or failing) won't re-fire `error` retroactively — pair the listener attach with a synchronous `complete && naturalWidth === 0` check. ③ Leaving `srcset` after a `src` swap lets the browser keep retrying the broken candidates — `removeAttribute(\"srcset\")` together with the swap. ④ For dynamic regions like richtext, a one-shot `querySelectorAll` won't catch images added later — pair it with a `MutationObserver` for incremental coverage.",
+    },
+    tags: ["dangerouslySetInnerHTML", "MutationObserver", "image fallback", "onError", "richtext", "MarkdownRenderer"],
+  },
 ];

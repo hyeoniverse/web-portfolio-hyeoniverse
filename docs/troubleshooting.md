@@ -1416,3 +1416,177 @@ useEffect(() => {
 **핵심 인사이트**: ① `setPointerCapture` 는 **드래그 추적 시 편리하지만 자식 click 을 모두 흡수**한다. 자식 클릭이 필요한 컴포넌트라면 document-level pointer 리스너 + 거리 기반 click suppression 이 더 안전. ② **margin 은 visual 위치만 바꾸고 hit-area 는 안 늘린다.** Hover 영역을 확장하려면 `padding-right`(box-sizing: content-box) 또는 `::after` pseudo 가 표준 패턴. content-box 는 다른 layout 부수효과가 크므로 pseudo 가 더 깔끔. ③ Hover 기반 멀티 스텝 인터랙션(deck 펼침 등)은 마우스가 layer 사이를 지나가는 micro-second 라도 hover 가 끊기면 즉시 flicker — **hover area 는 시각적 boundary 보다 한 단계 더 넓게** 잡아야 안정적
 
 </details>
+
+<details>
+<summary><strong>44. HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜</strong></summary>
+
+**문제**: RelationPicker / SortOrderDragList / 시리즈 정렬 등에서 HTML5 드래그를 시작하면 (1) `CursorTrail` 이 마우스 위치를 따라가지 않고 그 자리에 멈추고, (2) drag 중 마우스가 다른 요소 위를 지나갈 때마다 cursor type 이 "text" / "big" / "" 등으로 바뀌어 시각적으로 산만함
+
+**원인**: 브라우저는 HTML5 drag 진행 중에는 **`pointermove` / `mousemove` 발화를 의도적으로 억제**하고 그 자리를 `dragover` 가 대신 채움. CursorTrail 의 위치 추적은 `pointermove` 만 listen 했으므로 좌표가 업데이트되지 않음. 또 `runHitTest` 가 60ms throttle 로 elementFromPoint 결과를 기반으로 cursor type 을 갱신하는데, drag 중에도 그대로 동작하면 "내가 지금 잡고 있는 것" 의 cursor 가 hover 한 요소에 따라 매번 바뀌어 일관성 깨짐
+
+**해결**: 두 가지 패치를 함께
+
+1. **`dragover` 를 `handleMouseMove` 로 forward** — DragEvent 와 PointerEvent 가 `clientX/Y` 만 공유한다는 점만 활용해 캐스팅 후 호출. 좌표 stream 복원
+2. **drag 시작 시점에 cursor type lock** — `dragstart` 에서 `isHtml5Dragging = true` + `cursorTypeRef.current = "grab"` + `setCursorType("grab")`, `runHitTest` 진입부에서 dragging 중이면 즉시 return. `dragend` / `drop` 에서 flag 해제
+
+```ts
+let isHtml5Dragging = false;
+const onDragStart = () => {
+  isHtml5Dragging = true;
+  cursorTypeRef.current = "grab";
+  setCursorType("grab");
+};
+document.addEventListener("dragstart", onDragStart, true);
+window.addEventListener("dragover", (e) => handleMouseMove(e as unknown as PointerEvent));
+
+const runHitTest = (mx: number, my: number) => {
+  if (isHtml5Dragging) return; // grab 고정 — hover 한 요소에 따라 흔들리지 않음
+  // ...
+};
+```
+
+**핵심 인사이트**: HTML5 native drag 가 활성이면 pointer 이벤트는 **시스템 차원에서 정지**한다. `dragover` 로 좌표는 받을 수 있지만, drag 시작 자체와 끝을 따로 추적하지 않으면 hit-test 가 "이 사람이 뭔가 잡고 있다" 는 의미를 모름. 커스텀 커서처럼 hover 마다 모드를 바꾸는 컴포넌트는 **drag 시작점에 modes 를 동결, drag 끝점에 해제** 하는 ref 기반 lock 이 필수
+
+</details>
+
+<details>
+<summary><strong>45. HTML5 D&D 의 quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환</strong></summary>
+
+**문제**: RelationPicker 의 chip 순서 변경 / SortOrderDragList 의 페이지네이션 항목 정렬에서 HTML5 D&D 가 다음 세 가지 문제를 동시에 일으킴
+
+1. `draggable={dragId === id}` 같은 state 토글 패턴이 React batching 때문에 DOM `draggable` 속성 갱신 시점이 늦어 드래그가 시작 안 됨
+2. 같은 코드인데도 "뒤→앞" 은 잘 되고 "앞→뒤" 만 작동 안 하는 비대칭
+3. 페이지네이션된 리스트에서 source chip 이 페이지 전환으로 unmount 되면 브라우저가 즉시 drag cancel
+
+**원인**: HTML5 D&D 는 DOM `draggable` 속성을 **drag 시작 시점에 한 번 읽고**, 이후 변경에 반응하지 않음. 또 source 노드가 unmount 되면 drag session 자체가 취소됨. "앞→뒤" 비대칭은 같은 row 안에서 chip 순서가 바뀌면 React 가 key 기반으로 reconcile 할 때 source DOM 이 다른 위치로 옮겨지면서 drag tracking 이 끊기는 동일 메커니즘. 결국 작은 컴포넌트(chip / list item)에서 D&D 를 쓰면 quirks 의 합산이 너무 큼
+
+**해결**: 두 컴포넌트 모두 **pointer-based drag** 로 교체
+
+1. **handle 의 `pointerdown` → document-level 추적** — `pointermove` 에서 매 frame `elementFromPoint(ev.clientX, ev.clientY)` → `closest("[data-chip-id]")` 로 hover target id 추적. `pointerup` 에서 `selectedIds` 를 splice 해 onChange
+2. **페이지네이션 리스트의 edge 처리** — list 상하 60px 영역 hover 시 `apply()` 로 source 를 인접 페이지의 첫/끝 위치로 **실제로 reorder**. 단순 setPage 는 source 가 unmount 되어 cancel 되므로, 위치 이동 자체로 source 가 새 페이지에 자연스럽게 살아남도록 함
+3. **`setPointerCapture` 사용 안 함** — 자식 click 을 흡수해 chip 의 onClick(× 제거) 이 죽음
+
+```tsx
+onPointerDown={(e) => {
+  if (e.button !== 0) return;
+  e.preventDefault();
+  const sourceId = id;
+  setDragId(sourceId);
+  let lastTargetId: string | null = null;
+  const onMove = (ev: PointerEvent) => {
+    const elem = document.elementFromPoint(ev.clientX, ev.clientY);
+    const tId = elem?.closest("[data-chip-id]")?.getAttribute("data-chip-id") ?? null;
+    if (tId && tId !== sourceId && tId !== lastTargetId) {
+      lastTargetId = tId;
+      setDragOverId(tId);
+    }
+  };
+  const onUp = (ev: PointerEvent) => { /* splice + onChange */ };
+  document.addEventListener("pointermove", onMove);
+  document.addEventListener("pointerup", onUp);
+}}
+```
+
+**핵심 인사이트**: HTML5 native D&D 는 "이미지 / 파일을 OS 수준에서 다른 앱으로 끌어 가는" 케이스에 최적화되어 있고, **같은 페이지 안에서 작은 항목 순서를 바꾸는 용도로는 quirks 의 합이 너무 큼.** state-driven `draggable` 토글, source unmount 시 cancel, 자식 click 차단 (`setPointerCapture` 시), "앞→뒤" 비대칭 등은 전부 D&D 표준의 부산물. **chip / list item 같은 micro-reorder 는 처음부터 pointer events 로 짜는 게** 결과적으로 코드 양도 적고 동작도 일관적
+
+</details>
+
+<details>
+<summary><strong>46. Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감</strong></summary>
+
+**문제**: PC 레이아웃에서 navigation 메뉴는 `position: absolute; left: 50%; transform: translateX(-50%)` 로 viewport 정중앙에 고정되어 있었는데, 우측 navActions(언어/사운드/테마/email/Bell/Logout) 가 길어지면 메뉴와 겹치는 너비 구간이 발생. flex 로 바꿔 좌·우 사이 가운데로 옮겼더니 이번엔 active link 를 가리키는 sliding indicator 가 창 너비 변경 중 ~300ms 의 transition lag 으로 메뉴 위치를 따라가지 못해 계속 어긋난 채로 끌려옴
+
+**원인**:
+
+1. 정중앙 고정은 좌측 로고 폭과 우측 actions 폭이 서로 다르거나 `--page-px` 가 작아질 때 절대 위치가 고려되지 못해 자연스럽게 겹침
+2. flex 전환 후 lag 은 `.navIndicator { transition: left var(--duration-moderate) ease, width ... }` 가 항상 활성이라, 매 resize event 가 새 left/width 를 전달해도 indicator 는 이전 값에서 새 값으로 천천히 이동 → 사용자에겐 "메뉴는 즉시 옮겨가는데 indicator 만 뒤따라옴"
+
+**해결**:
+
+1. **레이아웃** — `.navCenter` 를 `position: relative; flex: 1; justify-content: center` 로 전환. 좌측 로고와 우측 actions 가 각자 자기 폭을 점유하고, 그 사이 남는 공간의 가운데에 메뉴가 자연스럽게 자리잡음
+2. **indicator transition 인스턴트화** — window `resize` + `ResizeObserver(navCenter + nav)` 양쪽 모두 listen. 발화 시 `setIndicatorInstant(true)` + `updateIndicator()` 호출 후 120ms 디바운스로 다시 false. resize 중엔 `style={{ ...indicatorStyle, transition: "none" }}` 가 inline 으로 들어가 즉시 snap, resize 끝나면 hover/네비게이션용 transition 복원
+
+```tsx
+const [indicatorInstant, setIndicatorInstant] = useState(false);
+useEffect(() => {
+  let endTimer: ReturnType<typeof setTimeout> | null = null;
+  const tick = () => {
+    setIndicatorInstant(true);
+    updateIndicator();
+    if (endTimer) clearTimeout(endTimer);
+    endTimer = setTimeout(() => setIndicatorInstant(false), 120);
+  };
+  const ro = new ResizeObserver(tick);
+  ro.observe(navCenterRef.current!);
+  if (navEl) ro.observe(navEl);
+  window.addEventListener("resize", tick);
+  // ...
+}, [updateIndicator]);
+
+// JSX
+<span style={indicatorInstant ? { ...indicatorStyle, transition: "none" } : indicatorStyle} />
+```
+
+**핵심 인사이트**:
+
+① **viewport 절대중앙은 양쪽 영역의 폭을 모름** — 좌·우가 비대칭이거나 동적이면 flex `flex: 1; justify-content: center` 가 "가운데" 의 의미를 정확히 표현
+② **CSS transition 은 "한 번의 사용자 의도" 에 적합하지, 연속 입력에는 부적합** — resize / scroll 같은 연속 stream 동안엔 transition 을 꺼서 매 frame snap 시키고, stream 종료 후 transition 을 복원해야 "부드러운 이동" 의 의미가 유지됨. 인라인 `transition: "none"` 으로 짧게 끄는 패턴이 가장 가벼운 해법
+
+</details>
+
+<details>
+<summary><strong>47. 이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음</strong></summary>
+
+**문제**: 에디터/포스트/Works/Plate 패널 등 **모든 이미지에서** 로드 실패 시 `/images/placeholder.svg` 로 swap 하도록 통일하려 했는데, React 컴포넌트의 `<img onError>` 는 잘 작동하지만, MarkdownRenderer 처럼 marked → HTML → `dangerouslySetInnerHTML` 로 렌더된 img 와 useRichtextEnhance 가 적용되는 richtext 영역에서는 onError 가 전혀 발화되지 않아 깨진 이미지가 그대로 노출됨
+
+**원인**:
+
+1. `dangerouslySetInnerHTML` 로 삽입된 DOM 은 React 가 관리하지 않으므로 `onError` 같은 합성 이벤트 prop 이 attached 되지 않음
+2. 이미 fetch 가 끝난 이미지(`complete && naturalWidth === 0`) 는 listener 를 늦게 부착하면 `error` 가 다시 발화되지 않아 영원히 깨진 상태로 남음
+3. MarkdownRenderer 가 dynamic 하게 새 img 를 추가하는 경우(에디터 토글 / lazy 로드) 는 초기 querySelectorAll 만으로는 못 잡음
+
+**해결**: `useRichtextEnhance` 훅과 MarkdownRenderer 양쪽에 `attachImageFallback(root)` 패턴 도입
+
+1. **컨테이너 내 모든 `<img>` 에 listener 부착** — `data-fallback-bound` 로 중복 부착 방지. **이미 실패 상태(`complete && naturalWidth === 0`) 면 즉시 swap**
+2. **`MutationObserver(root, { childList: true, subtree: true })`** — 이후 추가되는 img 도 동일 처리
+3. **swap 시 `srcset` 도 함께 제거** — 안 그러면 브라우저가 srcset 후보를 먼저 시도해 다시 깨질 수 있음
+4. **React 컴포넌트는 onError + state swap** — PostEditor cover / WorkEditor main·gallery / RelationPicker chip·option / Plate ImagePanel·ImageElement 모두 동일 패턴
+
+```ts
+function attachImageFallback(root: HTMLElement): () => void {
+  const handle = (img: HTMLImageElement) => {
+    if (img.dataset.fallbackBound === "1") return;
+    img.dataset.fallbackBound = "1";
+    img.addEventListener("error", () => swapToPlaceholder(img));
+    if (img.complete && img.naturalWidth === 0) swapToPlaceholder(img);
+  };
+  root.querySelectorAll("img").forEach((el) => handle(el as HTMLImageElement));
+  const mo = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      m.addedNodes.forEach((node) => {
+        if (node.nodeType !== 1) return;
+        const el = node as Element;
+        if (el.tagName === "IMG") handle(el as HTMLImageElement);
+        el.querySelectorAll?.("img").forEach((img) => handle(img as HTMLImageElement));
+      });
+    }
+  });
+  mo.observe(root, { childList: true, subtree: true });
+  return () => mo.disconnect();
+}
+
+function swapToPlaceholder(img: HTMLImageElement) {
+  if (img.src.endsWith("/images/placeholder.svg")) return;
+  img.src = "/images/placeholder.svg";
+  img.removeAttribute("srcset");
+}
+```
+
+**핵심 인사이트**:
+
+① **`dangerouslySetInnerHTML` 로 들어온 DOM 은 React 합성 이벤트의 사각지대** — 이벤트 위임이 없으니 native `addEventListener` 가 유일한 선택
+② 이미 로드(or 실패) 가 끝난 이미지는 `error` 가 retroactive 하게 발화되지 않으므로, listener 부착 직후 **`complete && naturalWidth === 0` 동기 체크가 필수**
+③ `srcset` 을 두면 src 만 바꿔도 브라우저가 srcset 후보를 우선 시도해 다시 깨질 수 있으므로 swap 시 함께 제거
+④ richtext 처럼 콘텐츠가 동적인 영역은 querySelectorAll 단발이 아니라 **MutationObserver 로 incremental** 처리해야 새로 들어온 img 도 안전
+
+</details>
