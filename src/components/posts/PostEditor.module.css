@@ -26,6 +26,25 @@
   overflow-y: auto;
 }
 
+/* 커버 picker 가 열렸을 때 — row 를 stretch 정렬해 excerpt textarea 가
+   cover 영역 전체 높이만큼 같이 늘어나도록. excerpt field 를 flex column 으로
+   만들고 textarea 가 남은 공간을 채우게 함. */
+.coverPickerOpenRow {
+  align-items: stretch !important;
+}
+
+.coverPickerOpenRow > [data-seo="excerpt"] {
+  display: flex;
+  flex-direction: column;
+}
+
+.coverPickerOpenRow .excerptInput {
+  flex: 1;
+  max-height: none;
+  height: auto;
+  min-height: 100px;
+}
+
 .meta .excerptInput:focus {
   border-color: var(--text-primary);
 }
@@ -173,6 +192,7 @@
 }
 
 .seriesOrderItem {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -185,6 +205,33 @@
 
 .seriesOrderItem + .seriesOrderItem {
   border-top: var(--border-light);
+}
+
+/* drag 중 본인 — 살짝 흐리게 */
+.seriesOrderItemDragging {
+  opacity: 0.4;
+}
+
+/* drop indicator — 대상 item 위/아래에 accent 라인 (full-width) */
+.seriesOrderItemDropAbove::before,
+.seriesOrderItemDropBelow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text-accent);
+  border-radius: 1px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.seriesOrderItemDropAbove::before {
+  top: -1px;
+}
+
+.seriesOrderItemDropBelow::after {
+  bottom: -1px;
 }
 
 .seriesOrderItemCurrent {
@@ -208,12 +255,16 @@
 }
 
 .seriesOrderGrip {
+  display: inline-flex;
+  align-items: center;
   flex-shrink: 0;
   color: var(--text-muted);
+  cursor: move;
   touch-action: none;
 }
 
-.seriesOrderGrip:active {
+.seriesOrderGrip:hover {
+  color: var(--text-primary);
 }
 
 .seriesOrderTitle {
@@ -317,6 +368,19 @@
   object-fit: cover;
   border-radius: var(--radius-2xl);
   border: var(--border-light);
+}
+
+/* 이미지 로드 실패 시 동일 사이즈의 placeholder */
+.coverThumbPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-2xl);
+  border: var(--border-light);
+  background: var(--bg-tertiary-alt);
+  color: var(--text-tertiary);
 }
 
 .coverLabelRow {
