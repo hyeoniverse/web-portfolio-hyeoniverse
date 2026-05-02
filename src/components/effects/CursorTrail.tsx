@@ -94,7 +94,23 @@ export default function CursorTrail() {
     };
     document.addEventListener("mouseover", handleOverForCursor, true);
 
+    // HTML5 drag 진행 중인지 추적 — 드래그 중에는 cursor type 을 grab 으로 고정 (hover 마다 type 바뀌는 거 방지)
+    let isHtml5Dragging = false;
+    const onDragStart = () => {
+      isHtml5Dragging = true;
+      cursorTypeRef.current = "grab";
+      setCursorType("grab");
+    };
+    const onDragEnd = () => {
+      isHtml5Dragging = false;
+    };
+    document.addEventListener("dragstart", onDragStart, true);
+    document.addEventListener("dragend", onDragEnd, true);
+    document.addEventListener("drop", onDragEnd, true);
+
     const runHitTest = (mx: number, my: number) => {
+      // 드래그 중에는 type 변경 skip — grab 고정
+      if (isHtml5Dragging) return;
       const target = checkElementAt(mx, my);
 
       const hasMore = !!target?.closest("[data-more]");
@@ -224,7 +240,14 @@ export default function CursorTrail() {
       rafRef.current = requestAnimationFrame(animate);
     };
 
+    // HTML5 drag 중엔 브라우저가 pointermove 를 막으므로 dragover 도 함께 듣고 동일 핸들러 호출 → 커서가 따라옴
+    const handleDragMove = (e: DragEvent) => {
+      // PointerEvent 와 시그니처가 호환되는 부분만 사용 (clientX/Y) → 캐스팅
+      handleMouseMove(e as unknown as PointerEvent);
+    };
+
     window.addEventListener("pointermove", handleMouseMove);
+    window.addEventListener("dragover", handleDragMove);
     window.addEventListener("pointerdown", handleMouseDown);
     window.addEventListener("pointerup", handleMouseUp);
     document.addEventListener("pointerenter", handleEnter);
@@ -234,6 +257,7 @@ export default function CursorTrail() {
 
     return () => {
       window.removeEventListener("pointermove", handleMouseMove);
+      window.removeEventListener("dragover", handleDragMove);
       window.removeEventListener("pointerdown", handleMouseDown);
       window.removeEventListener("pointerup", handleMouseUp);
       document.removeEventListener("pointerenter", handleEnter);
@@ -241,6 +265,9 @@ export default function CursorTrail() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (hitTestTimer) clearTimeout(hitTestTimer);
       document.removeEventListener("mouseover", handleOverForCursor, true);
+      document.removeEventListener("dragstart", onDragStart, true);
+      document.removeEventListener("dragend", onDragEnd, true);
+      document.removeEventListener("drop", onDragEnd, true);
     };
   }, [isTouch]);
 

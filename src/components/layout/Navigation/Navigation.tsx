@@ -249,6 +249,8 @@ export default function Navigation() {
   const navCenterRef = useRef<HTMLDivElement>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  // resize 중엔 transition 비활성화 — 그래야 indicator 가 메뉴 위치를 즉시 따라감
+  const [indicatorInstant, setIndicatorInstant] = useState(false);
 
   // active key from pathname (detail 페이지도 부모 경로로 매칭)
   const currentNavItems = isAdminPage ? adminNavItems : navItems;
@@ -284,10 +286,25 @@ export default function Navigation() {
 
   useEffect(() => {
     const container = navCenterRef.current;
+    const navEl = container?.parentElement;
     if (!container) return;
-    const ro = new ResizeObserver(updateIndicator);
+    let endTimer: ReturnType<typeof setTimeout> | null = null;
+    const tick = () => {
+      setIndicatorInstant(true);
+      updateIndicator();
+      if (endTimer) clearTimeout(endTimer);
+      endTimer = setTimeout(() => setIndicatorInstant(false), 120);
+    };
+    // nav 전체 + navCenter 둘 다 관찰 — 좌측 로고/우측 actions 가 변해도 indicator 재계산
+    const ro = new ResizeObserver(tick);
     ro.observe(container);
-    return () => ro.disconnect();
+    if (navEl) ro.observe(navEl);
+    window.addEventListener("resize", tick);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", tick);
+      if (endTimer) clearTimeout(endTimer);
+    };
   }, [updateIndicator]);
 
   // --- 로고 중앙→nav 이동 애니메이션 ---
@@ -582,7 +599,7 @@ export default function Navigation() {
             ))}
         <span
           className={`${styles.navIndicator} ${indicatorStyle.opacity === 0 ? styles.navIndicatorHidden : ""}`}
-          style={indicatorStyle}
+          style={indicatorInstant ? { ...indicatorStyle, transition: "none" } : indicatorStyle}
         />
       </div>
 

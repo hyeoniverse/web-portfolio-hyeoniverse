@@ -67,13 +67,14 @@
   object-fit: contain;
 }
 
-/* Center navigation links */
+/* Center navigation links — 로고와 액션 사이 남는 공간의 가운데로 배치
+   (뷰포트 절대중앙 고정 시 우측이 길어지면 겹쳤던 문제 해결) */
 .navCenter {
+  position: relative;
+  flex: 1;
   display: flex;
+  justify-content: center;
   gap: var(--spacing-4xl);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   clip-path: inset(0 -20px 0 -20px);
   transition:
     clip-path var(--duration-moderate) var(--ease-material),
@@ -1180,9 +1181,6 @@
 
 @media (max-width: 1280px) {
   .navCenter {
-    position: relative;
-    left: auto;
-    transform: none;
     gap: var(--spacing-2xl);
   }
 
