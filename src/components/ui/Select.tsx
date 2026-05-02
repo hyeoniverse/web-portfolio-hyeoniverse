@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import styles from "./Select.module.css";
 
 export interface SelectOption {
@@ -72,15 +72,20 @@ export default function Select({
     updatePosition();
   }, [visible, updatePosition]);
 
-  // scroll/resize 시 위치 재계산
+  // resize 시에만 위치 재계산. scroll 시에는 dropdown 을 닫음 (안 닫으면 trigger 따라 이동해 산만함)
   useEffect(() => {
     if (!visible) return;
-    const onUpdate = () => updatePosition();
-    window.addEventListener("scroll", onUpdate, true);
-    window.addEventListener("resize", onUpdate);
+    const onResize = () => updatePosition();
+    const onScroll = (e: Event) => {
+      // dropdown 자체 내부 스크롤 (옵션 list overflow) 은 무시
+      if (dropdownRef.current && dropdownRef.current.contains(e.target as Node)) return;
+      setOpen(false);
+    };
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onResize);
     return () => {
-      window.removeEventListener("scroll", onUpdate, true);
-      window.removeEventListener("resize", onUpdate);
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onResize);
     };
   }, [visible, updatePosition]);
 
@@ -154,7 +159,7 @@ export default function Select({
             ? renderValue(selected)
             : selected?.label ?? placeholder ?? ""}
         </span>
-        <ChevronDown className={`${styles.arrow} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
+        <ChevronRight className={`${styles.arrow} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
       </button>
       {visible && createPortal(
         <div
