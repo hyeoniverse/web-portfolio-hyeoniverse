@@ -568,6 +568,37 @@ $$;
 --   Admin API(service_role)로 업로드, 공개 읽기
 -- ────────────────────────────────────────────────────────────
 
+-- ────────────────────────────────────────────────────────────
+-- Cover image picker — 통합 이력 (admin user 별, ai/unsplash/preset)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS cover_image_history (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  url text NOT NULL,
+  source text NOT NULL CHECK (source IN ('ai', 'unsplash', 'preset')),
+  meta text DEFAULT '',
+  created_at timestamptz DEFAULT now()
+);
+
+-- 동일 user + url 중복 방지 — UPSERT 로 created_at 갱신 가능
+CREATE UNIQUE INDEX IF NOT EXISTS cover_image_history_user_url_uniq
+  ON cover_image_history (user_id, url);
+
+CREATE INDEX IF NOT EXISTS cover_image_history_user_created_idx
+  ON cover_image_history (user_id, created_at DESC);
+
+ALTER TABLE cover_image_history ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'cover_image_history' AND policyname = 'Users manage own cover history') THEN
+    CREATE POLICY "Users manage own cover history"
+      ON cover_image_history FOR ALL
+      USING (auth.uid() = user_id)
+      WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
+
 -- 버킷 자동 생성 (없으면 생성)
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('uploads', 'uploads', true)
