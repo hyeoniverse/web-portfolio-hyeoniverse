@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useCallback, useRef, useState, useEffect, memo } from "react";
+import { Star } from "lucide-react";
 import type { Language } from "@/providers/LanguageProvider";
 import { troubleShootingItems } from "@/data/about/troubleshooting";
+import type { TroubleshootingDifficulty } from "@/data/about/types";
 import { renderHighlight } from "../renderHighlight";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
@@ -16,6 +18,20 @@ const styles = { ...shared, ...local };
 interface TroubleshootingPanelProps {
   language: Language;
   scrollBy?: (deltaX: number) => void;
+}
+
+/** 난이도 dot — 1~3 단계, 표시 채워진 갯수 */
+function DifficultyDots({ level, large }: { level: TroubleshootingDifficulty; large?: boolean }) {
+  return (
+    <span className={large ? styles.troubleHeaderDifficulty : styles.troubleDifficultyBadge} title={`Difficulty ${level}/3`}>
+      {[1, 2, 3].map((i) => (
+        <span
+          key={i}
+          className={`${styles.troubleDifficultyDot} ${i <= level ? styles.troubleDifficultyDotActive : ""}`}
+        />
+      ))}
+    </span>
+  );
 }
 
 function TroubleshootingPanel({
@@ -235,6 +251,14 @@ function TroubleshootingPanel({
                     <span className={styles.troubleListTitle}>
                       {item.problem[language]}
                     </span>
+                    <span className={styles.troubleListBadges}>
+                      {item.recommended && (
+                        <span className={styles.troubleRecommendedBadge} title="추천">
+                          <Star size={11} fill="currentColor" strokeWidth={1.5} />
+                        </span>
+                      )}
+                      {item.difficulty && <DifficultyDots level={item.difficulty} />}
+                    </span>
                   </div>
                 </React.Fragment>
               ))}
@@ -262,6 +286,15 @@ function TroubleshootingPanel({
                   <h4 className={styles.troubleTitle}>
                     {item.problem[language]}
                   </h4>
+                  <span className={styles.troubleHeaderBadges}>
+                    {item.recommended && (
+                      <span className={styles.troubleHeaderRecommended}>
+                        <Star size={11} fill="currentColor" strokeWidth={1.5} />
+                        {language === "ko" ? "추천" : "Recommended"}
+                      </span>
+                    )}
+                    {item.difficulty && <DifficultyDots level={item.difficulty} large />}
+                  </span>
                 </div>
                 <div className={styles.troubleBody}>
                   <div className={styles.troubleEntry}>
@@ -370,6 +403,15 @@ function TroubleshootingPanel({
                 <h4 className={styles.troubleTitle}>
                   {item.problem[language]}
                 </h4>
+                <span className={styles.troubleHeaderBadges}>
+                  {item.recommended && (
+                    <span className={styles.troubleHeaderRecommended}>
+                      <Star size={11} fill="currentColor" strokeWidth={1.5} />
+                      {language === "ko" ? "추천" : "Rec"}
+                    </span>
+                  )}
+                  {item.difficulty && <DifficultyDots level={item.difficulty} large />}
+                </span>
               </div>
               <div className={styles.troubleBody}>
                 <div className={styles.troubleEntry}>

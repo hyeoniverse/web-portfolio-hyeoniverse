@@ -1,6 +1,78 @@
-import type { TroubleShootingItem, TroubleshootingDiagram, ComparisonTable } from "./types";
+import type { TroubleShootingItem, TroubleshootingDiagram, ComparisonTable, TroubleshootingDifficulty } from "./types";
 
-export const troubleShootingItems: TroubleShootingItem[] = [
+// ── 통합 섹션 6개 ─────────────────────────────────────────────
+// Architecture / Performance / Layout / Editor / Interaction / Component
+const SECTION = {
+  A: { ko: "아키텍처 / 백엔드", en: "Architecture & Backend" },
+  P: { ko: "성능", en: "Performance" },
+  L: { ko: "레이아웃 / CSS", en: "Layout & CSS" },
+  E: { ko: "Plate 에디터", en: "Plate Editor" },
+  I: { ko: "애니메이션 / 인터랙션", en: "Animation & Interaction" },
+  C: { ko: "컴포넌트 시스템", en: "Component System" },
+} as const;
+
+const SECTION_ORDER: Array<keyof typeof SECTION> = ["A", "P", "L", "E", "I", "C"];
+
+/** problem.ko → 새 섹션/난이도/추천 매핑. 항목별 직접 inline 보다 한 곳에서 관리 */
+const itemMeta: Record<
+  string,
+  { section: keyof typeof SECTION; difficulty: TroubleshootingDifficulty; recommended?: boolean }
+> = {
+  // Architecture & Backend
+  "포스트 실수 삭제 시 복구 불가": { section: "A", difficulty: 3, recommended: true },
+  "AI 번역/요약이 provider 장애 시 완전 중단": { section: "A", difficulty: 3, recommended: true },
+  "API 키 변경마다 재배포가 필요": { section: "A", difficulty: 2 },
+  "비회원 댓글에서 본인 확인이 번거로움": { section: "A", difficulty: 3, recommended: true },
+  "에디터 자동저장 주기가 너무 잦아 리비전이 의미 없이 누적됨": { section: "A", difficulty: 2 },
+  "자동저장 — localStorage에서 DB 리비전으로의 진화": { section: "A", difficulty: 3, recommended: true },
+  "카테고리 자동 보정으로 리비전 프롬프트가 무한 반복": { section: "A", difficulty: 2 },
+  // Performance
+  "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)": { section: "P", difficulty: 3, recommended: true },
+  "mousemove마다 React 리렌더 (60fps 성능 저하)": { section: "P", difficulty: 2, recommended: true },
+  "커스텀 커서의 무거운 hit-test가 가벼운 위치 보간을 함께 느리게 만듦": { section: "P", difficulty: 3, recommended: true },
+  "Three.js LatheGeometry 컵에 Canvas 2D 라떼아트 텍스처 합성 — 두 개 평면이 만나는 부분의 자연스러운 블렌딩": { section: "P", difficulty: 3 },
+  "GSAP ScrollTrigger 수평 무한 스크롤 — 양방향 무한 wrapping": { section: "P", difficulty: 3, recommended: true },
+  "LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생": { section: "P", difficulty: 2, recommended: true },
+  // Layout & CSS
+  "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐": { section: "L", difficulty: 2 },
+  "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀": { section: "L", difficulty: 2, recommended: true },
+  "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴": { section: "L", difficulty: 3 },
+  "CSS 토큰 미정의 — 11개 파일에서 참조하지만 선언 없음": { section: "L", difficulty: 1 },
+  "CTA 버튼 `backdrop-filter`가 Chrome에서 동작하지 않음": { section: "L", difficulty: 3, recommended: true },
+  "Admin 테이블 모바일 가로 스크롤 시 row border가 중간에서 끊김": { section: "L", difficulty: 3 },
+  "Posts Bento — `grid-template-rows` 만으로는 카드별 높이 차이가 빈칸을 만듦": { section: "L", difficulty: 3, recommended: true },
+  "sticky filterBar IntersectionObserver — 인기글 사이드바와 1px 어긋남": { section: "L", difficulty: 2 },
+  "Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감": { section: "L", difficulty: 2, recommended: true },
+  "커버 이미지 팔레트 등 grid 자식이 viewport 밖으로 잘려 나감 — `.row { grid-template-columns: 1fr 1fr }` 의 함정": { section: "L", difficulty: 2, recommended: true },
+  // Plate Editor
+  "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐": { section: "E", difficulty: 2 },
+  "Plate 에디터에서 컨텍스트 툴바 표시 시 커서가 멋대로 튐": { section: "E", difficulty: 3 },
+  "토글·콜아웃·열블록 콘텐츠가 저장 후 사라짐": { section: "E", difficulty: 3, recommended: true },
+  "제목(heading) 안 각주가 마크다운 변환 시 처리 안 됨": { section: "E", difficulty: 3 },
+  "Plate inline void 노드에서 클릭 vs 키보드 구분 불가": { section: "E", difficulty: 3 },
+  "인라인 이미지 양옆에 커서 배치·텍스트 입력 불가": { section: "E", difficulty: 3 },
+  "마크다운 각주 번호 꼬임 — heading renderer 충돌": { section: "E", difficulty: 3 },
+  "열블록 스타일 round-trip 유실": { section: "E", difficulty: 3, recommended: true },
+  "YouTube embed URL — watch URL이 iframe에서 로드 실패": { section: "E", difficulty: 1 },
+  "이미지 리사이즈 핸들 클릭 시 이미지가 삭제됨": { section: "E", difficulty: 2 },
+  "에디터 툴바 active 상태 — wrapper 블록 감지 실패": { section: "E", difficulty: 2 },
+  "각주 참조/내용 정합성 — 한쪽 삭제 시 고아 노드 잔존": { section: "E", difficulty: 2 },
+  "링크 클릭 시 즉시 이동 — 에디터에서 링크 편집 불가": { section: "E", difficulty: 1 },
+  "Plate 인라인 코드에서 방향키 커서 점프": { section: "E", difficulty: 2 },
+  // Animation & Interaction
+  "커스텀 커서 리사이즈 모드에서 마우스 방향에 따라 커서 회전": { section: "I", difficulty: 1 },
+  "Page transition 이 hold 단계에서 멈추고 morph 후 skeleton 이 노출": { section: "I", difficulty: 3, recommended: true },
+  "Series Deck — hover 펼침이 \"사라졌다 나타나는\" 느낌": { section: "I", difficulty: 3 },
+  "Series Deck spread — `setPointerCapture` 가 자식 click 차단 + hit-area 공백으로 flicker": { section: "I", difficulty: 3, recommended: true },
+  "HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜": { section: "I", difficulty: 3, recommended: true },
+  "HTML5 D&D 의 quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환": { section: "I", difficulty: 3, recommended: true },
+  "이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음": { section: "I", difficulty: 3, recommended: true },
+  // Component System
+  "Admin 리스트(시리즈/휴지통/게시물)의 UI 코드 중복과 스타일 불일치": { section: "C", difficulty: 2 },
+  "커스텀 ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse": { section: "C", difficulty: 2, recommended: true },
+};
+
+const rawTroubleShootingItems: TroubleShootingItem[] = [
   /* ── Backend / Admin ── */
   {
     section: { ko: "Backend / Admin", en: "Backend / Admin" },
@@ -1413,3 +1485,36 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     tags: ["ColorPicker", "render-prop", "getBoundingClientRect", "position: absolute", "popover", "portal"],
   },
 ];
+
+// ── 후처리 — 메타 적용 + 섹션 정렬 + 난이도 정렬 + 중복 제거 ─────────
+// "테마 전환 글로벌 transition" 항목은 "글로벌 transition shorthand" 와 동일 이슈라 중복 제거
+const DUPLICATE_PROBLEMS = new Set<string>([
+  "테마 전환 글로벌 transition이 컴포넌트 애니메이션 덮어쓰기",
+]);
+
+export const troubleShootingItems: TroubleShootingItem[] = (() => {
+  const enriched = rawTroubleShootingItems
+    .filter((item) => !DUPLICATE_PROBLEMS.has(item.problem.ko))
+    .map((item) => {
+      const meta = itemMeta[item.problem.ko];
+      if (!meta) return item;
+      return {
+        ...item,
+        section: SECTION[meta.section],
+        difficulty: meta.difficulty,
+        ...(meta.recommended ? { recommended: true } : {}),
+      };
+    });
+
+  const sectionIndex = (sec?: { ko: string; en: string }) => {
+    if (!sec) return 99;
+    const found = SECTION_ORDER.findIndex((k) => SECTION[k].ko === sec.ko);
+    return found < 0 ? 99 : found;
+  };
+
+  return enriched.sort((a, b) => {
+    const dSec = sectionIndex(a.section) - sectionIndex(b.section);
+    if (dSec !== 0) return dSec;
+    return (a.difficulty ?? 2) - (b.difficulty ?? 2);
+  });
+})();
