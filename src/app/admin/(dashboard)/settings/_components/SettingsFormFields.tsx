@@ -8,6 +8,7 @@ import Image from "next/image";
 import { ExternalLink, Volume2 } from "lucide-react";
 import type { SiteConfigData } from "@/config/site.config";
 import DraggableTag from "@/components/ui/DraggableTag";
+import ColorPicker from "@/components/ui/ColorPicker";
 import styles from "../Settings.module.css";
 
 /* ── Field ── */
@@ -67,12 +68,7 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>{label}</label>
       <div className={styles.colorField}>
-        <input
-          type="color"
-          className={styles.colorPicker}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <ColorPicker value={value} onChange={onChange} triggerClassName={styles.colorPicker} />
         <input
           type="text"
           className={styles.colorText}

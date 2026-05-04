@@ -38,6 +38,7 @@ import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Tooltip from "@/components/ui/Tooltip";
+import ColorPicker from "@/components/ui/ColorPicker";
 import styles from "./RichTextEditor.module.css";
 
 // ── Embed / Link modal content ──
@@ -2108,14 +2109,14 @@ export default function RichTextEditor({
         <div className={styles.colorGroup}>
           <span className={styles.colorLabel}>A</span>
           <div className={styles.colorIndicator} style={{ background: (editor.getAttributes("textStyle").color as string) ?? "var(--text-primary)" }} />
-          <input type="color" className={styles.colorInput} value={(editor.getAttributes("textStyle").color as string) ?? "#000000"} onChange={(e) => editor.chain().focus().setColor(e.target.value).run()} title="Text color" />
+          <ColorPicker value={(editor.getAttributes("textStyle").color as string) ?? "#000000"} onChange={(c) => editor.chain().focus().setColor(c).run()} triggerClassName={styles.colorInput} />
         </div>
 
         {/* ── Highlight color ── */}
         <div className={styles.colorGroup}>
           <span className={styles.colorLabel}>BG</span>
           <div className={styles.colorIndicator} style={{ background: (editor.getAttributes("highlight").color as string) ?? "transparent" }} />
-          <input type="color" className={styles.colorInput} value={(editor.getAttributes("highlight").color as string) ?? "#ffff00"} onChange={(e) => editor.chain().focus().toggleHighlight({ color: e.target.value }).run()} title="Highlight color" />
+          <ColorPicker value={(editor.getAttributes("highlight").color as string) ?? "#ffff00"} onChange={(c) => editor.chain().focus().toggleHighlight({ color: c }).run()} triggerClassName={styles.colorInput} />
         </div>
 
         {/* ── Color presets ── */}
@@ -2378,12 +2379,10 @@ export default function RichTextEditor({
                           className={styles.colorIndicator}
                           style={{ width: 16, height: 16, borderRadius: 3, background: currentCellBorderColor || "var(--border-default-color)", border: "1px solid var(--border-light-color)" }}
                         />
-                        <input
-                          type="color"
-                          className={styles.colorInput}
+                        <ColorPicker
                           value={currentCellBorderColor || "#888888"}
-                          onChange={(e) => editor.chain().focus().setCellAttribute("borderColor", e.target.value).run()}
-                          title="테두리 색"
+                          onChange={(c) => editor.chain().focus().setCellAttribute("borderColor", c).run()}
+                          triggerClassName={styles.colorInput}
                         />
                       </div>
                       <span className={styles.borderColorValue}>{currentCellBorderColor || "기본"}</span>
@@ -2408,12 +2407,10 @@ export default function RichTextEditor({
                 border: currentCellBg ? "none" : "1px solid var(--border-light-color)",
               }}
             />
-            <input
-              type="color"
-              className={styles.colorInput}
+            <ColorPicker
               value={currentCellBg || "#ffffff"}
-              onChange={(e) => editor.chain().focus().setCellAttribute("background", e.target.value).run()}
-              title="셀 배경색"
+              onChange={(c) => editor.chain().focus().setCellAttribute("background", c).run()}
+              triggerClassName={styles.colorInput}
             />
           </div>
           {currentCellBg && (
