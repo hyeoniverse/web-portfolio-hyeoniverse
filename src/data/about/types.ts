@@ -43,6 +43,9 @@ export interface ComparisonTable {
   description?: LocalizedText;
 }
 
+/** 1 = 기초/표면적 / 2 = 중급/원인 분석 / 3 = 고급/근본 이해 */
+export type TroubleshootingDifficulty = 1 | 2 | 3;
+
 export interface TroubleShootingItem {
   section?: LocalizedText;
   problem: LocalizedText;
@@ -53,6 +56,10 @@ export interface TroubleShootingItem {
   comparisons?: ComparisonTable[];
   diagrams?: TroubleshootingDiagram[];
   tags?: string[];
+  /** 난이도 — 섹션 내 정렬 + 뱃지 표시용 */
+  difficulty?: TroubleshootingDifficulty;
+  /** 핵심 추천 항목 — 별표 뱃지 표시 */
+  recommended?: boolean;
 }
 
 export interface TechStackItem {

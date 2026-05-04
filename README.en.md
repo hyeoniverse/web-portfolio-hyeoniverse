@@ -534,8 +534,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 49 issues encountered during development. Highlights below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
-> Also available interactively on the About page.
+> 46 issues encountered during development, grouped into 6 sections (Architecture / Performance / Layout / Plate Editor / Animation·Interaction / Component) with difficulty (1–3) + recommended (★) badges. Highlights below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)** or the About page.
 
 | # | Issue | Key takeaway |
 |:---:|:---|:---|

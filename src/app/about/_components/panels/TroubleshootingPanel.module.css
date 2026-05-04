@@ -143,6 +143,85 @@
   color: var(--text-primary);
 }
 
+/* ── 추천/난이도 뱃지 ── */
+.troubleListBadges {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.troubleRecommendedBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--text-accent);
+}
+
+.troubleDifficultyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.troubleDifficultyDot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-circle);
+  background: var(--border-light-color);
+}
+
+.troubleDifficultyDotActive {
+  background: var(--text-secondary);
+}
+
+.troubleListItemActive .troubleDifficultyDotActive {
+  background: var(--text-primary);
+}
+
+/* 상세 패널 헤더 옆에도 같은 뱃지 — 더 큰 사이즈 */
+.troubleHeaderBadges {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.troubleHeaderRecommended {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-soft);
+  color: var(--text-accent);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+}
+
+.troubleHeaderDifficulty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-capsule);
+  border: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
+
+.troubleHeaderDifficulty .troubleDifficultyDot {
+  width: 5px;
+  height: 5px;
+}
+
 /* ── Right: detail content (세로 연속 스크롤) ── */
 .troubleDetail {
   flex: 1;
