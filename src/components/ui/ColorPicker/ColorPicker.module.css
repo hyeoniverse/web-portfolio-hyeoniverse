@@ -1,0 +1,166 @@
+/* ──────────────────────────────────────────────────────────────────
+   ColorPicker — saturation/value pad + hue slider + hex/rgb input
+   popover 형태로 trigger 옆에 portal 렌더
+   ────────────────────────────────────────────────────────────────── */
+.popover {
+  position: fixed;
+  z-index: var(--z-tooltip);
+  width: 240px;
+  padding: var(--spacing-sm);
+  background: var(--bg-primary);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  user-select: none;
+  overflow: hidden;
+  /* fade in */
+  animation: pickerIn 0.12s ease-out;
+}
+
+@keyframes pickerIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 2D Saturation/Value pad — popover 외곽과 flush ── */
+.svPad {
+  position: relative;
+  /* popover padding 을 negative margin 으로 상쇄해 외곽까지 채움 */
+  width: calc(100% + var(--spacing-sm) * 2);
+  margin: calc(var(--spacing-sm) * -1) calc(var(--spacing-sm) * -1) 0;
+  height: 140px;
+  /* 위쪽 두 모서리만 popover 의 radius-2xl 과 매칭, 아래는 평면 */
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  overflow: hidden;
+  cursor: crosshair;
+  /* 두 개의 그라데이션 겹침 — 가로:white→hueColor, 세로:transparent→black */
+  background:
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, var(--_hue-color, #f00));
+  touch-action: none;
+}
+
+.svThumb {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-circle);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: var(--_thumb-color, transparent);
+}
+
+/* ── Hue slider ── */
+.hueSlider {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  cursor: ew-resize;
+  background: linear-gradient(
+    to right,
+    #f00 0%,
+    #ff0 17%,
+    #0f0 33%,
+    #0ff 50%,
+    #00f 67%,
+    #f0f 83%,
+    #f00 100%
+  );
+  touch-action: none;
+}
+
+.hueThumb {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-circle);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: var(--_hue-color, #f00);
+}
+
+/* ── Inputs row ── */
+.inputs {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.preview {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light-color);
+  background: var(--_preview-color, transparent);
+}
+
+.hexInput {
+  flex: 1;
+  min-width: 0;
+  height: var(--size-2xs);
+  padding: 0 var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  outline: none;
+}
+
+.hexInput:focus {
+  border-color: var(--text-primary);
+}
+
+.rgbRow {
+  display: flex;
+  gap: var(--spacing-2xs);
+}
+
+.rgbField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.rgbInput {
+  width: 100%;
+  height: var(--size-2xs);
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.rgbInput::-webkit-outer-spin-button,
+.rgbInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.rgbInput:focus { border-color: var(--text-primary); }
+
+.rgbLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}

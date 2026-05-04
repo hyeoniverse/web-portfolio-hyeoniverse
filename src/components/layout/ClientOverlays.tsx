@@ -5,6 +5,7 @@ import LoadingScreen from "@/components/layout/LoadingScreen";
 
 const PageTransitionOverlay = dynamic(() => import("@/components/layout/PageTransitionOverlay"), { ssr: false });
 const Modal = dynamic(() => import("@/components/ui/Modal"), { ssr: false });
+const ToastContainer = dynamic(() => import("@/components/ui/Toast"), { ssr: false });
 const ContactDrawerWrapper = dynamic(() => import("@/components/layout/ContactDrawer/ContactDrawerWrapper"), { ssr: false });
 const CursorTrail = dynamic(() => import("@/components/effects/CursorTrail"), { ssr: false });
 const FaviconSwitcher = dynamic(() => import("@/components/common/FaviconSwitcher"), { ssr: false });
@@ -18,6 +19,7 @@ export default function ClientOverlays() {
       <LoadingScreen />
       <PageTransitionOverlay />
       <Modal />
+      <ToastContainer />
       <ContactDrawerWrapper />
       <CursorTrail />
       <FaviconSwitcher />
