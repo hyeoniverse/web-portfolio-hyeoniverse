@@ -1,0 +1,237 @@
+/* ──────────────────────────────────────────────────────────────────
+   SortOrderDragList — admin editor 공용 정렬 list (works / posts 시리즈)
+   header (라벨 + 위치 input + 맨앞/맨뒤 jump) + list (drag 항목) + 페이지네이션
+   ────────────────────────────────────────────────────────────────── */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* 헤더 — fieldLabel 과 위치/Jump 컨트롤이 같은 라인 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+/* 컨트롤 그룹 — 위치 input + 맨앞/맨뒤 jump */
+.controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.pos {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.posInput {
+  width: 44px;
+  /* 맨앞/맨뒤 button group(.jumps) 과 같은 높이 — 컴팩트 (--size-2xs = 20px) */
+  height: var(--size-2xs);
+  box-sizing: border-box;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  padding: 0 8px;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.posInput::-webkit-outer-spin-button,
+.posInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.posInput:focus {
+  border-color: var(--text-primary);
+}
+
+.posSep,
+.posTotal {
+  color: var(--text-tertiary);
+}
+
+/* 맨앞/맨뒤 buttons — 단일 capsule group (border 공유, divider 로 분리). 높이 컴팩트 */
+.jumps {
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--size-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.jumpBtn {
+  padding: 0 var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jumps .jumpBtn + .jumpBtn {
+  border-left: var(--border-light);
+}
+
+.jumps .jumpBtn:hover:not(:disabled) {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.jumpBtn:disabled {
+  color: var(--text-muted);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+  overflow-y: auto;
+  background: transparent;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 2px;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* 핸들 + 숫자 묶음 — gap 0 (붙음) */
+.lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.item + .item {
+  border-top: var(--border-light);
+}
+
+.itemCurrent {
+  background: var(--bg-accent-subtle);
+  color: var(--text-primary);
+}
+
+.itemDragging {
+  opacity: 0.4;
+}
+
+.itemDropAbove::before,
+.itemDropBelow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text-accent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.itemDropAbove::before { top: -1px; }
+.itemDropBelow::after { bottom: -1px; }
+
+.num {
+  min-width: 18px;
+  flex-shrink: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.itemCurrent .num {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+.handle {
+  display: inline-flex;
+  align-items: center;
+  /* 아이콘을 오른쪽 끝에 붙여 다음 숫자와 공간 차이 최소화 */
+  justify-content: flex-end;
+  width: 12px;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  cursor: move;
+  user-select: none;
+}
+
+.handle:hover {
+  color: var(--text-primary);
+}
+
+.handlePlaceholder {
+  display: inline-block;
+  width: 12px;
+  flex-shrink: 0;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.currentTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--text-accent);
+  color: var(--bg-primary);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* 공통 Pagination 컴포넌트 wrapper — 위쪽 여백 + 버튼 사이즈 축소 (정렬 list 컴팩트 버전) */
+.pagination {
+  padding-top: var(--spacing-xs);
+  margin-top: 0 !important;
+}
+
+/* Pagination 의 button 클래스가 hashed 라 attribute selector 로 매칭. width/height 만 override */
+.pagination [class*="pageBtn"] {
+  width: 22px;
+  height: 22px;
+  font-size: var(--font-size-2xs);
+}
+
+.pagination [class*="ellipsis"] {
+  font-size: var(--font-size-2xs);
+}

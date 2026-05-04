@@ -2,11 +2,10 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
-import Pagination from "@/components/ui/Pagination";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
-import { ChevronRight, GripVertical, Plus, Star, Eye } from "lucide-react";
+import { ChevronRight, Plus, Star, Eye } from "lucide-react";
 import CloseIcon from "@/components/ui/CloseIcon";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,6 +32,8 @@ import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 import type { DatePeriod } from "@/data/profile";
 import RelationPicker from "@/components/admin/RelationPicker";
+import SortOrderDragList from "@/components/admin/SortOrderDragList";
+import CoverImageField from "@/components/admin/CoverImageField";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
@@ -46,7 +47,9 @@ const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
 // 기존 work.year 는 "2024" 같은 단순 문자열. 이제 "기간" 도 지원하기 위해 JSON 직렬화로 저장.
 // 구버전 데이터와의 back-compat — JSON 이 아니면 단순 year 로 fallback.
 function parseYearAsPeriod(year: string): DatePeriod {
-  if (!year || !year.trim()) return { start: "", format: "year" };
+  // 신규 작품(빈 year) 은 "기간으로 표시" default — end 를 빈 문자열로 둬서
+  // PeriodPicker 의 hasRange (`end !== undefined`) 가 true 가 되게 함
+  if (!year || !year.trim()) return { start: "", end: "", format: "year" };
   const trimmed = year.trim();
   // JSON 시도
   if (trimmed.startsWith("{")) {
@@ -57,7 +60,7 @@ function parseYearAsPeriod(year: string): DatePeriod {
       }
     } catch { /* fallthrough */ }
   }
-  // 구버전: "2024" / "2024-2025" / "2024.01" 등 — start 만 채움
+  // 구버전: "2024" / "2024-2025" / "2024.01" 등 — start 만 채움 (range OFF, back-compat 유지)
   return { start: trimmed, format: "year" };
 }
 
@@ -260,251 +263,6 @@ function RoleMultiSelect({
   );
 }
 
-/**
- * 정렬 순서 — 다른 작품들과 함께 list 로 보여주고, 현재 작품을 drag 해서 위치 잡음.
- * drop 시 onChange(newOrder, otherUpdates) — 다른 작품들의 sort_order 갱신 정보도 함께 반환.
- */
-function SortOrderDragList({
-  label,
-  currentTitle,
-  currentOrder,
-  otherWorks,
-  onChange,
-}: {
-  label: string;
-  currentTitle: string;
-  currentOrder: number;
-  otherWorks: Array<{ id: string; title: string; sort_order: number }>;
-  onChange: (newOrder: number, otherUpdates: Array<{ id: string; sort_order: number }>) => void;
-}) {
-  const CURRENT_KEY = "__current__";
-  const merged: Array<{ id: string; title: string; isCurrent: boolean }> = [];
-  const targetIdx = Math.max(1, Math.min(currentOrder, otherWorks.length + 1)) - 1;
-  otherWorks.forEach((w, i) => {
-    if (i === targetIdx) merged.push({ id: CURRENT_KEY, title: currentTitle, isCurrent: true });
-    merged.push({ id: w.id, title: w.title || "(untitled)", isCurrent: false });
-  });
-  if (merged.length === otherWorks.length) {
-    merged.push({ id: CURRENT_KEY, title: currentTitle, isCurrent: true });
-  }
-
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [overIdx, setOverIdx] = useState<number | null>(null);
-  const listRef = useRef<HTMLDivElement>(null);
-
-  // edge 에 hover 시 current 를 자동으로 인접 페이지의 첫/끝 위치로 이동 → cur 변경되면 useEffect 가 page 도 자동 갱신
-  // 단순히 setPage 만 하면 current chip 이 새 페이지에 없어 unmount 되며 drag 가 cancel 됨 — 그래서 reorder 도 같이 수행
-  const edgeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const edgeDirectionRef = useRef<-1 | 1 | null>(null);
-  const edgeJumpCountRef = useRef(0);
-
-  const stopEdgeJump = () => {
-    if (edgeTimerRef.current) { clearTimeout(edgeTimerRef.current); edgeTimerRef.current = null; }
-    edgeDirectionRef.current = null;
-    edgeJumpCountRef.current = 0;
-  };
-  useEffect(() => () => stopEdgeJump(), []);
-
-  const total = otherWorks.length + 1;
-  const cur = Math.max(1, Math.min(total, currentOrder));
-
-  // ── 페이지네이션 — projects 많을 때 한 페이지씩. page 는 1-based (공통 Pagination 컴포넌트와 매핑) ──
-  const PAGE_SIZE = 5;
-  const totalPages = Math.max(1, Math.ceil(merged.length / PAGE_SIZE));
-  const pageOfCurrent = Math.floor((cur - 1) / PAGE_SIZE) + 1;
-  const [page, setPage] = useState(pageOfCurrent);
-  useEffect(() => { setPage(Math.floor((cur - 1) / PAGE_SIZE) + 1); }, [cur]);
-  const pageStart = (page - 1) * PAGE_SIZE;
-  const pageEnd = Math.min(pageStart + PAGE_SIZE, merged.length);
-  const visible = merged.slice(pageStart, pageEnd);
-  const visibleStart = pageStart;
-
-  const moveTo = (newPos: number) => {
-    const target = Math.max(1, Math.min(total, newPos));
-    if (target === cur) return;
-    const fromIdx = merged.findIndex((m) => m.id === CURRENT_KEY);
-    const toIdx = target - 1;
-    apply(fromIdx, toIdx);
-  };
-
-  // 드래그 중 edge 감지 — list 위/아래 60px 영역 hover 시 current 를 인접 페이지의 첫/끝 위치로 이동.
-  // cur 가 변하면 useEffect([cur]) 가 page 를 자동 갱신해 새 페이지가 보이고, current chip 도 거기 있으므로 drag 유지됨.
-  useEffect(() => {
-    if (dragIdx === null) return;
-    const onDocDrag = (e: DragEvent) => {
-      const rect = listRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const EDGE = 60;
-      const y = e.clientY;
-      let direction: -1 | 1 | null = null;
-      if (y < rect.top + EDGE && page > 1) direction = -1;
-      else if (y > rect.bottom - EDGE && page < totalPages) direction = 1;
-
-      if (direction === null) {
-        stopEdgeJump();
-        return;
-      }
-      if (edgeDirectionRef.current === direction) return; // 이미 그 방향으로 진행 중
-
-      stopEdgeJump();
-      edgeDirectionRef.current = direction;
-      const fire = () => {
-        // 새 위치 = 인접 페이지의 시작(prev) 또는 끝(next)
-        // direction = +1 → 다음 페이지 끝
-        // direction = -1 → 이전 페이지 시작
-        const targetPage = direction === 1
-          ? Math.min(totalPages, (edgeJumpCountRef.current === 0 ? page : Math.floor((cur - 1) / PAGE_SIZE) + 1) + 1)
-          : Math.max(1, (edgeJumpCountRef.current === 0 ? page : Math.floor((cur - 1) / PAGE_SIZE) + 1) - 1);
-        const newCur = direction === 1
-          ? Math.min(merged.length, targetPage * PAGE_SIZE)
-          : (targetPage - 1) * PAGE_SIZE + 1;
-        const fromIdx = merged.findIndex((m) => m.id === CURRENT_KEY);
-        if (fromIdx >= 0 && newCur - 1 !== fromIdx) {
-          apply(fromIdx, newCur - 1);
-        }
-        edgeJumpCountRef.current += 1;
-        const next = edgeJumpCountRef.current === 1 ? 500 : edgeJumpCountRef.current === 2 ? 350 : 250;
-        edgeTimerRef.current = setTimeout(fire, next);
-      };
-      edgeTimerRef.current = setTimeout(fire, 500);
-    };
-    document.addEventListener("dragover", onDocDrag);
-    return () => {
-      document.removeEventListener("dragover", onDocDrag);
-      stopEdgeJump();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dragIdx, page, totalPages, cur, merged.length]);
-
-  const apply = (fromIdx: number, toIdx: number) => {
-    if (fromIdx === toIdx) return;
-    const reordered = [...merged];
-    const [moved] = reordered.splice(fromIdx, 1);
-    reordered.splice(toIdx, 0, moved);
-    let newCurrent = currentOrder;
-    const otherUpdates: Array<{ id: string; sort_order: number }> = [];
-    reordered.forEach((it, i) => {
-      const newOrder = i + 1;
-      if (it.id === CURRENT_KEY) {
-        newCurrent = newOrder;
-      } else {
-        const orig = otherWorks.find((w) => w.id === it.id);
-        if (orig && orig.sort_order !== newOrder) {
-          otherUpdates.push({ id: it.id, sort_order: newOrder });
-        }
-      }
-    });
-    onChange(newCurrent, otherUpdates);
-  };
-
-  return (
-    <div className={styles.sortDragWrap}>
-      {/* 헤더 — label + 위치 input + Top/Bottom jump (한 라인) */}
-      <div className={styles.sortDragHeader}>
-        <label className={es.fieldLabel}>{label}</label>
-        <div className={styles.sortDragControls}>
-          <span className={styles.sortDragPos}>
-            <input
-              type="number"
-              min={1}
-              max={total}
-              value={cur}
-              onChange={(e) => {
-                const n = parseInt(e.target.value, 10);
-                if (!isNaN(n)) moveTo(n);
-              }}
-              className={styles.sortDragPosInput}
-              aria-label="Position"
-            />
-            <span className={styles.sortDragPosSep}>/</span>
-            <span className={styles.sortDragPosTotal}>{total}</span>
-          </span>
-          <div className={styles.sortDragJumps}>
-            <button
-              type="button"
-              className={styles.sortDragJumpBtn}
-              onClick={() => moveTo(1)}
-              disabled={cur <= 1}
-            >
-              ↑ 맨 앞
-            </button>
-            <button
-              type="button"
-              className={styles.sortDragJumpBtn}
-              onClick={() => moveTo(total)}
-              disabled={cur >= total}
-            >
-              ↓ 맨 뒤
-            </button>
-          </div>
-        </div>
-      </div>
-      {/* 리스트 — drag 로 부분 정렬 (큰 리스트는 페이지 단위).
-          edge 감지는 document-level dragover (아래 useEffect) 로 처리 — list 밖으로 나가도 감지됨 */}
-      <div ref={listRef} className={styles.sortDragList}>
-      {visible.map((item, vIdx) => {
-        const idx = visibleStart + vIdx; // merged 의 절대 인덱스
-        const isDragging = dragIdx === idx;
-        const showAbove = overIdx === idx && dragIdx !== null && dragIdx !== idx && dragIdx > idx;
-        const showBelow = overIdx === idx && dragIdx !== null && dragIdx !== idx && dragIdx < idx;
-        return (
-          <div
-            key={item.id}
-            className={`${styles.sortDragItem} ${item.isCurrent ? styles.sortDragItemCurrent : ""} ${isDragging ? styles.sortDragItemDragging : ""} ${showAbove ? styles.sortDragItemDropAbove : ""} ${showBelow ? styles.sortDragItemDropBelow : ""}`}
-            draggable={item.isCurrent}
-            onDragStart={(e) => {
-              if (!item.isCurrent) { e.preventDefault(); return; }
-              setDragIdx(idx);
-              e.dataTransfer.effectAllowed = "move";
-            }}
-            onDragOver={(e) => {
-              if (dragIdx === null) return;
-              e.preventDefault();
-              if (overIdx !== idx) setOverIdx(idx);
-            }}
-            onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
-            onDrop={(e) => {
-              e.preventDefault();
-              if (dragIdx !== null) apply(dragIdx, idx);
-              setDragIdx(null);
-              setOverIdx(null);
-            }}
-          >
-            {/* 핸들 + 숫자를 한 그룹으로 묶어 좁은 gap 으로 */}
-            <span className={styles.sortDragLead}>
-              {item.isCurrent ? (
-                <span
-                  className={styles.sortDragHandle}
-                  aria-label="Drag to reorder"
-                  title="드래그하여 순서 변경"
-                  data-cursor="grab"
-                >
-                  <GripVertical size={14} strokeWidth={1.8} />
-                </span>
-              ) : (
-                <span className={styles.sortDragHandlePlaceholder} aria-hidden />
-              )}
-              <span className={styles.sortDragNum}>{idx + 1}</span>
-            </span>
-            <span className={styles.sortDragTitle}>
-              {item.isCurrent ? <strong>{item.title}</strong> : item.title}
-              {item.isCurrent && <span className={styles.sortDragCurrentTag}>현재</span>}
-            </span>
-          </div>
-        );
-      })}
-      </div>
-      {/* 페이지네이션 — 공통 Pagination 컴포넌트 사용 (페이지 1개여도 항상 노출) */}
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onChange={setPage}
-        className={styles.sortDragPagination}
-      />
-
-    </div>
-  );
-}
 
 /**
  * 부제목 input — role 영역 높이에 맞춰 stretch 되며,
@@ -645,6 +403,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [work?.id]);
 
   const [worksCategories, setWorksCategories] = useState<WorksCategory[]>([]);
+  // 직접 입력 모드 — 사용자가 "직접 입력" 선택 시 활성화. category_ko/en 비어도 input 유지
+  const [categoryCustomMode, setCategoryCustomMode] = useState(false);
 
   useEffect(() => {
     fetch("/api/works-categories")
@@ -707,10 +467,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const [statusType, setStatusType] = useState<"info" | "success">("info");
   const [error, setError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
-  const [mainImgError, setMainImgError] = useState(false);
   const [galleryImgErrors, setGalleryImgErrors] = useState<Set<string>>(new Set());
-  // form.image 가 바뀔 때마다 main 에러 리셋
-  useEffect(() => { setMainImgError(false); }, [form.image]);
   // gallery 항목이 바뀔 때 제거된 src 의 에러 상태 정리
   useEffect(() => {
     const valid = new Set(form.gallery);
@@ -1262,7 +1019,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               const matchedIdx = worksCategories.findIndex(
                 (c) => c.ko === form.category_ko && c.en === form.category_en,
               );
-              const isCustom = form.category_ko.trim() !== "" && matchedIdx === -1;
+              const isCustom = categoryCustomMode || (form.category_ko.trim() !== "" && matchedIdx === -1);
               const selectValue = isCustom ? "__custom__" : String(matchedIdx);
               return (
                 <>
@@ -1277,8 +1034,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     ]}
                     onChange={(v) => {
                       if (v === "__custom__") {
+                        setCategoryCustomMode(true);
                         setForm((prev) => ({ ...prev, category_ko: "", category_en: "" }));
                       } else {
+                        setCategoryCustomMode(false);
                         const idx = parseInt(v);
                         const cat = worksCategories[idx];
                         if (cat) {
@@ -1289,7 +1048,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                       setError("");
                     }}
                   />
-                  {(isCustom || selectValue === "__custom__") && (
+                  {isCustom && (
                     <div className={styles.customCategoryGrid}>
                       <div className={styles.customCategoryField}>
                         <span className={styles.customCategoryLangTag}>KO</span>
@@ -1355,7 +1114,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                   label={tw("sortOrder")}
                   currentTitle={form.title || tw("subtitle") || "—"}
                   currentOrder={form.sort_order || 1}
-                  otherWorks={otherWorks}
+                  otherItems={otherWorks}
                   onChange={(newOrder, otherUpdates) => {
                     updateField("sort_order", newOrder);
                     otherUpdates.forEach((u) => {
@@ -1451,68 +1210,31 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>{tw("images")}</h2>
 
-        <div className={es.field} style={{ marginBottom: "var(--spacing-lg)" }}>
-          <label className={`${es.fieldLabel}${showErrors && !form.image.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("mainImage")}</label>
-          {form.image ? (
-            <div className={styles.imagePreview}>
-              {/* 깨진 이미지면 public/images/placeholder.svg 로 대체 */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={mainImgError ? "/images/placeholder.svg" : form.image}
-                alt="Main"
-                width={120}
-                height={70}
-                className={styles.imageThumb}
-                onError={() => setMainImgError(true)}
-              />
-
-              <button
-                type="button"
-                className={styles.imageRemove}
-                onClick={() => updateField("image", "")}
-              >
-                {tw("remove")}
-              </button>
-            </div>
-          ) : (
-            <div>
-              <div style={{ display: "flex", gap: "var(--spacing-xs)", flexWrap: "wrap" }}>
-                <button
-                  type="button"
-                  className={es.uploadBtn}
-                  onClick={() => handleImageUpload("image")}
-                >
-                  {tw("uploadImage")}
-                </button>
-                <button
-                  type="button"
-                  className={es.uploadBtn}
-                  onClick={() => setShowCoverPicker((v) => !v)}
-                >
-                  {showCoverPicker ? tw("closePicker") : tw("chooseCover")}
-                </button>
-              </div>
-              <input
-                className={es.fieldInput}
-                type="text"
-                value={form.image}
-                onChange={(e) => updateField("image", e.target.value)}
-                placeholder={tw("pasteUrl")}
-                style={{ marginTop: "var(--spacing-xs)", width: "100%" }}
-              />
-              {form.gallery.length > 0 && (
-                <p style={{ marginTop: "var(--spacing-xs)", fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)" }}>
-                  {tw("galleryPickHint")}
-                </p>
-              )}
-              {showCoverPicker && (
-                <CoverImagePicker
-                  onSelect={(url) => { updateField("image", url); setShowCoverPicker(false); }}
-                  onClose={() => setShowCoverPicker(false)}
-                  postContext={{ title: form.title, tags: form.tech, excerpt: form.description_ko || form.description_en }}
-                />
-              )}
-            </div>
+        <div style={{ marginBottom: "var(--spacing-lg)" }}>
+          <CoverImageField
+            value={form.image}
+            onChange={(url) => updateField("image", url)}
+            label={tw("mainImage")}
+            removeLabel={tw("remove")}
+            uploadLabel={tw("uploadImage")}
+            chooseLabel={tw("chooseCover")}
+            closeLabel={tw("closePicker")}
+            onUpload={() => handleImageUpload("image")}
+            pickerOpen={showCoverPicker}
+            onPickerToggle={() => setShowCoverPicker((v) => !v)}
+            urlInputPlaceholder={tw("pasteUrl")}
+            hint={form.gallery.length > 0 ? tw("galleryPickHint") : undefined}
+            hasError={showErrors && !form.image.trim()}
+          />
+          {/* cover_image 세팅 후에도 picker 유지 — AI auto-save 시 재생성 가능 */}
+          {showCoverPicker && (
+            <CoverImagePicker
+              onSelect={(url) => { updateField("image", url); setShowCoverPicker(false); }}
+              onClose={() => setShowCoverPicker(false)}
+              onAutoSave={(url) => updateField("image", url)}
+              currentUrl={form.image}
+              postContext={{ title: form.title, tags: form.tech, excerpt: form.description_ko || form.description_en }}
+            />
           )}
         </div>
 

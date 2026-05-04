@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { BadgeCheck } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import LoadingDots from "@/components/ui/LoadingDots";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
 
@@ -13,7 +15,8 @@ interface UnsplashPhoto {
 }
 
 interface UnsplashTabProps {
-  onSelect: (url: string) => void;
+  /** url 과 photographer 이름을 함께 전달 — history 에 source meta 로 사용 */
+  onSelect: (url: string, photographer: string) => void;
   postContext?: PostContext;
 }
 
@@ -92,7 +95,16 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
         );
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
-        setPhotos((prev) => (append ? [...prev, ...data.results] : data.results));
+        // Unsplash 가 페이지 경계에서 같은 사진 중복 반환할 수 있어 ID 기준 dedup
+        setPhotos((prev) => {
+          const next = append ? [...prev, ...data.results] : data.results;
+          const seen = new Set<string>();
+          return next.filter((p: UnsplashPhoto) => {
+            if (seen.has(p.id)) return false;
+            seen.add(p.id);
+            return true;
+          });
+        });
         setTotalPages(data.total_pages);
         setPage(p);
       } catch (err) {
@@ -144,7 +156,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
-        onSelect(data.url);
+        onSelect(data.url, photo.user.name);
       } catch (err) {
         setError(err instanceof Error ? err.message : tc("downloadFailed"));
       } finally {
@@ -163,60 +175,82 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
 
   return (
     <div>
-      <div className={styles.inputWrapper}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => handleInputChange(e.target.value)}
-          placeholder={tc("searchPlaceholder")}
-        />
-        {query && (
-          <button type="button" className={styles.clearBtn} onClick={handleClear}>
-            &times;
-          </button>
+      {/* 검색 input + suggestions + error 는 한 padded wrapper 안 — AI 탭과 spacing 일관성 */}
+      <div className={styles.tabSection}>
+        <div className={styles.inputWrapper}>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => handleInputChange(e.target.value)}
+            placeholder={tc("searchPlaceholder")}
+          />
+          {query && (
+            <button type="button" className={styles.clearBtn} onClick={handleClear}>
+              &times;
+            </button>
+          )}
+        </div>
+
+        {photos.length === 0 && !loading && (
+          <div className={styles.suggestions}>
+            {suggestions.map((kw) => (
+              <button
+                key={kw}
+                type="button"
+                className={styles.suggestionChip}
+                onClick={() => handleSuggestion(kw)}
+              >
+                {kw}
+              </button>
+            ))}
+          </div>
         )}
+
+        {error && <p className={styles.errorMsg}>{error}</p>}
       </div>
 
-      {photos.length === 0 && !loading && (
-        <div className={styles.suggestions}>
-          {suggestions.map((kw) => (
-            <button
-              key={kw}
-              type="button"
-              className={styles.suggestionChip}
-              onClick={() => handleSuggestion(kw)}
-            >
-              {kw}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {error && <p className={styles.errorMsg}>{error}</p>}
-
       {photos.length > 0 && (
-        <div className={styles.unsplashGrid}>
-          {photos.map((photo) => (
-            <button
-              key={photo.id}
-              type="button"
-              className={`${styles.unsplashItem} ${downloading === photo.id ? styles.unsplashDownloading : ""}`}
-              onClick={() => handleSelect(photo)}
-              disabled={!!downloading}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.urls.small} alt={`Photo by ${photo.user.name}`} />
-              <span className={styles.unsplashCredit}>{photo.user.name}</span>
-            </button>
-          ))}
-        </div>
+        <>
+          {/* Unsplash 라이선스 배너 — 모든 결과는 무료 + 상업이용 가능 (Unsplash License) */}
+          <div className={styles.unsplashLicenseNote}>
+            <BadgeCheck size={12} strokeWidth={2} />
+            <span>{tc("unsplashLicenseNote")}</span>
+            <a href="https://unsplash.com/license" target="_blank" rel="noopener noreferrer">
+              Unsplash License
+            </a>
+          </div>
+          <div className={styles.unsplashGrid}>
+            {photos.map((photo) => (
+              <button
+                key={photo.id}
+                type="button"
+                className={`${styles.unsplashItem} ${downloading === photo.id ? styles.unsplashDownloading : ""}`}
+                onClick={() => handleSelect(photo)}
+                disabled={!!downloading}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photo.urls.small} alt={`Photo by ${photo.user.name}`} />
+                {/* 라이선스 표시 — 좌상단 작은 배지 */}
+                <span className={styles.unsplashLicenseBadge} title="Free for commercial use">
+                  <BadgeCheck size={11} strokeWidth={2.2} />
+                </span>
+                <span className={styles.unsplashCredit}>{photo.user.name}</span>
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
       {!loading && photos.length === 0 && query.trim() && (
         <p className={styles.emptyMsg}>{tc("noPhotos")}</p>
       )}
 
-      {loading && <p className={styles.spinner}>{tc("searching")}</p>}
+      {loading && (
+        <p className={styles.spinner}>
+          <span>{tc("searching")}</span>
+          <LoadingDots />
+        </p>
+      )}
 
       {photos.length > 0 && page < totalPages && !loading && (
         <button

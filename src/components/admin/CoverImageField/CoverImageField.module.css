@@ -1,0 +1,210 @@
+/* ──────────────────────────────────────────────────────────────────
+   CoverImageField — admin editor 공용 cover/main 이미지 field UI
+   라벨 + (썸네일 또는 Upload/Choose 버튼) — picker 본체는 caller 가 따로 렌더
+   ────────────────────────────────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+/* 라벨 row — 라벨 + inline 액션 버튼들 */
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  justify-content: space-between;
+}
+
+/* 라벨 옆 inline 버튼 그룹 — border 없이 컴팩트 */
+.inlineActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.inlineBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--size-2xs);
+  padding: 0 var(--spacing-xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.field .inlineBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.inlineBtnRemove {
+  color: var(--text-accent);
+}
+
+.field .inlineBtnRemove:hover {
+  background: var(--bg-accent-soft);
+  color: var(--text-accent);
+}
+
+/* 썸네일 + 추출된 팔레트 가로 배치 */
+.previewRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* 썸네일 — 클릭 시 picker 열림 (편집창) */
+.previewBtn {
+  position: relative;
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+/* 추출된 테마 색상 팔레트 */
+.palette {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.paletteIcon {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* 좌측 — 전체 복사 버튼 (palette 아이콘 + copy 아이콘 겹침) */
+.paletteCopyAll {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.field .paletteCopyAll:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.field .paletteCopyAll:hover .paletteIcon {
+  color: var(--text-primary);
+}
+
+/* 좌하단에 작게 겹치는 copy 표시 — hover 시 강조 */
+.paletteCopyAllIcon {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  color: var(--text-tertiary);
+  background: var(--bg-primary);
+  border-radius: var(--radius-circle);
+  padding: 1px;
+  transition: color 0.15s ease;
+}
+
+.field .paletteCopyAll:hover .paletteCopyAllIcon {
+  color: var(--text-primary);
+}
+
+.paletteSwatch {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-circle);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.palette .paletteSwatch:hover {
+  transform: scale(1.15);
+}
+
+.paletteLoading {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+.previewBtn:hover {
+  opacity: 0.85;
+}
+
+.thumb {
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-2xl);
+  border: var(--border-light);
+}
+
+/* 제거 버튼 — accent border + text (다른 버튼들과 시각 구분) */
+.removeBtnAction {
+  margin-left: auto;
+  color: var(--text-accent) !important;
+}
+
+.field .removeBtnAction:hover {
+  border-color: var(--text-accent) !important;
+  background: var(--bg-accent-soft);
+}
+
+/* Upload + Choose 버튼 row */
+.actions {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+/* 버튼 안 아이콘 + 텍스트 가로 정렬 */
+.actions > button {
+  gap: 6px;
+}
+
+/* 버튼 안 텍스트 swap 애니메이션 wrapper */
+.toggleBtnText {
+  display: inline-block;
+}
+
+/* URL paste input (옵션) */
+.urlInput {
+  margin-top: var(--spacing-xs);
+  width: 100%;
+}
+
+/* 보조 hint */
+.hint {
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-family: var(--font-space-grotesk);
+}
