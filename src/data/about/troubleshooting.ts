@@ -1364,4 +1364,52 @@ export const troubleShootingItems: TroubleShootingItem[] = [
     },
     tags: ["dangerouslySetInnerHTML", "MutationObserver", "image fallback", "onError", "richtext", "MarkdownRenderer"],
   },
+  {
+    section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
+    problem: {
+      ko: "커버 이미지 팔레트 등 grid 자식이 viewport 밖으로 잘려 나감 — `.row { grid-template-columns: 1fr 1fr }` 의 함정",
+      en: "Cover image palette and other grid children clipping outside the viewport — the `.row { grid-template-columns: 1fr 1fr }` trap",
+    },
+    definition: {
+      ko: "Admin 에디터의 2-col row(`grid-template-columns: 1fr 1fr`) 안에 cover thumbnail + 추출 팔레트가 들어가는데, 좁은 화면이나 긴 키워드/URL 이 들어간 셀에서 **cell 자체가 1fr 비율을 무시하고 부풀어 올라** 형제 셀까지 가로로 밀어내고 결국 viewport 밖으로 잘렸습니다. 부모에 `overflow: hidden` 도 안 걸려 있어 가로 스크롤바가 생기는 경우도 있었습니다.",
+      en: "Inside the admin editor's 2-column row (`grid-template-columns: 1fr 1fr`) we lay out the cover thumbnail + extracted palette. On narrow viewports — or when a cell holds a long keyword/URL — **the cell itself ignored the 1fr share and ballooned**, pushing siblings horizontally and eventually clipping past the viewport. The parent had no `overflow: hidden` either, so horizontal scrollbars sometimes appeared.",
+    },
+    cause: {
+      ko: "CSS Grid 트랙의 `1fr` 은 사실 `minmax(auto, 1fr)` 의 단축형입니다. 즉 자식 컨텐츠가 트랙 share 보다 크면 **`min-width: auto` 가 자식 intrinsic content size 를 그대로 잡아 트랙이 부풀어 오릅니다**. 자식 노드(예: CoverImageField 의 palette swatch row, 긴 input value, GitHub URL 등) 어느 하나가 trim 되지 않으면 그 cell 의 트랙이 그만큼 grow 하고, 다른 트랙은 그대로라 **opt-in 한 50:50 비율이 의미 없어집니다**. 안쪽에 `min-width: 0` / `overflow: hidden` 을 일일이 거는 것도 실수하기 쉽습니다.",
+      en: "A grid track of `1fr` is shorthand for `minmax(auto, 1fr)` — meaning if a child's content is wider than the track's share, **`min-width: auto` lets the intrinsic content size grow the track**. As soon as one child (palette swatch row, long input value, GitHub URL, etc.) refused to shrink, that track expanded while the others held still — turning the 50:50 ratio into a lie. Adding `min-width: 0` / `overflow: hidden` at every nested level is easy to forget.",
+    },
+    solution: {
+      ko: "`.row` 의 트랙 정의를 `minmax(0, 1fr) minmax(0, 1fr)` 로 교체하고 `min-width: 0` 을 명시. minmax 의 min 을 `0` 으로 강제하면 **트랙은 컨텐츠 폭과 무관하게 share 안에서만 grow** 하고, 안쪽 자식은 자연스럽게 shrink 또는 wrap 합니다. 모바일 break 도 동일하게 `minmax(0, 1fr)` 단일 트랙으로 통일. 추가로 `.palette` 자체에도 `flex-wrap: wrap` + `max-width: 100%` 를 줘 swatch 가 줄바꿈으로 잘리지 않게 보강.",
+      en: "Switched the `.row` track definition to `minmax(0, 1fr) minmax(0, 1fr)` and added `min-width: 0`. Forcing the min of `minmax` to `0` **lets the track grow only within its 1fr share, regardless of content width** — inner children shrink (or wrap) naturally. The mobile breakpoint uses the same `minmax(0, 1fr)` single-track form. Additionally, `.palette` got `flex-wrap: wrap` + `max-width: 100%` so swatches wrap instead of clipping.",
+    },
+    keyInsight: {
+      ko: "① **CSS Grid 의 `1fr` 은 항상 `minmax(auto, 1fr)`** — 좁은 컨테이너에서 균등 비율을 보장하려면 `minmax(0, 1fr)` 으로 명시해야 합니다. ② 부모 grid/flex 에서 자식이 안 줄어드는 99% 의 경우는 **min-width: auto 가 컨텐츠 size 를 그대로 잡고 있는 것** — 자식 chain 어디든 `min-width: 0` 이 빠져있으면 전파됩니다. ③ 디버깅 팁: DevTools 의 \"Layout\" 패널에서 grid track 에 마우스를 올리면 **트랙 fr 단위와 실제 폭** 이 동시에 표시됩니다. fr 비율과 실제 px 폭이 안 맞으면 minmax(0, ...) 누락 신호.",
+      en: "① **CSS Grid's `1fr` is really `minmax(auto, 1fr)`** — guarantee equal shares on narrow containers by spelling out `minmax(0, 1fr)`. ② 99% of \"flex/grid child won't shrink\" cases are **`min-width: auto` clamping to the content size** — somewhere down the chain, a missing `min-width: 0` is propagating. ③ Debugging tip: DevTools' \"Layout\" panel highlights grid tracks; hovering shows both the **fr declaration and the resolved px width**. If they disagree, you're missing a `minmax(0, …)`.",
+    },
+    tags: ["CSS Grid", "minmax", "min-width: auto", "overflow", "responsive", "1fr"],
+  },
+  {
+    section: { ko: "Frontend / Component", en: "Frontend / Component" },
+    problem: {
+      ko: "커스텀 ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse",
+      en: "Custom ColorPicker popover anchors to the wrong spot — the wrapper `<span>` collapses to 0×0",
+    },
+    definition: {
+      ko: "그라데이션 stop 별로 ColorPicker 를 띄우는데, 어느 stop 의 swatch 를 눌러도 **popover 가 항상 같은 좌표(0,0 근처)에 떠서** 사용자가 어떤 stop 을 편집하는지 알 수 없었습니다. trigger 자체는 정상 위치에 보이는데, popover 만 위치가 어긋났습니다.",
+      en: "Each gradient stop opens a ColorPicker by clicking its swatch handle — but **every popover landed in the same spot (near 0,0)** regardless of which stop was clicked. The trigger itself rendered correctly; only the popover misplaced.",
+    },
+    cause: {
+      ko: "ColorPicker 의 popover 위치는 `triggerRef.current.getBoundingClientRect()` 결과를 기준으로 계산했습니다. trigger 는 render-prop 으로 받은 임의 ReactNode 라 wrapper `<span ref={triggerRef} style={{ display: 'inline-flex' }}>` 로 한 번 감쌌는데, **자식이 `position: absolute`(stop bar 위에 절대 좌표로 놓이는 handle) 라 normal flow 에서 빠져 wrapper 자체는 0×0 으로 collapse** 되었습니다. 결과적으로 모든 stop 의 wrapper rect 가 (stopBar.left, stopBar.top, 0, 0) 으로 동일하게 측정됐습니다.",
+      en: "The popover's coordinates came from `triggerRef.current.getBoundingClientRect()`. Since trigger is an arbitrary render-prop ReactNode, we wrapped it in `<span ref={triggerRef} style={{ display: 'inline-flex' }}>`. But when the child is `position: absolute` (stop handles positioned absolutely on the bar), **the child leaves normal flow and the wrapper itself collapses to 0×0** — so every stop's wrapper rect resolved to the same `(stopBar.left, stopBar.top, 0, 0)`.",
+    },
+    solution: {
+      ko: "`updatePos` 를 wrapper rect 가 아니라 **`firstElementChild.getBoundingClientRect()` 우선 사용**으로 수정. wrapper 가 0×0 이어도 실제 trigger 인 자식(stop handle 이든 일반 swatch 든) 은 viewport 좌표를 정상적으로 반환합니다. 자식 rect 가 둘 다 0 이면(예: 자식이 없거나 hidden) wrapper rect 로 fallback. 이 한 줄로 stop handle / 일반 swatch 모두 호환되면서 popover 가 정확한 위치에 anchor 됩니다.",
+      en: "Updated `updatePos` to **prefer `firstElementChild.getBoundingClientRect()`** over the wrapper's rect. Even when the wrapper is 0×0, the real trigger child (stop handle or plain swatch) returns proper viewport coordinates. If the child rect is also zero-sized (no child / hidden), fall back to the wrapper's rect. One change handles both stop-handle and normal-swatch trigger shapes — popovers now anchor correctly.",
+    },
+    keyInsight: {
+      ko: "① **`position: absolute` 자식은 wrapper 의 box 에 기여하지 않습니다** — render-prop 으로 임의 child 를 받는 컴포넌트는 wrapper 의 `getBoundingClientRect()` 를 신뢰하면 안 됩니다. ② 항상 측정 가능한 노드를 잡으려면 **wrapper 보다 자식 (or 가장 가까운 visible descendant) rect 를 먼저 보는** 패턴이 안전. ③ 디버깅 팁: 의심나면 DevTools console 에서 `el.getBoundingClientRect()` 로 wrapper 와 자식 둘 다 찍어보세요. width/height 가 0 인 wrapper 가 답입니다.",
+      en: "① **A `position: absolute` child contributes nothing to the wrapper's box** — components that accept arbitrary render-prop children can't trust the wrapper's `getBoundingClientRect()`. ② To always have a measurable node, prefer **the child's (or nearest visible descendant's) rect over the wrapper's**. ③ Debug tip: when in doubt, log `el.getBoundingClientRect()` for both the wrapper and the child in DevTools — a 0×0 wrapper is the smoking gun.",
+    },
+    tags: ["ColorPicker", "render-prop", "getBoundingClientRect", "position: absolute", "popover", "portal"],
+  },
 ];
