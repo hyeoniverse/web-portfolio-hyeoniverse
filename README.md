@@ -189,7 +189,12 @@
 - **카테고리 일괄 재할당**: `BulkCategoryModal` — 선택한 게시물들의 카테고리를 한 번에 변경, 시리즈 매핑 보존
 - **댓글 관리**: `/admin/comments` 통합 패널 — Posts/Works 댓글 동시 표시, 일괄 tombstone/완전 삭제, 신고 필터
 - **Settings 5탭**: General/Content/Appearance/Services/Account — 브랜드, SEO, 이중언어 편집
-- **Cover Image Picker**: 16종 프리셋 + Unsplash 검색 + AI 생성, 클라이언트 이미지 WebP 압축
+- **Cover Image Picker 고도화**: 4탭 구조(프리셋 / Unsplash / AI 생성 / 이력) + 클라이언트 이미지 WebP 압축. **프리셋 = Adobe Color 스타일 그라데이션 에디터** — base color + 8 scheme(유사 / 단색 / 삼각형 / 보색 / 분할 보색 / 정사각형 / 혼합 / 음영) + linear/radial 토글 + 각도/크기/속도 슬라이더 + drag-to-reposition stop bar(2~4 stop, capsule bar + 핸들 아래 아이콘), **이미지 업로드 → 색 추출** 또는 **클립보드 색상표 붙여넣기**(`#rrggbb` / `#rgb` 둘 다 인식, 모달 prompt fallback)로 stop seed, **완전 랜덤 버튼**(pattern/크기/속도/색/개수/위치 모두 random) + presets[0] 자동 시드 — picker 첫 진입 시 현재 cover 이미지에서 palette 추출해 stops seed (사용자가 preset 클릭/수동 편집하면 seed 비활성). **이력 탭** 은 ai/unsplash/preset 통합, Supabase 영구 저장(cover_image_history 테이블, RLS) — 선택/삭제/키워드 복사/색상표 복사/다운로드 버튼이 좌상단에 cluster, active 체크는 우상단
+- **CoverImageField 공용 컴포넌트**: `src/components/admin/CoverImageField` — 라벨 + inline 액션(Upload / Choose / Remove) + 썸네일 + 추출 팔레트 swatch row. 깨진 이미지 placeholder fallback, 클릭으로 picker open. PostEditor / WorkEditor / SeriesEditor 가 동일 UI 공유
+- **ColorPicker 커스텀 구현**: `src/components/ui/ColorPicker` — native `<input type="color">` 의 OS 별 일관성 부재 해결. SV pad + hue slider + Hex/RGB 입력, render-prop trigger(부모가 swatch 모양 자유), createPortal popover(`overflow:hidden` 부모 escape). **wrapper span 이 0×0 으로 collapse 되는 케이스**(자식이 `position: absolute` 인 stop handle 등) 는 `firstElementChild.getBoundingClientRect()` fallback 으로 popover 위치 정확. PlateEditor / Settings / RichTextEditor / MainToolbar / TableToolbar 등 13곳 native input 일괄 교체
+- **SortOrderDragList 공용 컴포넌트**: `src/components/admin/SortOrderDragList` — 페이지네이션(5/페이지) + grip handle pointer 드래그 + 페이지 edge hover 시 즉시 reorder + 위치 input + 맨앞/맨뒤 jump. WorkEditor 정렬 + PostEditor 시리즈 순서 동일 UI 공유
+- **글로벌 Toast**: `src/stores/toastStore.ts` + `src/components/ui/Toast` — zustand 기반 싱글톤, success/error/info variant, 자동 dismiss(기본 2.4s), 하단 중앙 stack. 팔레트 swatch / 팔레트 row 복사 등 non-blocking 피드백 ("Copied!") 에 사용
+- **카테고리 직접입력 모드 유지**: PostEditor / WorkEditor 카테고리 select 가 별도 `categoryCustomMode` flag 를 추적 — "직접 입력" 선택 시 값을 지워도 input 은 사용자가 다른 옵션을 고를 때까지 유지(이전엔 빈 값 → 첫 카테고리로 자동 복귀해 input 이 사라지던 회귀 해결)
 - **미디어 업로드 관리**: 허용 파일 형식 화이트리스트 (MIME 타입별 크기 제한), 차단 확장자 블랙리스트, 인프라 키 읽기 전용 표시 — 추가 가능한 MIME은 그룹별 chip UI(이미지/비디오/오디오/문서/압축)로 클릭 한 번에 허용 목록에 추가되며, 같은 그룹(예: JPEG/PNG/WebP)의 크기 제한을 공유
 - **HEIC / TIFF 자동 변환**: 업로드 시점에 sharp로 HEIC/HEIF/TIFF → WebP(quality 85) 서버 변환, 브라우저 네이티브 미지원 포맷도 모든 브라우저에서 표시 가능
 - **문서 뷰어**: 파일 첨부 시 PDF(iframe) · 오피스(MS Viewer) · 텍스트(fetch+pre) 인라인 미리보기, 다운로드 원본 파일명 유지
@@ -288,7 +293,7 @@ ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + A
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
-**생성되는 테이블 (12개) + RPC 함수 (3개):**
+**생성되는 테이블 (13개) + RPC 함수 (3개):**
 
 | 테이블 | 용도 |
 |--------|------|
@@ -304,6 +309,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `admin_notifications` | 관리자 알림 로그 |
 | `revisions` | 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot) |
 | `post_work_relations` | posts ↔ works 양방향 다대다 (Notion Relation 스타일) |
+| `cover_image_history` | Cover Image Picker 통합 이력 (admin user 별, ai/unsplash/preset 구분, RLS) |
 
 **RPC 함수**: `sum_post_views()` (누적 조회수 합계), `daily_post_views(start, end)` (일별 시계열), `publish_scheduled()` (예약 시간 도달한 게시물/작품을 cron이 호출해서 발행)
 
@@ -529,7 +535,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 47건의 이슈 해결 과정입니다. 주요 항목을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 49건의 이슈 해결 과정입니다. 주요 항목을 소개하고, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 에서 확인할 수 있습니다.
 > About 페이지에서도 인터랙티브하게 확인 가능합니다.
 
 | # | 이슈 | 핵심 |
@@ -554,6 +560,8 @@ npm run test:watch
 | 45 | HTML5 D&D quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환 | `draggable={dragId === id}` state 토글이 React batching 과 안 맞아 드래그 시작 안 되고, "앞→뒤" 만 비대칭 실패, 페이지네이션된 list 에서 source unmount 시 drag cancel 등 quirks 누적. 해결: handle `pointerdown` → document `pointermove`/`pointerup` 추적 + `elementFromPoint` hit-test, 페이지 edge hover 시 `apply()` 로 reorder 자체 수행해 source 가 살아남도록 함, `setPointerCapture` 미사용 (자식 click 보존) |
 | 46 | Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치 못 따라감 | viewport 정중앙 absolute 고정은 좌·우 cluster 폭을 모름 → 겹침. flex 로 옮긴 뒤엔 indicator 의 `transition: left ... var(--duration-moderate)` lag 으로 메뉴 위치보다 ~300ms 뒤처짐. 해결: `.navCenter { flex: 1; justify-content: center }` 로 좌·우 사이 가운데 배치, resize event + `ResizeObserver(navCenter+nav)` 발화 시 `transition: "none"` inline 으로 즉시 snap, 120ms 디바운스 후 transition 복원 |
 | 47 | 이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음 | React 합성 이벤트는 `dangerouslySetInnerHTML` 영역 밖이고, 이미 fetch 가 끝난 img 는 `error` 가 retroactive 발화 안 됨, dynamic 추가 img 도 querySelectorAll 단발로 못 잡음. 해결: `attachImageFallback(root)` — 컨테이너 내 모든 img 에 `data-fallback-bound` gate + `addEventListener("error")` + 즉시 `complete && naturalWidth===0` 체크 + MutationObserver 로 새 img 자동 추적, swap 시 `removeAttribute("srcset")` 로 srcset 재시도 차단 |
+| 48 | `.row { grid-template-columns: 1fr 1fr }` 안의 cover 팔레트가 viewport 밖으로 잘려 나감 | `1fr` 은 `minmax(auto, 1fr)` 의 단축형 — 자식이 trim 안 되면 `min-width: auto` 가 intrinsic content size 를 잡아 트랙이 부풀고 50:50 비율이 무너짐. 해결: 트랙을 `minmax(0, 1fr) minmax(0, 1fr)` 로 명시 + `min-width: 0`. 모바일 break 도 동일하게 `minmax(0, 1fr)` 로 통일하고, 안쪽 `.palette` 에는 `flex-wrap: wrap` + `max-width: 100%` 로 swatch 자체도 wrap 가능하게 보강 |
+| 49 | ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse | render-prop 으로 받은 trigger 자식이 `position: absolute`(stop handle) 면 normal flow 에서 빠져 wrapper 자체가 0×0 → 모든 stop 의 popover 좌표가 동일. 해결: `updatePos` 가 wrapper rect 대신 **`firstElementChild.getBoundingClientRect()`** 를 우선 사용, 자식 rect 도 0 이면 wrapper rect 로 fallback — 일반 swatch / absolute handle 둘 다 정확히 anchor |
 
 
 ## 배포

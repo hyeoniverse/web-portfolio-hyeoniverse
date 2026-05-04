@@ -13,7 +13,9 @@ import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { useModalStore } from "@/stores/modalStore";
+import { showToast } from "@/stores/toastStore";
 import { ModalConfirm, ModalAlert } from "@/components/ui/ModalTemplates";
+import ColorPicker from "@/components/ui/ColorPicker";
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
 import Tooltip from "@/components/ui/Tooltip";
@@ -57,6 +59,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [dpDate, setDpDate] = useState({ year: "2024", month: "03", day: "15" });
   const [twReplay, setTwReplay] = useState(0);
   const [paginationPage, setPaginationPage] = useState(3);
+  const [pickerColor, setPickerColor] = useState("#d01046");
   const [dragTags, setDragTags] = useState(["React", "Next.js", "TypeScript", "GSAP"]);
   const [tagDragIdx, setTagDragIdx] = useState<number | null>(null);
   const [tagOverIdx, setTagOverIdx] = useState<number | null>(null);
@@ -399,6 +402,50 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                 disabled
               />
             </Tooltip>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* ColorPicker */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>ColorPicker</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)", flexWrap: "wrap" }}>
+          <Tooltip content="render-prop trigger + portal popover">
+            <ColorPicker value={pickerColor} onChange={setPickerColor}>
+              {({ toggle }) => (
+                <button
+                  type="button"
+                  onClick={toggle}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    padding: 0,
+                    border: "var(--border-light)",
+                    borderRadius: "var(--radius-circle)",
+                    background: pickerColor,
+                    cursor: "pointer",
+                  }}
+                  aria-label="Pick color"
+                />
+              )}
+            </ColorPicker>
+          </Tooltip>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-sm)", color: "var(--text-secondary)" }}>{pickerColor}</span>
+        </motion.div>
+      </motion.div>
+
+      {/* Toast */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Toast</div>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}>
+            <Tooltip content="variant: success"><Button variant="outline" onClick={() => showToast("Saved successfully", "success")}>Success</Button></Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 3)}>
+            <Tooltip content="variant: error"><Button variant="outline" onClick={() => showToast("Something went wrong", "error")}>Error</Button></Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(2, 3)}>
+            <Tooltip content="variant: info"><Button variant="outline" onClick={() => showToast("Just so you know", "info")}>Info</Button></Tooltip>
           </motion.div>
         </div>
       </motion.div>

@@ -191,7 +191,12 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Bulk Category Reassignment**: `BulkCategoryModal` — change categories for selected posts in one shot, preserves series mapping
 - **Comment Management**: `/admin/comments` unified panel — Posts/Works comments together, bulk tombstone/permanent delete, report filter
 - **Settings 5 Tabs**: General/Content/Appearance/Services/Account — brand, SEO, bilingual editing
-- **Cover Image Picker**: 16 presets + Unsplash search + AI generation, client-side WebP compression
+- **Cover Image Picker overhaul**: 4-tab structure (Presets / Unsplash / AI / History) + client-side WebP compression. **Presets = Adobe Color–style gradient editor** — base color + 8 schemes (analogous / monochromatic / triad / complementary / split-complementary / square / compound / shades) + linear/radial toggle + angle/size/speed sliders + drag-to-reposition stop bar (2–4 stops, capsule bar with handles below). Stops can be seeded by **uploading an image** (canvas palette extraction) or **pasting a clipboard palette** (matches both `#rrggbb` and `#rgb`, with a modal prompt fallback). A **fully randomize button** (pattern, size, speed, colors, count, positions) plus an auto-seed on first open — when there's already a cover image, the editor extracts its palette and seeds stops so users start from the current image's colors (seeding is disabled the moment they click a preset or edit manually). The **History tab** unifies AI/Unsplash/Preset sources, persisted server-side in Supabase (`cover_image_history` with RLS) — pick / remove / copy keyword / copy palette / download buttons cluster top-left, the active check sits top-right
+- **CoverImageField shared component**: `src/components/admin/CoverImageField` — label + inline actions (Upload / Choose / Remove) + thumbnail + extracted-palette swatch row. Includes broken-image placeholder fallback and click-to-open-picker. PostEditor / WorkEditor / SeriesEditor share the exact same UI
+- **Custom ColorPicker**: `src/components/ui/ColorPicker` — built from scratch to fix native `<input type="color">` cross-OS inconsistency. SV pad + hue slider + Hex/RGB inputs, render-prop trigger (parent controls the swatch shape), `createPortal` popover (escapes `overflow:hidden` parents). Handles the **wrapper-span 0×0 collapse case** (when the trigger child is `position:absolute`, e.g. stop handles) by falling back to `firstElementChild.getBoundingClientRect()` so the popover anchors to the visible child. Replaced 13 native color inputs across PlateEditor, Settings, RichTextEditor, MainToolbar, TableToolbar, etc.
+- **SortOrderDragList shared component**: `src/components/admin/SortOrderDragList` — paginated (5/page) + grip-handle pointer drag + edge-hover triggers same-frame reorder + position input + jump-to-top/bottom. Used by both WorkEditor sort-order and PostEditor series-order
+- **Global Toast**: `src/stores/toastStore.ts` + `src/components/ui/Toast` — zustand-backed singleton with `success / error / info` variants, auto-dismiss (default 2.4s), bottom-center stack, used for non-blocking feedback like "Copied!" on palette swatch / palette-row copy
+- **Category direct-input persistence**: PostEditor / WorkEditor category select tracks a separate `categoryCustomMode` flag — selecting "Custom" clears the value but the input stays visible until the user picks another option, fixing the regression where the select reverted to the first category whenever the value was cleared
 - **Media Upload Management**: Allowed file types whitelist (per-MIME size limits), blocked extensions blacklist, infrastructure keys read-only display — addable MIMEs displayed as group-based chips (image/video/audio/document/archive) for one-click allowlist, same-group types (e.g., JPEG/PNG/WebP) share a size limit
 - **HEIC / TIFF Auto-Conversion**: On upload, HEIC/HEIF/TIFF are server-converted to WebP (quality 85) via sharp, making browser-unsupported formats viewable everywhere
 - **Document Viewer**: File attachments with inline preview — PDF (iframe) · Office (MS Viewer) · text (fetch+pre), original filename preserved on download
@@ -287,7 +292,7 @@ The [`supabase/setup.sql`](supabase/setup.sql) file contains all table creation 
 
 Copy the file contents and run them at once in Supabase Dashboard -> **SQL Editor**.
 
-**Tables created (12) + RPC functions (3):**
+**Tables created (13) + RPC functions (3):**
 
 | Table | Purpose |
 |--------|------|
@@ -303,6 +308,7 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | `admin_notifications` | Admin notification logs |
 | `revisions` | Editor revision history (shared for posts/works, JSONB snapshot) |
 | `post_work_relations` | Posts ↔ works many-to-many bidirectional (Notion Relation–style) |
+| `cover_image_history` | Cover Image Picker unified history (per admin user, AI/Unsplash/Preset, RLS) |
 
 **RPC functions**: `sum_post_views()` (cumulative view total), `daily_post_views(start, end)` (daily time series), `publish_scheduled()` (cron flips posts/works whose scheduled time has arrived)
 
@@ -528,7 +534,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 47 issues encountered during development. Highlights below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
+> 49 issues encountered during development. Highlights below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)**.
 > Also available interactively on the About page.
 
 | # | Issue | Key takeaway |
@@ -553,6 +559,8 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 45 | Working around HTML5 D&D quirks — chip reorder switched to pointer events | `draggable={dragId === id}` toggling didn't sync with React batching (drags wouldn't start), front-to-back reorder asymmetrically failed, and source unmount on a paginated list cancelled the drag. Fix: handle `pointerdown` → document `pointermove`/`pointerup` with `elementFromPoint` hit-test; on list edges call `apply()` to reorder the source itself into the adjacent page (so it stays mounted); skip `setPointerCapture` so child clicks survive |
 | 46 | Navigation menu overlaps right actions on narrow viewports + indicator drifts behind menu while resizing | Absolute viewport-center pinning ignores left/right cluster widths → collision. After moving to flex, the indicator's `transition: left ... var(--duration-moderate)` lagged the menu by ~300ms during resize. Fix: `.navCenter { flex: 1; justify-content: center }` to center between logo and actions; on `resize` + `ResizeObserver(navCenter+nav)`, set `transition: "none"` inline so the indicator snaps frame-by-frame, then restore the transition after a 120ms debounce |
 | 47 | Image fallback — React `onError` doesn't bind to `<img>` rendered via `dangerouslySetInnerHTML` | Synthetic events don't reach DOM injected via `dangerouslySetInnerHTML`; already-failed images don't re-fire `error`; dynamic content additions are missed by a one-shot `querySelectorAll`. Fix: `attachImageFallback(root)` — for every `<img>` in the container, `data-fallback-bound` gate + `addEventListener("error")` + immediate `complete && naturalWidth===0` check + MutationObserver to track newly added images, with `removeAttribute("srcset")` on swap to prevent srcset retries |
+| 48 | Cover palette inside `.row { grid-template-columns: 1fr 1fr }` clipped past the viewport | `1fr` is shorthand for `minmax(auto, 1fr)` — if a child won't shrink, `min-width: auto` pins to intrinsic content size and the track balloons, breaking the 50:50 ratio. Fix: spell the tracks out as `minmax(0, 1fr) minmax(0, 1fr)` + `min-width: 0`. Mobile breakpoint also uses `minmax(0, 1fr)`, and `.palette` got `flex-wrap: wrap` + `max-width: 100%` so swatches wrap rather than overflow |
+| 49 | ColorPicker popover anchors to the wrong spot — wrapper `<span>` collapses to 0×0 | When a render-prop trigger child uses `position: absolute` (stop handles on the gradient bar), the child leaves normal flow and the wrapper itself becomes 0×0 — every stop's popover resolves to the same coords. Fix: `updatePos` prefers **`firstElementChild.getBoundingClientRect()`** over the wrapper's rect, falling back to the wrapper only if the child rect is also zero — anchors correctly for both regular swatches and absolutely-positioned handles |
 
 ## Deployment
 
