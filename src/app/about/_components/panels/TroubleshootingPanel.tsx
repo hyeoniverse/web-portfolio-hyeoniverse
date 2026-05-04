@@ -231,37 +231,45 @@ function TroubleshootingPanel({
           {/* 왼쪽: 항목 목록 */}
           <div className={styles.troubleList}>
             <div ref={listRef} className={styles.troubleListScroll}>
-              {items.map((item, index) => (
-                <React.Fragment key={index}>
-                  {item.section && (
-                    <div className={styles.troubleSectionLabel}>
-                      {item.section[language]}
+              {items.map((item, index) => {
+                // 같은 section 의 첫 번째 항목일 때만 라벨 렌더 (그룹 헤더 역할)
+                const prev = index > 0 ? items[index - 1] : null;
+                const isSectionStart = !!item.section && item.section.ko !== prev?.section?.ko;
+                // 그룹 내 위치 — count badge 용
+                const sectionItems = items.filter((it) => it.section?.ko === item.section?.ko);
+                return (
+                  <React.Fragment key={index}>
+                    {isSectionStart && item.section && (
+                      <div className={styles.troubleSectionLabel}>
+                        <span>{item.section[language]}</span>
+                        <span className={styles.troubleSectionCount}>{sectionItems.length}</span>
+                      </div>
+                    )}
+                    <div
+                      data-clickable="true"
+                      className={`${styles.troubleListItem} ${styles.troubleListItemGrouped} ${
+                        index === displayIndex ? styles.troubleListItemActive : ""
+                      }`}
+                      onClick={() => handleItemClick(index)}
+                    >
+                      <span className={styles.troubleNumber}>
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className={styles.troubleListTitle}>
+                        {item.problem[language]}
+                      </span>
+                      <span className={styles.troubleListBadges}>
+                        {item.recommended && (
+                          <span className={styles.troubleRecommendedBadge} title="추천">
+                            <Star size={11} fill="currentColor" strokeWidth={1.5} />
+                          </span>
+                        )}
+                        {item.difficulty && <DifficultyDots level={item.difficulty} />}
+                      </span>
                     </div>
-                  )}
-                  <div
-                    data-clickable="true"
-                    className={`${styles.troubleListItem} ${
-                      index === displayIndex ? styles.troubleListItemActive : ""
-                    }`}
-                    onClick={() => handleItemClick(index)}
-                  >
-                    <span className={styles.troubleNumber}>
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <span className={styles.troubleListTitle}>
-                      {item.problem[language]}
-                    </span>
-                    <span className={styles.troubleListBadges}>
-                      {item.recommended && (
-                        <span className={styles.troubleRecommendedBadge} title="추천">
-                          <Star size={11} fill="currentColor" strokeWidth={1.5} />
-                        </span>
-                      )}
-                      {item.difficulty && <DifficultyDots level={item.difficulty} />}
-                    </span>
-                  </div>
-                </React.Fragment>
-              ))}
+                  </React.Fragment>
+                );
+              })}
             </div>
             <div className={styles.troublePageNav}>
               <button className={styles.troublePageBtn} disabled={listPage.page <= 1} onClick={() => scrollListPage(-1)}>↑</button>
@@ -386,11 +394,16 @@ function TroubleshootingPanel({
 
         {/* 모바일: 모든 항목 표시 (폴백, pin 활성 시 숨김) */}
         <div className={styles.troubleMobileList}>
-          {items.map((item, index) => (
+          {items.map((item, index) => {
+            const prev = index > 0 ? items[index - 1] : null;
+            const isSectionStart = !!item.section && item.section.ko !== prev?.section?.ko;
+            const sectionItems = items.filter((it) => it.section?.ko === item.section?.ko);
+            return (
             <React.Fragment key={index}>
-              {item.section && (
+              {isSectionStart && item.section && (
                 <div className={`${styles.troubleSectionLabel} ${styles.troubleSectionLabelMobile}`}>
-                  {item.section[language]}
+                  <span>{item.section[language]}</span>
+                  <span className={styles.troubleSectionCount}>{sectionItems.length}</span>
                 </div>
               )}
               <div
@@ -489,7 +502,8 @@ function TroubleshootingPanel({
               </div>
             </div>
             </React.Fragment>
-          ))}
+          );
+          })}
         </div>
       </div>
     </div>

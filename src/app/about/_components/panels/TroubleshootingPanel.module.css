@@ -289,24 +289,64 @@
   opacity: 0.85;
 }
 
-/* ── Section label ── */
+/* ── Section label (그룹 헤더) ── */
 .troubleSectionLabel {
   display: flex;
   flex: none;
-  padding: var(--_space-line) 0;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-xs);
   align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
   font-family: var(--font-mono);
   font-size: var(--_fs-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-accent);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  border-bottom: var(--_line-secondary);
+  background: var(--bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* 첫 섹션 위 추가 padding 제거 */
+.troubleListScroll > .troubleSectionLabel:first-child {
+  padding-top: var(--spacing-sm);
+}
+
+/* 같은 섹션의 모든 item 들은 그룹 indent — 헤더 아래 묶여 있는 느낌 */
+.troubleListItemGrouped {
+  padding-left: var(--spacing-md);
+}
+
+/* 섹션 항목 개수 — 헤더 우측에 작게 */
+.troubleSectionCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .troubleSectionLabelMobile {
-  padding: var(--spacing-lg) 0 var(--spacing-sm);
-  border-bottom: none;
+  position: static;
+  padding: var(--spacing-xl) 0 var(--spacing-sm);
+  background: transparent;
+  border-bottom: var(--_line-secondary);
+}
+
+.troubleSectionLabelMobile + .troubleMobileItem,
+.troubleMobileItem + .troubleMobileItem {
+  padding-left: var(--spacing-md);
 }
 
 .troubleMobileList {
