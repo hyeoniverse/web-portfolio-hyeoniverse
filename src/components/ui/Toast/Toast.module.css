@@ -20,7 +20,9 @@
   gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
+  background: color-mix(in srgb, var(--bg-primary) 55%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
   color: var(--text-primary);
   border: var(--border-light);
   font-family: var(--font-space-grotesk);

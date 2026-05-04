@@ -21,6 +21,8 @@ const ICONS: Record<ToastVariant, typeof Check> = {
 export default function ToastContainer() {
   const toasts = useToastStore((s) => s.toasts);
   const dismiss = useToastStore((s) => s.dismissToast);
+  const pause = useToastStore((s) => s.pauseToast);
+  const resume = useToastStore((s) => s.resumeToast);
 
   return (
     <div className={styles.container} aria-live="polite" aria-atomic="true">
@@ -36,6 +38,10 @@ export default function ToastContainer() {
               exit={{ opacity: 0, y: 8, scale: 0.96 }}
               transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
               onClick={() => dismiss(t.id)}
+              onMouseEnter={() => pause(t.id)}
+              onMouseLeave={() => resume(t.id)}
+              onFocus={() => pause(t.id)}
+              onBlur={() => resume(t.id)}
               role="status"
             >
               <span className={`${styles.iconWrap} ${styles[t.variant]}`}>

@@ -16,8 +16,33 @@ interface ToastState {
   /** message + 옵션으로 toast 추가 — id 반환 (수동 dismiss 용) */
   showToast: (message: string, variant?: ToastVariant, duration?: number) => string;
   dismissToast: (id: string) => void;
+  /** hover 시작 — 자동 dismiss 타이머 일시 정지 */
+  pauseToast: (id: string) => void;
+  /** hover 종료 — 남은 시간만큼 다시 타이머 시작 */
+  resumeToast: (id: string) => void;
   clearToasts: () => void;
 }
+
+// 타이머 + 남은 시간 추적용 — store 외부에 보관 (hover pause/resume 시 정확한 잔여 시간 계산)
+interface TimerInfo {
+  timer: ReturnType<typeof setTimeout>;
+  startedAt: number;
+  remaining: number;
+}
+const timers = new Map<string, TimerInfo>();
+
+const startTimer = (id: string, ms: number, dismiss: (id: string) => void) => {
+  const timer = setTimeout(() => dismiss(id), ms);
+  timers.set(id, { timer, startedAt: Date.now(), remaining: ms });
+};
+
+const clearTimer = (id: string) => {
+  const info = timers.get(id);
+  if (info) {
+    clearTimeout(info.timer);
+    timers.delete(id);
+  }
+};
 
 export const useToastStore = create<ToastState>((set, get) => ({
   toasts: [],
@@ -28,15 +53,39 @@ export const useToastStore = create<ToastState>((set, get) => ({
       : `${Date.now()}-${Math.random()}`;
     set((state) => ({ toasts: [...state.toasts, { id, message, variant, duration }] }));
     if (duration > 0) {
-      setTimeout(() => get().dismissToast(id), duration);
+      startTimer(id, duration, get().dismissToast);
     }
     return id;
   },
 
-  dismissToast: (id) =>
-    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+  dismissToast: (id) => {
+    clearTimer(id);
+    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+  },
 
-  clearToasts: () => set({ toasts: [] }),
+  pauseToast: (id) => {
+    const info = timers.get(id);
+    if (!info) return;
+    clearTimeout(info.timer);
+    const elapsed = Date.now() - info.startedAt;
+    info.remaining = Math.max(0, info.remaining - elapsed);
+    // timer 만 비우고 remaining 은 유지 (resume 에서 사용)
+    timers.set(id, { ...info, timer: 0 as unknown as ReturnType<typeof setTimeout> });
+  },
+
+  resumeToast: (id) => {
+    const info = timers.get(id);
+    if (!info || info.remaining <= 0) return;
+    const dismiss = get().dismissToast;
+    const timer = setTimeout(() => dismiss(id), info.remaining);
+    timers.set(id, { timer, startedAt: Date.now(), remaining: info.remaining });
+  },
+
+  clearToasts: () => {
+    timers.forEach((info) => clearTimeout(info.timer));
+    timers.clear();
+    set({ toasts: [] });
+  },
 }));
 
 /** 함수 호출 단축형 — provider 없이 어디서든 호출 가능 */
