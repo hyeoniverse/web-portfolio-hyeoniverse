@@ -4,6 +4,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SettingsTabProps } from "../_types";
 import Checkbox from "@/components/ui/Checkbox";
+import ColorPicker from "@/components/ui/ColorPicker";
 import Field, { AudioUpload, LogoUpload, TagField } from "./SettingsFormFields";
 import styles from "../Settings.module.css";
 
@@ -97,7 +98,7 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}>{t("admin.settings.logoColor")}</label>
               <div className={styles.colorField}>
-                <input type="color" className={styles.colorPicker} value={config.brand.logoColor || "#000000"} onChange={(e) => update("brand", "logoColor", e.target.value)} />
+                <ColorPicker value={config.brand.logoColor || "#000000"} onChange={(c) => update("brand", "logoColor", c)} triggerClassName={styles.colorPicker} />
                 <input type="text" className={styles.colorText} value={config.brand.logoColor} onChange={(e) => update("brand", "logoColor", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
                 {config.brand.logoColor && <button type="button" className={styles.envCancelBtn} onClick={() => update("brand", "logoColor", "")}>&times;</button>}
               </div>
@@ -105,7 +106,7 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}>{t("admin.settings.logoColorDark")}</label>
               <div className={styles.colorField}>
-                <input type="color" className={styles.colorPicker} value={config.brand.logoColorDark || "#ffffff"} onChange={(e) => update("brand", "logoColorDark", e.target.value)} />
+                <ColorPicker value={config.brand.logoColorDark || "#ffffff"} onChange={(c) => update("brand", "logoColorDark", c)} triggerClassName={styles.colorPicker} />
                 <input type="text" className={styles.colorText} value={config.brand.logoColorDark} onChange={(e) => update("brand", "logoColorDark", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
                 {config.brand.logoColorDark && <button type="button" className={styles.envCancelBtn} onClick={() => update("brand", "logoColorDark", "")}>&times;</button>}
               </div>

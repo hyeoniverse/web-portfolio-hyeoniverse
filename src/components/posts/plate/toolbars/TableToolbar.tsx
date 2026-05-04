@@ -12,6 +12,7 @@ import {
 } from "@platejs/table";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
+import ColorPicker from "@/components/ui/ColorPicker";
 import TBtn from "../TBtn";
 import {
   TblRowBefore, TblRowAfter, TblRowRemove,
@@ -120,7 +121,7 @@ export default React.memo(function TableToolbar({
           <TBtn square active={isZebraActive} onClick={() => toggleZebraStripe()} tooltip={t("editor.zebraHint")}><TblZebra /></TBtn>
           <div className={styles.colorPickerCell}>
             <div className={styles.colorDot} style={{ background: currentZebraColor || "var(--bg-tertiary)" }} />
-            <input type="color" className={styles.colorInput} value="#888888" onChange={(e) => toggleZebraStripe(e.target.value)} title={t("editor.zebraColor")} />
+            <ColorPicker value="#888888" onChange={(c) => toggleZebraStripe(c)} triggerClassName={styles.colorInput} />
           </div>
           {TABLE_BG_PRESETS.slice(0, 5).map((color) => (
             <Tooltip key={color} content={color} delay={300} placement="top">
@@ -137,7 +138,7 @@ export default React.memo(function TableToolbar({
           <div className={styles.colorPickerCell}>
             <TblCellColorIcon />
             <div className={styles.colorDot} style={{ background: cellBg || "transparent", border: cellBg ? "none" : "1px solid var(--border-light-color)" }} />
-            <input type="color" className={styles.colorInput} value={cellBg || "#ffffff"} onChange={(e) => setCellAttr("background", e.target.value)} title={t("editor.cellBg")} />
+            <ColorPicker value={cellBg || "#ffffff"} onChange={(c) => setCellAttr("background", c)} triggerClassName={styles.colorInput} />
           </div>
           {TABLE_BG_PRESETS.map((color) => (
             <Tooltip key={color} content={color} delay={300} placement="top">
@@ -209,7 +210,7 @@ export default React.memo(function TableToolbar({
                 <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                   <div className={styles.colorPickerCell} style={{ borderLeft: "none", padding: 0 }}>
                     <div className={styles.colorDot} style={{ background: bp.color }} />
-                    <input type="color" className={styles.colorInput} value={bp.color.startsWith("var(") ? "#d1d5db" : bp.color} onChange={(e) => bp.setColor(e.target.value)} />
+                    <ColorPicker value={bp.color.startsWith("var(") ? "#d1d5db" : bp.color} onChange={bp.setColor} triggerClassName={styles.colorInput} />
                   </div>
                   {TABLE_BORDER_COLORS.map((color) => (
                     <button key={color} type="button" className={`${styles.presetDotInline} ${bp.color === color ? styles.presetDotActive : ""}`} style={{ background: color }} onMouseDown={(e) => e.preventDefault()} onClick={() => bp.setColor(color)} />

@@ -9,6 +9,7 @@ import { indent, outdent } from "@platejs/indent";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
+import ColorPicker from "@/components/ui/ColorPicker";
 import { loadGoogleFont, validateGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
 import { MessageSquareQuote, ChevronRight, ExternalLink, Undo2, Redo2, SquareCheck } from "lucide-react";
@@ -550,7 +551,7 @@ export default React.memo(function MainToolbar({
               <div className={styles.divider} />
               <div className={styles.colorGroup}>
                 <div className={styles.colorIndicator} style={{ width: 14, height: 14, borderRadius: "50%", background: activeColor || "var(--bg-primary)", border: "1px solid var(--border-light-color)" }} />
-                <input type="color" className={styles.colorInput} value={activeColor || "#000000"} onChange={(e) => apply(e.target.value)} title={colorMode === "text" ? t("editor.textColor") : t("editor.bgColor")} />
+                <ColorPicker value={activeColor || "#000000"} onChange={apply} triggerClassName={styles.colorInput} />
               </div>
               {/* 제거 */}
               {activeColor && (

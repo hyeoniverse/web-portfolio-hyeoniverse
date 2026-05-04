@@ -40,6 +40,7 @@ import { TblTrash } from "./plate/icons";
 import { RxReset } from "react-icons/rx";
 import { Pipette, ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink } from "lucide-react";
 import Tooltip from "@/components/ui/Tooltip";
+import ColorPicker from "@/components/ui/ColorPicker";
 
 // Re-export ImagePanel for backward compatibility
 export { ImagePanel } from "./plate/ImagePanel";
@@ -1689,16 +1690,21 @@ export default function PlateEditor({
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
                       <div className={styles.presetDotInline} style={{ background: colBg || CHECKER_BG, margin: "0 2px" }} />
                       <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
-                      <input type="color" className={styles.colorInput} value={colBg || "#ffffff"}
-                        onChange={(e) => editor.tf.setNodes({ columnBg: e.target.value }, { at: activePath })}
-                        ref={(el) => {
-                          if (!el || (el as HTMLInputElement & { _b?: boolean })._b) return;
-                          (el as HTMLInputElement & { _b?: boolean })._b = true;
-                          el.addEventListener("change", () => {
-                            const c = el.value; const list = colBgRecentColors.current;
-                            if (list[0] !== c) { const idx = list.indexOf(c); if (idx !== -1) list.splice(idx, 1); list.unshift(c); if (list.length > 5) list.pop(); localStorage.setItem("col-bg-recent", JSON.stringify(list)); forceColorUpdate((v) => v + 1); }
-                          });
+                      <ColorPicker
+                        value={colBg || "#ffffff"}
+                        onChange={(c) => {
+                          editor.tf.setNodes({ columnBg: c }, { at: activePath });
+                          const list = colBgRecentColors.current;
+                          if (list[0] !== c) {
+                            const idx = list.indexOf(c);
+                            if (idx !== -1) list.splice(idx, 1);
+                            list.unshift(c);
+                            if (list.length > 5) list.pop();
+                            localStorage.setItem("col-bg-recent", JSON.stringify(list));
+                            forceColorUpdate((v) => v + 1);
+                          }
                         }}
+                        triggerClassName={styles.colorInput}
                       />
                     </div>
                     {Array.from({ length: 5 }).map((_, i) => {
@@ -1734,16 +1740,21 @@ export default function PlateEditor({
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
                       <div className={styles.presetDotInline} style={{ background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", margin: "0 2px" }} />
                       <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
-                      <input type="color" className={styles.colorInput} value={colDiv && colDiv !== "transparent" ? colDiv : "#d1d5db"}
-                        onChange={(e) => editor.tf.setNodes({ columnDivider: e.target.value }, { at: activePath })}
-                        ref={(el) => {
-                          if (!el || (el as HTMLInputElement & { _b?: boolean })._b) return;
-                          (el as HTMLInputElement & { _b?: boolean })._b = true;
-                          el.addEventListener("change", () => {
-                            const c = el.value; const list = colLineRecentColors.current;
-                            if (list[0] !== c) { const idx = list.indexOf(c); if (idx !== -1) list.splice(idx, 1); list.unshift(c); if (list.length > 5) list.pop(); localStorage.setItem("col-line-recent", JSON.stringify(list)); forceColorUpdate((v) => v + 1); }
-                          });
+                      <ColorPicker
+                        value={colDiv && colDiv !== "transparent" ? colDiv : "#d1d5db"}
+                        onChange={(c) => {
+                          editor.tf.setNodes({ columnDivider: c }, { at: activePath });
+                          const list = colLineRecentColors.current;
+                          if (list[0] !== c) {
+                            const idx = list.indexOf(c);
+                            if (idx !== -1) list.splice(idx, 1);
+                            list.unshift(c);
+                            if (list.length > 5) list.pop();
+                            localStorage.setItem("col-line-recent", JSON.stringify(list));
+                            forceColorUpdate((v) => v + 1);
+                          }
                         }}
+                        triggerClassName={styles.colorInput}
                       />
                     </div>
                     {Array.from({ length: 5 }).map((_, i) => {
@@ -1992,31 +2003,22 @@ export default function PlateEditor({
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
                       <div className={styles.presetDotInline} style={{ background: cBg.startsWith("#") ? cBg : CHECKER_BG, margin: "0 2px" }} />
                       <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
-                      <input
-                        type="color"
-                        className={styles.colorInput}
+                      <ColorPicker
                         value={cBg.startsWith("#") ? cBg : "#ffffff"}
-                        onChange={(e) => {
-                          // 실시간 배경 반영만
-                          editor.tf.setNodes({ bg: e.target.value }, { at: calloutNode.path });
+                        onChange={(c) => {
+                          editor.tf.setNodes({ bg: c }, { at: calloutNode.path });
+                          // 최근색 — 우리 ColorPicker 의 commit 시점에 1회 호출
+                          const list = calloutRecentColors.current;
+                          if (list[0] !== c) {
+                            const idx = list.indexOf(c);
+                            if (idx !== -1) list.splice(idx, 1);
+                            list.unshift(c);
+                            if (list.length > 5) list.pop();
+                            localStorage.setItem("callout-recent-colors", JSON.stringify(list));
+                            forceColorUpdate((v) => v + 1);
+                          }
                         }}
-                        ref={(el) => {
-                          if (!el || (el as HTMLInputElement & { _bound?: boolean })._bound) return;
-                          (el as HTMLInputElement & { _bound?: boolean })._bound = true;
-                          // 네이티브 change = 피커 닫힐 때 1회
-                          el.addEventListener("change", () => {
-                            const c = el.value;
-                            const list = calloutRecentColors.current;
-                            if (list[0] !== c) {
-                              const idx = list.indexOf(c);
-                              if (idx !== -1) list.splice(idx, 1);
-                              list.unshift(c);
-                              if (list.length > 5) list.pop();
-                              localStorage.setItem("callout-recent-colors", JSON.stringify(list));
-                              forceColorUpdate((v) => v + 1);
-                            }
-                          });
-                        }}
+                        triggerClassName={styles.colorInput}
                       />
                     </div>
                     {Array.from({ length: 5 }).map((_, i) => {
