@@ -1,12 +1,16 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { Check, Download, RotateCw } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import LoadingDots from "@/components/ui/LoadingDots";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
 
 interface AIGenerateTabProps {
   onSelect: (url: string) => void;
+  /** 이미지 생성 즉시 호출 — 부모 picker 가 history 추가 + cover 자동저장 */
+  onGenerated: (url: string, prompt: string) => void;
   postContext?: PostContext;
 }
 
@@ -68,7 +72,7 @@ function buildPromptSuggestions(ctx: PostContext): string[] {
   return suggestions.slice(0, 6);
 }
 
-export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabProps) {
+export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AIGenerateTabProps) {
   const { t } = useLanguage();
   const tc = useCallback((key: string) => t(`admin.posts.coverPicker.${key}`), [t]);
   const [prompt, setPrompt] = useState("");
@@ -101,6 +105,8 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
       if (!res.ok) throw new Error(data.error);
       setPreviewUrl(data.url);
       setPermanentUrl(data.url);
+      // 부모가 history 추가 + cover 자동저장 처리
+      onGenerated(data.url, prompt.trim());
     } catch (err) {
       setError(err instanceof Error ? err.message : tc("generationFailed"));
     } finally {
@@ -115,8 +121,34 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
     setError("");
   }, []);
 
+  /** 임의 url 을 blob 으로 fetch 해서 임시 anchor 로 다운로드 — suggested filename 포함 */
+  const downloadUrl = useCallback(async (url: string, suggestedName: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      const ext = (blob.type.split("/")[1] || "png").replace(/[^a-z0-9]/g, "");
+      const safe = suggestedName.trim().slice(0, 30).replace(/[^a-z0-9가-힣]+/gi, "_") || "ai-cover";
+      a.download = `${safe}-${Date.now()}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : tc("generationFailed"));
+    }
+  }, [tc]);
+
+  const handleDownload = useCallback(() => {
+    if (!permanentUrl) return;
+    downloadUrl(permanentUrl, prompt);
+  }, [permanentUrl, prompt, downloadUrl]);
+
   return (
-    <div className={styles.aiForm}>
+    <>
+      <div className={styles.aiForm}>
       <div className={styles.inputRow}>
         <div className={styles.inputWrapper}>
           <input
@@ -137,7 +169,14 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
           onClick={handleGenerate}
           disabled={generating || !prompt.trim()}
         >
-          {generating ? tc("generating") : tc("generate")}
+          {generating ? (
+            <span className={styles.generateBtnLoading}>
+              <span>{tc("generating")}</span>
+              <LoadingDots />
+            </span>
+          ) : (
+            tc("generate")
+          )}
         </button>
       </div>
 
@@ -170,7 +209,9 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
       </div>
 
       {error && <p className={styles.errorMsg}>{error}</p>}
+      </div>
 
+      {/* aiPreview 는 .aiForm 밖 — body 와 직접 인접해 padding 없이 full-width 표시 */}
       {previewUrl && (
         <div className={styles.aiPreview}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -181,7 +222,16 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
               className={styles.useBtn}
               onClick={() => permanentUrl && onSelect(permanentUrl)}
             >
-              {tc("useThis")}
+              <Check size={12} strokeWidth={2.5} />
+              <span>{tc("useThis")}</span>
+            </button>
+            <button
+              type="button"
+              className={styles.retryBtn}
+              onClick={handleDownload}
+            >
+              <Download size={12} strokeWidth={2} />
+              <span>{tc("download")}</span>
             </button>
             <button
               type="button"
@@ -189,11 +239,13 @@ export default function AIGenerateTab({ onSelect, postContext }: AIGenerateTabPr
               onClick={handleGenerate}
               disabled={generating}
             >
-              {tc("generate")}
+              <RotateCw size={12} strokeWidth={2} />
+              <span>{tc("regenerate")}</span>
             </button>
           </div>
         </div>
       )}
-    </div>
+
+    </>
   );
 }

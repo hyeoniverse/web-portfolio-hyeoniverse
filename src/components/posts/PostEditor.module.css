@@ -26,24 +26,6 @@
   overflow-y: auto;
 }
 
-/* 커버 picker 가 열렸을 때 — row 를 stretch 정렬해 excerpt textarea 가
-   cover 영역 전체 높이만큼 같이 늘어나도록. excerpt field 를 flex column 으로
-   만들고 textarea 가 남은 공간을 채우게 함. */
-.coverPickerOpenRow {
-  align-items: stretch !important;
-}
-
-.coverPickerOpenRow > [data-seo="excerpt"] {
-  display: flex;
-  flex-direction: column;
-}
-
-.coverPickerOpenRow .excerptInput {
-  flex: 1;
-  max-height: none;
-  height: auto;
-  min-height: 100px;
-}
 
 .meta .excerptInput:focus {
   border-color: var(--text-primary);
@@ -82,12 +64,14 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--box-2xs-md);
+  /* 컴팩트 높이 — 라벨 라인 안에 깔끔히 들어가게 */
+  height: var(--size-2xs);
+  padding: 0 var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   text-decoration: none;
   transition: border-color 0.2s, color 0.2s;
@@ -185,113 +169,25 @@
   color: var(--text-primary);
 }
 
-/* ── Series order list ── */
-.seriesOrderList {
+/* ── Series order — 실제 list UI 는 SortOrderDragList 컴포넌트가 담당.
+   여긴 fetch 중 보여줄 skeleton 만 ── */
+.seriesOrderSkeleton {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-xs) 0;
 }
 
-.seriesOrderItem {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  height: 36px;
-  padding: 0 var(--spacing-sm);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+.seriesOrderSkeletonRow {
+  display: block;
+  height: 16px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
 }
 
-.seriesOrderItem + .seriesOrderItem {
-  border-top: var(--border-light);
-}
-
-/* drag 중 본인 — 살짝 흐리게 */
-.seriesOrderItemDragging {
-  opacity: 0.4;
-}
-
-/* drop indicator — 대상 item 위/아래에 accent 라인 (full-width) */
-.seriesOrderItemDropAbove::before,
-.seriesOrderItemDropBelow::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--text-accent);
-  border-radius: 1px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.seriesOrderItemDropAbove::before {
-  top: -1px;
-}
-
-.seriesOrderItemDropBelow::after {
-  bottom: -1px;
-}
-
-.seriesOrderItemCurrent {
-  background: var(--bg-accent-subtle);
-  color: var(--text-primary);
-  font-weight: var(--font-weight-medium);
-}
-
-.seriesOrderNum {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  width: 20px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.seriesOrderItemCurrent .seriesOrderNum {
-  color: var(--text-accent);
-  font-weight: var(--font-weight-bold);
-}
-
-.seriesOrderGrip {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  color: var(--text-muted);
-  cursor: move;
-  touch-action: none;
-}
-
-.seriesOrderGrip:hover {
-  color: var(--text-primary);
-}
-
-.seriesOrderTitle {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.seriesOrderBtns {
-  display: flex;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.seriesOrderBtns .numberBtn + .numberBtn {
-  box-shadow: -1px 0 0 var(--border-light-color);
-}
-
-.seriesOrderBtns .numberBtn:hover:not(:disabled) {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-  box-shadow: none;
-}
+.seriesOrderSkeletonRow:nth-child(1) { width: 70%; }
+.seriesOrderSkeletonRow:nth-child(2) { width: 90%; }
+.seriesOrderSkeletonRow:nth-child(3) { width: 60%; }
 
 .optionalContent {
   display: flex;
@@ -353,53 +249,6 @@
 
 .tagAddBtn:disabled {
   opacity: 0.5;
-}
-
-/* Cover image */
-.coverPreview {
-  position: relative;
-  display: inline-flex;
-  height: 100px;
-}
-
-.coverThumb {
-  height: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: var(--radius-2xl);
-  border: var(--border-light);
-}
-
-/* 이미지 로드 실패 시 동일 사이즈의 placeholder */
-.coverThumbPlaceholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-2xl);
-  border: var(--border-light);
-  background: var(--bg-tertiary-alt);
-  color: var(--text-tertiary);
-}
-
-.coverLabelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.coverRemove {
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-accent);
-}
-
-.coverActions {
-  display: flex;
-  gap: var(--spacing-xs);
 }
 
 /* ── Template modal ── */

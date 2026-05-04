@@ -145,11 +145,16 @@ export default function RelationPicker<T>({
               aria-haspopup="listbox"
               readOnly={!open && candidates.length === 0 && selected.length > 0}
             />
-            <ChevronRight
-              size={14}
-              strokeWidth={2}
+            <button
+              type="button"
               className={`${styles.triggerArrow} ${open ? styles.triggerArrowOpen : ""}`}
-            />
+              onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+              aria-label={open ? "Close" : "Open"}
+              aria-expanded={open}
+              tabIndex={-1}
+            >
+              <ChevronRight size={14} strokeWidth={2} />
+            </button>
           </div>
         </div>
 

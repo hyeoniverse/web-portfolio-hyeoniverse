@@ -3,7 +3,7 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { ArrowLeft, Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
@@ -181,7 +181,8 @@ export default function AdminEditorShell({
         {/* ── 왼쪽: 네비게이션 + 언어 ── */}
         <div className={styles.topLeft}>
           <Link href={backHref} className={styles.backLink}>
-            {backLabel}
+            <ArrowLeft size={14} strokeWidth={1.8} className={styles.backArrow} aria-hidden />
+            <span>{backLabel}</span>
           </Link>
           {topBarFirstRowExtra && (
             <>
@@ -551,6 +552,7 @@ export default function AdminEditorShell({
                           <div
                             key={`${rev.timestamp}-${i}`}
                             className={`${styles.revisionItem} ${isSelectMode && selectedRevisions.has(i) ? styles.revisionItemSelected : ""}`}
+                            data-clickable
                             onClick={() => {
                               if (isSelectMode) {
                                 setSelectedRevisions((prev) => {

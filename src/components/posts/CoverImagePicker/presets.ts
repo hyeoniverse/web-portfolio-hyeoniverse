@@ -1,55 +1,67 @@
+import type { PresetConfig } from "./gradientUtils";
+
 export interface CoverPreset {
   id: string;
   name: string;
-  render: (ctx: CanvasRenderingContext2D, w: number, h: number) => void;
+  config: PresetConfig;
 }
 
+/**
+ * 커버 이미지 프리셋 — declarative config (PresetConfig).
+ * 프리셋 클릭 시 editor 가 이 config 를 그대로 받아 stops/angle/type 으로 로드 →
+ * 사용자가 추가 편집 후 "사용" 버튼으로 최종 업로드.
+ *
+ * angle 135 = (0,0) → (w,h) 방향 (top-left → bottom-right). 대부분 프리셋은 같은 방향.
+ */
 export const presets: CoverPreset[] = [
   // ── Warm ──
   {
     id: "warm-sunset",
     name: "Sunset",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#ff6b35");
-      g.addColorStop(0.5, "#f7931e");
-      g.addColorStop(1, "#e84393");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#ff6b35", pos: 0 },
+        { color: "#f7931e", pos: 0.5 },
+        { color: "#e84393", pos: 1 },
+      ],
     },
   },
   {
     id: "warm-amber",
     name: "Amber",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#f6d365");
-      g.addColorStop(1, "#fda085");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#f6d365", pos: 0 },
+        { color: "#fda085", pos: 1 },
+      ],
     },
   },
   {
     id: "warm-coral",
     name: "Coral",
-    render: (ctx, w, h) => {
-      const g = ctx.createRadialGradient(w * 0.3, h * 0.4, 0, w * 0.5, h * 0.5, w * 0.7);
-      g.addColorStop(0, "#ff9a9e");
-      g.addColorStop(0.5, "#fad0c4");
-      g.addColorStop(1, "#fbc2eb");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "radial",
+      stops: [
+        { color: "#ff9a9e", pos: 0 },
+        { color: "#fad0c4", pos: 0.5 },
+        { color: "#fbc2eb", pos: 1 },
+      ],
     },
   },
   {
     id: "warm-peach",
     name: "Peach",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#ffecd2");
-      g.addColorStop(1, "#fcb69f");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#ffecd2", pos: 0 },
+        { color: "#fcb69f", pos: 1 },
+      ],
     },
   },
 
@@ -57,46 +69,51 @@ export const presets: CoverPreset[] = [
   {
     id: "cool-ocean",
     name: "Ocean",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#667eea");
-      g.addColorStop(1, "#764ba2");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#667eea", pos: 0 },
+        { color: "#764ba2", pos: 1 },
+      ],
     },
   },
   {
     id: "cool-midnight",
     name: "Midnight",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w * 0.5, h);
-      g.addColorStop(0, "#0f0c29");
-      g.addColorStop(0.5, "#302b63");
-      g.addColorStop(1, "#24243e");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      // (0,0,w*0.5,h) — 더 vertical 한 방향. 약 160°
+      angle: 160,
+      stops: [
+        { color: "#0f0c29", pos: 0 },
+        { color: "#302b63", pos: 0.5 },
+        { color: "#24243e", pos: 1 },
+      ],
     },
   },
   {
     id: "cool-arctic",
     name: "Arctic",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#e0eafc");
-      g.addColorStop(1, "#cfdef3");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#e0eafc", pos: 0 },
+        { color: "#cfdef3", pos: 1 },
+      ],
     },
   },
   {
     id: "cool-teal",
     name: "Teal",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#11998e");
-      g.addColorStop(1, "#38ef7d");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#11998e", pos: 0 },
+        { color: "#38ef7d", pos: 1 },
+      ],
     },
   },
 
@@ -104,45 +121,49 @@ export const presets: CoverPreset[] = [
   {
     id: "neutral-slate",
     name: "Slate",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#2c3e50");
-      g.addColorStop(1, "#4ca1af");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#2c3e50", pos: 0 },
+        { color: "#4ca1af", pos: 1 },
+      ],
     },
   },
   {
     id: "neutral-ivory",
     name: "Ivory",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#f5f5f0");
-      g.addColorStop(1, "#e8e4dd");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#f5f5f0", pos: 0 },
+        { color: "#e8e4dd", pos: 1 },
+      ],
     },
   },
   {
     id: "neutral-charcoal",
     name: "Charcoal",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#232526");
-      g.addColorStop(1, "#414345");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#232526", pos: 0 },
+        { color: "#414345", pos: 1 },
+      ],
     },
   },
   {
     id: "neutral-sand",
     name: "Sand",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#d4c5a9");
-      g.addColorStop(1, "#c2b091");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#d4c5a9", pos: 0 },
+        { color: "#c2b091", pos: 1 },
+      ],
     },
   },
 
@@ -150,46 +171,50 @@ export const presets: CoverPreset[] = [
   {
     id: "vibrant-neon",
     name: "Neon",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#f953c6");
-      g.addColorStop(1, "#b91d73");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#f953c6", pos: 0 },
+        { color: "#b91d73", pos: 1 },
+      ],
     },
   },
   {
     id: "vibrant-aurora",
     name: "Aurora",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#00c6ff");
-      g.addColorStop(0.5, "#7c3aed");
-      g.addColorStop(1, "#0072ff");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#00c6ff", pos: 0 },
+        { color: "#7c3aed", pos: 0.5 },
+        { color: "#0072ff", pos: 1 },
+      ],
     },
   },
   {
     id: "vibrant-tropical",
     name: "Tropical",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#fa709a");
-      g.addColorStop(1, "#fee140");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#fa709a", pos: 0 },
+        { color: "#fee140", pos: 1 },
+      ],
     },
   },
   {
     id: "vibrant-electric",
     name: "Electric",
-    render: (ctx, w, h) => {
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#4facfe");
-      g.addColorStop(1, "#00f2fe");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+    config: {
+      type: "linear",
+      angle: 135,
+      stops: [
+        { color: "#4facfe", pos: 0 },
+        { color: "#00f2fe", pos: 1 },
+      ],
     },
   },
 ];

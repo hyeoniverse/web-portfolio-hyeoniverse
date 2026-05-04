@@ -31,6 +31,9 @@ interface SeoChecklistProps {
 export default function SeoChecklist({ data, onItemClick, className }: SeoChecklistProps) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+  // SSR + 첫 client render 모두 null 을 리턴해 hydration 일치 — mount 후 portal 트리 노출
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   const checks: { id: SeoCheckId; label: string; ok: boolean; warn?: boolean; hint?: string }[] = [
@@ -100,8 +103,9 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
   }, [open]);
 
   // body 에 portal 로 렌더해서 부모 stacking context (Lenis transform / mix-blend-mode 등) 우회 —
-   // backdrop-filter 가 페이지 전체 콘텐츠를 blur 할 수 있게.
-  if (typeof window === "undefined") return null;
+  // backdrop-filter 가 페이지 전체 콘텐츠를 blur 할 수 있게.
+  // SSR + 첫 client render 는 null 로 hydration 통과 → effect 후 portal 마운트
+  if (!mounted) return null;
 
   const tree = (
     <div ref={wrapRef} className={`${styles.wrap} ${className ?? ""}`} aria-label="SEO checklist">

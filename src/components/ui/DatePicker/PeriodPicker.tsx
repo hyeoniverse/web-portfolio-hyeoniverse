@@ -223,7 +223,9 @@ export default function PeriodPicker({
     [value],
   );
 
-  const hasRange = !!(safeValue.end || safeValue.ongoing);
+  // end 를 빈 문자열("")로 두는 것도 "범위 사용" 의도로 인정.
+  // toggleRange(false) 는 destructuring 으로 end 자체를 제거하므로 undefined ↔ defined 가 토글 신호.
+  const hasRange = safeValue.end !== undefined || !!safeValue.ongoing;
 
   const preview = useMemo(
     () => formatPeriod(safeValue, language),

@@ -74,7 +74,9 @@ export const defaultForm: WorkFormData = {
   subtitle_en: "",
   category_ko: "",
   category_en: "",
-  year: new Date().getFullYear().toString(),
+  // 신규 work 는 "기간으로 표시" default — JSON 으로 end:"" 까지 포함시켜 PeriodPicker hasRange 가 true 가 되게 함.
+  // 사용자가 end 를 채우지 않고 저장하면 serializePeriodAsYear 가 plain "2026" 으로 다시 직렬화함 (DB 깨끗).
+  year: JSON.stringify({ start: new Date().getFullYear().toString(), end: "", format: "year" }),
   description_ko: "",
   description_en: "",
   role_ko: "",

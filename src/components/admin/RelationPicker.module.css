@@ -106,9 +106,24 @@
 }
 
 .triggerArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
   color: var(--text-tertiary);
   flex-shrink: 0;
-  transition: transform 0.2s ease;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: transform 0.2s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.triggerArrow:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 /* 열림 시 화살표를 시계 방향 90° 회전 → 아래쪽 가리킴 */

@@ -1,8 +1,9 @@
 /* ── Container ── */
 .picker {
-  margin-top: var(--spacing-sm);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  /* 동심원 규칙: 외부 wrapper(2xl=24) - 가로 padding(16) ≈ 8(md) 가 정답이지만
+     너무 sharp 해서 중간값 lg(12) 사용 — 외곽과 시각적으로 concentric 한 곡률 */
+  border-radius: var(--radius-lg);
   overflow: hidden;
   /* 펼칠 때 — height + opacity + 살짝 위에서 내려오는 미세한 translate
      ease-out-expo 곡선으로 자연스럽게 settle */
@@ -15,7 +16,6 @@
   0% {
     max-height: 0;
     opacity: 0;
-    margin-top: 0;
     transform: translateY(-6px);
   }
   60% {
@@ -24,7 +24,6 @@
   100% {
     max-height: 1200px;
     opacity: 1;
-    margin-top: var(--spacing-sm);
     transform: translateY(0);
   }
 }
@@ -39,7 +38,6 @@
   0% {
     max-height: 1200px;
     opacity: 1;
-    margin-top: var(--spacing-sm);
     transform: translateY(0);
   }
   40% {
@@ -48,7 +46,6 @@
   100% {
     max-height: 0;
     opacity: 0;
-    margin-top: 0;
     transform: translateY(-6px);
   }
 }
@@ -64,10 +61,15 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--spacing-xs);
   padding: var(--box-xs-sm);
   border-bottom: var(--border-light);
   background: var(--bg-tertiary);
+}
+
+/* close 버튼은 가장 우측 — 그 사이 가용 공간을 history 버튼 등 다음 형제가 차지 */
+.header .closeBtn {
+  margin-left: auto;
 }
 
 .tabs {
@@ -89,12 +91,53 @@
   white-space: nowrap;
 }
 
+/* 탭 사이 세로 구분선 — 첫 탭 제외 */
+.tabs .tab + .tab {
+  border-left: var(--border-default);
+}
+
 .tabs .tab:hover {
   color: var(--text-primary);
 }
 
 .tabActive {
   background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+/* 독립 history 탭 — capsule 그룹과 분리. count 배지 inline */
+.historyTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--box-2xs-md);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.header .historyTab:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.historyTabActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+.header .historyTabActive:hover {
   color: var(--bg-primary);
 }
 
@@ -122,7 +165,13 @@
 
 /* ── Body ── */
 .body {
-  padding: var(--spacing-sm);
+  /* padding 제거 — grid 가 picker 외곽과 flush. 검색 input / AI 폼 같은 비-그리드
+     콘텐츠는 자체 wrapper 에서 padding 부여 (.unsplashWrap, .aiForm) */
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  /* gap 없음 — sibling 들이 직접 인접 (각 sibling 이 자체 padding/border 로 spacing 처리) */
+  gap: 0;
   height: 360px;
   overflow-y: scroll;
   scrollbar-width: thin;
@@ -144,20 +193,615 @@
   border-radius: var(--radius-2xs);
 }
 
-/* ── Preset Grid ── */
-.presetGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+/* ── Custom Gradient Editor — preset 위, 가로 배치로 컴팩트하게 ── */
+.customGradient {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+
+/* preview — 컴팩트 사이즈 (작은 16:9 카드) + radius 2xl */
+.customGradientPreview {
+  flex-shrink: 0;
+  height: 100px;
+  aspect-ratio: 16 / 9;
+  background: var(--bg-primary);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+
+.customGradientPreview canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 컨트롤 — 우측 column, 색 row + type/angle/apply row */
+.customGradientControls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Adobe Color 스타일 scheme selector — base color + 조합 chip 들 ── */
+.schemeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+/* base color picker — 큰 swatch (color wheel 트리거) */
+.schemeBaseLabel {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.schemeBaseSwatch {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-circle);
+  border: 2px solid var(--bg-primary);
+  box-shadow:
+    0 0 0 1px var(--border-light-color),
+    0 1px 4px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+.schemeBaseInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* scheme 조합 chip 들 — 가로 wrap, 컴팩트 capsule */
+.schemeChips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.schemeChip {
+  height: var(--size-2xs);
+  padding: 0 var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.schemeChips .schemeChip:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.schemeChipActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+/* 이미지에서 색 추출 — scheme row 우측 끝 icon 버튼 */
+.schemeImageBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-2xs);
+  height: var(--size-2xs);
+  flex-shrink: 0;
+  padding: 0;
+  margin-left: auto;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.schemeRow .schemeImageBtn:hover:not(:disabled) {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.schemeImageBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 추출된 palette row — 라벨 + 5개 swatch */
+.extractedRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding-top: var(--spacing-2xs);
+  flex-wrap: wrap;
+}
+
+.extractedLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 4px;
+}
+
+.extractedSwatch {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-circle);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.extractedRow .extractedSwatch:hover {
+  transform: scale(1.15);
+}
+
+/* ── Gradient stop bar — 가로 그라데이션 + 위치 조정 가능한 handle ── */
+.stopBarWrap {
+  display: flex;
+  /* bar 와 + 버튼이 같은 top 라인에 정렬 (handle 영역은 bar margin-bottom 으로 흡수) */
+  align-items: flex-start;
   gap: var(--spacing-xs);
 }
 
-.presetItem {
-  aspect-ratio: 1200 / 630;
-  border-radius: var(--radius-sm);
-  border: var(--border-light);
-  overflow: hidden;
-
+.stopBar {
   position: relative;
+  flex: 1;
+  /* 약간 컴팩트한 높이 */
+  height: 22px;
+  border-radius: var(--radius-capsule);
+  border: var(--border-light);
+  cursor: copy;
+  /* handle 들이 bar 아래에 표시될 공간 + 추가 여백 확보 */
+  margin-bottom: 32px;
+}
+
+/* handle = bar 아래에 absolute (top: 100%), pos% left, 화살표 위로 향함 */
+.stopHandle {
+  position: absolute;
+  top: 100%;
+  /* left 는 inline style, transform 으로 가운데 정렬 */
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.stopHandle:active {
+  cursor: grabbing;
+}
+
+/* 위쪽 화살표 — handle 이 bar 아래에 있으므로 화살표는 위(bar 쪽)를 가리킴 */
+.stopHandleArrow {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 6px solid var(--bg-primary);
+  filter: drop-shadow(0 -1px 1px rgba(0, 0, 0, 0.2));
+  margin-bottom: -1px;
+}
+
+/* swatch — 화살표 바로 아래 둥근 사각형, 색 표시 */
+.stopHandleSwatch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* drag grip — swatch 가운데 가로 두 줄 (옅은 흰색 + 옅은 검정 outline 으로 어떤 색 위에서도 보이게) */
+.stopHandleGrip {
+  display: block;
+  width: 7px;
+  height: 6px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 1px,
+    rgba(255, 255, 255, 0.85) 1px,
+    rgba(255, 255, 255, 0.85) 2px,
+    transparent 2px,
+    transparent 4px,
+    rgba(255, 255, 255, 0.85) 4px,
+    rgba(255, 255, 255, 0.85) 5px,
+    transparent 5px
+  );
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}
+
+/* native color input — handle 전체에 absolute 로 깔려 있어 click trigger 만 담당 */
+.stopHandleInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* + 버튼 — bar 우측. bar 와 동일한 22px 높이 + 원형 — 같은 top 라인 + 중심선 정렬 */
+.stopAddBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.stopBarWrap .stopAddBtn:hover:not(:disabled) {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.stopAddBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.customColorChip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  height: var(--size-2xs);
+  /* 좌측 padding 컴팩트 — chip 곡률(10px) 안에 swatch(16px) 가 concentric 하게 수납 */
+  padding: 0 var(--spacing-2xs) 0 2px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+}
+
+/* chip 안의 클릭 영역 = swatch + hex 전체. native picker 는 input 의 absolute trigger */
+.customColorChipLabel {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  padding: 0 var(--spacing-2xs) 0 0;
+  cursor: pointer;
+}
+
+/* 원형 swatch — 시각적인 색 표시 */
+.customColorSwatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-circle);
+  border: 1px solid var(--border-light-color);
+  pointer-events: none;
+}
+
+/* native color input — label 전체 영역에 absolute (시각적으로 사라짐, click trigger 만) */
+.customColorInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.customColorHex {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+/* position slider — chip 안 우측 영역 */
+.customColorPos {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 80px;
+}
+
+.customColorPos input[type="range"] {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--text-primary);
+}
+
+.customColorPosLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* 좁은 컨트롤 영역에서 hex 숨김 — color swatch 만으로도 식별 가능 */
+@media (max-width: 480px) {
+  .customColorHex {
+    display: none;
+  }
+}
+
+.customColorRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.customColors .customColorRemove:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.customColorAdd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-2xs);
+  height: var(--size-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+/* hover 시 배경↔텍스트 invert */
+.customColors .customColorAdd:hover {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.customRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* type toggle (linear / radial) — 작은 capsule 그룹 */
+.customTypeToggle {
+  display: inline-flex;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  height: var(--size-2xs);
+}
+
+.customTypeBtn {
+  padding: 0 var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.customTypeBtn + .customTypeBtn {
+  border-left: var(--border-light);
+}
+
+.customTypeBtnActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.customAngle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+.customAngle > span {
+  flex-shrink: 0;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* 슬라이더 그룹 — 각도/크기/속도 가로 wrap */
+.customSliders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.customSlider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+.customSliderLabel {
+  flex-shrink: 0;
+  min-width: 40px;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
+
+.customSlider input[type="range"] {
+  flex: 1;
+  accent-color: var(--text-primary);
+}
+
+.customSlider input[type="range"]:disabled {
+  cursor: not-allowed;
+}
+
+/* radial 일 때 angle slider 비활성 — 흐리게 + cursor not-allowed (높이는 유지) */
+.customSliderDisabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.customSliderValue {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.customAngle input[type="range"] {
+  flex: 1;
+  accent-color: var(--text-primary);
+}
+
+/* random shuffle 버튼 — icon only, apply 옆에 살짝 secondary 톤 */
+.customRandomBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-2xs);
+  height: var(--size-2xs);
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-left: auto;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.2s ease;
+}
+
+.customGradientControls .customRandomBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  transform: rotate(180deg);
+}
+
+.customApplyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--size-2xs);
+  padding: 0 var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.customApplyBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Preset Grid (gap·padding 없이 picker 외곽과 flush) ── */
+.presetGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.presetItem {
+  aspect-ratio: 16 / 9;
+  /* 인접 item 사이 1px 라인 — 우측/하단 border 만 부여, 외곽은 컨테이너가 담당 */
+  border: none;
+  border-right: var(--border-light);
+  border-bottom: var(--border-light);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 4-col 마지막 열은 우측 border 제거 */
+.presetGrid .presetItem:nth-child(4n) {
+  border-right: none;
 }
 
 .presetItem canvas {
@@ -167,7 +811,9 @@
 }
 
 .picker .presetItem:hover {
-  border-color: var(--text-primary);
+  outline: 1px solid var(--text-primary);
+  outline-offset: -1px;
+  z-index: 1;
 }
 
 .presetName {
@@ -188,12 +834,21 @@
   pointer-events: none;
 }
 
+/* ── Tab section (탭 공통 padded wrapper)
+   .body padding 0 환경 — 비-그리드 콘텐츠 (검색 input / suggestions / form) 는
+   이 wrapper 안에 두면 일관된 외곽 spacing 확보. 그리드는 wrapper 밖에 두면 flush. */
+.tabSection {
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
 /* ── Input wrapper (capsule + clear) ── */
 .inputWrapper {
   position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: var(--spacing-sm);
 }
 
 /* AI 탭 — input + 생성 버튼을 한 줄로 */
@@ -201,12 +856,11 @@
   display: flex;
   align-items: stretch;
   gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-sm);
+  /* margin-bottom 제거 — 부모 .aiForm(.tabSection) 의 gap 이 처리 */
 }
 
 .inputRow .inputWrapper {
   flex: 1;
-  margin-bottom: 0;
 }
 
 .inputRow .generateBtn {
@@ -217,8 +871,9 @@
 .inputWrapper input,
 .inputWrapper textarea {
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-2xl) var(--spacing-xs)
-    var(--spacing-md);
+  /* admin editor 표준 input 과 동일 (--size-sm = 32px) */
+  min-height: var(--size-sm);
+  padding: 0 var(--spacing-2xl) 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -227,6 +882,13 @@
   color: var(--text-primary);
   outline: none;
   resize: none;
+  box-sizing: border-box;
+}
+
+/* textarea 는 멀티라인 — 표준 input 보다 키울 수 있도록 padding-y 복원 */
+.inputWrapper textarea {
+  padding-top: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
 }
 
 .inputWrapper input:focus,
@@ -260,29 +922,71 @@
 }
 
 .inputWrapper .clearBtn:hover {
-  background: var(--border-strong-color);
-  color: var(--text-primary);
+  /* hover 시 배경/텍스트 둘 다 invert — bg 가 어두워지면 X 도 밝게 (가독성 확보) */
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
-/* ── Unsplash ── */
+/* Unsplash 라이선스 안내 — 결과 위 한 줄 */
+.unsplashLicenseNote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  border-bottom: var(--border-light);
+}
 
+.unsplashLicenseNote a {
+  color: var(--text-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 카드별 라이선스 배지 — 좌상단 (commercial use OK) */
+.unsplashLicenseBadge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-overlay);
+  color: var(--text-inverse);
+  pointer-events: none;
+}
+
+/* ── Unsplash Grid (preset 과 동일 — 4-col, 1200:630 aspect, 같은 오버레이) ── */
 .unsplashGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-xs);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
 }
 
 .unsplashItem {
-  aspect-ratio: 4 / 3;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-
-  border: 2px solid transparent;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-right: var(--border-light);
+  border-bottom: var(--border-light);
+  background: transparent;
+  cursor: pointer;
   position: relative;
 }
 
+/* 4-col 마지막 열 우측 border 제거 */
+.unsplashGrid .unsplashItem:nth-child(4n) {
+  border-right: none;
+}
+
 .picker .unsplashItem:hover {
-  border-color: var(--text-primary);
+  outline: 1px solid var(--text-primary);
+  outline-offset: -1px;
+  z-index: 1;
 }
 
 .unsplashItem img {
@@ -301,7 +1005,9 @@
   background: var(--bg-overlay);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
-  color: var(--text-muted);
+  /* preset.presetName 과 동일 색·정렬 */
+  color: var(--text-inverse);
+  text-align: center;
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
@@ -315,14 +1021,16 @@
 
 .loadMore {
   display: block;
-  margin: var(--spacing-sm) auto 0;
-  padding: var(--box-xs-lg);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
+  width: 100%;
+  margin: 0;
+  padding: var(--spacing-sm) 0;
+  border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
+  text-align: center;
+  cursor: pointer;
 }
 
 .body .loadMore:hover {
@@ -331,10 +1039,14 @@
 }
 
 /* ── AI Generate ── */
+/* .aiForm 은 .tabSection 과 동일한 padded column wrapper — alias 로 유지 */
 .aiForm {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: tabSection;
+}
+
+/* aiPreview 가 바로 뒤에 따라올 때 — form 의 padding-bottom 제거해 preview 와 flush */
+.aiForm:has(+ .aiPreview) {
+  padding-bottom: 0;
 }
 
 .styleRow {
@@ -371,7 +1083,12 @@
 
 .generateBtn {
   align-self: flex-start;
-  padding: var(--box-xs-xl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* admin editor 표준 uploadBtn 과 동일 (--size-sm = 32px) */
+  min-height: var(--size-sm);
+  padding: 0 var(--spacing-xl);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
@@ -379,49 +1096,387 @@
   font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--bg-primary);
+  box-sizing: border-box;
 }
 
 .generateBtn:disabled {
   opacity: 0.5;
 }
 
+/* generating 중 — 텍스트 + LoadingDots 가로 정렬 */
+.generateBtnLoading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
 .aiPreview {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  /* gap·padding 없음 — 이미지와 actions 가 flush 하게 붙음 */
+  gap: 0;
   align-items: center;
 }
 
 .aiPreview img {
   width: 100%;
-  border-radius: var(--radius-md);
-  border: var(--border-light);
+  display: block;
+  /* radius 없음 — 위쪽 콘텐츠 / 아래 actions 와 plain edge */
+  border-radius: 0;
+  border: none;
 }
 
+/* 사용/재생성 — loadMore 와 동일 톤 (border 없음, full-width line). 두 버튼은 가로로 균등 분할 */
 .aiActions {
   display: flex;
+  gap: 0;
+  width: 100%;
+  /* 부모 .aiPreview 가 align-items: center 라서 자식이 shrink 됨 — 명시적 stretch */
+  align-self: stretch;
+  margin: 0;
+  /* 위쪽 콘텐츠와 분리 라인 */
+  border-top: var(--border-light);
+}
+
+.useBtn,
+.retryBtn {
+  flex: 1;
+  width: 100%;
+  margin: 0;
+  padding: var(--spacing-sm) 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  text-align: center;
+  cursor: pointer;
+}
+
+/* 사용 — primary action 강조 */
+.useBtn {
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+/* 재생성 — secondary tone */
+.retryBtn {
+  color: var(--text-secondary);
+}
+
+/* 모든 actions 버튼 — 아이콘 + 텍스트 가로 정렬 */
+.aiActions .useBtn,
+.aiActions .retryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ── AI History (세션 동안 생성한 이미지 이력) ── */
+.aiHistory {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-sm);
+  border-top: var(--border-light);
+}
+
+.aiHistoryHeader {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-xs);
 }
 
-.useBtn {
-  padding: var(--box-xs-xl);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: var(--text-primary);
+.aiHistoryLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.aiHistoryCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.aiHistoryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-2xs);
+}
+
+.aiHistoryItem {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.aiHistoryItemActive {
+  border-color: var(--text-accent);
+}
+
+.aiHistoryThumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: var(--bg-tertiary);
+  cursor: pointer;
+}
+
+.aiHistoryThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.aiHistory .aiHistoryThumb:hover img {
+  opacity: 0.85;
+}
+
+/* 다운로드 버튼 — 우상단 overlay (hover 시만 표시) */
+.aiHistoryDownload,
+.aiHistoryRemove {
+  position: absolute;
+  top: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-overlay);
+  color: var(--text-inverse);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.aiHistoryDownload {
+  right: 4px;
+}
+.aiHistoryRemove {
+  left: 4px;
+}
+
+.aiHistoryItem:hover .aiHistoryDownload,
+.aiHistoryItem:hover .aiHistoryRemove,
+.aiHistoryDownload:focus-visible,
+.aiHistoryRemove:focus-visible {
+  opacity: 1;
+}
+
+/* active 표시 — 우하단 작은 체크 배지 */
+.aiHistoryActiveBadge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-circle);
+  background: var(--text-accent);
   color: var(--bg-primary);
 }
 
-.retryBtn {
-  padding: var(--box-xs-xl);
-  border: var(--border-default);
+/* source 라벨 — 좌하단 (AI / Unsplash / Preset) */
+.aiHistorySource {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  padding: 2px 6px;
   border-radius: var(--radius-capsule);
-  background: transparent;
+  background: var(--bg-overlay);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-inverse);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── History grid items (preset/unsplash grid 와 동일 cell, overlay 다름) ── */
+.historyGridItem {
+  /* presetItem 의 border-bottom/right 상속 */
+  background: var(--bg-tertiary);
+}
+
+.historyGridItemActive {
+  outline: 2px solid var(--text-accent);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.historyThumbBtn {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.historyThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.picker .historyThumbBtn:hover img {
+  opacity: 0.85;
+}
+
+/* active 체크 — 우상단 (이전 우하단에서 source 라벨에 가려짐 → 이동) */
+.historyActiveBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-circle);
+  background: var(--text-accent);
+  color: var(--bg-primary);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* source 라벨 + meta — 좌하단 (action cluster 는 좌상단으로 이동했으니 full width 활용 가능) */
+.historySourceTag {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100% - 8px);
+  padding: 2px 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-overlay);
+  font-family: var(--font-space-grotesk);
+  font-size: 9px;
+  color: var(--text-inverse);
+  pointer-events: none;
+}
+
+.historySourceLabel {
+  /* span 으로 교체 — strong 의 브라우저 default bold 회피. weight 살짝 올려 가독성 확보 */
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.historySourceSep {
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.historySourceMeta {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* overlay 버튼 (제거 / action cluster 안 버튼들) — hover 시만 노출 */
+.historyOverlayBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-overlay);
+  color: var(--text-inverse);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.historyGridItem:hover .historyOverlayBtn,
+.historyOverlayBtn:focus-visible {
+  opacity: 1;
+}
+
+.historyGridItem .historyOverlayBtn:hover {
+  transform: scale(1.1);
+}
+
+/* 좌상단 — tool button cluster (제거 + 키워드 복사 + 색상표 복사 + 다운로드) */
+.historyActions {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  z-index: 2;
+}
+
+/* 탭 옆 카운트 배지 (history 탭) */
+.tabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  min-width: 16px;
+  height: 14px;
+  padding: 0 5px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-mono);
+  font-size: 9px;
   color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* tabActive 또는 historyTabActive — 어느 쪽이든 active 시 흰 원형 + 어두운 숫자 */
+.tabActive .tabCount,
+.historyTabActive .tabCount {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* 이력 탭 inactive — 검정 배경 + 흰 숫자 (이력 강조). active 일 땐 위 rule 이 우선 */
+.historyTab:not(.historyTabActive) .tabCount {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+/* 인접 버튼 사이 세로 divider — useBtn↔retryBtn / retryBtn↔retryBtn 모두 */
+.aiActions > * + * {
+  border-left: var(--border-light);
 }
 
 /* ── Suggestions ── */
@@ -429,7 +1484,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
-  margin-bottom: var(--spacing-sm);
+  /* margin 제거 — 부모 .tabSection 의 gap 이 처리 */
 }
 
 .suggestionChip {
@@ -449,14 +1504,48 @@
 }
 
 /* ── Shared ── */
+/* spinner — .loadMore 와 동일 위치/타이포 (둘 다 grid 아래 full-width line) */
 .spinner {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
+  gap: var(--spacing-xs);
+  width: 100%;
+  margin: 0;
+  padding: var(--spacing-sm) 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
+  text-align: center;
+}
+
+.spinnerIcon {
+  /* inline span 은 width/height/transform 무시 — inline-block 필수 */
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  /* track(전체) 은 옅게, top arc 만 accent 로 — 회전 시 marker 가 잘 보이도록 contrast 확보 */
+  border: 2px solid var(--bg-tertiary);
+  border-top-color: var(--text-accent);
+  border-radius: 50%;
+  animation: spinnerRotate 0.7s linear infinite;
+  /* will-change 로 GPU 가속 */
+  will-change: transform;
+}
+
+@keyframes spinnerRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinnerIcon {
+    animation: none;
+  }
 }
 
 .emptyMsg {
@@ -483,5 +1572,17 @@
 
   .unsplashGrid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* 모바일 — 2-col 이라 nth-child(2n) 가 우측 열. 우측 border 제거 + 4n 룰
+     (PC 용) 이 우측을 비우려고 적용해놓은 것 다시 켜기 */
+  .presetGrid .presetItem,
+  .unsplashGrid .unsplashItem {
+    border-right: var(--border-light);
+  }
+
+  .presetGrid .presetItem:nth-child(2n),
+  .unsplashGrid .unsplashItem:nth-child(2n) {
+    border-right: none;
   }
 }

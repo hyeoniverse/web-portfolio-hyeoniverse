@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { ChevronDown, ChevronRight, ChevronUp, ExternalLink, GripVertical } from "lucide-react";
+import { ChevronRight, ExternalLink } from "lucide-react";
 import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -26,9 +26,11 @@ import MarkdownEditor, { extractMarkdownImages } from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
 import SeoChecklist from "@/components/admin/SeoChecklist";
 import RelationPicker from "@/components/admin/RelationPicker";
+import SortOrderDragList from "@/components/admin/SortOrderDragList";
+import CoverImageField from "@/components/admin/CoverImageField";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import CloseIcon from "@/components/ui/CloseIcon";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import { useModalStore } from "@/stores/modalStore";
@@ -124,6 +126,9 @@ export default function PostEditor({ post }: PostEditorProps) {
     related_work_ids: [],
   });
 
+  // 직접 입력 모드 — 사용자가 "직접 입력" 선택 시 활성화. form.category 가 비어도 input 유지
+  const [categoryCustomMode, setCategoryCustomMode] = useState(false);
+
   /** 연결된 works 목록 — 편집기 진입 시 한 번 fetch */
   const [allWorks, setAllWorks] = useState<Array<{ id: string; title: string; year: string; image: string; published: boolean; category_ko?: string }>>([]);
   useEffect(() => {
@@ -148,9 +153,10 @@ export default function PostEditor({ post }: PostEditorProps) {
       .catch(() => {});
   }, [post?.id]);
 
-  // Auto-correct ONLY when category is empty — 직접 입력한 커스텀 카테고리는 유지
+  // Auto-correct ONLY when category is empty — 직접 입력한 커스텀 카테고리/모드는 유지
   useEffect(() => {
     if (categories.length === 0) return;
+    if (categoryCustomMode) return;
     if (!form.category) {
       const fallback = categories.find((c) => c.ko === "기타")?.ko ?? categories[0]?.ko ?? "";
       setForm((prev) => ({ ...prev, category: fallback }));
@@ -167,9 +173,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   const setStatus = useCallback((s: string) => { setStatusRaw(s); setStatusTimestamp(undefined); }, []);
   const [error, setError] = useState("");
   const [showErrors, setShowErrors] = useState(false);
-  const [coverImgError, setCoverImgError] = useState(false);
-  // cover_image 가 바뀔 때마다 에러 상태 리셋 (새 src 는 다시 시도)
-  useEffect(() => { setCoverImgError(false); }, [form.cover_image]);
 
   const {
     editorLang,
@@ -194,9 +197,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [optionalOpen, setOptionalOpen] = useState(false);
   const optionalInnerRef = useRef<HTMLDivElement>(null);
   const optionalContentRef = useRef<HTMLDivElement>(null);
-  // 시리즈 순서 — drag/over index 를 state 로 유지해 drop indicator 가 매 hover 마다 re-render 되도록
-  const [seriesDragIdx, setSeriesDragIdx] = useState<number | null>(null);
-  const [seriesOverIdx, setSeriesOverIdx] = useState<number | null>(null);
 
   /** SEO 체크리스트 항목 클릭 → 해당 필드로 스크롤 + 포커스 + label 색을 accent 로 + dot 표시.
    *  강조된 필드 외부에서 다음 인터랙션(클릭/포커스)이 일어나면 강조 해제. */
@@ -222,7 +222,8 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, []);
 
   const handleSeoItemClick = useCallback((id: "title" | "slug" | "excerpt" | "cover" | "category" | "tags") => {
-    const inOptional = id === "excerpt" || id === "cover" || id === "category" || id === "tags";
+    // category 는 시리즈와 같은 always-visible row 로 옮겨졌으므로 optional 펼침 불필요
+    const inOptional = id === "excerpt" || id === "cover" || id === "tags";
     if (inOptional) setOptionalOpen(true);
     const scrollAndHighlight = () => {
       const el = document.querySelector<HTMLElement>(`[data-seo="${id}"]`);
@@ -272,7 +273,11 @@ export default function PostEditor({ post }: PostEditorProps) {
     if (!inner || !content) return;
     const update = () => {
       if (optionalOpen) {
-        content.style.setProperty("--_content-height", `${inner.scrollHeight}px`);
+        // box-sizing: border-box 라서 max-height 가 padding 까지 포함하는 총 높이.
+        // inner.scrollHeight 만 쓰면 padding-bottom 만큼 마지막 항목이 잘림 → 명시적으로 더해줌.
+        const cs = getComputedStyle(content);
+        const pad = parseFloat(cs.paddingTop || "0") + parseFloat(cs.paddingBottom || "0");
+        content.style.setProperty("--_content-height", `${inner.scrollHeight + pad}px`);
       }
     };
     update();
@@ -1134,245 +1139,196 @@ export default function PostEditor({ post }: PostEditorProps) {
             />
           </button>
 
-          {/* 시리즈 — 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
+          {/* 시리즈 + 카테고리 — 같은 row, 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
           <div style={{ padding: "0 var(--spacing-md) var(--spacing-md)" }}>
-            <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                <label className={es.fieldLabel}>{te("series")}</label>
-                <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
-                  {te("seriesManage")}
-                  <ExternalLink size={12} />
-                </a>
+            <div className={es.row}>
+              {/* 1열: 시리즈 */}
+              <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                  <label className={es.fieldLabel}>{te("series")}</label>
+                  <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
+                    {te("seriesManage")}
+                    <ExternalLink size={12} />
+                  </a>
+                </div>
+                <AnimatePresence mode="wait" initial={false}>
+                  {seriesSelectMode === "custom" ? (
+                    <motion.div
+                      key="custom"
+                      initial={{ height: 0 }}
+                      animate={{ height: "auto" }}
+                      exit={{ height: 0 }}
+                      transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <SeriesInlineEditor
+                        series={null}
+                        categories={categories}
+                        onSave={handleSeriesCreated}
+                        onCancel={() => setSeriesSelectMode("existing")}
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="existing"
+                      initial={{ height: 0 }}
+                      animate={{ height: "auto" }}
+                      exit={{ height: 0 }}
+                      transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <Select
+                        value={form.series_id ?? ""}
+                        options={[
+                          { value: "", label: te("seriesNone") },
+                          { value: "__custom__", label: te("customSeries") },
+                          ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}` })),
+                        ]}
+                        onChange={(v) => {
+                          if (v === "__custom__") {
+                            setSeriesSelectMode("custom");
+                            updateField("series_id", null);
+                            return;
+                          }
+                          setSeriesSelectMode("existing");
+                          updateField("series_id", v || null);
+                          if (v) {
+                            const selected = seriesList.find((s) => s.id === v);
+                            if (selected?.category) updateField("category", selected.category);
+                          }
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              <AnimatePresence mode="wait" initial={false}>
-                {seriesSelectMode === "custom" ? (
-                  <motion.div
-                    key="custom"
-                    initial={{ height: 0 }}
-                    animate={{ height: "auto" }}
-                    exit={{ height: 0 }}
-                    transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
-                    style={{ overflow: "hidden" }}
-                  >
-                    <SeriesInlineEditor
-                      series={null}
-                      categories={categories}
-                      onSave={handleSeriesCreated}
-                      onCancel={() => setSeriesSelectMode("existing")}
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="existing"
-                    initial={{ height: 0 }}
-                    animate={{ height: "auto" }}
-                    exit={{ height: 0 }}
-                    transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
-                    style={{ overflow: "hidden" }}
-                  >
-                    <Select
-                      value={form.series_id ?? ""}
-                      options={[
-                        { value: "", label: te("seriesNone") },
-                        { value: "__custom__", label: te("customSeries") },
-                        ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}` })),
-                      ]}
-                      onChange={(v) => {
-                        if (v === "__custom__") {
-                          setSeriesSelectMode("custom");
-                          updateField("series_id", null);
-                          return;
-                        }
-                        setSeriesSelectMode("existing");
-                        updateField("series_id", v || null);
-                        if (v) {
-                          const selected = seriesList.find((s) => s.id === v);
-                          if (selected?.category) updateField("category", selected.category);
-                        }
-                      }}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* 2열: 카테고리 */}
+              <div className={es.field} data-seo="category">
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                  <label className={`${es.fieldLabel}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
+                  {form.series_id && (
+                    <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>{te("categoryFromSeries")}</span>
+                  )}
+                </div>
+                {(() => {
+                  const matched = isManagedCat(form.category);
+                  const isCustom = categoryCustomMode || (!!form.category && !matched);
+                  const selectValue = isCustom ? "__custom__" : (matched ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? ""));
+                  return (
+                    <>
+                      <Select
+                        value={selectValue}
+                        options={[
+                          { value: "__custom__", label: te("customCategory") },
+                          ...categories.map((cat) => ({ value: cat.ko, label: language === "ko" ? cat.ko : cat.en })),
+                        ]}
+                        onChange={(v) => {
+                          if (v === "__custom__") {
+                            setCategoryCustomMode(true);
+                            updateField("category", "");
+                          } else {
+                            setCategoryCustomMode(false);
+                            updateField("category", v);
+                          }
+                        }}
+                        disabled={!!form.series_id}
+                      />
+                      {isCustom && !form.series_id && (
+                        <input
+                          className={es.fieldInput}
+                          type="text"
+                          value={form.category}
+                          onChange={(e) => updateField("category", e.target.value)}
+                          placeholder={te("category")}
+                          style={{ marginTop: "var(--spacing-xs)" }}
+                          autoFocus
+                        />
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
             </div>
           </div>
           <div ref={optionalContentRef} className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
             <div ref={optionalInnerRef} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
-              {form.series_id && seriesPostsLoading && (
-                <div className={es.field}>
-                  <label className={es.fieldLabel}>{te("seriesOrder")}</label>
-                  <div className={styles.seriesOrderList}>
-                    {[1, 2].map((i) => (
-                      <div key={i} className={styles.seriesOrderItem} style={{ opacity: 0.4 }}>
-                        <span className={styles.seriesOrderGrip}>
-                          <GripVertical size={12} />
-                        </span>
-                        <span className={styles.seriesOrderNum}>{i}</span>
-                        <span className={styles.seriesOrderTitle} style={{ background: "var(--bg-tertiary)", borderRadius: "var(--radius-sm)", height: "1em", width: `${60 + i * 20}px` }} />
+              {/* 줄1: [시리즈 순서(1열) + 관련 프로젝트(2열)] — 시리즈 없으면 관련 프로젝트 단독 */}
+              {(() => {
+                const seriesOrderEl = form.series_id ? (
+                  seriesPostsLoading ? (
+                    <div className={es.field} style={{ opacity: 0.5 }}>
+                      <label className={es.fieldLabel}>{te("seriesOrder")}</label>
+                      <div className={styles.seriesOrderSkeleton}>
+                        {[1, 2, 3].map((i) => (
+                          <span key={i} className={styles.seriesOrderSkeletonRow} />
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {form.series_id && !seriesPostsLoading && (() => {
-                const currentPostId = post?.id ?? "__new__";
-                const otherPosts = seriesPosts.filter((p) => p.id !== post?.id);
-                const currentItem = { id: currentPostId, title: form.title || te("currentPost"), series_order: form.series_order };
-                const allItems = [...otherPosts, currentItem].sort((a, b) => a.series_order - b.series_order);
-
-                const reorder = (fromIdx: number, toIdx: number) => {
-                  if (fromIdx === toIdx) return;
-                  const reordered = [...allItems];
-                  const [moved] = reordered.splice(fromIdx, 1);
-                  reordered.splice(toIdx, 0, moved);
-                  // 전체 순서 재할당 (1-based)
-                  const updates: { id: string; series_order: number }[] = [];
-                  reordered.forEach((item, i) => {
-                    const newOrder = i + 1;
-                    if (item.id === currentPostId) {
-                      updateField("series_order", newOrder);
-                    } else if (item.series_order !== newOrder) {
-                      updates.push({ id: item.id, series_order: newOrder });
-                    }
-                  });
-                  // 다른 게시물 순서 업데이트 (seriesPosts 로컬 상태도 반영)
-                  if (updates.length) {
-                    setSeriesPosts((prev) => prev.map((p) => {
-                      const u = updates.find((x) => x.id === p.id);
-                      return u ? { ...p, series_order: u.series_order } : p;
-                    }));
-                    // API로 다른 게시물 순서 저장
-                    updates.forEach((u) => {
-                      fetch(`/api/posts/${u.id}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ series_order: u.series_order }),
-                      });
-                    });
-                  }
-                };
-
-                const handleDragStart = (e: React.DragEvent, idx: number) => {
-                  setSeriesDragIdx(idx);
-                  e.dataTransfer.effectAllowed = "move";
-                };
-                const handleDragOver = (e: React.DragEvent, idx: number) => {
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = "move";
-                  if (seriesOverIdx !== idx) setSeriesOverIdx(idx);
-                };
-                const handleDragEnd = () => { setSeriesDragIdx(null); setSeriesOverIdx(null); };
-                const handleDrop = (e: React.DragEvent, targetIdx: number) => {
-                  e.preventDefault();
-                  if (seriesDragIdx !== null) reorder(seriesDragIdx, targetIdx);
-                  setSeriesDragIdx(null);
-                  setSeriesOverIdx(null);
-                };
-
-                return (
-                  <div className={es.field}>
-                    <label className={es.fieldLabel}>{te("seriesOrder")}</label>
-                    <LayoutGroup>
-                    <div className={styles.seriesOrderList}>
-                      {allItems.map((item, idx) => {
-                        const isCurrent = item.id === currentPostId;
-                        const isDragging = seriesDragIdx === idx;
-                        const showDropAbove = seriesOverIdx === idx && seriesDragIdx !== null && seriesDragIdx !== idx && seriesDragIdx > idx;
-                        const showDropBelow = seriesOverIdx === idx && seriesDragIdx !== null && seriesDragIdx !== idx && seriesDragIdx < idx;
-                        return (
-                          <motion.div
-                            key={item.id}
-                            layout
-                            transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.6 }}
-                            className={`${styles.seriesOrderItem} ${isCurrent ? styles.seriesOrderItemCurrent : ""} ${isDragging ? styles.seriesOrderItemDragging : ""} ${showDropAbove ? styles.seriesOrderItemDropAbove : ""} ${showDropBelow ? styles.seriesOrderItemDropBelow : ""}`}
-                            draggable
-                            // motion.div 의 onDragStart 등은 framer drag 시스템 타입과 충돌 → cast 로 우회
-                            onDragStart={((e: React.DragEvent<HTMLDivElement>) => handleDragStart(e, idx)) as unknown as React.ComponentProps<typeof motion.div>["onDragStart"]}
-                            onDragOver={((e: React.DragEvent<HTMLDivElement>) => handleDragOver(e, idx)) as unknown as React.ComponentProps<typeof motion.div>["onDragOver"]}
-                            onDragEnd={handleDragEnd}
-                            onDrop={((e: React.DragEvent<HTMLDivElement>) => handleDrop(e, idx)) as unknown as React.ComponentProps<typeof motion.div>["onDrop"]}
-                          >
-                            <span className={styles.seriesOrderGrip} data-cursor="grab">
-                              <GripVertical size={12} />
-                            </span>
-                            <span className={styles.seriesOrderNum}>{idx + 1}</span>
-                            <span className={styles.seriesOrderTitle}>{item.title || "Untitled"}</span>
-                            {isCurrent && (
-                              <div className={styles.seriesOrderBtns}>
-                                <button type="button" className={styles.numberBtn} disabled={idx === 0} onClick={() => reorder(idx, idx - 1)}>
-                                  <ChevronUp size={10} strokeWidth={2.5} />
-                                </button>
-                                <button type="button" className={styles.numberBtn} disabled={idx === allItems.length - 1} onClick={() => reorder(idx, idx + 1)}>
-                                  <ChevronDown size={10} strokeWidth={2.5} />
-                                </button>
-                              </div>
-                            )}
-                          </motion.div>
-                        );
-                      })}
                     </div>
-                    </LayoutGroup>
+                  ) : (
+                    <SortOrderDragList
+                      label={te("seriesOrder")}
+                      currentTitle={form.title || te("currentPost")}
+                      currentOrder={form.series_order || 1}
+                      // SortOrderDragList 의 sort_order 필드명에 맞게 매핑
+                      otherItems={seriesPosts
+                        .filter((p) => p.id !== post?.id)
+                        .map((p) => ({ id: p.id, title: p.title, sort_order: p.series_order }))
+                        .sort((a, b) => a.sort_order - b.sort_order)}
+                      onChange={(newOrder, otherUpdates) => {
+                        updateField("series_order", newOrder);
+                        if (otherUpdates.length) {
+                          setSeriesPosts((prev) => prev.map((p) => {
+                            const u = otherUpdates.find((x) => x.id === p.id);
+                            return u ? { ...p, series_order: u.sort_order } : p;
+                          }));
+                          otherUpdates.forEach((u) => {
+                            fetch(`/api/posts/${u.id}`, {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ series_order: u.sort_order }),
+                            });
+                          });
+                        }
+                      }}
+                    />
+                  )
+                ) : null;
+
+                const relatedWorksEl = (
+                  <div className={es.field}>
+                    <div className={es.fieldLabelRow}>
+                      <label className={es.fieldLabel}>{te("relatedWorks")}</label>
+                      {(form.related_work_ids ?? []).length === 0 && (
+                        <span className={es.fieldHint}>{te("relatedWorksEmpty")}</span>
+                      )}
+                    </div>
+                    <RelationPicker
+                      items={allWorks}
+                      selectedIds={form.related_work_ids ?? []}
+                      onChange={(ids) => updateField("related_work_ids", ids)}
+                      getId={(w) => w.id}
+                      getTitle={(w) => w.title}
+                      getMeta={(w) => w.year}
+                      getThumb={(w) => w.image}
+                      getStatus={(w) => (w.published ? "published" : "draft")}
+                      searchPlaceholder={te("relatedWorksSearch")}
+                      searchInputPlaceholder={te("relatedWorksSearchInput")}
+                      noResultsText={te("relatedWorksNoResults")}
+                    />
                   </div>
                 );
+
+                return seriesOrderEl ? (
+                  <div className={es.row}>
+                    {seriesOrderEl}
+                    {relatedWorksEl}
+                  </div>
+                ) : (
+                  relatedWorksEl
+                );
               })()}
-              {/* 줄2: [카테고리 + 태그] */}
+              {/* 줄2: [요약 + 태그] (1열 / 2열) */}
               <div className={es.row}>
-                <div className={es.field} data-seo="category">
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                    <label className={`${es.fieldLabel}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
-                    {form.series_id && (
-                      <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>{te("categoryFromSeries")}</span>
-                    )}
-                  </div>
-                  {(() => {
-                    const matched = isManagedCat(form.category);
-                    const isCustom = !!form.category && !matched;
-                    const selectValue = isCustom ? "__custom__" : (matched ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? ""));
-                    return (
-                      <>
-                        <Select
-                          value={selectValue}
-                          options={[
-                            { value: "__custom__", label: te("customCategory") },
-                            ...categories.map((cat) => ({ value: cat.ko, label: language === "ko" ? cat.ko : cat.en })),
-                          ]}
-                          onChange={(v) => {
-                            if (v === "__custom__") {
-                              updateField("category", "");
-                            } else {
-                              updateField("category", v);
-                            }
-                          }}
-                          disabled={!!form.series_id}
-                        />
-                        {(isCustom || selectValue === "__custom__") && !form.series_id && (
-                          <input
-                            className={es.fieldInput}
-                            type="text"
-                            value={form.category}
-                            onChange={(e) => updateField("category", e.target.value)}
-                            placeholder={te("category")}
-                            style={{ marginTop: "var(--spacing-xs)" }}
-                            autoFocus
-                          />
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-                <div className={es.field} style={{ flex: 1 }} data-seo="tags">
-                  <label className={es.fieldLabel}>{te("tags")}</label>
-                  <div>
-                    <div className={styles.tagInputRow}>
-                      <input className={es.fieldInput} type="text" value={tag.input} onChange={(e) => tag.setInput(e.target.value)} onKeyDown={tag.handleKeyDown} placeholder={te("tagsPlaceholder")} />
-                      <button type="button" className={styles.tagAddBtn} onClick={tag.add} disabled={!tag.input.trim()}>+</button>
-                    </div>
-                    {form.tags.length > 0 && <TagsList tags={form.tags} onRemove={tag.remove} />}
-                  </div>
-                </div>
-              </div>
-              {/* 줄3: [요약 + 커버이미지] — picker 열림 시 row stretch 로 excerpt 도 같이 늘어남 */}
-              <div className={`${es.row} ${(showCoverPicker || closingCoverPicker) && !form.cover_image ? styles.coverPickerOpenRow : ""}`}>
                 <div className={es.field} data-seo="excerpt">
                   <label className={es.fieldLabel}>{te("excerpt")}</label>
                   <textarea
@@ -1383,123 +1339,78 @@ export default function PostEditor({ post }: PostEditorProps) {
                     rows={2}
                   />
                 </div>
-
-                <div className={es.field} data-seo="cover">
-                  <div className={styles.coverLabelRow}>
-                    <label className={es.fieldLabel}>{te("coverImage")}</label>
-                    {form.cover_image && (
-                      <button
-                        type="button"
-                        className={styles.coverRemove}
-                        onClick={() => {
-                          updateField("cover_image", "");
-                          setShowCoverPicker(false);
-                        }}
-                      >
-                        {te("remove")}
-                      </button>
-                    )}
+                <div className={es.field} data-seo="tags">
+                  <label className={es.fieldLabel}>{te("tags")}</label>
+                  <div>
+                    <div className={styles.tagInputRow}>
+                      <input className={es.fieldInput} type="text" value={tag.input} onChange={(e) => tag.setInput(e.target.value)} onKeyDown={tag.handleKeyDown} placeholder={te("tagsPlaceholder")} />
+                      <button type="button" className={styles.tagAddBtn} onClick={tag.add} disabled={!tag.input.trim()}>+</button>
+                    </div>
+                    {form.tags.length > 0 && <TagsList tags={form.tags} onRemove={tag.remove} />}
                   </div>
-                  {form.cover_image ? (
-                    <div className={styles.coverPreview}>
-                      {/* 깨진 이미지면 public/images/placeholder.svg 로 대체 */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={coverImgError ? "/images/placeholder.svg" : form.cover_image}
-                        alt="Cover"
-                        width={160}
-                        height={90}
-                        className={styles.coverThumb}
-                        onError={() => setCoverImgError(true)}
-                      />
-                    </div>
-                  ) : (
-                    <div className={styles.coverActions}>
-                      <button
-                        type="button"
-                        className={es.uploadBtn}
-                        onClick={handleCoverUpload}
-                      >
-                        {te("upload")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`${es.uploadBtn} ${styles.coverToggleBtn}`}
-                        onClick={() => {
-                          if (showCoverPicker && !closingCoverPicker) {
-                            requestCloseCoverPicker();
-                          } else if (!showCoverPicker) {
-                            setShowCoverPicker(true);
-                          }
-                        }}
-                      >
-                        <AnimatePresence mode="wait" initial={false}>
-                          <motion.span
-                            key={showCoverPicker && !closingCoverPicker ? "close" : "open"}
-                            initial={{ opacity: 0, y: 4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -4 }}
-                            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-                            style={{ display: "inline-block" }}
-                          >
-                            {showCoverPicker && !closingCoverPicker ? te("closePicker") : te("chooseCover")}
-                          </motion.span>
-                        </AnimatePresence>
-                      </button>
-                    </div>
-                  )}
-                  {showCoverPicker && !form.cover_image && (
-                    <CoverImagePicker
-                      onSelect={(url) => {
-                        updateField("cover_image", url);
-                        // 선택 직후엔 닫는 애니메이션 없이 즉시 unmount (커버 이미지 미리보기로 전환)
-                        setShowCoverPicker(false);
-                        setClosingCoverPicker(false);
-                      }}
-                      onClose={requestCloseCoverPicker}
-                      closing={closingCoverPicker}
-                      postContext={{
-                        title: form.title,
-                        tags: form.tags,
-                        excerpt: form.excerpt,
-                      }}
-                    />
-                  )}
                 </div>
               </div>
-              {/* 줄4: [GitHub URL] */}
-              <div className={es.field}>
-                <label className={es.fieldLabel}>GitHub URL</label>
-                <input
-                  className={es.fieldInput}
-                  type="url"
-                  value={form.github_url}
-                  onChange={(e) => updateField("github_url", e.target.value)}
-                  placeholder="https://github.com/..."
+              {/* 줄3: [커버이미지 라벨/thumb/버튼(1열)] + [GitHub URL(2열)]
+                  picker 본체는 row 밖 full-width 로 렌더 → 좁은 column 에 squeeze 되거나
+                  optional wrapper 에 닿는 문제 회피 */}
+              <div className={es.row}>
+                <CoverImageField
+                  value={form.cover_image}
+                  onChange={(url) => {
+                    updateField("cover_image", url);
+                    if (!url) setShowCoverPicker(false);
+                  }}
+                  label={te("coverImage")}
+                  removeLabel={te("remove")}
+                  uploadLabel={te("upload")}
+                  chooseLabel={te("chooseCover")}
+                  closeLabel={te("closePicker")}
+                  onUpload={handleCoverUpload}
+                  pickerOpen={showCoverPicker}
+                  pickerClosing={closingCoverPicker}
+                  onPickerToggle={() => {
+                    if (showCoverPicker && !closingCoverPicker) {
+                      requestCloseCoverPicker();
+                    } else if (!showCoverPicker) {
+                      setShowCoverPicker(true);
+                    }
+                  }}
+                  seoId="cover"
                 />
-              </div>
-              {/* 줄5: [관련 프로젝트] */}
-              <div className={es.field}>
-                <div className={es.fieldLabelRow}>
-                  <label className={es.fieldLabel}>{te("relatedWorks")}</label>
-                  {(form.related_work_ids ?? []).length === 0 && (
-                    <span className={es.fieldHint}>{te("relatedWorksEmpty")}</span>
-                  )}
+                {/* 2열: GitHub URL */}
+                <div className={es.field}>
+                  <label className={es.fieldLabel}>GitHub URL</label>
+                  <input
+                    className={es.fieldInput}
+                    type="url"
+                    value={form.github_url}
+                    onChange={(e) => updateField("github_url", e.target.value)}
+                    placeholder="https://github.com/..."
+                  />
                 </div>
-                <RelationPicker
-                  items={allWorks}
-                  selectedIds={form.related_work_ids ?? []}
-                  onChange={(ids) => updateField("related_work_ids", ids)}
-                  getId={(w) => w.id}
-                  getTitle={(w) => w.title}
-                  getMeta={(w) => w.year}
-                  getThumb={(w) => w.image}
-                  getStatus={(w) => (w.published ? "published" : "draft")}
-                  searchPlaceholder={te("relatedWorksSearch")}
-                  searchInputPlaceholder={te("relatedWorksSearchInput")}
-                  noResultsText={te("relatedWorksNoResults")}
-                />
               </div>
+              {/* picker — full-width (col 안에 두면 좁은 폭에 squeeze + wrapper 와 닿음).
+                  cover_image 세팅 후에도 유지 — AI auto-save 시 picker 가 사라지면 재생성 불가능 */}
+              {showCoverPicker && (
+                <CoverImagePicker
+                  onSelect={(url) => {
+                    updateField("cover_image", url);
+                    // 선택 직후엔 닫는 애니메이션 없이 즉시 unmount (커버 이미지 미리보기로 전환)
+                    setShowCoverPicker(false);
+                    setClosingCoverPicker(false);
+                  }}
+                  onClose={requestCloseCoverPicker}
+                  closing={closingCoverPicker}
+                  // AI 생성 즉시 form 에 반영 (picker 유지) — 사용자가 "사용" 안 눌러도 자동저장
+                  onAutoSave={(url) => updateField("cover_image", url)}
+                  currentUrl={form.cover_image}
+                  postContext={{
+                    title: form.title,
+                    tags: form.tags,
+                    excerpt: form.excerpt,
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -110,8 +110,10 @@ async function generateWithHuggingFace(fullPrompt: string): Promise<ArrayBuffer>
   );
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Hugging Face error (${res.status}): ${text.slice(0, 200)}`);
+    // 응답 본문에 토큰 echo 가능 — 클라이언트로 노출 금지. 서버 로그만 남기고 generic 메시지 반환
+    const raw = await res.text().catch(() => "");
+    console.error("[cover/ai-generate] HF error", res.status, raw.slice(0, 500));
+    throw new Error(`Hugging Face error (${res.status})`);
   }
 
   return res.arrayBuffer();
@@ -191,5 +193,18 @@ export async function POST(request: Request) {
   }
 
   const status = lastError.includes("not configured") ? 503 : 502;
-  return NextResponse.json({ error: lastError }, { status });
+  return NextResponse.json({ error: sanitizeError(lastError) }, { status });
+}
+
+/** 에러 메시지에 섞여 있을 수 있는 API 토큰/key 패턴 마스킹 */
+function sanitizeError(msg: string): string {
+  return msg
+    // hf_..., sk_..., nb_... 등 prefix_ 형태 토큰
+    .replace(/\b[a-z]{2,4}_[A-Za-z0-9]{16,}/g, "[REDACTED]")
+    // Bearer xxx
+    .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, "Bearer [REDACTED]")
+    // Authorization 헤더 형태
+    .replace(/Authorization:\s*[^\s,;}]+/gi, "Authorization: [REDACTED]")
+    // 30자 이상 base64-ish 문자열 (일반적 API key 모양)
+    .replace(/\b[A-Za-z0-9_-]{30,}\b/g, "[REDACTED]");
 }

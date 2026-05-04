@@ -31,6 +31,9 @@
 }
 
 .backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
@@ -39,6 +42,16 @@
 
 .topBar .backLink:hover {
   color: var(--text-primary);
+}
+
+/* compound selector (0,2,0) — 글로벌 theme transition (0,1,1) 이김. transform 은 글로벌 규칙에 없음 */
+.backLink .backArrow {
+  flex-shrink: 0;
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.backLink:hover .backArrow {
+  transform: translateX(-3px);
 }
 
 .topBarRow:last-child {
@@ -263,7 +276,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--box-sm-md);
+  padding: var(--box-md);
   border-bottom: var(--border-light);
 }
 
@@ -538,9 +551,12 @@
 
 .row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0, 1fr) — grid track 의 default min-width:auto 가 컨텐츠 폭 따라 부풀어
+     좁은 viewport 에서 가로 overflow 발생하는 문제 방지 (palette/긴 URL input 등) */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--spacing-xl);
   align-items: start;
+  min-width: 0;
 }
 
 .field {
@@ -551,6 +567,10 @@
 }
 
 .fieldLabel {
+  /* 옆에 버튼(--size-2xs = 20px) 이 있든 없든 헤더 라인 높이를 일관 유지 */
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--size-2xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 600;
@@ -562,9 +582,10 @@
 /* 라벨 + 보조 hint 가 같은 라인에 위치할 때 사용. 라벨은 좌측, hint 는 우측 부드러운 톤 */
 .fieldLabelRow {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
+  min-height: var(--size-2xs);
 }
 
 .fieldLabelRow .fieldLabel {
@@ -801,7 +822,7 @@
 
 @media (max-width: 768px) {
   .row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .titleInput {

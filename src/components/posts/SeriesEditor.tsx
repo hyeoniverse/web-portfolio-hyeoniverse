@@ -217,7 +217,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
   return (
     <AdminEditorShell
       backHref="/admin/posts"
-      backLabel={`← ${t("admin.posts.title")}`}
+      backLabel={t("admin.posts.title")}
       editorLang={editorLang}
       onEditorLangChange={setEditorLang}
       isEdit={isEdit}
