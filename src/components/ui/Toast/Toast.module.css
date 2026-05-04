@@ -1,0 +1,60 @@
+/* ──────────────────────────────────────────────────────────────────
+   Toast — 글로벌 비차단 피드백. 화면 하단 중앙에 stack
+   ────────────────────────────────────────────────────────────────── */
+.container {
+  position: fixed;
+  bottom: var(--spacing-2xl);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  pointer-events: auto;
+  cursor: pointer;
+  max-width: min(90vw, 480px);
+}
+
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.success {
+  color: var(--text-success, #10b981);
+}
+
+.error {
+  color: var(--text-accent);
+}
+
+.info {
+  color: var(--text-secondary);
+}
