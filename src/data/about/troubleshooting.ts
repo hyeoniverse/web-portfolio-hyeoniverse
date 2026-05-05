@@ -157,6 +157,23 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         ],
       } satisfies TroubleshootingDiagram,
     ],
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "사용 provider 수", en: "Providers used per call" }, { ko: "한 곳만", en: "One only" }, { ko: "기본 + 백업 N개", en: "Primary + N backups" }] },
+          { cells: [{ ko: "기본 provider 실패 시", en: "On primary failure" }, { ko: "에러 그대로 노출", en: "Error surfaces to user" }, { ko: "다음 백업 자동 시도", en: "Auto-fallback to next" }] },
+          { cells: [{ ko: "API 키 없는 provider", en: "Provider without API key" }, { ko: "호출 후 401/403 에러", en: "Called → 401/403 error" }, { ko: "호출 자체 건너뜀", en: "Skipped pre-network" }] },
+          { cells: [{ ko: "배치 번역 부분 실패", en: "Partial batch failure" }, { ko: "결과 부족한 채로 저장", en: "Saved with missing rows" }, { ko: "개수 불일치 → 다음 백업", en: "Count mismatch → next backup" }] },
+          { cells: [{ ko: "사용자 경험", en: "User experience" }, { ko: "기능이 \"가끔 죽음\"", en: "Feature \"sometimes dies\"" }, { ko: "어떤 회사가 죽어도 동작", en: "Works through outages" }], highlight: true },
+        ],
+      } satisfies ComparisonTable,
+    ],
   },
   {
     problem: { ko: "API 키 변경마다 재배포가 필요", en: "Every API Key Change Requires Redeployment" },
@@ -648,6 +665,26 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       ko: "**CSS `transition` 은 shorthand 라서 \"나열하지 않은 속성의 transition 까지 통째로 초기화\"** 합니다. 일반 속성처럼 \"덮어쓰는\" 게 아니라 \"교체\" 합니다.\n\n전역에 `*` 선택자로 transition 을 걸 때는 shorthand 대신 `transition-property` 와 `transition-duration` 을 개별 지정하거나, 영향 받는 컴포넌트의 specificity 를 미리 한 단계 높여 두는 게 안전합니다.",
       en: "**CSS `transition` is a shorthand — it doesn't \"override\", it \"replaces\"**, including transitions for properties you didn't list.\n\nWhen applying transitions globally with `*`, prefer `transition-property` + `transition-duration` written separately, or pre-emptively give affected components a higher-specificity selector so they can win.",
     },
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "컴포넌트 선택자", en: "Component selector" }, { ko: ".modal (단일, 0,1,0)", en: ".modal (single, 0,1,0)" }, { ko: ".modalWrap .modal (복합, 0,2,0)", en: ".modalWrap .modal (compound, 0,2,0)" }] },
+          { cells: [{ ko: "글로벌 vs 컴포넌트 우선순위", en: "Global vs component priority" }, { ko: "글로벌 (0,1,1) 이 이김", en: "Global (0,1,1) wins" }, { ko: "컴포넌트 (0,2,0) 이 이김", en: "Component (0,2,0) wins" }] },
+          { cells: [{ ko: "토글/모달 펼침 효과", en: "Toggle / modal animation" }, { ko: "한 번에 \"툭\" 나타남", en: "Snaps in instantly" }, { ko: "부드럽게 펼쳐짐", en: "Smoothly expands" }] },
+          { cells: [{ ko: "테마 전환 색상 transition", en: "Theme color transition" }, { ko: "정상 동작 (그쪽은 글로벌)", en: "OK (that's the global)" }, { ko: "정상 동작 (영향 없음)", en: "Still OK (untouched)" }] },
+        ],
+        description: {
+          ko: "한 줄 요약: **컴포넌트 쪽에 \"부모 클래스 + 자식 클래스\" 두 단을 묶기만 해도** 글로벌 shorthand 를 안전하게 우회할 수 있습니다.",
+          en: "TL;DR: **just chaining \"parent + child\" two classes on the component** safely bypasses the global shorthand.",
+        },
+      } satisfies ComparisonTable,
+    ],
   },
   {
     problem: { ko: "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴", en: "CSS Module Hash Collision Collapsing Desktop Layout" },
@@ -968,6 +1005,24 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       ko: "자동저장의 본질은 \"언제 저장할까?\" 보다 **\"언제 저장하지 않을까?\"** 입니다.\n\n비교 기준값을 정확히 초기화해 ② **\"내용이 안 바뀌었는데 저장하는\"** 경우를 막고, ③ **사용자가 무시한 임시본은 다시 묻지 않도록** 추적해야 \"의미 있는 변경\" 만 기록으로 남습니다.\n\n그렇지 않으면 한 시간 작업했을 때 \"단어 하나 추가했음\" 짜리 임시본이 수십 개씩 쌓여, 정작 되돌리고 싶은 시점을 찾을 수 없게 됩니다. \"많이 저장 = 안전\" 이 직관 같지만, 실은 **\"의미 있는 시점만 저장 = 안전\"** 인 거죠.",
       en: "Auto-save is fundamentally less about **\"when to save\"** and more about **\"when NOT to save\"**.\n\nGet the baseline right so ② **\"save with no real change\"** stops, and ③ **dismissed drafts stay dismissed** — that's how only \"meaningful changes\" make it into the history.\n\nOtherwise, an hour of writing leaves dozens of \"added one word\" drafts piled up, and you can't find the checkpoint you actually wanted. The intuition \"save more = safer\" is wrong — the real principle is **\"save only meaningful moments = safer\"**.",
     },
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "저장 위치", en: "Storage" }, { ko: "브라우저 localStorage", en: "Browser localStorage" }, { ko: "Supabase DB (revisions 테이블)", en: "Supabase DB (revisions table)" }] },
+          { cells: [{ ko: "다른 기기에서 보기", en: "Cross-device" }, { ko: "✗ 불가능", en: "✗ Impossible" }, { ko: "✓ 로그인하면 따라옴", en: "✓ Follows the user" }] },
+          { cells: [{ ko: "새로고침 시 동작", en: "On refresh" }, { ko: "내용 안 바뀌어도 저장", en: "Saves with no real change" }, { ko: "진짜 변화만 저장", en: "Only real changes save" }] },
+          { cells: [{ ko: "\"불러오기\" 알림 무시 후", en: "After dismissing \"Restore?\"" }, { ko: "새로고침마다 또 물어봄", en: "Re-prompts on every reload" }, { ko: "한 번 무시하면 끝", en: "Stays dismissed" }] },
+          { cells: [{ ko: "브라우저 닫기 직전 변경", en: "Edit just before close" }, { ko: "타이머 못 도달해 유실", en: "Lost — timer didn't fire" }, { ko: "sendBeacon 으로 보장 전송", en: "Guaranteed via sendBeacon" }], highlight: true },
+          { cells: [{ ko: "1시간 작업 후 버전 수", en: "Versions after 1h work" }, { ko: "수십 개 (대부분 사소)", en: "Dozens (mostly trivial)" }, { ko: "의미 있는 변화 시점만", en: "Only meaningful moments" }] },
+        ],
+      } satisfies ComparisonTable,
+    ],
   },
   {
     section: { ko: "에디터 / 직렬화", en: "Editor / Serialization" },
@@ -1171,6 +1226,23 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       ko: "`backdrop-filter` 는 요소와 **동일한 compositing layer 안의 배경만** 샘플링할 수 있습니다.\n\n조상 중 누군가 `transform`, `will-change: transform`, `filter`, `mask`, `isolation: isolate` 등으로 layer 를 승격시키면, 그 경계 너머의 배경은 \"없는 것\" 으로 처리됩니다.\n\n버튼 호버 같은 국소 blur 가 필요할 때는 **조상 경로 어디에도 layer 승격 속성이 없는지** 먼저 확인해야 합니다.\n\n그리고 transform 기반 애니메이션은 끝난 뒤에도 compositing hint 를 남기는 경우가 많으니, 한 번만 실행되는 진입 애니메이션이라면 **layout 속성 (margin, padding, width) 으로 대체할 수 있는지** 고민해 볼 가치가 있습니다.",
       en: "`backdrop-filter` can only sample the backdrop **within the same compositing layer** as the element.\n\nIf any ancestor promotes itself via `transform`, `will-change: transform`, `filter`, `mask`, `isolation: isolate`, etc., the backdrop beyond that boundary is treated as nonexistent.\n\nFor localized blur effects (like hover), **verify nothing in the ancestor chain has a layer-promoting property** before debugging the filter itself.\n\nAnd transform-based animations often leave compositing hints behind even after they finish — for one-shot entrance animations, it's worth asking whether **layout properties (margin, padding, width) can replace them**.",
     },
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "진입 애니메이션 속성", en: "Entrance animation property" }, { ko: "y (transform 기반)", en: "y (transform-based)" }, { ko: "marginTop (layout 기반)", en: "marginTop (layout-based)" }] },
+          { cells: [{ ko: "별도 GPU layer 생성", en: "Promotes a GPU layer" }, { ko: "✓ 됨 (compositing layer)", en: "✓ Yes (compositing layer)" }, { ko: "✗ 안 됨", en: "✗ No" }] },
+          { cells: [{ ko: "Chrome 호버 blur", en: "Chrome hover blur" }, { ko: "✗ 안 보임", en: "✗ Not visible" }, { ko: "✓ 정상 표시", en: "✓ Works" }] },
+          { cells: [{ ko: "vendor prefix", en: "Vendor prefix" }, { ko: "-webkit-backdrop-filter 포함", en: "-webkit-backdrop-filter included" }, { ko: "표준 속성만 (제거)", en: "Standard only (removed)" }] },
+          { cells: [{ ko: "유리창 너머 커피 canvas 효과", en: "\"Glass over coffee canvas\" effect" }, { ko: "단순 반투명 tint 만", en: "Just a faint tint" }, { ko: "실제 blur 동작", en: "Real blur behavior" }], highlight: true },
+        ],
+      } satisfies ComparisonTable,
+    ],
   },
   {
     section: { ko: "Frontend / Editor", en: "Frontend / Editor" },
@@ -1243,6 +1315,23 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "Two lessons:\n\n**① Don't make animation lifecycle callbacks the sole trigger for critical state transitions.**\n\nCallbacks like `onAnimationStart` / `onAnimationComplete` can silently skip firing when \"start equals end\" (a no-op), and their behavior varies by library version and render timing. Always pair them with a `useEffect`-based fallback or a setTimeout safety net so the system survives even if the callback never fires.\n\n**② In morphing transitions, never forget the visual contract: shrinking the overlay exposes what's beneath.**\n\nIn a Suspense-aware environment with a skeleton fallback, if morph finishes before the new page is ready, the skeleton flashes through.\n\nThere are only two fixes — (a) keep a backdrop covering the full viewport even after the morph, or (b) defer morph until the new page actually mounts. Both come down to **\"keep the overlay's visual state synchronized with the actual page state\"**.",
     },
     tags: ["framer-motion", "transition", "suspense", "skeleton", "lifecycle"],
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "오버레이 dismiss 트리거", en: "Dismiss trigger" }, { ko: "framer-motion onAnimationStart 콜백", en: "framer-motion onAnimationStart callback" }, { ko: "새 페이지 useEffect mount", en: "New page's useEffect mount" }] },
+          { cells: [{ ko: "콜백이 안 불릴 때", en: "If the callback never fires" }, { ko: "오버레이 영원히 잠김", en: "Overlay stuck forever" }, { ko: "5초 안전망 타이머로 강제 해제", en: "5s backstop force-dismisses" }] },
+          { cells: [{ ko: "morph 후 backdrop 범위", en: "Backdrop after morph" }, { ko: "hero 영역만큼만 덮음", en: "Only the hero area" }, { ko: "화면 전체 덮음", en: "Full viewport" }] },
+          { cells: [{ ko: "스켈레톤 노출", en: "Skeleton flash" }, { ko: "✗ morph 직후 깜빡 보임", en: "✗ Brief flash after morph" }, { ko: "✓ 새 페이지 mount 까지 가림", en: "✓ Hidden until new page mounts" }] },
+          { cells: [{ ko: "캐시 hit (빠른 mount)", en: "Cache hit (fast mount)" }, { ko: "고정 1초 morph 대기", en: "Always waits ~1s for morph" }, { ko: "endRequestedRef 로 즉시 done", en: "endRequestedRef short-circuits to done" }] },
+        ],
+      } satisfies ComparisonTable,
+    ],
   },
   {
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
@@ -1267,6 +1356,23 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "CSS-only masonry is still experimental — `grid-template-rows: masonry` ships in Firefox only, not Chrome.\n\nThe de facto standard for gap-free packing is the hybrid: **shred row tracks to 1px, then have JS assign spans from measured heights**.\n\n`firstElementChild.scrollHeight` is the most accurate measurement source — wrapper padding doesn't get added in, so the pixel total matches the real content height. And recompute on both image `onLoad` and `ResizeObserver` so spans stay correct after late-loading fonts or images.",
     },
     tags: ["CSS Grid", "masonry", "ResizeObserver", "bento", "Posts"],
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "row 단위", en: "Row unit" }, { ko: "auto (가장 큰 카드 기준)", en: "auto (matches tallest card)" }, { ko: "1px (잘게 쪼갬)", en: "1px (fine slicing)" }] },
+          { cells: [{ ko: "카드별 row 차지", en: "Card row span" }, { ko: "1 row 고정", en: "Fixed 1 row" }, { ko: "JS 측정 높이로 span N", en: "span N from measured height" }] },
+          { cells: [{ ko: "작은 카드 아래 여백", en: "Gap under smaller cards" }, { ko: "큰 카드 높이만큼 빈칸", en: "Empty space = height delta" }, { ko: "다른 카드가 backfill", en: "Other cards backfill" }] },
+          { cells: [{ ko: "이미지 늦게 로드 시", en: "Late image loads" }, { ko: "처음 측정값으로 굳음", en: "Frozen at initial measurement" }, { ko: "onLoad 로 재측정 + ResizeObserver", en: "Recompute via onLoad + ResizeObserver" }] },
+          { cells: [{ ko: "전체 빈 공간", en: "Total empty space" }, { ko: "변동 큼 (variant 비율 따라)", en: "Varies by variant ratios" }, { ko: "거의 0 (Pinterest 같은 packing)", en: "Near zero (Pinterest-like packing)" }], highlight: true },
+        ],
+      } satisfies ComparisonTable,
+    ],
   },
   {
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
@@ -1387,6 +1493,24 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "Native HTML5 D&D is optimized for \"dragging an image or file from one OS app to another\".\n\nFor **in-page micro-reorder of chips or list items**, the spec's quirks pile up — state-driven `draggable` mismatch, source-unmount cancellation, child-click absorption, asymmetric reorder, awkward custom drag images, and more.\n\nFor small reorder UIs, **writing pointer-event drag from scratch ends up shorter and more consistent**. A useful reminder that \"a standard API exists\" doesn't always mean \"the standard API is the right tool\".",
     },
     tags: ["HTML5 drag", "pointer events", "drag-and-drop", "chip", "pagination", "elementFromPoint"],
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전 (HTML5 D&D)", en: "Before (HTML5 D&D)" },
+          { ko: "수정 후 (Pointer events)", en: "After (Pointer events)" },
+        ],
+        rows: [
+          { cells: [{ ko: "드래그 시작", en: "Drag start" }, { ko: "draggable 속성 + dragstart", en: "draggable attr + dragstart" }, { ko: "pointerdown 직접 처리", en: "Direct pointerdown handler" }] },
+          { cells: [{ ko: "state 토글로 draggable 변경", en: "State-toggled draggable" }, { ko: "✗ batching 으로 첫 시도 누락", en: "✗ Batching makes 1st try miss" }, { ko: "✓ 해당 없음 (속성 안 씀)", en: "✓ N/A (no attribute)" }] },
+          { cells: [{ ko: "앞→뒤 vs 뒤→앞 정렬", en: "Front↔back reorder" }, { ko: "✗ 비대칭 동작", en: "✗ Asymmetric" }, { ko: "✓ 일관된 동작", en: "✓ Consistent" }] },
+          { cells: [{ ko: "페이지 전환 시 source unmount", en: "Source unmount on page change" }, { ko: "✗ 즉시 cancel", en: "✗ Drag cancels" }, { ko: "✓ apply() 로 reorder, 살아남음", en: "✓ apply() reorders, stays mounted" }] },
+          { cells: [{ ko: "자식 click (×) 동작", en: "Child click (×) works" }, { ko: "setPointerCapture 사용 시 흡수됨", en: "Absorbed if setPointerCapture used" }, { ko: "✓ 보존 (capture 미사용)", en: "✓ Preserved (no capture)" }] },
+          { cells: [{ ko: "코드 양", en: "Lines of code" }, { ko: "quirks 우회 코드 누적", en: "Workaround code piles up" }, { ko: "더 짧고 명확", en: "Shorter, clearer" }], highlight: true },
+        ],
+      } satisfies ComparisonTable,
+    ],
   },
   {
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
@@ -1435,6 +1559,23 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "This one case packs four facts about the React / native-DOM boundary:\n\n**① `dangerouslySetInnerHTML` is React's synthetic-event blind spot** — no delegation, so `addEventListener` is the only path.\n\n**② Already-finished images don't refire `error` retroactively** — pair the listener with a synchronous `complete && naturalWidth === 0` check.\n\n**③ Swapping `src` alone lets `srcset` retry stale candidates** — always pair the swap with `removeAttribute(\"srcset\")`.\n\n**④ A one-shot `querySelectorAll` misses dynamic content** — track incrementally with MutationObserver.\n\nEach is minor on its own, but missing any one creates the \"why doesn't fallback work for *this* image?\" trap.",
     },
     tags: ["dangerouslySetInnerHTML", "MutationObserver", "image fallback", "onError", "richtext", "MarkdownRenderer"],
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "이벤트 부착 방식", en: "Event binding" }, { ko: "JSX 만 onError prop", en: "Only JSX `onError` prop" }, { ko: "JSX + native addEventListener", en: "JSX + native addEventListener" }] },
+          { cells: [{ ko: "마크다운/richtext 의 깨진 img", en: "Broken img in markdown/richtext" }, { ko: "✗ 그대로 노출", en: "✗ Stays visible" }, { ko: "✓ placeholder 로 swap", en: "✓ Swaps to placeholder" }] },
+          { cells: [{ ko: "이미 실패 상태의 img", en: "Already-failed images" }, { ko: "✗ error 재발화 안 됨 → 못 잡음", en: "✗ Error doesn't refire" }, { ko: "✓ complete + naturalWidth 동기 체크", en: "✓ Sync `complete && naturalWidth===0`" }] },
+          { cells: [{ ko: "동적으로 추가되는 img", en: "Dynamically added imgs" }, { ko: "✗ querySelectorAll 단발 → 누락", en: "✗ One-shot querySelectorAll misses" }, { ko: "✓ MutationObserver 추적", en: "✓ MutationObserver tracks" }] },
+          { cells: [{ ko: "swap 후 srcset 재시도", en: "srcset retry after swap" }, { ko: "✗ 깨진 후보 다시 시도", en: "✗ Browser retries broken candidates" }, { ko: "✓ removeAttribute(srcset)", en: "✓ removeAttribute(srcset)" }] },
+        ],
+      } satisfies ComparisonTable,
+    ],
   },
   {
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
@@ -1483,6 +1624,23 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "Three generalizable lessons from this case:\n\n**① An `position: absolute` child contributes nothing to its parent's box.** A component that accepts arbitrary render-prop children can't trust the wrapper's `getBoundingClientRect()` — it silently breaks the moment the child is absolute.\n\n**② Prefer the child (or nearest visible descendant) over the wrapper for measurement.** Whatever CSS the consumer applies, the child still has its own viewport coordinates; the wrapper inherits its size from the child.\n\n**③ Debug tip** — when a popover anchors to the wrong spot, log `el.getBoundingClientRect()` for both the wrapper and the child in DevTools. A 0×0 wrapper is the smoking gun.",
     },
     tags: ["ColorPicker", "render-prop", "getBoundingClientRect", "position: absolute", "popover", "portal"],
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "popover 좌표 측정 대상", en: "Position measurement target" }, { ko: "wrapper `<span>`", en: "wrapper `<span>`" }, { ko: "wrapper.firstElementChild 우선", en: "wrapper.firstElementChild preferred" }] },
+          { cells: [{ ko: "trigger 자식이 position:absolute", en: "Trigger child uses position:absolute" }, { ko: "wrapper 가 0×0 으로 collapse", en: "Wrapper collapses to 0×0" }, { ko: "자식 rect 로 정확히 측정", en: "Child rect measured correctly" }] },
+          { cells: [{ ko: "stop 별 popover 위치", en: "Per-stop popover position" }, { ko: "모두 (0, stopBar.top) 동일", en: "All same `(0, stopBar.top)`" }, { ko: "stop handle 좌표대로 정렬", en: "Aligns with each handle" }] },
+          { cells: [{ ko: "일반 swatch trigger", en: "Plain swatch trigger" }, { ko: "정상 (자식이 normal flow)", en: "OK (child in flow)" }, { ko: "정상 (변화 없음)", en: "OK (unchanged)" }] },
+          { cells: [{ ko: "자식 없거나 hidden", en: "No child / hidden" }, { ko: "0×0 그대로", en: "Still 0×0" }, { ko: "wrapper rect 로 fallback", en: "Falls back to wrapper rect" }] },
+        ],
+      } satisfies ComparisonTable,
+    ],
   },
 ];
 
