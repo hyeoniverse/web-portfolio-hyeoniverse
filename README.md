@@ -535,7 +535,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 46건의 이슈 해결 과정입니다. 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트)으로 분류하고 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 46건의 이슈 중 핵심 13건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
 
 | # | 이슈 | 핵심 |
 |:---:|:---|:---|

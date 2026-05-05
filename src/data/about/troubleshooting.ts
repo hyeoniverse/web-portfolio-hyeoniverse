@@ -1486,15 +1486,78 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
   },
 ];
 
-// ── 후처리 — 메타 적용 + 섹션 정렬 + 난이도 정렬 + 중복 제거 ─────────
-// "테마 전환 글로벌 transition" 항목은 "글로벌 transition shorthand" 와 동일 이슈라 중복 제거
+// ── 후처리 — 메타 적용 + 섹션 정렬 + 난이도 정렬 + 중복/숨김 필터 ─────────
+
+/** 동일 이슈를 다른 각도에서 한 번 더 다룬 항목 — 영구 제거 */
 const DUPLICATE_PROBLEMS = new Set<string>([
-  "테마 전환 글로벌 transition이 컴포넌트 애니메이션 덮어쓰기",
+  "테마 전환 글로벌 transition이 컴포넌트 애니메이션 덮어쓰기", // = "글로벌 transition shorthand"
+]);
+
+/**
+ * 현재 노출 항목을 핵심 13개로 추리기 위해 임시로 숨긴 항목들.
+ * 데이터(rawTroubleShootingItems) 는 그대로 유지 — 다시 노출하려면 이 Set 에서 항목만 제거.
+ *
+ * 선정 기준 (상위에 남긴 항목):
+ *   - 난이도 3 + recommended ★ 우선
+ *   - 섹션 다양성 (각 섹션 1~3개)
+ *   - 인사이트의 일반화 가능성 (특정 라이브러리/엣지케이스 보다 패턴 학습)
+ *
+ * 결과: 46 → 13 (Architecture 3, Performance 2, Layout 3, Editor 1, Interaction 3, Component 1)
+ */
+const HIDDEN_PROBLEMS = new Set<string>([
+  // Architecture & Backend (4 hidden)
+  "API 키 변경마다 재배포가 필요",
+  "비회원 댓글에서 본인 확인이 번거로움",
+  "에디터 자동저장 주기가 너무 잦아 리비전이 의미 없이 누적됨", // ↪ "localStorage → DB" 항목에 사실상 통합
+  "카테고리 자동 보정으로 리비전 프롬프트가 무한 반복",
+
+  // Performance (4 hidden)
+  "mousemove마다 React 리렌더 (60fps 성능 저하)", // 기초적
+  "Three.js LatheGeometry 컵에 Canvas 2D 라떼아트 텍스처 합성 — 두 개 평면이 만나는 부분의 자연스러운 블렌딩",
+  "GSAP ScrollTrigger 수평 무한 스크롤 — 양방향 무한 wrapping",
+  "LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생",
+
+  // Layout & CSS (7 hidden)
+  "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐",
+  "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴",
+  "CSS 토큰 미정의 — 11개 파일에서 참조하지만 선언 없음",
+  "Admin 테이블 모바일 가로 스크롤 시 row border가 중간에서 끊김",
+  "sticky filterBar IntersectionObserver — 인기글 사이드바와 1px 어긋남",
+  "Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감",
+  "커버 이미지 팔레트 등 grid 자식이 viewport 밖으로 잘려 나감 — `.row { grid-template-columns: 1fr 1fr }` 의 함정",
+
+  // Plate Editor (13 hidden — 토글/콜아웃 한 항목만 노출)
+  "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐",
+  "Plate 에디터에서 컨텍스트 툴바 표시 시 커서가 멋대로 튐",
+  "제목(heading) 안 각주가 마크다운 변환 시 처리 안 됨",
+  "Plate inline void 노드에서 클릭 vs 키보드 구분 불가",
+  "인라인 이미지 양옆에 커서 배치·텍스트 입력 불가",
+  "마크다운 각주 번호 꼬임 — heading renderer 충돌",
+  "열블록 스타일 round-trip 유실", // ↪ "토글/콜아웃/열블록 콘텐츠 사라짐" 과 주제 겹침
+  "YouTube embed URL — watch URL이 iframe에서 로드 실패",
+  "이미지 리사이즈 핸들 클릭 시 이미지가 삭제됨",
+  "에디터 툴바 active 상태 — wrapper 블록 감지 실패",
+  "각주 참조/내용 정합성 — 한쪽 삭제 시 고아 노드 잔존",
+  "링크 클릭 시 즉시 이동 — 에디터에서 링크 편집 불가",
+  "Plate 인라인 코드에서 방향키 커서 점프",
+
+  // Animation & Interaction (4 hidden)
+  "커스텀 커서 리사이즈 모드에서 마우스 방향에 따라 커서 회전",
+  "Series Deck — hover 펼침이 \"사라졌다 나타나는\" 느낌",
+  "Series Deck spread — `setPointerCapture` 가 자식 click 차단 + hit-area 공백으로 flicker", // ↪ HTML5 D&D 항목과 패턴 겹침
+  "HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜", // ↪ HTML5 D&D quirks 항목에 통합
+
+  // Component System (1 hidden)
+  "Admin 리스트(시리즈/휴지통/게시물)의 UI 코드 중복과 스타일 불일치",
+
+  // 메타에 등록되지 않은 기존 항목 — 컨텍스트가 오래되어 현재는 숨김
+  "커스텀 RichTextEditor의 기능 확장 한계",
+  "이미지 원본 무압축 업로드 — 10MB 초과 실패 + 네트워크 낭비",
 ]);
 
 export const troubleShootingItems: TroubleShootingItem[] = (() => {
   const enriched = rawTroubleShootingItems
-    .filter((item) => !DUPLICATE_PROBLEMS.has(item.problem.ko))
+    .filter((item) => !DUPLICATE_PROBLEMS.has(item.problem.ko) && !HIDDEN_PROBLEMS.has(item.problem.ko))
     .map((item) => {
       const meta = itemMeta[item.problem.ko];
       if (!meta) return item;
