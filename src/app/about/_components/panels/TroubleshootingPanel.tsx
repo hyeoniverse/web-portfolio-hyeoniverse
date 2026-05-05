@@ -146,12 +146,14 @@ function TroubleshootingPanel({
   }, [isMobile]);
 
   // 데스크톱: 패널 포커스 시 wheel → 디테일 컨테이너 스크롤, 경계 도달 시 가로 스크롤
+  // 단, wheel target 이 sidebar(목록) 내부면 sidebar 가 자체 스크롤하도록 양보
   useEffect(() => {
     if (isMobile) return;
 
     const handleWheel = (e: WheelEvent) => {
       const panel = panelRef.current;
       const detail = detailRef.current;
+      const list = listRef.current;
       if (!panel || !detail) return;
 
       const panelRect = panel.getBoundingClientRect();
@@ -159,6 +161,21 @@ function TroubleshootingPanel({
       if (extraWidth <= 0) return;
       const progress = -panelRect.left / extraWidth;
       if (progress < 0.02 || progress > 0.98) return;
+
+      // sidebar 위에서 휠 → sidebar 가 직접 스크롤. 단, 끝에 도달하면 detail 로 위임
+      if (list && list.contains(e.target as Node)) {
+        const { scrollTop: lTop, scrollHeight: lH, clientHeight: lCh } = list;
+        if (lH > lCh) {
+          const lAtTop = lTop <= 0;
+          const lAtBottom = lTop + lCh >= lH - 1;
+          if ((e.deltaY > 0 && !lAtBottom) || (e.deltaY < 0 && !lAtTop)) {
+            e.stopPropagation();
+            e.preventDefault();
+            list.scrollBy({ top: e.deltaY });
+            return;
+          }
+        }
+      }
 
       const { scrollTop, scrollHeight, clientHeight } = detail;
       if (scrollHeight <= clientHeight) return;
