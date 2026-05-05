@@ -451,6 +451,10 @@
 @media (max-width: 1024px), (max-height: 700px) {
   .dcPanel {
     padding: 0 var(--page-px);
+    /* dcMobileBg 가 image fill 로 panel 영역을 덮지만, subpixel 경계에서
+       light 테마의 bg-primary(크림색) 가 1px 흰선처럼 비치는 케이스가 있음.
+       panel 자체에 dark bg 를 깔아 어떤 케이스에서도 어두운 색이 비치도록 보강. */
+    background: var(--color-gray-950, #0a0a0a);
   }
 
   /* Desktop card stack hidden on mobile */
@@ -462,12 +466,15 @@
   .dcMobileBg {
     display: block;
     position: absolute;
-    top: -150px;
+    /* 위쪽 여백 추가 (-150 → -200) — 직전 panel 과의 경계에서 image 가
+       1px 만큼 짧게 그려져 흰선이 보이는 현상 차단 */
+    top: -200px;
     left: calc(-1 * var(--page-px));
     right: calc(-1 * var(--page-px));
     bottom: 0;
     z-index: 0;
     overflow: hidden;
+    background: #0a0a0a;
   }
 
   .dcMobileBgItem {
