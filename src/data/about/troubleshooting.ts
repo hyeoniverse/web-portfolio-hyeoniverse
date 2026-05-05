@@ -82,8 +82,8 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "When the admin accidentally deleted a post, it was **permanently removed from the DB** with no recovery mechanism available.",
     },
     cause: {
-      ko: "처음에는 삭제 버튼을 누르면 **데이터베이스에서 해당 글이 바로 영구 삭제**되는 구조였습니다.\n\n작성 중이던 글을 실수로 지우면 복구할 방법이 없어서, 결국 관리자가 직접 DB 콘솔로 들어가야 했습니다.\n\n혼자 쓰는 사이트니까 '실수할 일 없다'고 생각했지만, **막상 운영해 보니 UI 오조작·의도치 않은 일괄 삭제가 종종 발생**했습니다.",
-      en: "Initially, clicking the delete button **wiped the row from the database immediately**.\n\nAccidentally deleting a draft left no recovery path — the only option was for the admin to log into the DB console directly.\n\nIn a single-admin environment, 'mistakes won't happen' seemed reasonable, but **in practice UI misclicks and unintended bulk deletions did occur**.",
+      ko: "처음에는 삭제 버튼을 누르면 **데이터베이스에서 해당 글이 바로 영구 삭제**되는 구조였습니다.\n\n작성 중이던 글을 실수로 지우면 복구할 방법이 없어서, 결국 관리자가 직접 DB 콘솔에 들어가야 했죠.\n\n관리자가 저 한 명뿐이라 \"내가 실수할 일은 없겠지\" 하고 가볍게 생각했는데, **막상 써 보니 버튼을 잘못 누르거나 여러 글을 한꺼번에 잘못 지우는 일이 의외로 자주** 있었습니다.",
+      en: "Initially, clicking the delete button **wiped the row from the database immediately**.\n\nAccidentally deleting a draft left no recovery path — the admin had to log into the DB console directly.\n\nWith only myself as the admin, I figured \"I won't make mistakes\" — but **in real use, miss-clicks and accidental bulk deletes happened more often than I expected**.",
     },
     solution: {
       ko: "삭제 요청이 들어와도 row 를 지우지 않고 **`deleted_at` (삭제 시각) 컬럼만 기록**하는 soft delete 패턴을 도입했습니다. row 자체는 그대로 남아 있고, 글 목록 쿼리에 `WHERE deleted_at IS NULL` 만 추가하면 사용자에겐 숨겨집니다.\n\n삭제된 글은 **휴지통 페이지(`?trash=true`)** 에서 확인할 수 있고, 복원 시엔 `published=false` 로 되돌려 **실수 복원으로 갑자기 재발행되는 일을 방지**합니다.\n\n진짜 영구 삭제(purge)는 별도 API 로 분리해, **사용자가 한 번 더 명시적으로 확인해야만** 실행되도록 했습니다.",
