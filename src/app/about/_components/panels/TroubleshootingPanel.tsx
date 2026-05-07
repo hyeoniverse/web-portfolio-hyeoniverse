@@ -330,7 +330,9 @@ function TroubleshootingPanel({
                   </div>
                   <div className={styles.troubleEntry}>
                     <span className={styles.entryLabel}>
-                      <T k="aboutPage.troubleshooting.cause" />
+                      {item.causeLabel
+                        ? item.causeLabel[language]
+                        : <T k="aboutPage.troubleshooting.cause" />}
                     </span>
                     <p>{renderHighlight(item.cause[language], language)}</p>
                   </div>
@@ -446,7 +448,9 @@ function TroubleshootingPanel({
               <div className={styles.troubleBody}>
                 <div className={styles.troubleEntry}>
                   <span className={styles.entryLabel}>
-                    <T k="aboutPage.troubleshooting.cause" />
+                    {item.causeLabel
+                      ? item.causeLabel[language]
+                      : <T k="aboutPage.troubleshooting.cause" />}
                   </span>
                   <p>{renderHighlight(item.cause[language], language)}</p>
                 </div>
