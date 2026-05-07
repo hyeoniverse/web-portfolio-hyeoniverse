@@ -170,7 +170,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
           { cells: [{ ko: "기본 provider 실패 시", en: "On primary failure" }, { ko: "에러 그대로 노출", en: "Error surfaces to user" }, { ko: "다음 백업 자동 시도", en: "Auto-fallback to next" }] },
           { cells: [{ ko: "API 키 없는 provider", en: "Provider without API key" }, { ko: "호출 후 401/403 에러", en: "Called → 401/403 error" }, { ko: "호출 자체 건너뜀", en: "Skipped pre-network" }] },
           { cells: [{ ko: "일괄 번역 부분 실패", en: "Partial batch failure" }, { ko: "결과 부족한 채로 저장", en: "Saved with missing rows" }, { ko: "개수 불일치 → 다음 백업", en: "Count mismatch → next backup" }] },
-          { cells: [{ ko: "사용자 경험", en: "User experience" }, { ko: "기능이 \"가끔 죽음\"", en: "Feature \"sometimes dies\"" }, { ko: "어떤 회사가 죽어도 동작", en: "Works through outages" }], highlight: true },
+          { cells: [{ ko: "사용자 경험", en: "User experience" }, { ko: "기능이 가끔 멈춤", en: "Feature sometimes breaks" }, { ko: "provider 장애에도 결과 도달", en: "Works through provider outages" }], highlight: true },
         ],
       } satisfies ComparisonTable,
     ],
