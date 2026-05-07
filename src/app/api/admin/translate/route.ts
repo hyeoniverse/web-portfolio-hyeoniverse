@@ -39,5 +39,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error }, { status: 502 });
   }
 
-  return NextResponse.json({ translations: result.translations });
+  // failedIndices: 모든 provider 시도 후에도 번역 못 받은 인덱스 (성공분은 그대로 유지)
+  return NextResponse.json({
+    translations: result.translations,
+    failedIndices: result.failedIndices,
+  });
 }

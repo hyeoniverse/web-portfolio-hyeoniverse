@@ -36,5 +36,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error }, { status });
   }
 
+  // 단건 번역 — 결과가 비어 있으면 (failedIndices 에 0 이 있으면) 502 로 처리
+  if (result.failedIndices.includes(0)) {
+    return NextResponse.json({ error: "Translation failed" }, { status: 502 });
+  }
+
   return NextResponse.json({ translation: result.translations[0] });
 }
