@@ -80,7 +80,7 @@
     },
     "troubleshooting": {
       "definition": "문제 정의",
-      "cause": "원인",
+      "cause": "배경",
       "solution": "해결",
       "flow": "흐름",
       "keyInsight": "핵심"

@@ -51,10 +51,6 @@ export interface TroubleShootingItem {
   problem: LocalizedText;
   definition: LocalizedText;
   cause: LocalizedText;
-  /** cause 섹션의 라벨 오버라이드 — 기본값은 i18n \"원인\".
-   *  실제 사고가 아니라 \"설계 단계의 문제 의식\" 같은 항목에서 사용.
-   */
-  causeLabel?: LocalizedText;
   solution: LocalizedText;
   keyInsight: LocalizedText;
   comparisons?: ComparisonTable[];
