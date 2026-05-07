@@ -752,7 +752,7 @@
 }
 
 .entryLabelInsight {
-  color: var(--text-accent);
+  color: var(--text-primary);
 }
 
 /* 공통 항목 블록 (description + label + content) */
