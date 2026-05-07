@@ -11,26 +11,70 @@ import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import FlowDiagram from "../FlowDiagram";
 import T from "@/components/ui/T";
+import Tooltip from "@/components/ui/Tooltip";
 import shared from "../AboutSection.module.css";
 import local from "./TroubleshootingPanel.module.css";
 const styles = { ...shared, ...local };
+
+/** 난이도별 라벨 + 색상 톤. 카피라이팅은 i18n 분기 */
+const DIFFICULTY_META: Record<TroubleshootingDifficulty, { label: { ko: string; en: string }; tone: "easy" | "medium" | "hard" }> = {
+  1: { label: { ko: "쉬움", en: "Easy" }, tone: "easy" },
+  2: { label: { ko: "보통", en: "Medium" }, tone: "medium" },
+  3: { label: { ko: "어려움", en: "Hard" }, tone: "hard" },
+};
+
+/** 난이도 기준 안내 (tooltip 내용) */
+function DifficultyCriteria({ language }: { language: Language }) {
+  if (language === "ko") {
+    return (
+      <div className={local.difficultyTooltip}>
+        <div className={local.difficultyTooltipTitle}>난이도 기준</div>
+        <ul className={local.difficultyTooltipList}>
+          <li><b>쉬움</b> — 문서나 빠른 검색으로 해결되는 표면 문제</li>
+          <li><b>보통</b> — 동작 원리 이해 + 어느 정도의 디버깅이 필요한 문제</li>
+          <li><b>어려움</b> — 브라우저 / 프레임워크 내부 동작에 대한 깊은 이해와 추적이 필요한 근본 문제</li>
+        </ul>
+      </div>
+    );
+  }
+  return (
+    <div className={local.difficultyTooltip}>
+      <div className={local.difficultyTooltipTitle}>Difficulty</div>
+      <ul className={local.difficultyTooltipList}>
+        <li><b>Easy</b> — Surface-level issue resolved by docs or a quick search</li>
+        <li><b>Medium</b> — Needs understanding of how it works plus some debugging</li>
+        <li><b>Hard</b> — Root-level issue that requires deep dives into browser / framework internals</li>
+      </ul>
+    </div>
+  );
+}
 
 interface TroubleshootingPanelProps {
   language: Language;
   scrollBy?: (deltaX: number) => void;
 }
 
-/** 난이도 dot — 1~3 단계, 표시 채워진 갯수 */
-function DifficultyDots({ level, large }: { level: TroubleshootingDifficulty; large?: boolean }) {
+/** 난이도 뱃지 — \"쉬움 / 보통 / 어려움\" 라벨 + 색상 톤. tooltip 으로 기준 안내 */
+function DifficultyBadge({
+  level,
+  language,
+  large,
+}: {
+  level: TroubleshootingDifficulty;
+  language: Language;
+  large?: boolean;
+}) {
+  const meta = DIFFICULTY_META[level];
+  const className = [
+    large ? local.difficultyBadgeLarge : local.difficultyBadge,
+    local[`difficultyTone_${meta.tone}`],
+  ].join(" ");
   return (
-    <span className={large ? styles.troubleHeaderDifficulty : styles.troubleDifficultyBadge} title={`Difficulty ${level}/3`}>
-      {[1, 2, 3].map((i) => (
-        <span
-          key={i}
-          className={`${styles.troubleDifficultyDot} ${i <= level ? styles.troubleDifficultyDotActive : ""}`}
-        />
-      ))}
-    </span>
+    <Tooltip content={<DifficultyCriteria language={language} />} placement="bottom" delay={200}>
+      <span className={className} aria-label={`${meta.label[language]} (${level}/3)`}>
+        {meta.label[language]}
+      </span>
+    </Tooltip>
   );
 }
 
@@ -281,7 +325,7 @@ function TroubleshootingPanel({
                             <Star size={11} fill="currentColor" strokeWidth={1.5} />
                           </span>
                         )}
-                        {item.difficulty && <DifficultyDots level={item.difficulty} />}
+                        {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} />}
                       </span>
                     </div>
                   </React.Fragment>
@@ -318,7 +362,7 @@ function TroubleshootingPanel({
                         {language === "ko" ? "추천" : "Recommended"}
                       </span>
                     )}
-                    {item.difficulty && <DifficultyDots level={item.difficulty} large />}
+                    {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} large />}
                   </span>
                 </div>
                 <div className={styles.troubleBody}>
@@ -440,7 +484,7 @@ function TroubleshootingPanel({
                       {language === "ko" ? "추천" : "Rec"}
                     </span>
                   )}
-                  {item.difficulty && <DifficultyDots level={item.difficulty} large />}
+                  {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} large />}
                 </span>
               </div>
               <div className={styles.troubleBody}>
