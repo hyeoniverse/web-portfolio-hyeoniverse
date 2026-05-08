@@ -208,9 +208,10 @@
   color: var(--text-accent);
 }
 
-/* tooltip bubble 자체에 직접 적용 — 기본 .bubble 의 max-width 280px 보다 넓게 */
-.difficultyTooltipBubble {
-  max-width: 360px;
+/* tooltip bubble 자체에 직접 적용 — 기본 .bubble 의 max-width 280px 보다 넓게.
+   같은 (0,1,0) 인 .bubble 을 안전하게 이기려고 클래스 두 번 명시 (0,2,0) */
+.difficultyTooltipBubble.difficultyTooltipBubble {
+  max-width: 520px;
   padding: var(--box-sm);
 }
 
