@@ -8,6 +8,7 @@ import CodeHighlight from "../CodeHighlight";
 import { renderHighlight } from "../renderHighlight";
 import { getCodeDemo } from "./CodeDemos";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
+import { useMobileLayout } from "@/hooks/useMobileLayout";
 import PinnedTitleRow from "../PinnedTitleRow";
 import shared from "../AboutSection.module.css";
 import local from "./CodeHighlightsPanel.module.css";
@@ -35,6 +36,8 @@ function CodeHighlightsPanel({
     total: 1,
   });
   const codeWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const mobileHeaderRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isMobile = useMobileLayout();
 
   // 코드 오버플로우 감지 및 페이지 위치 추적
   useEffect(() => {
@@ -69,57 +72,58 @@ function CodeHighlightsPanel({
     };
   }, [activeIndex]);
 
-  // 모바일: 패널의 *축소된* 콘텐츠가 뷰포트를 벗어나면
-  // 펼쳐진 항목 닫기
+  /**
+   * 모바일 / 태블릿 — 스크롤 위치에 따라 항목을 자동 펼침.
+   *
+   * 동작:
+   *   - 처음엔 expandedMobileCode = null → 모든 항목 접혀 있음
+   *   - 사용자가 스크롤하면서 어떤 항목의 헤더가 viewport 중앙 \"활성 영역\" 에
+   *     들어오면 그 항목을 자동 펼침
+   *   - 다른 항목이 활성 영역에 들어오면 이전 항목은 자동 닫힘
+   *
+   * 활성 영역 = viewport 세로 중앙 약 30% 띠 (rootMargin -35% / -35%)
+   * 헤더(고정 높이) 만 관찰해 body 의 펼침/접힘 layout shift 가 observer 를
+   * 다시 트리거하지 않게 함.
+   */
   useEffect(() => {
-    if (expandedMobileCode === null) return;
-    const el = panelRef.current;
-    if (!el) return;
+    if (!isMobile) return;
+    const headers = mobileHeaderRefs.current.filter(
+      (h): h is HTMLDivElement => h != null,
+    );
+    if (headers.length === 0) return;
 
-    let rafId: number;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // 활성 영역에 들어와 있는 entry 중 첫 번째 (top 기준 가장 위에 있는 것) 를 선택
+        const intersecting = entries
+          .filter((e) => e.isIntersecting)
+          .sort(
+            (a, b) =>
+              a.boundingClientRect.top - b.boundingClientRect.top,
+          );
+        if (intersecting.length === 0) return;
+        const target = intersecting[0].target as HTMLDivElement;
+        const idxStr = target.dataset.idx;
+        if (!idxStr) return;
+        const idx = Number(idxStr);
+        setExpandedMobileCode((prev) => (prev === idx ? prev : idx));
+      },
+      {
+        rootMargin: "-35% 0px -35% 0px",
+        threshold: 0,
+      },
+    );
 
-    const check = () => {
-      const rect = el.getBoundingClientRect();
-      if (rect.top <= 0) {
-        const openBody = el.querySelector(
-          `.${styles.codeMobileBodyOpen}`,
-        ) as HTMLElement | null;
-        if (openBody) {
-          const expandedHeight = openBody.offsetHeight;
-          const collapsedBottom = rect.bottom - expandedHeight;
+    headers.forEach((h) => observer.observe(h));
+    return () => observer.disconnect();
+  }, [isMobile]);
 
-          if (
-            collapsedBottom < 0 &&
-            rect.bottom < window.innerHeight * 0.5
-          ) {
-            const heightBefore = el.offsetHeight;
-            openBody.style.transition = "none";
-            flushSync(() => setExpandedMobileCode(null));
-            const heightAfter = el.offsetHeight;
-            const delta = heightBefore - heightAfter;
-
-            if (delta > 0) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const l = (window as any).lenis;
-              if (l) {
-                l.scrollTo(l.scroll - delta, { immediate: true });
-              }
-              el.style.marginBottom = "";
-            }
-
-            requestAnimationFrame(() => {
-              openBody.style.transition = "";
-            });
-            return;
-          }
-        }
-      }
-      rafId = requestAnimationFrame(check);
-    };
-
-    rafId = requestAnimationFrame(check);
-    return () => cancelAnimationFrame(rafId);
-  }, [expandedMobileCode, panelRef]);
+  // 모바일에서 데스크톱으로 전환 시 펼친 항목 정리
+  useEffect(() => {
+    if (!isMobile && expandedMobileCode !== null) {
+      flushSync(() => setExpandedMobileCode(null));
+    }
+  }, [isMobile, expandedMobileCode]);
 
   const scrollCodePage = useCallback(
     (direction: 1 | -1) => {
@@ -220,6 +224,10 @@ function CodeHighlightsPanel({
             return (
               <div key={index} className={styles.codeItemMobile}>
                 <div
+                  ref={(el) => {
+                    mobileHeaderRefs.current[index] = el;
+                  }}
+                  data-idx={index}
                   data-clickable="true"
                   className={styles.codeMobileHeader}
                   onClick={() => setExpandedMobileCode(isOpen ? null : index)}
