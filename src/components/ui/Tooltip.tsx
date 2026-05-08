@@ -120,27 +120,35 @@ export default function Tooltip({
   }, []);
 
   /** bubble 이 그려진 직후 viewport 밖으로 나가지 않도록 가로 시프트 계산.
-   *  - top / bottom 배치일 때만 동작 (left / right 는 가로 정렬이 의미 다름)
-   *  - useLayoutEffect — 페인트 전 동기 실행이라 시각적 깜빡임 없이 보정됨 */
+   *
+   *  주의 — bubbleShiftX state 가 hide 후 다음 show 까지 남아 있어, 두 번째 show 때
+   *  bubble 이 이미 시프트된 채 mount 됩니다. 그래서 측정한 rect.left 는 \"natural\" 이
+   *  아니라 \"natural + 이전 시프트\" — 그대로 계산하면 두 번째 show 부터 시프트가 0 으로
+   *  잡혀 잘림이 다시 나타나는 \"번갈아 동작\" 증상이 생깁니다.
+   *
+   *  해결: 현재 적용된 bubbleShiftX 를 빼서 natural 위치를 복원한 뒤 시프트를 계산.
+   *  bubbleShiftX 를 deps 에 포함하지만, 계산 결과가 같으면 setState 안 해 무한 루프 방지. */
   useLayoutEffect(() => {
-    if (!visible) return;
-    if (pos.side === "left" || pos.side === "right") {
-      setBubbleShiftX(0);
+    if (!visible || pos.side === "left" || pos.side === "right") {
+      if (bubbleShiftX !== 0) setBubbleShiftX(0);
       return;
     }
     const bubble = bubbleRef.current;
     if (!bubble) return;
 
     const rect = bubble.getBoundingClientRect();
+    // 현재 시프트를 빼서 \"이번에 처음부터 그렸다면 어디였을까\" 의 natural 좌표 추정
+    const naturalLeft = rect.left - bubbleShiftX;
+    const naturalRight = rect.right - bubbleShiftX;
     const margin = 8;
     const vpW = window.innerWidth;
 
     let shift = 0;
-    if (rect.left < margin) shift = margin - rect.left;
-    else if (rect.right > vpW - margin) shift = vpW - margin - rect.right;
+    if (naturalLeft < margin) shift = margin - naturalLeft;
+    else if (naturalRight > vpW - margin) shift = vpW - margin - naturalRight;
 
-    setBubbleShiftX(shift);
-  }, [visible, pos.x, pos.side]);
+    if (shift !== bubbleShiftX) setBubbleShiftX(shift);
+  }, [visible, pos.x, pos.side, bubbleShiftX]);
 
   if (disabled) return <>{children}</>;
 
