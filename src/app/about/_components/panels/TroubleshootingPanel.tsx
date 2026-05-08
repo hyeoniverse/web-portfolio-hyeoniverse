@@ -16,35 +16,54 @@ import shared from "../AboutSection.module.css";
 import local from "./TroubleshootingPanel.module.css";
 const styles = { ...shared, ...local };
 
-/** 난이도별 라벨 + 색상 톤. 카피라이팅은 i18n 분기 */
-const DIFFICULTY_META: Record<TroubleshootingDifficulty, { label: { ko: string; en: string }; tone: "easy" | "medium" | "hard" }> = {
-  1: { label: { ko: "쉬움", en: "Easy" }, tone: "easy" },
-  2: { label: { ko: "보통", en: "Medium" }, tone: "medium" },
-  3: { label: { ko: "어려움", en: "Hard" }, tone: "hard" },
+/** 난이도별 라벨 + 색상 톤 + 한 줄 설명. tooltip 은 hover 한 등급 하나만 표시 */
+const DIFFICULTY_META: Record<
+  TroubleshootingDifficulty,
+  {
+    label: { ko: string; en: string };
+    tone: "easy" | "medium" | "hard";
+    desc: { ko: string; en: string };
+  }
+> = {
+  1: {
+    label: { ko: "쉬움", en: "Easy" },
+    tone: "easy",
+    desc: {
+      ko: "문서나 빠른 검색으로 해결되는 표면적인 문제",
+      en: "Surface-level issue resolved by docs or a quick search",
+    },
+  },
+  2: {
+    label: { ko: "보통", en: "Medium" },
+    tone: "medium",
+    desc: {
+      ko: "동작 원리 이해와 어느 정도의 디버깅이 필요한 문제",
+      en: "Needs understanding of how it works plus some debugging",
+    },
+  },
+  3: {
+    label: { ko: "어려움", en: "Hard" },
+    tone: "hard",
+    desc: {
+      ko: "브라우저 또는 프레임워크 내부 동작에 대한 깊은 이해와 추적이 필요한 근본적인 문제",
+      en: "Root-level issue that requires deep dives into browser or framework internals",
+    },
+  },
 };
 
-/** 난이도 기준 안내 (tooltip 내용) */
-function DifficultyCriteria({ language }: { language: Language }) {
-  if (language === "ko") {
-    return (
-      <div className={local.difficultyTooltip}>
-        <div className={local.difficultyTooltipTitle}>난이도 기준</div>
-        <ul className={local.difficultyTooltipList}>
-          <li><b>쉬움</b> — 문서나 빠른 검색으로 해결되는 표면 문제</li>
-          <li><b>보통</b> — 동작 원리 이해 + 어느 정도의 디버깅이 필요한 문제</li>
-          <li><b>어려움</b> — 브라우저 / 프레임워크 내부 동작에 대한 깊은 이해와 추적이 필요한 근본 문제</li>
-        </ul>
-      </div>
-    );
-  }
+/** 난이도 한 등급에 대한 설명 — hover 한 등급의 라벨 + 한 줄 설명만 보여 줌 */
+function DifficultyCriteria({
+  level,
+  language,
+}: {
+  level: TroubleshootingDifficulty;
+  language: Language;
+}) {
+  const meta = DIFFICULTY_META[level];
   return (
     <div className={local.difficultyTooltip}>
-      <div className={local.difficultyTooltipTitle}>Difficulty</div>
-      <ul className={local.difficultyTooltipList}>
-        <li><b>Easy</b> — Surface-level issue resolved by docs or a quick search</li>
-        <li><b>Medium</b> — Needs understanding of how it works plus some debugging</li>
-        <li><b>Hard</b> — Root-level issue that requires deep dives into browser / framework internals</li>
-      </ul>
+      <div className={local.difficultyTooltipTitle}>{meta.label[language]}</div>
+      <div className={local.difficultyTooltipBody}>{meta.desc[language]}</div>
     </div>
   );
 }
@@ -70,7 +89,12 @@ function DifficultyBadge({
     local[`difficultyTone_${meta.tone}`],
   ].join(" ");
   return (
-    <Tooltip content={<DifficultyCriteria language={language} />} placement="bottom" delay={200}>
+    <Tooltip
+      content={<DifficultyCriteria level={level} language={language} />}
+      placement="bottom"
+      delay={200}
+      bubbleClassName={local.difficultyTooltipBubble}
+    >
       <span className={className} aria-label={`${meta.label[language]} (${level}/3)`}>
         {meta.label[language]}
       </span>

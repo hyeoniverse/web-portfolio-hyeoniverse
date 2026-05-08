@@ -16,6 +16,8 @@ interface TooltipProps {
   placement?: "top" | "bottom" | "left" | "right" | "auto";
   disabled?: boolean;
   wrapperStyle?: React.CSSProperties;
+  /** bubble 자체에 추가할 className — max-width / padding 등 부분 오버라이드용 */
+  bubbleClassName?: string;
   children: ReactNode;
 }
 
@@ -27,6 +29,7 @@ export default function Tooltip({
   placement = "auto",
   disabled,
   wrapperStyle,
+  bubbleClassName,
   children,
 }: TooltipProps) {
   const [visible, setVisible] = useState(false);
@@ -139,7 +142,7 @@ export default function Tooltip({
             pointerEvents: "none",
           }}
         >
-          <div className={styles.bubble}>{content}</div>
+          <div className={`${styles.bubble}${bubbleClassName ? ` ${bubbleClassName}` : ""}`}>{content}</div>
           <div
             className={`${styles.arrow} ${
               pos.side === "top" ? styles.arrowBottom :

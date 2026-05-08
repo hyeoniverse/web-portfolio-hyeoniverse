@@ -208,34 +208,28 @@
   color: var(--text-accent);
 }
 
-/* tooltip 안 안내 — Tooltip.bubble 의 bg-inverse / text-inverse / font-size-xs 를 그대로 상속.
-   color · font-size · font-family 모두 명시 안 함 — 부모 bubble 스타일이 적용되도록 둠 */
+/* tooltip bubble 자체에 직접 적용 — 기본 .bubble 의 max-width 280px 보다 넓게 */
+.difficultyTooltipBubble {
+  max-width: 360px;
+  padding: var(--box-sm);
+}
+
+/* tooltip 안 안내 — color · font-size · font-family 등은 부모 .bubble 상속 */
 .difficultyTooltip {
-  line-height: 1.55;
-  /* white-space: pre-line 이 .bubble 에 걸려 있어 줄바꿈 자동 — width 강제 X */
+  line-height: 1.6;
 }
 
 .difficultyTooltipTitle {
-  font-weight: 600;
-  margin-bottom: 6px;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   opacity: 0.7;
+  font-size: var(--font-size-2xs);
 }
 
-.difficultyTooltipList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.difficultyTooltipList li b {
-  font-weight: 700;
-  margin-right: 4px;
-  /* 색은 부모 bubble 의 text-inverse 그대로 */
+.difficultyTooltipBody {
+  /* 부모 bubble 의 font-size · color 상속 */
 }
 
 /* 상세 패널 헤더 옆 뱃지 묶음 */
