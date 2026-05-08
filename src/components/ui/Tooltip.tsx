@@ -3,6 +3,7 @@
 import {
   useState,
   useEffect,
+  useLayoutEffect,
   useRef,
   useCallback,
   type ReactNode,
@@ -34,8 +35,12 @@ export default function Tooltip({
 }: TooltipProps) {
   const [visible, setVisible] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0, side: "top" as "top" | "bottom" | "left" | "right" });
+  /** 뷰포트 우/좌 경계에 가까울 때 bubble 이 viewport 안으로 들어오도록 한 px 시프트.
+   *  arrow 는 그대로 두어 trigger 중심을 가리키고, bubble 만 옆으로 밀려 잘림 방지 */
+  const [bubbleShiftX, setBubbleShiftX] = useState(0);
 
   const triggerRef = useRef<HTMLSpanElement>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const measure = useCallback(() => {
@@ -114,6 +119,29 @@ export default function Tooltip({
     clearTimeout(autoHideRef.current);
   }, []);
 
+  /** bubble 이 그려진 직후 viewport 밖으로 나가지 않도록 가로 시프트 계산.
+   *  - top / bottom 배치일 때만 동작 (left / right 는 가로 정렬이 의미 다름)
+   *  - useLayoutEffect — 페인트 전 동기 실행이라 시각적 깜빡임 없이 보정됨 */
+  useLayoutEffect(() => {
+    if (!visible) return;
+    if (pos.side === "left" || pos.side === "right") {
+      setBubbleShiftX(0);
+      return;
+    }
+    const bubble = bubbleRef.current;
+    if (!bubble) return;
+
+    const rect = bubble.getBoundingClientRect();
+    const margin = 8;
+    const vpW = window.innerWidth;
+
+    let shift = 0;
+    if (rect.left < margin) shift = margin - rect.left;
+    else if (rect.right > vpW - margin) shift = vpW - margin - rect.right;
+
+    setBubbleShiftX(shift);
+  }, [visible, pos.x, pos.side]);
+
   if (disabled) return <>{children}</>;
 
   return (
@@ -142,7 +170,14 @@ export default function Tooltip({
             pointerEvents: "none",
           }}
         >
-          <div className={`${styles.bubble}${bubbleClassName ? ` ${bubbleClassName}` : ""}`}>{content}</div>
+          <div
+            ref={bubbleRef}
+            className={`${styles.bubble}${bubbleClassName ? ` ${bubbleClassName}` : ""}`}
+            // bubbleShiftX 만 bubble 에 적용 — arrow 는 그대로 두어 trigger 중앙을 가리킴
+            style={bubbleShiftX !== 0 ? { transform: `translateX(${bubbleShiftX}px)` } : undefined}
+          >
+            {content}
+          </div>
           <div
             className={`${styles.arrow} ${
               pos.side === "top" ? styles.arrowBottom :
