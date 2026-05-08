@@ -119,6 +119,10 @@ function TroubleshootingPanel({
     scrollBy,
   );
 
+  /** 모바일 자동 펼침 — 처음엔 모두 접힘, 스크롤하면서 헤더가 활성 영역에 들어오는 항목만 펼침 */
+  const [expandedMobile, setExpandedMobile] = useState<number | null>(null);
+  const mobileHeaderRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   const displayIndex = detailIndex;
 
   // 클릭 핸들러 — 데스크톱: 디테일 영역으로 스크롤
@@ -212,6 +216,52 @@ function TroubleshootingPanel({
     detail.addEventListener("scroll", onScroll, { passive: true });
     return () => detail.removeEventListener("scroll", onScroll);
   }, [isMobile]);
+
+  /**
+   * 모바일 / 태블릿 — 스크롤 위치에 따라 항목을 자동 펼침.
+   *
+   * - 처음엔 expandedMobile = null → 모든 항목 접혀 있음
+   * - 사용자가 스크롤하면서 어떤 헤더가 viewport 중앙 활성 영역에 들어오면 그 항목 펼침
+   * - 다른 항목이 활성 영역에 들어오면 직전 항목은 자동 닫힘 (state 단일 값)
+   *
+   * 헤더만 관찰 → body 의 펼침/접힘 layout shift 가 observer 를 다시 트리거하지 않음
+   */
+  useEffect(() => {
+    if (!isMobile) return;
+    const headers = mobileHeaderRefs.current.filter(
+      (h): h is HTMLDivElement => h != null,
+    );
+    if (headers.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const intersecting = entries
+          .filter((e) => e.isIntersecting)
+          .sort(
+            (a, b) =>
+              a.boundingClientRect.top - b.boundingClientRect.top,
+          );
+        if (intersecting.length === 0) return;
+        const target = intersecting[0].target as HTMLDivElement;
+        const idxStr = target.dataset.idx;
+        if (!idxStr) return;
+        const idx = Number(idxStr);
+        setExpandedMobile((prev) => (prev === idx ? prev : idx));
+      },
+      {
+        rootMargin: "-35% 0px -35% 0px",
+        threshold: 0,
+      },
+    );
+
+    headers.forEach((h) => observer.observe(h));
+    return () => observer.disconnect();
+  }, [isMobile]);
+
+  // 모바일 → 데스크톱 전환 시 펼친 항목 정리
+  useEffect(() => {
+    if (!isMobile && expandedMobile !== null) setExpandedMobile(null);
+  }, [isMobile, expandedMobile]);
 
   // 데스크톱: 패널 포커스 시 wheel → 디테일 컨테이너 스크롤, 경계 도달 시 가로 스크롤
   // 단, wheel target 이 sidebar(목록) 내부면 sidebar 가 자체 스크롤하도록 양보
@@ -492,9 +542,17 @@ function TroubleshootingPanel({
                 </div>
               )}
               <div
-                className={`${styles.troubleMobileItem} ${styles.animate}`}
+                className={`${styles.troubleMobileItem} ${styles.animate} ${expandedMobile === index ? styles.troubleMobileItemOpen : ""}`}
               >
-                <div className={styles.troubleMobileHeader}>
+                <div
+                  ref={(el) => {
+                    mobileHeaderRefs.current[index] = el;
+                  }}
+                  data-idx={index}
+                  data-clickable="true"
+                  className={styles.troubleMobileHeader}
+                  onClick={() => setExpandedMobile((prev) => (prev === index ? null : index))}
+                >
                   <span className={styles.troubleNumber}>
                   {String(index + 1).padStart(2, "0")}
                 </span>
@@ -511,7 +569,7 @@ function TroubleshootingPanel({
                   {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} large />}
                 </span>
               </div>
-              <div className={styles.troubleBody}>
+              <div className={`${styles.troubleBody} ${styles.troubleMobileBody} ${expandedMobile === index ? styles.troubleMobileBodyOpen : ""}`}>
                 <div className={styles.troubleEntry}>
                   <span className={styles.entryLabel}>
                     <T k="aboutPage.troubleshooting.cause" />

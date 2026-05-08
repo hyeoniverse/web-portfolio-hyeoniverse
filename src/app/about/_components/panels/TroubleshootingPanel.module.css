@@ -399,6 +399,30 @@
   border-bottom: none;
 }
 
+/* 모바일 항목 헤더 — 클릭으로 토글 가능, cursor pointer */
+.troubleMobileItem .troubleMobileHeader {
+  cursor: pointer;
+}
+
+/* 모바일 body — 기본 접힘 (max-height 0), .Open 일 때 펼침
+   compound selector (0,2,0) 로 글로벌 transition shorthand 우회 */
+.troubleMobileItem .troubleMobileBody {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height var(--duration-slower, 600ms) var(--ease-material, ease),
+    opacity var(--duration-base, 200ms) ease,
+    margin-top var(--duration-slower, 600ms) var(--ease-material, ease);
+  margin-top: 0;
+}
+
+.troubleMobileItem .troubleMobileBodyOpen {
+  max-height: 4000px; /* 한 항목이 가질 만한 충분한 상한 */
+  opacity: 1;
+  margin-top: var(--_space-block);
+}
+
 .troubleMobileHeader {
   display: flex;
   gap: var(--spacing-md);
