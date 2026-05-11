@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Post, Series } from "@/types/post";
 import DetailLayout from "@/components/layout/DetailLayout";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
@@ -40,12 +41,15 @@ interface AdjacentPost {
 
 interface PostDetailClientProps {
   post: Post;
-  translationEnabled?: boolean;
 }
 
-export default function PostDetailClient({ post: initialPost, translationEnabled = true }: PostDetailClientProps) {
+export default function PostDetailClient({ post: initialPost }: PostDetailClientProps) {
   const { t, language } = useLanguage();
   const { navigateWithTransition } = usePageTransition();
+  const siteConfig = useSiteConfig();
+  /* translation 활성 여부는 client context 에서 — server 의 getSecret 호출 제거됨.
+   * 키 부재 시엔 client 가 호출한 API 가 error 응답 → UI 에서 "번역 실패" 표시. */
+  const translationEnabled = siteConfig?.translation?.enabled !== false;
 
   const [post, setPost] = useState<Post>(initialPost);
   const [heroImgError, setHeroImgError] = useState(false);

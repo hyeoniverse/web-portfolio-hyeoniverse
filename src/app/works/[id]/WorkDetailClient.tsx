@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { Heart, FileText, ImageIcon, Pencil } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
 import type { Project } from "@/data/projects";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
@@ -38,17 +39,18 @@ interface WorkDetailClientProps {
   project: Project;
   prevProject: Project | null;
   nextProject: Project | null;
-  translationEnabled?: boolean;
 }
 
 export default function WorkDetailClient({
   project,
   prevProject,
   nextProject,
-  translationEnabled = true,
 }: WorkDetailClientProps) {
   const { t, language } = useLanguage();
   const { navigateWithTransition } = usePageTransition();
+  const siteConfig = useSiteConfig();
+  /* translation 활성 여부는 client context 에서 — server 의 getSecret 제거됨. */
+  const translationEnabled = siteConfig?.translation?.enabled !== false;
   const isRichtext = project.contentType === "richtext";
   const [viewLang, setViewLang] = useState<"ko" | "en">(
     !project.content.en ? "ko" : !project.content.ko ? "en" : language === "en" ? "en" : "ko"
