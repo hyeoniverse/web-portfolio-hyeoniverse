@@ -112,7 +112,7 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
     } finally {
       setGenerating(false);
     }
-  }, [prompt, style, tc]);
+  }, [prompt, style, tc, onGenerated]);
 
   const handleClear = useCallback(() => {
     setPrompt("");

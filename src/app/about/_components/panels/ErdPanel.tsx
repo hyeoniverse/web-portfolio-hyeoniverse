@@ -194,7 +194,6 @@ function ErdPanel({ language }: ErdPanelProps) {
       }
       return name;
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setVbAnimated]);
 
   // Highlight relations

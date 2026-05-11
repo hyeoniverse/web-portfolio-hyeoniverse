@@ -245,12 +245,14 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
       move(oldIdx, newIdx);
     };
 
+  /* eslint-disable react-hooks/exhaustive-deps -- makeDragEndHandler factory; deps 는 명시된 두 값만 */
   const handleExpDragEnd = useCallback(makeDragEndHandler(expIds, moveExperience), [expIds, moveExperience]);
   const handleGroupDragEnd = useCallback(makeDragEndHandler(groupIds, moveSkillGroup), [groupIds, moveSkillGroup]);
   const handlePhilDragEnd = useCallback(makeDragEndHandler(philIds, movePhilosophy), [philIds, movePhilosophy]);
   const handleApproachDragEnd = useCallback(makeDragEndHandler(approachIds, moveApproach), [approachIds, moveApproach]);
   const handleCertDragEnd = useCallback(makeDragEndHandler(certIds, moveCertification), [certIds, moveCertification]);
   const handleAwardDragEnd = useCallback(makeDragEndHandler(awardIds, moveAward), [awardIds, moveAward]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   /* ── Derived per-list expand setters from lifted state ──
      초기값: 첫 Experience만 펼침, 나머지는 닫힘 (page.tsx에서 초기화) */

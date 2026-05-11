@@ -527,6 +527,8 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
+    // arc / segAngle 은 slotCount 에서 derive 되므로 deps 에 별도 추가 불필요
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slotCount]);
 
   const handleClick = useCallback((projectIdx: number) => {

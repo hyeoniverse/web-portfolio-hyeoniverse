@@ -1145,7 +1145,7 @@ export default function PlateEditor({
         }
       }
     }
-  }, [editor, findOpen, isInTable, isInColumn, isInToggle, isInCallout, mathEditing, isInImage]);
+  }, [editor, findOpen, isInTable, isInColumn, isInToggle, isInCallout, mathEditing, isInImage, isInMediaEmbed]);
 
   // ── All media (images + video embeds) + detached 동기 관리 ──
   const detachedRef = useRef<{ url: string; mediaType?: string }[]>([]);
@@ -1288,7 +1288,7 @@ export default function PlateEditor({
     insertImageByUrl,
     insertMediaByUrl,
     removeDetached,
-  }), [allImages, selectImageAt, reorderImage, removeImage, insertImageByUrl, insertMediaByUrl, removeDetached]);
+  }), [selectImageAt, reorderImage, removeImage, insertImageByUrl, insertMediaByUrl, removeDetached, getImagesLive]);
 
   // ── MainToolbar toggle handlers ──
   const toggleLinkInput = useCallback(() => {

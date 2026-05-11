@@ -45,7 +45,8 @@ export default function ContentTab({
 }: ContentTabProps) {
   const { t } = useLanguage();
 
-  const socialLinks: SocialLink[] = config.socialLinks ?? [];
+  /* config.socialLinks 가 매 렌더마다 새 array 가 되면 deps 가 매번 바뀜 → useMemo 로 stable. */
+  const socialLinks = useMemo<SocialLink[]>(() => config.socialLinks ?? [], [config.socialLinks]);
 
   const updateSocialLinks = useCallback(
     (fn: (prev: SocialLink[]) => SocialLink[]) => {
