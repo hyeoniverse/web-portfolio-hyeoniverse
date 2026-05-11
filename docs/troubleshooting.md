@@ -6,7 +6,7 @@
 <summary><strong>1. Lenis Scroll Velocity 효과 미작동</strong></summary>
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
+  <img src="public/images/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
 </p>
 
 #### 문제
@@ -149,8 +149,8 @@ const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
 <summary><strong>4. GSAP ScrollTrigger 수평 무한 스크롤 구현</strong></summary>
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/docs/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <img src="public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
 
 #### 문제
@@ -206,7 +206,7 @@ gsap.to(container, {
 <summary><strong>5. Lighthouse 성능 최적화 — reCAPTCHA 지연 로딩</strong></summary>
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
+  <img src="public/images/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
 </p>
 
 #### 문제
@@ -313,7 +313,7 @@ badge.style.zIndex = isOpen ? "9999" : "";
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="public/docs/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="public/docs/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
+| <img src="public/images/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="public/images/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="public/images/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
 <sub>최적화 대상: Home 페이지 — 3개 디바이스에서 Performance 98점 달성</sub>
 
 #### 문제
@@ -519,7 +519,7 @@ Works 인트로 섹션에서 한국어↔영어 전환 시 텍스트 영역의 �
 <summary><strong>10. 언어 전환 시 로딩 화면 재출현</strong></summary>
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
+  <img src="public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
 </p>
 
 #### 문제
@@ -568,7 +568,7 @@ export function useLoadingScreen() {
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/works-dark.png" width="100%" /> | <img src="public/docs/screenshots/tablet/works-dark.png" width="100%" /> | <img src="public/docs/screenshots/mobile/works-dark.png" width="100%" /> |
+| <img src="public/images/screenshots/pc/works-dark.png" width="100%" /> | <img src="public/images/screenshots/tablet/works-dark.png" width="100%" /> | <img src="public/images/screenshots/mobile/works-dark.png" width="100%" /> |
 
 #### 문제
 
@@ -638,7 +638,7 @@ GSAP ScrollTrigger처럼 생성 시점의 뷰포트에 의존하는 애니메이
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-dark.png" width="100%" /> | <img src="public/docs/screenshots/tablet/home-dark.png" width="100%" /> | <img src="public/docs/screenshots/mobile/home-dark.png" width="100%" /> |
+| <img src="public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="public/images/screenshots/mobile/home-dark.png" width="100%" /> |
 
 #### 문제
 

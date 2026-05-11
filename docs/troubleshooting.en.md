@@ -6,7 +6,7 @@
 <summary><strong>1. Lenis Scroll Velocity Effect Not Working</strong></summary>
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
+  <img src="public/images/screenshots/pc/works-dark.png" width="100%" alt="Works — Scroll Velocity" />
 </p>
 
 #### Problem
@@ -149,8 +149,8 @@ const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
 <summary><strong>4. GSAP ScrollTrigger Horizontal Infinite Scroll Implementation</strong></summary>
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/docs/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <img src="public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
 
 #### Problem
@@ -206,7 +206,7 @@ A long scroll range + visual position loop approach provides a more natural infi
 <summary><strong>5. Lighthouse Performance Optimization — reCAPTCHA Lazy Loading</strong></summary>
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
+  <img src="public/images/screenshots/pc/home-light.png" width="100%" alt="Home — Lighthouse" />
 </p>
 
 #### Problem
@@ -313,7 +313,7 @@ DOM elements injected by third parties can have z-index conflicts with custom ov
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="public/docs/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="public/docs/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
+| <img src="public/images/screenshots/pc/home-light.png" width="100%" alt="Home PC" /> | <img src="public/images/screenshots/tablet/home-light.png" width="100%" alt="Home Tablet" /> | <img src="public/images/screenshots/mobile/home-light.png" width="100%" alt="Home Mobile" /> |
 <sub>Optimization target: Home page — achieved Performance score of 98 across all 3 devices</sub>
 
 #### Problem
@@ -519,7 +519,7 @@ When supporting multiple languages, reserving space with `min-height` based on m
 <summary><strong>10. Loading Screen Reappears on Language Switch</strong></summary>
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
+  <img src="public/images/screenshots/pc/home-dark.png" width="100%" alt="Home — Loading Screen" />
 </p>
 
 #### Problem
@@ -568,7 +568,7 @@ Conditionally rendering a third-party Provider (`Fragment` <-> `Provider`) cause
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/works-dark.png" width="100%" /> | <img src="public/docs/screenshots/tablet/works-dark.png" width="100%" /> | <img src="public/docs/screenshots/mobile/works-dark.png" width="100%" /> |
+| <img src="public/images/screenshots/pc/works-dark.png" width="100%" /> | <img src="public/images/screenshots/tablet/works-dark.png" width="100%" /> | <img src="public/images/screenshots/mobile/works-dark.png" width="100%" /> |
 
 #### Problem
 
@@ -638,7 +638,7 @@ For animations that depend on viewport size at creation time (like GSAP ScrollTr
 
 | PC | Tablet | Mobile |
 |:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-dark.png" width="100%" /> | <img src="public/docs/screenshots/tablet/home-dark.png" width="100%" /> | <img src="public/docs/screenshots/mobile/home-dark.png" width="100%" /> |
+| <img src="public/images/screenshots/pc/home-dark.png" width="100%" /> | <img src="public/images/screenshots/tablet/home-dark.png" width="100%" /> | <img src="public/images/screenshots/mobile/home-dark.png" width="100%" /> |
 
 #### Problem
 
