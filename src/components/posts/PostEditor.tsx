@@ -40,6 +40,7 @@ import { usePostSeries } from "@/hooks/usePostSeries";
 import TagsList from "./TagsList";
 import ShortcutsModalContent from "./ShortcutsModal";
 import styles from "./PostEditor.module.css";
+import "./PostEditor.global.css";
 
 
 const Editor = dynamic(() => import("./PlateEditor"), {
@@ -206,7 +207,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   const clearSeoHighlight = useCallback(() => {
     if (activeSeoLabelRef.current) {
-      activeSeoLabelRef.current.classList.remove(styles.seoFlash);
+      activeSeoLabelRef.current.classList.remove("seo-flash");
       activeSeoLabelRef.current = null;
     }
     activeSeoFieldRef.current = null;
@@ -236,7 +237,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       // 이전 활성 label 의 강조 제거 + 기존 리스너 정리 → transition 으로 자연스럽게 페이드 아웃
       if (activeSeoLabelRef.current && activeSeoLabelRef.current !== label) {
-        activeSeoLabelRef.current.classList.remove(styles.seoFlash);
+        activeSeoLabelRef.current.classList.remove("seo-flash");
       }
       if (seoCleanupRef.current) {
         seoCleanupRef.current();
@@ -244,7 +245,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       }
 
       // 새 highlight 적용
-      label.classList.add(styles.seoFlash);
+      label.classList.add("seo-flash");
       activeSeoLabelRef.current = label;
       activeSeoFieldRef.current = el;
 
