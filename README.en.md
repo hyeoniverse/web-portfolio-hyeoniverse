@@ -16,7 +16,7 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 <br />
 
-<img src="public/docs/screenshots/pc/home-dark.png" alt="Home — Dark" width="100%" />
+<img src="public/images/screenshots/pc/home-dark.png" alt="Home — Dark" width="100%" />
 
 </div>
 
@@ -28,29 +28,42 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 
 | Dark | Light |
 |:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-dark.png" alt="Home Dark" width="100%" /> | <img src="public/docs/screenshots/pc/home-light.png" alt="Home Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/works-dark.png" alt="Works Dark" width="100%" /> | <img src="public/docs/screenshots/pc/works-light.png" alt="Works Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/posts-dark.png" alt="Posts Dark" width="100%" /> | <img src="public/docs/screenshots/pc/posts-light.png" alt="Posts Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/home-dark.png" alt="Home Dark" width="100%" /> | <img src="public/images/screenshots/pc/home-light.png" alt="Home Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/works-dark.png" alt="Works Dark" width="100%" /> | <img src="public/images/screenshots/pc/works-light.png" alt="Works Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/posts-dark.png" alt="Posts Dark" width="100%" /> | <img src="public/images/screenshots/pc/posts-light.png" alt="Posts Light" width="100%" /> |
 
 <details>
-<summary><strong>See more — Profile / About / Work Detail / Design System</strong></summary>
+<summary><strong>See more — Profile / About / Work Detail / Post Detail / Design System</strong></summary>
 
 | Dark | Light |
 |:---:|:---:|
-| <img src="public/docs/screenshots/pc/profile-dark.png" alt="Profile Dark" width="100%" /> | <img src="public/docs/screenshots/pc/profile-light.png" alt="Profile Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/about-dark.png" alt="About Dark" width="100%" /> | <img src="public/docs/screenshots/pc/about-light.png" alt="About Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/work-detail-dark.png" alt="Work Detail Dark" width="100%" /> | <img src="public/docs/screenshots/pc/work-detail-light.png" alt="Work Detail Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/design-system-dark.png" alt="Design System Dark" width="100%" /> | <img src="public/docs/screenshots/pc/design-system-light.png" alt="Design System Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/profile-dark.png" alt="Profile Dark" width="100%" /> | <img src="public/images/screenshots/pc/profile-light.png" alt="Profile Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/about-dark.png" alt="About Dark" width="100%" /> | <img src="public/images/screenshots/pc/about-light.png" alt="About Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/work-detail-dark.png" alt="Work Detail Dark" width="100%" /> | <img src="public/images/screenshots/pc/work-detail-light.png" alt="Work Detail Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/post-detail-dark.png" alt="Post Detail Dark" width="100%" /> | <img src="public/images/screenshots/pc/post-detail-light.png" alt="Post Detail Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/design-system-dark.png" alt="Design System Dark" width="100%" /> | <img src="public/images/screenshots/pc/design-system-light.png" alt="Design System Light" width="100%" /> |
 
 </details>
+
+### Works — 6 Layouts
+
+Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullscreen · Cinematic · Grid · Split · Cylinder
+
+| Flow | Fullscreen | Cinematic |
+|:---:|:---:|:---:|
+| <img src="public/images/screenshots/pc/works-dark.png" alt="Works Flow" width="100%" /> | <img src="public/images/screenshots/pc/works-fullscreen-dark.png" alt="Works Fullscreen" width="100%" /> | <img src="public/images/screenshots/pc/works-cinematic-dark.png" alt="Works Cinematic" width="100%" /> |
+
+| Grid | Split | Cylinder |
+|:---:|:---:|:---:|
+| <img src="public/images/screenshots/pc/works-grid-dark.png" alt="Works Grid" width="100%" /> | <img src="public/images/screenshots/pc/works-split-dark.png" alt="Works Split" width="100%" /> | <img src="public/images/screenshots/pc/works-cylinder-dark.png" alt="Works Cylinder" width="100%" /> |
 
 ### Responsive — PC / Tablet / Mobile
 
 | PC (1440px) | Tablet (768px) | Mobile (390px) |
 |:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-dark.png" alt="Home PC" width="100%" /> | <img src="public/docs/screenshots/tablet/home-dark.png" alt="Home Tablet" width="100%" /> | <img src="public/docs/screenshots/mobile/home-dark.png" alt="Home Mobile" width="100%" /> |
-| <img src="public/docs/screenshots/pc/works-dark.png" alt="Works PC" width="100%" /> | <img src="public/docs/screenshots/tablet/works-dark.png" alt="Works Tablet" width="100%" /> | <img src="public/docs/screenshots/mobile/works-dark.png" alt="Works Mobile" width="100%" /> |
-| <img src="public/docs/screenshots/pc/posts-dark.png" alt="Posts PC" width="100%" /> | <img src="public/docs/screenshots/tablet/posts-dark.png" alt="Posts Tablet" width="100%" /> | <img src="public/docs/screenshots/mobile/posts-dark.png" alt="Posts Mobile" width="100%" /> |
+| <img src="public/images/screenshots/pc/home-dark.png" alt="Home PC" width="100%" /> | <img src="public/images/screenshots/tablet/home-dark.png" alt="Home Tablet" width="100%" /> | <img src="public/images/screenshots/mobile/home-dark.png" alt="Home Mobile" width="100%" /> |
+| <img src="public/images/screenshots/pc/works-dark.png" alt="Works PC" width="100%" /> | <img src="public/images/screenshots/tablet/works-dark.png" alt="Works Tablet" width="100%" /> | <img src="public/images/screenshots/mobile/works-dark.png" alt="Works Mobile" width="100%" /> |
+| <img src="public/images/screenshots/pc/posts-dark.png" alt="Posts PC" width="100%" /> | <img src="public/images/screenshots/tablet/posts-dark.png" alt="Posts Tablet" width="100%" /> | <img src="public/images/screenshots/mobile/posts-dark.png" alt="Posts Mobile" width="100%" /> |
 
 ---
 
@@ -99,8 +112,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **3D Scroll Torus**: Three.js (R3F) 3D metallic torus — Lissajous curve path rotation, theme-specific materials, mobile touch repulsion interaction
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
-  <img src="public/docs/screenshots/pc/home-light.png" width="49%" alt="Home — Light" />
+  <img src="public/images/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
+  <img src="public/images/screenshots/pc/home-light.png" width="49%" alt="Home — Light" />
 </p>
 
 ### Works Gallery
@@ -114,8 +127,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Breakpoint Guard**: Cylinder layout responds to resize in real-time without reload; other layouts auto-remount on breakpoint transitions
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/docs/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <img src="public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
 
 ### Blog System
@@ -138,8 +151,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **First Comment Celebration**: Confetti effect + card flip celebration message (sparkle stars + accent lines) on first comment, admin select-all / drag selection / tombstone bulk permanent deletion
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
-  <img src="public/docs/screenshots/pc/posts-light.png" width="49%" alt="Posts — Light" />
+  <img src="public/images/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
+  <img src="public/images/screenshots/pc/posts-light.png" width="49%" alt="Posts — Light" />
 </p>
 
 ### Works Detail & Project Pages
@@ -148,8 +161,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Work Detail**: Project detail page — TOC from `##` heading parsing in content, gallery images, likes/comments, GitHub link button, static data fallback when DB is not connected
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
-  <img src="public/docs/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
+  <img src="public/images/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
+  <img src="public/images/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
 </p>
 
 ### Navigation & UX
@@ -167,8 +180,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **LanguageToggle Dynamic Measurement**: EN button position measured via useLayoutEffect for accurate indicator alignment
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
-  <img src="public/docs/screenshots/pc/about-light.png" width="49%" alt="About — Light" />
+  <img src="public/images/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
+  <img src="public/images/screenshots/pc/about-light.png" width="49%" alt="About — Light" />
 </p>
 
 ### Admin & CMS
@@ -206,8 +219,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Icon Consistency**: All inline SVGs unified to `lucide-react` (~200 replacements); brand marks (GitHub) extracted as custom components in `src/components/icons/` — tree-shakable + consistent strokeWidth/size API
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
-  <img src="public/docs/screenshots/pc/profile-light.png" width="49%" alt="Profile — Light" />
+  <img src="public/images/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
+  <img src="public/images/screenshots/pc/profile-light.png" width="49%" alt="Profile — Light" />
 </p>
 
 ### Performance
@@ -227,8 +240,8 @@ A personal portfolio website built with Next.js 15, React 19, and TypeScript, fe
 - **Design System Preview**: View tokens/components/banner layouts at `/design-system` route — Tooltip, Select (portal-based dropdown), Pagination (smart ellipsis), PeriodPicker, ButtonGroup (capsule-merged buttons), Gradient Tokens, 3-phase scroll animation
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
-  <img src="public/docs/screenshots/pc/design-system-light.png" width="49%" alt="Design System — Light" />
+  <img src="public/images/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
+  <img src="public/images/screenshots/pc/design-system-light.png" width="49%" alt="Design System — Light" />
 </p>
 
 > **Detailed docs**: [Security](./docs/security.en.md) · [DB Design Decisions](./docs/db-design.en.md) · [User Flow](./docs/user-flow.en.md)

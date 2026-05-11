@@ -8,7 +8,7 @@
  *
  * 옵션:
  *   --base=http://localhost:3000   (기본값)
- *   --out=public/docs/screenshots  (기본값)
+ *   --out=public/images/screenshots  (기본값)
  *   --dark                         (다크 모드만)
  *   --light                        (라이트 모드만)
  *   --device=pc                    (특정 디바이스만: pc,tablet,mobile)
@@ -16,7 +16,7 @@
  *   --full                         (전체 페이지 스크롤 캡처)
  *   --no-detail                    (상세 페이지 제외)
  *
- * 결과: public/docs/screenshots/{device}/{page}-{theme}.png
+ * 결과: public/images/screenshots/{device}/{page}-{theme}.png
  */
 
 import { chromium } from "playwright";
@@ -32,7 +32,7 @@ const args = Object.fromEntries(
 );
 
 const BASE = args.base || "http://localhost:3000";
-const OUT_DIR = resolve(args.out || "public/docs/screenshots");
+const OUT_DIR = resolve(args.out || "public/images/screenshots");
 const ONLY_DARK = args.dark === "true";
 const ONLY_LIGHT = args.light === "true";
 const FULL_PAGE = args.full === "true";
@@ -47,18 +47,28 @@ const DEVICES = [
   { name: "mobile", width: 390, height: 844, scale: 3 },
 ];
 
-/* ── Pages ── */
+/* ── Pages ──
+ *  - works 는 default(flow) + ?layout= 쿼리로 5종 추가 (fullscreen / cinematic / grid / split / cylinder)
+ *  - 상세 페이지(work-detail / post-detail)는 detail: true 로 표시 → --no-detail 로 일괄 제외 가능
+ */
 const PAGES = [
   // 메인 페이지들
   { name: "home", path: "/", wait: 3500 },
-  { name: "works", path: "/works", wait: 3500 },
+  { name: "works", path: "/works", wait: 3500 }, // flow (default)
+  { name: "works-fullscreen", path: "/works?layout=fullscreen", wait: 3500 },
+  { name: "works-cinematic", path: "/works?layout=cinematic", wait: 3500 },
+  { name: "works-grid", path: "/works?layout=grid", wait: 3000 },
+  { name: "works-split", path: "/works?layout=split", wait: 3000 },
+  { name: "works-cylinder", path: "/works?layout=cylinder", wait: 4000 },
   { name: "posts", path: "/posts", wait: 2500 },
   { name: "profile", path: "/profile", wait: 2500 },
   { name: "about", path: "/about", wait: 3000 },
   { name: "design-system", path: "/design-system", wait: 2500 },
+  { name: "privacy", path: "/privacy", wait: 1500 },
 
-  // 상세 페이지 (--no-detail로 제외 가능)
+  // 상세 페이지 (--no-detail 로 일괄 제외)
   { name: "work-detail", path: "/works/1", wait: 2500, detail: true },
+  { name: "post-detail", path: "/posts/1", wait: 2500, detail: true },
 ];
 
 /* ── Themes ── */
