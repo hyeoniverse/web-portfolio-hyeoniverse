@@ -159,6 +159,8 @@
 - **Footer Sliding Indicator**: Navigation과 동일한 슬라이딩 인디케이터 — hover 시 화살표 이동, ResizeObserver + fonts.ready 정확도
 - **Carousel (default / cylinder)**: 공통 Carousel — default(CSS opacity) / cylinder(3D perspective) 모드, autoPlay/loop/dots/arrows
 - **About 가로 스크롤**: `useHorizontalScroll` 훅으로 GSAP 기반 가로 스크롤(데스크톱), 모바일 자동 세로 스택
+- **About 모바일 IDE 패널**: 모바일/태블릿 Troubleshooting 패널을 VSCode 스타일 IDE 로 — 가로 스크롤 탭바 + line-numbered 에디터 + breadcrumb + status bar. 탭 전환은 (a) edge 도달 후 release & 재스크롤 (b) 손 안 떼고 누적 push (c) 가로 swipe 세 가지로 발화, fling 으로 edge 에 닿기만 한 케이스는 300ms grace 동안 흡수 → 의도치 않은 cascade 차단. 탭바 마우스 드래그 시 5px 임계 넘으면 cursor 가 `grab` 으로 전환되어 "Drag" 라벨로 시각화. 추천 항목은 별표 + recommendReason 한 줄 (왜 추천하는지 면접자 1인칭) 노출
+- **About 핀스크롤 throttle**: `useMobilePinScroll` 의 onUpdate 가 progress 차이를 ±1 step 으로 잘라 200ms throttle — 강한 fling 으로 progress 가 한 번에 여러 칸 점프해도 한 윈도우당 1탭만 전환, 패널 통과는 그대로 허용
 - **Page Transition**: 모든 detail 페이지 이동 시 이미지 확대→hero 위치 모핑→그라데이션 페이드 전환 효과 (PageTransitionProvider, root layout 레벨에서 페이지 간 유지)
 - **ImageViewer 방향 슬라이드**: 이전/다음 이동 시 반대 방향에서 slide-in (mode wait), 좌/우 영역 hover로 화살표 노출
 - **Select 드롭다운 애니메이션**: portal 기반 드롭다운에서 mount 후 rAF 2회 대기로 CSS transition 보장 (compound selector로 글로벌 theme transition 우회). **외부 스크롤 시 dropdown 위치 재계산이 아니라 dropdown 자체를 닫음** — trigger 따라 이동해 산만해지는 걸 방지(내부 옵션 list overflow 스크롤은 유지)
@@ -183,6 +185,7 @@
 - **RelationPicker 강화**: chip 좌측 grip handle 로 **pointer-based drag-reorder**(HTML5 D&D 의 source-unmount cancel / 자식 click 흡수 / state-driven `draggable` 토글 등 quirks 회피), `framer-motion` `layout` prop 으로 재정렬 시 FLIP spring 자동 애니메이션, drag 위치에 따라 chip 좌/우 가장자리에 `::before/::after` 삽입 indicator. 입력 영역 닫힘 시 안내 placeholder("+ Add" / "No more items"), 화살표는 `ChevronRight` + 열림 시 90° 회전. 썸네일 로드 실패 시 동일 사이즈 ImageIcon placeholder 로 fallback
 - **PostEditor 커버 picker 애니메이션**: ① 닫기 버튼 텍스트 "선택 ↔ 닫기" 가 `AnimatePresence mode="wait"` 로 부드럽게 swap. ② picker 펼친 상태에선 같은 row 의 excerpt textarea 가 picker 높이만큼 함께 stretch(`align-items: stretch` + `flex-direction: column`). ③ 닫기 시 `closingCoverPicker` state 로 ~450ms collapse 애니메이션 끝난 뒤 unmount(즉시 unmount 면 닫는 모션이 안 보임). 시리즈 순서 list 는 grip 핸들 가장 앞 + framer `layout` 으로 drop indicator + spring reorder
 - **CursorTrail HTML5 drag 지원**: HTML5 native drag 가 활성이면 브라우저가 `pointermove` 를 시스템 차원에서 억제 → CursorTrail 이 freeze + 다른 요소 hover 마다 cursor type 흔들림. `dragover` 를 `handleMouseMove` 로 forward 해 좌표 stream 복원 + `dragstart` 시점에 `cursorType="grab"` lock + `runHitTest` 진입부 early-return 으로 "내가 잡고 있는 것" 의 cursor 를 끝까지 유지
+- **CursorTrail press 피드백**: `.grab.clicking` 조합에 명시 룰 추가 — drag 가능 영역을 누르는 동안 cursor inner 가 0.85x 로 축소 (`width` 직접 변경 + `transform`/`animation` 무효화). 일반 `.clicking` 의 `transform: scale(0.8)` 만으론 시각적으로 잘 안 드러나던 케이스 해결
 - **이미지 깨짐 placeholder 시스템**: 모든 이미지 surface(에디터 cover, Plate inline, MarkdownRenderer, RelationPicker chip/option, ImagePanel 썸네일, WorkEditor main/gallery)에서 로드 실패 시 `/images/placeholder.svg` 로 통일 swap. React 컴포넌트는 `onError` + state, `dangerouslySetInnerHTML` 영역(MarkdownRenderer / useRichtextEnhance)은 `attachImageFallback(root)` — `addEventListener("error")` + 즉시 `complete && naturalWidth===0` 체크 + MutationObserver 로 dynamic 추가 img 자동 추적, swap 시 `removeAttribute("srcset")` 로 srcset 재시도 차단
 - **리비전 히스토리**: JSONB snapshot 자동저장, LCS diff 비교, 기기 간 공유, 50개 초과 자동 정리
 - **AI 번역/요약**: DeepL/Google/Gemini/Claude fallback chain, 발행 시 자동 요약 생성
