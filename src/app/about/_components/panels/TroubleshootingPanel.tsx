@@ -1,17 +1,22 @@
 "use client";
 
 import React, { useCallback, useRef, useState, useEffect, memo } from "react";
-import { Star } from "lucide-react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import Image from "next/image";
+import { Star, Maximize2, ImageIcon, ZoomIn, ZoomOut, RotateCcw, X } from "lucide-react";
 import type { Language } from "@/providers/LanguageProvider";
 import { troubleShootingItems } from "@/data/about/troubleshooting";
-import type { TroubleshootingDifficulty } from "@/data/about/types";
+import type { TroubleshootingDifficulty, TroubleshootingDiagram, TroubleshootingImage, TroubleShootingItem } from "@/data/about/types";
 import { renderHighlight } from "../renderHighlight";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
+import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import FlowDiagram from "../FlowDiagram";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
+import { ImageViewer } from "@/components/ui/ImageViewer";
 import shared from "../AboutSection.module.css";
 import local from "./TroubleshootingPanel.module.css";
 const styles = { ...shared, ...local };
@@ -102,6 +107,166 @@ function DifficultyBadge({
   );
 }
 
+/** Flow chart 인터랙티브 풀스크린 viewer — 휠 zoom, 드래그 pan, +/-/리셋/닫기 컨트롤 */
+function DiagramFullscreenViewer({
+  diagram,
+  language,
+  onClose,
+}: {
+  diagram: TroubleshootingDiagram;
+  language: Language;
+  onClose: () => void;
+}) {
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const stageRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ active: boolean; startX: number; startY: number; panX: number; panY: number }>({
+    active: false, startX: 0, startY: 0, panX: 0, panY: 0,
+  });
+
+  // ESC 로 닫기 + body 스크롤 잠금 (event 차단 방식, body 위치 변경 X — GSAP/Lenis 영향 없음)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    const prevent = (e: Event) => {
+      const target = e.target as Node | null;
+      if (stageRef.current && target && stageRef.current.contains(target)) return;
+      e.preventDefault();
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("wheel", prevent, { passive: false });
+    document.addEventListener("touchmove", prevent, { passive: false });
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("wheel", prevent);
+      document.removeEventListener("touchmove", prevent);
+    };
+  }, [onClose]);
+
+  // 휠 zoom — 커서 위치 기준으로 확대 (point under cursor 유지)
+  const onWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const stage = stageRef.current;
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+    const cx = e.clientX - rect.left;
+    const cy = e.clientY - rect.top;
+    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+    setZoom((prev) => {
+      const next = Math.max(0.2, Math.min(8, prev * factor));
+      const actualFactor = next / prev;
+      setPan((p) => ({
+        x: cx - (cx - p.x) * actualFactor,
+        y: cy - (cy - p.y) * actualFactor,
+      }));
+      return next;
+    });
+  }, []);
+
+  // 드래그 pan
+  const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    dragRef.current = {
+      active: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      panX: pan.x,
+      panY: pan.y,
+    };
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+  }, [pan]);
+  const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    setPan({
+      x: dragRef.current.panX + (e.clientX - dragRef.current.startX),
+      y: dragRef.current.panY + (e.clientY - dragRef.current.startY),
+    });
+  }, []);
+  const onPointerUp = useCallback(() => {
+    dragRef.current.active = false;
+  }, []);
+
+  const reset = useCallback(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, []);
+
+  if (typeof window === "undefined") return null;
+  return createPortal(
+    <div className={styles.diagramViewerOverlay} role="dialog" aria-label="Diagram viewer">
+      {/* Header — title + close */}
+      <div className={styles.diagramViewerHeader}>
+        <span className={styles.diagramViewerTitle}>
+          {diagram.title ? diagram.title[language] : "Flow chart"}
+        </span>
+        <button
+          type="button"
+          data-clickable="true"
+          className={styles.diagramViewerIconBtn}
+          onClick={onClose}
+          aria-label="Close"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      {/* Stage — zoom/pan 적용되는 영역 */}
+      <div
+        ref={stageRef}
+        className={styles.diagramViewerStage}
+        onWheel={onWheel}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      >
+        <div
+          className={styles.diagramViewerCanvas}
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: "0 0",
+          }}
+        >
+          <FlowDiagram nodes={diagram.nodes} edges={diagram.edges} language={language} />
+        </div>
+      </div>
+
+      {/* Controls — 우하단 zoom in/out/reset */}
+      <div className={styles.diagramViewerControls}>
+        <button
+          type="button"
+          data-clickable="true"
+          className={styles.diagramViewerIconBtn}
+          onClick={() => setZoom((z) => Math.min(8, z * 1.2))}
+          aria-label="Zoom in"
+        >
+          <ZoomIn size={18} />
+        </button>
+        <span className={styles.diagramViewerZoomLabel}>{Math.round(zoom * 100)}%</span>
+        <button
+          type="button"
+          data-clickable="true"
+          className={styles.diagramViewerIconBtn}
+          onClick={() => setZoom((z) => Math.max(0.2, z / 1.2))}
+          aria-label="Zoom out"
+        >
+          <ZoomOut size={18} />
+        </button>
+        <button
+          type="button"
+          data-clickable="true"
+          className={styles.diagramViewerIconBtn}
+          onClick={reset}
+          aria-label="Reset"
+        >
+          <RotateCcw size={16} />
+        </button>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 function TroubleshootingPanel({
   language,
   scrollBy,
@@ -119,15 +284,364 @@ function TroubleshootingPanel({
     scrollBy,
   );
 
-  /** 모바일 자동 펼침 — 처음엔 모두 접힘, 스크롤하면서 헤더가 활성 영역에 들어오는 항목만 펼침 */
-  const [expandedMobile, setExpandedMobile] = useState<number | null>(null);
-  const mobileHeaderRefs = useRef<(HTMLDivElement | null)[]>([]);
+  /** 모바일/태블릿: 핀 스크롤 진행도가 활성 인덱스를 결정. */
+  const [mobileActiveIdx, setMobileActiveIdx] = useState(0);
+  const [ideFontScale, setIdeFontScale] = useState(1); // IDE 텍스트 크기 사용자 조절 (0.85 ~ 1.3)
+  const [enlargedDiagram, setEnlargedDiagram] = useState<TroubleshootingDiagram | null>(null);
+  // 공통 ImageViewer — 클릭한 이미지가 viewer 의 시작 index, 같은 item 의 src 있는 이미지들이 list 가 됨
+  const [viewerState, setViewerState] = useState<{ images: string[]; index: number; title?: string } | null>(null);
+  const openImageViewer = useCallback((item: TroubleShootingItem, clickedImg: TroubleshootingImage) => {
+    const srcs = (item.images ?? []).filter((i): i is TroubleshootingImage & { src: string } => !!i.src).map((i) => i.src);
+    const idx = clickedImg.src ? srcs.indexOf(clickedImg.src) : 0;
+    setViewerState({ images: srcs, index: Math.max(0, idx), title: item.problem[language] });
+  }, [language]);
 
-  const displayIndex = detailIndex;
+  /** \n\n 로 구분된 문단을 각각 별도 ideLine 으로 렌더 + 사이에 빈 줄 — 가독성 위해 */
+  const renderParagraphs = useCallback(
+    (text: string, opts?: { insightStyle?: boolean }) => {
+      const paragraphs = text.split(/\n\n+/);
+      return paragraphs.map((para, pi) => (
+        <React.Fragment key={pi}>
+          {pi > 0 && (
+            <div className={`${styles.ideLine} ${styles.ideLineEmpty}`}>
+              <span className={styles.ideLineNum} />
+              <span className={styles.ideLineText} />
+            </div>
+          )}
+          <div className={styles.ideLine}>
+            <span className={styles.ideLineNum} />
+            <span className={`${styles.ideLineText} ${opts?.insightStyle ? styles.ideInsight : ""}`}>
+              {renderHighlight(para, language)}
+            </span>
+          </div>
+        </React.Fragment>
+      ));
+    },
+    [language],
+  );
 
-  // 클릭 핸들러 — 데스크톱: 디테일 영역으로 스크롤
+  /** 특정 position 의 이미지들만 골라서 렌더 — content 흐름 안에 자연스럽게 끼워 넣기 위함 */
+  const renderImagesAt = useCallback(
+    (item: TroubleShootingItem, position: "definition" | "cause" | "solution" | "insight") => {
+      const images = item.images;
+      if (!images || images.length === 0) return null;
+      const filtered = images.filter((img) => (img.position ?? "solution") === position);
+      if (filtered.length === 0) return null;
+      return (
+        <div className={styles.ideIndent}>
+          <div className={styles.troubleImages}>
+            {filtered.map((img, ii) =>
+              img.src ? (
+                <figure key={ii} className={styles.troubleImage}>
+                  {/* wrap (relative) > 이미지 button (clip + radius) + hint button (overflow 밖, 잘림 없음) */}
+                  <div className={styles.troubleImageWrap}>
+                    <button
+                      type="button"
+                      data-clickable="true"
+                      className={styles.troubleImageBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openImageViewer(item, img);
+                      }}
+                      aria-label={img.alt[language]}
+                    >
+                      <Image
+                        src={img.src}
+                        alt={img.alt[language]}
+                        width={1200}
+                        height={750}
+                        sizes="(max-width: 1024px) 100vw, 800px"
+                        className={styles.troubleImageImg}
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      data-clickable="true"
+                      className={styles.ideDiagramHint}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openImageViewer(item, img);
+                      }}
+                      aria-label="크게 보기"
+                    >
+                      <Maximize2 strokeWidth={2} className={styles.ideDiagramHintIcon} />
+                      크게 보기
+                    </button>
+                  </div>
+                  {img.caption && (
+                    <figcaption className={styles.troubleImageCaption}>
+                      {img.caption[language]}
+                    </figcaption>
+                  )}
+                </figure>
+              ) : (
+                <div key={ii} className={styles.troubleImagePlaceholder}>
+                  <ImageIcon size={32} strokeWidth={1.5} />
+                  <span className={styles.troubleImagePlaceholderTitle}>
+                    {img.placeholderKeyword ?? "Screenshot needed"}
+                  </span>
+                  <small className={styles.troubleImagePlaceholderAlt}>
+                    {img.alt[language]}
+                  </small>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      );
+    },
+    [language, openImageViewer],
+  );
+  // 폰트 조절 툴팁 — 패널에 진입할 때마다 표시, 사용자 클릭/키 입력 시 dismiss.
+  // 스크롤은 트리거 아님 (패널에 진입하는 행위 자체가 스크롤이라 즉시 사라지는 걸 막음).
+  const [showFontTooltip, setShowFontTooltip] = useState(false);
+  const wasVisibleRef = useRef(false);
+  useEffect(() => {
+    if (!isMobile) return;
+    const el = contentRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        const nowVisible = entry.isIntersecting && entry.intersectionRatio >= 0.4;
+        if (nowVisible && !wasVisibleRef.current) {
+          // not-visible → visible 전환 (패널 진입) — 툴팁 표시
+          setShowFontTooltip(true);
+        }
+        wasVisibleRef.current = nowVisible;
+      },
+      { threshold: [0, 0.4, 0.8] },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isMobile, contentRef]);
+
+  useEffect(() => {
+    if (!showFontTooltip) return;
+    const dismiss = () => setShowFontTooltip(false);
+    window.addEventListener("click", dismiss, { once: true });
+    window.addEventListener("keydown", dismiss, { once: true });
+    return () => {
+      window.removeEventListener("click", dismiss);
+      window.removeEventListener("keydown", dismiss);
+    };
+  }, [showFontTooltip]);
+  const prevIdxRef = useRef(0);
+  // IDE tab bar drag-to-scroll — 모바일 터치는 native overflow scroll, 데스크톱 마우스는 manual.
+  // setPointerCapture 안 씀 (button click 이 wrapper 로 가로채여서 발화 안 되는 문제) → document-level mousemove/up 으로 처리.
+  const ideTabBarRef = useRef<HTMLDivElement>(null);
+  const tabDragRef = useRef({ active: false, startX: 0, startScroll: 0, moved: 0 });
+  const handleTabMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ideTabBarRef.current;
+    if (!el) return;
+    tabDragRef.current = { active: true, startX: e.clientX, startScroll: el.scrollLeft, moved: 0 };
+  }, []);
+
+  // document-level mousemove / mouseup — 드래그가 tabbar 바깥으로 나가도 계속 작동.
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      const drag = tabDragRef.current;
+      const el = ideTabBarRef.current;
+      if (!drag.active || !el) return;
+      const dx = e.clientX - drag.startX;
+      drag.moved = Math.max(drag.moved, Math.abs(dx));
+      el.scrollLeft = drag.startScroll - dx;
+      // 5px 이상 움직였으면 drag 의도 확정 → 커서를 drag (grab) 로 전환
+      if (drag.moved > 5 && el.getAttribute("data-cursor") !== "grab") {
+        el.setAttribute("data-cursor", "grab");
+      }
+    };
+    const onUp = () => {
+      tabDragRef.current.active = false;
+      const el = ideTabBarRef.current;
+      if (el && el.hasAttribute("data-cursor")) el.removeAttribute("data-cursor");
+      // moved 는 click 핸들러가 체크한 뒤 자동으로 다음 mousedown 에서 0 으로 리셋됨
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+  }, []);
+  const handleMobileIndexChange = useCallback((idx: number) => {
+    prevIdxRef.current = idx;
+    setMobileActiveIdx(idx);
+  }, []);
+  const mobileStRef = useMobilePinScroll(
+    contentRef,
+    items.length,
+    1000,
+    handleMobileIndexChange,
+  );
+
+  // IDE editor 의 탭 전환 입력 처리.
+  //  룰: "처음 edge 에 닿기만 한 것" 은 전환 안 하고, "닿은 뒤 또 스크롤" 이면 전환.
+  //   - 또 스크롤 = (a) release 후 새 burst (QUIET_MS 이상 active 없다가 다시 active),
+  //                또는 (b) 손 안 떼고 계속 push (edge 위 active 누적이 PUSH_THRESHOLD 도달).
+  //   - momentum tail (delta <ACTIVE_DELTA) 은 무시 → fling 으로 닿기만 한 케이스 안전.
+  //  - Touch: 가로 swipe (|dx| > |dy| × 1.2) 로 다음/이전 탭. 세로면 native 스크롤 유지.
+  // handleItemClick 은 아래에서 선언되므로 ref 로 우회 (TDZ 회피).
+  const ideEditorRef = useRef<HTMLDivElement>(null);
+  const ideEdgeAccRef = useRef<{ dir: "up" | "down"; accumulated: number } | null>(null);
+  const activeIdxRef = useRef(mobileActiveIdx);
+  const handleItemClickRef = useRef<((idx: number) => void) | null>(null);
+  useEffect(() => { activeIdxRef.current = mobileActiveIdx; }, [mobileActiveIdx]);
+  // 활성 변경 시 누적 리셋 — 새 컨텐츠의 edge 부터 새 누적 시작
+  useEffect(() => { ideEdgeAccRef.current = null; }, [mobileActiveIdx]);
+  useEffect(() => {
+    if (!isMobile) return;
+    const editor = ideEditorRef.current;
+    if (!editor) return;
+    const ACTIVE_DELTA = 15; // 이상 = 적극 스크롤
+    const QUIET_MS = 100; // active wheel 사이 이 시간 이상 비면 = release 후 재스크롤
+    const PUSH_THRESHOLD = 250; // edge 위 active 누적 = 손 안 떼고 계속 push 의 신호
+    const COOLDOWN_MS = 250; // 전환 직후 잠금
+    const EDGE_GRACE_MS = 300; // edge 도달 직후 이 시간 동안은 전환 X (fling 흡수)
+    const SWIPE_THRESHOLD = 50;
+    const TOUCH_LOCK_RATIO = 1.2;
+
+    let lastActiveTime = 0; // 마지막 active wheel (edge 안팎 무관)
+    let edgeEnterTime = 0; // edge 진입 시각 (0 = 아직 edge 아님)
+    let cooldownUntil = 0;
+    let touchStart: { x: number; y: number } | null = null;
+    let touchHorizontal: boolean | null = null;
+
+    const fireTransition = (dir: "up" | "down", now: number) => {
+      const cur = activeIdxRef.current;
+      const nextIdx = dir === "down"
+        ? Math.min(items.length - 1, cur + 1)
+        : Math.max(0, cur - 1);
+      if (nextIdx !== cur) {
+        handleItemClickRef.current?.(nextIdx);
+        cooldownUntil = now + COOLDOWN_MS;
+      }
+      ideEdgeAccRef.current = null;
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      const content = editor.querySelector(`.${styles.ideEditorContent}`) as HTMLElement | null;
+      if (!content) return;
+      const atTop = content.scrollTop <= 0;
+      const atBottom = content.scrollTop + content.clientHeight >= content.scrollHeight - 1;
+      const dir: "up" | "down" = e.deltaY > 0 ? "down" : "up";
+      const atEdgeInDir = (dir === "up" && atTop) || (dir === "down" && atBottom);
+      const d = Math.abs(e.deltaY);
+      const now = performance.now();
+
+      if (!atEdgeInDir) {
+        // 컨텐츠 내부 스크롤 — active 시각 기록, native 통과
+        if (d >= ACTIVE_DELTA) lastActiveTime = now;
+        ideEdgeAccRef.current = null;
+        edgeEnterTime = 0;
+        return;
+      }
+
+      // edge 위 — momentum 끊기 위해 항상 preventDefault
+      e.preventDefault();
+
+      if (edgeEnterTime === 0) edgeEnterTime = now;
+
+      if (now < cooldownUntil) {
+        ideEdgeAccRef.current = null;
+        return;
+      }
+      if (d < ACTIVE_DELTA) {
+        // momentum tail — 무시 (lastActiveTime 갱신 안 함 → release 감지 가능)
+        return;
+      }
+
+      const wasQuiet = now - lastActiveTime > QUIET_MS;
+      lastActiveTime = now;
+
+      // edge 도달 직후 GRACE 시간 동안은 무조건 흡수 — 강한 fling 의 active 부분이 여기서 소진됨.
+      if (now - edgeEnterTime < EDGE_GRACE_MS) {
+        ideEdgeAccRef.current = null;
+        return;
+      }
+
+      if (wasQuiet) {
+        // (a) release 후 재스크롤 = 또 스크롤 → 즉시 전환
+        fireTransition(dir, now);
+        return;
+      }
+
+      // 연속 active — (b) 누적 push 가 PUSH_THRESHOLD 도달하면 = 또 스크롤로 인정
+      const last = ideEdgeAccRef.current;
+      if (!last || last.dir !== dir) {
+        ideEdgeAccRef.current = { dir, accumulated: d };
+        return;
+      }
+      last.accumulated += d;
+      if (last.accumulated >= PUSH_THRESHOLD) {
+        fireTransition(dir, now);
+      }
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      touchHorizontal = null;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!touchStart || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - touchStart.x;
+      const dy = e.touches[0].clientY - touchStart.y;
+      if (touchHorizontal === null && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
+        touchHorizontal = Math.abs(dx) > Math.abs(dy) * TOUCH_LOCK_RATIO;
+      }
+      if (touchHorizontal === true) {
+        // 가로 swipe 의도 확정 — native 세로 스크롤 차단
+        e.preventDefault();
+      }
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      const start = touchStart;
+      const horizontal = touchHorizontal;
+      touchStart = null;
+      touchHorizontal = null;
+      if (!start || horizontal !== true) return;
+      const dx = e.changedTouches[0].clientX - start.x;
+      if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+      const cur = activeIdxRef.current;
+      // 왼쪽 swipe (dx < 0) = 다음 탭, 오른쪽 swipe = 이전 탭
+      const nextIdx = dx < 0
+        ? Math.min(items.length - 1, cur + 1)
+        : Math.max(0, cur - 1);
+      if (nextIdx !== cur) handleItemClickRef.current?.(nextIdx);
+    };
+
+    editor.addEventListener("wheel", onWheel, { passive: false });
+    editor.addEventListener("touchstart", onTouchStart, { passive: true });
+    editor.addEventListener("touchmove", onTouchMove, { passive: false });
+    editor.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      editor.removeEventListener("wheel", onWheel);
+      editor.removeEventListener("touchstart", onTouchStart);
+      editor.removeEventListener("touchmove", onTouchMove);
+      editor.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [isMobile, items.length]);
+
+  const displayIndex = isMobile ? mobileActiveIdx : detailIndex;
+
+  // 클릭 핸들러 — 데스크톱: 디테일 영역으로 스크롤 / 모바일: 핀 스크롤 위치로 즉시 점프 (smooth scroll 보이지 않음)
   const handleItemClick = useCallback(
     (index: number) => {
+      if (isMobile) {
+        const st = mobileStRef.current;
+        if (!st) return;
+        const targetProgress = (index + 0.5) / items.length;
+        const targetScroll = st.start + targetProgress * (st.end - st.start);
+        // immediate: true → Lenis 가 smooth animation 없이 즉시 jump → 사용자에게 스크롤 동작 안 보임
+        const lenis = (window as { lenis?: { scrollTo: (t: number, opts?: { immediate?: boolean }) => void } }).lenis;
+        if (lenis) {
+          lenis.scrollTo(targetScroll, { immediate: true });
+        } else {
+          window.scrollTo({ top: targetScroll });
+        }
+        return;
+      }
       const detail = detailRef.current;
       if (!detail) return;
       const itemEls = detail.querySelectorAll(`.${styles.troubleDetailItem}`);
@@ -137,8 +651,10 @@ function TroubleshootingPanel({
         detail.scrollTo({ top: target.offsetTop, behavior: "smooth" });
       }
     },
-    [],
+    [isMobile, mobileStRef, items.length],
   );
+  // ide editor wheel handler 에서 사용 가능하도록 ref 에 최신 함수 reference 보관
+  useEffect(() => { handleItemClickRef.current = handleItemClick; });
 
   // 활성 항목 변경 시 해당 항목으로 리스트 자동 스크롤
   useEffect(() => {
@@ -216,52 +732,6 @@ function TroubleshootingPanel({
     detail.addEventListener("scroll", onScroll, { passive: true });
     return () => detail.removeEventListener("scroll", onScroll);
   }, [isMobile]);
-
-  /**
-   * 모바일 / 태블릿 — 스크롤 위치에 따라 항목을 자동 펼침.
-   *
-   * - 처음엔 expandedMobile = null → 모든 항목 접혀 있음
-   * - 사용자가 스크롤하면서 어떤 헤더가 viewport 중앙 활성 영역에 들어오면 그 항목 펼침
-   * - 다른 항목이 활성 영역에 들어오면 직전 항목은 자동 닫힘 (state 단일 값)
-   *
-   * 헤더만 관찰 → body 의 펼침/접힘 layout shift 가 observer 를 다시 트리거하지 않음
-   */
-  useEffect(() => {
-    if (!isMobile) return;
-    const headers = mobileHeaderRefs.current.filter(
-      (h): h is HTMLDivElement => h != null,
-    );
-    if (headers.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const intersecting = entries
-          .filter((e) => e.isIntersecting)
-          .sort(
-            (a, b) =>
-              a.boundingClientRect.top - b.boundingClientRect.top,
-          );
-        if (intersecting.length === 0) return;
-        const target = intersecting[0].target as HTMLDivElement;
-        const idxStr = target.dataset.idx;
-        if (!idxStr) return;
-        const idx = Number(idxStr);
-        setExpandedMobile((prev) => (prev === idx ? prev : idx));
-      },
-      {
-        rootMargin: "-35% 0px -35% 0px",
-        threshold: 0,
-      },
-    );
-
-    headers.forEach((h) => observer.observe(h));
-    return () => observer.disconnect();
-  }, [isMobile]);
-
-  // 모바일 → 데스크톱 전환 시 펼친 항목 정리
-  useEffect(() => {
-    if (!isMobile && expandedMobile !== null) setExpandedMobile(null);
-  }, [isMobile, expandedMobile]);
 
   // 데스크톱: 패널 포커스 시 wheel → 디테일 컨테이너 스크롤, 경계 도달 시 가로 스크롤
   // 단, wheel target 이 sidebar(목록) 내부면 sidebar 가 자체 스크롤하도록 양보
@@ -346,19 +816,14 @@ function TroubleshootingPanel({
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
-      {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
-      <div ref={contentRef} className={styles.pinnedContent}>
+      {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 (데스크톱),
+          모바일에서는 useMobilePinScroll 가 contentRef 를 핀 → 100vh 뷰포트 */}
+      <div ref={contentRef} className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}>
         <PinnedTitleRow
-         
+          className={`${styles.titleRowCompact} ${local.troublePinTitleRow}`}
           title={<T k="aboutPage.panels.troubleShooting" />}
           compact
           animate
-          dotNav={{
-            count: items.length,
-            activeIndex: displayIndex,
-            onDotClick: handleItemClick,
-            className: styles.dotNavMobileOnly,
-          }}
         />
 
         {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
@@ -527,128 +992,343 @@ function TroubleshootingPanel({
           </div>
         </div>
 
-        {/* 모바일: 모든 항목 표시 (폴백, pin 활성 시 숨김) */}
-        <div className={styles.troubleMobileList}>
-          {items.map((item, index) => {
-            const prev = index > 0 ? items[index - 1] : null;
-            const isSectionStart = !!item.section && item.section.ko !== prev?.section?.ko;
-            const sectionItems = items.filter((it) => it.section?.ko === item.section?.ko);
-            return (
-            <React.Fragment key={index}>
-              {isSectionStart && item.section && (
-                <div className={`${styles.troubleSectionLabel} ${styles.troubleSectionLabelMobile}`}>
-                  <span>{item.section[language]}</span>
-                  <span className={styles.troubleSectionCount}>{sectionItems.length}</span>
-                </div>
-              )}
-              <div
-                className={`${styles.troubleMobileItem} ${styles.animate} ${expandedMobile === index ? styles.troubleMobileItemOpen : ""}`}
+        {/* 모바일/태블릿: Terminal / IDE — VSCode 스타일 tab bar + line-numbered editor + status bar */}
+        <div className={styles.ideWrap}>
+          {/* Breadcrumb */}
+          <div className={styles.ideBreadcrumb}>
+            <span className={styles.ideBreadcrumbCrumb}>src</span>
+            <span className={styles.ideBreadcrumbSep}>/</span>
+            <span className={styles.ideBreadcrumbCrumb}>troubleshooting</span>
+            {items[mobileActiveIdx]?.section && (
+              <>
+                <span className={styles.ideBreadcrumbSep}>/</span>
+                <span className={styles.ideBreadcrumbCrumb}>
+                  {items[mobileActiveIdx].section![language].toLowerCase().replace(/\s+/g, "-")}
+                </span>
+              </>
+            )}
+            <span className={styles.ideBreadcrumbSep}>/</span>
+            <span className={styles.ideBreadcrumbFile}>
+              {String(mobileActiveIdx + 1).padStart(2, "0")}.md
+            </span>
+          </div>
+
+          {/* Tab bar — 모든 항목 표시, 활성만 indicator. 모바일 터치는 native overflow scroll, 데스크톱은 mouse drag */}
+          <div
+            ref={ideTabBarRef}
+            className={styles.ideTabBar}
+            data-lenis-prevent
+            onMouseDown={handleTabMouseDown}
+          >
+            <LayoutGroup id="trouble-ide-tabs">
+              {items.map((item, index) => {
+                const isActive = index === mobileActiveIdx;
+                const filename = `${String(index + 1).padStart(2, "0")}.md`;
+                return (
+                  <Tooltip
+                    key={index}
+                    content={item.problem[language]}
+                    placement="bottom"
+                    delay={150}
+                  >
+                    <button
+                      type="button"
+                      data-clickable="true"
+                      className={`${styles.ideTab} ${isActive ? styles.ideTabActive : ""}`}
+                      onClick={() => {
+                        // 드래그 5px 이상 움직였으면 click 무시
+                        if (tabDragRef.current.moved > 5) return;
+                        handleItemClick(index);
+                      }}
+                    >
+                      {item.recommended ? (
+                        <Star
+                          size={11}
+                          fill="currentColor"
+                          strokeWidth={1.5}
+                          className={styles.ideTabStar}
+                          aria-hidden
+                        />
+                      ) : (
+                        <span className={styles.ideTabDot} aria-hidden />
+                      )}
+                      <span className={styles.ideTabName}>{filename}</span>
+                      {isActive && (
+                        <motion.span
+                          layoutId="ide-tab-indicator"
+                          className={styles.ideTabIndicator}
+                          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                        />
+                      )}
+                    </button>
+                  </Tooltip>
+                );
+              })}
+            </LayoutGroup>
+          </div>
+
+          {/* Editor pane */}
+          <div ref={ideEditorRef} className={styles.ideEditor}>
+            <AnimatePresence mode="wait" initial={false}>
+              {(() => {
+                const item = items[mobileActiveIdx];
+                if (!item) return null;
+                return (
+                  <motion.div
+                    key={mobileActiveIdx}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.12 }}
+                    className={styles.ideEditorContent}
+                    style={{ "--ide-font-scale": ideFontScale } as React.CSSProperties}
+                    data-lenis-prevent
+                  >
+                    {/* Header (메타 정보) */}
+                    <div className={styles.ideLine}>
+                      <span className={styles.ideLineNum} />
+                      <span className={styles.ideLineText}>
+                        <span className={styles.ideHash}>#</span>{" "}
+                        <span className={styles.ideTitle}>
+                          {item.problem[language]}
+                          <span className={styles.ideCursor} aria-hidden>▊</span>
+                        </span>
+                      </span>
+                    </div>
+                    <div className={`${styles.ideLine} ${styles.ideLineEmpty}`}>
+                      <span className={styles.ideLineNum} />
+                      <span className={styles.ideLineText} />
+                    </div>
+                    <div className={styles.ideLine}>
+                      <span className={styles.ideLineNum} />
+                      <span className={styles.ideLineText}>
+                        <span className={styles.ideComment}>{"// "}@section: {item.section?.[language] ?? "-"}</span>
+                      </span>
+                    </div>
+                    {item.difficulty && (
+                      <div className={styles.ideLine}>
+                        <span className={styles.ideLineNum} />
+                        <span className={styles.ideLineText}>
+                          <span className={styles.ideComment}>
+                            {"// "}@difficulty: {DIFFICULTY_META[item.difficulty].label[language]}
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                    {item.recommended && (
+                      <div className={styles.ideLine}>
+                        <span className={styles.ideLineNum} />
+                        <span className={styles.ideLineText}>
+                          <span className={styles.ideComment}>
+                            {"// "}@recommended{item.recommendReason ? `: ${item.recommendReason[language]}` : ""}
+                          </span>
+                        </span>
+                      </div>
+                    )}
+
+                    <div className={styles.ideDivider} aria-hidden />
+
+                    {/* Cause */}
+                    <div className={styles.ideLine}>
+                      <span className={styles.ideLineNum} />
+                      <span className={styles.ideLineText}>
+                        <span className={styles.ideHashH2}>##</span>{" "}
+                        <span className={styles.ideHeading}>
+                          <T k="aboutPage.troubleshooting.cause" />
+                        </span>
+                      </span>
+                    </div>
+                    {renderParagraphs(item.cause[language])}
+                    {renderImagesAt(item, "cause")}
+
+                    <div className={styles.ideDivider} aria-hidden />
+
+                    {/* Solution */}
+                    <div className={styles.ideLine}>
+                      <span className={styles.ideLineNum} />
+                      <span className={styles.ideLineText}>
+                        <span className={styles.ideHashH2}>##</span>{" "}
+                        <span className={`${styles.ideHeading} ${styles.ideHeadingAccent}`}>
+                          <T k="aboutPage.troubleshooting.solution" />
+                        </span>
+                      </span>
+                    </div>
+                    {renderParagraphs(item.solution[language])}
+                    {renderImagesAt(item, "solution")}
+
+                    {item.comparisons && item.comparisons.length > 0 && (
+                      <>
+                        <div className={styles.ideDivider} aria-hidden />
+                        <div className={styles.ideIndent}>
+                          <div className={local.troubleComparisons}>
+                            {item.comparisons.map((table, ti) => (
+                              <div key={ti} className={local.troubleComparisonWrap}>
+                                {table.label && (
+                                  <span className={local.troubleComparisonLabel}>{table.label[language]}</span>
+                                )}
+                                <table className={local.troubleTable}>
+                                  <thead>
+                                    <tr>
+                                      {table.headers.map((h, hi) => (
+                                        <th key={hi}>{h[language]}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {table.rows.map((row, ri) => (
+                                      <tr key={ri} className={row.highlight ? local.troubleTableRowHighlight : undefined}>
+                                        {row.cells.map((cell, ci) => (
+                                          <td key={ci}>{renderHighlight(cell[language], language)}</td>
+                                        ))}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {item.diagrams && item.diagrams.length > 0 && (
+                      <>
+                        <div className={styles.ideDivider} aria-hidden />
+                        <div className={styles.ideLine}>
+                          <span className={styles.ideLineNum} />
+                          <span className={styles.ideLineText}>
+                            <span className={styles.ideHashH2}>##</span>{" "}
+                            <span className={styles.ideHeading}>
+                              <T k="aboutPage.troubleshooting.flow" />
+                            </span>
+                          </span>
+                        </div>
+                        <div className={styles.ideIndent}>
+                          <div className={styles.troubleDiagrams}>
+                            {item.diagrams.map((d, di) => (
+                              <div key={di} className={styles.troubleDiagramItem}>
+                                <div className={styles.troubleDiagramFrame}>
+                                  {d.title && (
+                                    <span className={local.troubleDiagramTitle}>{d.title[language]}</span>
+                                  )}
+                                  <FlowDiagram nodes={d.nodes} edges={d.edges} language={language} />
+                                </div>
+                                <button
+                                  type="button"
+                                  data-clickable="true"
+                                  className={styles.ideDiagramHint}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEnlargedDiagram(d);
+                                  }}
+                                  aria-label="크게 보기"
+                                >
+                                  <Maximize2 strokeWidth={2} className={styles.ideDiagramHintIcon} />
+                                  크게 보기
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    <div className={styles.ideDivider} aria-hidden />
+
+                    {/* Key insight */}
+                    <div className={styles.ideLine}>
+                      <span className={styles.ideLineNum} />
+                      <span className={styles.ideLineText}>
+                        <span className={styles.ideComment}>
+                          {"/* "}<T k="aboutPage.troubleshooting.keyInsight" />{" */"}
+                        </span>
+                      </span>
+                    </div>
+                    {renderParagraphs(item.keyInsight[language], { insightStyle: true })}
+                    {renderImagesAt(item, "insight")}
+                  </motion.div>
+                );
+              })()}
+            </AnimatePresence>
+          </div>
+
+          {/* Status bar — 우측에 폰트 크기 조절 버튼 */}
+          <div className={styles.ideStatusBar}>
+            <span className={styles.ideStatusGroup}>
+              <span className={styles.ideStatusDot} aria-hidden />
+              {items[mobileActiveIdx]?.section?.[language] ?? "-"}
+            </span>
+            <span className={styles.ideStatusGroup}>
+              {String(mobileActiveIdx + 1).padStart(2, "0")}/{String(items.length).padStart(2, "0")}
+            </span>
+            <span className={styles.ideStatusGroup}>MARKDOWN</span>
+            <span className={styles.ideStatusFontControls} style={{ position: "relative" }}>
+              <AnimatePresence>
+                {showFontTooltip && (
+                  <motion.span
+                    key="font-tooltip"
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    transition={{ duration: 0.2 }}
+                    className={styles.ideFontTooltip}
+                  >
+                    글자 크기 조절
+                  </motion.span>
+                )}
+              </AnimatePresence>
+              <button
+                type="button"
+                data-clickable="true"
+                className={styles.ideStatusFontBtn}
+                onClick={() => {
+                  setIdeFontScale((s) => Math.max(0.8, +(s - 0.1).toFixed(2)));
+                  setShowFontTooltip(false);
+                }}
+                disabled={ideFontScale <= 0.8}
+                aria-label="Decrease font size"
               >
-                <div
-                  ref={(el) => {
-                    mobileHeaderRefs.current[index] = el;
-                  }}
-                  data-idx={index}
-                  data-clickable="true"
-                  className={styles.troubleMobileHeader}
-                  onClick={() => setExpandedMobile((prev) => (prev === index ? null : index))}
-                >
-                  <span className={styles.troubleNumber}>
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <h4 className={styles.troubleTitle}>
-                  {item.problem[language]}
-                </h4>
-                <span className={styles.troubleHeaderBadges}>
-                  {item.recommended && (
-                    <span className={styles.troubleHeaderRecommended}>
-                      <Star size={11} fill="currentColor" strokeWidth={1.5} />
-                      {language === "ko" ? "추천" : "Rec"}
-                    </span>
-                  )}
-                  {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} large />}
-                </span>
-              </div>
-              <div className={`${styles.troubleBody} ${styles.troubleMobileBody} ${expandedMobile === index ? styles.troubleMobileBodyOpen : ""}`}>
-                <div className={styles.troubleEntry}>
-                  <span className={styles.entryLabel}>
-                    <T k="aboutPage.troubleshooting.cause" />
-                  </span>
-                  <p>{renderHighlight(item.cause[language], language)}</p>
-                </div>
-                <div className={styles.troubleEntry}>
-                  <span
-                    className={`${styles.entryLabel} ${styles.entryLabelAccent}`}
-                  >
-                    <T k="aboutPage.troubleshooting.solution" />
-                  </span>
-                  <p>{renderHighlight(item.solution[language], language)}</p>
-                </div>
-                {item.comparisons && item.comparisons.length > 0 && (
-                  <div className={styles.troubleEntry}>
-                    <div className={local.troubleComparisons}>
-                      {item.comparisons.map((table, ti) => (
-                        <div key={ti} className={local.troubleComparisonWrap}>
-                          {table.label && (
-                            <span className={local.troubleComparisonLabel}>{table.label[language]}</span>
-                          )}
-                          <table className={local.troubleTable}>
-                            <thead>
-                              <tr>
-                                {table.headers.map((h, hi) => (
-                                  <th key={hi}>{h[language]}</th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {table.rows.map((row, ri) => (
-                                <tr key={ri} className={row.highlight ? local.troubleTableRowHighlight : undefined}>
-                                  {row.cells.map((cell, ci) => (
-                                    <td key={ci}>{renderHighlight(cell[language], language)}</td>
-                                  ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {item.diagrams && item.diagrams.length > 0 && (
-                  <div className={styles.troubleEntry}>
-                    <span className={styles.entryLabel}>
-                      <T k="aboutPage.troubleshooting.flow" />
-                    </span>
-                    <div className={local.troubleDiagrams}>
-                      {item.diagrams.map((d, di) => (
-                        <div key={di} className={local.troubleDiagramWrap}>
-                          {d.title && (
-                            <span className={local.troubleDiagramTitle}>{d.title[language]}</span>
-                          )}
-                          <FlowDiagram nodes={d.nodes} edges={d.edges} language={language} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div className={styles.troubleEntry}>
-                  <span
-                    className={`${styles.entryLabel} ${styles.entryLabelInsight}`}
-                  >
-                    <T k="aboutPage.troubleshooting.keyInsight" />
-                  </span>
-                  <p className={styles.troubleInsightText}>
-                    {renderHighlight(item.keyInsight[language], language)}
-                  </p>
-                </div>
-              </div>
-            </div>
-            </React.Fragment>
-          );
-          })}
+                A−
+              </button>
+              <span className={styles.ideStatusFontValue}>
+                {Math.round(ideFontScale * 100)}%
+              </span>
+              <button
+                type="button"
+                data-clickable="true"
+                className={styles.ideStatusFontBtn}
+                onClick={() => {
+                  setIdeFontScale((s) => Math.min(1.4, +(s + 0.1).toFixed(2)));
+                  setShowFontTooltip(false);
+                }}
+                disabled={ideFontScale >= 1.4}
+                aria-label="Increase font size"
+              >
+                A+
+              </button>
+            </span>
+          </div>
         </div>
+
       </div>
+
+      {/* Flow chart 인터랙티브 풀스크린 viewer — 휠 zoom, 드래그 pan, 컨트롤 버튼 */}
+      {enlargedDiagram && (
+        <DiagramFullscreenViewer
+          diagram={enlargedDiagram}
+          language={language}
+          onClose={() => setEnlargedDiagram(null)}
+        />
+      )}
+
+      {/* 공통 ImageViewer — zoom / pan / 멀티 image 네비 / 키보드 / 풀스크린 등 모두 지원 */}
+      <ImageViewer
+        images={viewerState?.images ?? []}
+        index={viewerState?.index ?? 0}
+        open={!!viewerState && viewerState.images.length > 0}
+        onClose={() => setViewerState(null)}
+        title={viewerState?.title}
+      />
     </div>
   );
 }

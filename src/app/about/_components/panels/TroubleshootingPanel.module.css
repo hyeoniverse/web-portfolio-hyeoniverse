@@ -372,62 +372,12 @@
   text-transform: none;
 }
 
-.troubleSectionLabelMobile {
-  position: static;
-  padding: var(--spacing-xl) 0 var(--spacing-sm);
-  background: transparent;
-  border-bottom: var(--_line-secondary);
-}
-
-.troubleSectionLabelMobile + .troubleMobileItem,
-.troubleMobileItem + .troubleMobileItem {
-  padding-left: var(--spacing-md);
-}
-
-.troubleMobileList {
-  display: none;
-}
-
-.troubleMobileItem {
-  position: relative;
-  overflow: hidden;
-  padding: var(--spacing-lg) 0;
-  border-bottom: var(--_line-secondary);
-}
-
-.troubleMobileItem:last-child {
-  border-bottom: none;
-}
-
-/* 모바일 항목 헤더 — 클릭으로 토글 가능, cursor pointer */
-.troubleMobileItem .troubleMobileHeader {
-  cursor: pointer;
-}
-
-/* 모바일 body — 기본 접힘 (max-height 0), .Open 일 때 펼침
-   compound selector (0,2,0) 로 글로벌 transition shorthand 우회 */
-.troubleMobileItem .troubleMobileBody {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition:
-    max-height var(--duration-slower, 600ms) var(--ease-material, ease),
-    opacity var(--duration-base, 200ms) ease,
-    margin-top var(--duration-slower, 600ms) var(--ease-material, ease);
-  margin-top: 0;
-}
-
-.troubleMobileItem .troubleMobileBodyOpen {
-  max-height: 4000px; /* 한 항목이 가질 만한 충분한 상한 */
-  opacity: 1;
-  margin-top: var(--_space-block);
-}
-
-.troubleMobileHeader {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: baseline;
-  margin-bottom: var(--spacing-sm);
+/* ── 모바일 아코디언 리스트 (핀 스크롤) ──
+   모든 헤더는 항상 보이고, 활성 1개만 펼쳐짐.
+   리스트 전체는 translateY 로 활성 항목 헤더를 뷰포트 상단에 정렬.
+   wrap 은 overflow:hidden — 사용자 직접 스크롤은 막고 핀이 진행도를 제어 */
+.troubleAccordionWrap {
+  display: none; /* 데스크톱에서는 숨김, 모바일 미디어쿼리에서 활성화 */
 }
 
 /* ── Comparison tables ── */
@@ -538,12 +488,1031 @@
     display: none;
   }
 
-  .troubleMobileList {
+  /* 핀 시작은 기본 "top top" 사용 → contentRef 가 100vh 그대로 viewport 에 맞음.
+     titleRow padding-top: nav(80) + tab(40) + 추가 여백 → 탭과 타이틀 사이 호흡 확보.
+     margin-bottom: spacing-3xl → 타이틀과 stack 사이 충분한 간격.
+     specificity 4중복 — global pinnedTitleRow padding 과 titleRowCompact 모두 이김. */
+  .troublePinTitleRow.troublePinTitleRow.troublePinTitleRow.troublePinTitleRow {
+    padding-top: calc(80px + 40px + var(--spacing-2xl));
+    margin-bottom: var(--spacing-xl);
+  }
+  /* h3 margin 만 0 으로 — 폰트 크기는 다른 패널의 panelTitleCompact 와 동일 유지 */
+  .troublePinTitleRow h3 {
+    margin: 0;
+  }
+  /* dotNavWrap padding-top 0 override 는 shared AboutSection.module.css 의
+     .dotNavWrap.dotNavMobileOnly 룰에서 처리 — local 에서는 CSS Modules hashing 때문에 매칭 안 됨 */
+
+  /* ===== Terminal / IDE Style ===== */
+  .ideWrap {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
+    min-height: 0;
+    background: var(--bg-tertiary);
+    border: 1px solid color-mix(in srgb, var(--text-secondary) 20%, transparent);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    margin-bottom: var(--spacing-lg); /* 화면 아래 여백 확보 */
+    font-family: var(--font-mono);
   }
 
-  /* detailHeader mobile → shared .detailHeader mobile */
+  /* Breadcrumb (file path) — subtle 구분선 */
+  .ideBreadcrumb {
+    display: flex;
+    flex: none;
+    gap: 4px;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
+    font-size: var(--font-size-2xs);
+    color: var(--text-tertiary);
+    overflow-x: auto;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+
+  .ideBreadcrumb::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ideBreadcrumbCrumb {
+    color: var(--text-tertiary);
+  }
+
+  .ideBreadcrumbSep {
+    color: var(--text-tertiary);
+    opacity: 0.5;
+  }
+
+  .ideBreadcrumbFile {
+    color: var(--text-accent);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* Tab bar — flex 컨테이너의 cross-axis 가 width 100% → 내부 탭 overflow 시 자체 가로 스크롤.
+     cursor: grab / drag 중 grabbing + user-select: none 으로 드래그 시 텍스트 선택 방지 */
+  .ideTabBar {
+    display: flex;
+    flex: none;
+    gap: 0;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* mouse 누르고 있는 동안 (= drag 진행 중) cursor 를 grabbing 으로 바꿈. 자식 탭에도 적용 */
+  .ideTabBar:active,
+  .ideTabBar:active .ideTab {
+    cursor: grabbing;
+  }
+
+  .ideTabBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ideTab {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    gap: var(--spacing-xs);
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: none;
+    border-right: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--font-size-2xs);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* 마지막 탭 우측 구분선 제거 — Tooltip 래퍼(span) 가 각 탭을 감싸므로 grandchild 셀렉터로
+     실제 tabbar 의 마지막 탭만 타겟 (tabbar > span:last-child > .ideTab 또는 직접 자식) */
+  .ideTabBar > :last-child > .ideTab,
+  .ideTabBar > .ideTab:last-child {
+    border-right: none;
+  }
+
+  .ideTab:hover {
+    color: var(--text-secondary);
+  }
+
+  .ideTabActive {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+
+  .ideTabDot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-circle);
+    background: var(--text-accent);
+    opacity: 0.5;
+  }
+
+  .ideTabActive .ideTabDot,
+  .ideTab:hover .ideTabDot {
+    opacity: 1;
+  }
+
+  /* 추천 항목 — dot 대신 별표. accent 컬러 풀 */
+  .ideTabStar {
+    flex: none;
+    color: var(--text-accent);
+    opacity: 0.4;
+  }
+
+  .ideTabActive .ideTabStar,
+  .ideTab:hover .ideTabStar {
+    opacity: 1;
+  }
+
+  .ideTabIndicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--text-accent);
+  }
+
+  /* Editor pane */
+  .ideEditor {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .ideEditorContent {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-default) transparent;
+    padding: var(--spacing-md) 0;
+    counter-reset: ide-line;
+  }
+
+  .ideEditorContent::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .ideEditorContent::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: var(--radius-capsule);
+  }
+
+  /* 코드 라인 — gutter (line num) + text. 모든 라인 동일한 padding/line-height 로 일정한 rhythm */
+  .ideLine {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+    padding: 0 var(--spacing-md);
+    line-height: 1.75;
+    counter-increment: ide-line;
+  }
+
+  .ideLineNum {
+    flex: none;
+    width: 3ch;
+    text-align: right;
+    color: var(--text-tertiary);
+    opacity: 0.5;
+    font-size: var(--font-size-2xs);
+    user-select: none;
+    line-height: inherit;
+    padding-top: 0.1em;
+  }
+
+  .ideLineNum::before {
+    content: counter(ide-line);
+  }
+
+  /* ideFontScale CSS 변수 (기본 1) — 사용자가 status bar 의 A-/A+ 로 조절 */
+  .ideLineText {
+    flex: 1;
+    min-width: 0;
+    font-size: calc(clamp(0.85rem, 3vw, 0.95rem) * var(--ide-font-scale, 1));
+    color: var(--text-secondary);
+    word-break: break-word;
+  }
+
+  /* 빈 라인 — 줄번호만 카운트되도록 padding 유지, 최소 한 줄 높이 보장 */
+  .ideLineEmpty .ideLineText::before {
+    content: "\00a0"; /* &nbsp; */
+  }
+
+  /* Divider — 섹션 사이 구분선. 줄번호 위치는 비우고 content 영역에만 dashed line */
+  .ideDivider {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    padding: var(--spacing-2xs) var(--spacing-md);
+    line-height: 1.7;
+  }
+
+  .ideDivider::before {
+    content: "";
+    flex: none;
+    width: 3ch;
+  }
+
+  .ideDivider::after {
+    content: "";
+    flex: 1;
+    border-top: 1px dashed var(--border-default);
+    opacity: 0.5;
+  }
+
+  /* Table/diagram 인덴트 — gutter(3ch) + 선행 padding 만큼 들여쓰기 → 본문 텍스트 시작 X 와 정확히 정렬 */
+  .ideIndent {
+    padding: var(--spacing-xs) var(--spacing-md);
+    padding-left: calc(3ch + var(--spacing-md) * 2);
+  }
+
+  /* 클릭 가능한 diagram wrap — 위치 컨텍스트만 제공. 실제 클릭은 .ideDiagramHint 버튼 */
+  .ideDiagramClickable {
+    position: relative;
+  }
+
+  /* per-diagram outer (image 의 troubleImageWrap 과 동일 패턴) — hint 가 frame 밖에 위치하도록 */
+  .troubleDiagramItem {
+    position: relative;
+  }
+
+  .troubleDiagramFrame {
+    border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    padding: var(--spacing-sm);
+    background: var(--bg-secondary);
+  }
+
+  /* 크게 보기 버튼 — 항상 보임. hover 시 font-weight 진해지고 아이콘이 사방으로 벌어짐. capsule shape.
+     spacing-sm 만큼 inset → 부모 컨테이너의 border-radius 에 잘리지 않음 */
+  .ideDiagramHint {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px var(--spacing-sm);
+    background: var(--bg-secondary);
+    border: 1px solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
+    border-radius: var(--radius-capsule);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    z-index: 2;
+    transition: color 0.2s ease, font-weight 0.15s ease;
+  }
+
+  /* 아이콘 크기 — 글자 line-height 에 맞춤 (1em). hover 시 scale + rotate 로 벌어지는 느낌 */
+  .ideDiagramHintIcon {
+    width: 1em;
+    height: 1em;
+    transition: transform 0.3s var(--ease-material, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  .ideDiagramHint:hover {
+    color: var(--text-primary);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .ideDiagramHint:hover .ideDiagramHintIcon {
+    transform: scale(1.25) rotate(45deg);
+  }
+
+  /* ===== Images / Screenshots ===== */
+  .troubleImages {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .troubleImage {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  /* wrap — image button 의 overflow:hidden 밖으로 hint 버튼 빼서 잘림 방지 */
+  .troubleImageWrap {
+    position: relative;
+  }
+
+  /* 이미지 button — 클릭 시 확대 모달. hover 효과 위해 position relative */
+  .troubleImageBtn {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
+    border-radius: var(--radius-2xl);
+    background: var(--bg-secondary);
+    overflow: hidden;
+    cursor: zoom-in;
+    transition: border-color 0.2s ease;
+  }
+
+  .troubleImageBtn:hover {
+    border-color: color-mix(in srgb, var(--text-accent) 35%, transparent);
+  }
+
+  /* hint 는 wrap 의 직속 자식 — image button 의 radius/overflow 영향 안 받음 */
+  .troubleImageWrap > .ideDiagramHint {
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+  }
+
+  .troubleImageImg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .troubleImageCaption {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-2xs);
+    color: var(--text-tertiary);
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* Placeholder — 아직 스크린샷 없을 때, 사용자가 찍을 키워드 표시 */
+  .troubleImagePlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-2xl) var(--spacing-md);
+    border: 1.5px dashed color-mix(in srgb, var(--text-tertiary) 35%, transparent);
+    border-radius: var(--radius-2xl);
+    background: color-mix(in srgb, var(--text-secondary) 4%, transparent);
+    color: var(--text-tertiary);
+    text-align: center;
+    min-height: 160px;
+  }
+
+  .troubleImagePlaceholder svg {
+    opacity: 0.5;
+  }
+
+  .troubleImagePlaceholderTitle {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+  }
+
+  .troubleImagePlaceholderAlt {
+    font-family: var(--_font-grotesk);
+    font-size: var(--font-size-2xs);
+    color: var(--text-tertiary);
+    max-width: 300px;
+    line-height: 1.4;
+  }
+
+  .ideHash {
+    color: var(--text-accent);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .ideHashH2 {
+    color: var(--text-accent);
+    font-weight: var(--font-weight-medium);
+    opacity: 0.7;
+  }
+
+  .ideTitle {
+    color: var(--text-primary);
+    font-weight: var(--font-weight-semibold);
+    font-size: calc(clamp(1.05rem, 4vw, 1.3rem) * var(--ide-font-scale, 1));
+    line-height: var(--line-height-snug);
+  }
+
+  .ideHeading {
+    color: var(--text-primary);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: calc(clamp(0.8rem, 2.8vw, 0.9rem) * var(--ide-font-scale, 1));
+  }
+
+  .ideHeadingAccent {
+    color: var(--text-accent);
+  }
+
+  .ideComment {
+    color: var(--text-tertiary);
+    font-style: italic;
+    font-size: calc(clamp(0.8rem, 2.8vw, 0.9rem) * var(--ide-font-scale, 1));
+  }
+
+  /* 정리(keyInsight) 본문 — 전체 accent 면 오히려 집중 안 됨. 기본 텍스트 + italic 만 */
+  .ideInsight {
+    color: var(--text-primary);
+    font-style: italic;
+  }
+
+  /* 깜빡이는 커서 */
+  .ideCursor {
+    display: inline-block;
+    margin-left: 2px;
+    color: var(--text-accent);
+    animation: ideCursorBlink 1s steps(2, start) infinite;
+  }
+
+  @keyframes ideCursorBlink {
+    to { visibility: hidden; }
+  }
+
+  /* 섹션 블록 — 줄 사이 간격 */
+  .ideBlock {
+    margin: var(--spacing-md) 0;
+    padding-left: 0;
+  }
+
+  /* Status bar (하단) */
+  .ideStatusBar {
+    display: flex;
+    flex: none;
+    gap: var(--spacing-md);
+    align-items: center;
+    padding: var(--spacing-2xs) var(--spacing-md);
+    background: var(--text-accent);
+    color: var(--bg-primary);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
+    overflow-x: auto;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+
+  .ideStatusBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ideStatusGroup {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ideStatusDot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-circle);
+    background: var(--bg-primary);
+    opacity: 0.7;
+  }
+
+  /* 폰트 크기 조절 — status bar 우측 끝 */
+  .ideStatusFontControls {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .ideStatusFontBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5em;
+    height: 1.4em;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.15s ease;
+  }
+
+  .ideStatusFontBtn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--bg-primary) 25%, transparent);
+  }
+
+  .ideStatusFontBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .ideStatusFontValue {
+    min-width: 3em;
+    text-align: center;
+    opacity: 0.85;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== Spotlight / Stage ===== */
+  /* wrap — 한 카드 풀스크린, 배경에 거대 번호 watermark */
+  .spotlightWrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .spotlightCard {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-md) var(--spacing-sm);
+    will-change: transform, opacity, filter;
+  }
+
+  /* 거대 배경 번호 — Helvetica/Display 거대 typography, 매우 흐릿한 accent */
+  .spotlightBgNumber {
+    position: absolute;
+    right: -0.05em;
+    bottom: -0.18em;
+    pointer-events: none;
+    font-family: var(--_font-display);
+    font-size: clamp(14rem, 60vw, 28rem);
+    font-weight: var(--font-weight-regular);
+    line-height: 0.85;
+    color: var(--text-accent);
+    opacity: 0.07;
+    user-select: none;
+    z-index: 0;
+  }
+
+  /* 상단 행 — 섹션 태그 + 진행도 카운터 */
+  .spotlightTopRow {
+    display: flex;
+    flex: none;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    position: relative;
+    z-index: 1;
+  }
+
+  .spotlightSection {
+    display: inline-block;
+    padding: var(--spacing-3xs) var(--spacing-sm);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-capsule);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .spotlightCounter {
+    font-family: var(--font-mono);
+    font-size: var(--_fs-label);
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+  }
+
+  /* 헤더 — 타이틀 + 뱃지 */
+  .spotlightHeader {
+    display: flex;
+    flex: none;
+    gap: var(--spacing-md);
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+    z-index: 1;
+  }
+
+  .spotlightTitle {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--_font-grotesk);
+    font-size: clamp(1.2rem, 5vw, 2rem);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    line-height: var(--line-height-snug);
+  }
+
+  .spotlightBadges {
+    display: flex;
+    flex: none;
+    gap: var(--spacing-xs);
+    align-items: center;
+  }
+
+  /* 본문 — staggered reveal */
+  .spotlightBody {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--_space-block);
+    position: relative;
+    z-index: 1;
+  }
+
+  .spotlightBody::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ===== Bento Reveal (split layout) ===== */
+  /* wrap — flex column: 상단 detail 영역 + 하단 grid 영역 */
+  .bentoWrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  /* 상단 detail 영역 — flex 1 로 남는 공간 모두 차지 (긴 본문도 충분히) */
+  .bentoDetailArea {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  /* detail 카드 — 활성 항목의 풀 컨텐츠. detailArea 전체를 채움 */
+  .bentoDetailCard {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    padding: var(--spacing-lg);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    will-change: transform, width, height;
+  }
+
+  .bentoDetailHeader {
+    display: flex;
+    flex: none;
+    gap: var(--spacing-md);
+    align-items: baseline;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .bentoDetailNumber {
+    flex: none;
+    font-family: var(--_font-display);
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    font-weight: var(--font-weight-regular);
+    color: var(--text-accent);
+    line-height: 1;
+  }
+
+  .bentoDetailHeaderInfo {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3xs);
+  }
+
+  .bentoDetailSection {
+    font-family: var(--font-mono);
+    font-size: var(--_fs-label);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-tertiary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .bentoDetailTitle {
+    margin: 0;
+    font-family: var(--_font-grotesk);
+    font-size: clamp(1rem, 4vw, 1.4rem);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    line-height: var(--line-height-snug);
+  }
+
+  .bentoDetailBadges {
+    display: flex;
+    flex: none;
+    gap: var(--spacing-xs);
+    align-items: center;
+  }
+
+  .bentoDetailBody {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--_space-block);
+  }
+
+  .bentoDetailBody::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 하단 grid — 모든 항목 컴팩트 타일. 5 cols, 가로 넓은 비율 → grid 자체 높이 짧게 → detail 영역 충분 확보. 활성 타일은 invisible (자리만) */
+  .bentoGrid {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-xs);
+  }
+
+  .bentoTile {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-2xs);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    min-height: 0;
+    overflow: hidden;
+    cursor: pointer;
+    will-change: transform;
+  }
+
+  .bentoTileActive {
+    visibility: hidden; /* 자리는 차지하되 시각적으로 안 보임 — detail 이 그 자리에서 morph 출발 */
+  }
+
+  .bentoTileNumber {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-accent);
+    line-height: 1;
+  }
+
+  .bentoTileTitle {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--_font-grotesk);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-snug);
+    color: var(--text-secondary);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* ===== Stack Cards ===== */
+  /* wrap — 카드들을 absolute 로 쌓기 위한 컨테이너. perspective 로 3D 회전 깊이감.
+     상단 간격은 troublePinTitleRow 의 margin-bottom 에서 처리 (다른 패널과 통일).
+     flex: none + 명시적 높이 → 컨텐츠 가운데에 안정적으로 배치 (남는 공간 위/아래로 분배) */
+  .troubleStackWrap {
+    position: relative;
+    flex: none;
+    height: min(55vh, 480px);
+    perspective: 1400px;
+  }
+
+  .troubleStackCard {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-lg);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    transform-origin: top center;
+    will-change: transform, opacity;
+    cursor: pointer;
+  }
+
+  /* compound (0,2,0) — 글로벌 transition shorthand 우회. body 트랜지션과 동일 곡선 */
+  .troubleStackWrap .troubleStackCard {
+    transition:
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .troubleStackCardActive {
+    cursor: default;
+  }
+
+  .troubleStackCardHeader {
+    display: flex;
+    flex: none;
+    align-items: baseline;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .troubleStackCardNumber {
+    font-family: var(--_font-display);
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    font-weight: var(--font-weight-regular);
+    color: var(--text-accent);
+    line-height: 0.9;
+  }
+
+  .troubleStackCardSection {
+    font-family: var(--font-mono);
+    font-size: var(--_fs-label);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-tertiary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .troubleStackCardCounter {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: var(--_fs-label);
+    color: var(--text-tertiary);
+  }
+
+  .troubleStackCardTitle {
+    flex: none;
+    margin: 0 0 var(--spacing-sm);
+    font-family: var(--_font-grotesk);
+    font-size: clamp(1rem, 4vw, 1.4rem);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    line-height: var(--line-height-snug);
+  }
+
+  .troubleStackCardBadges {
+    display: flex;
+    flex: none;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .troubleStackCardBody {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--_space-block);
+  }
+
+  .troubleStackCardBody::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ===== 이전 accordion 스타일 (stack UI 확정 전 보존) =====
+     CSS 는 모듈 안에 남겨도 사용처가 없으면 dead. 필요 시 git history 에서 복원.
+     아래 .troubleAccordion* 룰은 더 이상 매칭되는 JSX 없음 — 빌드 영향 없음 */
+
+  /* 아코디언 wrap — 활성 항목 앞/뒤로 ~2개만 visible.
+     높이 제한 + overflow:hidden + mask-image 로 양 끝 fade.
+     hover zone 을 위한 position: relative */
+  .troubleAccordionWrap {
+    display: block;
+    position: relative;
+    flex: none;
+    height: min(60vh, 540px);
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      black 12%,
+      black 88%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      black 12%,
+      black 88%,
+      transparent 100%
+    );
+  }
+
+  /* hover zone — 위/아래 30px. mouse enter 시 리스트 자동 스크롤 (JS) */
+  .troubleAccordionHoverZoneTop,
+  .troubleAccordionHoverZoneBottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 10;
+    pointer-events: auto;
+    cursor: ns-resize;
+  }
+  .troubleAccordionHoverZoneTop {
+    top: 0;
+  }
+  .troubleAccordionHoverZoneBottom {
+    bottom: 0;
+  }
+
+  /* 리스트 — translateY 로 활성 헤더를 wrap 세로 중앙에 anchor.
+     transform 트랜지션은 body 의 max-height 와 같은 0.55s ease-out 곡선 → 함께 움직여 sync */
+  .troubleAccordionList {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  /* 섹션 구분 라벨 — 그룹 헤더. 호흡 있는 패딩 */
+  .troubleAccordionSection {
+    flex: none;
+    padding: var(--spacing-md) 0 var(--spacing-xs);
+    font-family: var(--font-mono);
+    font-size: var(--_fs-label);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: var(--_line-secondary);
+  }
+
+  /* 항목 wrapper — flex column 자식으로 자연 높이 */
+  .troubleAccordionWrap .troubleAccordionItem {
+    flex: none;
+    border-bottom: var(--_line-secondary);
+  }
+
+  /* 헤더 — 호흡 있는 행. 위/아래 spacing-md */
+  .troubleAccordionHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) 0;
+    cursor: pointer;
+  }
+
+  .troubleAccordionTitle {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--_font-grotesk);
+    font-size: var(--_fs-body);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-snug);
+    color: var(--text-secondary);
+  }
+
+  .troubleAccordionItemOpen .troubleAccordionTitle {
+    color: var(--text-primary);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .troubleAccordionItemOpen .troubleNumber {
+    color: var(--text-accent);
+  }
+
+  /* 헤더 우측 chevron — open 시 180도 회전으로 명확한 시각 피드백 */
+  .troubleAccordionChevron {
+    flex: none;
+    color: var(--text-tertiary);
+    transition: transform 0.4s var(--ease-material, cubic-bezier(0.4, 0, 0.2, 1)) !important;
+  }
+
+  .troubleAccordionItemOpen .troubleAccordionChevron {
+    transform: rotate(180deg);
+    color: var(--text-accent);
+  }
+
+  /* bodyOuter: max-height 트랜지션 — 0.55s ease-out 으로 천천히 부드럽게 펼쳐지는 느낌.
+     !important 로 글로벌 theme transition shorthand 우회.
+     bodyInner: 자연 높이 콘텐츠 — measurement 대상. */
+  .troubleAccordionBodyOuter {
+    transition: max-height 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    scrollbar-width: none;
+  }
+
+  .troubleAccordionBodyOuter::-webkit-scrollbar {
+    display: none;
+  }
+
+  .troubleAccordionBodyInner {
+    padding-bottom: var(--spacing-lg);
+  }
+
   /* watermarkNumber base → shared; panel-specific size override: */
   .troubleDetailNumber {
     font-size: clamp(10rem, 40vw, 20rem);
@@ -565,8 +1534,6 @@
     gap: 0.4rem;
   }
 
-  /* troubleLabel mobile → shared .entryLabel mobile */
-
   .troubleEntry p {
     font-size: var(--_fs-body);
     line-height: var(--line-height-relaxed);
@@ -575,4 +1542,127 @@
   .highlightedText {
     padding: var(--box-sm);
   }
+}
+
+/* ===== Diagram Fullscreen Viewer (interactive — zoom/pan) ===== */
+.diagramViewerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.diagramViewerHeader {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  background: var(--bg-secondary);
+}
+
+.diagramViewerTitle {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.diagramViewerStage {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text-secondary) 12%, transparent) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.diagramViewerStage:active {
+  cursor: grabbing;
+}
+
+.diagramViewerCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+.diagramViewerControls {
+  position: absolute;
+  right: var(--spacing-lg);
+  bottom: var(--spacing-lg);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--bg-secondary);
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
+  border-radius: var(--radius-capsule);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.diagramViewerZoomLabel {
+  min-width: 4em;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.diagramViewerIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-circle);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.diagramViewerIconBtn:hover {
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  color: var(--text-primary);
+}
+
+/* ===== IDE 폰트 조절 툴팁 (페이지 진입 시 자동 표시) ===== */
+.ideFontTooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--spacing-xs));
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.ideFontTooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 14px;
+  border: 5px solid transparent;
+  border-top-color: var(--text-primary);
 }

@@ -16,43 +16,64 @@ const SECTION_ORDER: Array<keyof typeof SECTION> = ["A", "P", "L", "E", "I", "C"
 /** problem.ko → 새 섹션/난이도/추천 매핑. 항목별 직접 inline 보다 한 곳에서 관리 */
 const itemMeta: Record<
   string,
-  { section: keyof typeof SECTION; difficulty: TroubleshootingDifficulty; recommended?: boolean }
+  {
+    section: keyof typeof SECTION;
+    difficulty: TroubleshootingDifficulty;
+    recommended?: boolean;
+    /** 추천 이유 — 항목별 차별점. IDE 에디터 @recommended 라인에 표시 */
+    recommendReason?: { ko: string; en: string };
+  }
 > = {
   // Architecture & Backend
-  "포스트 실수 삭제 시 복구 불가": { section: "A", difficulty: 3, recommended: true },
-  "AI 번역/요약이 provider 장애 시 완전 중단": { section: "A", difficulty: 3, recommended: true },
+  "포스트 실수 삭제 시 복구 불가": { section: "A", difficulty: 3 },
+  "AI 번역/요약이 provider 장애 시 완전 중단": { section: "A", difficulty: 3 },
   "API 키 변경마다 재배포가 필요": { section: "A", difficulty: 2 },
-  "비회원 댓글에서 본인 확인이 번거로움": { section: "A", difficulty: 3, recommended: true },
+  "비회원 댓글에서 본인 확인이 번거로움": { section: "A", difficulty: 3 },
   "에디터 자동저장 주기가 너무 잦아 리비전이 의미 없이 누적됨": { section: "A", difficulty: 2 },
-  "자동저장 — localStorage에서 DB 리비전으로의 진화": { section: "A", difficulty: 3, recommended: true },
+  "자동저장 — localStorage에서 DB 리비전으로의 진화": {
+    section: "A", difficulty: 3, recommended: true,
+    recommendReason: { ko: "임시방편(localStorage)을 정식 아키텍처(DB 리비전)로 발전시킨 과정을 보여드리고 싶어 골랐습니다.", en: "Picked this to show how I evolved a stopgap (localStorage) into a real architecture (DB revisions)." },
+  },
   "카테고리 자동 보정으로 리비전 프롬프트가 무한 반복": { section: "A", difficulty: 2 },
   // Performance
-  "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)": { section: "P", difficulty: 3, recommended: true },
-  "mousemove마다 React 리렌더 (60fps 성능 저하)": { section: "P", difficulty: 2, recommended: true },
-  "커스텀 커서의 무거운 hit-test가 가벼운 위치 보간을 함께 느리게 만듦": { section: "P", difficulty: 3, recommended: true },
+  "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)": { section: "P", difficulty: 3 },
+  "mousemove마다 React 리렌더 (60fps 성능 저하)": { section: "P", difficulty: 2 },
+  "커스텀 커서의 무거운 hit-test가 가벼운 위치 보간을 함께 느리게 만듦": {
+    section: "P", difficulty: 3, recommended: true,
+    recommendReason: { ko: "측정으로 병목을 찾고 RAF 주기를 분리해 60fps 를 회복한 성능 최적화 경험입니다.", en: "Profiled the bottleneck and split the RAF loop to restore 60fps — measurement-driven optimization." },
+  },
   "Three.js LatheGeometry 컵에 Canvas 2D 라떼아트 텍스처 합성 — 두 개 평면이 만나는 부분의 자연스러운 블렌딩": { section: "P", difficulty: 3 },
-  "GSAP ScrollTrigger 수평 무한 스크롤 — 양방향 무한 wrapping": { section: "P", difficulty: 3, recommended: true },
-  "LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생": { section: "P", difficulty: 2, recommended: true },
+  "GSAP ScrollTrigger 수평 무한 스크롤 — 양방향 무한 wrapping": { section: "P", difficulty: 3 },
+  "LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생": { section: "P", difficulty: 2 },
   // Layout & CSS
   "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐": { section: "L", difficulty: 2 },
-  "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀": { section: "L", difficulty: 2, recommended: true },
+  "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀": {
+    section: "L", difficulty: 2, recommended: true,
+    recommendReason: { ko: "원인이 코드가 아닌 CSS 명세에 있던 케이스 — spec 단위까지 파고드는 디버깅 습관을 보여드리려 골랐습니다.", en: "Bug lived in the CSS spec, not in the code — picked this to show spec-level debugging." },
+  },
   "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴": { section: "L", difficulty: 3 },
   "CSS 토큰 미정의 — 11개 파일에서 참조하지만 선언 없음": { section: "L", difficulty: 1 },
-  "CTA 버튼 `backdrop-filter`가 Chrome에서 동작하지 않음": { section: "L", difficulty: 3, recommended: true },
+  "CTA 버튼 `backdrop-filter`가 Chrome에서 동작하지 않음": {
+    section: "L", difficulty: 3, recommended: true,
+    recommendReason: { ko: "GPU compositing layer 까지 추적해 원인을 짚은 사례 — 끝까지 원인을 좇는 태도를 보여드리고 싶었습니다.", en: "Traced it down to the GPU compositing layer — wanted to show I chase the root cause." },
+  },
   "Admin 테이블 모바일 가로 스크롤 시 row border가 중간에서 끊김": { section: "L", difficulty: 3 },
-  "Posts Bento — `grid-template-rows` 만으로는 카드별 높이 차이가 빈칸을 만듦": { section: "L", difficulty: 3, recommended: true },
+  "Posts Bento — `grid-template-rows` 만으로는 카드별 높이 차이가 빈칸을 만듦": { section: "L", difficulty: 3 },
   "sticky filterBar IntersectionObserver — 인기글 사이드바와 1px 어긋남": { section: "L", difficulty: 2 },
-  "Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감": { section: "L", difficulty: 2, recommended: true },
-  "커버 이미지 팔레트 등 grid 자식이 viewport 밖으로 잘려 나감 — `.row { grid-template-columns: 1fr 1fr }` 의 함정": { section: "L", difficulty: 2, recommended: true },
+  "Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감": { section: "L", difficulty: 2 },
+  "커버 이미지 팔레트 등 grid 자식이 viewport 밖으로 잘려 나감 — `.row { grid-template-columns: 1fr 1fr }` 의 함정": { section: "L", difficulty: 2 },
   // Plate Editor
   "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐": { section: "E", difficulty: 2 },
   "Plate 에디터에서 컨텍스트 툴바 표시 시 커서가 멋대로 튐": { section: "E", difficulty: 3 },
-  "토글·콜아웃·열블록 콘텐츠가 저장 후 사라짐": { section: "E", difficulty: 3, recommended: true },
+  "토글·콜아웃·열블록 콘텐츠가 저장 후 사라짐": {
+    section: "E", difficulty: 3, recommended: true,
+    recommendReason: { ko: "라이브러리 기본값을 의심하고 검증해 사용자 데이터 손실을 막은 경험입니다.", en: "Questioned and verified a library default to prevent user data loss." },
+  },
   "제목(heading) 안 각주가 마크다운 변환 시 처리 안 됨": { section: "E", difficulty: 3 },
   "Plate inline void 노드에서 클릭 vs 키보드 구분 불가": { section: "E", difficulty: 3 },
   "인라인 이미지 양옆에 커서 배치·텍스트 입력 불가": { section: "E", difficulty: 3 },
   "마크다운 각주 번호 꼬임 — heading renderer 충돌": { section: "E", difficulty: 3 },
-  "열블록 스타일 round-trip 유실": { section: "E", difficulty: 3, recommended: true },
+  "열블록 스타일 round-trip 유실": { section: "E", difficulty: 3 },
   "YouTube embed URL — watch URL이 iframe에서 로드 실패": { section: "E", difficulty: 1 },
   "이미지 리사이즈 핸들 클릭 시 이미지가 삭제됨": { section: "E", difficulty: 2 },
   "에디터 툴바 active 상태 — wrapper 블록 감지 실패": { section: "E", difficulty: 2 },
@@ -61,15 +82,18 @@ const itemMeta: Record<
   "Plate 인라인 코드에서 방향키 커서 점프": { section: "E", difficulty: 2 },
   // Animation & Interaction
   "커스텀 커서 리사이즈 모드에서 마우스 방향에 따라 커서 회전": { section: "I", difficulty: 1 },
-  "Page transition 이 hold 단계에서 멈추고 morph 후 skeleton 이 노출": { section: "I", difficulty: 3, recommended: true },
+  "Page transition 이 hold 단계에서 멈추고 morph 후 skeleton 이 노출": { section: "I", difficulty: 3 },
   "Series Deck — hover 펼침이 \"사라졌다 나타나는\" 느낌": { section: "I", difficulty: 3 },
-  "Series Deck spread — `setPointerCapture` 가 자식 click 차단 + hit-area 공백으로 flicker": { section: "I", difficulty: 3, recommended: true },
-  "HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜": { section: "I", difficulty: 3, recommended: true },
-  "HTML5 D&D 의 quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환": { section: "I", difficulty: 3, recommended: true },
-  "이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음": { section: "I", difficulty: 3, recommended: true },
+  "Series Deck spread — `setPointerCapture` 가 자식 click 차단 + hit-area 공백으로 flicker": { section: "I", difficulty: 3 },
+  "HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜": { section: "I", difficulty: 3 },
+  "HTML5 D&D 의 quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환": {
+    section: "I", difficulty: 3, recommended: true,
+    recommendReason: { ko: "\"표준 API 라서 옳다\" 는 가정을 깨고 도구를 다시 고른 경험을 보여드리고 싶었습니다.", en: "Questioned the \"standard API is best\" assumption and re-picked the tool." },
+  },
+  "이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음": { section: "I", difficulty: 3 },
   // Component System
   "Admin 리스트(시리즈/휴지통/게시물)의 UI 코드 중복과 스타일 불일치": { section: "C", difficulty: 2 },
-  "커스텀 ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse": { section: "C", difficulty: 2, recommended: true },
+  "커스텀 ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse": { section: "C", difficulty: 2 },
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
@@ -114,6 +138,12 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
           en: "Trash Table moves deleted data to a separate table, but **FK relationships break** and restoration requires moving data back. Soft delete keeps records in the same table, preserving FK integrity — just add `WHERE deleted_at IS NULL` to list queries. **At single-admin scale, soft delete is the most practical choice**.",
         },
       } satisfies ComparisonTable,
+    ],
+    images: [
+      {
+        alt: { ko: "휴지통 페이지 — 삭제된 글 목록 + 복원 / 영구삭제 버튼", en: "Trash page — deleted posts list with restore / purge buttons" },
+        placeholderKeyword: "Admin 휴지통 페이지 (?trash=true) 화면",
+      },
     ],
   },
   {
@@ -173,6 +203,18 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
           { cells: [{ ko: "사용자 경험", en: "User experience" }, { ko: "기능이 가끔 멈춤", en: "Feature sometimes breaks" }, { ko: "provider 장애에도 결과 도달", en: "Works through provider outages" }], highlight: true },
         ],
       } satisfies ComparisonTable,
+    ],
+    images: [
+      {
+        // multi-provider fallback — 추상 컨셉 이미지
+        src: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=750&fit=crop",
+        alt: { ko: "여러 서버 / network — multi-provider fallback 컨셉", en: "Multiple servers / network — multi-provider fallback concept" },
+        caption: { ko: "한 provider 가 죽어도 다음 provider 가 받아주는 구조", en: "Other providers pick up when one fails" },
+      },
+      {
+        alt: { ko: "Admin Settings 페이지 — provider 별 API key 관리 화면", en: "Admin Settings page — per-provider API key management" },
+        placeholderKeyword: "Admin Settings 페이지 — AI provider 별 API key 입력 폼 (DeepL, Gemini 등)",
+      },
     ],
   },
   {
@@ -400,6 +442,18 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         },
       } satisfies ComparisonTable,
     ],
+    images: [
+      {
+        // 홈 페이지 — reCAPTCHA 가 처음 로드되던 위치
+        src: "/images/screenshots/pc/home-light.png",
+        alt: { ko: "홈 페이지 — reCAPTCHA 가 영향을 주던 LCP 측정 대상 컨텐츠", en: "Home page — LCP-target content that reCAPTCHA was blocking" },
+        caption: { ko: "이 컨텐츠가 그려지기 전에 784KB reCAPTCHA 가 먼저 로드되던 구조", en: "This content was blocked behind 784KB of reCAPTCHA loading first" },
+      },
+      {
+        alt: { ko: "Lighthouse 결과 — 수정 전(LCP 17.1s) / 수정 후(LCP < 2.5s)", en: "Lighthouse — Before (LCP 17.1s) / After (LCP < 2.5s)" },
+        placeholderKeyword: "Lighthouse Performance 측정 결과 비교 (수정 전 LCP 17.1s vs 수정 후)",
+      },
+    ],
   },
   {
     problem: { ko: "mousemove마다 React 리렌더 (60fps 성능 저하)", en: "React Re-render on Every mousemove (60fps Performance Degradation)" },
@@ -522,6 +576,14 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
           en: "CSS `:hover` is browser-optimized, but **switching cursor shapes among 5 types (grab, pointer, text, disabled, default) based on data-attributes** requires JS. Per-frame `elementsFromPoint()` is accurate but **traverses hundreds of elements in nested layouts like the About page**. A 60ms debounce reduces calls by **75%** while the cursor shape delay (max 60ms) is **imperceptible to humans**.",
         },
       } satisfies ComparisonTable,
+    ],
+    images: [
+      {
+        // 모션/속도 abstract — 60fps stutter 컨셉
+        src: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&h=750&fit=crop",
+        alt: { ko: "모션 블러 — 매 프레임 부드러움이 깨지는 stutter 컨셉", en: "Motion blur — concept of frame stutter" },
+        caption: { ko: "한 프레임 늦으면 사람 눈에 즉시 보임", en: "A single late frame is immediately visible" },
+      },
     ],
   },
   {
@@ -685,6 +747,14 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         },
       } satisfies ComparisonTable,
     ],
+    images: [
+      {
+        // design-system 페이지에 컬러 토큰 + 모션 토큰이 보임 — transition 영향 받는 요소들
+        src: "/images/screenshots/pc/design-system-light.png",
+        alt: { ko: "Design system 페이지 — 컴포넌트 컬러 / 모션 토큰", en: "Design system page — component color / motion tokens" },
+        caption: { ko: "테마 전환 transition 의 영향을 받는 디자인 토큰 시스템", en: "Design token system affected by theme transition" },
+      },
+    ],
   },
   {
     problem: { ko: "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴", en: "CSS Module Hash Collision Collapsing Desktop Layout" },
@@ -778,6 +848,12 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       ko: "`contentEditable` 요소에서 **`overflow` 속성을 동적으로 변경하면 브라우저가 selection을 리셋**할 수 있습니다. Slate/Plate 에디터의 DOM은 프레임워크가 관리하므로, `MutationObserver`로 감시하면 **모든 키 입력이 observer를 트리거**합니다. 성능에 민감한 영역에서는 DOM 감시 대신 **React state 기반으로 반응**해야 합니다.",
       en: "**Dynamically changing `overflow` on a `contentEditable` element can cause browsers to reset the selection.** Since Slate/Plate manages the DOM, a `MutationObserver` means **every keystroke triggers the observer**. In performance-sensitive areas, react to **React state changes instead of observing DOM mutations**.",
     },
+    images: [
+      {
+        alt: { ko: "Plate 에디터에서 테이블 블록 선택 시 컨텍스트 툴바", en: "Plate editor — contextual toolbar when a table block is selected" },
+        placeholderKeyword: "Admin 글 편집 화면 — 테이블 블록 선택 + 상단 컨텍스트 툴바",
+      },
+    ],
   },
   {
     problem: { ko: "토글·콜아웃·열블록 콘텐츠가 저장 후 사라짐", en: "Toggle, Callout, and Column Block Content Disappearing After Save" },
@@ -823,6 +899,16 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
           },
         ],
       } satisfies ComparisonTable,
+    ],
+    images: [
+      {
+        alt: { ko: "Plate 에디터 — 토글 / 콜아웃 블록에 본문 작성 화면", en: "Plate editor — toggle / callout block with body content" },
+        placeholderKeyword: "Admin 글 편집 화면 — 토글 또는 콜아웃 블록 안에 본문 작성한 상태",
+      },
+      {
+        alt: { ko: "저장 후 재오픈 — 블록 frame 만 남고 본문이 사라진 상태", en: "After save + reopen — only block frame remains, body content lost" },
+        placeholderKeyword: "수정 전 버그 재현 — 같은 글을 저장 후 다시 열어서 본문 사라진 상태 (수정 전 / 수정 후 비교)",
+      },
     ],
   },
   /* ── Editor ── */
@@ -885,6 +971,16 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       ko: "기존 컴포넌트(AdminTable)를 무리하게 확장하는 대신, **공통 패턴만 추출하여 별도 컴포넌트로 분리**하면 기존 기능을 깨뜨리지 않으면서 중복을 제거할 수 있습니다. 100% 재사용보다 **80% 공통화 + 20% 커스텀**이 현실적입니다.",
       en: "Rather than force-extending the existing component (AdminTable), **extracting only common patterns into separate components** removes duplication without breaking existing features. **80% shared + 20% custom** is more practical than 100% reuse.",
     },
+    images: [
+      {
+        alt: { ko: "Admin 게시물 리스트 — SubTable 컴포넌트로 통일된 행/체크박스/페이지네이션", en: "Admin posts list — unified SubTable with rows / checkbox / pagination" },
+        placeholderKeyword: "Admin 게시물 리스트 페이지 (체크박스 선택된 상태 + bulk action bar)",
+      },
+      {
+        alt: { ko: "Admin 시리즈/휴지통 리스트 — 동일 SubTable 패턴", en: "Admin series/trash lists — same SubTable pattern" },
+        placeholderKeyword: "Admin 시리즈 또는 휴지통 페이지 (SubTable 펼친 상태)",
+      },
+    ],
     comparisons: [
       {
         label: { ko: "리팩토링 전후 비교", en: "Before/After refactoring comparison" },
@@ -1022,6 +1118,16 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
           { cells: [{ ko: "1시간 작업 후 버전 수", en: "Versions after 1h work" }, { ko: "수십 개 (대부분 사소)", en: "Dozens (mostly trivial)" }, { ko: "의미 있는 변화 시점만", en: "Only meaningful moments" }] },
         ],
       } satisfies ComparisonTable,
+    ],
+    images: [
+      {
+        alt: { ko: "Admin 글 편집 화면 — 자동저장 인디케이터 + 리비전 히스토리 사이드 패널", en: "Admin editor — autosave indicator + revision history side panel" },
+        placeholderKeyword: "Admin 글 편집 페이지 — \"방금 저장됨\" 인디케이터 + 우측 리비전 히스토리 목록",
+      },
+      {
+        alt: { ko: "리비전 복원 prompt — 다른 기기 / 새로고침 시 \"이전 임시본 불러올까요?\" 확인 모달", en: "Restore prompt — \"Resume previous draft?\" modal on cross-device / refresh" },
+        placeholderKeyword: "글 편집 페이지 진입 시 \"미저장 임시본이 있습니다\" 복원 prompt 모달",
+      },
     ],
   },
   {
@@ -1243,6 +1349,18 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         ],
       } satisfies ComparisonTable,
     ],
+    images: [
+      {
+        // 홈 페이지 — CTA 버튼이 위치한 영역. 뒤에 3D 커피 canvas 보임
+        src: "/images/screenshots/pc/home-light.png",
+        alt: { ko: "홈 페이지 — Contact / Resume 버튼이 있는 CTA 섹션과 뒤쪽 3D 커피잔", en: "Home page — CTA section with Contact/Resume buttons and the 3D coffee cup behind" },
+        caption: { ko: "버튼 hover 시 뒤의 커피 canvas 가 blur 되는 \"유리창 너머\" 효과", en: "Hover reveals the \"glass over coffee canvas\" blur effect" },
+      },
+      {
+        alt: { ko: "Chrome DevTools Layers 패널 — compositing layer 분리 / 통합 비교", en: "Chrome DevTools Layers panel — compositing layer separation / merge" },
+        placeholderKeyword: "Chrome DevTools > Rendering > Layer borders 켠 화면 (수정 전: .home 이 자체 layer / 수정 후: 일반 layer)",
+      },
+    ],
   },
   {
     section: { ko: "Frontend / Editor", en: "Frontend / Editor" },
@@ -1332,6 +1450,20 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         ],
       } satisfies ComparisonTable,
     ],
+    images: [
+      {
+        src: "/images/screenshots/pc/posts-light.png",
+        alt: { ko: "Posts 페이지 — PostCard 클릭이 morph transition 시작점", en: "Posts page — PostCard click triggers the morph transition" },
+        caption: { ko: "카드 이미지가 상세 hero 로 \"모핑\"되며 이동", en: "Card image \"morphs\" into the detail hero" },
+        position: "definition",
+      },
+      {
+        src: "/images/screenshots/pc/work-detail-light.png",
+        alt: { ko: "상세 페이지 hero — morph 종료 지점", en: "Detail page hero — morph destination" },
+        caption: { ko: "오버레이 축소 후 자연스럽게 노출되는 hero 영역", en: "Hero area that's exposed as the overlay shrinks" },
+        position: "solution",
+      },
+    ],
   },
   {
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
@@ -1356,6 +1488,14 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "CSS-only masonry is still experimental — `grid-template-rows: masonry` ships in Firefox only, not Chrome.\n\nThe de facto standard for gap-free packing is the hybrid: **shred row tracks to 1px, then have JS assign spans from measured heights**.\n\n`firstElementChild.scrollHeight` is the most accurate measurement source — wrapper padding doesn't get added in, so the pixel total matches the real content height. And recompute on both image `onLoad` and `ResizeObserver` so spans stay correct after late-loading fonts or images.",
     },
     tags: ["CSS Grid", "masonry", "ResizeObserver", "bento", "Posts"],
+    images: [
+      {
+        // /posts 페이지의 bento 레이아웃 — 다양한 비율의 카드들이 빈틈 없이 packing 된 결과
+        src: "/images/screenshots/pc/posts-light.png",
+        alt: { ko: "Posts 페이지 — Bento 레이아웃 (wide / square / portrait / banner 카드 혼합)", en: "Posts page — Bento layout with mixed card aspects (wide / square / portrait / banner)" },
+        caption: { ko: "JS hybrid masonry 로 packing 된 최종 결과", en: "Final result packed by JS hybrid masonry" },
+      },
+    ],
     comparisons: [
       {
         label: { ko: "수정 전 / 수정 후", en: "Before / After" },
@@ -1511,6 +1651,18 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         ],
       } satisfies ComparisonTable,
     ],
+    images: [
+      {
+        alt: { ko: "Admin 글 편집 — 카테고리/태그 chip 드래그 정렬", en: "Admin editor — category/tag chip drag reorder" },
+        placeholderKeyword: "Admin 글 편집 페이지 — chip 들을 드래그해서 순서 바꾸는 중간 상태",
+        position: "definition",
+      },
+      {
+        alt: { ko: "Admin 시리즈 — 페이지네이션된 리스트에서 chip 을 다음 페이지로 끌어오는 시점", en: "Admin series — dragging a chip onto the next page in a paginated list" },
+        placeholderKeyword: "Admin 시리즈 페이지 — 페이지네이션된 리스트에서 항목 끌어 다음 페이지로",
+        position: "solution",
+      },
+    ],
   },
   {
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
@@ -1576,6 +1728,18 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         ],
       } satisfies ComparisonTable,
     ],
+    images: [
+      {
+        alt: { ko: "리치텍스트 글에서 이미지 src 가 404 인 경우 — 깨진 이미지 아이콘이 그대로 노출", en: "Richtext post with 404 image src — broken-image icon stays visible" },
+        placeholderKeyword: "글 상세 페이지 — markdown 본문 안 깨진 이미지 (수정 전: 브라우저 기본 broken icon)",
+        position: "cause",
+      },
+      {
+        alt: { ko: "Custom placeholder 로 swap 된 후 — 깔끔한 \"이미지 로드 실패\" 카드", en: "After swap to custom placeholder — clean \"image failed\" card" },
+        placeholderKeyword: "수정 후 placeholder — 카드 형태의 \"이미지 로드 실패\" UI",
+        position: "solution",
+      },
+    ],
   },
   {
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
@@ -1640,6 +1804,18 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
           { cells: [{ ko: "자식 없거나 hidden", en: "No child / hidden" }, { ko: "0×0 그대로", en: "Still 0×0" }, { ko: "wrapper rect 로 fallback", en: "Falls back to wrapper rect" }] },
         ],
       } satisfies ComparisonTable,
+    ],
+    images: [
+      {
+        alt: { ko: "ColorPicker 가 stop bar 의 stop handle 들 위에 떠 있어야 하는데 모두 같은 위치에 anchor 된 상태", en: "ColorPicker stops should anchor to each handle but all collapsed to one spot" },
+        placeholderKeyword: "Admin 글 편집 — gradient stop bar 위 ColorPicker popover (수정 전: 모든 popover 가 같은 위치에)",
+        position: "cause",
+      },
+      {
+        alt: { ko: "수정 후 — 각 stop 위치에 정확히 popover anchor", en: "After — popover anchors to each stop position correctly" },
+        placeholderKeyword: "Admin 글 편집 — gradient stop bar 위 ColorPicker popover (수정 후: 각 handle 위치에 정확히)",
+        position: "solution",
+      },
     ],
   },
 ];
@@ -1724,6 +1900,7 @@ export const troubleShootingItems: TroubleShootingItem[] = (() => {
         section: SECTION[meta.section],
         difficulty: meta.difficulty,
         ...(meta.recommended ? { recommended: true } : {}),
+        ...(meta.recommendReason ? { recommendReason: meta.recommendReason } : {}),
       };
     });
 
