@@ -182,6 +182,101 @@ node scripts/screenshots.mjs --no-detail
 > Supabase 데이터가 없으면 posts, post-detail, work-detail 은 fallback 정적 데이터로 캡처됨 (없으면 빈 페이지).
 > `works-cylinder` 는 Three.js 초기화 + 카메라 진입 모션 때문에 다른 레이아웃보다 wait 가 조금 길게 잡혀 있음.
 
+## 페이지 추가 / 제거 / 수정 (개인 프로젝트 커스터마이징)
+
+스크립트는 단일 파일 (`scripts/screenshots.mjs`) 의 `PAGES` 배열 하나로 캡처 목록을 관리합니다. 본인 프로젝트에 맞춰 자유롭게 항목을 추가/제거/수정하세요.
+
+### 페이지 추가
+
+`scripts/screenshots.mjs` 의 `PAGES` 배열에 한 줄 추가:
+
+```js
+const PAGES = [
+  // ...기존 항목들
+  { name: "contact", path: "/contact", wait: 2000 },
+  { name: "blog-archive", path: "/blog/archive", wait: 2500 },
+
+  // 쿼리 파라미터 / 동적 라우트도 그대로 사용 가능
+  { name: "posts-tagged", path: "/posts?tag=react", wait: 2500 },
+  { name: "post-detail", path: "/posts/my-first-post", wait: 2500, detail: true },
+];
+```
+
+필드 의미:
+- `name` — 출력 파일 이름 (`{name}-{theme}.png`)
+- `path` — dev 서버에서 접근할 경로 (쿼리/해시 포함 가능)
+- `wait` — 페이지 로드 후 캡처 전 대기 시간 (ms). 애니메이션이 끝날 때까지 충분히 줘야 함
+- `detail` (optional) — `true` 면 `--no-detail` 옵션으로 일괄 제외됨 (상세 페이지 관리용)
+
+추가 후 그냥 다시 실행하면 됨:
+```bash
+node scripts/screenshots.mjs --pages=contact   # 새로 추가한 페이지만 빠르게 검증
+```
+
+### 페이지 제거
+
+`PAGES` 배열에서 해당 항목 한 줄을 지우면 끝. **이미 캡처된 파일은 자동으로 안 지워짐** — 필요하면 직접 삭제:
+
+```bash
+# 특정 페이지 파일만 한 번에 정리
+rm public/images/screenshots/*/contact-*.png
+```
+
+README 에서 해당 이미지를 참조하고 있었다면 그쪽도 같이 수정/삭제.
+
+### 디바이스 추가 / 변경
+
+`DEVICES` 배열을 수정하면 됨. 예) 4K + iPad Pro 추가:
+
+```js
+const DEVICES = [
+  { name: "pc", width: 1440, height: 900, scale: 2 },
+  { name: "tablet", width: 768, height: 1024, scale: 2 },
+  { name: "mobile", width: 390, height: 844, scale: 3 },
+  { name: "4k", width: 2560, height: 1440, scale: 1 },
+  { name: "ipad-pro", width: 1024, height: 1366, scale: 2 },
+];
+```
+
+새 디바이스 디렉토리 (`public/images/screenshots/4k/` 등) 가 자동 생성됨. README 의 반응형 비교 표에 컬럼을 추가하거나 별도 섹션으로 빼면 됨.
+
+### 대기 시간 조정
+
+캡처 결과에서 인트로 애니메이션이 잘려 보이거나 로딩 placeholder 가 찍히면 해당 페이지의 `wait` 값을 늘리세요. 반대로 너무 길어서 답답하면 줄이면 됨.
+
+```js
+{ name: "home", path: "/", wait: 5000 },   // 3.5초 → 5초로 증가
+```
+
+### 테마/모드 셀렉터가 다른 프로젝트라면
+
+`setTheme` 함수가 이 프로젝트의 테마 시스템 (`data-theme` 속성 + `localStorage.theme`) 에 맞춰져 있습니다. 다른 방식 (Tailwind `class="dark"` 등) 을 쓴다면 함수 본문만 수정:
+
+```js
+async function setTheme(page, theme) {
+  await page.evaluate((t) => {
+    // 예) Tailwind dark mode (class strategy)
+    document.documentElement.classList.toggle("dark", t === "dark");
+    localStorage.setItem("theme", t);
+  }, theme);
+  await page.waitForTimeout(600);
+}
+```
+
+### 출력 경로 변경
+
+README 에서 다른 디렉토리를 가리키고 싶으면 `OUT_DIR` 기본값을 바꾸거나 `--out` 옵션으로 매번 지정:
+
+```js
+const OUT_DIR = resolve(args.out || "public/screenshots");   // 기본값 변경
+```
+
+```bash
+node scripts/screenshots.mjs --out=docs/assets   # 1회성 변경
+```
+
+> README 의 `<img src="...">` 경로도 같이 바꿔야 함.
+
 ## 트러블슈팅
 
 **Playwright 미설치**
