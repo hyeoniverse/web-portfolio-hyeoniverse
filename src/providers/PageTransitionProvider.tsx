@@ -321,6 +321,49 @@ function TransitionOverlay({
         }}
       />
     </div>
+    {/* hold/morph 동안 로딩 인디케이터 — 사용자가 "멈췄나?" 라고 느끼지 않도록 */}
+    {(phase === "morph" || phase === "hold") && <LoadingDots />}
+    </>
+  );
+}
+
+/* 화면 하단 중앙 3-dot pulse — overlay 위에 띄움 */
+function LoadingDots() {
+  return (
+    <>
+      <style>{`
+        @keyframes pt-dot-pulse {
+          0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+          40% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
+      <div
+        style={{
+          position: "fixed",
+          left: "50%",
+          bottom: "10vh",
+          transform: "translateX(-50%)",
+          display: "flex",
+          gap: 8,
+          zIndex: 10000,
+          pointerEvents: "none",
+          animation: "fadeIn 0.4s ease 0.2s both",
+        }}
+      >
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: "var(--text-primary)",
+              opacity: 0.25,
+              animation: `pt-dot-pulse 1.2s ease-in-out ${i * 0.16}s infinite`,
+            }}
+          />
+        ))}
+      </div>
     </>
   );
 }
