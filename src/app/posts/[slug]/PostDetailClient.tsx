@@ -18,10 +18,9 @@ import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import AISummary from "@/components/ui/AISummary";
 import dynamic from "next/dynamic";
-/* below-fold 컴포넌트들 — 초기 JS bundle 크기 축소를 위해 dynamic 으로 분리 */
-const AdjacentNav = dynamic(() => import("@/components/ui/AdjacentNav/AdjacentNav"));
-const RecommendedToast = dynamic(() => import("./_components/RecommendedToast"), { ssr: false });
-const RecommendedSection = dynamic(() => import("./_components/RecommendedSection"));
+import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
+import RecommendedToast from "./_components/RecommendedToast";
+import RecommendedSection from "./_components/RecommendedSection";
 const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import ShareButton from "@/components/ui/ShareButton";

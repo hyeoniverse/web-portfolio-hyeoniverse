@@ -55,10 +55,10 @@ const FADE_MS = 350;
 const ROUTE_FAIL_SAFETY_MS = 5000;
 /** pathname 도착 후 grace — dev 컴파일·콜드 번들·인터넷 느림 모두 커버하도록 충분히 길게. */
 const CONTENT_LOAD_SAFETY_MS = 30000;
-/** router.push 지연 — backdrop 이 opaque 가 되는 시점(EXPAND_MS × 0.3 = 180ms) 직후에 발화.
- *  더 빨리 (NAV_DELAY=0) 발화하면 반투명 backdrop 사이로 loading.tsx skeleton 이 잠깐 노출됨.
- *  prefetch (PostCard hover) 와 결합되면 backdrop 가려진 동안 페이지 로드 거의 끝남. */
-const NAV_DELAY = 200;
+/** router.push 지연 — expand 가 다 끝난 뒤(=backdrop 완전 opaque)에 navigation 시작.
+ *  prefetch 와 결합되면 expand 동안 페이지가 이미 캐시돼 있어 즉시 mount.
+ *  더 빨리 발화하면 반투명 backdrop 사이로 loading.tsx skeleton 이 잠깐 노출됨. */
+const NAV_DELAY = EXPAND_MS;
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
