@@ -812,7 +812,10 @@ export function MediaEmbedElement(props: PlateElementProps) {
   const el = props.element as Record<string, unknown>;
   const url = (el.url as string) || "";
   const nodeMediaType = (el.mediaType as string) || "";
-  const embed = nodeMediaType === "video" ? { type: "video" as const, src: url } : parseEmbed(url);
+  const embed = useMemo(
+    () => (nodeMediaType === "video" ? { type: "video" as const, src: url } : parseEmbed(url)),
+    [nodeMediaType, url],
+  );
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const { blockDragProps } = useBlockDrag(elPath);
   const isVideo = embed?.type === "video";

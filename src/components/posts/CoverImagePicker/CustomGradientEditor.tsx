@@ -438,7 +438,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
     } finally {
       setUploading(false);
     }
-  }, [stops, angle, type, size, speed, onSelect]);
+  }, [config, stops, angle, type, onSelect]);
 
   return (
     <div className={styles.customGradient}>

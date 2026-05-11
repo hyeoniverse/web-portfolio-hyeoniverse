@@ -357,10 +357,16 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   const isStandalone = !series;
 
   /* 외부 헤더(예: SeriesManager 의 shell) 가 제어할 수 있도록 핸들 노출 */
+  // handleSave / updateField 는 매 렌더마다 새 reference 라 deps 에 넣으면 매번 imperative handle 재생성 — 의도와 다름.
+  // ref 로 최신 값 보관해 stable handle 유지.
+  const handleSaveRef = useRef(handleSave);
+  const updateFieldRef = useRef(updateField);
+  handleSaveRef.current = handleSave;
+  updateFieldRef.current = updateField;
   useImperativeHandle(ref, () => ({
-    save: () => { void handleSave(); },
-    setPublished: (v: boolean) => updateField("published", v),
-  }), [handleSave, updateField]);
+    save: () => { void handleSaveRef.current(); },
+    setPublished: (v: boolean) => updateFieldRef.current("published", v),
+  }), []);
 
   /* form 상태 변경을 외부에 알림 (토글/저장 버튼 동기화) */
   useEffect(() => {
