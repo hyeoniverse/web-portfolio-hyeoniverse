@@ -70,15 +70,14 @@ export default function DetailLayout({
   const { endTransition, isTransitioning } = usePageTransition();
   const pageRef = useRef<HTMLDivElement>(null);
 
-  // 새 페이지가 마운트되면 곧장 오버레이를 닫음. heroImage 가 있으면 hero 가
-  // 그려질 시간을 잠깐 주고 닫는다. (이전엔 onAnimationStart 에 endTransition 을
-  // 묶어 두었는데, framer-motion 은 initial===animate 인 경우 콜백을 안 부르는
-  // 일이 있어 hold phase 에서 멈추는 버그가 있었음.)
+  // 새 페이지 mount 신호 — PageTransitionProvider 의 MutationObserver 가
+  // [data-detail-hero] 를 잡아 endTransition 을 호출하지만, useEffect 도 함께 호출해
+  // 두 경로 모두 안전망 역할. (이전엔 onAnimationStart 에 묶었는데 framer-motion 이
+  // initial===animate 일 때 콜백을 안 부르는 케이스가 있어 hold 에 멈추는 버그가 있었음.)
   useEffect(() => {
     if (!isTransitioning) return;
-    const t = setTimeout(() => endTransition(), heroImage ? 80 : 0);
-    return () => clearTimeout(t);
-  }, [isTransitioning, heroImage, endTransition]);
+    endTransition();
+  }, [isTransitioning, endTransition]);
 
   // Lenis setup
   useEffect(() => {
@@ -119,7 +118,7 @@ export default function DetailLayout({
 
 
   return (
-    <div ref={pageRef} className={styles.page}>
+    <div ref={pageRef} className={styles.page} data-detail-hero>
       {/* Back button */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}

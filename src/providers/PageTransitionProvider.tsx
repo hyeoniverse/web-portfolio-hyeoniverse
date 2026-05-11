@@ -53,7 +53,8 @@ const EXPAND_MS = 600;
 const MORPH_MS = 400;
 const FADE_MS = 350;
 const ROUTE_FAIL_SAFETY_MS = 5000;
-const CONTENT_LOAD_SAFETY_MS = 10000;
+/** pathname 도착 후 grace — dev 컴파일·콜드 번들·인터넷 느림 모두 커버하도록 충분히 길게. */
+const CONTENT_LOAD_SAFETY_MS = 30000;
 const NAV_DELAY = EXPAND_MS;
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 
@@ -107,9 +108,10 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     timerRef.current.push(safety);
   }, [router, endTransition]);
 
-  /* pathname 도착 감지 — DetailLayout 이 mount 될 때까지 grace 시간 충분히 확보.
-   * 이게 없으면 ROUTE_FAIL_SAFETY_MS 가 컨텐츠 로딩 중에 발화해 overlay 가 fade-out 되고,
-   * 그 사이 loading.tsx skeleton 이 노출되는 증상 발생. */
+  /* pathname 도착 감지 + 실제 detail hero 노출 감지.
+   *  1) ROUTE_FAIL_SAFETY 제거 후, CONTENT_LOAD_SAFETY 만 backstop 으로 남김
+   *  2) MutationObserver 로 [data-detail-hero] 요소가 DOM 에 들어오면 즉시 endTransition
+   *     → DetailLayout 의 useEffect 보다 빠르고 확실 (Suspense fallback 이 가려도 본 hero 만 잡힘) */
   useEffect(() => {
     if (!state || state.phase === "done") return;
     if (arrivedRef.current) return;
@@ -120,10 +122,31 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     if (!arrived) return;
     arrivedRef.current = true;
     clearTimers();
-    /* 새 페이지 DetailLayout 이 mount 되면 endTransition 호출 → 즉시 마무리.
-     * 그 사이에 SAFETY 가 너무 빨리 끝나지 않게 충분히 길게. */
-    const safety = setTimeout(() => endTransition(), CONTENT_LOAD_SAFETY_MS);
+
+    /* hero 가 이미 DOM 에 있으면 (페이지가 super fast 한 경우) 즉시 종료 */
+    if (document.querySelector("[data-detail-hero]")) {
+      const t = setTimeout(() => endTransition(), 0);
+      timerRef.current.push(t);
+      return;
+    }
+
+    /* [data-detail-hero] 가 DOM 에 들어오는 순간 = 새 페이지 hero 노출 → fade-out 안전 */
+    const observer = new MutationObserver(() => {
+      if (document.querySelector("[data-detail-hero]")) {
+        observer.disconnect();
+        endTransition();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    /* hero 가 영영 안 나타나는 경우의 backstop */
+    const safety = setTimeout(() => {
+      observer.disconnect();
+      endTransition();
+    }, CONTENT_LOAD_SAFETY_MS);
     timerRef.current.push(safety);
+
+    return () => observer.disconnect();
   }, [pathname, state, endTransition]);
 
   /* done 진입 시 fade-out 끝나면 overlay unmount */
