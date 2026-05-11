@@ -124,6 +124,14 @@
   filter: none;
 }
 
+/* grab + 누르기: 누르는 동안 dragging 과 동일한 축소 피드백 */
+.grab.clicking .cursorInner {
+  width: calc(var(--cursor-big-width) * 0.85);
+  height: calc(var(--cursor-big-width) * 0.85);
+  transform: none;
+  animation: none;
+}
+
 /* zoom 커서 — 이미지 뷰어 오픈 힌트 (배경은 big/grab과 동일) */
 .zoom .cursorInner {
   width: var(--cursor-big-width);
