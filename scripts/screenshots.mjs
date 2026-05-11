@@ -144,8 +144,11 @@ async function run() {
             localStorage.setItem("theme", t);
           }, theme);
 
+          // waitUntil: "load" — DOM + 리소스 로드만 기다림.
+          //   "networkidle" 은 Lenis RAF / 폰트 fetch / 분석 핑 등 계속 도는 페이지에서 timeout 빈발.
+          //   페이지별 pg.wait 가 애니메이션/모션 완료까지 기다려주므로 networkidle 까지 강제할 필요 없음.
           await page.goto(`${BASE}${pg.path}`, {
-            waitUntil: "networkidle",
+            waitUntil: "load",
             timeout: 30000,
           });
           await setTheme(page, theme);
