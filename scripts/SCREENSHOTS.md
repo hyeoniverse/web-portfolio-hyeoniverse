@@ -117,6 +117,26 @@ node scripts/screenshots.mjs --no-detail
 node scripts/screenshots.mjs --full
 ```
 
+### 빠진 파일만 캡처
+
+이미 존재하는 파일은 그대로 두고, **아직 캡처 안 된 파일만** 채우고 싶을 때:
+
+```bash
+node scripts/screenshots.mjs --missing
+```
+
+각 (device, page, theme) 조합에 대해 `public/images/screenshots/{device}/{page}-{theme}.png` 의 존재 여부를 확인 → 이미 있으면 skip, 없으면 캡처. 다른 옵션 (`--device`, `--pages`, `--dark` 등) 과 자유롭게 조합 가능:
+
+```bash
+# 모바일 누락분만
+node scripts/screenshots.mjs --missing --device=mobile
+
+# Works 6종 중 빠진 것만 PC 다크
+node scripts/screenshots.mjs --missing --device=pc --dark --pages=works,works-fullscreen,works-cinematic,works-grid,works-split,works-cylinder
+```
+
+> 모든 대상이 이미 존재하면 `Nothing to capture — all targets already exist.` 출력 + 즉시 종료 (browser launch 도 안 함).
+
 ### 재시도 비활성화
 
 기본 동작: 캡처 끝나고 실패한 파일이 있으면 목록을 출력하고 `Retry N failed captures? (Y/n)` 프롬프트 — Enter 또는 `y` 면 실패한 것만 다시 시도, `n` 이면 종료.
