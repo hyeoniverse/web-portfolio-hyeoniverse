@@ -199,7 +199,9 @@
   background: transparent;
   border-radius: var(--radius-capsule);
   padding: var(--spacing-3xs);
-  padding-top: calc(var(--header-height) + var(--spacing-2xl) - var(--_panel-py));
+  padding-top: calc(
+    var(--header-height) + var(--spacing-2xl) - var(--_panel-py)
+  );
   mix-blend-mode: difference;
 }
 
@@ -516,21 +518,24 @@
   font-family: var(--font-mono);
   font-size: var(--_fs-small, 0.8rem);
   font-weight: var(--font-weight-medium);
-  color: var(--text-white-tertiary);
+  color: var(--text-white);
+  /* mix-blend-mode: difference 환경에서 색 직접 변경하면 이상해짐 →
+     .navItem 처럼 opacity 로 강조 단계 표현 */
+  opacity: 0.35;
   white-space: nowrap;
 }
 
 /* Compound selector (0,2,0) to beat global theme transition */
 .mobileTabBar .mobileTabBtn {
-  transition: color var(--duration-base) ease;
+  transition: opacity var(--duration-base) ease;
 }
 
 .mobileTabBar .mobileTabBtn:hover {
-  color: var(--text-white);
+  opacity: 1;
 }
 
 .mobileTabBtnActive {
-  color: var(--text-white);
+  opacity: 1;
 }
 
 /* Spring-animated indicator (Framer Motion layoutId) */
@@ -691,6 +696,13 @@
   .dotNavMobile,
   .dotNavMobileOnly {
     display: flex;
+  }
+
+  /* dotNavMobileOnly (Troubleshooting 전용) — 기본 dotNavWrap 의 거대한 padding-top
+     (header-height + spacing-2xl) 이 row 높이를 키워서 title 과 본문 사이 간격을 벌림.
+     mobile 에서는 padding-top 0 으로 줄여 row 를 컴팩트하게. */
+  .dotNavWrap.dotNavMobileOnly {
+    padding-top: 0;
   }
 
   .mobilePinViewport {

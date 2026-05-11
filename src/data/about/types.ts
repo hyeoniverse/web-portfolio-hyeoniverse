@@ -46,6 +46,20 @@ export interface ComparisonTable {
 /** 1 = 기초/표면적 / 2 = 중급/원인 분석 / 3 = 고급/근본 이해 */
 export type TroubleshootingDifficulty = 1 | 2 | 3;
 
+/** Troubleshooting 항목에 첨부할 이미지/스크린샷 */
+export interface TroubleshootingImage {
+  /** 실제 이미지 src — 없으면 placeholder UI 표시 */
+  src?: string;
+  /** 이미지 설명 (alt) */
+  alt: LocalizedText;
+  /** 이미지 아래 캡션 */
+  caption?: LocalizedText;
+  /** placeholder 모드일 때 사용자가 찍을 스크린샷 키워드 (e.g., "Network tab error response") */
+  placeholderKeyword?: string;
+  /** 어느 섹션 직후에 배치할지 — 기본값 "solution" (가장 자연스러운 위치) */
+  position?: "definition" | "cause" | "solution" | "insight";
+}
+
 export interface TroubleShootingItem {
   section?: LocalizedText;
   problem: LocalizedText;
@@ -55,11 +69,15 @@ export interface TroubleShootingItem {
   keyInsight: LocalizedText;
   comparisons?: ComparisonTable[];
   diagrams?: TroubleshootingDiagram[];
+  /** 첨부 이미지 — 스크린샷, before/after, error 화면 등 */
+  images?: TroubleshootingImage[];
   tags?: string[];
   /** 난이도 — 섹션 내 정렬 + 뱃지 표시용 */
   difficulty?: TroubleshootingDifficulty;
   /** 핵심 추천 항목 — 별표 뱃지 표시 */
   recommended?: boolean;
+  /** 왜 추천하는지 — IDE 에디터의 @recommended 라인에 표시 */
+  recommendReason?: LocalizedText;
 }
 
 export interface TechStackItem {
