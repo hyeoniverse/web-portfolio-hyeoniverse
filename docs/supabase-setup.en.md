@@ -280,7 +280,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 <summary><strong>Components</strong></summary>
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/design-system-dark.png" width="100%" alt="Design System — Components Preview" />
+  <img src="public/images/screenshots/pc/design-system-dark.png" width="100%" alt="Design System — Components Preview" />
   <br />
   <sub>View all tokens and components on the <code>/design-system</code> page</sub>
 </p>
