@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
@@ -49,8 +50,16 @@ export default function PostCard({
   const isHero = variant === "hero";
   const showImage = post.cover_image && !imgError;
   const { navigateWithTransition } = usePageTransition();
+  const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
   const category = post.category || null;
+  const prefetchedRef = useRef(false);
+  /* hover 시 다음 페이지 chunk 를 미리 로딩 — 클릭 후 navigate 가 즉시 mount 되도록 */
+  const handlePrefetch = () => {
+    if (prefetchedRef.current) return;
+    prefetchedRef.current = true;
+    router.prefetch(`/posts/${post.slug}`);
+  };
 
   // 언어 단독 여부 판단 — 없는 언어는 있는 쪽으로 강제
   const hasKo = !!post.content;
@@ -84,7 +93,7 @@ export default function PostCard({
   /* ── Hero variant: 풀 블리드 이미지 + 하단 오버레이 ── */
   if (isHero) {
     return (
-      <div ref={cardRef} className={cardClass} onClick={handleClick} role="link" data-more="true" data-clickable="true">
+      <div ref={cardRef} className={cardClass} onClick={handleClick} onMouseEnter={handlePrefetch} onFocus={handlePrefetch} role="link" data-more="true" data-clickable="true">
         {/* 풀 배경 이미지 */}
         {showImage ? (
           <ProgressiveImage
@@ -152,6 +161,8 @@ export default function PostCard({
       ref={cardRef}
       className={cardClass}
       onClick={handleClick}
+      onMouseEnter={handlePrefetch}
+      onFocus={handlePrefetch}
       role="link"
       data-more="true"
       data-clickable="true"
