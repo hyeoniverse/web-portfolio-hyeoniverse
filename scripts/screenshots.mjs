@@ -16,6 +16,7 @@
  *   --full                         (전체 페이지 스크롤 캡처)
  *   --no-detail                    (상세 페이지 제외)
  *   --no-retry                     (실패 시 재시도 프롬프트 생략)
+ *   --missing                      (아직 캡처 안 된 파일만 — 기존 파일은 건너뜀)
  *
  * 결과: public/images/screenshots/{device}/{page}-{theme}.png
  */
@@ -40,6 +41,7 @@ const ONLY_LIGHT = args.light === "true";
 const FULL_PAGE = args.full === "true";
 const NO_DETAIL = args["no-detail"] === "true";
 const NO_RETRY = args["no-retry"] === "true";
+const ONLY_MISSING = args.missing === "true";
 const FILTER_PAGES = args.pages?.split(",");
 const FILTER_DEVICES = args.device?.split(",");
 
@@ -208,19 +210,39 @@ async function run() {
   if (NO_DETAIL) pages = pages.filter((p) => !p.detail);
   if (FILTER_PAGES) pages = pages.filter((p) => FILTER_PAGES.includes(p.name));
 
-  // 캡처 단위(job) 평면화
+  // 캡처 단위(job) 평면화 — --missing 이면 기존 파일은 건너뜀
   const initialJobs = [];
+  let skipped = 0;
   for (const d of devices) {
     for (const p of pages) {
       for (const t of THEMES) {
+        if (ONLY_MISSING) {
+          const filepath = join(OUT_DIR, d.name, `${p.name}-${t}.png`);
+          if (existsSync(filepath)) {
+            skipped++;
+            continue;
+          }
+        }
         initialJobs.push({ device: d, page: p, theme: t });
       }
     }
   }
 
-  console.log(
-    `\n📸 Capturing ${pages.length} pages × ${devices.length} devices × ${THEMES.length} themes = ${initialJobs.length} screenshots\n`,
-  );
+  const planned = pages.length * devices.length * THEMES.length;
+  if (ONLY_MISSING) {
+    console.log(
+      `\n📸 Missing-only mode — ${initialJobs.length} to capture, ${skipped} already exist (skipped) out of ${planned}\n`,
+    );
+  } else {
+    console.log(
+      `\n📸 Capturing ${pages.length} pages × ${devices.length} devices × ${THEMES.length} themes = ${initialJobs.length} screenshots\n`,
+    );
+  }
+
+  if (initialJobs.length === 0) {
+    console.log(`✅ Nothing to capture${ONLY_MISSING ? " — all targets already exist" : ""}.\n`);
+    return;
+  }
 
   const browser = await chromium.launch();
   let totalCaptured = 0;
