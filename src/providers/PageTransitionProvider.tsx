@@ -8,7 +8,7 @@ import {
   useRef,
   useEffect,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 
 /* ── Types ── */
@@ -43,11 +43,17 @@ export function usePageTransition() {
  *  - morph  (400ms, auto): fullscreen → hero 크기 (예측 가능한 시점에 축소)
  *  - hold   (가변): backdrop 으로 화면 전체 덮은 채 새 페이지가 준비되길 기다림
  *  - done   (350ms): backdrop + image 함께 fade out
- *  - SAFETY_MS: endTransition 이 호출되지 않을 때 안전망 */
+ *
+ * Safety 두 단계:
+ *  - ROUTE_FAIL_SAFETY_MS: router.push 이후에도 pathname 이 안 바뀔 때 (navigation 자체 실패)
+ *  - CONTENT_LOAD_SAFETY_MS: pathname 은 바뀌었지만 DetailLayout 이 mount 못 할 때 (dev 컴파일 / 느린 SSR)
+ *      → loading.tsx (Suspense fallback) 이 노출된 상태에서 overlay 가 일찍 사라지면
+ *        "이미지 전환 후 skeleton 이 보이는" 증상이 생기므로 충분히 길게 둠. */
 const EXPAND_MS = 600;
 const MORPH_MS = 400;
 const FADE_MS = 350;
-const SAFETY_MS = 5000;
+const ROUTE_FAIL_SAFETY_MS = 5000;
+const CONTENT_LOAD_SAFETY_MS = 10000;
 const NAV_DELAY = EXPAND_MS;
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 
@@ -56,7 +62,10 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   const timerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   /* 새 페이지가 morph 보다 먼저 준비되면 morph 끝나는 즉시 done 으로 직행 */
   const endRequestedRef = useRef(false);
+  /* pathname 이 targetId 로 바뀐 순간 = navigation 도착. 한 번만 처리하도록 가드. */
+  const arrivedRef = useRef(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const clearTimers = () => {
     timerRef.current.forEach(clearTimeout);
@@ -80,20 +89,42 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   const startTransition = useCallback((image: string, rect: DOMRect, targetId: string) => {
     clearTimers();
     endRequestedRef.current = false;
+    arrivedRef.current = false;
     setState({ image: image || PLACEHOLDER_IMAGE, rect, targetId, phase: "init" });
-    const safety = setTimeout(() => endTransition(), SAFETY_MS);
+    const safety = setTimeout(() => endTransition(), ROUTE_FAIL_SAFETY_MS);
     timerRef.current.push(safety);
   }, [endTransition]);
 
   const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect) => {
     clearTimers();
     endRequestedRef.current = false;
+    arrivedRef.current = false;
     setState({ image: image || PLACEHOLDER_IMAGE, rect, targetId: href, phase: "init" });
     const t = setTimeout(() => router.push(href), NAV_DELAY);
     timerRef.current.push(t);
-    const safety = setTimeout(() => endTransition(), NAV_DELAY + SAFETY_MS);
+    /* router.push 후에도 pathname 안 바뀌는 경우 = navigation 자체 실패 → backstop */
+    const safety = setTimeout(() => endTransition(), NAV_DELAY + ROUTE_FAIL_SAFETY_MS);
     timerRef.current.push(safety);
   }, [router, endTransition]);
+
+  /* pathname 도착 감지 — DetailLayout 이 mount 될 때까지 grace 시간 충분히 확보.
+   * 이게 없으면 ROUTE_FAIL_SAFETY_MS 가 컨텐츠 로딩 중에 발화해 overlay 가 fade-out 되고,
+   * 그 사이 loading.tsx skeleton 이 노출되는 증상 발생. */
+  useEffect(() => {
+    if (!state || state.phase === "done") return;
+    if (arrivedRef.current) return;
+    const targetBase = state.targetId.split(/[?#]/)[0];
+    const arrived =
+      pathname === targetBase ||
+      (pathname && targetBase && pathname.startsWith(targetBase + "/"));
+    if (!arrived) return;
+    arrivedRef.current = true;
+    clearTimers();
+    /* 새 페이지 DetailLayout 이 mount 되면 endTransition 호출 → 즉시 마무리.
+     * 그 사이에 SAFETY 가 너무 빨리 끝나지 않게 충분히 길게. */
+    const safety = setTimeout(() => endTransition(), CONTENT_LOAD_SAFETY_MS);
+    timerRef.current.push(safety);
+  }, [pathname, state, endTransition]);
 
   /* done 진입 시 fade-out 끝나면 overlay unmount */
   useEffect(() => {
