@@ -55,7 +55,9 @@ const FADE_MS = 350;
 const ROUTE_FAIL_SAFETY_MS = 5000;
 /** pathname 도착 후 grace — dev 컴파일·콜드 번들·인터넷 느림 모두 커버하도록 충분히 길게. */
 const CONTENT_LOAD_SAFETY_MS = 30000;
-const NAV_DELAY = EXPAND_MS;
+/** router.push 지연 — 0 이면 클릭 즉시 navigation 시작, expand 애니메이션 동안 페이지 로딩 병렬화.
+ *  backdrop 이 ~180ms 안에 opaque 되므로 그 사이 OLD 페이지가 보일 수 있지만, image overlay 가 빠르게 커지며 가림. */
+const NAV_DELAY = 0;
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
@@ -321,49 +323,6 @@ function TransitionOverlay({
         }}
       />
     </div>
-    {/* hold/morph 동안 로딩 인디케이터 — 사용자가 "멈췄나?" 라고 느끼지 않도록 */}
-    {(phase === "morph" || phase === "hold") && <LoadingDots />}
-    </>
-  );
-}
-
-/* 화면 하단 중앙 3-dot pulse — overlay 위에 띄움 */
-function LoadingDots() {
-  return (
-    <>
-      <style>{`
-        @keyframes pt-dot-pulse {
-          0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
-          40% { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-      <div
-        style={{
-          position: "fixed",
-          left: "50%",
-          bottom: "10vh",
-          transform: "translateX(-50%)",
-          display: "flex",
-          gap: 8,
-          zIndex: 10000,
-          pointerEvents: "none",
-          animation: "fadeIn 0.4s ease 0.2s both",
-        }}
-      >
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: "var(--text-primary)",
-              opacity: 0.25,
-              animation: `pt-dot-pulse 1.2s ease-in-out ${i * 0.16}s infinite`,
-            }}
-          />
-        ))}
-      </div>
     </>
   );
 }
