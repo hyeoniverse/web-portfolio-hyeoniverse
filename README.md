@@ -16,7 +16,7 @@
 
 <br />
 
-<img src="public/docs/screenshots/pc/home-dark.png" alt="Home — Dark" width="100%" />
+<img src="public/images/screenshots/pc/home-dark.png" alt="Home — Dark" width="100%" />
 
 </div>
 
@@ -28,29 +28,42 @@
 
 | Dark | Light |
 |:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-dark.png" alt="Home Dark" width="100%" /> | <img src="public/docs/screenshots/pc/home-light.png" alt="Home Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/works-dark.png" alt="Works Dark" width="100%" /> | <img src="public/docs/screenshots/pc/works-light.png" alt="Works Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/posts-dark.png" alt="Posts Dark" width="100%" /> | <img src="public/docs/screenshots/pc/posts-light.png" alt="Posts Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/home-dark.png" alt="Home Dark" width="100%" /> | <img src="public/images/screenshots/pc/home-light.png" alt="Home Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/works-dark.png" alt="Works Dark" width="100%" /> | <img src="public/images/screenshots/pc/works-light.png" alt="Works Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/posts-dark.png" alt="Posts Dark" width="100%" /> | <img src="public/images/screenshots/pc/posts-light.png" alt="Posts Light" width="100%" /> |
 
 <details>
-<summary><strong>더 보기 — Profile / About / Work Detail / Design System</strong></summary>
+<summary><strong>더 보기 — Profile / About / Work Detail / Post Detail / Design System</strong></summary>
 
 | Dark | Light |
 |:---:|:---:|
-| <img src="public/docs/screenshots/pc/profile-dark.png" alt="Profile Dark" width="100%" /> | <img src="public/docs/screenshots/pc/profile-light.png" alt="Profile Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/about-dark.png" alt="About Dark" width="100%" /> | <img src="public/docs/screenshots/pc/about-light.png" alt="About Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/work-detail-dark.png" alt="Work Detail Dark" width="100%" /> | <img src="public/docs/screenshots/pc/work-detail-light.png" alt="Work Detail Light" width="100%" /> |
-| <img src="public/docs/screenshots/pc/design-system-dark.png" alt="Design System Dark" width="100%" /> | <img src="public/docs/screenshots/pc/design-system-light.png" alt="Design System Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/profile-dark.png" alt="Profile Dark" width="100%" /> | <img src="public/images/screenshots/pc/profile-light.png" alt="Profile Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/about-dark.png" alt="About Dark" width="100%" /> | <img src="public/images/screenshots/pc/about-light.png" alt="About Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/work-detail-dark.png" alt="Work Detail Dark" width="100%" /> | <img src="public/images/screenshots/pc/work-detail-light.png" alt="Work Detail Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/post-detail-dark.png" alt="Post Detail Dark" width="100%" /> | <img src="public/images/screenshots/pc/post-detail-light.png" alt="Post Detail Light" width="100%" /> |
+| <img src="public/images/screenshots/pc/design-system-dark.png" alt="Design System Dark" width="100%" /> | <img src="public/images/screenshots/pc/design-system-light.png" alt="Design System Light" width="100%" /> |
 
 </details>
+
+### Works — 6종 레이아웃
+
+`?layout=` 쿼리 (또는 Admin 설정) 으로 전환 — Flow (기본) · Fullscreen · Cinematic · Grid · Split · Cylinder
+
+| Flow | Fullscreen | Cinematic |
+|:---:|:---:|:---:|
+| <img src="public/images/screenshots/pc/works-dark.png" alt="Works Flow" width="100%" /> | <img src="public/images/screenshots/pc/works-fullscreen-dark.png" alt="Works Fullscreen" width="100%" /> | <img src="public/images/screenshots/pc/works-cinematic-dark.png" alt="Works Cinematic" width="100%" /> |
+
+| Grid | Split | Cylinder |
+|:---:|:---:|:---:|
+| <img src="public/images/screenshots/pc/works-grid-dark.png" alt="Works Grid" width="100%" /> | <img src="public/images/screenshots/pc/works-split-dark.png" alt="Works Split" width="100%" /> | <img src="public/images/screenshots/pc/works-cylinder-dark.png" alt="Works Cylinder" width="100%" /> |
 
 ### 반응형 — PC / Tablet / Mobile
 
 | PC (1440px) | Tablet (768px) | Mobile (390px) |
 |:---:|:---:|:---:|
-| <img src="public/docs/screenshots/pc/home-dark.png" alt="Home PC" width="100%" /> | <img src="public/docs/screenshots/tablet/home-dark.png" alt="Home Tablet" width="100%" /> | <img src="public/docs/screenshots/mobile/home-dark.png" alt="Home Mobile" width="100%" /> |
-| <img src="public/docs/screenshots/pc/works-dark.png" alt="Works PC" width="100%" /> | <img src="public/docs/screenshots/tablet/works-dark.png" alt="Works Tablet" width="100%" /> | <img src="public/docs/screenshots/mobile/works-dark.png" alt="Works Mobile" width="100%" /> |
-| <img src="public/docs/screenshots/pc/posts-dark.png" alt="Posts PC" width="100%" /> | <img src="public/docs/screenshots/tablet/posts-dark.png" alt="Posts Tablet" width="100%" /> | <img src="public/docs/screenshots/mobile/posts-dark.png" alt="Posts Mobile" width="100%" /> |
+| <img src="public/images/screenshots/pc/home-dark.png" alt="Home PC" width="100%" /> | <img src="public/images/screenshots/tablet/home-dark.png" alt="Home Tablet" width="100%" /> | <img src="public/images/screenshots/mobile/home-dark.png" alt="Home Mobile" width="100%" /> |
+| <img src="public/images/screenshots/pc/works-dark.png" alt="Works PC" width="100%" /> | <img src="public/images/screenshots/tablet/works-dark.png" alt="Works Tablet" width="100%" /> | <img src="public/images/screenshots/mobile/works-dark.png" alt="Works Mobile" width="100%" /> |
+| <img src="public/images/screenshots/pc/posts-dark.png" alt="Posts PC" width="100%" /> | <img src="public/images/screenshots/tablet/posts-dark.png" alt="Posts Tablet" width="100%" /> | <img src="public/images/screenshots/mobile/posts-dark.png" alt="Posts Mobile" width="100%" /> |
 
 ---
 
@@ -99,8 +112,8 @@
 - **3D Scroll Torus**: Three.js(R3F) 기반 3D 메탈릭 토러스 — 리사주 곡선 경로 회전, 테마별 머티리얼, 모바일 터치 반발 인터랙션
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
-  <img src="public/docs/screenshots/pc/home-light.png" width="49%" alt="Home — Light" />
+  <img src="public/images/screenshots/pc/home-dark.png" width="49%" alt="Home — Dark" />
+  <img src="public/images/screenshots/pc/home-light.png" width="49%" alt="Home — Light" />
 </p>
 
 ### Works Gallery
@@ -114,8 +127,8 @@
 - **Breakpoint Guard**: Cylinder 레이아웃은 리사이즈 시 리로드 없이 실시간 대응, 나머지 레이아웃은 breakpoint 전환 시 자동 remount
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
-  <img src="public/docs/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
+  <img src="public/images/screenshots/pc/works-dark.png" width="49%" alt="Works — Dark" />
+  <img src="public/images/screenshots/pc/works-light.png" width="49%" alt="Works — Light" />
 </p>
 
 ### Blog System
@@ -138,8 +151,8 @@
 - **첫 댓글 축하**: 첫 댓글 등록 시 confetti 효과 + 카드 플립 축하 메시지 (sparkle 별 장식 + accent 라인), 관리자 댓글 전체 선택 / 드래그 선택 / tombstone 일괄 완전 삭제
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
-  <img src="public/docs/screenshots/pc/posts-light.png" width="49%" alt="Posts — Light" />
+  <img src="public/images/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
+  <img src="public/images/screenshots/pc/posts-light.png" width="49%" alt="Posts — Light" />
 </p>
 
 ### Works Detail & Project Pages
@@ -148,8 +161,8 @@
 - **Work Detail**: 프로젝트 상세 페이지 — 콘텐츠 내 `##` 헤딩 파싱 TOC, 갤러리 이미지, 좋아요/댓글, GitHub 링크 버튼, DB 미연결 시 정적 데이터 fallback
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
-  <img src="public/docs/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
+  <img src="public/images/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
+  <img src="public/images/screenshots/pc/work-detail-light.png" width="49%" alt="Work Detail — Light" />
 </p>
 
 ### Navigation & UX
@@ -167,8 +180,8 @@
 - **LanguageToggle 동적 측정**: EN 버튼 위치를 useLayoutEffect로 실측해 indicator 정확한 정렬
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
-  <img src="public/docs/screenshots/pc/about-light.png" width="49%" alt="About — Light" />
+  <img src="public/images/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
+  <img src="public/images/screenshots/pc/about-light.png" width="49%" alt="About — Light" />
 </p>
 
 ### Admin & CMS
@@ -204,8 +217,8 @@
 - **아이콘 일관화**: 모든 인라인 SVG를 `lucide-react`로 통일 (~200개 교체), 브랜드 마크(GitHub)는 `src/components/icons/` 커스텀 컴포넌트로 분리 — 트리 셰이킹 + 일관된 strokeWidth/size API
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
-  <img src="public/docs/screenshots/pc/profile-light.png" width="49%" alt="Profile — Light" />
+  <img src="public/images/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
+  <img src="public/images/screenshots/pc/profile-light.png" width="49%" alt="Profile — Light" />
 </p>
 
 ### Performance
@@ -225,8 +238,8 @@
 - **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown), Pagination(smart ellipsis), PeriodPicker, ButtonGroup(캡슐형 합체 버튼), Gradient Tokens, 3-phase scroll 애니메이션
 
 <p align="center">
-  <img src="public/docs/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
-  <img src="public/docs/screenshots/pc/design-system-light.png" width="49%" alt="Design System — Light" />
+  <img src="public/images/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
+  <img src="public/images/screenshots/pc/design-system-light.png" width="49%" alt="Design System — Light" />
 </p>
 
 > **상세 문서**: [Security](./docs/security.md) · [DB 설계 결정](./docs/db-design.md) · [User Flow](./docs/user-flow.md)
