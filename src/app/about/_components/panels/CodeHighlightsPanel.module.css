@@ -590,6 +590,16 @@
    ========================================================================== */
 
 @media (max-width: 1024px), (max-height: 700px) {
+  /* Title row 통일 — TroubleshootingPanel 의 troublePinTitleRow 와 동일 스펙
+     padding-top: nav(80) + tab(40) + spacing-2xl, margin-bottom: spacing-xl, h3 margin: 0 */
+  .codePinTitleRow.codePinTitleRow.codePinTitleRow.codePinTitleRow {
+    padding-top: calc(80px + 40px + var(--spacing-2xl));
+    margin-bottom: var(--spacing-xl);
+  }
+  .codePinTitleRow h3 {
+    margin: 0;
+  }
+
   .codeSingleView {
     display: none;
   }
