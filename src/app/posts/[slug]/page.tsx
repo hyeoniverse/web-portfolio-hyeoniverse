@@ -1,18 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPostBySlug, getAllPostSlugs } from "@/lib/posts";
-import { getSiteConfig } from "@/lib/getSiteConfig";
-import { getSecret } from "@/lib/getSecret";
 import PostDetailClient from "./PostDetailClient";
 
 export const revalidate = 300;
-
-const PROVIDER_KEY_MAP: Record<string, string> = {
-  deepl: "DEEPL_API_KEY",
-  google: "GOOGLE_TRANSLATE_API_KEY",
-  gemini: "GEMINI_API_KEY",
-  claude: "ANTHROPIC_API_KEY",
-};
 
 export async function generateStaticParams() {
   const slugs = await getAllPostSlugs();
@@ -45,13 +36,10 @@ export default async function PostDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [post, config] = await Promise.all([getPostBySlug(slug), getSiteConfig()]);
+  /* getSiteConfig + getSecret 호출 제거 — root layout 의 SiteConfigProvider 에 이미 있음.
+   * translationEnabled 는 client 에서 useSiteConfig() 로 직접 읽음. */
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const provider = config?.translation?.provider ?? "deepl";
-  const keyName = PROVIDER_KEY_MAP[provider] ?? "";
-  const apiKey = keyName ? await getSecret(keyName) : "";
-  const translationEnabled = config?.translation?.enabled !== false && !!apiKey;
-
-  return <PostDetailClient post={post} translationEnabled={translationEnabled} />;
+  return <PostDetailClient post={post} />;
 }
