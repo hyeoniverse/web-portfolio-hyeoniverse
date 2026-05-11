@@ -4,13 +4,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 // GET /api/admin/notifications — 알림 목록 (최근 50개)
 // 테이블이 없거나 query 실패 시에도 200 + 빈 리스트로 graceful degradation —
-// nav 폴링이 매번 500 으로 콘솔을 도배하지 않게 함.
+// nav 폴링이 매번 401/500 으로 콘솔을 도배하지 않게 함.
+// 인증 없을 때도 200 + 빈 리스트 (info leak 없음, polling 콘솔 노이즈 제거).
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ notifications: [], unreadCount: 0 });
   }
 
   try {
