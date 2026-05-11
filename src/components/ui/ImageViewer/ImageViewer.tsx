@@ -94,26 +94,22 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     }
   }, [open, index]);
 
-  // Scroll lock (position: fixed to prevent background scroll)
+  // Scroll lock — body 수정 없이 wheel/touch 만 차단.
+  // 이전엔 body.position = fixed 로 잠그고 닫을 때 복원했는데, GSAP ScrollTrigger pin 환경에서는
+  // 그 동안 ScrollTrigger 가 흔들려서 복원이 부정확. body 그대로 두면 GSAP / Lenis 상태도 그대로 보존.
   useEffect(() => {
     if (!open) return;
     lenisStop();
-    const scrollY = window.scrollY;
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = "100%";
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    document.documentElement.style.overscrollBehavior = "none";
+    const preventOutside = (e: Event) => {
+      const target = e.target as Node | null;
+      if (viewerRef.current && target && viewerRef.current.contains(target)) return;
+      e.preventDefault();
+    };
+    document.addEventListener("wheel", preventOutside, { passive: false });
+    document.addEventListener("touchmove", preventOutside, { passive: false });
     return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      document.documentElement.style.overscrollBehavior = "";
-      const top = document.body.style.top;
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
-      if (top) window.scrollTo(0, parseInt(top, 10) * -1);
+      document.removeEventListener("wheel", preventOutside);
+      document.removeEventListener("touchmove", preventOutside);
       lenisStart();
     };
   }, [open, lenisStop, lenisStart]);
