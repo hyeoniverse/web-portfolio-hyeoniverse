@@ -15,6 +15,7 @@
  *   --pages=home,posts             (특정 페이지만)
  *   --full                         (전체 페이지 스크롤 캡처)
  *   --no-detail                    (상세 페이지 제외)
+ *   --no-retry                     (실패 시 재시도 프롬프트 생략)
  *
  * 결과: public/images/screenshots/{device}/{page}-{theme}.png
  */
@@ -22,6 +23,7 @@
 import { chromium } from "playwright";
 import { mkdirSync, existsSync } from "fs";
 import { resolve, join } from "path";
+import readline from "readline";
 
 /* ── CLI args ── */
 const args = Object.fromEntries(
@@ -37,6 +39,7 @@ const ONLY_DARK = args.dark === "true";
 const ONLY_LIGHT = args.light === "true";
 const FULL_PAGE = args.full === "true";
 const NO_DETAIL = args["no-detail"] === "true";
+const NO_RETRY = args["no-retry"] === "true";
 const FILTER_PAGES = args.pages?.split(",");
 const FILTER_DEVICES = args.device?.split(",");
 
@@ -103,26 +106,43 @@ function ensureDir(dir) {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 }
 
-/* ── Main ── */
-async function run() {
-  const devices = FILTER_DEVICES
-    ? DEVICES.filter((d) => FILTER_DEVICES.includes(d.name))
-    : DEVICES;
+function ask(question) {
+  return new Promise((res) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    rl.question(question, (a) => {
+      rl.close();
+      res(a);
+    });
+  });
+}
 
-  let pages = PAGES;
-  if (NO_DETAIL) pages = pages.filter((p) => !p.detail);
-  if (FILTER_PAGES) pages = pages.filter((p) => FILTER_PAGES.includes(p.name));
-
-  const total = devices.length * pages.length * THEMES.length;
-  console.log(
-    `\n📸 Capturing ${pages.length} pages × ${devices.length} devices × ${THEMES.length} themes = ${total} screenshots\n`,
-  );
-
-  const browser = await chromium.launch();
+/* ── Capture ──
+ *  jobs: [{ device, page, theme }]
+ *  device 별로 context 재사용, 같은 device+page 안에서는 page 객체 재사용.
+ *  실패한 job 은 failures 배열로 반환 → 재시도 루프에서 그대로 다시 입력.
+ */
+async function runJobs(browser, jobs) {
+  const failures = [];
   let captured = 0;
-  let failed = 0;
+  const total = jobs.length;
 
-  for (const device of devices) {
+  // device → page → theme[] 순으로 그룹핑
+  const byDevice = new Map();
+  for (const j of jobs) {
+    if (!byDevice.has(j.device.name)) {
+      byDevice.set(j.device.name, { device: j.device, byPage: new Map() });
+    }
+    const dEntry = byDevice.get(j.device.name);
+    if (!dEntry.byPage.has(j.page.name)) {
+      dEntry.byPage.set(j.page.name, { page: j.page, themes: [] });
+    }
+    dEntry.byPage.get(j.page.name).themes.push(j.theme);
+  }
+
+  for (const { device, byPage } of byDevice.values()) {
     const deviceDir = join(OUT_DIR, device.name);
     ensureDir(deviceDir);
 
@@ -131,15 +151,14 @@ async function run() {
       deviceScaleFactor: device.scale,
     });
 
-    for (const pg of pages) {
+    for (const { page: pg, themes } of byPage.values()) {
       const page = await context.newPage();
 
-      for (const theme of THEMES) {
+      for (const theme of themes) {
         const filename = `${pg.name}-${theme}.png`;
         const filepath = join(deviceDir, filename);
 
         try {
-          // 테마 미리 세팅 (페이지 로드 전)
           await page.addInitScript((t) => {
             localStorage.setItem("theme", t);
           }, theme);
@@ -162,14 +181,11 @@ async function run() {
 
           captured++;
           const pct = Math.round((captured / total) * 100);
-          console.log(
-            `  ✓ [${pct}%] ${device.name}/${filename}`,
-          );
+          console.log(`  ✓ [${pct}%] ${device.name}/${filename}`);
         } catch (err) {
-          failed++;
-          console.error(
-            `  ✗ ${device.name}/${filename}: ${err.message}`,
-          );
+          const message = (err.message || String(err)).split("\n")[0];
+          failures.push({ device, page: pg, theme, error: message });
+          console.error(`  ✗ ${device.name}/${filename}: ${message}`);
         }
       }
 
@@ -179,24 +195,95 @@ async function run() {
     await context.close();
   }
 
-  await browser.close();
+  return { captured, failures };
+}
 
-  console.log(
-    `\n✅ Done — ${captured} captured, ${failed} failed`,
-  );
-  console.log(`   Saved to ${OUT_DIR}/\n`);
+/* ── Main ── */
+async function run() {
+  const devices = FILTER_DEVICES
+    ? DEVICES.filter((d) => FILTER_DEVICES.includes(d.name))
+    : DEVICES;
 
-  // 디렉토리 구조 안내
-  console.log("📂 Directory structure:");
+  let pages = PAGES;
+  if (NO_DETAIL) pages = pages.filter((p) => !p.detail);
+  if (FILTER_PAGES) pages = pages.filter((p) => FILTER_PAGES.includes(p.name));
+
+  // 캡처 단위(job) 평면화
+  const initialJobs = [];
   for (const d of devices) {
-    console.log(`   ${d.name}/`);
     for (const p of pages) {
       for (const t of THEMES) {
-        console.log(`     ${p.name}-${t}.png`);
+        initialJobs.push({ device: d, page: p, theme: t });
       }
     }
   }
-  console.log();
+
+  console.log(
+    `\n📸 Capturing ${pages.length} pages × ${devices.length} devices × ${THEMES.length} themes = ${initialJobs.length} screenshots\n`,
+  );
+
+  const browser = await chromium.launch();
+  let totalCaptured = 0;
+  let currentJobs = initialJobs;
+  let attempt = 1;
+
+  try {
+    while (currentJobs.length > 0) {
+      if (attempt > 1) {
+        console.log(`\n🔁 Retry attempt ${attempt} — ${currentJobs.length} jobs\n`);
+      }
+
+      const { captured, failures } = await runJobs(browser, currentJobs);
+      totalCaptured += captured;
+
+      if (failures.length === 0) {
+        console.log(`\n✅ Done — ${totalCaptured} captured`);
+        console.log(`   Saved to ${OUT_DIR}/\n`);
+        break;
+      }
+
+      // 실패 목록 출력
+      console.log(`\n❌ ${failures.length} failed${attempt > 1 ? ` (attempt ${attempt})` : ""}:`);
+      for (const f of failures) {
+        console.log(`  • ${f.device.name}/${f.page.name}-${f.theme}.png`);
+        console.log(`    └─ ${f.error}`);
+      }
+
+      // 재시도 여부 결정
+      const interactive = process.stdin.isTTY && process.stdout.isTTY;
+      if (NO_RETRY || !interactive) {
+        if (!interactive) {
+          console.log(`\n💡 Non-interactive 환경 — 재시도 프롬프트 생략.`);
+        }
+        console.log(`\n   ${totalCaptured} captured, ${failures.length} failed.`);
+        console.log(`   재시도 명령:`);
+        for (const f of failures) {
+          console.log(
+            `     node scripts/screenshots.mjs --device=${f.device.name} --pages=${f.page.name} --${f.theme}`,
+          );
+        }
+        console.log();
+        break;
+      }
+
+      const answer = (await ask(`\n↻  Retry ${failures.length} failed captures? (Y/n): `))
+        .toLowerCase()
+        .trim();
+      if (answer === "n" || answer === "no") {
+        console.log(`\n   ${totalCaptured} captured, ${failures.length} skipped.\n`);
+        break;
+      }
+
+      currentJobs = failures.map((f) => ({
+        device: f.device,
+        page: f.page,
+        theme: f.theme,
+      }));
+      attempt++;
+    }
+  } finally {
+    await browser.close();
+  }
 }
 
 run().catch((err) => {

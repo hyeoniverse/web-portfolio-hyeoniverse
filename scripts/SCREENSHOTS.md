@@ -117,6 +117,29 @@ node scripts/screenshots.mjs --no-detail
 node scripts/screenshots.mjs --full
 ```
 
+### 재시도 비활성화
+
+기본 동작: 캡처 끝나고 실패한 파일이 있으면 목록을 출력하고 `Retry N failed captures? (Y/n)` 프롬프트 — Enter 또는 `y` 면 실패한 것만 다시 시도, `n` 이면 종료.
+
+CI / 비대화형 환경 (stdin/stdout 이 TTY 가 아닌 경우) 에서는 프롬프트 없이 실패 목록 + 개별 재시도 명령어를 출력하고 종료. `--no-retry` 플래그로도 강제 비활성화 가능:
+
+```bash
+node scripts/screenshots.mjs --no-retry
+```
+
+실패 목록 출력 예시:
+```
+❌ 3 failed:
+  • tablet/design-system-light.png
+    └─ page.goto: Timeout 30000ms exceeded
+  • mobile/works-cylinder-dark.png
+    └─ page.screenshot: Target closed
+  • pc/post-detail-dark.png
+    └─ page.goto: net::ERR_CONNECTION_REFUSED
+
+↻  Retry 3 failed captures? (Y/n):
+```
+
 ### 출력 경로 변경
 
 ```bash
