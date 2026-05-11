@@ -120,12 +120,14 @@ export default function Navigation() {
       .catch(() => { setNotifs([]); setUnreadCount(0); });
   }, []);
 
+  // 로그인 상태면 어느 페이지든 60s 간격 polling — 알림 버튼이 모든 페이지에 노출되므로 데이터 최신화 필요.
+  // pathname 을 deps 에서 뺌 → 라우트 이동마다 추가 fetch 하지 않음.
   useEffect(() => {
     if (!adminEmail) { setUnreadCount(0); setNotifs([]); return; }
     fetchNotifs();
     const id = window.setInterval(fetchNotifs, 60_000);
     return () => { window.clearInterval(id); };
-  }, [adminEmail, pathname, fetchNotifs]);
+  }, [adminEmail, fetchNotifs]);
 
   // 포털 dropdown 위치 — trigger 의 viewport 좌표를 기준으로 계산
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
