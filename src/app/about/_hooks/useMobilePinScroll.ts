@@ -72,6 +72,9 @@ export function useMobilePinScroll(
       if (ctx) ctx.revert();
 
       let prevIndex = 0;
+      let lastFireTime = 0;
+      // 시간 throttle — 너무 빠른 cascade 만 부드럽게 차단. 패널 통과는 허용.
+      const THROTTLE_MS = 200;
 
       try {
         ctx = gsap.context(() => {
@@ -84,14 +87,19 @@ export function useMobilePinScroll(
             anticipatePin: useAnticipatePin,
             invalidateOnRefresh: true,
             onUpdate: (self) => {
-              const newIndex = Math.min(
+              const target = Math.min(
                 total - 1,
                 Math.floor(self.progress * total),
               );
-              if (newIndex !== prevIndex) {
-                prevIndex = newIndex;
-                onIndexChange(newIndex);
-              }
+              if (target === prevIndex) return;
+
+              const now = performance.now();
+              if (now - lastFireTime < THROTTLE_MS) return;
+
+              const step = target > prevIndex ? 1 : -1;
+              prevIndex += step;
+              lastFireTime = now;
+              onIndexChange(prevIndex);
             },
           });
           scrollTriggerRef.current = instance;
