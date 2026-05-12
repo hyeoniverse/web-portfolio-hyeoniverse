@@ -73,10 +73,10 @@
 |:---|:---|
 | **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, StaggerText, Three.js 3D 커피잔 + 라떼아트, 방향별 Scroll Cascade |
 | **Works** | 6종 레이아웃 (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
-| **Blog** | SSR + ISR, 시리즈, 배너 슬라이더, 게스트 댓글 (이중 인증) |
+| **Blog** | SSR + ISR, 시리즈, 배너 슬라이더, 게스트 댓글 (비번 단일 인증) |
 | **Admin** | Plate.js 에디터, `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리 |
-| **성능** | Lighthouse 98 — LCP 1.9s, 449KB (-70%) |
-| **보안** | SQL Injection, XSS, RLS, 이중 인증, 카테고리 화이트리스트 |
+| **성능** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic 카운터 + AbortController + bulk Promise.all |
+| **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드 |
 | **디자인 시스템** | 3-layer 토큰 (Raw → Semantic → Context) + 라이브 프리뷰 |
 
 ---
@@ -280,6 +280,10 @@ Posts 기능을 사용하려면 Supabase 프로젝트 세팅이 필요합니다.
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
+
+# production 도메인 — middleware 의 CSRF Origin 체크 기준
+# production 에 미설정 시 admin mutation 이 모두 403 (fail-closed). dev 는 비워둬도 통과
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 # Cover Image Picker — Unsplash (선택사항)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
@@ -555,7 +559,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 46건의 이슈 중 핵심 13건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 49건의 이슈 중 핵심 16건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
 
 | # | 이슈 | 핵심 |
 |:---:|:---|:---|
@@ -581,6 +585,9 @@ npm run test:watch
 | 47 | 이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음 | React 합성 이벤트는 `dangerouslySetInnerHTML` 영역 밖이고, 이미 fetch 가 끝난 img 는 `error` 가 retroactive 발화 안 됨, dynamic 추가 img 도 querySelectorAll 단발로 못 잡음. 해결: `attachImageFallback(root)` — 컨테이너 내 모든 img 에 `data-fallback-bound` gate + `addEventListener("error")` + 즉시 `complete && naturalWidth===0` 체크 + MutationObserver 로 새 img 자동 추적, swap 시 `removeAttribute("srcset")` 로 srcset 재시도 차단 |
 | 48 | `.row { grid-template-columns: 1fr 1fr }` 안의 cover 팔레트가 viewport 밖으로 잘려 나감 | `1fr` 은 `minmax(auto, 1fr)` 의 단축형 — 자식이 trim 안 되면 `min-width: auto` 가 intrinsic content size 를 잡아 트랙이 부풀고 50:50 비율이 무너짐. 해결: 트랙을 `minmax(0, 1fr) minmax(0, 1fr)` 로 명시 + `min-width: 0`. 모바일 break 도 동일하게 `minmax(0, 1fr)` 로 통일하고, 안쪽 `.palette` 에는 `flex-wrap: wrap` + `max-width: 100%` 로 swatch 자체도 wrap 가능하게 보강 |
 | 49 | ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse | render-prop 으로 받은 trigger 자식이 `position: absolute`(stop handle) 면 normal flow 에서 빠져 wrapper 자체가 0×0 → 모든 stop 의 popover 좌표가 동일. 해결: `updatePos` 가 wrapper rect 대신 **`firstElementChild.getBoundingClientRect()`** 를 우선 사용, 자식 rect 도 0 이면 wrapper rect 로 fallback — 일반 swatch / absolute handle 둘 다 정확히 anchor |
+| 50 ★ | 익명 댓글 수정·삭제 — 클라가 비번 강제, 서버는 hash 경로로 우회 허용 | 폼은 비번을 받지 않으면 제출 차단 → 사용자는 "비번이 유일한 인증" 으로 인식. 그러나 서버는 `password OR commenter_hash` OR 분기로 짜여 있어 `curl` 로 비번 없이 PATCH/DELETE 호출하면 hash 경로로 통과. `commenter_hash` 는 31-bit 비암호 해시 + public GET 응답에 노출 → 단일 코어 ~30분 brute-force 가능. 해결: 서버 분기를 비번 단일 경로로 통일 + `validatePassword` 빈 값 거절. **클라가 강제한다고 서버가 강제하는 것은 아니다** + **OR 분기는 시스템 보안 강도를 가장 약한 경로로 떨어뜨린다** |
+| 51 | 공개 API 의 `?all=true` 가 service-role 로 비공개 글까지 반환 | `/api/posts` · `/api/works` 가 admin 화면과 라우트를 공유하면서 `?all=true` / `?trash=true` 시 `createAdminClient()` (RLS 우회) 를 사용. 인증 게이트가 빠져 있어 `curl …/api/posts?all=true` 한 줄이면 모든 draft 노출. 해결: 두 쿼리에 `requireAuth()` 게이트 + 단일 row GET (`/api/posts/[id]`, `/api/works/[id]`) 도 admin only (공개는 slug 기반 read 만 사용) + middleware fail-closed 가드를 다층으로. **service-role 을 쓰는 순간 인증 책임은 라우트 코드로 옮겨진다** |
+| 52 ★ | Supabase auth subscription cleanup — `.then()` 안의 `return` 은 useEffect cleanup 이 아니다 | Footer / Nav 에서 `loadSupabaseClient().then(supabase => { ...; return () => sub.unsubscribe(); })` 패턴이 cleanup 처럼 보이지만 React 는 effect 콜백이 **직접** return 한 함수만 인식 — `.then()` 의 return 은 promise 체인으로 흘러갈 뿐. 결과: subscription 영구 생존, remount 마다 listener 누적. 해결: `subscription` 변수를 effect scope 에 두고 `.then()` 안에서 assign + `cancelled` flag 로 늦게 도착한 promise 즉시 unsubscribe. 같은 패턴이 4 곳에 있어 `useIsAuthenticated({ subscribe? })` 헬퍼로 통합 |
 
 
 ## 배포
@@ -596,6 +603,9 @@ npm run test:watch
   NEXT_PUBLIC_SUPABASE_URL
   NEXT_PUBLIC_SUPABASE_ANON_KEY
   SUPABASE_SERVICE_ROLE_KEY
+  NEXT_PUBLIC_SITE_URL         # production 도메인 (예: https://your-domain.com)
+                               # middleware 의 CSRF Origin 체크 기준. production 에 미설정 시
+                               # admin mutation 이 모두 403 으로 차단됨 (fail-closed). dev 는 skip
 
 선택 환경변수:
   UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash

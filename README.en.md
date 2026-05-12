@@ -73,10 +73,10 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 |:---|:---|
 | **Interaction** | Infinite scroll loop, mouse parallax, StaggerText, Three.js 3D coffee cup + latte art, directional scroll cascade |
 | **Works** | 6 layouts (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
-| **Blog** | SSR + ISR, series, banner slider, guest comments (dual auth) |
+| **Blog** | SSR + ISR, series, banner slider, guest comments (password-only auth) |
 | **Admin** | Plate.js editor, `.md` sync + export, AI translation/summary, revision history |
-| **Performance** | Lighthouse 98 — LCP 1.9s, 449KB (-70%) |
-| **Security** | SQL Injection, XSS, RLS, dual auth, category whitelist |
+| **Performance** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic counters + AbortController + bulk Promise.all |
+| **Security** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin check (production fail-closed), middleware admin multi-layer gate |
 | **Design System** | 3-layer tokens (Raw → Semantic → Context) + live preview |
 
 ---
@@ -279,6 +279,11 @@ Create a `.env.local` file in the project root:
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
+
+# Production origin — middleware uses this for CSRF Origin verification.
+# Missing in production → admin mutations are all rejected with 403 (fail-closed).
+# Dev can leave it unset.
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 # Cover Image Picker — Unsplash (optional)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
@@ -554,7 +559,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 46 issues encountered during development, with the top 13 surfaced on the About page (filtered by difficulty + generalizability via a `HIDDEN_PROBLEMS` Set — data is preserved and can be unhidden anytime). 6 sections (Architecture / Performance / Layout / Plate Editor / Animation·Interaction / Component) + difficulty (1–3) + recommended (★) badges. Highlights below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)** or the About page.
+> 49 issues encountered during development, with the top 16 surfaced on the About page (filtered by difficulty + generalizability via a `HIDDEN_PROBLEMS` Set — data is preserved and can be unhidden anytime). 6 sections (Architecture / Performance / Layout / Plate Editor / Animation·Interaction / Component) + difficulty (1–3) + recommended (★) badges. Highlights below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)** or the About page.
 
 | # | Issue | Key takeaway |
 |:---:|:---|:---|
@@ -580,6 +585,9 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 47 | Image fallback — React `onError` doesn't bind to `<img>` rendered via `dangerouslySetInnerHTML` | Synthetic events don't reach DOM injected via `dangerouslySetInnerHTML`; already-failed images don't re-fire `error`; dynamic content additions are missed by a one-shot `querySelectorAll`. Fix: `attachImageFallback(root)` — for every `<img>` in the container, `data-fallback-bound` gate + `addEventListener("error")` + immediate `complete && naturalWidth===0` check + MutationObserver to track newly added images, with `removeAttribute("srcset")` on swap to prevent srcset retries |
 | 48 | Cover palette inside `.row { grid-template-columns: 1fr 1fr }` clipped past the viewport | `1fr` is shorthand for `minmax(auto, 1fr)` — if a child won't shrink, `min-width: auto` pins to intrinsic content size and the track balloons, breaking the 50:50 ratio. Fix: spell the tracks out as `minmax(0, 1fr) minmax(0, 1fr)` + `min-width: 0`. Mobile breakpoint also uses `minmax(0, 1fr)`, and `.palette` got `flex-wrap: wrap` + `max-width: 100%` so swatches wrap rather than overflow |
 | 49 | ColorPicker popover anchors to the wrong spot — wrapper `<span>` collapses to 0×0 | When a render-prop trigger child uses `position: absolute` (stop handles on the gradient bar), the child leaves normal flow and the wrapper itself becomes 0×0 — every stop's popover resolves to the same coords. Fix: `updatePos` prefers **`firstElementChild.getBoundingClientRect()`** over the wrapper's rect, falling back to the wrapper only if the child rect is also zero — anchors correctly for both regular swatches and absolutely-positioned handles |
+| 50 ★ | Anonymous comment edit/delete — client required password, server allowed bypass | The form blocks submission without a password, so users perceive password as the only auth. But the server's auth path was `password OR commenter_hash` — `curl`ing PATCH/DELETE with an empty password fell through to the hash path. `commenter_hash` was a 31-bit non-crypto hash AND included in public GET responses → ~30 min single-core brute-force to find a colliding `commenter_id` and impersonate. Fix: collapsed server-side auth to a single password path + `validatePassword` now rejects empty values. **Client-side enforcement is not server-side enforcement** + **OR-ing auth paths collapses your security floor to the weakest path** |
+| 51 | Public `?all=true` returned all drafts via service-role bypass | `/api/posts` and `/api/works` shared the same route between admin and public traffic; on `?all=true` / `?trash=true` they swapped to `createAdminClient()` (RLS-bypass) without any auth gate. `curl …/api/posts?all=true` returned every draft. Fix: gated those flags behind `requireAuth()` + made single-row GET (`/api/posts/[id]`, `/api/works/[id]`) admin-only (public uses slug-based reads) + added a fail-closed admin gate in middleware as an extra layer. **Once you reach for the service-role client, RLS no longer protects you — auth is now route-code's job** |
+| 52 ★ | Supabase auth subscription cleanup — returning from `.then()` is not a useEffect cleanup | Footer/Nav had `loadSupabaseClient().then(supabase => { ...; return () => sub.unsubscribe(); })` — looks like cleanup, isn't. React only sees a function the effect callback **directly** returns; the `.then()` return flows into the promise chain. Result: subscription lives forever, every remount stacks another listener. Fix: lift `subscription` to the effect's outer scope and assign inside `.then()`; add a `cancelled` flag so promises that resolve after unmount unsubscribe immediately. Same pattern existed in 4 files → extracted into `useIsAuthenticated({ subscribe? })` |
 
 ## Deployment
 
@@ -594,6 +602,10 @@ Required:
   NEXT_PUBLIC_SUPABASE_URL
   NEXT_PUBLIC_SUPABASE_ANON_KEY
   SUPABASE_SERVICE_ROLE_KEY
+  NEXT_PUBLIC_SITE_URL         # Production domain (e.g. https://your-domain.com)
+                               # Middleware uses this for CSRF Origin verification.
+                               # Missing in production → admin mutations are all 403 (fail-closed).
+                               # Dev can leave it unset.
 
 Optional:
   UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash
