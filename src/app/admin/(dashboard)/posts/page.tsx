@@ -361,7 +361,7 @@ export default function AdminPostsPage() {
             disabled: busy,
             onClick: async () => {
               setBusy(true);
-              for (const id of trashSelected) await handleRestore(id);
+              await Promise.all([...trashSelected].map((id) => handleRestore(id)));
               setTrashSelected(new Set());
               setBusy(false);
             },
@@ -377,7 +377,11 @@ export default function AdminPostsPage() {
                   confirmText={t("admin.posts.trashPurge")}
                   onConfirm={async () => {
                     setBusy(true);
-                    for (const id of trashSelected) await fetch(`/api/posts/${id}/purge`, { method: "DELETE" });
+                    await Promise.all(
+                      [...trashSelected].map((id) =>
+                        fetch(`/api/posts/${id}/purge`, { method: "DELETE" }),
+                      ),
+                    );
                     await fetchTrash();
                     setTrashSelected(new Set());
                     setBusy(false);
@@ -500,7 +504,7 @@ export default function AdminPostsPage() {
                   confirmText={t("admin.posts.delete")}
                   onConfirm={async () => {
                     setBusy(true);
-                    for (const id of ids) await fetch(`/api/series/${id}`, { method: "DELETE" });
+                    await Promise.all(ids.map((id) => fetch(`/api/series/${id}`, { method: "DELETE" })));
                     await fetchSeries();
                     setSeriesSelected(new Set());
                     setBusy(false);
@@ -737,7 +741,7 @@ tags: React`}</code></pre>
         }}
         onBulkDelete={async (ids) => {
           setBusy(true);
-          for (const id of ids) await fetch(`/api/posts/${id}`, { method: "DELETE" });
+          await Promise.all(ids.map((id) => fetch(`/api/posts/${id}`, { method: "DELETE" })));
           await fetchPosts();
           if (trashOpen) await fetchTrash();
           setBusy(false);
