@@ -2,7 +2,7 @@
 
 import { useMemo, useCallback, useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DEFAULT_FONTS, type FontConfig } from "@/hooks/useFontMorph";
+import { DEFAULT_FONTS, type FontConfig } from "./fonts";
 import styles from "./FontMorphText.module.css";
 
 // ============================================

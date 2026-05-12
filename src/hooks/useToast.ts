@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 interface Toast {
   message: string;
@@ -8,40 +8,36 @@ interface Toast {
 }
 
 interface UseToastReturn {
-  toast: Toast | null;
   formToast: Toast | null;
-  showToast: (message: string, type: "error" | "success") => void;
   showFormToast: (message: string, type?: "error" | "success") => void;
-  clearToast: () => void;
-  clearFormToast: () => void;
 }
 
+/**
+ * ContactDrawer 전용 form-scoped toast.
+ * 글로벌 toast 는 `useToastStore` 를 사용 — 폼 컨테이너 내부에 anchor 된
+ * 알림만 이 훅으로 관리한다.
+ */
 export function useToast(): UseToastReturn {
-  const [toast, setToast] = useState<Toast | null>(null);
   const [formToast, setFormToast] = useState<Toast | null>(null);
-
-  const showToast = useCallback((message: string, type: "error" | "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  }, []);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showFormToast = useCallback(
     (message: string, type: "error" | "success" = "error") => {
+      if (timerRef.current) clearTimeout(timerRef.current);
       setFormToast({ message, type });
-      setTimeout(() => setFormToast(null), type === "success" ? 4000 : 3000);
+      timerRef.current = setTimeout(
+        () => setFormToast(null),
+        type === "success" ? 4000 : 3000,
+      );
     },
-    []
+    [],
   );
 
-  const clearToast = useCallback(() => setToast(null), []);
-  const clearFormToast = useCallback(() => setFormToast(null), []);
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
-  return {
-    toast,
-    formToast,
-    showToast,
-    showFormToast,
-    clearToast,
-    clearFormToast,
-  };
+  return { formToast, showFormToast };
 }

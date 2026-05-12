@@ -12,7 +12,6 @@ import { useMagnetic } from "@/hooks/useMagnetic";
 import { useWorkInteraction } from "@/hooks/useWorkInteraction";
 import { useMagneticRepel } from "@/hooks/useMagneticRepel";
 import { useScrollVelocity } from "@/hooks/useScrollVelocity";
-import { useToast } from "@/hooks/useToast";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import { useContactStore } from "@/stores/contactStore";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -110,7 +109,6 @@ export default function HomeClient() {
   const ctaRef = useRef<HTMLElement>(null);
 
   // 커스텀 훅
-  const { toast } = useToast();
   const workInteraction = useWorkInteraction();
   const magneticRepel = useMagneticRepel();
   const scrollVelocity = useScrollVelocity(hasMounted);
@@ -333,19 +331,6 @@ export default function HomeClient() {
           oval2X={oval2X}
           oval2Y={oval2Y}
         />
-
-        {/* 토스트 알림 */}
-        <div
-          className={`${styles.toast} ${toast ? styles.toastVisible : ""} ${
-            toast?.type === "error"
-              ? styles.toastError
-              : toast?.type === "success"
-                ? styles.toastSuccess
-                : ""
-          }`}
-        >
-          {toast?.message}
-        </div>
       </div>
     </div>
   );
