@@ -1,0 +1,4 @@
+{
+  "*.{ts,tsx}": "next lint --file",
+  "*.{css,module.css}": "stylelint --allow-empty-input"
+}

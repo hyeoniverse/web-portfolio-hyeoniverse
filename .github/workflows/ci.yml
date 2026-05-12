@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  check:
+    name: typecheck / lint / test / audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Stylelint (CSS token compliance)
+        run: npm run lint:css
+
+      - name: Unit tests
+        run: npm test
+
+      # Knip 과 type-coverage 는 회귀 추적 — 실패 시 build 차단 대신 PR 코멘트로 노출되도록
+      # 임계값 초과한 케이스만 fail. 지금은 보조 신호로만 사용.
+      - name: Knip (unused exports / files / deps)
+        run: npx knip --no-exit-code
+        continue-on-error: true
+
+      - name: type-coverage
+        run: npm run type-coverage
+        continue-on-error: true

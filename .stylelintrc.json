@@ -1,0 +1,42 @@
+{
+  "plugins": ["stylelint-declaration-strict-value"],
+  "ignoreFiles": [
+    "node_modules/**",
+    ".next/**",
+    "src/styles/tokens/**",
+    "src/styles/globals/**",
+    "src/app/works/_components/layouts/CylinderLayout.module.css",
+    "src/components/posts/RichTextEditor.module.css"
+  ],
+  "rules": {
+    "scale-unlimited/declaration-strict-value": [
+      [
+        "color",
+        "background-color",
+        "border-color",
+        "fill",
+        "stroke"
+      ],
+      {
+        "ignoreValues": [
+          "transparent",
+          "inherit",
+          "currentColor",
+          "none",
+          "unset",
+          "initial",
+          "auto",
+          "/^var\\(/",
+          "/^color-mix\\(/",
+          "/^linear-gradient\\(/",
+          "/^radial-gradient\\(/",
+          "/^conic-gradient\\(/",
+          "/^url\\(/",
+          "/^hsl\\(/",
+          "/^rgb\\(/"
+        ],
+        "disableFix": true
+      }
+    ]
+  }
+}
