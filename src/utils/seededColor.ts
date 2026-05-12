@@ -32,11 +32,6 @@ function fnv1a(s: string): number {
   return hash >>> 0;
 }
 
-/** seed 기반 결정적 정수 (0..max-1) — pose / variant 선택 등 다양한 곳에 재사용 */
-export function seededInt(seed: string, max: number): number {
-  return fnv1a(seed) % Math.max(1, max);
-}
-
 /**
  * seed (+ optional index) 기반 결정적 HSL 색 생성 (sRGB gamut 안전)
  * @param seed  같은 객체엔 같은 색이 나오도록 묶을 키 (예: id, slug)

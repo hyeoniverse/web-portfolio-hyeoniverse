@@ -12,7 +12,6 @@ import {
 import Lenis from "@studio-freight/lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { setLenisInstance } from "@/utils/scroll";
 
 interface LenisContextType {
   lenis: Lenis | null;
@@ -79,9 +78,6 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     lenisRef.current = lenisInstance;
     setLenis(lenisInstance);
 
-    // 스크롤 유틸리티용 Lenis 인스턴스 설정
-    setLenisInstance(lenisInstance);
-
     // Lenis 스크롤과 GSAP ScrollTrigger 동기화
     lenisInstance.on("scroll", ScrollTrigger.update);
 
@@ -133,7 +129,6 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
     return () => {
       // 클린업
       window.removeEventListener("resize", handleResize);
-      setLenisInstance(null);
       lenisInstance.destroy();
       gsap.ticker.remove((time) => lenisInstance.raf(time * 1000));
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
