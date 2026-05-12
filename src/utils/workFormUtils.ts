@@ -1,42 +1,31 @@
 import type { Work, WorkFormData } from "@/types/work";
 
+/** legacy 3-section work (overview/challenge/solution) 를 단일 마크다운 content 로 직렬화 */
+function assembleContent(work: Work, lang: "ko" | "en"): string {
+  const overview = lang === "ko" ? work.overview_ko : work.overview_en;
+  const challenge = lang === "ko" ? work.challenge_ko : work.challenge_en;
+  const solution = lang === "ko" ? work.solution_ko : work.solution_en;
+  if (!overview && !challenge && !solution) return "";
+
+  const parts: string[] = [];
+  if (overview) {
+    parts.push(`## Overview\n\n${overview}`);
+    if (work.overview_image) parts.push(`\n\n![Overview](${work.overview_image})`);
+  }
+  if (challenge) {
+    parts.push(`## Challenges\n\n${challenge}`);
+    if (work.challenge_image) parts.push(`\n\n![Challenges](${work.challenge_image})`);
+  }
+  if (solution) {
+    parts.push(`## Solutions\n\n${solution}`);
+    if (work.solution_image) parts.push(`\n\n![Solutions](${work.solution_image})`);
+  }
+  return parts.join("\n\n");
+}
+
 export function workToFormData(work: Work): WorkFormData {
-  let contentKo = work.content_ko || "";
-  let contentEn = work.content_en || "";
-
-  if (!contentKo && (work.overview_ko || work.challenge_ko || work.solution_ko)) {
-    const parts: string[] = [];
-    if (work.overview_ko) {
-      parts.push(`## Overview\n\n${work.overview_ko}`);
-      if (work.overview_image) parts.push(`\n\n![Overview](${work.overview_image})`);
-    }
-    if (work.challenge_ko) {
-      parts.push(`## Challenges\n\n${work.challenge_ko}`);
-      if (work.challenge_image) parts.push(`\n\n![Challenges](${work.challenge_image})`);
-    }
-    if (work.solution_ko) {
-      parts.push(`## Solutions\n\n${work.solution_ko}`);
-      if (work.solution_image) parts.push(`\n\n![Solutions](${work.solution_image})`);
-    }
-    contentKo = parts.join("\n\n");
-  }
-
-  if (!contentEn && (work.overview_en || work.challenge_en || work.solution_en)) {
-    const parts: string[] = [];
-    if (work.overview_en) {
-      parts.push(`## Overview\n\n${work.overview_en}`);
-      if (work.overview_image) parts.push(`\n\n![Overview](${work.overview_image})`);
-    }
-    if (work.challenge_en) {
-      parts.push(`## Challenges\n\n${work.challenge_en}`);
-      if (work.challenge_image) parts.push(`\n\n![Challenges](${work.challenge_image})`);
-    }
-    if (work.solution_en) {
-      parts.push(`## Solutions\n\n${work.solution_en}`);
-      if (work.solution_image) parts.push(`\n\n![Solutions](${work.solution_image})`);
-    }
-    contentEn = parts.join("\n\n");
-  }
+  const contentKo = work.content_ko || assembleContent(work, "ko");
+  const contentEn = work.content_en || assembleContent(work, "en");
 
   return {
     number: work.number,

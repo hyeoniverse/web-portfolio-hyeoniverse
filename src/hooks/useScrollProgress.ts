@@ -16,24 +16,18 @@ export function useScrollProgress(): ScrollProgressReturn {
   useEffect(() => {
     if (!lenis) return;
 
-    const handleScroll = () => {
-      const lenisAny = lenis as unknown as {
-        scroll: number;
-        limit: number;
-      };
-      const { scroll, limit } = lenisAny;
-      if (limit <= 0) return;
+    // 초기 위치 baseline 설정 — deep-link 로드 시 첫 delta 가 inflated 되는 것 방지
+    lastScrollRef.current = lenis.progress;
 
-      const currentNorm = scroll / limit;
+    const handleScroll = () => {
+      const currentNorm: number = lenis.progress;
       const lastNorm = lastScrollRef.current;
       let delta = currentNorm - lastNorm;
 
       // 무한 스크롤 래핑 감지: progress가 갑자기 큰 폭으로 뛰면 래핑
       if (delta > 0.5) {
-        // 뒤로 래핑 (1→0 점프)
         delta -= 1;
       } else if (delta < -0.5) {
-        // 앞으로 래핑 (0→1 점프)
         delta += 1;
       }
 
@@ -42,7 +36,6 @@ export function useScrollProgress(): ScrollProgressReturn {
     };
 
     lenis.on("scroll", handleScroll);
-    handleScroll();
 
     return () => {
       lenis.off("scroll", handleScroll);

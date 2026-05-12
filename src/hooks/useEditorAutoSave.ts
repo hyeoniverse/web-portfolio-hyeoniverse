@@ -115,7 +115,6 @@ export function useEditorAutoSave({
       );
     };
 
-    const currentFormRef = formRef;
     document.addEventListener("visibilitychange", onVisChange);
     window.addEventListener("beforeunload", onBeforeUnload);
 
@@ -126,7 +125,7 @@ export function useEditorAutoSave({
       // SPA navigation — keepalive fetch (best-effort; ignore errors)
       const id = savedId.current || draftEntityId;
       if (!id) return;
-      const snapshot = currentFormRef.current;
+      const snapshot = formRef.current;
       const current = comparableJson(snapshot);
       if (!current || current === lastAutoSaveJson.current) return;
       fetch("/api/revisions", {
