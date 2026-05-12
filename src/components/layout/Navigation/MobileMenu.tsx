@@ -2,7 +2,6 @@
 
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import Logo from "@/components/common/Logo";
 import styles from "./Navigation.module.css";
 
 interface MenuItem {
@@ -47,11 +46,6 @@ export default function MobileMenu({
         onClick={onClose}
       />
       <div className={styles.menuDrawer}>
-        {/* Header: logo center */}
-        <div className={styles.menuHeader} onClick={onClose}>
-          <Logo variant="full" as="link" className={styles.menuLogo} />
-        </div>
-
         <nav className={styles.menuNav}>
           {menuItems.map((item) => {
             if (!item.href) {
