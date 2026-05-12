@@ -39,8 +39,13 @@ export default function Modal() {
 
   useEffect(() => setMounted(true), []);
 
+  // body overflow 는 첫 modal 이 열릴 때만 (0→1+) capture / set.
+  // 누적 모달은 이미 hidden 이므로 다시 capture 하면 "hidden" 을 baseline 으로 잘못 기억해 close 후 영구 lock 됨.
+  const prevModalsLenRef = useRef(0);
   useEffect(() => {
-    if (modals.length > 0) {
+    const prev = prevModalsLenRef.current;
+    prevModalsLenRef.current = modals.length;
+    if (prev === 0 && modals.length > 0) {
       overflowRef.current = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       stop();

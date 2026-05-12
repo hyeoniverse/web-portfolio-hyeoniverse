@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { imageFade } from "@/animations";
@@ -14,7 +13,6 @@ interface OptimizedImageProps {
   draggable?: boolean;
   className?: string;
   priority?: boolean;
-  placeholder?: string;
   onLoad?: () => void;
   onError?: () => void;
 }
@@ -27,7 +25,6 @@ export default function OptimizedImage({
   draggable = false,
   className = "",
   priority = false,
-  placeholder = "/images/placeholder.svg",
   onLoad,
   onError,
 }: OptimizedImageProps) {
@@ -48,18 +45,7 @@ export default function OptimizedImage({
     <div className={`${styles.imageContainer} ${className}`}>
       {!isLoaded && !hasError && (
         <div className={styles.placeholder}>
-          {placeholder ? (
-            <Image
-              width={width}
-              height={height}
-              draggable={false}
-              src={src}
-              alt=""
-              className={styles.placeholderImage}
-            />
-          ) : (
-            <div className={styles.skeleton} />
-          )}
+          <div className={styles.skeleton} />
         </div>
       )}
 

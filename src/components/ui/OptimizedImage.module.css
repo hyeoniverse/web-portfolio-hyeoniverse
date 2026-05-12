@@ -29,14 +29,6 @@
   background: var(--bg-glass-subtle);
 }
 
-.placeholderImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: blur(10px);
-  transform: scale(1.1);
-}
-
 .skeleton {
   width: 100%;
   height: 100%;

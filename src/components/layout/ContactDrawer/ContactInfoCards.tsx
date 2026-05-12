@@ -81,7 +81,6 @@ export default function ContactInfoCards({
                 width={400}
                 height={400}
                 priority={false}
-                placeholder="blur"
               />
             </span>
           </div>
