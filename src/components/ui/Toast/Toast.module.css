@@ -48,7 +48,7 @@
 }
 
 .success {
-  color: var(--text-success, #10b981);
+  color: var(--text-success);
 }
 
 .error {

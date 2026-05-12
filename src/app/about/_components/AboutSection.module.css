@@ -585,7 +585,7 @@
     gap: var(--spacing-xl);
     position: sticky;
     top: 80px; /* section padding-top과 일치 — nav 높이(패딩 포함) */
-    z-index: var(--z-float, 20);
+    z-index: var(--z-float);
     padding: var(--spacing-2xs) var(--page-px);
     background: transparent;
     border-bottom: none;

@@ -131,7 +131,7 @@
    강조가 필요하면 .itemUnread .itemTitle 의 weight/color 만 조정 */
 .itemUnread .itemTitle {
   color: var(--text-primary);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: var(--font-weight-semibold);
 }
 
 .icon {

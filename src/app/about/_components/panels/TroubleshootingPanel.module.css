@@ -194,8 +194,8 @@
 
 /* 톤별 색 — 라이트/다크 모두에서 안전한 가독성 */
 .difficultyTone_easy {
-  background: color-mix(in srgb, var(--color-success, #10b981) 12%, transparent);
-  color: color-mix(in srgb, var(--color-success, #10b981) 95%, var(--text-primary));
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: color-mix(in srgb, var(--color-success) 95%, var(--text-primary));
 }
 
 .difficultyTone_medium {
@@ -787,7 +787,7 @@
   .ideDiagramHintIcon {
     width: 1em;
     height: 1em;
-    transition: transform 0.3s var(--ease-material, cubic-bezier(0.4, 0, 0.2, 1));
+    transition: transform 0.3s var(--ease-material);
   }
 
   .ideDiagramHint:hover {
@@ -1489,7 +1489,7 @@
   .troubleAccordionChevron {
     flex: none;
     color: var(--text-tertiary);
-    transition: transform 0.4s var(--ease-material, cubic-bezier(0.4, 0, 0.2, 1)) !important;
+    transition: transform 0.4s var(--ease-material) !important;
   }
 
   .troubleAccordionItemOpen .troubleAccordionChevron {
