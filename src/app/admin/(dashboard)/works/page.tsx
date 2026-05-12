@@ -523,13 +523,15 @@ export default function AdminWorksPage() {
               className={styles.subFilterSelect}
             />
             <SearchCapsule
-              searchType={trashSearchType}
-              searchTypeOptions={[
-                { value: "all", label: t("admin.works.searchAll") },
-                { value: "title", label: t("admin.works.searchTitle") },
-                { value: "content", label: t("admin.works.searchContent") },
-              ]}
-              onSearchTypeChange={(v) => setTrashSearchType(v as "all" | "title" | "content")}
+              typeSelector={{
+                value: trashSearchType,
+                options: [
+                  { value: "all", label: t("admin.works.searchAll") },
+                  { value: "title", label: t("admin.works.searchTitle") },
+                  { value: "content", label: t("admin.works.searchContent") },
+                ],
+                onChange: (v) => setTrashSearchType(v as "all" | "title" | "content"),
+              }}
               search={trashSearch}
               onSearchChange={setTrashSearch}
               placeholder={t("admin.works.trashSearch")}
@@ -617,13 +619,15 @@ role: 풀스택 개발
       {/* Filter bar */}
       <div className={shell.filterBar}>
         <SearchCapsule
-          searchType={searchType}
-          searchTypeOptions={[
-            { value: "all", label: t("admin.works.searchAll") },
-            { value: "title", label: t("admin.works.searchTitle") },
-            { value: "content", label: t("admin.works.searchContent") },
-          ]}
-          onSearchTypeChange={(v) => { setSearchType(v); setPage(1); }}
+          typeSelector={{
+            value: searchType,
+            options: [
+              { value: "all", label: t("admin.works.searchAll") },
+              { value: "title", label: t("admin.works.searchTitle") },
+              { value: "content", label: t("admin.works.searchContent") },
+            ],
+            onChange: (v) => { setSearchType(v); setPage(1); },
+          }}
           search={search}
           onSearchChange={(v) => { setSearch(v); setPage(1); }}
           placeholder={t("admin.works.search")}

@@ -651,13 +651,15 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             search={search}
             onSearchChange={setSearch}
             placeholder={t("postsPage.searchPlaceholder")}
-            searchType={searchType}
-            searchTypeOptions={[
-              { value: "all", label: t("postsPage.searchAll") },
-              { value: "title", label: t("postsPage.searchTitle") },
-              { value: "content", label: t("postsPage.searchContent") },
-            ]}
-            onSearchTypeChange={(v) => setSearchType(v as "all" | "title" | "content")}
+            typeSelector={{
+              value: searchType,
+              options: [
+                { value: "all", label: t("postsPage.searchAll") },
+                { value: "title", label: t("postsPage.searchTitle") },
+                { value: "content", label: t("postsPage.searchContent") },
+              ],
+              onChange: (v) => setSearchType(v as "all" | "title" | "content"),
+            }}
           />
         </div>
 

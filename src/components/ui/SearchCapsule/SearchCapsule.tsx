@@ -8,10 +8,12 @@ export interface SearchCapsuleProps {
   search: string;
   onSearchChange: (value: string) => void;
   placeholder?: string;
-  /** 옵션: 검색 타입 selector. 셋 다 함께 전달해야 활성. */
-  searchType?: string;
-  searchTypeOptions?: { value: string; label: string }[];
-  onSearchTypeChange?: (value: string) => void;
+  /** 검색 타입 selector — 객체로 묶어 "셋 다 또는 0개" 를 타입으로 강제 */
+  typeSelector?: {
+    value: string;
+    options: { value: string; label: string }[];
+    onChange: (value: string) => void;
+  };
   align?: "left" | "right";
   className?: string;
 }
@@ -21,20 +23,17 @@ export default function SearchCapsule({
   search,
   onSearchChange,
   placeholder = "Search...",
-  searchType,
-  searchTypeOptions,
-  onSearchTypeChange,
+  typeSelector,
   align = "right",
   className,
 }: SearchCapsuleProps) {
-  const showSelect = !!(searchType !== undefined && searchTypeOptions && onSearchTypeChange);
   return (
     <div className={`${styles.capsule} ${align === "right" ? styles.right : ""} ${className ?? ""}`}>
-      {showSelect && (
+      {typeSelector && (
         <Select
-          value={searchType!}
-          options={searchTypeOptions!}
-          onChange={onSearchTypeChange!}
+          value={typeSelector.value}
+          options={typeSelector.options}
+          onChange={typeSelector.onChange}
           className={styles.selectWrap}
         />
       )}
