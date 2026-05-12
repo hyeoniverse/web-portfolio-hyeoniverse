@@ -13,7 +13,8 @@ interface PaginationProps {
 
 export default function Pagination({ page, totalPages, onChange, className }: PaginationProps) {
   const pageNumbers = useMemo(() => {
-    if (totalPages <= 1) return [];
+    // single page 도 명시적 active "1" 버튼이 보이도록 [1] 반환
+    if (totalPages <= 1) return [1];
     if (totalPages <= 7)
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     if (page <= 3) return [1, 2, 3, 4, 5, -1, totalPages];
@@ -21,8 +22,6 @@ export default function Pagination({ page, totalPages, onChange, className }: Pa
       return [1, -1, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
     return [1, -1, page - 1, page, page + 1, -1, totalPages];
   }, [page, totalPages]);
-
-  const singlePage = totalPages <= 1;
 
   return (
     <div className={`${styles.pagination} ${className ?? ""}`}>
@@ -32,9 +31,7 @@ export default function Pagination({ page, totalPages, onChange, className }: Pa
       <button type="button" disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn}>
         <ChevronLeft size={14} />
       </button>
-      {singlePage ? (
-        <button type="button" className={`${styles.pageBtn} ${styles.pageBtnActive}`}>1</button>
-      ) : pageNumbers.map((p, i) =>
+      {pageNumbers.map((p, i) =>
         p === -1 ? (
           <span key={`ellipsis-${i}`} className={styles.ellipsis}>&hellip;</span>
         ) : (
