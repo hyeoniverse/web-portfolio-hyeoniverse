@@ -1,74 +1,81 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isInAncestor(editor: any, type: string): boolean {
+import type { SlateEditor, TElement, TText, Descendant } from "platejs";
+
+/** Slate child 가 element 인지 (text 가 아닌지) 판별 */
+function isElement(node: Descendant): node is TElement {
+  return "children" in node && Array.isArray((node as TElement).children);
+}
+
+export function isInAncestor(editor: SlateEditor, type: string): boolean {
   if (!editor?.selection) return false;
   try {
-    const path = editor.selection.anchor.path;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let node: any = { children: editor.children };
+    const path: number[] = editor.selection.anchor.path;
+    let children: readonly Descendant[] = editor.children;
     for (const idx of path) {
-      if (!node?.children?.[idx]) return false;
-      node = node.children[idx];
-      if (node.type === type) return true;
+      const next: Descendant | undefined = children[idx];
+      if (!next || !isElement(next)) return false;
+      if (next.type === type) return true;
+      children = next.children;
     }
     return false;
   } catch { return false; }
 }
 
 /** selection 경로를 따라 특정 type 노드와 path를 찾는다 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function findAncestorOfType(editor: any, type: string): { node: any; path: number[] } | null {
+export function findAncestorOfType(
+  editor: SlateEditor,
+  type: string,
+): { node: TElement; path: number[] } | null {
   if (!editor?.selection) return null;
   try {
     const anchorPath: number[] = editor.selection.anchor.path;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let node: any = { children: editor.children };
+    let children: readonly Descendant[] = editor.children;
     for (let i = 0; i < anchorPath.length; i++) {
-      if (!node?.children?.[anchorPath[i]]) return null;
-      node = node.children[anchorPath[i]];
-      if (node.type === type) return { node, path: anchorPath.slice(0, i + 1) };
+      const next: Descendant | undefined = children[anchorPath[i]];
+      if (!next || !isElement(next)) return null;
+      if (next.type === type) return { node: next, path: anchorPath.slice(0, i + 1) };
+      children = next.children;
     }
     return null;
   } catch { return null; }
 }
 
 /** path를 따라 노드를 직접 가져온다 (editor.api.node 대체) */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function nodeAtPath(editor: any, path: number[]): any | null {
+export function nodeAtPath(
+  editor: SlateEditor,
+  path: number[],
+): Descendant | null {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let node: any = { children: editor.children };
+    let children: readonly Descendant[] = editor.children;
+    let node: Descendant | undefined;
     for (const idx of path) {
-      node = node?.children?.[idx];
+      node = children[idx];
       if (!node) return null;
+      if (isElement(node)) children = node.children;
     }
-    return node;
+    return node ?? null;
   } catch { return null; }
 }
 
 /** selection 경로에서 td/th 셀 노드를 찾는다 */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function findCurrentCell(editor: any): any | null {
+export function findCurrentCell(editor: SlateEditor): TElement | null {
   if (!editor?.selection) return null;
   try {
     const path: number[] = editor.selection.anchor.path;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let node: any = { children: editor.children };
+    let children: readonly Descendant[] = editor.children;
     for (const idx of path) {
-      if (!node?.children?.[idx]) return null;
-      node = node.children[idx];
-      if (node.type === "td" || node.type === "th") return node;
+      const next: Descendant | undefined = children[idx];
+      if (!next || !isElement(next)) return null;
+      if (next.type === "td" || next.type === "th") return next;
+      children = next.children;
     }
     return null;
   } catch { return null; }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getEditorText(editor: any): string {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getText = (node: any): string => {
-    if (typeof node.text === "string") return node.text;
-    if (Array.isArray(node.children)) return node.children.map(getText).join("");
-    return "";
+export function getEditorText(editor: SlateEditor): string {
+  const getText = (node: Descendant): string => {
+    if (!isElement(node)) return (node as TText).text ?? "";
+    return node.children.map(getText).join("");
   };
   return (editor.children || []).map(getText).join("");
 }
