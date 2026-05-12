@@ -4,15 +4,15 @@ import type { BilingualCategory } from "@/types/common";
 
 export type { BilingualCategory } from "@/types/common";
 
-// 기존 string[] → { ko, en }[] 자동 정규화
-function normalize(raw: unknown[]): BilingualCategory[] {
+// 기존 string[] / BilingualCategory[] 모두 받아 정규화 (DB 마이그레이션 호환)
+function normalize(raw: readonly (string | BilingualCategory)[]): BilingualCategory[] {
   return raw.map((item) =>
-    typeof item === "string" ? { ko: item, en: item } : (item as BilingualCategory),
+    typeof item === "string" ? { ko: item, en: item } : item,
   );
 }
 
 export const DEFAULT_CATEGORIES: BilingualCategory[] = normalize(
-  siteConfig.posts.categories as unknown as unknown[],
+  siteConfig.posts.categories,
 );
 
 /**

@@ -14,7 +14,7 @@ interface UseRevisionsOptions {
   entityId: string | undefined;
 }
 
-export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
+export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
   const [revisions, setRevisions] = useState<RevisionItem[]>([]);
   const entityIdRef = useRef(entityId);
   const lastSnapshotHash = useRef<string>("");
@@ -48,7 +48,7 @@ export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
 
   // 리비전 저장 (변경 사항 있을 때만)
   const saveRevision = useCallback(
-    async (snapshot: unknown, title: string): Promise<boolean> => {
+    async (snapshot: T, title: string): Promise<boolean> => {
       const id = entityIdRef.current;
       if (!id) return false;
 
@@ -91,12 +91,12 @@ export function useRevisions({ entityType, entityId }: UseRevisionsOptions) {
 
   // 특정 리비전의 snapshot 로드
   const loadRevisionSnapshot = useCallback(
-    async (revisionId: string): Promise<unknown | null> => {
+    async (revisionId: string): Promise<T | null> => {
       try {
         const res = await fetch(`/api/revisions/${revisionId}`);
         if (!res.ok) return null;
         const data = await res.json();
-        return data.snapshot;
+        return data.snapshot as T;
       } catch {
         return null;
       }

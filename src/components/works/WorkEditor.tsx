@@ -345,7 +345,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [form],
   );
 
-  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions({
+  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions<WorkFormData>({
     entityType: "work",
     entityId: work?.id,
   });
@@ -373,7 +373,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           confirmText={tw("draftFoundLoad")}
           onConfirm={() => {
             autoSaveSkip.current = true;
-            setForm(snapshot as WorkFormData);
+            setForm(snapshot);
             setStatus(tw("draftRestored"));
             setStatusType("info");
             dismissRevision(latest.id);
@@ -484,7 +484,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   /* ── Auto-save ── */
   const getWorkTitle = useCallback(
-    () => (formRef.current as WorkFormData).title || "(untitled)",
+    () => formRef.current.title || "(untitled)",
     [],
   );
   const onAutoSaved = useCallback(() => {
@@ -493,10 +493,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [tw]);
 
   const { savedId, autoSaveSkip, scheduleAutoSave } =
-    useEditorAutoSave({
+    useEditorAutoSave<WorkFormData>({
       entityType: "work",
       entityId: work?.id,
-      formRef: formRef as { current: unknown },
+      formRef,
       saveRevision,
       getTitle: getWorkTitle,
       busyFlags: { saving, translating },
@@ -800,7 +800,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (!rev) return;
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (snapshot) {
-        setForm(snapshot as WorkFormData);
+        setForm(snapshot);
         setStatus(tw("restored"));
         setStatusType("success");
       }
@@ -814,7 +814,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (!rev) return null;
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (!snapshot) return null;
-      const s = snapshot as WorkFormData;
+      const s = snapshot;
       return {
         excerpt: s.description_ko || s.description_en || "",
         content: stripHtml(s.content_ko || s.content_en || ""),
