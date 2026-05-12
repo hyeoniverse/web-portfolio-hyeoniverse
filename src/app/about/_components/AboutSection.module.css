@@ -568,18 +568,6 @@
     min-height: 100vh;
   }
 
-  .navBlur {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 80px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    z-index: calc(var(--z-nav) - 1);
-    pointer-events: none;
-  }
-
   .mobileTabBar {
     display: flex;
     gap: var(--spacing-xl);

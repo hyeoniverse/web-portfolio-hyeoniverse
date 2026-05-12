@@ -71,7 +71,6 @@ export default function AboutSection() {
 
   return (
     <>
-      {isMobile && <div className={styles.navBlur} />}
       <section className={styles.section} ref={sectionRef} suppressHydrationWarning>
         {isMobile && (
           <nav
