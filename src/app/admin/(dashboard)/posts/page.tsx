@@ -440,13 +440,15 @@ export default function AdminPostsPage() {
               className={styles.subFilterSelect}
             />
             <SearchCapsule
-              searchType={trashSearchType}
-              searchTypeOptions={[
-                { value: "all", label: t("admin.posts.searchAll") },
-                { value: "title", label: t("admin.posts.searchTitle") },
-                { value: "content", label: t("admin.posts.searchContent") },
-              ]}
-              onSearchTypeChange={(v) => setTrashSearchType(v as "all" | "title" | "content")}
+              typeSelector={{
+                value: trashSearchType,
+                options: [
+                  { value: "all", label: t("admin.posts.searchAll") },
+                  { value: "title", label: t("admin.posts.searchTitle") },
+                  { value: "content", label: t("admin.posts.searchContent") },
+                ],
+                onChange: (v) => setTrashSearchType(v as "all" | "title" | "content"),
+              }}
               search={trashSearch}
               onSearchChange={setTrashSearch}
               placeholder={t("admin.posts.trashSearch")}
@@ -575,13 +577,15 @@ export default function AdminPostsPage() {
               className={styles.subFilterSelect}
             />
             <SearchCapsule
-              searchType={seriesSearchType}
-              searchTypeOptions={[
-                { value: "all", label: t("admin.posts.searchAll") },
-                { value: "title", label: t("admin.posts.searchTitle") },
-                { value: "content", label: t("admin.posts.searchContent") },
-              ]}
-              onSearchTypeChange={(v) => setSeriesSearchType(v as "all" | "title" | "content")}
+              typeSelector={{
+                value: seriesSearchType,
+                options: [
+                  { value: "all", label: t("admin.posts.searchAll") },
+                  { value: "title", label: t("admin.posts.searchTitle") },
+                  { value: "content", label: t("admin.posts.searchContent") },
+                ],
+                onChange: (v) => setSeriesSearchType(v as "all" | "title" | "content"),
+              }}
               search={seriesSearch}
               onSearchChange={setSeriesSearch}
               placeholder={t("admin.posts.seriesSearch")}
@@ -729,13 +733,15 @@ tags: React`}</code></pre>
           </button>
         )}
         <SearchCapsule
-          searchType={searchType}
-          searchTypeOptions={[
-            { value: "all", label: t("admin.posts.searchAll") },
-            { value: "title", label: t("admin.posts.searchTitle") },
-            { value: "content", label: t("admin.posts.searchContent") },
-          ]}
-          onSearchTypeChange={(v) => { setSearchType(v); setPage(1); }}
+          typeSelector={{
+            value: searchType,
+            options: [
+              { value: "all", label: t("admin.posts.searchAll") },
+              { value: "title", label: t("admin.posts.searchTitle") },
+              { value: "content", label: t("admin.posts.searchContent") },
+            ],
+            onChange: (v) => { setSearchType(v); setPage(1); },
+          }}
           search={search}
           onSearchChange={(v) => { setSearch(v); setPage(1); }}
           placeholder={t("admin.posts.search")}

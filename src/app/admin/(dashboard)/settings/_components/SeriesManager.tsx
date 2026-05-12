@@ -145,12 +145,14 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
   return (
     <div className={styles.seriesList}>
       <SearchCapsule
-        searchType={searchType}
-        searchTypeOptions={[
-          { value: "all", label: t("admin.posts.searchAll") },
-          { value: "title", label: t("admin.posts.searchTitle") },
-        ]}
-        onSearchTypeChange={(v) => setSearchType(v as "all" | "title")}
+        typeSelector={{
+          value: searchType,
+          options: [
+            { value: "all", label: t("admin.posts.searchAll") },
+            { value: "title", label: t("admin.posts.searchTitle") },
+          ],
+          onChange: (v) => setSearchType(v as "all" | "title"),
+        }}
         search={search}
         onSearchChange={setSearch}
         placeholder={t("admin.posts.seriesSearch")}
