@@ -94,6 +94,18 @@ const itemMeta: Record<
   // Component System
   "Admin 리스트(시리즈/휴지통/게시물)의 UI 코드 중복과 스타일 불일치": { section: "C", difficulty: 2 },
   "커스텀 ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse": { section: "C", difficulty: 2 },
+  "Supabase auth subscription cleanup — `.then()` 안의 `return` 은 useEffect cleanup 이 아니다": {
+    section: "C", difficulty: 2, recommended: true,
+    recommendReason: { ko: "보이지 않는 leak — \"return 했으니 cleanup 이겠지\" 라는 시각적 착각을 짚고 같은 패턴을 4곳에서 useIsAuthenticated 헬퍼로 통합한 경험입니다.", en: "An invisible leak — the \"looks like cleanup, isn't\" trap. Picked this because I caught it across 4 files and extracted useIsAuthenticated to fix all at once." },
+  },
+  // Architecture & Backend — security
+  "익명 댓글 수정·삭제 — 클라이언트는 비밀번호 강제, 서버는 우회 허용": {
+    section: "A", difficulty: 3, recommended: true,
+    recommendReason: { ko: "\"클라가 강제한다\" 와 \"서버가 강제한다\" 의 간극을 위협 모델 관점에서 다시 짚은 보안 사례입니다.", en: "Picked this for the threat-model gap between \"client enforces\" and \"server enforces\" — and how OR-ing auth paths collapses to the weakest." },
+  },
+  "공개 API 의 `?all=true` 쿼리로 비공개 글 / 휴지통이 인증 없이 전부 노출": {
+    section: "A", difficulty: 3,
+  },
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
@@ -1817,6 +1829,114 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         position: "solution",
       },
     ],
+  },
+
+  /* ── Backend / Security ── */
+  {
+    section: { ko: "Backend / Security", en: "Backend / Security" },
+    problem: {
+      ko: "익명 댓글 수정·삭제 — 클라이언트는 비밀번호 강제, 서버는 우회 허용",
+      en: "Anonymous Comment Edit/Delete — Client Required Password, Server Allowed Bypass",
+    },
+    definition: {
+      ko: "익명 사용자가 단 댓글을 수정·삭제하려면 **댓글 작성 시 입력한 비밀번호** 가 필요합니다. 클라이언트의 폼은 비번을 입력하지 않으면 제출 버튼 자체가 막혀 있어, UI 만 따라가는 사용자는 \"비번이 유일한 인증\" 이라고 자연스럽게 받아들이게 됩니다.\n\n그런데 보안 검토 중에 서버 라우트 코드를 다시 읽어 보니, **서버는 비번 검증을 강제하지 않고 있었습니다.** 폼을 거치지 않고 `curl` 로 직접 PATCH/DELETE 를 호출하면 비번 없이도 통과시키는 경로가 살아 있었고, 그 경로는 31-bit 짜리 약한 해시 비교에 의존하고 있어 brute-force 가 현실적으로 가능한 수준이었습니다.",
+      en: "Editing or deleting an anonymous comment requires **the password the commenter set when posting**. The form blocks the submit button unless a password is entered, so UI users naturally assume \"password is the only auth\".\n\nBut while reviewing security I read the server route again — **the server did not actually enforce password verification**. Bypassing the form and hitting PATCH/DELETE with `curl` directly went through a second code path that didn't require the password and relied on comparing a weak 31-bit hash — brute-forceable on a single laptop.",
+    },
+    cause: {
+      ko: "익명 댓글 시스템은 두 가지 식별 수단을 같이 가지고 있습니다.\n\n**① 비밀번호 (bcrypt 해시 저장)** — 사용자가 직접 입력한 값. 본인 확인의 \"의도된\" 수단.\n**② commenter_hash** — `commenter_id` (브라우저 localStorage) + `target_id` 를 31-bit 비암호 해시로 압축해 저장. 원래 의도는 \"내가 단 댓글에는 수정·삭제 버튼이 보인다\" 같은 UI 표시 용도.\n\n문제는 서버 PATCH/DELETE 의 인증 로직이 **OR 조건** 으로 짜여 있었다는 점입니다.\n\n```ts\nif (password && comment.password_hash) {\n  authorized = await bcrypt.compare(password, comment.password_hash);  // 비번 경로\n} else if (commenter_id && target_id && comment.commenter_hash) {\n  authorized = comment.commenter_hash === identity.hash;               // hash 경로 — 비번 없이도 통과\n}\n```\n\n폼을 통한 정상 요청은 항상 비밀번호를 넣어 보내므로 첫 분기에서 검증을 통과합니다. 그래서 UI 테스트만으로는 두 번째 분기의 위험이 드러나지 않았습니다.\n\n그러나 공격자가 폼을 거치지 않고 `password` 필드를 비운 채 직접 API 를 호출하면, 흐름은 그대로 두 번째 분기로 빠집니다. 그리고 두 번째 분기에서 비교하는 `commenter_hash` 는 **공개 GET 응답에 그대로 노출되어 있었습니다.** UI 표시 용도라 보호 가치가 낮다고 판단했던 값이 사실 인증 키로 동시에 쓰이고 있었던 셈입니다.\n\n해시 함수도 약점이었습니다. `((hash << 5) - hash + char) | 0` 형태의 단순 누적 해시는 31-bit 키스페이스(약 2 billion) 안에서만 분포하므로, 같은 `target_id` 아래 동일 해시를 만드는 `commenter_id` UUID 를 **단일 코어로 약 30분, 병렬화하면 분 단위** 에 찾아낼 수 있습니다.\n\n결과적으로 \"피해자의 댓글에서 commenter_hash 읽기 → brute-force → 위변조된 commenter_id 로 PATCH/DELETE 요청\" 이라는 공격 경로가 살아 있었고, 정상 사용자는 비번을 안 적으면 폼에서 막히는데 공격자는 비번 없이도 통과할 수 있는 상태였습니다.",
+      en: "The anonymous comment system carries two identifiers side by side.\n\n**① Password (bcrypt-hashed)** — user-entered, the intended auth.\n**② commenter_hash** — `commenter_id` (browser localStorage) + `target_id` compressed into a 31-bit non-cryptographic hash. Originally meant for UI flagging (\"this is my comment\").\n\nThe issue: server PATCH/DELETE auth was **an OR**:\n\n```ts\nif (password && comment.password_hash) {\n  authorized = await bcrypt.compare(password, comment.password_hash);  // password path\n} else if (commenter_id && target_id && comment.commenter_hash) {\n  authorized = comment.commenter_hash === identity.hash;               // hash path — passes without password\n}\n```\n\nForm-driven requests always include the password, so the first branch handles them — the second branch never triggers in UI testing.\n\nBut an attacker who skips the form and sends the request directly with an empty `password` falls straight into the second branch. And the `commenter_hash` compared there was **returned in public GET responses**. A value treated as low-risk UI metadata was simultaneously being used as an auth key.\n\nThe hash itself was also weak. `((hash << 5) - hash + char) | 0` lives within a ~2-billion (31-bit) keyspace; finding a `commenter_id` UUID that hashes to the target value under a fixed `target_id` takes **~30 minutes on a single core, minutes if parallelized**.\n\nNet result: \"read victim's commenter_hash from public GET → brute-force a colliding commenter_id → PATCH/DELETE without a password\" was a viable attack path. Legitimate users were gated by the form, but attackers weren't.",
+    },
+    solution: {
+      ko: "**서버 측 인증 경로를 비밀번호 단일 경로로 통일** 했습니다. `else if` 의 hash 경로 자체를 제거하고, 비번 미제출이거나 비번 해시가 비어 있으면 무조건 401/403 으로 거절합니다.\n\n```ts\nif (!comment.password_hash) {\n  return jsonError(\"Password required — contact admin to edit this comment\", 403);\n}\n if (!password) return jsonError(\"Password required\", 401);\nconst authorized = await bcrypt.compare(password, comment.password_hash);\n```\n\n동시에 POST 단계의 `validatePassword` 도 빈 값을 거절하도록 조였습니다. 이전에는 `optional for some flows` 라는 이유로 빈 값을 통과시켜, `curl` 로 비번 없이 댓글을 만들면 `password_hash` 가 빈 문자열로 저장되어 본인도 수정 못 하는 상태가 되어 있었습니다.\n\n해시 함수 자체를 HMAC-SHA256 으로 교체하는 옵션도 검토했지만, **서버 인증 경로에서 hash 비교를 제거한 시점에 hash 의 무게는 \"UI 식별자\" 수준으로 떨어졌기 때문에** 교체보다는 경로 통일이 더 비용 대비 이득이 컸습니다. 해시 값은 DB 에 그대로 남아 \"내 댓글\" UI 표시에만 쓰이고, 인증 가치는 0 이 됩니다.",
+      en: "**Collapsed server-side auth into a single password path.** Removed the `else if` hash branch entirely; missing password or empty `password_hash` is now a flat 401/403:\n\n```ts\nif (!comment.password_hash) {\n  return jsonError(\"Password required — contact admin to edit this comment\", 403);\n}\nif (!password) return jsonError(\"Password required\", 401);\nconst authorized = await bcrypt.compare(password, comment.password_hash);\n```\n\nAlso tightened `validatePassword` on POST to reject empty values. Previously \"optional for some flows\" allowed `curl`-created comments with empty `password_hash` — and after this change those comments would be uneditable, so the loophole had to close at creation too.\n\nReplacing the hash with HMAC-SHA256 was on the table, but **once the server stopped using the hash for auth, the hash's threat weight dropped to \"UI identifier\"** — collapsing the path was a bigger win per unit of work than swapping the algorithm. The hash stays in the DB for \"this is my comment\" UI flagging; its auth value is now zero.",
+    },
+    keyInsight: {
+      ko: "**클라이언트가 강제한다고 해서 서버가 강제하는 것은 아닙니다.**\n\n폼이 \"비번 없이는 제출 불가\" 라고 막아도, 그건 그 UI 한 곳에만 적용된 약속입니다. 동일한 API 가 서버 측에서도 똑같이 강제해야만 보장이 됩니다.\n\n또 하나, **인증 경로를 OR 로 늘리지 말 것.** 강한 경로 (비번 bcrypt) 와 약한 경로 (비암호 해시 비교) 를 OR 로 묶으면, 시스템의 보안 강도는 항상 가장 약한 경로 기준으로 떨어집니다. 가능하면 단일 경로로 통일하고, 부가 식별자는 인증 이외 용도로만 쓰는 게 안전한 기본값입니다.",
+      en: "**Client-side enforcement is not server-side enforcement.**\n\nA form that blocks submission without a password only commits that one UI. The same guarantee has to be enforced server-side on the same API — otherwise it isn't a guarantee.\n\nAlso, **don't OR your auth paths.** A strong path (bcrypt password) and a weak path (non-crypto hash compare) ORed together collapses the system's security floor to the weaker one. Prefer a single path; keep auxiliary identifiers strictly out of the auth boundary.",
+    },
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후 — 익명 댓글 PATCH·DELETE 인증", en: "Before / After — Anonymous Comment PATCH·DELETE Auth" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "인증 경로", en: "Auth paths" }, { ko: "비번 OR commenter_hash", en: "Password OR commenter_hash" }, { ko: "비번만", en: "Password only" }] },
+          { cells: [{ ko: "비번 없이 폼 우회 호출", en: "curl without password" }, { ko: "hash 경로로 통과 가능", en: "Bypassed via hash path" }, { ko: "401/403 거절", en: "401/403 rejected" }] },
+          { cells: [{ ko: "공개 GET 의 commenter_hash 노출", en: "commenter_hash in public GET" }, { ko: "인증 키 동시 노출", en: "Doubles as auth key" }, { ko: "UI 표시용 metadata 로만 기능", en: "UI marker only — no auth value" }] },
+          { cells: [{ ko: "POST 시 빈 비밀번호", en: "Empty password on POST" }, { ko: "허용 (`password_hash=\"\"` 저장)", en: "Allowed (empty hash stored)" }, { ko: "`PASSWORD_REQUIRED` 거절", en: "Rejected (`PASSWORD_REQUIRED`)" }] },
+          { cells: [{ ko: "brute-force 위협", en: "Brute-force exposure" }, { ko: "31-bit 해시 — 단일 코어 ~30분", en: "31-bit hash — ~30min single core" }, { ko: "bcrypt 만 — 실질적으로 불가", en: "bcrypt only — infeasible" }], highlight: true },
+        ],
+      } satisfies ComparisonTable,
+    ],
+  },
+
+  {
+    section: { ko: "Backend / Security", en: "Backend / Security" },
+    problem: {
+      ko: "공개 API 의 `?all=true` 쿼리로 비공개 글 / 휴지통이 인증 없이 전부 노출",
+      en: "Public API `?all=true` Leaked All Drafts and Trash Without Auth",
+    },
+    definition: {
+      ko: "`/api/posts` 와 `/api/works` 목록 API 는 사용자 페이지가 호출하는 공개 엔드포인트입니다. 다만 admin 화면도 같은 라우트를 재활용해 \"비공개 글까지 다 달라\" 라는 의미로 `?all=true`, \"휴지통 목록만 달라\" 의 의미로 `?trash=true` 라는 쿼리를 사용하고 있었습니다.\n\n그런데 보안 검토 중에 코드를 다시 보니, **이 두 쿼리가 들어왔을 때 라우트가 인증 없이 service-role 클라이언트로 곧장 DB 를 조회하고 있었습니다.** 즉 `curl https://your-site/api/posts?all=true` 한 줄이면 누구든 모든 draft 의 내용을 받아 갈 수 있는 상태였습니다.",
+      en: "The `/api/posts` and `/api/works` list endpoints are public — they're what user-facing pages call. The admin UI reused them, passing `?all=true` for \"include unpublished\" and `?trash=true` for \"trashed only\".\n\nReviewing the code for security, I noticed that **with those query flags the route hit the DB through the service-role admin client without any auth check.** `curl https://your-site/api/posts?all=true` was enough for anyone to read every draft.",
+    },
+    cause: {
+      ko: "원인은 두 가지가 겹쳤습니다.\n\n**① service-role 클라이언트의 의미 오인.** Supabase 에는 두 종류의 클라이언트가 있습니다. 사용자 쿠키 기반 (`createClient`) 은 RLS 정책의 통제를 받지만, service-role 키 기반 (`createAdminClient`) 은 **RLS 를 통째로 우회** 합니다. admin 화면에서 비공개 글까지 다루려면 RLS 를 우회할 수밖에 없어 service-role 을 쓴 건 맞지만, **\"누가 이 쿼리를 보낸 사람인지\" 를 확인하는 책임은 그대로 라우트 코드에 남아 있어야 했는데** 그 단계가 빠져 있었습니다.\n\n**② 라우트 분리 vs 쿼리 분기의 trade-off 를 잘못 잡음.** \"같은 데이터, 다른 필터\" 라는 이유로 admin·anonymous 가 같은 라우트를 공유하기로 했는데, 그게 곧 \"같은 인증 경로를 공유한다\" 는 의미는 아니었습니다. 쿼리 파라미터 하나 (`?all=true`) 가 service-role 진입을 토글하는 구조가 되어 있어, 결국 **인증 없는 호출이 admin 권한으로 처리되는 경로** 가 만들어진 셈이었습니다.\n\nworks 라우트는 더 나아가, **default 상태에서도 항상 service-role 클라이언트를 쓰고** 있었습니다. anonymous 호출의 경우 `published = true AND deleted_at IS NULL` 필터를 라우트 안에서 명시적으로 추가해 결과적으로는 공개 글만 반환했지만, 이 \"기본 필터\" 는 한 줄 빠지거나 잘못 작성되면 비공개 글이 줄줄 새 나갈 수 있는 구조였습니다. RLS 가 강제하는 default-deny 가 아닌 라우트 코드에 의존하는 default-allow 였던 셈입니다.",
+      en: "Two failures stacked on top of each other.\n\n**① Misreading what the service-role client means.** Supabase has two clients. The cookie-bound one (`createClient`) is governed by RLS; the service-role one (`createAdminClient`) **bypasses RLS entirely**. The admin UI needs that bypass to read unpublished rows — fine. But **the responsibility for \"who is asking this?\" stayed with route code**, and that check was missing.\n\n**② Sharing the route without sharing the auth model.** Admin and anonymous used the same route under the banner of \"same data, different filters\". That conflated routing with authentication. A single query parameter (`?all=true`) toggled service-role entry, so anonymous callers could opt themselves into admin-level access just by adding a string.\n\nThe works route went a step further — it **always used the service-role client**, even for anonymous requests, and merely added `published = true AND deleted_at IS NULL` in the route body. That's a default-allow that depends on a route filter being correct. RLS would have been default-deny. One missing line and unpublished data leaks.",
+    },
+    solution: {
+      ko: "**`?all` / `?trash` 가 들어온 경우에만 `requireAuth()` 를 호출** 하도록 라우트 앞단에 가드를 두었습니다. anonymous 경로 (필터 없이 / `published=true` 만) 는 그대로 유지해, 사용자 페이지의 트래픽은 영향을 받지 않습니다.\n\n```ts\nif (showAll || showTrash) {\n  const { error: authError } = await requireAuth();\n  if (authError) return authError;\n}\n```\n\n동시에 `/api/posts/[id]` 와 `/api/works/[id]` 의 단일 row GET 도 admin 만 사용하는 패턴이라는 걸 코드 흐름으로 확인한 뒤 (`fetch(\\`/api/posts/${id}\\`)` 호출처가 admin 전용 페이지였습니다) 일괄 `requireAuth()` 를 적용했습니다. 공개 글 상세 페이지는 slug 기반 (`getPostBySlug`) 으로 DB 에 직접 접근하므로, id 기반 단일 row 엔드포인트를 admin 전용으로 묶어도 사용자 경로에는 영향이 없습니다.\n\n별개의 layer 로, middleware 단에 **fail-closed admin 가드** 도 추가해 두었습니다. layout 의 `redirect` 와 route 의 `requireAuth()` 외에 1개 layer 가 더 생긴 셈입니다. 어떤 admin route 하나에서 `requireAuth()` 를 깜빡하더라도 middleware 가 1차로 막아 줍니다.",
+      en: "**Gated `?all` / `?trash` with `requireAuth()` at the route entry.** Anonymous paths (no flag / `published=true`) stay exactly as before — user-page traffic is unaffected.\n\n```ts\nif (showAll || showTrash) {\n  const { error: authError } = await requireAuth();\n  if (authError) return authError;\n}\n```\n\nAlso traced the consumers of `/api/posts/[id]` and `/api/works/[id]` single-row GETs — every caller turned out to be admin-only (the public detail pages use slug-based reads via `getPostBySlug`). Made those `requireAuth()`-gated as well, since they previously exposed unpublished rows by ID to anyone who knew one.\n\nAs a separate layer added a **fail-closed admin gate in middleware** — so layout's `redirect`, route's `requireAuth()`, and middleware are now three independent layers. Any one of them missing `requireAuth()` in the future is still caught by the middleware first.",
+    },
+    keyInsight: {
+      ko: "**RLS 를 우회하는 service-role 클라이언트를 쓰는 순간, 인증의 책임은 라우트 코드로 옮겨집니다.**\n\nadmin 만 쓰던 라우트를 anonymous 와 공유하기로 했다면, \"같은 URL 을 공유한다\" 와 \"같은 인증 모델을 공유한다\" 는 별개의 결정입니다. 후자는 매번 분기마다 다시 확인해야 합니다.\n\n그리고 **default 가 deny 가 되도록 설계할 것.** \"라우트 코드에서 published 필터를 안 빼먹기\" 같은 default-allow 는 한 번의 실수로 무너집니다. RLS 가 default-deny 를 강제할 수 있는 경로면 그쪽을 통과시키고, 어쩔 수 없이 service-role 을 써야 하는 경로면 그 라우트의 앞단을 가장 먼저 가드 하는 게 안전합니다.",
+      en: "**The moment you reach for the service-role client, RLS no longer protects you — auth is now route-code's job.**\n\nSharing a URL between admin and anonymous is not the same decision as sharing an auth model. The latter has to be re-verified at every branch.\n\nAnd **design so the default is deny.** \"Don't forget the `published` filter\" is a default-allow that fails on one missed line. Where RLS can enforce default-deny, route through it; where you must bypass with service-role, gate the route entry first.",
+    },
+    comparisons: [
+      {
+        label: { ko: "수정 전 / 수정 후 — `?all` · `?trash` 가드", en: "Before / After — `?all` · `?trash` gate" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "수정 전", en: "Before" },
+          { ko: "수정 후", en: "After" },
+        ],
+        rows: [
+          { cells: [{ ko: "`curl /api/posts?all=true`", en: "`curl /api/posts?all=true`" }, { ko: "모든 draft 반환", en: "Returns every draft" }, { ko: "401 거절", en: "401 rejected" }] },
+          { cells: [{ ko: "`curl /api/posts?trash=true`", en: "`curl /api/posts?trash=true`" }, { ko: "휴지통 노출", en: "Trash exposed" }, { ko: "401 거절", en: "401 rejected" }] },
+          { cells: [{ ko: "anonymous 기본 호출", en: "Anonymous default call" }, { ko: "정상", en: "OK" }, { ko: "정상 (영향 없음)", en: "OK (unaffected)" }] },
+          { cells: [{ ko: "단일 row GET `/api/posts/[id]`", en: "Single-row GET `/api/posts/[id]`" }, { ko: "비공개 row 도 ID 알면 노출", en: "Unpublished by ID also exposed" }, { ko: "admin only", en: "Admin only" }] },
+          { cells: [{ ko: "default 보안 모델", en: "Default security posture" }, { ko: "default-allow (filter 누락 시 leak)", en: "default-allow (one missed filter = leak)" }, { ko: "default-deny (route 가드 + middleware)", en: "default-deny (route gate + middleware)" }], highlight: true },
+        ],
+      } satisfies ComparisonTable,
+    ],
+  },
+
+  /* ── Frontend / Component ── */
+  {
+    section: { ko: "Frontend / Component", en: "Frontend / Component" },
+    problem: {
+      ko: "Supabase auth subscription cleanup — `.then()` 안의 `return` 은 useEffect cleanup 이 아니다",
+      en: "Supabase Auth Subscription Cleanup — Returning from `.then()` Is Not a useEffect Cleanup",
+    },
+    definition: {
+      ko: "Footer 와 Navigation 컴포넌트는 admin 로그인 상태를 표시하기 위해 Supabase 의 `onAuthStateChange` 를 구독합니다. 코드를 보면 \"구독했으니 unmount 때 정리한다\" 의 의도가 분명한데, 실제로는 **그 정리가 한 번도 실행되지 않고** subscription 이 영원히 살아 있었습니다. 컴포넌트가 remount 될 때마다 listener 가 한 개씩 쌓이는 leak 입니다.",
+      en: "Footer and Navigation subscribe to Supabase's `onAuthStateChange` to reflect admin login state. The code's intent is obvious — \"we subscribed, so we clean up on unmount\". In reality **the cleanup never ran**, the subscription lived forever, and every remount stacked another listener.",
+    },
+    cause: {
+      ko: "원본 코드는 이런 모양이었습니다.\n\n```ts\nuseEffect(() => {\n  let cancelled = false;\n  loadSupabaseClient().then(async (supabase) => {\n    const { data: { user } } = await supabase.auth.getUser();\n    if (!cancelled) setIsAuthenticated(!!user);\n\n    const { data: { subscription } } = supabase.auth.onAuthStateChange(...);\n    return () => subscription.unsubscribe();   // ← 이게 cleanup 일 것 같지만 아님\n  });\n  return () => { cancelled = true; };          // ← 진짜 useEffect cleanup\n}, [isAdmin]);\n```\n\nReact 의 `useEffect` cleanup 은 **effect 콜백이 직접 return 한 함수** 만 인식합니다. 위 코드의 `() => subscription.unsubscribe()` 는 `.then()` 콜백이 return 하는 함수이고, 그 콜백의 return 값은 **Promise 체인의 다음 then 으로 흘러갈 뿐** React 와는 아무 관계가 없습니다. 실제로 React 가 cleanup 으로 받는 건 두 번째 줄의 `() => { cancelled = true; }` 하나뿐이고, 거기엔 unsubscribe 가 없습니다.\n\n비슷하게 생긴 모양 (\"return 만 하면 정리되겠지\") 때문에 시각적으로는 cleanup 처럼 보이지만, **return 의 \"방향\" 이 잘못된 케이스** 입니다. 게다가 `loadSupabaseClient()` 가 다이나믹 import 라 비동기인데, **promise 가 resolve 되기 전에 컴포넌트가 unmount 되면** `subscription` 변수는 effect 스코프 밖에서 뒤늦게 채워집니다. 그 시점에 cleanup 은 이미 끝나 있어 unsubscribe 가 호출될 기회가 영영 사라집니다.",
+      en: "The original shape:\n\n```ts\nuseEffect(() => {\n  let cancelled = false;\n  loadSupabaseClient().then(async (supabase) => {\n    const { data: { user } } = await supabase.auth.getUser();\n    if (!cancelled) setIsAuthenticated(!!user);\n\n    const { data: { subscription } } = supabase.auth.onAuthStateChange(...);\n    return () => subscription.unsubscribe();   // looks like cleanup, isn't\n  });\n  return () => { cancelled = true; };          // the real useEffect cleanup\n}, [isAdmin]);\n```\n\nReact's `useEffect` cleanup is **only the function the effect callback itself returns**. The `() => subscription.unsubscribe()` above is returned by the `.then()` callback, and that return value just flows into the next then in the promise chain — React never sees it. The cleanup React actually receives is the second one (`cancelled = true`), which doesn't unsubscribe anything.\n\nThe two cleanups look similar enough that the eye reads it as \"yeah, returning a cleanup function\" — but **the direction of the return is wrong**. And because `loadSupabaseClient()` is a dynamic import, the promise can resolve **after the component has already unmounted**: `subscription` gets assigned outside the effect's lifetime, and cleanup has long since fired without ever touching it.",
+    },
+    solution: {
+      ko: "두 가지를 같이 고쳤습니다.\n\n**① `subscription` 변수를 effect 스코프 밖에 선언** 해, `.then()` 내부에서 assign 만 합니다. 그러면 effect 의 cleanup 이 그 변수에 접근해 unsubscribe 할 수 있습니다.\n\n**② `cancelled` flag 로 \"unmount 후 늦게 도착한 promise\" 처리** — `.then()` 안에서 subscription 이 만들어진 시점에 이미 cancelled 면 즉시 unsubscribe 해버립니다.\n\n```ts\nuseEffect(() => {\n  let cancelled = false;\n  let subscription: { unsubscribe: () => void } | undefined;\n  loadSupabaseClient().then(async (supabase) => {\n    const { data: { user } } = await supabase.auth.getUser();\n    if (cancelled) return;\n    setIsAuthenticated(!!user);\n\n    const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(...);\n    if (cancelled) sub.unsubscribe();\n    else subscription = sub;\n  });\n  return () => {\n    cancelled = true;\n    subscription?.unsubscribe();\n  };\n}, [isAdmin]);\n```\n\n같은 패턴이 PostDetailClient / WorkDetailClient / CommentSection / CommentForm 등 4 곳에 또 있었길래, **`useIsAuthenticated({ subscribe?: boolean })` 헬퍼로 추출** 해 한 곳에서 정리 책임을 지게 했습니다. detail page 들은 진입 시점 admin 여부만 필요하니 `subscribe: false` (1회 체크), 댓글 영역은 다른 탭에서 로그인·로그아웃 시 실시간 반영이 필요하니 `subscribe: true` 로 호출합니다.",
+      en: "Two fixes together.\n\n**① Lifted `subscription` to the effect's outer scope** so the cleanup can reach it. The `.then()` only assigns to it.\n\n**② Added a `cancelled` flag for late-arriving promises** — if cancelled has already flipped by the time the subscription is created, unsubscribe immediately.\n\n```ts\nuseEffect(() => {\n  let cancelled = false;\n  let subscription: { unsubscribe: () => void } | undefined;\n  loadSupabaseClient().then(async (supabase) => {\n    const { data: { user } } = await supabase.auth.getUser();\n    if (cancelled) return;\n    setIsAuthenticated(!!user);\n\n    const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(...);\n    if (cancelled) sub.unsubscribe();\n    else subscription = sub;\n  });\n  return () => {\n    cancelled = true;\n    subscription?.unsubscribe();\n  };\n}, [isAdmin]);\n```\n\nFound the same pattern duplicated in PostDetailClient / WorkDetailClient / CommentSection / CommentForm. Extracted **`useIsAuthenticated({ subscribe?: boolean })`** so all four share the same cleanup responsibility. Detail clients use `subscribe: false` (one-shot check at mount); the comment surfaces use `subscribe: true` to reflect cross-tab login changes in real time.",
+    },
+    keyInsight: {
+      ko: "**`useEffect` cleanup 은 effect 콜백이 \"직접\" return 한 함수만 인식합니다.** 그 안의 `.then()` / async / Promise 체인이 return 하는 함수는 React 가 보지 못합니다.\n\nasync effect 에서 cleanup 하려면 보통:\n- 외부 변수 + assign 패턴 (위 예시)\n- AbortController 로 fetch 자체를 취소\n- `cancelled` flag 로 setState 무력화\n\n셋 중 하나는 필요하다고 기억해 두는 게 좋습니다. \"return 만 하면 정리되겠지\" 가 보이지 않는 leak 의 가장 흔한 원인입니다.",
+      en: "**`useEffect` cleanup only sees a function the effect callback returns directly.** Anything returned from a `.then()` / async chain inside doesn't reach React.\n\nFor cleanup in an async effect you typically need one of:\n- Outer-scope variable + assign pattern (above)\n- AbortController to cancel the fetch itself\n- A `cancelled` flag to no-op setState\n\nKeeping that triplet in mind avoids the most common invisible leak — the one where \"returning a function looked like cleanup\".",
+    },
   },
 ];
 
