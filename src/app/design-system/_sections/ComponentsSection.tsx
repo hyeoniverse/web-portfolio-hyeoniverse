@@ -44,6 +44,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [rangeValue, setRangeValue] = useState([20, 80]);
   const [switchOn, setSwitchOn] = useState(false);
   const [switchAccent, setSwitchAccent] = useState(true);
+  const [switchMd, setSwitchMd] = useState(true);
+  const [switchLabeled, setSwitchLabeled] = useState(true);
   const [inputValue, setInputValue] = useState("");
   const [inputUnderline, setInputUnderline] = useState("");
   const [inputSm, setInputSm] = useState("");
@@ -211,7 +213,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
             <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
-            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Default</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Default (sm)</span>
           </motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
             <Switch checked={switchAccent} onCheckedChange={setSwitchAccent} variant="accent" />
@@ -224,6 +226,16 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <motion.div variants={staggerItemX} {...scrollChildX(3, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
             <Switch disabled defaultChecked />
             <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Disabled On</span>
+          </motion.div>
+        </div>
+        {/* size="md" + label — form row 용. admin 설정에 쓰던 Toggle 컴포넌트가 이 두 prop 으로 흡수됨 */}
+        <div className={styles.componentRow} style={{ marginTop: "var(--spacing-sm)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <Switch size="md" checked={switchMd} onCheckedChange={setSwitchMd} />
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>size=&quot;md&quot;</span>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ minWidth: 220 }}>
+            <Switch size="md" label="With label" checked={switchLabeled} onCheckedChange={setSwitchLabeled} />
           </motion.div>
         </div>
       </motion.div>
