@@ -27,6 +27,7 @@ import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import ShareButton from "@/components/ui/ShareButton";
 import Button from "@/components/ui/Button";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
+import { useLikeToggle } from "@/hooks/useLikeToggle";
 import { ImageIcon, SquarePen, Monitor, BookOpen, ChevronDown, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
 import styles from "./PostDetail.module.css";
@@ -56,8 +57,9 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const [viewLang, setViewLang] = useState<"ko" | "en">(
     !initialPost.content_en ? "ko" : !initialPost.content ? "en" : language === "en" ? "en" : "ko"
   );
-  const [likeCount, setLikeCount] = useState(0);
-  const [liked, setLiked] = useState(false);
+  const { count: likeCount, liked, busy: likeBusy, toggle: handleLikeToggle } = useLikeToggle({
+    endpoint: `/api/posts/${post.id}/like`,
+  });
   const [seriesData, setSeriesData] = useState<(Series & { posts: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at" | "excerpt" | "excerpt_en" | "tags" | "category">[] }) | null>(null);
   const [seriesOpen, setSeriesOpen] = useState(false);
   const [seriesPreview, setSeriesPreview] = useState<{ post: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at" | "excerpt" | "excerpt_en" | "tags">; top: number; left: number } | null>(null);
@@ -74,13 +76,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
 
   useEffect(() => {
     fetch(`/api/posts/${post.id}/view`, { method: "POST" });
-
-    fetch(`/api/posts/${post.id}/like`)
-      .then((r) => r.json())
-      .then((d) => {
-        setLikeCount(d.count ?? 0);
-        setLiked(d.liked ?? false);
-      });
 
     fetch(`/api/posts/${post.id}/adjacent`)
       .then((r) => r.json())
@@ -121,25 +116,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       window.removeEventListener("scroll", handleScroll);
     };
   }, [post.id, post.series_id]);
-
-  const likeRef = useRef(false);
-  const [likeBusy, setLikeBusy] = useState(false);
-  const handleLikeToggle = useCallback(async () => {
-    if (likeRef.current) return;
-    likeRef.current = true;
-    setLikeBusy(true);
-    setLiked((prev) => !prev);
-    setLikeCount((c) => liked ? Math.max(0, c - 1) : c + 1);
-    try {
-      const res = await fetch(`/api/posts/${post.id}/like`, { method: "POST" });
-      const data = await res.json();
-      setLikeCount(data.count);
-      setLiked(data.liked);
-    } finally {
-      likeRef.current = false;
-      setLikeBusy(false);
-    }
-  }, [post.id, liked]);
 
   const needsTranslation =
     (viewLang === "en" && !post?.content_en) ||
