@@ -175,6 +175,8 @@
 - **About 모바일 IDE 패널**: 모바일/태블릿 Troubleshooting 패널을 VSCode 스타일 IDE 로 — 가로 스크롤 탭바 + line-numbered 에디터 + breadcrumb + status bar. 탭 전환은 (a) edge 도달 후 release & 재스크롤 (b) 손 안 떼고 누적 push (c) 가로 swipe 세 가지로 발화, fling 으로 edge 에 닿기만 한 케이스는 300ms grace 동안 흡수 → 의도치 않은 cascade 차단. 탭바 마우스 드래그 시 5px 임계 넘으면 cursor 가 `grab` 으로 전환되어 "Drag" 라벨로 시각화. 추천 항목은 별표 + recommendReason 한 줄 (왜 추천하는지 면접자 1인칭) 노출
 - **About 핀스크롤 throttle**: `useMobilePinScroll` 의 onUpdate 가 progress 차이를 ±1 step 으로 잘라 200ms throttle — 강한 fling 으로 progress 가 한 번에 여러 칸 점프해도 한 윈도우당 1탭만 전환, 패널 통과는 그대로 허용
 - **Page Transition**: 모든 detail 페이지 이동 시 이미지 확대→hero 위치 모핑→그라데이션 페이드 전환 효과 (PageTransitionProvider, root layout 레벨에서 페이지 간 유지)
+- **PostCard hover prefetch**: 카드에 마우스가 올라가는 순간 `router.prefetch(href)` 호출(production-only) — 클릭 시점엔 chunk + 데이터 모두 캐시 → 즉시 mount. dev 에선 compile 미완료된 route 의 prefetch 가 "Failed to fetch RSC payload" + hard reload fallback 을 유발해 의도적으로 skip
+- **LoadingScreen 세션 영속**: 초기 로딩 완료 플래그를 `sessionStorage` 에 저장 — dev 모드에서 RSC payload fetch 실패로 hard reload fallback 이 일어나도 같은 세션 안에선 LoadingScreen 이 다시 풀로 노출되지 않음. sessionStorage 읽기는 `useEffect` 안에서만(모듈 로드 시 읽으면 server=false / client=true 로 hydration mismatch)
 - **ImageViewer 방향 슬라이드**: 이전/다음 이동 시 반대 방향에서 slide-in (mode wait), 좌/우 영역 hover로 화살표 노출
 - **Select 드롭다운 애니메이션**: portal 기반 드롭다운에서 mount 후 rAF 2회 대기로 CSS transition 보장 (compound selector로 글로벌 theme transition 우회). **외부 스크롤 시 dropdown 위치 재계산이 아니라 dropdown 자체를 닫음** — trigger 따라 이동해 산만해지는 걸 방지(내부 옵션 list overflow 스크롤은 유지)
 - **LanguageToggle 동적 측정**: EN 버튼 위치를 useLayoutEffect로 실측해 indicator 정확한 정렬
@@ -225,6 +227,8 @@
 
 - **번들 최적화**: react-icons를 inline SVG로 교체, Three.js dynamic import, About 6개 패널 코드 스플리팅(JS 62% 절감), 미사용 패키지/이미지(22MB) 삭제
 - **성능 최적화**: Hero/마퀴 CSS animation 전환(컴포지터 스레드), useMagneticRepel ref 직접 DOM 조작(60fps), Three.js FrontSide + dispose, AudioContext 지연 초기화
+- **Detail page server-side 슬림화**: posts/[slug] · works/[id] 의 `page.tsx` 에서 매 요청마다 호출하던 `getSiteConfig` + `getSecret` 두 DB query 제거 — root layout 의 `SiteConfigProvider` 에 이미 로드된 값을 client `useSiteConfig()` 로 직접 읽음. cold cache 시점에서 약 2 query 분의 latency 감소
+- **Middleware graceful degradation**: `/admin/*` · `/api/admin/*` 요청마다 도는 `supabase.auth.getUser()` 가 fetch 실패(네트워크 끊김 / Supabase 프로젝트 paused / DNS) 시 throw 하면서 500 응답으로 죽는 걸 try/catch 로 막음 — 세션 쿠키 리프레시만 skip 되고 응답은 정상 통과. 실제 인증 차단은 admin layout 에서 한 번 더 수행
 
 | 메트릭 | Before | After |
 |:---|:---:|:---:|
