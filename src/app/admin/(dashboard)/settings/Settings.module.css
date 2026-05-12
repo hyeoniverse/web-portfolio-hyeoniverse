@@ -1022,7 +1022,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   flex-shrink: 0;
   font-size: 0;
   line-height: 0;
@@ -1725,7 +1725,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--color-accent);
+  background: var(--bg-accent-solid);
   border-radius: 1px;
   z-index: 3;
   pointer-events: none;
@@ -2191,7 +2191,7 @@
   margin: 0;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--text-primary);
 }
 
 .seriesStandaloneActions {

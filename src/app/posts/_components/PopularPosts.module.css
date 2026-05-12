@@ -19,7 +19,7 @@
 
 /* 불 아이콘 — accent 색 */
 .flameIcon {
-  color: var(--color-accent);
+  color: var(--text-accent);
   flex-shrink: 0;
 }
 

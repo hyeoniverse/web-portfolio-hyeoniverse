@@ -523,7 +523,7 @@
     flex: none;
     gap: 4px;
     align-items: center;
-    padding: var(--spacing-xs) var(--spacing-md);
+    padding: var(--box-md);
     background: var(--bg-secondary);
     border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
     font-size: var(--font-size-2xs);
@@ -587,7 +587,7 @@
     flex: none;
     gap: var(--spacing-xs);
     align-items: center;
-    padding: var(--spacing-xs) var(--spacing-md);
+    padding: var(--box-md);
     border: none;
     border-right: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
     background: transparent;
@@ -739,7 +739,7 @@
 
   /* Table/diagram 인덴트 — gutter(3ch) + 선행 padding 만큼 들여쓰기 → 본문 텍스트 시작 X 와 정확히 정렬 */
   .ideIndent {
-    padding: var(--spacing-xs) var(--spacing-md);
+    padding: var(--box-md);
     padding-left: calc(3ch + var(--spacing-md) * 2);
   }
 
@@ -863,7 +863,7 @@
     align-items: center;
     justify-content: center;
     gap: var(--spacing-xs);
-    padding: var(--spacing-2xl) var(--spacing-md);
+    padding: var(--box-ve-xl);
     border: 1.5px dashed color-mix(in srgb, var(--text-tertiary) 35%, transparent);
     border-radius: var(--radius-2xl);
     background: color-mix(in srgb, var(--text-secondary) 4%, transparent);

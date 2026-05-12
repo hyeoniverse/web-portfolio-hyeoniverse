@@ -911,7 +911,7 @@
   }
 
   .profileCard {
-    padding: var(--spacing-2xl) var(--spacing-2xl);
+    padding: var(--spacing-2xl);
   }
 
   .profileImage {

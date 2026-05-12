@@ -470,7 +470,7 @@
 }
 
 .metaTech span {
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--box-md);
   border: 1px solid var(--text-accent-alt);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);

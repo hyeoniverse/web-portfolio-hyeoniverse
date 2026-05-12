@@ -42,7 +42,7 @@
   flex: 1;
   min-width: 80px;
   max-width: 180px;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--box-sm);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);

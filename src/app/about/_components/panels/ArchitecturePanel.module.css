@@ -233,7 +233,7 @@
 }
 
 .archMap .archTmCell:hover {
-  background: var(--color-accent-alpha-5);
+  background: var(--bg-accent-subtle);
 }
 
 .archMap .archTmParent {
@@ -251,7 +251,7 @@
 }
 
 .archMap .archTmCellActive {
-  background: var(--color-accent-alpha-5);
+  background: var(--bg-accent-subtle);
   outline-color: var(--text-accent);
   outline-width: 2px;
   z-index: 2;
