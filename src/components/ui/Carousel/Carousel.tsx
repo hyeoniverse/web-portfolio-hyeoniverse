@@ -51,7 +51,7 @@ export default function Carousel({
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const goTo = useCallback(
-    (index: number, _dir?: number) => {
+    (index: number) => {
       if (isSingle) return;
       const newIdx = loop
         ? wrap(index, count)
@@ -62,8 +62,8 @@ export default function Carousel({
     [count, loop, isSingle],
   );
 
-  const goNext = useCallback(() => goTo(current + 1, 1), [current, goTo]);
-  const goPrev = useCallback(() => goTo(current - 1, -1), [current, goTo]);
+  const goNext = useCallback(() => goTo(current + 1), [current, goTo]);
+  const goPrev = useCallback(() => goTo(current - 1), [current, goTo]);
 
   useEffect(() => {
     if (isSingle || !autoPlay || paused) {
@@ -200,7 +200,7 @@ export default function Carousel({
               <button
                 key={i}
                 className={`${styles.dot} ${i === current ? styles.dotActive : ""}`}
-                onClick={() => goTo(i, i > current ? 1 : -1)}
+                onClick={() => goTo(i)}
                 aria-label={`Go to slide ${i + 1}`}
                 data-clickable="true"
               >
