@@ -47,7 +47,11 @@ function rejectApi(status: number, message: string): NextResponse {
 }
 
 function isSameOrigin(request: NextRequest): boolean {
-  if (!SITE_ORIGIN) return true;
+  if (!SITE_ORIGIN) {
+    // production 에서 env 미설정은 fail-closed — 모든 mutation 차단해서 잘못된 배포가 즉시 드러나게
+    // dev 는 localhost 포트 / IP 변동 때문에 skip (편의)
+    return process.env.NODE_ENV !== "production";
+  }
   const source = request.headers.get("origin") ?? request.headers.get("referer");
   if (!source) return false;
   try {
