@@ -99,16 +99,23 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   useEffect(() => {
     if (isAdmin) return;
     let cancelled = false;
+    let subscription: { unsubscribe: () => void } | undefined;
     loadSupabaseClient().then(async (supabase) => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!cancelled) setIsAuthenticated(!!user);
+      if (cancelled) return;
+      setIsAuthenticated(!!user);
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { data: { subscription: sub } } = supabase.auth.onAuthStateChange((_event, session) => {
         if (!cancelled) setIsAuthenticated(!!session?.user);
       });
-      return () => subscription.unsubscribe();
+      // unmount 가 promise resolve 보다 먼저 일어났다면 즉시 정리
+      if (cancelled) sub.unsubscribe();
+      else subscription = sub;
     }).catch(() => {});
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      subscription?.unsubscribe();
+    };
   }, [isAdmin]);
 
   if (isHidden) return null;

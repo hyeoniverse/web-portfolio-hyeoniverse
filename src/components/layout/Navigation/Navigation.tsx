@@ -84,17 +84,23 @@ export default function Navigation() {
 
   const [adminEmail, setAdminEmail] = useState("");
   useEffect(() => {
+    let cancelled = false;
     let subscription: { unsubscribe: () => void } | undefined;
     loadSupabaseClient().then((supabase) => {
       supabase.auth.getUser().then(({ data }) => {
-        setAdminEmail(data.user?.email ?? "");
+        if (!cancelled) setAdminEmail(data.user?.email ?? "");
       });
       const { data: { subscription: sub } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setAdminEmail(session?.user?.email ?? "");
+        if (!cancelled) setAdminEmail(session?.user?.email ?? "");
       });
-      subscription = sub;
+      // unmount 가 promise resolve 보다 먼저 일어났다면 즉시 정리
+      if (cancelled) sub.unsubscribe();
+      else subscription = sub;
     });
-    return () => subscription?.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription?.unsubscribe();
+    };
   }, []);
 
   // Notification 상태 — admin 로그인 시 60s 폴링. 드롭다운에서 미리보기 표시.
