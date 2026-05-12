@@ -1,3 +1,12 @@
+import type { SlateEditor, TElement } from "platejs";
+
+/** 프로젝트 전반에서 Plate 의 editor 인자를 받을 때 사용하는 별칭.
+ *  `any` 대신 사용하되, Plate 의 모든 transform/api 를 노출하므로 캐스팅 없이 호출 가능. */
+export type PlateEditor = SlateEditor;
+
+/** Slate node 의 동적 필드 (type, background, footnoteId 등 plugin 정의 필드) 까지 인덱싱 가능한 record 형태 */
+export type PlateNode = TElement & Record<string, unknown>;
+
 export interface EditorImageInfo {
   url: string;
   path: number[];
