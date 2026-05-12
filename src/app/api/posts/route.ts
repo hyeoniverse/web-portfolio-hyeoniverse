@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
+import { escapeOrSearch } from "@/lib/api/search";
 import type { PostFormData } from "@/types/post";
 
 // GET /api/posts — 목록 조회
@@ -66,12 +67,13 @@ export async function GET(request: Request) {
   }
 
   if (search) {
+    const s = escapeOrSearch(search);
     if (searchType === "all") {
-      query = query.or(`title.ilike.%${search}%,title_en.ilike.%${search}%,content.ilike.%${search}%,content_en.ilike.%${search}%`);
+      query = query.or(`title.ilike.%${s}%,title_en.ilike.%${s}%,content.ilike.%${s}%,content_en.ilike.%${s}%`);
     } else if (searchType === "content") {
-      query = query.or(`content.ilike.%${search}%,content_en.ilike.%${search}%`);
+      query = query.or(`content.ilike.%${s}%,content_en.ilike.%${s}%`);
     } else {
-      query = query.or(`title.ilike.%${search}%,title_en.ilike.%${search}%`);
+      query = query.or(`title.ilike.%${s}%,title_en.ilike.%${s}%`);
     }
   }
 

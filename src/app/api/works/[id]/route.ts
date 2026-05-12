@@ -7,8 +7,12 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-// GET /api/works/[id] — 단일 work
+// GET /api/works/[id] — 단일 work (admin 전용 — 비공개/휴지통 포함 raw 조회).
+// 공개 페이지는 getWorks() 로 정적 데이터에서 조회. id 기반 직접 접근은 admin editor 에서만 사용.
 export async function GET(_request: Request, context: RouteContext) {
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
+
   const { id } = await context.params;
   const admin = createAdminClient();
 

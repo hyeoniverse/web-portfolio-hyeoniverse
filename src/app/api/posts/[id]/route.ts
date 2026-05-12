@@ -7,8 +7,12 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-// GET /api/posts/[id] — 단일 포스트
+// GET /api/posts/[id] — 단일 포스트 (admin 전용 — 비공개/휴지통 포함 raw 조회).
+// 공개 페이지는 slug 기반(getPostBySlug)으로 조회. id 기반 직접 접근은 admin preview/editor 에서만 사용.
 export async function GET(_request: Request, context: RouteContext) {
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
+
   const { id } = await context.params;
   const admin = createAdminClient();
 
