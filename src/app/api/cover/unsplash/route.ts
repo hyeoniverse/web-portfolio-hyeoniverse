@@ -1,34 +1,24 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSecret } from "@/lib/getSecret";
 
 const UNSPLASH_API = "https://api.unsplash.com";
 
 export async function GET(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const accessKey = await getSecret("UNSPLASH_ACCESS_KEY");
   if (!accessKey) {
-    return NextResponse.json(
-      { error: "Unsplash API key not configured" },
-      { status: 503 }
-    );
+    return jsonError("Unsplash API key not configured", 503);
   }
 
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q");
   const page = searchParams.get("page") || "1";
 
-  if (!q) {
-    return NextResponse.json({ error: "Query required" }, { status: 400 });
-  }
+  if (!q) return jsonError("Query required", 400);
 
   const res = await fetch(
     `${UNSPLASH_API}/search/photos?query=${encodeURIComponent(q)}&page=${page}&per_page=12&orientation=landscape`,
@@ -38,15 +28,13 @@ export async function GET(request: Request) {
   );
 
   if (!res.ok) {
-    return NextResponse.json(
-      { error: "Unsplash API error" },
-      { status: res.status }
-    );
+    // upstream status passthrough — jsonError 의 typed 범위를 넘어갈 수 있으니 NextResponse 사용
+    return NextResponse.json({ error: "Unsplash API error" }, { status: res.status });
   }
 
   const data = await res.json();
 
-  return NextResponse.json({
+  return jsonOk({
     results: data.results.map(
       (photo: {
         id: string;

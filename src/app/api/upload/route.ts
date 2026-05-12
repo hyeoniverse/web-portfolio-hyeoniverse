@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { needsConversion, convertToWebp } from "@/lib/convertImage";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 
@@ -56,21 +56,13 @@ const MAX_ABSOLUTE_MB = 100; // 어떤 경우에도 100MB 초과 금지
 
 // POST /api/upload — 파일 업로드 (admin only)
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
 
-  if (!file) {
-    return NextResponse.json({ error: "No file provided" }, { status: 400 });
-  }
+  if (!file) return jsonError("No file provided", 400);
 
   // ── 설정 로드 (허용 MIME + 차단 확장자 + 크기 제한) ──
   // getSiteConfig() 가 site.config defaults + DB delta 를 자동 머지해서 반환.
@@ -93,28 +85,22 @@ export async function POST(request: Request) {
   // ── 1. 확장자 검증 (블랙리스트) ──
   const ext = (file.name.split(".").pop() || "").toLowerCase();
   if (!ext) {
-    return NextResponse.json({ error: "File must have an extension" }, { status: 400 });
+    return jsonError("File must have an extension", 400);
   }
   if (blockedExt.has(ext)) {
-    return NextResponse.json({ error: `Blocked file type: .${ext}` }, { status: 400 });
+    return jsonError(`Blocked file type: .${ext}`, 400);
   }
 
   // ── 2. MIME 타입 화이트리스트 (limits에 있는 타입만 허용) ──
   const hasLimits = Object.keys(limits).length > 0;
   if (hasLimits && !(file.type in limits) && !("_default" in limits)) {
-    return NextResponse.json(
-      { error: `File type not allowed: ${file.type}` },
-      { status: 400 },
-    );
+    return jsonError(`File type not allowed: ${file.type}`, 400);
   }
 
   // ── 3. MIME 타입 ↔ 확장자 일치 검증 (스푸핑 방지) ──
   const allowedExts = MIME_EXT_MAP[file.type];
   if (allowedExts && !allowedExts.includes(ext)) {
-    return NextResponse.json(
-      { error: `MIME type (${file.type}) does not match extension (.${ext})` },
-      { status: 400 },
-    );
+    return jsonError(`MIME type (${file.type}) does not match extension (.${ext})`, 400);
   }
 
   // ── 4. 파일 크기 검증 ──
@@ -126,10 +112,7 @@ export async function POST(request: Request) {
 
   if (file.size > limitBytes) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-    return NextResponse.json(
-      { error: `File too large: ${sizeMB}MB (max ${limitMB}MB for ${file.type || ext})` },
-      { status: 400 },
-    );
+    return jsonError(`File too large: ${sizeMB}MB (max ${limitMB}MB for ${file.type || ext})`, 400);
   }
 
   // ── 5. HEIC/HEIF/TIFF 변환 → WebP (브라우저 호환성 확보) ──
@@ -145,10 +128,7 @@ export async function POST(request: Request) {
       uploadContentType = converted.contentType;
       uploadExt = converted.extension;
     } catch (err) {
-      return NextResponse.json(
-        { error: `Image conversion failed: ${err instanceof Error ? err.message : "unknown"}` },
-        { status: 500 },
-      );
+      return jsonError(`Image conversion failed: ${err instanceof Error ? err.message : "unknown"}`, 500);
     }
   }
 
@@ -165,12 +145,12 @@ export async function POST(request: Request) {
     });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonServerError(error);
   }
 
   const {
     data: { publicUrl },
   } = admin.storage.from("posts").getPublicUrl(filePath);
 
-  return NextResponse.json({ url: publicUrl, originalName: file.name });
+  return jsonOk({ url: publicUrl, originalName: file.name });
 }

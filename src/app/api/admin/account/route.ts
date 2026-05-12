@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 
 async function sendSecurityAlert(to: string, action: string, detail?: string) {
@@ -36,17 +36,11 @@ async function sendSecurityAlert(to: string, action: string, detail?: string) {
 
 // GET /api/admin/account — 현재 유저 정보
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const meta = user.user_metadata ?? {};
-  return NextResponse.json({
+  return jsonOk({
     email: user.email,
     pendingEmail: user.new_email || meta.pending_email || null,
     emailChangeSentAt: user.email_change_sent_at || meta.email_change_sent_at || null,
@@ -55,74 +49,43 @@ export async function GET() {
 
 // POST /api/admin/account — 이메일 확인 메일 재전송
 export async function POST() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, supabase, error: authError } = await requireAuth();
+  if (authError) return authError;
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const pendingEmail = user.new_email || user.user_metadata?.pending_email;
 
-  const pendingEmail =
-    user.new_email || user.user_metadata?.pending_email;
-
-  if (!pendingEmail) {
-    return NextResponse.json(
-      { error: "No pending email change" },
-      { status: 400 },
-    );
-  }
+  if (!pendingEmail) return jsonError("No pending email change", 400);
 
   const { error } = await supabase.auth.updateUser({ email: pendingEmail });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
+  if (error) return jsonError(error.message, 400);
 
-  return NextResponse.json({ message: "Confirmation email resent" });
+  return jsonOk({ message: "Confirmation email resent" });
 }
 
 // DELETE /api/admin/account — 이메일 변경 취소
 export async function DELETE() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, supabase, error: authError } = await requireAuth();
+  if (authError) return authError;
 
   // 현재 이메일로 다시 설정하면 pending이 취소됨
   const { error } = await supabase.auth.updateUser({ email: user.email! });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
+  if (error) return jsonError(error.message, 400);
 
-  return NextResponse.json({ message: "Email change cancelled" });
+  return jsonOk({ message: "Email change cancelled" });
 }
 
 // PATCH /api/admin/account — 이메일/비밀번호 변경 (현재 비밀번호 확인 필수)
 export async function PATCH(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, supabase, error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
 
   // 현재 비밀번호 확인 필수
   if (!body.currentPassword) {
-    return NextResponse.json(
-      { error: "Current password is required" },
-      { status: 400 },
-    );
+    return jsonError("Current password is required", 400);
   }
 
   // 현재 비밀번호로 재인증
@@ -131,12 +94,7 @@ export async function PATCH(request: Request) {
     password: body.currentPassword,
   });
 
-  if (signInError) {
-    return NextResponse.json(
-      { error: "Current password is incorrect" },
-      { status: 400 },
-    );
-  }
+  if (signInError) return jsonError("Current password is incorrect", 400);
 
   const updates: { email?: string; password?: string } = {};
 
@@ -151,39 +109,31 @@ export async function PATCH(request: Request) {
     if (policy === "secure") {
       const pw = body.password;
       if (pw.length < 8) {
-        return NextResponse.json(
-          { error: "Password must be at least 8 characters" },
-          { status: 400 },
-        );
+        return jsonError("Password must be at least 8 characters", 400);
       }
       if (!/[A-Z]/.test(pw) || !/[a-z]/.test(pw) || !/[0-9]/.test(pw) || !/[^A-Za-z0-9]/.test(pw)) {
-        return NextResponse.json(
-          { error: "Password must include uppercase, lowercase, number, and special character" },
-          { status: 400 },
+        return jsonError(
+          "Password must include uppercase, lowercase, number, and special character",
+          400,
         );
       }
     } else {
       if (body.password.length < 6) {
-        return NextResponse.json(
-          { error: "Password must be at least 6 characters" },
-          { status: 400 },
-        );
+        return jsonError("Password must be at least 6 characters", 400);
       }
     }
     updates.password = body.password;
   }
 
   if (Object.keys(updates).length === 0) {
-    return NextResponse.json({ message: "No changes" });
+    return jsonOk({ message: "No changes" });
   }
 
   const { error } = await supabase.auth.updateUser(updates);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
+  if (error) return jsonError(error.message, 400);
 
-  // 보안 알림 이메일을 원래 이메일로 발송
+  // 보안 알림 이메일을 원래 이메일로 발송 — serverless 환경에서 함수 종료 후 죽지 않도록 await
   const alerts: Promise<void>[] = [];
   if (updates.email) {
     alerts.push(
@@ -195,15 +145,13 @@ export async function PATCH(request: Request) {
     );
   }
   if (updates.password) {
-    alerts.push(
-      sendSecurityAlert(user.email!, "Password Changed"),
-    );
+    alerts.push(sendSecurityAlert(user.email!, "Password Changed"));
   }
   if (alerts.length > 0) {
-    Promise.allSettled(alerts); // fire & forget
+    await Promise.allSettled(alerts);
   }
 
-  return NextResponse.json({
+  return jsonOk({
     message: "Updated successfully",
     emailConfirmationSent: !!updates.email,
   });

@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
 
-  // 직전 리비전과 snapshot이 같으면 새로 생성하지 않음
+  // 직전 리비전과 snapshot이 같으면 새로 생성하지 않음 (첫 저장이면 0 rows 이므로 maybeSingle)
   const { data: latest } = await admin
     .from("revisions")
     .select("id, snapshot, created_at")
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     .eq("entity_id", entity_id)
     .order("created_at", { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (latest) {
     const sortedStringify = (obj: unknown) => JSON.stringify(obj, Object.keys(obj as Record<string, unknown>).sort());

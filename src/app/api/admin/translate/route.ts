@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import {
   type Provider,
@@ -8,14 +8,8 @@ import {
 } from "@/lib/api/translationProviders";
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const { texts, sourceLang, targetLang } = (await request.json()) as {
     texts: string[];
@@ -24,7 +18,7 @@ export async function POST(request: Request) {
   };
 
   if (!texts?.length || !sourceLang || !targetLang) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    return jsonError("Missing required fields", 400);
   }
 
   const config = await getSiteConfig();
@@ -36,11 +30,11 @@ export async function POST(request: Request) {
   );
 
   if ("error" in result) {
-    return NextResponse.json({ error: result.error }, { status: 502 });
+    return jsonError(result.error, 502);
   }
 
   // failedIndices: 모든 provider 시도 후에도 번역 못 받은 인덱스 (성공분은 그대로 유지)
-  return NextResponse.json({
+  return jsonOk({
     translations: result.translations,
     failedIndices: result.failedIndices,
   });

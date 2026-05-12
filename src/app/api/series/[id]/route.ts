@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
 
 interface RouteContext {
@@ -8,6 +9,7 @@ interface RouteContext {
 }
 
 // GET /api/series/[id] — 단일 시리즈 + 소속 포스트 목록
+// 비공개 시리즈는 로그인된 사용자만 조회 가능 (info leak 방지)
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const admin = createAdminClient();
@@ -18,8 +20,13 @@ export async function GET(_request: Request, context: RouteContext) {
     .eq("id", id)
     .single();
 
-  if (error || !series) {
-    return NextResponse.json({ error: "Series not found" }, { status: 404 });
+  if (error || !series) return jsonError("Series not found", 404);
+
+  // 비공개면 auth 필요
+  if (!series.published) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return jsonError("Series not found", 404);
   }
 
   const { data: posts } = await admin
@@ -28,21 +35,15 @@ export async function GET(_request: Request, context: RouteContext) {
     .eq("series_id", id)
     .order("series_order", { ascending: true });
 
-  return NextResponse.json({ ...series, posts: posts ?? [] });
+  return jsonOk({ ...series, posts: posts ?? [] });
 }
 
 // PATCH /api/series/[id] — 시리즈 수정 (admin only)
 // ?skipShift=true → drag 의 batch 호출이 자체 정렬을 관리하므로 auto-shift 건너뜀
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
   const url = new URL(request.url);
@@ -76,12 +77,15 @@ export async function PATCH(request: Request, context: RouteContext) {
         .gte("sort_order", lo)
         .lte("sort_order", hi);
       if (affected) {
-        for (const row of affected) {
-          await admin
-            .from("series")
-            .update({ sort_order: row.sort_order + direction })
-            .eq("id", row.id);
-        }
+        // 각 행의 새 sort_order 가 row 별로 다르므로 PostgREST 단일 UPDATE 불가 — 병렬 호출로 round-trip 단축
+        await Promise.all(
+          affected.map((row) =>
+            admin
+              .from("series")
+              .update({ sort_order: row.sort_order + direction })
+              .eq("id", row.id),
+          ),
+        );
       }
     }
   }
@@ -93,24 +97,16 @@ export async function PATCH(request: Request, context: RouteContext) {
     .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return jsonServerError(error);
 
-  return NextResponse.json(data);
+  return jsonOk(data);
 }
 
 // DELETE /api/series/[id]?deletePosts=true — 시리즈 삭제 (admin only)
 export async function DELETE(request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const admin = createAdminClient();
   const { searchParams } = new URL(request.url);
@@ -126,9 +122,7 @@ export async function DELETE(request: Request, context: RouteContext) {
 
   const { error } = await admin.from("series").delete().eq("id", id);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return jsonServerError(error);
 
-  return NextResponse.json({ success: true });
+  return jsonOk({ success: true });
 }

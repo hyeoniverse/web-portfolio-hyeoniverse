@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { invalidateSecretsCache } from "@/lib/getSecret";
 
 /** 편집 가능한 키 목록 */
@@ -32,14 +33,8 @@ const ALLOWED_KEYS = EDITABLE_KEYS;
 
 // GET /api/admin/secrets — 저장된 값 조회 (마스킹)
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const admin = createAdminClient();
   const { data } = await admin
@@ -73,24 +68,18 @@ export async function GET() {
     };
   }
 
-  return NextResponse.json({ secrets: result });
+  return jsonOk({ secrets: result });
 }
 
 // PUT /api/admin/secrets — 값 저장
 export async function PUT(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
   const updates = body.secrets as Record<string, string> | undefined;
   if (!updates || typeof updates !== "object") {
-    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+    return jsonError("Invalid body", 400);
   }
 
   // 허용된 키만 필터링
@@ -123,43 +112,34 @@ export async function PUT(request: Request) {
     .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return jsonServerError(error);
 
   invalidateSecretsCache();
 
-  return NextResponse.json({ success: true });
+  return jsonOk({ success: true });
 }
 
 // POST /api/admin/secrets — 비밀번호 확인 후 원본 값 반환
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { user, error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const { password, key } = await request.json();
   if (!password || !key) {
-    return NextResponse.json({ error: "Password and key required" }, { status: 400 });
+    return jsonError("Password and key required", 400);
   }
 
-  // 비밀번호 재확인
-  const { error: authError } = await supabase.auth.signInWithPassword({
+  // 비밀번호 재확인 — requireAuth 이후라 user 보장됨
+  const supabase = await createClient();
+  const { error: signInError } = await supabase.auth.signInWithPassword({
     email: user.email!,
     password,
   });
 
-  if (authError) {
-    return NextResponse.json({ error: "Invalid password" }, { status: 403 });
-  }
+  if (signInError) return jsonError("Invalid password", 403);
 
   if (!ALLOWED_KEYS.includes(key as (typeof ALLOWED_KEYS)[number])) {
-    return NextResponse.json({ error: "Invalid key" }, { status: 400 });
+    return jsonError("Invalid key", 400);
   }
 
   const admin = createAdminClient();
@@ -174,23 +154,17 @@ export async function POST(request: Request) {
   const envVal = process.env[key] || "";
   const value = dbVal || envVal || "";
 
-  return NextResponse.json({ value });
+  return jsonOk({ value });
 }
 
 // DELETE /api/admin/secrets — DB에서 키 삭제
 export async function DELETE(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const { key } = await request.json();
   if (!key || !ALLOWED_KEYS.includes(key as (typeof ALLOWED_KEYS)[number])) {
-    return NextResponse.json({ error: "Invalid key" }, { status: 400 });
+    return jsonError("Invalid key", 400);
   }
 
   const admin = createAdminClient();
@@ -209,13 +183,11 @@ export async function DELETE(request: Request) {
     .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return jsonServerError(error);
 
   invalidateSecretsCache();
 
-  return NextResponse.json({ success: true });
+  return jsonOk({ success: true });
 }
 
 function mask(val: string): string {

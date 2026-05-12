@@ -1,33 +1,19 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { getSecret } from "@/lib/getSecret";
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const accessKey = await getSecret("UNSPLASH_ACCESS_KEY");
-  if (!accessKey) {
-    return NextResponse.json(
-      { error: "Unsplash API key not configured" },
-      { status: 503 }
-    );
-  }
+  if (!accessKey) return jsonError("Unsplash API key not configured", 503);
 
   const { downloadUrl, regularUrl } = await request.json();
 
   if (!downloadUrl || !regularUrl) {
-    return NextResponse.json(
-      { error: "downloadUrl and regularUrl required" },
-      { status: 400 }
-    );
+    return jsonError("downloadUrl and regularUrl required", 400);
   }
 
   // Trigger Unsplash download tracking (API policy requirement)
@@ -37,12 +23,7 @@ export async function POST(request: Request) {
 
   // Download the image
   const imgRes = await fetch(regularUrl);
-  if (!imgRes.ok) {
-    return NextResponse.json(
-      { error: "Failed to download image" },
-      { status: 502 }
-    );
-  }
+  if (!imgRes.ok) return jsonError("Failed to download image", 502);
 
   const imgBuffer = await imgRes.arrayBuffer();
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
@@ -54,13 +35,11 @@ export async function POST(request: Request) {
     upsert: false,
   });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return jsonServerError(error);
 
   const {
     data: { publicUrl },
   } = admin.storage.from("posts").getPublicUrl(filePath);
 
-  return NextResponse.json({ url: publicUrl });
+  return jsonOk({ url: publicUrl });
 }

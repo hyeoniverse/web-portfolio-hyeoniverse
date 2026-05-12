@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonOk, jsonServerError } from "@/lib/api/response";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
 
 // GET /api/series — 시리즈 목록
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
     const idx = (ids ?? []).findIndex((r) => r.id === findPageId);
-    return NextResponse.json({ page: idx === -1 ? 0 : Math.floor(idx / limit) });
+    return jsonOk({ page: idx === -1 ? 0 : Math.floor(idx / limit) });
   }
 
   // 정렬 — sortBy: default(sort_order) | newest(created_at) | title, sortDir: asc | desc
@@ -70,9 +70,7 @@ export async function GET(request: Request) {
 
   const { data: seriesList, error, count } = await query;
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return jsonServerError(error);
 
   const ids = (seriesList ?? []).map((s) => s.id);
   let postCounts: Record<string, number> = {};
@@ -127,22 +125,16 @@ export async function GET(request: Request) {
   }));
 
   if (isPaginated) {
-    return NextResponse.json({ items, total: count ?? items.length });
+    return jsonOk({ items, total: count ?? items.length });
   }
 
-  return NextResponse.json(items);
+  return jsonOk(items);
 }
 
 // POST /api/series — 시리즈 생성 (admin only)
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
 
@@ -175,9 +167,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await admin.from("series").insert(body).select().single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return jsonServerError(error);
 
-  return NextResponse.json(data, { status: 201 });
+  return jsonOk(data, 201);
 }

@@ -1,27 +1,18 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { needsConversion, convertToWebp } from "@/lib/convertImage";
 
 // POST /api/admin/upload — 파일 업로드 (인증 필수)
 export async function POST(request: Request) {
-  // 인증 확인
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
   const folder = (formData.get("folder") as string) || "logos";
 
-  if (!file) {
-    return NextResponse.json({ error: "No file provided" }, { status: 400 });
-  }
+  if (!file) return jsonError("No file provided", 400);
 
   // 파일 크기 제한
   const isResume = folder === "resume";
@@ -29,10 +20,7 @@ export async function POST(request: Request) {
   const maxSize = isBgm ? 10 * 1024 * 1024 : isResume ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
   const maxLabel = isBgm ? "10MB" : isResume ? "5MB" : "2MB";
   if (file.size > maxSize) {
-    return NextResponse.json(
-      { error: `File too large (max ${maxLabel})` },
-      { status: 400 },
-    );
+    return jsonError(`File too large (max ${maxLabel})`, 400);
   }
 
   // MIME 타입 검증
@@ -46,9 +34,7 @@ export async function POST(request: Request) {
     : isResume
       ? "Only PDF files allowed"
       : "Only image files allowed";
-  if (!mimeOk) {
-    return NextResponse.json({ error: mimeError }, { status: 400 });
-  }
+  if (!mimeOk) return jsonError(mimeError, 400);
 
   // HEIC/HEIF/TIFF → WebP 변환 (브라우저 호환성)
   let uploadBody: Blob | Buffer = file;
@@ -63,9 +49,9 @@ export async function POST(request: Request) {
       uploadContentType = converted.contentType;
       ext = converted.extension;
     } catch (err) {
-      return NextResponse.json(
-        { error: `Image conversion failed: ${err instanceof Error ? err.message : "unknown"}` },
-        { status: 500 },
+      return jsonError(
+        `Image conversion failed: ${err instanceof Error ? err.message : "unknown"}`,
+        500,
       );
     }
   }
@@ -80,13 +66,11 @@ export async function POST(request: Request) {
       upsert: true,
     });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return jsonServerError(error);
 
   const {
     data: { publicUrl },
   } = admin.storage.from("uploads").getPublicUrl(fileName);
 
-  return NextResponse.json({ url: publicUrl });
+  return jsonOk({ url: publicUrl });
 }
