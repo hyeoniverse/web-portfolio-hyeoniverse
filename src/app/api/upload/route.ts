@@ -133,7 +133,8 @@ export async function POST(request: Request) {
   }
 
   // ── 6. 업로드 ──
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${uploadExt}`;
+  // crypto.randomUUID — CSPRNG 라 충돌 확률 무시 가능, 예측 불가
+  const fileName = `${crypto.randomUUID()}.${uploadExt}`;
   const filePath = `posts/${fileName}`;
 
   const admin = createAdminClient();

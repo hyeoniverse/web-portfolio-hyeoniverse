@@ -505,6 +505,16 @@ CREATE POLICY "post_work_relations_service_all"
 -- RPC 함수
 -- ────────────────────────────────────────────────────────────
 
+-- view_count atomic increment — read-then-write race condition 회피
+-- /api/posts/[id]/view 가 호출. 다수 IP 동시 view 시에도 누락 없이 +1
+CREATE OR REPLACE FUNCTION increment_post_view_count(p_post_id uuid)
+RETURNS void
+LANGUAGE sql
+VOLATILE
+AS $$
+  UPDATE posts SET view_count = COALESCE(view_count, 0) + 1 WHERE id = p_post_id;
+$$;
+
 -- 모든 게시물 누적 view_count 합계 — 대시보드의 totalPostViews 용
 -- (없으면 라우트가 클라이언트 측 fallback으로 합산하지만, RPC 가 더 효율적)
 CREATE OR REPLACE FUNCTION sum_post_views()

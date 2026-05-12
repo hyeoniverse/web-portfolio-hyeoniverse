@@ -162,7 +162,7 @@ export async function POST(request: Request) {
     try {
       const imgBuffer = await callProvider(provider, fullPrompt);
 
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+      const fileName = `${crypto.randomUUID()}.jpg`;
       const filePath = `posts/${fileName}`;
 
       const admin = createAdminClient();
