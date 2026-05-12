@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 
 const MAX = 24;
 
 // GET /api/admin/cover-history — 현재 admin user 의 이력 (최신순, 최대 MAX)
+// 인증 없을 때도 200 + 빈 리스트 (graceful degradation — UI 가 잠시 비로그인 상태일 때 콘솔 노이즈 차단)
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ history: [] });
+  const { user, supabase, error: authError } = await requireAuth();
+  if (authError) return jsonOk({ history: [] });
 
   try {
     const { data, error } = await supabase
@@ -19,20 +19,19 @@ export async function GET() {
 
     if (error) {
       console.warn("[cover-history GET]", error.message);
-      return NextResponse.json({ history: [] });
+      return jsonOk({ history: [] });
     }
-    return NextResponse.json({ history: data ?? [] });
+    return jsonOk({ history: data ?? [] });
   } catch (e) {
     console.warn("[cover-history GET] unexpected:", e);
-    return NextResponse.json({ history: [] });
+    return jsonOk({ history: [] });
   }
 }
 
 // POST /api/admin/cover-history — 이력 추가 (UPSERT — 동일 url 이면 created_at 갱신)
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { user, supabase, error: authError } = await requireAuth();
+  if (authError) return authError;
 
   try {
     const body = await request.json();
@@ -40,7 +39,7 @@ export async function POST(request: Request) {
     const source = String(body?.source ?? "");
     const meta = String(body?.meta ?? "");
     if (!url || !["ai", "unsplash", "preset"].includes(source)) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+      return jsonError("Invalid payload", 400);
     }
 
     const { error } = await supabase
@@ -52,7 +51,7 @@ export async function POST(request: Request) {
 
     if (error) {
       console.warn("[cover-history POST]", error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return jsonServerError(error);
     }
 
     // MAX 초과분 정리 — 오래된 것부터 삭제
@@ -66,22 +65,21 @@ export async function POST(request: Request) {
       await supabase.from("cover_image_history").delete().in("id", overflowIds);
     }
 
-    return NextResponse.json({ ok: true });
+    return jsonOk({ ok: true });
   } catch (e) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : "Failed" }, { status: 500 });
+    return jsonServerError(e);
   }
 }
 
 // DELETE /api/admin/cover-history?url=... — 단일 항목 제거
 export async function DELETE(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { user, supabase, error: authError } = await requireAuth();
+  if (authError) return authError;
 
   try {
     const { searchParams } = new URL(request.url);
     const url = searchParams.get("url");
-    if (!url) return NextResponse.json({ error: "url required" }, { status: 400 });
+    if (!url) return jsonError("url required", 400);
 
     const { error } = await supabase
       .from("cover_image_history")
@@ -89,9 +87,9 @@ export async function DELETE(request: Request) {
       .eq("user_id", user.id)
       .eq("url", url);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ ok: true });
+    if (error) return jsonServerError(error);
+    return jsonOk({ ok: true });
   } catch (e) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : "Failed" }, { status: 500 });
+    return jsonServerError(e);
   }
 }

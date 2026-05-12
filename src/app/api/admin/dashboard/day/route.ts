@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 
 /**
  * GET /api/admin/dashboard/day?date=YYYY-MM-DD
@@ -8,16 +8,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * (works 는 시계열 view 기록이 없어 일별 분석 불가 — 게시물만 반환)
  */
 export async function GET(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const url = new URL(request.url);
   const date = url.searchParams.get("date");
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return NextResponse.json({ error: "invalid date (YYYY-MM-DD)" }, { status: 400 });
+    return jsonError("invalid date (YYYY-MM-DD)", 400);
   }
 
   const admin = createAdminClient();
@@ -33,12 +30,10 @@ export async function GET(request: Request) {
     .gte("viewed_at", start)
     .lt("viewed_at", end);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return jsonServerError(error);
 
   if (!views || views.length === 0) {
-    return NextResponse.json({ topPosts: [], totalViews: 0 });
+    return jsonOk({ topPosts: [], totalViews: 0 });
   }
 
   // 클라이언트 측 aggregation (작은 day-scope 라 DB RPC 없이 처리)
@@ -63,5 +58,5 @@ export async function GET(request: Request) {
     })
     .filter((p): p is { id: string; title: string; slug: string; views: number } => p !== null);
 
-  return NextResponse.json({ topPosts, totalViews: views.length });
+  return jsonOk({ topPosts, totalViews: views.length });
 }

@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonOk } from "@/lib/api/response";
 
 /**
  * GET /api/admin/comments — admin 모더레이션용 통합 댓글 조회
@@ -14,12 +14,15 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *
  * Returns: { items: Comment[], total: number, page, limit }
  */
+
+/** PostgREST `or` 필터 안에서 안전하도록 검색어 escape — %/_ 는 LIKE wildcard, , 와 () 는 OR 구조 자체를 깨뜨릴 수 있음 */
+function escapeOrSearch(s: string): string {
+  return s.replace(/[%_,()\\]/g, (m) => `\\${m}`);
+}
+
 export async function GET(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const { searchParams } = new URL(request.url);
   const source = (searchParams.get("source") ?? "all") as "posts" | "works" | "all";
@@ -47,13 +50,29 @@ export async function GET(request: Request) {
     target_slug?: string;
   };
 
-  /** 한 테이블 쿼리 + post/work 정보 join + 필터 */
-  async function queryTable(table: "comments" | "work_comments", fkey: "post_id" | "work_id") {
-    let q = admin.from(table).select("id, " + fkey + ", parent_id, nickname, content, is_admin, is_deleted, deleted_by, created_at", { count: "exact" });
+  /**
+   * 한 테이블 쿼리 + post/work 정보 join + 필터.
+   * fetchLimit 까지만 가져옴 — `source === "all"` 일 때 합치고 잘라야 하므로 offset+limit 만큼 충분.
+   */
+  async function queryTable(
+    table: "comments" | "work_comments",
+    fkey: "post_id" | "work_id",
+    fetchLimit: number,
+  ) {
+    let q = admin
+      .from(table)
+      .select(
+        "id, " + fkey + ", parent_id, nickname, content, is_admin, is_deleted, deleted_by, created_at",
+        { count: "exact" },
+      );
     if (status === "active") q = q.eq("is_deleted", false);
     else if (status === "deleted") q = q.eq("is_deleted", true);
-    if (search) q = q.or(`nickname.ilike.%${search}%,content.ilike.%${search}%`);
-    const { data, count, error } = await q.order("created_at", { ascending: false });
+    if (search) {
+      const esc = escapeOrSearch(search);
+      q = q.or(`nickname.ilike.%${esc}%,content.ilike.%${esc}%`);
+    }
+    q = q.order("created_at", { ascending: false }).limit(fetchLimit);
+    const { data, count, error } = await q;
     if (error) throw error;
 
     const rows = (data ?? []) as unknown as Array<Record<string, unknown>>;
@@ -91,17 +110,19 @@ export async function GET(request: Request) {
   let total = 0;
 
   if (source === "posts") {
-    const r = await queryTable("comments", "post_id");
+    const r = await queryTable("comments", "post_id", offset + limit);
     allRows = r.rows;
     total = r.total;
   } else if (source === "works") {
-    const r = await queryTable("work_comments", "work_id");
+    const r = await queryTable("work_comments", "work_id", offset + limit);
     allRows = r.rows;
     total = r.total;
   } else {
+    // "all": 두 테이블 각각 최대 offset+limit 까지만 가져와 merge → JS slice.
+    // 보수적이지만 이전 "전체 fetch" 보다 훨씬 적은 메모리.
     const [p, w] = await Promise.all([
-      queryTable("comments", "post_id"),
-      queryTable("work_comments", "work_id"),
+      queryTable("comments", "post_id", offset + limit),
+      queryTable("work_comments", "work_id", offset + limit),
     ]);
     allRows = [...p.rows, ...w.rows].sort((a, b) =>
       b.created_at.localeCompare(a.created_at),
@@ -111,5 +132,5 @@ export async function GET(request: Request) {
 
   const items = allRows.slice(offset, offset + limit);
 
-  return NextResponse.json({ items, total, page, limit });
+  return jsonOk({ items, total, page, limit });
 }

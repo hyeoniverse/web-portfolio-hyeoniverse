@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getSecret } from "@/lib/getSecret";
 
@@ -122,19 +122,15 @@ async function generateWithHuggingFace(fullPrompt: string): Promise<ArrayBuffer>
 // ── Route Handler ──
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const { prompt, style } = await request.json();
 
-  if (!prompt) {
-    return NextResponse.json({ error: "Prompt required" }, { status: 400 });
+  if (!prompt) return jsonError("Prompt required", 400);
+  // prompt 길이 가드 — provider 측 token-bomb 방지
+  if (typeof prompt !== "string" || prompt.length > 500) {
+    return jsonError("Prompt too long (max 500 chars)", 400);
   }
 
   const styleHint = stylePrompts[style] || stylePrompts.abstract;
@@ -177,15 +173,13 @@ export async function POST(request: Request) {
           upsert: false,
         });
 
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
+      if (error) return jsonServerError(error);
 
       const {
         data: { publicUrl },
       } = admin.storage.from("posts").getPublicUrl(filePath);
 
-      return NextResponse.json({ url: publicUrl });
+      return jsonOk({ url: publicUrl });
     } catch (e) {
       lastError = e instanceof Error ? e.message : "Unknown error";
       console.error("[cover/ai-generate]", provider, lastError);
@@ -193,7 +187,7 @@ export async function POST(request: Request) {
   }
 
   const status = lastError.includes("not configured") ? 503 : 502;
-  return NextResponse.json({ error: sanitizeError(lastError) }, { status });
+  return jsonError(sanitizeError(lastError), status);
 }
 
 /** 에러 메시지에 섞여 있을 수 있는 API 토큰/key 패턴 마스킹 */

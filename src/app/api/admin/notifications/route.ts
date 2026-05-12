@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
+import { jsonOk } from "@/lib/api/response";
 
 // GET /api/admin/notifications — 알림 목록 (최근 50개)
 // 테이블이 없거나 query 실패 시에도 200 + 빈 리스트로 graceful degradation —
@@ -10,9 +11,7 @@ export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ notifications: [], unreadCount: 0 });
-  }
+  if (!user) return jsonOk({ notifications: [], unreadCount: 0 });
 
   try {
     const admin = createAdminClient();
@@ -24,7 +23,7 @@ export async function GET() {
 
     if (error) {
       console.warn("[admin/notifications] query failed:", error.message);
-      return NextResponse.json({ notifications: [], unreadCount: 0 });
+      return jsonOk({ notifications: [], unreadCount: 0 });
     }
 
     const { count } = await admin
@@ -32,61 +31,58 @@ export async function GET() {
       .select("*", { count: "exact", head: true })
       .eq("read", false);
 
-    return NextResponse.json({ notifications: data ?? [], unreadCount: count ?? 0 });
+    return jsonOk({ notifications: data ?? [], unreadCount: count ?? 0 });
   } catch (e) {
     console.warn("[admin/notifications] unexpected error:", e);
-    return NextResponse.json({ notifications: [], unreadCount: 0 });
+    return jsonOk({ notifications: [], unreadCount: 0 });
   }
+}
+
+/** ids 가 string[] 인지 element 단위까지 검사 */
+function asStringIdArray(v: unknown): string[] | null {
+  if (!Array.isArray(v)) return null;
+  if (!v.every((id) => typeof id === "string")) return null;
+  return v;
 }
 
 // PATCH /api/admin/notifications — 읽음 처리
 export async function PATCH(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
   const { ids, markAllRead } = body;
-
   const admin = createAdminClient();
 
   if (markAllRead) {
-    await admin
-      .from("admin_notifications")
-      .update({ read: true })
-      .eq("read", false);
-  } else if (ids && Array.isArray(ids)) {
-    await admin
-      .from("admin_notifications")
-      .update({ read: true })
-      .in("id", ids);
+    await admin.from("admin_notifications").update({ read: true }).eq("read", false);
+  } else {
+    const idArr = asStringIdArray(ids);
+    if (idArr) {
+      await admin.from("admin_notifications").update({ read: true }).in("id", idArr);
+    }
   }
 
-  return NextResponse.json({ success: true });
+  return jsonOk({ success: true });
 }
 
 // DELETE /api/admin/notifications — 알림 삭제
 export async function DELETE(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
 
   const body = await request.json();
   const { ids, deleteAll } = body;
-
   const admin = createAdminClient();
 
   if (deleteAll) {
     await admin.from("admin_notifications").delete().neq("id", "");
-  } else if (ids && Array.isArray(ids)) {
-    await admin.from("admin_notifications").delete().in("id", ids);
+  } else {
+    const idArr = asStringIdArray(ids);
+    if (idArr) {
+      await admin.from("admin_notifications").delete().in("id", idArr);
+    }
   }
 
-  return NextResponse.json({ success: true });
+  return jsonOk({ success: true });
 }
