@@ -26,7 +26,7 @@ const CommentSection = dynamic(() => import("@/components/comments/CommentSectio
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import ShareButton from "@/components/ui/ShareButton";
 import Button from "@/components/ui/Button";
-import { createClient } from "@/lib/supabase/client";
+import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { ImageIcon, SquarePen, Monitor, BookOpen, ChevronDown, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
 import styles from "./PostDetail.module.css";
@@ -66,15 +66,11 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const [relatedWorks, setRelatedWorks] = useState<{ id: string; title: string; subtitle_ko: string; subtitle_en: string; image: string; year: string; category_ko: string; category_en: string }[]>([]);
   const richtextRef = useRef<HTMLDivElement>(null);
   const { containerRef: proseViewerRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useIsAuthenticated();
   const [autoTranslating, setAutoTranslating] = useState(false);
   const [translateError, setTranslateError] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastDismissed, setToastDismissed] = useState(false);
-
-  useEffect(() => {
-    createClient().auth.getSession().then(({ data }) => setIsAdmin(!!data.session?.user));
-  }, []);
 
   useEffect(() => {
     fetch(`/api/posts/${post.id}/view`, { method: "POST" });

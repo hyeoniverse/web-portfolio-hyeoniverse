@@ -27,7 +27,7 @@ import AISummary from "@/components/ui/AISummary";
 import ShareButton from "@/components/ui/ShareButton";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import Tooltip from "@/components/ui/Tooltip";
-import { createClient } from "@/lib/supabase/client";
+import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import styles from "./WorkDetail.module.css";
 
 interface WorkDetailClientProps {
@@ -50,17 +50,13 @@ export default function WorkDetailClient({
   const [viewLang, setViewLang] = useState<"ko" | "en">(
     !project.content.en ? "ko" : !project.content.ko ? "en" : language === "en" ? "en" : "ko"
   );
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useIsAuthenticated();
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
   const [relatedPosts, setRelatedPosts] = useState<{ id: string; title: string; title_en?: string; slug: string; cover_image: string; excerpt: string; category: string; created_at: string }[]>([]);
   const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const richtextRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    createClient().auth.getSession().then(({ data }) => setIsAdmin(!!data.session?.user));
-  }, []);
 
   useEffect(() => {
     fetch(`/api/works/${project.id}/like`)
