@@ -7,7 +7,7 @@ import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
 import Select from "@/components/ui/Select";
-import Toggle from "@/components/ui/Toggle";
+import { Switch } from "@/components/ui/Switch";
 import type { Series, SeriesPostItem } from "@/types/post";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Field from "./SettingsFormFields";
@@ -384,9 +384,10 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           <h3 className={styles.seriesStandaloneTitle}><T k="admin.posts.seriesModal.newTitle" /></h3>
           <div className={styles.seriesStandaloneActions}>
             <div className={styles.publishToggle}>
-              <Toggle
+              <Switch
+                size="md"
                 checked={form.published}
-                onChange={(v) => updateField("published", v)}
+                onCheckedChange={(v) => updateField("published", v)}
               />
               <span key={form.published ? "pub" : "draft"} className={styles.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
             </div>
@@ -427,9 +428,10 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
         <div className={styles.fieldRow}>
           <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.published" /></label>
           <div className={styles.publishToggle}>
-            <Toggle
+            <Switch
+              size="md"
               checked={form.published}
-              onChange={(v) => updateField("published", v)}
+              onCheckedChange={(v) => updateField("published", v)}
             />
             <span key={form.published ? "pub" : "draft"} className={styles.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
           </div>

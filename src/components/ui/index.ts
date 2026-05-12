@@ -15,6 +15,5 @@ export { Slider } from "./Slider";
 export { Switch } from "./Switch";
 export { default as T } from "./T";
 export { default as TextLink } from "./TextLink";
-export { default as Toggle } from "./Toggle";
 export { default as Tooltip } from "./Tooltip";
 export { default as Carousel } from "./Carousel/Carousel";

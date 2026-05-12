@@ -3,14 +3,13 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  width: 36px;
-  height: 20px;
   flex-shrink: 0;
   border-radius: var(--radius-capsule);
   border: var(--border-neutral-light);
   background: var(--bg-tertiary-alt);
   outline: none;
   -webkit-tap-highlight-color: transparent;
+  padding: 0;
 }
 
 .root .thumb {
@@ -33,16 +32,43 @@
 
 .thumb {
   display: block;
-  width: 16px;
-  height: 16px;
   border-radius: var(--radius-circle);
   background: var(--bg-primary);
   pointer-events: none;
+}
+
+/* ── Size: sm (default, compact UI 용) ── */
+.sizeSm {
+  width: 36px;
+  height: 20px;
+}
+
+.sizeSm .thumb {
+  width: 16px;
+  height: 16px;
   transform: translateX(1px);
 }
 
-.root[data-state="checked"] .thumb {
+.sizeSm[data-state="checked"] .thumb {
   transform: translateX(17px);
+}
+
+/* ── Size: md (form row 용 — admin 설정 등) ── */
+.sizeMd {
+  width: 44px;
+  height: 24px;
+}
+
+.sizeMd .thumb {
+  width: 18px;
+  height: 18px;
+  transform: translateX(2px);
+  background: var(--text-primary);
+}
+
+.sizeMd[data-state="checked"] .thumb {
+  transform: translateX(22px);
+  background: var(--bg-primary);
 }
 
 /* ── Variant: accent ── */
@@ -58,4 +84,20 @@
 
 .accent[data-state="checked"] .thumb {
   background: var(--bg-primary);
+}
+
+/* ── Row layout (label 좌측) ── */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.label {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
 }

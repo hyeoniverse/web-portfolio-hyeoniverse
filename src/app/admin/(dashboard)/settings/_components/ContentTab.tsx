@@ -11,7 +11,7 @@ import type { ProfileData } from "@/types/profile";
 import ProfileSections, { type ProfileExpandState } from "@/components/admin/ProfileSections";
 import type { SettingsTabProps } from "../_types";
 import Select from "@/components/ui/Select";
-import Toggle from "@/components/ui/Toggle";
+import { Switch } from "@/components/ui/Switch";
 import Field, { ResumeUpload, ServiceItemsEditor } from "./SettingsFormFields";
 import CategoriesEditor from "./CategoriesEditor";
 import WorksCategoriesEditor from "./WorksCategoriesEditor";
@@ -164,15 +164,17 @@ export default function ContentTab({
             <p className={styles.sectionHint}><T k="admin.settings.home3dHint" /></p>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
-                <Toggle
+                <Switch
+                  size="md"
                   label={t("admin.settings.home3dScrollTorus")}
                   checked={config.home3d?.scrollTorus !== false}
-                  onChange={(v) => update("home3d", "scrollTorus", v)}
+                  onCheckedChange={(v) => update("home3d", "scrollTorus", v)}
                 />
-                <Toggle
+                <Switch
+                  size="md"
                   label={t("admin.settings.home3dCoffeeCup")}
                   checked={config.home3d?.coffeeCup !== false}
-                  onChange={(v) => update("home3d", "coffeeCup", v)}
+                  onCheckedChange={(v) => update("home3d", "coffeeCup", v)}
                 />
               </div>
             </div>
