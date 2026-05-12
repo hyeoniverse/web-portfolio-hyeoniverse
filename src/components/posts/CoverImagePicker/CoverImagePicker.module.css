@@ -1,9 +1,8 @@
 /* ── Container ── */
 .picker {
+  margin-top: var(--spacing-md);
   border: var(--border-light);
-  /* 동심원 규칙: 외부 wrapper(2xl=24) - 가로 padding(16) ≈ 8(md) 가 정답이지만
-     너무 sharp 해서 중간값 lg(12) 사용 — 외곽과 시각적으로 concentric 한 곡률 */
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
   /* 펼칠 때 — height + opacity + 살짝 위에서 내려오는 미세한 translate
      ease-out-expo 곡선으로 자연스럽게 settle */
