@@ -26,7 +26,7 @@ export interface AdminTableColumn<T> {
   skeletonWidth?: string;
 }
 
-export interface AdminTableLabels {
+interface AdminTableLabels {
   edit: string;
   delete: string;
   deleteConfirm: string;
@@ -488,49 +488,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
     </>
   );
-}
-
-/* ── Publish changes hook ── */
-export function usePublishChanges<T extends { id: string; published: boolean }>() {
-  const [map, setMap] = useState<Map<string, boolean>>(() => new Map());
-
-  const toggle = useCallback((item: T) => {
-    setMap((prev) => {
-      const next = new Map(prev);
-      const effective = next.has(item.id) ? next.get(item.id)! : item.published;
-      const newVal = !effective;
-      if (newVal === item.published) next.delete(item.id);
-      else next.set(item.id, newVal);
-      return next;
-    });
-  }, []);
-
-  const setAll = useCallback((items: T[], published: boolean) => {
-    setMap((prev) => {
-      const next = new Map(prev);
-      for (const item of items) {
-        if (published === item.published) next.delete(item.id);
-        else next.set(item.id, published);
-      }
-      return next;
-    });
-  }, []);
-
-  const reset = useCallback(() => setMap(new Map()), []);
-
-  const toChanges = useCallback(
-    () => Array.from(map.entries()).map(([id, published]) => ({ id, published })),
-    [map],
-  );
-
-  return {
-    publishOverrides: map,
-    toggle,
-    setAll,
-    reset,
-    toChanges,
-    hasChanges: map.size > 0,
-  };
 }
 
 /* Re-export styles for consumer use */

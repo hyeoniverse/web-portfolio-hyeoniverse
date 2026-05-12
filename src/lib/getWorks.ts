@@ -88,32 +88,3 @@ export async function getWorks(): Promise<Project[]> {
     return projects;
   }
 }
-
-/** 단일 work 조회 (상세 페이지용) */
-export async function getWorkById(id: string): Promise<Project | undefined> {
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.SUPABASE_SERVICE_ROLE_KEY
-  ) {
-    return projects.find((p) => p.id === id);
-  }
-
-  try {
-    const { createAdminClient } = await import("@/lib/supabase/admin");
-    const supabase = createAdminClient();
-
-    const { data, error } = await supabase
-      .from("works")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error || !data) {
-      return projects.find((p) => p.id === id);
-    }
-
-    return workToProject(data as Work);
-  } catch {
-    return projects.find((p) => p.id === id);
-  }
-}

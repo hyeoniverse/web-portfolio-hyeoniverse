@@ -10,7 +10,7 @@ import styles from "./SeoChecklist.module.css";
 /** 게시물·작품 편집 시 SEO/메타 필드 누락 점검을 위한 floating 위젯.
  *  화면 우하단 fixed pill — 클릭 시 expand panel.
  *  통과 항목은 subtle, 미통과/경고만 prominent 로 (Card hierarchy 강화). */
-export interface SeoCheckData {
+interface SeoCheckData {
   title?: string;
   slug?: string;
   excerpt?: string;

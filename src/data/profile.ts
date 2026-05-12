@@ -15,7 +15,7 @@ export interface Experience {
   description: LocalizedText;
 }
 
-export interface Skill {
+interface Skill {
   name: string;
   description: LocalizedText;
 }
@@ -57,51 +57,6 @@ export const experiences: Experience[] = [
     description: {
       ko: "전공 수업과 팀 프로젝트를 통해 웹 개발 전반을 공부했습니다.",
       en: "Studied web development through coursework and team projects.",
-    },
-  },
-];
-
-export const skills: Skill[] = [
-  {
-    name: "React / Next.js",
-    description: {
-      ko: "포트폴리오 사이트를 Next.js App Router로 직접 설계·구현. SSR, 라우팅, 이미지 최적화 등 실무 수준으로 활용.",
-      en: "Built this portfolio with Next.js App Router from scratch. Comfortable with SSR, routing, and image optimization.",
-    },
-  },
-  {
-    name: "TypeScript",
-    description: {
-      ko: "모든 프로젝트에서 TS 사용. 인터페이스 설계, 제네릭, 유니온 타입 등 활용.",
-      en: "Used in every project. Comfortable with interfaces, generics, and union types.",
-    },
-  },
-  {
-    name: "GSAP / Animation",
-    description: {
-      ko: "ScrollTrigger, 가로 스크롤 갤러리, 무한 루프 등 이 포트폴리오의 주요 인터랙션 직접 구현.",
-      en: "Built scroll-triggered animations, horizontal gallery, and infinite loop for this portfolio.",
-    },
-  },
-  {
-    name: "Webflow",
-    description: {
-      ko: "노코드 툴로 간단한 랜딩 페이지 제작 경험.",
-      en: "Used for building simple landing pages with no-code.",
-    },
-  },
-  {
-    name: "Node.js",
-    description: {
-      ko: "Express로 REST API 서버 구축 경험. DB 연동, 인증 처리 등 기본적인 백엔드 작업 가능.",
-      en: "Built REST API servers with Express. Can handle DB integration and auth.",
-    },
-  },
-  {
-    name: "UI/UX Design",
-    description: {
-      ko: "Figma로 와이어프레임, 프로토타입 제작. 직접 디자인하고 구현까지 연결.",
-      en: "Create wireframes and prototypes in Figma. Design and implement end-to-end.",
     },
   },
 ];
@@ -261,30 +216,6 @@ export const skillGroups: SkillGroup[] = [
         },
       },
     ],
-  },
-];
-
-export interface ToolCategory {
-  category: string; // Not translated — display name
-  tools: string[];
-}
-
-export const toolCategories: ToolCategory[] = [
-  {
-    category: "Frontend",
-    tools: ["React", "Next.js", "TypeScript", "HTML/CSS", "Tailwind CSS"],
-  },
-  {
-    category: "Animation",
-    tools: ["GSAP", "Framer Motion", "CSS Animations", "Lottie"],
-  },
-  {
-    category: "Backend",
-    tools: ["Node.js", "Express", "PostgreSQL", "REST API"],
-  },
-  {
-    category: "Tools & Platform",
-    tools: ["Git", "Figma", "VS Code", "Vercel", "Docker"],
   },
 ];
 

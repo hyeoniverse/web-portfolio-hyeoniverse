@@ -1,5 +1,4 @@
 import React from "react";
-import { GripVertical } from "lucide-react";
 import { useEditorRef } from "platejs/react";
 import { _blockDragPath } from "./utils";
 import styles from "../RichTextEditor.module.css";
@@ -11,7 +10,7 @@ const SCROLL_SPEED = 12; // px per frame
 let _scrollRaf: number | null = null;
 let _lastClientY = 0;
 
-export function startAutoScroll(editorEl: HTMLElement | null) {
+function startAutoScroll(editorEl: HTMLElement | null) {
   stopAutoScroll();
   if (!editorEl) return;
 
@@ -39,7 +38,7 @@ export function startAutoScroll(editorEl: HTMLElement | null) {
   _scrollRaf = requestAnimationFrame(tick);
 }
 
-export function stopAutoScroll() {
+function stopAutoScroll() {
   if (_scrollRaf !== null) {
     cancelAnimationFrame(_scrollRaf);
     _scrollRaf = null;
@@ -59,41 +58,8 @@ function findScrollParent(el: HTMLElement): HTMLElement | null {
 }
 
 // document-level drag listener for tracking mouse Y
-export function onDocDrag(e: DragEvent) {
+function onDocDrag(e: DragEvent) {
   _lastClientY = e.clientY;
-}
-
-/**
- * @deprecated BlockDragHandle 대신 useBlockDrag 훅을 사용하세요.
- */
-export function BlockDragHandle({ path }: { path: number[] | null }) {
-  if (!path) return null;
-
-  return (
-    <div
-      className={styles.blockDragHandle}
-      contentEditable={false}
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/plain", "block-dnd");
-        _blockDragPath.current = path;
-        _lastClientY = e.clientY;
-
-        const editorEl = (e.target as HTMLElement).closest("[data-slate-editor]") as HTMLElement | null;
-        document.addEventListener("drag", onDocDrag);
-        startAutoScroll(editorEl);
-      }}
-      onDragEnd={() => {
-        _blockDragPath.current = null;
-        document.removeEventListener("drag", onDocDrag);
-        stopAutoScroll();
-      }}
-      title="Drag to reorder"
-    >
-      <GripVertical size={14} fill="currentColor" />
-    </div>
-  );
 }
 
 const LONGPRESS_MS = 250;

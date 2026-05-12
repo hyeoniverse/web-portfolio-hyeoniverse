@@ -31,7 +31,7 @@ export interface TroubleshootingDiagram {
   edges: FlowEdge[];
 }
 
-export interface ComparisonRow {
+interface ComparisonRow {
   cells: LocalizedText[];
   highlight?: boolean;
 }
@@ -105,26 +105,14 @@ export interface DesignConceptItem {
   examples?: string[];
 }
 
-export interface DbColumn {
+interface DbColumn {
   name: string;
   type: string;
   constraint?: string;
   description: LocalizedText;
 }
 
-export interface DbTable {
-  name: string;
-  description: LocalizedText;
-  designNote: LocalizedText;
-  columns: DbColumn[];
-  exampleQuery?: {
-    title: string;
-    code: string;
-    language: string;
-  };
-}
-
-export type FlowNodeType = "start" | "action" | "decision" | "end";
+type FlowNodeType = "start" | "action" | "decision" | "end";
 
 export interface FlowNode {
   id: string;
@@ -152,7 +140,7 @@ export interface UserFlow {
 
 /* ── ERD (Entity Relationship Diagram) ── */
 
-export interface ErdColumn {
+interface ErdColumn {
   name: string;
   type: string;
   pk?: boolean;
@@ -179,7 +167,7 @@ export interface ErdDesignNote {
   relatedTable: string;
 }
 
-export interface ApiEndpoint {
+interface ApiEndpoint {
   method: string;
   path: string;
   description: LocalizedText;

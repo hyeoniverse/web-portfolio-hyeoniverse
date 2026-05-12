@@ -8,7 +8,7 @@
  * - Android 모델은 UA 의 Build/... 토큰에서 추출 (Pixel 8, SM-G998N 등)
  */
 
-export type DeviceKind = "desktop" | "mobile" | "tablet" | "bot";
+type DeviceKind = "desktop" | "mobile" | "tablet" | "bot";
 
 export interface ParsedUA {
   device: DeviceKind;

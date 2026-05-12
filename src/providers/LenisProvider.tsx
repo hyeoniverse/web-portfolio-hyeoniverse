@@ -187,5 +187,3 @@ export function useLenis() {
   }
   return context;
 }
-
-export default LenisProvider;

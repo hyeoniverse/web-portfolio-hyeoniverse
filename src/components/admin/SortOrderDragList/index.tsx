@@ -6,7 +6,7 @@ import Pagination from "@/components/ui/Pagination";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import styles from "./SortOrderDragList.module.css";
 
-export interface SortOrderItem {
+interface SortOrderItem {
   id: string;
   title: string;
   sort_order: number;

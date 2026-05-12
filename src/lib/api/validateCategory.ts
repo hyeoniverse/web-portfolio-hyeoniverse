@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { BilingualCategory } from "@/types/common";
 
 /** Get valid post categories (ko/en) */
-export async function getPostCategories(): Promise<BilingualCategory[]> {
+async function getPostCategories(): Promise<BilingualCategory[]> {
   const config = await getSiteConfig();
   const raw = config.posts?.categories ?? [];
   return (raw as unknown[]).map((item) =>
@@ -13,7 +13,7 @@ export async function getPostCategories(): Promise<BilingualCategory[]> {
 }
 
 /** Get valid works categories (ko/en) */
-export async function getWorksCategories(): Promise<BilingualCategory[]> {
+async function getWorksCategories(): Promise<BilingualCategory[]> {
   const config = await getSiteConfig();
   const raw = config.works?.categories ?? [];
   return (raw as unknown[]).map((item) =>
@@ -22,14 +22,14 @@ export async function getWorksCategories(): Promise<BilingualCategory[]> {
 }
 
 /** Check if a post category value (ko or en) is valid */
-export async function isValidPostCategory(category: string): Promise<boolean> {
+async function isValidPostCategory(category: string): Promise<boolean> {
   if (!category) return false;
   const categories = await getPostCategories();
   return categories.some((c) => c.ko === category || c.en === category);
 }
 
 /** Check if a works category pair is valid */
-export async function isValidWorksCategory(ko: string, en: string): Promise<boolean> {
+async function isValidWorksCategory(ko: string, en: string): Promise<boolean> {
   if (!ko && !en) return false;
   const categories = await getWorksCategories();
   return categories.some((c) => c.ko === ko && c.en === en);

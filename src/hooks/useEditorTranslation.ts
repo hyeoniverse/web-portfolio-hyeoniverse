@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { autoTranslate } from "@/utils/autoTranslate";
 
-export interface TranslatableField {
+interface TranslatableField {
   /** Logical name used for selective translation (e.g. "title", "content") */
   key: string;
   /** Form field key to read source text from */

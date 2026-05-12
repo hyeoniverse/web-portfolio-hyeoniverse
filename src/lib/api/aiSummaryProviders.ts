@@ -58,7 +58,7 @@ async function callGemini(prompt: string): Promise<SummaryResult> {
 }
 
 /** Config 기반 provider 우선순위 리스트 생성 */
-export async function buildProviderList(): Promise<string[]> {
+async function buildProviderList(): Promise<string[]> {
   const config = await getSiteConfig();
   const primary = config?.aiSummary?.provider ?? "gemini";
   const fallbackCfg = config?.aiSummary?.fallback;

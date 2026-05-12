@@ -2,7 +2,7 @@ import type { SiteConfigData } from "@/config/site.config";
 
 /** SiteConfigData 안의 임의 nested key 를 안전하게 업데이트하기 위한 generic 함수 시그니처.
  *  callsite 가 (section, key) 타입을 매번 명시하므로 호출부에서 자동 좁혀짐. */
-export type UpdateSettingFn = <S extends keyof SiteConfigData>(
+type UpdateSettingFn = <S extends keyof SiteConfigData>(
   section: S,
   key: keyof SiteConfigData[S],
   value: SiteConfigData[S][keyof SiteConfigData[S]],

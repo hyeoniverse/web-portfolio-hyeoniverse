@@ -7,7 +7,7 @@ export function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v));
 }
 
-export function hexToRgb(hex: string): RGB {
+function hexToRgb(hex: string): RGB {
   const p = hex.replace("#", "").trim();
   const full = p.length === 3 ? p.split("").map((c) => c + c).join("") : p;
   return {

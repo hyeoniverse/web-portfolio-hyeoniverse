@@ -1,14 +1,14 @@
 import type { FlowNode } from "@/data/about";
 
 /* ── SVG Layout Constants (Horizontal Zigzag) ── */
-export const STEP_GAP = 138;
-export const PAD_X = 68;
-export const LANE_TOP = 26;
-export const LANE_MAIN: [number, number] = [80, 142];
-export const LANE_BRANCH = 245;
-export const LANE_MULTI = [40, 112, 184, 256];
-export const SVG_H = 305;
-export const SVG_H_MULTI = 330;
+const STEP_GAP = 138;
+const PAD_X = 68;
+const LANE_TOP = 26;
+const LANE_MAIN: [number, number] = [80, 142];
+const LANE_BRANCH = 245;
+const LANE_MULTI = [40, 112, 184, 256];
+const SVG_H = 305;
+const SVG_H_MULTI = 330;
 
 export const ACTION_W = 132;
 export const ACTION_H = 38;
@@ -45,7 +45,7 @@ export function halfW(type: FlowNode["type"]) {
 }
 
 /** Half-height per node type */
-export function halfH(type: FlowNode["type"]) {
+function halfH(type: FlowNode["type"]) {
   switch (type) {
     case "start":
     case "end":

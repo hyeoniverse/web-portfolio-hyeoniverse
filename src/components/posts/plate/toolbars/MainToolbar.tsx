@@ -33,7 +33,7 @@ import {
 } from "../hooks";
 import styles from "../../RichTextEditor.module.css";
 
-export interface MainToolbarProps {
+interface MainToolbarProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editor: any;
   isMac: boolean;

@@ -84,8 +84,8 @@ export const FOOT_PROFILE = (() => {
   return pts;
 })();
 
-export const BODY_COLOR = "#f0e6dc";
-export const BODY_EMISSIVE = "#c8b8a8";
+const BODY_COLOR = "#f0e6dc";
+const BODY_EMISSIVE = "#c8b8a8";
 export const EYE_COLOR = "#1a1a2e";
 
 export const MAT_PROPS = {

@@ -5,7 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLenis } from "@/providers/LenisProvider";
 
 /* ── Mobile tab configuration ── */
-export const MOBILE_TABS = [
+const MOBILE_TABS = [
   { key: "overview", label: "Overview" },
   { key: "design", label: "Design" },
   { key: "tech", label: "Tech" },

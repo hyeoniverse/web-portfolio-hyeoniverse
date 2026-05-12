@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export interface EditorLabels {
+interface EditorLabels {
   delete: string;
   deleting: string;
   deleteConfirm?: string;
@@ -22,12 +22,12 @@ export interface EditorLabels {
   generateSummaryDisabled?: string;
 }
 
-export interface RetranslateOption {
+interface RetranslateOption {
   key: string;
   label: string;
 }
 
-export interface RevisionEntry {
+interface RevisionEntry {
   timestamp: number;
   title: string;
   excerpt?: string;

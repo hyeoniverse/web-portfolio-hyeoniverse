@@ -43,7 +43,7 @@ type ButtonAsLink = ButtonBaseProps &
     external?: boolean;
   };
 
-export type ButtonProps = ButtonAsButton | ButtonAsLink;
+type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 /* --------------------------------------------------------------------------
    Component
