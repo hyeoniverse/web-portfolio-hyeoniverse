@@ -75,18 +75,22 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const [toastDismissed, setToastDismissed] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/posts/${post.id}/view`, { method: "POST" });
+    const ac = new AbortController();
+    const { signal } = ac;
 
-    fetch(`/api/posts/${post.id}/adjacent`)
+    fetch(`/api/posts/${post.id}/view`, { method: "POST", signal }).catch(() => {});
+
+    fetch(`/api/posts/${post.id}/adjacent`, { signal })
       .then((r) => r.json())
-      .then((d) => setAdjacentPosts(d));
+      .then((d) => setAdjacentPosts(d))
+      .catch(() => {});
 
-    fetch(`/api/posts/${post.id}/related`)
+    fetch(`/api/posts/${post.id}/related`, { signal })
       .then((r) => r.json())
       .then((d) => setRecommendedPosts(d))
       .catch(() => {});
 
-    fetch(`/api/posts/${post.id}/related-works`)
+    fetch(`/api/posts/${post.id}/related-works`, { signal })
       .then((r) => r.json())
       .then((d) => { if (Array.isArray(d?.items)) setRelatedWorks(d.items); })
       .catch(() => {});
@@ -106,12 +110,14 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     if (post.series_id) {
-      fetch(`/api/series/${post.series_id}`)
+      fetch(`/api/series/${post.series_id}`, { signal })
         .then((r) => r.json())
-        .then((d) => setSeriesData(d));
+        .then((d) => setSeriesData(d))
+        .catch(() => {});
     }
 
     return () => {
+      ac.abort();
       cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", handleScroll);
     };

@@ -30,18 +30,15 @@ export function useLikeToggle({ endpoint }: UseLikeToggleOptions): UseLikeToggle
 
   useEffect(() => {
     if (!endpoint) return;
-    let cancelled = false;
-    fetch(endpoint)
+    const ac = new AbortController();
+    fetch(endpoint, { signal: ac.signal })
       .then((r) => r.json())
       .then((d) => {
-        if (cancelled) return;
         setCount(d.count ?? 0);
         setLiked(d.liked ?? false);
       })
       .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
+    return () => ac.abort();
   }, [endpoint]);
 
   const toggle = useCallback(async () => {
