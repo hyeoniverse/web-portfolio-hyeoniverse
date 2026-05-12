@@ -125,6 +125,9 @@ export function useEditorAutoSave({
       // SPA navigation — keepalive fetch (best-effort; ignore errors)
       const id = savedId.current || draftEntityId;
       if (!id) return;
+      // cleanup 시점에 최신 form 을 읽고 싶음 — react-hooks/exhaustive-deps 의
+      // "ref 가 effect 사이에 바뀔 수 있다" 경고는 의도된 동작이라 suppress
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       const snapshot = formRef.current;
       const current = comparableJson(snapshot);
       if (!current || current === lastAutoSaveJson.current) return;
