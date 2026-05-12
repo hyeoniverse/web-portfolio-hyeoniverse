@@ -161,13 +161,13 @@
 
 /* ── Panel: Profile (OS windows) ── */
 .profilePanel {
-  margin: calc(var(--header-height, 64px) + 1.5rem) 1.5rem 0.75rem;
+  margin: calc(var(--header-height) + 1.5rem) 1.5rem 0.75rem;
   padding: 0;
   border: var(--border-strong);
   overflow: hidden;
   position: relative;
   width: calc(100vw - 3rem);
-  height: calc(100vh - var(--header-height, 64px) - 1.5rem - 0.75rem);
+  height: calc(100vh - var(--header-height) - 1.5rem - 0.75rem);
   border-radius: var(--radius-md);
 }
 
