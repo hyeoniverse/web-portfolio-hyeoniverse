@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
+import { escapeOrSearch } from "@/lib/api/search";
 // GET /api/works — 목록 조회
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -35,12 +36,13 @@ export async function GET(request: Request) {
   }
 
   if (search) {
+    const s = escapeOrSearch(search);
     if (searchType === "all") {
-      query = query.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%,content_ko.ilike.%${search}%,content_en.ilike.%${search}%`);
+      query = query.or(`title.ilike.%${s}%,subtitle_ko.ilike.%${s}%,subtitle_en.ilike.%${s}%,content_ko.ilike.%${s}%,content_en.ilike.%${s}%`);
     } else if (searchType === "content") {
-      query = query.or(`content_ko.ilike.%${search}%,content_en.ilike.%${search}%`);
+      query = query.or(`content_ko.ilike.%${s}%,content_en.ilike.%${s}%`);
     } else {
-      query = query.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%`);
+      query = query.or(`title.ilike.%${s}%,subtitle_ko.ilike.%${s}%,subtitle_en.ilike.%${s}%`);
     }
   }
 
@@ -69,12 +71,13 @@ export async function GET(request: Request) {
     if (category) fallback = fallback.eq("category_ko", category);
     if (year) fallback = fallback.eq("year", year);
     if (search) {
+      const s = escapeOrSearch(search);
       if (searchType === "all") {
-        fallback = fallback.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%,content_ko.ilike.%${search}%,content_en.ilike.%${search}%`);
+        fallback = fallback.or(`title.ilike.%${s}%,subtitle_ko.ilike.%${s}%,subtitle_en.ilike.%${s}%,content_ko.ilike.%${s}%,content_en.ilike.%${s}%`);
       } else if (searchType === "content") {
-        fallback = fallback.or(`content_ko.ilike.%${search}%,content_en.ilike.%${search}%`);
+        fallback = fallback.or(`content_ko.ilike.%${s}%,content_en.ilike.%${s}%`);
       } else {
-        fallback = fallback.or(`title.ilike.%${search}%,subtitle_ko.ilike.%${search}%,subtitle_en.ilike.%${search}%`);
+        fallback = fallback.or(`title.ilike.%${s}%,subtitle_ko.ilike.%${s}%,subtitle_en.ilike.%${s}%`);
       }
     }
     if (sort === "newest") fallback = fallback.order("created_at", { ascending: false });

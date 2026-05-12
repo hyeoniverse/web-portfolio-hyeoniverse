@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonOk } from "@/lib/api/response";
+import { escapeOrSearch } from "@/lib/api/search";
 
 /**
  * GET /api/admin/comments — admin 모더레이션용 통합 댓글 조회
@@ -14,11 +15,6 @@ import { jsonOk } from "@/lib/api/response";
  *
  * Returns: { items: Comment[], total: number, page, limit }
  */
-
-/** PostgREST `or` 필터 안에서 안전하도록 검색어 escape — %/_ 는 LIKE wildcard, , 와 () 는 OR 구조 자체를 깨뜨릴 수 있음 */
-function escapeOrSearch(s: string): string {
-  return s.replace(/[%_,()\\]/g, (m) => `\\${m}`);
-}
 
 export async function GET(request: Request) {
   const { error: authError } = await requireAuth();
