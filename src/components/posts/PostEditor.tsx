@@ -335,7 +335,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // 새 글도 DB revision 저장을 위해 임시 ID 사용
   const draftEntityId = post?.id ?? "draft-new-post";
-  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions({
+  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions<PostFormData>({
     entityType: "post",
     entityId: draftEntityId,
   });
@@ -364,7 +364,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           onConfirm={() => {
             // 불러오기: B 적용 + dismissed 처리
             autoSaveSkip.current = true;
-            setForm(snapshot as PostFormData);
+            setForm(snapshot);
             lastAutoSaveJson.current = JSON.stringify(snapshot);
             setStatus(te("draftRestored"));
             setStatusType("info");
@@ -400,11 +400,11 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [te, setStatus]);
 
   const { savedId, autoSaveSkip, lastAutoSaveJson, scheduleAutoSave } =
-    useEditorAutoSave({
+    useEditorAutoSave<PostFormData>({
       entityType: "post",
       entityId: post?.id,
       draftEntityId,
-      formRef: formRef as { current: unknown },
+      formRef,
       saveRevision,
       getTitle: getPostTitle,
       busyFlags: { saving, translating },
@@ -805,7 +805,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       if (!rev) return;
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (snapshot) {
-        setForm(snapshot as PostFormData);
+        setForm(snapshot);
         setStatus(te("restored"));
         setStatusType("success");
         setStatusTimestamp(rev.timestamp);
@@ -820,7 +820,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       if (!rev) return null;
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (!snapshot) return null;
-      const s = snapshot as PostFormData;
+      const s = snapshot;
       return {
         excerpt: s.excerpt || s.excerpt_en || "",
         content: stripHtml(s.content || s.content_en || ""),

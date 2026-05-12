@@ -2,13 +2,13 @@
 
 import { useRef, useCallback, useEffect } from "react";
 
-interface UseEditorAutoSaveOptions {
+interface UseEditorAutoSaveOptions<T> {
   entityType: "post" | "work";
   entityId: string | undefined;
   /** For new entities that don't yet have a real ID */
   draftEntityId?: string;
-  formRef: { current: unknown };
-  saveRevision: (snapshot: unknown, title: string) => Promise<boolean>;
+  formRef: { current: T };
+  saveRevision: (snapshot: T, title: string) => Promise<boolean>;
   getTitle: () => string;
   busyFlags: { saving: boolean; translating: boolean };
   debounceMs?: number;
@@ -28,7 +28,7 @@ interface UseEditorAutoSaveOptions {
  * - Save on beforeunload via navigator.sendBeacon
  * - Save on SPA navigation (cleanup fetch with keepalive)
  */
-export function useEditorAutoSave({
+export function useEditorAutoSave<T>({
   entityType,
   entityId,
   draftEntityId,
@@ -39,7 +39,7 @@ export function useEditorAutoSave({
   debounceMs = 30000,
   onSaved,
   ignoredFields,
-}: UseEditorAutoSaveOptions) {
+}: UseEditorAutoSaveOptions<T>) {
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const autoSaveSkip = useRef(true);
   const autoSaveBusy = useRef(false);
