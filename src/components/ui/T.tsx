@@ -11,12 +11,10 @@ import Tooltip from "./Tooltip";
    Long hover 시 반대 언어 번역을 tooltip으로 표시
    -------------------------------------------------------------------------- */
 
-interface TProps extends HTMLAttributes<HTMLSpanElement> {
-  /** locale key (기존 방식) */
-  k?: string;
-  /** 직접 ko/en 값 전달 (사이트 설정 등 동적 값) */
-  ko?: string;
-  en?: string;
+/**
+ * 공통 prop — k 분기 / ko·en 분기 양쪽이 다 공유함.
+ */
+type TCommonProps = HTMLAttributes<HTMLSpanElement> & {
   delay?: number;
   /** 설명 tooltip — 번역과 한 말풍선에 통합 */
   tooltip?: string;
@@ -26,9 +24,30 @@ interface TProps extends HTMLAttributes<HTMLSpanElement> {
   alwaysTooltip?: boolean;
   /** 외부 Tooltip과 함께 쓸 때 내부 tooltip 비활성화 */
   noTooltip?: boolean;
-}
+};
 
-export default function T({ k, ko, en, delay = 600, tooltip, placement, alwaysTooltip, noTooltip, ...rest }: TProps) {
+/**
+ * Discriminated union: 반드시 `k` 또는 `ko`/`en` 중 하나는 들어와야 함.
+ * - `<T />` (빈 호출) 컴파일 에러
+ * - `<T k="..." ko="..." />` (혼합) 컴파일 에러
+ */
+type TProps =
+  | (TCommonProps & { k: string; ko?: never; en?: never })
+  | (TCommonProps & { k?: never; ko: string; en?: string })
+  | (TCommonProps & { k?: never; ko?: string; en: string });
+
+export default function T(props: TProps) {
+  const {
+    k,
+    ko,
+    en,
+    delay = 600,
+    tooltip,
+    placement,
+    alwaysTooltip,
+    noTooltip,
+    ...rest
+  } = props;
   const { t, tAlt, language } = useLanguage();
 
   let text: string;
@@ -41,6 +60,7 @@ export default function T({ k, ko, en, delay = 600, tooltip, placement, alwaysTo
     text = t(k);
     altText = tAlt(k);
   } else {
+    // discriminated union 상 도달 불가 — 런타임 안전망
     return null;
   }
 
