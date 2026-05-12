@@ -112,11 +112,3 @@ export interface Comment {
   replies?: Comment[];
 }
 
-export interface CommentFormData {
-  post_id?: string;
-  work_id?: string;
-  parent_id?: string;
-  nickname: string;
-  password: string;
-  content: string;
-}

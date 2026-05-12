@@ -1,26 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 
 // ============================================
-// 프로젝트 타입
-// ============================================
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  period: { start: string; end?: string };
-  teamSize: number;
-  thumbnail?: string;
-  images?: string[];
-  technologies: string[];
-  liveUrl?: string;
-  githubUrl?: string;
-  blogUrls?: { title: string; url: string }[];
-  category: ProjectCategories;
-}
-
-export type ProjectCategories = "all" | "team" | "single";
-
-// ============================================
 // 연락처 타입
 // ============================================
 export interface ContactForm {
@@ -77,7 +57,6 @@ export interface ModalItem {
 // ============================================
 export type SoundType = "click" | "hover" | "success" | "error" | "typing";
 export type Theme = "dark" | "light" | "system" | null;
-export type TransitionDirection = "down" | "up";
 
 // ============================================
 // 작품 인터랙션 타입
