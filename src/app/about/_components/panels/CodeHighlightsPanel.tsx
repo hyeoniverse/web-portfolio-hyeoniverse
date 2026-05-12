@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { flushSync } from "react-dom";
+import type Lenis from "@studio-freight/lenis";
 import type { Language } from "@/providers/LanguageProvider";
 import { codeExamples } from "@/data/about/codeExamples";
 import CodeHighlight from "../CodeHighlight";
@@ -99,8 +100,8 @@ function CodeHighlightsPanel({
             const delta = heightBefore - heightAfter;
 
             if (delta > 0) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const l = (window as any).lenis;
+              // LenisProvider 가 window.lenis 로 인스턴스 노출 (디버깅 + 외부 접근용)
+              const l = (window as typeof window & { lenis?: Lenis }).lenis;
               if (l) {
                 l.scrollTo(l.scroll - delta, { immediate: true });
               }

@@ -175,8 +175,7 @@ export function useMobileTabNavigation({
     if (!isMobile) return;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (lenis as any)?.resize?.();
+        lenis?.resize();
         ScrollTrigger.refresh();
         // 이미 section top 근처에 있으면 스크롤 생략 — 튕김 방지
         const el = sectionRef.current;

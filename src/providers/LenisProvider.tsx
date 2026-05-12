@@ -116,10 +116,10 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       (window as typeof window & { lenis?: Lenis }).lenis = lenisInstance;
     }
 
-    // 리사이즈 시 infinite 토글
+    // 리사이즈 시 infinite 토글 — Lenis 의 runtime options 필드는 public 타입에 노출 안 됨
+    type LenisWithOptions = Lenis & { options: { infinite: boolean } };
     const handleResize = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (lenisInstance as any).options.infinite = infiniteOverrideRef.current ?? (options.infinite ?? false);
+      (lenisInstance as LenisWithOptions).options.infinite = infiniteOverrideRef.current ?? (options.infinite ?? false);
     };
     window.addEventListener("resize", handleResize);
 
@@ -166,8 +166,7 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
   const setInfinite = useCallback((value: boolean) => {
     infiniteOverrideRef.current = value;
     if (lenisRef.current) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (lenisRef.current as any).options.infinite = value;
+      (lenisRef.current as Lenis & { options: { infinite: boolean } }).options.infinite = value;
       // Lenis는 옵션 변경 후 stop→start 해야 즉시 반영
       lenisRef.current.stop();
       lenisRef.current.start();
