@@ -25,7 +25,7 @@ interface ToastState {
 
 // 타이머 + 남은 시간 추적용 — store 외부에 보관 (hover pause/resume 시 정확한 잔여 시간 계산)
 interface TimerInfo {
-  timer: ReturnType<typeof setTimeout>;
+  timer: ReturnType<typeof setTimeout> | null;
   startedAt: number;
   remaining: number;
 }
@@ -39,7 +39,7 @@ const startTimer = (id: string, ms: number, dismiss: (id: string) => void) => {
 const clearTimer = (id: string) => {
   const info = timers.get(id);
   if (info) {
-    clearTimeout(info.timer);
+    if (info.timer) clearTimeout(info.timer);
     timers.delete(id);
   }
 };
@@ -65,12 +65,12 @@ export const useToastStore = create<ToastState>((set, get) => ({
 
   pauseToast: (id) => {
     const info = timers.get(id);
-    if (!info) return;
+    if (!info || !info.timer) return;
     clearTimeout(info.timer);
     const elapsed = Date.now() - info.startedAt;
     info.remaining = Math.max(0, info.remaining - elapsed);
     // timer 만 비우고 remaining 은 유지 (resume 에서 사용)
-    timers.set(id, { ...info, timer: 0 as unknown as ReturnType<typeof setTimeout> });
+    timers.set(id, { ...info, timer: null });
   },
 
   resumeToast: (id) => {
@@ -82,7 +82,9 @@ export const useToastStore = create<ToastState>((set, get) => ({
   },
 
   clearToasts: () => {
-    timers.forEach((info) => clearTimeout(info.timer));
+    timers.forEach((info) => {
+      if (info.timer) clearTimeout(info.timer);
+    });
     timers.clear();
     set({ toasts: [] });
   },

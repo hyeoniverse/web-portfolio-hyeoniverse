@@ -9,8 +9,8 @@ interface DraggableTagProps {
   dragging: boolean;
   over: boolean;
   onDragStart: () => void;
-  onDragOver: (e: React.DragEvent) => void;
-  onDrop: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent<HTMLSpanElement>) => void;
+  onDrop: (e: React.DragEvent<HTMLSpanElement>) => void;
   onDragEnd: () => void;
   onRemove: () => void;
 }
