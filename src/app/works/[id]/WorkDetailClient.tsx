@@ -61,10 +61,12 @@ export default function WorkDetailClient({
   const richtextRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch(`/api/works/${project.id}/related-posts`)
+    const ac = new AbortController();
+    fetch(`/api/works/${project.id}/related-posts`, { signal: ac.signal })
       .then((r) => r.json())
       .then((d) => { if (Array.isArray(d?.items)) setRelatedPosts(d.items); })
       .catch(() => {});
+    return () => ac.abort();
   }, [project.id]);
 
   const contentRaw = project.content[viewLang] || project.content.ko;

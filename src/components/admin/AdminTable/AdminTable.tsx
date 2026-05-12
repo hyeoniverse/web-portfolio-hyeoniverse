@@ -4,6 +4,11 @@ import { useState, useEffect, useCallback, useRef, type ReactNode } from "react"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+
+/** reorder drag 가 켜진 경우에만 LayoutGroup 으로 감싸서 측정 비용을 회피 */
+function ConditionalLayoutGroup({ enabled, children }: { enabled: boolean; children: ReactNode }) {
+  return enabled ? <LayoutGroup>{children}</LayoutGroup> : <>{children}</>;
+}
 import { GripVertical, Download, ArrowUpDown } from "lucide-react";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
@@ -314,7 +319,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           <span className={styles.colActions}>{labels.actions}</span>
         </div>
 
-        <LayoutGroup>
+        {/* layout / LayoutGroup 은 reorder drag 시 행 swap 애니메이션이 필요할 때만 활성화.
+            그렇지 않으면 행 selection 토글마다 Framer Motion 이 모든 행을 측정해서 비싸짐 (대형 admin 테이블 hot path). */}
+        <ConditionalLayoutGroup enabled={!!onReorder}>
         <AnimatePresence initial={false}>
         {items.map((item, i) => {
           const isDragging = dragIdx === i;
@@ -323,7 +330,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           return (
             <motion.div
               key={item.id}
-              layout
+              layout={!!onReorder}
               transition={{ type: "spring", damping: 28, stiffness: 320, mass: 0.8 }}
               ref={highlightId === item.id ? highlightRef : undefined}
               className={`${styles.row} ${selected.has(item.id) ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""} ${highlightId === item.id ? styles.rowHighlight : ""}`}
@@ -465,7 +472,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           );
         })}
         </AnimatePresence>
-        </LayoutGroup>
+        </ConditionalLayoutGroup>
         </div>
       </div>
 
