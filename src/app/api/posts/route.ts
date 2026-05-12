@@ -95,16 +95,20 @@ export async function GET(request: Request) {
   // popular: 복합 점수 (views + likes*3 + comments*5) → JS 정렬
   // — 단, 시리즈 필터링 중에는 series_order 가 이미 우선 적용되어 위에서 처리됨
   if (sort === "popular" && !seriesId) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const selectWithComments = (query as any).select("*, series:series_id(title, title_en), comments(count)", { count: "exact" });
-    const { data: rawData, count: totalCount, error: popError } = await selectWithComments;
+    // Supabase 쿼리 빌더는 .select() chain 호출의 반환 타입을 추론 못 해 unknown 으로 처리 → 좁은 row shape 로 캐스팅
+    const selectWithComments = (query as unknown as { select: (cols: string, opts: { count: "exact" }) => unknown })
+      .select("*, series:series_id(title, title_en), comments(count)", { count: "exact" });
+    const { data: rawData, count: totalCount, error: popError } = (await selectWithComments) as {
+      data: Array<Record<string, unknown> & { view_count: number; like_count: number; comments?: Array<{ count: number }> }> | null;
+      count: number | null;
+      error: { message: string } | null;
+    };
 
     if (popError) {
       return NextResponse.json({ error: popError.message }, { status: 500 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const scored = ((rawData ?? []) as any[]).map((p: any) => {
+    const scored = (rawData ?? []).map((p) => {
       const commentCount = Array.isArray(p.comments) ? (p.comments[0]?.count ?? 0) : 0;
       return { ...p, _score: p.view_count + p.like_count * 3 + commentCount * 5, comments: undefined };
     });

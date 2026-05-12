@@ -46,8 +46,11 @@ import ColorPicker from "@/components/ui/ColorPicker";
 export { ImagePanel } from "./plate/ImagePanel";
 
 // ── Find highlight leaf renderer (stable reference) ──
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const renderFindLeaf = ({ children, leaf, attributes }: any) => {
+// Plate 의 RenderLeafFn 시그니처를 따르되 leaf 의 동적 hl 필드는 narrow 한 record 로 캐스팅
+type FindLeafExtras = { findHighlight?: boolean; findCurrent?: boolean };
+const renderFindLeaf = (props: import("platejs").RenderLeafProps) => {
+  const { children, attributes } = props;
+  const leaf = props.leaf as typeof props.leaf & FindLeafExtras;
   if (leaf.findHighlight) {
     const isCurrent = leaf.findCurrent;
     return <span {...attributes} style={{
