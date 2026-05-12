@@ -32,12 +32,8 @@ export function useScrollVelocity(hasMounted: boolean): UseScrollVelocityReturn 
       SCROLL_VELOCITY;
 
     const handleScroll = () => {
-      const lenisAny = lenis as unknown as {
-        velocity: number;
-        targetScroll: number;
-        animatedScroll: number;
-      };
-      const velocity = lenisAny.velocity;
+      // velocity 는 Lenis 의 public 타입엔 노출돼 있지 않아 cast 가 필요
+      const velocity: number = (lenis as unknown as { velocity: number }).velocity;
 
       if (Math.abs(velocity) > 0.05) {
         const width = window.innerWidth;

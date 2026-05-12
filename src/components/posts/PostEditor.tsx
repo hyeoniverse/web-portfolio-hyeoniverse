@@ -9,6 +9,7 @@ import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
+import { stripHtml } from "@/utils/htmlUtils";
 import type { Post, PostFormData, Series } from "@/types/post";
 import SeriesInlineEditor from "@/app/admin/(dashboard)/settings/_components/SeriesInlineEditor";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
@@ -820,13 +821,6 @@ export default function PostEditor({ post }: PostEditorProps) {
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (!snapshot) return null;
       const s = snapshot as PostFormData;
-      const stripHtml = (html: string) =>
-        html
-          .replace(/<\/?(p|div|br|li|tr|h[1-6]|blockquote)[^>]*>/gi, "\n")
-          .replace(/<[^>]+>/g, "")
-          .replace(/&nbsp;/g, " ")
-          .replace(/\n{3,}/g, "\n\n")
-          .trim();
       return {
         excerpt: s.excerpt || s.excerpt_en || "",
         content: stripHtml(s.content || s.content_en || ""),
@@ -1028,13 +1022,6 @@ export default function PostEditor({ post }: PostEditorProps) {
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
       currentSnapshot={(() => {
-        const stripHtml = (html: string) =>
-          html
-            .replace(/<\/?(p|div|br|li|tr|h[1-6]|blockquote)[^>]*>/gi, "\n")
-            .replace(/<[^>]+>/g, "")
-            .replace(/&nbsp;/g, " ")
-            .replace(/\n{3,}/g, "\n\n")
-            .trim();
         return {
           title: form.title || form.title_en,
           excerpt: form.excerpt || form.excerpt_en || "",
