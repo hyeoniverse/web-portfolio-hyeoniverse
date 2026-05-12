@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { Comment } from "@/types/post";
-import { createClient } from "@/lib/supabase/client";
+import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import CommentForm from "./CommentForm";
@@ -62,7 +62,7 @@ function collectIds(nodes: Comment[]): string[] {
 export default function CommentSection({ commentType, targetId, translationEnabled = true }: CommentSectionProps) {
   const { language } = useLanguage();
   const [comments, setComments] = useState<Comment[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useIsAuthenticated({ subscribe: true });
   const [firstCommentId, setFirstCommentId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectMode, setSelectMode] = useState(false);
@@ -70,17 +70,6 @@ export default function CommentSection({ commentType, targetId, translationEnabl
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const apiBase = commentType === "work" ? "/api/work-comments" : "/api/comments";
   const paramKey = commentType === "work" ? "work_id" : "post_id";
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => {
-      setIsAdmin(!!data.session?.user);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAdmin(!!session?.user);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
   const [likeCountMap, setLikeCountMap] = useState<Record<string, number>>({});

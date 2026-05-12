@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Shuffle, Bell, CircleX, Check, Pencil, ChevronRight } from "lucide-react";
 import { getCommenterId, getIdentity, getRandomIdentity } from "@/utils/commenterIdentity";
-import { createClient } from "@/lib/supabase/client";
+import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import styles from "./CommentForm.module.css";
@@ -44,7 +44,7 @@ export default function CommentForm({
   const emailChanged = notifyEmail !== confirmedEmail;
   const [submitting, setSubmitting] = useState(false);
   const [formHint, setFormHint] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useIsAuthenticated({ subscribe: true });
   const [fireworks, setFireworks] = useState(false);
 
   useEffect(() => {
@@ -53,17 +53,6 @@ export default function CommentForm({
       requestAnimationFrame(() => emailInputRef.current?.focus());
     }
   }, [emailNotify]);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => {
-      setIsAdmin(!!data.session?.user);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAdmin(!!session?.user);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   const [commenterId, setCommenterId] = useState("");
   const [identity, setIdentity] = useState<{ emoji: string; name: string } | null>(null);
