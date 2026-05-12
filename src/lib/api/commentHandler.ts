@@ -216,7 +216,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
   async function PATCH(request: Request) {
     try {
       const body = await request.json();
-      const { id, commenter_id, target_id, content, password } = body;
+      const { id, content, password } = body;
 
       if (!id || !content) return jsonError("Missing required fields");
       if (!isValidUUID(id)) return jsonError("Invalid id");
@@ -242,20 +242,19 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
 
       const { data: comment } = await adminDb
         .from(table)
-        .select("commenter_hash, password_hash")
+        .select("password_hash")
         .eq("id", id)
         .single();
 
       if (!comment) return jsonError("Comment not found", 404);
 
-      let authorized = false;
-      // 비밀번호가 제출된 경우 반드시 검증 (hash 인증만으로 우회 불가)
-      if (password && comment.password_hash) {
-        authorized = await bcrypt.compare(password, comment.password_hash);
-      } else if (commenter_id && target_id && comment.commenter_hash) {
-        const identity = getIdentity(commenter_id, target_id);
-        authorized = comment.commenter_hash === identity.hash;
+      // commenter_hash 기반 인증 경로는 제거됨 — simpleHash 가 31-bit 비암호 해시라
+      // commenter_id 를 brute force 로 위변조 가능했음. 익명 사용자는 비번이 유일한 인증.
+      if (!comment.password_hash) {
+        return jsonError("Password required — contact admin to edit this comment", 403);
       }
+      if (!password) return jsonError("Password required", 401);
+      const authorized = await bcrypt.compare(password, comment.password_hash);
       if (!authorized) return jsonError("Not authorized", 403);
 
       const { data, error } = await adminDb

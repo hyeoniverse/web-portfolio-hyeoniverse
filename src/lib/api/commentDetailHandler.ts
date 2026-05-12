@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import bcrypt from "bcryptjs";
-import { getIdentity } from "@/utils/commenterIdentity";
 import { isValidUUID } from "@/utils/commentValidation";
 import { jsonOk, jsonError, jsonServerError } from "./response";
 
@@ -127,24 +126,23 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
     }
 
     const body = await request.json();
-    const { commenter_id, target_id, password } = body;
+    const { password } = body;
 
     const { data: comment } = await admin
       .from(table)
-      .select("commenter_hash, password_hash")
+      .select("password_hash")
       .eq("id", id)
       .single();
 
     if (!comment) return jsonError("Comment not found", 404);
 
-    let authorized = false;
-    // 비밀번호가 제출된 경우 반드시 검증 (hash 인증만으로 우회 불가)
-    if (password && comment.password_hash) {
-      authorized = await bcrypt.compare(password, comment.password_hash);
-    } else if (commenter_id && target_id && comment.commenter_hash) {
-      const identity = getIdentity(commenter_id, target_id);
-      authorized = comment.commenter_hash === identity.hash;
+    // commenter_hash 기반 인증 경로는 제거됨 — simpleHash brute-force 로 위변조 가능했음.
+    // 익명 사용자는 비번이 유일한 인증.
+    if (!comment.password_hash) {
+      return jsonError("Password required — contact admin to delete this comment", 403);
     }
+    if (!password) return jsonError("Password required", 401);
+    const authorized = await bcrypt.compare(password, comment.password_hash);
     if (!authorized) return jsonError("Not authorized", 403);
 
     const { error } = await softOrHardDelete(admin, table, id, "self");

@@ -19,6 +19,12 @@ export async function GET(request: Request) {
   const showAll = searchParams.get("all") === "true"; // admin용
   const showTrash = searchParams.get("trash") === "true"; // 휴지통
 
+  // 비공개 / 휴지통 조회는 service role 로 RLS 우회 — 반드시 admin 인증 필요
+  if (showAll || showTrash) {
+    const { error: authError } = await requireAuth();
+    if (authError) return authError;
+  }
+
   const supabase = showAll || showTrash ? createAdminClient() : await createClient();
 
   const sort = searchParams.get("sort") ?? "newest";
