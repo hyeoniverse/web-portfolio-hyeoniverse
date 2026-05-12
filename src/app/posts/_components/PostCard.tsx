@@ -54,9 +54,12 @@ export default function PostCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const category = post.category || null;
   const prefetchedRef = useRef(false);
-  /* hover 시 다음 페이지 chunk 를 미리 로딩 — 클릭 후 navigate 가 즉시 mount 되도록 */
+  /* hover 시 다음 페이지 chunk 를 미리 로딩 — 클릭 후 navigate 가 즉시 mount 되도록.
+   * dev 모드에선 prefetch 가 compile 미완료된 route 를 건드려 "Failed to fetch RSC payload"
+   * 후 hard reload fallback 을 유발하는 케이스가 있어 production 에서만 작동. */
   const handlePrefetch = () => {
     if (prefetchedRef.current) return;
+    if (process.env.NODE_ENV !== "production") return;
     prefetchedRef.current = true;
     router.prefetch(`/posts/${post.slug}`);
   };

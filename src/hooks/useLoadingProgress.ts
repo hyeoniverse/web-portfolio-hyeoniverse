@@ -9,8 +9,12 @@ interface LoadingScreenResult {
 
 const MIN_DISPLAY_MS = 1200;
 const TRANSITION_MS = 400;
+const STORAGE_KEY = "loading-screen-completed";
 
-let hasCompletedInitialLoad = false;
+/* 모듈 레벨 — 같은 session 안의 hard reload (예: dev 에서 RSC payload fetch 실패 시 fallback) 에서도
+ * LoadingScreen 이 다시 뜨지 않도록 sessionStorage 로 유지. 새 탭/창은 다시 처음부터. */
+let hasCompletedInitialLoad =
+  typeof window !== "undefined" && window.sessionStorage?.getItem(STORAGE_KEY) === "1";
 
 export function isInitialLoadComplete(): boolean {
   return hasCompletedInitialLoad;
@@ -37,6 +41,7 @@ export function useLoadingScreen(): LoadingScreenResult {
       if (!mounted || hasCompletedRef.current) return;
       hasCompletedRef.current = true;
       hasCompletedInitialLoad = true;
+      try { window.sessionStorage?.setItem(STORAGE_KEY, "1"); } catch { /* private mode 등 */ }
 
       setIsTransitioning(true);
       setTimeout(() => {
