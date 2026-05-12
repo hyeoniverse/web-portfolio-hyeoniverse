@@ -486,31 +486,6 @@
   padding: 0 var(--page-px);
 }
 
-/* Header: dots · logo · close */
-.menuHeader {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-2xl-plus) var(--spacing-2xl);
-}
-
-.menuHeaderDots {
-  display: grid;
-  grid-template-columns: repeat(3, 2px);
-  gap: var(--spacing-3xs);
-}
-
-.menuLogo {
-  font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-2xl-plus);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-white);
-  letter-spacing: -0.02em;
-}
 
 /* Footer: email */
 .menuFooter {
