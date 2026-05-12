@@ -17,19 +17,19 @@ const LANG_MAP_GOOGLE: Record<string, string> = { ko: "ko", en: "en" };
  *         provider 응답을 입력에 매핑할 때 사용 — 순서나 길이에 의존하지 않음.
  *   text: 실제 번역할 원문.
  */
-export interface TranslateItem {
+interface TranslateItem {
   id: string;
   text: string;
 }
 
 /** provider 한 번의 호출 결과 — 성공한 id 만 results 에 들어가고, 응답에 안 잡힌 id 는 failed 에 남음 */
-export interface ProviderBatchResult {
+interface ProviderBatchResult {
   results: Map<string, string>;
   failed: string[];
 }
 
 /* ── Gemini (ID-keyed JSON 프롬프트) ── */
-export async function translateBatchWithGemini(
+async function translateBatchWithGemini(
   items: TranslateItem[],
   sourceLang: string,
   targetLang: string,
@@ -78,7 +78,7 @@ ${JSON.stringify(inputObj, null, 2)}`;
 }
 
 /* ── Google Cloud Translation (인덱스 보존 — 응답 길이만큼 매핑) ── */
-export async function translateBatchWithGoogle(
+async function translateBatchWithGoogle(
   items: TranslateItem[],
   sourceLang: string,
   targetLang: string,
@@ -107,7 +107,7 @@ export async function translateBatchWithGoogle(
 }
 
 /* ── DeepL (인덱스 보존) ── */
-export async function translateBatchWithDeepL(
+async function translateBatchWithDeepL(
   items: TranslateItem[],
   sourceLang: string,
   targetLang: string,
@@ -140,7 +140,7 @@ export async function translateBatchWithDeepL(
 }
 
 /* ── Claude (ID-keyed JSON 프롬프트) ── */
-export async function translateBatchWithClaude(
+async function translateBatchWithClaude(
   items: TranslateItem[],
   sourceLang: string,
   targetLang: string,
@@ -222,7 +222,7 @@ function mapByIndex(items: TranslateItem[], translated: string[]): ProviderBatch
 }
 
 /* ── Dispatcher ── */
-export async function translateBatchWithProvider(
+async function translateBatchWithProvider(
   provider: Provider,
   items: TranslateItem[],
   sourceLang: string,

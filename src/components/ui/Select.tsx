@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { ChevronRight } from "lucide-react";
 import styles from "./Select.module.css";
 
-export interface SelectOption {
+interface SelectOption {
   value: string;
   label: string;
 }

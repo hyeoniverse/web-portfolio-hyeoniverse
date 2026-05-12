@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { imageFade } from "@/animations";
+import { motion, type Variants } from "framer-motion";
 import styles from "./OptimizedImage.module.css";
+
+const imageFade: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.3 } },
+};
 
 interface OptimizedImageProps {
   src: string;

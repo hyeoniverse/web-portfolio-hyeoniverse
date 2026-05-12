@@ -16,7 +16,6 @@ import styles from "./AdminEditorShell.module.css";
 import type { AdminEditorShellProps } from "./types";
 import { formatTime, formatStatusTime, lineDiff } from "./utils";
 
-export type { RetranslateOption, RevisionEntry } from "./types";
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
 
 export default function AdminEditorShell({

@@ -104,7 +104,7 @@ export const THEME_PRESETS: { name: string; theme: SiteConfigData["theme"] }[] =
 ];
 
 /** font display name -> CSS variable for preview rendering */
-export const FONT_CSS_VARS: Record<string, string> = {
+const FONT_CSS_VARS: Record<string, string> = {
   "Instrument Serif": "var(--font-instrument)",
   "Noto Serif KR": "var(--font-noto-serif-kr)",
   "Nanum Myeongjo": "var(--font-nanum-myeongjo)",
@@ -249,7 +249,7 @@ export function extractDefaults(delta: any, defaults: any): any {
 export type ContentSubTab = "home" | "profile" | "works" | "posts";
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
-export const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
+const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
   home: ["brand", "hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "socialLinks"],
   profile: ["profile", "about"],
   works: ["works"],

@@ -18,7 +18,7 @@ export interface SubTableColumn<T> {
   headerSpan?: number;
 }
 
-export interface SubTableBulkAction {
+interface SubTableBulkAction {
   label: ReactNode;
   onClick: () => void;
   disabled?: boolean;

@@ -23,7 +23,7 @@ export interface TocHeading {
   level: number;
 }
 
-export interface LikeConfig {
+interface LikeConfig {
   count: number;
   liked: boolean;
   busy?: boolean;

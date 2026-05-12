@@ -10,22 +10,6 @@ export interface ContactForm {
 }
 
 // ============================================
-// 네비게이션 타입
-// ============================================
-export interface NavItem {
-  id: string;
-  label: string;
-  number: string;
-  path: string;
-}
-
-export interface TocLabel {
-  label: string;
-  section: string;
-  path?: string;
-}
-
-// ============================================
 // 모달 타입
 // ============================================
 export interface ModalOptions {

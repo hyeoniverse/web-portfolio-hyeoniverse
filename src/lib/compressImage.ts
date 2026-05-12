@@ -45,14 +45,14 @@ const BLOCKED_EXTENSIONS = new Set([
 ]);
 
 /** 설정에서 limits를 받아 사용, 없으면 기본값 */
-export function getFileSizeLimit(file: File, limits?: Record<string, number>): number {
+function getFileSizeLimit(file: File, limits?: Record<string, number>): number {
   const l = limits ?? DEFAULT_LIMITS;
   const mb = l[file.type] ?? l._default ?? DEFAULT_LIMITS._default;
   return mb * 1024 * 1024;
 }
 
 /** 파일 확장자가 차단 목록에 있는지 확인 */
-export function isBlockedExtension(file: File): boolean {
+function isBlockedExtension(file: File): boolean {
   const ext = file.name.split(".").pop()?.toLowerCase() || "";
   return BLOCKED_EXTENSIONS.has(ext);
 }

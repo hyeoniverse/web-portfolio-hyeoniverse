@@ -139,14 +139,4 @@ export default function DateTimePicker({ value, onChange, disabled }: DateTimePi
   );
 }
 
-/** ISO 타임스탬프를 표시용 문자열로. */
-export function formatDateTimeShort(iso: string | null | undefined, lang: "ko" | "en"): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  return d.toLocaleString(lang === "ko" ? "ko-KR" : "en-US", {
-    year: "numeric", month: "short", day: "numeric",
-    hour: "2-digit", minute: "2-digit", hour12: false,
-  });
-}
 

@@ -1,11 +1,11 @@
 import { siteConfig } from "@/config/site.config";
 
 // 타입
-export interface ContentPart {
+interface ContentPart {
   highlight?: string;
 }
 
-export interface ListItem {
+interface ListItem {
   strong?: string;
   text: string;
   link?: {

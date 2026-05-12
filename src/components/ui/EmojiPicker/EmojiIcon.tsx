@@ -20,5 +20,3 @@ export function EmojiIcon({ value, size = 20 }: { value: string; size?: number }
   }
   return <span style={{ fontSize: size, lineHeight: 1 }}>{value}</span>;
 }
-
-export default EmojiIcon;

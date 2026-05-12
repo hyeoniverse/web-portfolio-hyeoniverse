@@ -1,7 +1,7 @@
 "use client";
 
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { Carousel } from "@/components/ui";
+import Carousel from "@/components/ui/Carousel/Carousel";
 import BannerSlide from "../BannerSlide";
 import type { BannerStyle } from "../BannerSlide";
 import type { Post } from "@/types/post";

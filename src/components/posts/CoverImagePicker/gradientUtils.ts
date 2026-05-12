@@ -19,7 +19,7 @@ export interface PresetConfig {
 }
 
 /** angle(0-360 deg) → (x0,y0,x1,y1) 좌표 (canvas linear gradient 용) */
-export function angleToCoords(angle: number, w: number, h: number) {
+function angleToCoords(angle: number, w: number, h: number) {
   const rad = ((angle - 90) * Math.PI) / 180;
   const cx = w / 2;
   const cy = h / 2;

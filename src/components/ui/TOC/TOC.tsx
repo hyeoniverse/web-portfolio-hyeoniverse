@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./TOC.module.css";
 
-export interface TocItem {
+interface TocItem {
   id: string;
   text: string;
   level?: number;

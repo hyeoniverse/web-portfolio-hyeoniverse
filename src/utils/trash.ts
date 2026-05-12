@@ -2,7 +2,7 @@
  * Soft-delete 후 자동 영구삭제까지 보관 기간 (일).
  * cron/publish-scheduled 와 동기화 필요.
  */
-export const TRASH_RETENTION_DAYS = 30;
+const TRASH_RETENTION_DAYS = 30;
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 

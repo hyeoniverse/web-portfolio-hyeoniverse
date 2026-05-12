@@ -11,7 +11,7 @@ function normalize(raw: readonly (string | BilingualCategory)[]): BilingualCateg
   );
 }
 
-export const DEFAULT_CATEGORIES: BilingualCategory[] = normalize(
+const DEFAULT_CATEGORIES: BilingualCategory[] = normalize(
   siteConfig.posts.categories,
 );
 

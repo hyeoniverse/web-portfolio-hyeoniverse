@@ -3,7 +3,7 @@ export const SVG_H = 1200;
 export const ROW_HEIGHT = 20;
 export const HEADER_HEIGHT = 28;
 export const PADDING_Y = 6;
-export const COL_W = 260;
+const COL_W = 260;
 
 const OX = 190;
 const OY = 100;
@@ -26,4 +26,3 @@ export const TABLE_LAYOUT: Record<string, { x: number; y: number; w: number }> =
 
 export const ZOOM_MIN = 1;
 export const ZOOM_MAX = 6;
-export const ZOOM_STEP = 0.1;

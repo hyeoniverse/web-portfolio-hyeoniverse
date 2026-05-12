@@ -83,16 +83,12 @@ export const VIVID_COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f
 /** 파스텔 프리셋 */
 export const PASTEL_COLORS = ["#fecaca", "#fed7aa", "#fef08a", "#bbf7d0", "#bfdbfe", "#e9d5ff", "#fbcfe8"];
 
-/** 글자색/배경색 공용 프리셋 (기본 + 비비드 + 파스텔) */
-export const PRESET_COLORS = [...BASE_COLORS, ...VIVID_COLORS, ...PASTEL_COLORS];
-
 export const TABLE_BG_PRESETS = [
   "#fef3c7", "#dcfce7", "#dbeafe", "#fce7f3", "#f3e8ff", "#fee2e2", "#f3f4f6",
 ];
 
 /** 줄무늬 기본색 = 헤더 배경색(--bg-tertiary) */
 export const ZEBRA_COLOR_DEFAULT = "var(--bg-tertiary)";
-export const ZEBRA_ALL = [ZEBRA_COLOR_DEFAULT];
 
 export const TABLE_BORDER_STYLES = [
   { labelKey: "editor.borderSolid", value: "solid" },
@@ -112,7 +108,6 @@ export const TABLE_BORDER_COLORS = [
 export const IMG_ALIGNS = ["left", "center", "right"] as const;
 export const IMG_ALIGN_ICONS: Record<string, string> = { left: "◧", center: "◻", right: "◨" };
 export const IMG_LAYOUTS = ["inline", "block", "float-left", "float-right"] as const;
-export type ImgLayout = (typeof IMG_LAYOUTS)[number];
 export const IMG_FILTERS: { labelKey: string; value: string }[] = [
   { labelKey: "editor.filterOriginal", value: "" },
   { labelKey: "editor.filterGrayscale", value: "grayscale(100%)" },

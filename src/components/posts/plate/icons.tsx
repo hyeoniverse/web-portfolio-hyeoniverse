@@ -136,15 +136,6 @@ export function TblZebra() {
     </svg>
   );
 }
-export function TblBorder() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="1" y="1" width="14" height="14" rx="0.5" strokeWidth="2"/>
-      <line x1="1" y1="8" x2="15" y2="8" strokeWidth="1"/>
-      <line x1="8" y1="1" x2="8" y2="15" strokeWidth="1"/>
-    </svg>
-  );
-}
 // ── Cell border position selector icons (12px grid) ──
 const BS = { width: 12, height: 12, viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true as const };
 const bThin = 1;
