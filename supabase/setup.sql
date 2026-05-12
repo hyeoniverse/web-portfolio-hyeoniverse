@@ -67,10 +67,6 @@ CREATE TABLE IF NOT EXISTS series (
   description_en text NOT NULL DEFAULT ''
 );
 
--- 기존 배포 DB 에 위 컬럼이 없으면 추가 (마이그레이션)
-ALTER TABLE series ADD COLUMN IF NOT EXISTS sort_order     int  NOT NULL DEFAULT 0;
-ALTER TABLE series ADD COLUMN IF NOT EXISTS auto_cover_url text DEFAULT NULL;
-
 -- 정렬용 인덱스 — 기본 정렬(sort_order ASC, created_at DESC)
 CREATE INDEX IF NOT EXISTS idx_series_sort_order ON series (sort_order);
 
@@ -309,14 +305,6 @@ CREATE TABLE IF NOT EXISTS site_visits (
   device_model text DEFAULT NULL   -- "iPhone" / "iPad" / "Pixel 8" / "SM-S921N" / "Mac" / "PC" 등
 );
 
--- 기존 site_visits 테이블에 위 컬럼이 없는 경우 (마이그레이션)
-ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS referrer     text DEFAULT NULL;
-ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS user_agent   text DEFAULT NULL;
-ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS device_kind  text DEFAULT NULL;
-ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS os           text DEFAULT NULL;
-ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS browser      text DEFAULT NULL;
-ALTER TABLE site_visits ADD COLUMN IF NOT EXISTS device_model text DEFAULT NULL;
-
 -- 같은 IP는 하루에 한 번만
 CREATE UNIQUE INDEX IF NOT EXISTS idx_site_visits_ip_date
   ON site_visits (ip, date);
@@ -350,9 +338,6 @@ CREATE TABLE IF NOT EXISTS post_views (
   ip        text,
   viewed_at timestamptz NOT NULL DEFAULT now()
 );
-
--- 기존 DB 에 ip 컬럼 추가 (idempotent)
-ALTER TABLE post_views ADD COLUMN IF NOT EXISTS ip text;
 
 -- 시간 범위 + post 별 조회용
 CREATE INDEX IF NOT EXISTS idx_post_views_post_id_viewed_at
@@ -580,20 +565,15 @@ $$;
 
 
 -- ────────────────────────────────────────────────────────────
--- Storage: uploads 버킷 정책
---   폴더: logos/, resume/, bgm/, covers/, images/ 등
---   Admin API(service_role)로 업로드, 공개 읽기
--- ────────────────────────────────────────────────────────────
-
--- ────────────────────────────────────────────────────────────
--- Cover image picker — 통합 이력 (admin user 별, ai/unsplash/preset)
+-- 13. cover_image_history — Cover Image Picker 통합 이력
+--     admin user 별 ai / unsplash / preset 소스 모두 저장 (RLS 로 본인 것만 접근)
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS cover_image_history (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  url text NOT NULL,
-  source text NOT NULL CHECK (source IN ('ai', 'unsplash', 'preset')),
-  meta text DEFAULT '',
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  url        text NOT NULL,
+  source     text NOT NULL CHECK (source IN ('ai', 'unsplash', 'preset')),
+  meta       text DEFAULT '',
   created_at timestamptz DEFAULT now()
 );
 
@@ -606,22 +586,24 @@ CREATE INDEX IF NOT EXISTS cover_image_history_user_created_idx
 
 ALTER TABLE cover_image_history ENABLE ROW LEVEL SECURITY;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'cover_image_history' AND policyname = 'Users manage own cover history') THEN
-    CREATE POLICY "Users manage own cover history"
-      ON cover_image_history FOR ALL
-      USING (auth.uid() = user_id)
-      WITH CHECK (auth.uid() = user_id);
-  END IF;
-END $$;
+CREATE POLICY "Users manage own cover history"
+  ON cover_image_history FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
--- 버킷 자동 생성 (없으면 생성)
+
+-- ────────────────────────────────────────────────────────────
+-- Storage: uploads 버킷
+--   폴더: logos/, resume/, bgm/, covers/, images/, posts/, ...
+--   Admin API(service_role)로 업로드, 공개 읽기
+-- ────────────────────────────────────────────────────────────
+
+-- 버킷 자동 생성
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('uploads', 'uploads', true)
 ON CONFLICT (id) DO NOTHING;
 
--- 인증된 사용자만 업로드 가능
+-- 인증된 사용자만 업로드
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -643,23 +625,24 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 12개 테이블 + 3개 RPC 함수가 생성되었습니다.
+-- 완료! 총 13개 테이블 + 4개 RPC 함수가 생성되었습니다.
 --
--- site_settings        : 사이트 설정 + 프로필 데이터
--- series               : 블로그 시리즈
--- posts                : 블로그 포스트 (scheduled_at 포함)
--- comments             : 포스트 댓글 (대댓글, 이중 인증)
--- likes                : 좋아요 (포스트/작업물 공용)
--- works                : 포트폴리오 작업물 (scheduled_at 포함)
--- site_visits          : 방문자 통계
--- post_views           : 게시물별 시계열 조회 기록 (일별 추세 차트)
--- work_comments        : Works 댓글 (대댓글, 이중 인증)
--- (댓글 좋아요는 likes 테이블에서 target_type='post_comment'/'work_comment'로 통합 관리)
+-- site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
+-- series               : 블로그 시리즈 (sort_order, auto_cover_url 포함)
+-- posts                : 블로그 포스트 (post_number 시퀀스 + scheduled_at)
+-- comments             : 포스트 댓글 (대댓글, password 기반 인증)
+-- likes                : 좋아요 (target_type 으로 posts/works/comments 통합, IP 중복 방지)
+-- works                : 포트폴리오 작업물 (team_members jsonb + scheduled_at)
+-- site_visits          : 방문자 통계 (IP + date 로 1일 1회)
+-- post_views           : 게시물별 시계열 조회 기록 (ip 포함, dashboard 차트용)
+-- work_comments        : Works 댓글 (대댓글, password 기반 인증)
 -- admin_notifications  : 관리자 알림 로그
--- revisions            : 에디터 리비전 히스토리 (posts/works 공용)
--- post_work_relations  : posts ↔ works 양방향 연결 (Notion Relation)
+-- revisions            : 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot)
+-- post_work_relations  : posts ↔ works many-to-many 양방향 (Notion Relation)
+-- cover_image_history  : Cover Image Picker 통합 이력 (admin user 별, RLS)
 --
 -- RPC:
+--   increment_post_view_count(p_post_id)          : 조회수 atomic +1 (race-free)
 --   sum_post_views()                              : 누적 조회수 합계
 --   daily_post_views(p_start date, p_end date)    : 일별 조회수 시계열
 --   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 (cron 호출)
