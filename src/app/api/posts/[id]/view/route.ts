@@ -30,21 +30,18 @@ export async function POST(request: Request, context: RouteContext) {
     return jsonOk({ success: true, deduped: true });
   }
 
+  // post 존재 확인 (없으면 RPC 가 silent no-op 이라 빠르게 abort)
   const { data: post } = await admin
     .from("posts")
-    .select("view_count")
+    .select("id")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (post) {
     await Promise.all([
-      admin
-        .from("posts")
-        .update({ view_count: (post.view_count ?? 0) + 1 })
-        .eq("id", id),
-      admin
-        .from("post_views")
-        .insert({ post_id: id, ip }),
+      // atomic increment — read-then-write race 없음
+      admin.rpc("increment_post_view_count", { p_post_id: id }),
+      admin.from("post_views").insert({ post_id: id, ip }),
     ]);
   }
 

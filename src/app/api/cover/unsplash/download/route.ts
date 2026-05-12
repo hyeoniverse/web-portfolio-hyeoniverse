@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   if (!imgRes.ok) return jsonError("Failed to download image", 502);
 
   const imgBuffer = await imgRes.arrayBuffer();
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+  const fileName = `${crypto.randomUUID()}.jpg`;
   const filePath = `posts/${fileName}`;
 
   const admin = createAdminClient();
