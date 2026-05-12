@@ -109,6 +109,8 @@ export interface Comment {
   like_count: number;
   created_at: string;
   updated_at?: string | null;
+  /** 익명 commenter 식별 hash — 본인이 단 댓글 표시 / 본인만 수정·삭제 권한 체크에 사용 */
+  commenter_hash?: string;
   replies?: Comment[];
 }
 

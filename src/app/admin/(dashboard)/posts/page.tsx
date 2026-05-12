@@ -10,6 +10,8 @@ import Button from "@/components/ui/Button";
 import ButtonGroup from "@/components/ui/ButtonGroup";
 import type { Post, Series } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
+import { getTrashDaysLeft } from "@/utils/trash";
+import { downloadBlob, downloadFiles } from "@/utils/download";
 import { useCategories, translateCategory } from "@/hooks/useCategories";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import Select from "@/components/ui/Select";
@@ -211,16 +213,7 @@ export default function AdminPostsPage() {
       const res = await fetch("/api/posts/export?all=true");
       if (!res.ok) return;
       const { files } = await res.json() as { files: { fileName: string; content: string }[] };
-      for (const file of files) {
-        const blob = new Blob([file.content], { type: "text/markdown" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.fileName;
-        a.click();
-        URL.revokeObjectURL(url);
-        await new Promise((r) => setTimeout(r, 100));
-      }
+      await downloadFiles(files);
     } finally {
       setExporting(false);
     }
@@ -343,17 +336,10 @@ export default function AdminPostsPage() {
   );
 
   /* ── Trash Section ── */
-  const TRASH_RETENTION_DAYS = 30;
-  const getDaysLeft = (deletedAt: string) => {
-    const deleted = new Date(deletedAt).getTime();
-    const expiresAt = deleted + TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
-    return Math.max(0, Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
-  };
-
   const trashIcon = <Trash2 size={13} />;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const trashColumns = useMemo(() => createTrashColumns(t, getDaysLeft, handleRestore, handlePurge), [t]);
+  const trashColumns = useMemo(() => createTrashColumns(t, getTrashDaysLeft, handleRestore, handlePurge), [t]);
 
   const trashSection = (
     <div className={styles.trashSection}>
@@ -465,16 +451,7 @@ export default function AdminPostsPage() {
     const res = await fetch(`/api/posts/export?series_id=${seriesId}`);
     if (!res.ok) return;
     const { files } = await res.json() as { files: { fileName: string; content: string }[] };
-    for (const file of files) {
-      const blob = new Blob([file.content], { type: "text/markdown" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = file.fileName;
-      a.click();
-      URL.revokeObjectURL(url);
-      await new Promise((r) => setTimeout(r, 100));
-    }
+    await downloadFiles(files);
   }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -507,16 +484,7 @@ export default function AdminPostsPage() {
                 const res = await fetch(`/api/posts/export?series_id=${sid}`);
                 if (!res.ok) continue;
                 const { files } = await res.json() as { files: { fileName: string; content: string }[] };
-                for (const file of files) {
-                  const blob = new Blob([file.content], { type: "text/markdown" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = file.fileName;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                  await new Promise((r) => setTimeout(r, 100));
-                }
+                await downloadFiles(files);
               }
             },
           },
@@ -763,13 +731,7 @@ tags: React`}</code></pre>
             const disposition = res.headers.get("Content-Disposition") ?? "";
             const match = disposition.match(/filename="(.+)"/);
             const fileName = match?.[1] ?? `${id}.md`;
-            const blob = new Blob([text], { type: "text/markdown" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(url);
+            downloadBlob(text, fileName);
             await new Promise((r) => setTimeout(r, 100));
           }
         }}

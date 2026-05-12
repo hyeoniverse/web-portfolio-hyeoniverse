@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useLenis } from "@/providers/LenisProvider";
+import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -35,7 +35,7 @@ const PROFILE_SECTION_LABELS: Record<string, string> = {
 
 export default function SettingsPage() {
   const { t } = useLanguage();
-  const { setInfinite, lenis, stop, start } = useLenis();
+  useStaticPageScroll();
   const { openModal, closeModal } = useModalStore();
   const [config, setConfig] = useState<SiteConfigData>(
     structuredClone(siteConfig) as unknown as SiteConfigData
@@ -83,17 +83,6 @@ export default function SettingsPage() {
     }
     return allConflicts.filter((c) => c.tab === activeTab);
   }, [allConflicts, activeTab, contentSubTab]);
-
-  useEffect(() => {
-    stop();
-    setInfinite(false);
-    window.scrollTo(0, 0);
-    const timer = setTimeout(() => {
-      if (lenis) lenis.scrollTo(0, { immediate: true });
-      start();
-    }, 50);
-    return () => { clearTimeout(timer); setInfinite(true); };
-  }, [setInfinite, lenis, stop, start]);
 
   useEffect(() => {
     Promise.all([

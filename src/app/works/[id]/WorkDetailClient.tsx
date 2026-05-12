@@ -18,12 +18,7 @@ import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout"
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { extractHeadings, getBentoClass } from "../_utils";
 import Button from "@/components/ui/Button";
-
-function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}m`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}k`;
-  return String(n);
-}
+import { formatCount } from "@/utils/format";
 import dynamic from "next/dynamic";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
