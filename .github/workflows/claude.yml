@@ -1,0 +1,56 @@
+name: Claude Code
+
+# 사용 방법:
+#   1. Issue / PR comment 에 "@claude <지시>" 멘션 → Claude 가 브랜치 만들고 코드 작성 후 PR 생성
+#      예시:
+#        "@claude usePortalMount 헬퍼 추출해서 Modal / Tooltip 두 컴포넌트에 적용"
+#        "@claude /api/admin/* 라우트 중 requireAuth() 없는 곳 찾아서 추가"
+#   2. PR review comment 에 "@claude <피드백>" → 해당 PR 의 브랜치에 추가 커밋
+#   3. 수동 트리거 (workflow_dispatch) 로도 실행 가능
+#
+# 필요한 GitHub Secrets:
+#   CLAUDE_CODE_OAUTH_TOKEN — `claude setup-token` 로 발급 (Pro/Max 구독에 묶임, 무료)
+#   WORKFLOW_PAT            — Personal Access Token (repo + workflow scope). PR 작성자를 본인 명의로 만들기 위함.
+#                             https://github.com/settings/tokens 에서 "Fine-grained personal access token"
+#                             repository permissions: Contents (read/write), Pull requests (read/write), Issues (read/write)
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  claude:
+    # @claude 멘션이 있을 때만 실행 (워크플로우 무한 발화 방지)
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # PR 작성자가 본인이 되도록 PAT 사용 (GITHUB_TOKEN 이면 github-actions[bot] 작성)
+          token: ${{ secrets.WORKFLOW_PAT }}
+          fetch-depth: 0
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Claude 가 git 작업 시 본인 이름으로 commit 하도록
+          # (PAT 와 함께 동작 — push 시점에 PAT 의 GitHub 계정이 PR 작성자로 들어감)
+          github_token: ${{ secrets.WORKFLOW_PAT }}
