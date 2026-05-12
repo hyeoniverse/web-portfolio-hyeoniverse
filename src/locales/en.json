@@ -780,7 +780,14 @@
         "loadMore": "Load more",
         "searchFailed": "Search failed",
         "downloadFailed": "Download failed",
-        "unsplashLicenseNote": "All results are free for personal & commercial use under"
+        "unsplashLicenseNote": "All results are free for personal & commercial use under",
+        "close": "Close",
+        "remove": "Remove",
+        "copyKeyword": "Copy keyword",
+        "copyPalette": "Copy palette",
+        "addStop": "Add stop",
+        "randomGradient": "Random gradient",
+        "baseColor": "Base color"
       },
       "seriesModal": {
         "editTitle": "Edit Series",

@@ -9,6 +9,7 @@ import AIGenerateTab from "./AIGenerateTab";
 import HistoryTab from "./HistoryTab";
 import { useHistory, type HistorySource } from "./useHistory";
 import CloseIcon from "@/components/ui/CloseIcon";
+import Tooltip from "@/components/ui/Tooltip";
 import styles from "./CoverImagePicker.module.css";
 
 type Tab = "presets" | "unsplash" | "ai" | "history";
@@ -89,9 +90,11 @@ export default function CoverImagePicker({
           {tc("history")}
           {history.length > 0 && <span className={styles.tabCount}>{history.length}</span>}
         </button>
-        <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close" data-close-trigger>
-          <CloseIcon />
-        </button>
+        <Tooltip content={tc("close")} placement="bottom">
+          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label={tc("close")} data-close-trigger>
+            <CloseIcon />
+          </button>
+        </Tooltip>
       </div>
 
       <div className={styles.body} data-lenis-prevent>

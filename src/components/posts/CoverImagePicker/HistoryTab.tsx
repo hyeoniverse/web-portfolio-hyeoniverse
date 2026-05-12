@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { Check, Copy, Download, Palette, Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import Tooltip from "@/components/ui/Tooltip";
 import { extractPalette } from "@/components/admin/CoverImageField/extractPalette";
 import type { HistoryItem } from "./useHistory";
 import styles from "./CoverImagePicker.module.css";
@@ -103,44 +104,48 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
             </span>
             {/* 좌상단 — tool button cluster (hover): 제거 / 키워드 복사 / 색상표 복사 / 다운로드 */}
             <div className={styles.historyActions}>
-              <button
-                type="button"
-                className={styles.historyOverlayBtn}
-                onClick={(e) => { e.stopPropagation(); onRemove(item.url); }}
-                aria-label="Remove"
-                title="Remove"
-              >
-                <Trash2 size={11} strokeWidth={2} />
-              </button>
-              {item.meta && (
+              <Tooltip content={t("admin.posts.coverPicker.remove")} placement="top">
                 <button
                   type="button"
                   className={styles.historyOverlayBtn}
-                  onClick={(e) => { e.stopPropagation(); copy(item.meta); }}
-                  aria-label="Copy keyword"
-                  title="키워드 복사"
+                  onClick={(e) => { e.stopPropagation(); onRemove(item.url); }}
+                  aria-label={t("admin.posts.coverPicker.remove")}
                 >
-                  <Copy size={11} strokeWidth={2} />
+                  <Trash2 size={11} strokeWidth={2} />
                 </button>
+              </Tooltip>
+              {item.meta && (
+                <Tooltip content={t("admin.posts.coverPicker.copyKeyword")} placement="top">
+                  <button
+                    type="button"
+                    className={styles.historyOverlayBtn}
+                    onClick={(e) => { e.stopPropagation(); copy(item.meta); }}
+                    aria-label={t("admin.posts.coverPicker.copyKeyword")}
+                  >
+                    <Copy size={11} strokeWidth={2} />
+                  </button>
+                </Tooltip>
               )}
-              <button
-                type="button"
-                className={styles.historyOverlayBtn}
-                onClick={(e) => { e.stopPropagation(); copyPalette(item.url); }}
-                aria-label="Copy palette"
-                title="색상표 복사"
-              >
-                <Palette size={11} strokeWidth={2} />
-              </button>
-              <button
-                type="button"
-                className={styles.historyOverlayBtn}
-                onClick={(e) => { e.stopPropagation(); downloadUrl(item.url, item.meta); }}
-                aria-label={t("admin.posts.coverPicker.download")}
-                title={t("admin.posts.coverPicker.download")}
-              >
-                <Download size={11} strokeWidth={2} />
-              </button>
+              <Tooltip content={t("admin.posts.coverPicker.copyPalette")} placement="top">
+                <button
+                  type="button"
+                  className={styles.historyOverlayBtn}
+                  onClick={(e) => { e.stopPropagation(); copyPalette(item.url); }}
+                  aria-label={t("admin.posts.coverPicker.copyPalette")}
+                >
+                  <Palette size={11} strokeWidth={2} />
+                </button>
+              </Tooltip>
+              <Tooltip content={t("admin.posts.coverPicker.download")} placement="top">
+                <button
+                  type="button"
+                  className={styles.historyOverlayBtn}
+                  onClick={(e) => { e.stopPropagation(); downloadUrl(item.url, item.meta); }}
+                  aria-label={t("admin.posts.coverPicker.download")}
+                >
+                  <Download size={11} strokeWidth={2} />
+                </button>
+              </Tooltip>
             </div>
           </div>
         );
