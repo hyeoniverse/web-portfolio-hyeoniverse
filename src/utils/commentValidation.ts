@@ -43,10 +43,14 @@ export function sanitizeContent(raw: unknown): { valid: boolean; value: string; 
   return { valid: true, value: trimmed };
 }
 
-/** 비밀번호 검증 (bcrypt 72바이트 제한 + 최소 길이) */
+/**
+ * 비밀번호 검증 (bcrypt 72바이트 제한 + 최소 길이).
+ * 빈 값을 거절 — 익명 댓글 인증 경로가 비번 1개로 단일화됐기 때문에
+ * 비번 없이 만들어지면 작성자가 본인 댓글도 수정/삭제 못 함.
+ */
 export function validatePassword(raw: unknown): { valid: boolean; value: string; error?: string } {
   if (typeof raw !== "string" || !raw.trim()) {
-    return { valid: true, value: "" }; // password is optional for some flows
+    return { valid: false, value: "", error: "PASSWORD_REQUIRED" };
   }
 
   const trimmed = raw.trim();

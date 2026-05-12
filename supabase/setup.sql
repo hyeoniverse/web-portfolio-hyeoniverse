@@ -347,12 +347,19 @@ CREATE POLICY "site_visits_service_all"
 CREATE TABLE IF NOT EXISTS post_views (
   id        uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   post_id   uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  ip        text,
   viewed_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- 기존 DB 에 ip 컬럼 추가 (idempotent)
+ALTER TABLE post_views ADD COLUMN IF NOT EXISTS ip text;
 
 -- 시간 범위 + post 별 조회용
 CREATE INDEX IF NOT EXISTS idx_post_views_post_id_viewed_at
   ON post_views (post_id, viewed_at DESC);
+-- IP 별 dedup 빠른 조회용 (1일 1회 view 제한)
+CREATE INDEX IF NOT EXISTS idx_post_views_post_ip_viewed_at
+  ON post_views (post_id, ip, viewed_at DESC);
 -- 전체 시계열 (대시보드 일별 추세)
 CREATE INDEX IF NOT EXISTS idx_post_views_viewed_at
   ON post_views (viewed_at DESC);

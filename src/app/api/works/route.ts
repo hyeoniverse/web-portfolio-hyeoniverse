@@ -16,6 +16,12 @@ export async function GET(request: Request) {
   const search = searchParams.get("search") ?? "";
   const searchType = searchParams.get("searchType") ?? "title";
 
+  // ?all / ?trash 는 비공개 / 휴지통 — admin 인증 필요
+  if (showAll || showTrash) {
+    const { error: authError } = await requireAuth();
+    if (authError) return authError;
+  }
+
   const supabase = createAdminClient();
 
   let query = supabase.from("works").select("*", { count: "exact" });
