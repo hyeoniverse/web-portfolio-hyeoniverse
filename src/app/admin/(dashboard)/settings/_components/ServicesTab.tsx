@@ -5,7 +5,7 @@ import { ChevronUp, ChevronDown, X } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
-import Toggle from "@/components/ui/Toggle";
+import { Switch } from "@/components/ui/Switch";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import type { SettingsTabProps } from "../_types";
@@ -376,10 +376,11 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
               onChange={(v) => update("emailService", "provider", v as SiteConfigData["emailService"]["provider"])}
             />
           </div>
-          <Toggle
+          <Switch
+            size="md"
             label={t("admin.settings.emailFileUpload")}
             checked={config.emailService.enableFileUpload}
-            onChange={(v) => update("emailService", "enableFileUpload", v)}
+            onCheckedChange={(v) => update("emailService", "enableFileUpload", v)}
           />
         </div>
       </section>
@@ -388,10 +389,11 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
         <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
           <h2 className={styles.sectionTitle}><T k="admin.settings.aiSettings" /></h2>
-          <Toggle
+          <Switch
+            size="md"
             label={t("admin.settings.aiCoverHint")}
             checked={config.aiCover?.enabled !== false}
-            onChange={(v) => setConfig((prev) => ({ ...prev, aiCover: { ...prev.aiCover, enabled: v } }))}
+            onCheckedChange={(v) => setConfig((prev) => ({ ...prev, aiCover: { ...prev.aiCover, enabled: v } }))}
           />
         </div>
         <div className={styles.fields}>
@@ -421,10 +423,11 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
               }}
             />
           </div>
-          <Toggle
+          <Switch
+            size="md"
             label={t("admin.settings.fallbackEnabled")}
             checked={config.aiCover?.fallback?.enabled ?? false}
-            onChange={(v) => {
+            onCheckedChange={(v) => {
               const defaultPriority = AI_COVER_OPTIONS
                 .filter((o) => o.value !== (config.aiCover?.provider ?? "nanobanana"))
                 .map((o) => o.value) as AICoverProvider[];
@@ -478,10 +481,11 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       <section className={styles.section}>
         <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
           <h2 className={styles.sectionTitle}><T k="admin.settings.aiSummarySettings" /></h2>
-          <Toggle
+          <Switch
+            size="md"
             label={t("admin.settings.aiSummaryHint")}
             checked={config.aiSummary?.enabled !== false}
-            onChange={(v) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, enabled: v } }))}
+            onCheckedChange={(v) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, enabled: v } }))}
           />
         </div>
         <div className={styles.fields}>
@@ -511,10 +515,11 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
               }}
             />
           </div>
-          <Toggle
+          <Switch
+            size="md"
             label={t("admin.settings.fallbackEnabled")}
             checked={config.aiSummary?.fallback?.enabled ?? false}
-            onChange={(v) => {
+            onCheckedChange={(v) => {
               const defaultPriority = AI_SUMMARY_OPTIONS
                 .filter((o) => o.value !== (config.aiSummary?.provider ?? "gemini"))
                 .map((o) => o.value) as AISummaryProvider[];
@@ -568,10 +573,11 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
         <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
           <h2 className={styles.sectionTitle}><T k="admin.settings.translationSettings" /></h2>
-          <Toggle
+          <Switch
+            size="md"
             label={t("admin.settings.translationHint")}
             checked={config.translation?.enabled !== false}
-            onChange={(v) => setConfig((prev) => ({ ...prev, translation: { ...prev.translation, enabled: v } }))}
+            onCheckedChange={(v) => setConfig((prev) => ({ ...prev, translation: { ...prev.translation, enabled: v } }))}
           />
         </div>
         <div className={styles.fields}>
@@ -601,10 +607,11 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
               }}
             />
           </div>
-          <Toggle
+          <Switch
+            size="md"
             label={t("admin.settings.fallbackEnabled")}
             checked={config.translation?.fallback?.enabled ?? false}
-            onChange={(v) => {
+            onCheckedChange={(v) => {
               const defaultPriority = TRANSLATION_OPTIONS
                 .filter((o) => o.value !== (config.translation?.provider ?? "deepl"))
                 .map((o) => o.value) as TranslationProvider[];
@@ -658,10 +665,11 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       <section className={styles.section}>
         <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
           <h2 className={styles.sectionTitle}><T k="admin.settings.commentNotifications" /></h2>
-          <Toggle
+          <Switch
+            size="md"
             label={t("admin.settings.commentNotifyHintShort")}
             checked={config.commentEmailNotify ?? false}
-            onChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
+            onCheckedChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
           />
         </div>
         <div className={styles.fields}>
@@ -673,10 +681,11 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
       <section className={styles.section}>
         <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
           <h2 className={styles.sectionTitle}><T k="admin.settings.securitySettings" /></h2>
-          <Toggle
+          <Switch
+            size="md"
             label={t("admin.settings.recaptchaHint")}
             checked={config.recaptcha.enabled}
-            onChange={(v) => update("recaptcha", "enabled", v)}
+            onCheckedChange={(v) => update("recaptcha", "enabled", v)}
           />
         </div>
         <div className={styles.fields}>

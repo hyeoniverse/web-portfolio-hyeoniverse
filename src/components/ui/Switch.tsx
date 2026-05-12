@@ -12,6 +12,10 @@ interface SwitchProps {
   className?: string;
   name?: string;
   variant?: "default" | "accent";
+  /** "sm" (default, 36×20) — 컴팩트 UI / "md" (44×24) — form row */
+  size?: "sm" | "md";
+  /** 좌측에 라벨이 붙는 form-row 레이아웃. 비어 있으면 그냥 raw 토글 */
+  label?: string;
 }
 
 function Switch({
@@ -22,6 +26,8 @@ function Switch({
   className,
   name,
   variant = "default",
+  size = "sm",
+  label,
 }: SwitchProps) {
   const [internalChecked, setInternalChecked] = useState(defaultChecked);
   const isChecked = controlledChecked ?? internalChecked;
@@ -33,7 +39,9 @@ function Switch({
     onCheckedChange?.(next);
   }, [disabled, isChecked, controlledChecked, onCheckedChange]);
 
-  return (
+  const sizeClass = size === "md" ? styles.sizeMd : styles.sizeSm;
+
+  const button = (
     <button
       type="button"
       role="switch"
@@ -41,7 +49,7 @@ function Switch({
       data-state={isChecked ? "checked" : "unchecked"}
       data-disabled={disabled || undefined}
       disabled={disabled}
-      className={cn(styles.root, variant === "accent" && styles.accent, className)}
+      className={cn(styles.root, sizeClass, variant === "accent" && styles.accent, !label && className)}
       onClick={toggle}
       name={name}
     >
@@ -51,6 +59,17 @@ function Switch({
       />
     </button>
   );
+
+  if (label) {
+    return (
+      <div className={cn(styles.row, className)}>
+        <span className={styles.label}>{label}</span>
+        {button}
+      </div>
+    );
+  }
+
+  return button;
 }
 
 export { Switch };

@@ -14,7 +14,7 @@ import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SeriesInlineEditor, { type SeriesInlineEditorHandle } from "./SeriesInlineEditor";
-import Toggle from "@/components/ui/Toggle";
+import { Switch } from "@/components/ui/Switch";
 import SeriesDeleteModal from "./SeriesDeleteModal";
 import styles from "../Settings.module.css";
 
@@ -268,9 +268,10 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
                     <span key={expandedPublished ? "pub" : "draft"} className={styles.publishLabel}>
                       {expandedPublished ? t("admin.posts.seriesModal.publishedLabel") : t("admin.posts.seriesModal.draftLabel")}
                     </span>
-                    <Toggle
+                    <Switch
+                      size="md"
                       checked={expandedPublished}
-                      onChange={(v) => {
+                      onCheckedChange={(v) => {
                         setExpandedPublished(v);
                         expandedEditorRef.current?.setPublished(v);
                       }}
@@ -343,9 +344,10 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
               <span key={newEditorPublished ? "pub" : "draft"} className={styles.publishLabel}>
                 {newEditorPublished ? t("admin.posts.seriesModal.publishedLabel") : t("admin.posts.seriesModal.draftLabel")}
               </span>
-              <Toggle
+              <Switch
+                size="md"
                 checked={newEditorPublished}
-                onChange={(v) => {
+                onCheckedChange={(v) => {
                   setNewEditorPublished(v);
                   newEditorRef.current?.setPublished(v);
                 }}
