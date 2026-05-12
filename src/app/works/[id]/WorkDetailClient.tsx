@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import "katex/dist/katex.min.css";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
@@ -28,6 +28,7 @@ import ShareButton from "@/components/ui/ShareButton";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import Tooltip from "@/components/ui/Tooltip";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
+import { useLikeToggle } from "@/hooks/useLikeToggle";
 import styles from "./WorkDetail.module.css";
 
 interface WorkDetailClientProps {
@@ -51,48 +52,20 @@ export default function WorkDetailClient({
     !project.content.en ? "ko" : !project.content.ko ? "en" : language === "en" ? "en" : "ko"
   );
   const isAdmin = useIsAuthenticated();
-  const [likeCount, setLikeCount] = useState(0);
-  const [liked, setLiked] = useState(false);
+  const { count: likeCount, liked, busy: likeBusy, toggle: handleLikeToggle } = useLikeToggle({
+    endpoint: `/api/works/${project.id}/like`,
+  });
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
   const [relatedPosts, setRelatedPosts] = useState<{ id: string; title: string; title_en?: string; slug: string; cover_image: string; excerpt: string; category: string; created_at: string }[]>([]);
   const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const richtextRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch(`/api/works/${project.id}/like`)
-      .then((r) => r.json())
-      .then((d) => {
-        setLikeCount(d.count ?? 0);
-        setLiked(d.liked ?? false);
-      })
-      .catch(() => {});
-
     fetch(`/api/works/${project.id}/related-posts`)
       .then((r) => r.json())
       .then((d) => { if (Array.isArray(d?.items)) setRelatedPosts(d.items); })
       .catch(() => {});
   }, [project.id]);
-
-  const likeRef = useRef(false);
-  const [likeBusy, setLikeBusy] = useState(false);
-  const handleLikeToggle = useCallback(async () => {
-    if (likeRef.current) return;
-    likeRef.current = true;
-    setLikeBusy(true);
-    setLiked((prev) => !prev);
-    setLikeCount((c) => (liked ? Math.max(0, c - 1) : c + 1));
-    try {
-      const res = await fetch(`/api/works/${project.id}/like`, {
-        method: "POST",
-      });
-      const data = await res.json();
-      setLikeCount(data.count);
-      setLiked(data.liked);
-    } finally {
-      likeRef.current = false;
-      setLikeBusy(false);
-    }
-  }, [project.id, liked]);
 
   const contentRaw = project.content[viewLang] || project.content.ko;
   // richtext img에 data-cursor="zoom" 주입 (CursorTrail 이미지 뷰어 힌트)
