@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Plus, Settings, Bell, TrendingUp, TrendingDown, MessageSquare, Eye, Heart, Globe, Smartphone, Monitor, Tablet, ChevronRight } from "lucide-react";
-import { useLenis } from "@/providers/LenisProvider";
+import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
@@ -71,7 +71,7 @@ interface DashboardData {
 
 export default function AdminDashboard() {
   const { t, language } = useLanguage();
-  const { setInfinite, lenis, stop, start } = useLenis();
+  useStaticPageScroll();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,17 +89,6 @@ export default function AdminDashboard() {
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [deviceDrillKind]);
-
-  useEffect(() => {
-    stop();
-    setInfinite(false);
-    window.scrollTo(0, 0);
-    const timer = setTimeout(() => {
-      if (lenis) lenis.scrollTo(0, { immediate: true });
-      start();
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [setInfinite, lenis, stop, start]);
 
   const fetchData = useCallback(async () => {
     try {

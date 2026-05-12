@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ImageIcon, Trash2, Upload, Plus, Download } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { getTrashDaysLeft } from "@/utils/trash";
+import { downloadBlob, downloadFiles } from "@/utils/download";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Work } from "@/types/work";
@@ -238,16 +240,7 @@ export default function AdminWorksPage() {
       const res = await fetch("/api/works/export?all=true");
       if (!res.ok) return;
       const { files } = await res.json() as { files: { fileName: string; content: string }[] };
-      for (const file of files) {
-        const blob = new Blob([file.content], { type: "text/markdown" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.fileName;
-        a.click();
-        URL.revokeObjectURL(url);
-        await new Promise((r) => setTimeout(r, 100));
-      }
+      await downloadFiles(files);
     } finally {
       setExporting(false);
     }
@@ -416,12 +409,6 @@ export default function AdminWorksPage() {
   );
 
   /* ── Trash Section ── */
-  const TRASH_RETENTION_DAYS = 30;
-  const getDaysLeft = (deletedAt: string) => {
-    const deleted = new Date(deletedAt).getTime();
-    const expiresAt = deleted + TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000;
-    return Math.max(0, Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
-  };
 
   const trashIcon = <Trash2 size={13} />;
 
@@ -460,7 +447,7 @@ export default function AdminWorksPage() {
       label: t("admin.works.trashDaysLeftLabel") ?? "",
       className: st.colMeta,
       render: (work) => {
-        const daysLeft = work.deleted_at ? getDaysLeft(work.deleted_at) : 30;
+        const daysLeft = work.deleted_at ? getTrashDaysLeft(work.deleted_at) : 30;
         return (
           <span className={st.colDaysLeft}>
             <span className={daysLeft <= 7 ? st.accentText : ""}>{daysLeft}<T k="admin.works.trashDaysLeftUnit" /></span>
@@ -700,13 +687,7 @@ role: 풀스택 개발
             const disposition = res.headers.get("Content-Disposition") ?? "";
             const match = disposition.match(/filename="(.+)"/);
             const fileName = match?.[1] ?? `${id}.md`;
-            const blob = new Blob([text], { type: "text/markdown" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(url);
+            downloadBlob(text, fileName);
             await new Promise((r) => setTimeout(r, 100));
           }
         }}

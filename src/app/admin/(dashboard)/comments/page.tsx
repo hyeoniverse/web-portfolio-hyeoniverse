@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useLenis } from "@/providers/LenisProvider";
+import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import T from "@/components/ui/T";
@@ -38,7 +38,7 @@ const PAGE_SIZE = 20;
 
 export default function CommentsModerationPage() {
   const { t, language } = useLanguage();
-  const { setInfinite, lenis, stop, start } = useLenis();
+  useStaticPageScroll();
   const { openModal } = useModalStore();
 
   const [items, setItems] = useState<CommentRow[]>([]);
@@ -50,17 +50,6 @@ export default function CommentsModerationPage() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    stop();
-    setInfinite(false);
-    window.scrollTo(0, 0);
-    const timer = setTimeout(() => {
-      if (lenis) lenis.scrollTo(0, { immediate: true });
-      start();
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [setInfinite, lenis, stop, start]);
 
   const fetchComments = useCallback(async () => {
     setLoading(true);

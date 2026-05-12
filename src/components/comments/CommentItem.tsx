@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Globe } from "lucide-react";
 import type { Comment } from "@/types/post";
 import { getCommenterId, identityFromHash } from "@/utils/commenterIdentity";
+import { formatCount } from "@/utils/format";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import LoadingDots from "@/components/ui/LoadingDots";
@@ -13,12 +14,6 @@ import styles from "./CommentItem.module.css";
 
 function hasKorean(text: string): boolean {
   return /[\uac00-\ud7af]/.test(text);
-}
-
-function formatCount(n: number): string {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "m";
-  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
-  return String(n);
 }
 
 function formatDateTime(iso: string): string {
@@ -86,7 +81,10 @@ function CommentItem({
   const [deleting, setDeleting] = useState(false);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
-  const [translateServiceUnavailable, setTranslateServiceUnavailable] = useState(!translationEnabled);
+  // 503 응답에서 set — translationEnabled prop 변화에 의존하지 않게 분리
+  const [translateServiceUnavailable, setTranslateServiceUnavailable] = useState(false);
+  // render 시 prop + 런타임 상태 모두 반영
+  const canTranslate = translationEnabled && !translateServiceUnavailable;
   const [liked, setLiked] = useState(likedMap?.[comment.id] ?? false);
   const [likeCount, setLikeCount] = useState(likeCountMap?.[comment.id] ?? 0);
 
@@ -108,7 +106,7 @@ function CommentItem({
 
   const commenterId = useMemo(() => getCommenterId(), []);
 
-  const commenterHash = (comment as unknown as Record<string, unknown>).commenter_hash as string | undefined;
+  const commenterHash = comment.commenter_hash;
   const identity = useMemo(() => {
     if (commenterHash) {
       return identityFromHash(commenterHash);
@@ -335,6 +333,7 @@ function CommentItem({
                 onDragEnter={onDragEnter}
                 onDragEnd={onDragEnd}
                 onRefresh={onRefresh}
+                translationEnabled={translationEnabled}
               />
             ))}
           </div>
@@ -483,7 +482,7 @@ function CommentItem({
       </AnimatePresence>
 
       <div className={styles.commentActions}>
-        {!translateServiceUnavailable && <button
+        {canTranslate && <button
           type="button"
           className={`${styles.translateBtn} ${translatedText ? styles.translateBtnActive : ""}`}
           onClick={handleTranslate}
@@ -639,6 +638,7 @@ function CommentItem({
               onDragEnter={onDragEnter}
               onDragEnd={onDragEnd}
               onRefresh={onRefresh}
+              translationEnabled={translationEnabled}
             />
           ))}
         </div>
