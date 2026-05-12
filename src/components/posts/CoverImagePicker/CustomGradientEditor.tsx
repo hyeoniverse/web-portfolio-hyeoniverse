@@ -7,6 +7,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalAlert, ModalPrompt } from "@/components/ui/ModalTemplates";
 import LoadingDots from "@/components/ui/LoadingDots";
 import ColorPicker from "@/components/ui/ColorPicker";
+import Tooltip from "@/components/ui/Tooltip";
 import { extractPalette } from "@/components/admin/CoverImageField/extractPalette";
 import { renderGradient, type Stop, type GradientType, type PresetConfig } from "./gradientUtils";
 import styles from "./CoverImagePicker.module.css";
@@ -450,15 +451,16 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
         <div className={styles.schemeRow}>
           <ColorPicker value={baseColor} onChange={onBaseColorChange}>
             {({ toggle }) => (
-              <button
-                type="button"
-                className={styles.schemeBaseLabel}
-                onClick={toggle}
-                title="Base color"
-                aria-label="Base color"
-              >
-                <span className={styles.schemeBaseSwatch} style={{ background: baseColor }} aria-hidden />
-              </button>
+              <Tooltip content={tc("baseColor")} placement="top">
+                <button
+                  type="button"
+                  className={styles.schemeBaseLabel}
+                  onClick={toggle}
+                  aria-label={tc("baseColor")}
+                >
+                  <span className={styles.schemeBaseSwatch} style={{ background: baseColor }} aria-hidden />
+                </button>
+              </Tooltip>
             )}
           </ColorPicker>
           <div className={styles.schemeChips}>
@@ -474,26 +476,28 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
             ))}
           </div>
           {/* 색상표 붙여넣기 — clipboard 또는 prompt 로 hex 입력 받아 stop 변환 */}
-          <button
-            type="button"
-            className={styles.schemeImageBtn}
-            onClick={handlePastePalette}
-            title={tc("pastePalette")}
-            aria-label={tc("pastePalette")}
-          >
-            <ClipboardPaste size={12} strokeWidth={2} />
-          </button>
+          <Tooltip content={tc("pastePalette")} placement="top">
+            <button
+              type="button"
+              className={styles.schemeImageBtn}
+              onClick={handlePastePalette}
+              aria-label={tc("pastePalette")}
+            >
+              <ClipboardPaste size={12} strokeWidth={2} />
+            </button>
+          </Tooltip>
           {/* 이미지 업로드 → 색 추출 (scheme row 우측 끝) */}
-          <button
-            type="button"
-            className={styles.schemeImageBtn}
-            onClick={() => fileInputRef.current?.click()}
-            disabled={extracting}
-            title={tc("extractFromImage")}
-            aria-label={tc("extractFromImage")}
-          >
-            <ImagePlus size={12} strokeWidth={2} />
-          </button>
+          <Tooltip content={tc("extractFromImage")} placement="top">
+            <button
+              type="button"
+              className={styles.schemeImageBtn}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={extracting}
+              aria-label={tc("extractFromImage")}
+            >
+              <ImagePlus size={12} strokeWidth={2} />
+            </button>
+          </Tooltip>
           <input
             ref={fileInputRef}
             type="file"
@@ -558,16 +562,17 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
               </ColorPicker>
             ))}
           </div>
-          <button
-            type="button"
-            className={styles.stopAddBtn}
-            onClick={addColor}
-            title={stops.length >= 4 ? "Maximum stops reached" : "Add stop"}
-            aria-label="Add stop"
-            disabled={stops.length >= 4}
-          >
-            +
-          </button>
+          <Tooltip content={tc("addStop")} placement="top" disabled={stops.length >= 4}>
+            <button
+              type="button"
+              className={styles.stopAddBtn}
+              onClick={addColor}
+              aria-label={tc("addStop")}
+              disabled={stops.length >= 4}
+            >
+              +
+            </button>
+          </Tooltip>
         </div>
         {/* 줄1: 타입 토글 + 사용 버튼 */}
         <div className={styles.customRow}>
@@ -587,15 +592,16 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
               Radial
             </button>
           </div>
-          <button
-            type="button"
-            className={styles.customRandomBtn}
-            onClick={randomize}
-            title="Random gradient"
-            aria-label="Random gradient"
-          >
-            <Shuffle size={12} strokeWidth={2} />
-          </button>
+          <Tooltip content={tc("randomGradient")} placement="top">
+            <button
+              type="button"
+              className={styles.customRandomBtn}
+              onClick={randomize}
+              aria-label={tc("randomGradient")}
+            >
+              <Shuffle size={12} strokeWidth={2} />
+            </button>
+          </Tooltip>
           <button
             type="button"
             className={styles.customApplyBtn}

@@ -782,7 +782,14 @@
         "loadMore": "더 보기",
         "searchFailed": "검색 실패",
         "downloadFailed": "다운로드 실패",
-        "unsplashLicenseNote": "모든 결과는 개인·상업 이용 모두 무료"
+        "unsplashLicenseNote": "모든 결과는 개인·상업 이용 모두 무료",
+        "close": "닫기",
+        "remove": "삭제",
+        "copyKeyword": "키워드 복사",
+        "copyPalette": "팔레트 복사",
+        "addStop": "색상 추가",
+        "randomGradient": "랜덤 그라데이션",
+        "baseColor": "기본 색상"
       },
       "seriesModal": {
         "editTitle": "시리즈 수정",
