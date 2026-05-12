@@ -147,7 +147,7 @@
 /* 정보 영역 — 카드 하단 footer. 제목 2줄만 (이미지 영역 최대화) */
 .deckLayerInfo {
   flex: 0 0 auto;
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-xs);
   background: var(--bg-primary);
   border-top: var(--border-light);
 }

@@ -81,7 +81,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--box-xs);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   max-width: 100%;
