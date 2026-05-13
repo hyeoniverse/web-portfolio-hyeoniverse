@@ -265,17 +265,24 @@ export default function PlateEditor({
         } catch { /* ignore */ }
       };
 
-      const onCompStart = () => { composingRef.current = true; };
+      const onCompStart = () => {
+        composingRef.current = true;
+        console.log("[IME] compositionstart");
+      };
       const onCompEnd = () => {
         composingRef.current = false;
         const pending = pendingClickRef.current;
         pendingClickRef.current = null;
+        console.log("[IME] compositionend, pending click:", pending);
         if (pending) {
-          // slate-react 의 selection 처리가 끝난 뒤 우리가 다시 select 호출 → 1프레임 + setTimeout
-          requestAnimationFrame(() => applySelection(pending.x, pending.y));
+          requestAnimationFrame(() => {
+            console.log("[IME] applying selection at", pending.x, pending.y);
+            applySelection(pending.x, pending.y);
+          });
         }
       };
       const onMouseDown = (e: MouseEvent) => {
+        console.log("[IME] mousedown, composing:", composingRef.current);
         if (composingRef.current) {
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
         }
