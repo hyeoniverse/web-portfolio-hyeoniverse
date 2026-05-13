@@ -85,12 +85,7 @@ export const plugins = [
   SuperscriptPlugin,
   SubscriptPlugin,
   HighlightPlugin,
-  // v53 의 CodePlugin 은 rules.selection.affinity: "hard" 가 들어가 있어
-  // (1) arrow 이동 시 mark 경계 위치를 skip,
-  // (2) inline code 끝/안에서 다른 곳 클릭하면 cursor 가 code 쪽으로 stick.
-  // 깊은 merge 의 .configure() 로는 nested 객체 지울 수 없어 affinity 를 null 로
-  // 강제 덮어씀 → "null === 'hard'" 비교가 false 가 되어 hard 로직 우회.
-  CodePlugin.configure({ rules: { selection: { affinity: null as unknown as undefined } } }),
+  CodePlugin,
   KbdPlugin,
   // Block elements (드롭 존 래퍼 포함)
   HeadingPlugin.configure({ render: { node: HeadingElement } }),
