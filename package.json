@@ -32,7 +32,7 @@
     "@platejs/code-block": "^52.0.11",
     "@platejs/indent": "^52.0.11",
     "@platejs/layout": "^52.0.11",
-    "@platejs/link": "^52.0.11",
+    "@platejs/link": "^53.0.3",
     "@platejs/list": "^52.0.11",
     "@platejs/math": "^52.0.11",
     "@platejs/media": "^52.0.11",
