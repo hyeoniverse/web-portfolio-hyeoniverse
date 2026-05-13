@@ -155,8 +155,6 @@ export default function ContactDrawer({
       document.body.style.position = "fixed";
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = "100%";
-      // drawer 열린 동안 navigation 좌상단 숏로고 숨김 — drawer 의 중앙 풀로고와 중복 방지
-      document.documentElement.setAttribute("data-contact-drawer-open", "");
       requestAnimationFrame(() => {
         document.documentElement.style.overflow = "visible";
       });
@@ -176,7 +174,6 @@ export default function ContactDrawer({
       }, 1300);
       // 스크롤 복원
       document.documentElement.style.overflow = "";
-      document.documentElement.removeAttribute("data-contact-drawer-open");
       const top = document.body.style.top;
       document.body.style.position = "";
       document.body.style.top = "";
@@ -199,7 +196,6 @@ export default function ContactDrawer({
         el.style.transition = "";
       });
       document.documentElement.style.overflow = "";
-      document.documentElement.removeAttribute("data-contact-drawer-open");
       const top = document.body.style.top;
       document.body.style.position = "";
       document.body.style.top = "";
