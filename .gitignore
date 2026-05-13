@@ -42,5 +42,5 @@ yarn-error.log*
 next-env.d.ts
 src/config/hyeon.config.ts
 
-# claude code
-.claude/worktrees/
+# claude code — 개인 환경 설정 (permissions, hooks, worktrees) — 공유 X
+.claude/
