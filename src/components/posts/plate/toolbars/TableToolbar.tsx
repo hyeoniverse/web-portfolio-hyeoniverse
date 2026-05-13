@@ -258,21 +258,22 @@ export default React.memo(function TableToolbar({
               className={styles.borderPopover}
               style={{ position: "fixed", top: popPos.top, left: popPos.left, transform: "translateX(-50%)" }}
             >
-              <div className={styles.borderPopSection}>
-                <div className={styles.borderPopSectionHeader}>
-                  <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
-                  <Tooltip content={t("editor.borderClear")} placement="top">
-                    <button
-                      type="button"
-                      className={styles.borderClearBtn}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => bp.applyBorders("none")}
-                    >
-                      {t("editor.borderClear")}
-                    </button>
-                  </Tooltip>
-                </div>
-                <div className={styles.borderGrid}>
+              <div className={styles.borderPopTopRow}>
+                <div className={styles.borderPopSection}>
+                  <div className={styles.borderPopSectionHeader}>
+                    <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
+                    <Tooltip content={t("editor.borderClear")} placement="top">
+                      <button
+                        type="button"
+                        className={styles.borderClearBtn}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => bp.applyBorders("none")}
+                      >
+                        {t("editor.borderClear")}
+                      </button>
+                    </Tooltip>
+                  </div>
+                  <div className={styles.borderGrid}>
                   {/* 3x3:
                        Row 1: 바깥선 안쪽선 모두
                        Row 2: 왼쪽 세로안쪽 오른쪽
@@ -304,26 +305,29 @@ export default React.memo(function TableToolbar({
                       </Tooltip>
                     );
                   })}
+                  </div>
                 </div>
-              </div>
-              <div className={styles.borderPopSection}>
-                <span className={styles.borderPopLabel}>{t("editor.borderStyle")}</span>
-                <select value={bp.mixed.style ? "__mixed" : bp.style} onChange={(e) => { if (e.target.value !== "__mixed") bp.setStyle(e.target.value); }} className={styles.borderPopSelect}>
-                  {bp.mixed.style && <option value="__mixed">{t("editor.borderMixed")}</option>}
-                  {TABLE_BORDER_STYLES.map((s) => (
-                    <option key={s.value} value={s.value}>
-                      {s.value === "solid" ? `───  ${t("editor.borderSolid")}` : s.value === "dotted" ? `· · ·  ${t("editor.borderDotted")}` : s.value === "dashed" ? `- - -  ${t("editor.borderDashed")}` : `═══  ${t("editor.borderDouble")}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.borderPopSection}>
-                <span className={styles.borderPopLabel}>{t("editor.borderWidth")}</span>
-                <div className={styles.borderWidthCapsule}>
-                  {bp.mixed.width && <span className={styles.borderMixedLabel}>{t("editor.borderMixed")}</span>}
-                  {TABLE_BORDER_WIDTHS.map((w) => (
-                    <button key={w} type="button" className={`${styles.borderWidthBtn} ${!bp.mixed.width && bp.width === w ? styles.borderWidthBtnActive : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => bp.setWidth(w)}>{w}</button>
-                  ))}
+                <div className={styles.borderPopRightStack}>
+                  <div className={styles.borderPopSection}>
+                    <span className={styles.borderPopLabel}>{t("editor.borderStyle")}</span>
+                    <select value={bp.mixed.style ? "__mixed" : bp.style} onChange={(e) => { if (e.target.value !== "__mixed") bp.setStyle(e.target.value); }} className={styles.borderPopSelect}>
+                      {bp.mixed.style && <option value="__mixed">{t("editor.borderMixed")}</option>}
+                      {TABLE_BORDER_STYLES.map((s) => (
+                        <option key={s.value} value={s.value}>
+                          {s.value === "solid" ? `───  ${t("editor.borderSolid")}` : s.value === "dotted" ? `· · ·  ${t("editor.borderDotted")}` : s.value === "dashed" ? `- - -  ${t("editor.borderDashed")}` : `═══  ${t("editor.borderDouble")}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className={styles.borderPopSection}>
+                    <span className={styles.borderPopLabel}>{t("editor.borderWidth")}</span>
+                    <div className={styles.borderWidthCapsule}>
+                      {bp.mixed.width && <span className={styles.borderMixedLabel}>{t("editor.borderMixed")}</span>}
+                      {TABLE_BORDER_WIDTHS.map((w) => (
+                        <button key={w} type="button" className={`${styles.borderWidthBtn} ${!bp.mixed.width && bp.width === w ? styles.borderWidthBtnActive : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => bp.setWidth(w)}>{w}</button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className={styles.borderPopSection}>
