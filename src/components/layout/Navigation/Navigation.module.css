@@ -560,13 +560,14 @@
   text-decoration: inherit;
   text-underline-offset: inherit;
   pointer-events: none;
-  /* mask 로 하단 50% 만 보이는 layer — 윗면 곡선 + bottom 100% 채움 */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 50%, black 60%, black 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, transparent 50%, black 60%, black 100%);
-  -webkit-mask-size: 100% 220%;
-  mask-size: 100% 220%;
-  -webkit-mask-position: 0 -100%;
-  mask-position: 0 -100%;
+  /* mask 의 transparent→opaque 경계가 곧 수면. 경계 부근에 부드러운 gradient 영역(soft edge)
+     이 있어 그 위에서 출렁임 animation 이 시각적으로 드러남 */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 30%, black 50%, black 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, transparent 30%, black 50%, black 100%);
+  -webkit-mask-size: 100% 280%;
+  mask-size: 100% 280%;
+  -webkit-mask-position: 0 -180%;
+  mask-position: 0 -180%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   transition:
@@ -574,19 +575,20 @@
     mask-position 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* hover 시 수면이 글자 위쪽 (약 30~40%) 까지만 차오름 — 끝까지 안 채워서 윗부분에 출렁임 보임 */
 .menuFooterEmail:hover .menuFooterEmailFill {
-  -webkit-mask-position: 0 100%;
-  mask-position: 0 100%;
+  -webkit-mask-position: 0 35%;
+  mask-position: 0 35%;
 }
 
 /* 3개 layer — 서로 다른 타이밍·opacity 로 다중 물결 느낌 */
 .menuFooterEmailFillBack {
-  opacity: 0.35;
+  opacity: 0.4;
   transition-delay: 0s;
   animation: menuEmailWave1 2.4s ease-in-out 1.2s infinite alternate;
 }
 .menuFooterEmailFillMid {
-  opacity: 0.6;
+  opacity: 0.65;
   transition-delay: 0.12s;
   animation: menuEmailWave2 2s ease-in-out 1.3s infinite alternate;
 }
@@ -600,18 +602,21 @@
   animation: none;
 }
 
-/* 물결 출렁임 — 각 layer 가 살짝씩 다른 진폭/방향 */
+/* 출렁임 — mask-position 을 미세하게 흔들어 수면이 좌우 위아래 일렁임 */
 @keyframes menuEmailWave1 {
-  0%   { transform: translateY(0) scaleY(1); }
-  100% { transform: translateY(-2px) scaleY(1.02); }
+  0%   { -webkit-mask-position: 0 35%; mask-position: 0 35%; }
+  50%  { -webkit-mask-position: -3% 33%; mask-position: -3% 33%; }
+  100% { -webkit-mask-position: 0 37%; mask-position: 0 37%; }
 }
 @keyframes menuEmailWave2 {
-  0%   { transform: translateX(0) translateY(0); }
-  100% { transform: translateX(3px) translateY(-1px); }
+  0%   { -webkit-mask-position: 0 35%; mask-position: 0 35%; }
+  50%  { -webkit-mask-position: 2% 36%; mask-position: 2% 36%; }
+  100% { -webkit-mask-position: -2% 34%; mask-position: -2% 34%; }
 }
 @keyframes menuEmailWave3 {
-  0%   { transform: translateX(0) translateY(0); }
-  100% { transform: translateX(-3px) translateY(-2px); }
+  0%   { -webkit-mask-position: 0 35%; mask-position: 0 35%; }
+  50%  { -webkit-mask-position: 1% 34%; mask-position: 1% 34%; }
+  100% { -webkit-mask-position: -1% 36%; mask-position: -1% 36%; }
 }
 
 .menuNav {
@@ -1234,11 +1239,15 @@
 .navMenuOpen .contactBtn,
 .navMenuOpen .soundBtnWrap,
 .navMenuOpen .navActions {
+  /* opacity 가 곱셈 합성이라 자식의 visibility:visible 인라인 스타일을 무력화 — 숏 로고도 확실히 숨김 */
+  opacity: 0;
+  pointer-events: none;
   visibility: hidden;
 }
 
 .navMenuOpen .actionBtn:not(.menuBtn) {
-  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Logo wrapper: transform 기반 중앙→nav 이동 애니메이션 */
