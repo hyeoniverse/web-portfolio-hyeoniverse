@@ -1348,6 +1348,7 @@
     "borderWidth": "Width",
     "borderColor": "Color",
     "borderColorRecent": "Recent",
+    "borderClear": "Clear all",
     "caption": "Caption",
     "captionPlaceholder": "Enter caption...",
     "removeCaption": "Remove caption",
