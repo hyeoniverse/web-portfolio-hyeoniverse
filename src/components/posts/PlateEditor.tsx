@@ -285,14 +285,17 @@ export default function PlateEditor({
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
           return;
         }
-        // composition 직후 (100ms 이내) 클릭 → slate-react 의 isComposing React state 가
-        // 아직 true 인 상태라 selection update 가 skip 됨. 좌표 저장 후 다음 tick 에
-        // 직접 select 호출.
+        // composition 직후 (100ms 이내) 클릭 → slate-react 가 deferred selection
+        // update 를 예약하는데 우리 select 보다 나중에 실행되어 덮어씀.
+        // → 충분히 늦게 (2번의 rAF + setTimeout) 우리 select 를 호출해서 마지막 권한 확보.
         if (Date.now() - lastCompositionEndRef.current < 100) {
           const x = e.clientX;
           const y = e.clientY;
-          // slate-react 가 이번 mousedown 처리 끝낼 때까지 짧게 대기 후 우리가 덮어씀
-          setTimeout(() => applySelection(x, y), 0);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              setTimeout(() => applySelection(x, y), 0);
+            });
+          });
         }
       };
 
