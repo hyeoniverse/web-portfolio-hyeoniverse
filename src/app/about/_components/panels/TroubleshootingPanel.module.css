@@ -1590,6 +1590,11 @@
   cursor: grabbing;
 }
 
+/* 노드 위에서는 별도 cursor — 드래그 가능 시각 힌트 */
+.diagramViewerCanvas [data-node-id] {
+  cursor: move;
+}
+
 .diagramViewerCanvas {
   position: absolute;
   top: 0;

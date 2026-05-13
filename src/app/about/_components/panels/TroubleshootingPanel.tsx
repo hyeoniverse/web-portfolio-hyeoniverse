@@ -14,6 +14,7 @@ import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import FlowDiagram from "../FlowDiagram";
+import { getNodeX, getNodeY } from "../_utils/flowLayout";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import { ImageViewer } from "@/components/ui/ImageViewer";
@@ -107,7 +108,7 @@ function DifficultyBadge({
   );
 }
 
-/** Flow chart 인터랙티브 풀스크린 viewer — 휠 zoom, 드래그 pan, +/-/리셋/닫기 컨트롤 */
+/** Flow chart 인터랙티브 풀스크린 viewer — 휠 zoom, 빈 영역 드래그 pan, 노드 드래그로 개별 이동, +/-/리셋/닫기 컨트롤 */
 function DiagramFullscreenViewer({
   diagram,
   language,
@@ -119,10 +120,14 @@ function DiagramFullscreenViewer({
 }) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [nodePositions, setNodePositions] = useState<Map<string, { x: number; y: number }>>(() => new Map());
   const stageRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ active: boolean; startX: number; startY: number; panX: number; panY: number }>({
-    active: false, startX: 0, startY: 0, panX: 0, panY: 0,
-  });
+  // dragMode: pan = 전체 canvas 이동, node = 개별 노드 이동
+  const dragRef = useRef<
+    | { mode: "none" }
+    | { mode: "pan"; startX: number; startY: number; panX: number; panY: number }
+    | { mode: "node"; nodeId: string; startX: number; startY: number; nodeX: number; nodeY: number }
+  >({ mode: "none" });
 
   // ESC 로 닫기 + body 스크롤 잠금 (event 차단 방식, body 위치 변경 X — GSAP/Lenis 영향 없음)
   useEffect(() => {
@@ -164,31 +169,61 @@ function DiagramFullscreenViewer({
     });
   }, []);
 
-  // 드래그 pan
+  // 드래그 시작 — 노드 위에서 시작하면 node mode, 빈 영역에서 시작하면 pan mode
   const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    dragRef.current = {
-      active: true,
-      startX: e.clientX,
-      startY: e.clientY,
-      panX: pan.x,
-      panY: pan.y,
-    };
-    (e.target as Element).setPointerCapture?.(e.pointerId);
-  }, [pan]);
+    const target = e.target as Element;
+    const nodeEl = target.closest("[data-node-id]") as SVGGElement | null;
+    if (nodeEl) {
+      const nodeId = nodeEl.dataset.nodeId!;
+      const node = diagram.nodes.find((n) => n.id === nodeId);
+      if (!node) return;
+      const curX = getNodeX(node, nodePositions);
+      const curY = getNodeY(node, nodePositions);
+      dragRef.current = {
+        mode: "node",
+        nodeId,
+        startX: e.clientX,
+        startY: e.clientY,
+        nodeX: curX,
+        nodeY: curY,
+      };
+    } else {
+      dragRef.current = {
+        mode: "pan",
+        startX: e.clientX,
+        startY: e.clientY,
+        panX: pan.x,
+        panY: pan.y,
+      };
+    }
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+  }, [pan, diagram.nodes, nodePositions]);
   const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current.active) return;
-    setPan({
-      x: dragRef.current.panX + (e.clientX - dragRef.current.startX),
-      y: dragRef.current.panY + (e.clientY - dragRef.current.startY),
-    });
-  }, []);
+    const drag = dragRef.current;
+    if (drag.mode === "pan") {
+      setPan({
+        x: drag.panX + (e.clientX - drag.startX),
+        y: drag.panY + (e.clientY - drag.startY),
+      });
+    } else if (drag.mode === "node") {
+      // 화면 좌표 delta 를 SVG 좌표로 변환 (zoom 만큼 나눠줘야 함)
+      const dx = (e.clientX - drag.startX) / zoom;
+      const dy = (e.clientY - drag.startY) / zoom;
+      setNodePositions((prev) => {
+        const next = new Map(prev);
+        next.set(drag.nodeId, { x: drag.nodeX + dx, y: drag.nodeY + dy });
+        return next;
+      });
+    }
+  }, [zoom]);
   const onPointerUp = useCallback(() => {
-    dragRef.current.active = false;
+    dragRef.current = { mode: "none" };
   }, []);
 
   const reset = useCallback(() => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
+    setNodePositions(new Map());
   }, []);
 
   if (typeof window === "undefined") return null;
@@ -227,7 +262,7 @@ function DiagramFullscreenViewer({
             transformOrigin: "0 0",
           }}
         >
-          <FlowDiagram nodes={diagram.nodes} edges={diagram.edges} language={language} />
+          <FlowDiagram nodes={diagram.nodes} edges={diagram.edges} language={language} nodePositions={nodePositions} />
         </div>
       </div>
 

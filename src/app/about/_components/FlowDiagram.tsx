@@ -10,12 +10,13 @@ import {
   TERMINAL_H,
   DIAMOND_W,
   DIAMOND_H,
-  nodeX,
-  nodeY,
+  getNodeX,
+  getNodeY,
   halfW,
   svgDimensions,
   buildEdgePath,
   edgeLabelPos,
+  type NodePositions,
 } from "./_utils/flowLayout";
 import styles from "./FlowDiagram.module.css";
 
@@ -23,9 +24,11 @@ interface FlowDiagramProps {
   nodes: FlowNode[];
   edges: FlowEdge[];
   language: Language;
+  /** node id → 절대 좌표. 풀스크린 viewer 에서 노드 드래그로 위치를 override 할 때 사용. */
+  nodePositions?: NodePositions;
 }
 
-function FlowDiagram({ nodes, edges, language }: FlowDiagramProps) {
+function FlowDiagram({ nodes, edges, language, nodePositions }: FlowDiagramProps) {
   const nodeMap = useMemo(() => {
     const m = new Map<string, FlowNode>();
     nodes.forEach((n) => m.set(n.id, n));
@@ -83,20 +86,20 @@ function FlowDiagram({ nodes, edges, language }: FlowDiagramProps) {
             let maxExitX = 0;
             for (const e of group) {
               const f = nodeMap.get(e.from);
-              if (f) maxExitX = Math.max(maxExitX, nodeX(f.row) + halfW(f.type));
+              if (f) maxExitX = Math.max(maxExitX, getNodeX(f, nodePositions) + halfW(f.type));
             }
             const tNode = nodeMap.get(target);
-            const entryX = tNode ? nodeX(tNode.row) - halfW(tNode.type) : maxExitX;
+            const entryX = tNode ? getNodeX(tNode, nodePositions) - halfW(tNode.type) : maxExitX;
             mergeXMap.set(target, (maxExitX + entryX) / 2);
           }
           return edges.map((edge) => {
             const from = nodeMap.get(edge.from);
             const to = nodeMap.get(edge.to);
             if (!from || !to) return null;
-            const fy = nodeY(from.col, from.row, from.y);
-            const ty = nodeY(to.col, to.row, to.y);
+            const fy = getNodeY(from, nodePositions);
+            const ty = getNodeY(to, nodePositions);
             const entryDir = (edge.label === "No" && from.type === "decision" && ty < fy && to.row > from.row) ? "top" as const : undefined;
-            const d = buildEdgePath(from, to, entryDir ? undefined : mergeXMap.get(edge.to), entryDir);
+            const d = buildEdgePath(from, to, entryDir ? undefined : mergeXMap.get(edge.to), entryDir, nodePositions);
             const eKey = `${edge.from}-${edge.to}`;
             const delay = (seqOrder.edgeSeq.get(eKey) ?? 0) * 0.1;
             const isCascade = from.type === "decision" && to.type === "decision" && from.row === to.row;
@@ -104,7 +107,7 @@ function FlowDiagram({ nodes, edges, language }: FlowDiagramProps) {
               <g key={`e-${eKey}`}>
                 <path d={d} fill="none" markerEnd={isCascade || edge.noArrow ? undefined : "url(#fd-arrow)"} className={styles.edge} style={{ animationDelay: `${delay}s` }} />
                 {edge.label && (() => {
-                  const pos = edgeLabelPos(from, to);
+                  const pos = edgeLabelPos(from, to, nodePositions);
                   return <text x={pos.x} y={pos.y} textAnchor={pos.anchor} className={styles.edgeLabel} style={{ animationDelay: `${delay}s` }}>{edge.label}</text>;
                 })()}
               </g>
@@ -114,15 +117,15 @@ function FlowDiagram({ nodes, edges, language }: FlowDiagramProps) {
 
         {/* Nodes */}
         {nodes.map((node) => {
-          const cx = nodeX(node.row);
-          const cy = nodeY(node.col, node.row, node.y);
+          const cx = getNodeX(node, nodePositions);
+          const cy = getNodeY(node, nodePositions);
           const delay = (seqOrder.nodeSeq.get(node.id) ?? 0) * 0.1;
           const lines = node.label[language].split("\n");
           const lineH = 13;
           const startY = cy - ((lines.length - 1) * lineH) / 2;
 
           return (
-            <g key={node.id} className={styles.nodeGroup} style={{ animationDelay: `${delay}s` }}>
+            <g key={node.id} data-node-id={node.id} className={styles.nodeGroup} style={{ animationDelay: `${delay}s` }}>
               {(node.type === "start" || node.type === "end") && (
                 <>
                   <rect x={cx - TERMINAL_W / 2} y={cy - TERMINAL_H / 2} width={TERMINAL_W} height={TERMINAL_H} rx={TERMINAL_H / 2} className={styles.terminal} />

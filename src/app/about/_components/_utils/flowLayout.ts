@@ -19,6 +19,8 @@ export const DIAMOND_H = 62;
 
 /* ── Position helpers ── */
 
+export type NodePositions = ReadonlyMap<string, { x: number; y: number }>;
+
 export function nodeX(step: number) {
   return PAD_X + step * STEP_GAP;
 }
@@ -29,6 +31,15 @@ export function nodeY(lane: number, step: number, override?: number) {
   if (lane === 1) return LANE_BRANCH;
   if (lane >= 3) return LANE_MULTI[lane - 3] ?? LANE_BRANCH;
   return LANE_MAIN[step % 2];
+}
+
+/** override 가 있으면 그것을, 없으면 row/col 기반 기본 좌표를 반환 */
+export function getNodeX(node: FlowNode, overrides?: NodePositions) {
+  return overrides?.get(node.id)?.x ?? nodeX(node.row);
+}
+
+export function getNodeY(node: FlowNode, overrides?: NodePositions) {
+  return overrides?.get(node.id)?.y ?? nodeY(node.col, node.row, node.y);
 }
 
 /** Half-width per node type */
@@ -74,11 +85,12 @@ export function buildEdgePath(
   to: FlowNode,
   mergeX?: number,
   entryDir?: "top" | "left",
+  overrides?: NodePositions,
 ): string {
-  const fx = nodeX(from.row);
-  const fy = nodeY(from.col, from.row, from.y);
-  const tx = nodeX(to.row);
-  const ty = nodeY(to.col, to.row, to.y);
+  const fx = getNodeX(from, overrides);
+  const fy = getNodeY(from, overrides);
+  const tx = getNodeX(to, overrides);
+  const ty = getNodeY(to, overrides);
   const r = 8;
 
   // 역방향 루프백
@@ -251,15 +263,16 @@ export function buildEdgePath(
 export function edgeLabelPos(
   from: FlowNode,
   to: FlowNode,
+  overrides?: NodePositions,
 ): { x: number; y: number; anchor: string } {
-  const fx = nodeX(from.row);
-  const fy = nodeY(from.col, from.row, from.y);
-  const ty = nodeY(to.col, to.row, to.y);
+  const fx = getNodeX(from, overrides);
+  const fy = getNodeY(from, overrides);
+  const ty = getNodeY(to, overrides);
 
   // 역방향 루프백
   if (to.row < from.row || (to.row === from.row && to.col < from.col)) {
     if (from.col >= 3) {
-      const tx = nodeX(to.row);
+      const tx = getNodeX(to, overrides);
       const runnerY = Math.max(fy + halfH(from.type), ty + halfH(to.type)) + 28;
       return { x: (fx + tx) / 2, y: runnerY - 6, anchor: "middle" };
     }
