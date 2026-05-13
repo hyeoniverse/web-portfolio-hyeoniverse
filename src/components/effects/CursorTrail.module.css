@@ -33,6 +33,8 @@
   transition: all var(--duration-base) var(--ease-material);
   border-radius: var(--radius-circle);
   filter: hue-rotate(-90deg);
+  /* 마우스 위치 정중앙에 맞추기 — 기본은 cursor div 의 top-left 가 mouse 라서 visual 이 +(w/2) 만큼 offset */
+  transform: translate(-50%, -50%);
 }
 
 .cursorInner::before {
@@ -66,7 +68,7 @@
 
 /* 상태 */
 .clicking .cursorInner {
-  transform: scale(0.8);
+  transform: translate(-50%, -50%) scale(0.8);
 }
 .clicking .cursorText {
   color: var(--text-primary);
@@ -128,7 +130,7 @@
 .grab.clicking .cursorInner {
   width: calc(var(--cursor-big-width) * 0.85);
   height: calc(var(--cursor-big-width) * 0.85);
-  transform: none;
+  transform: translate(-50%, -50%);
   animation: none;
 }
 
@@ -313,20 +315,20 @@
 @keyframes pulse {
   0%,
   100% {
-    transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
     opacity: 0.9;
   }
   50% {
-    transform: scale(1.05);
+    transform: translate(-50%, -50%) scale(1.05);
     opacity: 1;
   }
 }
 
 @keyframes clickPulse {
   0% {
-    transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
   50% {
-    transform: scale(0.8);
+    transform: translate(-50%, -50%) scale(0.8);
   }
 }
