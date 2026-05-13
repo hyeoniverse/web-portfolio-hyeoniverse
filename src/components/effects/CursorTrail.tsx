@@ -57,6 +57,8 @@ export default function CursorTrail() {
   const scaleRef = useRef(0);
   const angleRef = useRef(0);
   const rafRef = useRef<number>(0);
+  /** cursorInner 실제 렌더 크기 — animate 에서 매 프레임 offsetWidth 읽으면 layout thrash 발생 */
+  const innerSizeRef = useRef({ w: 20, h: 20 });
 
   useEffect(() => {
     if (isTouch) return;
@@ -72,6 +74,17 @@ export default function CursorTrail() {
     if (!el) return;
 
     const speed = 0.5;
+
+    /* cursorInner 실제 크기 추적 — state 변화로 width/height 가 transition 될 때마다 갱신 */
+    const inner = el.firstElementChild as HTMLElement | null;
+    const ro = inner && typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(() => {
+          if (!inner) return;
+          innerSizeRef.current = { w: inner.offsetWidth, h: inner.offsetHeight };
+        })
+      : null;
+    if (inner && ro) ro.observe(inner);
+    if (inner) innerSizeRef.current = { w: inner.offsetWidth || 20, h: inner.offsetHeight || 20 };
 
     // 커서 오버레이를 건너뛰고 해당 지점의 최상위 요소 가져오기
     const checkElementAt = (x: number, y: number) => {
@@ -211,7 +224,10 @@ export default function CursorTrail() {
       circleRef.current.x += (mouseRef.current.x - circleRef.current.x) * speed;
       circleRef.current.y += (mouseRef.current.y - circleRef.current.y) * speed;
 
-      const translate = `translate(${circleRef.current.x}px, ${circleRef.current.y}px)`;
+      /* visual 을 mouse 정중앙에 맞추기 — cursorInner 의 실제 렌더 크기로 보정 (ResizeObserver 캐시) */
+      const halfW = innerSizeRef.current.w / 2;
+      const halfH = innerSizeRef.current.h / 2;
+      const translate = `translate(${circleRef.current.x - halfW}px, ${circleRef.current.y - halfH}px)`;
 
       /* 속도 */
       const dx = mouseRef.current.x - prevMouseRef.current.x;
@@ -268,6 +284,7 @@ export default function CursorTrail() {
       document.removeEventListener("dragstart", onDragStart, true);
       document.removeEventListener("dragend", onDragEnd, true);
       document.removeEventListener("drop", onDragEnd, true);
+      ro?.disconnect();
     };
   }, [isTouch]);
 
