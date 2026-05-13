@@ -101,7 +101,11 @@ export default function MobileMenu({
             href={`mailto:${contactEmail}`}
             className={styles.menuFooterEmail}
           >
-            {contactEmail}
+            <span className={styles.menuFooterEmailBase}>{contactEmail}</span>
+            {/* hover 시 글자 안쪽에서만 accent 가 출렁이며 차오르는 layer 들 */}
+            <span aria-hidden="true" className={`${styles.menuFooterEmailFill} ${styles.menuFooterEmailFillBack}`}>{contactEmail}</span>
+            <span aria-hidden="true" className={`${styles.menuFooterEmailFill} ${styles.menuFooterEmailFillMid}`}>{contactEmail}</span>
+            <span aria-hidden="true" className={`${styles.menuFooterEmailFill} ${styles.menuFooterEmailFillFront}`}>{contactEmail}</span>
           </a>
         </div>
       </div>
