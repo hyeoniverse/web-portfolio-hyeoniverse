@@ -6,6 +6,7 @@ import {
   PlateContent,
   usePlateEditor,
 } from "platejs/react";
+import { ReactEditor } from "slate-react";
 import { insertMediaEmbed } from "@platejs/media";
 import { upsertLink, unwrapLink } from "@platejs/link";
 import { toggleList } from "@platejs/list";
@@ -221,6 +222,47 @@ export default function PlateEditor({
     plugins,
     value: value || "<p></p>",
   });
+
+  // ── 한글 IME composition 트래킹 ──
+  // composition 중에 click 하면 slate-react 가 selection 업데이트를 skip 해서
+  // cursor 가 안 옮겨감 (https://github.com/ianstormtaylor/slate). compositionend 후
+  // 저장된 좌표로 직접 select 호출해 한 번에 이동되도록 함.
+  const composingRef = useRef(false);
+  const pendingClickRef = useRef<{ x: number; y: number } | null>(null);
+
+  const applyPendingClick = useCallback(() => {
+    const pending = pendingClickRef.current;
+    if (!pending) return;
+    pendingClickRef.current = null;
+    requestAnimationFrame(() => {
+      try {
+        // 표준 caretPositionFromPoint 우선, fallback 으로 webkit 의 caretRangeFromPoint
+        type CaretFromPointDoc = Document & {
+          caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
+          caretRangeFromPoint?: (x: number, y: number) => Range | null;
+        };
+        const doc = document as CaretFromPointDoc;
+        let domRange: Range | null = null;
+        const pos = doc.caretPositionFromPoint?.(pending.x, pending.y);
+        if (pos) {
+          const r = document.createRange();
+          r.setStart(pos.offsetNode, pos.offset);
+          r.collapse(true);
+          domRange = r;
+        } else {
+          domRange = doc.caretRangeFromPoint?.(pending.x, pending.y) ?? null;
+        }
+        if (!domRange) return;
+        const slateRange = ReactEditor.toSlateRange(editor as unknown as ReactEditor, domRange, {
+          exactMatch: false,
+          suppressThrow: true,
+        });
+        if (slateRange) {
+          editor.tf.select(slateRange);
+        }
+      } catch { /* ignore */ }
+    });
+  }, [editor]);
 
 
   // ── Find & Replace helpers (editor 필요) ──
@@ -2270,6 +2312,17 @@ export default function PlateEditor({
               onKeyDown={handleContentKeyDown}
               decorate={findOpen ? decorate : undefined}
               renderLeaf={findOpen ? renderFindLeaf : undefined}
+              onCompositionStart={() => { composingRef.current = true; }}
+              onCompositionEnd={() => {
+                composingRef.current = false;
+                applyPendingClick();
+              }}
+              onMouseDown={(e) => {
+                // 한글 composition 중 클릭이면 좌표 저장 → compositionend 에서 적용
+                if (composingRef.current) {
+                  pendingClickRef.current = { x: e.clientX, y: e.clientY };
+                }
+              }}
               onClick={(e) => {
                 // kbd/code 밖 클릭 시 plain text 모드로 전환
                 const clickTarget = e.target as HTMLElement;
