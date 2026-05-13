@@ -370,7 +370,10 @@ export function ImageElement(props: PlateElementProps) {
                 onClick={() => setClicked(true)}
                 style={{
                   width: imgWidth > 0 ? imgWidth : undefined,
-                  height: imgHeight > 0 ? imgHeight : undefined,
+                  // lockAspect 이면 height 는 auto + aspectRatio 로 비율 유지
+                  // → table 셀 같은 좁은 컨테이너에서 maxWidth: 100% 로 width 가 줄어도 비율 안 깨짐
+                  height: lockAspect && imgWidth > 0 && imgHeight > 0 ? "auto" : (imgHeight > 0 ? imgHeight : undefined),
+                  aspectRatio: lockAspect && imgWidth > 0 && imgHeight > 0 ? `${imgWidth} / ${imgHeight}` : undefined,
                   maxWidth: "100%",
                   display: "block",
                   outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
@@ -462,7 +465,10 @@ export function ImageElement(props: PlateElementProps) {
                 onClick={() => setClicked(true)}
                 style={{
                   width: imgWidth > 0 ? imgWidth : undefined,
-                  height: imgHeight > 0 ? imgHeight : undefined,
+                  // lockAspect 이면 height 는 auto + aspectRatio 로 비율 유지
+                  // → table 셀 같은 좁은 컨테이너에서 maxWidth: 100% 로 width 가 줄어도 비율 안 깨짐
+                  height: lockAspect && imgWidth > 0 && imgHeight > 0 ? "auto" : (imgHeight > 0 ? imgHeight : undefined),
+                  aspectRatio: lockAspect && imgWidth > 0 && imgHeight > 0 ? `${imgWidth} / ${imgHeight}` : undefined,
                   maxWidth: "100%",
                   display: "block",
                   outline: isActive && !isDragging ? "2px solid var(--color-accent, #3b82f6)" : undefined,
