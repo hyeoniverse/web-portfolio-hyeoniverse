@@ -1,0 +1,202 @@
+.container {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-solid);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-white);
+}
+
+.filterTabs {
+  display: flex;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+}
+
+.filterTab {
+  padding: var(--box-2xs-md);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.filterTab:hover {
+  color: var(--text-primary);
+}
+
+.filterTabActive {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.loading, .empty {
+  padding: var(--spacing-4xl);
+  text-align: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.item {
+  padding: var(--spacing-lg);
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+}
+
+.status_resolved, .status_dismissed {
+  opacity: 0.55;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.itemType {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.itemDate {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.commentNick {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-3xs);
+}
+
+.deletedBadge {
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-size: var(--font-size-2xs);
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.commentBody {
+  margin: 0 0 var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.reason {
+  margin: 0 0 var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.reasonLabel {
+  font-weight: 600;
+  color: var(--text-tertiary);
+  margin-right: var(--spacing-2xs);
+}
+
+.itemActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--box-2xs-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.actionBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong-color);
+}
+
+.actionBtnDanger {
+  composes: actionBtn;
+  color: var(--text-error);
+  border-color: var(--border-accent-light-color);
+}
+
+.actionBtnDanger:hover {
+  color: var(--text-error);
+  border-color: var(--text-error);
+}
