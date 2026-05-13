@@ -207,7 +207,19 @@ export default React.memo(function TableToolbar({
           {bp.open && (
             <div ref={bp.popRef} className={styles.borderPopover}>
               <div className={styles.borderPopSection}>
-                <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
+                <div className={styles.borderPopSectionHeader}>
+                  <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
+                  <Tooltip content={t("editor.borderClear")} placement="top">
+                    <button
+                      type="button"
+                      className={styles.borderClearBtn}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => bp.applyBorders("none")}
+                    >
+                      {t("editor.borderClear")}
+                    </button>
+                  </Tooltip>
+                </div>
                 <div className={styles.borderGrid}>
                   {([
                     { mode: "all" as BorderMode, icon: <BorderAll />, tip: t("editor.borderAll") },
@@ -233,7 +245,7 @@ export default React.memo(function TableToolbar({
                 <select value={bp.style} onChange={(e) => bp.setStyle(e.target.value)} className={styles.borderPopSelect}>
                   {TABLE_BORDER_STYLES.map((s) => (
                     <option key={s.value} value={s.value}>
-                      {s.value === "solid" ? `───  ${t("editor.borderSolid")}` : s.value === "dotted" ? `· · ·  ${t("editor.borderDotted")}` : s.value === "dashed" ? `- - -  ${t("editor.borderDashed")}` : s.value === "double" ? `═══  ${t("editor.borderDouble")}` : `✕  ${t("editor.borderNoneStyle")}`}
+                      {s.value === "solid" ? `───  ${t("editor.borderSolid")}` : s.value === "dotted" ? `· · ·  ${t("editor.borderDotted")}` : s.value === "dashed" ? `- - -  ${t("editor.borderDashed")}` : `═══  ${t("editor.borderDouble")}`}
                     </option>
                   ))}
                 </select>

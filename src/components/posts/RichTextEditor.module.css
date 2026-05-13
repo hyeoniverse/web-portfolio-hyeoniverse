@@ -831,16 +831,41 @@
   top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 30;
+  z-index: var(--z-dropdown);
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-lg);
-  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md);
+  padding: var(--spacing-md);
   min-width: 240px;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+}
+
+.borderPopSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-2xs);
+}
+
+.borderClearBtn {
+  padding: 3px 8px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.borderClearBtn:hover {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-primary);
 }
 
 /* Border color row — ColorPicker 와 preset 구분 */

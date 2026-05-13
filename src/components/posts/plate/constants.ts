@@ -95,7 +95,6 @@ export const TABLE_BORDER_STYLES = [
   { labelKey: "editor.borderDotted", value: "dotted" },
   { labelKey: "editor.borderDashed", value: "dashed" },
   { labelKey: "editor.borderDouble", value: "double" },
-  { labelKey: "editor.borderNoneStyle", value: "none" },
 ] as const;
 
 export const TABLE_BORDER_WIDTHS = ["1px", "2px", "3px", "4px"] as const;
