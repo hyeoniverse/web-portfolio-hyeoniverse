@@ -126,6 +126,7 @@
 
 .subPageSize button {
   padding: var(--box-sm);
+  min-height: 0;
   font-size: var(--font-size-xs);
 }
 
@@ -137,6 +138,7 @@
 
 .subFilterSelect button {
   padding: var(--box-sm);
+  min-height: 0;
   font-size: var(--font-size-xs);
 }
 

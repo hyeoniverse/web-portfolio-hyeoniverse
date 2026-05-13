@@ -105,6 +105,7 @@
 
 .filterItem button {
   padding: var(--box-sm);
+  min-height: 0;
   font-size: var(--font-size-xs);
 }
 
@@ -117,6 +118,7 @@
 
 .filterPageSize button {
   padding: var(--box-sm);
+  min-height: 0;
   font-size: var(--font-size-xs);
 }
 
