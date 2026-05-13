@@ -220,10 +220,6 @@ export default function PlateEditor({
   const editor = usePlateEditor({
     plugins,
     value: value || "<p></p>",
-    // v53 의 affinity 기능 비활성화 — inline code mark 끝에서
-    // (a) Enter 시 마지막 글자 복제, (b) 다른 곳 클릭 시 cursor 가
-    // code 안에 한 번 stick 했다가 두 번째 클릭에야 빠지는 문제 회피.
-    affinity: false,
   });
 
 
