@@ -281,21 +281,22 @@ export default function PlateEditor({
       };
       const onMouseDown = (e: MouseEvent) => {
         if (composingRef.current) {
-          // composition 진행 중 클릭 → compositionend 에서 적용
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
           return;
         }
-        // composition 직후 (100ms 이내) 클릭 → slate-react 가 deferred selection
-        // update 를 예약하는데 우리 select 보다 나중에 실행되어 덮어씀.
-        // → 충분히 늦게 (2번의 rAF + setTimeout) 우리 select 를 호출해서 마지막 권한 확보.
-        if (Date.now() - lastCompositionEndRef.current < 100) {
+        // composition 직후 (200ms 이내) 클릭 → slate-react 가 우리 select 를 덮어씀.
+        // → 250ms 동안 짧은 간격으로 selection 모니터하면서 원하는 위치로 강제.
+        if (Date.now() - lastCompositionEndRef.current < 200) {
           const x = e.clientX;
           const y = e.clientY;
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              setTimeout(() => applySelection(x, y), 0);
-            });
-          });
+          let attempts = 0;
+          const maxAttempts = 15; // 약 250ms (15 * 16ms ≈ 240ms)
+          const force = () => {
+            if (attempts++ >= maxAttempts) return;
+            applySelection(x, y);
+            requestAnimationFrame(force);
+          };
+          requestAnimationFrame(force);
         }
       };
 
