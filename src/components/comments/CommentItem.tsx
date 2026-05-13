@@ -104,6 +104,12 @@ function CommentItem({
   const [editSubmitting, setEditSubmitting] = useState(false);
   const [editError, setEditError] = useState("");
 
+  // Report state
+  const [showReport, setShowReport] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reporting, setReporting] = useState(false);
+  const [reportSubmitted, setReportSubmitted] = useState(false);
+
   const commenterId = useMemo(() => getCommenterId(), []);
 
   const commenterHash = comment.commenter_hash;
@@ -205,6 +211,31 @@ function CommentItem({
       setDeleting(false);
     }
   }, [apiBase, comment.id, commenterId, targetId, deletePassword, isAdmin, onRefresh, t]);
+
+  const handleReport = useCallback(async () => {
+    if (reporting) return;
+    setReporting(true);
+    try {
+      const res = await fetch(`${apiBase}/${comment.id}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reportReason.trim() }),
+      });
+      if (res.ok) {
+        setReportSubmitted(true);
+        // 잠시 thank-you 메시지 보여주고 닫음
+        setTimeout(() => {
+          setShowReport(false);
+          setReportReason("");
+          setReportSubmitted(false);
+        }, 1800);
+      }
+    } catch {
+      // silent fail — 신고 실패해도 사용자에겐 굳이 알리지 않음
+    } finally {
+      setReporting(false);
+    }
+  }, [apiBase, comment.id, reportReason, reporting]);
 
   const handleEdit = useCallback(async () => {
     if (!editContent.trim()) return;
@@ -532,9 +563,25 @@ function CommentItem({
               setShowDelete(!showDelete);
               setShowReply(false);
               setEditing(false);
+              setShowReport(false);
             }}
           >
             <T k="comments.delete" />
+          </button>
+        )}
+        {/* 신고 — admin 본인 / admin 댓글 / 이미 삭제된 댓글 은 제외 */}
+        {!isAdmin && !comment.is_admin && !comment.is_deleted && (
+          <button
+            type="button"
+            className={styles.reportBtn}
+            onClick={() => {
+              setShowReport((v) => !v);
+              setShowDelete(false);
+              setShowReply(false);
+              setEditing(false);
+            }}
+          >
+            <T k="comments.report" />
           </button>
         )}
       </div>
@@ -592,6 +639,60 @@ function CommentItem({
             </div>
             {deleteError && (
               <span className={styles.deleteError}>{deleteError}</span>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showReport && (
+          <motion.div
+            className={styles.reportModal}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {reportSubmitted ? (
+              <p className={styles.reportThanks}>
+                <T k="comments.reportThanks" />
+              </p>
+            ) : (
+              <div className={styles.reportRow}>
+                <input
+                  className={styles.reportInput}
+                  type="text"
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  placeholder={t("comments.reportPlaceholder")}
+                  maxLength={500}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleReport();
+                  }}
+                />
+                <button
+                  type="button"
+                  className={styles.reportConfirm}
+                  onClick={handleReport}
+                  disabled={reporting}
+                >
+                  {reporting ? (
+                    <LoadingDots />
+                  ) : (
+                    <T k="comments.confirmReport" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className={styles.reportCancel}
+                  onClick={() => {
+                    setShowReport(false);
+                    setReportReason("");
+                  }}
+                >
+                  <T k="comments.cancel" />
+                </button>
+              </div>
             )}
           </motion.div>
         )}
