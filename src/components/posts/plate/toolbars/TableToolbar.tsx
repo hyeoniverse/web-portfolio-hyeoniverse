@@ -62,6 +62,9 @@ interface TableToolbarProps {
     setWidth: (v: string) => void;
     color: string;
     setColor: (v: string) => void;
+    selectedPosition: BorderMode | null;
+    setSelectedPosition: (pos: BorderMode | null) => void;
+    mixed: { style: boolean; width: boolean; color: boolean };
     popRef: React.RefObject<HTMLDivElement | null>;
     captureCells: () => void;
     applyBorders: (mode: BorderMode) => void;
@@ -233,7 +236,12 @@ export default React.memo(function TableToolbar({
                     { mode: "right" as BorderMode, icon: <BorderRight />, tip: t("editor.borderRight") },
                   ]).map((item) => (
                     <Tooltip key={item.mode} content={item.tip} delay={200} placement="top">
-                      <button type="button" className={styles.borderGridBtn} onMouseDown={(e) => e.preventDefault()} onClick={() => bp.applyBorders(item.mode)}>
+                      <button
+                        type="button"
+                        className={`${styles.borderGridBtn} ${bp.selectedPosition === item.mode ? styles.borderGridBtnActive : ""}`}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => bp.setSelectedPosition(bp.selectedPosition === item.mode ? null : item.mode)}
+                      >
                         {item.icon}
                       </button>
                     </Tooltip>
@@ -242,7 +250,8 @@ export default React.memo(function TableToolbar({
               </div>
               <div className={styles.borderPopSection}>
                 <span className={styles.borderPopLabel}>{t("editor.borderStyle")}</span>
-                <select value={bp.style} onChange={(e) => bp.setStyle(e.target.value)} className={styles.borderPopSelect}>
+                <select value={bp.mixed.style ? "__mixed" : bp.style} onChange={(e) => { if (e.target.value !== "__mixed") bp.setStyle(e.target.value); }} className={styles.borderPopSelect}>
+                  {bp.mixed.style && <option value="__mixed">{t("editor.borderMixed")}</option>}
                   {TABLE_BORDER_STYLES.map((s) => (
                     <option key={s.value} value={s.value}>
                       {s.value === "solid" ? `───  ${t("editor.borderSolid")}` : s.value === "dotted" ? `· · ·  ${t("editor.borderDotted")}` : s.value === "dashed" ? `- - -  ${t("editor.borderDashed")}` : `═══  ${t("editor.borderDouble")}`}
@@ -253,8 +262,9 @@ export default React.memo(function TableToolbar({
               <div className={styles.borderPopSection}>
                 <span className={styles.borderPopLabel}>{t("editor.borderWidth")}</span>
                 <div className={styles.borderWidthCapsule}>
+                  {bp.mixed.width && <span className={styles.borderMixedLabel}>{t("editor.borderMixed")}</span>}
                   {TABLE_BORDER_WIDTHS.map((w) => (
-                    <button key={w} type="button" className={`${styles.borderWidthBtn} ${bp.width === w ? styles.borderWidthBtnActive : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => bp.setWidth(w)}>{w}</button>
+                    <button key={w} type="button" className={`${styles.borderWidthBtn} ${!bp.mixed.width && bp.width === w ? styles.borderWidthBtnActive : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => bp.setWidth(w)}>{w}</button>
                   ))}
                 </div>
               </div>

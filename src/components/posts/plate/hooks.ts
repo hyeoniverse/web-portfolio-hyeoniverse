@@ -158,9 +158,14 @@ export function useBorderPopover(
   savedSelectionRef: React.RefObject<SlateEditor["selection"]>,
 ) {
   const [open, setOpen] = useState(false);
-  const [style, setStyle] = useState("solid");
-  const [width, setWidth] = useState("1px");
-  const [color, setColor] = useState("var(--border-light-color)");
+  const [style, setStyleRaw] = useState("solid");
+  const [width, setWidthRaw] = useState("1px");
+  const [color, setColorRaw] = useState("var(--border-light-color)");
+  const [selectedPosition, setSelectedPositionState] = useState<BorderMode | null>(null);
+  // 선택된 위치의 현재 값이 셀마다 다르면 true → UI 에서 "다중" 표시
+  const [mixed, setMixed] = useState<{ style: boolean; width: boolean; color: boolean }>({
+    style: false, width: false, color: false,
+  });
   const popRef = useRef<HTMLDivElement>(null);
   const cellEntriesRef = useRef<[Record<string, unknown>, number[]][]>([]);
 
@@ -190,9 +195,11 @@ export function useBorderPopover(
     if (cellAbove) cellEntriesRef.current = [cellAbove as [Record<string, unknown>, number[]]];
   }, [editor, isCell]);
 
-  const applyBorders = useCallback((mode: BorderMode) => {
+  const applyBorders = useCallback((mode: BorderMode, override?: { style?: string; width?: string; color?: string }) => {
     if (!editor) return;
-    const bStyle = style, bWidth = width, bColor = color;
+    const bStyle = override?.style ?? style;
+    const bWidth = override?.width ?? width;
+    const bColor = override?.color ?? color;
 
     // 1) 캡처된 path에서 최신 노드 읽기
     let freshEntries: [Record<string, unknown>, number[]][] = [];
@@ -325,8 +332,104 @@ export function useBorderPopover(
     }
   }, [editor, style, width, color, savedSelectionRef, isCell]);
 
+  // 선택된 position 의 현재 셀 borders 를 읽어 style/width/color state 와 mixed flag 갱신
+  const readBordersForPosition = useCallback((mode: BorderMode) => {
+    let entries: [Record<string, unknown>, number[]][] = [];
+    for (const [, path] of cellEntriesRef.current) {
+      const node = nodeAtPath(editor, path);
+      if (node && (node.type === "td" || node.type === "th")) entries.push([node as Record<string, unknown>, path]);
+    }
+    if (!entries.length) {
+      const sel = savedSelectionRef.current ?? editor.selection;
+      if (sel) entries = Array.from(editor.api.nodes({ at: sel, match: isCell })) as [Record<string, unknown>, number[]][];
+    }
+    if (!entries.length) return { samples: [], mixedStyle: false, mixedWidth: false, mixedColor: false };
+
+    // mode 별로 어떤 셀의 어떤 side 를 보는지 결정
+    let minRow = Infinity, maxRow = -1, minCol = Infinity, maxCol = -1;
+    for (const [, path] of entries) {
+      const r = path[path.length - 2], c = path[path.length - 1];
+      if (r < minRow) minRow = r; if (r > maxRow) maxRow = r;
+      if (c < minCol) minCol = c; if (c > maxCol) maxCol = c;
+    }
+    const sides: { side: keyof CellBorders; node: Record<string, unknown> }[] = [];
+    for (const [node, path] of entries) {
+      const r = path[path.length - 2], c = path[path.length - 1];
+      const collect = (s: keyof CellBorders) => sides.push({ side: s, node });
+      switch (mode) {
+        case "all": (["top", "right", "bottom", "left"] as const).forEach(collect); break;
+        case "outer":
+          if (r === minRow) collect("top");
+          if (r === maxRow) collect("bottom");
+          if (c === minCol) collect("left");
+          if (c === maxCol) collect("right");
+          break;
+        case "inner":
+          if (r !== minRow) collect("top");
+          if (c !== minCol) collect("left");
+          break;
+        case "innerH": if (r !== minRow) collect("top"); break;
+        case "innerV": if (c !== minCol) collect("left"); break;
+        case "top": if (r === minRow) collect("top"); break;
+        case "bottom": if (r === maxRow) collect("bottom"); break;
+        case "left": if (c === minCol) collect("left"); break;
+        case "right": if (c === maxCol) collect("right"); break;
+      }
+    }
+    const samples = sides.map(({ side, node }) => {
+      const cb = ((node.cellBorders as CellBorders) || {})[side] as CellBorderSide;
+      return cb;
+    });
+    const definedSamples = samples.filter((s): s is { style: string; width: string; color: string } => s != null);
+    if (definedSamples.length === 0) return { samples, mixedStyle: false, mixedWidth: false, mixedColor: false };
+    const styles = new Set(definedSamples.map((s) => s.style));
+    const widths = new Set(definedSamples.map((s) => s.width));
+    const colors = new Set(definedSamples.map((s) => s.color));
+    return {
+      samples,
+      mixedStyle: styles.size > 1,
+      mixedWidth: widths.size > 1,
+      mixedColor: colors.size > 1,
+      first: definedSamples[0],
+    };
+  }, [editor, isCell, savedSelectionRef]);
+
+  // position 선택 — 셀 borders 읽어서 dropdown 초기값으로 (mixed 면 flag set)
+  const setSelectedPosition = useCallback((pos: BorderMode | null) => {
+    setSelectedPositionState(pos);
+    if (pos === null) {
+      setMixed({ style: false, width: false, color: false });
+      return;
+    }
+    const info = readBordersForPosition(pos);
+    setMixed({ style: info.mixedStyle, width: info.mixedWidth, color: info.mixedColor });
+    if (info.first) {
+      if (!info.mixedStyle) setStyleRaw(info.first.style);
+      if (!info.mixedWidth) setWidthRaw(info.first.width);
+      if (!info.mixedColor) setColorRaw(info.first.color);
+    }
+  }, [readBordersForPosition]);
+
+  // setter wrappers — 선택된 position 있으면 변경 즉시 apply
+  const setStyle = useCallback((v: string) => {
+    setStyleRaw(v);
+    setMixed((m) => ({ ...m, style: false }));
+    if (selectedPosition) applyBorders(selectedPosition, { style: v });
+  }, [selectedPosition]); // eslint-disable-line react-hooks/exhaustive-deps
+  const setWidth = useCallback((v: string) => {
+    setWidthRaw(v);
+    setMixed((m) => ({ ...m, width: false }));
+    if (selectedPosition) applyBorders(selectedPosition, { width: v });
+  }, [selectedPosition]); // eslint-disable-line react-hooks/exhaustive-deps
+  const setColor = useCallback((v: string) => {
+    setColorRaw(v);
+    setMixed((m) => ({ ...m, color: false }));
+    if (selectedPosition) applyBorders(selectedPosition, { color: v });
+  }, [selectedPosition]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return {
     open, setOpen, style, setStyle, width, setWidth, color, setColor,
+    selectedPosition, setSelectedPosition, mixed,
     popRef, captureCells, applyBorders,
   };
 }

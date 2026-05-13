@@ -1349,6 +1349,7 @@
     "borderColor": "Color",
     "borderColorRecent": "Recent",
     "borderClear": "Clear all",
+    "borderMixed": "Mixed",
     "caption": "Caption",
     "captionPlaceholder": "Enter caption...",
     "removeCaption": "Remove caption",
