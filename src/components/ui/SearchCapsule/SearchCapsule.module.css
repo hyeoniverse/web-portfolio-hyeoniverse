@@ -24,10 +24,10 @@
   border: none !important;
   border-radius: 0 !important;
   border-right: var(--border-default) !important;
-  padding: var(--spacing-2xs) var(--spacing-sm) !important;
+  padding: var(--box-sm) !important;
   /* Select 의 기본 min-height 무시 — capsule 높이와 일치 */
   min-height: 0 !important;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   background: transparent !important;
 }
 
@@ -46,7 +46,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   color: var(--text-primary);
   outline: none;
 }
