@@ -295,9 +295,9 @@ export function TableRowElement(props: PlateElementProps) {
 
 // ── 리사이즈 핸들 스타일 ──
 const resizeHandleStyle = {
-  right: { position: "absolute" as const, right: -1, top: 0, width: 4, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
-  bottom: { position: "absolute" as const, bottom: -1, left: 0, width: "100%", height: 4, cursor: "row-resize" as const, zIndex: 20, userSelect: "none" as const },
-  left: { position: "absolute" as const, left: -1, top: 0, width: 4, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
+  right: { position: "absolute" as const, right: -3, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
+  bottom: { position: "absolute" as const, bottom: -3, left: 0, width: "100%", height: 6, cursor: "row-resize" as const, zIndex: 20, userSelect: "none" as const },
+  left: { position: "absolute" as const, left: -3, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
 };
 
 /** 현재 테이블의 셀 인덱스 재계산 — 병합 후 stale 캐시 방지 */
@@ -649,8 +649,8 @@ export function TableCellElement(props: PlateElementProps) {
     >
       {props.children}
       {(selected || focused) && <CellSelectionOverlay edges={selected ? edges : undefined} allSides={!selected && focused} />}
-      <div onPointerDown={onRightPointerDown} style={resizeHandleStyle.right} />
-      <div onPointerDown={onBottomPointerDown} style={resizeHandleStyle.bottom} />
+      <div data-cursor="resizeH" onPointerDown={onRightPointerDown} style={resizeHandleStyle.right} />
+      <div data-cursor="resizeV" onPointerDown={onBottomPointerDown} style={resizeHandleStyle.bottom} />
     </PlateElement>
   );
 }
@@ -689,8 +689,8 @@ export function TableCellHeaderElement(props: PlateElementProps) {
     >
       {props.children}
       {(selected || focused) && <CellSelectionOverlay edges={selected ? edges : undefined} allSides={!selected && focused} />}
-      <div onPointerDown={onRightPointerDown} style={resizeHandleStyle.right} />
-      <div onPointerDown={onBottomPointerDown} style={resizeHandleStyle.bottom} />
+      <div data-cursor="resizeH" onPointerDown={onRightPointerDown} style={resizeHandleStyle.right} />
+      <div data-cursor="resizeV" onPointerDown={onBottomPointerDown} style={resizeHandleStyle.bottom} />
     </PlateElement>
   );
 }
