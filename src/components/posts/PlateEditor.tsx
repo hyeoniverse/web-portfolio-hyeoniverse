@@ -6,7 +6,6 @@ import {
   PlateContent,
   usePlateEditor,
 } from "platejs/react";
-import { ReactEditor } from "slate-react";
 import { insertMediaEmbed } from "@platejs/media";
 import { upsertLink, unwrapLink } from "@platejs/link";
 import { toggleList } from "@platejs/list";
@@ -230,8 +229,9 @@ export default function PlateEditor({
   const pendingClickRef = useRef<{ x: number; y: number } | null>(null);
   // slate-react 의 isComposing React state 가 비동기 업데이트라
   // compositionend 직후 잠시 동안 (수~수십 ms) 여전히 composing 으로 인식됨.
-  // → recent composition 감지로 강제 selection 재적용.
   const lastCompositionEndRef = useRef(0);
+  // 우리가 dispatch 한 mousedown 을 재처리 방지하는 flag
+  const isReDispatchingRef = useRef(false);
 
   // capture phase 로 editor DOM 에 직접 listener 부착 — slate-react 의 자체 핸들러보다
   // 먼저 실행되어야 mousedown 좌표를 신뢰성 있게 잡을 수 있음.
@@ -243,36 +243,19 @@ export default function PlateEditor({
       editorEl = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
       if (!editorEl) return;
 
-      const applySelection = (x: number, y: number) => {
-        try {
-          type CaretFromPointDoc = Document & {
-            caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
-            caretRangeFromPoint?: (x: number, y: number) => Range | null;
-          };
-          const doc = document as CaretFromPointDoc;
-          let domRange: Range | null = null;
-          const pos = doc.caretPositionFromPoint?.(x, y);
-          if (pos) {
-            const r = document.createRange();
-            r.setStart(pos.offsetNode, pos.offset);
-            r.collapse(true);
-            domRange = r;
-          } else {
-            domRange = doc.caretRangeFromPoint?.(x, y) ?? null;
-          }
-          if (!domRange) {
-            console.log("[IME] no domRange for", x, y);
-            return;
-          }
-          const slateRange = ReactEditor.toSlateRange(editor as unknown as ReactEditor, domRange, {
-            exactMatch: false,
-            suppressThrow: true,
-          });
-          console.log("[IME] applying select", JSON.stringify(slateRange), "current:", JSON.stringify(editor.selection));
-          if (slateRange) editor.tf.select(slateRange);
-        } catch (e) { console.log("[IME] applySelection error", e); }
+      const reDispatchClick = (x: number, y: number) => {
+        const target = document.elementFromPoint(x, y);
+        if (!target) return;
+        isReDispatchingRef.current = true;
+        const init: MouseEventInit = {
+          bubbles: true, cancelable: true, view: window,
+          clientX: x, clientY: y, button: 0,
+        };
+        target.dispatchEvent(new MouseEvent("mousedown", init));
+        target.dispatchEvent(new MouseEvent("mouseup", init));
+        target.dispatchEvent(new MouseEvent("click", init));
+        isReDispatchingRef.current = false;
       };
-
       const onCompStart = () => { composingRef.current = true; };
       const onCompEnd = () => {
         composingRef.current = false;
@@ -280,27 +263,23 @@ export default function PlateEditor({
         const pending = pendingClickRef.current;
         pendingClickRef.current = null;
         if (pending) {
-          requestAnimationFrame(() => applySelection(pending.x, pending.y));
+          setTimeout(() => reDispatchClick(pending.x, pending.y), 150);
         }
       };
       const onMouseDown = (e: MouseEvent) => {
-        const sinceComp = Date.now() - lastCompositionEndRef.current;
-        console.log("[IME] mousedown composing:", composingRef.current, "sinceCompositionEnd:", sinceComp);
+        if (isReDispatchingRef.current) return; // 우리가 만든 이벤트는 통과
         if (composingRef.current) {
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
           return;
         }
-        if (sinceComp < 200) {
+        // composition 직후 (200ms 이내) 클릭 → slate-react 의 React state
+        // 가 아직 isComposing=true 라 selection update skip 됨.
+        // 150ms 대기 후 동일 좌표로 native mousedown 재dispatch → slate 가
+        // 그 시점엔 isComposing=false 로 인식해서 정상 처리.
+        if (Date.now() - lastCompositionEndRef.current < 200) {
           const x = e.clientX;
           const y = e.clientY;
-          let attempts = 0;
-          const maxAttempts = 15;
-          const force = () => {
-            if (attempts++ >= maxAttempts) return;
-            applySelection(x, y);
-            requestAnimationFrame(force);
-          };
-          requestAnimationFrame(force);
+          setTimeout(() => reDispatchClick(x, y), 150);
         }
       };
 
