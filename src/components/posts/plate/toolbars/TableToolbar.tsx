@@ -273,17 +273,20 @@ export default React.memo(function TableToolbar({
                   </Tooltip>
                 </div>
                 <div className={styles.borderGrid}>
-                  {/* macOS Pages 스타일 3x3 — broad / horizontal+inner / vertical+inner */}
+                  {/* 3x3:
+                       Row 1: 바깥선 안쪽선 모두
+                       Row 2: 왼쪽 세로안쪽 오른쪽
+                       Row 3: 위   가로안쪽 아래 */}
                   {([
-                    { mode: "all" as BorderMode, icon: <BorderAll />, tip: t("editor.borderAll") },
                     { mode: "outer" as BorderMode, icon: <BorderOuter />, tip: t("editor.borderOuter") },
                     { mode: "inner" as BorderMode, icon: <BorderInnerAll />, tip: t("editor.borderInner") },
-                    { mode: "top" as BorderMode, icon: <BorderTop />, tip: t("editor.borderTop") },
-                    { mode: "innerH" as BorderMode, icon: <BorderInnerH />, tip: t("editor.borderInnerH") },
-                    { mode: "bottom" as BorderMode, icon: <BorderBottom />, tip: t("editor.borderBottom") },
+                    { mode: "all" as BorderMode, icon: <BorderAll />, tip: t("editor.borderAll") },
                     { mode: "left" as BorderMode, icon: <BorderLeft />, tip: t("editor.borderLeft") },
                     { mode: "innerV" as BorderMode, icon: <BorderInnerV />, tip: t("editor.borderInnerV") },
                     { mode: "right" as BorderMode, icon: <BorderRight />, tip: t("editor.borderRight") },
+                    { mode: "top" as BorderMode, icon: <BorderTop />, tip: t("editor.borderTop") },
+                    { mode: "innerH" as BorderMode, icon: <BorderInnerH />, tip: t("editor.borderInnerH") },
+                    { mode: "bottom" as BorderMode, icon: <BorderBottom />, tip: t("editor.borderBottom") },
                   ]).map((item) => {
                     const disabled = isDisabled(item.mode);
                     return (
