@@ -354,6 +354,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   // 최신 non-dismissed revision(B)이 저장된 데이터(A)와 다르면 한 번만 물어봄
   // 무시 → B dismissed, A 유지 / 불러오기 → B dismissed, B 적용
   const draftAsked = useRef(false);
+  // 비동기 fetch 중 unmount/navigation 발생 시 모달이 다른 페이지에 뜨는 문제 방지
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     if (draftAsked.current) return;
@@ -364,7 +370,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     draftAsked.current = true;
     loadRevisionSnapshot(latest.id).then((snapshot) => {
       if (!snapshot) return;
+      if (!mountedRef.current) return; // 다른 페이지로 이동했으면 모달 띄우지 않음
       if (JSON.stringify(snapshot) === initialJson) return;
+      // 사용자가 이미 폼을 수정했다면 모달 띄우지 않음
+      if (JSON.stringify(formRef.current) !== initialJson) {
+        dismissRevision(latest.id);
+        return;
+      }
 
       openModal(
         <ModalConfirm
