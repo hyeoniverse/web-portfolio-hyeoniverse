@@ -85,26 +85,7 @@ export const plugins = [
   SuperscriptPlugin,
   SubscriptPlugin,
   HighlightPlugin,
-  // v53 inline code mark 에서 Enter 시 마지막 글자가 새 블록에 복제되는 버그 회피:
-  // - affinity 규칙 비움 (cursor stick 동작 제거)
-  // - Enter 키 핸들러에서 code mark 강제 제거 후 break 실행
-  CodePlugin.configure({ rules: { selection: {} } }).extend({
-    handlers: {
-      onKeyDown: ({ editor, event }) => {
-        if (event.key !== "Enter" || event.shiftKey) return;
-        // 현재 cursor 의 active marks 확인
-        const e = editor as unknown as {
-          api: { marks?: () => Record<string, unknown> | null };
-          tf: { removeMarks: (keys: string[]) => void; insertBreak: () => void };
-        };
-        const marks = e.api.marks?.();
-        if (!marks || !marks.code) return;
-        event.preventDefault();
-        e.tf.removeMarks(["code"]);
-        e.tf.insertBreak();
-      },
-    },
-  }),
+  CodePlugin,
   KbdPlugin,
   // Block elements (드롭 존 래퍼 포함)
   HeadingPlugin.configure({ render: { node: HeadingElement } }),
