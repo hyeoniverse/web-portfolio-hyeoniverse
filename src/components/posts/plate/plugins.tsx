@@ -85,7 +85,10 @@ export const plugins = [
   SuperscriptPlugin,
   SubscriptPlugin,
   HighlightPlugin,
-  CodePlugin,
+  // v53 의 CodePlugin 은 rules.selection.affinity: "hard" 가 추가돼 inline code 끝에서
+  // Enter 누르면 마지막 입력 글자가 새 블록에 복제되는 버그 발생. affinity 를 끄기 위해
+  // rules 를 빈 객체로 override.
+  CodePlugin.configure({ rules: { selection: {} } }),
   KbdPlugin,
   // Block elements (드롭 존 래퍼 포함)
   HeadingPlugin.configure({ render: { node: HeadingElement } }),
