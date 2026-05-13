@@ -98,11 +98,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
           ? (editing ? "#fff" : "rgba(255,255,255,0.9)")
           : (caption || editing ? "var(--text-muted)" : "var(--text-disabled, var(--text-muted))"),
         cursor: editing ? "text" : "pointer",
-        opacity: caption || editing ? 1 : 0,
-        transition: "opacity 0.15s",
       }}
-      onMouseEnter={(e) => { if (!caption && !editing) e.currentTarget.style.opacity = "0.5"; }}
-      onMouseLeave={(e) => { if (!caption && !editing) e.currentTarget.style.opacity = "0"; }}
     />
   );
 }
