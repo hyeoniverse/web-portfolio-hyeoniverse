@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import type { ScrollTrigger } from "gsap/ScrollTrigger";
 import { checkMobileLayout, useMobileLayout } from "@/hooks/useMobileLayout";
+import type { MobilePinScrollHandle } from "./useMobilePinScroll";
 
 /**
  * 데스크톱 수평 스크롤 고정이 필요한 "초광폭" 패널용 공유 훅.
@@ -25,7 +25,7 @@ export function usePinnedScroll(
   contentRef: React.RefObject<HTMLDivElement | null>;
   activeIndex: number;
   setActiveIndex: (index: number) => void;
-  scrollToItem: (index: number, mobileStRef?: React.RefObject<ScrollTrigger | null>) => void;
+  scrollToItem: (index: number, mobileStRef?: React.RefObject<MobilePinScrollHandle>) => void;
 } {
   const panelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -70,14 +70,16 @@ export function usePinnedScroll(
 
   // 점/항목 클릭 → 해당 위치로 스크롤
   const scrollToItem = useCallback(
-    (index: number, mobileStRef?: React.RefObject<ScrollTrigger | null>) => {
+    (index: number, mobileStRef?: React.RefObject<MobilePinScrollHandle>) => {
       if (checkMobileLayout()) {
-        // 모바일: ScrollTrigger 기반 스크롤
-        const st = mobileStRef?.current;
+        // 모바일: ScrollTrigger 기반 스크롤 + cascade 우회 sync
+        const handle = mobileStRef?.current;
+        const st = handle?.scrollTrigger;
         if (!st) return;
         const targetProgress = (index + 0.5) / itemCount;
         const targetScroll = st.start + targetProgress * (st.end - st.start);
         window.scrollTo({ top: targetScroll, behavior: "smooth" });
+        handle?.syncIndex(index);
         return;
       }
 

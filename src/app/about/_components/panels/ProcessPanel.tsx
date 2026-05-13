@@ -91,11 +91,13 @@ function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
   const handleRowClick = useCallback(
     (index: number) => {
       if (isMobile) {
-        const st = mobileStRef.current;
+        const handle = mobileStRef.current;
+        const st = handle?.scrollTrigger;
         if (!st) return;
         const targetProgress = (index + 0.5) / process.length;
         const targetScroll = st.start + targetProgress * (st.end - st.start);
         window.scrollTo({ top: targetScroll, behavior: "smooth" });
+        handle?.syncIndex(index);
       } else {
         scrollToItem(index);
       }
