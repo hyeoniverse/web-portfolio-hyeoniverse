@@ -240,8 +240,8 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
         }
       }}
     >
-      <div style={{ overflowX: "auto", paddingRight: 20 }}>
-        <div style={{ position: "relative", display: "inline-block" }}>
+      <div style={{ overflowX: "auto", paddingRight: 26 }}>
+        <div style={{ position: "relative", display: "inline-block", minWidth: "100%", verticalAlign: "top" }}>
           <table
             {...attributes}
             ref={mergedRef}
