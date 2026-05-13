@@ -22,11 +22,7 @@
   white-space: nowrap;
   padding: var(--box-xs-lg);
   border-radius: var(--radius-capsule);
-  /* 투명 + blur 조합 — 30% 불투명으로 낮춰 backdrop-filter blur 가 시각적으로 드러나도록 */
-  --_bg-glass: color-mix(in srgb, var(--bg-primary) 30%, transparent);
-  background: var(--_bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(4px);
   border: var(--border-strong);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
@@ -78,7 +74,6 @@
     padding: 1.7vw 4.2vw;
     font-size: 2.6vw;
     backdrop-filter: blur(5vw);
-    -webkit-backdrop-filter: blur(5vw);
   }
 
   .speechBubble::after {
