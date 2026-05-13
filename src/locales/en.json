@@ -1347,6 +1347,7 @@
     "borderNoneStyle": "None",
     "borderWidth": "Width",
     "borderColor": "Color",
+    "borderColorRecent": "Recent",
     "caption": "Caption",
     "captionPlaceholder": "Enter caption...",
     "removeCaption": "Remove caption",
