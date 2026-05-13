@@ -611,9 +611,26 @@
   border-radius: var(--_radius-card);
 }
 
-/* Email Header - mobile only */
+/* Email Header — 데스크탑은 가운데 풀로고만, 모바일은 spacer + 로고 + close 패턴 */
 .emailHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: var(--_gap-lg);
+}
+
+.emailHeaderSpacer,
+.emailHeaderClose {
   display: none;
+}
+
+.emailHeaderLogo {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-black);
+  letter-spacing: -0.02em;
 }
 
 .emailTitle {
@@ -633,29 +650,72 @@
   padding: var(--_padding);
   outline: 1px solid transparent;
   position: relative;
+  overflow: hidden;
   background: transparent;
   font-family: inherit;
   font-size: var(--_font-size-lg);
   font-weight: var(--font-weight-regular);
   color: var(--text-black);
   letter-spacing: -0.075em;
-  transition: border var(--duration-fast) ease;
+  transition: border var(--duration-fast) ease, color 0.4s ease;
   border-radius: var(--radius-capsule);
+}
+
+/* Water-fill 애니메이션 — hover 시 accent 컬러가 아래에서 위로 물처럼 차오름 */
+.emailAddress::before {
+  content: "";
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  height: 0;
+  background: var(--color-accent);
+  /* 윗면을 곡선으로 만들어 수면처럼 — hover 시 keyframe 으로 좌우 출렁이는 효과 */
+  border-radius: 50% 50% 0 0 / 60% 60% 0 0;
+  transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.emailAddress:hover::before {
+  height: 160%;
+  animation: emailWaterSlosh 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes emailWaterSlosh {
+  0% {
+    border-radius: 55% 45% 0 0 / 70% 50% 0 0;
+    transform: translateX(0) scaleY(1);
+  }
+  100% {
+    border-radius: 45% 55% 0 0 / 50% 70% 0 0;
+    transform: translateX(2%) scaleY(1.05);
+  }
 }
 
 .emailAddress:hover {
   outline: var(--border-strong);
+  color: var(--text-white);
 }
 
 .emailAddressCopied,
 .emailAddressCopied:hover {
   outline: var(--border-accent);
+  color: var(--text-accent);
+}
+
+.emailAddressCopied::before,
+.emailAddressCopied:hover::before {
+  height: 0;
+  animation: none;
 }
 
 .emailTextWrapper {
   display: inline-flex;
   gap: var(--_gap-md);
   align-items: center;
+  position: relative;
+  z-index: 1;
   transition: opacity var(--duration-fast) ease;
 }
 
@@ -663,7 +723,8 @@
   flex-shrink: 0;
   width: var(--_size-copy-icon);
   height: var(--_size-copy-icon);
-  stroke: var(--text-black);
+  stroke: currentColor;
+  transition: stroke 0.4s ease;
 }
 
 .checkIcon {
@@ -682,6 +743,7 @@
   color: var(--text-accent);
   transition: opacity var(--duration-fast) ease;
   inset: 0;
+  z-index: 1;
 }
 
 /* ---------------------------------------------------------------------------
@@ -880,6 +942,7 @@
   }
 
   .emailHeaderSpacer {
+    display: block;
     width: 48px;
   }
 
