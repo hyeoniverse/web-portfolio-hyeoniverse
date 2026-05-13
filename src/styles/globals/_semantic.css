@@ -8,8 +8,8 @@
    -------------------------------------------------------------------------- */
 :root {
   --text-white: var(--color-white-alpha-100);
-  /* 항상 dark 한 surface 위 dimmed 흰 텍스트 (--border-ghost-strong-color 와 pair) */
-  --text-ghost-strong: var(--color-white-alpha-50);
+  /* 항상 dark 한 surface 위 dimmed 흰 텍스트 (--border-white-muted-color 와 pair) */
+  --text-white-muted: var(--color-white-alpha-50);
   --text-black: var(--color-gray-alpha-100);
   --text-primary: var(--color-neutral-900);
   --text-secondary: var(--color-neutral-800);
@@ -142,7 +142,7 @@
   --border-accent-strong-color: var(--color-accent);
   --border-ghost-light-color: var(--color-white-alpha-10);
   --border-ghost-color: var(--color-white-alpha-20);
-  --border-ghost-strong-color: var(--color-white-alpha-50);
+  --border-white-muted-color: var(--color-white-alpha-50);
   --border-success-color: var(--color-success);
   --border-neutral-light-color: var(--color-neutral-alpha-20);
 
@@ -173,7 +173,7 @@
   /* Ghost borders — on-dark (light → default → strong) */
   --border-ghost-light: 1px solid var(--border-ghost-light-color);
   --border-ghost: 1px solid var(--border-ghost-color);
-  --border-ghost-strong: 1px solid var(--border-ghost-strong-color);
+  --border-white-muted: 1px solid var(--border-white-muted-color);
 
   /* (removed: border-primary/secondary/tertiary → use strong/default/light) */
 
