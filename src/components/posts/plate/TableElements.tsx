@@ -19,6 +19,7 @@ import {
   getTableAbove,
   insertTableMergeRow,
   insertTableMergeColumn,
+  isSelectingCell,
 } from "@platejs/table";
 import { InlineCaption } from "./elements";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
@@ -161,7 +162,9 @@ function AddRowBtn({ editor, tableElement, disabled, hovered, onHoverChange }: {
 
 function TableElementInner({ children, attributes, style, element }: PlateElementProps) {
   const editor = useEditorRef();
-  const { props: tableProps, isSelectingCell } = useTableElement();
+  const { props: tableProps } = useTableElement();
+  // v53 에서 useTableElement 의 isSelectingCell 가 제거되고 별도 함수로 분리됨
+  const selectingCell = isSelectingCell(editor);
   const rawColSizes = useTableColSizes();
   const colSizes = Array.isArray(rawColSizes) ? rawColSizes : [];
   useSelectedCells();
@@ -250,7 +253,7 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
               borderRight: borderStyle === "none" ? "none" : `${borderWidth} ${borderStyle} ${borderColor}`,
               borderBottom: borderStyle === "none" ? "none" : `${borderWidth} ${borderStyle} ${borderColor}`,
               tableLayout: "fixed",
-              userSelect: isSelectingCell ? "none" : undefined,
+              userSelect: selectingCell ? "none" : undefined,
             }}
           >
             <colgroup contentEditable={false}>
