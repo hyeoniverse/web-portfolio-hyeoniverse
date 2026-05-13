@@ -77,6 +77,42 @@ export default React.memo(function TableToolbar({
   const { t } = useLanguage();
   const bp = borderPopover;
 
+  // plate 의 insertTableMergeRow 는 인접 row (헤더 바로 위/아래 삽입 시 헤더 행) 의
+  // 셀 type/스타일을 템플릿으로 사용 → 새 row 가 header 스타일로 추가됨. 사용자는
+  // 선택한 셀 기준이 자연스러우므로 삽입 후 새 row 의 셀들을 selected 셀의 type 으로 강제 변환.
+  const insertRow = (before: boolean) => {
+    recomputeTableIndices(editor);
+    // 선택 셀의 type / 배경 캡처
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cellEntry = editor.api.node({ match: { type: ["table_cell", "table_cell_header"] } }) as any;
+    const selectedCellType = cellEntry?.[0]?.type ?? "table_cell";
+    const selectedCellPath: number[] | undefined = cellEntry?.[1];
+
+    insertTableMergeRow(editor, { before });
+
+    // 삽입된 새 row 의 path = selectedCellPath 의 row index 를 기반으로 계산
+    if (selectedCellPath) {
+      const tablePath = selectedCellPath.slice(0, -2);
+      const selectedRowIdx = selectedCellPath[selectedCellPath.length - 2];
+      const newRowIdx = before ? selectedRowIdx : selectedRowIdx + 1;
+      const newRowPath = [...tablePath, newRowIdx];
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const newRow = editor.api.node(newRowPath) as any;
+        if (newRow?.[0]?.children) {
+          const isHeaderSelected = selectedCellType === "table_cell_header";
+          newRow[0].children.forEach((_cell: unknown, idx: number) => {
+            const cellPath = [...newRowPath, idx];
+            // type 만 변환 (background 같은 inline 스타일은 selected 셀 기준 매번 다르니 그대로 두고 header→body 변경만)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            editor.tf.setNodes({ type: isHeaderSelected ? "table_cell_header" : "table_cell", background: null } as any, { at: cellPath });
+          });
+        }
+      } catch { /* ignore — path 변형 케이스 */ }
+    }
+    setTimeout(reapplyZebraIfActive, 0);
+  };
+
   return (
     <div className={`${styles.tableToolbar} ${!visible ? styles.tableToolbarHidden : ""}`}>
       {/* Row 1: 구조 */}
@@ -84,8 +120,8 @@ export default React.memo(function TableToolbar({
         <span className={styles.tableToolbarLabel}>TABLE</span>
         <div className={styles.tableGroup}>
           <span className={styles.tableGroupLabel}>{t("editor.row")}</span>
-          <TBtn square onClick={() => { recomputeTableIndices(editor); insertTableMergeRow(editor, { before: true }); setTimeout(reapplyZebraIfActive, 0); }} tooltip={t("editor.addRowAbove")}><TblRowBefore /></TBtn>
-          <TBtn square onClick={() => { recomputeTableIndices(editor); insertTableMergeRow(editor); setTimeout(reapplyZebraIfActive, 0); }} tooltip={t("editor.addRowBelow")}><TblRowAfter /></TBtn>
+          <TBtn square onClick={() => insertRow(true)} tooltip={t("editor.addRowAbove")}><TblRowBefore /></TBtn>
+          <TBtn square onClick={() => insertRow(false)} tooltip={t("editor.addRowBelow")}><TblRowAfter /></TBtn>
           <TBtn square onClick={() => { recomputeTableIndices(editor); deleteTableMergeRow(editor); setTimeout(reapplyZebraIfActive, 0); }} tooltip={t("editor.deleteRow")}><TblRowRemove /></TBtn>
         </div>
         <div className={styles.tableGroup}>

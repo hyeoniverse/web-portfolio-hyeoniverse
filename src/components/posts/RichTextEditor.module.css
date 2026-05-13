@@ -834,7 +834,7 @@
   z-index: 30;
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-lg);
   padding: var(--spacing-xs) var(--spacing-xs) var(--spacing-sm);
   min-width: 220px;
