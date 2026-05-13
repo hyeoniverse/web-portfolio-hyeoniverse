@@ -264,7 +264,7 @@ export function edgeLabelPos(
   from: FlowNode,
   to: FlowNode,
   overrides?: NodePositions,
-): { x: number; y: number; anchor: string } {
+): { x: number; y: number; anchor: "start" | "middle" | "end" } {
   const fx = getNodeX(from, overrides);
   const fy = getNodeY(from, overrides);
   const ty = getNodeY(to, overrides);
