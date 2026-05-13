@@ -168,6 +168,7 @@ export function useBorderPopover(
   });
   const popRef = useRef<HTMLDivElement>(null);
   const cellEntriesRef = useRef<[Record<string, unknown>, number[]][]>([]);
+  const [selectionSpan, setSelectionSpan] = useState<{ rows: number; cols: number }>({ rows: 0, cols: 0 });
 
   useOutsideClick(popRef, open, useCallback(() => setOpen(false), []));
 
@@ -179,20 +180,36 @@ export function useBorderPopover(
 
   const captureCells = useCallback(() => {
     if (!editor) return;
+    const updateSpan = (entries: [Record<string, unknown>, number[]][]) => {
+      if (entries.length === 0) { setSelectionSpan({ rows: 0, cols: 0 }); return; }
+      let minR = Infinity, maxR = -1, minC = Infinity, maxC = -1;
+      for (const [, p] of entries) {
+        const r = p[p.length - 2], c = p[p.length - 1];
+        if (r < minR) minR = r; if (r > maxR) maxR = r;
+        if (c < minC) minC = c; if (c > maxC) maxC = c;
+      }
+      setSelectionSpan({ rows: maxR - minR + 1, cols: maxC - minC + 1 });
+    };
     try {
       const grid = getTableGridAbove(editor, { format: "cell" });
       if (grid && grid.length > 0) {
-        cellEntriesRef.current = grid.map(([node, path]: [unknown, number[]]) => [node as Record<string, unknown>, [...path]]);
+        const entries = grid.map(([node, path]: [unknown, number[]]) => [node as Record<string, unknown>, [...path]]) as [Record<string, unknown>, number[]][];
+        cellEntriesRef.current = entries;
+        updateSpan(entries);
         return;
       }
     } catch { /* fallback */ }
     const sel = editor.selection;
     if (!sel) return;
     const entries = Array.from(editor.api.nodes({ at: sel, match: isCell })) as [Record<string, unknown>, number[]][];
-    if (entries.length > 0) { cellEntriesRef.current = entries; return; }
+    if (entries.length > 0) { cellEntriesRef.current = entries; updateSpan(entries); return; }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cellAbove = editor.api.above({ match: isCell as any });
-    if (cellAbove) cellEntriesRef.current = [cellAbove as [Record<string, unknown>, number[]]];
+    if (cellAbove) {
+      const single = [cellAbove as [Record<string, unknown>, number[]]];
+      cellEntriesRef.current = single;
+      updateSpan(single);
+    }
   }, [editor, isCell]);
 
   const applyBorders = useCallback((mode: BorderMode, override?: { style?: string; width?: string; color?: string }) => {
@@ -429,7 +446,7 @@ export function useBorderPopover(
 
   return {
     open, setOpen, style, setStyle, width, setWidth, color, setColor,
-    selectedPosition, setSelectedPosition, mixed,
+    selectedPosition, setSelectedPosition, mixed, selectionSpan,
     popRef, captureCells, applyBorders,
   };
 }

@@ -979,6 +979,12 @@
   background: var(--bg-tertiary-alt);
 }
 
+.borderGridBtnDisabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Select inside border popover */
 .borderPopSelect {
   width: 100%;
