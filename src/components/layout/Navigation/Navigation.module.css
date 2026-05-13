@@ -32,13 +32,6 @@
   cursor: pointer;
 }
 
-/* Contact drawer 열려 있을 때 — drawer 안의 중앙 풀로고와 중복되므로 숨김 */
-:global(html[data-contact-drawer-open]) .logoGroup {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--duration-base) ease;
-}
-
 .adminBadge {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-2xs);
@@ -502,6 +495,26 @@
 }
 
 
+/* Header: 풀로고 가운데 정렬 */
+.menuHeader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl-plus) var(--spacing-2xl);
+}
+
+.menuLogo {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-2xl-plus);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-white);
+  letter-spacing: -0.02em;
+}
+
 /* Footer: email */
 .menuFooter {
   position: absolute;
@@ -522,12 +535,51 @@
 }
 
 .menuFooterEmail {
+  position: relative;
+  display: inline-block;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: clamp(14px, 6vw, var(--font-size-3xl));
   color: var(--text-white);
   text-decoration: underline;
   text-underline-offset: 6px;
   white-space: nowrap;
+  isolation: isolate;
+  transition: color 0.5s ease;
+}
+
+/* Water-fill hover — accent 색이 아래에서 출렁이며 차오름 */
+.menuFooterEmail::before {
+  content: "";
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: -6px;
+  height: 0;
+  background: var(--color-accent);
+  border-radius: 55% 45% 0 0 / 70% 50% 0 0;
+  transition: height 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.menuFooterEmail:hover::before {
+  height: calc(100% + 12px);
+  animation: menuEmailWaterSlosh 2.2s ease-in-out infinite alternate;
+}
+
+.menuFooterEmail:hover {
+  color: var(--text-white);
+}
+
+@keyframes menuEmailWaterSlosh {
+  0% {
+    border-radius: 55% 45% 0 0 / 70% 50% 0 0;
+    transform: translateX(0) scaleY(1);
+  }
+  100% {
+    border-radius: 45% 55% 0 0 / 50% 70% 0 0;
+    transform: translateX(2%) scaleY(1.04);
+  }
 }
 
 .menuNav {

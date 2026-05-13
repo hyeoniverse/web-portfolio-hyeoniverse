@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import Logo from "@/components/common/Logo";
 import styles from "./Navigation.module.css";
 
 interface MenuItem {
@@ -37,6 +38,15 @@ export default function MobileMenu({
 }: MobileMenuProps) {
   if (!menuMounted || !showMenu) return null;
 
+  // 가장 긴 prefix 매칭만 active — 예: /admin/works 일 때 /admin (dashboard) 까지 active 되던 문제 방지
+  const activeHref: string | null = (() => {
+    const matches = menuItems
+      .filter((it) => it.href && (pathname === it.href || pathname.startsWith(it.href + "/")))
+      .map((it) => it.href as string);
+    if (!matches.length) return null;
+    return matches.reduce((best, h) => (h.length > best.length ? h : best));
+  })();
+
   return createPortal(
     <div
       className={`${styles.menuClipWrapper} ${menuClipOpen ? styles.menuClipOpen : ""}`}
@@ -46,6 +56,11 @@ export default function MobileMenu({
         onClick={onClose}
       />
       <div className={styles.menuDrawer}>
+        {/* Header: 풀로고 가운데 */}
+        <div className={styles.menuHeader} onClick={onClose}>
+          <Logo variant="full" as="link" className={styles.menuLogo} />
+        </div>
+
         <nav className={styles.menuNav}>
           {menuItems.map((item) => {
             if (!item.href) {
@@ -70,7 +85,7 @@ export default function MobileMenu({
               <Link
                 key={item.key}
                 href={item.href}
-                className={`${styles.menuLink} glith-on-hover ${pathname === item.href || pathname.startsWith(item.href + "/") ? styles.menuLinkActive : ""}`}
+                className={`${styles.menuLink} glith-on-hover ${activeHref === item.href ? styles.menuLinkActive : ""}`}
                 onClick={onClose}
               >
                 {item.label ?? item.key}
