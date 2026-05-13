@@ -856,14 +856,6 @@
   min-width: 0;
 }
 
-.borderPopSectionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-2xs);
-}
-
 .borderClearBtn {
   padding: 3px 8px;
   border: var(--border-light);

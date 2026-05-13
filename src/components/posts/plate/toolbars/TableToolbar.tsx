@@ -258,21 +258,19 @@ export default React.memo(function TableToolbar({
               className={styles.borderPopover}
               style={{ position: "fixed", top: popPos.top, left: popPos.left, transform: "translateX(-50%)" }}
             >
+              <Tooltip content={t("editor.borderClear")} placement="top" wrapperStyle={{ alignSelf: "flex-end" }}>
+                <button
+                  type="button"
+                  className={styles.borderClearBtn}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => bp.applyBorders("none")}
+                >
+                  {t("editor.borderClear")}
+                </button>
+              </Tooltip>
               <div className={styles.borderPopTopRow}>
                 <div className={styles.borderPopSection}>
-                  <div className={styles.borderPopSectionHeader}>
-                    <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
-                    <Tooltip content={t("editor.borderClear")} placement="top">
-                      <button
-                        type="button"
-                        className={styles.borderClearBtn}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => bp.applyBorders("none")}
-                      >
-                        {t("editor.borderClear")}
-                      </button>
-                    </Tooltip>
-                  </div>
+                  <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
                   <div className={styles.borderGrid}>
                   {/* 3x3:
                        Row 1: 바깥선 안쪽선 모두
