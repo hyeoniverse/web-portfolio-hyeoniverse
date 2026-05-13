@@ -573,7 +573,9 @@
   border-bottom: var(--border-light);
   background: var(--bg-primary);
   opacity: 1;
-  clip-path: inset(0 0 0 0);
+  /* bottom 을 음수로 확장 — toolbar 의 popover (테두리/색 선택 등) 가 아래로
+     빠져나와도 안 잘리게. 슬라이드업 hide 애니메이션은 hidden state 의 100% 와 함께 동작 */
+  clip-path: inset(0 0 -500px 0);
 }
 
 /* 글로벌 html[data-theme-ready] * transition shorthand 강제 override */
