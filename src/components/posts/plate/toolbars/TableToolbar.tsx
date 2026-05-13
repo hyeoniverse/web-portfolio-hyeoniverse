@@ -113,14 +113,21 @@ export default React.memo(function TableToolbar({
       setPopPos({ top: r.bottom + 6, left: r.left + r.width / 2 });
     };
     update();
-    const close = () => bp.setOpen(false);
-    window.addEventListener("scroll", close, true);
-    window.addEventListener("resize", close);
-    return () => {
-      window.removeEventListener("scroll", close, true);
-      window.removeEventListener("resize", close);
+    // scroll / resize 시 close 가 아니라 popover 위치 재계산 → trigger 따라 이동.
+    // 닫기는 useOutsideClick (popRef) 가 처리.
+    let rafId: number | null = null;
+    const onScrollOrResize = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => { rafId = null; update(); });
     };
-  }, [bp.open, bp]);
+    window.addEventListener("scroll", onScrollOrResize, true);
+    window.addEventListener("resize", onScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", onScrollOrResize, true);
+      window.removeEventListener("resize", onScrollOrResize);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, [bp.open]);
 
 
   // plate 의 insertTableMergeRow 는 인접 row (헤더 바로 위/아래 삽입 시 헤더 행) 의
