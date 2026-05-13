@@ -623,6 +623,41 @@ function TroubleshootingPanel({
     };
   }, [isMobile, items.length]);
 
+  // 모바일 boundary clamp — 핀 범위 밖으로 스크롤 시도 시:
+  // - 첫 항목 + 위로 이탈: 이전 패널로 (허용)
+  // - 마지막 항목 + 아래로 이탈: 다음 패널로 (허용)
+  // - 그 외: 핀 boundary 로 snap-back. 강한 fling 으로 중간 항목에서 패널을 통과해버리는 문제 방지.
+  useEffect(() => {
+    if (!isMobile) return;
+    let rafId: number | null = null;
+    let snapping = false;
+    const onScroll = () => {
+      if (rafId !== null || snapping) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const st = mobileStRef.current?.scrollTrigger;
+        if (!st) return;
+        const cur = activeIdxRef.current;
+        const y = window.scrollY;
+        const lenis = (window as { lenis?: { scrollTo: (t: number, opts?: { duration?: number }) => void } }).lenis;
+        if (y < st.start - 1 && cur > 0) {
+          snapping = true;
+          lenis?.scrollTo(st.start, { duration: 0.25 });
+          window.setTimeout(() => { snapping = false; }, 350);
+        } else if (y > st.end + 1 && cur < items.length - 1) {
+          snapping = true;
+          lenis?.scrollTo(st.end, { duration: 0.25 });
+          window.setTimeout(() => { snapping = false; }, 350);
+        }
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, [isMobile, items.length, mobileStRef]);
+
   const displayIndex = isMobile ? mobileActiveIdx : detailIndex;
 
   // 클릭 핸들러 — 데스크톱: 디테일 영역으로 스크롤 / 모바일: 핀 스크롤 위치로 smooth scroll + index 즉시 sync
