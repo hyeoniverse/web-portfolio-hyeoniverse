@@ -11,6 +11,7 @@ import {
   mergeTableCells,
   splitTableCell,
 } from "@platejs/table";
+import { Pipette } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import ColorPicker from "@/components/ui/ColorPicker";
@@ -337,10 +338,12 @@ export default React.memo(function TableToolbar({
               <div className={styles.borderPopSection}>
                 <span className={styles.borderPopLabel}>{t("editor.borderColor")}</span>
                 <div className={styles.borderColorRow}>
-                  {/* ColorPicker — preset 과 시각적 구분: 큰 사이즈 + 라벨 + 오른쪽 divider */}
-                  <div className={styles.borderColorPicker}>
+                  {/* Pipette + 현재색 + ColorPicker — capsule 그룹 (다른 툴바와 동일 패턴) */}
+                  <div className={styles.colorGroup} style={{ gap: 2 }}>
+                    <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
+                    <div className={styles.presetDotInline} style={{ background: bp.color, margin: "0 2px" }} />
+                    <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
                     <ColorPicker value={bp.color.startsWith("var(") ? "#d1d5db" : bp.color} onChange={(c) => bp.setColor(c)} onChangeComplete={(c) => { bp.setColor(c); recentBorderColors.addColor(c); }} triggerClassName={styles.colorInput} />
-                    <span className={styles.borderColorPickerDot} style={{ background: bp.color }} />
                   </div>
                   <span className={styles.borderColorDivider} aria-hidden />
                   <div className={styles.borderColorPresets}>
