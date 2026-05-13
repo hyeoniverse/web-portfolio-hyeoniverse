@@ -91,6 +91,8 @@ function AddColumnBtn({ editor, tableElement }: { editor: any; tableElement: any
     <div
       contentEditable={false}
       data-table-add-btn
+      data-clickable
+      role="button"
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
       onClick={(e) => {
@@ -129,6 +131,8 @@ function AddRowBtn({ editor, tableElement, disabled, hovered, onHoverChange }: {
     <div
       contentEditable={false}
       data-table-add-btn
+      data-clickable
+      role="button"
       onMouseEnter={() => { if (!disabled) onHoverChange(true); }}
       onMouseLeave={() => onHoverChange(false)}
       onClick={(e) => {
