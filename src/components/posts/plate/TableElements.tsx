@@ -539,10 +539,24 @@ function useCellResize(colIndex: number, rowIndex: number) {
     const colSizes = (tableNode.colSizes as number[]) || [];
     const cell = (e.target as HTMLElement).closest("td,th") as HTMLElement | null;
     const tableEl = cell?.closest("table") as HTMLTableElement | null;
-    const colEl = tableEl?.querySelector("colgroup")?.children[colIndex] as HTMLElement | undefined;
+    const colgroup = tableEl?.querySelector("colgroup");
+    const allCols = colgroup ? (Array.from(colgroup.children) as HTMLElement[]) : [];
+    const colEl = allCols[colIndex];
+    const firstRow = tableEl?.querySelector("tbody > tr");
+    const firstRowCells = firstRow ? (Array.from(firstRow.children) as HTMLElement[]) : [];
     const startWidth = colSizes[colIndex] || cell?.offsetWidth || 100;
     const startX = e.clientX;
+    const startTableWidth = tableEl?.offsetWidth ?? 0;
     let pending = startWidth;
+
+    // 모든 col 에 explicit width 가 있어야 다른 col 이 redistribute 되지 않음
+    // (colSize 가 비어 있는 col 이 있으면 fixed layout 에서 남은 공간 가져감)
+    allCols.forEach((c, i) => {
+      if (!c.style.width) {
+        const w = firstRowCells[i]?.offsetWidth;
+        if (w) c.style.width = `${w}px`;
+      }
+    });
 
     // 드래그 중 cursor 유지 — CursorTrail 의 mouseover-기반 감지가 셀 텍스트 위에서 text 로 바뀌는 것 방지
     document.body.setAttribute("data-cursor", "resizeH");
@@ -554,6 +568,9 @@ function useCellResize(colIndex: number, rowIndex: number) {
       pending = Math.max(48, startWidth + delta);
       // Slate transform 우회 — DOM 직접 갱신 (frame 100+ cell 재렌더링 비용 회피)
       if (colEl) colEl.style.width = `${pending}px`;
+      // table 자체 width 도 같이 늘려야 다른 col 이 줄지 않음 (table-layout: fixed 에서
+      // table.width 고정이면 sum 이 늘었을 때 다른 col 이 비례 축소됨)
+      if (tableEl) tableEl.style.width = `${startTableWidth + (pending - startWidth)}px`;
     };
     const onUp = () => {
       document.removeEventListener("pointermove", onMove);
