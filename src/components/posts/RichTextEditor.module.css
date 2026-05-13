@@ -903,21 +903,30 @@
 
 .borderGrid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: var(--spacing-3xs);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
 }
 
 .borderGridBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: var(--border-light);
-  border-radius: var(--radius-xs);
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-primary);
   padding: 0;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.borderGridBtn :global(svg) {
+  width: 20px;
+  height: 20px;
 }
 
 .borderGridBtn:hover {
@@ -925,13 +934,13 @@
 }
 
 .borderGridBtnActive {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-  border-color: var(--text-primary);
+  background: var(--bg-tertiary-alt);
+  border-color: var(--border-strong-color);
+  color: var(--text-primary);
 }
 
 .borderGridBtnActive:hover {
-  background: var(--text-primary);
+  background: var(--bg-tertiary-alt);
 }
 
 /* Select inside border popover */
