@@ -541,12 +541,22 @@ function useCellResize(colIndex: number, rowIndex: number) {
     const startWidth = colSizes[colIndex] || cell?.offsetWidth || 100;
     const startX = e.clientX;
 
+    // rAF 로 묶어 매 pointermove 마다 Slate transform 이 일어나지 않게 — 60fps cap, 버벅임 방지
+    let raf: number | null = null;
+    let pending = startWidth;
+    const flush = () => {
+      raf = null;
+      setTableColSize(editor, { colIndex, width: pending }, { at: tablePath });
+    };
     const onMove = (ev: PointerEvent) => {
       const delta = ev.clientX - startX;
-      const newWidth = Math.max(48, startWidth + delta);
-      setTableColSize(editor, { colIndex, width: newWidth }, { at: tablePath });
+      pending = Math.max(48, startWidth + delta);
+      if (raf == null) raf = requestAnimationFrame(flush);
     };
     const onUp = () => {
+      if (raf != null) cancelAnimationFrame(raf);
+      // 최종 위치 확정
+      setTableColSize(editor, { colIndex, width: pending }, { at: tablePath });
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
     };
@@ -565,12 +575,20 @@ function useCellResize(colIndex: number, rowIndex: number) {
     const startH = cell?.getBoundingClientRect().height ?? 40;
     const startY = e.clientY;
 
+    let raf: number | null = null;
+    let pending = startH;
+    const flush = () => {
+      raf = null;
+      setTableRowSize(editor, { rowIndex, height: pending }, { at: tablePath });
+    };
     const onMove = (ev: PointerEvent) => {
       const delta = ev.clientY - startY;
-      const newHeight = Math.max(24, startH + delta);
-      setTableRowSize(editor, { rowIndex, height: newHeight }, { at: tablePath });
+      pending = Math.max(24, startH + delta);
+      if (raf == null) raf = requestAnimationFrame(flush);
     };
     const onUp = () => {
+      if (raf != null) cancelAnimationFrame(raf);
+      setTableRowSize(editor, { rowIndex, height: pending }, { at: tablePath });
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
     };
