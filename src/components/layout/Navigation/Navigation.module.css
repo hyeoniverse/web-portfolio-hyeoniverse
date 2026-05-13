@@ -550,8 +550,9 @@
   z-index: 0;
 }
 
-/* 글자부분만 채워지는 fill layer — 같은 텍스트를 absolute 로 위에 겹쳐서 그리고
-   mask 로 아래에서 위로 차오름. 세 layer 가 서로 다른 타이밍·곡선으로 출렁임 */
+/* 글자부분만 채워지는 fill layer — 같은 텍스트를 absolute 로 base 위에 겹쳐서 그리고
+   clip-path 의 폴리곤으로 윗면을 출렁이는 파도 모양으로 잘라냄. 3개 layer 가
+   서로 다른 frequency/phase 로 다중 물결처럼 보이게. 수위는 글자 60% 정도 (top 40%). */
 .menuFooterEmailFill {
   position: absolute;
   left: 0;
@@ -560,63 +561,57 @@
   text-decoration: inherit;
   text-underline-offset: inherit;
   pointer-events: none;
-  /* mask 의 transparent→opaque 경계가 곧 수면. 경계 부근에 부드러운 gradient 영역(soft edge)
-     이 있어 그 위에서 출렁임 animation 이 시각적으로 드러남 */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 30%, black 50%, black 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, transparent 30%, black 50%, black 100%);
-  -webkit-mask-size: 100% 280%;
-  mask-size: 100% 280%;
-  -webkit-mask-position: 0 -180%;
-  mask-position: 0 -180%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  transition:
-    -webkit-mask-position 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-    mask-position 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 기본: 글자 아래 (clip 으로 전부 잘림) */
+  clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
 }
 
-/* hover 시 수면이 글자 위쪽 (약 30~40%) 까지만 차오름 — 끝까지 안 채워서 윗부분에 출렁임 보임 */
-.menuFooterEmail:hover .menuFooterEmailFill {
-  -webkit-mask-position: 0 35%;
-  mask-position: 0 35%;
+/* hover 시: 글자 60% 만 채우고 (top 40% 라인이 수면), 각 layer 가 alternate 로 출렁임 */
+.menuFooterEmail:hover .menuFooterEmailFillBack {
+  animation:
+    emailRiseBack 1s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    emailWaveBack 2.4s ease-in-out 1s infinite alternate;
+}
+.menuFooterEmail:hover .menuFooterEmailFillMid {
+  animation:
+    emailRiseMid 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards,
+    emailWaveMid 2s ease-in-out 1.2s infinite alternate;
+}
+.menuFooterEmail:hover .menuFooterEmailFillFront {
+  animation:
+    emailRiseFront 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards,
+    emailWaveFront 1.6s ease-in-out 1.4s infinite alternate;
 }
 
-/* 3개 layer — 서로 다른 타이밍·opacity 로 다중 물결 느낌 */
-.menuFooterEmailFillBack {
-  opacity: 0.4;
-  transition-delay: 0s;
-  animation: menuEmailWave1 2.4s ease-in-out 1.2s infinite alternate;
+.menuFooterEmailFillBack { opacity: 0.35; }
+.menuFooterEmailFillMid { opacity: 0.6; }
+.menuFooterEmailFillFront { opacity: 1; }
+
+/* 차오름 — 0 부터 자기 layer 의 wave 시작 모양까지 */
+@keyframes emailRiseBack {
+  from { clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%); }
+  to   { clip-path: polygon(0% 42%, 25% 38%, 50% 42%, 75% 38%, 100% 42%, 100% 100%, 0% 100%); }
 }
-.menuFooterEmailFillMid {
-  opacity: 0.65;
-  transition-delay: 0.12s;
-  animation: menuEmailWave2 2s ease-in-out 1.3s infinite alternate;
+@keyframes emailRiseMid {
+  from { clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%); }
+  to   { clip-path: polygon(0% 40%, 30% 36%, 60% 40%, 90% 36%, 100% 40%, 100% 100%, 0% 100%); }
 }
-.menuFooterEmailFillFront {
-  opacity: 1;
-  transition-delay: 0.24s;
-  animation: menuEmailWave3 1.6s ease-in-out 1.4s infinite alternate;
+@keyframes emailRiseFront {
+  from { clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%); }
+  to   { clip-path: polygon(0% 41%, 20% 37%, 40% 41%, 60% 37%, 80% 41%, 100% 37%, 100% 100%, 0% 100%); }
 }
 
-.menuFooterEmail:not(:hover) .menuFooterEmailFill {
-  animation: none;
+/* 출렁임 — 파도 마루/골이 좌우로 교대하면서 oscillate */
+@keyframes emailWaveBack {
+  from { clip-path: polygon(0% 42%, 25% 38%, 50% 42%, 75% 38%, 100% 42%, 100% 100%, 0% 100%); }
+  to   { clip-path: polygon(0% 38%, 25% 42%, 50% 38%, 75% 42%, 100% 38%, 100% 100%, 0% 100%); }
 }
-
-/* 출렁임 — mask-position 을 미세하게 흔들어 수면이 좌우 위아래 일렁임 */
-@keyframes menuEmailWave1 {
-  0%   { -webkit-mask-position: 0 35%; mask-position: 0 35%; }
-  50%  { -webkit-mask-position: -3% 33%; mask-position: -3% 33%; }
-  100% { -webkit-mask-position: 0 37%; mask-position: 0 37%; }
+@keyframes emailWaveMid {
+  from { clip-path: polygon(0% 40%, 30% 36%, 60% 40%, 90% 36%, 100% 40%, 100% 100%, 0% 100%); }
+  to   { clip-path: polygon(0% 36%, 30% 40%, 60% 36%, 90% 40%, 100% 36%, 100% 100%, 0% 100%); }
 }
-@keyframes menuEmailWave2 {
-  0%   { -webkit-mask-position: 0 35%; mask-position: 0 35%; }
-  50%  { -webkit-mask-position: 2% 36%; mask-position: 2% 36%; }
-  100% { -webkit-mask-position: -2% 34%; mask-position: -2% 34%; }
-}
-@keyframes menuEmailWave3 {
-  0%   { -webkit-mask-position: 0 35%; mask-position: 0 35%; }
-  50%  { -webkit-mask-position: 1% 34%; mask-position: 1% 34%; }
-  100% { -webkit-mask-position: -1% 36%; mask-position: -1% 36%; }
+@keyframes emailWaveFront {
+  from { clip-path: polygon(0% 41%, 20% 37%, 40% 41%, 60% 37%, 80% 41%, 100% 37%, 100% 100%, 0% 100%); }
+  to   { clip-path: polygon(0% 37%, 20% 41%, 40% 37%, 60% 41%, 80% 37%, 100% 41%, 100% 100%, 0% 100%); }
 }
 
 .menuNav {
@@ -1234,20 +1229,23 @@
   z-index: calc(var(--z-overlay) + 1);
 }
 
-.navMenuOpen .logoGroup,
-.navMenuOpen .navCenter,
-.navMenuOpen .contactBtn,
-.navMenuOpen .soundBtnWrap,
-.navMenuOpen .navActions {
-  /* opacity 가 곱셈 합성이라 자식의 visibility:visible 인라인 스타일을 무력화 — 숏 로고도 확실히 숨김 */
+/* logoGroup 은 자식 .logoWrapper 의 인라인 visibility:visible 때문에 visibility 만으로는 안 숨겨짐
+   → opacity (곱셈 합성) 로 강제 */
+.navMenuOpen .logoGroup {
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
 }
 
+.navMenuOpen .navCenter,
+.navMenuOpen .contactBtn,
+.navMenuOpen .soundBtnWrap,
+.navMenuOpen .navActions {
+  visibility: hidden;
+}
+
 .navMenuOpen .actionBtn:not(.menuBtn) {
-  opacity: 0;
-  pointer-events: none;
+  visibility: hidden;
 }
 
 /* Logo wrapper: transform 기반 중앙→nav 이동 애니메이션 */
