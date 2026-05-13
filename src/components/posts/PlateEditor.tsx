@@ -992,6 +992,10 @@ export default function PlateEditor({
 
   // ── Link unwrap on Backspace at link boundary ──
   const handleContentKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // 한글 IME composition 중에는 모든 커스텀 핸들러 skip — Enter / Backspace 가
+    // composition commit 과 우리 동작을 둘 다 처리하면서 글자 복제 / 빈 줄 삽입
+    // 등 race condition 발생. 브라우저가 composition 끝낸 후 다시 키 누르면 정상 처리.
+    if (e.nativeEvent.isComposing) return;
     // ── Find & Replace 단축키 ──
     const mod = e.metaKey || e.ctrlKey;
     if (mod && e.key === "f") {
