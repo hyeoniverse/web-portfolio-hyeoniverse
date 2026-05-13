@@ -228,6 +228,10 @@ export default function PlateEditor({
   // cursor 가 안 옮겨감. compositionend 후 저장된 좌표로 직접 select.
   const composingRef = useRef(false);
   const pendingClickRef = useRef<{ x: number; y: number } | null>(null);
+  // slate-react 의 isComposing React state 가 비동기 업데이트라
+  // compositionend 직후 잠시 동안 (수~수십 ms) 여전히 composing 으로 인식됨.
+  // → recent composition 감지로 강제 selection 재적용.
+  const lastCompositionEndRef = useRef(0);
 
   // capture phase 로 editor DOM 에 직접 listener 부착 — slate-react 의 자체 핸들러보다
   // 먼저 실행되어야 mousedown 좌표를 신뢰성 있게 잡을 수 있음.
@@ -265,26 +269,30 @@ export default function PlateEditor({
         } catch { /* ignore */ }
       };
 
-      const onCompStart = () => {
-        composingRef.current = true;
-        console.log("[IME] compositionstart");
-      };
+      const onCompStart = () => { composingRef.current = true; };
       const onCompEnd = () => {
         composingRef.current = false;
+        lastCompositionEndRef.current = Date.now();
         const pending = pendingClickRef.current;
         pendingClickRef.current = null;
-        console.log("[IME] compositionend, pending click:", pending);
         if (pending) {
-          requestAnimationFrame(() => {
-            console.log("[IME] applying selection at", pending.x, pending.y);
-            applySelection(pending.x, pending.y);
-          });
+          requestAnimationFrame(() => applySelection(pending.x, pending.y));
         }
       };
       const onMouseDown = (e: MouseEvent) => {
-        console.log("[IME] mousedown, composing:", composingRef.current);
         if (composingRef.current) {
+          // composition 진행 중 클릭 → compositionend 에서 적용
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
+          return;
+        }
+        // composition 직후 (100ms 이내) 클릭 → slate-react 의 isComposing React state 가
+        // 아직 true 인 상태라 selection update 가 skip 됨. 좌표 저장 후 다음 tick 에
+        // 직접 select 호출.
+        if (Date.now() - lastCompositionEndRef.current < 100) {
+          const x = e.clientX;
+          const y = e.clientY;
+          // slate-react 가 이번 mousedown 처리 끝낼 때까지 짧게 대기 후 우리가 덮어씀
+          setTimeout(() => applySelection(x, y), 0);
         }
       };
 
