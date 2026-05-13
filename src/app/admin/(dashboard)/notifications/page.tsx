@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Reply, Heart, Bell } from "lucide-react";
+import { MessageCircle, Reply, Heart, Bell, Flag } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
@@ -26,6 +26,7 @@ const TYPE_KEYS: Record<string, string> = {
   comment: "admin.notifications.typeComment",
   reply: "admin.notifications.typeReply",
   like: "admin.notifications.typeLike",
+  report: "admin.notifications.typeReport",
   system: "admin.notifications.typeSystem",
 };
 
@@ -121,6 +122,7 @@ export default function NotificationsPage() {
       case "comment": return <MessageCircle {...common} />;
       case "reply": return <Reply {...common} />;
       case "like": return <Heart {...common} />;
+      case "report": return <Flag {...common} />;
       default: return <Bell {...common} />;
     }
   };
