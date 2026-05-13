@@ -1350,6 +1350,7 @@
     "borderColor": "색상",
     "borderColorRecent": "최근 사용한 색",
     "borderClear": "모두 제거",
+    "borderMixed": "다중",
     "caption": "캡션",
     "captionPlaceholder": "캡션 입력...",
     "removeCaption": "캡션 제거",

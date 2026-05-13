@@ -868,6 +868,16 @@
   color: var(--text-primary);
 }
 
+.borderMixedLabel {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
 /* Border color row — ColorPicker 와 preset 구분 */
 .borderColorRow {
   display: flex;
