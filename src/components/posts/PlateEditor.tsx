@@ -230,8 +230,6 @@ export default function PlateEditor({
   // slate-react 의 isComposing React state 가 비동기 업데이트라
   // compositionend 직후 잠시 동안 (수~수십 ms) 여전히 composing 으로 인식됨.
   const lastCompositionEndRef = useRef(0);
-  // 우리가 dispatch 한 mousedown 을 재처리 방지하는 flag
-  const isReDispatchingRef = useRef(false);
 
   // capture phase 로 editor DOM 에 직접 listener 부착 — slate-react 의 자체 핸들러보다
   // 먼저 실행되어야 mousedown 좌표를 신뢰성 있게 잡을 수 있음.
@@ -243,18 +241,28 @@ export default function PlateEditor({
       editorEl = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
       if (!editorEl) return;
 
-      const reDispatchClick = (x: number, y: number) => {
-        const target = document.elementFromPoint(x, y);
-        if (!target) return;
-        isReDispatchingRef.current = true;
-        const init: MouseEventInit = {
-          bubbles: true, cancelable: true, view: window,
-          clientX: x, clientY: y, button: 0,
+      // DOM Selection 을 직접 조작 → slate-react 의 selectionchange handler 가 sync.
+      // ReactEditor.toSlateRange 변환 안 거치고 native DOM API 만 사용 → 변환 에러 회피.
+      const setDomCaret = (x: number, y: number) => {
+        type CaretFromPointDoc = Document & {
+          caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
+          caretRangeFromPoint?: (x: number, y: number) => Range | null;
         };
-        target.dispatchEvent(new MouseEvent("mousedown", init));
-        target.dispatchEvent(new MouseEvent("mouseup", init));
-        target.dispatchEvent(new MouseEvent("click", init));
-        isReDispatchingRef.current = false;
+        const doc = document as CaretFromPointDoc;
+        const pos = doc.caretPositionFromPoint?.(x, y);
+        let range: Range | null = null;
+        if (pos) {
+          range = document.createRange();
+          range.setStart(pos.offsetNode, pos.offset);
+          range.collapse(true);
+        } else {
+          range = doc.caretRangeFromPoint?.(x, y) ?? null;
+        }
+        if (!range) return;
+        const sel = window.getSelection();
+        if (!sel) return;
+        sel.removeAllRanges();
+        sel.addRange(range);
       };
       const onCompStart = () => { composingRef.current = true; };
       const onCompEnd = () => {
@@ -263,23 +271,21 @@ export default function PlateEditor({
         const pending = pendingClickRef.current;
         pendingClickRef.current = null;
         if (pending) {
-          setTimeout(() => reDispatchClick(pending.x, pending.y), 150);
+          setTimeout(() => setDomCaret(pending.x, pending.y), 200);
         }
       };
       const onMouseDown = (e: MouseEvent) => {
-        if (isReDispatchingRef.current) return; // 우리가 만든 이벤트는 통과
         if (composingRef.current) {
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
           return;
         }
-        // composition 직후 (200ms 이내) 클릭 → slate-react 의 React state
-        // 가 아직 isComposing=true 라 selection update skip 됨.
-        // 150ms 대기 후 동일 좌표로 native mousedown 재dispatch → slate 가
-        // 그 시점엔 isComposing=false 로 인식해서 정상 처리.
+        // composition 직후 (200ms 이내) 클릭 → 200ms 대기 후 DOM Selection 강제로
+        // 클릭 위치로 collapse. slate-react 의 selectionchange handler 가 그 시점엔
+        // isComposing=false 라 native DOM 변경을 정상 picking up.
         if (Date.now() - lastCompositionEndRef.current < 200) {
           const x = e.clientX;
           const y = e.clientY;
-          setTimeout(() => reDispatchClick(x, y), 150);
+          setTimeout(() => setDomCaret(x, y), 200);
         }
       };
 
