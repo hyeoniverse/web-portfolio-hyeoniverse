@@ -32,6 +32,13 @@
   cursor: pointer;
 }
 
+/* Contact drawer 열려 있을 때 — drawer 안의 중앙 풀로고와 중복되므로 숨김 */
+:global(html[data-contact-drawer-open]) .logoGroup {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) ease;
+}
+
 .adminBadge {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-2xs);
