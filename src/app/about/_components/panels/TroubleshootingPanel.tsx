@@ -468,6 +468,24 @@ function TroubleshootingPanel({
     prevIdxRef.current = idx;
     setMobileActiveIdx(idx);
   }, []);
+
+  // 활성 탭이 항상 viewport 안에 들어오도록 tab bar 자동 스크롤
+  useEffect(() => {
+    if (!isMobile) return;
+    const bar = ideTabBarRef.current;
+    if (!bar) return;
+    const buttons = bar.querySelectorAll(`.${styles.ideTab}`);
+    const activeTab = buttons[mobileActiveIdx] as HTMLElement | undefined;
+    if (!activeTab) return;
+    const barRect = bar.getBoundingClientRect();
+    const tabRect = activeTab.getBoundingClientRect();
+    const PADDING = 16;
+    if (tabRect.left < barRect.left + PADDING) {
+      bar.scrollBy({ left: tabRect.left - barRect.left - PADDING, behavior: "smooth" });
+    } else if (tabRect.right > barRect.right - PADDING) {
+      bar.scrollBy({ left: tabRect.right - barRect.right + PADDING, behavior: "smooth" });
+    }
+  }, [mobileActiveIdx, isMobile]);
   const mobileStRef = useMobilePinScroll(
     contentRef,
     items.length,
