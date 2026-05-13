@@ -266,11 +266,11 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
           </table>
           {/* 열 추가 (오른쪽) — 표 바로 옆 */}
           <AddColumnBtn editor={editor} tableElement={element} />
-          {/* 행 추가 — 표 너비 기준 */}
-          <div contentEditable={false} style={{ position: "relative", height: 0, marginTop: "var(--spacing-2xs)" }}>
-            <AddRowBtn editor={editor} tableElement={element} disabled={captionEditing} hovered={rowBtnHovered} onHoverChange={setRowBtnHovered} />
-          </div>
         </div>
+      </div>
+      {/* 행 추가 — overflow-x:auto 가 overflow-y:clip 을 강제하므로 스크롤 컨테이너 바깥에 위치 */}
+      <div contentEditable={false} style={{ position: "relative", marginTop: "var(--spacing-2xs)" }}>
+        <AddRowBtn editor={editor} tableElement={element} disabled={captionEditing} hovered={rowBtnHovered} onHoverChange={setRowBtnHovered} />
       </div>
       {caption !== undefined && caption !== "" && (
         <div contentEditable={false}>
@@ -507,22 +507,33 @@ function useCellResize(colIndex: number, rowIndex: number) {
   const editor = useEditorRef();
   const element = useElement();
 
+  // 셀 path → 표 path/node (cell → row → table 이므로 -2)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getTableEntry = (): [any, number[]] | null => {
+    const cellPath = editor.api.findPath(element);
+    if (!cellPath || cellPath.length < 2) return null;
+    const tablePath = cellPath.slice(0, -2);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const entry = editor.api.node(tablePath) as any;
+    if (!entry) return null;
+    return [entry[0], tablePath];
+  };
+
   const onRightPointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // 테이블 노드 찾기
-    let tableEntry: ReturnType<typeof editor.api.above> = undefined;
-    try { tableEntry = editor.api.above({ match: { type: "table" }, at: element as never }); } catch { /* ignore */ }
+    const tableEntry = getTableEntry();
     if (!tableEntry) return;
-    const tableNode = tableEntry[0] as Record<string, unknown>;
+    const [tableNode, tablePath] = tableEntry;
     const colSizes = (tableNode.colSizes as number[]) || [];
-    const startWidth = colSizes[colIndex] || 100;
+    const cell = (e.target as HTMLElement).closest("td,th") as HTMLElement | null;
+    const startWidth = colSizes[colIndex] || cell?.offsetWidth || 100;
     const startX = e.clientX;
 
     const onMove = (ev: PointerEvent) => {
       const delta = ev.clientX - startX;
       const newWidth = Math.max(48, startWidth + delta);
-      setTableColSize(editor, { colIndex, width: newWidth }, { at: tableEntry![0] });
+      setTableColSize(editor, { colIndex, width: newWidth }, { at: tablePath });
     };
     const onUp = () => {
       document.removeEventListener("pointermove", onMove);
@@ -530,25 +541,23 @@ function useCellResize(colIndex: number, rowIndex: number) {
     };
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, element, colIndex]);
 
   const onBottomPointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    let tableEntry: ReturnType<typeof editor.api.above> = undefined;
-    try { tableEntry = editor.api.above({ match: { type: "table" }, at: element as never }); } catch { /* ignore */ }
+    const tableEntry = getTableEntry();
     if (!tableEntry) return;
-    const tableNode = tableEntry[0] as Record<string, unknown>;
-    const rowSizes = (tableNode.rowSizes as number[]) || [];
-    const startHeight = rowSizes[rowIndex] || 0;
-    const cell = (e.target as HTMLElement).closest("td,th");
-    const startH = startHeight || (cell?.getBoundingClientRect().height ?? 40);
+    const [, tablePath] = tableEntry;
+    const cell = (e.target as HTMLElement).closest("td,th") as HTMLElement | null;
+    const startH = cell?.getBoundingClientRect().height ?? 40;
     const startY = e.clientY;
 
     const onMove = (ev: PointerEvent) => {
       const delta = ev.clientY - startY;
       const newHeight = Math.max(24, startH + delta);
-      setTableRowSize(editor, { rowIndex, height: newHeight }, { at: tableEntry![0] });
+      setTableRowSize(editor, { rowIndex, height: newHeight }, { at: tablePath });
     };
     const onUp = () => {
       document.removeEventListener("pointermove", onMove);
@@ -556,6 +565,7 @@ function useCellResize(colIndex: number, rowIndex: number) {
     };
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, element, rowIndex]);
 
   return { onRightPointerDown, onBottomPointerDown };
