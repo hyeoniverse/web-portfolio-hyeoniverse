@@ -33,7 +33,7 @@
     "@platejs/indent": "^52.0.11",
     "@platejs/layout": "^52.0.11",
     "@platejs/link": "^52.0.11",
-    "@platejs/list": "^52.0.11",
+    "@platejs/list": "^53.0.2",
     "@platejs/math": "^52.0.11",
     "@platejs/media": "^52.0.11",
     "@platejs/table": "^52.0.11",
