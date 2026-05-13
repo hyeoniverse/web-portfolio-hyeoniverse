@@ -357,7 +357,7 @@
   font-family: var(--font-mono);
   font-size: clamp(0.85rem, 1.05vw, 1.25rem);
   font-weight: var(--font-weight-medium);
-  color: var(--text-white-secondary);
+  color: var(--text-ghost-strong);
   white-space: nowrap;
   transform: translateX(-50%);
 }
@@ -422,7 +422,7 @@
 .tabNavCounter {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--text-white-secondary);
+  color: var(--text-ghost-strong);
   white-space: nowrap;
 }
 

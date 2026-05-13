@@ -56,7 +56,7 @@
 .featureDfTech {
   margin: 0;
   font-size: var(--_fs-label);
-  color: var(--text-white-secondary);
+  color: var(--text-ghost-strong);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-shadow: 0 1px 3px var(--color-gray-alpha-40);
