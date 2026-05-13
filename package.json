@@ -78,7 +78,7 @@
     "last 2 Edge versions"
   ],
   "devDependencies": {
-    "@commitlint/cli": "^20.4.1",
+    "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "@eslint/eslintrc": "^3",
     "@next/bundle-analyzer": "^16.2.6",
