@@ -35,6 +35,10 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "react-dom"
         update-types: ["version-update:semver-major"]
+      # eslint 10 — eslint-config-next + typescript-eslint peer dep 미지원.
+      # 향후 `next lint` 제거하고 eslint CLI 직접 사용으로 migration 후 해제.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions — 매월 1회
   - package-ecosystem: github-actions
