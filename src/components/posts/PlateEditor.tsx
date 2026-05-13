@@ -260,13 +260,17 @@ export default function PlateEditor({
           } else {
             domRange = doc.caretRangeFromPoint?.(x, y) ?? null;
           }
-          if (!domRange) return;
+          if (!domRange) {
+            console.log("[IME] no domRange for", x, y);
+            return;
+          }
           const slateRange = ReactEditor.toSlateRange(editor as unknown as ReactEditor, domRange, {
             exactMatch: false,
             suppressThrow: true,
           });
+          console.log("[IME] applying select", JSON.stringify(slateRange), "current:", JSON.stringify(editor.selection));
           if (slateRange) editor.tf.select(slateRange);
-        } catch { /* ignore */ }
+        } catch (e) { console.log("[IME] applySelection error", e); }
       };
 
       const onCompStart = () => { composingRef.current = true; };
@@ -280,17 +284,17 @@ export default function PlateEditor({
         }
       };
       const onMouseDown = (e: MouseEvent) => {
+        const sinceComp = Date.now() - lastCompositionEndRef.current;
+        console.log("[IME] mousedown composing:", composingRef.current, "sinceCompositionEnd:", sinceComp);
         if (composingRef.current) {
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
           return;
         }
-        // composition 직후 (200ms 이내) 클릭 → slate-react 가 우리 select 를 덮어씀.
-        // → 250ms 동안 짧은 간격으로 selection 모니터하면서 원하는 위치로 강제.
-        if (Date.now() - lastCompositionEndRef.current < 200) {
+        if (sinceComp < 200) {
           const x = e.clientX;
           const y = e.clientY;
           let attempts = 0;
-          const maxAttempts = 15; // 약 250ms (15 * 16ms ≈ 240ms)
+          const maxAttempts = 15;
           const force = () => {
             if (attempts++ >= maxAttempts) return;
             applySelection(x, y);
