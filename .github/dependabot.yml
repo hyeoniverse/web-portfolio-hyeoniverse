@@ -17,6 +17,16 @@ updates:
         update-types:
           - minor
           - patch
+      # platejs 생태계는 peer dep 으로 묶여 있어 메이저도 한 번에 올려야 함
+      # (개별 PR 로는 ERESOLVE 충돌)
+      platejs:
+        patterns:
+          - "platejs"
+          - "@platejs/*"
+        update-types:
+          - major
+          - minor
+          - patch
     # 메이저 버전 업데이트 무시 항목 (수동 검토 후 처리)
     ignore:
       - dependency-name: "next"
