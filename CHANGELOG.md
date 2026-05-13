@@ -1,5 +1,61 @@
 # Changelog
 
+## [1.1.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.0.0...v1.1.0) (2026-05-13)
+
+
+### Features
+
+* **editor:** 테두리 popover — 위치 선택 → 스타일 변경 흐름 + 다중 표시 ([c997073](https://github.com/hyeoniverse/web-portfolio-oval/commit/c9970739303f71ff1de0068696205723dadd3b39))
+
+
+### Bug Fixes
+
+* **cursor:** CursorTrail visual 을 마우스 정중앙으로 정렬 ([44116ca](https://github.com/hyeoniverse/web-portfolio-oval/commit/44116ca066d04f307b520a915971f77518c752c1))
+* **editor:** affinity 기능 통째로 비활성화 — inline code 관련 버그 회피 ([5ddc19d](https://github.com/hyeoniverse/web-portfolio-oval/commit/5ddc19dfa831ce11789622472d41234243afa5f0))
+* **editor:** border popover 패딩 + ColorPicker vs preset 시각 구분 + 최근 색 ([fef8a42](https://github.com/hyeoniverse/web-portfolio-oval/commit/fef8a423078d5684ba88692e3595b62c4c415395))
+* **editor:** CodePlugin affinity rule 를 null 로 강제 override ([353d92a](https://github.com/hyeoniverse/web-portfolio-oval/commit/353d92a60196061efcc0e1f9268d1fb3fbddb17b))
+* **editor:** IME click snap-back 깜빡임 제거 — 250ms 동안 매 frame DOM caret 재적용 ([00af0ad](https://github.com/hyeoniverse/web-portfolio-oval/commit/00af0addbc1b969af3f9e5dc831b5ed941dc810f))
+* **editor:** IME click 핸들러를 capture phase DOM listener 로 변경 ([3978e30](https://github.com/hyeoniverse/web-portfolio-oval/commit/3978e305fb38c416908e24fed1b0c1529af6111a))
+* **editor:** IME compositionend 직후 click 도 selection 강제 적용 ([9144086](https://github.com/hyeoniverse/web-portfolio-oval/commit/9144086984900280a3cba092f04d9c3df00477a7))
+* **editor:** IME 직후 click selection 을 slate-react deferred update 뒤로 미룸 ([678fa34](https://github.com/hyeoniverse/web-portfolio-oval/commit/678fa34b74224561e95cabd299e706da2575e32b))
+* **editor:** IME 후 click cursor snap back 방지 — selection 강제 재적용 ([2bda7ee](https://github.com/hyeoniverse/web-portfolio-oval/commit/2bda7ee0b2094a62baf4acd3b67c347810417fe6))
+* **editor:** IME 후 click 을 native DOM Selection 으로 직접 조작 ([b7b9ada](https://github.com/hyeoniverse/web-portfolio-oval/commit/b7b9ada3c11c92af5d2ba316de0e961b64868cc4))
+* **editor:** IME 후 click 을 좌표 변환 대신 mousedown 재dispatch 로 처리 ([e8b90cf](https://github.com/hyeoniverse/web-portfolio-oval/commit/e8b90cf5a0a3f2d8a2ab4d7be6f264be9ebb5d45))
+* **editor:** inline code Enter 시 글자 복제 버그 더 강한 회피 ([f30b11f](https://github.com/hyeoniverse/web-portfolio-oval/commit/f30b11fae8f632595296991ad0708e6723297a60))
+* **editor:** inline code 끝에서 Enter 시 마지막 글자 복제 버그 수정 ([9e1fdc3](https://github.com/hyeoniverse/web-portfolio-oval/commit/9e1fdc3b8f27620abe4b98345170b7dccd2c5c55))
+* **editor:** row 삽입 시 선택 셀 기준으로 type 적용 + border popover radius 2xl ([de06745](https://github.com/hyeoniverse/web-portfolio-oval/commit/de067456828d11ca036598a8351b87064d255930))
+* **editor:** table toolbar 의 셀 테두리 popover 가 잘리던 문제 수정 ([24aef1b](https://github.com/hyeoniverse/web-portfolio-oval/commit/24aef1bc92ab6acb1a7c4c749f68f692a44cdace))
+* **editor:** table 셀 같은 좁은 컨테이너에서도 이미지 비율 잠금 유지 ([36de453](https://github.com/hyeoniverse/web-portfolio-oval/commit/36de453eec56b80dae62d80f5fd6ab930b64c8a4))
+* **editor:** 셀 너비 조절 시 다른 열 너비 변경 방지 ([0743cd4](https://github.com/hyeoniverse/web-portfolio-oval/commit/0743cd4e0f1e9faa54d231448fe76b9580f3327b))
+* **editor:** 셀 리사이즈 핸들 outside 1px 로 축소 ([9b207a8](https://github.com/hyeoniverse/web-portfolio-oval/commit/9b207a869e5bcf9d8a6f1a4f9299d57be6403138))
+* **editor:** 이미지 resize 드래그 중에도 비율 시각적 깨짐 방지 ([109357a](https://github.com/hyeoniverse/web-portfolio-oval/commit/109357a126b295de9aad5076a0c837cb89e362ac))
+* **editor:** 이미지 캡션 placeholder 항상 보이게 ([95d63e9](https://github.com/hyeoniverse/web-portfolio-oval/commit/95d63e9124f1e0d68347b6da27998220714d36c9))
+* **editor:** 초안 복원 모달이 다른 페이지에 뜨던 버그 ([eb330eb](https://github.com/hyeoniverse/web-portfolio-oval/commit/eb330eba2f2d4e5dfa47acaa785a842c902db586))
+* **editor:** 테두리 popover — 스크롤 시 close 대신 위치 재계산 ([f3952bf](https://github.com/hyeoniverse/web-portfolio-oval/commit/f3952bf4e61305449ad8ad6daa3b40f03dafaf83))
+* **editor:** 테두리 popover portal + 3x3 재배치 + disabled 표시 ([712374c](https://github.com/hyeoniverse/web-portfolio-oval/commit/712374c9cf90df0231736917be5c3473921edf30))
+* **editor:** 테두리 최근 색상 — 고정 8칸·드래그 중복 방지 ([d9cd4d1](https://github.com/hyeoniverse/web-portfolio-oval/commit/d9cd4d16dce4a66d33bec8c4c047e325920f2cf5))
+* **editor:** 표 셀 리사이즈 + 행추가 버튼 클리핑 ([48e2c87](https://github.com/hyeoniverse/web-portfolio-oval/commit/48e2c8746c751a8077a5cb1c5f25975e9b20ca04))
+* **editor:** 표 셀 리사이즈 핸들 CursorTrail + 행 높이 ([7c2b7a8](https://github.com/hyeoniverse/web-portfolio-oval/commit/7c2b7a829251e5c509ccb6765939184175475187))
+* **editor:** 표 초기 너비 100% — 열추가 버튼 공간 확보 ([7288f07](https://github.com/hyeoniverse/web-portfolio-oval/commit/7288f072ee69ada4f931ea6aa9c83aed3863441d))
+* **editor:** 표 초기 콜 너비 + 리사이즈 핸들 정렬 ([1328076](https://github.com/hyeoniverse/web-portfolio-oval/commit/1328076050b0e9f3f744f2f90b06e8be63a48458))
+* **editor:** 표 행/열 추가 버튼 hover 시 CursorTrail click 상태로 전환 ([93c6029](https://github.com/hyeoniverse/web-portfolio-oval/commit/93c60298d1d014ea3b8f7a1a43f38eed21995bbe))
+* **editor:** 한글 IME composition 중 click 시 cursor 이동 1회로 수정 ([7b11099](https://github.com/hyeoniverse/web-portfolio-oval/commit/7b1109942838bdeaa828438c51adcccf4c0996a6))
+* **editor:** 한글 IME composition 중 keydown 핸들러 skip ([15b526a](https://github.com/hyeoniverse/web-portfolio-oval/commit/15b526aeeb926e015e0d80cbd5b07fcad33e4e31))
+* **markdown:** preview/prose 의 ul·ol 마커 복원 ([cf16d75](https://github.com/hyeoniverse/web-portfolio-oval/commit/cf16d753e29605e745fc4baaee88ed56c53382a7))
+
+
+### Performance Improvements
+
+* **cursor:** CursorTrail 중앙정렬을 JS translate 보정으로 변경 ([7826351](https://github.com/hyeoniverse/web-portfolio-oval/commit/7826351521a5721a865e3f85b592cd044ff390a6))
+* **editor:** 초안 복원 모달 빠르게 띄우고 로딩 중엔 차단 ([640a2dd](https://github.com/hyeoniverse/web-portfolio-oval/commit/640a2dd267f3573ff1577e563452571515d47886))
+* **editor:** 표 리사이즈 DOM 직접 갱신 + cursor 유지 ([04a2667](https://github.com/hyeoniverse/web-portfolio-oval/commit/04a266796d62bd6e8ba5b82280eb31de31af7f93))
+* **editor:** 표 셀 리사이즈 rAF batching ([d1ee08f](https://github.com/hyeoniverse/web-portfolio-oval/commit/d1ee08fbca4a26e5bd44903ad3e67750476707bb))
+
+
+### Reverts
+
+* **deps:** platejs 생태계 v52.0.11 로 되돌림 (v53 의 affinity 부작용) ([19e8489](https://github.com/hyeoniverse/web-portfolio-oval/commit/19e8489af5f65fa5e7e64e57066dec3cbdad80e4))
+
 ## 1.0.0 (2026-05-13)
 
 
