@@ -25,6 +25,7 @@
   border-radius: 0 !important;
   border-right: var(--border-default) !important;
   padding: var(--box-sm) !important;
+  min-height: 0 !important;
   font-size: var(--font-size-xs);
   background: transparent !important;
 }
