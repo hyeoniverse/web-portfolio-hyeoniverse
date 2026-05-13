@@ -264,28 +264,33 @@ export default function PlateEditor({
         sel.removeAllRanges();
         sel.addRange(range);
       };
+      // slate-react 가 snap-back 시도하면 우리가 즉시 다시 적용 → 깜빡임 최소화.
+      // 첫 적용은 매우 빠르게 (다음 frame), 그 다음 250ms 동안 매 frame 마다 재적용.
+      const forceCaret = (x: number, y: number) => {
+        let attempts = 0;
+        const maxAttempts = 16; // 약 250ms (16 * 16ms ≈ 256ms)
+        const tick = () => {
+          if (attempts++ >= maxAttempts) return;
+          setDomCaret(x, y);
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      };
       const onCompStart = () => { composingRef.current = true; };
       const onCompEnd = () => {
         composingRef.current = false;
         lastCompositionEndRef.current = Date.now();
         const pending = pendingClickRef.current;
         pendingClickRef.current = null;
-        if (pending) {
-          setTimeout(() => setDomCaret(pending.x, pending.y), 200);
-        }
+        if (pending) forceCaret(pending.x, pending.y);
       };
       const onMouseDown = (e: MouseEvent) => {
         if (composingRef.current) {
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
           return;
         }
-        // composition 직후 (200ms 이내) 클릭 → 200ms 대기 후 DOM Selection 강제로
-        // 클릭 위치로 collapse. slate-react 의 selectionchange handler 가 그 시점엔
-        // isComposing=false 라 native DOM 변경을 정상 picking up.
         if (Date.now() - lastCompositionEndRef.current < 200) {
-          const x = e.clientX;
-          const y = e.clientY;
-          setTimeout(() => setDomCaret(x, y), 200);
+          forceCaret(e.clientX, e.clientY);
         }
       };
 
