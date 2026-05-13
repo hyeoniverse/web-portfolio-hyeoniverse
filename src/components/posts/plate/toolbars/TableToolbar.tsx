@@ -260,16 +260,6 @@ export default React.memo(function TableToolbar({
               className={styles.borderPopover}
               style={{ position: "fixed", top: popPos.top, left: popPos.left, transform: "translateX(-50%)" }}
             >
-              <Tooltip content={t("editor.borderClear")} placement="top" wrapperStyle={{ alignSelf: "flex-end" }}>
-                <button
-                  type="button"
-                  className={styles.borderClearBtn}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => bp.applyBorders("none")}
-                >
-                  {t("editor.borderClear")}
-                </button>
-              </Tooltip>
               <div className={styles.borderPopTopRow}>
                 <div className={styles.borderPopSection}>
                   <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
@@ -309,7 +299,19 @@ export default React.memo(function TableToolbar({
                 </div>
                 <div className={styles.borderPopRightStack}>
                   <div className={styles.borderPopSection}>
-                    <span className={styles.borderPopLabel}>{t("editor.borderStyle")}</span>
+                    <div className={styles.borderPopSectionHeader}>
+                      <span className={styles.borderPopLabel}>{t("editor.borderStyle")}</span>
+                      <Tooltip content={t("editor.borderClear")} placement="top">
+                        <button
+                          type="button"
+                          className={styles.borderClearBtn}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => bp.applyBorders("none")}
+                        >
+                          {t("editor.borderClear")}
+                        </button>
+                      </Tooltip>
+                    </div>
                     <select value={bp.mixed.style ? "__mixed" : bp.style} onChange={(e) => { if (e.target.value !== "__mixed") bp.setStyle(e.target.value); }} className={styles.borderPopSelect}>
                       {bp.mixed.style && <option value="__mixed">{t("editor.borderMixed")}</option>}
                       {TABLE_BORDER_STYLES.map((s) => (
