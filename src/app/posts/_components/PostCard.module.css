@@ -358,7 +358,7 @@
 .heroExcerpt {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  color: var(--text-ghost-strong);
+  color: var(--text-white-muted);
   line-height: var(--line-height-relaxed);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -374,7 +374,7 @@
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-ghost-strong);
+  color: var(--text-white-muted);
 }
 
 
@@ -391,7 +391,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
-  color: var(--text-ghost-strong);
+  color: var(--text-white-muted);
   font-style: italic;
 }
 

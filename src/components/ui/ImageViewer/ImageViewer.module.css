@@ -501,25 +501,25 @@
 }
 
 /* Fullscreen: forced light-on-dark (escapes theme tokens) */
-.fullscreen .actionBtn { color: var(--text-ghost-strong); }
+.fullscreen .actionBtn { color: var(--text-white-muted); }
 .fullscreen .actionBtn:hover { background: var(--bg-glass); color: var(--text-white); }
 .fullscreen .closeBtnAction { color: var(--text-white); }
-.fullscreen .zoomLevel { color: var(--text-ghost-strong); border-color: var(--border-ghost-light); background: var(--bg-glass-subtle); }
+.fullscreen .zoomLevel { color: var(--text-white-muted); border-color: var(--border-ghost-light); background: var(--bg-glass-subtle); }
 .fullscreen .zoomLevel:hover { background: var(--bg-glass); color: var(--text-white); border-color: var(--text-white-muted); }
 .fullscreen .zoomInput { color: var(--text-white); border-color: var(--border-ghost); background: var(--bg-glass); }
-.fullscreen .zoomInput:focus { border-color: var(--text-ghost-strong); }
+.fullscreen .zoomInput:focus { border-color: var(--text-white-muted); }
 .fullscreen .toolbarDivider { background: var(--bg-glass-strong); }
 .fullscreen .viewerTitleMain { color: var(--text-white); }
 .fullscreen .viewerTitleSep { color: var(--text-white-muted); }
-.fullscreen .viewerTitleFile { color: var(--text-ghost-strong); }
-.fullscreen .counter { color: var(--text-ghost-strong); }
+.fullscreen .viewerTitleFile { color: var(--text-white-muted); }
+.fullscreen .counter { color: var(--text-white-muted); }
 .fullscreen .navBtn { color: var(--text-primary); }
 .fullscreen .navBtn:hover { color: var(--text-inverse); }
-.fullscreen .loaderSpinner { border-color: var(--border-ghost-light); border-top-color: var(--text-ghost-strong); }
+.fullscreen .loaderSpinner { border-color: var(--border-ghost-light); border-top-color: var(--text-white-muted); }
 .fullscreen .shortcutsPanel { --_panel-bg: rgba(30, 30, 30, 0.95); background: var(--_panel-bg); border-color: var(--border-ghost-light); }
 .fullscreen .shortcutsTitle { color: var(--text-white); }
 .fullscreen .shortcutsSection { color: var(--text-white-muted); }
-.fullscreen .shortcutsItem { color: var(--text-ghost-strong); }
+.fullscreen .shortcutsItem { color: var(--text-white-muted); }
 .fullscreen .shortcutsItem:hover { background: var(--bg-glass-subtle); }
 .fullscreen .shortcutsItem kbd { border-color: var(--border-ghost); background: var(--bg-glass-subtle); color: var(--text-white); }
 .fullscreen .shortcutsDivider { background: var(--bg-glass); }

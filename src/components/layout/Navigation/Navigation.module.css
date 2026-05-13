@@ -503,7 +503,7 @@
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-md);
   font-style: italic;
-  color: var(--text-ghost-strong);
+  color: var(--text-white-muted);
 }
 
 .menuFooterEmail {

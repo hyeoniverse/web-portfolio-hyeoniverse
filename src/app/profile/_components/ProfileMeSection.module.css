@@ -293,7 +293,7 @@
 .bgInfoLabel {
   display: inline-block;
   padding: 0.2em 0.7em;
-  border: var(--border-ghost-strong);
+  border: var(--border-white-muted);
   width: fit-content;
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
