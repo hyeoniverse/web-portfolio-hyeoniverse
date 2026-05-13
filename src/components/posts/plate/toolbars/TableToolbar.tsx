@@ -20,7 +20,7 @@ import {
   TblMergeCells, TblSplitCell,
   TblVAlignTop, TblVAlignMiddle, TblVAlignBottom,
   TblZebra, TblResetFormat, TblTrash, TblCellColorIcon,
-  BorderAll, BorderOuter, BorderNone,
+  BorderAll, BorderOuter,
   BorderTop, BorderBottom, BorderLeft, BorderRight,
   BorderInnerH, BorderInnerV, BorderInnerAll,
 } from "../icons";
@@ -211,7 +211,6 @@ export default React.memo(function TableToolbar({
                 <div className={styles.borderGrid}>
                   {([
                     { mode: "all" as BorderMode, icon: <BorderAll />, tip: t("editor.borderAll") },
-                    { mode: "none" as BorderMode, icon: <BorderNone />, tip: t("editor.borderNone") },
                     { mode: "outer" as BorderMode, icon: <BorderOuter />, tip: t("editor.borderOuter") },
                     { mode: "inner" as BorderMode, icon: <BorderInnerAll />, tip: t("editor.borderInner") },
                     { mode: "innerH" as BorderMode, icon: <BorderInnerH />, tip: t("editor.borderInnerH") },
