@@ -335,7 +335,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // 새 글도 DB revision 저장을 위해 임시 ID 사용
   const draftEntityId = post?.id ?? "draft-new-post";
-  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions<PostFormData>({
+  const { revisions: dbRevisions, loaded: revisionsLoaded, latestUndismissedSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions<PostFormData>({
     entityType: "post",
     entityId: draftEntityId,
   });
@@ -353,45 +353,47 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   useEffect(() => {
     if (draftAsked.current) return;
-    if (dbRevisions.length === 0) return;
-    const latest = dbRevisions.find((r) => !r.dismissed);
-    if (!latest) return;
+    if (!revisionsLoaded) return; // 아직 fetch 안 끝남 — 끝나면 다시 실행
+    if (!latestUndismissedSnapshot) return; // non-dismissed 없음
+    const snapshot = latestUndismissedSnapshot.snapshot;
+    const latestId = latestUndismissedSnapshot.id;
     const initialJson = JSON.stringify(initialFormRef.current);
+    if (JSON.stringify(snapshot) === initialJson) {
+      draftAsked.current = true;
+      return;
+    }
+    if (!mountedRef.current) return;
+    // 사용자가 이미 폼을 수정했다면 (자동으로 무시 의도) 모달 띄우지 않음
+    if (JSON.stringify(formRef.current) !== initialJson) {
+      draftAsked.current = true;
+      dismissRevision(latestId);
+      return;
+    }
     draftAsked.current = true;
-    loadRevisionSnapshot(latest.id).then((snapshot) => {
-      if (!snapshot) return;
-      if (!mountedRef.current) return; // 다른 페이지로 이동했으면 모달 띄우지 않음
-      if (JSON.stringify(snapshot) === initialJson) return;
-      // 사용자가 이미 폼을 수정했다면 (자동으로 이미 선택을 했다고 판단) 모달 띄우지 않음
-      if (JSON.stringify(formRef.current) !== initialJson) {
-        dismissRevision(latest.id);
-        return;
-      }
 
-      openModal(
-        <ModalConfirm
-          desc={te("draftFoundDesc")}
-          cancelText={te("draftFoundDiscard")}
-          confirmText={te("draftFoundLoad")}
-          onConfirm={() => {
-            // 불러오기: B 적용 + dismissed 처리
-            autoSaveSkip.current = true;
-            setForm(snapshot);
-            lastAutoSaveJson.current = JSON.stringify(snapshot);
-            setStatus(te("draftRestored"));
-            setStatusType("info");
-            dismissRevision(latest.id);
-          }}
-          onCancel={() => {
-            // 무시: dismissed 처리만
-            dismissRevision(latest.id);
-          }}
-        />,
-        { id: "draft-restore", header: { title: te("draftFoundTitle") }, width: "360px", closeButton: false },
-      );
-    });
+    openModal(
+      <ModalConfirm
+        desc={te("draftFoundDesc")}
+        cancelText={te("draftFoundDiscard")}
+        confirmText={te("draftFoundLoad")}
+        onConfirm={() => {
+          // 불러오기: B 적용 + dismissed 처리
+          autoSaveSkip.current = true;
+          setForm(snapshot);
+          lastAutoSaveJson.current = JSON.stringify(snapshot);
+          setStatus(te("draftRestored"));
+          setStatusType("info");
+          dismissRevision(latestId);
+        }}
+        onCancel={() => {
+          // 무시: dismissed 처리만
+          dismissRevision(latestId);
+        }}
+      />,
+      { id: "draft-restore", header: { title: te("draftFoundTitle") }, width: "360px", closeButton: false },
+    );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dbRevisions]);
+  }, [revisionsLoaded, latestUndismissedSnapshot]);
 
   useEffect(() => {
     if (!slugManual && form.title) {
@@ -1579,7 +1581,21 @@ export default function PostEditor({ post }: PostEditorProps) {
       />
 
     </AdminEditorShell>
-
+    {/* 초안 복원 모달 확인 동안 사용자 인터랙션 차단 — 모달이 늦게 떠도 그 사이 편집/이동 못하게 */}
+    {!revisionsLoaded && (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 9999,
+          background: "transparent",
+          cursor: "wait",
+        }}
+        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onKeyDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      />
+    )}
 </>
   );
 }
