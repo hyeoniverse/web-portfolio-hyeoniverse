@@ -105,7 +105,9 @@
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-3xs);
+  align-items: center;
+  row-gap: var(--spacing-2xs);
+  column-gap: var(--spacing-3xs);
   padding: var(--spacing-xs);
   border: none;
   border-radius: 0;
@@ -159,10 +161,11 @@
 
 .divider {
   width: 1px;
-  align-self: stretch;
-  min-height: 14px;
+  height: 14px;
+  align-self: center;
   margin: 0 var(--spacing-2xs);
   background: var(--border-light-color);
+  flex-shrink: 0;
 }
 
 /* ── Select wrapper: custom chevron via ::after ── */
