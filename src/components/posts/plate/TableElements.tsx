@@ -185,7 +185,9 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
     if (path) editor.tf.setNodes(attrs, { at: path });
   }, [editor, element]);
 
-  // colSizes가 모두 0이면 DOM에서 실제 열 너비를 측정해 초기화
+  // colSizes가 모두 0이면 컨테이너 너비 기반으로 균등 분배해 초기화
+  // (예전엔 minWidth:100% + cells[i].offsetWidth 측정 방식이었으나, 셀 stretched 너비를 사용하다 보니
+  //  열추가 후 inline-block 의 minWidth 100% 가 table 보다 커져서 AddColumnBtn 사이에 큰 여백이 생겼음)
   useEffect(() => {
     if (initializedRef.current) return;
     if (!tableRef.current) return;
@@ -193,9 +195,18 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
     if (!allZero) { initializedRef.current = true; return; }
     const firstRow = tableRef.current.querySelector("tbody > tr");
     if (!firstRow) return;
-    const cells = firstRow.children;
-    for (let i = 0; i < cells.length; i++) {
-      setTableColSize(editor, { colIndex: i, width: (cells[i] as HTMLElement).offsetWidth }, { at: element });
+    const numCols = firstRow.children.length;
+    if (numCols === 0) return;
+
+    const scrollContainer = tableRef.current.parentElement?.parentElement as HTMLElement | null;
+    const containerWidth = scrollContainer?.clientWidth ?? 600;
+    const available = Math.max(200, containerWidth - 26 /* paddingRight */);
+    const targetWidth = Math.floor(available / numCols);
+
+    const tablePath = editor.api.findPath(element);
+    if (!tablePath) return;
+    for (let i = 0; i < numCols; i++) {
+      setTableColSize(editor, { colIndex: i, width: targetWidth }, { at: tablePath });
     }
     initializedRef.current = true;
   });
@@ -241,7 +252,7 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
       }}
     >
       <div style={{ overflowX: "auto", paddingRight: 26 }}>
-        <div style={{ position: "relative", display: "inline-block", minWidth: "100%", verticalAlign: "top" }}>
+        <div style={{ position: "relative", display: "inline-block", verticalAlign: "top" }}>
           <table
             {...attributes}
             ref={mergedRef}
@@ -294,12 +305,12 @@ export function TableRowElement(props: PlateElementProps) {
 }
 
 // ── 리사이즈 핸들 스타일 ──
-// width/height 6px — hit area 확보. outside 는 1px 만 (3px 로 늘리면 인접 셀의
-// PlateElement(slate) onPointerDown 이 캡처해서 리사이즈가 시작되지 않음)
+// 셀의 borderRight/borderBottom 은 "none" 이고 시각적 경계선은 인접 셀의 borderLeft/borderTop
+// (셀 경계에서 +1px 위치). 핸들을 그 선 위에 시각적으로 정렬하려면 outside 쪽으로 약간 더 밀어야 함.
 const resizeHandleStyle = {
-  right: { position: "absolute" as const, right: -1, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
-  bottom: { position: "absolute" as const, bottom: -1, left: 0, width: "100%", height: 6, cursor: "row-resize" as const, zIndex: 20, userSelect: "none" as const },
-  left: { position: "absolute" as const, left: -1, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
+  right: { position: "absolute" as const, right: -3, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
+  bottom: { position: "absolute" as const, bottom: -3, left: 0, width: "100%", height: 6, cursor: "row-resize" as const, zIndex: 20, userSelect: "none" as const },
+  left: { position: "absolute" as const, left: -3, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
 };
 
 /** 현재 테이블의 셀 인덱스 재계산 — 병합 후 stale 캐시 방지 */
