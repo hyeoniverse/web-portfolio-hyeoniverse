@@ -294,10 +294,12 @@ export function TableRowElement(props: PlateElementProps) {
 }
 
 // ── 리사이즈 핸들 스타일 ──
+// width/height 6px — hit area 확보. outside 는 1px 만 (3px 로 늘리면 인접 셀의
+// PlateElement(slate) onPointerDown 이 캡처해서 리사이즈가 시작되지 않음)
 const resizeHandleStyle = {
-  right: { position: "absolute" as const, right: -3, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
-  bottom: { position: "absolute" as const, bottom: -3, left: 0, width: "100%", height: 6, cursor: "row-resize" as const, zIndex: 20, userSelect: "none" as const },
-  left: { position: "absolute" as const, left: -3, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
+  right: { position: "absolute" as const, right: -1, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
+  bottom: { position: "absolute" as const, bottom: -1, left: 0, width: "100%", height: 6, cursor: "row-resize" as const, zIndex: 20, userSelect: "none" as const },
+  left: { position: "absolute" as const, left: -1, top: 0, width: 6, height: "100%", cursor: "col-resize" as const, zIndex: 10, userSelect: "none" as const },
 };
 
 /** 현재 테이블의 셀 인덱스 재계산 — 병합 후 stale 캐시 방지 */
