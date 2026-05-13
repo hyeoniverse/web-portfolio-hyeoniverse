@@ -214,7 +214,32 @@
       "typeComment": "새 댓글",
       "typeReply": "답글",
       "typeLike": "좋아요",
+      "typeReport": "댓글 신고",
       "typeSystem": "시스템 알림"
+    },
+    "reports": {
+      "title": "댓글 신고",
+      "loading": "불러오는 중...",
+      "empty": "신고 내역이 없습니다.",
+      "fromPost": "POST",
+      "fromWork": "WORK",
+      "reason": "사유",
+      "view": "보기",
+      "viewTooltip": "원본 댓글로 이동",
+      "resolve": "처리됨",
+      "dismiss": "반려",
+      "deleteComment": "댓글 삭제",
+      "deleteCommentTitle": "댓글 삭제",
+      "deleteCommentDesc": "이 댓글을 삭제하시겠습니까? 댓글이 admin 삭제 표시로 변경되고 신고는 처리됨으로 표시됩니다.",
+      "cancel": "취소",
+      "commentDeleted": "이미 삭제됨",
+      "commentGone": "댓글을 찾을 수 없습니다 (완전 삭제됨).",
+      "filter": {
+        "pending": "처리 대기",
+        "resolved": "처리됨",
+        "dismissed": "반려",
+        "all": "전체"
+      }
     },
     "login": {
       "title": "Admin",
@@ -1063,7 +1088,11 @@
     "confirmDelete": "정말 삭제",
     "firstCommentCelebration": "🎉 이 게시물의 첫 댓글을 남기셨어요!",
     "emailClear": "입력 지우기",
-    "disclaimer": "부적절한 댓글은 무통보 삭제 조치될 수 있습니다."
+    "disclaimer": "부적절한 댓글은 무통보 삭제 조치될 수 있습니다.",
+    "report": "신고",
+    "reportPlaceholder": "신고 사유 (선택)",
+    "confirmReport": "신고",
+    "reportThanks": "신고가 접수되었습니다. 검토 후 조치하겠습니다."
   },
   "postDetail": {
     "recommended": "함께 읽어보면 좋은 게시물",
