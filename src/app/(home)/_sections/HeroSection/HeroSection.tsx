@@ -58,7 +58,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
         <motion.div
           ref={groupRef}
           className={styles.ovalPrimaryGroup}
-          style={{ x: floatX, y: floatY } as React.CSSProperties}
+          style={{ x: floatX, y: floatY } as unknown as React.CSSProperties}
         >
           {Array.from({ length: OVAL_COUNT }, (_, i) => {
             const center = (OVAL_COUNT - 1) / 2;
