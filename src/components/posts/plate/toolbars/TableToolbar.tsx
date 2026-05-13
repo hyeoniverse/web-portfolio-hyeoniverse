@@ -262,7 +262,9 @@ export default React.memo(function TableToolbar({
             >
               <div className={styles.borderPopTopRow}>
                 <div className={styles.borderPopSection}>
-                  <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
+                  <div className={styles.borderPopSectionHeader}>
+                    <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
+                  </div>
                   <div className={styles.borderGrid}>
                   {/* 3x3:
                        Row 1: 바깥선 안쪽선 모두

@@ -873,6 +873,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-xs);
+  min-height: 22px;
 }
 
 .borderClearBtn {
