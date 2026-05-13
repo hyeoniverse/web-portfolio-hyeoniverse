@@ -428,6 +428,40 @@ CREATE POLICY "admin_notifications_service_all"
 
 
 -- ────────────────────────────────────────────────────────────
+-- 10. comment_reports — 댓글 신고 누적 (posts + works 공용)
+--     comment_type: 'post' | 'work'  → 어느 댓글 테이블의 id 인지 구분
+--     reporter_hash: IP + UA 해시로 동일 사용자 중복 신고 방지
+--     status: 'pending' (신고 접수) → 'resolved' (admin 처리됨) | 'dismissed' (반려)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS comment_reports (
+  id            uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  comment_id    uuid NOT NULL,
+  comment_type  text NOT NULL CHECK (comment_type IN ('post', 'work')),
+  reason        text NOT NULL DEFAULT '',
+  reporter_hash text NOT NULL DEFAULT '',
+  status        text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'resolved', 'dismissed')),
+  created_at    timestamptz DEFAULT now(),
+  resolved_at   timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS idx_comment_reports_status_created
+  ON comment_reports (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_comment_reports_comment
+  ON comment_reports (comment_id, comment_type);
+-- 동일 사용자의 동일 댓글 중복 신고 차단 (pending 인 것만)
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_comment_reports_pending
+  ON comment_reports (comment_id, comment_type, reporter_hash)
+  WHERE status = 'pending';
+
+ALTER TABLE comment_reports ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "comment_reports_service_all"
+  ON comment_reports FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
 -- 11. revisions — 에디터 리비전 히스토리 (posts + works 공용)
 --     entity_type: 'post' | 'work'
 --     entity_id: 대상 posts.id 또는 works.id
@@ -637,6 +671,7 @@ END $$;
 -- post_views           : 게시물별 시계열 조회 기록 (ip 포함, dashboard 차트용)
 -- work_comments        : Works 댓글 (대댓글, password 기반 인증)
 -- admin_notifications  : 관리자 알림 로그
+-- comment_reports      : 댓글 신고 누적 (posts/works 공용, status: pending/resolved/dismissed)
 -- revisions            : 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot)
 -- post_work_relations  : posts ↔ works many-to-many 양방향 (Notion Relation)
 -- cover_image_history  : Cover Image Picker 통합 이력 (admin user 별, RLS)

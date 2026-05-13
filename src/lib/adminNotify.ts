@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 
 interface NotifyOptions {
-  type: "comment" | "reply" | "like";
+  type: "comment" | "reply" | "like" | "report";
   title: string;
   message: string;
   metadata?: Record<string, unknown>;
