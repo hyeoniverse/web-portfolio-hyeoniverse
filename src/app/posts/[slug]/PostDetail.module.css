@@ -224,6 +224,9 @@
   margin-bottom: var(--spacing-lg);
 }
 
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+
 .prose li {
   margin-bottom: var(--spacing-xs);
 }

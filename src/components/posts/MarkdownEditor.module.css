@@ -170,6 +170,9 @@
   margin-bottom: var(--spacing-sm);
 }
 
+.preview ul { list-style: disc; }
+.preview ol { list-style: decimal; }
+
 .preview li {
   margin-bottom: var(--spacing-2xs);
 }
