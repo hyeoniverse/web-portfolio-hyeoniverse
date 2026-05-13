@@ -259,7 +259,6 @@
   z-index: var(--z-nav);
   width: 280px;
   background: var(--bg-glass-strong);
-  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   border: var(--border-light);
   border-radius: var(--radius-lg);

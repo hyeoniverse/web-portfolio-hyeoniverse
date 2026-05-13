@@ -75,7 +75,6 @@
   );
   transition: all var(--duration-base) ease;
   backdrop-filter: var(--blur-xl) saturate(150%);
-  -webkit-backdrop-filter: var(--blur-xl) saturate(150%);
 }
 
 .glass:hover,

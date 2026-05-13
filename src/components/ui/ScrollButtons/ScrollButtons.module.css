@@ -10,7 +10,6 @@
   border: var(--border-default);
   background: var(--bg-primary);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   color: var(--text-primary);
   text-decoration: none;
   visibility: hidden;
