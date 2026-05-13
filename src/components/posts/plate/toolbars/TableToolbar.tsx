@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   insertTableMergeRow,
   insertTableMergeColumn,
@@ -65,6 +66,7 @@ interface TableToolbarProps {
     selectedPosition: BorderMode | null;
     setSelectedPosition: (pos: BorderMode | null) => void;
     mixed: { style: boolean; width: boolean; color: boolean };
+    selectionSpan: { rows: number; cols: number };
     popRef: React.RefObject<HTMLDivElement | null>;
     captureCells: () => void;
     applyBorders: (mode: BorderMode) => void;
@@ -85,6 +87,41 @@ export default React.memo(function TableToolbar({
     bp.setColor(color);
     recentBorderColors.addColor(color);
   };
+
+  // 선택 셀이 단일/단일행/단일열 인지 — inner / innerH / innerV 비활성화 판단
+  const span = bp.selectionSpan;
+  const singleCell = span.rows <= 1 && span.cols <= 1;
+  const singleRow = span.rows <= 1;
+  const singleCol = span.cols <= 1;
+  const isDisabled = (mode: BorderMode): boolean => {
+    if (mode === "inner") return singleCell;
+    if (mode === "innerH") return singleRow;
+    if (mode === "innerV") return singleCol;
+    return false;
+  };
+
+  // 테두리 popover 를 portal 로 띄워 editor 영역 밖에서도 안 잘리게.
+  // 트리거 버튼 ref + open 시 위치 계산 + scroll/resize 시 close.
+  const borderTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const [popPos, setPopPos] = useState<{ top: number; left: number } | null>(null);
+  useEffect(() => {
+    if (!bp.open) { setPopPos(null); return; }
+    const update = () => {
+      const el = borderTriggerRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setPopPos({ top: r.bottom + 6, left: r.left + r.width / 2 });
+    };
+    update();
+    const close = () => bp.setOpen(false);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [bp.open, bp]);
+
 
   // plate 의 insertTableMergeRow 는 인접 row (헤더 바로 위/아래 삽입 시 헤더 행) 의
   // 셀 type/스타일을 템플릿으로 사용 → 새 row 가 header 스타일로 추가됨. 사용자는
@@ -193,12 +230,13 @@ export default React.memo(function TableToolbar({
           {cellBg && <TBtn onClick={() => setCellAttr("background", null)} tooltip={t("editor.removeBg")} style={{ marginLeft: 2 }}>×</TBtn>}
         </div>
 
-        {/* 셀 테두리 (팝오버) */}
-        <div className={styles.tableGroup} style={{ position: "relative", overflow: "visible" }}>
+        {/* 셀 테두리 (팝오버 — portal 로 렌더해서 editor 영역 밖에서도 안 잘림) */}
+        <div className={styles.tableGroup}>
           <span className={styles.tableGroupLabel}>{t("editor.border")}</span>
           <TBtn
             square
             active={bp.open}
+            ref={borderTriggerRef}
             onClick={() => {
               if (!bp.open) { saveSelection(); bp.captureCells(); }
               bp.setOpen(!bp.open);
@@ -207,8 +245,12 @@ export default React.memo(function TableToolbar({
           >
             <BorderAll />
           </TBtn>
-          {bp.open && (
-            <div ref={bp.popRef} className={styles.borderPopover}>
+          {bp.open && popPos && typeof document !== "undefined" && createPortal(
+            <div
+              ref={bp.popRef}
+              className={styles.borderPopover}
+              style={{ position: "fixed", top: popPos.top, left: popPos.left, transform: "translateX(-50%)" }}
+            >
               <div className={styles.borderPopSection}>
                 <div className={styles.borderPopSectionHeader}>
                   <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
@@ -224,28 +266,34 @@ export default React.memo(function TableToolbar({
                   </Tooltip>
                 </div>
                 <div className={styles.borderGrid}>
+                  {/* macOS Pages 스타일 3x3 — broad / horizontal+inner / vertical+inner */}
                   {([
                     { mode: "all" as BorderMode, icon: <BorderAll />, tip: t("editor.borderAll") },
                     { mode: "outer" as BorderMode, icon: <BorderOuter />, tip: t("editor.borderOuter") },
                     { mode: "inner" as BorderMode, icon: <BorderInnerAll />, tip: t("editor.borderInner") },
-                    { mode: "innerH" as BorderMode, icon: <BorderInnerH />, tip: t("editor.borderInnerH") },
-                    { mode: "innerV" as BorderMode, icon: <BorderInnerV />, tip: t("editor.borderInnerV") },
                     { mode: "top" as BorderMode, icon: <BorderTop />, tip: t("editor.borderTop") },
+                    { mode: "innerH" as BorderMode, icon: <BorderInnerH />, tip: t("editor.borderInnerH") },
                     { mode: "bottom" as BorderMode, icon: <BorderBottom />, tip: t("editor.borderBottom") },
                     { mode: "left" as BorderMode, icon: <BorderLeft />, tip: t("editor.borderLeft") },
+                    { mode: "innerV" as BorderMode, icon: <BorderInnerV />, tip: t("editor.borderInnerV") },
                     { mode: "right" as BorderMode, icon: <BorderRight />, tip: t("editor.borderRight") },
-                  ]).map((item) => (
-                    <Tooltip key={item.mode} content={item.tip} delay={200} placement="top">
-                      <button
-                        type="button"
-                        className={`${styles.borderGridBtn} ${bp.selectedPosition === item.mode ? styles.borderGridBtnActive : ""}`}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => bp.setSelectedPosition(bp.selectedPosition === item.mode ? null : item.mode)}
-                      >
-                        {item.icon}
-                      </button>
-                    </Tooltip>
-                  ))}
+                  ]).map((item) => {
+                    const disabled = isDisabled(item.mode);
+                    return (
+                      <Tooltip key={item.mode} content={item.tip} delay={200} placement="top">
+                        <button
+                          type="button"
+                          className={`${styles.borderGridBtn} ${bp.selectedPosition === item.mode ? styles.borderGridBtnActive : ""} ${disabled ? styles.borderGridBtnDisabled : ""}`}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => { if (!disabled) bp.setSelectedPosition(bp.selectedPosition === item.mode ? null : item.mode); }}
+                          aria-disabled={disabled}
+                          tabIndex={disabled ? -1 : 0}
+                        >
+                          {item.icon}
+                        </button>
+                      </Tooltip>
+                    );
+                  })}
                 </div>
               </div>
               <div className={styles.borderPopSection}>
@@ -294,7 +342,8 @@ export default React.memo(function TableToolbar({
                   </>
                 )}
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
 
