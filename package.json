@@ -104,7 +104,7 @@
     "stylelint-declaration-strict-value": "^1.11.1",
     "tailwindcss": "^4.1.14",
     "type-coverage": "^2.29.7",
-    "typescript": "^5",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.6"
   }
 }
