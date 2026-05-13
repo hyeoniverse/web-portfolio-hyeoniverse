@@ -345,7 +345,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [form],
   );
 
-  const { revisions: dbRevisions, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions<WorkFormData>({
+  const { revisions: dbRevisions, loaded: revisionsLoaded, latestUndismissedSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions<WorkFormData>({
     entityType: "work",
     entityId: work?.id,
   });
@@ -363,42 +363,43 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   useEffect(() => {
     if (draftAsked.current) return;
-    if (dbRevisions.length === 0) return;
-    const latest = dbRevisions.find((r) => !r.dismissed);
-    if (!latest) return;
+    if (!revisionsLoaded) return;
+    if (!latestUndismissedSnapshot) return;
+    const snapshot = latestUndismissedSnapshot.snapshot;
+    const latestId = latestUndismissedSnapshot.id;
     const initialJson = JSON.stringify(initialFormRef.current);
+    if (JSON.stringify(snapshot) === initialJson) {
+      draftAsked.current = true;
+      return;
+    }
+    if (!mountedRef.current) return;
+    if (JSON.stringify(formRef.current) !== initialJson) {
+      draftAsked.current = true;
+      dismissRevision(latestId);
+      return;
+    }
     draftAsked.current = true;
-    loadRevisionSnapshot(latest.id).then((snapshot) => {
-      if (!snapshot) return;
-      if (!mountedRef.current) return; // 다른 페이지로 이동했으면 모달 띄우지 않음
-      if (JSON.stringify(snapshot) === initialJson) return;
-      // 사용자가 이미 폼을 수정했다면 모달 띄우지 않음
-      if (JSON.stringify(formRef.current) !== initialJson) {
-        dismissRevision(latest.id);
-        return;
-      }
 
-      openModal(
-        <ModalConfirm
-          desc={tw("draftFoundDesc")}
-          cancelText={tw("draftFoundDiscard")}
-          confirmText={tw("draftFoundLoad")}
-          onConfirm={() => {
-            autoSaveSkip.current = true;
-            setForm(snapshot);
-            setStatus(tw("draftRestored"));
-            setStatusType("info");
-            dismissRevision(latest.id);
-          }}
-          onCancel={() => {
-            dismissRevision(latest.id);
-          }}
-        />,
-        { id: "draft-restore", header: { title: tw("draftFoundTitle") }, width: "360px", closeButton: false },
-      );
-    });
+    openModal(
+      <ModalConfirm
+        desc={tw("draftFoundDesc")}
+        cancelText={tw("draftFoundDiscard")}
+        confirmText={tw("draftFoundLoad")}
+        onConfirm={() => {
+          autoSaveSkip.current = true;
+          setForm(snapshot);
+          setStatus(tw("draftRestored"));
+          setStatusType("info");
+          dismissRevision(latestId);
+        }}
+        onCancel={() => {
+          dismissRevision(latestId);
+        }}
+      />,
+      { id: "draft-restore", header: { title: tw("draftFoundTitle") }, width: "360px", closeButton: false },
+    );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dbRevisions]);
+  }, [revisionsLoaded, latestUndismissedSnapshot]);
 
   // 정렬 list — 다른 작품들 (현재 편집중인 작품 제외)
   const [otherWorks, setOtherWorks] = useState<Array<{ id: string; title: string; sort_order: number }>>([]);
@@ -921,6 +922,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const contentKey = editorLang === "ko" ? "content_ko" : "content_en";
 
   return (
+    <>
     <AdminEditorShell
       backHref="/admin/works"
       backLabel={tw("backToWorks")}
@@ -1557,5 +1559,21 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         title={form.title}
       />
     </AdminEditorShell>
+    {/* 초안 복원 모달 확인 동안 사용자 인터랙션 차단 */}
+    {!revisionsLoaded && (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 9999,
+          background: "transparent",
+          cursor: "wait",
+        }}
+        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onKeyDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      />
+    )}
+    </>
   );
 }

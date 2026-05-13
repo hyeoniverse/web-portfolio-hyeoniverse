@@ -16,6 +16,9 @@ interface UseRevisionsOptions {
 
 export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
   const [revisions, setRevisions] = useState<RevisionItem[]>([]);
+  // 가장 최근 non-dismissed snapshot — list fetch 와 함께 한 round-trip 으로 받아옴 (modal 빠르게 띄우기)
+  const [latestUndismissedSnapshot, setLatestUndismissedSnapshot] = useState<{ id: string; snapshot: T } | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const entityIdRef = useRef(entityId);
   const lastSnapshotHash = useRef<string>("");
 
@@ -25,25 +28,29 @@ export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
 
   // 마운트 시 / entityId 변경 시 리비전 로드
   useEffect(() => {
-    if (!entityId) return;
+    if (!entityId) { setLoaded(true); return; }
+    setLoaded(false);
 
     fetch(
-      `/api/revisions?entity_type=${entityType}&entity_id=${entityId}&limit=50`,
+      `/api/revisions?entity_type=${entityType}&entity_id=${entityId}&limit=50&with_latest_snapshot=1`,
     )
-      .then((r) => (r.ok ? r.json() : []))
+      .then((r) => (r.ok ? r.json() : { revisions: [], latestUndismissed: null }))
       .then((data) => {
-        if (Array.isArray(data)) {
-          setRevisions(
-            data.map((r: { id: string; created_at: string; title: string; dismissed?: boolean }) => ({
-              id: r.id,
-              timestamp: new Date(r.created_at).getTime(),
-              title: r.title,
-              dismissed: r.dismissed,
-            })),
-          );
-        }
+        const list = Array.isArray(data?.revisions) ? data.revisions : [];
+        setRevisions(
+          list.map((r: { id: string; created_at: string; title: string; dismissed?: boolean }) => ({
+            id: r.id,
+            timestamp: new Date(r.created_at).getTime(),
+            title: r.title,
+            dismissed: r.dismissed,
+          })),
+        );
+        setLatestUndismissedSnapshot(
+          data?.latestUndismissed ? { id: data.latestUndismissed.id, snapshot: data.latestUndismissed.snapshot as T } : null,
+        );
+        setLoaded(true);
       })
-      .catch(() => {});
+      .catch(() => setLoaded(true));
   }, [entityType, entityId]);
 
   // 리비전 저장 (변경 사항 있을 때만)
@@ -140,5 +147,5 @@ export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
     [],
   );
 
-  return { revisions, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision };
+  return { revisions, loaded, latestUndismissedSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision };
 }

@@ -13,6 +13,8 @@ export async function GET(request: Request) {
   const entityType = searchParams.get("entity_type");
   const entityId = searchParams.get("entity_id");
   const limit = parseInt(searchParams.get("limit") ?? "50");
+  // 편집기 진입 시 — list + 가장 최근 non-dismissed snapshot 을 한 번에 받아 modal 까지 round-trip 절반으로
+  const withLatestSnapshot = searchParams.get("with_latest_snapshot") === "1";
 
   if (!entityType || !entityId) {
     return NextResponse.json(
@@ -22,6 +24,35 @@ export async function GET(request: Request) {
   }
 
   const admin = createAdminClient();
+
+  if (withLatestSnapshot) {
+    const [listResult, latestResult] = await Promise.all([
+      admin
+        .from("revisions")
+        .select("id, entity_type, entity_id, title, dismissed, created_at")
+        .eq("entity_type", entityType)
+        .eq("entity_id", entityId)
+        .order("created_at", { ascending: false })
+        .limit(limit),
+      admin
+        .from("revisions")
+        .select("id, snapshot")
+        .eq("entity_type", entityType)
+        .eq("entity_id", entityId)
+        .eq("dismissed", false)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+    if (listResult.error) {
+      return NextResponse.json({ error: listResult.error.message }, { status: 500 });
+    }
+    return NextResponse.json({
+      revisions: listResult.data,
+      latestUndismissed: latestResult.data ?? null,
+    });
+  }
+
   const { data, error } = await admin
     .from("revisions")
     .select("id, entity_type, entity_id, title, dismissed, created_at")
