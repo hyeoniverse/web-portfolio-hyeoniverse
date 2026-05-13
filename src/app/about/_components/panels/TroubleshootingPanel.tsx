@@ -660,7 +660,7 @@ function TroubleshootingPanel({
 
   const displayIndex = isMobile ? mobileActiveIdx : detailIndex;
 
-  // 클릭 핸들러 — 데스크톱: 디테일 영역으로 스크롤 / 모바일: 핀 스크롤 위치로 smooth scroll + index 즉시 sync
+  // 클릭 핸들러 — 데스크톱: 디테일 영역으로 스크롤 / 모바일: 스크롤 동작 보이지 않게 즉시 점프 + index sync
   const handleItemClick = useCallback(
     (index: number) => {
       if (isMobile) {
@@ -669,9 +669,15 @@ function TroubleshootingPanel({
         if (!st) return;
         const targetProgress = (index + 0.5) / items.length;
         const targetScroll = st.start + targetProgress * (st.end - st.start);
-        window.scrollTo({ top: targetScroll, behavior: "smooth" });
+        // immediate: true → Lenis 가 animation 없이 즉시 jump → 사용자에겐 탭/내용만 바뀌는 것처럼 보임
+        const lenis = (window as { lenis?: { scrollTo: (t: number, opts?: { immediate?: boolean }) => void } }).lenis;
+        if (lenis) {
+          lenis.scrollTo(targetScroll, { immediate: true });
+        } else {
+          window.scrollTo({ top: targetScroll });
+        }
         // cascade 우회: 클릭 점프는 한 칸씩 step 하지 않고 한번에 목표 idx 로 sync
-        handle?.syncIndex(index);
+        handle.syncIndex(index);
         return;
       }
       const detail = detailRef.current;
