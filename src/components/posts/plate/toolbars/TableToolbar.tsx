@@ -32,6 +32,7 @@ import {
 } from "../constants";
 import type { BorderMode } from "../hooks";
 import { recomputeTableIndices, fixZeroColSizes } from "../TableElements";
+import { useRecentColors } from "../useRecentColors";
 import styles from "../../RichTextEditor.module.css";
 
 interface TableToolbarProps {
@@ -76,6 +77,11 @@ export default React.memo(function TableToolbar({
 }: TableToolbarProps) {
   const { t } = useLanguage();
   const bp = borderPopover;
+  const recentBorderColors = useRecentColors("border-color");
+  const setBorderColorWithRecent = (color: string) => {
+    bp.setColor(color);
+    recentBorderColors.addColor(color);
+  };
 
   // plate 의 insertTableMergeRow 는 인접 row (헤더 바로 위/아래 삽입 시 헤더 행) 의
   // 셀 type/스타일을 템플릿으로 사용 → 새 row 가 header 스타일로 추가됨. 사용자는
@@ -243,15 +249,29 @@ export default React.memo(function TableToolbar({
               </div>
               <div className={styles.borderPopSection}>
                 <span className={styles.borderPopLabel}>{t("editor.borderColor")}</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                  <div className={styles.colorPickerCell} style={{ borderLeft: "none", padding: 0 }}>
-                    <div className={styles.colorDot} style={{ background: bp.color }} />
-                    <ColorPicker value={bp.color.startsWith("var(") ? "#d1d5db" : bp.color} onChange={bp.setColor} triggerClassName={styles.colorInput} />
+                <div className={styles.borderColorRow}>
+                  {/* ColorPicker — preset 과 시각적 구분: 큰 사이즈 + 라벨 + 오른쪽 divider */}
+                  <div className={styles.borderColorPicker}>
+                    <ColorPicker value={bp.color.startsWith("var(") ? "#d1d5db" : bp.color} onChange={setBorderColorWithRecent} triggerClassName={styles.colorInput} />
+                    <span className={styles.borderColorPickerDot} style={{ background: bp.color }} />
                   </div>
-                  {TABLE_BORDER_COLORS.map((color) => (
-                    <button key={color} type="button" className={`${styles.presetDotInline} ${bp.color === color ? styles.presetDotActive : ""}`} style={{ background: color }} onMouseDown={(e) => e.preventDefault()} onClick={() => bp.setColor(color)} />
-                  ))}
+                  <span className={styles.borderColorDivider} aria-hidden />
+                  <div className={styles.borderColorPresets}>
+                    {TABLE_BORDER_COLORS.map((color) => (
+                      <button key={color} type="button" className={`${styles.presetDotInline} ${bp.color === color ? styles.presetDotActive : ""}`} style={{ background: color }} onMouseDown={(e) => e.preventDefault()} onClick={() => setBorderColorWithRecent(color)} />
+                    ))}
+                  </div>
                 </div>
+                {recentBorderColors.colors.length > 0 && (
+                  <>
+                    <span className={styles.borderPopLabel} style={{ marginTop: 6 }}>{t("editor.borderColorRecent")}</span>
+                    <div className={styles.borderColorPresets}>
+                      {recentBorderColors.colors.map((color) => (
+                        <button key={color} type="button" className={`${styles.presetDotInline} ${bp.color === color ? styles.presetDotActive : ""}`} style={{ background: color }} onMouseDown={(e) => e.preventDefault()} onClick={() => setBorderColorWithRecent(color)} />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}

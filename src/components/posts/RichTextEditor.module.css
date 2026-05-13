@@ -836,11 +836,54 @@
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-lg);
-  padding: var(--spacing-xs) var(--spacing-xs) var(--spacing-sm);
-  min-width: 220px;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md);
+  min-width: 240px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-sm);
+}
+
+/* Border color row — ColorPicker 와 preset 구분 */
+.borderColorRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.borderColorPicker {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  border: var(--border-light);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.borderColorPicker .colorInput {
+  width: 100%;
+  height: 100%;
+}
+
+.borderColorPickerDot {
+  position: absolute;
+  inset: 3px;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.borderColorDivider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-light-color);
+}
+
+.borderColorPresets {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  flex-wrap: wrap;
 }
 
 .borderPopSection {
