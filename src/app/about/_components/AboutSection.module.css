@@ -595,7 +595,7 @@
     pointer-events: auto;
     font-family: var(--font-mono);
     font-size: var(--_fs-small, 0.8rem);
-    color: var(--text-white-tertiary);
+    color: var(--text-ghost-strong);
   }
 
   .mobileTabActions:empty {

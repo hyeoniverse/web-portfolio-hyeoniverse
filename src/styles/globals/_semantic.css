@@ -8,8 +8,6 @@
    -------------------------------------------------------------------------- */
 :root {
   --text-white: var(--color-white-alpha-100);
-  --text-white-secondary: var(--color-white-alpha-80);
-  --text-white-tertiary: var(--color-white-alpha-60);
   /* 항상 dark 한 surface 위 dimmed 흰 텍스트 (--border-ghost-strong-color 와 pair) */
   --text-ghost-strong: var(--color-white-alpha-50);
   --text-black: var(--color-gray-alpha-100);
