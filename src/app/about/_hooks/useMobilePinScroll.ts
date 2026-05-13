@@ -32,13 +32,19 @@ interface MobilePinOptions {
   start?: string;
 }
 
+export interface MobilePinScrollHandle {
+  scrollTrigger: ScrollTrigger | null;
+  /** 클릭/swipe 같은 명시적 점프 — 내부 prevIndex 도 함께 sync 해서 다음 cascade 가 올바른 위치에서 시작 */
+  syncIndex: (idx: number) => void;
+}
+
 export function useMobilePinScroll(
   triggerRef: React.RefObject<HTMLElement | null>,
   itemCount: number,
   scrollPerItem: number,
   onIndexChange: (newIndex: number) => void,
   depsOrOptions?: React.DependencyList | MobilePinOptions,
-): React.RefObject<ScrollTrigger | null> {
+): React.RefObject<MobilePinScrollHandle> {
   // 하위 호환: 5번째 인자가 배열이면 deps, 객체면 options
   const isLegacy = Array.isArray(depsOrOptions);
   const deps: React.DependencyList = isLegacy
@@ -53,7 +59,7 @@ export function useMobilePinScroll(
   const useStart = isLegacy
     ? "top top"
     : (depsOrOptions as MobilePinOptions | undefined)?.start ?? "top top";
-  const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+  const handleRef = useRef<MobilePinScrollHandle>({ scrollTrigger: null, syncIndex: () => {} });
   const isMobile = useMobileLayout();
 
   useEffect(() => {
@@ -102,7 +108,15 @@ export function useMobilePinScroll(
               onIndexChange(prevIndex);
             },
           });
-          scrollTriggerRef.current = instance;
+          handleRef.current = {
+            scrollTrigger: instance,
+            syncIndex: (idx: number) => {
+              // 클릭/swipe 점프 — cascade 우회: prevIndex 도 같이 sync 해서 다음 scroll 이 올바른 위치에서 cascade 시작
+              prevIndex = Math.max(0, Math.min(total - 1, idx));
+              lastFireTime = performance.now();
+              onIndexChange(prevIndex);
+            },
+          };
         }, trigger);
 
         ScrollTrigger.refresh();
@@ -120,11 +134,11 @@ export function useMobilePinScroll(
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", setup);
-      scrollTriggerRef.current = null;
+      handleRef.current = { scrollTrigger: null, syncIndex: () => {} };
       if (ctx) ctx.revert();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [triggerRef, itemCount, scrollPerItem, onIndexChange, isMobile, ...deps]);
 
-  return scrollTriggerRef;
+  return handleRef;
 }
