@@ -538,27 +538,30 @@ function useCellResize(colIndex: number, rowIndex: number) {
     const [tableNode, tablePath] = tableEntry;
     const colSizes = (tableNode.colSizes as number[]) || [];
     const cell = (e.target as HTMLElement).closest("td,th") as HTMLElement | null;
+    const tableEl = cell?.closest("table") as HTMLTableElement | null;
+    const colEl = tableEl?.querySelector("colgroup")?.children[colIndex] as HTMLElement | undefined;
     const startWidth = colSizes[colIndex] || cell?.offsetWidth || 100;
     const startX = e.clientX;
-
-    // rAF 로 묶어 매 pointermove 마다 Slate transform 이 일어나지 않게 — 60fps cap, 버벅임 방지
-    let raf: number | null = null;
     let pending = startWidth;
-    const flush = () => {
-      raf = null;
-      setTableColSize(editor, { colIndex, width: pending }, { at: tablePath });
-    };
+
+    // 드래그 중 cursor 유지 — CursorTrail 의 mouseover-기반 감지가 셀 텍스트 위에서 text 로 바뀌는 것 방지
+    document.body.setAttribute("data-cursor", "resizeH");
+    // 드래그 동안 텍스트 선택/IME 진입 방지
+    document.body.style.userSelect = "none";
+
     const onMove = (ev: PointerEvent) => {
       const delta = ev.clientX - startX;
       pending = Math.max(48, startWidth + delta);
-      if (raf == null) raf = requestAnimationFrame(flush);
+      // Slate transform 우회 — DOM 직접 갱신 (frame 100+ cell 재렌더링 비용 회피)
+      if (colEl) colEl.style.width = `${pending}px`;
     };
     const onUp = () => {
-      if (raf != null) cancelAnimationFrame(raf);
-      // 최종 위치 확정
-      setTableColSize(editor, { colIndex, width: pending }, { at: tablePath });
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
+      document.body.removeAttribute("data-cursor");
+      document.body.style.userSelect = "";
+      // 최종 위치만 Slate state 에 commit (drag 중엔 DOM 만 변경됐음)
+      setTableColSize(editor, { colIndex, width: pending }, { at: tablePath });
     };
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
@@ -572,28 +575,34 @@ function useCellResize(colIndex: number, rowIndex: number) {
     if (!tableEntry) return;
     const [, tablePath] = tableEntry;
     const cell = (e.target as HTMLElement).closest("td,th") as HTMLElement | null;
+    const tableEl = cell?.closest("table") as HTMLTableElement | null;
+    // 행의 모든 cell 에 height 적용해야 행 전체가 따라옴 (cellStyle 에서 height: minHeight 사용)
+    const rowEl = cell?.closest("tr") as HTMLTableRowElement | null;
+    const rowCells = rowEl ? Array.from(rowEl.children) as HTMLElement[] : [];
     const startH = cell?.getBoundingClientRect().height ?? 40;
     const startY = e.clientY;
-
-    let raf: number | null = null;
     let pending = startH;
-    const flush = () => {
-      raf = null;
-      setTableRowSize(editor, { rowIndex, height: pending }, { at: tablePath });
-    };
+
+    document.body.setAttribute("data-cursor", "resizeV");
+    document.body.style.userSelect = "none";
+
     const onMove = (ev: PointerEvent) => {
       const delta = ev.clientY - startY;
       pending = Math.max(24, startH + delta);
-      if (raf == null) raf = requestAnimationFrame(flush);
+      // DOM 직접 갱신
+      for (const c of rowCells) c.style.height = `${pending}px`;
     };
     const onUp = () => {
-      if (raf != null) cancelAnimationFrame(raf);
-      setTableRowSize(editor, { rowIndex, height: pending }, { at: tablePath });
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
+      document.body.removeAttribute("data-cursor");
+      document.body.style.userSelect = "";
+      setTableRowSize(editor, { rowIndex, height: pending }, { at: tablePath });
     };
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
+    // 사용하지 않는 tableEl 경고 회피 (DOM 직접 갱신을 row level 로 했음)
+    void tableEl;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, element, rowIndex]);
 
