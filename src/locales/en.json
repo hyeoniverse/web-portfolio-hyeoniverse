@@ -212,7 +212,32 @@
       "typeComment": "New comment",
       "typeReply": "Reply",
       "typeLike": "Like",
+      "typeReport": "Comment report",
       "typeSystem": "System"
+    },
+    "reports": {
+      "title": "Comment Reports",
+      "loading": "Loading...",
+      "empty": "No reports.",
+      "fromPost": "POST",
+      "fromWork": "WORK",
+      "reason": "Reason",
+      "view": "View",
+      "viewTooltip": "Open original comment",
+      "resolve": "Resolve",
+      "dismiss": "Dismiss",
+      "deleteComment": "Delete comment",
+      "deleteCommentTitle": "Delete comment",
+      "deleteCommentDesc": "Delete this comment? It will be tombstoned as admin-removed and all related reports marked resolved.",
+      "cancel": "Cancel",
+      "commentDeleted": "Already removed",
+      "commentGone": "Comment not found (hard-deleted).",
+      "filter": {
+        "pending": "Pending",
+        "resolved": "Resolved",
+        "dismissed": "Dismissed",
+        "all": "All"
+      }
     },
     "login": {
       "title": "Admin",
@@ -1062,7 +1087,11 @@
     "confirmDelete": "Confirm",
     "firstCommentCelebration": "🎉 You left the first comment on this post!",
     "emailClear": "Clear input",
-    "disclaimer": "Inappropriate comments may be removed without notice."
+    "disclaimer": "Inappropriate comments may be removed without notice.",
+    "report": "Report",
+    "reportPlaceholder": "Reason (optional)",
+    "confirmReport": "Report",
+    "reportThanks": "Reported. We'll review it shortly."
   },
   "postDetail": {
     "recommended": "Recommended for You",
