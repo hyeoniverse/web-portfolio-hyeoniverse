@@ -26,6 +26,8 @@ import styles from "./ColorPicker.module.css";
 interface ColorPickerProps {
   value: string;
   onChange: (hex: string) => void;
+  /** drag/input 끝(commit)에만 1회 호출 — 최근 색상 기록 같은 무거운 작업용 */
+  onChangeComplete?: (hex: string) => void;
   /** trigger 노드 — 클릭 시 popover 열림. 미제공이면 작은 swatch button 자동 생성 */
   children?: (ctx: { open: boolean; toggle: () => void }) => ReactNode;
   /** trigger 가 없을 때 기본 swatch 버튼의 className/style override */
@@ -42,6 +44,7 @@ interface ColorPickerProps {
 export default function ColorPicker({
   value,
   onChange,
+  onChangeComplete,
   children,
   triggerClassName,
   triggerStyle,
@@ -116,6 +119,10 @@ export default function ColorPicker({
     onChange(hsvToHex(next));
   }, [onChange]);
 
+  // 가장 최근 emit 된 hex — pointerup 시 onChangeComplete 인자로 사용
+  const latestHexRef = useRef(hex);
+  useEffect(() => { latestHexRef.current = hex; }, [hex]);
+
   // ── SV pad drag ──
   const svRef = useRef<HTMLDivElement>(null);
   const onSvDown = (e: React.PointerEvent) => {
@@ -127,13 +134,16 @@ export default function ColorPicker({
     const move = (ev: PointerEvent) => {
       const x = clamp((ev.clientX - rect.left) / rect.width, 0, 1);
       const y = clamp((ev.clientY - rect.top) / rect.height, 0, 1);
-      update({ h: hsv.h, s: Math.round(x * 100), v: Math.round((1 - y) * 100) });
+      const next = { h: hsv.h, s: Math.round(x * 100), v: Math.round((1 - y) * 100) };
+      latestHexRef.current = hsvToHex(next);
+      update(next);
     };
     move(e.nativeEvent);
     const up = () => {
       document.removeEventListener("pointermove", move);
       document.removeEventListener("pointerup", up);
       document.removeEventListener("pointercancel", up);
+      onChangeComplete?.(latestHexRef.current);
     };
     document.addEventListener("pointermove", move);
     document.addEventListener("pointerup", up);
@@ -150,13 +160,16 @@ export default function ColorPicker({
     const rect = bar.getBoundingClientRect();
     const move = (ev: PointerEvent) => {
       const x = clamp((ev.clientX - rect.left) / rect.width, 0, 1);
-      update({ h: Math.round(x * 360), s: hsv.s, v: hsv.v });
+      const next = { h: Math.round(x * 360), s: hsv.s, v: hsv.v };
+      latestHexRef.current = hsvToHex(next);
+      update(next);
     };
     move(e.nativeEvent);
     const up = () => {
       document.removeEventListener("pointermove", move);
       document.removeEventListener("pointerup", up);
       document.removeEventListener("pointercancel", up);
+      onChangeComplete?.(latestHexRef.current);
     };
     document.addEventListener("pointermove", move);
     document.addEventListener("pointerup", up);
@@ -168,7 +181,7 @@ export default function ColorPicker({
   useEffect(() => { setHexDraft(hex); }, [hex]);
   const commitHex = (raw: string) => {
     const n = normalizeHex(raw);
-    if (n) update(hexToHsv(n));
+    if (n) { update(hexToHsv(n)); onChangeComplete?.(n); }
     else setHexDraft(hex);
   };
 
@@ -177,6 +190,7 @@ export default function ColorPicker({
     const num = clamp(parseInt(raw, 10) || 0, 0, 255);
     const next = { ...rgb, [channel]: num };
     update(rgbToHsv(next));
+    onChangeComplete?.(rgbToHex(next));
     setHexDraft(rgbToHex(next));
   };
 

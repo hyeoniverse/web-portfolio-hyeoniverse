@@ -87,6 +87,8 @@ export default React.memo(function TableToolbar({
     bp.setColor(color);
     recentBorderColors.addColor(color);
   };
+  const RECENT_SLOTS = 8;
+  const recentSlots: (string | null)[] = Array.from({ length: RECENT_SLOTS }, (_, i) => recentBorderColors.colors[i] ?? null);
 
   // 선택 셀이 단일/단일행/단일열 인지 — inner / innerH / innerV 비활성화 판단
   const span = bp.selectionSpan;
@@ -333,7 +335,7 @@ export default React.memo(function TableToolbar({
                 <div className={styles.borderColorRow}>
                   {/* ColorPicker — preset 과 시각적 구분: 큰 사이즈 + 라벨 + 오른쪽 divider */}
                   <div className={styles.borderColorPicker}>
-                    <ColorPicker value={bp.color.startsWith("var(") ? "#d1d5db" : bp.color} onChange={setBorderColorWithRecent} triggerClassName={styles.colorInput} />
+                    <ColorPicker value={bp.color.startsWith("var(") ? "#d1d5db" : bp.color} onChange={(c) => bp.setColor(c)} onChangeComplete={(c) => { bp.setColor(c); recentBorderColors.addColor(c); }} triggerClassName={styles.colorInput} />
                     <span className={styles.borderColorPickerDot} style={{ background: bp.color }} />
                   </div>
                   <span className={styles.borderColorDivider} aria-hidden />
@@ -343,16 +345,23 @@ export default React.memo(function TableToolbar({
                     ))}
                   </div>
                 </div>
-                {recentBorderColors.colors.length > 0 && (
-                  <>
-                    <span className={styles.borderPopLabel} style={{ marginTop: 6 }}>{t("editor.borderColorRecent")}</span>
-                    <div className={styles.borderColorPresets}>
-                      {recentBorderColors.colors.map((color) => (
-                        <button key={color} type="button" className={`${styles.presetDotInline} ${bp.color === color ? styles.presetDotActive : ""}`} style={{ background: color }} onMouseDown={(e) => e.preventDefault()} onClick={() => setBorderColorWithRecent(color)} />
-                      ))}
-                    </div>
-                  </>
-                )}
+                <span className={styles.borderPopLabel} style={{ marginTop: 6 }}>{t("editor.borderColorRecent")}</span>
+                <div className={styles.borderColorPresets}>
+                  {recentSlots.map((color, i) =>
+                    color ? (
+                      <button
+                        key={`${i}-${color}`}
+                        type="button"
+                        className={`${styles.presetDotInline} ${bp.color === color ? styles.presetDotActive : ""}`}
+                        style={{ background: color }}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => setBorderColorWithRecent(color)}
+                      />
+                    ) : (
+                      <span key={`empty-${i}`} className={`${styles.presetDotInline} ${styles.presetDotEmpty}`} aria-hidden />
+                    )
+                  )}
+                </div>
               </div>
             </div>,
             document.body
