@@ -203,8 +203,6 @@
 * **editor:** 자동 저장 복원 로직 개선 ([a9dfe67](https://github.com/hyeoniverse/web-portfolio-oval/commit/a9dfe671c28123199816376d26c5eede3cc72567))
 * **editor:** 자동 저장 복원 팝업이 안 뜨는 문제 수정 ([861d26c](https://github.com/hyeoniverse/web-portfolio-oval/commit/861d26cea95be9b6cd949db1e389959b31166822))
 * **editor:** 제목 안 각주가 마크다운에서 처리 안 되는 문제 수정 ([20030c7](https://github.com/hyeoniverse/web-portfolio-oval/commit/20030c7fbbafeec4afbc369a7803caed7ab6e7d8))
-* **editor:** 체크리스트 → todo 변환을 에디터 API 방식으로 변경 ([1f2f2d9](https://github.com/hyeoniverse/web-portfolio-oval/commit/1f2f2d9d50ae2e19690156d8e417827bd0ae259b))
-* **editor:** 체크리스트를 리스트가 아닌 paragraph로 출력 ([9b993b5](https://github.com/hyeoniverse/web-portfolio-oval/commit/9b993b5270c1be5804576f7367c085bc64856a31))
 * **home:** Works 이미지 140% → 160%로 확대 ([bf365bb](https://github.com/hyeoniverse/web-portfolio-oval/commit/bf365bbb57bf2e0c3b155d348ee077fd375a8c60))
 * **home:** Works 이미지 화질 + 호버 텍스트 크기 ([6daeed3](https://github.com/hyeoniverse/web-portfolio-oval/commit/6daeed3afd1a89115e1c067be9b92af095f385c3))
 * **hooks:** useEditorAutoSave cleanup 의 formRef.current 읽기에 lint suppress 명시 ([f7af57e](https://github.com/hyeoniverse/web-portfolio-oval/commit/f7af57e34a1d0bd62230204d02c1e935198fad60))
