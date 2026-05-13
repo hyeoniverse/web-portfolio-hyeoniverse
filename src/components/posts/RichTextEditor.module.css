@@ -903,19 +903,20 @@
 
 .borderGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs);
+  grid-template-columns: repeat(3, 28px);
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs);
   border: var(--border-light);
   border-radius: var(--radius-md);
+  justify-content: start;
 }
 
 .borderGridBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  aspect-ratio: 1;
+  width: 28px;
+  height: 28px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -925,8 +926,8 @@
 }
 
 .borderGridBtn :global(svg) {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
 }
 
 .borderGridBtn:hover {
