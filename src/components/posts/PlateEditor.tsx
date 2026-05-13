@@ -225,43 +225,79 @@ export default function PlateEditor({
 
   // ── 한글 IME composition 트래킹 ──
   // composition 중에 click 하면 slate-react 가 selection 업데이트를 skip 해서
-  // cursor 가 안 옮겨감 (https://github.com/ianstormtaylor/slate). compositionend 후
-  // 저장된 좌표로 직접 select 호출해 한 번에 이동되도록 함.
+  // cursor 가 안 옮겨감. compositionend 후 저장된 좌표로 직접 select.
   const composingRef = useRef(false);
   const pendingClickRef = useRef<{ x: number; y: number } | null>(null);
 
-  const applyPendingClick = useCallback(() => {
-    const pending = pendingClickRef.current;
-    if (!pending) return;
-    pendingClickRef.current = null;
-    requestAnimationFrame(() => {
-      try {
-        // 표준 caretPositionFromPoint 우선, fallback 으로 webkit 의 caretRangeFromPoint
-        type CaretFromPointDoc = Document & {
-          caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
-          caretRangeFromPoint?: (x: number, y: number) => Range | null;
-        };
-        const doc = document as CaretFromPointDoc;
-        let domRange: Range | null = null;
-        const pos = doc.caretPositionFromPoint?.(pending.x, pending.y);
-        if (pos) {
-          const r = document.createRange();
-          r.setStart(pos.offsetNode, pos.offset);
-          r.collapse(true);
-          domRange = r;
-        } else {
-          domRange = doc.caretRangeFromPoint?.(pending.x, pending.y) ?? null;
+  // capture phase 로 editor DOM 에 직접 listener 부착 — slate-react 의 자체 핸들러보다
+  // 먼저 실행되어야 mousedown 좌표를 신뢰성 있게 잡을 수 있음.
+  useEffect(() => {
+    if (!editor) return;
+    let editorEl: HTMLElement | null = null;
+    // editor mount 후 잡힘 — 1프레임 대기
+    const setup = () => {
+      editorEl = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
+      if (!editorEl) return;
+
+      const applySelection = (x: number, y: number) => {
+        try {
+          type CaretFromPointDoc = Document & {
+            caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
+            caretRangeFromPoint?: (x: number, y: number) => Range | null;
+          };
+          const doc = document as CaretFromPointDoc;
+          let domRange: Range | null = null;
+          const pos = doc.caretPositionFromPoint?.(x, y);
+          if (pos) {
+            const r = document.createRange();
+            r.setStart(pos.offsetNode, pos.offset);
+            r.collapse(true);
+            domRange = r;
+          } else {
+            domRange = doc.caretRangeFromPoint?.(x, y) ?? null;
+          }
+          if (!domRange) return;
+          const slateRange = ReactEditor.toSlateRange(editor as unknown as ReactEditor, domRange, {
+            exactMatch: false,
+            suppressThrow: true,
+          });
+          if (slateRange) editor.tf.select(slateRange);
+        } catch { /* ignore */ }
+      };
+
+      const onCompStart = () => { composingRef.current = true; };
+      const onCompEnd = () => {
+        composingRef.current = false;
+        const pending = pendingClickRef.current;
+        pendingClickRef.current = null;
+        if (pending) {
+          // slate-react 의 selection 처리가 끝난 뒤 우리가 다시 select 호출 → 1프레임 + setTimeout
+          requestAnimationFrame(() => applySelection(pending.x, pending.y));
         }
-        if (!domRange) return;
-        const slateRange = ReactEditor.toSlateRange(editor as unknown as ReactEditor, domRange, {
-          exactMatch: false,
-          suppressThrow: true,
-        });
-        if (slateRange) {
-          editor.tf.select(slateRange);
+      };
+      const onMouseDown = (e: MouseEvent) => {
+        if (composingRef.current) {
+          pendingClickRef.current = { x: e.clientX, y: e.clientY };
         }
-      } catch { /* ignore */ }
-    });
+      };
+
+      editorEl.addEventListener("compositionstart", onCompStart, true);
+      editorEl.addEventListener("compositionend", onCompEnd, true);
+      editorEl.addEventListener("mousedown", onMouseDown, true);
+
+      return () => {
+        editorEl?.removeEventListener("compositionstart", onCompStart, true);
+        editorEl?.removeEventListener("compositionend", onCompEnd, true);
+        editorEl?.removeEventListener("mousedown", onMouseDown, true);
+      };
+    };
+
+    let cleanup: (() => void) | undefined;
+    const rafId = requestAnimationFrame(() => { cleanup = setup(); });
+    return () => {
+      cancelAnimationFrame(rafId);
+      cleanup?.();
+    };
   }, [editor]);
 
 
@@ -2312,17 +2348,6 @@ export default function PlateEditor({
               onKeyDown={handleContentKeyDown}
               decorate={findOpen ? decorate : undefined}
               renderLeaf={findOpen ? renderFindLeaf : undefined}
-              onCompositionStart={() => { composingRef.current = true; }}
-              onCompositionEnd={() => {
-                composingRef.current = false;
-                applyPendingClick();
-              }}
-              onMouseDown={(e) => {
-                // 한글 composition 중 클릭이면 좌표 저장 → compositionend 에서 적용
-                if (composingRef.current) {
-                  pendingClickRef.current = { x: e.clientX, y: e.clientY };
-                }
-              }}
               onClick={(e) => {
                 // kbd/code 밖 클릭 시 plain text 모드로 전환
                 const clickTarget = e.target as HTMLElement;
