@@ -197,7 +197,15 @@ export function ImageElement(props: PlateElementProps) {
       const rw = Math.round(newW);
       const rh = Math.round(newH);
       img.style.width = `${rw}px`;
-      img.style.height = `${rh}px`;
+      // lockAspect 면 height 는 CSS aspectRatio 가 처리 → 드래그 중에도 비율 유지
+      // (px 로 직접 set 하면 aspectRatio override 되어 셀 좁을 때 비율 깨짐 시각화)
+      if (lockAspect) {
+        img.style.height = "auto";
+        img.style.aspectRatio = `${rw} / ${rh}`;
+      } else {
+        img.style.height = `${rh}px`;
+        img.style.aspectRatio = "";
+      }
       setResizeSize({ w: rw, h: rh });
     };
 
@@ -205,8 +213,13 @@ export function ImageElement(props: PlateElementProps) {
       document.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("pointerup", onPointerUp);
       if (!img) return;
+      // resizeSize 의 의도 dimension 을 저장 (실제 rendered 가 아닌 사용자가 드래그한 목표)
       const w = Math.round(parseFloat(img.style.width));
-      const h = Math.round(parseFloat(img.style.height));
+      // height 는 lockAspect 이면 auto 라 parseFloat NaN — resizeSize 에서 가져옴
+      const target = draggingRef.current;
+      const h = lockAspect && target
+        ? Math.round(Math.round(parseFloat(img.style.width)) / target.ratio)
+        : Math.round(parseFloat(img.style.height));
       setAttr({ width: w, height: h });
       draggingRef.current = null;
       setResizeSize(null);
