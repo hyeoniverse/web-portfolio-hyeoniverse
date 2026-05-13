@@ -342,7 +342,6 @@ export default React.memo(function TableToolbar({
                   <div className={styles.colorGroup} style={{ gap: 2 }}>
                     <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
                     <div className={styles.presetDotInline} style={{ background: bp.color, margin: "0 2px" }} />
-                    <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
                     <ColorPicker value={bp.color.startsWith("var(") ? "#d1d5db" : bp.color} onChange={(c) => bp.setColor(c)} onChangeComplete={(c) => { bp.setColor(c); recentBorderColors.addColor(c); }} triggerClassName={styles.colorInput} />
                   </div>
                   <span className={styles.borderColorDivider} aria-hidden />
