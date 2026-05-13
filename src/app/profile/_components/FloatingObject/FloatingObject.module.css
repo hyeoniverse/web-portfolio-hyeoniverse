@@ -22,10 +22,11 @@
   white-space: nowrap;
   padding: var(--box-xs-lg);
   border-radius: var(--radius-capsule);
-  --_bg-glass: color-mix(in srgb, var(--bg-primary) 70%, transparent);
+  /* 투명 + blur 조합 — 30% 불투명으로 낮춰 backdrop-filter blur 가 시각적으로 드러나도록 */
+  --_bg-glass: color-mix(in srgb, var(--bg-primary) 30%, transparent);
   background: var(--_bg-glass);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: var(--border-strong);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
