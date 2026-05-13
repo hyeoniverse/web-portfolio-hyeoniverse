@@ -34,13 +34,18 @@ permissions:
 
 jobs:
   claude:
+    # dependabot PR 은 skip — GitHub 보안 정책상 dependabot 트리거 워크플로우는
+    # repo secrets (WORKFLOW_PAT) 접근 불가 → checkout 실패. dependabot PR 은
+    # CI 만으로 충분히 검증됨 (코드 리뷰의 가치도 낮음).
     # pull_request 는 항상 실행 (draft 제외), 나머지는 @claude 멘션 있을 때만
     if: |
-      (github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      github.actor != 'dependabot[bot]' && (
+        (github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+        (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
