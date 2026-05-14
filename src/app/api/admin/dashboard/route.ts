@@ -75,7 +75,7 @@ export async function GET() {
     admin.from("admin_notifications").select("*", { count: "exact", head: true }).eq("read", false),
     admin
       .from("posts")
-      .select("id, title, slug, view_count, like_count")
+      .select("id, title, slug, view_count, like_count, category, created_at")
       .is("deleted_at", null)
       .eq("published", true)
       .gt("view_count", 0)
@@ -83,14 +83,14 @@ export async function GET() {
       .limit(5),
     admin.rpc("sum_post_views").maybeSingle(),
     admin.from("site_settings").select("config").eq("id", "secrets").maybeSingle(),
-    // 최근 90일 일별 조회수 — 차트용 (클라이언트에서 7/14/30/90 기간으로 슬라이스)
+    // 최근 90일 일별 조회수 — 차트용 (KST 기준). 클라이언트에서 7/14/30/90 기간으로 슬라이스.
     (() => {
       const end = new Date();
       const start = new Date(end);
       start.setDate(start.getDate() - 89);
       return admin.rpc("daily_post_views", {
-        p_start: start.toISOString().slice(0, 10),
-        p_end: end.toISOString().slice(0, 10),
+        p_start: kstDateStr(start),
+        p_end: kstDateStr(end),
       });
     })(),
     // 카테고리/태그 집계용 — 발행된 게시물 전체
@@ -287,7 +287,18 @@ export async function GET() {
   });
 }
 
-/** 14일치 데이터를 빈 날짜 0 으로 padding. day 는 ISO date(YYYY-MM-DD), views 는 그날 조회수. */
+/** Date → KST 기준 "YYYY-MM-DD" 문자열 (Asia/Seoul timezone) */
+const KST_FMT = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Seoul",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+function kstDateStr(d: Date): string {
+  return KST_FMT.format(d);
+}
+
+/** N일치 데이터를 빈 날짜 0 으로 padding. day 는 KST 기준 ISO date(YYYY-MM-DD). */
 function fillDailyViews(
   raw: Array<{ day: string; views: number }>,
   days: number,
@@ -297,11 +308,13 @@ function fillDailyViews(
     map.set(r.day, Number(r.views) || 0);
   }
   const out: Array<{ day: string; views: number }> = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  /* KST 오늘부터 거꾸로 N일. KST 자정 boundary 를 정확히 매치하기 위해 string 연산 사용. */
+  const todayKst = kstDateStr(new Date());
+  const todayParts = todayKst.split("-").map(Number);
+  const todayLocal = new Date(Date.UTC(todayParts[0], todayParts[1] - 1, todayParts[2]));
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
+    const d = new Date(todayLocal);
+    d.setUTCDate(d.getUTCDate() - i);
     const key = d.toISOString().slice(0, 10);
     out.push({ day: key, views: map.get(key) ?? 0 });
   }
