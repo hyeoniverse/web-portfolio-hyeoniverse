@@ -45,7 +45,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: 0 var(--spacing-md);
-  min-height: var(--size-sm);
+  min-height: var(--input-h);
   cursor: text;
 }
 
@@ -280,8 +280,8 @@
 }
 
 .optionThumb {
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border-radius: var(--radius-md);
   object-fit: cover;
   flex-shrink: 0;
@@ -292,8 +292,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border-radius: var(--radius-md);
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);

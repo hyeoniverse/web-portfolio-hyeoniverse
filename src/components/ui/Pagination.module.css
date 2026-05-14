@@ -7,8 +7,8 @@
 }
 
 .pageBtn {
-  width: var(--h-control-sm);
-  height: var(--h-control-sm);
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   display: flex;
   align-items: center;
   justify-content: center;

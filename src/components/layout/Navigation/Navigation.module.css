@@ -163,8 +163,8 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xs);
-  width: var(--size-md);
-  height: var(--size-md);
+  width: var(--button-h-md);
+  height: var(--button-h-md);
   color: var(--text-white);
   transition: opacity var(--duration-base) ease;
 }
@@ -720,8 +720,8 @@
   position: absolute;
   top: var(--spacing-2xl);
   right: var(--page-px);
-  width: 36px;
-  height: 36px;
+  width: var(--button-h-md);
+  height: var(--button-h-md);
   z-index: 1;
 }
 
@@ -1368,8 +1368,8 @@
   }
 
   .actionBtn {
-    width: 32px;
-    height: 32px;
+    width: var(--button-h-sm);
+    height: var(--button-h-sm);
     padding: var(--spacing-xs);
   }
 
@@ -1394,8 +1394,8 @@
   }
 
   .actionBtn {
-    width: 28px;
-    height: 28px;
+    width: var(--button-h-sm);
+    height: var(--button-h-sm);
     padding: var(--spacing-2xs);
   }
 

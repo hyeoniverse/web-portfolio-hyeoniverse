@@ -77,7 +77,7 @@
    Button 컴포넌트의 size-sm(36px) override 위해 specificity 높임. */
 .saveBtn.saveBtn,
 .publishBtn.publishBtn {
-  height: var(--size-sm);
+  height: var(--input-h);
   padding: 0 var(--spacing-md);
   font-weight: 500;
   text-transform: uppercase;
@@ -603,7 +603,7 @@
 
 .fieldInput {
   width: 100%;
-  min-height: var(--size-sm);
+  min-height: var(--input-h);
   padding: 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -738,7 +738,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--size-sm);
+  min-height: var(--input-h);
   padding: 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);

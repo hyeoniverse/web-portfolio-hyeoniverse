@@ -124,8 +124,8 @@
 
 .presetSwatch {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border-radius: var(--radius-circle);
   border: 2px solid transparent;
   background: transparent;
@@ -505,7 +505,7 @@
 }
 
 .semanticDot {
-  width: 28px;
+  width: var(--button-h-sm);
   flex-shrink: 0;
   border-right: var(--border-light);
 }
@@ -592,8 +592,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border: var(--border-neutral-light);
   border-radius: var(--radius-circle);
   background: var(--bg-tertiary);

@@ -353,7 +353,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
+  height: var(--button-h-sm);
   color: var(--text-tertiary);
   pointer-events: none;
 }

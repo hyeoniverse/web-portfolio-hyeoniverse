@@ -228,8 +228,8 @@
 }
 
 .deleteBtn {
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   display: flex;
   align-items: center;
   justify-content: center;

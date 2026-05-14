@@ -100,8 +100,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: var(--button-h-lg);
+  height: var(--button-h-lg);
   border: var(--border-white);
   border-radius: var(--radius-circle);
   background: var(--color-white-alpha-10);
@@ -148,7 +148,7 @@
 
 .carousel .dot {
   position: relative;
-  width: 32px;
+  width: var(--button-h-sm);
   height: 4px;
   border-radius: var(--radius-2xs);
   background: var(--bg-glass-strong);
@@ -181,8 +181,8 @@
   }
 
   .carousel .arrow {
-    width: 36px;
-    height: 36px;
+    width: var(--button-h-md);
+    height: var(--button-h-md);
   }
 
   .arrowPrev {

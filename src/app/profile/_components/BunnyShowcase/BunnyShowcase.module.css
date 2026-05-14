@@ -116,7 +116,7 @@
   content: "";
   position: absolute;
   top: -28px;
-  width: 22px;
+  width: var(--button-h-xs);
   height: 38px;
   border-radius: 50% 50% 40% 40% / 50% 50% 50% 50%;
   background: var(--_bunny-bg);
@@ -178,12 +178,12 @@
   }
 
   .exprFace {
-    width: 44px;
-    height: 32px;
+    width: var(--button-h-lg);
+    height: var(--button-h-sm);
   }
 
   .exprFace svg {
-    width: 36px;
+    width: var(--button-h-md);
     height: 24px;
   }
 }

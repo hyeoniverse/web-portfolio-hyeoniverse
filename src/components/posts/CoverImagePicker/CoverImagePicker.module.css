@@ -148,8 +148,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   padding: 0;
   border: none;
   background: transparent;
@@ -244,8 +244,8 @@
 
 .schemeBaseSwatch {
   display: block;
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border-radius: var(--radius-circle);
   border: 2px solid var(--bg-primary);
   box-shadow:
@@ -374,7 +374,7 @@
   position: relative;
   flex: 1;
   /* 약간 컴팩트한 높이 */
-  height: 22px;
+  height: var(--button-h-xs);
   border-radius: var(--radius-capsule);
   border: var(--border-light);
   cursor: copy;
@@ -467,8 +467,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: var(--button-h-xs);
+  height: var(--button-h-xs);
   flex-shrink: 0;
   padding: 0;
   border: var(--border-light);
@@ -573,7 +573,7 @@
   font-size: 10px;
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
-  min-width: 28px;
+  min-width: var(--button-h-sm);
   text-align: right;
 }
 
@@ -678,7 +678,7 @@
 
 .customAngle > span {
   flex-shrink: 0;
-  min-width: 32px;
+  min-width: var(--button-h-sm);
   text-align: right;
 }
 
@@ -871,7 +871,7 @@
 .inputWrapper textarea {
   width: 100%;
   /* admin editor 표준 input 과 동일 (--size-sm = 32px) */
-  min-height: var(--size-sm);
+  min-height: var(--input-h);
   padding: 0 var(--spacing-2xl) 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -1086,7 +1086,7 @@
   align-items: center;
   justify-content: center;
   /* admin editor 표준 uploadBtn 과 동일 (--size-sm = 32px) */
-  min-height: var(--size-sm);
+  min-height: var(--input-h);
   padding: 0 var(--spacing-xl);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
@@ -1257,8 +1257,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: var(--button-h-xs);
+  height: var(--button-h-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);
@@ -1411,8 +1411,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: var(--button-h-xs);
+  height: var(--button-h-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-circle);
