@@ -42,7 +42,7 @@
 }
 
 .resetBtn {
-  padding: var(--button-p-md);
+  padding: var(--button-p-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -60,7 +60,7 @@
 }
 
 .saveBtn {
-  padding: var(--button-p-md);
+  padding: var(--button-p-sm);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
