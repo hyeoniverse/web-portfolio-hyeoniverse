@@ -42,10 +42,7 @@
 }
 
 .resetBtn {
-  display: inline-flex;
-  align-items: center;
-  height: var(--button-h-md);
-  padding: 0 var(--spacing-xl);
+  padding: var(--button-p-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -63,10 +60,7 @@
 }
 
 .saveBtn {
-  display: inline-flex;
-  align-items: center;
-  height: var(--button-h-md);
-  padding: 0 var(--spacing-xl);
+  padding: var(--button-p-md);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
@@ -643,8 +637,7 @@
 .fieldSelect {
   flex: 1;
   min-width: 0;
-  height: var(--input-h);
-  padding: 0 var(--spacing-sm);
+  padding: var(--input-p);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -725,8 +718,7 @@
 .colorText {
   flex: 1;
   min-width: 0;
-  height: var(--input-h);
-  padding: 0 var(--spacing-sm);
+  padding: var(--input-p);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -752,8 +744,7 @@
 .formatSegmentBtn {
   display: inline-flex;
   align-items: center;
-  height: var(--button-h-sm);
-  padding: 0 var(--spacing-lg);
+  padding: var(--button-p-sm);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -1311,8 +1302,7 @@
 .catAddBtn {
   display: inline-flex;
   align-items: center;
-  height: var(--button-h-sm);
-  padding: 0 var(--spacing-md);
+  padding: var(--button-p-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1429,8 +1419,7 @@
 
 .profileFieldInput {
   width: 100%;
-  height: var(--input-h);
-  padding: 0 var(--spacing-sm);
+  padding: var(--input-p);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1876,8 +1865,7 @@
 }
 
 .seriesDeleteInput {
-  height: var(--input-h);
-  padding: 0 var(--spacing-sm);
+  padding: var(--input-p);
   border: var(--border-default);
   border-radius: var(--radius-md);
   background: transparent;
@@ -3209,8 +3197,7 @@
 .fontCustomInput {
   flex: 1;
   min-width: 0;
-  height: var(--input-h);
-  padding: 0 var(--spacing-sm);
+  padding: var(--input-p);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -3418,8 +3405,7 @@
 .envSaveBtn {
   display: inline-flex;
   align-items: center;
-  height: var(--button-h-sm);
-  padding: 0 var(--spacing-lg);
+  padding: var(--button-p-sm);
   border: var(--border-accent-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -3769,8 +3755,7 @@
 
 .limitInput {
   width: 70px;
-  height: var(--input-h);
-  padding: 0 var(--spacing-xs);
+  padding: var(--input-p);
   border: var(--border-light);
   border-radius: var(--radius-md);
   background: transparent;

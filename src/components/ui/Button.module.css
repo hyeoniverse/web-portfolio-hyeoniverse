@@ -51,39 +51,36 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Sizes — capsule (기본). 높이는 semantic --button-h-* 토큰 사용
+   Sizes — capsule (기본). padding 기반 (--button-p-* semantic token)
    --------------------------------------------------------------------------- */
 .size-2xs {
-  height: var(--button-h-xs);
-  padding: 0 var(--spacing-sm);
+  padding: var(--button-p-xs);
   font-size: var(--font-size-2xs);
 }
 
 .size-xs {
-  height: var(--button-h-sm);
-  padding: 0 var(--spacing-md);
+  padding: var(--button-p-sm);
   font-size: var(--font-size-xs);
 }
 
 .size-sm {
-  height: var(--button-h-md);
-  padding: 0 var(--spacing-md);
+  padding: var(--button-p-md);
   font-size: var(--font-size-sm);
 }
 
 .size-md {
-  padding: var(--box-sm-xl);
+  padding: var(--button-p-md);
   font-size: var(--font-size-sm);
 }
 
 .size-lg {
-  padding: var(--box-lg-2xl);
+  padding: var(--button-p-lg);
   font-size: var(--font-size-sm);
   letter-spacing: 0.05em;
 }
 
 .size-xl {
-  padding: var(--box-3xl);
+  padding: var(--button-p-lg);
   font-size: var(--font-size-sm);
   letter-spacing: 0.05em;
 }

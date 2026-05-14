@@ -1,8 +1,7 @@
 .btn {
   display: inline-flex;
   align-items: center;
-  height: var(--button-h-sm);
-  padding: 0 var(--spacing-md);
+  padding: var(--button-p-sm);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
