@@ -292,6 +292,12 @@ export default function Navigation() {
     updateIndicator();
   }, [updateIndicator, language]);
 
+  // ResizeObserver 는 mount 시 1회만 — updateIndicator 를 dep 로 넣으면 hover 마다 (targetKey 변경)
+  // useCallback 새 ref → effect cleanup/setup → observe() 호출이 즉시 fire 트리거 → instant=true 가 영구화돼
+  // indicator 가 transition 없이 점프함. ref 로 latest updateIndicator 잡아 쓰기.
+  const updateIndicatorRef = useRef(updateIndicator);
+  useEffect(() => { updateIndicatorRef.current = updateIndicator; }, [updateIndicator]);
+
   useEffect(() => {
     const container = navCenterRef.current;
     const navEl = container?.parentElement;
@@ -299,7 +305,7 @@ export default function Navigation() {
     let endTimer: ReturnType<typeof setTimeout> | null = null;
     const tick = () => {
       setIndicatorInstant(true);
-      updateIndicator();
+      updateIndicatorRef.current();
       if (endTimer) clearTimeout(endTimer);
       endTimer = setTimeout(() => setIndicatorInstant(false), 120);
     };
@@ -313,7 +319,7 @@ export default function Navigation() {
       window.removeEventListener("resize", tick);
       if (endTimer) clearTimeout(endTimer);
     };
-  }, [updateIndicator]);
+  }, []);
 
   // --- 로고 중앙→nav 이동 애니메이션 ---
   const logoRef = useRef<HTMLDivElement>(null);
