@@ -6,7 +6,9 @@ import type { DatePeriod } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
 import { profileDefaults } from "@/data/profileDefaults";
 import T from "@/components/ui/T";
+import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
@@ -321,11 +323,11 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               <div className={styles.profileGrid}>
                 <div>
                   <label className={styles.profileFieldLabel}>KO</label>
-                  <textarea className={styles.profileFieldTextarea} value={exp.description.ko} onChange={(e) => updateExperience(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                  <Textarea size="sm" value={exp.description.ko} onChange={(v) => updateExperience(i, "description.ko", v)} rows={2} />
                 </div>
                 <div>
                   <label className={styles.profileFieldLabel}>EN</label>
-                  <textarea className={styles.profileFieldTextarea} value={exp.description.en} onChange={(e) => updateExperience(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                  <Textarea size="sm" value={exp.description.en} onChange={(v) => updateExperience(i, "description.en", v)} rows={2} />
                 </div>
               </div>
             </div>
@@ -364,11 +366,11 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
                 <div className={styles.profileGrid}>
                   <div>
                     <label className={styles.profileFieldLabel}>KO</label>
-                    <textarea className={styles.profileFieldTextarea} value={group.description.ko} onChange={(e) => updateSkillGroup(gi, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                    <Textarea size="sm" value={group.description.ko} onChange={(v) => updateSkillGroup(gi, "description.ko", v)} rows={2} />
                   </div>
                   <div>
                     <label className={styles.profileFieldLabel}>EN</label>
-                    <textarea className={styles.profileFieldTextarea} value={group.description.en} onChange={(e) => updateSkillGroup(gi, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                    <Textarea size="sm" value={group.description.en} onChange={(v) => updateSkillGroup(gi, "description.en", v)} rows={2} />
                   </div>
                 </div>
               </div>
@@ -419,11 +421,11 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               <div className={styles.profileGrid}>
                 <div>
                   <label className={styles.profileFieldLabel}>KO</label>
-                  <textarea className={styles.profileFieldTextarea} value={item.description.ko} onChange={(e) => updatePhilosophy(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                  <Textarea size="sm" value={item.description.ko} onChange={(v) => updatePhilosophy(i, "description.ko", v)} rows={2} />
                 </div>
                 <div>
                   <label className={styles.profileFieldLabel}>EN</label>
-                  <textarea className={styles.profileFieldTextarea} value={item.description.en} onChange={(e) => updatePhilosophy(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                  <Textarea size="sm" value={item.description.en} onChange={(v) => updatePhilosophy(i, "description.en", v)} rows={2} />
                 </div>
               </div>
             </div>
@@ -459,11 +461,11 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               <div className={styles.profileGrid}>
                 <div>
                   <label className={styles.profileFieldLabel}>KO</label>
-                  <textarea className={styles.profileFieldTextarea} value={step.description.ko} onChange={(e) => updateApproach(i, "description.ko", e.target.value)} rows={2} data-lenis-prevent />
+                  <Textarea size="sm" value={step.description.ko} onChange={(v) => updateApproach(i, "description.ko", v)} rows={2} />
                 </div>
                 <div>
                   <label className={styles.profileFieldLabel}>EN</label>
-                  <textarea className={styles.profileFieldTextarea} value={step.description.en} onChange={(e) => updateApproach(i, "description.en", e.target.value)} rows={2} data-lenis-prevent />
+                  <Textarea size="sm" value={step.description.en} onChange={(v) => updateApproach(i, "description.en", v)} rows={2} />
                 </div>
               </div>
             </div>
@@ -596,9 +598,9 @@ function SortableList<T>({
       <div className={styles.sectionTitleRow}>
         {title}
         {items.length > 0 && (
-          <button type="button" className={styles.expandAllBtn} onClick={toggleAll}>
+          <Button variant="link" size="xs" onClick={toggleAll}>
             <T k={allOpen ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
-          </button>
+          </Button>
         )}
       </div>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
@@ -632,7 +634,7 @@ function SortableList<T>({
           </div>
         </SortableContext>
       </DndContext>
-      <button className={styles.profileAddBtn} onClick={onAdd}>{addLabel}</button>
+      <Button variant="outline" size="xs" fullWidth className={styles.profileAddBtn} onClick={onAdd}>{addLabel}</Button>
     </>
   );
 }

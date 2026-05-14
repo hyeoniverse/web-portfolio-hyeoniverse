@@ -8,6 +8,7 @@ import type { SiteConfigData } from "@/config/site.config";
 import type { SettingsTabProps } from "../_types";
 import { ColorField } from "./SettingsFormFields";
 import FontSelect from "./FontSelect";
+import SectionHeader from "./SectionHeader";
 import { THEME_PRESETS } from "../_data/settingsConstants";
 import styles from "../Settings.module.css";
 
@@ -15,19 +16,22 @@ interface AppearanceTabProps extends SettingsTabProps {
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
 }
 
-export default function AppearanceTab({ config, update, setConfig }: AppearanceTabProps) {
+export default function AppearanceTab({ config, savedConfig, update, saveSection, savingPaths, setConfig }: AppearanceTabProps) {
   const { t } = useLanguage();
+
+  const sh = { config, savedConfig, saveSection, savingPaths, titleClassName: styles.sectionTitle };
 
   return (
     <>
       {/* Design System Preview Link */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
-        <div className={styles.sectionTitleRow}>
-          <h2 className={styles.sectionTitle}><T k="admin.settings.designSystem" /></h2>
-          <TextLink href="/design-system" external>
-            <T k="admin.settings.openDesignSystem" /> ↗
-          </TextLink>
-        </div>
+        <SectionHeader
+          title={t("admin.settings.designSystem")}
+          paths={[]}
+          rowClassName={styles.sectionTitleRow}
+          extra={<TextLink href="/design-system" external><T k="admin.settings.openDesignSystem" /> ↗</TextLink>}
+          {...sh}
+        />
         <p className={styles.sectionHint}>
           <T k="admin.settings.designSystemPreview" />
         </p>
@@ -35,7 +39,7 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
 
       {/* Theme Presets */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.presets" /></h2>
+        <SectionHeader title={t("admin.settings.presets")} paths={["theme", "brand.logoColor", "brand.logoColorDark"]} {...sh} />
         <div className={styles.presetGrid}>
           {THEME_PRESETS.map((preset) => (
             <button
@@ -82,7 +86,7 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
 
       {/* Theme Colors */}
       <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.themeColors" /></h2>
+        <SectionHeader title={t("admin.settings.themeColors")} paths={["theme"]} {...sh} />
         <div className={styles.fields}>
           <ColorField label={t("admin.settings.accentColor")} value={config.theme.accentColor} onChange={(v) => update("theme", "accentColor", v)} />
           <ColorField label={t("admin.settings.lightBg")} value={config.theme.lightBg} onChange={(v) => update("theme", "lightBg", v)} />
@@ -94,7 +98,7 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
 
       {/* Date Picker Style */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.datePickerStyle" /></h2>
+        <SectionHeader title={t("admin.settings.datePickerStyle")} paths={["datePickerStyle"]} {...sh} />
         <div className={styles.formatSegmentRow}>
           {(["spinner", "calendar"] as const).map((style) => (
             <button
@@ -111,12 +115,13 @@ export default function AppearanceTab({ config, update, setConfig }: AppearanceT
 
       {/* Typography */}
       <section className={styles.section}>
-        <div className={styles.sectionTitleRow}>
-          <h2 className={styles.sectionTitle}><T k="admin.settings.typography" /></h2>
-          <TextLink href="https://fonts.google.com" external>
-            Google Fonts ↗
-          </TextLink>
-        </div>
+        <SectionHeader
+          title={t("admin.settings.typography")}
+          paths={["typography"]}
+          rowClassName={styles.sectionTitleRow}
+          extra={<TextLink href="https://fonts.google.com" external>Google Fonts ↗</TextLink>}
+          {...sh}
+        />
         <p className={styles.sectionHint}>
           <T k="admin.settings.fontHint" />
         </p>

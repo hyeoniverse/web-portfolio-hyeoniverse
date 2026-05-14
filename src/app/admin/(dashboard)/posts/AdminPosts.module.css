@@ -233,43 +233,8 @@
   color: var(--text-secondary);
 }
 
-.seriesDeleteInput {
-  padding: var(--box-xs-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.seriesDeleteInput:focus {
-  border-color: var(--border-strong-color);
-}
-
 .seriesDeleteActions {
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-xs);
-}
-
-.seriesDeleteCancel,
-.seriesDeleteConfirm {
-  padding: var(--box-xs-lg);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-}
-
-.seriesDeleteConfirm {
-  background: var(--bg-inverse);
-  border-color: var(--border-strong-color);
-  color: var(--text-inverse);
-}
-
-.seriesDeleteConfirm:disabled {
-  opacity: 0.3;
 }

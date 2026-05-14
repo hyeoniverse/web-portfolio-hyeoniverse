@@ -154,6 +154,27 @@ export function getTabForConfigPath(path: string): TabId {
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/** dot-notation path 로 nested 값 읽기 ("personal.name", "contact.email") */
+export function getByPath(obj: any, path: string): unknown {
+  return path.split(".").reduce((acc, key) => (acc == null ? undefined : acc[key]), obj);
+}
+
+/** dot-notation path 로 nested 값 설정 (immutable copy 반환) */
+export function setByPath<T>(obj: T, path: string, value: unknown): T {
+  const parts = path.split(".");
+  const next: any = Array.isArray(obj) ? [...(obj as any[])] : { ...(obj as any) };
+  let cur = next;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const k = parts[i];
+    cur[k] = cur[k] != null && typeof cur[k] === "object" ? (Array.isArray(cur[k]) ? [...cur[k]] : { ...cur[k] }) : {};
+    cur = cur[k];
+  }
+  cur[parts[parts.length - 1]] = value;
+  return next as T;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function deepMerge<T extends Record<string, any>>(
   target: T,
   source: DeepPartial<T>

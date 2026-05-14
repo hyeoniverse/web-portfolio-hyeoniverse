@@ -1,0 +1,68 @@
+/* Settings 의 Field 컴포넌트 (.fieldRow / .fieldLabel) 와 동일한 톤 */
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-sm);
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.hint {
+  font-weight: 400;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.inputRow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-xs);
+}
+
+.inputRow > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+/* input 과 + 버튼 1:1 정사각 매칭.
+   Input sm 의 자연 height (padding 4+4 + font 14*1.5 + border 2 ≈ 32px) 에 맞춰 둘 다 32px 강제. */
+.inputRow input {
+  height: 32px;
+}
+
+.inputRow > button {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: var(--font-size-sm);
+  line-height: 1;
+}
+
+/* enabled — input 에 값 있어 활성화된 상태: border strong + icon primary
+   (settings 페이지 한정 outline-light override 를 뒤집음) */
+.inputRow > button:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--border-strong-color);
+  color: var(--text-primary);
+}
+
+/* disabled 일 때 button opacity 대신 글자색만 연하게 (svg 는 currentColor) */
+.inputRow > button:disabled,
+.inputRow > button[aria-disabled="true"] {
+  opacity: 1;
+  color: var(--text-muted);
+}

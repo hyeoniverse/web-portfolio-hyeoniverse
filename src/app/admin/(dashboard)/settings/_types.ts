@@ -10,7 +10,13 @@ type UpdateSettingFn = <S extends keyof SiteConfigData>(
 
 export interface SettingsTabProps {
   config: SiteConfigData;
+  /** 마지막 저장 상태 — 섹션별 hasChanges 계산에 사용 */
+  savedConfig: SiteConfigData;
   update: UpdateSettingFn;
+  /** 지정된 dot-path 만 부분 저장. 섹션 헤더의 저장 버튼이 호출 */
+  saveSection: (paths: string[]) => Promise<void>;
+  /** 현재 저장 중인 paths (UI 비활성/스피너용). null 이면 idle. */
+  savingPaths: string[] | null;
   styles: Record<string, string>;
 }
 

@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
-import DraggableTag from "@/components/ui/DraggableTag";
+import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
 import T from "@/components/ui/T";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import styles from "../Settings.module.css";
 
 interface WorksCategory {
@@ -20,8 +22,13 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
   const { t, language } = useLanguage();
   const [newKo, setNewKo] = useState("");
   const [newEn, setNewEn] = useState("");
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [overIdx, setOverIdx] = useState<number | null>(null);
+
+  const { itemProps } = useTagDrag((from, to) => {
+    const next = [...categories];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onChange(next);
+  });
 
   const addCategory = () => {
     const ko = newKo.trim();
@@ -42,16 +49,6 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
     onChange(next);
   };
 
-  const handleDrop = (targetIdx: number) => {
-    if (dragIdx === null || dragIdx === targetIdx) return;
-    const next = [...categories];
-    const [moved] = next.splice(dragIdx, 1);
-    next.splice(targetIdx, 0, moved);
-    onChange(next);
-    setDragIdx(null);
-    setOverIdx(null);
-  };
-
   return (
     <div>
       <div className={styles.catList}>
@@ -60,24 +57,18 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
             key={`${cat.ko}-${cat.en}`}
             label={language === "ko" ? cat.ko : cat.en}
             index={i}
-            dragging={dragIdx === i}
-            over={overIdx === i && dragIdx !== i}
-            onDragStart={() => setDragIdx(i)}
-            onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }}
-            onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
-            onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
             onRemove={() => removeCategory(i)}
+            {...itemProps(i)}
           />
         ))}
       </div>
       <div className={styles.catInput}>
-        <label className={styles.catInputGroup}>
-          <span className={styles.catInputGroupLabel}><T k="admin.settings.categoryKoLabel" /></span>
-          <input
-            className={styles.fieldInput}
-            type="text"
+        <div className={styles.catInputGroup}>
+          <Input
+            label={t("admin.settings.categoryKoLabel")}
+            size="sm"
             value={newKo}
-            onChange={(e) => setNewKo(e.target.value)}
+            onChange={setNewKo}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -85,14 +76,13 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
               }
             }}
           />
-        </label>
-        <label className={styles.catInputGroup}>
-          <span className={styles.catInputGroupLabel}><T k="admin.settings.categoryEnLabel" /></span>
-          <input
-            className={styles.fieldInput}
-            type="text"
+        </div>
+        <div className={styles.catInputGroup}>
+          <Input
+            label={t("admin.settings.categoryEnLabel")}
+            size="sm"
             value={newEn}
-            onChange={(e) => setNewEn(e.target.value)}
+            onChange={setNewEn}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -100,15 +90,15 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
               }
             }}
           />
-        </label>
-        <button
-          type="button"
-          className={styles.catAddBtn}
+        </div>
+        <Button
+          variant="outline"
+          size="xs"
           onClick={addCategory}
           disabled={!newKo.trim() || !newEn.trim()}
         >
           <T k="admin.settings.addCategory" />
-        </button>
+        </Button>
       </div>
     </div>
   );

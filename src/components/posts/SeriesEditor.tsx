@@ -9,6 +9,7 @@ import type { Series } from "@/types/post";
 import { useCategories } from "@/hooks/useCategories";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
+import Textarea from "@/components/ui/Textarea";
 import AdminEditorShell from "@/components/admin/AdminEditorShell";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import T from "@/components/ui/T";
@@ -256,10 +257,10 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
 
           <div className={styles.fieldGroup}>
             <label className={styles.label}><T k="admin.posts.seriesModal.descriptionKO" /></label>
-            <textarea
-              className={styles.textarea}
+            <Textarea
+              textareaClassName={styles.textarea}
               value={form.description}
-              onChange={(e) => updateField("description", e.target.value)}
+              onChange={(v) => updateField("description", v)}
               placeholder={ts("descPlaceholder")}
               rows={3}
             />
@@ -267,10 +268,10 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
 
           <div className={styles.fieldGroup}>
             <label className={styles.label}><T k="admin.posts.seriesModal.descriptionEN" /></label>
-            <textarea
-              className={styles.textarea}
+            <Textarea
+              textareaClassName={styles.textarea}
               value={form.description_en}
-              onChange={(e) => updateField("description_en", e.target.value)}
+              onChange={(v) => updateField("description_en", v)}
               placeholder={ts("descPlaceholderEN")}
               rows={3}
             />

@@ -4,6 +4,16 @@
   padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
 }
 
+/* settings 페이지 한정 — Button outline 톤을 light 로 낮춤.
+   Button CSS module 의 hashed class 명을 attribute selector 로 매칭. */
+.container :global([class*="variant-outline"]):not([class*="tone-danger"]) {
+  border-color: var(--border-light-color);
+}
+
+.container :global([class*="variant-outline"][class*="tone-danger"]) {
+  border-color: var(--border-accent-light-color);
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -39,46 +49,6 @@
 .messageError {
   background: var(--bg-accent-light);
   color: var(--text-accent);
-}
-
-.resetBtn {
-  padding: var(--button-p-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.header .resetBtn:hover {
-  border-color: var(--text-accent);
-  color: var(--text-accent);
-}
-
-.saveBtn {
-  padding: var(--button-p-sm);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: var(--text-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--bg-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.header .saveBtn:hover {
-  background: transparent;
-  color: var(--text-primary);
-}
-
-.saveBtn:disabled {
-  opacity: 0.5;
 }
 
 .loading {
@@ -139,7 +109,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs)
+    var(--spacing-md);
   font-size: var(--font-size-xs);
   border-radius: var(--radius-capsule);
 }
@@ -152,7 +123,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs)
+    var(--spacing-md);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
@@ -163,7 +135,6 @@
   font-size: var(--font-size-xs);
   color: var(--text-primary);
 }
-
 
 .conflictPath {
   font-family: var(--font-mono);
@@ -671,7 +642,6 @@
   border-color: var(--text-primary);
 }
 
-
 .fieldSelect {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
@@ -883,33 +853,6 @@
   flex-wrap: wrap;
 }
 
-.logoBtn,
-.logoBtnRemove {
-  padding: var(--box-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.logoBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.logoBtnRemove {
-  color: var(--text-accent);
-  border-color: var(--text-accent);
-}
-
-.logoBtnRemove:hover {
-  background: var(--bg-accent-light);
-}
-
 .resumeFile {
   display: inline-flex;
   align-items: center;
@@ -1008,7 +951,6 @@
   letter-spacing: 0;
 }
 
-
 .fieldLabelHint {
   font-weight: 400;
   font-size: var(--font-size-2xs);
@@ -1034,8 +976,6 @@
   font-size: 0;
   line-height: 0;
 }
-
-
 
 /* ── Fallback Priority List ── */
 .fallbackLabel {
@@ -1294,33 +1234,6 @@
   gap: var(--spacing-3xs);
 }
 
-.catInputGroupLabel {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-}
-
-.catAddBtn {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--button-p-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.catAddBtn:hover:not(:disabled) {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.catAddBtn:disabled {
-  opacity: 0.5;
-}
-
 /* ── Profile Sections (embedded in Content tab) ── */
 .profileDivider {
   padding: var(--spacing-xl) 0;
@@ -1455,33 +1368,7 @@
 }
 
 .profileAddBtn {
-  display: inline-flex;
-  align-items: center;
-  height: var(--button-h-sm);
   margin-top: var(--spacing-md);
-  padding: 0 var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  width: 100%;
-}
-
-.expandAllBtn {
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  letter-spacing: 0.02em;
-}
-
-.expandAllBtn:hover {
-  color: var(--text-primary);
 }
 
 .inlineToggle {
@@ -1506,7 +1393,8 @@
 }
 
 .profileNested {
-  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm)
+    var(--spacing-md);
   border-left: 2px solid var(--border-light-color);
   border-radius: 0;
   background: transparent;
@@ -1583,21 +1471,6 @@
   justify-content: flex-end;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-xs);
-}
-
-.confirmCancelBtn {
-  padding: var(--box-xs-xl);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.confirmDialog .confirmCancelBtn:hover {
-  background: var(--bg-tertiary);
 }
 
 /* ── Skeleton (tab layout) ── */
@@ -1677,7 +1550,10 @@
   width: 100%;
   text-align: left;
   /* 접힐 때: 접기(0.35s) 끝나고 모서리 둥글게(0.25s) */
-  transition: border-radius 0.25s ease 0.35s, border-color 0.2s ease, background-size 0.3s ease;
+  transition:
+    border-radius 0.25s ease 0.35s,
+    border-color 0.2s ease,
+    background-size 0.3s ease;
 }
 
 .seriesList .seriesCardHead:hover {
@@ -1767,7 +1643,11 @@
   background: var(--bg-primary);
   color: var(--text-primary);
   border: var(--border-default);
-  transition: background 0.25s ease, backdrop-filter 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  transition:
+    background 0.25s ease,
+    backdrop-filter 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .seriesCardDeleteBtn.seriesCardDeleteBtn.seriesCardDeleteBtn:hover {
@@ -1784,7 +1664,10 @@
   background-clip: padding-box;
   position: relative;
   overflow: hidden;
-  transition: background-size 0.3s ease, border-radius 0.25s ease, border-color 0.2s ease;
+  transition:
+    background-size 0.3s ease,
+    border-radius 0.25s ease,
+    border-color 0.2s ease;
 }
 
 .seriesCardHeadCover:hover {
@@ -1839,7 +1722,6 @@
   object-fit: cover;
 }
 
-
 /* ── Series Delete Modal ── */
 .seriesDeleteModal {
   display: flex;
@@ -1864,32 +1746,19 @@
   color: var(--text-secondary);
 }
 
-.seriesDeleteInput {
-  padding: var(--input-p);
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.seriesDeleteInput:focus {
-  border-color: var(--text-primary);
-}
-
 .seriesDeleteActions {
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-xs);
 }
 
-
 .seriesCardHeadExpanded {
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   /* 펼칠 때: 모서리 먼저 각지게(0.25s), delay 없음 */
-  transition: border-radius 0.25s ease, border-color 0.2s ease, background-size 0.3s ease;
+  transition:
+    border-radius 0.25s ease,
+    border-color 0.2s ease,
+    background-size 0.3s ease;
 }
 
 .seriesCardInfo {
@@ -1934,8 +1803,14 @@
 }
 
 @keyframes publishFade {
-  0% { opacity: 0; transform: translateY(2px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .seriesBadgeCat {
@@ -2141,7 +2016,9 @@
   max-width: 0;
   opacity: 0;
   /* 열림 방향 — 즉시 */
-  transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s;
+  transition:
+    max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.18s;
 }
 
 /* actions(토글/취소/만들기) — 닫힘 상태에서는 column 0fr 로 안 보임,
@@ -2218,7 +2095,6 @@
   gap: var(--spacing-sm);
 }
 
-
 /* ── Series Posts List (inline) ── */
 .seriesPostsSection {
   display: flex;
@@ -2240,7 +2116,9 @@
 }
 
 .seriesPostsSection > .addPostModal {
-  transition: grid-template-rows 0.25s ease, margin-top 0.25s ease;
+  transition:
+    grid-template-rows 0.25s ease,
+    margin-top 0.25s ease;
 }
 
 .seriesPostsHeader {
@@ -2463,7 +2341,6 @@
   border-top: var(--border-light);
 }
 
-
 .seriesPostItem {
   display: flex;
   align-items: center;
@@ -2678,8 +2555,7 @@
   justify-content: center;
   flex-shrink: 0;
   width: 16px;
-  height: 20px;
-  margin-top: var(--spacing-xs);
+  height: 32px;
   color: var(--text-muted);
   touch-action: none;
 }
@@ -2693,8 +2569,8 @@
 }
 
 .socialIcon {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   color: var(--text-tertiary);
   display: flex;
@@ -2749,37 +2625,45 @@
   color: var(--text-accent);
 }
 
+/* 아이콘 URL input + 업로드 버튼 캡슐 그룹 */
 .socialIconUpload {
   display: flex;
-  gap: var(--spacing-2xs);
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.socialIconUploadBtn {
-  flex-shrink: 0;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
   border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
   background: transparent;
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+  transition: border-color var(--duration-base) ease;
 }
 
-.socialIconUploadBtn:hover:not(:disabled) {
+.socialIconUpload:focus-within {
   border-color: var(--text-primary);
-  color: var(--text-primary);
+}
+
+/* 내부 input — 외곽 캡슐이 border 담당하므로 자체 border 제거 */
+.socialIconUpload .fieldInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* 업로드 버튼 — 32×32 정사각형, 아이콘 가운데 */
+.socialIconUpload .socialIconUploadBtn {
+  flex-shrink: 0;
+  width: 32px !important;
+  height: 32px !important;
+  aspect-ratio: 1 !important;
+  border: none !important;
+  border-left: var(--border-light) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
 }
 
 .socialRemoveBtn {
-  width: 24px;
-  height: 24px;
-  margin-top: var(--spacing-xs);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3147,12 +3031,6 @@
     font-size: var(--font-size-2xl);
   }
 
-  .resetBtn,
-  .saveBtn {
-    padding: var(--box-2xs-md);
-    font-size: var(--font-size-xs);
-  }
-
   .profileGrid {
     grid-template-columns: 1fr;
   }
@@ -3215,7 +3093,6 @@
   color: var(--text-tertiary);
 }
 
-
 .fontValidating {
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
@@ -3265,7 +3142,6 @@
 .fontSuggestions .fontSuggestionItem:hover {
   background: var(--bg-tertiary);
 }
-
 
 /* ── Env Var Editor ── */
 .envGroup {
@@ -3425,75 +3301,6 @@
 
 .pwSubmitBtn:disabled {
   opacity: 0.5;
-}
-
-/* ── Scope Tag Input ── */
-.scopeTagField {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.scopeTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-}
-
-.scopeTag {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--box-sm);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-}
-
-.scopeTagRemove {
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
-  padding: 0;
-  line-height: 1;
-}
-
-.scopeTagField .scopeTagRemove:hover {
-  color: var(--text-accent);
-}
-
-.scopeInputRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.scopeAddBtn {
-  flex-shrink: 0;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  background: transparent;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  color: var(--text-secondary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  line-height: 1;
-}
-
-.scopeAddBtn:hover {
-  background: var(--bg-tertiary);
-}
-
-.scopeAddBtn:disabled {
-  opacity: 0.4;
 }
 
 /* ── Pending Email Banner ── */
@@ -3731,7 +3538,6 @@
   color: var(--text-accent);
 }
 
-
 /* ── Limits Grid (media settings) ── */
 .limitsGrid {
   display: flex;
@@ -3775,4 +3581,3 @@
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
 }
-

@@ -1,4 +1,4 @@
-/* ── Shared Input ── */
+/* ── Shared Textarea — Input 과 동일한 라벨/스타일 라인 ── */
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -12,28 +12,33 @@
   letter-spacing: 0.03em;
 }
 
-.input {
+.textarea {
   width: 100%;
-  padding: var(--input-p);
+  padding: var(--textarea-p);
   border: var(--border-strong);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
+  resize: vertical;
+  min-height: 84px;
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* (0,2,0) — 전역 theme transition 오버라이드 */
-.wrapper .input {
+.wrapper .textarea {
   transition: border-color var(--duration-base) ease;
 }
 
-.input:focus {
+.textarea:focus {
   border-color: var(--text-primary);
 }
 
-.input:disabled {
+.textarea:disabled {
   opacity: 0.5;
 }
 
@@ -50,7 +55,7 @@
 }
 
 .sm {
-  padding: var(--input-p);
+  padding: var(--textarea-p);
   border-color: var(--border-light-color);
   font-size: var(--font-size-sm);
 }
@@ -64,32 +69,12 @@
   border: none;
   border-bottom: var(--border-strong);
   border-radius: 0;
-  padding: var(--input-p);
+  padding: var(--textarea-p);
   padding-left: 0;
+  resize: none;
+  min-height: auto;
 }
 
 .underline:focus {
   border-color: var(--text-primary);
-}
-
-/* ── Inline label (inside input) ── */
-.inlineWrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.inlineLabel {
-  position: absolute;
-  left: var(--spacing-sm);
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  color: var(--text-tertiary);
-  pointer-events: none;
-  user-select: none;
-}
-
-.hasInlineLabel {
-  padding-left: calc(var(--spacing-sm) + 24px);
 }
