@@ -244,14 +244,20 @@
    고르는 실수 방지. 더 깊은 변형은 module 내 --_* (Layer 4 Context) 로.
    ========================================================================== */
 :root {
-  /* Control heights — raw --size-* 참조 (현재 24/32/38/46) */
-  --button-h-xs: var(--size-xs);   /* 24 — icon-only btn, dense chip */
-  --button-h-sm: var(--size-sm);   /* 32 — 일반 button */
-  --button-h-md: var(--size-md);   /* 38 — primary CTA */
-  --button-h-lg: var(--size-lg);   /* 46 — hero CTA */
+  /* Control padding — capsule 모양 컨트롤의 사이즈는 padding 으로 결정 (--box-* shorthand 참조).
+     원 / 사각 아이콘 버튼은 padding 으로 못 잡으므로 --button-h-* 별도 유지. */
+  --button-p-xs: var(--box-sm);    /* 4 12 → 약 24px */
+  --button-p-sm: var(--box-md);    /* 6 16 → 약 32px (일반 button) */
+  --button-p-md: var(--box-lg);    /* 12 24 → 약 44px (primary CTA) */
+  --button-p-lg: var(--box-xl);    /* 16 32 → 약 52px (hero CTA) */
 
-  --input-h: var(--size-sm);       /* 32 — input / select 기본 */
-  --input-h-lg: var(--size-md);    /* 38 — 큰 input (드물게) */
+  --input-p: var(--box-md);        /* 6 16 → 약 32px — input / select 기본 */
+
+  /* Icon-only btn (circle/square) — padding 으로 사이즈 못 잡으니 명시 width/height 용 */
+  --button-h-xs: var(--size-xs);   /* 24 — icon-only xs */
+  --button-h-sm: var(--size-sm);   /* 32 — icon-only sm */
+  --button-h-md: var(--size-md);   /* 38 — icon-only md */
+  --button-h-lg: var(--size-lg);   /* 46 — icon-only lg */
 }
 
 /* --------------------------------------------------------------------------
