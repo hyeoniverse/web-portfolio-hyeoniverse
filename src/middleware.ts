@@ -27,6 +27,15 @@ function isAdminPath(pathname: string): boolean {
   return pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
 }
 
+/** 인증 가드 제외 경로 — 비로그인 사용자가 접근 가능해야 하는 admin 영역 (login / denied).
+ *  이걸 제외 안 하면 /admin/login 자체가 가드에 막혀 자기 자신으로 무한 리다이렉트 됨. */
+function isAdminAuthPublic(pathname: string): boolean {
+  return pathname === "/admin/login"
+    || pathname.startsWith("/admin/login/")
+    || pathname === "/admin/denied"
+    || pathname.startsWith("/admin/denied/");
+}
+
 function isAdminApi(pathname: string): boolean {
   return pathname.startsWith("/api/admin");
 }
@@ -116,7 +125,7 @@ export async function middleware(request: NextRequest) {
     authReachable = false;
   }
 
-  if (isAdminPath(pathname)) {
+  if (isAdminPath(pathname) && !isAdminAuthPublic(pathname)) {
     if (!authReachable) {
       if (isAdminApi(pathname)) return rejectApi(503, "Auth service unavailable");
       return rejectPage(request);
