@@ -10,6 +10,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import type { SettingsTabProps } from "../_types";
 import EnvVarFields from "./EnvVarFields";
+import SectionHeader from "./SectionHeader";
 import styles from "../Settings.module.css";
 
 type AICoverProvider = "nanobanana" | "huggingface";
@@ -355,14 +356,16 @@ interface ServicesTabProps extends SettingsTabProps {
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
 }
 
-export default function ServicesTab({ config, update, setConfig }: ServicesTabProps) {
+export default function ServicesTab({ config, savedConfig, update, saveSection, savingPaths, setConfig }: ServicesTabProps) {
   const { t } = useLanguage();
+
+  const sh = { config, savedConfig, saveSection, savingPaths, titleClassName: styles.sectionTitle };
 
   return (
     <>
       {/* Email Service */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.emailSettings" /></h2>
+        <SectionHeader title={t("admin.settings.emailSettings")} paths={["emailService"]} {...sh} />
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.emailServiceProvider" /></label>
@@ -387,15 +390,20 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* AI Cover */}
       <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
-        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
-          <h2 className={styles.sectionTitle}><T k="admin.settings.aiSettings" /></h2>
-          <Switch
-            size="md"
-            label={t("admin.settings.aiCoverHint")}
-            checked={config.aiCover?.enabled !== false}
-            onCheckedChange={(v) => setConfig((prev) => ({ ...prev, aiCover: { ...prev.aiCover, enabled: v } }))}
-          />
-        </div>
+        <SectionHeader
+          title={t("admin.settings.aiSettings")}
+          paths={["aiCover"]}
+          rowClassName={styles.sectionTitleRow}
+          extra={
+            <Switch
+              size="md"
+              label={t("admin.settings.aiCoverHint")}
+              checked={config.aiCover?.enabled !== false}
+              onCheckedChange={(v) => setConfig((prev) => ({ ...prev, aiCover: { ...prev.aiCover, enabled: v } }))}
+            />
+          }
+          {...sh}
+        />
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.aiCoverProvider" /></label>
@@ -479,15 +487,20 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* AI Summary */}
       <section className={styles.section}>
-        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
-          <h2 className={styles.sectionTitle}><T k="admin.settings.aiSummarySettings" /></h2>
-          <Switch
-            size="md"
-            label={t("admin.settings.aiSummaryHint")}
-            checked={config.aiSummary?.enabled !== false}
-            onCheckedChange={(v) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, enabled: v } }))}
-          />
-        </div>
+        <SectionHeader
+          title={t("admin.settings.aiSummarySettings")}
+          paths={["aiSummary"]}
+          rowClassName={styles.sectionTitleRow}
+          extra={
+            <Switch
+              size="md"
+              label={t("admin.settings.aiSummaryHint")}
+              checked={config.aiSummary?.enabled !== false}
+              onCheckedChange={(v) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, enabled: v } }))}
+            />
+          }
+          {...sh}
+        />
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.aiSummaryProvider" /></label>
@@ -571,15 +584,20 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* Translation */}
       <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
-        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
-          <h2 className={styles.sectionTitle}><T k="admin.settings.translationSettings" /></h2>
-          <Switch
-            size="md"
-            label={t("admin.settings.translationHint")}
-            checked={config.translation?.enabled !== false}
-            onCheckedChange={(v) => setConfig((prev) => ({ ...prev, translation: { ...prev.translation, enabled: v } }))}
-          />
-        </div>
+        <SectionHeader
+          title={t("admin.settings.translationSettings")}
+          paths={["translation"]}
+          rowClassName={styles.sectionTitleRow}
+          extra={
+            <Switch
+              size="md"
+              label={t("admin.settings.translationHint")}
+              checked={config.translation?.enabled !== false}
+              onCheckedChange={(v) => setConfig((prev) => ({ ...prev, translation: { ...prev.translation, enabled: v } }))}
+            />
+          }
+          {...sh}
+        />
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.translationProvider" /></label>
@@ -663,15 +681,20 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* Comment Notifications */}
       <section className={styles.section}>
-        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
-          <h2 className={styles.sectionTitle}><T k="admin.settings.commentNotifications" /></h2>
-          <Switch
-            size="md"
-            label={t("admin.settings.commentNotifyHintShort")}
-            checked={config.commentEmailNotify ?? false}
-            onCheckedChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
-          />
-        </div>
+        <SectionHeader
+          title={t("admin.settings.commentNotifications")}
+          paths={["commentEmailNotify"]}
+          rowClassName={styles.sectionTitleRow}
+          extra={
+            <Switch
+              size="md"
+              label={t("admin.settings.commentNotifyHintShort")}
+              checked={config.commentEmailNotify ?? false}
+              onCheckedChange={(v) => setConfig((prev) => ({ ...prev, commentEmailNotify: v }))}
+            />
+          }
+          {...sh}
+        />
         <div className={styles.fields}>
           <p className={styles.fieldHint}><T k="admin.settings.commentEmailNotifyDesc" /></p>
         </div>
@@ -679,15 +702,20 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* Security */}
       <section className={styles.section}>
-        <div className={styles.sectionTitleRow} style={{ alignItems: "center" }}>
-          <h2 className={styles.sectionTitle}><T k="admin.settings.securitySettings" /></h2>
-          <Switch
-            size="md"
-            label={t("admin.settings.recaptchaHint")}
-            checked={config.recaptcha.enabled}
-            onCheckedChange={(v) => update("recaptcha", "enabled", v)}
-          />
-        </div>
+        <SectionHeader
+          title={t("admin.settings.securitySettings")}
+          paths={["recaptcha"]}
+          rowClassName={styles.sectionTitleRow}
+          extra={
+            <Switch
+              size="md"
+              label={t("admin.settings.recaptchaHint")}
+              checked={config.recaptcha.enabled}
+              onCheckedChange={(v) => update("recaptcha", "enabled", v)}
+            />
+          }
+          {...sh}
+        />
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.recaptchaVersion" /></label>
@@ -705,13 +733,13 @@ export default function ServicesTab({ config, update, setConfig }: ServicesTabPr
 
       {/* Media Upload */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
-        <h2 className={styles.sectionTitle}>{t("admin.settings.mediaUpload")}</h2>
+        <SectionHeader title={t("admin.settings.mediaUpload")} paths={["media"]} {...sh} />
         <MediaLimitsEditor config={config} setConfig={setConfig} t={t} />
       </section>
 
-      {/* Environment Variables */}
+      {/* Environment Variables — 자체 PATCH API 로 별도 저장 */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.envVars" /></h2>
+        <SectionHeader title={t("admin.settings.envVars")} paths={[]} {...sh} />
         <EnvVarFields
           provider={config.emailService.provider}
           aiProvider={config.aiCover.provider}

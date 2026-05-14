@@ -13,6 +13,7 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
 import CloseIcon from "@/components/ui/CloseIcon";
+import Textarea from "@/components/ui/Textarea";
 import ContactSuccessView from "./ContactSuccessView";
 import ContactInfoCards from "./ContactInfoCards";
 import styles from "./ContactDrawer.module.css";
@@ -50,6 +51,14 @@ interface ContactDrawerProps {
   formRef: React.RefObject<HTMLFormElement | null>;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   recaptchaRef: React.RefObject<ReCAPTCHA | null>;
+  name: string;
+  setName: (v: string) => void;
+  email: string;
+  setEmail: (v: string) => void;
+  title: string;
+  setTitle: (v: string) => void;
+  message: string;
+  setMessage: (v: string) => void;
   privacyAccepted: boolean;
   setPrivacyAccepted: (value: boolean) => void;
   fileName: string;
@@ -72,6 +81,14 @@ export default function ContactDrawer({
   formRef,
   fileInputRef,
   recaptchaRef,
+  name,
+  setName,
+  email,
+  setEmail,
+  title,
+  setTitle,
+  message,
+  setMessage,
   privacyAccepted,
   setPrivacyAccepted,
   fileName,
@@ -305,6 +322,8 @@ export default function ContactDrawer({
                           className={styles.input}
                           placeholder={t("contact.drawer.namePlaceholder")}
                           maxLength={100}
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
                         />
                         <input
                           id="email"
@@ -313,6 +332,8 @@ export default function ContactDrawer({
                           className={styles.input}
                           placeholder={t("contact.drawer.emailPlaceholder")}
                           maxLength={254}
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                         />
                       </div>
 
@@ -324,6 +345,8 @@ export default function ContactDrawer({
                         placeholder={t("contact.drawer.titlePlaceholder")}
                         minLength={2}
                         maxLength={50}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
                       />
 
                       {siteConfig.emailService.enableFileUpload && (
@@ -367,13 +390,15 @@ export default function ContactDrawer({
                       )}
 
                       <div className={styles.textareaWrapper}>
-                        <textarea
+                        <Textarea
                           id="message"
                           name="message"
-                          className={styles.textarea}
+                          textareaClassName={styles.textarea}
                           placeholder={t("contact.drawer.messagePlaceholder")}
                           rows={6}
                           maxLength={2000}
+                          value={message}
+                          onChange={setMessage}
                         />
                         <div
                           className={`${styles.formToast} ${formToast ? styles.formToastVisible : ""} ${formToast?.type === "success" ? styles.formToastSuccess : ""}`}

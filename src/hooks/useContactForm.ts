@@ -22,6 +22,16 @@ interface UseContactFormReturn {
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   recaptchaRef: React.RefObject<ReCAPTCHA | null>;
 
+  // controlled 필드 값 + setters
+  name: string;
+  setName: (value: string) => void;
+  email: string;
+  setEmail: (value: string) => void;
+  title: string;
+  setTitle: (value: string) => void;
+  message: string;
+  setMessage: (value: string) => void;
+
   // 필드 상태
   privacyAccepted: boolean;
   setPrivacyAccepted: (value: boolean) => void;
@@ -50,6 +60,12 @@ export function useContactForm(): UseContactFormReturn {
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
+
+  // controlled form fields
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
 
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [fileName, setFileName] = useState("");
@@ -90,6 +106,10 @@ export function useContactForm(): UseContactFormReturn {
       e?.stopPropagation();
       formRef.current?.reset();
       resetFormspree();
+      setName("");
+      setEmail("");
+      setTitle("");
+      setMessage("");
       setPrivacyAccepted(false);
       setFileName("");
       setRecaptchaToken(null);
@@ -222,6 +242,14 @@ export function useContactForm(): UseContactFormReturn {
     formRef,
     fileInputRef,
     recaptchaRef,
+    name,
+    setName,
+    email,
+    setEmail,
+    title,
+    setTitle,
+    message,
+    setMessage,
     privacyAccepted,
     setPrivacyAccepted,
     fileName,

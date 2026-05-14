@@ -15,6 +15,7 @@ import SeriesInlineEditor from "@/app/admin/(dashboard)/settings/_components/Ser
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
+import Textarea from "@/components/ui/Textarea";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
@@ -1333,10 +1334,10 @@ export default function PostEditor({ post }: PostEditorProps) {
               <div className={es.row}>
                 <div className={es.field} data-seo="excerpt">
                   <label className={es.fieldLabel}>{te("excerpt")}</label>
-                  <textarea
-                    className={styles.excerptInput}
+                  <Textarea
+                    textareaClassName={styles.excerptInput}
                     value={form[excerptKey]}
-                    onChange={(e) => updateField(excerptKey, e.target.value)}
+                    onChange={(v) => updateField(excerptKey, v)}
                     placeholder={te("excerptPlaceholder")}
                     rows={2}
                   />

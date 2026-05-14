@@ -444,26 +444,26 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             <div className={styles.seriesCoverPreview}>
               <Image src={form.cover_image} alt="" width={288} height={162} className={styles.logoPreviewImage} unoptimized />
             </div>
-            <button type="button" className={styles.logoBtnRemove} onClick={() => updateField("cover_image", "")}>
+            <Button variant="outline" size="xs" tone="danger" onClick={() => updateField("cover_image", "")}>
               <T k="admin.posts.seriesModal.remove" />
-            </button>
+            </Button>
           </div>
         ) : (
           <>
             <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
-              <button type="button" className={styles.logoBtn} onClick={handleImageUpload} disabled={uploading}>
-                {uploading ? <T k="admin.posts.seriesModal.uploading" /> : <T k="admin.posts.seriesModal.uploadCover" />}
-              </button>
-              <button
-                type="button"
-                className={styles.logoBtn}
+              <Button variant="outline" size="xs" onClick={handleImageUpload} loading={uploading}>
+                <T k="admin.posts.seriesModal.uploadCover" />
+              </Button>
+              <Button
+                variant="outline"
+                size="xs"
                 onClick={() => {
                   if (showCoverPicker && !coverPickerClosing) closeCoverPicker();
                   else if (!showCoverPicker) setShowCoverPicker(true);
                 }}
               >
                 {showCoverPicker && !coverPickerClosing ? <T k="admin.posts.seriesModal.closePicker" /> : <T k="admin.posts.seriesModal.chooseCover" />}
-              </button>
+              </Button>
             </div>
             {showCoverPicker && (
               <CoverImagePicker

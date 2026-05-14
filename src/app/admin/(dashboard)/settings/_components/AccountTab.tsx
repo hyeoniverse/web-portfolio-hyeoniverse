@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import TextLink from "@/components/ui/TextLink";
 import type { AccountTabProps } from "../_types";
@@ -199,21 +200,21 @@ export default function AccountTab({
           <div className={styles.fieldGroup}>
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}><T k="admin.settings.newPassword" /></label>
-              <input
-                className={styles.fieldInput}
+              <Input
+                size="sm"
                 type="password"
                 value={accountPassword}
-                onChange={(e) => setAccountPassword(e.target.value)}
+                onChange={setAccountPassword}
                 placeholder={t("admin.settings.leaveBlank")}
               />
             </div>
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}><T k="admin.settings.confirmPassword" /></label>
-              <input
-                className={styles.fieldInput}
+              <Input
+                size="sm"
                 type="password"
                 value={accountConfirm}
-                onChange={(e) => setAccountConfirm(e.target.value)}
+                onChange={setAccountConfirm}
                 placeholder={t("admin.settings.confirmPlaceholder")}
               />
             </div>
@@ -228,11 +229,11 @@ export default function AccountTab({
             <p className={styles.confirmDesc}>
               <T k="admin.settings.confirmPasswordDesc" />
             </p>
-            <input
-              className={styles.fieldInput}
+            <Input
+              size="sm"
               type="password"
               value={accountCurrentPassword}
-              onChange={(e) => setAccountCurrentPassword(e.target.value)}
+              onChange={setAccountCurrentPassword}
               placeholder={t("admin.settings.currentPasswordPlaceholder")}
               autoFocus
               onKeyDown={(e) => {
@@ -246,9 +247,9 @@ export default function AccountTab({
               </span>
             )}
             <div className={styles.confirmActions}>
-              <button
-                type="button"
-                className={styles.confirmCancelBtn}
+              <Button
+                variant="outline"
+                size="xs"
                 onClick={() => {
                   setShowPasswordConfirm(false);
                   setAccountCurrentPassword("");
@@ -256,15 +257,15 @@ export default function AccountTab({
                 }}
               >
                 <T k="admin.settings.cancel" />
-              </button>
-              <button
-                type="button"
-                className={styles.saveBtn}
+              </Button>
+              <Button
+                variant="primary"
+                size="xs"
                 disabled={accountSaving || !accountCurrentPassword}
                 onClick={handleAccountUpdate}
               >
                 {accountSaving ? <T k="admin.settings.saving" /> : <T k="admin.settings.confirm" />}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

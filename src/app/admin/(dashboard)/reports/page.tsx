@@ -8,6 +8,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
+import Button from "@/components/ui/Button";
 import styles from "./Reports.module.css";
 
 interface Report {
@@ -181,27 +182,40 @@ export default function ReportsPage() {
                 <div className={styles.itemActions}>
                   {url && (
                     <Tooltip content={t("admin.reports.viewTooltip")} placement="top" delay={200}>
-                      <a href={url} target="_blank" rel="noopener noreferrer" className={styles.actionBtn}>
-                        <ExternalLink size={13} strokeWidth={1.8} />
+                      <Button
+                        href={url}
+                        external
+                        variant="outline"
+                        size="xs"
+                        icon={<ExternalLink size={13} strokeWidth={1.8} />}
+                      >
                         <T k="admin.reports.view" />
-                      </a>
+                      </Button>
                     </Tooltip>
                   )}
                   {r.status === "pending" && (
                     <>
                       {!r.comment?.is_deleted && r.comment && (
-                        <button type="button" className={styles.actionBtnDanger} onClick={() => confirmDeleteComment(r)}>
+                        <Button variant="outline" size="xs" tone="danger" onClick={() => confirmDeleteComment(r)}>
                           <T k="admin.reports.deleteComment" />
-                        </button>
+                        </Button>
                       )}
-                      <button type="button" className={styles.actionBtn} onClick={() => updateStatus(r.id, "resolved")}>
-                        <Check size={13} strokeWidth={1.8} />
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        icon={<Check size={13} strokeWidth={1.8} />}
+                        onClick={() => updateStatus(r.id, "resolved")}
+                      >
                         <T k="admin.reports.resolve" />
-                      </button>
-                      <button type="button" className={styles.actionBtn} onClick={() => updateStatus(r.id, "dismissed")}>
-                        <X size={13} strokeWidth={1.8} />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        icon={<X size={13} strokeWidth={1.8} />}
+                        onClick={() => updateStatus(r.id, "dismissed")}
+                      >
                         <T k="admin.reports.dismiss" />
-                      </button>
+                      </Button>
                     </>
                   )}
                 </div>

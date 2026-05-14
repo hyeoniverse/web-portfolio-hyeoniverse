@@ -11,14 +11,17 @@ import DiffResolver from "./_components/DiffResolver";
 import SettingsSkeleton from "./_components/SettingsSkeleton";
 import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
 import type { ProfileData } from "@/types/profile";
-import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, type ConfigConflict } from "./_data/settingsConstants";
+import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
 import GeneralTab from "./_components/GeneralTab";
 import ContentTab from "./_components/ContentTab";
 import AppearanceTab from "./_components/AppearanceTab";
 import ServicesTab from "./_components/ServicesTab";
 import AccountTab from "./_components/AccountTab";
 import T from "@/components/ui/T";
+import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
+import Tooltip from "@/components/ui/Tooltip";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useModalStore } from "@/stores/modalStore";
 import { useAccountSettings } from "./_hooks/useAccountSettings";
 import styles from "./Settings.module.css";
@@ -55,6 +58,7 @@ export default function SettingsPage() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingPaths, setSavingPaths] = useState<string[] | null>(null);
   const [message, setMessage] = useState("");
   const savedConfigRef = useRef<SiteConfigData>(structuredClone(siteConfig) as unknown as SiteConfigData);
   const savedProfileRef = useRef<ProfileData>(structuredClone(profileDefaults));
@@ -303,6 +307,38 @@ export default function SettingsPage() {
     }
   }, [activeTab, config, profileData, allConflicts, checkedConflicts, t, saveDelta]);
 
+  /** 특정 dot-path 들만 부분 저장 — 섹션 헤더의 저장 버튼이 호출 */
+  const saveSection = useCallback(async (paths: string[]) => {
+    if (paths.length === 0) return;
+    setSavingPaths(paths);
+    setMessage("");
+    try {
+      let merged = structuredClone(savedConfigRef.current);
+      for (const p of paths) {
+        merged = setByPath(merged, p, getByPath(config, p));
+      }
+      const res = await saveDelta(merged);
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? `HTTP ${res.status}`);
+      }
+      savedConfigRef.current = structuredClone(merged);
+      setConfig(structuredClone(merged));
+      setMessage(t("admin.settings.saveSuccess"));
+      try {
+        const bc = new BroadcastChannel("settings-updated");
+        bc.postMessage({ type: "settings-updated", timestamp: Date.now() });
+        bc.close();
+      } catch {}
+      setTimeout(() => window.location.reload(), 600);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      setMessage(`${t("admin.settings.saveError")}${msg ? ` (${msg})` : ""}`);
+    } finally {
+      setSavingPaths(null);
+    }
+  }, [config, saveDelta, t]);
+
   // 단일 충돌 resolve (머지 결과 적용)
   const resolveConflict = useCallback(async (c: ConfigConflict, mergedValue: unknown) => {
     if (c.source === "siteConfig") {
@@ -428,8 +464,9 @@ export default function SettingsPage() {
                   {account.accountMessage}
                 </span>
               )}
-              <button
-                className={styles.saveBtn}
+              <Button
+                variant="primary"
+                size="xs"
                 disabled={account.accountSaving}
                 onClick={() => {
                   if (account.accountPassword && account.accountPassword !== account.accountConfirm) {
@@ -447,7 +484,7 @@ export default function SettingsPage() {
                 }}
               >
                 {account.accountSaving ? <T k="admin.settings.saving" /> : <T k="admin.settings.updateAccount" />}
-              </button>
+              </Button>
             </>
           ) : (
             <>
@@ -459,28 +496,53 @@ export default function SettingsPage() {
                 </span>
               )}
               {activeTab === "content" && contentSubTab === "profile" && (
-                <button
-                  type="button"
-                  className={styles.expandAllBtn}
+                <Button
+                  variant="link"
+                  size="xs"
                   onClick={() => setProfileExpanded(toggleProfileAll(profileData, !isProfileAllOpen(profileData, profileExpanded)))}
                 >
                   <T k={isProfileAllOpen(profileData, profileExpanded) ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
-                </button>
+                </Button>
               )}
-              <button
-                type="button"
-                className={styles.resetBtn}
-                onClick={() => setConfig(structuredClone(siteConfig) as unknown as SiteConfigData)}
-              >
-                <T k="admin.settings.reset" />
-              </button>
-              <button
-                className={styles.saveBtn}
+              <Tooltip content={t("admin.settings.resetDefaultsTooltip")} placement="bottom" delay={250}>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  tone="danger"
+                  onClick={() => {
+                    openModal(
+                      <ModalConfirm
+                        desc={t("admin.settings.resetDefaultsConfirm")}
+                        cancelText={t("admin.settings.cancel")}
+                        confirmText={t("admin.settings.resetDefaults")}
+                        danger
+                        onConfirm={() => setConfig(structuredClone(siteConfig) as unknown as SiteConfigData)}
+                      />,
+                      { width: "min(90vw, 480px)" },
+                    );
+                  }}
+                >
+                  <T k="admin.settings.resetDefaults" />
+                </Button>
+              </Tooltip>
+              <Tooltip content={t("admin.settings.revertTooltip")} placement="bottom" delay={250}>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  disabled={!hasChanges}
+                  onClick={() => setConfig(structuredClone(savedConfigRef.current))}
+                >
+                  <T k="admin.settings.revert" />
+                </Button>
+              </Tooltip>
+              <Button
+                variant="primary"
+                size="xs"
                 onClick={handleSave}
                 disabled={saving || !hasChanges || !!validationError}
               >
                 {saving ? <T k="admin.settings.saving" /> : <T k="admin.settings.save" />}
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -644,7 +706,7 @@ export default function SettingsPage() {
             <>
               {activeTab === "general" && (
                 <div className={styles.tabGrid}>
-                  <GeneralTab config={config} update={update} styles={styles} />
+                  <GeneralTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} savingPaths={savingPaths} styles={styles} />
                 </div>
               )}
               {activeTab === "content" && (
@@ -672,7 +734,10 @@ export default function SettingsPage() {
                 <div className={styles.tabGrid}>
                   <ContentTab
                     config={config}
+                    savedConfig={savedConfigRef.current}
                     update={update}
+                    saveSection={saveSection}
+                    savingPaths={savingPaths}
                     setConfig={setConfig}
                     profileData={profileData}
                     setProfileData={setProfileData}
@@ -686,12 +751,12 @@ export default function SettingsPage() {
               )}
               {activeTab === "appearance" && (
                 <div className={styles.tabGrid}>
-                  <AppearanceTab config={config} update={update} setConfig={setConfig} styles={styles} />
+                  <AppearanceTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
                 </div>
               )}
               {activeTab === "services" && (
                 <div className={styles.tabGrid}>
-                  <ServicesTab config={config} update={update} setConfig={setConfig} styles={styles} />
+                  <ServicesTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
                 </div>
               )}
               {activeTab === "account" && (
