@@ -235,11 +235,16 @@
   --editorial-line-primary: var(--border-strong);
   --editorial-line-secondary: var(--border-default);
 
-  /* --------------------------------------------------------------------------
-     Control heights — slim 톤. raw --size-* (22/28/36/44) 참조.
-     component CSS 는 raw 가 아니라 이 semantic 토큰을 사용해서 button vs input
-     높이 정책을 독립적으로 조정할 수 있게 한다.
-     -------------------------------------------------------------------------- */
+}
+
+/* ==========================================================================
+   Layer 3: Component Tokens
+   컴포넌트 타입을 이름에 박은 토큰 (일관성 레일). component CSS 는 raw 가 아닌
+   이 토큰을 사용 — 버튼/인풋 등 정책을 독립적으로 조정 가능하고 다른 사이즈
+   고르는 실수 방지. 더 깊은 변형은 module 내 --_* (Layer 4 Context) 로.
+   ========================================================================== */
+:root {
+  /* Control heights — slim 톤 (raw --size-* 참조: 22/28/36/44) */
   --button-h-xs: var(--size-xs);   /* 22 — icon-only btn, dense chip */
   --button-h-sm: var(--size-sm);   /* 28 — 일반 button */
   --button-h-md: var(--size-md);   /* 36 — primary CTA */
