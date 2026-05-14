@@ -59,22 +59,22 @@
   --icon-xl: 48px;
   --icon-2xl: 64px;
 
-  /* Component Sizes — control(button/select/input/등) 높이 통일에 사용. slim 톤.
+  /* Component Sizes — control(button/select/input/등) 높이 통일에 사용.
      계층:
-       xs (22px) — icon-only btn, dense chip
-       sm (28px) — 기본 input / select / 일반 button
-       md (34px) — primary action button
-       lg (42px) — hero CTA
+       xs (24px) — icon-only btn, dense chip
+       sm (32px) — 기본 input / select / 일반 button
+       md (38px) — primary action button
+       lg (46px) — hero CTA
      같은 계층의 컨트롤은 같은 높이 사용. */
   --size-6xs: 4px;
   --size-5xs: 8px;
   --size-4xs: 12px;
   --size-3xs: 16px;
   --size-2xs: 20px;
-  --size-xs: 22px;
-  --size-sm: 28px;
-  --size-md: 34px;
-  --size-lg: 42px;
+  --size-xs: 24px;
+  --size-sm: 32px;
+  --size-md: 38px;
+  --size-lg: 46px;
   --size-xl: 56px;
   --size-2xl: 64px;
   --size-3xl: 72px;
