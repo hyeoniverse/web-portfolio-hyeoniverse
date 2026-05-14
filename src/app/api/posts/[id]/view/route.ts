@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getIp } from "@/utils/getIp";
 import { jsonOk } from "@/lib/api/response";
 
@@ -6,44 +7,25 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-// POST /api/posts/[id]/view — 조회수 증가 (IP+date 로 1일 1회 dedup)
-// 누적 카운터(posts.view_count) + 시계열(post_views) 둘 다 IP 별 1일 1회만 증가.
-// 이전엔 인증/dedup 없어 curl 루프로 조회수 무한 inflation + post_views DB 폭증 가능했음.
+// POST /api/posts/[id]/view — 조회수 증가
+// 동작:
+//   - record_post_view RPC 가 (IP + KST date) dedup + view_count atomic +1 을 한 트랜잭션으로 처리
+//   - admin (로그인한 본인) 의 조회는 카운트 제외 — 자기 글 inflate 방지
 export async function POST(request: Request, context: RouteContext) {
   const { id } = await context.params;
+
+  // admin 인지 확인 (cookie 기반) — 본인 조회는 skip
+  const server = await createServerClient();
+  const { data: { user } } = await server.auth.getUser();
+  if (user) {
+    return jsonOk({ success: true, skipped: "admin" });
+  }
+
   const ip = getIp(request);
   const admin = createAdminClient();
 
-  // 오늘 같은 IP 가 같은 글을 이미 봤는지 확인
-  const todayStart = new Date();
-  todayStart.setUTCHours(0, 0, 0, 0);
+  // dedup + insert + counter +1 atomic (race-free via UNIQUE (post_id, ip, viewed_date))
+  const { data: counted } = await admin.rpc("record_post_view", { p_post_id: id, p_ip: ip });
 
-  const { count: already } = await admin
-    .from("post_views")
-    .select("id", { count: "exact", head: true })
-    .eq("post_id", id)
-    .eq("ip", ip)
-    .gte("viewed_at", todayStart.toISOString());
-
-  if (already && already > 0) {
-    // 이미 카운트됨 — silently 성공 반환 (클라엔 행동 변화 없음)
-    return jsonOk({ success: true, deduped: true });
-  }
-
-  // post 존재 확인 (없으면 RPC 가 silent no-op 이라 빠르게 abort)
-  const { data: post } = await admin
-    .from("posts")
-    .select("id")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (post) {
-    await Promise.all([
-      // atomic increment — read-then-write race 없음
-      admin.rpc("increment_post_view_count", { p_post_id: id }),
-      admin.from("post_views").insert({ post_id: id, ip }),
-    ]);
-  }
-
-  return jsonOk({ success: true });
+  return jsonOk({ success: true, deduped: counted === false });
 }
