@@ -385,7 +385,7 @@ a.statCard:hover .statValue {
   display: flex;
   align-items: flex-end;
   gap: 3px;
-  height: 28px;
+  height: var(--button-h-sm);
   margin-top: var(--spacing-2xs);
 }
 
@@ -406,7 +406,7 @@ a.statCard:hover .statValue {
 /* ── 시각화: 일별 조회수 sparkline (SVG) ── */
 .sparkline {
   width: 100%;
-  height: 28px;
+  height: var(--button-h-sm);
   margin-top: var(--spacing-2xs);
   display: block;
 }
@@ -1054,7 +1054,7 @@ a.statCard:hover .statValue {
    overflow: visible 로 양 끝 라벨이 살짝 컨테이너 밖으로 나가도 잘리지 않음 */
 .areaDays {
   position: relative;
-  height: 32px;
+  height: var(--button-h-sm);
   margin-top: 4px;
   overflow: visible;
 }
@@ -1306,8 +1306,8 @@ a.statCard:hover .statValue {
 .dayIndicator {
   position: absolute;
   top: 50%;
-  width: 32px;
-  height: 32px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border-radius: 50%;
   background: var(--bg-tertiary);
   transform: translate(-50%, -50%);
@@ -1390,8 +1390,8 @@ a.statCard:hover .statValue {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   background: transparent;
   border: none;
   border-radius: var(--radius-capsule);
@@ -1824,7 +1824,7 @@ a.commentSource:hover {
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  min-width: 36px;
+  min-width: var(--button-h-md);
   text-align: right;
 }
 
@@ -2159,6 +2159,6 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
   font-variant-numeric: tabular-nums;
   color: var(--text-accent);
   font-weight: 700;
-  min-width: 32px;
+  min-width: var(--button-h-sm);
   text-align: right;
 }

@@ -207,8 +207,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: var(--button-h-lg);
+  height: var(--button-h-lg);
   padding: 0;
   border: var(--border-default);
   border-radius: var(--radius-circle);
@@ -361,8 +361,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 22px;
+  min-width: var(--button-h-xs);
+  height: var(--button-h-xs);
   padding: 0 6px;
   border: var(--border-light);
   border-radius: var(--radius-xs);
@@ -532,8 +532,8 @@
 }
 
 .loaderSpinner {
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border: var(--border-light-2);
   border-top-color: var(--text-muted);
   border-radius: var(--radius-circle);
@@ -794,7 +794,7 @@
   .zoomLevel,
   .zoomInput {
     font-size: var(--font-size-2xs);
-    width: 44px;
+    width: var(--button-h-lg);
   }
 
   .toolbarDivider {
@@ -816,13 +816,13 @@
 
   .stripNavBtn {
     display: flex;
-    width: 32px;
-    height: 32px;
+    width: var(--button-h-sm);
+    height: var(--button-h-sm);
   }
 
   .navBtn {
-    width: 36px;
-    height: 36px;
+    width: var(--button-h-md);
+    height: var(--button-h-md);
   }
 
   /* Thumbnails mobile */
@@ -871,7 +871,7 @@
   }
 
   .intervalBtn {
-    height: 22px;
+    height: var(--button-h-xs);
     font-size: var(--font-size-2xs);
     padding: 0 4px;
   }

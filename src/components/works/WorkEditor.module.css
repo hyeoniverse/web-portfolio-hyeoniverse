@@ -98,7 +98,7 @@
 }
 
 .fieldSelect {
-  min-height: var(--size-sm);
+  min-height: var(--input-h);
   padding: 0 var(--spacing-md);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
@@ -126,8 +126,8 @@
 }
 
 .techAddBtn {
-  width: var(--size-sm);
-  height: var(--size-sm);
+  width: var(--input-h);
+  height: var(--input-h);
   flex-shrink: 0;
   border: var(--border-default);
   border-radius: var(--radius-circle);
@@ -380,7 +380,7 @@
 
 .subtitleInput {
   flex: 1;
-  min-height: var(--size-sm);
+  min-height: var(--input-h);
   transition: border-radius 0.2s ease;
 }
 
@@ -454,7 +454,7 @@
 /* input wrap — 단순한 capsule, hover/focus 시 border 강조 */
 .roleMSInputWrap {
   width: 100%;
-  min-height: var(--size-sm);
+  min-height: var(--input-h);
   display: flex;
   align-items: center;
   padding: 3px var(--spacing-md);

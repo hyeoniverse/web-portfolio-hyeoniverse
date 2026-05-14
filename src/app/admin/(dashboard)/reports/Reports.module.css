@@ -28,8 +28,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 22px;
+  min-width: var(--button-h-xs);
+  height: var(--button-h-xs);
   padding: 0 6px;
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-solid);

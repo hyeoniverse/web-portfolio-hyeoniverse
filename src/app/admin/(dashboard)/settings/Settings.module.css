@@ -230,8 +230,8 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   padding: 0;
   border: var(--border-strong);
   border-radius: var(--radius-circle);
@@ -312,7 +312,7 @@
 
 .diffLineNum {
   display: inline-block;
-  width: 28px;
+  width: var(--button-h-sm);
   text-align: right;
   padding-right: var(--spacing-sm);
   color: var(--text-quaternary);
@@ -697,8 +697,8 @@
 }
 
 .colorPicker {
-  width: 32px;
-  height: 32px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   padding: 0;
   border: var(--border-light);
   border-radius: var(--radius-circle);
@@ -824,7 +824,7 @@
 
 .logoColorPresetBtn {
   display: flex;
-  width: 36px;
+  width: var(--button-h-md);
   height: 20px;
   border-radius: var(--radius-capsule);
   border: var(--border-light);
@@ -859,7 +859,7 @@
 
 .logoPreview {
   width: 80px;
-  height: 32px;
+  height: var(--button-h-sm);
   border: var(--border-light);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -1078,7 +1078,7 @@
 }
 
 .priorityBadge {
-  width: 32px;
+  width: var(--button-h-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1184,7 +1184,7 @@
   justify-content: center;
   flex-shrink: 0;
   width: 16px;
-  height: 32px;
+  height: var(--button-h-sm);
   color: var(--text-muted);
   border: none;
   background: transparent;
@@ -1202,7 +1202,7 @@
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   min-width: 24px;
-  height: 32px;
+  height: var(--button-h-sm);
 }
 
 .slotDigit {
@@ -1626,8 +1626,8 @@
 }
 
 .seriesPageBtn {
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2284,7 +2284,7 @@
   padding: var(--spacing-xs) 0;
   border-top: var(--border-light);
   border-bottom: var(--border-light);
-  height: 36px;
+  height: var(--button-h-md);
 }
 
 .addPostHeader button[class] {
@@ -2354,7 +2354,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-muted);
-  min-width: 28px;
+  min-width: var(--button-h-sm);
 }
 
 .addPostTitle {
@@ -2380,7 +2380,7 @@
 }
 
 .seriesPostOrderInput {
-  width: 32px;
+  width: var(--button-h-sm);
   padding: var(--spacing-4xs) var(--spacing-3xs);
   border: var(--border-default);
   border-radius: var(--radius-sm);
@@ -2686,8 +2686,8 @@
 }
 
 .socialIcon {
-  width: 32px;
-  height: 32px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   flex-shrink: 0;
   color: var(--text-tertiary);
   display: flex;
@@ -2751,8 +2751,8 @@
 
 .socialIconUploadBtn {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -3308,8 +3308,8 @@
 }
 
 .envCancelBtn {
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -3326,8 +3326,8 @@
 
 .envRevealBtn,
 .envDeleteBtn {
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border: var(--border-light);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -3464,8 +3464,8 @@
 
 .scopeAddBtn {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   display: flex;
   align-items: center;
   justify-content: center;

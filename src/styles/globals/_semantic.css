@@ -234,6 +234,19 @@
   --editorial-ls-title: var(--letter-spacing-tight);
   --editorial-line-primary: var(--border-strong);
   --editorial-line-secondary: var(--border-default);
+
+  /* --------------------------------------------------------------------------
+     Control heights — slim 톤. raw --size-* (22/28/36/44) 참조.
+     component CSS 는 raw 가 아니라 이 semantic 토큰을 사용해서 button vs input
+     높이 정책을 독립적으로 조정할 수 있게 한다.
+     -------------------------------------------------------------------------- */
+  --button-h-xs: var(--size-xs);   /* 22 — icon-only btn, dense chip */
+  --button-h-sm: var(--size-sm);   /* 28 — 일반 button */
+  --button-h-md: var(--size-md);   /* 36 — primary CTA */
+  --button-h-lg: var(--size-lg);   /* 44 — hero CTA */
+
+  --input-h: var(--size-sm);       /* 28 — input / select 기본 */
+  --input-h-lg: var(--size-md);    /* 36 — 큰 input (드물게) */
 }
 
 /* --------------------------------------------------------------------------

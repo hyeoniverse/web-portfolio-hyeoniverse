@@ -674,7 +674,7 @@
   letter-spacing: 0.06em;
   padding: 0 var(--spacing-3xs) 0 0;
   user-select: none;
-  min-width: 32px;
+  min-width: var(--button-h-sm);
   flex-shrink: 0;
 }
 
@@ -877,7 +877,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-xs);
-  min-height: 22px;
+  min-height: var(--button-h-xs);
 }
 
 .borderClearBtn {
@@ -957,8 +957,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -995,7 +995,7 @@
 /* Select inside border popover */
 .borderPopSelect {
   width: 100%;
-  height: 22px;
+  height: var(--button-h-xs);
   padding: 0 6px;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -2185,7 +2185,7 @@
 .mathPanelPreview {
   min-width: 60px;
   max-width: 200px;
-  min-height: 28px;
+  min-height: var(--button-h-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2279,7 +2279,7 @@
   letter-spacing: 0.06em;
   white-space: nowrap;
   padding-top: var(--spacing-2xs);
-  min-width: 36px;
+  min-width: var(--button-h-md);
 }
 
 .mathToolItems {

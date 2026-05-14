@@ -9,8 +9,8 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  width: var(--h-control-sm);
-  height: var(--h-control-sm);
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   padding: 0;
   border: var(--border-strong);
   border-radius: var(--radius-circle);
@@ -40,7 +40,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-base) 0;
-  min-height: 44px;
+  min-height: var(--button-h-lg);
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;

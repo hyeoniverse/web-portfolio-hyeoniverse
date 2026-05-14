@@ -2,7 +2,7 @@
 .capsule {
   display: flex;
   align-items: center;
-  height: var(--h-control-sm);
+  height: var(--input-h);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   overflow: hidden;
