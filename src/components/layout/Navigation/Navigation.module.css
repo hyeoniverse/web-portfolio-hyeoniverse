@@ -550,19 +550,28 @@
   z-index: 0;
 }
 
-/* 글자부분만 채워지는 fill layer — 같은 텍스트를 absolute 로 base 위에 겹쳐서 그리고
-   clip-path 의 폴리곤으로 윗면을 출렁이는 파도 모양으로 잘라냄. 3개 layer 가
-   서로 다른 frequency/phase 로 다중 물결처럼 보이게. 수위는 글자 60% 정도 (top 40%). */
+/* 글자부분만 채워지는 fill layer — 같은 텍스트를 absolute 로 base 위에 겹쳐서 clip-path
+   폴리곤으로 윗면을 출렁이는 파도로 잘라냄. hover 시 animation 이 clip-path override.
+   hover 떼면 animation 제거 → base clip-path (가라앉은 상태) 로 transition smooth recede. */
 .menuFooterEmailFill {
   position: absolute;
   left: 0;
   top: 0;
-  color: var(--color-accent);
   text-decoration: inherit;
   text-underline-offset: inherit;
   pointer-events: none;
-  /* 기본: 글자 아래 (clip 으로 전부 잘림) */
-  clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+  transition: clip-path 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* layer 별 default(가라앉은) clip-path — wave keyframe 과 vertex 수 동일해야 transition smooth */
+.menuFooterEmailFillBack {
+  clip-path: polygon(0% 100%, 25% 100%, 50% 100%, 75% 100%, 100% 100%, 100% 100%, 0% 100%);
+}
+.menuFooterEmailFillMid {
+  clip-path: polygon(0% 100%, 33% 100%, 66% 100%, 100% 100%, 100% 100%, 0% 100%);
+}
+.menuFooterEmailFillFront {
+  clip-path: polygon(0% 100%, 20% 100%, 40% 100%, 60% 100%, 80% 100%, 100% 100%, 100% 100%, 0% 100%);
 }
 
 /* hover 시: 자연스럽게 출렁이면서 차오르고 (한 keyframe 안에서 level + phase 가 함께 변함),
@@ -583,21 +592,21 @@
     emailWaveFront 2.4s ease-in-out 2.2s infinite alternate;
 }
 
-/* 입체감 + 층 분리 — 각 layer 의 수면 높이가 달라서 위에서 아래로 3개 색 띠가 보임.
-   Back: 가장 높은 수면(40%) + 밝은 거품, Front: 가장 낮은 수면(60%) + 깊은 어두움.
-   z 순서상 Back 이 맨 아래에 깔리지만 가장 위쪽에 wave 가 있어 사용자에겐 "표면" 으로 보임 */
+/* 색감 — 어두운 색 안 쓰고 accent / accent-light 변형으로 층 분리 (모두 밝은 영역).
+   Back: 가장 밝은 거품 (accent-light + brightness boost), Front: 살짝 진한 accent (어둡지 않음) */
 .menuFooterEmailFillBack {
-  opacity: 1;
-  filter: brightness(1.3);
+  color: var(--color-accent-light);
+  filter: brightness(1.05);
   text-shadow: 0 -1px 2px rgba(255, 255, 255, 0.5);
 }
 .menuFooterEmailFillMid {
+  color: var(--color-accent);
   opacity: 0.95;
-  filter: brightness(0.95);
 }
 .menuFooterEmailFillFront {
-  opacity: 1;
-  filter: brightness(0.55) blur(0.4px);
+  color: var(--color-accent);
+  opacity: 0.85;
+  filter: saturate(1.1);
 }
 
 /* 차오름 — 8 step. 매 step 에서 phase 가 토글되며 진폭 ±15-18% (이전 ±10% 보다 크게).
