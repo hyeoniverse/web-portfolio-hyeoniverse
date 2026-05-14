@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Logo from "@/components/common/Logo";
@@ -36,6 +37,10 @@ export default function MobileMenu({
   onContactOpen,
   onLogout,
 }: MobileMenuProps) {
+  // 이메일 hover phase — CSS animation 제거 후 transition 으로 복귀가 브라우저별로 안 통해서
+  // JS 로 phase 관리: idle → rising (hover) → sinking (hover-off) → idle (sink animation 종료)
+  const [emailPhase, setEmailPhase] = useState<"idle" | "rising" | "sinking">("idle");
+
   if (!menuMounted || !showMenu) return null;
 
   // 가장 긴 prefix 매칭만 active — 예: /admin/works 일 때 /admin (dashboard) 까지 active 되던 문제 방지
@@ -99,7 +104,15 @@ export default function MobileMenu({
           <span className={styles.menuFooterLabel}>Say Hi!</span>
           <a
             href={`mailto:${contactEmail}`}
-            className={styles.menuFooterEmail}
+            className={`${styles.menuFooterEmail} ${
+              emailPhase === "rising" ? styles.menuFooterEmailRising :
+              emailPhase === "sinking" ? styles.menuFooterEmailSinking : ""
+            }`}
+            onMouseEnter={() => setEmailPhase("rising")}
+            onMouseLeave={() => setEmailPhase((p) => (p === "rising" ? "sinking" : p))}
+            onAnimationEnd={(e) => {
+              if (e.animationName.toLowerCase().includes("sink")) setEmailPhase("idle");
+            }}
           >
             <span className={styles.menuFooterEmailBase}>{contactEmail}</span>
             {/* hover 시 글자 안쪽에서만 accent 가 출렁이며 차오르는 layer 들 */}

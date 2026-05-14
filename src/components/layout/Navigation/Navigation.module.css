@@ -576,88 +576,118 @@
 
 /* hover 시: 자연스럽게 출렁이면서 차오르고 (한 keyframe 안에서 level + phase 가 함께 변함),
    끝에서 phase 만 alternate 로 계속 oscillate. 두 animation 의 시작/끝 phase 가 동일해 끊김 없이 이어짐. */
-.menuFooterEmail:hover .menuFooterEmailFillBack {
+.menuFooterEmailRising .menuFooterEmailFillBack {
   animation:
     emailRiseBack 2.5s cubic-bezier(0.33, 1, 0.68, 1) forwards,
     emailWaveBack 3.6s ease-in-out 2.5s infinite alternate;
 }
-.menuFooterEmail:hover .menuFooterEmailFillMid {
+.menuFooterEmailRising .menuFooterEmailFillMid {
   animation:
     emailRiseMid 2.2s cubic-bezier(0.33, 1, 0.68, 1) 0.1s forwards,
     emailWaveMid 3s ease-in-out 2.3s infinite alternate;
 }
-.menuFooterEmail:hover .menuFooterEmailFillFront {
+.menuFooterEmailRising .menuFooterEmailFillFront {
   animation:
     emailRiseFront 2s cubic-bezier(0.33, 1, 0.68, 1) 0.2s forwards,
     emailWaveFront 2.4s ease-in-out 2.2s infinite alternate;
 }
 
-/* 색감 — 어두운 색 안 쓰고 accent / accent-light 변형으로 층 분리 (모두 밝은 영역).
-   Back: 가장 밝은 거품 (accent-light + brightness boost), Front: 살짝 진한 accent (어둡지 않음) */
+/* hover-out 시 — 가라앉는 sink animation. wave 의 가운데(rest) 라인에서 시작해 100% 까지 내려옴.
+   onAnimationEnd 시 idle 로 복귀해서 두 번째 hover 도 정상 동작. */
+.menuFooterEmailSinking .menuFooterEmailFillBack {
+  animation: emailSinkBack 1.6s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+.menuFooterEmailSinking .menuFooterEmailFillMid {
+  animation: emailSinkMid 1.8s cubic-bezier(0.4, 0, 0.6, 1) 0.05s forwards;
+}
+.menuFooterEmailSinking .menuFooterEmailFillFront {
+  animation: emailSinkFront 2s cubic-bezier(0.4, 0, 0.6, 1) 0.1s forwards;
+}
+
+/* 색감 — 어두운 색 없이 세 layer 가 톤 변화로 명확히 구분.
+   Back: accent-light + 노란 톤 시프트 (거품/햇빛 반사 느낌)
+   Mid: accent-light (밝은 핑크)
+   Front: accent (선명한 hot pink) */
 .menuFooterEmailFillBack {
   color: var(--color-accent-light);
-  filter: brightness(1.05);
-  text-shadow: 0 -1px 2px rgba(255, 255, 255, 0.5);
+  filter: brightness(1.25) hue-rotate(20deg);
+  text-shadow: 0 -1px 2px rgba(255, 255, 255, 0.6);
 }
 .menuFooterEmailFillMid {
-  color: var(--color-accent);
-  opacity: 0.95;
+  color: var(--color-accent-light);
+  filter: brightness(1.05);
 }
 .menuFooterEmailFillFront {
   color: var(--color-accent);
-  opacity: 0.85;
-  filter: saturate(1.1);
+  filter: saturate(1.15);
 }
 
 /* 차오름 — 8 step. 매 step 에서 phase 가 토글되며 진폭 ±15-18% (이전 ±10% 보다 크게).
    각 layer 의 base 수면 위치가 다름 — Back ~40%, Mid ~50%, Front ~60% */
 
-/* Back: 수면 가장 높음 (글자 60% 채움), 진폭 큼 (±18%) */
+/* Back: 수면 가장 높음 (center 60% — 글자 40% 채움), 진폭 ±10% */
 @keyframes emailRiseBack {
   0%   { clip-path: polygon(0% 100%, 25% 100%, 50% 100%, 75% 100%, 100% 100%, 100% 100%, 0% 100%); }
-  15%  { clip-path: polygon(0% 90%, 25% 80%, 50% 92%, 75% 82%, 100% 90%, 100% 100%, 0% 100%); }
-  30%  { clip-path: polygon(0% 80%, 25% 88%, 50% 78%, 75% 86%, 100% 80%, 100% 100%, 0% 100%); }
-  45%  { clip-path: polygon(0% 68%, 25% 56%, 50% 70%, 75% 58%, 100% 68%, 100% 100%, 0% 100%); }
-  60%  { clip-path: polygon(0% 60%, 25% 68%, 50% 58%, 75% 66%, 100% 60%, 100% 100%, 0% 100%); }
-  75%  { clip-path: polygon(0% 48%, 25% 36%, 50% 50%, 75% 38%, 100% 48%, 100% 100%, 0% 100%); }
-  90%  { clip-path: polygon(0% 44%, 25% 52%, 50% 42%, 75% 50%, 100% 44%, 100% 100%, 0% 100%); }
-  100% { clip-path: polygon(0% 50%, 25% 30%, 50% 50%, 75% 30%, 100% 50%, 100% 100%, 0% 100%); }
+  15%  { clip-path: polygon(0% 94%, 25% 90%, 50% 95%, 75% 91%, 100% 94%, 100% 100%, 0% 100%); }
+  30%  { clip-path: polygon(0% 88%, 25% 92%, 50% 86%, 75% 90%, 100% 88%, 100% 100%, 0% 100%); }
+  45%  { clip-path: polygon(0% 80%, 25% 72%, 50% 81%, 75% 73%, 100% 80%, 100% 100%, 0% 100%); }
+  60%  { clip-path: polygon(0% 73%, 25% 78%, 50% 71%, 75% 76%, 100% 73%, 100% 100%, 0% 100%); }
+  75%  { clip-path: polygon(0% 65%, 25% 55%, 50% 67%, 75% 56%, 100% 65%, 100% 100%, 0% 100%); }
+  90%  { clip-path: polygon(0% 62%, 25% 68%, 50% 60%, 75% 66%, 100% 62%, 100% 100%, 0% 100%); }
+  100% { clip-path: polygon(0% 70%, 25% 50%, 50% 70%, 75% 50%, 100% 70%, 100% 100%, 0% 100%); }
 }
-/* Mid: 수면 중간 (글자 50% 채움), 진폭 ±15% */
+/* Mid: 수면 중간 (center 70% — 글자 30% 채움), 진폭 ±10% */
 @keyframes emailRiseMid {
   0%   { clip-path: polygon(0% 100%, 33% 100%, 66% 100%, 100% 100%, 100% 100%, 0% 100%); }
-  15%  { clip-path: polygon(0% 95%, 33% 88%, 66% 94%, 100% 87%, 100% 100%, 0% 100%); }
-  30%  { clip-path: polygon(0% 88%, 33% 95%, 66% 86%, 100% 93%, 100% 100%, 0% 100%); }
-  45%  { clip-path: polygon(0% 76%, 33% 65%, 66% 78%, 100% 67%, 100% 100%, 0% 100%); }
-  60%  { clip-path: polygon(0% 68%, 33% 78%, 66% 66%, 100% 76%, 100% 100%, 0% 100%); }
-  75%  { clip-path: polygon(0% 58%, 33% 47%, 66% 60%, 100% 49%, 100% 100%, 0% 100%); }
-  90%  { clip-path: polygon(0% 52%, 33% 62%, 66% 50%, 100% 60%, 100% 100%, 0% 100%); }
-  100% { clip-path: polygon(0% 60%, 33% 40%, 66% 60%, 100% 40%, 100% 100%, 0% 100%); }
+  15%  { clip-path: polygon(0% 96%, 33% 92%, 66% 95%, 100% 91%, 100% 100%, 0% 100%); }
+  30%  { clip-path: polygon(0% 92%, 33% 96%, 66% 90%, 100% 94%, 100% 100%, 0% 100%); }
+  45%  { clip-path: polygon(0% 86%, 33% 78%, 66% 88%, 100% 80%, 100% 100%, 0% 100%); }
+  60%  { clip-path: polygon(0% 80%, 33% 86%, 66% 78%, 100% 84%, 100% 100%, 0% 100%); }
+  75%  { clip-path: polygon(0% 74%, 33% 66%, 66% 76%, 100% 68%, 100% 100%, 0% 100%); }
+  90%  { clip-path: polygon(0% 70%, 33% 78%, 66% 68%, 100% 76%, 100% 100%, 0% 100%); }
+  100% { clip-path: polygon(0% 80%, 33% 60%, 66% 80%, 100% 60%, 100% 100%, 0% 100%); }
 }
-/* Front: 수면 가장 낮음 (글자 40% 채움 = 깊이 가장 깊음), 진폭 ±10% */
+/* Front: 수면 가장 낮음 (center 80% — 글자 20% 채움 = 깊이 가장 얕음 위에서 보면), 진폭 ±10% */
 @keyframes emailRiseFront {
   0%   { clip-path: polygon(0% 100%, 20% 100%, 40% 100%, 60% 100%, 80% 100%, 100% 100%, 100% 100%, 0% 100%); }
-  15%  { clip-path: polygon(0% 96%, 20% 92%, 40% 96%, 60% 92%, 80% 96%, 100% 93%, 100% 100%, 0% 100%); }
-  30%  { clip-path: polygon(0% 90%, 20% 94%, 40% 89%, 60% 93%, 80% 90%, 100% 94%, 100% 100%, 0% 100%); }
-  45%  { clip-path: polygon(0% 80%, 20% 72%, 40% 79%, 60% 73%, 80% 79%, 100% 75%, 100% 100%, 0% 100%); }
-  60%  { clip-path: polygon(0% 73%, 20% 80%, 40% 72%, 60% 79%, 80% 73%, 100% 78%, 100% 100%, 0% 100%); }
-  75%  { clip-path: polygon(0% 65%, 20% 56%, 40% 66%, 60% 57%, 80% 65%, 100% 60%, 100% 100%, 0% 100%); }
-  90%  { clip-path: polygon(0% 62%, 20% 70%, 40% 60%, 60% 68%, 80% 61%, 100% 65%, 100% 100%, 0% 100%); }
-  100% { clip-path: polygon(0% 70%, 20% 50%, 40% 70%, 60% 50%, 80% 70%, 100% 55%, 100% 100%, 0% 100%); }
+  15%  { clip-path: polygon(0% 97%, 20% 94%, 40% 97%, 60% 94%, 80% 97%, 100% 95%, 100% 100%, 0% 100%); }
+  30%  { clip-path: polygon(0% 94%, 20% 96%, 40% 93%, 60% 95%, 80% 94%, 100% 96%, 100% 100%, 0% 100%); }
+  45%  { clip-path: polygon(0% 89%, 20% 82%, 40% 88%, 60% 83%, 80% 88%, 100% 85%, 100% 100%, 0% 100%); }
+  60%  { clip-path: polygon(0% 84%, 20% 88%, 40% 82%, 60% 87%, 80% 83%, 100% 86%, 100% 100%, 0% 100%); }
+  75%  { clip-path: polygon(0% 78%, 20% 72%, 40% 79%, 60% 73%, 80% 78%, 100% 75%, 100% 100%, 0% 100%); }
+  90%  { clip-path: polygon(0% 75%, 20% 80%, 40% 73%, 60% 78%, 80% 74%, 100% 77%, 100% 100%, 0% 100%); }
+  100% { clip-path: polygon(0% 90%, 20% 70%, 40% 90%, 60% 70%, 80% 90%, 100% 75%, 100% 100%, 0% 100%); }
 }
 
-/* 차오른 뒤 출렁임 — 진폭 크게 유지, phase 반전 */
+/* Sink — 가라앉음. wave 평균 위치에서 시작해 100% 로 내려감. 살짝 출렁이며 sink */
+@keyframes emailSinkBack {
+  0%   { clip-path: polygon(0% 60%, 25% 60%, 50% 60%, 75% 60%, 100% 60%, 100% 100%, 0% 100%); }
+  50%  { clip-path: polygon(0% 78%, 25% 82%, 50% 76%, 75% 80%, 100% 78%, 100% 100%, 0% 100%); }
+  100% { clip-path: polygon(0% 100%, 25% 100%, 50% 100%, 75% 100%, 100% 100%, 100% 100%, 0% 100%); }
+}
+@keyframes emailSinkMid {
+  0%   { clip-path: polygon(0% 70%, 33% 70%, 66% 70%, 100% 70%, 100% 100%, 0% 100%); }
+  50%  { clip-path: polygon(0% 86%, 33% 82%, 66% 88%, 100% 84%, 100% 100%, 0% 100%); }
+  100% { clip-path: polygon(0% 100%, 33% 100%, 66% 100%, 100% 100%, 100% 100%, 0% 100%); }
+}
+@keyframes emailSinkFront {
+  0%   { clip-path: polygon(0% 80%, 20% 80%, 40% 80%, 60% 80%, 80% 80%, 100% 80%, 100% 100%, 0% 100%); }
+  50%  { clip-path: polygon(0% 92%, 20% 88%, 40% 93%, 60% 89%, 80% 92%, 100% 90%, 100% 100%, 0% 100%); }
+  100% { clip-path: polygon(0% 100%, 20% 100%, 40% 100%, 60% 100%, 80% 100%, 100% 100%, 100% 100%, 0% 100%); }
+}
+
+/* 차오른 뒤 출렁임 — phase 반전. rise 의 100% 와 from 동일해야 끊김 없음 */
 @keyframes emailWaveBack {
-  from { clip-path: polygon(0% 50%, 25% 30%, 50% 50%, 75% 30%, 100% 50%, 100% 100%, 0% 100%); }
-  to   { clip-path: polygon(0% 30%, 25% 50%, 50% 30%, 75% 50%, 100% 30%, 100% 100%, 0% 100%); }
+  from { clip-path: polygon(0% 70%, 25% 50%, 50% 70%, 75% 50%, 100% 70%, 100% 100%, 0% 100%); }
+  to   { clip-path: polygon(0% 50%, 25% 70%, 50% 50%, 75% 70%, 100% 50%, 100% 100%, 0% 100%); }
 }
 @keyframes emailWaveMid {
-  from { clip-path: polygon(0% 60%, 33% 40%, 66% 60%, 100% 40%, 100% 100%, 0% 100%); }
-  to   { clip-path: polygon(0% 40%, 33% 60%, 66% 40%, 100% 60%, 100% 100%, 0% 100%); }
+  from { clip-path: polygon(0% 80%, 33% 60%, 66% 80%, 100% 60%, 100% 100%, 0% 100%); }
+  to   { clip-path: polygon(0% 60%, 33% 80%, 66% 60%, 100% 80%, 100% 100%, 0% 100%); }
 }
 @keyframes emailWaveFront {
-  from { clip-path: polygon(0% 70%, 20% 50%, 40% 70%, 60% 50%, 80% 70%, 100% 55%, 100% 100%, 0% 100%); }
-  to   { clip-path: polygon(0% 50%, 20% 70%, 40% 55%, 60% 70%, 80% 50%, 100% 70%, 100% 100%, 0% 100%); }
+  from { clip-path: polygon(0% 90%, 20% 70%, 40% 90%, 60% 70%, 80% 90%, 100% 75%, 100% 100%, 0% 100%); }
+  to   { clip-path: polygon(0% 70%, 20% 90%, 40% 75%, 60% 90%, 80% 70%, 100% 90%, 100% 100%, 0% 100%); }
 }
 
 .menuNav {
