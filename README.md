@@ -77,7 +77,7 @@
 | **Admin** | Plate.js 에디터, `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리 |
 | **성능** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic 카운터 + AbortController + bulk Promise.all |
 | **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드 |
-| **디자인 시스템** | 3-layer 토큰 (Raw → Semantic → Context) + 라이브 프리뷰 |
+| **디자인 시스템** | 4-tier 토큰 (Raw → Semantic → Component → Context) + 라이브 프리뷰 |
 
 ---
 
@@ -632,12 +632,13 @@ CSS 토큰 3-레이어 구조, 클래스 네이밍 규칙, 특이도 가이드�
 
 | 레이어 | 위치 | 접두사 | 역할 |
 |--------|------|--------|------|
-| Raw Tokens | `src/styles/tokens/` | `--color-*`, `--spacing-*` 등 | 원시 값 |
-| Semantic Tokens | `src/styles/globals/_semantic.css` | `--text-*`, `--bg-*`, `--border-*` | 의미 부여 |
-| Context Tokens | CSS Module 내 | `--_*` | 컴포넌트 스코프 |
+| Raw Tokens | `src/styles/tokens/` | `--color-*`, `--spacing-*`, `--size-*` 등 | 원시 값 |
+| Semantic Tokens | `src/styles/globals/_semantic.css` (Layer 2) | `--text-*`, `--bg-*`, `--border-*` | 역할 기반 (컴포넌트 무관) |
+| Component Tokens | `src/styles/globals/_semantic.css` (Layer 3) | `--button-h-*`, `--input-h` | 컴포넌트 typing (일관성 레일) |
+| Context Tokens | CSS Module 내 | `--_*` | 컴포넌트 스코프 local 변수 |
 
 **클래스 네이밍**: CSS Modules + camelCase (BEM 미사용)
-**핵심 규칙**: context 토큰은 반드시 글로벌 토큰 참조 / var() fallback 금지 / hex 직접 사용 금지
+**핵심 규칙**: context 토큰은 반드시 글로벌 토큰 참조 / var() fallback 금지 / hex 직접 사용 금지 / 컨트롤 (button/input/select) 은 raw `--size-*` 직접 X, Component 토큰 사용
 **디자인 시스템 미리보기**: `/design-system` 라우트
 
 ---

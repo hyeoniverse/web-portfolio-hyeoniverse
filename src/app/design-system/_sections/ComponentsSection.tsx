@@ -289,7 +289,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                   <div className={styles.modalContentCenter}>
                     <Zap size={48} color="var(--color-accent)" />
                     <Typography variant="h4">Design Tokens</Typography>
-                    <Typography variant="body2" color="secondary">A 3-layer token system powering every component with raw, semantic, and contextual variables.</Typography>
+                    <Typography variant="body2" color="secondary">A 4-tier token system: raw → semantic → component → context.</Typography>
                   </div>
                 ))}
               >
