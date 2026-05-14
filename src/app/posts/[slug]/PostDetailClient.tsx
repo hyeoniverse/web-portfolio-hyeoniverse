@@ -78,7 +78,10 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
     const ac = new AbortController();
     const { signal } = ac;
 
-    fetch(`/api/posts/${post.id}/view`, { method: "POST", signal }).catch(() => {});
+    // admin 본인 조회는 skip — 자기 글 inflate 방지 (서버측에서도 한 번 더 거름)
+    if (!isAdmin) {
+      fetch(`/api/posts/${post.id}/view`, { method: "POST", signal }).catch(() => {});
+    }
 
     fetch(`/api/posts/${post.id}/adjacent`, { signal })
       .then((r) => r.json())
@@ -121,7 +124,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [post.id, post.series_id]);
+  }, [post.id, post.series_id, isAdmin]);
 
   const needsTranslation =
     (viewLang === "en" && !post?.content_en) ||

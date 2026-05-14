@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
+  padding: var(--box-b-xl);
 }
 
 .title {
@@ -50,8 +50,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding-top: var(--spacing-lg);
-  padding-bottom: 0;
+  padding: var(--box-t-2xl);
   border-top: var(--border-light);
   /* 진입 모션 — 섹션 단위 stagger fade-in (delay 는 nth-child 기반, 아래) */
   animation: dashSectionIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -70,27 +69,48 @@
 
 /* 섹션 stagger delay — 첫 섹션부터 80ms 씩 누적 */
 .container > .section:nth-child(1),
-.container > .twoCol:nth-child(1) { animation-delay: 0ms; }
+.container > .twoCol:nth-child(1) {
+  animation-delay: 0ms;
+}
 .container > .section:nth-child(2),
-.container > .twoCol:nth-child(2) { animation-delay: 60ms; }
+.container > .twoCol:nth-child(2) {
+  animation-delay: 60ms;
+}
 .container > .section:nth-child(3),
-.container > .twoCol:nth-child(3) { animation-delay: 120ms; }
+.container > .twoCol:nth-child(3) {
+  animation-delay: 120ms;
+}
 .container > .section:nth-child(4),
-.container > .twoCol:nth-child(4) { animation-delay: 180ms; }
+.container > .twoCol:nth-child(4) {
+  animation-delay: 180ms;
+}
 .container > .section:nth-child(5),
-.container > .twoCol:nth-child(5) { animation-delay: 240ms; }
+.container > .twoCol:nth-child(5) {
+  animation-delay: 240ms;
+}
 .container > .section:nth-child(6),
-.container > .twoCol:nth-child(6) { animation-delay: 300ms; }
+.container > .twoCol:nth-child(6) {
+  animation-delay: 300ms;
+}
 .container > .section:nth-child(7),
-.container > .twoCol:nth-child(7) { animation-delay: 360ms; }
+.container > .twoCol:nth-child(7) {
+  animation-delay: 360ms;
+}
 .container > .section:nth-child(8),
-.container > .twoCol:nth-child(8) { animation-delay: 420ms; }
+.container > .twoCol:nth-child(8) {
+  animation-delay: 420ms;
+}
 .container > .section:nth-child(9),
-.container > .twoCol:nth-child(9) { animation-delay: 480ms; }
+.container > .twoCol:nth-child(9) {
+  animation-delay: 480ms;
+}
 
 /* 사용자가 prefers-reduced-motion 설정 시 모션 제거 */
 @media (prefers-reduced-motion: reduce) {
-  .section, .twoCol { animation: none !important; }
+  .section,
+  .twoCol {
+    animation: none !important;
+  }
 }
 
 .sectionTitle {
@@ -138,7 +158,7 @@
   border: none;
   justify-content: flex-start;
   height: auto;
-  padding: var(--spacing-md);
+  padding: var(--box-md-md);
   color: var(--text-primary);
   letter-spacing: normal;
   transition: background-color 0.15s ease;
@@ -151,7 +171,9 @@
 
 /* hover 시 아이콘 살짝 우측 이동 + accent 색 변환 (compound 0,2,1 — Button 의 transition 보다 우선) */
 .quickActions .actionBtn :global(svg) {
-  transition: transform 0.25s var(--ease-material), color 0.2s ease;
+  transition:
+    transform 0.25s var(--ease-material),
+    color 0.2s ease;
 }
 
 .quickActions .actionBtn:hover:not(:disabled) :global(svg) {
@@ -171,7 +193,7 @@
   .quickActions > *:nth-child(2n) {
     border-left: var(--border-light);
   }
-  .quickActions > *:nth-child(n+3) {
+  .quickActions > *:nth-child(n + 3) {
     border-top: var(--border-light);
   }
 }
@@ -193,7 +215,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(180px, 320px);
   gap: var(--spacing-xl);
   align-items: center;
-  padding: var(--spacing-xl) var(--spacing-lg);
+  padding: var(--box-xl-lg);
   border-top: var(--border-light);
   border-bottom: var(--border-light);
   position: relative;
@@ -205,7 +227,7 @@
 @media (max-width: 768px) {
   .heroStat {
     grid-template-columns: 1fr;
-    padding: var(--spacing-lg) var(--spacing-md);
+    padding: var(--box-lg-md);
   }
 }
 
@@ -244,12 +266,20 @@
 }
 
 @keyframes heroValuePop {
-  0% { opacity: 0; transform: translateY(8px) scale(0.96); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .heroValue { animation: none; }
+  .heroValue {
+    animation: none;
+  }
 }
 
 .heroMeta {
@@ -303,13 +333,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--spacing-lg) var(--spacing-md) var(--spacing-xl);
+  padding: var(--box-lg-md);
   border: none;
   border-radius: 0;
   background: transparent;
   text-decoration: none;
   color: inherit;
-  transition: background-color 0.2s ease, transform 0.25s var(--ease-material);
+  transition:
+    background-color 0.2s ease,
+    transform 0.25s var(--ease-material);
   position: relative;
 }
 
@@ -361,23 +393,58 @@ a.statCard:hover .statValue {
   color: var(--text-tertiary);
 }
 
-/* ── 시각화: 발행/초안 비율 바 ── */
-.ratioBar {
+/* ── 공통 progress bar (track + fill) — modifier 로 변형 ──
+   사용처: 발행 비율, referrer pct, dayDetailTop pct, deviceDrill pct, etc.
+   기본: height 6px, track bg-secondary, fill accent. */
+.bar {
   position: relative;
   width: 100%;
-  height: 4px;
+  height: 6px;
+  background: var(--bg-secondary);
   border-radius: var(--radius-capsule);
-  background: var(--border-light-color);
   overflow: hidden;
-  margin-top: var(--spacing-2xs);
 }
 
-.ratioBarFill {
+.barFill {
   position: absolute;
   inset: 0 auto 0 0;
-  background: var(--bg-accent-solid);
+  height: 100%;
+  background: var(--color-accent);
   border-radius: var(--radius-capsule);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modifier: slim (4px) — 비율 바 같은 inline 작은 막대 */
+.barSlim {
+  height: 4px;
+}
+
+/* Modifier: 약한 톤 background (border-light) — light context */
+.barLight {
+  background: var(--border-light-color);
+}
+
+/* Modifier: tertiary 배경 (deviceDrill) */
+.barTertiaryBg {
+  background: var(--bg-tertiary);
+}
+
+/* Fill 변형 */
+.barFillSolid {
+  background: var(--bg-accent-solid);
+}
+
+.barFillSoft {
+  background: var(--color-accent-alpha-50);
+}
+
+.barFillGradient {
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+}
+
+/* ratioBar 전용 — margin-top 으로 inline 정렬 (statCard 내부 사용) */
+.ratioBarSpacer {
+  margin-top: var(--spacing-2xs);
 }
 
 /* ── 시각화: 인기 게시물 미니 막대 ── */
@@ -424,19 +491,28 @@ a.statCard:hover .statValue {
 .sparkArea {
   fill: var(--bg-info-soft);
   opacity: 0;
-  animation: sparkAreaFade 0.6s ease 1.0s both;
+  animation: sparkAreaFade 0.6s ease 1s both;
 }
 
 @keyframes sparkDraw {
-  to { stroke-dashoffset: 0; }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes sparkAreaFade {
-  to { opacity: 1; }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sparkLine, .sparkArea { animation: none; stroke-dashoffset: 0; opacity: 1; }
+  .sparkLine,
+  .sparkArea {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
 }
 
 /* ── 시각화: 댓글 활동 도트 (작성자 분포) ── */
@@ -482,7 +558,7 @@ a.statCard:hover .statValue {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: var(--box-lg-md);
   border: none;
   border-radius: 0;
   min-height: 0;
@@ -518,7 +594,10 @@ a.statCard:hover .statValue {
   overflow: hidden;
   pointer-events: none;
   border-left: none !important;
-  transition: opacity 0.25s ease, visibility 0.25s ease, padding 0.4s var(--ease-material);
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease,
+    padding 0.4s var(--ease-material);
 }
 
 @media (max-width: 768px) {
@@ -540,24 +619,33 @@ a.statCard:hover .statValue {
   margin: 0;
 }
 
-/* 공통 패턴: panel 내부 행이 panel 의 horizontal padding 만큼 negative margin 으로 bleed-out 되어
-   border-bottom 이 panel 양 끝까지 그려짐. listItem/popularItem/commentItem 등에서 composes 로 재사용. */
+/* 공통 panel 내부 row 스타일 — vertical padding (인기 게시물 spacing 기준 = 8) + bottom hairline.
+   horizontal padding 은 부모 .panel 이 책임. items 사이 일관된 행 간격.
+   모든 item (listItem/listItemCol/referrerRow) 이 composes 로 재사용. */
 .panelRow {
-  padding-inline: var(--spacing-md);
-  margin-inline: calc(-1 * var(--spacing-md));
+  padding: var(--box-y-md);
   border-bottom: var(--border-light);
 }
 
 .panelRow:last-child {
   border-bottom: none;
+  padding-bottom: 0;
 }
 
+/* listItem: panel 내부 1줄 row (status / title / date) — padding 은 panelRow 가 책임 */
 .listItem {
   composes: panelRow;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding-block: var(--spacing-2xs);
+}
+
+/* listItemCol: panel 내부 다단 column row (header / body / footer) — popular, comment 공용 */
+.listItemCol {
+  composes: panelRow;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 
 .rank {
@@ -649,12 +737,9 @@ a.statCard:hover .statValue {
 
 /* ── Comment item ── */
 /* popularItem 과 mirror — 동일한 flex-column 3줄 구조 (header + body + footer) */
+/* commentItem alias — listItemCol 로 통합되었으나 기존 child class (commentMeta 등) 참조 위해 유지 */
 .commentItem {
-  composes: panelRow;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding-block: var(--spacing-xs);
+  composes: listItemCol;
 }
 
 .timeAgo {
@@ -682,7 +767,7 @@ a.statCard:hover .statValue {
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--box-sm-md);
 }
 
 /* 두 번째 열은 좌측 vertical divider, 두 번째 행부터는 top hairline */
@@ -690,7 +775,7 @@ a.statCard:hover .statValue {
   border-left: var(--border-light);
 }
 
-.serviceGrid > .serviceItem:nth-child(n+3) {
+.serviceGrid > .serviceItem:nth-child(n + 3) {
   border-top: var(--border-light);
 }
 
@@ -698,7 +783,7 @@ a.statCard:hover .statValue {
   .serviceGrid > .serviceItem:nth-child(2n) {
     border-left: none;
   }
-  .serviceGrid > .serviceItem:nth-child(n+2) {
+  .serviceGrid > .serviceItem:nth-child(n + 2) {
     border-top: var(--border-light);
   }
 }
@@ -779,20 +864,28 @@ a.statCard:hover .statValue {
 }
 
 @keyframes trendBadgeIn {
-  0%   { opacity: 0; transform: translateX(-6px) scale(0.92); }
-  100% { opacity: 1; transform: translateX(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateX(-6px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .trendBadgeLg { animation: none; }
+  .trendBadgeLg {
+    animation: none;
+  }
 }
 
-/* ── Daily Views Chart — 카드 chrome 없이 edge-to-edge ── */
+/* ── Daily Views Chart — panel 패턴과 동일 horizontal padding (가장자리 dot/label 잘림 방지) ── */
 .dailyChart {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  padding: 0;
+  padding: var(--box-x-md);
   border: none;
   border-radius: 0;
   background: transparent;
@@ -889,7 +982,9 @@ a.statCard:hover .statValue {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   font-variant-numeric: tabular-nums;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .periodTriggerBtn:hover {
@@ -917,6 +1012,111 @@ a.statCard:hover .statValue {
   font-size: var(--font-size-2xs);
 }
 
+/* ── viewMode toggle (line / calendar) ── */
+.viewModeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+}
+
+.viewModeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-capsule);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.viewModeBtn:hover {
+  color: var(--text-primary);
+}
+
+.viewModeBtnActive {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ── Calendar heatmap (GitHub-style) ── */
+.calendarHeatmap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--box-md-md);
+}
+
+.calendarRows {
+  display: grid;
+  grid-template-rows: repeat(7, 1fr);
+  grid-row-gap: 2px;
+  position: absolute;
+  margin-left: -16px;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.calendarDow {
+  line-height: 12px;
+  text-align: right;
+  padding-right: 2px;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-rows: repeat(7, 12px);
+  grid-column-gap: 3px;
+  grid-row-gap: 3px;
+  padding-left: 18px;
+}
+
+.calendarCell {
+  width: 100%;
+  height: 12px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 0;
+  transition: outline 0.1s ease;
+}
+
+.calendarCell:hover:not(:disabled) {
+  outline: 1px solid var(--text-primary);
+  outline-offset: 1px;
+}
+
+.calendarCell:disabled {
+  cursor: default;
+}
+
+.calendarLegend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  align-self: flex-end;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.calendarLegendCell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.calendarLegendLabel {
+  margin: 0 var(--spacing-3xs);
+}
+
 /* ── Area chart (일별 조회수) — 좌우 여백 + 하단 여백 ── */
 .areaWrap {
   display: flex;
@@ -930,6 +1130,41 @@ a.statCard:hover .statValue {
   .areaWrap {
     margin-inline: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
+  }
+}
+
+/* Scroll container — 모바일에서 일수 많으면 가로 스크롤. desktop 은 자연 fit.
+   좌우 잘림은 부모 .dailyChart 의 horizontal padding 이 책임. */
+.chartScroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  /* scrollbar 숨김 — Firefox / WebKit / IE */
+  scrollbar-width: none;
+}
+
+.chartScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 마우스 drag 중에만 grabbing 커서 — buttons 내부는 자체 pointer cursor 가 override */
+.chartScroll.chartScrollDragging {
+  cursor: grabbing;
+}
+
+.chartInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* 모바일: 일당 약 24px min-width — 14일이면 ~336px, 90일이면 ~2160px (가로 scroll) */
+@media (max-width: 768px) {
+  .chartInner {
+    min-width: calc(var(--_days, 14) * 24px);
   }
 }
 
@@ -999,7 +1234,11 @@ a.statCard:hover .statValue {
   border-radius: 50%;
   background: var(--bg-accent-solid);
   opacity: 0;
-  transition: opacity 0.15s ease, width 0.15s ease, height 0.15s ease, background-color 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    width 0.15s ease,
+    height 0.15s ease,
+    background-color 0.15s ease;
   border: 2px solid var(--bg-primary);
   box-sizing: content-box;
   pointer-events: none;
@@ -1042,12 +1281,21 @@ a.statCard:hover .statValue {
   transform-origin: bottom;
   animation: selectedLineIn 0.2s ease;
   /* hover 시 다른 dot 으로 부드럽게 슬라이드 — left/top transition */
-  transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1), top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    left 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes selectedLineIn {
-  from { opacity: 0; transform: scaleY(0.6); transform-origin: bottom; }
-  to   { opacity: 1; transform: scaleY(1); }
+  from {
+    opacity: 0;
+    transform: scaleY(0.6);
+    transform-origin: bottom;
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
 }
 
 /* 라벨 컨테이너 — relative, absolute 자식들이 left:%로 배치됨.
@@ -1092,14 +1340,7 @@ a.statCard:hover .statValue {
   color: var(--text-accent);
 }
 
-/* 모바일 — 14일 이하 범위에서 라벨 너무 빽빽할 때 짝수 위치 숨김.
-   :nth-of-type 으로 .areaDay 들 사이에서만 indexing (indicator span 영향 없음) */
-@media (max-width: 768px) {
-  .areaDay:nth-of-type(2n+1) {
-    display: none;
-  }
-}
-
+/* 모바일도 가로 scroll 로 라벨 빽빽함 해결 — 짝수 숨김 안 함 */
 
 /* ── Category donut + 범례 ── */
 .donutWrap {
@@ -1131,13 +1372,9 @@ a.statCard:hover .statValue {
 }
 
 .donutLegend {
+  composes: list;
   flex: 1;
   min-width: 140px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
   gap: 4px;
 }
 
@@ -1206,7 +1443,9 @@ a.statCard:hover .statValue {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
   cursor: default;
 }
 
@@ -1229,7 +1468,9 @@ a.statCard:hover .statValue {
 
 /* ── Donut interactive — wedge hover 강조 ── */
 .donutWedge {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   transform-origin: 70px 70px;
   cursor: default;
 }
@@ -1273,9 +1514,18 @@ a.statCard:hover .statValue {
 }
 
 @keyframes badgePulse {
-  0%   { transform: scale(1);   opacity: 0.6; }
-  70%  { transform: scale(1.7); opacity: 0; }
-  100% { transform: scale(1.7); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  70% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
 }
 
 /* 하단 day 라벨 button reset — 배경은 별도 .dayIndicator (sliding circle) 가 담당 */
@@ -1285,7 +1535,7 @@ a.statCard:hover .statValue {
   padding: 4px 2px;
   cursor: pointer;
   transition: color 0.15s ease;
-  z-index: 1;  /* indicator 위에 텍스트 */
+  z-index: 1; /* indicator 위에 텍스트 */
 }
 
 .areaDay:hover {
@@ -1311,9 +1561,10 @@ a.statCard:hover .statValue {
   border-radius: 50%;
   background: var(--bg-tertiary);
   transform: translate(-50%, -50%);
-  transition: left 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 0.18s ease,
-              transform 0.18s ease;
+  transition:
+    left 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.18s ease,
+    transform 0.18s ease;
   pointer-events: none;
   z-index: 0;
 }
@@ -1331,7 +1582,7 @@ a.statCard:hover .statValue {
 .dayDetail {
   margin-top: var(--spacing-md);
   margin-bottom: var(--spacing-2xl);
-  padding-top: var(--spacing-md);
+  padding: var(--box-except-b-md);
   border-top: var(--border-light);
   position: relative;
   display: flex;
@@ -1386,7 +1637,8 @@ a.statCard:hover .statValue {
   background: var(--bg-secondary);
 }
 
-.dayDetailClose {
+/* ── 공통 icon button atom — circle, hover bg-tertiary. close 버튼 등에서 재사용 ── */
+.iconBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1397,12 +1649,19 @@ a.statCard:hover .statValue {
   border-radius: var(--radius-capsule);
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
-.dayDetailClose:hover {
+.iconBtn:hover {
   color: var(--text-primary);
   background: var(--bg-tertiary);
+}
+
+.iconBtnSm {
+  width: 24px;
+  height: 24px;
 }
 
 /* 메인: 좌(숫자+비교+분포) | 우(인기 게시물) — 2-col, 가운데 vertical divider, 모바일 stack */
@@ -1453,12 +1712,7 @@ a.statCard:hover .statValue {
 }
 
 .dayDetailComparisons {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  composes: list;
 }
 
 /* 행: hairline 으로 구분되는 평면 표 스타일 (capsule hover 제거) */
@@ -1467,7 +1721,7 @@ a.statCard:hover .statValue {
   grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) 0;
+  padding: var(--box-y-md);
   border-bottom: var(--border-light);
   /* stagger animation — 각 행 inline style 의 delay 사용 */
   animation: dayDetailRowIn 0.36s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -1511,8 +1765,14 @@ a.statCard:hover .statValue {
 }
 
 @keyframes dayDetailFadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .trendFlat {
@@ -1547,14 +1807,20 @@ a.statCard:hover .statValue {
 .rangePosFill {
   position: absolute;
   inset: 0 auto 0 0;
-  background: linear-gradient(90deg, var(--color-accent-alpha-30), var(--color-accent));
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-alpha-30),
+    var(--color-accent)
+  );
   border-radius: var(--radius-capsule);
   /* width 는 inline style 로 지정 — 키프레임은 0 에서 시작하도록 from 만 명시 */
   animation: rangeFill 0.6s cubic-bezier(0.4, 0, 0.2, 1) 280ms both;
 }
 
 @keyframes rangeFill {
-  from { width: 0; }
+  from {
+    width: 0;
+  }
 }
 
 .rangePosMarker {
@@ -1572,8 +1838,13 @@ a.statCard:hover .statValue {
 }
 
 @keyframes rangeMarker {
-  from { left: 0%; opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    left: 0%;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .rangePosBounds {
@@ -1587,22 +1858,14 @@ a.statCard:hover .statValue {
 
 /* ── 인기 게시물 — 다중 메타 (카테고리/날짜/조회/좋아요/댓글) ── */
 .popularList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  composes: list;
 }
 
 /* 인기 게시물 / 최근 댓글 — mirror 구조 (3줄: 메타+본문+서브) 로 행 높이 통일.
    둘 다 .commentItem/.popularItem 둘 다 동일한 padding-block + gap + line-height 로 정렬 */
+/* popularItem alias — listItemCol 로 통합 */
 .popularItem {
-  composes: panelRow;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  padding-block: var(--spacing-xs);
+  composes: listItemCol;
 }
 
 /* L1: rank + 메인 stats — comment 의 commentMeta(author+time) 와 동일 사이즈
@@ -1756,11 +2019,7 @@ a.commentSource:hover {
 }
 
 .dayDetailTopList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+  composes: list;
   gap: var(--spacing-2xs);
 }
 
@@ -1796,26 +2055,19 @@ a.commentSource:hover {
   color: var(--text-accent);
 }
 
-.dayDetailTopBarTrack {
-  position: relative;
-  height: 6px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-}
-
-.dayDetailTopBarFill {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
-  border-radius: var(--radius-capsule);
+/* dayDetailTop / deviceDrill bar 의 fill enter animation — scaleX 0→1 */
+.barFillEnter {
   transform-origin: left center;
-  animation: dayDetailTopBarIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: barFillIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-@keyframes dayDetailTopBarIn {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
+@keyframes barFillIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .dayDetailTopViews {
@@ -1830,12 +2082,7 @@ a.commentSource:hover {
 
 /* ── Traffic Sources — referrer horizontal bar ── */
 .referrerList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  composes: list;
 }
 
 .referrerRow {
@@ -1861,22 +2108,8 @@ a.commentSource:hover {
   color: var(--text-tertiary);
 }
 
-.referrerBarTrack {
-  width: 100%;
-  height: 6px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-}
-
-.referrerBar {
-  height: 100%;
-  background: var(--color-accent-alpha-50);
-  border-radius: var(--radius-capsule);
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.referrerRow:hover .referrerBar {
+/* referrerRow hover 시 fill 강조 — bar atom 위에 작용 */
+.referrerRow:hover .barFill {
   background: var(--color-accent-alpha-70);
 }
 
@@ -1913,13 +2146,9 @@ a.commentSource:hover {
 }
 
 .deviceLegend {
+  composes: list;
   flex: 1;
   min-width: 140px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
   gap: var(--spacing-xs);
 }
 
@@ -1958,7 +2187,9 @@ button.deviceLegendBtn:hover {
 
 .deviceLegendChevron {
   color: var(--text-tertiary);
-  transition: transform 0.2s ease, color 0.15s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.15s ease;
 }
 
 button.deviceLegendBtn:hover .deviceLegendChevron {
@@ -2013,7 +2244,9 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
   font-weight: 600;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .deviceTab:hover {
@@ -2032,8 +2265,14 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 }
 
 @keyframes deviceTabFade {
-  from { opacity: 0; transform: translateY(2px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Devices drill-down — 표 기반 디자인에 맞춰 카드 chrome 제거, 위쪽 hairline ── */
@@ -2045,8 +2284,14 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 }
 
 @keyframes deviceDrillIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .deviceDrillHeader {
@@ -2066,23 +2311,8 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 }
 
 .deviceDrillClose {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-capsule);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  composes: iconBtn iconBtnSm;
   --close-size: 12px;
-}
-
-.deviceDrillClose:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
 }
 
 .deviceDrillEmpty {
@@ -2092,11 +2322,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 }
 
 .deviceDrillList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+  composes: list;
   gap: var(--spacing-2xs);
 }
 
@@ -2112,8 +2338,14 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 }
 
 @keyframes deviceDrillRowIn {
-  from { opacity: 0; transform: translateX(-4px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .deviceDrillName {
@@ -2121,28 +2353,6 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.deviceDrillBarTrack {
-  position: relative;
-  height: 6px;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-}
-
-.deviceDrillBarFill {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
-  border-radius: var(--radius-capsule);
-  transform-origin: left center;
-  animation: deviceDrillBarIn 0.5s var(--ease-material) both;
-}
-
-@keyframes deviceDrillBarIn {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
 }
 
 .deviceDrillCount {

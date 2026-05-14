@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import { Plus, Settings, Bell, TrendingUp, TrendingDown, MessageSquare, Eye, Heart, Globe, Smartphone, Monitor, Tablet, ChevronRight } from "lucide-react";
+import { Plus, Settings, Bell, TrendingUp, TrendingDown, MessageSquare, Eye, Heart, Globe, Smartphone, Monitor, Tablet, ChevronRight, LineChart, CalendarDays } from "lucide-react";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
@@ -447,11 +447,16 @@ export default function AdminDashboard() {
             <ul className={styles.list}>
               {data.posts.recent.map((p) => (
                 <li key={p.id} className={styles.listItem}>
-                  <span className={p.published ? styles.statusPub : styles.statusDraft}>
-                    {p.published ? <T k="admin.dashboard.published" /> : <T k="admin.dashboard.draft" />}
-                  </span>
-                  <Link href={`/admin/posts/${p.id}`} className={styles.itemTitle}>{p.title}</Link>
-                  <span className={styles.itemDate}>{fmtDate(p.updated_at)}</span>
+                  <Link
+                    href={p.published ? `/posts/${p.slug}` : `/admin/posts/${p.id}/edit`}
+                    className={styles.listItemLink}
+                  >
+                    <span className={p.published ? styles.statusPub : styles.statusDraft}>
+                      {p.published ? <T k="admin.dashboard.published" /> : <T k="admin.dashboard.draft" />}
+                    </span>
+                    <span className={styles.itemTitle}>{p.title}</span>
+                    <span className={styles.itemDate}>{fmtDate(p.updated_at)}</span>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -488,37 +493,49 @@ export default function AdminDashboard() {
           {data.stats.referrers && (
             <div className={`${styles.panel} ${deviceDrillKind ? styles.panelCollapsed : ""}`} aria-hidden={!!deviceDrillKind}>
               <h2 className={styles.sectionTitle}><T k="admin.dashboard.trafficSources" /></h2>
-              <ul className={styles.referrerList}>
-                {data.stats.referrers.map((r) => (
-                  <li key={r.source} className={styles.referrerRow}>
-                    <span className={styles.referrerSource}>
-                      <Globe size={11} strokeWidth={2} />
-                      {r.source}
-                    </span>
-                    <div className={styles.referrerBarTrack} aria-hidden>
-                      <div className={styles.referrerBar} style={{ width: `${r.pct}%` }} />
-                    </div>
-                    <span className={styles.referrerMeta}>
-                      <span className={styles.referrerPct}>{r.pct}%</span>
-                      <span className={styles.referrerCount}>{r.count.toLocaleString()}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              {data.stats.referrers.length === 0 ? (
+                <p className={styles.muted}>
+                  {language === "ko" ? "아직 방문 데이터가 없습니다." : "No visit data yet."}
+                </p>
+              ) : (
+                <ul className={styles.referrerList}>
+                  {data.stats.referrers.map((r) => (
+                    <li key={r.source} className={styles.referrerRow}>
+                      <span className={styles.referrerSource}>
+                        <Globe size={11} strokeWidth={2} />
+                        {r.source}
+                      </span>
+                      <div className={styles.bar} aria-hidden>
+                        <div className={`${styles.barFill} ${styles.barFillSoft}`} style={{ width: `${r.pct}%` }} />
+                      </div>
+                      <span className={styles.referrerMeta}>
+                        <span className={styles.referrerPct}>{r.pct}%</span>
+                        <span className={styles.referrerCount}>{r.count.toLocaleString()}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
           {data.stats.devices && (
             <div className={styles.panel}>
               <h2 className={styles.sectionTitle}><T k="admin.dashboard.devices" /></h2>
-              <DevicesBreakdown
-                deviceTypes={data.stats.devices}
-                operatingSystems={data.stats.operatingSystems}
-                browsers={data.stats.browsers}
-                deviceModels={data.stats.deviceModels}
-                language={language}
-                drillKind={deviceDrillKind}
-                onDrillChange={setDeviceDrillKind}
-              />
+              {data.stats.devices.length === 0 ? (
+                <p className={styles.muted}>
+                  {language === "ko" ? "아직 방문 데이터가 없습니다." : "No visit data yet."}
+                </p>
+              ) : (
+                <DevicesBreakdown
+                  deviceTypes={data.stats.devices}
+                  operatingSystems={data.stats.operatingSystems}
+                  browsers={data.stats.browsers}
+                  deviceModels={data.stats.deviceModels}
+                  language={language}
+                  drillKind={deviceDrillKind}
+                  onDrillChange={setDeviceDrillKind}
+                />
+              )}
             </div>
           )}
         </section>
@@ -803,9 +820,9 @@ function DeviceModelsPanel({
               style={{ animationDelay: `${i * 40}ms` }}
             >
               <span className={styles.deviceDrillName} title={m.model}>{m.model}</span>
-              <span className={styles.deviceDrillBarTrack}>
+              <span className={`${styles.bar} ${styles.barTertiaryBg}`}>
                 <span
-                  className={styles.deviceDrillBarFill}
+                  className={`${styles.barFill} ${styles.barFillGradient} ${styles.barFillEnter}`}
                   style={{ width: `${(m.count / max) * 100}%` }}
                 />
               </span>
@@ -821,11 +838,12 @@ function DeviceModelsPanel({
 
 /* ── 시각화 컴포넌트 ── */
 function RatioBar({ published, total }: { published: number; total: number }) {
-  if (total === 0) return <div className={styles.ratioBar} aria-hidden />;
+  const cls = `${styles.bar} ${styles.barSlim} ${styles.barLight} ${styles.ratioBarSpacer}`;
+  if (total === 0) return <div className={cls} aria-hidden />;
   const pct = Math.max(0, Math.min(100, (published / total) * 100));
   return (
-    <div className={styles.ratioBar} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)}>
-      <div className={styles.ratioBarFill} style={{ width: `${pct}%` }} />
+    <div className={cls} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)}>
+      <div className={`${styles.barFill} ${styles.barFillSolid}`} style={{ width: `${pct}%` }} />
     </div>
   );
 }
@@ -865,6 +883,42 @@ function DailyViewsChart({
   const [openPicker, setOpenPicker] = useState<"start" | "end" | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<"line" | "calendar">("line");
+
+  /* 마우스 drag-to-scroll — chartScroll 영역에서 mousedown + 이동하면 가로 스크롤.
+     touch 는 native pan-x 가 이미 동작. drag 가 임계값 (>5px) 넘으면 click 차단.
+     dragging state 로 cursor: grabbing 토글. */
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const dragState = useRef<{ active: boolean; startX: number; startScroll: number; moved: boolean }>({
+    active: false, startX: 0, startScroll: 0, moved: false,
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const el = scrollRef.current;
+    if (!el) return;
+    dragState.current = { active: true, startX: e.clientX, startScroll: el.scrollLeft, moved: false };
+    setIsDragging(true);
+  };
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragState.current.active) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const dx = e.clientX - dragState.current.startX;
+    if (Math.abs(dx) > 5) dragState.current.moved = true;
+    el.scrollLeft = dragState.current.startScroll - dx;
+  };
+  const handlePointerUp = () => {
+    dragState.current.active = false;
+    setIsDragging(false);
+  };
+  const handleClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (dragState.current.moved) {
+      e.stopPropagation();
+      e.preventDefault();
+      dragState.current.moved = false;
+    }
+  };
 
   // 시작일이 종료일보다 늦으면 자동 swap (사용자가 거꾸로 골랐을 때 보정)
   const [normStart, normEnd] = startDate <= endDate ? [startDate, endDate] : [endDate, startDate];
@@ -980,8 +1034,8 @@ function DailyViewsChart({
   const activeIdx = hoveredIdx ?? selectedIdx;
   const activePt = activeIdx !== null ? points[activeIdx] : null;
 
-  // 라벨 culling — 90일이면 모든 라벨이 빽빽하므로 ~10개 정도로 추리기
-  const labelStep = data.length <= 14 ? 1 : Math.ceil(data.length / 10);
+  // 라벨 culling — 30일 이하면 모두 표시. 그 이상은 ~14개 정도로 추리기
+  const labelStep = data.length <= 30 ? 1 : Math.ceil(data.length / 14);
   const showLabel = (i: number) => i === 0 || i === data.length - 1 || i % labelStep === 0;
 
   const toggle = (i: number) => setSelectedIdx((cur) => (cur === i ? null : i));
@@ -1040,6 +1094,26 @@ function DailyViewsChart({
               </span>
             </div>
           )}
+          <div className={styles.viewModeToggle} role="tablist" aria-label="View mode">
+            <button
+              type="button"
+              className={`${styles.viewModeBtn} ${viewMode === "line" ? styles.viewModeBtnActive : ""}`}
+              onClick={() => setViewMode("line")}
+              aria-pressed={viewMode === "line"}
+              title={language === "ko" ? "라인 차트" : "Line chart"}
+            >
+              <LineChart size={13} strokeWidth={2} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.viewModeBtn} ${viewMode === "calendar" ? styles.viewModeBtnActive : ""}`}
+              onClick={() => setViewMode("calendar")}
+              aria-pressed={viewMode === "calendar"}
+              title={language === "ko" ? "캘린더" : "Calendar"}
+            >
+              <CalendarDays size={13} strokeWidth={2} />
+            </button>
+          </div>
         </div>
       </div>
       <div
@@ -1048,6 +1122,26 @@ function DailyViewsChart({
         aria-label={t("admin.dashboard.dailyViewsTitle")}
         onMouseLeave={() => setHoveredIdx(null)}
       >
+        {viewMode === "calendar" ? (
+          <CalendarHeatmap data={rawData} language={language} onSelectDay={(day) => {
+            const idx = data.findIndex((d) => d.day === day);
+            if (idx >= 0) setSelectedIdx(idx);
+          }} />
+        ) : (<>
+        {/* 모바일에서 일수가 많으면 가로 스크롤 — min-width 가 일당 24px 정도로 늘어나 scroll 발생.
+            desktop 에서는 width: 100% 로 fit-to-container, scroll 안 일어남.
+            마우스 drag-to-scroll 도 지원 — touch 는 native pan-x 가 알아서 처리. */}
+        <div
+          ref={scrollRef}
+          className={`${styles.chartScroll} ${isDragging ? styles.chartScrollDragging : ""}`}
+          style={{ ["--_days" as string]: String(data.length) }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          onClickCapture={handleClickCapture}
+        >
+        <div className={styles.chartInner}>
         {/* path 만 SVG — 늘어나도 곡선 형태는 자연스러움 */}
         <div className={styles.chartArea}>
           <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className={styles.areaSvg}>
@@ -1164,6 +1258,9 @@ function DailyViewsChart({
             );
           })}
         </div>
+        </div>
+        </div>
+        </>)}
       </div>
       {/* 선택된 날짜 상세 패널 */}
       {selectedIdx !== null && (
@@ -1425,9 +1522,9 @@ function DayDetailPanel({
                     <Link href={`/posts/${p.slug}`} className={styles.dayDetailTopTitle}>
                       {p.title}
                     </Link>
-                    <span className={styles.dayDetailTopBarTrack} aria-hidden>
+                    <span className={styles.bar} aria-hidden>
                       <span
-                        className={styles.dayDetailTopBarFill}
+                        className={`${styles.barFill} ${styles.barFillGradient} ${styles.barFillEnter}`}
                         style={{ width: `${pct}%` }}
                       />
                     </span>
@@ -1480,23 +1577,125 @@ function RangePosition({ values, selectedValue, label }: { values: number[]; sel
 }
 
 /** Catmull-Rom 보간으로 cubic bezier path 생성 (부드러운 곡선) */
+/** Monotone cubic Hermite interpolation (Fritsch-Carlson).
+   Catmull-Rom 의 overshoot 없이 자연스러운 smooth curve 보장 — baseline 아래로 dip 안 함. */
 function buildSmoothPath(pts: { x: number; y: number }[]): string {
-  if (pts.length === 0) return "";
-  if (pts.length === 1) return `M${pts[0].x},${pts[0].y}`;
-  const tension = 0.4;
+  const n = pts.length;
+  if (n === 0) return "";
+  if (n === 1) return `M${pts[0].x},${pts[0].y}`;
+
+  // 1. 인접 segment slopes
+  const m: number[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    const dx = pts[i + 1].x - pts[i].x;
+    m.push(dx === 0 ? 0 : (pts[i + 1].y - pts[i].y) / dx);
+  }
+
+  // 2. 각 point 의 tangent (Fritsch-Carlson: 부호 다르면 0, 같으면 weighted harmonic)
+  const t: number[] = new Array(n);
+  t[0] = m[0];
+  t[n - 1] = m[n - 2];
+  for (let i = 1; i < n - 1; i++) {
+    if (m[i - 1] * m[i] <= 0) {
+      t[i] = 0;
+    } else {
+      const dx1 = pts[i].x - pts[i - 1].x;
+      const dx2 = pts[i + 1].x - pts[i].x;
+      const common = dx1 + dx2;
+      t[i] = (3 * common) / ((common + dx2) / m[i - 1] + (common + dx1) / m[i]);
+    }
+  }
+
+  // 3. tangent → cubic Bezier control points
   let d = `M${pts[0].x},${pts[0].y}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] ?? pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2] ?? pts[i + 1];
-    const cp1x = p1.x + (p2.x - p0.x) * tension / 2;
-    const cp1y = p1.y + (p2.y - p0.y) * tension / 2;
-    const cp2x = p2.x - (p3.x - p1.x) * tension / 2;
-    const cp2y = p2.y - (p3.y - p1.y) * tension / 2;
-    d += ` C${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
+  for (let i = 0; i < n - 1; i++) {
+    const dx = pts[i + 1].x - pts[i].x;
+    const cp1x = pts[i].x + dx / 3;
+    const cp1y = pts[i].y + (t[i] * dx) / 3;
+    const cp2x = pts[i + 1].x - dx / 3;
+    const cp2y = pts[i + 1].y - (t[i + 1] * dx) / 3;
+    d += ` C${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${pts[i + 1].x.toFixed(2)},${pts[i + 1].y.toFixed(2)}`;
   }
   return d;
+}
+
+/** GitHub-style 캘린더 히트맵 — 7행(요일) × N열(주). 각 셀은 그날 조회수에 따라 4단계 accent 농도. */
+function CalendarHeatmap({
+  data,
+  language,
+  onSelectDay,
+}: {
+  data: { day: string; views: number }[];
+  language: "ko" | "en";
+  onSelectDay?: (day: string) => void;
+}) {
+  /* 마지막 12주 (84일) 표시. 마지막 데이터의 요일이 우측 마지막 column 의 행 위치. */
+  const WEEKS = 12;
+  const rows = 7; // Sun(0) ~ Sat(6)
+  const cells: Array<Array<{ day: string; views: number } | null>> = Array.from({ length: WEEKS }, () => Array(rows).fill(null));
+  const recent = data.slice(-WEEKS * rows);
+  if (recent.length > 0) {
+    const lastDay = recent[recent.length - 1].day;
+    const lastDow = new Date(`${lastDay}T00:00:00Z`).getUTCDay(); // 0=Sun
+    /* lastDay 가 마지막 column 의 lastDow 행에 위치. 거꾸로 채워나감. */
+    for (let i = recent.length - 1, col = WEEKS - 1, row = lastDow; i >= 0; i--) {
+      cells[col][row] = recent[i];
+      row -= 1;
+      if (row < 0) { row = 6; col -= 1; }
+      if (col < 0) break;
+    }
+  }
+
+  /* 색상 단계 — 0 / low / mid / high. quantile 기반. */
+  const nonZero = recent.filter((d) => d.views > 0).map((d) => d.views).sort((a, b) => a - b);
+  const q = (p: number) => nonZero.length === 0 ? 0 : nonZero[Math.floor(nonZero.length * p)] ?? 0;
+  const lvl1 = q(0.33);
+  const lvl2 = q(0.66);
+  const colorFor = (v: number) => {
+    if (v <= 0) return "var(--bg-secondary)";
+    if (v <= lvl1) return "var(--color-accent-alpha-30)";
+    if (v <= lvl2) return "var(--color-accent-alpha-50)";
+    return "var(--color-accent)";
+  };
+
+  const dowLabels = language === "ko" ? ["일", "월", "화", "수", "목", "금", "토"] : ["S", "M", "T", "W", "T", "F", "S"];
+
+  return (
+    <div className={styles.calendarHeatmap}>
+      <div className={styles.calendarRows}>
+        {dowLabels.map((d, i) => (
+          <span key={i} className={styles.calendarDow}>{i % 2 === 1 ? d : ""}</span>
+        ))}
+      </div>
+      <div className={styles.calendarGrid} style={{ gridTemplateColumns: `repeat(${WEEKS}, 1fr)` }}>
+        {cells.map((week, ci) =>
+          week.map((cell, ri) => (
+            <button
+              key={`${ci}-${ri}`}
+              type="button"
+              className={styles.calendarCell}
+              style={{ background: cell ? colorFor(cell.views) : "transparent", gridColumn: ci + 1, gridRow: ri + 1 }}
+              onClick={cell ? () => onSelectDay?.(cell.day) : undefined}
+              disabled={!cell}
+              title={cell ? `${cell.day} · ${cell.views.toLocaleString()}` : ""}
+              aria-label={cell ? `${cell.day}: ${cell.views} views` : "empty"}
+            />
+          )),
+        )}
+      </div>
+      <div className={styles.calendarLegend}>
+        <span className={styles.calendarLegendLabel}>{language === "ko" ? "적음" : "Less"}</span>
+        {[0, 1, 2, 3].map((i) => (
+          <span
+            key={i}
+            className={styles.calendarLegendCell}
+            style={{ background: ["var(--bg-secondary)", "var(--color-accent-alpha-30)", "var(--color-accent-alpha-50)", "var(--color-accent)"][i] }}
+          />
+        ))}
+        <span className={styles.calendarLegendLabel}>{language === "ko" ? "많음" : "More"}</span>
+      </div>
+    </div>
+  );
 }
 
 /** 카테고리 분포 — interactive 도넛: wedge 또는 범례 항목 hover 시 중앙 라벨 + 해당 wedge 강조 */

@@ -331,23 +331,25 @@ CREATE POLICY "site_visits_service_all"
 -- 7-1. post_views — 게시물별 일별 조회수 (시계열)
 --      관리자 대시보드의 일별 추세 차트용
 --      posts.view_count 는 누적 카운터로 유지, 시계열 분석은 이 테이블에서
+--      viewed_date — KST 기준 날짜 (Asia/Seoul). dedup boundary + 일별 group by 통일
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS post_views (
-  id        uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  post_id   uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  ip        text,
-  viewed_at timestamptz NOT NULL DEFAULT now()
+  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  post_id     uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  ip          text,
+  viewed_at   timestamptz NOT NULL DEFAULT now(),
+  viewed_date date GENERATED ALWAYS AS ((viewed_at AT TIME ZONE 'Asia/Seoul')::date) STORED
 );
 
 -- 시간 범위 + post 별 조회용
 CREATE INDEX IF NOT EXISTS idx_post_views_post_id_viewed_at
   ON post_views (post_id, viewed_at DESC);
--- IP 별 dedup 빠른 조회용 (1일 1회 view 제한)
-CREATE INDEX IF NOT EXISTS idx_post_views_post_ip_viewed_at
-  ON post_views (post_id, ip, viewed_at DESC);
--- 전체 시계열 (대시보드 일별 추세)
-CREATE INDEX IF NOT EXISTS idx_post_views_viewed_at
-  ON post_views (viewed_at DESC);
+-- 일별 group by (KST) 빠른 조회
+CREATE INDEX IF NOT EXISTS idx_post_views_viewed_date
+  ON post_views (viewed_date DESC);
+-- IP+date dedup unique constraint — 동시 race condition 방지
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_post_views_post_ip_date
+  ON post_views (post_id, ip, viewed_date);
 
 ALTER TABLE post_views ENABLE ROW LEVEL SECURITY;
 
@@ -534,6 +536,38 @@ AS $$
   UPDATE posts SET view_count = COALESCE(view_count, 0) + 1 WHERE id = p_post_id;
 $$;
 
+-- 조회수 기록 — dedup (IP+post+KST date 1회) + post_views insert + posts.view_count +1 을 한 트랜잭션.
+-- 동시 race 는 uniq_post_views_post_ip_date 가 차단 (ON CONFLICT DO NOTHING).
+-- 반환: true = 새로 카운트, false = 오늘 이미 카운트됨
+CREATE OR REPLACE FUNCTION record_post_view(p_post_id uuid, p_ip text)
+RETURNS boolean
+LANGUAGE plpgsql
+VOLATILE
+AS $$
+DECLARE
+  v_inserted boolean := false;
+BEGIN
+  -- post 존재 확인 (FK violation 방지)
+  IF NOT EXISTS (SELECT 1 FROM posts WHERE id = p_post_id AND deleted_at IS NULL) THEN
+    RETURN false;
+  END IF;
+
+  -- dedup + insert atomically
+  INSERT INTO post_views (post_id, ip)
+  VALUES (p_post_id, p_ip)
+  ON CONFLICT (post_id, ip, viewed_date) DO NOTHING;
+
+  GET DIAGNOSTICS v_inserted = ROW_COUNT;
+
+  IF v_inserted THEN
+    UPDATE posts SET view_count = COALESCE(view_count, 0) + 1 WHERE id = p_post_id;
+    RETURN true;
+  END IF;
+
+  RETURN false;
+END;
+$$;
+
 -- 모든 게시물 누적 view_count 합계 — 대시보드의 totalPostViews 용
 -- (없으면 라우트가 클라이언트 측 fallback으로 합산하지만, RPC 가 더 효율적)
 CREATE OR REPLACE FUNCTION sum_post_views()
@@ -546,21 +580,19 @@ AS $$
   WHERE deleted_at IS NULL;
 $$;
 
--- 일별 게시물 조회수 시계열 — 대시보드 차트용
+-- 일별 게시물 조회수 시계열 — 대시보드 차트용 (KST 기준)
+-- viewed_date 는 generated column 으로 (viewed_at AT TIME ZONE 'Asia/Seoul')::date
 -- 사용: SELECT * FROM daily_post_views('2026-01-01'::date, '2026-01-31'::date);
 CREATE OR REPLACE FUNCTION daily_post_views(p_start date, p_end date)
 RETURNS TABLE(day date, views bigint)
 LANGUAGE sql
 STABLE
 AS $$
-  SELECT
-    date_trunc('day', viewed_at)::date AS day,
-    COUNT(*)::bigint AS views
+  SELECT viewed_date AS day, COUNT(*)::bigint AS views
   FROM post_views
-  WHERE viewed_at >= p_start
-    AND viewed_at < (p_end + INTERVAL '1 day')
-  GROUP BY day
-  ORDER BY day ASC;
+  WHERE viewed_date >= p_start AND viewed_date <= p_end
+  GROUP BY viewed_date
+  ORDER BY viewed_date ASC;
 $$;
 
 -- 예약 발행 cron 용 — 시간이 도달한 예약 게시물/작품을 발행 처리
