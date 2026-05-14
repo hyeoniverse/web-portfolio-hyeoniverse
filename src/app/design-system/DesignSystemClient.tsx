@@ -157,7 +157,7 @@ export default function DesignSystemClient() {
           </motion.div>
           <h1 className={styles.title}>Design System</h1>
           <motion.p className={styles.subtitle} initial="hidden" {...vp(nd())} variants={staggerItem}>
-            Raw Tokens → Semantic Tokens → Context Variables
+            Raw → Semantic → Component → Context
           </motion.p>
 
           {/* ─── Principles ─── */}
@@ -167,31 +167,35 @@ export default function DesignSystemClient() {
             {/* Principle items — SVG + text rows */}
             {[
               {
-                title: "3-Layer Abstraction",
+                title: "4-Tier Abstraction",
                 desc: language === "ko"
-                  ? "Raw → Semantic → Context. 원시 값을 직접 쓰지 않고 3단계 계층으로 변경의 영향 범위를 제어합니다."
-                  : "Raw → Semantic → Context. Three layers of abstraction control the blast radius of any change.",
+                  ? "Raw → Semantic → Component → Context. 원시 값을 직접 쓰지 않고 4단계 계층으로 변경의 영향 범위를 제어합니다. Component 토큰은 button/input 같은 컴포넌트 typing 으로 실수를 방지하는 레일 역할."
+                  : "Raw → Semantic → Component → Context. Four layers control the blast radius of any change. Component tokens (typed by button/input/etc.) act as guardrails against inconsistency.",
                 icon: (
-                  <svg viewBox="0 0 120 80" fill="none" className={styles.pIcon}>
-                    {/* Raw capsule */}
-                    <rect x="0" y="28" width="32" height="24" rx="12" fill="var(--color-neutral-alpha-15)" />
-                    <text x="16" y="44" textAnchor="middle" fontSize="8" fontWeight="600" fill="var(--text-primary)">RAW</text>
-                    {/* Arrow 1 */}
-                    <line x1="34" y1="40" x2="42" y2="40" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.4" />
-                    <polygon points="42,37 48,40 42,43" fill="var(--text-primary)" opacity="0.4" />
-                    {/* Semantic capsule */}
-                    <rect x="50" y="24" width="28" height="32" rx="14" fill="color-mix(in srgb, var(--color-accent) 25%, transparent)" />
-                    <text x="64" y="44" textAnchor="middle" fontSize="7" fontWeight="600" fill="var(--text-accent)">SEM</text>
-                    {/* Arrow 2 */}
-                    <line x1="80" y1="40" x2="88" y2="40" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.4" />
-                    <polygon points="88,37 94,40 88,43" fill="var(--text-primary)" opacity="0.4" />
-                    {/* Context capsule */}
-                    <rect x="96" y="28" width="24" height="24" rx="12" fill="color-mix(in srgb, var(--color-success) 20%, transparent)" />
-                    <text x="108" y="44" textAnchor="middle" fontSize="7" fontWeight="600" fill="var(--color-success)">CTX</text>
-                    {/* Codes below */}
-                    <text x="16" y="64" textAnchor="middle" fontSize="6" fill="var(--text-muted)">--neutral-900</text>
-                    <text x="64" y="64" textAnchor="middle" fontSize="6" fill="var(--text-muted)">--text-primary</text>
-                    <text x="108" y="64" textAnchor="middle" fontSize="6" fill="var(--text-muted)">--_heading</text>
+                  <svg viewBox="0 0 160 80" fill="none" className={styles.pIcon}>
+                    {/* Raw */}
+                    <rect x="0" y="28" width="28" height="24" rx="12" fill="var(--color-neutral-alpha-15)" />
+                    <text x="14" y="44" textAnchor="middle" fontSize="8" fontWeight="600" fill="var(--text-primary)">RAW</text>
+                    <line x1="30" y1="40" x2="38" y2="40" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.4" />
+                    <polygon points="38,37 44,40 38,43" fill="var(--text-primary)" opacity="0.4" />
+                    {/* Semantic */}
+                    <rect x="46" y="24" width="28" height="32" rx="14" fill="color-mix(in srgb, var(--color-accent) 25%, transparent)" />
+                    <text x="60" y="44" textAnchor="middle" fontSize="7" fontWeight="600" fill="var(--text-accent)">SEM</text>
+                    <line x1="76" y1="40" x2="84" y2="40" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.4" />
+                    <polygon points="84,37 90,40 84,43" fill="var(--text-primary)" opacity="0.4" />
+                    {/* Component */}
+                    <rect x="92" y="26" width="28" height="28" rx="13" fill="color-mix(in srgb, var(--color-info) 25%, transparent)" />
+                    <text x="106" y="44" textAnchor="middle" fontSize="7" fontWeight="600" fill="var(--color-info)">CMP</text>
+                    <line x1="122" y1="40" x2="130" y2="40" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.4" />
+                    <polygon points="130,37 136,40 130,43" fill="var(--text-primary)" opacity="0.4" />
+                    {/* Context */}
+                    <rect x="138" y="28" width="22" height="24" rx="11" fill="color-mix(in srgb, var(--color-success) 20%, transparent)" />
+                    <text x="149" y="44" textAnchor="middle" fontSize="6" fontWeight="600" fill="var(--color-success)">CTX</text>
+                    {/* Codes */}
+                    <text x="14" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--size-sm</text>
+                    <text x="60" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--text-primary</text>
+                    <text x="106" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--button-h-sm</text>
+                    <text x="149" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--_h</text>
                   </svg>
                 ),
               },

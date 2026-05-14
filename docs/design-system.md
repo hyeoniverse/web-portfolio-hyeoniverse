@@ -4,13 +4,20 @@
 
 ---
 
-## 1. 토큰 3-레이어 구조
+## 1. 토큰 4-레이어 구조
 
 ```
-Raw Tokens          →  Semantic Tokens       →  Context Tokens
-(src/styles/tokens/)   (globals/_semantic.css)   (CSS Module: --_*)
-원시값 (숫자/색상)       의미 부여 (역할 이름)         컴포넌트 스코프
+Raw Tokens           →  Semantic Tokens          →  Component Tokens         →  Context Tokens
+(src/styles/tokens/)    (globals/_semantic.css)     (globals/_semantic.css)     (CSS Module: --_*)
+원시값 (숫자/색상)         역할 기반, 컴포넌트 무관        컴포넌트 typing (일관성 레일)    컴포넌트 내부 local 변수
 ```
+
+| Layer | 위치 | 예시 | 역할 |
+|---|---|---|---|
+| Raw | `tokens/` | `--size-sm: 28px`, `--color-neutral-900` | 원시 값 |
+| Semantic | `_semantic.css` (Layer 2) | `--text-primary`, `--border-default`, `--bg-accent` | 의미/역할 부여, 컴포넌트 무관 |
+| Component | `_semantic.css` (Layer 3) | `--button-h-sm`, `--input-h`, `--card-padding` | 컴포넌트별 spec (실수 방지 레일) |
+| Context | CSS Module `--_*` | `--_h: var(--button-h-sm)`, `--_color: var(--text-accent)` | module 내부 local 변수 (variant 처리) |
 
 ### Layer 1 — Raw Tokens (`src/styles/tokens/`)
 
@@ -66,7 +73,28 @@ Raw Tokens          →  Semantic Tokens       →  Context Tokens
 --editorial-space-section, --editorial-space-block
 ```
 
-### Layer 3 — Context Tokens (CSS Module 내 `--_*`)
+### Layer 3 — Component Tokens (`_semantic.css` 안, 컴포넌트 typing)
+
+컴포넌트 타입을 이름에 박은 토큰. **일관성 레일** 역할 — 컴포넌트 CSS 에서 raw `--size-*` 를 직접 쓰지 않고
+이 토큰을 거치면 다른 사이즈 골라서 일관성 깨지는 실수를 방지함. Carbon / Primer 등 실무 DS 의 흔한 패턴.
+
+```css
+/* Control heights — slim 톤. raw --size-* 참조 */
+--button-h-xs: var(--size-xs);   /* 22 — icon-only btn, dense chip */
+--button-h-sm: var(--size-sm);   /* 28 — 일반 button */
+--button-h-md: var(--size-md);   /* 36 — primary CTA */
+--button-h-lg: var(--size-lg);   /* 44 — hero CTA */
+
+--input-h: var(--size-sm);       /* 28 — input / select 기본 */
+--input-h-lg: var(--size-md);    /* 36 — 큰 input (드물게) */
+```
+
+**사용 규칙**:
+- 버튼·인풋·셀렉트 등 컨트롤은 raw `--size-*` 직접 X → Component 토큰 사용
+- 컴포넌트 사이 정책을 독립 조정 가능 (예: button 만 키우고 싶을 때 `--button-h-sm` 만 수정)
+- 새 컴포넌트가 등장하면 `--*-h-*`, `--*-padding` 형태로 추가
+
+### Layer 4 — Context Tokens (CSS Module 내 `--_*`)
 
 컴포넌트 루트 선택자에 정의. **항상 글로벌 토큰을 참조**.
 
@@ -302,12 +330,11 @@ z-index: 9999;
 
 ### SearchCapsule (`src/components/ui/SearchCapsule/`)
 
-캡슐형 검색 입력. 정렬·태그 캡슐 버튼과 톤 / padding 을 통일해 한 줄에 같이 놓을 수 있음.
+캡슐형 검색 입력. 정렬·태그 캡슐 버튼과 톤 / 높이를 통일해 한 줄에 같이 놓을 수 있음.
 
 - **`searchType` prop optional** — 지정 시 좌측에 type select(예: 제목 / 본문) 노출, 미지정 시 단순 입력 캡슐
-- **padding `var(--spacing-2xs) var(--spacing-sm)`** — 태그 / sort 캡슐과 동일한 슬림 사이즈
-- **`compact` prop** — 더 작은 height 가 필요한 자리에서 사용
-- 내부 Select trigger 의 `min-height: var(--size-sm)` 을 `0 !important` 로 override 해서 캡슐 높이에 정렬
+- **높이 `var(--input-h)`** (Layer 3 Component 토큰, 28px) — Select / 일반 input 과 동일 높이
+- 내부 Select 컴포넌트가 동일 토큰을 쓰므로 별도 override 없이 자연스럽게 정렬됨
 
 ```tsx
 <SearchCapsule
