@@ -246,16 +246,18 @@
 :root {
   /* Control padding — capsule 모양 컨트롤의 사이즈는 padding 으로 결정 (--box-* shorthand 참조).
      원 / 사각 아이콘 버튼은 padding 으로 못 잡으므로 --button-h-* 별도 유지. */
-  --button-p-xs: var(--box-sm);    /* 4 12 → 약 24px */
-  --button-p-sm: var(--box-md);    /* 6 16 → 약 32px (일반 button) */
-  --button-p-md: var(--box-lg);    /* 12 24 → 약 44px (primary CTA) */
-  --button-p-lg: var(--box-xl);    /* 16 32 → 약 52px (hero CTA) */
+  --button-p-xs: var(--box-3xs-sm);  /* 2 12 → 약 20px */
+  --button-p-sm: var(--box-2xs-md);  /* 4 16 → 약 26px (일반 button) */
+  --button-p-md: var(--box-xs-lg);   /* 8 20 → 약 36px (primary CTA) */
+  --button-p-lg: var(--box-sm-xl);   /* 12 24 → 약 44px (hero CTA) */
 
-  --input-p: var(--box-md);        /* 6 16 → 약 32px — input / select 기본 */
+  --input-p: var(--box-2xs-md);      /* 4 16 → 약 26px — input / select 기본 */
+  --textarea-p: var(--box-sm-md);    /* 12 16 — multi-line 이라 vertical 여유 더 필요 */
 
-  /* Icon-only btn (circle/square) — padding 으로 사이즈 못 잡으니 명시 width/height 용 */
-  --button-h-xs: var(--size-xs);   /* 24 — icon-only xs */
-  --button-h-sm: var(--size-sm);   /* 32 — icon-only sm */
+  /* Icon-only btn (circle/square) — padding 으로 사이즈 못 잡으니 명시 width/height 용.
+     capsule 컨트롤의 natural height 와 같은 시각 라인 유지. */
+  --button-h-xs: var(--size-2xs);  /* 20 — icon-only xs */
+  --button-h-sm: var(--size-xs);   /* 24 — icon-only sm */
   --button-h-md: var(--size-md);   /* 38 — icon-only md */
   --button-h-lg: var(--size-lg);   /* 46 — icon-only lg */
 }

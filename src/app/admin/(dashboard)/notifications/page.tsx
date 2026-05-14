@@ -8,6 +8,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import Tooltip from "@/components/ui/Tooltip";
 import T from "@/components/ui/T";
+import Button from "@/components/ui/Button";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import styles from "./Notifications.module.css";
 
@@ -168,16 +169,16 @@ export default function NotificationsPage() {
         <div className={styles.headerActions}>
           {!loading && unreadCount > 0 && (
             <Tooltip content={t("admin.notifications.tipMarkAllRead")} placement="bottom" delay={250}>
-              <button className={styles.actionBtn} onClick={handleMarkAllRead}>
+              <Button variant="outline" size="xs" onClick={handleMarkAllRead}>
                 <T k="admin.notifications.markAllRead" />
-              </button>
+              </Button>
             </Tooltip>
           )}
           {!loading && notifications.length > 0 && (
             <Tooltip content={t("admin.notifications.tipDeleteAll")} placement="bottom" delay={250}>
-              <button className={styles.actionBtnDanger} onClick={handleDeleteAll}>
+              <Button variant="outline" size="xs" tone="danger" onClick={handleDeleteAll}>
                 <T k="admin.notifications.deleteAll" />
-              </button>
+              </Button>
             </Tooltip>
           )}
         </div>

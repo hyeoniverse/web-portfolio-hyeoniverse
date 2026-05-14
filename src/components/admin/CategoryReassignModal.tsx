@@ -5,6 +5,8 @@ import { Book } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
 import Select from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import T from "@/components/ui/T";
 import styles from "./CategoryReassignModal.module.css";
 
@@ -163,13 +165,9 @@ export default function CategoryReassignModal({
           <div className={styles.empty}>
             <p><T k="admin.settings.reassignModal.noPosts" /></p>
             <div className={styles.footer}>
-              <button
-                type="button"
-                className={styles.confirmBtn}
-                onClick={() => onConfirm([], addedCategories)}
-              >
+              <Button variant="primary" size="xs" onClick={() => onConfirm([], addedCategories)}>
                 <T k="admin.settings.reassignModal.confirm" />
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
@@ -191,22 +189,20 @@ export default function CategoryReassignModal({
 
             {/* New category */}
             <div className={styles.newCatRow}>
-              <label className={styles.newCatGroup}>
-                <span className={styles.newCatGroupLabel}><T k="admin.settings.categoryKoLabel" /></span>
-                <input
-                  className={styles.newCatInput}
-                  type="text"
+              <div className={styles.newCatGroup}>
+                <Input
+                  label={t("admin.settings.categoryKoLabel")}
+                  size="sm"
                   value={newKo}
-                  onChange={(e) => setNewKo(e.target.value)}
+                  onChange={setNewKo}
                 />
-              </label>
-              <label className={styles.newCatGroup}>
-                <span className={styles.newCatGroupLabel}><T k="admin.settings.categoryEnLabel" /></span>
-                <input
-                  className={styles.newCatInput}
-                  type="text"
+              </div>
+              <div className={styles.newCatGroup}>
+                <Input
+                  label={t("admin.settings.categoryEnLabel")}
+                  size="sm"
                   value={newEn}
-                  onChange={(e) => setNewEn(e.target.value)}
+                  onChange={setNewEn}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -214,15 +210,15 @@ export default function CategoryReassignModal({
                     }
                   }}
                 />
-              </label>
-              <button
-                type="button"
-                className={styles.newCatBtn}
+              </div>
+              <Button
+                variant="outline"
+                size="xs"
                 onClick={handleAddCategory}
                 disabled={!newKo.trim() || !newEn.trim()}
               >
                 <T k="admin.settings.reassignModal.addCategory" />
-              </button>
+              </Button>
             </div>
 
             {/* Post list */}
@@ -285,21 +281,17 @@ export default function CategoryReassignModal({
             </div>
 
             <div className={styles.footer}>
-              <button
-                type="button"
-                className={styles.cancelBtn}
-                onClick={onCancel}
-              >
+              <Button variant="outline" size="xs" onClick={onCancel}>
                 <T k="admin.settings.reassignModal.cancel" />
-              </button>
-              <button
-                type="button"
-                className={styles.confirmBtn}
+              </Button>
+              <Button
+                variant="primary"
+                size="xs"
                 onClick={handleConfirm}
                 disabled={saving || !isValid()}
               >
                 {saving ? <T k="admin.settings.reassignModal.saving" /> : <T k="admin.settings.reassignModal.confirm" />}
-              </button>
+              </Button>
             </div>
           </>
         )}

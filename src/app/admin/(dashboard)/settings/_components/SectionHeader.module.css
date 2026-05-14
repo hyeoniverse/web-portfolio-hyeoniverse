@@ -1,0 +1,17 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.row > h2 {
+  margin: 0;
+  line-height: 1;
+}
+
+.spacer {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}

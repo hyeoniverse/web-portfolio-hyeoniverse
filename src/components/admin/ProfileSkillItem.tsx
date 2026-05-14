@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import T from "@/components/ui/T";
+import Textarea from "@/components/ui/Textarea";
 import { ExpandablePanel } from "./ProfileSections";
 
 export default function SkillItemContent({ skill, gi, si, updateSkill, removeSkill, styles }: {
@@ -33,11 +34,11 @@ export default function SkillItemContent({ skill, gi, si, updateSkill, removeSki
           <div>
             <div>
               <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (KO)</label>
-              <textarea className={styles.profileFieldTextarea} value={skill.description.ko} onChange={(e) => updateSkill(gi, si, "description.ko", e.target.value)} rows={1} data-lenis-prevent />
+              <Textarea size="sm" value={skill.description.ko} onChange={(v) => updateSkill(gi, si, "description.ko", v)} rows={1} />
             </div>
             <div>
               <label className={styles.profileFieldLabel}><T k="admin.settings.profile.description" /> (EN)</label>
-              <textarea className={styles.profileFieldTextarea} value={skill.description.en} onChange={(e) => updateSkill(gi, si, "description.en", e.target.value)} rows={1} data-lenis-prevent />
+              <Textarea size="sm" value={skill.description.en} onChange={(v) => updateSkill(gi, si, "description.en", v)} rows={1} />
             </div>
           </div>
         </ExpandablePanel>

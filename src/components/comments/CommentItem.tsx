@@ -8,6 +8,7 @@ import { getCommenterId, identityFromHash } from "@/utils/commenterIdentity";
 import { formatCount } from "@/utils/format";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
+import Textarea from "@/components/ui/Textarea";
 import LoadingDots from "@/components/ui/LoadingDots";
 import CommentForm from "./CommentForm";
 import styles from "./CommentItem.module.css";
@@ -443,10 +444,10 @@ function CommentItem({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <textarea
-              className={styles.editTextarea}
+            <Textarea
+              textareaClassName={styles.editTextarea}
               value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
+              onChange={setEditContent}
               rows={3}
             />
             <div className={styles.editActions}>

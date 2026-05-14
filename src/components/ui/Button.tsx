@@ -15,11 +15,13 @@ import styles from "./Button.module.css";
 type ButtonVariant = "primary" | "outline" | "ghost" | "link";
 type ButtonShape = "capsule" | "circle" | "square";
 type ButtonSize = "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
+type ButtonTone = "default" | "danger";
 
 interface ButtonBaseProps {
   variant?: ButtonVariant;
   shape?: ButtonShape;
   size?: ButtonSize;
+  tone?: ButtonTone;
   fullWidth?: boolean;
   disabled?: boolean;
   loading?: boolean;
@@ -55,6 +57,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
       variant = "primary",
       shape = "capsule",
       size = "md",
+      tone = "default",
       fullWidth,
       disabled,
       loading,
@@ -77,6 +80,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
       styles[`variant-${variant}`],
       styles[`shape-${shape}`],
       styles[`size-${size}`],
+      tone !== "default" && styles[`tone-${tone}`],
       fullWidth && styles.fullWidth,
       active && styles.active,
       isDisabled && styles.disabled,

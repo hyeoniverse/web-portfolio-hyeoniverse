@@ -7,8 +7,9 @@ import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
 import { ExternalLink, Volume2 } from "lucide-react";
 import type { SiteConfigData } from "@/config/site.config";
-import DraggableTag from "@/components/ui/DraggableTag";
 import ColorPicker from "@/components/ui/ColorPicker";
+import Button from "@/components/ui/Button";
+import Textarea from "@/components/ui/Textarea";
 import styles from "../Settings.module.css";
 
 /* ── Field ── */
@@ -35,13 +36,7 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
       </label>
       {multiline ? (
-        <textarea
-          className={styles.fieldTextarea}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          rows={3}
-          data-lenis-prevent
-        />
+        <Textarea size="sm" value={value} onChange={onChange} placeholder={placeholder} />
       ) : (
         <input
           className={styles.fieldInput}
@@ -138,18 +133,18 @@ export function LogoUpload({
           </div>
         )}
         <div className={styles.logoActions}>
-          <button
-            type="button"
-            className={styles.logoBtn}
+          <Button
+            variant="outline"
+            size="xs"
             onClick={() => fileRef.current?.click()}
-            disabled={uploading}
+            loading={uploading}
           >
-            {uploading ? "..." : uploadLabel}
-          </button>
+            {uploadLabel}
+          </Button>
           {url && (
-            <button type="button" className={styles.logoBtnRemove} onClick={onRemove}>
+            <Button variant="outline" size="xs" tone="danger" onClick={onRemove}>
               {removeLabel}
-            </button>
+            </Button>
           )}
         </div>
         <input
@@ -221,18 +216,18 @@ export function ResumeUpload({
           </a>
         )}
         <div className={styles.logoActions}>
-          <button
-            type="button"
-            className={styles.logoBtn}
+          <Button
+            variant="outline"
+            size="xs"
             onClick={() => fileRef.current?.click()}
-            disabled={uploading}
+            loading={uploading}
           >
-            {uploading ? "..." : uploadLabel}
-          </button>
+            {uploadLabel}
+          </Button>
           {url && (
-            <button type="button" className={styles.logoBtnRemove} onClick={onRemove}>
+            <Button variant="outline" size="xs" tone="danger" onClick={onRemove}>
               {removeLabel}
-            </button>
+            </Button>
           )}
         </div>
         <input
@@ -304,18 +299,18 @@ export function AudioUpload({
           </a>
         )}
         <div className={styles.logoActions}>
-          <button
-            type="button"
-            className={styles.logoBtn}
+          <Button
+            variant="outline"
+            size="xs"
             onClick={() => fileRef.current?.click()}
-            disabled={uploading}
+            loading={uploading}
           >
-            {uploading ? "..." : uploadLabel}
-          </button>
+            {uploadLabel}
+          </Button>
           {url && (
-            <button type="button" className={styles.logoBtnRemove} onClick={onRemove}>
+            <Button variant="outline" size="xs" tone="danger" onClick={onRemove}>
               {removeLabel}
-            </button>
+            </Button>
           )}
         </div>
         <input
@@ -334,106 +329,7 @@ export function AudioUpload({
   );
 }
 
-/* ── TagField ── */
-
-interface TagFieldProps {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  separator?: string;
-  hint?: string;
-  placeholder?: string;
-}
-
-export function TagField({
-  label,
-  value,
-  onChange,
-  separator = ", ",
-  hint,
-  placeholder,
-}: TagFieldProps) {
-  const [input, setInput] = useState("");
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [overIdx, setOverIdx] = useState<number | null>(null);
-  const tags = value ? value.split(",").map((s) => s.trim()).filter(Boolean) : [];
-
-  const addTags = () => {
-    const newTags = input.split(",").map((s) => s.trim()).filter(Boolean);
-    if (newTags.length === 0) return;
-    const merged = [...tags];
-    for (const tag of newTags) {
-      if (!merged.includes(tag)) merged.push(tag);
-    }
-    onChange(merged.join(separator));
-    setInput("");
-  };
-
-  const removeTag = (idx: number) => {
-    onChange(tags.filter((_, i) => i !== idx).join(separator));
-  };
-
-  const handleDrop = (targetIdx: number) => {
-    if (dragIdx === null || dragIdx === targetIdx) return;
-    const next = [...tags];
-    const [moved] = next.splice(dragIdx, 1);
-    next.splice(targetIdx, 0, moved);
-    onChange(next.join(separator));
-    setDragIdx(null);
-    setOverIdx(null);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.nativeEvent.isComposing) return;
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addTags();
-    }
-    if (e.key === "Backspace" && !input && tags.length > 0) {
-      removeTag(tags.length - 1);
-    }
-  };
-
-  return (
-    <div className={styles.scopeTagField}>
-      <label className={styles.fieldLabel}>
-        {label}
-        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
-      </label>
-      {tags.length > 0 && (
-        <div className={styles.scopeTags}>
-          {tags.map((tag, i) => (
-            <DraggableTag
-              key={`${tag}-${i}`}
-              label={tag}
-              index={i}
-              dragging={dragIdx === i}
-              over={overIdx === i && dragIdx !== i}
-              onDragStart={() => setDragIdx(i)}
-              onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }}
-              onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
-              onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
-              onRemove={() => removeTag(i)}
-            />
-          ))}
-        </div>
-      )}
-      <div className={styles.scopeInputRow}>
-        <input
-          className={styles.fieldInput}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-        />
-        <button type="button" className={styles.scopeAddBtn} onClick={addTags} disabled={!input.trim()}>
-          +
-        </button>
-      </div>
-    </div>
-  );
-}
+export { default as TagField } from "@/components/ui/TagListField";
 
 /* ── ServiceItemsEditor ── */
 

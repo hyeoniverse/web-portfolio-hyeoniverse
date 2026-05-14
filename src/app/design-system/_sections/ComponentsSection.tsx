@@ -21,7 +21,7 @@ import TypeWriter from "@/components/effects/TypeWriter";
 import Tooltip from "@/components/ui/Tooltip";
 import TextLink from "@/components/ui/TextLink";
 import Pagination from "@/components/ui/Pagination";
-import DraggableTag from "@/components/ui/DraggableTag";
+import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -63,8 +63,14 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [paginationPage, setPaginationPage] = useState(3);
   const [pickerColor, setPickerColor] = useState("#d01046");
   const [dragTags, setDragTags] = useState(["React", "Next.js", "TypeScript", "GSAP"]);
-  const [tagDragIdx, setTagDragIdx] = useState<number | null>(null);
-  const [tagOverIdx, setTagOverIdx] = useState<number | null>(null);
+  const { itemProps: tagItemProps } = useTagDrag((from, to) => {
+    setDragTags((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  });
   const [ivOpen, setIvOpen] = useState(false);
   const [ivIndex, setIvIndex] = useState(0);
   const ivImages = [
@@ -480,23 +486,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               key={`${tag}-${i}`}
               label={tag}
               index={i}
-              dragging={tagDragIdx === i}
-              over={tagOverIdx === i && tagDragIdx !== i}
-              onDragStart={() => setTagDragIdx(i)}
-              onDragOver={(e) => { e.preventDefault(); setTagOverIdx(i); }}
-              onDrop={(e) => {
-                e.preventDefault();
-                if (tagDragIdx !== null && tagDragIdx !== i) {
-                  const next = [...dragTags];
-                  const [moved] = next.splice(tagDragIdx, 1);
-                  next.splice(i, 0, moved);
-                  setDragTags(next);
-                }
-                setTagDragIdx(null);
-                setTagOverIdx(null);
-              }}
-              onDragEnd={() => { setTagDragIdx(null); setTagOverIdx(null); }}
               onRemove={() => setDragTags((prev) => prev.filter((_, j) => j !== i))}
+              {...tagItemProps(i)}
             />
           ))}
         </motion.div>

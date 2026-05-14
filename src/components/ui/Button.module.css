@@ -28,7 +28,7 @@
 .btn:disabled,
 .btn[aria-disabled="true"] {
   opacity: 0.45;
-  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .fullWidth {
@@ -279,4 +279,55 @@
 
 .variant-link.btn:hover:not(:disabled) .icon {
   transform: translate(2px, -2px);
+}
+
+/* ---------------------------------------------------------------------------
+   Tone: danger — variant 위에 accent 컬러만 덮어쓰기.
+   삭제 / 위험 액션. variant 와 조합 가능 (outline-danger, primary-danger, ghost-danger).
+   --------------------------------------------------------------------------- */
+
+/* outline + danger — 가장 흔한 케이스 (delete 액션, remove 버튼).
+   outline default 의 border weight 와 균형 맞추기 위해 strong accent 사용. */
+.variant-outline.tone-danger {
+  color: var(--text-accent);
+  border-color: var(--border-accent-strong-color);
+}
+
+.variant-outline.tone-danger.btn:hover:not(:disabled) {
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+  border-color: var(--bg-accent-solid);
+}
+
+.variant-outline.tone-danger.btn:active:not(:disabled) {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  border-color: var(--text-accent);
+}
+
+/* primary + danger — 확정 삭제 CTA */
+.variant-primary.tone-danger {
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+  border-color: var(--bg-accent-solid);
+}
+
+.variant-primary.tone-danger.btn:hover:not(:disabled) {
+  background: transparent;
+  color: var(--text-accent);
+  border-color: var(--border-accent-light-color);
+}
+
+.variant-primary.tone-danger.btn:active:not(:disabled) {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+/* ghost + danger — 인라인 텍스트 삭제 액션 */
+.variant-ghost.tone-danger {
+  color: var(--text-accent);
+}
+
+.variant-ghost.tone-danger.btn:hover:not(:disabled) {
+  color: var(--text-error);
 }

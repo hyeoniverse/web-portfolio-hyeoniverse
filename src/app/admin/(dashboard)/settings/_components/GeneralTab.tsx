@@ -1,11 +1,11 @@
 "use client";
 
 import { useLanguage } from "@/providers/LanguageProvider";
-import T from "@/components/ui/T";
 import type { SettingsTabProps } from "../_types";
 import Checkbox from "@/components/ui/Checkbox";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Field, { AudioUpload, LogoUpload, TagField } from "./SettingsFormFields";
+import SectionHeader from "./SectionHeader";
 import styles from "../Settings.module.css";
 
 const LOGO_COLOR_PRESETS: { name: string; light: string; dark: string }[] = [
@@ -20,14 +20,17 @@ const LOGO_COLOR_PRESETS: { name: string; light: string; dark: string }[] = [
   { name: "Gold", light: "#8b6914", dark: "#f6d860" },
 ];
 
-export default function GeneralTab({ config, update }: SettingsTabProps) {
+export default function GeneralTab({ config, savedConfig, update, saveSection, savingPaths }: SettingsTabProps) {
   const { t } = useLanguage();
+
+  /** 공통 props 묶음 — SectionHeader 에 spread */
+  const sh = { config, savedConfig, saveSection, savingPaths, titleClassName: styles.sectionTitle };
 
   return (
     <>
       {/* Personal */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.personal" /></h2>
+        <SectionHeader title={t("admin.settings.personal")} paths={["personal", "contact.email"]} {...sh} />
         <div className={styles.fieldsGrid}>
           <div className={styles.fields}>
             <Field label={t("admin.settings.name")} value={config.personal.name} onChange={(v) => update("personal", "name", v)} />
@@ -48,7 +51,7 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
 
       {/* Brand */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.brand" /></h2>
+        <SectionHeader title={t("admin.settings.brand")} paths={["brand"]} {...sh} />
 
         {/* Sub: 로고 텍스트 */}
         <div className={styles.subSection}>
@@ -145,7 +148,7 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
 
       {/* SEO / Metadata */}
       <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.seoMetadata" /></h2>
+        <SectionHeader title={t("admin.settings.seoMetadata")} paths={["metadata"]} {...sh} />
         <div className={styles.fields}>
           <Field label={t("admin.settings.siteTitle")} hint={t("admin.settings.siteTitleHint")} value={config.metadata.title} onChange={(v) => update("metadata", "title", v)} />
           <Field label={t("admin.settings.description")} hint={t("admin.settings.descriptionHint")} value={config.metadata.description} onChange={(v) => update("metadata", "description", v)} multiline />
@@ -156,7 +159,7 @@ export default function GeneralTab({ config, update }: SettingsTabProps) {
 
       {/* BGM */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.bgm" /></h2>
+        <SectionHeader title={t("admin.settings.bgm")} paths={["bgm"]} {...sh} />
         <div className={styles.fields}>
           <AudioUpload
             label={t("admin.settings.bgmFile")}

@@ -7,6 +7,7 @@ import { getCommenterId, getIdentity, getRandomIdentity } from "@/utils/commente
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
+import Textarea from "@/components/ui/Textarea";
 import styles from "./CommentForm.module.css";
 
 const Fireworks = dynamic(() => import("@/components/effects/Fireworks"), {
@@ -175,10 +176,10 @@ export default function CommentForm({
         </div>
       ) : null}
 
-      <textarea
-        className={styles.textarea}
+      <Textarea
+        textareaClassName={styles.textarea}
         value={content}
-        onChange={(e) => { setContent(e.target.value); setFormHint(""); }}
+        onChange={(v) => { setContent(v); setFormHint(""); }}
         placeholder={parentId ? t("comments.replyPlaceholder") : t("comments.placeholder")}
         rows={3}
         maxLength={2000}

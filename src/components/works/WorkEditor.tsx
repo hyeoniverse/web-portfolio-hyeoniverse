@@ -28,6 +28,7 @@ import { SIZES, TEMPLATE_KO, TEMPLATE_EN } from "@/data/workTemplates";
 import { workToFormData, defaultForm } from "@/utils/workFormUtils";
 import { stripHtml } from "@/utils/htmlUtils";
 import Select from "@/components/ui/Select";
+import Textarea from "@/components/ui/Textarea";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 import type { DatePeriod } from "@/data/profile";
@@ -1096,10 +1097,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         {/* 설명 — 기본 정보의 하위 항목, 선택 입력보다 위 */}
         <div className={es.field}>
           <label className={es.fieldLabel}>{tw("description")}</label>
-          <textarea
-            className={styles.fieldTextarea}
+          <Textarea
+            textareaClassName={styles.fieldTextarea}
             value={form[`description${suf}`]}
-            onChange={(e) => updateField(`description${suf}`, e.target.value)}
+            onChange={(v) => updateField(`description${suf}`, v)}
             placeholder={tw("descPlaceholder")}
             rows={3}
           />

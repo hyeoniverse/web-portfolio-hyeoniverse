@@ -5,6 +5,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import type { Series } from "@/types/post";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
+import Input from "@/components/ui/Input";
 import styles from "../Settings.module.css";
 
 export default function SeriesDeleteModal({ series, onConfirm, onCancel }: {
@@ -23,17 +24,16 @@ export default function SeriesDeleteModal({ series, onConfirm, onCancel }: {
         <Checkbox checked={deletePosts} onChange={setDeletePosts} shape="square" />
         {t("admin.posts.seriesDeleteWithPosts")}
       </label>
-      <input
-        className={styles.seriesDeleteInput}
-        type="text"
+      <Input
+        size="sm"
         placeholder={series.title}
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={setInput}
         onKeyDown={(e) => { if (e.key === "Enter" && valid) onConfirm(deletePosts); }}
       />
       <div className={styles.seriesDeleteActions}>
         <Button variant="outline" size="xs" onClick={onCancel}>{t("admin.posts.seriesModal.cancel")}</Button>
-        <Button variant="primary" size="xs" disabled={!valid} onClick={() => onConfirm(deletePosts)}>{t("admin.posts.delete")}</Button>
+        <Button variant="primary" size="xs" tone="danger" disabled={!valid} onClick={() => onConfirm(deletePosts)}>{t("admin.posts.delete")}</Button>
       </div>
     </div>
   );

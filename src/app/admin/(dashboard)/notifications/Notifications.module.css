@@ -52,21 +52,6 @@
   gap: var(--spacing-sm);
 }
 
-.actionBtn {
-  padding: var(--box-2xs-md);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-}
-
-.actionBtnDanger {
-  composes: actionBtn;
-  color: var(--text-accent);
-  border-color: var(--border-accent-light);
-}
 
 .empty {
   display: flex;

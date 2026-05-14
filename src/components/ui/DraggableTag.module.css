@@ -1,4 +1,5 @@
 .tag {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -15,9 +16,25 @@
   opacity: 0.4;
 }
 
-.over {
-  outline: 2px solid var(--color-accent);
-  outline-offset: -1px;
+/* 막대 인디케이터 — 태그 좌/우 gap (~8px) 중앙에 2px 막대 */
+.dropBefore::before,
+.dropAfter::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-accent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.dropBefore::before {
+  left: -5px;
+}
+
+.dropAfter::after {
+  right: -5px;
 }
 
 .grip {

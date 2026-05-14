@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { DndContext, closestCenter, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import T from "@/components/ui/T";
+import Button from "@/components/ui/Button";
 import { SortableSkillItem } from "./ProfileSections";
 import SkillItemContent from "./ProfileSkillItem";
 
@@ -58,9 +59,11 @@ export default function SkillList({
           ))}
         </SortableContext>
       </DndContext>
-      <button className={styles.profileAddBtn} onClick={() => addSkill(gi)} style={{ marginTop: "var(--spacing-xs)" }}>
-        <T k="admin.settings.profile.addSkill" />
-      </button>
+      <div style={{ marginTop: "var(--spacing-xs)" }}>
+        <Button variant="outline" size="xs" fullWidth onClick={() => addSkill(gi)}>
+          <T k="admin.settings.profile.addSkill" />
+        </Button>
+      </div>
     </div>
   );
 }

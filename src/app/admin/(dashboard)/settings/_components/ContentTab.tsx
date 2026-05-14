@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import { Upload, Plus } from "lucide-react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -11,12 +12,14 @@ import type { ProfileData } from "@/types/profile";
 import ProfileSections, { type ProfileExpandState } from "@/components/admin/ProfileSections";
 import type { SettingsTabProps } from "../_types";
 import Select from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import Field, { ResumeUpload, ServiceItemsEditor } from "./SettingsFormFields";
 import CategoriesEditor from "./CategoriesEditor";
 import WorksCategoriesEditor from "./WorksCategoriesEditor";
 import SeriesManager from "./SeriesManager";
-import DraggableTag from "@/components/ui/DraggableTag";
+import SectionHeader from "./SectionHeader";
+import TagListField from "@/components/ui/TagListField";
 import { SOCIAL_ICONS, SOCIAL_PLATFORM_OPTIONS } from "@/data/socialIcons";
 import styles from "../Settings.module.css";
 
@@ -35,7 +38,10 @@ interface ContentTabProps extends SettingsTabProps {
 
 export default function ContentTab({
   config,
+  savedConfig,
   update,
+  saveSection,
+  savingPaths,
   profileData,
   setProfileData,
   profileExpanded,
@@ -44,6 +50,8 @@ export default function ContentTab({
   contentSubTab,
 }: ContentTabProps) {
   const { t } = useLanguage();
+
+  const sh = { config, savedConfig, saveSection, savingPaths, titleClassName: styles.sectionTitle };
 
   /* config.socialLinks 가 매 렌더마다 새 array 가 되면 deps 가 매번 바뀜 → useMemo 로 stable. */
   const socialLinks = useMemo<SocialLink[]>(() => config.socialLinks ?? [], [config.socialLinks]);
@@ -118,7 +126,7 @@ export default function ContentTab({
         <>
           {/* Hero */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.hero" /></h2>
+            <SectionHeader title={t("admin.settings.hero")} paths={["hero", "loading.displayName"]} {...sh} />
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <p className={styles.fieldHint}><T k="admin.settings.multilineHint" /></p>
@@ -160,7 +168,7 @@ export default function ContentTab({
 
           {/* 3D Objects */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.home3dLabel" /></h2>
+            <SectionHeader title={t("admin.settings.home3dLabel")} paths={["home3d"]} {...sh} />
             <p className={styles.sectionHint}><T k="admin.settings.home3dHint" /></p>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
@@ -182,7 +190,7 @@ export default function ContentTab({
 
           {/* Home Intro */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.homeIntroLabel" /></h2>
+            <SectionHeader title={t("admin.settings.homeIntroLabel")} paths={["homeIntro"]} {...sh} />
             <p className={styles.sectionHint}><T k="admin.settings.highlightHint" /></p>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
@@ -198,7 +206,7 @@ export default function ContentTab({
 
           {/* Services */}
           <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.servicesLabel" /></h2>
+            <SectionHeader title={t("admin.settings.servicesLabel")} paths={["services"]} {...sh} />
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label="Section Title (EN)" value={config.services.label} onChange={(v) => update("services", "label", v)} />
@@ -214,7 +222,7 @@ export default function ContentTab({
 
           {/* Marquee */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.marqueeWords" /></h2>
+            <SectionHeader title={t("admin.settings.marqueeWords")} paths={["marquee"]} {...sh} />
             <p className={styles.sectionHint}><T k="admin.settings.commaHint" /></p>
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
@@ -234,7 +242,7 @@ export default function ContentTab({
 
           {/* CTA */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>CTA</h2>
+            <SectionHeader title="CTA" paths={["cta"]} {...sh} />
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.ctaLabel")} (EN)`} value={config.cta.label} onChange={(v) => update("cta", "label", v)} />
@@ -277,7 +285,7 @@ export default function ContentTab({
 
           {/* Footer */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Footer</h2>
+            <SectionHeader title="Footer" paths={["footer"]} {...sh} />
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.footerCopyright")} (EN)`} value={config.footer.copyright} onChange={(v) => update("footer", "copyright", v)} />
@@ -293,7 +301,7 @@ export default function ContentTab({
 
           {/* Social Links */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.socialLinks" /></h2>
+            <SectionHeader title={t("admin.settings.socialLinks")} paths={["socialLinks"]} {...sh} />
             <p className={styles.sectionHint}><T k="admin.settings.socialHint" /></p>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSocialDragEnd}>
               <SortableContext items={socialIds} strategy={verticalListSortingStrategy}>
@@ -329,7 +337,7 @@ export default function ContentTab({
                     )}
                     <input
                       className={styles.fieldInput}
-                      placeholder="https://..."
+                      placeholder={t("admin.settings.socialUrlPlaceholder")}
                       value={link.url}
                       onChange={(e) => updateSocialItem(idx, "url", e.target.value)}
                     />
@@ -345,14 +353,17 @@ export default function ContentTab({
                   </button>
                 </SortableSocialItem>
               ))}
-              <button
-                type="button"
-                className={styles.profileAddBtn}
+              <Button
+                variant="outline"
+                size="xs"
+                fullWidth
+                icon={<Plus size={14} strokeWidth={2} />}
                 onClick={addSocialLink}
                 disabled={socialLinks.length >= MAX_SOCIAL_LINKS}
+                className={styles.profileAddBtn}
               >
-                + <T k="admin.settings.addSocial" /> ({socialLinks.length}/{MAX_SOCIAL_LINKS})
-              </button>
+                <T k="admin.settings.addSocial" /> ({socialLinks.length}/{MAX_SOCIAL_LINKS})
+              </Button>
             </div>
               </SortableContext>
             </DndContext>
@@ -368,7 +379,7 @@ export default function ContentTab({
         <>
           {/* Banner Settings */}
           <section className={`${styles.section} ${styles.sectionWide}`}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.banner" /></h2>
+            <SectionHeader title={t("admin.settings.banner")} paths={["posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]} {...sh} />
             <div className={styles.fields}>
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.bannerLayout" /></label>
@@ -412,7 +423,7 @@ export default function ContentTab({
 
           {/* Pagination */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.pagination" /></h2>
+            <SectionHeader title={t("admin.settings.pagination")} paths={["posts.perPage", "posts.adminPerPage"]} {...sh} />
             <div className={styles.fields}>
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.postsPerPage" /></label>
@@ -446,7 +457,7 @@ export default function ContentTab({
 
           {/* Post Categories */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.postCategories" /></h2>
+            <SectionHeader title={t("admin.settings.postCategories")} paths={["posts.categories"]} {...sh} />
             <div className={styles.fields}>
               <CategoriesEditor
                 categories={normalizedPostCats}
@@ -455,9 +466,9 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* Series */}
+          {/* Series — SeriesManager 가 자체 API 로 저장하므로 섹션 저장 버튼 불필요 */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.posts.series" /></h2>
+            <SectionHeader title={t("admin.posts.series")} paths={[]} {...sh} />
             <SeriesManager categories={normalizedPostCats} />
           </section>
         </>
@@ -467,7 +478,7 @@ export default function ContentTab({
         <>
           {/* Works Layout */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.worksLayout" /></h2>
+            <SectionHeader title={t("admin.settings.worksLayout")} paths={["works.layout"]} {...sh} />
             <div className={styles.fields}>
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.worksLayout" /></label>
@@ -489,7 +500,7 @@ export default function ContentTab({
 
           {/* Works Pagination */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.pagination" /></h2>
+            <SectionHeader title={t("admin.settings.pagination")} paths={["works.adminPerPage"]} {...sh} />
             <div className={styles.fields}>
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.adminPerPage" /></label>
@@ -509,7 +520,7 @@ export default function ContentTab({
 
           {/* Works Categories */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.worksCategories" /></h2>
+            <SectionHeader title={t("admin.settings.worksCategories")} paths={["works.categories"]} {...sh} />
             <div className={styles.fields}>
               <WorksCategoriesEditor
                 categories={normalizedWorksCats}
@@ -520,7 +531,19 @@ export default function ContentTab({
 
           {/* Works Intro */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.worksIntro" /></h2>
+            <SectionHeader
+              title={t("admin.settings.worksIntro")}
+              paths={[
+                "works.introLabel", "works.introLabel_ko",
+                "works.introTitle", "works.introTitle_ko",
+                "works.introTagline", "works.introTagline_ko",
+                "works.introDesc", "works.introDesc_ko",
+                "works.introDetail", "works.introDetail_ko",
+                "works.introQuote", "works.introQuote_ko",
+                "works.introScope", "works.introScope_ko",
+              ]}
+              {...sh}
+            />
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.worksIntroLabel")} (EN)`} value={config.works.introLabel} onChange={(v) => update("works", "introLabel", v)} />
@@ -547,17 +570,21 @@ export default function ContentTab({
                 <Field label={`${t("admin.settings.worksIntroQuote")} (KO)`} value={config.works.introQuote_ko} onChange={(v) => update("works", "introQuote_ko", v)} />
               </div>
               <div className={styles.fieldPair}>
-                <ScopeTagField
+                <TagListField
                   label={`${t("admin.settings.worksIntroScope")} (EN)`}
                   value={config.works.introScope}
                   onChange={(v) => update("works", "introScope", v)}
                   placeholder={t("admin.settings.tagPlaceholder")}
+                  separator=" · "
+                  commaAsAdd
                 />
-                <ScopeTagField
+                <TagListField
                   label={`${t("admin.settings.worksIntroScope")} (KO)`}
                   value={config.works.introScope_ko}
                   onChange={(v) => update("works", "introScope_ko", v)}
                   placeholder={t("admin.settings.tagPlaceholder")}
+                  separator=" · "
+                  commaAsAdd
                 />
               </div>
             </div>
@@ -565,7 +592,7 @@ export default function ContentTab({
 
           {/* Works Stats */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}><T k="admin.settings.worksStats" /></h2>
+            <SectionHeader title={t("admin.settings.worksStats")} paths={["works.statsProjects", "works.statsProjects_ko", "works.statsClients", "works.statsClients_ko"]} {...sh} />
             <div className={styles.fields}>
               <div className={styles.fieldPair}>
                 <Field label={`${t("admin.settings.worksStatsProjects")} (EN)`} value={config.works.statsProjects} onChange={(v) => update("works", "statsProjects", v)} />
@@ -580,96 +607,6 @@ export default function ContentTab({
         </>
       )}
     </>
-  );
-}
-
-/* ── Scope Tag Field ── */
-const SCOPE_SEPARATOR = " · ";
-
-function ScopeTagField({
-  label,
-  value,
-  onChange,
-  placeholder,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-}) {
-  const [input, setInput] = useState("");
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [overIdx, setOverIdx] = useState<number | null>(null);
-  const tags = value ? value.split(SCOPE_SEPARATOR).filter(Boolean) : [];
-
-  const addTag = () => {
-    const tag = input.trim();
-    if (tag && !tags.includes(tag)) {
-      onChange([...tags, tag].join(SCOPE_SEPARATOR));
-    }
-    setInput("");
-  };
-
-  const removeTag = (idx: number) => {
-    onChange(tags.filter((_, i) => i !== idx).join(SCOPE_SEPARATOR));
-  };
-
-  const handleDrop = (targetIdx: number) => {
-    if (dragIdx === null || dragIdx === targetIdx) return;
-    const next = [...tags];
-    const [moved] = next.splice(dragIdx, 1);
-    next.splice(targetIdx, 0, moved);
-    onChange(next.join(SCOPE_SEPARATOR));
-    setDragIdx(null);
-    setOverIdx(null);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.nativeEvent.isComposing) return;
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      addTag();
-    }
-    if (e.key === "Backspace" && !input && tags.length > 0) {
-      removeTag(tags.length - 1);
-    }
-  };
-
-  return (
-    <div className={styles.scopeTagField}>
-      <label className={styles.fieldLabel}>{label}</label>
-      {tags.length > 0 && (
-        <div className={styles.scopeTags}>
-          {tags.map((tag, i) => (
-            <DraggableTag
-              key={`${tag}-${i}`}
-              label={tag}
-              index={i}
-              dragging={dragIdx === i}
-              over={overIdx === i && dragIdx !== i}
-              onDragStart={() => setDragIdx(i)}
-              onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }}
-              onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
-              onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
-              onRemove={() => removeTag(i)}
-            />
-          ))}
-        </div>
-      )}
-      <div className={styles.scopeInputRow}>
-        <input
-          className={styles.fieldInput}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-        />
-        <button type="button" className={styles.scopeAddBtn} onClick={addTag} disabled={!input.trim()}>
-          +
-        </button>
-      </div>
-    </div>
   );
 }
 
@@ -803,14 +740,17 @@ function SocialIconUploadRow({ icon, onIconChange, onUploaded, placeholder }: {
         value={icon}
         onChange={(e) => { onIconChange(e.target.value); if (error) setError(""); }}
       />
-      <button
-        type="button"
-        className={styles.socialIconUploadBtn}
+      <Button
+        variant="outline"
+        shape="circle"
+        size="xs"
         onClick={() => fileRef.current?.click()}
         disabled={uploading}
-      >
-        {uploading ? "..." : "↑"}
-      </button>
+        loading={uploading}
+        aria-label="Upload"
+        icon={<Upload size={14} strokeWidth={2} />}
+        className={styles.socialIconUploadBtn}
+      />
       <input
         ref={fileRef}
         type="file"

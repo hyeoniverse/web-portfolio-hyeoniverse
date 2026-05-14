@@ -43,6 +43,14 @@ export default function ContactDrawerWrapper() {
       formRef={contactForm.formRef}
       fileInputRef={contactForm.fileInputRef}
       recaptchaRef={contactForm.recaptchaRef}
+      name={contactForm.name}
+      setName={contactForm.setName}
+      email={contactForm.email}
+      setEmail={contactForm.setEmail}
+      title={contactForm.title}
+      setTitle={contactForm.setTitle}
+      message={contactForm.message}
+      setMessage={contactForm.setMessage}
       privacyAccepted={contactForm.privacyAccepted}
       setPrivacyAccepted={contactForm.setPrivacyAccepted}
       fileName={contactForm.fileName}
