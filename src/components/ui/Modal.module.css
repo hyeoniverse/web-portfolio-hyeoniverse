@@ -9,8 +9,8 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 28px;
-  height: 28px;
+  width: var(--h-control-sm);
+  height: var(--h-control-sm);
   padding: 0;
   border: var(--border-strong);
   border-radius: var(--radius-circle);

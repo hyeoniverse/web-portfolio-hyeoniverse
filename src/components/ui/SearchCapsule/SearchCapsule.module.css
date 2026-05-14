@@ -1,8 +1,8 @@
-/* ── 공통 SearchCapsule — Select(옵션) + 아이콘 + input ──
-   tag / sort capsule(--box-sm 패딩) 과 동일한 높이를 갖도록 슬림 padding 사용 */
+/* ── 공통 SearchCapsule — Select(옵션) + 아이콘 + input. 기본 control sm 높이 */
 .capsule {
   display: flex;
   align-items: center;
+  height: var(--h-control-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   overflow: hidden;
@@ -24,8 +24,7 @@
   border: none !important;
   border-radius: 0 !important;
   border-right: var(--border-default) !important;
-  padding: var(--box-sm) !important;
-  min-height: 0 !important;
+  padding: 0 var(--spacing-md) !important;
   font-size: var(--font-size-xs);
   background: transparent !important;
 }
@@ -41,11 +40,11 @@
   flex: 1;
   min-width: 80px;
   max-width: 180px;
-  padding: var(--box-sm);
+  padding: 0 var(--spacing-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   color: var(--text-primary);
   outline: none;
 }
