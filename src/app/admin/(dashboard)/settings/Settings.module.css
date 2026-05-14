@@ -42,7 +42,10 @@
 }
 
 .resetBtn {
-  padding: var(--box-xs-xl);
+  display: inline-flex;
+  align-items: center;
+  height: var(--button-h-md);
+  padding: 0 var(--spacing-xl);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -60,7 +63,10 @@
 }
 
 .saveBtn {
-  padding: var(--box-xs-xl);
+  display: inline-flex;
+  align-items: center;
+  height: var(--button-h-md);
+  padding: 0 var(--spacing-xl);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
@@ -637,7 +643,8 @@
 .fieldSelect {
   flex: 1;
   min-width: 0;
-  padding: var(--box-xs-sm);
+  height: var(--input-h);
+  padding: 0 var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
