@@ -75,6 +75,20 @@
   --size-4xl: 80px;
   --size-5xl: 96px;
   --size-6xl: 112px;
+
+  /* ────────────────────────────────────────────────────────────────
+     Control heights — slim 톤 통일 (button / select / input)
+     계층:
+       xs (22px) — icon-only btn, dense chip
+       sm (28px) — 기본 input / select / 일반 button
+       md (36px) — primary action button
+       lg (44px) — hero CTA
+     같은 계층의 컨트롤은 같은 높이 사용.
+     ──────────────────────────────────────────────────────────────── */
+  --h-control-xs: 22px;
+  --h-control-sm: 28px;
+  --h-control-md: 36px;
+  --h-control-lg: 44px;
 }
 
 /* ---------------------------------------------------------------------------
