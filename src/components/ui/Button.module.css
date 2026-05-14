@@ -51,22 +51,22 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Sizes — capsule (기본). 높이는 --h-control-* 토큰 사용
+   Sizes — capsule (기본). 높이는 semantic --button-h-* 토큰 사용
    --------------------------------------------------------------------------- */
 .size-2xs {
-  height: var(--h-control-xs);
+  height: var(--button-h-xs);
   padding: 0 var(--spacing-sm);
   font-size: var(--font-size-2xs);
 }
 
 .size-xs {
-  height: var(--h-control-sm);
+  height: var(--button-h-sm);
   padding: 0 var(--spacing-md);
   font-size: var(--font-size-xs);
 }
 
 .size-sm {
-  height: var(--h-control-md);
+  height: var(--button-h-md);
   padding: 0 var(--spacing-md);
   font-size: var(--font-size-sm);
 }
@@ -107,29 +107,29 @@
   aspect-ratio: 1;
 }
 
-/* circle / square — size 별 고정 width/height. capsule .size-* 의 height 와 동일 토큰 사용 */
+/* circle / square — size 별 고정 width/height. capsule .size-* 의 height 와 동일 semantic 토큰 */
 .shape-circle.size-2xs,
 .shape-square.size-2xs {
-  width: var(--h-control-xs);
-  height: var(--h-control-xs);
+  width: var(--button-h-xs);
+  height: var(--button-h-xs);
 }
 
 .shape-circle.size-xs,
 .shape-square.size-xs {
-  width: var(--h-control-sm);
-  height: var(--h-control-sm);
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
 }
 
 .shape-circle.size-sm,
 .shape-square.size-sm {
-  width: var(--h-control-md);
-  height: var(--h-control-md);
+  width: var(--button-h-md);
+  height: var(--button-h-md);
 }
 
 .shape-circle.size-md,
 .shape-square.size-md {
-  width: var(--h-control-lg);
-  height: var(--h-control-lg);
+  width: var(--button-h-lg);
+  height: var(--button-h-lg);
 }
 
 .shape-circle.size-lg,

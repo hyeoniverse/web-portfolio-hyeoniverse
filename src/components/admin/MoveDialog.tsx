@@ -56,7 +56,7 @@ export default function MoveDialog({ currentOrder, totalCount, onMove }: MoveDia
             onChange={(e) => setCustomPos(e.target.value)}
             style={{
               flex: 1,
-              minHeight: "var(--size-sm)",
+              minHeight: "var(--input-h)",
               padding: "0 var(--spacing-md)",
               border: "var(--border-light)",
               borderRadius: "var(--radius-capsule)",

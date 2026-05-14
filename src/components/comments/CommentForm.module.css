@@ -160,8 +160,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  width: var(--h-control-sm);
-  height: var(--h-control-sm);
+  width: var(--input-h);
+  height: var(--input-h);
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -190,7 +190,7 @@
 
 /* Confirmed: 캡슐이 수정 버튼 크기 원형, 아이콘+이메일은 왼쪽에 absolute */
 .notifyCapsuleConfirmed {
-  width: 28px;
+  width: var(--input-h);
   border-radius: var(--radius-circle);
   border-color: var(--border-strong-color);
   overflow: visible;
@@ -323,8 +323,8 @@
 
 /* confirmed: 수정 버튼이 원 전체를 채움 */
 .notifyCapsuleConfirmed .notifyAction {
-  width: var(--h-control-sm);
-  height: var(--h-control-sm);
+  width: var(--input-h);
+  height: var(--input-h);
   margin: 0;
   opacity: 1;
   pointer-events: auto;

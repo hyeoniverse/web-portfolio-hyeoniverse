@@ -2,8 +2,8 @@
 .btn {
   position: fixed;
   z-index: var(--z-float);
-  width: var(--h-control-md);
-  height: var(--h-control-md);
+  width: var(--button-h-md);
+  height: var(--button-h-md);
   display: flex;
   align-items: center;
   justify-content: center;

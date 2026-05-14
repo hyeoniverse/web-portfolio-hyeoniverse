@@ -36,8 +36,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 22px;
+  min-width: var(--button-h-xs);
+  height: var(--button-h-xs);
   padding: 0 6px;
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-solid);
@@ -136,8 +136,8 @@
 
 .icon {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: var(--button-h-md);
+  height: var(--button-h-md);
   border-radius: 50%;
   display: flex;
   align-items: center;

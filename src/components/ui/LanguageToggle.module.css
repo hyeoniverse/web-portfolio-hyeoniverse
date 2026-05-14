@@ -2,7 +2,7 @@
 .toggle {
   display: flex;
   align-items: center;
-  height: var(--h-control-sm);
+  height: var(--button-h-sm);
   padding: 0;
   border: var(--border-strong);
   position: relative;

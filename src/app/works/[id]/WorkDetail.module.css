@@ -23,7 +23,7 @@
 .category {
   display: inline-flex;
   align-items: center;
-  height: 28px;
+  height: var(--button-h-sm);
   padding: 0 var(--spacing-md);
   border: var(--border-default);
   font-family: var(--font-space-grotesk), sans-serif;

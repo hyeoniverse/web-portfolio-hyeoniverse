@@ -175,8 +175,8 @@
 }
 
 .erdZoomBtn {
-  width: 28px;
-  height: 28px;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -199,7 +199,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-muted);
-  min-width: 36px;
+  min-width: var(--button-h-md);
   text-align: center;
 }
 
