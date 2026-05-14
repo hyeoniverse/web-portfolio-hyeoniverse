@@ -99,6 +99,10 @@
   height: 0;
   background: none;
   pointer-events: none;
+}
+
+/* compound selector (0,2,0) — global theme transition shorthand 의 (0,1,1) 을 이겨야 left/width 가 transition 됨 */
+.navCenter .navIndicator {
   transition:
     left var(--duration-moderate) var(--ease-material),
     width var(--duration-moderate) var(--ease-material),
@@ -113,7 +117,6 @@
   transform: translateY(-50%) translateX(-3px);
   font-size: var(--font-size-dot);
   color: var(--text-white);
-  transition: transform var(--duration-base) ease;
 }
 
 .navIndicator::after {
@@ -124,6 +127,11 @@
   transform: translateY(-50%) translateX(3px);
   font-size: var(--font-size-dot);
   color: var(--text-white);
+}
+
+/* (0,2,1) 로 ::before / ::after transform transition 도 글로벌 이김 */
+.navCenter .navIndicator::before,
+.navCenter .navIndicator::after {
   transition: transform var(--duration-base) ease;
 }
 
