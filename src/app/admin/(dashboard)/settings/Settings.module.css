@@ -410,6 +410,11 @@
   border-top: var(--border-light);
 }
 
+/* layout gap 변화 부드럽게 — (0,2,0) compound 로 global theme transition shorthand 이기기 */
+.container .layout {
+  transition: gap 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .navItem {
   display: flex;
   align-items: center;
@@ -3028,24 +3033,12 @@
   transform: rotate(-45deg);
 }
 
-/* tablet (769~1024px): horizontal layout 유지하되 sideNav 슬림화 + panel 내부 2열 grid 를
-   1열로 떨어뜨려 좁아진 panel 에서도 잘리지 않게 */
+/* tablet (769~1024px): sideNav 200px 유지하고 panel 내부 컨텐츠만 좁은 너비에 맞게 정리.
+   - 2열 grid → 1열, gap 축소
+   - layout 사이 간격 살짝 축소해 panel 가용폭 확보 */
 @media (min-width: 769px) and (max-width: 1024px) {
   .layout {
     gap: var(--spacing-lg);
-  }
-
-  .sideNav {
-    width: 140px;
-  }
-
-  .navItem {
-    font-size: var(--font-size-xs);
-  }
-
-  .navSubItem {
-    padding-left: var(--spacing-sm);
-    font-size: var(--font-size-2xs);
   }
 
   /* 2열 grid 들 → 1열 (좁은 panel 에서 잘림 방지) */
