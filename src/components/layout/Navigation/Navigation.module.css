@@ -569,18 +569,18 @@
    끝에서 phase 만 alternate 로 계속 oscillate. 두 animation 의 시작/끝 phase 가 동일해 끊김 없이 이어짐. */
 .menuFooterEmail:hover .menuFooterEmailFillBack {
   animation:
-    emailRiseBack 5.5s cubic-bezier(0.33, 1, 0.68, 1) forwards,
-    emailWaveBack 3.6s ease-in-out 5.5s infinite alternate;
+    emailRiseBack 2.5s cubic-bezier(0.33, 1, 0.68, 1) forwards,
+    emailWaveBack 3.6s ease-in-out 2.5s infinite alternate;
 }
 .menuFooterEmail:hover .menuFooterEmailFillMid {
   animation:
-    emailRiseMid 5s cubic-bezier(0.33, 1, 0.68, 1) 0.2s forwards,
-    emailWaveMid 3s ease-in-out 5.2s infinite alternate;
+    emailRiseMid 2.2s cubic-bezier(0.33, 1, 0.68, 1) 0.1s forwards,
+    emailWaveMid 3s ease-in-out 2.3s infinite alternate;
 }
 .menuFooterEmail:hover .menuFooterEmailFillFront {
   animation:
-    emailRiseFront 4.5s cubic-bezier(0.33, 1, 0.68, 1) 0.4s forwards,
-    emailWaveFront 2.4s ease-in-out 4.9s infinite alternate;
+    emailRiseFront 2s cubic-bezier(0.33, 1, 0.68, 1) 0.2s forwards,
+    emailWaveFront 2.4s ease-in-out 2.2s infinite alternate;
 }
 
 /* 입체감 — back(깊은 물): 더 어둡고 살짝 blur, front(수면 거품): 더 밝고 sharp */
