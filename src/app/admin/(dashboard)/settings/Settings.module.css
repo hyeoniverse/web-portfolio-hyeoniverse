@@ -3028,21 +3028,8 @@
   transform: rotate(-45deg);
 }
 
-@media (max-width: 768px) {
-  .header {
-    gap: var(--spacing-sm);
-  }
-
-  .title {
-    font-size: var(--font-size-2xl);
-  }
-
-  .resetBtn,
-  .saveBtn {
-    padding: var(--box-2xs-md);
-    font-size: var(--font-size-xs);
-  }
-
+/* tablet 이하 (≤1024px): sideNav 가로 200px 고정 + 좁은 panel 조합이 잘리므로 vertical 로 전환 */
+@media (max-width: 1024px) {
   .layout {
     flex-direction: column;
     gap: var(--spacing-lg);
@@ -3120,12 +3107,29 @@
     border-bottom-color: var(--text-accent);
   }
 
-  .profileGrid {
-    grid-template-columns: 1fr;
-  }
-
   .skeletonNav {
     flex-direction: row;
+  }
+}
+
+/* 모바일만 (≤768px): font / padding 등 미세 조정 */
+@media (max-width: 768px) {
+  .header {
+    gap: var(--spacing-sm);
+  }
+
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .resetBtn,
+  .saveBtn {
+    padding: var(--box-2xs-md);
+    font-size: var(--font-size-xs);
+  }
+
+  .profileGrid {
+    grid-template-columns: 1fr;
   }
 }
 
