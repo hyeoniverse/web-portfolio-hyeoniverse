@@ -7,8 +7,8 @@
 }
 
 .pageBtn {
-  width: 32px;
-  height: 32px;
+  width: var(--h-control-sm);
+  height: var(--h-control-sm);
   display: flex;
   align-items: center;
   justify-content: center;

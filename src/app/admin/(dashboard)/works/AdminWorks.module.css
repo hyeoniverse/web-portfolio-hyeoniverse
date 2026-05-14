@@ -22,8 +22,7 @@
 }
 
 .subPageSize button {
-  padding: var(--box-sm);
-  min-height: 0;
+  padding: 0 var(--spacing-md);
   font-size: var(--font-size-xs);
 }
 
@@ -34,8 +33,7 @@
 }
 
 .subFilterSelect button {
-  padding: var(--box-sm);
-  min-height: 0;
+  padding: 0 var(--spacing-md);
   font-size: var(--font-size-xs);
 }
 

@@ -1,7 +1,7 @@
 .btn {
   display: inline-flex;
   align-items: center;
-  height: 28px;
+  height: var(--h-control-sm);
   padding: 0 var(--spacing-md);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
