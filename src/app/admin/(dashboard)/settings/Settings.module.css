@@ -725,7 +725,8 @@
 .colorText {
   flex: 1;
   min-width: 0;
-  padding: var(--box-xs-sm);
+  height: var(--input-h);
+  padding: 0 var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1422,7 +1423,8 @@
 
 .profileFieldInput {
   width: 100%;
-  padding: var(--box-xs-sm);
+  height: var(--input-h);
+  padding: 0 var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1865,7 +1867,8 @@
 }
 
 .seriesDeleteInput {
-  padding: var(--box-xs-sm);
+  height: var(--input-h);
+  padding: 0 var(--spacing-sm);
   border: var(--border-default);
   border-radius: var(--radius-md);
   background: transparent;
@@ -3197,7 +3200,8 @@
 .fontCustomInput {
   flex: 1;
   min-width: 0;
-  padding: var(--box-xs-sm);
+  height: var(--input-h);
+  padding: 0 var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -3753,7 +3757,8 @@
 
 .limitInput {
   width: 70px;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  height: var(--input-h);
+  padding: 0 var(--spacing-xs);
   border: var(--border-light);
   border-radius: var(--radius-md);
   background: transparent;
