@@ -3028,8 +3028,35 @@
   transform: rotate(-45deg);
 }
 
-/* tablet 이하 (≤1024px): sideNav 가로 200px 고정 + 좁은 panel 조합이 잘리므로 vertical 로 전환 */
-@media (max-width: 1024px) {
+/* tablet (769~1024px): horizontal layout 유지하되 sideNav 슬림화 + panel 내부 2열 grid 를
+   1열로 떨어뜨려 좁아진 panel 에서도 잘리지 않게 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .layout {
+    gap: var(--spacing-lg);
+  }
+
+  .sideNav {
+    width: 140px;
+  }
+
+  .navItem {
+    font-size: var(--font-size-xs);
+  }
+
+  .navSubItem {
+    padding-left: var(--spacing-sm);
+    font-size: var(--font-size-2xs);
+  }
+
+  /* 2열 grid 들 → 1열 (좁은 panel 에서 잘림 방지) */
+  .fieldPair,
+  .profileGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 모바일 (≤768px): vertical layout + 가로 스크롤 sideNav */
+@media (max-width: 768px) {
   .layout {
     flex-direction: column;
     gap: var(--spacing-lg);
@@ -3110,10 +3137,8 @@
   .skeletonNav {
     flex-direction: row;
   }
-}
 
-/* 모바일만 (≤768px): font / padding 등 미세 조정 */
-@media (max-width: 768px) {
+  /* 모바일 미세 조정 — font / padding */
   .header {
     gap: var(--spacing-sm);
   }
