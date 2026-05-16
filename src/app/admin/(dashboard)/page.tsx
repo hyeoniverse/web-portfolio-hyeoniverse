@@ -7,7 +7,6 @@ import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
-import CloseIcon from "@/components/ui/CloseIcon";
 import CloseButton from "@/components/ui/CloseButton";
 import Tooltip from "@/components/ui/Tooltip";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
@@ -820,15 +819,7 @@ function DeviceModelsPanel({
         <span className={styles.deviceDrillTitle}>
           {kindLabels[kind]} · {language === "ko" ? "기기 모델" : "Top devices"}
         </span>
-        <button
-          type="button"
-          className={styles.deviceDrillClose}
-          onClick={onClose}
-          aria-label={language === "ko" ? "닫기" : "Close"}
-          data-close-trigger
-        >
-          <CloseIcon />
-        </button>
+        <CloseButton onClick={onClose} ariaLabel={language === "ko" ? "닫기" : "Close"} />
       </div>
       {models.length === 0 ? (
         <p className={styles.deviceDrillEmpty}>
@@ -1559,9 +1550,7 @@ function DayDetailPanel({
             {language === "ko" ? `${rank}위 / ${data.length}일` : `Rank ${rank} of ${data.length}`}
           </span>
         </div>
-        <button type="button" className={styles.dayDetailClose} onClick={onClose} aria-label="close" data-close-trigger>
-          <CloseIcon />
-        </button>
+        <CloseButton onClick={onClose} ariaLabel="close" />
       </Panel>
 
         {/* 좌측 컬럼 — 숫자 + 비교 List + range 분포 (dayDetail grid 의 col 1) */}
