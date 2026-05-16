@@ -9,3 +9,8 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+/* inset — panelHeader 등 wrapper 안에 들어갈 때. wrapper 가 padding 책임 */
+.inset {
+  padding-top: 0;
+}

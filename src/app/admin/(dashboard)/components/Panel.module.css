@@ -69,7 +69,9 @@
   border-left: var(--border-light);
 }
 
-/* ── Item — direct child of .panel. 구체 styling 은 className prop 으로 ── */
+/* ── Item — direct child of .panel. block default + inline children 자연 wrap.
+   구체 layout (flex/grid) 이 필요한 Item 은 자체 className 으로 display override ── */
 .item {
+  padding-block: var(--spacing-xs);
   min-width: 0;
 }

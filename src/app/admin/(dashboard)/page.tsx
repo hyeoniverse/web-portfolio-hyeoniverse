@@ -239,7 +239,7 @@ export default function AdminDashboard() {
             gridColumn: "1 / -1",
             gap: "var(--spacing-xl)",
             alignItems: "center",
-            padding: "var(--box-xl-lg)",
+            padding: "var(--box-lg-md)",
             position: "relative",
             overflow: "hidden",
             background: "var(--bg-primary)",
@@ -489,14 +489,14 @@ export default function AdminDashboard() {
           {data.stats.tags.length === 0 ? (
             <p className={styles.muted}><T k="admin.dashboard.noTags" /></p>
           ) : (
-            <div className={styles.tagCloud}>
-              {data.stats.tags.map(({ tag, count }) => (
+            <Item className={styles.tagsItem}>
+              {data.stats.tags.slice(0, 10).map(({ tag, count }) => (
                 <span key={tag} className={styles.tagPill} title={`${count}`}>
                   {tag}
                   <span className={styles.tagPillCount}>{count}</span>
                 </span>
               ))}
-            </div>
+            </Item>
           )}
         </Panel>
         </Panel>
@@ -934,6 +934,20 @@ function DailyViewsChart({
     setHoveredIdx(null);
   }, [normStart, normEnd]);
 
+  // chartScroll 위에서 wheel — vertical wheel 을 horizontal scroll 로 변환, 페이지 세로 scroll 차단.
+  // React onWheel 은 passive 라 preventDefault 불가 → native addEventListener (passive: false)
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
   // rawData 에서 [normStart, normEnd] 구간만 슬라이스
   const data = useMemo(
     () => rawData.filter((d) => d.day >= normStart && d.day <= normEnd),
@@ -1075,11 +1089,9 @@ function DailyViewsChart({
 
   return (
     <div className={styles.dailyChart}>
-      <div className={styles.dailyChartHeader}>
         {/* Row 1: 제목 + 우측 stats/toggle — 너비 변해도 일관된 단일 행 */}
-        <div className={styles.dailyChartHeaderMain}>
-          <PanelTitle>{t("admin.dashboard.dailyViewsTitle")}</PanelTitle>
-          <div className={styles.dailyChartStats}>
+        <header className={styles.panelHeader}>
+          <PanelTitle variant="inset">{t("admin.dashboard.dailyViewsTitle")}</PanelTitle>
             <div className={styles.dailyChartStatItem}>
               <span className={styles.dailyChartStatLabel}>
                 {viewMode === "calendar"
@@ -1129,8 +1141,7 @@ function DailyViewsChart({
                 <CalendarDays size={13} strokeWidth={2} />
               </button>
             </div>
-          </div>
-        </div>
+        </header>
 
         {/* Row 2: 날짜 범위 선택기 (line mode 만) — 별도 행으로 분리해서 너비 변해도 row1 영향 X */}
         {viewMode === "line" && (
@@ -1162,7 +1173,6 @@ function DailyViewsChart({
             </div>
           </div>
         )}
-      </div>
       {viewMode === "calendar" ? (
         <CalendarHeatmap
           data={rawData}
@@ -1191,26 +1201,22 @@ function DailyViewsChart({
           }}
         />
       ) : (
-      <div
-        className={styles.areaWrap}
-        role="img"
-        aria-label={t("admin.dashboard.dailyViewsTitle")}
-        onMouseLeave={() => setHoveredIdx(null)}
-      >
-        {/* 모바일에서 일수가 많으면 가로 스크롤 — min-width 가 일당 24px 정도로 늘어나 scroll 발생.
-            desktop 에서는 width: 100% 로 fit-to-container, scroll 안 일어남.
-            마우스 drag-to-scroll 도 지원 — touch 는 native pan-x 가 알아서 처리. */}
+        // 모바일에서 일수가 많으면 가로 스크롤 — children 의 min-width 가 일당 24px 정도로 늘어나 scroll 발생.
+        // desktop 에서는 width: 100% 로 fit-to-container, scroll 안 일어남.
+        // 마우스 drag-to-scroll + wheel 도 가로로 변환 (chart 위 wheel 시 페이지 세로 scroll 막음).
         <div
           ref={scrollRef}
           className={`${styles.chartScroll} ${isDragging ? styles.chartScrollDragging : ""}`}
           style={{ ["--_days" as string]: String(data.length) }}
+          role="img"
+          aria-label={t("admin.dashboard.dailyViewsTitle")}
+          onMouseLeave={() => setHoveredIdx(null)}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
           onClickCapture={handleClickCapture}
         >
-        <div className={styles.chartInner}>
         {/* path 만 SVG — 늘어나도 곡선 형태는 자연스러움 */}
         <div className={styles.chartArea}>
           <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className={styles.areaSvg}>
@@ -1329,8 +1335,6 @@ function DailyViewsChart({
           })}
         </div>
         </div>
-        </div>
-      </div>
       )}
       {/* 선택된 날짜 상세 패널 */}
       {selectedIdx !== null && (
@@ -1519,31 +1523,12 @@ function DayDetailPanel({
     <Panel
       variant="grid"
       cols="1fr 1fr"
+      gap="var(--spacing-sm)"
       role="region"
       aria-label="day detail"
       key={selectedIdx /* 다른 날짜 클릭 시 애니메이션 재실행 */}
-      style={{
-        columnGap: "var(--spacing-xl)",
-        rowGap: "var(--spacing-md)",
-        alignItems: "start",
-        marginTop: "var(--spacing-md)",
-        marginBottom: "var(--spacing-2xl)",
-        padding: "var(--box-except-b-md)",
-        borderTop: "var(--border-light)",
-        position: "relative",
-        background: "transparent",
-      }}
     >
-      <Panel
-        variant="flex"
-        direction="horizontal"
-        style={{
-          gridColumn: "1 / -1",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "var(--spacing-sm)",
-        }}
-      >
+      <header className={styles.panelHeader} style={{ gridColumn: "1 / -1" }}>
         <div className={styles.dayDetailHeading}>
           <span className={styles.dayDetailDate}>{fullDate}</span>
           <span className={styles.dayDetailRank}>
@@ -1551,18 +1536,18 @@ function DayDetailPanel({
           </span>
         </div>
         <CloseButton onClick={onClose} ariaLabel="close" />
-      </Panel>
+      </header>
 
         {/* 좌측 컬럼 — 숫자 + 비교 List + range 분포 (dayDetail grid 의 col 1) */}
-        <Panel style={{ gap: "var(--spacing-md)", minWidth: 0 }}>
-          <div className={styles.dayDetailValue}>
-            <span className={styles.dayDetailNumber}>
+        <Panel>
+          <Panel direction="horizontal" gap="var(--spacing-xs)" align="baseline">
+            <Item className={styles.dayDetailNumber}>
               <CountUp value={sel.views} duration={700} />
-            </span>
+            </Item>
             <span className={styles.dayDetailUnit}>{language === "ko" ? "조회" : "views"}</span>
-          </div>
+          </Panel>
 
-          <List className={styles.dayDetailComparisons}>
+          <List>
             {rows.map((row, i) => (
               <ListItem
                 key={row.id}
@@ -1577,23 +1562,18 @@ function DayDetailPanel({
             ))}
           </List>
 
-          <div className={styles.dayDetailRange} style={{ animationDelay: `${120 + rows.length * 70 + 40}ms` }}>
-            <RangePosition
-              values={allViews}
-              selectedValue={sel.views}
-              label={language === "ko" ? `${periodLabel} 분포 내 위치` : `Position in ${periodLabel} range`}
-            />
-          </div>
+          <RangePosition
+            values={allViews}
+            selectedValue={sel.views}
+            label={language === "ko" ? `${periodLabel} 분포 내 위치` : `Position in ${periodLabel} range`}
+          />
         </Panel>
 
         {/* 그날 인기 게시물 — 우측 컬럼, top 5 만 컴팩트하게 */}
-        <div
-          className={styles.dayDetailTop}
-          style={{ animationDelay: `${120 + rows.length * 70 + 200}ms` }}
-        >
-          <span className={styles.dayDetailTopHeading}>
+        <Panel style={{ animationDelay: `${120 + rows.length * 70 + 200}ms` }}>
+          <PanelTitle>
             {language === "ko" ? "그날 인기 게시물" : "Top posts that day"}
-          </span>
+          </PanelTitle>
           {loadingPosts ? (
             <p className={styles.muted}>{language === "ko" ? "불러오는 중..." : "Loading..."}</p>
           ) : topPosts.length === 0 ? (
@@ -1601,14 +1581,18 @@ function DayDetailPanel({
               {language === "ko" ? "이날 조회된 게시물이 없습니다." : "No posts viewed this day."}
             </p>
           ) : (
-            <List className={styles.dayDetailTopList}>
+            <List>
               {topPosts.slice(0, 5).map((p, i) => {
                 const max = topPosts[0].views;
                 const pct = (p.views / max) * 100;
                 return (
-                  <ListItem key={p.id} className={styles.dayDetailTopItem}>
+                  <ListItem
+                    key={p.id}
+                    layout="grid"
+                    style={{ gridTemplateColumns: "auto minmax(0, 1.4fr) minmax(60px, 1fr) auto" }}
+                  >
                     <span className={styles.dayDetailTopRank}>{String(i + 1).padStart(2, "0")}</span>
-                    <Link href={`/posts/${p.slug}`} className={styles.dayDetailTopTitle}>
+                    <Link href={`/posts/${p.slug}`} className={styles.itemTitle}>
                       {p.title}
                     </Link>
                     <span className={styles.bar} aria-hidden>
@@ -1625,7 +1609,7 @@ function DayDetailPanel({
               })}
             </List>
           )}
-        </div>
+        </Panel>
     </Panel>
   );
 }
@@ -1650,7 +1634,7 @@ function RangePosition({ values, selectedValue, label }: { values: number[]; sel
   const pct = range > 0 ? ((selectedValue - min) / range) * 100 : 50;
 
   return (
-    <div className={styles.rangePos}>
+    <Item>
       <span className={styles.rangePosLabel}>{label}</span>
       <div className={styles.rangePosTrack} aria-hidden>
         <div className={styles.rangePosFill} style={{ width: `${pct}%` }} />
@@ -1660,7 +1644,7 @@ function RangePosition({ values, selectedValue, label }: { values: number[]; sel
         <span>{min.toLocaleString()}</span>
         <span>{max.toLocaleString()}</span>
       </div>
-    </div>
+    </Item>
   );
 }
 
@@ -1997,9 +1981,9 @@ function CategoryDonut({
     {expandedCat && (
       <Panel style={{ gridColumn: "1 / -1", borderTop: "var(--border-light)" }}>
         <header className={styles.panelHeader}>
-          <span>
+          <PanelTitle variant="inset">
             {language === "ko" ? `${expandedCat} 게시물` : `${expandedCat} posts`}
-          </span>
+          </PanelTitle>
           <CloseButton
             onClick={() => { setExpandedCat(null); setExpandedPosts([]); }}
             ariaLabel={language === "ko" ? "닫기" : "Close"}
@@ -2131,16 +2115,12 @@ function DashboardSkeleton() {
 
         {/* Daily Views Chart — header (title + stats + toggle) + chart area */}
         <Panel className={styles.dailyChart}>
-          <div className={styles.dailyChartHeader}>
-            <div className={styles.dailyChartHeaderMain}>
-              <PanelTitle><SkeletonLine width={120} /></PanelTitle>
-              <div className={styles.dailyChartStats}>
-                <SkeletonLine width={80} />
-                <SkeletonPill width={56} height={20} />
-                <SkeletonPill width={56} />
-              </div>
-            </div>
-          </div>
+          <header className={styles.panelHeader}>
+            <PanelTitle variant="inset"><SkeletonLine width={120} /></PanelTitle>
+            <SkeletonLine width={80} />
+            <SkeletonPill width={56} height={20} />
+            <SkeletonPill width={56} />
+          </header>
           <SkeletonBlock height={220} />
         </Panel>
       </Section>
@@ -2211,11 +2191,11 @@ function DashboardSkeleton() {
           {/* Top Tags */}
           <Panel className={styles.panelCell}>
             <PanelTitle><SkeletonLine width={80} /></PanelTitle>
-            <div className={styles.tagCloud}>
+            <Item className={styles.tagsItem}>
               {[68, 84, 56, 100, 72, 92, 60, 76, 88, 64, 96, 70].map((w, i) => (
                 <SkeletonPill key={i} width={w} />
               ))}
-            </div>
+            </Item>
           </Panel>
         </Panel>
       </Section>

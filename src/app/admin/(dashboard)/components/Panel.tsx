@@ -11,6 +11,10 @@ type Props = ComponentPropsWithoutRef<"div"> & {
   cols?: string;
   /** grid 일 때 grid-template-rows 값 */
   rows?: string;
+  /** child 들 사이 gap (CSS shorthand — "var(--spacing-md)" 또는 "12px 24px") */
+  gap?: string;
+  /** align-items 값 ("start" | "center" | "end" | "baseline" | "stretch") */
+  align?: "start" | "center" | "end" | "baseline" | "stretch";
   /** child 들 사이 hairline divider — n+2 border-top, n+3 border-left (3-col grid 가정) */
   divided?: boolean;
   ref?: Ref<HTMLDivElement>;
@@ -24,6 +28,8 @@ export default function Panel({
   direction,
   cols,
   rows,
+  gap,
+  align,
   divided,
   className,
   children,
@@ -41,6 +47,8 @@ export default function Panel({
     if (cols) variantStyle.gridTemplateColumns = cols;
     if (rows) variantStyle.gridTemplateRows = rows;
   }
+  if (gap) variantStyle.gap = gap;
+  if (align) variantStyle.alignItems = align === "start" || align === "end" ? `flex-${align}` : align;
 
   return (
     <div
