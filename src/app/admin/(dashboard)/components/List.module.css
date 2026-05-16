@@ -1,0 +1,64 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   UNIFIED LIST / LIST-ITEM PRIMITIVES
+   다양한 list 패턴 커버 — single-line / multi-line / grid row.
+   - <List> : ul/ol wrapper, list-style reset, flex column
+   - <ListItem layout="row"|"column"|"grid"> : li with hairline divider, 마지막은 자동 처리
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* parent panel/section 가 height 정해주면 item 들 균등 분할용 (donutLegend 등). 기본은 content-fit. */
+  height: 100%;
+}
+
+/* base item — padding (vertical + horizontal) + hairline divider. layout variant 가 display 결정.
+   item 이 자체 horizontal padding 가짐 → parent panel 은 horizontal padding 안 가져도 컨텐츠가 edge 에 안 붙음 */
+.item {
+  padding-block: var(--spacing-sm);
+  padding-inline: var(--spacing-md);
+  border-bottom: var(--border-light);
+  /* flex/grid 자식 으로서 shrink 허용 */
+  min-width: 0;
+}
+
+/* 마지막 item — hairline 만 제거하고 padding 은 동일 (gap 없이 padding 으로만 spacing 책임지므로
+   padding-bottom 도 빼면 마지막 item 만 size 다름) */
+.item:last-child {
+  border-bottom: none;
+}
+
+/* layout: row — single-line, horizontal flex (status + title + date 등 한 줄) */
+.itemRow {
+  composes: item;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* layout: column — multi-line, vertical stack (header / body / footer 등) */
+.itemColumn {
+  composes: item;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+/* layout: grid — column-aligned (referrer row: source + bar + meta / dayDetail: label + diff + ctx).
+   grid-template-columns 은 className 으로 직접 지정 (다양한 use case) */
+.itemGrid {
+  composes: item;
+  display: grid;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* layout: none — base item styling 만, display 안 정함 (custom layout 용) */
+.itemBase {
+  composes: item;
+}

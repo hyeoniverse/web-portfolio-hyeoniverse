@@ -191,7 +191,10 @@
       "dailyViewsTotal": "Period total",
       "today": "Today",
       "engagementTitle": "Engagement (relative views per post)",
-      "trendVsPrev7": "vs previous 7d"
+      "trendVsPrev7": "vs previous 7d",
+      "groupRecent": "Recent Activity",
+      "groupPopular": "Popular",
+      "groupTraffic": "Traffic"
     },
     "notifications": {
       "title": "Notifications",

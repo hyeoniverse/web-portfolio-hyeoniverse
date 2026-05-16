@@ -1,0 +1,66 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   UNIFIED LAYOUT PRIMITIVES — Section / Panel / Item
+   대시보드 (그리고 향후 admin 페이지 전반) 의 공통 layout building block.
+   구조: <Section> > <SectionHeader> + <Panel variant="flex|grid"> > <Item>
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── Section — 페이지의 컨텐츠 그룹 단위. 위쪽 1px hairline 만으로 구분.
+   gap 없음 — child block (sectionTitle/Panel/Item) 가 자체 padding 으로 spacing 책임 ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-light);
+  animation: sectionIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes sectionIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section { animation: none !important; }
+}
+
+/* Section title — uppercase 작은 라벨. padding-block 으로 다음 형제와 spacing 만듦 (section gap 대체) */
+.sectionTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+  padding-block: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Section 의 모든 자식 사이 hairline divider (sectionTitle 빼고).
+   .section.section 으로 특이성 (0,2,0) 확보 — .panel/.dailyChart 같이 자체 border: none 인
+   element 들 (specificity 0,1,0) 도 안정 override (source order tie 회피) */
+.section.section > * + * {
+  border-top: var(--border-light);
+}
+
+/* ── Panel — universal content container. variant 가 layout (flex/grid) 결정 ── */
+.panel {
+  /* base: min-width 0 으로 flex/grid item 으로서 shrink 허용 */
+  min-width: 0;
+}
+
+.panelFlex {
+  composes: panel;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.panelGrid {
+  composes: panel;
+  display: grid;
+  gap: 0;
+}
+
+/* ── Item — direct child of .panel. 구체 styling 은 className prop 으로 ── */
+.item {
+  min-width: 0;
+}

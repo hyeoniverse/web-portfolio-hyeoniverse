@@ -24,101 +24,28 @@
   margin: 0;
 }
 
-.refreshBtn {
-  background: transparent;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  padding: var(--box-xs-sm);
+/* Stagger fade-in for dashboard sections — tag selector 라 Section/twoCol React 컴포넌트의
+   <section> element 와 매치. :nth-of-type 으로 .header (div) 같은 형제 무시. */
+.container > section:nth-of-type(1) { animation-delay: 0ms; }
+.container > section:nth-of-type(2) { animation-delay: 60ms; }
+.container > section:nth-of-type(3) { animation-delay: 120ms; }
+.container > section:nth-of-type(4) { animation-delay: 180ms; }
+.container > section:nth-of-type(5) { animation-delay: 240ms; }
+.container > section:nth-of-type(6) { animation-delay: 300ms; }
+.container > section:nth-of-type(7) { animation-delay: 360ms; }
+.container > section:nth-of-type(8) { animation-delay: 420ms; }
+.container > section:nth-of-type(9) { animation-delay: 480ms; }
+
+/* Panel sub-header — twoCol pair 안의 panel 타이틀. sectionTitle 보다 한 단계 작고 약함 */
+.panelTitle {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
-
-.refreshBtn:hover:not(:disabled) {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.refreshBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ── Section — 각 섹션은 위쪽 1px hairline 만으로 구분, 아래 padding 없음 (표 행 그룹) ── */
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--box-t-2xl);
-  border-top: var(--border-light);
-  /* 진입 모션 — 섹션 단위 stagger fade-in (delay 는 nth-child 기반, 아래) */
-  animation: dashSectionIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
-}
-
-@keyframes dashSectionIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 섹션 stagger delay — 첫 섹션부터 80ms 씩 누적 */
-.container > .section:nth-child(1),
-.container > .twoCol:nth-child(1) {
-  animation-delay: 0ms;
-}
-.container > .section:nth-child(2),
-.container > .twoCol:nth-child(2) {
-  animation-delay: 60ms;
-}
-.container > .section:nth-child(3),
-.container > .twoCol:nth-child(3) {
-  animation-delay: 120ms;
-}
-.container > .section:nth-child(4),
-.container > .twoCol:nth-child(4) {
-  animation-delay: 180ms;
-}
-.container > .section:nth-child(5),
-.container > .twoCol:nth-child(5) {
-  animation-delay: 240ms;
-}
-.container > .section:nth-child(6),
-.container > .twoCol:nth-child(6) {
-  animation-delay: 300ms;
-}
-.container > .section:nth-child(7),
-.container > .twoCol:nth-child(7) {
-  animation-delay: 360ms;
-}
-.container > .section:nth-child(8),
-.container > .twoCol:nth-child(8) {
-  animation-delay: 420ms;
-}
-.container > .section:nth-child(9),
-.container > .twoCol:nth-child(9) {
-  animation-delay: 480ms;
-}
-
-/* 사용자가 prefers-reduced-motion 설정 시 모션 제거 */
-@media (prefers-reduced-motion: reduce) {
-  .section,
-  .twoCol {
-    animation: none !important;
-  }
-}
-
-.sectionTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   margin: 0;
+  /* padding-top 만 — 아래는 다음 item 의 padding-top 이 책임 (중복 spacing 방지) */
+  padding-top: var(--spacing-sm);
+  padding-inline: var(--spacing-md);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -128,6 +55,9 @@
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   margin: 0;
+  /* item 패턴과 동일한 padding — section/panel direct child 일 때 일관된 inset */
+  padding-block: var(--spacing-sm);
+  padding-inline: var(--spacing-md);
 }
 
 .error {
@@ -139,9 +69,8 @@
 
 /* ── Quick Actions — 4-col edge-to-edge 행, 셀 사이만 vertical divider, 자체 위쪽 hairline ── */
 .quickActions {
-  display: grid;
+  composes: panelGrid from "./components/Panel.module.css";
   grid-template-columns: repeat(4, 1fr);
-  gap: 0;
   border-top: var(--border-light);
 }
 
@@ -209,25 +138,35 @@
   text-align: center;
 }
 
-/* ── Hero stat — 시선 anchor 가 되는 큰 지표 (Total Views) + sparkline + WoW ── */
+/* ── Hero stat — 시선 anchor 가 되는 큰 지표 (Total Views) + sparkline + WoW.
+   statsGrid 안 첫 cell. border 는 grid gap 이 그리므로 자체 border 없음. ── */
 .heroStat {
+  composes: item from "./components/Panel.module.css";
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 320px);
   gap: var(--spacing-xl);
   align-items: center;
   padding: var(--box-xl-lg);
-  border-top: var(--border-light);
-  border-bottom: var(--border-light);
   position: relative;
   overflow: hidden;
-  /* 바로 다음 .statsGrid 와 붙도록 .section 의 flex gap 상쇄 */
-  margin-bottom: calc(-1 * var(--spacing-sm));
+  background: var(--bg-primary);
+  /* 3-col 모드 (≥769px): row 1 full span */
+  grid-column: 1 / -1;
 }
 
+/* 2-col 모드 (481-768px): heroStat 도 1 cell 로 진입. 내부 stack */
 @media (max-width: 768px) {
   .heroStat {
+    grid-column: auto;
     grid-template-columns: 1fr;
     padding: var(--box-lg-md);
+  }
+}
+
+/* 1-col 모드 (≤480px): full row (statsGrid 자체가 1-col 이므로 동일 결과지만 명시) */
+@media (max-width: 480px) {
+  .heroStat {
+    grid-column: 1 / -1;
   }
 }
 
@@ -316,50 +255,85 @@
   }
 }
 
-/* ── Stats Grid — 보조 stats (Hero 아래), 3-col edge-to-edge 표 행. 자체 border-bottom 없음 (다음 .section 의 border-top 이 분리선 역할) ── */
+/* ── Stats Grid — heroStat + 3 statCards. cell 사이 explicit border 로 다른 섹션과 동일한 rendering.
+   3-col desktop: heroStat full row + 3 statCard row / 2-col tablet: 2×2 / 1-col mobile: 4 stacked.
+   외곽 border 없음 — 다음 section 의 border-top 이 분리선 역할. ── */
 .statsGrid {
-  display: grid;
+  composes: panelGrid from "./components/Panel.module.css";
   grid-template-columns: repeat(3, 1fr);
-  gap: 0;
 }
 
 @media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
   .statsGrid {
     grid-template-columns: 1fr;
   }
 }
 
+/* 3-col 모드 (기본): heroStat 다음 statCards (2nd~4th) 에 border-top, 3rd/4th 에 border-left */
+.statsGrid > *:nth-child(n + 2) {
+  border-top: var(--border-light);
+}
+.statsGrid > *:nth-child(n + 3) {
+  border-left: var(--border-light);
+}
+
+/* 2-col 모드 (481-768px): 2×2 layout — heroStat | works / posts | comments
+   - col 2 cells (2nd: works, 4th: comments) 에 border-left
+   - row 2 cells (3rd: posts, 4th: comments) 에 border-top
+   - 3-col 모드의 규칙은 reset */
+@media (max-width: 768px) and (min-width: 481px) {
+  .statsGrid > *:nth-child(n + 2) {
+    border-top: none;
+  }
+  .statsGrid > *:nth-child(n + 3) {
+    border-left: none;
+  }
+  .statsGrid > *:nth-child(2n) {
+    border-left: var(--border-light);
+  }
+  .statsGrid > *:nth-child(n + 3) {
+    border-top: var(--border-light);
+  }
+}
+
+/* 1-col 모드 (≤480px): 4 stacked, 모든 cell 사이 horizontal divider */
+@media (max-width: 480px) {
+  .statsGrid > *:nth-child(n + 2) {
+    border-top: var(--border-light);
+  }
+  .statsGrid > *:nth-child(n + 3) {
+    border-left: none;
+  }
+}
+
 .statCard {
+  composes: item from "./components/Panel.module.css";
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
   padding: var(--box-lg-md);
   border: none;
   border-radius: 0;
-  background: transparent;
+  background: var(--bg-primary);
   text-decoration: none;
   color: inherit;
   transition:
     background-color 0.2s ease,
     transform 0.25s var(--ease-material);
   position: relative;
+  /* Tooltip wrapper 의 grid cell stretch 높이 까지 채워서 hover bg 가 cell 전체 덮도록 */
+  height: 100%;
+  box-sizing: border-box;
 }
 
 a.statCard {
   cursor: pointer;
-}
-
-/* Tooltip 으로 감싸도 동작하도록 universal child selector 사용 */
-.statsGrid > * + * {
-  border-left: var(--border-light);
-}
-
-@media (max-width: 768px) {
-  /* 모바일 1-col: vertical divider 제거, 행 간 horizontal divider 만 유지 */
-  .statsGrid > * + * {
-    border-left: none;
-    border-top: var(--border-light);
-  }
 }
 
 a.statCard:hover {
@@ -430,21 +404,16 @@ a.statCard:hover .statValue {
 }
 
 /* Fill 변형 */
-.barFillSolid {
-  background: var(--bg-accent-solid);
-}
-
 .barFillSoft {
   background: var(--color-accent-alpha-50);
 }
 
 .barFillGradient {
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
-}
-
-/* ratioBar 전용 — margin-top 으로 inline 정렬 (statCard 내부 사용) */
-.ratioBarSpacer {
-  margin-top: var(--spacing-2xs);
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
 }
 
 /* ── 시각화: 인기 게시물 미니 막대 ── */
@@ -515,32 +484,10 @@ a.statCard:hover .statValue {
   }
 }
 
-/* ── 시각화: 댓글 활동 도트 (작성자 분포) ── */
-.dotIndicator {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  margin-top: var(--spacing-2xs);
-  height: 8px;
-}
-
-.dotIndicator span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-secondary);
-  opacity: 0.4;
-}
-
-.dotIndicator span.dotActive {
-  opacity: 1;
-}
-
 /* ── Two-column section — 표 행 그룹, 셀 사이 vertical divider, 위쪽 hairline ── */
 .twoCol {
-  display: grid;
+  composes: panelGrid from "./components/Panel.module.css";
   grid-template-columns: 1fr 1fr;
-  gap: 0;
   border-top: var(--border-light);
   /* grid-template-columns transition: 기기 분석 확장 시 부드럽게 */
   transition: grid-template-columns 0.4s var(--ease-material);
@@ -554,23 +501,27 @@ a.statCard:hover .statValue {
   }
 }
 
-.panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--box-lg-md);
-  border: none;
-  border-radius: 0;
-  min-height: 0;
-  min-width: 0; /* grid item overflow 방지 */
+/* .section 안에 nested 된 .twoCol — section 의 border-top 과 .twoCol 의 border-top 은
+   서로 다른 위치 (section box top vs sectionTitle 아래) 이므로 중복 아님 — 후자가 sectionTitle/content 분리선 역할.
+   하지만 stagger animation 은 중복 방지 (parent .section 이 이미 fade-in). */
+.section > .twoCol {
+  animation: none;
 }
 
-.twoCol > .panel + .panel {
+/* .panelCell — twoCol grid 안의 cell 컨테이너 (예전 .panel). composes panelFlex 로 unified base 상속. */
+.panelCell {
+  composes: panelFlex from "./components/Panel.module.css";
+  /* gap/padding 없음 — child (panelTitle / List items) 가 자체 padding 으로 spacing 책임 */
+  border: none;
+  border-radius: 0;
+}
+
+.twoCol > .panelCell + .panelCell {
   border-left: var(--border-light);
 }
 
 @media (max-width: 768px) {
-  .twoCol > .panel + .panel {
+  .twoCol > .panelCell + .panelCell {
     border-left: none;
     border-top: var(--border-light);
   }
@@ -582,7 +533,7 @@ a.statCard:hover .statValue {
 }
 
 /* 확장 시 두 패널 사이 vertical divider 도 함께 사라져야 자연스러움 */
-.twoColExpanded > .panel + .panel {
+.twoColExpanded > .panelCell + .panelCell {
   border-left: none;
 }
 
@@ -609,51 +560,23 @@ a.statCard:hover .statValue {
   }
 }
 
-/* ── List items ── */
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-/* 공통 panel 내부 row 스타일 — vertical padding (인기 게시물 spacing 기준 = 8) + bottom hairline.
-   horizontal padding 은 부모 .panel 이 책임. items 사이 일관된 행 간격.
-   모든 item (listItem/listItemCol/referrerRow) 이 composes 로 재사용. */
-.panelRow {
-  padding: var(--box-y-md);
-  border-bottom: var(--border-light);
-}
-
-.panelRow:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-/* listItem: panel 내부 1줄 row (status / title / date) — padding 은 panelRow 가 책임 */
-.listItem {
-  composes: panelRow;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-/* listItemCol: panel 내부 다단 column row (header / body / footer) — popular, comment 공용 */
-.listItemCol {
-  composes: panelRow;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
-
 .rank {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 700;
   color: var(--text-tertiary);
   min-width: 24px;
+}
+
+/* Recent Posts/Works 의 link wrapper — status + title + date 가 한 줄로 flex 정렬 + gap 으로 적절한 spacing */
+.listItemLink {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+  min-width: 0;
 }
 
 .itemTitle {
@@ -735,13 +658,6 @@ a.statCard:hover .statValue {
   background: var(--text-warning);
 }
 
-/* ── Comment item ── */
-/* popularItem 과 mirror — 동일한 flex-column 3줄 구조 (header + body + footer) */
-/* commentItem alias — listItemCol 로 통합되었으나 기존 child class (commentMeta 등) 참조 위해 유지 */
-.commentItem {
-  composes: listItemCol;
-}
-
 .timeAgo {
   font-family: var(--font-jetbrains);
   font-variant-numeric: tabular-nums;
@@ -750,9 +666,8 @@ a.statCard:hover .statValue {
 
 /* ── Service Status — 표 행 그룹, 셀마다 hairline (외곽 border 는 .section 의 border-top 이 처리) ── */
 .serviceGrid {
-  display: grid;
+  composes: panelGrid from "./components/Panel.module.css";
   grid-template-columns: repeat(2, 1fr);
-  gap: 0;
 }
 
 @media (max-width: 768px) {
@@ -762,6 +677,7 @@ a.statCard:hover .statValue {
 }
 
 .serviceItem {
+  composes: item from "./components/Panel.module.css";
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -821,6 +737,9 @@ a.statCard:hover .statValue {
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   margin: 0;
+  /* item 패턴과 동일한 padding 통일 */
+  padding-block: var(--spacing-sm);
+  padding-inline: var(--spacing-md);
 }
 
 /* ── Stat card 내부: label + WoW trend 배지 한 줄 ── */
@@ -880,34 +799,40 @@ a.statCard:hover .statValue {
   }
 }
 
-/* ── Daily Views Chart — panel 패턴과 동일 horizontal padding (가장자리 dot/label 잘림 방지) ── */
+/* ── Daily Views Chart panel — gap 없음, child 가 자체 padding 으로 spacing 책임 ── */
 .dailyChart {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--box-x-md);
+  composes: panelFlex from "./components/Panel.module.css";
   border: none;
   border-radius: 0;
   background: transparent;
 }
 
+/* Header — 다단 row 구조. row1: 제목 + stats/toggle (고정 단일 행), row2: date pickers (line mode 만) */
 .dailyChartHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding-block: var(--spacing-sm);
+  padding-inline: var(--spacing-md);
+}
+
+.dailyChartHeader .panelTitle {
+  margin: 0;
+  padding: 0;
+}
+
+/* Row 1: 제목 좌측, stats/toggle 우측. flex-wrap 없이 단일 행 유지 → 너비 변해도 layout 안정 */
+.dailyChartHeaderMain {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
-  flex-wrap: wrap;
 }
 
-.dailyChartHeader .sectionTitle {
-  margin: 0;
-}
-
-.dailyChartHeaderLeft {
-  display: inline-flex;
+/* Row 2: date pickers — 자체 행. 너무 좁으면 자체적으로 wrap */
+.dailyChartHeaderSub {
+  display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
 }
 
 .dailyChartStats {
@@ -1034,7 +959,9 @@ a.statCard:hover .statValue {
   border-radius: var(--radius-capsule);
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .viewModeBtn:hover {
@@ -1047,55 +974,124 @@ a.statCard:hover .statValue {
   box-shadow: var(--shadow-xs);
 }
 
-/* ── Calendar heatmap (GitHub-style) ── */
+/* ── 월별 캘린더 — 좌우 트인 표 스타일 (gap+bg trick 으로 cell 사이 hairline).
+   .dailyChart 의 horizontal padding 제거되어 negative margin 불필요. */
 .calendarHeatmap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--box-md-md);
+  composes: panelFlex from "./components/Panel.module.css";
 }
 
-.calendarRows {
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: var(--box-y-md) var(--spacing-md);
+  border-bottom: var(--border-light);
+}
+
+.calendarMonth {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  flex: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* DOW header row — 셀과 동일한 grid bg trick 으로 자연스러운 hairline (별도 border 제거).
+   explicit border 두면 stats 섹션 안에 hairline 이 많이 쌓여 bottom 쪽이 시각적으로 무거워짐. */
+.calendarDowRow {
   display: grid;
-  grid-template-rows: repeat(7, 1fr);
-  grid-row-gap: 2px;
-  position: absolute;
-  margin-left: -16px;
-  font-size: 9px;
-  color: var(--text-muted);
+  grid-template-columns: repeat(7, 1fr);
 }
 
 .calendarDow {
-  line-height: 12px;
-  text-align: right;
-  padding-right: 2px;
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: var(--spacing-xs) 0;
 }
 
+/* Calendar grid — gap+bg trick 으로 cell 사이 1px hairline. 상/하 경계도 동일하게 bg+padding 으로
+   처리 (border 와 gap 의 rendering 차이 통일 — subpixel 차이로 다르게 보이는 문제 방지) */
 .calendarGrid {
-  display: grid;
-  grid-template-rows: repeat(7, 12px);
-  grid-column-gap: 3px;
-  grid-row-gap: 3px;
-  padding-left: 18px;
+  composes: panelGrid from "./components/Panel.module.css";
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border-light-color);
+  padding-block: 1px;
 }
 
 .calendarCell {
-  width: 100%;
-  height: 12px;
+  composes: item from "./components/Panel.module.css";
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  /* min-height 가 아닌 고정 height + box-sizing: border-box 로 모든 row 정확히 동일 높이 보장.
+     min-height 면 content 따라 row 간 미세한 차이 발생해 gap 굵기 차이로 보일 수 있음 */
+  height: 72px;
+  box-sizing: border-box;
   border: none;
-  border-radius: 2px;
+  border-radius: 0;
   cursor: pointer;
-  padding: 0;
-  transition: outline 0.1s ease;
+  padding: var(--spacing-xs);
+  transition: filter 0.12s ease;
+  font-family: var(--font-space-grotesk);
+  /* button element 의 browser default appearance 리셋 */
+  appearance: none;
+  outline: none;
 }
 
 .calendarCell:hover:not(:disabled) {
-  outline: 1px solid var(--text-primary);
-  outline-offset: 1px;
+  filter: brightness(0.92);
+}
+
+.calendarCell.calendarCellEmpty {
+  background: var(--bg-primary);
+  cursor: default;
+  pointer-events: none;
 }
 
 .calendarCell:disabled {
   cursor: default;
+}
+
+/* 일자 — 셀 좌상단, 작게 */
+.calendarCellDay {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* 조회수 — 셀 중앙, 크게 */
+.calendarCellViews {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* 모바일에선 조회수 폰트 작게 + 셀 높이 축소 */
+@media (max-width: 768px) {
+  .calendarCell {
+    min-height: 56px;
+  }
+  .calendarCellViews {
+    font-size: var(--font-size-sm);
+  }
 }
 
 .calendarLegend {
@@ -1103,14 +1099,19 @@ a.statCard:hover .statValue {
   align-items: center;
   gap: var(--spacing-3xs);
   align-self: flex-end;
-  font-size: 9px;
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
+  padding: var(--spacing-xs) var(--spacing-md);
 }
 
 .calendarLegendCell {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-sm);
+  /* 0 단계 cell 이 bg-primary 라 section bg 와 같아져 안 보이는 문제 방지용 hairline */
+  border: var(--border-light);
+  box-sizing: border-box;
 }
 
 .calendarLegendLabel {
@@ -1122,15 +1123,6 @@ a.statCard:hover .statValue {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  margin-inline: var(--spacing-2xl);
-  margin-bottom: var(--spacing-2xl);
-}
-
-@media (max-width: 768px) {
-  .areaWrap {
-    margin-inline: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-  }
 }
 
 /* Scroll container — 모바일에서 일수 많으면 가로 스크롤. desktop 은 자연 fit.
@@ -1340,12 +1332,12 @@ a.statCard:hover .statValue {
   color: var(--text-accent);
 }
 
-/* 모바일도 가로 scroll 로 라벨 빽빽함 해결 — 짝수 숨김 안 함 */
-
-/* ── Category donut + 범례 ── */
+/* ── Category donut + 범례 panel (row 방향) ── */
 .donutWrap {
+  composes: panel from "./components/Panel.module.css";
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  align-items: stretch;
   gap: var(--spacing-md);
   flex-wrap: wrap;
 }
@@ -1358,40 +1350,62 @@ a.statCard:hover .statValue {
 
 .donutCenterValue {
   font-family: var(--font-space-grotesk);
-  font-size: 16px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   fill: var(--text-primary);
 }
 
 .donutCenterLabel {
   font-family: var(--font-space-grotesk);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   fill: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .donutLegend {
-  composes: list;
+  composes: list from "./components/List.module.css";
   flex: 1;
   min-width: 140px;
-  gap: 4px;
+  /* donutSvg 와 동일 높이 강제 + grid 로 행 균등 분할 (flex: 1 보다 안정적).
+     grid-auto-rows: 1fr 가 모든 item row 를 동일 높이로 강제 → 마지막 item 도 정확히 1/N 높이 */
+  height: 140px;
+  display: grid;
+  grid-auto-rows: 1fr;
 }
 
 .donutLegendItem {
-  display: grid;
-  grid-template-columns: 10px 1fr auto;
+  composes: item from "./components/Panel.module.css";
+  display: flex;
+  /* parent grid 의 grid-auto-rows: 1fr 가 row 높이 균등 분할. min-height: 0 로 content overflow 차단 */
+  min-height: 0;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: 3px 0;
+  gap: var(--spacing-sm);
+  padding: var(--box-y-sm);
+  border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
+  transition: background-color 0.15s ease;
+  cursor: default;
+}
+
+/* 왼쪽 그룹 — 컬러 swatch + 카테고리 이름 */
+.donutLegendLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.donutLegendItem:last-child {
+  border-bottom: none;
 }
 
 .donutLegendSwatch {
   width: 10px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: var(--radius-circle);
 }
 
 .donutLegendName {
@@ -1413,24 +1427,19 @@ a.statCard:hover .statValue {
 .donutLegendPct {
   color: var(--text-secondary);
   font-weight: 700;
-}
-
-.donutLegendCount {
-  color: var(--text-tertiary);
-}
-
-.donutLegendCount::before {
-  content: "·";
-  margin-right: 3px;
-  color: var(--text-muted);
+  /* 값 길이에 상관없이 column 폭 고정 — 소수점 2자리 + % 까지 안정 우측 정렬 (100.00%) */
+  min-width: 4em;
+  text-align: right;
 }
 
 /* ── Tag cloud — pill + 카운트 배지 ── */
 .tagCloud {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2xs);
   align-items: center;
+  /* gap 없음 — pill 의 자체 margin 으로 spacing. item 패턴과 동일하게 cloud 도 자체 padding 가짐 */
+  padding-block: var(--spacing-sm);
+  padding-inline: var(--spacing-md);
 }
 
 .tagPill {
@@ -1438,6 +1447,9 @@ a.statCard:hover .statValue {
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
+  /* gap 대체 — 마지막 pill 도 동일 margin 가져서 일관됨. trailing 공간은 wrap 시 무시됨 */
+  margin-right: var(--spacing-2xs);
+  margin-bottom: var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
@@ -1483,16 +1495,67 @@ a.statCard:hover .statValue {
   opacity: 0.32;
 }
 
-.donutLegendItem {
-  transition: background-color 0.15s ease;
-  border-radius: var(--radius-sm);
-  cursor: default;
-  padding: 3px 6px;
-  margin: 0 -6px;
-}
-
 .donutLegendItemActive {
   background: var(--bg-tertiary);
+}
+
+.donutLegendItem {
+  cursor: pointer;
+}
+
+.donutLegendItem:hover {
+  background: var(--bg-tertiary);
+}
+
+.donutLegendItemExpanded {
+  background: var(--bg-tertiary);
+}
+
+/* ── 카테고리 클릭 시 inline expand 게시물 패널 ── */
+/* donutWrap + 카테고리 클릭 시 expand 게시물 panel 을 한 wrapper 로 통일 — section 입장에선 single child */
+.categoryDonut {
+  composes: panelFlex from "./components/Panel.module.css";
+  gap: var(--spacing-sm);
+}
+
+.categoryPostsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.categoryPostsTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.categoryPostsClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 18px;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.categoryPostsClose:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 /* ── Notification badge — pulse 애니메이션 ── */
@@ -1580,13 +1643,12 @@ a.statCard:hover .statValue {
 
 /* ── Day detail panel — 투명 배경, 상단 border-top, 표 기반 컴팩트 디자인 ── */
 .dayDetail {
+  composes: panelFlex from "./components/Panel.module.css";
   margin-top: var(--spacing-md);
   margin-bottom: var(--spacing-2xl);
   padding: var(--box-except-b-md);
   border-top: var(--border-light);
   position: relative;
-  display: flex;
-  flex-direction: column;
   gap: var(--spacing-md);
   background: transparent;
   animation: dayDetailIn 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -1712,24 +1774,15 @@ a.statCard:hover .statValue {
 }
 
 .dayDetailComparisons {
-  composes: list;
+  composes: list from "./components/List.module.css";
 }
 
-/* 행: hairline 으로 구분되는 평면 표 스타일 (capsule hover 제거) */
+/* ListItem layout="grid" 가 base styling 처리. dayDetailRow 는 columns + stagger animation 만 */
 .dayDetailRow {
-  display: grid;
   grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--box-y-md);
-  border-bottom: var(--border-light);
   /* stagger animation — 각 행 inline style 의 delay 사용 */
   animation: dayDetailRowIn 0.36s cubic-bezier(0.4, 0, 0.2, 1) both;
   opacity: 0;
-}
-
-.dayDetailRow:last-child {
-  border-bottom: none;
 }
 
 @keyframes dayDetailRowIn {
@@ -1857,17 +1910,6 @@ a.statCard:hover .statValue {
 }
 
 /* ── 인기 게시물 — 다중 메타 (카테고리/날짜/조회/좋아요/댓글) ── */
-.popularList {
-  composes: list;
-}
-
-/* 인기 게시물 / 최근 댓글 — mirror 구조 (3줄: 메타+본문+서브) 로 행 높이 통일.
-   둘 다 .commentItem/.popularItem 둘 다 동일한 padding-block + gap + line-height 로 정렬 */
-/* popularItem alias — listItemCol 로 통합 */
-.popularItem {
-  composes: listItemCol;
-}
-
 /* L1: rank + 메인 stats — comment 의 commentMeta(author+time) 와 동일 사이즈
    line-height 픽셀 고정 + min-height 로 popularStats 의 SVG 아이콘이 행 높이 변경하지 않게 강제 */
 .popularHeader,
@@ -2019,7 +2061,7 @@ a.commentSource:hover {
 }
 
 .dayDetailTopList {
-  composes: list;
+  composes: list from "./components/List.module.css";
   gap: var(--spacing-2xs);
 }
 
@@ -2081,17 +2123,9 @@ a.commentSource:hover {
 }
 
 /* ── Traffic Sources — referrer horizontal bar ── */
-.referrerList {
-  composes: list;
-}
-
+/* ListItem layout="grid" 가 display/align/gap/padding/border 처리. referrerRow 는 columns 만 정의 */
 .referrerRow {
-  composes: panelRow;
-  display: grid;
   grid-template-columns: minmax(110px, max-content) 1fr auto;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding-block: var(--spacing-xs);
 }
 
 .referrerSource {
@@ -2146,7 +2180,7 @@ a.commentSource:hover {
 }
 
 .deviceLegend {
-  composes: list;
+  composes: list from "./components/List.module.css";
   flex: 1;
   min-width: 140px;
   gap: var(--spacing-xs);
@@ -2322,7 +2356,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 }
 
 .deviceDrillList {
-  composes: list;
+  composes: list from "./components/List.module.css";
   gap: var(--spacing-2xs);
 }
 
