@@ -2018,9 +2018,9 @@ function CategoryDonut({
             borderTop: "var(--border-light)",
           }}
         >
-          <span className={styles.categoryPostsTitle}>
+          <h2 className={styles.panelTitle}>
             {language === "ko" ? `${expandedCat} 게시물` : `${expandedCat} posts`}
-          </span>
+          </h2>
           <button
             type="button"
             className={styles.categoryPostsClose}
