@@ -9,6 +9,7 @@ import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import Button from "@/components/ui/Button";
+import { SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 import styles from "./Reports.module.css";
 
 interface Report {
@@ -29,6 +30,33 @@ interface Report {
 }
 
 type StatusFilter = "pending" | "resolved" | "dismissed" | "all";
+
+function ReportsSkeleton() {
+  return (
+    <ul className={styles.list} aria-busy="true">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <li key={i} className={styles.item}>
+          <div className={styles.skelHeader}>
+            <SkeletonLine width={160} height="var(--skeleton-h-line-sm)" />
+            <SkeletonLine width={60} height="var(--skeleton-h-line-sm)" />
+          </div>
+          <div className={styles.skelNick}>
+            <SkeletonLine width={100} />
+          </div>
+          <div className={styles.skelBody}>
+            <SkeletonLine width="92%" />
+            <SkeletonLine width="68%" />
+          </div>
+          <div className={styles.skelActions}>
+            <SkeletonPill width={72} />
+            <SkeletonPill width={84} />
+            <SkeletonPill width={64} />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default function ReportsPage() {
   const { language, t } = useLanguage();
@@ -143,9 +171,7 @@ export default function ReportsPage() {
       </motion.div>
 
       {loading ? (
-        <div className={styles.loading}>
-          <T k="admin.reports.loading" />
-        </div>
+        <ReportsSkeleton />
       ) : reports.length === 0 ? (
         <div className={styles.empty}>
           <T k="admin.reports.empty" />

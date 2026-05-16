@@ -256,7 +256,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               <span><SkeletonLine width="16px" /></span>
               {hasNumCol && <span><SkeletonLine width="16px" /></span>}
               {columns.map((col) => (
-                <span key={col.key}>
+                <span key={col.key} className={col.className}>
                   <SkeletonLine width={col.skeletonWidth ?? "60%"} />
                 </span>
               ))}

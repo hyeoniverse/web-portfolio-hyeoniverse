@@ -12,7 +12,7 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import Checkbox from "@/components/ui/Checkbox";
-import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import { Skeleton, SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 import styles from "./Comments.module.css";
 
 interface CommentRow {
@@ -223,15 +223,15 @@ export default function CommentsModerationPage() {
       </div>
 
       {loading ? (
-        <div className={styles.list}>
+        <div className={styles.list} aria-busy="true">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className={styles.row}>
-              <Skeleton width={16} height={16} borderRadius="3px" />
-              <SkeletonLine width={50} />
+              <Skeleton width={16} height={16} borderRadius="var(--radius-sm)" />
+              <SkeletonPill width={48} height={20} />
               <SkeletonLine width={80} />
-              <SkeletonLine width="80%" />
-              <SkeletonLine width={120} />
-              <SkeletonLine width={100} />
+              <SkeletonLine width={`${85 - (i % 3) * 8}%`} />
+              <SkeletonLine width={120} height="var(--skeleton-h-line-sm)" />
+              <SkeletonLine width={80} height="var(--skeleton-h-line-sm)" />
               <span />
             </div>
           ))}

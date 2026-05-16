@@ -2406,3 +2406,15 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
   min-width: var(--button-h-sm);
   text-align: right;
 }
+
+/* ━━━━━━━━━━ Skeleton-only helpers ━━━━━━━━━━ */
+
+/* devices breakdown skeleton — 3 charts side by side */
+.skelDevicesRow {
+  display: flex;
+  gap: var(--spacing-md);
+  padding-block: var(--spacing-md);
+}
+.skelDevicesRow > * {
+  flex: 1;
+}

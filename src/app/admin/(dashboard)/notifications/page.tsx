@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Reply, Heart, Bell, Flag } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
-import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import { SkeletonLine, SkeletonCircle } from "@/components/ui/Skeleton";
 import Tooltip from "@/components/ui/Tooltip";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
@@ -185,17 +185,14 @@ export default function NotificationsPage() {
       </motion.div>
 
       {loading ? (
-        /* Skeleton: 헤더 + 5개 행 placeholder */
         <div className={styles.list} aria-busy="true">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className={styles.item}>
-              <Skeleton className={styles.icon} width={36} height={36} borderRadius="50%" />
-              <div className={styles.body} style={{ flex: 1 }}>
-                <SkeletonLine width="40%" height={16} />
-                <div style={{ height: 6 }} />
-                <SkeletonLine width="85%" height={14} />
-                <div style={{ height: 6 }} />
-                <SkeletonLine width="20%" height={12} />
+              <SkeletonCircle className={styles.icon} size={36} />
+              <div className={styles.skelBody}>
+                <SkeletonLine width="40%" height="var(--skeleton-h-line-lg)" />
+                <SkeletonLine width="85%" />
+                <SkeletonLine width="20%" height="var(--skeleton-h-line-sm)" />
               </div>
             </div>
           ))}

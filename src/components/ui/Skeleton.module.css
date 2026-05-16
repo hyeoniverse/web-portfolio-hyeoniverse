@@ -17,3 +17,16 @@
 .line {
   border-radius: var(--radius-sm);
 }
+
+.circle {
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pill {
+  border-radius: var(--radius-capsule);
+}
+
+.block {
+  border-radius: var(--radius-md);
+}

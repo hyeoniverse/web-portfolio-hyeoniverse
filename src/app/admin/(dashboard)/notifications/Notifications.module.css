@@ -208,3 +208,12 @@
   flex-shrink: 0;
   margin-top: var(--spacing-xs);
 }
+
+/* Skeleton-only — body 안 SkeletonLine 들 사이 spacing (실제 itemTitle/itemMessage 의 margin 흉내) */
+.skelBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  flex: 1;
+  min-width: 0;
+}
