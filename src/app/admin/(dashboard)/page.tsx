@@ -1977,7 +1977,7 @@ function CategoryDonut({
           {centerLabel}
         </text>
       </svg>
-      <List className={styles.donutLegend}>
+      <List style={{ flex: 1, minWidth: 140, height: 140, display: "grid", gridAutoRows: "1fr" }}>
         {arcs.map((arc, i) => {
           const isHover = hoverIdx === i;
           const isExpanded = expandedCat === arc.d.name;
@@ -2142,7 +2142,7 @@ function DashboardSkeleton() {
         {/* Category Donut + legend */}
         <Panel className={styles.donutWrap}>
           <SkeletonCircle size={140} />
-          <List className={styles.donutLegend}>
+          <List style={{ flex: 1, minWidth: 140, height: 140, display: "grid", gridAutoRows: "1fr" }}>
             {Array.from({ length: 5 }).map((_, i) => (
               <ListItem key={i}>
                 <SkeletonCircle size={10} />
