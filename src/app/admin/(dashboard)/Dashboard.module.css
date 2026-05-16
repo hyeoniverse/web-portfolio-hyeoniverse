@@ -140,36 +140,6 @@
 
 /* ── Hero stat — 시선 anchor 가 되는 큰 지표 (Total Views) + sparkline + WoW.
    statsGrid 안 첫 cell. border 는 grid gap 이 그리므로 자체 border 없음. ── */
-.heroStat {
-  composes: item from "./components/Panel.module.css";
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, 320px);
-  gap: var(--spacing-xl);
-  align-items: center;
-  padding: var(--box-xl-lg);
-  position: relative;
-  overflow: hidden;
-  background: var(--bg-primary);
-  /* 3-col 모드 (≥769px): row 1 full span */
-  grid-column: 1 / -1;
-}
-
-/* 2-col 모드 (481-768px): heroStat 도 1 cell 로 진입. 내부 stack */
-@media (max-width: 768px) {
-  .heroStat {
-    grid-column: auto;
-    grid-template-columns: 1fr;
-    padding: var(--box-lg-md);
-  }
-}
-
-/* 1-col 모드 (≤480px): full row (statsGrid 자체가 1-col 이므로 동일 결과지만 명시) */
-@media (max-width: 480px) {
-  .heroStat {
-    grid-column: 1 / -1;
-  }
-}
-
 .heroLeft {
   display: flex;
   flex-direction: column;
@@ -252,63 +222,6 @@
 @media (max-width: 768px) {
   .heroSparkWrap {
     height: 60px;
-  }
-}
-
-/* ── Stats Grid — heroStat + 3 statCards. cell 사이 explicit border 로 다른 섹션과 동일한 rendering.
-   3-col desktop: heroStat full row + 3 statCard row / 2-col tablet: 2×2 / 1-col mobile: 4 stacked.
-   외곽 border 없음 — 다음 section 의 border-top 이 분리선 역할. ── */
-.statsGrid {
-  composes: panelGrid from "./components/Panel.module.css";
-  grid-template-columns: repeat(3, 1fr);
-}
-
-@media (max-width: 768px) {
-  .statsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .statsGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* 3-col 모드 (기본): heroStat 다음 statCards (2nd~4th) 에 border-top, 3rd/4th 에 border-left */
-.statsGrid > *:nth-child(n + 2) {
-  border-top: var(--border-light);
-}
-.statsGrid > *:nth-child(n + 3) {
-  border-left: var(--border-light);
-}
-
-/* 2-col 모드 (481-768px): 2×2 layout — heroStat | works / posts | comments
-   - col 2 cells (2nd: works, 4th: comments) 에 border-left
-   - row 2 cells (3rd: posts, 4th: comments) 에 border-top
-   - 3-col 모드의 규칙은 reset */
-@media (max-width: 768px) and (min-width: 481px) {
-  .statsGrid > *:nth-child(n + 2) {
-    border-top: none;
-  }
-  .statsGrid > *:nth-child(n + 3) {
-    border-left: none;
-  }
-  .statsGrid > *:nth-child(2n) {
-    border-left: var(--border-light);
-  }
-  .statsGrid > *:nth-child(n + 3) {
-    border-top: var(--border-light);
-  }
-}
-
-/* 1-col 모드 (≤480px): 4 stacked, 모든 cell 사이 horizontal divider */
-@media (max-width: 480px) {
-  .statsGrid > *:nth-child(n + 2) {
-    border-top: var(--border-light);
-  }
-  .statsGrid > *:nth-child(n + 3) {
-    border-left: none;
   }
 }
 
@@ -1616,56 +1529,6 @@ a.statCard:hover .statValue {
   transform: translate(-50%, -50%) scale(1.05);
 }
 
-/* ── Day detail panel — 투명 배경, 상단 border-top, 표 기반 컴팩트 디자인.
-   header 는 full span row, 그 아래 좌(dayDetailLeft) / 우(dayDetailTop) 2-col grid.
-   모바일은 1-col stack (별도 wrapper 없이 자체 grid 로 처리) */
-.dayDetail {
-  composes: panel from "./components/Panel.module.css";
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: var(--spacing-xl);
-  row-gap: var(--spacing-md);
-  align-items: start;
-  margin-top: var(--spacing-md);
-  margin-bottom: var(--spacing-2xl);
-  padding: var(--box-except-b-md);
-  border-top: var(--border-light);
-  position: relative;
-  background: transparent;
-  animation: dayDetailIn 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
-}
-
-.dayDetail > .dayDetailHeader {
-  grid-column: 1 / -1;
-}
-
-@media (max-width: 768px) {
-  .dayDetail {
-    grid-template-columns: 1fr;
-    column-gap: 0;
-  }
-}
-
-@keyframes dayDetailIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-    clip-path: inset(0 0 60% 0);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-.dayDetailHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-}
-
 .dayDetailHeading {
   display: inline-flex;
   align-items: baseline;
@@ -1716,13 +1579,6 @@ a.statCard:hover .statValue {
 .iconBtnSm {
   width: 24px;
   height: 24px;
-}
-
-.dayDetailLeft {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  min-width: 0;
 }
 
 .dayDetailValue {
