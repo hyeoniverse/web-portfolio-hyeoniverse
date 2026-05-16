@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.1.1...v1.2.0) (2026-05-16)
+
+
+### Features
+
+* **admin/dashboard:** Section/Panel/List 컴포넌트 추상화 + spacing 시스템 통일 ([16b91a7](https://github.com/hyeoniverse/web-portfolio-oval/commit/16b91a79272a009696f472e9d178895add6446d3))
+* **admin/dashboard:** 차트 4종 개선 + 조회수 로직 점검 + CSS 통합 ([8c8b89c](https://github.com/hyeoniverse/web-portfolio-oval/commit/8c8b89c0ffca2ad7f26445009c4e534fc3436f38)), closes [#33](https://github.com/hyeoniverse/web-portfolio-oval/issues/33)
+
 ## [1.1.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.1.0...v1.1.1) (2026-05-16)
 
 
