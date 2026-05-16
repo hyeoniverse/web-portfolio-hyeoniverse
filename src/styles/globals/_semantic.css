@@ -260,6 +260,12 @@
   --button-h-sm: var(--size-xs);   /* 24 — icon-only sm */
   --button-h-md: var(--size-md);   /* 38 — icon-only md */
   --button-h-lg: var(--size-lg);   /* 46 — icon-only lg */
+
+  /* Skeleton 라인/필 높이 — 텍스트 한 줄·캡슐 컨트롤 흉내. raw px 하드코딩 방지 */
+  --skeleton-h-line: var(--font-size-sm);   /* 14px — 텍스트 한 줄 */
+  --skeleton-h-line-sm: var(--font-size-xs); /* 12px — 작은 메타 텍스트 */
+  --skeleton-h-line-lg: var(--font-size-lg); /* 18px — 헤더 텍스트 */
+  --skeleton-h-pill: var(--button-h-sm);    /* 24 — 태그/뱃지 */
 }
 
 /* --------------------------------------------------------------------------
