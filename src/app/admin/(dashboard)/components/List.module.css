@@ -19,7 +19,7 @@
 /* base item — vertical padding + hairline divider. horizontal spacing 은 parent .list 가 처리.
    layout variant 가 display 결정. */
 .item {
-  padding-block: var(--spacing-sm);
+  padding-block: var(--spacing-xs);
   border-bottom: var(--border-light);
   /* flex/grid 자식 으로서 shrink 허용 */
   min-width: 0;
