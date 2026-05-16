@@ -12,7 +12,8 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v5
+      - id: release
+        uses: googleapis/release-please-action@v5
         with:
           # Conventional Commits 기반으로 자동 version bump + CHANGELOG.md + release PR 생성
           release-type: node
@@ -20,3 +21,39 @@ jobs:
           # PR 작성자를 본인 명의로 — WORKFLOW_PAT secret 에 PAT 등록 (claude.yml 과 공용)
           # 미설정 시 GITHUB_TOKEN (github-actions bot) 사용
           token: ${{ secrets.WORKFLOW_PAT || secrets.GITHUB_TOKEN }}
+
+      # release 가 생성됐을 때, 해당 release 에 들어간 PR 들에 minor 버전 라벨 자동 부여
+      # (v1.2.0, v1.2.1 모두 → v1.2 라벨. prefix 매칭 v1. 으로 major 그룹화도 가능)
+      - name: Checkout (for git log/tags)
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Apply version label
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_PAT || secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+          LABEL: v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}
+        run: |
+          set -euo pipefail
+          # 라벨 없으면 생성 (color: v1.x = 0366d6 파랑)
+          gh label create "$LABEL" --color "0366d6" --description "Released in $LABEL" 2>/dev/null || true
+
+          # 직전 tag 찾기 (방금 만든 TAG 직전)
+          PREV_TAG=$(git tag --sort=-v:refname | grep -v "^${TAG}$" | head -1 || true)
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found — first release, skipping PR labeling."
+            exit 0
+          fi
+          echo "Labeling PRs between $PREV_TAG..$TAG with $LABEL"
+
+          # tag 범위 내 commit 들에서 PR 번호 매핑 → 라벨 부여
+          git log "${PREV_TAG}..${TAG}" --pretty=%H | while read -r SHA; do
+            gh api "/repos/${REPO}/commits/${SHA}/pulls" --jq '.[].number' | while read -r PR; do
+              echo "  PR #$PR → $LABEL"
+              gh pr edit "$PR" --add-label "$LABEL" 2>/dev/null || true
+            done
+          done
