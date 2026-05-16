@@ -2006,7 +2006,18 @@ function CategoryDonut({
       </List>
     {expandedCat && (
       <>
-        <div className={styles.categoryPostsHeader} style={{ gridColumn: "1 / -1" }}>
+        <Panel
+          variant="flex"
+          direction="horizontal"
+          style={{
+            gridColumn: "1 / -1",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "var(--spacing-sm)",
+            padding: "var(--box-sm-md)",
+            borderTop: "var(--border-light)",
+          }}
+        >
           <span className={styles.categoryPostsTitle}>
             {language === "ko" ? `${expandedCat} 게시물` : `${expandedCat} posts`}
           </span>
@@ -2019,7 +2030,7 @@ function CategoryDonut({
           >
             <CloseIcon />
           </button>
-        </div>
+        </Panel>
         {loadingPosts ? (
           <p className={styles.muted} style={{ gridColumn: "1 / -1" }}>{language === "ko" ? "불러오는 중..." : "Loading..."}</p>
         ) : expandedPosts.length === 0 ? (
