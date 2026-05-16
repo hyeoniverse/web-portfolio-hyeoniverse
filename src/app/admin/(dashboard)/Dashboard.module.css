@@ -1423,15 +1423,6 @@ a.statCard:hover .statValue {
 }
 
 
-.categoryPostsHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-  padding: var(--box-sm-md);
-  border-top: var(--border-light);
-}
-
 .categoryPostsTitle {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
