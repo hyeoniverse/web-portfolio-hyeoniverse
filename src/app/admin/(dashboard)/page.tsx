@@ -750,7 +750,7 @@ function DevicesBreakdown({
               </>
             );
             return (
-              <ListItem key={`${arc.name}-${i}`} layout="base" className={styles.deviceLegendItem}>
+              <ListItem key={`${arc.name}-${i}`} className={styles.deviceLegendItem}>
                 {drillable ? (
                   <button
                     type="button"
@@ -1954,7 +1954,6 @@ function CategoryDonut({
           return (
             <ListItem
               key={arc.d.name}
-              layout="base"
               className={`${styles.donutLegendItem} ${isHover ? styles.donutLegendItemActive : ""} ${isExpanded ? styles.donutLegendItemExpanded : ""}`}
               onMouseEnter={() => setHoverIdx(i)}
               onMouseLeave={() => setHoverIdx(null)}
