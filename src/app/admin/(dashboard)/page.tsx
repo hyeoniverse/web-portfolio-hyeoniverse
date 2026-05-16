@@ -2031,20 +2031,22 @@ function CategoryDonut({
             <CloseIcon />
           </button>
         </Panel>
-        {loadingPosts ? (
-          <p className={styles.muted} style={{ gridColumn: "1 / -1" }}>{language === "ko" ? "불러오는 중..." : "Loading..."}</p>
-        ) : expandedPosts.length === 0 ? (
-          <p className={styles.muted} style={{ gridColumn: "1 / -1" }}>{language === "ko" ? "게시물이 없습니다." : "No posts."}</p>
-        ) : (
-          <List style={{ gridColumn: "1 / -1" }}>
-            {expandedPosts.map((p) => (
-              <ListItem key={p.id}>
-                <Link href={`/posts/${p.slug}`} className={styles.itemTitle}>{p.title}</Link>
-                <span className={styles.itemDate}>{p.view_count.toLocaleString()}</span>
-              </ListItem>
-            ))}
-          </List>
-        )}
+        <Panel style={{ gridColumn: "1 / -1" }}>
+          {loadingPosts ? (
+            <p className={styles.muted}>{language === "ko" ? "불러오는 중..." : "Loading..."}</p>
+          ) : expandedPosts.length === 0 ? (
+            <p className={styles.muted}>{language === "ko" ? "게시물이 없습니다." : "No posts."}</p>
+          ) : (
+            <List>
+              {expandedPosts.map((p) => (
+                <ListItem key={p.id}>
+                  <Link href={`/posts/${p.slug}`} className={styles.itemTitle}>{p.title}</Link>
+                  <span className={styles.itemDate}>{p.view_count.toLocaleString()}</span>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Panel>
       </>
     )}
     </Panel>
