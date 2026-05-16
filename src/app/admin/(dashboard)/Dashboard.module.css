@@ -1509,20 +1509,6 @@ a.statCard:hover .statValue {
   transition: background-color 0.15s ease, padding-left 0.2s var(--ease-material);
 }
 
-/* ── 카테고리 클릭 시 inline expand 게시물 패널 ── */
-/* svg + legend 는 grid 의 row 1 (col 1: svg, col 2: legend stretch),
-   expand 영역 (categoryPostsHeader / List / muted) 은 자동으로 새 row 에 full span.
-   <Panel variant="grid"> 가 display: grid 처리, 여기선 template + 추가 layout 만 */
-.donutGrid {
-  grid-template-columns: auto 1fr;
-  align-items: stretch;
-  column-gap: var(--spacing-md);
-}
-
-/* svg / donutLegend 외의 child (expand 영역) 는 row full span */
-.donutGrid > :not(.donutSvg):not(.donutLegend) {
-  grid-column: 1 / -1;
-}
 
 .categoryPostsHeader {
   display: flex;
