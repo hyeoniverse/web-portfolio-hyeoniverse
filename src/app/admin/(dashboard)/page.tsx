@@ -1530,8 +1530,7 @@ function DayDetailPanel({
         </button>
       </header>
 
-      {/* 메인: 좌(숫자+비교+분포) | 우(인기 게시물) — 2-col 으로 압축 */}
-      <div className={styles.dayDetailMain}>
+        {/* 좌측 컬럼 — 숫자 + 비교 List + range 분포 (dayDetail grid 의 col 1) */}
         <div className={styles.dayDetailLeft}>
           <div className={styles.dayDetailValue}>
             <span className={styles.dayDetailNumber}>
@@ -1604,7 +1603,6 @@ function DayDetailPanel({
             </List>
           )}
         </div>
-      </div>
     </div>
   );
 }
@@ -1909,7 +1907,6 @@ function CategoryDonut({
 
   return (
     <div className={styles.categoryDonut}>
-    <div className={styles.donutWrap}>
       <svg
         viewBox="0 0 140 140"
         className={styles.donutSvg}
@@ -1975,7 +1972,6 @@ function CategoryDonut({
           );
         })}
       </List>
-    </div>
     {expandedCat && (
       <>
         <div className={styles.categoryPostsHeader}>
