@@ -1333,15 +1333,6 @@ a.statCard:hover .statValue {
 }
 
 /* ── Category donut + 범례 panel (row 방향) ── */
-.donutWrap {
-  composes: panel from "./components/Panel.module.css";
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
-}
-
 .donutSvg {
   width: 140px;
   height: 140px;
@@ -1519,10 +1510,21 @@ a.statCard:hover .statValue {
 }
 
 /* ── 카테고리 클릭 시 inline expand 게시물 패널 ── */
-/* donutWrap + 카테고리 클릭 시 expand 게시물 panel 을 한 wrapper 로 통일 — section 입장에선 single child.
-   gap 없이 각 child (categoryPostsHeader / List) 가 자체 padding 으로 spacing 책임 */
+/* svg + legend 는 grid 의 row 1 (col 1: svg, col 2: legend stretch),
+   expand 영역 (categoryPostsHeader / List / muted) 은 자동으로 새 row 에 full span.
+   gap 없이 각 child 가 자체 padding 으로 spacing 책임 */
 .categoryDonut {
-  composes: panelFlex from "./components/Panel.module.css";
+  composes: panel from "./components/Panel.module.css";
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: stretch;
+  column-gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+/* svg / donutLegend 외의 child (expand 영역) 는 row full span */
+.categoryDonut > :not(.donutSvg):not(.donutLegend) {
+  grid-column: 1 / -1;
 }
 
 .categoryPostsHeader {
@@ -1631,17 +1633,34 @@ a.statCard:hover .statValue {
   transform: translate(-50%, -50%) scale(1.05);
 }
 
-/* ── Day detail panel — 투명 배경, 상단 border-top, 표 기반 컴팩트 디자인 ── */
+/* ── Day detail panel — 투명 배경, 상단 border-top, 표 기반 컴팩트 디자인.
+   header 는 full span row, 그 아래 좌(dayDetailLeft) / 우(dayDetailTop) 2-col grid.
+   모바일은 1-col stack (별도 wrapper 없이 자체 grid 로 처리) */
 .dayDetail {
-  composes: panelFlex from "./components/Panel.module.css";
+  composes: panel from "./components/Panel.module.css";
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--spacing-xl);
+  row-gap: var(--spacing-md);
+  align-items: start;
   margin-top: var(--spacing-md);
   margin-bottom: var(--spacing-2xl);
   padding: var(--box-except-b-md);
   border-top: var(--border-light);
   position: relative;
-  gap: var(--spacing-md);
   background: transparent;
   animation: dayDetailIn 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.dayDetail > .dayDetailHeader {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .dayDetail {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+  }
 }
 
 @keyframes dayDetailIn {
@@ -1714,21 +1733,6 @@ a.statCard:hover .statValue {
 .iconBtnSm {
   width: 24px;
   height: 24px;
-}
-
-/* 메인: 좌(숫자+비교+분포) | 우(인기 게시물) — 2-col, 가운데 vertical divider, 모바일 stack */
-.dayDetailMain {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-xl);
-  align-items: start;
-}
-
-@media (max-width: 768px) {
-  .dayDetailMain {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
-  }
 }
 
 .dayDetailLeft {
