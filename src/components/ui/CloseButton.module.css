@@ -1,0 +1,30 @@
+/* Circle icon button — hover bg-tertiary. CloseIcon 의 morph 가 시각 강조 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-capsule);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.sm {
+  width: 24px;
+  height: 24px;
+  --close-size: 12px;
+}
+
+.md {
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+}
