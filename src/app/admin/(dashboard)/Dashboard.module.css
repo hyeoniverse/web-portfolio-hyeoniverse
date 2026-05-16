@@ -36,7 +36,8 @@
 .container > section:nth-of-type(8) { animation-delay: 420ms; }
 .container > section:nth-of-type(9) { animation-delay: 480ms; }
 
-/* Panel sub-header — twoCol pair 안의 panel 타이틀. sectionTitle 보다 한 단계 작고 약함 */
+/* Panel sub-header — twoCol pair 안의 panel 타이틀. sectionTitle 보다 한 단계 작고 약함.
+   horizontal inset 없음 — Panel 의 full width 까지 spread */
 .panelTitle {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -45,19 +46,18 @@
   margin: 0;
   /* padding-top 만 — 아래는 다음 item 의 padding-top 이 책임 (중복 spacing 방지) */
   padding-top: var(--spacing-sm);
-  padding-inline: var(--spacing-md);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
+/* "데이터 없음" 텍스트 — List 의 item 과 동일 vertical dimension. border 는 없음 (단독 child) */
 .muted {
+  composes: item from "./components/List.module.css";
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   margin: 0;
-  /* item 패턴과 동일한 padding — section/panel direct child 일 때 일관된 inset */
-  padding-block: var(--spacing-sm);
-  padding-inline: var(--spacing-md);
+  border-bottom: none;
 }
 
 .error {
