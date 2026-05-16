@@ -230,9 +230,21 @@ export default function AdminDashboard() {
       <Section>
         <SectionHeader><T k="admin.dashboard.stats" /></SectionHeader>
 
-        <Panel variant="grid" className={styles.statsGrid}>
+        <Panel variant="grid" cols="repeat(3, 1fr)">
         {/* 1. 총 조회수 (heroStat) — 3-col: row 1 full span / 2-col: row 1 col 1 / 1-col: full */}
-        <div className={styles.heroStat}>
+        <Panel
+          variant="grid"
+          cols="minmax(0, 1fr) minmax(180px, 320px)"
+          style={{
+            gridColumn: "1 / -1",
+            gap: "var(--spacing-xl)",
+            alignItems: "center",
+            padding: "var(--box-xl-lg)",
+            position: "relative",
+            overflow: "hidden",
+            background: "var(--bg-primary)",
+          }}
+        >
           <div className={styles.heroLeft}>
             <Tooltip
               content={language === "ko" ? "발행된 모든 게시물의 누적 조회수 합계" : "Cumulative view count across all published posts"}
@@ -274,7 +286,7 @@ export default function AdminDashboard() {
               <Sparkline values={data.stats.dailyViews.slice(-14).map((d) => d.views)} />
             </div>
           </Tooltip>
-        </div>
+        </Panel>
 
         {/* 2. 프로젝트 */}
         <Tooltip
@@ -1512,13 +1524,34 @@ function DayDetailPanel({
   ].filter(Boolean) as { id: string; label: string; diff: { pct: number; dir: "up" | "down" | "flat" }; ctx: string }[];
 
   return (
-    <div
-      className={styles.dayDetail}
+    <Panel
+      variant="grid"
+      cols="1fr 1fr"
       role="region"
       aria-label="day detail"
       key={selectedIdx /* 다른 날짜 클릭 시 애니메이션 재실행 */}
+      style={{
+        columnGap: "var(--spacing-xl)",
+        rowGap: "var(--spacing-md)",
+        alignItems: "start",
+        marginTop: "var(--spacing-md)",
+        marginBottom: "var(--spacing-2xl)",
+        padding: "var(--box-except-b-md)",
+        borderTop: "var(--border-light)",
+        position: "relative",
+        background: "transparent",
+      }}
     >
-      <header className={styles.dayDetailHeader}>
+      <Panel
+        variant="flex"
+        direction="horizontal"
+        style={{
+          gridColumn: "1 / -1",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "var(--spacing-sm)",
+        }}
+      >
         <div className={styles.dayDetailHeading}>
           <span className={styles.dayDetailDate}>{fullDate}</span>
           <span className={styles.dayDetailRank}>
@@ -1528,10 +1561,10 @@ function DayDetailPanel({
         <button type="button" className={styles.dayDetailClose} onClick={onClose} aria-label="close" data-close-trigger>
           <CloseIcon />
         </button>
-      </header>
+      </Panel>
 
         {/* 좌측 컬럼 — 숫자 + 비교 List + range 분포 (dayDetail grid 의 col 1) */}
-        <div className={styles.dayDetailLeft}>
+        <Panel style={{ gap: "var(--spacing-md)", minWidth: 0 }}>
           <div className={styles.dayDetailValue}>
             <span className={styles.dayDetailNumber}>
               <CountUp value={sel.views} duration={700} />
@@ -1561,7 +1594,7 @@ function DayDetailPanel({
               label={language === "ko" ? `${periodLabel} 분포 내 위치` : `Position in ${periodLabel} range`}
             />
           </div>
-        </div>
+        </Panel>
 
         {/* 그날 인기 게시물 — 우측 컬럼, top 5 만 컴팩트하게 */}
         <div
@@ -1603,7 +1636,7 @@ function DayDetailPanel({
             </List>
           )}
         </div>
-    </div>
+    </Panel>
   );
 }
 
