@@ -13,7 +13,7 @@ import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
 import { SkeletonLine, SkeletonCircle, SkeletonPill, SkeletonBlock } from "@/components/ui/Skeleton";
 import { useModalStore } from "@/stores/modalStore";
-import { Section, SectionHeader, Panel, List, ListItem } from "./components";
+import { Section, SectionHeader, Panel, PanelTitle, List, ListItem } from "./components";
 import styles from "./Dashboard.module.css";
 
 interface DashboardData {
@@ -361,7 +361,7 @@ export default function AdminDashboard() {
         <SectionHeader><T k="admin.dashboard.groupRecent" /></SectionHeader>
         <Panel variant="grid" className={styles.twoCol}>
         <Panel className={styles.panelCell}>
-          <h2 className={styles.panelTitle}><T k="admin.dashboard.recentPosts" /></h2>
+          <PanelTitle><T k="admin.dashboard.recentPosts" /></PanelTitle>
           {data.posts.recent.length === 0 ? (
             <p className={styles.muted}><T k="admin.dashboard.noPosts" /></p>
           ) : (
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
         </Panel>
 
         <Panel className={styles.panelCell}>
-          <h2 className={styles.panelTitle}><T k="admin.dashboard.recentWorks" /></h2>
+          <PanelTitle><T k="admin.dashboard.recentWorks" /></PanelTitle>
           {data.works.recent.length === 0 ? (
             <p className={styles.muted}><T k="admin.dashboard.noWorks" /></p>
           ) : (
@@ -406,7 +406,7 @@ export default function AdminDashboard() {
 
         {/* 최근 댓글 — 같은 섹션 (최근 활동) 안 third block */}
         <Panel className={styles.panelCell}>
-          <h2 className={styles.panelTitle}><T k="admin.dashboard.recentComments" /></h2>
+          <PanelTitle><T k="admin.dashboard.recentComments" /></PanelTitle>
           {data.comments.recent.length === 0 ? (
             <p className={styles.muted}><T k="admin.dashboard.noComments" /></p>
           ) : (
@@ -440,7 +440,7 @@ export default function AdminDashboard() {
         <SectionHeader><T k="admin.dashboard.groupPopular" /></SectionHeader>
         <Panel variant="grid" className={styles.twoCol}>
         <Panel className={styles.panelCell}>
-          <h2 className={styles.panelTitle}><T k="admin.dashboard.popularPosts" /></h2>
+          <PanelTitle><T k="admin.dashboard.popularPosts" /></PanelTitle>
           {data.stats.popularPosts.length === 0 ? (
             <p className={styles.muted}><T k="admin.dashboard.noPopular" /></p>
           ) : (
@@ -485,7 +485,7 @@ export default function AdminDashboard() {
         </Panel>
 
         <Panel className={styles.panelCell}>
-          <h2 className={styles.panelTitle}><T k="admin.dashboard.topTags" /></h2>
+          <PanelTitle><T k="admin.dashboard.topTags" /></PanelTitle>
           {data.stats.tags.length === 0 ? (
             <p className={styles.muted}><T k="admin.dashboard.noTags" /></p>
           ) : (
@@ -513,7 +513,7 @@ export default function AdminDashboard() {
           <Panel variant="grid" className={`${styles.twoCol} ${deviceDrillKind ? styles.twoColExpanded : ""}`}>
           {data.stats.referrers && (
             <Panel className={`${styles.panelCell} ${deviceDrillKind ? styles.panelCollapsed : ""}`} aria-hidden={!!deviceDrillKind}>
-              <h2 className={styles.panelTitle}><T k="admin.dashboard.trafficSources" /></h2>
+              <PanelTitle><T k="admin.dashboard.trafficSources" /></PanelTitle>
               {data.stats.referrers.length === 0 ? (
                 <p className={styles.muted}>
                   {language === "ko" ? "아직 방문 데이터가 없습니다." : "No visit data yet."}
@@ -541,7 +541,7 @@ export default function AdminDashboard() {
           )}
           {data.stats.devices && (
             <Panel className={styles.panelCell}>
-              <h2 className={styles.panelTitle}><T k="admin.dashboard.devices" /></h2>
+              <PanelTitle><T k="admin.dashboard.devices" /></PanelTitle>
               {data.stats.devices.length === 0 ? (
                 <p className={styles.muted}>
                   {language === "ko" ? "아직 방문 데이터가 없습니다." : "No visit data yet."}
@@ -1078,7 +1078,7 @@ function DailyViewsChart({
       <div className={styles.dailyChartHeader}>
         {/* Row 1: 제목 + 우측 stats/toggle — 너비 변해도 일관된 단일 행 */}
         <div className={styles.dailyChartHeaderMain}>
-          <h2 className={styles.panelTitle}>{t("admin.dashboard.dailyViewsTitle")}</h2>
+          <PanelTitle>{t("admin.dashboard.dailyViewsTitle")}</PanelTitle>
           <div className={styles.dailyChartStats}>
             <div className={styles.dailyChartStatItem}>
               <span className={styles.dailyChartStatLabel}>
@@ -1998,9 +1998,9 @@ function CategoryDonut({
     {expandedCat && (
       <Panel style={{ gridColumn: "1 / -1", borderTop: "var(--border-light)" }}>
         <header className={styles.panelHeader}>
-          <h2 className={styles.panelTitle}>
+          <PanelTitle>
             {language === "ko" ? `${expandedCat} 게시물` : `${expandedCat} posts`}
-          </h2>
+          </PanelTitle>
           <CloseButton
             onClick={() => { setExpandedCat(null); setExpandedPosts([]); }}
             ariaLabel={language === "ko" ? "닫기" : "Close"}
@@ -2134,7 +2134,7 @@ function DashboardSkeleton() {
         <Panel className={styles.dailyChart}>
           <div className={styles.dailyChartHeader}>
             <div className={styles.dailyChartHeaderMain}>
-              <SkeletonLine className={styles.panelTitle} width={120} />
+              <PanelTitle><SkeletonLine width={120} /></PanelTitle>
               <div className={styles.dailyChartStats}>
                 <SkeletonLine width={80} />
                 <SkeletonPill width={56} height={20} />
@@ -2152,7 +2152,7 @@ function DashboardSkeleton() {
         <Panel variant="grid" className={styles.twoCol}>
           {Array.from({ length: 2 }).map((_, p) => (
             <Panel key={p} className={styles.panelCell}>
-              <SkeletonLine className={styles.panelTitle} width={100} />
+              <PanelTitle><SkeletonLine width={100} /></PanelTitle>
               <List>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <ListItem key={i}>
@@ -2167,7 +2167,7 @@ function DashboardSkeleton() {
         </Panel>
         {/* Recent Comments — same section */}
         <Panel className={styles.panelCell}>
-          <SkeletonLine className={styles.panelTitle} width={120} />
+          <PanelTitle><SkeletonLine width={120} /></PanelTitle>
           <List>
             {Array.from({ length: 5 }).map((_, i) => (
               <ListItem key={i} layout="column">
@@ -2189,7 +2189,7 @@ function DashboardSkeleton() {
         <Panel variant="grid" className={styles.twoCol}>
           {/* Popular Posts */}
           <Panel className={styles.panelCell}>
-            <SkeletonLine className={styles.panelTitle} width={120} />
+            <PanelTitle><SkeletonLine width={120} /></PanelTitle>
             <List>
               {Array.from({ length: 5 }).map((_, i) => (
                 <ListItem key={i} layout="column">
@@ -2211,7 +2211,7 @@ function DashboardSkeleton() {
           </Panel>
           {/* Top Tags */}
           <Panel className={styles.panelCell}>
-            <SkeletonLine className={styles.panelTitle} width={80} />
+            <PanelTitle><SkeletonLine width={80} /></PanelTitle>
             <div className={styles.tagCloud}>
               {[68, 84, 56, 100, 72, 92, 60, 76, 88, 64, 96, 70].map((w, i) => (
                 <SkeletonPill key={i} width={w} />
@@ -2227,7 +2227,7 @@ function DashboardSkeleton() {
         <Panel variant="grid" className={styles.twoCol}>
           {/* Traffic Sources — bar list */}
           <Panel className={styles.panelCell}>
-            <SkeletonLine className={styles.panelTitle} width={120} />
+            <PanelTitle><SkeletonLine width={120} /></PanelTitle>
             <List>
               {Array.from({ length: 6 }).map((_, i) => (
                 <ListItem key={i} layout="grid" className={styles.referrerRow}>
@@ -2240,7 +2240,7 @@ function DashboardSkeleton() {
           </Panel>
           {/* Devices — 3 small charts */}
           <Panel className={styles.panelCell}>
-            <SkeletonLine className={styles.panelTitle} width={80} />
+            <PanelTitle><SkeletonLine width={80} /></PanelTitle>
             <div className={styles.skelDevicesRow}>
               {Array.from({ length: 3 }).map((_, i) => (
                 <SkeletonBlock key={i} height={80} />
