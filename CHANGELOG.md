@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.2.0...v1.3.0) (2026-05-16)
+
+
+### Features
+
+* **admin/dashboard:** Panel direction/cols/rows variants 확장 ([4040c97](https://github.com/hyeoniverse/web-portfolio-oval/commit/4040c976c49fa440bdb8bc5e2f97610dfbc46009))
+* **admin/dashboard:** Panel divided prop + heroStat 자리 Item 으로 ([05cf960](https://github.com/hyeoniverse/web-portfolio-oval/commit/05cf96008a2cf936ef14dca01fee8ae14ad3c139))
+* **ui:** 공통 CloseButton 컴포넌트 + admin/dashboard panelHeader ([938a442](https://github.com/hyeoniverse/web-portfolio-oval/commit/938a4427e4cd1f833293b2c64b737a146c92905a))
+
+
+### Bug Fixes
+
+* **admin/dashboard:** expand header title 의 PanelTitle 제거 ([0ec6ab5](https://github.com/hyeoniverse/web-portfolio-oval/commit/0ec6ab58ea84a5afdc17debfb00ce1ce1bd99d7c))
+
 ## [1.2.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.1.1...v1.2.0) (2026-05-16)
 
 
