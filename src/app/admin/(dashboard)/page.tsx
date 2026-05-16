@@ -2006,17 +2006,14 @@ function CategoryDonut({
         })}
       </List>
     {expandedCat && (
-      <>
+      <Panel style={{ gridColumn: "1 / -1", borderTop: "var(--border-light)" }}>
         <Panel
           variant="flex"
           direction="horizontal"
           style={{
-            gridColumn: "1 / -1",
             alignItems: "center",
             justifyContent: "space-between",
             gap: "var(--spacing-sm)",
-            padding: "var(--box-sm-md)",
-            borderTop: "var(--border-light)",
           }}
         >
           <h2 className={styles.panelTitle}>
@@ -2032,23 +2029,21 @@ function CategoryDonut({
             <CloseIcon />
           </button>
         </Panel>
-        <Panel style={{ gridColumn: "1 / -1" }}>
-          {loadingPosts ? (
-            <p className={styles.muted}>{language === "ko" ? "불러오는 중..." : "Loading..."}</p>
-          ) : expandedPosts.length === 0 ? (
-            <p className={styles.muted}>{language === "ko" ? "게시물이 없습니다." : "No posts."}</p>
-          ) : (
-            <List>
-              {expandedPosts.map((p) => (
-                <ListItem key={p.id}>
-                  <Link href={`/posts/${p.slug}`} className={styles.itemTitle}>{p.title}</Link>
-                  <span className={styles.itemDate}>{p.view_count.toLocaleString()}</span>
-                </ListItem>
-              ))}
-            </List>
-          )}
-        </Panel>
-      </>
+        {loadingPosts ? (
+          <p className={styles.muted}>{language === "ko" ? "불러오는 중..." : "Loading..."}</p>
+        ) : expandedPosts.length === 0 ? (
+          <p className={styles.muted}>{language === "ko" ? "게시물이 없습니다." : "No posts."}</p>
+        ) : (
+          <List>
+            {expandedPosts.map((p) => (
+              <ListItem key={p.id}>
+                <Link href={`/posts/${p.slug}`} className={styles.itemTitle}>{p.title}</Link>
+                <span className={styles.itemDate}>{p.view_count.toLocaleString()}</span>
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </Panel>
     )}
     </Panel>
   );
