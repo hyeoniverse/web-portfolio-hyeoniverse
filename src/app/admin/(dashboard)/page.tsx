@@ -1998,9 +1998,9 @@ function CategoryDonut({
     {expandedCat && (
       <Panel style={{ gridColumn: "1 / -1", borderTop: "var(--border-light)" }}>
         <header className={styles.panelHeader}>
-          <PanelTitle>
+          <span>
             {language === "ko" ? `${expandedCat} 게시물` : `${expandedCat} posts`}
-          </PanelTitle>
+          </span>
           <CloseButton
             onClick={() => { setExpandedCat(null); setExpandedPosts([]); }}
             ariaLabel={language === "ko" ? "닫기" : "Close"}
