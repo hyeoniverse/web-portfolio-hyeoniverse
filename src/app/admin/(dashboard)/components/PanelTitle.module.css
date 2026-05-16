@@ -1,0 +1,11 @@
+/* uppercase xs 라벨. padding-top 만 — 아래는 다음 item 의 padding-top 이 책임 (중복 spacing 방지) */
+.title {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  margin: 0;
+  padding-top: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
