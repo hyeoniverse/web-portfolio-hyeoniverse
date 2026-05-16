@@ -11,6 +11,8 @@ type Props = ComponentPropsWithoutRef<"div"> & {
   cols?: string;
   /** grid 일 때 grid-template-rows 값 */
   rows?: string;
+  /** child 들 사이 hairline divider — n+2 border-top, n+3 border-left (3-col grid 가정) */
+  divided?: boolean;
   ref?: Ref<HTMLDivElement>;
 };
 
@@ -22,6 +24,7 @@ export default function Panel({
   direction,
   cols,
   rows,
+  divided,
   className,
   children,
   style,
@@ -29,6 +32,7 @@ export default function Panel({
   ...rest
 }: Props) {
   const baseClass = variant === "grid" ? styles.panelGrid : styles.panelFlex;
+  const dividedClass = divided ? styles.divided : undefined;
 
   const variantStyle: CSSProperties = {};
   if (variant === "flex" && direction === "horizontal") {
@@ -41,7 +45,7 @@ export default function Panel({
   return (
     <div
       ref={ref}
-      className={cn(baseClass, className)}
+      className={cn(baseClass, dividedClass, className)}
       style={{ ...variantStyle, ...style }}
       {...rest}
     >
