@@ -11,7 +11,7 @@ import CloseIcon from "@/components/ui/CloseIcon";
 import Tooltip from "@/components/ui/Tooltip";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
-import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import { SkeletonLine, SkeletonCircle, SkeletonPill, SkeletonBlock } from "@/components/ui/Skeleton";
 import { useModalStore } from "@/stores/modalStore";
 import { Section, SectionHeader, Panel, List, ListItem } from "./components";
 import styles from "./Dashboard.module.css";
@@ -2056,192 +2056,194 @@ function Sparkline({ values }: { values: number[] }) {
   );
 }
 
-/* ── Skeleton state — 실제 dashboard 레이아웃을 그대로 미러링 ── */
+/* ── Skeleton state — 실제 dashboard 의 Section/Panel/List 추상화를 그대로 미러링 ── */
 function DashboardSkeleton() {
   return (
     <div className={styles.container} aria-busy="true" aria-live="polite">
-      {/* Header */}
+      {/* Header — title + refresh button */}
       <header className={styles.header}>
-        <SkeletonLine width={180} height={32} />
-        <Skeleton width={84} height={32} borderRadius="var(--radius-capsule)" />
+        <SkeletonLine width={180} height="var(--font-size-2xl)" />
+        <SkeletonPill width={84} />
       </header>
 
-      {/* Quick Actions */}
+      {/* Quick Actions — 4 buttons */}
       <Section>
-        <SkeletonLine width={100} height={14} />
+        <SectionHeader><SkeletonLine width={80} /></SectionHeader>
         <Panel variant="grid" className={styles.quickActions}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} height={56} borderRadius="var(--radius-capsule)" />
+            <SkeletonBlock key={i} height={56} />
           ))}
         </Panel>
       </Section>
 
-      {/* Stats — heroStat + 3 statCards + CategoryDonut + DailyViewsChart, 모두 한 섹션 안 */}
+      {/* Stats — heroStat + 3 statCards + CategoryDonut + DailyViewsChart */}
       <Section>
-        <SkeletonLine width={60} height={14} />
+        <SectionHeader><SkeletonLine width={60} /></SectionHeader>
         <Panel variant="grid" className={styles.statsGrid}>
-          {/* heroStat skeleton — full row span at 3-col, 1 cell at 2-col */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "var(--spacing-xl) var(--spacing-lg)", gap: "var(--spacing-xl)", gridColumn: "1 / -1" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", flex: 1, minWidth: 0 }}>
-              <SkeletonLine width={80} height={11} />
-              <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-md)" }}>
+          {/* heroStat — full row span at 3-col */}
+          <div className={styles.heroStat}>
+            <div className={styles.heroLeft}>
+              <SkeletonLine width={80} height="var(--skeleton-h-line-sm)" />
+              <div className={styles.heroValueRow}>
                 <SkeletonLine width={140} height={48} />
-                <Skeleton width={56} height={20} borderRadius="var(--radius-capsule)" />
+                <SkeletonPill width={56} height={20} />
               </div>
-              <SkeletonLine width={120} height={12} />
+              <SkeletonLine width={120} height="var(--skeleton-h-line-sm)" />
             </div>
-            <Skeleton width={180} height={56} borderRadius="var(--radius-md)" />
+            <SkeletonBlock width={180} height={56} />
           </div>
           {/* 3 stat cards */}
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-md) var(--spacing-xs)" }}>
-              <SkeletonLine width={60} height={11} />
+            <div key={i} className={styles.statCard}>
+              <SkeletonLine width={60} height="var(--skeleton-h-line-sm)" />
               <SkeletonLine width={80} height={28} />
-              <SkeletonLine width={100} height={11} />
+              <SkeletonLine width={100} height="var(--skeleton-h-line-sm)" />
             </div>
           ))}
         </Panel>
 
-        {/* Category Donut */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--spacing-xl) 0", gap: "var(--spacing-xl)" }}>
-          <Skeleton width={140} height={140} borderRadius="50%" />
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", flex: 1, maxWidth: 320 }}>
+        {/* Category Donut + legend */}
+        <Panel className={styles.donutWrap}>
+          <SkeletonCircle size={140} />
+          <List className={styles.donutLegend}>
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
-                <Skeleton width={10} height={10} borderRadius="50%" />
-                <SkeletonLine width={`${70 - i * 8}%`} height={11} />
-              </div>
+              <ListItem key={i}>
+                <SkeletonCircle size={10} />
+                <SkeletonLine width={`${70 - i * 8}%`} />
+              </ListItem>
             ))}
-          </div>
-        </div>
+          </List>
+        </Panel>
 
-        {/* Daily Views Chart */}
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--spacing-sm)" }}>
-            <SkeletonLine width={120} height={14} />
-            <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
-              <Skeleton width={120} height={28} borderRadius="var(--radius-capsule)" />
-              <Skeleton width={120} height={28} borderRadius="var(--radius-capsule)" />
+        {/* Daily Views Chart — header (title + stats + toggle) + chart area */}
+        <Panel className={styles.dailyChart}>
+          <div className={styles.dailyChartHeader}>
+            <div className={styles.dailyChartHeaderMain}>
+              <SkeletonLine className={styles.panelTitle} width={120} />
+              <div className={styles.dailyChartStats}>
+                <SkeletonLine width={80} />
+                <SkeletonPill width={56} height={20} />
+                <SkeletonPill width={56} />
+              </div>
             </div>
           </div>
-          <Skeleton height={220} borderRadius="var(--radius-md)" />
-        </div>
+          <SkeletonBlock height={220} />
+        </Panel>
       </Section>
 
-      {/* ━━━━━━━━━━ 그룹: 최근 활동 — Posts/Works twoCol + Comments full ━━━━━━━━━━ */}
+      {/* ━━━━━━━━━━ 최근 활동 ━━━━━━━━━━ */}
       <Section>
-        <SkeletonLine width={120} height={14} />
+        <SectionHeader><SkeletonLine width={120} /></SectionHeader>
         <Panel variant="grid" className={styles.twoCol}>
-        {Array.from({ length: 2 }).map((_, p) => (
-          <Panel key={p} className={styles.panelCell}>
-            <SkeletonLine width={100} height={11} />
+          {Array.from({ length: 2 }).map((_, p) => (
+            <Panel key={p} className={styles.panelCell}>
+              <SkeletonLine className={styles.panelTitle} width={100} />
+              <List>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <ListItem key={i}>
+                    <SkeletonPill width={48} height={18} />
+                    <SkeletonLine width={`${60 - (i % 3) * 8}%`} />
+                    <SkeletonLine width={56} height="var(--skeleton-h-line-sm)" />
+                  </ListItem>
+                ))}
+              </List>
+            </Panel>
+          ))}
+        </Panel>
+        {/* Recent Comments — same section */}
+        <Panel className={styles.panelCell}>
+          <SkeletonLine className={styles.panelTitle} width={120} />
+          <List>
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)", padding: "var(--spacing-xs) 0", borderBottom: "var(--border-light)" }}>
-                <Skeleton width={48} height={18} borderRadius="var(--radius-capsule)" />
-                <SkeletonLine width={`${60 - (i % 3) * 8}%`} height={12} />
-                <div style={{ marginLeft: "auto" }}>
-                  <SkeletonLine width={56} height={10} />
+              <ListItem key={i} layout="column">
+                <div className={styles.commentMeta}>
+                  <SkeletonLine width={70} height="var(--skeleton-h-line-sm)" />
+                  <SkeletonLine width={50} height="var(--skeleton-h-line-sm)" />
                 </div>
-              </div>
+                <SkeletonLine width={i % 2 === 0 ? "92%" : "70%"} />
+                <SkeletonLine width={120} height="var(--skeleton-h-line-sm)" />
+              </ListItem>
             ))}
+          </List>
+        </Panel>
+      </Section>
+
+      {/* ━━━━━━━━━━ 인기 ━━━━━━━━━━ */}
+      <Section>
+        <SectionHeader><SkeletonLine width={80} /></SectionHeader>
+        <Panel variant="grid" className={styles.twoCol}>
+          {/* Popular Posts */}
+          <Panel className={styles.panelCell}>
+            <SkeletonLine className={styles.panelTitle} width={120} />
+            <List>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <ListItem key={i} layout="column">
+                  <div className={styles.popularHeader}>
+                    <SkeletonLine width={28} height="var(--skeleton-h-line-sm)" />
+                    <div className={styles.popularStats}>
+                      <SkeletonLine width={32} height="var(--skeleton-h-line-sm)" />
+                      <SkeletonLine width={28} height="var(--skeleton-h-line-sm)" />
+                    </div>
+                  </div>
+                  <SkeletonLine width={`${85 - (i % 3) * 10}%`} />
+                  <div className={styles.popularMeta}>
+                    <SkeletonLine width={50} height="var(--skeleton-h-line-sm)" />
+                    <SkeletonLine width={70} height="var(--skeleton-h-line-sm)" />
+                  </div>
+                </ListItem>
+              ))}
+            </List>
           </Panel>
-        ))}
-        </Panel>
-        {/* Recent Comments inside same section */}
-        <Panel className={styles.panelCell}>
-          <SkeletonLine width={120} height={11} />
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-sm) 0", borderBottom: "var(--border-light)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <SkeletonLine width={70} height={11} />
-                <SkeletonLine width={50} height={10} />
-              </div>
-              <SkeletonLine width={i % 2 === 0 ? "92%" : "70%"} height={13} />
-              <SkeletonLine width={120} height={10} />
+          {/* Top Tags */}
+          <Panel className={styles.panelCell}>
+            <SkeletonLine className={styles.panelTitle} width={80} />
+            <div className={styles.tagCloud}>
+              {[68, 84, 56, 100, 72, 92, 60, 76, 88, 64, 96, 70].map((w, i) => (
+                <SkeletonPill key={i} width={w} />
+              ))}
             </div>
-          ))}
+          </Panel>
         </Panel>
       </Section>
 
-      {/* ━━━━━━━━━━ 그룹: 인기 ━━━━━━━━━━ */}
-      {/* Popular Posts + Top Tags */}
+      {/* ━━━━━━━━━━ 트래픽 ━━━━━━━━━━ */}
       <Section>
-        <SkeletonLine width={80} height={14} />
+        <SectionHeader><SkeletonLine width={80} /></SectionHeader>
         <Panel variant="grid" className={styles.twoCol}>
-        {/* Popular Posts */}
-        <Panel className={styles.panelCell}>
-          <SkeletonLine width={120} height={11} />
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-sm) 0", borderBottom: "var(--border-light)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <SkeletonLine width={28} height={11} />
-                <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
-                  <SkeletonLine width={32} height={11} />
-                  <SkeletonLine width={28} height={11} />
-                </div>
-              </div>
-              <SkeletonLine width={`${85 - (i % 3) * 10}%`} height={14} />
-              <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
-                <SkeletonLine width={50} height={10} />
-                <SkeletonLine width={70} height={10} />
-              </div>
+          {/* Traffic Sources — bar list */}
+          <Panel className={styles.panelCell}>
+            <SkeletonLine className={styles.panelTitle} width={120} />
+            <List>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ListItem key={i} layout="grid" className={styles.referrerRow}>
+                  <SkeletonLine width={70} />
+                  <SkeletonPill height={6} />
+                  <SkeletonLine width={50} />
+                </ListItem>
+              ))}
+            </List>
+          </Panel>
+          {/* Devices — 3 small charts */}
+          <Panel className={styles.panelCell}>
+            <SkeletonLine className={styles.panelTitle} width={80} />
+            <div className={styles.skelDevicesRow}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <SkeletonBlock key={i} height={80} />
+              ))}
             </div>
-          ))}
-        </Panel>
-        {/* Top Tags */}
-        <Panel className={styles.panelCell}>
-          <SkeletonLine width={80} height={11} />
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)", padding: "var(--spacing-md) 0" }}>
-            {[68, 84, 56, 100, 72, 92, 60, 76, 88, 64, 96, 70].map((w, i) => (
-              <Skeleton key={i} width={w} height={28} borderRadius="var(--radius-capsule)" />
-            ))}
-          </div>
-        </Panel>
+          </Panel>
         </Panel>
       </Section>
 
-      {/* ━━━━━━━━━━ 그룹: 트래픽 ━━━━━━━━━━ */}
-      {/* Traffic Sources + Devices */}
+      {/* ━━━━━━━━━━ 시스템 ━━━━━━━━━━ */}
       <Section>
-        <SkeletonLine width={80} height={14} />
-        <Panel variant="grid" className={styles.twoCol}>
-        {/* Traffic Sources — bar list */}
-        <Panel className={styles.panelCell}>
-          <SkeletonLine width={120} height={11} />
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", alignItems: "center", gap: "var(--spacing-sm)", padding: "var(--spacing-xs) 0" }}>
-              <SkeletonLine width={70} height={11} />
-              <Skeleton height={6} borderRadius="var(--radius-capsule)" />
-              <SkeletonLine width={50} height={11} />
-            </div>
-          ))}
-        </Panel>
-        {/* Devices */}
-        <Panel className={styles.panelCell}>
-          <SkeletonLine width={80} height={11} />
-          <div style={{ display: "flex", gap: "var(--spacing-md)", padding: "var(--spacing-md) 0" }}>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} style={{ flex: 1 }}>
-                <Skeleton height={80} borderRadius="var(--radius-md)" />
-              </div>
-            ))}
-          </div>
-        </Panel>
-        </Panel>
-      </Section>
-
-      {/* ━━━━━━━━━━ 그룹: 시스템 ━━━━━━━━━━ */}
-      {/* Service Status */}
-      <Section>
-        <SkeletonLine width={100} height={14} />
+        <SectionHeader><SkeletonLine width={100} /></SectionHeader>
         <Panel variant="grid" className={styles.serviceGrid}>
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) 0" }}>
-              <Skeleton width={8} height={8} borderRadius="50%" />
-              <SkeletonLine width="60%" height={11} />
-              <div style={{ marginLeft: "auto" }}>
-                <SkeletonLine width={40} height={10} />
-              </div>
+            <div key={i} className={styles.serviceItem}>
+              <SkeletonCircle size={8} />
+              <SkeletonLine width="60%" />
+              <SkeletonLine width={40} height="var(--skeleton-h-line-sm)" />
             </div>
           ))}
         </Panel>

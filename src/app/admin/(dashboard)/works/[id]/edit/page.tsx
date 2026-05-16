@@ -3,11 +3,78 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import WorkEditor from "@/components/works/WorkEditor";
-import { SkeletonLine } from "@/components/ui/Skeleton";
+import { SkeletonLine, SkeletonPill, SkeletonBlock } from "@/components/ui/Skeleton";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Work } from "@/types/work";
 import wStyles from "@/components/works/WorkEditor.module.css";
+
+function WorkEditorSkeleton() {
+  return (
+    <div className={es.container} aria-busy="true">
+      {/* Top bar — title + action buttons */}
+      <div className={es.topBar}>
+        <SkeletonLine width={140} height="var(--skeleton-h-line-lg)" />
+        <div className={es.topBarActions}>
+          <SkeletonPill width={80} />
+          <SkeletonPill width={80} />
+          <SkeletonPill width={80} />
+        </div>
+      </div>
+
+      {/* Basic Info */}
+      <div className={wStyles.section}>
+        <SkeletonLine width={100} />
+        <SkeletonBlock height={44} />
+        <div className={wStyles.row3}>
+          <SkeletonBlock height="var(--button-h-md)" />
+          <SkeletonBlock height="var(--button-h-md)" />
+          <SkeletonBlock height="var(--button-h-md)" />
+        </div>
+        <div className={es.row}>
+          <SkeletonBlock height="var(--button-h-md)" />
+          <SkeletonBlock height="var(--button-h-md)" />
+        </div>
+        <div className={es.row}>
+          <SkeletonBlock height="var(--button-h-md)" />
+          <SkeletonBlock height="var(--button-h-md)" />
+        </div>
+      </div>
+
+      {/* Description */}
+      <div className={wStyles.section}>
+        <SkeletonLine width={100} />
+        <SkeletonBlock height={80} />
+      </div>
+
+      {/* Content (editor) */}
+      <div className={wStyles.section}>
+        <div className={wStyles.sectionTitleRow}>
+          <SkeletonLine width={120} />
+          <SkeletonPill width={140} />
+        </div>
+        <SkeletonBlock height={240} />
+      </div>
+
+      {/* Tech Stack */}
+      <div className={wStyles.section}>
+        <SkeletonLine width={80} />
+        <SkeletonBlock height="var(--button-h-md)" />
+        <div className={es.tags}>
+          <SkeletonPill width={60} />
+          <SkeletonPill width={80} />
+          <SkeletonPill width={50} />
+        </div>
+      </div>
+
+      {/* Images */}
+      <div className={wStyles.section}>
+        <SkeletonLine width={60} />
+        <SkeletonBlock width={160} height={100} />
+      </div>
+    </div>
+  );
+}
 
 export default function EditWorkPage() {
   const params = useParams();
@@ -37,70 +104,7 @@ export default function EditWorkPage() {
   }, [params.id]);
 
   if (loading) {
-    return (
-      <div className={es.container}>
-        {/* Top Bar skeleton */}
-        <div className={es.topBar}>
-          <SkeletonLine width={120} height={20} />
-          <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
-            <SkeletonLine width={80} height={34} />
-            <SkeletonLine width={80} height={34} />
-            <SkeletonLine width={80} height={34} />
-          </div>
-        </div>
-
-        {/* Basic Info */}
-        <div className={wStyles.section}>
-          <SkeletonLine width={100} height={14} />
-          <SkeletonLine width="100%" height={44} />
-          <div className={wStyles.row3}>
-            <SkeletonLine width="100%" height={34} />
-            <SkeletonLine width="100%" height={34} />
-            <SkeletonLine width="100%" height={34} />
-          </div>
-          <div className={es.row}>
-            <SkeletonLine width="100%" height={34} />
-            <SkeletonLine width="100%" height={34} />
-          </div>
-          <div className={es.row}>
-            <SkeletonLine width="100%" height={34} />
-            <SkeletonLine width="100%" height={34} />
-          </div>
-        </div>
-
-        {/* Description */}
-        <div className={wStyles.section}>
-          <SkeletonLine width={100} height={14} />
-          <SkeletonLine width="100%" height={80} />
-        </div>
-
-        {/* Content */}
-        <div className={wStyles.section}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <SkeletonLine width={120} height={14} />
-            <SkeletonLine width={140} height={30} />
-          </div>
-          <SkeletonLine width="100%" height={240} />
-        </div>
-
-        {/* Tech Stack */}
-        <div className={wStyles.section}>
-          <SkeletonLine width={80} height={14} />
-          <SkeletonLine width="100%" height={34} />
-          <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
-            <SkeletonLine width={60} height={24} />
-            <SkeletonLine width={80} height={24} />
-            <SkeletonLine width={50} height={24} />
-          </div>
-        </div>
-
-        {/* Images */}
-        <div className={wStyles.section}>
-          <SkeletonLine width={60} height={14} />
-          <SkeletonLine width={120} height={70} />
-        </div>
-      </div>
-    );
+    return <WorkEditorSkeleton />;
   }
 
   if (error || !work) {
