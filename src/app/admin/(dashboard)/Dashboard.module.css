@@ -36,12 +36,19 @@
 .container > section:nth-of-type(8) { animation-delay: 420ms; }
 .container > section:nth-of-type(9) { animation-delay: 480ms; }
 
-/* Panel header row — PanelTitle + action (close button 등) 묶는 flex wrapper */
+/* Panel header row — title + action (close button 등) 묶는 flex wrapper.
+   padding-top 으로 다음 item 과 spacing (PanelTitle 의 padding-top 책임 이동).
+   3개 이상 child 일 때 (예: dailyChart header — title + stats + toggle): title 좌측,
+   나머지 우측 묶음 위해 2번째 child margin-left: auto */
 .panelHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+}
+
+.panelHeader > :nth-child(2) {
+  margin-left: auto;
 }
 
 /* "데이터 없음" 텍스트 — List 의 item 과 동일 vertical dimension. border 는 없음 (단독 child) */
@@ -590,7 +597,7 @@ a.statCard:hover .statValue {
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  padding: var(--box-sm-md);
+  padding-block: var(--spacing-sm);
 }
 
 /* 두 번째 열은 좌측 vertical divider, 두 번째 행부터는 top hairline */
@@ -621,6 +628,24 @@ a.statCard:hover .statValue {
 .dotOk {
   background: var(--text-success);
   box-shadow: 0 0 0 2px var(--bg-success-soft);
+  position: relative;
+}
+
+/* pulse — dot 뒤 ring 이 expand 하면서 fade */
+.dotOk::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--text-success);
+  animation: dotOkPulse 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes dotOkPulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  70% { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(2.5); opacity: 0; }
 }
 
 .dotMissing {
@@ -714,54 +739,26 @@ a.statCard:hover .statValue {
   background: transparent;
 }
 
-/* Header — 다단 row 구조. row1: 제목 + stats/toggle (고정 단일 행), row2: date pickers (line mode 만) */
-.dailyChartHeader {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  padding-block: var(--spacing-sm);
-  padding-inline: var(--spacing-md);
-}
-
-.dailyChartHeader .panelTitle {
-  margin: 0;
-  padding: 0;
-}
-
-/* Row 1: 제목 좌측, stats/toggle 우측. flex-wrap 없이 단일 행 유지 → 너비 변해도 layout 안정 */
-.dailyChartHeaderMain {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-}
-
 /* Row 2: date pickers — 자체 행. 너무 좁으면 자체적으로 wrap */
 .dailyChartHeaderSub {
   display: flex;
   align-items: center;
 }
 
-.dailyChartStats {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-/* 각 stat 항목 — label 과 값을 가로로 나란히 (baseline 정렬) */
+/* 각 stat 항목 — label 과 값을 가로로 나란히 (baseline 정렬).
+   panelHeader 안에서 sibling stat 들 사이 divider (parent 무관 selector) */
 .dailyChartStatItem {
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-2xs);
 }
 
-/* 두 번째 항목부터 좌측에 vertical divider */
-.dailyChartStats > .dailyChartStatItem + .dailyChartStatItem {
+.dailyChartStatItem + .dailyChartStatItem {
   position: relative;
   padding-left: var(--spacing-md);
 }
 
-.dailyChartStats > .dailyChartStatItem + .dailyChartStatItem::before {
+.dailyChartStatItem + .dailyChartStatItem::before {
   content: "";
   position: absolute;
   left: 0;
@@ -1025,46 +1022,36 @@ a.statCard:hover .statValue {
   margin: 0 var(--spacing-3xs);
 }
 
-/* ── Area chart (일별 조회수) — 좌우 여백 + 하단 여백 ── */
-.areaWrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-/* Scroll container — 모바일에서 일수 많으면 가로 스크롤. desktop 은 자연 fit.
-   좌우 잘림은 부모 .dailyChart 의 horizontal padding 이 책임. */
+/* ── Area chart (일별 조회수) — 가로 스크롤 + column stack container.
+   areaWrap + chartScroll 통합. 좌우 잘림은 부모 .dailyChart horizontal padding 이 책임. */
 .chartScroll {
   overflow-x: auto;
   overflow-y: hidden;
-  overscroll-behavior-x: contain;
+  overscroll-behavior: contain;
   touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
   cursor: grab;
   /* scrollbar 숨김 — Firefox / WebKit / IE */
   scrollbar-width: none;
+  /* chartArea + areaDays 를 column stack (chartInner wrapper 흡수) */
+  display: flex;
+  flex-direction: column;
 }
 
 .chartScroll::-webkit-scrollbar {
   display: none;
 }
 
+/* 모바일: 일당 약 24px min-width — children 에 직접 적용 (chartInner wrapper 흡수) */
+@media (max-width: 768px) {
+  .chartScroll > * {
+    min-width: calc(var(--_days, 14) * 24px);
+  }
+}
+
 /* 마우스 drag 중에만 grabbing 커서 — buttons 내부는 자체 pointer cursor 가 override */
 .chartScroll.chartScrollDragging {
   cursor: grabbing;
-}
-
-.chartInner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-/* 모바일: 일당 약 24px min-width — 14일이면 ~336px, 90일이면 ~2160px (가로 scroll) */
-@media (max-width: 768px) {
-  .chartInner {
-    min-width: calc(var(--_days, 14) * 24px);
-  }
 }
 
 /* Chart 영역 — SVG path + HTML dot/line 오버레이를 같은 좌표계로 정렬하기 위한 relative 컨테이너 */
@@ -1198,11 +1185,12 @@ a.statCard:hover .statValue {
 }
 
 /* 라벨 컨테이너 — relative, absolute 자식들이 left:%로 배치됨.
-   overflow: visible 로 양 끝 라벨이 살짝 컨테이너 밖으로 나가도 잘리지 않음 */
+   overflow: visible 로 양 끝 라벨이 살짝 컨테이너 밖으로 나가도 잘리지 않음.
+   height 는 button-h-md (38) — 날짜 숫자 + dow 라벨 둘 다 안 잘리도록 */
 .areaDays {
   position: relative;
-  height: var(--button-h-sm);
-  margin-top: 4px;
+  height: var(--button-h-md);
+  margin-block: var(--spacing-sm);
   overflow: visible;
 }
 
@@ -1320,21 +1308,12 @@ a.statCard:hover .statValue {
 }
 
 /* ── Tag cloud — pill + 카운트 배지 ── */
-.tagCloud {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  /* gap 없음 — pill 의 자체 margin 으로 spacing. item 패턴과 동일하게 cloud 도 자체 padding 가짐 */
-  padding-block: var(--spacing-sm);
-  padding-inline: var(--spacing-md);
-}
-
 .tagPill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  /* gap 대체 — 마지막 pill 도 동일 margin 가져서 일관됨. trailing 공간은 wrap 시 무시됨 */
+  /* gap 대체 — 모든 pill 동일 spacing. 마지막 줄 아래 튀어나옴은 container 의 negative margin 으로 상쇄 */
   margin-right: var(--spacing-2xs);
   margin-bottom: var(--spacing-2xs);
   border-radius: var(--radius-capsule);
@@ -1462,8 +1441,9 @@ a.statCard:hover .statValue {
 .dayIndicator {
   position: absolute;
   top: 50%;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  /* areaDays height (button-h-md) 에 맞춰 — 날짜 + dow 두 줄 텍스트 다 덮음 */
+  width: var(--button-h-md);
+  height: var(--button-h-md);
   border-radius: 50%;
   background: var(--bg-tertiary);
   transform: translate(-50%, -50%);
@@ -1536,13 +1516,12 @@ a.statCard:hover .statValue {
   height: 24px;
 }
 
-.dayDetailValue {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--spacing-xs);
-  animation: dayDetailFadeIn 0.4s ease 80ms both;
+/* tag cloud Item — pill 들의 margin-bottom 이 wrap 시 마지막 줄 아래로 튀어나오는 거 상쇄 */
+.tagsItem {
+  margin-bottom: calc(-1 * var(--spacing-2xs));
 }
 
+/* large emphasized number — dayDetail 의 main value */
 .dayDetailNumber {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-3xl);
@@ -1559,10 +1538,6 @@ a.statCard:hover .statValue {
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-}
-
-.dayDetailComparisons {
-  composes: list from "./components/List.module.css";
 }
 
 /* ListItem layout="grid" 가 base styling 처리. dayDetailRow 는 columns + stagger animation 만 */
@@ -1599,12 +1574,6 @@ a.statCard:hover .statValue {
   text-align: right;
 }
 
-.dayDetailRange {
-  margin-top: var(--spacing-2xs);
-  animation: dayDetailFadeIn 0.4s ease both;
-  opacity: 0;
-}
-
 @keyframes dayDetailFadeIn {
   from {
     opacity: 0;
@@ -1622,12 +1591,6 @@ a.statCard:hover .statValue {
 }
 
 /* ── Range position — min~max 안에서 선택된 값의 위치 시각화 ── */
-.rangePos {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .rangePosLabel {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
@@ -1642,7 +1605,7 @@ a.statCard:hover .statValue {
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   overflow: visible;
-  margin: 6px 0 4px;
+  margin-block: var(--spacing-xs);
 }
 
 .rangePosFill {
@@ -1691,6 +1654,7 @@ a.statCard:hover .statValue {
 .rangePosBounds {
   display: flex;
   justify-content: space-between;
+  margin-block: var(--spacing-xs);
   font-family: var(--font-jetbrains);
   font-size: var(--font-size-2xs);
   color: var(--text-muted);
@@ -1830,59 +1794,14 @@ a.commentSource:hover {
 }
 
 /* ── Day detail — 그날 인기 게시물 섹션 (우측 컬럼, 가로 막대 차트) ── */
-.dayDetailTop {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  min-width: 0;
-  animation: dayDetailFadeIn 0.4s ease both;
-  opacity: 0;
-}
-
-.dayDetailTopHeading {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 600;
-}
-
-.dayDetailTopList {
-  composes: list from "./components/List.module.css";
-  gap: var(--spacing-2xs);
-}
 
 /* 행: rank | title | bar track | views — 가로 막대 그래프 한 줄 */
-.dayDetailTopItem {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1.4fr) minmax(60px, 1fr) auto;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: 4px 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-}
-
 .dayDetailTopRank {
   font-family: var(--font-jetbrains);
   font-size: var(--font-size-2xs);
   font-weight: 700;
   color: var(--text-muted);
   min-width: 18px;
-}
-
-.dayDetailTopTitle {
-  color: var(--text-primary);
-  text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: color 0.15s ease;
-}
-
-.dayDetailTopTitle:hover {
-  color: var(--text-accent);
 }
 
 /* dayDetailTop / deviceDrill bar 의 fill enter animation — scaleX 0→1 */
