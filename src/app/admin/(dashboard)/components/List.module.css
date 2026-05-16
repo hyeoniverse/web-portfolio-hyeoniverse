@@ -57,7 +57,3 @@
   gap: var(--spacing-sm);
 }
 
-/* layout: none — base item styling 만, display 안 정함 (custom layout 용) */
-.itemBase {
-  composes: item;
-}
