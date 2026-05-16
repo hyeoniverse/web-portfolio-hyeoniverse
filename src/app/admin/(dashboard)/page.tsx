@@ -1987,8 +1987,9 @@ function CategoryDonut({
             className={styles.categoryPostsClose}
             onClick={() => { setExpandedCat(null); setExpandedPosts([]); }}
             aria-label={language === "ko" ? "닫기" : "Close"}
+            data-close-trigger
           >
-            ×
+            <CloseIcon />
           </button>
         </div>
         {loadingPosts ? (
