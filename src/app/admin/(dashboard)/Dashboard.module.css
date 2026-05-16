@@ -1512,18 +1512,15 @@ a.statCard:hover .statValue {
 /* ── 카테고리 클릭 시 inline expand 게시물 패널 ── */
 /* svg + legend 는 grid 의 row 1 (col 1: svg, col 2: legend stretch),
    expand 영역 (categoryPostsHeader / List / muted) 은 자동으로 새 row 에 full span.
-   gap 없이 각 child 가 자체 padding 으로 spacing 책임 */
-.categoryDonut {
-  composes: panel from "./components/Panel.module.css";
-  display: grid;
+   <Panel variant="grid"> 가 display: grid 처리, 여기선 template + 추가 layout 만 */
+.donutGrid {
   grid-template-columns: auto 1fr;
   align-items: stretch;
   column-gap: var(--spacing-md);
-  flex-wrap: wrap;
 }
 
 /* svg / donutLegend 외의 child (expand 영역) 는 row full span */
-.categoryDonut > :not(.donutSvg):not(.donutLegend) {
+.donutGrid > :not(.donutSvg):not(.donutLegend) {
   grid-column: 1 / -1;
 }
 
