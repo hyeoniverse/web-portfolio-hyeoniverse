@@ -18,11 +18,12 @@ export async function GET(request: Request) {
   }
 
   const admin = createAdminClient();
-  const start = `${date}T00:00:00.000Z`;
-  // 다음 날 00:00 UTC 직전까지
-  const next = new Date(date);
-  next.setUTCDate(next.getUTCDate() + 1);
-  const end = next.toISOString();
+  // KST (Asia/Seoul, UTC+9) 기준 날짜 경계 — 대시보드 일별 차트가 KST 로 집계하므로 동일하게 매핑.
+  // ISO 8601 형식의 +09:00 offset 으로 명시 → Date 가 UTC 로 정확히 변환.
+  const start = new Date(`${date}T00:00:00+09:00`).toISOString();
+  const nextKst = new Date(`${date}T00:00:00+09:00`);
+  nextKst.setDate(nextKst.getDate() + 1);
+  const end = nextKst.toISOString();
 
   const { data: views, error } = await admin
     .from("post_views")

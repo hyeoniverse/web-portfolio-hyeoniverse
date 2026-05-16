@@ -193,7 +193,10 @@
       "dailyViewsWowDown": "지난 7일 대비",
       "today": "오늘",
       "engagementTitle": "참여도 (게시물별 조회 비율)",
-      "trendVsPrev7": "지난 7일 대비"
+      "trendVsPrev7": "지난 7일 대비",
+      "groupRecent": "최근 활동",
+      "groupPopular": "인기",
+      "groupTraffic": "트래픽"
     },
     "notifications": {
       "title": "알림",
