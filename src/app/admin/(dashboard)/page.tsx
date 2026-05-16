@@ -1906,7 +1906,7 @@ function CategoryDonut({
     : (language === "ko" ? "조회" : "views");
 
   return (
-    <div className={styles.categoryDonut}>
+    <Panel variant="grid" className={styles.donutGrid}>
       <svg
         viewBox="0 0 140 140"
         className={styles.donutSvg}
@@ -2004,7 +2004,7 @@ function CategoryDonut({
         )}
       </>
     )}
-    </div>
+    </Panel>
   );
 }
 
