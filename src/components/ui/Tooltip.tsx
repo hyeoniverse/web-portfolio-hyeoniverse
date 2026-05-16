@@ -38,6 +38,8 @@ export default function Tooltip({
   /** 뷰포트 우/좌 경계에 가까울 때 bubble 이 viewport 안으로 들어오도록 한 px 시프트.
    *  arrow 는 그대로 두어 trigger 중심을 가리키고, bubble 만 옆으로 밀려 잘림 방지 */
   const [bubbleShiftX, setBubbleShiftX] = useState(0);
+  /** 좌/우 placement 가 viewport 밖으로 나갈 때 1회만 반대 side 로 flip. 무한 ping-pong 방지 */
+  const flippedRef = useRef(false);
 
   const triggerRef = useRef<HTMLSpanElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
@@ -101,6 +103,7 @@ export default function Tooltip({
   const hide = useCallback(() => {
     clearTimeout(timerRef.current);
     clearTimeout(autoHideRef.current);
+    flippedRef.current = false;
     setVisible(false);
   }, []);
 
@@ -119,7 +122,8 @@ export default function Tooltip({
     clearTimeout(autoHideRef.current);
   }, []);
 
-  /** bubble 이 그려진 직후 viewport 밖으로 나가지 않도록 가로 시프트 계산.
+  /** bubble 이 그려진 직후 viewport 밖으로 나가지 않도록 가로 시프트 계산 (top/bottom)
+   *  또는 좌/우 placement 가 overflow 시 반대 side 로 1회 flip.
    *
    *  포인트: 측정 직전에 bubble.style.transform 을 잠시 지워 \"natural 위치\" 를 직접
    *  측정. 이러면 bubbleShiftX state 가 어떤 값이든 측정값은 항상 동일 → deps 에
@@ -128,12 +132,13 @@ export default function Tooltip({
    *  useLayoutEffect 는 페인트 전 동기 실행이라 transform 을 잠깐 지웠다 복원해도
    *  시각 깜빡임 없음. */
   useLayoutEffect(() => {
-    if (!visible || pos.side === "left" || pos.side === "right") {
+    if (!visible) {
       setBubbleShiftX(0); // React 가 동일값이면 자동 skip
       return;
     }
     const bubble = bubbleRef.current;
-    if (!bubble) return;
+    const trigger = triggerRef.current;
+    if (!bubble || !trigger) return;
 
     // transform 을 잠깐 비워 natural 위치를 측정 → 즉시 복원
     const prev = bubble.style.transform;
@@ -144,13 +149,40 @@ export default function Tooltip({
     const margin = 8;
     const vpW = window.innerWidth;
 
+    // 좌/우 placement — overflow 시 반대 side 로 flip (1회만)
+    if (pos.side === "left" || pos.side === "right") {
+      setBubbleShiftX(0);
+      if (flippedRef.current) return;
+
+      const overflowLeft = pos.side === "left" && rect.left < margin;
+      const overflowRight = pos.side === "right" && rect.right > vpW - margin;
+      if (!overflowLeft && !overflowRight) return;
+
+      const triggerRect = trigger.getBoundingClientRect();
+      const opposite: "left" | "right" = pos.side === "left" ? "right" : "left";
+      const fitsOpposite = opposite === "right"
+        ? triggerRect.right + GAP + rect.width + margin <= vpW
+        : triggerRect.left - GAP - rect.width >= margin;
+
+      if (fitsOpposite) {
+        flippedRef.current = true;
+        setPos({
+          x: opposite === "left" ? triggerRect.left - GAP : triggerRect.right + GAP,
+          y: triggerRect.top + triggerRect.height / 2,
+          side: opposite,
+        });
+      }
+      return;
+    }
+
+    // top/bottom — 가로 시프트
     let shift = 0;
     if (rect.left < margin) shift = margin - rect.left;
     else if (rect.right > vpW - margin) shift = vpW - margin - rect.right;
 
     // subpixel 진동 방지 — 정수 픽셀로 반올림
     setBubbleShiftX(Math.round(shift));
-  }, [visible, pos.x, pos.side]);
+  }, [visible, pos.x, pos.y, pos.side]);
 
   if (disabled) return <>{children}</>;
 

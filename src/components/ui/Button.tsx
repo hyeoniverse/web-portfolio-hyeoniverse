@@ -12,7 +12,7 @@ import styles from "./Button.module.css";
    Types
    -------------------------------------------------------------------------- */
 
-type ButtonVariant = "primary" | "outline" | "ghost" | "link";
+type ButtonVariant = "primary" | "outline" | "subtle" | "ghost" | "link";
 type ButtonShape = "capsule" | "circle" | "square";
 type ButtonSize = "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
 

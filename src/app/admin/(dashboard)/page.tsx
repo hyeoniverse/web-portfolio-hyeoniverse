@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import { Plus, Settings, Bell, TrendingUp, TrendingDown, MessageSquare, Eye, Heart, Globe, Smartphone, Monitor, Tablet, ChevronRight, LineChart, CalendarDays } from "lucide-react";
+import { Plus, Settings, Bell, TrendingUp, TrendingDown, MessageSquare, Eye, Heart, Globe, Smartphone, Monitor, Tablet, ChevronLeft, ChevronRight, LineChart, CalendarDays } from "lucide-react";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
@@ -13,6 +13,7 @@ import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { useModalStore } from "@/stores/modalStore";
+import { Section, SectionHeader, Panel, List, ListItem } from "./components";
 import styles from "./Dashboard.module.css";
 
 interface DashboardData {
@@ -165,17 +166,17 @@ export default function AdminDashboard() {
           placement="bottom"
           delay={200}
         >
-          <button type="button" className={styles.refreshBtn} onClick={fetchData} disabled={loading}>
+          <Button variant="subtle" size="xs" onClick={fetchData} disabled={loading}>
             {loading ? <T k="admin.dashboard.loading" /> : <T k="admin.dashboard.refresh" />}
-          </button>
+          </Button>
         </Tooltip>
       </header>
 
       {/* ── Quick Actions — 공통 Button 컴포넌트 사용, .actionBtn 은 표 셀 스타일 override.
            각 버튼은 Tooltip 으로 감싸 hover 영역이 셀 전체로 확장됨 (wrapperStyle block + 100%) ── */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.dashboard.quickActions" /></h2>
-        <div className={styles.quickActions}>
+      <Section>
+        <SectionHeader><T k="admin.dashboard.quickActions" /></SectionHeader>
+        <Panel variant="grid" className={styles.quickActions}>
           <Tooltip
             content={language === "ko" ? "새 게시물 작성 페이지로 이동" : "Open new post editor"}
             placement="top"
@@ -222,14 +223,15 @@ export default function AdminDashboard() {
               )}
             </Button>
           </Tooltip>
-        </div>
-      </section>
+        </Panel>
+      </Section>
 
-      {/* ── Stats: Hero (Total Views) + 보조 3개 ── */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.dashboard.stats" /></h2>
+      {/* ── Stats: heroStat (총 조회수) + 프로젝트/게시물/댓글. 2-col 에선 2×2, 3-col 에선 heroStat full row + statCard 3개 ── */}
+      <Section>
+        <SectionHeader><T k="admin.dashboard.stats" /></SectionHeader>
 
-        {/* Hero — Total Views: 큰 숫자 + sparkline + WoW. accent 그라데이션 배경 */}
+        <Panel variant="grid" className={styles.statsGrid}>
+        {/* 1. 총 조회수 (heroStat) — 3-col: row 1 full span / 2-col: row 1 col 1 / 1-col: full */}
         <div className={styles.heroStat}>
           <div className={styles.heroLeft}>
             <Tooltip
@@ -274,9 +276,27 @@ export default function AdminDashboard() {
           </Tooltip>
         </div>
 
-        <div className={styles.statsGrid}>
+        {/* 2. 프로젝트 */}
+        <Tooltip
+          content={language === "ko"
+            ? `발행 ${data.works.published}개 · 초안 ${data.works.drafts}개 — 총 ${data.works.total}개\n클릭하면 프로젝트 관리로 이동`
+            : `${data.works.published} published · ${data.works.drafts} draft — ${data.works.total} total\nClick to manage projects`}
+          placement="top"
+          delay={250}
+          wrapperStyle={{ display: "block", width: "100%" }}
+        >
+          <Link href="/admin/works" className={styles.statCard}>
+              <span className={styles.statLabel}><T k="admin.dashboard.works" /></span>
+              <span className={styles.statValue}><CountUp value={data.works.total} /></span>
+              <span className={styles.statMeta}>
+                {data.works.published} <T k="admin.dashboard.published" /> · {data.works.drafts} <T k="admin.dashboard.drafts" />
+              </span>
+            </Link>
+          </Tooltip>
           <Tooltip
-            content={language === "ko" ? "전체 게시물 수 — 발행/초안 비율 표시" : "Total posts — published / drafts ratio"}
+            content={language === "ko"
+              ? `발행 ${data.posts.published}개 · 초안 ${data.posts.drafts}개 — 총 ${data.posts.total}개\n클릭하면 게시물 관리로 이동`
+              : `${data.posts.published} published · ${data.posts.drafts} draft — ${data.posts.total} total\nClick to manage posts`}
             placement="top"
             delay={250}
             wrapperStyle={{ display: "block", width: "100%" }}
@@ -287,26 +307,15 @@ export default function AdminDashboard() {
               <span className={styles.statMeta}>
                 {data.posts.published} <T k="admin.dashboard.published" /> · {data.posts.drafts} <T k="admin.dashboard.drafts" />
               </span>
-              <RatioBar published={data.posts.published} total={data.posts.total} />
             </Link>
           </Tooltip>
           <Tooltip
-            content={language === "ko" ? "전체 프로젝트 수 — 발행/초안 비율 표시" : "Total projects — published / drafts ratio"}
-            placement="top"
-            delay={250}
-            wrapperStyle={{ display: "block", width: "100%" }}
-          >
-            <Link href="/admin/works" className={styles.statCard}>
-              <span className={styles.statLabel}><T k="admin.dashboard.works" /></span>
-              <span className={styles.statValue}><CountUp value={data.works.total} /></span>
-              <span className={styles.statMeta}>
-                {data.works.published} <T k="admin.dashboard.published" /> · {data.works.drafts} <T k="admin.dashboard.drafts" />
-              </span>
-              <RatioBar published={data.works.published} total={data.works.total} />
-            </Link>
-          </Tooltip>
-          <Tooltip
-            content={language === "ko" ? "전체 댓글 수 — 게시물당 평균 + 최근 활동" : "Total comments — avg per post + recent activity"}
+            content={(() => {
+              const avg = data.posts.published > 0 ? (data.comments.total / data.posts.published).toFixed(1) : "—";
+              return language === "ko"
+                ? `누적 댓글 ${data.comments.total}개 · 게시물당 평균 ${avg}개\n클릭하면 댓글 관리로 이동`
+                : `${data.comments.total} total · ${avg} avg per post\nClick to manage`;
+            })()}
             placement="top"
             delay={250}
             wrapperStyle={{ display: "block", width: "100%" }}
@@ -319,27 +328,113 @@ export default function AdminDashboard() {
                 ? `${(data.comments.total / data.posts.published).toFixed(1)} ${language === "ko" ? "/ 게시물" : "/ post"}`
                 : " "}
               </span>
-              <CommentDots count={data.comments.recent.length} />
             </Link>
           </Tooltip>
-        </div>
-      </section>
+        </Panel>
 
-      {/* ── Daily Views Chart (full-width) ── */}
-      <section className={styles.section}>
+        {/* 5. 카테고리 분포 — 통계 섹션 안 */}
+        {data.stats.categories.length === 0 ? (
+          <p className={styles.muted}><T k="admin.dashboard.noCategories" /></p>
+        ) : (
+          <CategoryDonut data={data.stats.categories} language={language} t={t} />
+        )}
+
+        {/* 6. 일별 조회수 — 통계 섹션 안 */}
         <DailyViewsChart data={data.stats.dailyViews} language={language} t={t} />
-      </section>
+      </Section>
 
-      {/* ── Popular Posts + Recent Comments — 2-col ── */}
-      <section className={styles.twoCol}>
-        <div className={styles.panel}>
-          <h2 className={styles.sectionTitle}><T k="admin.dashboard.popularPosts" /></h2>
+      {/* ━━━━━━━━━━ 그룹: 최신활동 ━━━━━━━━━━ */}
+      {/* ── 최근 게시물 + 최근 프로젝트 — 2-col ── */}
+      <Section>
+        <SectionHeader><T k="admin.dashboard.groupRecent" /></SectionHeader>
+        <Panel variant="grid" className={styles.twoCol}>
+        <Panel className={styles.panelCell}>
+          <h2 className={styles.panelTitle}><T k="admin.dashboard.recentPosts" /></h2>
+          {data.posts.recent.length === 0 ? (
+            <p className={styles.muted}><T k="admin.dashboard.noPosts" /></p>
+          ) : (
+            <List>
+              {data.posts.recent.map((p) => (
+                <ListItem key={p.id}>
+                  <Link
+                    href={p.published ? `/posts/${p.slug}` : `/admin/posts/${p.id}/edit`}
+                    className={styles.listItemLink}
+                  >
+                    <span className={p.published ? styles.statusPub : styles.statusDraft}>
+                      {p.published ? <T k="admin.dashboard.published" /> : <T k="admin.dashboard.draft" />}
+                    </span>
+                    <span className={styles.itemTitle}>{p.title}</span>
+                    <span className={styles.itemDate}>{fmtDate(p.updated_at)}</span>
+                  </Link>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Panel>
+
+        <Panel className={styles.panelCell}>
+          <h2 className={styles.panelTitle}><T k="admin.dashboard.recentWorks" /></h2>
+          {data.works.recent.length === 0 ? (
+            <p className={styles.muted}><T k="admin.dashboard.noWorks" /></p>
+          ) : (
+            <List>
+              {data.works.recent.map((w) => (
+                <ListItem key={w.id}>
+                  <span className={w.published ? styles.statusPub : styles.statusDraft}>
+                    {w.published ? <T k="admin.dashboard.published" /> : <T k="admin.dashboard.draft" />}
+                  </span>
+                  <Link href={`/admin/works/${w.id}`} className={styles.itemTitle}>{w.title}</Link>
+                  <span className={styles.itemDate}>{fmtDate(w.updated_at)}</span>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Panel>
+        </Panel>
+
+        {/* 최근 댓글 — 같은 섹션 (최근 활동) 안 third block */}
+        <Panel className={styles.panelCell}>
+          <h2 className={styles.panelTitle}><T k="admin.dashboard.recentComments" /></h2>
+          {data.comments.recent.length === 0 ? (
+            <p className={styles.muted}><T k="admin.dashboard.noComments" /></p>
+          ) : (
+            <List>
+              {data.comments.recent.map((c) => (
+                <ListItem key={c.id} layout="column">
+                  <div className={styles.commentMeta}>
+                    <span className={`${styles.commentAuthor} ${c.is_admin ? styles.commentAuthorAdmin : ""}`}>
+                      {c.is_admin ? "Admin" : c.nickname}
+                    </span>
+                    <span className={styles.timeAgo}>{fmtDate(c.created_at)}</span>
+                  </div>
+                  <p className={styles.commentBody}>{c.content}</p>
+                  {c.post_slug ? (
+                    <Link href={`/posts/${c.post_slug}`} className={styles.commentSource}>
+                      ↗ {c.post_title}
+                    </Link>
+                  ) : (
+                    <span className={styles.commentSource}>&nbsp;</span>
+                  )}
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Panel>
+      </Section>
+
+      {/* ━━━━━━━━━━ 그룹: 인기 ━━━━━━━━━━ */}
+      {/* ── 인기 게시물 + 인기 태그 — 2-col ── */}
+      <Section>
+        <SectionHeader><T k="admin.dashboard.groupPopular" /></SectionHeader>
+        <Panel variant="grid" className={styles.twoCol}>
+        <Panel className={styles.panelCell}>
+          <h2 className={styles.panelTitle}><T k="admin.dashboard.popularPosts" /></h2>
           {data.stats.popularPosts.length === 0 ? (
             <p className={styles.muted}><T k="admin.dashboard.noPopular" /></p>
           ) : (
-            <ul className={styles.popularList}>
+            <List>
               {data.stats.popularPosts.map((p, i) => (
-                <li key={p.id} className={styles.popularItem}>
+                <ListItem key={p.id} layout="column">
                   {/* L1: rank + 메인 stats (commentMeta 와 mirror 구조) */}
                   <div className={styles.popularHeader}>
                     <span className={styles.popularRank}>{String(i + 1).padStart(2, "0")}</span>
@@ -371,57 +466,14 @@ export default function AdminDashboard() {
                       <span className={styles.popularDate}>{fmtDate(p.created_at)}</span>
                     ) : !p.category ? <span>&nbsp;</span> : null}
                   </div>
-                </li>
+                </ListItem>
               ))}
-            </ul>
+            </List>
           )}
-        </div>
+        </Panel>
 
-        <div className={styles.panel}>
-          <h2 className={styles.sectionTitle}><T k="admin.dashboard.recentComments" /></h2>
-          {data.comments.recent.length === 0 ? (
-            <p className={styles.muted}><T k="admin.dashboard.noComments" /></p>
-          ) : (
-            <ul className={styles.list}>
-              {data.comments.recent.map((c) => (
-                <li key={c.id} className={styles.commentItem}>
-                  {/* L1: author + time */}
-                  <div className={styles.commentMeta}>
-                    <span className={`${styles.commentAuthor} ${c.is_admin ? styles.commentAuthorAdmin : ""}`}>
-                      {c.is_admin ? "Admin" : c.nickname}
-                    </span>
-                    <span className={styles.timeAgo}>{fmtDate(c.created_at)}</span>
-                  </div>
-                  {/* L2: content */}
-                  <p className={styles.commentBody}>{c.content}</p>
-                  {/* L3: 출처 게시물 링크 — 없을 때도 placeholder 로 동일 height 유지 */}
-                  {c.post_slug ? (
-                    <Link href={`/posts/${c.post_slug}`} className={styles.commentSource}>
-                      ↗ {c.post_title}
-                    </Link>
-                  ) : (
-                    <span className={styles.commentSource}>&nbsp;</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </section>
-
-      {/* ── Content Analytics — 카테고리 도넛 + 태그 클라우드 ── */}
-      <section className={styles.twoCol}>
-        <div className={styles.panel}>
-          <h2 className={styles.sectionTitle}><T k="admin.dashboard.topCategories" /></h2>
-          {data.stats.categories.length === 0 ? (
-            <p className={styles.muted}><T k="admin.dashboard.noCategories" /></p>
-          ) : (
-            <CategoryDonut data={data.stats.categories} language={language} t={t} />
-          )}
-        </div>
-
-        <div className={styles.panel}>
-          <h2 className={styles.sectionTitle}><T k="admin.dashboard.topTags" /></h2>
+        <Panel className={styles.panelCell}>
+          <h2 className={styles.panelTitle}><T k="admin.dashboard.topTags" /></h2>
           {data.stats.tags.length === 0 ? (
             <p className={styles.muted}><T k="admin.dashboard.noTags" /></p>
           ) : (
@@ -434,73 +486,30 @@ export default function AdminDashboard() {
               ))}
             </div>
           )}
-        </div>
-      </section>
+        </Panel>
+        </Panel>
+      </Section>
 
-      {/* ── Recent Posts + Recent Works — 2-col ── */}
-      <section className={styles.twoCol}>
-        <div className={styles.panel}>
-          <h2 className={styles.sectionTitle}><T k="admin.dashboard.recentPosts" /></h2>
-          {data.posts.recent.length === 0 ? (
-            <p className={styles.muted}><T k="admin.dashboard.noPosts" /></p>
-          ) : (
-            <ul className={styles.list}>
-              {data.posts.recent.map((p) => (
-                <li key={p.id} className={styles.listItem}>
-                  <Link
-                    href={p.published ? `/posts/${p.slug}` : `/admin/posts/${p.id}/edit`}
-                    className={styles.listItemLink}
-                  >
-                    <span className={p.published ? styles.statusPub : styles.statusDraft}>
-                      {p.published ? <T k="admin.dashboard.published" /> : <T k="admin.dashboard.draft" />}
-                    </span>
-                    <span className={styles.itemTitle}>{p.title}</span>
-                    <span className={styles.itemDate}>{fmtDate(p.updated_at)}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className={styles.panel}>
-          <h2 className={styles.sectionTitle}><T k="admin.dashboard.recentWorks" /></h2>
-          {data.works.recent.length === 0 ? (
-            <p className={styles.muted}><T k="admin.dashboard.noWorks" /></p>
-          ) : (
-            <ul className={styles.list}>
-              {data.works.recent.map((w) => (
-                <li key={w.id} className={styles.listItem}>
-                  <span className={w.published ? styles.statusPub : styles.statusDraft}>
-                    {w.published ? <T k="admin.dashboard.published" /> : <T k="admin.dashboard.draft" />}
-                  </span>
-                  <Link href={`/admin/works/${w.id}`} className={styles.itemTitle}>{w.title}</Link>
-                  <span className={styles.itemDate}>{fmtDate(w.updated_at)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </section>
-
-      {/* ── Traffic Sources + Device Breakdown — 2-col, 기기 drill-down 시 Traffic 접히고 Devices 풀폭 확장 ── */}
+      {/* ━━━━━━━━━━ 그룹: 트래픽 ━━━━━━━━━━ */}
+      {/* ── 유입경로 + 기기분석 — 2-col, 기기 drill-down 시 유입경로 접히고 기기 풀폭 확장 ── */}
       {(data.stats.referrers || data.stats.devices) && (
-        <section
+        <Section
           ref={devicesSectionRef}
-          className={`${styles.twoCol} ${deviceDrillKind ? styles.twoColExpanded : ""}`}
           data-expanded={deviceDrillKind ? "devices" : undefined}
         >
+          <SectionHeader><T k="admin.dashboard.groupTraffic" /></SectionHeader>
+          <Panel variant="grid" className={`${styles.twoCol} ${deviceDrillKind ? styles.twoColExpanded : ""}`}>
           {data.stats.referrers && (
-            <div className={`${styles.panel} ${deviceDrillKind ? styles.panelCollapsed : ""}`} aria-hidden={!!deviceDrillKind}>
-              <h2 className={styles.sectionTitle}><T k="admin.dashboard.trafficSources" /></h2>
+            <Panel className={`${styles.panelCell} ${deviceDrillKind ? styles.panelCollapsed : ""}`} aria-hidden={!!deviceDrillKind}>
+              <h2 className={styles.panelTitle}><T k="admin.dashboard.trafficSources" /></h2>
               {data.stats.referrers.length === 0 ? (
                 <p className={styles.muted}>
                   {language === "ko" ? "아직 방문 데이터가 없습니다." : "No visit data yet."}
                 </p>
               ) : (
-                <ul className={styles.referrerList}>
+                <List>
                   {data.stats.referrers.map((r) => (
-                    <li key={r.source} className={styles.referrerRow}>
+                    <ListItem key={r.source} layout="grid" className={styles.referrerRow}>
                       <span className={styles.referrerSource}>
                         <Globe size={11} strokeWidth={2} />
                         {r.source}
@@ -512,15 +521,15 @@ export default function AdminDashboard() {
                         <span className={styles.referrerPct}>{r.pct}%</span>
                         <span className={styles.referrerCount}>{r.count.toLocaleString()}</span>
                       </span>
-                    </li>
+                    </ListItem>
                   ))}
-                </ul>
+                </List>
               )}
-            </div>
+            </Panel>
           )}
           {data.stats.devices && (
-            <div className={styles.panel}>
-              <h2 className={styles.sectionTitle}><T k="admin.dashboard.devices" /></h2>
+            <Panel className={styles.panelCell}>
+              <h2 className={styles.panelTitle}><T k="admin.dashboard.devices" /></h2>
               {data.stats.devices.length === 0 ? (
                 <p className={styles.muted}>
                   {language === "ko" ? "아직 방문 데이터가 없습니다." : "No visit data yet."}
@@ -536,16 +545,17 @@ export default function AdminDashboard() {
                   onDrillChange={setDeviceDrillKind}
                 />
               )}
-            </div>
+            </Panel>
           )}
-        </section>
+          </Panel>
+        </Section>
       )}
 
-
-      {/* ── Service Status ── */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.dashboard.serviceStatus" /></h2>
-        <div className={styles.serviceGrid}>
+      {/* ━━━━━━━━━━ 그룹: 시스템 ━━━━━━━━━━ */}
+      {/* ── 서비스 상태 ── */}
+      <Section>
+        <SectionHeader><T k="admin.dashboard.serviceStatus" /></SectionHeader>
+        <Panel variant="grid" className={styles.serviceGrid}>
           {Object.entries(data.services).map(([key, status]) => (
             <div key={key} className={styles.serviceItem}>
               <span className={`${styles.statusDot} ${status === "configured" ? styles.dotOk : styles.dotMissing}`} aria-hidden />
@@ -555,11 +565,11 @@ export default function AdminDashboard() {
               </span>
             </div>
           ))}
-        </div>
+        </Panel>
         <p className={styles.helperText}>
           <T k="admin.dashboard.dbConnected" />
         </p>
-      </section>
+      </Section>
     </div>
   );
 }
@@ -718,7 +728,7 @@ function DevicesBreakdown({
             {language === "ko" ? "방문" : "visits"}
           </text>
         </svg>
-        <ul className={styles.deviceLegend}>
+        <List className={styles.deviceLegend}>
           {arcs.map((arc, i) => {
             const Icon = arc.icon;
             const drillable = activeTab === "type" && !!arc.kind && !!deviceModels?.[arc.kind];
@@ -740,7 +750,7 @@ function DevicesBreakdown({
               </>
             );
             return (
-              <li key={`${arc.name}-${i}`} className={styles.deviceLegendItem}>
+              <ListItem key={`${arc.name}-${i}`} layout="base" className={styles.deviceLegendItem}>
                 {drillable ? (
                   <button
                     type="button"
@@ -753,10 +763,10 @@ function DevicesBreakdown({
                 ) : (
                   <div className={styles.deviceLegendBtn}>{content}</div>
                 )}
-              </li>
+              </ListItem>
             );
           })}
-        </ul>
+        </List>
       </div>
 
       {/* Drill-down — Type 탭에서 데스크탑/모바일/태블릿 클릭 시 모델별 분포 */}
@@ -812,10 +822,11 @@ function DeviceModelsPanel({
           {language === "ko" ? "데이터가 없습니다." : "No data yet."}
         </p>
       ) : (
-        <ul className={styles.deviceDrillList}>
+        <List className={styles.deviceDrillList}>
           {models.map((m, i) => (
-            <li
+            <ListItem
               key={`${m.model}-${i}`}
+              layout="grid"
               className={styles.deviceDrillRow}
               style={{ animationDelay: `${i * 40}ms` }}
             >
@@ -828,36 +839,15 @@ function DeviceModelsPanel({
               </span>
               <span className={styles.deviceDrillCount}>{m.count.toLocaleString()}</span>
               <span className={styles.deviceDrillPct}>{m.pct}%</span>
-            </li>
+            </ListItem>
           ))}
-        </ul>
+        </List>
       )}
     </div>
   );
 }
 
 /* ── 시각화 컴포넌트 ── */
-function RatioBar({ published, total }: { published: number; total: number }) {
-  const cls = `${styles.bar} ${styles.barSlim} ${styles.barLight} ${styles.ratioBarSpacer}`;
-  if (total === 0) return <div className={cls} aria-hidden />;
-  const pct = Math.max(0, Math.min(100, (published / total) * 100));
-  return (
-    <div className={cls} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)}>
-      <div className={`${styles.barFill} ${styles.barFillSolid}`} style={{ width: `${pct}%` }} />
-    </div>
-  );
-}
-
-function CommentDots({ count }: { count: number }) {
-  return (
-    <div className={styles.dotIndicator} aria-hidden>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span key={i} className={i < count ? styles.dotActive : ""} />
-      ))}
-    </div>
-  );
-}
-
 /** 일별 조회수 — SVG 면적 차트. 시작일/종료일 기반 날짜 범위 선택. 부드러운 스플라인 + 그라데이션 fill.
  *  점/하단 라벨 클릭 시 해당 날짜의 상세 분석 패널이 펼쳐짐. */
 function DailyViewsChart({
@@ -884,6 +874,17 @@ function DailyViewsChart({
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"line" | "calendar">("line");
+
+  // 캘린더 모드의 focus month (year + month-index). rawData 의 마지막 날 기준 default.
+  const [focusYM, setFocusYM] = useState<{ year: number; month: number }>(() => {
+    const last = rawData[rawData.length - 1]?.day;
+    if (last) {
+      const [y, m] = last.split("-").map(Number);
+      return { year: y, month: m - 1 };
+    }
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
 
   /* 마우스 drag-to-scroll — chartScroll 영역에서 mousedown + 이동하면 가로 스크롤.
      touch 는 native pan-x 가 이미 동작. drag 가 임계값 (>5px) 넘으면 click 차단.
@@ -935,7 +936,7 @@ function DailyViewsChart({
     [rawData, normStart, normEnd],
   );
 
-  // 같은 길이의 직전 구간과 비교한 변화율
+  // 같은 길이의 직전 구간과 비교한 변화율 (line mode)
   const wow = useMemo(() => {
     if (data.length === 0) return null;
     const startIdxInRaw = rawData.findIndex((d) => d.day === data[0].day);
@@ -949,6 +950,32 @@ function DailyViewsChart({
     const pct = Math.round(((cur - prev) / prev) * 100);
     return { pct, direction: pct >= 0 ? ("up" as const) : ("down" as const) };
   }, [rawData, data]);
+
+  // 캘린더 모드: 현재 focus month 의 데이터 + 직전 달 대비 변화율
+  const monthStats = useMemo(() => {
+    const monthPrefix = `${focusYM.year}-${String(focusYM.month + 1).padStart(2, "0")}-`;
+    const curMonthData = rawData.filter((d) => d.day.startsWith(monthPrefix));
+    const curTotal = curMonthData.reduce((s, d) => s + d.views, 0);
+
+    const prev = focusYM.month === 0
+      ? { year: focusYM.year - 1, month: 11 }
+      : { year: focusYM.year, month: focusYM.month - 1 };
+    const prevPrefix = `${prev.year}-${String(prev.month + 1).padStart(2, "0")}-`;
+    const prevMonthData = rawData.filter((d) => d.day.startsWith(prevPrefix));
+    const prevTotal = prevMonthData.reduce((s, d) => s + d.views, 0);
+
+    let mom: { pct: number; direction: "up" | "down" } | null = null;
+    if (prevMonthData.length > 0) {
+      if (prevTotal === 0 && curTotal === 0) mom = null;
+      else if (prevTotal === 0) mom = { pct: 100, direction: "up" as const };
+      else {
+        const pct = Math.round(((curTotal - prevTotal) / prevTotal) * 100);
+        mom = { pct, direction: pct >= 0 ? "up" : "down" };
+      }
+    }
+
+    return { total: curTotal, mom };
+  }, [rawData, focusYM]);
 
   // rawData 의 첫 날짜 / 마지막 날짜 — picker 의 min/max 안내용 (maxDate = 오늘, 미래 선택 차단)
   const minDate = rawData[0]?.day ?? "";
@@ -1017,18 +1044,20 @@ function DailyViewsChart({
   const H = 360;
   const PAD_T = 28;
   const PAD_B = 40;
-  /* 점이 컨테이너 양 끝(0, W)까지 균등 분포 → area 좌우 가장자리가 직각으로 떨어짐
-     라벨은 absolute + translateX(-50%) 로 같은 위치에 정렬 */
-  const stepX = W / Math.max(data.length - 1, 1);
+  /* 첫/마지막 dot 이 chartScroll 의 overflow 에 잘리는 문제 방지용 horizontal inset.
+     dot 이 translateX(-50%) 로 중앙정렬되니까 양 끝 dot 이 SVG edge 밖으로 반쯤 튀어나옴 → clip.
+     이 값만큼 좌표계 안쪽으로 밀어서 dot 이 viewport 안에 완전히 들어옴. */
+  const PAD_X = 16;
+  const stepX = (W - 2 * PAD_X) / Math.max(data.length - 1, 1);
   const points = data.map((d, i) => ({
-    x: i * stepX,
+    x: PAD_X + i * stepX,
     y: H - PAD_B - (d.views / max) * (H - PAD_T - PAD_B),
     v: d.views,
     day: d.day,
   }));
 
   const linePath = buildSmoothPath(points);
-  const areaPath = `${linePath} L${W},${H - PAD_B} L0,${H - PAD_B} Z`;
+  const areaPath = `${linePath} L${W - PAD_X},${H - PAD_B} L${PAD_X},${H - PAD_B} Z`;
   const todayPt = points[points.length - 1];
   // active indicator — hover 우선, 없으면 selected. 같은 element 가 left/top transition 으로 부드럽게 슬라이드
   const activeIdx = hoveredIdx ?? selectedIdx;
@@ -1043,91 +1072,127 @@ function DailyViewsChart({
   return (
     <div className={styles.dailyChart}>
       <div className={styles.dailyChartHeader}>
-        {/* 좌측: 제목 + 날짜 범위 선택기 (시작일/종료일) */}
-        <div className={styles.dailyChartHeaderLeft}>
-          <h2 className={styles.sectionTitle}>{t("admin.dashboard.dailyViewsTitle")}</h2>
-          <div className={styles.periodRange}>
-            <DateRangeTrigger
-              label={language === "ko" ? "시작일" : "Start"}
-              date={startDate}
-              isOpen={openPicker === "start"}
-              onOpen={() => setOpenPicker((cur) => (cur === "start" ? null : "start"))}
-              onClose={() => setOpenPicker(null)}
-              onSelect={handleStartChange}
-              language={language}
-              minDate={minDate}
-              maxDate={maxDate}
-            />
-            <span className={styles.periodRangeSep} aria-hidden>—</span>
-            <DateRangeTrigger
-              label={language === "ko" ? "종료일" : "End"}
-              date={endDate}
-              isOpen={openPicker === "end"}
-              onOpen={() => setOpenPicker((cur) => (cur === "end" ? null : "end"))}
-              onClose={() => setOpenPicker(null)}
-              onSelect={handleEndChange}
-              language={language}
-              minDate={minDate}
-              maxDate={maxDate}
-            />
+        {/* Row 1: 제목 + 우측 stats/toggle — 너비 변해도 일관된 단일 행 */}
+        <div className={styles.dailyChartHeaderMain}>
+          <h2 className={styles.panelTitle}>{t("admin.dashboard.dailyViewsTitle")}</h2>
+          <div className={styles.dailyChartStats}>
+            <div className={styles.dailyChartStatItem}>
+              <span className={styles.dailyChartStatLabel}>
+                {viewMode === "calendar"
+                  ? (language === "ko" ? "이 달 합계" : "Month total")
+                  : (language === "ko" ? "기간 합계" : "Total")}
+              </span>
+              <span className={styles.dailyChartTotal}>
+                {(viewMode === "calendar" ? monthStats.total : total).toLocaleString()}
+              </span>
+            </div>
+            {(() => {
+              const trend = viewMode === "calendar" ? monthStats.mom : wow;
+              if (!trend) return null;
+              return (
+                <div className={styles.dailyChartStatItem}>
+                  <span className={styles.dailyChartStatLabel}>
+                    {viewMode === "calendar"
+                      ? (language === "ko" ? "직전 달 대비" : "vs prev month")
+                      : (language === "ko" ? "직전 기간 대비" : "vs prev")}
+                  </span>
+                  <span
+                    className={`${styles.trendBadge} ${trend.direction === "up" ? styles.trendUp : styles.trendDown}`}
+                  >
+                    {trend.direction === "up" ? <TrendingUp size={11} strokeWidth={2.5} /> : <TrendingDown size={11} strokeWidth={2.5} />}
+                    {Math.abs(trend.pct)}%
+                  </span>
+                </div>
+              );
+            })()}
+            <div className={styles.viewModeToggle} role="tablist" aria-label="View mode">
+              <button
+                type="button"
+                className={`${styles.viewModeBtn} ${viewMode === "line" ? styles.viewModeBtnActive : ""}`}
+                onClick={() => setViewMode("line")}
+                aria-pressed={viewMode === "line"}
+                title={language === "ko" ? "라인 차트" : "Line chart"}
+              >
+                <LineChart size={13} strokeWidth={2} />
+              </button>
+              <button
+                type="button"
+                className={`${styles.viewModeBtn} ${viewMode === "calendar" ? styles.viewModeBtnActive : ""}`}
+                onClick={() => setViewMode("calendar")}
+                aria-pressed={viewMode === "calendar"}
+                title={language === "ko" ? "캘린더" : "Calendar"}
+              >
+                <CalendarDays size={13} strokeWidth={2} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* 우측: 기간 합계 + 직전 동일 기간 대비 변화율 */}
-        <div className={styles.dailyChartStats}>
-          <div className={styles.dailyChartStatItem}>
-            <span className={styles.dailyChartStatLabel}>
-              {language === "ko" ? "기간 합계" : "Total"}
-            </span>
-            <span className={styles.dailyChartTotal}>{total.toLocaleString()}</span>
-          </div>
-          {wow && (
-            <div className={styles.dailyChartStatItem}>
-              <span className={styles.dailyChartStatLabel}>
-                {language === "ko" ? "직전 기간 대비" : "vs prev"}
-              </span>
-              <span
-                className={`${styles.trendBadge} ${wow.direction === "up" ? styles.trendUp : styles.trendDown}`}
-              >
-                {wow.direction === "up" ? <TrendingUp size={11} strokeWidth={2.5} /> : <TrendingDown size={11} strokeWidth={2.5} />}
-                {Math.abs(wow.pct)}%
-              </span>
+        {/* Row 2: 날짜 범위 선택기 (line mode 만) — 별도 행으로 분리해서 너비 변해도 row1 영향 X */}
+        {viewMode === "line" && (
+          <div className={styles.dailyChartHeaderSub}>
+            <div className={styles.periodRange}>
+              <DateRangeTrigger
+                label={language === "ko" ? "시작일" : "Start"}
+                date={startDate}
+                isOpen={openPicker === "start"}
+                onOpen={() => setOpenPicker((cur) => (cur === "start" ? null : "start"))}
+                onClose={() => setOpenPicker(null)}
+                onSelect={handleStartChange}
+                language={language}
+                minDate={minDate}
+                maxDate={maxDate}
+              />
+              <span className={styles.periodRangeSep} aria-hidden>—</span>
+              <DateRangeTrigger
+                label={language === "ko" ? "종료일" : "End"}
+                date={endDate}
+                isOpen={openPicker === "end"}
+                onOpen={() => setOpenPicker((cur) => (cur === "end" ? null : "end"))}
+                onClose={() => setOpenPicker(null)}
+                onSelect={handleEndChange}
+                language={language}
+                minDate={minDate}
+                maxDate={maxDate}
+              />
             </div>
-          )}
-          <div className={styles.viewModeToggle} role="tablist" aria-label="View mode">
-            <button
-              type="button"
-              className={`${styles.viewModeBtn} ${viewMode === "line" ? styles.viewModeBtnActive : ""}`}
-              onClick={() => setViewMode("line")}
-              aria-pressed={viewMode === "line"}
-              title={language === "ko" ? "라인 차트" : "Line chart"}
-            >
-              <LineChart size={13} strokeWidth={2} />
-            </button>
-            <button
-              type="button"
-              className={`${styles.viewModeBtn} ${viewMode === "calendar" ? styles.viewModeBtnActive : ""}`}
-              onClick={() => setViewMode("calendar")}
-              aria-pressed={viewMode === "calendar"}
-              title={language === "ko" ? "캘린더" : "Calendar"}
-            >
-              <CalendarDays size={13} strokeWidth={2} />
-            </button>
           </div>
-        </div>
+        )}
       </div>
+      {viewMode === "calendar" ? (
+        <CalendarHeatmap
+          data={rawData}
+          language={language}
+          focus={focusYM}
+          setFocus={setFocusYM}
+          onSelectDay={(day) => {
+            // 캘린더에서 선택한 날짜를 line mode 의 selectedIdx 로 연결 (DayDetailPanel 표시).
+            // data 가 슬라이스라 범위 밖이면 line mode 의 startDate/endDate 를 조정해서 포함시킴.
+            const idx = data.findIndex((d) => d.day === day);
+            if (idx >= 0) {
+              setSelectedIdx(idx);
+            } else {
+              // 선택한 날짜가 현재 line slice 밖이면 startDate/endDate 를 그 날 중심으로 14일 조정
+              const dayIdxRaw = rawData.findIndex((d) => d.day === day);
+              if (dayIdxRaw >= 0) {
+                const halfRange = Math.floor(MAX_RANGE_DAYS / 2);
+                const startIdx = Math.max(0, dayIdxRaw - halfRange);
+                const endIdx = Math.min(rawData.length - 1, startIdx + MAX_RANGE_DAYS - 1);
+                setStartDate(rawData[startIdx].day);
+                setEndDate(rawData[endIdx].day);
+                setSelectedIdx(dayIdxRaw - startIdx);
+                setViewMode("line");
+              }
+            }
+          }}
+        />
+      ) : (
       <div
         className={styles.areaWrap}
         role="img"
         aria-label={t("admin.dashboard.dailyViewsTitle")}
         onMouseLeave={() => setHoveredIdx(null)}
       >
-        {viewMode === "calendar" ? (
-          <CalendarHeatmap data={rawData} language={language} onSelectDay={(day) => {
-            const idx = data.findIndex((d) => d.day === day);
-            if (idx >= 0) setSelectedIdx(idx);
-          }} />
-        ) : (<>
         {/* 모바일에서 일수가 많으면 가로 스크롤 — min-width 가 일당 24px 정도로 늘어나 scroll 발생.
             desktop 에서는 width: 100% 로 fit-to-container, scroll 안 일어남.
             마우스 drag-to-scroll 도 지원 — touch 는 native pan-x 가 알아서 처리. */}
@@ -1222,7 +1287,8 @@ function DailyViewsChart({
           {/* Sliding circle indicator — 라벨 뒤 배경 */}
           {(() => {
             const targetIdx = hoveredIdx ?? selectedIdx ?? data.length - 1;
-            const leftPct = (targetIdx / Math.max(data.length - 1, 1)) * 100;
+            /* points 의 x (PAD_X inset 적용된 값) 기반 → SVG dot 과 라벨이 동일 위치 정렬 */
+            const leftPct = (points[targetIdx].x / W) * 100;
             const isOnSelected = hoveredIdx === null && selectedIdx !== null;
             const isOnHovered = hoveredIdx !== null;
             return (
@@ -1241,7 +1307,7 @@ function DailyViewsChart({
             const dow = date.toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", { weekday: "short" });
             const isToday = i === data.length - 1;
             const isSelected = selectedIdx === i;
-            const leftPct = (i / Math.max(data.length - 1, 1)) * 100;
+            const leftPct = (points[i].x / W) * 100;
             return (
               <button
                 key={d.day}
@@ -1260,8 +1326,8 @@ function DailyViewsChart({
         </div>
         </div>
         </div>
-        </>)}
       </div>
+      )}
       {/* 선택된 날짜 상세 패널 */}
       {selectedIdx !== null && (
         <DayDetailPanel
@@ -1474,19 +1540,20 @@ function DayDetailPanel({
             <span className={styles.dayDetailUnit}>{language === "ko" ? "조회" : "views"}</span>
           </div>
 
-          <ul className={styles.dayDetailComparisons}>
+          <List className={styles.dayDetailComparisons}>
             {rows.map((row, i) => (
-              <li
+              <ListItem
                 key={row.id}
+                layout="grid"
                 className={styles.dayDetailRow}
                 style={{ animationDelay: `${120 + i * 70}ms` }}
               >
                 <span className={styles.dayDetailLabel}>{row.label}</span>
                 <DiffBadge diff={row.diff} />
                 <span className={styles.dayDetailContext}>{row.ctx}</span>
-              </li>
+              </ListItem>
             ))}
-          </ul>
+          </List>
 
           <div className={styles.dayDetailRange} style={{ animationDelay: `${120 + rows.length * 70 + 40}ms` }}>
             <RangePosition
@@ -1512,12 +1579,12 @@ function DayDetailPanel({
               {language === "ko" ? "이날 조회된 게시물이 없습니다." : "No posts viewed this day."}
             </p>
           ) : (
-            <ol className={styles.dayDetailTopList}>
+            <List className={styles.dayDetailTopList}>
               {topPosts.slice(0, 5).map((p, i) => {
                 const max = topPosts[0].views;
                 const pct = (p.views / max) * 100;
                 return (
-                  <li key={p.id} className={styles.dayDetailTopItem}>
+                  <ListItem key={p.id} className={styles.dayDetailTopItem}>
                     <span className={styles.dayDetailTopRank}>{String(i + 1).padStart(2, "0")}</span>
                     <Link href={`/posts/${p.slug}`} className={styles.dayDetailTopTitle}>
                       {p.title}
@@ -1531,10 +1598,10 @@ function DayDetailPanel({
                     <span className={styles.dayDetailTopViews}>
                       {p.views.toLocaleString()}
                     </span>
-                  </li>
+                  </ListItem>
                 );
               })}
-            </ol>
+            </List>
           )}
         </div>
       </div>
@@ -1620,76 +1687,151 @@ function buildSmoothPath(pts: { x: number; y: number }[]): string {
 }
 
 /** GitHub-style 캘린더 히트맵 — 7행(요일) × N열(주). 각 셀은 그날 조회수에 따라 4단계 accent 농도. */
+/** 월별 캘린더 뷰 — 일반적인 달력 모양 (7-col 요일 × 6-row 주). 한 달치를 한 번에 보여줌.
+ *  focus month state 는 DailyViewsChart 가 소유 — stat 패널 (이 달 합계 / 직전 달 대비) 과 동기화. */
 function CalendarHeatmap({
   data,
   language,
   onSelectDay,
+  focus,
+  setFocus,
 }: {
   data: { day: string; views: number }[];
   language: "ko" | "en";
   onSelectDay?: (day: string) => void;
+  focus: { year: number; month: number };
+  setFocus: (f: { year: number; month: number }) => void;
 }) {
-  /* 마지막 12주 (84일) 표시. 마지막 데이터의 요일이 우측 마지막 column 의 행 위치. */
-  const WEEKS = 12;
-  const rows = 7; // Sun(0) ~ Sat(6)
-  const cells: Array<Array<{ day: string; views: number } | null>> = Array.from({ length: WEEKS }, () => Array(rows).fill(null));
-  const recent = data.slice(-WEEKS * rows);
-  if (recent.length > 0) {
-    const lastDay = recent[recent.length - 1].day;
-    const lastDow = new Date(`${lastDay}T00:00:00Z`).getUTCDay(); // 0=Sun
-    /* lastDay 가 마지막 column 의 lastDow 행에 위치. 거꾸로 채워나감. */
-    for (let i = recent.length - 1, col = WEEKS - 1, row = lastDow; i >= 0; i--) {
-      cells[col][row] = recent[i];
-      row -= 1;
-      if (row < 0) { row = 6; col -= 1; }
-      if (col < 0) break;
-    }
-  }
+  const lastDay = data[data.length - 1]?.day;
 
-  /* 색상 단계 — 0 / low / mid / high. quantile 기반. */
-  const nonZero = recent.filter((d) => d.views > 0).map((d) => d.views).sort((a, b) => a - b);
-  const q = (p: number) => nonZero.length === 0 ? 0 : nonZero[Math.floor(nonZero.length * p)] ?? 0;
+  // 해당 month 의 1일 요일 + 일수
+  const firstDayDow = new Date(focus.year, focus.month, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(focus.year, focus.month + 1, 0).getDate();
+
+  // ISO 변환 (KST 기준 YYYY-MM-DD)
+  const isoOf = (d: number) =>
+    `${focus.year}-${String(focus.month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+  // 데이터 lookup
+  const dataMap = useMemo(() => new Map(data.map((d) => [d.day, d.views])), [data]);
+
+  // Quantile coloring (data 전체 기준)
+  const nonZero = useMemo(
+    () => data.filter((d) => d.views > 0).map((d) => d.views).sort((a, b) => a - b),
+    [data],
+  );
+  const q = (p: number) => (nonZero.length === 0 ? 0 : nonZero[Math.floor(nonZero.length * p)] ?? 0);
   const lvl1 = q(0.33);
   const lvl2 = q(0.66);
-  const colorFor = (v: number) => {
-    if (v <= 0) return "var(--bg-secondary)";
-    if (v <= lvl1) return "var(--color-accent-alpha-30)";
-    if (v <= lvl2) return "var(--color-accent-alpha-50)";
+  const colorFor = (v: number): string => {
+    // 0 조회 cell 은 section bg 와 동일 색 — grid 의 hairline (1px gap) 만 보이고 cell 자체는 비어있게.
+    // color-mix 로 accent + bg-primary 를 비율별로 섞어 opaque 단계 생성.
+    // accent-alpha-XX 같은 alpha 색을 쓰면 grid bg (border-light-color, 30% alpha 어두운 색) 가 비쳐 탁해짐.
+    if (v <= 0) return "var(--bg-primary)";
+    if (v <= lvl1) return "color-mix(in srgb, var(--color-accent) 22%, var(--bg-primary))";
+    if (v <= lvl2) return "color-mix(in srgb, var(--color-accent) 50%, var(--bg-primary))";
     return "var(--color-accent)";
   };
 
-  const dowLabels = language === "ko" ? ["일", "월", "화", "수", "목", "금", "토"] : ["S", "M", "T", "W", "T", "F", "S"];
+  // 6행×7열 grid — 첫 일주의 빈 cell 부터 시작
+  const CELLS = 42;
+  const cells: Array<{ day: number; iso: string; views: number } | null> = Array.from({ length: CELLS }, () => null);
+  for (let d = 1; d <= daysInMonth; d++) {
+    const idx = firstDayDow + d - 1;
+    if (idx >= CELLS) break;
+    const iso = isoOf(d);
+    cells[idx] = { day: d, iso, views: dataMap.get(iso) ?? 0 };
+  }
+
+  // Navigation bounds — 데이터 범위 내에서만 이동
+  const firstDataDay = data[0]?.day;
+  const firstYM = firstDataDay
+    ? { year: Number(firstDataDay.slice(0, 4)), month: Number(firstDataDay.slice(5, 7)) - 1 }
+    : null;
+  const lastYM = lastDay
+    ? { year: Number(lastDay.slice(0, 4)), month: Number(lastDay.slice(5, 7)) - 1 }
+    : null;
+  const cmpYM = (a: { year: number; month: number }, b: { year: number; month: number }) =>
+    a.year !== b.year ? a.year - b.year : a.month - b.month;
+  const canPrev = firstYM ? cmpYM(focus, firstYM) > 0 : false;
+  const canNext = lastYM ? cmpYM(focus, lastYM) < 0 : false;
+
+  const goPrev = () => {
+    if (focus.month === 0) setFocus({ year: focus.year - 1, month: 11 });
+    else setFocus({ year: focus.year, month: focus.month - 1 });
+  };
+  const goNext = () => {
+    if (focus.month === 11) setFocus({ year: focus.year + 1, month: 0 });
+    else setFocus({ year: focus.year, month: focus.month + 1 });
+  };
+
+  const monthLabel = new Date(focus.year, focus.month, 1).toLocaleDateString(
+    language === "ko" ? "ko-KR" : "en-US",
+    { year: "numeric", month: "long" },
+  );
+  const dowLabels = language === "ko"
+    ? ["일", "월", "화", "수", "목", "금", "토"]
+    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
     <div className={styles.calendarHeatmap}>
-      <div className={styles.calendarRows}>
+      <header className={styles.calendarHeader}>
+        <Button
+          variant="ghost"
+          shape="square"
+          size="xs"
+          icon={<ChevronLeft size={14} strokeWidth={2} />}
+          onClick={goPrev}
+          disabled={!canPrev}
+          aria-label={language === "ko" ? "이전 달" : "Previous month"}
+        />
+        <span className={styles.calendarMonth}>{monthLabel}</span>
+        <Button
+          variant="ghost"
+          shape="square"
+          size="xs"
+          icon={<ChevronRight size={14} strokeWidth={2} />}
+          onClick={goNext}
+          disabled={!canNext}
+          aria-label={language === "ko" ? "다음 달" : "Next month"}
+        />
+      </header>
+
+      <div className={styles.calendarDowRow}>
         {dowLabels.map((d, i) => (
-          <span key={i} className={styles.calendarDow}>{i % 2 === 1 ? d : ""}</span>
+          <span key={i} className={styles.calendarDow}>{d}</span>
         ))}
       </div>
-      <div className={styles.calendarGrid} style={{ gridTemplateColumns: `repeat(${WEEKS}, 1fr)` }}>
-        {cells.map((week, ci) =>
-          week.map((cell, ri) => (
-            <button
-              key={`${ci}-${ri}`}
-              type="button"
-              className={styles.calendarCell}
-              style={{ background: cell ? colorFor(cell.views) : "transparent", gridColumn: ci + 1, gridRow: ri + 1 }}
-              onClick={cell ? () => onSelectDay?.(cell.day) : undefined}
-              disabled={!cell}
-              title={cell ? `${cell.day} · ${cell.views.toLocaleString()}` : ""}
-              aria-label={cell ? `${cell.day}: ${cell.views} views` : "empty"}
-            />
-          )),
-        )}
+
+      <div className={styles.calendarGrid}>
+        {cells.map((cell, i) => (
+          <button
+            key={i}
+            type="button"
+            className={`${styles.calendarCell} ${!cell ? styles.calendarCellEmpty : ""}`}
+            style={cell ? { background: colorFor(cell.views) } : undefined}
+            onClick={cell ? () => onSelectDay?.(cell.iso) : undefined}
+            disabled={!cell}
+            title={cell ? `${cell.iso} · ${cell.views.toLocaleString()}` : ""}
+            aria-label={cell ? `${cell.iso}: ${cell.views} views` : "empty"}
+          >
+            {cell && (
+              <>
+                <span className={styles.calendarCellDay}>{cell.day}</span>
+                <span className={styles.calendarCellViews}>{cell.views > 0 ? cell.views.toLocaleString() : ""}</span>
+              </>
+            )}
+          </button>
+        ))}
       </div>
+
       <div className={styles.calendarLegend}>
         <span className={styles.calendarLegendLabel}>{language === "ko" ? "적음" : "Less"}</span>
         {[0, 1, 2, 3].map((i) => (
           <span
             key={i}
             className={styles.calendarLegendCell}
-            style={{ background: ["var(--bg-secondary)", "var(--color-accent-alpha-30)", "var(--color-accent-alpha-50)", "var(--color-accent)"][i] }}
+            style={{ background: ["var(--bg-primary)", "color-mix(in srgb, var(--color-accent) 22%, var(--bg-primary))", "color-mix(in srgb, var(--color-accent) 50%, var(--bg-primary))", "var(--color-accent)"][i] }}
           />
         ))}
         <span className={styles.calendarLegendLabel}>{language === "ko" ? "많음" : "More"}</span>
@@ -1698,7 +1840,10 @@ function CalendarHeatmap({
   );
 }
 
-/** 카테고리 분포 — interactive 도넛: wedge 또는 범례 항목 hover 시 중앙 라벨 + 해당 wedge 강조 */
+type CategoryPost = { id: string; title: string; slug: string; view_count: number; published: boolean; updated_at: string };
+
+/** 카테고리 분포 — interactive 도넛: wedge 또는 범례 항목 hover 시 중앙 라벨 + 해당 wedge 강조.
+ *  범례 클릭 시 그 카테고리의 게시물 top 10 inline expand. */
 function CategoryDonut({
   data,
   language,
@@ -1709,6 +1854,31 @@ function CategoryDonut({
   t: (key: string) => string;
 }) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
+  const [expandedPosts, setExpandedPosts] = useState<CategoryPost[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+
+  // 카테고리 토글 — 같은 카테고리 누르면 닫힘, 다른 카테고리 누르면 갈아끼움
+  const toggleCategory = (name: string) => {
+    if (expandedCat === name) {
+      setExpandedCat(null);
+      setExpandedPosts([]);
+      return;
+    }
+    setExpandedCat(name);
+    setLoadingPosts(true);
+    fetch(`/api/admin/dashboard/category?name=${encodeURIComponent(name)}`)
+      .then((r) => r.json())
+      .then((d: { posts?: CategoryPost[] }) => {
+        setExpandedPosts(d.posts ?? []);
+        setLoadingPosts(false);
+      })
+      .catch(() => {
+        setExpandedPosts([]);
+        setLoadingPosts(false);
+      });
+  };
+
   const total = data.reduce((s, d) => s + d.views, 0);
   const palette = [
     "var(--color-accent)",
@@ -1738,8 +1908,14 @@ function CategoryDonut({
     : (language === "ko" ? "조회" : "views");
 
   return (
+    <div className={styles.categoryDonut}>
     <div className={styles.donutWrap}>
-      <svg viewBox="0 0 140 140" className={styles.donutSvg} aria-label={t("admin.dashboard.topCategories")}>
+      <svg
+        viewBox="0 0 140 140"
+        className={styles.donutSvg}
+        aria-label={t("admin.dashboard.topCategories")}
+        onMouseLeave={() => setHoverIdx(null)}
+      >
         {arcs.length === 1 ? (
           <>
             <circle cx={cx} cy={cy} r={outerR} fill={arcs[0].color} />
@@ -1755,8 +1931,9 @@ function CategoryDonut({
                 d={describeDonutArc(cx, cy, outerR, innerR, arc.start, arc.end)}
                 fill={arc.color}
                 className={`${styles.donutWedge} ${isHover ? styles.donutWedgeActive : ""} ${isOther ? styles.donutWedgeDim : ""}`}
+                /* onMouseLeave 는 SVG 레벨에만 두고 wedge 단위는 enter 만 — 인접 wedge 경계의
+                   anti-aliasing edge 에서 leave→enter 사이 잠깐 null 되는 깜빡임 방지 */
                 onMouseEnter={() => setHoverIdx(i)}
-                onMouseLeave={() => setHoverIdx(null)}
               >
                 <title>{arc.d.name} · {arc.d.views.toLocaleString()} ({arc.pct.toFixed(0)}%)</title>
               </path>
@@ -1770,26 +1947,66 @@ function CategoryDonut({
           {centerLabel}
         </text>
       </svg>
-      <ul className={styles.donutLegend}>
+      <List className={styles.donutLegend}>
         {arcs.map((arc, i) => {
           const isHover = hoverIdx === i;
+          const isExpanded = expandedCat === arc.d.name;
           return (
-            <li
+            <ListItem
               key={arc.d.name}
-              className={`${styles.donutLegendItem} ${isHover ? styles.donutLegendItemActive : ""}`}
+              layout="base"
+              className={`${styles.donutLegendItem} ${isHover ? styles.donutLegendItemActive : ""} ${isExpanded ? styles.donutLegendItemExpanded : ""}`}
               onMouseEnter={() => setHoverIdx(i)}
               onMouseLeave={() => setHoverIdx(null)}
+              onClick={() => toggleCategory(arc.d.name)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleCategory(arc.d.name); } }}
+              aria-expanded={isExpanded}
             >
-              <span className={styles.donutLegendSwatch} style={{ background: arc.color }} aria-hidden />
-              <span className={styles.donutLegendName}>{arc.d.name}</span>
-              <span className={styles.donutLegendMeta}>
-                <span className={styles.donutLegendPct}>{arc.pct.toFixed(0)}%</span>
-                <span className={styles.donutLegendCount}>{arc.d.postCount}</span>
+              <span className={styles.donutLegendLeft}>
+                <span className={styles.donutLegendSwatch} style={{ background: arc.color }} aria-hidden />
+                <span className={styles.donutLegendName}>{arc.d.name}</span>
               </span>
-            </li>
+              <span className={styles.donutLegendMeta}>
+                <span className={styles.donutLegendPct}>{arc.pct.toFixed(2)}%</span>
+              </span>
+            </ListItem>
           );
         })}
-      </ul>
+      </List>
+    </div>
+    {expandedCat && (
+      <>
+        <div className={styles.categoryPostsHeader}>
+          <span className={styles.categoryPostsTitle}>
+            {language === "ko" ? `${expandedCat} 게시물` : `${expandedCat} posts`}
+          </span>
+          <button
+            type="button"
+            className={styles.categoryPostsClose}
+            onClick={() => { setExpandedCat(null); setExpandedPosts([]); }}
+            aria-label={language === "ko" ? "닫기" : "Close"}
+          >
+            ×
+          </button>
+        </div>
+        {loadingPosts ? (
+          <p className={styles.muted}>{language === "ko" ? "불러오는 중..." : "Loading..."}</p>
+        ) : expandedPosts.length === 0 ? (
+          <p className={styles.muted}>{language === "ko" ? "게시물이 없습니다." : "No posts."}</p>
+        ) : (
+          <List>
+            {expandedPosts.map((p) => (
+              <ListItem key={p.id}>
+                <Link href={`/posts/${p.slug}`} className={styles.itemTitle}>{p.title}</Link>
+                <span className={styles.itemDate}>{p.view_count.toLocaleString()}</span>
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </>
+    )}
     </div>
   );
 }
@@ -1850,60 +2067,110 @@ function DashboardSkeleton() {
       </header>
 
       {/* Quick Actions */}
-      <section className={styles.section}>
+      <Section>
         <SkeletonLine width={100} height={14} />
-        <div className={styles.quickActions}>
+        <Panel variant="grid" className={styles.quickActions}>
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} height={56} borderRadius="var(--radius-capsule)" />
           ))}
-        </div>
-      </section>
+        </Panel>
+      </Section>
 
-      {/* Stats — Hero (totalViews + sparkline) + 3 stat cards */}
-      <section className={styles.section}>
+      {/* Stats — heroStat + 3 statCards + CategoryDonut + DailyViewsChart, 모두 한 섹션 안 */}
+      <Section>
         <SkeletonLine width={60} height={14} />
-        {/* Hero block */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", padding: "var(--spacing-xl) 0", borderBottom: "var(--border-light)", gap: "var(--spacing-xl)" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", flex: 1, minWidth: 0 }}>
-            <SkeletonLine width={80} height={11} />
-            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-md)" }}>
-              <SkeletonLine width={140} height={48} />
-              <Skeleton width={56} height={20} borderRadius="var(--radius-capsule)" />
+        <Panel variant="grid" className={styles.statsGrid}>
+          {/* heroStat skeleton — full row span at 3-col, 1 cell at 2-col */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "var(--spacing-xl) var(--spacing-lg)", gap: "var(--spacing-xl)", gridColumn: "1 / -1" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", flex: 1, minWidth: 0 }}>
+              <SkeletonLine width={80} height={11} />
+              <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-md)" }}>
+                <SkeletonLine width={140} height={48} />
+                <Skeleton width={56} height={20} borderRadius="var(--radius-capsule)" />
+              </div>
+              <SkeletonLine width={120} height={12} />
             </div>
-            <SkeletonLine width={120} height={12} />
+            <Skeleton width={180} height={56} borderRadius="var(--radius-md)" />
           </div>
-          <Skeleton width={180} height={56} borderRadius="var(--radius-md)" />
-        </div>
-        {/* 3 stat cards */}
-        <div className={styles.statsGrid}>
+          {/* 3 stat cards */}
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-md) var(--spacing-xs)" }}>
               <SkeletonLine width={60} height={11} />
               <SkeletonLine width={80} height={28} />
               <SkeletonLine width={100} height={11} />
-              <Skeleton height={4} borderRadius="var(--radius-capsule)" />
             </div>
           ))}
-        </div>
-      </section>
+        </Panel>
 
-      {/* Daily Views Chart (full-width) */}
-      <section className={styles.section}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <SkeletonLine width={120} height={14} />
-          <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
-            <Skeleton width={120} height={28} borderRadius="var(--radius-capsule)" />
-            <Skeleton width={120} height={28} borderRadius="var(--radius-capsule)" />
+        {/* Category Donut */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--spacing-xl) 0", gap: "var(--spacing-xl)" }}>
+          <Skeleton width={140} height={140} borderRadius="50%" />
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", flex: 1, maxWidth: 320 }}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+                <Skeleton width={10} height={10} borderRadius="50%" />
+                <SkeletonLine width={`${70 - i * 8}%`} height={11} />
+              </div>
+            ))}
           </div>
         </div>
-        <Skeleton height={220} borderRadius="var(--radius-md)" />
-      </section>
 
-      {/* Popular Posts + Recent Comments */}
-      <section className={styles.twoCol}>
+        {/* Daily Views Chart */}
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--spacing-sm)" }}>
+            <SkeletonLine width={120} height={14} />
+            <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
+              <Skeleton width={120} height={28} borderRadius="var(--radius-capsule)" />
+              <Skeleton width={120} height={28} borderRadius="var(--radius-capsule)" />
+            </div>
+          </div>
+          <Skeleton height={220} borderRadius="var(--radius-md)" />
+        </div>
+      </Section>
+
+      {/* ━━━━━━━━━━ 그룹: 최근 활동 — Posts/Works twoCol + Comments full ━━━━━━━━━━ */}
+      <Section>
+        <SkeletonLine width={120} height={14} />
+        <Panel variant="grid" className={styles.twoCol}>
+        {Array.from({ length: 2 }).map((_, p) => (
+          <Panel key={p} className={styles.panelCell}>
+            <SkeletonLine width={100} height={11} />
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)", padding: "var(--spacing-xs) 0", borderBottom: "var(--border-light)" }}>
+                <Skeleton width={48} height={18} borderRadius="var(--radius-capsule)" />
+                <SkeletonLine width={`${60 - (i % 3) * 8}%`} height={12} />
+                <div style={{ marginLeft: "auto" }}>
+                  <SkeletonLine width={56} height={10} />
+                </div>
+              </div>
+            ))}
+          </Panel>
+        ))}
+        </Panel>
+        {/* Recent Comments inside same section */}
+        <Panel className={styles.panelCell}>
+          <SkeletonLine width={120} height={11} />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-sm) 0", borderBottom: "var(--border-light)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <SkeletonLine width={70} height={11} />
+                <SkeletonLine width={50} height={10} />
+              </div>
+              <SkeletonLine width={i % 2 === 0 ? "92%" : "70%"} height={13} />
+              <SkeletonLine width={120} height={10} />
+            </div>
+          ))}
+        </Panel>
+      </Section>
+
+      {/* ━━━━━━━━━━ 그룹: 인기 ━━━━━━━━━━ */}
+      {/* Popular Posts + Top Tags */}
+      <Section>
+        <SkeletonLine width={80} height={14} />
+        <Panel variant="grid" className={styles.twoCol}>
         {/* Popular Posts */}
-        <div className={styles.panel}>
-          <SkeletonLine width={120} height={14} />
+        <Panel className={styles.panelCell}>
+          <SkeletonLine width={120} height={11} />
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-sm) 0", borderBottom: "var(--border-light)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1920,72 +2187,27 @@ function DashboardSkeleton() {
               </div>
             </div>
           ))}
-        </div>
-        {/* Recent Comments */}
-        <div className={styles.panel}>
-          <SkeletonLine width={120} height={14} />
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", padding: "var(--spacing-sm) 0", borderBottom: "var(--border-light)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <SkeletonLine width={70} height={11} />
-                <SkeletonLine width={50} height={10} />
-              </div>
-              <SkeletonLine width={i % 2 === 0 ? "92%" : "70%"} height={13} />
-              <SkeletonLine width={120} height={10} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Categories Donut + Tag Cloud */}
-      <section className={styles.twoCol}>
-        <div className={styles.panel}>
-          <SkeletonLine width={100} height={14} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--spacing-xl) 0", gap: "var(--spacing-xl)" }}>
-            <Skeleton width={140} height={140} borderRadius="50%" />
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", flex: 1 }}>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
-                  <Skeleton width={10} height={10} borderRadius="50%" />
-                  <SkeletonLine width={`${70 - i * 8}%`} height={11} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className={styles.panel}>
-          <SkeletonLine width={80} height={14} />
+        </Panel>
+        {/* Top Tags */}
+        <Panel className={styles.panelCell}>
+          <SkeletonLine width={80} height={11} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)", padding: "var(--spacing-md) 0" }}>
             {[68, 84, 56, 100, 72, 92, 60, 76, 88, 64, 96, 70].map((w, i) => (
               <Skeleton key={i} width={w} height={28} borderRadius="var(--radius-capsule)" />
             ))}
           </div>
-        </div>
-      </section>
+        </Panel>
+        </Panel>
+      </Section>
 
-      {/* Recent Posts + Recent Works */}
-      <section className={styles.twoCol}>
-        {Array.from({ length: 2 }).map((_, p) => (
-          <div key={p} className={styles.panel}>
-            <SkeletonLine width={100} height={14} />
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)", padding: "var(--spacing-xs) 0", borderBottom: "var(--border-light)" }}>
-                <Skeleton width={48} height={18} borderRadius="var(--radius-capsule)" />
-                <SkeletonLine width={`${60 - (i % 3) * 8}%`} height={12} />
-                <div style={{ marginLeft: "auto" }}>
-                  <SkeletonLine width={56} height={10} />
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </section>
-
+      {/* ━━━━━━━━━━ 그룹: 트래픽 ━━━━━━━━━━ */}
       {/* Traffic Sources + Devices */}
-      <section className={styles.twoCol}>
+      <Section>
+        <SkeletonLine width={80} height={14} />
+        <Panel variant="grid" className={styles.twoCol}>
         {/* Traffic Sources — bar list */}
-        <div className={styles.panel}>
-          <SkeletonLine width={120} height={14} />
+        <Panel className={styles.panelCell}>
+          <SkeletonLine width={120} height={11} />
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", alignItems: "center", gap: "var(--spacing-sm)", padding: "var(--spacing-xs) 0" }}>
               <SkeletonLine width={70} height={11} />
@@ -1993,10 +2215,10 @@ function DashboardSkeleton() {
               <SkeletonLine width={50} height={11} />
             </div>
           ))}
-        </div>
+        </Panel>
         {/* Devices */}
-        <div className={styles.panel}>
-          <SkeletonLine width={80} height={14} />
+        <Panel className={styles.panelCell}>
+          <SkeletonLine width={80} height={11} />
           <div style={{ display: "flex", gap: "var(--spacing-md)", padding: "var(--spacing-md) 0" }}>
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} style={{ flex: 1 }}>
@@ -2004,13 +2226,15 @@ function DashboardSkeleton() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Panel>
+        </Panel>
+      </Section>
 
+      {/* ━━━━━━━━━━ 그룹: 시스템 ━━━━━━━━━━ */}
       {/* Service Status */}
-      <section className={styles.section}>
+      <Section>
         <SkeletonLine width={100} height={14} />
-        <div className={styles.serviceGrid}>
+        <Panel variant="grid" className={styles.serviceGrid}>
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) 0" }}>
               <Skeleton width={8} height={8} borderRadius="50%" />
@@ -2020,8 +2244,8 @@ function DashboardSkeleton() {
               </div>
             </div>
           ))}
-        </div>
-      </section>
+        </Panel>
+      </Section>
     </div>
   );
 }

@@ -212,6 +212,38 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Variant: subtle — light border + tertiary text. hover 시 border/text strong.
+   refreshBtn 류의 보조 액션 (눈에 띄지 않다가 hover 했을 때 명확해지는) 용도.
+   --------------------------------------------------------------------------- */
+.variant-subtle {
+  background: transparent;
+  color: var(--text-tertiary);
+  border: var(--border-light);
+}
+
+.variant-subtle.btn {
+  transition:
+    color var(--duration-base) ease,
+    border-color var(--duration-base) ease;
+}
+
+.variant-subtle.btn:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.variant-subtle.btn:active:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.variant-subtle.btn.active {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+/* ---------------------------------------------------------------------------
    Variant: ghost — 투명, hover: accent
    --------------------------------------------------------------------------- */
 .variant-ghost {
