@@ -50,6 +50,14 @@
   letter-spacing: 0.04em;
 }
 
+/* Panel header row — h2.panelTitle + action (close button 등) 묶는 flex wrapper */
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
 /* "데이터 없음" 텍스트 — List 의 item 과 동일 vertical dimension. border 는 없음 (단독 child) */
 .muted {
   composes: item from "./components/List.module.css";
@@ -1406,11 +1414,6 @@ a.statCard:hover .statValue {
   background: var(--bg-tertiary);
 }
 
-
-.categoryPostsClose {
-  composes: iconBtn iconBtnSm;
-  --close-size: 12px;
-}
 
 /* ── Notification badge — pulse 애니메이션 ── */
 .badgeWrap {
