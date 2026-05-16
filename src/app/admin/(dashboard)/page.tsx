@@ -13,7 +13,7 @@ import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
 import { SkeletonLine, SkeletonCircle, SkeletonPill, SkeletonBlock } from "@/components/ui/Skeleton";
 import { useModalStore } from "@/stores/modalStore";
-import { Section, SectionHeader, Panel, PanelTitle, List, ListItem } from "./components";
+import { Section, SectionHeader, Panel, PanelTitle, Item, List, ListItem } from "./components";
 import styles from "./Dashboard.module.css";
 
 interface DashboardData {
@@ -230,12 +230,12 @@ export default function AdminDashboard() {
       <Section>
         <SectionHeader><T k="admin.dashboard.stats" /></SectionHeader>
 
-        <Panel variant="grid" cols="repeat(3, 1fr)">
+        <Panel variant="grid" cols="repeat(3, 1fr)" divided>
         {/* 1. 총 조회수 (heroStat) — 3-col: row 1 full span / 2-col: row 1 col 1 / 1-col: full */}
-        <Panel
-          variant="grid"
-          cols="minmax(0, 1fr) minmax(180px, 320px)"
+        <Item
           style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1fr) minmax(180px, 320px)",
             gridColumn: "1 / -1",
             gap: "var(--spacing-xl)",
             alignItems: "center",
@@ -286,7 +286,7 @@ export default function AdminDashboard() {
               <Sparkline values={data.stats.dailyViews.slice(-14).map((d) => d.views)} />
             </div>
           </Tooltip>
-        </Panel>
+        </Item>
 
         {/* 2. 프로젝트 */}
         <Tooltip

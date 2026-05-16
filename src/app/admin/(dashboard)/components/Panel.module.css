@@ -60,6 +60,15 @@
   gap: 0;
 }
 
+/* divided — Panel 의 child 들 사이 hairline divider.
+   3-col grid 기준: n+2 border-top (2번째 child 부터), n+3 border-left (3번째 부터) */
+.divided > *:nth-child(n + 2) {
+  border-top: var(--border-light);
+}
+.divided > *:nth-child(n + 3) {
+  border-left: var(--border-light);
+}
+
 /* ── Item — direct child of .panel. 구체 styling 은 className prop 으로 ── */
 .item {
   min-width: 0;
