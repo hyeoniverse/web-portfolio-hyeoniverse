@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.1.0...v1.1.1) (2026-05-16)
+
+
+### Bug Fixes
+
+* **middleware:** /admin/login 무한 리다이렉트 루프 수정 ([7bbc186](https://github.com/hyeoniverse/web-portfolio-oval/commit/7bbc1860d758a59075d48fa91cf64714403ba1aa))
+* **navigation:** drawer 버튼 다시 보이게 + 물 60% 수위 + 실제 출렁임 ([377833f](https://github.com/hyeoniverse/web-portfolio-oval/commit/377833fc590f59932dcc51ff1ab31849d589d57a))
+* **navigation:** mobile menu 풀로고 + 이메일 water-fill + active 매칭 수정 ([2ba451b](https://github.com/hyeoniverse/web-portfolio-oval/commit/2ba451bdc66bba737514a784356c7160b2dc30d1))
+* **navigation:** 이메일 water-fill 글자 안쪽으로 + 다중 물결 layer ([7327cfb](https://github.com/hyeoniverse/web-portfolio-oval/commit/7327cfb840777bc91006f4afe86288d7ae2c502d))
+* **navigation:** 이메일 water-fill 출렁임 진폭·속도 크게 ([12fb07f](https://github.com/hyeoniverse/web-portfolio-oval/commit/12fb07f8fee1b047c34258e8b3907de856805ec3))
+* **navigation:** 짧은 로고 확실히 숨김 + 수위 35% 로 출렁임 가시화 ([739f4ce](https://github.com/hyeoniverse/web-portfolio-oval/commit/739f4cea1255d8775d18c0567bc4882c7779791e))
+* **nav:** indicator hover transition 복원 — ResizeObserver useEffect dep 제거 ([bd3e734](https://github.com/hyeoniverse/web-portfolio-oval/commit/bd3e73422d73e5bcb16ebbc618f6e8bcbb57d548))
+* **nav:** navIndicator 이동 모션 복원 — global theme transition 회피 ([9bd5689](https://github.com/hyeoniverse/web-portfolio-oval/commit/9bd5689ef54b6a4ccd41c42d3022f67375b00c9d))
+
 ## [1.1.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.0.0...v1.1.0) (2026-05-13)
 
 
