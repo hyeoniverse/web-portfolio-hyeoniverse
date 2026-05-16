@@ -1906,7 +1906,7 @@ function CategoryDonut({
     : (language === "ko" ? "조회" : "views");
 
   return (
-    <Panel variant="grid" className={styles.donutGrid}>
+    <Panel variant="grid">
       <svg
         viewBox="0 0 140 140"
         className={styles.donutSvg}
