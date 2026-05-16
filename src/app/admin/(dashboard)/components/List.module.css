@@ -10,11 +10,8 @@
   flex-direction: column;
   gap: 0;
   list-style: none;
+  padding: 0;
   margin: 0;
-  /* horizontal padding 은 list 단에서 처리 — item 의 border-bottom 이 padding 내부에서 그려져
-     visual inset 효과 + item 자체는 padding-inline 0 으로 단순화 */
-  padding-block: 0;
-  padding-inline: var(--spacing-md);
   /* parent panel/section 가 height 정해주면 item 들 균등 분할용 (donutLegend 등). 기본은 content-fit. */
   height: 100%;
 }
