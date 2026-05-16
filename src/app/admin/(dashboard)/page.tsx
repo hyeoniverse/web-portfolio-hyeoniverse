@@ -8,6 +8,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import CloseIcon from "@/components/ui/CloseIcon";
+import CloseButton from "@/components/ui/CloseButton";
 import Tooltip from "@/components/ui/Tooltip";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
@@ -2006,18 +2007,15 @@ function CategoryDonut({
       </List>
     {expandedCat && (
       <Panel style={{ gridColumn: "1 / -1", borderTop: "var(--border-light)" }}>
-        <h2 className={styles.panelTitle}>
-          {language === "ko" ? `${expandedCat} 게시물` : `${expandedCat} posts`}
-        </h2>
-        <button
-          type="button"
-          className={styles.categoryPostsClose}
-          onClick={() => { setExpandedCat(null); setExpandedPosts([]); }}
-          aria-label={language === "ko" ? "닫기" : "Close"}
-          data-close-trigger
-        >
-          <CloseIcon />
-        </button>
+        <header className={styles.panelHeader}>
+          <h2 className={styles.panelTitle}>
+            {language === "ko" ? `${expandedCat} 게시물` : `${expandedCat} posts`}
+          </h2>
+          <CloseButton
+            onClick={() => { setExpandedCat(null); setExpandedPosts([]); }}
+            ariaLabel={language === "ko" ? "닫기" : "Close"}
+          />
+        </header>
         {loadingPosts ? (
           <p className={styles.muted}>{language === "ko" ? "불러오는 중..." : "Loading..."}</p>
         ) : expandedPosts.length === 0 ? (
