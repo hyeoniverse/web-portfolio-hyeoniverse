@@ -1267,17 +1267,6 @@ a.statCard:hover .statValue {
   letter-spacing: 0.06em;
 }
 
-.donutLegend {
-  composes: list from "./components/List.module.css";
-  flex: 1;
-  min-width: 140px;
-  /* donutSvg 와 동일 높이 강제 + grid 로 행 균등 분할 (flex: 1 보다 안정적).
-     grid-auto-rows: 1fr 가 모든 item row 를 동일 높이로 강제 → 마지막 item 도 정확히 1/N 높이 */
-  height: 140px;
-  display: grid;
-  grid-auto-rows: 1fr;
-}
-
 .donutLegendItem {
   composes: item from "./components/Panel.module.css";
   display: flex;
@@ -1415,11 +1404,6 @@ a.statCard:hover .statValue {
    compound (0,2,0) 로 global theme transition (0,1,1) 이 padding-left transition 무력화하는 것 우회 */
 .donutLegendItemExpanded {
   background: var(--bg-tertiary);
-  padding-left: var(--spacing-xs);
-}
-
-.donutLegend .donutLegendItem {
-  transition: background-color 0.15s ease, padding-left 0.2s var(--ease-material);
 }
 
 
