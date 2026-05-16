@@ -36,21 +36,7 @@
 .container > section:nth-of-type(8) { animation-delay: 420ms; }
 .container > section:nth-of-type(9) { animation-delay: 480ms; }
 
-/* Panel sub-header — twoCol pair 안의 panel 타이틀. sectionTitle 보다 한 단계 작고 약함.
-   horizontal inset 없음 — Panel 의 full width 까지 spread */
-.panelTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-tertiary);
-  margin: 0;
-  /* padding-top 만 — 아래는 다음 item 의 padding-top 이 책임 (중복 spacing 방지) */
-  padding-top: var(--spacing-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-/* Panel header row — h2.panelTitle + action (close button 등) 묶는 flex wrapper */
+/* Panel header row — PanelTitle + action (close button 등) 묶는 flex wrapper */
 .panelHeader {
   display: flex;
   align-items: center;
