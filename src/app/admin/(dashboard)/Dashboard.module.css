@@ -2146,11 +2146,6 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
   color: var(--text-tertiary);
 }
 
-.deviceDrillClose {
-  composes: iconBtn iconBtnSm;
-  --close-size: 12px;
-}
-
 .deviceDrillEmpty {
   margin: 0;
   font-size: var(--font-size-xs);
