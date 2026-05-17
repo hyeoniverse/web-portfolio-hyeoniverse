@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { ChevronRight, Plus, Star, Eye } from "lucide-react";
 import CloseIcon from "@/components/ui/CloseIcon";
+import CloseButton from "@/components/ui/CloseButton";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -1329,16 +1330,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     >
                       <Eye size={12} strokeWidth={2} />
                     </button>
-                    <button
-                      type="button"
+                    <CloseButton
                       className={`${styles.galleryActionBtn} ${styles.galleryActionDanger}`}
                       onClick={() => removeGalleryItem(i)}
                       title={tw("remove")}
-                      aria-label={tw("remove")}
-                      data-close-trigger
-                    >
-                      <CloseIcon />
-                    </button>
+                      ariaLabel={tw("remove")}
+                    />
                   </div>
                 </div>
               );

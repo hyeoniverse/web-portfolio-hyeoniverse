@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useModalStore } from "@/stores/modalStore";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./Modal.module.css";
-import CloseIcon from "./CloseIcon";
+import CloseButton from "./CloseButton";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSoundManager } from "@/hooks/useSoundManager";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -251,14 +251,11 @@ export default function Modal() {
             )}
 
             {closeButton && (
-              <button
+              <CloseButton
                 className={styles.closeButton}
                 onClick={() => handleClose(id)}
-                aria-label="닫기"
-                data-close-trigger
-              >
-                <CloseIcon />
-              </button>
+                ariaLabel="닫기"
+              />
             )}
             <div className={styles.modalScroll}>
               {content}

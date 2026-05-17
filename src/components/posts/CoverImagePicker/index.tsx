@@ -8,7 +8,7 @@ import UnsplashTab from "./UnsplashTab";
 import AIGenerateTab from "./AIGenerateTab";
 import HistoryTab from "./HistoryTab";
 import { useHistory, type HistorySource } from "./useHistory";
-import CloseIcon from "@/components/ui/CloseIcon";
+import CloseButton from "@/components/ui/CloseButton";
 import Tooltip from "@/components/ui/Tooltip";
 import styles from "./CoverImagePicker.module.css";
 
@@ -91,9 +91,7 @@ export default function CoverImagePicker({
           {history.length > 0 && <span className={styles.tabCount}>{history.length}</span>}
         </button>
         <Tooltip content={tc("close")} placement="bottom">
-          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label={tc("close")} data-close-trigger>
-            <CloseIcon />
-          </button>
+          <CloseButton className={styles.closeBtn} onClick={onClose} ariaLabel={tc("close")} />
         </Tooltip>
       </div>
 

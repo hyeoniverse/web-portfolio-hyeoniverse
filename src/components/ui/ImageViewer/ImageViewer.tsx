@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { HelpCircle, MoreVertical, RotateCcw } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
-import CloseIcon from "@/components/ui/CloseIcon";
+import CloseButton from "@/components/ui/CloseButton";
 import Tooltip from "@/components/ui/Tooltip";
 import { Switch } from "@/components/ui/Switch";
 import {
@@ -686,9 +686,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                   </AnimatePresence>
                 </span>
                 <Tooltip content="Close  Esc" placement="bottom">
-                  <button type="button" className={`${styles.actionBtn} ${styles.closeBtnAction}`} onClick={(e) => { e.stopPropagation(); handleClose(); }} aria-label="Close" data-close-trigger>
-                    <CloseIcon />
-                  </button>
+                  <CloseButton className={`${styles.actionBtn} ${styles.closeBtnAction}`} onClick={(e) => { e.stopPropagation(); handleClose(); }} ariaLabel="Close" />
                 </Tooltip>
               </motion.span>
             </div>
