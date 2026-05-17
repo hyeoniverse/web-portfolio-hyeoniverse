@@ -16,10 +16,12 @@
   height: 100%;
 }
 
-/* base item — vertical padding + hairline divider. horizontal spacing 은 parent .list 가 처리.
-   layout variant 가 display 결정. */
+/* base item — vertical padding + hairline divider.
+   horizontal padding 은 cascade var (외부에서 --_item-inline-start/end 설정 가능). */
 .item {
   padding-block: var(--spacing-xs);
+  padding-inline-start: var(--_item-inline-start, 0);
+  padding-inline-end: var(--_item-inline-end, 0);
   border-bottom: var(--border-light);
   /* flex/grid 자식 으로서 shrink 허용 */
   min-width: 0;

@@ -17,6 +17,8 @@ type Props = ComponentPropsWithoutRef<"div"> & {
   align?: "start" | "center" | "end" | "baseline" | "stretch";
   /** child 들 사이 hairline divider — n+2 border-top, n+3 border-left (3-col grid 가정) */
   divided?: boolean;
+  /** 2-col grid 의 odd/even item 에 cascade var 자동 — 좌측 right padding, 우측 left padding */
+  insetItems?: boolean;
   ref?: Ref<HTMLDivElement>;
 };
 
@@ -31,6 +33,7 @@ export default function Panel({
   gap,
   align,
   divided,
+  insetItems,
   className,
   children,
   style,
@@ -39,6 +42,7 @@ export default function Panel({
 }: Props) {
   const baseClass = variant === "grid" ? styles.panelGrid : styles.panelFlex;
   const dividedClass = divided ? styles.divided : undefined;
+  const insetClass = insetItems ? styles.insetItems : undefined;
 
   const variantStyle: CSSProperties = {};
   if (variant === "flex" && direction === "horizontal") {
@@ -53,7 +57,7 @@ export default function Panel({
   return (
     <div
       ref={ref}
-      className={cn(baseClass, dividedClass, className)}
+      className={cn(baseClass, dividedClass, insetClass, className)}
       style={{ ...variantStyle, ...style }}
       {...rest}
     >
