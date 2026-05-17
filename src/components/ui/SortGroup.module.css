@@ -1,0 +1,57 @@
+/* posts main sort / series sort 와 동일 — capsule wrapper, border default */
+.group {
+  display: inline-flex;
+  border-radius: var(--radius-capsule);
+  border: var(--border-default);
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--box-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.btn:hover {
+  color: var(--text-primary);
+}
+
+/* active & indicator 가 그 위에 있을 때 — text-inverse (compound 0,2,0 으로 .btn (0,1,0) override) */
+.btn.btnActiveOver {
+  color: var(--text-inverse);
+}
+
+/* framer-motion indicator — hover 시 bg-tertiary-alt, active 시 bg-inverse */
+.indicator {
+  position: absolute;
+  inset: 2px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary-alt);
+  z-index: 0;
+}
+
+.indicatorActive {
+  background: var(--bg-inverse);
+}
+
+.btnText {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+}
+
+.dirIcon {
+  flex-shrink: 0;
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
