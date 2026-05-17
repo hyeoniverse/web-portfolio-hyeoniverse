@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.3.0...v1.4.0) (2026-05-17)
+
+
+### Features
+
+* **about/troubleshooting:** PC IDE workspace + dot nav redesign ([884b22b](https://github.com/hyeoniverse/web-portfolio-oval/commit/884b22ba1d048adf4913cbcfe18f5d955e4bf15d))
+* **posts:** /posts/tags/[tag] 라우트 + 태그/카테고리 설명 + PostEditor combobox ([48fa131](https://github.com/hyeoniverse/web-portfolio-oval/commit/48fa13108e60c38851732c736052f34f0583e79d))
+* **ui:** Select combobox 모드 + SortGroup 공통 컴포넌트 ([8595934](https://github.com/hyeoniverse/web-portfolio-oval/commit/85959347a644b43d91eb3fc8e26a3747da1a5d3d))
+
 ## [1.3.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.2.0...v1.3.0) (2026-05-16)
 
 
