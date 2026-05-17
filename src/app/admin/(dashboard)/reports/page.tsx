@@ -10,6 +10,7 @@ import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import Button from "@/components/ui/Button";
 import { SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
+import SortGroup from "@/components/ui/SortGroup";
 import styles from "./Reports.module.css";
 
 interface Report {
@@ -156,18 +157,16 @@ export default function ReportsPage() {
             <span className={styles.badge}>{pendingCount}</span>
           )}
         </h1>
-        <div className={styles.filterTabs}>
-          {(["pending", "resolved", "dismissed", "all"] as const).map((f) => (
-            <button
-              key={f}
-              type="button"
-              className={`${styles.filterTab} ${filter === f ? styles.filterTabActive : ""}`}
-              onClick={() => setFilter(f)}
-            >
-              <T k={`admin.reports.filter.${f}`} />
-            </button>
-          ))}
-        </div>
+        <SortGroup<StatusFilter>
+          items={[
+            { value: "pending", label: <T k="admin.reports.filter.pending" /> },
+            { value: "resolved", label: <T k="admin.reports.filter.resolved" /> },
+            { value: "dismissed", label: <T k="admin.reports.filter.dismissed" /> },
+            { value: "all", label: <T k="admin.reports.filter.all" /> },
+          ]}
+          value={filter}
+          onChange={setFilter}
+        />
       </motion.div>
 
       {loading ? (

@@ -4,6 +4,8 @@ import type { Language } from "@/providers/LanguageProvider";
 export interface BilingualCategory {
   ko: string;
   en: string;
+  /** 카테고리 설명 (선택) — list/hero 등에 표시 */
+  description?: string;
 }
 
 /** 한국어/영어 이중언어 텍스트 */

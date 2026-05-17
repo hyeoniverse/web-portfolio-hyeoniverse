@@ -39,7 +39,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useTagInput } from "@/hooks/useTagInput";
 import { usePostSeries } from "@/hooks/usePostSeries";
-import TagsList from "./TagsList";
+import TagsList from "@/components/ui/TagsList";
 import ShortcutsModalContent from "./ShortcutsModal";
 import styles from "./PostEditor.module.css";
 import "./PostEditor.global.css";
@@ -441,6 +441,14 @@ export default function PostEditor({ post }: PostEditorProps) {
   );
 
   const tag = useTagInput(form.tags, (tags) => updateField("tags", tags));
+  // 기존 태그 autocomplete suggestions — 모든 post 의 distinct tag
+  const [allTagSuggestions, setAllTagSuggestions] = useState<string[]>([]);
+  useEffect(() => {
+    fetch("/api/admin/tags")
+      .then((r) => (r.ok ? r.json() : { tags: [] }))
+      .then((d) => setAllTagSuggestions(d.tags ?? []))
+      .catch(() => setAllTagSuggestions([]));
+  }, []);
 
   const { seriesList, seriesPosts, setSeriesPosts, seriesPostsLoading, refetchSeries } = usePostSeries(
     form.series_id,
@@ -1346,8 +1354,19 @@ export default function PostEditor({ post }: PostEditorProps) {
                   <label className={es.fieldLabel}>{te("tags")}</label>
                   <div>
                     <div className={styles.tagInputRow}>
-                      <input className={es.fieldInput} type="text" value={tag.input} onChange={(e) => tag.setInput(e.target.value)} onKeyDown={tag.handleKeyDown} placeholder={te("tagsPlaceholder")} />
-                      <button type="button" className={styles.tagAddBtn} onClick={tag.add} disabled={!tag.input.trim()}>+</button>
+                      <Select
+                        combobox
+                        value=""
+                        onChange={() => {}}
+                        inputValue={tag.input}
+                        onInputChange={tag.setInput}
+                        onAdd={(v) => tag.add(v)}
+                        options={allTagSuggestions
+                          .filter((t) => !form.tags.includes(t))
+                          .map((t) => ({ value: t, label: t }))}
+                        placeholder={te("tagsPlaceholder")}
+                      />
+                      <button type="button" className={styles.tagAddBtn} onClick={() => tag.add()} disabled={!tag.input.trim()}>+</button>
                     </div>
                     {form.tags.length > 0 && <TagsList tags={form.tags} onRemove={tag.remove} />}
                   </div>

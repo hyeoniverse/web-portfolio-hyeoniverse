@@ -538,3 +538,58 @@
     -webkit-line-clamp: 2;
   }
 }
+
+/* ── Tags row — 1줄 default (max-height 으로 clip), expand 시 wrap ── */
+.tagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-xs);
+  max-height: 24px;
+  overflow: hidden;
+}
+
+.tagsRow.tagsRowExpanded {
+  max-height: none;
+}
+
+.tagPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tagPill:hover {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+.tagsToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tagsToggle:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
