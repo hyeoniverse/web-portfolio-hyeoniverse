@@ -69,9 +69,37 @@
   border-left: var(--border-light);
 }
 
+/* insetItems — 2-col grid 의 odd/even item 에 cascade var (padding) + cell 사이 hairline.
+   column-gap + row-gap + bg trick — gap 1px 안에 border-color background 보임 = hairline.
+   background-clip: padding-box — bg (alpha-30) 가 section divider 의 border-top (alpha-30) 영역
+   까지 깔리면 합성돼 alpha 0.51 로 진해짐. padding-box 로 border 영역 제외 (gap 영역엔 그대로 노출). */
+.insetItems {
+  column-gap: 1px;
+  row-gap: 1px;
+  background: var(--border-light-color);
+  background-clip: padding-box;
+}
+.insetItems > * {
+  background: var(--bg-primary);
+}
+.insetItems > :nth-child(odd) {
+  --_item-inline-end: var(--spacing-md);
+}
+.insetItems > :nth-child(even) {
+  --_item-inline-start: var(--spacing-md);
+}
+
 /* ── Item — direct child of .panel. block default + inline children 자연 wrap.
-   구체 layout (flex/grid) 이 필요한 Item 은 자체 className 으로 display override ── */
+   구체 layout (flex/grid) 이 필요한 Item 은 자체 className 으로 display override.
+   horizontal padding 은 cascade var (외부에서 --_item-inline-start/end 설정 가능). */
 .item {
   padding-block: var(--spacing-xs);
+  padding-inline-start: var(--_item-inline-start, 0);
+  padding-inline-end: var(--_item-inline-end, 0);
   min-width: 0;
+}
+
+/* flush — vertical padding 제거 (Item flush prop) */
+.itemFlush {
+  padding-block: 0;
 }
