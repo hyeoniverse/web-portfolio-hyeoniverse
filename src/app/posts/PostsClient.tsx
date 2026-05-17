@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import type { Post, Series } from "@/types/post";
@@ -12,6 +13,7 @@ import PostsBanner from "./_components/PostsBanner/PostsBanner";
 import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import SortGroup from "@/components/ui/SortGroup";
 import { ChevronDown, ChevronUp, BookOpen, LayoutGrid, ArrowUp, Shuffle } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -150,7 +152,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState<"all" | "title" | "content">("all");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  // URL query (?tag=xxx) 도착 시 초기값 sync — 일반 진입 케이스
+  const urlSearchParams = useSearchParams();
+  const [activeTag, setActiveTag] = useState<string | null>(() => urlSearchParams?.get("tag") ?? null);
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
   const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random">("date");
@@ -176,7 +180,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [seriesLoading, setSeriesLoading] = useState(false);
   const [seriesSortBy, setSeriesSortBy] = useState<"default" | "newest" | "title">("default");
   const [seriesSortDir, setSeriesSortDir] = useState<"asc" | "desc">("asc");
-  const [hoveredSeriesSort, setHoveredSeriesSort] = useState<string | null>(null);
   const seriesPerPage = initialData.seriesPerPage;
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
@@ -819,46 +822,17 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 {activeCategory && (
                   <span className={styles.seriesCategoryTag}>{activeCategory}</span>
                 )}
-                <div className={styles.seriesSortGroup} onMouseLeave={() => setHoveredSeriesSort(null)}>
-                  {([
-                    { value: "default" as const, label: t("postsPage.seriesSortDefault") },
-                    { value: "newest" as const, label: t("postsPage.seriesSortNewest") },
-                    { value: "title" as const, label: t("postsPage.seriesSortTitle") },
-                  ]).map((opt) => {
-                    const indicatorTarget = hoveredSeriesSort ?? seriesSortBy;
-                    const showIndicator = opt.value === indicatorTarget;
-                    const isActive = opt.value === seriesSortBy;
-                    const showArrow = isActive;
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        className={`${styles.seriesSortBtn} ${isActive && showIndicator ? styles.seriesSortBtnActive : ""}`}
-                        onClick={() => handleSeriesSortClick(opt.value)}
-                        onMouseEnter={() => setHoveredSeriesSort(opt.value)}
-                        data-clickable="true"
-                      >
-                        {showIndicator && (
-                          <motion.span
-                            className={`${styles.seriesSortIndicator} ${isActive ? styles.seriesSortIndicatorActive : ""}`}
-                            layoutId="seriesSortIndicator"
-                            transition={{ type: "spring", stiffness: 500, damping: 32 }}
-                          />
-                        )}
-                        <span className={styles.seriesSortBtnText}>
-                          {opt.label}
-                          {showArrow && (
-                            <ArrowUp
-                              size={10}
-                              className={styles.seriesSortDirIcon}
-                              style={{ transform: seriesSortDir === "desc" ? "rotate(180deg)" : "rotate(0deg)" }}
-                            />
-                          )}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <SortGroup
+                  className={styles.seriesSortAlignEnd}
+                  items={[
+                    { value: "default", label: t("postsPage.seriesSortDefault") },
+                    { value: "newest", label: t("postsPage.seriesSortNewest") },
+                    { value: "title", label: t("postsPage.seriesSortTitle") },
+                  ]}
+                  value={seriesSortBy}
+                  onChange={(v) => handleSeriesSortClick(v as typeof seriesSortBy)}
+                  sortDir={seriesSortDir}
+                />
               </div>
               {seriesList.length > 0 ? (
                 <div

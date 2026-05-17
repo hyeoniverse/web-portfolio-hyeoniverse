@@ -216,30 +216,42 @@
 }
 
 /* Tag input row */
+/* Select + button capsule group — 외부 wrapper 가 border + capsule, 내부는 border 제거 */
 .tagInputRow {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  align-items: stretch;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
 }
 
 .tagInputRow input {
   flex: 1;
 }
 
+/* Select trigger 의 border 제거 (group 안) */
+.tagInputRow > div > button,
+.tagInputRow > div > input {
+  border: none;
+  border-radius: 0;
+}
+
 .tagAddBtn {
-  width: var(--button-h-md);
-  height: var(--button-h-md);
+  padding: var(--input-p);
+  aspect-ratio: 1 / 1;
   flex-shrink: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
+  border: none;
+  border-left: var(--border-light);
+  border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-md);
   color: var(--text-secondary);
   line-height: 1;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .tagInputRow .tagAddBtn:hover:not(:disabled) {

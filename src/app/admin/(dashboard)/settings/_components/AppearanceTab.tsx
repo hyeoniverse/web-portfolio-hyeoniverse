@@ -9,6 +9,7 @@ import type { SettingsTabProps } from "../_types";
 import { ColorField } from "./SettingsFormFields";
 import FontSelect from "./FontSelect";
 import SectionHeader from "./SectionHeader";
+import SortGroup from "@/components/ui/SortGroup";
 import { THEME_PRESETS } from "../_data/settingsConstants";
 import styles from "../Settings.module.css";
 
@@ -99,18 +100,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
       {/* Date Picker Style */}
       <section className={styles.section}>
         <SectionHeader title={t("admin.settings.datePickerStyle")} paths={["datePickerStyle"]} {...sh} />
-        <div className={styles.formatSegmentRow}>
-          {(["spinner", "calendar"] as const).map((style) => (
-            <button
-              key={style}
-              type="button"
-              className={`${styles.formatSegmentBtn} ${config.datePickerStyle === style ? styles.formatSegmentBtnActive : ""}`}
-              onClick={() => setConfig((prev) => ({ ...prev, datePickerStyle: style }))}
-            >
-              <T k={`admin.settings.datePicker${style.charAt(0).toUpperCase()}${style.slice(1)}`} />
-            </button>
-          ))}
-        </div>
+        <SortGroup<"spinner" | "calendar">
+          items={[
+            { value: "spinner", label: <T k="admin.settings.datePickerSpinner" /> },
+            { value: "calendar", label: <T k="admin.settings.datePickerCalendar" /> },
+          ]}
+          value={config.datePickerStyle as "spinner" | "calendar"}
+          onChange={(v) => setConfig((prev) => ({ ...prev, datePickerStyle: v }))}
+        />
       </section>
 
       {/* Typography */}

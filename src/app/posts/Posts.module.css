@@ -453,57 +453,15 @@
   color: var(--text-secondary);
 }
 
-/* 시리즈 정렬 버튼 그룹 — `.sortGroup` 과 동일한 pill 스타일, label 우측 */
-.seriesSortGroup {
-  display: inline-flex;
-  border-radius: var(--radius-capsule);
-  border: var(--border-default);
-  margin-left: auto;
-}
-
-.seriesSortBtn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--box-sm);
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.seriesSortBtnActive {
-  color: var(--text-inverse);
-}
-
-.seriesSortIndicator {
-  position: absolute;
-  inset: 2px;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary-alt);
-}
-
-.seriesSortIndicatorActive {
-  background: var(--bg-inverse);
-}
-
-.seriesSortBtnText {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-}
-
-.seriesSortDirIcon,
 .sortDirIcon {
   flex-shrink: 0;
   /* 방향 전환 시 부드러운 회전 애니메이션 */
   transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* series sort 는 seriesLabel flex row 의 우측 끝으로 push */
+.seriesSortAlignEnd {
+  margin-left: auto;
 }
 
 /* 책 표지를 가로로 나열 — 좌우 끝에 mask gradient 로 스크롤 가능 표시.

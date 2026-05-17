@@ -39,35 +39,6 @@
   color: var(--text-white);
 }
 
-.filterTabs {
-  display: flex;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-}
-
-.filterTab {
-  padding: var(--box-2xs-md);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color 0.18s ease, color 0.18s ease;
-}
-
-.filterTab:hover {
-  color: var(--text-primary);
-}
-
-.filterTabActive {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
 .empty {
   padding: var(--spacing-4xl);
   text-align: center;

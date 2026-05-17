@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
 import { Upload, Plus } from "lucide-react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
@@ -377,10 +377,10 @@ export default function ContentTab({
 
       {contentSubTab === "posts" && (
         <>
-          {/* Banner Settings */}
-          <section className={`${styles.section} ${styles.sectionWide}`}>
+          {/* Banner Settings — 내부 3-col */}
+          <section className={styles.section}>
             <SectionHeader title={t("admin.settings.banner")} paths={["posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]} {...sh} />
-            <div className={styles.fields}>
+            <div className={`${styles.fields} ${styles.fieldsGrid3}`}>
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.bannerLayout" /></label>
                 <Select
@@ -421,13 +421,14 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* Pagination */}
+          {/* Pagination — 내부 2-col */}
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.pagination")} paths={["posts.perPage", "posts.adminPerPage"]} {...sh} />
-            <div className={styles.fields}>
+            <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.postsPerPage" /></label>
                 <Select
+                  className={styles.fitSelect}
                   value={String(config.posts.perPage ?? 10)}
                   options={[
                     { value: "10", label: "10" },
@@ -441,6 +442,7 @@ export default function ContentTab({
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.adminPerPage" /></label>
                 <Select
+                  className={styles.fitSelect}
                   value={String(config.posts.adminPerPage ?? 20)}
                   options={[
                     { value: "10", label: "10" },
@@ -454,6 +456,15 @@ export default function ContentTab({
             </div>
           </section>
 
+          {/* 태그 — 모든 게시물의 태그 목록 + 각 설명. /posts/tags/[tag] hero 에 표시 */}
+          <section className={styles.section}>
+            <SectionHeader title="태그" paths={["tagDescriptions"]} {...sh} />
+            <p className={styles.sectionHint}>모든 게시물에 사용된 태그 목록 + 각 태그별 설명. 설명은 /posts/tags/[tag] 페이지 hero 에 표시.</p>
+            <TagDescriptionsEditor
+              value={config.tagDescriptions ?? {}}
+              onChange={(v) => setConfig((prev) => ({ ...prev, tagDescriptions: v }))}
+            />
+          </section>
 
           {/* Post Categories */}
           <section className={styles.section}>
@@ -505,6 +516,7 @@ export default function ContentTab({
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.adminPerPage" /></label>
                 <Select
+                  className={styles.fitSelect}
                   value={String(config.works.adminPerPage ?? 20)}
                   options={[
                     { value: "10", label: "10" },
@@ -604,9 +616,104 @@ export default function ContentTab({
               </div>
             </div>
           </section>
+
         </>
       )}
     </>
+  );
+}
+
+/* ── Tag Descriptions KV editor — 모든 post 의 tag (derived) + custom tag 각각 description 편집 ── */
+function TagDescriptionsEditor({ value, onChange }: { value: Record<string, string>; onChange: (v: Record<string, string>) => void }) {
+  const [postTags, setPostTags] = useState<string[]>([]);
+
+  // mount 시 post-derived tag 목록 fetch
+  useEffect(() => {
+    fetch("/api/admin/tags")
+      .then((r) => r.ok ? r.json() : { tags: [] })
+      .then((d) => setPostTags(d.tags ?? []))
+      .catch(() => setPostTags([]));
+  }, []);
+
+  // 모든 tag = post-derived ∪ tagDescriptions 의 key (custom)
+  const allTags = useMemo(() => {
+    const set = new Set<string>([...postTags, ...Object.keys(value)]);
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "ko"));
+  }, [postTags, value]);
+
+  const postTagSet = useMemo(() => new Set(postTags), [postTags]);
+
+  const updateDescription = (tag: string, description: string) => {
+    const next = { ...value };
+    if (description.trim()) next[tag] = description;
+    else delete next[tag];
+    onChange(next);
+  };
+
+  const removeCustomTag = (tag: string) => {
+    const next = { ...value };
+    delete next[tag];
+    onChange(next);
+  };
+
+  const [newTag, setNewTag] = useState("");
+  const addCustomTag = () => {
+    const t = newTag.trim();
+    if (!t || allTags.includes(t)) return;
+    onChange({ ...value, [t]: "" });
+    setNewTag("");
+  };
+
+  return (
+    <div className={styles.tagDescEditor}>
+      {allTags.map((tag) => {
+        const fromPost = postTagSet.has(tag);
+        return (
+          <div key={tag} className={styles.tagDescRow}>
+            <span className={styles.catDescLabel} title={fromPost ? "게시물에서 사용 중" : "커스텀 태그"}>
+              #{tag}
+              {!fromPost && <em style={{ marginLeft: 4, opacity: 0.6, fontStyle: "normal" }}>(custom)</em>}
+            </span>
+            <input
+              className={styles.fieldInput}
+              placeholder="설명"
+              value={value[tag] ?? ""}
+              onChange={(e) => updateDescription(tag, e.target.value)}
+              style={{ flex: 1 }}
+            />
+            {!fromPost && (
+              <Button
+                variant="outline"
+                shape="circle"
+                size="xs"
+                onClick={() => removeCustomTag(tag)}
+                aria-label="삭제"
+                icon={<span aria-hidden>×</span>}
+              />
+            )}
+          </div>
+        );
+      })}
+      <div className={styles.tagDescRow}>
+        <input
+          className={styles.fieldInput}
+          placeholder="새 태그 이름"
+          value={newTag}
+          onChange={(e) => setNewTag(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomTag(); } }}
+          style={{ flex: "0 0 200px" }}
+        />
+        <Button
+          variant="outline"
+          size="xs"
+          onClick={addCustomTag}
+          disabled={!newTag.trim() || allTags.includes(newTag.trim())}
+          icon={<Plus size={12} strokeWidth={2} />}
+        >
+          태그 추가
+        </Button>
+      </div>
+    </div>
   );
 }
 

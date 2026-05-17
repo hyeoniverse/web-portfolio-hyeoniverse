@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Post, Series } from "@/types/post";
 import { fetchUnsplashCover } from "@/lib/unsplash";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 
 const POSTS_PER_PAGE = 12;
 const SERIES_PER_PAGE = 12;
@@ -168,6 +169,61 @@ export async function getInitialPostsData() {
 }
 
 export type InitialPostsData = Awaited<ReturnType<typeof getInitialPostsData>>;
+
+/** Tag 페이지용 — tag 로 필터된 첫 페이지 posts + count + 관련 tags (co-occurrence) */
+const TAG_PER_PAGE_DEFAULT = 10;
+export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE_DEFAULT) {
+  const admin = createAdminClient();
+  const cfg = await getSiteConfig();
+  const description = cfg.tagDescriptions?.[tag] ?? "";
+
+  const [postsResult, allTaggedResult] = await Promise.all([
+    // tag 가 포함된 첫 페이지 posts (count 포함)
+    admin
+      .from("posts")
+      .select("*, series:series_id(title, title_en)", { count: "exact" })
+      .eq("published", true)
+      .contains("tags", [tag])
+      .order("created_at", { ascending: false })
+      .range(0, perPage - 1),
+    // co-occurrence — tag 포함 posts 의 모든 tags
+    admin
+      .from("posts")
+      .select("tags")
+      .eq("published", true)
+      .contains("tags", [tag])
+      .limit(500),
+  ]);
+
+  const posts = (postsResult.data ?? []) as Post[];
+  const totalCount = postsResult.count ?? 0;
+  const totalPages = Math.ceil(totalCount / perPage);
+
+  // 관련 tag — 이 tag 와 함께 등장한 다른 tag 들 (count 순)
+  const relatedCounts = new Map<string, number>();
+  for (const row of (allTaggedResult.data ?? []) as Pick<Post, "tags">[]) {
+    if (!row.tags) continue;
+    for (const t of row.tags) {
+      if (t === tag) continue;
+      relatedCounts.set(t, (relatedCounts.get(t) ?? 0) + 1);
+    }
+  }
+  const relatedTags = Array.from(relatedCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12)
+    .map(([t, count]) => ({ tag: t, count }));
+
+  return {
+    posts,
+    totalCount,
+    totalPages,
+    relatedTags,
+    perPage,
+    description,
+  };
+}
+
+export type TagPageData = Awaited<ReturnType<typeof getTagPageData>>;
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   const admin = createAdminClient();
