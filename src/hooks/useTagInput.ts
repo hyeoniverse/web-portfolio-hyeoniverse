@@ -6,8 +6,8 @@ export function useTagInput(
 ) {
   const [input, setInput] = useState("");
 
-  const add = useCallback(() => {
-    const tag = input.trim().replace(/,/g, "");
+  const add = useCallback((override?: string) => {
+    const tag = (override ?? input).trim().replace(/,/g, "");
     if (tag && !currentTags.includes(tag)) {
       onUpdate([...currentTags, tag]);
     }

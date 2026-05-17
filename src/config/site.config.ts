@@ -271,14 +271,14 @@ export const siteConfig = {
     perPage: 10,
     adminPerPage: 20,
     categories: [
-      { ko: "프론트엔드", en: "Frontend" },
-      { ko: "백엔드", en: "Backend" },
-      { ko: "DevOps", en: "DevOps" },
-      { ko: "알고리즘", en: "Algorithm" },
-      { ko: "CS", en: "CS" },
-      { ko: "도구·생산성", en: "Tools & Productivity" },
-      { ko: "회고", en: "Retrospective" },
-      { ko: "일상", en: "Life" },
+      { ko: "프론트엔드", en: "Frontend", description: "" },
+      { ko: "백엔드", en: "Backend", description: "" },
+      { ko: "DevOps", en: "DevOps", description: "" },
+      { ko: "알고리즘", en: "Algorithm", description: "" },
+      { ko: "CS", en: "CS", description: "" },
+      { ko: "도구·생산성", en: "Tools & Productivity", description: "" },
+      { ko: "회고", en: "Retrospective", description: "" },
+      { ko: "일상", en: "Life", description: "" },
     ],
   },
 
@@ -289,13 +289,13 @@ export const siteConfig = {
     layout: "flow" as "flow" | "fullscreen" | "cinematic" | "grid" | "split" | "cylinder",
     adminPerPage: 20,
     categories: [
-      { ko: "웹", en: "Web" },
-      { ko: "모바일", en: "Mobile" },
-      { ko: "풀스택", en: "Full Stack" },
-      { ko: "오픈소스", en: "Open Source" },
-      { ko: "사이드 프로젝트", en: "Side Project" },
-      { ko: "클론", en: "Clone" },
-      { ko: "AI/ML", en: "AI/ML" },
+      { ko: "웹", en: "Web", description: "" },
+      { ko: "모바일", en: "Mobile", description: "" },
+      { ko: "풀스택", en: "Full Stack", description: "" },
+      { ko: "오픈소스", en: "Open Source", description: "" },
+      { ko: "사이드 프로젝트", en: "Side Project", description: "" },
+      { ko: "클론", en: "Clone", description: "" },
+      { ko: "AI/ML", en: "AI/ML", description: "" },
     ],
     infiniteScroll: true,
     introLabel: "Junior Frontend Developer",
@@ -455,6 +455,12 @@ export const siteConfig = {
   // DatePicker 스타일 ("spinner" | "calendar")
   // ---------------------------------------------------------------------------
   datePickerStyle: "spinner" as "spinner" | "calendar",
+
+  // ---------------------------------------------------------------------------
+  // Tag descriptions — /posts/tags/[tag] hero 에 표시 (선택, 빈 값이면 안 보임)
+  // key 는 tag name, value 는 설명 텍스트
+  // ---------------------------------------------------------------------------
+  tagDescriptions: {} as Record<string, string>,
 } as const;
 
 // 컴포넌트에서 사용하기 위한 타입 내보내기

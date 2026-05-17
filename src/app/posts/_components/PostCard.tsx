@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useLayoutEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -52,6 +53,22 @@ export default function PostCard({
   const { navigateWithTransition } = usePageTransition();
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
+  const [tagsExpanded, setTagsExpanded] = useState(false);
+  const [tagsOverflow, setTagsOverflow] = useState(false);
+  const tagsRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = tagsRef.current;
+    if (!el || tagsExpanded) return;
+    const check = () => {
+      // 자연 height 가 max-height (1줄) 보다 크면 overflow
+      setTagsOverflow(el.scrollHeight > el.clientHeight + 1);
+    };
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [post.tags, tagsExpanded]);
   const category = post.category || null;
   const prefetchedRef = useRef(false);
   /* hover 시 다음 페이지 chunk 를 미리 로딩 — 클릭 후 navigate 가 즉시 mount 되도록.
@@ -213,6 +230,31 @@ export default function PostCard({
         <h2 className={styles.title}>{displayTitle}</h2>
 
         <p className={styles.excerpt}>{displayExcerpt}</p>
+
+        {post.tags && post.tags.length > 0 && (
+          <div ref={tagsRef} className={`${styles.tagsRow} ${tagsExpanded ? styles.tagsRowExpanded : ""}`}>
+            {post.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/posts/tags/${encodeURIComponent(tag)}`}
+                className={styles.tagPill}
+                onClick={(e) => e.stopPropagation()}
+              >
+                #{tag}
+              </Link>
+            ))}
+            {(tagsOverflow || tagsExpanded) && (
+              <button
+                type="button"
+                className={styles.tagsToggle}
+                onClick={(e) => { e.stopPropagation(); setTagsExpanded((v) => !v); }}
+                aria-label={tagsExpanded ? "접기" : "더보기"}
+              >
+                {tagsExpanded ? "<" : ">"}
+              </button>
+            )}
+          </div>
+        )}
 
         <div className={styles.meta}>
           <span className={styles.metaGroup}>

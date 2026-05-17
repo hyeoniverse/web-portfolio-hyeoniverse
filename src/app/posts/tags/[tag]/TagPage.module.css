@@ -1,0 +1,195 @@
+.container {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+}
+
+/* ── Hero ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-3xl);
+  padding-bottom: var(--spacing-2xl);
+  border-bottom: var(--border-light);
+  margin-bottom: var(--spacing-2xl);
+}
+
+/* Top row — TAG badge 좌측, toolbar (sort + select) 우측 */
+.heroTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--spacing-sm);
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.heroTitle {
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1;
+}
+
+.heroDescription {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 60ch;
+  line-height: 1.6;
+}
+
+.heroMeta {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.heroMeta strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Toolbar — sort + perPage select 같은 row ── */
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+/* perPage Select — width fit-content + SortGroup btn 과 동일 padding/font (height 통일) */
+.perPageSelect {
+  flex: 0 0 auto;
+  width: auto;
+}
+.perPageSelect > button {
+  padding: var(--box-sm);
+  font-size: var(--font-size-2xs);
+}
+
+/* ── Grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  transition: opacity 0.18s ease;
+}
+
+.gridLoading { opacity: 0.5; }
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  margin-top: var(--spacing-2xl);
+}
+
+.pageBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.pageBtn:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong-color);
+}
+
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pageBtnActive {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  border-color: var(--bg-inverse);
+}
+
+.ellipsis {
+  padding: 0 var(--spacing-xs);
+  color: var(--text-tertiary);
+}
+
+/* ── Related tags — "관련 태그" label + pills 한 row ── */
+.relatedRow {
+  margin-top: var(--spacing-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.relatedLabel {
+  flex-shrink: 0;
+  padding-top: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.relatedTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
+.relatedTag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.relatedTag:hover {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+.relatedTagCount {
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}

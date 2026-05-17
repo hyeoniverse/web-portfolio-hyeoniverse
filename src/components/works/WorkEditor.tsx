@@ -1384,7 +1384,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             <button
               type="button"
               className={styles.techAddBtn}
-              onClick={tech.add}
+              onClick={() => tech.add()}
               disabled={!tech.input.trim()}
             >
               +

@@ -702,35 +702,6 @@
   border-color: var(--text-primary);
 }
 
-/* ── Segment Buttons (DatePicker Style 등) ── */
-.formatSegmentRow {
-  display: flex;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-  width: fit-content;
-}
-
-.formatSegmentBtn {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--button-p-sm);
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-
-.formatSegmentBtn + .formatSegmentBtn {
-  border-left: var(--border-light);
-}
-
-.formatSegmentBtnActive {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-}
-
 /* ── Theme Presets ── */
 .presetGrid {
   display: grid;
@@ -3580,4 +3551,78 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
+}
+
+/* ── Tag descriptions KV editor — responsive grid (최대 3열) ── */
+.tagDescEditor {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-xs) var(--spacing-md);
+}
+
+/* 큰 화면에서도 최대 3열만 */
+@media (min-width: 1200px) {
+  .tagDescEditor {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.tagDescRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+/* section fields 내부 grid utility — 2-col / 3-col */
+.fieldsGrid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+}
+
+.fieldsGrid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+  .fieldsGrid2,
+  .fieldsGrid3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 카테고리 설명 편집 list */
+.catDescList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  margin-block: var(--spacing-md);
+  padding-block: var(--spacing-sm);
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+.catDescRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.catDescLabel {
+  flex: 0 0 120px;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* Select width fit-content — pagination 처럼 짧은 값만 선택하는 경우 */
+.fitSelect {
+  flex: 0 0 auto;
+  width: auto;
+}
+.fitSelect > button {
+  width: auto;
 }
