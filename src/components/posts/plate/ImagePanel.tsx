@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ImageIcon } from "lucide-react";
-import CloseIcon from "@/components/ui/CloseIcon";
+import CloseButton from "@/components/ui/CloseButton";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -338,16 +338,12 @@ export function ImagePanel({
                   />
               }
               <span className={styles.imagePanelName}>{fileName}</span>
-              <button
-                type="button"
+              <CloseButton
                 className={styles.imagePanelRemove}
                 onClick={(e) => { e.stopPropagation(); if (isDetached) onRemoveDetached?.(img.url); else onRemove(img.path); }}
                 title={t("editor.imageRemove")}
-                aria-label={t("editor.imageRemove")}
-                data-close-trigger
-              >
-                <CloseIcon />
-              </button>
+                ariaLabel={t("editor.imageRemove")}
+              />
             </div>
           );
         };
