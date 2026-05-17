@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/utils";
 import styles from "./TextLink.module.css";
 
@@ -13,7 +14,7 @@ interface TextLinkProps {
 }
 
 export default function TextLink({ href, external, className, children }: TextLinkProps) {
-  const classes = cn(styles.textLink, className);
+  const classes = cn(styles.textLink, external && styles.external, className);
 
   if (external) {
     return (
@@ -24,6 +25,7 @@ export default function TextLink({ href, external, className, children }: TextLi
         className={classes}
       >
         {children}
+        <ArrowUpRight className={styles.externalIcon} aria-hidden strokeWidth={2} />
       </a>
     );
   }

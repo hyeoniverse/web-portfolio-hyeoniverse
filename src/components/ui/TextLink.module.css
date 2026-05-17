@@ -24,3 +24,21 @@
 .textLink:hover::after {
   width: 100%;
 }
+
+/* external — 우상단 화살표 아이콘 같이 보임 (inline-flex 로 텍스트와 baseline 정렬) */
+.external {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.externalIcon {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.external:hover .externalIcon {
+  transform: translate(1px, -1px);
+}

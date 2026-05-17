@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useCallback, useRef, useState, useEffect, memo } from "react";
+import React, { useCallback, useRef, useState, useEffect, useMemo, memo } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Image from "next/image";
-import { Star, Maximize2, ImageIcon, ZoomIn, ZoomOut, RotateCcw, X } from "lucide-react";
+import { Star, Maximize2, ImageIcon, ZoomIn, ZoomOut, RotateCcw, X, ChevronDown, Folder, FileText, Filter, Check } from "lucide-react";
 import type { Language } from "@/providers/LanguageProvider";
 import { troubleShootingItems } from "@/data/about/troubleshooting";
 import type { TroubleshootingDifficulty, TroubleshootingDiagram, TroubleshootingImage, TroubleShootingItem } from "@/data/about/types";
@@ -57,29 +57,12 @@ const DIFFICULTY_META: Record<
   },
 };
 
-/** 난이도 한 등급에 대한 설명 — hover 한 등급의 라벨 + 한 줄 설명만 보여 줌 */
-function DifficultyCriteria({
-  level,
-  language,
-}: {
-  level: TroubleshootingDifficulty;
-  language: Language;
-}) {
-  const meta = DIFFICULTY_META[level];
-  return (
-    <div className={local.difficultyTooltip}>
-      <div className={local.difficultyTooltipTitle}>{meta.label[language]}</div>
-      <div className={local.difficultyTooltipBody}>{meta.desc[language]}</div>
-    </div>
-  );
-}
-
 interface TroubleshootingPanelProps {
   language: Language;
   scrollBy?: (deltaX: number) => void;
 }
 
-/** 난이도 뱃지 — \"쉬움 / 보통 / 어려움\" 라벨 + 색상 톤. tooltip 으로 기준 안내 */
+/** 난이도 뱃지 — "쉬움 / 보통 / 어려움" 라벨 + 색상 톤. 자체 tooltip 없음 — 부모 file row tooltip 에 통합됨. */
 function DifficultyBadge({
   level,
   language,
@@ -95,16 +78,9 @@ function DifficultyBadge({
     local[`difficultyTone_${meta.tone}`],
   ].join(" ");
   return (
-    <Tooltip
-      content={<DifficultyCriteria level={level} language={language} />}
-      placement="bottom"
-      delay={200}
-      bubbleClassName={local.difficultyTooltipBubble}
-    >
-      <span className={className} aria-label={`${meta.label[language]} (${level}/3)`}>
-        {meta.label[language]}
-      </span>
-    </Tooltip>
+    <span className={className} aria-label={`${meta.label[language]} (${level}/3)`}>
+      {meta.label[language]}
+    </span>
   );
 }
 
@@ -309,9 +285,6 @@ function TroubleshootingPanel({
   const items = troubleShootingItems;
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);
-  const detailRef = useRef<HTMLDivElement>(null);
-  const userScrolledRef = useRef(false);
-  const [listPage, setListPage] = useState({ page: 1, total: 1 });
   const [detailIndex, setDetailIndex] = useState(0);
   const { panelRef, contentRef } = usePinnedScroll(
     items.length,
@@ -323,6 +296,49 @@ function TroubleshootingPanel({
   const [mobileActiveIdx, setMobileActiveIdx] = useState(0);
   const [ideFontScale, setIdeFontScale] = useState(1); // IDE 텍스트 크기 사용자 조절 (0.85 ~ 1.3)
   const [enlargedDiagram, setEnlargedDiagram] = useState<TroubleshootingDiagram | null>(null);
+  // sidebar: 접힌 폴더 section 키 집합 (PC explorer 펼침/접기)
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const toggleSection = useCallback((key: string) => {
+    setCollapsedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+
+  // 필터 — 단계별 (easy/medium/hard) 또는 추천(recommended) 만 보기
+  type FilterMode = "all" | "recommended" | 1 | 2 | 3;
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [filterMenuOpen, setFilterMenuOpen] = useState(false);
+  const filterWrapRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!filterMenuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (!filterWrapRef.current?.contains(e.target as Node)) setFilterMenuOpen(false);
+    };
+    window.addEventListener("click", onClick);
+    return () => window.removeEventListener("click", onClick);
+  }, [filterMenuOpen]);
+
+  // 필터 통과한 항목 + 원래 index 보존 (handleItemClick / displayIndex 비교 용도)
+  const visibleItems = useMemo(() => {
+    return items
+      .map((item, idx) => ({ item, idx }))
+      .filter(({ item }) => {
+        if (filterMode === "all") return true;
+        if (filterMode === "recommended") return !!item.recommended;
+        return item.difficulty === filterMode;
+      });
+  }, [items, filterMode]);
+
+  const FILTER_OPTIONS: { key: FilterMode; label: { ko: string; en: string } }[] = [
+    { key: "all", label: { ko: "전체", en: "All" } },
+    { key: "recommended", label: { ko: "추천만", en: "Recommended" } },
+    { key: 1, label: { ko: "쉬움", en: "Easy" } },
+    { key: 2, label: { ko: "보통", en: "Medium" } },
+    { key: 3, label: { ko: "어려움", en: "Hard" } },
+  ];
   // 공통 ImageViewer — 클릭한 이미지가 viewer 의 시작 index, 같은 item 의 src 있는 이미지들이 list 가 됨
   const [viewerState, setViewerState] = useState<{ images: string[]; index: number; title?: string } | null>(null);
   const openImageViewer = useCallback((item: TroubleShootingItem, clickedImg: TroubleshootingImage) => {
@@ -713,7 +729,7 @@ function TroubleshootingPanel({
 
   const displayIndex = isMobile ? mobileActiveIdx : detailIndex;
 
-  // 클릭 핸들러 — 데스크톱: 디테일 영역으로 스크롤 / 모바일: 스크롤 동작 보이지 않게 즉시 점프 + index sync
+  // 클릭 핸들러 — 데스크톱: detailIndex 만 set (sidebar 가 선택, IDE editor 가 해당 item 렌더) / 모바일: 즉시 점프 + index sync
   const handleItemClick = useCallback(
     (index: number) => {
       if (isMobile) {
@@ -733,33 +749,31 @@ function TroubleshootingPanel({
         handle.syncIndex(index);
         return;
       }
-      const detail = detailRef.current;
-      if (!detail) return;
-      const itemEls = detail.querySelectorAll(`.${styles.troubleDetailItem}`);
-      const target = itemEls[index] as HTMLElement | undefined;
-      if (target) {
-        userScrolledRef.current = true;
-        detail.scrollTo({ top: target.offsetTop, behavior: "smooth" });
-      }
+      // PC: sidebar 클릭 = activeIdx 변경. IDE editor 가 해당 item 렌더.
+      setDetailIndex(index);
     },
     [isMobile, mobileStRef, items.length],
   );
   // ide editor wheel handler 에서 사용 가능하도록 ref 에 최신 함수 reference 보관
   useEffect(() => { handleItemClickRef.current = handleItemClick; });
 
-  // 활성 항목 변경 시 해당 항목으로 리스트 자동 스크롤
+  // 활성 항목 변경 시 해당 항목으로 리스트 자동 스크롤.
+  // visibleItems 순서 (filter/collapse 적용 후) 의 index 로 DOM listItems 와 매칭.
   useEffect(() => {
     const scroll = listRef.current;
     if (!scroll || isMobile) return;
 
+    const visIdx = visibleItems.findIndex((v) => v.idx === displayIndex);
+    if (visIdx === -1) return; // 현재 active 항목이 filter/collapse 로 숨겨진 경우
+
     // 첫 번째 항목이면 맨 위로 (section label 포함)
-    if (displayIndex === 0) {
+    if (visIdx === 0) {
       scroll.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
     const listItems = scroll.querySelectorAll(`.${styles.troubleListItem}`);
-    const item = listItems[displayIndex] as HTMLElement | undefined;
+    const item = listItems[visIdx] as HTMLElement | undefined;
     if (!item) return;
 
     // section label이 바로 위에 있으면 그것까지 보이도록
@@ -777,63 +791,55 @@ function TroubleshootingPanel({
     } else if (itemBottom > visibleBottom) {
       scroll.scrollTo({ top: itemBottom - scroll.clientHeight, behavior: "smooth" });
     }
-  }, [displayIndex, isMobile]);
+  }, [displayIndex, isMobile, visibleItems]);
 
-  // 리스트 오버플로 감지 → 페이지 네비게이션 표시
+  // PC: 패널 위 wheel → 항목 (탭/파일) advance. 마지막/처음 도달 시 wheel 통과 → 가로 다음 패널.
+  // editor content 가 스크롤 가능하면 우선 editor 스크롤 (긴 항목 본문 가독성).
+  // sidebar 위에서 휠 — sidebar list 자체 스크롤만, item advance 안 함.
+  // Cooldown 으로 trackpad 폭주 (한 번 스크롤에 여러 step) 차단.
+  const detailIndexRef = useRef(detailIndex);
   useEffect(() => {
-    const el = listRef.current;
-    if (!el || isMobile) return;
-    const update = () => {
-      const { clientHeight, scrollHeight, scrollTop } = el;
-      if (scrollHeight <= clientHeight) { setListPage({ page: 1, total: 1 }); return; }
-      const maxScroll = scrollHeight - clientHeight;
-      const steps = Math.max(1, Math.round(maxScroll / clientHeight));
-      const total = steps + 1;
-      const page = Math.min(total, Math.round((scrollTop / maxScroll) * steps) + 1);
-      setListPage({ page, total });
-    };
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    el.addEventListener("scroll", update, { passive: true });
-    return () => { ro.disconnect(); el.removeEventListener("scroll", update); };
-  }, [isMobile]);
+    detailIndexRef.current = detailIndex;
+  }, [detailIndex]);
+  // 시간 기반 throttle — 연속 swipe 도 일정 간격 (COOLDOWN_MS) 으로 step. release 없이도 자동으로 이어 advance.
+  // 누적 + cooldown 조합: 누적 ≥ threshold 일 때만 + 마지막 advance 후 cooldown 지났을 때만.
+  const scrollAccumRef = useRef(0);
+  const lastActiveTimeRef = useRef(0);
+  const lastAdvanceRef = useRef(0);
 
-  const scrollListPage = useCallback((dir: 1 | -1) => {
-    const el = listRef.current;
-    if (!el) return;
-    el.scrollBy({ top: dir * el.clientHeight, behavior: "smooth" });
-  }, []);
-
-  // 데스크톱: 디테일 컨테이너 스크롤 위치 → detailIndex 추적
-  useEffect(() => {
-    const detail = detailRef.current;
-    if (!detail || isMobile) return;
-
-    const onScroll = () => {
-      const itemEls = detail.querySelectorAll(`.${styles.troubleDetailItem}`);
-      const mid = detail.scrollTop + detail.clientHeight / 2;
-      let idx = 0;
-      for (let i = 0; i < itemEls.length; i++) {
-        const el = itemEls[i] as HTMLElement;
-        if (el.offsetTop <= mid) idx = i;
-      }
-      setDetailIndex(idx);
-    };
-
-    detail.addEventListener("scroll", onScroll, { passive: true });
-    return () => detail.removeEventListener("scroll", onScroll);
-  }, [isMobile]);
-
-  // 데스크톱: 패널 포커스 시 wheel → 디테일 컨테이너 스크롤, 경계 도달 시 가로 스크롤
-  // 단, wheel target 이 sidebar(목록) 내부면 sidebar 가 자체 스크롤하도록 양보
+  // displayIndex 변경 시 editor content 를 smooth 하게 맨 위로 — 새 항목 제목부터.
+  // 1) 이전 motion.div (exit 중) 도 같이 smooth 하게 위로 (rewind 느낌)
+  // 2) AnimatePresence wait 모드 라 새 motion.div mount 후 한 번 더 — rAF 로 paint 후
   useEffect(() => {
     if (isMobile) return;
+    const editor = ideEditorRef.current;
+    if (!editor) return;
+    const rewind = () => {
+      editor.querySelectorAll(`.${styles.ideEditorContent}`).forEach((el) => {
+        (el as HTMLElement).scrollTo({ top: 0, behavior: "smooth" });
+      });
+    };
+    rewind(); // 즉시 — 이전 content 도 위로 rewind
+    const raf = requestAnimationFrame(() => {
+      // 다음 frame — 새 motion.div mount 됐으면 거기에도 적용
+      rewind();
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [displayIndex, isMobile]);
+  useEffect(() => {
+    if (isMobile) return;
+    const QUIET_MS = 100; // 이 이상 active wheel 없으면 누적 reset
+    const ACTIVE_DELTA = 5;
+    const ITEM_THRESHOLD = 120; // 누적 delta px — 1 항목 advance 트리거
+    const PANEL_THRESHOLD = 200;
+    const EDGE_TOLERANCE = 5;
+    const COOLDOWN_MS = 400; // advance 후 이 시간 동안은 추가 advance 차단 → 연속 swipe 가 너무 빠르게 안 넘어감
 
     const handleWheel = (e: WheelEvent) => {
       const panel = panelRef.current;
-      const detail = detailRef.current;
+      const editor = ideEditorRef.current;
       const list = listRef.current;
-      if (!panel || !detail) return;
+      if (!panel) return;
 
       const panelRect = panel.getBoundingClientRect();
       const extraWidth = panelRect.width - window.innerWidth;
@@ -841,69 +847,100 @@ function TroubleshootingPanel({
       const progress = -panelRect.left / extraWidth;
       if (progress < 0.02 || progress > 0.98) return;
 
-      // sidebar 위에서 휠 → sidebar 가 직접 스크롤. 단, 끝에 도달하면 detail 로 위임
+      // sidebar 위에서 휠 — sidebar 자체 스크롤만. 본문/패널 절대 안 건드림 (Lenis 도 차단).
       if (list && list.contains(e.target as Node)) {
         const { scrollTop: lTop, scrollHeight: lH, clientHeight: lCh } = list;
+        e.stopPropagation();
+        e.preventDefault();
         if (lH > lCh) {
           const lAtTop = lTop <= 0;
           const lAtBottom = lTop + lCh >= lH - 1;
           if ((e.deltaY > 0 && !lAtBottom) || (e.deltaY < 0 && !lAtTop)) {
-            e.stopPropagation();
-            e.preventDefault();
             list.scrollBy({ top: e.deltaY });
-            return;
           }
         }
+        scrollAccumRef.current = 0;
+        return;
       }
 
-      const { scrollTop, scrollHeight, clientHeight } = detail;
-      if (scrollHeight <= clientHeight) return;
-
-      const atTop = scrollTop <= 0;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-
-      if ((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) {
+      // weak delta (momentum tail) — 차단 (Lenis 가 가로로 슬쩍 advance 시키지 못하도록)
+      if (Math.abs(e.deltaY) < ACTIVE_DELTA) {
         e.stopPropagation();
         e.preventDefault();
-        detail.scrollBy({ top: e.deltaY });
+        return;
       }
-    };
 
+      const now = performance.now();
+      // quiet 후 새 burst — 누적 reset
+      if (now - lastActiveTimeRef.current > QUIET_MS) {
+        scrollAccumRef.current = 0;
+      }
+      lastActiveTimeRef.current = now;
+
+      // cooldown 중 — 추가 advance 차단 (editor scroll 도 차단해서 새 content 의 scrollTop 보호).
+      if (now - lastAdvanceRef.current < COOLDOWN_MS) {
+        e.stopPropagation();
+        e.preventDefault();
+        return;
+      }
+
+      // editor 내부 스크롤 — 본문이 길어 자체 스크롤 가능 + edge 아닐 때
+      const content = editor?.querySelector(`.${styles.ideEditorContent}`) as HTMLElement | null;
+      if (content && content.scrollHeight > content.clientHeight + EDGE_TOLERANCE) {
+        const atTop = content.scrollTop <= EDGE_TOLERANCE;
+        const atBottom = content.scrollTop + content.clientHeight >= content.scrollHeight - EDGE_TOLERANCE;
+        const goingDown = e.deltaY > 0;
+        const goingUp = e.deltaY < 0;
+        if ((goingDown && !atBottom) || (goingUp && !atTop)) {
+          e.stopPropagation();
+          e.preventDefault();
+          content.scrollBy({ top: e.deltaY });
+          scrollAccumRef.current = 0;
+          return;
+        }
+      }
+
+      // 누적
+      scrollAccumRef.current += e.deltaY;
+
+      const cur = detailIndexRef.current;
+      const curVisIdx = visibleItems.findIndex((v) => v.idx === cur);
+      const dir = scrollAccumRef.current > 0 ? 1 : -1;
+      const nextVisIdx = dir > 0
+        ? Math.min(visibleItems.length - 1, curVisIdx + 1)
+        : Math.max(0, curVisIdx - 1);
+      const nextOriginalIdx = visibleItems[nextVisIdx]?.idx ?? cur;
+      const atBoundary = nextOriginalIdx === cur;
+
+      // boundary — 마지막 항목 + 아래 방향 (dir > 0) 일 때만 panel advance (scrollBy 로 직접).
+      if (atBoundary) {
+        e.stopPropagation();
+        e.preventDefault();
+        if (dir > 0 && Math.abs(scrollAccumRef.current) >= PANEL_THRESHOLD && scrollBy) {
+          scrollAccumRef.current = 0;
+          lastAdvanceRef.current = now;
+          scrollBy(window.innerWidth);
+        }
+        return;
+      }
+
+      // item advance 임계치 미달 — 누적 중 (Lenis 차단)
+      if (Math.abs(scrollAccumRef.current) < ITEM_THRESHOLD) {
+        e.stopPropagation();
+        e.preventDefault();
+        return;
+      }
+
+      // advance 1 step + cooldown 설정 → 이후 COOLDOWN_MS 동안 추가 advance 차단 (계속 스크롤해도 throttle)
+      e.stopPropagation();
+      e.preventDefault();
+      setDetailIndex(nextOriginalIdx);
+      scrollAccumRef.current = 0;
+      lastAdvanceRef.current = now;
+    };
     window.addEventListener("wheel", handleWheel, { capture: true, passive: false });
     return () => window.removeEventListener("wheel", handleWheel, { capture: true });
-  }, [isMobile, panelRef]);
-
-  // 데스크톱: 패널이 뷰포트 밖일 때 진입 방향에 맞춰 스크롤 위치 사전 설정
-  // → 진입 시 이미 올바른 위치에 있으므로 플래시 없음
-  useEffect(() => {
-    if (isMobile) return;
-    const panel = panelRef.current;
-    const detail = detailRef.current;
-    if (!panel || !detail) return;
-
-    const check = () => {
-      const rect = panel.getBoundingClientRect();
-      const extra = rect.width - window.innerWidth;
-      if (extra <= 0) return;
-      const progress = -rect.left / extra;
-
-      if (progress >= 0.98) {
-        // 오른쪽 밖 → 역스크롤 시 하단부터 시작하도록 사전 설정
-        userScrolledRef.current = false;
-        detail.scrollTop = detail.scrollHeight - detail.clientHeight;
-      } else if (progress <= 0.02) {
-        // 왼쪽 밖 → 정방향 진입 시 상단부터 (사용자 클릭 스크롤 중이면 건너뜀)
-        if (!userScrolledRef.current) {
-          detail.scrollTop = 0;
-        }
-      } else {
-        // 패널이 뷰포트 안에 있으면 플래그 유지 (사용자 클릭 상태 존중)
-      }
-    };
-
-    const raf = { id: requestAnimationFrame(function loop() { check(); raf.id = requestAnimationFrame(loop); }) };
-    return () => cancelAnimationFrame(raf.id);
-  }, [isMobile, panelRef]);
+  }, [isMobile, visibleItems, scrollBy, panelRef]);
 
   return (
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
@@ -917,190 +954,149 @@ function TroubleshootingPanel({
           animate
         />
 
-        {/* 데스크톱: 분할 레이아웃 — 목록 + 상세 */}
-        <div className={`${styles.troubleSplit} ${styles.animate}`}>
-          {/* 왼쪽: 항목 목록 */}
+        {/* IDE wrapper — sidebar (PC) + main pane (breadcrumb + editor + status bar). Mobile 은 sidebar 숨김 + tab bar 노출 */}
+        <div className={`${styles.ideWrap} ${styles.animate}`}>
+          {/* sidebar — IDE 탐색기 (Explorer) 스타일. PC 만 노출 (mobile 은 tab bar 가 대신) */}
           <div className={styles.troubleList}>
+            <div className={styles.ideExplorerHeader}>
+              <span>{language === "ko" ? "탐색기" : "Explorer"}</span>
+              <div ref={filterWrapRef} className={styles.ideExplorerFilterWrap}>
+                <button
+                  type="button"
+                  data-clickable="true"
+                  className={`${styles.ideExplorerFilterBtn} ${filterMode !== "all" ? styles.ideExplorerFilterBtnActive : ""}`}
+                  onClick={() => setFilterMenuOpen((o) => !o)}
+                  aria-label={language === "ko" ? "필터" : "Filter"}
+                >
+                  <Filter size={12} strokeWidth={2} />
+                </button>
+                {filterMenuOpen && (
+                  <div className={styles.ideExplorerFilterMenu} role="menu">
+                    {FILTER_OPTIONS.map((opt) => (
+                      <button
+                        key={String(opt.key)}
+                        type="button"
+                        data-clickable="true"
+                        className={`${styles.ideExplorerFilterMenuItem} ${filterMode === opt.key ? styles.ideExplorerFilterMenuItemActive : ""}`}
+                        onClick={() => {
+                          setFilterMode(opt.key);
+                          setFilterMenuOpen(false);
+                        }}
+                      >
+                        <span className={styles.ideExplorerFilterCheck}>
+                          {filterMode === opt.key && <Check size={11} strokeWidth={2.5} />}
+                        </span>
+                        <span>{opt.label[language]}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
             <div ref={listRef} className={styles.troubleListScroll}>
-              {items.map((item, index) => {
-                // 같은 section 의 첫 번째 항목일 때만 라벨 렌더 (그룹 헤더 역할)
-                const prev = index > 0 ? items[index - 1] : null;
+              {visibleItems.map(({ item, idx: index }, visIdx) => {
+                // 같은 section 의 첫 번째 항목일 때만 라벨 렌더 (그룹 헤더 역할) — filter 후 prev 기준
+                const prev = visIdx > 0 ? visibleItems[visIdx - 1].item : null;
                 const isSectionStart = !!item.section && item.section.ko !== prev?.section?.ko;
-                // 그룹 내 위치 — count badge 용
-                const sectionItems = items.filter((it) => it.section?.ko === item.section?.ko);
+                // 그룹 내 visible 위치 — count badge 용 (filter 적용된 카운트)
+                const sectionItems = visibleItems.filter((v) => v.item.section?.ko === item.section?.ko);
+                const sectionKey = item.section?.ko ?? "__none__";
+                const isCollapsed = collapsedSections.has(sectionKey);
                 return (
                   <React.Fragment key={index}>
                     {isSectionStart && item.section && (
-                      <div className={styles.troubleSectionLabel}>
-                        <span>{item.section[language]}</span>
+                      <div
+                        data-clickable="true"
+                        className={styles.troubleSectionLabel}
+                        onClick={() => toggleSection(sectionKey)}
+                      >
+                        <span className={styles.troubleSectionFolder}>
+                          <ChevronDown
+                            size={12}
+                            strokeWidth={2}
+                            className={`${styles.ideExplorerChevron} ${isCollapsed ? styles.ideExplorerChevronCollapsed : ""}`}
+                            aria-hidden
+                          />
+                          <Folder size={12} strokeWidth={2} className={styles.ideExplorerFolderIcon} aria-hidden />
+                          {item.section[language]}
+                        </span>
                         <span className={styles.troubleSectionCount}>{sectionItems.length}</span>
                       </div>
                     )}
-                    <div
-                      data-clickable="true"
-                      className={`${styles.troubleListItem} ${styles.troubleListItemGrouped} ${
-                        index === displayIndex ? styles.troubleListItemActive : ""
-                      }`}
-                      onClick={() => handleItemClick(index)}
+                    {!isCollapsed && (
+                    <Tooltip
+                      placement="right"
+                      delay={250}
+                      wrapperStyle={{ display: "block", width: "100%", minWidth: 0 }}
+                      content={
+                        <div className={styles.ideExplorerFileTooltip}>
+                          <div className={styles.ideExplorerFileTooltipMain}>{item.problem[language]}</div>
+                          {item.problem[language === "ko" ? "en" : "ko"] !== item.problem[language] && (
+                            <div className={styles.ideExplorerFileTooltipSub}>
+                              {item.problem[language === "ko" ? "en" : "ko"]}
+                            </div>
+                          )}
+                          {item.difficulty && (
+                            <div className={styles.ideExplorerFileTooltipDifficulty}>
+                              <span className={`${styles.difficultyBadge} ${styles[`difficultyTone_${DIFFICULTY_META[item.difficulty].tone}`]}`}>
+                                {DIFFICULTY_META[item.difficulty].label[language]}
+                              </span>
+                              <span className={styles.ideExplorerFileTooltipDifficultyDesc}>
+                                {DIFFICULTY_META[item.difficulty].desc[language]}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      }
                     >
-                      <span className={styles.troubleNumber}>
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <span className={styles.troubleListTitle}>
-                        {item.problem[language]}
-                      </span>
-                      <span className={styles.troubleListBadges}>
-                        {item.recommended && (
-                          <span className={styles.troubleRecommendedBadge} title="추천">
-                            <Star size={11} fill="currentColor" strokeWidth={1.5} />
+                      <div
+                        data-clickable="true"
+                        className={`${styles.troubleListItem} ${styles.troubleListItemGrouped} ${
+                          index === displayIndex ? styles.troubleListItemActive : ""
+                        }`}
+                        onClick={() => handleItemClick(index)}
+                      >
+                        <FileText size={12} strokeWidth={1.75} className={styles.ideExplorerFileIcon} aria-hidden />
+                        <span className={styles.troubleNumber}>
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className={styles.troubleListTitle}>
+                          {item.problem[language]}
+                        </span>
+                        <span className={styles.troubleListBadges}>
+                          {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} />}
+                          {/* 별표 영역은 항상 자리 차지 (item 마다 같은 레이아웃 유지) */}
+                          <span className={styles.troubleRecommendedBadge} title={item.recommended ? "추천" : undefined} aria-hidden={!item.recommended}>
+                            {item.recommended && <Star size={11} fill="currentColor" strokeWidth={1.5} />}
                           </span>
-                        )}
-                        {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} />}
-                      </span>
-                    </div>
+                        </span>
+                      </div>
+                    </Tooltip>
+                    )}
                   </React.Fragment>
                 );
               })}
             </div>
-            <div className={styles.troublePageNav}>
-              <button className={styles.troublePageBtn} disabled={listPage.page <= 1} onClick={() => scrollListPage(-1)}>↑</button>
-              <span>{listPage.page}/{listPage.total}</span>
-              <button className={styles.troublePageBtn} disabled={listPage.page >= listPage.total} onClick={() => scrollListPage(1)}>↓</button>
-            </div>
           </div>
 
-          {/* 오른쪽: 상세 콘텐츠 (세로 연속 스크롤) */}
-          <div ref={detailRef} className={styles.troubleDetail}>
-            {items.map((item, index) => (
-              <div
-                key={index}
-                className={`${styles.troubleDetailItem} ${
-                  index === displayIndex ? styles.troubleDetailItemActive : ""
-                }`}
-              >
-                <div className={styles.detailHeader}>
-                  <span className={`${styles.detailNumber} ${styles.watermarkNumber} ${styles.troubleDetailNumber}`}>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <h4 className={styles.troubleTitle}>
-                    {item.problem[language]}
-                  </h4>
-                  <span className={styles.troubleHeaderBadges}>
-                    {item.recommended && (
-                      <span className={styles.troubleHeaderRecommended}>
-                        <Star size={11} fill="currentColor" strokeWidth={1.5} />
-                        {language === "ko" ? "추천" : "Recommended"}
-                      </span>
-                    )}
-                    {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} large />}
-                  </span>
-                </div>
-                <div className={styles.troubleBody}>
-                  <div className={styles.troubleEntry}>
-                    <span className={styles.entryLabel}>
-                      <T k="aboutPage.troubleshooting.definition" />
-                    </span>
-                    <p>{renderHighlight(item.definition[language], language)}</p>
-                  </div>
-                  <div className={styles.troubleEntry}>
-                    <span className={styles.entryLabel}>
-                      <T k="aboutPage.troubleshooting.cause" />
-                    </span>
-                    <p>{renderHighlight(item.cause[language], language)}</p>
-                  </div>
-                  <div className={styles.troubleEntry}>
-                    <span
-                      className={`${styles.entryLabel} ${styles.entryLabelAccent}`}
-                    >
-                      <T k="aboutPage.troubleshooting.solution" />
-                    </span>
-                    <p>{renderHighlight(item.solution[language], language)}</p>
-                  </div>
-                  {item.comparisons && item.comparisons.length > 0 && (
-                    <div className={styles.troubleEntry}>
-                      <div className={local.troubleComparisons}>
-                        {item.comparisons.map((table, ti) => (
-                          <div key={ti} className={local.troubleComparisonWrap}>
-                            {table.label && (
-                              <span className={local.troubleComparisonLabel}>{table.label[language]}</span>
-                            )}
-                            <table className={local.troubleTable}>
-                              <thead>
-                                <tr>
-                                  {table.headers.map((h, hi) => (
-                                    <th key={hi}>{h[language]}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {table.rows.map((row, ri) => (
-                                  <tr key={ri} className={row.highlight ? local.troubleTableRowHighlight : undefined}>
-                                    {row.cells.map((cell, ci) => (
-                                      <td key={ci}>{renderHighlight(cell[language], language)}</td>
-                                    ))}
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                            {table.description && (
-                              <p className={local.troubleComparisonDesc}>{renderHighlight(table.description[language], language)}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {item.diagrams && item.diagrams.length > 0 && (
-                    <div className={styles.troubleEntry}>
-                      <span className={styles.entryLabel}>
-                        <T k="aboutPage.troubleshooting.flow" />
-                      </span>
-                      <div className={local.troubleDiagrams}>
-                        {item.diagrams.map((d, di) => (
-                          <div key={di} className={local.troubleDiagramWrap}>
-                            {d.title && (
-                              <span className={local.troubleDiagramTitle}>{d.title[language]}</span>
-                            )}
-                            <FlowDiagram nodes={d.nodes} edges={d.edges} language={language} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div className={styles.troubleEntry}>
-                    <span
-                      className={`${styles.entryLabel} ${styles.entryLabelInsight}`}
-                    >
-                      <T k="aboutPage.troubleshooting.keyInsight" />
-                    </span>
-                    <p className={styles.troubleInsightText}>
-                      {renderHighlight(item.keyInsight[language], language)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 모바일/태블릿: Terminal / IDE — VSCode 스타일 tab bar + line-numbered editor + status bar */}
-        <div className={styles.ideWrap}>
+          {/* Main pane — sidebar 오른쪽에 위치 (PC), 단독 column (mobile) */}
+          <div className={styles.ideMainPane}>
           {/* Breadcrumb */}
           <div className={styles.ideBreadcrumb}>
             <span className={styles.ideBreadcrumbCrumb}>src</span>
             <span className={styles.ideBreadcrumbSep}>/</span>
             <span className={styles.ideBreadcrumbCrumb}>troubleshooting</span>
-            {items[mobileActiveIdx]?.section && (
+            {items[displayIndex]?.section && (
               <>
                 <span className={styles.ideBreadcrumbSep}>/</span>
                 <span className={styles.ideBreadcrumbCrumb}>
-                  {items[mobileActiveIdx].section![language].toLowerCase().replace(/\s+/g, "-")}
+                  {items[displayIndex].section![language].toLowerCase().replace(/\s+/g, "-")}
                 </span>
               </>
             )}
             <span className={styles.ideBreadcrumbSep}>/</span>
             <span className={styles.ideBreadcrumbFile}>
-              {String(mobileActiveIdx + 1).padStart(2, "0")}.md
+              {String(displayIndex + 1).padStart(2, "0")}.md
             </span>
           </div>
 
@@ -1113,7 +1109,7 @@ function TroubleshootingPanel({
           >
             <LayoutGroup id="trouble-ide-tabs">
               {items.map((item, index) => {
-                const isActive = index === mobileActiveIdx;
+                const isActive = index === displayIndex;
                 const filename = `${String(index + 1).padStart(2, "0")}.md`;
                 return (
                   <Tooltip
@@ -1162,11 +1158,11 @@ function TroubleshootingPanel({
           <div ref={ideEditorRef} className={styles.ideEditor}>
             <AnimatePresence mode="wait" initial={false}>
               {(() => {
-                const item = items[mobileActiveIdx];
+                const item = items[displayIndex];
                 if (!item) return null;
                 return (
                   <motion.div
-                    key={mobileActiveIdx}
+                    key={displayIndex}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -1347,10 +1343,10 @@ function TroubleshootingPanel({
           <div className={styles.ideStatusBar}>
             <span className={styles.ideStatusGroup}>
               <span className={styles.ideStatusDot} aria-hidden />
-              {items[mobileActiveIdx]?.section?.[language] ?? "-"}
+              {items[displayIndex]?.section?.[language] ?? "-"}
             </span>
             <span className={styles.ideStatusGroup}>
-              {String(mobileActiveIdx + 1).padStart(2, "0")}/{String(items.length).padStart(2, "0")}
+              {String(displayIndex + 1).padStart(2, "0")}/{String(items.length).padStart(2, "0")}
             </span>
             <span className={styles.ideStatusGroup}>MARKDOWN</span>
             <span className={styles.ideStatusFontControls} style={{ position: "relative" }}>
@@ -1399,6 +1395,7 @@ function TroubleshootingPanel({
               </button>
             </span>
           </div>
+        </div>
         </div>
 
       </div>

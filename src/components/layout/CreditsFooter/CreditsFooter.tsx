@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import TextLink from "@/components/ui/TextLink";
 import styles from "./CreditsFooter.module.css";
 
 interface CreditsFooterProps {
@@ -29,9 +29,9 @@ export default function CreditsFooter({
         {parts[1]} {siteConfig.personal.nickname}
       </p>
       {variant === "panel" && (
-        <Link href="/design-system" target="_blank" className={styles.designSystemLink}>
+        <TextLink href="/design-system" external className={styles.designSystemLink}>
           Design System
-        </Link>
+        </TextLink>
       )}
     </div>
   );

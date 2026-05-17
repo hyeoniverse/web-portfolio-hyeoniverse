@@ -23,10 +23,11 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
   const springX = useSpring(indicatorX, springConfig);
   const springWidth = useSpring(indicatorWidth, springConfig);
 
+  // horizontal nav — springX = left offset, springWidth = width
   const updateIndicator = useCallback(
     (el: HTMLElement | null) => {
       if (!el || !navRef.current) return;
-      const pad = 6;
+      const pad = 0;
       const navRect = navRef.current.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
       indicatorX.set(elRect.left - navRect.left - pad);
@@ -44,7 +45,7 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
     if (!navMounted) return;
     const el = navItemRefs.current[highlightedSection];
     if (!el || !navRef.current) return;
-    const pad = 6;
+    const pad = 0;
     const navRect = navRef.current.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
     springX.jump(elRect.left - navRect.left - pad);
