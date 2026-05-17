@@ -603,8 +603,7 @@
 
 .fieldInput {
   width: 100%;
-  min-height: var(--input-h);
-  padding: 0 var(--spacing-md);
+  padding: var(--input-p);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
