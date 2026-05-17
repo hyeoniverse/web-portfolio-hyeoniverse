@@ -33,13 +33,27 @@
   border-color: var(--text-tertiary);
 }
 
-.value {
+/* valueStack — value 와 sizer 를 같은 grid cell 에 stack.
+   sizer 가 가장 긴 label 의 자연 width 차지 (visibility hidden) → trigger 의 width 자동 fit */
+.valueStack {
   flex: 1;
   min-width: 0;
+  display: grid;
+}
+
+.value {
+  grid-area: 1 / 1;
   min-height: 1lh;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.sizer {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .arrow {
