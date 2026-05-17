@@ -336,29 +336,37 @@
    Section Navigation (outside .panel — no inheritance)
    ========================================================================== */
 
+/* Horizontal dot nav — 하단 중앙 fixed. transparent bg + backdrop blur + mix-blend difference.
+   color/dot 도 흰 톤 토큰 사용 — difference 가 배경 색에 맞춰 자동 반전. */
 .sectionNav {
   display: flex;
+  flex-direction: row;
   gap: var(--spacing-2xs);
   align-items: center;
-  padding: var(--box-xs-sm);
+  padding: var(--spacing-2xs) var(--spacing-xs);
   position: fixed;
   bottom: var(--spacing-2xl);
   left: 50%;
   z-index: var(--z-float);
+  max-width: calc(100vw - var(--spacing-2xl) * 2);
   background: transparent;
+  backdrop-filter: blur(12px);
   mix-blend-mode: difference;
   transform: translateX(-50%);
   border-radius: var(--radius-capsule);
+  border: var(--border-white-muted);
+  overflow: hidden;
 }
 
+/* horizontal indicator — text 감싸는 capsule. difference 합성용 흰 톤 outline */
 .navIndicator {
-  border: var(--border-white);
   position: absolute;
   top: 50%;
   left: 0;
   z-index: 0;
-  height: calc(100% - var(--spacing-xs));
+  height: clamp(18px, 2.4vh, 24px);
   background: transparent;
+  border: var(--border-white);
   pointer-events: none;
   border-radius: var(--radius-capsule);
   translate: 0 -50%;
@@ -369,38 +377,48 @@
 .slideArrow {
   position: fixed;
   top: 50%;
-  left: clamp(0.75rem, 1.5vw, 1.5rem);
+  left: var(--spacing-md);
   z-index: var(--z-float);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 64px;
+  width: 44px;
+  height: 44px;
   border: none;
   background: transparent;
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
   color: var(--text-white);
   font-size: 0;
   line-height: 1;
-  opacity: 0.3;
+  opacity: 0.6;
   transform: translateY(-50%);
-  mix-blend-mode: difference;
   transition: opacity var(--duration-base) ease;
+  mix-blend-mode: difference;
 }
 
+/* 화살표 chevron — border 2개 rotate. 회전 후 "꼭지점" 이 bbox 중앙이 아닌 한쪽으로 치우쳐서
+   margin 으로 visual 중앙 보정 (좌측 arrow 는 꼭지점이 왼쪽 → 오른쪽으로 살짝 밀어줌) */
 .slideArrow::before {
   content: "";
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
+  margin-left: 4px;
   border-left: 1.5px solid currentColor;
   border-bottom: 1.5px solid currentColor;
   transform: rotate(45deg);
-  opacity: 0.7;
+  opacity: 0.85;
+}
+
+.slideArrowRight::before {
+  margin-left: 0;
+  margin-right: 4px;
 }
 
 .slideArrowRight {
   left: auto;
-  right: clamp(0.75rem, 1.5vw, 1.5rem);
+  right: var(--spacing-md);
 }
 
 .slideArrowRight::before {
@@ -415,11 +433,13 @@
   opacity: 1;
 }
 
+/* horizontal nav row — dot + label 한 줄, items 가로 stack */
 .navItem {
   display: flex;
-  gap: 0;
+  flex-direction: row;
+  gap: clamp(0.25rem, 0.3vw, 0.4rem);
   align-items: center;
-  padding: clamp(0.35rem, 0.5vh, 0.5rem) clamp(0.45rem, 0.55vw, 0.65rem);
+  padding: clamp(0.25rem, 0.35vh, 0.4rem) clamp(0.45rem, 0.55vw, 0.65rem);
   border: none;
   overflow: hidden;
   position: relative;
@@ -448,14 +468,15 @@
     height var(--duration-base) ease;
 }
 
+/* 기본 — title 항상 표시. mix-blend difference 가 배경에 따라 자동 반전. */
 .navItem .navLabel {
   margin-left: 0;
-  max-width: 0;
+  max-width: clamp(60px, 6vw, 90px);
   font-family: var(--font-mono);
-  font-size: 0;
+  font-size: clamp(0.5rem, 0.55vw, 0.65rem);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
-  opacity: 0;
+  opacity: 0.6;
 }
 
 .sectionNav .navItem .navLabel {
@@ -480,7 +501,7 @@
   max-width: clamp(60px, 6vw, 90px);
   font-size: clamp(0.5rem, 0.55vw, 0.65rem);
   color: var(--text-white);
-  opacity: 0.7;
+  opacity: 0.9;
 }
 
 /* Active state */
@@ -490,12 +511,34 @@
 
 .navItemActive .navDot {
   background: var(--bg-white);
+  width: 8px;
+  height: 8px;
+}
+
+/* 지나온 항목 — dim. dot/label 모두 흐리게 → 현재 위치/진행도 시각화 */
+.navItemPast .navDot {
+  opacity: 0.45;
+}
+
+.navItemPast .navLabel {
+  opacity: 0.3;
+}
+
+/* 섹션 그룹 사이 구분선 — 1px hairline (difference 합성으로 자동 반전) */
+.navGroupDivider {
+  flex: none;
+  width: 1px;
+  height: 14px;
+  margin: 0 var(--spacing-2xs);
+  background: var(--bg-white);
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 .navItemActive .navLabel {
   margin-left: 0;
   max-width: clamp(60px, 6vw, 90px);
-  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
+  /* font-size 는 default 와 동일 유지 — active 시 폰트 커지면 indicator 위치/너비 흔들림 */
   color: var(--text-white);
   opacity: 1;
 }

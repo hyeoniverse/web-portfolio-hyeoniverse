@@ -17,8 +17,8 @@
 }
 
 /* ── Design System Link ── */
+/* display 는 TextLink 의 .external 이 inline-flex 로 처리 (아이콘과 한 줄 정렬). 여기선 override 안 함. */
 .designSystemLink {
-  display: inline-block;
   margin-top: var(--spacing-lg);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
