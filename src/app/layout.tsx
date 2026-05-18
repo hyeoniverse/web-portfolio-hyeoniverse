@@ -90,8 +90,10 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
   variable: "--font-space-grotesk",
-  display: "optional",
-  preload: false,
+  // menu drawer / nav / posts 등 노출 빈도 높은 핵심 폰트 — fallback (system sans-serif)
+  // 영구 표시 안 되도록 swap + preload (LCP 영향 < UI 일관성 손실 비용)
+  display: "swap",
+  preload: true,
 });
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],

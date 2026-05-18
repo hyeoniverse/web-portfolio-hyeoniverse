@@ -140,6 +140,17 @@ export default function Tooltip({
     const trigger = triggerRef.current;
     if (!bubble || !trigger) return;
 
+    // ── dynamic max-width ──
+    // 텍스트 길이가 짧으면 좁게, 길면 가로로 더 넓혀 한 줄에 가까운 비율로 표시.
+    // max-width 를 잠시 풀고 자연 width 측정 → viewport·상한(720) 으로 cap.
+    // 짧은 글은 자연 width 가 작으므로 좁게, 긴 글은 한 줄 너비에 맞춰 펼침.
+    const prevMaxW = bubble.style.maxWidth;
+    bubble.style.maxWidth = "none";
+    const naturalWidth = bubble.getBoundingClientRect().width;
+    bubble.style.maxWidth = prevMaxW;
+    const idealMax = Math.min(naturalWidth, window.innerWidth - 16, 720);
+    bubble.style.setProperty("--_max-w", `${Math.ceil(idealMax)}px`);
+
     // transform 을 잠깐 비워 natural 위치를 측정 → 즉시 복원
     const prev = bubble.style.transform;
     bubble.style.transform = "none";
@@ -208,7 +219,9 @@ export default function Tooltip({
               pos.side === "left" ? "translate(-100%, -50%)" :
               pos.side === "right" ? "translate(0, -50%)" :
               `translate(-50%, ${pos.side === "top" ? "-100%" : "0"})`,
-            zIndex: 10001,
+            /* z-tooltip 토큰 (700) — drawer/modal 같은 overlay (8000+) 아래에 위치하도록.
+               drawer 가 열려있을 때 tooltip 이 그 위로 튀어나오지 않게 하기 위함. */
+            zIndex: "var(--z-tooltip)",
             pointerEvents: "none",
           }}
         >

@@ -4,7 +4,12 @@
 
 /* compound selector (0,2,0) — 글로벌 theme transition 우회 */
 .bubble {
-  max-width: 280px;
+  /* width: max-content — 컨텐츠 길이에 자연 적응 (짧으면 좁게, 길면 넓게).
+     max-width 는 --_max-w (JS 측정값) → 짧은 글은 좁고, 긴 글은 한 줄에 가까운
+     가로 비율이 되도록 펼침. 측정 전 fallback 360px. */
+  width: max-content;
+  max-width: min(90vw, var(--_max-w, 360px));
+  min-width: 0;
   padding: var(--box-xs);
   border-radius: var(--radius-sm);
   background: var(--bg-inverse);
