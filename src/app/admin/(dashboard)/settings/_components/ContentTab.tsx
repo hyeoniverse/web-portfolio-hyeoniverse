@@ -666,6 +666,26 @@ function TagDescriptionsEditor({ value, onChange }: { value: Record<string, stri
 
   return (
     <div className={styles.tagDescEditor}>
+      {/* 새 태그 추가 — 별도 줄, hint 아래 · tag input 위 */}
+      <div className={styles.tagDescAddRow}>
+        <input
+          className={styles.fieldInput}
+          placeholder="새 태그 이름"
+          value={newTag}
+          onChange={(e) => setNewTag(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomTag(); } }}
+          style={{ flex: "0 0 200px" }}
+        />
+        <Button
+          variant="outline"
+          size="xs"
+          onClick={addCustomTag}
+          disabled={!newTag.trim() || allTags.includes(newTag.trim())}
+          icon={<Plus size={12} strokeWidth={2} />}
+        >
+          태그 추가
+        </Button>
+      </div>
       {allTags.map((tag) => {
         const fromPost = postTagSet.has(tag);
         return (
@@ -694,25 +714,6 @@ function TagDescriptionsEditor({ value, onChange }: { value: Record<string, stri
           </div>
         );
       })}
-      <div className={styles.tagDescRow}>
-        <input
-          className={styles.fieldInput}
-          placeholder="새 태그 이름"
-          value={newTag}
-          onChange={(e) => setNewTag(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomTag(); } }}
-          style={{ flex: "0 0 200px" }}
-        />
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={addCustomTag}
-          disabled={!newTag.trim() || allTags.includes(newTag.trim())}
-          icon={<Plus size={12} strokeWidth={2} />}
-        >
-          태그 추가
-        </Button>
-      </div>
     </div>
   );
 }
