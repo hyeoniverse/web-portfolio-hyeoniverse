@@ -15,6 +15,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import Pagination from "@/components/ui/Pagination";
+import EditableRowNumber from "./EditableRowNumber";
 import styles from "./AdminTable.module.css";
 
 /* ── Types ── */
@@ -70,6 +71,10 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onReorder?: (fromIdx: number, toIdx: number) => void;
   /** 항목 위치 이동 — 클릭 시 부모가 dialog 등으로 위치 선택 처리 */
   onMove?: (item: T) => void;
+  /** 행 번호 cell 클릭으로 인라인 편집 — getRowLabel 과 함께 사용 시 활성화 */
+  onRowLabelEdit?: (item: T, newValue: number) => void | Promise<void>;
+  /** 인라인 편집 시 max 값 — 보통 totalCount */
+  rowLabelMax?: number;
   showRowNumbers?: boolean;
   getRowLabel?: (item: T, index: number) => string | number;
   highlightId?: string | null;
@@ -100,6 +105,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onRowClick,
   onReorder,
   onMove,
+  onRowLabelEdit,
+  rowLabelMax,
   showRowNumbers = false,
   getRowLabel,
   highlightId,
@@ -424,7 +431,15 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               </span>
               {hasNumCol && (
                 <span className={styles.rowNum}>
-                  <span className={styles.rowNumText}>{getRowLabel ? getRowLabel(item, i) : i + 1}</span>
+                  {onRowLabelEdit && getRowLabel ? (
+                    <EditableRowNumber
+                      value={getRowLabel(item, i)}
+                      max={rowLabelMax}
+                      onSave={(v) => onRowLabelEdit(item, v)}
+                    />
+                  ) : (
+                    <span className={styles.rowNumText}>{getRowLabel ? getRowLabel(item, i) : i + 1}</span>
+                  )}
                 </span>
               )}
               {columns.map((col) => (

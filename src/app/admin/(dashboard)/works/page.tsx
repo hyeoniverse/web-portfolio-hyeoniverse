@@ -745,6 +745,16 @@ role: 풀스택 개발
         ]}
         onReorder={sort === "order" && !filterYear && !filterCategory ? handleDragReorder : undefined}
         onMove={sort === "order" && !filterYear && !filterCategory ? handleMove : undefined}
+        onRowLabelEdit={sort === "order" && !filterYear && !filterCategory ? async (target, newOrder) => {
+          if (newOrder === target.sort_order) return;
+          await fetch(`/api/works/${target.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sort_order: newOrder }),
+          });
+          fetchWorks();
+        } : undefined}
+        rowLabelMax={totalCount || works.length}
         gridTemplate="64px 1fr 100px 180px"
         showRowNumbers
         getRowLabel={(w) => String(w.sort_order)}

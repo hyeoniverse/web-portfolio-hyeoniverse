@@ -393,6 +393,27 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+/* 인라인 편집 — 동일한 font 유지하면서 input 으로 swap */
+.rowNumInput {
+  width: 32px;
+  padding: 2px 4px;
+  border: var(--border-default);
+  border-radius: var(--radius-xs);
+  background: var(--bg-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+}
+
+.rowNumInput::-webkit-inner-spin-button,
+.rowNumInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .rowDragging {
